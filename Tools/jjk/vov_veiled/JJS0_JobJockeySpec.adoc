@@ -1255,8 +1255,8 @@ This section is the primary mechanism by which the upper and lower API layers ar
 {jjdt_insignia}::
 A minted identity value in Job Jockey's type system.
 The identity is the bare encoded body;
-the unicode glyph is a render-layer sigil with audience-keyed obligation —
-mandatory in operator-facing output, forbidden in machine contexts (git refs, directory names, JSON keys), ignored on input.
+the unicode glyph is its type sentinel,
+carried per AXLA's surface-keyed carriage law (Minted-Mark Dimensions).
 Every
 {jjdt_insignia}
 has a fixed encoding format, a mint-time allocation discipline named by its mint nature, and optional hierarchical embedding (parent identity encoded as a prefix substring).

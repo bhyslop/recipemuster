@@ -597,14 +597,6 @@ design decision, not a commitment:
 Each is an edit owed to a sibling *after* the relevant ruling ratifies, deliberately not
 applied yet:
 
-* *JJS0 `jjdt_insignia`, carriage re-cut* — owed from the landed AXLA minted-mark carriage
-  law: the type definition still speaks the superseded doctrine ("render-layer sigil …
-  forbidden in machine contexts (git refs, directory names, JSON keys), ignored on input"),
-  contradicting both AXLA and the gallops store's own sigiled keys; re-cut it to the
-  surface-keyed law, citing AXLA rather than restating.
-  `jjrf_favor.rs` module comments carry the same stale forbidden-in-wire-keys clause plus
-  the retired algebraic nature word — a comment-only sweep riding the same act or any pace
-  touching that file.
 * *JJK README prefix registry* — owed at delivery: the `jjo` container row and its
   child-letter convention (`jjot` = tackle wire).
 * *JJS0 codex, at infusion* — two AXLA obligations:

@@ -5,20 +5,22 @@
 //! Favor encoding — the Job Jockey insignia types (the `axd_insignia` family).
 //!
 //! Base64url encoding/decoding for the four minted identity marks:
-//! - Firemark: Heat identity (2 base64url chars, 0-4095) — algebraic
-//! - Coronet:  Pace identity (5 base64url chars, globally unique) — algebraic
-//! - Pensum:   Remote dispatch identity (5 chars with `%` sentinel) — algebraic
+//! - Firemark: Heat identity (2 base64url chars, 0-4095) — seeded
+//! - Coronet:  Pace identity (5 base64url chars, globally unique) — seeded
+//! - Pensum:   Remote dispatch identity (5 chars with `%` sentinel) — seeded
 //! - Incipit:  Officium identity (`YYMMDD-NNNN` + discriminant) — temporal
 //!
-//! Value vs. render (JJS0 `jjdt_insignia`): the identity IS the bare encoded body
-//! (`jjrf_as_str`); the unicode sigil is a render-layer mark — mandatory in
-//! operator-facing output (`jjrf_display`), forbidden in machine contexts (git
-//! refs, on-disk paths, wire keys). `zjjrf_emblazon` is the single render home
-//! that applies a sigil to a bare body. The body is set at construction and
-//! never after (encapsulated field). Derivation is generative: `jjrf_successor`
-//! / `jjrf_parent_firemark` return a fresh immutable value, never mutating the
-//! source — an algebraic affordance (arithmetic on the base-64 numeral), so the
-//! temporal Incipit carries no successor.
+//! Value vs. carriage (AXLA Minted-Mark Dimensions, cited by JJS0
+//! `jjdt_insignia`): the identity IS the bare encoded body (`jjrf_as_str`); the
+//! unicode sigil is the type sentinel, carried surface-keyed — mandatory in
+//! operator-facing output and in project-authored structured wires
+//! (`jjrf_display` serves both), forbidden on foreign-traversed surfaces (git
+//! refs, on-disk paths), tolerant on input. `zjjrf_emblazon` is the single
+//! render home that applies a sigil to a bare body. The body is set at
+//! construction and never after (encapsulated field). Derivation is generative:
+//! `jjrf_successor` / `jjrf_parent_firemark` return a fresh immutable value,
+//! never mutating the source — a seeded-nature affordance (arithmetic on the
+//! base-64 numeral), so the temporal Incipit carries no successor.
 
 use serde::{Deserialize, Serialize};
 
@@ -79,10 +81,11 @@ pub fn zjjrf_value_to_char(value: u8) -> char {
     JJRF_CHARSET[value as usize] as char
 }
 
-/// The single render home for insignia: apply a render-layer `sigil` to a bare
-/// encoded `body`, yielding the operator-facing form. The one place a sigil is
-/// prepended (JJS0 `jjdt_insignia` render layer). The bare body alone is the
-/// machine form (git refs, on-disk paths, wire keys — sigil forbidden there).
+/// The single render home for insignia: apply a type-sentinel `sigil` to a bare
+/// encoded `body`, yielding the sigiled form for sentinel-carrying surfaces —
+/// operator-facing output and project-authored structured wires. The one place a
+/// sigil is prepended (AXLA Minted-Mark carriage law, via JJS0 `jjdt_insignia`).
+/// The bare body alone rides foreign-traversed surfaces (git refs, on-disk paths).
 fn zjjrf_emblazon(sigil: char, body: &str) -> String {
     format!("{}{}", sigil, body)
 }
@@ -157,7 +160,7 @@ impl jjrf_Firemark {
         zjjrf_emblazon(self.jjrf_sigil(), self.jjrf_as_str())
     }
 
-    /// Algebraic successor — the next Firemark in seed order (this value + 1) as a
+    /// Seeded successor — the next Firemark in seed order (this value + 1) as a
     /// fresh immutable value; the source is untouched. `Err` when the base-64
     /// numeral is saturated (no successor within capacity).
     pub fn jjrf_successor(&self) -> Result<jjrf_Firemark, String> {
@@ -247,7 +250,7 @@ impl jjrf_Coronet {
         jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
     }
 
-    /// Algebraic successor — the next Coronet in the same heat (pace index + 1)
+    /// Seeded successor — the next Coronet in the same heat (pace index + 1)
     /// as a fresh immutable value; the source is untouched. `Err` when the pace
     /// index is saturated (no successor within capacity).
     pub fn jjrf_successor(&self) -> Result<jjrf_Coronet, String> {
@@ -351,7 +354,7 @@ impl jjrf_Pensum {
         jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
     }
 
-    /// Algebraic successor — the next Pensum in the same heat (index + 1) as a
+    /// Seeded successor — the next Pensum in the same heat (index + 1) as a
     /// fresh immutable value; the source is untouched. `Err` when the index is
     /// saturated (no successor within capacity).
     pub fn jjrf_successor(&self) -> Result<jjrf_Pensum, String> {
@@ -375,7 +378,7 @@ impl jjrf_Pensum {
 /// Officium identity - temporal insignia (JJS0 `jjdt_incipit`)
 /// Format: `YYMMDD-NNNN` datestamp + autonumber, plus a cross-machine random
 /// discriminant. Minted by filesystem enumeration, not arithmetic — the
-/// `axd_temporal` nature — so it carries no algebraic successor.
+/// `axd_temporal` nature, not seeded — so it carries no successor.
 /// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct jjrf_Incipit(String);
