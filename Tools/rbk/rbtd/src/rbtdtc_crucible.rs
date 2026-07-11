@@ -34,8 +34,9 @@
 use std::collections::BTreeSet;
 
 use crate::rbtdra_almanac::{
-    rbtdra_lookup_suite,
     RBTDRA_SUITES,
+    RBTDRA_SUITE_NAME_CALIBRANT,
+    rbtdra_lookup_suite,
 };
 
 // Canonical suite names. The production source of truth is the `name` literal on
@@ -58,7 +59,9 @@ const ZRBTDTC_PARLEY: &str = "parley";
 /// exactly one of these.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum rbtdtc_Wrapper {
-    /// Substrate-independent base — no freehold (reveille).
+    /// Substrate-independent — no freehold (reveille; also the calibrant
+    /// abort-subject suite, whose deliberately-failing inner bodies touch no
+    /// substrate at all).
     Base,
     /// Inner bodies run against a standing freehold; no create, no destroy.
     Reuse,
@@ -82,6 +85,7 @@ const ZRBTDTC_MODEL: &[(&str, rbtdtc_Wrapper)] = &[
     (ZRBTDTC_SIEGE, rbtdtc_Wrapper::Local),
     (ZRBTDTC_BLOCKADE, rbtdtc_Wrapper::Reuse),
     (ZRBTDTC_PARLEY, rbtdtc_Wrapper::Reuse),
+    (RBTDRA_SUITE_NAME_CALIBRANT, rbtdtc_Wrapper::Base),
 ];
 
 /// Resolve a suite's membership as a set of fixture names, read live from
