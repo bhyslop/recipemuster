@@ -6985,8 +6985,8 @@
         "₢BbAAW": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1141",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1205",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Word sweep, mechanical with per-site judgment;",
@@ -7021,7 +7021,7 @@
                 "reveille green if any source comment changed."
               ],
               "jjgtn_silks": "allocation-word-eviction",
-              "jjgtn_basis": "31014d8"
+              "jjgtn_basis": "bf14427"
             }
           ]
         }
