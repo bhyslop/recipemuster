@@ -8488,6 +8488,7 @@
       "jjghn_creation_time": "260704",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BrAAc",
         "₢BrAAb",
         "₢BrAAa",
         "₢BrAAZ",
@@ -8517,7 +8518,7 @@
         "₢BrAAV",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -9351,6 +9352,38 @@
               ],
               "jjgtn_silks": "axla-glyph-carriage-and-blaze-voicing",
               "jjgtn_basis": "0d1d986"
+            }
+          ]
+        },
+        "₢BrAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1315",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Word election under MCM Lapidary with the operator present,",
+                "then a mechanical corpus sweep — one session, election beat first.",
+                "",
+                "## Done when",
+                "",
+                "The registered-body-of-work word is elected —",
+                "candidate *sire*, held since the 260709 registered-identity cinch —",
+                "and the upstream/origin-URL phrasing is re-worded to the elected word",
+                "across the recorded sweep scope in one act.",
+                "The scope is recorded in the paddock's registered-identity cinch",
+                "and JJSAT's reconciliation obligations",
+                "(JJSAT is the heaviest user; JJSAB carries a few);",
+                "new-prose placeholders (\"governed body of work\") sweep too.",
+                "",
+                "## Cinched",
+                "",
+                "- The sweep follows the election as one deliberate act, never piecemeal (260709).",
+                "- The grep gate re-runs at election time before adoption."
+              ],
+              "jjgtn_silks": "sire-election-and-sweep",
+              "jjgtn_basis": "2c1402f"
             }
           ]
         }
