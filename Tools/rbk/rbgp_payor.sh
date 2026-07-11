@@ -1522,7 +1522,7 @@ rbgp_manor_raze() {
       z_pool_state=$(rbuh_json_field_capture "raze_pool_get" '.state // "UNKNOWN"') || z_pool_state="UNKNOWN"
       if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
         buc_success "Workforce pool ${z_pool_id} already soft-deleted (state DELETED) — already razed (no-op)"
-        buc_info "Recover within the purge window via workforcePools.undelete, or re-found after purge"
+        buc_info "The razed id stays burned for the ~30-day purge window — a fresh trust takes a fresh id: set RBRW_WORKFORCE_POOL_ID to a new id, commit, then run the manor-setup finisher and re-affiance the foedera"
         return 0
       fi
       ;;
@@ -1574,8 +1574,8 @@ rbgp_manor_raze() {
 
   buc_step 'Manor razed'
   buc_success "Manor razed: workforce pool ${z_pool_id} force-deleted (${z_raze_dissolved}) under ${z_org}"
-  buc_info "Provider cascaded with the pool; the next finisher run re-founds a clean pool"
-  buc_info "Recover within the ~30-day purge window via workforcePools.undelete, or re-found after purge"
+  buc_info "Provider cascaded with the pool; the razed id stays burned for the ~30-day purge window"
+  buc_info "Re-found under a fresh id: set RBRW_WORKFORCE_POOL_ID to a new id, commit, then run the manor-setup finisher and re-affiance the foedera"
 }
 
 # The manor-setup finisher (RBSMS): one idempotent, payor-credentialed verb that founds

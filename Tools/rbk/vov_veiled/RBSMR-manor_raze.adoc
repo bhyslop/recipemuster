@@ -113,7 +113,13 @@ resource-state poll
 single-line banner naming the
 {rbtgi_manor},
 the razed pool resource name, the razed terminal reached, and the re-found recovery hint
-(the manor-setup finisher founds a fresh pool under the standing id).
+(a fresh trust takes a fresh id: the razed id stays burned for the purge window, so the
+operator re-points
+{rbrw_workforce_pool_id}
+to a new id and commits before the manor-setup finisher founds the fresh pool —
+resurrection is not ensure-exists, and the finisher refuses a DELETED squatter as
+coordinate drift, per
+{rbtgo_manor_instaurate}).
 
 //axhoc_completion
 Successful execution leaves the manor's workforce pool razed: the pool and every provider
