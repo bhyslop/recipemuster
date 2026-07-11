@@ -1330,6 +1330,17 @@ This is a characteristic LLM failure mode. Models narrate their own work process
 
 Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space. The litmus test: **"How many zeroes got added to the enumerated state space because of this choice?"** If the answer isn't zero, the change requires explicit justification.
 
+The multiplication runs along two axes:
+
+**Spatial axis — input forms.** Alternative forms accepted at one moment: aliases, case folding, silent defaults, parallel parse paths. The rules below govern this axis.
+
+**Version axis — coexisting formats.** Every schema or format version the current code must still read is a tolerance extended through time, multiplying the permutation space exactly as an input alias does. A version tolerance never earns permanence; its discipline depends on who controls the coexisting parties:
+
+- **Floor regime — you control every party.** When the readers and writers form a finite, enumerable set (a sole operator's installs), convergence is provable, so the count of mutually-readable versions is driven to a floor: each tolerance is a temporary stay carrying its own demolition condition, held only until the parties converge. Worked instance: the JJK reprieve mechanism (JJS0 `jjdz_reprieve`; premise `jjdk_schema_floor`).
+- **Palisade regime — a party you cannot edit.** A foreign writer or reader — a vendor format, an uncontrolled client — is beyond interior legislation. That version tolerance is a Palisade membrane and follows the Palisade conduct (concept home: CMK ROE): characterize the exact signature, contain it at one membrane, absorb only what was surveyed, log the bend, retire the membrane when the neighbor heals.
+
+Version tolerances accrete silently as "compatibility" — each one small, their product unbounded. The version axis names that accretion as interface contamination through time, subject to the same litmus.
+
 ### Rules
 
 1. **One canonical form**: Every command, argument, and parameter has exactly one accepted form. Do not accept alternatives.

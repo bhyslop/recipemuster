@@ -384,6 +384,7 @@
 
 // Key premises
 :jjdk_sole_operator:   <<jjdk_sole_operator,Sole Operator>>
+:jjdk_schema_floor:    <<jjdk_schema_floor,Schema Floor>>
 :jjdk_reldir_safety:   <<jjdk_reldir_safety,RELDIR Safety>>
 :jjdk_lockless_reads:  <<jjdk_lockless_reads,Lockless Reads>>
 :jjdk_sole_door:       <<jjdk_sole_door,Sole Door>>
@@ -975,6 +976,22 @@ read-only fast path, and the {jjsodp_command_lifecycle} dispatcher need not
 distinguish mutating from non-mutating operations.
 +
 {jjdxo_officium_s} need only identification (which session), not authentication (who).
+
+[[jjdk_schema_floor]]
+//axk_premise
+{jjdk_schema_floor}::
+Every on-disk {jjdgr_gallops} shape the current binary must still read is a tolerance on Zeroes Theory's version axis (BCG),
+multiplying the permutation space through time exactly as an input alias multiplies it at one moment.
+The count of mutually-readable schemas is therefore held to a floor rather than allowed to accumulate:
+permanent backward compatibility is out of scope,
+and every tolerated old shape is a temporary stay carrying its own demolition condition.
++
+Consequent from {jjdk_sole_operator}: the operated clones are a finite, enumerable set,
+so convergence is checkable rather than an act of faith,
+and the floor is provably reachable — a stay can always be retired.
++
+{jjdz_reprieve} is the enforcing mechanism;
+episodes, the delivery quarantine, and the convergence pass live in its sheaf.
 
 [[jjdk_reldir_safety]]
 //axk_premise

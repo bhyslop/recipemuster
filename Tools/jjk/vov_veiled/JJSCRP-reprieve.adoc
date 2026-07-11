@@ -27,10 +27,10 @@ A {jjdz_reprieve} is by its nature a temporary stay: the old shape it tolerates 
 *Multi-install drift is the steady state.*
 There is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged.
 This is the tool's normal condition under a {jjdk_sole_operator} who edits across several clones, not a transition to be ended.
-The count of mutually-readable schemas is therefore held to a floor rather than allowed to accumulate (Zeroes Theory, version axis): each episode exists to be retired, so the set of old shapes the current binary must still read stays small.
+The count of mutually-readable schemas is therefore held to a floor ({jjdk_schema_floor}): each episode exists to be retired, so the set of old shapes the current binary must still read stays small.
 
 *An episode's demolition condition* is that no {jjdgr_gallops} predating its schema survives in any operated clone.
-This is checkable rather than an act of faith because of {jjdk_sole_operator}: the operated clones are a finite, enumerable set.
+This is checkable rather than an act of faith per {jjdk_schema_floor}: the operated clones are a finite, enumerable set.
 When an episode is dormant on every clone, its registry entry — and the now-dead write-forward and old-shape tolerance it guards (a custom deserialize, a frozen reference type, or both) — are removed together; the mechanism stands.
 
 == Delivering a schema change
