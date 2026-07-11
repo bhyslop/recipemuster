@@ -115,7 +115,7 @@ rbrn_render() {
 
 # Command: survey - fleet info table across all nameplates
 rbrn_survey() {
-  buc_doc_brief "Display fleet info table for all nameplate configurations"
+  buc_doc_brief "Survey nameplate status — display the configuration table for every nameplate"
   buc_doc_shown || return 0
 
   zrbrn_fleet_survey
@@ -123,7 +123,7 @@ rbrn_survey() {
 
 # Command: audit - survey display then preflight validation
 rbrn_audit() {
-  buc_doc_brief "Survey all nameplates and run cross-nameplate preflight validation"
+  buc_doc_brief "Validate all nameplates — survey every nameplate, then run cross-nameplate preflight validation"
   buc_doc_shown || return 0
 
   zrbrn_fleet_survey

@@ -84,7 +84,7 @@ zrbfk_image_present_predicate() {
 rbfk_kludge() {
   zrbfk_sentinel
 
-  buc_doc_brief "Build vessel image locally for development (no Cloud Build, no GAR push)"
+  buc_doc_brief "Kludge a vessel image locally for development (no Cloud Build, no GAR push)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 

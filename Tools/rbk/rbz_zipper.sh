@@ -236,7 +236,7 @@ zrbz_kindle() {
   buz_enroll RBZ_RENDER_NAMEPLATE       "rbw-rnr" "${z_mod}" "rbrn_render"    "param1"  "Render nameplate regime"
   buz_enroll RBZ_VALIDATE_NAMEPLATE     "rbw-rnv" "${z_mod}" "rbrn_validate"  "param1"  "Validate nameplate regime"
   z_mod="rbrv_cli.sh"
-  buz_enroll RBZ_LIST_VESSELS           "rbw-rvl" "${z_mod}" "rbrv_list"      ""        "List vessel regimes"
+  buz_enroll RBZ_LIST_VESSELS           "rbw-rvl" "${z_mod}" "rbrv_list"      ""        "List available vessel sigils"
   buz_enroll RBZ_RENDER_VESSEL          "rbw-rvr" "${z_mod}" "rbrv_render"    "param1"  "Render vessel regime"
   buz_enroll RBZ_VALIDATE_VESSEL        "rbw-rvv" "${z_mod}" "rbrv_validate"  "param1"  "Validate vessel regime"
   z_mod="rbfl0_cli.sh"

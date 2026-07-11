@@ -39,7 +39,7 @@ At runtime, these resolve against the repository configuration to form complete 
 //axhrgv_variable
 {rbrn_sentry_vessel}
 
-Vessel identifier for the sentry container image.
+The {rbrv_sigil} of the vessel supplying the sentry container image.
 
 //axhrgv_variable
 {rbrn_sentry_hallmark}
@@ -49,7 +49,7 @@ Hallmark timestamp for the sentry container image.
 //axhrgv_variable
 {rbrn_bottle_vessel}
 
-Vessel identifier for the bottle container image.
+The {rbrv_sigil} of the vessel supplying the bottle container image.
 
 //axhrgv_variable
 {rbrn_bottle_hallmark}

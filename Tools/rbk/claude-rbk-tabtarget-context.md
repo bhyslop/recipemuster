@@ -174,7 +174,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-rnr` | RenderNameplateRegime | param1 | Render nameplate regime |
 | `rbw-rnv` | ValidateNameplateRegime | param1 | Validate nameplate regime |
-| `rbw-rvl` | ListVesselRegime | — | List vessel regimes |
+| `rbw-rvl` | ListVesselRegime | — | List available vessel sigils |
 | `rbw-rvr` | RenderVesselRegime | param1 | Render vessel regime |
 | `rbw-rvv` | ValidateVesselRegime | param1 | Validate vessel regime |
 | `rbw-rvy` | DirectorYokesReliquaryAllVessels | param1 | Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out) |

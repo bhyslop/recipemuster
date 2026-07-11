@@ -856,7 +856,7 @@ zrbfd_push_build_context() {
 rbfd_ordain() {
   zrbfd_sentinel
 
-  buc_doc_brief "Ordain a hallmark from a vessel (conjure, mirror, or graft based on vessel mode)"
+  buc_doc_brief "Ordain a hallmark from a vessel (conjure, bind, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 

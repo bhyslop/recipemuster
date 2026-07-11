@@ -2800,7 +2800,7 @@ stamped with a
 on each successful build.
 +
 A vessel's {rbrv_regime} declares its mode, Dockerfile path (conjure), upstream reference (bind), or local image (graft), along with platform targets and build configuration.
-The vessel name appears in all artifact tags as the stem before the hallmark.
+No artifact name carries the vessel: an {rbtga_ark} is named by its {rbtga_hallmark} alone, and the producing vessel is recorded in the {rbtga_ark_vouch}.
 
 === Lode Definitions
 
@@ -4367,8 +4367,7 @@ File-sourced, one per vessel: an rbrv.env in each vessel subdirectory under {rbr
 An
 {rbst_xname} —
 vessel identifier for
-{rbrv_regime};
-basis for directory and ark naming.
+{rbrv_regime}.
 
 [[rbrv_description]]
 //axvr_variable axd_optional
@@ -4636,9 +4635,9 @@ Serialized as `podman` in bash regime variable value.
 [[rbrn_sentry_vessel]]
 //axvr_variable axd_required
 {rbrn_sentry_vessel}::
-An
-{rbst_xname} —
-vessel identifier for the sentry container image.
+The
+{rbrv_sigil}
+of the vessel supplying the sentry container image.
 
 [[rbrn_sentry_hallmark]]
 //axvr_variable axd_required
@@ -4650,9 +4649,9 @@ hallmark timestamp for the sentry container image.
 [[rbrn_bottle_vessel]]
 //axvr_variable axd_required
 {rbrn_bottle_vessel}::
-An
-{rbst_xname} —
-vessel identifier for the bottle container image.
+The
+{rbrv_sigil}
+of the vessel supplying the bottle container image.
 
 [[rbrn_bottle_hallmark]]
 //axvr_variable axd_required

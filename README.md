@@ -128,7 +128,7 @@ The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for loca
 
 A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)).
 Each [Vessel](#Vessel) is a directory under `rbmm_moorings/rbmv_vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile.
-A fourth mode, [Kludge](#Kludge), builds locally for development without involving the [Depot](#Depot).
+Any [Vessel](#Vessel) can also be [Kludged](#Kludge) — built locally for development, without involving the [Depot](#Depot) — which is an operation rather than a fourth mode.
 
 ### <a id="Hallmark"></a>Hallmark
 
@@ -203,7 +203,7 @@ The [Crucible](#Crucible) is the local safety orchestration — the apparatus th
 
 ### <a id="Nameplate"></a>Nameplate
 
-Per-[Vessel](#Vessel) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable [Crucible](#Crucible).
+Per-[Crucible](#Crucible) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable unit.
 The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations.
 Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmark](#Hallmark) pins, and the network policy that the [Sentry](#Sentry) enforces.
 
@@ -251,7 +251,7 @@ The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with t
 The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
 
 <a id="srjcl"></a>**[srjcl](#srjcl)** — Jupyter notebook server for network-contained analysis.
-The [srjcl](#srjcl) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Jupyter [Bottle](#Bottle) under an academic-domain network allowlist — a working service rather than an attack vessel, showing the [Crucible](#Crucible) run useful software with its egress fenced to a curated set of domains.
+The [srjcl](#srjcl) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Jupyter [Bottle](#Bottle) under an academic-domain network allowlist — a working service rather than an attack [Vessel](#Vessel), showing the [Crucible](#Crucible) run useful software with its egress fenced to a curated set of domains.
 
 <a id="pluml"></a>**[pluml](#pluml)** — PlantUML diagram server that needs no outbound network.
 The [pluml](#pluml) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode PlantUML [Bottle](#Bottle) — an upstream image pinned by digest — under a no-egress allowlist: the renderer needs no internet, so the [Crucible](#Crucible) grants it none. It exercises the [Bind](#Bind) supply-chain path and the most restrictive network posture.
