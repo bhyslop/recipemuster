@@ -7548,8 +7548,8 @@
         "₢BcAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1120",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1433",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_text": [
                 "## Character",
                 "Design plus a gallops schema change — reprieve machinery in scope, so judgment work, not mechanical.",
@@ -7580,7 +7580,7 @@
                 "build tt/vow-b and test tt/vow-t green."
               ],
               "jjgtn_silks": "gallops-key-glyph-strip",
-              "jjgtn_basis": "1a4ecfb"
+              "jjgtn_basis": "38b0c0e"
             }
           ]
         },
