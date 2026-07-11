@@ -342,7 +342,24 @@ the founding-and-cutover section stays aspirant deliberately — it is the conve
   homes the `jjdd_` quoins (saddle, lunge, billet, entrance spine, muck, refit, break door);
   the farrier and cosmology forward-reference notes retired, the journal break-door pointer hardened,
   and the studbook sheaf's refit/billet mentions converted to citations.
-- Tackle MVP core: scope-to-discipline binding beside the pedigree.
+- Tackle MVP core (entity): the scope-to-discipline binding beside the pedigree —
+  the tackle node, its claims, its bounds and three verdicts, the blaze registries, the schema,
+  and saddle-time provisioning.
+  LANDED 260711: `JJSVT-tackle.adoc` (executory entity), mounted last in JJS0's Revision Control
+  region so every citation reads backward;
+  homes the `jjdl_` quoins (tackle, claims, bounds, blaze) and the `jjdk_no_catch_all` premise,
+  and allocates the `jjo` JSON-sprue container with `jjot` for the tackle wire.
+  Two laws classified as rivets with tails deferred to implementation
+  (positive-at-domain-grain; derived-roster-never-in-the-studbook) —
+  following the landed sibling practice over JJSAT's mint-at-infusion phrasing, which it supersedes.
+  The drain closed the family's tackle forward references:
+  JJSVS's forward-reference NOTE retired and its pedigree bullet widened to filesets-and-interrelations
+  (with the no-duplicate-bounds rule stated), JJSVD's binding reference hardened to a citation,
+  JJSVC's sheaf roster and derivation chain re-worded, JJSAF's drained-marker updated,
+  and VOSMM re-pointed at canon with its stale until-representation-settles clause corrected.
+  JJSAT keeps the aspirant remainder: the relation layer (swingletrees, the association graph,
+  the consumer horizon), the banked maximal layer, the substrate-split interface direction,
+  the open forks, the settling register, and the still-owed reconciliation nudges.
 - Typical-JJ-session chapbook — AUTHORED 260705, aspirant: `Tools/jjk/vov_veiled/JJSAC-chapbook-session.adoc`,
   mounted in the codex's Aspirant Nucleations with the first two-token cartouche.
   Its pending-citation register is the canon convergence gauge:
@@ -434,7 +451,20 @@ MINTED-MARK RE-CUT (260711): axd_algebraic renamed axd_seeded and axd_ordinal re
 as the sibling annotative mark at the glyph-carriage landing;
 the carriage law homed at the AXLA section intro (Minted-Mark Dimensions) with the
 role-word companion clause; rationale in the minted-mark cinch and the AXLA edit itself.
-Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
+TACKLE INFUSION (260711): tackle, claims, bounds, and blaze catalogued as `jjdl_` quoins in
+`JJSVT-tackle.adoc` — the `jjdl_` category minted because `jjdt_` is spent on Types
+(`a`/`c`/`k` likewise spent, so `l` is the only free letter inside the word);
+the `jjdk_no_catch_all` premise voiced (totality by humble first-class rows, never a bucket);
+the `jjo` JSON-sprue container allocated with `jjot` for the tackle wire.
+The retirements ledger in JJSAT's vocabulary table so they are not re-tried
+(trappings, remuda, ambit, hame, silks-as-handle; palisade and pale rejected with rationale);
+swingletree stands elected but deferred whole with the relation layer.
+Two obligations discharged from JJSAT's list: the JJSVS pedigree widening and the
+rivet/premise voicing.
+The aspirant-lintel upgrade proves family-wide, not tackle-local — every aspirant sheaf but
+the chapbook carries the legacy one-token form — so it re-banks as one sweep, with this
+sheaf's own genre re-opened by the drain (it is a deferred-remainder sheaf now, not an entity).
+Elections, alternates, and rationales live in the sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
 
