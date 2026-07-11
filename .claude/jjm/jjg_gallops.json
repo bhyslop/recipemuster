@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "Bz",
   "jjgrn_heat_order": [
+    "₣BC",
     "₣Br",
     "₣Bs",
     "₣Bq",
@@ -27,7 +28,6 @@
     "₣AN",
     "₣AZ",
     "₣Au",
-    "₣BC",
     "₣BI",
     "₣BL",
     "₣Ba"
@@ -3540,7 +3540,7 @@
     "₣BC": {
       "jjghn_silks": "rbk-21-win-theurge-tabtarget-auditing",
       "jjghn_creation_time": "260428",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BCAAA",
         "₢BCAAB",
