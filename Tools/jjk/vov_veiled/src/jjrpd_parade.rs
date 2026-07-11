@@ -469,7 +469,10 @@ pub fn jjrpd_format_file_census(firemark: &Firemark, heat: &Heat, min_paces: usi
         }
     }
 
+    // Leading blank, as the swim lanes below do — the census must not butt
+    // against whatever section precedes it.
     let mut output = String::new();
+    writeln!(output).unwrap();
 
     if file_paces.is_empty() {
         writeln!(output, "File touches: (no work file changes)").unwrap();
