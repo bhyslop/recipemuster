@@ -4923,8 +4923,8 @@
         "₢BbAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1222",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1607",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Introduce a flat command-exposure voicing family in AXLA — sibling to the existing axho_/axhr_/axhp_ hierarchy families — that binds an operation to the concrete identifier(s) exposing it on a CLI surface, then instantiate it in RBS0 as the single place the spec names concrete colophons.",
                 "Voicings, not quoins: a row binds an existing operation attribute-reference to its full routing identifier carried as a value, so tabtargets gain no quoins and the colophon stays a busdc_colophon value.",
@@ -4958,7 +4958,7 @@
                 "Tier: opus for the family-shape judgment; the RBS0 rows are mechanical once the family is set."
               ],
               "jjgtn_silks": "cli-command-voicing-family",
-              "jjgtn_basis": "03ca13a"
+              "jjgtn_basis": "cc4e957"
             }
           ]
         },
