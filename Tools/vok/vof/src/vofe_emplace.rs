@@ -39,6 +39,9 @@ use std::process::Command;
 use crate::voff_freshen::{voff_freshen, voff_collapse, voff_remove_regions, voff_ManagedSection, voff_FreshenResult};
 use crate::vofc_registry::{DISTRIBUTABLE_KITS, VOFC_INCLUDE_REGION_TAG, VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
 
+// RCG output discipline: all emission via vvc::vvco_Output — no direct println!/eprintln!
+use vvc::{vvco_Output, vvco_err};
+
 // =============================================================================
 // Constants
 // =============================================================================
@@ -200,10 +203,6 @@ pub struct vofe_VacateResult {
 /// # Returns
 /// EmplaceResult with installation summary, or error message
 pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, String> {
-    eprintln!("emplace: installing kit assets...");
-    eprintln!("  parcel: {}", args.parcel_dir.display());
-    eprintln!("  burc: {}", args.burc_path.display());
-
     // 1. Parse BURC (resolves paths relative to burc.env location)
     let burc = vofe_parse_burc(&args.burc_path)?;
 
@@ -294,8 +293,6 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     let commit_msg = format!("VVK install: brand {}", brand);
     zvofe_git_commit(&burc.project_root, &commit_msg)?;
 
-    eprintln!("emplace: success - {} files, {} commands, {} hooks", total_files, commands_routed, hooks_routed);
-
     Ok(vofe_EmplaceResult {
         brand,
         kits_installed: kit_ids,
@@ -314,8 +311,7 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
 /// # Returns
 /// VacateResult with removal summary, or error message
 pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> {
-    eprintln!("vacate: removing kit assets...");
-    eprintln!("  burc: {}", args.burc_path.display());
+    let mut out = vvco_Output::console();
 
     // 1. Parse BURC
     let burc = vofe_parse_burc(&args.burc_path)?;
@@ -376,7 +372,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
                 fs::remove_file(&path)
                     .map_err(|e| format!("Failed to remove vvx binary {}: {}", path.display(), e))?;
                 total_files += 1;
-                eprintln!("  removed: {}", path.display());
+                vvco_err!(out, "  removed: {}", path.display());
             }
         }
     }
@@ -393,8 +389,6 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
 
     // 8. Commit uninstallation
     zvofe_git_commit(&burc.project_root, "VVK uninstall")?;
-
-    eprintln!("vacate: success - {} files, {} commands, {} hooks removed", total_files, commands_removed, hooks_removed);
 
     Ok(vofe_VacateResult {
         kits_removed: kit_ids,
@@ -431,14 +425,15 @@ pub fn vofe_freshen_forge(burc_path: &Path) -> Result<vofe_FreshenResult, String
 
     let result = zvofe_freshen_claude(&claude_path, &burc, &burc.managed_kits)?;
 
+    let mut out = vvco_Output::console();
     for tag in &result.updated {
-        eprintln!("  freshen: updated [{}]", tag);
+        vvco_err!(out, "  freshen: updated [{}]", tag);
     }
     for tag in &result.expanded {
-        eprintln!("  freshen: expanded [{}] (was UNINSTALLED)", tag);
+        vvco_err!(out, "  freshen: expanded [{}] (was UNINSTALLED)", tag);
     }
     for tag in &result.appended {
-        eprintln!("  freshen: appended [{}] (new region)", tag);
+        vvco_err!(out, "  freshen: appended [{}] (new region)", tag);
     }
 
     Ok(vofe_FreshenResult {
