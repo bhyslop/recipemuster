@@ -1,63 +1,62 @@
 ## Context
 
-Split from ₣BB rbk-mvp-3-release-qualification to decouple theurge framework self-test infrastructure from the gauntlet release ladder. ₣BB stays focused on canonical-establish → onboarding-sequence → suite-assembly → first-run; this heat owns framework-polish work that doesn't qualify mvp-3 but tightens the framework that runs it. Both heats can race independently once the calibrant fixture foundation lands in ₣BB.
+Framework self-certification for the theurge: the rbtd binary that runs every RB test fixture has unit-tested internals but no test of its own operator surface — exit codes, stderr diagnostics, fail-fast behavior.
+Split from the retired mvp-3 release-qualification heat (₣BB) so framework polish never blocks the release ladder; the calibrant fixture family that heat landed (`rbtdrl_calibrant.rs`) is this heat's test subject.
+Regroomed 260711 against the post-split landscape; the decisions below are cinched.
 
-## Cross-heat coupling
+## Two pillars
 
-Mounts after ₣BB's BBAAh (calibrant fixture foundation) commits. The four fixtures BBAAh registers — `calibrant-verdicts`, `calibrant-fail-fast`, `calibrant-progressing`, `calibrant-sentinel` — are this heat's blackbox subjects. ₣BB's paddock § "Calibrant fixture family — BBAAh" and the BBAAh commit carry the fixture catalog, anchor-word rationale, and module-rename decisions; mount-time agents read those for fixture-contract detail rather than restating here.
+**Surface certification.**
+An in-crate surface fixture — a green, credless reveille member — spawns child rbtd runs through the real tabtarget chain against the deliberately-failing calibrant fixtures and asserts the child's exit code, stderr shape, and sentinel/trace files.
+The watcher passes; the watched stay roster-only.
+This replaces the original bash-testbench architecture: no new testbench module, no new colophon, no runbook entry; RBSTC's ratification note about re-minting the testbench family at this heat's mount is moot.
+Self-hosting is accepted: the child is observed from outside (exit codes, files), and a child run traverses the full sandwich — tabtarget, launcher, workbench, rbte_engine, binary — wider coverage than a bash driver calling the binary directly.
 
-## Origin gaps — two design pillars
+**Census enforcement.**
+Each fixture's `rbtdrm_required_colophons` list is actively maintained but consumed by nothing: the runtime existence check (`rbtdrm_verify`) was deliberately retired in favor of compile-time const projection, and usage alignment cannot be compile-checked — you only learn what a fixture invokes by running it.
+Enforce both directions at the invocation chokepoint and report per-colophon usage.
 
-**Operator-surface validation gap (BCAAA).** Rust unit tests verify engine functions in isolation; nothing verifies the operator-facing surface of the `rbtd` binary — CLI exit codes, stderr diagnostic format, fixture and suite fail-fast, the disposition × keep-going policy gate landed in BBAAd. The calibrant family provides synthetic fixtures with deterministic verdicts; this heat drives them through the binary as a black box.
+## Cinched (260711 groom)
 
-**Manifest-coverage drift gap (BCAAB → BCAAC → BCAAD).** rbtdrm's per-fixture `required_colophons` list is asserted-superset — declarations may carry stale entries (declared but never invoked) or missing entries (invoked but not declared) without surfacing. Two runtime checks at the `rbtdri_invoke_*` chokepoint tighten the contract: positive (invoked must be declared) refuses unknown invocations; negative (declared must be invoked) fails on dead declarations after a successful full-fixture run. Coverage-validation fixtures (BCAAC) and a bash driver (BCAAD) pin diagnostic shape.
+- Enforce the census, both directions; a declared-but-never-invoked colophon FAILS the fixture on a fully-green full-fixture run.
+  This deliberately overrides the tariff precedent (`count_drift` warns, never affects verdict): census drift is a defect, not a curiosity.
+- The surface fixture is a reveille member; the calibrant fixtures themselves stay out of every dependency-tier and release suite (deliberate failers).
+- One small calibrant suite is registered in `RBTDRA_SUITES` solely as the suite-abort test subject, driven only by the surface fixture.
+  The prior lock against it ("bash `set -e` provides suite fail-fast, no Rust suite needed") dissolved when suite composition moved into the binary — `rbte_suite` is now a passthrough.
+- Keep-going is plumbed through the tabtarget-to-binary chain so the `rbtdre_resolve_fail_fast` policy — including the StateProgressing refusal — is reachable from outside; today no CLI flag exists and the gate is unit-test-only.
+- Anchor word `calibrant`, module `rbtdrl_calibrant.rs` — consumed from ₣BB, unchanged.
+- BURV chain (BUS0 §540-552) is contract, not hook: child runs nest BURV through real invocations and incidentally regression-test it.
+- No per-fixture tabtargets for the calibrant family.
 
-## Bash case catalog — operator-surface validation (BCAAA)
+## Surface-fixture case catalog
 
-`Tools/rbk/rbtt_testbench.sh`, 14 cases across 6 sections:
+Sections name behavior, not case counts (counts are mount-time):
 
-- `verdict-propagation` (4) — pass / fail / skip exit codes + trace file
-- `fixture-fail-fast` (2) — intra-section, inter-section
-- `disposition-policy` (3) — Independent + keep-going runs all; StateProgressing + keep-going refused with policy stderr; StateProgressing default runs fail-fast
-- `probe-diagnostics` (1) — unmet-probe stderr contains `precondition '%s' not met:` + `remediation:`
-- `suite-fail-fast` (2) — suite aborts on failing fixture; subsequent fixture's sentinel absent
-- `cli-surface` (2) — unknown fixture errors clearly; missing arg → usage
+- verdict-propagation — pass / fail / skip child exit codes + trace file presence
+- fixture-fail-fast — intra-section and inter-section halt
+- disposition-policy — Independent + keep-going runs all cases; StateProgressing + keep-going refused with policy stderr; StateProgressing default runs fail-fast
+- probe-diagnostics — unmet-probe stderr carries the precondition and remediation lines
+- suite-abort — a failing fixture halts the registered calibrant suite; the later fixture's sentinel absent
+- cli-surface — unknown fixture errors clearly; missing arg yields usage
+- coverage — aligned passes; undeclared fails naming the colophon; unused fails naming the colophon; single-case exempt from the negative check
 
-## Coverage-validation case catalog (BCAAC + BCAAD)
+## Win-series role
 
-Three coverage-fixtures (Independent disposition) registered alongside the BBAAh family, exercising both check directions of the manifest-coverage gate:
-
-- `calibrant-coverage-aligned` — manifest declares noop, case invokes noop → Pass
-- `calibrant-coverage-undeclared` — manifest declares nothing, case invokes noop → fixture-level FAIL via positive check
-- `calibrant-coverage-unused` — manifest declares noop, case invokes nothing → fixture-level FAIL via negative check
-
-Bash driver (BCAAD) — section `manifest-coverage`, 4 cases: `coverage-aligned-passes`, `coverage-undeclared-fails`, `coverage-unused-fails`, `coverage-single-case-skips-negative` (proves the `run_single` exemption from the negative check).
-
-## Locked design decisions
-
-- **Anchor word `calibrant`**, module `rbtdrl_calibrant.rs` (classifier `l` per RCG terminal exclusivity — `c` is owned by crucible). Set in BBAAh; this heat consumes it.
-- **With-the-grain composition** — tabtargets are bare exec stubs; orchestration lives in zippers / workbenches / testbenches / suites. BUK's self-test stays untouched. No "BUK + calibrant" composite tabtarget — operator sequences `buw-st` then the new colophon.
-- **No per-fixture tabtargets for calibrant family** — framework-test plumbing, not operator workflows. The bash testbench invokes `rbtd` directly; deviates from BBAAe's per-fixture pattern, justified because pristine / canonical are operator-facing and calibrant isn't.
-- **BURV chain is contract, not hook** — `BURV_TEMP_ROOT_DIR` / `BURV_OUTPUT_ROOT_DIR` (BUS0 §540-552) is load-bearing infrastructure. Calibrant cases nest BURV through `rbtd` invocations and incidentally regression-test the chain.
-- **Manifest-coverage check enforcement (BCAAB):**
-  - Positive at all three `rbtdri_invoke_*` primitives — refuses undeclared invocations
-  - Negative in `run_suite` after `run_sections` returns success — gated on `result.failed == 0` (failure paths suppress)
-  - `run_single` enforces positive only — cannot satisfy exhaustiveness by construction
+Theurge is the substrate-sensitive piece of the stack; the Cygwin failures bit exactly at the tabtarget-invocation boundary (`Memos/memo-20260517-windows-substrate-landscape-for-theurge.md`).
+A reveille run on a Windows substrate therefore certifies that boundary on every pass — the surface fixture is the parity instrument.
 
 ## Out of scope
 
-- Cross-kit testbench composition (BUK fixtures registered in rbk testbench)
-- Orchestrating tabtargets containing exec-of-children logic
-- Trace-file format invariants beyond a single `pass_with_output` smoke check
-- Color rendering / terminal width contracts
-- Imprint coverage (which nameplate a per-imprint colophon was called with), argument patterns, compile-time / static analysis
-- Fixture-level declaration edits in existing fixtures (canonical-establish, etc.) — surface as separate finds if BCAAB's negative check turns up stale entries during ₣BB's gauntlet run
+- Trace-file format invariants beyond a single smoke check; color / terminal-width contracts.
+- Imprint coverage (which nameplate a per-imprint colophon was called with), argument patterns, compile-time/static analysis of usage.
+- Fixture-level declaration edits in existing fixtures — a real stale entry surfaced by the negative check is a separate find.
+- Deleting or reshaping the tariff mechanism.
 
 ## References
 
-- ₣BB paddock § "Calibrant fixture family — BBAAh" — anchor-word rationale, module-rename decision, Rust fixture catalog
-- ₣BB BBAAh — calibrant fixture foundation (prerequisite)
-- BBAAd — engine concepts (`rbtdre_Disposition`, `rbtdre_resolve_fail_fast`, `rbtdrb_Probe`)
-- `rbtdri_invoke`, `rbtdri_invoke_global`, `rbtdri_invoke_imprint` — chokepoint primitives BCAAB modifies
-- `Tools/rbk/rbts/` — case-file convention (BCAAA establishes; BCAAD extends)
-- BUS0 §540-552 — BURV chain contract
+- `Tools/rbk/rbtd/src/rbtdrl_calibrant.rs` — calibrant family (test subjects)
+- `Tools/rbk/rbtd/src/rbtdri_invocation.rs` — invoke primitives (the chokepoint)
+- `Tools/rbk/rbtd/src/rbtdre_engine.rs` — `rbtdre_resolve_fail_fast`, tariff machinery
+- `Tools/rbk/rbtd/src/rbtdra_almanac.rs` — `RBTDRA_SUITES` registry, roster-only doctrine
+- `Tools/rbk/rbtd/src/rbtdrm_manifest.rs` — `rbtdrm_required_colophons`
+- `Tools/rbk/vov_veiled/RBSTC-theurge_cosmology.adoc` — cosmology; ratification note on the now-moot testbench re-mint
