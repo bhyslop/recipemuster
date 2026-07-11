@@ -7673,6 +7673,7 @@
         "₢BsAAG",
         "₢BsAAZ",
         "₢BsAAT",
+        "₢BsAAa",
         "₢BsAAH",
         "₢BsAAL",
         "₢BsAAK",
@@ -7682,7 +7683,7 @@
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAa",
+      "jjghn_next_pace_seed": "AAb",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8606,6 +8607,53 @@
               ],
               "jjgtn_silks": "terrier-provider-segment-drop",
               "jjgtn_basis": "16305e2"
+            }
+          ]
+        },
+        "₢BsAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-2335",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Repair the codex mapping entries that resolve to no definition anywhere in the pandect —",
+                "attributes registered in RBS0's mapping section whose `[[anchor]]` exists in neither the codex nor any included sheaf,",
+                "so that every prose citation of them renders as a broken cross-reference.",
+                "Specification files only — no code changes, no test runs; safe to execute alongside long suite runs.",
+                "",
+                "## Census mechanism",
+                "",
+                "Re-derive at mount; do not trust the enumeration below — it will have drifted.",
+                "Build the sheaf set from RBS0's `include::` directives, extract each `:attr: <<anchor,...>>` mapping line,",
+                "and count `[[anchor]]` occurrences across the codex plus that sheaf set.",
+                "Zero occurrences is the defect, and the same script is the Done-when gate.",
+                "",
+                "## Disposition",
+                "",
+                "Each dangling attribute takes one of two dispositions, ruled per attribute and never in bulk:",
+                "",
+                "- cited in prose → the concept is live and its definition was lost: author the definition block in the codex, beside its prefix-family siblings.",
+                "- cited nowhere → the attribute is dead: strike the mapping entry.",
+                "",
+                "Standing at slate time, to be verified rather than trusted:",
+                "the four GCP-service attributes (`gcp_service`, `gar_service`, `gcs_service`, `gcb_service`) are cited heavily throughout and are plainly live;",
+                "`rbsi_ifrit` is cited in the Ifrit sheaf's own prose;",
+                "`rbtoe_check_cbv2_connection`, `rbsi_campaign`, and `rbsi_escape_test` appear cited nowhere;",
+                "and the four RBRR/RBRN entries (`rbrr_runtime_prefix`, `rbrr_group_resource_prefixing`, `rbrn_group_service_readiness`, `rbrn_bottle_readiness_delay_sec`) are cited once or twice apiece and each needs its own ruling —",
+                "a live regime field whose definition was dropped, or a stale citation left behind when a field was removed.",
+                "",
+                "## Done when",
+                "",
+                "The scripted check reports every mapping target in the codex resolving to exactly one `[[anchor]]` pandect-wide, with zero exceptions.",
+                "",
+                "## Cinched",
+                "",
+                "An authored definition is normative spec text: it says what the concept IS, at the grain its existing citations already assume — never invented scope, and never a paraphrase of a passage that cites it.",
+                "Where the evidence does not settle whether an attribute is live or dead, stop and surface it rather than guess in either direction.",
+                "Touches only the veiled RB spec tree."
+              ],
+              "jjgtn_silks": "codex-dangling-anchor-repair",
+              "jjgtn_basis": "ea5ca70"
             }
           ]
         }
