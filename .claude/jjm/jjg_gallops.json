@@ -3688,8 +3688,8 @@
                 "- New harness infrastructure.",
                 "- Trace-file contracts beyond exit code plus stderr substring."
               ],
-              "jjgtn_silks": "calibrant-coverage-driver",
-              "jjgtn_basis": "a5ee078"
+              "jjgtn_silks": "coverage-surface-cases",
+              "jjgtn_basis": "5499d03"
             }
           ]
         }
