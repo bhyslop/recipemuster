@@ -4239,11 +4239,12 @@
         "₢BbAAY",
         "₢BbAAR",
         "₢BbAAa",
+        "₢BbAAb",
         "₢BbAAE",
         "₢BbAAF",
         "₢BbAAZ"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAc",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -5323,6 +5324,53 @@
               ],
               "jjgtn_silks": "foedus-tidemark-drain",
               "jjgtn_basis": "1297038"
+            }
+          ]
+        },
+        "₢BbAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1646",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Normative contract authoring — an operation sheaf downstream work will obey;",
+                "errors read fine and propagate.",
+                "Frontier tier, unbridled by design.",
+                "",
+                "## Goal",
+                "Author the rbtgo_director_anoint detail sheaf so anoint carries the same",
+                "normative contract as its rbch_enchase siblings,",
+                "cite it from the RBS0 definition site,",
+                "and dissolve RBSYP's \"Anoint is uncatalogued\" Surfaced Gaps breach.",
+                "",
+                "## Cinched",
+                "- The quoin, mapping entry, and Command Facing row (rbw-rva) already stand;",
+                "  the sheaf is the only missing limb of RBSYP's stated dissolution condition.",
+                "- Template siblings: RBSDF-director_feoff.adoc, RBSDY-director_yoke.adoc,",
+                "  RBSND-nameplate_drive.adoc — the other three rbch_enchase members;",
+                "  mirror their shape and their cartouche include form.",
+                "- Code is truth: rbfla_anoint.sh implements the verb;",
+                "  where the code and the sibling contract shape disagree,",
+                "  surface rather than improvise.",
+                "- The append-when-absent grafting-line behavior",
+                "  (contrast RBSND's absent-field fatal) is contract content —",
+                "  RBSND prose already cites the contrast.",
+                "- Sheaf filename and acronym minted at mount per the RBS* convention.",
+                "- RBSYP: Movement II's anoint interaction cites the quoin and contract;",
+                "  the Surfaced Gaps anoint entry is removed entire,",
+                "  the airgap-handoff gap left standing.",
+                "- Spec-only; no runtime edits (release rider in the paddock).",
+                "",
+                "## Done when",
+                "The sheaf stands beside its siblings,",
+                "include::'d under the RBS0 definition with the sibling cartouche annotation;",
+                "RBSYP's Movement II anoint interaction cites it",
+                "and the Surfaced Gaps anoint entry is gone;",
+                "repo-wide grep shows no unresolved attribute references."
+              ],
+              "jjgtn_silks": "anoint-sheaf-chapbook-breach",
+              "jjgtn_basis": "56ea49f"
             }
           ]
         }
