@@ -89,6 +89,15 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   The two rivets are minted and the first tranche's residues re-formed;
   the pre-existing spec-acronym citations across shipped source are a
   corpus-sweep population for the roster, not the pilot finish.
+- A6/A7 ratified (operator rulings 260711), homed and worked in one pace:
+  the rivet placement law lives at MCM `mcm_rivet`
+  (one definition site placed by citation reach — hoisted to the codex when a
+  second sheaf cites; spec-side citation carries at most a one-clause gist),
+  its built shape mirrored in ACG's rivet section;
+  the census-before-exception name-identity triage lives at ACGm_102.
+  Cited, not restated here;
+  the RBr_b4e hoist and the ark-inspect display repair are the worked
+  instances.
 - The jailer dialect (zero-dependency in-vessel POSIX sh) gets its own guide,
   promoted ahead of rule-of-3;
   rationale recorded in the pilot findings memo
@@ -110,10 +119,11 @@ Release-window rider (groomed 260711, drains when the release lands):
 a release process is near, so runtime behavior is frozen —
 spec, guide, and comment-only source changes provable by inspection are
 permitted; runtime edits defer.
+The F10 dead-assert repair is dispositioned to the rebaseline heat's
+standing-substrate arc rather than held here.
 Order under the rider:
 the conjure pilot finish first,
-holding F10 and any held step-script move not provable by inspection
-(F10's only verifier is a live conjure);
+holding any held step-script move not provable by inspection;
 then the two Fable-gated consolidation paces —
 chaining-prose consolidation, then cross-language premises;
 then the inspection-provable source tranche —
