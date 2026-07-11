@@ -17,7 +17,7 @@ in
 — reusing the same atomic in-place field-rewrite mechanics as the durable-config links
 ({rbtgo_director_feoff},
 {rbtgo_director_yoke},
-and anoint): substitute the matching assignment line, pass the rest through unchanged, write a
+and {rbtgo_director_anoint}): substitute the matching assignment line, pass the rest through unchanged, write a
 temp file then rename.
 But it is *not* a
 {rbch_enchase}:

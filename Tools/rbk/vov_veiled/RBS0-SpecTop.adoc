@@ -132,6 +132,7 @@
 :rbtgo_director_vouch:            <<rbtgo_director_vouch,rbfv_batch_vouch>>
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_director_feoff:            <<rbtgo_director_feoff,rbfl_feoff>>
+:rbtgo_director_anoint:           <<rbtgo_director_anoint,rbfl_anoint>>
 :rbtgo_nameplate_drive:          <<rbtgo_nameplate_drive,rbrn_drive>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
@@ -147,6 +148,10 @@
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
 :rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_payor_oauth_probe>>
+:rbtgo_access_federated_probe:    <<rbtgo_access_federated_probe,rbgv_check_avowal>>
+:rbtgo_access_mantle_probe:       <<rbtgo_access_mantle_probe,rbgv_check_mantle>>
+:rbtgo_sitting_novate:            <<rbtgo_sitting_novate,rba_novate_sitting>>
+:rbtgo_sitting_espy:              <<rbtgo_sitting_espy,rba_espy_sitting>>
 
 // Recipe Bottle Term Google Operations — Lode (fetched-side universal capture)
 :rbtgo_lode_ensconce:            <<rbtgo_lode_ensconce,rbld_ensconce>>
@@ -169,6 +174,7 @@
 :rbtgo_foedus_acquire:           <<rbtgo_foedus_acquire,Foedus Acquire>>
 :rbtgo_foedus_descry:            <<rbtgo_foedus_descry,Foedus Descry>>
 :rbtgo_foedus_instate:           <<rbtgo_foedus_instate,Foedus Instate>>
+:rbtgo_foedus_canvass:           <<rbtgo_foedus_canvass,Foedus Canvass>>
 
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
@@ -1245,6 +1251,55 @@ by refreshing the stored OAuth token and calling the Cloud Resource Manager proj
 //axvd_cartouche axd_normative
 include::RBSAO-access_oauth_probe.adoc[]
 
+[[rbtgo_access_federated_probe]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_access_federated_probe}
+
+`rbgv_check_avowal` —
+Probes federated access
+({rbtgog_access})
+by exercising
+{rbtf_avow}'s
+sitting-reuse branch — opening or reusing a
+{rbtf_sitting}
+via device flow and STS against the federation trust — with an optional required-runway argument, for sustained verification.
+
+[[rbtgo_access_mantle_probe]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_access_mantle_probe}
+
+`rbgv_check_mantle` —
+Probes mantle access
+({rbtgog_access})
+as the freehold subject:
+{rbtf_avow},
+{rbtf_don}
+the named
+{rbtf_mantle}
+(governor, director, or retriever), reach Artifact Registry, and write the attributed audit entry — or surface the access deficit.
+
+[[rbtgo_sitting_novate]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_sitting_novate}
+
+`rba_novate_sitting` —
+The operator surface for
+{rbtf_novate}:
+opens a fresh full-window
+{rbtf_sitting},
+extinguishing any standing one — the remedy the runway floor names when a shorter sitting is turned away.
+
+[[rbtgo_sitting_espy]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_sitting_espy}
+
+`rba_espy_sitting` —
+The operator surface for
+{rbtf_espy}:
+reports whether a
+{rbtf_sitting}
+is live and how much runway remains, from the cache alone — never opening one, never prompting, never touching the network.
+
 [[rbtgo_manor_affiance]]
 //axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_manor_affiance}
@@ -1392,6 +1447,19 @@ A contract for the foedus-cardinality build pace; the build is deferred, the wor
 
 //axvd_cartouche axd_normative
 include::RBSFI-foedus_instate.adoc[]
+
+[[rbtgo_foedus_canvass]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_foedus_canvass}
+
+`rbof_canvass` —
+The operator surface for
+{rbtf_canvass}:
+enumerates every provider under the manor's one workforce pool, emitting a per-
+{rbtf_foedus}
+fact file for each and marking the regime-selected one — read-only, the manor-wide sibling of
+{rbtgo_foedus_descry}'s
+single-foedus read.
 
 [[rbtgo_depot_levy]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -1628,6 +1696,23 @@ The {rbch_enchase} extracted out of {rbtgo_ark_conjure} so conjure stays a pure 
 
 //axvd_cartouche axd_normative
 include::RBSDF-director_feoff.adoc[]
+
+[[rbtgo_director_anoint]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_director_anoint}
+
+`rbfl_anoint` —
+Anoints a graft vessel with the previous build's hallmark: resolves the chained
+{rbf_fact_hallmark}
+fact, then rewrites `RBRV_GRAFT_IMAGE` into one named
+{rbrv_regime}
+file under `${RBRR_VESSEL_DIR}`
+({rbtgog_depot}).
+The
+{rbch_enchase}
+sibling of
+{rbtgo_director_feoff}/{rbtgo_director_yoke}
+on the graft branch of vessel configuration.
 
 [[rbtgo_nameplate_drive]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -3010,7 +3095,7 @@ This is the sanctioned crossing of a transient chained value into durable, commi
 A broken resolve rejects with the named chaining band (`BUBC_band_chain`), never a bare nonzero.
 The chain is read terminally, never relayed (rivet RBr_3e7).
 It does not gate on a clean tree, and the tool never commits — the operator seals the durable effect with their own commit (rivet RBr_a52).
-Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, anoint, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
+Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, {rbtgo_director_anoint}, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
 
 [[rbch_palpate]]
 {rbch_palpate}::
@@ -3026,7 +3111,7 @@ A {rbch_palpate} must never be extended to write durable config without joining 
 The outbound signpost a {rbch_wellhead} raises on its success path: having written a fact, it announces the tabtargets that CONSUME that fact, so the operator sees what the fresh fact unlocks.
 Unlike {rbch_enchase} and {rbch_palpate}, a beckon resolves no chained value and rejects nothing — it is a courtesy emission after the write, not a fact consumer, so it carries no chaining band.
 One emitter per fact type owns its consumer roster; today only the {rbf_fact_hallmark} fact has one.
-That roster is exactly this fact's chain consumers — the {rbch_palpate} readers ({rbtgo_ark_summon}, {rbtgo_ark_inspect}, {rbtgo_image_rekon}) plus the {rbch_enchase} writers that resolve this same fact (anoint, {rbtgo_nameplate_drive}) — and it MUST agree with the enumerations above: a consumer added to a role without a matching beckon line, or removed from a role while its beckon line lingers, is the drift this single home exists to prevent.
+That roster is exactly this fact's chain consumers — the {rbch_palpate} readers ({rbtgo_ark_summon}, {rbtgo_ark_inspect}, {rbtgo_image_rekon}) plus the {rbch_enchase} writers that resolve this same fact ({rbtgo_director_anoint}, {rbtgo_nameplate_drive}) — and it MUST agree with the enumerations above: a consumer added to a role without a matching beckon line, or removed from a role while its beckon line lingers, is the drift this single home exists to prevent.
 It composes the `buc_tabtarget` primitive with only light context filtering — a consumer whose folio IS the written fact gets it filled, a consumer taking a different folio prints a placeholder — never a per-mode predicate farm.
 Code home: the guard-free `rbfb_beckon.sh`, sourced by the {rbf_fact_hallmark}-producing {rbch_wellhead_s} ({rbtgo_ark_ordain}, {rbtgo_ark_kludge}).
 
@@ -3641,6 +3726,18 @@ A colophon whose operation holds no quoin stays inventory-only.
 {rbtgo_access_oauth_probe} `rbw-ap`
 
 //axhfi_identifier
+{rbtgo_access_federated_probe} `rbw-aa`
+
+//axhfi_identifier
+{rbtgo_access_mantle_probe} `rbw-am`
+
+//axhfi_identifier
+{rbtgo_sitting_novate} `rbw-aN`
+
+//axhfi_identifier
+{rbtgo_sitting_espy} `rbw-as`
+
+//axhfi_identifier
 {rbtgo_manor_affiance} `rbw-mA`
 
 //axhfi_identifier
@@ -3660,6 +3757,9 @@ A colophon whose operation holds no quoin stays inventory-only.
 
 //axhfi_identifier
 {rbtgo_foedus_instate} `rbw-jI`
+
+//axhfi_identifier
+{rbtgo_foedus_canvass} `rbw-jc`
 
 //axhfi_identifier
 {rbtgo_depot_levy} `rbw-dL`
@@ -3696,6 +3796,9 @@ A colophon whose operation holds no quoin stays inventory-only.
 
 //axhfi_identifier
 {rbtgo_director_feoff} `rbw-rvf`
+
+//axhfi_identifier
+{rbtgo_director_anoint} `rbw-rva`
 
 //axhfi_identifier
 {rbtgo_nameplate_drive} `rbw-nd`

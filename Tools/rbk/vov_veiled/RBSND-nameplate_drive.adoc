@@ -45,7 +45,7 @@ if neither an express argument nor a chained hallmark is present — a broken ch
 . *Rewrite the {rbrn_regime}*:
 .. Substitute the elected field's line with `«FIELD_VAR»=«HALLMARK»`, preserving position
 .. {rbbc_fatal}
-if the field's line is not present — a required enrolled field absent is nameplate schema drift, a hard failure, never a silent append (contrast anoint, whose grafting line may legitimately be absent and is appended)
+if the field's line is not present — a required enrolled field absent is nameplate schema drift, a hard failure, never a silent append (contrast {rbtgo_director_anoint}, whose grafting line may legitimately be absent and is appended)
 .. all other lines pass through unchanged
 .. write the composed content to a temp file, then atomically replace the {rbrn_regime} file via rename
 .. {rbbc_fatal}
