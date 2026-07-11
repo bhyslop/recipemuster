@@ -284,6 +284,15 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
 - **Verifier:** none mechanized in v1 — read and reported by hand. The
   conformance fixture is the future verifier.
 - **Done:** a report of operation-quoin / symbol disagreements; nothing mutated.
+- **Triage — census before exception:** a display/inlay/symbol disagreement is
+  first a census question, not a linkage one: does the operation census match
+  the operator surface? A colophon-registered front is spec-worthy, and the
+  colophon quoins are the census of that surface. Where the census is sound
+  and the operation is unitary over N thin fronts, the shared core is the
+  implementing symbol — inlay and display alike; the no-single-symbol
+  exception is judged only after both questions. Worked case: the ark-inspect
+  method — two colophon-quoined modes over one core, display repaired to its
+  `zrbfc_plumb_core` inlay.
 - **Formal dependency (satisfied):** the AXLA arity change landed — the
   `axd_inlaid` dimension on `axvo_procedure` / `axvo_method` declares a
   one-`mcm_inlay` lookahead reading the literal source symbol (see *The
@@ -469,6 +478,12 @@ The shape, as built:
 - **Minting.** Until linting exists: generate a tail (random or time-based),
   grep the repo for the full ID, adopt it on zero hits. The grep is both the
   uniqueness check and the census — no registry.
+- **Placement.** One definition site, placed by citation reach: sheaf-local
+  while a single sheaf cites it, hoisted to the codex when a second sheaf
+  does — peers cite through the shared root, never into a sibling's interior.
+  The ID never re-mints, so a hoist moves prose alone and every citer
+  survives. Concept law: MCM `mcm_rivet`; checked at edit time until the
+  linter exists (definition path vs citer paths is mechanically checkable).
 - **Kind.** The kind is *not* in the ID. It is declared at the definition site by
   an AXLA voicing, the `axvc_` family: `axvc_dictum` (invariant), `axvc_camber`
   (deliberate deviation), `axvc_spoor` (foreign signature), `axvc_membrane`
@@ -480,7 +495,7 @@ vocabulary that is grep-locatable by prefix but owns no subdocument. An AXLA
 prefix naming resident artifact types (e.g. `rbi_` GAR tags), `axvs_fascicle` for
 the field keys of one wire envelope (e.g. `rblv_`).
 
-Three rulings, now live rather than pending:
+Four rulings, now live rather than pending:
 
 - **Test names never appear in source comments.** A comment naming its defending
   tests goes stale on every test rename with no forcing function. The linkage
@@ -496,6 +511,10 @@ Three rulings, now live rather than pending:
   needs an anchor at the code, and *nothing* where name-identity already
   carries the link (move discipline, rule 3). Spec acronyms remain licensed
   spec-to-spec and in veiled context files, which never ship.
+- **Spec-side citation carries at most a one-clause gist.** A sibling spec
+  citing a rivet may orient the reader with one clause beside the ID, never
+  the mechanism or rationale — those live only at the definition site (MCM
+  `mcm_rivet`). Shipped source remains rivet-or-nothing, above.
 
 ## Related Guides
 

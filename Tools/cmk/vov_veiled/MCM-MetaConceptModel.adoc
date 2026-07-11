@@ -1748,6 +1748,27 @@ and
 {mcm_sprue}
 are by contrast *lookahead arguments* that voicings read, never voiced
 subjects.
++
+A
+{mcm_rivet}
+has exactly one definition site, placed by citation reach:
+it lives in the
+{mcm_sheaf}
+that owns its subject while only that sheaf — plus source code and tests — cites it,
+and hoists to the
+{mcm_codex}
+the moment a second
+{mcm_sheaf}
+cites it, because peers consume shared vocabulary from their
+{mcm_codex},
+never from a sibling's interior.
+The hoist moves the definition prose alone:
+the identifier is never re-minted, so every citing site — code, test, and spec alike — survives placement changes unedited.
+A sibling document citing a
+{mcm_rivet}
+may orient its reader with at most one clause beside the identifier;
+the mechanism and rationale live only at the definition site.
+Until a linter enforces placement, any edit adding a cross-sheaf citation performs the hoist in the same move.
 
 [[mcm_precept]]
 {mcm_precept}::

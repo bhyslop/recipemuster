@@ -123,7 +123,7 @@
 :rbtgo_ark_graft:                 <<rbtgo_ark_graft,rbfd_graft>>
 :rbtgo_ark_kludge:                <<rbtgo_ark_kludge,rbfk_kludge>>
 :rbtgo_ark_summon:                <<rbtgo_ark_summon,rbfr_summon>>
-:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,rbfc_plumb>>
+:rbtgo_ark_inspect:              <<rbtgo_ark_inspect,zrbfc_plumb_core>>
 :rbtgo_depot_levy:                <<rbtgo_depot_levy,rbgp_depot_levy>>
 :rbtgo_depot_unmake:              <<rbtgo_depot_unmake,rbgp_depot_unmake>>
 :rbtgo_depot_list:                <<rbtgo_depot_list,rbgp_depot_list>>
@@ -980,6 +980,22 @@ The capture family obeys the same boundary as the made side — the capture imag
 Rationale: a result that depends on whatever tag happened to be current at build time is a versioning failure, not a convenience — the same anti-ambient-state ethos as content-addressed anchors, the depot tripwire, and SLSA vouch.
 The narrow bootstrap exception is bounded, supervised, and re-runnable; it touches nothing a consumer relies on.
 The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the per-grade trust details live in RBSCB.
+
+[[RBr_b4e]]
+//axvc_spoor
+RBr_b4e::
+The resolved-base label is a fact whose integrity rides the existing google-worker signature, and that trust rests on two surveyed foreign behaviors at the
+{gcb_service}
+/ buildx Palisade, each carrying its own demolition condition.
+First: the labels `docker buildx build --label` sets on the consumer image survive the per-platform pullback (`docker pull --platform` → `docker tag` → `docker push`) into the attest ark byte-identically — the image config, labels included, is preserved across the pull/tag/push round-trip (verified live: `hallmark`/`git.commit`/`git.branch` present and identical in the signed attest subject).
+Demolition: if a future buildkit/docker strips or rewrites config labels across pull/tag/push, the label no longer reaches the attest image — re-verify and relocate the label's home.
+Second: the
+{gcb_service}
+google-worker DSSE provenance signs the per-platform attest-ark pullback images, NOT the consumer image the user pulls (verified live: the consumer amd64 digest is not the signed attest subject digest), so the label rides into the signed subject's config and is tamper-evident under the existing signature.
+Demolition: if
+{gcb_service}
+changes which image its google-worker provenance covers, the label's signed home moves — re-verify.
+Full live grounding: `Memos/memo-20260630-conjure-resolved-base-provenance-location.md`.
 
 [[rbsk_human_present]]
 //axk_premise

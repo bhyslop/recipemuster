@@ -79,7 +79,7 @@ Registry API: extract from `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLM
 . *Fetch Resolved-Base Labels from the Attest Image* (conjure only):
 .. {rbbc_call}
 Registry API: fetch the signed attest ark's per-platform image config blob from `{gar_hallmarks_namespace}/«HALLMARK»/attest:«HALLMARK»-«SUFFIX»` (manifest → `.config.digest` → blob), reading `.config.Labels`
-.. The `«SUFFIX»` is the first built platform; the `rbi_resolved_base_n` labels are identical across platforms (set once at buildx, preserved byte-identically by the per-platform pullback into the signed attest image — rivet RBr_b4e)
+.. The `«SUFFIX»` is the first built platform; the `rbi_resolved_base_n` labels are identical across platforms (rivet RBr_b4e)
 .. {rbbc_store}
 the `rbi_resolved_base_n` values for the Base Image display; a pre-resolved-base hallmark (no such labels, or no attest tag at all) degrades gracefully to none
 
