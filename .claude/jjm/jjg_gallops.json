@@ -9442,6 +9442,7 @@
         "₢BsAAE",
         "₢BsAAF",
         "₢BsAAG",
+        "₢BsAAZ",
         "₢BsAAH",
         "₢BsAAL",
         "₢BsAAK",
@@ -9452,7 +9453,7 @@
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAZ",
+      "jjghn_next_pace_seed": "AAa",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -10340,6 +10341,38 @@
               ],
               "jjgtn_silks": "chaining-fact-lifetime-repair",
               "jjgtn_basis": "6d9ab0f"
+            }
+          ]
+        },
+        "₢BsAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-2215",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drop the provider segment from the terrier muniment — key and content — so the ledger's grain matches the pool-scoped IAM grant it records: (depot, mantle, subject).",
+                "The rebaseline's caged-subject admission surfaced the defect:",
+                "brevet and unseat read the provider from the WIELDER's active foedus (RBRF_PROVIDER_ID), never the citizen's asserting provider,",
+                "so the roll records a false admitting-provider whenever the two differ,",
+                "and a cross-foedus unseat expunges at a key brevet never wrote (404 read as idempotent success) — orphaned muniment, silent surplus, inverting RBSPB's intent-first invariant.",
+                "The ₢BsAAF landing report carries the full census and reasoning.",
+                "Entry points: rbgft_terrier.sh (key composition, the rbgft_provider wire field), the brevet/unseat cores (`grep RBRF_PROVIDER_ID Tools/rbk/rbgp_payor.sh`), RBSTR / RBSPB / RBSPU / RBSPA / RBSME and rehearse's roll contract; fixtures asserting roll contents adapt with it.",
+                "Migration on the standing terrier: re-run brevet for the standing admissions (idempotent, writes new-shape muniments), then escheat sweeps the old four-segment objects as dead-schema strays — mount-time check that the escheat classifier treats a wrong-segment-count key as dead schema.",
+                "",
+                "## Cinched",
+                "The provider segment drops from BOTH key and content, with no derive-from-namespace fallback:",
+                "RBSPB's co-trust normalization (one canonical subject across co-trusted production IdPs) makes the provider underivable from the subject in general,",
+                "and the pool-scoped grant leaves nothing for the segment to discriminate — two providers admitting the same subject hold the SAME binding, not two.",
+                "The muniment becomes (depot, mantle, subject), the exact mirror of the grant it records.",
+                "",
+                "## Done when",
+                "Muniment key and content carry no provider; the touched specs and verbs agree with the new shape; the standing terrier holds only new-shape muniments with the old shapes swept via escheat; polity-denial and parley green on a committed tree.",
+                "",
+                "## Character",
+                "Contained wire-format change across data layer, verbs, specs, and fixtures; moderate care, little open design — the cinches settle the shape."
+              ],
+              "jjgtn_silks": "terrier-provider-segment-drop",
+              "jjgtn_basis": "9b25079"
             }
           ]
         }
