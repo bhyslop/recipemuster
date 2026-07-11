@@ -185,10 +185,22 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     }
 
     fn jjrfr_lodge(&self, root: &Path, files: &[PathBuf], message: &str) -> Result<(), jjrfr_Rejection> {
-        let mut args: Vec<&str> = vec!["commit", "-m", message, "--"];
         let file_strs: Vec<String> = files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
-        args.extend(file_strs.iter().map(String::as_str));
-        let out = zjjrfg_run_git(root, &args);
+
+        // A new file is unknown to git until staged — `commit -- <path>` alone
+        // rejects it with "pathspec did not match". Staging first, then limiting
+        // the commit to the same explicit list, keeps both halves additive: only
+        // these paths are staged, only these paths are committed.
+        let mut add_args: Vec<&str> = vec!["add", "--"];
+        add_args.extend(file_strs.iter().map(String::as_str));
+        let add_out = zjjrfg_run_git(root, &add_args);
+        if !add_out.ok {
+            zjjrfg_unexpected("lodge", root, &add_out.stderr);
+        }
+
+        let mut commit_args: Vec<&str> = vec!["commit", "-m", message, "--"];
+        commit_args.extend(file_strs.iter().map(String::as_str));
+        let out = zjjrfg_run_git(root, &commit_args);
         if !out.ok {
             zjjrfg_unexpected("lodge", root, &out.stderr);
         }

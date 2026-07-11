@@ -181,16 +181,18 @@ fn jjtfg_glean_unreachable_when_remote_absent() {
 
 /// Sets up a bare remote plus two independent local clones both tracking it, each
 /// having pushed a baseline commit — the shared ancestor divergence tests fork from.
-fn zjjtfg_two_clones_from_baseline(bare: &Path) -> (JjkTestDir, JjkTestDir) {
+/// `name` must be unique per caller: tests run concurrently, and a shared fixed
+/// directory name races two tests' git processes against the same path.
+fn zjjtfg_two_clones_from_baseline(bare: &Path, name: &str) -> (JjkTestDir, JjkTestDir) {
     zjjtfg_init_bare(bare);
 
-    let local1 = JjkTestDir::new("jjtfg_two_clones_local1");
+    let local1 = JjkTestDir::new(&format!("{}_local1", name));
     zjjtfg_init_local(local1.path());
     zjjtfg_commit_all(local1.path(), "base.txt", "base", "init");
     zjjtfg_git(local1.path(), &["remote", "add", "origin", &bare.to_string_lossy()]);
     zjjtfg_git(local1.path(), &["push", "-q", "-u", "origin", ZJJTFG_TRUNK]);
 
-    let local2 = JjkTestDir::new("jjtfg_two_clones_local2");
+    let local2 = JjkTestDir::new(&format!("{}_local2", name));
     zjjtfg_git(bare, &["clone", "-q", "-b", ZJJTFG_TRUNK, &bare.to_string_lossy(), &local2.path().to_string_lossy()]);
     zjjtfg_git(local2.path(), &["config", "user.email", "jjtfg@example.invalid"]);
     zjjtfg_git(local2.path(), &["config", "user.name", "jjtfg"]);
@@ -201,7 +203,7 @@ fn zjjtfg_two_clones_from_baseline(bare: &Path) -> (JjkTestDir, JjkTestDir) {
 #[test]
 fn jjtfg_advance_fast_forwards_to_remote_tip() {
     let bare = JjkTestDir::new("jjtfg_advance_ff_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_ff");
 
     let tip = zjjtfg_commit_all(local2.path(), "ahead.txt", "ahead", "ahead");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
@@ -218,7 +220,7 @@ fn jjtfg_advance_fast_forwards_to_remote_tip() {
 #[test]
 fn jjtfg_advance_rejects_dirty_tree() {
     let bare = JjkTestDir::new("jjtfg_advance_dirty_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_dirty");
     zjjtfg_commit_all(local2.path(), "ahead.txt", "ahead", "ahead");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
     jjrfg_PlainGit.jjrfr_glean(local1.path());
@@ -232,7 +234,7 @@ fn jjtfg_advance_rejects_dirty_tree() {
 #[test]
 fn jjtfg_advance_rejects_diverged_when_ff_impossible() {
     let bare = JjkTestDir::new("jjtfg_advance_diverged_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_diverged");
 
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
@@ -248,7 +250,7 @@ fn jjtfg_advance_rejects_diverged_when_ff_impossible() {
 #[test]
 fn jjtfg_consign_plain_pushes_a_fast_forward_commit() {
     let bare = JjkTestDir::new("jjtfg_consign_plain_bare");
-    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_plain");
     let tip = zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
     jjrfg_PlainGit.jjrfr_consign(local1.path(), ZJJTFG_TRUNK, None).unwrap();
@@ -260,7 +262,7 @@ fn jjtfg_consign_plain_pushes_a_fast_forward_commit() {
 #[test]
 fn jjtfg_consign_rejects_diverged_without_lease() {
     let bare = JjkTestDir::new("jjtfg_consign_diverged_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_diverged");
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
     zjjtfg_commit_all(local1.path(), "from-local1.txt", "from local1", "from local1");
@@ -273,7 +275,7 @@ fn jjtfg_consign_rejects_diverged_without_lease() {
 #[test]
 fn jjtfg_consign_atomic_lease_succeeds_when_expected_matches() {
     let bare = JjkTestDir::new("jjtfg_consign_lease_ok_bare");
-    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_ok");
     let expected = zjjtfg_git(local1.path(), &["rev-parse", &format!("{}/{}", "origin", ZJJTFG_TRUNK)]);
     let tip = zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
@@ -288,7 +290,7 @@ fn jjtfg_consign_atomic_lease_succeeds_when_expected_matches() {
 #[test]
 fn jjtfg_consign_atomic_lease_rejects_when_stale() {
     let bare = JjkTestDir::new("jjtfg_consign_lease_stale_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path());
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_stale");
     let stale_expected = zjjtfg_git(local1.path(), &["rev-parse", &format!("{}/{}", "origin", ZJJTFG_TRUNK)]);
 
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
