@@ -10,14 +10,6 @@ are the {jjdb_blotter_p} contract and the journal sheaf's sequences;
 this sheaf homes the tenant: what the {jjdb_studbook} holds, and how its entries know the work
 they record.
 
-[NOTE]
-====
-*Forward references.* The tackle bindings are census-minted vocabulary whose binding sheaf
-lands after this one;
-where the words appear below they read as a forward reference to a forthcoming contract
-home, not a citation.
-====
-
 == The entity
 
 [[jjdb_studbook]]
@@ -50,7 +42,10 @@ Each {jjdb_pedigree} carries:
 
 * the {jjdf_farrier} kind — which revision-control driver serves clones of this sire —
   and its parameters (trunk name, remotes posture);
-* tackle bindings (file scope → governing discipline) as sibling entries;
+* the sire's tackle set — its filesets and the governance each carries, and in time their
+  declared interrelations — as a sibling entry ({jjdl_tackle}, tackle sheaf).
+  The {jjdl_bounds} seat in the tackle table itself, never here: coverage is tackle
+  machinery, and a second home would be a second truth;
 * reserved, parked: a per-sire edit-scope wildcard list, if billets-per-pace ever prove
   insufficient for collision avoidance.
 

@@ -4,7 +4,7 @@ This is an executory cosmology sheaf of the {jjs0_imprimatur}: binding as design
 = Revision-Control Cosmology
 
 The world model of the revision-control substrate: the shared gestalt the sibling contract
-sheaves — store, driver, dispatch — assume and none restates.
+sheaves — store, driver, dispatch, tackle — assume and none restates.
 
 == The world model
 
@@ -18,7 +18,7 @@ whatever ground each repo runs on.
 
 JJ launched anywhere derives everything it needs from where it stands:
 origin URL → sire (the registered body of work) → {jjdb_pedigree} → {jjdf_farrier} kind,
-trunk posture, tackle bindings.
+trunk posture, {jjdl_tackle} bindings.
 One derivation chain, no per-repo pointers, no clone-local state.
 The trunk of a {jjdw_hippodrome} belongs to the operator alone — JJ works in billets and
 records in the {jjdb_studbook}, and never handles the operator's serializing branch.

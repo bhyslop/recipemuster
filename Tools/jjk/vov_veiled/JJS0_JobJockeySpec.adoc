@@ -32,6 +32,7 @@
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree and counterfoil)
 // jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck sweep, refit)
 // jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade)
+// jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
 // jjsz_:  Gazette entity (officium exchange files)
@@ -277,6 +278,15 @@
 :jjdf_identify_p:   <<jjdf_identify,identify's>>
 :jjdf_palisade:     <<jjdf_palisade,vocabulary Palisade>>
 
+// Tackle (the domain binding: fileset + governance; claims, bounds, blaze registries)
+:jjdl_tackle:       <<jjdl_tackle,Tackle>>
+:jjdl_tackle_p:     <<jjdl_tackle,Tackle's>>
+:jjdl_tackle_s:     <<jjdl_tackle,Tackles>>
+:jjdl_claims:       <<jjdl_claims,claims>>
+:jjdl_bounds:       <<jjdl_bounds,bounds>>
+:jjdl_blaze:        <<jjdl_blaze,Blaze>>
+:jjdl_blaze_s:      <<jjdl_blaze,Blazes>>
+
 // Operations
 :jjdo_relocate:          <<jjdo_relocate,jjx_relocate>>
 :jjdo_alter:       <<jjdo_alter,jjx_alter>>
@@ -388,6 +398,7 @@
 :jjdk_reldir_safety:   <<jjdk_reldir_safety,RELDIR Safety>>
 :jjdk_lockless_reads:  <<jjdk_lockless_reads,Lockless Reads>>
 :jjdk_sole_door:       <<jjdk_sole_door,Sole Door>>
+:jjdk_no_catch_all:    <<jjdk_no_catch_all,No Catch-All>>
 
 // end::mapping-section[]
 
@@ -3573,8 +3584,8 @@ The frozen V3 types in `jjrt_v3_types.rs` capture the V3 schema for reference wh
 
 Job Jockey's record, decoupled from the repos it jockeys.
 The subdocument below is the world model — the shared gestalt of the revision-control sheaf
-family; its sibling contract sheaves (store, driver, dispatch) accrete here as each lands,
-draining the aspirant nucleations durable-first.
+family; its sibling contract sheaves (store, driver, dispatch, tackle) accrete here as each
+lands, draining the aspirant nucleations durable-first.
 The family stands executory (AXLA `axd_executory`): binding as design, enacted by no shipped
 surface yet — the in-repo gallops of this codex remains the live mechanism, until the
 conversion heat's cutover ceremony retires this sentence.
@@ -3596,6 +3607,9 @@ include::JJSVF-farrier.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_executory axd_operation
 include::JJSVD-dispatch.adoc[leveloffset=+2]
+
+//axvd_cartouche axd_executory axd_entity
+include::JJSVT-tackle.adoc[leveloffset=+2]
 
 == Aspirant Nucleations
 

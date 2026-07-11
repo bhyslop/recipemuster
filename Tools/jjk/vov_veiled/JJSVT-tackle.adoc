@@ -1,0 +1,398 @@
+//axvd_sheaf axd_executory axd_entity
+This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
+
+= Tackle
+
+The binding from files to the disciplines that govern them.
+A codebase holds several discipline domains at once — bash under one guide, Rust under
+another, cloud steps under a third, generated files under none — and nothing in the tree
+says which is which.
+{jjdl_tackle} is where that is said: the identified, curated filesets, and the governance
+each carries.
+
+This sheaf is the contract home for the binding itself — the {jjdl_tackle} node, its
+{jjdl_claims}, its {jjdl_bounds}, the {jjdl_blaze} registries, and the table that holds
+them.
+The relation layer — declared, typed edges *between* tackles, and the disciplines that
+govern a relation rather than either side of it — is deferred whole and stays aspirant
+(`JJSAT-tackle.adoc`);
+its consequence for this sheaf is stated at Governance members.
+
+*The structure is standing, not new.*
+The CLAUDE.md include tree, the after-code-changes suite table, the hand-maintained acronym
+maps, and the matricula's file-selection allowlist are each a hand-maintained *projection*
+of a scope→discipline binding that has no single home.
+{jjdl_tackle} is that binding's home;
+every such consumer becomes a projection that re-derives instead of drifting.
+The domain census that grounds the design is provenance
+(`Memos/memo-20260707-rbm-domain-census.md`), never authority — but two of its findings are
+load-bearing and canon here:
+the operator thinks *domains first* (globs reach files, but a domain is what carries
+governance — so the binding factors globs → domain → everything else, never glob→discipline
+directly), and some disciplines attach to a *relation* rather than to either fileset alone
+(ACG is the type specimen: it governs the citation relation between code and its
+specification).
+
+== The entity
+
+[[jjdl_tackle]]
+//axo_entity
+{jjdl_tackle}::
+One domain binding: a fileset plus the governance it carries.
+A {jjdl_tackle} is countable — the aggregate is a sire's table of them, and *the tackle set*
+is plain prose, deliberately unminted until the aggregate itself acquires behavior worth
+naming.
++
+The key is the {jjdl_tackle_p} *name*: a plain spoken word, used in audit and error speech
+("this file is claimed by both `rb-bash` and `cloud-steps`").
+It is a name, never an identity.
+Nothing durable references a {jjdl_tackle} — resolution runs files-first, from a path to
+the rows that claim it — so there is no minted insignia, no seed, and no glyph, and a rename
+is a one-file act.
+Identity re-enters only with the first durable referencer, and only for that channel.
+
+=== Governance members
+
+What a {jjdl_tackle} binds is carried in *typed members*, each with its own consumer and its
+own value type — authoring guides, behavioral conduct, the specifications it balances
+against, and the verification commands (schema below).
+A single undifferentiated bundle is deliberately refused: it would flatten distinct natures
+into one list a consumer could discriminate only by reading the documents, which is the
+linguistic inference this design forbids.
+Sophistication therefore lands as *new members*, never as new kinds threaded through a
+generic list.
+
+A genuine contradiction between two co-governing documents is surfaced to the operator,
+never auto-resolved.
+
+The document members are *flattened edges*: the relation is collapsed onto its node because
+the only member-consuming act in the MVP is provisioning, and the session that needs the
+document is the session writing the code.
+What flattening drops is exactly the pairing a relation-consumer would need — that ACG
+governs the citations *into that specification set*, not the code in isolation — so these
+members normalize into declared edges at the same act that lands the first relation
+consumer, ACG the first migrant.
+
+== Claims
+
+[[jjdl_claims]]
+{jjdl_claims}::
+The intensional membership rule of one {jjdl_tackle}: an *anchored* subtree × shape
+conjunction (`Tools/rbk/rbtd/**` × `*.rs`).
+Wildcards are the mechanism, not the hazard: `**` subtree recursion and `*.rs` shape globs
+are how a domain grabs its files.
+What is banned is the *unanchored*, floating pattern, and it refuses at the write door.
++
+Anchor width is audited, never prohibited: a root-anchored recursive claim has maximal
+swallow radius and a bare-`*` shape hides its own reach, so each is a census finding the
+matricula reports, leaving the judgment with the operator.
+
+*Claims are positive, at domain grain.*
+New files and new subdirectories inside a claimed domain fall in automatically — which is
+correct, because the domain owner chose the criterion once — while a *new domain* is never
+automatic and deserves a founding act, the pedigree's deliberate-ceremony posture one level
+down.
+With claims written at domain grain, *placing a file is affiliating it*: the location
+decision the operator already makes is the discipline decision.
+The proposition classifies as a rivet;
+its opaque tail mints at implementation, citing this section.
+
+The reason is a failure asymmetry, and it is decisive.
+Under-coverage — positive membership's failure mode — is mechanically detectable: the
+{jjdl_bounds} minus the claims is a set subtraction any validator runs, no judgment needed.
+Mis-affiliation — the failure mode of a negative, exclusion-based table — is undetectable by
+construction, because the table *is* the definition of what is right: the wrong discipline
+surfaces only when it misbehaves, which for a security-posture binding means discovery by
+incident.
+Given the choice, take the failure mode that can be automated away.
+
+=== The derived roster
+
+The table is *rules, never lists*: the concrete file list a {jjdl_claims} rule yields against
+a tree state is always derived, never authored.
+That roster is per-clone, disposable, station-local state.
+
+*No derived roster is ever written into the {jjdb_studbook}* — it lives in station-local
+scratch, exactly as a worktree path does (the no-worktree-paths rivet, studbook sheaf: a
+regional record never holds a station-local fact).
+The proposition classifies as a rivet;
+its opaque tail mints at implementation, citing this section.
+Caching, should the trees grow large enough to want it, is keyed by table version and tree
+state and lands in that same station-local scratch.
+
+The two query directions scale differently, and the design leans on it:
+path→discipline is `O(rules)` per path with no tree walk — the saddle-time direction, and
+the same reason `gitattributes` serves million-file repos;
+roster materialization and the coverage audit walk the {jjdl_bounds} only, are batch by
+nature, and are where any caching belongs.
+
+== Bounds and the three verdicts
+
+[[jjdl_bounds]]
+{jjdl_bounds}::
+The per-sire boundary within which coverage is owed, declared as positive globs.
+For the home repo it is the whole tracked tree;
+for a large vanilla sire it is the subtrees JJ actually works.
+The {jjdl_bounds} seat in the {jjdl_tackle} table — coverage is tackle machinery — and the
+{jjdb_pedigree} carries no duplicate.
+
+Any path then has exactly one of three mechanical verdicts:
+
+* *claimed* — some {jjdl_tackle} governs it.
+* *unclaimed, in bounds* — the defect: loud, surfaced by the coverage subtraction.
+* *out of bounds* — a known-unknown, never a defect, though a session touching one is told
+  so.
+
+The verdicts are deliberately unnamed: they are spoken in plain words, and no vocabulary is
+spent until a consumer proves it needs one.
+
+The same boundary caps census cost — the coverage walk prunes out-of-bounds subtrees
+entirely.
+Governance honesty and traversal cost turn out to be one boundary.
+
+[[jjdk_no_catch_all]]
+//axk_premise
+{jjdk_no_catch_all}::
+There is no default.
+No catch-all row exists, and coverage is never reached by a bucket swallowing the remainder.
+Totality is reached instead because *humble disciplines are first-class rows* — "generated:
+regenerate, never hand-edit", "provenance, never authority", "inert asset" are genuine
+governing statements and earn ordinary {jjdl_tackle} rows of their own.
+The bound is the design itself: no guard can distinguish a legitimately broad claim from a
+catch-all, so the discipline is the absence of the mechanism, not a check on it.
+
+=== Overlap is co-membership
+
+A file may sit in two domains at once — the standing example is workstation bash that with
+slight modification also runs in the cloud, BCG and CBG both applying.
+Consumers take the *union* of the governance members;
+no precedence machinery exists, and coverage reads *at least one* claim.
+
+Accidental overlap is guarded by claims written at honest grain and by the audit report
+showing every overlap — never by hand-mirrored exclusions, which is the failure the SlickEdit
+specimen died of.
+A supplanting relation ("this specific claim excludes that general one"), if it is ever
+genuinely needed, is a future deliberate addition.
+
+A claim rule matching zero files is rot: the census reports it as a notice, not an error.
+
+== Blaze
+
+[[jjdl_blaze]]
+{jjdl_blaze}::
+A role word, defined once per table in the registries and bound there to a concrete document
+or specification set, then referenced by role from the {jjdl_tackle} rows.
++
+A {jjdl_blaze} is a *declared variable, never an identity*.
+The role outlives any particular binding: a consumer asks for the bash guide's role and
+receives whatever document the table binds today, so the day the guide changes, the key does
+not lie.
+Keys are therefore role words, never document acronyms — `₿bash-guide`, not the guide's name.
++
+One blaze namespace spans every registry: a role word defines once per table, and resolution
+always runs against the table in play.
+Late binding is what makes a row *crossbred* — a {jjdl_tackle} copied from one sire's table
+into another's binds to the receiving table's own definitions and stays correct on arrival.
++
+A {jjdl_blaze} is ₿-sigiled at every reference site and in every wire key, per AXLA's
+minted-mark carriage law (Minted-Mark Dimensions, role-word clause).
+
+The write door validates the registries: a reference to an undefined {jjdl_blaze} and a
+duplicate role word each refuse.
+
+== The table
+
+One file per sire's tackle set, {jjdb_studbook}-side.
+
+*JJ is the sole author.*
+Every write passes through a JJ verb, engine-written under the {jjdb_journal} and the
+{jjdb_studbook} lock, validating semantics at the door exactly as the {jjdgr_gallops} does —
+never a hand-edited document.
+Every other party reads: the matricula reads and lints, never writes, and owns the deep lint
+surface (coverage subtraction, anchor-width and dead-row findings, balance resolution),
+reading these same rows.
+The table reader itself validates only what it needs in order to function.
+
+Serialization is gallops-grade: deterministic key order, and optional members
+skip-when-absent so an untouched store stays byte-canonical as new members arrive.
+Read-side tolerance stands as defense in depth — a bad value surfaces loud at use, and a
+store never becomes illegitimate.
+A {jjdl_tackle} serializes as one contiguous, self-contained, diff-clean block, which is what
+makes crossbreeding a block copy.
+
+=== Wire keys
+
+Wire keys carry the `jjot` sprue.
+
+*Standing allocation:* `jjo` is the JJ JSON-sprue container — a non-terminal, naming nothing
+itself.
+Each JJ-authored JSON wire format takes one fourth letter beneath it (`jjot` = tackle);
+any future JJ wire format must be allocated here.
+The {jjdgr_gallops} sprue `jjg` predates the rule and stands unchanged.
+
+Tail grammar follows the {jjdgr_gallops} precedent: one structure letter (`r` root, `t`
+tackle row, `g` guide entry, `c` codex entry; `e` reserved for declared edges), then kind `n`
+for a field key or `e` for an enum token.
+The sprue carries uniqueness, so member tails stay plain English.
+
+[source,json]
+----
+{
+  "jjotrn_bounds": ["Tools/**", "Memos/**", "tt/*.sh"],
+  "jjotrn_guides": {
+    "₿bash-guide": { "jjotgn_path": "Tools/buk/vov_veiled/BCG-BashConsoleGuide.md" },
+    "₿rust-guide": { "jjotgn_path": "Tools/vok/vov_veiled/RCG-RustCodingGuide.md" },
+    "₿rb-conduct": { "jjotgn_path": "Tools/rbk/claude-rbk-conduct.md" }
+  },
+  "jjotrn_codices": {
+    "₿rb-codex": { "jjotcn_dir": "Tools/rbk/vov_veiled", "jjotcn_codex": "RBS0-SpecTop.adoc" },
+    "₿jj-codex": { "jjotcn_dir": "Tools/jjk/vov_veiled", "jjotcn_codex": "JJS0_JobJockeySpec.adoc" }
+  },
+  "jjotrn_tackles": {
+    "theurge": {
+      "jjottn_claims":      ["Tools/rbk/rbtd/**/*.rs"],
+      "jjottn_guides":      ["₿rust-guide"],
+      "jjottn_conduct":     ["₿rb-conduct"],
+      "jjottn_specs":       ["₿rb-codex"],
+      "jjottn_balances":    ["RBSTC-theurge_cosmology.adoc"],
+      "jjottn_check_build": ["tt/rbw-tb.Build.sh"],
+      "jjottn_check_test":  ["tt/rbw-tt.Test.sh"]
+    },
+    "rb-bash": {
+      "jjottn_claims":     ["Tools/rbk/*.sh"],
+      "jjottn_guides":     ["₿bash-guide"],
+      "jjottn_conduct":    ["₿rb-conduct"],
+      "jjottn_specs":      ["₿rb-codex"],
+      "jjottn_check_lint": ["tt/rbw-tl.Shellcheck.sh"]
+    },
+    "generated": {
+      "jjottn_claims":  ["Tools/rbk/rbtd/src/rbtdgc_consts.rs",
+                         "Tools/rbk/claude-rbk-tabtarget-context.md"],
+      "jjottn_conduct": ["₿rb-conduct"]
+    }
+  }
+}
+----
+
+=== Members, root grain
+
+`jjotrn_bounds`::
+The {jjdl_bounds}: positive globs within which coverage is owed.
+
+`jjotrn_guides`::
+{jjdl_blaze} definitions for single governing documents.
+Entry members: `jjotgn_path` (home-relative path), and skip-when-absent `jjotgn_corpus` —
+absent means the document lives in the sire's own tree; present, it names one of the table's
+registered corpora.
+
+`jjotrn_codices`::
+{jjdl_blaze} definitions for specification sets: `jjotcn_dir` (the set's one directory) plus
+`jjotcn_codex` (the SpecTop basename — the entry door), with the same skip-when-absent
+`jjotcn_corpus`.
+A set entry deliberately does not enumerate its sheaves: membership is the claim rows' job,
+and on-demand loading rides the codex's own index — restating it here would recreate the
+home.
+
+`jjotrn_tackles`::
+The rows, keyed by {jjdl_tackle} name.
+
+`jjotrn_corpora`::
+*Reserved, unbuilt.*
+The named-corpora registry, plural by design, keyed by plain corpus names.
+Its entry shape settles with the corpus home it serves (aspirant sheaf).
+
+=== Members, tackle grain
+
+Every member is optional and skip-when-absent.
+
+`jjottn_claims`::
+The fileset definition ({jjdl_claims}).
+
+`jjottn_guides`::
+Authoring-discipline {jjdl_blaze} references, provisioned before writing begins.
+The member any future honing intelligence operates on.
+
+`jjottn_conduct`::
+Behavioral-membrane {jjdl_blaze} references — never honed away (Reaching a session).
+
+`jjottn_specs`::
+Codex {jjdl_blaze} references the domain balances against;
+provisioned as the entry door, never inlined wholesale.
+
+`jjottn_balances`::
+Express sheaf basenames within a referenced set, for a domain whose balance target is finer
+than the codex.
+Resolution against the registered sets is a matricula lint, not a reader gate.
+
+`jjottn_check_build` / `jjottn_check_test` / `jjottn_check_lint`::
+Verification commands, ordered, run from the tree root;
+kind-agnostic strings, so a vanilla body's `npm test` sits as comfortably as a tabtarget.
+Consumers surface them to the session as advice.
+What ordering means on failure, whether the members interdepend, and where declared semantics
+stop are deferred until the commands have a live consumer (aspirant sheaf) — until then no
+consumer executes them as a contract.
+
+`jjotrn_swingletrees`::
+*Reserved, unbuilt.*
+Declared interrelations, arriving with the first consumer of the relation itself (aspirant
+sheaf).
+How an edge references a {jjdl_tackle} — by name key, or by an identity minted for the
+purpose — is decided at that act.
+
+== Where it lives
+
+{jjdb_studbook}-side, beside the {jjdb_pedigree}: one tackle set per sire.
+Never in the {jjdw_hippodrome}, which carries no JJ inserts (cosmology sheaf).
+
+{jjdl_tackle} and {jjdf_farrier} configuration are sibling {jjdb_pedigree} entries answering
+different questions on different cadences:
+{jjdl_tackle} binds *files to rules* and changes when code domains shift;
+the {jjdf_farrier} binds *the repo to its mechanics* and changes when repo topology shifts.
+Letting one swallow the other would regrow the maximal tackle this contract deliberately
+defers.
+
+The vanilla-hippodrome premise also forecloses the in-tree distributed rule file — the
+`gitignore`/`gitattributes` scaling trick — because no such file may land in a
+{jjdw_hippodrome}.
+{jjdl_tackle} must therefore be centralized and external, which is what makes the
+intensional table plus a live evaluator mandatory rather than merely elegant.
+
+=== Where the governing documents live
+
+A registered document is either *locale* — living in the sire it serves, the legitimate and
+expected pattern as a project accretes its own guidance — or *central*: a proprietary corpus,
+as closed as the record itself, never planted in a sire's tree.
+The home repo's in-tree guides are simply the first locale instance.
+A registry entry names its holding corpus only when the document is *not* in the sire's own
+tree, which is what the skip-when-absent corpus member says.
+Which private home holds a central corpus is an open question and stays aspirant;
+the reference form does not depend on the answer.
+
+== How it reaches a session
+
+At saddle time the dispatch spine resolves the sire's {jjdb_pedigree}, reads its tackle set,
+and provisions the session's context at *file* grain (dispatch sheaf, Launch-time
+provisioning).
+This is what replaces repo-resident context at repo grain with runtime binding, and what lets
+a vanilla external project receive discipline context while carrying none of it.
+
+The dispatch sheaf's two standing repairs — the unhoned *conduct core* and the *pull door* —
+are {jjdl_tackle}-consumer obligations, not dispatch-local conveniences:
+they bind any consumer that hones on these members, and `jjottn_conduct` is the member that
+is never honed away.
+Their rationale is homed at the dispatch sheaf (Launch-time provisioning) and not restated
+here.
+
+Each consumer reads facets of the same rows, and none owns the table.
+
+== Names in data, shape in code
+
+The reader and its consumers know the *schema* — what a row is, what a member is — and never
+any particular name.
+No `BCG`, no `theurge`, no domain vocabulary is baked into the engine:
+documents are reached through role-word {jjdl_blaze} references resolved in the table, and a
+name graduates into code behavior only by a later deliberate act, never by drift.
+The house precedent is the BURE tweak-name gate — enforce the shape, never the census.
+
+This is also what keeps domain fluidity cheap: changing what a domain is, or adding one, is
+a table edit — journaled, {jjdb_studbook}-side — never a rebuild.
