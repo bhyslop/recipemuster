@@ -5375,8 +5375,8 @@
         "₢BDAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1649",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1445",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Post-interdictum validation plus spec homing.",
@@ -5397,7 +5397,7 @@
                 "- Validation requires the operator convening fresh sub-frontier chats — stays unbridled, frontier-run."
               ],
               "jjgtn_silks": "wrong-model-progression-halt",
-              "jjgtn_basis": "3edc73c"
+              "jjgtn_basis": "9c88e60"
             }
           ]
         },
