@@ -3631,8 +3631,9 @@
         "₢BCAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1607",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1611",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3659,7 +3660,7 @@
                 "- Suite membership for these fixtures."
               ],
               "jjgtn_silks": "calibrant-coverage-foundation",
-              "jjgtn_basis": "a5ee078"
+              "jjgtn_basis": "c68af01"
             }
           ]
         },
