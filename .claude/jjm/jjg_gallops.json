@@ -4402,7 +4402,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260711-1537",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical sweep — the first worked application of ACG's magic-string discipline.",
@@ -4447,7 +4448,7 @@
                 "tt/rbw-tl.Shellcheck.sh and tt/rbw-ts.TestSuite.reveille.sh green."
               ],
               "jjgtn_silks": "rbrv-env-bash-sweep",
-              "jjgtn_basis": "1bcd3cd"
+              "jjgtn_basis": "ecf817d"
             }
           ]
         },
