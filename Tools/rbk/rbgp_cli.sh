@@ -108,16 +108,18 @@ zrbgp_furnish() {
   # The polity admission verbs
   # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
   # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +
-  # sitting machinery) on top of the depot/repo regimes. Gird (the payor-wielded
-  # founding first-governor admission) rides the same enforce set but drives the
-  # shared core with the payor credential, not a don. Every other command works a
-  # specific depot.
+  # sitting machinery — the don's STS audience rides the provider) on top of the
+  # depot/repo regimes. Gird (the payor-wielded founding first-governor admission)
+  # drives the shared core with the payor credential, not a don, and the
+  # pool-scoped admission core reads no provider (RBSTN), so gird enforces RBRW
+  # without RBRF — an active foedus need not stand before the founding admission.
+  # Every other command works a specific depot.
   case "${z_command}" in
     rbgp_depot_list|rbgp_manor_escheat)                 : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrw_enforce; zrbrf_enforce ;;
     rbgp_manor_raze)                                    zrbrw_enforce ;;
     rbgp_manor_instaurate)                              zrbrw_enforce; zrbrd_enforce ;;
-    rbgp_gird)                                          zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
+    rbgp_gird)                                          zrbrw_enforce; zrbrr_enforce; zrbrd_enforce ;;
     rbgp_brevet|rbgp_unseat|rbgp_attaint|rbgp_rehearse) zrbrw_enforce; zrbrf_enforce; zrbrr_enforce; zrbrd_enforce ;;
     *)                                                  zrbrr_enforce; zrbrd_enforce ;;
   esac

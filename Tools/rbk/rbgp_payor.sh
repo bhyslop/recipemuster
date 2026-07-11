@@ -3057,7 +3057,6 @@ zrbgp_brevet_core() {
 
   local -r z_bucket="${RBGP_TERRIER_BUCKET}"
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
-  local -r z_provider="${RBRF_PROVIDER_ID}"   # active foedus's provider (RBRF, non-empty via the CLI arm's zrbrf_enforce)
   local z_mantle_email
   z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
     || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
@@ -3067,7 +3066,7 @@ zrbgp_brevet_core() {
   buc_step "Brevet ${z_subject} onto the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: write the muniment before any binding'
-  rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}" >/dev/null
+  rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
 
   buc_log_args 'Ensure tokenCreator on the mantle SA (the don grant)'
   rbgi_add_sa_principal_iam_role "${z_token}" "${z_mantle_email}" "${z_principal}" \
@@ -3098,7 +3097,6 @@ zrbgp_unseat_core() {
 
   local -r z_bucket="${RBGP_TERRIER_BUCKET}"
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
-  local -r z_provider="${RBRF_PROVIDER_ID}"   # active foedus's provider (RBRF, non-empty via the CLI arm's zrbrf_enforce)
   local z_mantle_email
   z_mantle_email=$(zrbgp_mantle_sa_email_capture "${z_mantle}") \
     || buc_die "Unknown mantle '${z_mantle}' (expected governor | director | retriever)"
@@ -3108,7 +3106,7 @@ zrbgp_unseat_core() {
   buc_step "Unseat ${z_subject} from the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: withdraw the muniment before removing the binding'
-  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_provider}" "${z_subject}" >/dev/null
+  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
 
   buc_log_args 'Remove tokenCreator on the mantle SA (depot-scoped binding stays: suspension)'
   rbgi_revoke_sa_principal_member "${z_token}" "${z_mantle_email}" "${z_principal}" \

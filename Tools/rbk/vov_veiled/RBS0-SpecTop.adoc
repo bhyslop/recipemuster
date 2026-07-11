@@ -2391,11 +2391,7 @@ The read act over a
 (medieval sense: to recount a record formally, in order) — it recounts what the
 {rbtf_muniment_s}
 say.
-Because every
-{rbtf_muniment}
-now carries its admitting provider, a manor-wide rehearse attributes each holding to the
-{rbtf_foedus}
-it was admitted through, so co-resident foedera never conflate into one line.
+The manor-wide roll is depot-attributed: each line names the polity slice that holds it, so identical holdings across depots never conflate into one line.
 Distinct from the spec-interior reconciliation diff, which checks the record against reality; rehearse recounts the record alone.
 
 [[rbtf_muniment]]
@@ -2404,9 +2400,7 @@ A single
 {rbtf_terrier}
 entry recording one (principal subject,
 {rbtf_mantle}
-held, admitting
-{rbtf_foedus}
-provider) triple — deeds preserved as proof of rights.
+held) pair — deeds preserved as proof of rights, at the exact grain of the pool-scoped grant they prove.
 A muniment names a holding, not a secret: key identifiers vanish with the keys the federation no longer mints.
 
 [[rbtf_census]]

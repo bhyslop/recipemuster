@@ -33,14 +33,13 @@ holds which
 {rbtf_mantle}
 — one
 {rbtf_muniment}
-per object, recording (principal subject, mantle held, admitting provider).
-The provider segment discriminates co-resident foedera under the one pool, so
+per object, recording (principal subject, mantle held) — the exact grain of the pool-scoped IAM grant it records.
 {rbtf_engross}
 and
 {rbtf_expunge}
-key on the triple while
+key on the pair while
 {rbtf_peruse}
-recovers each holding's admitting provider from the muniment body.
+recovers each holding from the muniment body.
 Exactly three sub-operations touch it at the muniment grain, each a single
 conditioned REST call against the bucket:
 
@@ -121,7 +120,7 @@ properties of the noun, not of this access subdoc, so they are not restated here
 One resolution bears on the write semantics above: granularity is per-entry — one
 object per (principal subject,
 {rbtf_mantle}
-held, admitting provider) triple — so a muniment is immutable: a holding exists or it does not. Writes
+held) pair — so a muniment is immutable: a holding exists or it does not. Writes
 are therefore create-and-delete only (
 {rbtf_engross}
 then

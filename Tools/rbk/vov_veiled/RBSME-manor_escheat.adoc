@@ -69,10 +69,13 @@ data-layer sub-operations — the classifying *survey* and the *raw expunge* —
 deliberately operate at the raw bucket-object grain, beneath the muniment
 sub-operations of the access contract (RBSTR), because their subjects are
 precisely the objects that fail or predate that contract. The survey classifies
-each object against the current muniment shape (RBSTN): the four-segment key
-`«depot»/«mantle»/«provider»/«subject»` with the mantle in its enum, a JSON body
-carrying the three non-empty `rbgft_` fields, and body-key agreement on
-(mantle, provider, subject). A read-after-list `404` is the benign vanish, skipped
+each object against the current muniment shape (RBSTN): the three-segment key
+`«depot»/«mantle»/«subject»` with the mantle in its enum, a JSON body
+carrying the two non-empty `rbgft_` fields, and body-key agreement on
+(mantle, subject). Body-key agreement is what condemns a retired key schema: the
+subject reads as the key's remainder, so a key carrying extra segments (the
+pre-drop four-segment provider key) disagrees with its own body and classifies
+as a dead-schema stray. A read-after-list `404` is the benign vanish, skipped
 exactly as the peruse lister skips it. The raw expunge deletes by listed object
 name unconditioned (`204` deleted, `404` already-absent — both clean). Their
 deliberate rejections share the escheat band: one gate, its deficits rules within
