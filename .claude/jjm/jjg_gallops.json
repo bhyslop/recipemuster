@@ -5546,8 +5546,8 @@
         "₢BDAAu": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1656",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1449",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
@@ -5574,7 +5574,7 @@
                 "Mechanical. One crate, one Cargo dependency line, a set of deletions, and a one-for-one macro swap. No design decisions remain."
               ],
               "jjgtn_silks": "vof-output-discipline-and-banner-dedup",
-              "jjgtn_basis": "2a92912"
+              "jjgtn_basis": "d22bd72"
             }
           ]
         },
