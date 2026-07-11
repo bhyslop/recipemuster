@@ -7026,8 +7026,8 @@
         "₢BrAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1344",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1617",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -7042,7 +7042,7 @@
                 "Dispatch exports it later; nothing consumes it yet."
               ],
               "jjgtn_silks": "burv-log-dir-override",
-              "jjgtn_basis": "3f57460"
+              "jjgtn_basis": "5a1129b"
             }
           ]
         },
