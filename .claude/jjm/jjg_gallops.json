@@ -6931,8 +6931,8 @@
         "₢BrAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1343",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1524",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -6948,7 +6948,7 @@
                 "the maximal remainder stays aspirant per the one-word-one-concept resolution."
               ],
               "jjgtn_silks": "tackle-mvp-sheaf",
-              "jjgtn_basis": "7fa8bc2"
+              "jjgtn_basis": "52f9da5"
             }
           ]
         },
