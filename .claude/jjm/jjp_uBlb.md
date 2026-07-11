@@ -1,7 +1,7 @@
 ## Shape
 
 Pre-MVP source/spec hygiene grown into the ACG audit program, in two strata.
-First, targeted allocation sweeps feathered in pace-at-a-time alongside MVP
+First, targeted allodial sweeps feathered in pace-at-a-time alongside MVP
 feature finalization — magic-string -> constant sweeps and noun-cluster
 curation, each with a blast radius that merges trivially.
 Second, the audit program: per-pair spec/module audits under the ACG move
@@ -11,7 +11,7 @@ mechanism and guide work the audits themselves surfaced —
 the cited-constraint anchor design,
 the jailer dialect guide,
 and the deferred collapse landings they gate.
-A seed, not a tree: scope stays tight to the source/spec allocation family.
+A seed, not a tree: scope stays tight to the source/spec allodial family.
 Resist becoming the junk drawer for unrelated cleanups.
 
 ## Governing idea
@@ -32,6 +32,16 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   acronym and ACGm_ move IDs unchanged, so every citer survived the rename).
   Veiled/proprietary, guide-family sibling to BCG/RCG/WSG/CBG.
   Not released at MVP.
+- Conformance-row ruling (mount, allocation-word eviction):
+  "allocation" earns no kill-stem row.
+  Its surviving durable uses are bare prose tokens in ordinary
+  resource-allocation sense — the exit-code band's allocation rule,
+  identifier/namespace minting across JJS0/VOS0/AXLA, vendor quota and
+  kernel-port vocabulary — which the fixture's keep_contexts kinds
+  (Identifier / PathPrefix) structurally cannot spare;
+  the eviction was sense-scoped by hand against the pace census,
+  and the ACG-sense register is now allodial/homing wording,
+  leaving no stem a row could guard.
 - v1 posture: bless and name emergent practice; no mandated universals;
   no qualify-time enforcement.
   Universals are candidates confirmed pace-by-pace.
@@ -123,10 +133,10 @@ Triage rider across all audit work:
 reliquary / Lode / Hallmark vocabulary settled when ₣BH's terminal scrub
 landed,
 but term curation against it stays out of this heat's scope —
-allocation findings only.
+allodial findings only.
 Manor / Depot / federation vocabulary was ₣BZ/₣Bf's lane;
 both heats have retired, lifting the report-never-touch bar,
-but curation there stays out of this heat's scope — allocation findings only.
+but curation there stays out of this heat's scope — allodial findings only.
 Verb clusters stay unslated until their owning heats land;
 slating against terms a hot heat is still moving would re-create the drift
 this heat exists to kill.
