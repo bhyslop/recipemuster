@@ -30,6 +30,11 @@ source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 # Source Foundry Verify module (ordain cross-module calls: rbfv_vouch, zrbfv_graft_metadata_submit)
 source "${BASH_SOURCE[0]%/*}/rbfv_verify.sh"
 
+# Tinder constants
+# Step id of the hallmark-echoing conjure step — single mint shared by the
+# step defs and the consistency assert, which locates its output slot by id
+RBFD_hallmark_echo_step_id="derive-tag-base"
+
 ######################################################################
 # Internal Functions (zrbfd_*)
 
@@ -66,10 +71,6 @@ zrbfd_kindle() {
 
   buc_log_args 'Define context push operation files'
   readonly ZRBFD_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
-
-  # Step id of the hallmark-echoing build step, shared by the conjure step
-  # defs and the consistency assert so the two sites cannot drift apart
-  readonly ZRBFD_HALLMARK_ECHO_STEP_ID="derive-tag-base"
 
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
   zrbfv_kindle
@@ -489,7 +490,7 @@ zrbfd_stitch_build_json() {
   # Pipeline: resolve base digests → buildx --push → per-platform pullback → SLSA
   # provenance via images: field
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|${ZRBFD_HALLMARK_ECHO_STEP_ID}"
+    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|${RBFD_hallmark_echo_step_id}"
   )
   if test "${z_needs_binfmt}" = "true"; then
     z_step_defs+=("rbgjb02-qemu-binfmt.sh|${z_rbfc_tool_docker}|bash|qemu-binfmt")
@@ -1031,24 +1032,22 @@ rbfd_build() {
   zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_CONJURE}" "Conjure"
 
   # Consistency assert: verify Cloud Build echoed back the same hallmark we
-  # minted. buildStepOutputs is index-aligned with the steps array (a step
-  # that writes no output still holds a slot), so the echoing step's slot is
-  # located by id from the same response, never by a fixed index.
+  # minted. buildStepOutputs is index-aligned with the steps array — a step
+  # that writes no output still holds a slot — so the slot index must come
+  # from .steps of the same response, never a baked-in position.
   buc_step "Verifying hallmark consistency"
 
-  local z_step_index=""
-  jq -r --arg id "${ZRBFD_HALLMARK_ECHO_STEP_ID}" \
+  jq -r --arg id "${RBFD_hallmark_echo_step_id}" \
     '.steps | map(.id) | index($id) // empty' \
     "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
-    || buc_die "Failed to locate step ${ZRBFD_HALLMARK_ECHO_STEP_ID} in build response"
-  z_step_index=$(<"${ZRBFC_SCRATCH_FILE}")
+    || buc_die "Failed to locate step ${RBFD_hallmark_echo_step_id} in build response"
+  local -r z_step_index=$(<"${ZRBFC_SCRATCH_FILE}")
   test -n "${z_step_index}" \
-    || buc_die "Step ${ZRBFD_HALLMARK_ECHO_STEP_ID} not found in build response steps"
+    || buc_die "Step ${RBFD_hallmark_echo_step_id} not found in build response steps"
 
-  local z_step_output=""
   jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die "Failed to extract buildStepOutputs[${z_step_index}] from build response"
-  z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
+  local -r z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
   test -n "${z_step_output}" \
     || buc_die "Build echoed no hallmark (buildStepOutputs[${z_step_index}] empty) — cannot corroborate host-minted hallmark"
 
