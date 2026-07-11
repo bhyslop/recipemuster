@@ -213,12 +213,17 @@ buh_ternary() {
 
 ######################################################################
 # Public: User prompts
+#
+# Every prompt below is newline-terminated by necessity: the non-interactive
+# dispatch relay forwards this stream a whole line at a time, so a partial line
+# never reaches the terminal — the operator would face a blocked read with no
+# visible prompt. Input is typed on the line beneath. Do not rejoin them.
 
 # buh_prompt "prompt text"
 # Displays prompt and reads user input, returns via stdout
 buh_prompt() {
   zbuh_sentinel
-  printf '%s' "${1:-}" >&2
+  printf '%s\n' "${1:-}" >&2
   local z_input
   read -r z_input
   printf '%s' "${z_input}"
@@ -229,7 +234,7 @@ buh_prompt() {
 # Emits a trailing newline to stderr so subsequent output starts on a fresh line.
 buh_prompt_secret() {
   zbuh_sentinel
-  printf '%s' "${1:-}" >&2
+  printf '%s\n' "${1:-}" >&2
   local z_input
   read -rs z_input
   printf '\n' >&2

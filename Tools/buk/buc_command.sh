@@ -407,7 +407,11 @@ buc_require() {
   sleep 1
   zbuc_tint BUYC_BRIGHT_YELLOW "${z_prompt}"
   printf '%s\n' "${z_buym_format}" >&2
-  printf 'Type %s to confirm: ' "${z_required_value}" >&2
+  # Newline-terminated by necessity: the non-interactive dispatch relay forwards
+  # this stream a whole line at a time, so a partial line never reaches the
+  # terminal — the operator would face a blocked read with no visible prompt.
+  # The answer is typed on the line beneath. Do not rejoin prompt and answer.
+  printf 'Type %s to confirm:\n' "${z_required_value}" >&2
   local z_input
   read -r z_input </dev/tty
   test "${z_input}" = "${z_required_value}" || buc_die "Confirmation failed — expected '${z_required_value}', got '${z_input}'"
