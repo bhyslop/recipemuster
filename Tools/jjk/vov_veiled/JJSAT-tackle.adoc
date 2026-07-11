@@ -387,7 +387,7 @@ operator-spoken; the spoken five are *silks*, *remuda*, *trappings*, *hames*, *a
   "jjotrn_hames": [
     { "jjoten_from": "‹g›AAB", "jjoten_to": "‹g›AAC",
       "jjoten_tag": "cites-spec",
-      "jjoten_rule": "Tools/cmk/vov_veiled/ACG-AllocationCodingGuide.md" }
+      "jjoten_rule": "Tools/cmk/vov_veiled/ACG-AllodialCodingGuide.md" }
   ]
 }
 ----
@@ -665,7 +665,7 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
 * Retired heat jjk-v4-4-school-breeze-founding (₣Ah) — its paddock's tackle/blaze vocabulary
   and its tackle design docket, the maximal layer banked above; the execution context is
   recast in the breeze aspirant sheaf (JJSAB).
-* ACG (Allocation Coding Guide) — the several-domains observation, and the edge-discipline
+* ACG (Allodial Coding Guide) — the several-domains observation, and the edge-discipline
   type specimen.
 * Chat gamma-fable-regional-gallops (260704) — the MVP re-scope and pedigree-sibling
   placement.

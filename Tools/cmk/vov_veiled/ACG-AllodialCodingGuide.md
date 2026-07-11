@@ -4,7 +4,7 @@ All rights reserved.
 SPDX-License-Identifier: LicenseRef-Proprietary
 -->
 
-# Allocation Coding Guide (ACG) — Reference the Home
+# Allodial Coding Guide (ACG) — Reference the Home
 
 *Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
 
@@ -488,7 +488,7 @@ Guides may overlap in content; a file is never subject to two.
 
 | Term | Expansion |
 |------|-----------|
-| ACG | Allocation Coding Guide (this document) |
+| ACG | Allodial Coding Guide (this document) |
 | The spine | "Reference the home" — values → constants, concepts → quoin-refs, statements → definition sites |
 | Wire format | An RB-authored JSON document with senders and receivers; a named home whose keys are minted (sprued) names — the fourth clause |
 | Word cancer | Variations of one normative idea scattered as paraphrases, each drifting independently; the metastatic violation of statements → definition sites. Quoin home: MCM `mcm_word_cancer` |
