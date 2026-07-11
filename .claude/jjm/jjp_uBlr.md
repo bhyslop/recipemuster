@@ -251,6 +251,10 @@ the implementation tail runs at work tier.
   hardware), and ambit releases to plain bounds (jjotrn_bounds) with in-bounds /
   out-of-bounds verdicts.
   The bounds seat in the tackle table, never the pedigree.
+  Blaze-usage moratorium: no docket or operative prose references a ₿ word until the
+  table lands and the glyph-carriage amendment legalizes the sigil.
+  Corpus generalized to named corpora: reserved jjotrn_corpora registry, plural by
+  design, plain-name keys; entry shape settles with the central-corpus fork.
   JJ is the tackle table's sole author (verbs under the journal ceremony, gallops posture);
   the matricula reads and lints, never writes.
   Document members are declared flattened edges; ACG is the first migrant when
