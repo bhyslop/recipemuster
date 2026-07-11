@@ -1262,7 +1262,7 @@ by exercising
 {rbtf_avow}'s
 sitting-reuse branch — opening or reusing a
 {rbtf_sitting}
-via device flow and STS against the federation trust — with an optional required-runway argument, for sustained verification.
+via device flow and STS against the federation trust — with an optional required-runway argument exercising the admission floor.
 
 [[rbtgo_access_mantle_probe]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -1284,21 +1284,21 @@ the named
 
 `rba_novate_sitting` —
 The operator surface for
-{rbtf_novate}:
-opens a fresh full-window
-{rbtf_sitting},
-extinguishing any standing one — the remedy the runway floor names when a shorter sitting is turned away.
+{rbtf_novate},
+replacing the standing
+{rbtf_sitting}
+with a freshly-opened one; the semantics live at that concept.
 
 [[rbtgo_sitting_espy]]
 //axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_sitting_espy}
 
 `rba_espy_sitting` —
-The operator surface for
-{rbtf_espy}:
-reports whether a
-{rbtf_sitting}
-is live and how much runway remains, from the cache alone — never opening one, never prompting, never touching the network.
+The read-only operator surface for
+{rbtf_espy},
+reporting the standing
+{rbtf_sitting}'s
+liveness and runway; the semantics live at that concept.
 
 [[rbtgo_manor_affiance]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -1454,12 +1454,12 @@ include::RBSFI-foedus_instate.adoc[]
 
 `rbof_canvass` —
 The operator surface for
-{rbtf_canvass}:
-enumerates every provider under the manor's one workforce pool, emitting a per-
+{rbtf_canvass},
+emitting a fact file per enumerated
 {rbtf_foedus}
-fact file for each and marking the regime-selected one — read-only, the manor-wide sibling of
-{rbtgo_foedus_descry}'s
-single-foedus read.
+and marking the regime-selected one; the enumeration semantics and the contrast with
+{rbtgo_foedus_descry}
+live at that concept.
 
 [[rbtgo_depot_levy]]
 //axvo_method axd_transient axd_inlaid axd_grouped
