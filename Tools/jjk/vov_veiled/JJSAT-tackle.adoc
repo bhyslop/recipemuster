@@ -168,9 +168,9 @@ Governing test: MCM Lapidary's mint-follows-API rule (cited, never restated).
   resolution runs against whichever table is in play — which is what keeps gaits portable
   across governed bodies and keeps a crossbred row correct on arrival.
   Keys are role words, never document acronyms (`₿bash-guide`, not the guide's name).
-  Moratorium cinched: until the table lands and the glyph-carriage amendment legalizes the
-  sigil, no docket or operative prose references a ₿ word — the symbol must never outrun
-  its resolver.
+  Moratorium cinched: until the table lands, no docket or operative prose references a
+  ₿ word — the symbol must never outrun its resolver (the sigil itself is legal per AXLA's
+  minted-mark carriage law, role-word clause).
 
 | verdicts
 | The three mechanical answers for any path: claimed / unclaimed-in-bounds /
@@ -401,8 +401,8 @@ Tail grammar per gallops: one structure letter (`r` root, `t` tackle row, `g` gu
 `c` codex entry; `e` reserved for swingletree edges), then kind `n` (field key) or `e` (enum token).
 The sprue carries uniqueness, so member tails stay plain English; the operator-spoken words
 are *tackle*, *claims*, *blaze*, and *bounds*.
-Blaze keys ride project-authored wires ₿-sigiled per the widened AXLA glyph-carriage
-amendment (Reconciliation obligations): a sigiled key is self-typing, and a wrong-kind
+Blaze keys ride project-authored wires ₿-sigiled per AXLA's minted-mark carriage law
+(Minted-Mark Dimensions, role-word clause): a sigiled key is self-typing, and a wrong-kind
 reference fails at the parse boundary.
 
 [source,json]
@@ -597,26 +597,14 @@ design decision, not a commitment:
 Each is an edit owed to a sibling *after* the relevant ruling ratifies, deliberately not
 applied yet:
 
-* *AXLA `axd_insignia`, glyph-carriage amendment* — owed from the sigil-in-wire ruling
-  (schema section); canon edit, so it lands as a deliberate act under the CMK covenant
-  (in-conversation, operator-ratified), never a drive-by.
-  Draft replacement for the glyph sentence, wording to settle at the edit:
-  "The identity is the bare encoded body; the associated unicode glyph is its *type
-  sentinel* — an out-of-alphabet character at position zero naming the identity's type,
-  never contributing to its value.
-  Carriage is surface-keyed, three ways: mandatory in operator-facing output; mandatory in
-  project-authored structured wires (JSON stores and envelopes), where the sentinel makes
-  every persisted identity self-typing and a wrong-type identity fails at the parse
-  boundary; forbidden on foreign-traversed surfaces (git refs, filesystem paths, env vars,
-  shell arguments), where non-ASCII fragility is real.
-  Input is tolerant: readers accept and strip the sentinel, validating it against the
-  expected type where declared."
-  Harmonizes with `axd_algebraic`'s subordinate sentinel clause rather than adding a second
-  concept; `jjrf_favor.rs` comments stay true (identity = body); the gallops store is
-  already compliant, so no key sweep and no reprieve episode.
-  Widened by the blaze ruling: the same surface-keyed carriage extends beyond insignia to
-  blaze keys — ₿-sigiled role words in project-authored wires — worded at the edit as a
-  companion clause, never a second doctrine.
+* *JJS0 `jjdt_insignia`, carriage re-cut* — owed from the landed AXLA minted-mark carriage
+  law: the type definition still speaks the superseded doctrine ("render-layer sigil …
+  forbidden in machine contexts (git refs, directory names, JSON keys), ignored on input"),
+  contradicting both AXLA and the gallops store's own sigiled keys; re-cut it to the
+  surface-keyed law, citing AXLA rather than restating.
+  `jjrf_favor.rs` module comments carry the same stale forbidden-in-wire-keys clause plus
+  the retired algebraic nature word — a comment-only sweep riding the same act or any pace
+  touching that file.
 * *JJK README prefix registry* — owed at delivery: the `jjo` container row and its
   child-letter convention (`jjot` = tackle wire).
 * *JJS0 codex, at infusion* — two AXLA obligations:
@@ -675,9 +663,6 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   against the matricula's and JJ dispatch's *actual* queries; its outcome determines what
   the implementation paces are, and it settles the remaining word spends (mint follows
   API).
-. SETTLING PACE — the AXLA glyph-carriage amendment, widened with the blaze-sigil clause
-  (draft: Reconciliation obligations): the schema's sigiled wire keys are illegal under
-  unamended doctrine, so this pace precedes the schema-implementation pace in order.
 . SETTLING PACE, soft — the semantic-simplification pass: prose that defends words the
   schema now carries is deletable; the sheaf should read as specification, not
   deliberation, before it hardens.
