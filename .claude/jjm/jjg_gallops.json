@@ -4344,8 +4344,8 @@
         "₢BbAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1527",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1621",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -4383,7 +4383,7 @@
                 "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "noun-cluster-vessel-identity",
-              "jjgtn_basis": "e1488fe"
+              "jjgtn_basis": "8d3c9f0"
             }
           ]
         },
