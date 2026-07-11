@@ -11,8 +11,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 ## Purpose
 
 ACG codifies one discipline: **don't recreate inline what already has a named
-home — reference the home.** It is the language-neutral, allocation-facing
-sibling to BCG (host bash), RCG (host Rust), WSG (Windows transport), and CBG
+home — reference the home.** It is the language-neutral, allodial sibling to
+BCG (host bash), RCG (host Rust), WSG (Windows transport), and CBG
 (cloud step). Those govern *how* code in one environment is written; ACG governs
 *where a fact or a name is allowed to live*, and what source must do when a home
 already exists: point at it, never restate it.
@@ -51,7 +51,7 @@ The governing idea, stated once:
 > quoin-refs; statements → definition sites.** MCM builds the homes; ACG governs
 > source's duty to reference rather than recreate.
 
-This is the **allocation instance of Load-Bearing Complexity** (CLAUDE.md). A
+This is the **allodial instance of Load-Bearing Complexity** (CLAUDE.md). A
 recreated value or name is a non-load-bearing duplicate: its existence adds drift
 risk without adding correctness, and the drift it invites is exactly the gap
 between intent and behavior the principle forbids. BCG's and RCG's Constant
@@ -60,7 +60,7 @@ ACG is the general statement those instantiate, plus the one thing a
 single-language guide cannot state — *where prose with no code-home actually
 goes.*
 
-## The three homes — allocate by when-read
+## The three homes — homed by when-read
 
 A fact has exactly one right home, fixed by *when it is read*:
 
@@ -71,7 +71,7 @@ A fact has exactly one right home, fixed by *when it is read*:
 | **Execution-time** | the runtime announcement | what is happening now — intent printed as the operation runs |
 | **History-time** | the commit | when and why a thing changed — git log and blame own it; version narration in the document body is a skidmark (MCM `mcm_skidmark`) |
 
-Most conceptual comments are **temporal misallocation**: design-time or
+Most conceptual comments are **temporal mis-homing**: design-time or
 execution-time knowledge dumped into the edit-time medium, where it rots for lack
 of a forcing function. The spec is re-read when the design is questioned; the
 announcement is re-read every run; an edit-time comment restating either is read
@@ -141,7 +141,7 @@ this and pull against each other — holding both is the clause's hardest case, 
 the reason ACG governs the editing of specs and not only source. *DRY the
 rationale:* a reason has one authoritative home and is cited, never re-worded,
 elsewhere; a code comment restating what the spec already homes is the
-cross-medium instance of that fork (temporal misallocation, above). *Keep the
+cross-medium instance of that fork (temporal mis-homing, above). *Keep the
 load-bearing:* a statement earns its place by being load-bearing (CLAUDE.md), but
 draining what is not must never groom away a constraint — or a reason the long
 term depends on. The reasoning is worked in
@@ -309,7 +309,7 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   differs from ACGm_105 — the comment is the unit here, the recurring wording is
   the unit there — see the unit-boundary note under ACGm_105.
 - **Verifier:** none in v1; the future lexer/linter plus spec link validation.
-- **Done:** a report of misallocated comments, each tagged with its receiving
+- **Done:** a report of mis-homed comments, each tagged with its receiving
   quoin (existing, proposed, or already-carrying); relocations and collapses
   land one reviewed move at a time.
 
@@ -327,7 +327,7 @@ detect-only** (read and report; no repair until a verifier exists). Numbered fro
   sweep against the declared home.
 - **Done:** for each word cancer: one authoritative wording at one site,
   citations elsewhere, the variant wordings gone.
-- **Boundary with ACGm_104 (the unit differs):** 104 acts on a *misallocated
+- **Boundary with ACGm_104 (the unit differs):** 104 acts on a *mis-homed
   comment* — the container — collapsing it to residue; 105 tracks a *recurring
   wording* corpus-wide — the string — picking the one law and citing the rest.
   They coincide on one comment without conflict: the comment collapses (104) while
@@ -440,7 +440,7 @@ The shape, as built:
   closed and the code is open, so a readable anchor would leak the security
   reasoning into released identifiers — the opaque tail is the membrane against
   that. The underscore rhymes the ID into the quoin/sprue family.
-- **Allocation.** Until linting exists: generate a tail (random or time-based),
+- **Minting.** Until linting exists: generate a tail (random or time-based),
   grep the repo for the full ID, adopt it on zero hits. The grep is both the
   uniqueness check and the census — no registry.
 - **Kind.** The kind is *not* in the ID. It is declared at the definition site by
@@ -473,7 +473,7 @@ Three rulings, now live rather than pending:
 
 ## Related Guides
 
-Which guide governs a file is itself an allocation question with a single
+Which guide governs a file is itself a homing question with a single
 answer: **one file answers to exactly one guide, chosen by its environment.**
 Guides may overlap in content; a file is never subject to two.
 

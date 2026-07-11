@@ -34,7 +34,7 @@ Concrete examples from this codebase:
 
 Non-load-bearing elements are the silent budget overruns of a codebase. Each one is small; their aggregate is what makes systems incomprehensible.
 
-The allocation instance of this principle — *reference the home, don't recreate* (values → constants, concepts → quoin-refs) — is its own language-neutral guide: see **ACG** (`Tools/cmk/vov_veiled/ACG-AllodialCodingGuide.md`).
+The allodial instance of this principle — *reference the home, don't recreate* (values → constants, concepts → quoin-refs) — is its own language-neutral guide: see **ACG** (`Tools/cmk/vov_veiled/ACG-AllodialCodingGuide.md`).
 
 ## Module Architecture
 

@@ -280,7 +280,7 @@ standing dependency, not a transient bug awaiting a neighbor's fix.
   a vendor builder container; JDG's is the security envelope.
 - **WSG** — Windows Scripting Guide. The foreign-environment-sibling precedent:
   BCG's discipline re-expressed for an environment its helpers cannot reach.
-- **ACG** Related Guides — the one-file-one-guide allocation: a jailer script
+- **ACG** Related Guides — the one-file-one-guide homing: a jailer script
   answers to JDG (and to no other guide). Its *behavior* answers to its RBS
   specification (below) — a spec, not a guide, on an orthogonal axis.
 - **RBSII**, **RBSSC**, **RBSSR**, **RBSSS** — the iptables/sentry behavior specs

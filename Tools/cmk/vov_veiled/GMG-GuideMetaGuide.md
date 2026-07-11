@@ -76,7 +76,7 @@ ignores the rest; HCG and RCG, for instance, voice few of them.
   crash-fast, load-bearing complexity) with a one-line self-sufficient gloss
   *plus* a citation to its home, never a re-derivation. Preserves cold-reading
   while killing drift.
-- **One file, one guide** — the allocation rule; cite ACG Related Guides.
+- **One file, one guide** — the homing rule; cite ACG Related Guides.
 
 ## Citing a shared concept
 
@@ -89,7 +89,7 @@ owns the one-line bridge to its own subject.
 
 ## Related Guides
 
-- **ACG** — the allocation discipline GMG instantiates on the guide family
+- **ACG** — the allodial discipline GMG instantiates on the guide family
   ("statements → definition sites"; one file, one guide).
 - **BCG** — the headwater philosophy every guide is downstream of.
 - **MCM**, **AXLA** — the spec-side analogues: MCM is to specs what GMG is to
