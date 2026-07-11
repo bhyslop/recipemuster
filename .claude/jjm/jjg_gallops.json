@@ -10088,7 +10088,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260711-1302",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "The conjure driver's hallmark consistency assert reads the build's echoed output from a hardcoded `buildStepOutputs` slot.",
                 "An in-pool step was later prepended and every slot shifted, so the assert has silently taken its empty arm — \"skipping consistency check (hallmark trusted from host)\" — on every conjure since 2026-05-01.",
@@ -10118,7 +10120,7 @@
                 "Small repair, expensive verifier. One paid build buys the proof — get the fix right before spending it."
               ],
               "jjgtn_silks": "conjure-consistency-assert-repair",
-              "jjgtn_basis": "f6878a5"
+              "jjgtn_basis": "cd8b134"
             }
           ]
         }
