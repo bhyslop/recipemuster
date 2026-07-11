@@ -39,7 +39,9 @@ for pace-level operations
 {jjdr_save}
 . Stage gallops file
 . If paddock file exists for this identity, stage it with `git add {paddock_file}`
-. Run size guard check with provided size_limit
+. Run size guard check with provided size_limit.
+Staged content over the ceiling refuses as an {jjdz_interdictum} — the size gate — and the refusal is typed, not a message: it carries the measured cost and the per-file breakdown so the emitting command can name them, since the emission must stand alone.
+An ordinary commit failure stays an ordinary error, distinguishable at every call site from the gating one.
 . Determine action code:
 .. If identity is
 {jjdt_firemark}:
