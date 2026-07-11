@@ -4234,11 +4234,12 @@
         "₢BbAAB",
         "₢BbAAC",
         "₢BbAAD",
+        "₢BbAAY",
         "₢BbAAR",
         "₢BbAAE",
         "₢BbAAF"
       ],
-      "jjghn_next_pace_seed": "AAY",
+      "jjghn_next_pace_seed": "AAZ",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -5168,6 +5169,57 @@
               ],
               "jjgtn_silks": "rivet-codex-hoist-and-census-link",
               "jjgtn_basis": "3cf25f9"
+            }
+          ]
+        },
+        "₢BbAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1606",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical pattern-completion — six operation quoins, each beside an established sibling, plus their facing rows.",
+                "Tier: sonnet — names and bindings are cinched below; no open mint judgment.",
+                "",
+                "## Goal",
+                "Complete the Command Facing census the voicing-family pace landed:",
+                "give the six quoinless-but-live operator surfaces their rbtgo operation quoins and facing rows,",
+                "so the membrane's inventory-only remainder is exactly the by-design tail",
+                "(diagnostic/read-only utilities and the crucible/test/regime/onboarding families).",
+                "",
+                "## Cinched (operator ruling 260711)",
+                "- Mint exactly six, delete nothing;",
+                "  the utility tail (rbw-di, rbw-da, rbw-lp, rbw-il, rbw-fhc, rbw-fhv) stays",
+                "  inventory-only by design — MCM mint-follows-API refuses them.",
+                "- The facing-row rule stays strict (axvo_procedure/axvo_method targets only);",
+                "  concept terms are never row targets —",
+                "  the concept+operation pair (rbtf_brevet + rbtgo_citizen_brevet) is the pattern.",
+                "- The six, each mirroring its named sibling's definition shape and annotation line:",
+                "  - rbtgo_director_anoint -> `rbw-rva`",
+                "    (siblings rbtgo_director_feoff / rbtgo_director_yoke;",
+                "    RBS0's enchase-roster prose already names anoint bare — link it once minted)",
+                "  - rbtgo_sitting_novate -> `rbw-aN` and rbtgo_sitting_espy -> `rbw-as`",
+                "    (concept quoins rbtf_novate / rbtf_espy carry the semantics;",
+                "    the operation definitions cite, never restate)",
+                "  - rbtgo_foedus_canvass -> `rbw-jc`",
+                "    (siblings rbtgo_foedus_descry / rbtgo_foedus_instate; concept rbtf_canvass cited)",
+                "  - rbtgo_access_federated_probe -> `rbw-aa` and rbtgo_access_mantle_probe -> `rbw-am`",
+                "    (sibling rbtgo_access_oauth_probe, rbtgog_access group)",
+                "- Definitions are one-paragraph, cite their concept/sibling quoins,",
+                "  and get NO detail sheaves — definition + mapping entry + facing row only.",
+                "- Exact seating (which operations section, row position) follows each sibling;",
+                "  mount judgment, no new sections.",
+                "",
+                "## Done when",
+                "Six definitions with mapping entries stand beside their siblings;",
+                "six facing rows added to RBS0 Command Facing;",
+                "the row-vs-inventory reconciliation shows the inventory-only remainder is",
+                "exactly the by-design tail;",
+                "repo-wide grep confirms no unresolved attribute references."
+              ],
+              "jjgtn_silks": "facing-census-completion",
+              "jjgtn_basis": "34c6dca"
             }
           ]
         }
