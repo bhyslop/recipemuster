@@ -13,16 +13,13 @@
 # docker-container driver's config propagation.
 #
 # Base pinning: rbgjb03 resolved each populated base slot's tag to a digest and
-# wrote the pinned ref "<ref>@sha256:<digest>" to .resolved_base_n. This step
-# uses that pinned ref TWICE per slot: as the RBF_IMAGE_n build-arg (so buildx
-# provably builds FROM exactly the resolved digest) and as the rbi_resolved_base_n
-# image label (the signed, tamper-evident record of the resolved base — RBSAC; the
-# label survives the per-platform pullback into the google-worker-signed attest
-# image per rivet RBr_b4e).
-# The rbi_resolved_base_n label key is sprued; the host home of the key prefix is
-# RBGC_IMAGE_LABEL_RESOLVED_BASE (cloud steps source no constants, so it is a
-# literal here — the grep gate keeps the two in sync). The neighbor labels
-# (hallmark, git.commit, git.branch) stay unsprued by deliberate divergence.
+# wrote the pinned ref "<ref>@sha256:<digest>" to .resolved_base_n, read here
+# per slot as the RBF_IMAGE_n build-arg and the rbi_resolved_base_n image
+# label; rivet RBr_b4e.
+# The rbi_resolved_base_n label key is a literal here (cloud steps source no
+# constants); its host home is RBGC_IMAGE_LABEL_RESOLVED_BASE. The neighbor
+# labels (hallmark, git.commit, git.branch) stay unsprued by deliberate
+# divergence.
 #
 # Image URI shape: <host>/<project>/<repo>/<HALLMARKS_ROOT>/<HALLMARK>/<image-basename>:<HALLMARK>
 

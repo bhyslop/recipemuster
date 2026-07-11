@@ -6,10 +6,7 @@
 # For each populated base slot, resolve the ref to its canonical manifest digest
 # (gcrane manifest -> sha256 of the raw manifest bytes, the gcrane-fingerprint
 # shape) and write the PINNED ref "<ref-without-tag>@sha256:<digest>" to the
-# workspace file .resolved_base_n. The buildx step (rbgjb04) reads each file and
-# uses the pinned ref twice: as the RBF_IMAGE_n build-arg (so buildx provably
-# builds FROM exactly the resolved digest) and as the rbi_resolved_base_n image
-# label (the signed, tamper-evident record of the resolved base — RBSAC).
+# workspace file .resolved_base_n, consumed by the buildx step (rbgjb04).
 #
 # gcrane authenticates GAR ambiently via its google.Keychain (Mason SA, GCE
 # metadata server); a public upstream base needs no auth. The resolve runs on the

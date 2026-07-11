@@ -57,8 +57,6 @@ REGISTRY_API_BASE="https://${_RBGR_GAR_HOST}/v2/${_RBGR_GAR_PATH}"
 MISSES=""
 
 # Tool list mirrors the conclave cohort manifest (rbgjl03) minus alpine.
-# Conclave Lode layout: ONE package <LODES_ROOT>/<RELIQUARY> carrying the cohort
-# as sprued member tags; each tool is the manifest TAG :<TAG_SPRUE><NAME>.
 for TOOL in gcloud docker syft binfmt gcrane; do
   PKG_PATH="${_RBGR_LODES_ROOT}/${_RBGR_RELIQUARY}"
   MEMBER_TAG="${_RBGR_TAG_SPRUE}${TOOL}"
