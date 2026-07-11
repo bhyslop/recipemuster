@@ -30,6 +30,8 @@ pub mod jjrq_query;
 pub mod jjrp_print;
 pub mod jjrs_steeplechase;
 pub mod jjrdk_diskcheck;
+pub mod jjrfr_farrier;
+pub mod jjrfg_plaingit;
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
 pub mod jjrcu_curry;
@@ -111,6 +113,12 @@ mod jjtm_mcp;
 
 #[cfg(test)]
 mod jjti_io;
+
+#[cfg(test)]
+mod jjtfr_farrier;
+
+#[cfg(test)]
+mod jjtfg_plaingit;
 
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};
