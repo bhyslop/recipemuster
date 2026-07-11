@@ -5284,8 +5284,9 @@
         "₢BbAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1646",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1647",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical tidemark drain plus display-text reconciliation, grep-verifiable against the zipper.",
@@ -5323,7 +5324,7 @@
                 "repo-wide grep shows no unresolved attribute references."
               ],
               "jjgtn_silks": "foedus-tidemark-drain",
-              "jjgtn_basis": "1297038"
+              "jjgtn_basis": "e1d42e3"
             }
           ]
         },
