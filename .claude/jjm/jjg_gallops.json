@@ -7747,8 +7747,8 @@
         "₢BsAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1346",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-2233",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Assert the terrier muniment clean dispositions deliberately:",
@@ -7775,7 +7775,7 @@
                 "Small mechanical extension of an existing fixture."
               ],
               "jjgtn_silks": "terrier-clean-dispositions",
-              "jjgtn_basis": "9854579"
+              "jjgtn_basis": "5466694"
             }
           ]
         },
