@@ -7212,8 +7212,8 @@
         "₢BrAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1347",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1651",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -7233,7 +7233,7 @@
                 "Authority: the farrier entity sheaf."
               ],
               "jjgtn_silks": "farrier-core-impl",
-              "jjgtn_basis": "34ae2df"
+              "jjgtn_basis": "2d685bb"
             }
           ]
         },
