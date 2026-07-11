@@ -14,8 +14,9 @@ Parse git history for steeplechase entries belonging to a
 * `--limit` — maximum entries to return (default: 50)
 
 Output runs on two channels, the shape {jjdo_show} carries: the inline result is terse, the {jjdxo_gazette} carries the bulk.
+`--limit` sizes the gazette — the whole history, subjects whole — while the inline table is a bounded index into it: the newest 50 entries, each subject clipped to one line.
 
-{jjds_stdout} Column-aligned plain text table of steeplechase entries (newest first), `Subject` clipped:
+{jjds_stdout} Column-aligned plain text table of the newest steeplechase entries (newest first), `Subject` clipped, with a withholding line when entries outnumber the table:
 [source]
 ----
 Timestamp            Commit  Act  Affil     Subject
@@ -23,6 +24,7 @@ Timestamp            Commit  Act  Affil     Subject
 2026-01-24 09:20   f4824e77  [T]  ₣AF       Tally: parade-remaining-markdown
 2026-01-24 08:49   857d982c  [F]  ₢AFAAf    Executing pace...
 2026-01-24 08:47   a6b75159  [W]  ₢AFAAn    pace complete
+(showing newest 50 of 224 entries — every entry, subjects whole, in gazette_out.md)
 ----
 
 Columns:
@@ -30,12 +32,15 @@ Columns:
 - `Commit`: abbreviated git commit SHA (8 chars)
 - `Act`: action code in brackets (e.g., `[n]` for notch, `[A]` for added) or empty for heat-level operations
 - `Affil`: affiliation - shows ₢CORONET for pace-level entries, ₣FIREMARK for heat-level operations
-- `Subject`: commit message or operation description, clipped to a bounded line (100 characters, the last an ellipsis, when longer)
+- `Subject`: commit message or operation description, clipped to a bounded line (72 characters — git's own one-line subject bound — the last an ellipsis when longer)
 
 Entries ordered newest first (most recent at top).
+The table shows at most 50 rows however many entries were asked for; when it withholds any, it says so, naming the count and where the rest are.
 
-The clip is load-bearing, not cosmetic: a jjb subject is a paragraph carried on one line, so an unclipped table grows with subject length as well as row count — a several-hundred-commit heat renders hundreds of kilobytes, overruns the tool-result channel, and is persisted to a blob the agent is forbidden to scrape, leaving the command with no sanctioned reading at all.
-Clipping bounds the inline table by row count alone.
+The two bounds are load-bearing, not cosmetic.
+A jjb subject is a paragraph carried on one line, so an unclipped table grows with subject length as well as row count — a several-hundred-commit heat renders hundreds of kilobytes, overruns the tool-result channel, and is persisted to a blob the agent is forbidden to scrape, leaving the command with no sanctioned reading at all.
+Clipping alone would leave the table linear in commit count, merely postponing that overrun as a heat grows; the row ceiling is what bounds the inline channel outright.
+Neither bound loses history — `--limit` sizes the gazette, and the table is the index into it.
 
 *Gazette output:* one {jjezs_steeplechase} notice, lede the target {jjdt_firemark}, carrying every entry with its subject untruncated (stanza shape defined at {jjezs_steeplechase}).
 Always populated — the notice stands with an empty body for a heat with no entries yet.
@@ -51,5 +56,5 @@ The gazette is the only reading of a clipped subject in full, so a failed write 
 . For pace-level (₢CORONET): verify coronet belongs to target heat
 . For heat-level (₣FIREMARK): verify firemark matches target heat
 . Collect entries, limit to requested count (newest first)
-. Output as column-aligned table with header and separator row, `Subject` clipped per above
-. Add the {jjezs_steeplechase} notice carrying the same entries, subjects whole, to the {jjsz_gazette}
+. Output the newest 50 as a column-aligned table with header and separator row, `Subject` clipped per above; when entries were withheld, follow the table with the line naming how many of how many were shown and where the rest are
+. Add the {jjezs_steeplechase} notice carrying every collected entry, subjects whole, to the {jjsz_gazette}

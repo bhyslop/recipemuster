@@ -118,7 +118,7 @@ jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
 jjx_close          {coronet, summary?, spook?, size_limit?}     # spook: wrap-time friction report -> Spook: trailer on the W commit
-jjx_log            {firemark, limit?}                              # result terse (subject clipped to one bounded line), gazette always populated with every subject whole
+jjx_log            {firemark, limit?}                              # limit sizes the GAZETTE (every entry, subjects whole); the inline result is a bounded index — newest 50 rows, subjects clipped. result terse, gazette always populated
 jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
 jjx_transfer       {firemark, to, coronets, size_limit?}

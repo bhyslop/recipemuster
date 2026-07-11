@@ -20,12 +20,22 @@ use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 const JJRS_CMD_NAME_REIN: &str = "jjx_rein";
 
-/// Characters of a commit subject the inline table shows before clipping.
-/// A jjb subject is a paragraph in one line, so an unclipped table grows with
-/// subject length as well as row count — a several-hundred-commit heat renders
-/// hundreds of kilobytes and overruns the tool-result channel. The untruncated
-/// subjects ride the gazette instead.
-const JJRS_SUBJECT_CAP: usize = 100;
+/// Characters of a commit subject the inline table shows before clipping —
+/// git's own one-line subject bound, enough to recognize a commit and pick the
+/// gazette stanza to read whole.
+/// A jjb subject is a paragraph carried on one line, so an unclipped table
+/// grows with subject length as well as row count — a several-hundred-commit
+/// heat renders hundreds of kilobytes and overruns the tool-result channel.
+/// The untruncated subjects ride the gazette instead.
+const JJRS_SUBJECT_CAP: usize = 72;
+
+/// Rows the inline table shows, newest first, however many entries were asked
+/// for. Clipping alone leaves the table linear in commit count — it merely
+/// postpones the overrun as a heat grows — so the row ceiling is what makes the
+/// inline channel bounded outright. The gazette carries every requested entry,
+/// so the ceiling costs no history: `limit` sizes the gazette, and the table is
+/// the index into it.
+const JJRS_TABLE_ROWS: usize = 50;
 
 /// Arguments for jjx_rein command
 #[derive(Debug)]
@@ -273,6 +283,9 @@ pub fn jjrs_run(
         }
     };
 
+    // The table shows the newest rows only; the gazette below carries them all.
+    let tabled = entries.iter().take(JJRS_TABLE_ROWS).collect::<Vec<_>>();
+
     // Set up table with column definitions
     let mut table = jjrp_Table::jjrp_new(vec![
         jjrp_Column::new("Timestamp", jjrp_Align::Left),
@@ -283,7 +296,7 @@ pub fn jjrs_run(
     ]);
 
     // Measure all rows to compute column widths
-    for entry in &entries {
+    for entry in &tabled {
         table.jjrp_measure(&[
             &entry.timestamp,
             &entry.commit,
@@ -298,7 +311,7 @@ pub fn jjrs_run(
     table.jjrp_write_separator(output);
 
     // Write data rows
-    for entry in &entries {
+    for entry in &tabled {
         table.jjrp_write_row(output, &[
             &entry.timestamp,
             &entry.commit,
@@ -306,6 +319,17 @@ pub fn jjrs_run(
             &zjjrs_affil_cell(entry, &heat_key),
             &entry.subject,
         ]);
+    }
+
+    // Say what was withheld, and where it went. A silent ceiling reads as
+    // "that is the whole history".
+    if entries.len() > tabled.len() {
+        vvc::vvco_out!(
+            output,
+            "(showing newest {} of {} entries — every entry, subjects whole, in gazette_out.md)",
+            tabled.len(),
+            entries.len(),
+        );
     }
 
     // The gazette is the whole-subject channel, not a convenience — a clipped

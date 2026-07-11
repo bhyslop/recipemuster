@@ -250,6 +250,21 @@ fn jjtrn_gazette_body_empty_for_heat_without_entries() {
     assert_eq!(zjjrs_gazette_body(&[], "₣AB"), "");
 }
 
+#[test]
+fn jjtrn_gazette_body_carries_every_entry_past_the_table_ceiling() {
+    // The inline table stops at JJRS_TABLE_ROWS; the gazette must not — it is
+    // where the withheld entries go.
+    let entries: Vec<_> = (0..300)
+        .map(|i| zjjtrn_entry(&format!("c{:06}", i), Some("₢ABAAA"), &format!("subject {}", i)))
+        .collect();
+
+    let body = zjjrs_gazette_body(&entries, "₣AB");
+
+    assert_eq!(body.split("\n\n").count(), 300);
+    assert!(body.contains("subject 0"));
+    assert!(body.contains("subject 299"));
+}
+
 // ===== ReinArgs construction =====
 
 #[test]
