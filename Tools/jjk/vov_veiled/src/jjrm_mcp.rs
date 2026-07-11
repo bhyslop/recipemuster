@@ -2273,10 +2273,27 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_LOG => {
                 let p = deser!(jjrm_LogParams);
-                jjrm_result(jjrrn_run_rein(jjrrn_ReinArgs {
+                let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Steeplechase]);
+                let (code, mut output) = jjrrn_run_rein(jjrrn_ReinArgs {
                     firemark: p.firemark,
                     limit: p.limit.unwrap_or(50),
-                }))
+                }, &mut gazette);
+                // The inline table clips each subject, so the gazette is log's
+                // only whole-subject channel — crash-fast on a failed write
+                // rather than hand back a truncation with no reading behind it.
+                if code == 0 {
+                    let md = gazette.jjrz_emit();
+                    if let Err(e) = std::fs::write(&gazette_out_path, md.as_bytes()) {
+                        return jjrm_result((1, format!(
+                            "{}: error: failed writing gazette_out {}: {}",
+                            cmd, gazette_out_path.display(), e,
+                        )));
+                    }
+                    output.push('\n');
+                    output.push_str(&zjjrm_gazette_paths_block(&gazette_in_path, &gazette_out_path));
+                    output.push('\n');
+                }
+                jjrm_result((code, output))
             }
             JJRM_CMD_NAME_VALIDATE => {
                 let _p = deser!(jjrm_ValidateParams);

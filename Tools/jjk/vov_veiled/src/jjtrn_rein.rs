@@ -9,7 +9,7 @@
 //! - Log lines with non-JJ commits
 //! - ReinArgs struct construction
 
-use super::jjrs_steeplechase::{zjjrs_parse_timestamp, zjjrs_parse_log_line, zjjrs_parse_new_format, jjrs_ReinArgs};
+use super::jjrs_steeplechase::{zjjrs_parse_timestamp, zjjrs_parse_log_line, zjjrs_parse_new_format, zjjrs_gazette_body, jjrs_ReinArgs, jjrs_SteeplechaseEntry};
 use super::jjrrn_rein::jjrrn_ReinArgs;
 
 // ===== Module import verification =====
@@ -188,6 +188,66 @@ fn jjtrn_parse_format_action_without_message() {
     // Empty message is valid
     assert_eq!(entry.action, Some("n".to_string()));
     assert_eq!(entry.subject, "");
+}
+
+// ===== Gazette body (the whole-subject channel) =====
+
+fn zjjtrn_entry(commit: &str, coronet: Option<&str>, subject: &str) -> jjrs_SteeplechaseEntry {
+    jjrs_SteeplechaseEntry {
+        timestamp: "2026-07-11 09:30".to_string(),
+        commit: commit.to_string(),
+        brand: Some("1019".to_string()),
+        coronet: coronet.map(|c| c.to_string()),
+        action: Some("n".to_string()),
+        subject: subject.to_string(),
+    }
+}
+
+#[test]
+fn jjtrn_gazette_body_keeps_subject_whole() {
+    // The inline table clips at JJRS_SUBJECT_CAP; the gazette must not.
+    let long_subject = "x".repeat(400);
+    let entries = vec![zjjtrn_entry("abc1234", Some("₢ABAAA"), &long_subject)];
+
+    let body = zjjrs_gazette_body(&entries, "₣AB");
+
+    assert!(body.contains(&long_subject), "gazette body must carry the untruncated subject");
+    assert!(!body.contains('…'), "gazette body must never clip");
+    assert!(body.contains("abc1234"));
+    assert!(body.contains("₢ABAAA"));
+}
+
+#[test]
+fn jjtrn_gazette_body_affiliates_heat_level_entry_to_firemark() {
+    let entries = vec![zjjtrn_entry("def5678", None, "heat-level work")];
+
+    let body = zjjrs_gazette_body(&entries, "₣AB");
+
+    // A heat-level entry carries no coronet — it takes the heat firemark, once
+    // prefixed (never "₣₣AB").
+    assert!(body.contains("₣AB"));
+    assert!(!body.contains("₣₣"));
+}
+
+#[test]
+fn jjtrn_gazette_body_stanza_per_entry() {
+    let entries = vec![
+        zjjtrn_entry("aaa1111", Some("₢ABAAA"), "first"),
+        zjjtrn_entry("bbb2222", Some("₢ABAAB"), "second"),
+    ];
+
+    let body = zjjrs_gazette_body(&entries, "₣AB");
+
+    // Each entry is a header line plus its subject, stanzas blank-line separated.
+    let stanzas: Vec<&str> = body.split("\n\n").collect();
+    assert_eq!(stanzas.len(), 2);
+    assert!(stanzas[0].ends_with("\nfirst"));
+    assert!(stanzas[1].ends_with("\nsecond"));
+}
+
+#[test]
+fn jjtrn_gazette_body_empty_for_heat_without_entries() {
+    assert_eq!(zjjrs_gazette_body(&[], "₣AB"), "");
 }
 
 // ===== ReinArgs construction =====

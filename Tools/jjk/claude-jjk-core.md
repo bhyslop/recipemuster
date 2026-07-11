@@ -118,7 +118,7 @@ jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
 jjx_close          {coronet, summary?, spook?, size_limit?}     # spook: wrap-time friction report -> Spook: trailer on the W commit
-jjx_log            {firemark, limit?}
+jjx_log            {firemark, limit?}                              # result terse (subject clipped to one bounded line), gazette always populated with every subject whole
 jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
 jjx_transfer       {firemark, to, coronets, size_limit?}
@@ -148,7 +148,7 @@ jjx_fetch          {legatio, path}                                  # remote: re
   - `jjx_show` (groom/parade) — **one or more** `jjezs_halter` notices (the heterogeneous set).
   - `remaining` (show) is **required** and stays a param — it is a display mode, not a target; it filters firemark expansion only (a directly-named coronet returns regardless of state). The tool-result is always the terse table; paddock(s) + pace dockets always land in `gazette_out.md` — Read it for the bodies. There is no `detail` param.
 - `jjx_orient` output includes next actionable pace — no separate show call needed
-- **Gazette output**: `jjx_orient`/`jjx_show`/`jjx_paddock` write `gazette_out.md`; read that file for full content (shapes in the directional bullets below).
+- **Gazette output**: `jjx_orient`/`jjx_show`/`jjx_paddock`/`jjx_log` write `gazette_out.md`; read that file for full content (shapes in the directional bullets below).
 - **`jjx_validate` is normalize-and-report, not a read-only check** (exit codes in the command reference above). *Normalized is a structural verdict, not a semantic blessing* — a `2` means the bytes are canonical, not that the heat/pace inventory is right. After a merge convergence, eyeball the inventory against both branches yourself.
 - **Never reach past the JJK interface to raw storage — NO exceptions.** Do not parse the harness's persisted tool-result files or the gallops JSON (`.claude/jjm/jjg_gallops.json`) directly. To read one pace's docket, call `jjx_brief {coronet}` (returns inline). To read full paddock/dockets after `jjx_show`/`jjx_orient`, read `gazette_out.md` directly (loop `jjx_brief` per pace if a large `jjx_show` overflows) — never scrape a persisted tool-result blob.
 - **Gazette input**: `jjx_enroll`, `jjx_redocket`, and `jjx_curry` read docket/content from `gazette_in.md`; `jjx_orient` and `jjx_show` read their target selection from `gazette_in.md` (`jjezs_halter` notices). Gazette is the sole input path — no JSON param fallback on any of them.
@@ -177,7 +177,7 @@ Gazette file exchange uses two directional files in the officium exchange direct
 **⚠️ `gazette_in.md` is the argument to the *next* jjx call — whichever fires next consumes it on entry, not a particular command.** So write the gazette as the immediate last step before *that* call; if you reconsider which command to run, rewrite or clear it first. **Deleted-on-entry means read-on-entry** — a stale notice is consumed as this call's input *before* it is deleted, and a gazette *setter* writes and **auto-commits with no confirm gate**. Keep every gazette write welded to the single call it was written for.
 
 - **`gazette_in.md`** (agent → server): write before a setter (`jjx_enroll`, `jjx_redocket`, `jjx_curry`) or before `jjx_orient` / `jjx_show` (their `jjezs_halter` target selection lives here).
-- **`gazette_out.md`** (server → agent): written by getter commands, read after they return. Notices are `# jjezs_paddock <firemark>` / `# jjezs_pace <coronet>`, content beneath each: `jjx_orient` → paddock + next actionable pace docket; `jjx_show` → paddock(s) + a docket per resolved pace; `jjx_paddock` → paddock only.
+- **`gazette_out.md`** (server → agent): written by getter commands, read after they return. Notices are `# jjezs_paddock <firemark>` / `# jjezs_pace <coronet>` / `# jjezs_steeplechase <firemark>`, content beneath each: `jjx_orient` → paddock + next actionable pace docket; `jjx_show` → paddock(s) + a docket per resolved pace; `jjx_paddock` → paddock only; `jjx_log` → every steeplechase entry with its subject untruncated (the inline table clips subjects, so this is the only full reading — read the file, never scrape a persisted tool-result blob).
 
 **Gazette wire format (setter commands):**
 Each notice is a `#`-header line with slug and lede, followed by a content body. The lede is **exactly one whitespace-free token** (silks / coronet / firemark, per the table below) — nothing follows it on the `#` line; the body goes beneath, and appending extra text to the lede folds it into the identity and fails validation. `jjezs_halter` is body-less (the lede is the whole notice); the content-bearing slugs (`jjezs_slate`, `jjezs_reslate`, `jjezs_paddock`) require a **non-empty** body — an empty or whitespace-only body rejects loud, a setter never executes a clear.

@@ -20,6 +20,7 @@ pub(crate) const JJRZ_SLUG_RESLATE: &str = "jjezs_reslate";
 pub(crate) const JJRZ_SLUG_PADDOCK: &str = "jjezs_paddock";
 pub(crate) const JJRZ_SLUG_PACE: &str = "jjezs_pace";
 pub(crate) const JJRZ_SLUG_HALTER: &str = "jjezs_halter";
+pub(crate) const JJRZ_SLUG_STEEPLECHASE: &str = "jjezs_steeplechase";
 
 /// Slug direction — metadata for how each slug is used in operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -37,6 +38,7 @@ pub enum jjrz_Slug {
     Paddock,
     Pace,
     Halter,
+    Steeplechase,
 }
 
 /// All defined slug values
@@ -46,6 +48,7 @@ pub const JJRZ_ALL_SLUGS: &[jjrz_Slug] = &[
     jjrz_Slug::Paddock,
     jjrz_Slug::Pace,
     jjrz_Slug::Halter,
+    jjrz_Slug::Steeplechase,
 ];
 
 impl jjrz_Slug {
@@ -57,6 +60,7 @@ impl jjrz_Slug {
             Self::Paddock => JJRZ_SLUG_PADDOCK,
             Self::Pace => JJRZ_SLUG_PACE,
             Self::Halter => JJRZ_SLUG_HALTER,
+            Self::Steeplechase => JJRZ_SLUG_STEEPLECHASE,
         }
     }
 
@@ -68,6 +72,7 @@ impl jjrz_Slug {
             JJRZ_SLUG_PADDOCK => Some(Self::Paddock),
             JJRZ_SLUG_PACE => Some(Self::Pace),
             JJRZ_SLUG_HALTER => Some(Self::Halter),
+            JJRZ_SLUG_STEEPLECHASE => Some(Self::Steeplechase),
             _ => None,
         }
     }
@@ -80,6 +85,7 @@ impl jjrz_Slug {
             Self::Paddock => jjrz_Direction::Bidirectional,
             Self::Pace => jjrz_Direction::Output,
             Self::Halter => jjrz_Direction::Input,
+            Self::Steeplechase => jjrz_Direction::Output,
         }
     }
 }
@@ -514,7 +520,8 @@ fn zjjrz_empty_body_error(slug: jjrz_Slug, lede: &str) -> String {
         jjrz_Slug::Slate => "a new pace is never docket-less",
         jjrz_Slug::Reslate => "a reslate replaces the whole docket, never blanks it",
         jjrz_Slug::Paddock => "a paddock revision replaces the whole paddock, never blanks it",
-        jjrz_Slug::Pace | jjrz_Slug::Halter => "an input notice carries its payload in the body",
+        jjrz_Slug::Pace | jjrz_Slug::Halter | jjrz_Slug::Steeplechase =>
+            "an input notice carries its payload in the body",
     };
     format!(
         "{} notice '{}' has an empty body — {}; author the full content beneath the notice line",

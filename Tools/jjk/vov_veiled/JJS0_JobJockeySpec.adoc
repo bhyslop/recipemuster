@@ -143,11 +143,12 @@
 :jjsz_gazette:    <<jjsz_gazette,Gazette>>
 
 // Gazette slug enumeration
-:jjezs_slate:     <<jjezs_slate,jjezs_slate>>
-:jjezs_reslate:   <<jjezs_reslate,jjezs_reslate>>
-:jjezs_paddock:   <<jjezs_paddock,jjezs_paddock>>
-:jjezs_pace:      <<jjezs_pace,jjezs_pace>>
-:jjezs_halter:    <<jjezs_halter,jjezs_halter>>
+:jjezs_slate:        <<jjezs_slate,jjezs_slate>>
+:jjezs_reslate:      <<jjezs_reslate,jjezs_reslate>>
+:jjezs_paddock:      <<jjezs_paddock,jjezs_paddock>>
+:jjezs_pace:         <<jjezs_pace,jjezs_pace>>
+:jjezs_halter:       <<jjezs_halter,jjezs_halter>>
+:jjezs_steeplechase: <<jjezs_steeplechase,jjezs_steeplechase>>
 
 // Arguments
 :jjda_after:          <<jjda_after,--after>>
@@ -585,7 +586,7 @@ Contain {jjsz_gazette} wire-format markdown.
 Both have single-MCP-call lifetime — every {jjdx_tool_s} call deletes both files on entry before dispatch.
 +
 `gazette_in.md` is written by Claude before setter operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_curry}).
-`gazette_out.md` is written by the server after getter operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock}).
+`gazette_out.md` is written by the server after getter operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock}, {jjdo_log}).
 
 [[jjdxo_invitatory]]
 //axvo_procedure axd_internal
@@ -1476,8 +1477,9 @@ Values are the
 {jjezs_reslate},
 {jjezs_paddock},
 {jjezs_pace},
+{jjezs_halter},
 and
-{jjezs_halter}
+{jjezs_steeplechase}
 constants defined in the
 {jjsz_gazette}
 subdocument.
@@ -2428,12 +2430,14 @@ This is the one deliberate softening of "open touches no persistent state" down 
 +
 *{jjsz_gazette} I/O wiring* (output and input operations):
 +
-Output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock}):
+Output operations ({jjdo_orient}, {jjdo_show}, {jjdo_paddock}, {jjdo_log}):
 
 . Dispatcher creates an empty {jjsz_gazette} with appropriate vocabulary
 . Dispatcher passes `&mut` gazette to the handler
 . Handler calls `jjrz_add` on the gazette to populate notices
 . After the handler returns, dispatcher emits the gazette to {jjdxo_gazette} (skips write if gazette is empty)
++
+On {jjdo_show} and {jjdo_log} the gazette is the load-bearing payload rather than a convenience — the inline result is deliberately terse, so a failed `gazette_out.md` write is fatal to the call, never a silent no-op.
 +
 {jjdo_orient} and {jjdo_show} additionally consume a mandatory {jjezs_halter} *input* for target selection before producing output:
 the dispatcher parses one ({jjdo_orient}, exactly one) or more ({jjdo_show}, the heterogeneous set) {jjezs_halter} notices from {jjdxo_gazette} to resolve the target.

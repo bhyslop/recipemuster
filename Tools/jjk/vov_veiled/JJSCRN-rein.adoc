@@ -13,7 +13,9 @@ Parse git history for steeplechase entries belonging to a
 //axd_optional
 * `--limit` — maximum entries to return (default: 50)
 
-{jjds_stdout} Column-aligned plain text table of steeplechase entries (newest first):
+Output runs on two channels, the shape {jjdo_show} carries: the inline result is terse, the {jjdxo_gazette} carries the bulk.
+
+{jjds_stdout} Column-aligned plain text table of steeplechase entries (newest first), `Subject` clipped:
 [source]
 ----
 Timestamp            Commit  Act  Affil     Subject
@@ -28,9 +30,16 @@ Columns:
 - `Commit`: abbreviated git commit SHA (8 chars)
 - `Act`: action code in brackets (e.g., `[n]` for notch, `[A]` for added) or empty for heat-level operations
 - `Affil`: affiliation - shows ₢CORONET for pace-level entries, ₣FIREMARK for heat-level operations
-- `Subject`: commit message or operation description
+- `Subject`: commit message or operation description, clipped to a bounded line (100 characters, the last an ellipsis, when longer)
 
 Entries ordered newest first (most recent at top).
+
+The clip is load-bearing, not cosmetic: a jjb subject is a paragraph carried on one line, so an unclipped table grows with subject length as well as row count — a several-hundred-commit heat renders hundreds of kilobytes, overruns the tool-result channel, and is persisted to a blob the agent is forbidden to scrape, leaving the command with no sanctioned reading at all.
+Clipping bounds the inline table by row count alone.
+
+*Gazette output:* one {jjezs_steeplechase} notice, lede the target {jjdt_firemark}, carrying every entry with its subject untruncated (stanza shape defined at {jjezs_steeplechase}).
+Always populated — the notice stands with an empty body for a heat with no entries yet.
+The gazette is the only reading of a clipped subject in full, so a failed write is fatal to the call.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
@@ -42,4 +51,5 @@ Entries ordered newest first (most recent at top).
 . For pace-level (₢CORONET): verify coronet belongs to target heat
 . For heat-level (₣FIREMARK): verify firemark matches target heat
 . Collect entries, limit to requested count (newest first)
-. Output as column-aligned table with header and separator row
+. Output as column-aligned table with header and separator row, `Subject` clipped per above
+. Add the {jjezs_steeplechase} notice carrying the same entries, subjects whole, to the {jjsz_gazette}

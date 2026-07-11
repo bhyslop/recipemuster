@@ -87,6 +87,16 @@ One notice per target: {jjdo_orient} saddles exactly one; {jjdo_show} accepts th
 At least one notice is required — an absent gazette is a loud error, never a silent default.
 Serialized as `jjezs_halter` in gazette markdown.
 
+[[jjezs_steeplechase]]
+//axl_voices axt_enum_value axd_string
+{jjezs_steeplechase}::
+The whole-subject channel of {jjdo_log}.
+Direction: output.
+Lede: {jjdt_firemark} of the heat whose history was read.
+Content: every steeplechase entry, newest first, one stanza each — a header line carrying timestamp, commit, action code, and affiliation, then the subject untruncated beneath it.
+The inline result clips each subject to a bounded line, so this notice is the only reading of a subject in full; it is always populated, empty body when the heat has no entries yet.
+Serialized as `jjezs_steeplechase` in gazette markdown.
+
 == File Exchange Protocol
 
 Gazette file exchange uses two directional files within the {jjdxo_exchange}:
@@ -109,7 +119,7 @@ After the entry rule, the {jjdxo_exchange} is always clean of gazette files.
 
 Setter commands (enroll, redocket, curry) use the in-memory content from step 1.
 If content was absent, the setter fails with a diagnostic.
-Getter commands (orient, show, paddock) write fresh `gazette_out.md` after processing.
+Getter commands (orient, show, paddock, log) write fresh `gazette_out.md` after processing.
 The paddock reader additionally rejects loud when step 1 found staged content —
 a read call carries nothing to consume, and executing one anyway is how a pre-staged notice once became a silent write.
 Non-gazette commands silently discard any in-memory content read in step 1.

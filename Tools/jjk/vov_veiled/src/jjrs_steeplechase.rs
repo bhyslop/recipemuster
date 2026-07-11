@@ -16,8 +16,16 @@ use serde::Serialize;
 
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
+use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 const JJRS_CMD_NAME_REIN: &str = "jjx_rein";
+
+/// Characters of a commit subject the inline table shows before clipping.
+/// A jjb subject is a paragraph in one line, so an unclipped table grows with
+/// subject length as well as row count — a several-hundred-commit heat renders
+/// hundreds of kilobytes and overruns the tool-result channel. The untruncated
+/// subjects ride the gazette instead.
+const JJRS_SUBJECT_CAP: usize = 100;
 
 /// Arguments for jjx_rein command
 #[derive(Debug)]
@@ -209,67 +217,105 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
     Ok(entries)
 }
 
+/// Action cell for an entry: the bracketed code, empty for an entry carrying none
+fn zjjrs_act_cell(entry: &jjrs_SteeplechaseEntry) -> String {
+    entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_default()
+}
+
+/// Affiliation cell for an entry: the coronet for a pace-level entry,
+/// the heat firemark for a heat-level one.
+fn zjjrs_affil_cell(entry: &jjrs_SteeplechaseEntry, heat_key: &str) -> String {
+    entry.coronet.clone().unwrap_or_else(|| heat_key.to_string())
+}
+
+/// Compose the gazette body: every entry, subject untruncated, newest first.
+/// Each entry is a stanza — a header line carrying the same fields as the
+/// inline row, then the whole subject beneath it.
+pub(crate) fn zjjrs_gazette_body(entries: &[jjrs_SteeplechaseEntry], heat_key: &str) -> String {
+    entries.iter()
+        .map(|entry| format!(
+            "{}  {}  {}  {}\n{}",
+            entry.timestamp,
+            entry.commit,
+            zjjrs_act_cell(entry),
+            zjjrs_affil_cell(entry, heat_key),
+            entry.subject,
+        ))
+        .collect::<Vec<_>>()
+        .join("\n\n")
+}
+
 /// Run jjx_rein command (CLI wrapper)
-/// Outputs column-aligned plain text table with header and separator
-pub fn jjrs_run(args: jjrs_ReinArgs, output: &mut vvc::vvco_Output) -> i32 {
+///
+/// Two channels, the shape jjx_show already carries: the inline result is the
+/// terse table, its Subject column clipped to a bounded line; the gazette
+/// carries every subject whole.
+pub fn jjrs_run(
+    args: jjrs_ReinArgs,
+    output: &mut vvc::vvco_Output,
+    gazette: &mut jjrz_Gazette,
+) -> i32 {
     let cn = JJRS_CMD_NAME_REIN;
-    match jjrs_get_entries(&args) {
-        Ok(entries) => {
-            // Set up table with column definitions
-            let mut table = jjrp_Table::jjrp_new(vec![
-                jjrp_Column::new("Timestamp", jjrp_Align::Left),
-                jjrp_Column::new("Commit", jjrp_Align::Left),
-                jjrp_Column::new("Act", jjrp_Align::Left),
-                jjrp_Column::new("Affil", jjrp_Align::Left),
-                jjrp_Column::new("Subject", jjrp_Align::Left),
-            ]);
 
-            // Measure all rows to compute column widths
-            for entry in &entries {
-                let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| String::new());
-                let affil_str = if let Some(ref coronet) = entry.coronet {
-                    coronet.clone()
-                } else {
-                    // Extract firemark from the first 2 chars after coronet prefix in firemark
-                    // Since we called with a firemark, we need to reconstruct it
-                    // Parse the target firemark from args - it's passed as a raw string
-                    format!("₣{}", args.firemark)
-                };
-                table.jjrp_measure(&[
-                    &entry.timestamp,
-                    &entry.commit,
-                    &action_str,
-                    &affil_str,
-                    &entry.subject,
-                ]);
-            }
-
-            // Write header and separator
-            table.jjrp_write_header(output);
-            table.jjrp_write_separator(output);
-
-            // Write data rows
-            for entry in &entries {
-                let action_str = entry.action.as_ref().map(|a| format!("[{}]", a)).unwrap_or_else(|| String::new());
-                let affil_str = if let Some(ref coronet) = entry.coronet {
-                    coronet.clone()
-                } else {
-                    format!("₣{}", args.firemark)
-                };
-                table.jjrp_write_row(output, &[
-                    &entry.timestamp,
-                    &entry.commit,
-                    &action_str,
-                    &affil_str,
-                    &entry.subject,
-                ]);
-            }
-
-            0
+    let heat_key = match Firemark::jjrf_parse(&args.firemark) {
+        Ok(fm) => fm.jjrf_display(),
+        Err(e) => {
+            vvc::vvco_err!(output, "{}: error: Invalid firemark: {}", cn, e);
+            return 1;
         }
+    };
+
+    let entries = match jjrs_get_entries(&args) {
+        Ok(entries) => entries,
         Err(e) => {
             vvc::vvco_err!(output, "{}: error: {}", cn, e);
-            1
+            return 1;
         }
+    };
+
+    // Set up table with column definitions
+    let mut table = jjrp_Table::jjrp_new(vec![
+        jjrp_Column::new("Timestamp", jjrp_Align::Left),
+        jjrp_Column::new("Commit", jjrp_Align::Left),
+        jjrp_Column::new("Act", jjrp_Align::Left),
+        jjrp_Column::new("Affil", jjrp_Align::Left),
+        jjrp_Column::with_cap("Subject", JJRS_SUBJECT_CAP, jjrp_Align::Left),
+    ]);
+
+    // Measure all rows to compute column widths
+    for entry in &entries {
+        table.jjrp_measure(&[
+            &entry.timestamp,
+            &entry.commit,
+            &zjjrs_act_cell(entry),
+            &zjjrs_affil_cell(entry, &heat_key),
+            &entry.subject,
+        ]);
     }
+
+    // Write header and separator
+    table.jjrp_write_header(output);
+    table.jjrp_write_separator(output);
+
+    // Write data rows
+    for entry in &entries {
+        table.jjrp_write_row(output, &[
+            &entry.timestamp,
+            &entry.commit,
+            &zjjrs_act_cell(entry),
+            &zjjrs_affil_cell(entry, &heat_key),
+            &entry.subject,
+        ]);
+    }
+
+    // The gazette is the whole-subject channel, not a convenience — a clipped
+    // inline row has no other reading. It is always populated, even when the
+    // heat has no entries yet.
+    let body = zjjrs_gazette_body(&entries, &heat_key);
+    if let Err(e) = gazette.jjrz_add(jjrz_Slug::Steeplechase, &heat_key, &body) {
+        vvc::vvco_err!(output, "{}: error: gazette add failed: {}", cn, e);
+        return 1;
+    }
+
+    0
 }

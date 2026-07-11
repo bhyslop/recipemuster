@@ -16,6 +16,9 @@ pub const JJRP_COLUMN_GAP: usize = 2;
 /// Minimum column width
 pub const JJRP_MIN_WIDTH: usize = 5;
 
+/// Trailing character marking a clipped value
+pub const JJRP_ELLIPSIS: char = '…';
+
 /// Column alignment
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrp_Align {
@@ -32,6 +35,8 @@ pub struct jjrp_Column {
     pub min_width: usize,
     /// Alignment
     pub align: jjrp_Align,
+    /// Maximum characters a value may occupy; longer values are clipped
+    pub cap: Option<usize>,
 }
 
 impl jjrp_Column {
@@ -41,6 +46,7 @@ impl jjrp_Column {
             header,
             min_width: header.len().max(JJRP_MIN_WIDTH),
             align,
+            cap: None,
         }
     }
 
@@ -50,6 +56,19 @@ impl jjrp_Column {
             header,
             min_width: min_width.max(JJRP_MIN_WIDTH),
             align,
+            cap: None,
+        }
+    }
+
+    /// Create a column whose values are clipped to `cap` characters, the last
+    /// an ellipsis. Bounds a column carrying unbounded free text — a commit
+    /// subject — so row count alone sets the table's size.
+    pub fn with_cap(header: &'static str, cap: usize, align: jjrp_Align) -> Self {
+        Self {
+            header,
+            min_width: header.len().max(JJRP_MIN_WIDTH),
+            align,
+            cap: Some(cap.max(JJRP_MIN_WIDTH)),
         }
     }
 }
@@ -71,8 +90,23 @@ impl jjrp_Table {
     pub fn jjrp_measure(&mut self, row: &[&str]) {
         for (i, value) in row.iter().enumerate() {
             if i < self.widths.len() {
-                self.widths[i] = self.widths[i].max(value.len());
+                let clipped = self.jjrp_clip(i, value);
+                self.widths[i] = self.widths[i].max(clipped.len());
             }
+        }
+    }
+
+    /// Clip a value to its column's cap, if the column carries one.
+    /// Clipping counts characters, not bytes, so a multi-byte subject never
+    /// splits mid-codepoint. Measure and row emission both route through this,
+    /// so a capped column's width is computed from what is actually printed.
+    pub fn jjrp_clip(&self, index: usize, value: &str) -> String {
+        match self.columns.get(index).and_then(|c| c.cap) {
+            Some(cap) if value.chars().count() > cap => {
+                let kept: String = value.chars().take(cap - 1).collect();
+                format!("{}{}", kept, JJRP_ELLIPSIS)
+            }
+            _ => value.to_string(),
         }
     }
 
@@ -107,6 +141,7 @@ impl jjrp_Table {
             if i < self.columns.len() {
                 let width = self.widths[i];
                 let col = &self.columns[i];
+                let value = self.jjrp_clip(i, value);
                 let formatted = match col.align {
                     jjrp_Align::Left => format!("{:<width$}", value, width = width),
                     jjrp_Align::Right => format!("{:>width$}", value, width = width),
@@ -154,6 +189,43 @@ mod tests {
         table.jjrp_measure(&["Very Long Name", "12345"]);
         assert_eq!(table.widths[0], 14); // "Very Long Name".len()
         assert_eq!(table.widths[1], JJRP_MIN_WIDTH); // Still min because "12345" is shorter
+    }
+
+    #[test]
+    fn test_column_with_cap() {
+        let col = jjrp_Column::with_cap("Subject", 40, jjrp_Align::Left);
+        assert_eq!(col.cap, Some(40));
+        assert_eq!(col.min_width, "Subject".len());
+    }
+
+    #[test]
+    fn test_capped_column_clips_and_bounds_width() {
+        let columns = vec![
+            jjrp_Column::new("Commit", jjrp_Align::Left),
+            jjrp_Column::with_cap("Subject", 10, jjrp_Align::Left),
+        ];
+        let mut table = jjrp_Table::jjrp_new(columns);
+
+        let long = "abcdefghijklmnopqrstuvwxyz";
+        assert_eq!(table.jjrp_clip(1, long), "abcdefghi…");
+        // A value at or under the cap passes through whole.
+        assert_eq!(table.jjrp_clip(1, "abcdefghij"), "abcdefghij");
+        // An uncapped column never clips.
+        assert_eq!(table.jjrp_clip(0, long), long);
+
+        // Measuring a long value widens the column only to the clipped form,
+        // never to the raw subject.
+        table.jjrp_measure(&["abc1234", long]);
+        assert!(table.widths[1] < long.len());
+    }
+
+    #[test]
+    fn test_clip_respects_char_boundaries() {
+        let columns = vec![jjrp_Column::with_cap("Subject", 6, jjrp_Align::Left)];
+        let table = jjrp_Table::jjrp_new(columns);
+        // Multi-byte chars: clipping counts characters, so this never panics
+        // on a byte slice landing inside a codepoint.
+        assert_eq!(table.jjrp_clip(0, "₣AA ₢AAAAp coronet"), "₣AA ₢…");
     }
 
     #[test]
