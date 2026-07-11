@@ -5324,8 +5324,8 @@
         "₢BDAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1544",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1255",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "jjx_log on a long heat overflows the tool-result channel:",
@@ -5358,7 +5358,7 @@
                 "Mechanical JJK-crate change plus its JJS0 contract update. No design decisions remain."
               ],
               "jjgtn_silks": "jjx-log-overflow-diet",
-              "jjgtn_basis": "2678d63"
+              "jjgtn_basis": "766b6d0"
             }
           ]
         },
