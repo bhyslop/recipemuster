@@ -141,6 +141,10 @@ if test -z "${BURD_NO_LOG:-}"; then
     exit 1
   fi
   source "${z_station_file}" || buc_die "Failed to source: ${z_station_file}"
+
+  # Apply BURV (Bash Utility Regime Verification) overrides if set
+  BURS_LOG_DIR="${BURV_LOG_DIR:-${BURS_LOG_DIR}}"
+
   source "${BURC_TOOLS_DIR}/buk/burs_regime.sh" || buc_die "Failed to source burs_regime.sh"
   zburs_kindle
   zburs_enforce

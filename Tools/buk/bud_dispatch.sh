@@ -85,6 +85,9 @@ zbud_setup() {
     zbud_show "Sourcing station file: ${BURC_STATION_FILE}"
     source                           "${BURC_STATION_FILE}"
 
+    # Apply BURV (Bash Utility Regime Verification) overrides if set
+    BURS_LOG_DIR="${BURV_LOG_DIR:-${BURS_LOG_DIR}}"
+
     # Validate station variables
     zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
   fi
