@@ -168,6 +168,9 @@ Governing test: MCM Lapidary's mint-follows-API rule (cited, never restated).
   resolution runs against whichever table is in play — which is what keeps gaits portable
   across governed bodies and keeps a crossbred row correct on arrival.
   Keys are role words, never document acronyms (`₿bash-guide`, not the guide's name).
+  Moratorium cinched: until the table lands and the glyph-carriage amendment legalizes the
+  sigil, no docket or operative prose references a ₿ word — the symbol must never outrun
+  its resolver.
 
 | verdicts
 | The three mechanical answers for any path: claimed / unclaimed-in-bounds /
@@ -453,8 +456,7 @@ Members, root grain:
   document the table binds today.
   Entry members: `jjotgn_path` (home-relative path), and skip-when-absent
   `jjotgn_corpus` — absent means the document lives in the governed body's own tree;
-  present, it names the holding corpus (tokens elect with the central-corpus fork,
-  Open forks).
+  present, it names one of the table's registered corpora (`jjotrn_corpora`).
 * `jjotrn_codices` — blaze definitions for spec sets: `jjotcn_dir` (the set's one
   directory) plus `jjotcn_codex` (the SpecTop basename — the entry door), and the same
   skip-when-absent `jjotcn_corpus`.
@@ -462,6 +464,10 @@ Members, root grain:
   and on-demand loading rides the codex's own index — restating it here would recreate the
   home (ACG).
   One blaze namespace spans every registry: a role word defines once per table.
+* Reserved, unbuilt: `jjotrn_corpora` — the named-corpora registry, plural by design
+  (a second proprietary corpus is anticipated, not hypothetical); keyed by plain corpus
+  names on the names-not-identities ruling; entry shape — how a corpus home resolves —
+  settles with the central-corpus fork (Open forks).
 
 Members, tackle grain (each optional, skip-when-absent):
 
@@ -489,7 +495,7 @@ Members, tackle grain (each optional, skip-when-absent):
   first relation consumer (The association graph); how an edge references a tackle
   (name-key or minted identity) is decided at that normalization act — the recorded
   identity re-entry condition.
-  Enum tokens (`jjot«s»e_`) — none yet; the corpus tokens are the first anticipated.
+  Enum tokens (`jjot«s»e_`) — none yet.
 
 Growth rule: sophistication lands as new members — never as new kinds threaded through a
 generic list — and skip-when-absent keeps standing stores byte-canonical as members
@@ -522,8 +528,9 @@ The central corpus is the guide family plus the cross-project law documents (MCM
 GMG) — author-facing discipline portable to any sire bearing the artifact class — while a
 system's specs are locale documents of their own sire.
 A registry entry names the holding corpus only when it is not the governed tree (the
-skip-when-absent corpus member); which private home holds the central corpus, and with it
-the corpus tokens, is an open fork (Open forks).
+skip-when-absent corpus member, valued from the named-corpora registry); which private
+home holds the central corpus, and with it the corpora entry shape, is an open fork
+(Open forks).
 
 == How it reaches a session
 
@@ -713,7 +720,8 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   need a declared carve-out area or an edit ceremony),
   the kit repo (chartered "engine + provisioned context", adds no repo),
   or a standalone guides repo (cleanest lifecycle isolation, but a new repo).
-  The corpus tokens (`jjotgn_corpus` / `jjotcn_corpus` values) elect with that home.
+  The first corpora entries (`jjotrn_corpora`) and their shape land with that home;
+  the corpus members' values are corpora keys, plural by design.
 * *Claim-rule kinds* — the aspirant-sheaf domain exposes a new need: some real domains are
   defined by a *declared in-file marker* (the `axvd_sheaf axd_aspirant` lintel), not by
   path shape — aspirant sheaves are only partly path-regular: the JJ family rides `JJSA*`,
@@ -745,7 +753,7 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
 * *Edge-tag taxonomy* — specifies / tests / crosscuts are census-observed, not yet an enum;
   more census before it deserves one.
 * *Verdict naming* — held with the estray question (Candidate vocabulary).
-* *Remaining word elections* — verdict names; the corpus tokens (with the central-corpus
+* *Remaining word elections* — verdict names; the corpus names (with the central-corpus
   home); role-word conventions for the registries, if practice wants any.
   Elections run gates at a census-style pace, not mid-mulling.
   Word-health evidence banked for that gate: tackle itself sits two letters from the
