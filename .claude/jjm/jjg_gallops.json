@@ -7294,13 +7294,13 @@
         "₢BrAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1348",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260711-1542",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
-                "Audit — verification judgment, no new surface.",
+                "Audit — verification judgment, and the conformance sweep the codex still owes.",
+                "No new surface.",
                 "",
                 "## Done when",
                 "",
@@ -7310,10 +7310,27 @@
                 "the aspirant studbook and farrier sheaves are fully drained,",
                 "tackle's MVP core drained with its aspirant remainder intact,",
                 "founding-and-cutover intact as the conversion heat's plan home;",
-                "every paddock delta-to-bank confirmed banked."
+                "every paddock delta-to-bank confirmed banked.",
+                "",
+                "The aspirant-lintel upgrade lands family-wide:",
+                "every aspirant sheaf in the codex carries the two-token `axvd_sheaf` line in AXLA's fixed order",
+                "(normativeness, then genre),",
+                "and each sheaf's JJS0 cartouche moves in the same act —",
+                "never one-sided, or the attestation and the agreement drift apart.",
+                "JJSAT's own genre is decided there: post-drain it is a deferred-remainder sheaf,",
+                "not the entity sheaf it once plausibly was.",
+                "",
+                "The sibling nudges banked in JJSAT's reconciliation obligations are each discharged or",
+                "re-banked with a stated reason, and the list trimmed to what remains owed:",
+                "JJSAB's tackle rows superseded by the names-not-identities ruling (with its blaze row and",
+                "identity ladder),",
+                "VOSMM's estray naming and the file-role governance-member facet,",
+                "and AXLA's aspirant-exemption question for `axl_timeless`.",
+                "The JJK README `jjo` row stays with JJSAT's settling register — it drains with the later",
+                "tackle implementation, not here."
               ],
               "jjgtn_silks": "convergence-audit",
-              "jjgtn_basis": "4048235"
+              "jjgtn_basis": "74bb746"
             }
           ]
         },
