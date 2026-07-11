@@ -107,6 +107,22 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   the future forcing function on guide/spec quality.
   Makes the dedup direction a prerequisite, not hygiene;
   shapes prioritization toward guides and mechanisms.
+- Cross-language premises pace rulings (260711):
+  the version axis homed in BCG Zeroes Theory
+  (two named axes — spatial input forms, version — with the floor and
+  Palisade regimes on the version axis),
+  voiced in JJK as the `jjdk_schema_floor` axk_premise
+  consequent from the sole-operator premise,
+  and JJSCRP's standing forward-citation repointed to cite it.
+  Sibling-theme census dispositions:
+  Palisade conduct already homed at CMK ROE
+  (worked instances at BCG's curl containment and the farrier vocabulary
+  Palisade) — explicitly deferred, no re-formalization;
+  the exit-code band's cross-language projection already homed in BCG's
+  band section.
+  Forward-pointer (open, deliberately not blocked on):
+  promote the two-axis Zeroes Theory statement to the language-neutral
+  Design Principles in the project CLAUDE.md, beside Load-Bearing Complexity.
 
 ## Sequencing & lanes
 
