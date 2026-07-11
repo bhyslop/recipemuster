@@ -721,6 +721,13 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
 * *Loudness seats* — where the coverage remainder fires: the matricula census (repo
   hygiene, batch), saddle time (the session is about to touch an unaffiliated file — the
   pull-door shape), or both; and warn vs refuse at each seat.
+* *Check-command semantics* — deferred until the base farrier is built and the commands
+  have a live consumer; needs real design, not a drive-by cinch: what order means on
+  failure (run-all vs stop-on-first), whether the members interdepend (a test presumes its
+  build), tier ladders (a fast check vs a release suite), and where declared semantics stop
+  before they recreate gait-side policy.
+  Until settled, consumers treat the check lists as surfaced advice, never an executed
+  contract.
 * *Edge-tag taxonomy* — specifies / tests / crosscuts are census-observed, not yet an enum;
   more census before it deserves one.
 * *Verdict naming* — held with the estray question (Candidate vocabulary).
