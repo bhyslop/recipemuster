@@ -9957,8 +9957,8 @@
         "₢BsAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1851",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1904",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Repair the confirmation-gate prompt so it renders on the non-interactive dispatch path.",
                 "",
@@ -9993,7 +9993,7 @@
                 "Small, well-characterized BUK repair gating every destructive operator-present stage left in this heat."
               ],
               "jjgtn_silks": "confirm-prompt-render-repair",
-              "jjgtn_basis": "3470baf"
+              "jjgtn_basis": "d05eaee"
             }
           ]
         },
