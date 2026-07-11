@@ -2161,10 +2161,21 @@ and
 {jjda_first}::
 Position at first actionable slot in
 {jjdhm_order}
-(before the first
+— before the first pace that is not
+{jjdpe_resolved}, which is to say a
 {jjdpe_rough}
-pace).
+or
+{jjdpe_bridled}
+one.
 If no actionable paces exist, positions at end.
+Never index 0: the head of
+{jjdhm_order}
+is history, and a pace aimed at the front of the *work* belongs at the front of what remains, not above the record.
+The slot is found by asking the
+{jjdpe_resolved}
+predicate, never by matching state names — a scan written against
+{jjdpe_rough}
+alone silently mislays the pace once a second open state exists.
 Boolean.
 Mutually exclusive with
 {jjda_before}
