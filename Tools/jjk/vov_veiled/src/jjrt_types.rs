@@ -60,6 +60,21 @@ impl jjrg_PaceState {
             jjrg_PaceState::Abandoned => JJRG_STATE_ABANDONED,
         }
     }
+
+    /// The JJS0 `jjdpe_resolved` predicate: this pace requires no further
+    /// action. Its negation is *actionable* — the open set an orient saddles
+    /// and a `--first` positioning aims at.
+    ///
+    /// Query logic asks this predicate rather than matching state names, so a
+    /// future state declares its value here once and every caller inherits it;
+    /// the `--first` sites drifted precisely because they matched `Rough` by
+    /// name and never learned about `Bridled`.
+    pub fn jjrg_is_resolved(&self) -> bool {
+        match self {
+            jjrg_PaceState::Rough | jjrg_PaceState::Bridled => false,
+            jjrg_PaceState::Complete | jjrg_PaceState::Abandoned => true,
+        }
+    }
 }
 
 /// Canonical human display labels for designation tiers — same pattern as the

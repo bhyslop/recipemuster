@@ -70,6 +70,22 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     Ok(jjrg_NominateResult { firemark: firemark_str })
 }
 
+/// Index of the first actionable pace in a heat's order — the slot `--first`
+/// aims at, per the JJS0 `jjda_first` contract. `None` when the heat holds no
+/// actionable pace; callers then position at the end.
+///
+/// One home for the rule, shared by slate and rail: the head of `order` is
+/// history (wrapped and abandoned paces stay in place), so aiming at index 0
+/// buries a new pace above the record rather than at the head of the work
+/// remaining.
+fn zjjrg_first_actionable_idx(heat: &jjrg_Heat) -> Option<usize> {
+    heat.order.iter().position(|coronet| {
+        heat.paces.get(coronet)
+            .and_then(|pace| pace.tacks.first())
+            .is_some_and(|tack| !tack.state.jjrg_is_resolved())
+    })
+}
+
 /// Slate a new Pace
 ///
 /// Adds a new Pace to a Heat with an initial Tack in rough state.
@@ -119,7 +135,7 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
             .ok_or_else(|| format!("Target coronet '{}' not found in heat", target_key))?;
         Some(pos + 1) // Insert after this position
     } else if args.first {
-        Some(0) // Insert at beginning
+        Some(zjjrg_first_actionable_idx(heat).unwrap_or(heat.order.len()))
     } else {
         None // Append to end (default)
     };
@@ -207,21 +223,8 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
             .ok_or_else(|| format!("Pace {} not in order array", move_key))?;
 
         let new_pos = if args.first {
-            // Find first actionable pace (rough)
-            // If none found, use end of array (nothing actionable to precede)
-            let first_actionable_idx = heat.order.iter().position(|coronet| {
-                if let Some(pace) = heat.paces.get(coronet) {
-                    if let Some(tack) = pace.tacks.first() {
-                        matches!(tack.state, jjrg_PaceState::Rough)
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
-            });
             // Use len() as fallback so adjustment logic works correctly for "end" position
-            let target_idx = first_actionable_idx.unwrap_or(heat.order.len());
+            let target_idx = zjjrg_first_actionable_idx(heat).unwrap_or(heat.order.len());
             // If moving from before target, the target shifts down after removal
             if current_pos < target_idx {
                 target_idx - 1

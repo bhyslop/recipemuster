@@ -96,6 +96,31 @@ fn jjtrl_move_first_already_first_is_noop() {
 }
 
 #[test]
+fn jjtrl_move_first_lands_ahead_of_a_bridled_pace() {
+    let mut gallops = make_gallops();
+    let (hk, mut heat) = make_heat_with_paces("AB", &["AAA", "AAB", "AAC"]);
+    // AAA is history; AAB is bridled — designated, and still actionable.
+    heat.paces.get_mut("₢ABAAA").unwrap().tacks[0].state = jjrg_PaceState::Complete;
+    heat.paces.get_mut("₢ABAAB").unwrap().tacks[0].state = jjrg_PaceState::Bridled;
+    gallops.heats.insert(hk, heat);
+
+    let args = jjrg_RailArgs {
+        firemark: "AB".to_string(),
+        order: vec![],
+        move_coronet: Some("₢ABAAC".to_string()),
+        before: None,
+        after: None,
+        first: true,
+        last: false,
+    };
+
+    let result = gallops.jjrg_rail(args).unwrap();
+    // The bridled pace is actionable, so --first lands in front of it. A scan
+    // that matched Rough by name would have dropped the pace behind it.
+    assert_eq!(result, vec!["₢ABAAA", "₢ABAAC", "₢ABAAB"]);
+}
+
+#[test]
 fn jjtrl_move_before_adjacent_is_noop() {
     let mut gallops = make_gallops();
     // Order: AAA, AAB, AAC

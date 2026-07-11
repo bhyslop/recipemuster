@@ -724,6 +724,80 @@ fn jjtg_slate_creates_pace() {
     assert_eq!(heat.next_pace_seed, "AAC");
 }
 
+// Build a heat whose order carries history ahead of live work:
+// AAA complete, AAB bridled, AAC rough.
+fn make_heat_with_history(heat_id: &str) -> (String, jjrg_Heat) {
+    let heat_key = format!("₣{}", heat_id);
+    let mut paces = BTreeMap::new();
+    let mut order = Vec::new();
+    for (suffix, state, silks) in [
+        ("AAA", jjrg_PaceState::Complete, "wrapped-pace"),
+        ("AAB", jjrg_PaceState::Bridled, "bridled-pace"),
+        ("AAC", jjrg_PaceState::Rough, "rough-pace"),
+    ] {
+        let coronet = format!("₢{}{}", heat_id, suffix);
+        paces.insert(coronet.clone(), jjrg_Pace { tacks: vec![make_valid_tack(state, silks)] });
+        order.push(coronet);
+    }
+    let heat = jjrg_Heat {
+        silks: "my-heat".to_string(),
+        creation_time: "260101".to_string(),
+        status: jjrg_HeatStatus::Racing,
+        order,
+        next_pace_seed: "AAD".to_string(),
+        paces,
+    };
+    (heat_key, heat)
+}
+
+#[test]
+fn jjtg_slate_first_aims_at_first_actionable_slot() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_heat_with_history("AB");
+    gallops.heats.insert(heat_key.clone(), heat);
+
+    let result = gallops.jjrg_slate(jjrg_SlateArgs {
+        firemark: "AB".to_string(),
+        silks: "chivvied-pace".to_string(),
+        text: "Do this next".to_string(),
+        before: None,
+        after: None,
+        first: true,
+    }).unwrap();
+
+    let heat = gallops.heats.get(&heat_key).unwrap();
+    // Head of the remaining work: after the wrapped pace, ahead of the bridled
+    // one — bridled is actionable, so the new pace precedes it rather than
+    // slotting in behind a Rough-only scan.
+    assert_eq!(heat.order[0], "₢ABAAA");
+    assert_eq!(heat.order[1], result.coronet);
+    assert_eq!(heat.order[2], "₢ABAAB");
+    assert_eq!(heat.order[3], "₢ABAAC");
+}
+
+#[test]
+fn jjtg_slate_first_appends_when_nothing_is_actionable() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, mut heat) = make_heat_with_history("AB");
+    for coronet in heat.order.clone() {
+        heat.paces.get_mut(&coronet).unwrap().tacks[0].state = jjrg_PaceState::Complete;
+    }
+    gallops.heats.insert(heat_key.clone(), heat);
+
+    let result = gallops.jjrg_slate(jjrg_SlateArgs {
+        firemark: "AB".to_string(),
+        silks: "chivvied-pace".to_string(),
+        text: "Do this next".to_string(),
+        before: None,
+        after: None,
+        first: true,
+    }).unwrap();
+
+    let heat = gallops.heats.get(&heat_key).unwrap();
+    // No actionable slot to precede — the pace lands at the end, not above the record.
+    assert_eq!(heat.order.last().unwrap(), &result.coronet);
+}
+
 #[test]
 fn jjtg_slate_heat_not_found() {
     let mut gallops = make_valid_gallops();
