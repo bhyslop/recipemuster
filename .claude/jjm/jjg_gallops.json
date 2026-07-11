@@ -5500,8 +5500,8 @@
         "₢BDAAt": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1649",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1515",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Render-side output shaping in the jjk crate plus small spec touches.",
@@ -5539,7 +5539,7 @@
                 "- Kit tests green (tt/vow-t.Test.sh)."
               ],
               "jjgtn_silks": "mount-digest-census-rework",
-              "jjgtn_basis": "3edc73c"
+              "jjgtn_basis": "a02d43a"
             }
           ]
         },
