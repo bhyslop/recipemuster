@@ -9957,21 +9957,43 @@
         "₢BsAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260710-1201",
+              "jjgtn_ts": "260711-1851",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Study and repair how confirmation-gate text renders on the interactive path — when BURE_CONFIRM=skip is NOT supplied",
-                "(operator observed the defect running a confirm-gated verb by hand during gauntlet-attempt-7 preflight; the skip path renders fine).",
-                "Characterize the exact rendering symptom on a real terminal first, then repair;",
-                "reproduce on any confirm-gated verb (rbw-dU, rbw-MZ) with BURE_CONFIRM unset.",
-                "Discovery: grep -rn \"BURE_CONFIRM\" Tools/buk/ locates the confirm gate's home.",
+                "Repair the confirmation-gate prompt so it renders on the non-interactive dispatch path.",
+                "",
+                "Characterized live 260711 on cerebro against the escheat gate, so no further reproduction is owed.",
+                "bud_dispatch's non-interactive branch relays tabtarget output to the terminal through a line-oriented `while IFS= read -r` loop, which cannot forward a partial line.",
+                "buc_require's prompt carries no trailing newline — the answer is meant to be typed beside it — so the relay holds those bytes while the verb blocks on `read </dev/tty`:",
+                "the operator sees a DANGER banner, no prompt, and a hung process.",
+                "Platform-independent, not Linux-specific:",
+                "the handful of BURD_INTERACTIVE tabtargets take the `tee` branch and render correctly (rbw-gPI proves it),",
+                "while every other confirm-gated verb — escheat, depot-unmake, marshal-zero, manor-raze — is broken on every platform.",
+                "",
+                "Repair: keep the danger banner and its prompt on one ordered stream by newline-terminating the prompt through stderr.",
+                "Do NOT move the prompt to /dev/tty (buc_countdown's channel) — that races the relay and can print the prompt above its own danger banner.",
+                "Sweep the sibling partial-line prompts in buh_handbook's interactive read helpers, which carry the same latent defect.",
+                "BURE_CONFIRM=skip returns before any of this; its output must not change.",
+                "",
+                "## Attestation — both platforms, notched, before wrap",
+                "Probe verb: `tt/rbw-MZ.MarshalZeroes.sh` — its gate is confirm-first over local regime reads alone, needing no credentials and no network, so it reaches the prompt identically on either station.",
+                "Type a deliberately WRONG token: the prompt must render, and the gate must refuse cleanly.",
+                "NEVER type `zero` at that probe — that blanks the regime.",
+                "If the probe cannot reach its gate on a station, any confirm-gated verb that reaches one suffices; the attestation is about the prompt rendering, not the verb.",
+                "Sequence: notch the repair; attest on Linux (cerebro) and notch the finding; the operator pulls that commit on macOS and attests there, notched likewise.",
+                "`tt/buw-st.BukSelfTest.sh` green on both stations (notch before test, per standing discipline).",
+                "The positive path — a correct token proceeding — is proven downstream when the escheat gate is completed for real in the next pace.",
                 "",
                 "## Done when",
-                "The interactive confirm prompt renders cleanly on a real terminal;",
-                "the BURE_CONFIRM=skip path's output is unchanged."
+                "The prompt renders and the gate refuses a wrong token on BOTH Linux and macOS, each attested by its own notch;",
+                "BUK self-test green on both;",
+                "the BURE_CONFIRM=skip path's output unchanged.",
+                "",
+                "## Character",
+                "Small, well-characterized BUK repair gating every destructive operator-present stage left in this heat."
               ],
               "jjgtn_silks": "confirm-prompt-render-repair",
-              "jjgtn_basis": "57c42b0"
+              "jjgtn_basis": "3470baf"
             }
           ]
         },
