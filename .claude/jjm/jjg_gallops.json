@@ -9357,8 +9357,8 @@
         "₢BrAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1315",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1404",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9382,7 +9382,7 @@
                 "- The grep gate re-runs at election time before adoption."
               ],
               "jjgtn_silks": "sire-election-and-sweep",
-              "jjgtn_basis": "2c1402f"
+              "jjgtn_basis": "4026e5f"
             }
           ]
         }
