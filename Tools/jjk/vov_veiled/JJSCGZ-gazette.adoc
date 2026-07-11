@@ -17,9 +17,13 @@ A build-constructed gazette freezes permanently when any method discloses notice
 Internal invariant enforcement during mutation does not constitute disclosure.
 Mutating a frozen gazette is fatal.
 
-*No ordering.*
-The gazette has no ordering semantic — neither across slugs nor within a slug's entries.
-Callers must not depend on iteration order from any method.
+*Ordering is opt-in, and only within a slug.*
+Across slugs there is no ordering semantic at all: a caller must not depend on the sequence in which `jjrz_query_all` or `jjrz_emit` walk the slug space.
+Within one slug the gazette keeps two readings and the caller names which it wants.
+`jjrz_query_by_slug` discloses entries keyed by lede — that the keying happens to yield lexical order is an artifact of the map, never contract, and a caller must not lean on it.
+`jjrz_query_by_slug_ordered` discloses them in the order they were authored (file order on parse, insertion order on build), and *that* order is contract: the gazette records the authored sequence alongside the keyed map precisely so this reading survives.
+The live order-significant use-site is the {jjsoprd_revise_docket} batch, where {jjezs_slate} notice order is pace order (Mixed Batch Input, below).
+A command whose contract defines file-order semantics reads through the ordered query and says so; every other caller gets no order guarantee.
 
 *Unique keys.*
 Each notice is uniquely keyed by its (slug, lede) pair.
@@ -131,6 +135,31 @@ It appears in `gazette_in.md` as write input ({jjdo_curry}, or a {jjsoprd_revise
 and in `gazette_out.md` as read output ({jjdo_paddock}, {jjdo_orient}, {jjdo_show}).
 Each operation is unidirectional — no single operation touches both files.
 
+=== Mixed Batch Input
+
+{jjsoprd_revise_docket} accepts a heterogeneous single-heat batch:
+one `gazette_in.md` carrying at most one {jjezs_paddock} notice,
+zero or more {jjezs_reslate} notices,
+and zero or more {jjezs_slate} notices,
+applied in a single {jjsodp_command_lifecycle} pass and landing as one commit.
+This section is the batch's contract home; the command sheaves cross-reference it rather than restating it.
+
+*One heat, guarded.*
+Every notice in a batch must name the same {jjdhr_heat}.
+The batch {jjdt_firemark} is resolved from the {jjezs_paddock} lede and from the parent {jjdt_firemark} of each {jjezs_reslate} notice's {jjdt_coronet};
+disagreement among them is a loud rejection.
+{jjezs_slate} notices carry {jjdt_silks}, not an identity, so they inherit the resolved {jjdhr_heat} —
+which means a slate-only batch has no heat anchor at all and is rejected, naming {jjdo_enroll} as the path for a bare slate.
+The guard closes a legacy mass-reslate defect that keyed the whole run off the first {jjdt_coronet} and misattributed the rest.
+
+*Slate order is file order.*
+{jjezs_slate} notices apply in the order they appear in the file — notice order is pace order — read through `jjrz_query_by_slug_ordered`.
+Positioning ({jjda_before}, {jjda_after}, {jjda_first}) aims the whole *run*, not one notice:
+the first {jjezs_slate} takes the cursor and each later one follows its predecessor,
+so the batch folds in as one unbroken sequence at the position aimed at.
+Absent positioning, the run appends to the end of {jjdhm_order}, still in file order.
+{jjezs_reslate} notices are order-free — each names its own {jjdt_coronet} — and the lone {jjezs_paddock} notice is positionless.
+
 == Wire Format
 
 Gazette markdown uses `#`-headers to delimit notices:
@@ -206,7 +235,8 @@ Content.
 //axhems_scoped_method
 === jjrz_query_by_slug
 
-Retrieve all notices with the given slug.
+Retrieve all notices with the given slug, keyed by lede.
+The resulting sequence carries no contract — see the ordering invariant.
 Discloses notice map contents.
 
 //axhempm_motif_parameter axd_required axt_string
@@ -215,6 +245,21 @@ Slug.
 //axhemom_motif_output axd_repeated axt_object
 Set of (lede, content) pairs.
 Empty set if no notices match.
+
+//axhems_scoped_method
+=== jjrz_query_by_slug_ordered
+
+Retrieve all notices with the given slug in authored order — file order on a parsed gazette, insertion order on a built one.
+The order is contract, and this is the only method that supplies it: a caller whose semantics depend on the sequence the agent wrote reads here, never through `jjrz_query_by_slug`.
+The {jjsoprd_revise_docket} batch's slate run is the live consumer.
+Discloses notice map contents.
+
+//axhempm_motif_parameter axd_required axt_string
+Slug.
+
+//axhemom_motif_output axd_repeated axt_object
+Sequence of (lede, content) pairs in authored order.
+Empty sequence if no notices match.
 
 //axhems_scoped_method
 === jjrz_query_all

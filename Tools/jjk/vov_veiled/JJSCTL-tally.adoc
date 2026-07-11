@@ -4,9 +4,15 @@ Tally family: three single-purpose {jjdpr_pace} mutation operations split from t
 Each mutates flat fields on the {jjdpr_pace} directly.
 
 // tag::redocket[]
-Update the docket text of one or more {jjdpr_pace_s}.
-All input is provided via {jjdxo_gazette} `jjezs_reslate` notices.
-No JSON params are required.
+Update the docket text of one or more {jjdpr_pace_s} — and, in the same call, revise the {jjdhr_heat_p} paddock and enroll new {jjdpr_pace_s}.
+All input arrives via {jjdxo_gazette}: there is no JSON parameter carrying content,
+and an absent gazette is a loud rejection rather than a silent default.
+
+The accepted input is the mixed single-heat batch —
+at most one {jjezs_paddock} notice, zero or more {jjezs_reslate} notices, zero or more {jjezs_slate} notices.
+Its shape, the same-heat guard, and the file-order slate semantics are contract-homed in the {jjsz_gazette} sheaf (Mixed Batch Input) and are not restated here.
+The whole batch applies within one {jjsodp_command_lifecycle} pass and lands as a single heat-affiliated discussion commit;
+mass reslate is the common case, but paddock and slate ride the same call.
 
 {jjds_arguments}
 
@@ -14,24 +20,29 @@ No JSON params are required.
 Multiple notices in a single gazette enables mass reslate.
 
 //axd_optional
+* {jjda_before}, {jjda_after}, {jjda_first}
++
+Aim the batch's {jjezs_slate} run; the first slate takes the cursor and the rest follow it.
+Meaningless — and ignored — when the batch carries no {jjezs_slate} notice.
+
+//axd_optional
 * {jjda_size_limit}
 +
-Mass reslate can stack many full docket bodies in one commit; the operator may need to authorize a raise on first attempt for large batches.
+A batch can stack many full docket bodies in one commit; the operator may need to authorize a raise on first attempt for large batches.
 
-{jjds_stdout} Revision count and diffs.
+{jjds_stdout} Per-notice summary: a diff for each {jjezs_reslate}, the new {jjdt_coronet} for each {jjezs_slate}, and a line for the paddock when one is present.
 
 {jjds_exit_uniform} 0 success, non-zero error.
 
 {jjds_behavior}
 
-. Parse {jjdxo_gazette} for one or more `jjezs_reslate` notices, each containing {jjdt_coronet} (lede) and docket text (body)
+. Parse {jjdxo_gazette} as a batch; absent or empty input rejects, as does a batch with no notices
+. Resolve the batch {jjdt_firemark} under the same-heat guard; notices spanning heats reject, and a slate-only batch rejects for want of a heat anchor
 . {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
-. For each notice:
-.. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
-.. Verify {jjdhr_heat} exists
-.. Verify {jjdpr_pace} exists with given {jjdt_coronet}
-.. Update docket text on {jjdpr_pace}
-. {jjdr_save}
+. Apply the {jjezs_paddock} notice, if present, through the paddock write funnel
+. Apply each {jjezs_reslate}: verify the {jjdpr_pace} exists under the resolved {jjdhr_heat}, then replace its docket text
+. Apply each {jjezs_slate} in file order — the first takes the positioning cursor, each later one follows its predecessor
+. {jjdr_persist} — one commit, affiliated with the resolved {jjdt_firemark}
 // end::redocket[]
 
 // tag::relabel[]

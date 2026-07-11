@@ -68,11 +68,24 @@ extract from message prefix (`n:`, `A:`, `W:`, `F:`, `d:`)
 {jjdo_reorder}
 — reorders paces with action `r`
 *
-{jjdo_revise_docket},
 {jjdo_arm},
 {jjdo_relabel},
 {jjdo_drop}
 — add new tack with action `T`
+*
+{jjdo_redocket},
+{jjdo_curry}
+— heat-affiliated discussion commits with action `d`.
+{jjdo_redocket}
+lands a whole mixed batch — paddock revision, docket revisions, and new
+{jjdpr_pace_s}
+— under one commit;
+{jjdo_curry}
+co-commits the paddock file alongside
+{jjdgr_gallops}
+under the
+{jjdhr_heat_p}
+{jjdt_firemark}.
 *
 {jjdo_relocate}
 — moves pace between heats with action `D`

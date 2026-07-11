@@ -18,8 +18,11 @@ Staged `gazette_in.md` input rejects loud
 the rejection names {jjdo_curry} as the write path and directs a re-write).
 
 *{jjdo_curry}* (writer; `gazette_in.md` present with one `jjezs_paddock` notice, no `firemark` param):
-writes new paddock content to the file,
-creates a discussion commit with optional note.
+writes new paddock content to the file.
+The write rides the shared {jjsodp_command_lifecycle} rather than a commit path of its own:
+the dispatcher holds the lock, {jjdr_persist} co-commits {jjdgr_gallops} and the paddock file under the {jjdhr_heat_p} {jjdt_firemark},
+and the handler — a pure write funnel — knows nothing of locks, persistence, or commit messages.
+The commit is a heat discussion, carrying the optional note as its description.
 The notice body must be non-empty:
 an empty or whitespace-only body is a loud parse rejection —
 a revision replaces the whole paddock, never blanks it —
@@ -69,8 +72,7 @@ If absent, commit message is "paddock curried".
 
 . Dispatcher reads `gazette_in.md` via universal entry rule; absent input rejects, naming {jjdo_paddock} as the read path
 . Parse firemark and content from the `jjezs_paddock` notice; an empty or whitespace-only body rejects loud
-. Load {jjdgr_gallops}
+. Enter {jjsodp_command_lifecycle} with the parsed {jjdt_firemark}: acquire the lock, {jjdr_load}
 . Verify {jjdhr_heat} exists
 . Write new content to paddock file
-. Run size guard at {jjda_size_limit}
-. Commit paddock file with discussion marker (`d` action code)
+. {jjdr_persist} — size guard at {jjda_size_limit}, then one commit carrying {jjdgr_gallops} and the paddock file together under the {jjdt_firemark}, marked as a discussion (`d` action code)

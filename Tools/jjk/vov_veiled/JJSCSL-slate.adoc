@@ -156,3 +156,20 @@ positioning pattern with the current
 {jjdpr_pace_p}
 {jjdt_coronet}
 as target.
+
+*Also reachable through the batch:*
+{jjdo_enroll}
+is not the only path to a new
+{jjdpr_pace}.
+A
+{jjezs_slate}
+notice in a
+{jjsoprd_revise_docket}
+batch enrolls one too — several at once, in file order, alongside reslates and a paddock revision under a single commit.
+{jjdo_enroll}
+remains the path for a bare slate: a batch of slates alone carries no
+{jjdhr_heat}
+anchor and is rejected.
+Contract home for the batch is the
+{jjsz_gazette}
+sheaf (Mixed Batch Input).

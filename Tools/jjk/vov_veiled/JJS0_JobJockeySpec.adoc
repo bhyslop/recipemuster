@@ -2446,11 +2446,13 @@ The forced write is deliberate: it drags the agent's first {jjdxo_gazette} write
 +
 Input operations ({jjdo_enroll}, {jjsoprd_revise_docket}, {jjdo_curry}):
 
-. Dispatcher reads {jjdxo_gazette} at the start of dispatch
-. If gazette file is non-empty, dispatcher immediately overwrites it with empty content (consume)
-. Non-empty content is parsed via the appropriate gazette parse function; parsed values replace inline params
-. If gazette file is empty, dispatcher falls back to inline params from the MCP call
-. Both paths converge before calling the handler — the handler receives the resolved values regardless of source
+. Dispatcher reads {jjdxo_gazette} at the start of dispatch and deletes it, per the universal entry rule
+. Content is parsed via the appropriate gazette parse function; the parsed values are the operation's content arguments
+. Absent or empty content is a loud rejection naming the path it checked — {jjdxo_gazette} is the *sole* input path for content, and no inline-param fallback survives (the surviving JSON params carry positioning and limits, never docket, paddock, or silks text)
+. The handler receives the resolved values
++
+{jjsoprd_revise_docket} is the widest of the three: it parses a mixed single-heat batch, so one paddock revision, any number of docket revisions, and any number of new {jjdpr_pace_s} apply in a single pass under one heat-affiliated commit.
+Shape, guard, and ordering are contract-homed in the {jjsz_gazette} sheaf (Mixed Batch Input).
 
 === Groups
 
@@ -2465,23 +2467,33 @@ affiliated with {jjdgr_gallops}.
 [[jjsoprd_revise_docket]]
 //axvo_procedure axd_transient axd_inlaid axd_grouped
 {jjsoprd_revise_docket}::
-`jjrtl_run_revise_docket` —
-Update a {jjdpr_pace_p} docket text, member of {jjsogmc_mcp_commands}.
-Runs within {jjsodp_command_lifecycle} (pace-affiliated).
+`jjrm_apply_batch` (per-{jjezs_reslate} body: `jjrtl_run_revise_docket`) —
+Apply a mixed single-heat {jjsz_gazette} batch, member of {jjsogmc_mcp_commands}.
+Revising {jjdpr_pace_s} dockets is the common case and the {jjsuv_reslate} verb's target,
+but the same call may revise the {jjdhr_heat_p} paddock and enroll new {jjdpr_pace_s}.
+Runs within {jjsodp_command_lifecycle}, heat-affiliated:
+the batch resolves to one {jjdt_firemark} under the same-heat guard and lands one discussion commit,
+however many notices it carried.
 +
 {jjds_arguments}
 +
-* {jjdt_coronet} — target {jjdpr_pace}.
-  Required when {jjdxo_gazette} is empty; parsed from gazette lede when gazette is present.
-* `docket` (string) — new docket text.
-  Required when {jjdxo_gazette} is empty; parsed from gazette content when gazette is present.
-  When gazette is present, multiple (coronet, docket) pairs may be provided as separate gazette notices.
+* All content arrives via {jjdxo_gazette}:
+  {jjezs_reslate} notices ({jjdt_coronet} lede, docket body),
+  an optional {jjezs_paddock} notice ({jjdt_firemark} lede, paddock body),
+  and optional {jjezs_slate} notices ({jjdt_silks} lede, docket body).
+  No inline content parameter exists; an absent gazette rejects.
+* {jjda_before}, {jjda_after}, {jjda_first} — aim the {jjezs_slate} run.
+* {jjda_size_limit}
 +
 {jjds_behavior}
 +
-. Capture basis SHA and timestamp at I/O boundary
-. Call {jjsgmrd_revise_docket} with coronet, docket, basis, and timestamp
-. Return output text
+. Parse the batch; resolve its single {jjdt_firemark} under the same-heat guard
+. Apply the {jjezs_paddock} revision, if present
+. Apply each {jjezs_reslate} via {jjsgmrd_revise_docket} — order-free, each naming its own {jjdpr_pace}
+. Apply each {jjezs_slate} in file order, the first taking the positioning cursor and each later one following its predecessor
+. Return the per-notice output text
++
+Shape, guard, and ordering are contract-homed in the {jjsz_gazette} sheaf (Mixed Batch Input), not restated here.
 +
 {jjds_exit_uniform} 0 success, non-zero error.
 
