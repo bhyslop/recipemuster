@@ -79,14 +79,21 @@ deliberate rejections share the escheat band: one gate, its deficits rules withi
 it, distinct from the engross/expunge/peruse bands whose verbs may co-occur with
 an escheat in a spawn path.
 
-NOTE: *Proof status — the orphan arm awaits real churn.* The dead-schema arm is
-live-proven (260702: a real provider-blind stray swept from the standing terrier,
-verify re-survey green, second run idempotent-clean). The orphaned-slice arm — the
-dead-depot liveness verdict and the dead-folder purge — has not yet run against a
-real dead depot: it is proven at the next real depot churn (a
-{rbtgo_depot_unmake}
-retiring a levy), never by a synthetic payor-direct writer seeding a fake slice —
-that scaffold shape is retired (operator ruling at the 260702 exercise).
+NOTE: *Proof status — both arms live-proven.* The dead-schema arm is live-proven
+(260702: a real provider-blind stray swept from the standing terrier, verify
+re-survey green, second run idempotent-clean). The orphaned-slice arm is
+live-proven (260711: twelve depots left dead by a real levy churn, each judged
+`DELETE_REQUESTED` by the liveness probe and struck as fifteen objects and eleven
+managed folders, while the standing depot's slice was kept whole; verify re-survey
+green; a second run short-circuited clean without reaching the confirm). The churn
+stranded both partial shapes a levy can leave — a slice bearing a muniment whose
+managed folder was never created, and folders bearing no muniment at all — and the
+depot set, taken as the union over objects and managed folders, reached each. Two
+verdicts of the depot-liveness rule remain unexercised against a real slice: the
+`403` and `404` dead branches have only ever been reasoned, never witnessed. They
+are proven at whatever churn produces them, never by a synthetic payor-direct
+writer seeding a fake slice — that scaffold shape is retired (operator ruling at
+the 260702 exercise).
 
 //axhos_step
 . *Authenticate as
