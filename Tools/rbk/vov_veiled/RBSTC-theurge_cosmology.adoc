@@ -2,12 +2,16 @@
 This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 // RBSTC — Theurge test cosmology (concept subdoc)
 //
-// STANDING subdoc, concept-first. The spec home for Recipe Bottle's
+// STANDING subdoc, concept-first. The spec treatment of Recipe Bottle's
 // test-orchestration cosmology: the wrapper(inner) combinator, the four
 // wrappers, the three dependency strata, and the freehold/leasehold substrate
 // composite. Before this subdoc the cosmology lived only in crate doc-comments
 // (rbtdtc_crucible.rs, rbtdrk_freehold.rs), the CLAUDE.md suites table, and
 // memos; code now cites these quoins for the vocabulary.
+//
+// The rbtt_ quoins are DEFINED in RBS0, at the head of the branch that includes
+// this subdoc — the codex defines the vocabulary, a sheaf consumes it (MCM
+// mcm_codex / mcm_sheaf). This subdoc is the treatment, not the definition site.
 //
 // Naming RATIFIED (Fable terminal review, 260701): the quoin stem rbtt_
 // (sub-letters read Theurge-Test) and the word "theurge" are final. Lapidary
@@ -33,8 +37,9 @@ The
 is Recipe Bottle's test-orchestration engine: it composes the project's fixtures
 (BUS0 `busr_fixture`) into named suites (`busr_suite`) and runs them against real
 regimes, real cloud, and real crucibles.
-This subdoc homes the cosmology the engine embodies — the vocabulary code cites —
-and defers every containment, membership, and identity fact to its production home.
+This subdoc treats the cosmology the engine embodies — the vocabulary code cites,
+defined with the rest of the codex's terms above — and defers every containment,
+membership, and identity fact to its production home.
 
 == The wrapper(inner) combinator
 
@@ -48,107 +53,12 @@ The suite-composition oracle (`rbtdtc_crucible.rs`) proves every literal suite i
 `RBTDRA_SUITES` remains expressible as this wrapper(inner) product, and asserts the
 structural laws the product implies.
 
-[[rbtt_theurge]]
-{rbtt_theurge}::
-Recipe Bottle's test-orchestration engine (the `rbtd` crate): the composer and
-runner of fixtures and suites, and the cosmology this subdoc homes.
-
-[[rbtt_wrapper]]
-{rbtt_wrapper}::
-The outer factor of the combinator: the substrate posture a set of
-{rbtt_case_s}
-runs under.
-Four wrappers exhaust the model —
-*Base* (substrate-independent — the reveille
-{rbtt_stratum},
-no freehold),
-the
-{rbtt_reuse}
-(a standing
-{rbtt_freehold}),
-the
-{rbtt_lifecycle}
-(an ephemeral create→destroy
-{rbtt_leasehold}),
-and *Local* (fully local, no freehold).
-A wrapper selects the substrate the inner bodies run against; it never alters a
-fixture's credless arming — that is the credless membrane, and it is why suite
-membership is a set of *whole* fixtures, each keeping the credless flag it was
-registered with.
-
-[[rbtt_case]]
-{rbtt_case}::
-An inner body: one atomic test returning a Pass / Fail / Skip verdict, run in its
-own isolated temp directory.
-The unit a
-{rbtt_wrapper}
-runs, and the *inner* of the wrapper(inner) product.
-
-[[rbtt_reuse]]
-{rbtt_reuse}::
-The wrapper that runs its inner bodies against a STANDING
-{rbtt_freehold}:
-reuse the freehold if it is live, else levy one once, then heal credentials —
-never tearing down.
-The durable-substrate posture behind picket, bivouac, echelon, skirmish,
-dogfight, and blockade.
-Completeness law: the complete reuse product is service ∪ crucible.
-
-[[rbtt_lifecycle]]
-{rbtt_lifecycle}::
-The wrapper that stands up a fresh
-{rbtt_leasehold}
-and tears it down within the run — the create→destroy proof behind the gauntlet
-ladder.
-The moniker picker's `max + 1` rule is the safety boundary: a lifecycle run always
-mints a leasehold ABOVE the standing freehold, so its tear-down can never reach the
-freehold.
-Ladder law: blockade ⊆ skirmish ⊆ gauntlet.
-
 == The three strata
 
 A
 {rbtt_stratum}
 is a dependency tier — an RB instance of the BUS0 `busr_suite` dependency-tier axis
 — gating which fixtures a suite may host by what external dependency they need.
-
-[[rbtt_stratum]]
-{rbtt_stratum}::
-A dependency tier over fixtures.
-Three strata partition the base ladder:
-*reveille* (no external dependency; credless),
-*picket* (GCP credentials),
-and *bivouac* (a container runtime);
-*echelon* is their union (picket ∪ bivouac over reveille).
-The stratum is an axis over fixtures — what a fixture *needs* — orthogonal to the
-{rbtt_wrapper}
-that selects *substrate*.
-
-== The freehold composite
-
-[[rbtt_freehold]]
-{rbtt_freehold}::
-The durable, reusable test substrate a
-{rbtt_reuse}
-wrapper stands on — homed in `rbtdrk_freehold.rs`.
-A composite of a cloud-prefix base and a runtime-prefix base, a per-station
-tinctured family stem, an auto-incrementing six-digit moniker family, the depot
-project-id derivation, and the depot fact-file layout.
-It persists across runs and across
-{rbtf_foedus}
-re-mints; only a deliberate, suiteless freehold-churn destroys it.
-
-[[rbtt_leasehold]]
-{rbtt_leasehold}::
-The ephemeral per-run substrate a
-{rbtt_lifecycle}
-wrapper mints and destroys: a fresh moniker in the freehold family, always picked
-ABOVE the standing freehold (the `max + 1` boundary), stood up and torn down within
-one run.
-A leasehold is to the
-{rbtt_freehold}
-as a lease is to a freehold estate — occupied, then surrendered — never the estate
-itself.
 
 == Suite membership
 

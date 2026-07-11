@@ -15,11 +15,11 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 // with the other civic quoins (terrier, muniment, mantle, ...) at the head of
 // the verb movement (M4). This subdoc references that noun; it does not define it.
 //
-// Wired (M4): the sub-operation quoins below are registered in the RBS0 mapping
-// section under the rbtf_ federation category, and this file is `include::`'d
-// into RBS0 proximal to the terrier noun quoin (the standard operation-fragment
-// treatment). Settled: this subdoc's identity, the atomic-write contract, and the
-// three sub-operation quoins (engross / expunge / peruse). The terrier noun
+// Wired (M4): the three sub-operation quoins (engross / expunge / peruse) are
+// DEFINED in RBS0 among the rbtf_ federation quoins, proximal to the terrier noun
+// and to this file's `include::` — the codex defines, this sheaf consumes (MCM
+// mcm_codex / mcm_sheaf). Settled: this subdoc's identity, the atomic-write
+// contract, and those three sub-operations. The terrier noun
 // internals (granularity, muniment shape + rbgft_ sprue, bucket, folder IAM) are
 // settled in the RBSTN Terrier noun sheaf; the former Forthcoming section is retired.
 
@@ -41,35 +41,7 @@ key on the pair while
 {rbtf_peruse}
 recovers each holding from the muniment body.
 Exactly three sub-operations touch it at the muniment grain, each a single
-conditioned REST call against the bucket:
-
-[[rbtf_engross]]
-{rbtf_engross}::
-Write a
-{rbtf_muniment}
-(to engross: to set a deed down in its formal, final copy).
-Composed by
-{rbtf_brevet},
-which engrosses the muniment before it writes the IAM binding.
-Carries the atomic write-semantics below.
-
-[[rbtf_expunge]]
-{rbtf_expunge}::
-Withdraw a
-{rbtf_muniment}
-(to strike an entry from the record).
-Composed by
-{rbtf_unseat}.
-Carries the atomic write-semantics below.
-
-[[rbtf_peruse]]
-{rbtf_peruse}::
-Read
-{rbtf_muniment_s}
-(to examine the record through).
-The pure list-and-fetch primitive — no precondition — that
-{rbtf_rehearse}
-composes, and the read side of the reconciliation diff.
+conditioned REST call against the bucket.
 
 NOTE: *Hygiene access rides beneath this contract.* The manor-hygiene sweep
 ({rbtgo_manor_escheat})
