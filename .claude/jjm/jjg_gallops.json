@@ -6942,8 +6942,8 @@
         "₢BbAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-0846",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1447",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "ACGm_104 citation-collapse sweep over rbgc_constants.sh comment blocks, widened to rba_auth.sh:",
                 "several blocks cite their spec home and then restate its rationale beside the citation — the cite-then-restate signature ACGm_104 names.",
@@ -6964,7 +6964,7 @@
                 "Judgment per block against a settled rule; mechanical once ruled."
               ],
               "jjgtn_silks": "rbgc-rba-comment-collapse",
-              "jjgtn_basis": "bfe18b1"
+              "jjgtn_basis": "895d053"
             }
           ]
         },
