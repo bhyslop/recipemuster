@@ -5446,8 +5446,8 @@
         "₢BDAAs": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1521",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1347",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Mint the gating verdict genre interdictum (jjdz_interdictum) into JJS0 beside jjdz_monitum,",
                 "as the enforcing complement of the never-gating monitum:",
@@ -5491,7 +5491,7 @@
                 "Spec mint plus mechanical server sweep plus context trim; frontier judgment on the razor."
               ],
               "jjgtn_silks": "interdictum-verdict-genre",
-              "jjgtn_basis": "784f0fe"
+              "jjgtn_basis": "d24d215"
             }
           ]
         },
