@@ -1753,8 +1753,9 @@ const RBTDRV_TERRIER_FAULT_EXPUNGE: &str = "terrier_expunge=500";
 const RBTDRV_TERRIER_FAULT_PERUSE: &str = "terrier_peruse_manor_list1=500";
 
 /// Best-effort expunge of the synthetic poison muniment via an un-faulted unseat
-/// (idempotent — a 404 is "absent"; the never-granted tokenCreator revoke is a
-/// no-op), so a poison drive leaves no muniment behind. Exit ignored: cleanup.
+/// (idempotent — a 404 is "absent"; the tokenCreator revoke is a no-op unless the
+/// re-run brevet drive granted it), so a poison drive leaves no muniment behind.
+/// Exit ignored: cleanup.
 fn zrbtdrv_terrier_poison_sweep(ctx: &mut rbtdri_Context, dir: &Path, label: &str) {
     let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
         ctx,
