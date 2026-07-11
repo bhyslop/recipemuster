@@ -273,6 +273,30 @@ the implementation tail runs at work tier.
   the corpus member is skip-when-absent (absent = the governed body's own tree),
   its tokens electing with the central-corpus-home fork;
   JJSAT joins the sire wording-sweep scope.
+- Minted-mark re-cut (260711): at the glyph-carriage edit the insignia axis re-split
+  on referential standing —
+  axd_insignia narrowed to the constitutive identity mark
+  (the mint creates the identity; mint natures axd_seeded | axd_temporal),
+  axd_ordinal re-seated as the sibling annotative order-label dimension
+  (a denormalized alias of a pre-existing, often foreign-minted identity — never truth),
+  and axd_algebraic renamed axd_seeded — the mint-discipline contrast carries the nature axis,
+  with radix, width policy, and boundedness demoted to consequences, never the distinction.
+  The surface-keyed carriage law homes once at the AXLA section intro
+  (retitled Minted-Mark Dimensions):
+  type sentinel mandatory in operator-facing output and in project-authored structured wires
+  (self-typing keys; a wrong-type value fails at the parse boundary),
+  forbidden on foreign-traversed surfaces, tolerant on input,
+  with the role-word companion clause covering ₿-sigiled blaze keys.
+  Consequences: the gallops store's sigiled JSON keys are doctrine-compliant
+  (the old forbidden-in-wire-keys clause was contradicted by standing practice);
+  the wire-vs-display cinch's machine-context enumeration (260706) is superseded
+  for project-authored JSON stores — the identity stays the bare body on every surface,
+  carriage of the sentinel differs by surface, and git refs / paths / branch names stay bare;
+  ₢BcAAL (₣Bc, glyph-stripping the gallops keys under the old law) now works against
+  doctrine and awaits operator disposition;
+  JJS0's jjdt_insignia carriage sentence and the jjrf_favor.rs comment sweep banked
+  as a JJSAT reconciliation obligation.
+  JJS0 swept for the rename in the same act (Seeded section title, attr refs, annotations).
 
 ## Canon workup
 
@@ -406,6 +430,10 @@ SIRE ELECTION (260711): sire elected for the registered external body of work
 under a re-run clean grep gate (held since 260709, no alternates banked);
 plain prose, no quoin minted;
 rationale ledgered in the state-repo sheaf's naming ledger.
+MINTED-MARK RE-CUT (260711): axd_algebraic renamed axd_seeded and axd_ordinal re-seated
+as the sibling annotative mark at the glyph-carriage landing;
+the carriage law homed at the AXLA section intro (Minted-Mark Dimensions) with the
+role-word companion clause; rationale in the minted-mark cinch and the AXLA edit itself.
 Elections, alternates, and rationales live in the two sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
