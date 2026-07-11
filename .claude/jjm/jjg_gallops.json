@@ -6590,8 +6590,8 @@
         "₢BbAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260704-1407",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1317",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mid-flight pilot finish — rulings plus a small landing sweep; judgment work.",
@@ -6642,7 +6642,7 @@
                 "operator confirms wrap."
               ],
               "jjgtn_silks": "pilot-audit-conjure",
-              "jjgtn_basis": "861221e"
+              "jjgtn_basis": "00bf556"
             }
           ]
         },
