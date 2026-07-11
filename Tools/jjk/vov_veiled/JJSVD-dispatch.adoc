@@ -63,7 +63,7 @@ The operator knows the verb at chat-top, and the session's {jjdd_billet} must be
 launch — mid-session directory change neither reloads project context nor survives the cd
 prohibition.
 The doors are operator-typed at the shell, from within the elected clone: *cwd elects the
-clone* — the pace cannot, since parallel clones of one upstream are all legitimate
+clone* — the pace cannot, since parallel clones of one sire are all legitimate
 {jjdw_hippodrome_s} — and either door works from trunk or billet alike
 ({jjdf_identify} resolves either).
 
@@ -109,8 +109,9 @@ its tier source, never its own spine:
 . *{jjdd_muck}* — the billet-clearing sweep, silent when its reap set is empty.
 . *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
   a decline is the fair-faced foreign-ground rejection.
-. *Pedigree lookup* — a {jjdb_studbook} read, no lock;
-  an upstream with no {jjdb_pedigree} is the unrecorded-upstream rejection, and a claiming
+. *Pedigree lookup* — a {jjdb_studbook} read, no lock, one indirection:
+  derived key → sire → {jjdb_pedigree};
+  a key resolving no sire is the unrecorded-sire rejection, and a claiming
   kind that contradicts the recorded kind is the record/ground-drift rejection
   ({jjdf_identify} contract, farrier sheaf).
 . *Billet ensure* — `billet_create`-or-reuse ({jjdf_billet} facet);
@@ -280,7 +281,7 @@ The kit-core protocol texts pick this seam up at implementation.
 The {jjdd_spine_p} refusals are fair-faced ashlar output, named per the farrier taxonomy
 where a primitive supplies them:
 foreign ground ({jjdf_identify} declines — no kind claims the tree),
-unrecorded upstream (no {jjdb_pedigree} for the claimed key),
+unrecorded sire (the claimed key resolves no sire),
 record/ground drift (claiming kind contradicts the recorded kind),
 and {jjdd_muck_p} dirty-anomaly refusal (refuse-with-advice, above).
 Everything else fails loud through the composed primitive's own named rejection kind.

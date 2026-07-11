@@ -20,7 +20,7 @@ The polymorphic revision-control driver: one trait, one implementation per *farr
 plain git in the MVP, worktrees within it; submodule and multi-repo constellations later.
 As a farrier shoes the same horse for different terrain, one driver interface serves every
 backend;
-the {jjdb_pedigree} records which farrier kind serves clones of its upstream.
+the {jjdb_pedigree} records which farrier kind serves clones of its sire.
 The {jjdb_studbook} itself is driven through the same interface — the degenerate single-repo
 case.
 +
@@ -122,9 +122,11 @@ A claimed tree resolves exactly four things:
 * *root* — the tree's station-local absolute path: transient, never journaled
   (the no-worktree-paths rivet, studbook sheaf).
   The identity dirname derives as its basename.
-* *canonical upstream key* — the {jjdb_pedigree} key.
-  The kind owns canonicalization;
+* *canonical upstream key* — the kind owns canonicalization;
   one key per tree — a constellation kind keys on its own upstream.
+  The key is derived address, never the {jjdb_pedigree} key itself:
+  the spine's pedigree lookup resolves it in one indirection,
+  derived key → sire → {jjdb_pedigree} (studbook sheaf).
 * *seat* — primary or partition.
   A partition seat carries its primary's root;
   the linkage mechanics are the kind's own (worktree gitdir for plain git, a planted

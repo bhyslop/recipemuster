@@ -17,7 +17,8 @@ A polymorphic revision-control driver (the {jjdf_farrier}) fits the same JJ inte
 whatever ground each repo runs on.
 
 JJ launched anywhere derives everything it needs from where it stands:
-origin URL → {jjdb_pedigree} → {jjdf_farrier} kind, trunk posture, tackle bindings.
+origin URL → sire (the registered body of work) → {jjdb_pedigree} → {jjdf_farrier} kind,
+trunk posture, tackle bindings.
 One derivation chain, no per-repo pointers, no clone-local state.
 The trunk of a {jjdw_hippodrome} belongs to the operator alone — JJ works in billets and
 records in the {jjdb_studbook}, and never handles the operator's serializing branch.
@@ -78,6 +79,6 @@ inserts*: no committed dossier, no `.claude/jjm` state, no JJK includes.
 A vanilla external project is a working {jjdw_hippodrome} the moment its {jjdb_pedigree}
 exists.
 Identity is the directory name — there is no clone-local state at all (v1 ruling) — and the
-upstream key is the clone's origin URL.
-Several clones of one upstream are several {jjdw_hippodrome_s}: the operator's standing
+clone's origin URL derives the upstream key that resolves its sire.
+Several clones of one sire are several {jjdw_hippodrome_s}: the operator's standing
 concurrent-parallel-clone work model is preserved, not replaced.

@@ -1045,7 +1045,7 @@ Terms drawn from horse racing — the competitive, forward-driving aspect of ini
 * {jjdw_hippodrome} — a vanilla work clone. The ancient racecourse — the consumer's own ground the racing runs on; JJ visits, never moves in.
 * {jjdw_infield} — the peer ring holding every JJ-managed tree. The enclosed interior of the track — one shared ground, every structure a sibling on it.
 * {jjdb_studbook} — the regional record repo. The breed society's one authoritative register — kept apart from the track, recording every line so no race depends on memory.
-* {jjdb_pedigree} — the per-upstream record within the studbook. The lineage entry — what stock a clone descends from and how it must be handled.
+* {jjdb_pedigree} — the per-sire record within the studbook. The lineage entry — what stock a clone descends from and how it must be handled.
 * {jjdb_counterfoil} — the journaled stub naming issued work. The retained half of the race-day ticket — the book keeps the stub, the ticket circulates.
 * {jjdf_farrier} — the polymorphic revision-control driver. The smith who fits the same horse to every ground — the shoe changes, the horse does not.
 

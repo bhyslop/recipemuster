@@ -36,18 +36,22 @@ and its own coordinates are engine-known, never pedigree-resolved.
 
 [[jjdb_pedigree]]
 {jjdb_pedigree}::
-The per-upstream record: one {jjdb_pedigree} per hippodrome upstream type, keyed by origin
-URL, stored in the {jjdb_studbook} — the {jjdb_studbook} is a register of {jjdb_pedigree_s}.
-A new upstream needs a founding {jjdb_pedigree} entry before JJ serves it — a deliberate
+The per-sire record: one {jjdb_pedigree} per *sire* — the registered external body of work
+JJ serves, a transport-independent identity (a git clone today, perhaps a tarball someday
+under another driver kind) — stored in the {jjdb_studbook} — the {jjdb_studbook} is a
+register of {jjdb_pedigree_s}.
+The {jjdb_pedigree} keys on the sire's minted immutable identity;
+an origin URL is a kind-owned mutable address attribute, never the key.
+A new sire needs a founding {jjdb_pedigree} entry before JJ serves it — a deliberate
 ceremony;
 the derivation chain that consumes the entry is world model, homed in the cosmology sheaf.
 
 Each {jjdb_pedigree} carries:
 
-* the {jjdf_farrier} kind — which revision-control driver serves clones of this upstream —
+* the {jjdf_farrier} kind — which revision-control driver serves clones of this sire —
   and its parameters (trunk name, remotes posture);
 * tackle bindings (file scope → governing discipline) as sibling entries;
-* reserved, parked: a per-upstream edit-scope wildcard list, if billets-per-pace ever prove
+* reserved, parked: a per-sire edit-scope wildcard list, if billets-per-pace ever prove
   insufficient for collision avoidance.
 
 == Counterfoil

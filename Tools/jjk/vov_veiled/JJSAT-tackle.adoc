@@ -93,11 +93,11 @@ flying in formation.
 == A tackle is countable
 
 *A tackle is one domain binding* — a fileset plus the governance it carries;
-the *tackle set* is an upstream's table of them.
+the *tackle set* is a sire's table of them.
 The breeze sheaf's usage ("blaze — owned by *a* tackle") agrees, and V4's countable
 resource-bundle sense maps onto the same node.
 The aggregate needs no minted name of its own:
-plain prose — "the tackle set", "the upstream's tackles" — does the work, the tackle table
+plain prose — "the tackle set", "the sire's tackles" — does the work, the tackle table
 beside the pedigree is the aggregate's home, and a mint waits until the aggregate itself
 acquires behavior worth naming.
 
@@ -180,7 +180,7 @@ Governing test: MCM Lapidary's mint-follows-API rule (cited, never restated).
   or needs a sibling word is a Lapidary question held open.
 
 | governed boundary
-| The per-upstream declared boundary within which coverage is owed (Scope semantics).
+| The per-sire declared boundary within which coverage is owed (Scope semantics).
 | Plain *bounds* — `jjotrn_bounds`; no mint, the claims precedent applied.
   ambit released: reported not-working in operator recall — the spoken-test failure that
   released remuda — and the verdicts read naturally as in-bounds / out-of-bounds.
@@ -246,8 +246,8 @@ The position, argued in full in the memo:
   Caching, if the trees go huge, is the deliberate supersession VOSMM's transience invariant
   (VOr_k3p) already anticipates — never drift.
 * *Coverage is owed within the bounds; three verdicts.*
-  Per governed body of work, its tackle table declares the bounds (for the home repo: the
-  whole git-tracked tree; for a large vanilla upstream: the subtrees JJ works).
+  Per sire, its tackle table declares the bounds (for the home repo: the
+  whole git-tracked tree; for a large vanilla sire: the subtrees JJ works).
   Any path then has one of three mechanical verdicts:
   *claimed* (some tackle governs it);
   *unclaimed in bounds* (the defect — loud, surfaced by the coverage subtraction);
@@ -379,7 +379,7 @@ tackle:
 
 == The table — settling schema
 
-One file per governed body of work's tackle set, studbook-side, beside the pedigree.
+One file per sire's tackle set, studbook-side, beside the pedigree.
 JJ is the sole author: every write goes through a JJ verb under the journal ceremony and
 the studbook lock, validating semantics at the door — the gallops posture, never a
 hand-edited document (The substrate split).
@@ -455,7 +455,7 @@ Members, root grain:
   outlives any particular binding, and a consumer asking for the role receives whatever
   document the table binds today.
   Entry members: `jjotgn_path` (home-relative path), and skip-when-absent
-  `jjotgn_corpus` — absent means the document lives in the governed body's own tree;
+  `jjotgn_corpus` — absent means the document lives in the sire's own tree;
   present, it names one of the table's registered corpora (`jjotrn_corpora`).
 * `jjotrn_codices` — blaze definitions for spec sets: `jjotcn_dir` (the set's one
   directory) plus `jjotcn_codex` (the SpecTop basename — the entry door), and the same
@@ -503,7 +503,7 @@ arrive.
 
 == Where it lives
 
-Studbook-side, beside the pedigree (one tackle set per upstream) — never in the hippodrome,
+Studbook-side, beside the pedigree (one tackle set per sire) — never in the hippodrome,
 which carries no JJ inserts (canon: the revision-control cosmology sheaf,
 vanilla-hippodrome premise).
 Tackle and farrier config are sibling entries on the pedigree answering different questions
@@ -518,16 +518,16 @@ The vanilla-hippodrome premise also forecloses the gitignore/gitattributes scali
 in-tree distributed rule files: tackle must be centralized-external, which is what makes the
 intensional-table + live-evaluator design mandatory rather than optional.
 
-The registered documents divide by home: a guide is either *locale* — living in the body of
-work it serves, a legitimate and expected pattern as a project accretes its own excellent
+The registered documents divide by home: a guide is either *locale* — living in the sire
+it serves, a legitimate and expected pattern as a project accretes its own excellent
 guidance — or *central*: the operator's proprietary corpus, as closed as the record itself,
-never planted in a governed repo, its existence undisclosed to a foreign project or
+never planted in a sire's tree, its existence undisclosed to a foreign sire or
 disclosed only as deliberately whittled variants.
 The home repo's in-tree guides are simply the first locale instance.
 The central corpus is the guide family plus the cross-project law documents (MCM, AXLA,
 GMG) — author-facing discipline portable to any sire bearing the artifact class — while a
 system's specs are locale documents of their own sire.
-A registry entry names the holding corpus only when it is not the governed tree (the
+A registry entry names the holding corpus only when it is not the sire's own tree (the
 skip-when-absent corpus member, valued from the named-corpora registry); which private
 home holds the central corpus, and with it the corpora entry shape, is an open fork
 (Open forks).
@@ -585,9 +585,9 @@ design decision, not a commitment:
   time.
 * *Registry shape* — tackles as silks-identified, mutable resource bundles in a top-level
   registry beside the gait registry.
-* *Per-heat tackle mutability* — MVP tackle is per-upstream standing config.
+* *Per-heat tackle mutability* — MVP tackle is per-sire standing config.
   A provisional reconciliation (unreviewed supposition — design review required):
-  the per-upstream tackle set is the standing base; a heat may later overlay heat-scoped
+  the per-sire tackle set is the standing base; a heat may later overlay heat-scoped
   additions (blazes, actions) that reference and extend the base; "tackle" names the layered
   whole.
   This bullet is that fork's one home.
@@ -640,11 +640,6 @@ applied yet:
   discipline) as sibling entries" narrows to the charter's first half; it should widen to
   filesets *and* interrelations, and it must not grow a bounds entry — the bounds seat in
   the tackle table, never on the pedigree (Where it lives).
-* *The registered-body wording sweep* — this sheaf joins the recorded sweep scope
-  (paddock: upstream/origin-URL phrasing re-worded across the canon sheaves once the held
-  word election lands); it is the heaviest user of the old wording, and new prose here
-  says "governed body of work" meanwhile.
-  The sweep still follows the election as one deliberate act, never piecemeal.
 * *Farrier aspirant sheaf* — launch-time provisioning already carries the conduct-core +
   pull-door repairs; confirm at infusion that they are stated as tackle-consumer
   obligations, not farrier-local conveniences.

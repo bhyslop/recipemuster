@@ -25,7 +25,7 @@ drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`,
 `jjdb_studbook`/`jjdb_pedigree`/`jjdb_counterfoil`).
 What remains below is deferred and plan content, still aspirant.
 
-== Pedigree — the per-upstream record
+== Pedigree — the per-sire record
 
 Canon: drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`, `jjdb_pedigree`) —
 the farrier-kind and tackle-binding entries, the parked edit-scope wildcard reservation, and
@@ -204,10 +204,17 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
 * *studbook* — the record repo. Alternates held: daybook, chronicle. Rejected: cartulary
   (didn't stick), formbook (F yielded to farrier).
   INFUSED 260706 (studbook sheaf, `jjdb_studbook`).
-* *pedigree* — the per-upstream record; "a studbook is a register of pedigrees" self-explains.
+* *pedigree* — the per-sire record; "a studbook is a register of pedigrees" self-explains.
   Alternates held: livery, passport (trodden-adjacent). Released: bloodline (furrowed — liked,
   unbound, held for a future concept).
   INFUSED 260706 (studbook sheaf, `jjdb_pedigree`).
+* *sire* — the registered external body of work a pedigree records; clones descend from it,
+  so the studbook asterism supplies the word itself. Held from the 260709
+  registered-identity cinch; elected 260711 under a re-run clean grep gate, no alternates
+  banked. Plain prose for now — no quoin minted; cataloguing is a deliberate later act.
+  SWEPT 260711 (upstream/origin-URL phrasing re-worded across JJS0's glossary row and
+  JJSVC/JJSVS/JJSVF/JJSVD, carrying the key-indirection re-cut; JJSAT and this sheaf
+  re-worded the same act).
 * *hippodrome* — the peer work clone; formally cinched 260704. Ground-family alternates
   recorded in the 260630 memo (turf, heath, glebe).
   INFUSED 260705 (cosmology sheaf, `jjdw_hippodrome`).
