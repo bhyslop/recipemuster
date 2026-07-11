@@ -9320,8 +9320,8 @@
         "₢BrAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1315",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1433",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -9350,7 +9350,7 @@
                 "  the preparation may recommend a different seat, and the operator decides."
               ],
               "jjgtn_silks": "axla-glyph-carriage-and-blaze-voicing",
-              "jjgtn_basis": "0d1d986"
+              "jjgtn_basis": "1917a02"
             }
           ]
         },
