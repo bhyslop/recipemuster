@@ -7487,8 +7487,8 @@
         "₢BrAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1444",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1453",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7512,7 +7512,7 @@
                 "- AXLA's Minted-Mark Dimensions section is the one home; JJS0 cites, never restates."
               ],
               "jjgtn_silks": "jjdt-insignia-carriage-recut",
-              "jjgtn_basis": "eb3d3ca"
+              "jjgtn_basis": "e18331c"
             }
           ]
         }
