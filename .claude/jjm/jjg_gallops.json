@@ -9310,8 +9310,8 @@
         "₢BsAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260710-1133",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1745",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "Run the full release-qualification ladder: tt/rbw-ts.TestSuite.gauntlet.sh — marshal-zero state through depot-lifecycle, freehold-establish, onboarding-sequence, reveille fixtures, crucibles.",
@@ -9348,7 +9348,7 @@
                 "The longest ladder; operator-present for quota and billing surprises."
               ],
               "jjgtn_silks": "gauntlet-green",
-              "jjgtn_basis": "37ab9b4"
+              "jjgtn_basis": "351b392"
             }
           ]
         },
