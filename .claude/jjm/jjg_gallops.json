@@ -6904,8 +6904,8 @@
         "₢BbAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260624-0146",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1407",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Spec-consolidation design requiring real judgment, deferred to Fable.",
@@ -6935,7 +6935,7 @@
                 "- The homes and motif shapes are the human-editor-approved outcome of Fable's recommendation plus review."
               ],
               "jjgtn_silks": "consolidate-chaining-discipline-prose",
-              "jjgtn_basis": "3134438"
+              "jjgtn_basis": "e9657b7"
             }
           ]
         },
