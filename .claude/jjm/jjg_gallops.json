@@ -7029,8 +7029,8 @@
         "₢BbAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1307",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1319",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Judgment spec surgery at Fable in the operator's chat — the conjure pilot's A6/A7 residue, ruled by the operator and landed in the same session.",
@@ -7053,7 +7053,7 @@
                 "Placement law recorded at MCM and cited from ACG; ACGm_102 carries the census-first triage; RBr_b4e defined once at the codex with both sheaves citing under the gist license; the inspect display equals its inlay; reveille green."
               ],
               "jjgtn_silks": "rivet-codex-hoist-and-census-link",
-              "jjgtn_basis": "7432ba8"
+              "jjgtn_basis": "3cf25f9"
             }
           ]
         }
