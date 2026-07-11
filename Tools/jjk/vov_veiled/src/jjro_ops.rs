@@ -11,7 +11,7 @@ use std::fs;
 use std::path::Path;
 use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
 use crate::jjri_io::jjri_paddock_path;
-use crate::jjrpd_parade::{jjrpd_format_file_bitmap, jjrpd_format_commit_swimlanes};
+use crate::jjrpd_parade::{jjrpd_format_file_census, jjrpd_format_commit_swimlanes, JJRPD_CENSUS_EVERY_FILE};
 use crate::jjrs_steeplechase::jjrs_SteeplechaseEntry as SteeplechaseEntry;
 use crate::jjrt_types::*;
 use crate::jjru_util::{zjjrg_increment_seed, jjrg_make_tack};
@@ -629,13 +629,15 @@ fn zjjrg_build_trophy_content(
         }
     }
 
-    // Commit Activity (bitmap views)
+    // Commit Activity. The trophy is an archive, so its census keeps every
+    // touched file — the planning floor that groom and parade apply would drop
+    // the lone-pace files from the heat's final account of itself.
     let firemark = Firemark::jjrf_parse(firemark_key)
         .map_err(|e| format!("Invalid firemark in trophy builder: {}", e))?;
     content.push_str("## Commit Activity\n\n");
     content.push_str("```\n");
-    if let Ok(bitmap) = jjrpd_format_file_bitmap(&firemark, heat) {
-        content.push_str(&bitmap);
+    if let Ok(census) = jjrpd_format_file_census(&firemark, heat, JJRPD_CENSUS_EVERY_FILE) {
+        content.push_str(&census);
     }
     if let Ok(swimlanes) = jjrpd_format_commit_swimlanes(&firemark, heat) {
         content.push_str(&swimlanes);

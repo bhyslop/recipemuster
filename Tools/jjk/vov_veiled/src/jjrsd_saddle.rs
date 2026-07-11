@@ -21,7 +21,7 @@ use crate::jjrg_gallops::{
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
-use crate::jjrpd_parade::{jjrpd_write_file_bitmap, jjrpd_write_commit_swimlanes};
+use crate::jjrpd_parade::jjrpd_write_pace_digest;
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 const JJRSD_CMD_NAME_ORIENT: &str = "jjx_orient";
@@ -303,8 +303,17 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
                 }
                 vvco_out!(output, "");
                 vvco_out!(output, "Recommended: mount {}", firemark.jjrf_as_str());
+                vvco_out!(output, "");
             }
         }
+    }
+
+    // The digest is scoped to the pace being saddled — a mount asks what this
+    // pace touches and who else is in those files, never what the whole heat
+    // has moved. It is silent for a pace with no commits, which is the ordinary
+    // case at mount.
+    if let Some(coronet) = &gazette_pace_coronet {
+        jjrpd_write_pace_digest(&mut output, &firemark, heat, coronet);
     }
 
     // Output recent work table
@@ -358,10 +367,6 @@ pub async fn jjrsd_run_saddle(args: jjrsd_SaddleArgs, gazette: &mut jjrz_Gazette
             ]);
         }
     }
-
-    // Always show file-touch bitmap and commit swim lanes after recent work
-    jjrpd_write_file_bitmap(&mut output, &firemark, heat);
-    jjrpd_write_commit_swimlanes(&mut output, &firemark, heat);
 
     // Add gazette notices for downstream consumption
     gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, &paddock_content).ok();

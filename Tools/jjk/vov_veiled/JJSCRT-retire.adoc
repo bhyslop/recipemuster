@@ -73,10 +73,15 @@ internally to get steeplechase entries
 ## Commit Activity
 
 ```
-{file-touch bitmap: paces × files matrix}
+{file-touch census: per file, the paces whose commits touched it}
 
 {commit swim lanes: paces × commits matrix}
 ```
+
+The census is the one
+{jjdo_show}
+renders, with every touched file kept rather than only those two or more paces reached.
+A trophy is an archive: the planning floor that serves a live heat would drop from its final account the files only one pace ever moved.
 
 ## Steeplechase
 

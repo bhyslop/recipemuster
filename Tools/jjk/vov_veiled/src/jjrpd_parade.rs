@@ -101,10 +101,10 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         return (1, output.vvco_finish());
     }
 
-    // The file-touch bitmap and commit swim lanes assume a single heat; render
+    // The file-touch census and commit swim lanes assume a single heat; render
     // them only when the request resolves to exactly one firemark target.
-    // Bitmaps are derived from live git history (current HEAD), so they are
-    // incoherent in hark mode; suppress them there.
+    // Both derive from live git history (current HEAD), so they are incoherent
+    // in hark mode; suppress them there.
     let single_firemark = args.hark.is_none() && targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == JJRF_FIREMARK_LEN;
 
     let mut added_paddocks: std::collections::HashSet<String> = std::collections::HashSet::new();
@@ -221,13 +221,13 @@ fn zjjrpd_emit_coronet(
 
 /// Emit one firemark target: the terse numbered pace table to the tool-result
 /// (remaining-filtered when requested), the paddock plus per-pace dockets to
-/// the gazette. Bitmap and swim lanes are appended only when `with_bitmaps`.
+/// the gazette. Census and swim lanes are appended only when `with_census`.
 fn zjjrpd_emit_firemark(
     output: &mut vvco_Output,
     gallops: &Gallops,
     target: &str,
     remaining: bool,
-    with_bitmaps: bool,
+    with_census: bool,
     gazette: &mut jjrz_Gazette,
     added_paddocks: &mut std::collections::HashSet<String>,
     added_paces: &mut std::collections::HashSet<String>,
@@ -389,10 +389,10 @@ fn zjjrpd_emit_firemark(
             }
         }
 
-            // The bitmap and swim lanes assume a single heat — render only for
+            // The census and swim lanes assume a single heat — render only for
             // a lone firemark target.
-            if with_bitmaps {
-                jjrpd_write_file_bitmap(output, &firemark, heat);
+            if with_census {
+                jjrpd_write_file_census(output, &firemark, heat, JJRPD_CENSUS_CROSS_PACE);
                 jjrpd_write_commit_swimlanes(output, &firemark, heat);
             }
         }
@@ -416,16 +416,30 @@ fn zjjrpd_emit_firemark(
     Ok(())
 }
 
-/// Format the file-touch bitmap for a heat as a String.
+/// Census floor for a planning reader (groom, parade): a file only earns a row
+/// once two paces have touched it, because a lone-pace file poses no collision
+/// question. Roughly half the rows on a wide heat, and none of the signal.
+pub const JJRPD_CENSUS_CROSS_PACE: usize = 2;
+
+/// Census floor for an archive reader (the retire trophy): every touched file,
+/// because a retired heat's record is the last account of what it moved.
+pub const JJRPD_CENSUS_EVERY_FILE: usize = 1;
+
+/// Format the heat-wide file-touch census as a String: one row per file, naming
+/// the paces whose commits touched it.
 ///
-/// Uses shared query routines from jjrq_query to get file touches,
-/// then formats as a bitmap with columns per pace and rows per file,
-/// grouped by identical touch patterns.
-pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<String, String> {
+/// Sparse by construction — a wide heat's touch matrix runs a few percent dense,
+/// so a per-pace column grid spends most of its width on absence. Naming the
+/// paces present costs less than drawing the ones that are not, and spares the
+/// reader a positional decode it performs unreliably.
+///
+/// `min_paces` is the floor a file must meet to earn a row (see the two
+/// constants above).
+pub fn jjrpd_format_file_census(firemark: &Firemark, heat: &Heat, min_paces: usize) -> Result<String, String> {
     let touches = jjrq_file_touches_for_heat(firemark.jjrf_as_str())?;
 
-    // Build pace columns: only paces with commits, in heat order
-    let mut pace_columns: Vec<(char, String, String)> = Vec::new();
+    // Paces with commits, in heat order, keyed by their coronet's terminal char.
+    let mut pace_marks: Vec<(char, String, String)> = Vec::new();
     for coronet_key in &heat.order {
         if !touches.coronets_with_commits.contains(coronet_key) {
             continue;
@@ -434,86 +448,145 @@ pub fn jjrpd_format_file_bitmap(firemark: &Firemark, heat: &Heat) -> Result<Stri
             if let Some(tack) = pace.tacks.first() {
                 let raw = coronet_key.strip_prefix('₢').unwrap_or(coronet_key);
                 if let Some(ch) = raw.chars().last() {
-                    pace_columns.push((ch, coronet_key.clone(), tack.silks.clone()));
+                    pace_marks.push((ch, coronet_key.clone(), tack.silks.clone()));
                 }
             }
         }
     }
 
-    // Map coronet_display -> column index
-    let mut coronet_to_col: BTreeMap<String, usize> = BTreeMap::new();
-    for (idx, (_, coronet_display, _)) in pace_columns.iter().enumerate() {
-        coronet_to_col.insert(coronet_display.clone(), idx);
+    let mut mark_of: BTreeMap<String, char> = BTreeMap::new();
+    for (ch, coronet_display, _) in &pace_marks {
+        mark_of.insert(coronet_display.clone(), *ch);
     }
 
-    let total_cols = pace_columns.len();
-
-    // Build file -> touch vector from the shared query result
-    let mut file_touches_map: BTreeMap<String, Vec<bool>> = BTreeMap::new();
-
-    for (coronet, files) in &touches.pace_files {
-        if let Some(&col_idx) = coronet_to_col.get(coronet) {
+    // Invert the query result: file -> the paces that touched it, in heat order.
+    let mut file_paces: BTreeMap<String, Vec<char>> = BTreeMap::new();
+    for (ch, coronet_display, _) in &pace_marks {
+        if let Some(files) = touches.pace_files.get(coronet_display) {
             for filename in files {
-                let row = file_touches_map.entry(filename.clone()).or_insert_with(|| vec![false; total_cols]);
-                if col_idx < row.len() {
-                    row[col_idx] = true;
-                }
+                file_paces.entry(filename.clone()).or_default().push(*ch);
             }
         }
     }
 
     let mut output = String::new();
 
-    if file_touches_map.is_empty() {
-        writeln!(output, "File-touch bitmap: (no work file changes)").unwrap();
+    if file_paces.is_empty() {
+        writeln!(output, "File touches: (no work file changes)").unwrap();
         return Ok(output);
     }
 
-    // Group files by identical touch pattern
-    let mut pattern_groups: BTreeMap<Vec<bool>, Vec<String>> = BTreeMap::new();
-    for (filename, pattern) in &file_touches_map {
-        pattern_groups.entry(pattern.clone()).or_default().push(filename.clone());
-    }
+    let total_files = file_paces.len();
+    let mut rows: Vec<(String, Vec<char>)> = file_paces
+        .into_iter()
+        .filter(|(_, marks)| marks.len() >= min_paces)
+        .collect();
 
-    for files in pattern_groups.values_mut() {
-        files.sort();
-    }
-
-    // Header
-    writeln!(output, "File-touch bitmap (x = pace commit touched file):").unwrap();
-    writeln!(output).unwrap();
-
-    // Vertical legend
-    for (i, (ch, _coronet, silks)) in pace_columns.iter().enumerate() {
-        writeln!(output, "  {} {} {}", i + 1, ch, silks).unwrap();
-    }
-    writeln!(output).unwrap();
-
-    // Column header line (terminal chars aligned with bitmap positions)
-    let header_chars: Vec<char> = pace_columns.iter().map(|(ch, _, _)| *ch).collect();
-    let header_line: String = header_chars.iter().collect();
-    writeln!(output, "{}", header_line).unwrap();
-
-    // Sort patterns: more touches first, then lexicographic
-    let mut sorted_patterns: Vec<(Vec<bool>, Vec<String>)> = pattern_groups.into_iter().collect();
-    sorted_patterns.sort_by(|(pat_a, _), (pat_b, _)| {
-        let count_a: usize = pat_a.iter().filter(|&&b| b).count();
-        let count_b: usize = pat_b.iter().filter(|&&b| b).count();
-        count_b.cmp(&count_a).then_with(|| pat_a.cmp(pat_b))
+    // Busiest files first — the ones most likely to collide with the next pace.
+    rows.sort_by(|(file_a, marks_a), (file_b, marks_b)| {
+        marks_b.len().cmp(&marks_a.len()).then_with(|| file_a.cmp(file_b))
     });
 
-    for (pattern, files) in &sorted_patterns {
-        let bitmap: String = pattern.iter().map(|&b| if b { 'x' } else { '·' }).collect();
-        writeln!(output, "{} {}", bitmap, files.join(", ")).unwrap();
+    if rows.is_empty() {
+        writeln!(output, "File touches: (no file touched by {} or more paces; {} touched by one)",
+            min_paces, total_files).unwrap();
+        return Ok(output);
+    }
+
+    writeln!(output, "File touches (file: the paces whose commits touched it):").unwrap();
+    if rows.len() < total_files {
+        writeln!(output, "  ({} of {} files; those touched by a single pace are omitted)",
+            rows.len(), total_files).unwrap();
+    }
+    writeln!(output).unwrap();
+
+    // Legend: the mark, the coronet it stands for, and what that pace is.
+    for (ch, coronet_display, silks) in &pace_marks {
+        writeln!(output, "  {}  {}  {}", ch, coronet_display, silks).unwrap();
+    }
+    writeln!(output).unwrap();
+
+    let width = rows.iter().map(|(file, _)| file.len()).max().unwrap_or(0);
+    for (file, marks) in &rows {
+        let marks_str: String = marks.iter().map(|c| c.to_string()).collect::<Vec<_>>().join(" ");
+        writeln!(output, "  {:width$}  {}", file, marks_str, width = width).unwrap();
     }
 
     Ok(output)
 }
 
-/// Write the file-touch bitmap for a heat to output.
-pub(crate) fn jjrpd_write_file_bitmap(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat) {
+/// Write the heat-wide file-touch census to output.
+pub(crate) fn jjrpd_write_file_census(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat, min_paces: usize) {
     let cn = JJRPD_CMD_NAME_SHOW;
-    match jjrpd_format_file_bitmap(firemark, heat) {
+    match jjrpd_format_file_census(firemark, heat, min_paces) {
+        Ok(text) => {
+            for line in text.lines() {
+                vvco_out!(output, "{}", line);
+            }
+        }
+        Err(e) => vvco_err!(output, "{}: error getting file touches: {}", cn, e),
+    }
+}
+
+/// Format the mounted pace's file digest: the files this pace's commits touched,
+/// each naming the other paces that also touched it.
+///
+/// Scoped to the one pace a mount is about. The heat-wide census answers a
+/// planning question a mount is not asking, and a pace with no commits yet — the
+/// ordinary case at mount — has no digest at all, so nothing is rendered.
+/// Self-contained by design: the collision names are spelled out inline, so the
+/// reader decodes no legend.
+pub fn jjrpd_format_pace_digest(firemark: &Firemark, heat: &Heat, coronet_display: &str) -> Result<String, String> {
+    let touches = jjrq_file_touches_for_heat(firemark.jjrf_as_str())?;
+
+    let mounted_files = match touches.pace_files.get(coronet_display) {
+        Some(files) if !files.is_empty() => files,
+        _ => return Ok(String::new()),
+    };
+
+    // For each file the mounted pace touched, the other paces that touched it too.
+    let mut collisions: BTreeMap<&String, Vec<String>> = BTreeMap::new();
+    for filename in mounted_files {
+        collisions.insert(filename, Vec::new());
+    }
+    for coronet_key in &heat.order {
+        if coronet_key == coronet_display {
+            continue;
+        }
+        let Some(files) = touches.pace_files.get(coronet_key) else { continue };
+        let silks = heat.paces.get(coronet_key)
+            .and_then(|pace| pace.tacks.first())
+            .map(|tack| tack.silks.as_str())
+            .unwrap_or("unknown");
+        for filename in files {
+            if let Some(others) = collisions.get_mut(filename) {
+                others.push(format!("{} {}", coronet_key, silks));
+            }
+        }
+    }
+
+    let mut output = String::new();
+    writeln!(output, "Work-files ({} — files this pace's commits touched):", coronet_display).unwrap();
+    writeln!(output).unwrap();
+
+    let width = mounted_files.iter().map(|file| file.len()).max().unwrap_or(0);
+    for (file, others) in &collisions {
+        if others.is_empty() {
+            writeln!(output, "  {}", file).unwrap();
+        } else {
+            writeln!(output, "  {:width$}  also: {}", file, others.join(", "), width = width).unwrap();
+        }
+    }
+
+    Ok(output)
+}
+
+/// Write the mounted pace's file digest to output. Silent when the pace has no
+/// commits — there is nothing to digest.
+pub(crate) fn jjrpd_write_pace_digest(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat, coronet_display: &str) {
+    let cn = JJRPD_CMD_NAME_SHOW;
+    match jjrpd_format_pace_digest(firemark, heat, coronet_display) {
+        Ok(text) if text.is_empty() => {}
         Ok(text) => {
             for line in text.lines() {
                 vvco_out!(output, "{}", line);

@@ -63,21 +63,19 @@ Progress: 1 complete | 1 abandoned | 1 remaining (1 rough)
 Next: vvx-push-rename (₢AAAAJ) [rough]
 ----
 
-*Example output — heat list with file-touch bitmap (always shown):*
+*Example output — heat list with file-touch census (always shown):*
 ----
-File-touch bitmap (x = pace commit touched file):
+File touches (file: the paces whose commits touched it):
+  (2 of 4 files; those touched by a single pace are omitted)
 
-  1 B vos-add-routines-section
-  2 D jjsa-session-probe-update
-  3 * heat-level
+  B  ₢AAAAB  vos-add-routines-section
+  D  ₢AAAAD  jjsa-session-probe-update
 
-BD*
-xxx jjrg_gallops.rs, jjrt_types.rs
-··x JJS0_JobJockeySpec.adoc
-x·· jjro_ops.rs
+  jjrg_gallops.rs  B D
+  jjrt_types.rs    B D
 ----
 
-*Example output — commit swim lanes (always shown after file-touch bitmap):*
+*Example output — commit swim lanes (always shown after file-touch census):*
 ----
 Commit swim lanes (x = commit affiliated with pace):
 
@@ -96,23 +94,15 @@ Commit swim lanes show paces × commits: each column is a commit (chronological,
 Row label (terminal char) and commit count suffix appear right of the bitmap.
 Default truncation: last 35 commits; if truncated, prefixed with `(showing last 35 of N commits)`.
 
-*Example output — pace commits (always shown after tack history):*
-----
-Pace commits (x = commit touched file):
-
-  1 abc1234  Fix the main bug
-  2 def5678  Update tests
-  3 ghi9abc  Refactor helper
-
-123
-xx· jjrpd_parade.rs
-x·x jjro_ops.rs
-·xx jjtpd_parade.rs
-----
-
-Pace commits show files × commits for a single pace: each column is a commit within the pace (chronological), each row groups files by identical touch pattern.
-Legend shows commit SHA and subject line.
-Administrative files (`.claude/jjm/*`) excluded from all bitmap outputs.
+The file-touch census names, per file, the paces whose commits touched it: a legend line per pace with commits (its mark, coronet, and silks), then one row per file listing the marks, busiest file first.
+It is sparse by construction, never a pace × file grid.
+A wide heat's touch matrix runs a few percent dense, so a grid spends nearly all its width drawing absence, and the reader — an agent, which decodes a position in a dotted row unreliably — pays for a decode it cannot trust.
+Naming the paces present costs less than drawing the ones that are not.
+A file touched by a single pace is omitted, and the omitted count is stated: a lone-pace file poses no collision question, which is the planning signal the census exists to carry.
+The floor is the reader's, not the data's — the trophy of
+{jjdo_archive}
+renders the same census with every touched file, because a retired heat's record is the last account of what it moved.
+Administrative files (`.claude/jjm/*`) are excluded from the census and the swim lanes alike.
 
 *Example output — heat full:*
 ----
@@ -200,8 +190,8 @@ verify heat exists
 ... If not `--remaining`: for each pace in
 {jjdhm_order}:
 print numbered line with state, silks, coronet
-.. After pace listing, always append file-touch bitmap: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), group by touch pattern, output bitmap with vertical legend; include column-header line of terminal characters above bitmap rows to enable positional decoding without counting
-.. After file-touch bitmap, always append commit swim lanes: query steeplechase entries for heat (newest-first from git log), take last 35 (most recent), reverse for chronological column order; rows are paces ordered by first chronological appearance plus `*` row for heat-level commits; columns dense-encoded 1-9 then a-z then A-Z; row label and commit count suffix after bitmap; truncation indicator if >35 commits
+.. After pace listing, always append the file-touch census: query steeplechase entries for heat, run `git diff-tree` per commit to identify touched work files (excluding `.claude/jjm/*`), invert to file → the paces that touched it, drop files below the cross-pace floor of two and state how many were dropped, order rows by pace count descending then filename; emit a legend line per pace with commits (mark, coronet, silks) above the rows
+.. After the file-touch census, always append commit swim lanes: query steeplechase entries for heat (newest-first from git log), take last 35 (most recent), reverse for chronological column order; rows are paces ordered by first chronological appearance plus `*` row for heat-level commits; columns dense-encoded 1-9 then a-z then A-Z; row label and commit count suffix after bitmap; truncation indicator if >35 commits
 . For pace view:
 .. Parse as
 {jjdt_coronet},
@@ -211,7 +201,6 @@ extract parent
 .. Query steeplechase entries for parent heat, filter by coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), display as "Work files:" line (bare filenames, sorted)
 .. Print pace header (silks, coronet, state, heat)
 .. Print docket text from the latest tack (storage `tacks[0]`, i.e. most recent) as plain text, without display index prefix
-.. After tack history, always append pace commits bitmap: query steeplechase entries for heat, filter by coronet, reverse for chronological order; run `git diff-tree` per commit to get work files (excluding `.claude/jjm/*`); group files by identical touch pattern; legend shows commit SHA and subject; column-header line above bitmap rows
 
 *Hark mode ({jjda_hark} present) — wraps the behavior above:*
 
@@ -219,7 +208,7 @@ extract parent
 {jjdr_hark} (both fetched at the same revision), in place of the working-tree {jjdgr_gallops} read
 and the per-heat paddock-file read.
 . Render exactly as above, with every view stamped `AS OF <rev>`.
-. Omit the file-touch bitmap and commit swim lanes: both derive from live git history (current
+. Omit the file-touch census and commit swim lanes: both derive from live git history (current
 HEAD), not the revision's, so they carry no coherent meaning in a snapshot.
 . Set no {jjdxw_emblem} identity and write nothing — a hark mutates nothing live.
 . On an unresolvable or too-old revision, surface {jjdr_hark}'s error verbatim and render nothing.

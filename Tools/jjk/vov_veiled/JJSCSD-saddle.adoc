@@ -61,10 +61,11 @@ Docket:
   <line 2 of docket>
   ...
 
-Work-files:
-  <bare_filename_1>
-  <bare_filename_2>
-  ...
+Work-files (₢XXXXX — files this pace's commits touched):
+
+  jjrg_gallops.rs  also: ₢XXXXB vos-add-routines-section, ₢XXXXD jjsa-session-probe-update
+  jjrt_types.rs    also: ₢XXXXB vos-add-routines-section
+  jjro_ops.rs
 
 Recent-work:
 Commit    Identity  Subject
@@ -72,28 +73,6 @@ Commit    Identity  Subject
 abcd1234  ₢XXXXX    ...
 efgh5678  ₢XXXXX    ...
 ...
-
-File-touch bitmap (x = pace commit touched file):
-
-  1 B vos-add-routines-section
-  2 D jjsa-session-probe-update
-  3 * heat-level
-
-BD*
-xxx jjrg_gallops.rs, jjrt_types.rs
-··x JJS0_JobJockeySpec.adoc
-x·· jjro_ops.rs
-
-Commit swim lanes (x = commit affiliated with pace):
-
-  1 B vos-add-routines-section
-  2 D jjsa-session-probe-update
-  3 * heat-level
-
-123456789ab
-··xx·xx····  D  4c
-xx··x······  B  3c
-··········x  *  1c
 
 Session-probe:
   haiku: claude-3-5-haiku-20241022
@@ -106,18 +85,19 @@ Session-probe:
 Sections `Next:` through `Work-files:` are absent if no actionable pace exists.
 Field `pace_silks` is derived from `tacks[0].silks`.
 Section `Paddock-content:` contains the full text of the paddock file, indented 2 spaces.
-Section `Work-files:` lists files touched by the actionable pace's commits (excluding `.claude/jjm/*`), indented 2 spaces, sorted, one per line.
+Section `Work-files:` is the saddled pace's digest: the files that pace's own commits touched (excluding `.claude/jjm/*`), sorted, one per line, each naming inline the other paces that touched it — collision awareness for the work about to begin.
+A pace with no commits has no digest, and the section is absent entirely; that is the ordinary case at mount, since a pace is usually saddled before any work lands against it.
+The digest names the colliding paces in full rather than by a legend mark, so the section is read without decoding anything outside it.
+{jjdo_orient}
+renders no heat-wide retrospective — neither the file-touch census nor the commit swim lanes that
+{jjdo_show}
+carries.
+Both answer a planning question a mount is not asking: the heat-wide view serves the session choosing *what* to work, while a mount has already chosen, and on a wide heat the two blocks cost more context than the docket they precede.
+The heat-wide census is reached deliberately, through
+{jjdo_show}.
 Section `Recent-work:` contains the last 10 steeplechase entries for the heat (from
 {jjdo_log}),
 formatted as column-aligned table.
-Section `File-touch bitmap:` displays which files were touched by commits affiliated with each pace.
-Output format matches
-{jjdo_show}
-heat view: vertical legend mapping pace terminal chars to silks, column-header line of terminal characters, then bitmap rows grouping files by identical touch patterns.
-Section `Commit swim lanes:` displays commit activity across paces in chronological order.
-Output format matches
-{jjdo_show}
-heat view: vertical legend, column-header line (commits dense-encoded 1-9 then a-z then A-Z), then bitmap rows showing pace × commits matrix with row labels (terminal char) and commit count suffix.
 Section `Session-probe:` contains model IDs and system context collected via session probe, indented 2 spaces, one key-value per line.
 
 {jjds_exit_uniform} 0 success, non-zero error.
@@ -184,7 +164,10 @@ one does, since a designation marks work as ready to execute, never as executed.
 `pace_silks` (from `tacks[0].silks`),
 `pace_state`
 .. Output `docket` from `tacks[0].text`
-.. Query steeplechase entries for heat, filter by actionable pace coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`), output as `Work-files:` section (2-space indented, sorted, one per line)
+.. Query steeplechase entries for heat, filter by actionable pace coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`); for each such file, name the other paces in
+{jjdhm_order}
+whose commits also touched it; output as the `Work-files:` digest (2-space indented, sorted, one per line, colliding paces named inline by coronet and silks).
+Emit nothing when the pace has no commits
 . If no actionable pace found, output only `heat_silks`, `paddock_file`, `paddock_content`, and `recent_work`
 . Get last 10 steeplechase entries for the heat via
 {jjdo_log}
