@@ -232,6 +232,29 @@ the implementation tail runs at work tier.
   Standing obligation meanwhile: the host-separated rough-backfill chat store in the work repo
   is the sole copy of off-machine chat history —
   it must not be flattened, migrated, or discarded before the successor design lands.
+- Tackle model urged (260711): the pace's three done-when items settled and banked into JJSAT.
+  Trappings dissolved into typed governance members
+  (guides / conduct / specs / balances / check_build|test|lint) —
+  each with its own consumer and its own value type (documents vs commands);
+  growth is member-wise, never kinds threaded through a generic list.
+  Blaze registries: guides and codices are ₿-sigiled role-word entries
+  (₿bash-guide, never a document acronym) — declared variables, not identities;
+  one blaze namespace per table, and late binding keeps gaits portable across governed
+  bodies and makes a crossbred row bind correctly to the receiving table.
+  Names-not-identities: tackle rows key on plain spoken names, resolution is files-first,
+  and nothing durable references a tackle — no minted insignia, no seed, no glyph
+  (the identity glyph election retired from the settling register);
+  identity re-enters only with the first durable referencer
+  (hames normalization, per-heat overlays), for that channel only.
+  remuda and silks released alongside trappings; claims is the fileset member.
+  Ambit seats in the tackle table, never the pedigree.
+  JJ is the tackle table's sole author (verbs under the journal ceremony, gallops posture);
+  the matricula reads and lints, never writes.
+  Document members are declared flattened edges; ACG is the first migrant when hames land.
+  The AXLA glyph-carriage amendment widens with a blaze-sigil companion clause;
+  the corpus member is skip-when-absent (absent = the governed body's own tree),
+  its tokens electing with the central-corpus-home fork;
+  JJSAT joins the sire wording-sweep scope.
 
 ## Canon workup
 
