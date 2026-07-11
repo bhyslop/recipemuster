@@ -490,6 +490,19 @@ pub fn rbtdri_invoke_imprint(
     rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
 }
 
+/// Invoke a tabtarget with an explicit imprint and extra environment variables
+/// — the imprint-discovery sibling of `rbtdri_invoke_env`.
+pub fn rbtdri_invoke_imprint_env(
+    ctx: &mut rbtdri_Context,
+    colophon: &str,
+    imprint: &str,
+    args: &[&str],
+    extra_env: &[(&str, &str)],
+) -> Result<rbtdri_InvokeResult, String> {
+    let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, imprint)?;
+    rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
+}
+
 // ── BURV fact file reading ───────────────────────────────────
 
 /// Read a fact file from a tabtarget's BURV output directory.

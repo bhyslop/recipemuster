@@ -134,8 +134,10 @@ rbte_run() {
 
   zrbte_build_binary
 
+  # Extra CLI args (e.g. --keep-going) pass straight through to the binary,
+  # which owns flag parsing and the disposition policy gate.
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${z_fixture}"
+  "${ZRBTE_BINARY}" "${z_fixture}" "$@"
 }
 
 rbte_suite() {
@@ -147,9 +149,10 @@ rbte_suite() {
   zrbte_build_binary
 
   # Composition is owned by theurge: pass the suite imprint straight through to
-  # the binary's `suite` mode, which resolves and runs its fixtures.
+  # the binary's `suite` mode, which resolves and runs its fixtures. Extra CLI
+  # args (e.g. --keep-going) pass through with it.
   buc_step "Running theurge suite '${z_suite}'"
-  "${ZRBTE_BINARY}" suite "${z_suite}"
+  "${ZRBTE_BINARY}" suite "${z_suite}" "$@"
 }
 
 rbte_single() {

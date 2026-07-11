@@ -82,6 +82,7 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_FAIL_FAST,
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_PROGRESSING,
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_SENTINEL,
+    &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
 ];
 
 /// Resolve a fixture name to its registered Fixture definition. Returns None
@@ -120,6 +121,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+            &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
         ],
     },
     // Picket — reveille + GCP-credentialed bare fixtures.
@@ -149,6 +151,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CHAINING_LIVERY,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+            &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
         ],
     },
     // Bivouac — reveille + container-runtime crucible fixtures.
@@ -171,6 +174,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_PLUML,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+            &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
         ],
     },
     // Echelon — reveille + every dependency-tiered fixture (picket ∪ bivouac).
@@ -203,6 +207,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_PLUML,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+            &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
         ],
     },
     // Gauntlet — release-qualification ladder. Walks marshal-zero state through
@@ -240,6 +245,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+            &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_HALLMARK_LIFECYCLE,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
@@ -280,6 +286,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+            &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
@@ -348,7 +355,25 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
         ],
     },
+    // Calibrant — the deliberately-failing two-member suite the touchstone
+    // surface fixture drives as its suite-abort subject: calibrant-fail-fast
+    // fails, so the runner's break-on-failure must keep calibrant-sentinel
+    // from ever running (its sentinel file asserted absent). Never green by
+    // design; belongs to no release ladder and bears no reveille base.
+    rbtdre_Suite {
+        name: RBTDRA_SUITE_NAME_CALIBRANT,
+        fixtures: &[
+            &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_FAIL_FAST,
+            &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_SENTINEL,
+        ],
+    },
 ];
+
+/// The calibrant suite's name — also the imprint of its
+/// `rbw-ts.TestSuite.calibrant.sh` tabtarget, which the touchstone fixture
+/// resolves for its suite-abort child run. Single definition serving both the
+/// registration above and that resolution.
+pub const RBTDRA_SUITE_NAME_CALIBRANT: &str = "calibrant";
 
 /// Resolve a suite name to its registered Suite definition. Returns None for
 /// unregistered names; callers decide whether that is fatal.
@@ -381,6 +406,7 @@ pub static RBTDRA_REVEILLE_BASE: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
     &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
+    &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
 ];
 
 // ── Compile-time uniqueness guard ────────────────────────────
@@ -508,8 +534,10 @@ const _: () = zrbtdra_assert_reveille_base(RBTDRA_SUITES, RBTDRA_REVEILLE_BASE);
 //
 // Every fixture referenced in any suite must be registered in RBTDRA_FIXTURES.
 // The reverse is NOT asserted: intentional roster-only fixtures (foedus-lifecycle,
-// freehold-churn, calibrant-* etc.) belong to no suite by design. This is a pure
-// suite ⊆ roster check — a suite gaining a roster-less fixture fails the build.
+// freehold-churn, calibrant-verdicts/-progressing etc.) belong to no suite by
+// design (the other two calibrant fixtures compose the calibrant suite). This is
+// a pure suite ⊆ roster check — a suite gaining a roster-less fixture fails the
+// build.
 
 const fn zrbtdra_assert_suites_subset_fixtures(
     suites: &[rbtdre_Suite],

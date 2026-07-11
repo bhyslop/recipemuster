@@ -17,11 +17,15 @@
 // RBTD Theurge — test orchestrator entry point
 //
 // Subcommands:
-//   rbtd <fixture>
-//     Single-fixture runner — charge, run all cases, quench.
-//   rbtd suite <suite>
+//   rbtd <fixture> [--keep-going]
+//     Single-fixture runner — charge, run all cases, quench. --keep-going
+//     requests keep-going mode, resolved against the fixture's disposition
+//     (refused for StateProgressing) by rbtdre_resolve_fail_fast.
+//   rbtd suite <suite> [--keep-going]
 //     Suite runner — resolve the suite's fixtures (composition owned here, not
 //     in bash) and run each in sequence, fail-fast, with one aggregate summary.
+//     --keep-going applies per fixture; the cross-fixture break-on-failure is
+//     unchanged.
 //   rbtd single <fixture> [case]
 //     Single-case runner — no charge/quench. List cases or run one.
 //   rbtd dowse <log-dir>
@@ -42,9 +46,9 @@ use rbtd::rbtdra_almanac::{
 };
 use rbtd::rbtdrc_crucible::{rbtdrc_set_context, rbtdrc_take_context};
 use rbtd::rbtdre_engine::{
-    rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_print_summary,
-    rbtdre_print_tariff_table, rbtdre_run_fixture, rbtdre_run_single_case,
-    rbtdre_tariff_declared, rbtdre_tree_clean, rbtdre_TariffRow,
+    rbtdre_detect_colors, rbtdre_find_case, rbtdre_list_cases, rbtdre_parse_keep_going,
+    rbtdre_print_summary, rbtdre_print_tariff_table, rbtdre_run_fixture,
+    rbtdre_run_single_case, rbtdre_tariff_declared, rbtdre_tree_clean, rbtdre_TariffRow,
 };
 use rbtd::rbtdri_invocation::{
     rbtdri_Context, rbtdri_invoke_global,
@@ -114,13 +118,23 @@ fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
 // ── Single-fixture runner ────────────────────────────────────
 
 fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
-    let fixture = match args.first() {
+    let (positionals, keep_going) = match rbtdre_parse_keep_going(args) {
+        Ok(v) => v,
+        Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd: {}", msg),
+    };
+    let fixture = match positionals.first() {
         Some(n) => n,
         None => rbtd::rbtdrg_fatal_now!(
-            "rbtd: usage: rbtd <fixture>\n\
+            "rbtd: usage: rbtd <fixture> [--keep-going]\n\
              theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)"
         ),
     };
+    if positionals.len() > 1 {
+        rbtd::rbtdrg_fatal_now!(
+            "rbtd: unexpected argument '{}' — usage: rbtd <fixture> [--keep-going]",
+            positionals[1]
+        );
+    }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
@@ -164,7 +178,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
     rbtdrc_set_context(ctx);
 
     let colors = rbtdre_detect_colors();
-    let run_result = rbtdre_run_fixture(fixture_def, &colors, &roots.trace_root);
+    let run_result = rbtdre_run_fixture(fixture_def, &colors, &roots.trace_root, keep_going);
 
     let _ctx = rbtdrc_take_context();
 
@@ -186,7 +200,11 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
 // ── Suite runner ─────────────────────────────────────────────
 
 fn rbtdb_run_suite(args: &[String]) -> ExitCode {
-    let suite = match args.first() {
+    let (positionals, keep_going) = match rbtdre_parse_keep_going(args) {
+        Ok(v) => v,
+        Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd suite: {}", msg),
+    };
+    let suite = match positionals.first() {
         Some(name) => match rbtdra_lookup_suite(name) {
             Some(s) => s,
             None => {
@@ -201,6 +219,12 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
+    if positionals.len() > 1 {
+        rbtd::rbtdrg_fatal_now!(
+            "rbtd suite: unexpected argument '{}' — usage: rbtd suite <suite> [--keep-going]",
+            positionals[1]
+        );
+    }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
@@ -261,7 +285,7 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
         ctx.set_invoke_count(next_invoke_count);
         rbtdrc_set_context(ctx);
 
-        let run_result = rbtdre_run_fixture(fixture, &colors, &roots.trace_root);
+        let run_result = rbtdre_run_fixture(fixture, &colors, &roots.trace_root, keep_going);
 
         next_invoke_count = rbtdrc_take_context().invoke_count();
 

@@ -270,6 +270,42 @@ fn rbtdte_resolve_fail_fast_state_progressing_keep_going_refused() {
     assert!(err.contains("keep-going"));
 }
 
+// ── Runner CLI arg parsing ───────────────────────────────────
+
+fn rbtdte_args(raw: &[&str]) -> Vec<String> {
+    raw.iter().map(|s| s.to_string()).collect()
+}
+
+#[test]
+fn rbtdte_parse_keep_going_absent() {
+    let (pos, kg) = rbtdre_parse_keep_going(&rbtdte_args(&["tadmor"])).unwrap();
+    assert_eq!(pos, vec!["tadmor".to_string()]);
+    assert!(!kg);
+}
+
+#[test]
+fn rbtdte_parse_keep_going_trailing() {
+    let (pos, kg) =
+        rbtdre_parse_keep_going(&rbtdte_args(&["tadmor", RBTDRE_FLAG_KEEP_GOING])).unwrap();
+    assert_eq!(pos, vec!["tadmor".to_string()]);
+    assert!(kg);
+}
+
+#[test]
+fn rbtdte_parse_keep_going_position_independent() {
+    let (pos, kg) =
+        rbtdre_parse_keep_going(&rbtdte_args(&[RBTDRE_FLAG_KEEP_GOING, "tadmor"])).unwrap();
+    assert_eq!(pos, vec!["tadmor".to_string()]);
+    assert!(kg);
+}
+
+#[test]
+fn rbtdte_parse_keep_going_unknown_flag_rejected() {
+    let err = rbtdre_parse_keep_going(&rbtdte_args(&["tadmor", "--keep-goign"])).unwrap_err();
+    assert!(err.contains("--keep-goign"));
+    assert!(err.contains(RBTDRE_FLAG_KEEP_GOING));
+}
+
 // ── Trace file content detail ────────────────────────────────
 
 #[test]

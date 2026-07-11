@@ -113,6 +113,33 @@ pub fn rbtdre_resolve_fail_fast(
     }
 }
 
+/// The one flag the fixture/suite runners accept — requests keep-going mode,
+/// resolved against the fixture's disposition by `rbtdre_resolve_fail_fast`.
+pub const RBTDRE_FLAG_KEEP_GOING: &str = "--keep-going";
+
+/// Split raw runner CLI args into positionals and the keep-going flag.
+/// Position-independent, so `rbtd <fixture> --keep-going` and
+/// `rbtd --keep-going <fixture>` read identically. Any other `--`-prefixed
+/// token is rejected loud — a typo'd flag must never silently read as a
+/// fixture or suite name.
+pub fn rbtdre_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), String> {
+    let mut positionals = Vec::new();
+    let mut keep_going = false;
+    for arg in args {
+        if arg == RBTDRE_FLAG_KEEP_GOING {
+            keep_going = true;
+        } else if arg.starts_with("--") {
+            return Err(format!(
+                "unknown flag '{}' (known: {})",
+                arg, RBTDRE_FLAG_KEEP_GOING
+            ));
+        } else {
+            positionals.push(arg.clone());
+        }
+    }
+    Ok((positionals, keep_going))
+}
+
 // ── Working-tree hygiene ───────────────────────────────────────
 
 /// Returns Ok(()) when the working tree rooted at `root` is clean
@@ -656,6 +683,11 @@ pub fn rbtdre_detect_colors() -> rbtdre_Colors {
 
 // ── Trace ──────────────────────────────────────────────────────
 
+/// Per-case verdict trace filename, written into every case's temp dir.
+/// Public so the touchstone surface fixture asserts child trace files against
+/// the same name the engine writes.
+pub const RBTDRE_TRACE_FILE: &str = "trace.txt";
+
 /// Write verdict and detail to a trace file in the case temp directory.
 fn rbtdre_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtdre_Verdict) {
     let content = match verdict {
@@ -665,7 +697,7 @@ fn rbtdre_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtdre_Verd
             format!("SKIPPED: {}\n\nReason: {}\n", display_name, reason)
         }
     };
-    let _ = std::fs::write(case_dir.join("trace.txt"), content);
+    let _ = std::fs::write(case_dir.join(RBTDRE_TRACE_FILE), content);
 }
 
 // ── Dispatch ───────────────────────────────────────────────────
@@ -783,7 +815,13 @@ pub fn rbtdre_run_fixture(
     fixture: &'static rbtdre_Fixture,
     colors: &rbtdre_Colors,
     root_temp: &Path,
+    keep_going: bool,
 ) -> Result<rbtdre_RunResult, String> {
+    // Policy resolution precedes setup: a StateProgressing fixture refuses
+    // keep-going before any charge or case work begins, so the refusal leaves
+    // no partial state behind.
+    let fail_fast = rbtdre_resolve_fail_fast(fixture.disposition, keep_going)?;
+
     // Reset the invocation tally and start the wall-clock BEFORE setup, so the
     // tariff footprint spans setup/teardown (charge/quench) as well as the
     // cases — the whole fixture, not just its case bodies. The tally is a
@@ -797,11 +835,7 @@ pub fn rbtdre_run_fixture(
     };
 
     let mut run_result = match setup_result {
-        Ok(()) => {
-            let fail_fast = rbtdre_resolve_fail_fast(fixture.disposition, false)
-                .expect("disposition-default mode never fails policy resolution");
-            rbtdre_run_cases(fixture.cases, colors, fail_fast, root_temp)
-        }
+        Ok(()) => rbtdre_run_cases(fixture.cases, colors, fail_fast, root_temp),
         Err(msg) => Err(format!("rbtd: fixture '{}' setup failed: {}", fixture.name, msg)),
     };
 

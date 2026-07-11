@@ -48,6 +48,7 @@ pub mod rbtdrf_handbook;
 pub mod rbtdrg_log;
 pub mod rbtdrh_chain;
 pub mod rbtdri_invocation;
+pub mod rbtdrj_touchstone;
 pub mod rbtdrk_depot;
 pub mod rbtdrk_freehold;
 pub mod rbtdrl_calibrant;

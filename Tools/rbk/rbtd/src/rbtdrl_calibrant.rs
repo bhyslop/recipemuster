@@ -29,9 +29,12 @@
 // All four declare empty rbtdrm_required_colophons — calibrant cases never
 // shell out to bash tabtargets, so the manifest-coupling check is vacuous.
 //
-// A bash blackbox testbench consumes these fixtures and asserts engine-output
-// contracts (exit codes, stderr format, fail-fast semantics, disposition ×
-// keep-going policy gate).
+// The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
+// fixtures as child rbtd runs through the real tabtarget chain and asserts
+// engine-output contracts (exit codes, diagnostic format, fail-fast
+// semantics, disposition × keep-going policy gate). calibrant-fail-fast and
+// calibrant-sentinel additionally compose the registered `calibrant` suite —
+// touchstone's suite-abort subject; the other two stay roster-only.
 
 use std::path::Path;
 
@@ -44,14 +47,14 @@ use crate::rbtdrm_manifest::{
 };
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
-/// blackbox driver asserts presence/absence by globbing under the
-/// BURV_TEMP_ROOT_DIR it set for the rbtd invocation. I/O failure during
-/// sentinel write fails the case visibly — silent failure would hide bugs in
-/// the engine's case-dir contract.
+/// touchstone fixture asserts presence/absence under the BURV_TEMP_ROOT_DIR
+/// it set for the child rbtd invocation. I/O failure during sentinel write
+/// fails the case visibly — silent failure would hide bugs in the engine's
+/// case-dir contract.
 pub(crate) const RBTDRL_SENTINEL_FILE: &str = "ran.sentinel";
 
 /// Case-written output filename. Distinct from the engine's auto-written
-/// trace.txt so the blackbox driver can verify both the engine's per-case
+/// trace.txt so the touchstone fixture can verify both the engine's per-case
 /// trace contract and the case's own write contract.
 pub(crate) const RBTDRL_OUTPUT_FILE: &str = "output.txt";
 
@@ -127,8 +130,8 @@ fn rbtdrl_probe_ok() -> Result<(), String> {
 
 /// Probe-Err mechanism: deterministic Err return. Case body never runs, so a
 /// single fixture run exercises the Fail-via-Probe-Err path. Required by the
-/// blackbox driver to verify rbtdrb_assert's "precondition '%s' not met:" +
-/// "remediation:" stderr format.
+/// touchstone fixture to verify rbtdrb_assert's "precondition '%s' not met:" +
+/// "remediation:" diagnostic format.
 fn rbtdrl_probe_err() -> Result<(), String> {
     Err("calibrant deterministic probe failure".to_string())
 }

@@ -193,12 +193,20 @@ pub const RBTDRM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
 // covers). Ordains conjure-mode busybox, summons it, runs a degenerate
 // container-runtime command proving executability, then abjures.
 pub const RBTDRM_FIXTURE_DOGFIGHT: &str = "dogfight";
-// Calibrant fixtures — synthetic deterministic-verdict fixtures driving the
-// bash blackbox testbench. Internal framework-test plumbing.
+// Calibrant fixtures — synthetic deterministic-verdict fixtures, the test
+// subjects the touchstone surface fixture spawns as child rbtd runs. Internal
+// framework-test plumbing.
 pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
 pub const RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
 pub const RBTDRM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
 pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
+// Touchstone — the surface fixture: theurge certifying its own operator
+// surface. A reveille member whose cases spawn child rbtd runs through the
+// real tabtarget chain against the deliberately-failing calibrant fixtures,
+// asserting the child's exit code, diagnostic shape on the operator-visible
+// stream, and sentinel/trace files. The watcher passes; the watched calibrant
+// fixtures stay out of every dependency-tier and release suite.
+pub const RBTDRM_FIXTURE_TOUCHSTONE: &str = "touchstone";
 
 // Operation verbs and container roles are generated as RBTDGC_VERB_* and
 // RBTDGC_CONTAINER_* (rbtdgc_consts.rs) from their canonical bash home in
@@ -308,6 +316,13 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
         RBTDRM_FIXTURE_PODVM_RESOLVE => Some(&[
             RBTDGC_IMMURE_PODVM,
+        ]),
+        // touchstone drives the theurge's own runner tabtargets — its children
+        // are rbtd invocations of the fixture, suite, and single-case runners.
+        RBTDRM_FIXTURE_TOUCHSTONE => Some(&[
+            RBTDGC_THEURGE_FIXTURE,
+            RBTDGC_THEURGE_SUITE,
+            RBTDGC_THEURGE_CASE,
         ]),
         RBTDRM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
             RBTDGC_HYGIENE_CHECK_DOCKERFILE,
