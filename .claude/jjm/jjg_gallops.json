@@ -5175,8 +5175,9 @@
         "₢BbAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1606",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-1607",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical pattern-completion — six operation quoins, each beside an established sibling, plus their facing rows.",
@@ -5219,7 +5220,7 @@
                 "repo-wide grep confirms no unresolved attribute references."
               ],
               "jjgtn_silks": "facing-census-completion",
-              "jjgtn_basis": "34c6dca"
+              "jjgtn_basis": "b7b8034"
             }
           ]
         }
