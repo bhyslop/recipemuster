@@ -1636,6 +1636,42 @@ echo "Result: ${z_value}"          # If this is return data
 echo "Progress update..." >&2      # If this is progress info
 ```
 
+### The Dispatched Stream Is Line-Oriented
+
+A tabtarget's stdout and stderr do not reach the terminal directly. The dispatcher
+relays them through a `while IFS= read -r` loop, and `read` returns on a newline or
+EOF — nothing else. **A partial line therefore never arrives.** It sits in the relay
+until the process exits, which is exactly too late for a prompt: the command is
+already blocked on input the operator cannot see asking to be given.
+
+Anything the operator must read *before* the command proceeds has two lawful shapes:
+
+```bash
+# ✅ Newline-terminated on the dispatched stream — answer typed on the line beneath
+printf 'Type %s to confirm:\n' "${z_required_value}" >&2
+read -r z_input </dev/tty
+
+# ✅ Partial line written straight to the terminal, bypassing the relay entirely
+printf '%d... ' "${z_remaining}" >/dev/tty
+```
+
+```bash
+# ❌ Partial line on the dispatched stream — swallowed; the operator faces a
+#    blocked read and a cursor, with no visible prompt
+printf 'Type %s to confirm: ' "${z_required_value}" >&2
+read -r z_input </dev/tty
+```
+
+Where a warning precedes the prompt, take the first form: banner and prompt then
+travel one ordered stream and cannot be reordered against each other. The `/dev/tty`
+form races the relay — its bytes can surface *above* output emitted before them — so
+it suits standalone progress output (countdowns, spinners), not a prompt that must
+appear beneath its own danger banner.
+
+The defect hides under `BURD_INTERACTIVE`: that branch relays via `tee`, which
+forwards partial lines happily. Code proven on an interactive-enrolled tabtarget can
+still be broken everywhere else. Prove a prompt on an ordinary tabtarget.
+
 ---
 
 ## Precision Exit-Code Band
