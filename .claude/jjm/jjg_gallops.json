@@ -5217,7 +5217,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260711-1628",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Spec-side allodial sweep — the judgment is cinched below;",
@@ -5260,7 +5261,7 @@
                 "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "regime-bound-single-homing",
-              "jjgtn_basis": "8114b80"
+              "jjgtn_basis": "d5c8490"
             }
           ]
         }
