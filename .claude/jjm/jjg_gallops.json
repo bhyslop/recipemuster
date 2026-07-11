@@ -5178,8 +5178,8 @@
         "₢BbAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1607",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260711-1643",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -5223,7 +5223,7 @@
                 "repo-wide grep confirms no unresolved attribute references."
               ],
               "jjgtn_silks": "facing-census-completion",
-              "jjgtn_basis": "b7b8034"
+              "jjgtn_basis": "8979be2"
             }
           ]
         },
