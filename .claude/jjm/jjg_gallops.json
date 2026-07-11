@@ -8613,8 +8613,9 @@
         "₢BsAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-2335",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260711-2336",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Repair the codex mapping entries that resolve to no definition anywhere in the pandect —",
                 "attributes registered in RBS0's mapping section whose `[[anchor]]` exists in neither the codex nor any included sheaf,",
@@ -8653,7 +8654,7 @@
                 "Touches only the veiled RB spec tree."
               ],
               "jjgtn_silks": "codex-dangling-anchor-repair",
-              "jjgtn_basis": "ea5ca70"
+              "jjgtn_basis": "661a37c"
             }
           ]
         }
