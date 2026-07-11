@@ -9259,9 +9259,10 @@
         "₢BsAAS",
         "₢BsAAT",
         "₢BsAAU",
+        "₢BsAAW",
         "₢BsAAV"
       ],
-      "jjghn_next_pace_seed": "AAW",
+      "jjghn_next_pace_seed": "AAX",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -9971,6 +9972,48 @@
               ],
               "jjgtn_silks": "confirm-prompt-render-repair",
               "jjgtn_basis": "57c42b0"
+            }
+          ]
+        },
+        "₢BsAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1749",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Author the indeterminacy doctrine sheaf: elevate the durable half of",
+                "Memos/memo-20260711-gauntlet-indeterminacy-census.md into a new RBS* sheaf under RBS0,",
+                "so the class taxonomy, the standing-membrane census, and the retirement stances live as spec, not memo.",
+                "Cite the Key Premise quoin the prior pace minted at the sheaf's top — the sheaf instantiates it.",
+                "Contents: the three surveyed classes (fresh-project provisioning race, IAM Class-C admission propagation, foreign-client premature timeout),",
+                "one census entry per standing membrane with its budget constants and retirement stance.",
+                "RBSCIP remains the IAM deep law, cited as that class's chapter — do not widen or restate it;",
+                "the rbtoe_api_enable rivets stay homed at RBS0, pointed at.",
+                "Mint rivets for the moby#44350 class (spoor + membrane, covering both the docker-login and registry-read sites)",
+                "and cite them from zrbndb_registry_read, the login helpers, and the rbgc_constants survey comment.",
+                "Dispose the census memo's open rulings 1 and 2 at authoring time",
+                "(RBr_d21's retirement voice — operator ruling at mount; the moby#44350 home is this sheaf itself);",
+                "ruling 3 (unmake-guard recovery contradiction) is out of scope — it stays banked until its own pace.",
+                "Provenance disposition rides this pace:",
+                "retire the three attempt incident-report memos (the 2026-07-11 attempt2/attempt3-admission/attempt7 basenames) and cite their retired paths from the sheaf;",
+                "DELETE outright the collection memo (already under Memos/retired/) and the census memo —",
+                "stepping stones fully replaced by the sheaf, too new for protected references;",
+                "re-point the surviving reports' collection-context lines at the sheaf,",
+                "and grep-gate the deleted basenames clean repo-wide.",
+                "Sheaf acronym and any new words take the full Lapidary mint (grep gate, no trodden words, asterism fit).",
+                "",
+                "## Done when",
+                "The sheaf stands indexed from RBS0 and cites the premise quoin;",
+                "moby#44350 rivets minted and cited from the membrane code sites;",
+                "census rulings 1 and 2 disposed;",
+                "the three incident reports retired and cited by retired path;",
+                "the collection and census memos deleted with repo-wide grep clean on their basenames.",
+                "",
+                "## Character",
+                "Spec authoring with mints — judgment work; operator present for the RBr_d21 retirement-voice ruling."
+              ],
+              "jjgtn_silks": "indeterminacy-census-sheaf",
+              "jjgtn_basis": "2f48d53"
             }
           ]
         }
