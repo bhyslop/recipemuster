@@ -8488,6 +8488,7 @@
       "jjghn_creation_time": "260704",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢BrAAb",
         "₢BrAAa",
         "₢BrAAZ",
         "₢BrAAA",
@@ -8516,7 +8517,7 @@
         "₢BrAAV",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAc",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -9313,6 +9314,43 @@
               ],
               "jjgtn_silks": "urge-tackle-concept-model",
               "jjgtn_basis": "e7cc030"
+            }
+          ]
+        },
+        "₢BrAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260711-1315",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Canon AXLA edit under the CMK covenant — in-conversation, operator-ratified.",
+                "Prepare a recommendation before proposing the edit.",
+                "",
+                "## Done when",
+                "",
+                "AXLA carries the surface-keyed glyph-carriage doctrine:",
+                "sentinel mandatory in operator-facing output and in project-authored structured wires",
+                "(self-typing keys; a wrong-type identity fails at the parse boundary),",
+                "forbidden on foreign-traversed surfaces, tolerant on input —",
+                "the draft wording and its blaze widening live in JJSAT's reconciliation obligations",
+                "(glyph-carriage bullet).",
+                "Preparation studies how the blaze/role-word notion seats in AXLA relative to",
+                "`axd_insignia` — the same voicing gaining a new dimension, a sibling dimension,",
+                "or another shape entirely — and presents a recommendation with rationale;",
+                "the pace opines, the operator decides at the edit.",
+                "Gallops stays compliant as-is: no key sweep, no reprieve episode;",
+                "`jjrf_favor.rs` comments stay true (identity = body).",
+                "",
+                "## Cinched",
+                "",
+                "- The edit lands in conversation under the CMK covenant, never a drive-by.",
+                "- JJSAT's recorded lean is a companion clause rather than a second doctrine;",
+                "  the preparation may recommend a different seat, and the operator decides."
+              ],
+              "jjgtn_silks": "axla-glyph-carriage-and-blaze-voicing",
+              "jjgtn_basis": "0d1d986"
             }
           ]
         }
