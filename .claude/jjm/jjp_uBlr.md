@@ -245,12 +245,16 @@ the implementation tail runs at work tier.
   and nothing durable references a tackle — no minted insignia, no seed, no glyph
   (the identity glyph election retired from the settling register);
   identity re-enters only with the first durable referencer
-  (hames normalization, per-heat overlays), for that channel only.
+  (swingletree normalization, per-heat overlays), for that channel only.
   remuda and silks released alongside trappings; claims is the fileset member.
-  Ambit seats in the tackle table, never the pedigree.
+  Same-session re-elections: swingletree supersedes hame (the crossbar, not the anchor
+  hardware), and ambit releases to plain bounds (jjotrn_bounds) with in-bounds /
+  out-of-bounds verdicts.
+  The bounds seat in the tackle table, never the pedigree.
   JJ is the tackle table's sole author (verbs under the journal ceremony, gallops posture);
   the matricula reads and lints, never writes.
-  Document members are declared flattened edges; ACG is the first migrant when hames land.
+  Document members are declared flattened edges; ACG is the first migrant when
+  swingletrees land.
   The AXLA glyph-carriage amendment widens with a blaze-sigil companion clause;
   the corpus member is skip-when-absent (absent = the governed body's own tree),
   its tokens electing with the central-corpus-home fork;
