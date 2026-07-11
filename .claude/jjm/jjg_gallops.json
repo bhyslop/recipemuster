@@ -3581,8 +3581,8 @@
                 "",
                 "Reveille runs green with the surface fixture as a member; each catalog behavior is asserted against a child run; keep-going is drivable from a tabtarget and refused for StateProgressing; suite-abort is proven via the registered calibrant suite."
               ],
-              "jjgtn_silks": "calibrant-bash-blackbox-driver",
-              "jjgtn_basis": "a5ee078"
+              "jjgtn_silks": "calibrant-surface-fixture",
+              "jjgtn_basis": "3cf00b1"
             }
           ]
         },
