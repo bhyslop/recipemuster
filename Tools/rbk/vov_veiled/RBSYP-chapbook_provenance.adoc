@@ -157,13 +157,12 @@ each fresh hallmark lands in the consuming nameplate's
 hallmark line, and is committed.
 
 //axhci_interaction
-. {rbtr_director} {rbtga_vessel} — the director anoints the graft vessel:
+. {rbtr_director} {rbtga_vessel} — via
+{rbtgo_director_anoint},
+the director anoints the graft vessel:
 reading the bottle kludge's chained build facts,
 the anoint rewrites the graft vessel's `RBRV_GRAFT_IMAGE` to the freshly kludged image ref, and the operator commits it.
 The grafted image's provenance begins here, on the station.
-
-The anoint interaction above cites no governing contract because none is catalogued;
-the breach is deliberate and recorded under Surfaced Gaps.
 
 === Movement III — Conjure on the Tether
 
@@ -385,20 +384,8 @@ the lifecycle closes where no consumer remains.
 
 == Surfaced Gaps
 
-Story-first authoring exists to surface exactly these.
-Both gaps are graduation conditions for this chapbook, alongside its cast-and-interaction ratification.
-
-*Anoint is uncatalogued.*
-Its
-{rbch_enchase}
-siblings —
-{rbtgo_director_feoff},
-{rbtgo_director_yoke},
-{rbtgo_nameplate_drive} —
-are quoined with operation sheaves;
-anoint is implemented and enrolled (the graft-vessel anoint verb) yet appears in the codex only as a bare word.
-Movement II's anoint interaction therefore stands uncited, in deliberate breach of the chapbook covenant.
-The breach dissolves when the anoint operation quoin and sheaf are minted and the interaction cites them.
+Story-first authoring exists to surface exactly this.
+The gap is a graduation condition for this chapbook, alongside its cast-and-interaction ratification.
 
 *The airgap base handoff has no verb.*
 The forge-hallmark locator enters the airgap vessel's

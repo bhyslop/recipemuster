@@ -1,0 +1,74 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbtgo_director_anoint}
+
+NOTE: This operation writes `RBRV_GRAFT_IMAGE=«IMAGE_REF»` into one named graft vessel's {rbrv_regime} file, electing the locally-built image that vessel's {rbtgo_ark_graft} will push.
+The ref is composed from the build facts the previous dispatch's build head — {rbtgo_ark_kludge} or {rbtgo_ark_ordain} — handed forward through the depth-1 cross-tabtarget chain.
+Anoint is a {rbch_enchase} — the graft-branch sibling of {rbtgo_director_feoff} and {rbtgo_director_yoke} on the {rbrv_regime} surface, resolving the {rbf_fact_hallmark} chain that {rbtgo_nameplate_drive} resolves for the {rbrn_regime} family.
+The ceremony is build → anoint → commit → graft: the build mints the hallmark and hands its facts forward; anoint composes the image ref and elects it; the operator commits; graft pushes the committed image.
+
+NOTE: *Chain-only, no express path.*
+Where its siblings resolve express-or-chain, anoint carries no express argument: every fact is read purely from the chain, through the same express-or-chain resolver every other fact consumer uses, each with an empty express.
+The elected value is a three-fact composition rather than a single token, so there is no express argument an operator could safely hand-type; the hand substitute is a direct edit of the {rbrv_regime} line itself, outside this verb.
+
+NOTE: *No GAR call, no clean-tree gate, no fact.*
+Anoint resolves the ref purely from the chained facts — it makes no {gar_service} call.
+It does not gate on a clean tree (rivet RBr_a52), and it emits no chaining fact: a {rbch_enchase} terminates the chain it reads, never relaying it (rivet RBr_3e7).
+This primitive does not commit; the operator commits the {rbrv_regime} change.
+
+NOTE: *Loaded, mode-gated.*
+Unlike {rbtgo_director_feoff} and {rbtgo_nameplate_drive}, which rewrite a regime file they never load, anoint loads (sources) the vessel's {rbrv_regime} to gate on its mode: only a graft vessel may be anointed.
+The load runs no enrollment vetting, so a not-yet-anointed graft vessel — its grafting line still absent — loads cleanly and takes the append path below.
+
+NOTE: *Loud on success.*
+On a successful write anoint emits the anointed vessel, the written `RBRV_GRAFT_IMAGE` value, and its source, so a wrong election shows at the moment of action rather than only in the eventual git diff; the source is always the chain (see *Chain-only* above).
+
+The {rbtr_director} anoints a graft vessel:
+
+//axhopt_typed_parameter
+{rbtr_director}
+. *Resolve the Vessel* (express):
+.. `«VESSEL»` is the first positional argument — a sigil or a path to one vessel directory
+.. {rbbc_require}
+the vessel resolves to a directory carrying an {rbrv_regime} file
+.. the vessel's {rbrv_regime} is loaded — sourced for its sigil and mode, with no enrollment vetting
+.. {rbbc_fatal}
+if the loaded `RBRV_VESSEL_MODE` is not `rbnve_graft` — anoint addresses graft vessels only; a bind or conjure vessel carries no grafting line to elect
+
+//axhos_step
+. *Resolve the Build Facts* (chain):
+.. `«HALLMARK»`, `«GAR_ROOT»`, and `«ARK_STEM»` resolve from the
+{rbf_fact_hallmark},
+{rbf_fact_gar_root},
+and
+{rbf_fact_ark_stem}
+facts the previous dispatch handed forward through the depth-1 cross-tabtarget chain — the previous dispatch must be a build ({rbtgo_ark_kludge} or {rbtgo_ark_ordain})
+.. {rbbc_fatal}
+if any of the three facts is absent — a broken chain; the rejection rides the chaining precision band, and the hallmark miss names the remedy: run a build (kludge or ordain) immediately before anoint
+
+//axhos_step
+. *Compose the Image Ref*:
+.. Compose `«IMAGE_REF»` as `«GAR_ROOT»/«ARK_STEM»/image:«HALLMARK»` — the {rbtga_ark_image} member ref of the built hallmark, its basename the `RBGC_ARK_BASENAME_IMAGE` constant
+.. this is the ref the build tagged into the station's local docker cache — the cache {rbtgo_ark_graft} pushes from
+
+//axhos_step
+. *Advise on the Local Cache*:
+.. Probe the station's local docker cache for `«IMAGE_REF»`
+.. {rbbc_warn}
+on a miss, and continue — never fatal: {rbtgo_ark_graft} refuses an absent image at its own gate, so the advisory surfaces the gap at the moment of election rather than at the eventual push (a cloud-ordained hallmark is not in the local cache until pulled)
+
+//axhos_step
+. *Rewrite the {rbrv_regime}*:
+.. For the
+{rbrv_graft_image}
+line — substitute with `RBRV_GRAFT_IMAGE=«IMAGE_REF»`, preserving position; if no such line is present, append one under a `# Grafting Configuration` comment header — an absent grafting line is the legitimate not-yet-anointed state, never schema drift (contrast {rbtgo_nameplate_drive}, whose absent enrolled field is a hard failure)
+.. All other lines pass through unchanged
+.. Write the composed content to a temp file, then atomically replace the {rbrv_regime} file via rename
+.. {rbbc_fatal}
+on any I/O failure
+
+//axhoc_completion
+Successful execution writes `RBRV_GRAFT_IMAGE=«IMAGE_REF»` into the one named graft vessel's {rbrv_regime} file; no GAR state is read or modified, and no chaining fact is emitted.
+The primitive does not commit — the operator commits the modified {rbrv_regime} file with their usual git workflow, after which {rbtgo_ark_graft} pushes the committed image as the grafted source.
+A newer build is picked up by re-running anoint and re-committing.

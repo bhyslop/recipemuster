@@ -1720,6 +1720,9 @@ sibling of
 {rbtgo_director_feoff}/{rbtgo_director_yoke}
 on the graft branch of vessel configuration.
 
+//axvd_cartouche axd_normative
+include::RBSDA-director_anoint.adoc[]
+
 [[rbtgo_nameplate_drive]]
 //axvo_method axd_transient axd_inlaid axd_grouped
 === {rbtgo_nameplate_drive}
