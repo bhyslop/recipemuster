@@ -8709,8 +8709,8 @@
         "₢BsAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-2336",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0126",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Repair the codex mapping entries that resolve to no definition anywhere in the pandect —",
@@ -8750,7 +8750,7 @@
                 "Touches only the veiled RB spec tree."
               ],
               "jjgtn_silks": "codex-dangling-anchor-repair",
-              "jjgtn_basis": "661a37c"
+              "jjgtn_basis": "dcf5f47"
             }
           ]
         }
