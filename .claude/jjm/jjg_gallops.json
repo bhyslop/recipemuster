@@ -6957,7 +6957,7 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-1548",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -6980,7 +6980,7 @@
                 "It rides the dispatch pace."
               ],
               "jjgtn_silks": "resync-impl",
-              "jjgtn_basis": "bc236ae"
+              "jjgtn_basis": "df6d1a1"
             }
           ]
         },
