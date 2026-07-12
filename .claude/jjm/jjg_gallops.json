@@ -3754,8 +3754,8 @@
         "₢BCAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0656",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0826",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -3781,7 +3781,7 @@
                 "All four fixtures carry manifest entries; reveille green; regime-poison standalone green with its census report showing the declared set used, skips permitting."
               ],
               "jjgtn_silks": "census-declare-unmanifested",
-              "jjgtn_basis": "b6c3d55"
+              "jjgtn_basis": "179e0d6"
             }
           ]
         }
