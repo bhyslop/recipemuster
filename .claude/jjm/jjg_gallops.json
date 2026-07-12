@@ -7240,8 +7240,8 @@
         "₢BrAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1347",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0638",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
@@ -7258,7 +7258,7 @@
                 "unit-tested; nothing wired live."
               ],
               "jjgtn_silks": "farrier-lock-billet-impl",
-              "jjgtn_basis": "9f444ce"
+              "jjgtn_basis": "448df08"
             }
           ]
         },
