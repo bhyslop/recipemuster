@@ -3545,9 +3545,10 @@
         "₢BCAAA",
         "₢BCAAB",
         "₢BCAAC",
-        "₢BCAAD"
+        "₢BCAAD",
+        "₢BCAAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢BCAAA": {
           "jjgpn_tacks": [
@@ -3710,6 +3711,42 @@
               ],
               "jjgtn_silks": "coverage-surface-cases",
               "jjgtn_basis": "aaf7b9f"
+            }
+          ]
+        },
+        "₢BCAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0655",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Split the colophon census declaration into required and permitted tiers so conditional-by-design invocations stop failing healthy runs.",
+                "Required keeps both directions exactly as landed; permitted is positive-only — admitted at the invoke funnel, never demanded by the negative check.",
+                "Fixes the census turn-on's one known defect: foedus-reuse (affiance fires only on a descry deficit) and freehold-establish (reuse-or-levy) census-fail their healthy paths today.",
+                "",
+                "## Cinched (260712 attribution sweep)",
+                "",
+                "- Two tiers in the manifest: required (unchanged semantics) plus a permitted set defaulting to empty.",
+                "- Positive check admits required ∪ permitted; negative check demands required only.",
+                "- Census report prints permitted usage as advisory lines, never verdict-affecting.",
+                "- Membership moves: foedus-reuse AFFIANCE_MANOR and freehold-establish LEVY_DEPOT move from required to permitted; nothing else moves.",
+                "- \"Permitted\" is hearting-level naming (interior Rust), not a minted ashlar.",
+                "",
+                "## Scope",
+                "",
+                "- Manifest two-tier declaration; the census arm state carries both sets; the rbtdrc context arm passes both.",
+                "- Unit tests: permitted-invoked does not refuse; permitted-unused does not fail; required semantics unchanged.",
+                "- Gate: unit tests + reveille.",
+                "  The two moved fixtures need live credentials — their verification rides the operator's next standalone run, never this pace.",
+                "",
+                "## Done when",
+                "",
+                "Both tiers enforced as cinched; unit tests prove the permitted semantics; reveille green."
+              ],
+              "jjgtn_silks": "census-permitted-tier",
+              "jjgtn_basis": "9293f0b"
             }
           ]
         }
