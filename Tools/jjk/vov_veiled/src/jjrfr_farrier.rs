@@ -308,7 +308,15 @@ impl<'a, F: jjrfr_FarrierLock> jjrfr_LockGuard<'a, F> {
 
 impl<'a, F: jjrfr_FarrierLock> Drop for jjrfr_LockGuard<'a, F> {
     fn drop(&mut self) {
-        let _ = self.farrier.jjrfr_pluck(&self.root, &self.guidon);
+        // Release is best-effort against the driver's fail-loud posture too: an
+        // unclassifiable release failure — an unreachable remote, typically —
+        // panics inside the pluck, and a panic escaping a destructor during an
+        // unwind aborts the process, turning a recoverable stale lock (the
+        // break's whole purpose) into a crash. The default panic hook still
+        // reports the caught panic loudly before the guard absorbs it.
+        let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _ = self.farrier.jjrfr_pluck(&self.root, &self.guidon);
+        }));
         zjjrfr_held_roots().lock().unwrap_or_else(|poisoned| poisoned.into_inner()).remove(&self.root);
     }
 }

@@ -147,24 +147,42 @@ fn zjjrfg_hash_object(root: &Path, content: &str, write: bool, op: &'static str)
     out.stdout.trim().to_string()
 }
 
-/// Resolve a partition's primary root from its own git metadata alone — the
-/// billet facet's ops take only the billet's own root, never the primary's, so
-/// `enfold` and `billet_remove` derive it themselves rather than requiring the
-/// caller to carry it. Mirrors `jjrfr_identify`'s partition-seat derivation
-/// (git-dir vs git-common-dir); panics (unclassified) if `root` is not itself a
-/// partition, since operating billet ops on a primary root is a caller-contract
-/// violation, not a named rejection kind.
-fn zjjrfg_primary_root(root: &Path) -> PathBuf {
+/// The one composer of git's push-lease flag: `target_ref:expected`, where an
+/// empty expected value is git's own spelling of "must not exist" (the stake
+/// create form).
+fn zjjrfg_lease_flag(target_ref: &str, expected: &str) -> String {
+    format!("--force-with-lease={}:{}", target_ref, expected)
+}
+
+/// Classify a tree's seat from its git metadata: git-dir equal to git-common-dir
+/// means primary; differing means a partition, whose primary root derives from
+/// the common dir's parent.
+fn zjjrfg_seat(root: &Path, op: &'static str) -> jjrfr_Seat {
     let git_dir = zjjrfg_run_git(root, &["rev-parse", "--git-dir"]);
     let common_dir = zjjrfg_run_git(root, &["rev-parse", "--git-common-dir"]);
     if !git_dir.ok || !common_dir.ok {
-        zjjrfg_unexpected(ZJJRFG_OP_PRIMARY_ROOT, root, &format!("{}{}", git_dir.stderr, common_dir.stderr));
+        zjjrfg_unexpected(op, root, &format!("{}{}", git_dir.stderr, common_dir.stderr));
     }
     if git_dir.stdout.trim() == common_dir.stdout.trim() {
-        zjjrfg_unexpected(ZJJRFG_OP_PRIMARY_ROOT, root, "root is a primary, not a partition");
+        jjrfr_Seat::Primary
+    } else {
+        let common_path = zjjrfg_resolve_relative(root, common_dir.stdout.trim());
+        let primary_root = common_path.parent().map(Path::to_path_buf).unwrap_or(common_path);
+        jjrfr_Seat::Partition { primary_root }
     }
-    let common_path = zjjrfg_resolve_relative(root, common_dir.stdout.trim());
-    common_path.parent().map(Path::to_path_buf).unwrap_or(common_path)
+}
+
+/// Resolve a partition's primary root from its own git metadata alone — the
+/// billet facet's ops take only the billet's own root, never the primary's, so
+/// `enfold` and `billet_remove` derive it themselves rather than requiring the
+/// caller to carry it. Panics (unclassified) if `root` is not itself a
+/// partition, since operating billet ops on a primary root is a caller-contract
+/// violation, not a named rejection kind.
+fn zjjrfg_primary_root(root: &Path) -> PathBuf {
+    match zjjrfg_seat(root, ZJJRFG_OP_PRIMARY_ROOT) {
+        jjrfr_Seat::Partition { primary_root } => primary_root,
+        jjrfr_Seat::Primary => zjjrfg_unexpected(ZJJRFG_OP_PRIMARY_ROOT, root, "root is a primary, not a partition"),
+    }
 }
 
 pub(crate) fn zjjrfg_resolve_relative(base: &Path, maybe_relative: &str) -> PathBuf {
@@ -219,19 +237,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         }
         let root = PathBuf::from(top.stdout.trim());
 
-        let git_dir = zjjrfg_run_git(&root, &["rev-parse", "--git-dir"]);
-        let common_dir = zjjrfg_run_git(&root, &["rev-parse", "--git-common-dir"]);
-        if !git_dir.ok || !common_dir.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_IDENTIFY, &root, &format!("{}{}", git_dir.stderr, common_dir.stderr));
-        }
-        let seat = if git_dir.stdout.trim() == common_dir.stdout.trim() {
-            jjrfr_Seat::Primary
-        } else {
-            let common_path = zjjrfg_resolve_relative(&root, common_dir.stdout.trim());
-            let primary_root = common_path.parent().map(Path::to_path_buf).unwrap_or(common_path);
-            jjrfr_Seat::Partition { primary_root }
-        };
-
+        let seat = zjjrfg_seat(&root, ZJJRFG_OP_IDENTIFY);
         let line_of_work = zjjrfg_line_of_work(&root);
 
         let remote = zjjrfg_run_git(&root, &["remote", "get-url", ZJJRFG_REMOTE]);
@@ -352,7 +358,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         let mut args: Vec<&str> = vec!["push"];
         if let Some(jjrfr_ConsignLease(expected_sha)) = lease {
             // JJr_d81
-            lease_flag = format!("--force-with-lease={}:{}", branch, expected_sha);
+            lease_flag = zjjrfg_lease_flag(branch, expected_sha);
             args.push(&lease_flag);
         }
         args.push(ZJJRFG_REMOTE);
@@ -373,7 +379,7 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
     fn jjrfr_stake(&self, root: &Path, guidon: &str) -> Result<(), jjrfr_Rejection> {
         let blob_sha = zjjrfg_hash_object(root, guidon, true, ZJJRFG_OP_STAKE);
         let refspec = format!("{}:{}", blob_sha, ZJJRFG_GUIDON_REF);
-        let lease = format!("--force-with-lease={}:", ZJJRFG_GUIDON_REF);
+        let lease = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, "");
         let out = zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &lease, &refspec]);
         if out.ok {
             return Ok(());
@@ -386,7 +392,7 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
 
     fn jjrfr_pluck(&self, root: &Path, observed_guidon: &str) -> Result<(), jjrfr_Rejection> {
         let expected_sha = zjjrfg_hash_object(root, observed_guidon, false, ZJJRFG_OP_PLUCK);
-        let lease = format!("--force-with-lease={}:{}", ZJJRFG_GUIDON_REF, expected_sha);
+        let lease = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, &expected_sha);
         let refspec = format!(":{}", ZJJRFG_GUIDON_REF);
         let out = zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &lease, &refspec]);
         if out.ok {

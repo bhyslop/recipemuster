@@ -533,6 +533,68 @@ fn jjtfg_break_is_none_when_nothing_staked() {
 }
 
 #[test]
+fn jjtfg_sight_reads_a_guidon_staked_by_another_station() {
+    let bare = JjkTestDir::new("jjtfg_sight_cross_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_sight_cross");
+
+    jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-station-one").unwrap();
+
+    // The sighting station has never held the guidon blob locally — sight's
+    // fetch must actually transfer it.
+    let sighted = jjrfg_PlainGit.jjrfr_sight(local2.path()).unwrap();
+    assert_eq!(sighted, Some("guidon-station-one".to_string()));
+}
+
+#[test]
+fn jjtfg_break_clears_another_stations_lock() {
+    let bare = JjkTestDir::new("jjtfg_break_cross_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_break_cross");
+    jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-abandoned").unwrap();
+
+    let cleared = jjrfr_break(&jjrfg_PlainGit, local2.path()).unwrap();
+
+    assert_eq!(cleared, Some("guidon-abandoned".to_string()));
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty());
+}
+
+#[test]
+fn jjtfg_lock_guard_drop_survives_an_unreachable_remote() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_guard_offline");
+    let guard = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-marooned").unwrap();
+    zjjtfg_git(local.path(), &["remote", "set-url", "origin", "/nonexistent/jjtfg-nowhere"]);
+
+    // Best-effort release: the pluck's unclassified failure must not escape
+    // the destructor.
+    drop(guard);
+
+    // The lock still flies on the remote — a stale lock for the break, not a
+    // crash.
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.contains("refs/jjv/guidon"));
+}
+
+#[test]
+fn jjtfg_lock_guard_rejected_acquire_leaves_no_registry_residue() {
+    let bare = JjkTestDir::new("jjtfg_guard_residue_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_guard_residue");
+    let first = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local1.path(), "guidon-holder").unwrap();
+
+    // Contention from another clone of the same blotter is a rejection, never
+    // the nested-acquire panic — the registry keys on the local root.
+    let kind = match jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local2.path(), "guidon-contender") {
+        Err(rejection) => rejection.kind,
+        Ok(_) => panic!("a stake over a held lock must reject"),
+    };
+    assert_eq!(kind, jjrfr_RejectionKind::LockHeld);
+
+    drop(first);
+
+    let second = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local2.path(), "guidon-second").unwrap();
+    assert_eq!(second.jjrfr_guidon(), "guidon-second");
+}
+
+#[test]
 fn jjtfg_billet_create_seats_a_new_branch_worktree() {
     let primary = JjkTestDir::new("jjtfg_billet_create_new_branch_primary");
     zjjtfg_init_local(primary.path());
