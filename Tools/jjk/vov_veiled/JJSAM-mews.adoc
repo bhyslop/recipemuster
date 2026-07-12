@@ -124,6 +124,16 @@ the veiled tree and its git history hold them.
   daemons fight over kernel iptables/NAT rules.
   ₣A- cinched Docker Desktop only (per-distro WSL integration); a native in-distro daemon is
   deferred to operator-managed exclusive lifecycle.
+* *Docker Desktop requires a live desktop session.* The engine itself boots headless — service
+  start plus a backend launch from an admin SSH session brings up dockerd and its API — but the
+  GUI process cannot survive without an interactive desktop, and the backend tears down with it
+  (surveyed on rocket, 260712, under heat ₣Bs).
+  A disconnected RDP session satisfies the requirement; a Home-edition host has no RDP server,
+  so a headless Home box structurally cannot run the Desktop engine and — under the one-daemon
+  fact above — can serve only the deferred native-dockerd shape.
+  Fleet consequence: the release-1 Windows runtime, and the off-path-RST behavior only it
+  exhibits (the `rbsq_wdd_offpath_reply` survey), are provable only on a node holding a
+  persistent logon session.
 * *Known parked defects in the veiled code*, recorded so re-gestation does not rediscover
   them: workload stdout arrives UTF-16LE-mangled because the forced-command directive does not
   set `$env:WSL_UTF8=1`; obliterate may need wildcard cleanup of orphan `C:\Users\<workload>.*`
@@ -178,7 +188,8 @@ no kit prefix will exist (resolved 260705).
   section above.
 * *Node availability posture* — the platform facts that keep an unattended node reachable at
   all (sleep prevention, power-cut recovery, disk-encryption pre-boot gates, VPN-daemon
-  reboot survivability), prior to every provisioning verb: an unreachable node cannot be
+  reboot survivability, desktop-session persistence where the container engine demands one),
+  prior to every provisioning verb: an unreachable node cannot be
   provisioned or verified.
   Fits the verify verb's fact shape (read command, expected value, failure pointer); the
   empirical record is accumulating in the memo family per platform.
@@ -199,3 +210,18 @@ no kit prefix will exist (resolved 260705).
   empirical record (sleep prevention, power-cut recovery, verification traps); first
   non-Windows member of the Palisade memo family, feeding the node-availability-posture fork
   above.
+* The Windows container-runtime empirical family, still live as authority-of-record for its
+  surveys, none yet owning a spec home:
+  `Memos/memo-20260603-windows-docker-desktop-bind-mount.md` (the two Desktop walls, both
+  fixed in tree);
+  `Memos/memo-20260603-cygwin-ifrit-first-run-conntrack.md` and
+  `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md` (the off-path-RST survey that
+  minted `rbsq_wdd_offpath_reply` — Desktop is the only runtime exercising it);
+  `Memos/memo-20260517-windows-substrate-landscape-for-theurge.md` (the Cygwin toolchain
+  substrate: rust target, TMPDIR shape, transport detail).
+* Health of the extant homes (260712 reading): the veiled BUK/RBK apparatus and `BUSJ*` sheaf
+  are inert-by-design awaiting this sheaf's re-gestation; WSG and the memo families above are
+  live authority for their layers; the operator machine registry
+  (`Tools/jjk/vov_veiled/claude-jjk-bhyslop.md` §I) is the live per-node state and carries the
+  rocket runtime posture; stabled heat ₣BG holds only the spec-*style* scrub of the `BUSJ*`
+  family and is orthogonal to fleet function.

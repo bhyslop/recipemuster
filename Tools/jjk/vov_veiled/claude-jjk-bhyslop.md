@@ -198,8 +198,16 @@ fundus-host list points here for the full registry.
   at `rbmm_moorings/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate
   work under heat ₣A-. **Consolidated access reference + live account state:**
   `Memos/memo-20260516-windows-headless-account-anatomy.md`.
-  - Admin SSH: `tt/buw-jpS bujn-winpc <cmd>` (as `bhyslop`; cmd.exe default shell,
-    so prepend `powershell -Command` / `bash -c` as the task needs).
+  - Admin SSH: `ssh -i ~/.ssh/id_ed25519_winpc-admin bhyslop@rocket "<cmd>"` (cmd.exe
+    default shell, so prepend `powershell -Command` / `bash -c` as the task needs).
+    The former `tt/buw-jpS` tabtarget was removed when the jurisdiction apparatus was
+    veiled; the bare key in `administrators_authorized_keys` is the live path
+    (verified 260712).
+  - Runtime posture (surveyed 260712): Windows Home — no RDP server, headless — so
+    Docker Desktop cannot run here (its GUI needs a desktop session; the engine boots,
+    then dies with the GUI — JJSAM-mews Palisade facts). The WSL distro's native
+    dockerd is the standing container runtime: the ₣A--deferred configuration, serving
+    the `wsl@rocket` container tests below. Never start both daemons concurrently.
   - Formal workload: `tt/buw-jws bujn-winpc` (as `bujuw_user`; garrison routes to
     WSL `rbtww-main`). Owned by the garrison ceremony, not hand-edits.
   - Ad-hoc test accounts (pubkey-only, independent of the formal garrison — safe
@@ -209,6 +217,11 @@ fundus-host list points here for the full registry.
     - `ssh wsl@rocket "<cmd>"` (one-shot) or `ssh -t wsl@rocket` (interactive) — WSL Ubuntu 24.04 as root; **Docker daemon live — container tests run here**.
   - Legacy LAN aliases `winhost-{wsl,cyg,ps}` (192.168.86.27) are currently
     unreachable; use the `rocket` tailnet paths above.
+- **beast**, **mimic-bth-intel** — Windows machines, RDP-reachable by the operator,
+  otherwise unprovisioned (no controlled sshd, docker, or cygwin state as of 260712).
+  Candidates for the Docker-Desktop-runtime test host that rocket structurally cannot
+  be (RDP sessions persist across disconnect, so the Desktop engine survives).
+  beast's standup — memo-as-executed, bhyslop user only — is chartered in heat ₣Bs.
 - **cerebro** — Linux test host (Ubuntu 24.04). Direct access: `ssh cerebro`
   (user `bhyslop`, key `~/.ssh/id_ed25519`). Also the remote fundus for JJK
   scenario tests: tabtargets `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
