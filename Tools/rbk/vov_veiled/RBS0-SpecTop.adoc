@@ -186,7 +186,6 @@
 :rbtgog_payor:                    <<rbtgog_payor,Payor Group>>
 :rbtgog_rubric:                   <<rbtgog_rubric,Build Definition Group>>
 
-:rbtoe_check_cbv2_connection:     <<rbtoe_check_cbv2_connection,CB v2 Connection Check>>
 :rbtoe_depot_list_update:         <<rbtoe_depot_list_update,Depot List Update Pattern>>
 :rbtoe_director_authenticate:     <<rbtoe_director_authenticate,Director Authentication Pattern>>
 :rbtoe_governor_authenticate:     <<rbtoe_governor_authenticate,Governor Authentication Pattern>>
@@ -592,10 +591,6 @@
 // rbsi_ prefix: RB Security Ifrit (adversarial validation concepts)
 :rbsi_ifrit:                 <<rbsi_ifrit,Ifrit>>
 :rbsi_ifrit_s:               <<rbsi_ifrit,Ifrits>>
-:rbsi_campaign:              <<rbsi_campaign,Ifrit Campaign>>
-:rbsi_campaign_s:            <<rbsi_campaign,Ifrit Campaigns>>
-:rbsi_escape_test:           <<rbsi_escape_test,Escape Test>>
-:rbsi_escape_test_s:         <<rbsi_escape_test,Escape Tests>>
 
 // Recipe Bottle Security Quirks (tracked, non-threatening substrate deviations)
 // rbsq_ prefix: RB Security Quirk
@@ -814,6 +809,19 @@ They depend on a layered-defense structure in which each layer is independently 
 Removing or weakening a layer requires Ifrit-suite empirical validation to confirm the security envelope remains intact; architectural reasoning alone has been empirically insufficient.
 
 === Adversarial Validation: The Ifrit
+
+[[rbsi_ifrit]]
+{rbsi_ifrit}::
+The scripted adversary that runs inside a
+{at_bottle_container}
+to break the
+{at_sentry_container_p}
+containment promise.
+It holds perfect information — read access to the whole
+{at_recipe_bottle}
+repository, its adversary's configuration included — and carries raw-socket attack
+tooling, but ships no live agent: every escape attempt is a committed, repeatable
+sortie.
 
 [[rbsq_quirk]]
 {rbsq_quirk}::
@@ -3299,6 +3307,42 @@ can incur charges.
 
 === Google Service Definitions
 
+[[gcp_service]]
+{gcp_service}::
+Google's public cloud platform — the umbrella under which every Google service
+{at_recipe_bottle}
+engages is hosted, and in whose
+{gcp_project_id_s}
+it provisions and is billed for every resource it holds.
+
+[[gar_service]]
+//axig_artifact_registry
+{gar_service}::
+Google's managed artifact-hosting service: where
+{at_recipe_bottle}
+stores every container image and attendant artifact it produces, and whence it
+retrieves them.
+Service-level — the artifact platform itself, not an individual repository within it.
+
+[[gcs_service]]
+//axig_cloud_storage
+{gcs_service}::
+Google's managed object-storage service, which holds the objects
+{at_recipe_bottle}
+builds consume and emit, organized into
+{gcs_bucket_s}.
+Service-level — the storage platform itself, not a bucket within it.
+
+[[gcb_service]]
+//axig_cloud_build
+{gcb_service}::
+Google's managed build-execution service, on which
+{at_recipe_bottle}
+runs every cloud build it submits.
+Service-level — the build platform itself, not an individual
+{gcb_build}
+upon it.
+
 [[gar_registry]]
 //axl_voices axig_artifact_registry
 {gar_registry}::
@@ -4027,6 +4071,14 @@ Repository-wide configuration and installation-wide settings shared across all
 operations.
 File-sourced singleton at {rbsld_moorings}rbrr.env.
 
+[[rbrr_runtime_prefix]]
+//axvr_variable axd_required
+{rbrr_runtime_prefix}::
+A
+{rbst_string} —
+prefix prepended to machine-local resource names: container names, container network
+names, and other runtime identifiers on the operator's workstation.
+
 [[rbrr_secrets_dir]]
 //axl_voices axrg_variable axtu_path
 {rbrr_secrets_dir}::
@@ -4165,6 +4217,13 @@ public docs URL — readme target for buh_tlt glossary links, updated per-releas
 
 // RBRG variable definitions eliminated — reliquaries replace pin-based tool image management
 // Tool images (gcloud, docker, alpine, syft, binfmt, gcrane) now sourced from reliquary at ordain time
+
+[[rbrr_group_resource_prefixing]]
+//axvr_group
+{rbrr_group_resource_prefixing}::
+Prefix scoping for the machine-local container and network resource names
+{at_recipe_bottle}
+lifecycle-manages on the operator's workstation.
 
 [[rbrr_group_public_docs]]
 //axvr_group
@@ -4934,6 +4993,14 @@ A
 {rbst_hallmark} —
 hallmark timestamp for the bottle container image.
 
+[[rbrn_bottle_readiness_delay_sec]]
+//axvr_variable axd_required
+{rbrn_bottle_readiness_delay_sec}::
+An
+{rbst_integer} —
+seconds to wait after compose-up returns before the charge completes, affording bottle
+services their warmup.
+
 [[rbrn_entry_mode]]
 //axvr_variable axd_required axt_enumeration
 {rbrn_entry_mode}::
@@ -5068,6 +5135,12 @@ domain names allowed for bottle-initiated DNS resolution.
 //axvr_group
 {rbrn_group_ark_reference}::
 Ark reference variables identifying which vessel hallmark to deploy.
+
+[[rbrn_group_service_readiness]]
+//axvr_group
+{rbrn_group_service_readiness}::
+Post-charge wait behavior for bottle services that need warmup before they answer
+traffic.
 
 [[rbrn_group_entry]]
 //axvr_group axd_conditional
