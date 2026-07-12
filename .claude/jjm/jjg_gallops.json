@@ -7404,6 +7404,7 @@
         "₢BsAAb",
         "₢BsAAe",
         "₢BsAAc",
+        "₢BsAAf",
         "₢BsAAd",
         "₢BsAAK",
         "₢BsAAR",
@@ -7412,7 +7413,7 @@
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8544,6 +8545,52 @@
               ],
               "jjgtn_silks": "baseline-drift-reproof",
               "jjgtn_basis": "e2d1a6c"
+            }
+          ]
+        },
+        "₢BsAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-1536",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Normalize 'beast' — an RDP-reachable Windows box, currently unsurveyed — into a controlled",
+                "Cygwin + Docker Desktop test host:",
+                "the persistent-logon property rocket structurally lacks",
+                "(JJSAM-mews Palisade facts: an RDP session survives disconnect, so the Desktop engine stays up).",
+                "Operator-present via RDP throughout; the agent drives over ssh once trust lands.",
+                "The product is twofold: the working host, and the as-executed memo in Memos/ —",
+                "its structure is exactly what was done, in the order done, dead-ends kept with their cause.",
+                "This is run one of two: mimic-bth-intel later replays the memo,",
+                "and the replay's corrections harden it toward a durable home",
+                "(handbook vs mews re-gestation — decided then, not now).",
+                "Approximate walk, order flexes at mount:",
+                "cold survey first (edition, arch, WSL state, existing docker/cygwin/ssh remnants) — the memo opens with it;",
+                "Windows OpenSSH server + pubkey trust for the bhyslop user ONLY,",
+                "no headless account menagerie this time",
+                "(recipes: Memos/memo-20260516-windows-headless-account-anatomy.md — sshd Match blocks, authkeys ACLs, the two-phase trust fact);",
+                "uninstall old Docker variants and old Cygwin;",
+                "install current Docker Desktop (WSL2 backend, per-distro integration) —",
+                "the one-daemon cinch holds, so no native dockerd anywhere on this host, ever;",
+                "install Cygwin with the theurge substrate package set",
+                "(Memos/memo-20260517-windows-substrate-landscape-for-theurge.md);",
+                "clone the repo plus a station-files skeleton, and prove a credless tabtarget runs via ssh from Cygwin.",
+                "No payor acts.",
+                "",
+                "## Done when",
+                "",
+                "Cygwin ssh as bhyslop reaches the Docker Desktop engine on beast,",
+                "a credless suite runs green over that path,",
+                "and the as-executed memo stands in Memos/.",
+                "Re-aiming the cygwin container-tier sweep (currently rocket-scoped) at beast happens by reslate afterward — not in this pace.",
+                "",
+                "## Character",
+                "",
+                "Operator-present provisioning walk against a live unknown box; empirical memo authoring as the work happens.",
+                "Improvisational: survey, act, record — judgment on tap."
+              ],
+              "jjgtn_silks": "beast-host-standup",
+              "jjgtn_basis": "64fa89a"
             }
           ]
         }
