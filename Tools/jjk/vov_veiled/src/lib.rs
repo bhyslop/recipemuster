@@ -32,6 +32,7 @@ pub mod jjrs_steeplechase;
 pub mod jjrdk_diskcheck;
 pub mod jjrfr_farrier;
 pub mod jjrfg_plaingit;
+pub mod jjrrf_refit;
 pub mod jjrvb_blotter;
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
@@ -120,6 +121,9 @@ mod jjtfr_farrier;
 
 #[cfg(test)]
 mod jjtfg_plaingit;
+
+#[cfg(test)]
+mod jjtrf_refit;
 
 #[cfg(test)]
 mod jjtvb_blotter;
