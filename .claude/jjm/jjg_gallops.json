@@ -5381,7 +5381,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-0726",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical sweep — the nameplate twin of the vessel-regime (rbrv.env) single-home",
@@ -5437,7 +5439,7 @@
                 "did, rather than reading a green suite as coverage."
               ],
               "jjgtn_silks": "rbrn-nameplate-single-home",
-              "jjgtn_basis": "f3147c8"
+              "jjgtn_basis": "f3df3a6"
             }
           ]
         },
