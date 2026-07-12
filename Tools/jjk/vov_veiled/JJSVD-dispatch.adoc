@@ -268,10 +268,13 @@ area — a forward reference to its aspirant home (state-repo sheaf), landing wi
 A dispatched session arrives with the engagement verb in its opening prompt, so target
 election shifts form: the door already elected the pace or heat, and the opening prompt
 carries it — the hand-opened session's target-election dance is not performed.
-A session saddled onto a bridled pace follows the designee protocol (orient, work, record,
-landing — never wrap);
-a judgment session — {jjdd_lunge}, or {jjdd_saddle} on an unbridled pace — keeps the full
-ceremony.
+A session saddled onto a pace bridled at a *sub-frontier* tier follows the designee protocol
+(orient, work, record, landing — never wrap);
+a judgment session — {jjdd_lunge}, {jjdd_saddle} on an unbridled pace, or {jjdd_saddle} on a
+pace bridled at a *frontier* tier — keeps the full ceremony.
+A frontier designation names which tier may act, never that the acting session is a designee:
+demoting it would make the frontier tiers undesignable in practice, forcing judgment work to
+park in an unbridled pace and stripping the designation of the one thing it records.
 The kit-core protocol texts pick this seam up at implementation.
 
 == Rejections

@@ -1233,7 +1233,9 @@ The driving model sets the {jjdo_render} `anew` flag from conversational intent 
 [[jjsuv_bridle]]
 //axi_cc_claudemd_verb
 {jjsuv_bridle}::
-Designate a {jjdpe_rough} {jjdpr_pace} for execution at a named model tier — the calling frontier agent records that it judged the docket mechanically defined, transitioning the pace to {jjdpe_bridled}.
+Designate a {jjdpe_rough} {jjdpr_pace} for execution at a named model tier — the calling frontier agent records that it judged the docket ready to execute and ruled on the tier the execution needs, transitioning the pace to {jjdpe_bridled}.
+Readiness is the gate; the tier is the ruling.
+A pace whose execution needs frontier judgment is designated at a frontier tier — not withheld from designation — so {jjdpe_rough} never doubles as the parking state for judgment work someone has already ruled on.
 Maps to {jjdo_apostille} with tier (and optional effort).
 
 [[jjsuv_unbridle]]
@@ -1799,7 +1801,14 @@ Serialized as `jjgpn_tacks` in JSON, a single-element array.
 {jjdpe_rough}::
 The
 {jjdpr_pace}
-needs clarification before work can proceed.
+is undesignated: no frontier agent has yet ruled on the docket, so the pace
+stands open to frontier judgment — which may find it wanting clarification,
+or find it ready and bridle it at the tier its execution needs.
+The state a pace is slated into, and the state it reverts to.
+Rough is the absence of a ruling, never the record of one: it cannot
+distinguish an unexamined pace from an examined one, which is why a pace
+judged to need frontier execution is bridled at a frontier tier rather than
+left here.
 Serialized as `jjgte_rough` in JSON.
 
 [[jjdpe_bridled]]
@@ -1807,9 +1816,16 @@ Serialized as `jjgte_rough` in JSON.
 {jjdpe_bridled}::
 The
 {jjdpr_pace}
-is designated for execution: a frontier agent judged it mechanically defined
-and recorded its execution tier (and optionally an effort) on the current
+is designated for execution: a frontier agent judged the docket ready to
+execute and recorded the tier that execution needs (and optionally an effort)
+on the current
 {jjdcr_tack}.
+The two judgments are distinct — readiness gates the designation, and the tier
+records where judgment lives during execution.
+Every tier in the designable set is a first-class designation: a bridle at
+opus or fable says the docket is complete *and* its execution needs frontier
+judgment, and is neither a contradiction nor a no-op — it is the only durable
+record that a frontier agent read the docket and so ruled.
 A distinct open state — excluded by the rough filter, included by remaining,
 resolved by next-actionable.
 The designation reverts to

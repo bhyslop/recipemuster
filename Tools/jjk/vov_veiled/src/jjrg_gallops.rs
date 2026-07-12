@@ -192,9 +192,12 @@ impl jjrg_Gallops {
 
     /// Bridle — composed method (designation half of jjx_apostille)
     ///
-    /// Records that a frontier agent judged this pace mechanically defined:
-    /// transitions rough → bridled with the designated execution tier and an
-    /// optional effort on the tack. Only a rough pace may be bridled — the
+    /// Records that a frontier agent judged this pace ready to execute and
+    /// ruled on the tier its execution needs: transitions rough → bridled with
+    /// the designated execution tier and an optional effort on the tack. Every
+    /// designable tier is first-class here — a frontier designation (opus,
+    /// fable) is an ordinary outcome, not an anomaly. Only a rough pace may be
+    /// bridled — the
     /// rough filter is the precondition, so a bridled pace must be released
     /// (or reverted by a docket edit) before re-designation.
     /// Pure transform: caller provides basis and ts. Returns the pre-mutation

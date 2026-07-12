@@ -271,41 +271,58 @@ When user says "groom":
 
 ### Bridle Protocol
 
-Bridling designates a pace for execution at a specific model tier: a frontier
-agent — always the calling agent, never the server — records that it judged the
-pace mechanically defined. States: a `rough` pace is undesignated judgment work;
-a `bridled` pace is designated, carrying its tier (and optionally an effort word)
-until it is released, reverted, or closed.
+Bridling designates a pace for execution at a specific model tier. A frontier
+agent — always the calling agent, never the server — makes **two distinct
+judgments** and records them together: that the docket is **ready to execute**,
+and **which tier** that execution needs. Readiness is the gate; the tier is the
+ruling. States: a `rough` pace is one no frontier agent has ruled on yet; a
+`bridled` pace carries its tier (and optionally an effort word) until it is
+released, reverted, or closed.
+
+**Bridling to a frontier tier is a first-class act, not a no-op.** A pace whose
+execution needs opus judgment is bridled *at opus* — never left rough to signal
+the same thing. Rough is the absence of a ruling, so it cannot say "opus": it
+reads identically to a pace nobody has examined. Bridling at opus is the only
+durable record that a frontier agent read this docket and ruled it
+frontier-grade, it is what surfaces the tier in `jjx_coronets` (`[bridled opus]`),
+and it is the only way to record an effort word.
 
 **Bridling (frontier session designates):**
 
 1. Read the candidate pace's docket via `jjx_brief` (and the paddock via
    `jjx_paddock` if heat context is needed for the judgment).
-2. Judge it: mechanically defined means no ambiguities and no lurking
-   design-level decisions. If the docket has gaps, REFUSE to designate and
-   report the gaps to the operator — a gap is a reslate need, not a lower-tier
-   problem.
-
-   Tier is set by where judgment lives during execution, not by how much the
-   pace matters: operator presence LOWERS the requirement (judgment on tap, so
-   the designee just executes carefully and surfaces clearly), and stakes hold
-   no tier since stop-and-surface already forbids improvisation. What holds a
-   frontier tier is plausible wrongness the operator cannot cheaply check —
-   work that authors authority downstream work will obey (a ceremony document,
-   a spec narrative), where an error reads fine and propagates.
-3. Before designating a frontier tier, weigh mechanization: if the judgment
+2. Judge **readiness**: does the docket have gaps — an ambiguity, a missing
+   decision, a question only the operator can answer? If so, REFUSE to
+   designate and report the gaps — a gap is a reslate need. **Refuse only for
+   gaps.** "This pace needs judgment to execute" is NOT a gap and is NOT a
+   reason to withhold designation; it is the finding that sets the tier to a
+   frontier one. Refusing to bridle a ready pace because its work is hard is
+   the failure mode this step exists to prevent.
+3. Judge the **tier**: where does judgment live *during execution*, not how
+   much the pace matters. Operator presence LOWERS the requirement (judgment on
+   tap, so the designee just executes carefully and surfaces clearly), and
+   stakes hold no tier since stop-and-surface already forbids improvisation.
+   What holds a frontier tier is plausible wrongness the operator cannot
+   cheaply check — work that authors authority downstream work will obey (a
+   ceremony document, a spec narrative), where an error reads fine and
+   propagates.
+4. Before settling on a frontier tier, weigh mechanization: if the judgment
    the docket defers could be settled NOW — from the paddock's cinches, landed
    specs, and what this session holds — propose the reslate that bakes those
    decisions in, leaving a residue a lower tier can run (the proposal goes to
    the operator; on approval, redocket, then bridle). Judgment only the work
    itself can surface — spec authoring, gates, verification — is not
-   mechanizable: designate it at its tier rather than manufacture a reslate.
-4. Otherwise designate: `jjx_apostille {coronet, tier}` with the execution tier
+   mechanizable: designate it at its frontier tier rather than manufacture a
+   reslate, and never leave it rough as a substitute for designating it.
+5. Designate: `jjx_apostille {coronet, tier}` with the execution tier
    (haiku | sonnet | opus | fable), adding `effort` (low | medium | high |
    xhigh | max) only where the docket's depth is judged. Only a rough pace
    may be bridled.
 
-**Designee session (the designated-tier agent executes):**
+**Designee session (a sub-frontier designated agent executes):**
+
+A pace bridled at haiku or sonnet is executed by a designee — it carries orders,
+not authority:
 
 1. `jjx_orient` on the heat — resolution lands on the bridled pace.
 2. Work the docket. Commit via `jjx_record` against the bridled coronet.
@@ -313,6 +330,11 @@ until it is released, reverted, or closed.
 4. NEVER wrap. A frontier session reviews the landed work and wraps.
 5. On any hole or surprise: stop and surface it — a designee never restates its
    own orders.
+
+**A pace bridled at a frontier tier (opus, fable) keeps the full ceremony.** The
+tier word says which session may act on it; it does not demote that session to a
+designee. A frontier session mounting its own tier's bridled pace mounts, works,
+and wraps as normal — the designee protocol above does not apply to it.
 
 **Escalation paths (designation is void when its judgment inputs change):**
 
