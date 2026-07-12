@@ -20,6 +20,11 @@ while the real candidate cut rides only the closed green revalidation.
 Suite coverage is owed at fixture grain, not suite grain:
 a suite whose members all ride inside another suite already run green on the same baseline is not separately owed
 (the almanac's containment facts — blockade inside skirmish, picket and bivouac inside echelon, the reveille base inside every bearer — are compile-guarded).
+Station reality (corrected mid-heat): the operator's primary platform is macOS;
+cerebro is the Linux test station used for run logistics,
+and rocket is reachable only from macOS —
+so each platform pace runs in a session that can reach its host,
+and the macOS pace precedes the rocket paces it serves as curia for.
 
 ## Shape
 
@@ -29,6 +34,7 @@ the delivery-ceremony repair with its throwaway practice cut;
 the standing-substrate sweeps — the self-contained and union suites, then the freehold-iterating release ladders —
 with README diagram authoring slotted as fill work while the long runs await;
 then the destructive arc — the gauntlet, the orphan-arm escheat proof riding its churn, the manor raze-and-rebuild walk, the caged-subject admission on the rebuilt substrate, the rbgft test-infra residue, and a closing revalidation of the rebuilt baseline;
+then the cross-platform sweep — the Linux fixture-grain residue on the test station, followed by per-platform paces for macOS, rocket WSL, and rocket Cygwin;
 finally the real candidate cut on the proven baseline.
 
 ## Done when

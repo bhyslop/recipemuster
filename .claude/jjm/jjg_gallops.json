@@ -7772,6 +7772,9 @@
         "₢BsAAa",
         "₢BsAAH",
         "₢BsAAL",
+        "₢BsAAb",
+        "₢BsAAc",
+        "₢BsAAd",
         "₢BsAAK",
         "₢BsAAR",
         "₢BsAAS",
@@ -7779,7 +7782,7 @@
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAb",
+      "jjghn_next_pace_seed": "AAe",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8173,39 +8176,29 @@
         "₢BsAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260709-1043",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260712-1257",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Qualify the proven rebaseline on non-macOS platforms:",
-                "run the suites that make sense against the STANDING freehold — no manor founding, no depot recreation, no project churn.",
-                "Selection principle: a suite earns a remote run by its LOCAL execution surface (bash dialect, container runtime, kernel networking);",
-                "cloud-side acts are platform-invariant and already proven from the primary station.",
-                "Host subsets (machine registry: Tools/jjk/vov_veiled/claude-jjk-bhyslop.md §I):",
-                "cerebro — reveille, siege, bivouac, blockade (container runtime proven live by the 260709 cerebro skirmish green: 18 fixtures, 265 passed, 0 failed);",
-                "rocket WSL — reveille, siege, bivouac, blockade (Docker live there).",
-                "skirmish is deliberately omitted from both hosts:",
-                "its delta over these sets is onboarding-sequence — platform-invariant cloud ordains by the selection principle above —",
-                "and the crucible charges need no local kludge beyond siege's tadmor (srjcl and pluml carry conjure/bind hallmarks, GAR-summoned or digest-pulled at charge);",
-                "the host-side ordain arc is already Linux-proven by the 260709 cerebro skirmish.",
-                "siege is the priority platform proof: containment against a native Linux kernel rather than Docker Desktop's VM;",
-                "blockade extends that native-kernel proof to the airgap posture at trivial cost.",
-                "parley and dogfight are deliberately excluded — near-pure REST and marginal local surface respectively.",
-                "Per-host provisioning is uniform: clone at the rebaseline commit, avow on that host (device flow; the sitting cache is per-machine), run.",
-                "No payor material leaves the primary station — this pace contains no payor acts.",
-                "Suites sequential, never parallel; notch before each run.",
+                "Complete the Linux platform verdict for the rebaseline on the test station (cerebro — native kernel, native Docker Engine):",
+                "run the fixture-grain residue that the rebaseline-revalidation's skirmish and parley left uncovered —",
+                "the siege suite (its kludge-tadmor fixture is the local-build arc no other green covers; the tadmor rerun rides along cheaply)",
+                "and the regime-poison negative-validation fixture —",
+                "then record the per-host verdict to inform the candidate push.",
+                "Containment arithmetic per the almanac: that skirmish already covered all of reveille, all of blockade, and all of bivouac except regime-poison;",
+                "the paddock's fixture-grain cinch makes those runs not separately owed.",
+                "Standing freehold only — no manor founding, no depot recreation, no project churn; no payor acts.",
+                "Suites sequential, never parallel; clean tree before each run.",
                 "",
                 "## Done when",
                 "",
-                "Each host's subset is green at the rebaseline commit — or every failure dispositioned with the operator —",
-                "and the per-host verdicts are recorded to inform the candidate push.",
+                "siege and regime-poison green on the rebaseline tree at this station — or every failure dispositioned with the operator — and the Linux verdict recorded.",
                 "",
                 "## Character",
                 "",
-                "Long remote suite runs; operator-present for the per-host avow."
+                "Confirmation runs; light judgment."
               ],
               "jjgtn_silks": "cross-platform-freehold-sweep",
-              "jjgtn_basis": "a75ac25"
+              "jjgtn_basis": "8be38e8"
             }
           ]
         },
@@ -8750,6 +8743,97 @@
               ],
               "jjgtn_silks": "codex-dangling-anchor-repair",
               "jjgtn_basis": "dcf5f47"
+            }
+          ]
+        },
+        "₢BsAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-1257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Qualify the rebaseline on macOS — the operator's primary platform, untested since well before the rebaseline:",
+                "Docker Desktop VM runtime, BSD-userland bash dialect, VM-mediated kernel networking.",
+                "Suites per the docket selection principle (a suite earns a platform run by its LOCAL execution surface; cloud-side acts are platform-invariant):",
+                "reveille, siege, bivouac, blockade — against the STANDING freehold, no manor founding, no depot recreation, no project churn.",
+                "Provisioning: sync the Mac clone to the rebaseline commit (8be38e870) or later on main;",
+                "avow on that host (device flow; the sitting cache is per-machine);",
+                "run sequentially, clean tree before each run.",
+                "No payor acts.",
+                "Must run in a session ON the Mac — and this pace also unblocks the two rocket paces behind it,",
+                "since rocket is reachable only from macOS and the Mac session is their curia.",
+                "",
+                "## Done when",
+                "",
+                "The subset is green on macOS at the rebaseline tree — or every failure dispositioned with the operator — and the macOS verdict recorded.",
+                "",
+                "## Character",
+                "",
+                "Long suite runs; operator-present for the avow."
+              ],
+              "jjgtn_silks": "macos-freehold-sweep",
+              "jjgtn_basis": "8be38e8"
+            }
+          ]
+        },
+        "₢BsAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-1257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Qualify the rebaseline on rocket's WSL backend (Ubuntu 24.04, Docker daemon live) — reachable only from macOS, so run from a Mac session as curia",
+                "(ssh wsl@rocket per the machine registry, Tools/jjk/vov_veiled/claude-jjk-bhyslop.md §I, or JJK foray).",
+                "Suites per the selection principle: reveille, siege, bivouac, blockade — against the STANDING freehold.",
+                "The rbsq_wdd_offpath_reply quirk is in scope on this substrate:",
+                "the conntrack_spoofed_ack sortie carries its containment, so any BREACH there is signature-checked against the quirk before disposition.",
+                "Provisioning: clone at the rebaseline commit (8be38e870) or later on main;",
+                "avow on that host (per-machine sitting cache — the WSL home is distinct from the Cygwin home);",
+                "run sequentially, clean tree before each run.",
+                "Never run rocket suites from both transports concurrently — they share the host's container and network namespaces.",
+                "No payor acts.",
+                "",
+                "## Done when",
+                "",
+                "The subset is green on rocket WSL at the rebaseline tree — or every failure dispositioned with the operator — and the WSL verdict recorded.",
+                "",
+                "## Character",
+                "",
+                "Long remote suite runs; operator-present for the avow."
+              ],
+              "jjgtn_silks": "wsl-freehold-sweep",
+              "jjgtn_basis": "8be38e8"
+            }
+          ]
+        },
+        "₢BsAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-1257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Qualify the rebaseline on rocket's Cygwin backend — the bash-dialect and transport surface (the WSG stack) — reachable only from macOS,",
+                "so run from a Mac session as curia (ssh cygwin@rocket per the machine registry, Tools/jjk/vov_veiled/claude-jjk-bhyslop.md §I).",
+                "reveille is owed outright (credless, no container dependency).",
+                "The container-tier suites (siege, bivouac, blockade) are contingent:",
+                "settle at mount whether the container runtime is drivable from the Cygwin environment,",
+                "and if it is not, disposition the gap with the operator rather than forcing it.",
+                "Provisioning: clone at the rebaseline commit (8be38e870) or later on main;",
+                "avow on that host (per-machine sitting cache — the Cygwin home is distinct from the WSL home);",
+                "run sequentially, clean tree before each run.",
+                "Never run rocket suites from both transports concurrently — they share the host's container and network namespaces.",
+                "No payor acts.",
+                "",
+                "## Done when",
+                "",
+                "reveille green on Cygwin at the rebaseline tree and the container-tier question dispositioned — or every failure dispositioned with the operator — and the Cygwin verdict recorded.",
+                "",
+                "## Character",
+                "",
+                "Dialect-surface proof; judgment lives at the container-tier gate."
+              ],
+              "jjgtn_silks": "cygwin-freehold-sweep",
+              "jjgtn_basis": "8be38e8"
             }
           ]
         }
