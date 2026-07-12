@@ -123,6 +123,17 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   Forward-pointer (open, deliberately not blocked on):
   promote the two-axis Zeroes Theory statement to the language-neutral
   Design Principles in the project CLAUDE.md, beside Load-Bearing Complexity.
+- Temp-file mnemonic ruling (operator, 260712):
+  a scratch temp-file name that embeds a regime filename IS a path
+  construction, not prose — it resolves through the RBCC basename constant
+  like any other site.
+  The rbrv pace's three rbfl_ sites (yoke, feoff, anoint) are the worked
+  precedent and stand as written; the rbrn and rbrr temp names sweep onto
+  their constants.
+  Consequence carried forward: the rbrr temp name cannot be swept until a
+  basename constant is minted for it — RBCC_rbrr_file is a full path, not a
+  bare basename — so any rbrr sweep owes that mint first.
+  Ruled once and banked here; not to be litigated a third time.
 
 ## Sequencing & lanes
 
