@@ -35,7 +35,7 @@ use super::jjrm_mcp::{
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use super::jjrfg_plaingit::jjrfg_PlainGit;
-use super::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_RejectionKind, jjrfr_Seat};
+use super::jjrfr_farrier::{jjrfr_RejectionKind, jjrfr_Seat};
 use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
 use std::path::Path;
