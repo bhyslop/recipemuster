@@ -49,6 +49,7 @@ use crate::case;
 use crate::rbtdgc_consts::{
     RBTDGC_THEURGE_CASE,
     RBTDGC_THEURGE_FIXTURE,
+    RBTDGC_THEURGE_NIHIL,
     RBTDGC_THEURGE_SUITE,
 };
 use crate::rbtdra_almanac::RBTDRA_SUITE_NAME_CALIBRANT;
@@ -71,6 +72,8 @@ use crate::rbtdri_invocation::{
     rbtdri_invoke_imprint_env,
 };
 use crate::rbtdrl_calibrant::{
+    RBTDRL_CASES_COVERAGE_UNDECLARED,
+    RBTDRL_CASES_COVERAGE_UNUSED,
     RBTDRL_CASES_FAIL_FAST,
     RBTDRL_CASES_PROGRESSING,
     RBTDRL_CASES_SENTINEL,
@@ -79,6 +82,9 @@ use crate::rbtdrl_calibrant::{
     RBTDRL_SENTINEL_FILE,
 };
 use crate::rbtdrm_manifest::{
+    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
+    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
     RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
     RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
     RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
@@ -680,6 +686,123 @@ fn rbtdrj_cli_single_usage_lists_fixtures(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
+// ── coverage ─────────────────────────────────────────────────
+//
+// Black-box proof that the RBTDRI colophon census enforcement (the
+// calibrant-coverage-* fixtures, rbtdrm_manifest) surfaces both directions
+// from outside a child run: exit code and diagnostic text naming the
+// offending colophon. The fourth case exercises the engine's documented
+// single-case exemption (rbtdre_run_single_case never calls
+// rbtdre_check_census) directly through the real rbw-tc chokepoint.
+
+/// Declared and invoked: both census directions are satisfied — zero exit,
+/// and the per-colophon usage report names the colophon as used.
+fn rbtdrj_coverage_aligned_exits_zero(dir: &Path) -> rbtdre_Verdict {
+    zrbtdrj_run(|| {
+        let label = "coverage-aligned";
+        let child = zrbtdrj_child(
+            dir,
+            label,
+            RBTDGC_THEURGE_FIXTURE,
+            None,
+            &[RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED],
+            false,
+        )?;
+        zrbtdrj_expect_zero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_PASSED, "coverage-aligned stdout")?;
+        zrbtdrj_expect_contains(
+            &child.stdout,
+            &format!("colophon '{}' used", RBTDGC_THEURGE_NIHIL),
+            "coverage-aligned stdout",
+        )
+    })
+}
+
+/// Invoked but never declared: the positive census check refuses the invoke
+/// at the chokepoint, failing the fixture and naming the colophon.
+fn rbtdrj_coverage_undeclared_fails_naming_colophon(dir: &Path) -> rbtdre_Verdict {
+    zrbtdrj_run(|| {
+        let label = "coverage-undeclared";
+        let case_name = RBTDRL_CASES_COVERAGE_UNDECLARED[0].name;
+        let child = zrbtdrj_child(
+            dir,
+            label,
+            RBTDGC_THEURGE_FIXTURE,
+            None,
+            &[RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED],
+            false,
+        )?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_FAILED, "coverage-undeclared stdout")?;
+        zrbtdrj_expect_contains(&child.stdout, case_name, "coverage-undeclared stdout")?;
+        zrbtdrj_expect_contains(
+            &child.stdout,
+            &format!(
+                "invoked colophon '{}' which is not declared in its required-colophons census",
+                RBTDGC_THEURGE_NIHIL
+            ),
+            "coverage-undeclared stdout",
+        )
+    })
+}
+
+/// Declared but never invoked: the case passes clean, but the engine's
+/// negative census check fails the fixture afterward, naming the colophon.
+fn rbtdrj_coverage_unused_fails_naming_colophon(dir: &Path) -> rbtdre_Verdict {
+    zrbtdrj_run(|| {
+        let label = "coverage-unused";
+        let case_name = RBTDRL_CASES_COVERAGE_UNUSED[0].name;
+        let child = zrbtdrj_child(
+            dir,
+            label,
+            RBTDGC_THEURGE_FIXTURE,
+            None,
+            &[RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED],
+            false,
+        )?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_PASSED, "coverage-unused stdout")?;
+        zrbtdrj_expect_contains(&child.stdout, case_name, "coverage-unused stdout")?;
+        zrbtdrj_expect_contains(
+            &child.stdout,
+            &format!(
+                "census — colophon '{}' declared but never invoked",
+                RBTDGC_THEURGE_NIHIL
+            ),
+            "coverage-unused stdout",
+        )
+    })
+}
+
+/// The unused fixture's one case, invoked directly through the single-case
+/// runner: exempt from the negative census check, so it exits 0 despite the
+/// fixture-level declaration going unused.
+fn rbtdrj_coverage_unused_single_case_exempt(dir: &Path) -> rbtdre_Verdict {
+    zrbtdrj_run(|| {
+        let label = "coverage-unused-single";
+        let case_name = RBTDRL_CASES_COVERAGE_UNUSED[0].name;
+        let child = zrbtdrj_child(
+            dir,
+            label,
+            RBTDGC_THEURGE_CASE,
+            None,
+            &[RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, case_name],
+            false,
+        )?;
+        zrbtdrj_expect_zero(&child, label)?;
+        zrbtdrj_expect_contains(
+            &child.stdout,
+            RBTDRE_WORD_PASSED,
+            "coverage-unused-single stdout",
+        )?;
+        zrbtdrj_expect_lacks(
+            &child.stdout,
+            "declared but never invoked",
+            "coverage-unused-single stdout",
+        )
+    })
+}
+
 // ── stream-placement ────────────────────────────────────────
 
 /// Under BURD_NO_LOG the dispatch leaves the coordinator's streams unmerged,
@@ -781,6 +904,11 @@ pub static RBTDRJ_CASES_TOUCHSTONE: &[rbtdre_Case] = &[
     case!(rbtdrj_cli_missing_fixture_usage),
     case!(rbtdrj_cli_case_listing),
     case!(rbtdrj_cli_single_usage_lists_fixtures),
+    // coverage
+    case!(rbtdrj_coverage_aligned_exits_zero),
+    case!(rbtdrj_coverage_undeclared_fails_naming_colophon),
+    case!(rbtdrj_coverage_unused_fails_naming_colophon),
+    case!(rbtdrj_coverage_unused_single_case_exempt),
     // stream-placement
     case!(rbtdrj_stream_placement_diags_on_stderr),
     // log-isolation
@@ -797,6 +925,6 @@ pub static RBTDRJ_FIXTURE_TOUCHSTONE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRJ_CASES_TOUCHSTONE,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(16) },
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(20) },
 };
-const _: () = assert!(RBTDRJ_FIXTURE_TOUCHSTONE.cases.len() == 16);
+const _: () = assert!(RBTDRJ_FIXTURE_TOUCHSTONE.cases.len() == 20);
