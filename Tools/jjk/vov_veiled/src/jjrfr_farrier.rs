@@ -249,11 +249,22 @@ pub trait jjrfr_FarrierBillet {
     /// Reap a billet; refuses `DirtyTree` on dirty.
     fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
 
-    /// Merge trunk *into* a billet branch — never rebase; fail-loud on conflict,
-    /// resolution belonging to the attended session. The bare primitive beneath
-    /// the dispatch sheaf's refit. The caller names the trunk branch: trunk-ness
-    /// is pedigree-relative and classified above the trait (the identify
-    /// contract), never inferred by a kind from ambient checkout state.
+    /// Merge the trunk branch's remote counterpart — its position as of the last
+    /// `jjrfr_glean` — *into* a billet branch. Never rebase; fail-loud on
+    /// conflict, resolution belonging to the attended session. The bare primitive
+    /// beneath the dispatch sheaf's refit.
+    ///
+    /// The caller names the trunk branch: trunk-ness is pedigree-relative and
+    /// classified above the trait (the identify contract), never inferred by a
+    /// kind from ambient checkout state. The kind resolves the *counterpart* of
+    /// that name itself, the `jjrfr_advance` posture — callers never speak a
+    /// kind-native ref dialect.
+    ///
+    /// The operator's local trunk ref is never read. Reading it would make a
+    /// consigned billet carry unpushed trunk work into remote custody — the ref
+    /// stays unpushed while its content rides out as billet ancestry — and a
+    /// later rewrite of those still-mutable commits would strand the billet on
+    /// abandoned history.
     fn jjrfr_enfold(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
 }
 

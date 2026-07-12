@@ -3,24 +3,32 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 //! Refit — the session-facing staleness remedy (`jjdd_refit`, JJSVD-dispatch.adoc
-//! "Refit"). Composes only `jjdf_farrier` primitives (`jjrfr_enfold`,
-//! `jjrfr_consign`, `jjrfr_glean`, `jjrfr_counterfoil`) — this module owns no
+//! "Refit"). Composes only `jjdf_farrier` primitives (`jjrfr_glean`,
+//! `jjrfr_enfold`, `jjrfr_counterfoil`, `jjrfr_consign`) — this module owns no
 //! primitive of its own, matching the dispatch sheaf's own posture.
 //!
-//! Behavior per the paddock's trunk-resync cinch: merge trunk into the billet
-//! (never rebase — `jjrfr_enfold` already refuses to rebase), then push the
-//! merge immediately. The operation never refuses on staleness itself — only
-//! an orthogonal precondition (a dirty billet, at `jjrfr_enfold`) can reject;
-//! staleness is drift, never corruption. An unreachable remote at push time
-//! degrades to a warning rather than a failure: the merge already landed
-//! locally (the billet branch is additive and the operation exists to clear
-//! staleness "for every station," which is only ever true when online).
+//! Refit fetches first, because staleness is fetch-revealed: the entrance spine
+//! learns trunk has moved at its `glean` step, and refit is the remedy the open
+//! then names. The merge input is therefore the trunk's remote counterpart, as
+//! of that fetch (the `enfold` contract, farrier sheaf) — never the operator's
+//! local trunk ref, which JJ neither reads nor handles.
 //!
-//! Deliberately not built here: a read-only "has trunk moved" probe usable
-//! before committing to a merge. The paddock flags that composition as still
-//! aspirant (it wants pedigree/sire infrastructure this heat does not build),
-//! so `jjx_open`/notch/wrap surfacing the staleness warning ahead of running
-//! refit is left to the dispatch spine (`jjdd_spine`) or the conversion heat.
+//! Then `consign` the merge immediately: the operation exists to clear staleness
+//! for every station and runs online by construction. It never refuses on
+//! staleness itself — only an orthogonal precondition (a dirty billet, at
+//! `jjrfr_enfold`) can reject; staleness is drift, never corruption.
+//!
+//! An unreachable remote does not fail: refit merges what this station already
+//! knows and pushes nothing (`jjrrf_RefitOutcome::OfflineWarned`). Offline it
+//! cannot report `UpToDate`, even when the merge was a no-op — an unverified
+//! no-op is ignorance, not freshness, and a remedy verb cannot afford to relabel
+//! one as the other.
+//!
+//! Deliberately not built here: the read-only "has trunk moved" probe that
+//! `jjx_open`, notch, and wrap need in order to *warn* ahead of running refit.
+//! Under this module's ruling that probe is cheap — billet behind
+//! `origin/<trunk>`, a local ancestry check after any glean — but its consumers
+//! are the dispatch spine's, which does not exist yet.
 
 use crate::jjrfr_farrier::{
     jjrfr_FarrierBillet,
@@ -30,53 +38,54 @@ use crate::jjrfr_farrier::{
 };
 use std::path::Path;
 
-/// Refit's outcome. Never a rejection kind of its own (JJSVD: "no verb
-/// refuses on a stale trunk") — a genuine precondition failure (e.g. a dirty
-/// billet) still surfaces through `jjrfr_enfold`'s own `jjrfr_Rejection`.
+/// Refit's outcome. Never a rejection kind of its own (JJSVD: "no verb refuses
+/// on a stale trunk") — a genuine precondition failure (e.g. a dirty billet)
+/// still surfaces through `jjrfr_enfold`'s own `jjrfr_Rejection`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrrf_RefitOutcome {
-    /// The billet already held trunk's tip — enfold was a no-op.
+    /// The billet already held trunk's counterpart tip, verified against a
+    /// successful fetch. An online-only verdict by construction.
     UpToDate,
-    /// Enfolded trunk in and consigned (pushed) the merge immediately.
+    /// Enfolded the trunk counterpart in and consigned (pushed) the merge
+    /// immediately.
     Refitted,
-    /// Enfolded trunk in; the push could not reach the remote. The merge
-    /// stands locally — offline degrades to warn-and-proceed, never a
-    /// failure.
+    /// The remote was unreachable. Refit merged the last-gleaned trunk position
+    /// — possibly a no-op — and pushed nothing. The merge stands locally;
+    /// freshness is unverified. Run again online.
     OfflineWarned,
 }
 
-/// Refit a billet: merge `trunk` into the billet branch (never rebase), then
-/// push `branch` immediately unless the remote is unreachable.
+/// Refit a billet: merge the counterpart of `trunk` into the billet branch
+/// (never rebase), then push `branch` immediately.
 ///
-/// `branch` is the billet's own line-of-work name, supplied by the caller
-/// (the dispatch door that seated the billet already knows it) rather than
-/// re-derived via `jjrfr_identify` — refit is a small composition over
-/// explicit parameters, matching the farrier primitives' own no-ambient-state
-/// discipline.
+/// `branch` is the billet's own line-of-work name and `trunk` the pedigree's
+/// trunk branch name, both supplied by the caller (the dispatch door that
+/// seated the billet knows them) rather than re-derived via `jjrfr_identify` —
+/// refit is a small composition over explicit parameters, matching the farrier
+/// primitives' own no-ambient-state discipline.
 ///
-/// Connectivity is decided by `jjrfr_glean`, farrier's own opportunistic,
-/// never-blocks-on-network primitive: an unreachable remote there is a
-/// normal outcome, not a failure to unwrap, so it is the sanctioned way to
-/// preflight `jjrfr_consign` (which has no offline classification of its
-/// own). Glean only runs when there is something to push — an up-to-date
-/// billet never touches the network.
+/// `jjrfr_glean` leads and carries two loads at once: it is the fetch that makes
+/// the counterpart current, and — being farrier's one primitive that classifies
+/// an unreachable remote as a normal outcome rather than a failure to unwrap —
+/// it is also the reachability verdict that decides whether the push may follow.
 pub fn jjrrf_refit<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     farrier: &F,
     billet_root: &Path,
     branch: &str,
     trunk: &str,
 ) -> Result<jjrrf_RefitOutcome, jjrfr_Rejection> {
+    let reachable = farrier.jjrfr_glean(billet_root) == jjrfr_GleanOutcome::Updated;
+
     let before = farrier.jjrfr_counterfoil(billet_root)?;
     farrier.jjrfr_enfold(billet_root, trunk)?;
     let after = farrier.jjrfr_counterfoil(billet_root)?;
+
+    if !reachable {
+        return Ok(jjrrf_RefitOutcome::OfflineWarned);
+    }
     if before.members == after.members {
         return Ok(jjrrf_RefitOutcome::UpToDate);
     }
-    match farrier.jjrfr_glean(billet_root) {
-        jjrfr_GleanOutcome::Unreachable => Ok(jjrrf_RefitOutcome::OfflineWarned),
-        jjrfr_GleanOutcome::Updated => {
-            farrier.jjrfr_consign(billet_root, branch, None)?;
-            Ok(jjrrf_RefitOutcome::Refitted)
-        }
-    }
+    farrier.jjrfr_consign(billet_root, branch, None)?;
+    Ok(jjrrf_RefitOutcome::Refitted)
 }

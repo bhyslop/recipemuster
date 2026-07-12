@@ -489,14 +489,19 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
                 "uncommitted changes block merging trunk in",
             ));
         }
-        // Never rebase: a plain merge of the caller-named trunk branch,
-        // fast-forwarding when possible and otherwise recording a real merge
-        // commit. A conflict is not one of the taxonomy's rejection kinds — it
-        // is not this driver's to resolve (billet sheaf: "resolution belonging
-        // to the attended session") — so it falls through to the unclassified
-        // panic, leaving the conflict markers standing exactly as git left
-        // them.
-        let out = zjjrfg_run_git(billet_root, &["merge", "-q", trunk, "-m", "enfold trunk"]);
+        // The counterpart of the caller-named trunk, never the local ref of that
+        // name: fully qualified so a local branch literally named
+        // `origin/<trunk>` cannot shadow it. Merging the local ref would push
+        // the operator's unpushed trunk work out as billet ancestry at the next
+        // consign (the enfold contract, farrier sheaf).
+        let counterpart = format!("refs/remotes/{}/{}", ZJJRFG_REMOTE, trunk);
+        // Never rebase: a plain merge, fast-forwarding when possible and
+        // otherwise recording a real merge commit. A conflict is not one of the
+        // taxonomy's rejection kinds — it is not this driver's to resolve
+        // (billet sheaf: "resolution belonging to the attended session") — so it
+        // falls through to the unclassified panic, leaving the conflict markers
+        // standing exactly as git left them.
+        let out = zjjrfg_run_git(billet_root, &["merge", "-q", &counterpart, "-m", "enfold trunk"]);
         if !out.ok {
             zjjrfg_unexpected(ZJJRFG_OP_ENFOLD, billet_root, &out.stderr);
         }

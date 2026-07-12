@@ -224,8 +224,16 @@ Reap a billet;
 refuses on dirty.
 
 `enfold`::
-Merge trunk *into* a billet branch — never rebase;
-fail-loud on conflict, resolution belonging to the attended session.
+Merge the trunk branch's remote counterpart — its position as of the last `glean` — *into* a
+billet branch;
+never rebase, fail-loud on conflict, resolution belonging to the attended session.
+The caller names the trunk branch (trunk-ness is pedigree-relative, classified above the
+trait); the kind resolves the counterpart itself, the `advance` posture — callers never speak
+a kind-native ref dialect.
+The operator's local trunk ref is never read, so a consigned billet can never carry unpushed
+trunk work into remote custody: the ref stays unpushed while its content rides out as billet
+ancestry, and a later rewrite of those still-mutable commits would strand the billet on
+abandoned history.
 The bare primitive beneath {jjdd_refit} (dispatch sheaf).
 
 === Deliberately absent

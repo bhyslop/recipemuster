@@ -700,16 +700,36 @@ fn jjtfg_billet_remove_rejects_dirty_tree() {
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
 }
 
+/// Bare remote, a primary tracking it with a pushed baseline, and a billet
+/// forked off trunk. Enfold merges trunk's *counterpart* — `refs/remotes/origin/
+/// <trunk>` — so there must be a remote for that ref to exist at all; a
+/// remote-less repo has no counterpart to resolve.
+fn zjjtfg_billeted_with_remote(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDir) {
+    let (bare, primary) = zjjtfg_local_with_remote(name);
+    let billet = zjjtfg_billet_slot(&format!("{}_billet", name));
+    jjrfg_PlainGit
+        .jjrfr_billet_create(
+            primary.path(),
+            &jjrfr_LineOfWork::Branch(format!("{}-billet", name)),
+            billet.path(),
+        )
+        .unwrap();
+    (bare, primary, billet)
+}
+
+/// Advance trunk the way a *published* trunk moves: commit on the primary and
+/// push, so the counterpart ref actually moves. A commit without the push moves
+/// the local trunk ref alone — which is precisely what enfold must ignore.
+fn zjjtfg_trunk_advances(primary: &Path, name: &str, content: &str, message: &str) -> String {
+    let sha = zjjtfg_commit_all(primary, name, content, message);
+    zjjtfg_git(primary, &["push", "-q", "origin", ZJJTFG_TRUNK]);
+    sha
+}
+
 #[test]
 fn jjtfg_enfold_fast_forwards_when_billet_has_no_local_commits() {
-    let primary = JjkTestDir::new("jjtfg_enfold_ff_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
-    let billet = zjjtfg_billet_slot("jjtfg_enfold_ff_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("ff-billet".to_string()), billet.path())
-        .unwrap();
-    let tip = zjjtfg_commit_all(primary.path(), "b.txt", "trunk moved on", "trunk advances");
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_ff");
+    let tip = zjjtfg_trunk_advances(primary.path(), "b.txt", "trunk moved on", "trunk advances");
 
     jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
 
@@ -719,18 +739,13 @@ fn jjtfg_enfold_fast_forwards_when_billet_has_no_local_commits() {
 
 #[test]
 fn jjtfg_enfold_merges_the_named_trunk_not_the_primarys_checkout() {
-    let primary = JjkTestDir::new("jjtfg_enfold_named_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
-    let billet = zjjtfg_billet_slot("jjtfg_enfold_named_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("named-trunk-billet".to_string()), billet.path())
-        .unwrap();
-    zjjtfg_commit_all(primary.path(), "b.txt", "trunk work", "trunk advances");
-    // Park the primary on a different line — trunk-ness must come from the
-    // caller, never from the primary's ambient checkout.
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_named");
+    zjjtfg_trunk_advances(primary.path(), "b.txt", "trunk work", "trunk advances");
+    // Park the primary on a different published line — trunk-ness must come from
+    // the caller's name, never from the primary's ambient checkout.
     zjjtfg_git(primary.path(), &["checkout", "-q", "-b", "sidetrack"]);
     zjjtfg_commit_all(primary.path(), "c.txt", "side work", "side commit");
+    zjjtfg_git(primary.path(), &["push", "-q", "origin", "sidetrack"]);
 
     jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
 
@@ -739,16 +754,33 @@ fn jjtfg_enfold_merges_the_named_trunk_not_the_primarys_checkout() {
 }
 
 #[test]
+fn jjtfg_enfold_merges_the_counterpart_never_the_local_trunk_ref() {
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_counterpart");
+
+    // Trunk moves locally but is NOT published — the operator's own unpushed
+    // work, still mutable. Enfold must not see it: merging it would ride it out
+    // to the remote as billet ancestry at the next consign.
+    zjjtfg_commit_all(primary.path(), "unpushed.txt", "operator's own", "unpushed trunk work");
+    jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
+    assert!(
+        !billet.path().join("unpushed.txt").exists(),
+        "enfold must never read the local trunk ref"
+    );
+
+    // Published now — the counterpart moves, and the very same call brings it.
+    zjjtfg_git(primary.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
+    jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
+    assert!(
+        billet.path().join("unpushed.txt").exists(),
+        "a published trunk commit must enfold"
+    );
+}
+
+#[test]
 fn jjtfg_enfold_merges_divergent_trunk_and_billet_history() {
-    let primary = JjkTestDir::new("jjtfg_enfold_merge_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
-    let billet = zjjtfg_billet_slot("jjtfg_enfold_merge_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("merge-billet".to_string()), billet.path())
-        .unwrap();
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_merge");
     zjjtfg_commit_all(billet.path(), "billet.txt", "billet work", "billet commit");
-    zjjtfg_commit_all(primary.path(), "trunk.txt", "trunk work", "trunk commit");
+    zjjtfg_trunk_advances(primary.path(), "trunk.txt", "trunk work", "trunk commit");
 
     jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
 
@@ -760,14 +792,8 @@ fn jjtfg_enfold_merges_divergent_trunk_and_billet_history() {
 
 #[test]
 fn jjtfg_enfold_rejects_dirty_tree() {
-    let primary = JjkTestDir::new("jjtfg_enfold_dirty_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
-    let billet = zjjtfg_billet_slot("jjtfg_enfold_dirty_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("dirty-enfold-billet".to_string()), billet.path())
-        .unwrap();
-    zjjtfg_commit_all(primary.path(), "b.txt", "trunk moved on", "trunk advances");
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_dirty");
+    zjjtfg_trunk_advances(primary.path(), "b.txt", "trunk moved on", "trunk advances");
     zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
 
     let result = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK);
@@ -778,15 +804,9 @@ fn jjtfg_enfold_rejects_dirty_tree() {
 #[test]
 #[should_panic(expected = "unclassified git failure")]
 fn jjtfg_enfold_fails_loud_on_conflict() {
-    let primary = JjkTestDir::new("jjtfg_enfold_conflict_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
-    let billet = zjjtfg_billet_slot("jjtfg_enfold_conflict_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("conflict-billet".to_string()), billet.path())
-        .unwrap();
-    zjjtfg_commit_all(billet.path(), "a.txt", "billet changed this line", "billet edits a.txt");
-    zjjtfg_commit_all(primary.path(), "a.txt", "trunk changed this line too", "trunk edits a.txt");
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_conflict");
+    zjjtfg_commit_all(billet.path(), "base.txt", "billet changed this line", "billet edits base.txt");
+    zjjtfg_trunk_advances(primary.path(), "base.txt", "trunk changed this line too", "trunk edits base.txt");
 
     let _ = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK);
 }
