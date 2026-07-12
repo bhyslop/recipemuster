@@ -1,0 +1,241 @@
+# Beast host standup — as-executed
+
+*2026-07-12. Heat ₣Bs, pace ₢BsAAf (beast-host-standup). Run one of two: this
+memo is the record of what was done, in the order done, dead-ends kept with
+their cause. mimic-bth-intel later replays it; the replay's corrections harden
+it toward a durable home (handbook vs mews re-gestation — decided then).*
+
+Goal: normalize `beast` — an RDP-reachable, previously unsurveyed Windows box —
+into a controlled Cygwin + Docker Desktop test host. Beast supplies the
+persistent-logon property rocket structurally lacks (JJSAM-mews Palisade fact:
+Docker Desktop requires a live desktop session; an RDP session survives
+disconnect, so the Desktop engine stays up).
+
+## 0. Starting access posture
+
+- Operator held a live RDP session to beast via the macOS "Windows App".
+- Agent had **no path in**: no sshd on beast. Until §6, every command was
+  operator-pasted into an elevated PowerShell (or Cygwin) window over RDP, with
+  output pasted back.
+- Beast on the tailnet as `bhyslop-asrock-beast` (100.71.105.3).
+
+## 1. Cold survey (paste-driven)
+
+Windows identity — **Windows 11 Pro 24H2**, build 26100.8655, 64-bit:
+
+- Registry `ProductName` reads "Windows 10 Pro" — a known Windows 11 registry
+  artifact, not the truth. `DisplayVersion 24H2` + `CurrentBuild 26100` govern.
+- **Pro edition confirms the pace's premise**: real RDP server, persistent
+  logon session — the thing rocket (Home, no RDP) cannot hold.
+
+Hardware: i7-6700K (4c/8t, Skylake), 63.9 GB RAM.
+
+Virtualization features — the surprise that reshaped the walk:
+
+- `Microsoft-Hyper-V-*`: **Enabled** (all).
+- `VirtualMachinePlatform`: **Disabled**. `Microsoft-Windows-Subsystem-Linux`:
+  **Disabled**. `wsl --version` works (WSL 2.4.13.0 app is present) but zero
+  distros and WSL1/2 cannot run until the features are enabled + reboot.
+- So the docket's assumed "WSL2 backend" target needs a feature-enable + reboot
+  step the docket did not anticipate.
+
+Docker state:
+
+- Docker Desktop **4.39.0** installed at `C:\Program Files\Docker\Docker`.
+  Given disabled WSL features, it necessarily ran the **Hyper-V backend**
+  (`DockerDesktopVM` present in Hyper-V, state Off).
+- Two services: `com.docker.service` (DD's privileged helper) and `docker`
+  ("Docker Engine") — the latter is **DD's own Windows-containers daemon**
+  (`C:\Program Files\Docker\Docker\resources\dockerd.exe --run-service ...`),
+  NOT a foreign/native install. Its `C:\ProgramData\Docker\config\daemon.json`
+  pins `npipe:////./pipe/docker_engine_windows`; real Windows-container
+  storage exists under `C:\ProgramData\Docker\windowsfilter`. The box had been
+  switched to Windows-containers mode at some point.
+- `docker version` (client 28.0.1) failed to reach `//./pipe/docker_engine` —
+  nothing serves the Linux-engine pipe because the DD GUI app was not running.
+- Existing install's `channelUrl` = `https://desktop-stage.docker.com/...` —
+  the **stage** channel, not production. One more reason to replace rather
+  than update.
+
+OpenSSH: client FoD Installed; **Server NotPresent**; `ssh-agent` Disabled.
+
+Cygwin: `C:\cygwin64` exists — cygcheck 3.6.0 (2025-03-18), **159 packages**.
+Missing vs the theurge substrate needs: `jq`, `python3`, `gcc`, all of rust.
+Reference: rocket's proven `cygwin` account has 3.6.9, **190 packages**, rustup
+`stable-x86_64-pc-windows-gnu` rustc 1.95.0 (package list captured for the
+top-up diff). Git-for-Windows 2.49.0 at `c:\git-for-win\`.
+
+## 2. Dead-end resolved: the two-installer confusion
+
+Operator observed a fresh DD download differing byte-wise from the cached
+installer while "version definitions match". Forensics
+(`VersionInfo` + `Get-FileHash` + `Get-AuthenticodeSignature`):
+
+- `Downloads\Docker Desktop Installer.exe` = **4.81.0.232925**, 631,263,152
+  bytes, signed Docker Inc, downloaded 2026-07-12.
+- `C:\INSTALL\docker\DockerDesktopInstaller.4p39p0.exe` = **4.39.0.184744**,
+  526,999,408 bytes, signed Docker Inc, cached 2025-04-03.
+
+They differ because they are different products. The "match" impression was a
+namespace mixup: **Docker Desktop 4.39.0 ships Docker Engine/CLI 28.0.1** —
+`docker --version` reports the engine number, the installer reports the
+Desktop number. Two version universes, one install.
+
+## 3. Dead-end kept: OpenSSH Server FoD install fails silently
+
+From elevated PowerShell:
+`Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0`
+
+- Stalled silently for several minutes (no output, Ctrl-C inert), then
+  returned **nothing**. State remained `NotPresent`; no `sshd.exe`, no service,
+  no `C:\ProgramData\ssh\sshd_config`. `C:\Windows\System32\OpenSSH\` holds
+  client binaries only.
+- `C:\Windows\Logs\DISM\dism.log` tail: pure session setup/teardown — **no
+  error recorded at all**. The failure signature is: multi-minute stall,
+  success-shaped silence, nothing installed, nothing logged.
+- Cause class: the capability is a Feature-on-Demand fetched from Windows
+  Update; the WU source path is broken/blocked on this box. Deliberately NOT
+  diagnosed further — the MSI go-around (§5) is deterministic and supported.
+
+## 4. Palisade findings: driving PowerShell through RDP paste
+
+Discovered by failure while the operator was the transport:
+
+- **Conhost paste wrap.** Pasting a line longer than the console width
+  (~118 cols here) into conhost PowerShell inserts a hard newline at the wrap
+  point — one command becomes two. Signature: "Missing an argument for
+  parameter X" at the split point, then the orphaned tail evaluates as its own
+  command. **Rule: every pasted PowerShell line stays under ~100 chars.**
+- **One code block per message.** Interstitial prose between two code blocks
+  got swept into one paste and executed (`Then, as a second paste...` →
+  parser error). Agent-side rule, same family as the wrap rule.
+- **`$LASTEXITCODE` staleness.** A PowerShell command-not-found is a
+  cmdlet-level error that does NOT touch `$LASTEXITCODE`; printing it after a
+  failed `& sshd.exe -t` reported a stale `0` from the previous `icacls`.
+  Never treat `$LASTEXITCODE` as evidence across a command that may not have
+  launched.
+- **GitHub asset names are version-stamped.** Win32-OpenSSH MSI assets are
+  named `OpenSSH-Win64-v10.0.0.0.msi`, not `OpenSSH-Win64.msi`; an exact-name
+  filter silently matched nothing and the empty value cascaded. Verify asset
+  names from the release API before scripting against them; guard empties.
+
+## 5. Go-around: Win32-OpenSSH MSI
+
+Verified from the curia against the GitHub API, then installed by operator
+paste (all lines < 100 chars):
+
+- Release `10.0.0.0p2-Preview` (the project's GitHub MSI channel carries
+  Beta/Preview labels as its normal convention; it is Microsoft's supported
+  path when the FoD/WU route is unavailable).
+- Asset `OpenSSH-Win64-v10.0.0.0.msi`, **6,586,368 bytes** — downloaded to
+  `C:\INSTALL\openssh\` (same caching convention as `C:\INSTALL\docker\`, so
+  the mimic replay uses identical bits), byte count verified against the API
+  size before install.
+- `msiexec /i <msi> /qn /norestart`, then `Set-Service sshd -StartupType
+  Automatic; Start-Service sshd` → **sshd Running/Automatic**.
+- The MSI's default `sshd_config` carries the
+  `Match Group administrators` → `administrators_authorized_keys` block
+  (line 86), so the key planted in §6 is honored with zero config edits.
+
+## 6. Admin trust: same key as rocket
+
+Planted **before** the server existed (survived §3's dead-end unharmed, used
+the moment sshd came up):
+
+- Key: the standing `~/.ssh/id_ed25519_winpc-admin` pub
+  (`ssh-ed25519 AAAA...R9aZJ bhyslop@winpc-admin`) — the same admin trust
+  rocket uses; beast's `bhyslop` is in `BUILTIN\Administrators`, so the
+  `administrators_authorized_keys` mechanism applies unchanged.
+- `C:\ProgramData\ssh\administrators_authorized_keys` written, then ACL-locked
+  to the canonical pair:
+  `icacls <file> /inheritance:r /grant BUILTIN\Administrators:F /grant SYSTEM:F`
+- Inbound firewall rule `OpenSSH-Server-In-TCP` (TCP 22, allow) created.
+- First contact from the curia:
+  `ssh -i ~/.ssh/id_ed25519_winpc-admin bhyslop@bhyslop-asrock-beast whoami`
+  → `bhyslop-asrock-\bhyslop`. Default shell cmd.exe (as on rocket: prepend
+  `powershell -Command` / `C:\cygwin64\bin\bash -lc` per task).
+
+## 7. Docker Desktop 4.39 removal — GUI-bound, and it lies about finishing
+
+**The DD installer/uninstaller shares the GUI's desktop-session requirement.**
+Dispatched over ssh (`DockerDesktopInstaller.4p39p0.exe uninstall`), the process
+launched into **session 0**, wrote **zero** bytes to its log after the banner,
+and hung indefinitely. This is the same Palisade fact JJSAM-mews records for the
+DD *engine*, now shown to extend to its *installer*. **Corollary for the mimic
+replay: never script Docker Desktop lifecycle over ssh — it is console-bound.**
+
+Second trap, and the more dangerous one: after the wedged ssh-launched
+uninstaller was killed and the uninstall was re-run from the RDP console, it
+logged **"No installation found"** and displayed an *empty* progress dialog that
+blocked `Start-Process -Wait` until closed by hand. The natural reading — "the
+uninstall failed" — is **wrong**. Ground truth after closing the dialog:
+
+- `Get-Service *docker*` → nothing
+- `C:\Program Files\Docker` → absent
+- `C:\ProgramData\Docker` → absent
+- `Get-VM` → no `DockerDesktopVM`
+
+The **wedged session-0 run had in fact completed the uninstall** before it was
+killed; it simply died before reporting. So the second run correctly found
+nothing to do and said so confusingly. **Never trust the DD uninstaller's own
+verdict — assert on services, directories, and VMs.**
+
+Residue purge (over ssh, plain file removal — not GUI-bound): removed
+`C:\ProgramData\DockerDesktop`, `%APPDATA%\Docker`, `%LOCALAPPDATA%\Docker`,
+`%APPDATA%\Docker Desktop`. All four verified absent. Beast now carries zero
+Docker state — the one-daemon cinch is true by construction, not by policy.
+
+## 8. WSL2 platform enable
+
+Over ssh, no console needed:
+
+```
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+```
+
+Both reported "The operation completed successfully." Verified:
+`VirtualMachinePlatform`, `Microsoft-Windows-Subsystem-Linux`,
+`Microsoft-Hyper-V-All` all **Enabled**; `RebootPending` = **True**.
+
+**This retires a hypothesis worth recording**: DISM itself works perfectly over
+ssh on this box. So §3's OpenSSH-Server failure was **not** a broken DISM/CBS
+stack — it was specifically the **Windows Update fetch** for Feature-on-Demand
+payloads. The servicing stack is healthy; only the FoD source is unreachable.
+Hyper-V left enabled deliberately (WSL2 shares the same hypervisor; disabling
+buys nothing and risks more).
+
+## 9. Transport findings, agent-driving-Windows-over-ssh
+
+Beast's default ssh shell is **cmd.exe** (as on rocket). Two rules earned here:
+
+- **cmd.exe eats `|` inside quoted PowerShell.** A `powershell -Command "... -match \"a|b\" ..."` invocation over ssh died with
+  `'VirtualMachinePlatform' is not recognized as an internal or external
+  command` — cmd tokenized the regex alternation as a shell pipe before
+  PowerShell ever saw the string. Remedy is the one already codified in
+  `memo-20260516-windows-headless-account-anatomy.md`: base64 the PowerShell
+  and use `-EncodedCommand`.
+  (`printf '%s' "$PS" | iconv -f UTF-8 -t UTF-16LE | openssl enc -base64 -A`)
+- **Unquoted paths with spaces.** `$env:APPDATA\Docker Desktop` passed bare to
+  `Remove-Item` binds `Desktop` as a stray positional arg and rejects the whole
+  call. Build path lists as a quoted array.
+- `-EncodedCommand` output arrives with a `#< CLIXML` progress preamble/postamble
+  on stderr — cosmetic, ignore it.
+
+## 10. Remaining walk (planned at this point)
+
+1. **Reboot** — `RebootPending` is True; the two features land on restart.
+2. Operator logs back in over RDP — that logon session is load-bearing (DD
+   dies without a desktop session; disconnected-RDP suffices).
+3. Install DD **4.81.0** from the fresh installer, **at the console** (§7: DD
+   install is GUI/session-bound, never scriptable over ssh): WSL2 backend, skip
+   sign-in, autostart on login. **No user Ubuntu distro** — DD provisions its
+   own `docker-desktop` distro; the target path is Cygwin → Windows named pipe,
+   and a user distro just invites a second daemon (the cinch forbids it).
+4. Cygwin: in-place upgrade + top-up via `setup-x86_64.exe` against rocket's
+   proven package set; rustup `x86_64-pc-windows-gnu` per the three gotchas in
+   `memo-20260517-windows-substrate-landscape-for-theurge.md`.
+5. Clone repo + station-files skeleton; prove a credless suite green over
+   `ssh bhyslop@bhyslop-asrock-beast` from Cygwin. (Two membranes already
+   landed make this a proven configuration, not a hope:
+   `memo-20260603-windows-docker-desktop-bind-mount.md`.)
