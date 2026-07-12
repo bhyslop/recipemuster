@@ -31,6 +31,7 @@ use super::jjrm_mcp::{
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
     ZJJRM_SESSION_ABSENT,
+    JJRM_OFFICIUM_STUDBOOK_ENABLED,
 };
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
@@ -394,4 +395,9 @@ fn jjtm_studbook_exchange_dir_nests_under_scratch_dirname() {
     let studbook_root = Path::new("/infield/jjqs_studbook");
     let dir = jjrm_studbook_exchange_dir(studbook_root, "260712-1000-abcd");
     assert_eq!(dir, studbook_root.join("officia_scratch").join("260712-1000-abcd"));
+}
+
+#[test]
+fn jjtm_officium_studbook_enablement_seam_defaults_off() {
+    assert!(!JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium must stay inert until the conversion heat flips it");
 }

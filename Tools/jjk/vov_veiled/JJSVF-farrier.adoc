@@ -239,10 +239,12 @@ rebase, clone, init, log, blame: operator's hands or {jjdo_log}.
 names it (`jjrm_resolve_officium_billet`, `jjrm_mcp.rs`).
 {jjdf_identify} resolves the tree at the officium's captured `cwd`: root, upstream key, seat,
 line of work.
-The composition keeps two of the four — seat and, from the caller, the station name — plus
-the officium's own bare id as session, and holds them as its billet: station,
-{jjdw_hippodrome}-or-{jjdd_billet} (the seat itself — `Primary` naming the hippodrome,
-`Partition` a {jjdd_billet} — no separate enum), session.
+The composition keeps one of the four — seat — and adds the two the tree cannot supply: the
+station name, resolved at the station itself (`zjjrm_station_name`, `jjrm_mcp.rs`), and the
+session, the officium's own bare id from the caller.
+It holds the three as its billet: station, {jjdw_hippodrome}-or-{jjdd_billet} (the seat
+itself — `Primary` naming the hippodrome, `Partition` a {jjdd_billet} — no separate enum),
+session.
 {jjdf_identify}'s `ForeignGround` decline propagates unchanged; the composition adds no
 rejection kind of its own.
 Deliberately out of scope: the aspirant toothing's `sync_state`-from-last-fetch staleness
