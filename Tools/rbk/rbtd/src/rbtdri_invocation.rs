@@ -228,8 +228,12 @@ fn zrbtdri_tariff_bump() {
 // ── Colophon census (declared vs used) ───────────────────────
 //
 // A fixture's `rbtdrm_required_colophons` manifest entry declares the
-// colophons its cases are expected to invoke. Enforcement is two-directional,
-// and the two directions live at DIFFERENT chokepoints by design:
+// colophons its cases are expected to invoke; `rbtdrm_permitted_colophons`
+// declares a second, positive-only tier — admitted at the invoke chokepoint
+// exactly like a required colophon, but never demanded by the negative
+// check (a conditional-by-design invocation may legitimately go unused on a
+// healthy run). Enforcement is two-directional, and the two directions live
+// at DIFFERENT chokepoints by design:
 //
 //   * POSITIVE (an invoke of an undeclared colophon refuses) — in
 //     `rbtdri_invoke_impl`, the shared implementation of the `rbtdri_invoke*`
@@ -262,23 +266,37 @@ fn zrbtdri_tariff_bump() {
 thread_local! {
     static RBTDRI_CENSUS_DECLARED: std::cell::RefCell<Option<&'static [&'static str]>> =
         const { std::cell::RefCell::new(None) };
+    static RBTDRI_CENSUS_PERMITTED: std::cell::RefCell<&'static [&'static str]> =
+        const { std::cell::RefCell::new(&[]) };
     static RBTDRI_CENSUS_USED: std::cell::RefCell<std::collections::HashSet<String>> =
         std::cell::RefCell::new(std::collections::HashSet::new());
 }
 
-/// Arm the census for the fixture about to run — the declared colophon set
-/// (`None` disables census tracking for this run) and a cleared used-set.
-/// Callers pass `rbtdrm_required_colophons(fixture)` directly; this module
-/// stays independent of the manifest module, so tests can arm an arbitrary
-/// synthetic declared list without a real manifest entry.
-pub fn rbtdri_census_arm(declared: Option<&'static [&'static str]>) {
+/// Arm the census for the fixture about to run — the declared (required)
+/// colophon set (`None` disables census tracking for this run), the
+/// permitted colophon set (positive-only; empty when the fixture declares
+/// none), and a cleared used-set. Callers pass `rbtdrm_required_colophons`
+/// and `rbtdrm_permitted_colophons` directly; this module stays independent
+/// of the manifest module, so tests can arm an arbitrary synthetic pair
+/// without a real manifest entry.
+pub fn rbtdri_census_arm(
+    declared: Option<&'static [&'static str]>,
+    permitted: &'static [&'static str],
+) {
     RBTDRI_CENSUS_DECLARED.with(|d| *d.borrow_mut() = declared);
+    RBTDRI_CENSUS_PERMITTED.with(|p| *p.borrow_mut() = permitted);
     RBTDRI_CENSUS_USED.with(|u| u.borrow_mut().clear());
 }
 
-/// Read the current thread's armed declared-colophon set.
+/// Read the current thread's armed declared-colophon (required) set.
 pub fn rbtdri_census_declared() -> Option<&'static [&'static str]> {
     RBTDRI_CENSUS_DECLARED.with(|d| *d.borrow())
+}
+
+/// Read the current thread's armed permitted-colophon set — positive-only,
+/// never consulted by the negative (post-fixture) census direction.
+pub fn rbtdri_census_permitted() -> &'static [&'static str] {
+    RBTDRI_CENSUS_PERMITTED.with(|p| *p.borrow())
 }
 
 /// Read the current thread's used-colophon set — every colophon whose
@@ -478,12 +496,13 @@ fn rbtdri_invoke_impl(
     extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
     if let Some(declared) = rbtdri_census_declared() {
-        if !declared.iter().any(|d| *d == colophon) {
+        let permitted = rbtdri_census_permitted();
+        if !declared.iter().any(|d| *d == colophon) && !permitted.iter().any(|p| *p == colophon) {
             return Err(format!(
                 "rbtdri: fixture '{}' invoked colophon '{}' which is not declared in its \
-                 required-colophons census — add it to rbtdrm_required_colophons('{}') \
-                 or invoke a declared colophon instead",
-                ctx.fixture, colophon, ctx.fixture
+                 required-colophons census — add it to rbtdrm_required_colophons('{}') or \
+                 rbtdrm_permitted_colophons('{}'), or invoke a declared colophon instead",
+                ctx.fixture, colophon, ctx.fixture, ctx.fixture
             ));
         }
     }

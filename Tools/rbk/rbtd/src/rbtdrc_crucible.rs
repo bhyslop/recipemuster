@@ -70,6 +70,7 @@ pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
     crate::rbtdri_invocation::rbtdri_arm_credless(credless);
     crate::rbtdri_invocation::rbtdri_census_arm(
         crate::rbtdrm_manifest::rbtdrm_required_colophons(ctx.fixture()),
+        crate::rbtdrm_manifest::rbtdrm_permitted_colophons(ctx.fixture()),
     );
     RBTDRC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
 }
@@ -79,7 +80,7 @@ pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
 /// over.
 pub fn rbtdrc_take_context() -> rbtdri_Context {
     crate::rbtdri_invocation::rbtdri_arm_credless(false);
-    crate::rbtdri_invocation::rbtdri_census_arm(None);
+    crate::rbtdri_invocation::rbtdri_census_arm(None, &[]);
     RBTDRC_CTX.with(|c| {
         c.borrow_mut()
             .take()

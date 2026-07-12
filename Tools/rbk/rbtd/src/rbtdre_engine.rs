@@ -599,8 +599,11 @@ pub const RBTDRE_CENSUS_TOKEN: &str = "census";
 /// and print a per-colophon usage report under the grep token. Reads the
 /// rbtdri census state armed for this thread's run (`None` — no manifest
 /// entry — is vacuously true, census tracking was never engaged). Returns
-/// false if at least one declared colophon went unused; the caller folds
-/// that into the fixture's failure count.
+/// false if at least one REQUIRED colophon went unused; the caller folds
+/// that into the fixture's failure count. Permitted-tier usage is reported
+/// as advisory lines only — an unused permitted colophon never affects the
+/// verdict, since it is conditional-by-design and may legitimately go
+/// unreached on a healthy run.
 pub fn rbtdre_check_census(fixture_name: &str, colors: &rbtdre_Colors) -> bool {
     let declared = match crate::rbtdri_invocation::rbtdri_census_declared() {
         Some(d) => d,
@@ -619,6 +622,13 @@ pub fn rbtdre_check_census(fixture_name: &str, colors: &rbtdre_Colors) -> bool {
                 colors.red, RBTDRE_WORD_FAILED, colors.reset, fixture_name, colophon
             );
             all_used = false;
+        }
+    }
+    for colophon in crate::rbtdri_invocation::rbtdri_census_permitted() {
+        if used.contains(*colophon) {
+            crate::rbtdrg_info_now!(
+                "{} {}: colophon '{}' used (permitted)", RBTDRE_CENSUS_TOKEN, fixture_name, colophon
+            );
         }
     }
     all_used

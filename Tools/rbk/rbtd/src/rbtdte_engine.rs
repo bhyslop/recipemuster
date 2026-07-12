@@ -577,7 +577,7 @@ fn rbtdte_run_fixture_passes_when_declared_colophons_all_used() {
         &tmp, ZRBTDTE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
     );
     crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
-    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[ZRBTDTE_CENSUS_COL_USED]));
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[ZRBTDTE_CENSUS_COL_USED]), &[]);
 
     let result = rbtdre_run_fixture(&ZRBTDTE_CENSUS_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();
 
@@ -601,7 +601,7 @@ fn rbtdte_run_fixture_fails_on_declared_but_unused_colophon() {
     crate::rbtdri_invocation::rbtdri_census_arm(Some(&[
         ZRBTDTE_CENSUS_COL_USED,
         ZRBTDTE_CENSUS_COL_UNUSED,
-    ]));
+    ]), &[]);
 
     let result = rbtdre_run_fixture(&ZRBTDTE_CENSUS_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();
 
@@ -628,13 +628,78 @@ fn rbtdte_run_single_case_ignores_unused_declared_colophons() {
     crate::rbtdri_invocation::rbtdri_census_arm(Some(&[
         ZRBTDTE_CENSUS_COL_USED,
         ZRBTDTE_CENSUS_COL_UNUSED,
-    ]));
+    ]), &[]);
 
     let result = rbtdre_run_single_case(&ZRBTDTE_CENSUS_CASES[0], &RBTDTE_COLORS, &tmp).unwrap();
 
     let _ = crate::rbtdrc_crucible::rbtdrc_take_context();
 
     assert_eq!(result.failed, 0, "single-case run must not enforce the negative census direction");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_run_fixture_permitted_colophon_invocation_not_refused() {
+    // Positive-only tier, proven through the real set_context/run_fixture
+    // wiring: the required set is deliberately empty (so an unmediated
+    // invoke would refuse, exactly as it does when a fixture declares zero
+    // required colophons), but the invoked colophon IS permitted — so the
+    // invoke must succeed and the fixture must pass.
+    let tmp = zrbtdte_census_scratch("census-fixture-permitted-invoked");
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let ctx = crate::rbtdri_invocation::rbtdri_Context::new(
+        &tmp, ZRBTDTE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+    );
+    crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[]), &[ZRBTDTE_CENSUS_COL_USED]);
+
+    let result = rbtdre_run_fixture(&ZRBTDTE_CENSUS_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();
+
+    let _ = crate::rbtdrc_crucible::rbtdrc_take_context();
+
+    assert_eq!(result.passed, 1, "a permitted colophon's invoke must not be refused");
+    assert_eq!(result.failed, 0, "a permitted colophon's invoke must not be refused");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+static ZRBTDTE_CENSUS_NOINVOKE_CASES: &[rbtdre_Case] = &[crate::case!(rbtdte_pass)];
+
+static ZRBTDTE_CENSUS_NOINVOKE_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
+    name: "zrbtdte-census-noinvoke-fixture",
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: ZRBTDTE_CENSUS_NOINVOKE_CASES,
+    credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
+};
+
+#[test]
+fn rbtdte_run_fixture_permitted_colophon_unused_does_not_fail() {
+    // Negative check ignores the permitted tier entirely: a permitted
+    // colophon declared but never invoked must not fail an otherwise-green
+    // fixture, unlike the required-tier sibling above
+    // (rbtdte_run_fixture_fails_on_declared_but_unused_colophon) where the
+    // identical non-invocation DOES fail the fixture.
+    let tmp = rbtdth_make_scratch("census-fixture-permitted-unused");
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let ctx = crate::rbtdri_invocation::rbtdri_Context::new(
+        &tmp, ZRBTDTE_CENSUS_NOINVOKE_FIXTURE.name, &burv_temp_root, &burv_output_root,
+    );
+    crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[]), &[ZRBTDTE_CENSUS_COL_UNUSED]);
+
+    let result =
+        rbtdre_run_fixture(&ZRBTDTE_CENSUS_NOINVOKE_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();
+
+    let _ = crate::rbtdrc_crucible::rbtdrc_take_context();
+
+    assert_eq!(result.passed, 1);
+    assert_eq!(result.failed, 0, "an unused permitted colophon must not fail the fixture");
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -668,7 +733,7 @@ fn rbtdte_run_fixture_skip_suppresses_negative_census() {
         &tmp, ZRBTDTE_CENSUS_SKIP_FIXTURE.name, &burv_temp_root, &burv_output_root,
     );
     crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
-    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[ZRBTDTE_CENSUS_COL_UNUSED]));
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[ZRBTDTE_CENSUS_COL_UNUSED]), &[]);
 
     let result =
         rbtdre_run_fixture(&ZRBTDTE_CENSUS_SKIP_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();

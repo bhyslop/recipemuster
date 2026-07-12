@@ -283,7 +283,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CHECK_PAYOR,
             RBTDGC_DESCRY_FOEDUS,
             RBTDGC_INSTATE_FOEDUS,
-            RBTDGC_AFFIANCE_MANOR,
             RBTDGC_CHECK_AVOWAL,
             RBTDGC_CHECK_MANTLE,
         ]),
@@ -360,7 +359,6 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_UNMAKE_DEPOT,
         ]),
         RBTDRM_FIXTURE_FREEHOLD_ESTABLISH => Some(&[
-            RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
             RBTDGC_RECOGNOSCE_DEPOT,
             RBTDGC_CHECK_AVOWAL,
@@ -413,6 +411,25 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_QUOTA_BUILD,
         ]),
         _ => None,
+    }
+}
+
+/// Per-fixture permitted colophons — the positive-only census tier. Admitted
+/// at the invoke chokepoint exactly like a required colophon, but never
+/// demanded by the negative (post-fixture) check: a permitted colophon may go
+/// unused on a healthy run without failing the fixture. Defaults to empty for
+/// every fixture not listed here. Reserved for invocations that are
+/// conditional by design — a fixture whose real-world path only sometimes
+/// reaches a colophon (e.g. reuse-vs-mint branches).
+pub fn rbtdrm_permitted_colophons(fixture: &str) -> &'static [&'static str] {
+    match fixture {
+        // Affiance fires only on a descry deficit — the healthy reuse path
+        // never reaches it, so it cannot be required.
+        RBTDRM_FIXTURE_FOEDUS_REUSE => &[RBTDGC_AFFIANCE_MANOR],
+        // Levy fires only when the standing freehold is absent — the healthy
+        // reuse path never reaches it, so it cannot be required.
+        RBTDRM_FIXTURE_FREEHOLD_ESTABLISH => &[RBTDGC_LEVY_DEPOT],
+        _ => &[],
     }
 }
 
