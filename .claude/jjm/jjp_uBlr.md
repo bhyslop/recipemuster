@@ -464,6 +464,34 @@ rivet/premise voicing.
 The aspirant-lintel upgrade proves family-wide, not tackle-local — every aspirant sheaf but
 the chapbook carries the legacy one-token form — so it re-banks as one sweep, with this
 sheaf's own genre re-opened by the drain (it is a deferred-remainder sheaf now, not an entity).
+OFFICIUM-OPEN INFUSION (260712): the officium-open toothing drained to canon with no word minted —
+the composition is the point, not new vocabulary.
+Billet resolution homes at `JJSVF-farrier.adoc` ("Toothing: officium open"):
+identify at the officium's captured cwd supplies the seat,
+station and session are the two members the tree cannot supply,
+and the composition adds no rejection kind of its own — the farrier taxonomy stays tree-shaped.
+No hippodrome-or-billet enum minted: the seat is carried as-is,
+and reading `Primary` as the hippodrome and `Partition` as a billet is a premise
+the dispatch doors underwrite (the sole-entrance law — a hand-launched session in a hand-made
+partition is a non-JJ session and opens no officium),
+which the deferred billet-validation composition will enforce;
+canon states it as that premise, never as a fact identify asserts.
+Exchange/record co-location homes at `JJSVS-studbook.adoc` ("Officium exchange and record").
+The record's entry rule binds NOW, before any record write exists:
+graduation of the record half is only a gitignore-line change, so it forces no schema review of its own —
+the hippodrome-or-billet member enters as the seat's role reading alone,
+and a `Partition`'s primary root, a station-local worktree path, never serializes
+(the no-worktree-paths rivet already covers it; its tail still mints at the record write).
+The station takes no stand-in name: a station that reports no name opens no officium,
+since two unnamed stations would record the same station member
+and collapse the distinction it exists to draw, durably, in a record slated for committed history;
+the refusal is officium-open's own, wired at the conversion heat.
+Landed inert behind `JJRM_OFFICIUM_STUDBOOK_ENABLED` with a guard test pinning it false,
+mirroring the blotter seam.
+Deliberately not drained, and still aspirant:
+the `sync_state`-from-last-fetch staleness line,
+and validating the resolved billet against the work being mounted
+(that composition wants the pedigree/sire infrastructure this heat does not build).
 Elections, alternates, and rationales live in the sheaf ledgers; this roster is the summary.
 
 ### Deltas to bank into the aspirant sheaves at drain time
