@@ -226,15 +226,31 @@ pub const RBTDRM_FIXTURE_TOUCHSTONE: &str = "touchstone";
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
     match fixture {
-        RBTDRM_FIXTURE_TADMOR
-        | RBTDRM_FIXTURE_MORIAH
-        | RBTDRM_FIXTURE_SRJCL
-        | RBTDRM_FIXTURE_PLUML => Some(&[
+        // The security-case crucibles: both fixtures run RBTDRC_CASES_SECURITY,
+        // which execs into sentry (writ) and pentacle (fiat) and drives the
+        // ifrit from the bottle (bark).
+        RBTDRM_FIXTURE_TADMOR | RBTDRM_FIXTURE_MORIAH => Some(&[
             RBTDGC_CRUCIBLE_CHARGE,
             RBTDGC_CRUCIBLE_QUENCH,
             RBTDGC_CRUCIBLE_WRIT,
             RBTDGC_CRUCIBLE_FIAT,
             RBTDGC_CRUCIBLE_BARK,
+            RBTDGC_CRUCIBLE_ACTIVE,
+        ]),
+        // srjcl reaches the bottle to probe jupyter, but never execs into
+        // sentry or pentacle.
+        RBTDRM_FIXTURE_SRJCL => Some(&[
+            RBTDGC_CRUCIBLE_CHARGE,
+            RBTDGC_CRUCIBLE_QUENCH,
+            RBTDGC_CRUCIBLE_BARK,
+            RBTDGC_CRUCIBLE_ACTIVE,
+        ]),
+        // pluml drives the rendering server over host-side HTTP alone; charge
+        // and quench (with their active assertions) are its whole colophon
+        // surface.
+        RBTDRM_FIXTURE_PLUML => Some(&[
+            RBTDGC_CRUCIBLE_CHARGE,
+            RBTDGC_CRUCIBLE_QUENCH,
             RBTDGC_CRUCIBLE_ACTIVE,
         ]),
         RBTDRM_FIXTURE_HALLMARK_LIFECYCLE => Some(&[
