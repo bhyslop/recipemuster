@@ -67,6 +67,7 @@ rbgv_check_avowal() {
   local -r z_required_runway="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_oparm "required_runway" "Seconds of sitting runway the probe demands; omit for the kindled floor"
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
@@ -99,11 +100,12 @@ rbgv_check_mantle() {
 
   # The mantle operand arrives via the BUZ_FOLIO env channel (param1 colophon —
   # buz_exec_lookup shifts the folio off the positional args and exports it), NOT
-  # as a positional. Documented in zrbgv_furnish's buc_doc_env block. The folio is
-  # the pallium-sprued mantle token (rbpa_governor, …), THE canonical don form.
+  # as a positional. The folio is the pallium-sprued mantle token (rbpa_governor,
+  # …), THE canonical don form.
   local -r z_mantle="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Check mantle access as the freehold subject — avow, don the named mantle, reach Artifact Registry, and write the attributed audit entry (or surface the access deficit)"
+  buc_doc_param "mantle" "Mantle token to don: rbpa_governor | rbpa_director | rbpa_retriever"
   buc_doc_shown || return 0
 
   # Validate the sprued token AND derive the bare polity mantle name in one pass.
@@ -200,7 +202,6 @@ zrbgv_furnish() {
 
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BUZ_FOLIO             " "Mantle token to don (rbgv_check_mantle): rbpa_governor | rbpa_director | rbpa_retriever; or optional required-runway seconds (rbgv_check_avowal)"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
