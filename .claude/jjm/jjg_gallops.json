@@ -3605,8 +3605,8 @@
         "₢BCAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1611",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0653",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -3638,7 +3638,7 @@
                 "Enforcement live on every invoke path; unit tests prove refuse / fail / exempt; existing suites pass clean or surface real declaration drift as named finds."
               ],
               "jjgtn_silks": "theurge-manifest-coverage-check",
-              "jjgtn_basis": "41b9a7b"
+              "jjgtn_basis": "6dd6ce1"
             }
           ]
         },
