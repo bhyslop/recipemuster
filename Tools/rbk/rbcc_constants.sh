@@ -46,6 +46,13 @@ RBCC_users_subdir="rbmu_users"
 RBCC_nodes_subdir="rbmn_nodes"
 RBCC_vessels_subdir="rbmv_vessels"
 RBCC_foedera_subdir="rbmf_foedera"
+# Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
+# per standing foedus (RBSRF). The single home for "where the foedera live": the
+# library DIRECTORY is a distinct fact from any one foedus's rbrf.env, and the
+# enumeration sites (canvass, the foedus-identity validator) need it as such.
+# rbcc_rbrf_file_capture below composes the per-foedus file off this same root, so
+# the moorings/foedera join lives here once and nowhere else.
+RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
 RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
@@ -226,7 +233,7 @@ RBCC_container_sentry="sentry"
 rbcc_rbrf_file_capture() {
   local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
   test -n "${z_foedus}" || return 1
-  printf '%s\n' "${RBCC_moorings_dir}/${RBCC_foedera_subdir}/${z_foedus}/rbrf.env"
+  printf '%s\n' "${RBCC_foedera_dir}/${z_foedus}/rbrf.env"
 }
 
 # rbcc_source_active_rbrf — resolve the ACTIVE foedus's rbrf.env from the

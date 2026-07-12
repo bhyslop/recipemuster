@@ -43,11 +43,6 @@ set -euo pipefail
 zrbof_kindle() {
   test -z "${ZRBOF_KINDLED:-}" || buc_die "Module rbof already kindled"
 
-  # Foedera library root — the moorings directory holding one rbef_ subdirectory
-  # per standing foedus, each carrying that foedus's rbrf.env. rbcc must be
-  # kindled first (RBCC_moorings_dir / RBCC_foedera_subdir).
-  readonly ZRBOF_FOEDERA_DIR="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
-
   readonly ZRBOF_KINDLED=1
 }
 
@@ -61,7 +56,7 @@ zrbof_sentinel() {
 zrbof_list_foedera() {
   local z_avail=""
   local z_entry=""
-  for z_entry in "${ZRBOF_FOEDERA_DIR}"/rbef_*/; do
+  for z_entry in "${RBCC_foedera_dir}"/rbef_*/; do
     test -d "${z_entry}" || continue
     z_entry="${z_entry%/}"
     z_avail="${z_avail} ${z_entry##*/}"
@@ -87,9 +82,16 @@ zrbof_require_foedus() {
     || buc_reject "${z_band}" "Foedus identity required (param1). Available foedera: ${z_avail}"
   [[ "${z_foedus}" == rbef_* ]] \
     || buc_reject "${z_band}" "Foedus identity must bear the rbef_ sprue: ${z_foedus}. Available foedera: ${z_avail}"
-  test -d "${ZRBOF_FOEDERA_DIR}/${z_foedus}" \
+  test -d "${RBCC_foedera_dir}/${z_foedus}" \
     || buc_reject "${z_band}" "No foedus subdirectory '${z_foedus}' in the foedera library. Available foedera: ${z_avail}"
-  test -f "${ZRBOF_FOEDERA_DIR}/${z_foedus}/rbrf.env" \
+
+  # A subdirectory can stand without its regime file: rbef_keycloak commits only an
+  # rbrf.env.template until the test facility renders its git-ignored live regime
+  # (RBSRF's one sanctioned deviation), so the two tests name distinct states.
+  local z_rbrf=""
+  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") \
+    || buc_reject "${z_band}" "Failed to resolve the regime path for foedus '${z_foedus}'"
+  test -f "${z_rbrf}" \
     || buc_reject "${z_band}" "Foedus '${z_foedus}' has no rbrf.env. Available foedera: ${z_avail}"
 }
 
@@ -129,7 +131,9 @@ rbof_descry() {
   # Model — read them from the manor's RBRW regime file, the same for every foedus.
   # The provider is the per-foedus discriminator and stays in the inspected
   # foedus's own rbrf.env.
-  local -r z_rbrf="${ZRBOF_FOEDERA_DIR}/${z_foedus}/rbrf.env"
+  local z_rbrf=""
+  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") \
+    || buc_reject "${BUBC_band_descry}" "Failed to resolve the regime path for foedus '${z_foedus}'"
   local z_org=""
   local z_pool=""
   local z_provider=""
@@ -230,7 +234,9 @@ rbof_canvass() {
   # regime, not a canvass verdict.
   local -r z_active="${RBRR_ACTIVE_FOEDUS:-}"
   test -n "${z_active}" || buc_die "RBRR_ACTIVE_FOEDUS is empty — the repo regime selects no active foedus"
-  local -r z_active_rbrf="${ZRBOF_FOEDERA_DIR}/${z_active}/rbrf.env"
+  local z_active_rbrf=""
+  z_active_rbrf=$(rbcc_rbrf_file_capture "${z_active}") \
+    || buc_die "Failed to resolve the regime path for the active foedus '${z_active}'"
   test -f "${z_active_rbrf}" || buc_die "Active foedus '${z_active}' has no rbrf.env in the foedera library: ${z_active_rbrf}"
 
   local z_pool=""
@@ -245,13 +251,15 @@ rbof_canvass() {
   local -a z_lib_provider=()
   local z_entry=""
   local z_lib_name=""
+  local z_lib_rbrf=""
   local z_lib_pid=""
-  for z_entry in "${ZRBOF_FOEDERA_DIR}"/rbef_*/; do
+  for z_entry in "${RBCC_foedera_dir}"/rbef_*/; do
     test -d "${z_entry}" || continue
     z_entry="${z_entry%/}"
     z_lib_name="${z_entry##*/}"
-    test -f "${z_entry}/rbrf.env" || continue
-    z_lib_pid=$(zrbof_rbrf_field_capture "${z_entry}/rbrf.env" "RBRF_PROVIDER_ID") || continue
+    z_lib_rbrf=$(rbcc_rbrf_file_capture "${z_lib_name}") || continue
+    test -f "${z_lib_rbrf}" || continue
+    z_lib_pid=$(zrbof_rbrf_field_capture "${z_lib_rbrf}" "RBRF_PROVIDER_ID") || continue
     z_lib_foedus+=("${z_lib_name}")
     z_lib_provider+=("${z_lib_pid}")
   done

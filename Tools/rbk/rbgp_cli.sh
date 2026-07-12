@@ -58,7 +58,9 @@ zrbgp_furnish() {
       local z_folio="${BUZ_FOLIO:-}"
       [[ "${z_folio}" == rbef_* ]] \
         || buc_die "Foedus folio required (param1), an rbef_-sprued library name: got '${z_folio}'"
-      local z_folio_rbrf="${RBCC_moorings_dir}/${RBCC_foedera_subdir}/${z_folio}/rbrf.env"
+      local z_folio_rbrf=""
+      z_folio_rbrf=$(rbcc_rbrf_file_capture "${z_folio}") \
+        || buc_die "Failed to resolve the foedus regime path for folio '${z_folio}'"
       test -f "${z_folio_rbrf}" \
         || buc_die "No foedus '${z_folio}' in the foedera library: ${z_folio_rbrf}"
       source "${z_folio_rbrf}"

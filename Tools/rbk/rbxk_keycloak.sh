@@ -71,13 +71,19 @@ zrbxk_kindle() {
   buv_dir_exists "${BURD_TEMP_DIR}"
   test -n "${BURD_TABTARGET_DIR:-}" || buc_die "BURD_TABTARGET_DIR is unset — the orchestrator composes verbs through their tabtargets"
 
-  # The keycloak foedus lives in the moorings foedera library beside the other
-  # foedera; RBCC_moorings_dir / RBCC_foedera_subdir are rbcc source-time literals.
-  # The committed template carries the vendor-agnostic core; the live rbrf.env
-  # (git-IGNORED) is what setup renders and what the folio-addressed verbs source.
-  readonly ZRBXK_FOEDUS_DIR="${RBCC_moorings_dir}/${RBCC_foedera_subdir}/${RBXK_foedus}"
-  readonly ZRBXK_TEMPLATE="${ZRBXK_FOEDUS_DIR}/rbrf.env.template"
-  readonly ZRBXK_LIVE="${ZRBXK_FOEDUS_DIR}/rbrf.env"
+  # The live regime is the keycloak foedus's rbrf.env in the moorings foedera
+  # library, resolved through the rbcc resolver by NAME: this module never sources
+  # rbrr.env, so the active-foedus selector is not live here and the foedus is
+  # named explicitly. The committed template is that same path plus a .template
+  # suffix — the suffix is the only fact this module owns, so the template can
+  # never drift from the regime filename. It carries the vendor-agnostic core;
+  # setup renders the git-IGNORED live file the folio-addressed verbs source
+  # (RBSRF's one sanctioned ships-committed deviation).
+  local z_live=""
+  z_live=$(rbcc_rbrf_file_capture "${RBXK_foedus}") \
+    || buc_die "Failed to resolve the ${RBXK_foedus} federation regime path"
+  readonly ZRBXK_LIVE="${z_live}"
+  readonly ZRBXK_TEMPLATE="${ZRBXK_LIVE}.template"
 
   # The crucible nameplate regime — parsed (never sourced) for the host-side
   # Keycloak port, so a port change in the nameplate propagates here (ACG:
