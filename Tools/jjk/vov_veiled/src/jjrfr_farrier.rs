@@ -221,7 +221,7 @@ pub trait jjrfr_FarrierCore {
 
 /// The lock facet (`jjdf_lock`): the guidon verbs over a blotter's lock ref — the
 /// compare-and-swap primitives composed only by the journal and the break.
-/// Sequence-internal, never operator-typed. Not implemented this pace.
+/// Sequence-internal, never operator-typed.
 pub trait jjrfr_FarrierLock {
     /// Stake the guidon in: atomically create the lock ref bearing it, or reject
     /// `LockHeld`.
@@ -237,7 +237,7 @@ pub trait jjrfr_FarrierLock {
 }
 
 /// The billet facet (`jjdf_billet`): the partition lifecycle ops, consumed by the
-/// dispatch doors. Not implemented this pace.
+/// dispatch doors.
 pub trait jjrfr_FarrierBillet {
     /// Birth a billet: seat an isolated partition on a named branch, or detached
     /// at a named position.

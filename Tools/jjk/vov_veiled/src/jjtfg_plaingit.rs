@@ -399,3 +399,288 @@ fn jjtfg_resolve_relative_joins_only_relative_paths() {
     assert_eq!(zjjrfg_resolve_relative(base, "/already/absolute"), PathBuf::from("/already/absolute"));
     assert_eq!(zjjrfg_resolve_relative(base, ".git"), PathBuf::from("/base/repo/.git"));
 }
+
+/// Sets up a bare remote plus one local clone tracking it, with a baseline commit
+/// pushed — the common precondition for lock-facet tests, which need only one
+/// station talking to the shared remote (no divergence).
+fn zjjtfg_local_with_remote(name: &str) -> (JjkTestDir, JjkTestDir) {
+    let bare = JjkTestDir::new(&format!("{}_bare", name));
+    zjjtfg_init_bare(bare.path());
+    let local = JjkTestDir::new(&format!("{}_local", name));
+    zjjtfg_init_local(local.path());
+    zjjtfg_commit_all(local.path(), "base.txt", "base", "init");
+    zjjtfg_git(local.path(), &["remote", "add", "origin", &bare.path().to_string_lossy()]);
+    zjjtfg_git(local.path(), &["push", "-q", "-u", "origin", ZJJTFG_TRUNK]);
+    (bare, local)
+}
+
+/// Creates a fresh, not-yet-existing directory under the OS temp root — the shape
+/// `jjrfr_billet_create` requires (it seats the worktree itself). Reuses
+/// `JjkTestDir`'s naming and eventual RAII cleanup; the guard pre-creates its
+/// directory, so it is removed immediately, mirroring the partition-seat identify
+/// test's own setup.
+fn zjjtfg_billet_slot(name: &str) -> JjkTestDir {
+    let slot = JjkTestDir::new(name);
+    std::fs::remove_dir_all(slot.path()).unwrap();
+    slot
+}
+
+#[test]
+fn jjtfg_stake_creates_the_guidon_ref_and_sight_reads_it_back() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_stake_create");
+
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-alpha").unwrap();
+
+    let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+    assert_eq!(sighted, Some("guidon-alpha".to_string()));
+}
+
+#[test]
+fn jjtfg_sight_is_none_when_unlocked() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_sight_unlocked");
+
+    let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+
+    assert_eq!(sighted, None);
+}
+
+#[test]
+fn jjtfg_stake_rejects_lock_held_when_already_staked() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_stake_held");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-first").unwrap();
+
+    let result = jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-second");
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockHeld);
+}
+
+#[test]
+fn jjtfg_pluck_releases_on_matching_observed_guidon() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_pluck_ok");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-release-me").unwrap();
+
+    jjrfg_PlainGit.jjrfr_pluck(local.path(), "guidon-release-me").unwrap();
+
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty());
+}
+
+#[test]
+fn jjtfg_pluck_rejects_lock_broken_on_stale_observed_guidon() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_pluck_broken");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-actual").unwrap();
+
+    let result = jjrfg_PlainGit.jjrfr_pluck(local.path(), "guidon-not-what-is-there");
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockBroken);
+}
+
+#[test]
+fn jjtfg_lock_guard_acquires_and_releases_on_drop() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_guard_release");
+
+    {
+        let guard = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-guarded").unwrap();
+        assert_eq!(guard.jjrfr_guidon(), "guidon-guarded");
+        let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+        assert_eq!(sighted, Some("guidon-guarded".to_string()));
+    }
+
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty());
+}
+
+#[test]
+#[should_panic(expected = "nested lock acquire")]
+fn jjtfg_lock_guard_nested_acquire_panics() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_guard_nested");
+
+    let _first = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-first").unwrap();
+    let _second = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-second");
+}
+
+#[test]
+fn jjtfg_lock_guard_reacquire_after_drop_succeeds() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_guard_reacquire");
+
+    {
+        let _first = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-first").unwrap();
+    }
+    let second = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-second");
+
+    assert!(second.is_ok());
+}
+
+#[test]
+fn jjtfg_break_clears_a_staked_lock_and_reports_the_observed_guidon() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_break_clears");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-stale").unwrap();
+
+    let cleared = jjrfr_break(&jjrfg_PlainGit, local.path()).unwrap();
+
+    assert_eq!(cleared, Some("guidon-stale".to_string()));
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty());
+}
+
+#[test]
+fn jjtfg_break_is_none_when_nothing_staked() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_break_nothing");
+
+    let cleared = jjrfr_break(&jjrfg_PlainGit, local.path()).unwrap();
+
+    assert_eq!(cleared, None);
+}
+
+#[test]
+fn jjtfg_billet_create_seats_a_new_branch_worktree() {
+    let primary = JjkTestDir::new("jjtfg_billet_create_new_branch_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_create_new_branch_billet");
+
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("billet-branch".to_string()), billet.path())
+        .unwrap();
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Branch("billet-branch".to_string()));
+    match identity.seat {
+        jjrfr_Seat::Partition { .. } => {}
+        other => panic!("expected a partition seat, got {:?}", other),
+    }
+}
+
+#[test]
+#[should_panic(expected = "unclassified git failure")]
+fn jjtfg_billet_create_has_one_canonical_form_and_fails_loud_on_a_name_collision() {
+    let primary = JjkTestDir::new("jjtfg_billet_create_collision_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    zjjtfg_git(primary.path(), &["branch", "preexisting"]);
+    let billet = zjjtfg_billet_slot("jjtfg_billet_create_collision_billet");
+
+    let _ = jjrfg_PlainGit.jjrfr_billet_create(
+        primary.path(),
+        &jjrfr_LineOfWork::Branch("preexisting".to_string()),
+        billet.path(),
+    );
+}
+
+#[test]
+fn jjtfg_billet_create_seats_detached_at_a_position() {
+    let primary = JjkTestDir::new("jjtfg_billet_create_detached_primary");
+    zjjtfg_init_local(primary.path());
+    let sha = zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_create_detached_billet");
+
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Detached(sha.clone()), billet.path())
+        .unwrap();
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(sha));
+}
+
+#[test]
+fn jjtfg_billet_remove_reaps_a_clean_billet() {
+    let primary = JjkTestDir::new("jjtfg_billet_remove_clean_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_remove_clean_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("removable".to_string()), billet.path())
+        .unwrap();
+
+    jjrfg_PlainGit.jjrfr_billet_remove(billet.path()).unwrap();
+
+    assert!(!billet.path().exists());
+    let worktrees = zjjtfg_git(primary.path(), &["worktree", "list"]);
+    assert!(!worktrees.contains("removable"));
+}
+
+#[test]
+fn jjtfg_billet_remove_rejects_dirty_tree() {
+    let primary = JjkTestDir::new("jjtfg_billet_remove_dirty_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_remove_dirty_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("dirty-billet".to_string()), billet.path())
+        .unwrap();
+    zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
+
+    let result = jjrfg_PlainGit.jjrfr_billet_remove(billet.path());
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
+}
+
+#[test]
+fn jjtfg_enfold_fast_forwards_when_billet_has_no_local_commits() {
+    let primary = JjkTestDir::new("jjtfg_enfold_ff_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_enfold_ff_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("ff-billet".to_string()), billet.path())
+        .unwrap();
+    let tip = zjjtfg_commit_all(primary.path(), "b.txt", "trunk moved on", "trunk advances");
+
+    jjrfg_PlainGit.jjrfr_enfold(billet.path()).unwrap();
+
+    let head = zjjtfg_git(billet.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, tip);
+}
+
+#[test]
+fn jjtfg_enfold_merges_divergent_trunk_and_billet_history() {
+    let primary = JjkTestDir::new("jjtfg_enfold_merge_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_enfold_merge_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("merge-billet".to_string()), billet.path())
+        .unwrap();
+    zjjtfg_commit_all(billet.path(), "billet.txt", "billet work", "billet commit");
+    zjjtfg_commit_all(primary.path(), "trunk.txt", "trunk work", "trunk commit");
+
+    jjrfg_PlainGit.jjrfr_enfold(billet.path()).unwrap();
+
+    assert!(billet.path().join("trunk.txt").exists());
+    assert!(billet.path().join("billet.txt").exists());
+    let log = zjjtfg_git(billet.path(), &["log", "--oneline", "-1"]);
+    assert!(log.contains("enfold trunk"));
+}
+
+#[test]
+fn jjtfg_enfold_rejects_dirty_tree() {
+    let primary = JjkTestDir::new("jjtfg_enfold_dirty_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_enfold_dirty_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("dirty-enfold-billet".to_string()), billet.path())
+        .unwrap();
+    zjjtfg_commit_all(primary.path(), "b.txt", "trunk moved on", "trunk advances");
+    zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
+
+    let result = jjrfg_PlainGit.jjrfr_enfold(billet.path());
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
+}
+
+#[test]
+#[should_panic(expected = "unclassified git failure")]
+fn jjtfg_enfold_fails_loud_on_conflict() {
+    let primary = JjkTestDir::new("jjtfg_enfold_conflict_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_enfold_conflict_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("conflict-billet".to_string()), billet.path())
+        .unwrap();
+    zjjtfg_commit_all(billet.path(), "a.txt", "billet changed this line", "billet edits a.txt");
+    zjjtfg_commit_all(primary.path(), "a.txt", "trunk changed this line too", "trunk edits a.txt");
+
+    let _ = jjrfg_PlainGit.jjrfr_enfold(billet.path());
+}

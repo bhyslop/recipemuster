@@ -426,15 +426,12 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
 impl jjrfr_FarrierBillet for jjrfg_PlainGit {
     fn jjrfr_billet_create(&self, root: &Path, at: &jjrfr_LineOfWork, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
         let billet_str = billet_root.to_string_lossy().into_owned();
+        // Birth: one canonical form per line-of-work kind, never branching on
+        // whether the name happens to already exist. A branch name collision is
+        // a caller-contract violation, not a case this op tolerates silently —
+        // it surfaces as git's own unclassified failure.
         let out = match at {
-            jjrfr_LineOfWork::Branch(name) => {
-                let exists = zjjrfg_run_git(root, &["rev-parse", "--verify", "--quiet", &format!("refs/heads/{}", name)]).ok;
-                if exists {
-                    zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, name])
-                } else {
-                    zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, "-b", name])
-                }
-            }
+            jjrfr_LineOfWork::Branch(name) => zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, "-b", name]),
             jjrfr_LineOfWork::Detached(position) => {
                 zjjrfg_run_git(root, &["worktree", "add", "-q", "--detach", &billet_str, position])
             }
