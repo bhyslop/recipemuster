@@ -7412,8 +7412,8 @@
         "₢BrAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1348",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-1412",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -7432,7 +7432,7 @@
                 "exercised against a local scratch store in tests."
               ],
               "jjgtn_silks": "blotter-engine-impl",
-              "jjgtn_basis": "97e6998"
+              "jjgtn_basis": "da2741b"
             }
           ]
         },
