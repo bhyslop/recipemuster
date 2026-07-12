@@ -4243,9 +4243,10 @@
         "₢BbAAZ",
         "₢BbAAE",
         "₢BbAAF",
-        "₢BbAAc"
+        "₢BbAAc",
+        "₢BbAAd"
       ],
-      "jjghn_next_pace_seed": "AAd",
+      "jjghn_next_pace_seed": "AAe",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -5436,6 +5437,78 @@
               ],
               "jjgtn_silks": "rbrn-nameplate-single-home",
               "jjgtn_basis": "e45ee5f"
+            }
+          ]
+        },
+        "₢BbAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0710",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Judgment, not mechanics — an ACG composition collapse, not a magic-string sweep.",
+                "The work IS deciding which sites need the resolved file and which legitimately",
+                "need the directory; a sweep that treats them alike will be wrong.",
+                "Rough by intent: frontier tier at mount.",
+                "",
+                "## Goal",
+                "Give the composition `moorings/foedera/<foedus>/rbrf.env` a single home.",
+                "rbcc_rbrf_file_capture already is that home, yet three modules re-derive the",
+                "composition by hand.",
+                "",
+                "## Cinched",
+                "- No filename constant for rbrf, ever.",
+                "  Its absence is deliberate — the path depends on the RBRR_ACTIVE_FOEDUS selector",
+                "  and so cannot constant-fold at source time.",
+                "  The RESOLVER is the home, not a constant.",
+                "  Read the rbcc_rbrf_file_capture breadcrumb in rbcc_constants.sh before touching",
+                "  anything; do not \"fix\" the missing constant.",
+                "- The resolver's optional-foedus argument is the sanctioned named-foedus path —",
+                "  it already serves callers that name a foedus rather than taking the active one.",
+                "  rbh0/rbhpf_entra.sh is the worked precedent.",
+                "- The directory is a distinct fact from the file, and the distinction is",
+                "  load-bearing: enumerating the foedera library needs the DIRECTORY, and that need",
+                "  does not collapse into the resolver.",
+                "  Mint a foedera-directory constant for it — the two-part",
+                "  ${RBCC_moorings_dir}/${RBCC_foedera_subdir} join is itself re-derived in three",
+                "  places today.",
+                "- The keycloak rbrf.env.template is its own artifact with no resolver equivalent.",
+                "  Home it deliberately; do not force it through the resolver to make the grep",
+                "  come out clean.",
+                "",
+                "## Discovery",
+                "grep -rn \"rbrf\\.env\" Tools/rbk --include=\"*.sh\"",
+                "grep -rn \"rbcc_rbrf_file_capture\\|rbcc_source_active_rbrf\" Tools/rbk --include=\"*.sh\"",
+                "The second grep is the important one — it separates the sanctioned callers from",
+                "the hand-rollers.",
+                "Entry points: rbgp_cli.sh (hand-rolls the named-folio path the resolver already",
+                "serves — the clearest and least arguable collapse), rbof_foedus.sh (carries its",
+                "own foedera-dir kindle constant plus hand joins, and is the site where the",
+                "file-vs-directory judgment actually bites), rbxk_keycloak.sh (its own foedus-dir",
+                "constant, plus the template).",
+                "",
+                "## Gate",
+                "Reveille and shellcheck are NECESSARY BUT NOT SUFFICIENT here, and a green",
+                "reveille must not be read as coverage: the touched modules are live cloud paths.",
+                "rbgp (polity admission) and rbof (foedus descry / canvass / instate) are",
+                "picket-tier.",
+                "Run picket, and exercise the foedus verbs and at least one rbgp admission verb",
+                "against a real foedus before calling this done.",
+                "The keycloak facility sites are covered by neither — reach them via the facility",
+                "tabtargets or prove them by inspection, and say which.",
+                "The paddock's release-window rider applies: this is a runtime edit.",
+                "",
+                "## Done when",
+                "Every per-foedus rbrf.env resolution goes through rbcc_rbrf_file_capture;",
+                "the foedera directory has exactly one named home;",
+                "no module re-derives the moorings/foedera join by hand;",
+                "the template's home is stated and defended;",
+                "shellcheck and reveille green, AND picket green with the foedus and admission",
+                "verbs actually exercised."
+              ],
+              "jjgtn_silks": "rbrf-foedera-composition-collapse",
+              "jjgtn_basis": "7e740ee"
             }
           ]
         }
