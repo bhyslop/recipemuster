@@ -8969,8 +8969,8 @@
         "₢BsAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0636",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0757",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Qualify the rebaseline on macOS — the operator's primary platform, untested since well before the rebaseline:",
@@ -9003,7 +9003,7 @@
                 "Mechanical: run, read counts, notch or surface."
               ],
               "jjgtn_silks": "macos-freehold-sweep",
-              "jjgtn_basis": "a0a4434"
+              "jjgtn_basis": "4c1abe5"
             }
           ]
         },
