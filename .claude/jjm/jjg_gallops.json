@@ -4463,8 +4463,8 @@
         "₢BbAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1527",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0724",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -4503,7 +4503,7 @@
                 "tt/rbw-tb.Build.sh and tt/rbw-tt.Test.sh green."
               ],
               "jjgtn_silks": "rbrv-env-rust-sweep",
-              "jjgtn_basis": "d134d20"
+              "jjgtn_basis": "76d8002"
             }
           ]
         },
