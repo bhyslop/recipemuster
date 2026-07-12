@@ -795,6 +795,7 @@ fn rbtdrj_coverage_unused_single_case_exempt(dir: &Path) -> rbtdre_Verdict {
             RBTDRE_WORD_PASSED,
             "coverage-unused-single stdout",
         )?;
+        zrbtdrj_expect_contains(&child.stdout, case_name, "coverage-unused-single stdout")?;
         zrbtdrj_expect_lacks(
             &child.stdout,
             "declared but never invoked",
