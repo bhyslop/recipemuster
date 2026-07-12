@@ -6956,9 +6956,8 @@
         "₢BrAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1348",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260712-1548",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -6966,25 +6965,30 @@
                 "",
                 "## Done when",
                 "",
-                "The resync operation (census word) lands:",
-                "merge trunk into the billet, never rebase; push immediately per the paddock cinch;",
-                "jjx_open leads its report with the staleness warning and this remedy,",
-                "and notch/wrap append the same recommendation while trunk has moved;",
+                "The resync operation (census word) lands as a composition over farrier primitives,",
+                "owning no primitive of its own:",
+                "merge trunk into the billet, never rebase;",
+                "push the merge immediately per the paddock cinch;",
                 "no verb refuses on a stale trunk;",
-                "offline degrades to warn-and-proceed."
+                "offline degrades to warn-and-proceed.",
+                "",
+                "The operation's *surfacing* — the staleness warning at officium open and the",
+                "recommendation appended by notch and wrap — is deliberately out of scope here:",
+                "it wants a caller that knows it is sitting in a billet,",
+                "which is the dispatch spine's, and it must not put live new-surface behavior",
+                "into the frozen old path while the heat's surface is inert.",
+                "It rides the dispatch pace."
               ],
               "jjgtn_silks": "resync-impl",
-              "jjgtn_basis": "4f9072c"
+              "jjgtn_basis": "bc236ae"
             }
           ]
         },
         "₢BrAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1348",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260712-1548",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7000,10 +7004,22 @@
                 "context provisioning carrying the conduct core and the pull door,",
                 "session launch through stirrup with the engagement verb as opening prompt,",
                 "the (tier, effort) resolved per the dispatch sheaf's two-source choice;",
-                "cwd elects the clone; nothing ever lands in a hippodrome."
+                "cwd elects the clone; nothing ever lands in a hippodrome.",
+                "",
+                "The staleness surfacing rides here, arriving with its caller:",
+                "the officium open leads its report with the staleness warning and names the resync",
+                "operation as the remedy, and notch and wrap append the same recommendation while",
+                "trunk has moved.",
+                "The probe is the cheap one the enfold counterpart ruling leaves behind —",
+                "billet behind trunk's remote counterpart, a local ancestry check after any glean,",
+                "needing only the trunk name the resync operation already takes;",
+                "note the farrier's own sync_state cannot serve, since it compares the current line",
+                "of work against *its own* counterpart, never against trunk.",
+                "Surface inert with the rest of the layer — a live warning must not reach the frozen path",
+                "before the enablement seam flips."
               ],
               "jjgtn_silks": "dispatch-spine-impl",
-              "jjgtn_basis": "6993530"
+              "jjgtn_basis": "bc236ae"
             }
           ]
         },
