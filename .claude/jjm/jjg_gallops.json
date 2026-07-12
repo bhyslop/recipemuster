@@ -3546,9 +3546,10 @@
         "₢BCAAB",
         "₢BCAAC",
         "₢BCAAD",
-        "₢BCAAE"
+        "₢BCAAE",
+        "₢BCAAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢BCAAA": {
           "jjgpn_tacks": [
@@ -3747,6 +3748,39 @@
               ],
               "jjgtn_silks": "census-permitted-tier",
               "jjgtn_basis": "9293f0b"
+            }
+          ]
+        },
+        "₢BCAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0656",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Extend the colophon census to the four fixtures with no manifest entry — regime-poison, clipboard, chaining-fact-band, chaining-fact-livery — so coverage is total across the roster.",
+                "Depends on the permitted tier from the preceding pace: conditional launches land there.",
+                "",
+                "## Cinched",
+                "",
+                "- clipboard declares empty — its cases launch no tabtargets.",
+                "- chaining-fact-livery's banish launches are banish-if-present cleanup: permitted; its ensconce/divine/feoff arc: required.",
+                "- Tier rule everywhere: launched on every green path → required; conditional → permitted.",
+                "",
+                "## Scope",
+                "",
+                "- Attribution per fixture: read the case bodies (rbtdrh_chain.rs; rbtdrs_poison.rs; livery in rbtdrv_patrol.rs; clipboard in rbtdrf_fast.rs) for tabtarget launches, funnel and direct-Command alike.",
+                "- Converge the runnable ones by running them and reading the census usage report: chaining-fact-band standalone or via reveille; regime-poison via tt/rbw-tf.FixtureRun.sh regime-poison (its operator-local cases may self-skip — skips suppress the negative check, so a partial-skip green is a valid gate).",
+                "- chaining-fact-livery cannot run without live GAR: attribute statically from the case source; its next service-tier run is the live proof.",
+                "- The enforcement machinery is landed — this pace writes declarations, not mechanism.",
+                "",
+                "## Done when",
+                "",
+                "All four fixtures carry manifest entries; reveille green; regime-poison standalone green with its census report showing the declared set used, skips permitting."
+              ],
+              "jjgtn_silks": "census-declare-unmanifested",
+              "jjgtn_basis": "515dd8c"
             }
           ]
         }
