@@ -8505,8 +8505,8 @@
         "₢BsAAe": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0839",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-1234",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Long credentialed suite runs on the macOS station; operator-present for the avow.",
@@ -8543,7 +8543,7 @@
                 "the baseline declared re-proven for the candidate cut, and ₢BbAAd's transferred gate discharged."
               ],
               "jjgtn_silks": "baseline-drift-reproof",
-              "jjgtn_basis": "a70766f"
+              "jjgtn_basis": "e2d1a6c"
             }
           ]
         }
