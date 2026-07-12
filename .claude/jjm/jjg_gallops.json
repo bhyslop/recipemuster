@@ -5446,8 +5446,10 @@
         "₢BbAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0710",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-0729",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Judgment, not mechanics — an ACG composition collapse, not a magic-string sweep.",
@@ -5511,7 +5513,7 @@
                 "verbs actually exercised."
               ],
               "jjgtn_silks": "rbrf-foedera-composition-collapse",
-              "jjgtn_basis": "7e740ee"
+              "jjgtn_basis": "ff8f15a"
             }
           ]
         }
