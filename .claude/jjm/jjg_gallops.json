@@ -5331,8 +5331,8 @@
         "₢BbAAb": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1646",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-0625",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Normative contract authoring — an operation sheaf downstream work will obey;",
@@ -5371,7 +5371,7 @@
                 "repo-wide grep shows no unresolved attribute references."
               ],
               "jjgtn_silks": "anoint-sheaf-chapbook-breach",
-              "jjgtn_basis": "56ea49f"
+              "jjgtn_basis": "bbf8069"
             }
           ]
         }
