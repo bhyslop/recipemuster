@@ -233,6 +233,27 @@ The bare primitive beneath {jjdd_refit} (dispatch sheaf).
 Trunk-ward merge (the operator's serializer — `enfold` merges only *into* billet branches),
 rebase, clone, init, log, blame: operator's hands or {jjdo_log}.
 
+== Toothing: officium open
+
+{jjdxo_officium} open composes over the primitives above rather than adding one — no verb
+names it (`jjrm_resolve_officium_billet`, `jjrm_mcp.rs`).
+{jjdf_identify} resolves the tree at the officium's captured `cwd`: root, upstream key, seat,
+line of work.
+The composition keeps two of the four — seat and, from the caller, the station name — plus
+the officium's own bare id as session, and holds them as its billet: station,
+{jjdw_hippodrome}-or-{jjdd_billet} (the seat itself — `Primary` naming the hippodrome,
+`Partition` a {jjdd_billet} — no separate enum), session.
+{jjdf_identify}'s `ForeignGround` decline propagates unchanged; the composition adds no
+rejection kind of its own.
+Deliberately out of scope: the aspirant toothing's `sync_state`-from-last-fetch staleness
+line (JJSAF-farrier.adoc) is not part of this composition — billet resolution only.
++
+The billet co-locates with the officium's exchange in the {jjdb_studbook}'s untracked
+working area (JJSVS-studbook.adoc, "Officium exchange and record") once the enablement seam
+(`jjrm_mcp.rs`, `JJRM_OFFICIUM_STUDBOOK_ENABLED`) flips at the conversion heat; until then the
+composition runs — inert, tested — beside the frozen curia-resident path (JJSAS
+Founding-and-cutover).
+
 == Rejection kinds
 
 One farrier-wide taxonomy of rejection *kinds*, wrapped in a context layer naming op, repo,

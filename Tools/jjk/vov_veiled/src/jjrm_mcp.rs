@@ -43,6 +43,7 @@ use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_
 use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
 use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort};
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
+use crate::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_Rejection, jjrfr_Seat};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 const OFFICIA_DIR: &str = ".claude/jjm/officia";
@@ -1682,6 +1683,69 @@ fn zjjrm_gazette_paths_block(
         gazette_in.display(),
         gazette_out.display(),
     )
+}
+
+// ============================================================================
+// Officium re-gestalt (enablement seam)
+// ============================================================================
+
+/// Enablement seam: mirrors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
+/// (`jjrvb_blotter.rs`). The officium exchange/record relocation below is
+/// complete and tested but not yet live — `zjjrm_handle_open` and
+/// `zjjrm_exchange_dir` still address the curia's own `.claude/jjm/officia/`
+/// unconditionally; nothing outside this module and its tests reads this
+/// constant. Flipping it is the conversion heat's act (JJSAS
+/// Founding-and-cutover), not this pace's.
+pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
+
+/// The officium's fixed subdir within the studbook's local clone (JJSVS
+/// "Officium exchange and record"): exchange (gazettes) and record (identity
+/// metadata) co-locate here — one untracked, JJ-owned location, graduating to
+/// committed history later by a gitignore-line change, never a relocation.
+const ZJJRM_OFFICIUM_SCRATCH_DIRNAME: &str = "officia_scratch";
+
+/// The studbook-relative exchange directory for one officium — the relocation
+/// target of `zjjrm_exchange_dir` once `JJRM_OFFICIUM_STUDBOOK_ENABLED` flips.
+/// `studbook_root` is the studbook's local clone root
+/// (`jjrvb_blotter::jjdb_BlotterConfig::local_root`).
+pub fn jjrm_studbook_exchange_dir(studbook_root: &Path, bare_id: &str) -> PathBuf {
+    studbook_root
+        .join(ZJJRM_OFFICIUM_SCRATCH_DIRNAME)
+        .join(bare_id)
+}
+
+/// The officium's billet resolution (JJSVF officium-open composition,
+/// `jjdf_identify`): station, hippodrome-or-billet, session. Reuses
+/// `jjrfr_Seat` for the hippodrome-or-billet distinction (`Primary` is the
+/// hippodrome, `Partition` is a billet) rather than minting a redundant enum.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct jjrm_OfficiumBillet {
+    pub station: String,
+    pub seat: jjrfr_Seat,
+    pub session: String,
+}
+
+/// Resolve one officium's billet: `identify` at the captured `cwd` plus the
+/// station name, per JJSVF's officium-open composition. `cwd` is captured
+/// once by the caller (the no-cwd rule `jjrfr_identify` itself honors);
+/// `session` is the officium's own bare id.
+pub fn jjrm_resolve_officium_billet<F: jjrfr_FarrierCore>(
+    farrier: &F,
+    cwd: &Path,
+    session: &str,
+) -> Result<jjrm_OfficiumBillet, jjrfr_Rejection> {
+    let identity = farrier.jjrfr_identify(cwd)?;
+    Ok(jjrm_OfficiumBillet {
+        station: zjjrm_station_name(),
+        seat: identity.seat,
+        session: session.to_string(),
+    })
+}
+
+/// The station name: cross-platform via `sysinfo` (already a crate
+/// dependency, `jjrdk_diskcheck.rs`) rather than a fresh `hostname` crate.
+fn zjjrm_station_name() -> String {
+    sysinfo::System::host_name().unwrap_or_else(|| "unknown".to_string())
 }
 
 /// Reject a param-supplied target on the gazette-only read paths (orient, show).

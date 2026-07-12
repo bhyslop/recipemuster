@@ -57,8 +57,9 @@ The remaining compositions stay aspirant:
 |===
 |Toothing |Composition
 
-|*(officium open — not a spoken verb)* |`identify` (root, upstream key, seat, line of work —
-the `jjdf_identify` resolutions) + `sync_state` from last fetch
+|*(officium open — not a spoken verb)* |Canon: drained (billet resolution only) — `identify`
+composes the station/hippodrome-or-billet/session billet (`JJSVF-farrier.adoc`, "Toothing:
+officium open"); the `sync_state` staleness line stays aspirant, not yet composed here
 
 |mount / orient |studbook read (no lock) + `sync_state` staleness line
 

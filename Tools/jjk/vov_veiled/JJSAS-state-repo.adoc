@@ -116,6 +116,15 @@ session transcripts —
 the second tenant).
 Co-locate now, commit later: graduating the record half to committed history becomes a
 gitignore-line change, not a relocation.
+INFUSED 260712 (billet resolution and the exchange/record split only): the identify-based
+billet triple (station, hippodrome-or-billet, session) is canon at the farrier sheaf's
+officium-open composition (`JJSVF-farrier.adoc`, "Toothing: officium open"); the
+exchange/record co-location is canon at the studbook sheaf ("Officium exchange and record",
+`JJSVS-studbook.adoc`); both land as code behind the `JJRM_OFFICIUM_STUDBOOK_ENABLED` seam,
+inert until the conversion heat.
+Deliberately not drained here: validating the resolved billet against the work being
+mounted — that composition still wants the pedigree/sire infrastructure this heat does not
+build.
 
 == MVP framing
 

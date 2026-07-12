@@ -93,3 +93,21 @@ First tenant: the {jjdgr_gallops} only.
 Captured chat histories and action-choices are the *intended second tenant*, deferred;
 their contract — including the chat↔commit correlation — stays aspirant with them
 (`JJSAS-state-repo.adoc`).
+
+== Officium exchange and record
+
+The {jjdb_studbook}'s local clone hosts more than its committed tenants above: a fixed,
+untracked subdir (one per officium) co-locates two things that never enter the record until
+they graduate — {jjdxo_exchange} (gazettes: wire format, single-call lifetime, forever
+untracked) and the officium's *record* half (identity metadata — station,
+hippodrome-or-billet, session, per {jjdf_identify}'s officium-open composition,
+`JJSVF-farrier.adoc` "Toothing: officium open" — and counterfoils, eventually the captured
+session transcripts of this section's second tenant).
+Co-locate now, commit later: graduating the record half to committed history is a
+gitignore-line change, never a relocation — the studbook already knows this one location on
+every station.
++
+This supersedes {jjdxo_officium}'s current curia-resident exchange (JJS0 Officium Lifecycle,
+Directory Layout) once the enablement seam (`jjrm_mcp.rs`,
+`JJRM_OFFICIUM_STUDBOOK_ENABLED`) flips at the conversion heat (JJSAS Founding-and-cutover);
+until then {jjdxo_exchange} stays exactly where it lives today, frozen and authoritative.

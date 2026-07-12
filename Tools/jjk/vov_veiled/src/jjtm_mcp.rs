@@ -17,17 +17,28 @@
 //! The single-commit-per-batch property is structural: jjrm_apply_batch is a
 //! pure transform run inside the one shared dispatch/persist lifecycle (one
 //! machine_commit), already covered by the dispatch tests.
+//!
+//! - jjrm_resolve_officium_billet / jjrm_studbook_exchange_dir: the officium
+//!   re-gestalt's inert seam (JJRM_OFFICIUM_STUDBOOK_ENABLED) — identify-based
+//!   billet resolution (station, seat, session) and the studbook-relative
+//!   exchange path shape. Nothing here is wired into the live open path.
 
 use super::jjrm_mcp::{
     jjrm_apply_batch,
     jjrm_resolve_batch_firemark,
+    jjrm_resolve_officium_billet,
+    jjrm_studbook_exchange_dir,
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
     ZJJRM_SESSION_ABSENT,
 };
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
+use super::jjrfg_plaingit::jjrfg_PlainGit;
+use super::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_RejectionKind, jjrfr_Seat};
+use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
+use std::path::Path;
 
 // ===== Helpers =====
 
@@ -317,4 +328,70 @@ fn jjtm_judge_designation_rough_is_frontier_judgment_work() {
         None, zjjrm_CallerTier::Designable(jjrg_Tier::Haiku)).unwrap_err();
     assert!(err.contains("judgment work"), "got: {}", err);
     assert!(err.contains("jjx_apostille"), "refusal names the remedy: {}", err);
+}
+
+// ===== Officium re-gestalt (inert seam) =====
+
+const ZJJTM_TRUNK: &str = "jjtm-trunk";
+
+fn zjjtm_git(dir: &Path, args: &[&str]) -> String {
+    let out = std::process::Command::new("git")
+        .arg("-C")
+        .arg(dir)
+        .args(args)
+        .output()
+        .expect("test harness git invocation must spawn");
+    assert!(
+        out.status.success(),
+        "test harness git -C {} {:?} failed: {}",
+        dir.display(),
+        args,
+        String::from_utf8_lossy(&out.stderr)
+    );
+    String::from_utf8(out.stdout).expect("git stdout must be UTF-8").trim().to_string()
+}
+
+fn zjjtm_init_local(dir: &Path) {
+    zjjtm_git(dir, &["init", "-q", "-b", ZJJTM_TRUNK]);
+    zjjtm_git(dir, &["config", "user.email", "jjtm@example.invalid"]);
+    zjjtm_git(dir, &["config", "user.name", "jjtm"]);
+}
+
+fn zjjtm_commit_all(dir: &Path, name: &str, content: &str, message: &str) {
+    std::fs::write(dir.join(name), content).unwrap();
+    zjjtm_git(dir, &["add", "--", name]);
+    zjjtm_git(dir, &["commit", "-q", "-m", message]);
+}
+
+#[test]
+fn jjtm_resolve_officium_billet_reads_identify_and_station() {
+    let td = JjkTestDir::new("jjtm_resolve_officium_billet_reads_identify_and_station");
+    zjjtm_init_local(td.path());
+    zjjtm_commit_all(td.path(), "a.txt", "hello", "init");
+
+    let billet = jjrm_resolve_officium_billet(&jjrfg_PlainGit, td.path(), "260712-1000-abcd")
+        .expect("a git tree must resolve a billet");
+
+    assert_eq!(billet.seat, jjrfr_Seat::Primary);
+    assert_eq!(billet.session, "260712-1000-abcd");
+    assert!(!billet.station.is_empty(), "station must not be empty");
+    assert_eq!(billet.station, sysinfo::System::host_name().unwrap_or_else(|| "unknown".to_string()));
+}
+
+#[test]
+fn jjtm_resolve_officium_billet_propagates_foreign_ground_rejection() {
+    let td = JjkTestDir::new("jjtm_resolve_officium_billet_propagates_foreign_ground_rejection");
+    // No git init — foreign ground.
+
+    let rejection = jjrm_resolve_officium_billet(&jjrfg_PlainGit, td.path(), "260712-1000-abcd")
+        .expect_err("a non-git tree must decline, not claim");
+
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::ForeignGround);
+}
+
+#[test]
+fn jjtm_studbook_exchange_dir_nests_under_scratch_dirname() {
+    let studbook_root = Path::new("/infield/jjqs_studbook");
+    let dir = jjrm_studbook_exchange_dir(studbook_root, "260712-1000-abcd");
+    assert_eq!(dir, studbook_root.join("officia_scratch").join("260712-1000-abcd"));
 }
