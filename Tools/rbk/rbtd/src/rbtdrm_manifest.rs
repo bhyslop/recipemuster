@@ -200,6 +200,15 @@ pub const RBTDRM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
 pub const RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
 pub const RBTDRM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
 pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
+// Calibrant coverage fixtures — prove the colophon census enforcement lands
+// its diagnostics against the synthetic RBTDGC_THEURGE_NOOP colophon:
+// aligned declares+invokes (Pass), undeclared invokes without declaring
+// (fixture FAILs via the positive check), unused declares without invoking
+// (fixture FAILs via the negative check). Roster-only, driven by the
+// touchstone surface fixture's coverage cases, never by any suite.
+pub const RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED: &str = "calibrant-coverage-aligned";
+pub const RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED: &str = "calibrant-coverage-undeclared";
+pub const RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED: &str = "calibrant-coverage-unused";
 // Touchstone — the surface fixture: theurge certifying its own operator
 // surface. A reveille member whose cases spawn child rbtd runs through the
 // real tabtarget chain against the deliberately-failing calibrant fixtures,
@@ -320,7 +329,11 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
-        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
+        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL
+        | RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED => Some(&[]),
+        RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED | RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED => {
+            Some(&[RBTDGC_THEURGE_NOOP])
+        }
         RBTDRM_FIXTURE_PODVM_RESOLVE => Some(&[
             RBTDGC_PRESAGE_IMMURE,
         ]),

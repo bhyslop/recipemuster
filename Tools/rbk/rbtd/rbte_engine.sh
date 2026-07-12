@@ -182,4 +182,11 @@ rbte_dowse() {
   "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}"
 }
 
+rbte_noop() {
+  zrbte_sentinel
+
+  buc_step "Noop: synthetic no-op for calibrant census coverage cases"
+  buc_success "Noop: complete"
+}
+
 # eof

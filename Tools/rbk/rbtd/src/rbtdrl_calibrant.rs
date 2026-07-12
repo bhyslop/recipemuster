@@ -18,32 +18,44 @@
 // verdicts that exercise the operator-facing surface of the theurge engine.
 // Internal framework-test plumbing; not end-user-facing.
 //
-// Four fixtures registered through rbtdrm_manifest.rs and dispatched via
+// Seven fixtures registered through rbtdrm_manifest.rs and dispatched via
 // rbtdrc_crucible.rs:
 //
-//   calibrant-verdicts      Independent       4 cases   verdict-path coverage
-//   calibrant-fail-fast     Independent       3 cases   fail-fast halts subsequent cases
-//   calibrant-progressing   StateProgressing  2 cases   probe Ok/Err dispatch
-//   calibrant-sentinel      Independent       1 case    suite-fail-fast pivot
+//   calibrant-verdicts             Independent  4 cases  verdict-path coverage
+//   calibrant-fail-fast            Independent  3 cases  fail-fast halts subsequent cases
+//   calibrant-progressing  StateProgressing     2 cases  probe Ok/Err dispatch
+//   calibrant-sentinel             Independent  1 case   suite-fail-fast pivot
+//   calibrant-coverage-aligned     Independent  1 case   declared+invoked census colophon
+//   calibrant-coverage-undeclared  Independent  1 case   invoked-but-undeclared -> positive-check FAIL
+//   calibrant-coverage-unused      Independent  1 case   declared-but-unused -> negative-check FAIL
 //
-// All four declare empty rbtdrm_required_colophons — calibrant cases never
+// The first four declare empty rbtdrm_required_colophons — their cases never
 // shell out to bash tabtargets, so the manifest-coupling check is vacuous.
+// The three coverage fixtures invoke (or deliberately don't invoke) the
+// synthetic RBTDGC_THEURGE_NOOP colophon to exercise the census enforcement
+// itself; their manifest declarations are what differ between them.
 //
 // The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
 // fixtures as child rbtd runs through the real tabtarget chain and asserts
 // engine-output contracts (exit codes, diagnostic format, fail-fast
-// semantics, disposition × keep-going policy gate). calibrant-fail-fast and
-// calibrant-sentinel additionally compose the registered `calibrant` suite —
-// touchstone's suite-abort subject; the other two stay roster-only.
+// semantics, disposition × keep-going policy gate, census diagnostics).
+// calibrant-fail-fast and calibrant-sentinel additionally compose the
+// registered `calibrant` suite — touchstone's suite-abort subject; the rest
+// stay roster-only.
 
 use std::path::Path;
 
 use crate::case;
+use crate::rbtdgc_consts::RBTDGC_THEURGE_NOOP;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
+use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
+use crate::rbtdri_invocation::rbtdri_invoke_global;
 use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
-    RBTDRM_FIXTURE_CALIBRANT_SENTINEL, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED, RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
+    RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
+    RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
 };
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
@@ -179,6 +191,52 @@ fn rbtdrl_sentinel_marks(dir: &Path) -> rbtdre_Verdict {
 
 pub static RBTDRL_CASES_SENTINEL: &[rbtdre_Case] = &[case!(rbtdrl_sentinel_marks)];
 
+// ── calibrant-coverage-aligned / -undeclared / -unused ───────
+//
+// Three single-case Independent fixtures proving the RBTDRI colophon census
+// enforcement lands its diagnostics against the synthetic RBTDGC_THEURGE_NOOP
+// colophon — zero cloud/filesystem side effects. Manifest declaration
+// (rbtdrm_required_colophons) is the only difference between the three; the
+// touchstone surface fixture spawns each as a child rbtd run and asserts the
+// resulting exit code and diagnostic text (coverage section of its case
+// catalog). Roster-only: a member of no suite.
+
+/// Invoke the noop tabtarget through the real invocation chokepoint
+/// (rbtdri_invoke_global). Shared body for the aligned and undeclared cases —
+/// their fixtures' manifest declarations are what differ.
+fn zrbtdrl_invoke_noop() -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| match rbtdri_invoke_global(ctx, RBTDGC_THEURGE_NOOP, &[], &[]) {
+        Ok(result) if result.exit_code == 0 => rbtdre_Verdict::Pass,
+        Ok(result) => rbtdre_Verdict::Fail(format!("noop tabtarget exited {}", result.exit_code)),
+        Err(e) => rbtdre_Verdict::Fail(e),
+    })
+}
+
+/// Declared and invoked: the census positive check has nothing to refuse, and
+/// the negative check finds the declared colophon in the used-set — Pass.
+fn rbtdrl_coverage_aligned_invokes(_dir: &Path) -> rbtdre_Verdict {
+    zrbtdrl_invoke_noop()
+}
+
+/// Invoked but never declared (this fixture's manifest entry is `Some(&[])`):
+/// the census positive check in rbtdri_invoke_impl refuses the invoke before
+/// the tabtarget ever launches, failing the fixture.
+fn rbtdrl_coverage_undeclared_invokes(_dir: &Path) -> rbtdre_Verdict {
+    zrbtdrl_invoke_noop()
+}
+
+/// Declared but never invoked: this case passes clean, and the engine's
+/// negative census check fails the fixture afterward for the unused
+/// declaration.
+fn rbtdrl_coverage_unused_no_invoke(_dir: &Path) -> rbtdre_Verdict {
+    rbtdre_Verdict::Pass
+}
+
+pub static RBTDRL_CASES_COVERAGE_ALIGNED: &[rbtdre_Case] = &[case!(rbtdrl_coverage_aligned_invokes)];
+pub static RBTDRL_CASES_COVERAGE_UNDECLARED: &[rbtdre_Case] =
+    &[case!(rbtdrl_coverage_undeclared_invokes)];
+pub static RBTDRL_CASES_COVERAGE_UNUSED: &[rbtdre_Case] = &[case!(rbtdrl_coverage_unused_no_invoke)];
+
 // ── Fixture statics ──────────────────────────────────────────
 
 pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
@@ -224,3 +282,36 @@ pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
     tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_SENTINEL.cases.len() == 1);
+
+pub static RBTDRL_FIXTURE_COVERAGE_ALIGNED: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRL_CASES_COVERAGE_ALIGNED,
+    credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
+};
+const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_ALIGNED.cases.len() == 1);
+
+pub static RBTDRL_FIXTURE_COVERAGE_UNDECLARED: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRL_CASES_COVERAGE_UNDECLARED,
+    credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
+};
+const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNDECLARED.cases.len() == 1);
+
+pub static RBTDRL_FIXTURE_COVERAGE_UNUSED: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRL_CASES_COVERAGE_UNUSED,
+    credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
+};
+const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNUSED.cases.len() == 1);

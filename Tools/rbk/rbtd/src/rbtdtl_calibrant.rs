@@ -25,13 +25,15 @@
 
 use std::path::PathBuf;
 
+use crate::rbtdgc_consts::RBTDGC_THEURGE_NOOP;
 use crate::rbtdra_almanac::rbtdra_lookup_fixture;
-use crate::rbtdre_engine::{rbtdre_find_case, rbtdre_Verdict};
+use crate::rbtdre_engine::{rbtdre_find_case, rbtdre_Disposition, rbtdre_Verdict};
 use crate::rbtdrl_calibrant::{RBTDRL_OUTPUT_FILE, RBTDRL_SENTINEL_FILE};
 use crate::rbtdrm_manifest::{
-    rbtdrm_required_colophons, RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
-    RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
-    RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+    rbtdrm_required_colophons, RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
+    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED, RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
+    RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST, RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
+    RBTDRM_FIXTURE_CALIBRANT_SENTINEL, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
 };
 use crate::rbtdth_helpers::rbtdth_make_scratch;
 
@@ -218,5 +220,97 @@ fn rbtdtl_progressing_probe_err_fails_with_diagnostic() {
     );
     rbtdtl_assert_fail_with(&verdict, "precondition", "progressing_probe_err");
     rbtdtl_assert_fail_with(&verdict, "remediation:", "progressing_probe_err");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+// ── coverage fixtures: registration shape only ───────────────
+//
+// The coverage cases call rbtdrc_with_ctx to reach the real invocation
+// chokepoint, which panics without an installed rbtdrc context (see
+// rbtdrc_crucible::rbtdrc_with_ctx). Unlike the case bodies above — pure
+// functions the engine can run standalone — these need a real fixture run
+// (installed context, armed census) to execute meaningfully; that exercise is
+// the touchstone surface fixture's job (child rbtd runs, exit-code/stderr
+// assertions). These tests pin the registration ground truth only: each
+// fixture is registered, Independent, single-case, with the manifest
+// declaration the coverage story depends on.
+
+fn rbtdtl_assert_registered_single_case(fixture: &'static str, case_name: &str) {
+    let fix = rbtdra_lookup_fixture(fixture)
+        .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture));
+    assert!(
+        matches!(fix.disposition, rbtdre_Disposition::Independent),
+        "fixture '{}' must be Independent",
+        fixture
+    );
+    assert_eq!(
+        fix.cases.len(),
+        1,
+        "fixture '{}' must register exactly one case",
+        fixture
+    );
+    assert!(
+        rbtdre_find_case(fix.cases, case_name).is_some(),
+        "fixture '{}' must register case '{}'",
+        fixture,
+        case_name
+    );
+}
+
+#[test]
+fn rbtdtl_coverage_aligned_declares_and_registers_noop() {
+    rbtdtl_assert_registered_single_case(
+        RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
+        "rbtdrl_coverage_aligned_invokes",
+    );
+    let req = rbtdrm_required_colophons(RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED)
+        .expect("coverage-aligned must carry a manifest entry");
+    assert_eq!(
+        req,
+        &[RBTDGC_THEURGE_NOOP],
+        "coverage-aligned must declare exactly the noop colophon"
+    );
+}
+
+#[test]
+fn rbtdtl_coverage_undeclared_declares_empty_and_registers() {
+    rbtdtl_assert_registered_single_case(
+        RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+        "rbtdrl_coverage_undeclared_invokes",
+    );
+    let req = rbtdrm_required_colophons(RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED)
+        .expect("coverage-undeclared must carry a manifest entry");
+    assert!(
+        req.is_empty(),
+        "coverage-undeclared must declare no colophons; got {:?}",
+        req
+    );
+}
+
+#[test]
+fn rbtdtl_coverage_unused_declares_and_registers_noop() {
+    rbtdtl_assert_registered_single_case(
+        RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
+        "rbtdrl_coverage_unused_no_invoke",
+    );
+    let req = rbtdrm_required_colophons(RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED)
+        .expect("coverage-unused must carry a manifest entry");
+    assert_eq!(
+        req,
+        &[RBTDGC_THEURGE_NOOP],
+        "coverage-unused must declare exactly the noop colophon"
+    );
+}
+
+#[test]
+fn rbtdtl_coverage_unused_case_passes_without_invoking() {
+    // The one case pure-passes with no ctx/tabtarget interaction — the
+    // negative census check that fails this fixture lives in the engine,
+    // exercised only by a real fixture run (touchstone's sibling pace).
+    let (verdict, dir) = rbtdtl_run_case(
+        RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
+        "rbtdrl_coverage_unused_no_invoke",
+    );
+    rbtdtl_assert_pass(&verdict, "coverage_unused_no_invoke");
     let _ = std::fs::remove_dir_all(&dir);
 }
