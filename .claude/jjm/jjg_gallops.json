@@ -7386,6 +7386,7 @@
         "₢BsAAH",
         "₢BsAAL",
         "₢BsAAb",
+        "₢BsAAe",
         "₢BsAAc",
         "₢BsAAd",
         "₢BsAAK",
@@ -7395,7 +7396,7 @@
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8482,6 +8483,51 @@
               ],
               "jjgtn_silks": "cygwin-freehold-sweep",
               "jjgtn_basis": "2cc3110"
+            }
+          ]
+        },
+        "₢BsAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0839",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Long credentialed suite runs on the macOS station; operator-present for the avow.",
+                "Mechanical: run, read counts, notch or surface — the product is a verdict, not a fix.",
+                "",
+                "## Why",
+                "₢BsAAH declared the rebaseline closed at 8be38e870, and main has moved substantially since:",
+                "runtime bash, the theurge engine, and the rbrn/rbrf single-home sweeps out of ₣Bb all landed after it.",
+                "₢BsAAK is specified to cut the candidate on the baseline the revalidation proved,",
+                "so that baseline is owed again before the cut.",
+                "Survey the drift with `git diff --stat 8be38e870..HEAD -- 'Tools/rbk/*.sh' 'Tools/rbk/rbtd/src/*.rs' 'Tools/buk/*.sh'`.",
+                "",
+                "## Runs",
+                "Sequential, never parallel; notch before each.",
+                "",
+                "- echelon on current main — the suite cover (reveille ∪ picket ∪ bivouac).",
+                "- foedus-lifecycle (`tt/rbw-tf.FixtureRun.sh foedus-lifecycle`) — quota-touching and a member of NO suite,",
+                "  so echelon does not reach it.",
+                "  It is the only fixture that drives the affiance/jilt folio branch,",
+                "  which is where the rbrf composition collapse (₢BbAAd) rewrote rbgp_cli's named-foedus path.",
+                "  Skipping it leaves that pace's transferred gate undischarged — echelon alone does not discharge it.",
+                "- The rbxk keycloak sites: disposition them explicitly.",
+                "  Either run the facility round-trip (`rbw-qjK` then `rbw-qjQ` — needs Docker, mutates the manor),",
+                "  or accept the executed byte-identity proof recorded on ₢BbAAd; say which in the verdict.",
+                "",
+                "## Cinched",
+                "- Runs before the rocket paces: they clone \"8be38e870 or later on main\", which is this tree.",
+                "- Never overlaps the rocket paces: different stations, one GCP depot —",
+                "  picket's parley unseats and re-brevets the retriever mantle",
+                "  that rocket's bivouac and blockade summon with.",
+                "",
+                "## Done when",
+                "echelon green on current main; foedus-lifecycle green; the rbxk disposition stated;",
+                "the baseline declared re-proven for the candidate cut, and ₢BbAAd's transferred gate discharged."
+              ],
+              "jjgtn_silks": "baseline-drift-reproof",
+              "jjgtn_basis": "a70766f"
             }
           ]
         }
