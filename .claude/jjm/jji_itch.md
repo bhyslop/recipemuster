@@ -2054,3 +2054,6 @@ RELEASE.md and the /rbk-prep-release ceremony are prose, and both drifted badly 
 ### Context
 
 Raised 2026-07-07 during ₣Bs grooming, alongside widening the ceremony-repair pace to cover both delivery documents. Deliberately deferred: the procedure is mid-rework under the federation transition (handbook code written now would be written twice), and HCG's precondition — author durable procedure from the walked path — is met only after the heat's two walks (practice cut + real candidate). Trigger: after the real candidate has shipped and the ceremony has stabilized.
+
+## acg-pair-audit-pull-tail
+The ACG roster heat (₣Bz, rbk-23-win-acg-incorporate) deliberately slates no exhaustive per-operation pair-audit roster: the sheaf census runs ~90 documents and the pilots showed exhaustive pairing is low-yield ceremony. Pairs beyond the polity seed are pulled on demand — by the ₣Bz scout pace at convening, by a regenerate-from-specs trial naming a surface, or by a heat about to work one. Cut per the conjure findings memo (Memos/memo-20260704-acg-pilot-conjure-findings.md, roster recommendation): operation-unit with declared support closure, hot lanes wait for their owning heats. This entry is the reminder that the tail exists; the recipe lives in the memo and the ₣Bz paddock.
