@@ -240,13 +240,20 @@ names it (`jjrm_resolve_officium_billet`, `jjrm_mcp.rs`).
 {jjdf_identify} resolves the tree at the officium's captured `cwd`: root, upstream key, seat,
 line of work.
 The composition keeps one of the four — seat — and adds the two the tree cannot supply: the
-station name, resolved at the station itself (`zjjrm_station_name`, `jjrm_mcp.rs`), and the
-session, the officium's own bare id from the caller.
-It holds the three as its billet: station, {jjdw_hippodrome}-or-{jjdd_billet} (the seat
-itself — `Primary` naming the hippodrome, `Partition` a {jjdd_billet} — no separate enum),
-session.
-{jjdf_identify}'s `ForeignGround` decline propagates unchanged; the composition adds no
-rejection kind of its own.
+station name (`jjrm_station_name`, `jjrm_mcp.rs`) and the session, the officium's own bare id.
+It holds the three as its billet: station, {jjdw_hippodrome}-or-{jjdd_billet}, session.
+The middle member is carried as the seat itself — no separate enum: reading `Primary` as the
+{jjdw_hippodrome} and `Partition` as a {jjdd_billet} is a premise the dispatch doors
+underwrite (JJSVD-dispatch.adoc, "the doors are the sole entrance" — a hand-launched session
+in a hand-made partition is a non-JJ session and opens no {jjdxo_officium}), and the deferred
+billet-validation composition (JJSAS-state-repo.adoc) will enforce; it is never a fact
+{jjdf_identify} itself asserts.
+A station that reports no name opens no {jjdxo_officium} — there is no stand-in name, since
+two unnamed stations would record the same station member and collapse the distinction it
+exists to draw.
+That refusal is {jjdxo_officium} open's own; {jjdf_identify}'s `ForeignGround` decline
+propagates unchanged, and the composition adds no rejection kind of its own — the taxonomy
+below stays tree-shaped.
 Deliberately out of scope: the aspirant toothing's `sync_state`-from-last-fetch staleness
 line (JJSAF-farrier.adoc) is not part of this composition — billet resolution only.
 +

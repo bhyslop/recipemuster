@@ -27,6 +27,7 @@ use super::jjrm_mcp::{
     jjrm_apply_batch,
     jjrm_resolve_batch_firemark,
     jjrm_resolve_officium_billet,
+    jjrm_station_name,
     jjrm_studbook_exchange_dir,
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
@@ -365,18 +366,18 @@ fn zjjtm_commit_all(dir: &Path, name: &str, content: &str, message: &str) {
 }
 
 #[test]
-fn jjtm_resolve_officium_billet_reads_identify_and_station() {
-    let td = JjkTestDir::new("jjtm_resolve_officium_billet_reads_identify_and_station");
+fn jjtm_resolve_officium_billet_carries_all_three_members() {
+    let td = JjkTestDir::new("jjtm_resolve_officium_billet_carries_all_three_members");
     zjjtm_init_local(td.path());
     zjjtm_commit_all(td.path(), "a.txt", "hello", "init");
 
-    let billet = jjrm_resolve_officium_billet(&jjrfg_PlainGit, td.path(), "260712-1000-abcd")
-        .expect("a git tree must resolve a billet");
+    let billet =
+        jjrm_resolve_officium_billet(&jjrfg_PlainGit, td.path(), "jjtm-station", "260712-1000-abcd")
+            .expect("a git tree must resolve a billet");
 
     assert_eq!(billet.seat, jjrfr_Seat::Primary);
+    assert_eq!(billet.station, "jjtm-station");
     assert_eq!(billet.session, "260712-1000-abcd");
-    assert!(!billet.station.is_empty(), "station must not be empty");
-    assert_eq!(billet.station, sysinfo::System::host_name().unwrap_or_else(|| "unknown".to_string()));
 }
 
 #[test]
@@ -384,10 +385,22 @@ fn jjtm_resolve_officium_billet_propagates_foreign_ground_rejection() {
     let td = JjkTestDir::new("jjtm_resolve_officium_billet_propagates_foreign_ground_rejection");
     // No git init — foreign ground.
 
-    let rejection = jjrm_resolve_officium_billet(&jjrfg_PlainGit, td.path(), "260712-1000-abcd")
-        .expect_err("a non-git tree must decline, not claim");
+    let rejection =
+        jjrm_resolve_officium_billet(&jjrfg_PlainGit, td.path(), "jjtm-station", "260712-1000-abcd")
+            .expect_err("a non-git tree must decline, not claim");
 
     assert_eq!(rejection.kind, jjrfr_RejectionKind::ForeignGround);
+}
+
+#[test]
+fn jjtm_station_name_offers_no_stand_in() {
+    // The station either names itself or yields None — never a shared stand-in
+    // two unnamed stations would both record (JJSVF officium-open; the refusal
+    // is jjx_open's own, wired at the conversion heat).
+    if let Some(station) = jjrm_station_name() {
+        assert!(!station.is_empty(), "a named station must not name itself the empty string");
+        assert_ne!(station, "unknown", "'unknown' is a stand-in, not a station name");
+    }
 }
 
 #[test]

@@ -106,6 +106,12 @@ session transcripts of this section's second tenant).
 Co-locate now, commit later: graduating the record half to committed history is a
 gitignore-line change, never a relocation — the studbook already knows this one location on
 every station.
+Because graduation is that small, it forces no schema review of its own: what may enter the
+record binds here, before the record is ever written.
+The {jjdw_hippodrome}-or-{jjdd_billet} member enters as the seat's role reading alone — a
+`Partition` carries its primary's root, and that root is a station-local worktree path, barred
+by "What never enters the record" above (the rivet whose tail mints when the record write
+lands).
 +
 This supersedes {jjdxo_officium}'s current curia-resident exchange (JJS0 Officium Lifecycle,
 Directory Layout) once the enablement seam (`jjrm_mcp.rs`,

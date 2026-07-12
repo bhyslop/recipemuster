@@ -1714,10 +1714,17 @@ pub fn jjrm_studbook_exchange_dir(studbook_root: &Path, bare_id: &str) -> PathBu
         .join(bare_id)
 }
 
-/// The officium's billet resolution (JJSVF officium-open composition,
-/// `jjdf_identify`): station, hippodrome-or-billet, session. Reuses
-/// `jjrfr_Seat` for the hippodrome-or-billet distinction (`Primary` is the
-/// hippodrome, `Partition` is a billet) rather than minting a redundant enum.
+/// The officium's billet (JJSVF officium-open composition, `jjdf_identify`):
+/// station, hippodrome-or-billet, session.
+///
+/// The middle member is carried as `jjrfr_Seat` itself — no separate enum.
+/// Reading `Primary` as the hippodrome and `Partition` as a billet is a premise
+/// the dispatch doors underwrite (JJSVD, "The doors are the sole entrance"), not
+/// a fact `identify` asserts.
+///
+/// A `Partition` carries its primary's root: a station-local worktree path, which
+/// JJSVS "What never enters the record" bars from the studbook. Only the seat's
+/// role reading may enter the record — the root never serializes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrm_OfficiumBillet {
     pub station: String,
@@ -1725,27 +1732,37 @@ pub struct jjrm_OfficiumBillet {
     pub session: String,
 }
 
-/// Resolve one officium's billet: `identify` at the captured `cwd` plus the
-/// station name, per JJSVF's officium-open composition. `cwd` is captured
-/// once by the caller (the no-cwd rule `jjrfr_identify` itself honors);
-/// `session` is the officium's own bare id.
+/// Resolve one officium's billet, per JJSVF's officium-open composition:
+/// `identify` at the captured `cwd` supplies the seat; `station` and `session`
+/// are the two members the tree cannot supply. `cwd` is captured once by the
+/// caller (the no-cwd rule `jjrfr_identify` itself honors); `station` comes from
+/// `jjrm_station_name`; `session` is the officium's own bare id.
 pub fn jjrm_resolve_officium_billet<F: jjrfr_FarrierCore>(
     farrier: &F,
     cwd: &Path,
+    station: &str,
     session: &str,
 ) -> Result<jjrm_OfficiumBillet, jjrfr_Rejection> {
     let identity = farrier.jjrfr_identify(cwd)?;
     Ok(jjrm_OfficiumBillet {
-        station: zjjrm_station_name(),
+        station: station.to_string(),
         seat: identity.seat,
         session: session.to_string(),
     })
 }
 
-/// The station name: cross-platform via `sysinfo` (already a crate
+/// The station's own name: cross-platform via `sysinfo` (already a crate
 /// dependency, `jjrdk_diskcheck.rs`) rather than a fresh `hostname` crate.
-fn zjjrm_station_name() -> String {
-    sysinfo::System::host_name().unwrap_or_else(|| "unknown".to_string())
+///
+/// `None` when the station reports no name, and there is no stand-in: two
+/// unnamed stations would record the same station member and collapse the
+/// distinction that member exists to draw — durably, in a record slated to
+/// graduate to committed history. A station that cannot name itself does not
+/// open an officium. The refusal is `jjx_open`'s own (wired at the conversion
+/// heat), never a `jjrfr_RejectionKind` — that taxonomy is tree-shaped, and the
+/// officium-open composition adds no rejection kind of its own (JJSVF).
+pub fn jjrm_station_name() -> Option<String> {
+    sysinfo::System::host_name()
 }
 
 /// Reject a param-supplied target on the gazette-only read paths (orient, show).
