@@ -3718,8 +3718,9 @@
         "₢BCAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0655",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-0656",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3747,7 +3748,7 @@
                 "Both tiers enforced as cinched; unit tests prove the permitted semantics; reveille green."
               ],
               "jjgtn_silks": "census-permitted-tier",
-              "jjgtn_basis": "9293f0b"
+              "jjgtn_basis": "8cd18fe"
             }
           ]
         },
