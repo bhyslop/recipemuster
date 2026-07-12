@@ -5453,8 +5453,8 @@
         "₢BbAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0726",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0749",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
@@ -5512,7 +5512,7 @@
                 "did, rather than reading a green suite as coverage."
               ],
               "jjgtn_silks": "rbrn-nameplate-single-home",
-              "jjgtn_basis": "f3df3a6"
+              "jjgtn_basis": "924d1b4"
             }
           ]
         },
