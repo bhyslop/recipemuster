@@ -5232,8 +5232,8 @@
         "₢BbAAZ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1628",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0646",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -5277,7 +5277,7 @@
                 "reveille green (tt/rbw-ts.TestSuite.reveille.sh)."
               ],
               "jjgtn_silks": "regime-bound-single-homing",
-              "jjgtn_basis": "d5c8490"
+              "jjgtn_basis": "4aa83f2"
             }
           ]
         },
