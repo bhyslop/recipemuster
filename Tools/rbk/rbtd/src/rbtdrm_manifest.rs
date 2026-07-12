@@ -322,6 +322,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_REGIME_VALIDATION
         | RBTDRM_FIXTURE_REGIME_SMOKE
         | RBTDRM_FIXTURE_FOUNDRY_PATH
+        | RBTDRM_FIXTURE_CLIPBOARD
         | RBTDRM_FIXTURE_CUPEL
         | RBTDRM_FIXTURE_PYX
         | RBTDRM_FIXTURE_CONFORMANCE
@@ -410,6 +411,40 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_PAYOR_ESTABLISH,
             RBTDGC_QUOTA_BUILD,
         ]),
+        // Chaining-fact-band drives every band case through a per-verb funnel
+        // (feoff/yoke/anoint/nameplate) or the shared readside funnel
+        // (summon/plumb/augur/rekon); each of the 8 colophons below fires
+        // unconditionally in at least one case, so none are permitted-only.
+        RBTDRM_FIXTURE_CHAINING_FACT_BAND => Some(&[
+            RBTDGC_FEOFF_BOLE,
+            RBTDGC_YOKE_RELIQUARY,
+            RBTDGC_ANOINT_GRAFT,
+            RBTDGC_DRIVE_HALLMARK,
+            RBTDGC_SUMMON_HALLMARK,
+            RBTDGC_PLUMB_FULL,
+            RBTDGC_AUGUR_LODE,
+            RBTDGC_REKON_HALLMARK,
+        ]),
+        // Chaining-fact-livery's producer->consumer arc (ensconce -> feoff)
+        // and the reset's divine both fire every run; banish is the
+        // banish-if-present cleanup, declared permitted below.
+        RBTDRM_FIXTURE_CHAINING_LIVERY => Some(&[
+            RBTDGC_DIVINE_LODES,
+            RBTDGC_ENSCONCE_BOLE,
+            RBTDGC_FEOFF_BOLE,
+        ]),
+        // Regime-poison's in-tree-backed regimes (repo/depot/payor/station-
+        // config/nameplate/vessel) validate on every case; the two
+        // operator-local regimes (oauth, station tincture) self-skip when
+        // unconfigured, declared permitted below.
+        RBTDRM_FIXTURE_REGIME_POISON => Some(&[
+            RBTDGC_VALIDATE_REPO,
+            RBTDGC_VALIDATE_DEPOT,
+            RBTDGC_VALIDATE_PAYOR,
+            BUWGC_RC_VALIDATE,
+            RBTDGC_VALIDATE_NAMEPLATE,
+            RBTDGC_VALIDATE_VESSEL,
+        ]),
         _ => None,
     }
 }
@@ -429,6 +464,13 @@ pub fn rbtdrm_permitted_colophons(fixture: &str) -> &'static [&'static str] {
         // Levy fires only when the standing freehold is absent — the healthy
         // reuse path never reaches it, so it cannot be required.
         RBTDRM_FIXTURE_FREEHOLD_ESTABLISH => &[RBTDGC_LEVY_DEPOT],
+        // Banish fires only when the reset's divine finds the pinned
+        // touchmark already present — the steady-state pass never reaches it.
+        RBTDRM_FIXTURE_CHAINING_LIVERY => &[RBTDGC_BANISH_LODE],
+        // Oauth and station regimes have no in-tree baseline — configured
+        // only on an operator's workstation; unconfigured, the case
+        // self-skips instead of invoking the poisoned colophon.
+        RBTDRM_FIXTURE_REGIME_POISON => &[RBTDGC_VALIDATE_OAUTH, BUWGC_RS_VALIDATE],
         _ => &[],
     }
 }
