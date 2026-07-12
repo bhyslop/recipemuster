@@ -71,7 +71,7 @@ rbfl_anoint() {
 
   buc_step "Anointing ${RBRV_SIGIL}"
 
-  local -r z_rbrv_file="${z_vessel_dir%/}/rbrv.env"
+  local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
 
   local z_rbrv_lines=()
@@ -80,7 +80,7 @@ rbfl_anoint() {
     z_rbrv_lines+=("${z_rbrv_line}")
   done < "${z_rbrv_file}"
 
-  local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_anoint_${RBRV_SIGIL}_rbrv.env.new"
+  local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_anoint_${RBRV_SIGIL}_${RBCC_rbrv_file}.new"
   : > "${z_tmp_file}" || buc_die "Failed to create ${z_tmp_file}"
 
   local z_wrote=0

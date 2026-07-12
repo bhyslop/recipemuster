@@ -33,7 +33,7 @@ rbfc_require_vessel_sigil() {
 
   local -r z_sigil="${1:-}"
 
-  if test -n "${z_sigil}" && test -d "${RBRR_VESSEL_DIR}/${z_sigil}" && test -f "${RBRR_VESSEL_DIR}/${z_sigil}/rbrv.env"; then
+  if test -n "${z_sigil}" && test -d "${RBRR_VESSEL_DIR}/${z_sigil}" && test -f "${RBRR_VESSEL_DIR}/${z_sigil}/${RBCC_rbrv_file}"; then
     return 0
   fi
 
@@ -59,12 +59,12 @@ zrbfc_resolve_vessel() {
   local -r z_arg="${1:-}"
 
   # Try as path first, then as sigil under RBRR_VESSEL_DIR
-  if test -n "${z_arg}" && test -d "${z_arg}" && test -f "${z_arg}/rbrv.env"; then
+  if test -n "${z_arg}" && test -d "${z_arg}" && test -f "${z_arg}/${RBCC_rbrv_file}"; then
     printf '%s' "${z_arg}" > "${ZRBFC_VESSEL_RESOLVED_DIR_FILE}" \
       || buc_die "Failed to write resolved vessel path"
     return 0
   fi
-  if test -n "${z_arg}" && test -d "${RBRR_VESSEL_DIR}/${z_arg}" && test -f "${RBRR_VESSEL_DIR}/${z_arg}/rbrv.env"; then
+  if test -n "${z_arg}" && test -d "${RBRR_VESSEL_DIR}/${z_arg}" && test -f "${RBRR_VESSEL_DIR}/${z_arg}/${RBCC_rbrv_file}"; then
     printf '%s' "${RBRR_VESSEL_DIR}/${z_arg}" > "${ZRBFC_VESSEL_RESOLVED_DIR_FILE}" \
       || buc_die "Failed to write resolved vessel path"
     return 0
@@ -93,7 +93,7 @@ zrbfc_load_vessel() {
   test -d "${z_vessel_dir}" || buc_die "Vessel directory not found: ${z_vessel_dir}"
 
   buc_log_args 'Check for rbrv.env file'
-  local z_vessel_env="${z_vessel_dir}/rbrv.env"
+  local z_vessel_env="${z_vessel_dir}/${RBCC_rbrv_file}"
   test -f "${z_vessel_env}" || buc_die "Vessel configuration not found: ${z_vessel_env}"
 
   buc_log_args 'Source vessel configuration'

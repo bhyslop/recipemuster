@@ -39,7 +39,7 @@ rbho_director_airgap() {
   local -r z_forge_vessel="rbev-bottle-ifrit-forge"
   local -r z_airgap_vessel="rbev-bottle-ifrit-airgap"
   local -r z_tether_vessel="rbev-bottle-ifrit-tether"
-  local -r z_airgap_rbrv="${RBRR_VESSEL_DIR}/${z_airgap_vessel}/rbrv.env"
+  local -r z_airgap_rbrv="${RBRR_VESSEL_DIR}/${z_airgap_vessel}/${RBCC_rbrv_file}"
   local -r z_moriah_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
   local -r z_tether_rbrn="${RBCC_moorings_dir}/${z_tether_moniker}/${RBCC_rbrn_file}"
 

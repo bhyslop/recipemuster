@@ -50,7 +50,7 @@ rbrv_render() {
     rbrv_list
     buc_die "Vessel sigil required"
   fi
-  local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/rbrv.env"
+  local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
   buv_render RBRV "RBRV - Recipe Bottle Regime Vessel" "${z_vessel_file}"
 }
 
@@ -106,7 +106,7 @@ zrbrv_furnish() {
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
   if test -n "${BUZ_FOLIO:-}"; then
-    local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/rbrv.env"
+    local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
     test -f "${z_vessel_file}" || buc_die "Vessel not found: ${z_vessel_file}"
     source "${z_vessel_file}"  || buc_die "Failed to source vessel: ${z_vessel_file}"
     zrbrv_kindle

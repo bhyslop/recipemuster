@@ -39,7 +39,7 @@ rbho_director_graft() {
   buc_doc_shown || return 0
 
   local -r z_vessel="rbev-graft-demo"
-  local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/rbrv.env"
+  local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
   local -r z_local_tag="graft-busybox:local"
 
 

@@ -109,7 +109,7 @@ rblm_zero() {
   if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
     local z_vr_preview=""
     local z_any_vr=0
-    for z_vr_preview in "${z_vessel_dir}"/*/rbrv.env; do
+    for z_vr_preview in "${z_vessel_dir}"/*/${RBCC_rbrv_file}; do
       test -f "${z_vr_preview}" || continue
       buh_line "    ${z_vr_preview}"
       z_any_vr=1
@@ -184,7 +184,7 @@ rblm_zero() {
   if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
     local z_vr=""
     local z_vr_tmp=""
-    for z_vr in "${z_vessel_dir}"/*/rbrv.env; do
+    for z_vr in "${z_vessel_dir}"/*/${RBCC_rbrv_file}; do
       test -f "${z_vr}" || continue
       z_vr_tmp="${z_vr}.tmp"
       while IFS= read -r z_line; do
@@ -214,7 +214,7 @@ rblm_zero() {
     git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
   done
   if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
-    for z_stage in "${z_vessel_dir}"/*/rbrv.env; do
+    for z_stage in "${z_vessel_dir}"/*/${RBCC_rbrv_file}; do
       test -f "${z_stage}" || continue
       git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
     done

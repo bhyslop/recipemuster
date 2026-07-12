@@ -134,7 +134,7 @@ rbfl_yoke() {
 
   for z_vessel_dir in "${RBRR_VESSEL_DIR}"/*/; do
     test -d "${z_vessel_dir}" || continue
-    z_rbrv_file="${z_vessel_dir%/}/rbrv.env"
+    z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
     test -f "${z_rbrv_file}" || continue
     z_sigil="${z_vessel_dir%/}"
     z_sigil="${z_sigil##*/}"
@@ -144,7 +144,7 @@ rbfl_yoke() {
       z_rbrv_lines+=("${z_rbrv_line}")
     done < "${z_rbrv_file}"
 
-    z_tmp_file="${BURD_TEMP_DIR}/rbfl_yoke_${z_sigil}_rbrv.env.new"
+    z_tmp_file="${BURD_TEMP_DIR}/rbfl_yoke_${z_sigil}_${RBCC_rbrv_file}.new"
     : > "${z_tmp_file}" \
       || buc_die "Failed to create ${z_tmp_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
 

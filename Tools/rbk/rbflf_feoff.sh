@@ -46,7 +46,7 @@ rbfl_feoff() {
   zrbfc_resolve_vessel "${z_vessel}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  local -r z_rbrv_file="${z_vessel_dir%/}/rbrv.env"
+  local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
   test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
   local z_sigil="${z_vessel_dir%/}"
   z_sigil="${z_sigil##*/}"
@@ -100,7 +100,7 @@ rbfl_feoff() {
   # Replace-or-append the chosen slot's ANCHOR line.
   local -r z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
   local -r z_anchor_line="${z_anchor_var}=${z_locator}"
-  local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_feoff_${z_sigil}_rbrv.env.new"
+  local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_feoff_${z_sigil}_${RBCC_rbrv_file}.new"
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
     if [[ "${z_line}" == ${z_anchor_var}=* ]]; then

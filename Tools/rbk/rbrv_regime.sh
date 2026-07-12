@@ -120,7 +120,7 @@ rbrv_list_capture() {
   for z_i in "${!z_dirs[@]}"; do
     local z_d="${z_dirs[$z_i]}"
     test -d "${z_d}" || continue
-    test -f "${z_d}/rbrv.env" || continue
+    test -f "${z_d}/${RBCC_rbrv_file}" || continue
     local z_s="${z_d%/}"
     z_result="${z_result}${z_result:+ }${z_s##*/}"
   done

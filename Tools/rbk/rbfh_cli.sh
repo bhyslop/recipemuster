@@ -63,7 +63,7 @@ rbfh_check_vessel() {
   test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
 
   # Source the vessel's rbrv.env to pick up RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE
-  source "${z_vessel_dir}/rbrv.env" || buc_die "Failed to source vessel rbrv.env: ${z_vessel_dir}/rbrv.env"
+  source "${z_vessel_dir}/${RBCC_rbrv_file}" || buc_die "Failed to source vessel rbrv.env: ${z_vessel_dir}/${RBCC_rbrv_file}"
 
   # Hygiene is a property of the FROM line; non-conjure vessels have no
   # local Dockerfile, so the contract is vacuously satisfied. Exit silently

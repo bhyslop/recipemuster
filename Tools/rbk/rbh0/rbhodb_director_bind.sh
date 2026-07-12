@@ -37,7 +37,7 @@ rbho_director_bind() {
 
   local -r z_moniker="pluml"
   local -r z_vessel="rbev-bottle-plantuml"
-  local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/rbrv.env"
+  local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
   local -r z_pluml_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
 
 

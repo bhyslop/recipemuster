@@ -867,7 +867,7 @@ rbfd_ordain() {
 
   # Peek at vessel mode without sourcing (sourcing makes vars readonly,
   # and the downstream function will source again via zrbfc_load_vessel)
-  local -r z_rbrv_file="${z_vessel_dir}/rbrv.env"
+  local -r z_rbrv_file="${z_vessel_dir}/${RBCC_rbrv_file}"
   local z_mode=""
   local z_mode_line=""
   while IFS= read -r z_mode_line || test -n "${z_mode_line}"; do
