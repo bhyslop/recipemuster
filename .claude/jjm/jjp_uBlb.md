@@ -134,13 +134,25 @@ an earlier revision of this paddock paraphrased the guide and has been drained).
   basename constant is minted for it — RBCC_rbrr_file is a full path, not a
   bare basename — so any rbrr sweep owes that mint first.
   Ruled once and banked here; not to be litigated a third time.
+- Post-pilot groom decision (operator, 260712): no fourth pilot,
+  and the roster is homed in its own heat ₣Bz (rbk-23-win-acg-incorporate),
+  not slated here —
+  the roster's execution regime (delegation, open-ended pull-tail) inverts this
+  heat's pilot cinches, and its growth would hold this heat open past its charter.
+  ₣Bz carries the conjure memo's cut as founding cinches:
+  corpus sweeps, one shared-support sweep, a polity seed pair,
+  and a generative scout that re-cuts the tranche at convening;
+  the pair-audit pull-tail is recorded in the itch file.
+  With this decision made, the heat's Done-looks-like closes when its last
+  pace lands.
 
 ## Sequencing & lanes
 
 ₣BH landed and retired; every gate it imposed on this heat is open.
 The axvo symbol-lookahead amendment has landed;
-the front is the conjure pilot finish,
-whose roster recommendation the post-pilot groom needs.
+the conjure pilot has finished and the post-pilot groom has ruled
+(roster homed in ₣Bz — see Cinched);
+the front is the last remaining pace.
 
 Release-window rider (groomed 260711, drains when the release lands):
 a release process is near, so runtime behavior is frozen —
