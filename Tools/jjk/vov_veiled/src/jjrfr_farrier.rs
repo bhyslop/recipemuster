@@ -16,9 +16,14 @@
 //! loud — the caller looks it up; a familiar git word fires the wrong reflex (amend,
 //! force, CRUD).
 
+use std::collections::HashSet;
 use std::path::{
     Path,
     PathBuf,
+};
+use std::sync::{
+    Mutex,
+    OnceLock,
 };
 
 // ---- Rejection taxonomy ----
@@ -245,4 +250,81 @@ pub trait jjrfr_FarrierBillet {
     /// resolution belonging to the attended session. The bare primitive beneath
     /// the dispatch sheaf's refit.
     fn jjrfr_enfold(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
+}
+
+// ---- Lock guard and break sequence ----
+
+/// Process-local registry of roots with a currently live `jjrfr_LockGuard` — the
+/// enforcement mechanism behind nested-acquire panicking. Distributed contention
+/// is `jjrfr_stake`'s own `LockHeld` rejection, against another station or
+/// officium; a same-process double-acquire over the same root is a distinct,
+/// programming-error case a bare compare-and-swap cannot itself distinguish from
+/// ordinary contention, since staking again would either legitimately race the
+/// first guard's own guidon or wait on a lock this same process already holds.
+fn zjjrfr_held_roots() -> &'static Mutex<HashSet<PathBuf>> {
+    static HELD: OnceLock<Mutex<HashSet<PathBuf>>> = OnceLock::new();
+    HELD.get_or_init(|| Mutex::new(HashSet::new()))
+}
+
+/// A held guidon-ref lock: object lifetime is lock lifetime (the entity design's
+/// RAII posture, blotter sheaf). Release is best-effort on drop — a die mid-hold
+/// leaves a stale lock still flying its guidon, recoverable only by the break
+/// sequence (`jjrfr_break`), per the journal sheaf's durable-first design; `Drop`
+/// cannot itself be fallible.
+pub struct jjrfr_LockGuard<'a, F: jjrfr_FarrierLock> {
+    farrier: &'a F,
+    root: PathBuf,
+    guidon: String,
+}
+
+impl<'a, F: jjrfr_FarrierLock> jjrfr_LockGuard<'a, F> {
+    /// Stake the guidon and hold it for the guard's lifetime. Panics if this
+    /// process already holds a guard over `root` — a nested acquire is a
+    /// programming error, never legitimate contention (legitimate contention is
+    /// `jjrfr_stake`'s own `LockHeld` rejection, against a different holder).
+    pub fn jjrfr_acquire(farrier: &'a F, root: &Path, guidon: impl Into<String>) -> Result<Self, jjrfr_Rejection> {
+        let root = root.to_path_buf();
+        {
+            let mut held = zjjrfr_held_roots().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+            if !held.insert(root.clone()) {
+                panic!("nested lock acquire over {}: this process already holds a guard on it", root.display());
+            }
+        }
+        let guidon = guidon.into();
+        match farrier.jjrfr_stake(&root, &guidon) {
+            Ok(()) => Ok(jjrfr_LockGuard { farrier, root, guidon }),
+            Err(rejection) => {
+                zjjrfr_held_roots().lock().unwrap_or_else(|poisoned| poisoned.into_inner()).remove(&root);
+                Err(rejection)
+            }
+        }
+    }
+
+    /// The guidon this guard staked — what a consumer journals as "ours".
+    pub fn jjrfr_guidon(&self) -> &str {
+        &self.guidon
+    }
+}
+
+impl<'a, F: jjrfr_FarrierLock> Drop for jjrfr_LockGuard<'a, F> {
+    fn drop(&mut self) {
+        let _ = self.farrier.jjrfr_pluck(&self.root, &self.guidon);
+        zjjrfr_held_roots().lock().unwrap_or_else(|poisoned| poisoned.into_inner()).remove(&self.root);
+    }
+}
+
+/// The break sequence (`jjdb_break`, journal sheaf): clears a stale lock. Never a
+/// method on the holder's guard — it acts on someone else's lock. Sights the lock
+/// ref and, if a guidon flies, lease-guarded plucks against exactly that observed
+/// value — never blind, never forced. `Ok(None)` when there was nothing to clear;
+/// `Ok(Some(guidon))` names what was cleared. A `LockBroken` rejection means the
+/// guidon changed between the sight and the pluck — someone else's break or a
+/// fresh stake raced this one.
+pub fn jjrfr_break<F: jjrfr_FarrierLock>(farrier: &F, root: &Path) -> Result<Option<String>, jjrfr_Rejection> {
+    let observed = match farrier.jjrfr_sight(root)? {
+        Some(guidon) => guidon,
+        None => return Ok(None),
+    };
+    farrier.jjrfr_pluck(root, &observed)?;
+    Ok(Some(observed))
 }

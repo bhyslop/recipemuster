@@ -9,10 +9,14 @@ use super::jjrfg_plaingit::{
     zjjrfg_resolve_relative,
 };
 use super::jjrfr_farrier::{
+    jjrfr_break,
     jjrfr_ConsignLease,
+    jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
+    jjrfr_FarrierLock,
     jjrfr_GleanOutcome,
     jjrfr_LineOfWork,
+    jjrfr_LockGuard,
     jjrfr_RejectionKind,
     jjrfr_Seat,
     jjrfr_SyncState,
