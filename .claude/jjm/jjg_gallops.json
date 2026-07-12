@@ -8420,8 +8420,8 @@
         "₢BsAAc": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0745",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-1339",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Qualify the rebaseline on rocket's WSL backend (Ubuntu 24.04, Docker daemon live) — reachable only from macOS,",
                 "so run from a Mac session as curia via direct ssh",
@@ -8455,7 +8455,7 @@
                 "Mechanical: run, read counts, notch or surface."
               ],
               "jjgtn_silks": "wsl-freehold-sweep",
-              "jjgtn_basis": "3ccb837"
+              "jjgtn_basis": "b598336"
             }
           ]
         },
