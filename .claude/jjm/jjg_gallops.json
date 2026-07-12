@@ -8176,8 +8176,8 @@
         "₢BsAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-1257",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-1306",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Complete the Linux platform verdict for the rebaseline on the test station (cerebro — native kernel, native Docker Engine):",
                 "run the fixture-grain residue that the rebaseline-revalidation's skirmish and parley left uncovered —",
@@ -8198,7 +8198,7 @@
                 "Confirmation runs; light judgment."
               ],
               "jjgtn_silks": "cross-platform-freehold-sweep",
-              "jjgtn_basis": "8be38e8"
+              "jjgtn_basis": "74cd5fc"
             }
           ]
         },
