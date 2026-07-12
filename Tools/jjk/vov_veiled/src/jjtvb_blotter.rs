@@ -4,7 +4,6 @@
 
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
-    jjrfr_FarrierCore,
     jjrfr_FarrierLock,
     jjrfr_RejectionKind,
 };
