@@ -8575,9 +8575,10 @@
         "₢BzAAC",
         "₢BzAAD",
         "₢BzAAE",
-        "₢BzAAF"
+        "₢BzAAF",
+        "₢BzAAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BzAAA": {
           "jjgpn_tacks": [
@@ -8616,7 +8617,7 @@
         "₢BzAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0830",
+              "jjgtn_ts": "260712-0845",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Goal",
@@ -8627,6 +8628,10 @@
                 "- The ruling lives in ACG's rivet rulings; the placement law at MCM mcm_rivet.",
                 "  Read both first; never restate rationale beside a rivet.",
                 "- Population is shipped source only — veiled trees cite acronyms freely.",
+                "- The RBS0 rivet/premise surface is a hot lane while ₣Bs (rbk-10-rebaseline-all)",
+                "  races on it: do not mint rivet definition sites into RBS0",
+                "  until that heat has landed or the overlap is explicitly cleared —",
+                "  the paddock's hot-lane cinch names this instance.",
                 "",
                 "## Discovery",
                 "grep -rEn \"RBS[A-Z0-9]{1,3}\" Tools/rbk --include=\"*.sh\" — then drop vov_veiled hits",
@@ -8648,25 +8653,32 @@
                 "new rivets are minted per the MCM placement law with their spec definition sites landed."
               ],
               "jjgtn_silks": "a8-rivet-or-nothing-sweep",
-              "jjgtn_basis": "feb2a50"
+              "jjgtn_basis": "0a02437"
             }
           ]
         },
         "₢BzAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0830",
+              "jjgtn_ts": "260712-0845",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Goal",
                 "Audit the shared foundry support surface once, as a unit:",
-                "rbfc0_core.sh, rbfca_assembly.sh, rbfcb_host.sh, rbfcg_gar.sh headers,",
+                "rbfc0_core.sh, rbfca_assembly.sh, rbfcb_host.sh, rbfcg_gar.sh,",
+                "and rbfcv_resolve.sh headers,",
                 "plus the rbgc_constants.sh and rbcc_constants.sh constant-comment blocks.",
                 "",
                 "## Cinched",
                 "- This is the conjure memo's shared-support cut:",
                 "  support serves every operation pair, so it is audited here and",
                 "  excluded from every pair pace's closure.",
+                "- rbfcv_resolve.sh is included by judgment, not by the memo's sweep list:",
+                "  the memo's pilot closure audited it where the conjure spec reaches,",
+                "  but its sweep cut omits it without stated reason — treat the omission as",
+                "  shorthand and audit it here, unless reading shows the pilot already",
+                "  covered it fully (then record that and skip).",
+                "  rbfcp_plumb.sh stays out — it is an operation body, a pair pace's ground.",
                 "- rbk-43 (₣Bq) has retired: the sitting-lifecycle comments",
                 "  (redon-tick header, re-don cadence and two-clocks blocks) are now in scope —",
                 "  the conjure memo's hot-lane section names them as held cite-then-restate candidates.",
@@ -8682,12 +8694,12 @@
                 "Comment-only; shellcheck and reveille green.",
                 "",
                 "## Done when",
-                "The four support modules and two constant homes carry only contract lines,",
+                "The five support modules and two constant homes carry only contract lines,",
                 "rivet residues, and genuinely local mechanics;",
                 "everything homed is collapsed to its citation form."
               ],
               "jjgtn_silks": "shared-support-sweep",
-              "jjgtn_basis": "feb2a50"
+              "jjgtn_basis": "0a02437"
             }
           ]
         },
@@ -8808,6 +8820,38 @@
               ],
               "jjgtn_silks": "polity-pair-audit",
               "jjgtn_basis": "feb2a50"
+            }
+          ]
+        },
+        "₢BzAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0845",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Promote the two-axis Zeroes Theory statement (spatial input forms, version)",
+                "to the language-neutral Design Principles section of the project CLAUDE.md,",
+                "beside Load-Bearing Complexity.",
+                "",
+                "## Cinched",
+                "- BCG's Zeroes Theory section is the home; the CLAUDE.md entry states the",
+                "  principle at language-neutral altitude and cites BCG for the built form,",
+                "  matching the instantiation pattern Design Principles already uses.",
+                "- Doc-only; no source or spec change.",
+                "",
+                "## Context",
+                "Inherited from the ACG heat rbk-07 (₣Bb), whose cross-language premises pace",
+                "homed the version axis in BCG and left this promotion as an open forward-pointer,",
+                "deliberately not blocked on.",
+                "",
+                "## Done when",
+                "The Design Principles entry states the two-axis form and cites BCG;",
+                "no rationale BCG carries is restated;",
+                "the retired forward-pointer is fully discharged."
+              ],
+              "jjgtn_silks": "zeroes-theory-promotion",
+              "jjgtn_basis": "0a02437"
             }
           ]
         }

@@ -43,10 +43,20 @@ when their routed items land here, they retire.
   check the muster at mount.
   rbk-43-fbl-sitting-lifecycle (₣Bq) retired 260712,
   opening the sitting-lifecycle comments to the shared-support sweep.
+  The rivet/RBS0 definition surface is itself a lane:
+  ₣Bs (rbk-10-rebaseline-all) was racing on it at slating —
+  premise quoins, new rivet mints, and rivet-definition amendments in RBS0 —
+  so the a8 sweep's minting waits for that surface to quiet
+  or coordinates explicitly; the scout re-checks the muster.
 - Pull, not push: per-operation pairs beyond the seed are slated on demand —
   by the scout at convening, or pulled by regenerate-from-specs trials —
   never as an exhaustive sheaf-census roster.
   The pull-tail reminder lives in the itch file, owned by no pace.
+- Inherited baton (₣Bb's forward-pointer, banked here before that heat retires):
+  promote the two-axis Zeroes Theory statement to the language-neutral
+  Design Principles in the project CLAUDE.md, beside Load-Bearing Complexity;
+  BCG's Zeroes Theory section is the home it cites.
+  Carried as its own doc-only pace.
 - Posture: audit work is detect plus comment-only collapse, provable by inspection;
   it fits inside any release-window rider standing at mount.
   Spec-side relocations and any runtime repair a pace surfaces
@@ -57,4 +67,5 @@ when their routed items land here, they retire.
 The corpus sweeps landed;
 both pilot findings memos retired;
 the seed pair audited under the full move set;
+the Zeroes-Theory statement promoted to the project Design Principles;
 the scout has ruled the next tranche — slated here, or declared unnecessary.
