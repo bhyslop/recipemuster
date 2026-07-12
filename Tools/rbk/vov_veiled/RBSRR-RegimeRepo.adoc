@@ -17,7 +17,7 @@ Depot-time-immutable identity and pool configuration live in the sibling
 Operator-chosen identifier that scopes machine-local resource names — container names, Docker network names, and other runtime identifiers on the operator's workstation.
 Disambiguates the runtime resources Recipe Bottle lifecycle-manages — containers and networks — from other container systems sharing the same runtime, so Recipe Bottle operations do not disturb unrelated arrangements.
 Must be populated — the marshal-zero path blanks it so a fresh regime requires an explicit operator decision before `rbrr_validate` passes.
-Must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
+Must start with a lowercase letter and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
 
 //axhrgv_variable
 {rbrr_runtime_prefix}

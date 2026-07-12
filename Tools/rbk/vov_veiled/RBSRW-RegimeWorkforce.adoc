@@ -70,7 +70,7 @@ under the manor, every
 {rbtf_foedus}
 a provider beneath it.
 The `principal://…/workforcePools/«id»/subject/«subject»` member every admission grant names is formed from this id, and it stands stable for the manor's lifetime — the old per-foedus-pool rotation is retired.
-Pool-time-immutable (see the sync NOTE); required; lowercase alphanumeric and hyphen, 4–32 chars, must not start with the reserved `gcp-` prefix.
+Pool-time-immutable (see the sync NOTE); required; lowercase alphanumeric and hyphen, must not start with the reserved `gcp-` prefix.
 
 //axhrv_variable
 {rbrw_session_duration}

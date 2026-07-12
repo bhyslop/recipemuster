@@ -13,13 +13,13 @@ RBRN assignment files are found in each nameplate's subdirectory and configure c
 {rbrn_moniker}
 
 Unique moniker for the crucible instance.
-Must be 2-12 characters and form a valid cross-context identifier.
+Must form a valid cross-context identifier.
 
 //axhrv_variable
 {rbrn_description}
 
 Human-readable description of the service purpose.
-Optional; 0-120 characters.
+Optional.
 
 //axhrv_variable
 {rbrn_runtime}
@@ -108,7 +108,6 @@ Base IPv4 address that defines the enclave network range.
 {rbrn_enclave_netmask}
 
 Network mask width for the enclave network addressing.
-Valid range: 8-30.
 
 //axhrv_variable
 {rbrn_enclave_sentry_ip}

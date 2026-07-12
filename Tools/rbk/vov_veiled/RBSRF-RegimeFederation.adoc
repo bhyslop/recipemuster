@@ -37,7 +37,7 @@ NOTE: *Per-vendor guide contract.* A real vendor's IdP-console setup (app regist
 {rbrf_provider_id}
 
 Workforce pool provider ID — the external IdP trust root within the manor's one pool, and the per-foedus discriminator that distinguishes one foedus from another under that shared pool.
-Core (both mechanisms); required; lowercase alphanumeric and hyphen, 4-32 chars, must not start with the reserved `gcp-` prefix.
+Core (both mechanisms); required; lowercase alphanumeric and hyphen, must not start with the reserved `gcp-` prefix.
 
 //axhrv_variable
 {rbrf_mechanism}

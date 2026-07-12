@@ -4078,7 +4078,7 @@ File-sourced singleton at {rbsld_moorings}rbrr.env.
 A
 {rbst_string} —
 prefix prepended to machine-local resource names: container names, container network
-names, and other runtime identifiers on the operator's workstation.
+names, and other runtime identifiers on the operator's workstation; 2-11 characters.
 
 [[rbrr_secrets_dir]]
 //axl_voices axrg_variable axtu_path
@@ -4453,7 +4453,7 @@ GCP organization numeric ID owning the workforce pool; the manor-setup finisher 
 [[rbrw_workforce_pool_id]]
 //axrg_variable axtu_string
 {rbrw_workforce_pool_id}::
-The manor's one workforce identity pool ID — org-scoped, one pool serving every {rbtgi_depot} under the manor, every {rbtf_foedus} a provider beneath it; the `principal://…/workforcePools/«id»/subject/«subject»` member every admission grant names is formed from it. Pool-time-immutable and manor-lifetime — the old per-foedus-pool rotation is retired.
+The manor's one workforce identity pool ID — org-scoped, one pool serving every {rbtgi_depot} under the manor, every {rbtf_foedus} a provider beneath it; the `principal://…/workforcePools/«id»/subject/«subject»` member every admission grant names is formed from it. Pool-time-immutable and manor-lifetime — the old per-foedus-pool rotation is retired. 4-32 characters.
 
 [[rbrw_session_duration]]
 //axrg_variable axtu_string
@@ -4476,7 +4476,7 @@ File-sourced, one per foedus: an rbrf.env in each foedus subdirectory of the moo
 [[rbrf_provider_id]]
 //axrg_variable axtu_string
 {rbrf_provider_id}::
-Workforce pool provider ID — the external IdP trust root within the manor's one pool, the per-foedus discriminator.
+Workforce pool provider ID — the external IdP trust root within the manor's one pool, the per-foedus discriminator. 4-32 characters.
 
 [[rbrf_mechanism]]
 //axrg_variable axtu_string
@@ -4709,7 +4709,7 @@ vessel identifier for
 A
 {rbst_description} —
 human-readable documentation for
-{rbrv_regime}.
+{rbrv_regime}; 0-512 characters.
 
 [[rbrv_user]]
 //axvr_variable axd_optional
@@ -4718,7 +4718,7 @@ A
 {rbst_username} —
 runtime user for
 {rbrv_regime}
-containers.
+containers; 0-64 characters.
 When set, downstream consumers (compose, SSH, rack) use this as the container user identity.
 When unset, the container uses its image default (typically root).
 Applies across all vessel modes — conjure vessels create the user in their Dockerfile, bind and graft vessels declare a user that already exists in the image.
@@ -4769,7 +4769,7 @@ An
 {rbst_image_ref} —
 container image reference for
 {rbrv_regime}
-binding vessels.
+binding vessels; 1-512 characters.
 
 [[rbrv_bind_optional_dockerfile]]
 //axvr_variable axd_optional
@@ -4778,7 +4778,7 @@ A
 {rbst_path} —
 optional path to reference Dockerfile for the upstream image in
 {rbrv_regime}
-binding vessels.
+binding vessels; 0-512 characters.
 When configured, the Dockerfile content is embedded in the
 {rbtga_ark_about}
 artifact as `recipe.txt`.
@@ -4790,7 +4790,7 @@ A
 {rbst_path} —
 Dockerfile path for
 {rbrv_regime}
-conjuring vessels.
+conjuring vessels; 1-512 characters.
 
 [[rbrv_conjure_bldcontext]]
 //axvr_variable axd_conditional
@@ -4799,7 +4799,7 @@ A
 {rbst_path} —
 build context directory for
 {rbrv_regime}
-conjuring.
+conjuring; 1-512 characters.
 
 [[rbrv_conjure_platforms]]
 //axvr_variable axd_conditional
@@ -4808,7 +4808,7 @@ A
 {rbst_platform_list} —
 target platform architectures for
 {rbrv_regime}
-multi-platform builds.
+multi-platform builds; 1-512 characters.
 
 [[rbrv_group_image]]
 //axvr_group axd_optional
@@ -4827,7 +4827,7 @@ An
 {rbst_image_ref} —
 base image declaration for
 {rbrv_regime}
-conjuring vessels.
+conjuring vessels; 0-512 characters per slot.
 Two complementary roles depending on whether the slot's
 {rbrv_image_anchor}
 is set:
@@ -4857,7 +4857,7 @@ A
 {rbst_locator} —
 naming a GAR-resident base image for
 {rbrv_regime}
-conjuring vessels.
+conjuring vessels; 0-512 characters per slot.
 The locator's namespace identifies how the slot was populated:
 +
 - A bole {rbtga_lode} locator `{gar_lodes_namespace}/«TOUCHMARK»:rbi_bole` — populated by the derived-pull election at ordain time as a derived value of current upstream, reading the captured bole's chained {rbtga_touchmark} fact.
@@ -4892,7 +4892,7 @@ A
 {rbst_string} —
 reliquary touchmark identifying the conclave {rbtga_lode} tool image set in GAR for
 {rbrv_regime}
-(e.g., `r260324193326`).
+(e.g., `r260324193326`); 1-14 characters.
 
 [[rbrv_group_grafting]]
 //axvr_group axd_conditional
@@ -4907,7 +4907,7 @@ An
 {rbst_image_ref} —
 default local image reference for
 {rbrv_regime}
-grafting vessels.
+grafting vessels; 1-512 characters.
 Optional; when empty, the image reference must be provided as a runtime parameter to
 {rbtgo_ark_graft}.
 
@@ -4918,7 +4918,7 @@ A
 {rbst_path} —
 optional path to Dockerfile used for the local build in
 {rbrv_regime}
-grafting vessels.
+grafting vessels; 0-512 characters.
 When configured, the Dockerfile content is embedded in the
 {rbtga_ark_about}
 artifact as `recipe.txt`.
@@ -4978,7 +4978,7 @@ of the vessel supplying the sentry container image.
 {rbrn_sentry_hallmark}::
 A
 {rbst_hallmark} —
-hallmark timestamp for the sentry container image.
+hallmark timestamp for the sentry container image; 0-128 characters.
 
 [[rbrn_bottle_vessel]]
 //axvr_variable axd_required
@@ -4992,7 +4992,7 @@ of the vessel supplying the bottle container image.
 {rbrn_bottle_hallmark}::
 A
 {rbst_hallmark} —
-hallmark timestamp for the bottle container image.
+hallmark timestamp for the bottle container image; 0-128 characters.
 
 [[rbrn_bottle_readiness_delay_sec]]
 //axvr_variable axd_required
@@ -5175,13 +5175,13 @@ Forms basis for directory names, monikers, and artifact naming.
 //axl_voices axtu_string
 {rbst_description}::
 Human-readable documentation text.
-0-240 characters; used for identification in logs, messages, and documentation contexts.
+Used for identification in logs, messages, and documentation contexts; length bounds are set by the consuming voicing's context.
 
 [[rbst_image_ref]]
 //axl_voices axtu_string
 {rbst_image_ref}::
 Fully-qualified container image reference.
-1-256 characters; format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`).
+Format: `registry/namespace/image:tag` (e.g., `docker.io/library/nginx:1.27-alpine`); length bounds are set by the consuming voicing's context.
 
 [[rbst_locator]]
 //axl_voices axtu_string
@@ -5198,8 +5198,8 @@ Domain-blind: the package path embedded in the locator is sufficient to dispatch
 {rbst_hallmark}::
 Dual-timestamp {rbtga_hallmark} identifying a specific build of a vessel.
 Format: `«MODE»YYMMDDHHMMSS-rYYMMDDHHMMSS` where `«MODE»` is `c` (conjure), `b` (bind), or `g` (graft).
-Example: `c260224153022-r260224160530`; 1-128 characters.
-Regex: `[cbg]\d{12}-r\d{12}`.
+Example: `c260224153022-r260224160530`.
+Regex: `[cbg]\d{12}-r\d{12}`; length bounds are set by the consuming voicing's context.
 
 [[rbst_touchmark]]
 //axl_voices axtu_string

@@ -26,7 +26,7 @@ Both fields must be populated — the marshal-zero path blanks them so a fresh r
 Prefix prepended to all cloud-visible resource names under the depot: GAR image paths, vessel package names,
 {gcb_service}
 substitutions, and other GCP-scoped identifiers.
-Must be 2–11 characters, start with a lowercase letter, and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
+Must start with a lowercase letter and end with a hyphen (regex `^[a-z][a-z0-9-]*-$`).
 
 //axhrgv_variable
 {rbrd_depot_moniker}
@@ -34,7 +34,7 @@ Must be 2–11 characters, start with a lowercase letter, and end with a hyphen 
 Stem identifier that combines with
 {rbrd_cloud_prefix}
 to form the depot identity tuple.
-Must be 1–26 characters, start with a lowercase letter, and contain only lowercase alphanumerics (regex `^[a-z][a-z0-9]*$`).
+Must start with a lowercase letter and contain only lowercase alphanumerics (regex `^[a-z][a-z0-9]*$`).
 The tuple derives `RBDC_DEPOT_PROJECT_ID`, `RBDC_GAR_REPOSITORY`, and `RBDC_GCB_POOL_STEM` at kindle time.
 
 //axhrgb_group

@@ -13,20 +13,20 @@ RBRV assignment files are found one per vessel subdirectory under {rbrr_vessel_d
 {rbrv_sigil}
 
 Unique identifier for the vessel.
-Must be 1-64 characters forming a valid cross-context identifier.
+Must form a valid cross-context identifier.
 Must match the vessel directory name.
 
 //axhrv_variable
 {rbrv_description}
 
 Human-readable description of the vessel purpose.
-Optional; 0-512 characters.
+Optional.
 
 //axhrv_variable
 {rbrv_user}
 
 Runtime user for the vessel container.
-Optional; 0-64 characters.
+Optional.
 When set, declares the non-root user that downstream orchestration (compose user directive, SSH authentication, exec sessions) should target.
 When unset, the container runs as its image default.
 Applies across all vessel modes: conjure vessels create the user in their Dockerfile; bind and graft vessels declare a user that already exists in the image.
@@ -58,7 +58,6 @@ Conjure and bind use the pool selected by this variable.
 
 Reliquary touchmark identifying the conclave {rbtga_lode} tool image set in GAR (e.g., `r260324193326`).
 Applies to every vessel regardless of mode.
-Must be 1-14 characters.
 
 //axhrgb_group
 {rbrv_group_binding}
@@ -77,7 +76,7 @@ Binding retrieves a pre-built image from an external registry without local buil
 {rbrv_bind_image}
 
 Fully-qualified image reference to copy from an external registry.
-Must be a valid FQIN; 1-512 characters.
+Must be a valid FQIN.
 Must be digest-pinned — the reference carries an `@sha256:<digest>` tail, never a bare tag.
 Bind images are provenance-verified: the vouch pins the mirrored image against this digest, so a tag-only reference is rejected at regime validation (the regime band) at config time — not deep in the mirror's cloud build, where the vouch would otherwise catch it far more expensively.
 
@@ -88,7 +87,7 @@ Optional path to reference Dockerfile for the upstream image.
 When configured, the Dockerfile content is passed to
 {rbtgo_ark_about}
 and embedded in the about artifact as `recipe.txt`.
-Optional; 0-512 characters.
+Optional.
 
 //axhrgb_group
 {rbrv_group_conjuring}
@@ -107,19 +106,16 @@ Conjuring builds a vessel image locally from a Dockerfile and build context in t
 {rbrv_conjure_dockerfile}
 
 Path to Dockerfile relative to repository root.
-Must be 1-512 characters.
 
 //axhrgv_variable
 {rbrv_conjure_bldcontext}
 
 Build context path relative to repository root.
-Must be 1-512 characters.
 
 //axhrgv_variable
 {rbrv_conjure_platforms}
 
 Space-separated list of target platforms for multi-platform builds.
-Must be 1-512 characters.
 Examples: `linux/amd64`, `linux/amd64 linux/arm64`.
 
 //axhrgb_group
@@ -142,7 +138,7 @@ into a bole {rbtga_lode}; the derived-pull election resolves the captured {rbtga
 
 Upstream base image tag declaration (e.g., `python:3.11-slim`).
 Vessel author declares intent; the {at_foundry} resolves to a concrete reference.
-Optional; 0-512 characters per slot.
+Optional, per slot.
 
 //axhrgv_variable
 {rbrv_image_anchor}
@@ -154,7 +150,7 @@ When present, both {rbtgo_ark_conjure} and {rbtgo_ark_kludge} substitute the ful
 When absent, both operations pass
 {rbrv_image_origin}
 through as the upstream tag; kludge auto-pulls the origin inline if it's not already cached locally.
-Optional; 0-512 characters per slot.
+Optional, per slot.
 
 //axhrgb_group
 {rbrv_group_grafting}
@@ -174,7 +170,6 @@ No Cloud Build involvement for the image itself — about and vouch run in Cloud
 {rbrv_graft_image}
 
 Local image reference for graft operations.
-Must be 1-512 characters.
 Provides the image argument to
 {rbtgo_ark_graft}.
 
@@ -185,7 +180,7 @@ Optional path to Dockerfile used for the local build.
 When configured, the Dockerfile content is passed to
 {rbtgo_ark_about}
 and embedded in the about artifact as `recipe.txt`.
-Optional; 0-512 characters.
+Optional.
 
 //axhro_kindle
 {rbkro_kindle}
