@@ -176,6 +176,12 @@ no kit prefix will exist (resolved 260705).
 * The jurisdiction-inheritance forks — store carrier, dispatch surface, multi-station trust,
   the RB-side handbook lineage — as itemized under Reopened at mews-time in the inheritance
   section above.
+* *Node availability posture* — the platform facts that keep an unattended node reachable at
+  all (sleep prevention, power-cut recovery, disk-encryption pre-boot gates, VPN-daemon
+  reboot survivability), prior to every provisioning verb: an unreachable node cannot be
+  provisioned or verified.
+  Fits the verify verb's fact shape (read command, expected value, failure pointer); the
+  empirical record is accumulating in the memo family per platform.
 
 == Sources (provenance, not authority)
 
@@ -189,3 +195,7 @@ no kit prefix will exist (resolved 260705).
   draft, parked pending a second exemplar (CMK territory, not fleet).
 * The Windows transport memo family (`Memos/memo-2026*-windows-*.md`) — the Palisade empirical
   record.
+* `Memos/memo-20260712-macos-always-awake-test-host.md` — the macOS availability-posture
+  empirical record (sleep prevention, power-cut recovery, verification traps); first
+  non-Windows member of the Palisade memo family, feeding the node-availability-posture fork
+  above.
