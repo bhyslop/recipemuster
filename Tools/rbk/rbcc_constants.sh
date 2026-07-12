@@ -70,10 +70,10 @@ RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 # Literal constants (pure string literals, no variable expansion — available at source time)
 RBCC_rbrn_file="rbrn.env"
 RBCC_rbro_file="rbro.env"
-# Vessel regime file — the per-vessel basename; placement (${RBRR_VESSEL_DIR}/
-# <sigil>/rbrv.env) is already stated at the rbrv_regime quoin's definition
-# (RBS0), so this breadcrumb cites rather than restates. Sibling to the
-# basename-style RBCC_rbrn_file / RBCC_rbro_file above.
+# Vessel regime file — a bare basename, not a moorings-rooted path: the regime is
+# manifold (one per vessel), so each call site composes the vessel directory from
+# RBRR_VESSEL_DIR. Placement and contract are homed at the rbrv_regime quoin (RBS0).
+# Sibling to the basename-style RBCC_rbrn_file / RBCC_rbro_file above.
 RBCC_rbrv_file="rbrv.env"
 
 # Account composition labels — bare fragments that compose GCP SA account-ids/
