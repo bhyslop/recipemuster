@@ -4242,9 +4242,10 @@
         "₢BbAAb",
         "₢BbAAZ",
         "₢BbAAE",
-        "₢BbAAF"
+        "₢BbAAF",
+        "₢BbAAc"
       ],
-      "jjghn_next_pace_seed": "AAc",
+      "jjghn_next_pace_seed": "AAd",
       "jjghn_paces": {
         "₢BbAAA": {
           "jjgpn_tacks": [
@@ -5372,6 +5373,69 @@
               ],
               "jjgtn_silks": "anoint-sheaf-chapbook-breach",
               "jjgtn_basis": "bbf8069"
+            }
+          ]
+        },
+        "₢BbAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0709",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical sweep — the nameplate twin of the vessel-regime (rbrv.env) single-home",
+                "that preceded it in this heat.",
+                "Rough, not bridled: one unsettled convention sits inside it (see the fork), and",
+                "that is an operator ruling, not a sweep decision.",
+                "",
+                "## Goal",
+                "Sweep the surviving rbrn.env path constructions onto RBCC_rbrn_file.",
+                "",
+                "## Cinched",
+                "- The constant already exists in rbcc_constants.sh and is already consumed",
+                "  elsewhere — no minting, no breadcrumb, no new quoin.",
+                "  This is sweep-only; the rbrv pace's whole head-fork is absent here.",
+                "- Same prose/code line as the rbrv pace: doc_params, buc_info/buh_line/buc_bare",
+                "  messages, and comments keep the literal;",
+                "  only genuine path constructions move.",
+                "- Every consuming module already sources rbcc — verified during the rbrv pace's",
+                "  review — so no furnish rewiring is in scope.",
+                "",
+                "## Discovery",
+                "grep -rn \"rbrn\\.env\" Tools/rbk --include=\"*.sh\"",
+                "Entry points: rbxk_keycloak.sh (a hand-built nameplate path), rblm_cli.sh (the",
+                "marshal-zero glob sites), rbrn_drive.sh (a temp-file name — see the fork).",
+                "",
+                "## Open fork — surface, do not decide alone",
+                "rbrn_drive.sh carries a temp-file name embedding the literal (a `…_rbrn.env.new`",
+                "scratch path).",
+                "Whether a temp-file mnemonic counts as a path construction or as prose is",
+                "UNSETTLED repo-wide: the rbrv pace swept three such sites in the rbfl_ family,",
+                "while the rbrn and rbrr ones stand unswept — a coin-flip currently re-decided",
+                "per pace.",
+                "Surface it at mount, apply the operator's ruling here, and bank the ruling in the",
+                "paddock so it is never litigated a third time.",
+                "Note the rbrr sibling is BLOCKED on this ruling: RBCC_rbrr_file is a full path,",
+                "so sweeping its temp name would first require minting a basename constant.",
+                "",
+                "## Gate",
+                "Converting a bare glob literal into a variable expansion inside a for-loop trips",
+                "SC2231, which the literal form never fired — quote the expansion, per the",
+                "RBCC_fact_ext_depot precedent in rbgp_payor.sh.",
+                "The rbrv pace hit exactly this.",
+                "The paddock's release-window rider applies: this is a runtime edit.",
+                "",
+                "## Done when",
+                "Every bash path construction resolves through RBCC_rbrn_file;",
+                "prose literals untouched;",
+                "the temp-name fork ruled and the ruling banked in the paddock;",
+                "tt/rbw-tl.Shellcheck.sh and tt/rbw-ts.TestSuite.reveille.sh green.",
+                "Note reveille does not exercise the marshal-zero (gauntlet) or keycloak-facility",
+                "sites — prove those by inspection plus the rbcc-in-scope check, as the rbrv pace",
+                "did, rather than reading a green suite as coverage."
+              ],
+              "jjgtn_silks": "rbrn-nameplate-single-home",
+              "jjgtn_basis": "e45ee5f"
             }
           ]
         }
