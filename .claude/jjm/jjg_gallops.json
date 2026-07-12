@@ -8551,8 +8551,9 @@
         "₢BsAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-1536",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-1537",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Normalize 'beast' — an RDP-reachable Windows box, currently unsurveyed — into a controlled",
                 "Cygwin + Docker Desktop test host:",
@@ -8590,7 +8591,7 @@
                 "Improvisational: survey, act, record — judgment on tap."
               ],
               "jjgtn_silks": "beast-host-standup",
-              "jjgtn_basis": "64fa89a"
+              "jjgtn_basis": "9eb1770"
             }
           ]
         }
