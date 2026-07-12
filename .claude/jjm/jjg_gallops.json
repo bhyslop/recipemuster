@@ -8552,7 +8552,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-1641",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "Finish normalizing `beast` — the operator's own Windows 11 Pro desktop, on the tailnet as",
                 "`bhyslop-asrock-beast` — into a controlled Cygwin + Docker Desktop test host.",
@@ -8625,7 +8626,7 @@
                 "Improvisational: survey, act, record — judgment on tap."
               ],
               "jjgtn_silks": "beast-host-standup",
-              "jjgtn_basis": "c3eca76"
+              "jjgtn_basis": "267ea6e"
             }
           ]
         }
