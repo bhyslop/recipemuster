@@ -97,7 +97,7 @@ rblm_zero() {
   buh_line "  Vessel hallmarks BLANKED (stale after depot change):"
   local z_np_preview=""
   local z_any_np=0
-  for z_np_preview in "${RBCC_moorings_dir}"/*/rbrn.env; do
+  for z_np_preview in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_np_preview}" || continue
     buh_line "    ${z_np_preview}"
     z_any_np=1
@@ -164,7 +164,7 @@ rblm_zero() {
   # to require conjure & vouch before declaring setup complete.
   local z_np=""
   local z_np_tmp=""
-  for z_np in "${RBCC_moorings_dir}"/*/rbrn.env; do
+  for z_np in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_np}" || continue
     z_np_tmp="${z_np}.tmp"
     while IFS= read -r z_line; do
@@ -209,7 +209,7 @@ rblm_zero() {
   git add "${z_rbrd}" || buc_die "Failed to stage RBRD file"
 
   local z_stage=""
-  for z_stage in "${RBCC_moorings_dir}"/*/rbrn.env; do
+  for z_stage in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_stage}" || continue
     git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
   done

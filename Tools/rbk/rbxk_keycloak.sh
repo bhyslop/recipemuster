@@ -82,7 +82,7 @@ zrbxk_kindle() {
   # The crucible nameplate regime — parsed (never sourced) for the host-side
   # Keycloak port, so a port change in the nameplate propagates here (ACG:
   # reference the home).
-  readonly ZRBXK_NAMEPLATE_RBRN="${RBCC_moorings_dir}/${RBXK_moniker}/rbrn.env"
+  readonly ZRBXK_NAMEPLATE_RBRN="${RBCC_moorings_dir}/${RBXK_moniker}/${RBCC_rbrn_file}"
 
   # JWKS bridge temp files (non-secret — public keys only).
   readonly ZRBXK_JWKS_RAW="${BURD_TEMP_DIR}/rbxk_jwks_raw.json"

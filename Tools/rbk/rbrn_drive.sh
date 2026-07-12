@@ -75,7 +75,7 @@ rbrn_drive() {
   # line is schema drift, a hard die (the find-or-err schema-drift catch), never a
   # silent append (contrast anoint, whose RBRV_GRAFT_IMAGE may legitimately be
   # absent and is appended).
-  local -r z_tmp_file="${BURD_TEMP_DIR}/rbrn_drive_${z_nameplate}_rbrn.env.new"
+  local -r z_tmp_file="${BURD_TEMP_DIR}/rbrn_drive_${z_nameplate}_${RBCC_rbrn_file}.new"
   local z_line=""
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
