@@ -96,8 +96,8 @@ pub fn jjdb_read(config: &jjdb_BlotterConfig, rel_path: &Path) -> std::io::Resul
 ///
 /// Sequence: glean (opportunistic) -> stake (via the RAII guard) -> sight
 /// (confirm the held guidon is ours) -> advance (fast-forward to remote tip) ->
-/// mutate and lodge -> consign (atomic-under-lease against the tip just
-/// advanced to) -> release (best-effort pluck via the guard's drop).
+/// mutate and lodge -> consign (atomic-under-lease against our own lock ref) ->
+/// release (best-effort pluck via the guard's drop).
 ///
 /// Returns the new local HEAD SHA on success — the position now also live on
 /// the remote, since consign succeeded. A rejection at any lock-held step
@@ -136,21 +136,20 @@ where
     // under the lock.
     farrier.jjrfr_advance(root)?;
 
-    // The lease this consign will bind to: the tip we just advanced to,
-    // captured before our own mutation moves HEAD forward — "what the caller
-    // last observed" (farrier sheaf, consign's atomic-under-lease flavor).
-    let expected_sha = zjjrvb_head_sha(farrier, root);
-
     // Mutate and lodge: the caller writes its content; we commit exactly the
     // files it names.
     let (files, message) = mutate(root);
     farrier.jjrfr_lodge(root, &files, &message)?;
 
-    // Consign content: atomic-under-lease against the pre-write tip. No
-    // corruption, no service but git — a rejection here (someone else's write
-    // landed despite the lock, which should not happen) leaves the local
-    // commit stranded but unpushed, never partially applied on the remote.
-    farrier.jjrfr_consign(root, &config.trunk, Some(&jjrfr_ConsignLease(expected_sha)))?;
+    // Consign content: atomic-under-lease against our own lock ref — if the
+    // lock was broken under us, the whole push fails (journal sheaf, step 5).
+    // No corruption, no service but git: a rejection leaves the local commit
+    // stranded but unpushed, never partially applied on the remote.
+    farrier.jjrfr_consign(
+        root,
+        &config.trunk,
+        Some(&jjrfr_ConsignLease(guard.jjrfr_guidon().to_string())),
+    )?;
 
     let new_head = zjjrvb_head_sha(farrier, root);
 

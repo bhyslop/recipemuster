@@ -354,22 +354,34 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
 
     fn jjrfr_consign(&self, root: &Path, branch: &str, lease: Option<&jjrfr_ConsignLease>) -> Result<(), jjrfr_Rejection> {
         let refspec = format!("{}:{}", branch, branch);
-        let lease_flag;
-        let mut args: Vec<&str> = vec!["push"];
-        if let Some(jjrfr_ConsignLease(expected_sha)) = lease {
-            // JJr_d81
-            lease_flag = zjjrfg_lease_flag(branch, expected_sha);
-            args.push(&lease_flag);
-        }
-        args.push(ZJJRFG_REMOTE);
-        args.push(&refspec);
-
-        let out = zjjrfg_run_git(root, &args);
+        let out = match lease {
+            Some(jjrfr_ConsignLease(guidon)) => {
+                // JJr_d81
+                // Atomic two-ref push: the content branch (plain, still
+                // fast-forward-protected) plus a same-value update of the
+                // guidon ref under a lease on the held guidon's blob. While
+                // the lock is ours the guidon update is an up-to-date no-op;
+                // a lock broken under us fails its lease, and --atomic pulls
+                // the content update down with it.
+                let blob_sha = zjjrfg_hash_object(root, guidon, true, ZJJRFG_OP_CONSIGN);
+                let lease_flag = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, &blob_sha);
+                let guidon_refspec = format!("{}:{}", blob_sha, ZJJRFG_GUIDON_REF);
+                zjjrfg_run_git(root, &["push", "--atomic", &lease_flag, ZJJRFG_REMOTE, &refspec, &guidon_refspec])
+            }
+            None => zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &refspec]),
+        };
         if out.ok {
             return Ok(());
         }
         if zjjrfg_push_rejected(&out.stderr) {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_CONSIGN, root, out.stderr));
+            // A rejection naming the guidon ref is the lock broken under the
+            // holder; one naming only the branch is a plain content race.
+            let kind = if out.stderr.contains(ZJJRFG_GUIDON_REF) {
+                jjrfr_RejectionKind::LockBroken
+            } else {
+                jjrfr_RejectionKind::Diverged
+            };
+            return Err(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_CONSIGN, root, out.stderr));
         }
         zjjrfg_unexpected(ZJJRFG_OP_CONSIGN, root, &out.stderr)
     }

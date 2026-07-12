@@ -29,11 +29,6 @@ use std::path::{
 
 const ZJJTFG_TRUNK: &str = "jjtfg-trunk";
 
-/// The remote-tracking name of the test trunk, derived from the trunk const.
-fn zjjtfg_remote_trunk() -> String {
-    format!("origin/{}", ZJJTFG_TRUNK)
-}
-
 fn zjjtfg_git(dir: &Path, args: &[&str]) -> String {
     let out = std::process::Command::new("git")
         .arg("-C")
@@ -344,38 +339,66 @@ fn jjtfg_consign_rejects_diverged_without_lease() {
 }
 
 #[test]
-fn jjtfg_consign_atomic_lease_succeeds_when_expected_matches() {
+fn jjtfg_consign_atomic_lease_succeeds_while_lock_held() {
     let bare = JjkTestDir::new("jjtfg_consign_lease_ok_bare");
     let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_ok");
-    let expected = zjjtfg_git(local1.path(), &["rev-parse", &zjjtfg_remote_trunk()]);
+    jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-holder").unwrap();
     let tip = zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
     jjrfg_PlainGit
-        .jjrfr_consign(local1.path(), ZJJTFG_TRUNK, Some(&jjrfr_ConsignLease(expected)))
+        .jjrfr_consign(local1.path(), ZJJTFG_TRUNK, Some(&jjrfr_ConsignLease("guidon-holder".to_string())))
         .unwrap();
 
     let remote_tip = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
     assert_eq!(remote_tip, tip);
+    let flying = jjrfg_PlainGit.jjrfr_sight(local1.path()).unwrap();
+    assert_eq!(flying.as_deref(), Some("guidon-holder"), "consign must leave the held lock exactly as it stood");
 }
 
 #[test]
-fn jjtfg_consign_atomic_lease_rejects_when_stale() {
-    let bare = JjkTestDir::new("jjtfg_consign_lease_stale_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_stale");
-    let stale_expected = zjjtfg_git(local1.path(), &["rev-parse", &zjjtfg_remote_trunk()]);
+fn jjtfg_consign_atomic_lease_rejects_lock_broken_and_pushes_nothing() {
+    let bare = JjkTestDir::new("jjtfg_consign_lease_broken_bare");
+    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_broken");
+    let baseline = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
+    jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-holder").unwrap();
+    zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
+    // The lock breaks under the holder (plucked, not re-staked) between its
+    // sight and its consign — the atomic lease must fail the content push too.
+    jjrfg_PlainGit.jjrfr_pluck(local1.path(), "guidon-holder").unwrap();
+
+    let result = jjrfg_PlainGit.jjrfr_consign(
+        local1.path(),
+        ZJJTFG_TRUNK,
+        Some(&jjrfr_ConsignLease("guidon-holder".to_string())),
+    );
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockBroken);
+    let remote_tip = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
+    assert_eq!(remote_tip, baseline, "a broken-lock consign must land nothing on the remote");
+}
+
+#[test]
+fn jjtfg_consign_atomic_lease_rejects_content_race_as_diverged() {
+    let bare = JjkTestDir::new("jjtfg_consign_lease_race_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_race");
+    jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-holder").unwrap();
+
+    // The lock stands untouched, but content lands from elsewhere — the
+    // rejection classifies on the branch, never the guidon.
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
-
     zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
     let result = jjrfg_PlainGit.jjrfr_consign(
         local1.path(),
         ZJJTFG_TRUNK,
-        Some(&jjrfr_ConsignLease(stale_expected)),
+        Some(&jjrfr_ConsignLease("guidon-holder".to_string())),
     );
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
+    let flying = jjrfg_PlainGit.jjrfr_sight(local1.path()).unwrap();
+    assert_eq!(flying.as_deref(), Some("guidon-holder"), "a content-race rejection must leave the held lock standing");
 }
 
 #[test]

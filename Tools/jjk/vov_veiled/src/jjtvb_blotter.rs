@@ -130,6 +130,33 @@ fn jjtvb_journal_rejects_lock_held_and_never_calls_mutate() {
 }
 
 #[test]
+fn jjtvb_journal_rejects_lock_broken_mid_ceremony_and_pushes_nothing() {
+    let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_lock_broken");
+    let baseline = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+
+    // Another station breaks our lock and stakes its own while we sit between
+    // sight and consign — the race the lock-ref lease exists to close. The
+    // mutate closure is where the ceremony dwells at that point, so the break
+    // is staged from inside it.
+    let result = jjdb_journal(&jjrfg_PlainGit, &config, "guidon-victim", |root| {
+        jjrfg_PlainGit.jjrfr_pluck(root, "guidon-victim").unwrap();
+        jjrfg_PlainGit.jjrfr_stake(root, "guidon-usurper").unwrap();
+        zjjtvb_write(root, "stranded.txt", "must never reach the remote");
+        (vec![PathBuf::from("stranded.txt")], "stranded entry".to_string())
+    });
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockBroken);
+    let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+    assert_eq!(remote_tip, baseline, "the broken-lock ceremony must land nothing on the remote");
+    let flying = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+    assert_eq!(
+        flying.as_deref(),
+        Some("guidon-usurper"),
+        "the usurper's lock must survive both the failed consign and our guard's release"
+    );
+}
+
+#[test]
 fn jjtvb_journal_advances_past_a_prior_journaled_entry_before_writing() {
     let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_advance");
 

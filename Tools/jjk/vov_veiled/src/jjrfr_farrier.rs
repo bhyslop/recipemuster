@@ -166,9 +166,10 @@ pub enum jjrfr_GleanOutcome {
     Unreachable,
 }
 
-/// The atomic-under-lease flavor of `consign`: the expected remote SHA the push is
-/// conditioned on, binding the push to what the caller last observed. `None` at
-/// `jjrfr_consign` selects the plain fast-forward flavor instead.
+/// The atomic-under-lease flavor of `consign`: the holder's own guidon, binding
+/// the content push to the holder's own lock ref (JJSVF consign contract, JJSVJ
+/// step 5) — if the lock was broken under the holder, the whole push fails.
+/// `None` at `jjrfr_consign` selects the plain fast-forward flavor instead.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrfr_ConsignLease(pub String);
 
@@ -214,8 +215,10 @@ pub trait jjrfr_FarrierCore {
 
     /// Hand `branch` into the remote's custody. `lease` absent selects plain
     /// fast-forward (hippodrome branches); present selects atomic-under-lease
-    /// (blotter content — the lease binds the push to what the caller last
-    /// observed). Never force in either flavor (`JJr_d81`).
+    /// (blotter content — the lease binds the push to the holder's own lock
+    /// ref, rejecting `LockBroken` when it no longer flies the leased guidon;
+    /// a plain content race stays `Diverged`). Never force in either flavor
+    /// (`JJr_d81`).
     fn jjrfr_consign(&self, root: &Path, branch: &str, lease: Option<&jjrfr_ConsignLease>) -> Result<(), jjrfr_Rejection>;
 }
 
