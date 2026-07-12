@@ -4407,8 +4407,8 @@
         "₢BbAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1537",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0703",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -4454,7 +4454,7 @@
                 "tt/rbw-tl.Shellcheck.sh and tt/rbw-ts.TestSuite.reveille.sh green."
               ],
               "jjgtn_silks": "rbrv-env-bash-sweep",
-              "jjgtn_basis": "ecf817d"
+              "jjgtn_basis": "05a4a7c"
             }
           ]
         },
