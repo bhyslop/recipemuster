@@ -688,10 +688,31 @@ fn jjtfg_enfold_fast_forwards_when_billet_has_no_local_commits() {
         .unwrap();
     let tip = zjjtfg_commit_all(primary.path(), "b.txt", "trunk moved on", "trunk advances");
 
-    jjrfg_PlainGit.jjrfr_enfold(billet.path()).unwrap();
+    jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
 
     let head = zjjtfg_git(billet.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, tip);
+}
+
+#[test]
+fn jjtfg_enfold_merges_the_named_trunk_not_the_primarys_checkout() {
+    let primary = JjkTestDir::new("jjtfg_enfold_named_primary");
+    zjjtfg_init_local(primary.path());
+    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let billet = zjjtfg_billet_slot("jjtfg_enfold_named_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("named-trunk-billet".to_string()), billet.path())
+        .unwrap();
+    zjjtfg_commit_all(primary.path(), "b.txt", "trunk work", "trunk advances");
+    // Park the primary on a different line — trunk-ness must come from the
+    // caller, never from the primary's ambient checkout.
+    zjjtfg_git(primary.path(), &["checkout", "-q", "-b", "sidetrack"]);
+    zjjtfg_commit_all(primary.path(), "c.txt", "side work", "side commit");
+
+    jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
+
+    assert!(billet.path().join("b.txt").exists());
+    assert!(!billet.path().join("c.txt").exists());
 }
 
 #[test]
@@ -706,7 +727,7 @@ fn jjtfg_enfold_merges_divergent_trunk_and_billet_history() {
     zjjtfg_commit_all(billet.path(), "billet.txt", "billet work", "billet commit");
     zjjtfg_commit_all(primary.path(), "trunk.txt", "trunk work", "trunk commit");
 
-    jjrfg_PlainGit.jjrfr_enfold(billet.path()).unwrap();
+    jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap();
 
     assert!(billet.path().join("trunk.txt").exists());
     assert!(billet.path().join("billet.txt").exists());
@@ -726,7 +747,7 @@ fn jjtfg_enfold_rejects_dirty_tree() {
     zjjtfg_commit_all(primary.path(), "b.txt", "trunk moved on", "trunk advances");
     zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
 
-    let result = jjrfg_PlainGit.jjrfr_enfold(billet.path());
+    let result = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK);
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
 }
@@ -744,5 +765,5 @@ fn jjtfg_enfold_fails_loud_on_conflict() {
     zjjtfg_commit_all(billet.path(), "a.txt", "billet changed this line", "billet edits a.txt");
     zjjtfg_commit_all(primary.path(), "a.txt", "trunk changed this line too", "trunk edits a.txt");
 
-    let _ = jjrfg_PlainGit.jjrfr_enfold(billet.path());
+    let _ = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK);
 }

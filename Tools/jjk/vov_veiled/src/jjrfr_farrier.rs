@@ -248,8 +248,10 @@ pub trait jjrfr_FarrierBillet {
 
     /// Merge trunk *into* a billet branch — never rebase; fail-loud on conflict,
     /// resolution belonging to the attended session. The bare primitive beneath
-    /// the dispatch sheaf's refit.
-    fn jjrfr_enfold(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
+    /// the dispatch sheaf's refit. The caller names the trunk branch: trunk-ness
+    /// is pedigree-relative and classified above the trait (the identify
+    /// contract), never inferred by a kind from ambient checkout state.
+    fn jjrfr_enfold(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
 }
 
 // ---- Lock guard and break sequence ----

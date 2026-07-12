@@ -467,7 +467,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         Ok(())
     }
 
-    fn jjrfr_enfold(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
+    fn jjrfr_enfold(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
         let comb = self.jjrfr_comb(billet_root)?;
         if !comb.jjrfr_is_clean() {
             return Err(jjrfr_Rejection::jjrfr_new(
@@ -477,18 +477,14 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
                 "uncommitted changes block merging trunk in",
             ));
         }
-        let primary_root = zjjrfg_primary_root(billet_root);
-        let trunk = match zjjrfg_line_of_work(&primary_root) {
-            jjrfr_LineOfWork::Branch(name) => name,
-            jjrfr_LineOfWork::Detached(sha) => sha,
-        };
-        // Never rebase: a plain merge, fast-forwarding when possible and
-        // otherwise recording a real merge commit. A conflict is not one of
-        // the taxonomy's rejection kinds — it is not this driver's to resolve
-        // (billet sheaf: "resolution belonging to the attended session") — so
-        // it falls through to the unclassified panic, leaving the conflict
-        // markers standing exactly as git left them.
-        let out = zjjrfg_run_git(billet_root, &["merge", "-q", &trunk, "-m", "enfold trunk"]);
+        // Never rebase: a plain merge of the caller-named trunk branch,
+        // fast-forwarding when possible and otherwise recording a real merge
+        // commit. A conflict is not one of the taxonomy's rejection kinds — it
+        // is not this driver's to resolve (billet sheaf: "resolution belonging
+        // to the attended session") — so it falls through to the unclassified
+        // panic, leaving the conflict markers standing exactly as git left
+        // them.
+        let out = zjjrfg_run_git(billet_root, &["merge", "-q", trunk, "-m", "enfold trunk"]);
         if !out.ok {
             zjjrfg_unexpected(ZJJRFG_OP_ENFOLD, billet_root, &out.stderr);
         }
