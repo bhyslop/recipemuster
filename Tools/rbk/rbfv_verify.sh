@@ -167,6 +167,7 @@ rbfv_about() {
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || z_curl_status=$?
+  # RBr_c17
   test "${z_curl_status}" -eq 0 \
     || buc_die "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
@@ -623,6 +624,7 @@ rbfv_vouch() {
     "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || z_curl_status=$?
+  # RBr_c17
   test "${z_curl_status}" -eq 0 \
     || buc_die "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 

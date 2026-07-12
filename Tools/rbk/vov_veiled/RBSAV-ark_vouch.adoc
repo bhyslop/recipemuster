@@ -64,6 +64,22 @@ HTTP 200 response -- {rbtgo_ark_about} must complete before vouch
 .. If `{gar_hallmarks_namespace}/«HALLMARK»/vouch:«HALLMARK»` already exists:
 {rbbc_warn}
 re-vouch in progress (see idempotency below)
+.. Fault posture: single-attempt fail-fast on any nonzero curl exit (rivet RBr_c17)
+
+[[RBr_c17]]
+//axvc_camber
+RBr_c17::
+The about-gate HEAD is single-attempt fail-fast: it captures the curl exit and dies on any nonzero value, including the surveyed transient band (`7|28|35|56`) that
+`rbgo_curl_status_is_transient_predicate`
+classifies and that the host HTTP path retries.
+The seductive wrong fix is to grant the gate that same tolerance -- the classifier already exists, every peer path calls it, and this lone site looks like the one that was forgotten.
+It was not forgotten, and the asymmetry is the point.
+Fail-fast is this realm's declared default ({rbtf_don} fault posture): tolerance is granted only against a *surveyed* signature of the neighbor faulting, never as general robustness, and a bespoke retry here would also be a second home for a policy that already has one.
+The evidence a timeout at this gate actually offers is ambiguous by construction: a slow
+{gar_registry}
+and a dying local link are indistinguishable through a `{RBCC_CURL_MAX_TIME_SEC}` ceiling, so a fault seen here is not yet evidence of foreign misbehavior -- and absorbing a station's own network trouble into a provenance gate would bend the discipline toward the wrong neighbor entirely.
+Demolition: if the surveyed band faults at this gate on a demonstrably healthy link, that is a survey, and it earns a membrane in the host HTTP path (extended to carry HEAD) -- never a retry hand-rolled at this call site.
+First data point, and the live grounding for the ambiguity: `Memos/memo-20260712-curl-fault-posture-vouch-gate.md`.
 
 //axhos_step
 . *Submit Vouch Cloud Build*:
