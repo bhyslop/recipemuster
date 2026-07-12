@@ -3683,8 +3683,8 @@
         "₢BCAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1611",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-0732",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -3711,7 +3711,7 @@
                 "- Trace-file contracts beyond exit code plus stderr substring."
               ],
               "jjgtn_silks": "coverage-surface-cases",
-              "jjgtn_basis": "aaf7b9f"
+              "jjgtn_basis": "502c185"
             }
           ]
         },
