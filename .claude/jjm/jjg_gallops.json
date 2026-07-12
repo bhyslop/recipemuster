@@ -8523,9 +8523,249 @@
       "jjghn_silks": "rbk-23-win-acg-incorporate",
       "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢BzAAA",
+        "₢BzAAB",
+        "₢BzAAC",
+        "₢BzAAD",
+        "₢BzAAE",
+        "₢BzAAF"
+      ],
+      "jjghn_next_pace_seed": "AAG",
+      "jjghn_paces": {
+        "₢BzAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Generative groom pace — its deliverable is the refreshed slate, not code.",
+                "Run first at convening; frontier tier (the bridle judgments are its output).",
+                "",
+                "## Goal",
+                "Re-ground this heat against the repo as it stands at convening,",
+                "then cut and bridle the tranche.",
+                "",
+                "## Work",
+                "Muster the hot-lane map: which owning heats have retired since slating",
+                "(delete/banish, federation, any lane the findings memos name as report-never-touch).",
+                "Re-run the conjure memo's detect recipes and compare against the standing dockets.",
+                "Read both pilot findings memos for still-undispositioned routed items.",
+                "Reslate any docket this drift check falsifies;",
+                "slate the next per-operation pair tranche if regeneration trials",
+                "or the detect greps name one;",
+                "bridle what is ready.",
+                "",
+                "## Done when",
+                "Every remaining docket in this heat is true at mount-time;",
+                "the next tranche is slated or declared unnecessary;",
+                "the ready paces are bridled with tiers recorded."
+              ],
+              "jjgtn_silks": "acg-roster-scout",
+              "jjgtn_basis": "feb2a50"
+            }
+          ]
+        },
+        "₢BzAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Re-form every spec-acronym citation in shipped bash under the A8 ruling:",
+                "rivet where a normative proposition needs an anchor at the code, nothing otherwise.",
+                "",
+                "## Cinched",
+                "- The ruling lives in ACG's rivet rulings; the placement law at MCM mcm_rivet.",
+                "  Read both first; never restate rationale beside a rivet.",
+                "- Population is shipped source only — veiled trees cite acronyms freely.",
+                "",
+                "## Discovery",
+                "grep -rEn \"RBS[A-Z0-9]{1,3}\" Tools/rbk --include=\"*.sh\" — then drop vov_veiled hits",
+                "and non-comment matches.",
+                "The federation/polity cluster (rbgp, rba, rbxk, rbgft, rbrf, rbof) is the densest ground.",
+                "The access-probe memo's routed F1/F6 (rbgv_probe.sh against the access specs)",
+                "are paraphrase-form sites the grep cannot see — take them from the memo.",
+                "Pre-existing rbch_beckon/rbch_palpate citations were left for this sweep",
+                "(conjure memo, A8 consequence).",
+                "",
+                "## Gate",
+                "Comment-only; shellcheck and reveille green.",
+                "Each rivet-vs-nothing call is judgment — when a site seems to need",
+                "a third form, stop and surface.",
+                "",
+                "## Done when",
+                "The detect grep over shipped bash returns only rivet residues;",
+                "the access-probe memo's routed bash items are dispositioned;",
+                "new rivets are minted per the MCM placement law with their spec definition sites landed."
+              ],
+              "jjgtn_silks": "a8-rivet-or-nothing-sweep",
+              "jjgtn_basis": "feb2a50"
+            }
+          ]
+        },
+        "₢BzAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Audit the shared foundry support surface once, as a unit:",
+                "rbfc0_core.sh, rbfca_assembly.sh, rbfcb_host.sh, rbfcg_gar.sh headers,",
+                "plus the rbgc_constants.sh and rbcc_constants.sh constant-comment blocks.",
+                "",
+                "## Cinched",
+                "- This is the conjure memo's shared-support cut:",
+                "  support serves every operation pair, so it is audited here and",
+                "  excluded from every pair pace's closure.",
+                "- rbk-43 (₣Bq) has retired: the sitting-lifecycle comments",
+                "  (redon-tick header, re-don cadence and two-clocks blocks) are now in scope —",
+                "  the conjure memo's hot-lane section names them as held cite-then-restate candidates.",
+                "- The delete/banish item (builder-deletion comment against the pinning boundary)",
+                "  is in scope only if its lane has landed — check at mount.",
+                "",
+                "## Discovery",
+                "The conjure memo's hot-lane and leftovers sections are the banked starting census;",
+                "the detect recipe (spec acronyms plus RBr_ in comment blocks, then read homes)",
+                "finds the rest.",
+                "",
+                "## Gate",
+                "Comment-only; shellcheck and reveille green.",
+                "",
+                "## Done when",
+                "The four support modules and two constant homes carry only contract lines,",
+                "rivet residues, and genuinely local mechanics;",
+                "everything homed is collapsed to its citation form."
+              ],
+              "jjgtn_silks": "shared-support-sweep",
+              "jjgtn_basis": "feb2a50"
+            }
+          ]
+        },
+        "₢BzAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Run the ACGm_105 word-cancer move corpus-wide:",
+                "for each independently-reworded idea, triage one home, collapse the other sites.",
+                "",
+                "## Cinched",
+                "- Banked corpus items from the pilots:",
+                "  the walking-dead zero-tag filter (three wordings, two of them specs —",
+                "  the cross-spec home triage is the judgment);",
+                "  the conclave-Lode layout phrase (sites include the rbgjl capture steps);",
+                "  the bounded propagation-absorbing-retry phrase from the access-probe pair.",
+                "- Cross-spec collapses are reviewed moves, never mechanical.",
+                "",
+                "## Discovery",
+                "Start from the banked items in both findings memos (F-numbered 105 entries),",
+                "then hunt fresh items: recurring coined phrases across spec sheaves and comments.",
+                "This pace is generative — a phrase too entangled to collapse in-pace",
+                "becomes its own slated pace.",
+                "",
+                "## Gate",
+                "Spec-side edits are inspection-provable; shellcheck and reveille green",
+                "if any source comment moves.",
+                "",
+                "## Done when",
+                "Each banked item has one declared home with the other sites collapsed;",
+                "fresh items are either collapsed or slated;",
+                "the phrases' home choices are recorded in the touched specs, not this paddock."
+              ],
+              "jjgtn_silks": "word-cancer-corpus-sweep",
+              "jjgtn_basis": "feb2a50"
+            }
+          ]
+        },
+        "₢BzAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Goal",
+                "Run the ACGm_107 skidmark move across the spec corpus:",
+                "drain dated decision records and history-time narration out of normative specs.",
+                "",
+                "## Cinched",
+                "- The RBSCJ decision-record drain is the known major item",
+                "  (conjure memo F12b: a dated Decision/Rationale/Evidence block in a normative spec,",
+                "  durable residue a few sentences).",
+                "  Its drain ruling is fable-gated and touches a shared lane — surface before draining.",
+                "- Drained records go to dated memos; durable residue stays in the spec, present-tense.",
+                "",
+                "## Discovery",
+                "Corpus grep for dated research/decision markers in the spec sheaves",
+                "(dates in prose, research-conducted phrasing, what-dies/what-survives blocks),",
+                "plus the F12a-style history-narration recasts the conjure memo records.",
+                "The stale step-inlining sentence the conjure memo flags in RBSCJ",
+                "folds into the drain if approved.",
+                "",
+                "## Gate",
+                "Spec-only; no source change expected.",
+                "",
+                "## Done when",
+                "The spec corpus carries no dated decision records;",
+                "each drained record lives in a memo;",
+                "RBSCJ's drain is either landed under the fable ruling or explicitly declined."
+              ],
+              "jjgtn_silks": "skidmark-drain",
+              "jjgtn_basis": "feb2a50"
+            }
+          ]
+        },
+        "₢BzAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-0830",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "The seed of the per-operation tranche — first worked instance of the",
+                "conjure memo's operation-cut recipe, on the densest surface the A8 detect grep shows.",
+                "",
+                "## Goal",
+                "Audit the polity/federation admission operations against their modules",
+                "where the specs reach:",
+                "the citizen-admission and terrier operation sheaves (brevet, unseat, attaint,",
+                "rehearse, gird, and the terrier contract)",
+                "against rbgp_payor.sh, rbgp_cli.sh, and rbgft_terrier.sh.",
+                "",
+                "## Cinched",
+                "- Operation-cut with declared support closure;",
+                "  shared foundry support is the shared-support pace's ground, not this one's.",
+                "- Full move set — the mechanical acronym population belongs to the",
+                "  a8-rivet-or-nothing-sweep; this pace hunts what grep cannot see:",
+                "  uncited paraphrase, spec-side relocations, name-identity census,",
+                "  contract-header boundary calls.",
+                "- Findings memo optional; if written, it follows the pilot memos' shape",
+                "  and retires on disposition.",
+                "",
+                "## Discovery",
+                "The conjure memo's detect recipe, plus a home-first read of each operation sheaf",
+                "before its module.",
+                "",
+                "## Gate",
+                "Comment and spec edits only; shellcheck and reveille green;",
+                "any runtime defect found is surfaced, never repaired in-pace.",
+                "",
+                "## Done when",
+                "Every finding is collapsed, relocated, or explicitly declined with its reason;",
+                "the operation sheaves and modules agree per the name-identity census;",
+                "the audit's verdict on recipe fitness is recorded for the scout's next-tranche ruling."
+              ],
+              "jjgtn_silks": "polity-pair-audit",
+              "jjgtn_basis": "feb2a50"
+            }
+          ]
+        }
+      }
     }
   }
 }
