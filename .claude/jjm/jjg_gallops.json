@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "Bz",
+  "jjgrn_next_heat_seed": "B0",
   "jjgrn_heat_order": [
     "₣Br",
     "₣Bs",
@@ -28,7 +28,8 @@
     "₣Au",
     "₣BI",
     "₣BL",
-    "₣Ba"
+    "₣Ba",
+    "₣Bz"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -8513,6 +8514,14 @@
     "₣By": {
       "jjghn_silks": "jjk-12-aspirant-grimoire",
       "jjghn_creation_time": "260707",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣Bz": {
+      "jjghn_silks": "rbk-23-win-acg-incorporate",
+      "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
