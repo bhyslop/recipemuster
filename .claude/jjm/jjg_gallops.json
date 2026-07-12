@@ -8834,7 +8834,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-0636",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Qualify the rebaseline on rocket's Cygwin backend — the bash-dialect and transport surface (the WSG stack) — reachable only from macOS,",
                 "so run from a Mac session as curia (ssh cygwin@rocket per the machine registry, Tools/jjk/vov_veiled/claude-jjk-bhyslop.md §I).",
@@ -8868,7 +8869,7 @@
                 "Mechanical: probe, run, read counts, notch or surface."
               ],
               "jjgtn_silks": "cygwin-freehold-sweep",
-              "jjgtn_basis": "03b8fae"
+              "jjgtn_basis": "2cc3110"
             }
           ]
         }
