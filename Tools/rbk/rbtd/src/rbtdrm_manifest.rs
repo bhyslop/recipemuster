@@ -433,10 +433,14 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_ENSCONCE_BOLE,
             RBTDGC_FEOFF_BOLE,
         ]),
-        // Regime-poison's in-tree-backed regimes (repo/depot/payor/station-
-        // config/nameplate/vessel) validate on every case; the two
-        // operator-local regimes (oauth, station tincture) self-skip when
-        // unconfigured, declared permitted below.
+        // Every regime-poison case launches its validate colophon, so all eight
+        // are required — the operator-local pair (oauth, station tincture)
+        // included. Their self-skip elides only the POISONED invocation: the
+        // un-poisoned baseline probe launches first and unconditionally, and
+        // the census records at the launch (rbtdri_tabtarget_command), so
+        // neither can ever go unused. On a station where those regimes are
+        // absent the case skips, and a skipped case suppresses the negative
+        // check outright — so requiring them cannot false-fail there either.
         RBTDRM_FIXTURE_REGIME_POISON => Some(&[
             RBTDGC_VALIDATE_REPO,
             RBTDGC_VALIDATE_DEPOT,
@@ -444,6 +448,8 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             BUWGC_RC_VALIDATE,
             RBTDGC_VALIDATE_NAMEPLATE,
             RBTDGC_VALIDATE_VESSEL,
+            RBTDGC_VALIDATE_OAUTH,
+            BUWGC_RS_VALIDATE,
         ]),
         _ => None,
     }
@@ -467,10 +473,6 @@ pub fn rbtdrm_permitted_colophons(fixture: &str) -> &'static [&'static str] {
         // Banish fires only when the reset's divine finds the pinned
         // touchmark already present — the steady-state pass never reaches it.
         RBTDRM_FIXTURE_CHAINING_LIVERY => &[RBTDGC_BANISH_LODE],
-        // Oauth and station regimes have no in-tree baseline — configured
-        // only on an operator's workstation; unconfigured, the case
-        // self-skips instead of invoking the poisoned colophon.
-        RBTDRM_FIXTURE_REGIME_POISON => &[RBTDGC_VALIDATE_OAUTH, BUWGC_RS_VALIDATE],
         _ => &[],
     }
 }
