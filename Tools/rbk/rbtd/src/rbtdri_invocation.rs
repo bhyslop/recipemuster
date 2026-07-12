@@ -225,6 +225,53 @@ fn zrbtdri_tariff_bump() {
     RBTDRI_TARIFF_COUNT.with(|c| c.set(c.get().saturating_add(1)));
 }
 
+// ── Colophon census (declared vs used) ───────────────────────
+//
+// A fixture's `rbtdrm_required_colophons` manifest entry declares the
+// colophons its cases are expected to invoke. Enforcement is two-directional:
+// an invoke of an undeclared colophon refuses at the chokepoint below
+// (positive), and — checked once the fixture is complete, by the caller in
+// rbtdre_engine — a declared colophon never invoked fails a fully-green run
+// (negative). Thread-local for the same reason as the credless guard and the
+// tariff tally: case functions and setup/teardown hooks reach their fixture's
+// invocation state only through the rbtdrc thread-local channel, on the
+// thread that runs the whole fixture, so a second thread-local here is the
+// established shape rather than a new one.
+//
+// `None` means "this fixture carries no manifest entry" — census tracking is
+// disabled entirely (neither direction enforced), distinct from `Some(&[])`
+// ("declares zero colophons", which enforces the empty declaration: any
+// invoke refuses). The distinction matters: ad hoc fixture names used by
+// invocation-mechanics tests (never meant to interact with census policy)
+// resolve to `None` and are untouched by this feature.
+thread_local! {
+    static RBTDRI_CENSUS_DECLARED: std::cell::RefCell<Option<&'static [&'static str]>> =
+        const { std::cell::RefCell::new(None) };
+    static RBTDRI_CENSUS_USED: std::cell::RefCell<std::collections::HashSet<String>> =
+        std::cell::RefCell::new(std::collections::HashSet::new());
+}
+
+/// Arm the census for the fixture about to run — the declared colophon set
+/// (`None` disables census tracking for this run) and a cleared used-set.
+/// Callers pass `rbtdrm_required_colophons(fixture)` directly; this module
+/// stays independent of the manifest module, so tests can arm an arbitrary
+/// synthetic declared list without a real manifest entry.
+pub fn rbtdri_census_arm(declared: Option<&'static [&'static str]>) {
+    RBTDRI_CENSUS_DECLARED.with(|d| *d.borrow_mut() = declared);
+    RBTDRI_CENSUS_USED.with(|u| u.borrow_mut().clear());
+}
+
+/// Read the current thread's armed declared-colophon set.
+pub fn rbtdri_census_declared() -> Option<&'static [&'static str]> {
+    RBTDRI_CENSUS_DECLARED.with(|d| *d.borrow())
+}
+
+/// Read the current thread's used-colophon set — every colophon that passed
+/// the positive check since the last arm.
+pub fn rbtdri_census_used() -> std::collections::HashSet<String> {
+    RBTDRI_CENSUS_USED.with(|u| u.borrow().clone())
+}
+
 // ── Tabtarget discovery ──────────────────────────────────────
 
 /// Find the tabtarget script for a colophon + imprint (nameplate or role).
@@ -378,12 +425,33 @@ pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
 /// immediately-prior invoke's BURV root instead of minting a fresh one — so
 /// `bud_dispatch` promotes that invoke's `current/` into this invoke's
 /// `previous/`. The flag is consumed and cleared here.
+///
+/// Census positive check lands here — the one implementation every
+/// `rbtdri_invoke*` primitive funnels through — never in
+/// `rbtdri_tabtarget_command`, which the direct-Command case helpers that
+/// bypass `rbtdri_invoke*` also share: those bypass helpers are deliberately
+/// outside census scope (their fixtures declare an empty or absent census).
 fn rbtdri_invoke_impl(
     ctx: &mut rbtdri_Context,
+    colophon: &str,
     tabtarget: &Path,
     args: &[&str],
     extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
+    if let Some(declared) = rbtdri_census_declared() {
+        if !declared.iter().any(|d| *d == colophon) {
+            return Err(format!(
+                "rbtdri: fixture '{}' invoked colophon '{}' which is not declared in its \
+                 required-colophons census — add it to rbtdrm_required_colophons('{}') \
+                 or invoke a declared colophon instead",
+                ctx.fixture, colophon, ctx.fixture
+            ));
+        }
+        RBTDRI_CENSUS_USED.with(|u| {
+            u.borrow_mut().insert(colophon.to_string());
+        });
+    }
+
     let invoke_num = if std::mem::take(&mut ctx.chain_next) {
         // Chain off the immediately-prior invoke: reuse its root (do NOT mint a
         // fresh one or bump the counter), so bud's promotion carries that
@@ -452,7 +520,7 @@ pub fn rbtdri_invoke(
     args: &[&str],
 ) -> Result<rbtdri_InvokeResult, String> {
     let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.fixture)?;
-    rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
+    rbtdri_invoke_impl(ctx, colophon, &tabtarget, args, &[])
 }
 
 /// Invoke a fixture-imprinted tabtarget (like `rbtdri_invoke`) with extra
@@ -465,7 +533,7 @@ pub fn rbtdri_invoke_env(
     extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
     let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, &ctx.fixture)?;
-    rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
+    rbtdri_invoke_impl(ctx, colophon, &tabtarget, args, extra_env)
 }
 
 /// Invoke a global tabtarget (no imprint) with optional extra environment variables.
@@ -476,7 +544,7 @@ pub fn rbtdri_invoke_global(
     extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
     let tabtarget = rbtdri_find_tabtarget_global(&ctx.project_root, colophon)?;
-    rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
+    rbtdri_invoke_impl(ctx, colophon, &tabtarget, args, extra_env)
 }
 
 /// Invoke a tabtarget with an explicit imprint (overrides ctx.fixture for discovery).
@@ -487,7 +555,7 @@ pub fn rbtdri_invoke_imprint(
     args: &[&str],
 ) -> Result<rbtdri_InvokeResult, String> {
     let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, imprint)?;
-    rbtdri_invoke_impl(ctx, &tabtarget, args, &[])
+    rbtdri_invoke_impl(ctx, colophon, &tabtarget, args, &[])
 }
 
 /// Invoke a tabtarget with an explicit imprint and extra environment variables
@@ -500,7 +568,7 @@ pub fn rbtdri_invoke_imprint_env(
     extra_env: &[(&str, &str)],
 ) -> Result<rbtdri_InvokeResult, String> {
     let tabtarget = rbtdri_find_tabtarget(&ctx.project_root, colophon, imprint)?;
-    rbtdri_invoke_impl(ctx, &tabtarget, args, extra_env)
+    rbtdri_invoke_impl(ctx, colophon, &tabtarget, args, extra_env)
 }
 
 // ── BURV fact file reading ───────────────────────────────────

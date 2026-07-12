@@ -511,3 +511,128 @@ fn rbtdte_tariff_bounds_are_independent() {
     assert_eq!(mixed.elapsed_secs, 2);
     assert_eq!(mixed.invocations, 4);
 }
+
+// ── Colophon census wired into rbtdre_run_fixture ────────────────
+//
+// Mirrors the real Context::new -> rbtdri_census_arm -> rbtdrc_set_context ->
+// rbtdre_run_fixture -> rbtdrc_take_context sequence main.rs drives, so the
+// negative check (declared-but-unused fails a fully-green fixture) and the
+// single-case exemption (rbtdre_run_single_case never consults it) are
+// proven against the real wiring, not a reimplementation of it. The case
+// reaches ctx through rbtdrc_with_ctx — the same channel a real fixture's
+// case uses.
+
+const ZRBTDTE_CENSUS_COL_USED: &str = "zrbtdte-col-used";
+const ZRBTDTE_CENSUS_COL_UNUSED: &str = "zrbtdte-col-unused";
+
+fn zrbtdte_census_invoke_used(_dir: &Path) -> rbtdre_Verdict {
+    crate::rbtdrc_crucible::rbtdrc_with_ctx(|ctx| {
+        match crate::rbtdri_invocation::rbtdri_invoke_global(ctx, ZRBTDTE_CENSUS_COL_USED, &[], &[]) {
+            Ok(r) if r.exit_code == 0 => rbtdre_Verdict::Pass,
+            Ok(r) => rbtdre_Verdict::Fail(format!("exit {}", r.exit_code)),
+            Err(e) => rbtdre_Verdict::Fail(e),
+        }
+    })
+}
+
+static ZRBTDTE_CENSUS_CASES: &[rbtdre_Case] = &[crate::case!(zrbtdte_census_invoke_used)];
+
+static ZRBTDTE_CENSUS_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
+    name: "zrbtdte-census-fixture",
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: ZRBTDTE_CENSUS_CASES,
+    credless: false,
+    tariff: rbtdre_Tariff::UNCHECKED,
+};
+
+/// Scratch project root with a tt/ script satisfying ZRBTDTE_CENSUS_COL_USED
+/// via the global-tabtarget shape (`{colophon}.<frontispiece>.sh`).
+fn zrbtdte_census_scratch(label: &str) -> std::path::PathBuf {
+    let tmp = rbtdth_make_scratch(label);
+    let tt = tmp.join("tt");
+    std::fs::create_dir_all(&tt).unwrap();
+    let script = tt.join(format!("{}.Foo.sh", ZRBTDTE_CENSUS_COL_USED));
+    std::fs::write(&script, "#!/bin/bash\nexit 0\n").unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    tmp
+}
+
+#[test]
+fn rbtdte_run_fixture_passes_when_declared_colophons_all_used() {
+    let tmp = zrbtdte_census_scratch("census-fixture-pass");
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let ctx = crate::rbtdri_invocation::rbtdri_Context::new(
+        &tmp, ZRBTDTE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+    );
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[ZRBTDTE_CENSUS_COL_USED]));
+    crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
+
+    let result = rbtdre_run_fixture(&ZRBTDTE_CENSUS_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();
+
+    crate::rbtdri_invocation::rbtdri_census_arm(None);
+    let _ = crate::rbtdrc_crucible::rbtdrc_take_context();
+
+    assert_eq!(result.failed, 0, "every declared colophon was invoked — must not fail");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_run_fixture_fails_on_declared_but_unused_colophon() {
+    let tmp = zrbtdte_census_scratch("census-fixture-fail");
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let ctx = crate::rbtdri_invocation::rbtdri_Context::new(
+        &tmp, ZRBTDTE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+    );
+    // Declares a SECOND colophon the case never invokes.
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[
+        ZRBTDTE_CENSUS_COL_USED,
+        ZRBTDTE_CENSUS_COL_UNUSED,
+    ]));
+    crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
+
+    let result = rbtdre_run_fixture(&ZRBTDTE_CENSUS_FIXTURE, &RBTDTE_COLORS, &tmp, false).unwrap();
+
+    crate::rbtdri_invocation::rbtdri_census_arm(None);
+    let _ = crate::rbtdrc_crucible::rbtdrc_take_context();
+
+    assert!(result.failed > 0, "a declared-but-never-invoked colophon must fail the fixture");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_run_single_case_ignores_unused_declared_colophons() {
+    // Single-case runs enforce positive only: rbtdre_run_single_case never
+    // calls rbtdre_check_census, so the same armed declared-but-unused
+    // colophon that fails a full fixture run above must NOT fail a
+    // single-case run of the identical case.
+    let tmp = zrbtdte_census_scratch("census-single-case-exempt");
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let ctx = crate::rbtdri_invocation::rbtdri_Context::new(
+        &tmp, ZRBTDTE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+    );
+    crate::rbtdri_invocation::rbtdri_census_arm(Some(&[
+        ZRBTDTE_CENSUS_COL_USED,
+        ZRBTDTE_CENSUS_COL_UNUSED,
+    ]));
+    crate::rbtdrc_crucible::rbtdrc_set_context(ctx);
+
+    let result = rbtdre_run_single_case(&ZRBTDTE_CENSUS_CASES[0], &RBTDTE_COLORS, &tmp).unwrap();
+
+    crate::rbtdri_invocation::rbtdri_census_arm(None);
+    let _ = crate::rbtdrc_crucible::rbtdrc_take_context();
+
+    assert_eq!(result.failed, 0, "single-case run must not enforce the negative census direction");
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}

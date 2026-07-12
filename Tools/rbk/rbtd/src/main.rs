@@ -44,6 +44,7 @@ use std::process::ExitCode;
 use rbtd::rbtdra_almanac::{
     rbtdra_lookup_fixture, rbtdra_lookup_suite, RBTDRA_FIXTURES, RBTDRA_SUITES,
 };
+use rbtd::rbtdrm_manifest::rbtdrm_required_colophons;
 use rbtd::rbtdrc_crucible::{rbtdrc_set_context, rbtdrc_take_context};
 use rbtd::rbtdre_engine::{
     RBTDRE_FLAG_KEEP_GOING,
@@ -60,7 +61,7 @@ use rbtd::rbtdre_engine::{
     rbtdre_tree_clean,
 };
 use rbtd::rbtdri_invocation::{
-    rbtdri_Context, rbtdri_invoke_global,
+    rbtdri_census_arm, rbtdri_Context, rbtdri_invoke_global,
     RBTDRI_BURD_TEMP_DIR_KEY,
 };
 use rbtd::rbtdrw_dowse::rbtdrw_dowse;
@@ -174,6 +175,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
         &roots.burv_temp_root,
         &roots.burv_output_root,
     );
+    rbtdri_census_arm(rbtdrm_required_colophons(fixture));
 
     let fixture_def = match rbtdra_lookup_fixture(fixture) {
         Some(f) => f,
@@ -293,6 +295,7 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
         // fixture's chaining facts into a non-chained invoke's previous/.
         // Suite-monotonic numbering gives each invoke its own dir, closing that.
         ctx.set_invoke_count(next_invoke_count);
+        rbtdri_census_arm(rbtdrm_required_colophons(fixture.name));
         rbtdrc_set_context(ctx);
 
         let run_result = rbtdre_run_fixture(fixture, &colors, &roots.trace_root, keep_going);
@@ -387,6 +390,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
         &roots.burv_temp_root,
         &roots.burv_output_root,
     );
+    rbtdri_census_arm(rbtdrm_required_colophons(fixture));
 
     let fixture_def = match rbtdra_lookup_fixture(fixture) {
         Some(f) => f,

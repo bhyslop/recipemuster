@@ -613,6 +613,84 @@ fn rbtdti_read_burv_fact_rejects_missing() {
     let _ = std::fs::remove_dir_all(&tmp);
 }
 
+// ── Colophon census ───────────────────────────────────────────
+//
+// Census state is thread-local, like the credless guard — see that section's
+// comment above. Each test disarms (back to None, the disabled default) right
+// after its invoke and before asserting/returning, so a worker-thread reuse
+// by the test harness cannot leak an armed declared set into an unrelated
+// test later in the file (every other test here never arms census at all and
+// relies on the disabled default).
+
+#[test]
+fn rbtdti_census_refuses_undeclared_colophon() {
+    let tmp = rbtdth_make_scratch("census-refuse");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    // Declares ORDAIN_HALLMARK only — BARK is not in the declared set.
+    rbtdri_census_arm(Some(&[RBTDGC_ORDAIN_HALLMARK]));
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
+    rbtdri_census_arm(None);
+
+    let err = result.unwrap_err();
+    assert!(err.contains(RBTDGC_CRUCIBLE_BARK), "error must name the offending colophon: {}", err);
+    assert!(err.contains("testplate"), "error must name the fixture: {}", err);
+    // Refused before any BURV isolation dirs are created — no partial state.
+    assert!(!burv_output_root.join(rbtdri_invoke_dir_name(0)).exists());
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_census_allows_declared_colophon_and_records_usage() {
+    let tmp = rbtdth_make_scratch("census-allow");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    rbtdri_census_arm(Some(&[RBTDGC_CRUCIBLE_BARK]));
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
+    let used = rbtdri_census_used();
+    rbtdri_census_arm(None);
+
+    assert!(result.is_ok());
+    assert!(used.contains(RBTDGC_CRUCIBLE_BARK));
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdti_census_disabled_when_no_manifest_entry() {
+    let tmp = rbtdth_make_scratch("census-disabled");
+    let tt = rbtdti_make_tt_dir(&tmp);
+    rbtdti_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK), "exit 0\n");
+
+    let burv_temp_root = tmp.join("burv-temp");
+    let burv_output_root = tmp.join("burv-output");
+    let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
+
+    // None (no manifest entry) disables census tracking entirely — an
+    // undeclared-by-construction colophon still invokes cleanly. This is the
+    // behavior every other test in this file relies on implicitly (an
+    // unregistered "testplate" fixture name never arms census).
+    rbtdri_census_arm(None);
+    let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
+    let used = rbtdri_census_used();
+
+    assert!(result.is_ok());
+    assert!(used.is_empty());
+
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
 // ── Invoke error cases ───────────────────────────────────────
 
 #[test]

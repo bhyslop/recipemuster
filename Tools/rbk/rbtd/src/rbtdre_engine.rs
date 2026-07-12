@@ -583,6 +583,47 @@ pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
     }
 }
 
+// ── Colophon census (negative direction) ────────────────────────
+//
+// The positive direction (an invoked colophon absent from the fixture's
+// declared list) refuses at the invoke chokepoint (rbtdri_invoke_impl) — a
+// refused invocation already surfaces as a case Fail, same as any other
+// invocation error. Only the negative direction (a declared colophon never
+// invoked) needs this separate check: it can only be known once the fixture
+// is complete.
+
+/// Grep token leading every census line — parallel to RBTDRE_TARIFF_TOKEN.
+pub const RBTDRE_CENSUS_TOKEN: &str = "census";
+
+/// Evaluate the declared/used colophon census for a just-completed fixture run
+/// and print a per-colophon usage report under the grep token. Reads the
+/// rbtdri census state armed for this thread's run (`None` — no manifest
+/// entry — is vacuously true, census tracking was never engaged). Returns
+/// false if at least one declared colophon went unused; the caller folds
+/// that into the fixture's failure count.
+pub fn rbtdre_check_census(fixture_name: &str, colors: &rbtdre_Colors) -> bool {
+    let declared = match crate::rbtdri_invocation::rbtdri_census_declared() {
+        Some(d) => d,
+        None => return true,
+    };
+    let used = crate::rbtdri_invocation::rbtdri_census_used();
+    let mut all_used = true;
+    for colophon in declared {
+        if used.contains(*colophon) {
+            crate::rbtdrg_info_now!(
+                "{} {}: colophon '{}' used", RBTDRE_CENSUS_TOKEN, fixture_name, colophon
+            );
+        } else {
+            crate::rbtdrg_info_now!(
+                "{}{}{} {} census — colophon '{}' declared but never invoked",
+                colors.red, RBTDRE_WORD_FAILED, colors.reset, fixture_name, colophon
+            );
+            all_used = false;
+        }
+    }
+    all_used
+}
+
 // ── Case and Fixture ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.
@@ -867,6 +908,13 @@ pub fn rbtdre_run_fixture(
         let report = rbtdre_evaluate_tariff(&fixture.tariff, elapsed_secs, invocations);
         rbtdre_print_tariff(fixture.name, &fixture.tariff, &report, colors);
         if report.too_fast {
+            result.failed += 1;
+        }
+
+        // Census negative check — gated on zero failed cases: a fixture that
+        // already failed (cases, or a too-fast vacuity floor) suppresses the
+        // check rather than piling on a second, redundant failure reason.
+        if result.failed == 0 && !rbtdre_check_census(fixture.name, colors) {
             result.failed += 1;
         }
     }
