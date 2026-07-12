@@ -537,8 +537,9 @@ const _: () = zrbtdra_assert_reveille_base(RBTDRA_SUITES, RBTDRA_REVEILLE_BASE);
 //
 // Every fixture referenced in any suite must be registered in RBTDRA_FIXTURES.
 // The reverse is NOT asserted: intentional roster-only fixtures (foedus-lifecycle,
-// freehold-churn, calibrant-verdicts/-progressing etc.) belong to no suite by
-// design (the other two calibrant fixtures compose the calibrant suite). This is
+// freehold-churn, calibrant-verdicts/-progressing, the calibrant-coverage-* trio
+// etc.) belong to no suite by design — of the calibrants only calibrant-fail-fast
+// and calibrant-sentinel sit in a suite, composing the calibrant suite. This is
 // a pure suite ⊆ roster check — a suite gaining a roster-less fixture fails the
 // build.
 

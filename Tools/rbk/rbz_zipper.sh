@@ -279,10 +279,10 @@ zrbz_kindle() {
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
   buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"
   buz_enroll RBZ_THEURGE_DOWSE    "rbw-td"  "${z_mod}" "rbte_dowse"   ""         "Dowse observed tariff history — per-suite and per-fixture durations from the station's logs-buk self-logs (read-only)"
-  # Synthetic no-op — theurge-internal, zero cloud/filesystem side effects.
-  # Sole consumer: the calibrant-coverage-* fixtures proving the colophon
-  # census enforcement lands its diagnostics (rbk-21 heat).
-  buz_enroll RBZ_THEURGE_NOOP     "rbw-tn"  "${z_mod}" "rbte_noop"    ""         "No-op — synthetic colophon for calibrant census coverage cases (no side effects)"
+  # Nihil does nothing by design — theurge-internal, zero cloud/filesystem side
+  # effects. Sole consumer: the calibrant-coverage-* fixtures, which need a real
+  # colophon to declare and invoke so the census enforcement has a subject.
+  buz_enroll RBZ_THEURGE_NIHIL    "rbw-tn"  "${z_mod}" "rbte_nihil"   ""         "Nihil — synthetic colophon that does nothing, for the calibrant census coverage cases (no side effects)"
   z_mod="rbq_cli.sh"
   buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_qualify_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
   buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_qualify_release"     ""        "Release qualify: + shellcheck, full test suite"

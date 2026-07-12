@@ -15,9 +15,9 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // Tests for rbtdrl_calibrant — calibrant fixture foundation. Tests pin the
-// case-registration ground truth that the bash blackbox testbench depends on:
-// disposition tags, sections registered, manifest-required colophons empty,
-// per-case verdicts, sentinel write/non-write contracts.
+// case-registration ground truth that the touchstone surface fixture depends
+// on: disposition tags, sections registered, each fixture's manifest census
+// declaration, per-case verdicts, sentinel write/non-write contracts.
 //
 // Tests look up cases through the public registry (rbtdra_lookup_fixture)
 // rather than calling case fns directly — exercising the same dispatch path the
@@ -25,7 +25,7 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdgc_consts::RBTDGC_THEURGE_NOOP;
+use crate::rbtdgc_consts::RBTDGC_THEURGE_NIHIL;
 use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::{rbtdre_find_case, rbtdre_Disposition, rbtdre_Verdict};
 use crate::rbtdrl_calibrant::{RBTDRL_OUTPUT_FILE, RBTDRL_SENTINEL_FILE};
@@ -84,8 +84,12 @@ fn fmt_other(v: &rbtdre_Verdict) -> &'static str {
 
 // ── manifest entries ────────────────────────────────────────
 
+/// The four verdict-family calibrants shell out to nothing, so their census
+/// declarations are empty. Deliberately NOT a family-wide sweep: the coverage
+/// calibrants below declare (and mis-declare) the nihil colophon on purpose,
+/// and are pinned by their own tests.
 #[test]
-fn rbtdtl_required_colophons_all_empty() {
+fn rbtdtl_verdict_family_declares_no_colophons() {
     for fixture in [
         RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
         RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
@@ -258,7 +262,7 @@ fn rbtdtl_assert_registered_single_case(fixture: &'static str, case_name: &str) 
 }
 
 #[test]
-fn rbtdtl_coverage_aligned_declares_and_registers_noop() {
+fn rbtdtl_coverage_aligned_declares_and_registers_nihil() {
     rbtdtl_assert_registered_single_case(
         RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
         "rbtdrl_coverage_aligned_invokes",
@@ -267,8 +271,8 @@ fn rbtdtl_coverage_aligned_declares_and_registers_noop() {
         .expect("coverage-aligned must carry a manifest entry");
     assert_eq!(
         req,
-        &[RBTDGC_THEURGE_NOOP],
-        "coverage-aligned must declare exactly the noop colophon"
+        &[RBTDGC_THEURGE_NIHIL],
+        "coverage-aligned must declare exactly the nihil colophon"
     );
 }
 
@@ -288,7 +292,7 @@ fn rbtdtl_coverage_undeclared_declares_empty_and_registers() {
 }
 
 #[test]
-fn rbtdtl_coverage_unused_declares_and_registers_noop() {
+fn rbtdtl_coverage_unused_declares_and_registers_nihil() {
     rbtdtl_assert_registered_single_case(
         RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
         "rbtdrl_coverage_unused_no_invoke",
@@ -297,8 +301,8 @@ fn rbtdtl_coverage_unused_declares_and_registers_noop() {
         .expect("coverage-unused must carry a manifest entry");
     assert_eq!(
         req,
-        &[RBTDGC_THEURGE_NOOP],
-        "coverage-unused must declare exactly the noop colophon"
+        &[RBTDGC_THEURGE_NIHIL],
+        "coverage-unused must declare exactly the nihil colophon"
     );
 }
 

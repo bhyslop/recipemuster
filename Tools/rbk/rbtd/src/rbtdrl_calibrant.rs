@@ -32,7 +32,7 @@
 // The first four declare empty rbtdrm_required_colophons — their cases never
 // shell out to bash tabtargets, so the manifest-coupling check is vacuous.
 // The three coverage fixtures invoke (or deliberately don't invoke) the
-// synthetic RBTDGC_THEURGE_NOOP colophon to exercise the census enforcement
+// synthetic RBTDGC_THEURGE_NIHIL colophon to exercise the census enforcement
 // itself; their manifest declarations are what differ between them.
 //
 // The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
@@ -46,7 +46,7 @@
 use std::path::Path;
 
 use crate::case;
-use crate::rbtdgc_consts::RBTDGC_THEURGE_NOOP;
+use crate::rbtdgc_consts::RBTDGC_THEURGE_NIHIL;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
@@ -194,20 +194,20 @@ pub static RBTDRL_CASES_SENTINEL: &[rbtdre_Case] = &[case!(rbtdrl_sentinel_marks
 // ── calibrant-coverage-aligned / -undeclared / -unused ───────
 //
 // Three single-case Independent fixtures proving the RBTDRI colophon census
-// enforcement lands its diagnostics against the synthetic RBTDGC_THEURGE_NOOP
+// enforcement lands its diagnostics against the synthetic RBTDGC_THEURGE_NIHIL
 // colophon — zero cloud/filesystem side effects. Manifest declaration
 // (rbtdrm_required_colophons) is the only difference between the three; the
 // touchstone surface fixture spawns each as a child rbtd run and asserts the
 // resulting exit code and diagnostic text (coverage section of its case
 // catalog). Roster-only: a member of no suite.
 
-/// Invoke the noop tabtarget through the real invocation chokepoint
+/// Invoke the nihil tabtarget through the real invocation chokepoint
 /// (rbtdri_invoke_global). Shared body for the aligned and undeclared cases —
 /// their fixtures' manifest declarations are what differ.
-fn zrbtdrl_invoke_noop() -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| match rbtdri_invoke_global(ctx, RBTDGC_THEURGE_NOOP, &[], &[]) {
+fn zrbtdrl_invoke_nihil() -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| match rbtdri_invoke_global(ctx, RBTDGC_THEURGE_NIHIL, &[], &[]) {
         Ok(result) if result.exit_code == 0 => rbtdre_Verdict::Pass,
-        Ok(result) => rbtdre_Verdict::Fail(format!("noop tabtarget exited {}", result.exit_code)),
+        Ok(result) => rbtdre_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code)),
         Err(e) => rbtdre_Verdict::Fail(e),
     })
 }
@@ -215,14 +215,14 @@ fn zrbtdrl_invoke_noop() -> rbtdre_Verdict {
 /// Declared and invoked: the census positive check has nothing to refuse, and
 /// the negative check finds the declared colophon in the used-set — Pass.
 fn rbtdrl_coverage_aligned_invokes(_dir: &Path) -> rbtdre_Verdict {
-    zrbtdrl_invoke_noop()
+    zrbtdrl_invoke_nihil()
 }
 
 /// Invoked but never declared (this fixture's manifest entry is `Some(&[])`):
 /// the census positive check in rbtdri_invoke_impl refuses the invoke before
 /// the tabtarget ever launches, failing the fixture.
 fn rbtdrl_coverage_undeclared_invokes(_dir: &Path) -> rbtdre_Verdict {
-    zrbtdrl_invoke_noop()
+    zrbtdrl_invoke_nihil()
 }
 
 /// Declared but never invoked: this case passes clean, and the engine's

@@ -182,11 +182,11 @@ rbte_dowse() {
   "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}"
 }
 
-rbte_noop() {
+rbte_nihil() {
   zrbte_sentinel
 
-  buc_step "Noop: synthetic no-op for calibrant census coverage cases"
-  buc_success "Noop: complete"
+  buc_step "Nihil: synthetic colophon for the calibrant census coverage cases"
+  buc_success "Nihil: complete"
 }
 
 # eof

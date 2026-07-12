@@ -201,7 +201,7 @@ pub const RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
 pub const RBTDRM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
 pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 // Calibrant coverage fixtures — prove the colophon census enforcement lands
-// its diagnostics against the synthetic RBTDGC_THEURGE_NOOP colophon:
+// its diagnostics against the synthetic RBTDGC_THEURGE_NIHIL colophon:
 // aligned declares+invokes (Pass), undeclared invokes without declaring
 // (fixture FAILs via the positive check), unused declares without invoking
 // (fixture FAILs via the negative check). Roster-only, driven by the
@@ -329,10 +329,16 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
-        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL
-        | RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED => Some(&[]),
+        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
+        // DELIBERATELY EMPTY — do not "repair" by adding RBTDGC_THEURGE_NIHIL.
+        // The arm above is empty because those fixtures invoke nothing; this one
+        // is empty though its case DOES invoke nihil, which is the whole point:
+        // the mismatch is what trips the positive census check, and the
+        // fixture's expected verdict is FAIL. Declaring the colophon here would
+        // turn the fixture green and silently delete the test.
+        RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED => Some(&[]),
         RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED | RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED => {
-            Some(&[RBTDGC_THEURGE_NOOP])
+            Some(&[RBTDGC_THEURGE_NIHIL])
         }
         RBTDRM_FIXTURE_PODVM_RESOLVE => Some(&[
             RBTDGC_PRESAGE_IMMURE,
