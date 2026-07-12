@@ -228,22 +228,37 @@ fn zrbtdri_tariff_bump() {
 // ── Colophon census (declared vs used) ───────────────────────
 //
 // A fixture's `rbtdrm_required_colophons` manifest entry declares the
-// colophons its cases are expected to invoke. Enforcement is two-directional:
-// an invoke of an undeclared colophon refuses at the chokepoint below
-// (positive), and — checked once the fixture is complete, by the caller in
-// rbtdre_engine — a declared colophon never invoked fails a fully-green run
-// (negative). Thread-local for the same reason as the credless guard and the
-// tariff tally: case functions and setup/teardown hooks reach their fixture's
+// colophons its cases are expected to invoke. Enforcement is two-directional,
+// and the two directions live at DIFFERENT chokepoints by design:
+//
+//   * POSITIVE (an invoke of an undeclared colophon refuses) — in
+//     `rbtdri_invoke_impl`, the shared implementation of the `rbtdri_invoke*`
+//     primitives, which can return an error. Direct-Command bypass launches
+//     cannot be refused there (a `Command` constructor has no failure path).
+//   * USED-SET RECORDING — in `rbtdri_tabtarget_command`, the one constructor
+//     every tabtarget spawn passes through, funnelled and direct-Command
+//     alike (the same universal chokepoint as the tariff tally), so a bypass
+//     launch still satisfies the negative direction. The colophon is the
+//     script filename's leading dot-segment — the same
+//     {colophon}.{frontispiece}[.{imprint}].sh contract discovery matches on.
+//
+// The NEGATIVE check itself (a declared colophon never invoked fails a
+// fully-green run) is evaluated by rbtdre_engine once the fixture completes.
+//
+// Thread-local for the same reason as the credless guard and the tariff
+// tally: case functions and setup/teardown hooks reach their fixture's
 // invocation state only through the rbtdrc thread-local channel, on the
-// thread that runs the whole fixture, so a second thread-local here is the
-// established shape rather than a new one.
+// thread that runs the whole fixture. Armed by `rbtdrc_set_context` from the
+// fixture's manifest entry and disarmed by `rbtdrc_take_context`, exactly as
+// the credless guard is — installing a context IS entering a fixture's run,
+// so arming cannot be forgotten at a runner call site.
 //
 // `None` means "this fixture carries no manifest entry" — census tracking is
-// disabled entirely (neither direction enforced), distinct from `Some(&[])`
-// ("declares zero colophons", which enforces the empty declaration: any
-// invoke refuses). The distinction matters: ad hoc fixture names used by
-// invocation-mechanics tests (never meant to interact with census policy)
-// resolve to `None` and are untouched by this feature.
+// disabled entirely (neither direction enforced, nothing recorded), distinct
+// from `Some(&[])` ("declares zero colophons", which enforces the empty
+// declaration: any funnel invoke refuses). The distinction matters: ad hoc
+// fixture names used by invocation-mechanics tests (never meant to interact
+// with census policy) resolve to `None` and are untouched by this feature.
 thread_local! {
     static RBTDRI_CENSUS_DECLARED: std::cell::RefCell<Option<&'static [&'static str]>> =
         const { std::cell::RefCell::new(None) };
@@ -266,10 +281,31 @@ pub fn rbtdri_census_declared() -> Option<&'static [&'static str]> {
     RBTDRI_CENSUS_DECLARED.with(|d| *d.borrow())
 }
 
-/// Read the current thread's used-colophon set — every colophon that passed
-/// the positive check since the last arm.
+/// Read the current thread's used-colophon set — every colophon whose
+/// tabtarget was launched (funnel or bypass) since the last arm.
 pub fn rbtdri_census_used() -> std::collections::HashSet<String> {
     RBTDRI_CENSUS_USED.with(|u| u.borrow().clone())
+}
+
+/// Record a launched tabtarget's colophon into the census used-set. Sits in
+/// `rbtdri_tabtarget_command` beside the tariff bump — the universal launch
+/// chokepoint — so direct-Command bypass launches count toward the negative
+/// census direction just like funnelled ones. The colophon is derived from
+/// the script filename's leading dot-segment. No-op while disarmed.
+fn zrbtdri_census_record(tabtarget: &Path) {
+    let armed = RBTDRI_CENSUS_DECLARED.with(|d| d.borrow().is_some());
+    if !armed {
+        return;
+    }
+    if let Some(colophon) = tabtarget
+        .file_name()
+        .and_then(|n| n.to_str())
+        .and_then(|n| n.split('.').next())
+    {
+        RBTDRI_CENSUS_USED.with(|u| {
+            u.borrow_mut().insert(colophon.to_string());
+        });
+    }
 }
 
 // ── Tabtarget discovery ──────────────────────────────────────
@@ -397,16 +433,19 @@ pub fn rbtdri_bash_program() -> &'static str {
 /// so the call site is unconditional. Callers chain `.args(...)`,
 /// `.current_dir(...)`, and `.env(...)` as on any `Command::new` result.
 ///
-/// The credless guard AND the tariff tally both land here — the one constructor
-/// every tabtarget launch goes through, including the direct-Command case
-/// helpers that bypass `rbtdri_invoke*`. A reveille-tier fixture cannot spawn an
-/// unguarded tabtarget by construction, and no tabtarget launch escapes the
-/// invocation count. Non-tabtarget subprocesses (docker/curl/git in the
-/// verification helpers, the inline `bash -c` in rbtdrf) are deliberately NOT
-/// built here and so are deliberately NOT tallied — the tariff counts tabtarget
-/// invocations, not every child process.
+/// The credless guard, the tariff tally, AND the census used-set recording all
+/// land here — the one constructor every tabtarget launch goes through,
+/// including the direct-Command case helpers that bypass `rbtdri_invoke*`. A
+/// reveille-tier fixture cannot spawn an unguarded tabtarget by construction,
+/// no tabtarget launch escapes the invocation count, and every launch counts
+/// toward the negative census direction. Non-tabtarget subprocesses
+/// (docker/curl/git in the verification helpers, the inline `bash -c` in
+/// rbtdrf) are deliberately NOT built here and so are deliberately NOT tallied
+/// nor census-recorded — these facilities count tabtarget invocations, not
+/// every child process.
 pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
     zrbtdri_tariff_bump();
+    zrbtdri_census_record(tabtarget);
     let mut cmd = Command::new(rbtdri_bash_program());
     cmd.arg(rbtdrx_native_to_posix(tabtarget));
     if rbtdri_credless_armed() {
@@ -427,10 +466,10 @@ pub fn rbtdri_tabtarget_command(tabtarget: &Path) -> Command {
 /// `previous/`. The flag is consumed and cleared here.
 ///
 /// Census positive check lands here — the one implementation every
-/// `rbtdri_invoke*` primitive funnels through — never in
-/// `rbtdri_tabtarget_command`, which the direct-Command case helpers that
-/// bypass `rbtdri_invoke*` also share: those bypass helpers are deliberately
-/// outside census scope (their fixtures declare an empty or absent census).
+/// `rbtdri_invoke*` primitive funnels through, the only launch path that can
+/// refuse. Used-set recording does NOT live here: it rides
+/// `rbtdri_tabtarget_command` (reached below on the allowed path), the
+/// universal chokepoint that bypass launches also pass through.
 fn rbtdri_invoke_impl(
     ctx: &mut rbtdri_Context,
     colophon: &str,
@@ -447,9 +486,6 @@ fn rbtdri_invoke_impl(
                 ctx.fixture, colophon, ctx.fixture
             ));
         }
-        RBTDRI_CENSUS_USED.with(|u| {
-            u.borrow_mut().insert(colophon.to_string());
-        });
     }
 
     let invoke_num = if std::mem::take(&mut ctx.chain_next) {

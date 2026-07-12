@@ -668,6 +668,27 @@ fn rbtdti_census_allows_declared_colophon_and_records_usage() {
 }
 
 #[test]
+fn rbtdti_census_records_bypass_launches() {
+    // Used-set recording lives at rbtdri_tabtarget_command — the universal
+    // launch chokepoint — so a direct-Command bypass launch (discovery +
+    // rbtdri_tabtarget_command, never rbtdri_invoke*) still satisfies the
+    // negative census direction. The colophon is derived from the script
+    // filename's leading dot-segment; building the Command records, no spawn
+    // needed (same moment the tariff bumps).
+    rbtdri_census_arm(Some(&[RBTDGC_CRUCIBLE_BARK]));
+    let path = PathBuf::from(format!("tt/{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK));
+    let _cmd = rbtdri_tabtarget_command(&path);
+    let used = rbtdri_census_used();
+    rbtdri_census_arm(None);
+
+    assert!(
+        used.contains(RBTDGC_CRUCIBLE_BARK),
+        "bypass launch must record its colophon into the used-set: {:?}",
+        used
+    );
+}
+
+#[test]
 fn rbtdti_census_disabled_when_no_manifest_entry() {
     let tmp = rbtdth_make_scratch("census-disabled");
     let tt = rbtdti_make_tt_dir(&tmp);

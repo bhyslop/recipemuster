@@ -57,22 +57,29 @@ thread_local! {
 /// Store invocation context for case functions. Called before run_sections.
 ///
 /// Also arms the reveille-tier credless guard from the registered fixture's
-/// `credless` field — installing a context IS entering a fixture's run, so
-/// the guard cannot be forgotten at a runner call site. An unregistered
-/// fixture name arms nothing (the runner has already fataled on lookup
-/// failure before reaching here on every real path).
+/// `credless` field AND the colophon census from the fixture's manifest entry
+/// — installing a context IS entering a fixture's run, so neither guard can
+/// be forgotten at a runner call site. An unregistered fixture name arms no
+/// credless guard (the runner has already fataled on lookup failure before
+/// reaching here on every real path); an unmanifested fixture name arms no
+/// census (None disables both census directions).
 pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
     let credless = rbtdra_lookup_fixture(ctx.fixture())
         .map(|f| f.credless)
         .unwrap_or(false);
     crate::rbtdri_invocation::rbtdri_arm_credless(credless);
+    crate::rbtdri_invocation::rbtdri_census_arm(
+        crate::rbtdrm_manifest::rbtdrm_required_colophons(ctx.fixture()),
+    );
     RBTDRC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
 }
 
 /// Retrieve invocation context after cases complete. Called for quench.
-/// Disarms the credless guard — the fixture's run is over.
+/// Disarms the credless guard and the colophon census — the fixture's run is
+/// over.
 pub fn rbtdrc_take_context() -> rbtdri_Context {
     crate::rbtdri_invocation::rbtdri_arm_credless(false);
+    crate::rbtdri_invocation::rbtdri_census_arm(None);
     RBTDRC_CTX.with(|c| {
         c.borrow_mut()
             .take()

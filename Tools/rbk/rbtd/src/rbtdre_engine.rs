@@ -911,10 +911,16 @@ pub fn rbtdre_run_fixture(
             result.failed += 1;
         }
 
-        // Census negative check — gated on zero failed cases: a fixture that
-        // already failed (cases, or a too-fast vacuity floor) suppresses the
-        // check rather than piling on a second, redundant failure reason.
-        if result.failed == 0 && !rbtdre_check_census(fixture.name, colors) {
+        // Census negative check — gated on zero failed AND zero skipped cases.
+        // A failed fixture suppresses the check rather than piling on a second,
+        // redundant failure reason. A skipped case means the run was not
+        // exhaustive, so the exhaustiveness demand is vacuous — this is what
+        // keeps suite-passenger protection intact: a self-skipping fixture
+        // (polity-denial, parley on a credential-less machine) must not
+        // census-fail over the colophons its skipped cases would have invoked.
+        if result.failed == 0 && result.skipped == 0
+            && !rbtdre_check_census(fixture.name, colors)
+        {
             result.failed += 1;
         }
     }

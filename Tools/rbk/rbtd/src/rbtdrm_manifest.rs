@@ -233,20 +233,27 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_ABJURE_HALLMARK,
             RBTDGC_REKON_HALLMARK,
             RBTDGC_AUDIT_HALLMARKS,
+            RBTDGC_SUMMON_HALLMARK,
+            RBTDGC_PLUMB_FULL,
         ]),
         RBTDRM_FIXTURE_LODE_LIFECYCLE => Some(&[
             RBTDGC_ENSCONCE_BOLE,
             RBTDGC_DIVINE_LODES,
+            RBTDGC_AUGUR_LODE,
             RBTDGC_BANISH_LODE,
         ]),
         RBTDRM_FIXTURE_RELIQUARY_LIFECYCLE => Some(&[
             RBTDGC_CONCLAVE_RELIQUARY,
             RBTDGC_DIVINE_LODES,
+            RBTDGC_AUGUR_LODE,
+            RBTDGC_LIST_IMAGES,
+            RBTDGC_JETTISON_IMAGE,
             RBTDGC_BANISH_LODE,
         ]),
         RBTDRM_FIXTURE_WSL_LIFECYCLE => Some(&[
             RBTDGC_UNDERPIN_WSL,
             RBTDGC_DIVINE_LODES,
+            RBTDGC_AUGUR_LODE,
             RBTDGC_BANISH_LODE,
         ]),
         RBTDRM_FIXTURE_PODVM_LIFECYCLE => Some(&[
@@ -315,7 +322,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
         | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
         RBTDRM_FIXTURE_PODVM_RESOLVE => Some(&[
-            RBTDGC_IMMURE_PODVM,
+            RBTDGC_PRESAGE_IMMURE,
         ]),
         // touchstone drives the theurge's own runner tabtargets — its children
         // are rbtd invocations of the fixture, suite, and single-case runners.
@@ -363,7 +370,10 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTDGC_CONCLAVE_RELIQUARY,
             RBTDGC_YOKE_RELIQUARY,
             RBTDGC_ENSCONCE_BOLE,
+            RBTDGC_FEOFF_BOLE,
             RBTDGC_ORDAIN_HALLMARK,
+            RBTDGC_ANOINT_GRAFT,
+            RBTDGC_DRIVE_HALLMARK,
             RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
             RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
             RBTDGC_WREST_HALLMARK_IMAGE,
