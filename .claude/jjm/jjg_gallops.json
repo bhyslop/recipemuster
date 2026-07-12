@@ -5447,15 +5447,15 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-0729",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Judgment, not mechanics — an ACG composition collapse, not a magic-string sweep.",
                 "The work IS deciding which sites need the resolved file and which legitimately",
                 "need the directory; a sweep that treats them alike will be wrong.",
-                "Rough by intent: frontier tier at mount.",
+                "Bridled opus by deliberate judgment rather than left rough for want of one:",
+                "the per-site file-vs-directory calls, the constant mint, and the template's home",
+                "are plausible-wrongness work the operator cannot cheaply check.",
                 "",
                 "## Goal",
                 "Give the composition `moorings/foedera/<foedus>/rbrf.env` a single home.",
@@ -5492,6 +5492,9 @@
                 "own foedera-dir kindle constant plus hand joins, and is the site where the",
                 "file-vs-directory judgment actually bites), rbxk_keycloak.sh (its own foedus-dir",
                 "constant, plus the template).",
+                "Retiring a local duplicate const anywhere: grep the CONST NAME too, not just the",
+                "literal — a const's own call sites carry no quoted literal and a literal-only",
+                "grep misses them (the rbrv rust pace was bitten by exactly this).",
                 "",
                 "## Gate",
                 "Reveille and shellcheck are NECESSARY BUT NOT SUFFICIENT here, and a green",
@@ -5513,7 +5516,7 @@
                 "verbs actually exercised."
               ],
               "jjgtn_silks": "rbrf-foedera-composition-collapse",
-              "jjgtn_basis": "ff8f15a"
+              "jjgtn_basis": "e017ed3"
             }
           ]
         }
