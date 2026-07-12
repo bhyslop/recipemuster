@@ -3,12 +3,6 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //axhob_operation
 {rbtgo_foedus_instate}
 
-NOTE: *Contract, not yet built.* This subdoc is the contract the foedus-cardinality build pace
-fills; it states what done looks like, not the implementation. Unlike the founding operations,
-no civic verb is deferred here — the word
-{rbtgo_foedus_instate}
-names is already minted; only the build is deferred, to the sibling test-infrastructure stream.
-
 NOTE: *Enchase-adjacent, but not a chaining link.* Instate rewrites exactly one durable config
 field — the active-foedus selector
 {rbrr_active_foedus}
@@ -50,7 +44,7 @@ reuse-or-create fixture; the reuse-vs-create branch stays at the fixture call si
 spine is the surrounding ensure scaffold. Instate itself stays a single-field write — folding the
 probe-and-decide into it would make the fat verb the composition exists to avoid.
 
-The ordered shape (impl deferred — do not read REST calls, function names, or a token actor into it
+The ordered shape (do not read REST calls, function names, or a token actor into it
 as fixed):
 
 //axhos_step

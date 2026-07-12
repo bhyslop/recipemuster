@@ -3,12 +3,6 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //axhob_operation
 {rbtgo_foedus_descry}
 
-NOTE: *Contract, not yet built.* This subdoc is the contract the foedus-cardinality build pace
-fills; it states what done looks like, not the implementation. Unlike the founding operations,
-no civic verb is deferred here — the word
-{rbtgo_foedus_descry}
-names is already minted; only the build is deferred, to the sibling test-infrastructure stream.
-
 NOTE: *Palpate-adjacent, but not a chaining consumer.* Descry reads a named
 {rbtf_foedus}'s
 provider presence under the manor pool for a transient inspection only and writes no durable config — the read-side
@@ -41,7 +35,7 @@ fixture composes first; it stays a bare read, never folded into a fat reuse-or-c
 composition contract is stated at
 {rbtgo_foedus_instate}.
 
-The ordered shape (impl deferred — do not read REST calls, function names, or a token actor into it
+The ordered shape (do not read REST calls, function names, or a token actor into it
 as fixed):
 
 //axhos_step

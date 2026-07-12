@@ -147,7 +147,7 @@
 :rbtgo_payor_install:             <<rbtgo_payor_install,rbgp_payor_install>>
 :rbtgo_quota_build:               <<rbtgo_quota_build,rbhp_quota_build>>
 :rbtgo_trigger_build:             <<rbtgo_trigger_build,rbfd_build>>
-:rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_payor_oauth_probe>>
+:rbtgo_access_oauth_probe:        <<rbtgo_access_oauth_probe,rbgv_check_payor>>
 :rbtgo_access_federated_probe:    <<rbtgo_access_federated_probe,rbgv_check_avowal>>
 :rbtgo_access_mantle_probe:       <<rbtgo_access_mantle_probe,rbgv_check_mantle>>
 :rbtgo_sitting_novate:            <<rbtgo_sitting_novate,rba_novate_sitting>>
@@ -172,9 +172,9 @@
 // Recipe Bottle Term Google Operations — Foedus (programmatic test-bed)
 :rbtgo_foedus_establish:         <<rbtgo_foedus_establish,Foedus Establish>>
 :rbtgo_foedus_acquire:           <<rbtgo_foedus_acquire,Foedus Acquire>>
-:rbtgo_foedus_descry:            <<rbtgo_foedus_descry,Foedus Descry>>
-:rbtgo_foedus_instate:           <<rbtgo_foedus_instate,Foedus Instate>>
-:rbtgo_foedus_canvass:           <<rbtgo_foedus_canvass,Foedus Canvass>>
+:rbtgo_foedus_descry:            <<rbtgo_foedus_descry,rbof_descry>>
+:rbtgo_foedus_instate:           <<rbtgo_foedus_instate,rbof_instate>>
+:rbtgo_foedus_canvass:           <<rbtgo_foedus_canvass,rbof_canvass>>
 
 // Recipe Bottle Term Google Operation Groups
 :rbtgog_access:                   <<rbtgog_access,Access Probe Group>>
@@ -1434,7 +1434,6 @@ provider presence under the manor pool for transient inspection — palpate-adja
 not a
 {rbch_palpate}
 member and rejecting in its own band.
-A contract for the foedus-cardinality build pace; the build is deferred, the word is minted.
 
 //axvd_cartouche axd_normative
 include::RBSFD-foedus_descry.adoc[]
@@ -1451,7 +1450,6 @@ to a named standing
 — enchase-adjacent field-rewrite but resolving no chained fact, so not a
 {rbch_enchase}
 member and rejecting in its own band; no self-gate, the operator commits.
-A contract for the foedus-cardinality build pace; the build is deferred, the word is minted.
 
 //axvd_cartouche axd_normative
 include::RBSFI-foedus_instate.adoc[]
