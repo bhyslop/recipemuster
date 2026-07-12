@@ -66,6 +66,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_HALLMARK_IMAGE,
     RBTDGC_PLUMB_COMPACT,
     RBTDGC_PLUMB_FULL,
+    RBTDGC_RBRV_FILE,
     RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_VERB_ANOINT,
@@ -156,9 +157,6 @@ const RBTDRO_LODE_TAG_BOLE: &str = "rbi_bole";
 
 // ── Reliquary touchmark witness ──────────────────────────────────
 
-/// Filename of a vessel's rbrv.env (relative to the vessel directory).
-const RBTDRO_VESSEL_RBRV_FILE: &str = "rbrv.env";
-
 /// Field name yoked by case 1 in each vessel rbrv.env. Presence (non-empty)
 /// is the cross-case witness that case 1 ran.
 const RBTDRO_FIELD_RBRV_RELIQUARY: &str = "RBRV_RELIQUARY";
@@ -213,7 +211,7 @@ fn rbtdro_probe_reliquary_touchmark() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
     let rbrv = root
         .join(RBTDRO_WITNESS_VESSEL_DIR)
-        .join(RBTDRO_VESSEL_RBRV_FILE);
+        .join(RBTDGC_RBRV_FILE);
     let value = rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_RELIQUARY).ok_or_else(|| {
         format!(
             "{} missing from {}",
@@ -252,7 +250,7 @@ fn rbtdro_probe_graft_anointed() -> Result<(), String> {
     let root = rbtdro_probe_root()?;
     let rbrv = root
         .join(RBTDRO_VESSEL_DIR_GRAFT)
-        .join(RBTDRO_VESSEL_RBRV_FILE);
+        .join(RBTDGC_RBRV_FILE);
     let value = rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_GRAFT_IMAGE).ok_or_else(|| {
         format!(
             "{} missing from {}",
@@ -361,7 +359,7 @@ fn rbtdro_write_vessel_env(
     var_name: &str,
     value: &str,
 ) -> Result<(), String> {
-    let rbrv_path = root.join(vessel_dir).join(RBTDRO_VESSEL_RBRV_FILE);
+    let rbrv_path = root.join(vessel_dir).join(RBTDGC_RBRV_FILE);
     rbtdre_config_set_field(&rbrv_path, var_name, value)
 }
 
@@ -373,7 +371,7 @@ fn rbtdro_read_vessel_env(
     vessel_dir: &str,
     var_name: &str,
 ) -> Result<String, String> {
-    let rbrv_path = root.join(vessel_dir).join(RBTDRO_VESSEL_RBRV_FILE);
+    let rbrv_path = root.join(vessel_dir).join(RBTDGC_RBRV_FILE);
     let file = std::fs::File::open(&rbrv_path)
         .map_err(|e| format!("open rbrv.env for {}: {}", vessel_dir, e))?;
     let prefix = format!("{}=", var_name);
@@ -1112,7 +1110,7 @@ fn rbtdro_onboarding_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path
     let rbrv = ctx
         .project_root()
         .join(RBTDRO_VESSEL_DIR_GRAFT)
-        .join(RBTDRO_VESSEL_RBRV_FILE);
+        .join(RBTDGC_RBRV_FILE);
     let graft_image = match rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_GRAFT_IMAGE) {
         Some(v) if !v.trim().is_empty() => v,
         _ => {

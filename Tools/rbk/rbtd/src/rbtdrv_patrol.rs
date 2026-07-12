@@ -49,7 +49,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
     RBTDGC_NOVATE_SITTING,
-    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
+    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
     RBTDGC_TWEAK_HTTP_FAULT,
@@ -1136,7 +1136,7 @@ fn zrbtdrv_chaining_livery_body(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_
     if let Err(e) = std::fs::create_dir_all(&vessel_dir) {
         return rbtdre_Verdict::Fail(format!("stage vessel dir: {}", e));
     }
-    let rbrv = vessel_dir.join("rbrv.env");
+    let rbrv = vessel_dir.join(RBTDGC_RBRV_FILE);
     if let Err(e) = std::fs::write(&rbrv, RBTDRV_LIVERY_VESSEL_RBRV) {
         return rbtdre_Verdict::Fail(format!("stage rbrv.env: {}", e));
     }

@@ -53,7 +53,7 @@ use crate::rbtdri_invocation::{
     rbtdri_gar_ref_fact, rbtdri_invoke_or_fail, rbtdri_ordain_capture_full, rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdgc_consts::{RBTDGC_ABJURE_HALLMARK, RBTDGC_SUMMON_HALLMARK};
+use crate::rbtdgc_consts::{RBTDGC_ABJURE_HALLMARK, RBTDGC_RBRV_FILE, RBTDGC_SUMMON_HALLMARK};
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
 /// podman is deferred to the Director-governed runtime-regime decision that
@@ -100,7 +100,7 @@ fn rbtdrd_vessel_field(
     vessel_dir: &str,
     key: &str,
 ) -> Result<String, String> {
-    let path = ctx.project_root().join(vessel_dir).join("rbrv.env");
+    let path = ctx.project_root().join(vessel_dir).join(RBTDGC_RBRV_FILE);
     let body = std::fs::read_to_string(&path)
         .map_err(|e| format!("read {}: {}", path.display(), e))?;
     let prefix = format!("{}=", key);

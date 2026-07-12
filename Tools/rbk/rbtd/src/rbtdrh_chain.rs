@@ -61,6 +61,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_DRIVE_HALLMARK,
     RBTDGC_FEOFF_BOLE,
     RBTDGC_PLUMB_FULL,
+    RBTDGC_RBRV_FILE,
     RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_YOKE_RELIQUARY,
@@ -130,7 +131,7 @@ fn rbtdrh_drive_feoff(
 
     let vessel_dir = dir.join("vessel");
     std::fs::create_dir_all(&vessel_dir).map_err(|e| format!("stage vessel dir: {}", e))?;
-    let rbrv = vessel_dir.join("rbrv.env");
+    let rbrv = vessel_dir.join(RBTDGC_RBRV_FILE);
     std::fs::write(&rbrv, RBTDRH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e))?;
 
     let burv = dir.join("burv");
@@ -463,7 +464,7 @@ fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
             .join("rbmm_moorings")
             .join("rbmv_vessels")
             .join(RBTDRH_GRAFT_VESSEL)
-            .join("rbrv.env"),
+            .join(RBTDGC_RBRV_FILE),
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let before = std::fs::read_to_string(&rbrv).unwrap_or_default();

@@ -28,7 +28,7 @@ use std::path::Path;
 
 use crate::rbtdre_engine::{rbtdre_tree_clean, rbtdre_Verdict};
 use crate::rbtdgc_consts::{
-    RBTDGC_MOORINGS_DIR, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE,
+    RBTDGC_MOORINGS_DIR, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE,
 };
 use crate::rbtdrk_freehold::{
     rbtdrk_read_env_value, rbtdrk_resolve, RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
@@ -52,11 +52,6 @@ const RBTDRP_RBRD_BLANK_FIELDS: &[&str] = &[
 
 /// Nameplate hallmark fields rblm_zero blanks.
 const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
-
-/// Vessel-local regime file — no rbcc home, so it stays a bare literal. The
-/// moorings dir and the other .env paths come from the generated RBTDGC_*
-/// consts directly (projected from rbcc_constants.sh).
-const RBTDRP_RBRV_FILE: &str = "rbrv.env";
 
 // ── Violation-class checks ───────────────────────────────────
 
@@ -159,7 +154,7 @@ fn rbtdrp_check_vessel_depot_fields(
         if !v_dir.is_dir() {
             continue;
         }
-        let rbrv = v_dir.join(RBTDRP_RBRV_FILE);
+        let rbrv = v_dir.join(RBTDGC_RBRV_FILE);
         if !rbrv.exists() {
             continue;
         }

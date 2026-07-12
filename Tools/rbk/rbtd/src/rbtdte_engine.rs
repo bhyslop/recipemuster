@@ -364,7 +364,7 @@ fn rbtdte_git(args: &[&str], root: &Path) -> std::process::Output {
 #[test]
 fn rbtdte_config_set_field_replaces_value_preserving_other_lines() {
     let tmp = rbtdth_make_scratch("setfield");
-    let file = tmp.join("rbrv.env");
+    let file = tmp.join(crate::rbtdgc_consts::RBTDGC_RBRV_FILE);
     std::fs::write(&file, "KEEP_BEFORE=1\nRBRV_ANCHOR=old\nKEEP_AFTER=2\n").unwrap();
 
     rbtdre_config_set_field(&file, "RBRV_ANCHOR", "new").unwrap();

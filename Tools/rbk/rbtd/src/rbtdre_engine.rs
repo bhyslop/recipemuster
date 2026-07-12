@@ -192,11 +192,6 @@ pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
 // private to this module; external callers reach it solely through the
 // class-typed verbs. Doctrine: claude-rbk-theurge-ifrit-context.md.
 
-/// Vessel-local regime file. The vessel rbrv.env has no rbcc source-of-truth
-/// home (it is composed Rust-side, not by bash — see rbtdrp_attest), so it
-/// stays a bare literal here, as it does at the other vessel sites.
-const RBTDRE_VESSEL_RBRV_FILE: &str = "rbrv.env";
-
 /// Stage and commit EXACTLY the given repo-relative paths — never a wider set.
 /// Module-private: the class verbs are the only callers, which is what seals
 /// the can't-sweep property — no external caller can hand this an arbitrary
@@ -290,7 +285,7 @@ pub fn rbtdre_commit_vessels(
 ) -> Result<(), String> {
     let paths: Vec<String> = vessel_dirs
         .iter()
-        .map(|dir| format!("{}/{}", dir, RBTDRE_VESSEL_RBRV_FILE))
+        .map(|dir| format!("{}/{}", dir, crate::rbtdgc_consts::RBTDGC_RBRV_FILE))
         .collect();
     rbtdre_commit_paths(root, &paths, message)
 }
@@ -313,7 +308,7 @@ pub fn rbtdre_commit_vessels_all(root: &Path, message: &str) -> Result<(), Strin
                 "{}/{}/{}",
                 vessels_rel,
                 name.to_string_lossy(),
-                RBTDRE_VESSEL_RBRV_FILE
+                crate::rbtdgc_consts::RBTDGC_RBRV_FILE
             );
             if root.join(&rbrv_rel).is_file() {
                 paths.push(rbrv_rel);

@@ -40,6 +40,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_JETTISON_IMAGE,
     RBTDGC_LIST_DEPOT,
     RBTDGC_PRESAGE_IMMURE,
+    RBTDGC_RBRV_FILE,
     RBTDGC_RENDER_NAMEPLATE,
     RBTDGC_RENDER_PAYOR,
     RBTDGC_RENDER_REPO,
@@ -878,7 +879,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
     let mut found = false;
     for entry in entries.filter_map(|e| e.ok()) {
         let path = entry.path();
-        if path.is_dir() && path.join("rbrv.env").exists() {
+        if path.is_dir() && path.join(RBTDGC_RBRV_FILE).exists() {
             found = true;
             let sigil = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtdrf_run_tt(
@@ -1109,7 +1110,7 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
     let mut found = false;
     for entry in entries.filter_map(|e| e.ok()) {
         let path = entry.path();
-        if path.is_dir() && path.join("rbrv.env").exists() {
+        if path.is_dir() && path.join(RBTDGC_RBRV_FILE).exists() {
             found = true;
             let sigil = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtdrf_run_tt(
@@ -1401,7 +1402,7 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
         if !path.is_dir() {
             continue;
         }
-        if !path.join("rbrv.env").is_file() {
+        if !path.join(RBTDGC_RBRV_FILE).is_file() {
             continue;
         }
         let sigil = match path.file_name().and_then(|s| s.to_str()) {

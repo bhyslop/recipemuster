@@ -289,6 +289,7 @@ rbcc_emit_consts() {
     RBCC_rbrd_file       \
     RBCC_rbrn_file       \
     RBCC_rbro_file       \
+    RBCC_rbrv_file       \
     RBCC_foedera_subdir  \
     RBCC_fact_ext_foedus_health \
     RBCC_fact_ext_foedus \
