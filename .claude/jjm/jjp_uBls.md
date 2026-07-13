@@ -32,6 +32,11 @@ Candidate integrity is proven from the consumer's seat before the heat closes:
 the leakage-sweep + post-strip-reveille probe is a standing every-cut gate.
 Delivery is out of scope here: staging push, the greenfield manor walk (full against public staging, thin spot-check against production), promotion, and liveness checks all live in the delivery heat (₣B0);
 the cloud chain-livery proof of the chain-lifetime repair rides that heat's gauntlet-from-fresh-substrate.
+The handoff to the delivery heat happens at the integrity probe, not at this heat's close:
+₣B0 races the moment the candidate integrity probe closes green;
+the premise mint and the indeterminacy sheaf run as fill work across the delivery ceremonies' gaps,
+and the post-release nomination waits for the recorded release so the walk's fast-follow findings and the rig disposition land in the heat it nominates —
+this heat therefore closes after the delivery heat, by design.
 
 ## Shape
 
@@ -43,7 +48,7 @@ with README diagram authoring slotted as fill work while the long runs await;
 then the destructive arc — the gauntlet, the orphan-arm escheat proof riding its churn, the manor raze-and-rebuild walk, the caged-subject admission on the rebuilt substrate, the rbgft test-infra residue, and a closing revalidation of the rebuilt baseline;
 then the cross-platform sweep — the Linux fixture-grain residue on the test station, followed by per-platform paces for macOS, rocket WSL, and rocket Cygwin;
 then the staging arc — the chain-lifetime repair, the real candidate cut on its re-proven baseline, and the candidate integrity probe;
-the residue paces (premise mint, indeterminacy sheaf, then the post-release nomination on the final residue) close the heat, with delivery handed to ₣B0.
+the residue paces (premise mint, indeterminacy sheaf, then the post-release nomination on the final residue) close the heat across the delivery span, with delivery handed to ₣B0 at the integrity probe.
 
 ## Done when
 
