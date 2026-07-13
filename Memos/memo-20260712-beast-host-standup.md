@@ -411,6 +411,24 @@ mechanism rocket couldn't:
   `;` parse, `cargo`/`jq`/`docker` all resolve from a plain one-shot, scp
   round-trips (sftp subsystem bypasses the shell), stdin cat-tricks work.
   Cygwin `whoami` now answers `bhyslop` (was Windows `bhyslop-asrock-\…`).
+- **Gap the matrix missed, caught by the operator's first real login:**
+  interactive `ssh beast` landed in a shell where `pwd`/`cd` worked but
+  `ls` was `command not found`. Mechanism: every matrix probe was a
+  one-shot, which `-lc` makes a *login* shell (`/etc/profile` runs and
+  prepends the Cygwin dirs); the interactive spawn is **non-login** —
+  `/etc/profile` never runs, and `C:\cygwin64\bin` is not on beast's
+  Windows system PATH, so externals vanish while builtins survive. Fix in
+  `.bashrc` (the one file the non-login interactive shell reads): prepend
+  `/usr/local/bin:/usr/bin` idempotently, ahead of the cargo prepend (also
+  now guarded). Verified by simulating the sshd condition — stripped PATH +
+  forced-interactive `/usr/bin/bash -i` — where `ls` resolves to
+  `/usr/bin/ls`; one-shots unchanged. Replay note: test BOTH entry modes;
+  a green one-shot matrix says nothing about the interactive spawn.
+- Cameo during that probe: with PATH stripped to System32, bare `bash`
+  resolved to the **WSL launcher stub** (`C:\WINDOWS\system32\bash.exe`,
+  which errored `execvpe(/bin/bash)` against the docker-desktop distro) —
+  the very collision memo-20260517 recorded as the May theurge blocker,
+  reproduced in one line on beast.
 - **Transport consequence for everything after this section:** the §9 cmd.exe
   rules (pipe-eating, `-EncodedCommand` armor) are HISTORICAL for beast — they
   applied while cmd.exe was the default shell and apply still on rocket.
