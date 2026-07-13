@@ -7,6 +7,10 @@ use super::jjrfr_farrier::{
     jjrfr_FarrierLock,
     jjrfr_RejectionKind,
 };
+use super::jjrds_spine::{
+    JJRDS_KIND_PLAIN_GIT,
+    JJRDS_PEDIGREES_REL_PATH,
+};
 use super::jjrt_types::jjrg_Gallops;
 use super::jjrvb_blotter::{
     jjdb_found,
@@ -370,12 +374,27 @@ fn jjtvb_journal_bakes_a_monotonically_advancing_ordinal_across_writes() {
     );
 }
 
+/// The station's own hippodrome upstream, canonicalized (a trailing `.git`
+/// stripped) — the address every clone of it under this infield derives from
+/// its `origin`, and therefore the address the seeded pedigree must carry for
+/// dispatch to serve any of them.
+const ZJJTVB_REAL_SIRE_ADDRESS: &str = "git@github.com:bhyslop/recipemuster";
+
+/// That upstream's main line of work.
+const ZJJTVB_REAL_SIRE_TRUNK: &str = "main";
+
 /// Found the REAL production `jjqs_studbook` against its real GitHub remote
 /// at the station's real infield root — the one-shot ceremony ₢BrAAU exists
 /// to run, standing the scratch studbook up for ₢BrAAW's rehearsal. Real
 /// network, real remote, not run by the ordinary suite: `--ignored`, and
 /// `JJTVB_REAL_INFIELD_ROOT` must name the infield explicitly so a stray
 /// `--include-ignored` sweep cannot land it anywhere by accident.
+///
+/// The seed carries BOTH studbook tenants, not just the gallops: `jjrds_plan`
+/// reads `pedigrees.json` before anything else, so a station founded without
+/// it cannot dispatch at all. The ₢BrAAU run seeded one file short of what
+/// JJSVS Founding-and-cutover describes; this is that seed corrected, and the
+/// re-found is what carries it onto the real store.
 #[test]
 #[ignore]
 fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
@@ -389,11 +408,24 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
         heats: BTreeMap::new(),
         retention_since: None,
     };
-    let json = serde_json::to_string_pretty(&gallops).expect("a fresh Gallops must serialize");
+    let gallops_json = serde_json::to_string_pretty(&gallops).expect("a fresh Gallops must serialize");
+
+    let pedigrees = serde_json::json!({
+        "jjop_sires": [{
+            "jjop_kind": JJRDS_KIND_PLAIN_GIT,
+            "jjop_addresses": [ZJJTVB_REAL_SIRE_ADDRESS],
+            "jjop_trunk": ZJJTVB_REAL_SIRE_TRUNK,
+        }]
+    });
+    let pedigrees_json = serde_json::to_string_pretty(&pedigrees).expect("the seed pedigree must serialize");
 
     let sha = jjdb_found(&config, |root| {
-        zjjtvb_write(root, "gallops.json", &json);
-        (vec![PathBuf::from("gallops.json")], "found jjqs_studbook".to_string())
+        zjjtvb_write(root, "gallops.json", &gallops_json);
+        zjjtvb_write(root, JJRDS_PEDIGREES_REL_PATH, &pedigrees_json);
+        (
+            vec![PathBuf::from("gallops.json"), PathBuf::from(JJRDS_PEDIGREES_REL_PATH)],
+            "found jjqs_studbook".to_string(),
+        )
     });
 
     println!("founded jjqs_studbook at {} ({})", sha, config.local_root.display());
