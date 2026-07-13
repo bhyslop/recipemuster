@@ -3576,9 +3576,84 @@
       "jjghn_silks": "rbk-11-produce-release",
       "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢B0AAA",
+        "₢B0AAB"
+      ],
+      "jjghn_next_pace_seed": "AAC",
+      "jjghn_paces": {
+        "₢B0AAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2157",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BsAAh in ₣Bs.",
+                "",
+                "## Character",
+                "Multi-hour operator-present founding ceremony; real IdP consoles, fresh credentials, real spend.",
+                "Not tired-work — schedule it fresh.",
+                "",
+                "## Cinched (operator, 260712)",
+                "The operator drives every step at the keyboard, personally — the whole point is a human first-contact proof.",
+                "An agent in the session is scribe only: it records the divergence census and answers questions the shipped docs answer badly (each such question IS a finding);",
+                "it never runs a tabtarget, never reads maintainer specs to unblock the walk, never fills a gap the docs leave.",
+                "If the operator cannot proceed from the shipped material alone, that is a stop-and-record finding, not a prompt for agent rescue.",
+                "",
+                "## Docket",
+                "Walk the entire consumer journey from true zero on the candidate tree, through the shipped docs alone, operator's own hands:",
+                "start where a stranger starts — the onboarding entry (rbw-o) and its handbook tracks, walked as first-contact reading;",
+                "stand up a fresh GCP payor project — manual Establish with consent screen, PayorInstall, and the Entra federation guide against the operator's IdP tenant;",
+                "found the manor from nothing — instaurate, affiance, gird, brevet — following only what the candidate ships (README, handbooks, guided tabtargets), never maintainer knowledge;",
+                "culminate in the gauntlet run green from the fresh substrate —",
+                "one run proving both the founding path and the full ladder on delivered bytes,",
+                "and standing in for the cloud chain-livery proof of the chain-lifetime repair (heat cinch).",
+                "Record every divergence between the shipped docs and reality as a finding — including every moment the operator had to ask the scribe something the docs should have answered;",
+                "divergences feed a re-cut or an explicit fast-follow ruling, operator's call.",
+                "Watch the billing-account link quota — the fresh project consumes a link.",
+                "Disposition of the fresh rig at close — keep as a standing consumer-simulation station for future releases, or tear down — is an operator ruling; the lean is keep.",
+                "This walk gates the push this release only (first of the federation era); the ceremony document records it as first-of-series depth thereafter.",
+                "",
+                "## Done when",
+                "The manor stands founded from zero via shipped docs alone, by the operator's own hands;",
+                "the onboarding handbook tracks walked as first-contact reading;",
+                "the gauntlet green from the fresh substrate;",
+                "the divergence census recorded and dispositioned — scribe-questions included;",
+                "the rig disposition ruled;",
+                "the ceremony document records the walk as first-of-series depth."
+              ],
+              "jjgtn_silks": "greenfield-manor-walk",
+              "jjgtn_basis": "918a71c"
+            }
+          ]
+        },
+        "₢B0AAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2157",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢BsAAR in ₣Bs.",
+                "",
+                "Carry out the release: take the candidate the cut pace left standing at the push gate (stripped, fast-qualified, link-checked) through the actual delivery —",
+                "the operator's push to the public repository and the post-push verification the ceremony document prescribes (published-docs URL reachable, delivered tree sane at the remote).",
+                "The ceremony document (the refreshed rbk-prep-release flow, with RELEASE.md now maintainer-side only) is the authority for steps; this pace exists so the delivery itself is chalked work, not an afterthought of the cut.",
+                "Precondition: the candidate-integrity-probe and greenfield-manor-walk paces have closed green — the push rides a candidate proven from the consumer's seat (heat cinch).",
+                "",
+                "## Done when",
+                "",
+                "The candidate is pushed and publicly visible; post-push checks green; the release recorded per the ceremony document.",
+                "",
+                "## Character",
+                "",
+                "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired."
+              ],
+              "jjgtn_silks": "carry-out-release",
+              "jjgtn_basis": "918a71c"
+            }
+          ]
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
@@ -7453,8 +7528,6 @@
         "₢BsAAY",
         "₢BsAAK",
         "₢BsAAg",
-        "₢BsAAh",
-        "₢BsAAR",
         "₢BsAAS",
         "₢BsAAU",
         "₢BsAAW"
@@ -8037,31 +8110,6 @@
               ],
               "jjgtn_silks": "observed-duration-census",
               "jjgtn_basis": "9f223dd"
-            }
-          ]
-        },
-        "₢BsAAR": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260712-2145",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
-              "jjgtn_text": [
-                "Carry out the release: take the candidate the cut pace left standing at the push gate (stripped, fast-qualified, link-checked) through the actual delivery —",
-                "the operator's push to the public repository and the post-push verification the ceremony document prescribes (published-docs URL reachable, delivered tree sane at the remote).",
-                "The ceremony document (the refreshed rbk-prep-release flow, with RELEASE.md now maintainer-side only) is the authority for steps; this pace exists so the delivery itself is chalked work, not an afterthought of the cut.",
-                "Precondition: the candidate-integrity-probe and greenfield-manor-walk paces have closed green — the push rides a candidate proven from the consumer's seat (heat cinch).",
-                "",
-                "## Done when",
-                "",
-                "The candidate is pushed and publicly visible; post-push checks green; the release recorded per the ceremony document.",
-                "",
-                "## Character",
-                "",
-                "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired."
-              ],
-              "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "6b8ca13"
             }
           ]
         },
@@ -8709,49 +8757,6 @@
               ],
               "jjgtn_silks": "candidate-integrity-probe",
               "jjgtn_basis": "fd173fe"
-            }
-          ]
-        },
-        "₢BsAAh": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260712-2148",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "## Character",
-                "Multi-hour operator-present founding ceremony; real IdP consoles, fresh credentials, real spend.",
-                "Not tired-work — schedule it fresh.",
-                "",
-                "## Cinched (operator, 260712)",
-                "The operator drives every step at the keyboard, personally — the whole point is a human first-contact proof.",
-                "An agent in the session is scribe only: it records the divergence census and answers questions the shipped docs answer badly (each such question IS a finding);",
-                "it never runs a tabtarget, never reads maintainer specs to unblock the walk, never fills a gap the docs leave.",
-                "If the operator cannot proceed from the shipped material alone, that is a stop-and-record finding, not a prompt for agent rescue.",
-                "",
-                "## Docket",
-                "Walk the entire consumer journey from true zero on the candidate tree, through the shipped docs alone, operator's own hands:",
-                "start where a stranger starts — the onboarding entry (rbw-o) and its handbook tracks, walked as first-contact reading;",
-                "stand up a fresh GCP payor project — manual Establish with consent screen, PayorInstall, and the Entra federation guide against the operator's IdP tenant;",
-                "found the manor from nothing — instaurate, affiance, gird, brevet — following only what the candidate ships (README, handbooks, guided tabtargets), never maintainer knowledge;",
-                "culminate in the gauntlet run green from the fresh substrate —",
-                "one run proving both the founding path and the full ladder on delivered bytes,",
-                "and standing in for the cloud chain-livery proof of the chain-lifetime repair (heat cinch).",
-                "Record every divergence between the shipped docs and reality as a finding — including every moment the operator had to ask the scribe something the docs should have answered;",
-                "divergences feed a re-cut or an explicit fast-follow ruling, operator's call.",
-                "Watch the billing-account link quota — the fresh project consumes a link.",
-                "Disposition of the fresh rig at close — keep as a standing consumer-simulation station for future releases, or tear down — is an operator ruling; the lean is keep.",
-                "This walk gates the push this release only (first of the federation era); the ceremony document records it as first-of-series depth thereafter.",
-                "",
-                "## Done when",
-                "The manor stands founded from zero via shipped docs alone, by the operator's own hands;",
-                "the onboarding handbook tracks walked as first-contact reading;",
-                "the gauntlet green from the fresh substrate;",
-                "the divergence census recorded and dispositioned — scribe-questions included;",
-                "the rig disposition ruled;",
-                "the ceremony document records the walk as first-of-series depth."
-              ],
-              "jjgtn_silks": "greenfield-manor-walk",
-              "jjgtn_basis": "b734dc9"
             }
           ]
         }
