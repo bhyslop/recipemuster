@@ -141,8 +141,15 @@ Wait for user approval of the branch name.
 - `git checkout -b candidate-NNN-R OPEN_SOURCE_UPSTREAM/main`
 - Execute: `git merge --squash main` (main here is the clone's blanked main from Step 5)
 - **Resolve any merge conflicts to match the blanked main.** When the upstream base has drifted far from main, the squash can conflict — a file main deleted but upstream modified (resolve by `git rm <file>`), or a content conflict on a surviving file (repopulate main's version with `git show main:<file> > <file>` then `git add <file>`; do not use `git checkout`/`git restore`). Confirm `git diff --name-only --diff-filter=U` is empty.
-- Commit the squash so the working tree is clean for the steps that follow.
 - Show the merge result summary
+
+## **DO NOT COMMIT THE SQUASH.**
+
+The squash leaves the full pre-strip tree — every veiled document, every memo, every chat archive — staged. **Committing it here would publish all of it.** The strip in Step 10 removes those files from the *tip* tree, but a commit made now becomes the tip's **parent**, and `git push` sends every object reachable from the branch. A reviewer, a crawler, or anyone with a clone could then `git checkout` that parent and read the entire private corpus. The tip being clean is worth nothing when its ancestor is not.
+
+This is not hypothetical: the ceremony carried the instruction "commit the squash so the working tree is clean" until 2026-07-13, and on that day a candidate went to the remote carrying 292 MiB — 5,887 files, including 4,581 under `.claude/` — in exactly this way. Every assay we run (fast-qualify, pyx, damnatio, loupe, the leakage sweep) examines the **tip tree only**. Not one of them looks at history. Nothing would have caught it.
+
+**The candidate must be exactly one commit atop `OPEN_SOURCE_UPSTREAM/main`, whose tree is the stripped tree.** So the squash stays staged and uncommitted through Steps 9, 10, and 11 — none of which need a clean tree — and Step 12 makes the single commit. Step 13's assays need a clean tree, and Step 12 gives them one.
 
 Wait for user acknowledgment.
 
@@ -304,15 +311,26 @@ git add Tools/rbk/claude-rbk-tabtarget-context.md
 
 Show the user what regenerated and wait for acknowledgment.
 
-## Step 12: Commit the candidate
+## Step 12: Commit the candidate — one commit, and only one
 
-The candidate must be a committed, clean tree before anything assays it: the theurge harness gates every fixture on a clean git tree, so an uncommitted strip cannot be tested. That is why the commit lands here, ahead of the verification it will be judged by — see **Verify, then commit** at the top. Re-read the contract before proceeding: **a finding in Step 13 or 14 means re-cut, never patch-forward.**
+This is the **only** commit the candidate branch may carry. Everything since Step 8 — the squash, the consumer template, the strip, the regenerated files — lands here together, so the branch is a single commit atop `OPEN_SOURCE_UPSTREAM/main` whose tree is the stripped tree and whose history holds nothing else. Step 8 explains why; if you are tempted to make two commits "for clarity," read it again.
+
+The candidate must also be a committed, clean tree before anything assays it: the theurge harness gates every fixture on a clean git tree, so an uncommitted strip cannot be tested. That is why the commit lands ahead of the verification that judges it — see **Verify, then commit** at the top. Re-read the contract: **a finding in Step 13 or 14 means re-cut, never patch-forward.**
 
 - Stage any remaining changes: `git add -u`
 - Analyze all changes for a consolidated commit message
 - Review `git log OPEN_SOURCE_UPSTREAM/main..main --oneline` to summarize what's included
 - Create commit (no attribution footer — this is a release candidate)
 - Show `git log -1 --stat`
+
+**Then gate the history, before anything else runs:**
+
+```
+git rev-list --count OPEN_SOURCE_UPSTREAM/main..HEAD
+git log --oneline OPEN_SOURCE_UPSTREAM/main..HEAD
+```
+
+The count **must be `1`**. If it is anything else, the branch carries an ancestor commit, that ancestor's tree will be pushed, and the candidate is unsalvageable — **abandon the branch and re-cut**. Do not attempt to rewrite, amend, or rebase your way out: the objects are already in the clone, and the only safe candidate is one that never had a second commit.
 
 Nothing is pushed. Wait for user acknowledgment.
 
@@ -402,11 +420,23 @@ Show the results and wait for user acknowledgment.
 
 ## Step 15: Final review
 
+**The last gate is the history, and it is the one no fixture can hold.** Every assay reads the tip tree; the push sends everything reachable from the branch. Prove, on the candidate branch, that there is nothing behind the tip:
+
+```
+git rev-list --count OPEN_SOURCE_UPSTREAM/main..HEAD
+git ls-tree -r --name-only HEAD | wc -l
+```
+
+The commit count **must be `1`**, and the file count must be the delivered set (a few hundred), not the full tree (thousands). A count above 1 means the pre-strip tree is about to be published — **stop, and re-cut.** Report both numbers to the operator; do not let the push proceed on your say-so alone.
+
+A useful sanity check on the push itself: the object volume should be a few tens of MiB. If git reports hundreds of MiB, the private corpus is going up the wire — interrupt it.
+
 Show the user:
-- The commit stat summary
+- The commit stat summary and both history numbers above
 - Push instructions (from the clone): `git push OPEN_SOURCE_UPSTREAM candidate-NNN-R`
 - Confirmation that the push is from the **candidate** branch, never the probe branch
 - Reminder: inspect the result on GitHub before merging to main
 - Reminder: the candidate clone is a throwaway — delete its directory once the candidate is pushed
+- Reminder: a push cannot be recalled. Deleting a branch removes the ref, not the objects — they stay fetchable by SHA, and forks and crawlers keep their own copies. The gates above are the only protection there is.
 
 **STOP** — user reviews and pushes manually.
