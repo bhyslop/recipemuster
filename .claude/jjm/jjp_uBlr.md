@@ -293,9 +293,26 @@ the implementation tail runs at work tier.
   for project-authored JSON stores — the identity stays the bare body on every surface,
   carriage of the sentinel differs by surface, and git refs / paths / branch names stay bare;
   the ₣Bc gallops-key glyph-strip pace, which worked against the new law, was dispositioned by abandonment;
-  JJS0's jjdt_insignia carriage sentence and the jjrf_favor.rs comment sweep banked
-  as a JJSAT reconciliation obligation.
+  JJS0's jjdt_insignia carriage sentence and the jjrf_favor.rs comment sweep were verified
+  already conformant at the convergence audit (260713) —
+  discharged in the re-cut act itself, nothing owed to JJSAT.
   JJS0 swept for the rename in the same act (Seeded section title, attr refs, annotations).
+- Convergence audit (260713): the chapbook's two missing cast homes minted as jjdw_ quoins
+  in the cosmology sheaf's new two-parties section —
+  jjdw_operator catalogued from the corpus's standing vocabulary,
+  jjdw_engine blessed as the living interior word by operator ruling
+  (the Docker/Podman-engine foreign-proper-noun collision deliberate and tolerated,
+  ledgered at the definition site);
+  the chapbook's pending-citation register reads zero.
+  Aspirant genre rule applied as the docket pre-ratified — genre names what the sheaf now holds:
+  JJSAS/JJSAF/JJSAT/JJSAB axd_roadmap (post-drain and banked remainders),
+  JJSAM axd_entity (a live noun mulling),
+  lintels and JJS0 cartouches moved in one act.
+  The revision-insignia cinch above is now canon at JJSVB
+  (Revision ordinals; jjdb_catchword/jjdb_varvel catalogued, JJSAS re-pointed) —
+  but its code remains unbuilt: the blotter commits plain messages today,
+  so the ordinal bake (allocate under lock at journal time, founding value at jjdb_found)
+  needs its own small pace before the rehearsal gate.
 - Founded studbook is disposable scaffolding (260713, operator ruling at the founding pace):
   the real jjqs_studbook was founded against its GitHub remote with a scratch empty gallops —
   rehearsal substrate only, and it may absorb rehearsal noise freely;
@@ -522,7 +539,9 @@ Elections, alternates, and rationales live in the sheaf ledgers; this roster is 
 - Pace-identity and store-shape sections: the 260706 design cinches settle the sheaf's
   wire-vs-display open fork and deferred insignia sub-mint.
   The pace-identity banking travels with the relocated ₣Bc re-gestalt pace (its implementing surface);
-  the store-shape/insignia settlement still banks here at drain time.
+  the store-shape/insignia half is DONE 260713 —
+  drained to the blotter sheaf's Revision ordinals section at the convergence audit,
+  JJSAS re-pointed and its resolved fork removed.
 - Session-tiers paragraph (farrier sheaf, dispatch layer): DONE 260708 — drained into the
   dispatch sheaf's Session launch section per the session-launch cinch;
   the haiku orchestration line stays breeze-era.
