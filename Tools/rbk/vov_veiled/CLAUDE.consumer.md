@@ -18,10 +18,11 @@ tt/rbw-o.ONBOARDING.sh
 Recipe Bottle uses domain-specific terminology throughout its CLI and documentation. **When you encounter an unfamiliar term, read `README.md`** — it contains anchored definitions (`<a id>`) for all concepts. Navigate directly via anchor links (e.g., `#Ordain`, `#Depot`, `#Charge`).
 
 Key term categories in README.md:
-- **Architecture**: Foundry, Crucible, Depot, Vessel, Hallmark, Nameplate, Regime, Tabtarget
-- **Roles**: Payor, Governor, Director, Retriever
+- **Architecture**: Foundry, Manor, Depot, Crucible, Vessel, Hallmark, Ark, Nameplate, Regime, Tabtarget
+- **Roles**: Payor, Governor, Director, Retriever — the last three are Mantles worn by federated Citizens
+- **Identity**: Citizen, Mantle, Foedus, Sitting, Terrier, Muniment
 - **Containers**: Sentry, Pentacle, Bottle
-- **Foundry Operations** (appendix): Establish, Install, Levy, Unmake, Mantle, Knight, Charter, Forfeit, Capture, Ordain, Conjure, Bind, Graft, Kludge, Tally, Vouch, Plumb, Summon, Wrest, Abjure, Jettison
+- **Foundry Operations** (appendix, grouped): Infrastructure, Identity and Admission, Supply Chain, Building, Chain Links, Verification, Distribution, Removal, Diagnostics
 - **Crucible Operations** (appendix): Charge, Quench, Rack, Hail, Scry
 - **Testing**: Ifrit, Theurge
 
@@ -81,38 +82,56 @@ The supply chain has three layers: conclave captures the builder-tool Lode (the 
 | **hail** | Shell into the sentry container (call out to the guard) |
 | **scry** | Observe network traffic across crucible containers (divine the topology) |
 
-### How do I manage infrastructure and credentials?
+### How do I manage infrastructure?
 
 | Verb | What it does |
 |------|-------------|
+| **establish** | Stand up the manor — GCP project, billing, OAuth client (guided; the one manual console procedure) |
+| **instaurate** | Ensure the manor's identity substrate — the workforce pool every depot's sign-in trusts, and the terrier that records who holds what |
+| **affiance** | Seat an external identity provider under the manor pool as a foedus (the trust your sign-in runs against) |
+| **jilt** | Remove one foedus's provider from the manor pool |
 | **levy** | Provision a depot — GCP project, artifact registry, build infrastructure |
 | **unmake** | Permanently remove a depot |
-| **mantle** | Create or replace the governor service account (old authority cast off, new bestowed) |
-| **knight** | Confer build authority on a director service account |
-| **charter** | Grant a retriever read-only registry access |
-| **forfeit** | Revoke any service account — seize authority back |
+
+### How do I admit people, and how do I authenticate?
+
+Nobody holds a long-lived key. An operator is a **citizen** of a **foedus**; a role is a **mantle** the citizen is admitted to wear. Signing in opens a **sitting**, and each privileged call mints a short-lived token for one mantle.
+
+| Verb | What it does |
+|------|-------------|
+| **avow** | Open a sitting — federated sign-in (device flow) against the active foedus |
+| **novate** | Open a fresh full-window sitting, extinguishing any standing one |
+| **espy** | Report whether a sitting stands and how much runway is left (read-only, no network) |
+| **don** | Mint a short-lived token for one mantle, for one call |
+| **gird** | Payor seats a depot's founding governor — the one admission outside governor wielding |
+| **brevet** | Governor admits a citizen onto a mantle in this depot |
+| **unseat** | Governor removes a citizen from one mantle (suspension, not erasure) |
+| **attaint** | Governor expels a citizen from the depot entirely |
+| **rehearse** | Recount the terrier — who holds which mantle, manor-wide (read-only) |
 
 ## Roles
 
-Recipe Bottle uses a role-based security model. Each role authenticates differently and has distinct capabilities:
+Recipe Bottle uses a role-based security model. The payor stands apart; the other three are mantles worn by federated citizens.
 
 | Role | Authentication | Purpose |
 |------|---------------|---------|
-| **Payor** | OAuth (browser flow) | Creates/funds GCP infrastructure, manages governor lifecycle |
-| **Governor** | Service account credential | Administers director and retriever credentials within a depot |
-| **Director** | Service account credential | Submits builds, manages images, verifies provenance |
-| **Retriever** | Service account credential | Pulls images for local use |
+| **Payor** | OAuth (browser flow) | Establishes the manor, funds depots, girds the first governor |
+| **Governor** | Federated sitting → governor mantle | Admits citizens to mantles within a depot; keeps the terrier |
+| **Director** | Federated sitting → director mantle | Submits builds, manages images, verifies provenance |
+| **Retriever** | Federated sitting → retriever mantle | Pulls images for local use |
 
-The payor stands apart — requires manual console work and OAuth. All downstream roles authenticate via credential files, enabling automation without human interaction.
+The payor is the only role requiring manual console work. Every other role signs in against the foedus and dons its mantle per call, so authority is short-lived by construction and each use is attributable to the human who wore it.
 
 ## Credential Safety
 
-All credential files require `600` permissions and must never be committed to version control.
+**The payor OAuth credential is the system's sole standing secret.** There are no service-account keyfiles to protect, back up, or rotate — the mantle roles hold no durable credential at all.
 
-- **Payor OAuth**: `~/.rbw/payor/rbro.env` — client secret + refresh token. Only on the administrator's workstation.
-- **Governor/Director/Retriever**: credential files at paths defined in RBRR (`RBRR_SECRETS_DIR`). Each file contains a service account credential scoped to one role within one depot.
+- **Payor OAuth** (`rbro.env`, under `RBRR_SECRETS_DIR`): client secret + refresh token. `600` permissions, only on the administrator's workstation, never committed.
+- **Mantle tokens**: minted per call from a live sitting and never written to disk as durable credentials. Lose your sitting and you re-avow; there is nothing to restore.
 
 @Tools/buk/claude-buk-core.md
+
+@Tools/rbk/claude-rbk-acronyms.md
 
 @Tools/rbk/claude-rbk-conduct.md
 
@@ -131,15 +150,18 @@ Regimes follow a consistent pattern: `rbw-r{code}{r|v|l}` where `r` = render, `v
 | Code | Regime | Purpose | Render | Validate |
 |------|--------|---------|--------|----------|
 | `rp` | RBRP | Payor — GCP billing project identity | `rbw-rpr` | `rbw-rpv` |
-| `rr` | RBRR | Repo — depot project, region, build config | `rbw-rrr` | `rbw-rrv` |
+| `rr` | RBRR | Repo — region, runtime prefix, vessel and secrets dirs, active foedus | `rbw-rrr` | `rbw-rrv` |
+| `rd` | RBRD | Depot — depot project identity, build machine type | `rbw-rdr` | `rbw-rdv` |
 | `rn` | RBRN | Nameplate — per-vessel hallmarks, runtime | `rbw-rnr` | `rbw-rnv` |
 | `rv` | RBRV | Vessel — container image build definitions | `rbw-rvr` | `rbw-rvv` |
+| `rf` | RBRF | Federation — the foedus: identity provider trust values | `rbw-rfr` | `rbw-rfv` |
+| `rw` | RBRW | Workforce — the manor's identity pool | `rbw-rwr` | `rbw-rwv` |
 | `ro` | RBRO | OAuth — payor refresh token (managed) | `rbw-ror` | `rbw-rov` |
-| `ra` | RBRA | Auth — service account credentials (managed) | `rbw-rar` | `rbw-rav` |
 
-**User-configured**: RBRP, RBRR, RBRN, RBRV — you edit these during setup.
-**Managed/generated**: RBRO (by payor install), RBRA (by credential creation).
+**User-configured**: RBRP, RBRR, RBRD, RBRN, RBRV, RBRF, RBRW — you edit these during setup.
+**Managed/generated**: RBRO (by payor install).
 
+List operations: `rbw-rnl` (all nameplates), `rbw-rvl` (all vessel sigils).
 Cross-regime operations: `rbw-ni` (nameplate info/survey), `rbw-nv` (validate all nameplates).
 
 ### BUK Infrastructure
@@ -161,10 +183,13 @@ A Config Regime is a structured configuration system: a specification document, 
 - **BURS** (`../station-files/burs.env`) — developer machine: log directory. Not in git.
 
 **Recipe Bottle regimes** (in `rbmm_moorings/`):
-- **RBRP** — Payor project identity. Set `RBRP_PAYOR_PROJECT_ID` to your GCP project.
-- **RBRR** — Repository/depot configuration. Region, machine type, vessel directory, secrets directory, depot project ID.
-- **RBRN** — Nameplate. Per-vessel: runtime (`docker`), vessel names, hallmark values (set after builds complete).
-- **RBRV** — Vessel definitions. One per container image you want to build.
+- **RBRP** (`rbrp.env`) — Payor project identity. Set `RBRP_PAYOR_PROJECT_ID` to your GCP project.
+- **RBRR** (`rbrr.env`) — Repository configuration. Runtime prefix, vessel directory, secrets directory, build timeouts, and `RBRR_ACTIVE_FOEDUS` — the selector naming which foedus you sign in against.
+- **RBRD** (`rbrd.env`) — Depot identity. Cloud prefix, depot moniker, GCP region, build machine type.
+- **RBRW** (`rbrw.env`) — Workforce. The manor's one identity pool, which every depot's sign-in trusts.
+- **RBRF** (`rbmf_foedera/{foedus}/rbrf.env`) — Federation. One per standing foedus: the identity provider's trust values. Stored once in the library; the active one is resolved through `RBRR_ACTIVE_FOEDUS`, never copied.
+- **RBRN** (`{moniker}/rbrn.env`) — Nameplate. Per-vessel: runtime (`docker`), vessel names, hallmark values (set after builds complete).
+- **RBRV** (`rbmv_vessels/{vessel}/rbrv.env`) — Vessel definitions. One per container image you want to build.
 
 ## Architecture
 
@@ -173,8 +198,11 @@ Project Root/
 ├── rbmm_moorings/           # Consumer config root (BUK + Recipe Bottle)
 │   ├── burc.env             # BURC — project structure config
 │   ├── rbrp.env             # RBRP — Payor regime
-│   ├── rbrr.env             # RBRR — Repo/depot regime
-│   ├── {moniker}/rbrn.env   # RBRN — Nameplate regimes (per vessel)
+│   ├── rbrr.env             # RBRR — Repo regime (holds RBRR_ACTIVE_FOEDUS)
+│   ├── rbrd.env             # RBRD — Depot regime
+│   ├── rbrw.env             # RBRW — Workforce regime (the manor's identity pool)
+│   ├── rbmf_foedera/        # RBRF — Foedus library (one rbrf.env per standing foedus)
+│   ├── {moniker}/rbrn.env   # RBRN — Nameplate regimes (per crucible)
 │   ├── rbml_launchers/      # Launcher scripts (environment gates)
 │   └── rbmv_vessels/        # Vessel definitions (rbrv.env + optional Dockerfile per vessel)
 ├── tt/                      # TabTargets (ls this to see all commands)
@@ -201,6 +229,7 @@ Project Root/
 
 - **Regime validation fails on startup**: Run the regime's render command to see current values, then validate to identify the specific error. Fix the `.env` file and retry.
 - **OAuth token expired**: re-run payor install with the saved client-secret JSON (`tt/rbw-gPI.PayorInstall.sh «RBRR_SECRETS_DIR»/client_secrets/client_secret_*.json`) — a dead token needs no new JSON.
-- **Lost credential file**: Re-run the creation command for that role (payor install, governor mantle, director knight, retriever charter).
+- **A verb refuses for want of authority**: check the sitting first — `tt/rbw-as.EspySitting.sh` reports whether one stands and how much runway is left; `tt/rbw-aN.NovateSitting.sh` opens a fresh one. If the sitting is healthy, you are not brevetted onto the mantle that verb wields: a governor must `brevet` you (`tt/rbw-pB.GovernorBrevetsCitizen.sh`). Confirm with `tt/rbw-pr.GovernorRehearsesTerrier.sh`, which shows who holds what.
+- **Federated sign-in fails outright**: descry the active foedus with `tt/rbw-jd.FoedusDescry.sh` — it reports the provider's health under the manor pool, or names the deficit.
 - **Tabtarget not found**: Run `tt/rbw-tq.QualifyFast.sh` to check tabtarget and colophon health.
 - **Build fails**: Check `tt/rbw-ft.RetrieverTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.

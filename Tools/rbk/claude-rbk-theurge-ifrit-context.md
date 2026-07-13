@@ -98,7 +98,7 @@ The reveille suite's fixtures carry `credless: true` on their `rbtdre_Fixture` s
 Rules for authoring a reveille-tier case:
 
 - **A reveille case may invoke any tabtarget freely** — if its chain reaches a token mint, the run dies with the credless band code instead of spending money or mutating the depot. The proof case is `rbtdrf_rs_credless_guard_mint_refusal` (regime-smoke).
-- **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the reveille tier (BUS0 Tweak Mechanism, slot-reservation rule); `rbtdri_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in reveille — home it in a higher tier.
+- **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the reveille tier (one tweak at a time, and the suite reserves the slot); `rbtdri_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in reveille — home it in a higher tier.
 - **A new reveille fixture must set `credless: true`** and join the reveille suite list in `rbtdrc_crucible.rs`; fixtures in higher tiers set `credless: false`.
 
 ### Fixture Config-Evolution Console

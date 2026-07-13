@@ -202,7 +202,7 @@ zrbz_kindle() {
   # namespace; whole-package delete stays with the semantic verbs (banish/
   # abjure). The bare verb letters il/iw/iJ are the FINAL-FORM colophons; iw
   # and iJ deliberately violate terminal exclusivity while their per-domain
-  # children survive — see Memos/retired/memo-20260610-heat-BH-image-tabtarget-cleanup.md.
+  # children survive — a transitional state, resolved when the children retire.
   #
   # Surviving per-domain variants (retire at the made-side retrofit):
   # hallmarks (h) only. Their verbs: rekon (member-list), audit

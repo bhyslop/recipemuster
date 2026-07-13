@@ -274,6 +274,7 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/jjk/vov_veiled/claude-jjk-bhyslop.md
+@Tools/buk/vov_veiled/claude-buk-veiled.md
 
 @Tools/vok/claude-vok-context.md
 
@@ -284,6 +285,8 @@ When evaluating any new pattern, extraction, or structural choice, the litmus te
 - Public project page: https://scaleinv.github.io/recipebottle
 
 @Tools/rbk/claude-rbk-acronyms.md
+
+@Tools/rbk/vov_veiled/claude-rbk-veiled.md
 
 @Tools/rbk/claude-rbk-conduct.md
 

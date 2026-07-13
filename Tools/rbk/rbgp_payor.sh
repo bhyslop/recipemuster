@@ -611,9 +611,9 @@ zrbgp_write_posture_check() {
 # ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC = 10 minutes, well under Cloud Build's
 # default queueTtl=3600s. Synchronous: the levy/info caller blocks until
 # terminal.
-# The previous fire-and-forget pattern caused the late-clearing-probe-
-# collision wedge documented in Memos/memo-20260517-cloudbuild-default-
-# quota-wedge/. SUCCESS terminal is the happy path; any non-2xx submission
+# The previous fire-and-forget pattern caused a late-clearing-probe-collision
+# wedge: a queued probe cleared minutes later and wedged the next build behind
+# it until queueTtl expired. SUCCESS terminal is the happy path; any non-2xx submission
 # is fatal (the prior 400-tolerance branch defended a folkloric "quota
 # row materialization" theory that has been retired).
 # Args: token pool_variant pool_id build_json_file infix_prefix operation_label artifact_ref

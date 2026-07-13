@@ -22,9 +22,8 @@
 # expunge / peruse / peruse_manor that touch the Manor-homed terrier bucket, each
 # a single conditioned REST call whose atomicity Cloud Storage adjudicates (no
 # external lock, no cloud-build invocation). brevet / unseat / rehearse are the
-# RBS0-side civic wrappers that compose these — rehearse over the manor-wide read;
-# this module carries no lock logic and no IAM — it is glue over a service.
-# Contract: RBSTR-Terrier.adoc.
+# civic wrappers that compose these — rehearse over the manor-wide read; this
+# module carries no lock logic and no IAM — it is glue over a service.
 #
 # A muniment is one GCS object per (principal subject, mantle held) pair — the
 # settled per-entry granularity, the exact mirror of the pool-scoped IAM grant it
