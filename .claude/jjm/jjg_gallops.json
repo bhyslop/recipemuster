@@ -6479,7 +6479,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-0837",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -6506,7 +6507,7 @@
                 "only the studbook instance exists this heat."
               ],
               "jjgtn_silks": "revision-ordinal-bake",
-              "jjgtn_basis": "69ae7b9"
+              "jjgtn_basis": "361558d"
             }
           ]
         }
