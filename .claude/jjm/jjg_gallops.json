@@ -8429,7 +8429,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-2245",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "Author the indeterminacy doctrine sheaf: elevate the durable half of",
                 "Memos/memo-20260711-gauntlet-indeterminacy-census.md into a new RBS* sheaf under RBS0,",
@@ -8463,7 +8464,7 @@
                 "Spec authoring with mints — judgment work; operator present for the RBr_d21 retirement-voice ruling."
               ],
               "jjgtn_silks": "indeterminacy-census-sheaf",
-              "jjgtn_basis": "77ff291"
+              "jjgtn_basis": "6b88d2a"
             }
           ]
         },
