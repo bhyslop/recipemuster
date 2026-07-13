@@ -3631,8 +3631,9 @@
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2157",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2158",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3658,7 +3659,7 @@
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "6ca3b66"
+              "jjgtn_basis": "edf4439"
             }
           ]
         },
