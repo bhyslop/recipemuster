@@ -7342,7 +7342,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-2251",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7358,7 +7359,7 @@
                 "and a scratch studbook stands ready for rehearsal."
               ],
               "jjgtn_silks": "studbook-bootstrap",
-              "jjgtn_basis": "559b7a4"
+              "jjgtn_basis": "a47074a"
             }
           ]
         },
