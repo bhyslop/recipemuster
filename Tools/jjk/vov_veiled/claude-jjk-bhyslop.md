@@ -260,7 +260,8 @@ cosmology) — this is the quick-lookup pointer, not the definition.
 - **`jjq_`** — infield **directory** residents (has children; names no bare dir):
   - `jjqa_app` — the kit repo (engine + provisioned context; was `jjy_app`).
   - `jjqs_studbook` — the record repo (was `jjy_studbook`).
-  - `jjqb_{coronet}` — a pace **billet** (per-pace worktree dir).
+  - `jjqb_{coronet}` — a pace **billet** (per-pace worktree dir); `jjqb_{firemark}` a groom billet — one signet, typed by length.
+  - `jjqd_scratch` — the dispatch-scratch container: per-billet BUK state (BURV output/temp/log roots) and session-scoped MCP config, keyed by billet dirname beneath it. Deliberately outside the `jjqb_` glob so the muck sweep can never match it.
 - **`jjy_`** — infield **launcher scripts** (stiles): `jjy_saddle`, `jjy_lunge` (flat).
 
 Two letters, not one: terminal-exclusivity forbids `jjy_`'s flat script names coexisting with a
