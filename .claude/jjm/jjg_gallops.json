@@ -5539,9 +5539,10 @@
         "₢BrAAU",
         "₢BrAAV",
         "₢BrAAe",
+        "₢BrAAf",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAf",
+      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -6508,6 +6509,67 @@
               ],
               "jjgtn_silks": "revision-ordinal-bake",
               "jjgtn_basis": "cf69951"
+            }
+          ]
+        },
+        "₢BrAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1054",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "A concurrency-contract repair whose code is small and whose ruling is not:",
+                "it changes the write bracket's contract and mints the invariant behind it, so the spec moves with the code.",
+                "Judgment lives in the wording as much as the fix.",
+                "",
+                "The rehearsal (the pace that follows this one) proved the defect against the real remote:",
+                "a lease-refused commit strands in the local clone, nothing reconciles it,",
+                "and the station's next authorized ceremony pushes it onto the shared store —",
+                "refused content arriving under a later, unrelated lock, with nothing recording it was ever refused.",
+                "The same stranded commit wedges the station instead, with an unrecoverable Diverged,",
+                "if another station wrote in between; which of the two you get is pure timing.",
+                "",
+                "## Done when",
+                "",
+                "- `jjrfr_advance`'s contract is *equalize with the remote tip*, not *fast-forward toward it*:",
+                "  under the lock the local clone is made equal to the remote counterpart,",
+                "  so every lodged commit's sole parent is the authorized tip and a refused commit is retrenched, never re-consigned.",
+                "  The plain-git implementation drops both the fast-forward-only merge and the dirty-tree gate —",
+                "  the latter heals a second, latent wedge: a crash between mutate and lodge leaves the clone dirty forever,",
+                "  and today's advance then refuses every subsequent ceremony.",
+                "  `Diverged` leaves advance's rejection set; it remains consign's.",
+                "- The rehearsal's aftermath probe turns from finding-recorder into standing regression,",
+                "  and the advance tests are re-cut to the new contract.",
+                "- The journal sheaf stops blessing the stranded commit:",
+                "  its advance step states the equalize,",
+                "  and its consign step's \"stranded but unpushed\" gains its disposition.",
+                "  The farrier sheaf's advance op contract and the blotter sheaf's cache doctrine follow.",
+                "- The invariant is minted as a rivet — at mutate time the local clone equals the remote tip,",
+                "  and content the lease refused is retrenched, never re-consigned —",
+                "  homed at the journal ceremony and cited at the implementation, as never-force is homed at consign.",
+                "",
+                "## Cinched",
+                "",
+                "- Equalize moves the local cache and pushes nothing, so the never-force rivet is untouched:",
+                "  that rivet governs the remote's history, and this act governs the copy.",
+                "- A blotter clone holds no human work — engine-driven, sole-door —",
+                "  so discarding a local-only commit is a deliberate ruling stated in the spec, never silent papering-over",
+                "  (the reflog keeps it forensically recoverable regardless).",
+                "- Advance's only production composer is the journal ceremony; the billet facet's tree-movers are untouched.",
+                "- Out of scope, deliberately: glean's unchecked outcome.",
+                "  A silently-failed fetch makes equalize target a stale tip, whereupon consign's ordinary",
+                "  fast-forward protection refuses the push and the next ceremony self-heals —",
+                "  no corruption, one wasted ceremony. Hardening it wants a taxonomy allocation and is not smuggled in here.",
+                "",
+                "## Held for the mount",
+                "",
+                "Advance now sometimes moves *backward*, which grates against the word.",
+                "Whether that earns a re-mint is an operator lapidary call, taken at mount; the contract change stands either way."
+              ],
+              "jjgtn_silks": "advance-equalizes-under-the-lock",
+              "jjgtn_basis": "8751670"
             }
           ]
         }
