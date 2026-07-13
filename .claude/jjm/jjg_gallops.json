@@ -7699,7 +7699,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-0720",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Authoring the delivered face — judgment calls on what ships versus what veils; a wrong call either leaks interior names or starves the consumer agent of its navigation map.",
@@ -7723,7 +7724,7 @@
                 "Both context files stand split and wired; CLAUDE.consumer.md is current; the pyx guard is green; the memo-path comments are swept; `rbw-tt` and dev-side reveille green on main."
               ],
               "jjgtn_silks": "delivered-context-veil-split",
-              "jjgtn_basis": "ca2f10c"
+              "jjgtn_basis": "572ea47"
             }
           ]
         }
