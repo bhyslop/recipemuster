@@ -3884,7 +3884,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-1147",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Cartography under judgment — read the homes, map the face, name what contradicts.",
@@ -3916,7 +3918,7 @@
                 "State plainly in that nomination that the implementation does not fit this heat's small-cleanups charter."
               ],
               "jjgtn_silks": "readme-revetment-census",
-              "jjgtn_basis": "046e48a"
+              "jjgtn_basis": "b405eb8"
             }
           ]
         }
