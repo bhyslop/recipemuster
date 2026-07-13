@@ -368,7 +368,10 @@ zrblm_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
-  buc_doc_env "BUZ_FOLIO             " "Absolute target directory for rblm_proof (param1 channel; must not exist)"
+  # BUZ_FOLIO (param1 channel) carries rblm_proof's target directory and is
+  # legitimately empty for rblm_zero, so it is not a buc_doc_env here: an empty
+  # doc_env var warns, and the warn path needs buym_yelp, which this furnish
+  # has not yet sourced (rbgv_cli optional-folio precedent).
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
