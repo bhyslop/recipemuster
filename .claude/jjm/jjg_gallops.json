@@ -3666,7 +3666,7 @@
         "₢B0AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2157",
+              "jjgtn_ts": "260713-0656",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -3679,15 +3679,17 @@
                 "the staging the greenfield walk will clone as a stranger.",
                 "Nothing merges to main here; the push makes the candidate publicly cloneable, no more.",
                 "Verify the pushed branch's tip equals the local candidate tip,",
-                "and that a fresh anonymous clone of the branch succeeds from a network position outside the maintainer's credentials.",
+                "that a fresh anonymous clone of the branch succeeds from a network position outside the maintainer's credentials,",
+                "and that from that anonymous clone the onboarding entry (rbw-o) launches to its first screen —",
+                "the stranger's first command proven over public transport before the multi-hour walk is scheduled.",
                 "Precondition: the candidate-integrity-probe pace in rbk-10-create-staging has closed green.",
                 "",
                 "## Done when",
                 "",
-                "The candidate branch stands on the public repository, tip-verified, anonymously cloneable; main untouched."
+                "The candidate branch stands on the public repository, tip-verified, anonymously cloneable, the onboarding entry launching from the anonymous clone; main untouched."
               ],
               "jjgtn_silks": "stage-the-candidate",
-              "jjgtn_basis": "6ca3b66"
+              "jjgtn_basis": "cbe515e"
             }
           ]
         }
