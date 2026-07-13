@@ -527,6 +527,28 @@ warnings were the benign half of the same mechanism); deleted on beast,
 file count then 9 = curia's 9. Replay note: `COPYFILE_DISABLE=1` on the
 macOS side suppresses both.
 
+**Beyond the done-when: beast proven picket-capable.** Operator, at his own
+hand over interactive `ssh beast`: `rbw-gPI` payor install (loopback OAuth
+flow, credentials to `station-files/secrets/payor/rbro.env`) and `rbw-aN`
+sitting novation (device flow, full-window federated token). Agent then ran
+the two credentialed bare fixtures: `credential-readiness` 1/1 (espy +
+federated access + mantle dons, 8s) and `access-probe` 2/2 (payor OAuth
+probe + sitting runway gate, 17s). Both green — the credential arc works
+end-to-end over the Cygwin ssh path.
+
+**Remote-path finding: the device-flow clipboard announcement lies over
+ssh.** `rbw-aN` printed "(code copied to your clipboard)" — the operator's
+clipboard held nothing. The announcement is honest at its own layer
+(`zrba_user_code_clipboard` announces only on `buc_clipboard_copy_predicate`
+exit 0, and `clip.exe` did exit 0), but two boundaries make the success
+invisible: the tool runs on beast while the operator types on the curia
+(ssh forwards no clipboard), and even on beast an sshd session's
+non-interactive window station gives `clip.exe` a clipboard no desktop can
+paste — a false verdict at the window-station boundary. Repair candidate
+(not this pace; itch-or-pace at operator's discretion): gate the
+announcement on `SSH_CONNECTION` — skip or reword when remote. OSC 52 was
+considered and rejected (macOS Terminal.app ignores it).
+
 **Un-versioned residue flagged for disposition (operator's standing
 concern: nothing outside revision control may influence builds).** Found
 this session: the pre-existing `~/.rustup/settings.toml` (§14 — harmless
