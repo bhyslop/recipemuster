@@ -7742,8 +7742,8 @@
         "₢BsAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0834",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260713-1022",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -7789,7 +7789,7 @@
                 "reveille green."
               ],
               "jjgtn_silks": "delivery-identity-gate",
-              "jjgtn_basis": "6c306b9"
+              "jjgtn_basis": "26aaf46"
             }
           ]
         },
