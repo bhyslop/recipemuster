@@ -6459,12 +6459,13 @@
         "₢BsAAY",
         "₢BsAAK",
         "₢BsAAi",
+        "₢BsAAj",
         "₢BsAAg",
         "₢BsAAU",
         "₢BsAAW",
         "₢BsAAS"
       ],
-      "jjghn_next_pace_seed": "AAj",
+      "jjghn_next_pace_seed": "AAk",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -7734,6 +7735,43 @@
               ],
               "jjgtn_silks": "delivered-context-veil-split",
               "jjgtn_basis": "3505dc0"
+            }
+          ]
+        },
+        "₢BsAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-0821",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Security-gate authoring. A leak that reaches a public repo cannot be recalled, and the completeness of the field classification is the whole product — a miss reads fine and ships.",
+                "",
+                "## Docket",
+                "The delivered tree carries operator identity.",
+                "Marshal zero blanks only the repo and depot regimes;",
+                "the payor and workforce regimes, the active foedus's federation regime, one vessel's graft image, the fdkyclk scaffolding scripts, and the RBPC freehold subject all ride out with live values.",
+                "Found 260713 against the cut candidate in the superseded proof clone; nothing ever left the machine — upstream carries only main.",
+                "Discovery recipe: read what marshal zero mutates in `Tools/rbk/rblm_cli.sh`, then sweep the shipping set for site-identity shapes (GCP org, billing account, OAuth client id, IdP tenant, bare GUID).",
+                "",
+                "Build a transform, a proof, and the guard that keeps the proof honest.",
+                "The transform is a release-only marshal verb that sterilizes the installation-scoped fields inside the ceremony's clone — a separate verb rather than an extension of marshal zero, so the gauntlet's standing payor identity is never disturbed — withheld from delivery alongside the other marshal tabtargets.",
+                "The proof is a theurge fixture belonging to no suite, invoked by name from the ceremony post-strip, asserting that every site-scoped field holds blank-or-placeholder and sweeping the shipping tree for site-identity shapes; the shape sweep is what reaches the leaks that are not regime fields at all, which no field-driven check can see.",
+                "The guard is a reveille-tier case asserting that every enrolled field of the delivered regimes is classified site-scoped or neutral, so a newly enrolled field goes red until someone classifies it.",
+                "Without the guard the sweep is a net with a fixed mesh; with it, the mesh is forced to keep up with the tree.",
+                "",
+                "Then amend the release ceremony to call the verb and run the fixture, and strike the false claim in its surviving-files list that marshal zero blanks the payor and workforce regimes — that unearned assurance is why this went unseen.",
+                "",
+                "## Cinched",
+                "Sterilization blanks or placeholders in place; re-homing the RBPC freehold subject out of shipped source into station config is out of scope here (itch).",
+                "Fields enrolling with a minimum length take a shape-valid placeholder, never a blank.",
+                "Mint the verb, its colophon, and the fixture name under the minting discipline.",
+                "",
+                "## Done when",
+                "The verb sterilizes a clone; the fixture bites — red on today's tree, green on a sterilized one; the reveille guard is green and goes red when a field is left unclassified; the ceremony calls both; reveille green."
+              ],
+              "jjgtn_silks": "delivery-identity-gate",
+              "jjgtn_basis": "6add1e7"
             }
           ]
         }
