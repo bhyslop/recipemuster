@@ -3698,9 +3698,124 @@
       "jjghn_silks": "rbk-12-repot-private-repo",
       "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢B1AAA",
+        "₢B1AAB",
+        "₢B1AAC",
+        "₢B1AAD"
+      ],
+      "jjghn_next_pace_seed": "AAE",
+      "jjghn_paces": {
+        "₢B1AAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2209",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Docket",
+                "",
+                "Found the successor private repo per the paddock cinches:",
+                "create a new independent private GitHub repo (duplicate, never fork);",
+                "clone the released public main and push it as the successor's root;",
+                "land the veiled overlay as a reviewable commit series — the delivery strip's Step 10 lists run in reverse, taken from the old repo's tip;",
+                "configure remotes (origin at the successor, OPEN_SOURCE_UPSTREAM at the public repo);",
+                "verify: the successor's tip tree minus the overlay equals the release tree (hash check), and a fresh clone builds and runs reveille green.",
+                "",
+                "## Done when",
+                "",
+                "Successor repo standing, overlay landed, remotes configured, tree-hash check and reveille green from a fresh clone.",
+                "",
+                "## Character",
+                "",
+                "Deliberate mechanical founding; operator-present for repo creation and the overlay review."
+              ],
+              "jjgtn_silks": "found-successor-repo",
+              "jjgtn_basis": "f3aeca4"
+            }
+          ]
+        },
+        "₢B1AAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2209",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Docket",
+                "",
+                "Stitch the old repo's history onto the successor via git replace, per the paddock cinch:",
+                "fetch the archived repo's main into refs/archive/old-main;",
+                "git replace --graft the successor's founding commit onto it;",
+                "prove it with a real cross-boundary blame and a log --follow on a long-lived file;",
+                "push refs/archive/* and refs/replace/* to the successor so stations opt in with one fetch;",
+                "home the recipe durably (a short memo or the successor's CLAUDE.md — wherever a future session looks first), including the undo (git replace -d) and the note that replace refs never propagate on normal clone.",
+                "",
+                "## Done when",
+                "",
+                "Graft proven by a real blame traversal; refs pushed; recipe homed with opt-in and undo steps.",
+                "",
+                "## Character",
+                "",
+                "Small, precise git surgery with a proof; single session."
+              ],
+              "jjgtn_silks": "ancestry-graft-recipe",
+              "jjgtn_basis": "f3aeca4"
+            }
+          ]
+        },
+        "₢B1AAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2209",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Docket",
+                "",
+                "Re-point every station clone at the successor:",
+                "enumerate the fan-out (rocket WSL and Cygwin accounts, beast, cerebro, the operator's local clones — the test-environments registry in the veiled JJK context file is the roster);",
+                "re-clone or re-point each, carrying station-local state (station files, secrets siblings) per the beast-standup memo's replay discipline;",
+                "prove each station with the cheapest suite it serves (reveille where credless suffices);",
+                "record any station whose provisioning memo drifted.",
+                "",
+                "## Done when",
+                "",
+                "Every registered station clones from and pushes to the successor; each proven by a suite run; provisioning-memo drift recorded.",
+                "",
+                "## Character",
+                "",
+                "Mechanical fan-out with per-station verification; can spread across sessions."
+              ],
+              "jjgtn_silks": "repoint-stations",
+              "jjgtn_basis": "f3aeca4"
+            }
+          ]
+        },
+        "₢B1AAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2209",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Docket",
+                "",
+                "Close the old repo's active life:",
+                "confirm nothing in flight references it as origin (stations re-pointed, no unpushed branches worth saving — sweep the branch list against the branch-naming ledger);",
+                "flag it archived (read-only) on GitHub;",
+                "write the closing memo: what it was, where the successor lives, how the ancestry graft reaches its history.",
+                "",
+                "## Done when",
+                "",
+                "Old repo archived read-only; closing memo written; successor named as the sole active private repo.",
+                "",
+                "## Character",
+                "",
+                "Short ceremony; operator-present for the archive flag."
+              ],
+              "jjgtn_silks": "archive-old-repo",
+              "jjgtn_basis": "f3aeca4"
+            }
+          ]
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
