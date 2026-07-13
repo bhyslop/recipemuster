@@ -486,3 +486,38 @@ concern (absolute native→posix conversion) and were correctly left alone.
 Third reveille on beast (inline-fix tree): **13 fixtures, 145 passed, 0
 failed, 0 skipped** — count-identical to rocket-WSL's verdict. A final run
 on the refactored tree is the done-when proof.
+
+## 18. Verdict, and the standing residue
+
+**Definitive reveille on the final (helper-refactored) tree: 13 fixtures,
+145 passed, 0 failed, 0 skipped — count-identical to the rocket-WSL
+rebaseline verdict.** All three done-when clauses met: Cygwin ssh as
+`bhyslop` reaches the DD engine (§15), the credless suite runs green over
+that path, and this memo stands.
+
+Tariff observation for when bounds harden: beast breaches four Linux-seeded
+advisory maxes (regime-validation 57s vs 30s, regime-smoke 169s vs 60s,
+dockerfile-hygiene 27s vs 20s, chaining-fact-band 26s vs 20s) — advisory
+only, no verdict effect. Cygwin's fork-heavy bash on a 2015-era 4-core runs
+the tabtarget-dense fixtures ~2-3× the declared ceilings; the declarations
+were seeded exact from a Linux host and carry no cygwin allowance yet.
+
+Secrets: operator piped `station-files/secrets` from the curia over
+`ssh beast` (tar pipe; agent never read content). macOS bsdtar emitted 15
+AppleDouble `._*` companions (9 files + 6 dirs — the LIBARCHIVE.xattr pax
+warnings were the benign half of the same mechanism); deleted on beast,
+file count then 9 = curia's 9. Replay note: `COPYFILE_DISABLE=1` on the
+macOS side suppresses both.
+
+**Un-versioned residue flagged for disposition (operator's standing
+concern: nothing outside revision control may influence builds).** Found
+this session: the pre-existing `~/.rustup/settings.toml` (§14 — harmless
+this time by luck of agreement). Standing un-versioned state beast now
+carries, listed for the record: `~/.rustup` + `~/.cargo` (toolchain,
+rustup-managed), `~/.bashrc` / `~/.bash_profile` (§16, agent-authored),
+`station-files/` (secrets + burs.env, deliberately out-of-repo),
+`C:\INSTALL\*` caches (replay bits), and the DD
+`settings-store.json` + registry `DefaultShell` pair. Disposition is an
+operator conversation, not a pace act; the mimic replay will re-create all
+of it from this memo, which is itself a versioned account of the
+un-versioned state.
