@@ -78,24 +78,31 @@ This clones the working repo to `<target-dir>/<repo-name>`, re-points the clone'
 
 Show the proof output and wait for user acknowledgment.
 
-## Step 5: Marshal zero (in the clone)
+## Step 5: Marshal zero, then lustrate (in the clone)
 
-Run marshal zero on the clone's main branch:
+Two transforms, in this order, on the clone's main branch. Together they return the tree to a state that carries no station of its own.
 
 ```
 tt/rbw-MZ.MarshalZeroes.sh
+tt/rbw-ML.MarshalLustrates.sh
 ```
 
-Marshal zero returns the regime tree to the blank onboarding-start template. It:
+**Marshal zero** returns the regime tree to the blank onboarding-start template. It:
 - Blanks the site-specific `RBRR_RUNTIME_PREFIX` and pre-fills RBRR defaults (DNS server, GCB timeout, min concurrent builds, vessel dir, secrets dir) in `rbrr.env`
 - Blanks depot identity (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`) and pre-fills RBRD defaults (GCP region, GCB machine type) in `rbrd.env`
 - Blanks hallmark pins (`RBRN_SENTRY_HALLMARK`, `RBRN_BOTTLE_HALLMARK`) in every nameplate `rbrn.env`
 - Blanks depot-scoped vessel fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in every `rbrv.env`
 - **Preserves** the Payor OAuth credential (`rbro.env`) — payor-scoped, survives a depot change. No credential files are deleted: the federation era mints short-lived mantle tokens, not RBRA keyfiles.
 
-**Why this must be the clone, and before the candidate cut.** `rbw-MZ` is a source-side tool, withheld from delivery (it is stripped in Step 10); it gates on a clean, pushed, lint-clean, colophon-complete tree, *before* any mutation. A candidate branch is unpushed by construction, so marshal zero can never gate-pass there — that is why it runs here, on the clone's main, before the cut. A fresh clone's `HEAD` equals its `origin/main` snapshot, so the pushed-state gate is satisfied by construction without pushing. Marshal zero then prompts for confirmation (type `zero`) and **auto-commits** the blanked state as a single "Marshal Zero" commit on the clone's main.
+**Marshal zero is not enough, and never was.** It mints the *gauntlet's* entry state, and the gauntlet runs against the operator's live payor — so zero deliberately leaves the payor's own identity standing. What zero does not touch, and what therefore rode into every candidate before 2026-07-13: the payor regime (`rbrp.env` — project, billing account, OAuth client id, operator email), the workforce regime (`rbrw.env` — GCP org id, workforce pool id), the active foedus's federation regime (`rbrf.env` — IdP tenant, IdP client id, both device/token endpoints), one vessel's `RBRV_GRAFT_IMAGE`, and the freehold subject in `rbpc_constants.sh` (the operator's Entra `oid`, which the build also projects into generated Rust).
 
-Show `git log -1 --stat` to confirm the marshal-zero commit, then wait for user acknowledgment.
+**Lustration** is the transform that erases those. It reads the **proscription** in `Tools/rbk/rblm_lustrate.sh` — the one table that judges every enrolled regime field either *site-scoped* (this station's) or *common* (the same at every installation) — and writes the sanctioned sterile value over every site-scoped home. It prompts for confirmation (type `lustrate`) and **auto-commits**. It is withheld from delivery alongside the other marshal tabtargets (Step 10c).
+
+Lustration also sets `RBRR_PUBLIC_DOCS_URL` to the delivery base, because that field is site-scoped like any other: today it points at the maintainer's development repo, and the delivered tree must point consumers at the public home. The value is recorded in the proscription, not typed by hand here, and Step 12's damnatio run proves it landed.
+
+**Run zero BEFORE lustrate.** `rbw-MZ` gates on a clean, pushed, lint-clean, colophon-complete tree *before* any mutation, and its own auto-commit leaves `HEAD` unpushed — so lustration must follow it, never precede it. A candidate branch is unpushed by construction, which is why both run here, on the clone's main, before the cut: a fresh clone's `HEAD` equals its `origin/main` snapshot, so zero's pushed-state gate is satisfied without pushing anything.
+
+Show `git log -2 --stat` to confirm both commits, then wait for user acknowledgment.
 
 ## Step 6: Fetch upstream state
 
@@ -125,7 +132,7 @@ Wait for user approval of the branch name.
 
 Wait for user acknowledgment.
 
-## Step 9: Extract consumer templates and set the delivery docs URL
+## Step 9: Extract consumer templates
 
 The consumer `CLAUDE.md` template lives in `vov_veiled/`, which will be stripped in Step 10. Extract it now. `README.md` is tracked directly at the repo root (consumer-facing) and needs no extraction.
 
@@ -135,21 +142,9 @@ cp Tools/rbk/vov_veiled/CLAUDE.consumer.md CLAUDE.md
 
 Note: `CLAUDE.md` is overwritten (replacing the development version).
 
-**Set the delivery docs URL.** The working repo's `RBRR_PUBLIC_DOCS_URL` points at the maintainer's development repo; the delivered tree must point consumers at the public home instead. Marshal zero deliberately passes this field through untouched, so this ceremony step is the only place the delivery value lands. The recorded URL base — a delivery decision, revisited only when the public home moves (decided 2026-07-12: the public repo's README blob, because GitHub blob rendering preserves the literal `<a id>` anchors the handbook links resolve, while staging and candidate branches are transient plumbing) — is:
+**The delivery docs URL is no longer set here.** `RBRR_PUBLIC_DOCS_URL` is a site-scoped field like any other, so it is the proscription's business: lustration (Step 5) wrote the recorded delivery base over it, and Step 12's damnatio run proves the value landed. A hand-typed URL and a hand-written grep to check it were two places for the same fact to be wrong; there is now one.
 
-```
-https://github.com/scaleinv/recipebottle/blob/main/README.md
-```
-
-Edit `rbmm_moorings/rbrr.env` so the field reads exactly:
-
-```
-RBRR_PUBLIC_DOCS_URL="https://github.com/scaleinv/recipebottle/blob/main/README.md"
-```
-
-(Step 10f's `git add -u` stages this edit along with the other tracked changes.)
-
-Show the user what was copied and the URL diff. Wait for acknowledgment.
+Show the user what was copied. Wait for acknowledgment.
 
 ## Step 10: Strip proprietary content
 
@@ -237,7 +232,11 @@ git rm -f --ignore-unmatch Tools/cccr.env
 git rm -f --ignore-unmatch Tools/crgr.render.sh
 git rm -f --ignore-unmatch Tools/crgv.validate.sh
 git rm -f --ignore-unmatch Tools/xxx_rbn.info.sh
+git rm -f --ignore-unmatch rbmm_moorings/fdkyclk/fdkyclk-proof.sh
+git rm -f --ignore-unmatch rbmm_moorings/fdkyclk/fdkyclk-teardown.sh
 ```
+
+The two `fdkyclk-*.sh` scripts are proof-stage scaffolding, withheld from 2026-07-13. They are not merely un-productized — a consumer **cannot run them**: `fdkyclk-proof.sh` reads the payor secret from `RBRR_SECRETS_DIR`, which never ships, and stands up a *separate* workforce pool (`fdkyclk-test`) precisely because, as its own header says, the real admission verbs assume the single manor pool. The shipped facility (`rbxk_keycloak.sh` behind `rbw-qjK`/`rbw-qjQ`) does the same work through the real verbs and never touches the payor credential. They also hardcode the operator's GCP org id and a depot project id — shapeless values no scanner can catch — so sterilizing them would have meant carrying roster rows for plain shell constants in scaffolding nobody can use. Nothing in the shipping tree references either script.
 
 `RELEASE.md` is the maintainer's release-qualification procedure — it references tooling withheld from delivery (`rbw-MZ`, `rbw-MP`, `/rbk-prep-release`), so it is withheld too (decided 2026-07-12). `.mcp.json` configures the internal `vvx` MCP server (`Tools/vvk/`), which is stripped. `wsl@rocket` is a BURS station regime config for the `wsl@rocket` ssh test host (operator-site-specific: `BURS_USER`/`BURS_TINCTURE`/`BURS_LOG_DIR`), sitting at the repo root — a site-specific config of the same kind as the `rbmn_nodes/`/`rbmu_users/` profiles stripped in 10b, withheld for the same reason.
 
@@ -252,11 +251,11 @@ After all removals, verify with `git ls-files` that no proprietary content remai
 ### What should survive after stripping:
 
 - `rbmm_moorings/` — the consumer-config tree (replaces the former `.buk/` + `.rbk/` homes):
-  - `burc.env` and the regime `.env` files (`rbrr.env`, `rbrd.env`, `rbrp.env`, `rbrw.env`) — already blanked by marshal zero in Step 5
-  - `rbmf_foedera/` — the foedus library (holds the federation regime: `rbef_entrada/rbrf.env` and the committed `rbef_keycloak/rbrf.env.template`)
+  - `burc.env` and the regime `.env` files — `rbrr.env` and `rbrd.env` blanked by marshal zero, `rbrp.env` and `rbrw.env` blanked by **lustration** (Step 5). Marshal zero never touched the payor and workforce regimes; the sentence that once claimed it did is why the operator's project, billing account, OAuth client id, org id and pool id rode out unnoticed until 2026-07-13. Do not restore that claim: zero and lustration have different jobs, and only the proscription knows the whole set.
+  - `rbmf_foedera/` — the foedus library (holds the federation regime: `rbef_entrada/rbrf.env`, lustrated, and the committed `rbef_keycloak/rbrf.env.template`, which is synthetic at every installation and ships as authored)
   - `rbml_launchers/` — only `launcher.buw_workbench.sh` and `launcher.rbw_workbench.sh` (the rest stripped in 10d)
   - `rbmv_vessels/` — vessel definitions and README (the former `rbev-vessels/`)
-  - the per-nameplate dirs `ccyolo/ moriah/ nineveh/ pluml/ srjcl/ tadmor/ fdkyclk/` — **all ship**: README documents each as an example crucible with its own anchor, and the onboarding handbooks walk several. `srjcl/workspace/` (the Jupyter sample content) ships with it.
+  - the per-nameplate dirs `ccyolo/ moriah/ nineveh/ pluml/ srjcl/ tadmor/ fdkyclk/` — the directories all ship: README documents each as an example crucible with its own anchor, and the onboarding handbooks walk several. `srjcl/workspace/` (the Jupyter sample content) ships with it. **The exception is inside `fdkyclk/`**: its two proof-stage `.sh` scripts are stripped in 10e (see there). This is a per-file carve-out on purpose — a directory-grain "all ship" is what carried those two scripts, with the operator's org id in them, into every candidate.
 - `Tools/rbk/rbxk_cli.sh` + `rbxk_keycloak.sh`, `tt/rbw-qjK.*` / `rbw-qjQ.*` / `rbw-cC.Charge.fdkyclk.sh` / `rbw-cQ.Quench.fdkyclk.sh`, the `fdkyclk` nameplate + `rbev-bottle-fdkyclk` vessel + `rbef_keycloak` foedus template — the whole Keycloak synthetic-federation test facility **ships** as RB's federation test surface.
 - `CLAUDE.md` — consumer version (copied in Step 9)
 - `README.md` — consumer-facing, tracked directly at the repo root
@@ -307,18 +306,19 @@ Pyx asserts what must hold of the tree we are about to publish: every crate in t
 
 Note what pyx does NOT cover: the known-vulnerability advisory audit. That verdict moves with a live advisory database while the tree stands still, so it cannot be a fixture. It stays here, as a step you own.
 
-**Ceremony link check** — the standing step that makes the candidate's documentation links sound, in two halves:
-
-1. **Anchor sweep** — pyx's README-anchor case (just run, above) proves file-to-file on the candidate tree that every anchor minted in `Tools/rbk/rbyc_common.sh` (the third argument of each `zrbyc_yk` call) is defined in the candidate `README.md` as a literal `<a id="…">`. A green pyx IS this half; no separate command.
-2. **URL base** — every one of those links rides on `RBRR_PUBLIC_DOCS_URL`, which must equal the recorded delivery base from Step 9:
+Then run the **damnatio** fixture — the identity assay — against the candidate tree:
 
 ```
-grep -F 'RBRR_PUBLIC_DOCS_URL="https://github.com/scaleinv/recipebottle/blob/main/README.md"' rbmm_moorings/rbrr.env
+tt/rbw-tf.FixtureRun.sh damnatio
 ```
 
-If the grep misses, Step 9's URL-set step was skipped or mistyped — fix `rbrr.env` and re-stage before committing.
+Where pyx asks whether the tree carries *any* secret, damnatio asks whether it carries *this operator*. Its four cases: a shape sweep for site-identity forms (a UUID bound as a value, a GCP billing-account id, a Google OAuth client id) across every shipping file; an assertion that every site-scoped field named by the proscription holds its sanctioned sterile value, which is the only net that can catch shapeless identity like a workforce pool id or a project id; a completeness check that reads the **live** enrollment rolls, so a regime field enrolled since the last release reddens here until someone judges it site-scoped or common; and an assertion that the strip removed the veiled trees.
 
-**If any check fails, STOP.** A fast-qualification failure means something in the consumer-visible code depends on stripped content. A pyx failure means the candidate is not fit to publish. A link-check failure means consumers would land on the maintainer's private repo. Each is a real finding that must be investigated before proceeding.
+**Damnatio is a member of no suite, and it is red against the maintainer's working tree by construction** — that tree is *supposed* to hold the live configuration. It means one thing, and only in this seat: this stripped, lustrated tree is fit to publish. That is why it is invoked by name here and nowhere else.
+
+**Ceremony link check** — pyx's README-anchor case (run above) proves file-to-file on the candidate tree that every anchor minted in `Tools/rbk/rbyc_common.sh` (the third argument of each `zrbyc_yk` call) is defined in the candidate `README.md` as a literal `<a id="…">`. A green pyx IS this check; no separate command. The URL base those links ride on (`RBRR_PUBLIC_DOCS_URL`) is proven by damnatio's proscribed-value case, which asserts it equals the delivery base recorded in the proscription — the hand-written grep that used to sit here was a second place for that fact to be wrong.
+
+**If any check fails, STOP.** A fast-qualification failure means something in the consumer-visible code depends on stripped content. A pyx failure means the candidate is not fit to publish. A damnatio failure means the candidate carries the maintainer's identity: a leak that reaches a public repo cannot be recalled, so this one is absolute — never wave it through, never "fix it after the push." Each is a real finding that must be investigated before proceeding.
 
 Show the result and wait for user acknowledgment.
 
