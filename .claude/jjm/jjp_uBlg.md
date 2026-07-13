@@ -166,7 +166,7 @@ The richer engagement (the ambient and gate determinations) is scoped to ₣Bj.
 ## Empirical input — the ₣Br mint-census pace (260705)
 
 A full mint census ran by hand in ₣Br's word-picking pace;
-its experience feeds the ₢BgAAF fence walk and is banked here so the fence is drawn against field evidence, not supposition.
+its experience feeds the terminal fence-walk pace and is banked here so the fence is drawn against field evidence, not supposition.
 
 - Frequency fact: the word-surface gate (the grimoire's mint-gate job) fired roughly twenty times;
   the MVP seating validators would have fired once (an eviction proof).
