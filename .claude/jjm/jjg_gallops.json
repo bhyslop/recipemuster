@@ -6372,8 +6372,9 @@
         "₢BdAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260610-1116",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2255",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "Drafted from ₢BbAAM in ₣Bb.",
                 "",
@@ -6392,7 +6393,7 @@
                 "A verdict is recorded for both questions; if the verdict is to mint, the quoin allocation is settled per the CLAUDE.md minting workflow (namespaces, reserved suffixes, terminal exclusivity, asterism fit), leaving the AXLA source edits to a follow-on pace."
               ],
               "jjgtn_silks": "axla-axig-level-taxonomy-mint",
-              "jjgtn_basis": "23d434e"
+              "jjgtn_basis": "f22a8fe"
             }
           ]
         },
