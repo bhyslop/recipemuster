@@ -6255,8 +6255,8 @@
         "₢BcAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1158",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2300",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical rename plus spec registration; word cinched, no design latitude.",
@@ -6285,7 +6285,7 @@
                 "JJS0 carries the two upper-verb rows and the lower-tool quoin."
               ],
               "jjgtn_silks": "apostille-command-rename",
-              "jjgtn_basis": "ecafbe2"
+              "jjgtn_basis": "9d26a5c"
             }
           ]
         },
