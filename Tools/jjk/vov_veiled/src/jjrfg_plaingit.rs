@@ -18,6 +18,7 @@
 //! session."
 
 use crate::jjrfr_farrier::{
+    jjrfr_BilletBirth,
     jjrfr_CombReport,
     jjrfr_ConsignLease,
     jjrfr_Counterfoil,
@@ -67,12 +68,17 @@ const ZJJRFG_OP_STAKE: &str = "stake";
 const ZJJRFG_OP_PLUCK: &str = "pluck";
 const ZJJRFG_OP_SIGHT: &str = "sight";
 const ZJJRFG_OP_BILLET_CREATE: &str = "billet_create";
+const ZJJRFG_OP_BILLET_SEAT: &str = "billet_seat";
+const ZJJRFG_OP_BILLET_DETACH: &str = "billet_detach";
 const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
+const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
+const ZJJRFG_OP_OUTSTRIPPED: &str = "outstripped";
 const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_PRIMARY_ROOT: &str = "primary_root";
 
 struct zjjrfg_GitOutput {
     ok: bool,
+    code: Option<i32>,
     stdout: String,
     stderr: String,
 }
@@ -91,6 +97,7 @@ fn zjjrfg_run_git(root: &Path, args: &[&str]) -> zjjrfg_GitOutput {
         .unwrap_or_else(|e| panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e));
     zjjrfg_GitOutput {
         ok: output.status.success(),
+        code: output.status.code(),
         stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
         stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
     }
@@ -125,9 +132,17 @@ fn zjjrfg_run_git_with_stdin(root: &Path, args: &[&str], stdin_data: &str) -> zj
         .unwrap_or_else(|e| panic!("git wait failed for -C {} {:?}: {}", root.display(), args, e));
     zjjrfg_GitOutput {
         ok: output.status.success(),
+        code: output.status.code(),
         stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
         stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
     }
+}
+
+/// The one composer of a trunk branch's remote-counterpart ref: fully qualified
+/// so a perverse local branch literally named `origin/<trunk>` cannot shadow it
+/// (the enfold contract, farrier sheaf).
+fn zjjrfg_counterpart(trunk: &str) -> String {
+    format!("refs/remotes/{}/{}", ZJJRFG_REMOTE, trunk)
 }
 
 /// Compute a blob's object id for `content` under `root`'s object database.
@@ -442,22 +457,91 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
 }
 
 impl jjrfr_FarrierBillet for jjrfg_PlainGit {
-    fn jjrfr_billet_create(&self, root: &Path, at: &jjrfr_LineOfWork, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
+    fn jjrfr_billet_create(&self, root: &Path, birth: &jjrfr_BilletBirth, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
         let billet_str = billet_root.to_string_lossy().into_owned();
-        // Birth: one canonical form per line-of-work kind, never branching on
-        // whether the name happens to already exist. A branch name collision is
-        // a caller-contract violation, not a case this op tolerates silently —
-        // it surfaces as git's own unclassified failure.
-        let out = match at {
-            jjrfr_LineOfWork::Branch(name) => zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, "-b", name]),
-            jjrfr_LineOfWork::Detached(position) => {
-                zjjrfg_run_git(root, &["worktree", "add", "-q", "--detach", &billet_str, position])
+        // Both birth forms anchor at trunk's remote counterpart, never the
+        // primary's own checkout (jjrfr_BilletBirth's no-exfiltration posture).
+        // One canonical form per birth kind, never branching on whether the
+        // name happens to already exist: a branch-name collision is a
+        // caller-contract violation, not a case this op tolerates silently —
+        // it surfaces as git's own unclassified failure. A missing counterpart
+        // (never gleaned, or no such trunk on the remote) likewise fails loud.
+        let counterpart = zjjrfg_counterpart(trunk);
+        let out = match birth {
+            jjrfr_BilletBirth::Branch(name) => {
+                zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, "-b", name, &counterpart])
+            }
+            jjrfr_BilletBirth::Detached => {
+                zjjrfg_run_git(root, &["worktree", "add", "-q", "--detach", &billet_str, &counterpart])
             }
         };
         if !out.ok {
             zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &out.stderr);
         }
         Ok(())
+    }
+
+    fn jjrfr_billet_seat(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
+        let billet_str = billet_root.to_string_lossy().into_owned();
+        // Seat the existing durable branch as-is: no anchoring, no reset — the
+        // branch carries its own WIP history across chats (dispatch sheaf:
+        // "billets are chat-ephemeral; branches are durable"). Git itself
+        // rejects a branch already checked out in another worktree; that and a
+        // missing branch both fail loud as caller-contract violations (the
+        // spine consults jjrfr_line_exists first).
+        let out = zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, branch]);
+        if !out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_SEAT, root, &out.stderr);
+        }
+        Ok(())
+    }
+
+    fn jjrfr_billet_detach(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
+        let comb = self.jjrfr_comb(billet_root)?;
+        if !comb.jjrfr_is_clean() {
+            return Err(jjrfr_Rejection::jjrfr_new(
+                jjrfr_RejectionKind::DirtyTree,
+                ZJJRFG_OP_BILLET_DETACH,
+                billet_root,
+                "uncommitted changes block re-detaching the billet",
+            ));
+        }
+        let counterpart = zjjrfg_counterpart(trunk);
+        let out = zjjrfg_run_git(billet_root, &["checkout", "-q", "--detach", &counterpart]);
+        if !out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_DETACH, billet_root, &out.stderr);
+        }
+        Ok(())
+    }
+
+    fn jjrfr_line_exists(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection> {
+        let full_ref = format!("refs/heads/{}", branch);
+        let out = zjjrfg_run_git(root, &["show-ref", "--verify", "--quiet", &full_ref]);
+        match out.code {
+            Some(0) => Ok(true),
+            Some(1) => Ok(false),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_LINE_EXISTS, root, &out.stderr),
+        }
+    }
+
+    fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {
+        let counterpart = zjjrfg_counterpart(trunk);
+        // No counterpart known locally → not outstripped: nothing observed can
+        // be ahead, and the staleness warning this feeds must not cry on
+        // ignorance (trait contract).
+        let seen = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", "--quiet", &counterpart]);
+        if !seen.ok {
+            return Ok(false);
+        }
+        // Ancestry, not ahead/behind counts: exit 0 means the counterpart is
+        // already contained in the billet's position, 1 means trunk holds work
+        // the billet lacks. Any other status is an unclassified failure.
+        let out = zjjrfg_run_git(billet_root, &["merge-base", "--is-ancestor", &counterpart, "HEAD"]);
+        match out.code {
+            Some(0) => Ok(false),
+            Some(1) => Ok(true),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.stderr),
+        }
     }
 
     fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
@@ -490,11 +574,10 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             ));
         }
         // The counterpart of the caller-named trunk, never the local ref of that
-        // name: fully qualified so a local branch literally named
-        // `origin/<trunk>` cannot shadow it. Merging the local ref would push
-        // the operator's unpushed trunk work out as billet ancestry at the next
-        // consign (the enfold contract, farrier sheaf).
-        let counterpart = format!("refs/remotes/{}/{}", ZJJRFG_REMOTE, trunk);
+        // name: merging the local ref would push the operator's unpushed trunk
+        // work out as billet ancestry at the next consign (the enfold contract,
+        // farrier sheaf).
+        let counterpart = zjjrfg_counterpart(trunk);
         // Never rebase: a plain merge, fast-forwarding when possible and
         // otherwise recording a real merge commit. A conflict is not one of the
         // taxonomy's rejection kinds — it is not this driver's to resolve

@@ -90,7 +90,8 @@ compare-and-swap primitives composed only by the {jjdb_journal} and the {jjdb_br
 
 [[jjdf_billet]]
 {jjdf_billet}::
-The billet lifecycle ops `billet_create`/`billet_remove`/`enfold`, consumed by the dispatch
+The billet lifecycle ops `billet_create`/`billet_seat`/`billet_detach`/`billet_remove`/
+`enfold`, plus the observations `line_exists` and `outstripped`, consumed by the dispatch
 doors ({jjdd_saddle}, {jjdd_lunge} — dispatch sheaf).
 
 == Op census — method contracts
@@ -217,7 +218,37 @@ sequence (journal sheaf).
 
 `billet_create`::
 Birth a billet: seat an isolated partition — worktree for plain git, full-clone fallback for
-kinds without worktrees — on a named branch, or detached at a named position.
+kinds without worktrees — on a fresh branch, or detached.
+Both birth forms anchor at the trunk branch's remote counterpart, never the primary's own
+checkout: the caller names the trunk, the kind resolves the counterpart itself (the
+`advance`/`enfold` posture), because a birth at the primary's HEAD would carry the operator's
+unpushed trunk work into the billet branch and publish it at the first `consign` — the
+`enfold` no-exfiltration law, applied at birth.
+A branch-name collision fails loud as a caller-contract violation: a durable branch re-seats
+via `billet_seat`, never re-births.
+
+`billet_seat`::
+Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}
+billet-ensure: billets are chat-ephemeral, branches durable (dispatch sheaf), so a reaped
+billet's branch re-seats with its own WIP history, un-anchored and un-reset.
+
+`billet_detach`::
+Re-detach an existing billet at the trunk branch's remote counterpart — groom-billet reuse
+(dispatch sheaf: "a groom billet in reuse re-detaches to trunk tip");
+refuses on dirty.
+
+`line_exists`::
+Whether a named branch exists in the constellation — read-only, network-silent;
+the observation behind the spine's create-or-seat choice at billet ensure.
+
+`outstripped`::
+The staleness probe: does the trunk branch's remote counterpart — its position as of the last
+`glean` — hold work the billet's position lacks?
+A local ancestry check, network-silent, run after any `glean`;
+`sync_state` cannot serve here, since it compares the billet's line against *its own*
+counterpart, never against trunk's.
+Answers false when no counterpart is locally known: nothing observed can be ahead, and the
+staleness warning this probe feeds ({jjdd_refit}, dispatch sheaf) must not cry on ignorance.
 
 `billet_remove`::
 Reap a billet;

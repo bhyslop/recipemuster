@@ -71,9 +71,40 @@ enum Commands {
     #[command(name = "mcp")]
     Mcp,
 
+    /// JJ dispatch spine: plan, board, and launch a session through a door
+    /// (invoked by the jjy_ trampolines via the kit's jjw tabtargets)
+    #[command(name = "jjx_dispatch")]
+    JjxDispatch(DispatchArgs),
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
+}
+
+/// Arguments for jjx_dispatch — the spine's CLI face. The door captures the
+/// operator's invocation directory (cwd elects the clone) before BUK dispatch
+/// self-anchors, and hands it through explicitly.
+#[derive(clap::Args, Debug)]
+struct DispatchArgs {
+    /// Which door: saddle or lunge
+    #[arg(long)]
+    door: String,
+
+    /// Dispatch target: a coronet or firemark (glyphs tolerated)
+    #[arg(long)]
+    target: String,
+
+    /// The operator's invocation directory (captured once at the trampoline)
+    #[arg(long)]
+    cwd: PathBuf,
+
+    /// The kit repo root (source of vvx for the session-scoped MCP config)
+    #[arg(long)]
+    kit_root: PathBuf,
+
+    /// Print the resolved plan and stop before boarding and launch
+    #[arg(long)]
+    dry_run: bool,
 }
 
 /// Arguments for guard command (wraps vvc)
@@ -220,6 +251,7 @@ async fn main() -> ExitCode {
         Some(Commands::VvxFreshen(args)) => run_freshen(args),
         Some(Commands::VvxEmblemProbe) => run_emblem_probe(),
         Some(Commands::Mcp) => run_mcp().await,
+        Some(Commands::JjxDispatch(args)) => run_dispatch(args),
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
             use clap::CommandFactory;
@@ -313,6 +345,33 @@ async fn run_mcp() -> i32 {
     #[cfg(not(feature = "jjk"))]
     {
         vvco_err!(out, "mcp: error: jjk feature not enabled");
+        1
+    }
+}
+
+/// Run the JJ dispatch spine (jjy_ door path)
+fn run_dispatch(args: DispatchArgs) -> i32 {
+    let mut out = vvco_Output::console();
+    #[cfg(feature = "jjk")]
+    {
+        let door = match args.door.as_str() {
+            "saddle" => jjk::jjrds_spine::jjrds_Door::Saddle,
+            "lunge" => jjk::jjrds_spine::jjrds_Door::Lunge,
+            other => {
+                vvco_err!(out, "jjx_dispatch: error: unknown door '{}' — saddle or lunge", other);
+                return 1;
+            }
+        };
+        let (code, text) = jjk::jjrds_spine::jjrds_run(door, &args.target, &args.cwd, &args.kit_root, args.dry_run);
+        if !text.is_empty() {
+            vvco_out!(out, "{}", text.trim_end());
+        }
+        code
+    }
+    #[cfg(not(feature = "jjk"))]
+    {
+        let _ = args;
+        vvco_err!(out, "jjx_dispatch: error: jjk feature not enabled");
         1
     }
 }

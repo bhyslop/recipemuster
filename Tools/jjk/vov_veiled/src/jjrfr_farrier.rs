@@ -239,12 +239,52 @@ pub trait jjrfr_FarrierLock {
     fn jjrfr_sight(&self, root: &Path) -> Result<Option<String>, jjrfr_Rejection>;
 }
 
+/// How a new billet is born (`jjrfr_billet_create`): on a fresh branch, or
+/// detached. Both forms anchor at the trunk branch's remote counterpart — its
+/// position as of the last `jjrfr_glean` — never at the primary's own checkout.
+/// Birthing at the primary's HEAD would carry the operator's unpushed trunk work
+/// into the billet branch, publishing it at the first `jjrfr_consign` — the
+/// `jjrfr_enfold` no-exfiltration posture, applied at birth.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum jjrfr_BilletBirth {
+    Branch(String),
+    Detached,
+}
+
 /// The billet facet (`jjdf_billet`): the partition lifecycle ops, consumed by the
 /// dispatch doors.
 pub trait jjrfr_FarrierBillet {
-    /// Birth a billet: seat an isolated partition on a named branch, or detached
-    /// at a named position.
-    fn jjrfr_billet_create(&self, root: &Path, at: &jjrfr_LineOfWork, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
+    /// Birth a billet: seat an isolated partition on a fresh branch, or detached,
+    /// anchored at the trunk branch's remote counterpart (`jjrfr_BilletBirth`).
+    /// The caller names the trunk; the kind resolves the counterpart itself —
+    /// the `jjrfr_advance`/`jjrfr_enfold` posture. A branch-name collision is a
+    /// caller-contract violation: a durable branch re-seats via
+    /// `jjrfr_billet_seat`, never re-births.
+    fn jjrfr_billet_create(&self, root: &Path, birth: &jjrfr_BilletBirth, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
+
+    /// Seat an existing branch into a fresh partition — the reuse form behind
+    /// the spine's billet-ensure: billets are chat-ephemeral, branches durable
+    /// (dispatch sheaf), so a reaped billet's branch re-seats here on the next
+    /// dispatch rather than re-birthing.
+    fn jjrfr_billet_seat(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
+
+    /// Re-detach an existing billet at the trunk branch's remote counterpart —
+    /// groom-billet reuse (dispatch sheaf entrance spine: "a groom billet in
+    /// reuse re-detaches to trunk tip"). Refuses `DirtyTree` on dirt.
+    fn jjrfr_billet_detach(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
+
+    /// Whether `branch` exists in the constellation — the observation behind the
+    /// spine's create-or-seat choice at billet-ensure. Read-only, network-silent.
+    fn jjrfr_line_exists(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
+
+    /// The staleness probe: is this billet outstripped by trunk — does the trunk
+    /// branch's remote counterpart (as of the last `jjrfr_glean`) hold work the
+    /// billet's position lacks? A local ancestry check, network-silent, run after
+    /// any glean; `jjrfr_sync_state` cannot serve here since it compares the
+    /// billet's line against *its own* counterpart, never against trunk's.
+    /// `false` when no counterpart is known locally: nothing observed can be
+    /// ahead, and the warning this probe feeds must not cry on ignorance.
+    fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// Reap a billet; refuses `DirtyTree` on dirty.
     fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection>;

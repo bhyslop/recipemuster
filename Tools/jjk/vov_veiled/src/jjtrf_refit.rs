@@ -4,8 +4,8 @@
 
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
+    jjrfr_BilletBirth,
     jjrfr_FarrierBillet,
-    jjrfr_LineOfWork,
     jjrfr_RejectionKind,
 };
 use super::jjrrf_refit::{
@@ -76,7 +76,7 @@ fn zjjtrf_billeted_primary(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDir) {
     zjjtrf_git(primary.path(), &["push", "-q", "-u", "origin", ZJJTRF_TRUNK]);
     let billet = zjjtrf_billet_slot(&format!("{}_billet", name));
     jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch(ZJJTRF_BRANCH.to_string()), billet.path())
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch(ZJJTRF_BRANCH.to_string()), billet.path(), ZJJTRF_TRUNK)
         .unwrap();
     (bare, primary, billet)
 }

@@ -34,6 +34,7 @@ pub mod jjrfr_farrier;
 pub mod jjrfg_plaingit;
 pub mod jjrrf_refit;
 pub mod jjrvb_blotter;
+pub mod jjrds_spine;
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
 pub mod jjrcu_curry;
@@ -127,6 +128,9 @@ mod jjtrf_refit;
 
 #[cfg(test)]
 mod jjtvb_blotter;
+
+#[cfg(test)]
+mod jjtds_spine;
 
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};

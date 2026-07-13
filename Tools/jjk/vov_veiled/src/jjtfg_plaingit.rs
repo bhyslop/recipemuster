@@ -10,6 +10,7 @@ use super::jjrfg_plaingit::{
 };
 use super::jjrfr_farrier::{
     jjrfr_break,
+    jjrfr_BilletBirth,
     jjrfr_ConsignLease,
     jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
@@ -618,14 +619,16 @@ fn jjtfg_lock_guard_rejected_acquire_leaves_no_registry_residue() {
 }
 
 #[test]
-fn jjtfg_billet_create_seats_a_new_branch_worktree() {
-    let primary = JjkTestDir::new("jjtfg_billet_create_new_branch_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+fn jjtfg_billet_create_seats_a_new_branch_worktree_at_the_counterpart() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_create_new_branch");
+    let baseline = zjjtfg_git(primary.path(), &["rev-parse", "HEAD"]);
+    // The operator's local trunk moves on without a push: birth must anchor at
+    // the counterpart, never at this unpublished tip (no-exfiltration at birth).
+    zjjtfg_commit_all(primary.path(), "unpushed.txt", "local only", "unpushed trunk work");
     let billet = zjjtfg_billet_slot("jjtfg_billet_create_new_branch_billet");
 
     jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("billet-branch".to_string()), billet.path())
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("billet-branch".to_string()), billet.path(), ZJJTFG_TRUNK)
         .unwrap();
 
     let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
@@ -634,47 +637,133 @@ fn jjtfg_billet_create_seats_a_new_branch_worktree() {
         jjrfr_Seat::Partition { .. } => {}
         other => panic!("expected a partition seat, got {:?}", other),
     }
+    let billet_head = zjjtfg_git(billet.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(billet_head, baseline, "birth must anchor at trunk's counterpart, not the primary's unpushed tip");
 }
 
 #[test]
 #[should_panic(expected = "unclassified git failure")]
 fn jjtfg_billet_create_has_one_canonical_form_and_fails_loud_on_a_name_collision() {
-    let primary = JjkTestDir::new("jjtfg_billet_create_collision_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_create_collision");
     zjjtfg_git(primary.path(), &["branch", "preexisting"]);
     let billet = zjjtfg_billet_slot("jjtfg_billet_create_collision_billet");
 
     let _ = jjrfg_PlainGit.jjrfr_billet_create(
         primary.path(),
-        &jjrfr_LineOfWork::Branch("preexisting".to_string()),
+        &jjrfr_BilletBirth::Branch("preexisting".to_string()),
         billet.path(),
+        ZJJTFG_TRUNK,
     );
 }
 
 #[test]
-fn jjtfg_billet_create_seats_detached_at_a_position() {
-    let primary = JjkTestDir::new("jjtfg_billet_create_detached_primary");
-    zjjtfg_init_local(primary.path());
-    let sha = zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+fn jjtfg_billet_create_seats_detached_at_the_counterpart() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_create_detached");
+    let baseline = zjjtfg_git(primary.path(), &["rev-parse", "HEAD"]);
+    zjjtfg_commit_all(primary.path(), "unpushed.txt", "local only", "unpushed trunk work");
     let billet = zjjtfg_billet_slot("jjtfg_billet_create_detached_billet");
 
     jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Detached(sha.clone()), billet.path())
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
         .unwrap();
 
     let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
-    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(sha));
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(baseline));
+}
+
+#[test]
+fn jjtfg_billet_seat_reseats_a_durable_branch_with_its_history() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_seat");
+    let first = zjjtfg_billet_slot("jjtfg_billet_seat_first");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("durable".to_string()), first.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    let wip = zjjtfg_commit_all(first.path(), "wip.txt", "carried work", "wip on the durable branch");
+    jjrfg_PlainGit.jjrfr_billet_remove(first.path()).unwrap();
+
+    let second = zjjtfg_billet_slot("jjtfg_billet_seat_second");
+    jjrfg_PlainGit.jjrfr_billet_seat(primary.path(), "durable", second.path()).unwrap();
+
+    let head = zjjtfg_git(second.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, wip, "re-seating must carry the branch's WIP history, not re-anchor it");
+    let identity = jjrfg_PlainGit.jjrfr_identify(second.path()).unwrap();
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Branch("durable".to_string()));
+}
+
+#[test]
+fn jjtfg_billet_detach_moves_a_groom_billet_to_the_counterpart() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_detach");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_detach_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    let advanced = zjjtfg_trunk_advances(primary.path(), "b.txt", "moved", "trunk advances");
+    let _ = jjrfg_PlainGit.jjrfr_glean(billet.path());
+
+    jjrfg_PlainGit.jjrfr_billet_detach(billet.path(), ZJJTFG_TRUNK).unwrap();
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(advanced));
+}
+
+#[test]
+fn jjtfg_billet_detach_rejects_dirty_tree() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_detach_dirty");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_detach_dirty_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
+
+    let result = jjrfg_PlainGit.jjrfr_billet_detach(billet.path(), ZJJTFG_TRUNK);
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
+}
+
+#[test]
+fn jjtfg_line_exists_answers_both_ways() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_line_exists");
+    zjjtfg_git(primary.path(), &["branch", "a-real-line"]);
+
+    assert!(jjrfg_PlainGit.jjrfr_line_exists(primary.path(), "a-real-line").unwrap());
+    assert!(!jjrfg_PlainGit.jjrfr_line_exists(primary.path(), "no-such-line").unwrap());
+}
+
+#[test]
+fn jjtfg_outstripped_is_false_while_the_billet_holds_the_counterpart_tip() {
+    let (_bare, _primary, billet) = zjjtfg_billeted_with_remote("jjtfg_outstripped_current");
+
+    assert!(!jjrfg_PlainGit.jjrfr_outstripped(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
+fn jjtfg_outstripped_is_true_after_a_glean_reveals_trunk_moved() {
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_outstripped_moved");
+    zjjtfg_trunk_advances(primary.path(), "b.txt", "moved", "trunk advances");
+    // Fetch-revealed: before the glean the billet cannot know; after it, it must.
+    assert!(!jjrfg_PlainGit.jjrfr_outstripped(billet.path(), ZJJTFG_TRUNK).unwrap());
+    let _ = jjrfg_PlainGit.jjrfr_glean(billet.path());
+
+    assert!(jjrfg_PlainGit.jjrfr_outstripped(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
+fn jjtfg_outstripped_is_false_when_no_counterpart_is_known() {
+    // A remote-less repo has no counterpart to be behind — the probe must not
+    // cry on ignorance.
+    let td = JjkTestDir::new("jjtfg_outstripped_no_counterpart");
+    zjjtfg_init_local(td.path());
+    zjjtfg_commit_all(td.path(), "a.txt", "hello", "init");
+
+    assert!(!jjrfg_PlainGit.jjrfr_outstripped(td.path(), ZJJTFG_TRUNK).unwrap());
 }
 
 #[test]
 fn jjtfg_billet_remove_reaps_a_clean_billet() {
-    let primary = JjkTestDir::new("jjtfg_billet_remove_clean_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_remove_clean");
     let billet = zjjtfg_billet_slot("jjtfg_billet_remove_clean_billet");
     jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("removable".to_string()), billet.path())
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("removable".to_string()), billet.path(), ZJJTFG_TRUNK)
         .unwrap();
 
     jjrfg_PlainGit.jjrfr_billet_remove(billet.path()).unwrap();
@@ -686,12 +775,10 @@ fn jjtfg_billet_remove_reaps_a_clean_billet() {
 
 #[test]
 fn jjtfg_billet_remove_rejects_dirty_tree() {
-    let primary = JjkTestDir::new("jjtfg_billet_remove_dirty_primary");
-    zjjtfg_init_local(primary.path());
-    zjjtfg_commit_all(primary.path(), "a.txt", "hello", "init");
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_remove_dirty");
     let billet = zjjtfg_billet_slot("jjtfg_billet_remove_dirty_billet");
     jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_LineOfWork::Branch("dirty-billet".to_string()), billet.path())
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("dirty-billet".to_string()), billet.path(), ZJJTFG_TRUNK)
         .unwrap();
     zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
 
@@ -710,8 +797,9 @@ fn zjjtfg_billeted_with_remote(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDi
     jjrfg_PlainGit
         .jjrfr_billet_create(
             primary.path(),
-            &jjrfr_LineOfWork::Branch(format!("{}-billet", name)),
+            &jjrfr_BilletBirth::Branch(format!("{}-billet", name)),
             billet.path(),
+            ZJJTFG_TRUNK,
         )
         .unwrap();
     (bare, primary, billet)

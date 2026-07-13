@@ -40,6 +40,12 @@ zjjz_kindle() {
   buz_enroll JJZ_FUNDUS_SCENARIO  "jjw-tfs"  "jjfp_cli.sh" "jjfp_scenario"  "imprint" "Run fundus scenario suite"
   buz_enroll JJZ_FUNDUS_SINGLE    "jjw-tfS"  "jjfp_cli.sh" "jjfp_single"    "imprint" "Run single fundus test"
 
+  # Dispatch — the JJ dispatch doors and their installer (jjw-d)
+  buz_group JJZ__GROUP_DISPATCH  "jjw-d"   "Dispatch — JJ session dispatch doors"
+  buz_enroll JJZ_DISPATCH_SADDLE  "jjw-ds"   "jjsl_cli.sh" "jjsl_saddle"    "param1"  "Saddle a pace or heat: billet + launch (via jjy_saddle trampoline)"
+  buz_enroll JJZ_DISPATCH_LUNGE   "jjw-dl"   "jjsl_cli.sh" "jjsl_lunge"     "param1"  "Lunge a heat: groom billet + launch (via jjy_lunge trampoline)"
+  buz_enroll JJZ_DISPATCH_INSTALL "jjw-di"   "jjsl_cli.sh" "jjsl_install"   "param1"  "Install the jjy_ trampolines into an infield directory (idempotent)"
+
   readonly ZJJZ_KINDLED=1
 }
 
