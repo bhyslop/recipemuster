@@ -33,10 +33,13 @@
 // gone. Every corpus root below is therefore existence-tolerant: a root absent
 // from the stripped tree is skipped, not failed.
 //
-// The veil case is the one that reads the tree in two roles at once: it assays
-// the SHIPPING files while harvesting its needle set from the WITHHELD ones. That
-// is why it is a tree-invariant rather than a hand sweep — the maintainer cannot
-// forget to add a newly-withheld document to a list, because there is no list.
+// The veil-leak case that once lived here is evicted to its own fixture, loupe
+// (rbtdrq_loupe.rs): it reads the tree in two roles at once, assaying the
+// SHIPPING files while harvesting its needle set from the WITHHELD ones, and
+// that needs a still-standing veiled tree to mean anything — a stripped-tree
+// re-run would go vacuously green. The scan machinery it reaches (constants,
+// census walk, matcher, self-proof) stays here because zrbtdrq_veil_tree_exists
+// also backs damnatio's strip-landed check.
 //
 // The known-vulnerability advisory audit is deliberately NOT here. Its verdict
 // moves with a live advisory database while the tree stands still, so it is not
@@ -405,7 +408,7 @@ fn zrbtdrq_is_veil_doc(basename: &str) -> bool {
 
 /// Collect the basenames of every withheld document beneath `dir`, descending
 /// into it whole once a veiled tree is entered.
-fn zrbtdrq_census_walk(dir: &Path, inside: bool, out: &mut BTreeSet<String>) {
+pub(crate) fn zrbtdrq_census_walk(dir: &Path, inside: bool, out: &mut BTreeSet<String>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return,
@@ -491,7 +494,7 @@ pub(crate) fn zrbtdrq_veil_scan_text(
 /// The veil matcher's self-proof, run before its live-tree verdict is trusted.
 /// The census it proves against is synthetic, so the proof holds in a tree whose
 /// veiled documents have all been stripped away.
-fn zrbtdrq_veil_self_proof() -> Vec<zrbtdrq_Finding> {
+pub(crate) fn zrbtdrq_veil_self_proof() -> Vec<zrbtdrq_Finding> {
     let mut findings = Vec::new();
     let census: BTreeSet<String> = ["ZZQ-Example.adoc".to_string()].into_iter().collect();
 
@@ -531,85 +534,12 @@ fn zrbtdrq_veil_self_proof() -> Vec<zrbtdrq_Finding> {
     findings
 }
 
-/// No shipping file may name what the distribution withholds — not the veiled
-/// tree by path, and not a withheld document by basename. The census is harvested
-/// from the tree rather than hand-listed, so a document veiled tomorrow is
-/// protected tomorrow, with no table to remember to update.
-///
-/// The census is the maintainer-tree half of the case. In the stripped candidate
-/// the veiled trees are gone, so it is empty by construction and only the
-/// veiled-tree needle runs — which is correct, and is why the census-is-empty
-/// FINDING below fires only when a veiled tree exists and yielded nothing: that
-/// is an extractor that has quietly stopped extracting, the failure mode a
-/// green-on-nothing check hides.
-fn rbtdrq_veil_leak(dir: &Path) -> rbtdre_Verdict {
-    let root = match zrbtdrq_root() {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
-    };
-
-    let mut findings = zrbtdrq_veil_self_proof();
-    let mut inventory = BTreeSet::new();
-
-    for (path, reason) in ZRBTDRQ_VEIL_EXEMPT {
-        inventory.insert(format!("{}\texempt: {}", path, reason));
-    }
-
-    let census_root = root.join(ZRBTDRQ_VEIL_CENSUS_ROOT);
-    let mut census = BTreeSet::new();
-    zrbtdrq_census_walk(&census_root, false, &mut census);
-    if census.is_empty() && zrbtdrq_veil_tree_exists(&census_root) {
-        findings.push(zrbtdrq_Finding {
-            file: ZRBTDRQ_VEIL_CENSUS_ROOT.to_string(),
-            line: 0,
-            detail: "a withheld tree stands but yielded no documents — the census matched nothing"
-                .to_string(),
-        });
-    }
-
-    let mut files = Vec::new();
-    for sub in ZRBTDRQ_VEIL_ROOTS {
-        let path = root.join(sub);
-        if path.is_dir() {
-            zrbtdrq_walk(&path, ZRBTDRQ_VEIL_SKIP_DIRS, &mut files);
-        }
-    }
-
-    // A basename naming BOTH a withheld document and a shipping file is not
-    // evidence of a leak — it is an ambiguity, and reading it as a leak would
-    // redden every honest mention of the shipping file. Drop it from the census.
-    for path in &files {
-        if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
-            census.remove(name);
-        }
-    }
-    for doc in &census {
-        inventory.insert(format!("{}\twithheld document", doc));
-    }
-
-    for sub in ZRBTDRQ_VEIL_FILES {
-        let path = root.join(sub);
-        if path.is_file() {
-            files.push(path);
-        }
-    }
-
-    for path in files {
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, &path);
-        if ZRBTDRQ_VEIL_EXEMPT.iter().any(|(exempt, _)| *exempt == rel) {
-            continue;
-        }
-        inventory.insert(rel.clone());
-        let bytes = match std::fs::read(&path) {
-            Ok(b) => b,
-            Err(_) => continue,
-        };
-        let text = String::from_utf8_lossy(&bytes);
-        zrbtdrq_veil_scan_text(&rel, &text, &census, &mut findings);
-    }
-
-    zrbtdrq_report(dir, "veil", &findings, &inventory, "veil-leak violation(s)")
-}
+// The veil-leak CASE (rbtdrq_veil_leak) lives in rbtdrq_loupe.rs now — evicted
+// into its own source-tree-only fixture so it cannot go vacuously green on the
+// stripped candidate. The scan machinery above (constants, census walk, matcher,
+// self-proof) stays here because zrbtdrq_veil_tree_exists is also damnatio's
+// strip-landed check, and the walker/report/finding types below are pyx's own
+// shared helpers reached from both loupe and damnatio.
 
 // ── README anchor check ─────────────────────────────────────
 
@@ -1151,7 +1081,6 @@ pub static RBTDRQ_CASES_PYX: &[rbtdre_Case] = &[
     case!(rbtdrq_crate_licenses),
     case!(rbtdrq_license_file),
     case!(rbtdrq_secret_shapes),
-    case!(rbtdrq_veil_leak),
     case!(rbtdrq_readme_anchors),
 ];
 

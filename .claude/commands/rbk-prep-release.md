@@ -58,7 +58,7 @@ Run full release qualification in the working repo to verify the complete codeba
 tt/rbw-tr.QualifyRelease.sh
 ```
 
-This runs shellcheck and the `echelon` test suite. Two theurge fixtures in that suite stand in for audits a maintainer once ran by hand: **cupel**, the command-dependency lint statically enforcing BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash; and **pyx**, the release-hygiene assay (crate licenses, root LICENSE, secret shapes, veil leaks, anchor resolution). Pyx runs again post-strip in Step 12 against the candidate tree.
+This runs shellcheck and the `echelon` test suite. Three theurge fixtures in that suite stand in for audits a maintainer once ran by hand: **cupel**, the command-dependency lint statically enforcing BCG's POSIX-floor / declared-dependency / eviction-table discipline across all kit bash; **pyx**, the release-hygiene assay (crate licenses, root LICENSE, secret shapes, anchor resolution); and **loupe**, the veil-leak sweep — no shipping file may name what the distribution withholds, by `vov_veiled` path or by the basename of any withheld `.adoc`/`.md`. Pyx runs again post-strip in Step 12 against the candidate tree. Loupe does not: it harvests its needle set from the veiled trees themselves, so a stripped-tree re-run would find them already gone and prove nothing.
 
 If qualification fails, **STOP**. The full codebase must pass before we proceed.
 
@@ -300,9 +300,9 @@ Then run the **pyx** release-hygiene fixture against the candidate tree:
 tt/rbw-tf.FixtureRun.sh pyx
 ```
 
-Pyx asserts what must hold of the tree we are about to publish: every crate in the shipping lockfile is license-vetted, the root LICENSE stands, no shipping file carries a credential shape, no shipping file names what the distribution withholds (the veil case — by `vov_veiled` path, or by the basename of any withheld `.adoc`/`.md`), and every anchor the handbooks and README link to resolves. It ran green pre-strip inside Step 3's suite; running it again here is what proves the *stripped* tree — a different tree, with different files — is fit to publish.
+Pyx asserts what must hold of the tree we are about to publish: every crate in the shipping lockfile is license-vetted, the root LICENSE stands, no shipping file carries a credential shape, and every anchor the handbooks and README link to resolves. It ran green pre-strip inside Step 3's suite; running it again here is what proves the *stripped* tree — a different tree, with different files — is fit to publish. Its checks are deterministic tree-invariants over committed files: no credentials, no network, seconds to run.
 
-**The veil case's teeth are in the PRE-strip run, not this one.** It harvests its needle set from the veiled trees themselves, which are gone by now — so here it enforces only the `vov_veiled`-path half, against a tree that no longer contains one. Step 3's run is the one that proves the delivered prose names no withheld document. A veil finding there is a release blocker, not a nit. Its checks are deterministic tree-invariants over committed files: no credentials, no network, seconds to run.
+Loupe, the veil-leak sweep, is **not** re-run here — it stays a Step 3 (pre-strip) check only. It harvests its needle set from the veiled trees themselves, which the strip has by now removed; a post-strip run would find an empty census and prove nothing. Step 3's run is the one that proves the delivered prose names no withheld document, and a veil finding there is a release blocker, not a nit.
 
 Note what pyx does NOT cover: the known-vulnerability advisory audit. That verdict moves with a live advisory database while the tree stands still, so it cannot be a fixture. It stays here, as a step you own.
 

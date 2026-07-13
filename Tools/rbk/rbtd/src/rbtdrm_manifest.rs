@@ -167,6 +167,14 @@ pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
 // stripped candidate tree as well as on main.
 pub const RBTDRM_FIXTURE_PYX: &str = "pyx";
 
+// Loupe — the veil-leak case evicted from pyx: no shipping file may name what
+// the distribution withholds, by `vov_veiled` path or by the basename of any
+// withheld document. SOURCE-TREE ONLY — it harvests its needle set from the
+// veiled trees themselves, so unlike pyx's other cases it is never re-run on the
+// stripped candidate, where those trees are gone and the census would be empty
+// by construction. No external dependency.
+pub const RBTDRM_FIXTURE_LOUPE: &str = "loupe";
+
 /// damnatio — the delivered-tree identity assay. A member of no suite: every case
 /// is true only of a stripped, lustrated candidate, so it is red by construction
 /// against the maintainer's working tree. The release ceremony invokes it by name.
@@ -346,6 +354,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CLIPBOARD
         | RBTDRM_FIXTURE_CUPEL
         | RBTDRM_FIXTURE_PYX
+        | RBTDRM_FIXTURE_LOUPE
         | RBTDRM_FIXTURE_DAMNATIO
         | RBTDRM_FIXTURE_CONFORMANCE
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
