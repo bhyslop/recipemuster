@@ -157,7 +157,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-MZ` | MarshalZeroes | — | Zero regime to blank template |
-| `rbw-MP` | MarshalProofs | — | Proof repo for release testing |
+| `rbw-MP` | MarshalProofs | param1 | Proof repo for release testing |
 
 ### Nameplate — Cross-nameplate operations (`rbw-n`)
 
