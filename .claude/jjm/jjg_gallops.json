@@ -7040,8 +7040,9 @@
         "₢BsAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0657",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Nominate the post-release heat and slate its opening paces from the items banked during this heat's grooming:",
                 "the test-infra denormalization arc — almanac recomposition informed by the cost data the fixture-expectation instrumentation accumulated across this heat's runs;",
@@ -7061,7 +7062,7 @@
                 "Grooming and nomination session; operator-present judgment."
               ],
               "jjgtn_silks": "nominate-post-release-heat",
-              "jjgtn_basis": "9358280"
+              "jjgtn_basis": "4d90def"
             }
           ]
         },
