@@ -346,6 +346,12 @@ zrblm_scrub_regime() {
   local z_line=""
   local z_var=""
 
+  # Seed the temp file from the original so it inherits the original's mode, then
+  # truncate it by redirection: a bare `> tmp` on a fresh path would take the
+  # umask's mode instead, and the rename would silently rewrite the delivered
+  # file's permission bits alongside its content.
+  cp -p "${z_file}" "${z_tmp}" || buc_die "Failed to seed temp file for: ${z_file}"
+
   while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
       [A-Z]*=*)
@@ -380,6 +386,8 @@ zrblm_scrub_hardpoint() {
   local -r z_tmp="${z_file}.tmp"
   local z_line=""
   local z_found=0
+
+  cp -p "${z_file}" "${z_tmp}" || buc_die "Failed to seed temp file for: ${z_file}"
 
   while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
