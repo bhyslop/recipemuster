@@ -7268,8 +7268,8 @@
         "₢BrAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-1548",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2154",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7300,7 +7300,7 @@
                 "before the enablement seam flips."
               ],
               "jjgtn_silks": "dispatch-spine-impl",
-              "jjgtn_basis": "bc236ae"
+              "jjgtn_basis": "61c7d75"
             }
           ]
         },
