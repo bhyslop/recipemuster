@@ -43,12 +43,13 @@ with README diagram authoring slotted as fill work while the long runs await;
 then the destructive arc — the gauntlet, the orphan-arm escheat proof riding its churn, the manor raze-and-rebuild walk, the caged-subject admission on the rebuilt substrate, the rbgft test-infra residue, and a closing revalidation of the rebuilt baseline;
 then the cross-platform sweep — the Linux fixture-grain residue on the test station, followed by per-platform paces for macOS, rocket WSL, and rocket Cygwin;
 then the staging arc — the chain-lifetime repair, the real candidate cut on its re-proven baseline, and the candidate integrity probe;
-the residue paces (post-release nomination, premise mint, indeterminacy sheaf) close the heat, with delivery handed to ₣B0.
+the residue paces (premise mint, indeterminacy sheaf, then the post-release nomination on the final residue) close the heat, with delivery handed to ₣B0.
 
 ## Done when
 
 Every fixture the almanac lists in any suite has run green on this baseline —
-the fixture cover is gauntlet + echelon + dogfight + siege + parley, and containment-redundant suite runs are not separately owed;
+the fixture cover is gauntlet + echelon + dogfight + siege + parley, and containment-redundant suite runs are not separately owed
+(the chain-lifetime repair landed after that full cover; per the chain-lifetime cinch it rides the candidate on its re-proven reveille, with the cloud-tier proof delegated to the delivery heat's greenfield gauntlet);
 the manor has been razed and rebuilt via the real verbs with access proven recovered;
 the escheat orphan arm is live-proven;
 the caged subject stands as the second roster citizen;
