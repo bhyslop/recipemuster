@@ -7811,8 +7811,9 @@
         "₢BsAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2144",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2145",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7832,7 +7833,7 @@
                 "A candidate branch stands cut, stripped, fast-qualified, and link-checked, awaiting the operator's manual push."
               ],
               "jjgtn_silks": "candidate-cut-on-rebaseline",
-              "jjgtn_basis": "fd173fe"
+              "jjgtn_basis": "81feab3"
             }
           ]
         },
