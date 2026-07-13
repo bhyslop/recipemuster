@@ -341,6 +341,37 @@ the implementation tail runs at work tier.
   The gap is in the seed the ceremony was handed, never in the ceremony itself —
   a founding writes whatever seed it is given.
 
+## Rehearsal findings (260713, ₢BrAAW against the real remote)
+
+Evidence for the conversion heat's entry gate. Two stations are two clones of the real studbook remote,
+so GitHub itself arbitrates every lock — the in-process guard registry cannot be what refuses.
+
+- SUBSTRATE HOLDS. Real GitHub accepts the whole protocol, which no scratch bare remote could vouch for:
+  the custom `refs/jjv/guidon` namespace (stake pushes a blob there, sight reads it back
+  via ls-remote + fetch + cat-file), and the atomic two-ref consign under `--force-with-lease`.
+  The ordinal bake works on the real store; the genesis lacking its mark costs nothing downstream,
+  since the ordinal derives from history length rather than from the genesis value.
+- THREE CHECKLIST ITEMS PASS: two-station contention (the second station is refused LockHeld
+  off the remote's own compare-and-swap, and its mutate never runs), stale-lock break
+  (the second station reads the crashed holder's guidon, breaks it, and completes its own ceremony),
+  and atomic-push lease failure (a lock broken mid-ceremony refuses the consign with LockBroken
+  and lands NOTHING on the remote — proven twice, once by accident when a harness bug
+  panicked a ceremony mid-flight and the remote tip did not move).
+- DEFECT FOUND, and it is why ₢BrAAf exists: a lease-refused commit strands in the local clone,
+  nothing reconciles it, and the station's next authorized ceremony pushes it onto the shared store.
+  Advance fast-forwards toward the remote tip, so a clone merely *ahead* of the remote is left alone;
+  lodge then stacks on the stranded commit and consign carries both, a clean fast-forward from the
+  remote's side with a lease that passes because the station holds the lock *this* time.
+  Content the lock refused thus arrives under a later, unrelated lock, with nothing recording the refusal.
+  Observed on the real remote, not reasoned about.
+  Second face, same cause: had another station written in between, the clone is both ahead and behind,
+  the fast-forward fails, and the station wedges with a Diverged it has no verb to recover from.
+  Which face you get is pure timing.
+- NO OPERATOR DOOR TO THE BREAK. A crashed writer leaves a stale lock on the shared remote
+  and the break sequence is its only cure, but nothing on the operator's surface calls that sequence.
+  We needed it for real within the hour, and had to reach past the surface to get it.
+  A recovery tool stands in; a door is owed before the store carries live records.
+
 ## Canon workup
 
 How the aspirant sheaves become canon, and what gets minted on the way.
