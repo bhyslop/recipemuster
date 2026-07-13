@@ -8034,8 +8034,9 @@
         "₢BsAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2144",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2145",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Carry out the release: take the candidate the cut pace left standing at the push gate (stripped, fast-qualified, link-checked) through the actual delivery —",
                 "the operator's push to the public repository and the post-push verification the ceremony document prescribes (published-docs URL reachable, delivered tree sane at the remote).",
@@ -8051,7 +8052,7 @@
                 "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "fd173fe"
+              "jjgtn_basis": "6b8ca13"
             }
           ]
         },
