@@ -7741,39 +7741,48 @@
         "₢BsAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0821",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260713-0827",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Security-gate authoring. A leak that reaches a public repo cannot be recalled, and the completeness of the field classification is the whole product — a miss reads fine and ships.",
+                "Security-gate authoring by composition. A leak reaching a public repo cannot be recalled, and the roster's completeness is the whole product — a miss reads fine and ships.",
                 "",
                 "## Docket",
                 "The delivered tree carries operator identity.",
                 "Marshal zero blanks only the repo and depot regimes;",
                 "the payor and workforce regimes, the active foedus's federation regime, one vessel's graft image, the fdkyclk scaffolding scripts, and the RBPC freehold subject all ride out with live values.",
                 "Found 260713 against the cut candidate in the superseded proof clone; nothing ever left the machine — upstream carries only main.",
-                "Discovery recipe: read what marshal zero mutates in `Tools/rbk/rblm_cli.sh`, then sweep the shipping set for site-identity shapes (GCP org, billing account, OAuth client id, IdP tenant, bare GUID).",
+                "Discovery: read what marshal zero mutates in `Tools/rbk/rblm_cli.sh`, then sweep the shipping set for site-identity shapes (GCP org, billing account, OAuth client id, IdP tenant, bare GUID).",
                 "",
-                "Build a transform, a proof, and the guard that keeps the proof honest.",
-                "The transform is a release-only marshal verb that sterilizes the installation-scoped fields inside the ceremony's clone — a separate verb rather than an extension of marshal zero, so the gauntlet's standing payor identity is never disturbed — withheld from delivery alongside the other marshal tabtargets.",
-                "The proof is a theurge fixture belonging to no suite, invoked by name from the ceremony post-strip, asserting that every site-scoped field holds blank-or-placeholder and sweeping the shipping tree for site-identity shapes; the shape sweep is what reaches the leaks that are not regime fields at all, which no field-driven check can see.",
-                "The guard is a reveille-tier case asserting that every enrolled field of the delivered regimes is classified site-scoped or neutral, so a newly enrolled field goes red until someone classifies it.",
-                "Without the guard the sweep is a net with a fixed mesh; with it, the mesh is forced to keep up with the tree.",
+                "Mint one **roster** of the legitimate site-identity homes and give it three consumers, so no identity home can be added without all three following it:",
+                "a release-only marshal verb that sterilizes the roster inside the ceremony's clone — separate from marshal zero, so the gauntlet's standing payor identity is never disturbed — withheld from delivery alongside the other marshal tabtargets;",
+                "a new case in the pyx fixture sweeping the tree for identity shapes with the roster as its exemption set, so identity landing in any unrostered file goes red in reveille;",
+                "and a fixture belonging to no suite, ceremony-invoked post-strip, asserting every rostered field holds blank-or-placeholder.",
+                "",
+                "Compose, do not reinvent.",
+                "Pyx already is the sweep engine — its walker, shape matcher, finding/report types, and exact-path `(path, reason)` exemption doctrine all stand; assemble the self-proof positives from fragments as its matcher self-proof does, because here the needles are real identity and a literal would leak into shipped Rust.",
+                "The value read is the logic in onboarding's vessel-env reader, whose own comment flags it as the embryo of an engine-level getter mirroring the existing config setter.",
+                "",
+                "The shape sweep cannot see shapeless identity; a field-completeness guard covers what it misses — every enrolled field of the delivered regimes must be rostered site-scoped or neutral.",
+                "Derive that field set from the live enrollment rolls in `Tools/buk/buv_validation.sh`, reached as the vessel-regime fixture reaches bash-side regime values — never hand-list it.",
+                "Whether the guard can ride reveille turns on the zero-invocation tariff and credless flag; a Rust text-scan of the enroll calls is the pure alternative. Mount-time call.",
                 "",
                 "Then amend the release ceremony to call the verb and run the fixture, and strike the false claim in its surviving-files list that marshal zero blanks the payor and workforce regimes — that unearned assurance is why this went unseen.",
                 "",
                 "## Cinched",
                 "Sterilization blanks or placeholders in place; re-homing the RBPC freehold subject out of shipped source into station config is out of scope here (itch).",
-                "Fields enrolling with a minimum length take a shape-valid placeholder, never a blank.",
-                "Mint the verb, its colophon, and the fixture name under the minting discipline.",
+                "A field enrolling with a minimum length takes a shape-valid placeholder, never a blank.",
+                "Mint the roster, the verb, its colophon, and the fixture name under the minting discipline.",
                 "",
                 "## Done when",
-                "The verb sterilizes a clone; the fixture bites — red on today's tree, green on a sterilized one; the reveille guard is green and goes red when a field is left unclassified; the ceremony calls both; reveille green."
+                "The verb sterilizes a clone;",
+                "the ceremony fixture bites — red on today's tree, green on a sterilized one;",
+                "the pyx identity case is green with the roster exempt and goes red when identity lands in an unrostered file;",
+                "the field-completeness guard goes red on an unrostered enrolled field;",
+                "the ceremony calls the verb and the fixture; reveille green."
               ],
               "jjgtn_silks": "delivery-identity-gate",
-              "jjgtn_basis": "243de18"
+              "jjgtn_basis": "c2f3978"
             }
           ]
         }
