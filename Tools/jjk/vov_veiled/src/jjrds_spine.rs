@@ -70,13 +70,17 @@ pub const JJRDS_KIND_PLAIN_GIT: &str = "plain-git";
 pub const JJRDS_PEDIGREES_REL_PATH: &str = "pedigrees.json";
 
 /// One pedigree: the per-sire record (`jjdb_pedigree`, JJSVS-studbook.adoc).
-/// Keys on the sire's minted immutable identity; the addresses are kind-owned
-/// mutable attributes a derived upstream key matches against (the registered-
-/// identity indirection: derived key → sire → pedigree).
+/// Keys on the addresses a derived upstream key matches against directly.
+///
+/// The registered-identity indirection (derived key → minted sire id →
+/// pedigree, so an address stays a mutable attribute a repo can change by
+/// moving hosts) is deliberately NOT carried here: no consumer resolves it, so
+/// the field would seed durable committed records with a value nothing sets
+/// meaningfully. It lands as an optional field the day address mobility is
+/// real — a non-breaking add, unlike the removal it would otherwise cost
+/// (operator ruling 260713, superseding the 260709 cinch's key clause).
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct jjrds_Pedigree {
-    #[serde(rename = "jjop_sire")]
-    pub sire: String,
     #[serde(rename = "jjop_kind")]
     pub kind: String,
     #[serde(rename = "jjop_addresses")]

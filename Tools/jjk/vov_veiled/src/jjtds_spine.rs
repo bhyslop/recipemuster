@@ -125,7 +125,6 @@ fn zjjtds_write_pedigrees(studbook_root: &Path, address: &str, kind: &str) {
     std::fs::create_dir_all(studbook_root).unwrap();
     let body = serde_json::json!({
         "jjop_sires": [{
-            "jjop_sire": "sire-under-test",
             "jjop_kind": kind,
             "jjop_addresses": [address],
             "jjop_trunk": ZJJTDS_TRUNK,
@@ -316,7 +315,7 @@ fn jjtds_pedigree_lookup_resolves_kind_checks_and_rejects() {
 
     let pedigree = jjrds_pedigree_lookup(&config, "ssh://example.invalid/repo", JJRDS_KIND_PLAIN_GIT).unwrap();
     assert_eq!(pedigree.trunk, ZJJTDS_TRUNK);
-    assert_eq!(pedigree.sire, "sire-under-test");
+    assert_eq!(pedigree.kind, JJRDS_KIND_PLAIN_GIT);
 
     assert!(matches!(
         jjrds_pedigree_lookup(&config, "ssh://example.invalid/other", JJRDS_KIND_PLAIN_GIT),
