@@ -3836,9 +3836,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢B2AAA",
-        "₢B2AAB"
+        "₢B2AAB",
+        "₢B2AAC"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -3927,6 +3928,41 @@
               ],
               "jjgtn_silks": "readme-revetment-census",
               "jjgtn_basis": "6756d38"
+            }
+          ]
+        },
+        "₢B2AAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1156",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Doc surgery on the release ceremony plus one small verb guard; the ceremony is a safety artifact — precision over cleverness.",
+                "",
+                "## Docket",
+                "Split `.claude/commands/rbk-prep-release.md` at its clone boundary (Step 4/5) into two slash commands:",
+                "a provision half (working repo; ends by creating the clone and printing the exact cd path and the next command's name)",
+                "and a cut half (clone only; marshal zero through final review), each self-sufficient in a fresh session.",
+                "The cut half opens with a tree-identity gate — the clone is recognizable (sibling `station-files/`, candidate dirname shape) —",
+                "and carries the re-cut-never-patch-forward contract; the provision half must not contradict it.",
+                "The split is documentation; the load-bearing guard is mechanical:",
+                "change `rblm_zero`'s confirm word (`Tools/rbk/rblm_cli.sh`) from the constant \"zero\" to a tree-identifying string the operator types back — exact form is mount-time;",
+                "nothing automated types the confirm word (fixtures only assert the zeroed state, and `BURE_CONFIRM=skip` is orthogonal).",
+                "Rename the clone-directory convention to `rbm_candidate_{cut-date}_{try}` so a same-day re-cut gets a distinct directory.",
+                "Keep cross-step references coherent across the two documents, and sweep stale references to the retired command name (grep; `RELEASE.md` is one).",
+                "",
+                "## Cinched",
+                "`rbw-MZ` stays runnable in the working repo — the gauntlet's entry state depends on it (`rbtdrp_attest` names it as remedy); the guard adds friction, never refusal.",
+                "The two command names are minted at mount under CLAUDE.md prefix + Lapidary discipline — slash commands are in the mint universe.",
+                "",
+                "## Done when",
+                "Both commands exist, the old one is gone, and no stale reference to it survives;",
+                "`rblm_zero`'s confirm demands the typed tree identifier;",
+                "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
+              ],
+              "jjgtn_silks": "release-ceremony-clone-boundary-split",
+              "jjgtn_basis": "13b3efd"
             }
           ]
         }
