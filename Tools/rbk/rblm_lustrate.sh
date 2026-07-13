@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM Lustrate - the proscription and the sterilizing transform.
+# RBLM Lustrate - the proscription and the two transforms it drives.
 #
 # The proscription names, for every enrolled regime field and every hardpoint
 # constant, whether the value is the SITE's (this station's cloud, this
@@ -25,9 +25,15 @@
 # ceremony's throwaway clone; the damnatio fixture then proves, on the delivered
 # tree, that nothing site-scoped survived.
 #
-# The proscription is the single home of that judgment. Both the transform below
-# and the fixture read THIS table — the fixture reaches bash for it rather than
+# The proscription is the single home of that judgment. Both transforms below and
+# the fixture read THIS table — the fixture reaches bash for it rather than
 # carrying a second copy in Rust, so the two can never drift.
+#
+# The second transform is FEIGNING: the same site rows, written to a shape-valid
+# stand-in instead of the sterile value, so the lustrated candidate can be made to
+# validate on a throwaway probe branch and run its own reveille from the
+# consumer's seat. Lustration erases the station; feigning invents a false one.
+# One table, two columns, two verbs — the site/common judgment is made once.
 #
 # Deliberately NOT marshal zero. Zero mints the onboarding-start baseline the
 # gauntlet's entry contract reads, and it runs against the operator's working
@@ -63,20 +69,48 @@ RBLM_disposition_common="common"
 RBLM_disposition_offtree="offtree"
 
 ######################################################################
+# The value columns
+#
+# Which of a site row's two values a transform writes. Lustration writes the
+# sterile column, feigning the feigned column.
+
+RBLM_column_sterile="sterile"
+RBLM_column_feigned="feigned"
+
+######################################################################
 # The proscription
 #
-# Rows are SCOPE|VARNAME|DISPOSITION|STERILE_VALUE, one per enrolled regime
-# field. STERILE_VALUE is read only for site rows; an empty one blanks the field
-# to the onboarding-start state, which is what a consumer must fill in anyway.
+# Rows are SCOPE|VARNAME|DISPOSITION|STERILE_VALUE[|FEIGNED_VALUE], one per
+# enrolled regime field. Both value columns are read only for site rows.
 #
-# A NON-EMPTY sterile value is used only where a blank would break the delivered
+# STERILE_VALUE is what lustration writes. An empty one blanks the field to the
+# onboarding-start state, which is what a consumer must fill in anyway. A
+# NON-EMPTY sterile value is used only where a blank would break the delivered
 # tree — never for cosmetics. Today that is RBRR_PUBLIC_DOCS_URL, whose whole
 # purpose is to be a live URL in the consumer's hands.
+#
+# FEIGNED_VALUE is what feigning writes, and the column may be omitted entirely.
+# A lustrated tree cannot VALIDATE: thirteen of the site fields carry format
+# checks a blank cannot satisfy, so the candidate — correctly sterile — cannot
+# run its own test suite. Feigning writes a shape-valid stand-in over each, on a
+# throwaway probe branch, so the ceremony can run the consumer's own reveille in
+# the consumer's own tree. An absent or empty feigned value means "stay sterile":
+# the eight min-length-0 site fields validate blank and need no stand-in, and
+# RBRR_PUBLIC_DOCS_URL must keep the sterile URL it was just given.
+#
+# Every feigned value is deliberately, visibly false — zeros where an id is
+# numeric, the .invalid reserved TLD where a host is wanted, the verb's own name
+# where a word will do. Nothing here may be borrowed from a live station: the
+# whole point of the column is that no agent, blocked by a format check, ever
+# goes looking through the clone's git history for a value that validates.
 #
 # Every field enrolled by Tools/rbk/rbr*_regime.sh must appear here exactly once.
 # The damnatio fixture derives the enrolled set from the LIVE enrollment rolls
 # and reddens on any field this table has not judged — so a newly enrolled field
-# cannot ship undeclared, and this list cannot silently fall behind.
+# cannot ship undeclared, and this list cannot silently fall behind. Damnatio
+# also asserts every site field holds its STERILE value, so a feigned tree can
+# never be mistaken for a candidate: cut one by accident and the identity assay
+# reddens on all thirteen.
 
 # The delivery documentation base. The working repo's RBRR_PUBLIC_DOCS_URL points
 # at the maintainer's development repo; the delivered tree must point consumers at
@@ -94,7 +128,7 @@ RBLM_unset_subject="unset-freehold-subject"
 
 ZRBLM_PROSCRIPTION=(
   # ── RBRR — repo regime ──
-  "RBRR|RBRR_RUNTIME_PREFIX|site|"
+  "RBRR|RBRR_RUNTIME_PREFIX|site||feign-"
   "RBRR|RBRR_VESSEL_DIR|common|"
   "RBRR|RBRR_BOTTLE_WORKSPACE|common|"
   "RBRR|RBRR_DNS_SERVER|common|"
@@ -105,34 +139,34 @@ ZRBLM_PROSCRIPTION=(
   "RBRR|RBRR_ACTIVE_FOEDUS|common|"
 
   # ── RBRD — depot regime ──
-  "RBRD|RBRD_CLOUD_PREFIX|site|"
-  "RBRD|RBRD_DEPOT_MONIKER|site|"
+  "RBRD|RBRD_CLOUD_PREFIX|site||feign-"
+  "RBRD|RBRD_DEPOT_MONIKER|site||feigned"
   "RBRD|RBRD_GCP_REGION|common|"
   "RBRD|RBRD_GCB_MACHINE_TYPE|common|"
 
   # ── RBRP — payor regime ──
-  "RBRP|RBRP_PAYOR_PROJECT_ID|site|"
+  "RBRP|RBRP_PAYOR_PROJECT_ID|site||rbwg-p-000000000000"
   "RBRP|RBRP_BILLING_ACCOUNT_ID|site|"
   "RBRP|RBRP_OAUTH_CLIENT_ID|site|"
   "RBRP|RBRP_OPERATOR_EMAIL|site|"
 
   # ── RBRW — workforce regime ──
-  "RBRW|RBRW_ORG_ID|site|"
-  "RBRW|RBRW_WORKFORCE_POOL_ID|site|"
+  "RBRW|RBRW_ORG_ID|site||000000000000"
+  "RBRW|RBRW_WORKFORCE_POOL_ID|site||feigned-manor"
   "RBRW|RBRW_SESSION_DURATION|common|"
 
   # ── RBRF — federation regime ──
   # The interactive fields name the operator's own IdP tenant and app
   # registration; the programmatic fields name only the caged Keycloak realm the
   # test facility ships, which is synthetic at every installation.
-  "RBRF|RBRF_PROVIDER_ID|site|"
+  "RBRF|RBRF_PROVIDER_ID|site||feigned-foedus"
   "RBRF|RBRF_MECHANISM|common|"
-  "RBRF|RBRF_IDP_ISSUER|site|"
-  "RBRF|RBRF_IDP_CLIENT_ID|site|"
+  "RBRF|RBRF_IDP_ISSUER|site||https://idp.example.invalid/feigned"
+  "RBRF|RBRF_IDP_CLIENT_ID|site||feigned-client"
   "RBRF|RBRF_ATTRIBUTE_MAPPING|common|"
   "RBRF|RBRF_IDP_SCOPE|common|"
-  "RBRF|RBRF_IDP_DEVICE_ENDPOINT|site|"
-  "RBRF|RBRF_IDP_TOKEN_ENDPOINT|site|"
+  "RBRF|RBRF_IDP_DEVICE_ENDPOINT|site||https://idp.example.invalid/devicecode"
+  "RBRF|RBRF_IDP_TOKEN_ENDPOINT|site||https://idp.example.invalid/token"
   "RBRF|RBRF_IDP_JWKS_JSON|common|"
   "RBRF|RBRF_GRANT_ENDPOINT|common|"
   "RBRF|RBRF_ASSERTER_KEY_FILE|common|"
@@ -153,7 +187,7 @@ ZRBLM_PROSCRIPTION=(
   "RBRV|RBRV_DESCRIPTION|common|"
   "RBRV|RBRV_USER|common|"
   "RBRV|RBRV_VESSEL_MODE|common|"
-  "RBRV|RBRV_RELIQUARY|site|"
+  "RBRV|RBRV_RELIQUARY|site||r000000000000"
   "RBRV|RBRV_EGRESS_MODE|common|"
   "RBRV|RBRV_BIND_IMAGE|common|"
   "RBRV|RBRV_BIND_OPTIONAL_DOCKERFILE|common|"
@@ -166,7 +200,7 @@ ZRBLM_PROSCRIPTION=(
   "RBRV|RBRV_IMAGE_2_ANCHOR|site|"
   "RBRV|RBRV_IMAGE_3_ORIGIN|common|"
   "RBRV|RBRV_IMAGE_3_ANCHOR|site|"
-  "RBRV|RBRV_GRAFT_IMAGE|site|"
+  "RBRV|RBRV_GRAFT_IMAGE|site||feigned-graft:feigned"
   "RBRV|RBRV_GRAFT_OPTIONAL_DOCKERFILE|common|"
 
   # ── RBRN — nameplate regime ──
@@ -215,6 +249,9 @@ ZRBLM_HARDPOINTS=(
 # this module and calls these, so the proscription it judges against is the same
 # table lustration writes from.
 
+# Four columns, not five: the fixture judges the DELIVERED tree, which no feigned
+# value ever reaches. The feigned column is the ceremony's alone, so it does not
+# cross this wire and the fixture's parser is untouched by its arrival.
 rblm_emit_proscription() {
   local z_row=""
   local z_rest=""
@@ -229,7 +266,8 @@ rblm_emit_proscription() {
     z_var="${z_rest%%|*}"
     z_rest="${z_rest#*|}"
     z_disposition="${z_rest%%|*}"
-    z_sterile="${z_rest#*|}"
+    z_rest="${z_rest#*|}"
+    z_sterile="${z_rest%%|*}"
     printf '%s\t%s\t%s\t%s\n' "${z_scope}" "${z_var}" "${z_disposition}" "${z_sterile}"
   done
 }
@@ -302,19 +340,27 @@ zrblm_homes_capture() {
   done
 }
 
-# zrblm_sterile_capture SCOPE VARNAME — resolve one field's sterile value.
-# Sets ZRBLM_STERILE and returns 0 when the field is site-scoped in SCOPE;
-# returns 1 otherwise, leaving the caller to pass the line through untouched.
-zrblm_sterile_capture() {
+# zrblm_value_capture SCOPE VARNAME COLUMN — resolve the value one transform
+# writes into one field. Sets ZRBLM_VALUE and returns 0 when the field is
+# site-scoped in SCOPE; returns 1 otherwise, leaving the caller to pass the line
+# through untouched.
+#
+# A feigned column that is absent or empty resolves to the STERILE value, not to a
+# blank: most site fields validate blank and want no stand-in, and the one field
+# with a non-blank sterile value (the docs URL) must keep it.
+zrblm_value_capture() {
   local -r z_scope="${1:-}"
   local -r z_var="${2:-}"
+  local -r z_column="${3:-}"
 
-  ZRBLM_STERILE=""
+  ZRBLM_VALUE=""
 
   local z_row=""
   local z_rest=""
   local z_row_var=""
   local z_row_disposition=""
+  local z_sterile=""
+  local z_feigned=""
 
   for z_row in "${ZRBLM_PROSCRIPTION[@]}"; do
     test "${z_row%%|*}" = "${z_scope}" || continue
@@ -324,23 +370,36 @@ zrblm_sterile_capture() {
     z_rest="${z_rest#*|}"
     z_row_disposition="${z_rest%%|*}"
     test "${z_row_disposition}" = "${RBLM_disposition_site}" || return 1
-    ZRBLM_STERILE="${z_rest#*|}"
+    z_rest="${z_rest#*|}"
+    z_sterile="${z_rest%%|*}"
+    case "${z_rest}" in
+      *"|"*) z_feigned="${z_rest#*|}" ;;
+      *)     z_feigned=""             ;;
+    esac
+
+    case "${z_column}" in
+      "${RBLM_column_sterile}") ZRBLM_VALUE="${z_sterile}"                 ;;
+      "${RBLM_column_feigned}") ZRBLM_VALUE="${z_feigned:-${z_sterile}}"   ;;
+      *) buc_die "zrblm_value_capture: unknown column: ${z_column}"        ;;
+    esac
     return 0
   done
 
   return 1
 }
 
-# zrblm_scrub_regime FILE SCOPE — rewrite every site-scoped field in one regime
-# file to its sterile value. A field the file does not carry is not an error: a
-# bind vessel has no graft image, a conjure vessel no bind image. Comments,
-# blanks and common fields pass through byte-for-byte.
+# zrblm_scrub_regime FILE SCOPE COLUMN — rewrite every site-scoped field in one
+# regime file to the named column's value. A field the file does not carry is not
+# an error: a bind vessel has no graft image, a conjure vessel no bind image.
+# Comments, blanks and common fields pass through byte-for-byte.
 zrblm_scrub_regime() {
   local -r z_file="${1:-}"
   local -r z_scope="${2:-}"
-  test -n "${z_file}"  || buc_die "zrblm_scrub_regime: file required"
-  test -n "${z_scope}" || buc_die "zrblm_scrub_regime: scope required"
-  test -f "${z_file}"  || return 0
+  local -r z_column="${3:-}"
+  test -n "${z_file}"   || buc_die "zrblm_scrub_regime: file required"
+  test -n "${z_scope}"  || buc_die "zrblm_scrub_regime: scope required"
+  test -n "${z_column}" || buc_die "zrblm_scrub_regime: column required"
+  test -f "${z_file}"   || return 0
 
   local -r z_tmp="${z_file}.tmp"
   local z_line=""
@@ -356,8 +415,8 @@ zrblm_scrub_regime() {
     case "${z_line}" in
       [A-Z]*=*)
         z_var="${z_line%%=*}"
-        if zrblm_sterile_capture "${z_scope}" "${z_var}"; then
-          printf '%s\n' "${z_var}=${ZRBLM_STERILE}"
+        if zrblm_value_capture "${z_scope}" "${z_var}" "${z_column}"; then
+          printf '%s\n' "${z_var}=${ZRBLM_VALUE}"
         else
           printf '%s\n' "${z_line}"
         fi
@@ -369,7 +428,7 @@ zrblm_scrub_regime() {
   done < "${z_file}" > "${z_tmp}" || buc_die "Failed to scrub: ${z_file}"
 
   mv "${z_tmp}" "${z_file}" || buc_die "Failed to replace: ${z_file}"
-  buh_line "  Lustrated: ${z_file}"
+  buh_line "  Rewrote (${z_column}): ${z_file}"
 }
 
 # zrblm_scrub_hardpoint PATH VARNAME STERILE — rewrite one source constant.
@@ -414,7 +473,7 @@ rblm_lustrate_apply() {
 
   local z_home=""
   for z_home in "${ZRBLM_HOMES[@]}"; do
-    zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}"
+    zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_sterile}"
   done
 
   local z_row=""
@@ -427,6 +486,22 @@ rblm_lustrate_apply() {
     z_rest="${z_row#*|}"
     z_var="${z_rest%%|*}"
     zrblm_scrub_hardpoint "${z_path}" "${z_var}" "${z_rest#*|}"
+  done
+}
+
+# rblm_feign_apply — write every site-scoped home to its feigned value, across
+# every regime instance the tree carries.
+#
+# The hardpoints are deliberately untouched. The freehold subject's sterile value
+# is already a shape-free placeholder the generated Rust accepts, and no credless
+# fixture reads it — a station that never reaches a cloud needs no subject to be
+# it.
+rblm_feign_apply() {
+  zrblm_homes_capture
+
+  local z_home=""
+  for z_home in "${ZRBLM_HOMES[@]}"; do
+    zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_feigned}"
   done
 }
 

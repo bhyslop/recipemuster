@@ -81,6 +81,7 @@ pub const RBTDGC_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
 pub const RBTDGC_MARSHAL_ZERO: &str = "rbw-MZ";
 pub const RBTDGC_MARSHAL_PROOF: &str = "rbw-MP";
 pub const RBTDGC_MARSHAL_LUSTRATE: &str = "rbw-ML";
+pub const RBTDGC_MARSHAL_FEIGN: &str = "rbw-MF";
 pub const RBTDGC_LIST_NAMEPLATES: &str = "rbw-rnl";
 pub const RBTDGC_SURVEY_NAMEPLATES: &str = "rbw-ni";
 pub const RBTDGC_AUDIT_NAMEPLATES: &str = "rbw-nv";

@@ -69,6 +69,14 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
+    // loupe: the source-tree veil assay — a member of NO SUITE, and damnatio's
+    // mirror. Its census is harvested from the veiled trees, so it holds only of
+    // the tree BEFORE the cut; in a tree with no veiled trees the census is empty
+    // and it is red by construction. The reveille suite SHIPS — the delivered tree
+    // carries the theurge crate and the suite tabtarget — so a reveille membership
+    // would hand every consumer a red fixture asserting the absence of documents
+    // they were never given. The release ceremony invokes it by name pre-strip.
+    // Runnable via FixtureRun.
     &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
     // damnatio: the delivered-tree identity assay — a member of NO SUITE, by
     // construction. Its cases hold only of a stripped, lustrated candidate, so
@@ -129,7 +137,6 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-            &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
@@ -150,7 +157,6 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-            &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_ACCESS_PROBE,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_HALLMARK_LIFECYCLE,
@@ -181,7 +187,6 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-            &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
@@ -205,7 +210,6 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-            &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_ACCESS_PROBE,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_HALLMARK_LIFECYCLE,
@@ -257,7 +261,6 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-            &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
@@ -299,7 +302,6 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-            &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
@@ -420,7 +422,6 @@ pub static RBTDRA_REVEILLE_BASE: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_RECIPE_VALIDATION,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-    &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
     &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,

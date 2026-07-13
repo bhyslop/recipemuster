@@ -26,10 +26,19 @@
 // nothing, and the ceremony recorded that degradation in prose instead of fixing
 // it.
 //
-// Loupe is the fix: a fixture of its own, a reveille member, SOURCE-TREE ONLY.
-// The release ceremony never re-runs it post-strip — there would be nothing left
-// to hold the glass to. Pyx keeps its other four cases, which are honest
+// Loupe is the fix: a fixture of its own, SOURCE-TREE ONLY, a member of no suite,
+// invoked by name pre-strip. Pyx keeps its other four cases, which are honest
 // invariants on both trees.
+//
+// A member of no suite, and damnatio's mirror: loupe assays the tree BEFORE the
+// cut, damnatio the tree after, and each is red in the other's seat. Loupe first
+// landed inside reveille on the reasoning that the ceremony never re-runs it
+// post-strip — true of the ceremony, false of the product. The reveille suite
+// SHIPS: the delivered tree carries the theurge crate and the suite tabtarget, so
+// a consumer's own reveille run IS a post-strip run, and loupe would redden there
+// forever, asserting the absence of documents that consumer was never given.
+// Suite membership and source-tree-only cannot both hold; the by-name invocation
+// is what makes source-tree-only true.
 //
 // The one behavioral change from the case's time inside pyx: an empty census is
 // now a finding UNCONDITIONALLY, not only when a veiled tree happens to still

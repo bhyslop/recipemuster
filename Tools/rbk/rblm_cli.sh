@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM CLI - Lifecycle Marshal operations (zero, proof)
+# RBLM CLI - Lifecycle Marshal operations (zero, lustrate, feign, proof)
 
 set -euo pipefail
 
@@ -278,6 +278,71 @@ rblm_lustrate() {
   buh_e
 
   buc_success "Site identity erased from every proscribed home"
+}
+
+######################################################################
+# Command: feign - Invent a false station so the candidate can validate
+
+rblm_feign() {
+  buc_doc_brief "Feign a station on the probe branch - write shape-valid stand-ins over the lustrated site fields"
+  buc_doc_shown || return 0
+
+  # Branch guard. Feigning writes false-but-valid identity into the regime tree.
+  # On the candidate branch that would be a catastrophe wearing a valid shape, so
+  # the two branches the value must never reach are refused by name: the clone's
+  # main (which lustration just sterilized) and any candidate branch (which is
+  # what gets pushed). The probe branch is a throwaway cut from the candidate and
+  # named nothing in particular, so it is what remains.
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  local -r z_branch_temp="${BURD_TEMP_DIR}/rblm_feign_branch.txt"
+  git rev-parse --abbrev-ref HEAD > "${z_branch_temp}" || buc_die "git rev-parse failed"
+  local -r z_branch=$(<"${z_branch_temp}")
+
+  case "${z_branch}" in
+    main|candidate-*)
+      buc_die "Refusing to feign on '${z_branch}' — feigned values must never ride a branch that ships. Cut a throwaway probe branch from the candidate first."
+      ;;
+  esac
+
+  # Clean-tree gate. Feigning auto-commits, and the commit must carry the seed
+  # alone — the probe branch exists to be the candidate plus exactly this.
+  local -r z_status_temp="${BURD_TEMP_DIR}/rblm_feign_status.txt"
+  git status --porcelain > "${z_status_temp}" || buc_die "git status failed"
+  test ! -s "${z_status_temp}" || buc_die "Working tree not clean — commit or discard before feigning. See: ${z_status_temp}"
+
+  buh_section "Marshal Feign"
+  buh_line "  Branch: ${z_branch}"
+  buh_e
+  buh_line "  Writes a shape-valid stand-in over every site-scoped field the"
+  buh_line "  proscription (Tools/rbk/rblm_lustrate.sh) carries a feigned value"
+  buh_line "  for. A lustrated tree is correctly sterile and therefore cannot"
+  buh_line "  validate; this invents a false station so the candidate can run the"
+  buh_line "  consumer's own reveille from the consumer's own seat."
+  buh_e
+  buh_line "  Every value is visibly false. None is borrowed from a live station."
+  buh_e
+  buh_line "  THIS BRANCH IS A THROWAWAY. It is never pushed, never merged, and"
+  buh_line "  never becomes the candidate. Delete it when the probe is read."
+  buh_e
+  buc_require "Proceed with feigning?" "feign"
+
+  rblm_feign_apply
+  buh_e
+
+  buc_step "Committing feigned state"
+  git add --update || buc_die "Failed to stage feigned files"
+
+  if git diff --cached --quiet; then
+    buh_line "  No changes to commit — already feigned"
+  else
+    git commit -m "Marshal Feign — false station for the consumer-seat probe (throwaway)" || buc_die "Feign commit failed"
+    buh_line "  Feigned state committed"
+  fi
+  buh_e
+
+  buh_line "  Next: run the consumer's credless suite against this tree:"
+  buc_tabtarget "${RBZ_THEURGE_SUITE}" "reveille"
+  buc_success "Station feigned — the candidate can now validate"
 }
 
 ######################################################################
