@@ -3883,14 +3883,12 @@
         "₢B2AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-1147",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260713-1155",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Cartography under judgment — read the homes, map the face, name what contradicts.",
-                "Breadth of reading, not depth of invention; the inventive paces come after and are sized by this one.",
+                "Breadth of reading, not depth of invention; this pace measures the work, it does not begin it.",
                 "",
                 "README is RB's revetment — MCM names a project's public README as the type specimen — but nothing binds it to the veiled codex it dresses,",
                 "and the sheaf that once claimed that role (RBSCO, formerly index.adoc) has drifted to a stale vision narrative while README grew a ~73-entry operations glossary.",
@@ -3899,11 +3897,13 @@
                 "For each README glossary entry and each narrative-spine section, record three things:",
                 "its interior home — one, several, or none;",
                 "its span class; and any content contradiction found while mapping — the day-one wrongness that no later staleness check can ever catch.",
+                "The contradiction count is the load-bearing measurement: it is the evidence for how much mechanical fidelity is actually worth buying.",
                 "",
                 "## Cinched",
                 "- Three span classes, assigned per span, never per section: *extracted* (a tagged gloss transcluded from its home), *attested* (authored prose bound to a home, re-blessed when the home moves), *face-primary* (the face IS the home). A two-mode extract/attest taxonomy is known-incomplete — README carries spans whose only home is the face.",
                 "- Interior means cipher-carrying AND veiled-homed. Names on the distributed surface are not spalls.",
                 "- This pace mints nothing, changes no AXLA doctrine, and picks no engine. It must presume none of them.",
+                "- An `axd_informative` voicing with no verifier behind it is still worth having: it declares which side is law. Alignment-by-discipline is a legitimate option, not a failure state — do not assume the full pipeline is the goal.",
                 "",
                 "## Bearings",
                 "MCM `== Lapidary` → `=== The Revetment`: the four-invariant face law. All four are vocabulary hygiene; none checks that the face says anything true.",
@@ -3913,12 +3913,18 @@
                 "`Tools/rbk/rbtd/src/rbtdrn_conformance.rs` is a live reveille-registered scan engine; the matricula is aspirant and unimplemented.",
                 "",
                 "## Done when",
-                "A committed census document maps every glossary entry and spine section to home, span class, and contradictions found —",
-                "and closes by nominating the follow-on heat and its paces, sized from the census rather than from prior speculation.",
-                "State plainly in that nomination that the implementation does not fit this heat's small-cleanups charter."
+                "A committed census document maps every glossary entry and spine section to home, span class, and contradictions found.",
+                "",
+                "It closes with a **scope recommendation**, argued from the census rather than from prior speculation, choosing between two known cuts:",
+                "",
+                "*Minimal* — a reveille spall gate for the mechanically-checkable face invariants, RBSCO triaged to the narrative spine and voiced honestly, glossary left hand-written in README as the broadside and aligned by discipline. Fits this heat.",
+                "",
+                "*Full* — adds gloss relocation into ~44 operation sheaves, a block-grain AXLA marker so a gloss carries informative standing inside a normative sheaf, the renderer, the attestation and re-bless mechanism, and the minting-workflow change that follows from the broadside becoming a build product. Touches three kits; does not fit this heat's small-cleanups charter, and the recommendation must say so and name the heat it wants.",
+                "",
+                "A third cut, if the census argues for one, is welcome — but it must be argued, not assumed."
               ],
               "jjgtn_silks": "readme-revetment-census",
-              "jjgtn_basis": "b405eb8"
+              "jjgtn_basis": "7d8cbc6"
             }
           ]
         }
