@@ -61,6 +61,9 @@ OpenSSH: client FoD Installed; **Server NotPresent**; `ssh-agent` Disabled.
 
 Cygwin: `C:\cygwin64` exists — cygcheck 3.6.0 (2025-03-18), **159 packages**.
 Missing vs the theurge substrate needs: `jq`, `python3`, `gcc`, all of rust.
+*[Corrected in session two: `gcc` was never a need — rocket, the proven
+reference, has no gcc; rust's windows-gnu toolchain ships its own linker
+(§14). And `python3` is unproven as a station-side need — see §13.]*
 Reference: rocket's proven `cygwin` account has 3.6.9, **190 packages**, rustup
 `stable-x86_64-pc-windows-gnu` rustc 1.95.0 (package list captured for the
 top-up diff). Git-for-Windows 2.49.0 at `c:\git-for-win\`.
@@ -239,3 +242,124 @@ Beast's default ssh shell is **cmd.exe** (as on rocket). Two rules earned here:
    `ssh bhyslop@bhyslop-asrock-beast` from Cygwin. (Two membranes already
    landed make this a proven configuration, not a hope:
    `memo-20260603-windows-docker-desktop-bind-mount.md`.)
+
+## 11. Post-reboot verification (session two begins here)
+
+Operator rebooted beast between sessions. First contact from the curia, all
+over ssh, no console needed:
+
+- `whoami` → `bhyslop-asrock-\bhyslop` — **sshd came up on its own** after
+  reboot (StartupType Automatic from §5 held).
+- `VirtualMachinePlatform` → **Enabled**;
+  `Microsoft-Windows-Subsystem-Linux` → **Enabled** (dism per-feature query,
+  post-reboot).
+- `wsl --status` → `Default Version: 2`, no missing-feature complaint — the
+  WSL2 platform is live. Zero distros, zero Docker state, as designed.
+
+Beast is exactly the substrate step 3 of §10 wants: live WSL2 platform, no
+container runtime, admin ssh trust standing.
+
+## 12. Docker Desktop 4.81.0 install — console, as executed
+
+Operator, at the RDP console (per §7's corollary: DD lifecycle is never
+scripted over ssh):
+
+- Copied `Downloads\Docker Desktop Installer.exe` →
+  `C:\INSTALL\docker\20260712_DockerDesktopInstaller.4p81p0pp232925.exe`
+  (the §5 caching convention: date-stamped, version in the p-encoded suffix;
+  the 4.39 installer renamed to `OLD_DockerDesktopInstaller.4p39p0.exe`) and
+  ran the installer **from the cached copy**, not Downloads.
+- Configuration page: **accepted defaults** — "Use WSL 2 instead of Hyper-V"
+  checked, installed for all users. UAC: yes.
+- Installer finished with **"Close and log out"**; operator logged back in.
+  DD auto-launched on that logon and the onboarding was dismissed with no
+  sign-in.
+
+Verified over ssh afterward:
+
+- Installer bytes at rest: 631,263,152 — byte-identical to the §2 forensic of
+  the 4.81.0 download.
+- `docker version` through the default `desktop-linux` context: **Server
+  Docker Desktop 4.81.0 (232925), Engine 29.6.1 linux/amd64** — the Linux
+  engine serves over the Windows named pipe with no console help.
+- `wsl -l -v`: exactly one distro, `docker-desktop`, Running, version 2 — the
+  no-user-distro cinch holds by construction.
+- `com.docker.service`: Stopped (on-demand privileged helper; normal). All DD
+  processes in the operator's session (SI 3), per the Palisade fact.
+- `%APPDATA%\Docker\settings-store.json`: **`AutoStart: true`** (survives
+  future logons by setting, not luck), `DisplayedOnboarding: true`,
+  `LicenseTermsVersion: 2` (terms accepted).
+- Substrate note for the record: DD 4.81 defaults to the **containerd
+  snapshotter** image store (`UseContainerdSnapshotter: true`) — a difference
+  from rocket's native WSL dockerd (classic overlayfs store). Not adjudicated
+  here; noted so a future image-behavior delta has its cause on file.
+
+## 13. Cygwin upgrade + top-up — unattended over ssh
+
+Reference captured live from both boxes (`cygcheck -cd`): rocket 189 packages
+at 3.6.9, beast 159 at 3.6.0. Diff: beast lacked `binutils`, `cygutils-extra`,
+`desktop-file-utils`, `jq`, the whole `python39` stack, and ~30 dependency
+libs; beast carried harmless interactive extras (vim, zsh, screen, gnupg2…)
+rocket lacks.
+
+**Package policy:** the missing *top-level* names (34) were passed explicitly;
+all `lib*` names were left to dependency resolution — rocket's lib list is a
+frozen snapshot and stale version-suffixed lib names are exactly what an
+unattended `-P` chokes on.
+
+**Python finding (operator asked "are we sure we need python?"):** station-side
+python3 is **not load-bearing** in RB today. Every `python3` reference in
+`Tools/` is (a) cloud-step *content* executed in Google's gcloud builder
+container, (b) in-container execution (`rbob_ifrit_sortie` runs the adjutant
+inside the bottle via `exec`), or (c) theurge's *static scan* of `.py` files —
+no station interpreter invoked. `jq` IS station-load-bearing (41 bash files).
+Python installed anyway to match the proven reference; **the mimic replay is
+the natural place to prove the minimal set by omitting it.**
+
+As executed:
+
+- Fresh `setup-x86_64.exe` fetched on the curia (1,574,328 bytes), staged as
+  `C:\INSTALL\cygwin\20260712_setup-x86_64.exe`. Found in that directory: the
+  original 2025-03 setup binary and a `cygwin.mirrors.hoobly.com` package
+  cache — beast's Cygwin was born from this same convention.
+- Run over ssh (no console): PowerShell `Start-Process -Wait -PassThru` via
+  `-EncodedCommand` (§9 transport rules), arguments
+  `-q --upgrade-also --no-desktop --no-shortcuts --no-startmenu
+  --site https://mirrors.kernel.org/sourceware/cygwin/
+  --local-package-dir C:\INSTALL\cygwin --root C:\cygwin64 -P <34 names>`.
+  Exit code 0. **Cygwin setup is not GUI-bound the way DD is** — quiet mode
+  completes headless over ssh.
+- Result: cygwin **3.6.9** (byte-matches rocket's), 159 → **224 packages**
+  (rocket's 189 + beast's pre-existing extras), `jq 1.8.1`,
+  `python3 3.9.16` both resolve and run from a login shell.
+- Cygwin HOME on beast resolves to the Windows profile
+  (`/cygdrive/c/Users/bhyslop`) — same shape as rocket's `cygwin` account
+  (`/cygdrive/c/Users/cygwin`).
+
+## 14. rustup — windows-gnu, per the three gotchas
+
+Cached bits for the replay: `C:\INSTALL\rust\20260712_rustup-init.sh`
+(29,250 bytes, from sh.rustup.rs) and `20260712_rustup-drive.sh`, a 14-line
+driver encoding the three gotchas of
+`memo-20260517-windows-substrate-landscape-for-theurge.md`:
+no MinGW/gcc; `TMPDIR="$(cygpath -w ~/rust-install-tmp)"`; never pass
+`--default-host` (the sh wrapper injects it).
+
+- Ran `bash -lc "sh …/20260712_rustup-drive.sh"` over ssh:
+  `-y --default-toolchain stable --profile minimal --no-modify-path`.
+- Installer line `setting default host triple to x86_64-pc-windows-gnu`
+  confirmed the auto-detect. Landed **stable 1.97.0** (rocket has 1.95.0 —
+  version skew accepted; stable-current is the policy).
+- **Surprise, FLAGGED for end-of-pace discussion:** rustup warned of a
+  **pre-existing `C:\Users\bhyslop\.rustup\settings.toml`** — residue of some
+  prior rust attempt on this box (no toolchains present, only the settings
+  file). Post-state exactly matches intent (windows-gnu host, minimal profile,
+  single fresh toolchain), so the residue happened to be harmless — but the
+  operator's standing concern applies: **no un-versioned files silently
+  influencing builds.** Disposition to be decided at pace end; a fresh mimic
+  will not see this warning.
+- `.bash_profile` created (none existed), mirroring rocket's verbatim rationale
+  comment: rustup wires only the Windows user PATH, which sshd-spawned login
+  shells don't inherit, so the profile prepends
+  `/cygdrive/c/Users/bhyslop/.cargo/bin`. Verified: fresh `bash -lc` resolves
+  `cargo`/`rustc` 1.97.0.
