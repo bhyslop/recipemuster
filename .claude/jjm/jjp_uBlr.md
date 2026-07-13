@@ -323,6 +323,23 @@ the implementation tail runs at work tier.
   The conversion heat performs its own founding import per JJSAS Founding-and-cutover
   and decides then whether to reuse the standing instance additively or start from a
   recreated-clean remote; today's scratch founding forecloses neither.
+- Pedigree keys on the address, not a minted sire id (260713, operator ruling at the rehearsal pace):
+  `jjop_sire` dropped from the pedigree wire — it had no consumer
+  (lookup scans `jjop_addresses` for the derived key directly),
+  and the registered-identity indirection the 260709 cinch describes was never built.
+  Seeding it would write a meaningless value into durable committed studbook records,
+  where the first real sire becomes indistinguishable from the junk seeded before it.
+  Supersedes only the key clause of the 260709 registered-identity-durability cinch;
+  the scenario that cinch names — a body of work that moves hosts, so its address is mutable — stands,
+  and the field lands the day that scenario is real,
+  as an optional serde-default field (a non-breaking add, unlike the removal it would otherwise cost).
+  Until then the single operator's discipline over the addresses serves.
+- Founding seeds the pedigrees file (260713, found at the rehearsal pace):
+  `jjrds_plan`'s first studbook read is `pedigrees.json`,
+  so a station without it cannot dispatch (the refusal is the fair-faced unrecorded-sire rejection);
+  the ₢BrAAU ceremony seeded only `gallops.json`, one file short of what JJSVS Founding-and-cutover describes.
+  The gap is in the seed the ceremony was handed, never in the ceremony itself —
+  a founding writes whatever seed it is given.
 
 ## Canon workup
 
