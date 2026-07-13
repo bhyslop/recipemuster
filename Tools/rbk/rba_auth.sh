@@ -731,7 +731,7 @@ rba_novate() {
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
     || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
-  buc_step "Novating the sitting — opening a fresh one, extinguishing any standing sitting"
+  buc_step "Novating the sitting — opening a fresh one, extinguishing any preexisting sitting"
   zrba_sitting_open
 }
 
