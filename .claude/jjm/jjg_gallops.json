@@ -3775,8 +3775,9 @@
         "₢B1AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2209",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Docket",
                 "",
@@ -3795,7 +3796,7 @@
                 "Mechanical fan-out with per-station verification; can spread across sessions."
               ],
               "jjgtn_silks": "repoint-stations",
-              "jjgtn_basis": "f3aeca4"
+              "jjgtn_basis": "bdd02ca"
             }
           ]
         },
