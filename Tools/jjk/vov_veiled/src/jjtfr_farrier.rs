@@ -29,15 +29,15 @@ fn jjtfr_rejection_kind_as_str_is_git_free() {
 fn jjtfr_rejection_display_carries_op_repo_detail() {
     let rejection = jjrfr_Rejection::jjrfr_new(
         jjrfr_RejectionKind::Diverged,
-        "advance",
+        "consign",
         PathBuf::from("/tmp/example-repo"),
-        "not possible to fast-forward",
+        "the remote moved under us",
     );
     let rendered = format!("{}", rejection);
-    assert!(rendered.contains("advance"));
+    assert!(rendered.contains("consign"));
     assert!(rendered.contains("diverged"));
     assert!(rendered.contains("/tmp/example-repo"));
-    assert!(rendered.contains("not possible to fast-forward"));
+    assert!(rendered.contains("the remote moved under us"));
 }
 
 #[test]

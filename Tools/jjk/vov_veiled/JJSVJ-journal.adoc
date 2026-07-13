@@ -58,12 +58,26 @@ The bracket:
   a die here leaves a stale lock still flying its {jjdb_guidon} for the {jjdb_break}.
 
 *Equalized under the lock* — a rivet, cited in shipped code by the opaque token `JJr_b52`:
-when `mutate` runs, the local {jjdb_blotter} equals the remote tip the ceremony is authorized
-to consign onto,
-so every commit `lodge` writes takes that authorized tip as its sole parent,
+when `mutate` runs, the local {jjdb_blotter} holds *nothing of its own* —
+it equals the remote tip as of this ceremony's `glean`,
+so every commit `lodge` writes takes a tip the remote itself authored as its sole parent,
 and content the lease refused is *retrenched*, never re-consigned.
 The citation sites are the `advance` implementation and the ceremony's own advance step;
 one `grep JJr_b52` returns this definition and every site it guards.
+
+*As gleaned* is the rivet's exact reach, and the limit is deliberate.
+`glean` precedes `stake` and is opportunistic (step 2), so a station that lands a full
+ceremony between our `glean` and our `stake` leaves us equalized to a tip that is no longer
+the remote's —
+whereupon `mutate` builds on a stale image and `consign` is refused (diverged) under a lock we
+legitimately hold.
+That is a wasted ceremony, never a corruption:
+the refusal is `consign`'s ordinary fast-forward protection, the next ceremony gleans afresh
+and self-heals,
+and the rivet's *retrench* half is untouched by the window —
+a refused commit is local-only, so it is never in the tracking ref this step equalizes to,
+whatever that ref's vintage.
+Closing the window (a re-`glean` after `stake`) is a separate act, weighed on its own.
 
 The rivet is what a fast-forward cannot give.
 A refused ceremony leaves a commit the remote never accepted sitting in the clone (step 5),

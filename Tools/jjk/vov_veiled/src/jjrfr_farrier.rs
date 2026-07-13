@@ -32,8 +32,8 @@ use std::sync::{
 /// kind must be allocated there and named git-free per the vocabulary Palisade —
 /// never invented ad hoc by a kind implementation, and never a catch-all bucket.
 /// A kind is a shared semantic fact — `DirtyTree` means the same thing whether it
-/// surfaces from `jjrfr_billet_reuse` or `jjrfr_billet_reap` — so consumers branch
-/// on kind, never on message text.
+/// surfaces from `jjrfr_billet_detach` or `jjrfr_billet_remove` — so consumers
+/// branch on kind, never on message text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrfr_RejectionKind {
     ForeignGround,
@@ -208,16 +208,13 @@ pub trait jjrfr_FarrierCore {
     /// Equalize the tree's line of work with its remote counterpart's tip, as of
     /// the last `jjrfr_glean` — made *equal to* the tip, never merely moved
     /// toward it: a line holding commits the counterpart does not have is
-    /// retrenched back to it, and they are discarded (`JJr_b52`, journal sheaf).
-    /// The kind resolves the counterpart itself — callers never speak a
-    /// kind-native ref dialect. Never merges toward a remote, never rebases.
-    /// Composed by the journal.
+    /// retrenched back to it (`JJr_b52`). The kind resolves the counterpart
+    /// itself — callers never speak a kind-native ref dialect. Never merges
+    /// toward a remote, never rebases. Composed by the journal.
     ///
-    /// The plain-git kind is total against every local position — ahead, behind,
-    /// diverged, dirty — so its rejection set is empty; `Diverged` is
-    /// `jjrfr_consign`'s alone. The fallible signature stands for a kind that
-    /// must speak a rejection here, and stays a cross-kind contract rather than
-    /// plain git's own totality hardened into the trait.
+    /// A kind may be total here and reject nothing (the fallible signature is the
+    /// trait's, not any one kind's); the rejection set each kind speaks is the op
+    /// census's to state, farrier sheaf.
     fn jjrfr_advance(&self, root: &Path) -> Result<(), jjrfr_Rejection>;
 
     /// Hand `branch` into the remote's custody. `lease` absent selects plain

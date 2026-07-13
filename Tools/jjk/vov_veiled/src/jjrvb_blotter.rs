@@ -219,12 +219,7 @@ where
         );
     }
 
-    // JJr_b52
-    //
-    // Advance: equalize the local blotter with the remote tip, so what mutate
-    // and lodge build on is exactly the tip this ceremony is authorized to
-    // consign onto — and anything a refused ceremony left behind here is
-    // retrenched, never carried forward.
+    // Advance: equalize the local blotter with the gleaned remote tip (JJr_b52).
     farrier.jjrfr_advance(root)?;
 
     // Mutate and lodge: the caller writes its content; we allocate the next

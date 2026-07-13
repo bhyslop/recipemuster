@@ -314,8 +314,8 @@ Founding-and-cutover).
 
 One farrier-wide taxonomy of rejection *kinds*, wrapped in a context layer naming op, repo,
 and detail.
-A kind is a shared semantic fact — dirty-tree means the same thing from `billet_reuse` or
-`billet_reap` — so consumers branch on kind, never on message text.
+A kind is a shared semantic fact — dirty-tree means the same thing from `billet_detach` or
+`billet_remove` — so consumers branch on kind, never on message text.
 Kinds known at MVP: foreign-ground ({jjdf_identify_p} sole failure), dirty-tree, diverged,
 lock-held, lock-broken.
 A new kind must be allocated in this sheaf, and named git-free per the {jjdf_palisade}.

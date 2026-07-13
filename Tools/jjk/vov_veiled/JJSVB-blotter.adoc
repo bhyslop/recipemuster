@@ -115,12 +115,23 @@ Consumers reach a {jjdb_blotter_p} content through the engine's read path, never
 
 A {jjdb_blotter_p} local clone is a *cache of the remote*, never a work tree.
 The remote is the store;
-the clone is one station's disposable copy of it, engine-driven and sole-door
-({jjdk_sole_door}), holding nothing a human authored.
-The {jjdb_journal} equalizes it with the remote tip under the lock before every write
-(`JJr_b52`), so local-only content there is either about to be consigned or was already
-refused — and either way the store, not the clone, is the truth.
-A station may delete and re-clone it at any time with nothing lost.
+the clone is one station's copy of it, engine-driven and sole-door ({jjdk_sole_door}),
+holding nothing a human authored.
+The {jjdb_journal} equalizes it under the lock before every write (`JJr_b52`), so *tracked*
+content there is either about to be consigned or was already refused — and either way the
+store, not the clone, is the truth.
+Nothing tracked in the clone is worth preserving:
+a station may discard and re-clone it whenever it likes, and lose no record.
+
+The cache reading governs *tracked content alone*, and the distinction is load-bearing.
+A clone's untracked space is a reserved tenancy, not residue:
+the {jjdb_studbook} co-locates its per-officium {jjdxo_exchange} and un-graduated record half
+there (studbook sheaf, "Officium exchange and record").
+`advance` neither equalizes that space away nor guards it —
+it is the tenant's, held to the tenant's own contract, and a station discarding its clone
+discards it too.
+So *re-clone loses no record, and is not therefore free*:
+what the store holds always returns; what a tenant was still holding untracked does not.
 
 == Bootstrap config
 

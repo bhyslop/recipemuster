@@ -723,14 +723,16 @@ fn jjtvb_rehearsal_atomic_push_lease_failure() {
     println!("REHEARSAL lease: alpha's consign was refused LockBroken; real remote still at {}", baseline);
 }
 
-/// Rehearsal 3b — the aftermath, on the real remote. This probe once ran as a
-/// finding-recorder and found one: a lease-failed ceremony stranded its commit
+/// Rehearsal 3b — the aftermath, against the real remote. This probe once ran as
+/// a finding-recorder and found one: a lease-failed ceremony stranded its commit
 /// locally, and the station's next authorized ceremony pushed it onto the shared
-/// store, unauthorized. JJr_b52 is the answer that finding bought — advance now
-/// equalizes, so the refused commit is retrenched — and this is that invariant
-/// proved against real GitHub, where the scratch sibling
-/// (`jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony`)
-/// proves it against a local bare repo on every run.
+/// store, unauthorized. JJr_b52 is the answer that finding bought — advance
+/// equalizes, so the refused commit is retrenched — and this probe now asserts
+/// that invariant where the finding was made, against real GitHub rather than a
+/// scratch bare repo. Ignored and env-gated like its rehearsal siblings, so it
+/// does not run in the standing suite; the every-run guard is the scratch sibling
+/// `jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony`. Not
+/// yet re-run against the real remote since the fix landed.
 #[test]
 #[ignore]
 fn jjtvb_rehearsal_stranded_commit_aftermath() {
