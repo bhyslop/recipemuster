@@ -126,6 +126,49 @@ butcfc_elect_express_tcase() {
     || buto_fatal "buf_elect_fact_capture returned '${z_value}' expected 'express-wins'"
 }
 
+butcfc_elect_after_relay_tcase() {
+  buto_trace "buf_elect_fact_capture: relay-then-read — the elect still reads previous/ after buf_relay, and the baton sits forwarded in current/"
+
+  zbutcfc_seed_previous "butcfc_baton" "baton-value"
+
+  buf_relay || buto_fatal "buf_relay failed"
+
+  local z_value
+  z_value=$(buf_elect_fact_capture "" "butcfc_baton") \
+    || buto_fatal "buf_elect_fact_capture failed after a relay"
+  test "${z_value}" = "baton-value" \
+    || buto_fatal "elect after relay returned '${z_value}' expected 'baton-value'"
+
+  # The relay forwarded the baton into current/, ready for the next promotion.
+  test -f "${BURD_OUTPUT_DIR}/butcfc_baton" \
+    || buto_fatal "relay left no forwarded copy in current/"
+  local -r z_fwd=$(<"${BURD_OUTPUT_DIR}/butcfc_baton")
+  test "${z_fwd}" = "baton-value" || buto_fatal "forwarded baton mismatch: '${z_fwd}'"
+}
+
+butcfc_chain_survives_consumption_tcase() {
+  buto_trace "consumption is non-destructive: reads delete nothing — previous/ and the relayed current/ copy both survive repeated reads"
+
+  zbutcfc_seed_previous "butcfc_survive" "immortal"
+
+  buf_relay || buto_fatal "buf_relay failed"
+
+  local z_value
+  z_value=$(buf_read_fact_capture "butcfc_survive") || buto_fatal "first read failed"
+  test "${z_value}" = "immortal" || buto_fatal "first read returned '${z_value}'"
+
+  # A second read succeeds identically — the first read consumed nothing.
+  z_value=$(buf_read_fact_capture "butcfc_survive") || buto_fatal "second read failed"
+  test "${z_value}" = "immortal" || buto_fatal "second read returned '${z_value}'"
+
+  # Both generations still hold the fact: the previous/ source and the
+  # relayed current/ copy that outlives this dispatch.
+  test -f "${BURD_PREVIOUS_DIR}/butcfc_survive" \
+    || buto_fatal "previous/ fact vanished under consumption"
+  local -r z_fwd=$(<"${BURD_OUTPUT_DIR}/butcfc_survive")
+  test "${z_fwd}" = "immortal" || buto_fatal "relayed current/ copy mismatch: '${z_fwd}'"
+}
+
 butcfc_elect_chain_tcase() {
   buto_trace "buf_elect_fact_capture: an empty express value falls back to the chained fact"
 

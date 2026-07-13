@@ -35,10 +35,13 @@ zrbfc_plumb_core() {
   local -r z_express="${1:-}"
   local -r z_mode="${2}"
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
   # the depth-1 chain — so a no-arg plumb immediately after a build inspects the
-  # just-built hallmark. Terminally consumed (RBr_3e7).
+  # just-built hallmark.
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"

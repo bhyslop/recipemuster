@@ -40,6 +40,9 @@ rbrn_drive() {
   buc_doc_param "hallmark"  "Hallmark tag (e.g., k260327172456); optional — absent, falls back to the hallmark a build handed forward through the depth-1 chain"
   buc_doc_shown || return 0
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   test -n "${z_nameplate}" || buc_die "Nameplate required (param1)"
 
   # Map the operator-facing field selector to the RBRN variable. A two-value
@@ -60,8 +63,8 @@ rbrn_drive() {
   test -f "${z_rbrn_file}" || buc_die "Nameplate regime file not found: ${z_rbrn_file}"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, the
-  # value a build (kludge or ordain) handed forward through the depth-1 chain,
-  # terminally consumed (RBr_3e7). No clean-tree gate here (RBr_a52).
+  # value a build (kludge or ordain) handed forward through the depth-1 chain.
+  # No clean-tree gate here (RBr_a52).
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before drive"

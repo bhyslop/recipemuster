@@ -34,6 +34,9 @@ rbfl_anoint() {
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   test -n "${z_vessel}" || buc_die "Vessel required (param1)"
 
   # Resolve and load the vessel; anoint addresses graft-mode vessels only.
@@ -47,8 +50,7 @@ rbfl_anoint() {
   # Read the chained build facts through the shared express-or-chain resolver —
   # anoint carries no express path, so an empty express makes each resolve a pure
   # chain read through the same footing every other fact consumer uses. The
-  # previous dispatch must be a build (kludge or ordain); the chain is terminally
-  # consumed (RBr_3e7).
+  # previous dispatch must be a build (kludge or ordain).
   buc_step "Reading chained build facts"
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") \

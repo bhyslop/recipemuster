@@ -34,9 +34,12 @@ rbfl_yoke() {
   buc_doc_param "touchmark" "Reliquary Lode touchmark (e.g., r260327172456); optional — absent, falls back to the reliquary touchmark a conclave chained forward"
   buc_doc_shown || return 0
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   # Resolve the reliquary touchmark express-or-chain: an express argument wins;
   # absent, fall back to the touchmark a conclave handed forward through the
-  # depth-1 chain, terminally consumed (RBr_3e7).
+  # depth-1 chain.
   local z_stamp=""
   z_stamp=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
     || buc_reject "${BUBC_band_chain}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before yoke"

@@ -11,7 +11,7 @@ posture of a
 But it resolves no chained fact: its subject is an express foedus identity, never a value resolved
 express-or-chain from a prior tabtarget's capture. So it is *not* a
 {rbch_palpate}
-member — it carries none of the depth-1 no-relay machinery, and it rejects into its *own* precision
+member — it carries none of the depth-1 relay-then-read machinery, and it rejects into its *own* precision
 band, never the chaining band that
 {rbch_palpate}
 and

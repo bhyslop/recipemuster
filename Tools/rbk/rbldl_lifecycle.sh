@@ -130,10 +130,12 @@ rbld_augur() {
   buc_doc_param "touchmark" "Lode stamp to inspect (e.g., b260602120000); optional — absent, falls back to the touchmark any capture chained forward"
   buc_doc_shown || return 0
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   # Resolve the touchmark express-or-chain: an express argument wins; absent, fall
   # back to the touchmark any capture handed forward through the depth-1 chain — so
   # a no-arg augur immediately after a capture inspects the just-captured Lode.
-  # Terminally consumed (RBr_3e7).
   local z_touchmark=""
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
     || buc_reject "${BUBC_band_chain}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"

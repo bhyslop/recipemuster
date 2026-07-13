@@ -389,7 +389,7 @@ fn rbtdro_read_vessel_env(
 /// hallmark passed EXPRESS (`field` is the two-value selector `bottle`|`sentry`).
 /// Replaces the former in-process rbtdro_drive_hallmark reimplementation: the
 /// onboarding harness now exercises the same operator verb the cloud path ships,
-/// and the durable-config discipline (no-relay, band-reject) lives in ONE bash home.
+/// and the durable-config discipline (relay-then-read, band-reject) lives in ONE bash home.
 /// The drive does not commit; callers commit via rbtdre_commit_nameplates.
 fn rbtdro_drive_nameplate(
     ctx: &mut rbtdri_Context,

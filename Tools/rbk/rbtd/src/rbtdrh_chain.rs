@@ -49,6 +49,13 @@
 // rejection ONLY: a furnish gap (a CLI that forgot to source buf_fact) exits the
 // same band 105 — command-not-found also trips the `|| buc_reject` — so it is
 // indistinguishable here and is caught instead by the static furnish case below.
+//
+// Every consumer relays-then-reads (RBr_3e7): buf_relay at the top of the verb
+// forwards the baton before any read or failure point, so a fact survives any run
+// of consecutive chain verbs and a failed consumer has already passed the baton to
+// its own retry. The two positive cases at the bottom prove that law across REAL
+// successive dispatches over one shared BURV root — multi-consumer reuse and
+// retry-after-failure.
 
 use std::path::{Path, PathBuf};
 
@@ -116,28 +123,35 @@ const RBTDRH_DRIVE_NAMEPLATE: &str = "tadmor";
 
 // ── Harness ─────────────────────────────────────────────────
 
-/// Stage a temp vessel under `dir`, prepare a BURV root (optionally seeding a
-/// chained touchmark fact into current/, which bud promotes to previous/), then
-/// drive the feoff tabtarget. Returns (exit_code, staged rbrv.env path,
-/// promoted previous/ fact path). The vessel and BURV roots live under the case
-/// temp dir, so feoff's rbrv.env rewrite never reaches tracked config.
-fn rbtdrh_drive_feoff(
+/// Shared feoff driver over a case-shared BURV root (`dir`/burv — successive
+/// calls with one `dir` exercise the REAL cross-dispatch promotion + relay hop).
+/// Stages a vessel named `vessel_name` under `dir` (or deliberately omits it,
+/// passing the nonexistent path anyway — the post-relay failure), optionally
+/// seeds a chained touchmark fact into current/ (which bud promotes to
+/// previous/), then drives the feoff tabtarget. Returns (exit_code, rbrv.env
+/// path). The vessel and BURV roots live under the case temp dir, so feoff's
+/// rbrv.env rewrite never reaches tracked config.
+fn rbtdrh_drive_feoff_shared(
     dir: &Path,
+    vessel_name: &str,
+    stage_vessel: bool,
     seed_chain: Option<&str>,
     express: Option<&str>,
-) -> Result<(i32, PathBuf, PathBuf), String> {
+    label: &str,
+) -> Result<(i32, PathBuf), String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
     let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_FEOFF_BOLE)?;
 
-    let vessel_dir = dir.join("vessel");
-    std::fs::create_dir_all(&vessel_dir).map_err(|e| format!("stage vessel dir: {}", e))?;
+    let vessel_dir = dir.join(vessel_name);
     let rbrv = vessel_dir.join(RBTDGC_RBRV_FILE);
-    std::fs::write(&rbrv, RBTDRH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e))?;
+    if stage_vessel {
+        std::fs::create_dir_all(&vessel_dir).map_err(|e| format!("stage vessel dir: {}", e))?;
+        std::fs::write(&rbrv, RBTDRH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e))?;
+    }
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
     std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
-    let prev_fact = burv.join("previous").join(RBTDRH_FACT_TOUCHMARK);
     match seed_chain {
         Some(touchmark) => {
             // Seed current/; bud's start-of-dispatch promotion moves it to previous/.
@@ -164,9 +178,22 @@ fn rbtdrh_drive_feoff(
     let output = cmd
         .output()
         .map_err(|e| format!("failed to run feoff {}: {}", tt.display(), e))?;
-    let _ = std::fs::write(dir.join("feoff-stdout.txt"), &output.stdout);
-    let _ = std::fs::write(dir.join("feoff-stderr.txt"), &output.stderr);
-    Ok((output.status.code().unwrap_or(-1), rbrv, prev_fact))
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
+    Ok((output.status.code().unwrap_or(-1), rbrv))
+}
+
+/// Single-dispatch feoff drive — the original harness shape the negative and
+/// precedence cases use. Returns (exit_code, staged rbrv.env path, promoted
+/// previous/ fact path).
+fn rbtdrh_drive_feoff(
+    dir: &Path,
+    seed_chain: Option<&str>,
+    express: Option<&str>,
+) -> Result<(i32, PathBuf, PathBuf), String> {
+    let (code, rbrv) = rbtdrh_drive_feoff_shared(dir, "vessel", true, seed_chain, express, "feoff")?;
+    let prev_fact = dir.join("burv").join("previous").join(RBTDRH_FACT_TOUCHMARK);
+    Ok((code, rbrv, prev_fact))
 }
 
 /// Drive the yoke tabtarget with an express touchmark (yoke's folio). Returns
@@ -370,8 +397,8 @@ fn rbtdrh_feoff_good(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrh_feoff_precedence(dir: &Path) -> rbtdre_Verdict {
     // Express bole AND a seeded reliquary chain fact present: express must win
-    // (the chain is never read), so the election succeeds with the bole and the
-    // reliquary touchmark never appears in the rewritten rbrv.env.
+    // (the chain is relayed but never read), so the election succeeds with the
+    // bole and the reliquary touchmark never appears in the rewritten rbrv.env.
     let (code, rbrv, _) =
         match rbtdrh_drive_feoff(dir, Some(RBTDRH_RELIQUARY_TOUCHMARK), Some(RBTDRH_BOLE_TOUCHMARK)) {
             Ok(t) => t,
@@ -400,9 +427,9 @@ fn rbtdrh_feoff_fact_intact(dir: &Path) -> rbtdre_Verdict {
     // The operator's worry, defended: a GOOD (valid) reliquary touchmark sits in
     // previous/ as the chained fact — good, but the wrong kind for feoff. With no
     // express, feoff reads it, the bole gate rejects it with the band, and must
-    // have written NOTHING: the staged rbrv.env and the seeded fact both survive
-    // byte-identical. Rejection precedes any destructive write, and the chain is
-    // terminally consumed (never relayed or mutated).
+    // have written NOTHING durable: the staged rbrv.env and the seeded fact both
+    // survive byte-identical. Rejection precedes any destructive write; the relay
+    // copies the baton forward but never mutates its previous/ source (RBr_3e7).
     let (code, rbrv, prev_fact) =
         match rbtdrh_drive_feoff(dir, Some(RBTDRH_RELIQUARY_TOUCHMARK), None) {
             Ok(t) => t,
@@ -425,8 +452,8 @@ fn rbtdrh_feoff_fact_intact(dir: &Path) -> rbtdre_Verdict {
     let fact_after = std::fs::read_to_string(&prev_fact).unwrap_or_default();
     if fact_after != seeded {
         return rbtdre_Verdict::Fail(format!(
-            "the seeded previous/ fact was mutated under a band reject (chain must be \
-             terminally consumed, never altered): {:?}",
+            "the seeded previous/ fact was mutated under a band reject (the relay \
+             copies, never mutates its previous/ source): {:?}",
             fact_after
         ));
     }
@@ -580,6 +607,94 @@ fn rbtdrh_rekon_no_folio(dir: &Path) -> rbtdre_Verdict {
     }
 }
 
+// ── relay-then-read positive cases ──────────────────────────
+// The chain-lifetime law (RBr_3e7) proven at the bash-verb grain with feoff: two
+// REAL successive dispatches over one shared BURV root, the promotion between
+// them the dispatcher's own. Without the relay at the top of the consumer verb,
+// the second dispatch would find previous/ empty and reject — these cases are
+// the ones the old terminal-consumption law would have failed.
+
+fn rbtdrh_chain_multi_consumer(dir: &Path) -> rbtdre_Verdict {
+    // One seeded bole fact, two consumers in successive dispatches: feoff A
+    // relays then elects; feoff B's dispatch-start promotion finds A's relayed
+    // baton, so B's chain read still elects the same touchmark.
+    let (code_a, rbrv_a) = match rbtdrh_drive_feoff_shared(
+        dir, "vessel-a", true, Some(RBTDRH_BOLE_TOUCHMARK), None, "feoff-a",
+    ) {
+        Ok(t) => t,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    if code_a != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "first consumer (feoff A, chained bole) exited {} — expected 0 (artifacts in {})",
+            code_a, dir.display()
+        ));
+    }
+    let (code_b, rbrv_b) =
+        match rbtdrh_drive_feoff_shared(dir, "vessel-b", true, None, None, "feoff-b") {
+            Ok(t) => t,
+            Err(e) => return rbtdre_Verdict::Fail(e),
+        };
+    if code_b != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "second consumer (feoff B, relay-carried bole) exited {} — expected 0: \
+             the first consumer's relay must keep the fact alive (artifacts in {})",
+            code_b, dir.display()
+        ));
+    }
+    let expected_locator = format!("{}:{}", RBTDRH_BOLE_TOUCHMARK, RBTDRH_TAG_BOLE);
+    for (name, rbrv) in [("A", &rbrv_a), ("B", &rbrv_b)] {
+        let content = std::fs::read_to_string(rbrv).unwrap_or_default();
+        if !content.contains(&expected_locator) {
+            return rbtdre_Verdict::Fail(format!(
+                "vessel {} rbrv.env lacks the elected anchor '{}':\n{}",
+                name, expected_locator, content
+            ));
+        }
+    }
+    rbtdre_Verdict::Pass
+}
+
+fn rbtdrh_chain_retry_after_failure(dir: &Path) -> rbtdre_Verdict {
+    // Fail-after-forward: consumer 1 relays at the top of the verb, then dies on
+    // a missing vessel — a failure unrelated to the chain. Its retry (dispatch 2)
+    // still finds the baton, because the relay preceded the failure point.
+    let (code_fail, _) = match rbtdrh_drive_feoff_shared(
+        dir, "vessel-missing", false, Some(RBTDRH_BOLE_TOUCHMARK), None, "feoff-fail",
+    ) {
+        Ok(t) => t,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    if code_fail == 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "feoff against a missing vessel exited 0 — expected a failure (artifacts in {})",
+            dir.display()
+        ));
+    }
+    let (code_retry, rbrv) =
+        match rbtdrh_drive_feoff_shared(dir, "vessel-retry", true, None, None, "feoff-retry") {
+            Ok(t) => t,
+            Err(e) => return rbtdre_Verdict::Fail(e),
+        };
+    if code_retry != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "retry after a failed consumer exited {} — expected 0: the failed consumer's \
+             relay must have passed the baton to its own retry (artifacts in {})",
+            code_retry, dir.display()
+        ));
+    }
+    let expected_locator = format!("{}:{}", RBTDRH_BOLE_TOUCHMARK, RBTDRH_TAG_BOLE);
+    let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
+    if content.contains(&expected_locator) {
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "retry elected no anchor bearing '{}'; rbrv.env:\n{}",
+            expected_locator, content
+        ))
+    }
+}
+
 // ── furnish invariant (static) ──────────────────────────────
 // The chaining consumers reach the buf_* fact helpers through their dispatching
 // CLI; the CLI must source buf_fact or the helper is undefined and the verb dies
@@ -592,7 +707,7 @@ fn rbtdrh_rekon_no_folio(dir: &Path) -> rbtdre_Verdict {
 // followed transitively: the 0-trick CLIs reach their caller modules through a
 // gestalt entry, not a direct source.
 
-const RBTDRH_FACT_CALLERS: &[&str] = &["buf_elect_fact_capture", "buf_read_fact_capture"];
+const RBTDRH_FACT_CALLERS: &[&str] = &["buf_elect_fact_capture", "buf_read_fact_capture", "buf_relay"];
 const RBTDRH_FACT_MODULE: &str = "buf_fact.sh";
 
 /// Resolve a `source "..."` line to a repo path under Tools/rbk or Tools/buk, or
@@ -736,6 +851,8 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_augur_no_folio),
     case!(rbtdrh_augur_unknown_prefix),
     case!(rbtdrh_rekon_no_folio),
+    case!(rbtdrh_chain_multi_consumer),
+    case!(rbtdrh_chain_retry_after_failure),
     case!(rbtdrh_furnish_invariant),
 ];
 
@@ -746,5 +863,5 @@ pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRH_CASES_CHAINING_FACT_BAND,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(20), invocations: Some(15) },
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(25), invocations: Some(19) },
 };

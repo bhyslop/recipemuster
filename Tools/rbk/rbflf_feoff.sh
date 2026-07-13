@@ -38,6 +38,9 @@ rbfl_feoff() {
   buc_doc_param "touchmark" "Bole Lode touchmark (e.g., b260327172456); optional — absent, falls back to the bole touchmark an ensconce chained forward"
   buc_doc_shown || return 0
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   test -n "${z_vessel}" || buc_die "Vessel required (param1)"
 
   # Resolve the vessel directory (sigil or path). feoff rewrites the rbrv.env
@@ -53,7 +56,7 @@ rbfl_feoff() {
 
   # Resolve the bole touchmark express-or-chain: an express argument wins; absent,
   # fall back to the touchmark an ensconce handed forward through the depth-1
-  # chain, terminally consumed (RBr_3e7). No clean-tree gate here (RBr_a52).
+  # chain. No clean-tree gate here (RBr_a52).
   local z_touchmark=""
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
     || buc_reject "${BUBC_band_chain}" "No bole touchmark — pass one (param2) or run a bole ensconce immediately before feoff"

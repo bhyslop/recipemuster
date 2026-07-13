@@ -111,8 +111,9 @@ buf_read_fact_capture() {
 # otherwise fall through to the chained fact (buf_read_fact_capture). Fails (the
 # read returns 1) only when express is empty AND the chained fact is absent — a
 # broken chain. Generic over any fact constant: the express value and the fact
-# filename are both arguments, so each verb stays its own caller. NEVER relays —
-# the chain is depth-1 and terminally consumed, the leak-elimination invariant.
+# filename are both arguments, so each verb stays its own caller. Never relays
+# itself — relaying is the caller's explicit act (buf_relay first, then elect),
+# keeping this primitive a pure read.
 # _capture shape: stdout once or return 1; the caller guards with || buc_die.
 # Args: <express_value> <fact_filename>
 buf_elect_fact_capture() {

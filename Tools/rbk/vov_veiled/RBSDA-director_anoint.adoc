@@ -14,7 +14,7 @@ The elected value is a three-fact composition rather than a single token, so the
 
 NOTE: *No GAR call, no clean-tree gate, no fact.*
 Anoint resolves the ref purely from the chained facts — it makes no {gar_service} call.
-It does not gate on a clean tree (rivet RBr_a52), and it emits no chaining fact: a {rbch_enchase} terminates the chain it reads, never relaying it (rivet RBr_3e7).
+It does not gate on a clean tree (rivet RBr_a52), and it emits no chaining fact of its own: a {rbch_enchase} relays-then-reads, forwarding the baton before electing so the fact stays live for a following chain verb or a retry (rivet RBr_3e7).
 This primitive does not commit; the operator commits the {rbrv_regime} change.
 
 NOTE: *Loaded, mode-gated.*

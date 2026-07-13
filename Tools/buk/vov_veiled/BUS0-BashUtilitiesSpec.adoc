@@ -739,7 +739,7 @@ The `current/` path segment maps
 inside the BURV isolation tree.
 Fact-file constants are defined as `readonly` in kindle (e.g., `RBF_FACT_HALLMARK`).
 +
-*Cross-tabtarget chaining.* Beyond the same-dispatch producer/consumer above, a fact written by one tabtarget is read by a *later* tabtarget through the depth-1 chain: at dispatch start {burd_output_dir} (`current/`) is promoted to {burd_previous_dir} (`previous/`), so the prior tabtarget's facts are readable via {buf_read_fact_capture} from {burd_previous_dir}. Promotion happens at every dispatch start, so an unrelayed fact survives exactly one following dispatch — any intervening tabtarget drops the chain. A consumer that must keep the chain alive past its own dispatch calls {buf_relay} first to forward the baton, then reads; a terminal consumer skips the relay and consumes at depth-1 via {buf_read_fact_capture} (or {buf_elect_fact_capture} to prefer an express value and fall back to the chain).
+*Cross-tabtarget chaining.* Beyond the same-dispatch producer/consumer above, a fact written by one tabtarget is read by a *later* tabtarget through the depth-1 chain: at dispatch start {burd_output_dir} (`current/`) is promoted to {burd_previous_dir} (`previous/`), so the prior tabtarget's facts are readable via {buf_read_fact_capture} from {burd_previous_dir}. Promotion happens at every dispatch start, so an unrelayed fact survives exactly one following dispatch — any intervening tabtarget drops the chain. A consumer that must keep the chain alive past its own dispatch calls {buf_relay} first to forward the baton, then reads (relay-then-read); a terminal consumer skips the relay and consumes at depth-1 via {buf_read_fact_capture} (or {buf_elect_fact_capture} to prefer an express value and fall back to the chain). Because the relay lands before the read — and promotion is exit-status-independent (the dispatcher's fail-after-forward property) — a relaying consumer that fails after its relay has already handed the baton to its own retry. Reads are non-destructive: no consume primitive deletes a fact; a fact's life is bounded by promotion alone.
 
 [[busff_multi_fact]]
 //axl_voices axo_entity
@@ -850,7 +850,7 @@ Signature: `buf_read_fact_capture <filename>`.
 Consume-side primitive — resolves a value express-or-chain: emits the express value when it is non-empty, otherwise falls through to the chained fact via {buf_read_fact_capture}.
 Fails only when express is empty AND the chained fact is absent — the broken-chain case.
 Generic over any fact constant: the express value and the fact filename are both arguments, so each verb stays its own caller.
-NEVER relays — the chain is depth-1 and terminally consumed (the leak-elimination invariant).
+Never relays itself — the elect is a pure read; a consumer that keeps the chain alive calls {buf_relay} first, then elects (relay-then-read).
 _capture shape: stdout once or return 1; the caller guards with `|| buc_die`.
 Signature: `buf_elect_fact_capture <express_value> <filename>`.
 

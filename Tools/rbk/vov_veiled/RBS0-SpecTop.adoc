@@ -3102,18 +3102,18 @@ The write-style role a verb plays toward a chained fact.
 It resolves one chained value express-or-chain — an express argument wins; absent, the value a prior tabtarget handed forward through the depth-1 cross-tabtarget chain (the {rbf_fact_lode} touchmark, or the {rbf_fact_hallmark}) — and writes it into exactly one durable config field.
 This is the sanctioned crossing of a transient chained value into durable, committed config, and the only place that crossing is allowed.
 A broken resolve rejects with the named chaining band (`BUBC_band_chain`), never a bare nonzero.
-The chain is read terminally, never relayed (rivet RBr_3e7).
+The chain is relayed-then-read: the verb forwards the baton before electing, so the fact stays live for a following chain verb or a retry (rivet RBr_3e7).
 It does not gate on a clean tree, and the tool never commits — the operator seals the durable effect with their own commit (rivet RBr_a52).
 Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, {rbtgo_director_anoint}, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
 
 [[rbch_palpate]]
 {rbch_palpate}::
 The read-style role a verb plays toward a chained fact.
-It resolves the same chained value express-or-chain, depth-1, read terminally and never relayed (rivet RBr_3e7), but writes no durable config — it uses the value for a transient action only: inspection, retrieval, or enumeration.
+It resolves the same chained value express-or-chain, depth-1, relayed-then-read exactly like the write side (rivet RBr_3e7), but writes no durable config — it uses the value for a transient action only: inspection, retrieval, or enumeration.
 A broken resolve rejects with the same named chaining band (`BUBC_band_chain`) as {rbch_enchase}, reused rather than a second code: a read and a durable-config write never share one tabtarget, so the band stays unambiguous per tabtarget.
 The distinction from {rbch_enchase} is therefore by EFFECT, not exit code — a wrong read corrupts only a transient action, never a regime file.
 Members span the fact families: {rbtgo_ark_summon}, {rbtgo_ark_inspect}, and {rbtgo_image_rekon} read the {rbf_fact_hallmark} chain; {rbtgo_lode_augur} reads the {rbf_fact_lode} touchmark.
-A {rbch_palpate} must never be extended to write durable config without joining the {rbch_enchase} surface and its no-relay discipline.
+A {rbch_palpate} must never be extended to write durable config without joining the {rbch_enchase} surface.
 
 [[rbch_beckon]]
 {rbch_beckon}::
@@ -3127,9 +3127,10 @@ Code home: the guard-free `rbfb_beckon.sh`, sourced by the {rbf_fact_hallmark}-p
 [[RBr_3e7]]
 //axvc_dictum
 RBr_3e7::
-Invariant defended: a chained fact is consumed terminally at depth-1 — never relayed.
-The consumer reads the immediately-prior dispatch's fact and hands nothing forward; a relayed value would leak a stale capture into a later unrelated election.
-The substrate offers a baton-forward primitive for multi-hop chains; no chaining verb calls it.
+Invariant defended: every chain consumer relays-then-reads — an explicit baton forward (`buf_relay`) at the top of the verb, before the express-or-chain elect and thus before every failure point, uniform across the {rbch_enchase} and {rbch_palpate} surfaces; the elect primitive itself never relays.
+A fact therefore survives any run of consecutive chain verbs and dies at the first non-chain dispatch: the staleness bound is behavioral — the dispatcher's depth-1 promotion, extended one hop per relay — never a TTL stamp.
+Because the relay precedes the failure point and promotion is exit-status-independent, a failed consumer has already handed the baton to its own retry.
+Consumption is non-destructive — no verb deletes a fact; a fact is superseded only by the next same-name wellhead write riding promotion.
 
 [[RBr_a52]]
 //axvc_camber

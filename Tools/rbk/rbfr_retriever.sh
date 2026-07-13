@@ -61,10 +61,13 @@ rbfr_summon() {
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530); optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die "Failed to relay chained facts"
+
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
   # the depth-1 chain — so a no-arg summon immediately after a build pulls the
-  # just-built hallmark. Terminally consumed (RBr_3e7).
+  # just-built hallmark.
   local z_hallmark=""
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"

@@ -17,7 +17,7 @@ But it is *not* a
 {rbch_enchase}:
 it crosses no transient chained value into config. Its input is an express foedus identity the
 operator supplies, not a value resolved express-or-chain from a prior tabtarget's capture — so
-there is no depth-1 chain to terminate, no no-relay concern, and it rejects into its *own*
+there is no depth-1 chain to consume, no relay owed, and it rejects into its *own*
 precision band, never the chaining band. It writes an operator-named value; the *sanctioned
 crossing of a transient chained value* that defines
 {rbch_enchase}
