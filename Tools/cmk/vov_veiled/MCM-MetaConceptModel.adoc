@@ -1171,7 +1171,7 @@ the
 is a poor judge of its own reserves, since its nature is to adopt the
 {mcm_editor_p}
 word-use quickly, so the census grows by noticing surprise, not by introspection.
-Seed: spine, axis, seam, sweep.
+Seed: spine, axis, seam, sweep, proof.
 Seed also, by term-of-art reservation — each already spoken in exactly its industry sense
 and reserved to it, never re-minted for another meaning:
 oracle, the mechanism that decides whether observed behavior is correct
@@ -1181,7 +1181,10 @@ provenance, the recorded origin that grounds trust in an artifact
 through close);
 census, a living roster produced by fresh survey rather than kept as a registry
 (grep-as-census in the minting rules, the behavioral tweak census, the farrier op census,
-the Matricula inscription census — and this very family's census, which grows by discovery).
+the Matricula inscription census — and this very family's census, which grows by discovery);
+membrane, the single contained place where interior rules bend to absorb a surveyed
+foreign signature
+(the Palisade conduct in the rules of engagement, the rivet kinds' Palisade membrane).
 
 [[mcm_fallow_word]]
 {mcm_fallow_word}::
