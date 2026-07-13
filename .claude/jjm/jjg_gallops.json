@@ -3803,8 +3803,9 @@
         "₢B1AAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0657",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Docket",
                 "",
@@ -3823,7 +3824,7 @@
                 "Short ceremony; operator-present for the archive flag."
               ],
               "jjgtn_silks": "archive-old-repo",
-              "jjgtn_basis": "8faafdf"
+              "jjgtn_basis": "7106048"
             }
           ]
         }
