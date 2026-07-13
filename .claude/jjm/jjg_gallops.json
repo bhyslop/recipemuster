@@ -7797,7 +7797,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-0834",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
                 "## Character",
                 "A verbatim move behind loud gates, plus one deliberate strengthening. The compiler, the self-proofs, and reveille are the check.",
@@ -7832,7 +7834,7 @@
                 "the ceremony's stale prose is gone."
               ],
               "jjgtn_silks": "veil-case-eviction",
-              "jjgtn_basis": "46ae748"
+              "jjgtn_basis": "eb91c7b"
             }
           ]
         }
