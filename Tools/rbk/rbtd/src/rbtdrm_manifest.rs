@@ -168,7 +168,7 @@ pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
 pub const RBTDRM_FIXTURE_PYX: &str = "pyx";
 
 // Loupe — the veil-leak case evicted from pyx: no shipping file may name what
-// the distribution withholds, by `vov_veiled` path or by the basename of any
+// the distribution withholds, by veiled-directory path or by the basename of any
 // withheld document. SOURCE-TREE ONLY — it harvests its needle set from the
 // veiled trees themselves, so unlike pyx's other cases it is never re-run on the
 // stripped candidate, where those trees are gone and the census would be empty
