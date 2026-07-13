@@ -431,7 +431,7 @@ fn zrbtdrq_census_walk(dir: &Path, inside: bool, out: &mut BTreeSet<String>) {
 
 /// True when any veiled tree exists beneath `dir` — the test that tells the
 /// maintainer's tree from the stripped candidate.
-fn zrbtdrq_veil_tree_exists(dir: &Path) -> bool {
+pub(crate) fn zrbtdrq_veil_tree_exists(dir: &Path) -> bool {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return false,
@@ -671,7 +671,7 @@ fn zrbtdrq_render(findings: &[zrbtdrq_Finding]) -> String {
 
 /// Persist a case's findings and inventory traces into the case dir and turn the
 /// findings into a verdict. `what` names the violation class in the fail message.
-fn zrbtdrq_report(
+pub(crate) fn zrbtdrq_report(
     dir: &Path,
     label: &str,
     findings: &[zrbtdrq_Finding],
@@ -699,7 +699,7 @@ fn zrbtdrq_report(
 
 /// The tree the fixture assays — the working directory, which every theurge run
 /// anchors at the repo root.
-fn zrbtdrq_root() -> Result<PathBuf, String> {
+pub(crate) fn zrbtdrq_root() -> Result<PathBuf, String> {
     std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))
 }
 
@@ -879,7 +879,7 @@ pub(crate) fn zrbtdrq_scan_text(rel: &str, text: &str, findings: &mut Vec<zrbtdr
 /// `skip_dirs` is per-scan: the secret scan reads the veiled trees (a credential
 /// committed there is still a maintainer's problem), while the veil scan must not
 /// (see ZRBTDRQ_VEIL_SKIP_DIRS).
-fn zrbtdrq_walk(dir: &Path, skip_dirs: &[&str], out: &mut Vec<PathBuf>) {
+pub(crate) fn zrbtdrq_walk(dir: &Path, skip_dirs: &[&str], out: &mut Vec<PathBuf>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return,

@@ -234,6 +234,53 @@ rblm_zero() {
 }
 
 ######################################################################
+# Command: lustrate - Erase site identity from the release candidate's clone
+
+rblm_lustrate() {
+  buc_doc_brief "Lustrate the release clone - erase site identity from every proscribed home"
+  buc_doc_shown || return 0
+
+  # Clean-tree gate. Lustration rewrites tracked config and auto-commits the
+  # result, so anything already dirty would ride into that commit. Deliberately
+  # WITHOUT marshal-zero's pushed-state gate: lustration runs immediately after
+  # marshal zero, whose own auto-commit leaves HEAD unpushed by construction.
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  local -r z_status_temp="${BURD_TEMP_DIR}/rblm_lustrate_status.txt"
+  git status --porcelain > "${z_status_temp}" || buc_die "git status failed"
+  test ! -s "${z_status_temp}" || buc_die "Working tree not clean — commit or discard before lustration. See: ${z_status_temp}"
+
+  buh_section "Marshal Lustrate"
+  buh_line "  Erases every site-scoped home named by the proscription"
+  buh_line "  (Tools/rbk/rblm_lustrate.sh) — the payor and workforce regimes,"
+  buh_line "  the federation regimes, the depot-scoped vessel and nameplate"
+  buh_line "  fields, and the freehold subject in source."
+  buh_e
+  buh_line "  Run this ONLY in the release ceremony's throwaway clone."
+  buh_line "  Against a working station it erases the live configuration."
+  buh_e
+  buh_line "  Proof of erasure is the damnatio fixture, run post-strip:"
+  buc_tabtarget "${RBZ_THEURGE_FIXTURE}" "damnatio"
+  buh_e
+  buc_require "Proceed with lustration?" "lustrate"
+
+  rblm_lustrate_apply
+  buh_e
+
+  buc_step "Committing lustrated state"
+  git add --update || buc_die "Failed to stage lustrated files"
+
+  if git diff --cached --quiet; then
+    buh_line "  No changes to commit — already lustrated"
+  else
+    git commit -m "Marshal Lustrate — site identity erased for release" || buc_die "Lustration commit failed"
+    buh_line "  Lustrated state committed"
+  fi
+  buh_e
+
+  buc_success "Site identity erased from every proscribed home"
+}
+
+######################################################################
 # Command: proof - Create isolated clone for release ceremony testing
 
 rblm_proof() {
@@ -376,6 +423,7 @@ zrblm_furnish() {
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rblm_lustrate.sh"  || buc_die "Failed to source rblm_lustrate.sh"
 
   source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die "Failed to source buh_handbook.sh"

@@ -67,8 +67,8 @@ use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 // these are repo-root-relative. Hoisted per RCG Identity Rule (cf.
 // VVCC_REGISTRY_PATH) so running-code joins reference a named const rather
 // than an inline magic string.
-const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
-const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
+pub(crate) const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
+pub(crate) const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
 const RBTDRF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
 const RBTDRF_BUYM_YELP: &str = "Tools/buk/buym_yelp.sh";
 const RBTDRF_BUBC_CONSTANTS: &str = "Tools/buk/bubc_constants.sh";
@@ -117,7 +117,7 @@ impl RbtdrfSub {
 }
 
 /// Run a bash script, return (exit_code, stdout, stderr). Saves traces to case dir.
-fn rbtdrf_run_bash(
+pub(crate) fn rbtdrf_run_bash(
     project_root: &Path,
     script: &str,
     dir: &Path,

@@ -166,6 +166,11 @@ pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
 // dependency; every root is existence-tolerant so the checks hold on the
 // stripped candidate tree as well as on main.
 pub const RBTDRM_FIXTURE_PYX: &str = "pyx";
+
+/// damnatio — the delivered-tree identity assay. A member of no suite: every case
+/// is true only of a stripped, lustrated candidate, so it is red by construction
+/// against the maintainer's working tree. The release ceremony invokes it by name.
+pub const RBTDRM_FIXTURE_DAMNATIO: &str = "damnatio";
 // Depot-lifecycle fixture (marshal-zero gate + ephemeral create→destroy arc).
 // Shares the freehold scheme with the durable fixtures; tears down only the
 // fresh leasehold it mints, never the standing freehold.
@@ -341,6 +346,7 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CLIPBOARD
         | RBTDRM_FIXTURE_CUPEL
         | RBTDRM_FIXTURE_PYX
+        | RBTDRM_FIXTURE_DAMNATIO
         | RBTDRM_FIXTURE_CONFORMANCE
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST

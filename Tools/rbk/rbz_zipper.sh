@@ -221,6 +221,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"
   buz_enroll RBZ_MARSHAL_ZERO           "rbw-MZ"  "rblm_cli.sh" "rblm_zero"      ""  "Zero regime to blank template"
   buz_enroll RBZ_MARSHAL_PROOF          "rbw-MP"  "rblm_cli.sh" "rblm_proof"     "param1"  "Proof repo for release testing"
+  buz_enroll RBZ_MARSHAL_LUSTRATE       "rbw-ML"  "rblm_cli.sh" "rblm_lustrate"  ""  "Lustrate the release clone — erase site identity from every proscribed home"
 
   # Nameplate — cross-nameplate operations (rbw-n)
   buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Nameplate — Cross-nameplate operations"

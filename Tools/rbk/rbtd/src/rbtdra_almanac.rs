@@ -69,6 +69,12 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
+    // damnatio: the delivered-tree identity assay — a member of NO SUITE, by
+    // construction. Its cases hold only of a stripped, lustrated candidate, so
+    // against the maintainer's working tree it is red on purpose; a suite that ran
+    // it would be red forever. The release ceremony invokes it by name post-strip.
+    // Runnable via FixtureRun.
+    &crate::rbtdrq_damnatio::RBTDRQ_FIXTURE_DAMNATIO,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
     &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
