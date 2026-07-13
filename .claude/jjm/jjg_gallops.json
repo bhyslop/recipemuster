@@ -5538,9 +5538,10 @@
         "₢BrAAT",
         "₢BrAAU",
         "₢BrAAV",
+        "₢BrAAe",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAe",
+      "jjghn_next_pace_seed": "AAf",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -6471,6 +6472,41 @@
               ],
               "jjgtn_silks": "jjdt-insignia-carriage-recut",
               "jjgtn_basis": "e18331c"
+            }
+          ]
+        },
+        "₢BrAAe": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-0837",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Implementation — small and mechanical against a settled canon contract.",
+                "",
+                "## Done when",
+                "",
+                "The blotter enacts JJSVB's Revision ordinals section",
+                "(`Tools/jjk/vov_veiled/JJSVB-blotter.adoc`):",
+                "every journal-ceremony commit allocates the store's next decimal ordinal under the lock",
+                "and bakes it into the commit message;",
+                "jjdb_found's genesis commit takes the founding value",
+                "(the studbook's catchword founding, 200000);",
+                "the SHA stays the identity —",
+                "the ordinal is emission-layer only, never truth,",
+                "and it never circulates glyphless in operator-facing output",
+                "(carriage per the minted-mark law; the render home is zjjrf_emblazon in jjrf_favor.rs).",
+                "The spec's no-side-table posture governs allocation:",
+                "linear history under the lock is what makes the next ordinal derivable and the bake verifiable.",
+                "Tests prove the genesis value and monotonic advance across journaled writes.",
+                "Full jjk suite green; both enablement seams stay false.",
+                "",
+                "The mews varvel founding rides the mews work, not here —",
+                "only the studbook instance exists this heat."
+              ],
+              "jjgtn_silks": "revision-ordinal-bake",
+              "jjgtn_basis": "69ae7b9"
             }
           ]
         }
