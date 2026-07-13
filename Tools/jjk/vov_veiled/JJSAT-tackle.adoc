@@ -1,4 +1,4 @@
-//axvd_sheaf axd_aspirant
+//axvd_sheaf axd_aspirant axd_roadmap
 This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 
 = Tackle — The Relation Layer and the Maximal Remainder (Aspirant Nucleation)
@@ -212,35 +212,11 @@ Each is an edit owed to a sibling *after* the relevant ruling ratifies, delibera
 applied yet:
 
 * *JJK README prefix registry* — owed at delivery: the `jjo` container row and its
-  child-letter convention (`jjot` = tackle wire), allocated in the canon sheaf.
-* *Aspirant lintels, family-wide* — this sheaf's lintel carries the legacy one-token form
-  (`axd_aspirant` alone), and current AXLA law wants two dimensions in fixed order
-  (normativeness, then genre);
-  every aspirant sheaf in this codex but the chapbook is in the same state, so the upgrade is
-  one family-wide act — lintels and their matching JJS0 cartouches together, never one-sided
-  (attestation-agreement drift).
-  This sheaf's own genre wants deciding at that act: post-drain it is a deferred-remainder
-  sheaf, not the entity sheaf it once plausibly was.
-* *JJSAB breeze* — three edits owed: its vocabulary table lists tackles among
-  silks-identified gallops entities, superseded by the names-not-identities ruling
-  (tackles carry plain names; nothing durable references them);
-  its blaze row reconciles — the definition home is the tackle table's registries,
-  the namespace table-global (the workup's per-heat and per-tackle scopes yield),
-  gaits reference role words and school resolves against the table in play;
-  and its identity ladder re-anchors with no tackle rung at all.
-  Its "Tackle's execution layer" reconciliation bullet should still gain the
-  association-graph pointer (school walks declared edges, not just blazes).
-* *VOSMM* — the allowlist-as-projection direction and the deep-lint surface are recorded
-  there and now point at the canon sheaf.
-  Still owed: the estray naming question (token-level `vosme_estray` vs file-level
+  child-letter convention (`jjot` = tackle wire), allocated in the canon sheaf;
+  drains with the tackle implementation (the settling register's rides-a-pace entry).
+* *VOSMM* — the estray naming question (token-level `vosme_estray` vs file-level
   unclaimed-in-bounds — one generalizing concept or two words) resolves with the verdict
-  election, and the file-role layer should be named as a governance-member facet.
-* *AXLA `axl_timeless`, aspirant-exemption question* — raised, not committed: the exemption
-  permits journal content in aspirant sheaves, but this sheaf practices timeless prose
-  by operator preference (decision records live in git and the memos), while sibling
-  aspirants still carry dated ledgers.
-  If the tighter practice is a standing norm, it wants its doctrine home at AXLA rather
-  than living as per-sheaf habit.
+  election; the owed edit lands there.
 
 == Settling register (drain before implementation)
 

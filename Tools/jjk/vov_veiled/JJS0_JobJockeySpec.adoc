@@ -235,9 +235,13 @@
 :jjdxw_marque_s:  <<jjdxw_marque,Marques>>
 
 // World model (revision-control cosmology)
+:jjdw_engine:        <<jjdw_engine,Engine>>
+:jjdw_engine_p:      <<jjdw_engine,Engine's>>
 :jjdw_hippodrome:    <<jjdw_hippodrome,Hippodrome>>
 :jjdw_hippodrome_s:  <<jjdw_hippodrome,Hippodromes>>
 :jjdw_infield:       <<jjdw_infield,Infield>>
+:jjdw_operator:      <<jjdw_operator,Operator>>
+:jjdw_operator_p:    <<jjdw_operator,Operator's>>
 :jjdw_yard:          <<jjdw_yard,yard>>
 
 // Blotter store (locked-store entity; journal ceremony + break sequence; studbook instance)
@@ -245,6 +249,8 @@
 :jjdb_blotter_p:  <<jjdb_blotter,Blotter's>>
 :jjdb_blotter_s:  <<jjdb_blotter,Blotters>>
 :jjdb_break:      <<jjdb_break,Break sequence>>
+:jjdb_catchword:  <<jjdb_catchword,Catchword>>
+:jjdb_varvel:     <<jjdb_varvel,Varvel>>
 :jjdb_counterfoil:    <<jjdb_counterfoil,Counterfoil>>
 :jjdb_counterfoil_s:  <<jjdb_counterfoil,Counterfoils>>
 :jjdb_guidon:     <<jjdb_guidon,Guidon>>
@@ -978,7 +984,7 @@ The surface itself stays a plain noun — "the viewer" — and earns no quoin un
 [[jjdk_sole_operator]]
 //axk_premise
 {jjdk_sole_operator}::
-All concurrent {jjdxo_officium_s} belong to a single operator.
+All concurrent {jjdxo_officium_s} belong to a single {jjdw_operator}.
 The commit lock serializes operations across parallel {jjdxo_officium_s};
 cross-user concurrency is out of scope.
 +
@@ -3695,19 +3701,19 @@ At the end the sheaf has infused into the codex (or graduated out, or retired �
 and the convergence gauge — a chapbook's pending-citation register where one exists —
 reads zero.
 
-//axvd_cartouche axd_aspirant
+//axvd_cartouche axd_aspirant axd_entity
 include::JJSAM-mews.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_aspirant
+//axvd_cartouche axd_aspirant axd_roadmap
 include::JJSAS-state-repo.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_aspirant
+//axvd_cartouche axd_aspirant axd_roadmap
 include::JJSAF-farrier.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_aspirant
+//axvd_cartouche axd_aspirant axd_roadmap
 include::JJSAT-tackle.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_aspirant
+//axvd_cartouche axd_aspirant axd_roadmap
 include::JJSAB-breeze.adoc[leveloffset=+2]
 
 //axvd_cartouche axd_aspirant axd_chapbook

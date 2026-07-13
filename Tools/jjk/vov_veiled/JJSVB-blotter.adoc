@@ -50,6 +50,37 @@ Two repos, two locks: instances share machinery, never state.
 The one genuine seam between them is the `(work repo, SHA)` cross-reference both journal —
 in the {jjdb_studbook}, the {jjdb_counterfoil}.
 
+== Revision ordinals
+
+Every {jjdb_blotter} commit carries a decimal revision ordinal — entirely emission-layer:
+a denormalized order label (AXLA `axd_ordinal`) allocated under the store's lock at journal
+time and baked into the commit message.
+The SHA stays the identity;
+single-writer makes the bake race-free, and the linear history makes it verifiable —
+no side table exists.
+The genesis commit takes the store's founding value: no zeroth special case.
+A founding value leads with a digit that pins width without zero-padding,
+so lexicographic and numeric order agree until the width horizon;
+a future store founds at a fresh leading-digit × width pair.
+Bare decimal is charset-valid, so an ordinal never circulates glyphless:
+machine contexts carry the SHA,
+and any future ingestion convenience must require the glyph
+(the minted-mark carriage law, AXLA Minted-Mark Dimensions).
+
+[[jjdb_catchword]]
+//axve_entity axd_ordinal
+{jjdb_catchword}::
+The {jjdb_studbook_p} revision ordinal mark: glyph ₶ (U+20B6), founding value 200000 —
+a width horizon of ~800K revisions.
+
+[[jjdb_varvel]]
+//axve_entity axd_ordinal
+{jjdb_varvel}::
+The mews fleet store's revision ordinal mark: glyph ₰ (U+20B0), founding value 10000 —
+a width horizon of ~90K revisions.
+The instance's own contract is forthcoming (forward-reference note above);
+the glyph-space allocation is this entity's, made whole.
+
 == Lock ref and guidon
 
 Each {jjdb_blotter} carries exactly one well-known lock ref in its own git namespace:

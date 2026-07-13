@@ -368,6 +368,7 @@ not something to chase with an expander.
 RCG and BCG already forbid identifier-synthesis, which is what makes this axiom safe to lean on.
 
 A file-role layer sits atop the allowlist and git-tracked gate: a path is declaration-bearing, reference-only, index-of-record (the `claude-*.md` acronym tables the MVP regenerates), or generated.
+The layer is anticipated as a facet of the tackle table's typed governance members (`JJSVT-tackle.adoc`) — role at scan grain is the member axis at binding grain — and names with that table when the tackle-projection direction above lands.
 Memos are the first reference-only case — excluded from the MVP declaration scan, with a removal condition: they re-enter as a reference corpus when reference-tracing lands later, because a memo citing an old name is a reference a rename should know about.
 
 == Deferred Scope

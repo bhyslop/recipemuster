@@ -1,4 +1,4 @@
-//axvd_sheaf axd_aspirant
+//axvd_sheaf axd_aspirant axd_roadmap
 This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 
 = Breeze — Attention-Shaped Execution Pipeline (Aspirant Nucleation)
@@ -137,13 +137,19 @@ deliberately named away from it); the rest is candidate only.
   Name-matched, never ID-matched; the orchestrator reads structure, never interprets prose.
 
 | Blaze
-| Symbolic file/resource reference (`₿name`) owned by a tackle and resolved by school to
-  concrete paths — breeze never sees symbols.
-  Homed with the maximal-tackle layer in the tackle aspirant sheaf.
+| Symbolic document/resource reference (a ₿-sigiled role word) resolved by school to concrete
+  paths — breeze never sees symbols.
+  Canon home: the tackle table's blaze registries (`JJSVT-tackle.adoc`) — one namespace per
+  table (the workup's per-heat and per-tackle scopes yield);
+  gaits reference role words, and school resolves against the table in play.
 |===
 
 Three naming regimes coexist: minted prefixes (code and specs), silks (gallops entities —
-heats, paces, gaits, tackles), and blazes (tackle slot references, resolved at school time).
+heats, paces, gaits), and blazes (₿-sigiled role words in the tackle table's registries,
+resolved at school time).
+Tackles sit outside all three: rows key on plain spoken names and nothing durable references
+a tackle (the names-not-identities ruling, canon at `JJSVT-tackle.adoc`), so the identity
+ladder below carries no tackle rung.
 
 == The beat map
 
@@ -256,7 +262,9 @@ each collision below is a design decision for a future pace, not a defect in eit
   metadata) the V4 workup planned alongside it.
 * *Tackle's execution layer* — blazes, actions, exclusivity scopes, and gait affinities are the
   maximal-tackle remainder, homed in the tackle aspirant sheaf; school-time blaze resolution and
-  exclusivity enforcement during concurrent dispatch are joint design between these two sheaves.
+  exclusivity enforcement during concurrent dispatch are joint design between these two sheaves,
+  and school walks the association graph's declared edges, not just blazes (the tackle
+  aspirant sheaf's relation layer).
 
 == Open forks (carried from the V4 workup)
 

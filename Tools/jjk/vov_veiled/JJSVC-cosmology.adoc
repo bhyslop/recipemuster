@@ -20,8 +20,31 @@ JJ launched anywhere derives everything it needs from where it stands:
 origin URL → sire (the registered body of work) → {jjdb_pedigree} → {jjdf_farrier} kind,
 trunk posture, {jjdl_tackle} bindings.
 One derivation chain, no per-repo pointers, no clone-local state.
-The trunk of a {jjdw_hippodrome} belongs to the operator alone — JJ works in billets and
-records in the {jjdb_studbook}, and never handles the operator's serializing branch.
+The trunk of a {jjdw_hippodrome} belongs to the {jjdw_operator} alone — the {jjdw_engine}
+works in billets and records in the {jjdb_studbook}, and never handles the
+{jjdw_operator_p} serializing branch.
+
+== The two parties
+
+The world model has exactly two acting parties; everything else is ground they act on.
+
+[[jjdw_operator]]
+{jjdw_operator}::
+The human party: the person at the shell who directs the work and dispatches every session.
+The {jjdw_operator} alone touches the trunk of a {jjdw_hippodrome} — the serializing branch
+is never the {jjdw_engine_p} to advance.
+The word is the corpus's standing name for this party, catalogued here;
+the sole-operator premise (`jjdk_sole_operator`) bounds how many there are.
+
+[[jjdw_engine]]
+{jjdw_engine}::
+JJ's acting machinery as one party: the {jjdx_mcp} and the {jjdf_farrier} and
+{jjdb_blotter} apparatus beneath it — the single mechanical actor that drives every
+{jjdb_blotter} and carries its own stores' coordinates.
+Sibling sheaves' *engine-driven* and *engine-known* speak against this definition.
+Word tolerance: foreign proper nouns elsewhere in the corpus (Docker Engine, Podman's
+engine) are Palisade names, never this party; the collision is deliberate and tolerated —
+the living interior word was blessed over a fresh mint.
 
 == Why decouple
 

@@ -4545,6 +4545,10 @@ and
 {axd_notional}
 sheaves are exempt: pre-canon mulling surfaces whose decision records — naming ledgers,
 dated cinches, drain notes — retire to provenance with them.
+The exemption licenses those decision records, never journaling of the concept itself:
+an aspirant sheaf still carries the latest best concept only — a resolved fork leaves the
+mulling list rather than gaining a supersession note — and a date-stamped process trail in
+its conceptual prose is the same drift toward journal, merely unlinted.
 The matricula mechanizes this law as a presentment-emitting validator (VOSMM), citing this
 section; it does not redefine it.
 

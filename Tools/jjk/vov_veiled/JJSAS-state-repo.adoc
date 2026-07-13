@@ -1,4 +1,4 @@
-//axvd_sheaf axd_aspirant
+//axvd_sheaf axd_aspirant axd_roadmap
 This is an aspirant portion of the {jjs0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 
 = Studbook — Standalone State Repo (Aspirant Nucleation)
@@ -76,13 +76,10 @@ single-writer-under-lock, the lockless read posture — is canon: drained 260706
 entity sheaf (`JJSVB-blotter.adoc`).
 What remains is studbook-specific:
 
-* The deferred insignia sub-mint (glyph-prefixed revision aliases; the ordinal a denormalized
-  label, the SHA the identity) stands as recorded in the 260630 memo — deferred past MVP,
-  to mint together with the pace-identity design pace (one coherent glyph-space allocation);
-  the AXLA insignia-family ADT work already planned in ₣BD is the code-side anticipation.
-  Because every studbook write happens under the lock, JJ can allocate the ordinal at journal
-  time and bake the insignia into the commit message itself — single-writer makes the bake
-  race-free, the linear history makes it verifiable, and no side table exists.
+* The revision insignia are canon: drained to the blotter entity sheaf
+  (`JJSVB-blotter.adoc`, Revision ordinals — the ordinal law, catchword and varvel marks,
+  founding values, leading-digit width rule).
+  The AXLA insignia-family ADT work planned in ₣BD remains the code-side anticipation.
 * The lock supersedes the original sharding pressure (no cross-clone merge exists at all);
   per-heat sharding remains open only as a file-layout choice, not a concurrency need.
 
@@ -281,7 +278,6 @@ counterfoil seam included.
 
 * Canonical wire form vs. heat-qualified display form for the re-gestalted coronet (gazette
   halter target-typing by length depends on it).
-* Insignia glyphs + names (deferred sub-mint, coupled to the pace-identity design pace).
 * Per-heat file sharding as layout (concurrency need dissolved by the lock).
 
 == Sources (provenance, not authority)
