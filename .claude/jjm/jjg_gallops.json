@@ -3934,7 +3934,7 @@
         "₢B2AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-1156",
+              "jjgtn_ts": "260713-1204",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -3946,23 +3946,26 @@
                 "and a cut half (clone only; marshal zero through final review), each self-sufficient in a fresh session.",
                 "The cut half opens with a tree-identity gate — the clone is recognizable (sibling `station-files/`, candidate dirname shape) —",
                 "and carries the re-cut-never-patch-forward contract; the provision half must not contradict it.",
-                "The split is documentation; the load-bearing guard is mechanical:",
-                "change `rblm_zero`'s confirm word (`Tools/rbk/rblm_cli.sh`) from the constant \"zero\" to a tree-identifying string the operator types back — exact form is mount-time;",
-                "nothing automated types the confirm word (fixtures only assert the zeroed state, and `BURE_CONFIRM=skip` is orthogonal).",
+                "The split is documentation; the load-bearing guard is mechanical, and it must survive an agent driver.",
+                "Marshal zero blanks whatever tree it stands in, and its gates all pass in the maintainer's working repo — a near-miss on the 260712 cut.",
+                "A typed-confirmation guard cannot fix this: the ceremony's own driver runs `BURE_CONFIRM=skip` (observed, 260713 cut), so no prompt is ever answered.",
+                "Make the tree identity a *required argument* to `rblm_zero` (`Tools/rbk/rblm_cli.sh`) instead — the operator names the tree they intend to blank, and the verb refuses when the name does not match the tree it stands in.",
+                "An argument check is the one gate a skipped confirm cannot bypass.",
                 "Rename the clone-directory convention to `rbm_candidate_{cut-date}_{try}` so a same-day re-cut gets a distinct directory.",
                 "Keep cross-step references coherent across the two documents, and sweep stale references to the retired command name (grep; `RELEASE.md` is one).",
                 "",
                 "## Cinched",
-                "`rbw-MZ` stays runnable in the working repo — the gauntlet's entry state depends on it (`rbtdrp_attest` names it as remedy); the guard adds friction, never refusal.",
+                "`rbw-MZ` stays runnable in the working repo — the gauntlet's entry state depends on it (`rbtdrp_attest` names it as remedy); the guard adds friction, never refusal of the working tree as such.",
+                "The guard must hold against a non-interactive agent driver, not merely a hurried human.",
                 "The two command names are minted at mount under CLAUDE.md prefix + Lapidary discipline — slash commands are in the mint universe.",
                 "",
                 "## Done when",
                 "Both commands exist, the old one is gone, and no stale reference to it survives;",
-                "`rblm_zero`'s confirm demands the typed tree identifier;",
+                "marshal zero refuses to blank a tree the caller did not name, and does so under `BURE_CONFIRM=skip`;",
                 "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
               ],
               "jjgtn_silks": "release-ceremony-clone-boundary-split",
-              "jjgtn_basis": "13b3efd"
+              "jjgtn_basis": "f7969b6"
             }
           ]
         }
