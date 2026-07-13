@@ -21,6 +21,7 @@
 //! below. `jjdb_journal` covers the blotter-side bracket: lock, advance, mutate
 //! and lodge, consign, release.
 
+use crate::jjrf_favor::jjrf_emblazon_ordinal;
 use crate::jjrfr_farrier::{
     jjrfr_ConsignLease,
     jjrfr_FarrierCore,
@@ -48,17 +49,28 @@ const ZJJDB_STUDBOOK_REMOTE: &str = "git@github.com:bhyslop/jjqs_studbook.git";
 /// so this names it once.
 const ZJJDB_STUDBOOK_TRUNK: &str = "trunk";
 
+/// The studbook's revision-ordinal sigil (`jjdb_catchword`, blotter sheaf
+/// "Revision ordinals"): glyph ₶ (U+20B6 livre tournois).
+pub const JJDB_CATCHWORD_SIGIL: char = '\u{20B6}';
+
+/// The studbook's revision-ordinal founding value (`jjdb_catchword`): 200000 —
+/// a width horizon of ~800K revisions before a future leading-digit x width pair.
+pub const JJDB_CATCHWORD_FOUNDING: u64 = 200000;
+
 /// Engine-known bootstrap coordinates for one blotter instance (`jjdb_blotter`
-/// bootstrap config, blotter sheaf): where it lives locally, its remote, and its
-/// one line of work. Never pedigree-resolved — a store cannot look itself up in
-/// itself; the pedigree resolves consumer repos, the engine carries its own
-/// stores' coordinates. Plain data — tests construct their own pointed at a
-/// scratch repo.
+/// bootstrap config, blotter sheaf): where it lives locally, its remote, its
+/// one line of work, and its revision-ordinal mark (`jjdb_catchword`/
+/// `jjdb_varvel` — sigil plus founding value, one pair per instance). Never
+/// pedigree-resolved — a store cannot look itself up in itself; the pedigree
+/// resolves consumer repos, the engine carries its own stores' coordinates.
+/// Plain data — tests construct their own pointed at a scratch repo.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjdb_BlotterConfig {
     pub local_root: PathBuf,
     pub remote_url: String,
     pub trunk: String,
+    pub ordinal_sigil: char,
+    pub ordinal_founding: u64,
 }
 
 /// The studbook's engine-known bootstrap config, given the station's infield
@@ -70,7 +82,21 @@ pub fn jjdb_studbook_config(infield_root: &Path) -> jjdb_BlotterConfig {
         local_root: infield_root.join(JJDB_STUDBOOK_DIRNAME),
         remote_url: ZJJDB_STUDBOOK_REMOTE.to_string(),
         trunk: ZJJDB_STUDBOOK_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     }
+}
+
+// ---- Revision ordinals ----
+
+/// Bake a revision ordinal into a commit message as its leading token — the
+/// one place the mark is composed with message text (`jjdb_catchword`/
+/// `jjdb_varvel`, blotter sheaf "Revision ordinals"). Bare decimal is
+/// charset-valid, so the sigil rides along via `jjrf_emblazon_ordinal`: an
+/// ordinal never circulates glyphless in operator-facing output, and a commit
+/// message is exactly that.
+fn zjjrvb_bake_ordinal(sigil: char, ordinal: u64, message: &str) -> String {
+    format!("{}: {}", jjrf_emblazon_ordinal(sigil, ordinal), message)
 }
 
 // ---- Founding ceremony ----
@@ -107,7 +133,10 @@ where
     add_args.extend(file_strs.iter().map(String::as_str));
     zjjrvb_found_git(root, &add_args);
 
-    let mut commit_args: Vec<&str> = vec!["commit", "-q", "-m", &message, "--"];
+    // The genesis commit takes the store's founding value: no zeroth special
+    // case (blotter sheaf "Revision ordinals").
+    let baked_message = zjjrvb_bake_ordinal(config.ordinal_sigil, config.ordinal_founding, &message);
+    let mut commit_args: Vec<&str> = vec!["commit", "-q", "-m", &baked_message, "--"];
     commit_args.extend(file_strs.iter().map(String::as_str));
     zjjrvb_found_git(root, &commit_args);
 
@@ -194,10 +223,15 @@ where
     // under the lock.
     farrier.jjrfr_advance(root)?;
 
-    // Mutate and lodge: the caller writes its content; we commit exactly the
-    // files it names.
+    // Mutate and lodge: the caller writes its content; we allocate the next
+    // revision ordinal under the lock we already hold — derived from the
+    // linear history's length at the tip we just advanced to, no side table
+    // (blotter sheaf "Revision ordinals") — bake it in, and commit exactly
+    // the files the caller named.
     let (files, message) = mutate(root);
-    farrier.jjrfr_lodge(root, &files, &message)?;
+    let ordinal = config.ordinal_founding + zjjrvb_commit_count(root);
+    let baked_message = zjjrvb_bake_ordinal(config.ordinal_sigil, ordinal, &message);
+    farrier.jjrfr_lodge(root, &files, &baked_message)?;
 
     // Consign content: atomic-under-lease against our own lock ref — if the
     // lock was broken under us, the whole push fails (journal sheaf, step 5).
@@ -229,6 +263,35 @@ fn zjjrvb_head_sha<F: jjrfr_FarrierCore>(farrier: &F, root: &Path) -> String {
         .get(".")
         .cloned()
         .unwrap_or_else(|| panic!("jjdb_journal: counterfoil carried no single-repo member at {}", root.display()))
+}
+
+/// The linear history's length at the tree's current position — a blotter
+/// never branches, so `git rev-list --count HEAD` is unambiguous and is what
+/// makes the next ordinal derivable with no side table (blotter sheaf
+/// "Revision ordinals"). Reaches straight to git, same as the founding
+/// ceremony above (`zjjrvb_found_git`): the farrier trait carries no op for
+/// this, and this engine, like founding, is not the vocabulary Palisade's
+/// concern — that boundary governs the trait's own op names, not this module.
+/// Panics on git failure: an environment fact, not a farrier rejection.
+fn zjjrvb_commit_count(root: &Path) -> u64 {
+    let out = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(["rev-list", "--count", "HEAD"])
+        .output()
+        .unwrap_or_else(|e| panic!("zjjrvb_commit_count: git spawn failed at {}: {}", root.display(), e));
+    if !out.status.success() {
+        panic!(
+            "zjjrvb_commit_count: git rev-list --count HEAD failed at {}: {}",
+            root.display(),
+            String::from_utf8_lossy(&out.stderr)
+        );
+    }
+    String::from_utf8(out.stdout)
+        .expect("git stdout must be UTF-8")
+        .trim()
+        .parse()
+        .unwrap_or_else(|e| panic!("zjjrvb_commit_count: could not parse count at {}: {}", root.display(), e))
 }
 
 // ---- Gallops-over-studbook surface (enablement seam) ----

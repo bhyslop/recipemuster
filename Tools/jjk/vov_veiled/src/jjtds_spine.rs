@@ -44,6 +44,8 @@ use super::jjrt_types::{
 };
 use super::jjrvb_blotter::{
     jjdb_BlotterConfig,
+    JJDB_CATCHWORD_FOUNDING,
+    JJDB_CATCHWORD_SIGIL,
     JJDB_STUDBOOK_DIRNAME,
 };
 use super::jjtu_testdir::JjkTestDir;
@@ -308,6 +310,8 @@ fn jjtds_pedigree_lookup_resolves_kind_checks_and_rejects() {
         local_root: studbook_root.clone(),
         remote_url: "unused".to_string(),
         trunk: ZJJTDS_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
 
     let pedigree = jjrds_pedigree_lookup(&config, "ssh://example.invalid/repo", JJRDS_KIND_PLAIN_GIT).unwrap();
@@ -331,6 +335,8 @@ fn jjtds_pedigree_lookup_names_an_unfounded_studbook() {
         local_root: td.path().join(JJDB_STUDBOOK_DIRNAME),
         remote_url: "unused".to_string(),
         trunk: ZJJTDS_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
 
     assert!(matches!(

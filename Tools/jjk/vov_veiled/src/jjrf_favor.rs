@@ -90,6 +90,17 @@ fn zjjrf_emblazon(sigil: char, body: &str) -> String {
     format!("{}{}", sigil, body)
 }
 
+/// Emblazon a revision ordinal (`axd_ordinal`, AXLA Minted-Mark Dimensions) in
+/// its operator-facing sigiled form. Unlike the four insignia types below, an
+/// ordinal is annotative, not identity — a denormalized order label aliasing a
+/// pre-existing SHA, never truth — so it carries no dedicated type, only this
+/// pass through the shared `zjjrf_emblazon` render home. Bare decimal is
+/// charset-valid, so an ordinal must never circulate glyphless: callers apply
+/// this at every point the ordinal reaches operator-facing output.
+pub fn jjrf_emblazon_ordinal(sigil: char, ordinal: u64) -> String {
+    zjjrf_emblazon(sigil, &ordinal.to_string())
+}
+
 /// Heat identity - 2 base64 characters encoding 0-4095
 /// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]

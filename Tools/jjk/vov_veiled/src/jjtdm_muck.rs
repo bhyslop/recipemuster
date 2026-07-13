@@ -27,6 +27,8 @@ use super::jjrt_types::{
 use super::jjrvb_blotter::{
     jjdb_gallops_journal_save,
     jjdb_BlotterConfig,
+    JJDB_CATCHWORD_FOUNDING,
+    JJDB_CATCHWORD_SIGIL,
     JJDB_STUDBOOK_DIRNAME,
 };
 use super::jjtu_testdir::JjkTestDir;
@@ -148,6 +150,8 @@ fn zjjtdm_fixture(name: &str) -> (JjkTestDir, std::path::PathBuf, jjdb_BlotterCo
         local_root: studbook_local,
         remote_url: sb_bare.to_string_lossy().into_owned(),
         trunk: ZJJTDM_SB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
     jjdb_gallops_journal_save(&jjrfg_PlainGit, &studbook_config, "jjtdm-seed", &zjjtdm_gallops(), "seed gallops".to_string())
         .unwrap();

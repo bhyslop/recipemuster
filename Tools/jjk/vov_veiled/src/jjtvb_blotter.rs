@@ -16,6 +16,8 @@ use super::jjrvb_blotter::{
     jjdb_read,
     jjdb_studbook_config,
     jjdb_BlotterConfig,
+    JJDB_CATCHWORD_FOUNDING,
+    JJDB_CATCHWORD_SIGIL,
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
 };
 use super::jjtu_testdir::JjkTestDir;
@@ -66,6 +68,13 @@ fn zjjtvb_commit_all(dir: &Path, name: &str, content: &str, message: &str) -> St
     zjjtvb_git(dir, &["rev-parse", "HEAD"])
 }
 
+/// The expected baked-subject form for an ordinal/message pair, matching
+/// `zjjrvb_bake_ordinal`'s composition — the one place tests need to know the
+/// bake's exact shape.
+fn zjjtvb_baked_subject(ordinal: u64, message: &str) -> String {
+    format!("{}{}: {}", JJDB_CATCHWORD_SIGIL, ordinal, message)
+}
+
 /// A bare remote plus one local clone tracking it, with a baseline commit
 /// pushed — the blotter engine's standard scratch fixture. `name` must be
 /// unique per caller: tests run concurrently against real on-disk git repos.
@@ -81,6 +90,8 @@ fn zjjtvb_scratch(name: &str) -> (JjkTestDir, JjkTestDir, jjdb_BlotterConfig) {
         local_root: local.path().to_path_buf(),
         remote_url: bare.path().to_string_lossy().into_owned(),
         trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
     (bare, local, config)
 }
@@ -98,7 +109,7 @@ fn jjtvb_journal_lodges_content_and_pushes_it() {
     let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
     assert_eq!(remote_tip, sha);
     let subject = zjjtvb_git(bare.path(), &["log", "-1", "--pretty=%s", ZJJTVB_TRUNK]);
-    assert_eq!(subject, "journal entry");
+    assert_eq!(subject, zjjtvb_baked_subject(JJDB_CATCHWORD_FOUNDING + 1, "journal entry"));
 }
 
 #[test]
@@ -172,6 +183,8 @@ fn jjtvb_journal_advances_past_a_prior_journaled_entry_before_writing() {
         local_root: other.path().to_path_buf(),
         remote_url: bare.path().to_string_lossy().into_owned(),
         trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
     jjdb_journal(&jjrfg_PlainGit, &other_config, "guidon-other-station", |root| {
         zjjtvb_write(root, "from-other.txt", "other station's entry");
@@ -257,6 +270,8 @@ fn jjtvb_found_stands_a_fresh_instance_up_from_nothing_against_a_bare_remote() {
         local_root: local_root.clone(),
         remote_url: bare.path().to_string_lossy().into_owned(),
         trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
 
     let sha = jjdb_found(&config, |root| {
@@ -267,7 +282,11 @@ fn jjtvb_found_stands_a_fresh_instance_up_from_nothing_against_a_bare_remote() {
     let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
     assert_eq!(remote_tip, sha, "the founding commit must land on the remote's trunk");
     let subject = zjjtvb_git(bare.path(), &["log", "-1", "--pretty=%s", ZJJTVB_TRUNK]);
-    assert_eq!(subject, "found");
+    assert_eq!(
+        subject,
+        zjjtvb_baked_subject(JJDB_CATCHWORD_FOUNDING, "found"),
+        "the genesis commit must take the store's founding ordinal, no zeroth special case"
+    );
     assert!(local_root.join("gallops.json").exists());
 }
 
@@ -280,6 +299,8 @@ fn jjtvb_found_instance_is_immediately_ready_for_the_journal_ceremony() {
         local_root: infield.path().join("scratch_studbook"),
         remote_url: bare.path().to_string_lossy().into_owned(),
         trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
     jjdb_found(&config, |root| {
         zjjtvb_write(root, "gallops.json", &zjjtvb_valid_gallops_seed());
@@ -298,8 +319,55 @@ fn jjtvb_found_instance_is_immediately_ready_for_the_journal_ceremony() {
 
     let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
     assert_eq!(remote_tip, sha);
+    let subject = zjjtvb_git(bare.path(), &["log", "-1", "--pretty=%s", ZJJTVB_TRUNK]);
+    assert_eq!(
+        subject,
+        zjjtvb_baked_subject(JJDB_CATCHWORD_FOUNDING + 1, "rehearsal entry"),
+        "the first journaled write after founding must advance one past the genesis ordinal"
+    );
     let loaded = jjdb_gallops_journal_load(&config).unwrap();
     assert_eq!(loaded.inner().next_heat_seed, zjjtvb_valid_gallops().next_heat_seed);
+}
+
+#[test]
+fn jjtvb_journal_bakes_a_monotonically_advancing_ordinal_across_writes() {
+    let infield = JjkTestDir::new("jjtvb_ordinal_monotonic_infield");
+    let bare = JjkTestDir::new("jjtvb_ordinal_monotonic_bare");
+    zjjtvb_init_bare(bare.path());
+    let config = jjdb_BlotterConfig {
+        local_root: infield.path().join("scratch_studbook"),
+        remote_url: bare.path().to_string_lossy().into_owned(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+    jjdb_found(&config, |root| {
+        zjjtvb_write(root, "gallops.json", &zjjtvb_valid_gallops_seed());
+        (vec![PathBuf::from("gallops.json")], "found".to_string())
+    });
+
+    jjdb_journal(&jjrfg_PlainGit, &config, "guidon-first", |root| {
+        zjjtvb_write(root, "first.txt", "first");
+        (vec![PathBuf::from("first.txt")], "first entry".to_string())
+    })
+    .unwrap();
+    jjdb_journal(&jjrfg_PlainGit, &config, "guidon-second", |root| {
+        zjjtvb_write(root, "second.txt", "second");
+        (vec![PathBuf::from("second.txt")], "second entry".to_string())
+    })
+    .unwrap();
+
+    let subjects = zjjtvb_git(bare.path(), &["log", "--pretty=%s", "--reverse", ZJJTVB_TRUNK]);
+    let lines: Vec<&str> = subjects.lines().collect();
+    assert_eq!(
+        lines,
+        vec![
+            zjjtvb_baked_subject(JJDB_CATCHWORD_FOUNDING, "found"),
+            zjjtvb_baked_subject(JJDB_CATCHWORD_FOUNDING + 1, "first entry"),
+            zjjtvb_baked_subject(JJDB_CATCHWORD_FOUNDING + 2, "second entry"),
+        ],
+        "each journaled write must advance the ordinal by exactly one past the genesis value"
+    );
 }
 
 /// Found the REAL production `jjqs_studbook` against its real GitHub remote
