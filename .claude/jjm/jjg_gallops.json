@@ -7742,7 +7742,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-0821",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Security-gate authoring. A leak that reaches a public repo cannot be recalled, and the completeness of the field classification is the whole product — a miss reads fine and ships.",
@@ -7771,7 +7773,7 @@
                 "The verb sterilizes a clone; the fixture bites — red on today's tree, green on a sterilized one; the reveille guard is green and goes red when a field is left unclassified; the ceremony calls both; reveille green."
               ],
               "jjgtn_silks": "delivery-identity-gate",
-              "jjgtn_basis": "6add1e7"
+              "jjgtn_basis": "243de18"
             }
           ]
         }
