@@ -5786,12 +5786,16 @@
         "₢BcAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260618-1222",
+              "jjgtn_ts": "260712-2248",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Operations plus cleanup — propagate this heat's schema changes to every JJK install, then retire the spent episodes — this heat's tack-rework tolerance and the original V3-to-V4 tolerance — once every install confirms them dormant, leaving the mechanism standing.",
+                "Operations plus cleanup — merge this heat's quarantined §F schema branches to main, propagate the schema changes to every JJK install, then retire the spent episodes — every episode the registry lists, once every install confirms it dormant — leaving the mechanism standing.",
                 "Procedural across machines; the load-bearing risk is stripping an episode before a remote has actually converted.",
+                "",
+                "## First act — end the quarantine",
+                "Merge this heat's §F date-and-identity schema branches to main and build the episode-bearing vvx from the merged tree;",
+                "the branches were the quarantine, and this coordinated convergence is the sole act that ends it.",
                 "",
                 "## The installs",
                 "Three exist: this source clone, paneboard, and the obsidian/jupyter clone.",
@@ -5804,16 +5808,16 @@
                 "Delivering pass 2 before pass 1's confirmation would leave a binary that cannot read a still-old gallops — that is the failure to avoid.",
                 "",
                 "## Cinched",
-                "- This coda owns the retirement of the spent episodes — this heat's tack-rework tolerance and the original V3-to-V4 tolerance with its frozen reference (jjrt_v3_types.rs and the JJS0 V3 Legacy Schema Reference section), consolidated here, not only this heat's episode — and removes their registry entries; the mechanism (registry, probe, open-time nag) stays standing.",
+                "- This coda owns the retirement of every spent episode the registry lists at execution time — the registry and its open-time nag are the census, never a hand list (today it reads the V3-to-V4 tolerance with its frozen reference (jjrt_v3_types.rs and the JJS0 V3 Legacy Schema Reference section), the schema_version drop, and this heat's tack-rework tolerance; the remaining schema paces may register more before this coda runs) — and removes their registry entries; the mechanism (registry, probe, open-time nag) stays standing.",
                 "- The retire gate is \"the episode dormant on every operated clone\" — never retire on a single dormant reading.",
                 "- Per jjdk_sole_operator the operated clones are a finite, enumerable set, which is what makes \"dormant on every instance in the world\" a checkable condition rather than an act of faith.",
                 "- Mechanism is permanent — this pace strips per-version tolerances, frozen types, and their registry rows, never the registry, probe, or nag.",
                 "",
                 "## Done when",
-                "Every install runs a binary whose on-disk gallops is canonical at this heat's schema and whose open-time probe reports every episode dormant; the spent episodes' tolerances and frozen references are stripped from source and their registry entries removed; the mechanism — registry, probe, open-time nag — stands; the forgiveness quoin stays as the permanent mechanism's home with the spent episodes marked discharged; build tt/vow-b, test tt/vow-t green after removal."
+                "Every install runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time probe reports every episode dormant; every spent episode's tolerance and frozen reference is stripped from source and its registry entry removed (the registry at execution time is the census); the mechanism — registry, probe, open-time nag — stands; the forgiveness quoin stays as the permanent mechanism's home with the spent episodes marked discharged; build tt/vow-b, test tt/vow-t green after removal."
               ],
               "jjgtn_silks": "propagate-and-retire-episodes",
-              "jjgtn_basis": "ffcfc4b"
+              "jjgtn_basis": "027e5b7"
             }
           ]
         },
@@ -6047,11 +6051,11 @@
         "₢BcAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260625-0951",
+              "jjgtn_ts": "260712-2248",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Design plus a gallops schema change; reprieve machinery in scope, so judgment work, not mechanical.",
+                "Design plus an additive-only gallops schema change; judgment work, not mechanical.",
                 "",
                 "## Goal",
                 "Give a pace a frozen-at-slate \"original intent\" capture, surfaced at mount above the docket,",
@@ -6081,23 +6085,28 @@
                 "elapsed time as the staleness adjudicator (false-alarms old-but-untouched intents, trains dismissal).",
                 "",
                 "## Schema change",
-                "Adding the fields changes the gallops on-disk shape — follow §E (reprieve-episode gate),",
-                "§F (branch naming), and JJSCRP (`jjdz_reprieve`): register a reprieve episode,",
-                "deliver source-only on a date-and-identity branch, commit no gallops conversion.",
+                "Additive-only: two frozen fields plus a counter, and no existing store migrates —",
+                "per the heat's bridle-revival cinch and JJSCRP's additive clause this registers NO reprieve episode",
+                "(forgiveness tolerates old stores, and an additive change leaves every old store natively readable via serde defaults).",
+                "§F branch delivery is retained: deliver source-only on a date-and-identity branch, commit no gallops conversion;",
+                "the branch merges at the coda's coordinated convergence.",
                 "Do not improvise this part.",
                 "",
                 "## Guidance update",
                 "Update the JJK CLAUDE guidance (`claude-jjk*.md`) to direct the slating ceremony",
                 "to populate both fields correctly and only during slating — not reslate, not later.",
+                "In the same act, amend §E's blanket must-register rule with the additive carve-out",
+                "(citing the bridle-revival determination and JJSCRP's additive clause),",
+                "so additive changes stop re-litigating the episode question.",
                 "",
                 "## Done when",
                 "A newly slated pace carries both immutable fields (raw + distilled) plus the redocket counter;",
                 "mount surfaces them above the docket with the staleness caveat, count, date annotation, and attribution label;",
-                "the `claude-jjk*.md` guidance directs correct slate-only population;",
-                "the schema change rides a registered reprieve episode; older on-disk gallops still read."
+                "the `claude-jjk*.md` guidance directs correct slate-only population and §E carries the additive carve-out;",
+                "the change is delivered per §F with no episode registered (additive-only); older on-disk gallops read natively."
               ],
               "jjgtn_silks": "pace-original-intent",
-              "jjgtn_basis": "6105d6d"
+              "jjgtn_basis": "027e5b7"
             }
           ]
         },
