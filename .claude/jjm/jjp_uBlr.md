@@ -292,8 +292,7 @@ the implementation tail runs at work tier.
   the wire-vs-display cinch's machine-context enumeration (260706) is superseded
   for project-authored JSON stores — the identity stays the bare body on every surface,
   carriage of the sentinel differs by surface, and git refs / paths / branch names stay bare;
-  ₢BcAAL (₣Bc, glyph-stripping the gallops keys under the old law) now works against
-  doctrine and awaits operator disposition;
+  the ₣Bc gallops-key glyph-strip pace, which worked against the new law, was dispositioned by abandonment;
   JJS0's jjdt_insignia carriage sentence and the jjrf_favor.rs comment sweep banked
   as a JJSAT reconciliation obligation.
   JJS0 swept for the rename in the same act (Seeded section title, attr refs, annotations).
