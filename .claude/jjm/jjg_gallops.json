@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "B0",
+  "jjgrn_next_heat_seed": "B1",
   "jjgrn_heat_order": [
     "₣Br",
     "₣Bs",
@@ -29,7 +29,8 @@
     "₣Au",
     "₣BI",
     "₣BL",
-    "₣Ba"
+    "₣Ba",
+    "₣B0"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -3566,6 +3567,14 @@
     "₣Au": {
       "jjghn_silks": "hairpin-peer-access",
       "jjghn_creation_time": "260314",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
+    },
+    "₣B0": {
+      "jjghn_silks": "rbk-11-produce-release",
+      "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
