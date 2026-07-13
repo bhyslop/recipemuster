@@ -7674,24 +7674,33 @@
         "₢BsAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2144",
+              "jjgtn_ts": "260713-0724",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Mechanical verification with loud gates; runs against the proof clone's candidate.",
+                "Mechanical verification with loud gates; the ceremony retry plus the consumer-seat probe against its fresh candidate.",
                 "",
                 "## Docket",
-                "Prove the stripped candidate from the consumer's seat, in the proof clone:",
-                "leakage sweep — audit git ls-files on the candidate for veiled residue (vov_veiled, Memos, Study, stripped kits, operator-site configs) and grep delivered prose for spalls (veiled spec basenames, interior acronyms surfacing in README/handbook text);",
-                "post-strip reveille — the full credless suite run on the stripped tree, proving the delivered code executes rather than merely wires (fast-qualify and pyx already ride the ceremony — confirm green, do not re-invent);",
-                "fold the ceremony amendment: the rbk-prep-release flow gains post-strip reveille as a standing every-cut step.",
-                "A finding means re-cut, never patch-forward (the ceremony's own failure-mode contract).",
+                "Retry the rbk-prep-release cut once the delivered-context repair (₢BsAAi) stands on main, then prove the new candidate from the consumer's seat.",
+                "Ceremony amendment first, so the retry rides it:",
+                "the flow gains post-strip reveille as a standing every-cut step,",
+                "run on a local probe branch atop the candidate carrying a committed synthetic consumer-shaped regime seed (shape-valid placeholder values, never operator values) —",
+                "the marshal-zeroed template cannot validate bare, and the theurge clean-tree gate forbids an uncommitted seed (probe finding, 260713);",
+                "the amendment also moves the ceremony clone naming to `rbm_candidate_{cut-date}` (underscore form), superseding `rbm-proof-*`.",
+                "Re-cut against a fresh clone under the new name.",
+                "The pre-strip release qualification (echelon) is waived for this retry — operator-cinched: the repair touches context docs and test infra only, the baseline's fixture cover stands, and deep proof rides ₣B0's greenfield walk.",
+                "Every cheap gate re-runs: marshal zero, strip residue review, regenerated tabtarget context, fast-qualify, pyx, both link-check halves.",
+                "Probe the new candidate: leakage sweep (`git ls-files` audit + spall grep — the pyx guard from ₢BsAAi mechanizes the vov_veiled half) and the seeded post-strip reveille.",
+                "A finding means re-cut, never patch-forward.",
+                "The superseded rbm-proof-20260712 clone retires at operator direction once the new candidate stands proven.",
                 "",
                 "## Done when",
-                "Leakage sweep clean; reveille green on the stripped candidate; the ceremony document carries the standing post-strip-reveille step."
+                "The ceremony document carries the standing seeded-reveille step and the candidate clone naming;",
+                "a fresh candidate stands cut under the new naming, leakage sweep clean, reveille green on the seeded probe branch;",
+                "the ₣B0 handoff fires per the paddock."
               ],
               "jjgtn_silks": "candidate-integrity-probe",
-              "jjgtn_basis": "fd173fe"
+              "jjgtn_basis": "7fe3a81"
             }
           ]
         },
