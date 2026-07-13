@@ -8586,8 +8586,8 @@
         "₢BsAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-1641",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-1915",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "Finish normalizing `beast` — the operator's own Windows 11 Pro desktop, on the tailnet as",
@@ -8661,7 +8661,7 @@
                 "Improvisational: survey, act, record — judgment on tap."
               ],
               "jjgtn_silks": "beast-host-standup",
-              "jjgtn_basis": "267ea6e"
+              "jjgtn_basis": "b244b33"
             }
           ]
         }
