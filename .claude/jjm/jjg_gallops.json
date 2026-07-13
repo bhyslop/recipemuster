@@ -3746,8 +3746,9 @@
         "₢B1AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0657",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Docket",
                 "",
@@ -3767,7 +3768,7 @@
                 "Small, precise git surgery with a proof; single session."
               ],
               "jjgtn_silks": "ancestry-graft-recipe",
-              "jjgtn_basis": "8faafdf"
+              "jjgtn_basis": "441cd75"
             }
           ]
         },
