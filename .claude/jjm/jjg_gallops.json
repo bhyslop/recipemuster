@@ -8499,7 +8499,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260712-1923",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Qualify the rebaseline on the Cygwin backend — the bash-dialect and transport surface — on `beast`,",
                 "the Cygwin + Docker Desktop host stood up and proven in the beast-standup pace",
@@ -8541,7 +8542,7 @@
                 "Mechanical: probe, run, read counts, notch or surface."
               ],
               "jjgtn_silks": "cygwin-freehold-sweep",
-              "jjgtn_basis": "3779b47"
+              "jjgtn_basis": "ffb064e"
             }
           ]
         },
