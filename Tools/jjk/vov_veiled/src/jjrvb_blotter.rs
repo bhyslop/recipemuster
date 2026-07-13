@@ -4,8 +4,10 @@
 
 //! Blotter engine — the journal ceremony bracket every blotter write passes
 //! through (JJSVJ-journal.adoc, `jjdb_journal`), engine-known bootstrap config
-//! for a blotter instance (JJSVB-blotter.adoc, bootstrap config), and the
-//! lock-free staleness-tolerant read path (`jjdk_lockless_reads`).
+//! for a blotter instance (JJSVB-blotter.adoc, bootstrap config), the founding
+//! ceremony that stands an instance up from nothing (`jjdb_found`, JJSAS
+//! Founding-and-cutover), and the lock-free staleness-tolerant read path
+//! (`jjdk_lockless_reads`).
 //!
 //! Generic over any `jjrfr_FarrierCore + jjrfr_FarrierLock` kind — the same
 //! machinery serves the studbook today and the mews fleet store later (blotter
@@ -37,16 +39,14 @@ use std::path::{
 /// cosmology sheaf `jjdw_yard`).
 pub const JJDB_STUDBOOK_DIRNAME: &str = "jjqs_studbook";
 
-/// Placeholder remote — the studbook's founding ceremony (JJSVS
-/// Founding-and-cutover) has not run on any station yet, so no real hosting
-/// exists. Left loud and obviously non-functional rather than a plausible-looking
-/// fake, so an accidental live call fails immediately instead of silently
-/// addressing nothing.
-const ZJJDB_STUDBOOK_REMOTE_UNPROVISIONED: &str = "UNPROVISIONED";
+/// The studbook's real founding remote (JJSVS Founding-and-cutover: "Remote: a
+/// GitHub private repo", "Separate at birth" — its own bare repo, distinct
+/// from the JJ kit repo `jjqa_app`). Founded 260713 (₢BrAAU).
+const ZJJDB_STUDBOOK_REMOTE: &str = "git@github.com:bhyslop/jjqs_studbook.git";
 
-/// Placeholder trunk name for the (not-yet-founded) studbook. A blotter is
-/// linear and never branches, so this names its one line of work.
-const ZJJDB_STUDBOOK_TRUNK_UNPROVISIONED: &str = "trunk";
+/// The studbook's one line of work. A blotter is linear and never branches,
+/// so this names it once.
+const ZJJDB_STUDBOOK_TRUNK: &str = "trunk";
 
 /// Engine-known bootstrap coordinates for one blotter instance (`jjdb_blotter`
 /// bootstrap config, blotter sheaf): where it lives locally, its remote, and its
@@ -64,15 +64,73 @@ pub struct jjdb_BlotterConfig {
 /// The studbook's engine-known bootstrap config, given the station's infield
 /// root. `infield_root` is captured once by the caller (the no-cwd rule this
 /// engine shares with the farrier trait: the door captures cwd, this function
-/// never reads the environment or the working directory itself). Coordinates
-/// are placeholders pending the founding ceremony — real values land there, not
-/// here (JJSVS Founding-and-cutover).
+/// never reads the environment or the working directory itself).
 pub fn jjdb_studbook_config(infield_root: &Path) -> jjdb_BlotterConfig {
     jjdb_BlotterConfig {
         local_root: infield_root.join(JJDB_STUDBOOK_DIRNAME),
-        remote_url: ZJJDB_STUDBOOK_REMOTE_UNPROVISIONED.to_string(),
-        trunk: ZJJDB_STUDBOOK_TRUNK_UNPROVISIONED.to_string(),
+        remote_url: ZJJDB_STUDBOOK_REMOTE.to_string(),
+        trunk: ZJJDB_STUDBOOK_TRUNK.to_string(),
     }
+}
+
+// ---- Founding ceremony ----
+
+/// Found a blotter instance from nothing (JJSVS Founding-and-cutover): local
+/// `git init` on the config's trunk branch, one seed commit, wire the
+/// pre-existing empty bare `origin` in, and push. Plain git, hardwired for
+/// the MVP's one farrier kind — founding sits outside the farrier trait by
+/// design (JJSVF "Deliberately absent": init and clone are never trait ops,
+/// the operator's hands or an engine ceremony like this one).
+/// The remote itself is not created here: an already-empty bare repo is an
+/// operator prerequisite.
+///
+/// Unlocked by design: founding runs once, single-actor, before any other
+/// writer can exist to race it — the journal's lock discipline begins with
+/// the instance's first `jjdb_journal` write, not before the instance
+/// exists. Panics on any git failure: this is an attended, one-shot
+/// ceremony, not a composed primitive with a rejection taxonomy to honor.
+///
+/// Returns the new HEAD SHA — the position now also live on the remote.
+pub fn jjdb_found<M>(config: &jjdb_BlotterConfig, seed: M) -> String
+where
+    M: FnOnce(&Path) -> (Vec<PathBuf>, String),
+{
+    let root = config.local_root.as_path();
+    std::fs::create_dir_all(root).unwrap_or_else(|e| panic!("jjdb_found: could not create {}: {}", root.display(), e));
+
+    zjjrvb_found_git(root, &["init", "-q", "-b", &config.trunk]);
+
+    let (files, message) = seed(root);
+    let file_strs: Vec<String> = files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
+
+    let mut add_args: Vec<&str> = vec!["add", "--"];
+    add_args.extend(file_strs.iter().map(String::as_str));
+    zjjrvb_found_git(root, &add_args);
+
+    let mut commit_args: Vec<&str> = vec!["commit", "-q", "-m", &message, "--"];
+    commit_args.extend(file_strs.iter().map(String::as_str));
+    zjjrvb_found_git(root, &commit_args);
+
+    zjjrvb_found_git(root, &["remote", "add", "origin", &config.remote_url]);
+    zjjrvb_found_git(root, &["push", "-q", "-u", "origin", &config.trunk]);
+
+    zjjrvb_found_git(root, &["rev-parse", "HEAD"]).trim().to_string()
+}
+
+/// Run `git -C root <args>`, panicking loud on failure — founding has no
+/// rejection taxonomy of its own (it precedes the instance the taxonomy
+/// governs).
+fn zjjrvb_found_git(root: &Path, args: &[&str]) -> String {
+    let out = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(args)
+        .output()
+        .unwrap_or_else(|e| panic!("jjdb_found: git spawn failed for -C {} {:?}: {}", root.display(), args, e));
+    if !out.status.success() {
+        panic!("jjdb_found: git -C {} {:?} failed: {}", root.display(), args, String::from_utf8_lossy(&out.stderr));
+    }
+    String::from_utf8(out.stdout).expect("git stdout must be UTF-8")
 }
 
 // ---- Read path ----

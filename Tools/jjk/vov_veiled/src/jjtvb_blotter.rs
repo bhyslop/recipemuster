@@ -10,6 +10,7 @@ use super::jjrfr_farrier::{
 use super::jjrt_types::jjrg_Gallops;
 use super::jjrvb_blotter::{
     jjdb_BlotterConfig,
+    jjdb_found,
     jjdb_gallops_journal_load,
     jjdb_gallops_journal_save,
     jjdb_journal,
@@ -235,4 +236,67 @@ fn jjtvb_gallops_journal_save_then_load_round_trips() {
 #[test]
 fn jjtvb_gallops_over_studbook_enablement_seam_defaults_off() {
     assert!(!JJDB_GALLOPS_OVER_STUDBOOK_ENABLED, "the studbook-backed surface must stay inert until the conversion heat flips it");
+}
+
+// ---- Founding ceremony ----
+
+fn zjjtvb_valid_gallops_seed() -> String {
+    serde_json::to_string(&zjjtvb_valid_gallops()).expect("a fresh Gallops must serialize")
+}
+
+#[test]
+fn jjtvb_found_stands_a_fresh_instance_up_from_nothing_against_a_bare_remote() {
+    let infield = JjkTestDir::new("jjtvb_found_infield");
+    let bare = JjkTestDir::new("jjtvb_found_bare");
+    zjjtvb_init_bare(bare.path());
+    // local_root does not exist yet — jjdb_found must create it, exactly as
+    // it would for a not-yet-founded instance's infield-resident path.
+    let local_root = infield.path().join("scratch_studbook");
+    let config = jjdb_BlotterConfig {
+        local_root: local_root.clone(),
+        remote_url: bare.path().to_string_lossy().into_owned(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+    };
+
+    let sha = jjdb_found(&config, |root| {
+        zjjtvb_write(root, "gallops.json", &zjjtvb_valid_gallops_seed());
+        (vec![PathBuf::from("gallops.json")], "found".to_string())
+    });
+
+    let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+    assert_eq!(remote_tip, sha, "the founding commit must land on the remote's trunk");
+    let subject = zjjtvb_git(bare.path(), &["log", "-1", "--pretty=%s", ZJJTVB_TRUNK]);
+    assert_eq!(subject, "found");
+    assert!(local_root.join("gallops.json").exists());
+}
+
+#[test]
+fn jjtvb_found_instance_is_immediately_ready_for_the_journal_ceremony() {
+    let infield = JjkTestDir::new("jjtvb_found_ready_infield");
+    let bare = JjkTestDir::new("jjtvb_found_ready_bare");
+    zjjtvb_init_bare(bare.path());
+    let config = jjdb_BlotterConfig {
+        local_root: infield.path().join("scratch_studbook"),
+        remote_url: bare.path().to_string_lossy().into_owned(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+    };
+    jjdb_found(&config, |root| {
+        zjjtvb_write(root, "gallops.json", &zjjtvb_valid_gallops_seed());
+        (vec![PathBuf::from("gallops.json")], "found".to_string())
+    });
+
+    // The rehearsal proper (two-station lock contention, stale-lock break,
+    // atomic-push lease failure, dispatch round-trip) is ₢BrAAW's own pace;
+    // this asserts the founded instance is a normal, live blotter the
+    // ordinary journal ceremony can already write through.
+    let sha = jjdb_journal(&jjrfg_PlainGit, &config, "guidon-rehearsal", |root| {
+        zjjtvb_write(root, "entry.txt", "post-founding entry");
+        (vec![PathBuf::from("entry.txt")], "rehearsal entry".to_string())
+    })
+    .unwrap();
+
+    let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+    assert_eq!(remote_tip, sha);
+    let loaded = jjdb_gallops_journal_load(&config).unwrap();
+    assert_eq!(loaded.inner().next_heat_seed, zjjtvb_valid_gallops().next_heat_seed);
 }
