@@ -536,6 +536,15 @@ federated access + mantle dons, 8s) and `access-probe` 2/2 (payor OAuth
 probe + sitting runway gate, 17s). Both green — the credential arc works
 end-to-end over the Cygwin ssh path.
 
+**Further beyond: the cloud arc.** Dogfight suite on beast — **2 fixtures,
+2 passed** (credential-readiness 8s; `rbtdrd_build_run_lifecycle` 565s,
+inside its declared 60–1800s window and matching the ~540s observed on
+other platforms). That is a real Cloud Build ordained from beast, its
+hallmark summoned back, and the image run on beast's Docker Desktop engine
+— ordain → summon → run, whole arc over the Cygwin ssh path. Then
+`batch-vouch` 1/1 — per its colophon census a hallmark-lifecycle exercise
+(ordain, vouch, tally, abjure, jettison against GAR), not just a read.
+
 **Remote-path finding: the device-flow clipboard announcement lies over
 ssh.** `rbw-aN` printed "(code copied to your clipboard)" — the operator's
 clipboard held nothing. The announcement is honest at its own layer
