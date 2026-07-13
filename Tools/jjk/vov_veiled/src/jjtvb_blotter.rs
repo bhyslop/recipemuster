@@ -9,12 +9,13 @@ use super::jjrfr_farrier::{
 };
 use super::jjrt_types::jjrg_Gallops;
 use super::jjrvb_blotter::{
-    jjdb_BlotterConfig,
     jjdb_found,
     jjdb_gallops_journal_load,
     jjdb_gallops_journal_save,
     jjdb_journal,
     jjdb_read,
+    jjdb_studbook_config,
+    jjdb_BlotterConfig,
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
 };
 use super::jjtu_testdir::JjkTestDir;
@@ -299,4 +300,33 @@ fn jjtvb_found_instance_is_immediately_ready_for_the_journal_ceremony() {
     assert_eq!(remote_tip, sha);
     let loaded = jjdb_gallops_journal_load(&config).unwrap();
     assert_eq!(loaded.inner().next_heat_seed, zjjtvb_valid_gallops().next_heat_seed);
+}
+
+/// Found the REAL production `jjqs_studbook` against its real GitHub remote
+/// at the station's real infield root — the one-shot ceremony ₢BrAAU exists
+/// to run, standing the scratch studbook up for ₢BrAAW's rehearsal. Real
+/// network, real remote, not run by the ordinary suite: `--ignored`, and
+/// `JJTVB_REAL_INFIELD_ROOT` must name the infield explicitly so a stray
+/// `--include-ignored` sweep cannot land it anywhere by accident.
+#[test]
+#[ignore]
+fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT")
+        .expect("set JJTVB_REAL_INFIELD_ROOT to the real infield root to run this ceremony");
+    let config = jjdb_studbook_config(Path::new(&infield_root));
+
+    let gallops = jjrg_Gallops {
+        next_heat_seed: "AA".to_string(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
+        retention_since: None,
+    };
+    let json = serde_json::to_string_pretty(&gallops).expect("a fresh Gallops must serialize");
+
+    let sha = jjdb_found(&config, |root| {
+        zjjtvb_write(root, "gallops.json", &json);
+        (vec![PathBuf::from("gallops.json")], "found jjqs_studbook".to_string())
+    });
+
+    println!("founded jjqs_studbook at {} ({})", sha, config.local_root.display());
 }
