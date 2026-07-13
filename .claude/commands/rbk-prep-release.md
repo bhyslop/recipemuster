@@ -227,6 +227,7 @@ git rm -f --ignore-unmatch rbmm_moorings/rbml_launchers/launcher.vvw_workbench.s
 
 **10e. Individual files:**
 ```
+git rm -f --ignore-unmatch RELEASE.md
 git rm -f --ignore-unmatch podman-gateway-proposal.md
 git rm -f --ignore-unmatch brm_recipemuster.iml
 git rm -f --ignore-unmatch index.html .nojekyll
@@ -238,7 +239,7 @@ git rm -f --ignore-unmatch Tools/crgv.validate.sh
 git rm -f --ignore-unmatch Tools/xxx_rbn.info.sh
 ```
 
-`.mcp.json` configures the internal `vvx` MCP server (`Tools/vvk/`), which is stripped. `wsl@rocket` is a BURS station regime config for the `wsl@rocket` ssh test host (operator-site-specific: `BURS_USER`/`BURS_TINCTURE`/`BURS_LOG_DIR`), sitting at the repo root — a site-specific config of the same kind as the `rbmn_nodes/`/`rbmu_users/` profiles stripped in 10b, withheld for the same reason.
+`RELEASE.md` is the maintainer's release-qualification procedure — it references tooling withheld from delivery (`rbw-MZ`, `rbw-MP`, `/rbk-prep-release`), so it is withheld too (decided 2026-07-12). `.mcp.json` configures the internal `vvx` MCP server (`Tools/vvk/`), which is stripped. `wsl@rocket` is a BURS station regime config for the `wsl@rocket` ssh test host (operator-site-specific: `BURS_USER`/`BURS_TINCTURE`/`BURS_LOG_DIR`), sitting at the repo root — a site-specific config of the same kind as the `rbmn_nodes/`/`rbmu_users/` profiles stripped in 10b, withheld for the same reason.
 
 **10f. Stage the consumer templates and marshal zero changes:**
 ```
