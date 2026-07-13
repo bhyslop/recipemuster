@@ -3883,8 +3883,10 @@
         "₢B2AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-1155",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-1156",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Cartography under judgment — read the homes, map the face, name what contradicts.",
@@ -3924,7 +3926,7 @@
                 "A third cut, if the census argues for one, is welcome — but it must be argued, not assumed."
               ],
               "jjgtn_silks": "readme-revetment-census",
-              "jjgtn_basis": "7d8cbc6"
+              "jjgtn_basis": "6756d38"
             }
           ]
         }
