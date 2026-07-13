@@ -125,7 +125,7 @@ Wait for user approval of the branch name.
 
 Wait for user acknowledgment.
 
-## Step 9: Extract consumer templates
+## Step 9: Extract consumer templates and set the delivery docs URL
 
 The consumer `CLAUDE.md` template lives in `vov_veiled/`, which will be stripped in Step 10. Extract it now. `README.md` is tracked directly at the repo root (consumer-facing) and needs no extraction.
 
@@ -135,7 +135,21 @@ cp Tools/rbk/vov_veiled/CLAUDE.consumer.md CLAUDE.md
 
 Note: `CLAUDE.md` is overwritten (replacing the development version).
 
-Show the user what was copied. Wait for acknowledgment.
+**Set the delivery docs URL.** The working repo's `RBRR_PUBLIC_DOCS_URL` points at the maintainer's development repo; the delivered tree must point consumers at the public home instead. Marshal zero deliberately passes this field through untouched, so this ceremony step is the only place the delivery value lands. The recorded URL base — a delivery decision, revisited only when the public home moves (decided 2026-07-12: the public repo's README blob, because GitHub blob rendering preserves the literal `<a id>` anchors the handbook links resolve, while staging and candidate branches are transient plumbing) — is:
+
+```
+https://github.com/scaleinv/recipebottle/blob/main/README.md
+```
+
+Edit `rbmm_moorings/rbrr.env` so the field reads exactly:
+
+```
+RBRR_PUBLIC_DOCS_URL="https://github.com/scaleinv/recipebottle/blob/main/README.md"
+```
+
+(Step 10f's `git add -u` stages this edit along with the other tracked changes.)
+
+Show the user what was copied and the URL diff. Wait for acknowledgment.
 
 ## Step 10: Strip proprietary content
 
@@ -290,7 +304,18 @@ Pyx asserts what must hold of the tree we are about to publish: every crate in t
 
 Note what pyx does NOT cover: the known-vulnerability advisory audit. That verdict moves with a live advisory database while the tree stands still, so it cannot be a fixture. It stays here, as a step you own.
 
-**If either check fails, STOP.** A fast-qualification failure means something in the consumer-visible code depends on stripped content. A pyx failure means the candidate is not fit to publish. Either is a real finding that must be investigated before proceeding.
+**Ceremony link check** — the standing step that makes the candidate's documentation links sound, in two halves:
+
+1. **Anchor sweep** — pyx's README-anchor case (just run, above) proves file-to-file on the candidate tree that every anchor minted in `Tools/rbk/rbyc_common.sh` (the third argument of each `zrbyc_yk` call) is defined in the candidate `README.md` as a literal `<a id="…">`. A green pyx IS this half; no separate command.
+2. **URL base** — every one of those links rides on `RBRR_PUBLIC_DOCS_URL`, which must equal the recorded delivery base from Step 9:
+
+```
+grep -F 'RBRR_PUBLIC_DOCS_URL="https://github.com/scaleinv/recipebottle/blob/main/README.md"' rbmm_moorings/rbrr.env
+```
+
+If the grep misses, Step 9's URL-set step was skipped or mistyped — fix `rbrr.env` and re-stage before committing.
+
+**If any check fails, STOP.** A fast-qualification failure means something in the consumer-visible code depends on stripped content. A pyx failure means the candidate is not fit to publish. A link-check failure means consumers would land on the maintainer's private repo. Each is a real finding that must be investigated before proceeding.
 
 Show the result and wait for user acknowledgment.
 
