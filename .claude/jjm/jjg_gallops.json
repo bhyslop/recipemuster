@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "B1",
+  "jjgrn_next_heat_seed": "B2",
   "jjgrn_heat_order": [
     "₣Br",
     "₣Bs",
@@ -30,7 +30,8 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣B0"
+    "₣B0",
+    "₣B1"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -3692,6 +3693,14 @@
           ]
         }
       }
+    },
+    "₣B1": {
+      "jjghn_silks": "rbk-12-repot-private-repo",
+      "jjghn_creation_time": "260712",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
