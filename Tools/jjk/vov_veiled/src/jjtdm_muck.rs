@@ -22,6 +22,7 @@ use super::jjrt_types::{
     jjrg_Pace,
     jjrg_PaceState,
     jjrg_Tack,
+    jjrg_Tier,
 };
 use super::jjrvb_blotter::{
     jjdb_gallops_journal_save,
@@ -77,10 +78,14 @@ fn zjjtdm_backdate(path: &Path, secs_ago: u64) {
 }
 
 fn zjjtdm_tack(state: jjrg_PaceState) -> jjrg_Tack {
+    zjjtdm_tack_with_tier(state, None)
+}
+
+fn zjjtdm_tack_with_tier(state: jjrg_PaceState, tier: Option<jjrg_Tier>) -> jjrg_Tack {
     jjrg_Tack {
         ts: "260712-1200".to_string(),
         state,
-        tier: None,
+        tier,
         effort: None,
         text: vec!["a docket line".to_string()],
         silks: "muck-test-pace".to_string(),
@@ -88,20 +93,23 @@ fn zjjtdm_tack(state: jjrg_PaceState) -> jjrg_Tack {
     }
 }
 
-/// A studbook gallops with one heat carrying one complete pace (₢AAAAC) and
-/// one rough pace (₢AAAAA) — enough shape for the closed/open classification
-/// gate.
+/// A studbook gallops with one heat carrying a complete pace (₢AAAAC), a
+/// rough pace (₢AAAAA), an abandoned pace (₢AAAAD), and a bridled pace
+/// (₢AAAAE) — enough shape for the closed/open classification gate across
+/// all four states.
 fn zjjtdm_gallops() -> jjrg_Gallops {
     let mut paces = std::collections::BTreeMap::new();
     paces.insert("₢AAAAC".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Complete)] });
     paces.insert("₢AAAAA".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Rough)] });
+    paces.insert("₢AAAAD".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Abandoned)] });
+    paces.insert("₢AAAAE".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack_with_tier(jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet))] });
     let mut heats = std::collections::BTreeMap::new();
     heats.insert("₣AA".to_string(), jjrg_Heat {
         silks: "muck-test-heat".to_string(),
         creation_time: "260712".to_string(),
         status: jjrg_HeatStatus::Racing,
-        order: vec!["₢AAAAC".to_string(), "₢AAAAA".to_string()],
-        next_pace_seed: "AAD".to_string(),
+        order: vec!["₢AAAAC".to_string(), "₢AAAAA".to_string(), "₢AAAAD".to_string(), "₢AAAAE".to_string()],
+        next_pace_seed: "AAF".to_string(),
         paces,
     });
     jjrg_Gallops { next_heat_seed: "AB".to_string(), heat_order: vec!["₣AA".to_string()], heats, retention_since: None }
@@ -355,4 +363,87 @@ fn jjtdm_reap_removes_every_clean_candidate() {
     assert!(report.outcomes.iter().all(|o| matches!(o, jjrdm_Outcome::Reaped(_))));
     assert!(!pace_billet.exists());
     assert!(!groom_billet.exists());
+}
+
+// ---- The remaining resolved/open states ----
+
+#[test]
+fn jjtdm_plan_reaps_an_abandoned_pace_billet_past_retention() {
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_abandoned");
+    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAD");
+    zjjtdm_backdate(&billet, JJRDM_RETENTION_SECS + 3600);
+
+    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), ZJJTDM_GUIDON).unwrap();
+
+    assert_eq!(plan.reap.len(), 1, "abandoned is resolved, same as complete");
+    assert_eq!(plan.reap[0].kind, jjrdm_Kind::Pace("AAAAD".to_string()));
+}
+
+#[test]
+fn jjtdm_plan_keeps_a_bridled_pace_billet_even_past_retention() {
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_bridled_old");
+    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAE");
+    zjjtdm_backdate(&billet, JJRDM_RETENTION_SECS + 3600);
+
+    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), ZJJTDM_GUIDON).unwrap();
+
+    assert!(plan.jjrdm_is_empty(), "bridled is still open work, same as rough");
+}
+
+// ---- Salvage guards: JJ-owned paths and line-of-work drift ----
+
+#[test]
+fn jjtdm_reap_never_salvages_jj_owned_officium_content() {
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_jj_owned");
+    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC");
+    // The only dirty content is a JJ-owned officium exchange file — nothing
+    // legitimate to salvage, so a confirmed reap must still refuse.
+    zjjtdm_mark_live_officium(&billet);
+    zjjtdm_backdate(&billet, JJRDM_RETENTION_SECS + 3600);
+    // Backdate the officium's own heartbeat so it reads as stale, not live —
+    // the liveness guard and the JJ-owned-path filter are independent
+    // concerns and this test isolates the latter.
+    let heartbeat = billet.join(".claude/jjm/officia/260712-1000-abcd/heartbeat");
+    zjjtdm_backdate(&heartbeat, JJRDM_RETENTION_SECS + 3600);
+
+    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), ZJJTDM_GUIDON).unwrap();
+    assert_eq!(plan.dirty.len(), 1, "the officium exchange file makes the billet dirty");
+
+    let report = jjrdm_reap(&jjrfg_PlainGit, &plan, true);
+
+    assert_eq!(report.outcomes.len(), 1);
+    match &report.outcomes[0] {
+        jjrdm_Outcome::Refused { billet_root, detail } => {
+            assert_eq!(billet_root, &billet);
+            assert!(detail.contains("nothing legitimate to salvage"));
+        }
+        other => panic!("expected Refused, got {:?}", other),
+    }
+    assert!(billet.exists(), "must never lodge JJ-owned officium content into the work repo");
+}
+
+#[test]
+fn jjtdm_reap_refuses_to_salvage_a_billet_whose_checkout_drifted() {
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_drifted_checkout");
+    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC");
+    std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
+    zjjtdm_backdate(&billet, JJRDM_RETENTION_SECS + 3600);
+    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), ZJJTDM_GUIDON).unwrap();
+    assert_eq!(plan.dirty.len(), 1);
+
+    // Between plan and reap, the billet's checkout drifts off its pace
+    // branch by hand — salvage must refuse rather than lodge onto the
+    // wrong line and consign the untouched coronet branch.
+    zjjtdm_git(&billet, &["checkout", "-q", "-b", "some-other-line"]);
+
+    let report = jjrdm_reap(&jjrfg_PlainGit, &plan, true);
+
+    assert_eq!(report.outcomes.len(), 1);
+    match &report.outcomes[0] {
+        jjrdm_Outcome::Refused { billet_root, detail } => {
+            assert_eq!(billet_root, &billet);
+            assert!(detail.contains("no longer seats branch"));
+        }
+        other => panic!("expected Refused, got {:?}", other),
+    }
 }

@@ -25,6 +25,20 @@
 //! join: live officia × billets, read straight off each billet's own
 //! `.claude/jjm/officia` via the same heartbeat-freshness rule
 //! `zjjrm_exsanguinate` applies. No platform process-probe.
+//!
+//! **This join's location is scoped to `JJRM_OFFICIUM_STUDBOOK_ENABLED ==
+//! false` (the current, live seam state).** A dispatched session's officia
+//! live at its own process cwd, which stirrup sets to the billet root — so
+//! `billet_root/.claude/jjm/officia` is correct today. Flipping that seam
+//! relocates every officium's exchange to the studbook
+//! (`jjrm_studbook_exchange_dir`), and nothing then stands under any
+//! billet: this guard would find "no live officium" for every billet,
+//! always, silently — the exact failure it exists to prevent. Muck staying
+//! unwired from `jjrds_run` (see below) means this cannot fire today; it
+//! must be re-cut *before* muck is ever wired live, using whatever record
+//! the conversion heat gives an officium of which billet it occupies
+//! (today's officium-open composition captures only the seat's role, never
+//! the billet — JJSVF "Toothing: officium open").
 
 use crate::jjrds_spine::{
     jjrds_type_target,
@@ -35,6 +49,7 @@ use crate::jjrfr_farrier::{
     jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
     jjrfr_FarrierLock,
+    jjrfr_LineOfWork,
     jjrfr_LockGuard,
     jjrfr_Rejection,
     jjrfr_RejectionKind,
@@ -52,10 +67,13 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-/// The reap-eligibility retention window: how long past pace-close (pace
-/// billets) or past creation (groom billets) a billet must age before muck
-/// will touch it. One constant, one rhyme with officium exsanguination
-/// (JJSVD "Muck").
+/// The reap-eligibility retention window: how far past its own directory
+/// mtime a billet must age before muck will touch it — the proxy this
+/// module uses for "how long past pace-close" (pace billets) or "how long
+/// since creation" (groom billets), since a pace's tack timestamps are
+/// studbook-internal history, not a billet-floor signal, and a groom billet
+/// has no pace to reference at all. One constant, one rhyme with officium
+/// exsanguination (JJSVD "Muck").
 pub const JJRDM_RETENTION_SECS: u64 = JJRM_EXSANGUINATION_THRESHOLD_SECS;
 
 /// The advice a refused dirty candidate carries — refuse-with-advice is the
@@ -206,7 +224,9 @@ fn zjjrdm_past_retention(billet_root: &Path, now: SystemTime) -> bool {
 
 /// The liveness guard: does a live officium stand under this billet's own
 /// `.claude/jjm/officia` — the pure JJ-data join, no platform process-probe
-/// (JJSVD "Muck").
+/// (JJSVD "Muck"). Scoped to the current, pre-cutover officium exchange
+/// location — see the module doc's `JJRM_OFFICIUM_STUDBOOK_ENABLED` caveat
+/// before ever wiring this live.
 fn zjjrdm_has_live_officium(billet_root: &Path) -> bool {
     let officia = billet_root.join(OFFICIA_DIR);
     let entries = match std::fs::read_dir(&officia) {
@@ -300,12 +320,36 @@ pub fn jjrdm_plan<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 
 // ---- Reap phase ----
 
+/// The path prefix muck must never lodge, even when dirty and confirmed:
+/// JJ's own officium exchange (gazettes, heartbeats) is a knowledge
+/// product, never a work-repo artifact (260709 footprint-posture cinch —
+/// "knowledge products ... never land there"). A founded install gitignores
+/// this, so `comb` ordinarily never surfaces it as dirty in the first
+/// place; this filter is belt-and-braces against an incomplete or
+/// hand-edited `.gitignore`.
+const JJRDM_JJ_OWNED_PREFIX: &str = ".claude/jjm";
+
+/// Whether `path` — a `comb` dirty-path entry — falls under the JJ-owned
+/// tree. Checked in both directions: `git status --porcelain` collapses a
+/// wholly-untracked directory to its own top-level entry rather than
+/// descending into it (no `-uall`), so an as-yet-empty `.claude/` reports
+/// as bare `.claude/` even though everything beneath it, once populated, is
+/// JJ-owned — that entry must still be caught (`jj_owned.starts_with(path)`
+/// alongside the ordinary `path.starts_with(jj_owned)`).
+fn zjjrdm_is_jj_owned(path: &Path) -> bool {
+    let jj_owned = Path::new(JJRDM_JJ_OWNED_PREFIX);
+    path.starts_with(jj_owned) || jj_owned.starts_with(path)
+}
+
 /// Auto-commit-push a dirty pace billet's working changes before reaping —
-/// lodges every dirty path under a standing message, then consigns to the
-/// billet's own branch (plain fast-forward: a billet branch is an ordinary
-/// hippodrome branch, never blotter content, so no lease applies). A dirty
-/// groom billet has no durable home to consign to — `jjdd_billet`'s "nothing
-/// must survive it" — so it refuses regardless of confirm.
+/// lodges every non-JJ-owned dirty path under a standing message, then
+/// consigns to the billet's own branch (plain fast-forward: a billet branch
+/// is an ordinary hippodrome branch, never blotter content, so no lease
+/// applies). A dirty groom billet has no durable home to consign to —
+/// `jjdd_billet`'s "nothing must survive it" — so it refuses regardless of
+/// confirm. Salvage requires the billet still seat the pace's own branch: a
+/// manually switched or detached checkout would otherwise lodge onto the
+/// wrong line while consigning the untouched coronet branch.
 fn zjjrdm_auto_commit_push<F: jjrfr_FarrierCore>(farrier: &F, candidate: &jjrdm_Candidate) -> Result<(), jjrfr_Rejection> {
     let coronet = match &candidate.kind {
         jjrdm_Kind::Pace(c) => c,
@@ -318,8 +362,28 @@ fn zjjrdm_auto_commit_push<F: jjrfr_FarrierCore>(farrier: &F, candidate: &jjrdm_
             ));
         }
     };
+
+    let identity = farrier.jjrfr_identify(&candidate.billet_root)?;
+    if identity.line_of_work != jjrfr_LineOfWork::Branch(coronet.clone()) {
+        return Err(jjrfr_Rejection::jjrfr_new(
+            jjrfr_RejectionKind::DirtyTree,
+            "jjrdm_reap",
+            candidate.billet_root.clone(),
+            format!("billet no longer seats branch '{}' — resolve by hand before salvaging", coronet),
+        ));
+    }
+
     let comb = farrier.jjrfr_comb(&candidate.billet_root)?;
-    farrier.jjrfr_lodge(&candidate.billet_root, &comb.dirty_paths, JJRDM_AUTO_COMMIT_MESSAGE)?;
+    let work_paths: Vec<PathBuf> = comb.dirty_paths.into_iter().filter(|p| !zjjrdm_is_jj_owned(p)).collect();
+    if work_paths.is_empty() {
+        return Err(jjrfr_Rejection::jjrfr_new(
+            jjrfr_RejectionKind::DirtyTree,
+            "jjrdm_reap",
+            candidate.billet_root.clone(),
+            "only JJ-owned officium files were dirty — nothing legitimate to salvage",
+        ));
+    }
+    farrier.jjrfr_lodge(&candidate.billet_root, &work_paths, JJRDM_AUTO_COMMIT_MESSAGE)?;
     farrier.jjrfr_consign(&candidate.billet_root, coronet, None)
 }
 

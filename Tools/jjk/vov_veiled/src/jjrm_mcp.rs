@@ -1720,6 +1720,16 @@ fn zjjrm_gazette_paths_block(
 /// unconditionally; nothing outside this module and its tests reads this
 /// constant. Flipping it is the conversion heat's act (JJSAS
 /// Founding-and-cutover), not this pace's.
+///
+/// A second, indirect dependent: `jjrdm_muck`'s liveness join
+/// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
+/// which is correct only while this constant is `false` — a dispatched
+/// session's officia live wherever the vvx process's cwd is (the billet
+/// root), a relationship this constant's own flip severs by relocating
+/// every officium's exchange to `jjrm_studbook_exchange_dir` instead. The
+/// join must be re-cut at that same flip (a durable per-officium billet
+/// marker is the natural carrier, since today's record captures only the
+/// seat's role, never which billet) — see `jjrdm_muck`'s module doc.
 pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
