@@ -8511,8 +8511,8 @@
         "₢BsAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2144",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260712-2209",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Substrate-semantics repair with the law already operator-cinched; mechanical residue with judgment at fixture design.",
@@ -8552,7 +8552,7 @@
                 "notched, ready for the candidate cut to ride."
               ],
               "jjgtn_silks": "chaining-fact-lifetime-repair",
-              "jjgtn_basis": "fd173fe"
+              "jjgtn_basis": "8c1823b"
             }
           ]
         },
