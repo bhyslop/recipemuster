@@ -296,6 +296,16 @@ the implementation tail runs at work tier.
   JJS0's jjdt_insignia carriage sentence and the jjrf_favor.rs comment sweep banked
   as a JJSAT reconciliation obligation.
   JJS0 swept for the rename in the same act (Seeded section title, attr refs, annotations).
+- Founded studbook is disposable scaffolding (260713, operator ruling at the founding pace):
+  the real jjqs_studbook was founded against its GitHub remote with a scratch empty gallops —
+  rehearsal substrate only, and it may absorb rehearsal noise freely;
+  the operator's working gallops does not migrate this heat and current JJ stays untouched
+  (both enablement seams pinned false).
+  The bare remote may be deleted and recreated by the operator for a clean slate at any time —
+  the founding ceremony reruns from nothing, so nothing founded today is load-bearing.
+  The conversion heat performs its own founding import per JJSAS Founding-and-cutover
+  and decides then whether to reuse the standing instance additively or start from a
+  recreated-clean remote; today's scratch founding forecloses neither.
 
 ## Canon workup
 
