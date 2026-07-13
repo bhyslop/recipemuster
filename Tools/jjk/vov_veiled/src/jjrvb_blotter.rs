@@ -182,9 +182,9 @@ pub fn jjdb_read(config: &jjdb_BlotterConfig, rel_path: &Path) -> std::io::Resul
 /// `jjrfr_lodge` will use (additive discipline — no stage-all, no amend).
 ///
 /// Sequence: glean (opportunistic) -> stake (via the RAII guard) -> sight
-/// (confirm the held guidon is ours) -> advance (fast-forward to remote tip) ->
-/// mutate and lodge -> consign (atomic-under-lease against our own lock ref) ->
-/// release (best-effort pluck via the guard's drop).
+/// (confirm the held guidon is ours) -> advance (equalize with the remote tip)
+/// -> mutate and lodge -> consign (atomic-under-lease against our own lock ref)
+/// -> release (best-effort pluck via the guard's drop).
 ///
 /// Returns the new local HEAD SHA on success — the position now also live on
 /// the remote, since consign succeeded. A rejection at any lock-held step
@@ -219,8 +219,12 @@ where
         );
     }
 
-    // Advance: fast-forward the local blotter to remote tip, always clean
-    // under the lock.
+    // JJr_b52
+    //
+    // Advance: equalize the local blotter with the remote tip, so what mutate
+    // and lodge build on is exactly the tip this ceremony is authorized to
+    // consign onto — and anything a refused ceremony left behind here is
+    // retrenched, never carried forward.
     farrier.jjrfr_advance(root)?;
 
     // Mutate and lodge: the caller writes its content; we allocate the next
@@ -235,8 +239,9 @@ where
 
     // Consign content: atomic-under-lease against our own lock ref — if the
     // lock was broken under us, the whole push fails (journal sheaf, step 5).
-    // No corruption, no service but git: a rejection leaves the local commit
-    // stranded but unpushed, never partially applied on the remote.
+    // No corruption, no service but git: a rejection lands nothing on the
+    // remote, and the refused commit stays in the local clone alone until the
+    // next ceremony's advance retrenches it away (JJr_b52).
     farrier.jjrfr_consign(
         root,
         &config.trunk,

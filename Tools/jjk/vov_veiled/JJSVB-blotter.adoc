@@ -111,6 +111,17 @@ Reads take no lock and tolerate slight staleness.
 No read-lock machinery exists to cite; the bound is the design itself.
 Consumers reach a {jjdb_blotter_p} content through the engine's read path, never raw JSON.
 
+== Local clone
+
+A {jjdb_blotter_p} local clone is a *cache of the remote*, never a work tree.
+The remote is the store;
+the clone is one station's disposable copy of it, engine-driven and sole-door
+({jjdk_sole_door}), holding nothing a human authored.
+The {jjdb_journal} equalizes it with the remote tip under the lock before every write
+(`JJr_b52`), so local-only content there is either about to be consigned or was already
+refused — and either way the store, not the clone, is the truth.
+A station may delete and re-clone it at any time with nothing lost.
+
 == Bootstrap config
 
 A {jjdb_blotter_p} own configuration — where each instance lives, remote URL and local clone —

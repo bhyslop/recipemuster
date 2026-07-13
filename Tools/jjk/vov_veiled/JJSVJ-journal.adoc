@@ -38,8 +38,10 @@ The bracket:
   rejected) →
   `sight` to confirm the held {jjdb_guidon} is ours.
 . *Advance*:
-  fast-forward the local {jjdb_blotter} to remote tip —
-  always clean under the lock; loud failure if not.
+  *equalize* the local {jjdb_blotter} with the remote tip — made equal to it, never merely
+  moved toward it.
+  Total against every position the clone can be in;
+  a clone ahead of the tip is retrenched back to it.
 . *Mutate and lodge*:
   apply the record change, plus the {jjdb_counterfoil} naming the work repo and its commit;
   `lodge` with explicit files.
@@ -47,9 +49,48 @@ The bracket:
   `--atomic`, binding the content update to a lease on our own lock ref —
   if the lock was broken under us, the whole push fails.
   No corruption, no service but git.
+  A refused push lands nothing on the remote and leaves its commit in the local clone alone,
+  unpushed and unauthorized;
+  the next ceremony's *Advance* retrenches it away — that is its disposition, and the ceremony
+  owes it no other.
 . *Release*:
   `pluck`, best-effort;
   a die here leaves a stale lock still flying its {jjdb_guidon} for the {jjdb_break}.
+
+*Equalized under the lock* — a rivet, cited in shipped code by the opaque token `JJr_b52`:
+when `mutate` runs, the local {jjdb_blotter} equals the remote tip the ceremony is authorized
+to consign onto,
+so every commit `lodge` writes takes that authorized tip as its sole parent,
+and content the lease refused is *retrenched*, never re-consigned.
+The citation sites are the `advance` implementation and the ceremony's own advance step;
+one `grep JJr_b52` returns this definition and every site it guards.
+
+The rivet is what a fast-forward cannot give.
+A refused ceremony leaves a commit the remote never accepted sitting in the clone (step 5),
+and a fast-forward leaves a clone that is merely *ahead* exactly where it stands:
+`lodge` then stacks on the refused commit and `consign` carries both,
+so content one lock refused arrives on the shared store under a later, unrelated lock,
+with nothing recording that it was ever refused —
+and had another station written in between, the same commit wedges the station instead,
+with a divergence it has no verb to recover from.
+Which of the two befalls a station is pure timing.
+Equalize forecloses both:
+the clone is made equal to the tip, so there is nothing to carry and nothing to diverge from.
+
+Retrenching is safe because a {jjdb_blotter_p} clone is a cache, never a work tree
+(entity sheaf, Local clone):
+it is engine-driven and sole-door, so it holds nothing a human authored.
+Discarding a local-only commit there is a deliberate ruling, stated here — never a silent
+papering-over — and git's reflog keeps the commit forensically recoverable regardless.
+Equalizing moves the local cache and pushes nothing,
+so the never-force rivet (`JJr_d81`, farrier sheaf) — which governs the remote's history — is
+untouched.
+Dirt is equalized away with everything else local,
+which heals a second wedge: a die between `mutate` and `lodge` leaves the clone dirty with no
+one to clean it,
+and an advance that refused dirt would refuse every ceremony thereafter.
+Untracked residue alone survives the equalize, and cannot ride onto the store:
+`lodge` deposits an explicit file list, never a stage-all.
 
 Durable-first is the bracket's law, not a preference:
 an orphaned work commit (committed, never journaled) is recoverable;

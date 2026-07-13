@@ -172,10 +172,18 @@ the {jjdf_farrier} fetches and never merges — {jjdd_refit} (dispatch sheaf) is
 staleness remedy.
 
 `advance`::
-Fast-forward-only move to the remote tip;
-rejects (diverged) when fast-forward is impossible — the {jjdf_farrier} never merges toward
-a remote and never rebases.
-Composed by the {jjdb_journal}.
+Equalize the line of work with the remote tip: made *equal to* its counterpart, never merely
+moved toward it — a line ahead of the tip is retrenched back to it, discarding what the
+counterpart does not have.
+The {jjdf_farrier} never merges toward a remote and never rebases.
+Composed by the {jjdb_journal}, whose equalized-under-the-lock rivet (`JJr_b52`) is why it
+equalizes rather than fast-forwards, and why discarding is safe.
++
+Total against every local position — ahead, behind, diverged, dirty — so its rejection set is
+empty:
+(diverged) is `consign`'s alone, and (dirty tree) no longer gates the move.
+The fallible signature stands for a kind that must speak a rejection here;
+it is a cross-kind contract, not plain git's own totality hardened into the trait.
 
 `consign`::
 Hand a branch into the remote's custody.
@@ -306,8 +314,8 @@ Founding-and-cutover).
 
 One farrier-wide taxonomy of rejection *kinds*, wrapped in a context layer naming op, repo,
 and detail.
-A kind is a shared semantic fact — diverged means the same thing from `advance` or
-`consign` — so consumers branch on kind, never on message text.
+A kind is a shared semantic fact — dirty-tree means the same thing from `billet_reuse` or
+`billet_reap` — so consumers branch on kind, never on message text.
 Kinds known at MVP: foreign-ground ({jjdf_identify_p} sole failure), dirty-tree, diverged,
 lock-held, lock-broken.
 A new kind must be allocated in this sheaf, and named git-free per the {jjdf_palisade}.

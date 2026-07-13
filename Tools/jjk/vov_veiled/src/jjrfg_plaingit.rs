@@ -345,24 +345,17 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     }
 
     fn jjrfr_advance(&self, root: &Path) -> Result<(), jjrfr_Rejection> {
-        let comb = self.jjrfr_comb(root)?;
-        if !comb.jjrfr_is_clean() {
-            return Err(jjrfr_Rejection::jjrfr_new(
-                jjrfr_RejectionKind::DirtyTree,
-                ZJJRFG_OP_ADVANCE,
-                root,
-                "uncommitted changes block a fast-forward move",
-            ));
-        }
+        // JJr_b52
+        //
         // Advancing a line with no remote counterpart is a composition fault —
         // sync_state's Untracked answer is the guard callers consult first.
         let upstream = zjjrfg_run_git(root, &["rev-parse", "--abbrev-ref", "@{upstream}"]);
         if !upstream.ok {
             zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &upstream.stderr);
         }
-        let out = zjjrfg_run_git(root, &["merge", "--ff-only", upstream.stdout.trim()]);
+        let out = zjjrfg_run_git(root, &["reset", "--hard", upstream.stdout.trim()]);
         if !out.ok {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_ADVANCE, root, out.stderr));
+            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &out.stderr);
         }
         Ok(())
     }

@@ -174,6 +174,51 @@ fn jjtvb_journal_rejects_lock_broken_mid_ceremony_and_pushes_nothing() {
     );
 }
 
+/// JJr_b52, the standing regression the real-remote rehearsal bought: a
+/// ceremony whose consign the lease refused leaves its commit in the local clone
+/// alone. The SAME station's next authorized ceremony must retrench it — the
+/// refused content must never reach the shared store, and it must not wedge the
+/// station either. Before the equalize contract, advance left a clone merely
+/// ahead of the tip untouched, lodge stacked on the refused commit, and consign
+/// carried both under a later, unrelated lock.
+#[test]
+fn jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony() {
+    let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_retrench");
+
+    // Drive the station into the stranded state: another station breaks our lock
+    // mid-ceremony, so our consign fails its lease with the commit already made.
+    let err = jjdb_journal(&jjrfg_PlainGit, &config, "guidon-victim", |root| {
+        jjrfg_PlainGit.jjrfr_pluck(root, "guidon-victim").unwrap();
+        jjrfg_PlainGit.jjrfr_stake(root, "guidon-usurper").unwrap();
+        zjjtvb_write(root, "refused.txt", "refused by the lock, never authorized");
+        (vec![PathBuf::from("refused.txt")], "REFUSED: the lock said no".to_string())
+    })
+    .expect_err("the broken lease must refuse the consign");
+    assert_eq!(err.kind, jjrfr_RejectionKind::LockBroken);
+    jjrfg_PlainGit.jjrfr_pluck(local.path(), "guidon-usurper").unwrap();
+
+    // With the lock free again, the station writes something else entirely.
+    jjdb_journal(&jjrfg_PlainGit, &config, "guidon-retry", |root| {
+        zjjtvb_write(root, "intended.txt", "the write the station actually intended");
+        (vec![PathBuf::from("intended.txt")], "the intended write".to_string())
+    })
+    .expect("with the lock free, the next ceremony completes");
+
+    let pushed = zjjtvb_git(bare.path(), &["log", "--pretty=%s", ZJJTVB_TRUNK]);
+    assert!(
+        !pushed.lines().any(|l| l.contains("REFUSED")),
+        "a commit the lock refused must never ride onto the store on a later write; remote history was:\n{}",
+        pushed
+    );
+    assert!(
+        pushed.lines().any(|l| l.contains("the intended write")),
+        "the authorized write must land; remote history was:\n{}",
+        pushed
+    );
+    let refused_content = local.path().join("refused.txt");
+    assert!(!refused_content.exists(), "the refused content must be retrenched out of the local clone too");
+}
+
 #[test]
 fn jjtvb_journal_advances_past_a_prior_journaled_entry_before_writing() {
     let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_advance");
@@ -678,14 +723,14 @@ fn jjtvb_rehearsal_atomic_push_lease_failure() {
     println!("REHEARSAL lease: alpha's consign was refused LockBroken; real remote still at {}", baseline);
 }
 
-/// Rehearsal 3b — the aftermath the design does not speak to, probed on
-/// purpose. A lease-failed ceremony leaves a commit stranded in the local clone
-/// (JJSVJ says so plainly). Nothing in the ceremony discards it — so what does
-/// the SAME station's next successful journal do with it? If the stranded
-/// commit rides in on that push, then content the lock refused once arrives
-/// later without ever being authorized, which is a finding, not a feature.
-/// This test asserts nothing about which answer is right; it records the one
-/// the machinery actually gives.
+/// Rehearsal 3b — the aftermath, on the real remote. This probe once ran as a
+/// finding-recorder and found one: a lease-failed ceremony stranded its commit
+/// locally, and the station's next authorized ceremony pushed it onto the shared
+/// store, unauthorized. JJr_b52 is the answer that finding bought — advance now
+/// equalizes, so the refused commit is retrenched — and this is that invariant
+/// proved against real GitHub, where the scratch sibling
+/// (`jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony`)
+/// proves it against a local bare repo on every run.
 #[test]
 #[ignore]
 fn jjtvb_rehearsal_stranded_commit_aftermath() {
@@ -723,8 +768,8 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
     println!("REHEARSAL aftermath: remote history now:\n{}", pushed);
     assert!(
         !stranded_landed,
-        "FINDING: a commit the lock REFUSED rode onto the shared store on the station's next write — \
-         the ceremony strands it locally and never reconciles it, so the next consign pushes it \
-         unauthorized. The lease protects the push it guards, not the history behind it."
+        "JJr_b52 violated on the real remote: a commit the lock REFUSED rode onto the shared store \
+         on the station's next write. Advance must equalize with the remote tip, retrenching the \
+         refused commit — never fast-forward toward it and leave the commit standing."
     );
 }

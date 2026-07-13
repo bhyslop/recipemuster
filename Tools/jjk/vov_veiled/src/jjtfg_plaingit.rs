@@ -270,9 +270,9 @@ fn zjjtfg_two_clones_from_baseline(bare: &Path, name: &str) -> (JjkTestDir, JjkT
 }
 
 #[test]
-fn jjtfg_advance_fast_forwards_to_remote_tip() {
-    let bare = JjkTestDir::new("jjtfg_advance_ff_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_ff");
+fn jjtfg_advance_equalizes_a_behind_line_with_the_remote_tip() {
+    let bare = JjkTestDir::new("jjtfg_advance_behind_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_behind");
 
     let tip = zjjtfg_commit_all(local2.path(), "ahead.txt", "ahead", "ahead");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
@@ -284,34 +284,63 @@ fn jjtfg_advance_fast_forwards_to_remote_tip() {
     assert_eq!(head, tip);
 }
 
+/// JJr_b52: a line ahead of the tip is retrenched back to it, not left alone.
+/// This is the defect's root — a commit the remote never accepted, sitting where
+/// the next lodge would stack on it and the next consign would carry it along.
 #[test]
-fn jjtfg_advance_rejects_dirty_tree() {
-    let bare = JjkTestDir::new("jjtfg_advance_dirty_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_dirty");
-    zjjtfg_commit_all(local2.path(), "ahead.txt", "ahead", "ahead");
-    zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
+fn jjtfg_advance_retrenches_a_line_ahead_of_the_remote_tip() {
+    let bare = JjkTestDir::new("jjtfg_advance_ahead_bare");
+    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_ahead");
+    let tip = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+
+    zjjtfg_commit_all(local1.path(), "refused.txt", "never authorized", "refused");
     jjrfg_PlainGit.jjrfr_glean(local1.path());
-    zjjtfg_write(local1.path(), "uncommitted.txt", "dirty");
+    jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
 
-    let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
-
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
+    let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, tip, "a local-only commit must be retrenched, not preserved");
+    assert!(!local1.path().join("refused.txt").exists(), "its content must go with it");
 }
 
+/// JJr_b52: dirt no longer blocks the move — it is equalized away with
+/// everything else local. This heals the wedge a crash between mutate and lodge
+/// would otherwise leave: a clone dirty forever, refusing every later ceremony.
 #[test]
-fn jjtfg_advance_rejects_diverged_when_ff_impossible() {
+fn jjtfg_advance_equalizes_away_a_dirty_tree() {
+    let bare = JjkTestDir::new("jjtfg_advance_dirty_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_dirty");
+    let tip = zjjtfg_commit_all(local2.path(), "ahead.txt", "ahead", "ahead");
+    zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
+    jjrfg_PlainGit.jjrfr_glean(local1.path());
+    zjjtfg_write(local1.path(), "base.txt", "half-written by a ceremony that died");
+
+    jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
+
+    let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, tip);
+    let base = std::fs::read_to_string(local1.path().join("base.txt")).unwrap();
+    assert_eq!(base, "base", "the tracked file must be restored to the remote's content");
+}
+
+/// JJr_b52: diverged left advance's rejection set. The position that used to
+/// wedge the station — ahead AND behind — is now just another local position
+/// equalize is total against; `Diverged` is `consign`'s alone.
+#[test]
+fn jjtfg_advance_equalizes_a_diverged_line() {
     let bare = JjkTestDir::new("jjtfg_advance_diverged_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_diverged");
 
-    zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
+    let tip = zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
 
     zjjtfg_commit_all(local1.path(), "from-local1.txt", "from local1", "from local1");
     jjrfg_PlainGit.jjrfr_glean(local1.path());
 
-    let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
+    jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
 
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
+    let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, tip);
+    assert!(!local1.path().join("from-local1.txt").exists());
 }
 
 #[test]

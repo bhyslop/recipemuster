@@ -31,9 +31,9 @@ use std::sync::{
 /// One farrier-wide rejection-kind taxonomy. Closed by the farrier sheaf: a new
 /// kind must be allocated there and named git-free per the vocabulary Palisade —
 /// never invented ad hoc by a kind implementation, and never a catch-all bucket.
-/// A kind is a shared semantic fact — `Diverged` means the same thing whether it
-/// surfaces from `jjrfr_advance` or `jjrfr_consign` — so consumers branch on kind,
-/// never on message text.
+/// A kind is a shared semantic fact — `DirtyTree` means the same thing whether it
+/// surfaces from `jjrfr_billet_reuse` or `jjrfr_billet_reap` — so consumers branch
+/// on kind, never on message text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrfr_RejectionKind {
     ForeignGround,
@@ -205,12 +205,19 @@ pub trait jjrfr_FarrierCore {
     /// local. Sequence-internal, opportunistic; fetches and never merges.
     fn jjrfr_glean(&self, root: &Path) -> jjrfr_GleanOutcome;
 
-    /// Fast-forward-only move of the tree's line of work to its remote
-    /// counterpart's tip, as of the last `jjrfr_glean`. The kind resolves the
-    /// counterpart itself — callers never speak a kind-native ref dialect.
-    /// Rejects `Diverged` when fast-forward is impossible, `DirtyTree` when
-    /// uncommitted changes block it. Never merges toward a remote, never
-    /// rebases. Composed by the journal.
+    /// Equalize the tree's line of work with its remote counterpart's tip, as of
+    /// the last `jjrfr_glean` — made *equal to* the tip, never merely moved
+    /// toward it: a line holding commits the counterpart does not have is
+    /// retrenched back to it, and they are discarded (`JJr_b52`, journal sheaf).
+    /// The kind resolves the counterpart itself — callers never speak a
+    /// kind-native ref dialect. Never merges toward a remote, never rebases.
+    /// Composed by the journal.
+    ///
+    /// The plain-git kind is total against every local position — ahead, behind,
+    /// diverged, dirty — so its rejection set is empty; `Diverged` is
+    /// `jjrfr_consign`'s alone. The fallible signature stands for a kind that
+    /// must speak a rejection here, and stays a cross-kind contract rather than
+    /// plain git's own totality hardened into the trait.
     fn jjrfr_advance(&self, root: &Path) -> Result<(), jjrfr_Rejection>;
 
     /// Hand `branch` into the remote's custody. `lease` absent selects plain
