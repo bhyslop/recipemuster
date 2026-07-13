@@ -6516,7 +6516,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-1054",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -6569,7 +6571,7 @@
                 "Whether that earns a re-mint is an operator lapidary call, taken at mount; the contract change stands either way."
               ],
               "jjgtn_silks": "advance-equalizes-under-the-lock",
-              "jjgtn_basis": "8751670"
+              "jjgtn_basis": "481ca8e"
             }
           ]
         }
