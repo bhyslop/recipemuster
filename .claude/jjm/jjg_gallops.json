@@ -7765,33 +7765,28 @@
         "₢BsAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0724",
+              "jjgtn_ts": "260713-1258",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Mechanical verification with loud gates; the ceremony retry plus the consumer-seat probe against its fresh candidate.",
+                "Mechanical verification with loud gates; the cut, and the consumer-seat probe against its fresh candidate.",
                 "",
                 "## Docket",
-                "Retry the rbk-prep-release cut once the delivered-context repair (₢BsAAi) stands on main, then prove the new candidate from the consumer's seat.",
-                "Ceremony amendment first, so the retry rides it:",
-                "the flow gains post-strip reveille as a standing every-cut step,",
-                "run on a local probe branch atop the candidate carrying a committed synthetic consumer-shaped regime seed (shape-valid placeholder values, never operator values) —",
-                "the marshal-zeroed template cannot validate bare, and the theurge clean-tree gate forbids an uncommitted seed (probe finding, 260713);",
-                "the amendment also moves the ceremony clone naming to `rbm_candidate_{cut-date}` (underscore form), superseding `rbm-proof-*`.",
-                "Re-cut against a fresh clone under the new name.",
-                "The pre-strip release qualification (echelon) is waived for this retry — operator-cinched: the repair touches context docs and test infra only, the baseline's fixture cover stands, and deep proof rides ₣B0's greenfield walk.",
-                "Every cheap gate re-runs: marshal zero, strip residue review, regenerated tabtarget context, fast-qualify, pyx, both link-check halves.",
-                "Probe the new candidate: leakage sweep (`git ls-files` audit + spall grep — the pyx guard from ₢BsAAi mechanizes the vov_veiled half) and the seeded post-strip reveille.",
+                "Cut the delivery candidate against the repaired ceremony, then prove it from the consumer's seat.",
+                "The 260713 cut is dead and its branch deleted: it carried the whole pre-strip repository in the squash commit under the strip commit, and went to the remote at 292 MiB (private repo, by luck of remote wiring).",
+                "The ceremony now forbids that — the candidate is ONE commit atop the upstream base — and re-cutting is the only path; a poisoned history cannot be amended out of a clone.",
+                "Run only after the three repairs that cut exposed stand on main, and against a recreated staging remote.",
+                "The pre-strip release qualification (echelon) stays waived — operator-cinched: the repairs touch context docs, a generator, and test infra only, and deep proof rides ₣B0's greenfield walk.",
+                "Every cheap gate runs: marshal zero, lustrate, strip residue review, regenerated tabtarget context, fast-qualify, pyx, loupe (pre-strip, by name), damnatio, both link-check halves.",
+                "Prove the candidate: the history check (one commit, and the pushed volume sane), the leakage sweep, and the seeded post-strip reveille on the feigned probe branch.",
                 "A finding means re-cut, never patch-forward.",
-                "The superseded rbm-proof-20260712 clone retires at operator direction once the new candidate stands proven.",
                 "",
                 "## Done when",
-                "The ceremony document carries the standing seeded-reveille step and the candidate clone naming;",
-                "a fresh candidate stands cut under the new naming, leakage sweep clean, reveille green on the seeded probe branch;",
+                "A candidate stands cut under the `rbm_candidate_{cut-date}_{try}` naming — one commit atop the upstream base, leakage sweep clean, reveille green on the feigned probe branch;",
                 "the ₣B0 handoff fires per the paddock."
               ],
               "jjgtn_silks": "candidate-integrity-probe",
-              "jjgtn_basis": "7fe3a81"
+              "jjgtn_basis": "bbb09e9"
             }
           ]
         },

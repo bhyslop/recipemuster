@@ -30,6 +30,11 @@ palpates relay too, so a read-only consumer never eats the chain out from under 
 The chain-lifetime repair ships in THIS candidate: it precedes the cut, and the cut rides the repair's re-proven reveille.
 Candidate integrity is proven from the consumer's seat before the heat closes:
 the leakage-sweep + post-strip-reveille probe is a standing every-cut gate.
+A candidate's TIP tree is not the candidate (operator-cinched 260713, the day it cost us):
+every assay this project owns reads the tip, and a candidate whose history carried the whole pre-strip repository — veiled specs, memos, chat archives — passed all of them and went to the remote at 292 MiB.
+The strip cleans the tip; the push sends everything reachable from the branch.
+So a candidate is ONE commit atop the upstream base, and proving a candidate means proving its history, never only its face.
+The mechanical gate for that is owed before the public push and is homed in ₣B0.
 Delivery is out of scope here: staging push, the greenfield manor walk (full against public staging, thin spot-check against production), promotion, and liveness checks all live in the delivery heat (₣B0);
 the cloud chain-livery proof of the chain-lifetime repair rides that heat's gauntlet-from-fresh-substrate.
 The handoff to the delivery heat happens at the integrity probe, not at this heat's close:
@@ -47,7 +52,7 @@ the standing-substrate sweeps — the self-contained and union suites, then the 
 with README diagram authoring slotted as fill work while the long runs await;
 then the destructive arc — the gauntlet, the orphan-arm escheat proof riding its churn, the manor raze-and-rebuild walk, the caged-subject admission on the rebuilt substrate, the rbgft test-infra residue, and a closing revalidation of the rebuilt baseline;
 then the cross-platform sweep — the Linux fixture-grain residue on the test station, followed by per-platform paces for macOS, rocket WSL, and rocket Cygwin;
-then the staging arc — the chain-lifetime repair, the real candidate cut on its re-proven baseline, and the candidate integrity probe;
+then the staging arc — the chain-lifetime repair, the ceremony and delivered-face repairs the first cut exposed, the real candidate cut on its re-proven baseline, and the candidate integrity probe;
 the residue paces (premise mint, indeterminacy sheaf, then the post-release nomination on the final residue) close the heat across the delivery span, with delivery handed to ₣B0 at the integrity probe.
 
 ## Done when
@@ -61,4 +66,5 @@ the caged subject stands as the second roster citizen;
 the closing revalidation is green and the operator declares the rebaseline complete;
 the chain-lifetime law is landed, proven, and riding in the candidate;
 the release ceremony document matches the tree;
-and a delivery candidate stands cut, stripped, link-checked, and consumer-seat proven (leakage sweep + post-strip reveille), ready for the delivery heat to stage.
+and a delivery candidate stands cut, stripped, link-checked, and consumer-seat proven (leakage sweep + post-strip reveille) —
+one commit atop the upstream base, its history carrying nothing withheld — ready for the delivery heat to stage.
