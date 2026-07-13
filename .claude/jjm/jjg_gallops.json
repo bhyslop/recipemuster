@@ -7742,7 +7742,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-0827",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Security-gate authoring by composition. A leak reaching a public repo cannot be recalled, and the roster's completeness is the whole product — a miss reads fine and ships.",
@@ -7782,7 +7784,7 @@
                 "the ceremony calls the verb and the fixture; reveille green."
               ],
               "jjgtn_silks": "delivery-identity-gate",
-              "jjgtn_basis": "c2f3978"
+              "jjgtn_basis": "142adec"
             }
           ]
         }
