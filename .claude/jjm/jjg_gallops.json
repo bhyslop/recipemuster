@@ -3827,9 +3827,52 @@
       "jjghn_silks": "rbk-r02a-small-cleanups",
       "jjghn_creation_time": "260713",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢B2AAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢B2AAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-0707",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Validation-semantics repair: split \"well-formed\" from \"ready to charge\" without re-conflating them.",
+                "",
+                "## Context",
+                "Commit 4ac58c604 (gauntlet attempt 6) made nameplate hallmark vacancy legal:",
+                "the buv `fqin` type gained the min-0 escape `gname` already had,",
+                "RBRN_SENTRY/BOTTLE_HALLMARK enrollments dropped 1→0,",
+                "and `rbob_charge` gained inline `test -n` vacancy gates.",
+                "The direction was right — marshal-zero deliberately mints the blank-pair state, so vacant is a valid shape and consumption is the refusal point —",
+                "but the implementation is lossy in two ways:",
+                "a vacant min-0 field emits nothing in `buv_report`, so a forgotten-arm nameplate validates green identically to a healthy one;",
+                "and the armament rule lives as bespoke inline consumer code rather than in the regime layer.",
+                "",
+                "## Needed change",
+                "- BUK: vacancy becomes a first-class loud-but-passing state — a vacatable field's vacant state prints an explicit marker line in the validation report instead of silence, and is queryable by consumers. Whether that is blessed min-0 or a distinct enrollment verb is a mount-time mint question.",
+                "- RBRN: home the armament gate in the regime module; `rbob_charge` cites it instead of its inline `test -n` pair. Weigh the kindle-time `ZRBOB_*` image/vouch ref derivations in rbob_bottle.sh, which currently compose garbage GAR refs from vacant hallmarks before the gate runs.",
+                "- Operator surface: the fleet survey table (rbrn_cli) gains an armed/vacant indicator so `rbw-nv` audit output shows readiness honestly while the validation verdict stays a shape verdict.",
+                "",
+                "## Cinched",
+                "- Keep the min-0 direction; do not revert hallmark enrollments to min-1.",
+                "- No skip-listing nameplates in the theurge all-nameplates case — the sweep stays total.",
+                "- No both-vacant-or-both-armed pair coupling: `rbw-nd` drive arms one field at a time, so half-armed is a legitimate transient.",
+                "",
+                "## Done when",
+                "- A vacant hallmark is visibly reported by `rbw-rnv` while the command still passes; nineveh and fdkyclk validate green on a zeroed tree; tadmor validates green armed.",
+                "- Charge refusal on a vacant nameplate cites the regime-homed gate with the rbw-nd remedy.",
+                "- All bash touched by this change is BCG-compliant; `tt/rbw-tl.Shellcheck.sh` clean.",
+                "- reveille + regime-poison (`tt/rbw-tf.FixtureRun.sh regime-poison`) + BUK self-test (`tt/buw-st.BukSelfTest.sh`) green."
+              ],
+              "jjgtn_silks": "hallmark-vacancy-loud-not-silent",
+              "jjgtn_basis": "dcb38dc"
+            }
+          ]
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
