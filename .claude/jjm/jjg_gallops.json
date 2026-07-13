@@ -6399,7 +6399,7 @@
         "₢BdAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260615-1042",
+              "jjgtn_ts": "260712-2254",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -6419,35 +6419,38 @@
                 "## Done when",
                 "`grep -rn \"//axl_voices\" Tools/` returns zero annotation lines;",
                 "the current form carries every voicing the legacy form did;",
-                "and AXLA's description of the axl_voices-leading form is reduced to a historical note since nothing authors it — optionally backed by a cold-probe/validator check that rejects the leading form to prevent regression."
+                "AXLA's description of the axl_voices-leading form is reduced to a historical note since nothing authors it — optionally backed by a cold-probe/validator check that rejects the leading form to prevent regression;",
+                "and the guidance restatements sweep in the same act — claude-cmk-core.md's read-only-legacy sentences (and MCM's Annotation description if it carries the form) reduce to the same historical note."
               ],
               "jjgtn_silks": "evict-legacy-axl-voices-form",
-              "jjgtn_basis": "1b13c7c"
+              "jjgtn_basis": "bf0737d"
             }
           ]
         },
         "₢BdAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-1545",
+              "jjgtn_ts": "260712-2254",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
-                "Cross-cutting migration plus linter work; staged, judgment lives in the triage.",
+                "Cross-cutting migration; staged, judgment lives in the triage.",
                 "",
                 "## Done when",
                 "",
-                "The AXLA mutability-phase trichotomy moves from advisory toward enforced: existing axr_record voicings repo-wide are retrofitted to declare exactly one phase (axd_immutable / axd_petrify / axd_mutable), and the type-scheme linter is tightened to require it.",
+                "The AXLA mutability-phase trichotomy moves from advisory toward declared: existing axr_record voicings repo-wide are retrofitted to declare exactly one phase (axd_immutable / axd_petrify / axd_mutable),",
+                "and the phase requirement is banked as an enforcement obligation at the matricula validator home (VOSMM's validator inventory), so the future validator enforces what this retrofit establishes.",
                 "First retrofit targets are the JJK gallops family (gallops, heat, pace, tack — axd_mutable, per their members' in-place updates).",
                 "",
                 "## Cinched",
                 "",
-                "The rule and its staged-enforcement clause are already stated at axr_record and the Mutability Dimensions subsection (commit b2799a72e); this pace executes the rollout that clause defers.",
-                "Retrofit is incremental — tighten the lint screws as coverage grows, never a single big-bang sweep."
+                "The rule and its staged-enforcement clause are already stated at axr_record and the Mutability Dimensions subsection (commit b2799a72e); this pace executes the voicing rollout that clause defers.",
+                "The type-scheme linter AXLA anticipates is a forward reference to the matricula validator — it does not exist yet and is not built here; enforcement tightening is banked, not implemented.",
+                "Retrofit is incremental — coverage grows pace by pace, never a single big-bang sweep."
               ],
               "jjgtn_silks": "axla-mutability-phase-rollout",
-              "jjgtn_basis": "275df9e"
+              "jjgtn_basis": "bf0737d"
             }
           ]
         }
