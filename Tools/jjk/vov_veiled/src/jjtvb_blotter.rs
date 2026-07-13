@@ -528,6 +528,37 @@ fn zjjtvb_real_station(infield_root: &str, name: &str) -> (JjkTestDir, jjdb_Blot
     (dir, config)
 }
 
+/// Every rehearsal below stakes the ONE real lock, so each must begin against a
+/// free one — and a scenario that panics mid-ceremony leaves it flying (we
+/// learned this the honest way: a harness bug stranded a lock on the real
+/// remote and every later scenario then read a genuine LockHeld). Refuse early
+/// and name the remedy rather than let a leftover lock masquerade as the
+/// contention under test.
+fn zjjtvb_require_free_lock<F: jjrfr_FarrierLock>(farrier: &F, station: &jjdb_BlotterConfig) {
+    if let Some(held) = farrier.jjrfr_sight(&station.local_root).unwrap() {
+        panic!(
+            "the real studbook's lock is already held ({:?}) — a prior run left it flying. \
+             Clear it with the recovery tool: cargo test jjtvb_break_the_real_studbook_lock -- --ignored --nocapture",
+            held
+        );
+    }
+}
+
+/// Recovery tool, not a test: break whatever holds the REAL studbook's lock and
+/// say whose it was. A crashed writer leaves a stale lock on the shared remote
+/// and the break sequence is its only cure — but nothing on the operator's
+/// surface calls that sequence today, so this stands in until a door exists.
+#[test]
+#[ignore]
+fn jjtvb_break_the_real_studbook_lock() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT").expect("set JJTVB_REAL_INFIELD_ROOT");
+    let config = jjdb_studbook_config(Path::new(&infield_root));
+    match jjrfr_break(&jjrfg_PlainGit, &config.local_root).unwrap() {
+        Some(held) => println!("broke the real studbook's lock, held by: {}", held),
+        None => println!("the real studbook's lock was already free — nothing to break"),
+    }
+}
+
 /// Rehearsal 1 — two-station lock contention. Alpha holds the lock; bravo, a
 /// wholly separate clone, attempts its own ceremony and must be refused by the
 /// remote's compare-and-swap, with its mutate never run.
@@ -538,6 +569,7 @@ fn jjtvb_rehearsal_two_station_lock_contention() {
     let farrier = jjrfg_PlainGit;
     let (_alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_contention_alpha");
     let (_bravo_dir, bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_contention_bravo");
+    zjjtvb_require_free_lock(&farrier, &alpha);
 
     farrier.jjrfr_stake(&alpha.local_root, "station=alpha op=rehearsal-contention").unwrap();
 
@@ -569,6 +601,7 @@ fn jjtvb_rehearsal_stale_lock_break() {
     let farrier = jjrfg_PlainGit;
     let (_alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_break_alpha");
     let (_bravo_dir, bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_break_bravo");
+    zjjtvb_require_free_lock(&farrier, &alpha);
 
     let abandoned = "station=alpha op=rehearsal-break state=crashed";
     farrier.jjrfr_stake(&alpha.local_root, abandoned).unwrap();
@@ -609,16 +642,18 @@ fn jjtvb_rehearsal_atomic_push_lease_failure() {
     let farrier = jjrfg_PlainGit;
     let (_alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_lease_alpha");
     let (bravo_dir, bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_lease_bravo");
+    zjjtvb_require_free_lock(&farrier, &alpha);
 
     let baseline = zjjtvb_git(&alpha.local_root, &["rev-parse", &format!("origin/{}", alpha.trunk)]);
 
     let usurper = "station=bravo op=usurper";
-    let result = jjdb_journal(&farrier, &alpha, "station=alpha op=rehearsal-lease", |_root| {
+    let result = jjdb_journal(&farrier, &alpha, "station=alpha op=rehearsal-lease", |root| {
         // Bravo — a different clone, i.e. a different machine — breaks alpha's
         // lock and takes it, while alpha sits between sight and consign.
         let cleared = jjrfr_break(&farrier, bravo_dir.path()).unwrap();
         assert!(cleared.is_some(), "bravo must find alpha's lock to break");
         farrier.jjrfr_stake(bravo_dir.path(), usurper).unwrap();
+        zjjtvb_write(root, "stranded.txt", "refused by the lock, never authorized");
         (vec![PathBuf::from("stranded.txt")], "must never reach the remote".to_string())
     });
 
@@ -658,6 +693,7 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
     let farrier = jjrfg_PlainGit;
     let (alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_aftermath_alpha");
     let (bravo_dir, _bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_aftermath_bravo");
+    zjjtvb_require_free_lock(&farrier, &alpha);
 
     // Drive alpha into the stranded state exactly as rehearsal 3 does.
     let usurper = "station=bravo op=aftermath-usurper";
