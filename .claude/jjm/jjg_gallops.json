@@ -7341,14 +7341,15 @@
         "₢BrAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1348",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260712-2251",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
                 "Founding ceremony code — work tier.",
-                "Operator prerequisite before mount: bare GitHub private repos jjy_studbook and jjy_app exist.",
+                "Operator prerequisite before mount: bare GitHub private repos jjqs_studbook and jjqa_app exist —",
+                "the jjq_ infield dirname brands per the veiled §J registry",
+                "(the former jjy_studbook / jjy_app names are superseded; jjy_ now brands launcher scripts only).",
                 "",
                 "## Done when",
                 "",
@@ -7357,7 +7358,7 @@
                 "and a scratch studbook stands ready for rehearsal."
               ],
               "jjgtn_silks": "studbook-bootstrap",
-              "jjgtn_basis": "1e7ceda"
+              "jjgtn_basis": "559b7a4"
             }
           ]
         },
