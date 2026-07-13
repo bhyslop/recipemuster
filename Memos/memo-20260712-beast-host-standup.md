@@ -363,3 +363,59 @@ no MinGW/gcc; `TMPDIR="$(cygpath -w ~/rust-install-tmp)"`; never pass
   shells don't inherit, so the profile prepends
   `/cygdrive/c/Users/bhyslop/.cargo/bin`. Verified: fresh `bash -lc` resolves
   `cargo`/`rustc` 1.97.0.
+
+## 15. Curia ssh config, clone, station skeleton — and the engine reached
+
+- **Curia `~/.ssh/config` entry added** (hand-managed, outside the BURH block,
+  cerebro's style): `Host beast` → `bhyslop-asrock-beast`, user `bhyslop`,
+  the winpc-admin key. `ssh beast` and `scp … beast:…` round-trip verified —
+  operator can now move files with plain scp/cat tricks.
+- Repo cloned on beast with **Cygwin git over https** (rocket's exact remote,
+  `https://github.com/bhyslop/recipemuster.git`) to
+  `~/projects/rbm_alpha_recipemuster`; curia's session-one/-two commits were
+  unpushed, so the clone landed stale — memo edits notched, curia pushed,
+  beast pulled to current main. Sibling skeleton laid per rocket:
+  `station-files/secrets/{assay,client_secrets,director,governor,payor}`
+  (empty — secret *content* is operator-moved, never agent-read),
+  `logs-buk`, `output-buk`, `temp-buk`.
+- `burs.env` written from the launcher's own SETUP-NEEDED diagnostic (three
+  non-secret variables): `BURS_LOG_DIR=../logs-buk`, `BURS_USER=bhyslop`,
+  `BURS_TINCTURE=bhb` (following the curia's `bhm` bh+machine shape; distinct
+  tincture keeps per-station upstream resources disjoint). The diagnostic
+  failure behaved exactly as designed — `rbw-tn` named the missing file and
+  its required content, then ran green on the next attempt.
+- **Done-when clause one, proven:** from a Cygwin login shell over
+  `ssh beast`, `docker version` reaches the Docker Desktop engine — Server
+  29.6.1 over the Windows named pipe. No DOCKER_HOST, no context surgery —
+  DD's system-PATH CLI resolves in the Cygwin login shell as-is.
+
+## 16. DefaultShell → Cygwin bash: beast ssh goes Linux-shaped
+
+Operator asked for `ssh beast` to behave like ssh to macOS/Linux. Rocket
+answers this per-account with the dual-mode `runcmd.sh` forced-command wrapper
+(memo-20260516) because rocket must keep cmd.exe for its other personas — and
+that wrapper carries a documented wart: one-shot `$var` never expands
+(memo-20260517). Beast has one account and no such constraint, so it takes the
+mechanism rocket couldn't:
+
+- Registry `HKLM:\SOFTWARE\OpenSSH` → `DefaultShell =
+  C:\cygwin64\bin\bash.exe`, `DefaultShellCommandOption = "-lc"` (set over
+  ssh, effective per-connection, **no sshd restart needed**; delete the two
+  values to revert to cmd.exe).
+- Startup-file split, because the two entry modes read different files:
+  sshd's interactive spawn is a non-login tty shell (reads only `~/.bashrc`);
+  `-lc` one-shots are login shells (read only `~/.bash_profile`). The cargo
+  PATH export moved to `.bashrc`; `.bash_profile` now just sources `.bashrc`.
+- Verified matrix over fresh connections: `$OSTYPE` expands (**the rocket-
+  wrapper wart is absent** — no cmd.exe layer exists to eat `$`), pipes and
+  `;` parse, `cargo`/`jq`/`docker` all resolve from a plain one-shot, scp
+  round-trips (sftp subsystem bypasses the shell), stdin cat-tricks work.
+  Cygwin `whoami` now answers `bhyslop` (was Windows `bhyslop-asrock-\…`).
+- **Transport consequence for everything after this section:** the §9 cmd.exe
+  rules (pipe-eating, `-EncodedCommand` armor) are HISTORICAL for beast — they
+  applied while cmd.exe was the default shell and apply still on rocket.
+  Driving PowerShell from here on is plain `powershell -Command '…'` inside
+  bash quoting. A mimic replay that wants the Linux-shaped endpoint should
+  apply this section early and skip the §9 contortions for the rest.
+- Curia `~/.ssh/config` gained `Host beast` (§15), so the operator's muscle
+  memory is literally `ssh beast`.

@@ -708,11 +708,13 @@ fn rbtdrq_secret_shapes(dir: &Path) -> rbtdre_Verdict {
     }
 
     for path in files {
+        // Repo-canonical forward slashes: the exemption table holds exact `/`
+        // paths, and the native-Windows walker emits `\` separators.
         let rel = path
             .strip_prefix(&root)
             .unwrap_or(&path)
             .to_string_lossy()
-            .to_string();
+            .replace('\\', "/");
         if ZRBTDRQ_EXEMPT.iter().any(|(path, _)| *path == rel) {
             continue;
         }
