@@ -383,6 +383,21 @@ const ZJJTVB_REAL_SIRE_ADDRESS: &str = "git@github.com:bhyslop/recipemuster";
 /// That upstream's main line of work.
 const ZJJTVB_REAL_SIRE_TRUNK: &str = "main";
 
+/// The real station's seed pedigree — one entry, serving every clone of the
+/// hippodrome upstream under this infield. Shared by the founding ceremony's
+/// seed and by the journal write that carries it onto a store already founded
+/// without it.
+fn zjjtvb_real_pedigrees_json() -> String {
+    let pedigrees = serde_json::json!({
+        "jjop_sires": [{
+            "jjop_kind": JJRDS_KIND_PLAIN_GIT,
+            "jjop_addresses": [ZJJTVB_REAL_SIRE_ADDRESS],
+            "jjop_trunk": ZJJTVB_REAL_SIRE_TRUNK,
+        }]
+    });
+    serde_json::to_string_pretty(&pedigrees).expect("the seed pedigree must serialize")
+}
+
 /// Found the REAL production `jjqs_studbook` against its real GitHub remote
 /// at the station's real infield root — the one-shot ceremony ₢BrAAU exists
 /// to run, standing the scratch studbook up for ₢BrAAW's rehearsal. Real
@@ -410,14 +425,7 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
     };
     let gallops_json = serde_json::to_string_pretty(&gallops).expect("a fresh Gallops must serialize");
 
-    let pedigrees = serde_json::json!({
-        "jjop_sires": [{
-            "jjop_kind": JJRDS_KIND_PLAIN_GIT,
-            "jjop_addresses": [ZJJTVB_REAL_SIRE_ADDRESS],
-            "jjop_trunk": ZJJTVB_REAL_SIRE_TRUNK,
-        }]
-    });
-    let pedigrees_json = serde_json::to_string_pretty(&pedigrees).expect("the seed pedigree must serialize");
+    let pedigrees_json = zjjtvb_real_pedigrees_json();
 
     let sha = jjdb_found(&config, |root| {
         zjjtvb_write(root, "gallops.json", &gallops_json);
@@ -429,4 +437,64 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
     });
 
     println!("founded jjqs_studbook at {} ({})", sha, config.local_root.display());
+}
+
+/// Rehearsal, and the substrate proof every other rehearsal item stands on
+/// (₢BrAAW): carry the seed pedigree onto the REAL standing studbook through
+/// the full journal ceremony, against the real GitHub remote — the ₢BrAAU
+/// founding seeded `gallops.json` alone, and the remote cannot be emptied for
+/// a re-found without leaving plain git (GitHub refuses to delete a default
+/// branch), so the correction arrives as a journaled write.
+///
+/// One write exercises the whole bracket where no scratch bare repo can reach
+/// it: stake's compare-and-swap on the custom `refs/jjv/guidon` ref, sight's
+/// ls-remote-then-fetch read-back, advance, lodge, the atomic two-ref consign
+/// under lease, the ordinal bake, and pluck — all against a real server whose
+/// receive-pack is a Palisade we do not govern. A refusal here (a rejected ref
+/// namespace, an unsupported `--atomic` with `--force-with-lease`) is the
+/// finding, not a failure to route around.
+///
+/// Idempotent by refusal: it asserts the pedigree is absent first, so a second
+/// run says so plainly instead of journaling a no-op commit.
+#[test]
+#[ignore]
+fn jjtvb_journal_the_real_pedigree_onto_the_standing_studbook() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT")
+        .expect("set JJTVB_REAL_INFIELD_ROOT to the real infield root to run this rehearsal");
+    let config = jjdb_studbook_config(Path::new(&infield_root));
+    let farrier = jjrfg_PlainGit;
+
+    assert!(
+        jjdb_read(&config, Path::new(JJRDS_PEDIGREES_REL_PATH)).is_err(),
+        "the standing studbook already carries a pedigrees file — this write has already run"
+    );
+
+    let pedigrees_json = zjjtvb_real_pedigrees_json();
+    let guidon = format!(
+        "officium=₢BrAAW-rehearsal station={} op=journal-pedigree",
+        zjjtvb_station_name()
+    );
+
+    let sha = jjdb_journal(&farrier, &config, &guidon, |root| {
+        zjjtvb_write(root, JJRDS_PEDIGREES_REL_PATH, &pedigrees_json);
+        (vec![PathBuf::from(JJRDS_PEDIGREES_REL_PATH)], "seed the station pedigree".to_string())
+    })
+    .expect("the journal ceremony must carry the pedigree onto the real remote");
+
+    // The lock must be released, and the content must be live on the remote —
+    // consign is atomic, so a local commit alone would be a lie.
+    assert_eq!(farrier.jjrfr_sight(&config.local_root).unwrap(), None, "the guidon must be plucked on the way out");
+    println!("journaled the station pedigree onto jjqs_studbook at {}", sha);
+}
+
+/// The station's name for the guidon — a lock-holder mark is caller-composed
+/// text, and this rehearsal composes a plausible one rather than reach for
+/// machinery the engine has not built.
+fn zjjtvb_station_name() -> String {
+    std::process::Command::new("hostname")
+        .output()
+        .ok()
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_else(|| "unknown".to_string())
 }
