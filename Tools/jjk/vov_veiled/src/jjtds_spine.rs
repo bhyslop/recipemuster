@@ -364,11 +364,14 @@ fn jjtds_staleness_notice_names_refit_only_when_outstripped() {
 #[test]
 fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
     let (infield, hippodrome) = zjjtds_infield("jjtds_plan_saddle");
+    // identify's root comes back canonicalized (git resolves the macOS temp-dir
+    // symlink), so the expected infield must canonicalize to compare.
+    let infield_canon = infield.path().canonicalize().unwrap();
 
     // A rough pace takes the judgment constant; the billet is an infield peer
     // under the jjqb_ signet; the prompt carries the engagement verb.
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome).unwrap();
-    assert_eq!(plan.billet_root, infield.path().join("jjqb_AAAAA"));
+    assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("AAAAA".to_string()));
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "mount ₢AAAAA");
@@ -380,15 +383,16 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
 
     // A firemark saddles the heat's next actionable pace.
     let by_heat = jjrds_plan(jjrds_Door::Saddle, "AA", &hippodrome).unwrap();
-    assert_eq!(by_heat.billet_root, infield.path().join("jjqb_AAAAA"));
+    assert_eq!(by_heat.billet_root, infield_canon.join("jjqb_AAAAA"));
 }
 
 #[test]
 fn jjtds_plan_lunge_takes_a_firemark_only() {
     let (infield, hippodrome) = zjjtds_infield("jjtds_plan_lunge");
+    let infield_canon = infield.path().canonicalize().unwrap();
 
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome).unwrap();
-    assert_eq!(plan.billet_root, infield.path().join("jjqb_AA"));
+    assert_eq!(plan.billet_root, infield_canon.join("jjqb_AA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Detached);
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "groom ₣AA");

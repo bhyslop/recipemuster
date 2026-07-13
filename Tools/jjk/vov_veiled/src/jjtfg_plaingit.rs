@@ -738,9 +738,19 @@ fn jjtfg_outstripped_is_false_while_the_billet_holds_the_counterpart_tip() {
 
 #[test]
 fn jjtfg_outstripped_is_true_after_a_glean_reveals_trunk_moved() {
-    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_outstripped_moved");
-    zjjtfg_trunk_advances(primary.path(), "b.txt", "moved", "trunk advances");
-    // Fetch-revealed: before the glean the billet cannot know; after it, it must.
+    let (bare, _primary, billet) = zjjtfg_billeted_with_remote("jjtfg_outstripped_moved");
+
+    // Another station publishes trunk: this station's counterpart ref cannot
+    // move on its own (a same-station push would update it immediately —
+    // worktrees share the primary's ref store), so staleness here is genuinely
+    // fetch-revealed: before the glean the billet cannot know; after it, it must.
+    let other = JjkTestDir::new("jjtfg_outstripped_moved_other");
+    zjjtfg_git(other.path(), &["clone", "-q", &bare.path().to_string_lossy(), "."]);
+    zjjtfg_git(other.path(), &["config", "user.email", "jjtfg@example.invalid"]);
+    zjjtfg_git(other.path(), &["config", "user.name", "jjtfg"]);
+    zjjtfg_commit_all(other.path(), "b.txt", "moved elsewhere", "trunk advances on another station");
+    zjjtfg_git(other.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
+
     assert!(!jjrfg_PlainGit.jjrfr_outstripped(billet.path(), ZJJTFG_TRUNK).unwrap());
     let _ = jjrfg_PlainGit.jjrfr_glean(billet.path());
 
