@@ -3871,10 +3871,7 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢B2AAA",
-        "₢B2AAB",
-        "₢B2AAC",
-        "₢B2AAD",
-        "₢B2AAE"
+        "₢B2AAB"
       ],
       "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
@@ -3965,115 +3962,6 @@
               ],
               "jjgtn_silks": "readme-revetment-census",
               "jjgtn_basis": "6756d38"
-            }
-          ]
-        },
-        "₢B2AAC": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260713-1232",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "## Character",
-                "Doc surgery on the release ceremony plus one small verb guard; the ceremony is a safety artifact — precision over cleverness.",
-                "",
-                "## Docket",
-                "Split `.claude/commands/rbk-prep-release.md` at its clone boundary (Step 4/5) into two slash commands:",
-                "a provision half (working repo; ends by creating the clone and printing the exact cd path and the next command's name)",
-                "and a cut half (clone only; marshal zero through final review), each self-sufficient in a fresh session.",
-                "The cut half opens with a tree-identity gate — the clone is recognizable (sibling `station-files/`, candidate dirname shape) —",
-                "and carries the re-cut-never-patch-forward contract; the provision half must not contradict it.",
-                "The split is documentation; the load-bearing guard is mechanical, and it must survive an agent driver.",
-                "Marshal zero blanks whatever tree it stands in, and its gates all pass in the maintainer's working repo — a near-miss on the 260712 cut.",
-                "A typed-confirmation guard cannot fix this: the ceremony's own driver runs `BURE_CONFIRM=skip` (observed, 260713 cut), so no prompt is ever answered.",
-                "Make the tree identity a *required argument* to `rblm_zero` (`Tools/rbk/rblm_cli.sh`) instead — the operator names the tree they intend to blank, and the verb refuses when the name does not match the tree it stands in.",
-                "An argument check is the one gate a skipped confirm cannot bypass.",
-                "Rename the clone-directory convention to `rbm_candidate_{cut-date}_{try}` so a same-day re-cut gets a distinct directory.",
-                "Keep cross-step references coherent across the two documents, and sweep stale references (grep) — to the retired command name, and to marshal zero's confirmation, which `RELEASE.md` describes as typing `zero` and which the argument guard retires.",
-                "",
-                "## Cinched",
-                "`rbw-MZ` stays runnable in the working repo — the gauntlet's entry state depends on it (`RELEASE.md` step 3 runs it there, `rbtdrp_attest` names it as remedy); the guard adds friction, never refusal of the working tree as such.",
-                "The guard must hold against a non-interactive agent driver, not merely a hurried human.",
-                "`RELEASE.md` remains the outer six-step procedure and the ceremony remains its step 5 — this pace refines that step, never replaces or forks it.",
-                "The two command names are minted at mount under CLAUDE.md prefix + Lapidary discipline — slash commands are in the mint universe.",
-                "",
-                "## Done when",
-                "Both commands exist, the old one is gone, and no stale reference to it or to the retired confirmation survives anywhere, `RELEASE.md` included;",
-                "marshal zero refuses to blank a tree the caller did not name, and does so under `BURE_CONFIRM=skip`;",
-                "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
-              ],
-              "jjgtn_silks": "release-ceremony-clone-boundary-split",
-              "jjgtn_basis": "f51c7a4"
-            }
-          ]
-        },
-        "₢B2AAD": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260713-1232",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "## Character",
-                "Small generator predicate plus corrections to two false ceremony steps; the delivered face and a runnable procedure are the stakes — precision, no scope creep.",
-                "",
-                "## Docket",
-                "`buz_emit_context` (`Tools/buk/buz_zipper.sh`) emits a row for every enrolled colophon and leaves the Frontispiece cell empty when no tabtarget matches on disk,",
-                "so the release strip leaves the shipped, consumer-`@`-included `Tools/rbk/claude-rbk-tabtarget-context.md` carrying gutted rows for the withheld `rbw-M*` family and `rbw-mR`.",
-                "Make the generator omit any enrolled colophon with no tabtarget on disk —",
-                "a no-op in the maintainer tree (the `rbq_qualify_completeness` sweep, an `rbw-MZ` precondition, guarantees every enrolled colophon a tabtarget there)",
-                "and self-healing in a stripped tree for any future withheld colophon.",
-                "Then correct two false steps in `.claude/commands/rbk-prep-release.md` (the clone-boundary split pace may rehome them; find them by what they claim, not by number).",
-                "The regenerate-derived-files step claims the generated Rust consts \"do not change — zipper-driven, not disk-driven\", which is false:",
-                "the build also projects the lustrated `rbpc_constants.sh` freehold subject into `rbtdgc_consts.rs` (see `rbz_emit_consts`), so the step is load-bearing for identity erasure, not a freshness chore.",
-                "The consumer-seat probe step is unrunnable as written: it invokes feign before restoring feign's stripped tabtarget, and never commits the restore — but feign gates on a clean tree, and the restore also re-adds a tabtarget row that the context generator must regenerate and the freshness gate then demands committed (both observed, 260713 cut).",
-                "State the probe's real order, whatever it proves to be at mount.",
-                "",
-                "## Cinched",
-                "No new fixture or gate: post-fix, the freshness gate in `rbq_qualify_fast` regenerates with the same generator, so a gutted row cannot survive it in maintainer or candidate tree.",
-                "The delivered acronym map's RBLM row naming the withheld colophons is deliberate honest prose over the deliberately-shipped `rblm_*` library — out of scope, do not \"repair\" it.",
-                "Withheld colophons stay enrolled in the zipper and in `rbtdgc_consts.rs` — the fix is emission, never enrollment.",
-                "",
-                "## Done when",
-                "Regenerating in a tree missing an enrolled colophon's tabtarget yields a table without that row, never an empty Frontispiece cell;",
-                "maintainer-tree regeneration is unchanged;",
-                "the ceremony states the consts projection truthfully, and its consumer-seat probe runs green when followed literally."
-              ],
-              "jjgtn_silks": "context-gen-omits-stripped-colophons",
-              "jjgtn_basis": "f51c7a4"
-            }
-          ]
-        },
-        "₢B2AAE": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260713-1235",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": [
-                "## Character",
-                "A sweep with teeth: find every operator machine name on the delivered face, evict it, and leave a gate so the class cannot return.",
-                "",
-                "## Docket",
-                "Operator machine names are shapeless site identity — no scanner catches them, and damnatio's shape sweep structurally cannot.",
-                "The 260713 candidate's leakage sweep found one by eye: a bare hostname in a comment in `Tools/rbk/rbq_qualify.sh`.",
-                "That one is a specimen, not the finding.",
-                "Sweep every file that survives the release strip for every host, station, and ssh alias the operator's rig carries —",
-                "the names are homed in the veiled JJK context's Test Environments section and in `rbmm_moorings/rbmn_nodes/`, both withheld from delivery — and evict each hit or justify it in place.",
-                "A hit is usually a comment naming a machine where it meant to name a platform or a class; the repair is to say the thing it meant.",
-                "Then gate it, so the next one reddens instead of shipping.",
-                "The gate must harvest its needle list from the withheld trees themselves rather than carrying a list of the operator's machines in a fixture that ships —",
-                "`loupe` already does exactly this for veiled document names and is the pattern to follow (widening loupe versus a sibling case is a mount-time call).",
-                "A source-tree-only gate is the right shape: like loupe, it can only mean anything before the cut.",
-                "",
-                "## Cinched",
-                "The needle list never ships — a fixture that hardcodes the operator's hostnames would publish the very thing it guards.",
-                "Names that are genuinely platform or vendor vocabulary are not spalls; only names of *this operator's machines* are.",
-                "",
-                "## Done when",
-                "No file in the delivered set names an operator machine;",
-                "a planted hostname reddens the gate, and the gate carries no operator hostname of its own."
-              ],
-              "jjgtn_silks": "operator-hostname-spall-sweep",
-              "jjgtn_basis": "52d5a89"
             }
           ]
         }
@@ -6662,9 +6550,12 @@
         "₢BsAAg",
         "₢BsAAU",
         "₢BsAAW",
-        "₢BsAAS"
+        "₢BsAAS",
+        "₢BsAAl",
+        "₢BsAAm",
+        "₢BsAAn"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAo",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8036,6 +7927,121 @@
               ],
               "jjgtn_silks": "veil-case-eviction",
               "jjgtn_basis": "a80189e"
+            }
+          ]
+        },
+        "₢BsAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1255",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢B2AAD in ₣B2.",
+                "",
+                "## Character",
+                "Small generator predicate plus corrections to two false ceremony steps; the delivered face and a runnable procedure are the stakes — precision, no scope creep.",
+                "",
+                "## Docket",
+                "`buz_emit_context` (`Tools/buk/buz_zipper.sh`) emits a row for every enrolled colophon and leaves the Frontispiece cell empty when no tabtarget matches on disk,",
+                "so the release strip leaves the shipped, consumer-`@`-included `Tools/rbk/claude-rbk-tabtarget-context.md` carrying gutted rows for the withheld `rbw-M*` family and `rbw-mR`.",
+                "Make the generator omit any enrolled colophon with no tabtarget on disk —",
+                "a no-op in the maintainer tree (the `rbq_qualify_completeness` sweep, an `rbw-MZ` precondition, guarantees every enrolled colophon a tabtarget there)",
+                "and self-healing in a stripped tree for any future withheld colophon.",
+                "Then correct two false steps in `.claude/commands/rbk-prep-release.md` (the clone-boundary split pace may rehome them; find them by what they claim, not by number).",
+                "The regenerate-derived-files step claims the generated Rust consts \"do not change — zipper-driven, not disk-driven\", which is false:",
+                "the build also projects the lustrated `rbpc_constants.sh` freehold subject into `rbtdgc_consts.rs` (see `rbz_emit_consts`), so the step is load-bearing for identity erasure, not a freshness chore.",
+                "The consumer-seat probe step is unrunnable as written: it invokes feign before restoring feign's stripped tabtarget, and never commits the restore — but feign gates on a clean tree, and the restore also re-adds a tabtarget row that the context generator must regenerate and the freshness gate then demands committed (both observed, 260713 cut).",
+                "State the probe's real order, whatever it proves to be at mount.",
+                "",
+                "## Cinched",
+                "No new fixture or gate: post-fix, the freshness gate in `rbq_qualify_fast` regenerates with the same generator, so a gutted row cannot survive it in maintainer or candidate tree.",
+                "The delivered acronym map's RBLM row naming the withheld colophons is deliberate honest prose over the deliberately-shipped `rblm_*` library — out of scope, do not \"repair\" it.",
+                "Withheld colophons stay enrolled in the zipper and in `rbtdgc_consts.rs` — the fix is emission, never enrollment.",
+                "",
+                "## Done when",
+                "Regenerating in a tree missing an enrolled colophon's tabtarget yields a table without that row, never an empty Frontispiece cell;",
+                "maintainer-tree regeneration is unchanged;",
+                "the ceremony states the consts projection truthfully, and its consumer-seat probe runs green when followed literally."
+              ],
+              "jjgtn_silks": "context-gen-omits-stripped-colophons",
+              "jjgtn_basis": "05f84a5"
+            }
+          ]
+        },
+        "₢BsAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1255",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢B2AAE in ₣B2.",
+                "",
+                "## Character",
+                "A sweep with teeth: find every operator machine name on the delivered face, evict it, and leave a gate so the class cannot return.",
+                "",
+                "## Docket",
+                "Operator machine names are shapeless site identity — no scanner catches them, and damnatio's shape sweep structurally cannot.",
+                "The 260713 candidate's leakage sweep found one by eye: a bare hostname in a comment in `Tools/rbk/rbq_qualify.sh`.",
+                "That one is a specimen, not the finding.",
+                "Sweep every file that survives the release strip for every host, station, and ssh alias the operator's rig carries —",
+                "the names are homed in the veiled JJK context's Test Environments section and in `rbmm_moorings/rbmn_nodes/`, both withheld from delivery — and evict each hit or justify it in place.",
+                "A hit is usually a comment naming a machine where it meant to name a platform or a class; the repair is to say the thing it meant.",
+                "Then gate it, so the next one reddens instead of shipping.",
+                "The gate must harvest its needle list from the withheld trees themselves rather than carrying a list of the operator's machines in a fixture that ships —",
+                "`loupe` already does exactly this for veiled document names and is the pattern to follow (widening loupe versus a sibling case is a mount-time call).",
+                "A source-tree-only gate is the right shape: like loupe, it can only mean anything before the cut.",
+                "",
+                "## Cinched",
+                "The needle list never ships — a fixture that hardcodes the operator's hostnames would publish the very thing it guards.",
+                "Names that are genuinely platform or vendor vocabulary are not spalls; only names of *this operator's machines* are.",
+                "",
+                "## Done when",
+                "No file in the delivered set names an operator machine;",
+                "a planted hostname reddens the gate, and the gate carries no operator hostname of its own."
+              ],
+              "jjgtn_silks": "operator-hostname-spall-sweep",
+              "jjgtn_basis": "05f84a5"
+            }
+          ]
+        },
+        "₢BsAAn": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1255",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Drafted from ₢B2AAC in ₣B2.",
+                "",
+                "## Character",
+                "Doc surgery on the release ceremony plus one small verb guard; the ceremony is a safety artifact — precision over cleverness.",
+                "",
+                "## Docket",
+                "Split `.claude/commands/rbk-prep-release.md` at its clone boundary (Step 4/5) into two slash commands:",
+                "a provision half (working repo; ends by creating the clone and printing the exact cd path and the next command's name)",
+                "and a cut half (clone only; marshal zero through final review), each self-sufficient in a fresh session.",
+                "The cut half opens with a tree-identity gate — the clone is recognizable (sibling `station-files/`, candidate dirname shape) —",
+                "and carries the re-cut-never-patch-forward contract; the provision half must not contradict it.",
+                "The split is documentation; the load-bearing guard is mechanical, and it must survive an agent driver.",
+                "Marshal zero blanks whatever tree it stands in, and its gates all pass in the maintainer's working repo — a near-miss on the 260712 cut.",
+                "A typed-confirmation guard cannot fix this: the ceremony's own driver runs `BURE_CONFIRM=skip` (observed, 260713 cut), so no prompt is ever answered.",
+                "Make the tree identity a *required argument* to `rblm_zero` (`Tools/rbk/rblm_cli.sh`) instead — the operator names the tree they intend to blank, and the verb refuses when the name does not match the tree it stands in.",
+                "An argument check is the one gate a skipped confirm cannot bypass.",
+                "Rename the clone-directory convention to `rbm_candidate_{cut-date}_{try}` so a same-day re-cut gets a distinct directory.",
+                "Keep cross-step references coherent across the two documents, and sweep stale references (grep) — to the retired command name, and to marshal zero's confirmation, which `RELEASE.md` describes as typing `zero` and which the argument guard retires.",
+                "",
+                "## Cinched",
+                "`rbw-MZ` stays runnable in the working repo — the gauntlet's entry state depends on it (`RELEASE.md` step 3 runs it there, `rbtdrp_attest` names it as remedy); the guard adds friction, never refusal of the working tree as such.",
+                "The guard must hold against a non-interactive agent driver, not merely a hurried human.",
+                "`RELEASE.md` remains the outer six-step procedure and the ceremony remains its step 5 — this pace refines that step, never replaces or forks it.",
+                "The two command names are minted at mount under CLAUDE.md prefix + Lapidary discipline — slash commands are in the mint universe.",
+                "",
+                "## Done when",
+                "Both commands exist, the old one is gone, and no stale reference to it or to the retired confirmation survives anywhere, `RELEASE.md` included;",
+                "marshal zero refuses to blank a tree the caller did not name, and does so under `BURE_CONFIRM=skip`;",
+                "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
+              ],
+              "jjgtn_silks": "release-ceremony-clone-boundary-split",
+              "jjgtn_basis": "05f84a5"
             }
           ]
         }
