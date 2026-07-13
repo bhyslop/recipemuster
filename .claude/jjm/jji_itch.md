@@ -2057,3 +2057,17 @@ Raised 2026-07-07 during ₣Bs grooming, alongside widening the ceremony-repair 
 
 ## acg-pair-audit-pull-tail
 The ACG roster heat (₣Bz, rbk-23-win-acg-incorporate) deliberately slates no exhaustive per-operation pair-audit roster: the sheaf census runs ~90 documents and the pilots showed exhaustive pairing is low-yield ceremony. Pairs beyond the polity seed are pulled on demand — by the ₣Bz scout pace at convening, by a regenerate-from-specs trial naming a surface, or by a heat about to work one. Cut per the conjure findings memo (Memos/memo-20260704-acg-pilot-conjure-findings.md, roster recommendation): operation-unit with declared support closure, hot lanes wait for their owning heats. This entry is the reminder that the tail exists; the recipe lives in the memo and the ₣Bz paddock.
+
+## claudemd-two-axis-zeroes-theory
+Promote the two-axis Zeroes Theory statement — the spatial input-forms axis and the version axis with its floor and Palisade regimes, homed in BCG Zeroes Theory — to the language-neutral Design Principles section of the project CLAUDE.md, beside Load-Bearing Complexity.
+
+### Context
+
+The ACG scrub heat's cross-language premises pace (260711) homed the version axis in BCG and voiced the JJK premise, leaving this promotion as an open forward-pointer, deliberately not blocked on. Banked here at heat retirement (260712) so the pointer survives the paddock going cold.
+
+## rbrr-basename-constant-before-sweep
+Any sweep of the rbrr temp-file names onto a constant owes a mint first: RBCC_rbrr_file is a full path, not a bare basename, so a basename constant for rbrr.env must be minted before the temp-name sites can resolve through it.
+
+### Context
+
+The ACG scrub heat's temp-file mnemonic ruling (260712): a scratch temp-file name embedding a regime filename IS a path construction and resolves through the RBCC basename constant. The rbrn sweep landed (RBCC_rbrn_file); the rbrr sweep could not, for want of the constant. Lane: the ACG roster heat (₣Bz, rbk-23-win-acg-incorporate) when it convenes. Banked here at heat retirement.
