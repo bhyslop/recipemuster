@@ -419,3 +419,27 @@ mechanism rocket couldn't:
   apply this section early and skip the §9 contortions for the rest.
 - Curia `~/.ssh/config` gained `Host beast` (§15), so the operator's muscle
   memory is literally `ssh beast`.
+
+## 17. First reveille on beast: one real platform bug, found and fixed
+
+First run (`./tt/rbw-ts.TestSuite.reveille.sh` over plain `ssh beast`):
+**98 passed, 1 failed** — `rbtdrq_secret_shapes` (pyx fixture) reported 4
+secret-shape violations, and the suite's fixture-grain break-on-failure
+discarded the trailing fixtures (10 of 13 ran).
+
+The 4 violations were exactly the two entries of the scanner's own exemption
+table (`rbtdrq_pyx.rs` self-exempt ×2 hits, the synthetic
+`fdkyclk-asserter-key.pem` ×2 hits). Mechanism: `ZRBTDRQ_EXEMPT` holds
+repo-canonical **forward-slash exact paths**, while the native-Windows walker
+builds `rel` from `strip_prefix().to_string_lossy()` — **backslash**
+separators — so the exact-match exemption never fires. Green on macOS and
+rocket-WSL because their walkers emit `/`; beast's cygwin path runs theurge
+as a *native Windows binary*, the first platform where `std::path` speaks
+backslash. The finding lines' mixed separators (`Tools/rbk\rbtd\…`) were the
+tell.
+
+Fix (one site): normalize `rel` to forward slashes at construction
+(`.replace('\\', "/")`), repairing the exemption match, the inventory trace,
+and the finding-line rendering together. pyx then 4/4 on macOS (no
+regression; the fourth case, `readme_anchors`, was the one fail-fast had
+been discarding on beast). Fix notched and pushed; beast re-pulled.
