@@ -3368,9 +3368,10 @@
       "jjghn_order": [
         "₢AqAAA",
         "₢AqAAB",
-        "₢AqAAC"
+        "₢AqAAC",
+        "₢AqAAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢AqAAA": {
           "jjgpn_tacks": [
@@ -3523,6 +3524,40 @@
               ],
               "jjgtn_silks": "oauth-token-lifetime-extension",
               "jjgtn_basis": "f3fd860"
+            }
+          ]
+        },
+        "₢AqAAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-1857",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Repair the false \"(code copied to your clipboard)\" announcement the device-flow avowal emits when the tool runs over ssh",
+                "(observed on beast 260712; full narrative and model: Memos/memo-20260712-beast-host-standup.md §18).",
+                "",
+                "## Cinched",
+                "A clipboard is a STATION resource, not a host resource:",
+                "a tool can only ever write its own execution host's clipboard,",
+                "so the copy predicate's true contract is \"execution host IS the station\".",
+                "`SSH_CONNECTION` present is the exact signature of that identity failing.",
+                "The repair is one guard at the top of `buc_clipboard_copy_predicate` (Tools/buk/buc_command.sh):",
+                "remote session → return false before probing any tool;",
+                "the caller (`zrba_user_code_clipboard`, Tools/rbk/rba_auth.sh) already degrades to display-only —",
+                "extend its logging so the remote cause is named, never silent.",
+                "Remote DELIVERY is out of scope by decision, not omission:",
+                "OSC 52 is the only channel reaching the station's clipboard through ssh,",
+                "but it is fire-and-forget with terminal-dependent support,",
+                "so any announcement over it would be unverifiable — the original dishonesty rebuilt one layer up.",
+                "Fix the claim, don't chase the convenience.",
+                "",
+                "## Done when",
+                "A session bearing `SSH_CONNECTION` never announces a clipboard copy and logs the remote cause;",
+                "local behavior is byte-unchanged;",
+                "a test pins the guard at whatever grain the existing BUK/theurge test surface reaches it."
+              ],
+              "jjgtn_silks": "clipboard-station-honesty",
+              "jjgtn_basis": "94311ac"
             }
           ]
         }
