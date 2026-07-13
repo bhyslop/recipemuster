@@ -7796,10 +7796,8 @@
         "₢BsAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0834",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
-              "jjgtn_effort": "jjgde_medium",
+              "jjgtn_ts": "260713-0838",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "A verbatim move behind loud gates, plus one deliberate strengthening. The compiler, the self-proofs, and reveille are the check.",
@@ -7810,10 +7808,13 @@
                 "Post-strip it reports green while asserting nothing.",
                 "The ceremony document records the degradation in prose rather than fixing it.",
                 "",
-                "Evict the veil case from pyx into its own fixture: a reveille member, source-tree only, never run post-strip, so it cannot degrade.",
+                "Evict the veil case into its own fixture, **loupe** — a reveille member, source-tree only, never run post-strip, so it cannot degrade.",
+                "The name is minted: fixture `loupe`, source `Tools/rbk/rbtd/src/rbtdrq_loupe.rs`, manifest const `RBTDRM_FIXTURE_LOUPE`, statics `RBTDRQ_FIXTURE_LOUPE` / `RBTDRQ_CASES_LOUPE`.",
+                "It joins the `rbtdrq` family beside pyx rather than taking a fresh letter, because the walker, report, and finding types it reaches are pyx's own `pub(crate)` helpers; those stay in pyx and are reached from loupe.",
+                "The case function `rbtdrq_veil_leak` moves unchanged — it is already in the family and needs no rename.",
+                "",
                 "Pyx keeps its four remaining cases — crate licenses, root LICENSE, secret shapes, README anchors.",
                 "Those are honest tree invariants, correctly re-run on both trees; leave them alone.",
-                "Move the case and its private helpers verbatim; the shared walker, report, and finding types stay in pyx and are reached from the new fixture.",
                 "",
                 "The one deliberate change: with the case no longer running post-strip, an empty census becomes a finding unconditionally.",
                 "The guard's veiled-tree-exists condition existed only to survive the stripped tree, and it is precisely what made the vacuous pass possible.",
@@ -7824,17 +7825,17 @@
                 "## Cinched",
                 "Behavior otherwise preserved exactly — the census-ambiguity drop and the self-proof move unchanged.",
                 "Widening the veil check is not this pace.",
-                "The new fixture joins reveille; the almanac's reveille-base compile guard must stay satisfied.",
+                "Loupe joins reveille; the almanac's reveille-base compile guard must stay satisfied.",
                 "",
                 "## Done when",
-                "The veil case bites from its new fixture — self-proof green, and it reddens on a planted leak;",
+                "Loupe bites — self-proof green, and it reddens on a planted leak;",
                 "an empty census reddens it unconditionally;",
                 "pyx is green with four cases;",
                 "reveille green;",
                 "the ceremony's stale prose is gone."
               ],
               "jjgtn_silks": "veil-case-eviction",
-              "jjgtn_basis": "eb91c7b"
+              "jjgtn_basis": "ffe1c27"
             }
           ]
         }
