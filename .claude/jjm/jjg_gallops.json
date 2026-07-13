@@ -6460,12 +6460,13 @@
         "₢BsAAK",
         "₢BsAAi",
         "₢BsAAj",
+        "₢BsAAk",
         "₢BsAAg",
         "₢BsAAU",
         "₢BsAAW",
         "₢BsAAS"
       ],
-      "jjghn_next_pace_seed": "AAk",
+      "jjghn_next_pace_seed": "AAl",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -7741,10 +7742,8 @@
         "₢BsAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0827",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260713-0834",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Security-gate authoring by composition. A leak reaching a public repo cannot be recalled, and the roster's completeness is the whole product — a miss reads fine and ships.",
@@ -7756,35 +7755,82 @@
                 "Found 260713 against the cut candidate in the superseded proof clone; nothing ever left the machine — upstream carries only main.",
                 "Discovery: read what marshal zero mutates in `Tools/rbk/rblm_cli.sh`, then sweep the shipping set for site-identity shapes (GCP org, billing account, OAuth client id, IdP tenant, bare GUID).",
                 "",
-                "Mint one **roster** of the legitimate site-identity homes and give it three consumers, so no identity home can be added without all three following it:",
-                "a release-only marshal verb that sterilizes the roster inside the ceremony's clone — separate from marshal zero, so the gauntlet's standing payor identity is never disturbed — withheld from delivery alongside the other marshal tabtargets;",
-                "a new case in the pyx fixture sweeping the tree for identity shapes with the roster as its exemption set, so identity landing in any unrostered file goes red in reveille;",
-                "and a fixture belonging to no suite, ceremony-invoked post-strip, asserting every rostered field holds blank-or-placeholder.",
+                "Build a transform and a proof.",
+                "The transform is a release-only marshal verb that sterilizes the site-identity homes inside the ceremony's clone — separate from marshal zero, so the gauntlet's standing payor identity is never disturbed — withheld from delivery alongside the other marshal tabtargets.",
+                "The proof is a delivered-tree fixture belonging to no suite, invoked by name from the ceremony post-strip.",
+                "Every case in it is true only of a stripped, sterilized candidate tree; it takes no parameters and means one thing wherever it runs.",
+                "",
+                "Its cases: a shape sweep over the shipping tree for site-identity shapes, with no exemptions — on a sterilized tree there should simply be none;",
+                "an assertion that every rostered field holds blank-or-placeholder, since shapeless identity such as a workforce pool id has no shape to catch;",
+                "a roster-completeness check, so a newly enrolled regime field goes red until someone declares it site-scoped or neutral;",
+                "and an assertion that the strip removed the veiled trees.",
                 "",
                 "Compose, do not reinvent.",
-                "Pyx already is the sweep engine — its walker, shape matcher, finding/report types, and exact-path `(path, reason)` exemption doctrine all stand; assemble the self-proof positives from fragments as its matcher self-proof does, because here the needles are real identity and a literal would leak into shipped Rust.",
+                "Pyx already carries a shape-sweep engine — walker, shape matcher, finding and report types, inventory trace — and the delivered-tree fixture should reach for those rather than grow a parallel one.",
+                "Assemble the self-proof positives from fragments as pyx's matcher self-proof does: here the needles are real identity, and a literal would leak it into shipped Rust.",
+                "Derive the enrolled-field set from the live enrollment rolls in `Tools/buk/buv_validation.sh` — never hand-list it; the fixture rides in no suite, so pyx's zero-invocation tariff does not bind it and it may reach bash as the vessel-regime fixture reaches regime values.",
                 "The value read is the logic in onboarding's vessel-env reader, whose own comment flags it as the embryo of an engine-level getter mirroring the existing config setter.",
-                "",
-                "The shape sweep cannot see shapeless identity; a field-completeness guard covers what it misses — every enrolled field of the delivered regimes must be rostered site-scoped or neutral.",
-                "Derive that field set from the live enrollment rolls in `Tools/buk/buv_validation.sh`, reached as the vessel-regime fixture reaches bash-side regime values — never hand-list it.",
-                "Whether the guard can ride reveille turns on the zero-invocation tariff and credless flag; a Rust text-scan of the enroll calls is the pure alternative. Mount-time call.",
                 "",
                 "Then amend the release ceremony to call the verb and run the fixture, and strike the false claim in its surviving-files list that marshal zero blanks the payor and workforce regimes — that unearned assurance is why this went unseen.",
                 "",
                 "## Cinched",
+                "No reveille tripwire: the gate sits at ceremony time, on the publication boundary, and nothing identity-related rides a suite.",
                 "Sterilization blanks or placeholders in place; re-homing the RBPC freehold subject out of shipped source into station config is out of scope here (itch).",
                 "A field enrolling with a minimum length takes a shape-valid placeholder, never a blank.",
                 "Mint the roster, the verb, its colophon, and the fixture name under the minting discipline.",
                 "",
                 "## Done when",
                 "The verb sterilizes a clone;",
-                "the ceremony fixture bites — red on today's tree, green on a sterilized one;",
-                "the pyx identity case is green with the roster exempt and goes red when identity lands in an unrostered file;",
-                "the field-completeness guard goes red on an unrostered enrolled field;",
-                "the ceremony calls the verb and the fixture; reveille green."
+                "the fixture bites — red on today's tree, green on a sterilized one;",
+                "the roster-completeness case reddens on an unrostered enrolled field;",
+                "the ceremony calls the verb and the fixture;",
+                "reveille green."
               ],
               "jjgtn_silks": "delivery-identity-gate",
-              "jjgtn_basis": "142adec"
+              "jjgtn_basis": "46ae748"
+            }
+          ]
+        },
+        "₢BsAAk": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-0834",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "A verbatim move behind loud gates, plus one deliberate strengthening. The compiler, the self-proofs, and reveille are the check.",
+                "",
+                "## Docket",
+                "Pyx's veil-leak case is a false-green in the release path.",
+                "It harvests its needle set from the veiled trees, and the ceremony re-runs pyx on the stripped candidate — where those trees are gone, the census is empty, and the case's own empty-census guard does not fire, because that guard is conditioned on a veiled tree still existing.",
+                "Post-strip it reports green while asserting nothing.",
+                "The ceremony document records the degradation in prose rather than fixing it.",
+                "",
+                "Evict the veil case from pyx into its own fixture: a reveille member, source-tree only, never run post-strip, so it cannot degrade.",
+                "Pyx keeps its four remaining cases — crate licenses, root LICENSE, secret shapes, README anchors.",
+                "Those are honest tree invariants, correctly re-run on both trees; leave them alone.",
+                "Move the case and its private helpers verbatim; the shared walker, report, and finding types stay in pyx and are reached from the new fixture.",
+                "",
+                "The one deliberate change: with the case no longer running post-strip, an empty census becomes a finding unconditionally.",
+                "The guard's veiled-tree-exists condition existed only to survive the stripped tree, and it is precisely what made the vacuous pass possible.",
+                "",
+                "Then strike the ceremony's prose about the veil case's teeth living in the pre-strip run.",
+                "The post-strip half is now asserted positively by the delivered-tree fixture, which claims the veiled trees are gone.",
+                "",
+                "## Cinched",
+                "Behavior otherwise preserved exactly — the census-ambiguity drop and the self-proof move unchanged.",
+                "Widening the veil check is not this pace.",
+                "The new fixture joins reveille; the almanac's reveille-base compile guard must stay satisfied.",
+                "",
+                "## Done when",
+                "The veil case bites from its new fixture — self-proof green, and it reddens on a planted leak;",
+                "an empty census reddens it unconditionally;",
+                "pyx is green with four cases;",
+                "reveille green;",
+                "the ceremony's stale prose is gone."
+              ],
+              "jjgtn_silks": "veil-case-eviction",
+              "jjgtn_basis": "46ae748"
             }
           ]
         }
