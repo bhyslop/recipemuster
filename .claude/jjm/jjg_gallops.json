@@ -7442,13 +7442,15 @@
         "₢BsAAf",
         "₢BsAAd",
         "₢BsAAK",
+        "₢BsAAg",
+        "₢BsAAh",
         "₢BsAAR",
         "₢BsAAS",
         "₢BsAAY",
         "₢BsAAU",
         "₢BsAAW"
       ],
-      "jjghn_next_pace_seed": "AAg",
+      "jjghn_next_pace_seed": "AAi",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -7809,9 +7811,8 @@
         "₢BsAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1400",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260712-2144",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7819,23 +7820,19 @@
                 "",
                 "## Docket",
                 "",
-                "Cut the real candidate on the proven-green rebaseline:",
+                "Cut the real candidate on the re-proven rebaseline:",
                 "run the refreshed upstream delivery ceremony end to end —",
                 "full release qualification, squash candidate, strip, marshal zero, post-strip fast qualify, commit —",
                 "stopping at the push gate for operator review.",
-                "While here, add the ceremony-level link check as a standing ceremony step:",
-                "the candidate README satisfies every anchor minted in rbyc_common.sh (file-to-file sweep on the candidate tree),",
-                "and RBRR_PUBLIC_DOCS_URL points at the repository and branch actually being delivered —",
-                "the URL base is a delivery decision; record it in the ceremony document.",
-                "Precondition: the rebaseline revalidation pace has closed green — this cut rides the baseline it proved.",
+                "The ceremony document already carries the link-check step, the recorded URL-base decision (the public repo's README blob), and RELEASE.md in strip 10e — landed by this pace's earlier session; do not re-derive them.",
+                "Precondition: the chain-lifetime repair pace has landed with reveille re-proven green — this cut rides that tree (supersedes the earlier revalidation-pace precondition, which also stands closed).",
                 "",
                 "## Done when",
                 "",
-                "A candidate branch stands cut, stripped, fast-qualified, and link-checked, awaiting the operator's manual push;",
-                "the ceremony document carries the link-check step and the recorded URL-base decision."
+                "A candidate branch stands cut, stripped, fast-qualified, and link-checked, awaiting the operator's manual push."
               ],
               "jjgtn_silks": "candidate-cut-on-rebaseline",
-              "jjgtn_basis": "e8704e4"
+              "jjgtn_basis": "fd173fe"
             }
           ]
         },
@@ -8036,13 +8033,13 @@
         "₢BsAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-2241",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260712-2144",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Carry out the release: take the candidate the cut pace left standing at the push gate (stripped, fast-qualified, link-checked) through the actual delivery —",
                 "the operator's push to the public repository and the post-push verification the ceremony document prescribes (published-docs URL reachable, delivered tree sane at the remote).",
-                "The ceremony document (RELEASE.md plus the refreshed rbk-prep-release flow) is the authority for steps; this pace exists so the delivery itself is chalked work, not an afterthought of the cut.",
+                "The ceremony document (the refreshed rbk-prep-release flow, with RELEASE.md now maintainer-side only) is the authority for steps; this pace exists so the delivery itself is chalked work, not an afterthought of the cut.",
+                "Precondition: the candidate-integrity-probe and greenfield-manor-walk paces have closed green — the push rides a candidate proven from the consumer's seat (heat cinch).",
                 "",
                 "## Done when",
                 "",
@@ -8050,10 +8047,10 @@
                 "",
                 "## Character",
                 "",
-                "Operator-present delivery ceremony; short, high-stakes."
+                "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "a0384db"
+              "jjgtn_basis": "fd173fe"
             }
           ]
         },
@@ -8293,41 +8290,48 @@
         "₢BsAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260711-1404",
+              "jjgtn_ts": "260712-2144",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Substrate-semantics design with a live security tension; frontier tier, operator present.",
-                "The chain-lifetime law is the crux — settle it with the operator before touching code.",
+                "Substrate-semantics repair with the law already operator-cinched; mechanical residue with judgment at fixture design.",
+                "Executing in the cinching session (fable) — no bridle needed.",
                 "",
-                "## Ruled intent (operator, 260711)",
-                "A successful chain consumption must NOT end the fact's availability:",
-                "one capture serves several consumers (the same Lode elected into several vessels).",
-                "The landed consume-on-success depth-1 behavior is drift from intent, not design —",
-                "this ruling supersedes the earlier no-relay cinch (the rbk-01 loose-ends heat's resolver rule).",
-                "The leak concern that cinch answered is still real, and the new law must answer it:",
-                "state what bounds a fact's life — what replaces or ends it —",
-                "so a stale capture cannot silently ride into a much-later unrelated election.",
-                "The failed-consumer retry story falls out of the same law and must be stated with it.",
+                "## Cinched (operator, 260712)",
+                "Relay placement: explicit buf_relay at the top of each chain consumer verb (uniform across all sites), never inside buf_elect_fact_capture — the primitive stays pure.",
+                "Staleness bound: any non-chain dispatch drops the chain — the existing depth-1 promotion mechanism, extended per-hop by the relays; no TTL stamp.",
+                "Palpates relay too: summon/plumb/rekon/augur relay exactly as the enchase writers do.",
+                "This supersedes the no-relay cinch (RBr_3e7's current voice) and lands in the release now being cut.",
                 "",
-                "## The contradiction, and where everything lives",
-                "RBS0 \"Chaining-Fact Roles\" defines the role quoins and rivets RBr_3e7 (terminal consumption) and RBr_a52 —",
-                "the consolidated single definition sites this pace amends; do not re-scatter.",
-                "RBS0's rbf_fact_lode sentence (\"election survives an election failure … fan-out iterates by reading the fact\") is the intent, currently unimplemented.",
-                "BUS0 \"Fact-File Pattern\" owns the substrate: dispatch promotion, buf_relay (built for this, zero production callers), buf_elect_fact_capture (contract says never relays).",
-                "History: the Stage-1 relay plan (commit e969a940e) vs the no-relay pivot (commit 2c41f3736).",
-                "Discovery: grep RBr_3e7 for every consumer site; grep buf_relay and buf_elect_fact_capture for the substrate seams;",
-                "the chaining-fact-band fixture and the BUK facts self-test assert today's semantics and must be re-formed to the settled law.",
-                "The beckon's express-filled consumer roster interacts with no-arg reuse — reconcile, don't duplicate.",
+                "## Docket",
+                "Implement the relay-then-read chain-lifetime law.",
+                "Study findings (260712, this session): no code ever deletes a fact — consumption was never destructive;",
+                "a fact's life is bounded solely by the dispatcher's current/→previous/ promotion (rm -rf at depth 2);",
+                "buf_relay exists, is self-tested, and has zero production callers — RBr_3e7 is the only thing forbidding it;",
+                "no existing test asserts the old no-relay semantics, so the change is rivet + relay calls + spec + net-new tests.",
+                "The law: every chain consumer calls buf_relay first, then the express-or-chain elect;",
+                "a fact survives any run of consecutive chain verbs and dies at the first non-chain dispatch;",
+                "a fact is replaced by the next same-name wellhead write (natural supersession via promotion);",
+                "failed-consumer retry falls out free — relay precedes the failure point, so a failed consumer has already passed the baton to its own retry (the dispatcher's documented fail-after-forward property).",
+                "Work:",
+                "rewrite RBr_3e7 (RBS0 \"Chaining-Fact Roles\") from never-relay to relay-then-read carrying the staleness bound and the retry story;",
+                "sweep its citation sites for consistency (grep RBr_3e7 Tools/);",
+                "amend BUS0's Fact-File Pattern — the buf_elect_fact_capture \"NEVER relays\" clause and the cross-tabtarget chaining prose;",
+                "add the buf_relay call at each chain consumer site (discovery: grep buf_elect_fact_capture Tools/rbk/);",
+                "re-form the band-fixture intent comments (rbtdrh_chain.rs: the fact-intact and precedence cases assert preservation, already law-compatible — comments only);",
+                "add net-new positive coverage: a multi-consumer case (one seeded fact, two consumers in successive dispatches) and a failed-consumer retry case;",
+                "extend the BUK facts self-test (butcfc_facts.sh) with elect-after-relay and chain-survives-consumption cases.",
+                "Proof: BUK self-test and reveille green on this tree; the cloud chain-livery proof rides the greenfield walk's gauntlet (heat cinch), not this pace.",
                 "",
                 "## Done when",
-                "- The chain-lifetime law is operator-settled and homed at the existing single sites (RBS0 role and rivet definitions, BUS0 substrate), with every by-contrast citation following.",
-                "- Code implements the law across substrate and all consumers; buf_relay gains its callers or is removed, per the law.",
-                "- Fixtures assert the law, including the multi-consumer reuse the ruling requires and the failed-consumer retry behavior.",
-                "- The suites the change touches are re-proven green on this heat's baseline."
+                "RBr_3e7 rewritten and every citation site consistent;",
+                "all chain consumers relay-then-read;",
+                "fixtures assert multi-consumer reuse and failed-consumer retry;",
+                "BUK self-test and reveille green;",
+                "notched, ready for the candidate cut to ride."
               ],
               "jjgtn_silks": "chaining-fact-lifetime-repair",
-              "jjgtn_basis": "6d9ab0f"
+              "jjgtn_basis": "fd173fe"
             }
           ]
         },
@@ -8670,6 +8674,64 @@
               ],
               "jjgtn_silks": "beast-host-standup",
               "jjgtn_basis": "b244b33"
+            }
+          ]
+        },
+        "₢BsAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2144",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical verification with loud gates; runs against the proof clone's candidate.",
+                "",
+                "## Docket",
+                "Prove the stripped candidate from the consumer's seat, in the proof clone:",
+                "leakage sweep — audit git ls-files on the candidate for veiled residue (vov_veiled, Memos, Study, stripped kits, operator-site configs) and grep delivered prose for spalls (veiled spec basenames, interior acronyms surfacing in README/handbook text);",
+                "post-strip reveille — the full credless suite run on the stripped tree, proving the delivered code executes rather than merely wires (fast-qualify and pyx already ride the ceremony — confirm green, do not re-invent);",
+                "fold the ceremony amendment: the rbk-prep-release flow gains post-strip reveille as a standing every-cut step.",
+                "A finding means re-cut, never patch-forward (the ceremony's own failure-mode contract).",
+                "",
+                "## Done when",
+                "Leakage sweep clean; reveille green on the stripped candidate; the ceremony document carries the standing post-strip-reveille step."
+              ],
+              "jjgtn_silks": "candidate-integrity-probe",
+              "jjgtn_basis": "fd173fe"
+            }
+          ]
+        },
+        "₢BsAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2144",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Multi-hour operator-present founding ceremony; real IdP consoles, fresh credentials, real spend.",
+                "Not tired-work — schedule it fresh.",
+                "",
+                "## Docket",
+                "Walk the entire consumer journey from true zero on the candidate tree, through the shipped docs alone:",
+                "stand up a fresh GCP payor project — manual Establish with consent screen, PayorInstall, and the Entra federation guide against the operator's IdP tenant;",
+                "found the manor from nothing — instaurate, affiance, gird, brevet — following only what the candidate ships (README, handbooks, guided tabtargets), never maintainer knowledge;",
+                "culminate in the gauntlet run green from the fresh substrate —",
+                "one run proving both the founding path and the full ladder on delivered bytes,",
+                "and standing in for the cloud chain-livery proof of the chain-lifetime repair (heat cinch).",
+                "Record every divergence between the shipped docs and reality as a finding; divergences feed a re-cut or an explicit fast-follow ruling, operator's call.",
+                "Watch the billing-account link quota — the fresh project consumes a link.",
+                "Disposition of the fresh rig at close — keep as a standing consumer-simulation station for future releases, or tear down — is an operator ruling; the lean is keep.",
+                "This walk gates the push this release only (first of the federation era); the ceremony document records it as first-of-series depth thereafter.",
+                "",
+                "## Done when",
+                "The manor stands founded from zero via shipped docs alone;",
+                "the gauntlet green from the fresh substrate;",
+                "the divergence census recorded and dispositioned;",
+                "the rig disposition ruled;",
+                "the ceremony document records the walk as first-of-series depth."
+              ],
+              "jjgtn_silks": "greenfield-manor-walk",
+              "jjgtn_basis": "fd173fe"
             }
           ]
         }
