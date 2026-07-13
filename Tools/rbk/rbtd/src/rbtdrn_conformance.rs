@@ -219,8 +219,7 @@ fn zrbtdrn_scan(root: &Path, rows: &[zrbtdrn_EvictionRow]) -> Result<Vec<zrbtdrn
             Ok(c) => c,
             Err(_) => continue,
         };
-        // Repo-canonical forward slashes: the native-Windows walker emits `\`.
-        let rel = path.strip_prefix(root).unwrap_or(path).display().to_string().replace('\\', "/");
+        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(root, path);
         for row in rows {
             hits.extend(zrbtdrn_match(&rel, &content, row));
         }
@@ -511,9 +510,7 @@ fn rbtdrn_curl_containment(dir: &Path) -> rbtdre_Verdict {
         if path.extension().and_then(|e| e.to_str()) != Some("sh") {
             continue;
         }
-        // Repo-canonical forward slashes: the exempt prefixes hold `/` paths,
-        // and the native-Windows walker emits `\` separators.
-        let rel = path.strip_prefix(&root).unwrap_or(path).display().to_string().replace('\\', "/");
+        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, path);
         if ZRBTDRN_CURL_EXEMPT_PREFIXES.iter().any(|p| rel.starts_with(p)) {
             continue;
         }

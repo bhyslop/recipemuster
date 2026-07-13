@@ -190,6 +190,19 @@ pub(crate) fn rbtdrx_looks_native_windows(s: &str) -> bool {
     bytes.len() >= 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':'
 }
 
+/// Repo-canonical relative path: `root`-relative, forward slashes on every
+/// platform. The tree-scanner string tables (exemption paths, keep-prefixes)
+/// and their finding reports all hold `/` paths, while the native-Windows
+/// walker emits `\` separators — every scanner builds its `rel` through this
+/// one funnel so the compare-and-report form cannot drift by platform.
+pub(crate) fn rbtdrx_repo_rel(root: &Path, path: &Path) -> String {
+    path.strip_prefix(root)
+        .unwrap_or(path)
+        .display()
+        .to_string()
+        .replace('\\', "/")
+}
+
 // ── cygpath fallback ───────────────────────────────────────────────────
 
 fn rbtdrx_cygpath(input: &str, flag: &str) -> Option<String> {

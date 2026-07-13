@@ -443,3 +443,46 @@ Fix (one site): normalize `rel` to forward slashes at construction
 and the finding-line rendering together. pyx then 4/4 on macOS (no
 regression; the fourth case, `readme_anchors`, was the one fail-fast had
 been discarding on beast). Fix notched and pushed; beast re-pulled.
+
+**Second organ, same disease.** Reveille run two got past pyx (108 passed)
+and stopped at conformance `rbtdrn_curl_containment`: 18 violations, exactly
+the files under the two `ZRBTDRN_CURL_EXEMPT_PREFIXES` entries
+(`vov_veiled/ABANDONED-github/`, `rbgj*` cloud steps) — forward-slash
+prefixes, backslash `rel`, `starts_with` never fires. Rather than discover
+the class one ~20-minute suite run at a time, a crate-wide grep of every
+`strip_prefix` rel-construction found three sibling sites —
+`rbtdrn_conformance.rs:222` (vocabulary-scan reporting), `:513` (the live
+failure), `rbtdru_bash.rs:703` (cupel finding paths) — all normalized
+identically. Reveille's two not-yet-reached fixtures (chaining-fact-band,
+touchstone) audited clean: display-only formatting and a filename-prefix
+check, nothing separator-sensitive. conformance 9/9, cupel 3/3, pyx 4/4 on
+macOS; pushed; beast re-run follows.
+
+*Standup lesson, corrected by the operator: beast is NOT the first
+native-Windows theurge host — rocket's cygwin account has run the same
+`x86_64-pc-windows-gnu` binary since May. The bug class was invisible for a
+different reason: the affected scanners all postdate the last native-Windows
+fast-tier run. Timeline: cygwin@rocket's only fast-suite attempt was
+2026-05-17 (₢BOAAM) and died at case 1-of-75 on the System32-bash-lookup
+blocker; the conformance module landed June 8, its curl-containment case
+July 4, the pyx scanner July 9. The June cygwin work on rocket was
+container-tier, which never walks the repo tree. So beast's reveille was the
+first time ANY tree-scanner met backslash paths.*
+
+**Homogenization audit (operator-directed).** With the wound open, the crate
+was audited for heterogeneous path handling. Two legitimate idioms coexist,
+split on principle: **component-based compares** (cupel's walker excludes by
+directory basename; `zrbtdru_is_gcb` walks `path.components()`) are
+inherently separator-portable — which is exactly why cupel passed on beast
+while its siblings failed — and **repo-canonical rel strings** wherever a
+path meets a string table (exemption lists, PathPrefix keeps, finding
+reports). The inline fix had left the same normalization expression at four
+sites; it now lives once as `rbtdrx_repo_rel` in `rbtdrx_platform.rs` (the
+module that owns cross-platform path transmutation), with all four scanners
+calling it and three unit tests pinning strip/non-child/backslash behavior.
+`rbtdrx_platform`'s own two `.replace('\\',"/")` sites are a different
+concern (absolute native→posix conversion) and were correctly left alone.
+
+Third reveille on beast (inline-fix tree): **13 fixtures, 145 passed, 0
+failed, 0 skipped** — count-identical to rocket-WSL's verdict. A final run
+on the refactored tree is the done-when proof.

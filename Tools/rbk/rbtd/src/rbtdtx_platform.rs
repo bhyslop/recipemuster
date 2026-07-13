@@ -25,7 +25,7 @@ use std::path::PathBuf;
 
 use crate::rbtdrx_platform::{
     rbtdrx_cygdrive_to_native, rbtdrx_drive_to_cygdrive, rbtdrx_looks_native_windows,
-    rbtdrx_native_to_posix_for, rbtdrx_posix_to_native_for,
+    rbtdrx_native_to_posix_for, rbtdrx_posix_to_native_for, rbtdrx_repo_rel,
 };
 
 // ── Identity behaviour on non-Cygwin platforms ─────────────────────────
@@ -46,6 +46,30 @@ fn rbtdtx_identity_native_to_posix_when_not_cygwin() {
         let got = rbtdrx_native_to_posix_for(c, false);
         assert_eq!(got, c, "identity broken for {}", c);
     }
+}
+
+// ── Repo-canonical relative paths ───────────────────────────────────────
+
+#[test]
+fn rbtdtx_repo_rel_strips_root() {
+    use std::path::Path;
+    let root = Path::new("/repo");
+    assert_eq!(rbtdrx_repo_rel(root, Path::new("/repo/Tools/rbk/x.sh")), "Tools/rbk/x.sh");
+}
+
+#[test]
+fn rbtdtx_repo_rel_non_child_passes_whole() {
+    use std::path::Path;
+    assert_eq!(rbtdrx_repo_rel(Path::new("/repo"), Path::new("/other/y.sh")), "/other/y.sh");
+}
+
+#[test]
+fn rbtdtx_repo_rel_normalizes_backslashes() {
+    use std::path::Path;
+    // On Windows strip_prefix yields `Tools\rbk\x.sh`; on POSIX a literal
+    // backslash inside a component exercises the same replace.
+    let rel = rbtdrx_repo_rel(Path::new("/repo"), Path::new("/repo/Tools\\rbk\\x.sh"));
+    assert_eq!(rel, "Tools/rbk/x.sh");
 }
 
 // ── /cygdrive ↔ drive-letter fast path ─────────────────────────────────
