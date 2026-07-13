@@ -3667,8 +3667,9 @@
         "₢B0AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0656",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -3690,7 +3691,7 @@
                 "The candidate branch stands on the public repository, tip-verified, anonymously cloneable, the onboarding entry launching from the anonymous clone; main untouched."
               ],
               "jjgtn_silks": "stage-the-candidate",
-              "jjgtn_basis": "cbe515e"
+              "jjgtn_basis": "2a299fb"
             }
           ]
         }
