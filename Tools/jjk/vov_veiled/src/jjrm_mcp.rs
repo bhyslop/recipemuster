@@ -46,12 +46,17 @@ use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, j
 use crate::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_Rejection, jjrfr_Seat};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
-const OFFICIA_DIR: &str = ".claude/jjm/officia";
+/// The officia directory's fixed relative path — reused by the muck sweep's
+/// liveness join (`jjrdm_muck`), which resolves it against a billet root
+/// rather than the server's own working directory.
+pub const OFFICIA_DIR: &str = ".claude/jjm/officia";
 const HEARTBEAT_FILE: &str = "heartbeat";
 const GAZETTE_IN_FILE: &str = "gazette_in.md";
 const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
-const EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
+/// The officium liveness/retention window — one constant, one rhyme, shared
+/// with the muck sweep's retention window (`jjrdm_muck`, JJSVD "Muck").
+pub const JJRM_EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = crate::jjrf_favor::JJRF_INCIPIT_PREFIX; // ☉ — single-homed sigil
 const OFFICIUM_SUFFIX_LEN: usize = 4; // random discriminant chars appended to YYMMDD-NNNN
 const OFFICIUM_FIRST_ORDINAL: u32 = 1000; // first-of-day daily ordinal NNNN (per-machine seed)
@@ -873,7 +878,7 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
             Ok(d) => d,
             Err(_) => continue,
         };
-        if age.as_secs() > EXSANGUINATION_THRESHOLD_SECS {
+        if age.as_secs() > JJRM_EXSANGUINATION_THRESHOLD_SECS {
             if let Err(e) = std::fs::remove_dir_all(&path) {
                 eprintln!("jjx exsanguinate: failed to remove {:?}: {}", path.file_name(), e);
             } else {
@@ -884,6 +889,25 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
         }
     }
     (reaped, active)
+}
+
+/// Whether one officium directory carries a live heartbeat — the read-only
+/// predicate `zjjrm_exsanguinate` above applies destructively. Consumed by
+/// the muck sweep's liveness join (`jjrdm_muck`, JJSVD "Muck"): a billet with
+/// a live officium under it is never reaped, no platform process-probe
+/// needed. A missing or unreadable heartbeat is never live (matches
+/// `zjjrm_exsanguinate`'s own no-heartbeat skip); a clock-skewed future mtime
+/// reads as live rather than crying on ignorance.
+pub fn jjrm_officium_dir_is_live(officium_dir: &Path) -> bool {
+    let heartbeat = officium_dir.join(HEARTBEAT_FILE);
+    let mtime = match heartbeat.metadata().and_then(|m| m.modified()) {
+        Ok(t) => t,
+        Err(_) => return false,
+    };
+    match std::time::SystemTime::now().duration_since(mtime) {
+        Ok(age) => age.as_secs() <= JJRM_EXSANGUINATION_THRESHOLD_SECS,
+        Err(_) => true,
+    }
 }
 
 /// Short random discriminant for officium IDs: `len` lowercase-alphanumeric chars.

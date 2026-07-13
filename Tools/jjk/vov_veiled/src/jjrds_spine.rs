@@ -8,12 +8,18 @@
 //! `jjdf_farrier` primitives and the blotter's engine-known config — it owns no
 //! git of its own.
 //!
-//! Spine order (JJSVD "The entrance spine"): muck — NOT YET BUILT, its slot is
-//! the leading step and it lands with the sweep pace — then identify at the
-//! captured invocation path, pedigree lookup (one indirection: derived key →
-//! sire → pedigree), billet ensure, glean, BURV export, provision, launch. The
-//! launch primitive is stirrup: pace-blind, parameterized (billet, tier,
-//! opening prompt); pace-coupling lives in the callers here.
+//! Spine order (JJSVD "The entrance spine"): muck — built in `jjrdm_muck`,
+//! its slot is the leading step, but NOT YET CALLED from `jjrds_run` below:
+//! muck reads pace-closed state from the studbook's gallops copy, which
+//! stays a parallel, non-authoritative path until the cutover ceremony,
+//! while `jjrds_plan`/`jjrds_board` still read the frozen local gallops —
+//! wiring muck here before that cutover would let it judge every pace
+//! "open" (or, for a groom billet, judge on no pace at all) against a copy
+//! nothing keeps current — then identify at the captured invocation path,
+//! pedigree lookup (one indirection: derived key → sire → pedigree), billet
+//! ensure, glean, BURV export, provision, launch. The launch primitive is
+//! stirrup: pace-blind, parameterized (billet, tier, opening prompt);
+//! pace-coupling lives in the callers here.
 //!
 //! Inertness: nothing on the frozen path reaches this module. The doors are
 //! new opt-in surfaces (a station without a founded studbook meets the
