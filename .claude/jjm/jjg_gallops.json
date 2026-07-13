@@ -3713,8 +3713,10 @@
         "₢B1AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0657",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Docket",
                 "",
@@ -3737,7 +3739,7 @@
                 "Deliberate mechanical founding; operator-present for repo creation, the overlay review, and any carry-or-drop rulings."
               ],
               "jjgtn_silks": "found-successor-repo",
-              "jjgtn_basis": "8faafdf"
+              "jjgtn_basis": "0afd7d6"
             }
           ]
         },
