@@ -7796,8 +7796,8 @@
         "₢BsAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0838",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260713-1042",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
@@ -7837,7 +7837,7 @@
                 "the ceremony's stale prose is gone."
               ],
               "jjgtn_silks": "veil-case-eviction",
-              "jjgtn_basis": "0081524"
+              "jjgtn_basis": "a80189e"
             }
           ]
         }
