@@ -71,6 +71,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_RBRV_FILE,
     RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
+    RBTDGC_THEURGE_NIHIL,
     RBTDGC_YOKE_RELIQUARY,
 };
 use crate::rbtdre_engine::{
@@ -607,12 +608,39 @@ fn rbtdrh_rekon_no_folio(dir: &Path) -> rbtdre_Verdict {
     }
 }
 
-// ── relay-then-read positive cases ──────────────────────────
-// The chain-lifetime law (RBr_3e7) proven at the bash-verb grain with feoff: two
+// ── relay-then-read lifetime cases ──────────────────────────
+// The chain-lifetime law (RBr_3e7) proven at the bash-verb grain with feoff:
 // REAL successive dispatches over one shared BURV root, the promotion between
-// them the dispatcher's own. Without the relay at the top of the consumer verb,
-// the second dispatch would find previous/ empty and reject — these cases are
-// the ones the old terminal-consumption law would have failed.
+// them the dispatcher's own. The two positive cases (multi-consumer, retry) are
+// the ones the old terminal-consumption law would have failed; the staleness
+// case proves the kill side — a non-chain dispatch (the nihil calibrant, which
+// never relays) drops the chain, so the next consumer rejects with the band.
+
+/// Dispatch the nihil calibrant tabtarget (rbw-tn) against the case-shared BURV
+/// root under `dir` — a real non-chain dispatch: it promotes like any other but
+/// relays nothing, so a live fact dies at its promotion horizon.
+fn rbtdrh_drive_nihil(dir: &Path) -> Result<i32, String> {
+    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
+    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_THEURGE_NIHIL)?;
+
+    let burv = dir.join("burv");
+    let burv_temp = dir.join("burvtmp");
+    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
+
+    let mut cmd = rbtdri_tabtarget_command(&tt);
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
+        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+        .current_dir(&root);
+
+    let output = cmd
+        .output()
+        .map_err(|e| format!("failed to run nihil {}: {}", tt.display(), e))?;
+    let _ = std::fs::write(dir.join("nihil-stdout.txt"), &output.stdout);
+    let _ = std::fs::write(dir.join("nihil-stderr.txt"), &output.stderr);
+    Ok(output.status.code().unwrap_or(-1))
+}
 
 fn rbtdrh_chain_multi_consumer(dir: &Path) -> rbtdre_Verdict {
     // One seeded bole fact, two consumers in successive dispatches: feoff A
@@ -693,6 +721,57 @@ fn rbtdrh_chain_retry_after_failure(dir: &Path) -> rbtdre_Verdict {
             expected_locator, content
         ))
     }
+}
+
+fn rbtdrh_chain_dies_at_non_chain_dispatch(dir: &Path) -> rbtdre_Verdict {
+    // The staleness bound's kill side: a live bole fact, then a NON-chain dispatch
+    // (nihil — promotes but never relays), then a chain consumer. The consumer's
+    // dispatch-start promotion finds only nihil's relay-less current/, so the
+    // fact is gone and feoff rejects with the band — the chain died at the first
+    // non-chain dispatch, exactly the behavioral staleness bound (RBr_3e7).
+    let seed_dir = dir.join("burv").join("current");
+    if let Err(e) = std::fs::create_dir_all(&seed_dir) {
+        return rbtdre_Verdict::Fail(format!("mkdir burv current: {}", e));
+    }
+    if let Err(e) = std::fs::write(
+        seed_dir.join(RBTDRH_FACT_TOUCHMARK),
+        format!("{}\n", RBTDRH_BOLE_TOUCHMARK),
+    ) {
+        return rbtdre_Verdict::Fail(format!("seed chain fact: {}", e));
+    }
+
+    let code_nihil = match rbtdrh_drive_nihil(dir) {
+        Ok(c) => c,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+    if code_nihil != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "nihil dispatch exited {} — expected 0 (artifacts in {})",
+            code_nihil, dir.display()
+        ));
+    }
+
+    let (code, rbrv) =
+        match rbtdrh_drive_feoff_shared(dir, "vessel-stale", true, None, None, "feoff-stale") {
+            Ok(t) => t,
+            Err(e) => return rbtdre_Verdict::Fail(e),
+        };
+    if code != RBTDGC_BAND_CHAIN {
+        return rbtdre_Verdict::Fail(format!(
+            "feoff after an intervening non-chain dispatch exited {} — expected chain-rejection \
+             band {}: the fact must die at the first non-chain dispatch (artifacts in {})",
+            code, RBTDGC_BAND_CHAIN, dir.display()
+        ));
+    }
+    // The reject left the staged vessel untouched — no stale value was elected.
+    let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
+    if content != RBTDRH_VESSEL_RBRV {
+        return rbtdre_Verdict::Fail(format!(
+            "rbrv.env was mutated under the staleness reject:\n{}",
+            content
+        ));
+    }
+    rbtdre_Verdict::Pass
 }
 
 // ── furnish invariant (static) ──────────────────────────────
@@ -853,6 +932,7 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_rekon_no_folio),
     case!(rbtdrh_chain_multi_consumer),
     case!(rbtdrh_chain_retry_after_failure),
+    case!(rbtdrh_chain_dies_at_non_chain_dispatch),
     case!(rbtdrh_furnish_invariant),
 ];
 
@@ -863,5 +943,5 @@ pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRH_CASES_CHAINING_FACT_BAND,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(25), invocations: Some(19) },
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(25), invocations: Some(21) },
 };
