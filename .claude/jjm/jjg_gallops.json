@@ -3577,10 +3577,11 @@
       "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢B0AAC",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
+      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3633,23 +3634,59 @@
               "jjgtn_ts": "260712-2157",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢BsAAR in ₣Bs.",
+                "## Character",
                 "",
-                "Carry out the release: take the candidate the cut pace left standing at the push gate (stripped, fast-qualified, link-checked) through the actual delivery —",
-                "the operator's push to the public repository and the post-push verification the ceremony document prescribes (published-docs URL reachable, delivered tree sane at the remote).",
-                "The ceremony document (the refreshed rbk-prep-release flow, with RELEASE.md now maintainer-side only) is the authority for steps; this pace exists so the delivery itself is chalked work, not an afterthought of the cut.",
-                "Precondition: the candidate-integrity-probe and greenfield-manor-walk paces have closed green — the push rides a candidate proven from the consumer's seat (heat cinch).",
+                "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired.",
+                "",
+                "## Docket",
+                "",
+                "Carry out the release: promote the walked staging candidate to production and prove the promoted face.",
+                "Promote: merge the candidate branch to the public repository's main,",
+                "then assert tree-hash equality — main's tree after the merge equals the candidate tip; any inequality is a wrong promotion, stop.",
+                "Liveness: the RBRR_PUBLIC_DOCS_URL main-blob README serves, and every anchor rbyc_common.sh mints resolves against the live page (the post-promotion half of the link-check split; the structural half already rode pyx at the cut).",
+                "Production spot-check (thin by cinch — the walk already proved the bytes on staging):",
+                "repo front-page README rendering, the github.io page, and a fresh default-branch clone taken a few minutes into the onboarding entry.",
+                "Amend the ceremony document: the structural-versus-liveness link-check split, and this heat's stage→walk→promote shape recorded as the delivery pattern.",
+                "Record the release per the ceremony document.",
+                "Precondition: the greenfield walk has closed green with its divergence census dispositioned.",
                 "",
                 "## Done when",
                 "",
-                "The candidate is pushed and publicly visible; post-push checks green; the release recorded per the ceremony document.",
-                "",
-                "## Character",
-                "",
-                "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired."
+                "The candidate merged to public main with tree-hash equality proven;",
+                "liveness and spot-check green;",
+                "the ceremony document amended;",
+                "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "918a71c"
+              "jjgtn_basis": "6ca3b66"
+            }
+          ]
+        },
+        "₢B0AAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260712-2157",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Short mechanical ceremony; operator-present for the public-visibility moment.",
+                "",
+                "## Docket",
+                "",
+                "Push the proven candidate branch (the one rbk-10-create-staging's cut and integrity probe left standing) to the public repository as an unmerged branch —",
+                "the staging the greenfield walk will clone as a stranger.",
+                "Nothing merges to main here; the push makes the candidate publicly cloneable, no more.",
+                "Verify the pushed branch's tip equals the local candidate tip,",
+                "and that a fresh anonymous clone of the branch succeeds from a network position outside the maintainer's credentials.",
+                "Precondition: the candidate-integrity-probe pace in rbk-10-create-staging has closed green.",
+                "",
+                "## Done when",
+                "",
+                "The candidate branch stands on the public repository, tip-verified, anonymously cloneable; main untouched."
+              ],
+              "jjgtn_silks": "stage-the-candidate",
+              "jjgtn_basis": "6ca3b66"
             }
           ]
         }
