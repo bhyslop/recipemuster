@@ -582,3 +582,57 @@ rustup-managed), `~/.bashrc` / `~/.bash_profile` (§16, agent-authored),
 operator conversation, not a pace act; the mimic replay will re-create all
 of it from this memo, which is itself a versioned account of the
 un-versioned state.
+
+## 19. Station gap the standup missed: git identity breaks the self-commit fixtures
+
+*Found by the follow-on pace ₢BsAAd (cygwin-freehold-sweep), which ran the
+container tiers this standup never reached — siege, bivouac, blockade.
+Recorded here because the standup's own proofs structurally could not catch
+it, and the mimic replay must not repeat the miss.*
+
+Beast's git carried `user.name` (`Brad Hyslop`) set globally but **`user.email`
+never configured**. Every proof this standup ran passed clean over that gap —
+reveille, `credential-readiness`, `access-probe`, dogfight, `batch-vouch` —
+because **none of them self-commits**. A git identity is consulted only when
+something calls `git commit`; nothing in the credless or credential arc does,
+so the missing email stayed invisible through the whole standup verdict.
+
+The gap surfaces the moment a self-committing fixture runs. Siege's
+`rbtdro_kludge_tadmor_standalone` drives a freshly-kludged vessel hallmark into
+`rbmm_moorings/tadmor/rbrn.env` and commits it — the routine
+`kludge-tadmor: sentry hallmark` / `kludge-tadmor: bottle hallmark` pattern
+already visible in `git log`. With no `user.email`, that commit died with
+`git commit` **exit 128, "Author identity unknown"** (git autodetected
+`bhyslop@bhyslop-asrock-beast.(none)` and refused it). Bivouac and blockade
+share the same tadmor/moriah kludge fixtures, so they carry the identical
+dependency — this one gap gates all three container tiers.
+
+**Fix:** `git config --global user.email 'bhyslop@scaleinvariant.org'` — the
+curia's own git identity, so beast's test-artifact commits carry the same
+author as the rest of the repo's history. One line, no reboot, no restart.
+
+**Corollary trap, for anyone hitting this cold.** The failure lands
+*mid-fixture*, and by then `git add` has already succeeded — only the
+`git commit` failed. A failed run therefore leaves a **staged-but-uncommitted
+change** in the tree, and theurge refuses to start any suite on a dirty tree:
+the naive retry (fix the email, re-run) is blocked by the clean-tree gate
+before the fixture even starts. The stranded commit must be **completed by
+hand** with the fixture's own established message —
+`git commit -m 'kludge-tadmor: sentry hallmark'`, matching the convention
+already in the log — before the retry can proceed. Fixing the identity is
+necessary but not sufficient; the interrupted commit has to be finished too.
+
+**Required replay step — not residue.** This is not the harmless un-versioned
+state of §18's census; it is a provisioning defect that hard-fails the
+container tiers. mimic-bth-intel's replay must set **both** identity fields
+from the start:
+
+```
+git config --global user.name  'Brad Hyslop'
+git config --global user.email 'bhyslop@scaleinvariant.org'
+```
+
+at station provisioning time — alongside the Cygwin/rustup setup, before any
+suite that kludges a vessel (siege, bivouac, blockade, or any run touching the
+tadmor or moriah kludge fixtures) — so the container tiers never meet the
+exit-128 wall.
