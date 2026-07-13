@@ -4,6 +4,7 @@
 
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
+    jjrfr_break,
     jjrfr_FarrierLock,
     jjrfr_RejectionKind,
 };
@@ -497,4 +498,197 @@ fn zjjtvb_station_name() -> String {
         .and_then(|o| String::from_utf8(o.stdout).ok())
         .map(|s| s.trim().to_string())
         .unwrap_or_else(|| "unknown".to_string())
+}
+
+// ---- Two-station rehearsal against the real remote (₢BrAAW) ----
+//
+// Every scenario below stands up its OWN clones of the real studbook remote
+// and never touches the station's standing clone: a station is exactly a clone,
+// so two temp clones are two honest stations, and the real remote stays the
+// sole arbiter — which is the whole point. The in-process lock registry cannot
+// be what refuses anything here (it keys on root, and these roots differ), so a
+// LockHeld can only have come off GitHub's own compare-and-swap.
+//
+// These share one real remote lock, so they MUST run single-threaded
+// (`--test-threads=1`); run in parallel they would contend with each other
+// rather than with the scenario under test.
+
+/// Stand a rehearsal station up: a fresh clone of the REAL studbook remote in a
+/// temp dir, plus the blotter config pointed at it.
+fn zjjtvb_real_station(infield_root: &str, name: &str) -> (JjkTestDir, jjdb_BlotterConfig) {
+    let real = jjdb_studbook_config(Path::new(infield_root));
+    let dir = JjkTestDir::new(name);
+    zjjtvb_git(
+        Path::new("/"),
+        &["clone", "-q", "-b", &real.trunk, &real.remote_url, &dir.path().to_string_lossy()],
+    );
+    zjjtvb_git(dir.path(), &["config", "user.email", "jjtvb@example.invalid"]);
+    zjjtvb_git(dir.path(), &["config", "user.name", "jjtvb-rehearsal"]);
+    let config = jjdb_BlotterConfig { local_root: dir.path().to_path_buf(), ..real };
+    (dir, config)
+}
+
+/// Rehearsal 1 — two-station lock contention. Alpha holds the lock; bravo, a
+/// wholly separate clone, attempts its own ceremony and must be refused by the
+/// remote's compare-and-swap, with its mutate never run.
+#[test]
+#[ignore]
+fn jjtvb_rehearsal_two_station_lock_contention() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT").expect("set JJTVB_REAL_INFIELD_ROOT");
+    let farrier = jjrfg_PlainGit;
+    let (_alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_contention_alpha");
+    let (_bravo_dir, bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_contention_bravo");
+
+    farrier.jjrfr_stake(&alpha.local_root, "station=alpha op=rehearsal-contention").unwrap();
+
+    let called = Cell::new(false);
+    let result = jjdb_journal(&farrier, &bravo, "station=bravo op=rehearsal-contention", |root| {
+        called.set(true);
+        zjjtvb_write(root, "bravo-must-not-land.txt", "x");
+        (vec![PathBuf::from("bravo-must-not-land.txt")], "bravo must not land".to_string())
+    });
+
+    let kind = result.expect_err("bravo must be refused while alpha holds the lock").kind;
+    assert_eq!(kind, jjrfr_RejectionKind::LockHeld, "the refusal must name the lock, not some transport accident");
+    assert!(!called.get(), "bravo's mutate must never run: the lock gates the write, not the push");
+
+    // Alpha, still the rightful holder, releases.
+    farrier.jjrfr_pluck(&alpha.local_root, "station=alpha op=rehearsal-contention").unwrap();
+    assert_eq!(farrier.jjrfr_sight(&alpha.local_root).unwrap(), None);
+    println!("REHEARSAL contention: bravo refused with LockHeld off the real remote; mutate never ran");
+}
+
+/// Rehearsal 2 — stale-lock break. Alpha stakes and then vanishes (a staked
+/// lock with no live guard IS the crashed station: that is precisely the state a
+/// killed process leaves behind). Bravo sights the foreign guidon, breaks it,
+/// and completes its own ceremony.
+#[test]
+#[ignore]
+fn jjtvb_rehearsal_stale_lock_break() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT").expect("set JJTVB_REAL_INFIELD_ROOT");
+    let farrier = jjrfg_PlainGit;
+    let (_alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_break_alpha");
+    let (_bravo_dir, bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_break_bravo");
+
+    let abandoned = "station=alpha op=rehearsal-break state=crashed";
+    farrier.jjrfr_stake(&alpha.local_root, abandoned).unwrap();
+
+    // Bravo sees a lock it does not own, and can read WHO holds it — the whole
+    // reason a guidon carries text rather than a bare flag.
+    let sighted = farrier.jjrfr_sight(&bravo.local_root).unwrap();
+    assert_eq!(sighted.as_deref(), Some(abandoned), "bravo must read the abandoned holder's mark");
+    assert_eq!(
+        jjdb_journal(&farrier, &bravo, "station=bravo op=blocked", |_| unreachable!("mutate must not run"))
+            .expect_err("a stale lock blocks bravo exactly as a live one does")
+            .kind,
+        jjrfr_RejectionKind::LockHeld,
+        "a stale lock is indistinguishable from a held one — which is why the break is a deliberate operator act"
+    );
+
+    let broken = jjrfr_break(&farrier, &bravo.local_root).unwrap();
+    assert_eq!(broken.as_deref(), Some(abandoned), "the break must report whose lock it cleared");
+
+    let sha = jjdb_journal(&farrier, &bravo, "station=bravo op=rehearsal-break", |root| {
+        zjjtvb_write(root, "rehearsal.txt", "bravo wrote this after breaking a stale lock");
+        (vec![PathBuf::from("rehearsal.txt")], "rehearsal: bravo writes after a stale-lock break".to_string())
+    })
+    .expect("after the break, bravo's ceremony must complete");
+
+    assert_eq!(farrier.jjrfr_sight(&bravo.local_root).unwrap(), None, "bravo must release on the way out");
+    println!("REHEARSAL break: bravo read alpha's abandoned guidon, broke it, and journaled at {}", sha);
+}
+
+/// Rehearsal 3 — atomic-push lease failure, the invariant the whole design
+/// turns on. Bravo breaks alpha's lock while alpha is mid-ceremony; alpha's
+/// consign must fail its lease and land NOTHING on the remote — no half-applied
+/// write, no content pushed without the lock that authorized it.
+#[test]
+#[ignore]
+fn jjtvb_rehearsal_atomic_push_lease_failure() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT").expect("set JJTVB_REAL_INFIELD_ROOT");
+    let farrier = jjrfg_PlainGit;
+    let (_alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_lease_alpha");
+    let (bravo_dir, bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_lease_bravo");
+
+    let baseline = zjjtvb_git(&alpha.local_root, &["rev-parse", &format!("origin/{}", alpha.trunk)]);
+
+    let usurper = "station=bravo op=usurper";
+    let result = jjdb_journal(&farrier, &alpha, "station=alpha op=rehearsal-lease", |_root| {
+        // Bravo — a different clone, i.e. a different machine — breaks alpha's
+        // lock and takes it, while alpha sits between sight and consign.
+        let cleared = jjrfr_break(&farrier, bravo_dir.path()).unwrap();
+        assert!(cleared.is_some(), "bravo must find alpha's lock to break");
+        farrier.jjrfr_stake(bravo_dir.path(), usurper).unwrap();
+        (vec![PathBuf::from("stranded.txt")], "must never reach the remote".to_string())
+    });
+
+    assert_eq!(
+        result.expect_err("alpha's consign must fail once its lock is gone").kind,
+        jjrfr_RejectionKind::LockBroken,
+        "the refusal must name the broken lock, not a content race"
+    );
+
+    // The invariant: the remote is untouched. Alpha's commit exists locally and
+    // stranded, but nothing it wrote reached the shared store.
+    let remote_tip = zjjtvb_git(&alpha.local_root, &["ls-remote", "origin", &alpha.trunk]);
+    let remote_sha = remote_tip.split_whitespace().next().unwrap();
+    assert_eq!(remote_sha, baseline, "a lease-failed consign must land NOTHING on the real remote");
+    assert_eq!(
+        farrier.jjrfr_sight(&bravo.local_root).unwrap().as_deref(),
+        Some(usurper),
+        "the usurper's lock must survive alpha's failed consign and alpha's own guard release"
+    );
+
+    farrier.jjrfr_pluck(&bravo.local_root, usurper).unwrap();
+    println!("REHEARSAL lease: alpha's consign was refused LockBroken; real remote still at {}", baseline);
+}
+
+/// Rehearsal 3b — the aftermath the design does not speak to, probed on
+/// purpose. A lease-failed ceremony leaves a commit stranded in the local clone
+/// (JJSVJ says so plainly). Nothing in the ceremony discards it — so what does
+/// the SAME station's next successful journal do with it? If the stranded
+/// commit rides in on that push, then content the lock refused once arrives
+/// later without ever being authorized, which is a finding, not a feature.
+/// This test asserts nothing about which answer is right; it records the one
+/// the machinery actually gives.
+#[test]
+#[ignore]
+fn jjtvb_rehearsal_stranded_commit_aftermath() {
+    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT").expect("set JJTVB_REAL_INFIELD_ROOT");
+    let farrier = jjrfg_PlainGit;
+    let (alpha_dir, alpha) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_aftermath_alpha");
+    let (bravo_dir, _bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_aftermath_bravo");
+
+    // Drive alpha into the stranded state exactly as rehearsal 3 does.
+    let usurper = "station=bravo op=aftermath-usurper";
+    let err = jjdb_journal(&farrier, &alpha, "station=alpha op=aftermath", |root| {
+        jjrfr_break(&farrier, bravo_dir.path()).unwrap();
+        farrier.jjrfr_stake(bravo_dir.path(), usurper).unwrap();
+        zjjtvb_write(root, "stranded.txt", "refused by the lock, never authorized");
+        (vec![PathBuf::from("stranded.txt")], "STRANDED: refused by the lock".to_string())
+    })
+    .expect_err("the lease must fail");
+    assert_eq!(err.kind, jjrfr_RejectionKind::LockBroken);
+    farrier.jjrfr_pluck(bravo_dir.path(), usurper).unwrap();
+
+    // Alpha now re-journals something entirely unrelated, with the lock free.
+    let sha = jjdb_journal(&farrier, &alpha, "station=alpha op=aftermath-retry", |root| {
+        zjjtvb_write(root, "aftermath.txt", "the write alpha actually intended");
+        (vec![PathBuf::from("aftermath.txt")], "rehearsal: alpha's next authorized write".to_string())
+    })
+    .expect("with the lock free, alpha's next ceremony completes");
+
+    // What reached the remote? Read the pushed history back and look for the
+    // stranded subject riding along.
+    let pushed = zjjtvb_git(alpha_dir.path(), &["log", "--pretty=%s", &format!("origin/{}", alpha.trunk)]);
+    let stranded_landed = pushed.lines().any(|l| l.contains("STRANDED"));
+    println!("REHEARSAL aftermath: alpha's retry landed at {}", sha);
+    println!("REHEARSAL aftermath: stranded commit reached the remote? {}", stranded_landed);
+    println!("REHEARSAL aftermath: remote history now:\n{}", pushed);
+    assert!(
+        !stranded_landed,
+        "FINDING: a commit the lock REFUSED rode onto the shared store on the station's next write — \
+         the ceremony strands it locally and never reconciles it, so the next consign pushes it \
+         unauthorized. The lease protects the push it guards, not the history behind it."
+    );
 }
