@@ -7743,7 +7743,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260713-0834",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Security-gate authoring by composition. A leak reaching a public repo cannot be recalled, and the roster's completeness is the whole product — a miss reads fine and ships.",
@@ -7787,7 +7789,7 @@
                 "reveille green."
               ],
               "jjgtn_silks": "delivery-identity-gate",
-              "jjgtn_basis": "46ae748"
+              "jjgtn_basis": "6c306b9"
             }
           ]
         },
