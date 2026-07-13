@@ -10,11 +10,13 @@ The first turns tack docket text into a line array and moves tack history out of
 The second turns validate into a normalize-and-report pass that canonicalizes the store and carries its verdict in the exit code.
 Each registers an episode against the mechanism rather than re-plumbing detection.
 A third schema change — pace bridling — is additive-only and rides no episode; its determination is recorded in Cinched below.
-The heat has since adopted further schema-change paces on the same episode spine:
-the gallops-key glyph strip, and (adopted 260708 from the studbook–farrier heat ₣Br)
+The heat has since adopted further schema-change paces:
+the pace-original-intent capture — additive-only like bridling, riding no episode —
+and (adopted 260708 from the studbook–farrier heat ₣Br)
 the pace-identity re-gestalt — immutable-for-life pace ids from one global seed,
 relocated here because it is an isolated gallops schema change ₣Br does not depend on;
 its 260706 design cinches travel in its docket, and it must land and converge before the revision-control cutover heat.
+(A gallops-key glyph-strip pace was adopted then abandoned when the minted-mark re-cut inverted its law.)
 
 A coda then propagates the changes to every install and retires the spent episodes — but not the mechanism.
 Multi-install schema drift is the steady state of this tool, not a transition to be ended: there is always a leading clone where a schema-impacting change lands first and lagging clones not yet converged.
@@ -38,7 +40,7 @@ The provisional designation-tier vocabulary is the vendor family words carried b
 
 ## Done when
 Every install runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time nag reports every episode dormant;
-this heat's tack-rework tolerance and the V3-to-V4 tolerance with its frozen reference are stripped and their registry entries removed;
+every spent episode's tolerance and frozen reference is stripped and its registry entry removed (the registry is the census — the V3-to-V4, schema_version-drop, and tack-rework tolerances today, plus any the remaining schema paces register);
 the mechanism — registry, probe, open-time nag — stands as permanent infrastructure;
 the forgiveness quoin describes that permanent mechanism with its per-episode lifecycle rather than a self-demolishing whole;
 the crate builds and tests green.
