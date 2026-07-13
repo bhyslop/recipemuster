@@ -3837,9 +3837,10 @@
       "jjghn_order": [
         "₢B2AAA",
         "₢B2AAB",
-        "₢B2AAC"
+        "₢B2AAC",
+        "₢B2AAD"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -3966,6 +3967,41 @@
               ],
               "jjgtn_silks": "release-ceremony-clone-boundary-split",
               "jjgtn_basis": "f7969b6"
+            }
+          ]
+        },
+        "₢B2AAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1214",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small generator predicate plus one false-sentence correction in the release ceremony; the delivered face is the stakes — precision, no scope creep.",
+                "",
+                "## Docket",
+                "`buz_emit_context` (`Tools/buk/buz_zipper.sh`) emits a row for every enrolled colophon and leaves the Frontispiece cell empty when no tabtarget matches on disk,",
+                "so the release strip leaves the shipped, consumer-`@`-included `Tools/rbk/claude-rbk-tabtarget-context.md` carrying gutted rows for the withheld `rbw-M*` family and `rbw-mR`.",
+                "Make the generator omit any enrolled colophon with no tabtarget on disk —",
+                "a no-op in the maintainer tree (the `rbq_qualify_completeness` sweep, an `rbw-MZ` precondition, guarantees every enrolled colophon a tabtarget there)",
+                "and self-healing in a stripped tree for any future withheld colophon.",
+                "Then correct the ceremony's regenerate-derived-files step (Step 11 of `.claude/commands/rbk-prep-release.md` today; the clone-boundary split pace may rehome it):",
+                "it claims the generated Rust consts \"do not change — zipper-driven, not disk-driven\", which is false —",
+                "the build also projects the lustrated `rbpc_constants.sh` freehold subject into `rbtdgc_consts.rs` (see `rbz_emit_consts`), so the step is load-bearing for identity erasure, not a freshness chore;",
+                "rewrite that paragraph to say so and to reflect the now-self-healing context table.",
+                "",
+                "## Cinched",
+                "No new fixture or gate: post-fix, the freshness gate in `rbq_qualify_fast` regenerates with the same generator, so a gutted row cannot survive it in maintainer or candidate tree.",
+                "The delivered acronym map's RBLM row naming the withheld colophons is deliberate honest prose over the deliberately-shipped `rblm_*` library — out of scope, do not \"repair\" it.",
+                "Withheld colophons stay enrolled in the zipper and in `rbtdgc_consts.rs` — the fix is emission, never enrollment.",
+                "",
+                "## Done when",
+                "Regenerating in a tree missing an enrolled colophon's tabtarget yields a table without that row, never an empty Frontispiece cell;",
+                "maintainer-tree regeneration is unchanged;",
+                "the ceremony's regenerate step states the consts projection truthfully and no longer claims the consts cannot change."
+              ],
+              "jjgtn_silks": "context-gen-omits-stripped-colophons",
+              "jjgtn_basis": "e94ea4e"
             }
           ]
         }
