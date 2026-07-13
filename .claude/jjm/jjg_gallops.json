@@ -3838,9 +3838,10 @@
         "₢B2AAA",
         "₢B2AAB",
         "₢B2AAC",
-        "₢B2AAD"
+        "₢B2AAD",
+        "₢B2AAE"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -4004,6 +4005,40 @@
               ],
               "jjgtn_silks": "context-gen-omits-stripped-colophons",
               "jjgtn_basis": "f51c7a4"
+            }
+          ]
+        },
+        "₢B2AAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1235",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "A sweep with teeth: find every operator machine name on the delivered face, evict it, and leave a gate so the class cannot return.",
+                "",
+                "## Docket",
+                "Operator machine names are shapeless site identity — no scanner catches them, and damnatio's shape sweep structurally cannot.",
+                "The 260713 candidate's leakage sweep found one by eye: a bare hostname in a comment in `Tools/rbk/rbq_qualify.sh`.",
+                "That one is a specimen, not the finding.",
+                "Sweep every file that survives the release strip for every host, station, and ssh alias the operator's rig carries —",
+                "the names are homed in the veiled JJK context's Test Environments section and in `rbmm_moorings/rbmn_nodes/`, both withheld from delivery — and evict each hit or justify it in place.",
+                "A hit is usually a comment naming a machine where it meant to name a platform or a class; the repair is to say the thing it meant.",
+                "Then gate it, so the next one reddens instead of shipping.",
+                "The gate must harvest its needle list from the withheld trees themselves rather than carrying a list of the operator's machines in a fixture that ships —",
+                "`loupe` already does exactly this for veiled document names and is the pattern to follow (widening loupe versus a sibling case is a mount-time call).",
+                "A source-tree-only gate is the right shape: like loupe, it can only mean anything before the cut.",
+                "",
+                "## Cinched",
+                "The needle list never ships — a fixture that hardcodes the operator's hostnames would publish the very thing it guards.",
+                "Names that are genuinely platform or vendor vocabulary are not spalls; only names of *this operator's machines* are.",
+                "",
+                "## Done when",
+                "No file in the delivered set names an operator machine;",
+                "a planted hostname reddens the gate, and the gate carries no operator hostname of its own."
+              ],
+              "jjgtn_silks": "operator-hostname-spall-sweep",
+              "jjgtn_basis": "52d5a89"
             }
           ]
         }
