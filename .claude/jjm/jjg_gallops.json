@@ -8498,8 +8498,8 @@
         "₢BsAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-1923",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260712-2050",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Qualify the rebaseline on the Cygwin backend — the bash-dialect and transport surface — on `beast`,",
@@ -8542,7 +8542,7 @@
                 "Mechanical: probe, run, read counts, notch or surface."
               ],
               "jjgtn_silks": "cygwin-freehold-sweep",
-              "jjgtn_basis": "ffb064e"
+              "jjgtn_basis": "877db89"
             }
           ]
         },
