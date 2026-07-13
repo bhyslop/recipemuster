@@ -19,7 +19,7 @@ the rbk-prep-release Step 10 lists enumerate exactly what the private tree carri
 land it as a small reviewable commit series on the release root.
 Ancestry is grafted on demand, never baked in:
 the successor's real history stays clean; deep per-file history is stitched locally with git replace —
-fetch the archived repo's main into refs/archive/old-main, then git replace --graft the successor's founding commit onto it;
+fetch the old repo's final main into refs/archive/old-main, then git replace --graft the successor's founding commit onto it;
 blame, log --follow, and bisect then traverse the boundary seamlessly, locally only.
 Push refs/archive/* and refs/replace/* to the successor repo so any station opts in with one fetch;
 replace refs do not propagate on normal clone — that is the safety.
@@ -30,6 +30,13 @@ JJK state migration is deliberately unplanned here: Job Jockey is tectonically c
 plan JJK's carriage when this heat races, against JJK as it then stands.
 This heat races only after the delivery heat (rbk-11-produce-release, ₣B0) closes — the founding point is the proven release;
 do not re-point stations while delivery is mid-flight.
+From the founding forward the old repo is frozen for delivered and veiled content — only JJK chalk may land (its carriage is the separately banked question);
+the archive pace verifies the freeze held rather than discovering the state.
+The founding proof is two-sided — release-plus-overlay equality, and a completeness sweep against the old tip:
+work landed in the old repo after the candidate cut falls through the founding formula
+(a post-cut delivered-file edit sits in neither the release root nor the overlay; a veiled path the strip lists never enumerated is dropped by the strip-in-reverse),
+so the old tip is diffed against the successor tip over all paths and the difference must be exactly the strip lists' intentional exclusions —
+anything else is carried as explicit commits atop the overlay or consciously ruled dropped, never silently lost.
 
 ## Shape
 

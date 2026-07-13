@@ -3710,41 +3710,44 @@
         "₢B1AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2209",
+              "jjgtn_ts": "260713-0657",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Docket",
                 "",
                 "Found the successor private repo per the paddock cinches:",
+                "declare the old repo frozen for delivered and veiled content (the paddock's freeze cinch) before any copying begins;",
                 "create a new independent private GitHub repo (duplicate, never fork);",
                 "clone the released public main and push it as the successor's root;",
                 "land the veiled overlay as a reviewable commit series — the delivery strip's Step 10 lists run in reverse, taken from the old repo's tip;",
+                "run the completeness sweep — diff the old repo's tip against the successor's tip over all paths and require the difference to be exactly the strip lists' intentional exclusions;",
+                "carry any post-cut delivered-file work or unenumerated veiled path as explicit commits atop the overlay, or consciously rule it dropped — never lose it silently;",
                 "configure remotes (origin at the successor, OPEN_SOURCE_UPSTREAM at the public repo);",
-                "verify: the successor's tip tree minus the overlay equals the release tree (hash check), and a fresh clone builds and runs reveille green.",
+                "verify: the founding boundary proves release-plus-overlay — the overlay series' tip tree minus the overlay equals the release tree (hash check), carried-work commits sitting above the proven boundary — and a fresh clone builds and runs reveille green.",
                 "",
                 "## Done when",
                 "",
-                "Successor repo standing, overlay landed, remotes configured, tree-hash check and reveille green from a fresh clone.",
+                "Successor repo standing, overlay landed, completeness sweep clean with any residue carried or ruled, remotes configured, tree-hash check and reveille green from a fresh clone.",
                 "",
                 "## Character",
                 "",
-                "Deliberate mechanical founding; operator-present for repo creation and the overlay review."
+                "Deliberate mechanical founding; operator-present for repo creation, the overlay review, and any carry-or-drop rulings."
               ],
               "jjgtn_silks": "found-successor-repo",
-              "jjgtn_basis": "f3aeca4"
+              "jjgtn_basis": "8faafdf"
             }
           ]
         },
         "₢B1AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2209",
+              "jjgtn_ts": "260713-0657",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Docket",
                 "",
                 "Stitch the old repo's history onto the successor via git replace, per the paddock cinch:",
-                "fetch the archived repo's main into refs/archive/old-main;",
+                "fetch the old repo's final main into refs/archive/old-main (the old repo is not yet archived at this pace — the freeze cinch is what makes its main final);",
                 "git replace --graft the successor's founding commit onto it;",
                 "prove it with a real cross-boundary blame and a log --follow on a long-lived file;",
                 "push refs/archive/* and refs/replace/* to the successor so stations opt in with one fetch;",
@@ -3759,7 +3762,7 @@
                 "Small, precise git surgery with a proof; single session."
               ],
               "jjgtn_silks": "ancestry-graft-recipe",
-              "jjgtn_basis": "f3aeca4"
+              "jjgtn_basis": "8faafdf"
             }
           ]
         },
@@ -3793,26 +3796,27 @@
         "₢B1AAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2209",
+              "jjgtn_ts": "260713-0657",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Docket",
                 "",
                 "Close the old repo's active life:",
+                "confirm the freeze held — no delivered- or veiled-content commits landed after the founding declaration (JJK chalk excepted, per the paddock);",
                 "confirm nothing in flight references it as origin (stations re-pointed, no unpushed branches worth saving — sweep the branch list against the branch-naming ledger);",
                 "flag it archived (read-only) on GitHub;",
                 "write the closing memo: what it was, where the successor lives, how the ancestry graft reaches its history.",
                 "",
                 "## Done when",
                 "",
-                "Old repo archived read-only; closing memo written; successor named as the sole active private repo.",
+                "Freeze verified held; old repo archived read-only; closing memo written; successor named as the sole active private repo.",
                 "",
                 "## Character",
                 "",
                 "Short ceremony; operator-present for the archive flag."
               ],
               "jjgtn_silks": "archive-old-repo",
-              "jjgtn_basis": "f3aeca4"
+              "jjgtn_basis": "8faafdf"
             }
           ]
         }
