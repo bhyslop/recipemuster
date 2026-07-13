@@ -6458,12 +6458,13 @@
         "₢BsAAd",
         "₢BsAAY",
         "₢BsAAK",
+        "₢BsAAi",
         "₢BsAAg",
         "₢BsAAU",
         "₢BsAAW",
         "₢BsAAS"
       ],
-      "jjghn_next_pace_seed": "AAi",
+      "jjghn_next_pace_seed": "AAj",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -7691,6 +7692,38 @@
               ],
               "jjgtn_silks": "candidate-integrity-probe",
               "jjgtn_basis": "fd173fe"
+            }
+          ]
+        },
+        "₢BsAAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-0720",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Authoring the delivered face — judgment calls on what ships versus what veils; a wrong call either leaks interior names or starves the consumer agent of its navigation map.",
+                "",
+                "## Docket",
+                "Repair the delivered agent-context surface found leaking at the candidate integrity probe (₢BsAAg), against main:",
+                "split `Tools/rbk/claude-rbk-acronyms.md` into a delivered half — the shipped-surface prefix map, with upstream contracts acknowledged but never named by veiled path or closed-spec basename — and a veiled sibling under `Tools/rbk/vov_veiled/`;",
+                "apply the same law to `Tools/buk/claude-buk-core.md`, the more exposed of the two (it is `@`-included by the delivered CLAUDE.md).",
+                "Precedent for the split shape: JJK's public `claude-jjk-core.md` beside veiled `claude-jjk-bhyslop.md`.",
+                "Wire the delivered halves into `Tools/rbk/vov_veiled/CLAUDE.consumer.md`,",
+                "and give that file a currency pass while it is open:",
+                "the regime table row naming render/validate tabtargets that do not exist (grep the tt/ census),",
+                "and the pre-federation role and verb prose (service-account credential roles, mantle/knight/charter/forfeit) owed an update to the federation-era model.",
+                "Add a pyx guard case: delivered prose carries no `vov_veiled` reference — the standing mechanization of the probe's hand-sweep.",
+                "Sweep delivered code comments citing dev-only memo paths (discovery: `git grep -n 'Memos/' Tools/rbk Tools/buk` — the rbgp_payor and rbz_zipper hits; the theurge's dual-tree Memos/Study references are designed, leave them).",
+                "",
+                "## Cinched",
+                "Pre-strip echelon re-qualification is waived for the ensuing re-cut (operator-cinched: the repair touches context docs and test infra only; deep proof rides ₣B0's greenfield walk).",
+                "",
+                "## Done when",
+                "Both context files stand split and wired; CLAUDE.consumer.md is current; the pyx guard is green; the memo-path comments are swept; `rbw-tt` and dev-side reveille green on main."
+              ],
+              "jjgtn_silks": "delivered-context-veil-split",
+              "jjgtn_basis": "ca2f10c"
             }
           ]
         }
