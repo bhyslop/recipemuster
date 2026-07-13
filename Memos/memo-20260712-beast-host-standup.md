@@ -544,10 +544,22 @@ exit 0, and `clip.exe` did exit 0), but two boundaries make the success
 invisible: the tool runs on beast while the operator types on the curia
 (ssh forwards no clipboard), and even on beast an sshd session's
 non-interactive window station gives `clip.exe` a clipboard no desktop can
-paste — a false verdict at the window-station boundary. Repair candidate
-(not this pace; itch-or-pace at operator's discretion): gate the
-announcement on `SSH_CONNECTION` — skip or reword when remote. OSC 52 was
-considered and rejected (macOS Terminal.app ignores it).
+paste — a false verdict at the window-station boundary. **The clean model (deferred; operator-ratified deferrable):
+a clipboard is a STATION resource, not a host resource** — it belongs where
+the human sits, and a tool can only ever write its own execution host's
+clipboard. So the predicate's true contract is "execution host IS the
+station", `SSH_CONNECTION` is the exact cheap signature of that identity
+failing, and the repair is one guard at the top of
+`buc_clipboard_copy_predicate`: remote session → return false before
+probing any tool (caller already degrades to display-only, honestly). That
+also dissolves the window-station wrinkle — clip.exe is never consulted
+remotely. What stays deliberately unrepaired is *delivering* the
+convenience remotely: OSC 52 is the only channel that reaches the station's
+clipboard (it rides the terminal stream, not the host), but it is
+fire-and-forget with no acknowledgment and terminal-dependent support
+(Terminal.app none), so any announcement over it would be unverifiable —
+the original dishonesty rebuilt one layer up. Fix the claim, don't chase
+the convenience.
 
 **Un-versioned residue flagged for disposition (operator's standing
 concern: nothing outside revision control may influence builds).** Found

@@ -18,6 +18,8 @@ distributed to consumer projects.
 
 Hosts in play for this repo (full operator machine registry: §I Test Environments below):
 - `winhost-wsl` / `winhost-cyg` — Windows host transports (WSL and Cygwin).
+- `beast` — Windows 11 Pro host, Cygwin-based test box with Linux-shaped ssh
+  (`ssh beast` — no cmd.exe layer; see §I).
 - `cerebro` — Linux test host used as a fundus by JJK fundus scenario tests.
 
 In the public Foray Workflow, the bind example reldir is genericized to
@@ -217,11 +219,31 @@ fundus-host list points here for the full registry.
     - `ssh wsl@rocket "<cmd>"` (one-shot) or `ssh -t wsl@rocket` (interactive) — WSL Ubuntu 24.04 as root; **Docker daemon live — container tests run here**.
   - Legacy LAN aliases `winhost-{wsl,cyg,ps}` (192.168.86.27) are currently
     unreachable; use the `rocket` tailnet paths above.
-- **beast**, **mimic-bth-intel** — Windows machines, RDP-reachable by the operator,
-  otherwise unprovisioned (no controlled sshd, docker, or cygwin state as of 260712).
-  Candidates for the Docker-Desktop-runtime test host that rocket structurally cannot
-  be (RDP sessions persist across disconnect, so the Desktop engine survives).
-  beast's standup — memo-as-executed, bhyslop user only — is chartered in heat ₣Bs.
+- **beast** — Windows 11 Pro 24H2 desktop (i7-6700K, 64 GB), tailnet hostname
+  `bhyslop-asrock-beast`. **The Cygwin-based Docker-Desktop test host** rocket
+  structurally cannot be: the operator's persistent RDP logon keeps the DD
+  engine alive across disconnect. Provisioned 260712 (heat ₣Bs; as-executed
+  record + replay authority: `Memos/memo-20260712-beast-host-standup.md`).
+  - **Access: `ssh beast`** (curia ssh-config alias; user `bhyslop`, the
+    winpc-admin key). **Linux-shaped ssh, UNLIKE rocket**: registry
+    `DefaultShell` is Cygwin bash with `-lc` one-shots, so there is NO cmd.exe
+    layer — pipes, `;`, `$`-expansion, scp, and stdin cat-tricks all behave as
+    against a Linux host. None of rocket's cmd.exe armor (EncodedCommand,
+    pipe-avoidance) is needed on beast; it remains needed on rocket.
+  - Substrate: Cygwin 3.6.9 at `C:\cygwin64` (rocket-matched package set + jq,
+    python3), rustup stable windows-gnu, repo at `~/projects/rbm_alpha_recipemuster`
+    (Cygwin HOME = Windows profile `C:\Users\bhyslop`), station-files sibling
+    with secrets + burs.env (tincture `bhb`).
+  - Runtime: Docker Desktop 4.81 (WSL2 backend, autostart, containerd
+    snapshotter default — a delta from rocket's native WSL dockerd). Sole WSL
+    distro is DD's own `docker-desktop`; never add a user distro (one-daemon
+    cinch). **DD lifecycle acts (install/uninstall/settings) are console-bound
+    — never script them over ssh** (memo §7).
+  - Proven 260712: reveille green 145/145 over `ssh beast`; picket-capable
+    (payor + sitting installed; credential-readiness and access-probe green).
+- **mimic-bth-intel** — Windows machine, RDP-reachable, otherwise unprovisioned
+  (as of 260712). Destined to replay the beast standup memo as its
+  repeatability proof (heat ₣Bs plan).
 - **cerebro** — Linux test host (Ubuntu 24.04). Direct access: `ssh cerebro`
   (user `bhyslop`, key `~/.ssh/id_ed25519`). Also the remote fundus for JJK
   scenario tests: tabtargets `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
