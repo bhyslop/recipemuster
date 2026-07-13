@@ -3587,8 +3587,9 @@
         "₢B0AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2157",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260713-0717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Drafted from ₢BsAAh in ₣Bs.",
                 "",
@@ -3625,7 +3626,7 @@
                 "the ceremony document records the walk as first-of-series depth."
               ],
               "jjgtn_silks": "greenfield-manor-walk",
-              "jjgtn_basis": "918a71c"
+              "jjgtn_basis": "83dfe22"
             }
           ]
         },
