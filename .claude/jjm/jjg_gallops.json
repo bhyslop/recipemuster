@@ -3578,11 +3578,12 @@
       "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢B0AAD",
         "₢B0AAC",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAD",
+      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3693,6 +3694,40 @@
               ],
               "jjgtn_silks": "stage-the-candidate",
               "jjgtn_basis": "2a299fb"
+            }
+          ]
+        },
+        "₢B0AAD": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260713-1253",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "The gate that stands between the private corpus and a public, forked repo. Mechanical, unskippable, proven by a planted leak — prose has already been tried.",
+                "",
+                "## Docket",
+                "Every assay this project owns reads the candidate's TIP tree; none reads its history.",
+                "On 260713 a candidate went to the remote carrying 292 MiB — the squash commit's tree held the whole pre-strip repository, 5,887 files, 4,581 of them under `.claude/` including the chat archives —",
+                "because the strip commit sat on top of it and `git push` sends every object reachable from the branch.",
+                "Damnatio, pyx, loupe, fast-qualify and the human leakage sweep were all green on that candidate.",
+                "It landed in a private repo by luck of remote wiring; the next push aims at a public repo that already carries a fork, where the objects would be unrecallable.",
+                "Build the gate the assays cannot be: assert mechanically that a candidate branch is exactly ONE commit atop the upstream base, and that no tree reachable from it carries a withheld path.",
+                "It must be unskippable by the agent driving the ceremony — the ceremony's own driver runs `BURE_CONFIRM=skip`, and the ceremony's prose already forbids this three times over, which is precisely why prose is not the answer.",
+                "Where it lives is a mount-time call; that it refuses the push path is not.",
+                "",
+                "## Cinched",
+                "The ceremony document's Step 8/12/15 history checks (landed 260713) are the stopgap, not the gate — do not mistake them for the work.",
+                "A push to a public repo cannot be recalled: deleting a branch removes the ref, not the objects, and a fork network shares an object store across every repo in it.",
+                "This pace is blocking — the staging push does not run until it stands.",
+                "",
+                "## Done when",
+                "A candidate branch carrying a pre-strip ancestor is refused mechanically, and a planted one proves the refusal;",
+                "a clean single-commit candidate passes untouched;",
+                "the refusal holds against a non-interactive agent driver."
+              ],
+              "jjgtn_silks": "candidate-history-gate",
+              "jjgtn_basis": "2d73b87"
             }
           ]
         }
