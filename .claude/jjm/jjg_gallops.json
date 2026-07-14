@@ -8277,7 +8277,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260714-0740",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "A design ruling, not an implementation. The reviewer is adversarial by charge — it is being asked whether the process this project has been patching is the wrong shape.",
@@ -8310,7 +8312,7 @@
                 "and the strongest argument against the recommendation is recorded beside it."
               ],
               "jjgtn_silks": "release-process-design-review",
-              "jjgtn_basis": "f313227"
+              "jjgtn_basis": "ff82ace"
             }
           ]
         }
