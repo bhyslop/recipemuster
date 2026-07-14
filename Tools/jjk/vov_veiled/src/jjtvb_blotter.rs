@@ -516,9 +516,11 @@ fn jjtvb_journal_the_real_pedigree_onto_the_standing_studbook() {
     );
 
     let pedigrees_json = zjjtvb_real_pedigrees_json();
-    let guidon = format!(
-        "officium=₢BrAAW-rehearsal station={} op=journal-pedigree",
-        zjjtvb_station_name()
+    let guidon = crate::jjrvg_guidon::jjdb_guidon_compose(
+        "₢BrAAW-rehearsal",
+        &crate::jjrvg_guidon::jjdb_station_name(),
+        chrono::Utc::now(),
+        "journal-pedigree",
     );
 
     let sha = jjdb_journal(&farrier, &config, &guidon, |root| {
@@ -531,18 +533,6 @@ fn jjtvb_journal_the_real_pedigree_onto_the_standing_studbook() {
     // consign is atomic, so a local commit alone would be a lie.
     assert_eq!(farrier.jjrfr_sight(&config.local_root).unwrap(), None, "the guidon must be plucked on the way out");
     println!("journaled the station pedigree onto jjqs_studbook at {}", sha);
-}
-
-/// The station's name for the guidon — a lock-holder mark is caller-composed
-/// text, and this rehearsal composes a plausible one rather than reach for
-/// machinery the engine has not built.
-fn zjjtvb_station_name() -> String {
-    std::process::Command::new("hostname")
-        .output()
-        .ok()
-        .and_then(|o| String::from_utf8(o.stdout).ok())
-        .map(|s| s.trim().to_string())
-        .unwrap_or_else(|| "unknown".to_string())
 }
 
 // ---- Two-station rehearsal against the real remote (₢BrAAW) ----
@@ -583,24 +573,10 @@ fn zjjtvb_require_free_lock<F: jjrfr_FarrierLock>(farrier: &F, station: &jjdb_Bl
     if let Some(held) = farrier.jjrfr_sight(&station.local_root).unwrap() {
         panic!(
             "the real studbook's lock is already held ({:?}) — a prior run left it flying. \
-             Clear it with the recovery tool: cargo test jjtvb_break_the_real_studbook_lock -- --ignored --nocapture",
+             Clear it at the operator's door: tt/jjw-dc.SightLocks.sh to see it, \
+             tt/jjw-dC.Cashier.sh to cashier it (JJSVD jjdd_cashier).",
             held
         );
-    }
-}
-
-/// Recovery tool, not a test: break whatever holds the REAL studbook's lock and
-/// say whose it was. A crashed writer leaves a stale lock on the shared remote
-/// and the break sequence is its only cure — but nothing on the operator's
-/// surface calls that sequence today, so this stands in until a door exists.
-#[test]
-#[ignore]
-fn jjtvb_break_the_real_studbook_lock() {
-    let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT").expect("set JJTVB_REAL_INFIELD_ROOT");
-    let config = jjdb_studbook_config(Path::new(&infield_root));
-    match jjrfr_break(&jjrfg_PlainGit, &config.local_root).unwrap() {
-        Some(held) => println!("broke the real studbook's lock, held by: {}", held),
-        None => println!("the real studbook's lock was already free — nothing to break"),
     }
 }
 

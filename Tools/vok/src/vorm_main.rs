@@ -76,9 +76,29 @@ enum Commands {
     #[command(name = "jjx_dispatch")]
     JjxDispatch(DispatchArgs),
 
+    /// Cashier a derelict JJ blotter lock-holder: sight every lock and report,
+    /// or (with --break) clear a stranded one. Operator-deliberate — the confirm
+    /// gate lives in the tabtarget door, and this verb is deliberately NOT an
+    /// MCP command (JJSVD jjdd_cashier).
+    #[command(name = "jjx_cashier")]
+    JjxCashier(CashierArgs),
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
+}
+
+/// Arguments for jjx_cashier — the door's two modes. Sight-and-report is the
+/// default and is read-only; `--break` mutates and rides the door's gate.
+#[derive(clap::Args, Debug)]
+struct CashierArgs {
+    /// The operator's invocation directory (cwd elects the clone)
+    #[arg(long)]
+    cwd: PathBuf,
+
+    /// Break the sighted locks, rather than only reporting them
+    #[arg(long = "break")]
+    do_break: bool,
 }
 
 /// Arguments for jjx_dispatch — the spine's CLI face. The door captures the
@@ -252,6 +272,7 @@ async fn main() -> ExitCode {
         Some(Commands::VvxEmblemProbe) => run_emblem_probe(),
         Some(Commands::Mcp) => run_mcp().await,
         Some(Commands::JjxDispatch(args)) => run_dispatch(args),
+        Some(Commands::JjxCashier(args)) => run_cashier(args),
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
             use clap::CommandFactory;
@@ -372,6 +393,60 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
     {
         let _ = args;
         vvco_err!(out, "jjx_dispatch: error: jjk feature not enabled");
+        1
+    }
+}
+
+/// Run the cashier door (JJSVD `jjdd_cashier`). Sight-and-report always runs and
+/// always exits 0 — a read that reports "no lock held" is a success, not a
+/// failure. `--break` then clears each held lock through the break sequence,
+/// which sights afresh and plucks against exactly what it sighted.
+fn run_cashier(args: CashierArgs) -> i32 {
+    let mut out = vvco_Output::console();
+    #[cfg(feature = "jjk")]
+    {
+        use jjk::jjrdc_cashier::{jjrdc_any_held, jjrdc_cashier_store, jjrdc_held_stores, jjrdc_infield_root, jjrdc_report, jjrdc_sight};
+
+        let infield_root = match jjrdc_infield_root(&args.cwd) {
+            Ok(root) => root,
+            Err(rejection) => {
+                vvco_err!(out, "jjx_cashier: {}", rejection);
+                return 1;
+            }
+        };
+
+        let sightings = jjrdc_sight(&infield_root);
+        vvco_out!(out, "{}", jjrdc_report(&sightings));
+
+        if !args.do_break {
+            return 0;
+        }
+        if !jjrdc_any_held(&sightings) {
+            vvco_out!(out, "\nNothing to cashier — no lock is held.");
+            return 0;
+        }
+
+        let mut code = 0;
+        for store in jjrdc_held_stores(&sightings) {
+            match jjrdc_cashier_store(&infield_root, &store) {
+                Ok(Some(cleared)) => vvco_out!(out, "\ncashiered the {} lock, held by: {}", store, cleared),
+                Ok(None) => vvco_out!(out, "\nthe {} lock was already free — nothing to cashier", store),
+                Err(rejection) => {
+                    // A LockBroken here means the guidon changed between the
+                    // report and the pluck — someone else's break, or a fresh
+                    // stake. The lock the operator saw is not the lock now
+                    // flying, so this refuses rather than clearing a stranger's.
+                    vvco_err!(out, "\njjx_cashier: {} not cashiered: {}", store, rejection);
+                    code = 1;
+                }
+            }
+        }
+        code
+    }
+    #[cfg(not(feature = "jjk"))]
+    {
+        let _ = args;
+        vvco_err!(out, "jjx_cashier: error: jjk feature not enabled");
         1
     }
 }

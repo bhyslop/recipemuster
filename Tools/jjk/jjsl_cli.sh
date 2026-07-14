@@ -80,6 +80,39 @@ jjsl_lunge() {
   zjjsl_door "lunge"
 }
 
+# Sight every JJ blotter lock and report — read-only, always safe (JJSVD
+# jjdd_cashier, sight-and-report mode). Breaks nothing; an agent or a script may
+# run this freely.
+jjsl_sight() {
+  zjjsl_sentinel
+  "${ZJJSL_VVX}" jjx_cashier --cwd "$(zjjsl_invoke_dir)"
+}
+
+# Cashier a derelict lock-holder (JJSVD jjdd_cashier, break mode). The confirm
+# gate is THIS door's contract, not the break sequence's: the sequence is
+# mechanism, the deliberateness is the door's. So the report is shown first, and
+# the operator answers before anything is plucked.
+jjsl_cashier() {
+  zjjsl_sentinel
+  local -r z_cwd="$(zjjsl_invoke_dir)"
+
+  # The report the operator judges from - the Rust verb owns its format.
+  "${ZJJSL_VVX}" jjx_cashier --cwd "${z_cwd}"
+
+  buc_require "About to CASHIER the locks reported above - dismissing whoever holds them." "cashier"
+
+  "${ZJJSL_VVX}" jjx_cashier --cwd "${z_cwd}" --break
+}
+
+# The directory that elects the clone. A trampoline captures the operator's cwd;
+# a bare tabtarget run has already lost it to BUK's self-anchoring, and there PWD
+# is the kit repo itself - which is a legitimate hippodrome, so this door works
+# either way rather than refusing (unlike the dispatch doors, which need the
+# operator's actual clone).
+zjjsl_invoke_dir() {
+  printf '%s' "${JJSL_INVOKE_DIR:-${PWD}}"
+}
+
 jjsl_install() {
   zjjsl_sentinel
   local -r z_infield="${BUZ_FOLIO:-}"

@@ -100,6 +100,16 @@ pub enum jjrdm_Rejection {
 impl std::fmt::Display for jjrdm_Rejection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            // A stranded lock meets the operator HERE — at every dispatch, since
+            // muck leads the spine — so this is where the cure must be named
+            // (JJSVD `jjdd_cashier`, Discoverability: a cure the sufferer cannot
+            // find is not a cure).
+            jjrdm_Rejection::Farrier(r) if r.kind == jjrfr_RejectionKind::LockHeld => write!(
+                f,
+                "{}\n  Another station holds the studbook lock. If it crashed, the lock is stranded:\n  \
+                 sight it with `tt/jjw-dc.SightLocks.sh`, and cashier it with `tt/jjw-dC.Cashier.sh`.",
+                r
+            ),
             jjrdm_Rejection::Farrier(r) => write!(f, "{}", r),
             jjrdm_Rejection::GallopsUnreadable(detail) => write!(f, "studbook gallops unreadable: {}", detail),
         }
