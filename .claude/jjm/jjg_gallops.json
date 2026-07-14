@@ -8376,8 +8376,8 @@
         "₢BsAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0756",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-0818",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -8414,7 +8414,7 @@
                 "and the strongest argument against the recommendation is recorded beside it."
               ],
               "jjgtn_silks": "release-process-design-review",
-              "jjgtn_basis": "33aeaa6"
+              "jjgtn_basis": "a75dd54"
             }
           ]
         }
