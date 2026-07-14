@@ -8281,8 +8281,8 @@
         "₢BsAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0818",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-0955",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -8327,7 +8327,7 @@
                 "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
               ],
               "jjgtn_silks": "release-ceremony-clone-boundary-split",
-              "jjgtn_basis": "d0861d0"
+              "jjgtn_basis": "0188391"
             }
           ]
         },
