@@ -6827,9 +6827,10 @@
         "₢BsAAg",
         "₢BsAAU",
         "₢BsAAW",
-        "₢BsAAS"
+        "₢BsAAS",
+        "₢BsAAr"
       ],
-      "jjghn_next_pace_seed": "AAr",
+      "jjghn_next_pace_seed": "AAs",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8484,6 +8485,31 @@
               ],
               "jjgtn_silks": "phantom-wire-mint-and-refraction",
               "jjgtn_basis": "d712d8b"
+            }
+          ]
+        },
+        "₢BsAAr": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-1020",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small deletion settling a cinch the design ruling already made; the evidence is that the prompt only ever fires where it cannot be answered.",
+                "",
+                "## Docket",
+                "Expede still prompts for a typed confirmation on `/dev/tty`, and the 260714 design ruling already deleted typed confirmations as guards from the release ceremony.",
+                "The prompt is residue: an operator running the verb by hand has a terminal and answers it, but every `/rbk-expede` run is a tool call with no `/dev/tty`, so the prompt is guaranteed to die and the agent is guaranteed to rediscover `BURE_CONFIRM=skip`.",
+                "A guard bypassed on every invocation that reaches it is not a guard — and expede's real guards all fired on the 260714 cut regardless: the tree-identity check, census totality, the two object-graph sweeps, and the one-commit assertion.",
+                "Remove the confirmation from expede so neither the ceremony document nor the agent has to carry knowledge of a bypass.",
+                "Leave RELEASE.md's own prose alone unless removing the prompt makes a line there false.",
+                "The alternative — documenting `BURE_CONFIRM=skip` in the `/rbk-expede` skill — is deliberately declined: it preserves a dead prompt and teaches the workaround instead of removing the need for one.",
+                "",
+                "## Done when",
+                "Expede cuts a candidate from a tool call with no environment override, its gates unchanged and still refusing the cases they refused before (verify the tree-identity refusal still fires)."
+              ],
+              "jjgtn_silks": "expede-confirm-residue",
+              "jjgtn_basis": "fb28df2"
             }
           ]
         }
