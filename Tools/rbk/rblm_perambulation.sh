@@ -223,19 +223,21 @@ ZRBLM_PERAMBULATION=(
 rblm_perambulation_judge() {
   local -r z_path="${1:-}"
 
+  zrblm_perambulation_kindle
+
   ZRBLM_JUDGMENT=""
   ZRBLM_JUDGED_BY=""
 
-  local z_row=""
+  local z_i=0
   local z_prefix=""
   local z_best=-1
 
-  for z_row in "${ZRBLM_PERAMBULATION[@]}"; do
-    z_prefix="${z_row%%|*}"
+  for z_i in "${!ZRBLM_PREFIX_ROLL[@]}"; do
+    z_prefix="${ZRBLM_PREFIX_ROLL[${z_i}]}"
     test "${z_path#"${z_prefix}"}" != "${z_path}" || continue
     test "${#z_prefix}" -gt "${z_best}"           || continue
     z_best="${#z_prefix}"
-    ZRBLM_JUDGMENT="${z_row#*|}"
+    ZRBLM_JUDGMENT="${ZRBLM_VERDICT_ROLL[${z_i}]}"
     ZRBLM_JUDGED_BY="${z_prefix}"
   done
 
@@ -243,16 +245,90 @@ rblm_perambulation_judge() {
   return 0
 }
 
+######################################################################
+# The kindle — the table's ONE decode site, and its validation
+#
+# The literal above is a readable one-row-per-judgment table; the running matcher
+# wants two parallel rolls. Kindling decodes the literal exactly once, into
+# ZRBLM_PREFIX_ROLL and ZRBLM_VERDICT_ROLL — the parallel-array shape BUV's own
+# enrollment rolls already use. The row encoding therefore exists in exactly one
+# place instead of being re-parsed at every site that reads the table.
+#
+# Every malformation dies HERE, at load, rather than judging paths quietly:
+#
+#   - A row with no delimiter would otherwise decode into garbage that SUCCEEDS —
+#     the whole row taken as the prefix AND as the verdict — which is a silent
+#     misjudgment inside the one module whose entire charter is that no judgment
+#     is silent.
+#   - A verdict that is not exactly ship or withhold would sort as neither, so a
+#     path could be judged into a disposition no verb honors.
+#   - A DUPLICATE prefix would tie-break by array order, which is precisely the
+#     order-dependent shadowing the matcher's longest-wins rule exists to abolish.
+#     The header promises no row can be silently shadowed; without this check that
+#     promise is false for the one case where two rows are the same length.
+#
+# Idempotent: the rolls are built once per shell, so every entry point may call it.
+zrblm_perambulation_kindle() {
+  test -z "${ZRBLM_KINDLED:-}" || return 0
+
+  ZRBLM_PREFIX_ROLL=()
+  ZRBLM_VERDICT_ROLL=()
+
+  local z_row=""
+  local z_prefix=""
+  local z_verdict=""
+  local z_seen=""
+
+  for z_row in "${ZRBLM_PERAMBULATION[@]}"; do
+    case "${z_row}" in
+      *"|"*) ;;
+      *) buc_die "Perambulation row carries no verdict delimiter: '${z_row}'" ;;
+    esac
+
+    z_prefix="${z_row%%|*}"
+    z_verdict="${z_row#*|}"
+
+    test -n "${z_prefix}" || buc_die "Perambulation row has an empty prefix: '${z_row}'"
+
+    case "${z_verdict}" in
+      "${RBLM_perambulation_ship}"|"${RBLM_perambulation_withhold}") ;;
+      *) buc_die "Perambulation row '${z_prefix}' carries verdict '${z_verdict}' — must be ${RBLM_perambulation_ship} or ${RBLM_perambulation_withhold}" ;;
+    esac
+
+    case $'\n'"${z_seen}" in
+      *$'\n'"${z_prefix}"$'\n'*)
+        buc_die "Perambulation prefix '${z_prefix}' is enrolled twice — equal-length rows would shadow by array order, which the longest-wins rule exists to abolish"
+        ;;
+    esac
+    z_seen="${z_seen}${z_prefix}"$'\n'
+
+    ZRBLM_PREFIX_ROLL+=("${z_prefix}")
+    ZRBLM_VERDICT_ROLL+=("${z_verdict}")
+  done
+
+  ZRBLM_KINDLED=1
+}
+
 # rblm_perambulation_tracked_capture — the live tracked set, from git, not from a list.
 #
 # The perambulation is judged against what the repository actually carries at this
 # commit. Any other source of truth is a second copy waiting to drift.
+#
+# A tracked path carrying the row delimiter is refused rather than judged. The
+# delimiter is legal in a git path, so such a path cannot be spelled as a row
+# prefix — it would be UNJUDGEABLE by construction, and the one thing this module
+# may never do is treat a path it cannot rule on as though it had ruled. The
+# constraint is enforced here rather than merely recorded in a comment nobody
+# reads at the moment it is violated.
 rblm_perambulation_tracked_capture() {
   ZRBLM_TRACKED=()
 
   local z_path=""
   while IFS= read -r z_path; do
     test -n "${z_path}" || continue
+    case "${z_path}" in
+      *"|"*) buc_die "Tracked path carries the perambulation's row delimiter and cannot be judged: '${z_path}'" ;;
+    esac
     ZRBLM_TRACKED+=("${z_path}")
   done < <(git ls-files)
 }
@@ -290,6 +366,7 @@ rblm_emit_verdicts() {
 # A SHADOWED row is outranked everywhere by a longer one, so its judgment never
 # lands. Both mean the table is lying about the tree, and both go red.
 rblm_emit_dead_rows() {
+  zrblm_perambulation_kindle
   rblm_perambulation_tracked_capture
 
   # Newline-delimited winner set, not an associative array: bash 3.2 is the floor
@@ -297,7 +374,7 @@ rblm_emit_dead_rows() {
   # linear membership test over a string costs nothing worth naming.
   local z_won=""
   local z_path=""
-  local z_row=""
+  local z_i=0
   local z_prefix=""
 
   for z_path in "${ZRBLM_TRACKED[@]}"; do
@@ -308,12 +385,12 @@ rblm_emit_dead_rows() {
     esac
   done
 
-  for z_row in "${ZRBLM_PERAMBULATION[@]}"; do
-    z_prefix="${z_row%%|*}"
+  for z_i in "${!ZRBLM_PREFIX_ROLL[@]}"; do
+    z_prefix="${ZRBLM_PREFIX_ROLL[${z_i}]}"
     case $'\n'"${z_won}" in
       *$'\n'"${z_prefix}"$'\n'*) continue ;;
     esac
-    printf '%s\t%s\n' "${z_prefix}" "${z_row#*|}"
+    printf '%s\t%s\n' "${z_prefix}" "${ZRBLM_VERDICT_ROLL[${z_i}]}"
   done
 }
 
