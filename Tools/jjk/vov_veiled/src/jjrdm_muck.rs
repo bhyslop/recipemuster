@@ -12,11 +12,13 @@
 //! never the frozen local path `jjrds_plan`/`jjrds_board` still read.
 //!
 //! Two phases, matching the sheaf's behavior exactly: `jjrdm_plan` snapshots
-//! pace states under the studbook lock and classifies every `jjqb_*` billet
-//! under the infield into reap / dirty / kept — pure, no filesystem
-//! mutation, and the studbook lock releases before any billet is even
-//! looked at; `jjrdm_reap` then executes lock-free (completion is
-//! monotonic, so a stale snapshot only ever under-reaps, never over-reaps).
+//! pace states through the journal sheaf's read bracket — the snapshot arms
+//! the reap, so it is an acting read (JJSVJ "The read bracket",
+//! `jjdk_lockless_reads` scope rule): lock, advance, read, release, deciding
+//! from the store's truth at that moment — and classifies every `jjqb_*`
+//! billet under the infield into reap / dirty / kept, pure, no filesystem
+//! mutation, the lock released before any billet is even looked at;
+//! `jjrdm_reap` then executes lock-free.
 //! The sweep globs `jjqb_*` (`jjdw_yard`), a positive match that
 //! structurally excludes `jjqa_app`, `jjqs_studbook`, and `jjqd_scratch`.
 //!
@@ -169,9 +171,12 @@ pub struct jjrdm_ReapReport {
 // ---- Plan phase ----
 
 /// Snapshot every pace's resolved-or-not state from the studbook's gallops
-/// copy under the studbook lock: glean, stake, sight — the same read
-/// bracket `jjdb_journal` opens, minus advance/mutate/consign since this
-/// never writes. Keyed on the bare coronet: gallops pace keys carry the
+/// copy through the journal sheaf's read bracket (JJSVJ "The read bracket"):
+/// glean, stake, sight, advance, read, release — the `jjdb_journal` minus its
+/// write steps. The snapshot arms the reap, so it is an acting read, never a
+/// reporting one: advance equalizes the local clone to the remote tip under
+/// the lock, so what this reads is the store's truth at this moment, not a
+/// stale local copy. Keyed on the bare coronet: gallops pace keys carry the
 /// self-typing `₢` sigil on disk, and billet dirnames are already bare.
 fn zjjrdm_snapshot_resolved_paces<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     farrier: &F,
@@ -190,6 +195,7 @@ fn zjjrdm_snapshot_resolved_paces<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
             sighted
         );
     }
+    farrier.jjrfr_advance(root)?;
     let gallops = jjdb_gallops_journal_load(studbook)
         .map_err(jjrdm_Rejection::GallopsUnreadable)?
         .into_inner();
@@ -301,13 +307,12 @@ fn zjjrdm_classify<F: jjrfr_FarrierCore>(
     Ok(plan)
 }
 
-/// Plan the sweep: snapshot pace states under the studbook lock (read-only —
-/// glean, stake, sight, load, release), then classify every `jjqb_*` billet
-/// under `infield_root` lock-free (JJSVD "Muck": "snapshot pace states
-/// under the studbook lock, plan, confirm, then reap lock-free —
-/// completion is monotonic, so a stale snapshot only ever under-reaps").
-/// `guidon` is the caller-composed lock-holder mark, same convention as
-/// `jjdb_journal`.
+/// Plan the sweep: snapshot pace states through the read bracket (glean,
+/// stake, sight, advance, load, release), then classify every `jjqb_*`
+/// billet under `infield_root` lock-free (JJSVD "Muck": the snapshot is an
+/// acting read through the journal sheaf's read bracket; then plan, confirm,
+/// and reap lock-free). `guidon` is the caller-composed lock-holder mark,
+/// same convention as `jjdb_journal`.
 pub fn jjrdm_plan<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     farrier: &F,
     studbook: &jjdb_BlotterConfig,
