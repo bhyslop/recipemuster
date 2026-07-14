@@ -193,6 +193,11 @@ Two flavors: plain fast-forward (hippodrome branches) and atomic-under-lease
 *Never force* — a rivet, cited in shipped code by the opaque token `JJr_d81`:
 the consign implementation and the lease-guarded `pluck` of the {jjdb_break} are its
 citation sites, and one `grep JJr_d81` returns this definition and every site it guards.
++
+The lease is also what *protects a live writer from a broken lock* (`JJr_c4e`, journal
+sheaf): a holder whose lock is broken and restaked under it fails this push entire and lands
+nothing.
+That is the safety case the {jjdd_cashier} rests on, and it lives here, in the lease.
 
 `counterfoil_verify`::
 Does a journaled SHA still exist, reachable?

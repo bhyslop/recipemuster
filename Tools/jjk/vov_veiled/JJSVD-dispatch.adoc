@@ -5,7 +5,7 @@ This is an executory operation sheaf of the {jjs0_imprimatur}: binding as design
 
 The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} — one
 shared {jjdd_spine}, the {jjdd_billet} a dispatched session runs in, the {jjdd_muck} step
-that clears spent billets, the {jjdd_refit} staleness remedy, and the {jjdd_break_door}.
+that clears spent billets, the {jjdd_refit} staleness remedy, and the {jjdd_cashier}.
 Everything here composes {jjdf_farrier} primitives and the {jjdb_journal};
 this sheaf owns no primitive of its own.
 
@@ -87,13 +87,63 @@ unmounted — assessment without riding.
 A {jjdt_firemark} gets a groom billet (detached at trunk tip);
 the launch takes the judgment constant (Session launch below).
 
-[[jjdd_break_door]]
-{jjdd_break_door}::
-The operator-deliberate break-all door, outside the {jjdd_spine}: `sight` every JJ lock —
-{jjdb_studbook} and mews alike — report the observed {jjdb_guidon_s}, then lease-guarded
+[[jjdd_cashier]]
+//axd_ashlar
+{jjdd_cashier}::
+The door that dismisses a derelict lock-holder from service:
+`sight` every JJ {jjdb_blotter} lock, report the observed {jjdb_guidon_s}, then lease-guarded
 `pluck` per lock, never blind.
-The door cites the {jjdb_break} per lock and adds nothing to it (journal sheaf).
-Operator-deliberate by definition; precedent `/vvc-BREAK-LOCK`.
+Outside the {jjdd_spine} — no dispatch crosses it, and nothing composes it.
+The door cites the {jjdb_break} per lock and adds nothing to its mechanism (journal sheaf):
+what the door contributes is *deliberateness*, which is the door's property and never the
+sequence's.
+Precedent `/vvc-BREAK-LOCK`.
++
+*Two modes.*
+*Sight-and-report* is read-only and always safe — it takes nothing, breaks nothing, and is
+the mode an agent or a script may run freely.
+*Break* mutates, and passes the confirm gate below.
++
+*The roster.* The door sights a roster of {jjdb_blotter} configs, engine-known like every
+{jjdb_blotter_p} own coordinates (entity sheaf, bootstrap config) — never pedigree-resolved.
+Today the roster holds one entry, the {jjdb_studbook};
+the mews fleet store joins it when its contract lands, and not before — its coordinates
+invented early would be a forward reference with nothing behind it.
+The `vvx` commit lock (`refs/vvg/locks/vvx`, precedent above) is a *different apparatus* with
+its own door and is NOT in this roster:
+it guards a consumer repo's commits, not a {jjdb_blotter}, and it speaks no {jjdb_guidon}.
+Stated so that a later hand does not unify two locks that share only a shape.
++
+*The confirm gate*, and what it must show.
+The gate is this door's contract, not the {jjdb_break_p} — a break fired without a human
+answering is this door failing at the one thing it exists to do.
+Per lock, the gate shows:
++
+--
+* the four {jjdb_guidon} fields, with acquire time rendered as an *age* — the operator judges
+  staleness on age, never on a timestamp they must subtract in their head;
+* a *liveness warning* that warns and never blocks.
+  A ceremony runs in seconds, so a lock under a minute old is probably a live writer, not a
+  corpse.
+  The warning is advice to a human who may know something the clock does not (that the station
+  is unplugged, that the process is gone);
+  a door that refused would simply be un-runnable in the case it exists for.
+* the *differentiated consequence*, per `JJr_c4e` (journal sheaf):
+  breaking a live *writer* costs that writer its ceremony and nothing more — the lease
+  refuses its `consign` and *nothing lands*;
+  breaking a live *acting reader* is the accepted exposure — it may act on a stale image, and
+  nothing catches it.
+  The two are not the same risk, and a gate that collapsed them would teach the operator the
+  wrong thing about their own decision;
+* *which store* the lock guards — a roster of one today, and a wrong-store break tomorrow is
+  exactly the mistake a one-line report invites.
+--
++
+*Discoverability.* A stranded lock surfaces to the operator as a `LockHeld` refusal — at
+every {jjdd_muck}, hence at every dispatch, once muck is live.
+That refusal text must NAME this door.
+A cure the sufferer cannot find is not a cure, and the refusal is the only moment the
+operator is guaranteed to be looking.
 
 == The entrance spine
 

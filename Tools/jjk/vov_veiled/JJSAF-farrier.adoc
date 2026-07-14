@@ -74,8 +74,8 @@ ceremony carrying the counterfoil
 
 |saddle / lunge |Canon: drained — the entrance spine (`JJSVD-dispatch.adoc`)
 
-|break |Canon: drained — the break door (`JJSVD-dispatch.adoc`), citing the
-journal sheaf's break sequence per lock
+|break |Canon: drained — the cashier door (`JJSVD-dispatch.adoc`, `jjdd_cashier`), citing
+the journal sheaf's break sequence per lock
 |===
 
 A ring-survey toothing was considered and *demoted* (260704): the studbook dissolved
@@ -88,7 +88,7 @@ keep, it is a report mode, not a verb.
 Canon: drained to the dispatch sheaf (`JJSVD-dispatch.adoc`, the `jjdd_` quoins) —
 the two doors, the billet entity (both kinds, dirnames per the yard split), the entrance
 spine with muck as its leading step (no unsaddle door), the muck and refit contracts, the
-break door, the lifecycle doctrine (chat-ephemeral billets over durable branches,
+cashier door, the lifecycle doctrine (chat-ephemeral billets over durable branches,
 structural session isolation, sole entrance), and the session-launch tier machinery.
 
 == The BUK meld (studied 260704)
@@ -193,7 +193,21 @@ uses.
   Alternates: spur held with a false-friend note (confidently misreads as urging an
   already-running session); gee deliberately released to fallow — the operator's trot-advance
   cry, kept unenclosed like lean.
-* Exposure tiers: *saddle*, *lunge*, *break*, and *refit* are ASHLAR — operator-typed, so
+* *cashier* — the break-all door (elected 260714, break-door pace): to dismiss an officer from
+  service, with cause — the deliberateness sits in the word, which is the whole property the
+  door adds to the break sequence it composes.
+  The derelict holder is dismissed; its {jjdb_guidon} — a cavalry standard — comes down.
+  ASHLAR (operator-typed, fair-faced on first contact); gate clean in code and spec (the sole
+  repo-wide hit is a chat-archive transcript of an earlier candidate battery).
+  Alternates: *unhorse* (clean, squarely equestrian, but reads as acting on a rider — a live
+  session — where the door acts on a standard, and the holder is usually already dead);
+  *reave* (clean but opaque at first contact, and a near-homophone of reeve — weak as an
+  ashlar).
+  Disqualified: *strike* and *spike* (trodden, ~160 and ~1000 hits); *furl* (gate-clean at
+  zero, but one prefix from JJK's standing *unfurl* image verb — two near-identical words for
+  "view a diagram" and "break a lock" is a collision minted on purpose).
+  INFUSED (dispatch sheaf, `jjdd_cashier`).
+* Exposure tiers: *saddle*, *lunge*, *cashier*, and *refit* are ASHLAR — operator-typed, so
   fair-faced and coffer-drawn, with broadside registration deferred to cutover alongside the
   cosmology nouns — the surface is inert until then (JJ's broadside: the JJK README glossary).
   *muck* is ashlar by output alone — never typed, but its confirm plan names the act to the

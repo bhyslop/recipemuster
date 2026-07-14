@@ -249,11 +249,13 @@
 :jjdb_blotter_p:  <<jjdb_blotter,Blotter's>>
 :jjdb_blotter_s:  <<jjdb_blotter,Blotters>>
 :jjdb_break:      <<jjdb_break,Break sequence>>
+:jjdb_break_p:    <<jjdb_break,Break sequence's>>
 :jjdb_catchword:  <<jjdb_catchword,Catchword>>
 :jjdb_varvel:     <<jjdb_varvel,Varvel>>
 :jjdb_counterfoil:    <<jjdb_counterfoil,Counterfoil>>
 :jjdb_counterfoil_s:  <<jjdb_counterfoil,Counterfoils>>
 :jjdb_guidon:     <<jjdb_guidon,Guidon>>
+:jjdb_guidon_p:   <<jjdb_guidon,Guidon's>>
 :jjdb_guidon_s:   <<jjdb_guidon,Guidons>>
 :jjdb_journal:    <<jjdb_journal,Journal ceremony>>
 :jjdb_pedigree:   <<jjdb_pedigree,Pedigree>>
@@ -272,7 +274,8 @@
 :jjdd_muck:         <<jjdd_muck,muck>>
 :jjdd_muck_p:       <<jjdd_muck,muck's>>
 :jjdd_refit:        <<jjdd_refit,refit>>
-:jjdd_break_door:   <<jjdd_break_door,break door>>
+:jjdd_cashier:      <<jjdd_cashier,cashier>>
+:jjdd_cashier_p:    <<jjdd_cashier,cashier's>>
 
 // Farrier driver (revision-control driver entity; facets, identify contract, vocabulary Palisade)
 :jjdf_farrier:      <<jjdf_farrier,Farrier>>

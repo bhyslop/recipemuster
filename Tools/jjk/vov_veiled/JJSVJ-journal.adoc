@@ -165,6 +165,55 @@ then lease-guarded `pluck` against exactly that observed value — never blind, 
 There is no personified break entity.
 +
 The operator-deliberate break-all door — `sight` every JJ lock, report the {jjdb_guidon_s},
-lease-guarded `pluck` per lock — is the {jjdd_break_door} (dispatch sheaf;
+lease-guarded `pluck` per lock — is the {jjdd_cashier} (dispatch sheaf;
 precedent `/vvc-BREAK-LOCK`);
 the door cites this sequence per lock, adding nothing to it.
+
+*The break itself takes no bracket*, and this is not a {jjdk_lockless_reads} violation.
+The break's `sight` does arm an act — its own `pluck` — but the arming is never blind:
+the `pluck` is lease-guarded against exactly the value `sight` observed, so a guidon that
+changed in between refuses `LockBroken` rather than clearing a lock the operator never saw.
+The mechanism *is* the compare-and-swap the bracket would otherwise buy.
+A break that first took the lock it exists to clear could never run — stated here so the
+absence reads as design rather than oversight.
+
+=== What the lease protects, and what it does not
+
+*The lease protects a live writer* — a rivet, cited in shipped code by the opaque token
+`JJr_c4e`:
+a writer whose lock is broken and restaked under it fails its own atomic `consign` and lands
+*nothing* on the remote (journal step 5).
+The whole safety case of the {jjdd_cashier} rests here.
+Breaking a lock cannot corrupt the store, and cannot half-apply a write, *however wrong the
+operator's judgment of staleness was* —
+the worst outcome against a live writer is a lost ceremony, which the writer's station reports
+as a `LockBroken` refusal and can simply run again.
+The citation sites are the `consign` lease contract (farrier sheaf) and the door's own
+consequence line;
+one `grep JJr_c4e` returns this definition and every site it guards.
+
+*The lease does not protect a live acting reader*, and this is an ACCEPTED EXPOSURE, ruled
+here in writing.
+The read bracket has no `consign`, so nothing detects a lock broken under a reader:
+the reader completes and *acts* on what it read, believing the exclusivity the bracket
+promises — that no station can be mid-write — when in fact a writer may have staked and
+proceeded in the meantime.
+Nothing corrupts the store (a reader writes nothing), and nothing reports it either.
+The exposure is accepted on the same footing as the `JJr_b52` re-glean window above:
+closing it would mean giving the read bracket a consign-shaped epilogue — machinery whose
+only purpose is to detect an operator breaking a lock they were warned not to break —
+and the loss it would prevent is one acting reader's decision made on a stale image, in a
+race the operator has to lose deliberately to enter.
++
+The exposure's operator face is the {jjdd_cashier_p} consequence line, which must
+*differentiate*: a broken writer loses its ceremony and nothing else; a broken *reader* may
+act on a stale image with nothing to catch it.
+That differentiation is the whole reason the door names the held {jjdb_guidon_p} operation
+rather than merely reporting that a lock is held.
++
+The layer-independence rule (entity sheaf, Read posture) forbids arguing this exposure away
+from tenant semantics — that a reaped billet is closed anyway, that the sweep is monotonic,
+that no harm follows *for today's tenants*.
+That argument was raised and OVERRULED (260714).
+The exposure is accepted at the *store's* layer, on the store's own terms, so it stays true
+whatever a tenant later stores.

@@ -101,6 +101,28 @@ The lock-holder mark flown on the lock ref:
 officium, station, acquire time, and operation.
 The {jjdb_guidon} is what makes break-on-error safe —
 the {jjdb_break} acts only against an observed {jjdb_guidon}, never blind.
++
+*Acquire time is the load-bearing field*: it is what distinguishes a crashed holder from a
+writer three seconds in, and the {jjdd_cashier} can warn on nothing else.
+The four fields are the mark's *composition*, not four catalogued terms — they are cited
+nowhere but here and at the door that renders them.
++
+*The composed form.* The engine composes a {jjdb_guidon} as one line of `key=value` fields,
+space-separated, in the fixed order officium, station, acquire time (RFC 3339, UTC),
+operation.
+Values carry no spaces, so the line reads back field-wise;
+the composer is the single home of the format, and no other site spells it.
++
+*The mechanics never parse it.* `stake`, `pluck`, and `consign`'s lease compare {jjdb_guidon_s}
+by *blob-hash equality alone* — the text is opaque to every lock primitive.
+Two consequences bind:
+a malformed {jjdb_guidon} — one this engine did not compose, one an older engine composed
+differently, one a hand-staked probe left behind — is *still a lock*, and must still be
+sightable and breakable;
+and a parse of the fields is therefore permitted *for display alone*, never for a decision.
+The {jjdd_cashier} sights the mark verbatim, breaks against the verbatim value, and parses
+tolerantly only to render it —
+an unparseable field renders as itself, and the lock stays as breakable as any other.
 
 == Read posture
 
