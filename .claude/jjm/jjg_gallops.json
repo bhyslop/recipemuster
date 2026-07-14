@@ -6689,7 +6689,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260714-0807",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
                 "The tier is persisted on a bridled pace and enforced at the designation gate,",
                 "but the groom display never says it.",
@@ -6732,7 +6734,7 @@
                 "cell twice more."
               ],
               "jjgtn_silks": "surface-the-bridled-tier",
-              "jjgtn_basis": "faf0a23"
+              "jjgtn_basis": "ec5cff5"
             }
           ]
         }
