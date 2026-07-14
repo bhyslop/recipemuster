@@ -178,7 +178,7 @@ const ZRBTDRQ_HOST_CENSUS_SKIP_FILES: &[&str] = &["README.md"];
 /// harvested from — scanning them would match the census against its own source,
 /// not against a leak.
 const ZRBTDRQ_HOST_SCAN_SKIP_DIRS: &[&str] =
-    &["target", ZRBTDRQ_VEIL_DIR, "rbmn_nodes", "rbmu_users"];
+    &["target", "vov_veiled", "rbmn_nodes", "rbmu_users"];
 
 /// Tokens exempt from the hostname census — an exact string that happens to also
 /// be ordinary vocabulary, so treating it as a needle would flag every honest
