@@ -6904,8 +6904,8 @@
         "₢BrAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1010",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-1041",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -6980,7 +6980,7 @@
                 "retiring jjtvb_break_the_real_studbook_lock's stand-in role."
               ],
               "jjgtn_silks": "break-door",
-              "jjgtn_basis": "707e8ad"
+              "jjgtn_basis": "a64f8fa"
             }
           ]
         }
