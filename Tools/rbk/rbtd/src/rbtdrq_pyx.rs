@@ -392,6 +392,10 @@ pub(crate) const ZRBTDRQ_VEIL_EXEMPT: &[(&str, &str)] = &[
         "Tools/rbk/rbtd/src/rbtdrn_conformance.rs",
         "its curl-scan exemption table addresses a withheld tree by path; dead in the stripped tree, where that tree is gone",
     ),
+    (
+        "Tools/rbk/rbtd/src/rbtdrq_loupe.rs",
+        "the hostname-leak case's scan skip-dir list spells the veiled-dir literal it must not descend into",
+    ),
 ];
 
 /// One line may name a withheld thing two ways. Reported distinctly so a finding
