@@ -495,8 +495,18 @@ rblm_expede() {
   # commit and preserves the mode bits. A shipped tree of several hundred scripts
   # that arrived without their executable bit would be a candidate that cannot run.
   buc_step "Materializing the shipped paths from ${z_head}"
+
+  # The pathspec is handed to git archive as arguments, loaded from the shipped
+  # list rather than piped: git archive takes no pathspec file, and routing several
+  # hundred paths through xargs would split any one of them that carried a space.
+  local z_shipped=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_shipped+=("${z_line}")
+  done < "${z_shipped_temp}"
+
   local -r z_archive_temp="${BURD_TEMP_DIR}/rblm_expede_shipped.tar"
-  git archive --format=tar "${z_head}" -T "${z_shipped_temp}" -o "${z_archive_temp}" \
+  git archive --format=tar -o "${z_archive_temp}" "${z_head}" -- "${z_shipped[@]}" \
     || buc_die "Failed to archive the shipped paths from ${z_head}"
   tar -x -f "${z_archive_temp}" -C "${z_clone_dir}" \
     || buc_die "Failed to materialize the shipped paths into the clone"
