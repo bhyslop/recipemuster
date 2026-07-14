@@ -22,6 +22,8 @@ The patterns reject bash 4+ features to maintain compatibility with older enterp
 
 ### Load-Bearing Complexity
 
+Concept home: MCM `mcm_load_bearing`. What follows is the bash reading of it.
+
 Every element in a system — every function extraction, every pattern variant, every structural distinction — must carry weight. An element is **load-bearing** when its removal would create a gap between intent and behavior. When similar things differ, ask whether the difference is load-bearing: if yes, document why; if no, homogenize.
 
 This is the general decision criterion that tools like Zeroes Theory instantiate. Zeroes Theory asks "how many zeroes did this add to state space?" — load-bearing complexity asks the prior question: "does this element earn its existence at all?"
@@ -1340,6 +1342,66 @@ The multiplication runs along two axes:
 - **Palisade regime — a party you cannot edit.** A foreign writer or reader — a vendor format, an uncontrolled client — is beyond interior legislation. That version tolerance is a Palisade membrane and follows the Palisade conduct (concept home: CMK ROE): characterize the exact signature, contain it at one membrane, absorb only what was surveyed, log the bend, retire the membrane when the neighbor heals.
 
 Version tolerances accrete silently as "compatibility" — each one small, their product unbounded. The version axis names that accretion as interface contamination through time, subject to the same litmus.
+
+**Representation axis — interior form.** Interior data must live in the structural form the language offers. Encoding is the price paid at a boundary, and it is earned only by an actual boundary: a process, a file, a socket, a foreign reader. An encode/decode pair with nothing between them is a **phantom wire** (`mcm_phantom_wire`) — it manufactures a parse where none was required, and every parse is a state space: a malformed record decodes *successfully* into garbage rather than dying, and the field shape lives only inside the parse expressions. The treatment is below.
+
+#### Phantom Wire — the bash disease and its cure
+
+**Disease shape.** A table of records written as delimited strings and split apart with parameter expansion:
+
+```bash
+# ❌ A phantom wire: encoded at birth, decoded at every read
+ZRBLM_TABLE=(
+  "Tools/jjk/|withhold"
+  "Tools/rbk/|ship"
+)
+
+for z_row in "${ZRBLM_TABLE[@]}"; do
+  z_prefix="${z_row%%|*}"    # a row with no "|" yields the WHOLE ROW as prefix...
+  z_verdict="${z_row#*|}"    # ...and the WHOLE ROW as verdict. It does not fail; it lies.
+done
+```
+
+The tells: a delimiter in a literal that never leaves the process; `%%`/`##`/`IFS=` splitting a value this same script wrote; the same split repeated at more than one site; a rule about what characters the payload may contain, enforced nowhere.
+
+**Cure.** Bash 4's associative arrays are prohibited here (see **Bash 4+ Features**), so the structural form bash 3.2 offers is the **roll** — parallel arrays, one per field, index-aligned. This guide already specifies it: see **Enroll Functions**. Write the table as enroll calls, one per record, and validate at enrollment:
+
+```bash
+# ✅ Structural records. No delimiter, so no decode, so no silent misread.
+zrblm_enroll() {
+  local -r z_prefix="${1:-}"
+  local -r z_verdict="${2:-}"
+
+  test -n "${z_prefix}" || buc_die "perambulation: empty prefix"
+  case "${z_verdict}" in
+    "${RBLM_perambulation_ship}"|"${RBLM_perambulation_withhold}") ;;
+    *) buc_die "perambulation: '${z_prefix}' carries verdict '${z_verdict}'" ;;
+  esac
+
+  local z_i=0
+  for z_i in "${!z_rblm_prefix_roll[@]}"; do
+    test "${z_rblm_prefix_roll[${z_i}]}" = "${z_prefix}" || continue
+    buc_die "perambulation: prefix '${z_prefix}' enrolled twice"
+  done
+
+  z_rblm_prefix_roll+=("${z_prefix}")
+  z_rblm_verdict_roll+=("${z_verdict}")
+}
+
+zrblm_kindle() {
+  z_rblm_prefix_roll=()
+  z_rblm_verdict_roll=()
+
+  zrblm_enroll "Tools/jjk/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/rbk/" "${RBLM_perambulation_ship}"
+}
+```
+
+Three properties the encoded form could not have. The record is never encoded, so it is never decoded, so no malformation can decode into a plausible lie. Validation runs at construction — a bad record dies at load, where the author is, not mid-judgment where the user is. And the field shape is stated once, in the enroll signature, instead of being re-derived inside each parse expression.
+
+The readability the delimited literal was reaching for survives: the enroll calls are still one line per record, still aligned, still scannable as a table.
+
+**When encoding is earned.** At a real boundary — a wire format read by another program, a file another tool writes, a foreign schema — encode, and put the decode in exactly one place with validation on every field. The rule is not *never encode*; it is *never encode without a boundary*.
 
 ### Rules
 

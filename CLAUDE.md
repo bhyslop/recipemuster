@@ -242,17 +242,9 @@ For expanded prefix trees within each project, see **File Acronym Mappings** abo
 
 ### Load-Bearing Complexity
 
-Every element in the system — every spec definition line, every function extraction, every pattern variant, every structural distinction — must carry weight. An element is **load-bearing** when its removal would create a gap between intent and behavior.
+An element is **load-bearing** when its removal would create a gap between intent and behavior. The litmus for any new pattern, extraction, or structural choice: "Does this element earn its existence?" If not, it doesn't belong.
 
-When similar things differ, ask whether the difference is load-bearing: if yes, document why; if no, homogenize. Non-load-bearing elements increase cognitive cost without increasing correctness.
-
-This principle is instantiated in domain-specific forms:
-- **BCG**: Zeroes Theory (state space), Interface Contamination Discipline (input forms) — see BCG Core Philosophy
-- **RCG**: Interface Contamination, Constant Discipline, Constructor Discipline — see RCG
-- **ACG**: Allodial Discipline — reference the home, don't recreate (values → constants, concepts → quoin-refs) — see ACG
-- **Specs**: Linked term structure earns its three-part form only when the concept warrants anchoring
-
-When evaluating any new pattern, extraction, or structural choice, the litmus test is: "Does this element earn its existence?" If not, it doesn't belong.
+Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog instantiates. Domain forms: BCG (Zeroes Theory, Interface Contamination), RCG (Constant and Constructor Discipline), ACG (Allodial Discipline).
 
 <!-- Partnership rules of engagement (never distributed; hand-maintained outside
      the managed block). Salutation leads — the wake-up greeting — then the stance.

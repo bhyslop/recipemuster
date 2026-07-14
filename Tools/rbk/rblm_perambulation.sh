@@ -82,12 +82,11 @@ RBLM_perambulation_withhold="withhold"
 ######################################################################
 # The perambulation
 #
-# Rows are PREFIX|VERDICT. The longest matching prefix wins.
+# Each row enrolls one PREFIX with its VERDICT. The longest matching prefix wins.
 #
-# The prose lives HERE rather than among the rows: shellcheck reads a comma inside
-# an array literal as an element separator (SC2054) and BCG admits no inline
-# suppression. So the table below stays a bare table — which is what a table
-# should be — and every judgment that needs an argument is argued in this legend.
+# The prose lives HERE rather than among the rows, so the table below stays a bare
+# table — which is what a table should be — and every judgment that needs an
+# argument is argued in this legend.
 #
 # THE VEILED HALVES. Each kit's closed record. These rows are finer than the kit
 # rows beneath them so the judgment holds even where the whole kit ships. A NEW
@@ -126,122 +125,50 @@ RBLM_perambulation_withhold="withhold"
 # the rig's own runbook. The MCP config names the operator's servers; the iml is
 # IDE furniture; the gateway proposal is an unsettled internal design note.
 
-ZRBLM_PERAMBULATION=(
-  # Veiled halves
-  "Tools/buk/vov_veiled/|withhold"
-  "Tools/cmk/vov_veiled/|withhold"
-  "Tools/gad/vov_veiled/|withhold"
-  "Tools/jjk/vov_veiled/|withhold"
-  "Tools/rbk/vov_veiled/|withhold"
-  "Tools/vok/vov_veiled/|withhold"
-
-  # Delivered kits
-  "Tools/buk/|ship"
-  "Tools/rbk/|ship"
-
-  # Withheld kits
-  "Tools/apck/|withhold"
-  "Tools/cmk/|withhold"
-  "Tools/gad/|withhold"
-  "Tools/hmk/|withhold"
-  "Tools/jjk/|withhold"
-  "Tools/lmci/|withhold"
-  "Tools/vok/|withhold"
-  "Tools/vslf-rbw/|withhold"
-  "Tools/vslk/|withhold"
-  "Tools/vvc/|withhold"
-  "Tools/vvk/|withhold"
-
-  # Residue of retired kits
-  "Tools/cccr.env|withhold"
-  "Tools/crgr.render.sh|withhold"
-  "Tools/crgv.validate.sh|withhold"
-  "Tools/xxx_rbn.info.sh|withhold"
-
-  # Tabtargets — the rig withheld from the delivered families
-  "tt/rbw-M|withhold"
-  "tt/rbw-mR.|withhold"
-  "tt/rbw-|ship"
-  "tt/buw-|ship"
-  "tt/z-launcher.sh|ship"
-  "tt/apcw-|withhold"
-  "tt/jjw-|withhold"
-  "tt/study-|withhold"
-  "tt/vow-|withhold"
-  "tt/vslk-|withhold"
-  "tt/vvw-|withhold"
-
-  # Moorings — the consumer's config tree
-  "rbmm_moorings/fdkyclk/fdkyclk-proof.sh|withhold"
-  "rbmm_moorings/fdkyclk/fdkyclk-teardown.sh|withhold"
-  "rbmm_moorings/fdkyclk/|ship"
-  "rbmm_moorings/ccyolo/|ship"
-  "rbmm_moorings/moriah/|ship"
-  "rbmm_moorings/nineveh/|ship"
-  "rbmm_moorings/pluml/|ship"
-  "rbmm_moorings/srjcl/|ship"
-  "rbmm_moorings/tadmor/|ship"
-  "rbmm_moorings/rbmf_foedera/|ship"
-  "rbmm_moorings/rbmv_vessels/|ship"
-  "rbmm_moorings/burc.env|ship"
-  "rbmm_moorings/rbrd.env|ship"
-  "rbmm_moorings/rbrp.env|ship"
-  "rbmm_moorings/rbrr.env|ship"
-  "rbmm_moorings/rbrw.env|ship"
-
-  # The operator's remote machines
-  "rbmm_moorings/rbmn_nodes/|withhold"
-  "rbmm_moorings/rbmu_users/|withhold"
-
-  # Launchers — only for workbenches that ship
-  "rbmm_moorings/rbml_launchers/launcher.buw_workbench.sh|ship"
-  "rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh|ship"
-  "rbmm_moorings/rbml_launchers/|withhold"
-
-  # The operator's own trees
-  "Memos/|withhold"
-  "Study/|withhold"
-  ".claude/|withhold"
-  ".idea/|withhold"
-  ".jjk/|withhold"
-  "_slickedit/|withhold"
-
-  # The delivered face
-  "README.md|ship"
-  "CLAUDE.md|ship"
-  "LICENSE|ship"
-  "diagrams/|ship"
-  "rbm-abstract-drawio.svg|ship"
-  ".gitattributes|ship"
-  ".gitignore|ship"
-
-  # Root files that stay behind
-  "RELEASE.md|withhold"
-  ".mcp.json|withhold"
-  "brm_recipemuster.iml|withhold"
-  "podman-gateway-proposal.md|withhold"
-)
-
-######################################################################
-# The kindle — the table's ONE decode site, and its validation
+# zrblm_enroll PREFIX VERDICT — enroll one row into the parallel rolls.
 #
-# The literal above is a readable one-row-per-judgment table; the running matcher
-# wants parallel rolls. Kindling decodes the literal exactly once, into
-# ZRBLM_PREFIX_ROLL and ZRBLM_VERDICT_ROLL — the parallel-roll shape BUV's own
-# enrollment rolls already use, and the shape bash 3.2 leaves available (no
-# associative arrays). The row encoding therefore lives in exactly one place
-# instead of being re-parsed at every site that reads the table.
+# The row is a structural record from birth: two arguments, never a string with a
+# delimiter in it. There is nothing to decode, so no malformed row can decode
+# SUCCESSFULLY into garbage — which is what an encoded table does, and what it does
+# quietly, inside the one module whose charter is that no judgment is silent.
+# (Concept: MCM `mcm_phantom_wire`; bash treatment: BCG, Representation axis.)
 #
-# Every malformation dies HERE, at load, rather than judging paths quietly:
+# Every malformation therefore dies HERE, at enrollment, in front of the author who
+# wrote the row rather than the operator who is mid-cut:
 #
-#   - A row with no delimiter would otherwise decode into garbage that SUCCEEDS —
-#     the whole row taken as the prefix AND as the verdict — a silent misjudgment
-#     inside the one module whose charter is that no judgment is silent.
-#   - A verdict that is not exactly ship or withhold would be honored by no verb.
-#   - A DUPLICATE prefix would tie-break by roll order, which is precisely the
+#   - An empty prefix, which would match every path.
+#   - A verdict that is not exactly ship or withhold, which no verb would honor.
+#   - A DUPLICATE prefix, which would tie-break by roll order — precisely the
 #     order-dependent shadowing the longest-wins rule exists to abolish. Without
 #     this check, the header's promise that no row can be silently shadowed is
 #     false for the one case where two rows are the same length.
+zrblm_enroll() {
+  local -r z_prefix="${1:-}"
+  local -r z_verdict="${2:-}"
+
+  test -n "${z_prefix}" || buc_die "Perambulation row enrolled with an empty prefix"
+
+  case "${z_verdict}" in
+    "${RBLM_perambulation_ship}"|"${RBLM_perambulation_withhold}") ;;
+    *) buc_die "Perambulation row '${z_prefix}' carries verdict '${z_verdict}' — must be ${RBLM_perambulation_ship} or ${RBLM_perambulation_withhold}" ;;
+  esac
+
+  local z_i=0
+  for z_i in "${!ZRBLM_PREFIX_ROLL[@]}"; do
+    test "${ZRBLM_PREFIX_ROLL[${z_i}]}" = "${z_prefix}" || continue
+    buc_die "Perambulation prefix '${z_prefix}' is enrolled twice — equal-length rows would shadow by roll order, which the longest-wins rule exists to abolish"
+  done
+
+  ZRBLM_PREFIX_ROLL+=("${z_prefix}")
+  ZRBLM_VERDICT_ROLL+=("${z_verdict}")
+}
+
+######################################################################
+# The kindle — the table itself
+#
+# One enroll call per judgment, argued in the legend above. The rolls are the
+# running matcher's shape (parallel arrays, index-aligned — BUV's own enrollment
+# rolls, and what bash 3.2 offers in place of the associative array BCG forbids).
 #
 # Idempotent: the rolls are built once per shell, so every entry point may call it.
 zrblm_perambulation_kindle() {
@@ -250,38 +177,99 @@ zrblm_perambulation_kindle() {
   ZRBLM_PREFIX_ROLL=()
   ZRBLM_VERDICT_ROLL=()
 
-  local z_r=0
-  local z_s=0
-  local z_row=""
-  local z_prefix=""
-  local z_verdict=""
+  # Veiled halves
+  zrblm_enroll "Tools/buk/vov_veiled/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/cmk/vov_veiled/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/gad/vov_veiled/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/jjk/vov_veiled/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/rbk/vov_veiled/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/vok/vov_veiled/" "${RBLM_perambulation_withhold}"
 
-  for z_r in "${!ZRBLM_PERAMBULATION[@]}"; do
-    z_row="${ZRBLM_PERAMBULATION[${z_r}]}"
+  # Delivered kits
+  zrblm_enroll "Tools/buk/" "${RBLM_perambulation_ship}"
+  zrblm_enroll "Tools/rbk/" "${RBLM_perambulation_ship}"
 
-    case "${z_row}" in
-      *"|"*) ;;
-      *) buc_die "Perambulation row carries no verdict delimiter: '${z_row}'" ;;
-    esac
+  # Withheld kits
+  zrblm_enroll "Tools/apck/"     "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/cmk/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/gad/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/hmk/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/jjk/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/lmci/"     "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/vok/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/vslf-rbw/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/vslk/"     "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/vvc/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/vvk/"      "${RBLM_perambulation_withhold}"
 
-    z_prefix="${z_row%%|*}"
-    z_verdict="${z_row#*|}"
+  # Residue of retired kits
+  zrblm_enroll "Tools/cccr.env"        "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/crgr.render.sh"  "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/crgv.validate.sh" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/xxx_rbn.info.sh" "${RBLM_perambulation_withhold}"
 
-    test -n "${z_prefix}" || buc_die "Perambulation row has an empty prefix: '${z_row}'"
+  # Tabtargets — the rig withheld from the delivered families
+  zrblm_enroll "tt/rbw-M"        "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/rbw-mR."      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/rbw-"         "${RBLM_perambulation_ship}"
+  zrblm_enroll "tt/buw-"         "${RBLM_perambulation_ship}"
+  zrblm_enroll "tt/z-launcher.sh" "${RBLM_perambulation_ship}"
+  zrblm_enroll "tt/apcw-"        "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/jjw-"         "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/study-"       "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/vow-"         "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/vslk-"        "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/vvw-"         "${RBLM_perambulation_withhold}"
 
-    case "${z_verdict}" in
-      "${RBLM_perambulation_ship}"|"${RBLM_perambulation_withhold}") ;;
-      *) buc_die "Perambulation row '${z_prefix}' carries verdict '${z_verdict}' — must be ${RBLM_perambulation_ship} or ${RBLM_perambulation_withhold}" ;;
-    esac
+  # Moorings — the consumer's config tree
+  zrblm_enroll "rbmm_moorings/fdkyclk/fdkyclk-proof.sh"    "${RBLM_perambulation_withhold}"
+  zrblm_enroll "rbmm_moorings/fdkyclk/fdkyclk-teardown.sh" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "rbmm_moorings/fdkyclk/"       "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/ccyolo/"        "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/moriah/"        "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/nineveh/"       "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/pluml/"         "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/srjcl/"         "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/tadmor/"        "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbmf_foedera/"  "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbmv_vessels/"  "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/burc.env"       "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbrd.env"       "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbrp.env"       "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbrr.env"       "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbrw.env"       "${RBLM_perambulation_ship}"
 
-    for z_s in "${!ZRBLM_PREFIX_ROLL[@]}"; do
-      test "${ZRBLM_PREFIX_ROLL[${z_s}]}" = "${z_prefix}" || continue
-      buc_die "Perambulation prefix '${z_prefix}' is enrolled twice — equal-length rows would shadow by roll order, which the longest-wins rule exists to abolish"
-    done
+  # The operator's remote machines
+  zrblm_enroll "rbmm_moorings/rbmn_nodes/" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "rbmm_moorings/rbmu_users/" "${RBLM_perambulation_withhold}"
 
-    ZRBLM_PREFIX_ROLL+=("${z_prefix}")
-    ZRBLM_VERDICT_ROLL+=("${z_verdict}")
-  done
+  # Launchers — only for workbenches that ship
+  zrblm_enroll "rbmm_moorings/rbml_launchers/launcher.buw_workbench.sh" "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh" "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbmm_moorings/rbml_launchers/" "${RBLM_perambulation_withhold}"
+
+  # The operator's own trees
+  zrblm_enroll "Memos/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Study/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll ".claude/"    "${RBLM_perambulation_withhold}"
+  zrblm_enroll ".idea/"      "${RBLM_perambulation_withhold}"
+  zrblm_enroll ".jjk/"       "${RBLM_perambulation_withhold}"
+  zrblm_enroll "_slickedit/" "${RBLM_perambulation_withhold}"
+
+  # The delivered face
+  zrblm_enroll "README.md"               "${RBLM_perambulation_ship}"
+  zrblm_enroll "CLAUDE.md"               "${RBLM_perambulation_ship}"
+  zrblm_enroll "LICENSE"                 "${RBLM_perambulation_ship}"
+  zrblm_enroll "diagrams/"               "${RBLM_perambulation_ship}"
+  zrblm_enroll "rbm-abstract-drawio.svg" "${RBLM_perambulation_ship}"
+  zrblm_enroll ".gitattributes"          "${RBLM_perambulation_ship}"
+  zrblm_enroll ".gitignore"              "${RBLM_perambulation_ship}"
+
+  # Root files that stay behind
+  zrblm_enroll "RELEASE.md"                 "${RBLM_perambulation_withhold}"
+  zrblm_enroll ".mcp.json"                  "${RBLM_perambulation_withhold}"
+  zrblm_enroll "brm_recipemuster.iml"       "${RBLM_perambulation_withhold}"
+  zrblm_enroll "podman-gateway-proposal.md" "${RBLM_perambulation_withhold}"
 
   ZRBLM_KINDLED=1
 }
@@ -330,10 +318,9 @@ rblm_perambulation_judge() {
 # The perambulation is judged against what the repository actually carries at this
 # commit. Any other source of truth is a second copy waiting to drift.
 #
-# A tracked path carrying the row delimiter is REFUSED rather than judged. The
-# delimiter is legal in a git path, so such a path cannot be spelled as a row
-# prefix — it is unjudgeable by construction, and the one thing this module may
-# never do is treat a path it cannot rule on as though it had ruled.
+# Every tracked path is judgeable: a row is a literal prefix, so any character git
+# admits in a path a row may carry verbatim. Nothing about a path's spelling can
+# make it unrulable.
 rblm_perambulation_tracked_capture() {
   test -n "${BURD_TEMP_DIR:-}" || buc_die "BURD_TEMP_DIR not set - launch via tabtarget"
   mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
@@ -346,9 +333,6 @@ rblm_perambulation_tracked_capture() {
   local z_path=""
   while IFS= read -r z_path || test -n "${z_path}"; do
     test -n "${z_path}" || continue
-    case "${z_path}" in
-      *"|"*) buc_die "Tracked path carries the perambulation's row delimiter and cannot be judged: '${z_path}'" ;;
-    esac
     ZRBLM_TRACKED+=("${z_path}")
   done < "${z_tracked_temp}"
 

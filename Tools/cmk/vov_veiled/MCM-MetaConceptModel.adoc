@@ -36,8 +36,14 @@
 :mcm_term_matching:          <<mcm_term_matching,Term Matching>>
 :mcm_validation_summary:     <<mcm_validation_summary,Validation Summary>>
 
+:mcm_load_bearing:           <<mcm_load_bearing,Load-Bearing>>
+
 :mcm_antipattern:            <<mcm_antipattern,Antipattern>>
 :mcm_antipattern_s:          <<mcm_antipattern,Antipatterns>>
+:mcm_refraction:             <<mcm_refraction,Refraction>>
+:mcm_refraction_s:           <<mcm_refraction,Refractions>>
+:mcm_phantom_wire:           <<mcm_phantom_wire,Phantom Wire>>
+:mcm_phantom_wire_s:         <<mcm_phantom_wire,Phantom Wires>>
 :mcm_molehill:               <<mcm_molehill,Molehill>>
 :mcm_molehill_s:             <<mcm_molehill,Molehills>>
 :mcm_skidmark:               <<mcm_skidmark,Skidmark>>
@@ -1540,6 +1546,29 @@ Masonry spalling — a fragment split from the facing,
 the raw fill showing through the dressed stone.
 Each invariant of the face law forbids one way a face can spall.
 
+== Load-Bearing Complexity
+
+[[mcm_load_bearing]]
+{mcm_load_bearing}::
+The property an element has when its removal would open a gap between intent and behavior.
+Every element the collaboration keeps — a definition line, a function extraction, a pattern variant, a structural distinction, a tolerated input form — must carry weight,
+and the litmus for any new one is whether it earns its existence at all.
+Where similar things differ, the difference is either
+{mcm_load_bearing},
+and then documented as such, or it is not, and then homogenized.
+A non-{mcm_load_bearing} element buys no correctness and charges cognitive rent forever;
+each is small, and their aggregate is what makes a system incomprehensible.
+This is the headwater principle the
+{mcm_antipattern}
+catalog instantiates:
+every entry in that catalog names one recurring way an element fails to carry the weight it claims —
+a restatement that is not the law, a decode that is not a boundary, a fork that is not a decision.
+Domain instances state it in their own terms:
+BCG's Zeroes Theory and Interface Contamination Discipline for input and version space,
+ACG's Allodial Discipline for values and names,
+and RCG for Rust's constructor and constant surfaces.
+The instances differ in what they measure; the prior question they all answer is this one.
+
 == Antipatterns
 
 [[mcm_antipattern]]
@@ -1548,10 +1577,35 @@ A named, recurring defect formally catalogued so that
 {mcm_curation_action_s}
 and reviews can cite it precisely.
 The catalog spans document defects — flaws in durable artifacts —
-and delivery defects — failures in operator-facing presentation;
-both recur, and both are dischargeable only once named.
+delivery defects — failures in operator-facing presentation —
+and construction defects — flaws in the built form of a system.
+All recur, and all are dischargeable only once named.
 Naming the defect is what makes it detectable and dischargeable;
 an unnamed defect recurs because no rule can forbid it.
+An entry here owes the name, the general form, the recognition tells, and why the defect recurs —
+diagnosis only, and language-free.
+Treatment is not owed here and does not belong here:
+it is owed by each
+{mcm_refraction}.
+
+[[mcm_refraction]]
+{mcm_refraction}::
+The appearance of one catalogued
+{mcm_antipattern}
+inside a single guide, bent into that guide's dialect:
+the shape the defect takes in that language, and the canonical repair for it there.
+MCM diagnoses; the guide treats.
+A
+{mcm_refraction}
+is self-sufficient by construction — a coding agent working inside a guide is never sent out of it to learn the cure,
+and carries the quoin name in backticks as its citation, which is the whole of what it owes back to the catalog.
+That backticked name is the cross-format handle between an AsciiDoc catalog and Markdown guides that cannot resolve its anchors,
+and grep over it is the registry of where the defect has been refracted:
+the catalog entry keeps no list of the guides that cite it, since such a list is a second home that drifts.
+A
+{mcm_refraction}
+is born when a guide first has the disease to treat, never speculatively —
+an entry with no live instance in a dialect earns nothing there.
 
 [[mcm_molehill]]
 {mcm_molehill}::
@@ -1562,6 +1616,35 @@ out of something nearly inconsequential,
 then building structure around it.
 The name is the gestalt: a molehill presented at mountain scale,
 spending the reader's deliberation on stakes that fit in a clause.
+
+[[mcm_phantom_wire]]
+{mcm_phantom_wire}::
+An
+{mcm_antipattern}:
+a construction defect — data born and consumed inside one program is flattened into an encoded string and re-parsed to be read,
+when the language offered a structural form that would have held it.
+The name is the gestalt: the encoding is a wire format, and there is no wire —
+serialization is the price paid at a boundary, and here no boundary was crossed.
+The recognition tells are an *encode/decode pair with nothing between them*:
+a literal whose fields are joined by a delimiter, a parse expression that splits them apart,
+and no process, file, socket, or foreign reader standing in the gap.
+The failures all live in the decode, and all are quiet.
+A record missing its delimiter decodes *successfully* into garbage — commonly the whole record taken as every field —
+so a malformation becomes a wrong answer rather than an error.
+The delimiter's illegality in the payload is a constraint no code states and nothing enforces.
+The field shape exists only inside the parse expressions, so it is re-derived at each one and can disagree between them.
+The defect recurs because the delimited-string table is one of the most heavily-worn shapes in the training corpus,
+so it arrives as a
+{mcm_digital_mind_p}
+first reflex, feeling like the obvious way to write a table down;
+naming it is what licenses the
+{mcm_digital_mind}
+to distrust that reflex.
+The cure is always the same in shape — hold the record in the structure the language has, and validate at construction so a bad record dies loud where it is written — and always dialect-specific in form,
+so it is stated by each
+{mcm_refraction}
+and not here.
+Bash refraction: BCG, Representation axis.
 
 [[mcm_skidmark]]
 {mcm_skidmark}::
