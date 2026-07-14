@@ -319,22 +319,22 @@ and it is the only way to record an effort word.
    xhigh | max) only where the docket's depth is judged. Only a rough pace
    may be bridled.
 
-**Designee session (a sub-frontier designated agent executes):**
+**Your standing on a mount is decided by the server, never by you.** `jjx_orient`
+reads the `model` param you pass and prints two lines beside the resolved pace —
+`Standing:` and `Protocol:`. Obey them. Do not weigh your own model against the
+pace's tier, and do not reason about which protocol you fall under: a mount that
+reaches you has already been judged, and a mount you may not make is refused
+outright rather than returned for you to interpret.
 
-A pace bridled at haiku or sonnet is executed by a designee — it carries orders,
-not authority:
+The two protocols orient names:
 
-1. `jjx_orient` on the heat — resolution lands on the bridled pace.
-2. Work the docket. Commit via `jjx_record` against the bridled coronet.
-3. Finish with `jjx_landing {coronet, agent, content}` — the completion report.
-4. NEVER wrap. A frontier session reviews the landed work and wraps.
-5. On any hole or surprise: stop and surface it — a designee never restates its
-   own orders.
-
-**A pace bridled at a frontier tier (opus, fable) keeps the full ceremony.** The
-tier word says which session may act on it; it does not demote that session to a
-designee. A frontier session mounting its own tier's bridled pace mounts, works,
-and wraps as normal — the designee protocol above does not apply to it.
+- **Full ceremony** — mount, work, and wrap the pace yourself (the Wrap
+  Discipline below still governs: ask the operator before wrapping).
+- **Designee** — you carry orders, not authority. Work the docket, notch via
+  `jjx_record` against the coronet, and finish with
+  `jjx_landing {coronet, agent, content}`. NEVER wrap; a frontier session reviews
+  the landed work and wraps. On any hole or surprise: stop and surface it — a
+  designee never restates its own orders.
 
 **Escalation paths (designation is void when its judgment inputs change):**
 

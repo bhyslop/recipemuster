@@ -2271,6 +2271,27 @@ fn zjjrm_check_designation(cmd: &str, coronet: &str, caller: zjjrm_CallerTier) -
     zjjrm_judge_designation(cmd, &ctx.coronet_key, &ctx.state, ctx.tier, caller)
 }
 
+/// The protocol verdict orient prints for a mount the designation guard has
+/// already passed — the standing the mounting session holds, decided here from
+/// the wire `model` param rather than derived agent-side. Every unqualified
+/// case is an interdictum upstream and never reaches this, so the verdict
+/// speaks only to a session cleared to mount: a frontier session keeps the full
+/// ceremony (it wraps its own work); a sub-frontier session carries orders and
+/// lands them for review.
+pub(crate) fn zjjrm_protocol_verdict(caller: zjjrm_CallerTier) -> String {
+    if caller.zjjrm_is_frontier() {
+        format!(
+            "Standing: {} — qualified, full ceremony.\nProtocol: mount, work, and wrap this pace yourself.",
+            caller.zjjrm_as_str()
+        )
+    } else {
+        format!(
+            "Standing: {} — qualified, designee.\nProtocol: work the docket, notch via jjx_record, report via jjx_landing. NEVER wrap — a frontier session reviews and wraps.",
+            caller.zjjrm_as_str()
+        )
+    }
+}
+
 // ============================================================================
 // MCP Server
 // ============================================================================
@@ -2511,6 +2532,15 @@ impl jjrm_McpServer {
                     };
                     if let Err(msg) = judgment {
                         return Ok(CallToolResult::error(vec![Content::text(msg)]));
+                    }
+
+                    // The mounting session's standing, decided from the wire
+                    // model param — printed only when a pace resolved, since a
+                    // heat with nothing actionable hands the session no orders.
+                    if resolved_pace.is_some() {
+                        output.push('\n');
+                        output.push_str(&zjjrm_protocol_verdict(caller));
+                        output.push('\n');
                     }
 
                     let mounted = resolved_pace.unwrap_or(firemark);

@@ -209,6 +209,7 @@ use super::jjrm_mcp::{
     zjjrm_guard_bucket,
     zjjrm_GuardBucket,
     zjjrm_judge_designation,
+    zjjrm_protocol_verdict,
 };
 use super::jjrt_types::jjrg_Tier;
 
@@ -261,6 +262,29 @@ fn jjtm_guard_buckets_partition_the_command_surface() {
     ] {
         assert_eq!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Frontier, "{}", cmd);
     }
+}
+
+#[test]
+fn jjtm_protocol_verdict_splits_on_session_standing() {
+    // The verdict speaks only to a session the designation guard already
+    // cleared, so it turns on the caller's own standing alone: a frontier
+    // session wraps its own work, a designee lands it for review. The words the
+    // mounting agent obeys are asserted literally — the agent no longer derives
+    // this, so a silent wording drift would leave it with no instruction.
+    let frontier = zjjrm_protocol_verdict(zjjrm_extract_tier("claude-opus-4-8"));
+    assert!(frontier.contains("full ceremony"), "{}", frontier);
+    assert!(frontier.contains("wrap this pace yourself"), "{}", frontier);
+    assert!(frontier.contains("Standing: opus"), "{}", frontier);
+
+    let designee = zjjrm_protocol_verdict(zjjrm_extract_tier("claude-sonnet-5"));
+    assert!(designee.contains("designee"), "{}", designee);
+    assert!(designee.contains("jjx_landing"), "{}", designee);
+    assert!(designee.contains("NEVER wrap"), "{}", designee);
+    assert!(designee.contains("Standing: sonnet"), "{}", designee);
+
+    // Fable is the other frontier family; haiku the other designee one.
+    assert!(zjjrm_protocol_verdict(zjjrm_extract_tier("claude-fable-5")).contains("full ceremony"));
+    assert!(zjjrm_protocol_verdict(zjjrm_extract_tier("claude-haiku-4-5")).contains("designee"));
 }
 
 #[test]
