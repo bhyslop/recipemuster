@@ -303,10 +303,10 @@ The strip removed tabtargets from `tt/`, and the committed tabtarget context (`T
 tt/rbw-tb.Build.sh
 ```
 
-This rewrites `claude-rbk-tabtarget-context.md` to reflect the surviving tabtarget set. (The Rust colophon consts `rbtdgc_consts.rs` are zipper-driven, not disk-driven, so they do not change — the withheld `rbw-M*` and `rbw-mR` colophons stay enrolled there, which is fine: fast-qualify sweeps disk→registry, never registry→disk.) Stage the regenerated file:
+This rewrites `claude-rbk-tabtarget-context.md` to reflect the surviving tabtarget set: `buz_emit_context` now omits any enrolled colophon with no matching tabtarget on disk, so the withheld `rbw-M*` and `rbw-mR` rows drop out cleanly rather than shipping with a gutted Frontispiece cell. This step is load-bearing beyond that markdown, though — the build also regenerates `rbtdgc_consts.rs`, and that file is not purely zipper-driven: alongside the registry-driven colophon block, `rbz_emit_consts` projects the lustrated `rbpc_constants.sh` freehold subject (the operator's Entra oid) into `RBTDGC_FREEHOLD_*` consts, so this rebuild is part of identity erasure, not a freshness chore. Stage both regenerated files:
 
 ```
-git add Tools/rbk/claude-rbk-tabtarget-context.md
+git add Tools/rbk/claude-rbk-tabtarget-context.md Tools/rbk/rbtd/src/rbtdgc_consts.rs
 ```
 
 Show the user what regenerated and wait for acknowledgment.
@@ -384,21 +384,30 @@ git ls-files
 
 Read the whole list. Nothing proprietary, no stray site config, no tabtarget whose workbench was stripped. This is the human half of the strip review — pyx and damnatio mechanize the credential and identity halves, and loupe mechanized the veil half back in Step 3, but no fixture knows that a file simply has no business shipping.
 
-**14b. The probe branch.** The candidate cannot run its own tests: it is lustrated, and thirteen of the blanked site fields carry format checks a blank cannot satisfy, so regime validation refuses the tree. That is correct behavior — a sterile tree *should* refuse — and it is exactly why the probe needs a station invented for it. Cut a throwaway branch and feign one:
+**14b. The probe branch.** The candidate cannot run its own tests: it is lustrated, and thirteen of the blanked site fields carry format checks a blank cannot satisfy, so regime validation refuses the tree. That is correct behavior — a sterile tree *should* refuse — and it is exactly why the probe needs a station invented for it. Cut a throwaway branch first:
 
 ```
 git checkout -b probe-candidate-NNN-R
-tt/rbw-MF.MarshalFeigns.sh
 ```
 
-Feigning writes a shape-valid stand-in over every site field the proscription carries a feigned value for, and auto-commits — the harness demands a clean tree, so the seed must be committed, which is why this happens on a branch and not in the working tree. Every value is visibly false (zeros, the `.invalid` TLD). The verb refuses to run on `main` or any `candidate-*` branch, so the feigned station cannot reach the thing that ships.
-
-The tabtarget was stripped in Step 10c. Restore it onto the probe branch alone:
+The `rbw-MF` tabtarget was stripped in Step 10c, and `tt/rbw-MF.MarshalFeigns.sh` must exist before it can be invoked. Restore it onto the probe branch alone, and commit it — the feign verb gates on a clean tree, so the restored tabtarget cannot sit uncommitted when feign runs:
 
 ```
 git show main:tt/rbw-MF.MarshalFeigns.sh > tt/rbw-MF.MarshalFeigns.sh
 chmod +x tt/rbw-MF.MarshalFeigns.sh
+git add tt/rbw-MF.MarshalFeigns.sh
+git commit -m "Probe branch: restore rbw-MF tabtarget for feigning (throwaway)"
 ```
+
+Now feign the station:
+
+```
+tt/rbw-MF.MarshalFeigns.sh
+```
+
+Feigning writes a shape-valid stand-in over every site field the proscription carries a feigned value for, and auto-commits — the harness demands a clean tree, which the restore commit above already provides. Every value is visibly false (zeros, the `.invalid` TLD). The verb refuses to run on `main` or any `candidate-*` branch, so the feigned station cannot reach the thing that ships.
+
+Restoring the tabtarget also re-adds a colophon's Frontispiece cell that the context generator (Step 11) will want to regenerate; since this branch is discarded in 14d, leave `claude-rbk-tabtarget-context.md` as committed in the candidate — do not regenerate it here.
 
 **14c. Reveille from the consumer's seat.** Run the credless base suite — the first thing a consumer runs, and the only suite that needs no cloud, no container, and no credential:
 

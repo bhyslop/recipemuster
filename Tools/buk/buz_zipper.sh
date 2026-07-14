@@ -312,35 +312,47 @@ buz_emit_context() {
   done
 
   local z_in_table=0
+  local z_group_open=0
+  local z_pending_desc=""
+  local z_pending_prefix=""
   local z_i="${z_start}"
 
   while (( z_i < z_end )); do
-    # Emit group header when we reach its starting index
+    # Note (don't emit yet) the group header when we reach its starting index —
+    # emission is deferred until the group's first surviving row, so a group
+    # whose every colophon lacks a tabtarget on disk never prints an empty table.
     if (( z_group_cursor < ${#z_buz_group_index_roll[@]} )) \
        && (( z_i == z_buz_group_index_roll[z_group_cursor] )); then
-      if (( z_in_table )); then
-        printf '%s\n' ""
-      fi
-      printf '### %s (`%s`)\n' \
-        "${z_buz_group_description_roll[z_group_cursor]}" \
-        "${z_buz_group_prefix_roll[z_group_cursor]}"
-      printf '%s\n' ""
-      printf '%s\n' "| Colophon | Frontispiece | Folio | Purpose |"
-      printf '%s\n' "|----------|-------------|-------|---------|"
-      z_in_table=1
+      z_group_open=0
+      z_pending_desc="${z_buz_group_description_roll[z_group_cursor]}"
+      z_pending_prefix="${z_buz_group_prefix_roll[z_group_cursor]}"
       z_group_cursor=$((z_group_cursor + 1))
     fi
 
-    # Resolve frontispiece from tabtarget filename
+    # Resolve frontispiece from tabtarget filename; a colophon with no matching
+    # tabtarget on disk (withheld from this tree) is omitted, not gutted.
     local z_colophon="${z_buz_colophon_roll[z_i]}"
-    local z_frontispiece=""
     local z_matches=("${z_tt_dir}/${z_colophon}."*.sh)
-    if test -e "${z_matches[0]}"; then
-      local z_basename="${z_matches[0]##*/}"
-      local z_stem="${z_basename%.sh}"
-      local z_skip=$(( ${#z_colophon} + 1 ))
-      local z_after="${z_stem:z_skip}"
-      z_frontispiece="${z_after%%.*}"
+    if ! test -e "${z_matches[0]}"; then
+      z_i=$((z_i + 1))
+      continue
+    fi
+    local z_basename="${z_matches[0]##*/}"
+    local z_stem="${z_basename%.sh}"
+    local z_skip=$(( ${#z_colophon} + 1 ))
+    local z_after="${z_stem:z_skip}"
+    local z_frontispiece="${z_after%%.*}"
+
+    if (( ! z_group_open )); then
+      if (( z_in_table )); then
+        printf '%s\n' ""
+      fi
+      printf '### %s (`%s`)\n' "${z_pending_desc}" "${z_pending_prefix}"
+      printf '%s\n' ""
+      printf '%s\n' "| Colophon | Frontispiece | Folio | Purpose |"
+      printf '%s\n' "|----------|-------------|-------|---------|"
+      z_group_open=1
+      z_in_table=1
     fi
 
     local z_channel="${z_buz_channel_roll[z_i]:-}"
