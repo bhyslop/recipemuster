@@ -8491,8 +8491,8 @@
         "₢BsAAr": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1048",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-1103",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_low",
               "jjgtn_text": [
@@ -8531,7 +8531,7 @@
                 "and all three refusal checks fired as refusals."
               ],
               "jjgtn_silks": "expede-confirm-residue",
-              "jjgtn_basis": "9f0ba43"
+              "jjgtn_basis": "4035e40"
             }
           ]
         }
