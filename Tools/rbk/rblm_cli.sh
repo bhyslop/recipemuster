@@ -400,6 +400,11 @@ rblm_expede() {
   buc_doc_param "target_dir" "Absolute path to target directory (must not exist)"
   buc_doc_shown || return 0
 
+  # The census is expede's alone, and it is withheld from delivery — sourcing it
+  # at furnish would break every delivered marshal verb (see zrblm_furnish).
+  local -r z_expede_kit_dir="${BASH_SOURCE[0]%/*}"
+  source "${z_expede_kit_dir}/rblm_perambulation.sh" || buc_die "Failed to source rblm_perambulation.sh"
+
   local -r z_target_dir="${BUZ_FOLIO:-}"
   test -n "${z_target_dir}" || buc_die "Target directory path is required"
 
@@ -633,7 +638,11 @@ zrblm_furnish() {
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rblm_lustrate.sh"       || buc_die "Failed to source rblm_lustrate.sh"
-  source "${z_rbk_kit_dir}/rblm_perambulation.sh"  || buc_die "Failed to source rblm_perambulation.sh"
+  # rblm_perambulation.sh is deliberately NOT sourced here: the census withholds
+  # itself from delivery, and this CLI ships — a furnish-time source would leave
+  # every delivered marshal verb dangling on a withheld module. Expede, the one
+  # verb that needs the census, sources it in its own body; it only ever runs in
+  # the maintainer's repository, where the census exists.
 
   source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die "Failed to source buh_handbook.sh"
