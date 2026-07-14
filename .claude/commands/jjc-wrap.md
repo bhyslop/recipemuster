@@ -1,7 +1,8 @@
 # jjc-wrap — delegated frontier review-and-wrap of a bridled pace
 
-Arguments: `$ARGUMENTS` — `<coronet> [tier]`. The coronet is required (full form,
-e.g. `₢BsAAl`). Tier is optional: `fable` (default) or `opus`.
+Arguments: `$ARGUMENTS` — `<coronet> <tier>`. Both are required: the coronet in
+full form (e.g. `₢BsAAl`), and the tier as exactly `fable` or `opus`. There is
+no default tier — the reviewer tier is a deliberate operator ruling.
 
 By invoking this command the operator asserts the work is believed complete and
 authorizes the wrap on a passing review. In particular, the "wrap sweeps all
@@ -10,8 +11,9 @@ tree's contents are correct to sweep. Do not refuse or pause over a dirty tree.
 
 ## What you (the calling session) do
 
-1. Parse the coronet and tier from the arguments. If no coronet was given,
-   ask for one and stop.
+1. Parse the coronet and tier from the arguments. Fail fast: if the coronet is
+   missing, or the tier is missing or not exactly `fable` or `opus`, report
+   what's missing and stop — never assume a default tier.
 2. Ensure a review-grade landing exists on the pace. If none does, write one
    from this session's knowledge via `jjx_landing` before spawning the
    reviewer. A landing is **evidence pointers only, never advocacy**:
