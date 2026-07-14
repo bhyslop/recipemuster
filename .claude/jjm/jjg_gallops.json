@@ -6724,6 +6724,7 @@
         "₢BsAAk",
         "₢BsAAl",
         "₢BsAAm",
+        "₢BsAAp",
         "₢BsAAo",
         "₢BsAAn",
         "₢BsAAg",
@@ -6731,7 +6732,7 @@
         "₢BsAAW",
         "₢BsAAS"
       ],
-      "jjghn_next_pace_seed": "AAp",
+      "jjghn_next_pace_seed": "AAq",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8269,6 +8270,47 @@
               ],
               "jjgtn_silks": "candidate-history-gate",
               "jjgtn_basis": "7fc01e9"
+            }
+          ]
+        },
+        "₢BsAAp": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-0740",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "A design ruling, not an implementation. The reviewer is adversarial by charge — it is being asked whether the process this project has been patching is the wrong shape.",
+                "",
+                "## Docket",
+                "Rule on whether the release process is safe, sound, and simple enough to be robust — and if it is not, say what it should be instead.",
+                "The evidence is the symptom set, all of it real, all of it from the 260713 cut and its predecessors:",
+                "a candidate reached the remote carrying the entire private repository in the tip's parent commit, green on every gate this project owns, because every gate reads the tip tree and none reads history;",
+                "a fixture meaningful only pre-strip was made a member of the credless suite that ships;",
+                "the generated, shipped tabtarget table documented five withheld commands;",
+                "a typed-confirmation guard proved worthless because the agent driving the ceremony skips confirmations;",
+                "marshal zero blanks whatever tree it stands in and nearly blanked the working one;",
+                "and three ceremony steps were false or unrunnable as literally written.",
+                "Every one of those was answered by adding a gate, a fixture, or a paragraph to a document an agent obeys as authority — the document is now some 450 lines and three of its steps were wrong.",
+                "The charge is to interrogate that pattern, not extend it.",
+                "Chief question, to evaluate rather than assume: the process is strip-by-subtraction — begin with everything, remove what is private — and every leak class descends from that.",
+                "Weigh build-by-addition — construct the candidate from an explicit manifest of what ships, so no withheld blob ever enters the candidate's object graph — against it, on safety AND simplicity, and name what it would cost.",
+                "Look for structural simplifications nobody here has seen.",
+                "The ruling must say what to DELETE, not only what to add.",
+                "",
+                "## Cinched",
+                "The candidate must stay mergeable into the public repository's main.",
+                "The payor OAuth stays the project's only standing secret — no GitHub token with destructive scope, ever.",
+                "Destructive acts stay in operator hands; the ceremony may check, never destroy.",
+                "This pace produces a ruling, not code — but the ruling is binding on the paces that follow it, and it must say explicitly which of them survive and which are void.",
+                "",
+                "## Done when",
+                "A recommended design stands, stated as a decision, with the minimal invariants a candidate must satisfy and a verdict on every current gate — load-bearing or theater;",
+                "the following paces are each declared surviving, reshaped, or void;",
+                "and the strongest argument against the recommendation is recorded beside it."
+              ],
+              "jjgtn_silks": "release-process-design-review",
+              "jjgtn_basis": "f313227"
             }
           ]
         }
