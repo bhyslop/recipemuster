@@ -97,14 +97,21 @@ RBLM_perambulation_withhold="withhold"
 # .sh surface, the shellcheck config, the READMEs, the agent-context markdown, the
 # theurge crate, the in-pool python step bodies, the ifrit attack corpus.
 #
-# THIS FILE STAYS BEHIND, alone among RBK's shipped .sh surface. It is the one
-# module whose charter obliges it to name every withheld tree by path — the map of
-# what the distribution does not carry is precisely the map it must not carry — and
-# the delivered tree has no consumer for it: the marshal tabtargets are withheld,
+# THIS FILE STAYS BEHIND, and rblm_expede.sh with it. It is the one module whose
+# charter obliges it to name every withheld tree by path — the map of what the
+# distribution does not carry is precisely the map it must not carry — and the
+# delivered tree has no consumer for it: the marshal tabtargets are withheld,
 # expede runs only in the maintainer's own repository, and the perambulation fixture
-# that sources it belongs to no suite and is dead in a consumer's hands. Its sibling
-# rblm_lustrate.sh does ship, and must: damnatio sources the proscription at runtime
-# to prove the candidate's erasure from inside the candidate.
+# that sources it belongs to no suite and is dead in a consumer's hands.
+#
+# rblm_expede.sh follows it out for a mechanical reason, not a symmetric one: expede
+# is the only verb that CALLS the census, so a delivered copy of its body would carry
+# call sites to functions no delivered module defines, and the candidate's own cupel
+# reads them — correctly — as unknown commands. The two travel together because the
+# caller cannot ship where the callee does not.
+#
+# Their sibling rblm_lustrate.sh does ship, and must: damnatio sources the
+# proscription at runtime to prove the candidate's erasure from inside the candidate.
 #
 # THE WITHHELD KITS. Whole trees. Each is either the operator's own tooling (jjk,
 # vok, cmk, vvk) or a project that shares the repo but not the delivery (apck,
@@ -198,8 +205,9 @@ zrblm_perambulation_kindle() {
   zrblm_enroll "Tools/buk/" "${RBLM_perambulation_ship}"
   zrblm_enroll "Tools/rbk/" "${RBLM_perambulation_ship}"
 
-  # This file
+  # This file, and the one verb that reads it
   zrblm_enroll "Tools/rbk/rblm_perambulation.sh" "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/rbk/rblm_expede.sh"        "${RBLM_perambulation_withhold}"
 
   # Withheld kits
   zrblm_enroll "Tools/apck/"     "${RBLM_perambulation_withhold}"
