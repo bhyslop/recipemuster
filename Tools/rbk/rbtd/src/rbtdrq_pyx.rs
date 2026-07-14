@@ -384,8 +384,9 @@ pub(crate) const ZRBTDRQ_VEIL_DOC_MARKS: &[&str] = &[".adoc", ".md"];
 
 /// Repo-relative paths exempt from the veil scan, each with the reason. Same
 /// doctrine as the secret-scan exemptions: an exemption is an OPERATOR ACT, exact
-/// path, never a prefix. Two rows, and both are checkers that must address the
-/// veiled tree to do their work.
+/// path, never a prefix. Every row is a checker that must address the veiled tree
+/// to do its work — a scan spelling its own needles, a table naming what it hunts,
+/// or the census whose charter is to judge every withheld tree by name.
 pub(crate) const ZRBTDRQ_VEIL_EXEMPT: &[(&str, &str)] = &[
     (ZRBTDRQ_SELF_EXEMPT, "the veil scan spells the token and the corpus paths it hunts"),
     (
@@ -395,6 +396,14 @@ pub(crate) const ZRBTDRQ_VEIL_EXEMPT: &[(&str, &str)] = &[
     (
         "Tools/rbk/rbtd/src/rbtdrq_loupe.rs",
         "the hostname-leak case's scan skip-dir list spells the veiled-dir literal it must not descend into",
+    ),
+    (
+        "Tools/rbk/rblm_perambulation.sh",
+        "the census names every withheld tree by charter, and is itself withheld — no candidate carries it",
+    ),
+    (
+        "Tools/rbk/rbtd/src/rbtdrq_perambulation.rs",
+        "its planted-leak table addresses a withheld tree by path to prove the sweep catches one; dead in the stripped tree, where that tree is gone",
     ),
 ];
 

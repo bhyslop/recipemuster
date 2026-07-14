@@ -97,6 +97,15 @@ RBLM_perambulation_withhold="withhold"
 # .sh surface, the shellcheck config, the READMEs, the agent-context markdown, the
 # theurge crate, the in-pool python step bodies, the ifrit attack corpus.
 #
+# THIS FILE STAYS BEHIND, alone among RBK's shipped .sh surface. It is the one
+# module whose charter obliges it to name every withheld tree by path — the map of
+# what the distribution does not carry is precisely the map it must not carry — and
+# the delivered tree has no consumer for it: the marshal tabtargets are withheld,
+# expede runs only in the maintainer's own repository, and the perambulation fixture
+# that sources it belongs to no suite and is dead in a consumer's hands. Its sibling
+# rblm_lustrate.sh does ship, and must: damnatio sources the proscription at runtime
+# to prove the candidate's erasure from inside the candidate.
+#
 # THE WITHHELD KITS. Whole trees. Each is either the operator's own tooling (jjk,
 # vok, cmk, vvk) or a project that shares the repo but not the delivery (apck,
 # gad, hmk, lmci, vslk). None is uniform by accident: each is a tree the consumer
@@ -188,6 +197,9 @@ zrblm_perambulation_kindle() {
   # Delivered kits
   zrblm_enroll "Tools/buk/" "${RBLM_perambulation_ship}"
   zrblm_enroll "Tools/rbk/" "${RBLM_perambulation_ship}"
+
+  # This file
+  zrblm_enroll "Tools/rbk/rblm_perambulation.sh" "${RBLM_perambulation_withhold}"
 
   # Withheld kits
   zrblm_enroll "Tools/apck/"     "${RBLM_perambulation_withhold}"

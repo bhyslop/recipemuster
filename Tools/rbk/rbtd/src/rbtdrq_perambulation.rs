@@ -240,8 +240,14 @@ fn rbtdrq_perambulation_sweep(dir: &Path) -> rbtdre_Verdict {
     // The planted paths, and the clean ones. Both are ordinary repo paths named
     // structurally — a veiled spec, a memo, the operator's own kit, a withheld
     // tabtarget — against a delivered face that must pass untouched.
+    //
+    // The veiled-spec datum carries a SYNTHETIC basename. What it must exercise is
+    // the longest-wins override — a veiled half inside a shipping kit — and that is
+    // a property of the directory, not of any document sitting in it. Naming a real
+    // withheld document here would print its title in delivered source, which is the
+    // very citation form the veil law forbids.
     let planted = [
-        "Tools/rbk/vov_veiled/RBS0-SpecTop.adoc",
+        "Tools/rbk/vov_veiled/planted-spec.adoc",
         "Memos/memo-20260713-the-one-that-got-out.md",
         "Tools/jjk/jjw_workbench.sh",
         "tt/rbw-MZ.MarshalZeroes.sh",
