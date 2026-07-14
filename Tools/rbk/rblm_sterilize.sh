@@ -66,6 +66,7 @@ test -f "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbpc_constants.sh" \
 source "${BURD_BUK_DIR}/buc_command.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh"
 source "${BURD_BUK_DIR}/buh_handbook.sh"
+source "${BURD_BUK_DIR}/bubc_constants.sh"
 source "${BURD_BUK_DIR}/buz_zipper.sh"
 
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbcc_constants.sh"
@@ -89,12 +90,22 @@ source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbpc_constants.sh"
 
 # Repo-relative targets: this process already stands at the tree's root, and the
 # generators resolve from where they stand. The context generator reads the
-# tabtarget directory it is handed, so pointing it at THIS tree's tt/ is what makes
-# the delivered reference document the delivered tabtargets — the withheld families
-# are absent from it because they are absent from the tree, not because a list said
-# to drop them.
+# tabtarget directory it is handed, so pointing it at THIS tree's tabtargets is
+# what makes the delivered reference document the delivered tabtargets — the
+# withheld families are absent from it because they are absent from the tree, not
+# because a list said to drop them.
+#
+# The tabtarget directory is the dispatch-provided BURD_TABTARGET_DIR, and it must
+# be RELATIVE: an absolute one would resolve out of this tree and back into the
+# maintainer's, and the whole point of this process is that it cannot reach there.
 buc_step "Regenerating derived files"
-rbz_generate_context "tt" "${RBCC_tabtarget_context_file}" \
+
+test -n "${BURD_TABTARGET_DIR:-}" || buc_die "BURD_TABTARGET_DIR not set - launch via tabtarget"
+case "${BURD_TABTARGET_DIR}" in
+  /*) buc_die "BURD_TABTARGET_DIR is absolute (${BURD_TABTARGET_DIR}) — it would resolve outside the tree being sterilized" ;;
+esac
+
+rbz_generate_context "${BURD_TABTARGET_DIR}" "${RBCC_tabtarget_context_file}" \
   || buc_die "Failed to regenerate tabtarget context"
 rbz_generate_consts  "${RBCC_rbtdgc_consts_file}" \
   || buc_die "Failed to regenerate colophon consts"
