@@ -51,7 +51,11 @@ the implementation tail runs at work tier.
 - Billet sweep (260705): reaping is nuke-on-start — a plan-then-confirm sweep at dispatch time
   retires worktrees whose pace is closed, behind an age-retention window rhyming with officium exsanguination;
   refuse-with-advice on dirty anomalies by default, auto-commit-push behind explicit confirm;
-  pace states snapshot under the studbook lock, then reaping proceeds lock-free (completion is monotonic).
+  pace states snapshot through the journal sheaf's read bracket — lock, advance, read, release —
+  then reaping proceeds lock-free.
+  Re-grounded 260714 (the sweep-lock ruling pace): the snapshot is an acting read deciding from
+  the store's truth; the monotonicity justification retired under the layer-independence rule
+  (JJSVB Read posture) — store correctness never leans on pace-state reasoning.
   Supersedes the farrier sheaf's reaped-at-next-saddle-if-clean line (bank at drain time).
 - Sweep liveness and retention (260705, slate-time): the liveness guard is the pure JJ-data join —
   live officia × billets, no platform process-probe (a probe only ever as belt-and-braces),
