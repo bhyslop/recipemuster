@@ -8422,8 +8422,9 @@
         "₢BsAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0926",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-0928",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Mint the *phantom wire* antipattern into MCM's Antipatterns catalog and refract it into BCG,",
                 "establishing the master-catalog/refraction pattern for cross-language antipatterns.",
@@ -8482,7 +8483,7 @@
                 "Authoring authority downstream agents will obey (MCM/BCG prose) wrapped around one mechanical conversion."
               ],
               "jjgtn_silks": "phantom-wire-mint-and-refraction",
-              "jjgtn_basis": "c712b27"
+              "jjgtn_basis": "10becac"
             }
           ]
         }
