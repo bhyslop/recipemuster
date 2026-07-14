@@ -368,6 +368,8 @@ rblm_feign() {
 # Furnish and Main
 
 zrblm_furnish() {
+  local z_command="${1:-}"
+
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
@@ -382,15 +384,19 @@ zrblm_furnish() {
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rblm_lustrate.sh"       || buc_die "Failed to source rblm_lustrate.sh"
 
-  # Expede and the census it reads are both withheld from delivery, so their
-  # absence is the DELIVERED state, not a broken install: this CLI ships, and a
-  # hard source of either would leave every delivered marshal verb dangling on a
-  # module the candidate does not carry. Present, they furnish expede; absent, the
-  # verb simply does not exist — and neither does tt/rbw-ME, withheld by the same
-  # census, so a consumer has no way to call what is not there.
-  test ! -f "${z_rbk_kit_dir}/rblm_expede.sh" \
-    || source "${z_rbk_kit_dir}/rblm_expede.sh" \
-    || buc_die "Failed to source rblm_expede.sh"
+  # Differential furnish: expede's module is sourced only for expede. It and the
+  # census it reads are both withheld from delivery, so a hard source here would
+  # leave every delivered marshal verb dangling on a module the candidate does not
+  # carry. Keying on the COMMAND rather than on the file's existence keeps the
+  # source unconditional given the verb — and in the delivered tree, where the
+  # module is absent, an invoked expede dies naming what is missing instead of
+  # furnishing cleanly and then failing on an absent function. The verb is
+  # unreachable there in any case: tt/rbw-ME is withheld by the same census.
+  case "${z_command}" in
+    rblm_expede)
+      source "${z_rbk_kit_dir}/rblm_expede.sh" || buc_die "Failed to source rblm_expede.sh"
+      ;;
+  esac
 
   source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die "Failed to source buh_handbook.sh"
