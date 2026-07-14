@@ -8276,26 +8276,25 @@
         "₢BsAAp": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0740",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260714-0756",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "A design ruling, not an implementation. The reviewer is adversarial by charge — it is being asked whether the process this project has been patching is the wrong shape.",
+                "A design ruling, not an implementation. The reviewer is adversarial by charge — it is being asked whether the process this project has been patching is the wrong shape. This docket IS the brief: mount it and go, no further prompt is owed.",
                 "",
                 "## Docket",
                 "Rule on whether the release process is safe, sound, and simple enough to be robust — and if it is not, say what it should be instead.",
+                "Read what you need, starting from `RELEASE.md` (the outer procedure), the cut ceremony it delegates to (`.claude/commands/rbk-prep-release.md`), the marshal verbs (`Tools/rbk/rblm_*`), the release fixtures (pyx, loupe, damnatio in the theurge crate), this heat's paddock, and the dockets of the paces that follow this one.",
                 "The evidence is the symptom set, all of it real, all of it from the 260713 cut and its predecessors:",
-                "a candidate reached the remote carrying the entire private repository in the tip's parent commit, green on every gate this project owns, because every gate reads the tip tree and none reads history;",
-                "a fixture meaningful only pre-strip was made a member of the credless suite that ships;",
+                "a candidate reached the remote carrying the entire private repository in the tip's parent commit, green on every gate this project owns, because every gate reads the tip tree and none reads history — the operator caught it by noticing a number looked strange, and it landed in a private repo by luck of remote wiring;",
+                "a fixture meaningful only pre-strip was made a member of the credless suite that ships, handing every consumer a red test asserting the absence of documents they never had;",
                 "the generated, shipped tabtarget table documented five withheld commands;",
                 "a typed-confirmation guard proved worthless because the agent driving the ceremony skips confirmations;",
                 "marshal zero blanks whatever tree it stands in and nearly blanked the working one;",
                 "and three ceremony steps were false or unrunnable as literally written.",
                 "Every one of those was answered by adding a gate, a fixture, or a paragraph to a document an agent obeys as authority — the document is now some 450 lines and three of its steps were wrong.",
                 "The charge is to interrogate that pattern, not extend it.",
-                "Chief question, to evaluate rather than assume: the process is strip-by-subtraction — begin with everything, remove what is private — and every leak class descends from that.",
+                "Chief question, to evaluate rather than assume: the process is strip-by-subtraction — begin with everything, remove what is private — and every leak class above descends from that.",
                 "Weigh build-by-addition — construct the candidate from an explicit manifest of what ships, so no withheld blob ever enters the candidate's object graph — against it, on safety AND simplicity, and name what it would cost.",
                 "Look for structural simplifications nobody here has seen.",
                 "The ruling must say what to DELETE, not only what to add.",
@@ -8304,15 +8303,16 @@
                 "The candidate must stay mergeable into the public repository's main.",
                 "The payor OAuth stays the project's only standing secret — no GitHub token with destructive scope, ever.",
                 "Destructive acts stay in operator hands; the ceremony may check, never destroy.",
-                "This pace produces a ruling, not code — but the ruling is binding on the paces that follow it, and it must say explicitly which of them survive and which are void.",
+                "The process is agent-driven with an operator gate at every step — a guard an agent can skip is not a guard.",
+                "This pace produces a ruling, not code — but the ruling is binding on the paces that follow it, and it must say explicitly which of them survive, which are reshaped, and which are void.",
                 "",
                 "## Done when",
                 "A recommended design stands, stated as a decision, with the minimal invariants a candidate must satisfy and a verdict on every current gate — load-bearing or theater;",
-                "the following paces are each declared surviving, reshaped, or void;",
+                "each following pace is declared surviving, reshaped, or void, and the reshaped ones are reslated out of the ruling rather than left to inertia;",
                 "and the strongest argument against the recommendation is recorded beside it."
               ],
               "jjgtn_silks": "release-process-design-review",
-              "jjgtn_basis": "ff82ace"
+              "jjgtn_basis": "045172b"
             }
           ]
         }
