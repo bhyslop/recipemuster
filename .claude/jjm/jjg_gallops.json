@@ -8492,7 +8492,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260714-1048",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_low",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical deletion with a scripted verification ladder;",
@@ -8529,7 +8531,7 @@
                 "and all three refusal checks fired as refusals."
               ],
               "jjgtn_silks": "expede-confirm-residue",
-              "jjgtn_basis": "8cf87ee"
+              "jjgtn_basis": "9f0ba43"
             }
           ]
         }
