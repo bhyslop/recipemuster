@@ -1,6 +1,6 @@
 # Release Procedure
 
-The release qualification ceremony for the project maintainer — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
+The release qualification ceremony for the project maintainer — six operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
 The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
 [Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
@@ -87,6 +87,12 @@ tt/rbw-ts.TestSuite.gauntlet.sh
 ```
 
 ## 5. Cut and prove the candidate
+
+**Prerequisite — create the quarantine repository.** The candidate is pushed to an ephemeral **quarantine** repository: `scaleinv/recipebottle-staging`, the repository `OPEN_SOURCE_UPSTREAM` names. Before the cut, create it on GitHub **empty and private**. After the candidate is dispositioned, **delete it**.
+
+Both acts are the operator's own hands, by design — no tooling creates or destroys it, and no delete-scoped token is ever minted. The ceremony only *checks* the quarantine, credential-free: an anonymous API read must 404 (proving no stranger can see it), and its refs must be either empty or exactly `refs/heads/main` (proving no prior cut was left undispositioned). Either check failing stops the ceremony.
+
+The quarantine is *containment*, and containment never substitutes for prevention: what actually keeps a private object out of the candidate is expede's construction by addition, below.
 
 - Claude Code slash command, not a tabtarget — the delivery ceremony is interactive by design, and its last two acts are the maintainer's own eyes and the maintainer's own hand
 - Gates the ephemeral quarantine remote, runs the pre-cut assays, cuts the candidate with `tt/rbw-ME.MarshalExpedes.sh`, and proves it: the delivered wiring, release hygiene, the erasure of site identity, and a consumer-seat reveille run from a feigned station
