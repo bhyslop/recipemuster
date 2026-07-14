@@ -160,6 +160,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-MP` | MarshalProofs | param1 | Proof repo for release testing |
 | `rbw-ML` | MarshalLustrates | — | Lustrate the release clone — erase site identity from every proscribed home |
 | `rbw-MF` | MarshalFeigns | — | Feign a station on the probe branch — write shape-valid stand-ins over the lustrated site fields |
+| `rbw-ME` | MarshalExpedes | param1 | Expede the delivery candidate — build it by addition in a clone of the public repository |
 
 ### Nameplate — Cross-nameplate operations (`rbw-n`)
 
