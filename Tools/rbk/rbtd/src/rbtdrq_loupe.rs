@@ -186,8 +186,8 @@ const ZRBTDRQ_HOST_SCAN_SKIP_DIRS: &[&str] =
 const ZRBTDRQ_HOST_EXEMPT: &[&str] = &[];
 
 /// Harvest operator machine identity from the BURN node registry: every
-/// investiture dirname (e.g. `bujn-winpc`) and every `BURN_HOST=` value (e.g.
-/// `rocket`) beneath it. Both name a specific machine.
+/// investiture dirname and every `BURN_HOST=` value beneath it. Both name a
+/// specific machine.
 fn zrbtdrq_host_census_walk(dir: &Path, out: &mut BTreeSet<String>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
