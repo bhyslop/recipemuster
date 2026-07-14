@@ -112,6 +112,27 @@ buz_tome() {
   z_buz_tome_strip_roll+=("${z_strip_prefix}")
 }
 
+# buz_tome_declared_predicate() - True when the named tome is open in this process.
+# Args: name
+# A generated artifact is defined over a ROSTER of tomes, but the emitter walks
+# only the tomes its caller happened to kindle — so a caller that forgets one
+# produces a smaller file rather than an error, and the omission surfaces far from
+# the mistake. BUK cannot hold the roster (it is kit-ignorant by charter), so it
+# offers the question instead, and the generator that owns the artifact asserts
+# the answer.
+buz_tome_declared_predicate() {
+  zbuz_sentinel
+
+  local -r z_name="${1:-}"
+  test -n "${z_name}" || buc_die "buz_tome_declared_predicate: name required"
+
+  local z_i=0
+  for z_i in "${!z_buz_tome_name_roll[@]}"; do
+    test "${z_buz_tome_name_roll[${z_i}]}" = "${z_name}" && return 0
+  done
+  return 1
+}
+
 ######################################################################
 # Group declaration (category metadata for context generation)
 

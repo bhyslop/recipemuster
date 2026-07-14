@@ -68,6 +68,7 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 source "${BURD_BUK_DIR}/buh_handbook.sh"
 source "${BURD_BUK_DIR}/bubc_constants.sh"
 source "${BURD_BUK_DIR}/buz_zipper.sh"
+source "${BURD_BUK_DIR}/buwz_zipper.sh"
 
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbcc_constants.sh"
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbgc_constants.sh"
@@ -76,6 +77,7 @@ source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rblm_lustrate.sh"
 
 zbuz_kindle
 zrbz_kindle
+zbuwz_kindle
 zrbgc_kindle
 
 buc_step "Lustrating ${ZRBLM_STERILIZE_ROOT}"
