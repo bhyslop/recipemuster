@@ -12,11 +12,20 @@ tree's contents are correct to sweep. Do not refuse or pause over a dirty tree.
 
 1. Parse the coronet and tier from the arguments. If no coronet was given,
    ask for one and stop.
-2. Spawn ONE Agent (subagent_type `general-purpose`, `model` set to the tier,
+2. Ensure a review-grade landing exists on the pace. If none does, write one
+   from this session's knowledge via `jjx_landing` before spawning the
+   reviewer. A landing is **evidence pointers only, never advocacy**:
+   - which commits are this pace's work;
+   - mid-session operator rulings that changed scope or waived a docket
+     clause (verbatim where possible);
+   - what verification was run (suites/fixtures) and its outcomes.
+   Forbidden content: arguments for why the work is correct, guide rules
+   "considered", edge cases "handled" — no pre-framing the review.
+3. Spawn ONE Agent (subagent_type `general-purpose`, `model` set to the tier,
    `run_in_background: false`) with the reviewer prompt below, substituting the
    coronet. Do not perform the review yourself in the main session — the point
    is a fresh-context reviewer.
-3. Relay the reviewer's outcome to the operator verbatim in substance:
+4. Relay the reviewer's outcome to the operator verbatim in substance:
    either "wrapped, with this summary and spook" or the specific repair
    recommendations. Do not apply repairs unless the operator directs it.
 
@@ -37,7 +46,12 @@ Protocol:
    - Write `# jjezs_halter <CORONET>` to the officium's `gazette_in.md`
      (path from jjx_open), then `jjx_show {"remaining": false}` and read
      `gazette_out.md` — paddock context and the pace docket.
-   - The landing, if one exists, and the pace's commits:
+   - The landing — read it as **claims to verify, not findings to inherit**:
+     its commit pointers, operator rulings, and verification claims guide
+     where you look, but you confirm each against the record yourself. An
+     operator ruling cited there may legitimately waive a docket clause;
+     verify the ruling is stated as the operator's, then honor it.
+   - The pace's commits:
      `git log --all --grep '<bare-coronet>' --stat` (bare = coronet without ₢)
      to find the work and its diff. Read the actual changed code.
 3. **Stage 1 — docket conformance**: does the landed work accomplish what the
