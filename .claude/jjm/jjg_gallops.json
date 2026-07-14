@@ -8020,7 +8020,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260714-0733",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "Drafted from ₢B0AAD in ₣B0.",
                 "",
@@ -8048,7 +8050,7 @@
                 "the refusal holds against a non-interactive agent driver."
               ],
               "jjgtn_silks": "candidate-history-gate",
-              "jjgtn_basis": "f3991a3"
+              "jjgtn_basis": "7fc01e9"
             }
           ]
         }
