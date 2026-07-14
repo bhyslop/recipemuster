@@ -37,8 +37,8 @@ source "${ZBUQ_SCRIPT_DIR}/bubc_constants.sh"
 #   2. Check coverage and severity defaults drift across versions, so the same
 #      tree can pass on one station and fail on another. The pin converts that
 #      silent cross-station divergence into an immediate, actionable failure.
-# Bump deliberately and in lockstep across all stations (linux/cerebro,
-# macos/pym): install the matching binary everywhere, then change this constant.
+# Bump deliberately and in lockstep across every station platform (Linux,
+# macOS): install the matching binary everywhere, then change this constant.
 readonly BUQ_SHELLCHECK_VERSION="0.11.0"
 
 ######################################################################

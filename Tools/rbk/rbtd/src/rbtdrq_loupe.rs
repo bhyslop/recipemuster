@@ -160,10 +160,168 @@ fn rbtdrq_veil_leak(dir: &Path) -> rbtdre_Verdict {
     zrbtdrq_report(dir, "veil", &findings, &inventory, "veil-leak violation(s)")
 }
 
+// ── Case: hostname leak ─────────────────────────────────────
+
+/// Repo-relative root of the BURN node registry — one subdirectory per operator
+/// test machine (the investiture dirname), each carrying a `burn.env` with a
+/// `BURN_HOST=` value. Whole-directory-stripped at release
+/// (`rbk-prep-release` Step 10b), so like the veil census, this harvest can only
+/// mean anything pre-strip.
+const ZRBTDRQ_HOST_CENSUS_ROOT: &str = "rbmm_moorings/rbmn_nodes";
+
+/// Basenames the census walk ignores — the registry's own README, never a node
+/// identity.
+const ZRBTDRQ_HOST_CENSUS_SKIP_FILES: &[&str] = &["README.md"];
+
+/// Directories skipped while scanning shipping files for a hostname leak. The
+/// registry directories themselves carry the very identities the census is
+/// harvested from — scanning them would match the census against its own source,
+/// not against a leak.
+const ZRBTDRQ_HOST_SCAN_SKIP_DIRS: &[&str] =
+    &["target", ZRBTDRQ_VEIL_DIR, "rbmn_nodes", "rbmu_users"];
+
+/// Tokens exempt from the hostname census — an exact string that happens to also
+/// be ordinary vocabulary, so treating it as a needle would flag every honest
+/// use. Exact token, operator act, same doctrine as `ZRBTDRQ_VEIL_EXEMPT`.
+const ZRBTDRQ_HOST_EXEMPT: &[&str] = &[];
+
+/// Harvest operator machine identity from the BURN node registry: every
+/// investiture dirname (e.g. `bujn-winpc`) and every `BURN_HOST=` value (e.g.
+/// `rocket`) beneath it. Both name a specific machine.
+fn zrbtdrq_host_census_walk(dir: &Path, out: &mut BTreeSet<String>) {
+    let entries = match std::fs::read_dir(dir) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        let name = match path.file_name().and_then(|s| s.to_str()) {
+            Some(n) => n.to_string(),
+            None => continue,
+        };
+        if path.is_dir() {
+            out.insert(name.clone());
+            zrbtdrq_host_census_walk(&path, out);
+            continue;
+        }
+        if ZRBTDRQ_HOST_CENSUS_SKIP_FILES.contains(&name.as_str()) {
+            continue;
+        }
+        let bytes = match std::fs::read(&path) {
+            Ok(b) => b,
+            Err(_) => continue,
+        };
+        let text = String::from_utf8_lossy(&bytes);
+        for line in text.lines() {
+            if let Some(value) = line.strip_prefix("BURN_HOST=") {
+                let value = value.trim();
+                if !value.is_empty() {
+                    out.insert(value.to_string());
+                }
+            }
+        }
+    }
+}
+
+/// True when `token` appears in `line` on a word boundary — not merely as a
+/// substring of a longer, unrelated identifier.
+fn zrbtdrq_names_token(line: &str, token: &str) -> bool {
+    fn word_char(c: char) -> bool {
+        c.is_alphanumeric() || c == '_' || c == '-'
+    }
+
+    let bytes = line.as_bytes();
+    let mut start = 0;
+    while let Some(pos) = line[start..].find(token) {
+        let idx = start + pos;
+        let before_ok = idx == 0 || !word_char(bytes[idx - 1] as char);
+        let after = idx + token.len();
+        let after_ok = after >= bytes.len() || !word_char(bytes[after] as char);
+        if before_ok && after_ok {
+            return true;
+        }
+        start = idx + 1;
+    }
+    false
+}
+
+/// No shipping file may name an operator's own test machine. The needle set is
+/// harvested live from the BURN node registry rather than hand-listed, so a node
+/// enrolled tomorrow is protected tomorrow, with no list to remember to update.
+///
+/// Source-tree only, same as veil leak: the registry is stripped whole at
+/// release (Step 10b), so the census is empty on the delivered tree by
+/// construction, and an empty census here is a FINDING outright — there is no
+/// stripped-tree re-run to tolerate it for.
+fn rbtdrq_hostname_leak(dir: &Path) -> rbtdre_Verdict {
+    let root = match zrbtdrq_root() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+
+    let mut findings = Vec::new();
+    let mut inventory = BTreeSet::new();
+
+    let census_root = root.join(ZRBTDRQ_HOST_CENSUS_ROOT);
+    let mut census = BTreeSet::new();
+    zrbtdrq_host_census_walk(&census_root, &mut census);
+    if census.is_empty() {
+        findings.push(zrbtdrq_Finding {
+            file: ZRBTDRQ_HOST_CENSUS_ROOT.to_string(),
+            line: 0,
+            detail: "the census matched no operator machine names — the extractor stopped extracting"
+                .to_string(),
+        });
+    }
+    for name in ZRBTDRQ_HOST_EXEMPT {
+        census.remove(*name);
+    }
+    for tok in &census {
+        inventory.insert(tok.clone());
+    }
+
+    let mut files = Vec::new();
+    for sub in ZRBTDRQ_VEIL_ROOTS {
+        let path = root.join(sub);
+        if path.is_dir() {
+            zrbtdrq_walk(&path, ZRBTDRQ_HOST_SCAN_SKIP_DIRS, &mut files);
+        }
+    }
+    for sub in ZRBTDRQ_VEIL_FILES {
+        let path = root.join(sub);
+        if path.is_file() {
+            files.push(path);
+        }
+    }
+
+    for path in files {
+        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, &path);
+        let bytes = match std::fs::read(&path) {
+            Ok(b) => b,
+            Err(_) => continue,
+        };
+        let text = String::from_utf8_lossy(&bytes);
+        for (index, line) in text.lines().enumerate() {
+            for tok in &census {
+                if zrbtdrq_names_token(line, tok) {
+                    findings.push(zrbtdrq_Finding {
+                        file: rel.clone(),
+                        line: index + 1,
+                        detail: format!("names operator machine {}", tok),
+                    });
+                }
+            }
+        }
+    }
+
+    zrbtdrq_report(dir, "hostname", &findings, &inventory, "operator-hostname leak(s)")
+}
+
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTDRQ_CASES_LOUPE: &[rbtdre_Case] = &[
     case!(rbtdrq_veil_leak),
+    case!(rbtdrq_hostname_leak),
 ];
 
 pub static RBTDRQ_FIXTURE_LOUPE: rbtdre_Fixture = rbtdre_Fixture {
