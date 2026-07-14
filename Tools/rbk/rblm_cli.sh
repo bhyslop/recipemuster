@@ -459,9 +459,18 @@ rblm_expede() {
   buc_step "Sweeping the public base"
   zrblm_expede_sweep "${z_clone_dir}" "base"
 
+  # The public repository may carry no commit at all — an empty upstream is the
+  # legitimate state before the first candidate is ever published, and it is where
+  # a repository that had to be emptied begins again. Then the candidate is a ROOT
+  # commit, and "one commit atop the base" means one commit, full stop.
   local -r z_base_temp="${BURD_TEMP_DIR}/rblm_expede_base.txt"
-  git -C "${z_clone_dir}" rev-parse HEAD > "${z_base_temp}" || buc_die "Failed to read the public base commit"
-  local -r z_base=$(<"${z_base_temp}")
+  local z_base=""
+  if git -C "${z_clone_dir}" rev-parse HEAD > "${z_base_temp}" 2>/dev/null; then
+    z_base=$(<"${z_base_temp}")
+    buh_line "  Public base commit:   ${z_base}"
+  else
+    buh_line "  Public base commit:   (none — the upstream is empty; this candidate is a root commit)"
+  fi
 
   buc_step "Clearing the base tree"
   local -r z_base_files_temp="${BURD_TEMP_DIR}/rblm_expede_base_files.txt"
@@ -506,7 +515,10 @@ rblm_expede() {
   # One commit. Not a convention — the property that makes the candidate mergeable
   # by construction and provable by inspection.
   local -r z_count_temp="${BURD_TEMP_DIR}/rblm_expede_count.txt"
-  git -C "${z_clone_dir}" rev-list --count "${z_base}..HEAD" > "${z_count_temp}" \
+  local z_range="HEAD"
+  test -z "${z_base}" || z_range="${z_base}..HEAD"
+
+  git -C "${z_clone_dir}" rev-list --count "${z_range}" > "${z_count_temp}" \
     || buc_die "git rev-list failed in the clone"
   local -r z_count=$(<"${z_count_temp}")
   test "${z_count}" = "1" \
@@ -517,7 +529,7 @@ rblm_expede() {
 
   buh_e
   buh_line "  Candidate:  ${z_clone_dir}"
-  buh_line "  Base:       ${z_base}"
+  buh_line "  Base:       ${z_base:-(root commit — the upstream was empty)}"
   buh_line "  Commits:    1"
   buh_e
   buh_line "  Prove it from the consumer's seat before it goes anywhere:"
