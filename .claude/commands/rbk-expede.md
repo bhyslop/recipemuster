@@ -29,6 +29,8 @@ git rev-list --count @{u}..HEAD
 
 Both must be empty / `0`. If not, stop and ask the operator to resolve.
 
+Expect one benign exception: opening an officium writes a bookkeeping commit, so a session that ran `jjx_open` starts one commit ahead of the remote. Push it and re-read the gate. Anything else unpushed is the operator's to resolve.
+
 ## 2. Quarantine-remote gate
 
 The candidate is pushed to an **ephemeral quarantine repository** — private, created empty by the operator before a cut, deleted by hand after the candidate is dispositioned. It is never created or destroyed by tooling: no delete-scoped token exists, and none may ever be minted. The quarantine is *containment*; expede's construction is *prevention*. Containment never substitutes for prevention.
@@ -57,31 +59,49 @@ Once a true public release repository exists, its `main` SHA must also equal the
 
 ## 3. Pre-cut assays, in the working repository
 
-These read the veiled trees, so they are meaningful **only here** — in the candidate they are red by construction.
+**`main` must be green before it is worth cutting.** Both 2026-07-14 candidates died on flaws that were already sitting in the working repository — one of them a live `cupel` red on `main` — and both cost a full cut to discover, because the ceremony asked the candidate a question it had never asked the source. Run the suite here first; a red here is cheaper than a red there by an entire cut.
+
+```
+tt/rbw-ts.TestSuite.reveille.sh
+```
+
+Then the two assays that read the **veiled trees**, and so are meaningful only here — in the candidate they are red by construction, which is why they cannot be deferred to it:
 
 ```
 tt/rbw-tf.FixtureRun.sh loupe
 tt/rbw-tf.FixtureRun.sh perambulation
 ```
 
+Note what `cupel` (inside reveille) can and cannot see from here. It resolves every command against the functions defined **anywhere in the tree** — including the withheld modules. So a shipped file calling a withheld module's function is *green here and red in the candidate*: the census is present to answer for it here, and absent there. Reveille on `main` is therefore necessary and not sufficient — the candidate's own `cupel` in step 6 is the only reader that sees the delivered tree as a consumer holds it.
+
 ## 4. Cut the candidate
 
 The target directory must not exist. Convention: `rbm_candidate_{YYYYMMDD}_{try}`, a sibling of the working repo.
 
 ```
-tt/rbw-ME.MarshalExpedes.sh /absolute/path/to/rbm_candidate_20260714_1
+BURE_CONFIRM=skip tt/rbw-ME.MarshalExpedes.sh /absolute/path/to/rbm_candidate_20260714_1
 ```
+
+Expede demands a typed confirmation on a tty, which an agent session does not have; `BURE_CONFIRM=skip` is how the agent answers a gate the operator has already answered by invoking this ceremony. It reaches past the *prompt* only — never past a refusal, which by design fires before the prompt.
 
 The candidate lands at `{target}/candidate`. Read the verb's verdict: one commit, both sweeps clean.
 
 ## 5. Give the candidate a station
 
-Three lines, no identity, no secrets — exactly what a consumer writes on their first day. Write `{target}/station-files/burs.env`:
+The consumer's first onboarding act, reproduced exactly: an identity-free station, and the empty secrets directory the regime requires. Both, or the candidate cannot validate — `RBRR_SECRETS_DIR` names a directory, and `rbw-rrv` refuses on its absence, which reads as a candidate flaw and is not one.
+
+Write `{target}/station-files/burs.env`:
 
 ```
 BURS_USER=candidate
 BURS_TINCTURE=cnd
 BURS_LOG_DIR=<target>/logs-buk
+```
+
+And create the directory it will look for — empty, and it stays empty:
+
+```
+mkdir -p {target}/station-files/secrets
 ```
 
 ## 6. Assay the candidate
@@ -90,11 +110,13 @@ Run the candidate's **own** tabtargets, by absolute path, on its sterile `main`.
 
 ```
 {cand}/tt/rbw-tq.QualifyFast.sh
+{cand}/tt/rbw-tf.FixtureRun.sh cupel
 {cand}/tt/rbw-tf.FixtureRun.sh pyx
 {cand}/tt/rbw-tf.FixtureRun.sh damnatio
 ```
 
 - **`rbw-tq`** — the delivered wiring is intact: colophons, tabtargets, nameplates.
+- **`cupel`** — BCG command discipline **as the candidate resolves it**. This is the reading no assay in the working repository can perform: a shipped file that calls a withheld module's function resolves cleanly on `main` and names an unknown command here. It needs no station, so it runs on the sterile tree, before feigning — the 2026-07-14 try-2 candidate died on exactly this, and only discovered it a whole probe later.
 - **`pyx`** — release hygiene of the tree being published.
 - **`damnatio`** — the proof of erasure: no site identity survives anywhere the proscription reaches. This is the assay the whole design exists to pass. It must run **on `main`, before any feigning** — damnatio reddens on feigned fields by construction, which is exactly what keeps a probe branch from ever being mistaken for a candidate.
 
@@ -113,7 +135,7 @@ Marshal tabtargets are withheld from delivery, so the candidate has no `rbw-MF` 
 ```
 {cand}/tt/rbw-tb.Build.sh
 git -C {cand} add -A && git -C {cand} commit -m "probe: feign a station"
-{cand}/tt/rbw-MF.MarshalFeigns.sh
+BURE_CONFIRM=skip {cand}/tt/rbw-MF.MarshalFeigns.sh
 {cand}/tt/rbw-ts.TestSuite.reveille.sh
 ```
 
