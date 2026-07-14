@@ -57,6 +57,7 @@ pub mod rbtdrn_conformance;
 pub mod rbtdro_onboarding;
 pub mod rbtdrp_attest;
 pub mod rbtdrp_lifecycle;
+pub mod rbtdrq_census;
 pub mod rbtdrq_damnatio;
 pub mod rbtdrq_loupe;
 pub mod rbtdrq_pyx;

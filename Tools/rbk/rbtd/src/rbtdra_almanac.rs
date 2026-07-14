@@ -84,6 +84,13 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     // it would be red forever. The release ceremony invokes it by name post-strip.
     // Runnable via FixtureRun.
     &crate::rbtdrq_damnatio::RBTDRQ_FIXTURE_DAMNATIO,
+    // census: the ship/withhold judgment over every tracked path is total, and the
+    // object-graph sweep catches a planted leak. A member of NO SUITE, for loupe's
+    // reason inverted: the delivered tree tracks only the shipped paths, so in a
+    // consumer's hands every withhold row wins nothing and goes dead — reveille
+    // ships, and a membership would hand every consumer a red fixture. Invoked by
+    // name, and by expede, which will not cut a candidate while it is red.
+    &crate::rbtdrq_census::RBTDRQ_FIXTURE_CENSUS,
     &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
     &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtdrf_handbook::RBTDRF_FIXTURE_HANDBOOK_RENDER,
