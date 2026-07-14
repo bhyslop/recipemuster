@@ -249,6 +249,16 @@ fundus-host list points here for the full registry.
   scenario tests: tabtargets `tt/jjw-tfP2.ProvisionPhase2.cerebro.sh`,
   `tt/jjw-tfs.TestFundusScenario.cerebro.sh` (tests marked `#[ignore]`,
   `--ignored` required; fundus accounts must be provisioned on cerebro first).
+- **brads-macbook-air** — macOS 26.5 laptop, Apple Silicon (arm64), local hostname
+  `mac.lan`. **The registry's only arm64 host** — anything container-shaped built or
+  run here is arm64, unlike every x86_64 machine above.
+  - Access: `ssh brads-macbook-air` (user `bhyslop`, key `~/.ssh/id_ed25519`).
+    **No ssh-config `Host` entry** — unlike beast/cerebro, the bare tailnet name
+    resolves directly. Unix shell throughout: no transport armor of any kind.
+  - Reachable but **unprovisioned** (surveyed 260713): no repo clone (no `~/projects/`),
+    no rust toolchain, no container runtime (neither docker nor podman). System `git`,
+    `jq`, and `python3` are present. Nothing here has been proven against a suite —
+    stand it up before treating it as a test host.
 - **localhost** — local fundus for JJK scenario tests via `jjfu-*` ssh aliases
   (`jjfu-full`, `jjfu-nogit`, `jjfu-nokey`, `jjfu-norepo`).
 
