@@ -7894,8 +7894,10 @@
         "₢BsAAl": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-1255",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-0733",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
                 "Drafted from ₢B2AAD in ₣B2.",
                 "",
@@ -7925,7 +7927,7 @@
                 "the ceremony states the consts projection truthfully, and its consumer-seat probe runs green when followed literally."
               ],
               "jjgtn_silks": "context-gen-omits-stripped-colophons",
-              "jjgtn_basis": "05f84a5"
+              "jjgtn_basis": "a23f416"
             }
           ]
         },
