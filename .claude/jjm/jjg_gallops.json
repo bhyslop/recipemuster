@@ -6822,13 +6822,14 @@
         "₢BsAAm",
         "₢BsAAp",
         "₢BsAAo",
+        "₢BsAAq",
         "₢BsAAn",
         "₢BsAAg",
         "₢BsAAU",
         "₢BsAAW",
         "₢BsAAS"
       ],
-      "jjghn_next_pace_seed": "AAq",
+      "jjghn_next_pace_seed": "AAr",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -8415,6 +8416,73 @@
               ],
               "jjgtn_silks": "release-process-design-review",
               "jjgtn_basis": "a75dd54"
+            }
+          ]
+        },
+        "₢BsAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-0926",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Mint the *phantom wire* antipattern into MCM's Antipatterns catalog and refract it into BCG,",
+                "establishing the master-catalog/refraction pattern for cross-language antipatterns.",
+                "",
+                "The defect, diagnosed live in `Tools/rbk/rblm_perambulation.sh`:",
+                "data born and consumed inside one program is flattened into an encoded string",
+                "(`\"prefix|verdict\"` rows) and re-parsed at every use site (`${z_row%%|*}` / `${z_row#*|}`),",
+                "when a structural record was available — an encode/decode pair with no boundary.",
+                "The decode is where the failures live:",
+                "a row missing its delimiter decodes *successfully* into garbage (silent misjudgment),",
+                "the delimiter's legality in the payload is a constraint recorded nowhere,",
+                "and the field shape exists only inside duplicated parse expressions.",
+                "Language-independent; the training-corpus habit of delimited-string tables is why it recurs.",
+                "",
+                "Three homes, one pace:",
+                "",
+                "## MCM (concept home)",
+                "- Mint `mcm_phantom_wire` into the existing `== Antipatterns` section (genus `mcm_antipattern`),",
+                "  Lapidary-checked (grep gate; note `census` and `gloss` are already reserved/fallow — check the fallow census).",
+                "- Entry owes: the name, the general form, the recognition tells, why it recurs",
+                "  (naming the corpus habit is load-bearing — it tells a future agent to distrust its own reflex),",
+                "  and that avoidance/repair lives in the refracting guides.",
+                "- State the catalog's entry shape and the refraction doctrine in a sentence or two at the section head:",
+                "  MCM owns diagnosis (what/why, language-free);",
+                "  each guide owns treatment (dialect-specific disease shape + canonical repair, fully self-sufficient — a coding agent never leaves the guide);",
+                "  the quoin name in backticks is the cross-format handle and grep is the refraction registry (no projected-into list);",
+                "  a refraction is born when a guide first needs it, never speculatively.",
+                "- Absorb/deepen CLAUDE.md's \"Load-Bearing Complexity\" material into MCM as the headwater the catalog instantiates;",
+                "  demote the CLAUDE.md section to a sharp stub (name, litmus sentence, pointer) —",
+                "  CLAUDE.md is always-loaded, so the stub must still let the concept be invoked in conversation.",
+                "",
+                "## BCG (first refraction)",
+                "- Representation axis under Zeroes Theory, sibling to the spatial and version axes:",
+                "  interior data must live in the structural form the language offers; encoding is earned only by an actual boundary.",
+                "- One-line gloss + `mcm_phantom_wire` citation, then self-sufficient bash treatment:",
+                "  associative array over delimited strings; construction-time validation (`buc_die` on malformed entry, duplicate-key rejection)",
+                "  so a bad row dies loud at load instead of judging quietly.",
+                "- ❌/✅ blocks drawn from the perambulation case.",
+                "",
+                "## Enactment (the worked example made true)",
+                "- Convert `ZRBLM_PERAMBULATION` in `Tools/rbk/rblm_perambulation.sh` to the associative-array record shape;",
+                "  delete both parse sites; move malformation and duplicate-prefix checks to enrollment.",
+                "- Longest-prefix-wins makes iteration order irrelevant, so nothing is lost; judgment semantics identical.",
+                "- Update the emitters the fixture reads; `rbtdrq_perambulation.rs` cases (totality, sweep) must pass unchanged.",
+                "- Note: ₢BsAAo's wrap fixed a duplicate-prefix shadowing symptom within the string representation;",
+                "  this conversion supersedes that patch with the structural fix.",
+                "",
+                "## Done when",
+                "`mcm_phantom_wire` is defined in MCM with the refraction doctrine stated;",
+                "BCG carries the self-sufficient bash refraction citing it;",
+                "CLAUDE.md's Load-Bearing Complexity is a stub pointing at MCM;",
+                "`rblm_perambulation.sh` carries no encoded rows and no parse sites;",
+                "perambulation fixture green; shellcheck green.",
+                "",
+                "## Character",
+                "Authoring authority downstream agents will obey (MCM/BCG prose) wrapped around one mechanical conversion."
+              ],
+              "jjgtn_silks": "phantom-wire-mint-and-refraction",
+              "jjgtn_basis": "c712b27"
             }
           ]
         }
