@@ -8333,8 +8333,8 @@
         "₢BsAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0818",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-0912",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -8369,7 +8369,7 @@
                 "a clean cut passes and a planted leak is refused, both under a non-interactive driver."
               ],
               "jjgtn_silks": "candidate-history-gate",
-              "jjgtn_basis": "4be9bdd"
+              "jjgtn_basis": "6f6ab31"
             }
           ]
         },
