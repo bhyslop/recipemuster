@@ -5540,11 +5540,12 @@
         "₢BrAAV",
         "₢BrAAe",
         "₢BrAAf",
+        "₢BrAAi",
         "₢BrAAh",
         "₢BrAAg",
         "₢BrAAW"
       ],
-      "jjghn_next_pace_seed": "AAi",
+      "jjghn_next_pace_seed": "AAj",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -6735,6 +6736,46 @@
               ],
               "jjgtn_silks": "surface-the-bridled-tier",
               "jjgtn_basis": "ec5cff5"
+            }
+          ]
+        },
+        "₢BrAAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-0818",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Rust server change plus guidance trim; the judgment is already cinched here — execution is faithful transcription.",
+                "",
+                "## Goal",
+                "Move the bridled-tier check server-side so a mounting agent never spends calls \"checking the tier before proceeding.\"",
+                "`jjx_orient`, when resolution lands on a bridled pace,",
+                "compares the caller's verbatim `model` param against the pace's bridled tier",
+                "and prints the tier plus a one-line protocol verdict inline;",
+                "the agent obeys the printed line instead of deriving its standing.",
+                "",
+                "## Cinched",
+                "- Server-side model→tier map: model ID substring resolves tier;",
+                "  ordering haiku < sonnet < opus < fable.",
+                "  An unrecognized model ID yields an explicit \"unrecognized model\" verdict line, never a guess.",
+                "- Qualification: session tier ≥ bridled tier qualifies.",
+                "- Protocol follows the SESSION's standing, not the pace's tier:",
+                "  a frontier session (opus, fable) always keeps the full ceremony, even on a sub-tier bridled pace;",
+                "  a qualified sub-frontier session follows the designee protocol (work, land via `jjx_landing`, never wrap).",
+                "- An unqualified session gets a barring verdict line from orient;",
+                "  whether that hardens into an INTERDICTUM on mutating verbs is OUT of scope — this pace is display + guidance only.",
+                "- Guidance trim: `claude-jjk-core.md` Bridle/Mount protocol text stops directing the agent to check the tier itself;",
+                "  it says to obey the verdict line orient prints.",
+                "  Do not restate the map or thresholds in guidance — the server output is the single source.",
+                "",
+                "## Done when",
+                "Orient on a bridled pace prints tier + verdict (qualified/full-ceremony, qualified/designee, unqualified, or unrecognized-model);",
+                "`claude-jjk-core.md` directs obedience to that line and no longer commissions an agent-side tier check;",
+                "no gallops schema change (display only); build and JJK crate tests green via the VOW tabtargets."
+              ],
+              "jjgtn_silks": "orient-bridle-tier-verdict",
+              "jjgtn_basis": "01553dd"
             }
           ]
         }
