@@ -76,6 +76,7 @@ source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rblm_lustrate.sh"
 
 zbuz_kindle
 zrbz_kindle
+zrbgc_kindle
 
 buc_step "Lustrating ${ZRBLM_STERILIZE_ROOT}"
 rblm_lustrate_apply
