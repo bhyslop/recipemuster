@@ -6743,7 +6743,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260714-0818",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Rust server change plus guidance trim; the judgment is already cinched here — execution is faithful transcription.",
@@ -6775,7 +6776,7 @@
                 "no gallops schema change (display only); build and JJK crate tests green via the VOW tabtargets."
               ],
               "jjgtn_silks": "orient-bridle-tier-verdict",
-              "jjgtn_basis": "01553dd"
+              "jjgtn_basis": "8dc1d1b"
             }
           ]
         }
