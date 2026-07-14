@@ -8491,25 +8491,45 @@
         "₢BsAAr": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1020",
+              "jjgtn_ts": "260714-1048",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Small deletion settling a cinch the design ruling already made; the evidence is that the prompt only ever fires where it cannot be answered.",
+                "Mechanical deletion with a scripted verification ladder;",
+                "every judgment is already settled here — execute, read verdicts, stop and surface on any surprise.",
                 "",
                 "## Docket",
-                "Expede still prompts for a typed confirmation on `/dev/tty`, and the 260714 design ruling already deleted typed confirmations as guards from the release ceremony.",
-                "The prompt is residue: an operator running the verb by hand has a terminal and answers it, but every `/rbk-expede` run is a tool call with no `/dev/tty`, so the prompt is guaranteed to die and the agent is guaranteed to rediscover `BURE_CONFIRM=skip`.",
-                "A guard bypassed on every invocation that reaches it is not a guard — and expede's real guards all fired on the 260714 cut regardless: the tree-identity check, census totality, the two object-graph sweeps, and the one-commit assertion.",
-                "Remove the confirmation from expede so neither the ceremony document nor the agent has to carry knowledge of a bypass.",
-                "Leave RELEASE.md's own prose alone unless removing the prompt makes a line there false.",
-                "The alternative — documenting `BURE_CONFIRM=skip` in the `/rbk-expede` skill — is deliberately declined: it preserves a dead prompt and teaches the workaround instead of removing the need for one.",
+                "Delete the two dead typed-confirmation prompts from the marshal CLI (`Tools/rbk/rblm_cli.sh`):",
+                "the `buc_require` lines for expede (\"Proceed with expede?\") and feign (\"Proceed with feigning?\").",
+                "Find them with `grep -n buc_require Tools/rbk/rblm_cli.sh`.",
+                "The zero and lustrate prompts STAY — they guard hand-run destructive acts outside the ceremony's tool-call path.",
+                "Keep the announcement blocks (`buh_section`/`buh_line`) above each deleted line — they are reporting, not guards.",
+                "",
+                "Rationale, settled at the 260714 mount: the release ceremony (`/rbk-expede`) runs both verbs as tool calls with no `/dev/tty`,",
+                "so each prompt is guaranteed to die and only teaches the `BURE_CONFIRM=skip` bypass;",
+                "the 260714 design ruling already deleted typed confirmations as guards from the release ceremony.",
+                "Both verbs' real gates stand untouched:",
+                "expede's clean-tree, census-totality, dead-row, upstream, both object-graph sweeps, and one-commit gates;",
+                "feign's branch-name refusal and clean-tree gate.",
+                "Nothing else references either prompt (grep-verified at mount) — no fixture asserts them, and no RELEASE.md or skill prose becomes false.",
+                "Do not touch RELEASE.md or the `/rbk-expede` skill.",
+                "",
+                "Verification, in order, after notching the deletion (expede's own clean-tree gate forces the notch anyway):",
+                "1. Expede refusal: run `tt/rbw-ME.MarshalExpedes.sh /tmp` (an existing directory) — expect the \"already exists\" die.",
+                "2. Tree-identity refusal: run `tt/rbw-MZ.MarshalZeroes.sh not-this-tree` — a DELIBERATELY WRONG basename, never the real one; zero must never be given the true basename — expect the naming refusal.",
+                "3. Feign refusal: run `tt/rbw-MF.MarshalFeigns.sh` in the working repository on `main` — expect the branch-guard die (\"Refusing to feign on 'main'\").",
+                "4. The cut: run `tt/rbw-ME.MarshalExpedes.sh` against a nonexistent absolute path, sibling of the working repository (convention `rbm_candidate_scratch`), as a plain tool call with NO environment override — expect it to run to its verdict: one commit, both sweeps clean.",
+                "Push nothing; delete the scratch target directory afterward.",
+                "If the clone step fails because the quarantine remote is gone, stop and surface — the remote is operator-managed.",
+                "Read outcomes from `../logs-buk/` per tabtarget discipline.",
                 "",
                 "## Done when",
-                "Expede cuts a candidate from a tool call with no environment override, its gates unchanged and still refusing the cases they refused before (verify the tree-identity refusal still fires)."
+                "Both prompts are gone and zero's and lustrate's remain;",
+                "expede completes a cut from a tool call with no environment override;",
+                "and all three refusal checks fired as refusals."
               ],
               "jjgtn_silks": "expede-confirm-residue",
-              "jjgtn_basis": "fb28df2"
+              "jjgtn_basis": "8cf87ee"
             }
           ]
         }
