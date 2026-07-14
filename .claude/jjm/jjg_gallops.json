@@ -8237,8 +8237,9 @@
         "₢BsAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0816",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-0818",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "The ceremony rewrite around the new cut verb, plus the guards that survive the ruling: quarantine remote checks and the marshal-zero argument gate.",
@@ -8282,7 +8283,7 @@
                 "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
               ],
               "jjgtn_silks": "release-ceremony-clone-boundary-split",
-              "jjgtn_basis": "b766eb1"
+              "jjgtn_basis": "d0861d0"
             }
           ]
         },
