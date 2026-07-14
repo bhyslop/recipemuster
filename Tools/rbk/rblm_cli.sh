@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM CLI - Lifecycle Marshal operations (zero, lustrate, feign, proof)
+# RBLM CLI - Lifecycle Marshal operations (zero, lustrate, feign, expede)
 
 set -euo pipefail
 
@@ -42,6 +42,7 @@ RBLM_sterilize_path="Tools/rbk/rblm_sterilize.sh"
 
 rblm_zero() {
   buc_doc_brief "Zero regime to blank template for release qualification"
+  buc_doc_param "tree" "Basename of the repository root this call intends to blank"
   buc_doc_shown || return 0
 
   local -r z_rbrr="${RBCC_rbrr_file}"
@@ -49,10 +50,27 @@ rblm_zero() {
   test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
   test -f "${z_rbrd}" || buc_die "RBRD file not found: ${z_rbrd}"
 
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+
+  # Tree-identity gate. Zero blanks the regime of whatever tree it runs in, so
+  # the caller must NAME that tree and be right. Git attests the identity; the
+  # caller's claim is checked against it. This dies before buc_require, so
+  # BURE_CONFIRM=skip cannot reach past it — the guard is the naming, never the
+  # prompt.
+  local -r z_claimed_tree="${BUZ_FOLIO:-}"
+  test -n "${z_claimed_tree}" \
+    || buc_die "Marshal zero requires the intended tree's basename as its argument — it blanks the regime of the tree it runs in, so that tree must be named, not assumed"
+
+  local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_zero_toplevel.txt"
+  git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die "git rev-parse --show-toplevel failed — marshal zero must run inside a git repository"
+  local z_toplevel=$(<"${z_toplevel_temp}")
+  local -r z_actual_tree="${z_toplevel##*/}"
+  test "${z_claimed_tree}" = "${z_actual_tree}" \
+    || buc_die "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
+
   # Pre-checks: working tree clean and HEAD pushed.
   # Marshal-zero auto-commits its mutations; both invariants must hold to keep
   # the resulting commit purely the marshal-zero state.
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
   local -r z_status_temp="${BURD_TEMP_DIR}/rblm_zero_status.txt"
   local -r z_upstream_temp="${BURD_TEMP_DIR}/rblm_zero_upstream.txt"
   local -r z_unpushed_temp="${BURD_TEMP_DIR}/rblm_zero_unpushed.txt"
@@ -92,6 +110,7 @@ rblm_zero() {
   done < "${z_rbrr}"
 
   buh_section "Marshal Zero"
+  buh_line "  Tree:    ${z_actual_tree} (${z_toplevel})"
   buh_line "  Targets: ${z_rbrr}"
   buh_line "           ${z_rbrd}"
   buh_e
@@ -598,144 +617,17 @@ zrblm_expede_sweep() {
 }
 
 ######################################################################
-# Command: proof - Create isolated clone for release ceremony testing
-
-rblm_proof() {
-  buc_doc_brief "Create proof copy of repository for release ceremony testing"
-  buc_doc_param "target_dir" "Absolute path to target directory (must not exist)"
-  buc_doc_shown || return 0
-
-  local z_target_dir="${BUZ_FOLIO:-}"
-  test -n "${z_target_dir}" || buc_die "Target directory path is required"
-
-  # Validate absolute path
-  case "${z_target_dir}" in
-    /*) ;;
-    *)  buc_die "Target directory must be an absolute path: ${z_target_dir}" ;;
-  esac
-
-  # Must not exist
-  test ! -e "${z_target_dir}" || buc_die "Target directory already exists: ${z_target_dir}"
-
-  # Get origin URL via temp file (BCG: temp file instead of command substitution)
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
-  local -r z_origin_temp="${BURD_TEMP_DIR}/rblm_origin_url.txt"
-  git remote get-url origin > "${z_origin_temp}" || buc_die "Failed to get origin URL"
-  local z_origin_url=$(<"${z_origin_temp}")
-  test -n "${z_origin_url}" || buc_die "Origin URL is empty"
-
-  # Derive repo name from origin URL (BCG: parameter expansion, not basename)
-  local z_repo_name="${z_origin_url##*/}"
-  z_repo_name="${z_repo_name%.git}"
-  test -n "${z_repo_name}" || buc_die "Could not derive repo name from origin: ${z_origin_url}"
-
-  # Resolve source station-files directory from BURD_STATION_FILE
-  # BURD_STATION_FILE is absolute (set by launcher from BURC_STATION_FILE)
-  local -r z_station_file_dir="${BURD_STATION_FILE%/*}"
-  local -r z_source_station_dir="${z_station_file_dir}"
-  local -r z_source_secrets="${z_station_file_dir}/secrets"
-
-  # Compute target paths
-  local -r z_clone_dir="${z_target_dir}/${z_repo_name}"
-  local -r z_target_station_dir="${z_target_dir}/station-files"
-  local -r z_target_secrets="${z_target_station_dir}/secrets"
-
-  # Get OPEN_SOURCE_UPSTREAM URL if configured
-  local z_upstream_url=""
-  local -r z_upstream_temp="${BURD_TEMP_DIR}/rblm_upstream_url.txt"
-  if git remote get-url OPEN_SOURCE_UPSTREAM > "${z_upstream_temp}" 2>/dev/null; then
-    z_upstream_url=$(<"${z_upstream_temp}")
-  fi
-
-  # Present plan
-  buh_section "Marshal Proof"
-  buh_line "  Target directory:     ${z_target_dir}"
-  buh_line "  Clone subdirectory:   ${z_clone_dir}"
-  buh_line "  Station files:        ${z_target_station_dir}"
-  buh_line "  Repo name:            ${z_repo_name}"
-  buh_e
-  buh_line "  Source station dir:   ${z_source_station_dir}"
-  buh_line "  Source secrets:       ${z_source_secrets}"
-  buh_e
-  buh_line "  Clone origin:         ${z_origin_url}"
-  if test -n "${z_upstream_url}"; then
-    buh_line "  OPEN_SOURCE_UPSTREAM: ${z_upstream_url}"
-  else
-    buh_line "  OPEN_SOURCE_UPSTREAM: (not configured)"
-  fi
-  buh_e
-
-  # Create target directory
-  buc_step "Creating target directory"
-  mkdir "${z_target_dir}" || buc_die "Failed to create target directory: ${z_target_dir}"
-
-  # Clone repository
-  buc_step "Cloning repository to ${z_clone_dir}"
-  git clone . "${z_clone_dir}" || buc_die "Failed to clone repository"
-
-  # Set origin in clone to real origin (not local path from git clone .)
-  buc_step "Configuring remotes in clone"
-  git -C "${z_clone_dir}" remote set-url origin "${z_origin_url}" || buc_die "Failed to set origin URL in clone"
-
-  # Set OPEN_SOURCE_UPSTREAM if configured on source
-  if test -n "${z_upstream_url}"; then
-    if git -C "${z_clone_dir}" remote get-url OPEN_SOURCE_UPSTREAM >/dev/null 2>&1; then
-      git -C "${z_clone_dir}" remote set-url OPEN_SOURCE_UPSTREAM "${z_upstream_url}" || buc_die "Failed to set OPEN_SOURCE_UPSTREAM in clone"
-    else
-      git -C "${z_clone_dir}" remote add OPEN_SOURCE_UPSTREAM "${z_upstream_url}" || buc_die "Failed to add OPEN_SOURCE_UPSTREAM to clone"
-    fi
-  fi
-
-  # Copy station files (all .env files from source station directory)
-  buc_step "Copying station files"
-  mkdir -p "${z_target_secrets}" || buc_die "Failed to create secrets directory"
-
-  local z_env_file=""
-  local z_env_name=""
-  for z_env_file in "${z_source_station_dir}"/*.env; do
-    test -f "${z_env_file}" || continue
-    z_env_name="${z_env_file##*/}"
-    cp "${z_env_file}" "${z_target_station_dir}/${z_env_name}" || buc_die "Failed to copy: ${z_env_name}"
-    buh_line "  Copied: ${z_env_name}"
-  done
-
-  # Copy secrets (credential files)
-  if test -d "${z_source_secrets}"; then
-    local z_cred=""
-    local z_cred_name=""
-    local z_any_copied=0
-    for z_cred in "${z_source_secrets}"/*.env; do
-      test -f "${z_cred}" || continue
-      z_cred_name="${z_cred##*/}"
-      cp "${z_cred}" "${z_target_secrets}/${z_cred_name}" || buc_die "Failed to copy credential: ${z_cred_name}"
-      chmod 600 "${z_target_secrets}/${z_cred_name}" || buc_die "Failed to set permissions on: ${z_cred_name}"
-      buh_line "  Copied: secrets/${z_cred_name}"
-      z_any_copied=1
-    done
-    test "${z_any_copied}" = "1" || buh_line "  No credential files found in: ${z_source_secrets}"
-  else
-    buh_line "  Warning: source secrets directory not found: ${z_source_secrets}"
-  fi
-
-  buh_e
-  buh_line "  Proof complete: ${z_clone_dir}"
-  buh_e
-  buh_line "  To use the duplicate, start Claude Code from:"
-  buh_line "    ${z_clone_dir}"
-  buc_success "Proof copy created at ${z_target_dir}"
-}
-
-######################################################################
 # Furnish and Main
 
 zrblm_furnish() {
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
-  # BUZ_FOLIO (param1 channel) carries rblm_proof's target directory and is
-  # legitimately empty for rblm_zero, so it is not a buc_doc_env here: an empty
-  # doc_env var warns, and the warn path needs buym_yelp, which this furnish
-  # has not yet sourced (rbgv_cli optional-folio precedent).
+  # BUZ_FOLIO (param1 channel) carries expede's target directory and zero's tree
+  # identity, and is legitimately empty for the folioless verbs, so it is not a
+  # buc_doc_env here: an empty doc_env var warns, and the warn path needs
+  # buym_yelp, which this furnish has not yet sourced (rbgv_cli optional-folio
+  # precedent).
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"

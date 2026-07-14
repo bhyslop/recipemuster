@@ -164,9 +164,9 @@ fn rbtdrq_veil_leak(dir: &Path) -> rbtdre_Verdict {
 
 /// Repo-relative root of the BURN node registry — one subdirectory per operator
 /// test machine (the investiture dirname), each carrying a `burn.env` with a
-/// `BURN_HOST=` value. Whole-directory-stripped at release
-/// (`rbk-prep-release` Step 10b), so like the veil census, this harvest can only
-/// mean anything pre-strip.
+/// `BURN_HOST=` value. Withheld by the perambulation, so it never reaches a
+/// candidate; like the veil census, this harvest can only mean anything in the
+/// working repository, pre-cut.
 const ZRBTDRQ_HOST_CENSUS_ROOT: &str = "rbmm_moorings/rbmn_nodes";
 
 /// Basenames the census walk ignores — the registry's own README, never a node

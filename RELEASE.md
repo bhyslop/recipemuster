@@ -40,13 +40,13 @@ The marshal-zero operation returns local state to the blank onboarding-start tem
 - Blanks depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in each [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
 - **Preserves** the [Payor](README.md#Payor) OAuth credential — no credential files are deleted (there are none to delete: the federation era holds no service-account keyfiles)
 
-Marshal zero gates on a clean, pushed tree, prompts for confirmation (type `zero`), and **auto-commits** the blanked state as a single "Marshal Zero" commit. There is no manual commit step — the pristine baseline lands as one commit by construction.
+Marshal zero **requires the intended tree's basename as its argument** — it blanks the regime of whatever tree it runs in, so that tree must be named, not assumed; naming the wrong one is refused against git's own `--show-toplevel`, before any prompt and regardless of `BURE_CONFIRM`. It then gates on a clean, pushed tree and **auto-commits** the blanked state as a single "Marshal Zero" commit. There is no manual commit step — the pristine baseline lands as one commit by construction.
 
 - Success: working tree clean and `HEAD` is the marshal-zero commit
 - Failure: review the marshal output for files the operation would not zero, resolve, and retry
 
 ```
-tt/rbw-MZ.MarshalZeroes.sh
+tt/rbw-MZ.MarshalZeroes.sh rbm_alpha_recipemuster
 ```
 
 ## 4. Run the gauntlet
@@ -86,24 +86,26 @@ Outcome:
 tt/rbw-ts.TestSuite.gauntlet.sh
 ```
 
-## 5. Prepare the upstream release
+## 5. Cut and prove the candidate
 
-- Claude Code slash command, not a tabtarget — the contribution ceremony is interactive by design
-- Drives the upstream contribution review and produces the contribution-ready branch
-- Success: the ceremony reports a clean upstream-ready state
-- Failure: address findings and re-run; if the underlying issue is structural, return to step 2
-
-```
-/rbk-prep-release
-```
-
-## 6. Push to the upstream remote
-
-- Universal git operation; no tabtarget
-- Pushes the contribution-ready branch produced by step 4
-- Success: the upstream accepts the push
-- Failure: resolve the upstream-side reason (branch protection, force-push policy, etc.) and retry — the local state from step 4 remains valid
+- Claude Code slash command, not a tabtarget — the delivery ceremony is interactive by design, and its last two acts are the maintainer's own eyes and the maintainer's own hand
+- Gates the ephemeral quarantine remote, runs the pre-cut assays, cuts the candidate with `tt/rbw-ME.MarshalExpedes.sh`, and proves it: the delivered wiring, release hygiene, the erasure of site identity, and a consumer-seat reveille run from a feigned station
+- The candidate is built by **addition** — expede clones the public upstream, materializes only the paths the perambulation ships, and commits once, so no private object ever enters the object graph the push walks. Nothing is stripped, because nothing withheld is put in
+- Success: every assay green, and the operator has read the candidate's file list
+- Failure: **re-cut, never patch forward** — abandon the candidate directory, repair on `main`, and run the ceremony again from step 2. Patching a candidate is the same bug class this whole procedure exists to catch
 
 ```
-git push <upstream> <branch>
+/rbk-expede
+```
+
+## 6. Push to the quarantine remote
+
+- Universal git operation; no tabtarget — the push is the operator's own hand, deliberately
+- Pushes the candidate produced by step 5 to the ephemeral quarantine repository it was cloned from
+- Success: the quarantine accepts the push, and the candidate can be inspected there
+- Failure: resolve the remote-side reason and retry — the local candidate from step 5 remains valid
+- Afterward: when the candidate is dispositioned, delete the quarantine repository and the candidate directory. The quarantine's whole value is that it does not outlive the cut
+
+```
+git -C «candidate» push origin main
 ```

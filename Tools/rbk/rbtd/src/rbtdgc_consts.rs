@@ -79,7 +79,6 @@ pub const RBTDGC_AUDIT_HALLMARKS: &str = "rbw-iah";
 pub const RBTDGC_WREST_HALLMARK_IMAGE: &str = "rbw-iwh";
 pub const RBTDGC_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
 pub const RBTDGC_MARSHAL_ZERO: &str = "rbw-MZ";
-pub const RBTDGC_MARSHAL_PROOF: &str = "rbw-MP";
 pub const RBTDGC_MARSHAL_LUSTRATE: &str = "rbw-ML";
 pub const RBTDGC_MARSHAL_FEIGN: &str = "rbw-MF";
 pub const RBTDGC_MARSHAL_EXPEDE: &str = "rbw-ME";
