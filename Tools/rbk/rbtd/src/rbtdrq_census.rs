@@ -254,28 +254,43 @@ fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
         "rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem",
     ];
 
+    // The two graphs the sweep is asked to judge, written where the sweep takes
+    // them: a file. A dirty graph carrying every planted path among the clean ones,
+    // and a graph that is nothing but the delivered face.
+    let mut dirty_body = String::new();
+    for path in planted.iter().chain(clean.iter()) {
+        dirty_body.push_str(path);
+        dirty_body.push('\n');
+    }
+    let mut clean_body = String::new();
+    for path in &clean {
+        clean_body.push_str(path);
+        clean_body.push('\n');
+    }
+
+    let dirty_list = dir.join("graph-dirty.txt");
+    let clean_list = dir.join("graph-clean.txt");
+    if let Err(e) = std::fs::write(&dirty_list, dirty_body) {
+        return rbtdre_Verdict::Fail(format!("cannot write planted graph: {}", e));
+    }
+    if let Err(e) = std::fs::write(&clean_list, clean_body) {
+        return rbtdre_Verdict::Fail(format!("cannot write clean graph: {}", e));
+    }
+
     let script = format!(
         "set -euo pipefail\n\
          source '{rbk}/rblm_census.sh'\n\
          echo '{mark_leaks}'\n\
-         printf '%s\\n' {planted} {clean} | rblm_census_sweep_capture\n\
+         rblm_census_sweep_capture '{dirty}'\n\
          printf '%s\\n' \"${{ZRBLM_LEAKS[@]:-}}\"\n\
          echo '{mark_dead}'\n\
-         printf '%s\\n' {clean} | rblm_census_sweep_capture\n\
+         rblm_census_sweep_capture '{clean_list}'\n\
          printf '%s\\n' \"${{ZRBLM_LEAKS[@]:-}}\"\n",
         rbk = rbk,
         mark_leaks = ZRBTDRQ_MARK_LEAKS,
         mark_dead = ZRBTDRQ_MARK_DEAD,
-        planted = planted
-            .iter()
-            .map(|p| format!("'{}'", p))
-            .collect::<Vec<_>>()
-            .join(" "),
-        clean = clean
-            .iter()
-            .map(|p| format!("'{}'", p))
-            .collect::<Vec<_>>()
-            .join(" "),
+        dirty = crate::rbtdrx_platform::rbtdrx_native_to_posix(&dirty_list),
+        clean_list = crate::rbtdrx_platform::rbtdrx_native_to_posix(&clean_list),
     );
 
     let stdout = match rbtdrf_run_bash(&root, &script, dir, "census-sweep") {

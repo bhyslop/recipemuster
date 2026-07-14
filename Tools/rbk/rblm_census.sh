@@ -329,8 +329,9 @@ rblm_emit_shipped() {
 ######################################################################
 # The sweep
 #
-# rblm_census_sweep_capture — judge a list of paths as an OBJECT GRAPH, not as a
-# tree. Reads paths on stdin; sets ZRBLM_LEAKS to every one the census withholds.
+# rblm_census_sweep_capture FILE — judge a list of paths as an OBJECT GRAPH, not
+# as a tree. Reads paths from FILE, one per line; sets ZRBLM_LEAKS to every one the
+# census withholds.
 #
 # This is the assertion the 2026-07-13 candidate failed. Its TIP was clean — every
 # strip had landed, every tip-reading assay passed it — and it went to the remote
@@ -339,9 +340,20 @@ rblm_emit_shipped() {
 # the candidate's whole object graph (git rev-list --objects --all), so a withheld
 # path is caught wherever in the graph it is reachable from, at any depth.
 #
+# A FILE, deliberately, not stdin. A caller who pipes into a capture function gets
+# a subshell, and the array it fills dies with it — leaving ZRBLM_LEAKS empty and
+# the sweep silently reporting a clean candidate. The self-proof caught exactly
+# that on its first run. An empty leak list is the sweep's success verdict, so the
+# one input form that can fabricate it is the one form this must not accept.
+#
 # Pure over its input: the sweep is a function of the census and a path list, so
 # the fixture proves it on a planted list without cloning anything.
 rblm_census_sweep_capture() {
+  local -r z_file="${1:-}"
+
+  test -n "${z_file}" || buc_die "rblm_census_sweep_capture: no path list given"
+  test -f "${z_file}" || buc_die "rblm_census_sweep_capture: no such path list: ${z_file}"
+
   ZRBLM_LEAKS=()
 
   local z_path=""
@@ -350,5 +362,5 @@ rblm_census_sweep_capture() {
     rblm_census_judge "${z_path}" || continue
     test "${ZRBLM_JUDGMENT}" = "${RBLM_census_withhold}" || continue
     ZRBLM_LEAKS+=("${z_path}")
-  done
+  done < "${z_file}"
 }
