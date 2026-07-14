@@ -14,7 +14,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRQ — census: the ship/withhold judgment is TOTAL over the tracked tree.
+// RBTDRQ — perambulation: the ship/withhold judgment is TOTAL over the tracked tree.
 //
 // Damnatio proves the delivered tree carries none of the operator's identity.
 // This fixture proves something one rung earlier and more basic: that the project
@@ -22,15 +22,15 @@
 // operator's judgment, and no fixture can hold it — but that the ruling EXISTS,
 // for every path, before a candidate is cut from it.
 //
-// The census (Tools/rbk/rblm_census.sh) is the table. This is its completeness
+// The perambulation (Tools/rbk/rblm_perambulation.sh) is the table. This is its completeness
 // case, and it is damnatio's completeness case generalized from fields to paths:
 //
-//   UNJUDGED  a tracked path no census row rules on. Red. There is no default in
+//   UNJUDGED  a tracked path no perambulation row rules on. Red. No default in
 //             either direction — a new file may not ship because nobody said not
 //             to, and it may not vanish because nobody said to keep it. It is red
 //             until someone rules, and the ruling is a line in the table.
 //
-//   DEAD      a census row that wins for no tracked path. Red. Two failures wear
+//   DEAD      a perambulation row that wins for no tracked path. Red. Two failures
 //             this face and both mean the table is lying about the tree: a STALE
 //             row judging a path long deleted, and a SHADOWED row outranked
 //             everywhere by a longer one, so its judgment never lands. The
@@ -47,7 +47,7 @@
 // to cut a candidate from a tree holding an unjudged path.
 //
 // NO SECOND MATCHER. The table, the longest-prefix rule, and the sweep all live in
-// bash, in the census module, and this fixture reaches them the way damnatio
+// bash, in the perambulation module, and this fixture reaches them the way damnatio
 // reaches the proscription: it shells in and reads the verdicts back. Expede cuts
 // from the same matcher these cases prove. A Rust reimplementation would be a
 // second copy of the one judgment that must never have two.
@@ -67,25 +67,25 @@ use crate::rbtdrf_fast::{
     rbtdrf_run_bash,
     RBTDRF_RBK_ROOT,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CENSUS;
+use crate::rbtdrm_manifest::RBTDRM_FIXTURE_PERAMBULATION;
 use crate::rbtdrq_pyx::{
     zrbtdrq_report,
     zrbtdrq_root,
     zrbtdrq_Finding,
 };
 
-/// The census module — the home of the judgment, and the file every finding here
+/// The perambulation module — the home of the judgment, and the file every finding here
 /// names, because a finding here is always answered by a line in that table.
-const ZRBTDRQ_CENSUS_HOME: &str = "Tools/rbk/rblm_census.sh";
+const ZRBTDRQ_PERAMBULATION_HOME: &str = "Tools/rbk/rblm_perambulation.sh";
 
 const ZRBTDRQ_MARK_VERDICTS: &str = "##VERDICTS";
 const ZRBTDRQ_MARK_DEAD: &str = "##DEAD";
 const ZRBTDRQ_MARK_LEAKS: &str = "##LEAKS";
 
-/// The disposition the census emits for a path no row rules on.
+/// The disposition the perambulation emits for a path no row rules on.
 const ZRBTDRQ_UNJUDGED: &str = "unjudged";
 
-/// Reach into bash for the census's verdict over the live tracked tree.
+/// Reach into bash for the perambulation's verdict over the live tracked tree.
 ///
 /// The tracked set is derived from git inside the reach, never passed in: the
 /// judgment is against what the repository actually carries at this commit, and
@@ -93,7 +93,7 @@ const ZRBTDRQ_UNJUDGED: &str = "unjudged";
 ///
 /// Returns (verdicts, dead rows). A verdict is (disposition, path); a dead row is
 /// (prefix, disposition).
-fn zrbtdrq_reach_census(
+fn zrbtdrq_reach_perambulation(
     root: &Path,
     dir: &Path,
 ) -> Result<(Vec<(String, String)>, Vec<(String, String)>), String> {
@@ -101,7 +101,7 @@ fn zrbtdrq_reach_census(
 
     let script = format!(
         "set -euo pipefail\n\
-         source '{rbk}/rblm_census.sh'\n\
+         source '{rbk}/rblm_perambulation.sh'\n\
          echo '{mark_verdicts}'\n\
          rblm_emit_verdicts\n\
          echo '{mark_dead}'\n\
@@ -111,10 +111,10 @@ fn zrbtdrq_reach_census(
         mark_dead = ZRBTDRQ_MARK_DEAD,
     );
 
-    let stdout = match rbtdrf_run_bash(root, &script, dir, "census-reach")? {
+    let stdout = match rbtdrf_run_bash(root, &script, dir, "perambulation-reach")? {
         (0, stdout, _) => stdout,
         (code, _, stderr) => {
-            return Err(format!("census reach failed (exit {}): {}", code, stderr.trim()));
+            return Err(format!("perambulation reach failed (exit {}): {}", code, stderr.trim()));
         }
     };
 
@@ -149,7 +149,7 @@ fn zrbtdrq_reach_census(
     }
 
     if verdicts.is_empty() {
-        return Err("the census came back empty — the reach tracked nothing".to_string());
+        return Err("the perambulation came back empty — the reach tracked nothing".to_string());
     }
 
     Ok((verdicts, dead))
@@ -157,15 +157,15 @@ fn zrbtdrq_reach_census(
 
 // ── Case: the judgment is total ─────────────────────────────
 
-/// Every tracked path is ruled ship or withhold, and every census row rules on
+/// Every tracked path is ruled ship or withhold, and every perambulation row rules on
 /// something. The completeness case: it does not ask whether the ruling is right,
 /// only that it was made.
-fn rbtdrq_census_total(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_perambulation_total(dir: &Path) -> rbtdre_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
-    let (verdicts, dead) = match zrbtdrq_reach_census(&root, dir) {
+    let (verdicts, dead) = match zrbtdrq_reach_perambulation(&root, dir) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
@@ -179,7 +179,7 @@ fn rbtdrq_census_total(dir: &Path) -> rbtdre_Verdict {
     for (disposition, path) in &verdicts {
         if disposition == ZRBTDRQ_UNJUDGED {
             findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_CENSUS_HOME.to_string(),
+                file: ZRBTDRQ_PERAMBULATION_HOME.to_string(),
                 line: 0,
                 detail: format!(
                     "{} is tracked but unjudged — rule it ship or withhold",
@@ -198,7 +198,7 @@ fn rbtdrq_census_total(dir: &Path) -> rbtdre_Verdict {
 
     for (prefix, disposition) in &dead {
         findings.push(zrbtdrq_Finding {
-            file: ZRBTDRQ_CENSUS_HOME.to_string(),
+            file: ZRBTDRQ_PERAMBULATION_HOME.to_string(),
             line: 0,
             detail: format!(
                 "row '{}|{}' judges no tracked path — it is stale, or shadowed by a longer row",
@@ -209,7 +209,7 @@ fn rbtdrq_census_total(dir: &Path) -> rbtdre_Verdict {
 
     inventory.insert(format!("== {} shipped, {} withheld", shipped, withheld));
 
-    zrbtdrq_report(dir, "census", &findings, &inventory, "unjudged path(s) or dead row(s)")
+    zrbtdrq_report(dir, "perambulation", &findings, &inventory, "unjudged path(s) or dead row(s)")
 }
 
 // ── Case: the sweep catches a planted leak ──────────────────
@@ -224,11 +224,11 @@ fn rbtdrq_census_total(dir: &Path) -> rbtdre_Verdict {
 /// This case proves the sweep the way damnatio's matcher proves itself before its
 /// verdict is trusted: it plants leaks in a synthetic path list and demands they be
 /// caught, then feeds a clean list and demands silence. Synthetic, and pure over
-/// its input — the sweep is a function of the census and a list of paths, so
+/// its input — the sweep is a function of the perambulation and a list of paths, so
 /// proving it needs no clone, no network, and no candidate. A sweep that cannot
 /// catch a planted leak cannot be trusted to catch a real one, and a sweep that
 /// reddens on a clean list would be worked around within a week.
-fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_perambulation_sweep(dir: &Path) -> rbtdre_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(e),
@@ -279,12 +279,12 @@ fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
 
     let script = format!(
         "set -euo pipefail\n\
-         source '{rbk}/rblm_census.sh'\n\
+         source '{rbk}/rblm_perambulation.sh'\n\
          echo '{mark_leaks}'\n\
-         rblm_census_sweep_capture '{dirty}'\n\
+         rblm_perambulation_sweep_capture '{dirty}'\n\
          printf '%s\\n' \"${{ZRBLM_LEAKS[@]:-}}\"\n\
          echo '{mark_dead}'\n\
-         rblm_census_sweep_capture '{clean_list}'\n\
+         rblm_perambulation_sweep_capture '{clean_list}'\n\
          printf '%s\\n' \"${{ZRBLM_LEAKS[@]:-}}\"\n",
         rbk = rbk,
         mark_leaks = ZRBTDRQ_MARK_LEAKS,
@@ -293,7 +293,7 @@ fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
         clean_list = crate::rbtdrx_platform::rbtdrx_native_to_posix(&clean_list),
     );
 
-    let stdout = match rbtdrf_run_bash(&root, &script, dir, "census-sweep") {
+    let stdout = match rbtdrf_run_bash(&root, &script, dir, "perambulation-sweep") {
         Ok((0, stdout, _)) => stdout,
         Ok((code, _, stderr)) => {
             return rbtdre_Verdict::Fail(format!(
@@ -339,7 +339,7 @@ fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
             inventory.insert(format!("caught\t{}", path));
         } else {
             findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_CENSUS_HOME.to_string(),
+                file: ZRBTDRQ_PERAMBULATION_HOME.to_string(),
                 line: 0,
                 detail: format!(
                     "the sweep did not catch planted withheld path {} — it would ride a candidate",
@@ -352,7 +352,7 @@ fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
     for path in &clean {
         if caught.contains(*path) || clean_leaks.contains(*path) {
             findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_CENSUS_HOME.to_string(),
+                file: ZRBTDRQ_PERAMBULATION_HOME.to_string(),
                 line: 0,
                 detail: format!(
                     "the sweep reddened on shipped path {} — a sweep that cries wolf gets disabled",
@@ -369,17 +369,17 @@ fn rbtdrq_census_sweep(dir: &Path) -> rbtdre_Verdict {
 
 // ── The fixture ─────────────────────────────────────────────
 
-pub static RBTDRQ_CASES_CENSUS: &[rbtdre_Case] = &[
-    case!(rbtdrq_census_total),
-    case!(rbtdrq_census_sweep),
+pub static RBTDRQ_CASES_PERAMBULATION: &[rbtdre_Case] = &[
+    case!(rbtdrq_perambulation_total),
+    case!(rbtdrq_perambulation_sweep),
 ];
 
-pub static RBTDRQ_FIXTURE_CENSUS: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CENSUS,
+pub static RBTDRQ_FIXTURE_PERAMBULATION: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_PERAMBULATION,
     disposition: rbtdre_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRQ_CASES_CENSUS,
+    cases: RBTDRQ_CASES_PERAMBULATION,
     credless: true,
     tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

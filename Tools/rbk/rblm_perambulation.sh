@@ -16,15 +16,20 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM Census - the ship/withhold judgment over every tracked path.
+# RBLM Perambulation - the ship/withhold judgment over every tracked path.
+#
+# Named for the manorial walking of the bounds: the periodic act that fixes,
+# stretch by stretch, what lies within the estate and what lies without. A
+# perambulation that does not close is not a perambulation — which is exactly the
+# invariant this table is held to.
 #
 # The proscription (rblm_lustrate.sh) judges every enrolled regime FIELD site or
-# common. The census judges every tracked PATH ship or withhold. Same discipline,
+# common. The perambulation judges every tracked PATH ship or withhold. Same discipline,
 # one rung out: the delivered file set is a judgment the project makes once, in a
 # table, and proves mechanically — never a list of removals recited in prose.
 #
 # Expede reads this table to decide what to materialize into the candidate, and to
-# sweep the candidate's object graph for anything withheld. The census fixture
+# sweep the candidate's object graph for anything withheld. The perambulation fixture
 # reads it to prove the judgment is TOTAL: a tracked path no row judges is red,
 # and a row that judges no path is red. A new file cannot ship silently, and it
 # cannot vanish silently either — it is red until someone rules on it.
@@ -59,27 +64,27 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBLM_CENSUS_SOURCED:-}" || buc_die "Module rblm_census multiply sourced - check sourcing hierarchy"
-ZRBLM_CENSUS_SOURCED=1
+test -z "${ZRBLM_PERAMBULATION_SOURCED:-}" || buc_die "Module rblm_perambulation multiply sourced - check sourcing hierarchy"
+ZRBLM_PERAMBULATION_SOURCED=1
 
 ######################################################################
 # Dispositions
 
 # Ship: the path is delivered. Materialized into the candidate from committed
 # bytes, and expected in the candidate's object graph.
-RBLM_census_ship="ship"
+RBLM_perambulation_ship="ship"
 
 # Withhold: the path stays behind. Never materialized, and — the assertion that
 # matters — never present in the candidate's object graph at all, at any depth of
 # its history. A withheld path found in a candidate is a leak, not a stray.
-RBLM_census_withhold="withhold"
+RBLM_perambulation_withhold="withhold"
 
 ######################################################################
-# The census
+# The perambulation
 #
 # Rows are PREFIX|DISPOSITION. Longest matching prefix wins.
 
-ZRBLM_CENSUS=(
+ZRBLM_PERAMBULATION=(
   # ── The veiled halves — every kit's closed record ──
   #
   # Finer than the kit rows below, so this holds even where the whole kit ships.
@@ -209,13 +214,13 @@ ZRBLM_CENSUS=(
 ######################################################################
 # The judgment
 
-# rblm_census_judge PATH — rule one repo-relative path.
+# rblm_perambulation_judge PATH — rule one repo-relative path.
 #
 # Sets ZRBLM_JUDGMENT to the winning disposition and ZRBLM_JUDGED_BY to the row
 # that won. Returns 0 when a row matched, 1 when the path is UNJUDGED — the state
 # the whole table exists to make loud. An unjudged path is never treated as either
 # disposition: there is no default in either direction.
-rblm_census_judge() {
+rblm_perambulation_judge() {
   local -r z_path="${1:-}"
 
   ZRBLM_JUDGMENT=""
@@ -225,7 +230,7 @@ rblm_census_judge() {
   local z_prefix=""
   local z_best=-1
 
-  for z_row in "${ZRBLM_CENSUS[@]}"; do
+  for z_row in "${ZRBLM_PERAMBULATION[@]}"; do
     z_prefix="${z_row%%|*}"
     test "${z_path#"${z_prefix}"}" != "${z_path}" || continue
     test "${#z_prefix}" -gt "${z_best}"           || continue
@@ -238,11 +243,11 @@ rblm_census_judge() {
   return 0
 }
 
-# rblm_census_tracked_capture — the live tracked set, from git, not from a list.
+# rblm_perambulation_tracked_capture — the live tracked set, from git, not from a list.
 #
-# The census is judged against what the repository actually carries at this
+# The perambulation is judged against what the repository actually carries at this
 # commit. Any other source of truth is a second copy waiting to drift.
-rblm_census_tracked_capture() {
+rblm_perambulation_tracked_capture() {
   ZRBLM_TRACKED=()
 
   local z_path=""
@@ -255,7 +260,7 @@ rblm_census_tracked_capture() {
 ######################################################################
 # Emitters — the fixture's reach
 #
-# Tab-separated, one row per line, no decoration. The census fixture sources this
+# Tab-separated, one row per line, no decoration. The perambulation fixture sources this
 # module and calls these, so the table it judges against is the same table expede
 # ships from. One matcher, in bash, read by both — never a second implementation
 # in Rust to drift against this one.
@@ -265,11 +270,11 @@ rblm_census_tracked_capture() {
 # An unjudged path is emitted with the literal disposition "unjudged", not
 # omitted: the fixture must see it to redden on it.
 rblm_emit_verdicts() {
-  rblm_census_tracked_capture
+  rblm_perambulation_tracked_capture
 
   local z_path=""
   for z_path in "${ZRBLM_TRACKED[@]}"; do
-    if rblm_census_judge "${z_path}"; then
+    if rblm_perambulation_judge "${z_path}"; then
       printf '%s\t%s\n' "${ZRBLM_JUDGMENT}" "${z_path}"
     else
       printf 'unjudged\t%s\n' "${z_path}"
@@ -277,7 +282,7 @@ rblm_emit_verdicts() {
   done
 }
 
-# rblm_emit_dead_rows — every census row that wins for no tracked path.
+# rblm_emit_dead_rows — every perambulation row that wins for no tracked path.
 #
 # Two failures wear this one face. A STALE row judges a path that no longer
 # exists (the ceremony's strip lists still name RBM-nameplates/, index.html, and
@@ -285,7 +290,7 @@ rblm_emit_verdicts() {
 # A SHADOWED row is outranked everywhere by a longer one, so its judgment never
 # lands. Both mean the table is lying about the tree, and both go red.
 rblm_emit_dead_rows() {
-  rblm_census_tracked_capture
+  rblm_perambulation_tracked_capture
 
   # Newline-delimited winner set, not an associative array: bash 3.2 is the floor
   # (the operator's macOS station ships it), and this table is small enough that a
@@ -296,14 +301,14 @@ rblm_emit_dead_rows() {
   local z_prefix=""
 
   for z_path in "${ZRBLM_TRACKED[@]}"; do
-    rblm_census_judge "${z_path}" || continue
+    rblm_perambulation_judge "${z_path}" || continue
     case $'\n'"${z_won}" in
       *$'\n'"${ZRBLM_JUDGED_BY}"$'\n'*) ;;
       *) z_won="${z_won}${ZRBLM_JUDGED_BY}"$'\n' ;;
     esac
   done
 
-  for z_row in "${ZRBLM_CENSUS[@]}"; do
+  for z_row in "${ZRBLM_PERAMBULATION[@]}"; do
     z_prefix="${z_row%%|*}"
     case $'\n'"${z_won}" in
       *$'\n'"${z_prefix}"$'\n'*) continue ;;
@@ -312,16 +317,16 @@ rblm_emit_dead_rows() {
   done
 }
 
-# rblm_emit_shipped — every tracked path the census ships, one per line.
+# rblm_emit_shipped — every tracked path the perambulation ships, one per line.
 #
 # Expede's materialization list. Ordinary paths, in git's order.
 rblm_emit_shipped() {
-  rblm_census_tracked_capture
+  rblm_perambulation_tracked_capture
 
   local z_path=""
   for z_path in "${ZRBLM_TRACKED[@]}"; do
-    rblm_census_judge "${z_path}" || continue
-    test "${ZRBLM_JUDGMENT}" = "${RBLM_census_ship}" || continue
+    rblm_perambulation_judge "${z_path}" || continue
+    test "${ZRBLM_JUDGMENT}" = "${RBLM_perambulation_ship}" || continue
     printf '%s\n' "${z_path}"
   done
 }
@@ -329,9 +334,9 @@ rblm_emit_shipped() {
 ######################################################################
 # The sweep
 #
-# rblm_census_sweep_capture FILE — judge a list of paths as an OBJECT GRAPH, not
+# rblm_perambulation_sweep_capture FILE — judge a list of paths as an OBJECT GRAPH, not
 # as a tree. Reads paths from FILE, one per line; sets ZRBLM_LEAKS to every one the
-# census withholds.
+# perambulation withholds.
 #
 # This is the assertion the 2026-07-13 candidate failed. Its TIP was clean — every
 # strip had landed, every tip-reading assay passed it — and it went to the remote
@@ -346,21 +351,21 @@ rblm_emit_shipped() {
 # that on its first run. An empty leak list is the sweep's success verdict, so the
 # one input form that can fabricate it is the one form this must not accept.
 #
-# Pure over its input: the sweep is a function of the census and a path list, so
+# Pure over its input: the sweep is a function of the perambulation and a path list, so
 # the fixture proves it on a planted list without cloning anything.
-rblm_census_sweep_capture() {
+rblm_perambulation_sweep_capture() {
   local -r z_file="${1:-}"
 
-  test -n "${z_file}" || buc_die "rblm_census_sweep_capture: no path list given"
-  test -f "${z_file}" || buc_die "rblm_census_sweep_capture: no such path list: ${z_file}"
+  test -n "${z_file}" || buc_die "rblm_perambulation_sweep_capture: no path list given"
+  test -f "${z_file}" || buc_die "rblm_perambulation_sweep_capture: no such path list: ${z_file}"
 
   ZRBLM_LEAKS=()
 
   local z_path=""
   while IFS= read -r z_path; do
     test -n "${z_path}" || continue
-    rblm_census_judge "${z_path}" || continue
-    test "${ZRBLM_JUDGMENT}" = "${RBLM_census_withhold}" || continue
+    rblm_perambulation_judge "${z_path}" || continue
+    test "${ZRBLM_JUDGMENT}" = "${RBLM_perambulation_withhold}" || continue
     ZRBLM_LEAKS+=("${z_path}")
   done < "${z_file}"
 }
