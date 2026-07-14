@@ -107,9 +107,28 @@ the {jjdb_break} acts only against an observed {jjdb_guidon}, never blind.
 [[jjdk_lockless_reads]]
 //axk_premise
 {jjdk_lockless_reads}::
-Reads take no lock and tolerate slight staleness.
+*Reporting* reads take no lock and tolerate slight staleness.
 No read-lock machinery exists to cite; the bound is the design itself.
 Consumers reach a {jjdb_blotter_p} content through the engine's read path, never raw JSON.
++
+The premise's scope is the read that merely reports — display, listing, orientation.
+A read that *arms an act* (its answer decides a mutation of the world) is not a reporting
+read and does not ride this premise:
+it goes through the journal sheaf's read bracket — lock, advance, read, release — and pays
+the lock's costs as the price of deciding from the store's truth.
+One rule decides which side a consumer is on:
+if a stale answer could only ever mis-*report*, the read is lock-free;
+if it could mis-*act*, it takes the bracket.
+
+*Layer independence* — the {jjdb_blotter_p} correctness argument never reaches into its
+tenants:
+what the stored records semantically can or cannot do (a state that never reverses, an
+ordering an application maintains) is tenant knowledge,
+and a lock or bracket is never removed on the strength of it.
+The store's guarantees come from the store's own mechanics — the lock, the advance, the
+lease — so they survive every change of tenant semantics unexamined.
+A proposed optimization that begins "the data can never..." is the tell that this rule is
+about to be broken.
 
 == Local clone
 

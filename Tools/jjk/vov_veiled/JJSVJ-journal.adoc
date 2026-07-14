@@ -78,6 +78,13 @@ and the rivet's *retrench* half is untouched by the window —
 a refused commit is local-only, so it is never in the tracking ref this step equalizes to,
 whatever that ref's vintage.
 Closing the window (a re-`glean` after `stake`) is a separate act, weighed on its own.
+WEIGHED, and left open deliberately:
+the window costs at most one wasted, self-healing ceremony in a glean-to-stake race measured
+in seconds,
+while closing it puts a second network fetch inside every lock hold —
+lengthening the very window in which a contender is refused LockHeld and in which a crash
+strands a stale lock.
+The cure would spread the disease it treats; the window stays open until the trade reverses.
 
 The rivet is what a fast-forward cannot give.
 A refused ceremony leaves a commit the remote never accepted sitting in the clone (step 5),
@@ -111,6 +118,33 @@ an orphaned work commit (committed, never journaled) is recoverable;
 a journal entry naming a nonexistent SHA is the worse failure.
 The ordering classifies as a rivet;
 its opaque tail mints at implementation, citing this section.
+
+== The read bracket
+
+The ceremony's read-only variant, for a consumer whose read *arms an act* —
+a decision that mutates the world (the type specimen is {jjdd_muck}, whose snapshot decides
+which billets are destroyed) —
+as opposed to a read that merely reports, which stays on the entity sheaf's lock-free read
+path ({jjdk_lockless_reads}).
+
+The bracket is the {jjdb_journal} with its write steps removed and nothing else changed:
+*Take the lock* (`glean` → `stake` → `sight`) →
+*Advance* (equalize, `JJr_b52`) →
+read →
+*Release* (`pluck`, best-effort).
+No mutate, no lodge, no consign.
+What the acting consumer reads under this bracket is the store's truth at that moment —
+no other station can be mid-write, and the advance step is what makes the local clone that
+truth rather than a stale copy.
+
+An acting read pays the lock's full costs, and they are accepted here once for every consumer:
+it can be refused LockHeld while a stranger is mid-write,
+and a crash inside the bracket strands a stale lock for the {jjdb_break}.
+Uniformity is what buys the acceptance —
+the store's correctness comes from its own bracket, never from an argument about what the
+tenant data can or cannot do
+(the entity sheaf's layer-independence rule),
+so an acting consumer cites this bracket rather than reasoning its way out of it.
 
 [[jjdk_sole_door]]
 //axk_premise

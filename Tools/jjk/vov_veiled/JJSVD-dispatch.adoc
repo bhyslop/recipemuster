@@ -143,8 +143,14 @@ the retention window equals the {jjdxo_exsanguination} window — one constant, 
 The sweep globs `jjqb_*` ({jjdw_yard}), a positive match that structurally excludes the kit
 and record repos it must never reap.
 +
-Behavior: snapshot pace states under the {jjdb_studbook} lock, plan, confirm, then reap
-lock-free — completion is monotonic, so a stale snapshot only ever under-reaps.
+Behavior: snapshot pace states through the journal sheaf's read bracket — the snapshot arms
+the reap, so it is an acting read, never a reporting one ({jjdk_lockless_reads} scope rule):
+lock, advance, read, release, and what it reads is the store's truth at that moment.
+Then plan, confirm, and reap lock-free.
+The bracket's accepted costs land here on the entrance path:
+a sweep may be refused LockHeld while a stranger is mid-write (it reports and yields — the
+next dispatch sweeps),
+and a crashed sweep strands a stale lock for the {jjdb_break} like any other bracket holder.
 Plan-then-confirm when the reap set is non-empty;
 *silent when empty* — the sole-entrance consequence above forces this.
 On a dirty billet, refuse-with-advice by default;
