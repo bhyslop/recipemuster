@@ -8147,8 +8147,8 @@
         "₢BsAAm": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0733",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-0809",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -8178,7 +8178,7 @@
                 "a planted hostname reddens the gate, and the gate carries no operator hostname of its own."
               ],
               "jjgtn_silks": "operator-hostname-spall-sweep",
-              "jjgtn_basis": "7375ee7"
+              "jjgtn_basis": "3dad138"
             }
           ]
         },
