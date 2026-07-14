@@ -7996,8 +7996,9 @@
         "₢BsAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0816",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-0818",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical verification with loud gates; the first additive cut, and the consumer-seat probe against its fresh candidate.",
@@ -8017,7 +8018,7 @@
                 "the ₣B0 handoff fires per the paddock."
               ],
               "jjgtn_silks": "candidate-integrity-probe",
-              "jjgtn_basis": "b766eb1"
+              "jjgtn_basis": "de5e67c"
             }
           ]
         },
