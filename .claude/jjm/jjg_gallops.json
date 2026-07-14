@@ -6689,8 +6689,8 @@
         "₢BrAAh": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0807",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-0818",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_medium",
               "jjgtn_text": [
@@ -6735,7 +6735,7 @@
                 "cell twice more."
               ],
               "jjgtn_silks": "surface-the-bridled-tier",
-              "jjgtn_basis": "ec5cff5"
+              "jjgtn_basis": "6e81274"
             }
           ]
         },
