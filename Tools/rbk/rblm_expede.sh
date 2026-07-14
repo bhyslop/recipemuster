@@ -151,7 +151,6 @@ rblm_expede() {
   buh_e
   buh_line "  The clone receives NO station and NO secrets directory."
   buh_e
-  buc_require "Proceed with expede?" "expede"
 
   buc_step "Cloning the public repository"
   mkdir "${z_target_dir}" || buc_die "Failed to create target directory: ${z_target_dir}"

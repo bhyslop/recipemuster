@@ -342,7 +342,6 @@ rblm_feign() {
   buh_line "  THIS BRANCH IS A THROWAWAY. It is never pushed, never merged, and"
   buh_line "  never becomes the candidate. Delete it when the probe is read."
   buh_e
-  buc_require "Proceed with feigning?" "feign"
 
   rblm_feign_apply
   buh_e

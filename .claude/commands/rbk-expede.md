@@ -79,10 +79,10 @@ Note what `cupel` (inside reveille) can and cannot see from here. It resolves ev
 The target directory must not exist. Convention: `rbm_candidate_{YYYYMMDD}_{try}`, a sibling of the working repo.
 
 ```
-BURE_CONFIRM=skip tt/rbw-ME.MarshalExpedes.sh /absolute/path/to/rbm_candidate_20260714_1
+tt/rbw-ME.MarshalExpedes.sh /absolute/path/to/rbm_candidate_20260714_1
 ```
 
-Expede demands a typed confirmation on a tty, which an agent session does not have; `BURE_CONFIRM=skip` is how the agent answers a gate the operator has already answered by invoking this ceremony. It reaches past the *prompt* only — never past a refusal, which by design fires before the prompt.
+Expede carries no typed confirmation: this ceremony drives it headlessly, so a prompt could only ever teach a bypass. Its refusals are structural — clean tree, absolute path, target must not exist, both object-graph sweeps — and a refusal is not a prompt: it cannot be answered, only satisfied.
 
 The candidate lands at `{target}/candidate`. Read the verb's verdict: one commit, both sweeps clean.
 
@@ -135,7 +135,7 @@ Marshal tabtargets are withheld from delivery, so the candidate has no `rbw-MF` 
 ```
 {cand}/tt/rbw-tb.Build.sh
 git -C {cand} add -A && git -C {cand} commit -m "probe: feign a station"
-BURE_CONFIRM=skip {cand}/tt/rbw-MF.MarshalFeigns.sh
+{cand}/tt/rbw-MF.MarshalFeigns.sh
 {cand}/tt/rbw-ts.TestSuite.reveille.sh
 ```
 
