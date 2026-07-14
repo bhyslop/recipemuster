@@ -303,7 +303,7 @@ The strip removed tabtargets from `tt/`, and the committed tabtarget context (`T
 tt/rbw-tb.Build.sh
 ```
 
-This rewrites `claude-rbk-tabtarget-context.md` to reflect the surviving tabtarget set: `buz_emit_context` now omits any enrolled colophon with no matching tabtarget on disk, so the withheld `rbw-M*` and `rbw-mR` rows drop out cleanly rather than shipping with a gutted Frontispiece cell. This step is load-bearing beyond that markdown, though — the build also regenerates `rbtdgc_consts.rs`, and that file is not purely zipper-driven: alongside the registry-driven colophon block, `rbz_emit_consts` projects the lustrated `rbpc_constants.sh` freehold subject (the operator's Entra oid) into `RBTDGC_FREEHOLD_*` consts, so this rebuild is part of identity erasure, not a freshness chore. Stage both regenerated files:
+This rewrites `claude-rbk-tabtarget-context.md` to reflect the surviving tabtarget set: `buz_emit_context` now omits any enrolled colophon with no matching tabtarget on disk, so the withheld `rbw-M*` and `rbw-mR` rows drop out cleanly rather than shipping with a gutted Frontispiece cell. This step is load-bearing beyond that markdown, though — the build also regenerates `rbtdgc_consts.rs`, and that file is not purely zipper-driven: alongside the registry-driven colophon block, `rbz_emit_consts` projects the lustrated `rbpc_constants.sh` freehold subject (the operator's Entra oid) into `RBTDGC_FREEHOLD_*` consts, so this rebuild is part of identity erasure, not a freshness chore. The *colophon* block of that same file is registry-driven, so the withheld `rbw-M*` and `rbw-mR` colophons stay enrolled there — that is correct and must not be "fixed": fast-qualify sweeps disk→registry, never registry→disk. Stage both regenerated files:
 
 ```
 git add Tools/rbk/claude-rbk-tabtarget-context.md Tools/rbk/rbtd/src/rbtdgc_consts.rs
@@ -390,14 +390,17 @@ Read the whole list. Nothing proprietary, no stray site config, no tabtarget who
 git checkout -b probe-candidate-NNN-R
 ```
 
-The `rbw-MF` tabtarget was stripped in Step 10c, and `tt/rbw-MF.MarshalFeigns.sh` must exist before it can be invoked. Restore it onto the probe branch alone, and commit it — the feign verb gates on a clean tree, so the restored tabtarget cannot sit uncommitted when feign runs:
+The `rbw-MF` tabtarget was stripped in Step 10c, so it must be restored before it can be invoked. Restoring it also puts its colophon back on disk, which the context generator will pick up on the next build — and every theurge run *is* a build (`rbte_build`/`rbte_suite` both call the codegen first), so a restored-but-unregenerated tabtarget makes the suite rewrite `claude-rbk-tabtarget-context.md` mid-run and redden the harness's clean-tree gate. Both the restore and its regenerated context therefore have to be committed *before* feigning, which itself gates on a clean tree. Restore, regenerate, commit, in that order:
 
 ```
 git show main:tt/rbw-MF.MarshalFeigns.sh > tt/rbw-MF.MarshalFeigns.sh
 chmod +x tt/rbw-MF.MarshalFeigns.sh
-git add tt/rbw-MF.MarshalFeigns.sh
-git commit -m "Probe branch: restore rbw-MF tabtarget for feigning (throwaway)"
+tt/rbw-tb.Build.sh
+git add tt/rbw-MF.MarshalFeigns.sh Tools/rbk/claude-rbk-tabtarget-context.md
+git commit -m "Probe branch: restore rbw-MF tabtarget and regenerate context (throwaway)"
 ```
+
+Only the context file moves here — the freehold hardpoint carries no feigned value, so `rbtdgc_consts.rs` keeps its lustrated identity through the whole probe.
 
 Now feign the station:
 
@@ -405,9 +408,7 @@ Now feign the station:
 tt/rbw-MF.MarshalFeigns.sh
 ```
 
-Feigning writes a shape-valid stand-in over every site field the proscription carries a feigned value for, and auto-commits — the harness demands a clean tree, which the restore commit above already provides. Every value is visibly false (zeros, the `.invalid` TLD). The verb refuses to run on `main` or any `candidate-*` branch, so the feigned station cannot reach the thing that ships.
-
-Restoring the tabtarget also re-adds a colophon's Frontispiece cell that the context generator (Step 11) will want to regenerate; since this branch is discarded in 14d, leave `claude-rbk-tabtarget-context.md` as committed in the candidate — do not regenerate it here.
+Feigning writes a shape-valid stand-in over every site field the proscription carries a feigned value for, and auto-commits — the harness demands a clean tree, which the restore commit above provides. Every value is visibly false (zeros, the `.invalid` TLD). The verb refuses to run on `main` or any `candidate-*` branch, so the feigned station cannot reach the thing that ships.
 
 **14c. Reveille from the consumer's seat.** Run the credless base suite — the first thing a consumer runs, and the only suite that needs no cloud, no container, and no credential:
 
