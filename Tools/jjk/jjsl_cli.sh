@@ -126,9 +126,17 @@ jjsl_install() {
 ######################################################################
 # Furnish and Main
 
+# The lock doors (sight, cashier) sweep an engine-known roster and take no
+# folio, so asserting one for them would open the very report an operator reads
+# at their worst moment with a spurious warning.
 zjjsl_furnish() {
+  local -r z_command="${1:-}"
+
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BUZ_FOLIO             " "Dispatch target or infield directory (param1 channel)"
+  case "${z_command}" in
+    jjsl_sight|jjsl_cashier) ;;
+    *) buc_doc_env "BUZ_FOLIO             " "Dispatch target or infield directory (param1 channel)" ;;
+  esac
   buc_doc_env_done || return 0
 
   zjjsl_kindle
