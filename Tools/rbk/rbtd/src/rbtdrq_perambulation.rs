@@ -101,11 +101,13 @@ fn zrbtdrq_reach_perambulation(
 
     let script = format!(
         "set -euo pipefail\n\
+         export BURD_TEMP_DIR='{dir}'\n\
          source '{rbk}/rblm_perambulation.sh'\n\
          echo '{mark_verdicts}'\n\
          rblm_emit_verdicts\n\
          echo '{mark_dead}'\n\
          rblm_emit_dead_rows\n",
+        dir = crate::rbtdrx_platform::rbtdrx_native_to_posix(dir),
         rbk = rbk,
         mark_verdicts = ZRBTDRQ_MARK_VERDICTS,
         mark_dead = ZRBTDRQ_MARK_DEAD,
@@ -279,6 +281,7 @@ fn rbtdrq_perambulation_sweep(dir: &Path) -> rbtdre_Verdict {
 
     let script = format!(
         "set -euo pipefail\n\
+         export BURD_TEMP_DIR='{dir}'\n\
          source '{rbk}/rblm_perambulation.sh'\n\
          echo '{mark_leaks}'\n\
          rblm_perambulation_sweep_capture '{dirty}'\n\
@@ -286,6 +289,7 @@ fn rbtdrq_perambulation_sweep(dir: &Path) -> rbtdre_Verdict {
          echo '{mark_dead}'\n\
          rblm_perambulation_sweep_capture '{clean_list}'\n\
          printf '%s\\n' \"${{ZRBLM_LEAKS[@]:-}}\"\n",
+        dir = crate::rbtdrx_platform::rbtdrx_native_to_posix(dir),
         rbk = rbk,
         mark_leaks = ZRBTDRQ_MARK_LEAKS,
         mark_dead = ZRBTDRQ_MARK_DEAD,
