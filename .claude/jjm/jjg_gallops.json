@@ -7972,8 +7972,10 @@
         "₢BsAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0730",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-0733",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Doc surgery on the release ceremony plus one small verb guard; the ceremony is a safety artifact — precision over cleverness.",
@@ -8016,7 +8018,7 @@
                 "a fresh-session read of the cut half inside a clone depends on nothing from the provision session."
               ],
               "jjgtn_silks": "release-ceremony-clone-boundary-split",
-              "jjgtn_basis": "fdf82cc"
+              "jjgtn_basis": "d2b9eaa"
             }
           ]
         },
