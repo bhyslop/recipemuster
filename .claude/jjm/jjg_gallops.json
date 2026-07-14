@@ -5635,9 +5635,10 @@
         "₢BrAAi",
         "₢BrAAh",
         "₢BrAAg",
-        "₢BrAAW"
+        "₢BrAAW",
+        "₢BrAAj"
       ],
-      "jjghn_next_pace_seed": "AAj",
+      "jjghn_next_pace_seed": "AAk",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -6869,6 +6870,33 @@
               ],
               "jjgtn_silks": "orient-bridle-tier-verdict",
               "jjgtn_basis": "000689f"
+            }
+          ]
+        },
+        "₢BrAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-0952",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Small and unassuming — make the next step visible, do not plan it.",
+                "",
+                "## Done when",
+                "",
+                "The conversion heat exists as a nominated heat with a paddock,",
+                "cut from the studbook sheaf's Founding-and-cutover section (its sole plan home)",
+                "and refreshed by what the rehearsal actually found.",
+                "",
+                "Its paddock states the entry gate this heat's exit hands it:",
+                "the rehearsal checklist passed, and the pace-identity re-gestalt landed and converged in its own heat.",
+                "",
+                "No paces are slated into it here. Cutting the shape is the whole act;",
+                "filling it is that heat's own groom."
+              ],
+              "jjgtn_silks": "cut-the-conversion-heat",
+              "jjgtn_basis": "bb87474"
             }
           ]
         }
