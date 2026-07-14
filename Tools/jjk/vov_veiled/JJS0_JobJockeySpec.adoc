@@ -1929,6 +1929,17 @@ undesignated store stays byte-canonical (the additive carve-out that needed no
 {jjdz_reprieve} episode).
 Wire tokens ride the `jjgde_` designation-enum family, shared with
 {jjdcm_effort}.
+Surfaced wherever a listing names the pace's state — the
+{jjdo_show}
+tables and pace header, the
+{jjdo_orient}
+`Next:` line, and the
+{jjdo_coronets}
+bracket tag — folded into the state word as `bridled <tier>`, so a reader
+learns which session may act on the pace from any of them, never merely that
+some session was designated.
+{jjdcm_effort},
+by contrast, is displayed nowhere.
 
 * [[jjdcm_effort]]
 //axl_voices axr_member axd_optional axt_enumeration axd_property

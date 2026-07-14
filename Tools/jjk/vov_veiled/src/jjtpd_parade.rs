@@ -10,7 +10,7 @@
 //! the remaining filter all exercise the private helpers as a side effect.
 
 use super::jjrpd_parade::{jjrpd_run_parade, jjrpd_ParadeArgs};
-use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
+use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, jjrg_Tier, JJRG_UNKNOWN_BASIS, JJRG_TIER_ABSENT};
 use super::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_reslate_input};
 use super::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use std::collections::BTreeMap;
@@ -54,6 +54,15 @@ fn make_heat_with_docket(
         next_pace_seed: "AAB".to_string(),
         paces,
     };
+    (heat_key, heat)
+}
+
+/// Build a heat whose single pace is bridled, carrying the given tier (or none,
+/// the hand-edited-store shape the fallback covers).
+fn make_heat_bridled(heat_id: &str, tier: Option<jjrg_Tier>) -> (String, jjrg_Heat) {
+    let (heat_key, mut heat) = make_heat_with_docket(heat_id, jjrg_HeatStatus::Racing, jjrg_PaceState::Bridled, "## Goal\nx");
+    let pace_key = format!("₢{}AAA", heat_id);
+    heat.paces.get_mut(&pace_key).unwrap().tacks[0].tier = tier;
     (heat_key, heat)
 }
 
@@ -254,6 +263,40 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
     assert_eq!(c2, 0);
     assert!(gz_pace.jjrz_emit().contains("₢ABAAA"), "a directly-named coronet must return regardless of state");
     let _ = std::fs::remove_file(&path);
+}
+
+// ===== Bridled tier surfacing =====
+
+#[test]
+fn jjtpd_bridled_pace_shows_its_tier_in_both_table_views() {
+    // The State cell of a bridled pace names the tier, in the remaining view
+    // (groom) and the all-paces view alike, and the Next callout matches.
+    let mut gallops = make_valid_gallops();
+    let (k, h) = make_heat_bridled("AB", Some(jjrg_Tier::Opus));
+    gallops.heats.insert(k, h);
+    let path = write_temp_gallops("bridled_tier", &gallops);
+
+    for remaining in [true, false] {
+        let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+        let (code, out) = jjrpd_run_parade(
+            jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining, hark: None },
+            &mut gz,
+        );
+        assert_eq!(code, 0);
+        assert!(out.contains("bridled opus"), "remaining={}: tier missing from table: {}", remaining, out);
+    }
+    let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn jjtpd_bridled_pace_without_tier_renders_the_fallback() {
+    // A Bridled tack with no tier is a shape the validator refuses to persist, so
+    // it can reach a listing only from a hand-edited store — never through this
+    // command's own boundary. The label is therefore exercised directly: it must
+    // say the tier is missing rather than let the pace read as an ordinary open one.
+    let (_, heat) = make_heat_bridled("AB", None);
+    let tack = &heat.paces.get("₢ABAAA").unwrap().tacks[0];
+    assert_eq!(tack.jjrg_state_label(), format!("bridled {}", JJRG_TIER_ABSENT));
 }
 
 // ===== End-to-end round-trip scenario (the pace's own origin) =====

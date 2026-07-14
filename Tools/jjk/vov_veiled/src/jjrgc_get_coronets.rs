@@ -9,7 +9,7 @@
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState, JJRG_STATE_ABANDONED, JJRG_STATE_BRIDLED};
+use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
 use std::path::PathBuf;
 
 const JJRGC_CMD_NAME_CORONETS: &str = "jjx_coronets";
@@ -78,11 +78,8 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
                 // with state and tier so a designated pace reads as claimed work.
                 // The coronet stays the first whitespace token either way, so a
                 // token-wise reader still parses it.
-                if tack.state == PaceState::Abandoned {
-                    vvco_out!(output, "{}  [{}]", coronet_key, JJRG_STATE_ABANDONED);
-                } else if tack.state == PaceState::Bridled {
-                    let tier_str = tack.tier.map(|t| t.jjrg_as_str()).unwrap_or("?");
-                    vvco_out!(output, "{}  [{} {}]", coronet_key, JJRG_STATE_BRIDLED, tier_str);
+                if tack.state == PaceState::Abandoned || tack.state == PaceState::Bridled {
+                    vvco_out!(output, "{}  [{}]", coronet_key, tack.jjrg_state_label());
                 } else {
                     vvco_out!(output, "{}", coronet_key);
                 }

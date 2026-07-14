@@ -39,17 +39,31 @@ per line, in
 sequence — no silks, no docket.
 Returned inline as the tool result, not written to the
 {jjsz_gazette}.
-A live pace emits the bare coronet with its `₢` prefix.
-In the default listing an
+A
+{jjdpe_rough}
+pace emits the bare coronet with its `₢` prefix.
+An
 {jjdpe_abandoned}
-pace is tagged `<coronet>  [abandoned]`;
-the coronet stays the first whitespace token, so a token-wise reader still parses it.
-Under `--remaining` or `--rough` the abandoned paces are excluded, so no marker appears.
+pace is tagged `<coronet>  [abandoned]`, and a
+{jjdpe_bridled}
+pace `<coronet>  [bridled <tier>]` — so a dropped pace cannot be mistaken for a live one,
+and a designated pace reads as claimed work at the tier that claims it.
+The coronet stays the first whitespace token either way, so a token-wise reader still parses it.
+A
+{jjdpe_bridled}
+pace whose tier is absent renders `[bridled ?]` (see
+{jjdo_apostille},
+which forbids the shape).
+`--remaining` excludes the abandoned paces, so their marker never appears there;
+`--rough` excludes both markers, since it admits only
+{jjdpe_rough}
+paces.
 
 *Example output (default listing):*
 ----
 ₢AFAAW
 ₢AFAAX  [abandoned]
+₢AFAAK  [bridled opus]
 ₢AFAAQ
 ----
 
@@ -78,5 +92,7 @@ or
 .. Output
 {jjdt_coronet}
 — suffixed with `  [abandoned]` when the pace state is
-{jjdpe_abandoned}
+{jjdpe_abandoned},
+or with `  [bridled <tier>]` when it is
+{jjdpe_bridled}
 — followed by newline

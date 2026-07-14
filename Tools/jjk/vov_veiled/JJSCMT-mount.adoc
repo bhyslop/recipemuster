@@ -162,7 +162,12 @@ one does, since a designation marks work as ready to execute, never as executed.
 {jjdpr_pace}:
 .. Output `pace_coronet`,
 `pace_silks` (from `tacks[0].silks`),
-`pace_state`
+`pace_state` — which for a
+{jjdpe_bridled}
+pace carries its
+{jjdcm_tier}
+(`bridled <tier>`, falling back to `bridled ?` when the tier is absent),
+the same cell {jjdo_show} renders, so mount and groom read alike
 .. Output `docket` from `tacks[0].text`
 .. Query steeplechase entries for heat, filter by actionable pace coronet, run `git diff-tree` per commit, collect unique work file names (excluding `.claude/jjm/*`); for each such file, name the other paces in
 {jjdhm_order}

@@ -228,7 +228,7 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
                         PaceState::Rough | PaceState::Bridled => {
                             pace_coronet = Some(coronet_key.clone());
                             pace_silks = Some(tack.silks.clone());
-                            pace_state = Some(tack.state.jjrg_as_str().to_string());
+                            pace_state = Some(tack.jjrg_state_label());
                             spec = Some(jjrg_lines_to_text(&tack.text));
                         }
                         PaceState::Complete => {
@@ -262,7 +262,7 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
                         PaceState::Rough | PaceState::Bridled => {
                             pace_coronet = Some(coronet_key.clone());
                             pace_silks = Some(tack.silks.clone());
-                            pace_state = Some(tack.state.jjrg_as_str().to_string());
+                            pace_state = Some(tack.jjrg_state_label());
                             spec = Some(jjrg_lines_to_text(&tack.text));
                             break;
                         }

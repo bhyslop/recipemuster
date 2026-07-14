@@ -238,6 +238,29 @@ pub struct jjrg_Tack {
     pub basis: String,
 }
 
+/// Stand-in for the tier of a Bridled tack whose tier is absent — a shape the
+/// designation gate forbids, so it can only arise from a hand-edited store.
+/// Displayed rather than swallowed: a visibly odd cell is the loud report.
+pub const JJRG_TIER_ABSENT: &str = "?";
+
+impl jjrg_Tack {
+    /// The state label a reader sees, tier folded in while bridled (`bridled
+    /// opus`). One home for every listing surface — the parade table, the
+    /// orient `Next:` line, the coronets bracket tag — so the shape cannot
+    /// drift between them. Effort is designation-and-dispatch data and is
+    /// deliberately not displayed.
+    pub fn jjrg_state_label(&self) -> String {
+        match self.state {
+            jjrg_PaceState::Bridled => format!(
+                "{} {}",
+                self.state.jjrg_as_str(),
+                self.tier.map(|t| t.jjrg_as_str()).unwrap_or(JJRG_TIER_ABSENT)
+            ),
+            _ => self.state.jjrg_as_str().to_string(),
+        }
+    }
+}
+
 /// Split docket text into the stored line array — the write-side boundary.
 /// `split('\n')` (not `lines()`) so the array round-trips losslessly under
 /// `jjrg_lines_to_text`: an empty string yields `[""]`, a trailing newline a

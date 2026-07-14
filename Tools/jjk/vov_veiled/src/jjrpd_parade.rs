@@ -202,7 +202,7 @@ fn zjjrpd_emit_coronet(
     };
 
     // Terse header only — the docket body reaches context through the gazette.
-    vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, zjjrpd_pace_state_str(&current_tack.state));
+    vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, current_tack.jjrg_state_label());
     vvco_out!(output, "Heat: {}", heat_key);
     if let Ok(files) = jjrq_files_for_pace(firemark.jjrf_as_str(), &coronet_key) {
         if !files.is_empty() {
@@ -239,163 +239,92 @@ fn zjjrpd_emit_firemark(
     let heat = gallops.heats.get(&heat_key)
         .ok_or_else(|| format!("{}: error: Heat '{}' not found", cn, heat_key))?;
 
-    {
-        {
-            // List view: numbered paces
-            // If --remaining, output markdown format
-            if remaining {
-                let mut complete_count = 0;
-                let mut abandoned_count = 0;
-                let mut rough_count = 0;
-                let mut bridled_count = 0;
-                let mut remaining_paces: Vec<(&String, &crate::jjrg_gallops::jjrg_Pace)> = Vec::new();
-                let mut first_remaining_pace: Option<(&String, &crate::jjrg_gallops::jjrg_Pace)> = None;
+    // The listed set: every pace in heat order, or only the open ones under
+    // --remaining. One row shape either way, so the table is built once.
+    let mut listed: Vec<(&String, &crate::jjrg_gallops::jjrg_Tack)> = Vec::new();
+    let mut complete_count = 0;
+    let mut abandoned_count = 0;
+    let mut rough_count = 0;
+    let mut bridled_count = 0;
 
-                for coronet_key in &heat.order {
-                    if let Some(pace) = heat.paces.get(coronet_key) {
-                        if let Some(tack) = pace.tacks.first() {
-                            match tack.state {
-                                PaceState::Complete => complete_count += 1,
-                                PaceState::Abandoned => abandoned_count += 1,
-                                // Both open states are remaining; bridled is a
-                                // distinct open state, never folded into rough.
-                                PaceState::Rough | PaceState::Bridled => {
-                                    match tack.state {
-                                        PaceState::Bridled => bridled_count += 1,
-                                        _ => rough_count += 1,
-                                    }
-                                    remaining_paces.push((coronet_key, pace));
-                                    if first_remaining_pace.is_none() {
-                                        first_remaining_pace = Some((coronet_key, pace));
-                                    }
-                                }
-                            }
-                        }
-                    }
+    for coronet_key in &heat.order {
+        if let Some(pace) = heat.paces.get(coronet_key) {
+            if let Some(tack) = pace.tacks.first() {
+                match tack.state {
+                    PaceState::Complete => complete_count += 1,
+                    PaceState::Abandoned => abandoned_count += 1,
+                    // Both open states are remaining; bridled is a distinct
+                    // open state, never folded into rough.
+                    PaceState::Bridled => bridled_count += 1,
+                    PaceState::Rough => rough_count += 1,
                 }
-
-                let status_str = match heat.status {
-                    HeatStatus::Racing => "racing",
-                    HeatStatus::Stabled => "stabled",
-                    HeatStatus::Retired => "retired",
-                };
-
-                let remaining_count = rough_count + bridled_count;
-
-                // Header line with heat info
-                vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-                vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
-                    complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
-                vvco_out!(output, "");
-
-                // Table with remaining paces
-                if !remaining_paces.is_empty() {
-                    // Set up table with column definitions
-                    let mut table = jjrp_Table::jjrp_new(vec![
-                        jjrp_Column::new("No", jjrp_Align::Right),
-                        jjrp_Column::new("State", jjrp_Align::Left),
-                        jjrp_Column::new("Pace", jjrp_Align::Left),
-                        jjrp_Column::new("₢Coronet", jjrp_Align::Left),
-                    ]);
-
-                    // Measure all rows to compute column widths
-                    for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
-                        if let Some(tack) = pace.tacks.first() {
-                            let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_measure(&[
-                                &(idx + 1).to_string(),
-                                state_str,
-                                &tack.silks,
-                                coronet_key,
-                            ]);
-                        }
-                    }
-
-                    // Write header and separator
-                    table.jjrp_write_header(output);
-                    table.jjrp_write_separator(output);
-
-                    // Write data rows
-                    for (idx, (coronet_key, pace)) in remaining_paces.iter().enumerate() {
-                        if let Some(tack) = pace.tacks.first() {
-                            let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_write_row(output, &[
-                                &(idx + 1).to_string(),
-                                state_str,
-                                &tack.silks,
-                                coronet_key,
-                            ]);
-                        }
-                    }
-                    vvco_out!(output, "");
+                if remaining && tack.state.jjrg_is_resolved() {
+                    continue;
                 }
-
-                // Next up callout
-                if let Some((coronet_key, pace)) = first_remaining_pace {
-                    if let Some(tack) = pace.tacks.first() {
-                        let state_str = zjjrpd_pace_state_str(&tack.state);
-                        vvco_out!(output, "Next: {} ({}) [{}]", tack.silks, coronet_key, state_str);
-                        vvco_out!(output, "");
-                        vvco_out!(output, "Recommended: mount {}", heat_key);
-                    }
-                }
-            } else {
-                // Column-justified list view (all paces)
-                // Set up table with column definitions
-                let mut table = jjrp_Table::jjrp_new(vec![
-                    jjrp_Column::new("No", jjrp_Align::Right),
-                    jjrp_Column::new("State", jjrp_Align::Left),
-                    jjrp_Column::new("Pace", jjrp_Align::Left),
-                    jjrp_Column::new("₢Coronet", jjrp_Align::Left),
-                ]);
-
-                // Measure all rows to compute column widths
-                let mut num = 0;
-                for coronet_key in &heat.order {
-                    if let Some(pace) = heat.paces.get(coronet_key) {
-                        if let Some(tack) = pace.tacks.first() {
-                            num += 1;
-                            let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_measure(&[
-                                &num.to_string(),
-                                state_str,
-                                &tack.silks,
-                                coronet_key,
-                            ]);
-                        }
-                    }
-                }
-
-                // Write header and separator
-                table.jjrp_write_header(output);
-                table.jjrp_write_separator(output);
-
-                // Write data rows
-                let mut num = 0;
-                for coronet_key in &heat.order {
-                    if let Some(pace) = heat.paces.get(coronet_key) {
-                        if let Some(tack) = pace.tacks.first() {
-                            num += 1;
-                            let state_str = zjjrpd_pace_state_str(&tack.state);
-                            table.jjrp_write_row(output, &[
-                                &num.to_string(),
-                                state_str,
-                                &tack.silks,
-                                coronet_key,
-                            ]);
-                        }
-                    }
-                }
+                listed.push((coronet_key, tack));
             }
         }
+    }
 
-            // The census and swim lanes assume a single heat — render only for
-            // a lone firemark target.
-            if with_census {
-                jjrpd_write_file_census(output, &firemark, heat, JJRPD_CENSUS_CROSS_PACE);
-                jjrpd_write_commit_swimlanes(output, &firemark, heat);
-            }
+    if remaining {
+        let status_str = match heat.status {
+            HeatStatus::Racing => "racing",
+            HeatStatus::Stabled => "stabled",
+            HeatStatus::Retired => "retired",
+        };
+        let remaining_count = rough_count + bridled_count;
+        vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
+        vvco_out!(output, "Progress: {} complete | {} abandoned | {} remaining ({} rough, {} bridled)",
+            complete_count, abandoned_count, remaining_count, rough_count, bridled_count);
+        vvco_out!(output, "");
+    }
+
+    if !listed.is_empty() {
+        let mut table = jjrp_Table::jjrp_new(vec![
+            jjrp_Column::new("No", jjrp_Align::Right),
+            jjrp_Column::new("State", jjrp_Align::Left),
+            jjrp_Column::new("Pace", jjrp_Align::Left),
+            jjrp_Column::new("₢Coronet", jjrp_Align::Left),
+        ]);
+
+        // Rows built once: the State cell carries the tier of a bridled pace.
+        let rows: Vec<[String; 4]> = listed.iter().enumerate().map(|(idx, (coronet_key, tack))| {
+            [
+                (idx + 1).to_string(),
+                tack.jjrg_state_label(),
+                tack.silks.clone(),
+                (*coronet_key).clone(),
+            ]
+        }).collect();
+
+        for row in &rows {
+            table.jjrp_measure(&[&row[0], &row[1], &row[2], &row[3]]);
         }
+        table.jjrp_write_header(output);
+        table.jjrp_write_separator(output);
+        for row in &rows {
+            table.jjrp_write_row(output, &[&row[0], &row[1], &row[2], &row[3]]);
+        }
+        if remaining {
+            vvco_out!(output, "");
+        }
+    }
+
+    // Next-up callout, remaining view only — the first open pace in heat order.
+    if remaining {
+        if let Some((coronet_key, tack)) = listed.first() {
+            vvco_out!(output, "Next: {} ({}) [{}]", tack.silks, coronet_key, tack.jjrg_state_label());
+            vvco_out!(output, "");
+            vvco_out!(output, "Recommended: mount {}", heat_key);
+        }
+    }
+
+    // The census and swim lanes assume a single heat — render only for
+    // a lone firemark target.
+    if with_census {
+        jjrpd_write_file_census(output, &firemark, heat, JJRPD_CENSUS_CROSS_PACE);
+        jjrpd_write_commit_swimlanes(output, &firemark, heat);
+    }
 
     // Always populate the gazette: paddock once, then each pace docket
     // (remaining-filtered to match the table).
@@ -598,12 +527,6 @@ pub(crate) fn jjrpd_write_pace_digest(output: &mut vvco_Output, firemark: &Firem
         }
         Err(e) => vvco_err!(output, "{}: error getting file touches: {}", cn, e),
     }
-}
-
-/// Helper to convert PaceState to display string (delegates to the single
-/// display home on the enum).
-fn zjjrpd_pace_state_str(state: &PaceState) -> &'static str {
-    state.jjrg_as_str()
 }
 
 /// Encode a column index as a dense character: 1-9 then a-z then A-Z (61 max)
