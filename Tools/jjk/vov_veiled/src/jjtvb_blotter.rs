@@ -548,6 +548,17 @@ fn jjtvb_journal_the_real_pedigree_onto_the_standing_studbook() {
 // (`--test-threads=1`); run in parallel they would contend with each other
 // rather than with the scenario under test.
 
+/// A per-run mark for every byte a rehearsal writes. The real studbook is a real
+/// store and it ACCUMULATES — the scenarios below are re-run against a trunk that
+/// already holds what their last run left. Fixed content would therefore write
+/// NOTHING on a second run: advance equalizes the clone with the remote tip
+/// (JJr_b52), the file is already there byte-identical, and the lodge has no
+/// change to commit. Found the honest way — the first re-run after the equalize
+/// fix landed died in lodge, on content its own previous run had put there.
+fn zjjtvb_run_mark() -> String {
+    chrono::Utc::now().format("%Y%m%dT%H%M%S%.6fZ").to_string()
+}
+
 /// Stand a rehearsal station up: a fresh clone of the REAL studbook remote in a
 /// temp dir, plus the blotter config pointed at it.
 fn zjjtvb_real_station(infield_root: &str, name: &str) -> (JjkTestDir, jjdb_BlotterConfig) {
@@ -642,8 +653,9 @@ fn jjtvb_rehearsal_stale_lock_break() {
     let broken = jjrfr_break(&farrier, &bravo.local_root).unwrap();
     assert_eq!(broken.as_deref(), Some(abandoned), "the break must report whose lock it cleared");
 
+    let mark = zjjtvb_run_mark();
     let sha = jjdb_journal(&farrier, &bravo, "station=bravo op=rehearsal-break", |root| {
-        zjjtvb_write(root, "rehearsal.txt", "bravo wrote this after breaking a stale lock");
+        zjjtvb_write(root, "rehearsal.txt", &format!("bravo wrote this after breaking a stale lock ({})", mark));
         (vec![PathBuf::from("rehearsal.txt")], "rehearsal: bravo writes after a stale-lock break".to_string())
     })
     .expect("after the break, bravo's ceremony must complete");
@@ -668,13 +680,14 @@ fn jjtvb_rehearsal_atomic_push_lease_failure() {
     let baseline = zjjtvb_git(&alpha.local_root, &["rev-parse", &format!("origin/{}", alpha.trunk)]);
 
     let usurper = "station=bravo op=usurper";
+    let mark = zjjtvb_run_mark();
     let result = jjdb_journal(&farrier, &alpha, "station=alpha op=rehearsal-lease", |root| {
         // Bravo — a different clone, i.e. a different machine — breaks alpha's
         // lock and takes it, while alpha sits between sight and consign.
         let cleared = jjrfr_break(&farrier, bravo_dir.path()).unwrap();
         assert!(cleared.is_some(), "bravo must find alpha's lock to break");
         farrier.jjrfr_stake(bravo_dir.path(), usurper).unwrap();
-        zjjtvb_write(root, "stranded.txt", "refused by the lock, never authorized");
+        zjjtvb_write(root, "stranded.txt", &format!("refused by the lock, never authorized ({})", mark));
         (vec![PathBuf::from("stranded.txt")], "must never reach the remote".to_string())
     });
 
@@ -718,13 +731,23 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
     let (bravo_dir, _bravo) = zjjtvb_real_station(&infield_root, "jjtvb_rehearsal_aftermath_bravo");
     zjjtvb_require_free_lock(&farrier, &alpha);
 
+    // The store's tip BEFORE this run wrote anything. The assertion below reads
+    // only what this run pushed: the remote's standing history already carries a
+    // STRANDED commit — the one the original defect pushed, before JJr_b52 — and
+    // a whole-history scan would read that old evidence as a fresh violation
+    // forever. What the invariant claims is that no commit THIS run's lock
+    // refused reached the store.
+    let baseline = zjjtvb_git(alpha_dir.path(), &["rev-parse", &format!("origin/{}", alpha.trunk)]);
+
     // Drive alpha into the stranded state exactly as rehearsal 3 does.
     let usurper = "station=bravo op=aftermath-usurper";
+    let mark = zjjtvb_run_mark();
+    let stranded_subject = format!("STRANDED {}: refused by the lock", mark);
     let err = jjdb_journal(&farrier, &alpha, "station=alpha op=aftermath", |root| {
         jjrfr_break(&farrier, bravo_dir.path()).unwrap();
         farrier.jjrfr_stake(bravo_dir.path(), usurper).unwrap();
-        zjjtvb_write(root, "stranded.txt", "refused by the lock, never authorized");
-        (vec![PathBuf::from("stranded.txt")], "STRANDED: refused by the lock".to_string())
+        zjjtvb_write(root, "stranded.txt", &format!("refused by the lock, never authorized ({})", mark));
+        (vec![PathBuf::from("stranded.txt")], stranded_subject.clone())
     })
     .expect_err("the lease must fail");
     assert_eq!(err.kind, jjrfr_RejectionKind::LockBroken);
@@ -732,18 +755,21 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
 
     // Alpha now re-journals something entirely unrelated, with the lock free.
     let sha = jjdb_journal(&farrier, &alpha, "station=alpha op=aftermath-retry", |root| {
-        zjjtvb_write(root, "aftermath.txt", "the write alpha actually intended");
+        zjjtvb_write(root, "aftermath.txt", &format!("the write alpha actually intended ({})", mark));
         (vec![PathBuf::from("aftermath.txt")], "rehearsal: alpha's next authorized write".to_string())
     })
     .expect("with the lock free, alpha's next ceremony completes");
 
-    // What reached the remote? Read the pushed history back and look for the
-    // stranded subject riding along.
-    let pushed = zjjtvb_git(alpha_dir.path(), &["log", "--pretty=%s", &format!("origin/{}", alpha.trunk)]);
-    let stranded_landed = pushed.lines().any(|l| l.contains("STRANDED"));
+    // What reached the remote? Read back exactly what this run pushed and look
+    // for the stranded subject riding along.
+    let pushed = zjjtvb_git(
+        alpha_dir.path(),
+        &["log", "--pretty=%s", &format!("{}..origin/{}", baseline, alpha.trunk)],
+    );
+    let stranded_landed = pushed.lines().any(|l| l.contains(&stranded_subject));
     println!("REHEARSAL aftermath: alpha's retry landed at {}", sha);
     println!("REHEARSAL aftermath: stranded commit reached the remote? {}", stranded_landed);
-    println!("REHEARSAL aftermath: remote history now:\n{}", pushed);
+    println!("REHEARSAL aftermath: this run pushed:\n{}", pushed);
     assert!(
         !stranded_landed,
         "JJr_b52 violated on the real remote: a commit the lock REFUSED rode onto the shared store \

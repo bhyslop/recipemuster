@@ -83,6 +83,23 @@ struct zjjrfg_GitOutput {
     stderr: String,
 }
 
+impl zjjrfg_GitOutput {
+    /// Everything git said, for the panic path. Git does not keep its refusals on
+    /// one stream: `commit` with nothing staged exits non-zero and explains itself
+    /// on STDOUT, so a detail rendered from stderr alone reports an empty reason
+    /// for it — which is exactly what an unclassified failure cannot afford, being
+    /// the one path where the driver has nothing else left to say. It says all of
+    /// it, and lets the reader judge.
+    fn zjjrfg_detail(&self) -> String {
+        format!(
+            "exit {} | stderr: {} | stdout: {}",
+            self.code.map(|c| c.to_string()).unwrap_or_else(|| "killed by signal".to_string()),
+            self.stderr.trim(),
+            self.stdout.trim()
+        )
+    }
+}
+
 /// Run `git -C root <args>`, capturing output. A spawn failure (binary missing) or
 /// non-UTF-8 output is an environment precondition violation, not a farrier
 /// rejection — it panics here rather than posing as a classified outcome. A
@@ -157,7 +174,7 @@ fn zjjrfg_hash_object(root: &Path, content: &str, write: bool, op: &'static str)
     args.push("--stdin");
     let out = zjjrfg_run_git_with_stdin(root, &args, content);
     if !out.ok {
-        zjjrfg_unexpected(op, root, &out.stderr);
+        zjjrfg_unexpected(op, root, &out.zjjrfg_detail());
     }
     out.stdout.trim().to_string()
 }
@@ -176,7 +193,7 @@ fn zjjrfg_seat(root: &Path, op: &'static str) -> jjrfr_Seat {
     let git_dir = zjjrfg_run_git(root, &["rev-parse", "--git-dir"]);
     let common_dir = zjjrfg_run_git(root, &["rev-parse", "--git-common-dir"]);
     if !git_dir.ok || !common_dir.ok {
-        zjjrfg_unexpected(op, root, &format!("{}{}", git_dir.stderr, common_dir.stderr));
+        zjjrfg_unexpected(op, root, &format!("{} | {}", git_dir.zjjrfg_detail(), common_dir.zjjrfg_detail()));
     }
     if git_dir.stdout.trim() == common_dir.stdout.trim() {
         jjrfr_Seat::Primary
@@ -219,13 +236,13 @@ pub(crate) fn zjjrfg_canonicalize_upstream(raw: &str) -> String {
 fn zjjrfg_line_of_work(root: &Path) -> jjrfr_LineOfWork {
     let branch = zjjrfg_run_git(root, &["rev-parse", "--abbrev-ref", "HEAD"]);
     if !branch.ok {
-        zjjrfg_unexpected(ZJJRFG_OP_LINE_OF_WORK, root, &branch.stderr);
+        zjjrfg_unexpected(ZJJRFG_OP_LINE_OF_WORK, root, &branch.zjjrfg_detail());
     }
     let name = branch.stdout.trim();
     if name == "HEAD" {
         let sha = zjjrfg_run_git(root, &["rev-parse", "HEAD"]);
         if !sha.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_LINE_OF_WORK, root, &sha.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_LINE_OF_WORK, root, &sha.zjjrfg_detail());
         }
         jjrfr_LineOfWork::Detached(sha.stdout.trim().to_string())
     } else {
@@ -268,7 +285,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     fn jjrfr_comb(&self, root: &Path) -> Result<jjrfr_CombReport, jjrfr_Rejection> {
         let out = zjjrfg_run_git(root, &["status", "--porcelain"]);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_COMB, root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_COMB, root, &out.zjjrfg_detail());
         }
         let dirty_paths = out
             .stdout
@@ -299,7 +316,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     fn jjrfr_counterfoil(&self, root: &Path) -> Result<jjrfr_Counterfoil, jjrfr_Rejection> {
         let sha = zjjrfg_run_git(root, &["rev-parse", "HEAD"]);
         if !sha.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_COUNTERFOIL, root, &sha.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_COUNTERFOIL, root, &sha.zjjrfg_detail());
         }
         let comb = self.jjrfr_comb(root)?;
         let line_of_work = zjjrfg_line_of_work(root);
@@ -323,14 +340,14 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         add_args.extend(file_strs.iter().map(String::as_str));
         let add_out = zjjrfg_run_git(root, &add_args);
         if !add_out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_LODGE, root, &add_out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_LODGE, root, &add_out.zjjrfg_detail());
         }
 
         let mut commit_args: Vec<&str> = vec!["commit", "-m", message, "--"];
         commit_args.extend(file_strs.iter().map(String::as_str));
         let out = zjjrfg_run_git(root, &commit_args);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_LODGE, root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_LODGE, root, &out.zjjrfg_detail());
         }
         Ok(())
     }
@@ -351,11 +368,11 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         // sync_state's Untracked answer is the guard callers consult first.
         let upstream = zjjrfg_run_git(root, &["rev-parse", "--abbrev-ref", "@{upstream}"]);
         if !upstream.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &upstream.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &upstream.zjjrfg_detail());
         }
         let out = zjjrfg_run_git(root, &["reset", "--hard", upstream.stdout.trim()]);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &out.zjjrfg_detail());
         }
         Ok(())
     }
@@ -391,7 +408,7 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
             };
             return Err(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_CONSIGN, root, out.stderr));
         }
-        zjjrfg_unexpected(ZJJRFG_OP_CONSIGN, root, &out.stderr)
+        zjjrfg_unexpected(ZJJRFG_OP_CONSIGN, root, &out.zjjrfg_detail())
     }
 }
 
@@ -407,7 +424,7 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         if zjjrfg_push_rejected(&out.stderr) {
             return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockHeld, ZJJRFG_OP_STAKE, root, out.stderr));
         }
-        zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.stderr)
+        zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail())
     }
 
     fn jjrfr_pluck(&self, root: &Path, observed_guidon: &str) -> Result<(), jjrfr_Rejection> {
@@ -421,13 +438,13 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         if zjjrfg_push_rejected(&out.stderr) {
             return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockBroken, ZJJRFG_OP_PLUCK, root, out.stderr));
         }
-        zjjrfg_unexpected(ZJJRFG_OP_PLUCK, root, &out.stderr)
+        zjjrfg_unexpected(ZJJRFG_OP_PLUCK, root, &out.zjjrfg_detail())
     }
 
     fn jjrfr_sight(&self, root: &Path) -> Result<Option<String>, jjrfr_Rejection> {
         let ls = zjjrfg_run_git(root, &["ls-remote", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]);
         if !ls.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &ls.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &ls.zjjrfg_detail());
         }
         let sha = match ls.stdout.lines().next().and_then(|line| line.split_whitespace().next()) {
             Some(sha) => sha.to_string(),
@@ -439,11 +456,11 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         // cat-file can read what it actually says.
         let fetch = zjjrfg_run_git(root, &["fetch", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]);
         if !fetch.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &fetch.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &fetch.zjjrfg_detail());
         }
         let content = zjjrfg_run_git(root, &["cat-file", "-p", &sha]);
         if !content.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &content.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &content.zjjrfg_detail());
         }
         Ok(Some(content.stdout))
     }
@@ -469,7 +486,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             }
         };
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &out.zjjrfg_detail());
         }
         Ok(())
     }
@@ -484,7 +501,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // spine consults jjrfr_line_exists first).
         let out = zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, branch]);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_BILLET_SEAT, root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_SEAT, root, &out.zjjrfg_detail());
         }
         Ok(())
     }
@@ -502,7 +519,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         let counterpart = zjjrfg_counterpart(trunk);
         let out = zjjrfg_run_git(billet_root, &["checkout", "-q", "--detach", &counterpart]);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_BILLET_DETACH, billet_root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_DETACH, billet_root, &out.zjjrfg_detail());
         }
         Ok(())
     }
@@ -513,7 +530,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         match out.code {
             Some(0) => Ok(true),
             Some(1) => Ok(false),
-            _ => zjjrfg_unexpected(ZJJRFG_OP_LINE_EXISTS, root, &out.stderr),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_LINE_EXISTS, root, &out.zjjrfg_detail()),
         }
     }
 
@@ -533,7 +550,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         match out.code {
             Some(0) => Ok(false),
             Some(1) => Ok(true),
-            _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.stderr),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.zjjrfg_detail()),
         }
     }
 
@@ -551,7 +568,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         let billet_str = billet_root.to_string_lossy().into_owned();
         let out = zjjrfg_run_git(&primary_root, &["worktree", "remove", &billet_str]);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_BILLET_REMOVE, billet_root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_REMOVE, billet_root, &out.zjjrfg_detail());
         }
         Ok(())
     }
@@ -579,7 +596,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // standing exactly as git left them.
         let out = zjjrfg_run_git(billet_root, &["merge", "-q", &counterpart, "-m", "enfold trunk"]);
         if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_ENFOLD, billet_root, &out.stderr);
+            zjjrfg_unexpected(ZJJRFG_OP_ENFOLD, billet_root, &out.zjjrfg_detail());
         }
         Ok(())
     }
