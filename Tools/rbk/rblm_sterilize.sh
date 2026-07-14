@@ -87,11 +87,16 @@ rblm_lustrate_apply
 # from a live subject even by mistake.
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbpc_constants.sh"
 
+# Repo-relative targets: this process already stands at the tree's root, and the
+# generators resolve from where they stand. The context generator reads the
+# tabtarget directory it is handed, so pointing it at THIS tree's tt/ is what makes
+# the delivered reference document the delivered tabtargets — the withheld families
+# are absent from it because they are absent from the tree, not because a list said
+# to drop them.
 buc_step "Regenerating derived files"
-rbz_generate_context "${ZRBLM_STERILIZE_ROOT}/tt" \
-                     "${ZRBLM_STERILIZE_ROOT}/${RBCC_tabtarget_context_file}" \
+rbz_generate_context "tt" "${RBCC_tabtarget_context_file}" \
   || buc_die "Failed to regenerate tabtarget context"
-rbz_generate_consts  "${ZRBLM_STERILIZE_ROOT}/${RBCC_rbtdgc_consts_file}" \
+rbz_generate_consts  "${RBCC_rbtdgc_consts_file}" \
   || buc_die "Failed to regenerate colophon consts"
 
 buc_success "Tree lustrated and derived files regenerated"
