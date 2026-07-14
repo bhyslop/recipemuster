@@ -8289,8 +8289,9 @@
         "₢BsAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0816",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-0818",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "The mechanical heart of the additive cut: the ship/withhold census and the cut verb.",
@@ -8324,7 +8325,7 @@
                 "a clean cut passes and a planted leak is refused, both under a non-interactive driver."
               ],
               "jjgtn_silks": "candidate-history-gate",
-              "jjgtn_basis": "b766eb1"
+              "jjgtn_basis": "4be9bdd"
             }
           ]
         },
