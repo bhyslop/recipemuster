@@ -6581,8 +6581,8 @@
         "₢BrAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-1132",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-0924",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
@@ -6682,7 +6682,7 @@
                 "that is a heat-shaping observation for the operator, not a licence to start cutting."
               ],
               "jjgtn_silks": "does-the-sweep-earn-its-lock",
-              "jjgtn_basis": "1f4a355"
+              "jjgtn_basis": "6d3ffd8"
             }
           ]
         },
