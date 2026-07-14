@@ -416,9 +416,13 @@ fn run_cashier(args: CashierArgs) -> i32 {
         };
 
         let sightings = jjrdc_sight(&infield_root);
-        vvco_out!(out, "{}", jjrdc_report(&sightings));
 
+        // The report is the sight mode's whole product. In break mode the door
+        // has ALREADY shown it — it is what the operator answered the gate on —
+        // so re-rendering it here would print the same ten lines twice around a
+        // single confirmation, burying the one line that says what was cleared.
         if !args.do_break {
+            vvco_out!(out, "{}", jjrdc_report(&sightings));
             return 0;
         }
         if !jjrdc_any_held(&sightings) {
