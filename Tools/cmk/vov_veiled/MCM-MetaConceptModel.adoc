@@ -1210,7 +1210,10 @@ in shape and in reservation),
 bank (its verb for depositing a thought where it outlives the current context — "banked in the
 sheaf" — already load-bearing in normative prose, reserved here before that prose hardens into a mint),
 blast (its root for scope-of-damage and the containment of it — "blast radius", "blast shield" —
-never spoken bare, always productive across compounds, so enclosing the bare word would strand both).
+never spoken bare, always productive across compounds, so enclosing the bare word would strand both),
+gloss (its noun and verb for the one-line explanation that stands a concept up in place — "reference
+the home, gloss in one line", "its inline gloss" — already the explanatory brush in normative prose,
+reserved before that prose hardens into a mint).
 
 [[mcm_furrowed_word]]
 {mcm_furrowed_word}::
