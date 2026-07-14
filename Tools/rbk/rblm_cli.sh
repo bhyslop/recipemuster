@@ -358,7 +358,6 @@ rblm_feign() {
   buh_line "  THIS BRANCH IS A THROWAWAY. It is never pushed, never merged, and"
   buh_line "  never becomes the candidate. Delete it when the probe is read."
   buh_e
-  buc_require "Proceed with feigning?" "feign"
 
   rblm_feign_apply
   buh_e
@@ -471,7 +470,6 @@ rblm_expede() {
   buh_e
   buh_line "  The clone receives NO station and NO secrets directory."
   buh_e
-  buc_require "Proceed with expede?" "expede"
 
   buc_step "Cloning the public repository"
   mkdir "${z_target_dir}" || buc_die "Failed to create target directory: ${z_target_dir}"
