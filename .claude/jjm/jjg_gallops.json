@@ -6927,8 +6927,8 @@
         "₢BrAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1906",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2024",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -6965,7 +6965,7 @@
                 "and converged in its own heat."
               ],
               "jjgtn_silks": "cut-the-conversion-heat",
-              "jjgtn_basis": "a15a908"
+              "jjgtn_basis": "e9efea2"
             }
           ]
         },
