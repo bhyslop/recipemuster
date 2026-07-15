@@ -3759,8 +3759,8 @@
         "₢B0AAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1924",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260715-0759",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -3784,7 +3784,7 @@
                 "reveille green."
               ],
               "jjgtn_silks": "close-candidate-blind-assays",
-              "jjgtn_basis": "6378b9f"
+              "jjgtn_basis": "90b89d0"
             }
           ]
         }
