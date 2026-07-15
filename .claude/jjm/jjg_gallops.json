@@ -5637,9 +5637,10 @@
         "₢BrAAg",
         "₢BrAAk",
         "₢BrAAW",
+        "₢BrAAl",
         "₢BrAAj"
       ],
-      "jjghn_next_pace_seed": "AAl",
+      "jjghn_next_pace_seed": "AAm",
       "jjghn_paces": {
         "₢BrAAA": {
           "jjgpn_tacks": [
@@ -6981,6 +6982,48 @@
               ],
               "jjgtn_silks": "break-door",
               "jjgtn_basis": "a64f8fa"
+            }
+          ]
+        },
+        "₢BrAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-1734",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Contained code fix. The defect is timing, not the output idiom —",
+                "production already speaks through the vvco channel; only the moment is wrong.",
+                "",
+                "## Done when",
+                "",
+                "The dispatch door emits its whole operator report — billet, launch tier and effort,",
+                "opening prompt, and any staleness notice — to the console BEFORE it hands the terminal",
+                "to the launched session, never after the session returns.",
+                "Proven by driving a real saddle and a real lunge and seeing the report precede the session,",
+                "which re-exercises the dispatch round-trip and stands as its clean confirmation.",
+                "",
+                "## Cinched",
+                "",
+                "- Scope is the launch path only. The dry-run path already prints correctly before returning.",
+                "- Test-only `println!` are out of scope: `--nocapture` is their legitimate channel,",
+                "  and there is no output object to speak through in a cargo test.",
+                "- The staleness notice's CONTENT is unchanged (paddock finding B owns the deeper gap,",
+                "  which is switchover territory); this pace changes only WHEN the report is shown.",
+                "  Fixing the timing is what makes the existing notice useful at all.",
+                "",
+                "## Points",
+                "",
+                "- Entry point: `jjrds_run` in `jjrds_spine.rs` returns `(code, String)`;",
+                "  `run_dispatch` in `vorm_main.rs` prints it via vvco only after `cmd.status()`.",
+                "- The console channel is vvco (`Tools/vvc/.../vvco_output.rs`).",
+                "- Recorded as finding A in the paddock's 260714 rehearsal findings.",
+                "- Mount-time judgment: whether JJSVD wants a one-line \"report precedes launch\" contract,",
+                "  or the fix stands as code alone."
+              ],
+              "jjgtn_silks": "dispatch-report-precedes-launch",
+              "jjgtn_basis": "016b07a"
             }
           ]
         }
