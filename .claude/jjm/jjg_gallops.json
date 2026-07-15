@@ -4732,7 +4732,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260715-0741",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operations plus cleanup — merge this heat's standing §F schema branches to main, converge every operated clone, then retire the spent episodes — every episode the registry lists dormant at execution time — leaving the mechanism standing.",
@@ -4766,7 +4767,7 @@
                 "build tt/vow-b, test tt/vow-t green after removal."
               ],
               "jjgtn_silks": "propagate-and-retire-episodes",
-              "jjgtn_basis": "40f196a"
+              "jjgtn_basis": "5df53a4"
             }
           ]
         },
