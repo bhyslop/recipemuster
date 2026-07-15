@@ -5291,9 +5291,8 @@
         "₢BcAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260708-1051",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260715-0754",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Gallops schema change — reprieve-gated; judgment work, not mechanical.",
@@ -5316,6 +5315,11 @@
                 "  and the seed founds above the highest grandfathered body,",
                 "  so collision with the legacy heat-embedded space is structurally impossible",
                 "  (one founding-time comparison, no reserved-set check).",
+                "- Founding value (operator ruling 260715): the seed founds at max(highest grandfathered body + 1, CAAAA).",
+                "  The CAAAA floor is a legibility landmark, not a safety need:",
+                "  every grandfathered id leads with A or B, so every new-era id visibly leads with C or later.",
+                "  The max() keeps the one-comparison guarantee intact if legacy minting ever reaches C-space before conversion;",
+                "  no reserved-set check enters.",
                 "- Wire-vs-display: the bare immutable id is the identity in every machine context",
                 "  (gallops keys, MCP params, git refs; billet branch names when the ₣Br surface consumes it);",
                 "  heat qualification is emission-only — glyph + current heat + interpunct + immutable id —",
@@ -5328,7 +5332,8 @@
                 "  otherwise type by length exactly as today (2 firemark, 5 coronet);",
                 "  the %-sentinel pensum untouched.",
                 "These settlements close the JJSAS wire-vs-display open fork:",
-                "bank them into the sheaf as part of this pace, durable-first — the sheaf commits before any provenance trims.",
+                "bank them into the sheaf as part of this pace, durable-first — the sheaf commits before any provenance trims;",
+                "the founding-value ruling banks with them.",
                 "The revision-insignia sub-mint (catchword/varvel) does NOT travel — it stays ₣Br design context;",
                 "it shared only the design pace, not this surface.",
                 "",
@@ -5340,7 +5345,6 @@
                 "## Sequencing",
                 "Must land and converge before the JJ revision-control conversion/cutover heat:",
                 "live billet branches embed the immutable id and must not rot on transfer.",
-                "Neither ₣Br pace depends on this one.",
                 "",
                 "## Done when",
                 "Pace identities are immutable for life, minted atomically under the store lock from the global seed;",
@@ -5351,7 +5355,7 @@
                 "build tt/vow-b, test tt/vow-t green."
               ],
               "jjgtn_silks": "pace-identity-regestalt-impl",
-              "jjgtn_basis": "baa1cb0"
+              "jjgtn_basis": "8dd81aa"
             }
           ]
         }
