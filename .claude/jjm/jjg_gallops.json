@@ -3583,10 +3583,11 @@
         "₢B0AAF",
         "₢B0AAG",
         "₢B0AAC",
+        "₢B0AAH",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3807,6 +3808,36 @@
               ],
               "jjgtn_silks": "exempt-rblm-expede-from-veil-scan",
               "jjgtn_basis": "8534d31"
+            }
+          ]
+        },
+        "₢B0AAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-1141",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Preparatory doc-shakedown that de-risks the operator's own greenfield walk (₢B0AAA):",
+                "a zero-context agent reads the shipped onboarding literally and cannot paper over a gap with intuition.",
+                "Findings are cheap — doc-only, so they default to fast-follow under the paddock's divergence economics.",
+                "",
+                "## Docket",
+                "Run a zero-maintainer-context agent through the shipped onboarding to surface doc gaps before the human walk.",
+                "Isolation is structural: a *fresh Claude Code session launched inside a disposable anonymous clone of public main* (peer to the maintainer tree) — never a subagent, never a mount from this tree, both of which carry veiled context.",
+                "The pure clone's root CLAUDE.md is the consumer template — authentic, leave it.",
+                "Guard the disposable clone before launch so the cold agent cannot pollute upstream: `git remote remove origin`, and a `.git/hooks/pre-push` that `exit 1`s (blocks even a constructed-URL push; lives only in that clone).",
+                "Author a minimal stranger-level cold prompt at mount — point at the onboarding entry, give a rough first-go goal (a first crucible running locally, containment proven); no maintainer vocabulary.",
+                "Scope seam: STOP at the credential wall — local arc only. Do not stand up a payor, found a manor, or run the gauntlet; real spend and ₢B0AAA's own cinch reserve the founding for the operator's own hands.",
+                "The cold agent's stumbles ARE the finding set — fold every divergence (inscrutable errors, missing pointers, doc gaps) into ₢B0AAA's release divergence census.",
+                "",
+                "## Done when",
+                "A zero-context agent has walked the shipped onboarding local arc from the neutered disposable clone;",
+                "its divergences are recorded in the release divergence census;",
+                "the disposable clone is discarded."
+              ],
+              "jjgtn_silks": "cold-agent-onboarding-shakedown",
+              "jjgtn_basis": "900755f"
             }
           ]
         }
