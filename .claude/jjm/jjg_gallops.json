@@ -3704,8 +3704,10 @@
         "₢B0AAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1851",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-1852",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Ceremony design change that amends a cinched ruling; small code+doc surface, high care on the reveal-safety invariant.",
@@ -3738,7 +3740,7 @@
                 "the amended cinch stands on the B0 paddock."
               ],
               "jjgtn_silks": "expede-manual-reveal-gate",
-              "jjgtn_basis": "eed2d38"
+              "jjgtn_basis": "f88d9a7"
             }
           ]
         }
