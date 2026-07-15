@@ -4732,8 +4732,9 @@
         "₢BcAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2248",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2033",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operations plus cleanup — merge this heat's quarantined §F schema branches to main, propagate the schema changes to every JJK install, then retire the spent episodes — every episode the registry lists, once every install confirms it dormant — leaving the mechanism standing.",
@@ -4763,7 +4764,7 @@
                 "Every install runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time probe reports every episode dormant; every spent episode's tolerance and frozen reference is stripped from source and its registry entry removed (the registry at execution time is the census); the mechanism — registry, probe, open-time nag — stands; the forgiveness quoin stays as the permanent mechanism's home with the spent episodes marked discharged; build tt/vow-b, test tt/vow-t green after removal."
               ],
               "jjgtn_silks": "propagate-and-retire-episodes",
-              "jjgtn_basis": "027e5b7"
+              "jjgtn_basis": "f7d70bd"
             }
           ]
         },
