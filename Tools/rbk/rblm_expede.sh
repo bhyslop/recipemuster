@@ -32,6 +32,13 @@
 # repository — it is the act of issuing the candidate, and a consumer holding a
 # candidate has no candidate to issue — and its tabtarget (tt/rbw-ME) is withheld
 # by the same census, so the delivered tree offers no way to call it either.
+#
+# EXPEDE IS A PURE LOCAL CONSTRUCTOR. It clones the real public base, builds the
+# candidate atop it, and PUSHES NOTHING. It even severs the clone's origin, so the
+# finished candidate holds zero remotes: the reveal to the public is human-hands-
+# only not by discipline but by structural incapacity — expede wires no remote that
+# could reach the public target, so no bug in it can. The reversible quarantine
+# preview and the irreversible public reveal are numbered human steps in RELEASE.md.
 
 set -euo pipefail
 
@@ -40,6 +47,24 @@ set -euo pipefail
 
 # The candidate clone's directory name beneath the operator's target dir.
 RBLM_candidate_subdir="candidate"
+
+# The base remote. Expede clones this — the REAL public repository — and cuts the
+# candidate one commit atop its live main. It is the ONLY endpoint expede knows: it
+# is read (cloned) and never pushed to, and expede strips the clone's origin after
+# cloning so the name cannot be pushed to even by accident. The eventual public
+# reveal (this same repository) and the private quarantine are reached by explicit
+# URL in RELEASE.md — expede contains neither, so it cannot reveal even if a bug
+# tried. Its name is loud on purpose (_UPSTREAM, all caps): it can never be confused
+# with origin, main, or a hand-typed default.
+RBLM_base_remote="ENGROSSMENT_UPSTREAM"
+
+# The candidate's local branch. Deliberately NOT "main": every push in the ceremony
+# is an explicit refspec, and a branch named main would let a default-shaped push
+# land on the public main by accident. POSTULANT_LOCAL is loud and unmistakable, it
+# is the only branch the finished clone carries, and it forces the reveal to spell
+# POSTULANT_LOCAL:main by hand — there is no default-shaped path to public main
+# anywhere in the flow.
+RBLM_candidate_branch="POSTULANT_LOCAL"
 
 # The subject of the single commit the candidate carries. One commit, so one
 # subject: it names the act, not the contents.
@@ -50,12 +75,30 @@ RBLM_candidate_subject="Recipe Bottle release candidate"
 # what guarantees the candidate has it.
 RBLM_sterilize_path="Tools/rbk/rblm_sterilize.sh"
 
+# The consumer CLAUDE.md template, repo-relative. Expede transposes THIS file's
+# committed bytes onto the candidate's root CLAUDE.md between materialization and
+# the commit: the candidate must carry the consumer's context, never the
+# maintainer's veiled-path-laden one. Named here because expede stays behind
+# (withheld), so it may name a veiled source path.
+RBLM_consumer_claude_path="Tools/rbk/vov_veiled/CLAUDE.consumer.md"
+
+# The candidate's root CLAUDE.md — the transposition's target, and a path the
+# perambulation ships so the sweep expects it in the candidate graph. The bytes it
+# carries are the consumer template's, not the maintainer's.
+RBLM_candidate_claude_path="CLAUDE.md"
+
+# The private quarantine — an explicit URL, printed only as reversible-preview
+# advice. Expede never pushes it; it is the operator's own next step in RELEASE.md.
+# The public reveal target is deliberately NOT named here, in any form.
+RBLM_quarantine_url="git@github.com:scaleinv/recipebottle-staging.git"
+
 ######################################################################
 # Command: expede - Cut the delivery candidate by ADDITION into a public clone
 #
 # To expede is to issue an instrument from the chancery once due process is done.
 # That is the act: gate, copy the shipped bytes out of the committed record, dress
-# them, and issue exactly one commit.
+# them, transpose the consumer context, and issue exactly one commit — then push
+# nothing.
 #
 # THE CANDIDATE IS BUILT BY ADDITION, and everything else here follows from it.
 # The clone is of the PUBLIC repository, so the object graph the push walks began
@@ -64,8 +107,8 @@ RBLM_sterilize_path="Tools/rbk/rblm_sterilize.sh"
 # — the whole repository, then removals — and its TIP was spotless: every strip had
 # landed, and every assay this project owned read the tip and passed it. It went to
 # the remote at 292 MiB because the strip cleans the face while the push sends
-# everything reachable from the branch. Construction is the prevention. The sweep
-# below is not the guard; it is the proof that the guard held.
+# everything reachable from the branch. Construction is the prevention. The delta
+# sweep below is not the guard; it is the proof that the guard held.
 rblm_expede() {
   buc_doc_brief "Expede the delivery candidate - build it by addition in a clone of the public repository"
   buc_doc_param "target_dir" "Absolute path to target directory (must not exist)"
@@ -117,17 +160,24 @@ rblm_expede() {
   rblm_emit_dead_rows > "${z_dead_temp}" || buc_die "Failed to read the perambulation's dead rows"
   test ! -s "${z_dead_temp}" || buc_die "Perambulation rows that judge no tracked path — stale or shadowed. See: ${z_dead_temp}"
 
-  # The base. A candidate is one commit atop the PUBLIC main, so the public remote
-  # is not optional scenery — it is the thing being added to.
+  # The base. A candidate is one commit atop the real PUBLIC main, so the base
+  # remote is not optional scenery — it is the thing being added to. Expede only
+  # ever CLONES it; it is severed from the clone below and never pushed to.
   local -r z_upstream_temp="${BURD_TEMP_DIR}/rblm_expede_upstream.txt"
-  git remote get-url OPEN_SOURCE_UPSTREAM > "${z_upstream_temp}" 2>/dev/null \
-    || buc_die "OPEN_SOURCE_UPSTREAM is not configured — the candidate is built by addition INTO the public repository, so there is nothing to add to"
+  git remote get-url "${RBLM_base_remote}" > "${z_upstream_temp}" 2>/dev/null \
+    || buc_die "${RBLM_base_remote} is not configured — the candidate is built by addition atop the real public repository, so a remote pointing at it is required (git remote add ${RBLM_base_remote} <public-repo-url>)"
   local -r z_upstream_url=$(<"${z_upstream_temp}")
-  test -n "${z_upstream_url}" || buc_die "OPEN_SOURCE_UPSTREAM URL is empty"
+  test -n "${z_upstream_url}" || buc_die "${RBLM_base_remote} URL is empty"
 
   local -r z_head_temp="${BURD_TEMP_DIR}/rblm_expede_head.txt"
   git rev-parse HEAD > "${z_head_temp}" || buc_die "git rev-parse HEAD failed"
   local -r z_head=$(<"${z_head_temp}")
+
+  # The consumer CLAUDE.md template must exist in the committed record before the
+  # cut begins — the transposition below reads its bytes, and a missing template
+  # would surface only after the whole candidate was built.
+  git cat-file -e "${z_head}:${RBLM_consumer_claude_path}" 2>/dev/null \
+    || buc_die "The consumer CLAUDE.md template is absent from ${z_head}: ${RBLM_consumer_claude_path}"
 
   local -r z_shipped_temp="${BURD_TEMP_DIR}/rblm_expede_shipped.txt"
   rblm_emit_shipped > "${z_shipped_temp}" || buc_die "Failed to enumerate the shipped paths"
@@ -137,43 +187,93 @@ rblm_expede() {
 
   buh_section "Marshal Expede"
   buh_line "  Source commit:        ${z_head}"
-  buh_line "  Public base:          ${z_upstream_url}"
+  buh_line "  Public base remote:   ${RBLM_base_remote}"
+  buh_line "  Public base URL:      ${z_upstream_url}"
   buh_line "  Candidate clone:      ${z_clone_dir}"
+  buh_line "  Candidate branch:     ${RBLM_candidate_branch}"
   buh_e
-  buh_line "  The candidate is built by ADDITION in a clone of the PUBLIC"
-  buh_line "  repository. No private object enters the object graph that gets"
-  buh_line "  pushed, because none is ever put there. Nothing is stripped."
+  buh_line "  The candidate is built by ADDITION in a clone of the real PUBLIC"
+  buh_line "  repository. No private object enters the object graph, because none"
+  buh_line "  is ever put there. Nothing is stripped."
   buh_e
   buh_line "  Every shipped path is materialized from the committed bytes of"
   buh_line "  ${z_head}, judged by the perambulation"
   buh_line "  (Tools/rbk/rblm_perambulation.sh), then lustrated and regenerated"
-  buh_line "  by the clone's own copy of rblm_sterilize.sh."
+  buh_line "  by the clone's own copy of rblm_sterilize.sh. The root CLAUDE.md is"
+  buh_line "  transposed to the consumer template and byte-asserted."
   buh_e
-  buh_line "  The clone receives NO station and NO secrets directory."
+  buh_line "  The clone receives NO station and NO secrets directory, and it is"
+  buh_line "  SEVERED from its origin: the finished candidate holds zero remotes,"
+  buh_line "  so expede cannot push it anywhere. The reveal is a human step."
   buh_e
 
-  buc_step "Cloning the public repository"
+  buc_step "Cloning the public base"
   mkdir "${z_target_dir}" || buc_die "Failed to create target directory: ${z_target_dir}"
-  git clone "${z_upstream_url}" "${z_clone_dir}" || buc_die "Failed to clone the public repository"
+  git clone "${z_upstream_url}" "${z_clone_dir}" || buc_die "Failed to clone the public base"
 
-  # The base is swept BEFORE anything is added to it. If a previous candidate
-  # leaked, the leak is in this graph already, and a clean cut on a dirty base
-  # would carry it forward wearing this cut's name.
-  buc_step "Sweeping the public base"
-  zrblm_expede_sweep "${z_clone_dir}" "base"
+  # The base is surveyed BEFORE anything is added to it, over its whole object
+  # graph. Under a real public base this is an INVENTORY, not a gate: the public
+  # history may already carry withheld paths that a prior era disclosed, and
+  # already-disclosed history can be known but not un-disclosed. It is surfaced for
+  # the operator to acknowledge — loud, never fatal, never silent. What this cut is
+  # answerable for is the DELTA it adds, swept fatally below.
+  buc_step "Surveying the public base (inventory)"
+  zrblm_expede_graph_leaks "${z_clone_dir}" "base" --all
+  if test "${#ZRBLM_LEAKS[@]}" -gt 0; then
+    local -r z_base_inv_temp="${BURD_TEMP_DIR}/rblm_expede_base_inventory.txt"
+    local z_inv_i=0
+    : > "${z_base_inv_temp}"
+    for z_inv_i in "${!ZRBLM_LEAKS[@]}"; do
+      printf '%s\n' "${ZRBLM_LEAKS[${z_inv_i}]}" >> "${z_base_inv_temp}"
+    done
+    buh_e
+    buh_line "  BASE INVENTORY — ${#ZRBLM_LEAKS[@]} withheld path(s) already in the"
+    buh_line "  public history. Already disclosed; cannot be un-disclosed by this"
+    buh_line "  cut. This is not a leak of THIS cut — acknowledge and proceed."
+    buh_line "  See: ${z_base_inv_temp}"
+    buh_e
+  else
+    buh_line "  Base object graph clean: no withheld path in the public history"
+  fi
 
-  # The public repository may carry no commit at all — an empty upstream is the
-  # legitimate state before the first candidate is ever published, and it is where
-  # a repository that had to be emptied begins again. Then the candidate is a ROOT
-  # commit, and "one commit atop the base" means one commit, full stop.
+  # The public repository may carry no commit at all — an empty base is the
+  # legitimate state before the first candidate is ever published. Then the
+  # candidate is a ROOT commit, and "one commit atop the base" means one commit,
+  # full stop. The base SHA is captured now, as a value, so the delta range and the
+  # commit count below survive the branch surgery that follows.
   local -r z_base_temp="${BURD_TEMP_DIR}/rblm_expede_base.txt"
   local z_base=""
   if git -C "${z_clone_dir}" rev-parse HEAD > "${z_base_temp}" 2>/dev/null; then
     z_base=$(<"${z_base_temp}")
     buh_line "  Public base commit:   ${z_base}"
   else
-    buh_line "  Public base commit:   (none — the upstream is empty; this candidate is a root commit)"
+    buh_line "  Public base commit:   (none — the base is empty; this candidate is a root commit)"
   fi
+
+  # Sever the clone from its origin. From here the clone holds no remote, so nothing
+  # it does can reach the public repository. Materialization is from the maintainer
+  # repo's own object store (git archive of ${z_head}), never from the clone's
+  # remote, so the sever costs the build nothing. Zero remotes is asserted again at
+  # the end, as the finished candidate's standing property.
+  buc_step "Severing the clone from its origin"
+  git -C "${z_clone_dir}" remote remove origin || buc_die "Failed to sever the clone's origin"
+
+  # Open the candidate's own branch, and drop every other. The clone must carry
+  # exactly ONE branch, named POSTULANT_LOCAL — so even a forbidden fan-out push
+  # (--all) could name nothing but POSTULANT_LOCAL, never main. On an empty base
+  # there is no other head to drop; the unborn branch is simply renamed.
+  buc_step "Opening the candidate branch ${RBLM_candidate_branch}"
+  git -C "${z_clone_dir}" checkout -b "${RBLM_candidate_branch}" || buc_die "Failed to open the candidate branch"
+
+  local -r z_heads_temp="${BURD_TEMP_DIR}/rblm_expede_heads.txt"
+  git -C "${z_clone_dir}" for-each-ref --format='%(refname:short)' refs/heads/ > "${z_heads_temp}" \
+    || buc_die "Failed to list the clone's branches"
+  local z_head_ref=""
+  while IFS= read -r z_head_ref || test -n "${z_head_ref}"; do
+    test -n "${z_head_ref}" || continue
+    test "${z_head_ref}" != "${RBLM_candidate_branch}" || continue
+    git -C "${z_clone_dir}" branch -D "${z_head_ref}" || buc_die "Failed to drop base branch ${z_head_ref}"
+  done < "${z_heads_temp}"
 
   buc_step "Clearing the base tree"
   local -r z_base_files_temp="${BURD_TEMP_DIR}/rblm_expede_base_files.txt"
@@ -221,6 +321,26 @@ rblm_expede() {
     || buc_die "The materialized candidate carries no sterilize script — the perambulation must ship ${RBLM_sterilize_path}"
   bash "${z_clone_dir}/${RBLM_sterilize_path}" || buc_die "Sterilization failed in the clone"
 
+  # Transpose the consumer context onto the candidate's CLAUDE.md. The perambulation
+  # ships CLAUDE.md, so the materialization above wrote the MAINTAINER's copy into
+  # the working tree — veiled paths on its face. That copy is now overwritten, in
+  # the working tree, before the commit, so the maintainer's CLAUDE.md never enters
+  # the candidate's object graph: the committed blob is the consumer template's. The
+  # swap is performed HERE, by expede, not assumed by a comment somewhere downstream.
+  buc_step "Transposing the consumer context onto ${RBLM_candidate_claude_path}"
+  local -r z_claude_target="${z_clone_dir}/${RBLM_candidate_claude_path}"
+  git show "${z_head}:${RBLM_consumer_claude_path}" > "${z_claude_target}" \
+    || buc_die "Failed to transpose the consumer CLAUDE.md template"
+
+  # Byte-assert the result equals the committed template. A transposition that
+  # silently wrote nothing, or wrote a truncated stream, would ship the wrong
+  # context under a green battery — the exact failure this pace exists to close.
+  local -r z_claude_expect_temp="${BURD_TEMP_DIR}/rblm_expede_claude_expect.txt"
+  git show "${z_head}:${RBLM_consumer_claude_path}" > "${z_claude_expect_temp}" \
+    || buc_die "Failed to re-read the consumer CLAUDE.md template for assertion"
+  cmp -s "${z_claude_expect_temp}" "${z_claude_target}" \
+    || buc_die "Transposition byte-mismatch: ${RBLM_candidate_claude_path} does not equal ${RBLM_consumer_claude_path}"
+
   buc_step "Committing the candidate"
   git -C "${z_clone_dir}" add --all || buc_die "Failed to stage the candidate"
   git -C "${z_clone_dir}" commit -m "${RBLM_candidate_subject}" || buc_die "Candidate commit failed"
@@ -237,39 +357,80 @@ rblm_expede() {
   test "${z_count}" = "1" \
     || buc_die "The candidate is ${z_count} commits atop the public base, not 1 — refusing to call it a candidate"
 
-  buc_step "Sweeping the candidate"
-  zrblm_expede_sweep "${z_clone_dir}" "candidate"
+  # Sweep the DELTA, fatally. The object graph the candidate adds atop the base —
+  # ${z_base}..HEAD, or the whole graph when the base was empty — must carry no
+  # withheld path. This is the assertion the base inventory is not: the base's
+  # already-disclosed history is tolerated, but THIS cut adds nothing withheld, and
+  # a leak here is fatal.
+  buc_step "Sweeping the candidate delta"
+  local z_delta="HEAD"
+  test -z "${z_base}" || z_delta="${z_base}..HEAD"
+  zrblm_expede_graph_leaks "${z_clone_dir}" "candidate" "${z_delta}"
+  test "${#ZRBLM_LEAKS[@]}" -eq 0 || {
+    local -r z_leaks_temp="${BURD_TEMP_DIR}/rblm_expede_leaks_candidate.txt"
+    local z_leak_i=0
+    : > "${z_leaks_temp}"
+    for z_leak_i in "${!ZRBLM_LEAKS[@]}"; do
+      printf '%s\n' "${ZRBLM_LEAKS[${z_leak_i}]}" >> "${z_leaks_temp}"
+    done
+    buc_die "The candidate delta adds ${#ZRBLM_LEAKS[@]} withheld path(s). See: ${z_leaks_temp}"
+  }
+  buh_line "  Candidate delta clean: this cut adds no withheld path"
+
+  # Zero remotes, asserted as the finished candidate's standing property. The clone
+  # was severed above; this proves the sever held and nothing re-wired a remote.
+  # With no remote, no command in the clone can reach the public target: the reveal
+  # is human-hands-only by structural incapacity, not by a rule anyone remembered.
+  buc_step "Asserting the candidate holds zero remotes"
+  local -r z_remotes_temp="${BURD_TEMP_DIR}/rblm_expede_remotes.txt"
+  git -C "${z_clone_dir}" remote > "${z_remotes_temp}" || buc_die "Failed to read the clone's remotes"
+  test ! -s "${z_remotes_temp}" || buc_die "The candidate clone carries a remote — expede must leave zero. See: ${z_remotes_temp}"
 
   buh_e
   buh_line "  Candidate:  ${z_clone_dir}"
-  buh_line "  Base:       ${z_base:-(root commit — the upstream was empty)}"
+  buh_line "  Branch:     ${RBLM_candidate_branch}"
+  buh_line "  Base:       ${z_base:-(root commit — the base was empty)}"
   buh_line "  Commits:    1"
+  buh_line "  Remotes:    0 (severed — expede can reach nothing)"
   buh_e
   buh_line "  Prove it from the consumer's seat before it goes anywhere:"
   buc_tabtarget "${RBZ_THEURGE_FIXTURE}" "damnatio"
   buh_e
-  buc_success "Candidate expedited — one commit atop the public base, no withheld path in its graph"
+  buh_line "  Reversible preview into the private quarantine (the operator's own"
+  buh_line "  next step; expede does not run it):"
+  buh_line "    git -C ${z_clone_dir} push ${RBLM_quarantine_url} ${RBLM_candidate_branch}:main"
+  buh_e
+  buh_line "  The irreversible public reveal is a separate human step on the far"
+  buh_line "  side of the greenfield walk — see RELEASE.md. Expede prints no command"
+  buh_line "  for it and holds no remote that could perform it."
+  buh_e
+  buc_success "Candidate expedited — one commit atop the public base, zero remotes, no withheld path in the delta"
 }
 
-# zrblm_expede_sweep CLONE_DIR LABEL — prove no withheld path is reachable in the
-# clone's object graph.
+# zrblm_expede_graph_leaks CLONE_DIR LABEL RANGE_ARG... — walk an object-graph
+# range and set ZRBLM_LEAKS to every withheld path reachable in it. The disposition
+# is the CALLER's: the base tolerates its already-disclosed history (inventory), the
+# candidate delta tolerates nothing (fatal). One reader, two verdicts.
 #
-# The object graph, not the tree. rev-list --objects --all walks every object
-# reachable from every ref, so a withheld path is caught wherever it hides — in an
-# ancestor commit, in a branch nobody looks at, at any depth of history. This is
-# precisely the reading that would have caught the 292 MiB candidate, whose face
-# was clean and whose history was not.
-zrblm_expede_sweep() {
+# The object graph, not the tree. rev-list --objects over the given range walks
+# every object it names, so a withheld path is caught wherever it hides — in an
+# ancestor commit, at any depth. Fed --all it reads the whole graph (the base); fed
+# ${base}..HEAD it reads only what the candidate added. This is precisely the
+# reading that would have caught the 292 MiB candidate, whose face was clean and
+# whose history was not.
+zrblm_expede_graph_leaks() {
   local -r z_clone_dir="${1:-}"
   local -r z_label="${2:-}"
-  test -n "${z_clone_dir}" || buc_die "zrblm_expede_sweep: clone directory required"
-  test -n "${z_label}"     || buc_die "zrblm_expede_sweep: label required"
+  test -n "${z_clone_dir}" || buc_die "zrblm_expede_graph_leaks: clone directory required"
+  test -n "${z_label}"     || buc_die "zrblm_expede_graph_leaks: label required"
+  shift 2
+  test "$#" -gt 0          || buc_die "zrblm_expede_graph_leaks: no rev-list range given"
 
   local -r z_objects_temp="${BURD_TEMP_DIR}/rblm_expede_objects_${z_label}.txt"
   local -r z_paths_temp="${BURD_TEMP_DIR}/rblm_expede_paths_${z_label}.txt"
 
-  git -C "${z_clone_dir}" rev-list --objects --all > "${z_objects_temp}" \
-    || buc_die "Failed to walk the object graph of ${z_clone_dir}"
+  git -C "${z_clone_dir}" rev-list --objects "$@" > "${z_objects_temp}" \
+    || buc_die "Failed to walk the object graph of ${z_clone_dir} (${z_label})"
 
   # rev-list --objects emits "SHA path" for anything with a path, and a bare SHA
   # for commits. Cut to the path and drop the pathless lines.
@@ -286,18 +447,6 @@ zrblm_expede_sweep() {
   done < "${z_objects_temp}"
 
   rblm_perambulation_sweep_capture "${z_paths_temp}"
-
-  test "${#ZRBLM_LEAKS[@]}" -eq 0 || {
-    local -r z_leaks_temp="${BURD_TEMP_DIR}/rblm_expede_leaks_${z_label}.txt"
-    local z_i=0
-    : > "${z_leaks_temp}"
-    for z_i in "${!ZRBLM_LEAKS[@]}"; do
-      printf '%s\n' "${ZRBLM_LEAKS[${z_i}]}" >> "${z_leaks_temp}"
-    done
-    buc_die "The ${z_label} object graph carries ${#ZRBLM_LEAKS[@]} withheld path(s). See: ${z_leaks_temp}"
-  }
-
-  buh_line "  Object graph clean (${z_label}): no withheld path reachable"
 }
 
 # eof
