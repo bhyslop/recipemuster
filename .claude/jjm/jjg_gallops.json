@@ -6878,7 +6878,7 @@
         "₢BrAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1856",
+              "jjgtn_ts": "260714-1906",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -6891,28 +6891,32 @@
                 "The conversion heat exists, cut from the studbook sheaf's Founding-and-cutover section",
                 "(its sole plan home), its paddock a PHASE LADDER:",
                 "",
-                "- Rungs named, not detailed — near: founding-and-cutover; far: footprint-delivery.",
-                "  Detail a phase only once its predecessor lands.",
-                "- Each rung's done-line is an observable PREDICATE — a command to run or a state to",
-                "  sight — never an adjective (\"cutover lands\" is not a gate).",
-                "- Each phase boundary is a SLATED carry-forward pace, not paddock prose: its job is to",
-                "  transcribe the live findings forward into the next paddock (knowledge, not just",
-                "  sequence) and expand that phase into paces. A slated pace shows in the roster and",
-                "  blocks a clean retirement; prose does not.",
+                "- Rungs named, not detailed — near: founding-and-cutover; far: footprint-delivery, ONE",
+                "  rung now (the conversion groom decides its internal granularity post-cutover, holding",
+                "  learnings this pace cannot). Detail a phase only once its predecessor lands.",
+                "- Each rung's done-line is a STATE predicate — a condition to sight (\"the new store is",
+                "  authoritative and the old quiesced\"), never an adjective and never an ordinal",
+                "  (\"after pace X\", which a reorder silently redefines).",
+                "- Each phase boundary is a SLATED carry-forward pace, not paddock prose: it transcribes",
+                "  the live findings forward VERBATIM (copied intact, never re-glossed — a paraphrase is",
+                "  where knowledge leaks across a hop) and expands that phase into paces. A slated pace",
+                "  shows in the roster and blocks a clean retirement; prose does not. The discipline",
+                "  travels too: each paddock restates it for its own carry-forward pace.",
                 "",
                 "So this pace slates exactly ONE pace into the new heat — its terminal carry-forward pace,",
-                "last in order, gated on a cutover-landed predicate, cutting the footprint heat. That lone",
-                "slate is the sole exception to \"slate nothing\"; it is the chain's next link made real, so",
-                "the arc cannot dead-end silently.",
+                "gated on a state predicate, cutting the footprint heat. That lone slate is the sole",
+                "exception to \"slate nothing\"; it is the chain's next link made real, so the arc cannot",
+                "dead-end silently.",
                 "",
-                "Seed the far rung from finding B's cross-machine cluster, transcribed forward by the",
-                "carry-forward pace — never left to be read from this heat's retired paddock.",
+                "Seed the far rung from finding B's cross-machine cluster, carried forward as an EXPLICIT",
+                "ENUMERATION of its seams — so the groom must consciously rung-or-collapse each, not skim",
+                "a paragraph — never left to be read from this heat's retired paddock.",
                 "",
                 "Entry gate handed on: the rehearsal checklist sighted green, and the re-gestalt landed",
                 "and converged in its own heat."
               ],
               "jjgtn_silks": "cut-the-conversion-heat",
-              "jjgtn_basis": "fe78474"
+              "jjgtn_basis": "a15a908"
             }
           ]
         },
