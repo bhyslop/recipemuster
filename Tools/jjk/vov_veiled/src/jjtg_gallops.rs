@@ -479,21 +479,30 @@ fn jjtg_validate_order_paces_mismatch() {
 }
 
 #[test]
-fn jjtg_validate_pace_key_wrong_heat_identity() {
+fn jjtg_validate_coronet_cross_heat_uniqueness() {
+    // A Coronet is a flat global id (JJS0 jjdt_coronet), living in exactly one heat.
+    // The retired "must embed parent heat identity" rule is replaced by cross-heat
+    // uniqueness: the same immutable Coronet appearing in two heats is the corruption
+    // to catch.
     let mut gallops = make_valid_gallops();
-    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    // Replace pace with one that embeds wrong heat identity
-    heat.paces.clear();
-    heat.order.clear();
-    let bad_pace_key = "₢CDAAA".to_string(); // CD instead of AB
-    let pace = jjrg_Pace {
-        tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "bad-pace")],
-    };
-    heat.paces.insert(bad_pace_key.clone(), pace);
-    heat.order.push(bad_pace_key);
-    gallops.heats.insert(heat_key, heat);
+    let (ab_key, ab_heat) = make_valid_heat("AB", "heat-ab");
+    let dup_coronet = ab_heat.order[0].clone(); // ₢ABAAA
+
+    // A second heat that (illegally) holds the very same Coronet.
+    let (cd_key, mut cd_heat) = make_valid_heat("CD", "heat-cd");
+    cd_heat.paces.clear();
+    cd_heat.order.clear();
+    cd_heat.paces.insert(
+        dup_coronet.clone(),
+        jjrg_Pace { tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "dup-pace")] },
+    );
+    cd_heat.order.push(dup_coronet);
+
+    gallops.heats.insert(ab_key, ab_heat);
+    gallops.heats.insert(cd_key, cd_heat);
+
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("must embed parent heat identity")));
+    assert!(errors.iter().any(|e| e.contains("more than one heat")));
 }
 
 #[test]
