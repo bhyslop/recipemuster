@@ -3700,7 +3700,7 @@
         "₢B0AAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1813",
+              "jjgtn_ts": "260714-1824",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -3711,16 +3711,18 @@
                 "Make expede a pure local constructor: it builds the candidate atop the real base and pushes nothing, printing the exact push commands only as advice.",
                 "The public reveal is human-hands-only by structural incapacity, not discipline — expede never wires the public remote, so it cannot push there even if a bug tried (the same shape as the quarantine's \"no delete token is ever minted\").",
                 "Amend RELEASE.md to spell the flow as explicit numbered human steps: run expede → push to the private quarantine (reversible) + inspect → the critical, flagged-irreversible public push as its own step.",
+                "Home the design rationale in RELEASE.md, bounded and tied to the steps, not an essay: a git commit is content-addressed, so the private-quarantine push is a byte-faithful preview of the public push; the base-vs-target remote split; why the reveal is manual-by-structural-incapacity.",
+                "Leave a one-line breadcrumb that this deep rationale migrates to a release spec sheaf when one exists — RELEASE.md holds it in the interim, not a memo.",
                 "Record the amended cinch on the B0 paddock: additive construction is prevention, the private-gate-then-manual-reveal is containment, both kept; the single irreversible reveal is operator-hand-only by construction.",
                 "Must land before stage-the-candidate runs, since that pace is the real push.",
                 "",
                 "## Done when",
                 "Expede cuts atop the real public base and pushes nothing, with no public remote wired;",
-                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted;",
+                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted, plus the bounded content-addressed-preview rationale and the sheaf breadcrumb;",
                 "the amended cinch stands on the B0 paddock."
               ],
               "jjgtn_silks": "expede-manual-reveal-gate",
-              "jjgtn_basis": "41b1254"
+              "jjgtn_basis": "8135a28"
             }
           ]
         }
