@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "B5",
   "jjgrn_heat_order": [
+    "₣B4",
     "₣B0",
     "₣Bs",
     "₣Bg",
@@ -31,8 +32,7 @@
     "₣BL",
     "₣Ba",
     "₣B2",
-    "₣B3",
-    "₣B4"
+    "₣B3"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -4194,7 +4194,7 @@
     "₣B4": {
       "jjghn_silks": "jjk-03-simple-fixes",
       "jjghn_creation_time": "260715",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
