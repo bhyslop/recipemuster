@@ -4965,8 +4965,8 @@
         "₢BcAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2033",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260715-0559",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -4992,7 +4992,7 @@
                 "tt/vow-b clean and tt/vow-t green; the rename is behavior-preserving, so the existing suite is the proof."
               ],
               "jjgtn_silks": "jjk-dealias-cipher-imports",
-              "jjgtn_basis": "0991434"
+              "jjgtn_basis": "33eb456"
             }
           ]
         },
