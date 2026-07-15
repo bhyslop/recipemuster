@@ -1,6 +1,6 @@
 # Release Procedure
 
-The release qualification ceremony for the project maintainer — six operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
+The release qualification ceremony for the project maintainer. The qualification ladder and the cut (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the greenfield walk that gates the reveal (step 7) is a separate, multi-hour, operator-driven ceremony, and the reveal itself (step 8) is the one irreversible public act.
 The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
 [Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
@@ -88,30 +88,69 @@ tt/rbw-ts.TestSuite.gauntlet.sh
 
 ## 5. Cut and prove the candidate
 
-**Prerequisite — create the quarantine repository.** The candidate is pushed to an ephemeral **quarantine** repository: `scaleinv/recipebottle-staging`, the repository `OPEN_SOURCE_UPSTREAM` names. Before the cut, create it on GitHub **empty and private**. After the candidate is dispositioned, **delete it**.
+**Prerequisites — two repositories, two very different lifetimes.**
 
-Both acts are the operator's own hands, by design — no tooling creates or destroys it, and no delete-scoped token is ever minted. The ceremony only *checks* the quarantine, credential-free: an anonymous API read must 404 (proving no stranger can see it), and its refs must be either empty or exactly `refs/heads/main` (proving no prior cut was left undispositioned). Either check failing stops the ceremony.
+- **The base — remote `ENGROSSMENT_UPSTREAM` → `git@github.com:scaleinv/recipebottle.git`.** The real, durable public repository. Expede clones it and cuts the candidate one commit atop its live `main`. Configure it once (`git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git`); the ceremony never creates or destroys it. Expede only ever *reads* it — it clones, then severs the clone's origin, so nothing expede does can push here.
+- **The quarantine — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the candidate — the candidate holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the candidate is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
 
-The quarantine is *containment*, and containment never substitutes for prevention: what actually keeps a private object out of the candidate is expede's construction by addition, below.
+The refspec that touches the real public `main` appears **exactly once** in this document — in step 8, the reveal, on the far side of the walk. Nowhere else does a command have public `main` as a default-shaped outcome: expede holds no remote, and the candidate's sole branch is `POSTULANT_LOCAL`, so every push must spell `POSTULANT_LOCAL:main` by hand.
 
-- Claude Code slash command, not a tabtarget — the delivery ceremony is interactive by design, and its last two acts are the maintainer's own eyes and the maintainer's own hand
-- Gates the ephemeral quarantine remote, runs the pre-cut assays, cuts the candidate with `tt/rbw-ME.MarshalExpedes.sh`, and proves it: the delivered wiring, release hygiene, the erasure of site identity, and a consumer-seat reveille run from a feigned station
-- The candidate is built by **addition** — expede clones the public upstream, materializes only the paths the perambulation ships, and commits once, so no private object ever enters the object graph the push walks. Nothing is stripped, because nothing withheld is put in
-- Success: every assay green, and the operator has read the candidate's file list
-- Failure: **re-cut, never patch forward** — abandon the candidate directory, repair on `main`, and run the ceremony again from step 2. Patching a candidate is the same bug class this whole procedure exists to catch
+Run the cut:
 
 ```
 /rbk-expede
 ```
 
-## 6. Push to the quarantine remote
+- Claude Code slash command, not a tabtarget — the delivery ceremony is interactive by design, and its last acts are the maintainer's own eyes
+- Expede is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the candidate by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes, commits once), severs the clone's origin, and **pushes nothing**. The finished candidate is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
+- The driver proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
+- Success: every assay green, the base inventory acknowledged, and you have read the candidate's file list
+- Failure: **re-cut, never patch forward** — abandon the candidate directory, repair on `main`, run the ceremony again from step 2. Patching a candidate is the same bug class this whole procedure exists to catch
 
-- Universal git operation; no tabtarget — the push is the operator's own hand, deliberately
-- Pushes the candidate produced by step 5 to the ephemeral quarantine repository it was cloned from
-- Success: the quarantine accepts the push, and the candidate can be inspected there
+## 6. Preview in the private quarantine (reversible)
+
+A git commit is **content-addressed**: the object you would publish and the object you push to the quarantine are the *same commit, bit for bit*. So the quarantine push is a byte-faithful preview of the reveal — everything you inspect here is exactly what step 8 would publish — and it is **reversible**: delete the private quarantine and nothing escaped.
+
+Push by **explicit URL and explicit refspec** — the candidate has no remote to lean on:
+
+```
+git -C «candidate» push git@github.com:scaleinv/recipebottle-staging.git POSTULANT_LOCAL:main
+```
+
+- Inspect the pushed branch on GitHub: the file tree, the rendered README, the single commit
+- Success: the quarantine carries exactly the candidate, and it reads as a clean public face
 - Failure: resolve the remote-side reason and retry — the local candidate from step 5 remains valid
-- Afterward: when the candidate is dispositioned, delete the quarantine repository and the candidate directory. The quarantine's whole value is that it does not outlive the cut
+
+**Do not proceed to the reveal until the greenfield walk (step 7) has closed green.**
+
+## 7. The greenfield manor walk — the gate
+
+The reveal is gated on a full first-contact walk: a stranger clones the quarantined candidate and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. The walk gates **discoverability** (the reveal), never disclosure — step 6 already disclosed the bytes privately.
+
+This is its own multi-hour, operator-driven ceremony — run it fresh, not tired. Record every divergence between the shipped docs and reality as a finding: a doc-only divergence census defaults to fast-follow disposition, while a delivered-bytes-bearing re-cut re-opens the full gate (fresh walk and gauntlet). Only once the walk is green with its census dispositioned does the reveal proceed.
+
+## 8. Reveal: promote the candidate to public main (IRREVERSIBLE)
+
+> ⚠️ **This is the irreversible public disclosure — the only command in this document that touches public `main`. It is your own hand: there is no tooling and no minted token. You type it.**
+
+**Before `main` moves — promotion-day housekeeping:**
+
+- Confirm the repository's **Pages source** config: the README render from `main` root is the intended Pages face. The promotion deletes the public repo's untracked `index.html` and `.nojekyll` from `main`; no landing page ships in the delivery and none moves to a side branch
+- Close the public repository's **stale open PR**, if one stands
+
+**The reveal** — explicit URL, explicit refspec, on the far side of the green walk:
 
 ```
-git -C «candidate» push origin main
+git -C «candidate» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL:main
 ```
+
+- The push is fast-forward-only by default — a **refused** push means `main` moved since the cut; **stop**, never `--force`, and re-cut atop the moved base
+- Success: the candidate stands on public `main`, one commit atop the base
+
+**Afterward — disposition, in order:**
+
+1. Delete the **private quarantine** repository — its whole value is that it does not outlive the cut
+2. Delete the **candidate directory**
+3. Record the release
+
+> **Rationale, in brief** — *this deep rationale migrates to a release spec sheaf when one exists; it is held here in the interim, not in a memo.* The candidate is built by **addition** in a clone of the real public base, so no private object ever enters the graph the push walks: construction is the prevention, and the quarantine is only containment. The base and the reveal target are the **same** public repository reached two ways — expede *reads* it (as the `ENGROSSMENT_UPSTREAM` remote) and can never *write* it, because it severs the clone's origin and holds no push endpoint. The reveal is therefore human-hands-only not by discipline but by **structural incapacity**. The preview is trustworthy because a commit is content-addressed: the object you inspect in the quarantine is, bit for bit, the object step 8 publishes.
