@@ -3634,35 +3634,32 @@
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2158",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260714-1923",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "",
                 "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired.",
                 "",
                 "## Docket",
-                "",
                 "Carry out the release: promote the walked staging candidate to production and prove the promoted face.",
-                "Promote: merge the candidate branch to the public repository's main,",
+                "Promote: fast-forward-only merge (--ff-only) of the candidate branch to the public repository's main —",
+                "a refused fast-forward means main moved since staging, and the promotion stops before any commit exists;",
                 "then assert tree-hash equality — main's tree after the merge equals the candidate tip; any inequality is a wrong promotion, stop.",
                 "Liveness: the RBRR_PUBLIC_DOCS_URL main-blob README serves, and every anchor rbyc_common.sh mints resolves against the live page (the post-promotion half of the link-check split; the structural half already rode pyx at the cut).",
                 "Production spot-check (thin by cinch — the walk already proved the bytes on staging):",
-                "repo front-page README rendering, the github.io page, and a fresh default-branch clone taken a few minutes into the onboarding entry.",
+                "repo front-page README rendering, the github.io page serving the README render per the ceremony document's Pages-retirement ruling, and a fresh default-branch clone taken a few minutes into the onboarding entry.",
                 "Amend the ceremony document: the structural-versus-liveness link-check split, and this heat's stage→walk→promote shape recorded as the delivery pattern.",
                 "Record the release per the ceremony document.",
                 "Precondition: the greenfield walk has closed green with its divergence census dispositioned.",
                 "",
                 "## Done when",
-                "",
-                "The candidate merged to public main with tree-hash equality proven;",
+                "The candidate merged to public main fast-forward-only with tree-hash equality proven;",
                 "liveness and spot-check green;",
                 "the ceremony document amended;",
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "edf4439"
+              "jjgtn_basis": "25b879f"
             }
           ]
         },
@@ -3705,10 +3702,8 @@
         "₢B0AAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1852",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260714-1923",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Ceremony design change that amends a cinched ruling; small code+doc surface, high care on the reveal-safety invariant.",
@@ -3718,30 +3713,42 @@
                 "Every push in the ceremony corpus is an explicit URL plus a single explicit refspec; the fan-out forms (--all, --mirror, --tags) are forbidden in advice and docs alike.",
                 "The refspec that touches public main appears exactly once across RELEASE.md and the ceremony driver — in the promotion step, on the far side of the walk gate — and no command anywhere in the flow has public main as its default-shaped outcome (mind the candidate clone's local branch name).",
                 "The maintainer repo carries no push-capable remote to the public target either; the base is reached read-only.",
+                "The candidate's root CLAUDE.md is the consumer template's committed bytes, transposed by expede itself between materialization and the candidate commit — never by a ceremony step, never by hand; the maintainer's CLAUDE.md must not enter the clone.",
+                "Sweep semantics under the real public base: the candidate sweep asserts no withheld path enters with THIS cut — the delta atop the base — and stays fatal; the base's pre-existing withheld content is inventoried and operator-acknowledged, never fatal and never silent, because already-disclosed history can be known but not protected.",
+                "The github.io landing page retires: promotion deletes the public repo's untracked index.html and .nojekyll from main, and the README render from main root is the intended Pages face thereafter — no landing page ships in the delivery and none moves to a side branch.",
                 "",
                 "## Docket",
                 "Split expede's single OPEN_SOURCE_UPSTREAM role into two: the base to cut atop (the real public repo, so the candidate is one commit atop its live main) and the eventual public target — which expede must never reach.",
                 "Make expede a pure local constructor: it builds the candidate atop the real base and pushes nothing, printing the exact push commands only as advice, in the single-refspec explicit-URL form the cinch demands.",
                 "The public reveal is human-hands-only by structural incapacity, not discipline — expede never wires the public remote, so it cannot push there even if a bug tried (the same shape as the quarantine's \"no delete token is ever minted\").",
+                "Give expede the CLAUDE.md transposition per the cinch: materialize the consumer template's committed bytes onto the candidate's root CLAUDE.md (expede stays behind, so it may name the veiled source path) and assert the result byte-equal against the committed template —",
+                "the ₣B0 groom review (260714) proved the prior quarantined candidate shipped the maintainer's CLAUDE.md, veiled paths on its face, through a green battery; the swap existed only as a comment's assumption, performed by nothing.",
+                "Re-rule the two object-graph sweeps for the real-public-base era per the cinch — as written both redden on the base's own history (podman-gateway-proposal.md, perambulation-withheld, sits on the public tip today) and expede cannot cut at all;",
+                "the candidate sweep becomes the delta atop the base, fatal; the base's withheld content becomes an inventory surfaced for operator acknowledgment.",
                 "The surface is three artifacts that must agree: expede, RELEASE.md, and the ceremony driver (.claude/commands/rbk-expede.md).",
-                "The driver today pushes \"origin main\" and teaches that origin IS the quarantine — the redesign falsifies both; after this pace no step in the driver performs any push, and its quarantine gate reads the quarantine role from its new home.",
+                "The driver today pushes \"origin main\" and teaches that origin IS the quarantine — the redesign falsifies both; after this pace no step in the driver performs any push, and its quarantine gate reads the quarantine role from its new home;",
+                "the driver's prose names the transposition so the operator's file-list read expects a consumer CLAUDE.md, but the driver performs no copy.",
                 "Amend RELEASE.md to spell the flow as explicit numbered human steps: run expede → push to the private quarantine (reversible) + inspect → the critical, flagged-irreversible public push as its own step;",
-                "the steps also fix quarantine and candidate-directory disposal timing in the new flow, and carry the promotion-day housekeeping the release pace will execute (Pages source config checked before main moves; the public repo's stale open PR closed).",
+                "the steps also fix quarantine and candidate-directory disposal timing in the new flow — including deleting the probe branch immediately after the consumer-seat probe, before any push step, so even a forbidden fan-out form would find nothing extra to carry —",
+                "and carry the promotion-day housekeeping the release pace will execute: the Pages ruling above confirmed against the repo's Pages source config before main moves, and the public repo's stale open PR closed.",
                 "Home the design rationale in RELEASE.md, bounded and tied to the steps, not an essay: a git commit is content-addressed, so the private-quarantine push is a byte-faithful preview of the public push; the base-vs-target remote split; why the reveal is manual-by-structural-incapacity.",
                 "Leave a one-line breadcrumb that this deep rationale migrates to a release spec sheaf when one exists — RELEASE.md holds it in the interim, not a memo.",
                 "Before re-minting or re-pointing the OPEN_SOURCE_UPSTREAM remote name, check its other consumer (CMK's contribution flow names that remote) and don't break the reference silently.",
-                "Record the amended cinch on the B0 paddock: additive construction is prevention, the private-gate-then-manual-reveal is containment, both kept; the single irreversible reveal is operator-hand-only by construction.",
+                "Prove the amended expede against the real base before this pace closes: run it into a throwaway target — it pushes nothing now, so a proving cut is free — read the transposition assert and both sweep verdicts, then discard the target.",
+                "Record the amended cinches on the B0 paddock: additive construction is prevention, the private-gate-then-manual-reveal is containment, both kept; the single irreversible reveal is operator-hand-only by construction; plus the transposition, sweep-semantics, and Pages-retirement rulings above.",
                 "Must land before the staging pace runs, since that pace is the real push.",
                 "",
                 "## Done when",
                 "Expede cuts atop the real public base and pushes nothing, the finished candidate clone carrying zero remotes with the assert in place;",
-                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted, plus the bounded content-addressed-preview rationale, the disposal timing, the promotion-day housekeeping, and the sheaf breadcrumb;",
-                "the ceremony driver agrees with RELEASE.md and contains no push;",
+                "the candidate's root CLAUDE.md is the consumer template's committed bytes, byte-asserted by expede;",
+                "the sweeps hold their re-ruled meanings — delta fatal, base inventoried and acknowledged — proven by a throwaway cut against the live base;",
+                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted, plus the bounded content-addressed-preview rationale, the disposal timing with the probe-branch deletion, the promotion-day housekeeping per the Pages ruling, and the sheaf breadcrumb;",
+                "the ceremony driver agrees with RELEASE.md, contains no push, and names the transposition it does not perform;",
                 "the reveal-safety cinches hold across all three artifacts;",
-                "the amended cinch stands on the B0 paddock."
+                "the amended cinches stand on the B0 paddock."
               ],
               "jjgtn_silks": "expede-manual-reveal-gate",
-              "jjgtn_basis": "f88d9a7"
+              "jjgtn_basis": "25b879f"
             }
           ]
         }
