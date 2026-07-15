@@ -3928,9 +3928,10 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢B2AAA",
-        "₢B2AAB"
+        "₢B2AAB",
+        "₢B2AAF"
       ],
-      "jjghn_next_pace_seed": "AAF",
+      "jjghn_next_pace_seed": "AAG",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -4019,6 +4020,33 @@
               ],
               "jjgtn_silks": "readme-revetment-census",
               "jjgtn_basis": "6756d38"
+            }
+          ]
+        },
+        "₢B2AAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-0808",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Investigative reassessment — confirm the problem is real and the fix is sound before building anything.",
+                "",
+                "## Context",
+                "Discussion 2026-07-15 (opus): the operator is unhappy with the sophistication of RELEASE.md, `/rbk-expede`, and `rblm_expede.sh`.",
+                "Two dissatisfactions surfaced: (1) release orchestration is a stochastic LLM-driven slash command where deterministic Rust would fit; (2) the shipped `rbtd` (theurge) crate carries maintainer-only release assays as source — `loupe`, `damnatio`, `perambulation` are members of no suite yet ship under `Tools/rbk/`.",
+                "Narrowed by grep: `damnatio.rs` is clean (prose only); the one file naming withheld paths literally is `rbtdrq_perambulation.rs` (`Tools/rbk/rblm_perambulation.sh`, `Tools/rbk/vov_veiled/planted-spec.adoc`).",
+                "Left unresolved: whether that is a LIVE leak or vacuously-green-latent — `loupe` harvests its needle set from veiled trees that no longer stand in the stripped candidate, so it may pass through uncaught, or `pyx`'s candidate scan may already cover it. Settling this needs reading loupe's harvest logic and the candidate stripped-tree coverage, not grep.",
+                "",
+                "Approach A (proposed, unratified): move the deterministic orchestration AND the maintainer-only assays out of shipped `rbtd` into a NEW veiled crate hosted by vvx — explicitly NOT the `jjk` crate (RB release logic has no place in Job Jockey's compilation unit). `/rbk-expede` collapses to invoke-and-report; `RELEASE.md` steps 6–9 stay human ceremony (correctly so). An intermediate \"B\" step (relocate to a veiled sibling crate, later undone by A) was considered and rejected as guaranteed rework, since A subsumes it.",
+                "",
+                "## Done when",
+                "- Leak status settled: is `rbtdrq_perambulation.rs` (and loupe's needle constant) a live disclosure in a real candidate, or latent?",
+                "- Approach A re-judged given that finding — including that `pyx` is a shipped suite member and must stay behind, and the harness-coupling cost of extracting no-suite fixtures from the shipped `rbtd` compilation unit (cfg-gating vs. new crate).",
+                "- Outcome: either a concrete implementation pace is slated, or the issue is declined with a recorded reason."
+              ],
+              "jjgtn_silks": "reassess-release-machinery-veiling",
+              "jjgtn_basis": "291789d"
             }
           ]
         }
