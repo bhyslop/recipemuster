@@ -37,7 +37,6 @@ use apcd::apcrp_parse::apcrp_parse;
 
 use ort::session::{builder::GraphOptimizationLevel, Session};
 use ort::value::Value;
-use serde_json::Value as JsonValue;
 use tokenizers::tokenizer::Tokenizer;
 
 use std::collections::HashMap;
@@ -170,7 +169,7 @@ fn main() {
 fn zapcnsa_load_id2label(config_path: &Path) -> Vec<String> {
     let text = std::fs::read_to_string(config_path)
         .unwrap_or_else(|e| apcd::apcrl_fatal_now!("config read: {}", e));
-    let json: JsonValue = serde_json::from_str(&text)
+    let json: serde_json::Value = serde_json::from_str(&text)
         .unwrap_or_else(|e| apcd::apcrl_fatal_now!("config parse: {}", e));
     let map = json.get("id2label")
         .unwrap_or_else(|| apcd::apcrl_fatal_now!("config.json missing id2label"))

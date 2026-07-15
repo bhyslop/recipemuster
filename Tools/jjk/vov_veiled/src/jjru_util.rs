@@ -6,7 +6,7 @@
 //!
 //! Helper functions for seed management, commit capture, and I/O.
 
-use std::io::Read as IoRead;
+use std::io::Read;
 use crate::jjrc_core::jjrc_timestamp_full;
 use crate::jjrf_favor::JJRF_CHARSET;
 use crate::jjrt_types::*;

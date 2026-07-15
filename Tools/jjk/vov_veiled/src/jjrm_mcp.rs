@@ -15,7 +15,7 @@ use std::path::{Path, PathBuf};
 use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{ServerCapabilities, ServerInfo, CallToolResult, Content};
-use rmcp::{ErrorData as McpError, ServerHandler, tool, tool_handler, tool_router};
+use rmcp::{ErrorData, ServerHandler, tool, tool_handler, tool_router};
 use vvc::vvco_out;
 
 // Handler imports
@@ -120,7 +120,7 @@ fn gallops_pathbuf() -> PathBuf {
 // ============================================================================
 
 /// Convert handler (exit_code, output) to MCP CallToolResult.
-fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
+fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, ErrorData> {
     let (code, output) = result;
     if code == 0 {
         Ok(CallToolResult::success(vec![Content::text(output)]))
@@ -134,7 +134,7 @@ fn jjrm_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
 /// validate's enumerated verdict (JJSCVL) is 0 clean / 2 normalized / 1 broken. Both 0 and 2 are
 /// valid outcomes — a normalized store is a success, not a failure — so only the broken code maps
 /// to an MCP error. The exact bucket is named in the self-describing stdout either way.
-fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, McpError> {
+fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, ErrorData> {
     let (code, output) = result;
     if code == 1 {
         Ok(CallToolResult::error(vec![Content::text(output)]))
@@ -145,7 +145,7 @@ fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, McpErr
 
 
 /// Return deserialization error as MCP error result.
-fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, McpError> {
+fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, ErrorData> {
     Ok(CallToolResult::error(vec![Content::text(format!("jjx {}: invalid params: {}", cmd, e))]))
 }
 
@@ -167,7 +167,7 @@ fn zjjrm_dispatch_inner_msg(
     size_limit: u64,
     message: String,
     handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
-) -> Result<CallToolResult, McpError> {
+) -> Result<CallToolResult, ErrorData> {
     use vvc::vvco_Output;
 
     let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
@@ -717,7 +717,7 @@ fn zjjrm_run_tabtarget(params: jjrm_VvxTtParams) -> (i32, String) {
 // vvx-surface sibling tool — no officium, no gallops, transient — so it carries
 // none of the lock→load→save invariant the gallops operations do. Best-effort /
 // fail-soft: a missing port-file, an unreachable viewer, or an unreadable image
-// returns a soft notice, never an McpError and never a panic. Bringing the
+// returns a soft notice, never an ErrorData and never a panic. Bringing the
 // viewer up is paneboard's job (it conducts the window), not this tool's.
 //
 // Wire framing is paneboard's FROZEN contract (the "Diagram Viewer — Wire
@@ -1926,7 +1926,7 @@ fn zjjrm_revert_managed(path: &str) {
 /// bulk-authorized convergence commit (reprieve conversions now; chat capture later),
 /// gated by that budget; over budget hard-fails with the required size, reverts, and delivers
 /// no officium.
-async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, McpError> {
+async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData> {
     let cn = JJRM_CMD_NAME_OPEN;
     let mut output = vvc::vvco_Output::buffer();
 
@@ -2310,7 +2310,7 @@ impl jjrm_McpServer {
     }
 
     #[tool(name = "jjx", description = "Job Jockey Kit - MCP tools for project initiative management")]
-    async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, McpError> {
+    async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, ErrorData> {
         let cmd = p.command.as_str();
 
         // Model gate: three-bucket per-command policy, checked first. OPEN
@@ -3034,14 +3034,14 @@ impl jjrm_McpServer {
     /// not a jjx command: no officium, no model gate, no Gallops lock — it
     /// touches no heat/pace state, it just execs a curated launcher.
     #[tool(name = "vvx_tt", description = "Run a tt/*.sh tabtarget from the repo root and return its exit status, self-logged ../logs-buk/ output path, and a tail of its output. Bounded to tt/*.sh — no arbitrary commands. Absorbs the tabtarget discipline so it need not be remembered: runs from the repo root, captures output (the exit code is preserved, never eaten by a tail/head/grep pipe), and points at the self-logged record for the full text.")]
-    async fn vvx_tt(&self, Parameters(p): Parameters<jjrm_VvxTtParams>) -> Result<CallToolResult, McpError> {
+    async fn vvx_tt(&self, Parameters(p): Parameters<jjrm_VvxTtParams>) -> Result<CallToolResult, ErrorData> {
         let (code, report) = zjjrm_run_tabtarget(p);
         eprintln!("vvx_tt: exit={}", code);
         jjrm_result((code, report))
     }
 
     #[tool(name = "vvx_render", description = "Put an image on the standalone diagram viewer — the lower tool behind the `unfurl` verb. Pushes the light image over paneboard's localhost wire: a fresh look (fit-to-window) when `anew` is true, an update at the viewer's held zoom+pan when false. Best-effort / fail-soft: an absent or unreachable viewer is a soft notice, not an error — bringing the viewer up is paneboard's job. Takes no officium and touches no gallops. The optional `dark` path is accepted for a stable signature but not yet transported (today only the light image is pushed).")]
-    async fn vvx_render(&self, Parameters(p): Parameters<jjrm_RenderParams>) -> Result<CallToolResult, McpError> {
+    async fn vvx_render(&self, Parameters(p): Parameters<jjrm_RenderParams>) -> Result<CallToolResult, ErrorData> {
         let report = zjjrm_render_report(&p);
         eprintln!("vvx_render: {}", report);
         Ok(CallToolResult::success(vec![Content::text(report)]))
