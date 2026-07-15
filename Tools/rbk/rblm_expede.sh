@@ -383,12 +383,19 @@ rblm_expede() {
   # context under a green battery — the exact failure this pace exists to close.
   # Byte-exact match via openssl sha256 digests (declared dependency; replaces
   # cmp, matching the rbndb_base.sh RBRD-drift precedent) — no new command.
-  local z_claude_expect_digest=""
-  local z_claude_target_digest=""
-  z_claude_expect_digest=$(git show "${z_head}:${RBLM_consumer_claude_path}" | openssl dgst -sha256 -r) \
+  local -r z_claude_expect_temp="${BURD_TEMP_DIR}/rblm_expede_claude_expect.txt"
+  git show "${z_head}:${RBLM_consumer_claude_path}" > "${z_claude_expect_temp}" \
+    || buc_die "Failed to re-read the consumer CLAUDE.md template for assertion"
+  local -r z_claude_expect_digest_temp="${BURD_TEMP_DIR}/rblm_expede_claude_expect_digest.txt"
+  local -r z_claude_target_digest_temp="${BURD_TEMP_DIR}/rblm_expede_claude_target_digest.txt"
+  openssl dgst -sha256 -r < "${z_claude_expect_temp}" > "${z_claude_expect_digest_temp}" \
     || buc_die "Failed to digest the consumer CLAUDE.md template for assertion"
-  z_claude_target_digest=$(openssl dgst -sha256 -r < "${z_claude_target}") \
+  openssl dgst -sha256 -r < "${z_claude_target}" > "${z_claude_target_digest_temp}" \
     || buc_die "Failed to digest ${RBLM_candidate_claude_path}"
+  local -r z_claude_expect_digest=$(<"${z_claude_expect_digest_temp}")
+  local -r z_claude_target_digest=$(<"${z_claude_target_digest_temp}")
+  test -n "${z_claude_expect_digest}" || buc_die "Failed to read or empty: ${z_claude_expect_digest_temp}"
+  test -n "${z_claude_target_digest}" || buc_die "Failed to read or empty: ${z_claude_target_digest_temp}"
   test "${z_claude_expect_digest}" = "${z_claude_target_digest}" \
     || buc_die "Transposition byte-mismatch: ${RBLM_candidate_claude_path} does not equal ${RBLM_consumer_claude_path}"
 
