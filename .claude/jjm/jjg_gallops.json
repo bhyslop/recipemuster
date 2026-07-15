@@ -4196,9 +4196,10 @@
       "jjghn_creation_time": "260715",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢B4AAA"
+        "₢B4AAA",
+        "₢B4AAB"
       ],
-      "jjghn_next_pace_seed": "AAB",
+      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢B4AAA": {
           "jjgpn_tacks": [
@@ -4221,6 +4222,28 @@
               ],
               "jjgtn_silks": "interdictum-halt-not-workaround",
               "jjgtn_basis": "04f2d28"
+            }
+          ]
+        },
+        "₢B4AAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-1120",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Docket",
+                "Move `rbm-abstract-drawio.svg` from the repo root into `diagrams/` (`git mv`, preserving history).",
+                "Update its two live references to the new path:",
+                "`README.md` (the `<img src=\"...\">` tag) and `Tools/rbk/vov_veiled/RBSCO-CosmologyIntro.adoc` (the `image::...[]` macro).",
+                "A repo-wide grep for the bare root-relative filename turns up hits only in retired heat records under `.claude/jjm/retired/` — those are historical and out of scope.",
+                "",
+                "## Done when",
+                "`rbm-abstract-drawio.svg` lives at `diagrams/rbm-abstract-drawio.svg`, tracked via `git mv`;",
+                "README and RBSCO-CosmologyIntro.adoc both reference the new path;",
+                "a repo-wide grep for the old root-relative reference outside `.claude/jjm/retired/` is clean."
+              ],
+              "jjgtn_silks": "relocate-abstract-diagram-svg",
+              "jjgtn_basis": "ad88bb0"
             }
           ]
         }
