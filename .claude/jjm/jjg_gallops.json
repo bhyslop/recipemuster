@@ -5382,8 +5382,9 @@
         "₢BdAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2254",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2034",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -5402,7 +5403,7 @@
                 "Retrofit is incremental — coverage grows pace by pace, never a single big-bang sweep."
               ],
               "jjgtn_silks": "axla-mutability-phase-rollout",
-              "jjgtn_basis": "bf0737d"
+              "jjgtn_basis": "1a3c605"
             }
           ]
         }
