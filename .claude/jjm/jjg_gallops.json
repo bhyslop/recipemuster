@@ -4771,8 +4771,9 @@
         "₢BcAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260620-0908",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2033",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Cleanup — mechanical, with a verify-dead gate before each removal.",
@@ -4794,7 +4795,7 @@
                 "the jjda_* quoins in the JJS0 Arguments section; their arg-struct fields in jjrt_types.rs."
               ],
               "jjgtn_silks": "retire-v3-legacy-arg-quoins",
-              "jjgtn_basis": "b0945d5"
+              "jjgtn_basis": "fae97a4"
             }
           ]
         },
