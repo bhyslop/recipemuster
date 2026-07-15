@@ -63,10 +63,47 @@ fn make_heat_with_docket(heat_id: &str, docket: &str) -> (String, jjrg_Heat) {
         creation_time: "260101".to_string(),
         status: jjrg_HeatStatus::Racing,
         order: vec![pace_key],
-        next_pace_seed: "AAB".to_string(),
         paces,
     };
     (heat_key, heat)
+}
+
+// A gallops holding the coronets the same-firemark guard tests reference, each in
+// its (grandfathered) embedded heat — the paces-scan confirms live affiliation.
+fn guard_gallops() -> jjrg_Gallops {
+    let mut heats = BTreeMap::new();
+    for (heat_id, coronet_ids) in [("BD", ["BDAAb", "BDAAA"]), ("BE", ["BEAAb", "BEAAc"])] {
+        let mut paces = BTreeMap::new();
+        let mut order = Vec::new();
+        for cid in coronet_ids {
+            let ck = format!("₢{}", cid);
+            let tack = jjrg_Tack {
+                ts: "260101-1200".to_string(),
+                state: jjrg_PaceState::Rough,
+                tier: None,
+                effort: None,
+                text: vec!["d".to_string()],
+                silks: "guard-pace".to_string(),
+                basis: JJRG_UNKNOWN_BASIS.to_string(),
+            };
+            paces.insert(ck.clone(), jjrg_Pace { tacks: vec![tack] });
+            order.push(ck);
+        }
+        heats.insert(format!("₣{}", heat_id), jjrg_Heat {
+            silks: format!("heat-{}", heat_id.to_lowercase()),
+            creation_time: "260101".to_string(),
+            status: jjrg_HeatStatus::Racing,
+            order,
+            paces,
+        });
+    }
+    jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
+        heat_order: vec![],
+        heats,
+        retention_since: None,
+    }
 }
 
 fn batch(paddock: Option<(&str, &str)>, reslates: &[(&str, &str)], slates: &[(&str, &str)]) -> jjrz_BatchInput {
@@ -82,14 +119,14 @@ fn batch(paddock: Option<(&str, &str)>, reslates: &[(&str, &str)], slates: &[(&s
 #[test]
 fn jjtm_resolve_agrees_paddock_and_reslate_same_heat() {
     let b = batch(Some(("BD", "body")), &[("₢BDAAb", "d")], &[("new-pace", "d")]);
-    let fm = jjrm_resolve_batch_firemark(&b).unwrap();
+    let fm = jjrm_resolve_batch_firemark(&b, &guard_gallops()).unwrap();
     assert_eq!(fm.jjrf_display(), "₣BD");
 }
 
 #[test]
 fn jjtm_resolve_rejects_cross_heat_paddock_vs_reslate() {
     let b = batch(Some(("BD", "body")), &[("₢BEAAb", "d")], &[]);
-    let err = jjrm_resolve_batch_firemark(&b).unwrap_err();
+    let err = jjrm_resolve_batch_firemark(&b, &guard_gallops()).unwrap_err();
     assert!(err.contains("cross-heat batch rejected"), "got: {}", err);
 }
 
@@ -98,14 +135,14 @@ fn jjtm_resolve_rejects_cross_heat_mass_reslate() {
     // The closed legacy bug: two reslates in different heats. The old path keyed
     // off the first coronet with no check; the guard now rejects.
     let b = batch(None, &[("₢BDAAb", "d"), ("₢BEAAc", "d")], &[]);
-    let err = jjrm_resolve_batch_firemark(&b).unwrap_err();
+    let err = jjrm_resolve_batch_firemark(&b, &guard_gallops()).unwrap_err();
     assert!(err.contains("cross-heat batch rejected"), "got: {}", err);
 }
 
 #[test]
 fn jjtm_resolve_rejects_slate_only_batch() {
     let b = batch(None, &[], &[("new-pace", "d")]);
-    let err = jjrm_resolve_batch_firemark(&b).unwrap_err();
+    let err = jjrm_resolve_batch_firemark(&b, &guard_gallops()).unwrap_err();
     assert!(err.contains("no heat anchor"), "got: {}", err);
 }
 
@@ -115,6 +152,7 @@ fn jjtm_resolve_rejects_slate_only_batch() {
 fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
     let mut gallops = jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -126,7 +164,7 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
     // two slates whose silks are deliberately NOT alphabetical.
     let md = "# jjezs_reslate ₢BDAAA\n\n## Goal\nnew goal\n\n# jjezs_slate yankee-pace\n\nfirst slate\n\n# jjezs_slate bravo-pace\n\nsecond slate\n";
     let b = jjrz_parse_batch_input(md).unwrap();
-    let fm = jjrm_resolve_batch_firemark(&b).unwrap();
+    let fm = jjrm_resolve_batch_firemark(&b, &gallops).unwrap();
 
     let out = jjrm_apply_batch(&mut gallops, &b, &fm, None, None, false).unwrap();
     assert!(out.contains("1 reslate"));
@@ -150,6 +188,7 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
 fn jjtm_apply_batch_positioned_slates_fold_in_contiguously() {
     let mut gallops = jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -159,7 +198,7 @@ fn jjtm_apply_batch_positioned_slates_fold_in_contiguously() {
 
     let md = "# jjezs_slate yankee-pace\n\nfirst slate\n\n# jjezs_slate bravo-pace\n\nsecond slate\n\n# jjezs_reslate ₢BDAAA\n\n## Goal\nstanding pace\n";
     let b = jjrz_parse_batch_input(md).unwrap();
-    let fm = jjrm_resolve_batch_firemark(&b).unwrap();
+    let fm = jjrm_resolve_batch_firemark(&b, &gallops).unwrap();
 
     // first=true aims the run at the head of the heat.
     jjrm_apply_batch(&mut gallops, &b, &fm, None, None, true).unwrap();

@@ -47,13 +47,13 @@ fn create_test_gallops() -> jjrg_Gallops {
             creation_time: "260101".to_string(),
             status: jjrg_HeatStatus::Racing,
             order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()],
-            next_pace_seed: "AAC".to_string(),
             paces,
         },
     );
 
     jjrg_Gallops {
         next_heat_seed: "AC".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats,
         retention_since: None,
@@ -230,13 +230,13 @@ fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
                 "₢ACAAC".to_string(),
                 "₢ACAAD".to_string(),
             ],
-            next_pace_seed: "AAE".to_string(),
             paces,
         },
     );
 
     jjrg_Gallops {
         next_heat_seed: "AD".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats,
         retention_since: None,

@@ -63,6 +63,7 @@ fn jjtcu_firemark_parse_invalid_chars() {
 fn empty_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,

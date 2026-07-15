@@ -10,6 +10,7 @@ use std::collections::BTreeMap;
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -50,7 +51,6 @@ fn make_valid_heat(heat_id: &str, silks: &str, status: jjrg_HeatStatus) -> (Stri
         creation_time: "260101".to_string(),
         status,
         order: vec![pace_key],
-        next_pace_seed: "AAB".to_string(),
         paces,
     };
     (heat_key, heat)

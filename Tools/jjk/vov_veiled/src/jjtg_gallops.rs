@@ -104,6 +104,7 @@ fn canonical_gallops() -> jjrg_Gallops {
     heats.insert(hk.clone(), heat);
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![hk],
         heats,
         retention_since: None,
@@ -286,6 +287,7 @@ fn jjtg_validate_run_broken_returns_exit1_and_leaves_file() {
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -326,7 +328,6 @@ fn make_valid_heat(heat_id: &str, silks: &str) -> (String, jjrg_Heat) {
         creation_time: "260101".to_string(),
         status: jjrg_HeatStatus::Racing,
         order: vec![pace_key],
-        next_pace_seed: "AAB".to_string(),
         paces,
     };
     (heat_key, heat)
@@ -459,13 +460,11 @@ fn jjtg_validate_heat_invalid_creation_time() {
 }
 
 #[test]
-fn jjtg_validate_heat_invalid_next_pace_seed() {
+fn jjtg_validate_gallops_invalid_next_pace_seed() {
     let mut gallops = make_valid_gallops();
-    let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");
-    heat.next_pace_seed = "AB".to_string(); // Should be 3 chars
-    gallops.heats.insert(heat_key, heat);
+    gallops.next_pace_seed = "AB".to_string(); // the global seed must be 5 chars
     let errors = gallops.jjrg_validate().unwrap_err();
-    assert!(errors.iter().any(|e| e.contains("next_pace_seed must be 3 characters")));
+    assert!(errors.iter().any(|e| e.contains("next_pace_seed must be 5 characters")));
 }
 
 #[test]
@@ -589,6 +588,7 @@ fn jjtg_serialize_deserialize_roundtrip() {
 fn jjtg_multiple_errors_collected() {
     let mut gallops = jjrg_Gallops {
         next_heat_seed: "!!!".to_string(), // Wrong length and chars
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -651,9 +651,8 @@ fn jjtg_nominate_creates_heat() {
     assert_eq!(heat.creation_time, "260113");
     assert_eq!(heat.status, jjrg_HeatStatus::Stabled);
     assert!(heat.order.is_empty());
-    assert_eq!(heat.next_pace_seed, "AAA");
 
-    // Check seed was incremented
+    // Check heat seed was incremented
     assert_eq!(gallops.next_heat_seed, "AC");
 }
 
@@ -704,9 +703,10 @@ fn jjtg_slate_creates_pace() {
 
     let result = gallops.jjrg_slate(args).unwrap();
 
-    // Check result
+    // Check result — a flat global coronet minted from the gallops seed (CAAAA),
+    // no embedded heat identity (JJS0 jjdt_coronet).
     assert!(result.coronet.starts_with('₢'));
-    assert!(result.coronet.contains("AB")); // Embeds heat identity
+    assert_eq!(result.coronet, "₢CAAAA");
 
     // Check pace was created
     let heat = gallops.heats.get(&heat_key).unwrap();
@@ -720,8 +720,8 @@ fn jjtg_slate_creates_pace() {
     // Check order was updated
     assert!(heat.order.contains(&result.coronet));
 
-    // Check seed was incremented (was AAB, now AAC due to existing pace)
-    assert_eq!(heat.next_pace_seed, "AAC");
+    // Check the global pace seed advanced (CAAAA → CAAAB).
+    assert_eq!(gallops.next_pace_seed, "CAAAB");
 }
 
 // Build a heat whose order carries history ahead of live work:
@@ -744,7 +744,6 @@ fn make_heat_with_history(heat_id: &str) -> (String, jjrg_Heat) {
         creation_time: "260101".to_string(),
         status: jjrg_HeatStatus::Racing,
         order,
-        next_pace_seed: "AAD".to_string(),
         paces,
     };
     (heat_key, heat)
@@ -915,7 +914,6 @@ fn jjtg_slate_with_before_inserts_at_position() {
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
-    heat.next_pace_seed = "AAC".to_string();
 
     let first_pace = heat.order[0].clone();
     gallops.heats.insert(heat_key.clone(), heat);
@@ -950,7 +948,6 @@ fn jjtg_slate_with_after_inserts_at_position() {
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
-    heat.next_pace_seed = "AAC".to_string();
 
     let first_pace = heat.order[0].clone();
     gallops.heats.insert(heat_key.clone(), heat);
@@ -1043,7 +1040,6 @@ fn jjtg_rail_move_first() {
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
     heat.order.push(pace4_key.clone());
-    heat.next_pace_seed = "AAE".to_string();
 
     // Order: [complete1, complete2, rough3, rough4]
     gallops.heats.insert(heat_key.clone(), heat);
@@ -1091,7 +1087,6 @@ fn jjtg_rail_move_first_all_complete() {
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
-    heat.next_pace_seed = "AAD".to_string();
 
     // Order: [complete1, complete2, complete3]
     gallops.heats.insert(heat_key.clone(), heat);
@@ -1127,7 +1122,6 @@ fn jjtg_rail_move_last() {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
     });
     heat.order.push(pace2_key.clone());
-    heat.next_pace_seed = "AAC".to_string();
 
     let original_first = heat.order[0].clone();
     gallops.heats.insert(heat_key.clone(), heat);
@@ -1166,7 +1160,6 @@ fn jjtg_rail_move_before() {
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
-    heat.next_pace_seed = "AAD".to_string();
 
     let original_first = heat.order[0].clone();
     gallops.heats.insert(heat_key.clone(), heat);
@@ -1206,7 +1199,6 @@ fn jjtg_rail_move_after() {
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
-    heat.next_pace_seed = "AAD".to_string();
 
     let original_first = heat.order[0].clone();
     gallops.heats.insert(heat_key.clone(), heat);
