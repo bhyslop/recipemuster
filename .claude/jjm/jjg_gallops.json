@@ -3792,8 +3792,8 @@
         "₢B0AAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0811",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260715-0822",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Small, precedented fix — mirrors an existing exemption-table row for the same withheld file family.",
@@ -3805,7 +3805,7 @@
                 "tt/rbw-tf.FixtureRun.sh loupe is green. Confirm no regression elsewhere (reveille, which loupe isn't a member of, stays green)."
               ],
               "jjgtn_silks": "exempt-rblm-expede-from-veil-scan",
-              "jjgtn_basis": "880435a"
+              "jjgtn_basis": "8534d31"
             }
           ]
         }
