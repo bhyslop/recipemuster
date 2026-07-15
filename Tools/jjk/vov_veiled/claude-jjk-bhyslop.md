@@ -121,6 +121,18 @@ of every older-format gallops on disk. These changes are rare and easy to get wr
 do not improvise. Before touching the schema, read `jjdz_reprieve` in JJS0 and
 follow its "Registering a new episode" procedure.
 
+**Additive carve-out.** A purely additive change — a new field riding
+`#[serde(default, skip_serializing_if = …)]`, absent from every untouched store
+so an old store reads natively AND re-serializes byte-identical — registers NO
+episode: forgiveness exists to tolerate old stores, and an additive change
+leaves nothing to tolerate, so a probe would have no signature. This is the
+₣Bc bridle-revival determination (260706), generalized by JJSCRP's additive
+clause; the tier/effort fields and the pace original-intent capture are the
+worked instances. Both halves of the byte-identity condition are load-bearing —
+a field that serializes when default is NOT additive. §F branch delivery is
+retained either way: additive or not, schema-change source rides its own
+date-and-identity branch to the coda's coordinated convergence.
+
 The full doctrine — the mechanism, the multi-install convergence model, how a
 schema change is delivered, and how the clones converge — lives in the JJS0
 subdocument `JJSCRP-reprieve.adoc` (the `jjdz_reprieve` quoin). The agent rule it
