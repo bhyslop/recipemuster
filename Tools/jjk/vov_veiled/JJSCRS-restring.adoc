@@ -13,7 +13,7 @@ keep their
 — immutable for life — and are re-affiliated into the destination
 {jjdhr_heat};
 all
-{jjdkr_tack}
+{jjdcr_tack}
 history is preserved.
 
 This operation mirrors
@@ -120,13 +120,13 @@ immutable
 {jjdt_coronet}
 in destination — always equal to `old_coronet`, because transfer never re-keys; the pair is retained for output-schema stability
 * `drafted[].silks`: Current
-{jjdkm_silks}
+{jjdcm_silks}
 from `tacks[0]`
 * `drafted[].state`: Current
-{jjdkm_state}
+{jjdcm_state}
 from `tacks[0]`
 * `drafted[].docket`: Current
-{jjdkm_text}
+{jjdcm_text}
 from `tacks[0]`
 (first 80 chars)
 
@@ -170,7 +170,7 @@ to destination
 under the same
 {jjdt_coronet}
 — never re-keyed, never re-minted; all
-{jjdkr_tack}
+{jjdcr_tack}
 data is carried unchanged
 .. Remove the
 {jjdt_coronet}

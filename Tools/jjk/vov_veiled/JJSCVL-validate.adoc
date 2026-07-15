@@ -86,18 +86,19 @@ appears in exactly one
 must have:
 `tacks` (non-empty array)
 . Each
-{jjdkr_tack}
+{jjdcr_tack}
 must have:
-{jjdkm_refined}
-(YYMMDD-HHMM),
-{jjdkm_state}
+{jjdcm_ts}
+(ISO 8601 timestamp),
+{jjdcm_state}
 ({jjdpe_rough},
+{jjdpe_bridled},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}),
-{jjdkm_text}
-(non-empty string),
-{jjdkm_silks}
+{jjdcm_text}
+(non-empty array of strings),
+{jjdcm_silks}
 (non-empty kebab-case),
-{jjdkm_commit}
-(valid {jjdkm_commit} format)
+{jjdcm_basis}
+(7-character SHA, or `0000000`)

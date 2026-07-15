@@ -14,7 +14,7 @@ keeps its
 — that identity is immutable for life — and is re-affiliated by moving its entry into the destination
 {jjdhr_heat};
 all
-{jjdkr_tack}
+{jjdcr_tack}
 history is preserved.
 
 *Important:* "Relocated" is not a
@@ -118,7 +118,7 @@ to destination
 under the same
 {jjdt_coronet}
 — never re-keyed, never re-minted; all
-{jjdkr_tack}
+{jjdcr_tack}
 data is carried unchanged
 . Insert the
 {jjdt_coronet}

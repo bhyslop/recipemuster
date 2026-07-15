@@ -6,7 +6,7 @@ Add a new
 to a
 {jjdhr_heat}.
 The initial
-{jjdkr_tack}
+{jjdcr_tack}
 is created with state
 {jjdpe_rough}.
 
@@ -27,9 +27,9 @@ Use positioning flags to insert at a specific location.
 — provided via {jjdxo_gazette} `jjezs_slate` lede
 
 * `docket` (string) —
-{jjdkm_text}
+{jjdcm_text}
 content for the initial
-{jjdkr_tack},
+{jjdcr_tack},
 provided via {jjdxo_gazette} `jjezs_slate` body
 
 //axd_optional
@@ -107,17 +107,17 @@ with:
 .. Key: constructed
 {jjdt_coronet}
 .. `tacks`: array with single
-{jjdkr_tack}:
-... {jjdkm_refined}:
-current timestamp (YYMMDD-HHMM)
-... {jjdkm_state}:
+{jjdcr_tack}:
+... {jjdcm_ts}:
+current ISO 8601 timestamp
+... {jjdcm_state}:
 {jjdpe_rough}
-... {jjdkm_text}:
-from `docket` parameter
-... {jjdkm_silks}:
+... {jjdcm_text}:
+from `docket` parameter, as a line array (one element per physical line)
+... {jjdcm_silks}:
 from argument
-... {jjdkm_commit}:
-capture {jjdkm_commit}
+... {jjdcm_basis}:
+capture the basis commit SHA (7-character, or `0000000` when indeterminable)
 . Insert
 {jjdt_coronet}
 into
