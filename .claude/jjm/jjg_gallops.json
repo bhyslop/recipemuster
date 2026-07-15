@@ -6878,35 +6878,41 @@
         "₢BrAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1851",
+              "jjgtn_ts": "260714-1856",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "",
-                "Small and unassuming — make the next step visible, do not plan it.",
+                "Cut the next heat and the discipline that carries the rest forward.",
+                "Establish the chain; detail nothing past the next rung.",
                 "",
                 "## Done when",
                 "",
-                "The conversion heat exists as a nominated heat with a paddock,",
-                "cut from the studbook sheaf's Founding-and-cutover section (its sole plan home)",
-                "and refreshed by what the rehearsal found — finding B's cross-machine cluster especially.",
+                "The conversion heat exists, cut from the studbook sheaf's Founding-and-cutover section",
+                "(its sole plan home), its paddock a PHASE LADDER:",
                 "",
-                "That paddock is shaped as a PHASE LADDER, not a flat plan:",
-                "each phase carries a one-line definition-of-done, and each phase boundary carries a",
-                "carry-forward pace whose whole job is to expand the next phase into real paces once the",
-                "prior lands — so the plan travels heat-to-heat and no single paddock holds it all.",
-                "Name the rungs (near: founding-and-cutover; far: footprint-delivery) and their done-lines;",
-                "do NOT detail a phase whose predecessor has not landed.",
-                "The ladder's terminal rung is the conversion heat's OWN carry-forward pace, cutting the",
-                "footprint heat when cutover lands, so the chain does not dead-end at conversion.",
+                "- Rungs named, not detailed — near: founding-and-cutover; far: footprint-delivery.",
+                "  Detail a phase only once its predecessor lands.",
+                "- Each rung's done-line is an observable PREDICATE — a command to run or a state to",
+                "  sight — never an adjective (\"cutover lands\" is not a gate).",
+                "- Each phase boundary is a SLATED carry-forward pace, not paddock prose: its job is to",
+                "  transcribe the live findings forward into the next paddock (knowledge, not just",
+                "  sequence) and expand that phase into paces. A slated pace shows in the roster and",
+                "  blocks a clean retirement; prose does not.",
                 "",
-                "It states the entry gate this heat's exit hands it:",
-                "the rehearsal checklist passed, and the re-gestalt landed and converged in its own heat.",
+                "So this pace slates exactly ONE pace into the new heat — its terminal carry-forward pace,",
+                "last in order, gated on a cutover-landed predicate, cutting the footprint heat. That lone",
+                "slate is the sole exception to \"slate nothing\"; it is the chain's next link made real, so",
+                "the arc cannot dead-end silently.",
                 "",
-                "No paces are slated here. Cutting the phased shape is the whole act."
+                "Seed the far rung from finding B's cross-machine cluster, transcribed forward by the",
+                "carry-forward pace — never left to be read from this heat's retired paddock.",
+                "",
+                "Entry gate handed on: the rehearsal checklist sighted green, and the re-gestalt landed",
+                "and converged in its own heat."
               ],
               "jjgtn_silks": "cut-the-conversion-heat",
-              "jjgtn_basis": "23f940d"
+              "jjgtn_basis": "fe78474"
             }
           ]
         },
