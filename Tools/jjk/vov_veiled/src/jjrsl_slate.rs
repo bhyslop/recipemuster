@@ -48,7 +48,17 @@ pub struct jjrsl_SlateArgs {
 }
 
 /// Handler for jjx_slate command
-pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
+///
+/// `dictation` and `precis` are the optional original-intent companions from
+/// the gazette (operator's verbatim words; LLM distillation) — frozen onto the
+/// new pace at this one moment, never writable again.
+pub fn jjrsl_run_slate(
+    args: jjrsl_SlateArgs,
+    docket: String,
+    dictation: Option<String>,
+    precis: Option<String>,
+) -> (i32, String) {
+    use crate::jjrc_core::jjrc_timestamp_full;
     use crate::jjrg_gallops::jjrg_SlateArgs;
     let cn = JJRSL_CMD_NAME_ENROLL;
     let mut output = vvco_Output::buffer();
@@ -78,6 +88,9 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
         firemark: args.firemark,
         silks: args.silks,
         text,
+        dictation,
+        precis,
+        slated: jjrc_timestamp_full(),
         before: args.before,
         after: args.after,
         first: args.first,

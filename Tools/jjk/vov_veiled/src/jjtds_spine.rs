@@ -97,12 +97,15 @@ fn zjjtds_gallops() -> jjrg_Gallops {
     let mut paces = std::collections::BTreeMap::new();
     paces.insert("₢AAAAC".to_string(), jjrg_Pace {
         tacks: vec![zjjtds_tack(jjrg_PaceState::Complete, Some(jjrg_Tier::Sonnet), None)],
+        ..Default::default()
     });
     paces.insert("₢AAAAA".to_string(), jjrg_Pace {
         tacks: vec![zjjtds_tack(jjrg_PaceState::Rough, None, None)],
+        ..Default::default()
     });
     paces.insert("₢AAAAB".to_string(), jjrg_Pace {
         tacks: vec![zjjtds_tack(jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), Some(jjrg_Effort::High))],
+        ..Default::default()
     });
     let mut heats = std::collections::BTreeMap::new();
     heats.insert("₣AA".to_string(), jjrg_Heat {

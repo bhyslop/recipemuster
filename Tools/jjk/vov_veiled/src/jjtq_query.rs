@@ -22,6 +22,7 @@ fn create_test_gallops() -> jjrg_Gallops {
                 silks: "test-pace-one".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
             }],
+            ..Default::default()
         },
     );
     paces.insert(
@@ -36,6 +37,7 @@ fn create_test_gallops() -> jjrg_Gallops {
                 silks: "test-pace-two".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
             }],
+            ..Default::default()
         },
     );
 
@@ -172,6 +174,7 @@ fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
                 silks: "pace-complete".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
             }],
+            ..Default::default()
         },
     );
     paces.insert(
@@ -186,6 +189,7 @@ fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
                 silks: "pace-rough".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
             }],
+            ..Default::default()
         },
     );
     paces.insert(
@@ -200,6 +204,7 @@ fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
                 silks: "pace-rough-two".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
             }],
+            ..Default::default()
         },
     );
     paces.insert(
@@ -214,6 +219,7 @@ fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
                 silks: "pace-abandoned".to_string(),
                 basis: JJRG_UNKNOWN_BASIS.to_string(),
             }],
+            ..Default::default()
         },
     );
 

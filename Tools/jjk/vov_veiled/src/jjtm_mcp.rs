@@ -57,7 +57,7 @@ fn make_heat_with_docket(heat_id: &str, docket: &str) -> (String, jjrg_Heat) {
         basis: JJRG_UNKNOWN_BASIS.to_string(),
     };
     let mut paces = BTreeMap::new();
-    paces.insert(pace_key.clone(), jjrg_Pace { tacks: vec![tack] });
+    paces.insert(pace_key.clone(), jjrg_Pace { tacks: vec![tack], ..Default::default() });
     let heat = jjrg_Heat {
         silks: format!("heat-{}", heat_id),
         creation_time: "260101".to_string(),
@@ -144,6 +144,36 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
     let s2 = &heat.paces.get(&heat.order[2]).unwrap().tacks.first().unwrap().silks;
     assert_eq!(s1, "yankee-pace");
     assert_eq!(s2, "bravo-pace");
+}
+
+#[test]
+fn jjtm_apply_batch_intent_posture() {
+    // Batch-born paces carry no original-intent capture (the batch vocabulary
+    // excludes the companions — documented follow-on) but still get a slate
+    // stamp; a batch reslate bumps the target's redocket counter.
+    let mut gallops = jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
+        retention_since: None,
+    };
+    let (k, h) = make_heat_with_docket("BD", "## Goal\nold goal");
+    gallops.heats.insert(k, h);
+
+    let md = "# jjezs_reslate ₢BDAAA\n\n## Goal\nnew goal\n\n# jjezs_slate batch-pace\n\nbatch docket\n";
+    let b = jjrz_parse_batch_input(md).unwrap();
+    let fm = jjrm_resolve_batch_firemark(&b).unwrap();
+    jjrm_apply_batch(&mut gallops, &b, &fm, None, None, false).unwrap();
+
+    let heat = gallops.heats.get("₣BD").unwrap();
+    let reslated = heat.paces.get("₢BDAAA").unwrap();
+    assert_eq!(reslated.redocket_count, 1, "batch reslate bumps the counter");
+
+    let born = heat.paces.get(&heat.order[1]).unwrap();
+    assert!(born.dictation.is_none());
+    assert!(born.precis.is_none());
+    assert!(born.slated.as_deref().is_some_and(|s| !s.is_empty()), "slate stamp still recorded");
+    assert_eq!(born.redocket_count, 0);
 }
 
 #[test]

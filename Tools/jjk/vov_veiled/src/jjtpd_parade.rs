@@ -45,7 +45,7 @@ fn make_heat_with_docket(
         basis: JJRG_UNKNOWN_BASIS.to_string(),
     };
     let mut paces = BTreeMap::new();
-    paces.insert(pace_key.clone(), jjrg_Pace { tacks: vec![tack] });
+    paces.insert(pace_key.clone(), jjrg_Pace { tacks: vec![tack], ..Default::default() });
     let heat = jjrg_Heat {
         silks: format!("heat-{}", heat_id),
         creation_time: "260101".to_string(),

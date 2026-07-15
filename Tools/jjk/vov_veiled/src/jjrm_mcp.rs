@@ -294,10 +294,16 @@ pub fn jjrm_apply_batch(
             None => (before.clone(), after.clone(), first),
             Some(prev) => (None, Some(prev.clone()), false),
         };
+        // Batch-born paces carry no original-intent capture for now (the batch
+        // vocabulary deliberately excludes the companions — see
+        // jjrz_parse_batch_input); the slate stamp is still knowable and true.
         let res = jjrg_slate(gallops, jjrg_SlateArgs {
             firemark: firemark.jjrf_display(),
             silks: silks.clone(),
             text: docket.clone(),
+            dictation: None,
+            precis: None,
+            slated: crate::jjrc_core::jjrc_timestamp_full(),
             before: b,
             after: a,
             first: f,
@@ -2644,9 +2650,9 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_ENROLL => {
                 let p = deser!(jjrm_EnrollParams);
-                let (silks, docket) = match gazette_in_content {
+                let slate_input = match gazette_in_content {
                     Some(ref content) => match jjrz_parse_slate_input(content) {
-                        Ok(pair) => pair,
+                        Ok(input) => input,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: gazette input error: {}", cmd, e),
                         )])),
@@ -2658,12 +2664,12 @@ impl jjrm_McpServer {
                 jjrm_result(jjrsl_run_slate(jjrsl_SlateArgs {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
-                    silks,
+                    silks: slate_input.silks,
                     before: p.before,
                     after: p.after,
                     first: p.first,
                     size_limit: p.size_limit,
-                }, docket))
+                }, slate_input.docket, slate_input.dictation, slate_input.precis))
             }
             JJRM_CMD_NAME_REORDER => {
                 let p = deser!(jjrm_ReorderParams);

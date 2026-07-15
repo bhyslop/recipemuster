@@ -143,7 +143,8 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     // Construct Coronet
     let coronet_str = format!("{}{}{}", JJRF_CORONET_PREFIX, firemark.jjrf_as_str(), heat.next_pace_seed);
 
-    // Create initial Tack and Pace
+    // Create initial Tack and Pace. The original-intent capture (dictation,
+    // precis, slated) is frozen here, once — no other path writes these fields.
     let tack = jjrg_make_tack(
         jjrg_PaceState::Rough,
         args.text,
@@ -151,6 +152,10 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     );
     let pace = jjrg_Pace {
         tacks: vec![tack],
+        dictation: args.dictation,
+        precis: args.precis,
+        slated: Some(args.slated),
+        redocket_count: 0,
     };
 
     // Insert into order at determined position
@@ -459,8 +464,15 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
 
     // A pace holds a single current tack; the draft note captures the prior
     // docket, and tack history lives in git (JJS0 Git-as-Journal).
+    // The original-intent capture travels with the work: draft (and restring,
+    // which routes through here) is a relocation, not a reslate — it never
+    // re-freezes the frozen fields and never increments the counter.
     let new_pace = jjrg_Pace {
         tacks: vec![draft_tack],
+        dictation: pace_data.dictation,
+        precis: pace_data.precis,
+        slated: pace_data.slated,
+        redocket_count: pace_data.redocket_count,
     };
 
     // Insert into destination heat
