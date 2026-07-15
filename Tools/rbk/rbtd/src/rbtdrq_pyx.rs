@@ -360,11 +360,16 @@ pub(crate) const ZRBTDRQ_VEIL_ROOTS: &[&str] =
 
 /// Repo-relative single files added to the veil corpus.
 ///
-/// The repo-root `CLAUDE.md` is deliberately ABSENT. In this tree it is the
-/// maintainer's own context — it names withheld material on purpose and does not
-/// ship. In the candidate it is a byte-copy of the consumer template named here,
-/// which this scan assays at its own home. Scanning the template rather than the
-/// copy is what lets one case hold both trees.
+/// The repo-root `CLAUDE.md` is deliberately ABSENT — this scan's census is
+/// harvested from the veiled trees, so it only runs where they still stand (the
+/// maintainer tree), and there root CLAUDE.md is the maintainer's own context,
+/// naming withheld material on purpose. In the candidate, root CLAUDE.md carries
+/// the consumer template's bytes: expede transposes them from the path named
+/// below onto it, byte-asserted, between materialization and the commit — never
+/// a copy this ceremony performs. Scanning the template at its veiled home here
+/// covers that content pre-cut; damnatio's rbtdrq_veil_stripped covers the
+/// candidate's actual root CLAUDE.md directly, once no veiled tree stands to
+/// census from.
 pub(crate) const ZRBTDRQ_VEIL_FILES: &[&str] =
     &["README.md", "Tools/rbk/vov_veiled/CLAUDE.consumer.md"];
 
@@ -514,6 +519,7 @@ pub(crate) fn zrbtdrq_veil_self_proof() -> Vec<zrbtdrq_Finding> {
     let positives: &[&str] = &[
         "  - see Tools/rbk/vov_veiled/whatever.sh for the rule",
         "# Contract: ZZQ-Example.adoc.",
+        "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context acronym row)",
     ];
     for probe in positives {
         let mut hits = Vec::new();
@@ -1088,6 +1094,124 @@ fn rbtdrq_readme_anchors(dir: &Path) -> rbtdre_Verdict {
     zrbtdrq_report(dir, "anchor", &findings, &inventory, "dangling-anchor violation(s)")
 }
 
+// ── Case: no shipped .adoc ──────────────────────────────────
+
+/// The one extension the no-.adoc case forbids in the shipping corpus.
+pub(crate) const ZRBTDRQ_ADOC_EXT: &str = ".adoc";
+
+/// Repo-relative paths exempt from the no-.adoc case, each with the reason. Same
+/// doctrine as the other exemption tables: exact path, never a prefix, and every
+/// row is an OPERATOR ACT — an `.adoc` that should ship is a ruling, never a
+/// default. Empty today: every tracked `.adoc` sits under a withheld prefix, and
+/// none has ever been ruled fit to ship.
+pub(crate) const ZRBTDRQ_ADOC_EXEMPT: &[(&str, &str)] = &[];
+
+/// True when `rel` is a shipped `.adoc`: the extension matches and the path is
+/// not in the exemption table. Factored out of the case so the predicate can be
+/// proven in memory before its live-tree verdict is trusted.
+pub(crate) fn zrbtdrq_is_shipped_adoc(rel: &str) -> bool {
+    rel.ends_with(ZRBTDRQ_ADOC_EXT)
+        && !ZRBTDRQ_ADOC_EXEMPT.iter().any(|(exempt, _)| *exempt == rel)
+}
+
+/// Recursively collect every file path beneath `dir`, skipping `skip_dirs`
+/// directories only — no extension or size filter. The no-.adoc case reads only
+/// file NAMES, never contents, so zrbtdrq_walk's read-oriented filtering (which
+/// caps file size and skips binary extensions for the checks that read bytes)
+/// would silently exempt an oversize or extension-skip-listed misfile from the
+/// very sweep meant to catch it.
+pub(crate) fn zrbtdrq_walk_paths(dir: &Path, skip_dirs: &[&str], out: &mut Vec<PathBuf>) {
+    let entries = match std::fs::read_dir(dir) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.is_dir() {
+            let skipped = path
+                .file_name()
+                .and_then(|s| s.to_str())
+                .map(|name| skip_dirs.contains(&name))
+                .unwrap_or(false);
+            if !skipped {
+                zrbtdrq_walk_paths(&path, skip_dirs, out);
+            }
+            continue;
+        }
+        out.push(path);
+    }
+}
+
+/// The shipped-`.adoc` predicate's self-proof, run before its live-tree verdict
+/// is trusted. Both probes are synthetic paths that never exist on disk — no real
+/// violation is planted in the repo.
+fn zrbtdrq_adoc_self_proof() -> Vec<zrbtdrq_Finding> {
+    let mut findings = Vec::new();
+
+    if !zrbtdrq_is_shipped_adoc("Tools/rbk/ZZQ-Example.adoc") {
+        findings.push(zrbtdrq_Finding {
+            file: ZRBTDRQ_SELF_EXEMPT.to_string(),
+            line: 0,
+            detail: "adoc matcher missed a known shipping .adoc path".to_string(),
+        });
+    }
+    if zrbtdrq_is_shipped_adoc("Tools/rbk/ZZQ-Example.md") {
+        findings.push(zrbtdrq_Finding {
+            file: ZRBTDRQ_SELF_EXEMPT.to_string(),
+            line: 0,
+            detail: "adoc matcher fired on a non-.adoc path".to_string(),
+        });
+    }
+
+    findings
+}
+
+/// No `.adoc` file may ship. Every tracked spec sits under a withheld prefix
+/// today (`vov_veiled`, or a kit that never ships), but nothing mechanical
+/// enforces that placement — a spec landing under a ship-judged tree (`Tools/rbk/`
+/// ships whole) would ride silently into the candidate. The exemption table is
+/// the only door, and it starts empty: an `.adoc` that should ship is an operator
+/// ruling, never a default. Existence-tolerant roots and the veiled-dir skip are
+/// what let one case hold on both the maintainer tree and the candidate — the
+/// maintainer tree's own `.adoc` corpus lives entirely under `vov_veiled`, which
+/// this walk never enters.
+fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
+    let root = match zrbtdrq_root() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(e),
+    };
+
+    let mut findings = zrbtdrq_adoc_self_proof();
+    let mut inventory = BTreeSet::new();
+
+    for (path, reason) in ZRBTDRQ_ADOC_EXEMPT {
+        inventory.insert(format!("{}\texempt: {}", path, reason));
+    }
+
+    let mut files = Vec::new();
+    for sub in ZRBTDRQ_VEIL_ROOTS {
+        let path = root.join(sub);
+        if path.is_dir() {
+            zrbtdrq_walk_paths(&path, ZRBTDRQ_VEIL_SKIP_DIRS, &mut files);
+        }
+    }
+
+    for path in files {
+        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, &path);
+        if !zrbtdrq_is_shipped_adoc(&rel) {
+            continue;
+        }
+        inventory.insert(rel.clone());
+        findings.push(zrbtdrq_Finding {
+            file: rel,
+            line: 0,
+            detail: "ships as .adoc, not in ZRBTDRQ_ADOC_EXEMPT".to_string(),
+        });
+    }
+
+    zrbtdrq_report(dir, "adoc", &findings, &inventory, "shipped .adoc file(s)")
+}
+
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTDRQ_CASES_PYX: &[rbtdre_Case] = &[
@@ -1095,6 +1219,7 @@ pub static RBTDRQ_CASES_PYX: &[rbtdre_Case] = &[
     case!(rbtdrq_license_file),
     case!(rbtdrq_secret_shapes),
     case!(rbtdrq_readme_anchors),
+    case!(rbtdrq_no_adoc),
 ];
 
 pub static RBTDRQ_FIXTURE_PYX: rbtdre_Fixture = rbtdre_Fixture {

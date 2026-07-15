@@ -90,6 +90,8 @@ use crate::rbtdrm_manifest::RBTDRM_FIXTURE_DAMNATIO;
 use crate::rbtdrq_pyx::{
     zrbtdrq_report,
     zrbtdrq_root,
+    zrbtdrq_veil_scan_text,
+    zrbtdrq_veil_self_proof,
     zrbtdrq_veil_tree_exists,
     zrbtdrq_walk,
     zrbtdrq_Finding,
@@ -107,11 +109,19 @@ use crate::rbtdrq_pyx::{
 pub(crate) const ZRBTDRQ_IDENTITY_ROOTS: &[&str] =
     &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
 
+/// The delivered tree's root context document, named once because two damnatio
+/// checks reach it for different needle classes: the identity sweep below hunts
+/// site-shaped identity, and rbtdrq_veil_stripped hunts veil needles once no
+/// veiled tree stands. In the maintainer tree it is the maintainer's own context;
+/// in the candidate it is the consumer template's bytes, transposed onto it by
+/// expede itself between materialization and the commit and byte-asserted —
+/// never a copy this ceremony performs.
+pub(crate) const ZRBTDRQ_ROOT_CLAUDE: &str = "CLAUDE.md";
+
 /// Repo-relative single files added to the sweep — the consumer-facing documents
-/// at the repo root. The candidate's `CLAUDE.md` is the consumer template copied
-/// into place by the ceremony; scanning the root path covers whichever tree we
-/// are standing in.
-pub(crate) const ZRBTDRQ_IDENTITY_FILES: &[&str] = &["README.md", "CLAUDE.md"];
+/// at the repo root. Scanning the root path covers whichever tree we are standing
+/// in.
+pub(crate) const ZRBTDRQ_IDENTITY_FILES: &[&str] = &["README.md", ZRBTDRQ_ROOT_CLAUDE];
 
 /// The veiled trees are skipped: they never ship, and a withheld design document
 /// may name the operator's project freely — that is what being withheld means.
@@ -723,6 +733,14 @@ pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_lustrate.sh";
 /// maintainer's tree both are silent about the largest body of withheld material
 /// in the repository. This case is what makes that silence safe: it fails
 /// outright if a veiled tree survived the strip.
+///
+/// Once no veiled tree stands, the candidate's root CLAUDE.md is checked for the
+/// same two veil needles pyx's veil corpus hunts (ZRBTDRQ_VEIL_FILES) — a leak
+/// that scan cannot catch on its own, because its census is harvested from the
+/// veiled trees and it runs only where they still stand (loupe is SOURCE-TREE
+/// ONLY). On the maintainer tree this second check is silent: root CLAUDE.md
+/// there is the maintainer's own context and names withheld material on purpose.
+/// zrbtdrq_veil_tree_exists is what tells the two trees apart, for both checks.
 fn rbtdrq_veil_stripped(dir: &Path) -> rbtdre_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
@@ -739,9 +757,23 @@ fn rbtdrq_veil_stripped(dir: &Path) -> rbtdre_Verdict {
             line: 0,
             detail: "a withheld tree still stands — the strip did not land".to_string(),
         });
+    } else {
+        findings.extend(zrbtdrq_veil_self_proof());
+
+        if let Ok(bytes) = std::fs::read(root.join(ZRBTDRQ_ROOT_CLAUDE)) {
+            let text = String::from_utf8_lossy(&bytes);
+            let empty_census = BTreeSet::new();
+            zrbtdrq_veil_scan_text(ZRBTDRQ_ROOT_CLAUDE, &text, &empty_census, &mut findings);
+        }
     }
 
-    zrbtdrq_report(dir, "veilstrip", &findings, &inventory, "surviving withheld tree(s)")
+    zrbtdrq_report(
+        dir,
+        "veilstrip",
+        &findings,
+        &inventory,
+        "surviving withheld tree(s) or veil-leaking root CLAUDE.md",
+    )
 }
 
 // ── Cases and fixture ───────────────────────────────────────
