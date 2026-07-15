@@ -3578,11 +3578,12 @@
       "jjghn_creation_time": "260712",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢B0AAE",
         "₢B0AAC",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAE",
+      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3693,6 +3694,33 @@
               ],
               "jjgtn_silks": "stage-the-candidate",
               "jjgtn_basis": "2a299fb"
+            }
+          ]
+        },
+        "₢B0AAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-1813",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Ceremony design change that amends a cinched ruling; small code+doc surface, high care on the reveal-safety invariant.",
+                "",
+                "## Docket",
+                "Split expede's single OPEN_SOURCE_UPSTREAM role into two: the base to cut atop (the real public repo, so the candidate is one commit atop its live main) and the eventual public target — which expede must never reach.",
+                "Make expede a pure local constructor: it builds the candidate atop the real base and pushes nothing, printing the exact push commands only as advice.",
+                "The public reveal is human-hands-only by structural incapacity, not discipline — expede never wires the public remote, so it cannot push there even if a bug tried (the same shape as the quarantine's \"no delete token is ever minted\").",
+                "Amend RELEASE.md to spell the flow as explicit numbered human steps: run expede → push to the private quarantine (reversible) + inspect → the critical, flagged-irreversible public push as its own step.",
+                "Record the amended cinch on the B0 paddock: additive construction is prevention, the private-gate-then-manual-reveal is containment, both kept; the single irreversible reveal is operator-hand-only by construction.",
+                "Must land before stage-the-candidate runs, since that pace is the real push.",
+                "",
+                "## Done when",
+                "Expede cuts atop the real public base and pushes nothing, with no public remote wired;",
+                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted;",
+                "the amended cinch stands on the B0 paddock."
+              ],
+              "jjgtn_silks": "expede-manual-reveal-gate",
+              "jjgtn_basis": "41b1254"
             }
           ]
         }
