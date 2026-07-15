@@ -4998,8 +4998,9 @@
         "₢BcAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2248",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2033",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Design plus an additive-only gallops schema change; judgment work, not mechanical.",
@@ -5053,7 +5054,7 @@
                 "the change is delivered per §F with no episode registered (additive-only); older on-disk gallops read natively."
               ],
               "jjgtn_silks": "pace-original-intent",
-              "jjgtn_basis": "027e5b7"
+              "jjgtn_basis": "da997bb"
             }
           ]
         },
