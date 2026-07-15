@@ -3704,8 +3704,8 @@
         "₢B0AAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1924",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260715-0616",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -3752,7 +3752,7 @@
                 "the amended cinches stand on the B0 paddock."
               ],
               "jjgtn_silks": "expede-manual-reveal-gate",
-              "jjgtn_basis": "b1c816a"
+              "jjgtn_basis": "3a4a81d"
             }
           ]
         },
