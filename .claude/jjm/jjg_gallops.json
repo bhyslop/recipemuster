@@ -5350,8 +5350,9 @@
         "₢BdAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2254",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2034",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical transform with a thin judgment tail (whether to retire the legacy grammar description and add a regression gate).",
@@ -5374,7 +5375,7 @@
                 "and the guidance restatements sweep in the same act — claude-cmk-core.md's read-only-legacy sentences (and MCM's Annotation description if it carries the form) reduce to the same historical note."
               ],
               "jjgtn_silks": "evict-legacy-axl-voices-form",
-              "jjgtn_basis": "bf0737d"
+              "jjgtn_basis": "46d14a7"
             }
           ]
         },
