@@ -3669,8 +3669,9 @@
         "₢B0AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1851",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-1852",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present ceremony; the re-cut is scripted and local, the closing push is the irreversible public disclosure — promotion-grade gravity, run fresh.",
@@ -3697,7 +3698,7 @@
                 "the quarantine dispositioned per the amended ceremony document."
               ],
               "jjgtn_silks": "stage-the-candidate",
-              "jjgtn_basis": "eed2d38"
+              "jjgtn_basis": "c24e4bd"
             }
           ]
         },
