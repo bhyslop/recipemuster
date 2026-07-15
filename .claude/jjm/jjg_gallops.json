@@ -3635,8 +3635,9 @@
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1923",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-1924",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired.",
@@ -3660,7 +3661,7 @@
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "25b879f"
+              "jjgtn_basis": "ef77fa6"
             }
           ]
         },
