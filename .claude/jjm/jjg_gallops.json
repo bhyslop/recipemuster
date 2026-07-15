@@ -7006,8 +7006,8 @@
         "₢BrAAl": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1734",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-1940",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -7041,7 +7041,7 @@
                 "  or the fix stands as code alone."
               ],
               "jjgtn_silks": "dispatch-report-precedes-launch",
-              "jjgtn_basis": "016b07a"
+              "jjgtn_basis": "0fced9f"
             }
           ]
         }
