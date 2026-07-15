@@ -1,6 +1,7 @@
 {
   "jjgrn_next_heat_seed": "B4",
   "jjgrn_heat_order": [
+    "₣B0",
     "₣Br",
     "₣Bs",
     "₣Bg",
@@ -30,7 +31,6 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣B0",
     "₣B2",
     "₣B3"
   ],
@@ -3577,7 +3577,7 @@
     "₣B0": {
       "jjghn_silks": "rbk-11-produce-release",
       "jjghn_creation_time": "260712",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢B0AAE",
         "₢B0AAF",
