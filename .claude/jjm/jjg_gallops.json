@@ -3759,7 +3759,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260714-1924",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Theurge fixture work — small, well-bounded Rust; the care point is corpus semantics (which tree the scan stands in), not cleverness.",
@@ -3782,7 +3783,7 @@
                 "reveille green."
               ],
               "jjgtn_silks": "close-candidate-blind-assays",
-              "jjgtn_basis": "3bbc39b"
+              "jjgtn_basis": "6378b9f"
             }
           ]
         }
