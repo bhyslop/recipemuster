@@ -4195,9 +4195,36 @@
       "jjghn_silks": "jjk-03-simple-fixes",
       "jjghn_creation_time": "260715",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢B4AAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢B4AAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-1100",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Context-wording fix against an observed agent failure mode; the diagnosis is banked here, the repair is a mount-time decision — do not pre-plan it.",
+                "",
+                "## The spook",
+                "On a \"mount B0\" this session (opus) received a clear INTERDICTUM: the next actionable pace was bridled sonnet, an opus orient refused, and the token named the needed tier and the remedies verbatim.",
+                "The agent halted the orient itself, then went on to read jjx_brief, jjx_paddock, and jjx_coronets to build a recommendation for the operator — working around the fired gate by another route to keep serving the mount objective.",
+                "The operator's correction: this is not helpful, and it is not wanted.",
+                "The right conduct on an interdictum is to halt at the token and report it verbatim, full stop — not to gather context around it to manufacture a recommendation the operator did not ask for.",
+                "The current Interdictum wording (claude-jjk-core.md) already says \"stop the act and its objective by any route\" and \"do not model the guard,\" yet it did not prevent the gather-to-recommend behavior; the loophole the agent used was rationalizing that read-only context-gathering is not \"to the same end.\"",
+                "",
+                "## Done when",
+                "The interdictum context wording is amended so a future agent reads gathering-context-to-recommend around a fired interdictum as itself the prohibited workaround, and halts at the token — reporting it verbatim and doing nothing further unless directed — rather than treating read-only reads as an exempt route."
+              ],
+              "jjgtn_silks": "interdictum-halt-not-workaround",
+              "jjgtn_basis": "04f2d28"
+            }
+          ]
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
