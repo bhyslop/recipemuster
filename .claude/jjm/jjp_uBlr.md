@@ -376,6 +376,48 @@ so GitHub itself arbitrates every lock — the in-process guard registry cannot 
   We needed it for real within the hour, and had to reach past the surface to get it.
   A recovery tool stands in; a door is owed before the store carries live records.
 
+## Rehearsal findings (260714, ₢BrAAW re-run against the real remote)
+
+The re-run after ₢BrAAf, ₢BrAAk, and the two harness fixes landed.
+All four checklist items now pass against the real GitHub studbook.
+
+- THE THREE LOCK ITEMS PASS CLEAN, and the JJr_b52 regression is proven where the defect was found:
+  the aftermath probe pushed exactly one commit and the lock-refused commit did not ride along —
+  advance equalizes, so the stranded content is retrenched, on the real remote, not a fixture.
+- TWO HARNESS DEFECTS the re-run's own first attempt surfaced, both fixed before it could report:
+  the harness was not re-runnable against a store that accumulates —
+  fixed content wrote nothing once advance equalized to a tip already holding it,
+  so every rehearsal write now carries a per-run mark and the aftermath assertion is range-scoped;
+  and the unclassified-git-failure panic rendered its detail from stderr alone,
+  reporting an empty reason for a `commit`-with-nothing-staged that explains itself on stdout —
+  the panic now says exit code, stderr, and stdout at every unclassified site.
+- DISPATCH ROUND-TRIP PASSES — the fourth item, exercised for the first time, by hand through the real stiles.
+  Both doors resolved their plan against the real studbook (identify, hippodrome, infield,
+  pedigree read off the store by the canonicalized upstream key, target typing, tier),
+  refused all three fair-faced ways (a coronet to lunge, a closed pace to saddle, foreign ground),
+  and each launched a real session inside its own billet with its own MCP config,
+  which opened an officium and worked — a groom in `jjqb_Br` detached, a mount in `jjqb_BrAAW` on branch.
+- FINDING A, the door's report reaches the operator only after the launched session exits.
+  The door accumulates its billet/tier/prompt/staleness report and prints it after the child's status returns,
+  so every line it has to say lands below the session it was meant to precede.
+  Contained timing defect; its fix pace is cut into this heat ahead of the conversion-heat cut.
+- FINDING B, and it is evidence for the switchover, not a defect in the door.
+  A billet anchors at trunk's remote counterpart by design (the no-exfiltration posture:
+  a billet never inherits the hippodrome's private local work).
+  That is correct for the deployed single-hippodrome model, but it presumes origin carries the finished work.
+  In the current multi-clone dev setup gamma's local trunk ran unpushed-ahead of origin by a whole heat's tail,
+  so both billets were born from origin missing every recent pace,
+  and the dispatched sessions read a gallops and paddock that predated ₢BrAAk —
+  the groom session trusted it and reported the break door as not-yet-existing,
+  the mount session recovered only by exploring the shared object store with `git log --all`.
+  The staleness detector is structurally blind to this: it compares billet-against-origin,
+  never origin-against-the-operator's-local-trunk, so it can only warn about drift acquired after birth.
+  This is the concrete cost the single-hippodrome cutover retires, and it belongs to the conversion heat's shape.
+- FINDING C, minor: each billet is a fresh project directory,
+  so Claude Code asks for MCP-server trust on first contact into every new billet.
+  This is Claude Code's own first-contact behavior at the harness Palisade, not JJ's to legislate;
+  recorded so the cutover surface anticipates the prompt rather than treating it as a fault.
+
 ## Canon workup
 
 How the aspirant sheaves become canon, and what gets minted on the way.
