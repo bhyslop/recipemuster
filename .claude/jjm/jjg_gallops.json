@@ -4964,8 +4964,9 @@
         "₢BcAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260621-1009",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2033",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical and crate-wide — a pure, behavior-preserving rename.",
@@ -4990,7 +4991,7 @@
                 "tt/vow-b clean and tt/vow-t green; the rename is behavior-preserving, so the existing suite is the proof."
               ],
               "jjgtn_silks": "jjk-dealias-cipher-imports",
-              "jjgtn_basis": "a71eea0"
+              "jjgtn_basis": "0991434"
             }
           ]
         },
