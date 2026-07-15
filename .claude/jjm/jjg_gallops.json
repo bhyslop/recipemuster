@@ -6878,7 +6878,7 @@
         "₢BrAAj": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0952",
+              "jjgtn_ts": "260714-1851",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -6889,16 +6889,24 @@
                 "",
                 "The conversion heat exists as a nominated heat with a paddock,",
                 "cut from the studbook sheaf's Founding-and-cutover section (its sole plan home)",
-                "and refreshed by what the rehearsal actually found.",
+                "and refreshed by what the rehearsal found — finding B's cross-machine cluster especially.",
                 "",
-                "Its paddock states the entry gate this heat's exit hands it:",
-                "the rehearsal checklist passed, and the pace-identity re-gestalt landed and converged in its own heat.",
+                "That paddock is shaped as a PHASE LADDER, not a flat plan:",
+                "each phase carries a one-line definition-of-done, and each phase boundary carries a",
+                "carry-forward pace whose whole job is to expand the next phase into real paces once the",
+                "prior lands — so the plan travels heat-to-heat and no single paddock holds it all.",
+                "Name the rungs (near: founding-and-cutover; far: footprint-delivery) and their done-lines;",
+                "do NOT detail a phase whose predecessor has not landed.",
+                "The ladder's terminal rung is the conversion heat's OWN carry-forward pace, cutting the",
+                "footprint heat when cutover lands, so the chain does not dead-end at conversion.",
                 "",
-                "No paces are slated into it here. Cutting the shape is the whole act;",
-                "filling it is that heat's own groom."
+                "It states the entry gate this heat's exit hands it:",
+                "the rehearsal checklist passed, and the re-gestalt landed and converged in its own heat.",
+                "",
+                "No paces are slated here. Cutting the phased shape is the whole act."
               ],
               "jjgtn_silks": "cut-the-conversion-heat",
-              "jjgtn_basis": "bb87474"
+              "jjgtn_basis": "23f940d"
             }
           ]
         },
