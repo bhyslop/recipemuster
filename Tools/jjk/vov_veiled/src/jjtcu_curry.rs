@@ -23,14 +23,14 @@
 //!   cover the full commit workflow.
 
 use std::collections::BTreeMap;
-use super::jjrf_favor::jjrf_Firemark as Firemark;
+use super::jjrf_favor::jjrf_Firemark;
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_curry_apply};
 
 // ===== Firemark parsing tests (used in both getter and setter modes) =====
 
 #[test]
 fn jjtcu_firemark_parse_valid_with_prefix() {
-    let result = Firemark::jjrf_parse("₣AB");
+    let result = jjrf_Firemark::jjrf_parse("₣AB");
     assert!(result.is_ok());
     let firemark = result.unwrap();
     assert_eq!(firemark.jjrf_display(), "₣AB");
@@ -38,7 +38,7 @@ fn jjtcu_firemark_parse_valid_with_prefix() {
 
 #[test]
 fn jjtcu_firemark_parse_valid_without_prefix() {
-    let result = Firemark::jjrf_parse("AB");
+    let result = jjrf_Firemark::jjrf_parse("AB");
     assert!(result.is_ok());
     let firemark = result.unwrap();
     assert_eq!(firemark.jjrf_display(), "₣AB"); // Adds prefix
@@ -46,14 +46,14 @@ fn jjtcu_firemark_parse_valid_without_prefix() {
 
 #[test]
 fn jjtcu_firemark_parse_invalid_length() {
-    let result = Firemark::jjrf_parse("ABC");
+    let result = jjrf_Firemark::jjrf_parse("ABC");
     assert!(result.is_err());
     assert!(result.unwrap_err().contains("must be 2 base64 characters"));
 }
 
 #[test]
 fn jjtcu_firemark_parse_invalid_chars() {
-    let result = Firemark::jjrf_parse("A!");
+    let result = jjrf_Firemark::jjrf_parse("A!");
     assert!(result.is_err());
 }
 
@@ -71,7 +71,7 @@ fn empty_gallops() -> jjrg_Gallops {
 
 #[test]
 fn jjtcu_curry_apply_rejects_empty_content() {
-    let firemark = Firemark::jjrf_parse("AB").unwrap();
+    let firemark = jjrf_Firemark::jjrf_parse("AB").unwrap();
     let err = jjrg_curry_apply(&empty_gallops(), &firemark, "").unwrap_err();
     assert!(err.contains("empty paddock"), "got: {}", err);
     assert!(err.contains("never blanks"), "names the refusal: {}", err);
@@ -79,7 +79,7 @@ fn jjtcu_curry_apply_rejects_empty_content() {
 
 #[test]
 fn jjtcu_curry_apply_rejects_whitespace_only_content() {
-    let firemark = Firemark::jjrf_parse("AB").unwrap();
+    let firemark = jjrf_Firemark::jjrf_parse("AB").unwrap();
     let err = jjrg_curry_apply(&empty_gallops(), &firemark, "  \n\t\n  ").unwrap_err();
     assert!(err.contains("empty paddock"), "got: {}", err);
 }
@@ -121,7 +121,7 @@ fn jjtcu_chalk_message_format_expectations() {
     // This should produce a message like: "jjb:1010-HASH:₣AB:D: paddock curried: manual update"
     // We can't test the full function without mocking, but we can validate inputs
 
-    let firemark = Firemark::jjrf_parse("AB").unwrap();
+    let firemark = jjrf_Firemark::jjrf_parse("AB").unwrap();
     let description = "paddock curried: manual update";
 
     // Verify inputs are well-formed

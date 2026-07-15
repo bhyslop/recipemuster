@@ -9,7 +9,7 @@
 
 use clap::Args;
 use vvc::vvco_Output;
-use crate::jjrs_steeplechase::{jjrs_ReinArgs as LibReinArgs, jjrs_run as lib_run};
+use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_run};
 use crate::jjrz_gazette::jjrz_Gazette;
 
 /// Arguments for jjx_rein command
@@ -29,11 +29,11 @@ pub struct jjrrn_ReinArgs {
 /// in the gazette the caller passes in.
 pub fn jjrrn_run_rein(args: jjrrn_ReinArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
     let mut output = vvco_Output::buffer();
-    let rein_args = LibReinArgs {
+    let rein_args = jjrs_ReinArgs {
         firemark: args.firemark,
         limit: args.limit,
     };
 
-    let rc = lib_run(rein_args, &mut output, gazette);
+    let rc = jjrs_run(rein_args, &mut output, gazette);
     (rc, output.vvco_finish())
 }

@@ -8,8 +8,8 @@
 //! with optional filtering for remaining or rough paces only.
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_PaceState};
 use std::path::PathBuf;
 
 const JJRGC_CMD_NAME_CORONETS: &str = "jjx_coronets";
@@ -37,7 +37,7 @@ pub struct jjrgc_GetCoronetsArgs {
 pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
     let cn = JJRGC_CMD_NAME_CORONETS;
     let mut output = vvco_Output::buffer();
-    let firemark = match Firemark::jjrf_parse(&args.firemark) {
+    let firemark = match jjrf_Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -45,7 +45,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
         }
     };
 
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -66,11 +66,11 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 // Apply --remaining filter: skip complete/abandoned
-                if args.remaining && (tack.state == PaceState::Complete || tack.state == PaceState::Abandoned) {
+                if args.remaining && (tack.state == jjrg_PaceState::Complete || tack.state == jjrg_PaceState::Abandoned) {
                     continue;
                 }
                 // Apply --rough filter: only include rough
-                if args.rough && tack.state != PaceState::Rough {
+                if args.rough && tack.state != jjrg_PaceState::Rough {
                     continue;
                 }
                 // Tag abandoned paces so a dropped pace can't be mistaken for a
@@ -78,7 +78,7 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
                 // with state and tier so a designated pace reads as claimed work.
                 // The coronet stays the first whitespace token either way, so a
                 // token-wise reader still parses it.
-                if tack.state == PaceState::Abandoned || tack.state == PaceState::Bridled {
+                if tack.state == jjrg_PaceState::Abandoned || tack.state == jjrg_PaceState::Bridled {
                     vvco_out!(output, "{}  [{}]", coronet_key, tack.jjrg_state_label());
                 } else {
                     vvco_out!(output, "{}", coronet_key);

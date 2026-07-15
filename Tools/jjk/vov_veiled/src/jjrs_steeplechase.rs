@@ -14,7 +14,7 @@
 
 use serde::Serialize;
 
-use crate::jjrf_favor::{jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
@@ -101,27 +101,27 @@ pub fn zjjrs_parse_new_format(subject: &str, firemark_raw: &str) -> Option<jjrs_
     let after_brand = &after_jjb[brand_end + 1..];
 
     // Parse identity (₢CORONET or ₣FIREMARK)
-    let (identity, rest) = if after_brand.starts_with(CORONET_PREFIX) {
+    let (identity, rest) = if after_brand.starts_with(JJRF_CORONET_PREFIX) {
         // Coronet: ₢XXXXX (1 prefix char + 5 base64 chars = 6 chars total in UTF-8)
-        let coronet_end = CORONET_PREFIX.len_utf8() + JJRF_CORONET_LEN;
+        let coronet_end = JJRF_CORONET_PREFIX.len_utf8() + JJRF_CORONET_LEN;
         if after_brand.len() < coronet_end {
             return None;
         }
         let coronet = &after_brand[..coronet_end];
         // Verify this coronet belongs to our heat (first 2 chars of base64 match firemark)
-        let coronet_heat = &after_brand[CORONET_PREFIX.len_utf8()..CORONET_PREFIX.len_utf8() + JJRF_FIREMARK_LEN];
+        let coronet_heat = &after_brand[JJRF_CORONET_PREFIX.len_utf8()..JJRF_CORONET_PREFIX.len_utf8() + JJRF_FIREMARK_LEN];
         if coronet_heat != firemark_raw {
             return None;
         }
         (Some(coronet.to_string()), &after_brand[coronet_end..])
-    } else if after_brand.starts_with(FIREMARK_PREFIX) {
+    } else if after_brand.starts_with(JJRF_FIREMARK_PREFIX) {
         // Firemark: ₣XX (1 prefix char + 2 base64 chars)
-        let firemark_end = FIREMARK_PREFIX.len_utf8() + JJRF_FIREMARK_LEN;
+        let firemark_end = JJRF_FIREMARK_PREFIX.len_utf8() + JJRF_FIREMARK_LEN;
         if after_brand.len() < firemark_end {
             return None;
         }
         // Verify this is our firemark
-        let fm = &after_brand[FIREMARK_PREFIX.len_utf8()..firemark_end];
+        let fm = &after_brand[JJRF_FIREMARK_PREFIX.len_utf8()..firemark_end];
         if fm != firemark_raw {
             return None;
         }
@@ -187,7 +187,7 @@ pub fn zjjrs_parse_log_line(line: &str, firemark_raw: &str) -> Option<jjrs_Steep
 
 /// Get steeplechase entries for a heat (library function)
 pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEntry>, String> {
-    let firemark = Firemark::jjrf_parse(&args.firemark)
+    let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
 
     let firemark_raw = firemark.jjrf_as_str();
@@ -197,8 +197,8 @@ pub fn jjrs_get_entries(args: &jjrs_ReinArgs) -> Result<Vec<jjrs_SteeplechaseEnt
     // Pattern matches both heat-level (₣XX) and pace-level (₢XX...) entries
     let grep_pattern = format!(
         "^jjb:[^:]+:({}{}|{}{})",
-        FIREMARK_PREFIX, firemark_raw,
-        CORONET_PREFIX, firemark_raw
+        JJRF_FIREMARK_PREFIX, firemark_raw,
+        JJRF_CORONET_PREFIX, firemark_raw
     );
 
     let output = vvc::vvce_git_command(&[
@@ -267,7 +267,7 @@ pub fn jjrs_run(
 ) -> i32 {
     let cn = JJRS_CMD_NAME_REIN;
 
-    let heat_key = match Firemark::jjrf_parse(&args.firemark) {
+    let heat_key = match jjrf_Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm.jjrf_display(),
         Err(e) => {
             vvc::vvco_err!(output, "{}: error: Invalid firemark: {}", cn, e);

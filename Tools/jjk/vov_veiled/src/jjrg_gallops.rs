@@ -116,9 +116,9 @@ impl jjrg_Gallops {
     /// Navigate Gallops from a coronet to the target pace and its current tack state.
     /// Returns PaceContext with parsed identities and current state snapshot.
     pub fn jjrg_resolve_pace(&self, coronet: &str) -> Result<jjrg_PaceContext, String> {
-        use crate::jjrf_favor::jjrf_Coronet as Coronet;
+        use crate::jjrf_favor::jjrf_Coronet;
 
-        let parsed = Coronet::jjrf_parse(coronet)
+        let parsed = jjrf_Coronet::jjrf_parse(coronet)
             .map_err(|e| format!("Invalid coronet: {}", e))?;
         let coronet_key = parsed.jjrf_display();
         let firemark = parsed.jjrf_parent_firemark();

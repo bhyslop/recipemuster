@@ -14,8 +14,8 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 const JJRWP_CMD_NAME_WRAP: &str = "jjx_wrap";
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet};
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_TallyArgs as LibTallyArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, JJRG_STATE_BRIDLED};
+use crate::jjrf_favor::{jjrf_Coronet};
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_TallyArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, JJRG_STATE_BRIDLED};
 use crate::jjrn_notch::{jjrn_ChalkMarker, jjrn_format_notch_prefix, jjrn_format_chalk_message};
 
 /// Arguments for jjx_wrap command
@@ -46,7 +46,7 @@ fn zjjrx_designation_suffix(tier: Option<jjrg_Tier>, effort: Option<jjrg_Effort>
 }
 
 /// Helper to get pace silks or return default message
-fn get_pace_silks_or_default(gallops: &Gallops, firemark_key: &str, coronet_key: &str) -> String {
+fn get_pace_silks_or_default(gallops: &jjrg_Gallops, firemark_key: &str, coronet_key: &str) -> String {
     gallops.heats
         .get(firemark_key)
         .and_then(|heat| heat.paces.get(coronet_key))
@@ -73,7 +73,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     let mut output = vvco_Output::buffer();
 
     // Parse coronet
-    let coronet = match Coronet::jjrf_parse(&args.coronet) {
+    let coronet = match jjrf_Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -217,7 +217,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
 
     // Transition pace state to complete
     let gallops_path = PathBuf::from(".claude/jjm/jjg_gallops.json");
-    let mut gallops = match Gallops::jjrg_load(&gallops_path) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&gallops_path) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -225,7 +225,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         }
     };
 
-    let tally_args = LibTallyArgs {
+    let tally_args = jjrg_TallyArgs {
         coronet: args.coronet.clone(),
         state: Some(jjrg_PaceState::Complete),
         text: None,

@@ -9,8 +9,8 @@ use std::path::PathBuf;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrf_favor::jjrf_Coronet;
 use crate::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
@@ -148,7 +148,7 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
 
     let target_coronet = if stripped_input.len() == JJRF_CORONET_LEN {
         // It's a coronet - parse to get parent firemark
-        let coronet = match Coronet::jjrf_parse(&firemark_str) {
+        let coronet = match jjrf_Coronet::jjrf_parse(&firemark_str) {
             Ok(c) => c,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
@@ -168,7 +168,7 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
     let firemark = if let Some(ref coronet) = target_coronet {
         coronet.jjrf_parent_firemark()
     } else {
-        match Firemark::jjrf_parse(&firemark_str) {
+        match jjrf_Firemark::jjrf_parse(&firemark_str) {
             Ok(fm) => fm,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);

@@ -16,9 +16,9 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 const JJRTL_CMD_NAME_RELABEL: &str = "jjx_relabel";
 const JJRTL_CMD_NAME_DROP: &str = "jjx_drop";
 
-use crate::jjrf_favor::jjrf_Coronet as Coronet;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_PaceState as PaceState};
-use crate::jjrn_notch::{jjrn_format_heat_message as format_heat_message, jjrn_HeatAction as HeatAction};
+use crate::jjrf_favor::jjrf_Coronet;
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_PaceState};
+use crate::jjrn_notch::{jjrn_format_heat_message, jjrn_HeatAction};
 
 /// Arguments for jjx_redocket command
 #[derive(clap::Args, Debug)]
@@ -36,7 +36,7 @@ pub struct jjrtl_ReviseDocketArgs {
 /// Receives &mut Gallops from dispatcher. Returns diff of old vs new docket.
 /// Lock, load, and persist are owned by the dispatcher (jjsodp_command_lifecycle).
 pub fn jjrtl_run_revise_docket(
-    gallops: &mut Gallops,
+    gallops: &mut jjrg_Gallops,
     coronet: &str,
     docket: &str,
 ) -> Result<String, String> {
@@ -117,7 +117,7 @@ pub struct jjrtl_RelabelArgs {
 /// Renames the pace silks.
 pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let cn = JJRTL_CMD_NAME_RELABEL;
-    use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+    use crate::jjrg_gallops::jjrg_TallyArgs;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -129,7 +129,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
         }
     };
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -140,7 +140,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     // Get firemark for commit message before we move args
     let coronet_str = args.coronet.clone();
     let new_silks = args.silks.clone();
-    let fm = match Coronet::jjrf_parse(&coronet_str) {
+    let fm = match jjrf_Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => c.jjrf_parent_firemark(),
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -148,7 +148,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
         }
     };
 
-    let tally_args = LibTallyArgs {
+    let tally_args = jjrg_TallyArgs {
         coronet: args.coronet,
         state: None,
         text: None,
@@ -157,7 +157,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
 
     match gallops.jjrg_tally(tally_args) {
         Ok(()) => {
-            let message = format_heat_message(&fm, HeatAction::Tally, &new_silks);
+            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Tally, &new_silks);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
@@ -194,7 +194,7 @@ pub struct jjrtl_DropArgs {
 /// Sets pace state to abandoned.
 pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let cn = JJRTL_CMD_NAME_DROP;
-    use crate::jjrg_gallops::jjrg_TallyArgs as LibTallyArgs;
+    use crate::jjrg_gallops::jjrg_TallyArgs;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -206,7 +206,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
         }
     };
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -217,7 +217,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     // Capture firemark, silks, prior state, and display coronet before we move
     // args — prior state lets the drop echo its own prior→new transition.
     let coronet_str = args.coronet.clone();
-    let (fm, silks, prior_state, coronet_display) = match Coronet::jjrf_parse(&coronet_str) {
+    let (fm, silks, prior_state, coronet_display) = match jjrf_Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => {
             let parent_fm = c.jjrf_parent_firemark();
             let prior_tack = gallops.heats.get(&parent_fm.jjrf_display())
@@ -235,20 +235,20 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
         }
     };
 
-    let tally_args = LibTallyArgs {
+    let tally_args = jjrg_TallyArgs {
         coronet: args.coronet,
-        state: Some(PaceState::Abandoned),
+        state: Some(jjrg_PaceState::Abandoned),
         text: None,
         silks: None,
     };
 
     match gallops.jjrg_tally(tally_args) {
         Ok(()) => {
-            let message = format_heat_message(&fm, HeatAction::Tally, &silks);
+            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Tally, &silks);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {
-                    vvco_out!(output, "{}: {} → {}", coronet_display, prior_state, PaceState::Abandoned.jjrg_as_str());
+                    vvco_out!(output, "{}: {} → {}", coronet_display, prior_state, jjrg_PaceState::Abandoned.jjrg_as_str());
                     vvco_out!(output, "committed {}", hash);
                     (0, output.vvco_finish())
                 }

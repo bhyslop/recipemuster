@@ -10,7 +10,7 @@
 
 use clap::Args;
 use vvc::{vvco_err, vvco_Output};
-use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrf_favor::jjrf_Coronet;
 use crate::jjrn_notch::jjrn_format_landing_message;
 
 const JJRLD_CMD_NAME_LANDING: &str = "jjx_landing";
@@ -36,7 +36,7 @@ pub fn jjrld_run_landing(args: jjrld_LandingArgs, content: String) -> (i32, Stri
     let mut output = vvco_Output::buffer();
 
     // Parse coronet
-    let coronet = match Coronet::jjrf_parse(&args.coronet) {
+    let coronet = match jjrf_Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);

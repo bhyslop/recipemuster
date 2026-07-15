@@ -13,7 +13,7 @@ use std::collections::HashSet;
 
 use vvc::{vvco_err, vvco_Output};
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
 
 const JJRNC_CMD_NAME_RECORD: &str = "jjx_record";
@@ -91,7 +91,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
     let message = if identity.len() == JJRF_CORONET_LEN {
         // Coronet - pace-affiliated commit
-        let coronet = match Coronet::jjrf_parse(&args.identity) {
+        let coronet = match jjrf_Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
@@ -101,7 +101,7 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         jjrn_format_notch_prefix(&coronet)
     } else if identity.len() == JJRF_FIREMARK_LEN {
         // Firemark - heat-only commit
-        let firemark = match Firemark::jjrf_parse(&args.identity) {
+        let firemark = match jjrf_Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);

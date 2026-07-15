@@ -9,10 +9,10 @@
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
-use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX, JJRF_CORONET_PREFIX as CORONET_PREFIX};
+use crate::jjrf_favor::{jjrf_Firemark, jjrf_Coronet, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrpd_parade::{jjrpd_format_file_census, jjrpd_format_commit_swimlanes, JJRPD_CENSUS_EVERY_FILE};
-use crate::jjrs_steeplechase::jjrs_SteeplechaseEntry as SteeplechaseEntry;
+use crate::jjrs_steeplechase::jjrs_SteeplechaseEntry;
 use crate::jjrt_types::*;
 use crate::jjru_util::{zjjrg_increment_seed, jjrg_make_tack};
 use crate::jjrv_validate::{zjjrg_is_kebab_case, zjjrg_is_yymmdd};
@@ -32,7 +32,7 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     }
 
     // Allocate Firemark from next_heat_seed
-    let firemark_str = format!("{}{}", FIREMARK_PREFIX, gallops.next_heat_seed);
+    let firemark_str = format!("{}{}", JJRF_FIREMARK_PREFIX, gallops.next_heat_seed);
     let heat_id = gallops.next_heat_seed.clone();
 
     // Create paddock file with template
@@ -111,7 +111,7 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     }
 
     // Parse and normalize firemark
-    let firemark = Firemark::jjrf_parse(&args.firemark)
+    let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
@@ -121,14 +121,14 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
 
     // If --before or --after specified, validate target coronet exists
     let insert_position = if let Some(ref before_str) = args.before {
-        let target = Coronet::jjrf_parse(before_str)
+        let target = jjrf_Coronet::jjrf_parse(before_str)
             .map_err(|e| format!("Invalid --before coronet: {}", e))?;
         let target_key = target.jjrf_display();
         let pos = heat.order.iter().position(|c| c == &target_key)
             .ok_or_else(|| format!("Target coronet '{}' not found in heat", target_key))?;
         Some(pos) // Insert before this position
     } else if let Some(ref after_str) = args.after {
-        let target = Coronet::jjrf_parse(after_str)
+        let target = jjrf_Coronet::jjrf_parse(after_str)
             .map_err(|e| format!("Invalid --after coronet: {}", e))?;
         let target_key = target.jjrf_display();
         let pos = heat.order.iter().position(|c| c == &target_key)
@@ -141,7 +141,7 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     };
 
     // Construct Coronet
-    let coronet_str = format!("{}{}{}", CORONET_PREFIX, firemark.jjrf_as_str(), heat.next_pace_seed);
+    let coronet_str = format!("{}{}{}", JJRF_CORONET_PREFIX, firemark.jjrf_as_str(), heat.next_pace_seed);
 
     // Create initial Tack and Pace
     let tack = jjrg_make_tack(
@@ -173,7 +173,7 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
 /// - Move mode: relocate a single pace using positioning flags
 pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<String>, String> {
     // Parse and normalize firemark
-    let firemark = Firemark::jjrf_parse(&args.firemark)
+    let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
@@ -189,7 +189,7 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
         }
 
         // Parse and normalize move coronet
-        let move_coronet = Coronet::jjrf_parse(move_str)
+        let move_coronet = jjrf_Coronet::jjrf_parse(move_str)
             .map_err(|e| format!("Invalid --move coronet: {}", e))?;
         let move_key = move_coronet.jjrf_display();
 
@@ -234,7 +234,7 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
         } else if args.last {
             heat.order.len() - 1
         } else if let Some(ref before_str) = args.before {
-            let target = Coronet::jjrf_parse(before_str)
+            let target = jjrf_Coronet::jjrf_parse(before_str)
                 .map_err(|e| format!("Invalid --before coronet: {}", e))?;
             let target_key = target.jjrf_display();
 
@@ -252,7 +252,7 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
                 target_pos
             }
         } else if let Some(ref after_str) = args.after {
-            let target = Coronet::jjrf_parse(after_str)
+            let target = jjrf_Coronet::jjrf_parse(after_str)
                 .map_err(|e| format!("Invalid --after coronet: {}", e))?;
             let target_key = target.jjrf_display();
 
@@ -294,7 +294,7 @@ pub fn jjrg_rail(gallops: &mut jjrg_Gallops, args: jjrg_RailArgs) -> Result<Vec<
 /// Prepends a new Tack with state transition and/or plan refinement.
 pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<(), String> {
     // Parse and normalize coronet
-    let coronet = Coronet::jjrf_parse(&args.coronet)
+    let coronet = jjrf_Coronet::jjrf_parse(&args.coronet)
         .map_err(|e| format!("Invalid coronet: {}", e))?;
     let coronet_key = coronet.jjrf_display();
 
@@ -363,7 +363,7 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
     }
 
     // Parse and normalize source coronet
-    let source_coronet = Coronet::jjrf_parse(&args.coronet)
+    let source_coronet = jjrf_Coronet::jjrf_parse(&args.coronet)
         .map_err(|e| format!("Invalid coronet: {}", e))?;
     let source_coronet_key = source_coronet.jjrf_display();
 
@@ -372,7 +372,7 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
     let source_firemark_key = source_firemark.jjrf_display();
 
     // Parse and normalize destination firemark
-    let dest_firemark = Firemark::jjrf_parse(&args.to)
+    let dest_firemark = jjrf_Firemark::jjrf_parse(&args.to)
         .map_err(|e| format!("Invalid destination firemark: {}", e))?;
     let dest_firemark_key = dest_firemark.jjrf_display();
 
@@ -401,7 +401,7 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
 
     // Validate positioning target if specified
     let insert_position = if let Some(ref before_str) = args.before {
-        let target = Coronet::jjrf_parse(before_str)
+        let target = jjrf_Coronet::jjrf_parse(before_str)
             .map_err(|e| format!("Invalid --before coronet: {}", e))?;
         let target_key = target.jjrf_display();
         let dest_heat = gallops.heats.get(&dest_firemark_key).unwrap();
@@ -409,7 +409,7 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
             .ok_or_else(|| format!("Target pace {} not found in heat {}", target_key, dest_firemark_key))?;
         Some(pos)
     } else if let Some(ref after_str) = args.after {
-        let target = Coronet::jjrf_parse(after_str)
+        let target = jjrf_Coronet::jjrf_parse(after_str)
             .map_err(|e| format!("Invalid --after coronet: {}", e))?;
         let target_key = target.jjrf_display();
         let dest_heat = gallops.heats.get(&dest_firemark_key).unwrap();
@@ -431,7 +431,7 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
 
     // Get destination heat and allocate new coronet
     let dest_heat = gallops.heats.get_mut(&dest_firemark_key).unwrap();
-    let new_coronet_str = format!("{}{}{}", CORONET_PREFIX, dest_firemark.jjrf_as_str(), dest_heat.next_pace_seed);
+    let new_coronet_str = format!("{}{}{}", JJRF_CORONET_PREFIX, dest_firemark.jjrf_as_str(), dest_heat.next_pace_seed);
 
     // Create new tack recording the draft
     let first_tack = pace_data.tacks.first();
@@ -484,10 +484,10 @@ pub fn jjrg_retire(
     gallops: &mut jjrg_Gallops,
     args: jjrg_RetireArgs,
     base_path: &Path,
-    steeplechase: &[SteeplechaseEntry],
+    steeplechase: &[jjrs_SteeplechaseEntry],
 ) -> Result<jjrg_RetireResult, String> {
     // Parse and normalize firemark
-    let firemark = Firemark::jjrf_parse(&args.firemark)
+    let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
@@ -558,10 +558,10 @@ pub fn jjrg_build_trophy_preview(
     firemark: &str,
     paddock_content: &str,
     today: &str,
-    steeplechase: &[SteeplechaseEntry],
+    steeplechase: &[jjrs_SteeplechaseEntry],
 ) -> Result<String, String> {
     // Parse and normalize firemark
-    let fm = Firemark::jjrf_parse(firemark)
+    let fm = jjrf_Firemark::jjrf_parse(firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = fm.jjrf_display();
 
@@ -578,7 +578,7 @@ fn zjjrg_build_trophy_content(
     heat: &jjrg_Heat,
     paddock_content: &str,
     today: &str,
-    steeplechase: &[SteeplechaseEntry],
+    steeplechase: &[jjrs_SteeplechaseEntry],
 ) -> Result<String, String> {
     let mut content = String::new();
 
@@ -632,7 +632,7 @@ fn zjjrg_build_trophy_content(
     // Commit Activity. The trophy is an archive, so its census keeps every
     // touched file — the planning floor that groom and parade apply would drop
     // the lone-pace files from the heat's final account of itself.
-    let firemark = Firemark::jjrf_parse(firemark_key)
+    let firemark = jjrf_Firemark::jjrf_parse(firemark_key)
         .map_err(|e| format!("Invalid firemark in trophy builder: {}", e))?;
     content.push_str("## Commit Activity\n\n");
     content.push_str("```\n");
@@ -677,7 +677,7 @@ fn zjjrg_build_trophy_content(
 /// paddock revision folds into the same single commit as any batched reslate/slate.
 pub fn jjrg_curry_apply(
     gallops: &jjrg_Gallops,
-    firemark: &Firemark,
+    firemark: &jjrf_Firemark,
     new_content: &str,
 ) -> Result<(), String> {
     // Wipe backstop: a paddock is born non-empty (jjrg_nominate seeds the
@@ -725,7 +725,7 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
     }
 
     // Parse and normalize firemark
-    let firemark = Firemark::jjrf_parse(&args.firemark)
+    let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
@@ -780,11 +780,11 @@ pub fn jjrg_furlough(gallops: &mut jjrg_Gallops, args: jjrg_FurloughArgs) -> Res
 /// Order is preserved in the destination heat.
 pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Result<jjrg_RestringResult, String> {
     // Parse and normalize firemarks
-    let source_firemark = Firemark::jjrf_parse(&args.source_firemark)
+    let source_firemark = jjrf_Firemark::jjrf_parse(&args.source_firemark)
         .map_err(|e| format!("Invalid source firemark: {}", e))?;
     let source_firemark_key = source_firemark.jjrf_display();
 
-    let dest_firemark = Firemark::jjrf_parse(&args.dest_firemark)
+    let dest_firemark = jjrf_Firemark::jjrf_parse(&args.dest_firemark)
         .map_err(|e| format!("Invalid destination firemark: {}", e))?;
     let dest_firemark_key = dest_firemark.jjrf_display();
 
@@ -810,7 +810,7 @@ pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Res
     let mut normalized_coronets = Vec::new();
     for coronet_str in &args.coronets {
         // Parse and normalize coronet
-        let coronet = Coronet::jjrf_parse(coronet_str)
+        let coronet = jjrf_Coronet::jjrf_parse(coronet_str)
             .map_err(|e| format!("Invalid coronet '{}': {}", coronet_str, e))?;
         let coronet_key = coronet.jjrf_display();
 

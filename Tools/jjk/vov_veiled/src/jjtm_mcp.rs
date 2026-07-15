@@ -289,28 +289,28 @@ fn jjtm_protocol_verdict_splits_on_session_standing() {
 
 #[test]
 fn jjtm_judge_designation_matches_strict_tier_equality() {
-    use jjrg_PaceState as S;
+    use jjrg_PaceState;
     let sonnet = zjjrm_CallerTier::Designable(jjrg_Tier::Sonnet);
     let fable = zjjrm_CallerTier::Designable(jjrg_Tier::Fable);
     let opus = zjjrm_CallerTier::Designable(jjrg_Tier::Opus);
 
     // A designated pace admits exactly its tier.
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Sonnet), sonnet).is_ok());
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Fable), fable).is_ok());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), sonnet).is_ok());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Fable), fable).is_ok());
 
     // Both directions hold: a frontier caller is refused on a sub-frontier-bridled pace.
-    let err = zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Sonnet), fable).unwrap_err();
+    let err = zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), fable).unwrap_err();
     assert!(err.contains("bridled for tier 'sonnet'") && err.contains("'fable'"), "got: {}", err);
 
     // No frontier carve-out: fable is refused on an opus-bridled pace and vice versa,
     // keeping the persisted tier honest provenance of the executing session.
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Opus), fable).is_err());
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Fable), opus).is_err());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Opus), fable).is_err());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Fable), opus).is_err());
 
     // Non-designable families never match a designation.
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Sonnet), zjjrm_CallerTier::Gpt).is_err());
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Sonnet), zjjrm_CallerTier::Gemini).is_err());
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Sonnet), zjjrm_CallerTier::Unknown).is_err());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), zjjrm_CallerTier::Gpt).is_err());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), zjjrm_CallerTier::Gemini).is_err());
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), zjjrm_CallerTier::Unknown).is_err());
 }
 
 /// The interdictum recognition law (JJS0 `jjdz_interdictum`): recognition is by
@@ -321,13 +321,13 @@ fn jjtm_judge_designation_matches_strict_tier_equality() {
 /// about the generators.
 #[test]
 fn jjtm_designation_refusal_leads_with_interdictum_token() {
-    use jjrg_PaceState as S;
+    use jjrg_PaceState;
     let haiku = zjjrm_CallerTier::Designable(jjrg_Tier::Haiku);
 
     let bridled_mismatch = zjjrm_judge_designation(
-        "jjx_orient", "₢AAAAA", &S::Bridled, Some(jjrg_Tier::Sonnet), haiku).unwrap_err();
+        "jjx_orient", "₢AAAAA", &jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet), haiku).unwrap_err();
     let rough_refusal = zjjrm_judge_designation(
-        "jjx_record", "₢AAAAA", &S::Rough, None, haiku).unwrap_err();
+        "jjx_record", "₢AAAAA", &jjrg_PaceState::Rough, None, haiku).unwrap_err();
     let frontier_refusal = zjjrm_frontier_refusal(
         "jjx_close", "claude-haiku-4-5", haiku);
 
@@ -343,14 +343,14 @@ fn jjtm_designation_refusal_leads_with_interdictum_token() {
 
 #[test]
 fn jjtm_judge_designation_rough_is_frontier_judgment_work() {
-    use jjrg_PaceState as S;
+    use jjrg_PaceState;
     // A frontier caller proceeds on an undesignated pace.
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Rough,
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Rough,
         None, zjjrm_CallerTier::Designable(jjrg_Tier::Fable)).is_ok());
-    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Rough,
+    assert!(zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Rough,
         None, zjjrm_CallerTier::Designable(jjrg_Tier::Opus)).is_ok());
     // A sub-frontier caller is refused on rough — undesignated work is judgment work.
-    let err = zjjrm_judge_designation("jjx_orient", "₢AAAAA", &S::Rough,
+    let err = zjjrm_judge_designation("jjx_orient", "₢AAAAA", &jjrg_PaceState::Rough,
         None, zjjrm_CallerTier::Designable(jjrg_Tier::Haiku)).unwrap_err();
     assert!(err.contains("judgment work"), "got: {}", err);
     assert!(err.contains("jjx_apostille"), "refusal names the remedy: {}", err);

@@ -9,7 +9,7 @@
 
 use std::path::PathBuf;
 use vvc::{vvco_err, vvco_Output};
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState};
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_HeatStatus, jjrg_PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
 const JJRMU_CMD_NAME_LIST: &str = "jjx_list";
@@ -30,7 +30,7 @@ pub struct jjrmu_MusterArgs {
 pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
     let cn = JJRMU_CMD_NAME_LIST;
     let mut output = vvco_Output::buffer();
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -48,9 +48,9 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         let filter_lowercase = filter_status.to_lowercase();
         ordered_heats.into_iter().filter(|(_, heat)| {
             let heat_status_str = match heat.status {
-                HeatStatus::Racing => "racing",
-                HeatStatus::Stabled => "stabled",
-                HeatStatus::Retired => "retired",
+                jjrg_HeatStatus::Racing => "racing",
+                jjrg_HeatStatus::Stabled => "stabled",
+                jjrg_HeatStatus::Retired => "retired",
             };
             heat_status_str == filter_lowercase
         }).collect()
@@ -72,7 +72,7 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         // Count paces where state != Abandoned
         let defined_count = heat.paces.values().filter(|pace| {
             if let Some(tack) = pace.tacks.first() {
-                tack.state != PaceState::Abandoned
+                tack.state != jjrg_PaceState::Abandoned
             } else {
                 true
             }
@@ -81,16 +81,16 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         // Count paces where state == Complete
         let completed_count = heat.paces.values().filter(|pace| {
             if let Some(tack) = pace.tacks.first() {
-                tack.state == PaceState::Complete
+                tack.state == jjrg_PaceState::Complete
             } else {
                 false
             }
         }).count();
 
         let status_str = match heat.status {
-            HeatStatus::Racing => "racing",
-            HeatStatus::Stabled => "stabled",
-            HeatStatus::Retired => "retired",
+            jjrg_HeatStatus::Racing => "racing",
+            jjrg_HeatStatus::Stabled => "stabled",
+            jjrg_HeatStatus::Retired => "retired",
         };
 
         table.jjrp_measure(&[
@@ -111,7 +111,7 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         // Count paces where state != Abandoned
         let defined_count = heat.paces.values().filter(|pace| {
             if let Some(tack) = pace.tacks.first() {
-                tack.state != PaceState::Abandoned
+                tack.state != jjrg_PaceState::Abandoned
             } else {
                 true
             }
@@ -120,16 +120,16 @@ pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
         // Count paces where state == Complete
         let completed_count = heat.paces.values().filter(|pace| {
             if let Some(tack) = pace.tacks.first() {
-                tack.state == PaceState::Complete
+                tack.state == jjrg_PaceState::Complete
             } else {
                 false
             }
         }).count();
 
         let status_str = match heat.status {
-            HeatStatus::Racing => "racing",
-            HeatStatus::Stabled => "stabled",
-            HeatStatus::Retired => "retired",
+            jjrg_HeatStatus::Racing => "racing",
+            jjrg_HeatStatus::Stabled => "stabled",
+            jjrg_HeatStatus::Retired => "retired",
         };
 
         table.jjrp_write_row(&mut output, &[

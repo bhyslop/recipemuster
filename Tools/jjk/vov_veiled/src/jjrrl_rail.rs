@@ -16,8 +16,8 @@ use vvc::{vvco_out, vvco_err};
 // Command name constant — RCG String Boundary Discipline
 const JJRRL_CMD_NAME_REORDER: &str = "jjx_reorder";
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::jjrg_Gallops as Gallops;
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::jjrg_Gallops;
 
 /// Arguments for jjx_rail command
 #[derive(Args, Debug)]
@@ -58,7 +58,7 @@ pub struct jjrrl_RailArgs {
 
 /// Execute rail command - reorder Paces within a Heat
 pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
-    use crate::jjrg_gallops::jjrg_RailArgs as LibRailArgs;
+    use crate::jjrg_gallops::jjrg_RailArgs;
     use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
     let cn = JJRRL_CMD_NAME_REORDER;
@@ -82,7 +82,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
         args.order.clone()
     };
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -98,12 +98,12 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     let move_last = args.last;
 
     // Capture old order for no-op detection
-    let fm = Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
+    let fm = jjrf_Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
     let old_order: Vec<String> = gallops.heats.get(&fm.jjrf_display())
         .map(|h| h.order.clone())
         .unwrap_or_default();
 
-    let rail_args = LibRailArgs {
+    let rail_args = jjrg_RailArgs {
         firemark: args.firemark,
         order,
         move_coronet: args.r#move,

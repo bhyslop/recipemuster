@@ -231,13 +231,13 @@ fn zjjrm_dispatch_inner_msg(
 pub fn jjrm_resolve_batch_firemark(
     batch: &crate::jjrz_gazette::jjrz_BatchInput,
 ) -> Result<crate::jjrf_favor::jjrf_Firemark, String> {
-    use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet};
-    let mut candidates: Vec<Firemark> = Vec::new();
+    use crate::jjrf_favor::{jjrf_Firemark, jjrf_Coronet};
+    let mut candidates: Vec<jjrf_Firemark> = Vec::new();
     if let Some((fm_str, _)) = &batch.paddock {
-        candidates.push(Firemark::jjrf_parse(fm_str).map_err(|e| format!("paddock firemark: {}", e))?);
+        candidates.push(jjrf_Firemark::jjrf_parse(fm_str).map_err(|e| format!("paddock firemark: {}", e))?);
     }
     for (coronet_str, _) in &batch.reslates {
-        let coronet = Coronet::jjrf_parse(coronet_str)
+        let coronet = jjrf_Coronet::jjrf_parse(coronet_str)
             .map_err(|e| format!("reslate coronet '{}': {}", coronet_str, e))?;
         candidates.push(coronet.jjrf_parent_firemark());
     }
@@ -1488,7 +1488,7 @@ fn zjjrm_compose_emblem(
 /// no silks, so the emblem still paints the glyph. The result is cached in the
 /// marker so the per-engagement writer never re-touches the gallops.
 fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
-    use crate::jjrf_favor::{jjrf_Firemark as Firemark, jjrf_Coronet as Coronet, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+    use crate::jjrf_favor::{jjrf_Firemark, jjrf_Coronet, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
     let mut marker = jjrm_EmblemMarker {
         identity: zjjrm_normalize_identity(identity),
         pace_silks: None,
@@ -1503,11 +1503,11 @@ fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
         .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
         .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
     let (heat_key, coronet_key): (String, Option<String>) = match body.chars().count() {
-        JJRF_CORONET_LEN => match Coronet::jjrf_parse(identity) {
+        JJRF_CORONET_LEN => match jjrf_Coronet::jjrf_parse(identity) {
             Ok(c) => (c.jjrf_parent_firemark().jjrf_display(), Some(c.jjrf_display())),
             Err(_) => return marker,
         },
-        JJRF_FIREMARK_LEN => match Firemark::jjrf_parse(identity) {
+        JJRF_FIREMARK_LEN => match jjrf_Firemark::jjrf_parse(identity) {
             Ok(f) => (f.jjrf_display(), None),
             Err(_) => return marker,
         },

@@ -7,7 +7,7 @@
 //! Helper functions for seed management, commit capture, and I/O.
 
 use std::io::Read as IoRead;
-use crate::jjrc_core::jjrc_timestamp_full as timestamp_full;
+use crate::jjrc_core::jjrc_timestamp_full;
 use crate::jjrf_favor::JJRF_CHARSET;
 use crate::jjrt_types::*;
 
@@ -71,7 +71,7 @@ pub fn jjrg_make_tack(
     silks: String,
 ) -> jjrg_Tack {
     jjrg_Tack {
-        ts: timestamp_full(),
+        ts: jjrc_timestamp_full(),
         state,
         // A fresh tack carries no designation; paths that preserve or set
         // tier/effort (tally inheritance, bridle) assign after construction.

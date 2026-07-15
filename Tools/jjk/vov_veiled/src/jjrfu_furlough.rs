@@ -12,9 +12,9 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 const JJRFU_CMD_NAME_FURLOUGH: &str = "jjx_furlough";
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_FurloughArgs as LibFurloughArgs};
-use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_FurloughArgs};
+use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 /// Arguments for jjx_furlough command
 #[derive(clap::Args, Debug)]
@@ -57,7 +57,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
         }
     };
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -78,7 +78,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
     let description = changes.join(", ");
 
     let firemark_str = args.firemark.clone();
-    let furlough_args = LibFurloughArgs {
+    let furlough_args = jjrg_FurloughArgs {
         firemark: args.firemark,
         racing: args.racing,
         stabled: args.stabled,
@@ -87,8 +87,8 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
 
     match gallops.jjrg_furlough(furlough_args) {
         Ok(()) => {
-            let fm = Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
-            let message = format_heat_message(&fm, HeatAction::Furlough, &description);
+            let fm = jjrf_Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
+            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Furlough, &description);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT), &mut output) {
                 Ok(hash) => {

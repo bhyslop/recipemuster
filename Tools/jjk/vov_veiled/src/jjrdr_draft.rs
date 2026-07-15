@@ -13,10 +13,10 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 const JJRDR_CMD_NAME_DRAFT: &str = "jjx_draft";
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::jjrg_Gallops as Gallops;
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::jjrg_Gallops;
 use crate::jjri_io::jjri_paddock_path;
-use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
+use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 /// Arguments for jjx_draft command
 #[derive(Args, Debug)]
@@ -48,7 +48,7 @@ pub struct jjrdr_DraftArgs {
 /// Handler function for draft command
 pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
     let cn = JJRDR_CMD_NAME_DRAFT;
-    use crate::jjrg_gallops::jjrg_DraftArgs as LibDraftArgs;
+    use crate::jjrg_gallops::jjrg_DraftArgs;
     let mut output = vvco_Output::buffer();
 
     // Acquire lock FIRST - fail fast if another operation is in progress
@@ -60,7 +60,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
         }
     };
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -70,7 +70,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
 
     let coronet = args.coronet.clone();
     let to = args.to.clone();
-    let draft_args = LibDraftArgs {
+    let draft_args = jjrg_DraftArgs {
         coronet: args.coronet,
         to: args.to,
         before: args.before,
@@ -91,7 +91,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
             let src_coronet = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&coronet)
                 .expect("draft given invalid source coronet");
             let src_fm = src_coronet.jjrf_parent_firemark();
-            let dest_fm = Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
+            let dest_fm = jjrf_Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
 
             let gallops_path = args.file.to_string_lossy().to_string();
             let src_paddock_path = jjri_paddock_path(src_fm.jjrf_as_str());
@@ -103,7 +103,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
                     src_paddock_path,
                     dest_paddock_path,
                 ],
-                message: format_heat_message(&dest_fm, HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet)),
+                message: jjrn_format_heat_message(&dest_fm, jjrn_HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet)),
                 size_limit: vvc::VVCG_SIZE_LIMIT,
                 warn_limit: vvc::VVCG_WARN_LIMIT,
             };

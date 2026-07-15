@@ -6,8 +6,8 @@
 //!
 //! Implements both heat view (Firemark) and pace view (Coronet).
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrf_favor::jjrf_Coronet;
 use crate::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
@@ -154,7 +154,7 @@ fn zjjrpd_load_gallops(args: &jjrpd_ParadeArgs) -> Result<Gallops, String> {
 fn zjjrpd_gazette_paddock_once(
     gazette: &mut jjrz_Gazette,
     added: &mut std::collections::HashSet<String>,
-    firemark: &Firemark,
+    firemark: &jjrf_Firemark,
     hark: Option<&str>,
 ) {
     let heat_key = firemark.jjrf_display();
@@ -187,7 +187,7 @@ fn zjjrpd_emit_coronet(
     hark: Option<&str>,
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
-    let coronet = Coronet::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
+    let coronet = jjrf_Coronet::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
     let firemark = coronet.jjrf_parent_firemark();
     let heat_key = firemark.jjrf_display();
     let heat = gallops.heats.get(&heat_key)
@@ -234,7 +234,7 @@ fn zjjrpd_emit_firemark(
     hark: Option<&str>,
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
-    let firemark = Firemark::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
+    let firemark = jjrf_Firemark::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
     let heat_key = firemark.jjrf_display();
     let heat = gallops.heats.get(&heat_key)
         .ok_or_else(|| format!("{}: error: Heat '{}' not found", cn, heat_key))?;
@@ -364,7 +364,7 @@ pub const JJRPD_CENSUS_EVERY_FILE: usize = 1;
 ///
 /// `min_paces` is the floor a file must meet to earn a row (see the two
 /// constants above).
-pub fn jjrpd_format_file_census(firemark: &Firemark, heat: &Heat, min_paces: usize) -> Result<String, String> {
+pub fn jjrpd_format_file_census(firemark: &jjrf_Firemark, heat: &Heat, min_paces: usize) -> Result<String, String> {
     let touches = jjrq_file_touches_for_heat(firemark.jjrf_as_str())?;
 
     // Paces with commits, in heat order, keyed by their coronet's terminal char.
@@ -448,7 +448,7 @@ pub fn jjrpd_format_file_census(firemark: &Firemark, heat: &Heat, min_paces: usi
 }
 
 /// Write the heat-wide file-touch census to output.
-pub(crate) fn jjrpd_write_file_census(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat, min_paces: usize) {
+pub(crate) fn jjrpd_write_file_census(output: &mut vvco_Output, firemark: &jjrf_Firemark, heat: &Heat, min_paces: usize) {
     let cn = JJRPD_CMD_NAME_SHOW;
     match jjrpd_format_file_census(firemark, heat, min_paces) {
         Ok(text) => {
@@ -468,7 +468,7 @@ pub(crate) fn jjrpd_write_file_census(output: &mut vvco_Output, firemark: &Firem
 /// ordinary case at mount — has no digest at all, so nothing is rendered.
 /// Self-contained by design: the collision names are spelled out inline, so the
 /// reader decodes no legend.
-pub fn jjrpd_format_pace_digest(firemark: &Firemark, heat: &Heat, coronet_display: &str) -> Result<String, String> {
+pub fn jjrpd_format_pace_digest(firemark: &jjrf_Firemark, heat: &Heat, coronet_display: &str) -> Result<String, String> {
     let touches = jjrq_file_touches_for_heat(firemark.jjrf_as_str())?;
 
     let mounted_files = match touches.pace_files.get(coronet_display) {
@@ -516,7 +516,7 @@ pub fn jjrpd_format_pace_digest(firemark: &Firemark, heat: &Heat, coronet_displa
 
 /// Write the mounted pace's file digest to output. Silent when the pace has no
 /// commits — there is nothing to digest.
-pub(crate) fn jjrpd_write_pace_digest(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat, coronet_display: &str) {
+pub(crate) fn jjrpd_write_pace_digest(output: &mut vvco_Output, firemark: &jjrf_Firemark, heat: &Heat, coronet_display: &str) {
     let cn = JJRPD_CMD_NAME_SHOW;
     match jjrpd_format_pace_digest(firemark, heat, coronet_display) {
         Ok(text) if text.is_empty() => {}
@@ -542,7 +542,7 @@ fn zjjrpd_commit_index_char(index: usize) -> Option<char> {
 /// Format commit swim lanes for a heat as a String: paces × commits matrix.
 ///
 /// Shows when work happened on each pace and how work interleaved.
-pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result<String, String> {
+pub fn jjrpd_format_commit_swimlanes(firemark: &jjrf_Firemark, heat: &Heat) -> Result<String, String> {
     let rein_args = jjrs_ReinArgs {
         firemark: firemark.jjrf_as_str().to_string(),
         limit: 10000,
@@ -640,7 +640,7 @@ pub fn jjrpd_format_commit_swimlanes(firemark: &Firemark, heat: &Heat) -> Result
 }
 
 /// Write commit swim lanes for a heat to output.
-pub(crate) fn jjrpd_write_commit_swimlanes(output: &mut vvco_Output, firemark: &Firemark, heat: &Heat) {
+pub(crate) fn jjrpd_write_commit_swimlanes(output: &mut vvco_Output, firemark: &jjrf_Firemark, heat: &Heat) {
     let cn = JJRPD_CMD_NAME_SHOW;
     match jjrpd_format_commit_swimlanes(firemark, heat) {
         Ok(text) => {

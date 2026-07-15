@@ -12,7 +12,7 @@ use clap::Args;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
-use crate::jjrf_favor::jjrf_Coronet as Coronet;
+use crate::jjrf_favor::jjrf_Coronet;
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
     jjrg_lines_to_text,
@@ -38,7 +38,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
     let cn = JJRGS_CMD_NAME_GET_SPEC;
     let mut output = vvco_Output::buffer();
 
-    let coronet = match Coronet::jjrf_parse(&args.coronet) {
+    let coronet = match jjrf_Coronet::jjrf_parse(&args.coronet) {
         Ok(c) => c,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);

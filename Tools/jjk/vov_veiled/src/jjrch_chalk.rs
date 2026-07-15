@@ -9,8 +9,8 @@
 
 use vvc::{vvco_err, vvco_Output};
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
-use crate::jjrn_notch::{jjrn_ChalkMarker as ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
+use crate::jjrf_favor::{jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrn_notch::{jjrn_ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
 
 const JJRCH_CMD_NAME_CHALK: &str = "jjx_chalk";
 
@@ -34,7 +34,7 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
     let cn = JJRCH_CMD_NAME_CHALK;
     let mut output = vvco_Output::buffer();
 
-    let marker = match ChalkMarker::jjrn_parse(&args.marker) {
+    let marker = match jjrn_ChalkMarker::jjrn_parse(&args.marker) {
         Ok(m) => m,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -47,7 +47,7 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
 
     let message = if identity.len() == JJRF_CORONET_LEN {
         // Coronet - pace-level chalk
-        let coronet = match Coronet::jjrf_parse(&args.identity) {
+        let coronet = match jjrf_Coronet::jjrf_parse(&args.identity) {
             Ok(c) => c,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
@@ -61,7 +61,7 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
             vvco_err!(output, "{}: error: {} marker requires a Coronet (pace identity), not a Firemark", cn, marker.jjrn_as_str());
             return (1, output.vvco_finish());
         }
-        let firemark = match Firemark::jjrf_parse(&args.identity) {
+        let firemark = match jjrf_Firemark::jjrf_parse(&args.identity) {
             Ok(fm) => fm,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);

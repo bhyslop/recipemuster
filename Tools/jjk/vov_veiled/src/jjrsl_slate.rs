@@ -12,9 +12,9 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 // Command name constant — RCG String Boundary Discipline
 const JJRSL_CMD_NAME_ENROLL: &str = "jjx_enroll";
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops};
-use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::{jjrg_Gallops};
+use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 /// Arguments for jjx_slate command
 #[derive(Args, Debug)]
@@ -49,7 +49,7 @@ pub struct jjrsl_SlateArgs {
 
 /// Handler for jjx_slate command
 pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
-    use crate::jjrg_gallops::jjrg_SlateArgs as LibSlateArgs;
+    use crate::jjrg_gallops::jjrg_SlateArgs;
     let cn = JJRSL_CMD_NAME_ENROLL;
     let mut output = vvco_Output::buffer();
 
@@ -64,7 +64,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
 
     let text = docket;
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -74,7 +74,7 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
 
     let firemark = args.firemark.clone();
     let silks = args.silks.clone();
-    let slate_args = LibSlateArgs {
+    let slate_args = jjrg_SlateArgs {
         firemark: args.firemark,
         silks: args.silks,
         text,
@@ -85,8 +85,8 @@ pub fn jjrsl_run_slate(args: jjrsl_SlateArgs, docket: String) -> (i32, String) {
 
     match gallops.jjrg_slate(slate_args) {
         Ok(result) => {
-            let fm = Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
-            let message = format_heat_message(&fm, HeatAction::Slate, &silks);
+            let fm = jjrf_Firemark::jjrf_parse(&firemark).expect("slate given invalid firemark");
+            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Slate, &silks);
 
             let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, size_limit, &mut output) {

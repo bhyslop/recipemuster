@@ -14,10 +14,10 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 // Command name constant — RCG String Boundary Discipline
 const JJRNO_CMD_NAME_CREATE: &str = "jjx_create";
 
-use crate::jjrf_favor::{jjrf_Firemark as Firemark};
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_NominateArgs as LibNominateArgs};
+use crate::jjrf_favor::{jjrf_Firemark};
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_NominateArgs};
 use crate::jjrc_core::jjrc_timestamp_from_env;
-use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
+use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 /// Arguments for jjx_nominate command
 #[derive(clap::Args, Debug)]
@@ -47,7 +47,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
     };
 
     let mut gallops = if args.file.exists() {
-        match Gallops::jjrg_load(&args.file) {
+        match jjrg_Gallops::jjrg_load(&args.file) {
             Ok(g) => g,
             Err(e) => {
                 vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -61,7 +61,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
                 return (1, output.vvco_finish());
             }
         }
-        Gallops {
+        jjrg_Gallops {
             next_heat_seed: "AA".to_string(),
             heat_order: vec![],
             heats: BTreeMap::new(),
@@ -75,15 +75,15 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs) -> (i32, String) {
         .unwrap_or(Path::new("."));
 
     let silks = args.silks.clone();
-    let nominate_args = LibNominateArgs {
+    let nominate_args = jjrg_NominateArgs {
         silks: args.silks,
         created: jjrc_timestamp_from_env(),
     };
 
     match gallops.jjrg_nominate(nominate_args, base_path) {
         Ok(result) => {
-            let fm = Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
-            let message = format_heat_message(&fm, HeatAction::Nominate, &silks);
+            let fm = jjrf_Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
+            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Nominate, &silks);
 
             match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                 Ok(hash) => {

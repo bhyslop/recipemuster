@@ -14,9 +14,9 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 // Command name constant — RCG String Boundary Discipline
 const JJRRT_CMD_NAME_ARCHIVE: &str = "jjx_archive";
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RetireArgs as LibRetireArgs};
-use crate::jjrs_steeplechase::{jjrs_ReinArgs as ReinArgs, jjrs_get_entries as get_entries};
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_RetireArgs};
+use crate::jjrs_steeplechase::{jjrs_ReinArgs, jjrs_get_entries};
 use crate::jjrc_core::jjrc_timestamp_date;
 use crate::jjrn_notch::{jjrn_format_heat_message, jjrn_HeatAction};
 
@@ -40,7 +40,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     let cn = JJRRT_CMD_NAME_ARCHIVE;
     let mut output = vvco_Output::buffer();
 
-    let firemark = match Firemark::jjrf_parse(&args.firemark) {
+    let firemark = match jjrf_Firemark::jjrf_parse(&args.firemark) {
         Ok(fm) => fm,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -49,7 +49,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     };
 
     // Load gallops
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -58,11 +58,11 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     };
 
     // Get steeplechase entries (filtered by firemark identity)
-    let rein_args = ReinArgs {
+    let rein_args = jjrs_ReinArgs {
         firemark: args.firemark.clone(),
         limit: 1000,
     };
-    let steeplechase = match get_entries(&rein_args) {
+    let steeplechase = match jjrs_get_entries(&rein_args) {
         Ok(entries) => entries,
         Err(e) => {
             vvco_err!(output, "{}: warning: could not get steeplechase: {}", cn, e);
@@ -109,7 +109,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs) -> (i32, String) {
     };
 
     // Execute retire
-    let retire_args = LibRetireArgs {
+    let retire_args = jjrg_RetireArgs {
         firemark: args.firemark.clone(),
         today: jjrc_timestamp_date(),
     };

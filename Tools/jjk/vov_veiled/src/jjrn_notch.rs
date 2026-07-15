@@ -17,7 +17,7 @@
 //! The actual commit execution is handled by vorc_commit in the vok crate.
 //! This module exports formatting functions that the CLI handlers use.
 
-use crate::jjrf_favor::{jjrf_Coronet as Coronet, jjrf_Firemark as Firemark, JJRF_CORONET_PREFIX as CORONET_PREFIX, JJRF_FIREMARK_PREFIX as FIREMARK_PREFIX};
+use crate::jjrf_favor::{jjrf_Coronet, jjrf_Firemark, JJRF_CORONET_PREFIX, JJRF_FIREMARK_PREFIX};
 use crate::jjrnm_markers::*;
 
 /// Commit message prefix
@@ -122,9 +122,9 @@ impl jjrn_HeatAction {
 ///
 /// Returns the prefix string to prepend to commit messages for JJ-aware commits.
 /// The coronet provides full context (embeds parent firemark).
-pub fn jjrn_format_notch_prefix(coronet: &Coronet) -> String {
+pub fn jjrn_format_notch_prefix(coronet: &jjrf_Coronet) -> String {
     let brand = vvc::vvcc_get_brand();
-    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    let identity = format!("{}{}", JJRF_CORONET_PREFIX, coronet.jjrf_as_str());
     // Special case: subject="" produces "...:n: " and caller appends real message
     let action = JJRNM_NOTCH.to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity, &action, "", None)
@@ -133,17 +133,17 @@ pub fn jjrn_format_notch_prefix(coronet: &Coronet) -> String {
 /// Format the chalk message: jjb:BRAND:₢CORONET:X: description
 ///
 /// Returns the full commit message for a chalk (steeplechase marker) commit.
-pub fn jjrn_format_chalk_message(coronet: &Coronet, marker: jjrn_ChalkMarker, description: &str) -> String {
+pub fn jjrn_format_chalk_message(coronet: &jjrf_Coronet, marker: jjrn_ChalkMarker, description: &str) -> String {
     let brand = vvc::vvcc_get_brand();
-    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    let identity = format!("{}{}", JJRF_CORONET_PREFIX, coronet.jjrf_as_str());
     let action = marker.jjrn_code().to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity, &action, description, None)
 }
 
 /// Format a heat-level discussion message (no pace context): jjb:BRAND:₣XX:d: description
-pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> String {
+pub fn jjrn_format_heat_discussion(firemark: &jjrf_Firemark, description: &str) -> String {
     let brand = vvc::vvcc_get_brand();
-    let identity = format!("{}{}", FIREMARK_PREFIX, firemark.jjrf_as_str());
+    let identity = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
     let action = JJRNM_DISCUSSION.to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity, &action, description, None)
 }
@@ -151,9 +151,9 @@ pub fn jjrn_format_heat_discussion(firemark: &Firemark, description: &str) -> St
 /// Format a heat-level action message: jjb:BRAND:₣XX:X: description
 ///
 /// Used for nominate, slate, rail, draft, retire operations.
-pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, description: &str) -> String {
+pub fn jjrn_format_heat_message(firemark: &jjrf_Firemark, action: jjrn_HeatAction, description: &str) -> String {
     let brand = vvc::vvcc_get_brand();
-    let identity = format!("{}{}", FIREMARK_PREFIX, firemark.jjrf_as_str());
+    let identity = format!("{}{}", JJRF_FIREMARK_PREFIX, firemark.jjrf_as_str());
     let action_code = action.jjrn_code().to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity, &action_code, description, None)
 }
@@ -162,9 +162,9 @@ pub fn jjrn_format_heat_message(firemark: &Firemark, action: jjrn_HeatAction, de
 ///
 /// Creates the subject line for an L (landing) commit.
 /// Body should contain the agent completion report.
-pub fn jjrn_format_landing_message(coronet: &Coronet, agent: &str) -> String {
+pub fn jjrn_format_landing_message(coronet: &jjrf_Coronet, agent: &str) -> String {
     let brand = vvc::vvcc_get_brand();
-    let identity = format!("{}{}", CORONET_PREFIX, coronet.jjrf_as_str());
+    let identity = format!("{}{}", JJRF_CORONET_PREFIX, coronet.jjrf_as_str());
     let subject = format!("{} landed", agent);
     let action = JJRNM_LANDING.to_string();
     vvc::vvcc_format_branded(JJRN_COMMIT_PREFIX, &brand, &identity, &action, &subject, None)

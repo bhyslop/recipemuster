@@ -11,9 +11,9 @@ use std::path::PathBuf;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
-use crate::jjrf_favor::jjrf_Firemark as Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops as Gallops, jjrg_RestringArgs as LibRestringArgs};
-use crate::jjrn_notch::{jjrn_HeatAction as HeatAction, jjrn_format_heat_message as format_heat_message};
+use crate::jjrf_favor::jjrf_Firemark;
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_RestringArgs};
+use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 const JJRRS_CMD_NAME_RESTRING: &str = "jjx_restring";
 
@@ -58,7 +58,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         }
     };
 
-    let mut gallops = match Gallops::jjrg_load(&args.file) {
+    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -66,7 +66,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         }
     };
 
-    let restring_args = LibRestringArgs {
+    let restring_args = jjrg_RestringArgs {
         source_firemark: args.firemark.clone(),
         dest_firemark: args.to.clone(),
         coronets,
@@ -88,16 +88,16 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
     }
 
     // Parse both firemarks for commit file list
-    let dest_fm = Firemark::jjrf_parse(&result.dest_firemark).expect("restring returned invalid dest firemark");
+    let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark).expect("restring returned invalid dest firemark");
 
     let gallops_path = args.file.to_string_lossy().to_string();
     let source_paddock_path = result.source_paddock.clone();
     let dest_paddock_path = result.dest_paddock.clone();
 
     // Build commit message using heat-level action
-    let commit_message = format_heat_message(
+    let commit_message = jjrn_format_heat_message(
         &dest_fm,
-        HeatAction::Draft,  // Reusing Draft action since this is a bulk draft operation
+        jjrn_HeatAction::Draft,  // Reusing Draft action since this is a bulk draft operation
         &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark)
     );
 

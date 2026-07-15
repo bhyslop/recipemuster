@@ -2,20 +2,20 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-use crate::jjrg_gallops::{jjrg_Heat as Heat, jjrg_Pace as Pace, jjrg_Tack as Tack, jjrg_Gallops as Gallops, jjrg_HeatStatus as HeatStatus, jjrg_PaceState as PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
+use crate::jjrg_gallops::{jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_Gallops, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
 use crate::jjtu_testdir::JjkTestDir;
 use crate::jjrgc_get_coronets::{jjrgc_run_get_coronets, jjrgc_GetCoronetsArgs};
 use crate::jjrgs_get_spec::{jjrgs_run_get_spec, jjrgs_GetSpecArgs};
 use std::collections::BTreeMap;
 
-fn create_test_gallops() -> Gallops {
+fn create_test_gallops() -> jjrg_Gallops {
     let mut paces = BTreeMap::new();
     paces.insert(
         "₢ABAAA".to_string(),
-        Pace {
-            tacks: vec![Tack {
+        jjrg_Pace {
+            tacks: vec![jjrg_Tack {
                 ts: "260101-1200".to_string(),
-                state: PaceState::Rough,
+                state: jjrg_PaceState::Rough,
                 tier: None,
                 effort: None,
                 text: vec!["First pace rough plan".to_string()],
@@ -26,10 +26,10 @@ fn create_test_gallops() -> Gallops {
     );
     paces.insert(
         "₢ABAAB".to_string(),
-        Pace {
-            tacks: vec![Tack {
+        jjrg_Pace {
+            tacks: vec![jjrg_Tack {
                 ts: "260101-1300".to_string(),
-                state: PaceState::Complete,
+                state: jjrg_PaceState::Complete,
                 tier: None,
                 effort: None,
                 text: vec!["Completed pace".to_string()],
@@ -42,17 +42,17 @@ fn create_test_gallops() -> Gallops {
     let mut heats = BTreeMap::new();
     heats.insert(
         "₣AB".to_string(),
-        Heat {
+        jjrg_Heat {
             silks: "test-heat".to_string(),
             creation_time: "260101".to_string(),
-            status: HeatStatus::Racing,
+            status: jjrg_HeatStatus::Racing,
             order: vec!["₢ABAAA".to_string(), "₢ABAAB".to_string()],
             next_pace_seed: "AAC".to_string(),
             paces,
         },
     );
 
-    Gallops {
+    jjrg_Gallops {
         next_heat_seed: "AC".to_string(),
         heat_order: vec![],
         heats,
@@ -82,10 +82,10 @@ fn jjtq_muster_output_format() {
 fn jjtq_heat_status_filter_current() {
     let gallops = create_test_gallops();
     let heat = gallops.heats.get("₣AB").unwrap();
-    assert_eq!(heat.status, HeatStatus::Racing);
+    assert_eq!(heat.status, jjrg_HeatStatus::Racing);
 
     // Simulate filter
-    let filter = Some(HeatStatus::Racing);
+    let filter = Some(jjrg_HeatStatus::Racing);
     let matches = filter.as_ref().map_or(true, |f| &heat.status == f);
     assert!(matches);
 }
@@ -96,16 +96,16 @@ fn jjtq_heat_status_filter_retired() {
     let heat = gallops.heats.get("₣AB").unwrap();
 
     // Simulate filter for retired (should not match)
-    let filter = Some(HeatStatus::Retired);
+    let filter = Some(jjrg_HeatStatus::Retired);
     let matches = filter.as_ref().map_or(true, |f| &heat.status == f);
     assert!(!matches);
 }
 
 #[test]
 fn jjtq_pace_state_as_str() {
-    assert_eq!(PaceState::Rough.jjrg_as_str(), JJRG_STATE_ROUGH);
-    assert_eq!(PaceState::Complete.jjrg_as_str(), JJRG_STATE_COMPLETE);
-    assert_eq!(PaceState::Abandoned.jjrg_as_str(), JJRG_STATE_ABANDONED);
+    assert_eq!(jjrg_PaceState::Rough.jjrg_as_str(), JJRG_STATE_ROUGH);
+    assert_eq!(jjrg_PaceState::Complete.jjrg_as_str(), JJRG_STATE_COMPLETE);
+    assert_eq!(jjrg_PaceState::Abandoned.jjrg_as_str(), JJRG_STATE_ABANDONED);
 }
 
 #[test]
@@ -119,7 +119,7 @@ fn jjtq_find_first_actionable_pace() {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 match tack.state {
-                    PaceState::Rough => {
+                    jjrg_PaceState::Rough => {
                         found_coronet = Some(coronet_key.clone());
                         break;
                     }
@@ -158,14 +158,14 @@ fn jjtq_get_spec_second_pace() {
 // GetCoronets tests
 // ============================================================================
 
-fn create_test_gallops_with_mixed_states() -> Gallops {
+fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
     let mut paces = BTreeMap::new();
     paces.insert(
         "₢ACAAA".to_string(),
-        Pace {
-            tacks: vec![Tack {
+        jjrg_Pace {
+            tacks: vec![jjrg_Tack {
                 ts: "260101-1200".to_string(),
-                state: PaceState::Complete,
+                state: jjrg_PaceState::Complete,
                 tier: None,
                 effort: None,
                 text: vec!["Done".to_string()],
@@ -176,10 +176,10 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
     );
     paces.insert(
         "₢ACAAB".to_string(),
-        Pace {
-            tacks: vec![Tack {
+        jjrg_Pace {
+            tacks: vec![jjrg_Tack {
                 ts: "260101-1300".to_string(),
-                state: PaceState::Rough,
+                state: jjrg_PaceState::Rough,
                 tier: None,
                 effort: None,
                 text: vec!["Needs work".to_string()],
@@ -190,10 +190,10 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
     );
     paces.insert(
         "₢ACAAC".to_string(),
-        Pace {
-            tacks: vec![Tack {
+        jjrg_Pace {
+            tacks: vec![jjrg_Tack {
                 ts: "260101-1400".to_string(),
-                state: PaceState::Rough,
+                state: jjrg_PaceState::Rough,
                 tier: None,
                 effort: None,
                 text: vec!["Ready to fly".to_string()],
@@ -204,10 +204,10 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
     );
     paces.insert(
         "₢ACAAD".to_string(),
-        Pace {
-            tacks: vec![Tack {
+        jjrg_Pace {
+            tacks: vec![jjrg_Tack {
                 ts: "260101-1500".to_string(),
-                state: PaceState::Abandoned,
+                state: jjrg_PaceState::Abandoned,
                 tier: None,
                 effort: None,
                 text: vec!["Gave up".to_string()],
@@ -220,10 +220,10 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
     let mut heats = BTreeMap::new();
     heats.insert(
         "₣AC".to_string(),
-        Heat {
+        jjrg_Heat {
             silks: "mixed-state-heat".to_string(),
             creation_time: "260101".to_string(),
-            status: HeatStatus::Racing,
+            status: jjrg_HeatStatus::Racing,
             order: vec![
                 "₢ACAAA".to_string(),
                 "₢ACAAB".to_string(),
@@ -235,7 +235,7 @@ fn create_test_gallops_with_mixed_states() -> Gallops {
         },
     );
 
-    Gallops {
+    jjrg_Gallops {
         next_heat_seed: "AD".to_string(),
         heat_order: vec![],
         heats,
@@ -262,7 +262,7 @@ fn jjtq_get_coronets_remaining_filter() {
     let remaining: Vec<&String> = heat.order.iter().filter(|coronet_key| {
         if let Some(pace) = heat.paces.get(*coronet_key) {
             if let Some(tack) = pace.tacks.first() {
-                return tack.state != PaceState::Complete && tack.state != PaceState::Abandoned;
+                return tack.state != jjrg_PaceState::Complete && tack.state != jjrg_PaceState::Abandoned;
             }
         }
         true
@@ -282,7 +282,7 @@ fn jjtq_get_coronets_rough_filter() {
     let rough: Vec<&String> = heat.order.iter().filter(|coronet_key| {
         if let Some(pace) = heat.paces.get(*coronet_key) {
             if let Some(tack) = pace.tacks.first() {
-                return tack.state == PaceState::Rough;
+                return tack.state == jjrg_PaceState::Rough;
             }
         }
         false
