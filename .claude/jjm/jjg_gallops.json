@@ -4029,9 +4029,49 @@
       "jjghn_silks": "jjk-16-studbook-conversion",
       "jjghn_creation_time": "260714",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢B3AAA"
+      ],
+      "jjghn_next_pace_seed": "AAB",
+      "jjghn_paces": {
+        "₢B3AAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260714-2013",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "",
+                "Cut the next heat and carry the live findings forward.",
+                "Establish the chain's next link; detail nothing past the next rung.",
+                "",
+                "## Done when",
+                "",
+                "Gate — a state predicate, never an ordinal: mount only once the founding-and-cutover rung's",
+                "done-line is sighted — every install reads and writes heat/pace state through the studbook",
+                "alone (both readers repointed), the old in-repo gallops tombstoned, consumer repos carry no",
+                "JJK insertions, the JJSV* family reads normative.",
+                "",
+                "The footprint-delivery heat exists, cut from this heat's paddock far rung, its paddock a",
+                "PHASE LADDER under the same doctrine this heat's paddock states — rungs named not detailed,",
+                "each done-line a state predicate, each phase boundary a slated carry-forward pace:",
+                "",
+                "- Its seed is the far rung's seam enumeration plus every live finding this heat accumulated,",
+                "  transcribed VERBATIM (copied intact, never re-glossed — a paraphrase is where knowledge",
+                "  leaks across a hop) — never left to be read from this heat's retired paddock. The 260709",
+                "  footprint-posture and engagement-inversion cinches travel with it unless a spec home has",
+                "  taken them by then.",
+                "- The groom rung-or-collapses each seeded seam consciously and expands footprint-delivery",
+                "  into paces, holding the cutover learnings this cut could not.",
+                "- If a rung stands past footprint-delivery, its boundary is a slated carry-forward pace;",
+                "  if none does, the new paddock records that the ladder ends there."
+              ],
+              "jjgtn_silks": "cut-the-footprint-heat",
+              "jjgtn_basis": "0b62453"
+            }
+          ]
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
