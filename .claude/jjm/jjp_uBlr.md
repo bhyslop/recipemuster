@@ -413,6 +413,42 @@ All four checklist items now pass against the real GitHub studbook.
   The staleness detector is structurally blind to this: it compares billet-against-origin,
   never origin-against-the-operator's-local-trunk, so it can only warn about drift acquired after birth.
   This is the concrete cost the single-hippodrome cutover retires, and it belongs to the conversion heat's shape.
+
+  CROSS-MACHINE COHERENCE CLUSTER (traced this session; the seams the switchover owes).
+  The operator works from more than one machine (macmini, cerebro), so the same sire is cloned
+  as two hippodromes — the studbook keeps the RECORD coherent (locked shared store, proven by
+  the rehearsal's two-station tests), but the CODE half is the operator's by the
+  trunk-never-pushed-by-JJ premise, and the seams below are what would make it seamless.
+  Two are conversion-scope (they ride the cutover the conversion heat performs):
+  - RECORD-READ REPOINT (verified built, awaiting the flip): the gallops-over-studbook surface
+    (`jjdb_gallops_journal_load`, reads from the studbook clone) is complete and tested behind
+    `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`; the flip is the cutover's act (JJSVS Founding-and-cutover).
+    TWO readers must repoint, not one: every `jjx_*` command's read AND the dispatch spine's own
+    target-resolution read (`jjrds_plan`, which today loads `hippodrome/.claude/jjm/jjg_gallops.json`
+    while the pedigree it reads beside it already comes from the studbook).
+    Currency-at-read — when a session gleans its local studbook clone — is the cutover's to settle.
+  - WARN-AT-OPEN, owed to match the chapbook: JJSAC Act II already renders the beat
+    ("on a stale trunk the open leads with the staleness warning and names refit"), but `jjx_open`
+    has no staleness check — the warn fires only from the dispatch board today, so a session
+    RE-ENTERING an existing billet is never alerted. The probe is cheap (billet behind
+    `origin/<trunk>`, a local ancestry check after a glean) and rides identify-at-open.
+    Detect-and-alert, never auto-run (the advice-not-automatic cinch). The full refit sequence
+    is the already-named-deferred stale-trunk-resync sibling tale in JJSAC.
+  Two are post-conversion (footprint-delivery, and NOT retired by the cutover):
+  - REMOTE-AWARE SEAT: because branch = coronet and dirname = `jjqb_<coronet>` are both derived,
+    the billet path is derivable per-station (regional coronet + station-local infield root) and
+    never needs recording — so the no-worktree-paths rivet is respected AND self-justified by
+    derivability (a why-clause JJSVS could adopt). The seam: extend the existence check from local
+    `refs/heads/<coronet>` to also consult `origin/<coronet>` after a glean, and seat FROM the
+    remote branch when found, so a second machine adopts the first's pushed work instead of forking.
+    Refit already pushes the coronet branch (its lease-free consign), so the branch to adopt exists.
+  - DELIVERY-TARGET FIELD, only if base ever differs from target: `jjop_trunk` already names the
+    per-sire trunk (built) and doubles as the stable integration base — choose it stable and refit
+    stays rare. A separate delivery-target earns a field only when born-from differs from
+    delivered-to; until then it is footprint-posture supposition, not owed.
+  Also owed, small: the refit ENGINE is built and tested but has no operator DOOR
+  (the advice names refit; nothing invokes `jjrrf_refit`), and that module's own comment
+  ("the dispatch spine's consumers, which does not exist yet") is now stale — the spine exists.
 - FINDING C, minor: each billet is a fresh project directory,
   so Claude Code asks for MCP-server trust on first contact into every new billet.
   This is Claude Code's own first-contact behavior at the harness Palisade, not JJ's to legislate;
