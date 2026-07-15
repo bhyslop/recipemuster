@@ -1,5 +1,10 @@
 # Transfer memo — ₢BcAAO pace-identity re-gestalt (station → cerebro)
 
+> **SUPERSEDED for current state (260715):** the code phase has since begun and paused for a
+> chat restart. This memo's "no source or spec bytes edited yet" is now historical; the live
+> state and remaining work are in `Memos/memo-20260715-coronet-regestalt-code-handoff.md` —
+> read that first. The code map below remains a useful reference.
+
 **Provisional provenance, not authority.** This memo hands off a mounted-but-unstarted pace
 across machines. Everything below is a *working map and set of proposals* from the slating
 session — verify against the live tree at mount; the docket and the JJS* specs are the
