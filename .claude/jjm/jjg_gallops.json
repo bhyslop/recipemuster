@@ -3669,60 +3669,76 @@
         "₢B0AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0717",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260714-1851",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "",
-                "Short mechanical ceremony; operator-present for the public-visibility moment.",
+                "Operator-present ceremony; the re-cut is scripted and local, the closing push is the irreversible public disclosure — promotion-grade gravity, run fresh.",
                 "",
                 "## Docket",
-                "",
-                "Push the proven candidate branch (the one rbk-10-create-staging's cut and integrity probe left standing) to the public repository as an unmerged branch —",
-                "the staging the greenfield walk will clone as a stranger.",
-                "Nothing merges to main here; the push makes the candidate publicly cloneable, no more.",
+                "Re-cut the release candidate under the amended ceremony and stage it publicly.",
+                "The prior proven cut (the quarantined root commit) is obsoleted by the ceremony amendment — the release candidate must be a fresh cut sitting one commit atop the public repository's live main.",
+                "Dispose of the prior cut first: delete and recreate the quarantine empty, per standing doctrine — the new candidate cannot fast-forward onto the old root commit, and that friction is never answered with force.",
+                "Run the cut ceremony end-to-end per the amended RELEASE.md: expede, the full battery, the quarantine preview push, the operator's GitHub inspect.",
+                "Carry the prior cut's expensive proofs across by content-addressing: assert the new candidate's tree hash equals the prior proven candidate's tree;",
+                "on equality the operator file-read and the content verdicts carry over;",
+                "on inequality, diff the trees and re-judge exactly the delta before proceeding.",
+                "Then the staging push, the operator's own hand: push the candidate to the public repository as an unmerged branch — the staging the greenfield walk will clone as a stranger; nothing merges to main here.",
+                "Assert main untouched mechanically, never by assumption: ls-remote the public repository before and after the push — main's SHA unchanged, the only ref delta the staging branch.",
                 "Verify the pushed branch's tip equals the local candidate tip,",
                 "that a fresh anonymous clone of the branch succeeds from a network position outside the maintainer's credentials,",
                 "and that from that anonymous clone the onboarding entry (rbw-o) launches to its first screen —",
                 "the stranger's first command proven over public transport before the multi-hour walk is scheduled.",
-                "Precondition: the candidate-integrity-probe pace in rbk-10-create-staging has closed green.",
+                "Precondition: the ceremony-amendment pace (this heat's first) has landed — amended expede, RELEASE.md steps, and ceremony driver in agreement.",
                 "",
                 "## Done when",
-                "",
-                "The candidate branch stands on the public repository, tip-verified, anonymously cloneable, the onboarding entry launching from the anonymous clone; main untouched."
+                "The re-cut candidate stands on the public repository as an unmerged staging branch, tip-verified, tree-hash-reconciled against the prior proven cut, anonymously cloneable, the onboarding entry launching from the anonymous clone;",
+                "public main asserted untouched by the ls-remote comparison;",
+                "the quarantine dispositioned per the amended ceremony document."
               ],
               "jjgtn_silks": "stage-the-candidate",
-              "jjgtn_basis": "2a299fb"
+              "jjgtn_basis": "eed2d38"
             }
           ]
         },
         "₢B0AAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1824",
+              "jjgtn_ts": "260714-1851",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Ceremony design change that amends a cinched ruling; small code+doc surface, high care on the reveal-safety invariant.",
                 "",
+                "## Cinched (operator, 260714)",
+                "The candidate clone finishes expede with zero remotes, and expede asserts that mechanically.",
+                "Every push in the ceremony corpus is an explicit URL plus a single explicit refspec; the fan-out forms (--all, --mirror, --tags) are forbidden in advice and docs alike.",
+                "The refspec that touches public main appears exactly once across RELEASE.md and the ceremony driver — in the promotion step, on the far side of the walk gate — and no command anywhere in the flow has public main as its default-shaped outcome (mind the candidate clone's local branch name).",
+                "The maintainer repo carries no push-capable remote to the public target either; the base is reached read-only.",
+                "",
                 "## Docket",
                 "Split expede's single OPEN_SOURCE_UPSTREAM role into two: the base to cut atop (the real public repo, so the candidate is one commit atop its live main) and the eventual public target — which expede must never reach.",
-                "Make expede a pure local constructor: it builds the candidate atop the real base and pushes nothing, printing the exact push commands only as advice.",
+                "Make expede a pure local constructor: it builds the candidate atop the real base and pushes nothing, printing the exact push commands only as advice, in the single-refspec explicit-URL form the cinch demands.",
                 "The public reveal is human-hands-only by structural incapacity, not discipline — expede never wires the public remote, so it cannot push there even if a bug tried (the same shape as the quarantine's \"no delete token is ever minted\").",
-                "Amend RELEASE.md to spell the flow as explicit numbered human steps: run expede → push to the private quarantine (reversible) + inspect → the critical, flagged-irreversible public push as its own step.",
+                "The surface is three artifacts that must agree: expede, RELEASE.md, and the ceremony driver (.claude/commands/rbk-expede.md).",
+                "The driver today pushes \"origin main\" and teaches that origin IS the quarantine — the redesign falsifies both; after this pace no step in the driver performs any push, and its quarantine gate reads the quarantine role from its new home.",
+                "Amend RELEASE.md to spell the flow as explicit numbered human steps: run expede → push to the private quarantine (reversible) + inspect → the critical, flagged-irreversible public push as its own step;",
+                "the steps also fix quarantine and candidate-directory disposal timing in the new flow, and carry the promotion-day housekeeping the release pace will execute (Pages source config checked before main moves; the public repo's stale open PR closed).",
                 "Home the design rationale in RELEASE.md, bounded and tied to the steps, not an essay: a git commit is content-addressed, so the private-quarantine push is a byte-faithful preview of the public push; the base-vs-target remote split; why the reveal is manual-by-structural-incapacity.",
                 "Leave a one-line breadcrumb that this deep rationale migrates to a release spec sheaf when one exists — RELEASE.md holds it in the interim, not a memo.",
+                "Before re-minting or re-pointing the OPEN_SOURCE_UPSTREAM remote name, check its other consumer (CMK's contribution flow names that remote) and don't break the reference silently.",
                 "Record the amended cinch on the B0 paddock: additive construction is prevention, the private-gate-then-manual-reveal is containment, both kept; the single irreversible reveal is operator-hand-only by construction.",
-                "Must land before stage-the-candidate runs, since that pace is the real push.",
+                "Must land before the staging pace runs, since that pace is the real push.",
                 "",
                 "## Done when",
-                "Expede cuts atop the real public base and pushes nothing, with no public remote wired;",
-                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted, plus the bounded content-addressed-preview rationale and the sheaf breadcrumb;",
+                "Expede cuts atop the real public base and pushes nothing, the finished candidate clone carrying zero remotes with the assert in place;",
+                "RELEASE.md carries the private-inspect-then-manual-public-reveal as numbered steps, the public push flagged irreversible and never tool-attempted, plus the bounded content-addressed-preview rationale, the disposal timing, the promotion-day housekeeping, and the sheaf breadcrumb;",
+                "the ceremony driver agrees with RELEASE.md and contains no push;",
+                "the reveal-safety cinches hold across all three artifacts;",
                 "the amended cinch stands on the B0 paddock."
               ],
               "jjgtn_silks": "expede-manual-reveal-gate",
-              "jjgtn_basis": "8135a28"
+              "jjgtn_basis": "eed2d38"
             }
           ]
         }
