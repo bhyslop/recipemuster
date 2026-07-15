@@ -32,6 +32,16 @@ This heat races the moment the staging heat's (₣Bs) integrity probe closes gre
 the staging heat's residue runs as fill work across this heat's ceremony gaps and its nomination pace follows the release, by design.
 Post-promotion the staging branch is deleted — ceremony hygiene, recorded with the delivery pattern in the ceremony document.
 
+The cut-ceremony amendment settles the reveal-safety shape the later paces execute.
+Additive construction is the prevention — the candidate is built by addition in a clone of the real public base, so no private object ever enters the pushed graph — and the private quarantine is only containment; both kept, containment never substituting for prevention.
+The base is read-only by construction, asserted: expede reads the ENGROSSMENT_UPSTREAM fetch url, its push side is neutered to a sentinel (expede refuses to cut unless get-url --push returns it), it severs the clone's origin, and the finished candidate holds zero remotes — so every public act is human-hands-only by structural incapacity, and a push-capable remote to the public target in the maintainer repo (a stray push landing the private tree on public main) is the one catastrophe forbidden.
+Three distinct public acts, one irreversible: the reversible private-quarantine preview; the irreversible public staging push (the candidate onto the real public repo as the unmerged POSTULANT_LOCAL branch, which the walk clones — the single disclosure); and promotion (fast-forward-only, tree-hash-equal), which is discoverability, not disclosure.
+Every push is an explicit URL plus a single explicit refspec, the fan-out forms forbidden; the preview and the staging push both spell POSTULANT_LOCAL:POSTULANT_LOCAL, and only promotion spells POSTULANT_LOCAL:main — exactly once in the whole corpus.
+The mint (operator, 260715): the read-only base remote is ENGROSSMENT_UPSTREAM, and POSTULANT_LOCAL is the one official branch name across both the local candidate and the public staging branch; OPEN_SOURCE_UPSTREAM is left to its CMK consumer, unre-pointed.
+The candidate's root CLAUDE.md is the consumer template's committed bytes (Tools/rbk/vov_veiled/CLAUDE.consumer.md), transposed by expede itself between materialization and the commit and byte-asserted — the maintainer's CLAUDE.md never enters the candidate's object graph.
+Sweep semantics under the real public base: the candidate sweep asserts no withheld path enters with THIS cut — the delta atop the base — and stays fatal; the base's pre-existing withheld content is inventoried and operator-acknowledged, never fatal and never silent.
+The github.io landing page retires: promotion deletes the public repo's untracked index.html and .nojekyll from main, and the README render from main root is the intended Pages face thereafter — no landing page ships and none moves to a side branch.
+
 ## Shape
 
 In pace order:

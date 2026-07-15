@@ -2,7 +2,7 @@
 description: Cut and prove the upstream release candidate (RELEASE.md step 5)
 ---
 
-You are cutting the delivery candidate and proving it fit to publish. This is step 5 of `RELEASE.md`. **This driver performs no push** — it cuts, proves, and shows you the candidate. The reversible quarantine preview and the irreversible public reveal are your own hands, numbered steps 6 and 8 of `RELEASE.md`.
+You are cutting the delivery candidate and proving it fit to publish. This is step 5 of `RELEASE.md`. **This driver performs no push** — it cuts, proves, and shows you the candidate. The reversible quarantine preview and the irreversible public staging reveal are your own hands, numbered steps 6 and 7 of `RELEASE.md`.
 
 **Read this first — it is why the ceremony is short.**
 
@@ -33,13 +33,21 @@ Expect one benign exception: opening an officium writes a bookkeeping commit, so
 
 ## 2. Base and quarantine gates
 
-**The base** — expede cuts atop the real public repository, so its remote must be configured. Confirm it resolves:
+**The base** — expede cuts atop the real public repository, so its remote must be configured **and its push side neutered** (the base is read-only; a push-capable remote to the public target is the one catastrophe the ceremony forbids — a stray `git push ENGROSSMENT_UPSTREAM` would put the private tree on public `main`). Confirm both:
 
 ```
 git remote get-url ENGROSSMENT_UPSTREAM
+git remote get-url --push ENGROSSMENT_UPSTREAM
 ```
 
-Empty or erroring means the base remote is unconfigured — `git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git` and re-read. Expede refuses the cut without it.
+The fetch URL must be the public repo; the push URL must be exactly `DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY`. If unconfigured or the push side is live:
+
+```
+git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
+git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
+```
+
+Expede refuses the cut unless the push side is the sentinel.
 
 **The quarantine** — an **ephemeral, private** repository, created empty by the operator before a cut and deleted by hand after the candidate is dispositioned. It is never created or destroyed by tooling: no delete-scoped token exists, and none may ever be minted. It is reached only by **explicit URL** — the candidate carries no remote for it. Check it, credential-free, with `<owner>/<repo>` = `scaleinv/recipebottle-staging`:
 
@@ -49,11 +57,11 @@ Empty or erroring means the base remote is unconfigured — `git remote add ENGR
   ```
   Anything but `404` means the quarantine repo is public (or the name is wrong). **Stop.**
 
-- **Fresh** — the quarantine must be either empty (no refs at all, the pre-first-publish state) or carrying exactly `refs/heads/main`:
+- **Fresh** — the quarantine must be either empty (no refs at all) or carrying exactly `refs/heads/POSTULANT_LOCAL` (a preview from this same cut):
   ```
   git ls-remote --heads git@github.com:scaleinv/recipebottle-staging.git
   ```
-  Anything else — a second branch, a stale candidate branch — means a prior cut was not dispositioned. **Stop**, and ask the operator to dispose of it.
+  Anything else — a second branch, a stale candidate branch, or a `main` — means a prior cut was not dispositioned. **Stop**, and ask the operator to dispose of it.
 
 ## 3. Pre-cut assays, in the working repository
 
@@ -160,9 +168,10 @@ Show the operator the full file list — a few hundred lines — and **wait**. N
 
 ## The cut ends here — no push
 
-The candidate stands built, proven, and **unpushable**: one commit atop the public base, on `POSTULANT_LOCAL`, holding zero remotes. This driver deliberately contains no push. The two pushes are your own hands, back in `RELEASE.md`:
+The candidate stands built, proven, and **unpushable**: one commit atop the public base, on `POSTULANT_LOCAL`, holding zero remotes. This driver deliberately contains no push. Every push is your own hand, back in `RELEASE.md`:
 
-- **Step 6** — the reversible preview into the private quarantine (`scaleinv/recipebottle-staging`), by explicit URL.
-- **Step 8** — the irreversible reveal onto public `main` (`scaleinv/recipebottle`), on the far side of the greenfield walk.
+- **Step 6** — the reversible preview into the **private** quarantine (`scaleinv/recipebottle-staging`), `POSTULANT_LOCAL:POSTULANT_LOCAL`, by explicit URL.
+- **Step 7** — the **irreversible** public staging reveal: `POSTULANT_LOCAL:POSTULANT_LOCAL` onto the **public** repo (`scaleinv/recipebottle`) as an unmerged branch, `main` untouched — the disclosure the walk then clones.
+- **Step 9** — promotion onto public `main`, the one main-touching push, on the far side of the greenfield walk.
 
-When the candidate is dispositioned, delete the quarantine repository and the candidate directory. The quarantine's whole value is that it does not outlive the cut.
+Keep the candidate directory until step 7 is tip-verified; then, when the candidate is dispositioned, delete the public staging branch, the private quarantine repository, and the candidate directory. The quarantine's whole value is that it does not outlive the cut.
