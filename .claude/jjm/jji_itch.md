@@ -1,5 +1,12 @@
 # Itches
 
+## carry-forward-chain-tripwire
+If the conversion heat (cut by jjk-09's ₢BrAAj) ever retires and no footprint-delivery
+heat shows in muster, the carry-forward pace chain broke silently — the far cross-machine
+work (remote-aware seat, delivery-target) was lost. This line is the out-of-chain observer:
+a routine muster should catch the missing successor heat. Non-load-bearing by design
+(itches never are); delete it once the footprint heat exists.
+
 ## burc-acronym-config-collision
 Rename BURC to avoid "Configuration" confusion with Config Regimes.
 
