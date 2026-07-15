@@ -3952,9 +3952,10 @@
         "₢B2AAB",
         "₢B2AAF",
         "₢B2AAG",
-        "₢B2AAH"
+        "₢B2AAH",
+        "₢B2AAI"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -4110,6 +4111,26 @@
               ],
               "jjgtn_silks": "evict-mktemp-from-posix-floor",
               "jjgtn_basis": "58c3475"
+            }
+          ]
+        },
+        "₢B2AAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-0811",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Exploratory — determine feasibility first; implement only if the answer is yes and clean.",
+                "",
+                "## Docket",
+                "Operator's hypothesis, untested: sed's two real call sites (find via the mktemp pace's discovery recipe, substituting \"sed\" for \"mktemp\") might be replaceable with bash's native [[ =~ ]] pattern matching — BCG already evicts grep this exact way (BCG \"Evicted Utilities\" table), but that table doesn't yet evict sed, and the real question is substitution, not matching: [[ =~ ]] only matches (via BASH_REMATCH), while ${var//pattern/replacement} is glob-based, not regex. sed's actual jobs at both sites — Tools/buk/bud_dispatch.sh's multi-pattern chained regex substitution (stripping ANSI escapes/CR/blank-lines/VOLATILE-tagged lines from log output), and the shelved bujb_jurisdiction.sh's Nth-line extraction — may or may not be fully reachable with bash builtins alone. Do not assume feasibility going in.",
+                "",
+                "## Done when",
+                "A clear determination — either both call sites are rewritten sed-free with reveille/shellcheck green and sed evicted from the floor + BCG's tables, or a documented reason why one or both cannot cleanly drop sed, with the operator's ruling on how to proceed from there."
+              ],
+              "jjgtn_silks": "explore-evict-sed-via-bash-regex",
+              "jjgtn_basis": "a325431"
             }
           ]
         }
