@@ -9,9 +9,9 @@ to another.
 This is a primitive operation: mechanical transfer with no ceremony.
 The
 {jjdpr_pace}
-receives a new
+keeps its
 {jjdt_coronet}
-in the destination
+— that identity is immutable for life — and is re-affiliated by moving its entry into the destination
 {jjdhr_heat};
 all
 {jjdkr_tack}
@@ -74,7 +74,7 @@ If none provided, append to end of destination
 {jjdhm_order}
 (default).
 
-{jjds_stdout} New
+{jjds_stdout} The re-affiliated
 {jjdt_coronet}
 in destination
 {jjdhr_heat}
@@ -88,18 +88,15 @@ in destination
 on failure, exit immediately with
 {jjdr_load}
 error status
-. Extract source
-{jjdt_firemark}
-from
+. Resolve the source
+{jjdhr_heat}
+holding the
 {jjdt_coronet}
-(first 2 base64 chars after prefix)
-. Verify source
+(resolution as defined at
+{jjdt_coronet});
+error if no
 {jjdhr_heat}
-exists
-. Verify
-{jjdpr_pace}
-exists in source
-{jjdhr_heat}
+holds it
 . Verify destination
 {jjdhr_heat}
 exists with given
@@ -112,52 +109,29 @@ provided, verify target
 {jjdt_coronet}
 exists in destination
 {jjdhr_heat}
-. Read destination
-{jjdhm_seed}
-. Construct new
-{jjdt_coronet}:
-`₢` + destination
-{jjdt_firemark}
-(2 chars) + destination
-{jjdhm_seed}
-(3 chars)
-. Copy
+. Move the
 {jjdpr_pace}
-data to destination with new
-{jjdt_coronet}:
-.. Prepend new
+entry from source
+{jjdhm_paces}
+to destination
+{jjdhm_paces}
+under the same
+{jjdt_coronet}
+— never re-keyed, never re-minted; all
 {jjdkr_tack}
-recording the relocate:
-... {jjdkm_refined}:
-current timestamp (YYMMDD-HHMM)
-... {jjdkm_state}:
-inherited from previous `tacks[0].state`
-... {jjdkm_text}:
-`Relocated from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
-... {jjdkm_silks}:
-inherited from previous `tacks[0].silks`
-... {jjdkm_commit}:
-capture {jjdkm_commit}
-.. Preserve remaining
-{jjdkr_tack}
-history
-. Insert new
+data is carried unchanged
+. Insert the
 {jjdt_coronet}
 into destination
 {jjdhm_order}
 at determined position
-. Increment destination
-{jjdhm_seed}
-. Remove
-{jjdpr_pace}
+. Remove the
+{jjdt_coronet}
 from source
-{jjdhr_heat}:
-.. Remove from source `paces` object
-.. Remove from source
 {jjdhm_order}
 .
 {jjdr_save}
-. Output new
+. Output the
 {jjdt_coronet}
 to stdout
 
@@ -171,7 +145,7 @@ to stdout
 | "Cannot relocate pace to same heat"
 
 | Source {jjdpr_pace} not found
-| "Pace {coronet} not found in heat {firemark}"
+| "Pace {coronet} not found in any heat"
 
 | Destination {jjdhr_heat} not found
 | "Heat {firemark} not found"

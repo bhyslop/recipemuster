@@ -8,9 +8,9 @@ from one
 to another as a single atomic operation.
 All
 {jjdpr_pace_s}
-receive new
+keep their
 {jjdt_coronet_s}
-in the destination
+— immutable for life — and are re-affiliated into the destination
 {jjdhr_heat};
 all
 {jjdkr_tack}
@@ -76,14 +76,14 @@ plus paddock moves for N
   "drafted": [
     {
       "old_coronet": "AFAAb",
-      "new_coronet": "AGABd",
+      "new_coronet": "AFAAb",
       "silks": "implement-bulk-relocate",
       "state": "rough",
       "docket": "Implement jjx_transfer operation following jjx_relocate pattern..."
     },
     {
       "old_coronet": "AFAAc",
-      "new_coronet": "AGABe",
+      "new_coronet": "AFAAc",
       "silks": "test-transfer-edge-cases",
       "state": "rough",
       "docket": "Add tests for empty source, all paces transferred, ordering preservation..."
@@ -112,12 +112,13 @@ after transfer
 {jjdhm_paddock}
 path
 * `drafted[]`: Array in transfer order
-* `drafted[].old_coronet`: Original
+* `drafted[].old_coronet`: the
+{jjdpr_pace_p}
+immutable
 {jjdt_coronet}
-in source
-* `drafted[].new_coronet`: New
+* `drafted[].new_coronet`: the same
 {jjdt_coronet}
-in destination
+in destination — always equal to `old_coronet`, because transfer never re-keys; the pair is retained for output-schema stability
 * `drafted[].silks`: Current
 {jjdkm_silks}
 from `tacks[0]`
@@ -153,71 +154,33 @@ exists with given
 {jjdhr_heat_s}
 . For each
 {jjdt_coronet}
-in `coronets` array:
-.. Extract source
-{jjdt_firemark}
-from
-{jjdt_coronet}
-(first 2 base64 chars after prefix)
-.. Verify source
-{jjdt_firemark}
-matches positional argument
-.. Verify
+in `coronets` array, verify the
 {jjdpr_pace}
 exists in source
-{jjdhr_heat}
-. Read destination
-{jjdhm_seed}
+{jjdhm_paces}
 . For each
 {jjdt_coronet}
 in `coronets` array (preserving order):
-.. Construct new
-{jjdt_coronet}:
-`₢` + destination
-{jjdt_firemark}
-(2 chars) + destination
-{jjdhm_seed}
-(3 chars)
-.. Copy
+.. Move the
 {jjdpr_pace}
-data to destination with new
-{jjdt_coronet}:
-... Prepend new
-{jjdkr_tack}
-recording the relocate:
-.... {jjdkm_refined}:
-current timestamp (YYMMDD-HHMM)
-.... {jjdkm_state}:
-inherited from previous `tacks[0].state`
-.... {jjdkm_text}:
-`Relocated from {old_coronet} in {source_firemark}.\n\n` + previous `tacks[0].text`
-.... {jjdkm_silks}:
-inherited from previous `tacks[0].silks`
-.... {jjdkm_commit}:
-capture {jjdkm_commit}
-... Preserve remaining
-{jjdkr_tack}
-history
-.. Append new
-{jjdt_coronet}
+entry from source
+{jjdhm_paces}
 to destination
-{jjdhm_order}
-.. Increment destination
-{jjdhm_seed}
-.. Record mapping (old
+{jjdhm_paces}
+under the same
 {jjdt_coronet}
-→ new
-{jjdt_coronet})
-for output
-. Remove all drafted
-{jjdpr_pace_s}
+— never re-keyed, never re-minted; all
+{jjdkr_tack}
+data is carried unchanged
+.. Remove the
+{jjdt_coronet}
 from source
-{jjdhr_heat}:
-.. For each old
-{jjdt_coronet}:
-... Remove from source `paces` object
-... Remove from source
 {jjdhm_order}
+and append it to destination
+{jjdhm_order}
+.. Record the mapping — old and new
+{jjdt_coronet}
+identical, the unchanged identity — for output
 .
 {jjdr_save}
 . Construct output JSON with source info, destination info, and drafted array
@@ -244,10 +207,7 @@ from source
 | {jjdt_coronet} not array
 | "Expected JSON array of coronets"
 
-| {jjdt_coronet} source mismatch
-| "Pace {coronet} does not belong to source heat {firemark}"
-
-| {jjdpr_pace} not found
+| {jjdpr_pace} not found in source
 | "Pace {coronet} not found in heat {firemark}"
 
 | Empty `coronets` array

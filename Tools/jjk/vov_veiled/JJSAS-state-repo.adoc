@@ -45,22 +45,13 @@ Canon: drained 260706 to the studbook entity sheaf (`JJSVS-studbook.adoc`,
 
 == Pace identity re-gestalt (cinched 260704)
 
-Pace coronets split from heats: a pace's identity becomes *immutable for life* — restring and
-transfer re-affiliate the pace but never re-key it, retiring the identity churn the
-tombstone-transfer maneuver worked around.
-The studbook's lock enables *atomic global coronet minting* — one seed under the lock —
-killing the distributed-allocation collision class at pace grain.
-Display becomes heat-qualified everywhere coronets render (shape like `₢Bb·AAAAG`: current
-heat prefix + immutable pace id, joined by the interpunct `·` — cinched 260704: the separator
-must sit *outside* the identity alphabet, which `-`/`_` are members of, and `·` is inert in
-every carrier where `#` is hostile — shell comment, gazette notice delimiter, GitHub autolink);
-the canonical *wire* form vs. the interpunct *display* form is an open fork (gazette halter
-target-typing is by length today).
-Free synergy: billet branch names embed the coronet and no longer rot on transfer.
-This is a gallops schema change — the reprieve doctrine (JJS0 `jjdz_reprieve`, CLAUDE.md §E)
-gates its implementation.
-The deferred *insignia* sub-mint (Store shape below) shares this identity-display space and
-mints in the same design pace.
+INFUSED 260715 to JJS0 (`jjdt_coronet`, `jjdgm_pace_seed`, `jjdz_encoding`, `jjdz_reprieve`).
+Provenance kept here: the 260704 separator cinch — `·` sits *outside* the identity alphabet (of
+which `-`/`_` are members) and is inert in every carrier where `#` is hostile (shell comment,
+gazette notice delimiter, GitHub autolink); and the billet-branch synergy (branch names embed the
+coronet and survive transfer).
+The deferred *insignia* sub-mint (Store shape below) shares this identity-display space but does
+not travel with the re-gestalt.
 
 == Plans as commits (the gazette convergence)
 
@@ -276,8 +267,6 @@ counterfoil seam included.
 
 == Open forks (the mulling surface)
 
-* Canonical wire form vs. heat-qualified display form for the re-gestalted coronet (gazette
-  halter target-typing by length depends on it).
 * Per-heat file sharding as layout (concurrency need dissolved by the lock).
 
 == Sources (provenance, not authority)

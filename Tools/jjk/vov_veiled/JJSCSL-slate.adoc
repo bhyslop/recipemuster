@@ -91,16 +91,16 @@ provided, verify target
 exists in
 {jjdhr_heat}
 . Read
-{jjdhm_seed}
-from target
-{jjdhr_heat}
+{jjdgm_pace_seed}
+from
+{jjdgr_gallops}
+— the single global mint seed
 . Construct
 {jjdt_coronet}:
-`₢` + encoded
+`₢` + the 5-character
+{jjdgm_pace_seed}
+— one flat global index, no embedded
 {jjdt_firemark}
-(2 chars) +
-{jjdhm_seed}
-(3 chars)
 . Create new
 {jjdpr_pace}
 with:
@@ -136,7 +136,7 @@ insert immediately after target
 {jjdt_coronet}
 .. Otherwise: append to end
 . Increment
-{jjdhm_seed}
+{jjdgm_pace_seed}
 (base64 arithmetic with carry)
 .
 {jjdr_save}
