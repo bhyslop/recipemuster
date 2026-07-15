@@ -173,6 +173,13 @@ its tier source, never its own spine:
   tier, opening prompt); pace-coupling lives in the caller, and later dispatch surfaces
   reuse the same spine and primitive, never a parallel launcher.
 
+*Report precedes launch.*
+The door's report introduces the session it launches, so it reaches the operator's console
+BEFORE the Launch step hands over the terminal — the whole resolved report (billet, launch
+tier and effort, opening prompt, and any staleness notice), never trailing the session's exit.
+The console-handoff is the spine's last act for exactly this reason: a report emitted after it
+would land beneath the very session it was meant to precede.
+
 Mount absorbs cold start — billet ensure, glean, orient are the spine's work, and no
 separate cold-start engagement verb exists.
 

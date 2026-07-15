@@ -662,17 +662,36 @@ pub fn jjrds_stirrup_command(
 
 // ---- The door driver (CLI entry) ----
 
-/// Drive one dispatch end to end: plan, board, provision, launch. `dry_run`
-/// stops short of the spawn and prints the resolved plan — the rehearsal and
-/// debugging surface. Returns a process exit code; the launched session's own
-/// exit code propagates.
-pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path, dry_run: bool) -> (i32, String) {
+/// The spine's terminal shape. Either the dispatch finishes here — a refusal, a
+/// dry run, or a provisioning failure, with the report string carrying the whole
+/// of what to say and the code the exit code — or a session stands composed and
+/// ready to launch. The launch is the one console-handoff I/O effect, and it is
+/// the caller's, never this module's: the caller prints the report first and
+/// then hands the terminal over, so the door's whole report reaches the operator
+/// BEFORE the session it introduces (JJSVD "Report precedes launch").
+pub enum jjrds_Outcome {
+    /// Nothing to launch: the `i32` is the exit code; the report string is all
+    /// there is to print.
+    Done(i32),
+    /// A composed session ready to launch. The caller prints the report, then
+    /// hands it the terminal; the session's own exit code becomes the dispatch's.
+    Launch(std::process::Command),
+}
+
+/// Resolve one dispatch to the point of launch — plan, board, provision, and
+/// compose the session command — but do NOT launch it. `dry_run` stops after
+/// planning and reports the resolved plan (the rehearsal and debugging surface).
+/// The returned report string is always what to print; the outcome says whether
+/// a session remains for the caller to launch. Keeping the console-handoff out
+/// of this function is what lets the caller emit the report before the session
+/// takes the terminal (JJSVD "Report precedes launch").
+pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path, dry_run: bool) -> (jjrds_Outcome, String) {
     let mut out = String::new();
     let farrier = jjrfg_PlainGit;
 
     let plan = match jjrds_plan(door, raw_target, cwd) {
         Ok(p) => p,
-        Err(e) => return (1, format!("dispatch refused: {}\n", e)),
+        Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
     };
 
     out.push_str(&format!(
@@ -689,12 +708,12 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
 
     if dry_run {
         out.push_str("dry run: stopping before board and launch\n");
-        return (0, out);
+        return (jjrds_Outcome::Done(0), out);
     }
 
     let staleness = match jjrds_board(&farrier, &plan) {
         Ok(s) => s,
-        Err(e) => return (1, format!("{}dispatch refused at boarding: {}\n", out, e)),
+        Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at boarding: {}\n", out, e)),
     };
     if let Some(notice) = &staleness {
         out.push_str(&format!("{}\n", notice));
@@ -703,15 +722,15 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
     // Provision: the session-scoped MCP config and the per-billet BUK scratch.
     for sub in ["output-buk", "temp-buk", "logs-buk"] {
         if let Err(e) = std::fs::create_dir_all(plan.scratch_root.join(sub)) {
-            return (1, format!("{}dispatch failed provisioning scratch at {}: {}\n", out, plan.scratch_root.display(), e));
+            return (jjrds_Outcome::Done(1), format!("{}dispatch failed provisioning scratch at {}: {}\n", out, plan.scratch_root.display(), e));
         }
     }
     let mcp_path = plan.scratch_root.join("mcp.json");
     if let Err(e) = std::fs::write(&mcp_path, jjrds_mcp_config_json(kit_root)) {
-        return (1, format!("{}dispatch failed writing MCP config at {}: {}\n", out, mcp_path.display(), e));
+        return (jjrds_Outcome::Done(1), format!("{}dispatch failed writing MCP config at {}: {}\n", out, mcp_path.display(), e));
     }
 
-    let mut cmd = match jjrds_stirrup_command(
+    let cmd = match jjrds_stirrup_command(
         &plan.billet_root,
         plan.tier,
         plan.effort,
@@ -720,12 +739,8 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         &plan.scratch_root,
     ) {
         Ok(c) => c,
-        Err(e) => return (1, format!("{}dispatch refused at stirrup: {}\n", out, e)),
+        Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at stirrup: {}\n", out, e)),
     };
 
-    // Launch: hand the console to the session; its exit code is ours.
-    match cmd.status() {
-        Ok(status) => (status.code().unwrap_or(1), out),
-        Err(e) => (1, format!("{}stirrup failed to launch claude: {}\n", out, e)),
-    }
+    (jjrds_Outcome::Launch(cmd), out)
 }

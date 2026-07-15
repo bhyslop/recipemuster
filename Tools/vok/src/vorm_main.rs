@@ -370,11 +370,16 @@ async fn run_mcp() -> i32 {
     }
 }
 
-/// Run the JJ dispatch spine (jjy_ door path)
+/// Run the JJ dispatch spine (jjy_ door path). The spine resolves and composes
+/// but does not launch: it returns the report and, when a session is ready, the
+/// composed command. We print the report here FIRST, then hand the terminal to
+/// the session, so the door's whole report precedes the session it introduces
+/// (JJSVD "Report precedes launch").
 fn run_dispatch(args: DispatchArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
     {
+        use jjk::jjrds_spine::jjrds_Outcome;
         let door = match args.door.as_str() {
             "saddle" => jjk::jjrds_spine::jjrds_Door::Saddle,
             "lunge" => jjk::jjrds_spine::jjrds_Door::Lunge,
@@ -383,11 +388,20 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
                 return 1;
             }
         };
-        let (code, text) = jjk::jjrds_spine::jjrds_run(door, &args.target, &args.cwd, &args.kit_root, args.dry_run);
+        let (outcome, text) = jjk::jjrds_spine::jjrds_run(door, &args.target, &args.cwd, &args.kit_root, args.dry_run);
         if !text.is_empty() {
             vvco_out!(out, "{}", text.trim_end());
         }
-        code
+        match outcome {
+            jjrds_Outcome::Done(code) => code,
+            jjrds_Outcome::Launch(mut cmd) => match cmd.status() {
+                Ok(status) => status.code().unwrap_or(1),
+                Err(e) => {
+                    vvco_err!(out, "jjx_dispatch: stirrup failed to launch claude: {}", e);
+                    1
+                }
+            },
+        }
     }
     #[cfg(not(feature = "jjk"))]
     {
