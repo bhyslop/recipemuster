@@ -8,19 +8,23 @@ This is the first real content delivery of the federation era — the heat exist
 
 ## Cinched
 
-The greenfield walk runs FULL against the public staging branch and only a thin spot-check runs against production —
-because a clean promotion changes no bytes, only links and landing;
-the byte claim is checked, not assumed: promotion asserts main's tree hash equals the candidate tip.
+Re-ruled (operator, 260715, first-delivery exception): promotion executed after staging and before the walk —
+the bytes were already disclosed and tree-equal, the audience is effectively zero, and a walk against live main is the truer stranger simulation;
+the greenfield walk therefore runs FULL against promoted public main, the default face a real stranger lands on, and the separate thin production spot-check dissolves into it.
+Both formerly pre-waived finding classes dissolve with the reorder — main-blob links are live during the walk, and the stranger clones default main, no maintainer-supplied bootstrap step remaining — so everything in the walk counts.
+Walk-gates-promotion restores as standing doctrine for future releases, once real users exist to protect;
+the ceremony document records this heat's actual shape (stage → promote → walk) as the first-delivery exception beside the standing pattern.
+Accepted cost of the reorder: a code-bearing walk finding stands on the promoted face until its repair re-cut lands atop the moved base.
+Promotion is fast-forward-only by hand from a fresh clone, never the PR merge button —
+GitHub's UI cannot fast-forward, and a squash or merge bubble breaks the content-addressed identity (main must point at the very object inspected in quarantine);
+the PR auto-marks merged when main reaches its head commit.
+The byte claim is checked, not assumed: promotion asserts main's tree hash equals the candidate tip.
 The staging push, not the promotion, is the irreversible disclosure — it carries promotion-grade gravity;
-the walk gates discoverability (promotion), never disclosure.
+the walk gates discoverability for future releases, never disclosure.
 Link checking splits in two and the ceremony document must say so:
 structural (pre-push, pyx's anchor sweep — every yawp link WOULD resolve) versus liveness (post-promotion only — the RBRR_PUBLIC_DOCS_URL main-blob links go live at the merge and cannot be live-checked earlier).
-Two finding classes are pre-declared and waived:
-dead main-blob links during the staging walk,
-and the stranger's bootstrap — cloning the staging branch rather than default main, the one maintainer-supplied step the shipped docs cannot name;
-everything else in the walk counts.
 The RBRR_PUBLIC_DOCS_URL value (the public repo's main-blob README) stands — it is the correct durable consumer value; the earlier discomfort was the sequencing circularity, now resolved by this heat's shape, not a value change.
-The walk gates promotion; the operator drives the walk personally (the walk pace's own cinch).
+The operator drives the walk personally (the walk pace's own cinch).
 Every ceremony here is operator-present; the promotion and spot-check are small enough for a fogged day, the walk is not — schedule it fresh.
 Divergence economics are pre-ruled, not decided tired mid-ceremony:
 a doc-only divergence census defaults to fast-follow disposition (or a targeted re-walk of the diverged steps alone);
@@ -47,8 +51,8 @@ The github.io landing page retires: promotion deletes the public repo's untracke
 In pace order:
 amend the cut ceremony to the manual-reveal shape — expede a pure local constructor, the reveal human-hands-only by structural incapacity;
 re-cut under the amended ceremony, preview in quarantine, and stage the candidate onto the public repository as an unmerged branch, publicly cloneable;
-the greenfield manor walk, full, against that public staging — operator's own hands, from the onboarding entry to a gauntlet green on a fresh payor substrate;
-then carry out the release — promote candidate to main with the tree-hash equality assert, run the liveness checks and the production spot-check, and record the delivery.
+the greenfield manor walk, full, against promoted public main — operator's own hands, from the onboarding entry to a gauntlet green on a fresh payor substrate;
+then close out the release — promotion itself executed early under the 260715 re-ruling (fast-forward by hand, tree-hash-equal, PR #3 auto-merged at the candidate tip) — leaving the anchor-liveness sweep, the ceremony-document amendment, and the release record.
 
 ## Done when
 
