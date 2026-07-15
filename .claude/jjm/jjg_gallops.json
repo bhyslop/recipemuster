@@ -3950,9 +3950,10 @@
       "jjghn_order": [
         "₢B2AAA",
         "₢B2AAB",
-        "₢B2AAF"
+        "₢B2AAF",
+        "₢B2AAG"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -4068,6 +4069,26 @@
               ],
               "jjgtn_silks": "reassess-release-machinery-veiling",
               "jjgtn_basis": "291789d"
+            }
+          ]
+        },
+        "₢B2AAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-0811",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small, well-bounded bash repair — mirror an already-landed fix pattern, not open design.",
+                "",
+                "## Docket",
+                "Tools/rbk/rbndb_base.sh's RBRD-drift byte-exact-match check (near the comment \"Byte-exact match via openssl sha256 digests... replaces cmp\") wraps openssl's own output in $() — command substitution on a raw external command, which BCG's \"Temp Files Instead of Command Substitution\" section permits only for _capture/_recite-suffixed functions, not openssl. Rewrite both digest computations there to redirect openssl's output to its own temp file under BURD_TEMP_DIR and read the value back via the $(<file) builtin, mirroring commit beafa2444 (Tools/rbk/rblm_expede.sh, heat ₣B0/₢B0AAF) exactly — that commit is the worked reference.",
+                "",
+                "## Done when",
+                "No $() wraps any external command in the rewritten block; tt/rbw-tl.Shellcheck.sh clean; the depot-regime drift check (rbw-rdc) still behaves correctly."
+              ],
+              "jjgtn_silks": "fix-rbndb-openssl-command-sub",
+              "jjgtn_basis": "57b4fa9"
             }
           ]
         }
