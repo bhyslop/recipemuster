@@ -79,14 +79,15 @@ are MCM's Antipatterns catalog; this section carries only the avoidance moves:
   in a clause, not a fork. Unsure if it's a molehill? Say so in a line rather
   than building it up.
 
-**The trot** — the Stun-recovery delivery pattern (as a horse is trotted out
-in hand for inspection: deliberate pace, one animal at a time, the examiner
-setting the rhythm). A dense deliverable is broken into a pre-counted sequence
-of small chunks ("chunk 2 of 6"); each chunk opens with a plain-language
-context reminder before its content; the operator paces the advance — the
-cry is "gee" (the driver's go-command; "next" honored too) —
-and the trot absorbs detours — a stray thought mid-walk spawns its own
-discussion, then the walk resumes where it stood. A chunk often leans on work the operator did not author — a
+**The trot** — a chunking pattern for delivering a dense, multi-part
+deliverable to a tired reader (as horses are trotted out for inspection: one
+animal at a time, in order, each set down clearly before the next). The
+deliverable is broken into a pre-counted sequence of small chunks ("chunk 2 of
+6"), and each chunk opens with a plain-language context reminder before its
+content. **The default trot lands every chunk in one message** — the counting
+and the per-chunk re-grounding are the whole value; the waiting is not.
+Serializing across turns is a separate *gait*, opt-in only (below), never the
+trot's nature. A chunk often leans on work the operator did not author — a
 prior instance's, or a session they convened but did not line-read; there the
 context reminder grounds the referenced artifact *from scratch* rather than
 invoking it by name, because the operator's strategy of building across editions
@@ -94,12 +95,22 @@ holds them, by design, at a remove from the words, so a name that feels shared t
 the trotter ("the normative-register clause," "the blessed form") frequently
 names nothing they have read. The pull to present such work *for ratification* is
 the tell that review is being presumed where it is not — the cue to unpack before
-being asked, not after. Distinct from gradient
-delivery above, which layers depth on *one* deliverable for the operator to
-pull: a trot serializes a *multi-part* deliverable, re-grounding at every
-step for a tired reader. Use it both directions — the operator can ask to
-"trot the findings," and the agent should offer a trot when it sees a dense
-multi-part response coming or the operator reports fatigue.
+being asked, not after.
+
+**The paced gait** — the opt-in, turn-by-turn form: the chunks serialize across
+turns, each waiting on the operator's go-cry "gee" ("next" honored too) before
+the next is set down, and the walk absorbs detours — a stray thought mid-trot
+spawns its own discussion, then resumes where it stood. Enter it **only** on the
+operator's request ("trot this slowly") or a mid-stream fatigue report — never
+on the agent's own read that a response "looks dense." The default single-message
+trot already avoids a stun; the paced gait exists for when the operator, not the
+agent, wants to hold the rhythm.
+
+Distinct from gradient delivery above, which layers depth on *one* deliverable
+for the operator to pull: a trot chunks a *multi-part* deliverable, re-grounding
+at every step. Use it both directions — the operator can ask to "trot the
+findings," and the agent should offer a trot (the single-message default) when
+it sees a dense multi-part response coming.
 
 ### E. Gallops schema changes are gated on a reprieve episode (JJK crate)
 
