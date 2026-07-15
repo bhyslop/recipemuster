@@ -120,7 +120,7 @@ pub(crate) const ZRBTDRU_LABEL_PY: &str = "py";
 /// POSIX Utility Allowlist — the irreducible external-command floor. No bash
 /// 3.2 builtin replacement; mandated by POSIX wherever bash runs.
 pub(crate) const ZRBTDRU_POSIX_FLOOR: &[&str] = &[
-    "chmod", "cmp", "cp", "date", "find", "mkdir", "mktemp", "mv", "rm", "sed",
+    "chmod", "cp", "date", "find", "mkdir", "mktemp", "mv", "rm", "sed",
     "sleep", "sort", "stty",
 ];
 
