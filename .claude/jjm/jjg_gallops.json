@@ -3669,8 +3669,8 @@
         "₢B0AAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1852",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260715-1054",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -3698,7 +3698,7 @@
                 "the quarantine dispositioned per the amended ceremony document."
               ],
               "jjgtn_silks": "stage-the-candidate",
-              "jjgtn_basis": "c24e4bd"
+              "jjgtn_basis": "272e962"
             }
           ]
         },
