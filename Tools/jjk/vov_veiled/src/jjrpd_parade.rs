@@ -188,8 +188,8 @@ fn zjjrpd_emit_coronet(
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
     let coronet = jjrf_Coronet::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
-    let firemark = coronet.jjrf_parent_firemark();
-    let heat_key = firemark.jjrf_display();
+    let heat_key = gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
+        .ok_or_else(|| format!("{}: error: Pace '{}' not found", cn, coronet.jjrf_display()))?;
     let heat = gallops.heats.get(&heat_key)
         .ok_or_else(|| format!("{}: error: Heat '{}' not found", cn, heat_key))?;
     let coronet_key = coronet.jjrf_display();

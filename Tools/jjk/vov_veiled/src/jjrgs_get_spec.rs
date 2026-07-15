@@ -54,9 +54,14 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
         }
     };
 
-    // Extract parent firemark and locate heat
-    let firemark = coronet.jjrf_parent_firemark();
-    let heat_key = firemark.jjrf_display();
+    // Locate the harbouring heat by paces-scan (JJS0 jjdt_coronet Resolution).
+    let heat_key = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display()) {
+        Some(k) => k,
+        None => {
+            vvco_err!(output, "{}: error: Pace '{}' not found", cn, coronet.jjrf_display());
+            return (1, output.vvco_finish());
+        }
+    };
     let heat = match gallops.heats.get(&heat_key) {
         Some(h) => h,
         None => {

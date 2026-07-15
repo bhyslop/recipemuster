@@ -164,9 +164,18 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
         return (1, output.vvco_finish());
     };
 
-    // Extract firemark (either directly provided or from coronet parent)
+    // Extract firemark: for a coronet, resolve the harbouring heat by paces-scan
+    // (JJS0 jjdt_coronet Resolution); for a firemark, use it directly.
     let firemark = if let Some(ref coronet) = target_coronet {
-        coronet.jjrf_parent_firemark()
+        match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
+            .and_then(|k| jjrf_Firemark::jjrf_parse(&k).ok())
+        {
+            Some(fm) => fm,
+            None => {
+                vvco_err!(output, "{}: error: Pace '{}' not found", cn, coronet.jjrf_display());
+                return (1, output.vvco_finish());
+            }
+        }
     } else {
         match jjrf_Firemark::jjrf_parse(&firemark_str) {
             Ok(fm) => fm,
