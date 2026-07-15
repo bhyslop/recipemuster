@@ -58,12 +58,21 @@ RBLM_candidate_subdir="candidate"
 # with origin, main, or a hand-typed default.
 RBLM_base_remote="ENGROSSMENT_UPSTREAM"
 
-# The candidate's local branch. Deliberately NOT "main": every push in the ceremony
-# is an explicit refspec, and a branch named main would let a default-shaped push
-# land on the public main by accident. POSTULANT_LOCAL is loud and unmistakable, it
-# is the only branch the finished clone carries, and it forces the reveal to spell
-# POSTULANT_LOCAL:main by hand — there is no default-shaped path to public main
-# anywhere in the flow.
+# The base is READ-ONLY, and that is asserted, not merely intended. A push-capable
+# remote to the public target in the maintainer repo is the one catastrophe the
+# ceremony forbids: a stray `git push ENGROSSMENT_UPSTREAM` from the maintainer's own
+# main would put the private tree on public main. So the base remote's PUSH url must
+# be neutered to this sentinel, and expede refuses to cut until it is. The clone
+# still reads (fetch) the real URL; only the push side is dead.
+RBLM_base_push_disabled="DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY"
+
+# The candidate's local branch — and, reused by operator ruling (260715), the public
+# staging branch name too: one official name across both. Deliberately NOT "main": a
+# branch named main would let a default-shaped push land on public main. It is loud
+# and unmistakable, it is the only branch the finished clone carries, the
+# reversible-preview and irreversible-staging pushes both spell
+# POSTULANT_LOCAL:POSTULANT_LOCAL, and only the far-side promotion spells
+# POSTULANT_LOCAL:main — by hand, exactly once in the whole corpus.
 RBLM_candidate_branch="POSTULANT_LOCAL"
 
 # The subject of the single commit the candidate carries. One commit, so one
@@ -164,10 +173,23 @@ rblm_expede() {
   # remote is not optional scenery — it is the thing being added to. Expede only
   # ever CLONES it; it is severed from the clone below and never pushed to.
   local -r z_upstream_temp="${BURD_TEMP_DIR}/rblm_expede_upstream.txt"
-  git remote get-url "${RBLM_base_remote}" > "${z_upstream_temp}" 2>/dev/null \
-    || buc_die "${RBLM_base_remote} is not configured — the candidate is built by addition atop the real public repository, so a remote pointing at it is required (git remote add ${RBLM_base_remote} <public-repo-url>)"
+  local -r z_upstream_err_temp="${BURD_TEMP_DIR}/rblm_expede_upstream_err.txt"
+  git remote get-url "${RBLM_base_remote}" > "${z_upstream_temp}" 2>"${z_upstream_err_temp}" \
+    || buc_die "${RBLM_base_remote} is not configured — the candidate is built by addition atop the real public repository, so a remote pointing at it is required (git remote add ${RBLM_base_remote} <public-repo-url>). See: ${z_upstream_err_temp}"
   local -r z_upstream_url=$(<"${z_upstream_temp}")
   test -n "${z_upstream_url}" || buc_die "${RBLM_base_remote} URL is empty"
+
+  # The base is read-only, asserted. Its PUSH url must be the neutered sentinel — a
+  # live push url to the public target is refused before a single object is cloned, so
+  # no maintainer-side push can ever reach public main. The clone below still uses the
+  # fetch url (z_upstream_url) to read.
+  local -r z_push_temp="${BURD_TEMP_DIR}/rblm_expede_push.txt"
+  local -r z_push_err_temp="${BURD_TEMP_DIR}/rblm_expede_push_err.txt"
+  git remote get-url --push "${RBLM_base_remote}" > "${z_push_temp}" 2>"${z_push_err_temp}" \
+    || buc_die "Cannot read ${RBLM_base_remote} push url — see ${z_push_err_temp}"
+  local -r z_push_url=$(<"${z_push_temp}")
+  test "${z_push_url}" = "${RBLM_base_push_disabled}" \
+    || buc_die "${RBLM_base_remote} has a live push url (${z_push_url}) — the base must be read-only. Neuter it: git remote set-url --push ${RBLM_base_remote} ${RBLM_base_push_disabled}"
 
   local -r z_head_temp="${BURD_TEMP_DIR}/rblm_expede_head.txt"
   git rev-parse HEAD > "${z_head_temp}" || buc_die "git rev-parse HEAD failed"
@@ -176,8 +198,9 @@ rblm_expede() {
   # The consumer CLAUDE.md template must exist in the committed record before the
   # cut begins — the transposition below reads its bytes, and a missing template
   # would surface only after the whole candidate was built.
-  git cat-file -e "${z_head}:${RBLM_consumer_claude_path}" 2>/dev/null \
-    || buc_die "The consumer CLAUDE.md template is absent from ${z_head}: ${RBLM_consumer_claude_path}"
+  local -r z_tmpl_err_temp="${BURD_TEMP_DIR}/rblm_expede_template_err.txt"
+  git cat-file -e "${z_head}:${RBLM_consumer_claude_path}" 2>"${z_tmpl_err_temp}" \
+    || buc_die "The consumer CLAUDE.md template is absent from ${z_head}: ${RBLM_consumer_claude_path} — see ${z_tmpl_err_temp}"
 
   local -r z_shipped_temp="${BURD_TEMP_DIR}/rblm_expede_shipped.txt"
   rblm_emit_shipped > "${z_shipped_temp}" || buc_die "Failed to enumerate the shipped paths"
@@ -242,8 +265,9 @@ rblm_expede() {
   # full stop. The base SHA is captured now, as a value, so the delta range and the
   # commit count below survive the branch surgery that follows.
   local -r z_base_temp="${BURD_TEMP_DIR}/rblm_expede_base.txt"
+  local -r z_base_err_temp="${BURD_TEMP_DIR}/rblm_expede_base_err.txt"
   local z_base=""
-  if git -C "${z_clone_dir}" rev-parse HEAD > "${z_base_temp}" 2>/dev/null; then
+  if git -C "${z_clone_dir}" rev-parse HEAD > "${z_base_temp}" 2>"${z_base_err_temp}"; then
     z_base=$(<"${z_base_temp}")
     buh_line "  Public base commit:   ${z_base}"
   else
@@ -396,13 +420,21 @@ rblm_expede() {
   buh_line "  Prove it from the consumer's seat before it goes anywhere:"
   buc_tabtarget "${RBZ_THEURGE_FIXTURE}" "damnatio"
   buh_e
-  buh_line "  Reversible preview into the private quarantine (the operator's own"
-  buh_line "  next step; expede does not run it):"
-  buh_line "    git -C ${z_clone_dir} push ${RBLM_quarantine_url} ${RBLM_candidate_branch}:main"
+  buh_line "  Two operator-hand pushes precede the walk — expede runs neither. Each"
+  buh_line "  is an explicit URL and an explicit refspec, and NEITHER touches main:"
   buh_e
-  buh_line "  The irreversible public reveal is a separate human step on the far"
-  buh_line "  side of the greenfield walk — see RELEASE.md. Expede prints no command"
-  buh_line "  for it and holds no remote that could perform it."
+  buh_line "  1. Reversible preview into the PRIVATE quarantine. Inspect it on GitHub,"
+  buh_line "     then delete the quarantine and nothing escaped:"
+  buh_line "       git -C ${z_clone_dir} push ${RBLM_quarantine_url} ${RBLM_candidate_branch}:${RBLM_candidate_branch}"
+  buh_e
+  buh_line "  2. The IRREVERSIBLE public staging reveal — the candidate onto the real"
+  buh_line "     public repository as an unmerged branch. This is the point of no"
+  buh_line "     return; it is the disclosure the greenfield walk then clones:"
+  buh_line "       git -C ${z_clone_dir} push ${z_upstream_url} ${RBLM_candidate_branch}:${RBLM_candidate_branch}"
+  buh_e
+  buh_line "  Promotion to public main is the ONE main-touching push, on the far side"
+  buh_line "  of the walk — RELEASE.md holds it. Expede prints no main refspec and"
+  buh_line "  holds no remote that could perform any of these."
   buh_e
   buc_success "Candidate expedited — one commit atop the public base, zero remotes, no withheld path in the delta"
 }

@@ -1,6 +1,6 @@
 # Release Procedure
 
-The release qualification ceremony for the project maintainer. The qualification ladder and the cut (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the greenfield walk that gates the reveal (step 7) is a separate, multi-hour, operator-driven ceremony, and the reveal itself (step 8) is the one irreversible public act.
+The release qualification ceremony for the project maintainer. The qualification ladder plus the local cut and private preview (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the public staging reveal (step 7) is the single irreversible disclosure; the greenfield walk (step 8) that gates promotion is a separate, multi-hour, operator-driven ceremony; and promotion with close-out (step 9) moves public `main`.
 The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
 [Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
@@ -90,10 +90,15 @@ tt/rbw-ts.TestSuite.gauntlet.sh
 
 **Prerequisites — two repositories, two very different lifetimes.**
 
-- **The base — remote `ENGROSSMENT_UPSTREAM` → `git@github.com:scaleinv/recipebottle.git`.** The real, durable public repository. Expede clones it and cuts the candidate one commit atop its live `main`. Configure it once (`git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git`); the ceremony never creates or destroys it. Expede only ever *reads* it — it clones, then severs the clone's origin, so nothing expede does can push here.
+- **The base — remote `ENGROSSMENT_UPSTREAM`, read-only.** The real, durable public repository (`git@github.com:scaleinv/recipebottle.git`); expede clones it and cuts the candidate one commit atop its live `main`. Configure it once, and **neuter its push side** — the base is read-only, and a push-capable remote to the public target in the maintainer repo is the one catastrophe this ceremony forbids (a stray `git push ENGROSSMENT_UPSTREAM` would put your private tree on public `main`):
+  ```
+  git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
+  git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
+  ```
+  Expede refuses to cut unless the push side is neutered to exactly that sentinel. The ceremony never creates or destroys the base; expede only ever *reads* it (fetch), then severs the clone's origin, so nothing it does can push there.
 - **The quarantine — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the candidate — the candidate holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the candidate is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
 
-The refspec that touches the real public `main` appears **exactly once** in this document — in step 8, the reveal, on the far side of the walk. Nowhere else does a command have public `main` as a default-shaped outcome: expede holds no remote, and the candidate's sole branch is `POSTULANT_LOCAL`, so every push must spell `POSTULANT_LOCAL:main` by hand.
+Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: expede holds no remote, the base remote's push side is dead, and the candidate's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
 
 Run the cut:
 
@@ -109,48 +114,57 @@ Run the cut:
 
 ## 6. Preview in the private quarantine (reversible)
 
-A git commit is **content-addressed**: the object you would publish and the object you push to the quarantine are the *same commit, bit for bit*. So the quarantine push is a byte-faithful preview of the reveal — everything you inspect here is exactly what step 8 would publish — and it is **reversible**: delete the private quarantine and nothing escaped.
+A git commit is **content-addressed**: the object you would stage publicly and the object you push here are the *same commit, bit for bit*. So this is a byte-faithful preview of the reveal — everything you inspect is exactly what step 7 will disclose — and it is **reversible**: delete the private quarantine and nothing escaped. Inspect it here, in private, before the irreversible public act.
 
-Push by **explicit URL and explicit refspec** — the candidate has no remote to lean on:
+Push by **explicit URL and explicit refspec** — the candidate has no remote to lean on, and the refspec is a branch, never `main`:
 
 ```
-git -C «candidate» push git@github.com:scaleinv/recipebottle-staging.git POSTULANT_LOCAL:main
+git -C «candidate» push git@github.com:scaleinv/recipebottle-staging.git POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
-- Inspect the pushed branch on GitHub: the file tree, the rendered README, the single commit
+- Inspect the `POSTULANT_LOCAL` branch on GitHub: the file tree, the rendered README, the single commit
 - Success: the quarantine carries exactly the candidate, and it reads as a clean public face
 - Failure: resolve the remote-side reason and retry — the local candidate from step 5 remains valid
 
-**Do not proceed to the reveal until the greenfield walk (step 7) has closed green.**
+**Do not proceed until you have inspected the preview and are ready for the irreversible public disclosure.**
 
-## 7. The greenfield manor walk — the gate
+## 7. Public staging reveal — the irreversible disclosure
 
-The reveal is gated on a full first-contact walk: a stranger clones the quarantined candidate and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. The walk gates **discoverability** (the reveal), never disclosure — step 6 already disclosed the bytes privately.
+> ⚠️ **This is the point of no return.** Pushing to the public repository discloses the bytes — a public object store cannot be un-disclosed. Everything before this was private and reversible; nothing after this un-happens. It is your own hand: explicit URL, explicit refspec, and it does **not** touch `main`.
 
-This is its own multi-hour, operator-driven ceremony — run it fresh, not tired. Record every divergence between the shipped docs and reality as a finding: a doc-only divergence census defaults to fast-follow disposition, while a delivered-bytes-bearing re-cut re-opens the full gate (fresh walk and gauntlet). Only once the walk is green with its census dispositioned does the reveal proceed.
+Push the candidate to the **public** repository as an **unmerged branch** — the staging the greenfield walk will clone as a stranger. `main` is untouched:
 
-## 8. Reveal: promote the candidate to public main (IRREVERSIBLE)
+```
+git -C «candidate» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL:POSTULANT_LOCAL
+```
 
-> ⚠️ **This is the irreversible public disclosure — the only command in this document that touches public `main`. It is your own hand: there is no tooling and no minted token. You type it.**
+- The refspec targets the `POSTULANT_LOCAL` branch, never `main`: staging discloses the bytes but changes nothing a visitor lands on
+- Verify `main` is untouched — its SHA identical before and after, the only new ref being `POSTULANT_LOCAL` (the promotion step installs the mechanical before/after assert)
+- Success: the candidate stands on the public repository as a public, anonymously-cloneable, unmerged branch
+- Failure: resolve and retry — but the bytes are already disclosed; any re-cut from here re-opens the full gate
+
+## 8. The greenfield manor walk — gates promotion
+
+The walk clones the **public staging branch** (step 7) as a total stranger and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. It gates **discoverability** (promotion), never disclosure — step 7 already disclosed the bytes publicly; the walk decides whether they become the default face.
+
+Its own multi-hour, operator-driven ceremony — run it fresh, not tired. Record every divergence between the shipped docs and reality as a finding: a doc-only divergence census defaults to fast-follow disposition, while a delivered-bytes-bearing re-cut re-opens the full gate (fresh walk and gauntlet). Two finding classes are pre-waived: dead `main`-blob links (they go live only at promotion) and the stranger's bootstrap (cloning the staging branch rather than default `main`). Only once the walk is green with its census dispositioned does promotion proceed.
+
+## 9. Promotion to public main — discoverability
+
+The single command in this whole document that touches public `main`, on the far side of the green walk. It moves no bytes a stranger has not already seen at staging: it fast-forwards `main` to the walked staging branch, making it the default face and taking the README links live.
 
 **Before `main` moves — promotion-day housekeeping:**
 
-- Confirm the repository's **Pages source** config: the README render from `main` root is the intended Pages face. The promotion deletes the public repo's untracked `index.html` and `.nojekyll` from `main`; no landing page ships in the delivery and none moves to a side branch
+- Confirm the repository's **Pages source**: the README render from `main` root is the intended Pages face. Promotion deletes the public repo's untracked `index.html` and `.nojekyll` from `main`; no landing page ships and none moves to a side branch
 - Close the public repository's **stale open PR**, if one stands
 
-**The reveal** — explicit URL, explicit refspec, on the far side of the green walk:
+**The promotion** — fast-forward-only, from the walked public staging branch to `main`, asserting **tree-hash equality** (`main`'s tree after the move equals the walked candidate tip — the byte claim is checked, not assumed). A refused fast-forward means `main` moved since the cut: **stop**, never `--force`, re-cut atop the moved base. The one `POSTULANT_LOCAL:main` refspec lives here and nowhere else.
 
-```
-git -C «candidate» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL:main
-```
+**Then — prove the promoted face and close out:**
 
-- The push is fast-forward-only by default — a **refused** push means `main` moved since the cut; **stop**, never `--force`, and re-cut atop the moved base
-- Success: the candidate stands on public `main`, one commit atop the base
+- Liveness: the public README serves at its URL and every anchor resolves against the live page
+- Production spot-check (thin — the walk already proved the bytes): repo front page, the github.io render, a fresh default-branch clone taken a few minutes into the onboarding entry
+- Delete the public **staging branch** (ceremony hygiene), then the **private quarantine** repository and the **candidate directory** — the candidate directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
+- Record the release
 
-**Afterward — disposition, in order:**
-
-1. Delete the **private quarantine** repository — its whole value is that it does not outlive the cut
-2. Delete the **candidate directory**
-3. Record the release
-
-> **Rationale, in brief** — *this deep rationale migrates to a release spec sheaf when one exists; it is held here in the interim, not in a memo.* The candidate is built by **addition** in a clone of the real public base, so no private object ever enters the graph the push walks: construction is the prevention, and the quarantine is only containment. The base and the reveal target are the **same** public repository reached two ways — expede *reads* it (as the `ENGROSSMENT_UPSTREAM` remote) and can never *write* it, because it severs the clone's origin and holds no push endpoint. The reveal is therefore human-hands-only not by discipline but by **structural incapacity**. The preview is trustworthy because a commit is content-addressed: the object you inspect in the quarantine is, bit for bit, the object step 8 publishes.
+> **Rationale, in brief** — *this migrates to a release spec sheaf when one exists; held here in the interim, not in a memo.* The candidate is built by **addition** in a clone of the real public base, so no private object ever enters the graph a push walks: construction is the prevention; the private quarantine is only containment. The base is reached **read-only** — expede reads the `ENGROSSMENT_UPSTREAM` fetch URL, its push side is neutered, it severs the clone's origin, and the finished candidate holds zero remotes — so every public act is human-hands-only by **structural incapacity**, never by discipline. The **staging push (step 7)** is the single irreversible disclosure; the private preview (6) is reversible, and the promotion (9) is discoverability, not new disclosure. The preview is trustworthy because a commit is content-addressed: the object you inspect privately is, bit for bit, the object you stage and then promote.
