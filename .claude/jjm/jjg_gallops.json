@@ -5574,8 +5574,10 @@
         "₢BgAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260627-1220",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2034",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
                 "## Character",
                 "Boundary-drawing, not resolution — judgment over mechanics.",
@@ -5594,7 +5596,7 @@
                 "Open design questions may remain open — answered inside the future heat's fence, not here."
               ],
               "jjgtn_silks": "bound-the-aspirant-gestalt",
-              "jjgtn_basis": "9e7c441"
+              "jjgtn_basis": "f866b0e"
             }
           ]
         },
