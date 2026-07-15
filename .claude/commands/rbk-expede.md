@@ -2,7 +2,7 @@
 description: Cut and prove the upstream release candidate (RELEASE.md step 5)
 ---
 
-You are cutting the delivery candidate and proving it fit to publish. This is step 5 of `RELEASE.md`. **This driver performs no push** — it cuts, proves, and shows you the candidate. The reversible quarantine preview and the irreversible public reveal are your own hands, numbered steps 6 and 8 of `RELEASE.md`.
+You are cutting the delivery candidate and proving it fit to publish. This is step 5 of `RELEASE.md`. **This driver performs no push** — it cuts, proves, and shows you the candidate. The reversible quarantine preview and the irreversible public staging reveal are your own hands, numbered steps 6 and 7 of `RELEASE.md`.
 
 **Read this first — it is why the ceremony is short.**
 

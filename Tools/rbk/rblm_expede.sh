@@ -66,6 +66,19 @@ RBLM_base_remote="ENGROSSMENT_UPSTREAM"
 # still reads (fetch) the real URL; only the push side is dead.
 RBLM_base_push_disabled="DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY"
 
+# The base's expected fetch URL, hardcoded and asserted before anything is cloned.
+# Expede clones whatever the base remote names, and the base-inventory sweep below is
+# NON-FATAL by design — it tolerates already-disclosed withheld history because the
+# base is the genuinely public repository. That tolerance is safe ONLY if the base
+# truly IS that repository: a fetch URL fat-fingered at the private maintainer repo
+# would clone the whole private history, the inventory would wave it through as
+# "already disclosed", the delta sweep would see only the clean one commit, and the
+# candidate would green-light — then a push would upload the entire private ancestry
+# (the 292 MiB catastrophe, back through the one unlocked door). Hardcoded like the
+# quarantine URL, and for the same reason: the endpoint is a load-bearing fact, not a
+# runtime input.
+RBLM_base_url="git@github.com:scaleinv/recipebottle.git"
+
 # The candidate's local branch — and, reused by operator ruling (260715), the public
 # staging branch name too: one official name across both. Deliberately NOT "main": a
 # branch named main would let a default-shaped push land on public main. It is loud
@@ -178,6 +191,15 @@ rblm_expede() {
     || buc_die "${RBLM_base_remote} is not configured — the candidate is built by addition atop the real public repository, so a remote pointing at it is required (git remote add ${RBLM_base_remote} <public-repo-url>). See: ${z_upstream_err_temp}"
   local -r z_upstream_url=$(<"${z_upstream_temp}")
   test -n "${z_upstream_url}" || buc_die "${RBLM_base_remote} URL is empty"
+
+  # The base's IDENTITY, asserted before anything is cloned. The base-inventory sweep
+  # below tolerates already-disclosed withheld history without dying — safe ONLY
+  # because the base is the genuinely public repository. Cutting atop the wrong repo (a
+  # fetch URL aimed at the private maintainer tree) would wave its whole history
+  # through as "already disclosed" and green-light a candidate that leaks it, so the
+  # fetch URL must be exactly the expected public base.
+  test "${z_upstream_url}" = "${RBLM_base_url}" \
+    || buc_die "${RBLM_base_remote} points at ${z_upstream_url}, not the expected public base ${RBLM_base_url} — refusing to cut atop the wrong repository (the base-inventory sweep is non-fatal ONLY because the base is the genuinely public repo)"
 
   # The base is read-only, asserted. Its PUSH url must be the neutered sentinel — a
   # live push url to the public target is refused before a single object is cloned, so

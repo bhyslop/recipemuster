@@ -139,7 +139,7 @@ git -C «candidate» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOC
 ```
 
 - The refspec targets the `POSTULANT_LOCAL` branch, never `main`: staging discloses the bytes but changes nothing a visitor lands on
-- Verify `main` is untouched — its SHA identical before and after, the only new ref being `POSTULANT_LOCAL` (the promotion step installs the mechanical before/after assert)
+- Verify `main` is untouched — `ls-remote` the public repo before and after this push; its `main` SHA must be identical, the only new ref being `POSTULANT_LOCAL` (the staging pace installs this mechanical before/after assert — it belongs here, at the push that must *not* move `main`, never at promotion, where `main` is meant to move)
 - Success: the candidate stands on the public repository as a public, anonymously-cloneable, unmerged branch
 - Failure: resolve and retry — but the bytes are already disclosed; any re-cut from here re-opens the full gate
 
@@ -158,7 +158,7 @@ The single command in this whole document that touches public `main`, on the far
 - Confirm the repository's **Pages source**: the README render from `main` root is the intended Pages face. Promotion deletes the public repo's untracked `index.html` and `.nojekyll` from `main`; no landing page ships and none moves to a side branch
 - Close the public repository's **stale open PR**, if one stands
 
-**The promotion** — fast-forward-only, from the walked public staging branch to `main`, asserting **tree-hash equality** (`main`'s tree after the move equals the walked candidate tip — the byte claim is checked, not assumed). A refused fast-forward means `main` moved since the cut: **stop**, never `--force`, re-cut atop the moved base. The one `POSTULANT_LOCAL:main` refspec lives here and nowhere else.
+**The promotion** — fast-forward-only, from the walked public staging branch to `main`, **performed from a fresh clone or fetch of the public repository, never the local candidate directory** (which is why the candidate directory is disposable once step 7 is tip-verified — promotion does not depend on it). Assert **tree-hash equality** (`main`'s tree after the move equals the walked candidate tip — the byte claim is checked, not assumed). A refused fast-forward means `main` moved since the cut: **stop**, never `--force`, re-cut atop the moved base. The one `POSTULANT_LOCAL:main` refspec lives here and nowhere else.
 
 **Then — prove the promoted face and close out:**
 
