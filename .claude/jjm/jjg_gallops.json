@@ -3951,9 +3951,10 @@
         "₢B2AAA",
         "₢B2AAB",
         "₢B2AAF",
-        "₢B2AAG"
+        "₢B2AAG",
+        "₢B2AAH"
       ],
-      "jjghn_next_pace_seed": "AAH",
+      "jjghn_next_pace_seed": "AAI",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -4089,6 +4090,26 @@
               ],
               "jjgtn_silks": "fix-rbndb-openssl-command-sub",
               "jjgtn_basis": "57b4fa9"
+            }
+          ]
+        },
+        "₢B2AAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-0811",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Medium — mechanical per-site conversion, but real judgment calls at 2 of ~10 sites plus a doc update.",
+                "",
+                "## Docket",
+                "Evict mktemp from the POSIX floor entirely. Both BCG's \"POSIX Utility Allowlist\" (Tools/buk/vov_veiled/BCG-BashConsoleGuide.md) and its Rust mirror ZRBTDRU_POSIX_FLOOR (Tools/rbk/rbtd/src/rbtdru_cupel.rs) currently claim mktemp is \"mandated by POSIX\" — false; mktemp(1) was never a POSIX Utility (only the mktemp() C function briefly existed in POSIX.1-2001, removed 2008). Discovery recipe for the current call-site list: temporarily remove \"mktemp\" from ZRBTDRU_POSIX_FLOOR, run tt/rbw-tc.FixtureCase.sh cupel rbtdru_kit_bash, read the findings trace, revert. Three tiers judged this heat (₢B0AAF), re-derive locations via the recipe above rather than trusting them to still be current: (1) Tools/buk/butd_dispatch.sh — pure load-then-iterate scratch buffers, write-read-rm within a few lines, no concurrency (fixtures run sequentially by project rule); a static name under BURD_TEMP_DIR is safe. (2) Tools/buk/buto_operations.sh's zbuto_invoke — invokes arbitrary external commands/tabtargets, needs real per-call uniqueness; bud_dispatch.sh's own \"${BURD_TEMP_DIR}/status-$$\" is the established precedent to mirror, but verify $$ semantics hold across a genuine subprocess exec first. (3) Tools/buk/buv_validation.sh's buv_dir_empty — BUV has no other BURD_TEMP_DIR dependency anywhere in the file and this function's only caller today is dormant Tools/rbk/vov_veiled/FUTURE/rbv_cli.sh; converting it introduces BUV's first dispatch-order dependency, a deliberate call rather than a drive-by. Update BCG's own allowlist/eviction tables to match once mktemp is gone from the floor.",
+                "",
+                "## Done when",
+                "Zero raw mktemp calls remain outside build tooling; ZRBTDRU_POSIX_FLOOR and BCG's tables agree; reveille green; shellcheck clean."
+              ],
+              "jjgtn_silks": "evict-mktemp-from-posix-floor",
+              "jjgtn_basis": "58c3475"
             }
           ]
         }
