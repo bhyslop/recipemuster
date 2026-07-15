@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "B3",
+  "jjgrn_next_heat_seed": "B4",
   "jjgrn_heat_order": [
     "₣Br",
     "₣Bs",
@@ -31,7 +31,8 @@
     "₣BL",
     "₣Ba",
     "₣B0",
-    "₣B2"
+    "₣B2",
+    "₣B3"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -4023,6 +4024,14 @@
           ]
         }
       }
+    },
+    "₣B3": {
+      "jjghn_silks": "jjk-16-studbook-conversion",
+      "jjghn_creation_time": "260714",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_next_pace_seed": "AAA",
+      "jjghn_paces": {}
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
