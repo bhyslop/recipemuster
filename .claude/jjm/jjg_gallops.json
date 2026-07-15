@@ -5601,8 +5601,9 @@
         "₢BgAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-2252",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2034",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -5623,7 +5624,7 @@
                 "Bank the outcome into VOSMM, whose Deferred Scope already carries a prior cross-kit direction from ₣Br census experience."
               ],
               "jjgtn_silks": "infield-resident-brand-vesture",
-              "jjgtn_basis": "1acf24b"
+              "jjgtn_basis": "20a48bb"
             }
           ]
         }
