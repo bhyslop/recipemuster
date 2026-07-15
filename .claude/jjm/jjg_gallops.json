@@ -3580,11 +3580,12 @@
       "jjghn_order": [
         "₢B0AAE",
         "₢B0AAF",
+        "₢B0AAG",
         "₢B0AAC",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAG",
+      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3785,6 +3786,26 @@
               ],
               "jjgtn_silks": "close-candidate-blind-assays",
               "jjgtn_basis": "90b89d0"
+            }
+          ]
+        },
+        "₢B0AAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260715-0811",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small, precedented fix — mirrors an existing exemption-table row for the same withheld file family.",
+                "",
+                "## Docket",
+                "loupe's rbtdrq_veil_leak case reddens on Tools/rbk/rblm_expede.sh (a comment naming the withheld consumer-template path, RBLM_consumer_claude_path). loupe is not scripted anywhere — it's a manual pre-cut step in the /rbk-expede ceremony (.claude/commands/rbk-expede.md §3 \"Pre-cut assays\"), meaning the operator hits this red finding live during the actual cut. RBLM is documented as withheld from delivery in its entirety (claude-rbk-acronyms.md, RBLM entry) — the same standing as Tools/rbk/rblm_perambulation.sh, which already carries a row in ZRBTDRQ_VEIL_EXEMPT (Tools/rbk/rbtd/src/rbtdrq_pyx.rs) for exactly this reason. Add rblm_expede.sh to that same table with its own honest reason — not a copy-paste of perambulation's charter-based reason, which doesn't apply here (expede's charter isn't to census withheld trees; it just needs to name the consumer template's source path for its transposition step).",
+                "",
+                "## Done when",
+                "tt/rbw-tf.FixtureRun.sh loupe is green. Confirm no regression elsewhere (reveille, which loupe isn't a member of, stays green)."
+              ],
+              "jjgtn_silks": "exempt-rblm-expede-from-veil-scan",
+              "jjgtn_basis": "880435a"
             }
           ]
         }
