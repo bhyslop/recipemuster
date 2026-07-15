@@ -6319,8 +6319,8 @@
         "₢BrAAW": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260707-1348",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-1919",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -6334,7 +6334,7 @@
                 "findings recorded in the paddock as the conversion heat's entry-gate evidence."
               ],
               "jjgtn_silks": "scratch-rehearsal",
-              "jjgtn_basis": "799d04c"
+              "jjgtn_basis": "d543205"
             }
           ]
         },
