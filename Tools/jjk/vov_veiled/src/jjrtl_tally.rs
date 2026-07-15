@@ -142,7 +142,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let new_silks = args.silks.clone();
     let fm = match jjrf_Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => match gallops.jjrg_heat_key_of_coronet(&c.jjrf_display())
-            .and_then(|k| jjrf_Firemark::jjrf_parse(&k).ok())
+            .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
         {
             Some(fm) => fm,
             None => {
@@ -228,7 +228,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let (fm, silks, prior_state, coronet_display) = match jjrf_Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => {
             let parent_fm = match gallops.jjrg_heat_key_of_coronet(&c.jjrf_display())
-                .and_then(|k| jjrf_Firemark::jjrf_parse(&k).ok())
+                .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
             {
                 Some(fm) => fm,
                 None => {

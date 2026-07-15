@@ -294,7 +294,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         Ok(chalk_hash) => {
             vvco_out!(output, "{}", chalk_hash);
             let fm = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
-                .and_then(|k| jjrf_Firemark::jjrf_parse(&k).ok())
+                .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
             {
                 Some(f) => f,
                 None => {
