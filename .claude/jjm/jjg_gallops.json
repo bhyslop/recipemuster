@@ -4037,8 +4037,10 @@
         "₢B3AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2013",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260714-2033",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
                 "## Character",
                 "",
@@ -4067,7 +4069,7 @@
                 "  if none does, the new paddock records that the ladder ends there."
               ],
               "jjgtn_silks": "cut-the-footprint-heat",
-              "jjgtn_basis": "0b62453"
+              "jjgtn_basis": "4dbff91"
             }
           ]
         }
