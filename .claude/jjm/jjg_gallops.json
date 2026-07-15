@@ -8040,8 +8040,8 @@
         "₢BsAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-0818",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260714-1747",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -8062,7 +8062,7 @@
                 "the ₣B0 handoff fires per the paddock."
               ],
               "jjgtn_silks": "candidate-integrity-probe",
-              "jjgtn_basis": "de5e67c"
+              "jjgtn_basis": "4eb5dc1"
             }
           ]
         },
