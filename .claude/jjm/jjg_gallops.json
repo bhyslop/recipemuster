@@ -4050,7 +4050,7 @@
         "₢B2AAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0808",
+              "jjgtn_ts": "260715-0824",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -4062,15 +4062,19 @@
                 "Narrowed by grep: `damnatio.rs` is clean (prose only); the one file naming withheld paths literally is `rbtdrq_perambulation.rs` (`Tools/rbk/rblm_perambulation.sh`, `Tools/rbk/vov_veiled/planted-spec.adoc`).",
                 "Left unresolved: whether that is a LIVE leak or vacuously-green-latent — `loupe` harvests its needle set from veiled trees that no longer stand in the stripped candidate, so it may pass through uncaught, or `pyx`'s candidate scan may already cover it. Settling this needs reading loupe's harvest logic and the candidate stripped-tree coverage, not grep.",
                 "",
-                "Approach A (proposed, unratified): move the deterministic orchestration AND the maintainer-only assays out of shipped `rbtd` into a NEW veiled crate hosted by vvx — explicitly NOT the `jjk` crate (RB release logic has no place in Job Jockey's compilation unit). `/rbk-expede` collapses to invoke-and-report; `RELEASE.md` steps 6–9 stay human ceremony (correctly so). An intermediate \"B\" step (relocate to a veiled sibling crate, later undone by A) was considered and rejected as guaranteed rework, since A subsumes it.",
+                "Approach A (proposed, unratified): a NEW veiled RB rust crate under `Tools/rbk/vov_veiled/` — withheld by directory construction (the veil boundary is a directory boundary; the perambulation withholds `Tools/*/vov_veiled/` wholesale, so nothing under it can leak by a forgotten row). It hosts BOTH the deterministic expede orchestration (retiring the stochastic slash-command sophistication) AND the maintainer-only no-suite assays lifted out of shipped `rbtd`. Layering: the veiled crate DEPENDS ON the shipped `rbtd` harness (reuses its fixture types / band codes) — veiled→shipped is fine, shipped→veiled stays forbidden. `/rbk-expede` collapses to invoke-and-report; `RELEASE.md` steps 6–9 stay human ceremony (correctly so).",
+                "",
+                "Considered and rejected: (i) hosting in the `vvr`/vok–vvk composition (the `vvx` binary) — wrong coupling: release machinery imports rbk, not Job Jockey, and vvr is slated to leave with the JJ split, so it would marry RB machinery to a departing host. (ii) An intermediate relocate-to-sibling-crate \"B\" step later undone by A — guaranteed rework, A subsumes it. (iii) cfg-gating the veiled assays inside shipped `rbtd` — that fragile per-file withholding IS the current leak; a veiled directory removes the class.",
+                "",
+                "Cost note: a standalone veiled crate needs its own thin binary + a withheld tabtarget (sibling to `rbtd`; `tt/rbw-M*` is already withheld) rather than borrowing vvr's dispatch — modest, and immune to the JJ split.",
                 "",
                 "## Done when",
                 "- Leak status settled: is `rbtdrq_perambulation.rs` (and loupe's needle constant) a live disclosure in a real candidate, or latent?",
-                "- Approach A re-judged given that finding — including that `pyx` is a shipped suite member and must stay behind, and the harness-coupling cost of extracting no-suite fixtures from the shipped `rbtd` compilation unit (cfg-gating vs. new crate).",
+                "- Approach A re-judged given that finding — including that `pyx` is a shipped suite member and must stay behind, and the harness-coupling cost of a veiled crate depending on shipped `rbtd`.",
                 "- Outcome: either a concrete implementation pace is slated, or the issue is declined with a recorded reason."
               ],
               "jjgtn_silks": "reassess-release-machinery-veiling",
-              "jjgtn_basis": "291789d"
+              "jjgtn_basis": "f31947e"
             }
           ]
         },
