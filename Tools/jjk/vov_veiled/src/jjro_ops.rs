@@ -56,7 +56,6 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
         creation_time: args.created,
         status: jjrg_HeatStatus::Stabled,
         order: Vec::new(),
-        next_pace_seed: "AAA".to_string(),
         paces: BTreeMap::new(),
     };
 
@@ -115,6 +114,11 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
+    // Capture the global pace seed before borrowing the heat: the Coronet is
+    // minted from the single gallops-wide seed (JJS0 jjdgm_pace_seed), not
+    // per-heat, and advanced once below after the heat borrow ends.
+    let global_pace_seed = gallops.next_pace_seed.clone();
+
     // Verify Heat exists
     let heat = gallops.heats.get_mut(&firemark_key)
         .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
@@ -140,8 +144,9 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
         None // Append to end (default)
     };
 
-    // Construct Coronet
-    let coronet_str = format!("{}{}{}", JJRF_CORONET_PREFIX, firemark.jjrf_as_str(), heat.next_pace_seed);
+    // Construct Coronet from the single global pace seed — a flat 5-char id, no
+    // embedded heat (JJS0 jjdt_coronet).
+    let coronet_str = format!("{}{}", JJRF_CORONET_PREFIX, global_pace_seed);
 
     // Create initial Tack and Pace
     let tack = jjrg_make_tack(
@@ -160,8 +165,8 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     }
     heat.paces.insert(coronet_str.clone(), pace);
 
-    // Increment next_pace_seed
-    heat.next_pace_seed = zjjrg_increment_seed(&heat.next_pace_seed);
+    // Advance the global pace seed (the heat borrow has ended above).
+    gallops.next_pace_seed = zjjrg_increment_seed(&gallops.next_pace_seed);
 
     Ok(jjrg_SlateResult { coronet: coronet_str })
 }
@@ -298,9 +303,10 @@ pub fn jjrg_tally(gallops: &mut jjrg_Gallops, args: jjrg_TallyArgs) -> Result<()
         .map_err(|e| format!("Invalid coronet: {}", e))?;
     let coronet_key = coronet.jjrf_display();
 
-    // Extract parent Firemark
-    let firemark = coronet.jjrf_parent_firemark();
-    let firemark_key = firemark.jjrf_display();
+    // Resolve the harbouring heat by paces-scan — a Coronet embeds no
+    // affiliation (JJS0 jjdt_coronet Resolution).
+    let firemark_key = gallops.jjrg_heat_key_of_coronet(&coronet_key)
+        .ok_or_else(|| format!("Pace '{}' not found", coronet_key))?;
 
     // Verify Heat exists
     let heat = gallops.heats.get_mut(&firemark_key)
@@ -367,9 +373,11 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
         .map_err(|e| format!("Invalid coronet: {}", e))?;
     let source_coronet_key = source_coronet.jjrf_display();
 
-    // Extract source Firemark from coronet
-    let source_firemark = source_coronet.jjrf_parent_firemark();
-    let source_firemark_key = source_firemark.jjrf_display();
+    // Resolve the source heat by paces-scan — a Coronet embeds no affiliation
+    // (JJS0 jjdt_coronet Resolution); this both locates the source and verifies
+    // the pace exists.
+    let source_firemark_key = gallops.jjrg_heat_key_of_coronet(&source_coronet_key)
+        .ok_or_else(|| format!("Pace {} not found in any heat", source_coronet_key))?;
 
     // Parse and normalize destination firemark
     let dest_firemark = jjrf_Firemark::jjrf_parse(&args.to)
@@ -381,22 +389,9 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
         return Err("Cannot draft pace to same heat".to_string());
     }
 
-    // Verify source heat exists
-    if !gallops.heats.contains_key(&source_firemark_key) {
-        return Err(format!("Source heat '{}' not found", source_firemark_key));
-    }
-
     // Verify destination heat exists
     if !gallops.heats.contains_key(&dest_firemark_key) {
         return Err(format!("Heat '{}' not found", dest_firemark_key));
-    }
-
-    // Verify pace exists in source heat
-    {
-        let source_heat = gallops.heats.get(&source_firemark_key).unwrap();
-        if !source_heat.paces.contains_key(&source_coronet_key) {
-            return Err(format!("Pace {} not found in heat {}", source_coronet_key, source_firemark_key));
-        }
     }
 
     // Validate positioning target if specified
@@ -425,55 +420,39 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
 
     // Remove pace from source heat
     let source_heat = gallops.heats.get_mut(&source_firemark_key).unwrap();
-    let pace_data = source_heat.paces.remove(&source_coronet_key)
+    let mut pace_data = source_heat.paces.remove(&source_coronet_key)
         .ok_or_else(|| format!("Pace {} not found", source_coronet_key))?;
     source_heat.order.retain(|c| c != &source_coronet_key);
 
-    // Get destination heat and allocate new coronet
+    // Re-affiliation without re-keying (JJS0 jjdt_coronet): the pace moves into
+    // the destination heat under its SAME immutable Coronet. Its tack data is
+    // carried unchanged — except the bridle revert below.
+    //
+    // Revert trigger: a designation is void when its judgment inputs change — the
+    // paddock context this pace was judged against is gone, so a bridled pace
+    // demotes to rough with tier and effort wiped. A non-bridled pace's tack is
+    // preserved verbatim (resolved states keep their designation as provenance).
+    let was_bridled = pace_data.tacks.first()
+        .is_some_and(|t| t.state == jjrg_PaceState::Bridled);
+    if was_bridled {
+        let prior = pace_data.tacks.first().expect("bridled implies a tack");
+        let reverted = jjrg_make_tack(
+            jjrg_PaceState::Rough,
+            jjrg_lines_to_text(&prior.text),
+            prior.silks.clone(),
+        );
+        pace_data.tacks = vec![reverted];
+    }
+
+    // Insert into destination heat under the unchanged Coronet.
     let dest_heat = gallops.heats.get_mut(&dest_firemark_key).unwrap();
-    let new_coronet_str = format!("{}{}{}", JJRF_CORONET_PREFIX, dest_firemark.jjrf_as_str(), dest_heat.next_pace_seed);
-
-    // Create new tack recording the draft
-    let first_tack = pace_data.tacks.first();
-    let prior_text = first_tack.map(|t| jjrg_lines_to_text(&t.text)).unwrap_or_default();
-    let draft_note = format!("Drafted from {} in {}.\n\n{}",
-        source_coronet_key, source_firemark_key, prior_text);
-
-    // Revert trigger: a designation is void when its judgment inputs change —
-    // the paddock context this pace was judged against is gone, so a bridled
-    // pace demotes to rough with tier and effort wiped. Resolved states keep
-    // their designation as provenance.
-    let prior_state = first_tack.map(|t| t.state.clone()).unwrap_or(jjrg_PaceState::Rough);
-    let was_bridled = prior_state == jjrg_PaceState::Bridled;
-    let draft_state = if was_bridled { jjrg_PaceState::Rough } else { prior_state };
-
-    let mut draft_tack = jjrg_make_tack(
-        draft_state,
-        draft_note,
-        first_tack.map(|t| t.silks.clone()).unwrap_or_default(),
-    );
-    if !was_bridled {
-        draft_tack.tier = first_tack.and_then(|t| t.tier);
-        draft_tack.effort = first_tack.and_then(|t| t.effort);
-    }
-
-    // A pace holds a single current tack; the draft note captures the prior
-    // docket, and tack history lives in git (JJS0 Git-as-Journal).
-    let new_pace = jjrg_Pace {
-        tacks: vec![draft_tack],
-    };
-
-    // Insert into destination heat
     match insert_position {
-        Some(pos) => dest_heat.order.insert(pos, new_coronet_str.clone()),
-        None => dest_heat.order.push(new_coronet_str.clone()),
+        Some(pos) => dest_heat.order.insert(pos, source_coronet_key.clone()),
+        None => dest_heat.order.push(source_coronet_key.clone()),
     }
-    dest_heat.paces.insert(new_coronet_str.clone(), new_pace);
+    dest_heat.paces.insert(source_coronet_key.clone(), pace_data);
 
-    // Increment destination seed
-    dest_heat.next_pace_seed = zjjrg_increment_seed(&dest_heat.next_pace_seed);
-
-    Ok(jjrg_DraftResult { new_coronet: new_coronet_str })
+    Ok(jjrg_DraftResult { new_coronet: source_coronet_key })
 }
 
 /// Retire a Heat
@@ -814,16 +793,9 @@ pub fn jjrg_restring(gallops: &mut jjrg_Gallops, args: jjrg_RestringArgs) -> Res
             .map_err(|e| format!("Invalid coronet '{}': {}", coronet_str, e))?;
         let coronet_key = coronet.jjrf_display();
 
-        // Verify coronet belongs to source heat
-        let coronet_firemark = coronet.jjrf_parent_firemark();
-        if coronet_firemark.jjrf_display() != source_firemark_key {
-            return Err(format!(
-                "Pace {} does not belong to source heat {}",
-                coronet_key, source_firemark_key
-            ));
-        }
-
-        // Verify pace exists in source heat
+        // Verify the pace is in the source heat's paces (JJS0 jjdt_coronet: a
+        // Coronet embeds no affiliation, so source membership is the check — the
+        // retired heat-embedding validation is gone).
         let source_heat = gallops.heats.get(&source_firemark_key).unwrap();
         if !source_heat.paces.contains_key(&coronet_key) {
             return Err(format!(

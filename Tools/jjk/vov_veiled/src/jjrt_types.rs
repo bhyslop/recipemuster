@@ -315,8 +315,6 @@ pub struct jjrg_Heat {
     pub status: jjrg_HeatStatus,
     #[serde(rename = "jjghn_order")]
     pub order: Vec<String>,
-    #[serde(rename = "jjghn_next_pace_seed")]
-    pub next_pace_seed: String,
     #[serde(rename = "jjghn_paces")]
     pub paces: BTreeMap<String, jjrg_Pace>,
 }
@@ -326,6 +324,14 @@ pub struct jjrg_Heat {
 pub struct jjrg_Gallops {
     #[serde(rename = "jjgrn_next_heat_seed")]
     pub next_heat_seed: String,
+    /// Global pace-mint seed — the single next-Coronet to allocate for the whole
+    /// gallops (JJS0 jjdgm_pace_seed). Coronets are flat global ids minted from
+    /// here under the commit lock, never per-heat. `#[serde(default)]` so an
+    /// old-format store (which lacks it and carries per-heat jjghn_next_pace_seed
+    /// instead) still deserializes; the reprieve write-forward then founds it
+    /// (rivet JJr_a7c). Always serialized — canonical form always carries it.
+    #[serde(default, rename = "jjgrn_next_pace_seed")]
+    pub next_pace_seed: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty", rename = "jjgrn_heat_order")]
     pub heat_order: Vec<String>,
     #[serde(rename = "jjgrn_heats")]

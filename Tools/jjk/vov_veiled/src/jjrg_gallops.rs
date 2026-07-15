@@ -111,6 +111,17 @@ impl jjrg_Gallops {
 
     // -- Spec-governed primitives (Operation Taxonomy in JJS0) --
 
+    /// Resolve a Coronet (display-form key, `₢`-prefixed) to the Firemark key of
+    /// the Heat that harbours it — the paces-scan the flat-id model requires
+    /// (JJS0 jjdt_coronet Resolution). A Coronet embeds no affiliation, so lookup
+    /// scans heats' paces rather than inferring a heat from the identity;
+    /// cross-heat uniqueness makes the hit unambiguous.
+    pub fn jjrg_heat_key_of_coronet(&self, coronet_key: &str) -> Option<String> {
+        self.heats.iter()
+            .find(|(_, heat)| heat.paces.contains_key(coronet_key))
+            .map(|(fm, _)| fm.clone())
+    }
+
     /// Resolve Pace — shared read primitive
     ///
     /// Navigate Gallops from a coronet to the target pace and its current tack state.
@@ -121,8 +132,10 @@ impl jjrg_Gallops {
         let parsed = jjrf_Coronet::jjrf_parse(coronet)
             .map_err(|e| format!("Invalid coronet: {}", e))?;
         let coronet_key = parsed.jjrf_display();
-        let firemark = parsed.jjrf_parent_firemark();
-        let firemark_key = firemark.jjrf_display();
+        // Resolve the harbouring heat by paces-scan — a Coronet embeds no
+        // affiliation (JJS0 jjdt_coronet Resolution).
+        let firemark_key = self.jjrg_heat_key_of_coronet(&coronet_key)
+            .ok_or_else(|| format!("Pace '{}' not found", coronet_key))?;
 
         let heat = self.heats.get(&firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
@@ -295,13 +308,13 @@ mod tests {
             creation_time: "260318".to_string(),
             status: jjrg_HeatStatus::Racing,
             order: vec![coronet_key],
-            next_pace_seed: "AAB".to_string(),
             paces,
         };
         let mut heats = BTreeMap::new();
         heats.insert(firemark_key.clone(), heat);
         jjrg_Gallops {
             next_heat_seed: "AB".to_string(),
+            next_pace_seed: "CAAAA".to_string(),
             heat_order: vec![firemark_key],
             heats,
             retention_since: None,

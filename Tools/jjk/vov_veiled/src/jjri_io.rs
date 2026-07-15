@@ -161,6 +161,20 @@ fn zjjdz_episode_tack_text_to_lines_live(_gallops: &jjrg_Gallops, original_bytes
     original_bytes.windows(TACK_TEXT_STRING_KEY.len()).any(|w| w == TACK_TEXT_STRING_KEY)
 }
 
+/// pace-seed heat→global episode live-test — rivet JJr_a7c.
+///
+/// True when the pre-re-gestalt shape is present: the global gallops pace seed is absent (an old
+/// store carries per-heat `jjghn_next_pace_seed` and no `jjgrn_next_pace_seed`, so the serde default
+/// leaves it empty), or the on-disk bytes still carry a per-heat pace-seed key. When live, jjdr_load
+/// stands the round-trip gate down and the write-forward founds the global seed above the
+/// grandfathered index space; the per-heat seed field is gone from jjrg_Heat, so serde drops those
+/// keys on the next save.
+fn zjjdz_episode_pace_seed_heat_to_global_live(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> bool {
+    const PER_HEAT_PACE_SEED_KEY: &[u8] = b"\"jjghn_next_pace_seed\"";
+    gallops.next_pace_seed.is_empty()
+        || original_bytes.windows(PER_HEAT_PACE_SEED_KEY.len()).any(|w| w == PER_HEAT_PACE_SEED_KEY)
+}
+
 /// The reprieve registry — every tolerated old on-disk schema, one entry per episode.
 /// Permanent infrastructure: episodes are appended as schema changes land and removed once
 /// dormant on every operated clone (the per-episode lifecycle in JJS0 `jjdz_reprieve`).
@@ -175,6 +189,7 @@ const ZJJDZ_REGISTRY: &[zjjdz_Episode] = &[
     zjjdz_Episode { label: "V3→V4", is_live: zjjdz_episode_v3_to_v4_live },
     zjjdz_Episode { label: "schema_version drop", is_live: zjjdz_episode_schema_version_drop_live },
     zjjdz_Episode { label: "tack text→lines", is_live: zjjdz_episode_tack_text_to_lines_live },
+    zjjdz_Episode { label: "pace-seed heat→global", is_live: zjjdz_episode_pace_seed_heat_to_global_live },
 ];
 
 /// Read-only reprieve probe — the single source of "what counts as old-format".
@@ -195,10 +210,11 @@ pub fn jjdz_probe(gallops: &jjrg_Gallops, original_bytes: &[u8]) -> Vec<jjdz_Sta
 
 /// Migration write-forward — rivet JJr_a7c. The canonical-form struct transform the reprieve
 /// mechanism applies once a legacy shape is detected: populate heat_order from the heat keys when
-/// absent (V3→V4; BTreeMap guarantees sorted order), and collapse any legacy multi-tack history to
-/// the single newest tack (tacks[0]) — tack evolution now lives in git per JJS0 Git-as-Journal.
-/// serde already drops the removed schema_version key and any stale next_pensum_seed on its own, so
-/// those episodes need no body here.
+/// absent (V3→V4; BTreeMap guarantees sorted order), found the single global pace seed above the
+/// grandfathered index space when absent (pace-seed heat→global; JJS0 jjdgm_pace_seed), and collapse
+/// any legacy multi-tack history to the single newest tack (tacks[0]) — tack evolution now lives in
+/// git per JJS0 Git-as-Journal. serde already drops the removed schema_version key, any stale
+/// next_pensum_seed, and the retired per-heat jjghn_next_pace_seed on its own, so those need no body.
 ///
 /// The single source of the forward transform: jjdr_load applies it in migration mode, and
 /// validate-normalize (JJSCVL) applies it as its canonicalizer — neither keeps a second copy.
@@ -208,6 +224,12 @@ pub fn jjdz_write_forward(gallops: &mut jjrg_Gallops) {
     if gallops.heat_order.is_empty() {
         gallops.heat_order = gallops.heats.keys().cloned().collect();
     }
+    // pace-seed heat→global (rivet JJr_a7c): found the single global pace seed above the entire
+    // grandfathered index space. The per-heat seed field is gone from jjrg_Heat, so serde drops
+    // those keys on the next save; only the global seed is founded here.
+    if gallops.next_pace_seed.is_empty() {
+        gallops.next_pace_seed = zjjdz_found_pace_seed(gallops);
+    }
     for heat in gallops.heats.values_mut() {
         for pace in heat.paces.values_mut() {
             if pace.tacks.len() > 1 {
@@ -215,6 +237,28 @@ pub fn jjdz_write_forward(gallops: &mut jjrg_Gallops) {
             }
         }
     }
+}
+
+/// Found the global pace seed at max(highest existing Coronet index + 1, floor) — rivet JJr_a7c,
+/// JJS0 jjdgm_pace_seed. Scans every pace key across all heats (grandfathered keys are honored
+/// verbatim, never rewritten), decodes each to its flat index, and founds one past the max, never
+/// below the CAAAA floor — so a newly minted Coronet leads with C or later and cannot collide with
+/// the legacy heat-embedded space. One founding-time comparison, no reserved-set check.
+fn zjjdz_found_pace_seed(gallops: &jjrg_Gallops) -> String {
+    use crate::jjrf_favor::{jjrf_Coronet, JJRF_CORONET_SEED_FLOOR};
+    let floor = jjrf_Coronet::jjrf_parse(JJRF_CORONET_SEED_FLOOR)
+        .and_then(|c| c.jjrf_decode())
+        .expect("CAAAA floor is a valid Coronet");
+    let highest = gallops.heats.values()
+        .flat_map(|heat| heat.paces.keys())
+        .filter_map(|key| jjrf_Coronet::jjrf_parse(key).ok())
+        .filter_map(|c| c.jjrf_decode().ok())
+        .max();
+    let founded = match highest {
+        Some(h) => (h + 1).max(floor),
+        None => floor,
+    };
+    jjrf_Coronet::jjrf_encode(founded).jjrf_as_str().to_string()
 }
 
 // ============================================================================
