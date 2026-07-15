@@ -5407,15 +5407,20 @@
         "₢BcAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0754",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260715-0850",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Gallops schema change — reprieve-gated; judgment work, not mechanical.",
                 "Relocated (260708) from the studbook–farrier heat (₣Br), which does not depend on it:",
                 "its billet layer needs only the git-ref- and dirname-safe id shape, which grandfathering preserves,",
                 "and its scratch rehearsal exercises no transfer or restring.",
+                "",
+                "## Session findings",
+                "Slated across a station→cerebro transfer (260715): the code map, the reprieve-episode plan, and a",
+                "delivery-sequencing hazard are banked as provisional provenance in",
+                "`Memos/memo-20260715-pace-identity-regestalt-transfer.md` — verify against the live tree at mount;",
+                "the docket and the JJS* specs are the authority, the memo is not.",
                 "",
                 "## Goal",
                 "Pace identities become immutable for life:",
@@ -5448,8 +5453,13 @@
                 "  a token containing the interpunct is a qualified coronet — the five-character tail resolves, qualifier ignored;",
                 "  otherwise type by length exactly as today (2 firemark, 5 coronet);",
                 "  the %-sentinel pensum untouched.",
-                "These settlements close the JJSAS wire-vs-display open fork:",
-                "bank them into the sheaf as part of this pace, durable-first — the sheaf commits before any provenance trims;",
+                "Spec scope (operator ruling 260715, supersedes the docket's original bank-into-JSSAS-only framing):",
+                "infuse the re-gestalt into normative JJS0 as the settlements' durable home —",
+                "the coronet quoin, its Types-table row, the encode/decode algorithm, the halter rule,",
+                "and the pace-seed member relocated from heat to gallops —",
+                "drain the JJSAS \"Pace identity re-gestalt\" section to a pointer and close its wire-vs-display open fork,",
+                "and sweep every other affected JJS*.adoc so the whole binding codex reads truthfully about immutable-for-life ids.",
+                "Durable-first: the specs commit before the code and before any provenance trims;",
                 "the founding-value ruling banks with them.",
                 "The revision-insignia sub-mint (catchword/varvel) does NOT travel — it stays ₣Br design context;",
                 "it shared only the design pace, not this surface.",
@@ -5467,12 +5477,12 @@
                 "Pace identities are immutable for life, minted atomically under the store lock from the global seed;",
                 "restring and transfer re-affiliate without re-keying;",
                 "display renders heat-qualified with the interpunct and ingest tolerates emitted forms per the cinches above;",
-                "the JJSAS open fork is banked closed;",
+                "the coronet re-gestalt is infused into JJS0 and every affected JJS* sheaf reads truthfully (the JJSAS open fork drained closed);",
                 "a reprieve episode is registered and older on-disk gallops still read;",
                 "build tt/vow-b, test tt/vow-t green."
               ],
               "jjgtn_silks": "pace-identity-regestalt-impl",
-              "jjgtn_basis": "4b260e1"
+              "jjgtn_basis": "b4044bf"
             }
           ]
         }
