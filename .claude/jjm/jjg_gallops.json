@@ -4762,10 +4762,11 @@
                 "Every operated clone runs a binary whose on-disk gallops is canonical at this heat's final schema and whose open-time probe reports every episode dormant;",
                 "every spent episode's tolerance and frozen reference is stripped from source and its registry entry removed (the registry at execution time is the census);",
                 "the mechanism — registry, probe, open-time nag — stands;",
+                "the forgiveness quoin stays as the permanent mechanism's home with the spent episodes marked discharged;",
                 "build tt/vow-b, test tt/vow-t green after removal."
               ],
               "jjgtn_silks": "propagate-and-retire-episodes",
-              "jjgtn_basis": "9df3d3c"
+              "jjgtn_basis": "40f196a"
             }
           ]
         },
