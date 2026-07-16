@@ -110,6 +110,26 @@ pub fn jjrf_emblazon_ordinal(sigil: char, ordinal: u64) -> String {
     zjjrf_emblazon(sigil, &ordinal.to_string())
 }
 
+/// Strip an identity token down to its bare encoded body — the single ingest
+/// normalization home (JJS0 jjdz_encoding "Input flexibility"). The leading
+/// `₢`/`₣` sigil and any heat-qualifier are removed, so `₢Bc·CAAAB`, `₢CAAAB`,
+/// and `CAAAB` all yield `CAAAB`, and `₣Bc`/`Bc` yield `Bc`. Because `·` cannot
+/// appear in the charset, the qualifier split is mechanical, exactly
+/// as `%` disambiguates the Pensum. The length-typers (mount, parade, chalk,
+/// notch, the MCP normalize/lede/emblem helpers) and `jjrf_Coronet::jjrf_parse`
+/// cite this so a token typed once, emitted qualified, ingests unchanged.
+/// Returns a borrowed slice of the input.
+pub fn jjrf_bare(token: &str) -> &str {
+    let deglyphed = token
+        .strip_prefix(JJRF_CORONET_PREFIX)
+        .or_else(|| token.strip_prefix(JJRF_FIREMARK_PREFIX))
+        .unwrap_or(token);
+    match deglyphed.rsplit_once(JJRF_CORONET_QUALIFIER) {
+        Some((_, body)) => body,
+        None => deglyphed,
+    }
+}
+
 /// Heat identity - 2 base64 characters encoding 0-4095
 /// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -232,9 +252,12 @@ impl jjrf_Coronet {
         Ok(value)
     }
 
-    /// Parse a Coronet from string input (with or without prefix)
+    /// Parse a Coronet from string input, tolerating every emitted form (JJS0
+    /// jjdz_encoding "Input flexibility"): with or without the `₢` prefix, and
+    /// bare or heat-qualified — `jjrf_bare` strips the glyph and any `·`
+    /// qualifier to the bare 5-character body before validation.
     pub fn jjrf_parse(input: &str) -> Result<Self, String> {
-        let stripped = input.strip_prefix(JJRF_CORONET_PREFIX).unwrap_or(input);
+        let stripped = jjrf_bare(input);
         if stripped.len() != JJRF_CORONET_LEN {
             return Err(format!(
                 "Coronet must be {} base64 characters (with or without {} prefix), got '{}'",

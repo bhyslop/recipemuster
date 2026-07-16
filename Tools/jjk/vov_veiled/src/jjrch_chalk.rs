@@ -9,7 +9,7 @@
 
 use vvc::{vvco_err, vvco_Output};
 
-use crate::jjrf_favor::{jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_bare, jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrn_notch::{jjrn_ChalkMarker, jjrn_format_chalk_message, jjrn_format_heat_discussion};
 
 const JJRCH_CMD_NAME_CHALK: &str = "jjx_chalk";
@@ -42,8 +42,9 @@ pub fn jjrx_run_chalk(args: jjrx_ChalkArgs) -> (i32, String) {
         }
     };
 
-    // Try parsing as Coronet first (5 base64 chars), then as Firemark (2 base64 chars)
-    let identity = args.identity.strip_prefix('₢').or_else(|| args.identity.strip_prefix('₣')).unwrap_or(&args.identity);
+    // Try parsing as Coronet first (5 base64 chars), then as Firemark (2 base64
+    // chars). jjrf_bare drops the glyph and any `·` heat-qualifier to the bare body.
+    let identity = jjrf_bare(&args.identity);
 
     let message = if identity.len() == JJRF_CORONET_LEN {
         // Coronet - pace-level chalk

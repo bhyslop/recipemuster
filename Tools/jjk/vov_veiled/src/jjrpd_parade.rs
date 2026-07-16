@@ -8,7 +8,7 @@
 
 use crate::jjrf_favor::jjrf_Firemark;
 use crate::jjrf_favor::jjrf_Coronet;
-use crate::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_bare, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
     jjrg_Heat as Heat,
@@ -105,14 +105,14 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
     // them only when the request resolves to exactly one firemark target.
     // Both derive from live git history (current HEAD), so they are incoherent
     // in hark mode; suppress them there.
-    let single_firemark = args.hark.is_none() && targets.len() == 1 && zjjrpd_strip_glyph(&targets[0]).len() == JJRF_FIREMARK_LEN;
+    let single_firemark = args.hark.is_none() && targets.len() == 1 && jjrf_bare(&targets[0]).len() == JJRF_FIREMARK_LEN;
 
     let mut added_paddocks: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut added_paces: std::collections::HashSet<String> = std::collections::HashSet::new();
 
     let hark = args.hark.as_deref();
     for target in &targets {
-        let target_str = zjjrpd_strip_glyph(target);
+        let target_str = jjrf_bare(target);
         let res = match target_str.len() {
             JJRF_CORONET_LEN => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces, hark),
             JJRF_FIREMARK_LEN => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces, hark),
@@ -128,11 +128,6 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
     }
 
     (0, output.vvco_finish())
-}
-
-/// Strip an optional ₢/₣ identity glyph, returning the bare base64 tail.
-fn zjjrpd_strip_glyph(target: &str) -> &str {
-    target.strip_prefix('₢').or_else(|| target.strip_prefix('₣')).unwrap_or(target)
 }
 
 /// Load the Gallops for a parade run: the working-tree file by default, or — in
@@ -204,7 +199,10 @@ fn zjjrpd_emit_coronet(
     };
 
     // Terse header only — the docket body reaches context through the gazette.
-    vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_key, current_tack.jjrg_state_label());
+    // Heat-qualified coronet for the human line; the bare coronet_key still keys
+    // the file lookup and the gazette pace notice below.
+    let coronet_display = gallops.jjrg_qualify_coronet(&coronet_key);
+    vvco_out!(output, "Pace: {} ({}) [{}]", current_tack.silks, coronet_display, current_tack.jjrg_state_label());
     vvco_out!(output, "Heat: {}", heat_key);
     if let Ok(files) = jjrq_files_for_pace(firemark.jjrf_as_str(), &coronet_key) {
         if !files.is_empty() {
@@ -289,13 +287,15 @@ fn zjjrpd_emit_firemark(
             jjrp_Column::new("₢Coronet", jjrp_Align::Left),
         ]);
 
-        // Rows built once: the State cell carries the tier of a bridled pace.
+        // Rows built once: the State cell carries the tier of a bridled pace; the
+        // Coronet cell is heat-qualified for the operator (single-heat table, so the
+        // heat repeats — the full form is the never-abbreviated display discipline).
         let rows: Vec<[String; 4]> = listed.iter().enumerate().map(|(idx, (coronet_key, tack))| {
             [
                 (idx + 1).to_string(),
                 tack.jjrg_state_label(),
                 tack.silks.clone(),
-                (*coronet_key).clone(),
+                gallops.jjrg_qualify_coronet(coronet_key),
             ]
         }).collect();
 
@@ -315,7 +315,8 @@ fn zjjrpd_emit_firemark(
     // Next-up callout, remaining view only — the first open pace in heat order.
     if remaining {
         if let Some((coronet_key, tack)) = listed.first() {
-            vvco_out!(output, "Next: {} ({}) [{}]", tack.silks, coronet_key, tack.jjrg_state_label());
+            let next_display = gallops.jjrg_qualify_coronet(coronet_key);
+            vvco_out!(output, "Next: {} ({}) [{}]", tack.silks, next_display, tack.jjrg_state_label());
             vvco_out!(output, "");
             vvco_out!(output, "Recommended: mount {}", heat_key);
         }

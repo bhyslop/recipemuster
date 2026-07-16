@@ -76,12 +76,14 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
                 // Tag abandoned paces so a dropped pace can't be mistaken for a
                 // live one in the default (unfiltered) listing, and bridled paces
                 // with state and tier so a designated pace reads as claimed work.
-                // The coronet stays the first whitespace token either way, so a
-                // token-wise reader still parses it.
+                // The coronet is heat-qualified for the operator (₢Bc·CAAAB) but
+                // stays the first whitespace token either way — and ingest tolerates
+                // the `·` form — so a token-wise reader still parses and re-feeds it.
+                let coronet_display = gallops.jjrg_qualify_coronet(coronet_key);
                 if tack.state == jjrg_PaceState::Abandoned || tack.state == jjrg_PaceState::Bridled {
-                    vvco_out!(output, "{}  [{}]", coronet_key, tack.jjrg_state_label());
+                    vvco_out!(output, "{}  [{}]", coronet_display, tack.jjrg_state_label());
                 } else {
-                    vvco_out!(output, "{}", coronet_key);
+                    vvco_out!(output, "{}", coronet_display);
                 }
             }
         }

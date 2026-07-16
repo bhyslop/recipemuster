@@ -1383,10 +1383,20 @@ fn zjjrm_load_emblem_style(project_root: &Path) -> jjrm_EmblemStyle {
 /// (`₢`); any other length passes through unchanged, so degraded input is shown
 /// as-is rather than mislabeled.
 fn zjjrm_normalize_identity(raw: &str) -> String {
-    let body = raw
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    let trimmed = raw.trim();
+    // An already heat-qualified coronet (carries the `·` interpunct — the stored
+    // emblem marker holds this full form) is display-ready: preserve it verbatim,
+    // ensuring only that the `₢` glyph leads. Stripping it back to the bare
+    // coronet would drop the live-affiliation qualifier the emblem is meant to show.
+    if trimmed.contains(crate::jjrf_favor::JJRF_CORONET_QUALIFIER) {
+        return if trimmed.starts_with(crate::jjrf_favor::JJRF_CORONET_PREFIX) {
+            trimmed.to_string()
+        } else {
+            format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, trimmed)
+        };
+    }
+    // Otherwise jjrf_bare strips the glyph to the bare body and length re-types it.
+    let body = crate::jjrf_favor::jjrf_bare(trimmed);
     match body.chars().count() {
         crate::jjrf_favor::JJRF_FIREMARK_LEN => format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, body),
         crate::jjrf_favor::JJRF_CORONET_LEN => format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, body),
@@ -1403,10 +1413,8 @@ fn zjjrm_normalize_identity(raw: &str) -> String {
 /// of orient's resolved-coronet derivation (paddock "Emblem and window
 /// reference": coronet when mounted on a pace, else the heat firemark).
 fn zjjrm_lede_firemark(lede: &str) -> Option<String> {
-    let body = lede
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    // jjrf_bare strips the glyph and any `·` heat-qualifier to the bare body.
+    let body = crate::jjrf_favor::jjrf_bare(lede.trim());
     match body.chars().count() {
         crate::jjrf_favor::JJRF_FIREMARK_LEN => crate::jjrf_favor::jjrf_Firemark::jjrf_parse(lede).ok().map(|f| f.jjrf_display()),
         crate::jjrf_favor::JJRF_CORONET_LEN => {
@@ -1512,10 +1520,8 @@ fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
         Ok(g) => g,
         Err(_) => return marker,
     };
-    let body = identity
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    // jjrf_bare strips the glyph and any `·` heat-qualifier to the bare body.
+    let body = crate::jjrf_favor::jjrf_bare(identity.trim());
     let (heat_key, coronet_key): (String, Option<String>) = match body.chars().count() {
         JJRF_CORONET_LEN => match jjrf_Coronet::jjrf_parse(identity) {
             // A Coronet embeds no affiliation (JJS0 jjdt_coronet Resolution): its
@@ -1535,6 +1541,9 @@ fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
     if let Some(heat) = gallops.heats.get(&heat_key) {
         marker.heat_silks = heat.silks.clone();
         if let Some(ref ck) = coronet_key {
+            // The emblem's primary glance datum is the full coronet, now
+            // heat-qualified from live affiliation (JJS0 jjdt_coronet): ₢Bc·CAAAB.
+            marker.identity = gallops.jjrg_qualify_coronet(ck);
             if let Some(pace) = heat.paces.get(ck) {
                 if let Some(tack) = pace.tacks.first() {
                     marker.pace_silks = Some(tack.silks.clone());
@@ -2422,10 +2431,9 @@ impl jjrm_McpServer {
                 // affiliated record stays frontier. Frontier callers are
                 // unrestricted, as before the per-command policy.
                 if !caller.zjjrm_is_frontier() {
-                    let bare = p.identity
-                        .strip_prefix(crate::jjrf_favor::JJRF_CORONET_PREFIX)
-                        .or_else(|| p.identity.strip_prefix(crate::jjrf_favor::JJRF_FIREMARK_PREFIX))
-                        .unwrap_or(&p.identity);
+                    // jjrf_bare drops the glyph and any `·` heat-qualifier, so a
+                    // qualified coronet types by its 5-char body, not a spurious length.
+                    let bare = crate::jjrf_favor::jjrf_bare(&p.identity);
                     if bare.len() != crate::jjrf_favor::JJRF_CORONET_LEN {
                         return Ok(CallToolResult::error(vec![Content::text(format!(
                             "INTERDICTUM — designation gate: {} refuses; the identity '{}' is heat-affiliated, and a {}-tier session records only against the coronet of a pace bridled at its tier.\n\nRemedy: record against the bridled pace's coronet, or have a frontier session make the heat-affiliated commit.",

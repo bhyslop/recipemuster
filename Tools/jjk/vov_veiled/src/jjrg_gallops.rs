@@ -122,6 +122,28 @@ impl jjrg_Gallops {
             .map(|(fm, _)| fm.clone())
     }
 
+    /// Render a Coronet in its heat-qualified emission form (JJS0 jjdt_coronet
+    /// "Display and ingest"): `₢` + the live heat Firemark characters + the
+    /// interpunct `·` + the 5-character body, e.g. `₢Bc·CAAAB`. The qualifier is
+    /// read from LIVE affiliation here, so a later relocate changes tomorrow's
+    /// rendering, never the identity — the one emission helper the listing and
+    /// emblem surfaces route through. Fail-soft: a Coronet no heat harbours (or a
+    /// malformed key) renders bare `₢CAAAB`, so a display path never fabricates an
+    /// affiliation it cannot prove. Accepts stored, bare, or already-qualified
+    /// input — it is normalized to the bare body first.
+    pub fn jjrg_qualify_coronet(&self, coronet: &str) -> String {
+        use crate::jjrf_favor::{jjrf_bare, JJRF_CORONET_PREFIX, JJRF_CORONET_QUALIFIER};
+        let body = jjrf_bare(coronet);
+        let display_key = format!("{}{}", JJRF_CORONET_PREFIX, body);
+        match self.jjrg_heat_key_of_coronet(&display_key) {
+            Some(heat_key) => format!(
+                "{}{}{}{}",
+                JJRF_CORONET_PREFIX, jjrf_bare(&heat_key), JJRF_CORONET_QUALIFIER, body
+            ),
+            None => display_key,
+        }
+    }
+
     /// Resolve Pace — shared read primitive
     ///
     /// Navigate Gallops from a coronet to the target pace and its current tack state.

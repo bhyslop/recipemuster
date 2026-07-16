@@ -323,15 +323,18 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             });
 
             vvco_out!(output, "");
+            // Heat-qualified coronets for the operator-facing relay line.
+            let wrapped_display = gallops.jjrg_qualify_coronet(&coronet.jjrf_display());
             match next_pace_info {
                 Some((next_coronet, next_silks, tier, effort)) => {
                     let designation = zjjrx_designation_suffix(tier, effort);
+                    let next_display = gallops.jjrg_qualify_coronet(&next_coronet);
                     vvco_out!(output, "AGENT_RESPONSE: {} wrapped. Next: {} ({}{}) \u{2014} `/clear` then `mount {}`",
-                        coronet.jjrf_display(), next_silks, next_coronet, designation, fm_str);
+                        wrapped_display, next_silks, next_display, designation, fm_str);
                 }
                 None => {
                     vvco_out!(output, "AGENT_RESPONSE: {} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
-                        coronet.jjrf_display(), fm_str);
+                        wrapped_display, fm_str);
                 }
             }
             (0, output.vvco_finish())
