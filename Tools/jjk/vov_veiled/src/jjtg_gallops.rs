@@ -506,6 +506,29 @@ fn jjtg_validate_coronet_cross_heat_uniqueness() {
 }
 
 #[test]
+fn jjtg_qualify_coronet_renders_live_heat() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_valid_heat("AB", "my-heat"); // holds ₢ABAAA
+    let coronet = heat.order[0].clone(); // ₢ABAAA
+    gallops.heats.insert(heat_key, heat);
+
+    // Heat-qualified emission (JJS0 jjdt_coronet): ₢ + live heat firemark (AB) +
+    // the interpunct + the 5-char body.
+    assert_eq!(gallops.jjrg_qualify_coronet(&coronet), "₢AB·ABAAA");
+    // Accepts bare, glyphless, or already-qualified input — all normalize first.
+    assert_eq!(gallops.jjrg_qualify_coronet("ABAAA"), "₢AB·ABAAA");
+    assert_eq!(gallops.jjrg_qualify_coronet("₢AB·ABAAA"), "₢AB·ABAAA");
+}
+
+#[test]
+fn jjtg_qualify_coronet_fail_soft_when_unaffiliated() {
+    let gallops = make_valid_gallops(); // no heats
+    // A Coronet no heat harbours renders bare — a display path never fabricates an
+    // affiliation it cannot prove (JJS0 jjdt_coronet "Display and ingest").
+    assert_eq!(gallops.jjrg_qualify_coronet("₢CAAAB"), "₢CAAAB");
+}
+
+#[test]
 fn jjtg_validate_tack_invalid_silks() {
     let mut gallops = make_valid_gallops();
     let (heat_key, mut heat) = make_valid_heat("AB", "my-heat");

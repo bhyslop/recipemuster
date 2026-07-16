@@ -317,13 +317,14 @@ fn jjtq_coronets_default_tags_abandoned() {
     });
 
     assert_eq!(code, 0);
-    // Abandoned pace carries the marker; the coronet stays the first token.
-    let tagged = format!("₢ACAAD  [{}]", JJRG_STATE_ABANDONED);
+    // Coronets render heat-qualified (JJS0 jjdt_coronet) — heat ₣AC, so ₢AC·<body>;
+    // the abandoned pace still carries the marker with the coronet the first token.
+    let tagged = format!("₢AC·ACAAD  [{}]", JJRG_STATE_ABANDONED);
     assert!(out.lines().any(|l| l == tagged.as_str()), "expected tagged abandoned line, got:\n{}", out);
-    // Live paces remain bare (unchanged contract) — exact-line match proves no tag leaked.
-    assert!(out.lines().any(|l| l == "₢ACAAA")); // complete
-    assert!(out.lines().any(|l| l == "₢ACAAB")); // rough
-    assert!(out.lines().any(|l| l == "₢ACAAC")); // rough
+    // Live paces render qualified with no tag — exact-line match proves no tag leaked.
+    assert!(out.lines().any(|l| l == "₢AC·ACAAA")); // complete
+    assert!(out.lines().any(|l| l == "₢AC·ACAAB")); // rough
+    assert!(out.lines().any(|l| l == "₢AC·ACAAC")); // rough
 }
 
 #[test]
@@ -339,8 +340,10 @@ fn jjtq_coronets_remaining_still_excludes_abandoned() {
     });
 
     assert_eq!(code, 0);
-    // --remaining excludes abandoned entirely: no line, no marker.
-    assert!(!out.contains("₢ACAAD"));
+    // --remaining excludes abandoned entirely: no line, no marker. Check the bare
+    // body (present in both bare and heat-qualified renderings) so the exclusion
+    // holds regardless of display form.
+    assert!(!out.contains("ACAAD"));
     assert!(!out.contains(JJRG_STATE_ABANDONED));
 }
 

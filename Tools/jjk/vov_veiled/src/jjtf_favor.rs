@@ -409,3 +409,33 @@ fn jjtf_incipit_parse_rejects_empty() {
     assert!(jjrf_Incipit::jjrf_parse("").is_err());
     assert!(jjrf_Incipit::jjrf_parse("☉").is_err());
 }
+
+// jjrf_bare — the single ingest-normalization home (JJS0 jjdz_encoding)
+
+#[test]
+fn jjtf_bare_strips_glyph_and_qualifier() {
+    // Every emitted coronet form reduces to the bare 5-char body.
+    assert_eq!(jjrf_bare("₢Bc·CAAAB"), "CAAAB"); // heat-qualified
+    assert_eq!(jjrf_bare("₢CAAAB"), "CAAAB");    // glyph, bare
+    assert_eq!(jjrf_bare("CAAAB"), "CAAAB");     // naked body
+    // Firemarks carry no qualifier; the glyph strips, the body passes.
+    assert_eq!(jjrf_bare("₣Bc"), "Bc");
+    assert_eq!(jjrf_bare("Bc"), "Bc");
+    // A grandfathered coronet renders its heat twice; the qualifier still splits
+    // on the interpunct, leaving the full body.
+    assert_eq!(jjrf_bare("₢Bc·BcAAO"), "BcAAO");
+}
+
+#[test]
+fn jjtf_coronet_parse_tolerates_qualified_form() {
+    // Ingest tolerates the emitted heat-qualified form (JJS0 jjdz_encoding
+    // "Input flexibility"): the `·` qualifier and `₢` glyph strip to the bare body.
+    let bare = jjrf_Coronet::jjrf_parse("₢CAAAB").unwrap();
+    let qualified = jjrf_Coronet::jjrf_parse("₢Bc·CAAAB").unwrap();
+    let naked = jjrf_Coronet::jjrf_parse("CAAAB").unwrap();
+    assert_eq!(qualified, bare);
+    assert_eq!(naked, bare);
+    assert_eq!(qualified.jjrf_as_str(), "CAAAB");
+    // Display alone (no live heat) is the bare form; qualification needs the gallops.
+    assert_eq!(qualified.jjrf_display(), "₢CAAAB");
+}
