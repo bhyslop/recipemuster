@@ -196,7 +196,7 @@ The
 {vosmm_matricula}
 is operator-only infrastructure and must never enter the distributed substrate.
 The boundary is parcel composition, not repository membership.
-JJ app delivery is artifact-shaped — a parcel generator distributes the JJ binary, never the source repository — so the matricula source co-residing in the JJ app workspace beside `vof` is safe, because membership in that workspace is not membership in the parcel.
+JJ app delivery is artifact-shaped — a parcel generator distributes the JJ binary, never the source repository — so the matricula source co-residing in the JJ app workspace (`jjqa_app`) beside `vof` is safe, because membership in that workspace is not membership in the parcel.
 The load-bearing premise is that the parcel composes by addition, enumerating what ships, so nothing rides undeliberately; were the generator ever to prove subtraction-shaped, the remedy is to fix the generator, never to relocate the matricula.
 The premise rests on three independent guards.
 The shipped JJ binary never links the matricula crate, held by a mechanical dependency-graph assertion at the build seam — co-residence puts the never-link rule one manifest line from breach, so structure alone does not suffice.
@@ -384,10 +384,23 @@ report plus acronym-index generation.
 The concept widens later, and that widening is out of scope for this spec:
 
 * The richer interrogations — what-owns / what-is-free / who-references.
+  Two shape constraints are banked for them: what-is-free reads a word-part index over seated
+{vosli_inscription_s},
+  not the
+{vosls_signet}
+  trie alone (a minted word-part can hide inside a larger inscription); and it recognizes a third seating state beside seated and free — *reserved*, the dormant paper allocations (a prefix-table row, a legend line reserved at census) that bind a freedom check without being an in-use inscription.
 * Safe-reprefix — the cross-repo-contained rename apex, legal only within a
 {vosls_signet}
-'s single writable home.
+'s single writable home: the forge model, one writable repo per signet, with movements staying within a signet.
+  Interior signets are safe to act on locally; exported signets stay out of scope, handled by discipline, their verdict always "safe here; consumers require re-distribution".
 * The engagement determinations — when an ambient check runs, when a gate blocks.
+* The reference-placement lint — flagging an
+{vosli_inscription}
+  literal sitting where it does not belong (a colophon hardcoded in prose or a comment where it should route through its zipper constant), a reference-site check distinct from the release-time declaration-freshness gate, riding the reference corpus rather than the MVP declaration scan.
+* The facade lint — mechanizing the revetment face law (MCM Lapidary "The Revetment": `mcm_revetment` / `mcm_spall`): flagging a non-ashlar interior name or the lapidary meta-register surfacing on a face file (a spall), and confirming a face's display-anchors resolve.
+  It seats on a face-file role and a display-anchor
+{voslv_vesture},
+  and cites its doctrine home rather than restating it; word-surface leaks stay grimoire-tier.
 * The tackle-table deep-lint surface the tackle sheaf (JJSVT) assigns to the
   matricula — coverage subtraction, claim-anchor audit flags, dead rows — including a
   ruling this widening must supply: a tackle's balance basename is expected to resolve
@@ -411,6 +424,7 @@ The concept widens later, and that widening is out of scope for this spec:
   since billet dirnames derive from coronets.
 * The gestalt-label subsystem.
 * A maintained (non-transient) census, which would deliberately supersede VOr_k3p.
+* An MCP surface, should any Matricula interaction ever want one — a peer beside jjx in the operator's local-only `vvx` (feature-stripped from the shipped binary), never a distinct server and never shipped; that bill is paid only if and when it arrives.
 * The probe harness — the
 {vosmm_matricula}
 conducting MCM's cold probe (`mcm_cold_probe`) at mint time:
