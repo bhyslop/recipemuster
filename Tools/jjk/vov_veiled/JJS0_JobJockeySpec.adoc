@@ -2318,11 +2318,11 @@ Kebab-case display name for the target entity.
 [[jjda_state]]
 //axl_voices axa_keyword axd_internal
 {jjda_state}::
-V3-legacy.
 Target state for the
-{jjdpr_pace}.
-Not exposed as an {jjdx_tool} parameter.
-Removal deferred to ₣An.
+{jjdpr_pace},
+driving the tally-family state transition
+({jjdo_close}, {jjdo_drop}; redocket passes none to inherit the current state).
+Not exposed as an {jjdx_tool} parameter — internal to those operations' call sites.
 
 [[jjda_intent]]
 //axl_voices axa_keyword
@@ -2336,10 +2336,10 @@ An empty {jjdo_record} has no diff to describe, so the fallback has nothing to w
 [[jjda_created]]
 //axl_voices axa_keyword axd_internal
 {jjda_created}::
-V3-legacy.
-Creation date in YYMMDD format.
-Not exposed as an {jjdx_tool} parameter.
-Removal deferred to ₣An.
+Creation date in YYMMDD format for
+{jjdo_create},
+captured by the procedure layer at the I/O boundary and validated against that shape.
+Not exposed as an {jjdx_tool} parameter — internal to {jjdo_create}'s call sites.
 
 [[jjda_before]]
 //axl_voices axa_keyword
