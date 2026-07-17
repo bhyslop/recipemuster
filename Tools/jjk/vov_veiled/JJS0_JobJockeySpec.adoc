@@ -161,7 +161,6 @@
 :jjda_intent:         <<jjda_intent,--intent>>
 :jjda_last:           <<jjda_last,--last>>
 :jjda_move:           <<jjda_move,--move>>
-:jjda_pace:           <<jjda_pace,--pace>>
 :jjda_silks:          <<jjda_silks,--silks>>
 :jjda_size_limit:     <<jjda_size_limit,--size-limit>>
 :jjda_state:          <<jjda_state,--state>>
@@ -2322,14 +2321,6 @@ Kebab-case display name for the target entity.
 V3-legacy.
 Target state for the
 {jjdpr_pace}.
-Not exposed as an {jjdx_tool} parameter.
-Removal deferred to ₣An.
-
-[[jjda_pace]]
-//axl_voices axa_keyword axd_internal
-{jjda_pace}::
-V3-legacy.
-Pace silks for context in commit messages.
 Not exposed as an {jjdx_tool} parameter.
 Removal deferred to ₣An.
 
