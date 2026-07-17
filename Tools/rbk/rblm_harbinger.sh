@@ -47,11 +47,12 @@ set -euo pipefail
 ######################################################################
 # Harbinger constants
 
-# The disposable clone's parent directory, a fixed basename beside the maintainer
-# repository. Derived from git (the repo's parent), never hand-typed, so the rig
-# always lands next to the tree it was launched from. The basename is a constant and
-# is asserted before the nuke below: harbinger removes this directory wholesale, so it
-# may only ever name THIS one, never the maintainer tree it sits beside.
+# The rig's parent directory, a fixed basename beside the maintainer repository.
+# Derived from git (the repo's parent), never hand-typed, so the rig always lands next
+# to the tree it was launched from. The basename is a constant and is asserted before
+# the move below: harbinger retires this directory aside — a rename to a timestamped
+# sibling, never a delete — so it may only ever name THIS one, never the maintainer
+# tree it sits beside, and even a wrong guard could not destroy data.
 RBLM_harbinger_dirname="rbm_coldwalk"
 
 # The clone lives one level down, in its own subdirectory. The findings memo is a
@@ -82,10 +83,10 @@ RBLM_harbinger_prompt_file="coldwalk-prompt.txt"
 ######################################################################
 # Command: harbinger - stand up the guarded cold-walk clone and hand off
 #
-# The verb is a pure local constructor with one destructive step (the nuke of the
-# disposable parent, gated and asserted) and no reach toward the public repository
-# beyond an anonymous read. It ends by printing the operator's launch line and the
-# stranger prompt; the walk itself is the operator's, not harbinger's.
+# The verb is a pure local constructor. It disposes of any prior rig by RENAME —
+# retiring it to a timestamped sibling, never deleting — and reaches the public
+# repository only for an anonymous read. It ends by printing the operator's launch
+# line and the stranger prompt; the walk itself is the operator's, not harbinger's.
 rblm_harbinger() {
   buc_doc_brief "Harbinger the cold-agent onboarding shakedown - stand up a guarded disposable clone of promoted public main and print the launch line and stranger prompt"
   buc_doc_shown || return 0
@@ -93,7 +94,7 @@ rblm_harbinger() {
   mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
 
   # Where we are. The rig lands beside this tree, so its identity is the anchor for
-  # every derived path below — and the guard that the nuke can never hit it.
+  # every derived path below — and the guard that the retirement move can never hit it.
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_harbinger_toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
   local -r z_toplevel=$(<"${z_toplevel_temp}")
@@ -104,17 +105,24 @@ rblm_harbinger() {
   esac
 
   local -r z_parent="${z_toplevel%/*}"
+  test -n "${z_parent}" || buc_die "Repository root has no parent directory: ${z_toplevel}"
+  case "${z_parent}" in
+    /*) ;;
+    *)  buc_die "Repository root's parent is not an absolute path: '${z_parent}' (from ${z_toplevel})" ;;
+  esac
   local -r z_target_dir="${z_parent}/${RBLM_harbinger_dirname}"
 
-  # Nuke guard. Harbinger removes the target wholesale, so it must be exactly the
-  # constant-named disposable dir and never the maintainer tree it sits beside. Both
-  # are asserted before a single byte is removed: the basename must be the fixed name,
-  # and the target must differ from this repository's own root.
+  # Rig-move guard. Harbinger moves the target aside wholesale, so it must be exactly
+  # the constant-named rig dir and never the maintainer tree it sits beside. Both are
+  # asserted before anything moves: the basename must be the fixed name, and the target
+  # must differ from this repository's own root. The disposal is a RENAME, not a delete
+  # — the prior rig is retired to a timestamped sibling, recoverable — so nothing here
+  # can destroy data even if a guard were wrong.
   local -r z_target_base="${z_target_dir##*/}"
   test "${z_target_base}" = "${RBLM_harbinger_dirname}" \
-    || buc_die "Refusing to nuke '${z_target_dir}' — its basename is not the disposable rig name '${RBLM_harbinger_dirname}'"
+    || buc_die "Refusing to move '${z_target_dir}' — its basename is not the rig name '${RBLM_harbinger_dirname}'"
   test "${z_target_dir}" != "${z_toplevel}" \
-    || buc_die "Refusing to nuke '${z_target_dir}' — it is this repository's own root"
+    || buc_die "Refusing to move '${z_target_dir}' — it is this repository's own root"
 
   local -r z_clone_dir="${z_target_dir}/${RBLM_harbinger_clone_subdir}"
 
@@ -128,9 +136,17 @@ rblm_harbinger() {
   local -r z_memo_path="${z_target_dir}/memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md"
   local -r z_prompt_path="${z_target_dir}/${RBLM_harbinger_prompt_file}"
 
+  # The retirement sibling for any prior rig — a second-grained stamp so two runs in
+  # one day cannot collide. An existing rig is renamed here, never deleted.
+  local -r z_retire_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_retire_stamp.txt"
+  date +%Y%m%d-%H%M%S > "${z_retire_stamp_temp}" || buc_die "date failed"
+  local -r z_retire_stamp=$(<"${z_retire_stamp_temp}")
+  test -n "${z_retire_stamp}" || buc_die "retirement timestamp resolved empty"
+  local -r z_retired_dir="${z_target_dir}.retired-${z_retire_stamp}"
+
   buh_section "Marshal Harbinger — cold-agent onboarding shakedown"
   buh_line "  Maintainer tree:   ${z_toplevel}"
-  buh_line "  Disposable rig:    ${z_target_dir}  (nuked and recreated)"
+  buh_line "  Cold-walk rig:     ${z_target_dir}  (prior retired aside, fresh clone)"
   buh_line "  Public clone:      ${z_clone_dir}"
   buh_line "  Public source:     ${RBLM_harbinger_public_url}"
   buh_line "  Walk branch:       ${RBLM_harbinger_walk_branch}  (default branch left pristine)"
@@ -145,11 +161,20 @@ rblm_harbinger() {
   buh_line "  end. Harbinger clones, guards, and hands off — it launches nothing and"
   buh_line "  pushes nothing."
   buh_e
-  buc_require "Nuke and rebuild the disposable cold-walk rig at ${z_target_dir}?" "harbinger"
+  buh_line "  Any prior rig is RETIRED to a timestamped sibling, never deleted; sweep"
+  buh_line "  old ${RBLM_harbinger_dirname}.retired-* dirs whenever you like."
+  buh_e
+  buc_require "Retire any existing rig and stand up a fresh cold-walk clone at ${z_target_dir}?" "harbinger"
 
-  buc_step "Clearing the disposable rig"
-  rm -rf "${z_target_dir}" || buc_die "Failed to clear the disposable rig: ${z_target_dir}"
-  mkdir -p "${z_target_dir}" || buc_die "Failed to create the disposable rig: ${z_target_dir}"
+  buc_step "Retiring any existing rig aside"
+  if test -e "${z_target_dir}"; then
+    test ! -e "${z_retired_dir}" || buc_die "Retirement target already exists: ${z_retired_dir}"
+    mv "${z_target_dir}" "${z_retired_dir}" || buc_die "Failed to retire the existing rig: ${z_target_dir} -> ${z_retired_dir}"
+    buh_line "  Retired prior rig: ${z_retired_dir}"
+  else
+    buh_line "  No prior rig to retire"
+  fi
+  mkdir -p "${z_target_dir}" || buc_die "Failed to create the rig: ${z_target_dir}"
 
   buc_step "Cloning the promoted public repository"
   git clone "${RBLM_harbinger_public_url}" "${z_clone_dir}" || buc_die "Failed to clone the public repository — is ${RBLM_harbinger_public_url} reachable and public?"
