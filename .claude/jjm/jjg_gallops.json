@@ -3884,8 +3884,10 @@
         "₢B0AAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1025",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260717-1054",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Investigation and design ruling under BCG module discipline;",
@@ -3912,7 +3914,7 @@
                 "Landing the code is delivered-bytes-bearing — the paddock's divergence economics govern what re-opens."
               ],
               "jjgtn_silks": "kludge-charge-cloudless-regime-scoping",
-              "jjgtn_basis": "161a317"
+              "jjgtn_basis": "6aedd83"
             }
           ]
         },
