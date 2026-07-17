@@ -3585,11 +3585,12 @@
         "₢B0AAC",
         "₢B0AAH",
         "₢B0AAJ",
+        "₢B0AAK",
         "₢B0AAI",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAK",
+      "jjghn_next_pace_seed": "AAL",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3909,6 +3910,45 @@
               ],
               "jjgtn_silks": "kludge-charge-cloudless-regime-scoping",
               "jjgtn_basis": "161a317"
+            }
+          ]
+        },
+        "₢B0AAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1041",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Handbook carpentry under HCG procedure craft;",
+                "the design is settled below — the work is careful guide-writing and resequencing, not re-deciding.",
+                "",
+                "## Cinched (₢B0AAI design discussion, 260717)",
+                "- One console context per guide; the wrapper owns sequence, guides own procedure.",
+                "- One NEW guide: GCP organization founding — Cloud Identity signup, DNS domain verification — yielding RBRW_ORG_ID;",
+                "  skippable as a whole by a user who already administers an org; mint its names per the minting rules.",
+                "- gPF (Entra, rbhpf_entra.sh) survives unchanged.",
+                "- gPE (rbhpe_establish.sh) fixes: the payor project is created IN the organization —",
+                "  remove the \"No organization\" recommendation, which contradicts the Internal-audience requirement instaurate gates on;",
+                "  the org arrives from the new guide.",
+                "- RBRW fields get a guided home: RBRW_ORG_ID from the new guide;",
+                "  RBRW_WORKFORCE_POOL_ID and session duration homed where the mount judges natural.",
+                "- The wrapper (rbhopw_payor_wrapper.sh) resequences vendor-contiguous:",
+                "  org guide, then gPF whole, then gPE, then the scripted block (install, instaurate, affiance, levy, gird);",
+                "  one line noting the Entra signup may run while DNS verification bakes.",
+                "- The instaurate-reads-RBRD_GCP_REGION smudge is dispositioned as a doc line (the terrier bucket rides the depot region), not a code change.",
+                "",
+                "## Done when",
+                "The new org guide exists and is reachable from the onboarding surface;",
+                "gPE no longer recommends an org-less project and its consent-screen step is coherent with instaurate's Internal gate;",
+                "RBRW fields have a guided home;",
+                "the wrapper walks the resequenced phases;",
+                "fast-qualify green.",
+                "",
+                "Findings source: Memos/memo-20260717-coldwalk-shakedown.md"
+              ],
+              "jjgtn_silks": "payor-track-guide-recarve",
+              "jjgtn_basis": "1951118"
             }
           ]
         }
