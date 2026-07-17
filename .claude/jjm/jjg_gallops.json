@@ -3815,8 +3815,8 @@
         "₢B0AAH": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-0822",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1004",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -3843,7 +3843,7 @@
                 "and the disposable clone is discarded."
               ],
               "jjgtn_silks": "cold-agent-onboarding-shakedown",
-              "jjgtn_basis": "762a73e"
+              "jjgtn_basis": "ce15933"
             }
           ]
         },
