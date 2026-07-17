@@ -3921,8 +3921,9 @@
         "₢B0AAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1041",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260717-1054",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Handbook carpentry under HCG procedure craft;",
@@ -3953,7 +3954,7 @@
                 "Findings source: Memos/memo-20260717-coldwalk-shakedown.md"
               ],
               "jjgtn_silks": "payor-track-guide-recarve",
-              "jjgtn_basis": "1951118"
+              "jjgtn_basis": "fc3a9e9"
             }
           ]
         },
