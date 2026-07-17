@@ -3585,6 +3585,7 @@
         "₢B0AAC",
         "₢B0AAH",
         "₢B0AAJ",
+        "₢B0AAO",
         "₢B0AAL",
         "₢B0AAK",
         "₢B0AAM",
@@ -3593,7 +3594,7 @@
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAO",
+      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -4052,6 +4053,29 @@
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
               "jjgtn_basis": "940882b"
+            }
+          ]
+        },
+        "₢B0AAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1139",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Mechanical rename under BCG predicate discipline — grep-and-rename, no judgment during execution.",
+                "",
+                "## Why",
+                "BCG rule: only `_predicate`-named functions may appear in `if`/`while` conditions (BCG Function Patterns, \"Only `_predicate` functions may appear in `if`/`while` conditions\"). `zrbob_hallmark_is_kludge` (rbob_bottle.sh) is a status-only return-0/1 predicate but is used in `if` conditions without the suffix — the naming gap surfaced during pace ₢B0AAJ.",
+                "",
+                "## What",
+                "Rename `zrbob_hallmark_is_kludge` → `zrbob_hallmark_is_kludge_predicate` at its definition and every call site. Discovery recipe: `grep -rn 'zrbob_hallmark_is_kludge' Tools/rbk/`. Confirm no name already carries the target suffix before renaming.",
+                "",
+                "## Done when",
+                "Every reference renamed with the `_predicate` suffix; `tt/rbw-tl.Shellcheck.sh` clean and `tt/rbw-ts.TestSuite.reveille.sh` green."
+              ],
+              "jjgtn_silks": "rbob-hallmark-predicate-suffix",
+              "jjgtn_basis": "8c43f46"
             }
           ]
         }
