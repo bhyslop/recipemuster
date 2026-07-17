@@ -4027,8 +4027,10 @@
         "₢B0AAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1051",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260717-1055",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Release-ceremony lap: local construction and agent shakedown iterated to dry, then the two public acts once, by hand.",
@@ -4047,7 +4049,7 @@
                 "the operator's greenfield walk unblocked."
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
-              "jjgtn_basis": "1ac274f"
+              "jjgtn_basis": "940882b"
             }
           ]
         }
