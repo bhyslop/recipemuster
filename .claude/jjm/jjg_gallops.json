@@ -4060,7 +4060,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260717-1139",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_haiku",
+              "jjgtn_effort": "jjgde_low",
               "jjgtn_text": [
                 "## Character",
                 "Mechanical rename under BCG predicate discipline — grep-and-rename, no judgment during execution.",
@@ -4075,7 +4077,7 @@
                 "Every reference renamed with the `_predicate` suffix; `tt/rbw-tl.Shellcheck.sh` clean and `tt/rbw-ts.TestSuite.reveille.sh` green."
               ],
               "jjgtn_silks": "rbob-hallmark-predicate-suffix",
-              "jjgtn_basis": "8c43f46"
+              "jjgtn_basis": "c2f7a36"
             }
           ]
         }
