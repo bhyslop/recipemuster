@@ -3598,8 +3598,9 @@
         "₢B0AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1051",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260717-1055",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Multi-hour operator-present founding ceremony; real IdP consoles, fresh credentials, real spend.",
@@ -3637,7 +3638,7 @@
                 "the walk recorded at first-of-series depth in the ceremony document."
               ],
               "jjgtn_silks": "greenfield-manor-walk",
-              "jjgtn_basis": "32a65b8"
+              "jjgtn_basis": "ba99326"
             }
           ]
         },
