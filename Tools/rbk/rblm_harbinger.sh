@@ -188,14 +188,16 @@ rblm_harbinger() {
 
   # Install the pre-push refusal. Belt to the sever's suspenders: even if the walk (or
   # a helpful agent) re-adds a remote, every push dies here. Written with a loud reason
-  # so the refusal is legible, not a silent non-zero.
+  # so the refusal is legible, not a silent non-zero. printf (a builtin) writes the hook
+  # line by line — BCG bars multi-line heredocs.
   buc_step "Installing the pre-push refusal hook"
   local -r z_hook="${z_clone_dir}/.git/hooks/pre-push"
-  tee "${z_hook}" >/dev/null <<'HOOK'
-#!/bin/sh
-echo "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2
-exit 1
-HOOK
+  printf '%s\n' \
+    '#!/bin/sh' \
+    'echo "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2' \
+    'exit 1' \
+    > "${z_hook}" \
+    || buc_die "Failed to write the pre-push hook: ${z_hook}"
   chmod +x "${z_hook}" || buc_die "Failed to make the pre-push hook executable"
 
   # Cut the throwaway walk branch. The consumer flow commits as it kludges; the walker
@@ -214,56 +216,58 @@ HOOK
   buh_line "  2. Paste the stranger prompt below:"
   buh_e
 
-  # Emit the stranger prompt verbatim — a heredoc straight to stderr, no yelp formatter
-  # (so nothing in the body is reinterpreted as a display marker) and no file left in
-  # the rig. The memo path is threaded in so the walker knows where to log its findings.
-  tee >&2 <<PROMPT
-----------------------------------------------------------------------
-You are trying Recipe Bottle for the first time. You cloned it because you want to
-use it to build and run hardened, provenance-checked container images, and you are
-starting completely cold: everything you know about this project must come from the
-documentation in this repository. Do not reach for outside knowledge of how it
-"really" works — if a step is unclear from the docs in front of you, that unclearness
-is exactly what you are here to find.
-
-Your operator is a human at the keyboard with you. You drive; they grant permission
-prompts, and they own everything involving money, accounts, and credentials.
-
-Walk the onboarding in four beats, in order:
-
-  1. Local setup. Read the README, find the onboarding entry point, and follow it to a
-     first working local image build and a charged crucible you can shell into.
-
-  2. Cloud setup. The docs will reach a point that needs a Google Cloud account, a
-     billing-backed project, and an identity provider. This is your operator's block,
-     not yours. Read the relevant guide, explain each step, and hand the keyboard to
-     your operator for every account, billing, and credential action. STOP and hand off
-     the moment the docs reach creating accounts or paid infrastructure.
-
-  3. Adversarial suite. Once cloud setup is done, charge the tadmor crucible and run its
-     adversarial security suite, confirming the containment holds under attack.
-
-  4. Airgap build. Finally, walk the moriah airgap cloud build to its provenance
-     comparison.
-
-Hard boundaries, always:
-  - Create no accounts and spend no money on your own. Those are your operator's, at the
-    gates above.
-  - Push nowhere. This clone is a throwaway; treat every remote as off-limits.
-  - Never stop, quench, or delete any workload, container, or cloud resource you did not
-    start yourself.
-
-Keep a findings log the whole way. Every time a doc is unclear, a command fails, a step
-assumes knowledge you do not have, or you have to guess — write it down, with the exact
-command and what you expected versus what happened. Put the log here, and update it as
-you go:
-
-  ${z_memo_path}
-
-Begin by reading the README, then find the onboarding entry point and take the first
-beat.
-----------------------------------------------------------------------
-PROMPT
+  # Emit the stranger prompt verbatim — printf (a builtin) straight to stderr, no yelp
+  # formatter (so nothing in the body is reinterpreted as a display marker) and no file
+  # left in the rig. Lines are literal single-quoted args; only the memo-path line is
+  # double-quoted so it expands, so the walker knows where to log its findings. BCG bars
+  # multi-line heredocs — printf line-by-line is the compliant emit.
+  printf '%s\n' \
+    '----------------------------------------------------------------------' \
+    'You are trying Recipe Bottle for the first time. You cloned it because you want to' \
+    'use it to build and run hardened, provenance-checked container images, and you are' \
+    'starting completely cold: everything you know about this project must come from the' \
+    'documentation in this repository. Do not reach for outside knowledge of how it' \
+    '"really" works — if a step is unclear from the docs in front of you, that unclearness' \
+    'is exactly what you are here to find.' \
+    '' \
+    'Your operator is a human at the keyboard with you. You drive; they grant permission' \
+    'prompts, and they own everything involving money, accounts, and credentials.' \
+    '' \
+    'Walk the onboarding in four beats, in order:' \
+    '' \
+    '  1. Local setup. Read the README, find the onboarding entry point, and follow it to a' \
+    '     first working local image build and a charged crucible you can shell into.' \
+    '' \
+    '  2. Cloud setup. The docs will reach a point that needs a Google Cloud account, a' \
+    '     billing-backed project, and an identity provider. This is your operator'\''s block,' \
+    '     not yours. Read the relevant guide, explain each step, and hand the keyboard to' \
+    '     your operator for every account, billing, and credential action. STOP and hand off' \
+    '     the moment the docs reach creating accounts or paid infrastructure.' \
+    '' \
+    '  3. Adversarial suite. Once cloud setup is done, charge the tadmor crucible and run its' \
+    '     adversarial security suite, confirming the containment holds under attack.' \
+    '' \
+    '  4. Airgap build. Finally, walk the moriah airgap cloud build to its provenance' \
+    '     comparison.' \
+    '' \
+    'Hard boundaries, always:' \
+    '  - Create no accounts and spend no money on your own. Those are your operator'\''s, at the' \
+    '    gates above.' \
+    '  - Push nowhere. This clone is a throwaway; treat every remote as off-limits.' \
+    '  - Never stop, quench, or delete any workload, container, or cloud resource you did not' \
+    '    start yourself.' \
+    '' \
+    'Keep a findings log the whole way. Every time a doc is unclear, a command fails, a step' \
+    'assumes knowledge you do not have, or you have to guess — write it down, with the exact' \
+    'command and what you expected versus what happened. Put the log here, and update it as' \
+    'you go:' \
+    '' \
+    "  ${z_memo_path}" \
+    '' \
+    'Begin by reading the README, then find the onboarding entry point and take the first' \
+    'beat.' \
+    '----------------------------------------------------------------------' \
+    >&2
 
   buh_e
   buh_line "  When the walk is done, review ${z_memo_path##*/} in the rig, commit it into"
