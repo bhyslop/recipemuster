@@ -5415,8 +5415,8 @@
         "₢BcAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0850",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1845",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -5491,7 +5491,7 @@
                 "build tt/vow-b, test tt/vow-t green."
               ],
               "jjgtn_silks": "pace-identity-regestalt-impl",
-              "jjgtn_basis": "c5828c2"
+              "jjgtn_basis": "f2e2ac2"
             }
           ]
         }
