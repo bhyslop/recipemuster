@@ -306,7 +306,11 @@ fn jjtvb_gallops_over_studbook_enablement_seam_defaults_off() {
 // ---- Founding ceremony ----
 
 fn zjjtvb_valid_gallops_seed() -> String {
-    serde_json::to_string(&zjjtvb_valid_gallops()).expect("a fresh Gallops must serialize")
+    // Pretty-printed to match the canonical on-disk form jjdr_save always produces — a
+    // compact seed only round-tripped through jjdr_load's canonical check by accident of
+    // the now-stripped V3→V4 episode (empty heat_order also read as pre-V4 residue, so
+    // migration mode stood the round-trip gate down as a side effect unrelated to formatting).
+    serde_json::to_string_pretty(&zjjtvb_valid_gallops()).expect("a fresh Gallops must serialize")
 }
 
 #[test]
