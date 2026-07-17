@@ -3645,8 +3645,9 @@
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1051",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260717-1055",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present closeout ceremony; short; run fresh, not tired.",
@@ -3671,7 +3672,7 @@
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "32a65b8"
+              "jjgtn_basis": "c223909"
             }
           ]
         },
