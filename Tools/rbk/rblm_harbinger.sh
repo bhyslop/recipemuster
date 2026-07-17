@@ -76,10 +76,6 @@ RBLM_harbinger_walk_branch="coldwalk"
 # Memos/ affiliated to the pace.
 RBLM_harbinger_memo_slug="coldwalk-shakedown"
 
-# The prompt is written to this file in the parent dir as well as printed, so the
-# operator has a clean, copy-pasteable source that no terminal line-wrap can mangle.
-RBLM_harbinger_prompt_file="coldwalk-prompt.txt"
-
 ######################################################################
 # Command: harbinger - stand up the guarded cold-walk clone and hand off
 #
@@ -134,7 +130,6 @@ rblm_harbinger() {
   local -r z_walkdate=$(<"${z_walkdate_temp}")
   test -n "${z_walkdate}" || buc_die "walk date resolved empty"
   local -r z_memo_path="${z_target_dir}/memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md"
-  local -r z_prompt_path="${z_target_dir}/${RBLM_harbinger_prompt_file}"
 
   # The retirement sibling for any prior rig — a second-grained stamp so two runs in
   # one day cannot collide. An existing rig is renamed here, never deleted.
@@ -209,10 +204,21 @@ HOOK
   buc_step "Cutting the throwaway walk branch ${RBLM_harbinger_walk_branch}"
   git -C "${z_clone_dir}" checkout -b "${RBLM_harbinger_walk_branch}" || buc_die "Failed to cut the walk branch"
 
-  # Write the stranger prompt to a file (copy-pasteable, unwrapped) and print it below.
-  # The prompt carries the memo path so the walker knows where to log its findings.
-  buc_step "Writing the stranger prompt"
-  cat > "${z_prompt_path}" <<PROMPT
+  buh_e
+  buh_line "  Rig ready. Two steps, by your hand:"
+  buh_e
+  buh_line "  1. Launch a cold session in the clone (NEW terminal):"
+  buh_e
+  buc_bare "        (cd ${z_clone_dir} && claude --model sonnet)"
+  buh_e
+  buh_line "  2. Paste the stranger prompt below:"
+  buh_e
+
+  # Emit the stranger prompt verbatim — a heredoc straight to stderr, no yelp formatter
+  # (so nothing in the body is reinterpreted as a display marker) and no file left in
+  # the rig. The memo path is threaded in so the walker knows where to log its findings.
+  cat >&2 <<PROMPT
+----------------------------------------------------------------------
 You are trying Recipe Bottle for the first time. You cloned it because you want to
 use it to build and run hardened, provenance-checked container images, and you are
 starting completely cold: everything you know about this project must come from the
@@ -256,28 +262,8 @@ you go:
 
 Begin by reading the README, then find the onboarding entry point and take the first
 beat.
+----------------------------------------------------------------------
 PROMPT
-
-  buh_e
-  buh_line "  Rig ready. Two steps, by your hand:"
-  buh_e
-  buh_line "  1. Launch a cold session in the clone (NEW terminal):"
-  buh_e
-  buc_bare "        cd ${z_clone_dir}"
-  buc_bare "        claude --model sonnet"
-  buh_e
-  buh_line "     No --dangerously-skip-permissions: you grant each prompt and supply"
-  buh_line "     credentials at the cloud gates."
-  buh_e
-  buh_line "  2. Paste the stranger prompt below (also saved, copy-pasteable, at"
-  buh_line "     ${z_prompt_path}):"
-  buh_e
-
-  # Print the prompt verbatim — plain cat to stderr, no yelp formatter, so nothing in
-  # the prompt body is reinterpreted as a display marker.
-  printf '%s\n' "----------------------------------------------------------------------" >&2
-  cat "${z_prompt_path}" >&2
-  printf '%s\n' "----------------------------------------------------------------------" >&2
 
   buh_e
   buh_line "  When the walk is done, review ${z_memo_path##*/} in the rig, commit it into"
