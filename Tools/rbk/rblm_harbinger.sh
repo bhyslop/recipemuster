@@ -209,7 +209,7 @@ HOOK
   buh_e
   buh_line "  1. Launch a cold session in the clone (NEW terminal):"
   buh_e
-  buc_bare "        (cd ${z_clone_dir} && claude --model sonnet)"
+  buc_bare "        (cd ${z_clone_dir} && claude --model sonnet --permission-mode auto)"
   buh_e
   buh_line "  2. Paste the stranger prompt below:"
   buh_e
