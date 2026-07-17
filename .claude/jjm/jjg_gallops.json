@@ -3588,11 +3588,12 @@
         "₢B0AAL",
         "₢B0AAK",
         "₢B0AAM",
+        "₢B0AAN",
         "₢B0AAI",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAN",
+      "jjghn_next_pace_seed": "AAO",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -4015,6 +4016,33 @@
               ],
               "jjgtn_silks": "harbinger-local-candidate-mode",
               "jjgtn_basis": "aa5434a"
+            }
+          ]
+        },
+        "₢B0AAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1051",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Release-ceremony lap: local construction and agent shakedown iterated to dry, then the two public acts once, by hand.",
+                "",
+                "## Cinched (repair-lap doctrine, paddock 260717)",
+                "The repair cycle runs in the reversible tier until proven:",
+                "re-cut via expede atop live public main, coldwalk the local candidate via the harbinger's local mode,",
+                "disposition the findings, and repeat until a lap runs dry.",
+                "Only the proven candidate takes the public acts: one staging push and one promotion, human-hands-only per the standing cut ceremony;",
+                "the first-delivery exception still governs — promotion precedes the operator walk.",
+                "Precondition: the fix paces (furnish scoping, onboarding handbook repairs, payor-track recarve) landed in the maintainer tree, and the harbinger local mode available.",
+                "",
+                "## Done when",
+                "The repaired candidate walked dry under the iteration coldwalk;",
+                "staged and promoted with tree-hash equality proven;",
+                "the operator's greenfield walk unblocked."
+              ],
+              "jjgtn_silks": "repair-recut-iterate-promote",
+              "jjgtn_basis": "1ac274f"
             }
           ]
         }
