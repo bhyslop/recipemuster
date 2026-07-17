@@ -3,9 +3,9 @@
   "jjgrn_heat_order": [
     "₣B0",
     "₣Bs",
-    "₣Bg",
     "₣Bc",
     "₣Bd",
+    "₣Bg",
     "₣B1",
     "₣Bz",
     "₣Bw",
@@ -5601,7 +5601,7 @@
     "₣Bg": {
       "jjghn_silks": "jjk-05-aspirant-matricula",
       "jjghn_creation_time": "260617",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BgAAA",
         "₢BgAAB",
