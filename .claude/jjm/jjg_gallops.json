@@ -5763,8 +5763,8 @@
         "₢BgAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2034",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1056",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
@@ -5785,7 +5785,7 @@
                 "Open design questions may remain open — answered inside the future heat's fence, not here."
               ],
               "jjgtn_silks": "bound-the-aspirant-gestalt",
-              "jjgtn_basis": "f866b0e"
+              "jjgtn_basis": "65dd918"
             }
           ]
         },
