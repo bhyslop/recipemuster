@@ -3584,10 +3584,11 @@
         "₢B0AAG",
         "₢B0AAC",
         "₢B0AAH",
+        "₢B0AAI",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAI",
+      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3843,6 +3844,33 @@
               ],
               "jjgtn_silks": "cold-agent-onboarding-shakedown",
               "jjgtn_basis": "762a73e"
+            }
+          ]
+        },
+        "₢B0AAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1004",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Operator-and-Fable design collaboration carving the onboarding path future users should meet, worked through the human-consequence lens.",
+                "Design and planning, not implementation; the operator steers, Fable's reasoning drives the first-time-user vantage.",
+                "",
+                "## Cinched",
+                "The disposition splits by kind, and the split is load-bearing:",
+                "- The doc/experience gaps — the station-bootstrap crash-then-incomplete-init, and the ccyolo \"fully local\" promise the four-regime cascade breaks — are this pace's material: reason through where a cold user stalls or abandons, and carve the minimal doc path that removes each stall.",
+                "- The `zrbob_furnish` over-enforcement is a code/architecture decision (should kludge/charge enforce only the regimes their vessels actually read?) — this pace FRAMES and routes it for a separate opus decision; it does not implement it.",
+                "",
+                "## Done when",
+                "Each finding is worked from the future-user's vantage into either a minimal doc fix or a framed decision;",
+                "the doc/spec fixes are banked as slate-able follow-on;",
+                "and the `zrbob_furnish` code decision is framed and routed, not implemented.",
+                "",
+                "Findings source: Memos/memo-20260717-coldwalk-shakedown.md"
+              ],
+              "jjgtn_silks": "coldwalk-onboarding-iterate",
+              "jjgtn_basis": "a6e8986"
             }
           ]
         }
