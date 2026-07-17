@@ -1620,13 +1620,15 @@ is minted from it under the commit lock, never per-heat.
 Incremented by
 {jjdo_enroll}.
 Serialized as `jjgrn_next_pace_seed` in JSON.
-The
+The pace-seed heat→global
 {jjdz_reprieve}
-write-forward founds it at `max(highest existing {jjdt_coronet} index + 1, CAAAA)` over every
+episode's write-forward founded it at `max(highest existing {jjdt_coronet} index + 1, CAAAA)` over every
 {jjdpr_pace}
 in every
-{jjdhr_heat},
-placing it above the whole index space already in use; thereafter it advances only by mint.
+{jjdhr_heat}
+for a store predating this field, placing it above the whole index space already in use; that episode
+converged on every operated clone and was stripped 2026-07-17, so the field is now always present on
+load and thereafter advances only by mint.
 A freshly created
 {jjdgr_gallops}
 with no
@@ -1642,7 +1644,8 @@ defining heat display and selection order.
 Serialized as `jjgrn_heat_order` in JSON.
 Populated from sorted
 {jjdgm_heats}
-keys on first load of an old-format file — the {jjdz_reprieve} write-forward for the V3→V4 episode;
+keys on first load of an old-format file by the V3→V4 {jjdz_reprieve} episode's write-forward — that
+episode converged on every operated clone and was stripped 2026-07-17;
 thereafter maintained explicitly.
 Updated by:
 {jjdo_create}
@@ -1761,11 +1764,13 @@ on
 and embeds no
 {jjdt_firemark},
 so no per-heat pace seed exists.
-An old-format store may carry a `jjghn_next_pace_seed` field — 3 {jjdz_charset} characters, a per-{jjdhr_heat} next-{jjdt_coronet} index; the
+A store predating the pace-seed heat→global
 {jjdz_reprieve}
-write-forward drops it when it founds the global
-{jjdgm_pace_seed},
-and the store re-serializes without it.
+episode carried a per-{jjdhr_heat} `jjghn_next_pace_seed` field instead — 3 {jjdz_charset} characters;
+that episode's write-forward dropped it when founding the global
+{jjdgm_pace_seed}
+and the store re-serialized without it.
+The episode converged on every operated clone and was stripped 2026-07-17; no such field survives.
 
 * [[jjdhm_pensum_seed]]
 {jjdhm_pensum_seed}
@@ -2006,7 +2011,9 @@ Values:
 {jjdpe_complete},
 {jjdpe_abandoned}.
 Serialized as `jjgtn_state` in JSON.
-The V3-era `primed` token is demoted to {jjdpe_rough} at the deserialize boundary under {jjdz_reprieve} (the V3→V4 episode).
+The V3-era `primed` token was demoted to {jjdpe_rough} at the deserialize boundary under a
+{jjdz_reprieve} V3→V4 tolerance; that episode converged on every operated clone and was stripped
+2026-07-17, so `primed` is no longer a recognized on-disk token.
 
 * [[jjdcm_tier]]
 //axl_voices axr_member axd_optional axt_enumeration axd_property
@@ -3655,56 +3662,6 @@ include::JJSCCH-chalk.adoc[]
 
 //axvd_cartouche axd_normative
 include::JJSTF-test-fundus.adoc[]
-
-== V3 Legacy Schema Reference
-
-WARNING: This section is the frozen reference for the {jjdz_reprieve} V3→V4 episode.
-It documents the V3 schema as implemented in `jjrt_v3_types.rs`.
-Do NOT modify — removed under {jjdz_reprieve} once that episode is dormant on every operated clone.
-
-=== V3 Pace Record
-
-In V3, a {jjdpr_pace} contains a `tacks` array of Tack records.
-Each Tack captures a snapshot of the pace's state at a point in time.
-
-==== V3 Tack Record
-
-* `ts` (string, required) — timestamp
-* `state` (enum, required) — pace state (see V3 Pace State Enum)
-* `text` (string, required) — docket text at this snapshot
-* `silks` (string, required) — pace silks at this snapshot
-* `commit` (string, required) — basis commit SHA (Rust field: `basis`, serde rename: `commit`)
-* `direction` (string, optional) — plan/direction text
-
-==== V3 Pace State Enum
-
-* `rough` — needs clarification
-* `bridled` — human-claimed for interactive work (serde alias: `primed`)
-* `complete` — finished
-* `abandoned` — stopped without completion
-
-=== V3 Heat Record
-
-Same as V4 (no structural changes to Heat in V4 migration).
-
-=== V3 Gallops Record
-
-Same as V4 except:
-
-* `schema_version` absent (added in V4)
-* `heat_order` absent (added in V4; populated from sorted BTreeMap keys on migration)
-
-=== V3→V4 Migration Path
-
-Migration is handled by {jjdr_load} in `jjri_io.rs`.
-Current behavior:
-
-. Deserialize JSON as current types
-. Detect migration mode via the {jjdz_reprieve} probe (the V3→V4 episode reports live)
-. Populate `heat_order` from sorted BTreeMap keys
-. Next {jjdr_save} writes V4 format
-
-The frozen V3 types in `jjrt_v3_types.rs` capture the V3 schema for reference when V4 type changes are implemented.
 
 == Revision Control
 
