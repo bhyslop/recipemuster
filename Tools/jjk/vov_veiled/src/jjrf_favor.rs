@@ -70,9 +70,11 @@ pub const JJRF_PENSUM_INDEX_MAX: u32 = JJRF_RADIX * JJRF_RADIX - 1;
 pub const JJRF_CORONET_QUALIFIER: char = '·';
 
 /// Founding floor for the global pace seed (JJS0 jjdgm_pace_seed): a fresh
-/// gallops starts here, and the reprieve write-forward founds at
-/// max(highest existing index + 1, this). Every grandfathered id leads with A or
-/// B, so this floor makes every seed-minted id lead with C or later.
+/// gallops starts here. Every grandfathered id leads with A or B, so this floor
+/// makes every seed-minted id lead with C or later — the same floor the now-
+/// stripped pace-seed heat→global reprieve write-forward founded old stores at
+/// (max(highest existing index + 1, this)) before it converged and discharged
+/// 2026-07-17.
 pub const JJRF_CORONET_SEED_FLOOR: &str = "CAAAA";
 
 /// Look up the position of a character in the charset

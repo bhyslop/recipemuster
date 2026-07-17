@@ -27,11 +27,7 @@ pub const JJRG_STATE_ABANDONED: &str = "abandoned";
 /// Pace state values
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum jjrg_PaceState {
-    // Reprieve JJr_a7c — `primed` is the V3-era on-disk token for the retired
-    // V3 bridled state; it demotes to Rough at the deserialize boundary under
-    // the V3→V4 episode (frozen reference: jjrt_v3_types.rs). It collides with
-    // nothing current — no live write path emits it.
-    #[serde(rename = "jjgte_rough", alias = "primed")]
+    #[serde(rename = "jjgte_rough")]
     Rough,
     /// Designated for execution: a frontier agent judged this pace mechanically
     /// defined and recorded its execution tier (and optionally effort) on the
@@ -225,12 +221,11 @@ pub struct jjrg_Tack {
     pub effort: Option<jjrg_Effort>,
     /// Docket text as a line array — one element per physical line, so pretty-JSON
     /// decomposes the docket line-by-line and git merges it at line granularity.
-    /// Custom deserialize tolerates the legacy string shape (the tack-text→lines
-    /// reprieve episode — rivet JJr_a7c, JJS0 jjdz_reprieve): an on-disk
-    /// string is split on '\n' into the array, an array is taken verbatim. Serialize
-    /// is the default array form. Round-trip is lossless under the
-    /// jjrg_text_to_lines / jjrg_lines_to_text pair (split('\n') ⇔ join('\n')).
-    #[serde(rename = "jjgtn_text", deserialize_with = "zjjrg_deserialize_text")]
+    /// Round-trip is lossless under the jjrg_text_to_lines / jjrg_lines_to_text pair
+    /// (split('\n') ⇔ join('\n')). The tack-text→lines reprieve episode (rivet JJr_a7c)
+    /// that tolerated a legacy on-disk string shape converged on every operated clone
+    /// and was stripped 2026-07-17.
+    #[serde(rename = "jjgtn_text")]
     pub text: Vec<String>,
     #[serde(rename = "jjgtn_silks")]
     pub silks: String,
@@ -273,25 +268,6 @@ pub fn jjrg_text_to_lines(text: &str) -> Vec<String> {
 /// the exact inverse of `jjrg_text_to_lines`.
 pub fn jjrg_lines_to_text(lines: &[String]) -> String {
     lines.join("\n")
-}
-
-/// Deserialize tack docket text, tolerating both on-disk shapes (rivet JJr_a7c).
-/// A JSON string is the legacy shape (split into lines); a JSON array is the
-/// current shape (taken verbatim). Anything else fails fast at the parse boundary.
-fn zjjrg_deserialize_text<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    enum zjjrg_TextShape {
-        Legacy(String),
-        Lines(Vec<String>),
-    }
-    Ok(match zjjrg_TextShape::deserialize(deserializer)? {
-        zjjrg_TextShape::Legacy(s) => jjrg_text_to_lines(&s),
-        zjjrg_TextShape::Lines(v) => v,
-    })
 }
 
 /// Pace record - discrete action within a Heat
@@ -360,11 +336,11 @@ pub struct jjrg_Gallops {
     pub next_heat_seed: String,
     /// Global pace-mint seed — the single next-Coronet to allocate for the whole
     /// gallops (JJS0 jjdgm_pace_seed). Coronets are flat global ids minted from
-    /// here under the commit lock, never per-heat. `#[serde(default)]` so an
-    /// old-format store (which lacks it and carries per-heat jjghn_next_pace_seed
-    /// instead) still deserializes; the reprieve write-forward then founds it
-    /// (rivet JJr_a7c). Always serialized — canonical form always carries it.
-    #[serde(default, rename = "jjgrn_next_pace_seed")]
+    /// here under the commit lock, never per-heat. Always present: the pace-seed
+    /// heat→global reprieve episode (rivet JJr_a7c) that tolerated a store lacking
+    /// this field (carrying the retired per-heat jjghn_next_pace_seed instead)
+    /// converged on every operated clone and was stripped 2026-07-17.
+    #[serde(rename = "jjgrn_next_pace_seed")]
     pub next_pace_seed: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty", rename = "jjgrn_heat_order")]
     pub heat_order: Vec<String>,

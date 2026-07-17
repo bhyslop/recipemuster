@@ -18,13 +18,9 @@ fn jjtg_pace_state_serialization() {
 }
 
 #[test]
-fn jjtg_tack_text_deserialize_tolerates_both_shapes() {
-    // Legacy string docket splits on '\n' into the line array.
-    let legacy = r#"{"jjgtn_ts":"260101-1200","jjgtn_state":"jjgte_rough","jjgtn_text":"a\nb","jjgtn_silks":"x","jjgtn_basis":"0000000"}"#;
-    let tack: jjrg_Tack = serde_json::from_str(legacy).unwrap();
-    assert_eq!(tack.text, vec!["a".to_string(), "b".to_string()]);
-
-    // Current array docket is taken verbatim.
+fn jjtg_tack_text_deserialize_array_shape() {
+    // Docket text is the array shape, taken verbatim (the tack-text→lines reprieve
+    // episode that also tolerated a legacy string shape converged and was stripped).
     let current = r#"{"jjgtn_ts":"260101-1200","jjgtn_state":"jjgte_rough","jjgtn_text":["a","b"],"jjgtn_silks":"x","jjgtn_basis":"0000000"}"#;
     let tack: jjrg_Tack = serde_json::from_str(current).unwrap();
     assert_eq!(tack.text, vec!["a".to_string(), "b".to_string()]);
@@ -35,63 +31,6 @@ fn jjtg_text_lines_round_trip_is_lossless() {
     for s in ["", "single", "two\nlines", "blank\n\nbetween", "trailing\n", "\nleading"] {
         assert_eq!(jjrg_lines_to_text(&jjrg_text_to_lines(s)), s);
     }
-}
-
-#[test]
-fn jjtg_load_legacy_string_text_converts_and_collapses() {
-    // A pre-conversion gallops: docket text is a string, and the pace carries a
-    // multi-tack history. Loading must split the text to a line array and collapse
-    // the history to the single newest tack (tacks[0]).
-    let dir = JjkTestDir::new("jjtg_legacy_text_convert");
-    let path = dir.path().join("jjg_gallops.json");
-    let legacy = r#"{
-  "jjgrn_next_heat_seed": "AD",
-  "jjgrn_heat_order": ["₣AC"],
-  "jjgrn_heats": {
-    "₣AC": {
-      "jjghn_silks": "my-heat",
-      "jjghn_creation_time": "260101",
-      "jjghn_status": "jjghe_racing",
-      "jjghn_order": ["₢ACAAA"],
-      "jjghn_next_pace_seed": "AAB",
-      "jjghn_paces": {
-        "₢ACAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260101-1200",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "first line\nsecond line",
-              "jjgtn_silks": "my-pace",
-              "jjgtn_basis": "0000000"
-            },
-            {
-              "jjgtn_ts": "260101-1100",
-              "jjgtn_state": "jjgte_rough",
-              "jjgtn_text": "older docket",
-              "jjgtn_silks": "my-pace",
-              "jjgtn_basis": "0000000"
-            }
-          ]
-        }
-      }
-    }
-  }
-}"#;
-    std::fs::write(&path, legacy).unwrap();
-
-    let gallops = jjrg_Gallops::jjrg_load(&path).expect("legacy gallops should load and convert");
-    let pace = gallops.heats["₣AC"].paces.get("₢ACAAA").unwrap();
-    assert_eq!(pace.tacks.len(), 1);
-    assert_eq!(pace.tacks[0].text, vec!["first line".to_string(), "second line".to_string()]);
-
-    // Idempotent: persist the converted form, then reload. The store is now canonical
-    // (array text, single tack), so no episode is live and the round-trip gate — active
-    // again — must pass.
-    gallops.jjrg_save(&path).expect("save converted gallops");
-    let reloaded = jjrg_Gallops::jjrg_load(&path).expect("canonical gallops round-trips");
-    let pace = reloaded.heats["₣AC"].paces.get("₢ACAAA").unwrap();
-    assert_eq!(pace.tacks.len(), 1);
-    assert_eq!(pace.tacks[0].text, vec!["first line".to_string(), "second line".to_string()]);
 }
 
 // ===== validate normalize-and-report (zjjrvl_appraise) =====
@@ -156,44 +95,6 @@ fn jjtg_validate_appraise_idempotent_after_normalize() {
         matches!(zjjrvl_appraise(&canon_bytes), zjjrvl_Appraisal::Canonical(_)),
         "appraising the normalized form must be Canonical (idempotent)"
     );
-}
-
-#[test]
-fn jjtg_validate_appraise_legacy_text_normalizes_and_collapses() {
-    // A pre-conversion store: string-valued docket text and a multi-tack history. The reprieve
-    // write-forward splits text to lines and collapses to the single newest tack → Normalize.
-    let legacy = r#"{
-  "jjgrn_next_heat_seed": "AD",
-  "jjgrn_heat_order": ["₣AC"],
-  "jjgrn_heats": {
-    "₣AC": {
-      "jjghn_silks": "my-heat",
-      "jjghn_creation_time": "260101",
-      "jjghn_status": "jjghe_racing",
-      "jjghn_order": ["₢ACAAA"],
-      "jjghn_next_pace_seed": "AAB",
-      "jjghn_paces": {
-        "₢ACAAA": {
-          "jjgpn_tacks": [
-            {"jjgtn_ts": "260101-1200", "jjgtn_state": "jjgte_rough", "jjgtn_text": "first line\nsecond line", "jjgtn_silks": "my-pace", "jjgtn_basis": "0000000"},
-            {"jjgtn_ts": "260101-1100", "jjgtn_state": "jjgte_rough", "jjgtn_text": "older", "jjgtn_silks": "my-pace", "jjgtn_basis": "0000000"}
-          ]
-        }
-      }
-    }
-  }
-}"#;
-    match zjjrvl_appraise(legacy.as_bytes()) {
-        zjjrvl_Appraisal::Normalize(canon, _census) => {
-            let pace = canon.heats["₣AC"].paces.get("₢ACAAA").unwrap();
-            assert_eq!(pace.tacks.len(), 1, "multi-tack history collapses to one");
-            assert_eq!(
-                pace.tacks[0].text,
-                vec!["first line".to_string(), "second line".to_string()]
-            );
-        }
-        other => panic!("legacy store must Normalize, got {}", appraisal_name(&other)),
-    }
 }
 
 #[test]
@@ -1889,49 +1790,3 @@ fn jjtg_validate_rejects_incoherent_designation() {
     assert!(jjrg_validate(&g).unwrap_err().iter().any(|e| e.contains("effort must not ride without a tier")));
 }
 
-#[test]
-fn jjtg_v3_primed_state_demotes_via_v3_episode() {
-    // The V3-era `primed` alias stays with the V3→V4 episode: a store carrying it
-    // predates heat_order, so that episode flags the file, the alias demotes the
-    // state to Rough at the deserialize boundary, and the write-forward + next
-    // save land the canonical form. The new bridled sense never writes `primed`.
-    let dir = JjkTestDir::new("jjtg_v3_primed_demote");
-    let path = dir.path().join("jjg_gallops.json");
-    let legacy = r#"{
-  "jjgrn_next_heat_seed": "AD",
-  "jjgrn_heats": {
-    "₣AC": {
-      "jjghn_silks": "my-heat",
-      "jjghn_creation_time": "260101",
-      "jjghn_status": "jjghe_racing",
-      "jjghn_order": ["₢ACAAA"],
-      "jjghn_next_pace_seed": "AAB",
-      "jjghn_paces": {
-        "₢ACAAA": {
-          "jjgpn_tacks": [
-            {
-              "jjgtn_ts": "260101-1200",
-              "jjgtn_state": "primed",
-              "jjgtn_text": ["execute this"],
-              "jjgtn_silks": "my-pace",
-              "jjgtn_basis": "0000000"
-            }
-          ]
-        }
-      }
-    }
-  }
-}"#;
-    std::fs::write(&path, legacy).unwrap();
-
-    let gallops = jjrg_Gallops::jjrg_load(&path).expect("v3 primed gallops should load and demote");
-    let tack = &gallops.heats["₣AC"].paces["₢ACAAA"].tacks[0];
-    assert_eq!(tack.state, jjrg_PaceState::Rough);
-    assert_eq!(tack.tier, None);
-    assert_eq!(gallops.heat_order, vec!["₣AC".to_string()], "write-forward populates heat_order");
-
-    gallops.jjrg_save(&path).expect("save converted gallops");
-    let text = std::fs::read_to_string(&path).unwrap();
-    assert!(!text.contains("primed"));
-    assert!(text.contains("jjgte_rough"));
-}
