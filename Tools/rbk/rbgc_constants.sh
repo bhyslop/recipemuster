@@ -345,6 +345,12 @@ zrbgc_kindle() {
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 
+  # Kludge registry root — the local-only ref namespace kludge hallmarks tag
+  # under. The .invalid TLD is RFC 2606-reserved: the host can never resolve,
+  # so a kludge ref is structurally unpullable and unpushable — no depot
+  # identity (RBRD) enters a local-only build's image refs.
+  readonly RBGC_KLUDGE_REGISTRY_ROOT="rbkludge.invalid"
+
   # GAR Cleanup Policy (applied at depot levy — see RBSMF "Create Container Repository").
   # Reaps untagged manifests on GAR's daily cleanup cadence; underwrites the V2-DELETE-by-tag
   # contract documented in RBSIJ for multi-platform orphan children.

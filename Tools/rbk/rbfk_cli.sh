@@ -69,7 +69,10 @@ zrbfk_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
-  zrbrd_enforce
+  # No zrbrd_enforce: kludge is depot-free — its output refs live in the
+  # local kludge namespace (RBGC_KLUDGE_REGISTRY_ROOT), and an anchored
+  # slot's GAR ref miss fails into the wrest remediation, whose own verb
+  # enforces RBRD. RBRD stays kindled: enrolled, locked, inert strings.
   zrbdc_kindle
 
   source "${z_rbk_kit_dir}/rbrv_regime.sh"

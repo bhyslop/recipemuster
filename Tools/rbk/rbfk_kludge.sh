@@ -74,9 +74,11 @@ zrbfk_image_present_predicate() {
 # Kludge Build - Local image build for development
 #
 # Builds a vessel image locally using docker build, tags it with a
-# kludge hallmark (k-prefixed timestamp) in the same GAR-style
-# format that compose and rbob_charge expect. Also creates a fake
-# vouch tag (same image, aliased) so the vouch gate passes.
+# kludge hallmark (k-prefixed timestamp) under the local kludge
+# registry root (RBGC_KLUDGE_REGISTRY_ROOT) — the ref shape compose
+# and rbob_charge expect for kludge hallmarks, carrying no depot
+# identity. Also creates a fake vouch tag (same image, aliased) so
+# the vouch gate passes.
 #
 # No Cloud Build, no GAR push, no credentials consumed.
 # Host platform only (no multi-arch).
@@ -191,9 +193,11 @@ rbfk_kludge() {
   # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
   local -r z_hallmark="${RBGC_HALLMARK_PREFIX_KLUDGE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
 
-  # Construct image refs matching compose/vouch-gate format (new layout — hallmark-as-tag).
-  local -r z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
-  local -r z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
+  # Construct image refs matching compose/vouch-gate format (hallmark-as-tag),
+  # rooted in the local kludge namespace — kludge output never carries the
+  # RBRD-derived GAR coordinates, so a depot-free clone can kludge.
+  local -r z_image_ref="${RBGC_KLUDGE_REGISTRY_ROOT}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
+  local -r z_vouch_ref="${RBGC_KLUDGE_REGISTRY_ROOT}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 
   buc_step "Kludge build: ${RBRV_SIGIL}"
   buc_info "Hallmark: ${z_hallmark}"
@@ -226,7 +230,7 @@ rbfk_kludge() {
   # Persist facts — mirror conjure/bind/graft so downstream consumers (theurge)
   # can build full refs uniformly regardless of mode.
   buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
-  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}"
+  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${RBGC_KLUDGE_REGISTRY_ROOT}"
   buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
   buc_success "Kludge build complete: ${RBRV_SIGIL}"

@@ -174,11 +174,36 @@ zrbob_furnish() {
   zrbrf_kindle
   zrbrw_kindle
   zrbrr_enforce
-  zrbrd_enforce
-  zrbrf_enforce
-  zrbrw_enforce
-  zrbdc_kindle
   zrbgc_kindle
+
+  # Differential cloud-identity enforce (RBRD/RBRF/RBRW): the local-only
+  # verbs never read these regimes — kludge is uncredentialed by charter,
+  # and quench/exec/observe touch only kindled container names. Charge reads
+  # them exactly when a consumed hallmark is ordained (GAR image refs plus
+  # the retriever-mantle auto-summon), so the gate keys on hallmark kind —
+  # kindles above stay unconditional, so every module is fully kindled and
+  # the skipped regimes remain enrolled, locked, inert strings. Strict
+  # validation lives in rbw-rdv/rfv/rwv (rbrd/rbrf/rbrw CLIs).
+  case "${z_command}" in
+    rbob_charge)
+      local z_ordained=0
+      if test -n "${RBRN_SENTRY_HALLMARK}" && ! zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
+        z_ordained=1
+      fi
+      if test -n "${RBRN_BOTTLE_HALLMARK}" && ! zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
+        z_ordained=1
+      fi
+      if test "${z_ordained}" = "1"; then
+        zrbrd_enforce
+        zrbrf_enforce
+        zrbrw_enforce
+      fi
+      ;;
+    *)
+      ;;
+  esac
+
+  zrbdc_kindle
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle

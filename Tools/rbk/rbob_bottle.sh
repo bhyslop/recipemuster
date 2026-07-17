@@ -130,28 +130,40 @@ zrbob_kindle() {
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBCC_rbrr_file}"
-  readonly ZRBOB_ENV_RBRD="${RBCC_rbrd_file}"
   readonly ZRBOB_ENV_RBJE="${RBCC_KIT_DIR}/rbje_compose_probe.env"
   readonly ZRBOB_ENV_RBRN="${RBCC_moorings_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
-  # RBDC env file — RBDC_* are bash-kindle constants invisible to compose
-  # without an env-file bridge. Write the subset compose interpolates into
-  # a temp file and feed it via --env-file.
-  local z_rbdc_env="${BURD_TEMP_DIR}/rbob_rbdc_compose.env"
-  printf 'RBDC_DEPOT_PROJECT_ID=%s\nRBDC_GAR_REPOSITORY=%s\n' \
-    "${RBDC_DEPOT_PROJECT_ID}" "${RBDC_GAR_REPOSITORY}" > "${z_rbdc_env}" \
-    || buc_die "Failed to write RBDC compose env file: ${z_rbdc_env}"
-  readonly ZRBOB_ENV_RBDC="${z_rbdc_env}"
-
-
-  # GAR image references (computed once, used by preflight and auto-summon)
+  # Per-vessel image refs (computed once; used by compose via the env-file
+  # bridge below, by charge preflight, and by auto-summon). A kludge hallmark
+  # lives in the local kludge namespace — no depot identity in its ref —
+  # while an ordained hallmark resolves into the depot's GAR repository. The
+  # GAR base composes from RBRD-derived strings that may be unenforced here;
+  # it is consumed only when a hallmark is ordained, which is exactly when
+  # the furnish gate has enforced RBRD (rbob_cli differential enforce).
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
-  readonly ZRBOB_SENTRY_IMAGE="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_SENTRY_HALLMARK}"
-  readonly ZRBOB_BOTTLE_IMAGE="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_BOTTLE_HALLMARK}"
+  local z_sentry_base="${z_gar_base}"
+  if zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
+    z_sentry_base="${RBGC_KLUDGE_REGISTRY_ROOT}"
+  fi
+  local z_bottle_base="${z_gar_base}"
+  if zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
+    z_bottle_base="${RBGC_KLUDGE_REGISTRY_ROOT}"
+  fi
+  readonly ZRBOB_SENTRY_IMAGE="${z_sentry_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_SENTRY_HALLMARK}"
+  readonly ZRBOB_BOTTLE_IMAGE="${z_bottle_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_BOTTLE_HALLMARK}"
 
-  # GAR vouch references (local presence verified on every start)
-  readonly ZRBOB_SENTRY_VOUCH="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_SENTRY_HALLMARK}"
-  readonly ZRBOB_BOTTLE_VOUCH="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_BOTTLE_HALLMARK}"
+  # Vouch references (local presence verified on every start)
+  readonly ZRBOB_SENTRY_VOUCH="${z_sentry_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_SENTRY_HALLMARK}"
+  readonly ZRBOB_BOTTLE_VOUCH="${z_bottle_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_BOTTLE_HALLMARK}"
+
+  # Image-ref env file — the refs above are bash-kindle constants invisible
+  # to compose without an env-file bridge. Write the two compose interpolates
+  # into a temp file and feed it via --env-file.
+  local z_images_env="${BURD_TEMP_DIR}/rbob_images_compose.env"
+  printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\n' \
+    "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" > "${z_images_env}" \
+    || buc_die "Failed to write image-ref compose env file: ${z_images_env}"
+  readonly ZRBOB_ENV_IMAGES="${z_images_env}"
 
   # Export RBRN/RBRR vars for compose environment: bare name forwarding.
   # Compose --env-file populates the compose environment for both YAML interpolation
@@ -221,12 +233,9 @@ zrbob_compose() {
   local z_native_rbrr=""
   z_native_rbrr=$(buc_native_path_capture "${ZRBOB_ENV_RBRR}") \
     || buc_die "Cannot normalize compose --env-file (RBRR): ${ZRBOB_ENV_RBRR}"
-  local z_native_rbrd=""
-  z_native_rbrd=$(buc_native_path_capture "${ZRBOB_ENV_RBRD}") \
-    || buc_die "Cannot normalize compose --env-file (RBRD): ${ZRBOB_ENV_RBRD}"
-  local z_native_rbdc=""
-  z_native_rbdc=$(buc_native_path_capture "${ZRBOB_ENV_RBDC}") \
-    || buc_die "Cannot normalize compose --env-file (RBDC): ${ZRBOB_ENV_RBDC}"
+  local z_native_images=""
+  z_native_images=$(buc_native_path_capture "${ZRBOB_ENV_IMAGES}") \
+    || buc_die "Cannot normalize compose --env-file (images): ${ZRBOB_ENV_IMAGES}"
   local z_native_rbje=""
   z_native_rbje=$(buc_native_path_capture "${ZRBOB_ENV_RBJE}") \
     || buc_die "Cannot normalize compose --env-file (RBJE): ${ZRBOB_ENV_RBJE}"
@@ -247,8 +256,7 @@ zrbob_compose() {
   # --env-file paths resolve against CWD (repo root) and are unaffected.
   z_args+=("--project-directory" "${z_native_projdir}")
   z_args+=("--env-file" "${z_native_rbrr}")
-  z_args+=("--env-file" "${z_native_rbrd}")
-  z_args+=("--env-file" "${z_native_rbdc}")
+  z_args+=("--env-file" "${z_native_images}")
   z_args+=("--env-file" "${z_native_rbje}")
   z_args+=("--env-file" "${z_native_rbrn}")
   z_args+=("-f" "${z_native_base}")
