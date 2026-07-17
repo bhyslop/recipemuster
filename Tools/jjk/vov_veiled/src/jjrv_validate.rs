@@ -7,7 +7,7 @@
 //! Validates Gallops JSON structure against schema rules.
 
 use std::collections::HashSet;
-use crate::jjrf_favor::{JJRF_CHARSET, JJRF_FIREMARK_LEN, JJRF_PACE_INDEX_LEN, JJRF_CORONET_LEN, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
+use crate::jjrf_favor::{JJRF_CHARSET, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX};
 use crate::jjrt_types::*;
 
 /// Check if string contains only URL-safe base64 characters
@@ -87,11 +87,40 @@ pub fn jjrg_validate(gallops: &jjrg_Gallops) -> Result<(), Vec<String>> {
         ));
     }
 
+    // Rule 1b: next_pace_seed — the single global pace-mint seed (JJS0
+    // jjdgm_pace_seed) — must be 5 URL-safe base64 characters.
+    if gallops.next_pace_seed.len() != JJRF_CORONET_LEN {
+        errors.push(format!(
+            "next_pace_seed must be {} characters, got {}",
+            JJRF_CORONET_LEN, gallops.next_pace_seed.len()
+        ));
+    } else if !zjjrg_is_base64(&gallops.next_pace_seed) {
+        errors.push(format!(
+            "next_pace_seed contains invalid base64 characters: '{}'",
+            gallops.next_pace_seed
+        ));
+    }
+
     // Rule 2: heats object exists (implicitly satisfied by struct)
 
     // Validate each Heat
     for (heat_key, heat) in &gallops.heats {
         zjjrg_validate_heat(heat_key, heat, &mut errors);
+    }
+
+    // Cross-heat Coronet uniqueness (JJS0 jjdt_coronet): a Coronet is a flat
+    // global id and appears in exactly one heat's paces — the immutable-id
+    // invariant that replaces the retired heat-embedding rule.
+    let mut seen: HashSet<&String> = HashSet::new();
+    for heat in gallops.heats.values() {
+        for pace_key in heat.paces.keys() {
+            if !seen.insert(pace_key) {
+                errors.push(format!(
+                    "Coronet '{}' appears in more than one heat (cross-heat uniqueness)",
+                    pace_key
+                ));
+            }
+        }
     }
 
     if errors.is_empty() {
@@ -143,28 +172,6 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
 
     // status (validated by serde enum)
 
-    // next_pace_seed (3 URL-safe base64 characters)
-    if heat.next_pace_seed.len() != JJRF_PACE_INDEX_LEN {
-        errors.push(format!(
-            "{}: next_pace_seed must be {} characters, got {}",
-            heat_ctx,
-            JJRF_PACE_INDEX_LEN,
-            heat.next_pace_seed.len()
-        ));
-    } else if !zjjrg_is_base64(&heat.next_pace_seed) {
-        errors.push(format!(
-            "{}: next_pace_seed contains invalid base64 characters",
-            heat_ctx
-        ));
-    }
-
-    // Extract heat identity (base64 part without prefix) for pace validation
-    let heat_identity = if heat_key.starts_with('₣') && heat_key.len() >= JJRF_FIREMARK_PREFIX.len_utf8() + JJRF_FIREMARK_LEN {
-        Some(&heat_key[JJRF_FIREMARK_PREFIX.len_utf8()..])
-    } else {
-        None
-    };
-
     // Rule 5: order array and paces object must have identical key sets
     let order_set: HashSet<&String> = heat.order.iter().collect();
     let _paces_set: HashSet<&String> = heat.paces.keys().collect();
@@ -199,20 +206,22 @@ fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String
 
     // Validate each Pace
     for (pace_key, pace) in &heat.paces {
-        zjjrg_validate_pace(&heat_ctx, heat_identity, pace_key, pace, errors);
+        zjjrg_validate_pace(&heat_ctx, pace_key, pace, errors);
     }
 }
 
 fn zjjrg_validate_pace(
     heat_ctx: &str,
-    heat_identity: Option<&str>,
     pace_key: &str,
     pace: &jjrg_Pace,
     errors: &mut Vec<String>,
 ) {
     let pace_ctx = format!("{} Pace '{}'", heat_ctx, pace_key);
 
-    // Rule 6: Pace key must match ₢[A-Za-z0-9_-]{5}
+    // Rule 6: Pace key must match ₢[A-Za-z0-9_-]{5}. A Coronet is a flat global
+    // index and carries no parent-heat identity (JJS0 jjdt_coronet) — the retired
+    // heat-embedding check is gone; cross-heat uniqueness is enforced in
+    // jjrg_validate.
     if !pace_key.starts_with('₢') {
         errors.push(format!("{}: key must start with '₢'", pace_ctx));
     } else {
@@ -224,24 +233,11 @@ fn zjjrg_validate_pace(
                 JJRF_CORONET_LEN,
                 suffix.len()
             ));
-        } else {
-            if !zjjrg_is_base64(suffix) {
-                errors.push(format!(
-                    "{}: key contains invalid base64 characters",
-                    pace_ctx
-                ));
-            }
-            // Pace must embed parent Heat identity (first 2 chars)
-            if let Some(heat_id) = heat_identity {
-                if !suffix.starts_with(heat_id) {
-                    errors.push(format!(
-                        "{}: key must embed parent heat identity '{}', got '{}'",
-                        pace_ctx,
-                        heat_id,
-                        &suffix[..JJRF_FIREMARK_LEN.min(suffix.len())]
-                    ));
-                }
-            }
+        } else if !zjjrg_is_base64(suffix) {
+            errors.push(format!(
+                "{}: key contains invalid base64 characters",
+                pace_ctx
+            ));
         }
     }
 

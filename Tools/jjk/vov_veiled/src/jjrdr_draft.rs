@@ -70,6 +70,12 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
 
     let coronet = args.coronet.clone();
     let to = args.to.clone();
+    // Source firemark for the source paddock path — captured BEFORE the draft,
+    // since post-move the pace lives in the destination (JJS0 jjdt_coronet: the
+    // source is found by paces-scan, not inferred from the flat id).
+    let src_fm = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&coronet).ok()
+        .and_then(|c| gallops.jjrg_heat_key_of_coronet(&c.jjrf_display()))
+        .and_then(|k| jjrf_Firemark::jjrf_parse(&k).ok());
     let draft_args = jjrg_DraftArgs {
         coronet: args.coronet,
         to: args.to,
@@ -87,10 +93,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
             }
 
             // Commit using machine_commit - draft affects source and dest paddocks
-            // Parse both firemarks to get paddock paths
-            let src_coronet = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&coronet)
-                .expect("draft given invalid source coronet");
-            let src_fm = src_coronet.jjrf_parent_firemark();
+            let src_fm = src_fm.expect("draft succeeded, so its source heat was found");
             let dest_fm = jjrf_Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
 
             let gallops_path = args.file.to_string_lossy().to_string();

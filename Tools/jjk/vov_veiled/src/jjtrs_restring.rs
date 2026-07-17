@@ -12,6 +12,10 @@ use std::collections::BTreeMap;
 fn make_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        // Global pace-mint seed (JJS0 jjdgm_pace_seed) — the canonical fresh-gallops
+        // floor. Restring never mints, so its value is inert to these tests; it is
+        // present because a valid gallops always carries it.
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -31,8 +35,6 @@ fn make_valid_tack(state: jjrg_PaceState, silks: &str) -> jjrg_Tack {
 }
 
 fn make_heat_with_paces(heat_id: &str, silks: &str, pace_count: usize) -> (String, jjrg_Heat) {
-    use std::collections::BTreeMap;
-
     let heat_key = format!("₣{}", heat_id);
     let mut paces = BTreeMap::new();
     let mut order = Vec::new();
@@ -51,14 +53,11 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_count: usize) -> (Strin
         paces.insert(pace_key, pace);
     }
 
-    let next_pace_suffix = format!("AA{}", (b'A' + pace_count as u8) as char);
-
     let heat = jjrg_Heat {
         silks: silks.to_string(),
         creation_time: "260101".to_string(),
         status: jjrg_HeatStatus::Racing,
         order,
-        next_pace_seed: next_pace_suffix,
         paces,
     };
 
@@ -150,7 +149,7 @@ fn jjtrs_restring_coronet_not_in_source_heat() {
     let args = jjrg_RestringArgs {
         source_firemark: "AB".to_string(),
         dest_firemark: "AC".to_string(),
-        coronets: vec!["₢ABXXX".to_string()],  // Doesn't exist
+        coronets: vec!["₢ABXXX".to_string()],  // Well-formed but nonexistent
     };
 
     let result = jjrg_restring(&mut gallops, args);
@@ -159,23 +158,27 @@ fn jjtrs_restring_coronet_not_in_source_heat() {
 }
 
 #[test]
-fn jjtrs_restring_coronet_wrong_heat_identity() {
+fn jjtrs_restring_coronet_in_dest_not_source() {
     let mut gallops = make_valid_gallops();
     let (source_key, source_heat) = make_heat_with_paces("AB", "source-heat", 2);
-    let (dest_key, dest_heat) = make_heat_with_paces("AC", "dest-heat", 0);
+    let (dest_key, dest_heat) = make_heat_with_paces("AC", "dest-heat", 1);
     gallops.heats.insert(source_key, source_heat);
     gallops.heats.insert(dest_key, dest_heat);
 
+    // A Coronet embeds no heat (JJS0 jjdt_coronet), so "wrong heat" is no longer a
+    // decode check — it is source membership. ₢ACAAA is a LIVE coronet, but it lives
+    // in the destination heat, not the source, so restring rejects it as not present
+    // in the source heat.
     let args = jjrg_RestringArgs {
         source_firemark: "AB".to_string(),
         dest_firemark: "AC".to_string(),
-        coronets: vec!["₢ACAAA".to_string()],  // Embeds AC (dest), not AB (source)
+        coronets: vec!["₢ACAAA".to_string()],
     };
 
     let result = jjrg_restring(&mut gallops, args);
     assert!(result.is_err());
     let err_msg = result.unwrap_err();
-    assert!(err_msg.contains("does not belong to source heat"), "Expected error about heat identity, got: {}", err_msg);
+    assert!(err_msg.contains("not found in heat"), "Expected source-membership error, got: {}", err_msg);
 }
 
 #[test]
@@ -239,9 +242,12 @@ fn jjtrs_restring_single_pace_success() {
     assert_eq!(dest_heat.paces.len(), 2);
     assert_eq!(dest_heat.order.len(), 2);
 
-    // Verify new coronet embeds dest heat identity
+    // Re-affiliation without re-keying (JJS0 jjdt_coronet): the immutable coronet is
+    // unchanged — the pace moved into the destination heat under its SAME key, not a
+    // freshly minted dest-embedded one.
     let new_coronet = &result.drafted[0].new_coronet;
-    assert!(new_coronet.starts_with("₢AC"));
+    assert_eq!(new_coronet, &pace_to_move);
+    assert!(dest_heat.paces.contains_key(new_coronet));
 }
 
 #[test]
@@ -270,14 +276,18 @@ fn jjtrs_restring_multiple_paces_preserves_order() {
     let result = result.unwrap();
     assert_eq!(result.drafted.len(), 3);
 
-    // Verify order is preserved in dest heat
+    // Immutable coronets, in transfer order (JJS0 jjdt_coronet): the dest order holds
+    // the SAME keys, re-affiliated not re-keyed.
     let dest_heat = gallops.heats.get(&dest_key).unwrap();
-    assert_eq!(dest_heat.order.len(), 3);
+    assert_eq!(dest_heat.order, vec![pace1.clone(), pace2.clone(), pace4.clone()]);
 
-    // The new coronets should be in the same order as the input
+    // The mappings carry the same immutable coronet on both sides, in input order.
     assert_eq!(result.drafted[0].old_coronet, pace1);
     assert_eq!(result.drafted[1].old_coronet, pace2);
     assert_eq!(result.drafted[2].old_coronet, pace4);
+    assert_eq!(result.drafted[0].new_coronet, pace1);
+    assert_eq!(result.drafted[1].new_coronet, pace2);
+    assert_eq!(result.drafted[2].new_coronet, pace4);
 
     // Source should have 2 remaining paces
     let source_heat = gallops.heats.get(&source_key).unwrap();
@@ -370,12 +380,13 @@ fn jjtrs_restring_preserves_pace_state() {
     let result = result.unwrap();
     assert_eq!(result.drafted[0].state, jjrg_PaceState::Complete);
 
-    // Verify the transferred pace retains its state.
+    // Verify the transferred pace retains its state — a resolved (non-bridled) pace
+    // is carried verbatim, so the bridle→rough revert does not touch it.
     let dest_heat = gallops.heats.get(&dest_key).unwrap();
     let new_coronet = &result.drafted[0].new_coronet;
     let transferred_pace = dest_heat.paces.get(new_coronet).unwrap();
 
-    // The single draft tack inherits the source pace's state
+    // The single current tack inherits the source pace's state
     // (tack history lives in git, not in the JSON).
     assert_eq!(transferred_pace.tacks.len(), 1);
     let draft_tack = &transferred_pace.tacks[0];
@@ -383,7 +394,7 @@ fn jjtrs_restring_preserves_pace_state() {
 }
 
 #[test]
-fn jjtrs_restring_creates_draft_note_tack() {
+fn jjtrs_restring_carries_tack_verbatim() {
     let mut gallops = make_valid_gallops();
     let (source_key, source_heat) = make_heat_with_paces("AB", "source-heat", 1);
     let (dest_key, dest_heat) = make_heat_with_paces("AC", "dest-heat", 0);
@@ -404,35 +415,33 @@ fn jjtrs_restring_creates_draft_note_tack() {
 
     let result = result.unwrap();
 
-    // Check that draft note was created
+    // Re-affiliation moves a non-bridled pace under its SAME immutable coronet (JJS0
+    // jjdt_coronet) and carries the tack data verbatim — the draft is a move, not a
+    // re-tacking. There is no "Drafted from" note: tack history lives in git, and the
+    // store holds only the single current tack.
     let dest_heat = gallops.heats.get(&dest_key).unwrap();
-    let new_coronet = &result.drafted[0].new_coronet;
-    let transferred_pace = dest_heat.paces.get(new_coronet).unwrap();
-
-    // Should have 1 tack: the draft note (tack history lives in git)
-    assert_eq!(transferred_pace.tacks.len(), 1);
-
-    // The single tack should contain the draft note
-    let draft_tack = &transferred_pace.tacks[0];
-    let draft_text = jjrg_lines_to_text(&draft_tack.text);
-    assert!(draft_text.contains("Drafted from"));
-    assert!(draft_text.contains(&pace_key));
-    assert!(draft_text.contains("₣AB"));
+    let moved = dest_heat.paces.get(&pace_key).unwrap();
+    assert_eq!(result.drafted[0].new_coronet, pace_key);
+    assert_eq!(moved.tacks.len(), 1);
+    let tack = &moved.tacks[0];
+    assert_eq!(jjrg_lines_to_text(&tack.text), "Test tack text");
+    assert_eq!(tack.silks, "pace-1");
+    assert_eq!(tack.state, jjrg_PaceState::Rough);
 }
 
 #[test]
-fn jjtrs_restring_increments_dest_pace_seed() {
+fn jjtrs_restring_leaves_global_seed_unchanged() {
     let mut gallops = make_valid_gallops();
+    let seed_before = gallops.next_pace_seed.clone();
+
     let (source_key, source_heat) = make_heat_with_paces("AB", "source-heat", 2);
     let (dest_key, dest_heat) = make_heat_with_paces("AC", "dest-heat", 1);
-
-    let original_dest_seed = dest_heat.next_pace_seed.clone();
 
     let pace1 = source_heat.order[0].clone();
     let pace2 = source_heat.order[1].clone();
 
     gallops.heats.insert(source_key, source_heat);
-    gallops.heats.insert(dest_key.clone(), dest_heat);
+    gallops.heats.insert(dest_key, dest_heat);
 
     let args = jjrg_RestringArgs {
         source_firemark: "AB".to_string(),
@@ -443,10 +452,10 @@ fn jjtrs_restring_increments_dest_pace_seed() {
     let result = jjrg_restring(&mut gallops, args);
     assert!(result.is_ok());
 
-    // Dest heat started with seed AAB (1 existing pace), should now be AAD (added 2)
-    let dest_heat = gallops.heats.get(&dest_key).unwrap();
-    assert_eq!(original_dest_seed, "AAB");
-    assert_eq!(dest_heat.next_pace_seed, "AAD");
+    // Restring re-affiliates under the same immutable coronets (JJS0 jjdt_coronet):
+    // it moves, never mints. The global pace seed is the mint cursor — a move must
+    // not advance it, or the id space would leak on every transfer.
+    assert_eq!(gallops.next_pace_seed, seed_before);
 }
 
 #[test]

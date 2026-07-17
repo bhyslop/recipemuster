@@ -184,7 +184,7 @@ Commit hash displays "(no commit)" for placeholder value `0000000`.
 . Resolve the target set from the
 {jjezs_halter}
 notices in `gazette_in.md` — at least one required, each lede a firemark or coronet; error on an absent gazette or a rejected `targets`/`firemark` parameter
-. For each resolved target, detect type by length (strip prefix if present):
+. For each resolved target, detect type per {jjdz_encoding} (glyph and qualifier stripped, then by length):
 .. 2 chars → heat view
 .. 5 chars → pace view
 .. Otherwise: error "target must be Firemark (2 chars) or Coronet (5 chars)"

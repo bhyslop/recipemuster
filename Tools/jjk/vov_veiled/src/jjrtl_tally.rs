@@ -141,7 +141,15 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs) -> (i32, String) {
     let coronet_str = args.coronet.clone();
     let new_silks = args.silks.clone();
     let fm = match jjrf_Coronet::jjrf_parse(&coronet_str) {
-        Ok(c) => c.jjrf_parent_firemark(),
+        Ok(c) => match gallops.jjrg_heat_key_of_coronet(&c.jjrf_display())
+            .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
+        {
+            Some(fm) => fm,
+            None => {
+                vvco_err!(output, "{}: error: Pace '{}' not found", cn, c.jjrf_display());
+                return (1, output.vvco_finish());
+            }
+        },
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
             return (1, output.vvco_finish());
@@ -219,7 +227,15 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs) -> (i32, String) {
     let coronet_str = args.coronet.clone();
     let (fm, silks, prior_state, coronet_display) = match jjrf_Coronet::jjrf_parse(&coronet_str) {
         Ok(c) => {
-            let parent_fm = c.jjrf_parent_firemark();
+            let parent_fm = match gallops.jjrg_heat_key_of_coronet(&c.jjrf_display())
+                .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
+            {
+                Some(fm) => fm,
+                None => {
+                    vvco_err!(output, "{}: error: Pace '{}' not found", cn, c.jjrf_display());
+                    return (1, output.vvco_finish());
+                }
+            };
             let prior_tack = gallops.heats.get(&parent_fm.jjrf_display())
                 .and_then(|h| h.paces.get(&c.jjrf_display()))
                 .and_then(|p| p.tacks.first());

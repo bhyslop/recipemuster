@@ -316,14 +316,9 @@ pub enum jjrds_Target {
 /// or ₣ sigil strips, and a qualified form's interpunct-separated tail resolves
 /// (the heat qualifier is emission-only and ignored on ingest).
 pub fn jjrds_type_target(raw: &str) -> Result<jjrds_Target, jjrds_Rejection> {
-    let stripped = raw
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX);
-    let body = match stripped.rsplit_once('·') {
-        Some((_, tail)) => tail,
-        None => stripped,
-    };
+    // jjrf_bare is the single ingest-normalization home (JJS0 jjdz_encoding): it
+    // strips the ₢/₣ glyph and any `·` heat-qualifier down to the bare body.
+    let body = crate::jjrf_favor::jjrf_bare(raw.trim());
     match body.chars().count() {
         n if n == crate::jjrf_favor::JJRF_FIREMARK_LEN => Ok(jjrds_Target::Firemark(body.to_string())),
         n if n == crate::jjrf_favor::JJRF_CORONET_LEN => Ok(jjrds_Target::Coronet(body.to_string())),

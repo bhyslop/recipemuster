@@ -11,7 +11,7 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark;
 use crate::jjrf_favor::jjrf_Coronet;
-use crate::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_bare, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
     jjrg_Gallops as Gallops,
     jjrg_HeatStatus as HeatStatus,
@@ -140,11 +140,10 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
 
     let firemark_str = args.firemark;
 
-    // Detect if input is a coronet (5 chars) or firemark (2 chars)
-    // Strip any prefix first: ₣ (U+20A3) or ₢ (U+20A2)
-    let stripped_input = firemark_str
-        .trim_start_matches('₣')
-        .trim_start_matches('₢');
+    // Detect if input is a coronet (5 chars) or firemark (2 chars). jjrf_bare
+    // strips the ₣/₢ glyph and any `·` heat-qualifier to the bare body, so a
+    // pasted qualified coronet (₢Bc·CAAAB) types by its 5-char tail.
+    let stripped_input = jjrf_bare(&firemark_str);
 
     let target_coronet = if stripped_input.len() == JJRF_CORONET_LEN {
         // It's a coronet - parse to get parent firemark
@@ -164,9 +163,18 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
         return (1, output.vvco_finish());
     };
 
-    // Extract firemark (either directly provided or from coronet parent)
+    // Extract firemark: for a coronet, resolve the harbouring heat by paces-scan
+    // (JJS0 jjdt_coronet Resolution); for a firemark, use it directly.
     let firemark = if let Some(ref coronet) = target_coronet {
-        coronet.jjrf_parent_firemark()
+        match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
+            .and_then(|k| jjrf_Firemark::jjrf_parse(&k).ok())
+        {
+            Some(fm) => fm,
+            None => {
+                vvco_err!(output, "{}: error: Pace '{}' not found", cn, coronet.jjrf_display());
+                return (1, output.vvco_finish());
+            }
+        }
     } else {
         match jjrf_Firemark::jjrf_parse(&firemark_str) {
             Ok(fm) => fm,
@@ -292,7 +300,8 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
     if let Some(coronet) = pace_coronet {
         if let Some(silks) = pace_silks {
             if let Some(state) = pace_state {
-                vvco_out!(output, "Next: {} ({}) [{}]", silks, coronet, state);
+                let next_display = gallops.jjrg_qualify_coronet(&coronet);
+                vvco_out!(output, "Next: {} ({}) [{}]", silks, next_display, state);
                 vvco_out!(output, "");
                 if let Some(spec_text) = spec {
                     vvco_out!(output, "Docket:");

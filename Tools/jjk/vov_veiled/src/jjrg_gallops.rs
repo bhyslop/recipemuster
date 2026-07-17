@@ -111,6 +111,39 @@ impl jjrg_Gallops {
 
     // -- Spec-governed primitives (Operation Taxonomy in JJS0) --
 
+    /// Resolve a Coronet (display-form key, `₢`-prefixed) to the Firemark key of
+    /// the Heat that harbours it — the paces-scan the flat-id model requires
+    /// (JJS0 jjdt_coronet Resolution). A Coronet embeds no affiliation, so lookup
+    /// scans heats' paces rather than inferring a heat from the identity;
+    /// cross-heat uniqueness makes the hit unambiguous.
+    pub fn jjrg_heat_key_of_coronet(&self, coronet_key: &str) -> Option<String> {
+        self.heats.iter()
+            .find(|(_, heat)| heat.paces.contains_key(coronet_key))
+            .map(|(fm, _)| fm.clone())
+    }
+
+    /// Render a Coronet in its heat-qualified emission form (JJS0 jjdt_coronet
+    /// "Display and ingest"): `₢` + the live heat Firemark characters + the
+    /// interpunct `·` + the 5-character body, e.g. `₢Bc·CAAAB`. The qualifier is
+    /// read from LIVE affiliation here, so a later relocate changes tomorrow's
+    /// rendering, never the identity — the one emission helper the listing and
+    /// emblem surfaces route through. Fail-soft: a Coronet no heat harbours (or a
+    /// malformed key) renders bare `₢CAAAB`, so a display path never fabricates an
+    /// affiliation it cannot prove. Accepts stored, bare, or already-qualified
+    /// input — it is normalized to the bare body first.
+    pub fn jjrg_qualify_coronet(&self, coronet: &str) -> String {
+        use crate::jjrf_favor::{jjrf_bare, JJRF_CORONET_PREFIX, JJRF_CORONET_QUALIFIER};
+        let body = jjrf_bare(coronet);
+        let display_key = format!("{}{}", JJRF_CORONET_PREFIX, body);
+        match self.jjrg_heat_key_of_coronet(&display_key) {
+            Some(heat_key) => format!(
+                "{}{}{}{}",
+                JJRF_CORONET_PREFIX, jjrf_bare(&heat_key), JJRF_CORONET_QUALIFIER, body
+            ),
+            None => display_key,
+        }
+    }
+
     /// Resolve Pace — shared read primitive
     ///
     /// Navigate Gallops from a coronet to the target pace and its current tack state.
@@ -121,8 +154,10 @@ impl jjrg_Gallops {
         let parsed = jjrf_Coronet::jjrf_parse(coronet)
             .map_err(|e| format!("Invalid coronet: {}", e))?;
         let coronet_key = parsed.jjrf_display();
-        let firemark = parsed.jjrf_parent_firemark();
-        let firemark_key = firemark.jjrf_display();
+        // Resolve the harbouring heat by paces-scan — a Coronet embeds no
+        // affiliation (JJS0 jjdt_coronet Resolution).
+        let firemark_key = self.jjrg_heat_key_of_coronet(&coronet_key)
+            .ok_or_else(|| format!("Pace '{}' not found", coronet_key))?;
 
         let heat = self.heats.get(&firemark_key)
             .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
@@ -295,13 +330,13 @@ mod tests {
             creation_time: "260318".to_string(),
             status: jjrg_HeatStatus::Racing,
             order: vec![coronet_key],
-            next_pace_seed: "AAB".to_string(),
             paces,
         };
         let mut heats = BTreeMap::new();
         heats.insert(firemark_key.clone(), heat);
         jjrg_Gallops {
             next_heat_seed: "AB".to_string(),
+            next_pace_seed: "CAAAA".to_string(),
             heat_order: vec![firemark_key],
             heats,
             retention_since: None,

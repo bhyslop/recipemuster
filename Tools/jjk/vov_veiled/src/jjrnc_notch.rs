@@ -13,7 +13,7 @@ use std::collections::HashSet;
 
 use vvc::{vvco_err, vvco_Output};
 
-use crate::jjrf_favor::{jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_PREFIX, JJRF_CORONET_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_bare, jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
 
 const JJRNC_CMD_NAME_RECORD: &str = "jjx_record";
@@ -86,8 +86,9 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
         }
     }
 
-    // Parse identity - support both Coronet (5 chars) and Firemark (2 chars)
-    let identity = args.identity.strip_prefix(JJRF_CORONET_PREFIX).or_else(|| args.identity.strip_prefix(JJRF_FIREMARK_PREFIX)).unwrap_or(&args.identity);
+    // Parse identity - support both Coronet (5 chars) and Firemark (2 chars).
+    // jjrf_bare drops the glyph and any `·` heat-qualifier to the bare body.
+    let identity = jjrf_bare(&args.identity);
 
     let message = if identity.len() == JJRF_CORONET_LEN {
         // Coronet - pace-affiliated commit

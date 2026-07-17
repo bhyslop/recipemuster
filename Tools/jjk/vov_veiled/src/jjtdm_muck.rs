@@ -111,10 +111,9 @@ fn zjjtdm_gallops() -> jjrg_Gallops {
         creation_time: "260712".to_string(),
         status: jjrg_HeatStatus::Racing,
         order: vec!["₢AAAAC".to_string(), "₢AAAAA".to_string(), "₢AAAAD".to_string(), "₢AAAAE".to_string()],
-        next_pace_seed: "AAF".to_string(),
         paces,
     });
-    jjrg_Gallops { next_heat_seed: "AB".to_string(), heat_order: vec!["₣AA".to_string()], heats, retention_since: None }
+    jjrg_Gallops { next_heat_seed: "AB".to_string(), next_pace_seed: "CAAAA".to_string(), heat_order: vec!["₣AA".to_string()], heats, retention_since: None }
 }
 
 /// The combined fixture: an infield holding a hippodrome (its own bare

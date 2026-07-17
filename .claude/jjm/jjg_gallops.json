@@ -4,12 +4,11 @@
     "₣B4",
     "₣B0",
     "₣Bs",
-    "₣Bg",
     "₣Bc",
     "₣Bd",
+    "₣Bg",
     "₣B1",
     "₣Bz",
-    "₣By",
     "₣Bw",
     "₣Bv",
     "₣Bu",
@@ -32,7 +31,8 @@
     "₣BL",
     "₣Ba",
     "₣B2",
-    "₣B3"
+    "₣B3",
+    "₣B4"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -5737,8 +5737,8 @@
         "₢BcAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0754",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1845",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -5746,6 +5746,12 @@
                 "Relocated (260708) from the studbook–farrier heat (₣Br), which does not depend on it:",
                 "its billet layer needs only the git-ref- and dirname-safe id shape, which grandfathering preserves,",
                 "and its scratch rehearsal exercises no transfer or restring.",
+                "",
+                "## Session findings",
+                "Slated across a station→cerebro transfer (260715): the code map, the reprieve-episode plan, and a",
+                "delivery-sequencing hazard are banked as provisional provenance in",
+                "`Memos/memo-20260715-pace-identity-regestalt-transfer.md` — verify against the live tree at mount;",
+                "the docket and the JJS* specs are the authority, the memo is not.",
                 "",
                 "## Goal",
                 "Pace identities become immutable for life:",
@@ -5778,8 +5784,13 @@
                 "  a token containing the interpunct is a qualified coronet — the five-character tail resolves, qualifier ignored;",
                 "  otherwise type by length exactly as today (2 firemark, 5 coronet);",
                 "  the %-sentinel pensum untouched.",
-                "These settlements close the JJSAS wire-vs-display open fork:",
-                "bank them into the sheaf as part of this pace, durable-first — the sheaf commits before any provenance trims;",
+                "Spec scope (operator ruling 260715, supersedes the docket's original bank-into-JSSAS-only framing):",
+                "infuse the re-gestalt into normative JJS0 as the settlements' durable home —",
+                "the coronet quoin, its Types-table row, the encode/decode algorithm, the halter rule,",
+                "and the pace-seed member relocated from heat to gallops —",
+                "drain the JJSAS \"Pace identity re-gestalt\" section to a pointer and close its wire-vs-display open fork,",
+                "and sweep every other affected JJS*.adoc so the whole binding codex reads truthfully about immutable-for-life ids.",
+                "Durable-first: the specs commit before the code and before any provenance trims;",
                 "the founding-value ruling banks with them.",
                 "The revision-insignia sub-mint (catchword/varvel) does NOT travel — it stays ₣Br design context;",
                 "it shared only the design pace, not this surface.",
@@ -5797,12 +5808,12 @@
                 "Pace identities are immutable for life, minted atomically under the store lock from the global seed;",
                 "restring and transfer re-affiliate without re-keying;",
                 "display renders heat-qualified with the interpunct and ingest tolerates emitted forms per the cinches above;",
-                "the JJSAS open fork is banked closed;",
+                "the coronet re-gestalt is infused into JJS0 and every affected JJS* sheaf reads truthfully (the JJSAS open fork drained closed);",
                 "a reprieve episode is registered and older on-disk gallops still read;",
                 "build tt/vow-b, test tt/vow-t green."
               ],
               "jjgtn_silks": "pace-identity-regestalt-impl",
-              "jjgtn_basis": "4b260e1"
+              "jjgtn_basis": "f2e2ac2"
             }
           ]
         }
@@ -5910,9 +5921,9 @@
       }
     },
     "₣Bg": {
-      "jjghn_silks": "jjk-11-aspirant-matricula",
+      "jjghn_silks": "jjk-05-aspirant-matricula",
       "jjghn_creation_time": "260617",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BgAAA",
         "₢BgAAB",
@@ -6074,8 +6085,8 @@
         "₢BgAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2034",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1056",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_xhigh",
               "jjgtn_text": [
@@ -6096,15 +6107,15 @@
                 "Open design questions may remain open — answered inside the future heat's fence, not here."
               ],
               "jjgtn_silks": "bound-the-aspirant-gestalt",
-              "jjgtn_basis": "f866b0e"
+              "jjgtn_basis": "65dd918"
             }
           ]
         },
         "₢BgAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2034",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-0958",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -6126,7 +6137,7 @@
                 "Bank the outcome into VOSMM, whose Deferred Scope already carries a prior cross-kit direction from ₣Br census experience."
               ],
               "jjgtn_silks": "infield-resident-brand-vesture",
-              "jjgtn_basis": "20a48bb"
+              "jjgtn_basis": "146e646"
             }
           ]
         }
@@ -7930,14 +7941,6 @@
     "₣Bw": {
       "jjghn_silks": "jjk-15-aspirant-itch",
       "jjghn_creation_time": "260706",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
-    },
-    "₣By": {
-      "jjghn_silks": "jjk-12-aspirant-grimoire",
-      "jjghn_creation_time": "260707",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",

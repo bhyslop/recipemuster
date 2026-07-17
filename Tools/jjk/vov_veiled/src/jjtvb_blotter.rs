@@ -279,6 +279,7 @@ fn jjtvb_read_reports_absent_content_as_an_ordinary_io_error() {
 fn zjjtvb_valid_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,
@@ -465,6 +466,7 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
 
     let gallops = jjrg_Gallops {
         next_heat_seed: "AA".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order: vec![],
         heats: BTreeMap::new(),
         retention_since: None,

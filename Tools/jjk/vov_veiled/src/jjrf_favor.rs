@@ -48,11 +48,9 @@ pub const JJRF_PENSUM_SENTINEL: char = '%';
 /// Firemark body length — base64 chars after the optional ₣ prefix (heat identity)
 pub const JJRF_FIREMARK_LEN: usize = 2;
 
-/// Pace-index body length — the base64 chars a Coronet carries beyond its parent firemark
-pub const JJRF_PACE_INDEX_LEN: usize = 3;
-
-/// Coronet body length — parent firemark followed by the pace index (structural, not a bare 5)
-pub const JJRF_CORONET_LEN: usize = JJRF_FIREMARK_LEN + JJRF_PACE_INDEX_LEN;
+/// Coronet body length — a flat 5-char global pace index (JJS0 jjdt_coronet:
+/// one flat index, no embedded heat).
+pub const JJRF_CORONET_LEN: usize = 5;
 
 /// Pensum body length — firemark + `%` sentinel + 2-char index (2 + 1 + 2)
 pub const JJRF_PENSUM_LEN: usize = 5;
@@ -60,11 +58,22 @@ pub const JJRF_PENSUM_LEN: usize = 5;
 /// Maximum value for Firemark (RADIX^2 - 1)
 pub const JJRF_FIREMARK_MAX: u16 = (JJRF_RADIX * JJRF_RADIX - 1) as u16;
 
-/// Maximum value for Coronet pace index (RADIX^3 - 1)
-pub const JJRF_CORONET_PACE_MAX: u32 = JJRF_RADIX * JJRF_RADIX * JJRF_RADIX - 1;
+/// Maximum Coronet index (RADIX^5 - 1) — the flat global pace-id space (~1.07B).
+pub const JJRF_CORONET_MAX: u32 = JJRF_RADIX.pow(5) - 1;
 
 /// Maximum value for Pensum index (RADIX^2 - 1)
 pub const JJRF_PENSUM_INDEX_MAX: u32 = JJRF_RADIX * JJRF_RADIX - 1;
+
+/// The heat-qualifier separator in a Coronet's display form (JJS0 jjdt_coronet):
+/// `₢` + current-heat firemark + this interpunct + the 5-char body. Outside the
+/// charset (like the pensum `%` sentinel), so ingest splits it mechanically.
+pub const JJRF_CORONET_QUALIFIER: char = '·';
+
+/// Founding floor for the global pace seed (JJS0 jjdgm_pace_seed): a fresh
+/// gallops starts here, and the reprieve write-forward founds at
+/// max(highest existing index + 1, this). Every grandfathered id leads with A or
+/// B, so this floor makes every seed-minted id lead with C or later.
+pub const JJRF_CORONET_SEED_FLOOR: &str = "CAAAA";
 
 /// Look up the position of a character in the charset
 pub fn zjjrf_char_to_value(c: char) -> Result<u8, String> {
@@ -101,13 +110,34 @@ pub fn jjrf_emblazon_ordinal(sigil: char, ordinal: u64) -> String {
     zjjrf_emblazon(sigil, &ordinal.to_string())
 }
 
+/// Strip an identity token down to its bare encoded body — the single ingest
+/// normalization home (JJS0 jjdz_encoding "Input flexibility"). The leading
+/// `₢`/`₣` sigil and any heat-qualifier are removed, so `₢Bc·CAAAB`, `₢CAAAB`,
+/// and `CAAAB` all yield `CAAAB`, and `₣Bc`/`Bc` yield `Bc`. Because `·` cannot
+/// appear in the charset, the qualifier split is mechanical, exactly
+/// as `%` disambiguates the Pensum. The length-typers (mount, parade, chalk,
+/// notch, the MCP normalize/lede/emblem helpers) and `jjrf_Coronet::jjrf_parse`
+/// cite this so a token typed once, emitted qualified, ingests unchanged.
+/// Returns a borrowed slice of the input.
+pub fn jjrf_bare(token: &str) -> &str {
+    let deglyphed = token
+        .strip_prefix(JJRF_CORONET_PREFIX)
+        .or_else(|| token.strip_prefix(JJRF_FIREMARK_PREFIX))
+        .unwrap_or(token);
+    match deglyphed.rsplit_once(JJRF_CORONET_QUALIFIER) {
+        Some((_, body)) => body,
+        None => deglyphed,
+    }
+}
+
 /// Heat identity - 2 base64 characters encoding 0-4095
 /// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct jjrf_Firemark(String);
 
-/// Pace identity - 5 base64 characters, globally unique
-/// First 2 chars encode parent Heat, last 3 encode pace index (0-262143)
+/// Pace identity - 5 base64 characters, one flat global index (0..=RADIX^5-1).
+/// Immutable for life (JJS0 jjdt_coronet): minted once from the global seed,
+/// carries no parent Heat — resolution scans heats' paces, never infers.
 /// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct jjrf_Coronet(String);
@@ -196,37 +226,38 @@ impl jjrf_Firemark {
 }
 
 impl jjrf_Coronet {
-    /// Encode a Heat identity and pace index as a Coronet
-    pub fn jjrf_encode(heat: &jjrf_Firemark, pace_index: u32) -> Self {
-        debug_assert!(
-            pace_index <= JJRF_CORONET_PACE_MAX,
-            "Coronet pace index {} exceeds max {}",
-            pace_index,
-            JJRF_CORONET_PACE_MAX
-        );
-        let p2 = zjjrf_value_to_char((pace_index / (JJRF_RADIX * JJRF_RADIX)) as u8);
-        let p1 = zjjrf_value_to_char(((pace_index / JJRF_RADIX) % JJRF_RADIX) as u8);
-        let p0 = zjjrf_value_to_char((pace_index % JJRF_RADIX) as u8);
-        jjrf_Coronet(format!("{}{}{}{}", heat.jjrf_as_str(), p2, p1, p0))
+    /// Encode a flat global pace index as a Coronet (JJS0 jjdt_coronet: one flat
+    /// 5-char index, no embedded heat).
+    pub fn jjrf_encode(index: u32) -> Self {
+        debug_assert!(index <= JJRF_CORONET_MAX, "Coronet index {} exceeds max {}", index, JJRF_CORONET_MAX);
+        let mut n = index;
+        let mut buf = [0u8; JJRF_CORONET_LEN];
+        for slot in buf.iter_mut().rev() {
+            *slot = JJRF_CHARSET[(n % JJRF_RADIX) as usize];
+            n /= JJRF_RADIX;
+        }
+        jjrf_Coronet(String::from_utf8(buf.to_vec()).expect("charset bytes are ASCII"))
     }
 
-    /// Decode a Coronet to its parent Heat and pace index
-    pub fn jjrf_decode(&self) -> Result<(jjrf_Firemark, u32), String> {
+    /// Decode a Coronet to its flat global index.
+    pub fn jjrf_decode(&self) -> Result<u32, String> {
         let chars: Vec<char> = self.0.chars().collect();
         if chars.len() != JJRF_CORONET_LEN {
             return Err(format!("Coronet must be {} characters, got {}", JJRF_CORONET_LEN, chars.len()));
         }
-        let heat = jjrf_Firemark(chars[0..JJRF_FIREMARK_LEN].iter().collect());
-        let p2 = zjjrf_char_to_value(chars[2])? as u32;
-        let p1 = zjjrf_char_to_value(chars[3])? as u32;
-        let p0 = zjjrf_char_to_value(chars[4])? as u32;
-        let pace_index = p2 * JJRF_RADIX * JJRF_RADIX + p1 * JJRF_RADIX + p0;
-        Ok((heat, pace_index))
+        let mut value: u32 = 0;
+        for c in chars {
+            value = value * JJRF_RADIX + zjjrf_char_to_value(c)? as u32;
+        }
+        Ok(value)
     }
 
-    /// Parse a Coronet from string input (with or without prefix)
+    /// Parse a Coronet from string input, tolerating every emitted form (JJS0
+    /// jjdz_encoding "Input flexibility"): with or without the `₢` prefix, and
+    /// bare or heat-qualified — `jjrf_bare` strips the glyph and any `·`
+    /// qualifier to the bare 5-character body before validation.
     pub fn jjrf_parse(input: &str) -> Result<Self, String> {
-        let stripped = input.strip_prefix(JJRF_CORONET_PREFIX).unwrap_or(input);
+        let stripped = jjrf_bare(input);
         if stripped.len() != JJRF_CORONET_LEN {
             return Err(format!(
                 "Coronet must be {} base64 characters (with or without {} prefix), got '{}'",
@@ -255,24 +286,18 @@ impl jjrf_Coronet {
         zjjrf_emblazon(self.jjrf_sigil(), self.jjrf_as_str())
     }
 
-    /// Extract the parent Firemark (first 2 base64 chars) — a generative
-    /// derivation: a fresh immutable value, the source untouched.
-    pub fn jjrf_parent_firemark(&self) -> jjrf_Firemark {
-        jjrf_Firemark(self.0[..JJRF_FIREMARK_LEN].to_string())
-    }
-
-    /// Seeded successor — the next Coronet in the same heat (pace index + 1)
-    /// as a fresh immutable value; the source is untouched. `Err` when the pace
-    /// index is saturated (no successor within capacity).
+    /// Seeded successor — the next Coronet in the global index (index + 1) as a
+    /// fresh immutable value; the source is untouched. `Err` when the index is
+    /// saturated (no successor within capacity).
     pub fn jjrf_successor(&self) -> Result<jjrf_Coronet, String> {
-        let (heat, pace_index) = self.jjrf_decode()?;
-        if pace_index >= JJRF_CORONET_PACE_MAX {
+        let index = self.jjrf_decode()?;
+        if index >= JJRF_CORONET_MAX {
             return Err(format!(
-                "Coronet '{}' pace index is at capacity ({}), no successor",
-                self.jjrf_display(), JJRF_CORONET_PACE_MAX
+                "Coronet '{}' index is at capacity ({}), no successor",
+                self.jjrf_display(), JJRF_CORONET_MAX
             ));
         }
-        Ok(jjrf_Coronet::jjrf_encode(&heat, pace_index + 1))
+        Ok(jjrf_Coronet::jjrf_encode(index + 1))
     }
 
     /// Test-only raw wrap — see `jjrf_Firemark::jjrf_from_raw`.

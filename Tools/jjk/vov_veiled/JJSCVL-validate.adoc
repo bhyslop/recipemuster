@@ -45,6 +45,9 @@ Re-running after a normalize yields clean (idempotent).
 . Root must be JSON object with
 {jjdgm_seed}
 (2 URL-safe base64 characters matching `[A-Za-z0-9_-]{2}`)
+and
+{jjdgm_pace_seed}
+(5 URL-safe base64 characters matching `[A-Za-z0-9_-]{5}` — the single global pace-mint seed)
 . Root must have `heats` object
 . Each
 {jjdhr_heat}
@@ -63,33 +66,39 @@ or
 {jjdhe_retired}),
 {jjdhm_order}
 (array),
-{jjdhm_seed}
-(3 URL-safe base64 characters matching `[A-Za-z0-9_-]{3}`),
 `paces` (object)
 . {jjdhm_order}
 array and `paces` object must have identical key sets
 . Each
 {jjdpr_pace}
-key must match `₢[A-Za-z0-9_-]{5}` and embed parent
+key must match `₢[A-Za-z0-9_-]{5}`; a
+{jjdt_coronet}
+is a flat global index and carries no parent
 {jjdhr_heat}
-identity (first 2 base64 chars after prefix)
+identity
+. Each
+{jjdt_coronet}
+appears in exactly one
+{jjdhr_heat_p}
+`paces` — cross-heat uniqueness, the immutable-id invariant that replaces heat-embedding
 . Each
 {jjdpr_pace}
 must have:
 `tacks` (non-empty array)
 . Each
-{jjdkr_tack}
+{jjdcr_tack}
 must have:
-{jjdkm_refined}
-(YYMMDD-HHMM),
-{jjdkm_state}
+{jjdcm_ts}
+(ISO 8601 timestamp),
+{jjdcm_state}
 ({jjdpe_rough},
+{jjdpe_bridled},
 {jjdpe_complete},
 or
 {jjdpe_abandoned}),
-{jjdkm_text}
-(non-empty string),
-{jjdkm_silks}
+{jjdcm_text}
+(non-empty array of strings),
+{jjdcm_silks}
 (non-empty kebab-case),
-{jjdkm_commit}
-(valid {jjdkm_commit} format)
+{jjdcm_basis}
+(7-character SHA, or `0000000`)

@@ -220,39 +220,48 @@ fn zjjrm_dispatch_inner_msg(
 }
 
 /// Resolve the single heat firemark a mixed batch targets, enforcing the
-/// same-firemark guard: every reslate coronet's parent and the paddock firemark
-/// (if present) must name one heat. Slates carry silks, not a firemark — they
-/// inherit the resolved heat. A slate-only batch has no anchor and is rejected.
-/// This guard also closes the legacy mass-reslate cross-heat misattribution,
-/// which keyed the whole batch off the first coronet's heat with no check.
+/// same-firemark guard: every reslate coronet's live heat (found by paces-scan —
+/// a Coronet embeds no affiliation, JJS0 jjdt_coronet Resolution) and the paddock
+/// firemark (if present) must name one heat. Slates carry silks, not a firemark —
+/// they inherit the resolved heat. A slate-only batch has no anchor and is
+/// rejected. This guard also closes the legacy mass-reslate cross-heat
+/// misattribution, which keyed the whole batch off the first coronet with no check.
 ///
 /// Public so coverage lands on a real run-boundary rather than a `z` helper
 /// (RCG: a `z` private never goes public for a test).
 pub fn jjrm_resolve_batch_firemark(
     batch: &crate::jjrz_gazette::jjrz_BatchInput,
+    gallops: &crate::jjrg_gallops::jjrg_Gallops,
 ) -> Result<crate::jjrf_favor::jjrf_Firemark, String> {
     use crate::jjrf_favor::{jjrf_Firemark, jjrf_Coronet};
-    let mut candidates: Vec<jjrf_Firemark> = Vec::new();
+    // Firemark display keys (₣-prefixed) from every heat-bearing notice.
+    let mut candidates: Vec<String> = Vec::new();
     if let Some((fm_str, _)) = &batch.paddock {
-        candidates.push(jjrf_Firemark::jjrf_parse(fm_str).map_err(|e| format!("paddock firemark: {}", e))?);
+        candidates.push(
+            jjrf_Firemark::jjrf_parse(fm_str)
+                .map_err(|e| format!("paddock firemark: {}", e))?
+                .jjrf_display(),
+        );
     }
     for (coronet_str, _) in &batch.reslates {
         let coronet = jjrf_Coronet::jjrf_parse(coronet_str)
             .map_err(|e| format!("reslate coronet '{}': {}", coronet_str, e))?;
-        candidates.push(coronet.jjrf_parent_firemark());
+        let heat_key = gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
+            .ok_or_else(|| format!("reslate coronet '{}' not found in any heat", coronet_str))?;
+        candidates.push(heat_key);
     }
     let first = candidates.first()
         .ok_or_else(|| "slate-only batch has no heat anchor; include a paddock or reslate notice, or use jjx_enroll".to_string())?
         .clone();
-    for fm in &candidates[1..] {
-        if fm.jjrf_display() != first.jjrf_display() {
+    for fm_key in &candidates[1..] {
+        if fm_key != &first {
             return Err(format!(
                 "cross-heat batch rejected: notices span heats {} and {} (a batch is single-heat)",
-                first.jjrf_display(), fm.jjrf_display()
+                first, fm_key
             ));
         }
     }
-    Ok(first)
+    jjrf_Firemark::jjrf_parse(&first)
 }
 
 /// Apply a resolved single-heat batch to the in-memory gallops: paddock revision
@@ -1374,10 +1383,20 @@ fn zjjrm_load_emblem_style(project_root: &Path) -> jjrm_EmblemStyle {
 /// (`₢`); any other length passes through unchanged, so degraded input is shown
 /// as-is rather than mislabeled.
 fn zjjrm_normalize_identity(raw: &str) -> String {
-    let body = raw
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    let trimmed = raw.trim();
+    // An already heat-qualified coronet (carries the `·` interpunct — the stored
+    // emblem marker holds this full form) is display-ready: preserve it verbatim,
+    // ensuring only that the `₢` glyph leads. Stripping it back to the bare
+    // coronet would drop the live-affiliation qualifier the emblem is meant to show.
+    if trimmed.contains(crate::jjrf_favor::JJRF_CORONET_QUALIFIER) {
+        return if trimmed.starts_with(crate::jjrf_favor::JJRF_CORONET_PREFIX) {
+            trimmed.to_string()
+        } else {
+            format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, trimmed)
+        };
+    }
+    // Otherwise jjrf_bare strips the glyph to the bare body and length re-types it.
+    let body = crate::jjrf_favor::jjrf_bare(trimmed);
     match body.chars().count() {
         crate::jjrf_favor::JJRF_FIREMARK_LEN => format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, body),
         crate::jjrf_favor::JJRF_CORONET_LEN => format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, body),
@@ -1386,20 +1405,23 @@ fn zjjrm_normalize_identity(raw: &str) -> String {
 }
 
 /// Derive the heat firemark (full glyph-prefixed display form) from a halter
-/// lede — the groom emblem identity. A coronet lede folds to its parent
-/// firemark; a firemark lede passes through. Fail-soft: an unparseable lede
-/// yields `None`, so the emblem keeps its standing marker rather than record a
-/// bad identity. The grooming counterpart of orient's resolved-coronet
-/// derivation (paddock "Emblem and window reference": coronet when mounted on a
-/// pace, else the heat firemark).
+/// lede — the groom emblem identity. A coronet lede folds to its live heat
+/// firemark (by paces-scan — a Coronet embeds no affiliation); a firemark lede
+/// passes through. Fail-soft: an unparseable lede, a gallops load failure, or a
+/// coronet absent from every heat yields `None`, so the emblem keeps its
+/// standing marker rather than record a bad identity. The grooming counterpart
+/// of orient's resolved-coronet derivation (paddock "Emblem and window
+/// reference": coronet when mounted on a pace, else the heat firemark).
 fn zjjrm_lede_firemark(lede: &str) -> Option<String> {
-    let body = lede
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    // jjrf_bare strips the glyph and any `·` heat-qualifier to the bare body.
+    let body = crate::jjrf_favor::jjrf_bare(lede.trim());
     match body.chars().count() {
         crate::jjrf_favor::JJRF_FIREMARK_LEN => crate::jjrf_favor::jjrf_Firemark::jjrf_parse(lede).ok().map(|f| f.jjrf_display()),
-        crate::jjrf_favor::JJRF_CORONET_LEN => crate::jjrf_favor::jjrf_Coronet::jjrf_parse(lede).ok().map(|c| c.jjrf_parent_firemark().jjrf_display()),
+        crate::jjrf_favor::JJRF_CORONET_LEN => {
+            let coronet = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(lede).ok()?;
+            let gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()).ok()?;
+            gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
+        }
         _ => None,
     }
 }
@@ -1498,13 +1520,16 @@ fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
         Ok(g) => g,
         Err(_) => return marker,
     };
-    let body = identity
-        .trim()
-        .trim_start_matches(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
-        .trim_start_matches(crate::jjrf_favor::JJRF_CORONET_PREFIX);
+    // jjrf_bare strips the glyph and any `·` heat-qualifier to the bare body.
+    let body = crate::jjrf_favor::jjrf_bare(identity.trim());
     let (heat_key, coronet_key): (String, Option<String>) = match body.chars().count() {
         JJRF_CORONET_LEN => match jjrf_Coronet::jjrf_parse(identity) {
-            Ok(c) => (c.jjrf_parent_firemark().jjrf_display(), Some(c.jjrf_display())),
+            // A Coronet embeds no affiliation (JJS0 jjdt_coronet Resolution): its
+            // heat comes from the already-loaded gallops by paces-scan.
+            Ok(c) => match gallops.jjrg_heat_key_of_coronet(&c.jjrf_display()) {
+                Some(hk) => (hk, Some(c.jjrf_display())),
+                None => return marker,
+            },
             Err(_) => return marker,
         },
         JJRF_FIREMARK_LEN => match jjrf_Firemark::jjrf_parse(identity) {
@@ -1516,6 +1541,9 @@ fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
     if let Some(heat) = gallops.heats.get(&heat_key) {
         marker.heat_silks = heat.silks.clone();
         if let Some(ref ck) = coronet_key {
+            // The emblem's primary glance datum is the full coronet, now
+            // heat-qualified from live affiliation (JJS0 jjdt_coronet): ₢Bc·CAAAB.
+            marker.identity = gallops.jjrg_qualify_coronet(ck);
             if let Some(pace) = heat.paces.get(ck) {
                 if let Some(tack) = pace.tacks.first() {
                     marker.pace_silks = Some(tack.silks.clone());
@@ -2403,10 +2431,9 @@ impl jjrm_McpServer {
                 // affiliated record stays frontier. Frontier callers are
                 // unrestricted, as before the per-command policy.
                 if !caller.zjjrm_is_frontier() {
-                    let bare = p.identity
-                        .strip_prefix(crate::jjrf_favor::JJRF_CORONET_PREFIX)
-                        .or_else(|| p.identity.strip_prefix(crate::jjrf_favor::JJRF_FIREMARK_PREFIX))
-                        .unwrap_or(&p.identity);
+                    // jjrf_bare drops the glyph and any `·` heat-qualifier, so a
+                    // qualified coronet types by its 5-char body, not a spurious length.
+                    let bare = crate::jjrf_favor::jjrf_bare(&p.identity);
                     if bare.len() != crate::jjrf_favor::JJRF_CORONET_LEN {
                         return Ok(CallToolResult::error(vec![Content::text(format!(
                             "INTERDICTUM — designation gate: {} refuses; the identity '{}' is heat-affiliated, and a {}-tier session records only against the coronet of a pace bridled at its tier.\n\nRemedy: record against the bridled pace's coronet, or have a frontier session make the heat-affiliated commit.",
@@ -2692,11 +2719,21 @@ impl jjrm_McpServer {
                     )])),
                 };
                 // Resolve + guard the single heat firemark across all notices.
-                let firemark = match jjrm_resolve_batch_firemark(&batch) {
-                    Ok(fm) => fm,
-                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
-                        format!("{}: {}", cmd, e),
-                    )])),
+                // Load gallops once to scan reslate coronets to their live heats
+                // (JJS0 jjdt_coronet Resolution); the mutation reloads under lock.
+                let firemark = {
+                    let scan_gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()) {
+                        Ok(g) => g,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("{}: error loading Gallops: {}", cmd, e),
+                        )])),
+                    };
+                    match jjrm_resolve_batch_firemark(&batch, &scan_gallops) {
+                        Ok(fm) => fm,
+                        Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                            format!("{}: {}", cmd, e),
+                        )])),
+                    }
                 };
                 let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
                 let message = jjrn_format_heat_discussion(&firemark, &zjjrm_batch_description(&batch));
@@ -2894,12 +2931,27 @@ impl jjrm_McpServer {
                         "jjx {}: 'effort' rides only beside 'tier', never beside 'release'.", cmd
                     ))]));
                 }
-                let firemark = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&p.coronet) {
-                    Ok(c) => c.jjrf_parent_firemark(),
-                    Err(e) => {
-                        return Ok(CallToolResult::error(vec![Content::text(
-                            format!("jjx {}: error: {}", cmd, e),
-                        )]));
+                let firemark = {
+                    let coronet_parsed = match crate::jjrf_favor::jjrf_Coronet::jjrf_parse(&p.coronet) {
+                        Ok(c) => c,
+                        Err(e) => {
+                            return Ok(CallToolResult::error(vec![Content::text(
+                                format!("jjx {}: error: {}", cmd, e),
+                            )]));
+                        }
+                    };
+                    // Resolve the pace's live heat by paces-scan (JJS0 jjdt_coronet
+                    // Resolution) for the commit affiliation.
+                    let resolved = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()).ok()
+                        .and_then(|g| g.jjrg_heat_key_of_coronet(&coronet_parsed.jjrf_display()))
+                        .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok());
+                    match resolved {
+                        Some(fm) => fm,
+                        None => {
+                            return Ok(CallToolResult::error(vec![Content::text(
+                                format!("jjx {}: error: pace '{}' not found in any heat", cmd, p.coronet),
+                            )]));
+                        }
                     }
                 };
                 // Capture I/O at the procedure boundary — the gallops transform is pure.

@@ -82,6 +82,7 @@
 :jjdgm_order:       <<jjdgm_order,heat_order>>
 :jjdgm_retention:   <<jjdgm_retention,retention>>
 :jjdgm_seed:        <<jjdgm_seed,next_heat_seed>>
+:jjdgm_pace_seed:   <<jjdgm_pace_seed,next_pace_seed>>
 :jjdgr_gallops:     <<jjdgr_gallops,Gallops>>
 :jjdgr_gallops_p:   <<jjdgr_gallops,Gallops'>>
 
@@ -1297,7 +1298,7 @@ No hierarchical embedding.
 | Symbol | Name | Unicode | Digits | Structure | Capacity
 
 | ₣ | {jjdt_firemark}   | U+20A3 | 2 | 2 heat                               | 4,096 heats
-| ₢ | {jjdt_coronet}    | U+20A2 | 5 | 2 heat + 3 index                     | ~262K per heat
+| ₢ | {jjdt_coronet}    | U+20A2 | 5 | 5 global index                      | ~1.07B global
 | ₱ | {jjdt_pensum}     | U+20B1 | 5 | 2 heat + `%` sentinel + 2 index      | 4,096 per heat
 | ☉ | {jjdt_incipit}    | U+2609 | — | YYMMDD-NNNN                          | temporal
 |===
@@ -1331,35 +1332,95 @@ for
 {jjdpr_pace}
 identity.
 Format: `₢` + 5 {jjdz_charset} characters (e.g., `₢ABCDE`).
-Globally unique: the first 2 characters are the parent
-{jjdhr_heat_p}
-{jjdt_firemark};
-the remaining 3 encode the pace index.
-Seed:
-{jjdhm_seed}
+The 5 characters are one flat global index; a
+{jjdt_coronet}
+carries no parent
+{jjdt_firemark}
+and encodes no affiliation.
+Minted once from
+{jjdgm_pace_seed}
 on
-{jjdhr_heat},
+{jjdgr_gallops}
+— a single global seed advanced under the commit lock —
 incremented by
 {jjdo_enroll}.
 Input may omit the `₢` prefix; output always includes it.
 +
-*Reassignment:* When a
+*Immutable for life:*
+a
+{jjdt_coronet}
+is its
+{jjdpr_pace_p}
+identity from mint onward and never changes.
+When a
 {jjdpr_pace}
-is moved between
+moves between
 {jjdhr_heat_s}
 via
-{jjdo_relocate},
-the old
-{jjdt_coronet}
-becomes invalid and a new one is assigned using the destination
+{jjdo_relocate}
+or
+{jjdo_transfer},
+it is re-affiliated by moving its entry into the destination
 {jjdhr_heat_p}
-{jjdhm_seed}.
-The new
-{jjdt_coronet}
-embeds the destination
-{jjdt_firemark}.
-Pace data is preserved, with a note recording the original
+{jjdhm_paces}
+under the same key — never re-keyed, never re-minted —
+and the destination
+{jjdhm_order}
+records the unchanged
 {jjdt_coronet}.
++
+*Resolution:*
+an operation given a
+{jjdt_coronet}
+finds its
+{jjdpr_pace}
+by scanning
+{jjdgm_heats}
+for the
+{jjdhm_paces}
+holding the key; a
+{jjdt_coronet}
+embeds no affiliation, so resolution never infers a
+{jjdhr_heat}
+from the identity, and cross-heat uniqueness — one
+{jjdt_coronet}
+in exactly one
+{jjdhm_paces}
+— makes the resolved
+{jjdhr_heat}
+unambiguous.
++
+*Grandfathered ids:*
+because
+{jjdgm_pace_seed}
+is founded above the whole index space already in use (see its definition), every
+{jjdt_coronet}
+present at that founding is honored verbatim as an immutable id and is never rewritten.
+Such an id may carry 2 leading characters equal to some
+{jjdt_firemark};
+that is frozen index coincidence, not live affiliation.
+The `CAAAA` founding floor places every seed-minted
+{jjdt_coronet}
+at `C` or later, so it cannot collide with the heat-embedded characters of an honored id — one founding-time comparison, no reserved-set check.
++
+*Display and ingest:*
+the bare
+{jjdt_coronet}
+is the identity in every machine context —
+{jjdgr_gallops}
+keys, MCP parameters, git refs.
+Emission qualifies it by _live_ affiliation: `₢` + the current
+{jjdhr_heat_p}
+{jjdt_firemark}
+characters + the interpunct `·` + the 5-character body
+(e.g. `₢Bc·CAAAB`; a grandfathered pace renders its heat twice, `₢Bc·BcAAO`).
+Because the qualifier is read from live affiliation at output time,
+{jjdo_relocate}
+changes tomorrow's rendering, never the identity;
+a frozen emission keeps its qualifier as a record of that moment, never a live reference.
+Ingest tolerates the emitted form: the `₢` glyph and any `·` qualifier are stripped and the bare 5-character body is looked up.
+The full-form, never-abbreviated display discipline carries over from the
+{jjdt_firemark}.
 
 [[jjdt_pensum]]
 //axve_entity axd_immutable axd_insignia axd_seeded
@@ -1546,6 +1607,33 @@ Incremented by
 {jjdo_create}.
 Serialized as `jjgrn_next_heat_seed` in JSON.
 
+* [[jjdgm_pace_seed]]
+//axl_voices axr_member axd_required axd_property
+{jjdgm_pace_seed}
+is the next
+{jjdt_coronet}
+to allocate for the whole
+{jjdgr_gallops},
+stored as 5 {jjdz_charset} characters.
+A single global seed: every
+{jjdt_coronet}
+is minted from it under the commit lock, never per-heat.
+Incremented by
+{jjdo_enroll}.
+Serialized as `jjgrn_next_pace_seed` in JSON.
+The
+{jjdz_reprieve}
+write-forward founds it at `max(highest existing {jjdt_coronet} index + 1, CAAAA)` over every
+{jjdpr_pace}
+in every
+{jjdhr_heat},
+placing it above the whole index space already in use; thereafter it advances only by mint.
+A freshly created
+{jjdgr_gallops}
+with no
+{jjdpr_pace_s}
+initializes it to `CAAAA`, the founding floor.
+
 * [[jjdgm_order]]
 //axl_voices axr_member axd_required axd_repeated axd_property
 {jjdgm_order}
@@ -1663,14 +1751,22 @@ May be reordered via
 Serialized as `jjghn_order` in JSON.
 
 * [[jjdhm_seed]]
-//axl_voices axr_member axd_required axd_property
 {jjdhm_seed}
-is the next
+is not a live member.
+A
 {jjdt_coronet}
-index to allocate, stored as 3 {jjdz_charset} characters.
-Incremented by
-{jjdo_enroll}.
-Serialized as `jjghn_next_pace_seed` in JSON.
+is a flat global index minted from
+{jjdgm_pace_seed}
+on
+{jjdgr_gallops}
+and embeds no
+{jjdt_firemark},
+so no per-heat pace seed exists.
+An old-format store may carry a `jjghn_next_pace_seed` field — 3 {jjdz_charset} characters, a per-{jjdhr_heat} next-{jjdt_coronet} index; the
+{jjdz_reprieve}
+write-forward drops it when it founds the global
+{jjdgm_pace_seed},
+and the store re-serializes without it.
 
 * [[jjdhm_pensum_seed]]
 {jjdhm_pensum_seed}
@@ -2083,17 +2179,18 @@ values.
 +
 *{jjdt_coronet} (Pace identity):*
 +
-. Format: `₢` + 5 base64 characters
-. First 2 characters encode the parent Heat (same as {jjdt_firemark} without prefix)
-. Last 3 characters encode the pace index P (0-262143)
-. Given Heat H and pace index P: encode as `₢` + `charset[H/64]` + `charset[H%64]` + `charset[P/4096]` + `charset[(P/64)%64]` + `charset[P%64]`
-. To decode `₢XYZAB`: H from XY, P = pos(Z) * 4096 + pos(A) * 64 + pos(B)
+. Format: `₢` + 5 base64 characters, one flat global index (no embedded Heat)
+. Given global pace index P (0-1073741823): encode as `₢` + `charset[(P/16777216)%64]` + `charset[(P/262144)%64]` + `charset[(P/4096)%64]` + `charset[(P/64)%64]` + `charset[P%64]`
+. To decode `₢VWXYZ`: P = pos(V)*16777216 + pos(W)*262144 + pos(X)*4096 + pos(Y)*64 + pos(Z)
+. A {jjdt_coronet} present when {jjdgm_pace_seed} is founded is grandfathered verbatim: its leading 2 characters are frozen index digits, never a live Heat reference
 +
 *Input flexibility:*
 +
-CLI commands accept identities with or without prefix.
-Length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
-Output always includes the prefix (`₣` or `₢`).
+CLI commands accept identities with or without prefix, and in bare or Heat-qualified form.
+A token carrying the interpunct `·` is a Heat-qualified {jjdt_coronet}: strip the `·` qualifier and the `₢` glyph, then resolve the 5-character body.
+Otherwise length determines type: 2 base64 chars = {jjdt_firemark}, 5 base64 chars = {jjdt_coronet}.
+`·` cannot appear in the {jjdz_charset}, so the split is mechanical, exactly as `%` disambiguates the {jjdt_pensum}.
+Output always includes the `₣`/`₢` prefix; a {jjdt_coronet} is additionally Heat-qualified at emission (see {jjdt_coronet}).
 
 === {jjdz_reprieve}
 

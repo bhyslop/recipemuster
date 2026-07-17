@@ -63,9 +63,7 @@ Change the {jjdt_silks} (display name) of a {jjdpr_pace}.
 {jjds_behavior}
 
 . {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
-. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
-. Verify {jjdhr_heat} exists
-. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+. Resolve the {jjdpr_pace} holding the {jjdt_coronet} (resolution as defined at {jjdt_coronet}); error if no {jjdhr_heat} holds it
 . Update silks on {jjdpr_pace}
 . {jjdr_save}
 // end::relabel[]
@@ -85,9 +83,7 @@ Mark a {jjdpr_pace} as {jjdpe_abandoned}. The {jjdpr_pace} is removed from activ
 {jjds_behavior}
 
 . {jjdr_load}; on failure, exit immediately with {jjdr_load} error status
-. Extract parent {jjdt_firemark} from {jjdt_coronet} (first 2 base64 chars after prefix)
-. Verify {jjdhr_heat} exists
-. Verify {jjdpr_pace} exists with given {jjdt_coronet}
+. Resolve the {jjdpr_pace} holding the {jjdt_coronet} (resolution as defined at {jjdt_coronet}); error if no {jjdhr_heat} holds it
 . Set state to {jjdpe_abandoned} on {jjdpr_pace}
 . {jjdr_save}
 // end::drop[]

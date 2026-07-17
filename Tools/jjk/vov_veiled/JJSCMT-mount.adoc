@@ -9,7 +9,7 @@ the current
 that is not
 {jjdpe_resolved})
 and its
-{jjdkr_tack}
+{jjdcr_tack}
 details.
 
 {jjds_arguments}

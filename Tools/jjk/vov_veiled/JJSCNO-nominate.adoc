@@ -71,8 +71,6 @@ from argument
 {jjdhe_racing}
 .. {jjdhm_order}:
 empty array
-.. {jjdhm_seed}:
-`AAA` (index 0)
 .. {jjdhm_paddock}:
 computed paddock path
 .. `paces`: empty object

@@ -48,7 +48,6 @@ fn jjtsc_make_heat(silks: &str, status: jjrg_HeatStatus, paces: Vec<(&str, jjrg_
         creation_time: "260612".to_string(),
         status,
         order,
-        next_pace_seed: "AAZ".to_string(),
         paces: pace_map,
     }
 }
@@ -61,6 +60,7 @@ fn jjtsc_make_gallops(heats: Vec<(&str, jjrg_Heat)>) -> jjrg_Gallops {
     }
     jjrg_Gallops {
         next_heat_seed: "ZZ".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
         heat_order,
         heats: heat_map,
         retention_since: None,

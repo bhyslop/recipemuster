@@ -107,90 +107,46 @@ fn jjtf_firemark_parse_invalid() {
 
 #[test]
 fn jjtf_coronet_encode_zero() {
-    let heat = jjrf_Firemark::jjrf_encode(0);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 0);
+    let coronet = jjrf_Coronet::jjrf_encode(0);
     assert_eq!(coronet.jjrf_as_str(), "AAAAA");
     assert_eq!(coronet.jjrf_display(), "₢AAAAA");
 }
 
 #[test]
-fn jjtf_coronet_encode_one() {
-    let heat = jjrf_Firemark::jjrf_encode(0);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 1);
-    assert_eq!(coronet.jjrf_as_str(), "AAAAB");
-}
-
-#[test]
-fn jjtf_coronet_encode_64() {
-    // pace 64 = 0*4096 + 1*64 + 0
-    let heat = jjrf_Firemark::jjrf_encode(0);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 64);
-    assert_eq!(coronet.jjrf_as_str(), "AAABA");
-}
-
-#[test]
-fn jjtf_coronet_encode_4096() {
-    // pace 4096 = 1*4096 + 0*64 + 0
-    let heat = jjrf_Firemark::jjrf_encode(0);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 4096);
-    assert_eq!(coronet.jjrf_as_str(), "AABAA");
-}
-
-#[test]
-fn jjtf_coronet_encode_max_pace() {
-    // 262143 = 63*4096 + 63*64 + 63
-    let heat = jjrf_Firemark::jjrf_encode(0);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 262143);
-    assert_eq!(coronet.jjrf_as_str(), "AA___");
-}
-
-#[test]
-fn jjtf_coronet_encode_with_nonzero_heat() {
-    let heat = jjrf_Firemark::jjrf_encode(1); // "AB"
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 0);
-    assert_eq!(coronet.jjrf_as_str(), "ABAAA");
-    assert_eq!(coronet.jjrf_display(), "₢ABAAA");
-}
-
-#[test]
-fn jjtf_coronet_decode_roundtrip() {
-    for heat_val in [0, 1, 100, 4095] {
-        for pace_val in [0, 1, 63, 64, 4096, 100000, 262143] {
-            let heat = jjrf_Firemark::jjrf_encode(heat_val);
-            let coronet = jjrf_Coronet::jjrf_encode(&heat, pace_val);
-            let (decoded_heat, decoded_pace) = coronet.jjrf_decode().unwrap();
-            assert_eq!(
-                decoded_heat.jjrf_decode().unwrap(),
-                heat_val,
-                "Heat roundtrip failed for heat={} pace={}",
-                heat_val,
-                pace_val
-            );
-            assert_eq!(
-                decoded_pace, pace_val,
-                "Pace roundtrip failed for heat={} pace={}",
-                heat_val, pace_val
-            );
-        }
+fn jjtf_coronet_encode_each_digit_position() {
+    // RADIX^position places a single "1" in that digit position (0 = the low,
+    // rightmost digit), exercising every digit of the flat 5-char encoding. No
+    // embedded heat — the leading digits are ordinary index digits, never a firemark.
+    let expected = ["AAAAB", "AAABA", "AABAA", "ABAAA", "BAAAA"];
+    for (position, want) in expected.iter().enumerate() {
+        let coronet = jjrf_Coronet::jjrf_encode(JJRF_RADIX.pow(position as u32));
+        assert_eq!(coronet.jjrf_as_str(), *want, "digit position {}", position);
     }
 }
 
 #[test]
-fn jjtf_coronet_parent_firemark() {
-    let heat = jjrf_Firemark::jjrf_encode(42);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 123);
-    let parent = coronet.jjrf_parent_firemark();
-    assert_eq!(parent.jjrf_as_str(), heat.jjrf_as_str());
-    assert_eq!(parent.jjrf_decode().unwrap(), 42);
+fn jjtf_coronet_encode_max() {
+    // Every digit saturated (JJRF_CORONET_MAX = RADIX^CORONET_LEN - 1) → the last
+    // charset character in all five positions.
+    let coronet = jjrf_Coronet::jjrf_encode(JJRF_CORONET_MAX);
+    assert_eq!(coronet.jjrf_as_str(), "_____");
+}
+
+#[test]
+fn jjtf_coronet_decode_roundtrip() {
+    let samples = [0, 1, JJRF_RADIX, JJRF_RADIX.pow(2), JJRF_RADIX.pow(4), JJRF_CORONET_MAX];
+    for idx in samples {
+        let coronet = jjrf_Coronet::jjrf_encode(idx);
+        assert_eq!(coronet.jjrf_decode().unwrap(), idx, "roundtrip failed for index {}", idx);
+    }
 }
 
 #[test]
 fn jjtf_coronet_parse_with_prefix() {
     let coronet = jjrf_Coronet::jjrf_parse("₢ABAAA").unwrap();
     assert_eq!(coronet.jjrf_as_str(), "ABAAA");
-    let (heat, pace) = coronet.jjrf_decode().unwrap();
-    assert_eq!(heat.jjrf_decode().unwrap(), 1);
-    assert_eq!(pace, 0);
+    // "ABAAA" carries a single "1" in digit position 3.
+    assert_eq!(coronet.jjrf_decode().unwrap(), JJRF_RADIX.pow(3));
 }
 
 #[test]
@@ -377,7 +333,7 @@ fn jjtf_pensum_decode_missing_sentinel() {
 fn jjtf_sigils_are_render_only() {
     assert_eq!(jjrf_Firemark::jjrf_encode(0).jjrf_sigil(), JJRF_FIREMARK_PREFIX);
     let heat = jjrf_Firemark::jjrf_encode(0);
-    assert_eq!(jjrf_Coronet::jjrf_encode(&heat, 0).jjrf_sigil(), JJRF_CORONET_PREFIX);
+    assert_eq!(jjrf_Coronet::jjrf_encode(0).jjrf_sigil(), JJRF_CORONET_PREFIX);
     assert_eq!(jjrf_Pensum::jjrf_encode(&heat, 0).jjrf_sigil(), JJRF_PENSUM_PREFIX);
     assert_eq!(jjrf_Incipit::jjrf_new("260705-1000-abcd").jjrf_sigil(), JJRF_INCIPIT_PREFIX);
 }
@@ -400,18 +356,18 @@ fn jjtf_firemark_successor_saturates() {
 }
 
 #[test]
-fn jjtf_coronet_successor_stays_in_heat() {
-    let heat = jjrf_Firemark::jjrf_encode(1); // "AB"
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, 0);
+fn jjtf_coronet_successor() {
+    // Flat successor: index + 1. "ABAAA" (a "1" in digit position 3) → "ABAAB".
+    let coronet = jjrf_Coronet::jjrf_encode(JJRF_RADIX.pow(3));
     let next = coronet.jjrf_successor().unwrap();
     assert_eq!(next.jjrf_as_str(), "ABAAB");
-    assert_eq!(next.jjrf_parent_firemark().jjrf_as_str(), "AB");
+    // Source untouched — derivation is generative, not mutative.
+    assert_eq!(coronet.jjrf_as_str(), "ABAAA");
 }
 
 #[test]
 fn jjtf_coronet_successor_saturates() {
-    let heat = jjrf_Firemark::jjrf_encode(0);
-    let coronet = jjrf_Coronet::jjrf_encode(&heat, JJRF_CORONET_PACE_MAX);
+    let coronet = jjrf_Coronet::jjrf_encode(JJRF_CORONET_MAX);
     assert!(coronet.jjrf_successor().is_err());
 }
 
@@ -452,4 +408,34 @@ fn jjtf_incipit_parse_ignores_sigil() {
 fn jjtf_incipit_parse_rejects_empty() {
     assert!(jjrf_Incipit::jjrf_parse("").is_err());
     assert!(jjrf_Incipit::jjrf_parse("☉").is_err());
+}
+
+// jjrf_bare — the single ingest-normalization home (JJS0 jjdz_encoding)
+
+#[test]
+fn jjtf_bare_strips_glyph_and_qualifier() {
+    // Every emitted coronet form reduces to the bare 5-char body.
+    assert_eq!(jjrf_bare("₢Bc·CAAAB"), "CAAAB"); // heat-qualified
+    assert_eq!(jjrf_bare("₢CAAAB"), "CAAAB");    // glyph, bare
+    assert_eq!(jjrf_bare("CAAAB"), "CAAAB");     // naked body
+    // Firemarks carry no qualifier; the glyph strips, the body passes.
+    assert_eq!(jjrf_bare("₣Bc"), "Bc");
+    assert_eq!(jjrf_bare("Bc"), "Bc");
+    // A grandfathered coronet renders its heat twice; the qualifier still splits
+    // on the interpunct, leaving the full body.
+    assert_eq!(jjrf_bare("₢Bc·BcAAO"), "BcAAO");
+}
+
+#[test]
+fn jjtf_coronet_parse_tolerates_qualified_form() {
+    // Ingest tolerates the emitted heat-qualified form (JJS0 jjdz_encoding
+    // "Input flexibility"): the `·` qualifier and `₢` glyph strip to the bare body.
+    let bare = jjrf_Coronet::jjrf_parse("₢CAAAB").unwrap();
+    let qualified = jjrf_Coronet::jjrf_parse("₢Bc·CAAAB").unwrap();
+    let naked = jjrf_Coronet::jjrf_parse("CAAAB").unwrap();
+    assert_eq!(qualified, bare);
+    assert_eq!(naked, bare);
+    assert_eq!(qualified.jjrf_as_str(), "CAAAB");
+    // Display alone (no live heat) is the bare form; qualification needs the gallops.
+    assert_eq!(qualified.jjrf_display(), "₢CAAAB");
 }
