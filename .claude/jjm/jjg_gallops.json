@@ -3855,8 +3855,8 @@
         "₢B0AAI": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1004",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1054",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -3877,7 +3877,7 @@
                 "Findings source: Memos/memo-20260717-coldwalk-shakedown.md"
               ],
               "jjgtn_silks": "coldwalk-onboarding-iterate",
-              "jjgtn_basis": "ee010af"
+              "jjgtn_basis": "cf69259"
             }
           ]
         },
