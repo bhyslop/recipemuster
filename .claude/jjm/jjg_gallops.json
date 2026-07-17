@@ -3587,11 +3587,12 @@
         "₢B0AAJ",
         "₢B0AAL",
         "₢B0AAK",
+        "₢B0AAM",
         "₢B0AAI",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAM",
+      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3987,6 +3988,33 @@
               ],
               "jjgtn_silks": "onboarding-handbook-repairs",
               "jjgtn_basis": "32a65b8"
+            }
+          ]
+        },
+        "₢B0AAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1051",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Withheld-module surgery on the coldwalk rig; delivered-bytes-neutral by construction.",
+                "",
+                "## Cinched (repair-lap doctrine, paddock 260717)",
+                "Iteration coldwalks belong in the ceremony's reversible tier:",
+                "the harbinger gains a mode that clones the LOCAL expede quarantine candidate instead of promoted public main —",
+                "identical delivered bytes, zero public acts per lap.",
+                "The default mode is unchanged (promoted public main) — the final confirmation coldwalk and the operator walk keep the stranger-fidelity cinch.",
+                "Local mode announces its known fidelity gap loud in the rig output:",
+                "the HTTPS-clone-from-GitHub step and the public landing face are unproven in this mode, covered only by the final walk on promoted main.",
+                "Guards identical in both modes: dispose-by-rename, severed origin, exit-1 pre-push hook, throwaway coldwalk branch, dated findings-memo path, and the printed launch line and stranger prompt.",
+                "",
+                "## Done when",
+                "The harbinger stands up a guarded rig from a named local candidate tree and from promoted public main alike, both proven by exercise;",
+                "fast-qualify and the perambulation fixture green (the module and tabtarget stay withheld)."
+              ],
+              "jjgtn_silks": "harbinger-local-candidate-mode",
+              "jjgtn_basis": "aa5434a"
             }
           ]
         }
