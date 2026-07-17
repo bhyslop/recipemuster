@@ -1,5 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B5",
+  "jjgrn_next_pace_seed": "CAAAA",
   "jjgrn_heat_order": [
     "₣B4",
     "₣B0",
@@ -73,7 +74,6 @@
         "₢A9AAN",
         "₢A9AAU"
       ],
-      "jjghn_next_pace_seed": "AAg",
       "jjghn_paces": {
         "₢A9AAA": {
           "jjgpn_tacks": [
@@ -2032,7 +2032,6 @@
         "₢ADAAI",
         "₢ADAAJ"
       ],
-      "jjghn_next_pace_seed": "AAN",
       "jjghn_paces": {
         "₢ADAAA": {
           "jjgpn_tacks": [
@@ -2516,7 +2515,6 @@
         "₢AIAAC",
         "₢AIAAD"
       ],
-      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢AIAAA": {
           "jjgpn_tacks": [
@@ -2745,7 +2743,6 @@
         "₢AJAAA",
         "₢AJAAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢AJAAA": {
           "jjgpn_tacks": [
@@ -2786,7 +2783,6 @@
         "₢ANAAD",
         "₢ANAAE"
       ],
-      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢ANAAA": {
           "jjgpn_tacks": [
@@ -3035,7 +3031,6 @@
       "jjghn_creation_time": "260209",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Ap": {
@@ -3049,7 +3044,6 @@
         "₢ApAAD",
         "₢ApAAE"
       ],
-      "jjghn_next_pace_seed": "AAF",
       "jjghn_paces": {
         "₢ApAAA": {
           "jjgpn_tacks": [
@@ -3374,7 +3368,6 @@
         "₢AqAAC",
         "₢AqAAD"
       ],
-      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢AqAAA": {
           "jjgpn_tacks": [
@@ -3571,7 +3564,6 @@
       "jjghn_creation_time": "260314",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣B0": {
@@ -3594,7 +3586,6 @@
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -4093,7 +4084,6 @@
         "₢B1AAC",
         "₢B1AAD"
       ],
-      "jjghn_next_pace_seed": "AAE",
       "jjghn_paces": {
         "₢B1AAA": {
           "jjgpn_tacks": [
@@ -4227,7 +4217,6 @@
         "₢B2AAH",
         "₢B2AAI"
       ],
-      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢B2AAA": {
           "jjgpn_tacks": [
@@ -4419,7 +4408,6 @@
       "jjghn_order": [
         "₢B3AAA"
       ],
-      "jjghn_next_pace_seed": "AAB",
       "jjghn_paces": {
         "₢B3AAA": {
           "jjgpn_tacks": [
@@ -4470,7 +4458,6 @@
         "₢B4AAA",
         "₢B4AAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢B4AAA": {
           "jjgpn_tacks": [
@@ -4525,7 +4512,6 @@
       "jjghn_creation_time": "260511",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣BI": {
@@ -4543,7 +4529,6 @@
         "₢BIAAH",
         "₢BIAAI"
       ],
-      "jjghn_next_pace_seed": "AAJ",
       "jjghn_paces": {
         "₢BIAAA": {
           "jjgpn_tacks": [
@@ -4818,7 +4803,6 @@
       "jjghn_order": [
         "₢BLAAA"
       ],
-      "jjghn_next_pace_seed": "AAB",
       "jjghn_paces": {
         "₢BLAAA": {
           "jjgpn_tacks": [
@@ -4929,7 +4913,6 @@
       "jjghn_creation_time": "260514",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣BW": {
@@ -4940,7 +4923,6 @@
         "₢BWAAA",
         "₢BWAAB"
       ],
-      "jjghn_next_pace_seed": "AAC",
       "jjghn_paces": {
         "₢BWAAA": {
           "jjgpn_tacks": [
@@ -5014,7 +4996,6 @@
       "jjghn_creation_time": "260608",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bc": {
@@ -5038,7 +5019,6 @@
         "₢BcAAD",
         "₢BcAAE"
       ],
-      "jjghn_next_pace_seed": "AAP",
       "jjghn_paces": {
         "₢BcAAA": {
           "jjgpn_tacks": [
@@ -5828,7 +5808,6 @@
         "₢BdAAB",
         "₢BdAAC"
       ],
-      "jjghn_next_pace_seed": "AAD",
       "jjghn_paces": {
         "₢BdAAA": {
           "jjgpn_tacks": [
@@ -5933,7 +5912,6 @@
         "₢BgAAG",
         "₢BgAAF"
       ],
-      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BgAAA": {
           "jjgpn_tacks": [
@@ -6148,7 +6126,6 @@
       "jjghn_creation_time": "260620",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bm": {
@@ -6156,7 +6133,6 @@
       "jjghn_creation_time": "260623",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bn": {
@@ -6164,7 +6140,6 @@
       "jjghn_creation_time": "260627",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bs": {
@@ -6215,7 +6190,6 @@
         "₢BsAAS",
         "₢BsAAr"
       ],
-      "jjghn_next_pace_seed": "AAs",
       "jjghn_paces": {
         "₢BsAAA": {
           "jjgpn_tacks": [
@@ -7927,7 +7901,6 @@
       "jjghn_creation_time": "260706",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bv": {
@@ -7935,7 +7908,6 @@
       "jjghn_creation_time": "260706",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bw": {
@@ -7943,7 +7915,6 @@
       "jjghn_creation_time": "260706",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
       "jjghn_paces": {}
     },
     "₣Bz": {
@@ -7959,7 +7930,6 @@
         "₢BzAAF",
         "₢BzAAG"
       ],
-      "jjghn_next_pace_seed": "AAH",
       "jjghn_paces": {
         "₢BzAAA": {
           "jjgpn_tacks": [
