@@ -312,6 +312,7 @@ fn make_valid_pace(heat_id: &str, silks: &str) -> (String, jjrg_Pace) {
     let pace_key = format!("₢{}AAA", heat_id);
     let pace = jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, silks)],
+        ..Default::default()
     };
     (pace_key, pace)
 }
@@ -494,7 +495,7 @@ fn jjtg_validate_coronet_cross_heat_uniqueness() {
     cd_heat.order.clear();
     cd_heat.paces.insert(
         dup_coronet.clone(),
-        jjrg_Pace { tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "dup-pace")] },
+        jjrg_Pace { tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "dup-pace")], ..Default::default() },
     );
     cd_heat.order.push(dup_coronet);
 
@@ -728,6 +729,9 @@ fn jjtg_slate_creates_pace() {
         firemark: "AB".to_string(),
         silks: "test-pace".to_string(),
         text: "Do something useful".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: false,
@@ -756,6 +760,132 @@ fn jjtg_slate_creates_pace() {
     assert_eq!(gallops.next_pace_seed, "CAAAB");
 }
 
+// ===== original-intent capture (dictation / precis / slated / redocket_count) =====
+
+/// Slate a pace carrying the full original-intent capture into heat AB.
+fn slate_intent_pace(gallops: &mut jjrg_Gallops) -> String {
+    gallops.jjrg_slate(jjrg_SlateArgs {
+        firemark: "AB".to_string(),
+        silks: "intent-pace".to_string(),
+        text: "The docket".to_string(),
+        dictation: Some("operator's raw words".to_string()),
+        precis: Some("distilled intent".to_string()),
+        slated: "260715-1030".to_string(),
+        before: None,
+        after: None,
+        first: false,
+    }).unwrap().coronet
+}
+
+#[test]
+fn jjtg_slate_freezes_original_intent() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+    gallops.heats.insert(heat_key.clone(), heat);
+
+    let coronet = slate_intent_pace(&mut gallops);
+
+    let pace = gallops.heats[&heat_key].paces.get(&coronet).unwrap();
+    assert_eq!(pace.dictation.as_deref(), Some("operator's raw words"));
+    assert_eq!(pace.precis.as_deref(), Some("distilled intent"));
+    assert_eq!(pace.slated.as_deref(), Some("260715-1030"));
+    assert_eq!(pace.redocket_count, 0);
+}
+
+#[test]
+fn jjtg_revise_docket_bumps_counter_and_preserves_intent() {
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+    gallops.heats.insert(heat_key.clone(), heat);
+    let coronet = slate_intent_pace(&mut gallops);
+
+    // Single and mass reslate both funnel through jjrg_revise_docket; two
+    // revisions → count 2, and the frozen capture is untouched.
+    gallops.jjrg_revise_docket(&coronet, "second docket", "0000000", "260716-0900").unwrap();
+    gallops.jjrg_revise_docket(&coronet, "third docket", "0000000", "260717-0900").unwrap();
+
+    let pace = gallops.heats[&heat_key].paces.get(&coronet).unwrap();
+    assert_eq!(pace.redocket_count, 2, "each docket revision bumps the drift counter");
+    assert_eq!(pace.dictation.as_deref(), Some("operator's raw words"), "dictation is frozen");
+    assert_eq!(pace.precis.as_deref(), Some("distilled intent"), "precis is frozen");
+    assert_eq!(pace.slated.as_deref(), Some("260715-1030"), "slated is frozen");
+    assert_eq!(pace.tacks[0].text, vec!["third docket".to_string()]);
+}
+
+#[test]
+fn jjtg_bridle_and_release_do_not_bump_counter() {
+    // Bridle and release replace the tack but are not docket revisions —
+    // the increment lives in jjrg_revise_docket, not jjrg_set_tack.
+    let mut gallops = make_valid_gallops();
+    let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+    gallops.heats.insert(heat_key.clone(), heat);
+    let coronet = slate_intent_pace(&mut gallops);
+
+    gallops.jjrg_bridle(&coronet, jjrg_Tier::Sonnet, None, "0000000", "260716-0900").unwrap();
+    gallops.jjrg_release(&coronet, "0000000", "260716-1000").unwrap();
+
+    let pace = gallops.heats[&heat_key].paces.get(&coronet).unwrap();
+    assert_eq!(pace.redocket_count, 0, "bridle/release never bump the counter");
+    assert_eq!(pace.dictation.as_deref(), Some("operator's raw words"));
+}
+
+#[test]
+fn jjtg_draft_carries_intent_unchanged() {
+    // Draft (and restring, which routes through it) is a relocation: the
+    // capture travels with the work — never re-frozen, counter never reset.
+    let mut g = make_two_heat_gallops(jjrg_PaceState::Rough, None, None);
+    {
+        let pace = g.heats.get_mut("₣AC").unwrap().paces.get_mut("₢ACAAA").unwrap();
+        pace.dictation = Some("raw".to_string());
+        pace.precis = Some("distilled".to_string());
+        pace.slated = Some("260701-0800".to_string());
+        pace.redocket_count = 3;
+    }
+    let result = g.jjrg_draft(jjrg_DraftArgs {
+        coronet: "ACAAA".to_string(),
+        to: "AD".to_string(),
+        before: None,
+        after: None,
+        first: false,
+    }).unwrap();
+    let pace = &g.heats["₣AD"].paces[&result.new_coronet];
+    assert_eq!(pace.dictation.as_deref(), Some("raw"));
+    assert_eq!(pace.precis.as_deref(), Some("distilled"));
+    assert_eq!(pace.slated.as_deref(), Some("260701-0800"));
+    assert_eq!(pace.redocket_count, 3);
+}
+
+#[test]
+fn jjtg_pace_intent_serde_additive() {
+    // The no-reprieve-episode guarantee: an old-shape pace (tacks only) loads
+    // with the capture absent and re-serializes byte-identical — none of the
+    // new keys appear.
+    let old = r#"{"jjgpn_tacks":[{"jjgtn_ts":"260101-1200","jjgtn_state":"jjgte_rough","jjgtn_text":["a"],"jjgtn_silks":"x","jjgtn_basis":"0000000"}]}"#;
+    let pace: jjrg_Pace = serde_json::from_str(old).unwrap();
+    assert!(pace.dictation.is_none());
+    assert!(pace.precis.is_none());
+    assert!(pace.slated.is_none());
+    assert_eq!(pace.redocket_count, 0);
+    let out = serde_json::to_string(&pace).unwrap();
+    assert_eq!(out, old, "untouched old store re-serializes byte-identical");
+
+    // A populated capture rides the jjgpn_ wire keys and round-trips.
+    let mut pace2 = pace.clone();
+    pace2.dictation = Some("raw".to_string());
+    pace2.precis = Some("distilled".to_string());
+    pace2.slated = Some("260715-1030".to_string());
+    pace2.redocket_count = 2;
+    let out2 = serde_json::to_string(&pace2).unwrap();
+    for key in ["jjgpn_dictation", "jjgpn_precis", "jjgpn_slated", "jjgpn_redocket_count"] {
+        assert!(out2.contains(key), "missing wire key {}", key);
+    }
+    let back: jjrg_Pace = serde_json::from_str(&out2).unwrap();
+    assert_eq!(back.dictation.as_deref(), Some("raw"));
+    assert_eq!(back.precis.as_deref(), Some("distilled"));
+    assert_eq!(back.slated.as_deref(), Some("260715-1030"));
+    assert_eq!(back.redocket_count, 2);
+}
+
 // Build a heat whose order carries history ahead of live work:
 // AAA complete, AAB bridled, AAC rough.
 fn make_heat_with_history(heat_id: &str) -> (String, jjrg_Heat) {
@@ -768,7 +898,7 @@ fn make_heat_with_history(heat_id: &str) -> (String, jjrg_Heat) {
         ("AAC", jjrg_PaceState::Rough, "rough-pace"),
     ] {
         let coronet = format!("₢{}{}", heat_id, suffix);
-        paces.insert(coronet.clone(), jjrg_Pace { tacks: vec![make_valid_tack(state, silks)] });
+        paces.insert(coronet.clone(), jjrg_Pace { tacks: vec![make_valid_tack(state, silks)], ..Default::default() });
         order.push(coronet);
     }
     let heat = jjrg_Heat {
@@ -791,6 +921,9 @@ fn jjtg_slate_first_aims_at_first_actionable_slot() {
         firemark: "AB".to_string(),
         silks: "chivvied-pace".to_string(),
         text: "Do this next".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: true,
@@ -819,6 +952,9 @@ fn jjtg_slate_first_appends_when_nothing_is_actionable() {
         firemark: "AB".to_string(),
         silks: "chivvied-pace".to_string(),
         text: "Do this next".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: true,
@@ -861,6 +997,9 @@ fn jjtg_slate_heat_not_found() {
         firemark: "CD".to_string(),
         silks: "test-pace".to_string(),
         text: "Do something".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: false,
@@ -881,6 +1020,9 @@ fn jjtg_slate_invalid_silks() {
         firemark: "AB".to_string(),
         silks: "invalid_silks".to_string(),
         text: "Do something".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: false,
@@ -901,6 +1043,9 @@ fn jjtg_slate_empty_text() {
         firemark: "AB".to_string(),
         silks: "test-pace".to_string(),
         text: "".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: false,
@@ -922,6 +1067,9 @@ fn jjtg_slate_with_first_inserts_at_beginning() {
         firemark: "AB".to_string(),
         silks: "new-first-pace".to_string(),
         text: "This should be first".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: None,
         first: true,
@@ -943,6 +1091,7 @@ fn jjtg_slate_with_before_inserts_at_position() {
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
+        ..Default::default()
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -955,6 +1104,9 @@ fn jjtg_slate_with_before_inserts_at_position() {
         firemark: "AB".to_string(),
         silks: "inserted-pace".to_string(),
         text: "Insert before second".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: Some(pace2_key.clone()),
         after: None,
         first: false,
@@ -977,6 +1129,7 @@ fn jjtg_slate_with_after_inserts_at_position() {
     let pace2_key = "₢ABAAB".to_string();
     let pace2 = jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
+        ..Default::default()
     };
     heat.paces.insert(pace2_key.clone(), pace2);
     heat.order.push(pace2_key.clone());
@@ -989,6 +1142,9 @@ fn jjtg_slate_with_after_inserts_at_position() {
         firemark: "AB".to_string(),
         silks: "inserted-pace".to_string(),
         text: "Insert after first".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: None,
         after: Some(first_pace.clone()),
         first: false,
@@ -1014,6 +1170,9 @@ fn jjtg_slate_mutual_exclusivity() {
         firemark: "AB".to_string(),
         silks: "bad-pace".to_string(),
         text: "Should fail".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: Some(existing_pace),
         after: None,
         first: true,
@@ -1034,6 +1193,9 @@ fn jjtg_slate_before_invalid_coronet() {
         firemark: "AB".to_string(),
         silks: "new-pace".to_string(),
         text: "Test".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
         before: Some("₢ABXXX".to_string()), // Non-existent
         after: None,
         first: false,
@@ -1062,12 +1224,15 @@ fn jjtg_rail_move_first() {
     let pace4_key = "₢ABAAD".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace")],
+        ..Default::default()
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace")],
+        ..Default::default()
     });
     heat.paces.insert(pace4_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "fourth-pace")],
+        ..Default::default()
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -1113,9 +1278,11 @@ fn jjtg_rail_move_first_all_complete() {
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "second-pace")],
+        ..Default::default()
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Complete, "third-pace")],
+        ..Default::default()
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -1152,6 +1319,7 @@ fn jjtg_rail_move_last() {
     let pace2_key = "₢ABAAB".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
+        ..Default::default()
     });
     heat.order.push(pace2_key.clone());
 
@@ -1186,9 +1354,11 @@ fn jjtg_rail_move_before() {
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
+        ..Default::default()
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace")],
+        ..Default::default()
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());
@@ -1225,9 +1395,11 @@ fn jjtg_rail_move_after() {
     let pace3_key = "₢ABAAC".to_string();
     heat.paces.insert(pace2_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")],
+        ..Default::default()
     });
     heat.paces.insert(pace3_key.clone(), jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "third-pace")],
+        ..Default::default()
     });
     heat.order.push(pace2_key.clone());
     heat.order.push(pace3_key.clone());

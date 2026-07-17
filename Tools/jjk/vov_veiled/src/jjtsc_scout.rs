@@ -41,7 +41,7 @@ fn jjtsc_make_heat(silks: &str, status: jjrg_HeatStatus, paces: Vec<(&str, jjrg_
     let order: Vec<String> = paces.iter().map(|(k, _)| k.to_string()).collect();
     let mut pace_map = BTreeMap::new();
     for (key, tack) in paces {
-        pace_map.insert(key.to_string(), jjrg_Pace { tacks: vec![tack] });
+        pace_map.insert(key.to_string(), jjrg_Pace { tacks: vec![tack], ..Default::default() });
     }
     jjrg_Heat {
         silks: silks.to_string(),

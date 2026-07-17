@@ -295,10 +295,44 @@ where
 }
 
 /// Pace record - discrete action within a Heat
-#[derive(Debug, Clone, Serialize, Deserialize)]
+///
+/// Beyond the tack, a pace carries its original-intent capture: three values
+/// frozen once at slate (dictation, precis, slated) and one mutable drift
+/// counter (redocket_count). They live on the pace, not the tack, because
+/// jjrg_set_tack replaces the single tack on every docket edit — a field hung
+/// on the tack would be wiped by the first reslate. All four ride the additive
+/// serde pattern (default + skip_serializing_if), so an old store reads
+/// natively and an untouched store re-serializes byte-identical — no reprieve
+/// episode (JJSCRP additive clause).
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct jjrg_Pace {
     #[serde(rename = "jjgpn_tacks")]
     pub tacks: Vec<jjrg_Tack>,
+    /// Operator's raw slate-time words, verbatim — the authenticity anchor a
+    /// reader audits the precis against. Frozen at slate; never rewritten by
+    /// reslate or redocket; carried unchanged through draft/restring.
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgpn_dictation")]
+    pub dictation: Option<String>,
+    /// The slating LLM's distillation of the operator's context — the readable
+    /// intent, LLM-authored. Same frozen-at-slate immutability as dictation.
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgpn_precis")]
+    pub precis: Option<String>,
+    /// Slate timestamp, frozen at slate — the stored source for mount's date
+    /// annotation (the tack ts is overwritten by later edits, so it cannot
+    /// serve). Age annotates, never adjudicates.
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgpn_slated")]
+    pub slated: Option<String>,
+    /// Reslate/redocket drift signal — incremented on each docket revision
+    /// (jjrg_revise_docket, the single funnel), never by bridle/release, never
+    /// reset by relocation. The honest raw count, not a churn metric.
+    #[serde(default, skip_serializing_if = "zjjrg_u32_is_zero", rename = "jjgpn_redocket_count")]
+    pub redocket_count: u32,
+}
+
+/// Zero predicate for the redocket counter's skip_serializing_if — an
+/// unrevised pace stays byte-identical to the pre-field store shape.
+fn zjjrg_u32_is_zero(n: &u32) -> bool {
+    *n == 0
 }
 
 /// Initial pensum seed value (2-char base64url, starts at "AA")
@@ -366,6 +400,14 @@ pub struct jjrg_SlateArgs {
     pub firemark: String,
     pub silks: String,
     pub text: String,
+    /// Operator's verbatim slate-time words (original-intent capture); optional
+    /// at this layer — the slating ceremony populates it, other flows may not.
+    pub dictation: Option<String>,
+    /// Slating LLM's distillation of the operator's context; optional likewise.
+    pub precis: Option<String>,
+    /// Slate timestamp — caller-captured (procedure layer owns I/O), frozen
+    /// onto the pace as its `slated` field.
+    pub slated: String,
     /// Coronet to insert before (mutually exclusive with after/first)
     pub before: Option<String>,
     /// Coronet to insert after (mutually exclusive with before/first)

@@ -148,7 +148,8 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     // embedded heat (JJS0 jjdt_coronet).
     let coronet_str = format!("{}{}", JJRF_CORONET_PREFIX, global_pace_seed);
 
-    // Create initial Tack and Pace
+    // Create initial Tack and Pace. The original-intent capture (dictation,
+    // precis, slated) is frozen here, once — no other path writes these fields.
     let tack = jjrg_make_tack(
         jjrg_PaceState::Rough,
         args.text,
@@ -156,6 +157,10 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
     );
     let pace = jjrg_Pace {
         tacks: vec![tack],
+        dictation: args.dictation,
+        precis: args.precis,
+        slated: Some(args.slated),
+        redocket_count: 0,
     };
 
     // Insert into order at determined position
@@ -444,7 +449,11 @@ pub fn jjrg_draft(gallops: &mut jjrg_Gallops, args: jjrg_DraftArgs) -> Result<jj
         pace_data.tacks = vec![reverted];
     }
 
-    // Insert into destination heat under the unchanged Coronet.
+    // Insert into destination heat under the unchanged Coronet. Moving pace_data
+    // whole carries the original-intent capture (dictation/precis/slated) and the
+    // redocket_count forward untouched — a relocation never re-freezes or
+    // increments (BcAAK's ₢BcAAK contract, satisfied by the move-under-same-key of
+    // BcAAO's re-gestalt without the retired re-key/draft-note reconstruction).
     let dest_heat = gallops.heats.get_mut(&dest_firemark_key).unwrap();
     match insert_position {
         Some(pos) => dest_heat.order.insert(pos, source_coronet_key.clone()),

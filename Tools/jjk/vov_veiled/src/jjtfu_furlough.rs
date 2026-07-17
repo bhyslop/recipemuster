@@ -35,6 +35,7 @@ fn make_valid_pace(heat_id: &str) -> (String, jjrg_Pace) {
     let pace_key = format!("₢{}AAA", heat_id);
     let pace = jjrg_Pace {
         tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "test-pace")],
+        ..Default::default()
     };
     (pace_key, pace)
 }

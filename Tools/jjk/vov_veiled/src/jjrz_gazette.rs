@@ -21,6 +21,8 @@ pub(crate) const JJRZ_SLUG_PADDOCK: &str = "jjezs_paddock";
 pub(crate) const JJRZ_SLUG_PACE: &str = "jjezs_pace";
 pub(crate) const JJRZ_SLUG_HALTER: &str = "jjezs_halter";
 pub(crate) const JJRZ_SLUG_STEEPLECHASE: &str = "jjezs_steeplechase";
+pub(crate) const JJRZ_SLUG_DICTATION: &str = "jjezs_dictation";
+pub(crate) const JJRZ_SLUG_PRECIS: &str = "jjezs_precis";
 
 /// Slug direction — metadata for how each slug is used in operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -39,6 +41,8 @@ pub enum jjrz_Slug {
     Pace,
     Halter,
     Steeplechase,
+    Dictation,
+    Precis,
 }
 
 /// All defined slug values
@@ -49,6 +53,8 @@ pub const JJRZ_ALL_SLUGS: &[jjrz_Slug] = &[
     jjrz_Slug::Pace,
     jjrz_Slug::Halter,
     jjrz_Slug::Steeplechase,
+    jjrz_Slug::Dictation,
+    jjrz_Slug::Precis,
 ];
 
 impl jjrz_Slug {
@@ -61,6 +67,8 @@ impl jjrz_Slug {
             Self::Pace => JJRZ_SLUG_PACE,
             Self::Halter => JJRZ_SLUG_HALTER,
             Self::Steeplechase => JJRZ_SLUG_STEEPLECHASE,
+            Self::Dictation => JJRZ_SLUG_DICTATION,
+            Self::Precis => JJRZ_SLUG_PRECIS,
         }
     }
 
@@ -73,6 +81,8 @@ impl jjrz_Slug {
             JJRZ_SLUG_PACE => Some(Self::Pace),
             JJRZ_SLUG_HALTER => Some(Self::Halter),
             JJRZ_SLUG_STEEPLECHASE => Some(Self::Steeplechase),
+            JJRZ_SLUG_DICTATION => Some(Self::Dictation),
+            JJRZ_SLUG_PRECIS => Some(Self::Precis),
             _ => None,
         }
     }
@@ -86,6 +96,8 @@ impl jjrz_Slug {
             Self::Pace => jjrz_Direction::Output,
             Self::Halter => jjrz_Direction::Input,
             Self::Steeplechase => jjrz_Direction::Output,
+            Self::Dictation => jjrz_Direction::Input,
+            Self::Precis => jjrz_Direction::Input,
         }
     }
 }
@@ -297,12 +309,33 @@ impl jjrz_Gazette {
 
 // --- Operation input parsing ---
 
+/// Parsed enroll (slate) gazette input: the slate notice plus the optional
+/// original-intent companions.
+#[derive(Debug)]
+pub struct jjrz_SlateInput {
+    /// Slate notice lede — the new pace's display name.
+    pub silks: String,
+    /// Slate notice body — the docket.
+    pub docket: String,
+    /// Operator's verbatim slate-time words (jjezs_dictation body), if staged.
+    pub dictation: Option<String>,
+    /// Slating LLM's distillation (jjezs_precis body), if staged.
+    pub precis: Option<String>,
+}
+
 /// Parse gazette input for enroll (slate) operation.
-/// Returns (silks, docket) from a single slate notice.
-/// Validates: exactly one slate notice, non-empty lede (silks), non-empty body.
-pub fn jjrz_parse_slate_input(markdown: &str) -> Result<(String, String), String> {
-    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Slate], markdown)
-        .map_err(|diags| diags.join("\n"))?;
+/// Returns the slate notice (silks + docket) plus the optional original-intent
+/// companion notices (dictation, precis), each bound to the slate by a shared
+/// lede — the companion's lede must equal the slate silks.
+/// Validates: exactly one slate notice, non-empty lede (silks), non-empty body;
+/// at most one dictation and one precis, each lede-matched and non-empty.
+/// The companions are OPTIONAL at this layer (old flows still work); the
+/// slating ceremony is what requires them.
+pub fn jjrz_parse_slate_input(markdown: &str) -> Result<jjrz_SlateInput, String> {
+    let g = jjrz_Gazette::jjrz_parse(
+        &[jjrz_Slug::Slate, jjrz_Slug::Dictation, jjrz_Slug::Precis],
+        markdown,
+    ).map_err(|diags| diags.join("\n"))?;
     let entries = g.jjrz_query_by_slug(jjrz_Slug::Slate);
     if entries.is_empty() {
         return Err("No slate notice found in gazette input".to_string());
@@ -317,7 +350,38 @@ pub fn jjrz_parse_slate_input(markdown: &str) -> Result<(String, String), String
     if docket.is_empty() {
         return Err(zjjrz_empty_body_error(jjrz_Slug::Slate, &silks));
     }
-    Ok((silks, docket))
+    let dictation = zjjrz_take_slate_companion(&g, jjrz_Slug::Dictation, &silks)?;
+    let precis = zjjrz_take_slate_companion(&g, jjrz_Slug::Precis, &silks)?;
+    Ok(jjrz_SlateInput { silks, docket, dictation, precis })
+}
+
+/// Extract an optional slate-companion notice (dictation or precis): at most
+/// one, lede must match the slate silks (the shared-lede binding), body
+/// non-empty. Absent is fine — the companions are optional at the tool.
+fn zjjrz_take_slate_companion(
+    g: &jjrz_Gazette,
+    slug: jjrz_Slug,
+    silks: &str,
+) -> Result<Option<String>, String> {
+    let entries = g.jjrz_query_by_slug(slug);
+    if entries.len() > 1 {
+        return Err(format!("Expected at most one {} notice, got {}", slug, entries.len()));
+    }
+    match entries.into_iter().next() {
+        None => Ok(None),
+        Some((lede, body)) => {
+            if lede != silks {
+                return Err(format!(
+                    "{} notice lede '{}' does not match slate silks '{}' — the companion binds to the slate by a shared lede",
+                    slug, lede, silks
+                ));
+            }
+            if body.is_empty() {
+                return Err(zjjrz_empty_body_error(slug, &lede));
+            }
+            Ok(Some(body))
+        }
+    }
 }
 
 /// Parse gazette input for revise_docket (reslate) operation.
@@ -410,6 +474,10 @@ pub struct jjrz_BatchInput {
 /// Validates: at most one paddock notice; all ledes non-empty; all bodies
 /// non-empty; at least one notice overall. Slate order is file order so
 /// notice order is pace order.
+/// The original-intent companions (dictation, precis) are deliberately NOT in
+/// this vocabulary: batch-born paces carry no intent capture for now — a
+/// documented follow-on, kept loud (a staged companion here fails as
+/// not-in-vocabulary rather than being silently dropped).
 pub fn jjrz_parse_batch_input(markdown: &str) -> Result<jjrz_BatchInput, String> {
     let g = jjrz_Gazette::jjrz_parse(
         &[jjrz_Slug::Slate, jjrz_Slug::Reslate, jjrz_Slug::Paddock],
@@ -520,6 +588,8 @@ fn zjjrz_empty_body_error(slug: jjrz_Slug, lede: &str) -> String {
         jjrz_Slug::Slate => "a new pace is never docket-less",
         jjrz_Slug::Reslate => "a reslate replaces the whole docket, never blanks it",
         jjrz_Slug::Paddock => "a paddock revision replaces the whole paddock, never blanks it",
+        jjrz_Slug::Dictation => "a dictation carries the operator's verbatim words — stage them or omit the notice",
+        jjrz_Slug::Precis => "a precis carries the distilled intent — stage it or omit the notice",
         jjrz_Slug::Pace | jjrz_Slug::Halter | jjrz_Slug::Steeplechase =>
             "an input notice carries its payload in the body",
     };

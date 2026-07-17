@@ -119,7 +119,7 @@ jjx_show           {remaining}                                       # targets v
 jjx_list           {status?}
 jjx_orient         {}                                                 # target via gazette_in.md jjezs_halter notice ONLY (exactly one, firemark|coronet by length); no firemark param
 jjx_create         {silks}
-jjx_enroll         {firemark, before?, after?, first?, size_limit?} # silks+docket via gazette_in.md only
+jjx_enroll         {firemark, before?, after?, first?, size_limit?} # silks+docket+intent via gazette_in.md only
 jjx_reorder        {firemark, move?, before?, after?, first?, last?}
 jjx_alter          {firemark, racing?, stabled?, silks?}
 jjx_record         {identity, files[], size_limit?, intent?}
@@ -186,7 +186,7 @@ Gazette file exchange uses two directional files in the officium exchange direct
 - **`gazette_out.md`** (server → agent): written by getter commands, read after they return. Notices are `# jjezs_paddock <firemark>` / `# jjezs_pace <coronet>` / `# jjezs_steeplechase <firemark>`, content beneath each: `jjx_orient` → paddock + next actionable pace docket; `jjx_show` → paddock(s) + a docket per resolved pace; `jjx_paddock` → paddock only; `jjx_log` → every steeplechase entry with its subject untruncated (the inline table clips subjects, so this is the only full reading — read the file, never scrape a persisted tool-result blob).
 
 **Gazette wire format (setter commands):**
-Each notice is a `#`-header line with slug and lede, followed by a content body. The lede is **exactly one whitespace-free token** (silks / coronet / firemark, per the table below) — nothing follows it on the `#` line; the body goes beneath, and appending extra text to the lede folds it into the identity and fails validation. `jjezs_halter` is body-less (the lede is the whole notice); the content-bearing slugs (`jjezs_slate`, `jjezs_reslate`, `jjezs_paddock`) require a **non-empty** body — an empty or whitespace-only body rejects loud, a setter never executes a clear.
+Each notice is a `#`-header line with slug and lede, followed by a content body. The lede is **exactly one whitespace-free token** (silks / coronet / firemark, per the table below) — nothing follows it on the `#` line; the body goes beneath, and appending extra text to the lede folds it into the identity and fails validation. `jjezs_halter` is body-less (the lede is the whole notice); the content-bearing slugs (`jjezs_slate`, `jjezs_reslate`, `jjezs_paddock`, `jjezs_dictation`, `jjezs_precis`) require a **non-empty** body — an empty or whitespace-only body rejects loud, a setter never executes a clear.
 
 **Critical: `#` (H1) in gazette_in.md is a wire format delimiter, NOT a markdown heading.** For single-notice commands (enroll, curry, orient), use exactly ONE `#` line. For mass reslate and multi-target show, each `# jjezs_reslate` / `# jjezs_halter` line starts a new notice. All markdown headings within body content must use `##` or deeper — a bare `#` line inside content will be parsed as a notice boundary.
 
@@ -210,10 +210,18 @@ body...
 |---------|--------------------------|----------------------|
 | `jjx_orient` | `# jjezs_halter <firemark\|coronet>` (exactly one, body-less) | `{}` (target is in gazette lede) |
 | `jjx_show` | `# jjezs_halter <firemark\|coronet>` per target (one or more, body-less) | `{"remaining": true\|false}` |
-| `jjx_enroll` | `# jjezs_slate <silks>` + docket body | `{"firemark": "XX", "before?": ..., "after?": ..., "first?": ...}` |
+| `jjx_enroll` | `# jjezs_slate <silks>` + docket body; `# jjezs_dictation <silks>` + verbatim body; `# jjezs_precis <silks>` + distillation body (one shared lede) | `{"firemark": "XX", "before?": ..., "after?": ..., "first?": ...}` |
 | `jjx_redocket` (single/mass) | One or more `# jjezs_reslate <coronet>` notices, each with docket body | `{}` |
 | `jjx_redocket` (batch) | Mixed `# jjezs_paddock <firemark>` + `# jjezs_reslate <coronet>` + `# jjezs_slate <silks>` notices, one heat | `{"before?": ..., "after?": ..., "first?": ...}` (position the first slate) |
 | `jjx_curry` | `# jjezs_paddock <firemark>` + content body (non-empty) | `{"note?": "commit annotation"}` |
+
+**Original intent at slate.** Every slate stages two companion notices beside
+`# jjezs_slate <silks>`, same lede: `# jjezs_dictation <silks>` — the
+operator's words that motivated the pace, verbatim; `# jjezs_precis <silks>` —
+the slating agent's distillation of them. Both freeze at slate and are never
+rewritten; reslate/redocket revise only the docket (and bump the pace's
+redocket counter). Accepted only on `jjx_enroll` — reslates and `jjx_redocket`
+batches reject them. Optional at the tool, required at every slate.
 
 **Gazette paths are emitted by the server** — `jjx_open`/`jjx_orient` return the absolute `gazette_in`/`gazette_out` paths; use them verbatim, never rebuilt from the id (on disk `<id>` has the ☉ **stripped**: `260327-1000`, never `☉260327-1000`, so hand-substituting the ☉-id lands in a nonexistent glyph-named sibling). Never `find` for a gazette: single-MCP-call lifetime means a search finds nothing or something stale, and a setter's not-found error already names the exact path it checked.
 
@@ -254,7 +262,7 @@ When user says "mount" or you need to engage the next pace:
 
 1. Resolve the target: if the user says "mount" without specifying a heat and you have no prior heat context this session, ask which heat rather than guessing; if you have prior context (previously mounted/groomed heat), use that firemark. Write exactly one `# jjezs_halter <firemark|coronet>` notice to `gazette_in.md`, then run `jjx_orient {}`.
 2. Parse output: Racing-heats table, Heat/Next/Docket/Recent-work sections; read paddock and pace docket from the gazette file.
-3. **Read the paddock before the docket.** The paddock tells you the shape of the work; the docket tells you what to do next.
+3. **Read the paddock before the docket.** The paddock tells you the shape of the work; the docket tells you what to do next. An `Original-intent` block above the docket is the slate-frozen understanding; the docket below is the living authority.
 4. **Lead with the pace goal in one sentence**, distilled from the docket — what this pace is trying to accomplish, stated precisely (paces can sit weeks between slating and mounting; goal recall comes first). Then display brief heat context (silks + paddock one-liner + recent work) and finally the full docket.
 5. **Name assessment**: If pace silks doesn't fit docket, offer rename via `jjx_relabel`
 6. Propose the approach compactly — a one-line recommended execution strategy (model tier + sequential/parallel). Offer the reasoning (tier rationale, parallelization analysis) on request, not unprompted. Tiers: haiku (mechanical), sonnet (standard dev), opus (architectural).

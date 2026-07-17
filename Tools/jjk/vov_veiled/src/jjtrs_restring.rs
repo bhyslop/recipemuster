@@ -47,6 +47,7 @@ fn make_heat_with_paces(heat_id: &str, silks: &str, pace_count: usize) -> (Strin
 
         let pace = jjrg_Pace {
             tacks: vec![make_valid_tack(jjrg_PaceState::Rough, &pace_silks)],
+            ..Default::default()
         };
 
         order.push(pace_key.clone());

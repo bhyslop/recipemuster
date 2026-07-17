@@ -5449,8 +5449,8 @@
         "₢BcAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0623",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260715-0657",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Design plus an additive-only gallops schema change; judgment work, not mechanical.",
@@ -5551,7 +5551,7 @@
                 "Notch before every test run (§H)."
               ],
               "jjgtn_silks": "pace-original-intent",
-              "jjgtn_basis": "dd3dfe5"
+              "jjgtn_basis": "ec78585"
             }
           ]
         },

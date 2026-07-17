@@ -222,6 +222,16 @@ impl jjrg_Gallops {
 
         self.jjrg_set_tack(&ctx, tack)?;
 
+        // Drift signal: every docket revision — single or mass reslate, both
+        // funnel through here — bumps the pace's redocket counter. Deliberately
+        // NOT in jjrg_set_tack: bridle and release replace the tack too but are
+        // not docket revisions. The frozen original-intent fields are untouched.
+        let heat = self.heats.get_mut(&ctx.firemark_key)
+            .ok_or_else(|| format!("Heat '{}' not found", ctx.firemark_key))?;
+        let pace = heat.paces.get_mut(&ctx.coronet_key)
+            .ok_or_else(|| format!("Pace '{}' not found", ctx.coronet_key))?;
+        pace.redocket_count += 1;
+
         Ok(ctx)
     }
 
@@ -322,6 +332,7 @@ mod tests {
         };
         let pace = jjrg_Pace {
             tacks: vec![tack],
+            ..Default::default()
         };
         let mut paces = BTreeMap::new();
         paces.insert(coronet_key.clone(), pace);

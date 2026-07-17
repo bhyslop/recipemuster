@@ -297,12 +297,47 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
     let gazette_pace_coronet = pace_coronet.clone();
     let gazette_spec = spec.clone();
 
+    // Pace-level original-intent capture — read once here, covering both
+    // resolution paths (specific coronet and first actionable).
+    let intent_fields = gazette_pace_coronet.as_ref()
+        .and_then(|c| heat.paces.get(c))
+        .map(|p| (p.dictation.clone(), p.precis.clone(), p.slated.clone(), p.redocket_count));
+
     if let Some(coronet) = pace_coronet {
         if let Some(silks) = pace_silks {
             if let Some(state) = pace_state {
                 let next_display = gallops.jjrg_qualify_coronet(&coronet);
                 vvco_out!(output, "Next: {} ({}) [{}]", silks, next_display, state);
                 vvco_out!(output, "");
+                // Original-intent block, above the docket — the slate-frozen
+                // capture is read before any later-reconstructed docket
+                // rationale. The caveat is STANDING (a frozen field over a
+                // mutable docket is always possibly-stale); the redocket count
+                // is the honest drift signal; the date annotates, never
+                // adjudicates. A pre-capture pace has no fields and no block.
+                if let Some((ref dictation, ref precis, ref slated, redockets)) = intent_fields {
+                    if dictation.is_some() || precis.is_some() {
+                        vvco_out!(
+                            output,
+                            "Original-intent (frozen at slate {}; redockets since: {} — the docket below is the living authority and may have moved on):",
+                            slated.as_deref().unwrap_or("<unrecorded>"),
+                            redockets
+                        );
+                        if let Some(d) = dictation {
+                            vvco_out!(output, "  Dictation (operator verbatim):");
+                            for line in d.lines() {
+                                vvco_out!(output, "    {}", line);
+                            }
+                        }
+                        if let Some(p) = precis {
+                            vvco_out!(output, "  Precis (LLM-authored from editor context at slate):");
+                            for line in p.lines() {
+                                vvco_out!(output, "    {}", line);
+                            }
+                        }
+                        vvco_out!(output, "");
+                    }
+                }
                 if let Some(spec_text) = spec {
                     vvco_out!(output, "Docket:");
                     for line in spec_text.lines() {

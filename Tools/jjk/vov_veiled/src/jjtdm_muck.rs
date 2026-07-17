@@ -101,10 +101,10 @@ fn zjjtdm_tack_with_tier(state: jjrg_PaceState, tier: Option<jjrg_Tier>) -> jjrg
 /// all four states.
 fn zjjtdm_gallops() -> jjrg_Gallops {
     let mut paces = std::collections::BTreeMap::new();
-    paces.insert("₢AAAAC".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Complete)] });
-    paces.insert("₢AAAAA".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Rough)] });
-    paces.insert("₢AAAAD".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Abandoned)] });
-    paces.insert("₢AAAAE".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack_with_tier(jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet))] });
+    paces.insert("₢AAAAC".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Complete)], ..Default::default() });
+    paces.insert("₢AAAAA".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Rough)], ..Default::default() });
+    paces.insert("₢AAAAD".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack(jjrg_PaceState::Abandoned)], ..Default::default() });
+    paces.insert("₢AAAAE".to_string(), jjrg_Pace { tacks: vec![zjjtdm_tack_with_tier(jjrg_PaceState::Bridled, Some(jjrg_Tier::Sonnet))], ..Default::default() });
     let mut heats = std::collections::BTreeMap::new();
     heats.insert("₣AA".to_string(), jjrg_Heat {
         silks: "muck-test-heat".to_string(),

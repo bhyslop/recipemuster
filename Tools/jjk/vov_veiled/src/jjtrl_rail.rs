@@ -37,6 +37,7 @@ fn make_heat_with_paces(heat_id: &str, pace_ids: &[&str]) -> (String, jjrg_Heat)
         let coronet = format!("₢{}{}", heat_id, pid);
         paces.insert(coronet.clone(), jjrg_Pace {
             tacks: vec![make_tack(jjrg_PaceState::Rough, "test-pace")],
+            ..Default::default()
         });
         order.push(coronet);
     }

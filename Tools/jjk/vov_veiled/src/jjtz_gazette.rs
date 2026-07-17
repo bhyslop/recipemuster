@@ -254,6 +254,8 @@ fn jjtz_slug_directions() {
     assert_eq!(jjrz_Slug::Paddock.jjrz_direction(), jjrz_Direction::Bidirectional);
     assert_eq!(jjrz_Slug::Pace.jjrz_direction(), jjrz_Direction::Output);
     assert_eq!(jjrz_Slug::Halter.jjrz_direction(), jjrz_Direction::Input);
+    assert_eq!(jjrz_Slug::Dictation.jjrz_direction(), jjrz_Direction::Input);
+    assert_eq!(jjrz_Slug::Precis.jjrz_direction(), jjrz_Direction::Input);
 }
 
 #[test]
@@ -344,19 +346,91 @@ fn jjtz_round_trip_fenced_code_block() {
 #[test]
 fn jjtz_parse_slate_input_valid() {
     let md = format!("# {} my-pace\n\nDocket text here\n", JJRZ_SLUG_SLATE);
-    let (silks, docket) = jjrz_parse_slate_input(&md).unwrap();
-    assert_eq!(silks, "my-pace");
-    assert_eq!(docket, "Docket text here");
+    let input = jjrz_parse_slate_input(&md).unwrap();
+    assert_eq!(input.silks, "my-pace");
+    assert_eq!(input.docket, "Docket text here");
+    // A bare slate carries no original-intent companions.
+    assert!(input.dictation.is_none());
+    assert!(input.precis.is_none());
 }
 
 #[test]
 fn jjtz_parse_slate_input_multiline_docket() {
     let md = format!("# {} my-pace\n\nLine 1\n\n## Section\n\nLine 2\n", JJRZ_SLUG_SLATE);
-    let (silks, docket) = jjrz_parse_slate_input(&md).unwrap();
-    assert_eq!(silks, "my-pace");
-    assert!(docket.contains("Line 1"));
-    assert!(docket.contains("## Section"));
-    assert!(docket.contains("Line 2"));
+    let input = jjrz_parse_slate_input(&md).unwrap();
+    assert_eq!(input.silks, "my-pace");
+    assert!(input.docket.contains("Line 1"));
+    assert!(input.docket.contains("## Section"));
+    assert!(input.docket.contains("Line 2"));
+}
+
+#[test]
+fn jjtz_parse_slate_input_with_intent_companions() {
+    // The ceremony shape: slate + dictation + precis, bound by a shared lede.
+    let md = format!(
+        "# {} my-pace\n\nDocket text\n\n# {} my-pace\n\nOperator said do the thing\n\n# {} my-pace\n\nDistilled: do the thing\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_DICTATION, JJRZ_SLUG_PRECIS
+    );
+    let input = jjrz_parse_slate_input(&md).unwrap();
+    assert_eq!(input.silks, "my-pace");
+    assert_eq!(input.docket, "Docket text");
+    assert_eq!(input.dictation.as_deref(), Some("Operator said do the thing"));
+    assert_eq!(input.precis.as_deref(), Some("Distilled: do the thing"));
+}
+
+#[test]
+fn jjtz_parse_slate_input_companion_alone() {
+    // Each companion is independently optional at the tool layer.
+    let md = format!(
+        "# {} my-pace\n\nDocket text\n\n# {} my-pace\n\nJust the raw words\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_DICTATION
+    );
+    let input = jjrz_parse_slate_input(&md).unwrap();
+    assert_eq!(input.dictation.as_deref(), Some("Just the raw words"));
+    assert!(input.precis.is_none());
+}
+
+#[test]
+fn jjtz_parse_slate_input_companion_lede_mismatch() {
+    // The shared-lede binding: a companion aimed at different silks rejects.
+    let md = format!(
+        "# {} my-pace\n\nDocket text\n\n# {} other-pace\n\nStray words\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_PRECIS
+    );
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
+    assert!(err.contains("does not match slate silks"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_slate_input_companion_empty_body() {
+    let md = format!(
+        "# {} my-pace\n\nDocket text\n\n# {} my-pace\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_DICTATION
+    );
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
+    assert!(err.contains("empty body"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_slate_input_duplicate_companion() {
+    let md = format!(
+        "# {} p1\n\nD\n\n# {} p1\n\nW1\n\n# {} p2\n\nW2\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_DICTATION, JJRZ_SLUG_DICTATION
+    );
+    let err = jjrz_parse_slate_input(&md).unwrap_err();
+    assert!(err.contains("at most one"), "got: {}", err);
+}
+
+#[test]
+fn jjtz_parse_batch_input_rejects_intent_companions() {
+    // Batch-born paces carry no intent capture (documented follow-on): a
+    // staged companion must fail loud as not-in-vocabulary, never drop silent.
+    let md = format!(
+        "# {} new-pace\n\nDocket\n\n# {} new-pace\n\nWords\n",
+        JJRZ_SLUG_SLATE, JJRZ_SLUG_DICTATION
+    );
+    let err = jjrz_parse_batch_input(&md).unwrap_err();
+    assert!(err.contains("not in vocabulary"), "got: {}", err);
 }
 
 #[test]

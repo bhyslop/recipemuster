@@ -121,6 +121,12 @@ of every older-format gallops on disk. These changes are rare and easy to get wr
 do not improvise. Before touching the schema, read `jjdz_reprieve` in JJS0 and
 follow its "Registering a new episode" procedure.
 
+**Additive carve-out.** A new field riding `#[serde(default,
+skip_serializing_if = …)]` — old stores read natively AND re-serialize
+byte-identical — registers NO episode (JJSCRP's additive clause; the
+bridle-revival determination). Byte-identity is required, not just
+readability. §F branch delivery still applies.
+
 The full doctrine — the mechanism, the multi-install convergence model, how a
 schema change is delivered, and how the clones converge — lives in the JJS0
 subdocument `JJSCRP-reprieve.adoc` (the `jjdz_reprieve` quoin). The agent rule it
