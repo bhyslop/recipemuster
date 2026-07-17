@@ -191,7 +191,7 @@ rblm_harbinger() {
   # so the refusal is legible, not a silent non-zero.
   buc_step "Installing the pre-push refusal hook"
   local -r z_hook="${z_clone_dir}/.git/hooks/pre-push"
-  cat > "${z_hook}" <<'HOOK'
+  tee "${z_hook}" >/dev/null <<'HOOK'
 #!/bin/sh
 echo "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2
 exit 1
@@ -217,7 +217,7 @@ HOOK
   # Emit the stranger prompt verbatim — a heredoc straight to stderr, no yelp formatter
   # (so nothing in the body is reinterpreted as a display marker) and no file left in
   # the rig. The memo path is threaded in so the walker knows where to log its findings.
-  cat >&2 <<PROMPT
+  tee >&2 <<PROMPT
 ----------------------------------------------------------------------
 You are trying Recipe Bottle for the first time. You cloned it because you want to
 use it to build and run hardened, provenance-checked container images, and you are
