@@ -3960,8 +3960,9 @@
         "₢B0AAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1051",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260717-1054",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Small, precise doc-and-handbook repair across BUK and RBK; the fix is convergence, reference, and alignment — not redesign.",
@@ -3990,7 +3991,7 @@
                 "BUK self-test and fast-qualify green."
               ],
               "jjgtn_silks": "onboarding-handbook-repairs",
-              "jjgtn_basis": "32a65b8"
+              "jjgtn_basis": "89d4780"
             }
           ]
         },
