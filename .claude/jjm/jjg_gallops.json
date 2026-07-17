@@ -5208,8 +5208,8 @@
         "₢BcAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2033",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-2118",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -5232,7 +5232,7 @@
                 "the jjda_* quoins in the JJS0 Arguments section; their arg-struct fields in jjrt_types.rs."
               ],
               "jjgtn_silks": "retire-v3-legacy-arg-quoins",
-              "jjgtn_basis": "fae97a4"
+              "jjgtn_basis": "a528936"
             }
           ]
         },
