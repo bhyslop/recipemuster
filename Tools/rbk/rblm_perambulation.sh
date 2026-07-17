@@ -205,9 +205,10 @@ zrblm_perambulation_kindle() {
   zrblm_enroll "Tools/buk/" "${RBLM_perambulation_ship}"
   zrblm_enroll "Tools/rbk/" "${RBLM_perambulation_ship}"
 
-  # This file, and the one verb that reads it
+  # This file, the verb that reads it, and the other release-rig verb module
   zrblm_enroll "Tools/rbk/rblm_perambulation.sh" "${RBLM_perambulation_withhold}"
   zrblm_enroll "Tools/rbk/rblm_expede.sh"        "${RBLM_perambulation_withhold}"
+  zrblm_enroll "Tools/rbk/rblm_harbinger.sh"     "${RBLM_perambulation_withhold}"
 
   # Withheld kits
   zrblm_enroll "Tools/apck/"     "${RBLM_perambulation_withhold}"
