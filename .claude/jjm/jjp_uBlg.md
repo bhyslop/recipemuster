@@ -195,6 +195,36 @@ its experience feeds the terminal fence-walk pace and is banked here so the fenc
   the two-verdict prose lint, the retroactive-sweep obligation, the acceptance-record open question,
   the make-room eviction-cost census, and the register tag.
 
+## Grimoire — mulling satellite (absorbed from ₣By)
+
+This heat is the grimoire's JJ-side mulling residence,
+absorbed from the retired grimoire mulling heat (₣By)
+because the grimoire is not yet an aspirant of its own —
+it lives as VOSMM's deferred-scope sketch,
+and that sketch remains the design accretion point: leans land there, not here.
+
+The grimoire is the human-presentation layer of the naming system:
+one flat table, one row per minted word that surfaces in prose,
+each row carrying the word's literal surface forms plus categorical tags
+(register, home, and the toothing subject/object slot tags per MCM's clause grammar).
+Residence is the studbook as its third tenant, per the sketch's residence lean;
+rows append under the journal ceremony, reads ride the lockless path.
+
+Promotion to an aspirant sheaf of its own follows the studbook–farrier MVP heat and the matricula MVP —
+banked in the sketch, inherited here.
+First racing content at promotion:
+the pre-validated row schema,
+the population census as a defined deployment step
+(reprieve-shaped: new mints comply from the doctrine's landing; the standing stock converges in one deliberate act, never big-bang),
+the probe harness,
+and the lint jobs (missed-citation, printed-string, blocked-word membership).
+
+Slate-time authority for the first pace-cutting at promotion:
+the sample census runs first, before any implementation pace —
+a hand-run of the row schema over a dozen standing verbs
+(authority-bearing, operator-plain, intransitive, plain-compound, the destruction family, the read family),
+its findings amending the doctrine home (MCM's clause grammar) before code consumes it.
+
 ## Open questions
 
 The JJK integrity-check seam — shell-out (the clean degradation, the lean) versus in-process (which would link the Matricula into the shipped `vvx` and break the secrecy boundary); and how the jjx server locates a binary that only exists on the operator's machine. Lean: shell-out, Matricula-half best-effort.
@@ -237,4 +267,8 @@ It closes when the matricula aspirant — homed in VOSMM-entity.adoc, with the e
 The terminus is the fence, not a finished design — drawing it, not resolving every open question (which is its own drift trap), is the work.
 The deferred/aspirant boundary is consciously set: what the future heat pursues versus what stays deferred (the grimoire among the deferred, by standing decision), with open design questions allowed to remain open and answered inside the future heat's scope rather than as a precondition to lighting it.
 Out of scope here: building the executable (a future heat, nominated at the terminal pace) and the post-MVP widening — the richer interrogations, safe-reprefix, the engagement determinations, the gestalt-label subsystem — which is ₣Bj's.
-The terminal pace draws the fence and nominates the future build heat; nothing follows it.
+The terminal pace draws the fence and nominates the future build heat; nothing is slated after it.
+At the fence this heat does not retire:
+it furloughs (stables) as the VOSMM sheaf's standing mulling residence,
+carrying the grimoire satellite above,
+and retires only when the grimoire promotes to its own aspirant sheaf and heat.
