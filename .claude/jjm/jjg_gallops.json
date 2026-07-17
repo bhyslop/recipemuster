@@ -8,7 +8,6 @@
     "₣Bd",
     "₣B1",
     "₣Bz",
-    "₣By",
     "₣Bw",
     "₣Bv",
     "₣Bu",
@@ -7611,14 +7610,6 @@
     "₣Bw": {
       "jjghn_silks": "jjk-15-aspirant-itch",
       "jjghn_creation_time": "260706",
-      "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_next_pace_seed": "AAA",
-      "jjghn_paces": {}
-    },
-    "₣By": {
-      "jjghn_silks": "jjk-12-aspirant-grimoire",
-      "jjghn_creation_time": "260707",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
       "jjghn_next_pace_seed": "AAA",

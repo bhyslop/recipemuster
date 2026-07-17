@@ -1,3 +1,12 @@
+# Heat Trophy: jjk-12-aspirant-grimoire
+
+**Firemark:** ₣By
+**Created:** 260707
+**Retired:** 260717
+**Status:** retired
+
+## Paddock
+
 Mulling heat for the grimoire —
 the maintained word-surface table sketched in VOSMM's deferred scope (`Tools/vok/vov_veiled/VOSMM-entity.adoc`).
 This heat stables until promotion conditions are met;
@@ -31,3 +40,31 @@ The sample census runs first, before any implementation pace:
 a hand-run of the row schema over a dozen standing verbs
 (authority-bearing, operator-plain, intransitive, plain-compound, the destruction family, the read family),
 its findings amending the doctrine home (MCM's clause grammar) before code consumes it.
+
+## Paces
+
+## Commit Activity
+
+```
+
+File touches: (no work file changes)
+```
+
+## Steeplechase
+
+### 2026-07-07 17:16 - Heat - d
+
+paddock curried: at-first-slating obligation: sample census precedes implementation paces
+
+### 2026-07-07 17:09 - Heat - d
+
+paddock curried: founding paddock at nomination
+
+### 2026-07-07 17:08 - Heat - f
+
+stabled
+
+### 2026-07-07 17:08 - Heat - N
+
+jjk-12-aspirant-grimoire
+
