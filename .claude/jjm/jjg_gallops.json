@@ -3815,7 +3815,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260717-0822",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "An operator-driven cold-agent shakedown that de-risks the greenfield walk: a zero-maintainer-context Claude session reads the shipped onboarding literally and cannot paper over a gap with intuition, so its stumbles surface the doc gaps a human would unconsciously bridge.",
@@ -3840,7 +3842,7 @@
                 "and the disposable clone is discarded."
               ],
               "jjgtn_silks": "cold-agent-onboarding-shakedown",
-              "jjgtn_basis": "5eec441"
+              "jjgtn_basis": "762a73e"
             }
           ]
         }
