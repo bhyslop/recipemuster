@@ -94,6 +94,36 @@ The ours/foreign gate is the project cipher, invariant across the `_` and `-` se
 The MCP future is deferred, not designed in.
 If any Matricula interaction ever wants an MCP surface, it is a peer beside jjx in the operator's local-only `vvx` (feature-stripped from the shipped binary), never a distinct server and never shipped — and that bill is paid only then.
 
+## Landscape shift — farrier re-grounding
+
+The revision-control re-architecture (canon: JJSVF-farrier.adoc, JJSVC-cosmology.adoc) moves the matricula's ground:
+the VOK/VVK baseline that anchors it — the `vof` library and its workspace — homes in the JJ app repo (the `jjqa_app` infield resident), not this monorepo.
+JJ app delivery is artifact-shaped: a parcel generator distributes the JJ binary, never the source repo,
+so repo membership stops being the distribution boundary and parcel composition becomes the boundary.
+
+Ruled: matricula source co-resides in the JJ app repo workspace —
+a separate crate producing a separate command-line binary the JJ engine reaches by shell-out —
+so JJ distributes without the matricula.
+The standing cinches (standalone binary, never a link dependency of the shipped binary, shell-out seam with clean degradation) stand unchanged;
+only their repo ground moves.
+
+Load-bearing premise: the parcel composes by addition — it enumerates what ships, so nothing rides undeliberately.
+If the generator proves subtraction-shaped, the remedy is fixing the generator, never relocating the matricula.
+Boundary condition: co-residence is safe while JJ distribution stays artifact-shaped;
+a source-distribution modality (open-sourcing, upstream contribution) reopens the question.
+
+Two guards owed at the build seam, because co-residence puts the never-link rule one manifest line from breach:
+a mechanical dependency-graph assertion that the shipped binary excludes the matricula crate
+(resolving the anti-leak open question below toward guard, not structure alone);
+and delivered-context name hygiene — no parcel-delivered context file may name the matricula (owner needed, mechanical or authorial).
+
+Reconciliation owed at the fence walk:
+VOr_q4f's guard wording (parcel-and-veil terms re-derive to parcel-composition terms),
+the VOK placement cinch's repo ground,
+the theurge-precedent tabtarget story (build/test/run tabtargets follow the workspace),
+the crate-shape and anti-leak open questions (both now carrying simpler answers),
+and the Tier-0 tackle-projection note, which lands better same-workspace.
+
 ## Decomposition
 
 Four tiers, with the freeze line between Tier 1 and Tier 2.
