@@ -3851,7 +3851,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260717-1004",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Operator-and-Fable design collaboration carving the onboarding path future users should meet, worked through the human-consequence lens.",
@@ -3870,7 +3872,7 @@
                 "Findings source: Memos/memo-20260717-coldwalk-shakedown.md"
               ],
               "jjgtn_silks": "coldwalk-onboarding-iterate",
-              "jjgtn_basis": "a6e8986"
+              "jjgtn_basis": "ee010af"
             }
           ]
         }
