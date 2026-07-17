@@ -3584,11 +3584,12 @@
         "₢B0AAG",
         "₢B0AAC",
         "₢B0AAH",
+        "₢B0AAJ",
         "₢B0AAI",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAJ",
+      "jjghn_next_pace_seed": "AAK",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
@@ -3873,6 +3874,41 @@
               ],
               "jjgtn_silks": "coldwalk-onboarding-iterate",
               "jjgtn_basis": "ee010af"
+            }
+          ]
+        },
+        "₢B0AAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1025",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Investigation and design ruling under BCG module discipline;",
+                "patient source tracing before any cut — the mess risk lives in the kindle/enforce chain, not the diff size.",
+                "",
+                "## Why",
+                "Coldwalk headline finding (Memos/memo-20260717-coldwalk-shakedown.md, Findings 4–5):",
+                "every rbob_* command dispatches through zrbob_furnish (Tools/rbk/rbob_cli.sh),",
+                "which unconditionally kindles and enforces all four cloud-identity regimes (RBRR/RBRD/RBRF/RBRW),",
+                "so the documented fully-local ccyolo track cannot kludge or charge on a bare clone without fabricating depot, IdP, and org identity.",
+                "RBRD is confirmed incidental by source trace (its derived value is read only in a vessel-anchor branch ccyolo never triggers);",
+                "RBRF/RBRW look structurally identical but are untraced at that rigor.",
+                "",
+                "## Investigate",
+                "Whether crucible lifecycle and kludge verbs can deftly enforce only the regimes their code paths genuinely read,",
+                "respecting BCG kindle/enforce discipline so no half-kindled regime fails obscurely downstream of the dispatcher.",
+                "Trace RBRF/RBRW consumption on the local paths to the rigor RBRD received;",
+                "derive the per-command regime-need matrix from actual reads, never from the dispatcher's current shape.",
+                "",
+                "## Done when",
+                "A ruling lands: either the deft scoping design — which commands enforce what, and the clean BCG mechanism —",
+                "proven by reveille plus regime-poison plus a bare-clone ccyolo kludge and charge with RBRD/RBRF/RBRW blank;",
+                "or a reasoned finding that scoping is not deft, with the inert-placeholder doc fix named as the onboarding fallback.",
+                "Landing the code is delivered-bytes-bearing — the paddock's divergence economics govern what re-opens."
+              ],
+              "jjgtn_silks": "kludge-charge-cloudless-regime-scoping",
+              "jjgtn_basis": "161a317"
             }
           ]
         }
