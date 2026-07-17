@@ -32,6 +32,11 @@ only a code-bearing re-cut re-opens the full gate — fresh walk and gauntlet �
 and code-bearing means delivered-bytes-bearing, measured mechanically as a changed candidate tree hash:
 a repair touching only withheld paths re-opens the cut-local battery alone, never walk or gauntlet;
 and any re-walk reuses the standing fresh rig — a second payor project is never levied for it (the billing-link quota).
+Repair-lap doctrine (coldwalk-shakedown disposition, 260717): iteration belongs in the reversible tier —
+repair candidates are re-cut locally and coldwalked via the harbinger's local-candidate mode until a lap runs dry,
+and only the proven candidate takes the two public acts (one staging push, one promotion, human-hands-only);
+iteration coldwalks are a distinct instrument from the final stranger proofs —
+the confirmation coldwalk and the operator walk still run against promoted public main.
 This heat races the moment the staging heat's (₣Bs) integrity probe closes green — it does not wait for that heat to close;
 the staging heat's residue runs as fill work across this heat's ceremony gaps and its nomination pace follows the release, by design.
 Post-promotion the staging branch is deleted — ceremony hygiene, recorded with the delivery pattern in the ceremony document.
@@ -51,8 +56,9 @@ The github.io landing page retires: promotion deletes the public repo's untracke
 In pace order:
 amend the cut ceremony to the manual-reveal shape — expede a pure local constructor, the reveal human-hands-only by structural incapacity;
 re-cut under the amended ceremony, preview in quarantine, and stage the candidate onto the public repository as an unmerged branch, publicly cloneable;
+the coldwalk-driven repair cycle — the shakedown's fix paces (furnish scoping, station bootstrap, payor-track recarve), the harbinger's local-candidate mode, and a repair lap re-cut locally and iterated dry before one staging push and one promotion of the proven candidate;
 the greenfield manor walk, full, against promoted public main — operator's own hands, from the onboarding entry to a gauntlet green on a fresh payor substrate;
-then close out the release — promotion itself executed early under the 260715 re-ruling (fast-forward by hand, tree-hash-equal, PR #3 auto-merged at the candidate tip) — leaving the anchor-liveness sweep, the ceremony-document amendment, and the release record.
+then close out the release — promotion itself executed early under the 260715 re-ruling (fast-forward by hand, tree-hash-equal, PR #3 auto-merged at the candidate tip), and re-executed by each repair lap — leaving the anchor-liveness sweep, the ceremony-document amendment, and the release record.
 
 ## Done when
 

@@ -3585,45 +3585,46 @@
         "₢B0AAC",
         "₢B0AAH",
         "₢B0AAJ",
+        "₢B0AAL",
         "₢B0AAK",
         "₢B0AAI",
         "₢B0AAA",
         "₢B0AAB"
       ],
-      "jjghn_next_pace_seed": "AAL",
+      "jjghn_next_pace_seed": "AAM",
       "jjghn_paces": {
         "₢B0AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260713-0717",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260717-1051",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
-                "Drafted from ₢BsAAh in ₣Bs.",
-                "",
                 "## Character",
                 "Multi-hour operator-present founding ceremony; real IdP consoles, fresh credentials, real spend.",
                 "Not tired-work — schedule it fresh.",
                 "",
-                "## Cinched (operator, 260712)",
+                "## Cinched (operator, 260712; re-ruled 260715)",
                 "The operator drives every step at the keyboard, personally — the whole point is a human first-contact proof.",
                 "An agent in the session is scribe only: it records the divergence census and answers questions the shipped docs answer badly (each such question IS a finding);",
                 "it never runs a tabtarget, never reads maintainer specs to unblock the walk, never fills a gap the docs leave.",
                 "If the operator cannot proceed from the shipped material alone, that is a stop-and-record finding, not a prompt for agent rescue.",
+                "Per the 260715 re-ruling the walk runs FULL against promoted public main — the default face a real stranger lands on;",
+                "this release's disclosure and promotion precede it, so the walk gates the closeout and future-release doctrine, never the push.",
                 "",
                 "## Docket",
-                "Walk the entire consumer journey from true zero on the candidate tree, through the shipped docs alone, operator's own hands:",
-                "start where a stranger starts — the onboarding entry (rbw-o) and its handbook tracks, walked as first-contact reading;",
-                "stand up a fresh GCP payor project — manual Establish with consent screen, PayorInstall, and the Entra federation guide against the operator's IdP tenant;",
-                "found the manor from nothing — instaurate, affiance, gird, brevet — following only what the candidate ships (README, handbooks, guided tabtargets), never maintainer knowledge;",
+                "Precondition: the repair lap has run — the coldwalk iterated dry on the local candidate, and the proven candidate staged and promoted (tree-hash-equal), so the promoted face carries the shakedown fix paces' bytes.",
+                "Walk the entire consumer journey from true zero, through the shipped docs alone, operator's own hands:",
+                "start where a stranger starts — a fresh default-branch clone of the public repository, the onboarding entry (rbw-o) and its handbook tracks, walked as first-contact reading;",
+                "stand up a fresh GCP payor substrate following the shipped payor track as recarved — org founding, Establish with consent screen, PayorInstall, and the Entra federation guide against the operator's IdP tenant;",
+                "found the manor from nothing — instaurate, affiance, gird, brevet — following only what the promoted face ships (README, handbooks, guided tabtargets), never maintainer knowledge;",
                 "culminate in the gauntlet run green from the fresh substrate —",
                 "one run proving both the founding path and the full ladder on delivered bytes,",
                 "and standing in for the cloud chain-livery proof of the chain-lifetime repair (heat cinch).",
                 "Record every divergence between the shipped docs and reality as a finding — including every moment the operator had to ask the scribe something the docs should have answered;",
-                "divergences feed a re-cut or an explicit fast-follow ruling, operator's call.",
+                "divergences feed the paddock's divergence economics — fast-follow for doc-only, a further repair lap for code-bearing — operator's call.",
                 "Watch the billing-account link quota — the fresh project consumes a link.",
                 "Disposition of the fresh rig at close — keep as a standing consumer-simulation station for future releases, or tear down — is an operator ruling; the lean is keep.",
-                "This walk gates the push this release only (first of the federation era); the ceremony document records it as first-of-series depth thereafter.",
+                "The ceremony document records the walk as first-of-series depth thereafter.",
                 "",
                 "## Done when",
                 "The manor stands founded from zero via shipped docs alone, by the operator's own hands;",
@@ -3631,43 +3632,43 @@
                 "the gauntlet green from the fresh substrate;",
                 "the divergence census recorded and dispositioned — scribe-questions included;",
                 "the rig disposition ruled;",
-                "the ceremony document records the walk as first-of-series depth."
+                "the walk recorded at first-of-series depth in the ceremony document."
               ],
               "jjgtn_silks": "greenfield-manor-walk",
-              "jjgtn_basis": "83dfe22"
+              "jjgtn_basis": "32a65b8"
             }
           ]
         },
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-1924",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260717-1051",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Operator-present delivery ceremony; short, high-stakes; run fresh, not tired.",
+                "Operator-present closeout ceremony; short; run fresh, not tired.",
                 "",
                 "## Docket",
-                "Carry out the release: promote the walked staging candidate to production and prove the promoted face.",
-                "Promote: fast-forward-only merge (--ff-only) of the candidate branch to the public repository's main —",
-                "a refused fast-forward means main moved since staging, and the promotion stops before any commit exists;",
-                "then assert tree-hash equality — main's tree after the merge equals the candidate tip; any inequality is a wrong promotion, stop.",
-                "Liveness: the RBRR_PUBLIC_DOCS_URL main-blob README serves, and every anchor rbyc_common.sh mints resolves against the live page (the post-promotion half of the link-check split; the structural half already rode pyx at the cut).",
-                "Production spot-check (thin by cinch — the walk already proved the bytes on staging):",
+                "Close out the release. Promotion is not this pace's work — it was executed early under the 260715 re-ruling and is re-executed by each repair lap; run this closeout after the LAST promotion, post-walk.",
+                "Liveness: the RBRR_PUBLIC_DOCS_URL main-blob README serves, and every anchor rbyc_common.sh mints resolves against the live page (the post-promotion half of the link-check split; the structural half rides pyx at each cut).",
+                "Production spot-check (thin by cinch — the walk proved the bytes):",
                 "repo front-page README rendering, the github.io page serving the README render per the ceremony document's Pages-retirement ruling, and a fresh default-branch clone taken a few minutes into the onboarding entry.",
-                "Amend the ceremony document: the structural-versus-liveness link-check split, and this heat's stage→walk→promote shape recorded as the delivery pattern.",
+                "Delete the public staging branch (POSTULANT_LOCAL) — post-promotion hygiene per the paddock.",
+                "Amend the ceremony document:",
+                "the structural-versus-liveness link-check split;",
+                "this heat's actual stage → promote → walk shape recorded as the first-delivery exception beside restored walk-gates-promotion standing doctrine;",
+                "and the reversible-tier repair-lap pattern (local-candidate coldwalk iteration, one disclosure of the proven candidate) recorded with the delivery pattern.",
                 "Record the release per the ceremony document.",
                 "Precondition: the greenfield walk has closed green with its divergence census dispositioned.",
                 "",
                 "## Done when",
-                "The candidate merged to public main fast-forward-only with tree-hash equality proven;",
-                "liveness and spot-check green;",
+                "Liveness and the spot-check green;",
+                "the staging branch deleted;",
                 "the ceremony document amended;",
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "ef77fa6"
+              "jjgtn_basis": "32a65b8"
             }
           ]
         },
@@ -3949,6 +3950,43 @@
               ],
               "jjgtn_silks": "payor-track-guide-recarve",
               "jjgtn_basis": "1951118"
+            }
+          ]
+        },
+        "₢B0AAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1051",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small, precise doc-and-handbook repair across BUK and RBK; the fix is convergence, reference, and alignment — not redesign.",
+                "",
+                "## Why",
+                "Coldwalk findings, doc side (Memos/memo-20260717-coldwalk-shakedown.md):",
+                "Findings 1–2 — on a genuinely fresh clone with no station-files directory, the documented validator step raw-crashes (bash \"No such file or directory\") instead of guiding;",
+                "the remedy, buw-SI.StationInit.sh, is referenced nowhere in the onboarding handbook;",
+                "and StationInit itself emits a burs.env missing BURS_TINCTURE, whose full template and purpose comment live only in bul_launcher.sh's no-station-file path.",
+                "Findings 4–5 doc side — the Occ/Ofc handbook text and README promise the ccyolo track needs no cloud identity,",
+                "while Occ's regime step primes RBRD as payor-owned — the pair that left the cold walker stalled at a contradiction.",
+                "",
+                "## Work",
+                "StationInit emits the complete station template — every required BURS field including BURS_TINCTURE with its purpose comment —",
+                "converging with the bul_launcher.sh template so the two paths cannot drift (one home for the template preferred).",
+                "The Occ onboarding handbook names StationInit as the fresh-station step before the validator;",
+                "the missing-station-file path fails guided — naming StationInit — never as a raw bash crash.",
+                "Align the onboarding handbook with the furnish-scoping ruling from the pace before this one:",
+                "if scoping landed, the ccyolo track's fully-local promise now holds — sweep the handbook and README text to say exactly that;",
+                "if scoping was ruled not-deft, add the inert-placeholder guidance to the ccyolo track and the rbrd.env header (safe conformant stand-ins pre-Levy, revisit before a real Levy).",
+                "Finding 3's renderer observation (rbw-rrr hard-fails on unset fields rather than rendering with blanks shown) is dispositioned in one line — a doc note or an explicit decline, mount's judgment.",
+                "",
+                "## Done when",
+                "A fresh clone with no station-files directory reaches a valid station regime through documented steps alone;",
+                "the ccyolo track's handbook text is true against the furnish ruling as landed;",
+                "BUK self-test and fast-qualify green."
+              ],
+              "jjgtn_silks": "onboarding-handbook-repairs",
+              "jjgtn_basis": "32a65b8"
             }
           ]
         }
