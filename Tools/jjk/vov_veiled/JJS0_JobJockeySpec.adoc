@@ -2320,9 +2320,11 @@ Kebab-case display name for the target entity.
 {jjda_state}::
 Target state for the
 {jjdpr_pace},
-driving the tally-family state transition
-({jjdo_close}, {jjdo_drop}; redocket passes none to inherit the current state).
-Not exposed as an {jjdx_tool} parameter — internal to those operations' call sites.
+set internally by the operations that transition a pace:
+{jjdo_close} to {jjdpe_complete},
+{jjdo_drop} to {jjdpe_abandoned};
+{jjdo_relabel} leaves it unset to hold the pace's current state.
+Not exposed as an {jjdx_tool} parameter.
 
 [[jjda_intent]]
 //axl_voices axa_keyword
