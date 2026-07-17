@@ -195,11 +195,16 @@ a
 The
 {vosmm_matricula}
 is operator-only infrastructure and must never enter the distributed substrate.
-The boundary stands on four independent guards: its source is not collected (VOK is unmanaged and the source is
-{vosp_veiled}
-), its behavior is not linked into the shipped `vvx` (never a `vof`/`vvr` dependency), and its built binary is never committed (it lands in a gitignored `target/release/` under the veil).
-Inclusion would require a deliberate, auditable act — a new managed-kit entry, a new `vvr` dependency, or an explicit copy into the parcel — never a silent compile flag.
+The boundary is parcel composition, not repository membership.
+JJ app delivery is artifact-shaped — a parcel generator distributes the JJ binary, never the source repository — so the matricula source co-residing in the JJ app workspace beside `vof` is safe, because membership in that workspace is not membership in the parcel.
+The load-bearing premise is that the parcel composes by addition, enumerating what ships, so nothing rides undeliberately; were the generator ever to prove subtraction-shaped, the remedy is to fix the generator, never to relocate the matricula.
+The premise rests on three independent guards.
+The shipped JJ binary never links the matricula crate, held by a mechanical dependency-graph assertion at the build seam — co-residence puts the never-link rule one manifest line from breach, so structure alone does not suffice.
+No parcel-delivered context file names the matricula — the name-hygiene guard, whose owner (mechanical or authorial) is not yet decided.
+The built binary lands only in a gitignored `target/`, never a committed `bin/`.
+Inclusion thus requires a deliberate, auditable act — a parcel addition, a new link dependency, or an explicit copy — never a silent compile flag.
 This is the whole reason the runtime is a standalone binary rather than a feature-stripped subcommand of a shipped tool.
+The boundary holds while JJ distribution stays artifact-shaped; a source-distribution modality would reopen the placement question.
 The store-side complement: the implementation lives in kit source, never in the studbook — the store holds what JJ knows, kit repos hold what JJ is, and a blotter carries no code (the engine-known posture, JJSVB-blotter.adoc).
 
 == Decomposition
