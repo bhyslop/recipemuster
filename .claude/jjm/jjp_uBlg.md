@@ -47,22 +47,26 @@ The secrecy gradient is preserved by tier, not by file: vocabulary lives at the 
 JJK contains no Vox implementation — JJK↔Vox couplings are purpose-built JJK operations with subtle Vox interactions, designed per-need (the paddock/docket integrity check is the first instance, not a template), never a blanket proxy of the whole Vox interface; much of that design likely lands in ₣Bj or future JJK heats.
 The re-gestalt-plus-consolidation surgery is its own slated pace(s), not absorbed into the authoring pace; the bootstrap-collision risk during the mass rename is accepted as bounded — the Liturgy is barely adopted yet (it was a distillation of a prior conversation, not yet in use), so repair is iterative as intimate problems surface, and the Matricula itself becomes the eventual net.
 
-Placement is VOK — entity, grammar, and spec under the `vo` cipher, homed in the re-gestalted Vox cosmology (VOS0 top plus VOSMM-entity.adoc, the Matricula subdoc), code as a standalone VOK executable over the `vof` library.
-The verified build structure decides this: VOK ships nothing as source (it is not in the managed-kit list, so its tree is never collected into a parcel), which makes it a tighter vault than CMK — CMK ships through two outbound pipelines (the parcel and the open-source upstream) and is doc-only with no crate.
+Placement — entity, grammar, and spec under the `vo` cipher, homed in the re-gestalted Vox cosmology (VOS0 top plus VOSMM-entity.adoc, the Matricula subdoc).
+The code is a separate crate in the JJ app repo workspace — the `jjqa_app` infield resident where the VOK/VVK baseline and the `vof` library home under the farrier program (JJSVF-farrier.adoc, JJSVC-cosmology.adoc) — producing a standalone command-line executable over `vof`.
 
 CMK is the doctrine home, cited and never re-homed.
 The minting rules the Matricula enforces — terminal-exclusivity, collision, MCM Lapidary word-selection — are CMK/MCM doctrine; VOSMM cites them as the authority and does not restate them, so the rules keep one home.
 
-The runtime is a standalone independent VOK executable, not a `vvr` subcommand.
-The theurge crate (`rbtd`) is the precedent: its own build/test/run tabtargets, outside the VOW pipeline, shipping nothing.
-This supersedes the earlier cinch that the runtime would ship as a `vvr` subcommand inside `vvx`.
+The runtime is a standalone independent executable the JJ engine reaches by shell-out, never a `vvr` subcommand.
+The theurge crate (`rbtd`) is the precedent shape: its own build/test/run tabtargets riding beside its workspace, shipping nothing.
 
 Structural secrecy is the distribution boundary, and it is load-bearing security.
-The Matricula source lives committed under a veiled directory (`Tools/vok/vov_veiled/<crate>/`): version-controlled, but excluded from the parcel by the veil and by VOK being unmanaged.
-The built binary lands in that crate's gitignored `target/release/` — itself a subdirectory of the veil, already covered by the `**/target/` rule — and its tabtarget execs it directly from there (the `vow-r` precedent), never copying it to a committed `bin/`.
-So the boundary stands on four independent guards: the source is not collected (VOK unmanaged + veiled), the behavior is not linked into `vvx` (never a `vvr` dependency), and the binary is never even committed (gitignored).
-Inclusion would require a deliberate, auditable act — a new managed-kit entry, a new `vvr` dependency, or an explicit file-copy into the parcel — never a silent compile flag, which is the whole point of the standalone-binary choice over a feature-stripped subcommand.
-This boundary is a candidate for a normative rivet in the subdoc.
+JJ app delivery is artifact-shaped — a parcel generator distributes the JJ binary, never the source repo — so parcel composition, not repo membership, is the boundary, and matricula source co-residing in the JJ app workspace is safe.
+Load-bearing premise: the parcel composes by addition, enumerating what ships, so nothing rides undeliberately;
+if the generator proves subtraction-shaped, the remedy is fixing the generator, never relocating the matricula.
+The boundary's guards:
+the shipped JJ binary never links the matricula crate, held by a mechanical dependency-graph assertion at the build seam — co-residence puts the never-link rule one manifest line from breach, so structure alone does not suffice;
+no parcel-delivered context file names the matricula (the name-hygiene guard; its owner, mechanical or authorial, is undecided);
+and the built binary lands only in gitignored `target/`, never a committed `bin/`.
+Inclusion thus requires a deliberate, auditable act — a parcel addition or a new link dependency — never a silent compile flag.
+Boundary condition: this holds while JJ distribution stays artifact-shaped; a source-distribution modality reopens the placement question.
+The boundary's rivet home is VOr_q4f (VOSMM).
 
 The organizing principle is: share libraries, ship only the substrate.
 Logic lives in library crates; executables are thin frontends; a tool ships only if it is part of the consumer substrate (the `vvx` installer/jjx-server/freshen binary), otherwise it is an independent, unshipped binary.
@@ -93,36 +97,6 @@ The ours/foreign gate is the project cipher, invariant across the `_` and `-` se
 
 The MCP future is deferred, not designed in.
 If any Matricula interaction ever wants an MCP surface, it is a peer beside jjx in the operator's local-only `vvx` (feature-stripped from the shipped binary), never a distinct server and never shipped — and that bill is paid only then.
-
-## Landscape shift — farrier re-grounding
-
-The revision-control re-architecture (canon: JJSVF-farrier.adoc, JJSVC-cosmology.adoc) moves the matricula's ground:
-the VOK/VVK baseline that anchors it — the `vof` library and its workspace — homes in the JJ app repo (the `jjqa_app` infield resident), not this monorepo.
-JJ app delivery is artifact-shaped: a parcel generator distributes the JJ binary, never the source repo,
-so repo membership stops being the distribution boundary and parcel composition becomes the boundary.
-
-Ruled: matricula source co-resides in the JJ app repo workspace —
-a separate crate producing a separate command-line binary the JJ engine reaches by shell-out —
-so JJ distributes without the matricula.
-The standing cinches (standalone binary, never a link dependency of the shipped binary, shell-out seam with clean degradation) stand unchanged;
-only their repo ground moves.
-
-Load-bearing premise: the parcel composes by addition — it enumerates what ships, so nothing rides undeliberately.
-If the generator proves subtraction-shaped, the remedy is fixing the generator, never relocating the matricula.
-Boundary condition: co-residence is safe while JJ distribution stays artifact-shaped;
-a source-distribution modality (open-sourcing, upstream contribution) reopens the question.
-
-Two guards owed at the build seam, because co-residence puts the never-link rule one manifest line from breach:
-a mechanical dependency-graph assertion that the shipped binary excludes the matricula crate
-(resolving the anti-leak open question below toward guard, not structure alone);
-and delivered-context name hygiene — no parcel-delivered context file may name the matricula (owner needed, mechanical or authorial).
-
-Reconciliation owed at the fence walk:
-VOr_q4f's guard wording (parcel-and-veil terms re-derive to parcel-composition terms),
-the VOK placement cinch's repo ground,
-the theurge-precedent tabtarget story (build/test/run tabtargets follow the workspace),
-the crate-shape and anti-leak open questions (both now carrying simpler answers),
-and the Tier-0 tackle-projection note, which lands better same-workspace.
 
 ## Decomposition
 
@@ -155,13 +129,13 @@ Grep's real partiality is role-form coverage — the same name as `x_`, `zx_`, `
 
 Correctness rests on the grep-as-registry axiom: a minted name must be textually present at its declaration.
 A name born from a macro (`paste!`/`concat_idents!`) or bash `eval` is invisible to a structural scan, so a referenced-but-never-declared token is itself a Finding, not something to chase with an expander.
-The codebase empirically already honors this (zero identifier-synthesis); whether RCG/BCG should codify it is open.
+RCG and BCG codify it — RCG's greppable-definitions rule and BCG's never-synthesize-a-minted-name section — which is what makes the axiom safe to lean on.
 
 File-role layer: atop the allowlist + git-tracked candidate gate, a path carries a role — declaration-bearing, reference-only, index-of-record (CLAUDE.md acronym tables, which the MVP will generate), or generated (e.g. the tabtarget-context).
 Memos are the first reference-only case: excluded from the MVP declaration scan, with a removal condition — they re-enter as a reference corpus when TRACE lands in ₣Bj, because a memo citing an old name is a reference a rename should know about.
 `.md` is the heterogeneous class that forces this layer — prose, index-of-record, and generated output cannot be scanned as one thing.
 
-## Worked seed — a chapbook marker-law checker (memo, 260705)
+## Worked seed — a chapbook marker-law checker
 
 Operator-directed capture of a validator written and discarded in the README-currency heat (₣Bt), during the provenance-chapbook ratification pace: a ~120-line Python script that mechanically validated the chapbook sheaf's annotation skeleton against AXLA's hierarchy-chapbook law.
 It is this paddock's concerns made concrete — a per-vesture line-pattern recognizer that proved sufficient without any AST or resolution — so its shape is recorded here as evidence and feedstock; the script itself lived in session scratchpad and is gone (deliberately unhomed: minting it a durable home is validator-inventory design work, not a ratification pace's).
@@ -193,7 +167,7 @@ It is a join of two oracles — the Matricula for naming and path references, th
 Because JJK ships (it is the jjx server) and the Matricula must not, the standalone-binary choice forces this check to reach the Matricula by shelling out to the unshipped binary — present in the operator's repo, absent for consumers, where it degrades cleanly to the gallops-only oracle.
 The richer engagement (the ambient and gate determinations) is scoped to ₣Bj.
 
-## Empirical input — the ₣Br mint-census pace (260705)
+## Empirical input — the ₣Br mint-census pace
 
 A full mint census ran by hand in ₣Br's word-picking pace;
 its experience feeds the terminal fence-walk pace and is banked here so the fence is drawn against field evidence, not supposition.
@@ -225,11 +199,10 @@ its experience feeds the terminal fence-walk pace and is banked here so the fenc
   the two-verdict prose lint, the retroactive-sweep obligation, the acceptance-record open question,
   the make-room eviction-cost census, and the register tag.
 
-## Grimoire — mulling satellite (absorbed from ₣By)
+## Grimoire — mulling satellite
 
-This heat is the grimoire's JJ-side mulling residence,
-absorbed from the retired grimoire mulling heat (₣By)
-because the grimoire is not yet an aspirant of its own —
+This heat is the grimoire's JJ-side mulling residence:
+the grimoire is not yet an aspirant of its own —
 it lives as VOSMM's deferred-scope sketch,
 and that sketch remains the design accretion point: leans land there, not here.
 
@@ -257,16 +230,15 @@ its findings amending the doctrine home (MCM's clause grammar) before code consu
 
 ## Open questions
 
-The JJK integrity-check seam — shell-out (the clean degradation, the lean) versus in-process (which would link the Matricula into the shipped `vvx` and break the secrecy boundary); and how the jjx server locates a binary that only exists on the operator's machine. Lean: shell-out, Matricula-half best-effort.
+The integrity-check locate-and-degrade contract — how the JJ engine finds the matricula binary (the co-resident workspace target dir is the natural seat) and degrades to the gallops-only oracle where the binary is absent. The seam itself is cinched shell-out above; only this contract is open.
 The library boundary — what rises into `vof` (and thus ships as behavior in `vvx`) versus what stays Matricula-only (the Vesture grammars and validators, which are the secret); where exactly the tree-walk generalization lands.
+VOr_q4f re-derivation — VOSMM's never-ships derivation speaks in this monorepo's parcel-and-veil terms; it re-derives to the parcel-composition terms cinched above (a spec edit owed with the fence).
 Crate shape — one `rbtd`-style lib+bin crate (sufficient for pure shell-out) versus a separate lib crate plus a thin bin (needed only if a real in-process consumer appears). Lean: single crate until one does.
 Tabtarget surface and colophon — its own build/test/run tabtargets, and what colophon names them, under the recursive scrutiny a minting tool's own names warrant.
-Whether to add a mechanical anti-leak guard (a qualify-style check that fails if the Matricula ever becomes a `vvr` dep or enters the parcel) versus relying on the structure alone.
 v1 scan scope — quoins-and-signets (high fidelity, matches the minting-violation MVP) versus all classes (matches the full ask with honest coverage gaps on sprues and rivets).
 Classifier growth — enumerate all classifiers up front versus bootstrap from the cipher gate plus a few and let residue drive which classifier to write next.
 Vesture gaps — the sprue (wire-key) domain and the mixed-case rivet form (`RBr_`) are not covered by the current six-plus-one vestures.
 Declaration-recognition fidelity — per-Vesture line patterns (MVP-cheap, leans on RCG/BCG discipline) versus a tree-sitter threshold; when does a Vesture's structure defeat a regex?
-Macro/eval greppability enforcement — whether RCG and BCG should add a narrow rule forbidding identifier-synthesis, now that the Matricula's correctness leans on the grep-as-registry axiom.
 Reference-placement lint — should the matricula flag inscription literals sitting where they don't belong: a colophon hardcoded in a comment or operator-facing string where it should route through its zipper constant (the reference-hygiene antipattern), distinct from the declaration-freshness check `rbq_qualify` already does. Reference-site, so it rides TRACE in ₣Bj, not the MVP — consciously place it in the future heat's fence.
 Facade lint — should the matricula mechanize the revetment face law (₣Bx): flag a non-ashlar interior name or the lapidary meta-register surfacing on a face file (a spall) and confirm the face's display-anchors resolve. Its pieces seat onto the constellation sketched above — face files as a new file-role; the display-form README anchors (the `<a id>`↔`](#X)` pair) as a non-cipher vesture extending the Vesture-gaps seat; the inscription-leak check as a presentment producer over face files; the anchor sweep as the second consumer of the artifact-integrity check (the paddock/docket check being the first). Word-surface leaks — the leaked word itself, not the inscription — stay grimoire-tier and deferred with the grimoire, so the fence walk does not resurrect them. Doctrine home is ₣Bx's MCM Lapidary "The Revetment" subsection (mcm_revetment / mcm_spall / the four-invariant face law); the lint cites it, never restates. Post-MVP like the reference-placement lint above — consciously place it in the future heat's (₣Bj) fence.
 
