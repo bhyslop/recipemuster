@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAP",
+  "jjgrn_next_pace_seed": "CAAAQ",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4451,6 +4451,7 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢CAAAO",
+        "₢CAAAP",
         "₢B3AAA"
       ],
       "jjghn_paces": {
@@ -4521,6 +4522,33 @@
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces, the paddock's entry gate having been sighted holding.\nThis pace lands the WARN-AT-OPEN conversion-scope seam owed by the Finding B carry.",
           "jjgpn_slated": "260718-1000"
+        },
+        "₢CAAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1001",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "The refit engine (`jjrrf_refit`) is built and tested but nothing invokes it:",
+                "the staleness warning's advice names refit, and no operator door exists.",
+                "Cut the door — the operator-invocable surface that runs the engine —",
+                "its form a mount-time decision.",
+                "Also correct the module's stale consumer comment",
+                "(\"the dispatch spine's consumers, which does not exist yet\" — the spine exists now).",
+                "Source: ₣B3 paddock carry (Finding B, refit-door item);",
+                "the full refit sequence is the stale-trunk-resync sibling tale already named deferred in JJSAC.",
+                "",
+                "## Done when",
+                "The remedy the staleness warning names is operator-invocable and exercised by a test;",
+                "the stale module comment is gone."
+              ],
+              "jjgtn_silks": "refit-operator-door",
+              "jjgtn_basis": "e32facb"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace closes the refit-engine-without-a-door gap carried from the ₣Br rehearsal findings.",
+          "jjgpn_slated": "260718-1001"
         }
       }
     },
