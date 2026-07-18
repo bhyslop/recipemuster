@@ -257,6 +257,10 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | `voci_` | Cipher | Project prefix registry (const declarations) |
 | `vofc_` | Conclave | Static kit + cipher registry (`DISTRIBUTABLE_KITS`) |
 | `vol_` | Ledger | Release record |
+| `vom`  | Matricula | Crate/binary/dir for the transient inscription census; has children (not terminal); operator-only, never ships (VOr_q4f) |
+| `vome_` | Engine | Matricula tabtarget dispatch (bash build/test/run) |
+| `vomr_` | Rust | Matricula crate runtime source modules (e.g. `vomr_matricula`) |
+| `vomt_` | Test | Matricula crate test modules (e.g. `vomt_matricula`) |
 | `vop_` | Prepare | Release preparation |
 | `vor`  | Rust source | Has children (not terminal) |
 | `vorg_` | Rust Guard | Pre-commit size validation |

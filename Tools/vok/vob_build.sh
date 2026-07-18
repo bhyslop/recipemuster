@@ -77,6 +77,16 @@ vob_build() {
   buc_doc_brief "Build vvr binary and install to canonical location"
   buc_doc_shown || return 0
 
+  # VOr_q4f: the shipped vvr binary must not link the matricula crate (vom).
+  # Mechanical guard — assert vom is absent from vvr's resolved dependency
+  # closure (feature-activated edges included); cargo tree resolves without
+  # compiling, so this fails fast before the release build. Rationale: grep VOr_q4f.
+  buc_step "Guarding vvr never links matricula (VOr_q4f)"
+  if cargo tree --manifest-path "${ZVOB_CARGO_DIR}/Cargo.toml" --features "${VOF_VOK_FEATURES}" --prefix none 2>/dev/null \
+       | grep -qE '^vom[[:space:]]'; then
+    buc_die "VOr_q4f violated: shipped vvr links matricula crate 'vom' — it must never ship; sever the dependency"
+  fi
+
   vof_clean
 
   buc_step "Building vvr binary"

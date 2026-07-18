@@ -48,6 +48,13 @@ zvoz_kindle() {
   buz_enroll VOZ_RELEASE  "vow-R" "${z_mod}" "vob_release" "imprint" "Build a VVK parcel for the imprinted kit set (full|buk-only|buk-jjk)"
   buz_enroll VOZ_FRESHEN  "vow-F" "${z_mod}" "vob_freshen" ""        "Freshen CLAUDE.md @-includes from installed kits"
 
+  # Matricula (vom) crate — operator-only inscription census; never ships
+  # (VOr_q4f). Its own crate-local build/test/run, distinct from the vvr build.
+  local z_vom_mod="vom/vome_cli.sh"
+  buz_enroll VOZ_MATRICULA_BUILD "vow-mb" "${z_vom_mod}" "vome_build" "" "Build the matricula (vom) crate"
+  buz_enroll VOZ_MATRICULA_TEST  "vow-mt" "${z_vom_mod}" "vome_test" "" "Test the matricula (vom) crate"
+  buz_enroll VOZ_MATRICULA_RUN   "vow-mr" "${z_vom_mod}" "vome_run"  "" "Run the degenerate matricula (vom) binary"
+
   readonly ZVOZ_KINDLED=1
 }
 

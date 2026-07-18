@@ -1,0 +1,8 @@
+[package]
+name = "vom"
+version = "0.0.1"
+edition = "2021"
+description = "Vox Matricula - transient inscription census over the naming system (operator-only, never ships: VOr_q4f)"
+
+[dependencies]
+vof = { path = "../vof" }
