@@ -205,6 +205,103 @@ fn jjtg_validate_appraise_diverged_heat_order_normalizes() {
     );
 }
 
+// ===== per-heat order/paces reconcile (the Rule-5 mirror one level down) =====
+
+/// canonical_gallops's single heat ₣AC, given a well-formed second pace ₢ACAAB in both
+/// `order` and `paces` — the base the per-heat reconcile tests diverge one axis from.
+/// Returns the gallops and the heat key for terse access.
+fn two_pace_heat() -> (jjrg_Gallops, String) {
+    let mut g = canonical_gallops(); // heat ₣AC, pace ₢ACAAA
+    let hk = "₣AC".to_string();
+    let second = "₢ACAAB".to_string();
+    let heat = g.heats.get_mut(&hk).unwrap();
+    heat.paces.insert(
+        second.clone(),
+        jjrg_Pace { tacks: vec![make_valid_tack(jjrg_PaceState::Rough, "second-pace")], ..Default::default() },
+    );
+    heat.order.push(second);
+    (g, hk)
+}
+
+#[test]
+fn jjtg_reconcile_dedups_pace_order_keep_first() {
+    // A merge concatenating a heat's `order` duplicates a coronet; reconcile keeps the first
+    // slot and drops the rest — the per-heat mirror of the top-level heat_order dedup.
+    let (mut g, hk) = two_pace_heat(); // order == [₢ACAAA, ₢ACAAB]
+    g.heats.get_mut(&hk).unwrap().order.push("₢ACAAA".to_string()); // [₢ACAAA, ₢ACAAB, ₢ACAAA]
+    let report = jjrg_reconcile(&mut g);
+    assert_eq!(g.heats[&hk].order, vec!["₢ACAAA".to_string(), "₢ACAAB".to_string()]);
+    assert!(report.iter().any(|r| r.contains("deduped order")), "report names the per-heat dedup: {:?}", report);
+}
+
+#[test]
+fn jjtg_reconcile_appends_invisible_pace() {
+    // A pace in `paces` but absent from `order` is invisible in listings; reconcile appends it
+    // in paces key order — the per-heat mirror of appending an invisible heat.
+    let (mut g, hk) = two_pace_heat();
+    g.heats.get_mut(&hk).unwrap().order.retain(|c| c != "₢ACAAB"); // paces-only, never ordered
+    let report = jjrg_reconcile(&mut g);
+    assert_eq!(g.heats[&hk].order, vec!["₢ACAAA".to_string(), "₢ACAAB".to_string()]);
+    assert!(report.iter().any(|r| r.contains("missing from order")), "report names the per-heat append: {:?}", report);
+}
+
+#[test]
+fn jjtg_reconcile_keeps_orphan_pace_order_entry() {
+    // DELIBERATE divergence from the top level: an orphan `order` slot (a coronet with no pace
+    // record) is the last evidence of a pace a merge lost, so per-heat reconcile does NOT drop it
+    // (unlike the top-level orphan-heat drop). It is left for Rule 5 to reject — a per-heat orphan
+    // stays Broken, never silently repaired (the cinched normalize-vs-brick line).
+    let (mut g, hk) = two_pace_heat();
+    g.heats.get_mut(&hk).unwrap().order.push("₢ACZZZ".to_string()); // ₢ACZZZ has no pace record
+    let report = jjrg_reconcile(&mut g);
+    assert!(g.heats[&hk].order.contains(&"₢ACZZZ".to_string()), "orphan order slot is kept, not dropped");
+    assert!(!report.iter().any(|r| r.contains("₢ACZZZ")), "reconcile does not report the orphan: {:?}", report);
+    let errors = g.jjrg_validate().unwrap_err();
+    assert!(errors.iter().any(|e| e.contains("order contains keys not in paces")), "orphan order slot still fails Rule 5: {:?}", errors);
+}
+
+#[test]
+fn jjtg_reconcile_pace_order_idempotent() {
+    let (mut g, hk) = two_pace_heat();
+    g.heats.get_mut(&hk).unwrap().order.push("₢ACAAB".to_string()); // diverged (dup)
+    assert!(!jjrg_reconcile(&mut g).is_empty(), "first reconcile repairs the per-heat divergence");
+    assert!(jjrg_reconcile(&mut g).is_empty(), "second per-heat reconcile is a no-op on a clean store");
+}
+
+#[test]
+fn jjtg_validate_appraise_diverged_pace_order_normalizes() {
+    // The per-heat live-store repair path: a store whose heat `order` carries a merge-dup appraises
+    // Normalize (exit 2, self-describing census), and re-appraising the normalized form is Canonical
+    // — the per-heat mirror of the top-level diverged-heat_order normalize, no reprieve episode.
+    let (mut g, hk) = two_pace_heat();
+    g.heats.get_mut(&hk).unwrap().order.push("₢ACAAB".to_string()); // duplicate slot
+    let bytes = serde_json::to_string_pretty(&g).unwrap().into_bytes();
+    let canon = match zjjrvl_appraise(&bytes) {
+        zjjrvl_Appraisal::Normalize(c, census) => {
+            assert!(census.contains("reconcile"), "normalize census names the reconcile: {}", census);
+            *c
+        }
+        other => panic!("diverged per-heat order must Normalize, got {}", appraisal_name(&other)),
+    };
+    assert_eq!(canon.heats[&hk].order, vec!["₢ACAAA".to_string(), "₢ACAAB".to_string()]);
+    let canon_bytes = serde_json::to_string_pretty(&canon).unwrap().into_bytes();
+    assert!(
+        matches!(zjjrvl_appraise(&canon_bytes), zjjrvl_Appraisal::Canonical(_)),
+        "re-appraising the reconciled per-heat form is Canonical (idempotent)"
+    );
+}
+
+#[test]
+fn jjtg_validate_appraise_orphan_pace_order_is_broken() {
+    // The cinched line end-to-end: a per-heat orphan order slot (coronet with no pace) is lost work,
+    // so appraise reports Broken (exit 1, file untouched) rather than silently dropping the slot.
+    let (mut g, hk) = two_pace_heat();
+    g.heats.get_mut(&hk).unwrap().order.push("₢ACZZZ".to_string()); // orphan
+    let bytes = serde_json::to_string_pretty(&g).unwrap().into_bytes();
+    assert!(matches!(zjjrvl_appraise(&bytes), zjjrvl_Appraisal::Broken(_)),
+        "orphan per-heat order slot must appraise Broken, never a silent drop");
+}
+
 // ===== hark (retrospective load — jjrg_hark / jjdr_hark) =====
 
 #[test]

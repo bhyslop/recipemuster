@@ -184,6 +184,10 @@ pub fn jjrg_validate(gallops: &jjrg_Gallops) -> Result<(), Vec<String>> {
 /// divergence is refused loud rather than silently healed. Disjoint from the
 /// reprieve write-forward (episode-gated schema migration): this is a standing
 /// invariant repair, not a migration, and registers no reprieve episode.
+///
+/// After the top-level pass, this also drives the per-heat order/paces reconcile
+/// (`zjjrg_reconcile_heat`) over every heat, so one call heals both the heat-level and
+/// pace-level twins in memory and the shared report names every axis it touched.
 pub fn jjrg_reconcile(gallops: &mut jjrg_Gallops) -> Vec<String> {
     let mut kept: Vec<String> = Vec::with_capacity(gallops.heat_order.len());
     let mut seen: HashSet<String> = HashSet::new();
@@ -236,7 +240,81 @@ pub fn jjrg_reconcile(gallops: &mut jjrg_Gallops) -> Vec<String> {
         gallops.heat_order = kept;
     }
 
+    // Per-heat order/paces reconcile — the Rule-5 mirror one level down. Each heat's own
+    // order/paces twin carries the same merge-concat exposure, repaired by the same
+    // ordering-only rules (zjjrg_reconcile_heat), which append heat-qualified lines to the
+    // shared report. One deliberate divergence lives in that helper: a per-heat orphan is
+    // not dropped but left for Rule 5 to brick.
+    for (heat_key, heat) in gallops.heats.iter_mut() {
+        zjjrg_reconcile_heat(heat_key, heat, &mut report);
+    }
+
     report
+}
+
+/// Reconcile one heat's `order` against its `paces` — the per-heat repair-half of the
+/// order/paces twin (Rule 5 in `zjjrg_validate_heat` is its check-half). Ordering-only
+/// and idempotent, the direct mirror of the top-level `jjrg_reconcile` one level down,
+/// with ONE deliberate divergence on the orphan axis:
+///   - a coronet appearing twice in `order` → keep the first slot, drop the rest;
+///   - a pace in `paces` absent from `order` → append it (in paces key order) so it is
+///     never invisible in listings;
+///   - a coronet in `order` with NO `paces` record (an orphan slot) → LEFT IN PLACE.
+///
+/// At the top level an orphan `heat_order` slot renders nothing and is dropped; a per-heat
+/// orphan slot is instead the last surviving evidence of a pace whose record a merge lost,
+/// so dropping it would silently erase that evidence. It is kept and left for Rule 5 to
+/// reject — a per-heat orphan stays Broken/exit-1, never repaired and never invented (the
+/// cinched normalize-vs-brick line). Each repaired axis pushes one heat-qualified line onto
+/// `report`; an orphan pushes nothing, so a store carrying only orphans reports no repair
+/// and validate bricks it.
+fn zjjrg_reconcile_heat(heat_key: &str, heat: &mut jjrg_Heat, report: &mut Vec<String>) {
+    let mut kept: Vec<String> = Vec::with_capacity(heat.order.len());
+    let mut seen: HashSet<String> = HashSet::new();
+    let mut dups: Vec<String> = Vec::new();
+
+    // First occurrence of each coronet is kept — orphans (not in paces) ride along
+    // deliberately so Rule 5 still bricks them; only duplicates are dropped.
+    for coronet in &heat.order {
+        if seen.insert(coronet.clone()) {
+            kept.push(coronet.clone());
+        } else {
+            dups.push(coronet.clone());
+        }
+    }
+
+    let mut appended: Vec<String> = Vec::new();
+    for coronet in heat.paces.keys() {
+        if !seen.contains(coronet) {
+            seen.insert(coronet.clone());
+            kept.push(coronet.clone());
+            appended.push(coronet.clone());
+        }
+    }
+
+    let mut changed = false;
+    if !dups.is_empty() {
+        report.push(format!(
+            "{}: deduped order (kept first, dropped {}): {}",
+            heat_key,
+            dups.len(),
+            dups.join(", ")
+        ));
+        changed = true;
+    }
+    if !appended.is_empty() {
+        report.push(format!(
+            "{}: appended {} pace(s) missing from order: {}",
+            heat_key,
+            appended.len(),
+            appended.join(", ")
+        ));
+        changed = true;
+    }
+
+    if changed {
+        heat.order = kept;
+    }
 }
 
 fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String>) {
