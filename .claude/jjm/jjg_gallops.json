@@ -4795,8 +4795,8 @@
         "₢CAAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1717",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1740",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -4817,7 +4817,7 @@
                 "and its examples show real current shapes."
               ],
               "jjgtn_silks": "coronet-doc-gestalt-drift",
-              "jjgtn_basis": "46cde0d"
+              "jjgtn_basis": "424bbeb"
             }
           ],
           "jjgpn_dictation": "slate a pace in B4 to address this spook please, we don't have time now",
