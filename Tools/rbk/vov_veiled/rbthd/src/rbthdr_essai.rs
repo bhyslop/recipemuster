@@ -19,15 +19,17 @@
 // remote acts. Its product is a walk-ready rig standing beside a pristine
 // candidate that is bit-for-bit what a subsequent ostend would push.
 //
-// Every worker is sequenced as a subprocess, never re-implemented (RBSHC). The
-// six steps below are RBSHE's six `//axhos_step` blocks in order; the candidate
-// battery follows the command-line sequence /rbk-expede documents (RELEASE.md
-// step 5), which essai automates. A finding at any red means RE-CUT, never patch
+// Workers are sequenced as subprocesses, never re-implemented (RBSHC) — with
+// the cut as the one ruled exception: rbthdr_expede runs in-process (RBSHC
+// "The cut, and the single matcher"). The six steps below are RBSHE's six
+// `//axhos_step` blocks in order; the candidate battery is RELEASE.md step 5,
+// which essai automates. A finding at any red means RE-CUT, never patch
 // forward — the accumulated-state bug class the ceremony exists to catch.
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
+use crate::rbthdr_expede;
 use crate::rbthdr_log;
 use crate::rbthdr_repo;
 use crate::rbthdr_rig;
@@ -41,12 +43,10 @@ const RBTHDR_COL_SUITE: &str = "rbw-ts.";
 const RBTHDR_COL_FIXTURE: &str = "rbw-tf.";
 const RBTHDR_COL_QUALIFY_FAST: &str = "rbw-tq.";
 const RBTHDR_COL_BUILD: &str = "rbw-tb.";
-const RBTHDR_COL_EXPEDE: &str = "rbw-ME.";
 
 /// Suite and fixture imprints.
 const RBTHDR_SUITE_REVEILLE: &str = "reveille";
 const RBTHDR_FIX_LOUPE: &str = "loupe";
-const RBTHDR_FIX_PERAMBULATION: &str = "perambulation";
 const RBTHDR_FIX_CUPEL: &str = "cupel";
 const RBTHDR_FIX_PYX: &str = "pyx";
 const RBTHDR_FIX_DAMNATIO: &str = "damnatio";
@@ -60,10 +60,6 @@ const RBTHDR_PROBE_BRANCH: &str = "probe";
 /// carries the verb and no launcher for it. A copy of any candidate tabtarget
 /// under this name dispatches to feign (the trampolines are byte-generic).
 const RBTHDR_FEIGN_TT: &str = "rbw-MF.MarshalFeigns.sh";
-
-/// The withheld expede module whose base-gate constants essai READS rather than
-/// copies (ACG — reference the home). Its home in the maintainer tree.
-const RBTHDR_EXPEDE_MODULE: &str = "Tools/rbk/rblm_expede.sh";
 
 /// The candidate's identity-free station (RELEASE.md step 5 / rbk-expede) — the
 /// consumer's first onboarding act reproduced, never a leak.
@@ -150,19 +146,20 @@ fn zrbthdr_gate(top: &Path) {
     }
     rbthdr_log::line("working tree clean and fully pushed");
 
-    // The base — read-only by construction. Essai reads expede's own base-gate
-    // constants (remote name, push sentinel) rather than copying them, so this
-    // preflight can never drift from the cut-time refusal expede enforces.
-    let (base_remote, push_sentinel) = zrbthdr_read_base_gate(top);
+    // The base — read-only by construction. The gate and the cut share the
+    // crate's own constants (rbthdr_expede), so this preflight can never
+    // drift from the cut-time refusal.
+    let base_remote = rbthdr_expede::RBTHDR_BASE_REMOTE;
+    let push_sentinel = rbthdr_expede::RBTHDR_BASE_PUSH_DISABLED;
 
-    let fetch = rbthdr_run::capture("git", &["remote", "get-url", &base_remote], top);
+    let fetch = rbthdr_run::capture("git", &["remote", "get-url", base_remote], top);
     if fetch.code != 0 {
         crate::rbthdr_fatal!(
             "base remote {} is not configured — the candidate is built by addition atop the real public repo, so a remote pointing at it is required:\n{}",
             base_remote, fetch.stderr.trim()
         );
     }
-    let push = rbthdr_run::capture("git", &["remote", "get-url", "--push", &base_remote], top);
+    let push = rbthdr_run::capture("git", &["remote", "get-url", "--push", base_remote], top);
     if push.code != 0 {
         crate::rbthdr_fatal!("cannot read {} push url:\n{}", base_remote, push.stderr.trim());
     }
@@ -175,31 +172,6 @@ fn zrbthdr_gate(top: &Path) {
     rbthdr_log::line(&format!("base {} configured, push side neutered", base_remote));
 }
 
-/// Read expede's base-gate constants from its module — the ACG home for the base
-/// remote name and the read-only push sentinel. Sourcing the module runs only
-/// its top-level constant assignments (its verb is a function, uncalled).
-fn zrbthdr_read_base_gate(top: &Path) -> (String, String) {
-    let module = rbthdr_repo::as_str(&top.join(RBTHDR_EXPEDE_MODULE));
-    let script = format!(
-        "set -euo pipefail\nsource '{}'\nprintf '%s\\n%s\\n' \"$RBLM_base_remote\" \"$RBLM_base_push_disabled\"",
-        module
-    );
-    let got = rbthdr_run::capture("bash", &["-c", &script], top);
-    if got.code != 0 {
-        crate::rbthdr_fatal!(
-            "cannot read expede's base-gate constants from {}:\n{}",
-            RBTHDR_EXPEDE_MODULE, got.stderr.trim()
-        );
-    }
-    let mut lines = got.stdout.lines();
-    let remote = lines.next().unwrap_or("").trim().to_string();
-    let sentinel = lines.next().unwrap_or("").trim().to_string();
-    if remote.is_empty() || sentinel.is_empty() {
-        crate::rbthdr_fatal!("expede's base-gate constants came back empty — the reach read nothing");
-    }
-    (remote, sentinel)
-}
-
 // ── Step 2: pre-cut assays, on the maintainer tree ──────────
 
 fn zrbthdr_precut_assays(top: &Path) {
@@ -210,22 +182,19 @@ fn zrbthdr_precut_assays(top: &Path) {
     let reveille = zrbthdr_find_tt(&tt, RBTHDR_COL_SUITE, Some(RBTHDR_SUITE_REVEILLE));
     zrbthdr_require_source(rbthdr_run::stream(&reveille, &[], top, &[]), "reveille suite");
 
-    // The two assays that read the veiled trees — meaningful only here; in the
-    // candidate they are red by construction.
+    // The assay that reads the veiled trees — meaningful only here; in the
+    // candidate it is red by construction. The perambulation's totality gate
+    // is not a fixture: it is the cut's own first refusal, in-process (RBSHE).
     let fixture = zrbthdr_find_tt(&tt, RBTHDR_COL_FIXTURE, None);
     zrbthdr_require_source(rbthdr_run::stream(&fixture, &[RBTHDR_FIX_LOUPE], top, &[]), "loupe fixture");
-    zrbthdr_require_source(
-        rbthdr_run::stream(&fixture, &[RBTHDR_FIX_PERAMBULATION], top, &[]),
-        "perambulation fixture",
-    );
-    rbthdr_log::line("maintainer tree green; the veiled-tree assays pass");
+    rbthdr_log::line("maintainer tree green; the veiled-tree assay passes");
 }
 
-// ── Step 3: cut the candidate via the expede worker ─────────
+// ── Step 3: cut the candidate — the absorbed cut, in-process ─
 
 /// Returns the candidate clone path ({parent}/rbm_candidate/candidate).
 fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
-    rbthdr_log::section("Cut the candidate via expede (RBSHE step 3)");
+    rbthdr_log::section("Cut the candidate (RBSHE step 3)");
 
     let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
     rbthdr_repo::guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME, top);
@@ -234,23 +203,15 @@ fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
         rbthdr_log::line("no prior candidate to retire");
     }
 
-    // Expede builds by addition into a clone of the public base and refuses on
-    // its own gates (clean tree, total perambulation, base identity + neuter,
-    // template present, byte-assert, single-commit, delta sweep, zero remotes) —
-    // relied on, never re-implemented.
-    let tt = top.join(RBTHDR_TT_SUBDIR);
-    let expede = zrbthdr_find_tt(&tt, RBTHDR_COL_EXPEDE, None);
-    let target = rbthdr_repo::as_str(&candidate_parent);
+    // The absorbed cut (RBSHC "The cut, and the single matcher"): builds by
+    // addition into a clone of the public base, refusing on its own gates —
+    // clean tree, total perambulation, base identity + neuter, template
+    // present, byte-assert, single-commit, delta sweep, zero remotes — all
+    // judged in-process by the one matcher. Fatal on any deficit; a return
+    // is the verdict.
     rbthdr_log::step(&format!("Expediting the candidate into {}", candidate_parent.display()));
-    zrbthdr_require_source(rbthdr_run::stream(&expede, &[&target], top, &[]), "expede");
+    let candidate_clone = rbthdr_expede::cut(top, &candidate_parent);
 
-    let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
-    if !candidate_clone.is_dir() {
-        crate::rbthdr_fatal!(
-            "expede left no candidate clone at {} — the cut did not land",
-            candidate_clone.display()
-        );
-    }
     rbthdr_log::line(&format!("candidate cut: {}", candidate_clone.display()));
     candidate_clone
 }

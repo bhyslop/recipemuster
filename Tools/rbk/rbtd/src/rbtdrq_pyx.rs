@@ -404,18 +404,6 @@ pub(crate) const ZRBTDRQ_VEIL_EXEMPT: &[(&str, &str)] = &[
         "the hostname-leak case's scan skip-dir list spells the veiled-dir literal it must not descend into",
     ),
     (
-        "Tools/rbk/rblm_perambulation.sh",
-        "the census names every withheld tree by charter, and is itself withheld — no candidate carries it",
-    ),
-    (
-        "Tools/rbk/rbtd/src/rbtdrq_perambulation.rs",
-        "its planted-leak table addresses a withheld tree by path to prove the sweep catches one; dead in the stripped tree, where that tree is gone",
-    ),
-    (
-        "Tools/rbk/rblm_expede.sh",
-        "expede must name the withheld consumer CLAUDE.md template it transposes onto the candidate's root, and is itself withheld — no candidate carries it",
-    ),
-    (
         "rbmm_moorings/rbml_launchers/launcher.rbthw_workbench.sh",
         "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no candidate carries it",
     ),

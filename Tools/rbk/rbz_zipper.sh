@@ -222,7 +222,6 @@ zrbz_kindle() {
   buz_enroll RBZ_MARSHAL_ZERO           "rbw-MZ"  "rblm_cli.sh" "rblm_zero"      "param1"  "Zero regime to blank template (args: the intended tree's basename)"
   buz_enroll RBZ_MARSHAL_LUSTRATE       "rbw-ML"  "rblm_cli.sh" "rblm_lustrate"  ""  "Lustrate the release clone — erase site identity from every proscribed home"
   buz_enroll RBZ_MARSHAL_FEIGN          "rbw-MF"  "rblm_cli.sh" "rblm_feign"     ""  "Feign a station on the probe branch — write shape-valid stand-ins over the lustrated site fields"
-  buz_enroll RBZ_MARSHAL_EXPEDE         "rbw-ME"  "rblm_cli.sh" "rblm_expede"    "param1"  "Expede the delivery candidate — build it by addition in a clone of the public repository"
   buz_enroll RBZ_MARSHAL_HARBINGER      "rbw-MH"  "rblm_cli.sh" "rblm_harbinger" ""  "Harbinger the cold-agent onboarding shakedown — stand up a guarded disposable clone of promoted public main and print the launch line and stranger prompt"
 
   # Nameplate — cross-nameplate operations (rbw-n)

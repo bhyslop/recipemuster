@@ -30,5 +30,10 @@
 pub mod rbthdr_log;
 pub mod rbthdr_run;
 pub mod rbthdr_repo;
+pub mod rbthdr_perambulation;
+pub mod rbthdr_expede;
 pub mod rbthdr_rig;
 pub mod rbthdr_essai;
+
+#[cfg(test)]
+mod rbthdt_perambulation;

@@ -32,9 +32,9 @@ use crate::rbthdr_run;
 /// the clone one level down, at {parent}/{RBTHDR_CANDIDATE_SUBDIR}.
 pub const RBTHDR_CANDIDATE_DIRNAME: &str = "rbm_candidate";
 
-/// The clone subdir expede creates beneath its target dir (mirrors expede's own
-/// RBLM_candidate_subdir; expede owns the value, this names the same convention
-/// so the lap can find what expede built).
+/// The clone subdir the cut creates beneath its target dir (rbthdr_expede
+/// builds there; the lap and the rig stage find what it built through this
+/// one name).
 pub const RBTHDR_CANDIDATE_SUBDIR: &str = "candidate";
 
 /// The identity-free station tree the candidate gets, a sibling of the clone

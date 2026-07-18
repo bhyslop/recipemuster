@@ -383,19 +383,16 @@ zrblm_furnish() {
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rblm_lustrate.sh"       || buc_die "Failed to source rblm_lustrate.sh"
 
-  # Differential furnish: each withheld verb's module is sourced only for that verb.
-  # Expede and harbinger are release-rig verbs whose modules are withheld from
-  # delivery, so a hard source here would leave every delivered marshal verb dangling
-  # on a module the candidate does not carry. Keying on the COMMAND rather than on the
-  # file's existence keeps the source unconditional given the verb — and in the
-  # delivered tree, where the module is absent, an invoked verb dies naming what is
-  # missing instead of furnishing cleanly and then failing on an absent function. The
-  # verbs are unreachable there in any case: tt/rbw-ME and tt/rbw-MH are withheld by
-  # the same census (the tt/rbw-M stem).
+  # Differential furnish: a withheld verb's module is sourced only for that verb.
+  # Harbinger is a release-rig verb whose module is withheld from delivery, so a
+  # hard source here would leave every delivered marshal verb dangling on a module
+  # the candidate does not carry. Keying on the COMMAND rather than on the file's
+  # existence keeps the source unconditional given the verb — and in the delivered
+  # tree, where the module is absent, an invoked verb dies naming what is missing
+  # instead of furnishing cleanly and then failing on an absent function. The verb
+  # is unreachable there in any case: tt/rbw-MH is withheld by the census (the
+  # tt/rbw-M stem).
   case "${z_command}" in
-    rblm_expede)
-      source "${z_rbk_kit_dir}/rblm_expede.sh" || buc_die "Failed to source rblm_expede.sh"
-      ;;
     rblm_harbinger)
       source "${z_rbk_kit_dir}/rblm_harbinger.sh" || buc_die "Failed to source rblm_harbinger.sh"
       ;;

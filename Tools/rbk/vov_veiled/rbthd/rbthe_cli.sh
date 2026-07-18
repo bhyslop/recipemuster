@@ -66,6 +66,17 @@ rbthe_essai() {
   "${ZRBTHE_BINARY}" essai
 }
 
+rbthe_test() {
+  buc_doc_brief "Run the hierophant crate tests — the cut's self-proofs (totality, planted-leak sweep)"
+  buc_doc_shown || return 0
+
+  local z_dir="${BASH_SOURCE[0]%/*}"
+  local z_manifest="${z_dir}/Cargo.toml"
+  buc_step "Testing hierophant"
+  cargo test --manifest-path "${z_manifest}" || buc_die "cargo test failed"
+  buc_success "Hierophant tests green"
+}
+
 ######################################################################
 # Furnish and Main
 
