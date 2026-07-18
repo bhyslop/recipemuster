@@ -4863,8 +4863,8 @@
         "₢CAAAX": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-2108",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-2158",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Small command-ergonomics fix to a ceremony doc.",
@@ -4888,7 +4888,7 @@
                 "- State-and-proceed, never silent-assume: `jjx_close` sweeps the tree and closes a pace, so the inferred coronet must be shown before the wrap fires so the operator can veto."
               ],
               "jjgtn_silks": "jjc-wrap-infer-coronet",
-              "jjgtn_basis": "2e85221"
+              "jjgtn_basis": "e4156b5"
             }
           ],
           "jjgpn_dictation": "I never actually wanted the slash command to require me to emplace the coronet: that should be obvious from chat context.",
