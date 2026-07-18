@@ -280,8 +280,11 @@ pub const JJRDS_REFIT_RECOMMENDATION: &str =
 /// leaves behind — billet behind trunk's remote counterpart, a local ancestry
 /// check after any glean, needing only the trunk name refit already takes.
 /// `None` means current (or nothing known to be ahead — the probe never cries
-/// on ignorance). NOT wired into the live jjx_open/notch/wrap paths: that
-/// wiring is the conversion heat's act behind `JJRM_OFFICIUM_STUDBOOK_ENABLED`.
+/// on ignorance). Wired into the live jjx_open path unconditionally
+/// (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`) — that wiring does not wait
+/// on `JJRM_OFFICIUM_STUDBOOK_ENABLED`, which gates only where the officium's
+/// own exchange directory lives, not this probe. Notch/wrap wiring remains
+/// unwired.
 pub fn jjrds_staleness_notice<F: jjrfr_FarrierBillet>(
     farrier: &F,
     billet_root: &Path,
