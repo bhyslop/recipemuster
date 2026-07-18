@@ -39,7 +39,7 @@ use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
 use super::jjrfg_plaingit::jjrfg_PlainGit;
-use super::jjrfr_farrier::{jjrfr_RejectionKind, jjrfr_Seat};
+use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
 use super::jjrvb_blotter::JJDB_STUDBOOK_DIRNAME;
 use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
@@ -570,6 +570,33 @@ fn jjtm_open_staleness_notice_names_refit_when_trunk_moved() {
     assert!(
         notice.as_deref().unwrap_or("").contains("refit"),
         "a stale hippodrome must lead with a notice naming refit, got: {:?}",
+        notice
+    );
+}
+
+#[test]
+fn jjtm_open_staleness_notice_warns_on_billet_reentry_after_trunk_moves() {
+    // The Partition-seat path, and Finding B's exact motivating scenario: a
+    // billet born before trunk advanced, never re-dispatched, re-entered later
+    // by a plain `jjx_open`.
+    let (infield, hippodrome) = zjjtm_staleness_infield("jjtm_open_staleness_billet");
+    let billet_root = infield.path().join("jjqb_AAAAA");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("AAAAA".to_string()), &billet_root, ZJJTM_TRUNK)
+        .unwrap();
+
+    // Fresh: the billet just anchored at trunk's tip.
+    assert_eq!(zjjrm_open_staleness_notice(&jjrfg_PlainGit, &billet_root), None);
+
+    // Trunk advances from the hippodrome and is pushed; the billet itself is
+    // never touched again.
+    zjjtm_commit_all(&hippodrome, "b.txt", "moved", "trunk advances");
+    zjjtm_git(&hippodrome, &["push", "-q", "origin", ZJJTM_TRUNK]);
+
+    let notice = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &billet_root);
+    assert!(
+        notice.as_deref().unwrap_or("").contains("refit"),
+        "a session re-entering a stale billet must be warned, got: {:?}",
         notice
     );
 }
