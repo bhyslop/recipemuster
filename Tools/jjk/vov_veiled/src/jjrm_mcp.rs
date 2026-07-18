@@ -45,6 +45,7 @@ use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort};
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
 use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
+use crate::jjrrd_refit::jjrrd_run_refit;
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 /// The officia directory's fixed relative path — reused by the muck sweep's
@@ -69,6 +70,7 @@ const JJRM_CMD_NAME_OPEN: &str = "jjx_open";
 const JJRM_CMD_NAME_RECORD: &str = "jjx_record";
 const JJRM_CMD_NAME_LOG: &str = "jjx_log";
 const JJRM_CMD_NAME_VALIDATE: &str = "jjx_validate";
+const JJRM_CMD_NAME_REFIT: &str = "jjx_refit";
 const JJRM_CMD_NAME_LIST: &str = "jjx_list";
 const JJRM_CMD_NAME_ORIENT: &str = "jjx_orient";
 const JJRM_CMD_NAME_SHOW: &str = "jjx_show";
@@ -100,7 +102,7 @@ const JJRM_CMD_NAME_CHECK: &str = "jjx_check";
 // Complete registry of all commands
 const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_OPEN,
-    JJRM_CMD_NAME_RECORD, JJRM_CMD_NAME_LOG, JJRM_CMD_NAME_VALIDATE,
+    JJRM_CMD_NAME_RECORD, JJRM_CMD_NAME_LOG, JJRM_CMD_NAME_VALIDATE, JJRM_CMD_NAME_REFIT,
     JJRM_CMD_NAME_LIST, JJRM_CMD_NAME_ORIENT, JJRM_CMD_NAME_SHOW,
     JJRM_CMD_NAME_ARCHIVE, JJRM_CMD_NAME_CREATE, JJRM_CMD_NAME_ENROLL,
     JJRM_CMD_NAME_REORDER, JJRM_CMD_NAME_REDOCKET, JJRM_CMD_NAME_RELABEL,
@@ -363,6 +365,12 @@ pub struct jjrm_LogParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ValidateParams {}
 
+// jjx_refit takes no params — session-facing, the tree at the server's cwd is
+// the whole input (the no-cwd rule: the door captures cwd, jjrrd_run_refit
+// never reads the environment itself).
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_RefitParams {}
+
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ListParams {
     pub status: Option<String>,
@@ -582,7 +590,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_refit, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -2266,7 +2274,7 @@ pub(crate) enum zjjrm_GuardBucket {
     /// Per-command designation logic at the dispatch arm (orient, record, landing).
     Designation,
     /// Frontier-only: every docket-authoring and state-mutating verb, close,
-    /// validate, apostille, and the remote family.
+    /// validate, refit, apostille, and the remote family.
     Frontier,
 }
 
@@ -2534,6 +2542,14 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     size_limit: vvc::VVCG_SIZE_LIMIT,
                 }))
+            }
+            JJRM_CMD_NAME_REFIT => {
+                let _p = deser!(jjrm_RefitParams);
+                let cwd = match std::env::current_dir() {
+                    Ok(p) => p,
+                    Err(e) => return jjrm_result((1, format!("{}: current_dir error: {}", cmd, e))),
+                };
+                jjrm_result(jjrrd_run_refit(&jjrfg_PlainGit, &cwd))
             }
             JJRM_CMD_NAME_LIST => {
                 let p = deser!(jjrm_ListParams);
