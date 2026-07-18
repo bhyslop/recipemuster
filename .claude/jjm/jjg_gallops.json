@@ -4650,8 +4650,9 @@
         "₢CAAAJ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0943",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-0954",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Focus",
                 "Point the minting workflow at the census: the grep-gate step of CLAUDE.md \"Prefix Naming Discipline\" gains the census tabtarget as its mechanized form, so every subsequent mint exercises the matricula while it deepens.",
@@ -4662,7 +4663,7 @@
                 "An agent following the minting workflow reaches the census tabtarget instead of raw grep laps, and the delivered surface still nowhere names the tool."
               ],
               "jjgtn_silks": "wield-mint-grep-gate",
-              "jjgtn_basis": "185b35a"
+              "jjgtn_basis": "50718c1"
             }
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
