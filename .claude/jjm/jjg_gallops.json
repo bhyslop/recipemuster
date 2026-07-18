@@ -4720,8 +4720,8 @@
         "₢CAAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0836",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-0855",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Spec authoring under MCM law — transcription of cinched design into a durable home, with live operator rulings on gaps.",
@@ -4743,7 +4743,7 @@
                 "implementation dockets judged against the settled sheaves — consistent ones stand, drifted ones redocket."
               ],
               "jjgtn_silks": "author-hierophant-sheaf-family",
-              "jjgtn_basis": "56df752"
+              "jjgtn_basis": "b40a639"
             }
           ]
         }
