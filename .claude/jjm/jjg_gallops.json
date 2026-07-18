@@ -4743,8 +4743,10 @@
         "₢CAAAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0953",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-0954",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Focus",
                 "Stand up the matricula as a standalone rbtd-style lib+bin crate beside vof, reachable through its own build/test/run tabtargets, running degenerate — starts, exits clean, no real output yet.",
@@ -4759,7 +4761,7 @@
                 "the minted names are documented in a non-delivered prefix map (VOr_q4f name-hygiene)."
               ],
               "jjgtn_silks": "mint-and-crate-skeleton",
-              "jjgtn_basis": "7298cfd"
+              "jjgtn_basis": "2329ab7"
             }
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
