@@ -4700,8 +4700,9 @@
         "₢CAAAL": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0944",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-0954",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Focus",
                 "The two MVP validators, read off the census rather than run as separate passes (VOSMM \"Seating Validators\").",
@@ -4715,7 +4716,7 @@
                 "A tree run renders both presentment kinds with real sites, and a planted collision and a planted terminal-exclusivity breach in test fixtures each surface as exactly one presentment."
               ],
               "jjgtn_silks": "seating-validators",
-              "jjgtn_basis": "b089ead"
+              "jjgtn_basis": "6ae067d"
             }
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
