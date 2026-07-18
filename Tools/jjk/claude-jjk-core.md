@@ -41,22 +41,26 @@ When editing a paddock or docket for other reasons, prune any coronet refs or si
 **Mid-execution posture.** When a failure or surprise surfaces while a pace is mounted, the default response is mechanism + one specific repair you'd attempt. Do not proliferate options or weigh consequences across alternatives — pace scope and segmentation are operator territory. If the repair is obvious, proceed; else surface the question and stop.
 
 **Identities vs Display Names:**
-- **Firemark**: Heat identity, two characters from a nonstandard b64 alphabet (e.g., `₣AA`, `₣A-`, `₣A_`, `₣A7`). Used in command params and JSON keys.
-- **Coronet**: Pace identity, firemark plus three characters from the same alphabet (e.g., `₢AAAAk`, `₢A_A-p`, `₢AAA_7`).
+- **Firemark**: Heat identity, `₣` + two characters from a nonstandard b64 alphabet (e.g., `₣AA`, `₣A-`, `₣A_`, `₣A7`). Used in command params and JSON keys; input may omit the `₣` glyph, output always includes it.
+- **Coronet**: Pace identity, `₢` + **five** characters from the same alphabet — one flat global index that carries **no** firemark and encodes **no** heat affiliation (seed-minted coronets begin at `C`, e.g. `₢CAAAG`; the leading characters are never a heat reference, save a grandfathered id whose leading two happen to equal a firemark by frozen coincidence). The **bare five-character body** (`CAAAG`) is the machine identity — command params, JSON keys, git refs. On emission it is qualified by *live* heat affiliation: `₢` + the current heat firemark + the interpunct `·` + the body (`₢B4·CAAAG`, the form seen in prose; a grandfathered pace renders its heat twice, `₢B4·B4AAB`); tables show the bare `₢`+body (`₢CAAAG`). **Any of these forms is accepted as input** — the `₢` glyph and any `·` qualifier are stripped and the bare body is looked up — so you never guess the wire form.
 - **Silks**: kebab-case display name. Human-readable only — NOT usable for lookups.
 
 When a command takes a firemark or coronet, provide the identity, not the silks.
 
 **Display discipline (agent text output to user):**
-- **Always show full coronets and firemarks; never abbreviate.** Write
-  `₢A-AA-`, never `AA-`. Write `₣A-`, never `A-`. A bare 3-char pace suffix
-  is ambiguous with the operator in several heats at once; the ₣/₢ glyph +
-  heat half is part of the identity, not decoration. This holds in prose,
-  tables, bullets, headers, and casual back-references.
+- **Always show the full emitted form; never abbreviate.** For a coronet
+  write the live-qualified `₢B4·CAAAG` (`₢` + heat firemark + `·` + body),
+  never a bare fragment; for a firemark write `₣A-`, never `A-`. A bare body
+  dropped into running prose leaves the reader with no heat context; the
+  `₢`/`₣` glyph and — for coronets — the `·`-qualified heat prefix keep every
+  reference grounded. (That prefix records *live* affiliation and is not part
+  of the immutable identity — a relocate re-qualifies tomorrow's rendering —
+  but it is what you display.) This holds in prose, tables, bullets, headers,
+  and casual back-references.
 - **Prefer coronets over silks in references.** Coronets are precise and
   immutable; silks change via `jjx_relabel`. Lead with the coronet; silks
   may follow parenthetically for human readability (e.g.,
-  `₢A-AA- (wsg-trim-to-spec-shape)`). The coronet alone is always
+  `₢B4·CAAAG (coronet-doc-gestalt-drift)`). The coronet alone is always
   sufficient; the silks alone never are.
 
 **Case sensitivity**: Firemarks and coronets are case-sensitive. `Av` ≠ `AV` ≠ `av`. Passing the wrong case produces a confusing "not found" error. Copy identities exactly as displayed — the final character's case distinguishes heats (e.g., `₣Av` vs `₣AV` are different heats).
