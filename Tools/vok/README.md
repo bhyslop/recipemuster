@@ -259,8 +259,11 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | `vol_` | Ledger | Release record |
 | `vom`  | Matricula | Crate/binary/dir for the transient inscription census; has children (not terminal); operator-only, never ships (VOr_q4f) |
 | `vome_` | Engine | Matricula tabtarget dispatch (bash build/test/run) |
-| `vomr_` | Rust | Matricula crate runtime source modules (e.g. `vomr_matricula`) |
-| `vomt_` | Test | Matricula crate test modules (e.g. `vomt_matricula`) |
+| `vomr`  | Rust | Matricula crate runtime source; has children (not terminal) |
+| `vomrl_` | Log | Matricula output module — line diagnostics to stderr (RCG Output Discipline) |
+| `vomrm_` | Matricula | Matricula census runtime module |
+| `vomt`  | Test | Matricula crate test source; has children (not terminal) |
+| `vomtm_` | Matricula test | Tests for `vomrm_matricula` |
 | `vop_` | Prepare | Release preparation |
 | `vor`  | Rust source | Has children (not terminal) |
 | `vorg_` | Rust Guard | Pre-commit size validation |

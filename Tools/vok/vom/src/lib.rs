@@ -12,22 +12,23 @@
 //! substrate and must never be linked by the shipped vvr binary (VOr_q4f). It is
 //! a standalone bin reached only through its own vow-m* tabtargets.
 //!
-//! Degenerate skeleton: this pace stands up the crate, the bin<->lib seam, and
-//! the vof path-dependency. Real matricula behavior (raise -> seat -> seal ->
-//! render, per the four-tier decomposition) arrives in later paces.
+//! Degenerate skeleton: this pace stands up the crate, the bin<->lib seam, the
+//! vof path-dependency, and the output module. Real matricula behavior (raise ->
+//! seat -> seal -> render, per the four-tier decomposition) arrives later.
 //!
-//! Module prefix tree (crate-prefix r/t scheme, per RCG source/test convention):
-//!   vomr_  runtime source modules (the census machinery)
-//!   vomt_  test modules
+//! Module prefix tree (rbtd-style {crate}{r|t}{classifier}_ scheme):
+//!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (census)
+//!   vomt{c}_  test modules    - vomtm_matricula
 //! Grown as real API lands (mint-follows-API); see Tools/vok/README.md.
 
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
-pub mod vomr_matricula;
+pub mod vomrl_log;
+pub mod vomrm_matricula;
 
 #[cfg(test)]
-mod vomt_matricula;
+mod vomtm_matricula;
 
 // eof

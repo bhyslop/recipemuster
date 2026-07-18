@@ -12,9 +12,12 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
+// RCG output discipline: all emission via vomrl_*! - no direct println!/eprintln!
+use vom::vomrl_info_now;
+
 fn main() {
-    // Degenerate: exercise the bin<->lib seam and the vof path-dependency, then
-    // exit clean. Emits nothing yet - the RCG output module is deferred to the
-    // first pace with real census output to route.
-    let _ = vom::vomr_matricula::vomr_identity();
+    // Degenerate: emit the crate identity as an operational milestone (proving
+    // the bin<->lib seam, the vof path-dependency, and the output path end to
+    // end), then exit clean. Real census output arrives in later paces.
+    vomrl_info_now!("{}", vom::vomrm_matricula::vomrm_identity());
 }

@@ -10,8 +10,8 @@
 
 /// The crate's identity line, incorporating the foundation cipher's project
 /// resolved through the vof path-dependency. Returned for callers and tests;
-/// this function emits nothing.
-pub fn vomr_identity() -> String {
+/// this function emits nothing (emission is the caller's concern, via vomrl_*!).
+pub fn vomrm_identity() -> String {
     format!(
         "vom {} - Vox Matricula (foundation cipher: {})",
         env!("CARGO_PKG_VERSION"),

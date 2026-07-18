@@ -2,13 +2,13 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Tests for vomr_matricula.
+//! Tests for vomrm_matricula.
 
-use super::vomr_matricula::*;
+use super::vomrm_matricula::*;
 
 #[test]
-fn vomt_identity_names_crate_and_links_vof() {
-    let identity = vomr_identity();
+fn vomtm_identity_names_crate_and_links_vof() {
+    let identity = vomrm_identity();
     assert!(
         identity.starts_with("vom "),
         "identity line must name the crate: {identity}"
