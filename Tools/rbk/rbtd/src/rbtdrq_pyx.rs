@@ -415,6 +415,10 @@ pub(crate) const ZRBTDRQ_VEIL_EXEMPT: &[(&str, &str)] = &[
         "Tools/rbk/rblm_expede.sh",
         "expede must name the withheld consumer CLAUDE.md template it transposes onto the candidate's root, and is itself withheld — no candidate carries it",
     ),
+    (
+        "rbmm_moorings/rbml_launchers/launcher.rbthw_workbench.sh",
+        "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no candidate carries it",
+    ),
 ];
 
 /// One line may name a withheld thing two ways. Reported distinctly so a finding
