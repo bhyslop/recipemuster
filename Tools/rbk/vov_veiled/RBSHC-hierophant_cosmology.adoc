@@ -24,16 +24,21 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 // names ENGROSSMENT_UPSTREAM / POSTULANT_LOCAL (operator mint, 260715) find
 // their durable home in this subdoc.
 //
+// Cut absorption RULED (operator, 260718, reversing the 260717 expede-as-
+// worker cinch): the cut — the perambulation and the expede constructor — is
+// the hierophant's own, re-authored in Rust inside the crate and run
+// in-process by essai; the single-matcher rule is homed in this subdoc. The
+// words expede and perambulation continue as the act's standing names.
+//
 // Membranes (honored, not re-minted):
-//  - the workers (marshal zero, lustrate, feign, expede, harbinger-the-module)
-//    are bash verbs homed in rblm_*; sequenced by the hierophant, their
-//    internals never restated here;
+//  - the workers (marshal zero, lustrate, feign) are bash verbs homed in
+//    rblm_*; sequenced by the hierophant, their internals never restated here;
 //  - the proscription — the one table judging every regime field site-scoped
 //    or common — stays homed in its shipped bash library (rblm_lustrate.sh),
 //    read through the same subprocess reach damnatio already proves, never
 //    carried as a copy;
-//  - fixture and suite names (reveille, gauntlet, loupe, perambulation, cupel,
-//    pyx, damnatio) are the theurge registry's — referenced as literals;
+//  - fixture and suite names (reveille, gauntlet, loupe, cupel, pyx, damnatio)
+//    are the theurge registry's — referenced as literals;
 //  - RELEASE.md remains the operator-facing procedure — step order, command
 //    lines, and promotion-day housekeeping for a given release live there; it
 //    is withheld from delivery and points back at this branch for the law;
@@ -88,13 +93,14 @@ candidate stands on the
 
 The
 {rbth_hierophant}
-sequences proven workers; it absorbs orchestration, never authority.
-Marshal zero, lustration, feigning, and the expede constructor remain bash
-verbs in their own modules, invoked as subprocesses; the proscription they
-share stays homed in its shipped library, and the hierophant reads it through
-the same subprocess reach the damnatio fixture already proves — a second copy
-of that table is the drift this rule forbids.
-The one truly absorbed module is
+sequences proven workers; it absorbs orchestration, never authority —
+with the one ruled exception of the cut, treated in its own section below.
+Marshal zero, lustration, and feigning remain bash verbs in their own
+modules, invoked as subprocesses; the proscription they share stays homed in
+its shipped library, and the hierophant reads it through the same subprocess
+reach the damnatio fixture already proves — a second copy of that table is
+the drift this rule forbids.
+Beside the cut, the one other truly absorbed module is
 {rbth_rig}
 construction — clone, sever, hook, walk branch, prompt — which reads no shared
 authority: one implementation serves both the
@@ -102,6 +108,51 @@ authority: one implementation serves both the
 rig stage and the
 {rbth_harbinger}
 command, differing only in clone source.
+
+== The cut, and the single matcher
+
+The cut is the
+{rbth_hierophant_p}
+own (operator re-ruling, 260718, reversing the 260717 expede-as-worker
+cinch): the perambulation and the expede constructor are authored in Rust
+inside the crate,
+run in-process by
+{rbth_essai}
+— no bash reach, no subprocess between the conductor and the judgment that
+stands between the private tree and the public remote.
+
+The *perambulation* is the ship/withhold judgment over every tracked path —
+the delivered file set as a table the project rules once and proves
+mechanically, never a list of removals recited in prose.
+A row is a literal path prefix; the longest matching row wins,
+so precedence is a property of the rows themselves and no row can be
+silently shadowed by an earlier one; there is no glob syntax, deliberately —
+a glob's precedence is either order-dependent or ambiguous, and both are how
+a withheld path ends up shipped.
+The judgment is *total*, with no default in either direction:
+a tracked path no row judges is red,
+and a row that judges no tracked path — stale or shadowed — is red.
+
+*Expede* is the constructor that cuts from it: clone the public base,
+sever the origin, open the sole candidate branch, materialize the shipped
+paths from the committed bytes, sterilize, transpose the consumer context,
+commit once — then sweep the candidate's object *graph*, not its tree,
+because a withheld path rides wherever it is reachable from the branch, at
+any depth of history (the 292-MiB lesson: a clean tip over a leaking past).
+
+The *single-matcher rule*, homed here: the ship/withhold judgment has exactly
+one implementation — the Rust matcher in the hierophant crate.
+Expede cuts from it, the sweep enforces it, and the crate's own self-proofs
+stand for it: a planted withheld path must be caught, and the totality check
+must close.
+A second matcher live beside it, in any language, is forbidden — two
+matchers drift, and drift is how a withheld path ships.
+
+One boundary is deliberately not absorbed: the candidate's own sterilize
+remains a subprocess, because it must be the *candidate's copy* — a process
+cannot regenerate from lustrated values unless its modules are the lustrated
+modules, and invoking the clone's own script is what makes the maintainer's
+modules structurally out of reach.
 
 == Structural incapacity
 
@@ -114,7 +165,7 @@ verifies the result.
 The same law holds at every layer beneath it.
 The base — the real public repository, remote `ENGROSSMENT_UPSTREAM` — is
 read-only by construction: its push side is neutered to a fixed sentinel the
-expede worker asserts before it will cut.
+cut asserts before it will proceed.
 The
 {rbth_candidate}
 holds zero remotes and a sole branch, `POSTULANT_LOCAL`.
@@ -129,7 +180,7 @@ Additive construction is the prevention; the
 {rbth_quarantine}
 is only containment, and containment never substitutes for prevention.
 The candidate is built by addition in a clone of the real public base —
-expede materializes only the paths the perambulation ships — so no private
+the cut materializes only the paths the perambulation ships — so no private
 object ever enters the graph a push walks.
 
 == The three public acts
@@ -177,12 +228,12 @@ the release-hygiene fixture holds the path half of that line mechanically.
 
 == Scoped out
 
-Absorbing the expede constructor's internals is a later reassessment, not this
-cosmology's: expede is sequenced as a worker, untouched.
 The per-release operational procedure — step order, command lines,
 promotion-day housekeeping, the failure-mode contract — is the ceremony
 document's (RELEASE.md), which points here for the law.
-The retired bash instruments this application supersedes are swept by their
-own closing pace, gated on proven service, never by this subdoc.
+The bash instruments this application supersedes outside the cut retire
+through their own closing pace, gated on proven service, never by this
+subdoc; the cut instruments alone retired with the absorption itself, under
+the single-matcher rule — no interim where two matchers are live.
 
 // eof

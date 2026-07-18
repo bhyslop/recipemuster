@@ -644,6 +644,7 @@
 
 // RB Term Hierophant (rbth_ = Hierophant; the marshal delivery ceremony) — defined at the head of the Marshal Operations branch, registered here
 :rbth_hierophant:           <<rbth_hierophant,Hierophant>>
+:rbth_hierophant_p:         <<rbth_hierophant,Hierophant's>>
 :rbth_essai:                <<rbth_essai,Essai>>
 :rbth_ostend:               <<rbth_ostend,Ostend>>
 :rbth_harbinger:            <<rbth_harbinger,Harbinger>>
@@ -2097,8 +2098,9 @@ the reversible repair lap,
 the guided irreversible reveal,
 {rbth_harbinger}
 the stranger rig.
-It sequences proven workers and absorbs orchestration, never authority; it
-never holds a push.
+It sequences proven workers and absorbs orchestration, never authority —
+with the one ruled exception of the cut, which it owns outright in Rust
+(the cosmology's single-matcher section); it never holds a push.
 
 [[rbth_lap]]
 {rbth_lap}::
@@ -2164,8 +2166,8 @@ Runs one repair
 {rbth_lap}:
 gates the maintainer tree and the read-only base, assays, cuts the
 {rbth_candidate}
-via the expede worker, proves it with the candidate battery, and stands up a
-coldwalk
+via the absorbed in-process cut, proves it with the candidate battery, and
+stands up a coldwalk
 {rbth_rig}
 from the local candidate — zero remote acts, repeated until a lap runs dry.
 
