@@ -4689,8 +4689,9 @@
         "₢CAAAU": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1002",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Harden the sheaf family per JJSAS \"Founding and cutover\":",
                 "every JJSV* lintel and cartouche flips `axd_executory` → `axd_normative`",
@@ -4706,7 +4707,7 @@
                 "still says executory — and the incumbent sentence is gone."
               ],
               "jjgtn_silks": "harden-sheaf-normative",
-              "jjgtn_basis": "c90cec9"
+              "jjgtn_basis": "c8313e7"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
