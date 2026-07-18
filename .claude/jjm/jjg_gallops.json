@@ -4772,8 +4772,9 @@
         "₢B4AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-1120",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_haiku",
               "jjgtn_text": [
                 "## Docket",
                 "Move `rbm-abstract-drawio.svg` from the repo root into `diagrams/` (`git mv`, preserving history).",
@@ -4787,7 +4788,7 @@
                 "a repo-wide grep for the old root-relative reference outside `.claude/jjm/retired/` is clean."
               ],
               "jjgtn_silks": "relocate-abstract-diagram-svg",
-              "jjgtn_basis": "ad88bb0"
+              "jjgtn_basis": "69bfdf8"
             }
           ]
         },
