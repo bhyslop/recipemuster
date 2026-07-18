@@ -4772,8 +4772,8 @@
         "₢B4AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1717",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1732",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_haiku",
               "jjgtn_text": [
                 "## Docket",
@@ -4788,7 +4788,7 @@
                 "a repo-wide grep for the old root-relative reference outside `.claude/jjm/retired/` is clean."
               ],
               "jjgtn_silks": "relocate-abstract-diagram-svg",
-              "jjgtn_basis": "69bfdf8"
+              "jjgtn_basis": "ad408dd"
             }
           ]
         },
