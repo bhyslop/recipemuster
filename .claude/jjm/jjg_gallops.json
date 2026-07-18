@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAU",
+  "jjgrn_next_pace_seed": "CAAAV",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4456,6 +4456,7 @@
         "₢CAAAR",
         "₢CAAAS",
         "₢CAAAT",
+        "₢CAAAU",
         "₢B3AAA"
       ],
       "jjghn_paces": {
@@ -4675,6 +4676,33 @@
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony's de-insertion half — consumer repos go vanilla —\ncarrying the chat-store hazard note as a hard boundary on the sweep.",
+          "jjgpn_slated": "260718-1002"
+        },
+        "₢CAAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1002",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Harden the sheaf family per JJSAS \"Founding and cutover\":",
+                "every JJSV* lintel and cartouche flips `axd_executory` → `axd_normative`",
+                "(the AXLA judgment act — the work product now enacts the content),",
+                "the registry descriptors follow,",
+                "and the Revision Control region's incumbent sentence",
+                "(\"the in-repo gallops remains the live mechanism\") retires with the old store.",
+                "Disposition of JJSAS's own executed ceremony content is a mount-time judgment",
+                "under MCM aspirant doctrine — decide, or surface for the operator.",
+                "",
+                "## Done when",
+                "The JJSV* family reads normative — no lintel, cartouche, or registry descriptor",
+                "still says executory — and the incumbent sentence is gone."
+              ],
+              "jjgtn_silks": "harden-sheaf-normative",
+              "jjgtn_basis": "c90cec9"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the rung's spec closure: the JJSV* family stops describing a future\nand starts enacting the live mechanism, completing the rung's done-line.",
           "jjgpn_slated": "260718-1002"
         }
       }
