@@ -72,6 +72,24 @@ pub const RBTHDR_BASE_PUSH_DISABLED: &str = "DISABLED-ENGROSSMENT_UPSTREAM-IS-RE
 /// unlocked door). The endpoint is a load-bearing fact, not a runtime input.
 pub const RBTHDR_BASE_URL: &str = "git@github.com:scaleinv/recipebottle.git";
 
+/// The ephemeral private quarantine (RBS0 rbth_quarantine; RELEASE.md "The
+/// quarantine"): created empty and private by the operator's own hand before
+/// a cut, reached only by explicit URL — never a configured remote. Fixed and
+/// known, unlike the repository's ephemeral CONTENTS: only its existence is
+/// per-cycle. The single home for docimasy and ostend alike — both gate on
+/// the same repository, and a duplicated copy is exactly the drift a
+/// privacy/freshness gate must never carry (RBSHD "Gate the quarantine",
+/// RBSHO "Re-assert the ground").
+pub const RBTHDR_QUARANTINE_URL: &str = "git@github.com:scaleinv/recipebottle-staging.git";
+
+/// The anonymous-read form of the same repository, for the 404 privacy gate.
+/// A private GitHub repository 404s to an unauthenticated request; a public
+/// or misnamed one does not.
+pub const RBTHDR_QUARANTINE_HTTPS: &str = "https://github.com/scaleinv/recipebottle-staging";
+
+/// The expected HTTP status of an anonymous read of a private quarantine.
+const RBTHDR_QUARANTINE_PRIVATE_STATUS: &str = "404";
+
 /// The candidate's local branch — and, reused by operator ruling (260715),
 /// the public staging branch name too. Deliberately NOT "main": a branch
 /// named main would let a default-shaped push land on public main. It is the
@@ -579,6 +597,29 @@ fn zrbthdr_git(clone: &str, args: &[&str], top: &Path, act: &str) {
     if got.code != 0 {
         crate::rbthdr_fatal!("failed to {} (git exited {}):\n{}", act, got.code, got.stderr.trim());
     }
+}
+
+/// Assert an anonymous read of the quarantine 404s — the single privacy gate
+/// shared by docimasy's own quarantine gate (RBSHD step 1a) and ostend's
+/// re-assertion of the ground (RBSHO step 2): a private GitHub repository
+/// 404s to an unauthenticated request, so anything else means the quarantine
+/// is public or misnamed. Fatal otherwise.
+pub fn assert_quarantine_private(top: &Path) {
+    let status = rbthdr_run::capture(
+        "curl",
+        &["-s", "-o", "/dev/null", "-w", "%{http_code}", RBTHDR_QUARANTINE_HTTPS],
+        top,
+    );
+    if status.code != 0 {
+        crate::rbthdr_fatal!("anonymous read of the quarantine failed to execute (curl exited {})", status.code);
+    }
+    if status.stdout.trim() != RBTHDR_QUARANTINE_PRIVATE_STATUS {
+        crate::rbthdr_fatal!(
+            "anonymous read of the quarantine ({}) returned HTTP {}, not {} — the quarantine is public or misnamed",
+            RBTHDR_QUARANTINE_HTTPS, status.stdout.trim(), RBTHDR_QUARANTINE_PRIVATE_STATUS
+        );
+    }
+    rbthdr_log::line("quarantine reads anonymous-404: private (or absent), never public");
 }
 
 // ── The freshness matcher ───────────────────────────────────

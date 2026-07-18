@@ -39,11 +39,6 @@ use crate::rbthdr_log;
 use crate::rbthdr_repo;
 use crate::rbthdr_run;
 
-/// The quarantine, shared with docimasy's own gate (RBS0 rbth_quarantine).
-const RBTHDR_QUARANTINE_URL: &str = "git@github.com:scaleinv/recipebottle-staging.git";
-const RBTHDR_QUARANTINE_HTTPS: &str = "https://github.com/scaleinv/recipebottle-staging";
-const RBTHDR_QUARANTINE_PRIVATE_STATUS: &str = "404";
-
 /// The disclosure and promotion target is the real public repository — the
 /// same endpoint the cut clones read-only (rbthdr_expede::RBTHDR_BASE_URL).
 const RBTHDR_MAIN_REF: &str = "refs/heads/main";
@@ -108,25 +103,11 @@ fn zrbthdr_require_cachet(candidate_parent: &Path, candidate_clone: &Path, top: 
 fn zrbthdr_reassert_ground(top: &Path, parent: &Path, candidate_clone: &Path, candidate_tip: &str) {
     rbthdr_log::section("Re-assert the ground (RBSHO step 2)");
 
-    let status = rbthdr_run::capture(
-        "curl",
-        &["-s", "-o", "/dev/null", "-w", "%{http_code}", RBTHDR_QUARANTINE_HTTPS],
-        top,
-    );
-    if status.code != 0 {
-        crate::rbthdr_fatal!("anonymous read of the quarantine failed to execute (curl exited {})", status.code);
-    }
-    if status.stdout.trim() != RBTHDR_QUARANTINE_PRIVATE_STATUS {
-        crate::rbthdr_fatal!(
-            "anonymous read of the quarantine ({}) returned HTTP {}, not {} — the quarantine is public or misnamed",
-            RBTHDR_QUARANTINE_HTTPS, status.stdout.trim(), RBTHDR_QUARANTINE_PRIVATE_STATUS
-        );
-    }
-    rbthdr_log::line("quarantine reads anonymous-404: private");
+    rbthdr_expede::assert_quarantine_private(top);
 
     let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
-    let refs = rbthdr_repo::ls_remote(RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
     let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
     if !preview_stands {
         crate::rbthdr_fatal!(

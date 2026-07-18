@@ -38,21 +38,6 @@ use crate::rbthdr_log;
 use crate::rbthdr_repo;
 use crate::rbthdr_run;
 
-/// The ephemeral private quarantine (RBS0 rbth_quarantine; RELEASE.md "The
-/// quarantine"): created empty and private by the operator's own hand before
-/// a cut, reached only by explicit URL — never a configured remote. Fixed and
-/// known, unlike the repository's ephemeral CONTENTS: only its existence is
-/// per-cycle.
-const RBTHDR_QUARANTINE_URL: &str = "git@github.com:scaleinv/recipebottle-staging.git";
-
-/// The anonymous-read form of the same repository, for the 404 privacy gate
-/// (RBSHD step 1a). A private GitHub repository 404s to an unauthenticated
-/// request; a public or misnamed one does not.
-const RBTHDR_QUARANTINE_HTTPS: &str = "https://github.com/scaleinv/recipebottle-staging";
-
-/// The expected HTTP status of an anonymous read of a private quarantine.
-const RBTHDR_QUARANTINE_PRIVATE_STATUS: &str = "404";
-
 /// Tabtarget colophon prefixes this command sequences, on the MAINTAINER
 /// tree — credential preflight and the gauntlet ladder are host/session-level
 /// and source-tree-only concerns (rbw-MZ's own gate demands an upstream and a
@@ -122,23 +107,9 @@ pub fn conduct(rehearse: bool) -> ExitCode {
 fn zrbthdr_gate_quarantine(top: &Path, candidate_tip: &str) {
     rbthdr_log::section("Gate the quarantine (RBSHD step 1)");
 
-    let status = rbthdr_run::capture(
-        "curl",
-        &["-s", "-o", "/dev/null", "-w", "%{http_code}", RBTHDR_QUARANTINE_HTTPS],
-        top,
-    );
-    if status.code != 0 {
-        crate::rbthdr_fatal!("anonymous read of the quarantine failed to execute (curl exited {})", status.code);
-    }
-    if status.stdout.trim() != RBTHDR_QUARANTINE_PRIVATE_STATUS {
-        crate::rbthdr_fatal!(
-            "anonymous read of the quarantine ({}) returned HTTP {}, not {} — the quarantine is public or misnamed",
-            RBTHDR_QUARANTINE_HTTPS, status.stdout.trim(), RBTHDR_QUARANTINE_PRIVATE_STATUS
-        );
-    }
-    rbthdr_log::line("quarantine reads anonymous-404: private (or absent), never public");
+    rbthdr_expede::assert_quarantine_private(top);
 
-    let refs = rbthdr_repo::ls_remote(RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
     let branch_ref = format!("refs/heads/{}", rbthdr_expede::RBTHDR_CANDIDATE_BRANCH);
     let fresh = refs.is_empty()
         || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == candidate_tip);
@@ -162,7 +133,7 @@ fn zrbthdr_preview(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
     let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
-    let refs = rbthdr_repo::ls_remote(RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
     let already = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
     if already {
         rbthdr_log::line("quarantine already previews this candidate tip — the preview line is not re-typed");
@@ -173,11 +144,11 @@ fn zrbthdr_preview(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
     rbthdr_log::blank();
     rbthdr_log::line("Preview push line — type this yourself:");
     rbthdr_log::blank();
-    rbthdr_log::raw(&format!("        git -C {} push {} {}:{}", clone, RBTHDR_QUARANTINE_URL, branch, branch));
+    rbthdr_log::raw(&format!("        git -C {} push {} {}:{}", clone, rbthdr_expede::RBTHDR_QUARANTINE_URL, branch, branch));
     rbthdr_log::blank();
     rbthdr_log::confirm("pushed the preview line above?");
 
-    let refs = rbthdr_repo::ls_remote(RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
     let landed = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
     if !landed {
         crate::rbthdr_fatal!(

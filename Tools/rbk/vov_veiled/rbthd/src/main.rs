@@ -50,9 +50,25 @@ const RBTHD_CMD_HARBINGER: &str = "harbinger";
 /// The optional trailing rehearse-mode token for docimasy and ostend.
 const RBTHD_ARG_REHEARSE: &str = "rehearse";
 
-/// Whether argv[2] names the rehearse token.
-fn zrbthd_rehearse(args: &[String]) -> bool {
-    args.get(2).map(|s| s.as_str()) == Some(RBTHD_ARG_REHEARSE)
+/// Whether argv[2] names the rehearse token — the ceremony's dangerous-seam
+/// mode switch, so unlike the unknown-command match below (which already
+/// rejects loud), this must reject just as loud rather than default toward
+/// real mode. A typo'd or garbled token, or a trailing extra argument, is
+/// fatal, never silently read as "no rehearse" (RCG Interface Contamination
+/// Discipline: reject non-canonical input, never default toward it).
+fn zrbthd_rehearse(command: &str, args: &[String]) -> bool {
+    match args.get(2).map(|s| s.as_str()) {
+        None => false,
+        Some(RBTHD_ARG_REHEARSE) if args.get(3).is_none() => true,
+        Some(RBTHD_ARG_REHEARSE) => rbthd::rbthdr_fatal!(
+            "hierophant {} {}: unexpected extra argument '{}'",
+            command, RBTHD_ARG_REHEARSE, args[3]
+        ),
+        Some(other) => rbthd::rbthdr_fatal!(
+            "hierophant {}: unrecognized argument '{}' — usage: rbthd {} [{}]",
+            command, other, command, RBTHD_ARG_REHEARSE
+        ),
+    }
 }
 
 fn main() -> ExitCode {
@@ -60,8 +76,8 @@ fn main() -> ExitCode {
 
     match args.get(1).map(|s| s.as_str()) {
         Some(RBTHD_CMD_ESSAI) => rbthd::rbthdr_essai::conduct(),
-        Some(RBTHD_CMD_DOCIMASY) => rbthd::rbthdr_docimasy::conduct(zrbthd_rehearse(&args)),
-        Some(RBTHD_CMD_OSTEND) => rbthd::rbthdr_ostend::conduct(zrbthd_rehearse(&args)),
+        Some(RBTHD_CMD_DOCIMASY) => rbthd::rbthdr_docimasy::conduct(zrbthd_rehearse(RBTHD_CMD_DOCIMASY, &args)),
+        Some(RBTHD_CMD_OSTEND) => rbthd::rbthdr_ostend::conduct(zrbthd_rehearse(RBTHD_CMD_OSTEND, &args)),
         Some(RBTHD_CMD_HARBINGER) => rbthd::rbthdr_harbinger::conduct(),
         Some(other) => rbthd::rbthdr_fatal!(
             "hierophant: unknown command '{}' — usage: rbthd {}|{} [{}]|{} [{}]|{}",
