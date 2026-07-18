@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAI",
+  "jjgrn_next_pace_seed": "CAAAJ",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4584,7 +4584,8 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢CAAAG",
-        "₢CAAAH"
+        "₢CAAAH",
+        "₢CAAAI"
       ],
       "jjghn_paces": {
         "₢CAAAG": {
@@ -4637,6 +4638,32 @@
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The degenerate operation the operator asked for, made concrete:\na cipher-gate-only census where everything ours is estray — runnable, honest, and already a mechanized grep gate for minting.",
+          "jjgpn_slated": "260718-0943"
+        },
+        "₢CAAAI": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0943",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Land the census lifecycle: a mutable Builder raised over the frozen grammar, seat into the signet trie, seal into the immutable matricula, render pure over the frozen census (VOSMM \"Census Lifecycle\").",
+                "Typestate shape per the freeze-builder reference (Memos/memo-20260620-freeze-builder-pattern/, provenance only).",
+                "The estray set and the query indices become fields of the frozen census;",
+                "the report render moves behind seal.",
+                "Settle the paddock's library-boundary open item here — what rises into vof versus stays matricula-only — with the paddock's lean as the default.",
+                "",
+                "## Done when",
+                "Raise, seat, seal, render runs end to end;",
+                "mutation after seal is unrepresentable in the types;",
+                "the rendered output is unchanged from the all-estray rung."
+              ],
+              "jjgtn_silks": "freeze-builder-seal",
+              "jjgtn_basis": "8d4b2b7"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "First deepening rung: the spec's freeze lifecycle lands while output stays degenerate-identical, so checking can be added incrementally instead of big-bang.",
           "jjgpn_slated": "260718-0943"
         }
       }
