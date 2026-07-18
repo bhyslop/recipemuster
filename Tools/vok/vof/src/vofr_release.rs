@@ -8,6 +8,11 @@
 //!
 //! - `vofr_collect`: Enumerate kit files, copy to staging (excludes vov_veiled/)
 //! - `vofr_brand`: Compute super-SHA, allocate brand, write brand file
+//! - `vofr_git_tracked_files`: List git-tracked files under a root — the
+//!   generalized candidate-gate primitive (VOSMM Tier 0) shared consumers
+//!   (e.g. the vom matricula) compose with their own allowlist.
+//! - `vofr_is_veiled_path`: The veiled-path gate (excludes vov_veiled/),
+//!   reused verbatim by the same candidate-gate composition.
 
 use std::collections::BTreeMap;
 use std::fs;
@@ -195,6 +200,46 @@ pub fn vofr_load_registry(path: &Path) -> Result<BTreeMap<u32, vofr_RegistryEntr
     zvofr_load_registry(path)
 }
 
+/// List every git-tracked file under `repo_root`, relative to it.
+///
+/// Generalizes the release tree-walk into a candidate-gate primitive: the
+/// filesystem walk (`zvofr_walk_dir`) has no notion of tracked-vs-untracked,
+/// so a caller that needs the git-tracked-only gate (VOSMM Tier 0) shells to
+/// git directly rather than re-deriving tracked status from `.gitignore`.
+pub fn vofr_git_tracked_files(repo_root: &Path) -> Result<Vec<PathBuf>, String> {
+    use std::process::Command;
+
+    let output = Command::new("git")
+        .arg("ls-files")
+        .current_dir(repo_root)
+        .output()
+        .map_err(|e| format!("Failed to run git ls-files: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "git ls-files failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    Ok(stdout.lines().map(PathBuf::from).collect())
+}
+
+/// Check if path is within vov_veiled/ directory — the veiled gate.
+/// Public: shared candidate-gate primitive (VOSMM Tier 0), not just an
+/// internal of the release walk.
+pub fn vofr_is_veiled_path(rel_path: &Path) -> bool {
+    for component in rel_path.components() {
+        if let std::path::Component::Normal(name) = component {
+            if name == "vov_veiled" {
+                return true;
+            }
+        }
+    }
+    false
+}
+
 // =============================================================================
 // Internal Functions (zvofr_*)
 // =============================================================================
@@ -217,7 +262,7 @@ fn zvofr_collect_kit(
             .map_err(|e| format!("Path strip failed: {}", e))?;
 
         // Skip vov_veiled/ directory
-        if zvofr_is_veiled_path(rel_path) {
+        if vofr_is_veiled_path(rel_path) {
             continue;
         }
 
@@ -359,18 +404,6 @@ fn zvofr_walk_dir(dir: &Path) -> Result<Vec<PathBuf>, String> {
     }
 
     Ok(files)
-}
-
-/// Check if path is within vov_veiled/ directory.
-fn zvofr_is_veiled_path(rel_path: &Path) -> bool {
-    for component in rel_path.components() {
-        if let std::path::Component::Normal(name) = component {
-            if name == "vov_veiled" {
-                return true;
-            }
-        }
-    }
-    false
 }
 
 /// Check if file is a command file (matches {cipher}c-*.md pattern).
@@ -574,10 +607,18 @@ mod tests {
 
     #[test]
     fn vofr_is_veiled_path_test() {
-        assert!(zvofr_is_veiled_path(Path::new("vov_veiled/test.rs")));
-        assert!(zvofr_is_veiled_path(Path::new("foo/vov_veiled/bar.rs")));
-        assert!(!zvofr_is_veiled_path(Path::new("commands/jjc-test.md")));
-        assert!(!zvofr_is_veiled_path(Path::new("buc_command.sh")));
+        assert!(vofr_is_veiled_path(Path::new("vov_veiled/test.rs")));
+        assert!(vofr_is_veiled_path(Path::new("foo/vov_veiled/bar.rs")));
+        assert!(!vofr_is_veiled_path(Path::new("commands/jjc-test.md")));
+        assert!(!vofr_is_veiled_path(Path::new("buc_command.sh")));
+    }
+
+    #[test]
+    fn vofr_git_tracked_files_test() {
+        // The crate's own manifest is always git-tracked in this repo.
+        let repo_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+        let tracked = vofr_git_tracked_files(&repo_root).expect("git ls-files failed");
+        assert!(tracked.iter().any(|p| p == Path::new("Tools/vok/vof/Cargo.toml")));
     }
 
     #[test]

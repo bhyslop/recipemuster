@@ -12,12 +12,27 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
-// RCG output discipline: all emission via vomrl_*! - no direct println!/eprintln!
-use vom::vomrl_info_now;
+use std::path::Path;
+
+// RCG output discipline: diagnostics via vomrl_*! (stderr) only. The census
+// itself is data, not a diagnostic, so it rides plain println! to stdout —
+// the stream vomrl_log reserves for exactly this (see its module doc).
+use vom::{vomrl_error_now, vomrl_info_now};
 
 fn main() {
-    // Degenerate: emit the crate identity as an operational milestone (proving
-    // the bin<->lib seam, the vof path-dependency, and the output path end to
-    // end), then exit clean. Real census output arrives in later paces.
     vomrl_info_now!("{}", vom::vomrm_matricula::vomrm_identity());
+
+    let repo_root = Path::new(".");
+    match vom::vomrm_matricula::vomrm_raise_estrays(repo_root) {
+        Ok(estrays) => {
+            vomrl_info_now!("estray census: {} token(s)", estrays.len());
+            for token in &estrays {
+                println!("{token}");
+            }
+        }
+        Err(e) => {
+            vomrl_error_now!("census raise failed: {e}");
+            std::process::exit(1);
+        }
+    }
 }

@@ -27,6 +27,7 @@ pub use voff_freshen::{voff_freshen, voff_collapse, voff_parse_sections, voff_Ma
 
 // Re-export release types and functions
 pub use vofr_release::{vofr_collect, vofr_brand, vofr_CollectResult, vofr_BrandResult};
+pub use vofr_release::{vofr_git_tracked_files, vofr_is_veiled_path};
 
 // Re-export emplace, vacate, and freshen types and functions
 pub use vofe_emplace::{vofe_emplace, vofe_EmplaceArgs, vofe_EmplaceResult};

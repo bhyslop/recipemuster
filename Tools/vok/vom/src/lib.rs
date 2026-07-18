@@ -17,17 +17,21 @@
 //! seat -> seal -> render, per the four-tier decomposition) arrives later.
 //!
 //! Module prefix tree (rbtd-style {crate}{r|t}{classifier}_ scheme):
-//!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (census)
-//!   vomt{c}_  test modules    - vomtm_matricula
+//!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (census),
+//!             vomra_allowlist (Tier 0 file-selection allowlist)
+//!   vomt{c}_  test modules    - vomtm_matricula, vomta_allowlist
 //! Grown as real API lands (mint-follows-API); see Tools/vok/README.md.
 
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
+pub mod vomra_allowlist;
 pub mod vomrl_log;
 pub mod vomrm_matricula;
 
+#[cfg(test)]
+mod vomta_allowlist;
 #[cfg(test)]
 mod vomtm_matricula;
 
