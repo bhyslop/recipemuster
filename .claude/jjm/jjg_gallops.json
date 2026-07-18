@@ -4512,8 +4512,8 @@
         "₢CAAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1008",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1116",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Give `jjx_open` the staleness check the chapbook already renders:",
@@ -4534,7 +4534,7 @@
                 "tests cover both the stale and fresh paths."
               ],
               "jjgtn_silks": "warn-at-open-staleness",
-              "jjgtn_basis": "67f7300"
+              "jjgtn_basis": "7161038"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
