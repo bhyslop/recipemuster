@@ -5112,41 +5112,44 @@
         "₢CAAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1034",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260718-1340",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "The irreversible ceremony's conductor — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
+                "Two conductors on either side of the irreversibility seam — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
                 "",
                 "## Docket",
-                "Implement ostend, the once-per-cycle disclosure command, walking the operator through the reveal of the standing dry candidate — never re-cutting: the dry candidate is bit-for-bit what ships, and a terminal re-cut would break exactly that identity.",
-                "Stages, per the release heat's (₣B0) paddock cinches:",
-                "quarantine gates (anonymous-404, freshness) — relocated here from the lap path;",
-                "a candidate-freshness assert before any push — a re-cut of the maintainer tree's shipped bytes now would be tree-equal to the standing candidate; laps and reveal are decoupled in time, so delivered-bytes-bearing drift since the dry cut sends the cycle back to laps, never forward;",
-                "the preview push line handed to the operator, verified after;",
-                "the credential preflight — payor probe and a fresh sitting, since the gauntlet's build verbs are runway-gated — immediately before the gauntlet stage;",
-                "the gauntlet stage — marshal zero sequenced as a worker, then the gauntlet suite — placed after the candidate stands on the quarantine (operator ruling, 260717);",
-                "the file-list review, operator's own eyes, waited on;",
-                "the staging push line, with the before/after ls-remote assert that public main is untouched;",
-                "the promotion line (fast-forward only), with the tree-hash equality assert;",
-                "closing with the hand-off to the harbinger command for the confirmation coldwalk rig against promoted main.",
-                "Every push is typed by the operator; ostend performs every check and never holds a remote write.",
+                "Implement the reveal ceremony's two acts as two hierophant subcommands in the veiled crate:",
+                "docimasy (RBSHD, the reversible proving) and ostend (RBSHO, the irreversible showing), the cachet bridging them —",
+                "the sheaves are the stage authority; do not re-derive stages from RELEASE.md.",
+                "Mirror the worked conductor patterns: rbthdr_essai.rs (worker sequencing, tabtarget location, require-helpers), rbthdr_harbinger.rs (the thin command shape);",
+                "pushes are never held — show the exact push line, verify by remote read after.",
+                "The cachet is a small crate module: grant beside the candidate keyed by the candidate's tree hash (content per RBSHD's grant step), require and re-verify in ostend;",
+                "interior names (cachet file basename, module name) are hearting — mint at mount under the crate's rbthdr_ pattern.",
+                "Candidate freshness in both commands rides the one matcher: scratch re-cut via rbthdr_expede::cut into a disposable target, tree-compare, dispose — no second freshness mechanism.",
+                "Each command takes a rehearse mode proving its reversible stages against the real private quarantine:",
+                "docimasy rehearse skips credential preflight and the gauntlet and grants no cachet;",
+                "ostend rehearse tolerates an absent cachet with a loud warning and stops before the disclosure line.",
+                "Wire the CLI (rbthe_cli.sh), the zipper (rbthz), byte-identical trampolines in tt/, and the main.rs dispatch and usage lines;",
+                "update essai's closing hand-off line in rbthdr_essai.rs to match RBSHE's amended completion (the spec landed first).",
+                "Marshal zero requires the intended tree's basename argument;",
+                "the gauntlet stage prompts before spending, per RBSHD.",
                 "",
                 "## Done when",
-                "A full reveal can be conducted end to end from a standing candidate with every assert machine-performed and every push human-typed;",
-                "the reversible stages proven by rehearsal against the private quarantine (the gauntlet stage skippable in rehearsal);",
+                "Both commands conduct end to end per their sheaves with every assert machine-performed and every push human-typed;",
+                "the reversible stages proven by rehearsal against the private quarantine (gauntlet skipped, no cachet granted);",
+                "the cachet module proven by crate tests (grant, accept, tree-hash-mismatch refusal);",
                 "the two terminal pushes and their asserts proven in first real service — the release heat's reveal;",
                 "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "ostend-guided-reveal",
-              "jjgtn_basis": "a9cbf77"
+              "jjgtn_basis": "c4ca01c"
             }
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
           "jjgpn_precis": "The operator ruled the gauntlet runs only after the proven candidate stands on the private quarantine, and wanted the rare-but-real command name. Ostend conducts the one irreversible ceremony: quarantine gates, preview, gauntlet, eyes, staging push, promotion — every assert by machine, every push by the operator's hands.",
           "jjgpn_slated": "260717-1749",
-          "jjgpn_redocket_count": 2
+          "jjgpn_redocket_count": 3
         },
         "₢CAAAC": {
           "jjgpn_tacks": [
