@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAJ",
+  "jjgrn_next_pace_seed": "CAAAK",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4585,7 +4585,8 @@
       "jjghn_order": [
         "₢CAAAG",
         "₢CAAAH",
-        "₢CAAAI"
+        "₢CAAAI",
+        "₢CAAAJ"
       ],
       "jjghn_paces": {
         "₢CAAAG": {
@@ -4664,6 +4665,28 @@
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "First deepening rung: the spec's freeze lifecycle lands while output stays degenerate-identical, so checking can be added incrementally instead of big-bang.",
+          "jjgpn_slated": "260718-0943"
+        },
+        "₢CAAAJ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0943",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Point the minting workflow at the census: the grep-gate step of CLAUDE.md \"Prefix Naming Discipline\" gains the census tabtarget as its mechanized form, so every subsequent mint exercises the matricula while it deepens.",
+                "Guidance edits land only in non-delivered files — VOr_q4f name-hygiene: no parcel-delivered context file may name the matricula.",
+                "The guidance must mark the tool's verdict advisory where it is fallible (VOr_m7w).",
+                "",
+                "## Done when",
+                "An agent following the minting workflow reaches the census tabtarget instead of raw grep laps, and the delivered surface still nowhere names the tool."
+              ],
+              "jjgtn_silks": "wield-mint-grep-gate",
+              "jjgtn_basis": "185b35a"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "The \"get job jockey to use it before we implement\" half directly:\nthe minting workflow wields the census tabtarget from now on, so every mint exercises the tool as it deepens.",
           "jjgpn_slated": "260718-0943"
         }
       }
