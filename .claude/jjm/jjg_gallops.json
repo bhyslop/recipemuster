@@ -4500,8 +4500,9 @@
         "₢CAAAO": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1000",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Give `jjx_open` the staleness check the chapbook already renders:",
                 "after a glean, a billet (or hippodrome) sitting behind its sire's remote trunk",
@@ -4521,7 +4522,7 @@
                 "tests cover both the stale and fresh paths."
               ],
               "jjgtn_silks": "warn-at-open-staleness",
-              "jjgtn_basis": "1afb313"
+              "jjgtn_basis": "67f7300"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
