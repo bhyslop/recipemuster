@@ -4673,8 +4673,9 @@
         "₢CAAAK": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0944",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-0954",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Focus",
                 "The first vestures claim their declarations and shrink the estray pile.",
@@ -4689,7 +4690,7 @@
                 "The estray section reads as signal — dominated by genuine mint-gaps and misminting rather than unclaimed well-formed declarations — and rivet IDs seat as their own kind."
               ],
               "jjgtn_silks": "first-classifiers-residue",
-              "jjgtn_basis": "9738dd1"
+              "jjgtn_basis": "b3b8183"
             }
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
