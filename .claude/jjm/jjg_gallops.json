@@ -4898,8 +4898,8 @@
         "₢CAAAY": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-2146",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-2210",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Sibling of the just-closed top-level heat_order/heats fix — apply the same repair-half to the per-heat order/paces twin one level down. Ordering-only, no schema change, no reprieve episode.",
@@ -4916,7 +4916,7 @@
                 "- Live-store repair (if the current store holds any per-heat divergence) is one serialized jjx_validate commit; running it under the fresh binary needs an MCP restart — see this pace's predecessor spook."
               ],
               "jjgtn_silks": "per-heat-order-divergence-fix",
-              "jjgtn_basis": "cb904f3"
+              "jjgtn_basis": "1f5dcfa"
             }
           ],
           "jjgpn_dictation": "wrap current, then slate a repair pace in this heat. Is the next pace in this heat schema-affecting? I will start other parallel chats if not.",
