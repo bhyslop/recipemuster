@@ -5164,7 +5164,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260718-1034",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Closing sweep, gated on proven service — retirement is earned, never presumed.",
@@ -5184,7 +5185,7 @@
                 "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "retire-superseded-instruments",
-              "jjgtn_basis": "34f877f"
+              "jjgtn_basis": "9084f4d"
             }
           ],
           "jjgpn_dictation": "Lets explore small changes first. I muse that multiple of the marshal tabtargets could be folded in to this new application.",
