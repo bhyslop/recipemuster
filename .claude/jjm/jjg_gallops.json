@@ -4607,9 +4607,8 @@
         "₢CAAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260717-1817",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "The irreversible ceremony's conductor — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
@@ -4618,26 +4617,30 @@
                 "Implement ostend, the once-per-cycle disclosure command, walking the operator through the reveal of the standing dry candidate — never re-cutting: the dry candidate is bit-for-bit what ships, and a terminal re-cut would break exactly that identity.",
                 "Stages, per the release heat's (₣B0) paddock cinches:",
                 "quarantine gates (anonymous-404, freshness) — relocated here from the lap path;",
+                "a candidate-freshness assert before any push — a re-cut of the maintainer tree's shipped bytes now would be tree-equal to the standing candidate; laps and reveal are decoupled in time, so delivered-bytes-bearing drift since the dry cut sends the cycle back to laps, never forward;",
                 "the preview push line handed to the operator, verified after;",
+                "the credential preflight — payor probe and a fresh sitting, since the gauntlet's build verbs are runway-gated — immediately before the gauntlet stage;",
                 "the gauntlet stage — marshal zero sequenced as a worker, then the gauntlet suite — placed after the candidate stands on the quarantine (operator ruling, 260717);",
                 "the file-list review, operator's own eyes, waited on;",
                 "the staging push line, with the before/after ls-remote assert that public main is untouched;",
                 "the promotion line (fast-forward only), with the tree-hash equality assert;",
-                "closing by standing up the confirmation coldwalk rig against promoted main via the harbinger machinery.",
+                "closing with the hand-off to the harbinger command for the confirmation coldwalk rig against promoted main.",
                 "Every push is typed by the operator; ostend performs every check and never holds a remote write.",
                 "",
                 "## Done when",
                 "A full reveal can be conducted end to end from a standing candidate with every assert machine-performed and every push human-typed;",
-                "proven at minimum by rehearsal against the private quarantine;",
+                "the reversible stages proven by rehearsal against the private quarantine (the gauntlet stage skippable in rehearsal);",
+                "the two terminal pushes and their asserts proven in first real service — the release heat's reveal;",
                 "fast-qualify and the perambulation fixture green."
               ],
               "jjgtn_silks": "ostend-guided-reveal",
-              "jjgtn_basis": "b2654dd"
+              "jjgtn_basis": "fe6f910"
             }
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
           "jjgpn_precis": "The operator ruled the gauntlet runs only after the proven candidate stands on the private quarantine, and wanted the rare-but-real command name. Ostend conducts the one irreversible ceremony: quarantine gates, preview, gauntlet, eyes, staging push, promotion — every assert by machine, every push by the operator's hands.",
-          "jjgpn_slated": "260717-1749"
+          "jjgpn_slated": "260717-1749",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAC": {
           "jjgpn_tacks": [
