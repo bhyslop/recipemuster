@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAA",
+  "jjgrn_next_pace_seed": "CAAAB",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4520,8 +4520,44 @@
       "jjghn_silks": "rbk-09-ensoul-hierophant",
       "jjghn_creation_time": "260717",
       "jjghn_status": "jjghe_racing",
-      "jjghn_order": [],
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢CAAAA"
+      ],
+      "jjghn_paces": {
+        "₢CAAAA": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1748",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Architectural founding — crate scaffold plus the first and largest command; the mint and the layering set the app's shape.",
+                "",
+                "## Docket",
+                "Found the hierophant crate per the paddock's veil cinches (standalone under Tools/rbk/vov_veiled/, own withheld build tabtarget; mint crate directory, module prefix, and tabtarget names per the minting rules — the app name hierophant and command names essai/ostend/harbinger are cinched).",
+                "Implement essai, the repair-lap command, sequencing the reversible cycle end to end:",
+                "clean-pushed-tree and neutered-base gates — no quarantine involvement, that gate belongs to ostend;",
+                "pre-cut assays on the maintainer tree (reveille, loupe, perambulation);",
+                "cut via the expede worker (rbw-ME) to a fixed conventional candidate location with retire-aside disposal — the dispose-by-rename discipline rblm_harbinger.sh proves, applied to the candidate;",
+                "the candidate battery — station write, fast-qualify, cupel, pyx, damnatio, the feign-probe reveille with probe-branch cleanup — per the step sequence /rbk-expede documents;",
+                "the coldwalk rig cloned from the local candidate, absorbing the harbinger module's git surgery (severed origin, exit-1 pre-push hook, throwaway walk branch, dated findings-memo path);",
+                "ending with the printed launch line and stranger prompt, and a clear statement of the two standing artifacts (pristine candidate; disposable rig).",
+                "The local rig announces its known fidelity gap loud: the HTTPS-clone-from-GitHub step and the public landing face are unproven in this mode, covered only by the final instruments against promoted main.",
+                "",
+                "## Done when",
+                "One command stands up a walk-ready rig from a fresh cut with zero remote acts, proven by exercise;",
+                "the candidate it leaves is bit-for-bit what a subsequent reveal would push;",
+                "fast-qualify and the perambulation fixture green (the crate and tabtarget wholly withheld)."
+              ],
+              "jjgtn_silks": "ensoul-crate-and-essai",
+              "jjgtn_basis": "1f2d662"
+            }
+          ],
+          "jjgpn_dictation": "I don't clearly see how to feather a _partial_ /rbk-expede process with the 'tight loop' that creates the local place we could use as a basis for the new branch and coldwalk. Ought we split expede into two halves? I need to be able to remember this process clearly, mind you: it is no good otherwise. How do you propose we make it easy to iterate on coldwalk/issue-discovery/repair/repeat? [...] For the record, before we had theurge rust to run all the tests, I had a sophisticated and fragile bash system for that, and so much got so much cleaner when we used a real programming language.",
+          "jjgpn_precis": "The operator needs the repair-lap iteration to be one memorable act, and ruled (via the theurge precedent) that the orchestrator be deterministic Rust rather than sophisticated bash. This pace founds the veiled crate and delivers essai: the whole reversible lap — gates, expede cut, candidate battery, guarded local coldwalk rig — as a single command that never touches a remote.",
+          "jjgpn_slated": "260717-1748"
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
