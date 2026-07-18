@@ -21,13 +21,16 @@
 //! stirrup: pace-blind, parameterized (billet, tier, opening prompt);
 //! pace-coupling lives in the callers here.
 //!
-//! Inertness: nothing on the frozen path reaches this module. The doors are
-//! new opt-in surfaces (a station without a founded studbook meets the
-//! fair-faced studbook rejection at pedigree lookup), and the staleness
-//! surfacing composed here is NOT wired into the live jjx_open/notch/wrap
-//! paths — that wiring is the conversion heat's act, behind
-//! `JJRM_OFFICIUM_STUDBOOK_ENABLED` (jjrm_mcp.rs), which a guard test pins
-//! false.
+//! Inertness: nothing on the frozen path reaches this module's doors — they
+//! are new opt-in surfaces (a station without a founded studbook meets the
+//! fair-faced studbook rejection at pedigree lookup), and `jjrds_run`'s spine
+//! itself still runs without muck (above). The staleness surfacing composed
+//! here is no longer inert, though: `jjrds_staleness_notice` is wired into the
+//! live `jjx_open` path unconditionally (`zjjrm_open_staleness_notice`,
+//! jjrm_mcp.rs) — that wiring does not wait on
+//! `JJRM_OFFICIUM_STUDBOOK_ENABLED`, which gates only where the officium's own
+//! exchange directory lives, not this probe. Notch/wrap wiring remains
+//! unwired.
 
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrfr_farrier::{
