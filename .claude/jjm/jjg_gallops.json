@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAL",
+  "jjgrn_next_pace_seed": "CAAAM",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4587,7 +4587,8 @@
         "₢CAAAH",
         "₢CAAAI",
         "₢CAAAJ",
-        "₢CAAAK"
+        "₢CAAAK",
+        "₢CAAAL"
       ],
       "jjghn_paces": {
         "₢CAAAG": {
@@ -4714,6 +4715,31 @@
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The gradual-deepening half of the intent:\nclassifiers grow residue-driven, fixing issues as the estray pile shrinks — the paddock's cinched growth mode.",
+          "jjgpn_slated": "260718-0944"
+        },
+        "₢CAAAL": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0944",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The two MVP validators, read off the census rather than run as separate passes (VOSMM \"Seating Validators\").",
+                "Exact collision is observed at seat time: two declaration sites of one token, count-blind.",
+                "Terminal-exclusivity is a trie-node property read after seal: a signet both seated and holding children.",
+                "Each emits a presentment carrying the violating inscriptions, the declaration sites, and the violated rule cited to its CMK/MCM home, never restated.",
+                "Sprue- and rivet-gated findings stay advisory (VOr_m7w);",
+                "the estray section stays its own section, never folded into presentments.",
+                "",
+                "## Done when",
+                "A tree run renders both presentment kinds with real sites, and a planted collision and a planted terminal-exclusivity breach in test fixtures each surface as exactly one presentment."
+              ],
+              "jjgtn_silks": "seating-validators",
+              "jjgtn_basis": "b089ead"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "The first real checking added onto the already-wielded tool:\nthe two seating validators fall out of the frozen census as properties, per the gradual add-checking intent.",
           "jjgpn_slated": "260718-0944"
         }
       }
