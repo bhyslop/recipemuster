@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAB",
+  "jjgrn_next_pace_seed": "CAAAC",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4521,7 +4521,8 @@
       "jjghn_creation_time": "260717",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
-        "₢CAAAA"
+        "₢CAAAA",
+        "₢CAAAB"
       ],
       "jjghn_paces": {
         "₢CAAAA": {
@@ -4556,6 +4557,40 @@
           "jjgpn_dictation": "I don't clearly see how to feather a _partial_ /rbk-expede process with the 'tight loop' that creates the local place we could use as a basis for the new branch and coldwalk. Ought we split expede into two halves? I need to be able to remember this process clearly, mind you: it is no good otherwise. How do you propose we make it easy to iterate on coldwalk/issue-discovery/repair/repeat? [...] For the record, before we had theurge rust to run all the tests, I had a sophisticated and fragile bash system for that, and so much got so much cleaner when we used a real programming language.",
           "jjgpn_precis": "The operator needs the repair-lap iteration to be one memorable act, and ruled (via the theurge precedent) that the orchestrator be deterministic Rust rather than sophisticated bash. This pace founds the veiled crate and delivers essai: the whole reversible lap — gates, expede cut, candidate battery, guarded local coldwalk rig — as a single command that never touches a remote.",
           "jjgpn_slated": "260717-1748"
+        },
+        "₢CAAAB": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1749",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "The irreversible ceremony's conductor — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
+                "",
+                "## Docket",
+                "Implement ostend, the once-per-cycle disclosure command, walking the operator through the reveal of the standing dry candidate — never re-cutting: the dry candidate is bit-for-bit what ships, and a terminal re-cut would break exactly that identity.",
+                "Stages, per the release heat's (₣B0) paddock cinches:",
+                "quarantine gates (anonymous-404, freshness) — relocated here from the lap path;",
+                "the preview push line handed to the operator, verified after;",
+                "the gauntlet stage — marshal zero sequenced as a worker, then the gauntlet suite — placed after the candidate stands on the quarantine (operator ruling, 260717);",
+                "the file-list review, operator's own eyes, waited on;",
+                "the staging push line, with the before/after ls-remote assert that public main is untouched;",
+                "the promotion line (fast-forward only), with the tree-hash equality assert;",
+                "closing by standing up the confirmation coldwalk rig against promoted main via the harbinger machinery.",
+                "Every push is typed by the operator; ostend performs every check and never holds a remote write.",
+                "",
+                "## Done when",
+                "A full reveal can be conducted end to end from a standing candidate with every assert machine-performed and every push human-typed;",
+                "proven at minimum by rehearsal against the private quarantine;",
+                "fast-qualify and the perambulation fixture green."
+              ],
+              "jjgtn_silks": "ostend-guided-reveal",
+              "jjgtn_basis": "f8d9b3c"
+            }
+          ],
+          "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
+          "jjgpn_precis": "The operator ruled the gauntlet runs only after the proven candidate stands on the private quarantine, and wanted the rare-but-real command name. Ostend conducts the one irreversible ceremony: quarantine gates, preview, gauntlet, eyes, staging push, promotion — every assert by machine, every push by the operator's hands.",
+          "jjgpn_slated": "260717-1749"
         }
       }
     },
