@@ -4029,10 +4029,8 @@
         "₢B0AAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1751",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260717-1817",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Release-ceremony cycle: laps iterated to dry in the reversible tier, then the reveal's public acts once, by hand.",
@@ -4042,10 +4040,11 @@
                 "re-cut atop live public main, coldwalk the local candidate in the guarded rig, disposition the findings, repeat until a lap runs dry.",
                 "No gauntlet during laps; the reveal (ostend) carries it, after the candidate stands on the private quarantine (operator ruling).",
                 "Only the dry candidate takes the public acts — one staging push, one promotion, human-hands-only; never a terminal re-cut, the walked bytes ARE the disclosed bytes.",
-                "The confirmation coldwalk (harbinger command, against promoted main) follows promotion and closes the cycle.",
+                "The confirmation coldwalk (harbinger command, against promoted main) follows promotion and closes the cycle;",
+                "its depth is the mount's judgment — at minimum the onboarding beats the repair findings touched, the full four-beat walk belonging to the operator's greenfield walk, not this gate.",
                 "The first-delivery exception still governs — promotion precedes the operator walk.",
                 "RELEASE.md still narrates the pre-260715 single-pass shape until the closeout amends it: the paddock cinches govern; do not follow its step-8 ordering or its restart-from-step-2 failure text during laps.",
-                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination landed in the maintainer tree; essai and ostend stand (₣B6).",
+                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination (with any lap fix it routed) landed in the maintainer tree; essai and ostend stand (₣B6).",
                 "Fallback if the hierophant is not ready when laps must run: /rbk-expede plus the bash harbinger, hand-driven, same doctrine.",
                 "",
                 "## Done when",
@@ -4055,10 +4054,10 @@
                 "the operator's greenfield walk unblocked."
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
-              "jjgtn_basis": "feaf937"
+              "jjgtn_basis": "52b7740"
             }
           ],
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         },
         "₢B0AAO": {
           "jjgpn_tacks": [
