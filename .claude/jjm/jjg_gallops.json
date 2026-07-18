@@ -2,12 +2,12 @@
   "jjgrn_next_heat_seed": "B7",
   "jjgrn_next_pace_seed": "CAAAO",
   "jjgrn_heat_order": [
+    "₣B5",
     "₣B6",
     "₣B4",
     "₣B0",
     "₣Bs",
     "₣Bd",
-    "₣B5",
     "₣Bg",
     "₣B1",
     "₣Bz",
@@ -4581,7 +4581,7 @@
     "₣B5": {
       "jjghn_silks": "jjk-07-implement-matricula",
       "jjghn_creation_time": "260717",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢CAAAN",
         "₢CAAAH",
