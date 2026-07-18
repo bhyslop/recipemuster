@@ -1,0 +1,82 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbth_harbinger}
+
+NOTE: This operation stands up the standalone stranger
+{rbth_rig}:
+a guarded disposable clone of promoted public `main`, handed off with a
+launch line and a stranger prompt for a zero-context agent to walk the
+shipped onboarding literally.
+It serves the confirmation coldwalk after a reveal, and any future shakedown
+summoned outside one.
+
+NOTE: *One rig implementation.* Rig construction is shared with the
+{rbth_essai}
+rig stage, never duplicated; the two differ only in clone source — promoted
+public `main` here, the local
+{rbth_candidate}
+there.
+The rig module reads no shared authority, which is why it is truly absorbed
+into the
+{rbth_hierophant}
+rather than sequenced as a worker.
+
+NOTE: *The rig pushes nothing, ever.* The station running this command holds
+real credentials to the public repository, so the guard is structural, not a
+rule to remember: severed origin, then a pre-push refusal hook — belt and
+suspenders.
+
+//axhos_step
+. *Resolve and guard the rig site*:
+.. {rbbc_store}
+the rig directory — the fixed rig basename beside the maintainer repository,
+derived from the repository root, never hand-typed
+.. {rbbc_require}
+the target's basename to be exactly the fixed rig name, and the target to
+differ from the maintainer repository's own root — the rig-move guards that
+make the disposal below unable to touch the maintainer tree
+
+//axhos_step
+. *Retire any prior rig aside*:
+.. rename an existing rig to a timestamped sibling — retire-aside, never a
+delete, so nothing here can destroy data even if a guard were wrong
+
+//axhos_step
+. *Clone the promoted public face*:
+.. clone the public repository over HTTPS — the anonymous read, the exact
+face a real stranger lands on
+.. {rbbc_require}
+the clone to carry the README — the onboarding face; its absence means the
+promoted tree is empty or wrong
+
+//axhos_step
+. *Guard the clone*:
+.. sever the clone's origin — from here the clone names no remote
+.. install the pre-push refusal hook, exiting nonzero with a loud reason —
+even a re-added remote finds every push refused
+
+//axhos_step
+. *Cut the throwaway walk branch*:
+.. the walker commits its kludges on the walk branch; the clone's default
+branch stays untouched as the pristine reference, so a diff at the end shows
+exactly what the walk changed
+
+//axhoot_typed_output
+{rbth_rig}
+. *Hand off the walk*:
+.. {rbbc_show}
+the dated findings-memo path — a sibling of the clone, surviving the clone's
+discard, reviewed and committed by the maintainer after the walk
+.. {rbbc_show}
+the launch line and the stranger prompt, verbatim — the walk itself is the
+operator's own, launched by hand; the rig sets the stage and steps off it
+
+//axhoc_completion
+Successful execution stands up the promoted-main
+{rbth_rig}
+— guarded, disposable, push-incapable — identically to the proven bash
+instrument it supersedes, from the one rig implementation shared with
+{rbth_essai}.
+
+// eof

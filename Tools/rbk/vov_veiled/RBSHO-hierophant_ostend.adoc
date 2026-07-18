@@ -1,0 +1,144 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbth_ostend}
+
+NOTE: This operation is the once-per-cycle guided reveal: it walks the
+operator through the disclosure of the standing dry
+{rbth_candidate},
+performing every assert itself while every push is typed by the operator —
+the machine-asserts-around-human-pushes law of the cosmology's command seam.
+It never re-cuts: the dry candidate is bit-for-bit what ships, and a terminal
+re-cut would break exactly that identity.
+
+NOTE: *Laps and reveal are decoupled in time.* Days may pass between the dry
+{rbth_lap}
+and the reveal, so the candidate's freshness is asserted, never presumed —
+delivered-bytes-bearing drift since the dry cut sends the cycle back to laps,
+never forward.
+
+NOTE: *Gate ownership.* The
+{rbth_quarantine}
+gates live here, relocated from the lap path: a
+{rbth_lap}
+involves no quarantine, and the reveal will not proceed onto a quarantine
+that is visible to strangers or carrying an undispositioned prior cut.
+
+//axhos_step
+. *Gate the
+{rbth_quarantine}*:
+.. {rbbc_require}
+an anonymous read of the quarantine repository to 404 — anything else means
+the quarantine is public or misnamed
+.. {rbbc_require}
+the quarantine fresh: no refs at all, or exactly the `POSTULANT_LOCAL` of a
+preview from this same cut — anything else is an undispositioned prior cut,
+the operator's to dispose of
+.. {rbbc_fatal}
+on either deficit
+
+//axhos_step
+. *Assert candidate freshness* (before any push):
+.. {rbbc_require}
+that a re-cut of the maintainer tree's shipped bytes now would be tree-equal
+to the standing
+{rbth_candidate}
+.. {rbbc_fatal}
+on drift — the cycle returns to
+{rbth_essai},
+never forward
+
+//axhos_step
+. *Preview into the
+{rbth_quarantine}*
+(reversible):
+.. {rbbc_show}
+the preview push line — explicit quarantine URL,
+`POSTULANT_LOCAL:POSTULANT_LOCAL` — for the operator to type
+.. {rbbc_require}
+the quarantine's `POSTULANT_LOCAL` tip equal to the candidate tip after the
+operator reports the push done
+
+//axhos_step
+. *Credential preflight* (immediately before the gauntlet stage):
+.. probe the
+{rbtr_payor}
+OAuth credential
+.. {rbtf_novate}
+the
+{rbtf_sitting}
+— the gauntlet's build verbs are runway-gated, and a stale sitting passes the
+early rungs then dies mid-ladder at the floor
+.. {rbbc_fatal}
+if either leaves the ladder uncredentialed
+
+//axhos_step
+. *Run the gauntlet stage* (once per repair cycle):
+.. sequence marshal zero as a worker — the blank-template entry state the
+gauntlet's attestation gate demands
+.. run the gauntlet suite
+.. NOTE: placement is ruled — after the candidate stands on the quarantine,
+inside the reveal, never inside a
+{rbth_lap}
+.. {rbbc_fatal}
+on a red ladder: the cycle returns to laps
+
+//axhos_step
+. *File-list review — the operator's own eyes*:
+.. {rbbc_show}
+the candidate's full file list
+.. {rbbc_prompt}
+and wait: no machine judgment substitutes for the maintainer reading what
+they are about to publish
+
+//axhos_step
+. *The
+{rbth_disclosure}*
+(irreversible):
+.. {rbbc_store}
+the public repository's `main` tip via ls-remote, before
+.. {rbbc_show}
+the staging push line — explicit public URL,
+`POSTULANT_LOCAL:POSTULANT_LOCAL` — for the operator to type
+.. {rbbc_require}
+after: the public `main` tip unchanged (the before/after assert lives here,
+at the push that must not move `main`), and the new `POSTULANT_LOCAL` ref at
+the candidate tip
+
+//axhos_step
+. *Promotion* (discoverability):
+.. {rbbc_show}
+the promotion line — fast-forward-only, from a fresh clone or fetch of the
+public repository, never the candidate directory; the one
+`POSTULANT_LOCAL:main` refspec in the corpus
+.. {rbbc_require}
+after: `main`'s tree hash equal to the walked candidate tip — the byte claim
+is checked, not assumed
+.. {rbbc_fatal}
+guidance on a refused fast-forward: `main` moved since the cut — stop, never
+force, re-cut atop the moved base
+
+//axhoot_typed_output
+{rbth_candidate}
+. *Close the reveal*:
+.. {rbbc_show}
+the hand-off to the
+{rbth_harbinger}
+command for the confirmation coldwalk
+{rbth_rig}
+against promoted `main`
+.. {rbbc_show}
+the ceremony-hygiene reminders the ceremony document owns: delete the public
+staging branch, the private
+{rbth_quarantine},
+and the candidate directory once dispositioned
+
+//axhoc_completion
+Successful execution conducts a full reveal from a standing dry
+{rbth_candidate}:
+every assert machine-performed, every push human-typed, the
+{rbth_disclosure}
+and the promotion each spelled exactly once, and the promoted `main`
+tree-hash-equal to the candidate the laps proved.
+
+// eof

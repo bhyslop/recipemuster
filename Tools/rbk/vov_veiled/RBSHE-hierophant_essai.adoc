@@ -1,0 +1,127 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbth_essai}
+
+NOTE: This operation is the repair
+{rbth_lap}
+— the reversible cycle end to end: gates, cut, prove, rig — run as many times
+as it takes, with zero remote acts.
+Its product is a walk-ready
+{rbth_rig}
+standing beside a pristine
+{rbth_candidate}
+that is bit-for-bit what a subsequent
+{rbth_ostend}
+would push.
+
+NOTE: *Gate ownership.* Essai gates on the maintainer tree and the base only.
+The
+{rbth_quarantine}
+gates — anonymous-404 and freshness — belong to
+{rbth_ostend}:
+a lap involves no quarantine at all.
+
+NOTE: *A finding means re-cut, never patch forward.* A red assay abandons the
+candidate; the repair lands on the maintainer tree, and the next
+{rbth_lap}
+runs from the top.
+Patching a candidate forward is the accumulated-state bug class the ceremony
+exists to catch.
+
+//axhos_step
+. *Gate the maintainer tree and the base*:
+.. {rbbc_require}
+the working tree clean and fully pushed
+.. {rbbc_require}
+the base remote `ENGROSSMENT_UPSTREAM` configured with its push side neutered
+to the fixed sentinel the expede worker asserts (the read-only-base law of the
+cosmology's structural-incapacity section)
+.. {rbbc_fatal}
+on either deficit — a lap never proceeds from a dirty tree or a push-capable
+base
+
+//axhos_step
+. *Pre-cut assays, on the maintainer tree*:
+.. run the reveille suite — the maintainer tree must be green before it is
+worth cutting
+.. run the loupe and perambulation fixtures — the two assays that read the
+veiled trees, meaningful only here (in the candidate they are red by
+construction)
+.. {rbbc_fatal}
+on any red: repair on the maintainer tree first
+
+//axhos_step
+. *Cut the
+{rbth_candidate}*
+via the expede worker:
+.. dispose of any prior candidate at the fixed conventional location by
+retire-aside — a rename to a timestamped sibling, never a delete (the
+dispose-by-rename discipline the
+{rbth_rig}
+proves, applied to the candidate)
+.. invoke expede against the fixed conventional candidate location; expede's
+own refusals (clean tree, total perambulation, consumer-template transposition
+byte-assert, single-commit assert, candidate-delta sweep, zero-remotes assert)
+are relied on, never re-implemented
+.. {rbbc_require}
+expede's verdict: one commit atop the base on `POSTULANT_LOCAL`, the base
+inventory of already-disclosed withheld history surfaced for acknowledgment,
+zero remotes
+
+//axhos_step
+. *Prove the candidate* (the battery, in order):
+.. write the candidate's identity-free station and empty secrets directory —
+the consumer's first onboarding act reproduced, not a leak
+.. run the candidate's own fast-qualify — the delivered wiring is intact
+.. run cupel — command discipline as the candidate resolves it, the one
+reading the maintainer tree cannot perform
+.. run pyx — release hygiene of the tree being published
+.. run damnatio on `POSTULANT_LOCAL`, before any feigning — the proof of
+erasure; damnatio reddens on feigned fields by construction, which is what
+keeps a probe branch from ever being mistaken for a candidate
+.. feign-probe reveille: cut a throwaway probe branch, feign a station, run
+the candidate's reveille from the consumer's seat, then return to
+`POSTULANT_LOCAL` and delete the probe branch outright
+.. {rbbc_fatal}
+on any red: abandon the candidate, repair on the maintainer tree, re-cut
+
+//axhos_step
+. *Stand up the coldwalk
+{rbth_rig}*
+from the local candidate:
+.. construct the rig via the shared rig module — retire-aside disposal,
+severed origin, pre-push refusal hook, throwaway walk branch, dated
+findings-memo path — with the local candidate as clone source, the sole
+divergence from the
+{rbth_harbinger}
+command
+.. {rbbc_show}
+the known fidelity gap, loud: the HTTPS-clone-from-GitHub step and the public
+landing face are unproven in this mode, covered only by the final instruments
+against promoted `main`
+
+//axhoot_typed_output
+{rbth_rig}
+. *Hand off the walk*:
+.. {rbbc_show}
+the printed launch line and the stranger prompt
+.. {rbbc_show}
+a clear statement of the two standing artifacts: the pristine
+{rbth_candidate}
+(untouched by the walk) and the disposable
+{rbth_rig}
+
+//axhoc_completion
+Successful execution stands up a walk-ready
+{rbth_rig}
+from a fresh cut with zero remote acts, beside a proven
+{rbth_candidate}
+that is bit-for-bit what a subsequent reveal would push.
+A
+{rbth_lap}
+that surfaces a finding loops — repair, re-cut, re-prove; a lap that runs dry
+hands the standing candidate to
+{rbth_ostend}.
+
+// eof

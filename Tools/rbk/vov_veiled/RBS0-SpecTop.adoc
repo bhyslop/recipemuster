@@ -642,6 +642,18 @@
 :rbtt_freehold:             <<rbtt_freehold,Freehold>>
 :rbtt_leasehold:            <<rbtt_leasehold,Leasehold>>
 
+// RB Term Hierophant (rbth_ = Hierophant; the marshal delivery ceremony) — defined at the head of the Marshal Operations branch, registered here
+:rbth_hierophant:           <<rbth_hierophant,Hierophant>>
+:rbth_essai:                <<rbth_essai,Essai>>
+:rbth_ostend:               <<rbth_ostend,Ostend>>
+:rbth_harbinger:            <<rbth_harbinger,Harbinger>>
+:rbth_lap:                  <<rbth_lap,Lap>>
+:rbth_lap_s:                <<rbth_lap,Laps>>
+:rbth_candidate:            <<rbth_candidate,Candidate>>
+:rbth_quarantine:           <<rbth_quarantine,Quarantine>>
+:rbth_rig:                  <<rbth_rig,Rig>>
+:rbth_disclosure:           <<rbth_disclosure,Disclosure>>
+
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
 
@@ -2059,6 +2071,135 @@ Two modes: full (complete detail) and compact (summary).
 
 //axvd_cartouche axd_normative
 include::RBSAP-ark_plumb.adoc[]
+
+== {rbtr_marshal} Operations
+
+The
+{rbtr_marshal}
+qualifies and prepares releases for distribution; the delivery ceremony is
+conducted by the
+{rbth_hierophant},
+whose vocabulary is defined here at the branch head and treated in the
+cosmology subdoc below.
+The operator-facing procedure for a given release — step order, command
+lines, promotion-day housekeeping — is the ceremony document (`RELEASE.md`,
+itself withheld from delivery), which points back at this branch for the law.
+
+[[rbth_hierophant]]
+{rbth_hierophant}::
+The veiled Rust application that conducts the delivery ceremony, as the
+{rbtt_theurge}
+conducts the tests.
+It owns three commands, one per ceremony:
+{rbth_essai}
+the reversible repair lap,
+{rbth_ostend}
+the guided irreversible reveal,
+{rbth_harbinger}
+the stranger rig.
+It sequences proven workers and absorbs orchestration, never authority; it
+never holds a push.
+
+[[rbth_lap]]
+{rbth_lap}::
+One
+{rbth_essai}
+cycle — gates, cut, prove, rig — repeated until a lap *runs dry*: a lap
+surfacing no finding.
+Only a dry
+{rbth_candidate}
+proceeds to the reveal; a finding means re-cut, never patch forward.
+
+[[rbth_candidate]]
+{rbth_candidate}::
+The cut deliverable: exactly one commit atop the live public base, built by
+addition from the paths the perambulation ships, on the sole branch
+`POSTULANT_LOCAL`, holding zero remotes.
+The dry candidate the reveal discloses is bit-for-bit the candidate the
+{rbth_lap_s}
+proved — a terminal re-cut would break exactly that identity.
+
+[[rbth_quarantine]]
+{rbth_quarantine}::
+The ephemeral private repository the reversible preview lands in — created
+empty by the operator before a cut, reached only by explicit URL, deleted by
+hand once the candidate is dispositioned.
+No tooling creates or destroys it, and no delete-scoped token is ever minted.
+Containment only: the additive construction of the
+{rbth_candidate}
+is the prevention.
+
+[[rbth_rig]]
+{rbth_rig}::
+The guarded disposable walk clone — severed origin, pre-push refusal hook,
+throwaway walk branch, dated findings-memo path, prior rig retired aside by
+rename — that a stranger walk runs in.
+One construction serves both
+{rbth_essai}
+(cloning the local
+{rbth_candidate})
+and
+{rbth_harbinger}
+(cloning promoted public `main`); the clone source is their sole divergence.
+
+[[rbth_disclosure]]
+{rbth_disclosure}::
+The single irreversible public act: the
+{rbth_candidate}
+pushed onto the public repository as the unmerged `POSTULANT_LOCAL` branch,
+`main` untouched.
+The staging push, not the promotion, carries promotion-grade gravity — a
+public object store cannot be un-disclosed; promotion after it is
+discoverability, not disclosure.
+
+//axvd_cartouche axd_normative
+include::RBSHC-hierophant_cosmology.adoc[leveloffset=+1]
+
+[[rbth_essai]]
+//axvo_method axd_transient axd_attended axd_inlaid
+=== {rbth_essai}
+
+`hierophant essai` —
+Runs one repair
+{rbth_lap}:
+gates the maintainer tree and the read-only base, assays, cuts the
+{rbth_candidate}
+via the expede worker, proves it with the candidate battery, and stands up a
+coldwalk
+{rbth_rig}
+from the local candidate — zero remote acts, repeated until a lap runs dry.
+
+//axvd_cartouche axd_normative
+include::RBSHE-hierophant_essai.adoc[]
+
+[[rbth_ostend]]
+//axvo_method axd_transient axd_attended axd_inlaid
+=== {rbth_ostend}
+
+`hierophant ostend` —
+Conducts the once-per-cycle reveal of the standing dry
+{rbth_candidate}:
+quarantine gates, freshness assert, preview, credential preflight, the
+gauntlet stage, the file-list review, the
+{rbth_disclosure},
+and promotion — every assert machine-performed, every push typed by the
+operator.
+
+//axvd_cartouche axd_normative
+include::RBSHO-hierophant_ostend.adoc[]
+
+[[rbth_harbinger]]
+//axvo_method axd_transient axd_attended axd_inlaid
+=== {rbth_harbinger}
+
+`hierophant harbinger` —
+Stands up the standalone stranger
+{rbth_rig}
+against promoted public `main` — the confirmation coldwalk after a reveal,
+and any shakedown summoned outside one.
+
+//axvd_cartouche axd_normative
+include::RBSHH-hierophant_harbinger.adoc[]
 
 == Local Operations
 

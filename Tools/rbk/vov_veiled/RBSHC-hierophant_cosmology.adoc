@@ -1,0 +1,188 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+// RBSHC — Hierophant delivery cosmology (concept subdoc)
+//
+// STANDING subdoc, concept-first. The spec treatment of Recipe Bottle's
+// delivery-ceremony cosmology: the hierophant application, the reversible/
+// irreversible command seam, the three public acts, and the structural-
+// incapacity law. Before this subdoc the ceremony law lived in two heat
+// paddocks (mortal homes) and RELEASE.md's interim rationale block — which
+// announced its own migration here ("this migrates to a release spec sheaf
+// when one exists").
+//
+// The rbth_ quoins are DEFINED in RBS0, at the head of the Marshal Operations
+// branch that includes this subdoc — the codex defines the vocabulary, a sheaf
+// consumes it (MCM mcm_codex / mcm_sheaf). This subdoc is the treatment, not
+// the definition site.
+//
+// Naming RULED (operator, 260718, spec-first ruling): the quoin stem rbth_
+// (sub-letter reads Hierophant) and the words hierophant / essai / ostend /
+// harbinger were cinched at the heat's design discussion (260717); the noun
+// quoins (lap, candidate, quarantine, rig, disclosure) carry the ceremony's
+// standing vocabulary forward from RELEASE.md and the release-heat rulings —
+// continuity of a living register, not fresh mints. The remote and branch
+// names ENGROSSMENT_UPSTREAM / POSTULANT_LOCAL (operator mint, 260715) find
+// their durable home in this subdoc.
+//
+// Membranes (honored, not re-minted):
+//  - the workers (marshal zero, lustrate, feign, expede, harbinger-the-module)
+//    are bash verbs homed in rblm_*; sequenced by the hierophant, their
+//    internals never restated here;
+//  - the proscription — the one table judging every regime field site-scoped
+//    or common — stays homed in its shipped bash library (rblm_lustrate.sh),
+//    read through the same subprocess reach damnatio already proves, never
+//    carried as a copy;
+//  - fixture and suite names (reveille, gauntlet, loupe, perambulation, cupel,
+//    pyx, damnatio) are the theurge registry's — referenced as literals;
+//  - RELEASE.md remains the operator-facing procedure — step order, command
+//    lines, and promotion-day housekeeping for a given release live there; it
+//    is withheld from delivery and points back at this branch for the law;
+//  - code-level mints (crate directory, module prefix, tabtarget) are the
+//    implementation pace's, made at its mount, not here.
+
+The
+{rbth_hierophant}
+conducts the delivery ceremony as the
+{rbtt_theurge}
+conducts the tests: a veiled Rust application owning three commands, one per
+ceremony —
+{rbth_essai}
+the repair lap,
+{rbth_ostend}
+the guided reveal,
+{rbth_harbinger}
+the stranger rig.
+This subdoc treats the cosmology the application embodies — the vocabulary
+defined with the rest of the codex's terms at the branch head — and defers
+every worker internal, fixture membership, and per-release operational step to
+its own home.
+
+== The command seam
+
+The ceremony's one load-bearing boundary is reversible versus irreversible,
+and the command structure is that boundary made executable.
+{rbth_essai}
+and
+{rbth_harbinger}
+are wholly reversible: every artifact they produce — a
+{rbth_candidate},
+a
+{rbth_rig}
+— is local, disposable, and replaceable by another run.
+{rbth_ostend}
+alone crosses the line: it conducts the operator through the
+{rbth_disclosure}
+and the promotion, and it is therefore built as machine-asserts-around-human-
+pushes — the application performs every check and never holds a remote write.
+
+Iteration belongs entirely to the reversible tier: a
+{rbth_lap}
+is repeated until one runs dry — a lap surfacing no finding — and only a dry
+candidate proceeds to the reveal.
+The gauntlet runs once per repair cycle, inside the reveal, after the
+candidate stands on the
+{rbth_quarantine}
+— never inside a lap.
+
+== Worker, never authority
+
+The
+{rbth_hierophant}
+sequences proven workers; it absorbs orchestration, never authority.
+Marshal zero, lustration, feigning, and the expede constructor remain bash
+verbs in their own modules, invoked as subprocesses; the proscription they
+share stays homed in its shipped library, and the hierophant reads it through
+the same subprocess reach the damnatio fixture already proves — a second copy
+of that table is the drift this rule forbids.
+The one truly absorbed module is
+{rbth_rig}
+construction — clone, sever, hook, walk branch, prompt — which reads no shared
+authority: one implementation serves both the
+{rbth_essai}
+rig stage and the
+{rbth_harbinger}
+command, differing only in clone source.
+
+== Structural incapacity
+
+Every public act is human-hands-only by structural incapacity, never by
+discipline.
+The
+{rbth_hierophant}
+never holds a push: it prints the push line for the operator to type, then
+verifies the result.
+The same law holds at every layer beneath it.
+The base — the real public repository, remote `ENGROSSMENT_UPSTREAM` — is
+read-only by construction: its push side is neutered to a fixed sentinel the
+expede worker asserts before it will cut.
+The
+{rbth_candidate}
+holds zero remotes and a sole branch, `POSTULANT_LOCAL`.
+The
+{rbth_rig}
+severs its origin and installs a pre-push refusal hook.
+A push-capable remote to the public target in the maintainer repository is the
+one forbidden catastrophe — a stray push landing the private tree on public
+`main`.
+
+Additive construction is the prevention; the
+{rbth_quarantine}
+is only containment, and containment never substitutes for prevention.
+The candidate is built by addition in a clone of the real public base —
+expede materializes only the paths the perambulation ships — so no private
+object ever enters the graph a push walks.
+
+== The three public acts
+
+Three distinct public acts, one irreversible.
+Every push is an explicit URL plus a single explicit refspec; the fan-out
+forms are forbidden.
+
+The *preview* is reversible: the
+{rbth_candidate}
+pushed into the private
+{rbth_quarantine}
+as `POSTULANT_LOCAL:POSTULANT_LOCAL`.
+A git commit is content-addressed, so the previewed object is, bit for bit,
+the object later disclosed — that identity is what makes the preview
+trustworthy.
+
+The
+{rbth_disclosure}
+is the single irreversible act: the candidate pushed onto the public
+repository as the unmerged `POSTULANT_LOCAL` branch, `main` untouched.
+The staging push, not the promotion, carries promotion-grade gravity — a
+public object store cannot be un-disclosed.
+
+*Promotion* is discoverability, not disclosure: fast-forward-only, from a
+fresh clone or fetch of the public repository, asserting tree-hash equality —
+the byte claim is checked, not assumed.
+The `POSTULANT_LOCAL:main` refspec occurs exactly once in the whole corpus,
+at promotion; the preview and the disclosure both spell
+`POSTULANT_LOCAL:POSTULANT_LOCAL`.
+Standing doctrine: the greenfield walk gates promotion, never disclosure.
+(The first delivery ran stage → promote → walk under an operator ruling; the
+ceremony document records that exception beside this standing pattern.)
+
+== The veil
+
+The
+{rbth_hierophant}
+crate lives under the veiled tree and is referenced by no shipped manifest:
+the delivered tree must build with the veiled directory absent.
+It carries its own withheld build tabtarget.
+Marshal operations are invisible to
+{rbtr_consumer_s};
+the release-hygiene fixture holds the path half of that line mechanically.
+
+== Scoped out
+
+Absorbing the expede constructor's internals is a later reassessment, not this
+cosmology's: expede is sequenced as a worker, untouched.
+The per-release operational procedure — step order, command lines,
+promotion-day housekeeping, the failure-mode contract — is the ceremony
+document's (RELEASE.md), which points here for the law.
+The retired bash instruments this application supersedes are swept by their
+own closing pace, gated on proven service, never by this subdoc.
+
+// eof
