@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAQ",
+  "jjgrn_next_pace_seed": "CAAAR",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4452,6 +4452,7 @@
       "jjghn_order": [
         "₢CAAAO",
         "₢CAAAP",
+        "₢CAAAQ",
         "₢B3AAA"
       ],
       "jjghn_paces": {
@@ -4548,6 +4549,36 @@
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace closes the refit-engine-without-a-door gap carried from the ₣Br rehearsal findings.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1001",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Complete the record-read repoint so ONE flip converts every reader.",
+                "The jjx surface already reads gallops-over-studbook behind",
+                "`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (built and tested, awaiting the cutover's flip),",
+                "but the dispatch spine's own target-resolution read (`jjrds_plan`)",
+                "still loads the hippodrome's in-repo gallops directly,",
+                "while the pedigree it reads beside it already comes from the studbook.",
+                "Repoint that second reader behind the same seam,",
+                "and settle currency-at-read — when a session gleans its local studbook clone.",
+                "Source: ₣B3 paddock carry (Finding B, RECORD-READ REPOINT: two readers, not one;",
+                "currency-at-read named as the cutover's to settle).",
+                "",
+                "## Done when",
+                "With the seam enabled in a test, both readers resolve from the studbook",
+                "and neither touches the in-repo gallops;",
+                "the currency-at-read policy is settled and asserted by a test."
+              ],
+              "jjgtn_silks": "repoint-spine-reader",
+              "jjgtn_basis": "3fc6ea8"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace finishes the RECORD-READ REPOINT seam: the dispatch spine's second reader\nmust ride the same enablement seam as the jjx surface before the ceremony can flip once.",
           "jjgpn_slated": "260718-1001"
         }
       }
