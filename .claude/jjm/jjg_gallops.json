@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAN",
+  "jjgrn_next_pace_seed": "CAAAO",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4583,6 +4583,7 @@
       "jjghn_creation_time": "260717",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
+        "₢CAAAN",
         "₢CAAAH",
         "₢CAAAI",
         "₢CAAAJ",
@@ -4738,6 +4739,32 @@
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The use-anchor closes the ladder:\nthe acronym index regenerates from the census, retiring hand maintenance and proving the heat's done-when after the gradual deepening.",
           "jjgpn_slated": "260718-0944"
+        },
+        "₢CAAAN": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0953",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Stand up the matricula as a standalone rbtd-style lib+bin crate beside vof, reachable through its own build/test/run tabtargets, running degenerate — starts, exits clean, no real output yet.",
+                "First mint the crate's names — prefix tree, binary, tabtarget colophon — under full CLAUDE.md \"Prefix Naming Discipline\" and MCM Lapidary scrutiny;",
+                "these are the minting tool's own names, the recursive case the paddock flags, so enumerate namespaces per the Minting Workflow before adopting.",
+                "Add the VOr_q4f never-link guard: a mechanical dependency-graph assertion at the build seam proving the shipped JJ binary never links this crate.",
+                "Placement and shape are paddock cinches — jjqa_app workspace beside vof, rbtd precedent, vof as path dependency.",
+                "",
+                "## Done when",
+                "The new tabtargets build, test, and run the degenerate binary green;",
+                "the never-link assertion breaks the build if the shipped binary gains the dependency;",
+                "the minted names are documented in a non-delivered prefix map (VOr_q4f name-hygiene)."
+              ],
+              "jjgtn_silks": "mint-and-crate-skeleton",
+              "jjgtn_basis": "7298cfd"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "The operator wants the consumption path standing before deep capability;\nthis pace lands the runnable walking skeleton — crate, tabtargets, and the minted names — so a degenerate binary exists to wield from the start.",
+          "jjgpn_slated": "260718-0953"
         }
       }
     },
