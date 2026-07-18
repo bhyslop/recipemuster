@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAS",
+  "jjgrn_next_pace_seed": "CAAAT",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4454,6 +4454,7 @@
         "₢CAAAP",
         "₢CAAAQ",
         "₢CAAAR",
+        "₢CAAAS",
         "₢B3AAA"
       ],
       "jjghn_paces": {
@@ -4612,6 +4613,38 @@
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace stages the founding inputs — the scratch-instance ruling, the two-file seed,\nand the collision-refusal proof — so the sole-operator cutover afternoon executes without\ndiscovery.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1001",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
+                "this docket points at it and does not restate the ceremony.",
+                "Sole-operator, one afternoon: quiesce sessions, final-sync clones,",
+                "founding import (live state only — racing and stabled heats, paddocks, dockets),",
+                "switch every install together —",
+                "flip the enablement seams (`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`,",
+                "`JJRM_OFFICIUM_STUDBOOK_ENABLED`),",
+                "and tombstone the old in-repo gallops so old binaries fail loud, never silently",
+                "resurrect (`JJr_` rivet treatment, demolition condition attached).",
+                "The tombstone's schema-impact determination rides claude-jjk-bhyslop §E/§F and JJSCRP.",
+                "Anticipate the MCP first-contact trust prompt in fresh billets (Finding C) —",
+                "harness behavior to expect at the Palisade, never a fault to fix.",
+                "",
+                "## Done when",
+                "Every install reads and writes heat/pace state through the studbook alone,",
+                "both readers repointed, officium exchange living in the studbook clone,",
+                "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
+              ],
+              "jjgtn_silks": "execute-cutover-ceremony",
+              "jjgtn_basis": "27b19dd"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony itself — the one-afternoon full cutover JJSAS specifies,\nmade executable by the seam, door, and founding-stage paces slated before it.",
           "jjgpn_slated": "260718-1001"
         }
       }
