@@ -28,15 +28,20 @@ The operator drives the walk personally (the walk pace's own cinch).
 Every ceremony here is operator-present; the promotion and spot-check are small enough for a fogged day, the walk is not — schedule it fresh.
 Divergence economics are pre-ruled, not decided tired mid-ceremony:
 a doc-only divergence census defaults to fast-follow disposition (or a targeted re-walk of the diverged steps alone);
-only a code-bearing re-cut re-opens the full gate — fresh walk and gauntlet —
+only a code-bearing re-cut re-opens the full gate — fresh walk and gauntlet, exercised through a fresh repair cycle (laps to dry, then the reveal) —
 and code-bearing means delivered-bytes-bearing, measured mechanically as a changed candidate tree hash:
 a repair touching only withheld paths re-opens the cut-local battery alone, never walk or gauntlet;
 and any re-walk reuses the standing fresh rig — a second payor project is never levied for it (the billing-link quota).
-Repair-lap doctrine (coldwalk-shakedown disposition, 260717): iteration belongs in the reversible tier —
-repair candidates are re-cut locally and coldwalked via the harbinger's local-candidate mode until a lap runs dry,
-and only the proven candidate takes the two public acts (one staging push, one promotion, human-hands-only);
-iteration coldwalks are a distinct instrument from the final stranger proofs —
-the confirmation coldwalk and the operator walk still run against promoted public main.
+Repair-lap doctrine (coldwalk-shakedown disposition 260717; instruments re-ruled to the hierophant, 260717):
+iteration belongs in the reversible tier, conducted by the hierophant (₣B6), the veiled Rust delivery app — essai the lap, ostend the reveal, harbinger the stranger rig.
+A lap (essai) is gates, expede cut atop live public main, candidate battery, and a guarded coldwalk rig cloned from the local candidate — zero remote acts, repeated until a lap runs dry.
+No gauntlet during laps (operator ruling, 260717): the gauntlet runs once per repair cycle, inside the reveal, after the proven candidate stands on the private quarantine.
+The reveal (ostend) takes THE dry candidate — never a terminal re-cut; the walked bytes are bit-for-bit the disclosed bytes —
+through the quarantine gates, preview, gauntlet, file-list review, one staging push, and one promotion, every push human-hands-only;
+the quarantine gate and the file-list review live in the reveal, not the lap.
+Iteration coldwalks are a distinct instrument from the final stranger proofs —
+the confirmation coldwalk (harbinger, against promoted main) follows promotion, and the operator walk runs against promoted public main.
+Until the hierophant stands, /rbk-expede and the bash harbinger remain the fallback instruments, hand-driven under the same doctrine.
 This heat races the moment the staging heat's (₣Bs) integrity probe closes green — it does not wait for that heat to close;
 the staging heat's residue runs as fill work across this heat's ceremony gaps and its nomination pace follows the release, by design.
 Post-promotion the staging branch is deleted — ceremony hygiene, recorded with the delivery pattern in the ceremony document.
@@ -44,7 +49,7 @@ Post-promotion the staging branch is deleted — ceremony hygiene, recorded with
 The cut-ceremony amendment settles the reveal-safety shape the later paces execute.
 Additive construction is the prevention — the candidate is built by addition in a clone of the real public base, so no private object ever enters the pushed graph — and the private quarantine is only containment; both kept, containment never substituting for prevention.
 The base is read-only by construction, asserted: expede reads the ENGROSSMENT_UPSTREAM fetch url, its push side is neutered to a sentinel (expede refuses to cut unless get-url --push returns it), it severs the clone's origin, and the finished candidate holds zero remotes — so every public act is human-hands-only by structural incapacity, and a push-capable remote to the public target in the maintainer repo (a stray push landing the private tree on public main) is the one catastrophe forbidden.
-Three distinct public acts, one irreversible: the reversible private-quarantine preview; the irreversible public staging push (the candidate onto the real public repo as the unmerged POSTULANT_LOCAL branch, which the walk clones — the single disclosure); and promotion (fast-forward-only, tree-hash-equal), which is discoverability, not disclosure.
+Three distinct public acts, one irreversible: the reversible private-quarantine preview; the irreversible public staging push (the candidate onto the real public repo as the unmerged POSTULANT_LOCAL branch — the single disclosure); and promotion (fast-forward-only, tree-hash-equal), which is discoverability, not disclosure.
 Every push is an explicit URL plus a single explicit refspec, the fan-out forms forbidden; the preview and the staging push both spell POSTULANT_LOCAL:POSTULANT_LOCAL, and only promotion spells POSTULANT_LOCAL:main — exactly once in the whole corpus.
 The mint (operator, 260715): the read-only base remote is ENGROSSMENT_UPSTREAM, and POSTULANT_LOCAL is the one official branch name across both the local candidate and the public staging branch; OPEN_SOURCE_UPSTREAM is left to its CMK consumer, unre-pointed.
 The candidate's root CLAUDE.md is the consumer template's committed bytes (Tools/rbk/vov_veiled/CLAUDE.consumer.md), transposed by expede itself between materialization and the commit and byte-asserted — the maintainer's CLAUDE.md never enters the candidate's object graph.
@@ -56,9 +61,9 @@ The github.io landing page retires: promotion deletes the public repo's untracke
 In pace order:
 amend the cut ceremony to the manual-reveal shape — expede a pure local constructor, the reveal human-hands-only by structural incapacity;
 re-cut under the amended ceremony, preview in quarantine, and stage the candidate onto the public repository as an unmerged branch, publicly cloneable;
-the coldwalk-driven repair cycle — the shakedown's fix paces (furnish scoping, station bootstrap, payor-track recarve), the harbinger's local-candidate mode, and a repair lap re-cut locally and iterated dry before one staging push and one promotion of the proven candidate;
+the coldwalk-driven repair cycle — the shakedown's fix paces (furnish scoping, station bootstrap, payor-track recarve), the perambulation leak-status determination, then repair laps conducted by the hierophant's essai and iterated dry before the reveal (ostend) stages and promotes the proven candidate once;
 the greenfield manor walk, full, against promoted public main — operator's own hands, from the onboarding entry to a gauntlet green on a fresh payor substrate;
-then close out the release — promotion itself executed early under the 260715 re-ruling (fast-forward by hand, tree-hash-equal, PR #3 auto-merged at the candidate tip), and re-executed by each repair lap — leaving the anchor-liveness sweep, the ceremony-document amendment, and the release record.
+then close out the release — promotion itself executed early under the 260715 re-ruling (fast-forward by hand, tree-hash-equal, PR #3 auto-merged at the candidate tip), and re-executed by each repair cycle's reveal — leaving the anchor-liveness sweep, the ceremony-document amendment, and the release record.
 
 ## Done when
 

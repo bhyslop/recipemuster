@@ -3639,36 +3639,40 @@
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1055",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260717-1751",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present closeout ceremony; short; run fresh, not tired.",
                 "",
                 "## Docket",
-                "Close out the release. Promotion is not this pace's work — it was executed early under the 260715 re-ruling and is re-executed by each repair lap; run this closeout after the LAST promotion, post-walk.",
+                "Close out the release. Promotion is not this pace's work — it was executed early under the 260715 re-ruling and is re-executed by each repair cycle's reveal; run this closeout after the LAST promotion, post-walk.",
                 "Liveness: the RBRR_PUBLIC_DOCS_URL main-blob README serves, and every anchor rbyc_common.sh mints resolves against the live page (the post-promotion half of the link-check split; the structural half rides pyx at each cut).",
                 "Production spot-check (thin by cinch — the walk proved the bytes):",
-                "repo front-page README rendering, the github.io page serving the README render per the ceremony document's Pages-retirement ruling, and a fresh default-branch clone taken a few minutes into the onboarding entry.",
+                "repo front-page README rendering;",
+                "the github.io page serving the README render per the ceremony document's Pages-retirement ruling — confirm the repository's Pages source setting is main root, an open console item from the first promotion;",
+                "and a fresh default-branch clone taken a few minutes into the onboarding entry.",
                 "Delete the public staging branch (POSTULANT_LOCAL) — post-promotion hygiene per the paddock.",
-                "Amend the ceremony document:",
+                "Known blocker from the first promotion: a repository ruleset refuses the push-delete (GH013) — expect to relax the ruleset from the console rather than fight it from git.",
+                "Delete the private quarantine repository (scaleinv/recipebottle-staging) once the candidate is fully dispositioned — the second open console item from the first promotion.",
+                "Amend the ceremony document (RELEASE.md):",
                 "the structural-versus-liveness link-check split;",
                 "this heat's actual stage → promote → walk shape recorded as the first-delivery exception beside restored walk-gates-promotion standing doctrine;",
-                "and the reversible-tier repair-lap pattern (local-candidate coldwalk iteration, one disclosure of the proven candidate) recorded with the delivery pattern.",
+                "and the two-instrument delivery model — the hierophant's essai laps (reversible iteration, local coldwalk, no per-lap gauntlet) and ostend reveal (quarantine, gauntlet, one staging push, one promotion, confirmation coldwalk) — replacing the single-pass step-2-through-9 narrative.",
                 "Record the release per the ceremony document.",
                 "Precondition: the greenfield walk has closed green with its divergence census dispositioned.",
                 "",
                 "## Done when",
                 "Liveness and the spot-check green;",
-                "the staging branch deleted;",
-                "the ceremony document amended;",
+                "the staging branch deleted and the quarantine repository deleted;",
+                "the ceremony document amended to the two-instrument model;",
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "c223909"
+              "jjgtn_basis": "aab5b2d"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢B0AAC": {
           "jjgpn_tacks": [
@@ -4023,31 +4027,34 @@
         "₢B0AAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1055",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260717-1751",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Release-ceremony lap: local construction and agent shakedown iterated to dry, then the two public acts once, by hand.",
+                "Release-ceremony cycle: laps iterated to dry in the reversible tier, then the reveal's public acts once, by hand.",
                 "",
-                "## Cinched (repair-lap doctrine, paddock 260717)",
-                "The repair cycle runs in the reversible tier until proven:",
-                "re-cut via expede atop live public main, coldwalk the local candidate via the harbinger's local mode,",
-                "disposition the findings, and repeat until a lap runs dry.",
-                "Only the proven candidate takes the public acts: one staging push and one promotion, human-hands-only per the standing cut ceremony;",
-                "the first-delivery exception still governs — promotion precedes the operator walk.",
-                "Precondition: the fix paces (furnish scoping, onboarding handbook repairs, payor-track recarve) landed in the maintainer tree, and the harbinger local mode available.",
+                "## Cinched (repair-lap doctrine, paddock 260717; instruments: hierophant ₣B6)",
+                "The repair cycle runs via the hierophant's essai until proven:",
+                "re-cut atop live public main, coldwalk the local candidate in the guarded rig, disposition the findings, repeat until a lap runs dry.",
+                "No gauntlet during laps; the reveal (ostend) carries it, after the candidate stands on the private quarantine (operator ruling).",
+                "Only the dry candidate takes the public acts — one staging push, one promotion, human-hands-only; never a terminal re-cut, the walked bytes ARE the disclosed bytes.",
+                "The confirmation coldwalk (harbinger command, against promoted main) follows promotion and closes the cycle.",
+                "The first-delivery exception still governs — promotion precedes the operator walk.",
+                "RELEASE.md still narrates the pre-260715 single-pass shape until the closeout amends it: the paddock cinches govern; do not follow its step-8 ordering or its restart-from-step-2 failure text during laps.",
+                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination landed in the maintainer tree; essai and ostend stand (₣B6).",
+                "Fallback if the hierophant is not ready when laps must run: /rbk-expede plus the bash harbinger, hand-driven, same doctrine.",
                 "",
                 "## Done when",
-                "The repaired candidate walked dry under the iteration coldwalk;",
-                "staged and promoted with tree-hash equality proven;",
+                "The repaired candidate walked dry under essai laps;",
+                "staged and promoted via ostend with tree-hash equality proven;",
+                "the confirmation coldwalk green against promoted main;",
                 "the operator's greenfield walk unblocked."
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
-              "jjgtn_basis": "940882b"
+              "jjgtn_basis": "aab5b2d"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢B0AAO": {
           "jjgpn_tacks": [
