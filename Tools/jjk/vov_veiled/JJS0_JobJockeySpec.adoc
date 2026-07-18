@@ -328,6 +328,9 @@
 // Viewer operation (vvx-surface sibling tool, not a jjx command)
 :jjdo_render:         <<jjdo_render,vvx_render>>
 
+// Census operation (operator-only, drives the census tool by shell-out)
+:jjdo_sift:           <<jjdo_sift,jjx_sift>>
+
 // Remote dispatch operations
 :jjdo_bind:           <<jjdo_bind,jjx_bind>>
 :jjdo_send:           <<jjdo_send,jjx_send>>
@@ -380,6 +383,7 @@
 :jjsuv_unfurl:     <<jjsuv_unfurl,unfurl>>
 :jjsuv_bridle:     <<jjsuv_bridle,bridle>>
 :jjsuv_unbridle:   <<jjsuv_unbridle,unbridle>>
+:jjsuv_jog:        <<jjsuv_jog,jog>>
 
 // Upper API: context artifact
 :jjsuc_insert:  <<jjsuc_insert,CLAUDE.md JJK section>>
@@ -1252,6 +1256,14 @@ Maps to {jjdo_apostille} with tier (and optional effort).
 {jjsuv_unbridle}::
 Release a {jjdpe_bridled} {jjdpr_pace} back to {jjdpe_rough}, designation wiped — the deliberate reconsideration path, distinct from the automatic revert a docket revision triggers.
 Maps to {jjdo_apostille} with release.
+
+[[jjsuv_jog]]
+// operator-only: deliberately no axi_cc_claudemd_verb voicing (veiled home); the motif for a veiled verb is unsettled — jog is the first
+{jjsuv_jog}::
+Inspect the corpus of minted names for soundness — run the naming census and surface every violation.
+The figure is the trot-up: each name jogged past the jury, the unsound spun before it may run — an exact collision, or a terminal-exclusivity breach.
+Operator-only: the census tool this verb drives must never ship (VOr_q4f), so the verb homes in the veiled operator context and never reaches the delivered verb table.
+Maps to {jjdo_sift}.
 
 
 === Slash Commands
@@ -2983,6 +2995,25 @@ include::JJSCSC-scout.adoc[]
 
 //axvd_cartouche axd_normative
 include::JJSCPD-parade.adoc[]
+
+=== Census Operations
+
+Like the viewer push below, the census read owns no {jjdgr_gallops} access and needs no {jjdxo_officium} — it surveys the source corpus, not the store.
+
+[[jjdo_sift]]
+//axvo_procedure axd_transient axd_inlaid
+==== {jjdo_sift}
+
+`jjx_sift` —
+The lower tool behind {jjsuv_jog}: run the naming census over the tracked source tree and return its presentments — the two seating-validator findings (exact collision and terminal-exclusivity) and the estray section.
+
+Operator-only (VOr_q4f): the census tool it drives never enters the distributed substrate, so the shipped engine must never surface this operation on the delivered verb table.
+Advisory where fallible (VOr_m7w): its checks are mechanical set operations over names only — sprue and rivet findings stay advisory, never assertions.
+Transient: it persists nothing, so it forces no {jjdz_reprieve} episode.
+
+The engine spawns the standalone census binary as a separate process rather than linking it, so the secret vestures and validators never leave the unshipped binary (VOr_q4f); the bash tabtarget is not on this path, remaining only for logged standalone operator runs.
+Where the census binary is absent — every install but the operator's own — the operation simply fails, with no graceful degradation attempted for now.
+Whether, and how, the delivered verb table carries {jjsuv_jog} without naming the census tool is the standing VOr_q4f name-hygiene question (owner undecided), not settled here.
 
 === Viewer Operations
 

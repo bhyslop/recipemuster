@@ -99,6 +99,8 @@ const JJRM_CMD_NAME_PLANT: &str = "jjx_plant";
 const JJRM_CMD_NAME_FETCH: &str = "jjx_fetch";
 const JJRM_CMD_NAME_RELAY: &str = "jjx_relay";
 const JJRM_CMD_NAME_CHECK: &str = "jjx_check";
+// Census command (operator-only: spawns the standalone matricula binary — VOr_q4f)
+const JJRM_CMD_NAME_SIFT: &str = "jjx_sift";
 // Complete registry of all commands
 const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_OPEN,
@@ -112,6 +114,7 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING, JJRM_CMD_NAME_APOSTILLE,
     JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
     JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
+    JJRM_CMD_NAME_SIFT,
 ];
 
 fn gallops_pathbuf() -> PathBuf {
@@ -150,6 +153,55 @@ fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, ErrorD
 /// Return deserialization error as MCP error result.
 fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, ErrorData> {
     Ok(CallToolResult::error(vec![Content::text(format!("jjx {}: invalid params: {}", cmd, e))]))
+}
+
+/// jjx_sift — spawn the standalone census (matricula) binary and relay its census.
+///
+/// The lower tool behind jjsuv_jog (JJS0 "Census Operations"). Operator-only: the
+/// engine never links the matricula crate (VOr_q4f); it spawns the separate binary —
+/// which stays in its gitignored target/, never a committed bin/ — inheriting the
+/// current working directory (the repo root at jjx-call time, which the census seats
+/// from). Where the binary is absent — every install but the operator's own — the
+/// command simply fails; no graceful degradation is attempted (operator ruling).
+fn zjjrm_run_sift() -> (i32, String) {
+    const JJRM_SIFT_BINARY_PATHS: &[&str] = &[
+        "Tools/vok/vom/target/release/vom",
+        "Tools/vok/vom/target/debug/vom",
+    ];
+    let Some(binary) = JJRM_SIFT_BINARY_PATHS
+        .iter()
+        .map(PathBuf::from)
+        .find(|p| p.is_file())
+    else {
+        return (
+            1,
+            format!(
+                "jjx_sift: census tool not built (looked for {}). Build it with tt/vow-mb.MatriculaBuild.sh.",
+                JJRM_SIFT_BINARY_PATHS.join(", "),
+            ),
+        );
+    };
+    match std::process::Command::new(&binary).output() {
+        Ok(out) => {
+            let code = out.status.code().unwrap_or(1);
+            let stdout = String::from_utf8_lossy(&out.stdout).into_owned();
+            let stderr = String::from_utf8_lossy(&out.stderr).into_owned();
+            if code == 0 {
+                let mut body = stdout;
+                if !stderr.trim().is_empty() {
+                    body.push_str("\n--- census diagnostics ---\n");
+                    body.push_str(stderr.trim_end());
+                }
+                (0, body)
+            } else {
+                (code, format!("jjx_sift: census exited {code}:\n{stderr}"))
+            }
+        }
+        Err(e) => (
+            1,
+            format!("jjx_sift: failed to spawn census tool {}: {e}", binary.display()),
+        ),
+    }
 }
 
 // ============================================================================
@@ -2287,7 +2339,8 @@ pub(crate) fn zjjrm_guard_bucket(cmd: &str) -> zjjrm_GuardBucket {
         | JJRM_CMD_NAME_BRIEF
         | JJRM_CMD_NAME_CORONETS
         | JJRM_CMD_NAME_LOG
-        | JJRM_CMD_NAME_SEARCH => zjjrm_GuardBucket::Open,
+        | JJRM_CMD_NAME_SEARCH
+        | JJRM_CMD_NAME_SIFT => zjjrm_GuardBucket::Open,
         JJRM_CMD_NAME_ORIENT | JJRM_CMD_NAME_RECORD | JJRM_CMD_NAME_LANDING => {
             zjjrm_GuardBucket::Designation
         }
@@ -2426,6 +2479,12 @@ impl jjrm_McpServer {
             };
             let size_limit = pv.get("size_limit").and_then(|x| x.as_u64()).unwrap_or(0);
             return zjjrm_handle_open(size_limit).await;
+        }
+
+        // jjx_sift spawns the operator-only census binary — no officium, no gallops
+        // lock (VOr_q4f). Handle before officium validation, like jjx_open.
+        if cmd == JJRM_CMD_NAME_SIFT {
+            return jjrm_result(zjjrm_run_sift());
         }
 
         // Officium envelope: required on all commands except jjx_open
