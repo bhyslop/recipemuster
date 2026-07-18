@@ -73,7 +73,11 @@ rbthe_docimasy() {
 
   zrbthe_cargo_build
   buc_step "Conducting docimasy"
-  "${ZRBTHE_BINARY}" docimasy "$@"
+  if [ -n "${BUZ_FOLIO:-}" ]; then
+    "${ZRBTHE_BINARY}" docimasy "${BUZ_FOLIO}"
+  else
+    "${ZRBTHE_BINARY}" docimasy
+  fi
 }
 
 rbthe_ostend() {
@@ -83,7 +87,11 @@ rbthe_ostend() {
 
   zrbthe_cargo_build
   buc_step "Conducting ostend"
-  "${ZRBTHE_BINARY}" ostend "$@"
+  if [ -n "${BUZ_FOLIO:-}" ]; then
+    "${ZRBTHE_BINARY}" ostend "${BUZ_FOLIO}"
+  else
+    "${ZRBTHE_BINARY}" ostend
+  fi
 }
 
 rbthe_harbinger() {
