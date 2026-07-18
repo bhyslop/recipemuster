@@ -5176,8 +5176,8 @@
         "₢CAAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1340",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1557",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -5209,7 +5209,7 @@
                 "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "docimasy-and-ostend-conductors",
-              "jjgtn_basis": "9c90872"
+              "jjgtn_basis": "ad846aa"
             }
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
