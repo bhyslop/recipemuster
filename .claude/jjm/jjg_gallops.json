@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAV",
+  "jjgrn_next_pace_seed": "CAAAW",
   "jjgrn_heat_order": [
     "₣B3",
     "₣B6",
@@ -4714,7 +4714,8 @@
       "jjghn_order": [
         "₢B4AAA",
         "₢B4AAB",
-        "₢CAAAG"
+        "₢CAAAG",
+        "₢CAAAV"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -4793,6 +4794,39 @@
           "jjgpn_dictation": "slate a pace in B4 to address this spook please, we don't have time now",
           "jjgpn_precis": "Wrap-time spook from the ₣B6 sheaf-authoring session, deferred to a pace: the JJK core context describes coronets as firemark-plus-three-characters, but live coronets carry five-character suffixes across three inconsistent renderings, forcing the agent to guess the jjx_record wire form; reconcile the context doc's identity contract with the actual pace-id gestalt.",
           "jjgpn_slated": "260718-0854"
+        },
+        "₢CAAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1711",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Structural fix that deletes a bug class — a JJK-crate change touching the gallops on-disk shape and the one live store. Lands with judgment and a quiescent store, not mechanically.",
+                "",
+                "## The defect",
+                "`jjx_list` (jjrmu_muster.rs) renders a heat twice when `gallops.heat_order` (a dup-tolerant Vec) holds a firemark more than once while `gallops.heats` (a keyed BTreeMap) holds it once — both order slots resolve to the same heat, so the rows are byte-identical.",
+                "Observed 260718: ₣B4 itself listed twice, racing 0/3.",
+                "`jjx_validate` passes it clean: `jjrg_validate` (jjrv_validate.rs) enforces the per-heat `order`/`paces` twin invariant (Rule 5 — no dups, key-sets equal) but has no top-level counterpart for `heat_order`/`heats`.",
+                "Fingerprint of a merge convergence concatenating `heat_order`.",
+                "",
+                "## Done when",
+                "The top-level `heat_order`/`heats` divergence class is gone: no heat can render twice in `jjx_list`, and a duplicate or `heats`-inconsistent `heat_order` can no longer pass validate clean — with a test covering the new invariant (mirroring how Rule 5 / the pure appraiser are exercised).",
+                "Preferred shape: eliminate `heat_order` as a separate divergeable structure — collapse to one insertion-ordered keyed map — which also auto-dedups the store on migration; the validate Rule-5 twin is the fallback if the collapse proves messy at mount.",
+                "The one live store ends with ₣B4 appearing once; JJK tests (tt/vow-t) green.",
+                "",
+                "## Cinched",
+                "- Single gallops on disk → migrate/repair in place, NO reprieve episode (operator ruling 260718); the §E schema-change branch-delivery does not apply.",
+                "- MOUNT PRECONDITION: close every other Claude officium (chat) first — the store is mutated (migration and/or dup repair) and a concurrent officium write would re-diverge or corrupt it.",
+                "- Scope is the top-level pair only; the per-heat `order`/`paces` twin stays (already Rule-5 guarded). Symmetry there is a separate pace if wanted."
+              ],
+              "jjgtn_silks": "heat-order-divergence-fix",
+              "jjgtn_basis": "77a90c5"
+            }
+          ],
+          "jjgpn_dictation": "\"Would it be simpler to just alter the data structure to not allow duplicates?\"\n\n\"WE don't need reprive episodes because there is only one gallops for now. I'd prefer you slate a single pace to deal with this, and flag clearly that when we mount it, we need to close other chats. Proceed if this makes sense, else raise issues.\"",
+          "jjgpn_precis": "Operator chose the structural fix over a mere validation guard, and cleared the reprieve blocker by ruling that a single on-disk gallops lets the schema change be applied directly. Wants it as one pace, mounted only with all other chats closed so the store migration/repair is safe from concurrent officium writes.",
+          "jjgpn_slated": "260718-1711"
         }
       }
     },
