@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAH",
+  "jjgrn_next_pace_seed": "CAAAI",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4583,7 +4583,8 @@
       "jjghn_creation_time": "260717",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢CAAAG"
+        "₢CAAAG",
+        "₢CAAAH"
       ],
       "jjghn_paces": {
         "₢CAAAG": {
@@ -4610,6 +4611,32 @@
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The operator wants the consumption path standing before deep capability;\nthis pace lands the runnable walking skeleton — crate, tabtargets, and the minted names — so a degenerate binary exists to wield from the start.",
+          "jjgpn_slated": "260718-0943"
+        },
+        "₢CAAAH": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0943",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The degenerate census: Tier 0 grammar plus the raising walk with zero vestures claiming, so every ours-token lands as an estray.",
+                "Build the file-selection allowlist as its own file, schema-compatible with the tackle table (₣Bu owns that schema; VOSMM Tier 0).",
+                "Generalize the vof release tree-walk into the candidate gate: git-tracked files intersected with the allowlist, cipher and veiled gates per VOSMM.",
+                "Tokenize on the widest underscore-and-hyphen net;",
+                "classify by subtraction with the cipher registry as the only gate.",
+                "Render the raw estray census to the terminal.",
+                "This rung already mechanizes the minting grep gate — token presence over the allowlisted tree.",
+                "",
+                "## Done when",
+                "The run tabtarget covers the whole git-tracked tree and reports the ours-token census, fast enough to hold VOr_k3p's instant budget."
+              ],
+              "jjgtn_silks": "walk-tokenize-all-estray",
+              "jjgtn_basis": "5b0df73"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "The degenerate operation the operator asked for, made concrete:\na cipher-gate-only census where everything ours is estray — runnable, honest, and already a mechanized grep gate for minting.",
           "jjgpn_slated": "260718-0943"
         }
       }
