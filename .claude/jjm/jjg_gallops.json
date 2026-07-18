@@ -3641,7 +3641,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260717-1751",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present closeout ceremony; short; run fresh, not tired.",
@@ -3670,7 +3671,7 @@
                 "the release recorded."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "aab5b2d"
+              "jjgtn_basis": "338a347"
             }
           ],
           "jjgpn_redocket_count": 1
