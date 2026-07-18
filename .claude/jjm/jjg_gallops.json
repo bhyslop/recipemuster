@@ -5151,8 +5151,8 @@
         "₢CAAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1219",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -5168,7 +5168,7 @@
                 "one shared rig implementation serves both essai and harbinger."
               ],
               "jjgtn_silks": "harbinger-command-absorption",
-              "jjgtn_basis": "585c7a5"
+              "jjgtn_basis": "2bc64f1"
             }
           ],
           "jjgpn_dictation": "I muse that multiple of the marshal tabtargets could be folded in to this new application. How many commands ought this new app have? I think maybe 2 or 3 only. [...] hierophant is excellent, and I love your new phase names.",
