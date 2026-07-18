@@ -12,14 +12,19 @@
 //! substrate and must never be linked by the shipped vvr binary (VOr_q4f). It is
 //! a standalone bin reached only through its own vow-m* tabtargets.
 //!
-//! Degenerate skeleton: this pace stands up the crate, the bin<->lib seam, the
-//! vof path-dependency, and the output module. Real matricula behavior (raise ->
-//! seat -> seal -> render, per the four-tier decomposition) arrives later.
+//! Census lifecycle lands here: vomrb_Builder is raised, seats claimed and
+//! estray inscriptions, and vomrb_seal consumes it into the immutable
+//! vomrm_Matricula - a Rust typestate mirroring VOSMM's build-then-freeze
+//! shape (Memos/memo-20260620-freeze-builder-pattern/, provenance only). No
+//! vesture claims a declaration yet (classify-by-subtraction stays
+//! all-estray); the seating validators arrive in a later pace.
 //!
 //! Module prefix tree (rbtd-style {crate}{r|t}{classifier}_ scheme):
-//!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (census),
-//!             vomra_allowlist (Tier 0 file-selection allowlist)
-//!   vomt{c}_  test modules    - vomtm_matricula, vomta_allowlist
+//!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (frozen
+//!             census), vomrb_builder (mutable Builder), vomrs_signet (signet
+//!             trie), vomra_allowlist (Tier 0 file-selection allowlist)
+//!   vomt{c}_  test modules    - vomtm_matricula, vomtb_builder, vomts_signet,
+//!             vomta_allowlist
 //! Grown as real API lands (mint-follows-API); see Tools/vok/README.md.
 
 #![deny(warnings)]
@@ -27,12 +32,18 @@
 #![allow(private_interfaces)]
 
 pub mod vomra_allowlist;
+pub mod vomrb_builder;
 pub mod vomrl_log;
 pub mod vomrm_matricula;
+pub mod vomrs_signet;
 
 #[cfg(test)]
 mod vomta_allowlist;
 #[cfg(test)]
+mod vomtb_builder;
+#[cfg(test)]
 mod vomtm_matricula;
+#[cfg(test)]
+mod vomts_signet;
 
 // eof
