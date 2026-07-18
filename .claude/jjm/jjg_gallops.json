@@ -5097,9 +5097,8 @@
         "₢CAAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1817",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260718-1034",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "The irreversible ceremony's conductor — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
@@ -5122,16 +5121,16 @@
                 "A full reveal can be conducted end to end from a standing candidate with every assert machine-performed and every push human-typed;",
                 "the reversible stages proven by rehearsal against the private quarantine (the gauntlet stage skippable in rehearsal);",
                 "the two terminal pushes and their asserts proven in first real service — the release heat's reveal;",
-                "fast-qualify and the perambulation fixture green."
+                "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "ostend-guided-reveal",
-              "jjgtn_basis": "21e5381"
+              "jjgtn_basis": "34f877f"
             }
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
           "jjgpn_precis": "The operator ruled the gauntlet runs only after the proven candidate stands on the private quarantine, and wanted the rare-but-real command name. Ostend conducts the one irreversible ceremony: quarantine gates, preview, gauntlet, eyes, staging push, promotion — every assert by machine, every push by the operator's hands.",
           "jjgpn_slated": "260717-1749",
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         },
         "₢CAAAC": {
           "jjgpn_tacks": [
@@ -5163,34 +5162,34 @@
         "₢CAAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260718-1034",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Closing sweep, gated on proven service — retirement is earned, never presumed.",
                 "",
                 "## Docket",
                 "Precondition: essai has driven real repair laps and ostend a real reveal in the release heat (₣B0).",
-                "Retire the superseded instruments:",
-                "the /rbk-expede slash command;",
+                "Retire the superseded instruments the cut absorption did not already take:",
                 "the rbw-MH tabtarget and rblm_harbinger.sh module;",
                 "and any standalone marshal tabtargets nothing hand-runs anymore — feign is the likely candidate; judge zero and lustrate by remaining hand-use.",
-                "The proscription library and the expede constructor stay — shipped/worker status unchanged per the paddock.",
+                "The proscription library (rblm_lustrate.sh) and the candidate's sterilize stay — shipped status unchanged per the paddock;",
+                "the cut instruments (/rbk-expede, rbw-ME, rblm_expede.sh, rblm_perambulation.sh) are already gone, retired with the absorption pace.",
                 "Sweep references: the rbk conduct and acronym context files, the zipper enrollments, and any RELEASE.md residue the release heat's closeout amendment left behind.",
                 "",
                 "## Done when",
                 "No retired surface remains reachable;",
                 "context files and zipper agree;",
-                "fast-qualify and the perambulation fixture green."
+                "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "retire-superseded-instruments",
-              "jjgtn_basis": "38a2283"
+              "jjgtn_basis": "34f877f"
             }
           ],
           "jjgpn_dictation": "Lets explore small changes first. I muse that multiple of the marshal tabtargets could be folded in to this new application.",
           "jjgpn_precis": "Folding the marshal surface into the hierophant implies the old instruments eventually leave tt/ — but only after the app has earned their place through real release service. This pace is that earned retirement: sweep the superseded slash command, tabtargets, and module once essai and ostend have conducted a real lap and reveal.",
-          "jjgpn_slated": "260717-1749"
+          "jjgpn_slated": "260717-1749",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAF": {
           "jjgpn_tacks": [
@@ -5228,7 +5227,7 @@
         "₢CAAAW": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1019",
+              "jjgtn_ts": "260718-1034",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -5236,33 +5235,45 @@
                 "the hierophant subsumes its own cut, re-authoring the leak-prevention that stands between the private tree and the public remote.",
                 "",
                 "## Docket",
+                "Amend the spec first — the sheaves are the single authority and must never trail the code:",
+                "re-author RBSHC's expede-as-worker ruling and worker roster, and RBSHE's cut step",
+                "(worker invocation, reliance on expede's own refusals, the loupe-and-perambulation pre-cut assay pair)",
+                "to the absorbed shape;",
+                "re-home the single-matcher rule there — today it lives only as comments in the two files this pace deletes",
+                "(rblm_perambulation.sh, rbtdrq_perambulation.rs) — inverted to name the Rust matcher as the one implementation.",
                 "Absorb expede and perambulation into the hierophant crate as Rust, called by essai in-process — no bash reach, no rbw-ME subprocess.",
                 "Port from rblm_perambulation.sh (the table, the longest-prefix matcher, the object-graph sweep) and rblm_expede.sh (clone the public base, materialize the shipped paths, invoke the candidate's own sterilize, transpose the consumer CLAUDE.md, single-commit, delta-sweep, zero-remotes) — preserve every gate and invariant they carry, the port fails if any is dropped.",
                 "The candidate's own rblm_sterilize.sh stays a subprocess — it must be the candidate's copy.",
                 "Port rbtdrq_perambulation.rs's proofs — the planted-leak sweep self-proof and the totality (unjudged / dead-row) check — into hierophant tests; they, not a green lap, are what prove the sweep (the 292-MiB catch: clean tip, leaking history).",
-                "Retire the absorbed standalone cut as this pace's deliberate act: rblm_expede.sh, rblm_perambulation.sh, the theurge fixture, the rbw-ME enrollment and tabtarget, and /rbk-expede — essai supersedes them, and the single-matcher rule forbids a live bash cut beside the Rust one.",
+                "Retire the absorbed standalone cut as this pace's deliberate act: rblm_expede.sh, rblm_perambulation.sh, the theurge fixture and its almanac registration, the rbw-ME enrollment and tabtarget (regenerate the build-generated files via the build), and /rbk-expede — essai supersedes them, and the single-matcher rule forbids a live bash cut beside the Rust one.",
+                "Sweep pyx's veil-scan exemption table: the rows naming rblm_perambulation.sh, rbtdrq_perambulation.rs, and rblm_expede.sh die with their files — a dead row in a security exemption table is silent residue;",
+                "judge at mount whether the absorbed matcher needs any new row (the crate is veiled by directory construction, so pyx never scans it — the expected answer is no).",
                 "",
                 "## Done when",
-                "The hierophant owns the cut in Rust;",
+                "The spec (RBSHC/RBSHE) reads the absorbed shape and homes the single-matcher rule;",
+                "the hierophant owns the cut in Rust;",
                 "no bash cut and no standalone rbw-ME or /rbk-expede remain;",
                 "essai runs a full green lap over the Rust cut;",
                 "the ported self-proof tests pass — a withheld path planted in candidate history is caught;",
-                "the delivered theurge no longer carries the perambulation fixture;",
+                "the delivered theurge no longer carries the perambulation fixture, its almanac row, or dead pyx exemption rows;",
                 "the consumer-facing surface is unchanged.",
                 "",
                 "## Cinched",
                 "One matcher only — Rust replaces bash, with no interim where both are live.",
                 "The candidate's own sterilize stays a subprocess.",
                 "The proscription (rblm_lustrate.sh) is NOT absorbed — it ships, and the candidate sources it.",
-                "Retiring the cut instruments is this pace's deliberate purpose, not a side effect — overriding the paddock's retire-after-service gate for the cut specifically; the heat's closing pace still retires the remaining old instruments."
+                "Retiring the cut instruments is this pace's deliberate purpose, not a side effect — the paddock's 260718 cut-absorption re-ruling carves them out of the retire-after-service gate; the heat's closing pace still retires the remaining old instruments.",
+                "Spec precedes code: the RBSHC/RBSHE amendment is this pace's opening act, never a trailing cleanup.",
+                "Accepted risk (operator, 260718): the bash-cut fallback is surrendered before ostend stands — a Rust-cut defect during laps is repaired in the hierophant, with no bash path back."
               ],
               "jjgtn_silks": "hierophant-absorbs-the-cut",
-              "jjgtn_basis": "dda715b"
+              "jjgtn_basis": "34f877f"
             }
           ],
           "jjgpn_dictation": "I am actively concerned that we ought to broaden the scope of this heat to pull all of perambulation into the hierophant- won't that make things simpler?\nTo be clear, I do think this requires changes to -expede, but I think it gets simpler, or maybe completely can be subsumed into hierophant as well... ?\nI do want you to go ahead and chivvy it, and I'll have fable critically review it.\nI definitely want to jump forward with this, not do too many baby steps.",
           "jjgpn_precis": "Fully absorb expede + perambulation into the hierophant crate (Rust) so the conductor owns its own cut in-process rather than sequencing bash workers — the caller graph confirms one durable caller each (expede←essai, perambulation←expede), so it simplifies rather than complicates.\nOne bold pace, not incremental baby steps; proven by the ported planted-leak + totality self-proof tests rather than gated on real release service; retires the standalone bash cut as its stated purpose.\nOperator will have fable critically review this docket.",
-          "jjgpn_slated": "260718-1019"
+          "jjgpn_slated": "260718-1019",
+          "jjgpn_redocket_count": 1
         }
       }
     },
