@@ -5113,7 +5113,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260718-1340",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Two conductors on either side of the irreversibility seam — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
@@ -5143,7 +5145,7 @@
                 "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "docimasy-and-ostend-conductors",
-              "jjgtn_basis": "7b34b2f"
+              "jjgtn_basis": "9c90872"
             }
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
