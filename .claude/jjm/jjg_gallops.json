@@ -4566,7 +4566,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "The irreversible ceremony's conductor — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
@@ -4589,7 +4590,7 @@
                 "fast-qualify and the perambulation fixture green."
               ],
               "jjgtn_silks": "ostend-guided-reveal",
-              "jjgtn_basis": "f8d9b3c"
+              "jjgtn_basis": "b2654dd"
             }
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
