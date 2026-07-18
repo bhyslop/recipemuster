@@ -123,6 +123,9 @@ RBLM_perambulation_withhold="withhold"
 # expede, and force-delete the manor's pool. A consumer running any of them holds
 # the wrong end of the tool. Note the stem rows: tt/rbw-M outranks tt/rbw- by
 # length, so a marshal tabtarget minted tomorrow is withheld without a new row.
+# The hierophant's own dispatch stem tt/rbthw- rides the same file-grain logic:
+# its colophon is not tt/rbw-, so it is unjudged until named — its whole veiled
+# crate conducts the release ceremony and has no consumer seat.
 #
 # THE MOORINGS. Every nameplate ships: README documents each as an example
 # crucible and the onboarding handbooks walk several. The fdkyclk carve-out is the
@@ -232,6 +235,7 @@ zrblm_perambulation_kindle() {
   # Tabtargets — the rig withheld from the delivered families
   zrblm_enroll "tt/rbw-M"        "${RBLM_perambulation_withhold}"
   zrblm_enroll "tt/rbw-mR."      "${RBLM_perambulation_withhold}"
+  zrblm_enroll "tt/rbthw-"       "${RBLM_perambulation_withhold}"
   zrblm_enroll "tt/rbw-"         "${RBLM_perambulation_ship}"
   zrblm_enroll "tt/buw-"         "${RBLM_perambulation_ship}"
   zrblm_enroll "tt/z-launcher.sh" "${RBLM_perambulation_ship}"

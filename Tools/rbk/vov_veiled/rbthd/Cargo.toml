@@ -1,0 +1,11 @@
+[package]
+name = "rbthd"
+version = "0.1.0"
+edition = "2021"
+description = "Hierophant — delivery-ceremony conductor for Recipe Bottle (veiled, withheld from delivery)"
+
+# No dependencies by construction. The hierophant sequences proven workers as
+# subprocesses (RBSHC "Worker, never authority") and needs only std: process,
+# fs, path, time. A veiled release-ceremony conductor pulls in no third-party
+# crate — the smaller its own surface, the less there is to trust.
+[dependencies]
