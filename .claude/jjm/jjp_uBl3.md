@@ -2,9 +2,11 @@
 
 The conversion heat of the JJ revision-control arc:
 the full cutover ceremony that makes the studbook authoritative and quiesces the old in-repo gallops.
-The plan's one durable home is the studbook sheaf's Founding-and-cutover section
+The plan's one durable home is the Founding-and-cutover section of the state-repo sheaf
 (`Tools/jjk/vov_veiled/JJSAS-state-repo.adoc`, deliberately still aspirant) —
 this paddock cites it and never restates the ceremony.
+(The frozen carry below cites that section as "JJSVS Founding-and-cutover" —
+a record-of-the-moment name; the section lives in JJSAS today.)
 Cut 260714 as the terminal act of the build heat (₣Br), per the carry-forward discipline below.
 
 This paddock is a PHASE LADDER spanning the remaining arc:
@@ -24,7 +26,9 @@ Both must hold before any founding-and-cutover pace is slated or mounted:
   SIGHTED GREEN 260714, against the real studbook remote (₣Br rehearsal re-run).
 - The pace-identity re-gestalt landed and converged in its own heat (₣Bc, isolated-schema-changes) —
   live billet branches must not rot on transfer.
-  OPEN at cut time.
+  OPEN at cut time; SIGHTED 260718 — ₣Bc retired,
+  its schema branches merged to main and converged across the operated clones,
+  the store validating clean under the new identity scheme.
 
 ## Phase ladder
 
@@ -37,7 +41,8 @@ consumer repos carry no JJK insertions (CLAUDE.md includes, `.claude/jjm`, MCP c
 and the JJSV* sheaf family reads normative.
 
 Deliberately not detailed here: the ceremony's steps are JJSAS Founding-and-cutover's,
-and the entry groom expands this rung into paces.
+and the entry groom expands this rung into paces (expansion performed 260718;
+the roster carries the pace set).
 Of the carried findings below, this rung owes:
 the two conversion-scope seams (record-read repoint with its two readers, warn-at-open),
 the refit operator door, the founding-seed gap (pedigrees file),
@@ -59,7 +64,7 @@ the groom must consciously rung-or-collapse EACH seam, never skim a paragraph:
 
 1. RECORD-READ REPOINT — conversion-scope; landed by the cutover; verify sighted, then strike.
 2. WARN-AT-OPEN — conversion-scope; landed by the cutover; verify sighted, then strike.
-3. REFIT OPERATOR DOOR — conversion-scope (the warn's advice names refit; nothing invokes the engine).
+3. REFIT OPERATOR DOOR — conversion-scope; landed by this heat's refit-door pace; verify sighted, then strike.
 4. REMOTE-AWARE SEAT — post-conversion; rung-or-collapse.
 5. DELIVERY-TARGET FIELD — post-conversion; earns a field only when born-from differs from delivered-to.
 
