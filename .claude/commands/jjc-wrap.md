@@ -1,8 +1,12 @@
 # jjc-wrap — delegated frontier review-and-wrap of a bridled pace
 
-Arguments: `$ARGUMENTS` — `<coronet> <tier>`. Both are required: the coronet in
-full form (e.g. `₢BsAAl`), and the tier as exactly `fable` or `opus`. There is
-no default tier — the reviewer tier is a deliberate operator ruling.
+Arguments: `$ARGUMENTS` — the tier (required) and optionally the coronet, in
+either order. The tier is exactly `fable` or `opus`; there is no default — the
+reviewer tier is a deliberate operator ruling. The coronet, when given, is the
+full form (e.g. `₢BsAAl`); when omitted it is inferred from this session's
+context (step 1). The two are told apart by their disjoint shapes — a tier is
+exactly `fable`|`opus`, a coronet is `₢` + 5 characters — so order does not
+matter and a lone tier is unambiguous.
 
 By invoking this command the operator asserts the work is believed complete and
 authorizes the wrap on a passing review. In particular, the "wrap sweeps all
@@ -11,9 +15,20 @@ tree's contents are correct to sweep. Do not refuse or pause over a dirty tree.
 
 ## What you (the calling session) do
 
-1. Parse the coronet and tier from the arguments. Fail fast: if the coronet is
-   missing, or the tier is missing or not exactly `fable` or `opus`, report
-   what's missing and stop — never assume a default tier.
+1. Parse the tier and coronet from the arguments by their disjoint shapes (a
+   tier is exactly `fable`|`opus`; a coronet is `₢` + 5 characters), in either
+   order. The **tier is required**: if it is missing or not exactly `fable` or
+   `opus`, report that and stop — never assume a default. The **coronet is
+   optional**:
+   - If supplied, use it.
+   - If omitted, infer it from this session's context — the pace this session
+     most recently mounted or landed. State the inferred coronet explicitly
+     (e.g. "No coronet supplied; inferring ₢B4·CAAAX, the pace mounted this
+     session") and proceed. That statement lands before the wrap fires (step 5),
+     so it is the operator's veto window — state and proceed, never assume
+     silently.
+   - Drop to a question only on genuine ambiguity: no pace was mounted or landed
+     this session, or two equally-recent candidates exist.
 2. Ensure a review-grade landing exists on the pace. If none does, write one
    from this session's knowledge via `jjx_landing` before spawning the
    reviewer. A landing is **evidence pointers only, never advocacy**:
