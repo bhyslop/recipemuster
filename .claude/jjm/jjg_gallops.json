@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "B6",
+  "jjgrn_next_heat_seed": "B7",
   "jjgrn_next_pace_seed": "CAAAA",
   "jjgrn_heat_order": [
     "₣B4",
@@ -34,7 +34,8 @@
     "₣Ba",
     "₣B2",
     "₣B3",
-    "₣B4"
+    "₣B4",
+    "₣B6"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -4510,6 +4511,13 @@
     },
     "₣B5": {
       "jjghn_silks": "rbk-07-implement-matricula",
+      "jjghn_creation_time": "260717",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_paces": {}
+    },
+    "₣B6": {
+      "jjghn_silks": "rbk-09-ensoul-hierophant",
       "jjghn_creation_time": "260717",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [],
