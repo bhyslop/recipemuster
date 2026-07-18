@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAF",
+  "jjgrn_next_pace_seed": "CAAAG",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4564,6 +4564,7 @@
       "jjghn_creation_time": "260717",
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢CAAAF",
         "₢CAAAA",
         "₢CAAAC",
         "₢CAAAB",
@@ -4702,6 +4703,39 @@
           "jjgpn_dictation": "Lets explore small changes first. I muse that multiple of the marshal tabtargets could be folded in to this new application.",
           "jjgpn_precis": "Folding the marshal surface into the hierophant implies the old instruments eventually leave tt/ — but only after the app has earned their place through real release service. This pace is that earned retirement: sweep the superseded slash command, tabtargets, and module once essai and ostend have conducted a real lap and reveal.",
           "jjgpn_slated": "260717-1749"
+        },
+        "₢CAAAF": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0836",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Spec authoring under MCM law — transcription of cinched design into a durable home, with live operator rulings on gaps.",
+                "",
+                "## Docket",
+                "Author the hierophant sheaf family under the veiled spec tree:",
+                "a cosmology top (the hierophant entity, the reversible/irreversible command seam, the worker-vs-authority premise, veil discipline, the no-push structural incapacity, the shared rig-construction module)",
+                "and one operation sheaf per command (essai, ostend, harbinger).",
+                "Read RBS0 first; mint the sheaf acronyms into its index per the minting rules.",
+                "Sources to absorb: the ceremony cinches in the release heat's (₣B0) paddock, this heat's (₣B6) paddock cinches, and the proven bash instruments (/rbk-expede's documented sequence, rblm_harbinger.sh) as the worked census.",
+                "The family becomes the single ceremony authority:",
+                "amend this heat's paddock cinch that names the ₣B0 paddock as authority, and re-point the ₣B0 paddock at the sheaf.",
+                "Design is cinched — authoring is transcription plus MCM formalization;",
+                "a genuine open design question stops and surfaces for operator ruling, never improvised.",
+                "",
+                "## Done when",
+                "The sheaves stand indexed from RBS0 under MCM law;",
+                "ceremony authority is homed in the family with both paddocks pointing at it;",
+                "implementation dockets judged against the settled sheaves — consistent ones stand, drifted ones redocket."
+              ],
+              "jjgtn_silks": "author-hierophant-sheaf-family",
+              "jjgtn_basis": "56df752"
+            }
+          ],
+          "jjgpn_dictation": "groom B6; lets muse whether we have the correct shape.  I'm musing we ought to create a sheaf for hierophant and then one per operation that it supports?\n\nI'd frankly prefer spec-first, but either do it now, or chivvy a pace to do it right here right now.  Concerns?",
+          "jjgpn_precis": "Spec-first ruling: before implementing the hierophant, author its sheaf family — a cosmology top plus one operation sheaf per command (essai, ostend, harbinger) — transplanting ceremony authority out of the mortal ₣B0/₣B6 paddocks into a durable veiled RBS* home, chivvied to the front of ₣B6 and executed immediately in-session.",
+          "jjgpn_slated": "260718-0836"
         }
       }
     },
