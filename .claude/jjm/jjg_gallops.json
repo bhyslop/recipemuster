@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAT",
+  "jjgrn_next_pace_seed": "CAAAU",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4455,6 +4455,7 @@
         "₢CAAAQ",
         "₢CAAAR",
         "₢CAAAS",
+        "₢CAAAT",
         "₢B3AAA"
       ],
       "jjghn_paces": {
@@ -4646,6 +4647,35 @@
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony itself — the one-afternoon full cutover JJSAS specifies,\nmade executable by the seam, door, and founding-stage paces slated before it.",
           "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1002",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Complete the vanilla-hippodrome premise: de-insert JJK from consumer repos —",
+                "CLAUDE.md includes, `.claude/jjm`, MCP config —",
+                "context provisioning having moved to the dispatch layer",
+                "(JJSAS \"Founding and cutover\"; the same ceremony performs this sweep).",
+                "",
+                "## Cinched",
+                "- HAZARD (260709 carry, restated at the ₣B3 cut): the host-separated",
+                "  rough-backfill chat store in the work repo is the sole copy of off-machine",
+                "  chat history — the sweep must not flatten, migrate, or discard it.",
+                "",
+                "## Done when",
+                "Consumer repos carry no JJK insertions,",
+                "sessions still dispatch and mount through the studbook path afterward,",
+                "and the chat store stands untouched."
+              ],
+              "jjgtn_silks": "deinsert-consumer-repos",
+              "jjgtn_basis": "05a9e95"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony's de-insertion half — consumer repos go vanilla —\ncarrying the chat-store hazard note as a hard boundary on the sweep.",
+          "jjgpn_slated": "260718-1002"
         }
       }
     },
