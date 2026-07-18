@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAC",
+  "jjgrn_next_pace_seed": "CAAAD",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4522,7 +4522,8 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢CAAAA",
-        "₢CAAAB"
+        "₢CAAAB",
+        "₢CAAAC"
       ],
       "jjghn_paces": {
         "₢CAAAA": {
@@ -4590,6 +4591,32 @@
           ],
           "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
           "jjgpn_precis": "The operator ruled the gauntlet runs only after the proven candidate stands on the private quarantine, and wanted the rare-but-real command name. Ostend conducts the one irreversible ceremony: quarantine gates, preview, gauntlet, eyes, staging push, promotion — every assert by machine, every push by the operator's hands.",
+          "jjgpn_slated": "260717-1749"
+        },
+        "₢CAAAC": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1749",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Port of a proven module — the bash harbinger's default mode becomes the app's third command.",
+                "",
+                "## Docket",
+                "Implement harbinger, the standalone stranger-rig command: a guarded disposable clone of promoted public main with the full guard set — retire-aside disposal, severed origin, exit-1 pre-push hook, throwaway walk branch, dated findings-memo path, printed launch line and stranger prompt — the behavior rblm_harbinger.sh proves today.",
+                "Rig construction is one implementation shared with essai's rig stage, never duplicated; the two differ only in clone source (promoted public main versus the local candidate).",
+                "Serves the confirmation coldwalk after a reveal, and any future shakedown summoned outside one.",
+                "",
+                "## Done when",
+                "The command stands up the promoted-main rig identically to the bash harbinger, proven by exercise;",
+                "one shared rig implementation serves both essai and harbinger."
+              ],
+              "jjgtn_silks": "harbinger-command-absorption",
+              "jjgtn_basis": "91c7307"
+            }
+          ],
+          "jjgpn_dictation": "I muse that multiple of the marshal tabtargets could be folded in to this new application. How many commands ought this new app have? I think maybe 2 or 3 only. [...] hierophant is excellent, and I love your new phase names.",
+          "jjgpn_precis": "The operator capped the app at two-to-three commands and ratified harbinger as the third: the stranger rig against promoted main, summonable on its own — the existing minted word kept for the existing concept, its git surgery truly absorbed since it reads no shared authority.",
           "jjgpn_slated": "260717-1749"
         }
       }
