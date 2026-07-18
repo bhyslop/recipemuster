@@ -27,6 +27,14 @@ fn make_valid_gallops() -> jjrg_Gallops {
     }
 }
 
+/// Insert a heat into a test gallops, maintaining the heat_order/heats twin the real store
+/// keeps (nominate pushes to both), so the fixture survives jjrg_save's strict load-back.
+/// Preserves insertion order, which is the intended display order for these fixtures.
+fn add_heat(gallops: &mut jjrg_Gallops, key: String, heat: jjrg_Heat) {
+    gallops.heat_order.push(key.clone());
+    gallops.heats.insert(key, heat);
+}
+
 /// Build a heat with one pace carrying a specific docket and pace state.
 fn make_heat_with_docket(
     heat_id: &str,
@@ -173,7 +181,7 @@ fn jjtpd_empty_targets_errors() {
     // precisely to prove it is NOT auto-selected.
     let mut gallops = make_valid_gallops();
     let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nalpha");
-    gallops.heats.insert(k, h);
+    add_heat(&mut gallops, k, h);
     let path = write_temp_gallops("empty_targets", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -194,8 +202,8 @@ fn jjtpd_heterogeneous_list_populates_gazette_for_each_target() {
     let mut gallops = make_valid_gallops();
     let (k_ab, h_ab) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nalpha");
     let (k_cd, h_cd) = make_heat_with_docket("CD", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nbeta");
-    gallops.heats.insert(k_ab, h_ab);
-    gallops.heats.insert(k_cd, h_cd);
+    add_heat(&mut gallops, k_ab, h_ab);
+    add_heat(&mut gallops, k_cd, h_cd);
     let path = write_temp_gallops("heterogeneous", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -223,7 +231,7 @@ fn jjtpd_heterogeneous_list_populates_gazette_for_each_target() {
 fn jjtpd_bad_target_length_errors() {
     let mut gallops = make_valid_gallops();
     let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nx");
-    gallops.heats.insert(k, h);
+    add_heat(&mut gallops, k, h);
     let path = write_temp_gallops("bad_length", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
@@ -242,7 +250,7 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
     // whatever its state.
     let mut gallops = make_valid_gallops();
     let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Complete, "## Goal\ndone-work");
-    gallops.heats.insert(k, h);
+    add_heat(&mut gallops, k, h);
     let path = write_temp_gallops("remaining", &gallops);
 
     // Firemark + remaining: the complete pace is excluded from the gazette.
@@ -273,7 +281,7 @@ fn jjtpd_bridled_pace_shows_its_tier_in_both_table_views() {
     // (groom) and the all-paces view alike, and the Next callout matches.
     let mut gallops = make_valid_gallops();
     let (k, h) = make_heat_bridled("AB", Some(jjrg_Tier::Opus));
-    gallops.heats.insert(k, h);
+    add_heat(&mut gallops, k, h);
     let path = write_temp_gallops("bridled_tier", &gallops);
 
     for remaining in [true, false] {
@@ -312,8 +320,8 @@ fn jjtpd_round_trip_show_to_reslate_migrates_headings_per_docket() {
     let mut gallops = make_valid_gallops();
     let (k_ab, h_ab) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, docket_ab);
     let (k_cd, h_cd) = make_heat_with_docket("CD", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, docket_cd);
-    gallops.heats.insert(k_ab, h_ab);
-    gallops.heats.insert(k_cd, h_cd);
+    add_heat(&mut gallops, k_ab, h_ab);
+    add_heat(&mut gallops, k_cd, h_cd);
 
     // 1. SHOW emits paddock(s) + pace dockets into the gazette (modeled via the
     //    same gazette API jjrpd_run_parade uses to populate it).

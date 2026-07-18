@@ -56,7 +56,7 @@ fn create_test_gallops() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AC".to_string(),
         next_pace_seed: "CAAAA".to_string(),
-        heat_order: vec![],
+        heat_order: vec!["₣AB".to_string()],
         heats,
         retention_since: None,
     }
@@ -243,7 +243,7 @@ fn create_test_gallops_with_mixed_states() -> jjrg_Gallops {
     jjrg_Gallops {
         next_heat_seed: "AD".to_string(),
         next_pace_seed: "CAAAA".to_string(),
-        heat_order: vec![],
+        heat_order: vec!["₣AC".to_string()],
         heats,
         retention_since: None,
     }
