@@ -4747,8 +4747,8 @@
         "₢B4AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1717",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1723",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
@@ -4765,7 +4765,7 @@
                 "The interdictum context wording is amended so a future agent reads gathering-context-to-recommend around a fired interdictum as itself the prohibited workaround, and halts at the token — reporting it verbatim and doing nothing further unless directed — rather than treating read-only reads as an exempt route."
               ],
               "jjgtn_silks": "interdictum-halt-not-workaround",
-              "jjgtn_basis": "cece0b6"
+              "jjgtn_basis": "356d385"
             }
           ]
         },
