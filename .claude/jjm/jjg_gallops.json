@@ -5045,8 +5045,8 @@
         "₢CAAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1006",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -5070,7 +5070,7 @@
                 "fast-qualify and the perambulation fixture green (the crate and tabtarget wholly withheld)."
               ],
               "jjgtn_silks": "ensoul-crate-and-essai",
-              "jjgtn_basis": "3ba07a7"
+              "jjgtn_basis": "0420309"
             }
           ],
           "jjgpn_dictation": "I don't clearly see how to feather a _partial_ /rbk-expede process with the 'tight loop' that creates the local place we could use as a basis for the new branch and coldwalk. Ought we split expede into two halves? I need to be able to remember this process clearly, mind you: it is no good otherwise. How do you propose we make it easy to iterate on coldwalk/issue-discovery/repair/repeat? [...] For the record, before we had theurge rust to run all the tests, I had a sophisticated and fragile bash system for that, and so much got so much cleaner when we used a real programming language.",
