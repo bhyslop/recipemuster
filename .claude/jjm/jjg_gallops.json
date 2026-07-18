@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAG",
+  "jjgrn_next_pace_seed": "CAAAH",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4495,7 +4495,8 @@
       "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢B4AAA",
-        "₢B4AAB"
+        "₢B4AAB",
+        "₢CAAAG"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -4543,6 +4544,37 @@
               "jjgtn_basis": "ad88bb0"
             }
           ]
+        },
+        "₢CAAAG": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0854",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Doc-truth reconciliation — small, but it is the identity contract every agent obeys.",
+                "",
+                "## Docket",
+                "The JJK agent context (Tools/jjk/claude-jjk-core.md, \"Identities vs Display Names\") says a coronet is \"firemark plus three characters\" with examples like ₢AAAAk;",
+                "live coronets carry five-character suffixes (observed 260718: jjx_enroll echoed ₢CAAAF for a pace in heat ₣B6, rendered ₢B6·CAAAF in jjx_show prose and ₢CAAAF in its table),",
+                "and the wire form jjx_record accepts (bare CAAAF) had to be guessed from the enroll echo rather than read from the doc.",
+                "Determine the current coronet gestalt from the JJK spec (read JJS0 first; the pace-id re-gestalt is referenced from the infield-brands section of the veiled bhyslop context)",
+                "and correct the context doc's identity descriptions and examples:",
+                "the suffix length, the ₢/₣ glyph and · separator display forms, and which form each command's params accept.",
+                "If the display discipline (\"always show full coronets; never abbreviate\") no longer matches what the commands themselves emit, reconcile that too, in whichever direction the spec rules.",
+                "",
+                "## Done when",
+                "The identity section of claude-jjk-core.md matches the live gestalt —",
+                "an agent following it can pass identities to jjx commands without guessing —",
+                "and its examples show real current shapes."
+              ],
+              "jjgtn_silks": "coronet-doc-gestalt-drift",
+              "jjgtn_basis": "c1da6df"
+            }
+          ],
+          "jjgpn_dictation": "slate a pace in B4 to address this spook please, we don't have time now",
+          "jjgpn_precis": "Wrap-time spook from the ₣B6 sheaf-authoring session, deferred to a pace: the JJK core context describes coronets as firemark-plus-three-characters, but live coronets carry five-character suffixes across three inconsistent renderings, forcing the agent to guess the jjx_record wire form; reconcile the context doc's identity contract with the actual pace-id gestalt.",
+          "jjgpn_slated": "260718-0854"
         }
       }
     },
