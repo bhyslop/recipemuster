@@ -47,7 +47,7 @@ The project's build infrastructure was converted from Makefiles to pure bash, an
 == The {at_rbm_system} Vision
 
 .RBM System Architecture
-image::rbm-abstract-drawio.svg[RBM Architecture,600,400,align="center"]
+image::diagrams/rbm-abstract-drawio.svg[RBM Architecture,600,400,align="center"]
 
 Maintaining build and service environments is a headache for the small development organization.
 {st_container_s}
