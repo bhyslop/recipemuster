@@ -4747,8 +4747,9 @@
         "₢B4AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-1100",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Context-wording fix against an observed agent failure mode; the diagnosis is banked here, the repair is a mount-time decision — do not pre-plan it.",
@@ -4764,7 +4765,7 @@
                 "The interdictum context wording is amended so a future agent reads gathering-context-to-recommend around a fired interdictum as itself the prohibited workaround, and halts at the token — reporting it verbatim and doing nothing further unless directed — rather than treating read-only reads as an exempt route."
               ],
               "jjgtn_silks": "interdictum-halt-not-workaround",
-              "jjgtn_basis": "04f2d28"
+              "jjgtn_basis": "cece0b6"
             }
           ]
         },
