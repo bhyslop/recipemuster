@@ -17,9 +17,9 @@
 // RBTHD Hierophant — binary entry point.
 //
 // Subcommands, one per ceremony (RBSHC "The command seam"):
-//   rbthd essai   — the reversible repair lap (RBSHE). Built.
-//   rbthd ostend  — the guided irreversible reveal (RBSHO). Later pace.
-//   rbthd harbinger — the stranger rig against promoted public main (RBSHH). Later pace.
+//   rbthd essai      — the reversible repair lap (RBSHE). Built.
+//   rbthd harbinger  — the stranger rig against promoted public main (RBSHH). Built.
+//   rbthd ostend     — the guided irreversible reveal (RBSHO). Later pace.
 //
 // Launched only via the withheld tabtargets (tt/rbthw-*); a direct invocation
 // still resolves the working repository from cwd, which the launcher normalizes
@@ -30,22 +30,26 @@
 
 use std::process::ExitCode;
 
-/// The essai subcommand token. The one command this pace builds.
+/// The essai subcommand token.
 const RBTHD_CMD_ESSAI: &str = "essai";
+
+/// The harbinger subcommand token.
+const RBTHD_CMD_HARBINGER: &str = "harbinger";
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
     match args.get(1).map(|s| s.as_str()) {
         Some(RBTHD_CMD_ESSAI) => rbthd::rbthdr_essai::conduct(),
+        Some(RBTHD_CMD_HARBINGER) => rbthd::rbthdr_harbinger::conduct(),
         Some(other) => rbthd::rbthdr_fatal!(
-            "hierophant: unknown command '{}' — usage: rbthd {}",
-            other, RBTHD_CMD_ESSAI
+            "hierophant: unknown command '{}' — usage: rbthd {}|{}",
+            other, RBTHD_CMD_ESSAI, RBTHD_CMD_HARBINGER
         ),
         None => rbthd::rbthdr_fatal!(
-            "hierophant: no command — usage: rbthd {}\n\
-             launch via the withheld tabtarget: tt/rbthw-e.Essai.sh",
-            RBTHD_CMD_ESSAI
+            "hierophant: no command — usage: rbthd {}|{}\n\
+             launch via the withheld tabtargets: tt/rbthw-e.Essai.sh, tt/rbthw-h.Harbinger.sh",
+            RBTHD_CMD_ESSAI, RBTHD_CMD_HARBINGER
         ),
     }
 }

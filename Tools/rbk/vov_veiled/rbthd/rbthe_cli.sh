@@ -66,6 +66,15 @@ rbthe_essai() {
   "${ZRBTHE_BINARY}" essai
 }
 
+rbthe_harbinger() {
+  buc_doc_brief "Harbinger — the stranger rig against promoted public main (zero remote acts)"
+  buc_doc_shown || return 0
+
+  zrbthe_cargo_build
+  buc_step "Conducting harbinger"
+  "${ZRBTHE_BINARY}" harbinger
+}
+
 rbthe_test() {
   buc_doc_brief "Run the hierophant crate tests — the cut's self-proofs (totality, planted-leak sweep)"
   buc_doc_shown || return 0
