@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAW",
+  "jjgrn_next_pace_seed": "CAAAX",
   "jjgrn_heat_order": [
     "₣B3",
     "₣B6",
@@ -5053,6 +5053,7 @@
       "jjghn_order": [
         "₢CAAAF",
         "₢CAAAA",
+        "₢CAAAW",
         "₢CAAAC",
         "₢CAAAB",
         "₢CAAAD"
@@ -5223,6 +5224,45 @@
           "jjgpn_dictation": "groom B6; lets muse whether we have the correct shape.  I'm musing we ought to create a sheaf for hierophant and then one per operation that it supports?\n\nI'd frankly prefer spec-first, but either do it now, or chivvy a pace to do it right here right now.  Concerns?",
           "jjgpn_precis": "Spec-first ruling: before implementing the hierophant, author its sheaf family — a cosmology top plus one operation sheaf per command (essai, ostend, harbinger) — transplanting ceremony authority out of the mortal ₣B0/₣B6 paddocks into a durable veiled RBS* home, chivvied to the front of ₣B6 and executed immediately in-session.",
           "jjgpn_slated": "260718-0836"
+        },
+        "₢CAAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1019",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Architectural absorption, security-critical:",
+                "the hierophant subsumes its own cut, re-authoring the leak-prevention that stands between the private tree and the public remote.",
+                "",
+                "## Docket",
+                "Absorb expede and perambulation into the hierophant crate as Rust, called by essai in-process — no bash reach, no rbw-ME subprocess.",
+                "Port from rblm_perambulation.sh (the table, the longest-prefix matcher, the object-graph sweep) and rblm_expede.sh (clone the public base, materialize the shipped paths, invoke the candidate's own sterilize, transpose the consumer CLAUDE.md, single-commit, delta-sweep, zero-remotes) — preserve every gate and invariant they carry, the port fails if any is dropped.",
+                "The candidate's own rblm_sterilize.sh stays a subprocess — it must be the candidate's copy.",
+                "Port rbtdrq_perambulation.rs's proofs — the planted-leak sweep self-proof and the totality (unjudged / dead-row) check — into hierophant tests; they, not a green lap, are what prove the sweep (the 292-MiB catch: clean tip, leaking history).",
+                "Retire the absorbed standalone cut as this pace's deliberate act: rblm_expede.sh, rblm_perambulation.sh, the theurge fixture, the rbw-ME enrollment and tabtarget, and /rbk-expede — essai supersedes them, and the single-matcher rule forbids a live bash cut beside the Rust one.",
+                "",
+                "## Done when",
+                "The hierophant owns the cut in Rust;",
+                "no bash cut and no standalone rbw-ME or /rbk-expede remain;",
+                "essai runs a full green lap over the Rust cut;",
+                "the ported self-proof tests pass — a withheld path planted in candidate history is caught;",
+                "the delivered theurge no longer carries the perambulation fixture;",
+                "the consumer-facing surface is unchanged.",
+                "",
+                "## Cinched",
+                "One matcher only — Rust replaces bash, with no interim where both are live.",
+                "The candidate's own sterilize stays a subprocess.",
+                "The proscription (rblm_lustrate.sh) is NOT absorbed — it ships, and the candidate sources it.",
+                "Retiring the cut instruments is this pace's deliberate purpose, not a side effect — overriding the paddock's retire-after-service gate for the cut specifically; the heat's closing pace still retires the remaining old instruments."
+              ],
+              "jjgtn_silks": "hierophant-absorbs-the-cut",
+              "jjgtn_basis": "dda715b"
+            }
+          ],
+          "jjgpn_dictation": "I am actively concerned that we ought to broaden the scope of this heat to pull all of perambulation into the hierophant- won't that make things simpler?\nTo be clear, I do think this requires changes to -expede, but I think it gets simpler, or maybe completely can be subsumed into hierophant as well... ?\nI do want you to go ahead and chivvy it, and I'll have fable critically review it.\nI definitely want to jump forward with this, not do too many baby steps.",
+          "jjgpn_precis": "Fully absorb expede + perambulation into the hierophant crate (Rust) so the conductor owns its own cut in-process rather than sequencing bash workers — the caller graph confirms one durable caller each (expede←essai, perambulation←expede), so it simplifies rather than complicates.\nOne bold pace, not incremental baby steps; proven by the ported planted-leak + totality self-proof tests rather than gated on real release service; retires the standalone bash cut as its stated purpose.\nOperator will have fable critically review this docket.",
+          "jjgpn_slated": "260718-1019"
         }
       }
     },
