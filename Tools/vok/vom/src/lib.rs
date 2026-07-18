@@ -25,9 +25,7 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
-mod vomr_matricula;
-
-pub use vomr_matricula::vomr_identity;
+pub mod vomr_matricula;
 
 #[cfg(test)]
 mod vomt_matricula;

@@ -16,5 +16,5 @@ fn main() {
     // Degenerate: exercise the bin<->lib seam and the vof path-dependency, then
     // exit clean. Emits nothing yet - the RCG output module is deferred to the
     // first pace with real census output to route.
-    let _ = vom::vomr_identity();
+    let _ = vom::vomr_matricula::vomr_identity();
 }
