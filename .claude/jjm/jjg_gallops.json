@@ -4028,15 +4028,13 @@
         "₢B0AAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1817",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_fable",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260718-1035",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Release-ceremony cycle: laps iterated to dry in the reversible tier, then the reveal's public acts once, by hand.",
                 "",
-                "## Cinched (repair-lap doctrine, paddock 260717; instruments: hierophant ₣B6)",
+                "## Cinched (repair-lap doctrine, paddock 260717; instruments: hierophant ₣B6; cut-absorption re-ruling 260718)",
                 "The repair cycle runs via the hierophant's essai until proven:",
                 "re-cut atop live public main, coldwalk the local candidate in the guarded rig, disposition the findings, repeat until a lap runs dry.",
                 "No gauntlet during laps; the reveal (ostend) carries it, after the candidate stands on the private quarantine (operator ruling).",
@@ -4045,8 +4043,10 @@
                 "its depth is the mount's judgment — at minimum the onboarding beats the repair findings touched, the full four-beat walk belonging to the operator's greenfield walk, not this gate.",
                 "The first-delivery exception still governs — promotion precedes the operator walk.",
                 "RELEASE.md still narrates the pre-260715 single-pass shape until the closeout amends it: the paddock cinches govern; do not follow its step-8 ordering or its restart-from-step-2 failure text during laps.",
-                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination (with any lap fix it routed) landed in the maintainer tree; essai and ostend stand (₣B6).",
-                "Fallback if the hierophant is not ready when laps must run: /rbk-expede plus the bash harbinger, hand-driven, same doctrine.",
+                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination (with any lap fix it routed) landed in the maintainer tree; essai with its absorbed Rust cut, and ostend, stand (₣B6).",
+                "There is no bash-cut fallback (₣B6 cut-absorption re-ruling, 260718): /rbk-expede and the bash expede retired with the absorbing pace —",
+                "if a lap is blocked by a hierophant defect, the repair lands in the hierophant crate;",
+                "only the bash harbinger remains hand-drivable as the rig fallback until its own absorption.",
                 "",
                 "## Done when",
                 "The repaired candidate walked dry under essai laps;",
@@ -4055,10 +4055,10 @@
                 "the operator's greenfield walk unblocked."
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
-              "jjgtn_basis": "f24c845"
+              "jjgtn_basis": "dce2290"
             }
           ],
-          "jjgpn_redocket_count": 2
+          "jjgpn_redocket_count": 3
         },
         "₢B0AAO": {
           "jjgpn_tacks": [
@@ -4088,33 +4088,35 @@
         "₢CAAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1751",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260718-1035",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Bounded investigation with a ruling — read, determine, route; build nothing.",
                 "",
                 "## Docket",
-                "Settle whether the withheld-path literals in shipped theurge source are a live disclosure in a real candidate or latent:",
-                "rbtdrq_perambulation.rs names the perambulation script path and a veiled spec path as literals (grep \"vov_veiled\" Tools/rbk/rbtd/src/ for the current census),",
-                "and loupe harvests its needle set from veiled trees that no longer stand in a stripped candidate, so it may pass vacuously.",
-                "Read loupe's harvest logic and pyx's candidate scan coverage to determine whether any gate would catch these in a candidate; confirm against the promoted public tree.",
-                "If live and repair-worthy: the fix is delivered-bytes-bearing and joins this heat's lap fixes — operator routes it.",
+                "Settle whether loupe's veiled-tree needle harvest leaves a live disclosure or a vacuous pass in a real candidate:",
+                "loupe harvests its needle set from veiled trees that no longer stand in a stripped candidate, so it may pass without testing anything —",
+                "read the harvest logic and pyx's candidate scan coverage to determine whether any gate actually guards the candidate, and confirm against the promoted public tree.",
+                "The perambulation half of the original question is moot by removal:",
+                "the cut absorption (₣B6) deletes rbtdrq_perambulation.rs and the bash census, so those literals no longer ship —",
+                "verify the deletion landed rather than re-investigating them.",
+                "If a live and repair-worthy deficit remains: the fix is delivered-bytes-bearing and joins this heat's lap fixes — operator routes it.",
                 "If latent or accepted: record the reason; the r02 release-machinery reassessment pace (₣B2) carries the durable disposition.",
-                "Context: the narrowing grep and the unresolved liveness question are banked in that ₣B2 pace's docket — this pace pulls only the determination forward, because every remaining lap re-discloses these bytes.",
                 "",
                 "## Done when",
-                "A written determination — live versus latent, caught versus uncaught, with the code paths read —",
+                "A written determination for loupe — live versus latent, caught versus uncaught, with the code paths read —",
+                "plus confirmation the perambulation literals left the shipped tree;",
                 "and an operator routing: a lap fix slated, or a decline recorded."
               ],
               "jjgtn_silks": "perambulation-leak-status",
-              "jjgtn_basis": "c5bacad"
+              "jjgtn_basis": "dce2290"
             }
           ],
           "jjgpn_dictation": "Groom B2; I'm wondering if we ought to pull forward a veiled rust program to absorb basically all the marshal steps as well as this careful dance to prepare a release candidate. [...] All right, drop the B2 angle. [...] go",
           "jjgpn_precis": "The B2 pull-forward was declined, but its one release-relevant fragment carves out: whether shipped theurge source leaking withheld path literals is a live disclosure r01's laps keep re-shipping. This pace settles liveness before the terminal reveal, feeding a lap fix if live and the r02 reassessment if not.",
-          "jjgpn_slated": "260717-1751"
+          "jjgpn_slated": "260717-1751",
+          "jjgpn_redocket_count": 1
         }
       }
     },
