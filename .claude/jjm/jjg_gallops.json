@@ -4574,10 +4574,8 @@
         "₢CAAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1008",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260718-1520",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Complete the record-read repoint so ONE flip converts every reader.",
                 "The jjx surface already reads gallops-over-studbook behind",
@@ -4585,23 +4583,48 @@
                 "but the dispatch spine's own target-resolution read (`jjrds_plan`)",
                 "still loads the hippodrome's in-repo gallops directly,",
                 "while the pedigree it reads beside it already comes from the studbook.",
-                "Repoint that second reader behind the same seam,",
-                "and settle currency-at-read — when a session gleans its local studbook clone.",
-                "Source: ₣B3 paddock carry (Finding B, RECORD-READ REPOINT: two readers, not one;",
-                "currency-at-read named as the cutover's to settle).",
+                "Repoint that second reader behind the same seam.",
+                "Source: ₣B3 paddock carry (Finding B, RECORD-READ REPOINT: two readers, not one).",
+                "",
+                "## Cinched",
+                "",
+                "Settled at the 260718 planning session",
+                "(the slate had left currency-at-read for the mount to settle):",
+                "",
+                "- Currency-at-read policy: reads stay lockless and pure-local",
+                "  (the `jjdk_lockless_reads` premise holds);",
+                "  currency comes from an opportunistic freshen of the studbook clone —",
+                "  fetch plus fast-forward-only equalize,",
+                "  tolerating network failure by proceeding on last-known state —",
+                "  performed at session entry.",
+                "  For this pace that is the dispatch door, before planning;",
+                "  officium-open wires the same primitive when `JJRM_OFFICIUM_STUDBOOK_ENABLED` flips",
+                "  (noted at that seam, not built early).",
+                "- HAZARD, why fast-forward-only: `jjrfr_advance` is retrench-style",
+                "  (discards local-only commits) and is safe only under the journal lock —",
+                "  a read-side reuse could destroy a concurrent writer's",
+                "  lodged-but-unconsigned commit on the same station.",
+                "  Never reuse it outside the lock.",
+                "- `jjrds_plan`'s \"no mutation, no network\" contract stands:",
+                "  the freshen belongs to the door driver, never inside plan.",
+                "- The seam must be drivable by a test while the const stays false:",
+                "  route enablement through a parameter the public surface pins to the const.",
                 "",
                 "## Done when",
+                "",
                 "With the seam enabled in a test, both readers resolve from the studbook",
-                "and neither touches the in-repo gallops;",
-                "the currency-at-read policy is settled and asserted by a test."
+                "and neither touches the in-repo gallops",
+                "(the enabled-path test runs against a hippodrome carrying no `.claude/jjm` at all);",
+                "the freshen's currency and its network-failure tolerance are each asserted by a test."
               ],
               "jjgtn_silks": "repoint-spine-reader",
-              "jjgtn_basis": "c988913"
+              "jjgtn_basis": "c848c25"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace finishes the RECORD-READ REPOINT seam: the dispatch spine's second reader\nmust ride the same enablement seam as the jjx surface before the ceremony can flip once.",
-          "jjgpn_slated": "260718-1001"
+          "jjgpn_slated": "260718-1001",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAR": {
           "jjgpn_tacks": [
