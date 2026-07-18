@@ -646,6 +646,7 @@
 :rbth_hierophant:           <<rbth_hierophant,Hierophant>>
 :rbth_hierophant_p:         <<rbth_hierophant,Hierophant's>>
 :rbth_essai:                <<rbth_essai,Essai>>
+:rbth_docimasy:             <<rbth_docimasy,Docimasy>>
 :rbth_ostend:               <<rbth_ostend,Ostend>>
 :rbth_harbinger:            <<rbth_harbinger,Harbinger>>
 :rbth_lap:                  <<rbth_lap,Lap>>
@@ -654,6 +655,7 @@
 :rbth_quarantine:           <<rbth_quarantine,Quarantine>>
 :rbth_rig:                  <<rbth_rig,Rig>>
 :rbth_disclosure:           <<rbth_disclosure,Disclosure>>
+:rbth_cachet:               <<rbth_cachet,Cachet>>
 
 // Cross-references to companion specifications
 :xref_AXLA:                  Axial Lexicon Specification
@@ -2091,11 +2093,13 @@ itself withheld from delivery), which points back at this branch for the law.
 The veiled Rust application that conducts the delivery ceremony, as the
 {rbtt_theurge}
 conducts the tests.
-It owns three commands, one per ceremony:
+It owns four commands, one per ceremony act:
 {rbth_essai}
 the reversible repair lap,
+{rbth_docimasy}
+the reversible proving act of the reveal,
 {rbth_ostend}
-the guided irreversible reveal,
+the irreversible showing that closes the reveal,
 {rbth_harbinger}
 the stranger rig.
 It sequences proven workers and absorbs orchestration, never authority —
@@ -2154,6 +2158,21 @@ The staging push, not the promotion, carries promotion-grade gravity — a
 public object store cannot be un-disclosed; promotion after it is
 discoverability, not disclosure.
 
+[[rbth_cachet]]
+{rbth_cachet}::
+The durable verdict the
+{rbth_docimasy}
+grants: a recorded fact standing beside the
+{rbth_candidate},
+keyed to the candidate's tree hash, attesting the gauntlet ran green against
+exactly these bytes.
+{rbth_ostend}
+requires it before the
+{rbth_disclosure};
+a re-cut candidate carries none, and retiring a candidate aside retires its
+cachet with it.
+A rehearsal never grants one.
+
 //axvd_cartouche axd_normative
 include::RBSHC-hierophant_cosmology.adoc[leveloffset=+1]
 
@@ -2174,15 +2193,33 @@ from the local candidate — zero remote acts, repeated until a lap runs dry.
 //axvd_cartouche axd_normative
 include::RBSHE-hierophant_essai.adoc[]
 
+[[rbth_docimasy]]
+//axvo_method axd_transient axd_attended axd_inlaid
+=== {rbth_docimasy}
+
+`hierophant docimasy` —
+Conducts the reveal ceremony's reversible proving act on the standing dry
+{rbth_candidate}:
+quarantine gates, freshness assert, the preview conduction, credential
+preflight, and the once-per-cycle gauntlet stage — granting the
+{rbth_cachet}
+on green.
+Named for the Athenian civic examination of a candidate's qualification
+before taking office.
+
+//axvd_cartouche axd_normative
+include::RBSHD-hierophant_docimasy.adoc[]
+
 [[rbth_ostend]]
 //axvo_method axd_transient axd_attended axd_inlaid
 === {rbth_ostend}
 
 `hierophant ostend` —
-Conducts the once-per-cycle reveal of the standing dry
-{rbth_candidate}:
-quarantine gates, freshness assert, preview, credential preflight, the
-gauntlet stage, the file-list review, the
+Conducts the once-per-cycle irreversible showing of the standing dry
+{rbth_candidate}
+under a standing
+{rbth_cachet}:
+the re-asserted ground, the file-list review, the
 {rbth_disclosure},
 and promotion — every assert machine-performed, every push typed by the
 operator.

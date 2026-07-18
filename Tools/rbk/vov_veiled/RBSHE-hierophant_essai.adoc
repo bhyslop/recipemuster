@@ -18,8 +18,8 @@ would push.
 NOTE: *Gate ownership.* Essai gates on the maintainer tree and the base only.
 The
 {rbth_quarantine}
-gates — anonymous-404 and freshness — belong to
-{rbth_ostend}:
+gates — anonymous-404 and freshness — belong to the
+{rbth_docimasy}:
 a lap involves no quarantine at all.
 
 NOTE: *A finding means re-cut, never patch forward.* A red assay abandons the
@@ -127,7 +127,8 @@ that is bit-for-bit what a subsequent reveal would push.
 A
 {rbth_lap}
 that surfaces a finding loops — repair, re-cut, re-prove; a lap that runs dry
-hands the standing candidate to
-{rbth_ostend}.
+hands the standing candidate to the
+{rbth_docimasy}
+— the reveal's proving act.
 
 // eof

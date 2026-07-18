@@ -1,0 +1,132 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhob_operation
+{rbth_docimasy}
+
+NOTE: This operation is the reveal ceremony's reversible proving act — the
+examination of the standing dry
+{rbth_candidate}
+before the showing, named for the Athenian civic examination of a
+candidate's qualification before taking office.
+Everything it conducts is reversible or a spent cost, never a disclosure:
+the preview dies with its private
+{rbth_quarantine},
+and the gauntlet proves without publishing.
+Its grant is the
+{rbth_cachet};
+{rbth_ostend}
+refuses to conduct without one.
+
+NOTE: *Laps and reveal are decoupled in time.* Days may pass between the dry
+{rbth_lap}
+and this act, so the candidate's freshness is asserted, never presumed —
+delivered-bytes-bearing drift since the dry cut sends the cycle back to laps,
+never forward.
+
+NOTE: *Gate ownership.* The
+{rbth_quarantine}
+gates live here, relocated from the lap path: a
+{rbth_lap}
+involves no quarantine, and the proving will not proceed onto a quarantine
+that is visible to strangers or carrying an undispositioned prior cut.
+
+NOTE: *Re-entry is cheap by construction.* A git commit is content-addressed,
+so a standing preview of this same cut is recognized by tip equality and
+tolerated — an interrupted or environmentally-red proving is re-run from the
+top without re-typing a push already made.
+
+//axhos_step
+. *Gate the
+{rbth_quarantine}*:
+.. {rbbc_require}
+an anonymous read of the quarantine repository to 404 — anything else means
+the quarantine is public or misnamed
+.. {rbbc_require}
+the quarantine fresh: no refs at all, or exactly the `POSTULANT_LOCAL` of a
+preview from this same cut — anything else is an undispositioned prior cut,
+the operator's to dispose of
+.. {rbbc_fatal}
+on either deficit
+
+//axhos_step
+. *Assert candidate freshness* (before any push):
+.. {rbbc_require}
+that a re-cut of the maintainer tree's shipped bytes now would be tree-equal
+to the standing
+{rbth_candidate}
+— asserted through the one matcher: a scratch cut, tree-compared, then
+disposed (the single-matcher law of the cosmology's cut section)
+.. {rbbc_fatal}
+on drift — the cycle returns to
+{rbth_essai},
+never forward
+
+//axhos_step
+. *Preview into the
+{rbth_quarantine}*
+(reversible):
+.. {rbbc_show}
+the preview push line — explicit quarantine URL,
+`POSTULANT_LOCAL:POSTULANT_LOCAL` — for the operator to type; a quarantine
+tip already equal to the candidate tip stands as the preview, and the line
+is not re-typed
+.. {rbbc_require}
+the quarantine's `POSTULANT_LOCAL` tip equal to the candidate tip after the
+operator reports the push done
+
+//axhos_step
+. *Credential preflight* (immediately before the gauntlet stage):
+.. probe the
+{rbtr_payor}
+OAuth credential
+.. {rbtf_novate}
+the
+{rbtf_sitting}
+— the gauntlet's build verbs are runway-gated, and a stale sitting passes the
+early rungs then dies mid-ladder at the floor
+.. {rbbc_fatal}
+if either leaves the ladder uncredentialed
+
+//axhos_step
+. *Run the gauntlet stage* (once per repair cycle):
+.. {rbbc_prompt}
+before spending: marshal zero blanks the regime and auto-commits, and the
+ladder costs about an hour and two GCP projects
+.. sequence marshal zero as a worker — the blank-template entry state the
+gauntlet's attestation gate demands
+.. run the gauntlet suite
+.. NOTE: placement is ruled — after the candidate stands on the quarantine,
+inside the proving act, never inside a
+{rbth_lap}
+.. {rbbc_fatal}
+on a red ladder: the cycle returns to laps, and no
+{rbth_cachet}
+is granted
+
+//axhoot_typed_output
+{rbth_cachet}
+. *Grant the
+{rbth_cachet}*:
+.. {rbbc_store}
+the verdict beside the
+{rbth_candidate}
+— the candidate's tree hash and tip, the maintainer `HEAD`, and the stamp —
+so retiring the candidate aside retires its cachet with it, and a re-cut
+candidate carries none
+.. {rbbc_show}
+the hand-off to
+{rbth_ostend}
+for the showing
+.. NOTE: a rehearsal stops before this step and never grants a cachet
+
+//axhoc_completion
+Successful execution leaves the standing dry
+{rbth_candidate}
+previewed on the private
+{rbth_quarantine},
+the gauntlet green from the marshal-zero baseline, and the
+{rbth_cachet}
+granted — the reveal's irreversible act now admissible, conducted by
+{rbth_ostend}.
+
+// eof

@@ -30,6 +30,17 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 // in-process by essai; the single-matcher rule is homed in this subdoc. The
 // words expede and perambulation continue as the act's standing names.
 //
+// Reveal split RULED (operator, 260718): the reveal ceremony is conducted in
+// two acts split at the reversible/irreversible line — the docimasy proves
+// (quarantine gates, freshness, preview, credential preflight, gauntlet;
+// grants the cachet) and ostend shows (eyes, disclosure, promotion, harbinger
+// hand-off). The cachet — a tree-hash-keyed fact beside the candidate — is
+// the machine-enforced once-per-cycle bridge. The 260717 gauntlet-placement
+// ruling holds unchanged: after the candidate stands on the quarantine, never
+// inside a lap. The words docimasy (the Athenian pre-office examination of a
+// candidate) and cachet (a seal of approval) were minted at this ruling,
+// grep-gated.
+//
 // Membranes (honored, not re-minted):
 //  - the workers (marshal zero, lustrate, feign) are bash verbs homed in
 //    rblm_*; sequenced by the hierophant, their internals never restated here;
@@ -49,12 +60,14 @@ The
 {rbth_hierophant}
 conducts the delivery ceremony as the
 {rbtt_theurge}
-conducts the tests: a veiled Rust application owning three commands, one per
-ceremony —
+conducts the tests: a veiled Rust application owning four commands, one per
+ceremony act —
 {rbth_essai}
 the repair lap,
+{rbth_docimasy}
+the proving act of the reveal,
 {rbth_ostend}
-the guided reveal,
+the showing that closes it,
 {rbth_harbinger}
 the stranger rig.
 This subdoc treats the cosmology the application embodies — the vocabulary
@@ -66,26 +79,49 @@ its own home.
 
 The ceremony's one load-bearing boundary is reversible versus irreversible,
 and the command structure is that boundary made executable.
-{rbth_essai}
+{rbth_essai},
+the
+{rbth_docimasy},
 and
 {rbth_harbinger}
 are wholly reversible: every artifact they produce — a
 {rbth_candidate},
 a
-{rbth_rig}
-— is local, disposable, and replaceable by another run.
+{rbth_rig},
+a preview that dies with its private
+{rbth_quarantine},
+a
+{rbth_cachet}
+— is local or private, disposable, and replaceable by another run.
 {rbth_ostend}
 alone crosses the line: it conducts the operator through the
 {rbth_disclosure}
 and the promotion, and it is therefore built as machine-asserts-around-human-
 pushes — the application performs every check and never holds a remote write.
 
+The reveal ceremony is conducted in two acts split exactly at that line
+(operator ruling, 260718): the
+{rbth_docimasy}
+proves — quarantine gates, freshness, the preview, credential preflight, the
+gauntlet — and grants the
+{rbth_cachet};
+{rbth_ostend}
+shows — the operator's eyes, the
+{rbth_disclosure},
+promotion.
+The cachet is the bridge that keeps the ordering machine-enforced across the
+act boundary: ostend refuses to conduct without a standing cachet whose tree
+hash matches the standing candidate, so the once-per-cycle law survives
+interruption, re-entry, and the days that may pass between the acts, rather
+than living in one process's memory.
+
 Iteration belongs entirely to the reversible tier: a
 {rbth_lap}
 is repeated until one runs dry — a lap surfacing no finding — and only a dry
 candidate proceeds to the reveal.
-The gauntlet runs once per repair cycle, inside the reveal, after the
-candidate stands on the
+The gauntlet runs once per repair cycle, inside the
+{rbth_docimasy},
+after the candidate stands on the
 {rbth_quarantine}
 — never inside a lap.
 
