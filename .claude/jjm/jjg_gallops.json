@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAR",
+  "jjgrn_next_pace_seed": "CAAAS",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4453,6 +4453,7 @@
         "₢CAAAO",
         "₢CAAAP",
         "₢CAAAQ",
+        "₢CAAAR",
         "₢B3AAA"
       ],
       "jjghn_paces": {
@@ -4579,6 +4580,38 @@
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace finishes the RECORD-READ REPOINT seam: the dispatch spine's second reader\nmust ride the same enablement seam as the jjx surface before the ceremony can flip once.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1001",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Stage everything the cutover afternoon consumes, so the ceremony only executes.",
+                "Three parts, all ahead of the ceremony:",
+                "",
+                "- Operator ruling: reuse the standing scratch studbook additively,",
+                "  or recreate the remote for a clean slate —",
+                "  the 260713 disposable-scaffolding ruling deliberately forecloses neither.",
+                "- Founding seed: the import must seed the pedigrees file beside the gallops —",
+                "  the build heat's founding ceremony was handed a one-file seed,",
+                "  and a station without pedigrees cannot dispatch (260713 founding-seed gap;",
+                "  the gap is in the seed, never in the ceremony).",
+                "- Multiproject import discipline proven: one lineage;",
+                "  the importer detects and refuses firemark collisions (JJSAS \"Founding and cutover\").",
+                "",
+                "## Done when",
+                "The reuse-or-recreate ruling is recorded,",
+                "a complete founding seed exists (gallops and pedigrees),",
+                "and the importer's collision refusal is demonstrated."
+              ],
+              "jjgtn_silks": "stage-founding-seed",
+              "jjgtn_basis": "d4579b4"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace stages the founding inputs — the scratch-instance ruling, the two-file seed,\nand the collision-refusal proof — so the sole-operator cutover afternoon executes without\ndiscovery.",
           "jjgpn_slated": "260718-1001"
         }
       }
