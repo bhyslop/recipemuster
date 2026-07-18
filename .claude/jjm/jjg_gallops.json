@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAK",
+  "jjgrn_next_pace_seed": "CAAAL",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4586,7 +4586,8 @@
         "₢CAAAG",
         "₢CAAAH",
         "₢CAAAI",
-        "₢CAAAJ"
+        "₢CAAAJ",
+        "₢CAAAK"
       ],
       "jjghn_paces": {
         "₢CAAAG": {
@@ -4688,6 +4689,32 @@
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The \"get job jockey to use it before we implement\" half directly:\nthe minting workflow wields the census tabtarget from now on, so every mint exercises the tool as it deepens.",
           "jjgpn_slated": "260718-0943"
+        },
+        "₢CAAAK": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0944",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The first vestures claim their declarations and shrink the estray pile.",
+                "Choose classifiers residue-first: run the census, read the estray section, write the recognizer that retires the biggest coherent slice;",
+                "expect Rust, Bash, and AsciiDoc attribute/anchor vestures early.",
+                "Per-vesture line patterns only, leaning on RCG/BCG declaration-site discipline;",
+                "tree-sitter only where a vesture's structure defeats a regex, never syn (VOSMM \"Scan Mechanics\").",
+                "Include rivet-kind recognition: opaque rivet IDs (RBr_/VOr_/JJr_) become their own kind so they stop reading as estray false product.",
+                "Open-ended by design: successor classifier paces are cut from the residue this one leaves, not pre-enumerated here.",
+                "",
+                "## Done when",
+                "The estray section reads as signal — dominated by genuine mint-gaps and misminting rather than unclaimed well-formed declarations — and rivet IDs seat as their own kind."
+              ],
+              "jjgtn_silks": "first-classifiers-residue",
+              "jjgtn_basis": "9738dd1"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "The gradual-deepening half of the intent:\nclassifiers grow residue-driven, fixing issues as the estray pile shrinks — the paddock's cinched growth mode.",
+          "jjgpn_slated": "260718-0944"
         }
       }
     },
