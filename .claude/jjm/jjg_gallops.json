@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAX",
+  "jjgrn_next_pace_seed": "CAAAY",
   "jjgrn_heat_order": [
     "₣B5",
     "₣B3",
@@ -4741,7 +4741,8 @@
         "₢B4AAA",
         "₢B4AAB",
         "₢CAAAG",
-        "₢CAAAV"
+        "₢CAAAV",
+        "₢CAAAX"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -4858,6 +4859,41 @@
           "jjgpn_dictation": "\"Would it be simpler to just alter the data structure to not allow duplicates?\"\n\n\"WE don't need reprive episodes because there is only one gallops for now. I'd prefer you slate a single pace to deal with this, and flag clearly that when we mount it, we need to close other chats. Proceed if this makes sense, else raise issues.\"",
           "jjgpn_precis": "Operator chose the structural fix over a mere validation guard, and cleared the reprieve blocker by ruling that a single on-disk gallops lets the schema change be applied directly. Wants it as one pace, mounted only with all other chats closed so the store migration/repair is safe from concurrent officium writes.",
           "jjgpn_slated": "260718-1711"
+        },
+        "₢CAAAX": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-2108",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Small command-ergonomics fix to a ceremony doc.",
+                "The design shape is settled below; judgment-light to execute, but the state-and-proceed safety point is load-bearing.",
+                "",
+                "## The defect",
+                "`/jjc-wrap <tier>` forces the operator to type the pace coronet even when the calling session just landed or mounted it.",
+                "Step 1's rule (\"if the coronet is missing … stop — never assume\") discards context the session already holds and demands a re-supply.",
+                "Observed: `/jjc-wrap fable` refused and asked for a coronet the session had just landed.",
+                "",
+                "## Done when",
+                "The coronet is optional.",
+                "When omitted, the calling session infers it from chat context — the pace it most recently landed or mounted this session — states the inference explicitly, and proceeds.",
+                "It drops to a question only on genuine ambiguity: no pace handled this session, or two candidates.",
+                "The tier stays required: a deliberate ruling with no default.",
+                "Argument parsing accepts the coronet in either order or absent, keyed on the disjoint shapes (tier is exactly `fable`|`opus`; a coronet is `₢`+5).",
+                "The edit lands in `.claude/commands/jjc-wrap.md` step 1 — the fail-fast-on-missing-coronet rule becomes infer-and-proceed with the ambiguity fallback.",
+                "",
+                "## Cinched",
+                "- Coronet inferred, tier stays explicit — the asymmetry is intended: a fact the session holds versus a ruling with no default.",
+                "- State-and-proceed, never silent-assume: `jjx_close` sweeps the tree and closes a pace, so the inferred coronet must be shown before the wrap fires so the operator can veto."
+              ],
+              "jjgtn_silks": "jjc-wrap-infer-coronet",
+              "jjgtn_basis": "2e85221"
+            }
+          ],
+          "jjgpn_dictation": "I never actually wanted the slash command to require me to emplace the coronet: that should be obvious from chat context.",
+          "jjgpn_precis": "Operator wants `/jjc-wrap` to infer the pace coronet from the session's own context — the pace it just landed or mounted — instead of demanding it as an argument.\nThe tier stays a required explicit ruling.\nRewrite step 1's fail-fast-on-missing-coronet rule to infer-and-proceed: state the inferred coronet and continue, asking only on genuine ambiguity.",
+          "jjgpn_slated": "260718-2108"
         }
       }
     },
