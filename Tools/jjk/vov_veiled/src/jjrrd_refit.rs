@@ -17,9 +17,20 @@
 
 use std::path::Path;
 
-use crate::jjrds_spine::{jjrds_pedigree_lookup, JJRDS_KIND_PLAIN_GIT};
-use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_LineOfWork, jjrfr_Seat};
-use crate::jjrrf_refit::{jjrrf_refit, jjrrf_RefitOutcome};
+use crate::jjrds_spine::{
+    jjrds_pedigree_lookup,
+    JJRDS_KIND_PLAIN_GIT,
+};
+use crate::jjrfr_farrier::{
+    jjrfr_FarrierBillet,
+    jjrfr_FarrierCore,
+    jjrfr_LineOfWork,
+    jjrfr_Seat,
+};
+use crate::jjrrf_refit::{
+    jjrrf_refit,
+    jjrrf_RefitOutcome,
+};
 use crate::jjrvb_blotter::jjdb_studbook_config;
 
 /// Run refit against the tree at `cwd`. Returns operator-facing text and an
