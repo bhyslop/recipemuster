@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAZ",
+  "jjgrn_next_pace_seed": "CAAAa",
   "jjgrn_heat_order": [
     "₣B5",
     "₣B3",
@@ -4769,7 +4769,8 @@
         "₢CAAAG",
         "₢CAAAV",
         "₢CAAAX",
-        "₢CAAAY"
+        "₢CAAAY",
+        "₢CAAAZ"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -4949,6 +4950,40 @@
           "jjgpn_dictation": "wrap current, then slate a repair pace in this heat. Is the next pace in this heat schema-affecting? I will start other parallel chats if not.",
           "jjgpn_precis": "After wrapping the top-level fix, the operator wants its sibling slated: extend the reconcile pattern to the per-heat order/paces twin, which today is check-only (Rule 5) and bricks exit-1 on a merge-diverged order rather than normalizing — the same ordering-only merge fingerprint one level down, flagged by the fable review. The operator gated parallel-chat work on whether this pace is schema-affecting; it is not (normalizes existing field contents, no serialized-shape change).",
           "jjgpn_slated": "260718-2146"
+        },
+        "₢CAAAZ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-2238",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Reconcile a producer/consumer contract mismatch on landing content — prose-and-spec across the JJK agent context and one normative sheaf, no code.",
+                "The judgment lives in wording that downstream designee and reviewer agents will obey.",
+                "",
+                "## The seam",
+                "The landing (jjx_landing / the `:L:` commit, spec JJSCLD-landing.adoc) carries two disagreeing contracts.",
+                "PRODUCER — the Designee protocol in Tools/jjk/claude-jjk-core.md and JJSCLD's `content` field — asks a designee only for an \"agent completion report\", with no content standard.",
+                "CONSUMER — .claude/commands/jjc-wrap.md step 2 — demands \"evidence pointers only, never advocacy\".",
+                "The designee never sees the consumer's bar, so a good-faith report arrives advocacy-laden (scope-justification, correctness arguments, self-assessed guide compliance) — the pre-framing that biases the fresh reviewer.",
+                "Live, not latent: the landing found via `git log --all --grep CAAAB` (heat ₣B6) is a faithful completion report that pre-argues its own unmet Done-when clauses and design choices.",
+                "",
+                "## Done when",
+                "- The producer sources make a designee write a review-grade landing BY CONSTRUCTION: the Designee protocol and JJSCLD both state what landing content IS (evidence pointers — commits, verbatim operator rulings, verification run + outcomes) and what it FORBIDS (correctness arguments, scope-justification, guide rules \"considered\", edge cases \"handled\").",
+                "- jjc-wrap step 2 judges the existing landing's CONTENT against that standard, not merely its existence — advocacy is rewritten or annotated before the reviewer spawns, never waved through as \"review-grade\" on existence alone.",
+                "",
+                "## Cinched",
+                "- The standard has ONE home the others cite — never restated in three places, which would drift.",
+                "- Splitting the landing into two artifact kinds (executor report vs reviewer brief) is OUT of scope; the single evidence-only standard suffices.",
+                "- JJSCLD is `axd_normative` — editing it is a spec change under the sheaf's discipline, not a free-text doc tweak."
+              ],
+              "jjgtn_silks": "evidence-only-landings",
+              "jjgtn_basis": "658a76b"
+            }
+          ],
+          "jjgpn_dictation": "Can you slate a pace on B4 to carry out the improvements you recommend?",
+          "jjgpn_precis": "Slate the landing-content fix recommended after auditing the ₢B6·CAAAB landings and the designee-side prompting.\nTwo halves: teach the producer side (Designee protocol in claude-jjk-core.md + the JJSCLD spec) the evidence-only standard so landings are born review-grade, and harden jjc-wrap step 2 to judge an existing landing's content rather than treat its mere existence as review-grade.\nThe empirical trigger: a sonnet designee's completion report on ₢B6·CAAAB came out advocacy-laden (pre-arguing scope and design choices), exactly the pre-framing the fresh reviewer is meant to avoid.",
+          "jjgpn_slated": "260718-2238"
         }
       }
     },
