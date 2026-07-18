@@ -4544,8 +4544,8 @@
         "₢CAAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1008",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1351",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "The refit engine (`jjrrf_refit`) is built and tested but nothing invokes it:",
@@ -4562,7 +4562,7 @@
                 "the stale module comment is gone."
               ],
               "jjgtn_silks": "refit-operator-door",
-              "jjgtn_basis": "ec8c26b"
+              "jjgtn_basis": "680b53b"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
