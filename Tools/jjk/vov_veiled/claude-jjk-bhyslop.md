@@ -301,3 +301,27 @@ form); its **dirname** is `jjqb_{coronet}`; `git worktree list` ties them. The m
 `jjqb_*` — a positive match that structurally excludes the `jjqa_`/`jjqs_` repos it must never
 reap. Constraint owed upstream: the pace-id re-gestalt must keep the coronet charset git-ref-
 and dirname-safe (no leading `-`).
+
+### K. Operator-only verb — jog (naming census)
+
+**jog** is an operator-only Upper API verb. It drives the matricula census, which
+never ships (VOr_q4f), so it homes here in the veiled context and never in the
+delivered Quick Verbs table (`claude-jjk-core.md`). It is otherwise an ordinary
+verb — same Upper/Lower register gap as every other.
+
+**jog → `jjx_sift`** (no params; no officium — it reads the source tree, not the
+gallops). Inspect the corpus of minted names for soundness: run the naming census
+over the tracked source tree and surface every violation — exact collision and
+terminal-exclusivity — plus the estray section. Reach for it at the grep-gate step
+of a mint, and any time you want the corpus appraised.
+
+- **Advisory where fallible (VOr_m7w):** the exact-collision and
+  terminal-exclusivity presentments are authoritative; the sprue/rivet findings
+  are advisory, never assertions — never gate a mint on them.
+- **Degenerate for now:** until vestures land, every ours-cipher token reports as
+  an estray. Expected — `jog` exercises the tool as it deepens (use-before-implement).
+- **Absent binary:** the engine spawns the standalone census binary as a separate
+  process; where it is absent the command simply fails. If `jjx_sift` reports it
+  missing, build it with `tt/vow-mb.MatriculaBuild.sh`.
+- Concept home: JJS0 "Census Operations" (`jjdo_sift`) and the `jjsuv_jog` verb
+  definition; the tool itself is VOSMM-entity.adoc.
