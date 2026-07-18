@@ -8,6 +8,13 @@ This is the first real content delivery of the federation era — the heat exist
 
 ## Cinched
 
+Spec home (260718, ₣B6's spec-first ruling): the ceremony's standing law —
+the command seam, additive-construction prevention, structural incapacity, the three public acts,
+the ENGROSSMENT_UPSTREAM/POSTULANT_LOCAL mint, and walk-gates-promotion as standing doctrine —
+is now homed in the RBS0 Marshal Operations branch (the rbth_ vocabulary; RBSHC cosmology plus the RBSHE/RBSHO/RBSHH operation sheaves).
+The cinches below stand as this heat's rulings and first-delivery record;
+where they restate ceremony law, the spec is the single authority.
+
 Re-ruled (operator, 260715, first-delivery exception): promotion executed after staging and before the walk —
 the bytes were already disclosed and tree-equal, the audience is effectively zero, and a walk against live main is the truer stranger simulation;
 the greenfield walk therefore runs FULL against promoted public main, the default face a real stranger lands on, and the separate thin production spot-check dissolves into it.
