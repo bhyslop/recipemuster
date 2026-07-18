@@ -90,27 +90,28 @@ tt/rbw-ts.TestSuite.gauntlet.sh
 
 **Prerequisites — two repositories, two very different lifetimes.**
 
-- **The base — remote `ENGROSSMENT_UPSTREAM`, read-only.** The real, durable public repository (`git@github.com:scaleinv/recipebottle.git`); expede clones it and cuts the candidate one commit atop its live `main`. Configure it once, and **neuter its push side** — the base is read-only, and a push-capable remote to the public target in the maintainer repo is the one catastrophe this ceremony forbids (a stray `git push ENGROSSMENT_UPSTREAM` would put your private tree on public `main`):
+- **The base — remote `ENGROSSMENT_UPSTREAM`, read-only.** The real, durable public repository (`git@github.com:scaleinv/recipebottle.git`); the cut clones it and cuts the candidate one commit atop its live `main`. Configure it once, and **neuter its push side** — the base is read-only, and a push-capable remote to the public target in the maintainer repo is the one catastrophe this ceremony forbids (a stray `git push ENGROSSMENT_UPSTREAM` would put your private tree on public `main`):
   ```
   git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
   git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
   ```
-  Expede refuses to cut unless the push side is neutered to exactly that sentinel. The ceremony never creates or destroys the base; expede only ever *reads* it (fetch), then severs the clone's origin, so nothing it does can push there.
+  The cut refuses to proceed unless the push side is neutered to exactly that sentinel. The ceremony never creates or destroys the base; the cut only ever *reads* it (fetch), then severs the clone's origin, so nothing it does can push there.
 - **The quarantine — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the candidate — the candidate holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the candidate is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
 
-Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: expede holds no remote, the base remote's push side is dead, and the candidate's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
+Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: the cut holds no remote, the base remote's push side is dead, and the candidate's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
 
-Run the cut:
+Run the cut — one essai lap:
 
 ```
-/rbk-expede
+tt/rbthw-e.Essai.sh
 ```
 
-- Claude Code slash command, not a tabtarget — the delivery ceremony is interactive by design, and its last acts are the maintainer's own eyes
-- Expede is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the candidate by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes, commits once), severs the clone's origin, and **pushes nothing**. The finished candidate is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
-- The driver proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
-- Success: every assay green, the base inventory acknowledged, and you have read the candidate's file list
-- Failure: **re-cut, never patch forward** — abandon the candidate directory, repair on `main`, run the ceremony again from step 2. Patching a candidate is the same bug class this whole procedure exists to catch
+- The hierophant's reversible repair lap (`RBSHE`): it gates the tree and the base, runs the pre-cut assays, cuts the candidate **in-process**, proves it with the candidate battery, and stands up a coldwalk rig beside it — zero remote acts
+- The cut is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the candidate by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes via the candidate's own copy, commits once), severs the clone's origin, and **pushes nothing**. The finished candidate is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
+- The lap proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
+- The candidate lands at `«sibling»/rbm_candidate/candidate`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «candidate» ls-files`
+- Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the candidate's file list
+- Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap retires the prior candidate aside itself). Patching a candidate is the same bug class this whole procedure exists to catch
 
 ## 6. Preview in the private quarantine (reversible)
 

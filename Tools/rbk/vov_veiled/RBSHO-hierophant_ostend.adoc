@@ -3,85 +3,59 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //axhob_operation
 {rbth_ostend}
 
-NOTE: This operation is the once-per-cycle guided reveal: it walks the
-operator through the disclosure of the standing dry
+NOTE: This operation is the reveal ceremony's irreversible act — the
+once-per-cycle showing of the standing dry
 {rbth_candidate},
 performing every assert itself while every push is typed by the operator —
 the machine-asserts-around-human-pushes law of the cosmology's command seam.
 It never re-cuts: the dry candidate is bit-for-bit what ships, and a terminal
 re-cut would break exactly that identity.
 
-NOTE: *Laps and reveal are decoupled in time.* Days may pass between the dry
-{rbth_lap}
-and the reveal, so the candidate's freshness is asserted, never presumed —
+NOTE: *The proving is behind it.* The
+{rbth_docimasy}
+already gated the
+{rbth_quarantine},
+conducted the preview, and ran the gauntlet; its
+{rbth_cachet}
+is what admits this operation.
+Ostend therefore holds no cloud credential and spends nothing: its acts are
+remote reads and the operator's own pushes.
+
+NOTE: *The acts are decoupled in time.* Days may pass between the
+{rbth_docimasy}
+and the showing, so the ground is re-asserted here, never presumed —
 delivered-bytes-bearing drift since the dry cut sends the cycle back to laps,
 never forward.
 
-NOTE: *Gate ownership.* The
+//axhos_step
+. *Require the
+{rbth_cachet}*:
+.. {rbbc_require}
+a cachet standing beside the
+{rbth_candidate},
+its recorded tree hash equal to the standing candidate's — the proof that
+the gauntlet ran green against exactly these bytes
+.. {rbbc_fatal}
+on absence or mismatch, naming the remedy: conduct the
+{rbth_docimasy}
+
+//axhos_step
+. *Re-assert the ground*:
+.. {rbbc_require}
+an anonymous read of the
 {rbth_quarantine}
-gates live here, relocated from the lap path: a
-{rbth_lap}
-involves no quarantine, and the reveal will not proceed onto a quarantine
-that is visible to strangers or carrying an undispositioned prior cut.
-
-//axhos_step
-. *Gate the
-{rbth_quarantine}*:
+repository to 404 — anything else means the quarantine is public or misnamed
 .. {rbbc_require}
-an anonymous read of the quarantine repository to 404 — anything else means
-the quarantine is public or misnamed
+the quarantine's `POSTULANT_LOCAL` tip equal to the candidate tip — the
+preview stands
 .. {rbbc_require}
-the quarantine fresh: no refs at all, or exactly the `POSTULANT_LOCAL` of a
-preview from this same cut — anything else is an undispositioned prior cut,
-the operator's to dispose of
+candidate freshness through the one matcher: a scratch re-cut of the
+maintainer tree's shipped bytes, tree-equal to the standing candidate, then
+disposed
 .. {rbbc_fatal}
-on either deficit
-
-//axhos_step
-. *Assert candidate freshness* (before any push):
-.. {rbbc_require}
-that a re-cut of the maintainer tree's shipped bytes now would be tree-equal
-to the standing
-{rbth_candidate}
-.. {rbbc_fatal}
-on drift — the cycle returns to
+on any deficit — the cycle returns to
 {rbth_essai},
 never forward
-
-//axhos_step
-. *Preview into the
-{rbth_quarantine}*
-(reversible):
-.. {rbbc_show}
-the preview push line — explicit quarantine URL,
-`POSTULANT_LOCAL:POSTULANT_LOCAL` — for the operator to type
-.. {rbbc_require}
-the quarantine's `POSTULANT_LOCAL` tip equal to the candidate tip after the
-operator reports the push done
-
-//axhos_step
-. *Credential preflight* (immediately before the gauntlet stage):
-.. probe the
-{rbtr_payor}
-OAuth credential
-.. {rbtf_novate}
-the
-{rbtf_sitting}
-— the gauntlet's build verbs are runway-gated, and a stale sitting passes the
-early rungs then dies mid-ladder at the floor
-.. {rbbc_fatal}
-if either leaves the ladder uncredentialed
-
-//axhos_step
-. *Run the gauntlet stage* (once per repair cycle):
-.. sequence marshal zero as a worker — the blank-template entry state the
-gauntlet's attestation gate demands
-.. run the gauntlet suite
-.. NOTE: placement is ruled — after the candidate stands on the quarantine,
-inside the reveal, never inside a
-{rbth_lap}
-.. {rbbc_fatal}
-on a red ladder: the cycle returns to laps
 
 //axhos_step
 . *File-list review — the operator's own eyes*:
@@ -134,8 +108,10 @@ staging branch, the private
 and the candidate directory once dispositioned
 
 //axhoc_completion
-Successful execution conducts a full reveal from a standing dry
-{rbth_candidate}:
+Successful execution conducts the showing of a standing dry
+{rbth_candidate}
+under a granted
+{rbth_cachet}:
 every assert machine-performed, every push human-typed, the
 {rbth_disclosure}
 and the promotion each spelled exactly once, and the promoted `main`

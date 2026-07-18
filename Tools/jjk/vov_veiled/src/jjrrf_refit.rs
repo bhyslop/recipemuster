@@ -24,11 +24,12 @@
 //! no-op is ignorance, not freshness, and a remedy verb cannot afford to relabel
 //! one as the other.
 //!
-//! Deliberately not built here: the read-only "has trunk moved" probe that
-//! `jjx_open`, notch, and wrap need in order to *warn* ahead of running refit.
-//! Under this module's ruling that probe is cheap — billet behind
-//! `origin/<trunk>`, a local ancestry check after any glean — but its consumers
-//! are the dispatch spine's, which does not exist yet.
+//! The read-only "has trunk moved" probe that warns ahead of running refit
+//! lives in the farrier itself (`jjrfr_outstripped`), not here — billet behind
+//! `origin/<trunk>`, a local ancestry check after any glean. The dispatch
+//! board surfaces it via `jjrds_staleness_notice` (dispatch spine), and
+//! `jjx_open` leads its own report with the same notice
+//! (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`); notch and wrap do not yet.
 
 use crate::jjrfr_farrier::{
     jjrfr_FarrierBillet,

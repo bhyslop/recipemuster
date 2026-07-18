@@ -18,8 +18,8 @@ would push.
 NOTE: *Gate ownership.* Essai gates on the maintainer tree and the base only.
 The
 {rbth_quarantine}
-gates — anonymous-404 and freshness — belong to
-{rbth_ostend}:
+gates — anonymous-404 and freshness — belong to the
+{rbth_docimasy}:
 a lap involves no quarantine at all.
 
 NOTE: *A finding means re-cut, never patch forward.* A red assay abandons the
@@ -35,7 +35,7 @@ exists to catch.
 the working tree clean and fully pushed
 .. {rbbc_require}
 the base remote `ENGROSSMENT_UPSTREAM` configured with its push side neutered
-to the fixed sentinel the expede worker asserts (the read-only-base law of the
+to the fixed sentinel the cut asserts (the read-only-base law of the
 cosmology's structural-incapacity section)
 .. {rbbc_fatal}
 on either deficit — a lap never proceeds from a dirty tree or a push-capable
@@ -45,27 +45,33 @@ base
 . *Pre-cut assays, on the maintainer tree*:
 .. run the reveille suite — the maintainer tree must be green before it is
 worth cutting
-.. run the loupe and perambulation fixtures — the two assays that read the
-veiled trees, meaningful only here (in the candidate they are red by
-construction)
+.. run the loupe fixture — the assay that reads the veiled trees, meaningful
+only here (in the candidate it is red by construction);
+the perambulation's totality gate is not a fixture but the cut's own first
+refusal, in-process (step 3)
 .. {rbbc_fatal}
 on any red: repair on the maintainer tree first
 
 //axhos_step
 . *Cut the
 {rbth_candidate}*
-via the expede worker:
+— the absorbed cut, in-process (the cosmology's single-matcher section):
 .. dispose of any prior candidate at the fixed conventional location by
 retire-aside — a rename to a timestamped sibling, never a delete (the
 dispose-by-rename discipline the
 {rbth_rig}
 proves, applied to the candidate)
-.. invoke expede against the fixed conventional candidate location; expede's
-own refusals (clean tree, total perambulation, consumer-template transposition
-byte-assert, single-commit assert, candidate-delta sweep, zero-remotes assert)
-are relied on, never re-implemented
+.. cut into the fixed conventional candidate location: clone the public base,
+survey its whole object graph as the base inventory, sever the origin, open
+the sole candidate branch, materialize the shipped paths from the committed
+bytes, run the candidate's own sterilize (the one subprocess — it must be the
+candidate's copy), transpose the consumer context, and commit once
+.. the cut's refusals — clean tree, total perambulation (no unjudged tracked
+path, no dead row), base identity and neutered push side, consumer-template
+transposition byte-assert, single-commit assert, fatal candidate-delta sweep,
+zero-remotes assert — are the hierophant's own, judged by the one matcher
 .. {rbbc_require}
-expede's verdict: one commit atop the base on `POSTULANT_LOCAL`, the base
+the cut's verdict: one commit atop the base on `POSTULANT_LOCAL`, the base
 inventory of already-disclosed withheld history surfaced for acknowledgment,
 zero remotes
 
@@ -121,7 +127,8 @@ that is bit-for-bit what a subsequent reveal would push.
 A
 {rbth_lap}
 that surfaces a finding loops — repair, re-cut, re-prove; a lap that runs dry
-hands the standing candidate to
-{rbth_ostend}.
+hands the standing candidate to the
+{rbth_docimasy}
+— the reveal's proving act.
 
 // eof

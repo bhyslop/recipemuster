@@ -1,8 +1,9 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAO",
+  "jjgrn_next_pace_seed": "CAAAX",
   "jjgrn_heat_order": [
     "₣B5",
+    "₣B3",
     "₣B6",
     "₣B4",
     "₣B0",
@@ -33,7 +34,6 @@
     "₣BL",
     "₣Ba",
     "₣B2",
-    "₣B3",
     "₣B4"
   ],
   "jjgrn_heats": {
@@ -3672,7 +3672,8 @@
               "jjgtn_silks": "carry-out-release",
               "jjgtn_basis": "338a347"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢B0AAC": {
           "jjgpn_tacks": [
@@ -4027,15 +4028,14 @@
         "₢B0AAN": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1817",
+              "jjgtn_ts": "260718-1035",
               "jjgtn_state": "jjgte_bridled",
               "jjgtn_tier": "jjgde_fable",
-              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Release-ceremony cycle: laps iterated to dry in the reversible tier, then the reveal's public acts once, by hand.",
                 "",
-                "## Cinched (repair-lap doctrine, paddock 260717; instruments: hierophant ₣B6)",
+                "## Cinched (repair-lap doctrine, paddock 260717; instruments: hierophant ₣B6; cut-absorption re-ruling 260718)",
                 "The repair cycle runs via the hierophant's essai until proven:",
                 "re-cut atop live public main, coldwalk the local candidate in the guarded rig, disposition the findings, repeat until a lap runs dry.",
                 "No gauntlet during laps; the reveal (ostend) carries it, after the candidate stands on the private quarantine (operator ruling).",
@@ -4044,8 +4044,10 @@
                 "its depth is the mount's judgment — at minimum the onboarding beats the repair findings touched, the full four-beat walk belonging to the operator's greenfield walk, not this gate.",
                 "The first-delivery exception still governs — promotion precedes the operator walk.",
                 "RELEASE.md still narrates the pre-260715 single-pass shape until the closeout amends it: the paddock cinches govern; do not follow its step-8 ordering or its restart-from-step-2 failure text during laps.",
-                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination (with any lap fix it routed) landed in the maintainer tree; essai and ostend stand (₣B6).",
-                "Fallback if the hierophant is not ready when laps must run: /rbk-expede plus the bash harbinger, hand-driven, same doctrine.",
+                "Precondition: the fix paces (rbob rename, onboarding handbook repairs, payor-track recarve) and the leak-status determination (with any lap fix it routed) landed in the maintainer tree; essai with its absorbed Rust cut, and ostend, stand (₣B6).",
+                "There is no bash-cut fallback (₣B6 cut-absorption re-ruling, 260718): /rbk-expede and the bash expede retired with the absorbing pace —",
+                "if a lap is blocked by a hierophant defect, the repair lands in the hierophant crate;",
+                "only the bash harbinger remains hand-drivable as the rig fallback until its own absorption.",
                 "",
                 "## Done when",
                 "The repaired candidate walked dry under essai laps;",
@@ -4054,9 +4056,10 @@
                 "the operator's greenfield walk unblocked."
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
-              "jjgtn_basis": "f24c845"
+              "jjgtn_basis": "15be2f2"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 3
         },
         "₢B0AAO": {
           "jjgpn_tacks": [
@@ -4086,7 +4089,7 @@
         "₢CAAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1751",
+              "jjgtn_ts": "260718-1035",
               "jjgtn_state": "jjgte_bridled",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
@@ -4094,22 +4097,28 @@
                 "Bounded investigation with a ruling — read, determine, route; build nothing.",
                 "",
                 "## Docket",
-                "Settle whether the withheld-path literals in shipped theurge source are a live disclosure in a real candidate or latent:",
-                "rbtdrq_perambulation.rs names the perambulation script path and a veiled spec path as literals (grep \"vov_veiled\" Tools/rbk/rbtd/src/ for the current census),",
-                "and loupe harvests its needle set from veiled trees that no longer stand in a stripped candidate, so it may pass vacuously.",
-                "Read loupe's harvest logic and pyx's candidate scan coverage to determine whether any gate would catch these in a candidate; confirm against the promoted public tree.",
-                "If live and repair-worthy: the fix is delivered-bytes-bearing and joins this heat's lap fixes — operator routes it.",
+                "Settle whether loupe's veiled-tree needle harvest leaves a live disclosure or a vacuous pass in a real candidate:",
+                "loupe harvests its needle set from veiled trees that no longer stand in a stripped candidate, so it may pass without testing anything —",
+                "read the harvest logic and pyx's candidate scan coverage to determine whether any gate actually guards the candidate, and confirm against the promoted public tree.",
+                "The perambulation half of the original question is moot by removal:",
+                "the cut absorption (₣B6) deletes rbtdrq_perambulation.rs and the bash census, so those literals no longer ship —",
+                "verify the deletion landed rather than re-investigating them.",
+                "If a live and repair-worthy deficit remains: the fix is delivered-bytes-bearing and joins this heat's lap fixes — operator routes it.",
                 "If latent or accepted: record the reason; the r02 release-machinery reassessment pace (₣B2) carries the durable disposition.",
-                "Context: the narrowing grep and the unresolved liveness question are banked in that ₣B2 pace's docket — this pace pulls only the determination forward, because every remaining lap re-discloses these bytes.",
                 "",
                 "## Done when",
-                "A written determination — live versus latent, caught versus uncaught, with the code paths read —",
+                "A written determination for loupe — live versus latent, caught versus uncaught, with the code paths read —",
+                "plus confirmation the perambulation literals left the shipped tree;",
                 "and an operator routing: a lap fix slated, or a decline recorded."
               ],
               "jjgtn_silks": "perambulation-leak-status",
-              "jjgtn_basis": "c5bacad"
+              "jjgtn_basis": "a8a3917"
             }
-          ]
+          ],
+          "jjgpn_dictation": "Groom B2; I'm wondering if we ought to pull forward a veiled rust program to absorb basically all the marshal steps as well as this careful dance to prepare a release candidate. [...] All right, drop the B2 angle. [...] go",
+          "jjgpn_precis": "The B2 pull-forward was declined, but its one release-relevant fragment carves out: whether shipped theurge source leaking withheld path literals is a live disclosure r01's laps keep re-shipping. This pace settles liveness before the terminal reveal, feeding a lap fix if live and the r02 reassessment if not.",
+          "jjgpn_slated": "260717-1751",
+          "jjgpn_redocket_count": 1
         }
       }
     },
@@ -4350,33 +4359,39 @@
         "₢B2AAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0824",
+              "jjgtn_ts": "260718-1035",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Investigative reassessment — confirm the problem is real and the fix is sound before building anything.",
+                "Investigative reassessment — confirm the residual problem is real and the fix is sound before building anything.",
                 "",
                 "## Context",
-                "Discussion 2026-07-15 (opus): the operator is unhappy with the sophistication of RELEASE.md, `/rbk-expede`, and `rblm_expede.sh`.",
-                "Two dissatisfactions surfaced: (1) release orchestration is a stochastic LLM-driven slash command where deterministic Rust would fit; (2) the shipped `rbtd` (theurge) crate carries maintainer-only release assays as source — `loupe`, `damnatio`, `perambulation` are members of no suite yet ship under `Tools/rbk/`.",
-                "Narrowed by grep: `damnatio.rs` is clean (prose only); the one file naming withheld paths literally is `rbtdrq_perambulation.rs` (`Tools/rbk/rblm_perambulation.sh`, `Tools/rbk/vov_veiled/planted-spec.adoc`).",
-                "Left unresolved: whether that is a LIVE leak or vacuously-green-latent — `loupe` harvests its needle set from veiled trees that no longer stand in the stripped candidate, so it may pass through uncaught, or `pyx`'s candidate scan may already cover it. Settling this needs reading loupe's harvest logic and the candidate stripped-tree coverage, not grep.",
+                "Discussion 2026-07-15 (opus): the operator was unhappy with the sophistication of RELEASE.md, /rbk-expede, and rblm_expede.sh —",
+                "release orchestration stochastic where deterministic Rust would fit,",
+                "and maintainer-only release assays shipping as source in the delivered rbtd crate (loupe, damnatio, perambulation — members of no suite).",
+                "Largely superseded by events: the hierophant heat (₣B6) built the veiled Rust crate this docket once proposed as \"Approach A\",",
+                "and its cut-absorption re-ruling (260718) pulled the expede/perambulation absorption forward —",
+                "the cut is deterministic Rust, the perambulation fixture and bash modules retired, /rbk-expede gone.",
+                "What remains of the original concern: loupe and damnatio are still no-suite maintainer assays shipping as source in delivered rbtd.",
                 "",
-                "Approach A (proposed, unratified): a NEW veiled RB rust crate under `Tools/rbk/vov_veiled/` — withheld by directory construction (the veil boundary is a directory boundary; the perambulation withholds `Tools/*/vov_veiled/` wholesale, so nothing under it can leak by a forgotten row). It hosts BOTH the deterministic expede orchestration (retiring the stochastic slash-command sophistication) AND the maintainer-only no-suite assays lifted out of shipped `rbtd`. Layering: the veiled crate DEPENDS ON the shipped `rbtd` harness (reuses its fixture types / band codes) — veiled→shipped is fine, shipped→veiled stays forbidden. `/rbk-expede` collapses to invoke-and-report; `RELEASE.md` steps 6–9 stay human ceremony (correctly so).",
-                "",
-                "Considered and rejected: (i) hosting in the `vvr`/vok–vvk composition (the `vvx` binary) — wrong coupling: release machinery imports rbk, not Job Jockey, and vvr is slated to leave with the JJ split, so it would marry RB machinery to a departing host. (ii) An intermediate relocate-to-sibling-crate \"B\" step later undone by A — guaranteed rework, A subsumes it. (iii) cfg-gating the veiled assays inside shipped `rbtd` — that fragile per-file withholding IS the current leak; a veiled directory removes the class.",
-                "",
-                "Cost note: a standalone veiled crate needs its own thin binary + a withheld tabtarget (sibling to `rbtd`; `tt/rbw-M*` is already withheld) rather than borrowing vvr's dispatch — modest, and immune to the JJ split.",
+                "## Docket",
+                "Reassess the residue:",
+                "whether loupe and damnatio should lift out of shipped rbtd into the veiled hierophant crate",
+                "(veiled→shipped dependency stays fine, shipped→veiled stays forbidden),",
+                "or stay shipped with a recorded reason;",
+                "pyx is a shipped suite member and must stay behind regardless.",
+                "Carry the durable disposition of the leak-status determination the release heat produced",
+                "(its loupe finding routes here — the perambulation-leak-status pace in ₣B0).",
                 "",
                 "## Done when",
-                "- Leak status settled: is `rbtdrq_perambulation.rs` (and loupe's needle constant) a live disclosure in a real candidate, or latent?",
-                "- Approach A re-judged given that finding — including that `pyx` is a shipped suite member and must stay behind, and the harness-coupling cost of a veiled crate depending on shipped `rbtd`.",
-                "- Outcome: either a concrete implementation pace is slated, or the issue is declined with a recorded reason."
+                "Loupe and damnatio each have a settled home — lifted via a slated implementation pace, or staying with a recorded reason —",
+                "and the leak-status disposition is recorded durably."
               ],
               "jjgtn_silks": "reassess-release-machinery-veiling",
-              "jjgtn_basis": "f31947e"
+              "jjgtn_basis": "acb4ef1"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢B2AAG": {
           "jjgpn_tacks": [
@@ -4443,15 +4458,22 @@
     "₣B3": {
       "jjghn_silks": "jjk-04-studbook-conversion",
       "jjghn_creation_time": "260714",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
+        "₢CAAAO",
+        "₢CAAAP",
+        "₢CAAAQ",
+        "₢CAAAR",
+        "₢CAAAS",
+        "₢CAAAT",
+        "₢CAAAU",
         "₢B3AAA"
       ],
       "jjghn_paces": {
         "₢B3AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260714-2033",
+              "jjgtn_ts": "260718-1008",
               "jjgtn_state": "jjgte_bridled",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_xhigh",
@@ -4483,9 +4505,231 @@
                 "  if none does, the new paddock records that the ladder ends there."
               ],
               "jjgtn_silks": "cut-the-footprint-heat",
-              "jjgtn_basis": "4dbff91"
+              "jjgtn_basis": "590e570"
             }
           ]
+        },
+        "₢CAAAO": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1116",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_text": [
+                "Give `jjx_open` the staleness check the chapbook already renders:",
+                "after a glean, a billet (or hippodrome) sitting behind its sire's remote trunk",
+                "leads the open with the staleness warning and names refit as the remedy.",
+                "Today the warn fires only from the dispatch board,",
+                "so a session re-entering an existing billet is never alerted.",
+                "The probe is cheap (a local ancestry check after a glean) and rides identify-at-open",
+                "(JJSVF officium-open composition).",
+                "Sources: ₣B3 paddock carry (Finding B, WARN-AT-OPEN seam); JJSAC Act II's beat.",
+                "",
+                "## Cinched",
+                "- Detect and alert, never auto-run (the advice-not-automatic cinch, 260714 carry).",
+                "",
+                "## Done when",
+                "A session re-entering an existing stale billet is warned at open — not only from",
+                "the dispatch board — and the warning names refit;",
+                "tests cover both the stale and fresh paths."
+              ],
+              "jjgtn_silks": "warn-at-open-staleness",
+              "jjgtn_basis": "7161038"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces, the paddock's entry gate having been sighted holding.\nThis pace lands the WARN-AT-OPEN conversion-scope seam owed by the Finding B carry.",
+          "jjgpn_slated": "260718-1000"
+        },
+        "₢CAAAP": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1351",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_text": [
+                "The refit engine (`jjrrf_refit`) is built and tested but nothing invokes it:",
+                "the staleness warning's advice names refit, and no operator door exists.",
+                "Cut the door — the operator-invocable surface that runs the engine —",
+                "its form a mount-time decision.",
+                "Also correct the module's stale consumer comment",
+                "(\"the dispatch spine's consumers, which does not exist yet\" — the spine exists now).",
+                "Source: ₣B3 paddock carry (Finding B, refit-door item);",
+                "the full refit sequence is the stale-trunk-resync sibling tale already named deferred in JJSAC.",
+                "",
+                "## Done when",
+                "The remedy the staleness warning names is operator-invocable and exercised by a test;",
+                "the stale module comment is gone."
+              ],
+              "jjgtn_silks": "refit-operator-door",
+              "jjgtn_basis": "680b53b"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace closes the refit-engine-without-a-door gap carried from the ₣Br rehearsal findings.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAQ": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
+              "jjgtn_text": [
+                "Complete the record-read repoint so ONE flip converts every reader.",
+                "The jjx surface already reads gallops-over-studbook behind",
+                "`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (built and tested, awaiting the cutover's flip),",
+                "but the dispatch spine's own target-resolution read (`jjrds_plan`)",
+                "still loads the hippodrome's in-repo gallops directly,",
+                "while the pedigree it reads beside it already comes from the studbook.",
+                "Repoint that second reader behind the same seam,",
+                "and settle currency-at-read — when a session gleans its local studbook clone.",
+                "Source: ₣B3 paddock carry (Finding B, RECORD-READ REPOINT: two readers, not one;",
+                "currency-at-read named as the cutover's to settle).",
+                "",
+                "## Done when",
+                "With the seam enabled in a test, both readers resolve from the studbook",
+                "and neither touches the in-repo gallops;",
+                "the currency-at-read policy is settled and asserted by a test."
+              ],
+              "jjgtn_silks": "repoint-spine-reader",
+              "jjgtn_basis": "c988913"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace finishes the RECORD-READ REPOINT seam: the dispatch spine's second reader\nmust ride the same enablement seam as the jjx surface before the ceremony can flip once.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAR": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_text": [
+                "Stage everything the cutover afternoon consumes, so the ceremony only executes.",
+                "Three parts, all ahead of the ceremony:",
+                "",
+                "- Operator ruling: reuse the standing scratch studbook additively,",
+                "  or recreate the remote for a clean slate —",
+                "  the 260713 disposable-scaffolding ruling deliberately forecloses neither.",
+                "- Founding seed: the import must seed the pedigrees file beside the gallops —",
+                "  the build heat's founding ceremony was handed a one-file seed,",
+                "  and a station without pedigrees cannot dispatch (260713 founding-seed gap;",
+                "  the gap is in the seed, never in the ceremony).",
+                "- Multiproject import discipline proven: one lineage;",
+                "  the importer detects and refuses firemark collisions (JJSAS \"Founding and cutover\").",
+                "",
+                "## Done when",
+                "The reuse-or-recreate ruling is recorded,",
+                "a complete founding seed exists (gallops and pedigrees),",
+                "and the importer's collision refusal is demonstrated."
+              ],
+              "jjgtn_silks": "stage-founding-seed",
+              "jjgtn_basis": "54c5164"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace stages the founding inputs — the scratch-instance ruling, the two-file seed,\nand the collision-refusal proof — so the sole-operator cutover afternoon executes without\ndiscovery.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAS": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_xhigh",
+              "jjgtn_text": [
+                "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
+                "this docket points at it and does not restate the ceremony.",
+                "Sole-operator, one afternoon: quiesce sessions, final-sync clones,",
+                "founding import (live state only — racing and stabled heats, paddocks, dockets),",
+                "switch every install together —",
+                "flip the enablement seams (`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`,",
+                "`JJRM_OFFICIUM_STUDBOOK_ENABLED`),",
+                "and tombstone the old in-repo gallops so old binaries fail loud, never silently",
+                "resurrect (`JJr_` rivet treatment, demolition condition attached).",
+                "The tombstone's schema-impact determination rides claude-jjk-bhyslop §E/§F and JJSCRP.",
+                "Anticipate the MCP first-contact trust prompt in fresh billets (Finding C) —",
+                "harness behavior to expect at the Palisade, never a fault to fix.",
+                "",
+                "## Done when",
+                "Every install reads and writes heat/pace state through the studbook alone,",
+                "both readers repointed, officium exchange living in the studbook clone,",
+                "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
+              ],
+              "jjgtn_silks": "execute-cutover-ceremony",
+              "jjgtn_basis": "084a12f"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony itself — the one-afternoon full cutover JJSAS specifies,\nmade executable by the seam, door, and founding-stage paces slated before it.",
+          "jjgpn_slated": "260718-1001"
+        },
+        "₢CAAAT": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1012",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_text": [
+                "Complete the vanilla-hippodrome premise: de-insert JJK from consumer repos —",
+                "CLAUDE.md includes, `.claude/jjm`, MCP config —",
+                "context provisioning having moved to the dispatch layer",
+                "(JJSAS \"Founding and cutover\"; the same ceremony performs this sweep).",
+                "",
+                "## Cinched",
+                "- HAZARD (260709 carry, restated at the ₣B3 cut): the host-separated",
+                "  rough-backfill chat store in the work repo is the sole copy of off-machine",
+                "  chat history — the sweep must not flatten, migrate, or discard it.",
+                "- The sweep leaves the gallops tombstone standing: old binaries must still",
+                "  fail loud on the marker the ceremony placed, so de-inserting `.claude/jjm`",
+                "  must not delete it — reconcile JJSAS's de-insertion and tombstone clauses",
+                "  at mount, and record the reconciliation where the ceremony's steps live.",
+                "",
+                "## Done when",
+                "Consumer repos carry no JJK insertions beyond the standing tombstone,",
+                "sessions still dispatch and mount through the studbook path afterward,",
+                "and the chat store stands untouched."
+              ],
+              "jjgtn_silks": "deinsert-consumer-repos",
+              "jjgtn_basis": "7475a25"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony's de-insertion half — consumer repos go vanilla —\ncarrying the chat-store hazard note as a hard boundary on the sweep.",
+          "jjgpn_slated": "260718-1002",
+          "jjgpn_redocket_count": 1
+        },
+        "₢CAAAU": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_text": [
+                "Harden the sheaf family per JJSAS \"Founding and cutover\":",
+                "every JJSV* lintel and cartouche flips `axd_executory` → `axd_normative`",
+                "(the AXLA judgment act — the work product now enacts the content),",
+                "the registry descriptors follow,",
+                "and the Revision Control region's incumbent sentence",
+                "(\"the in-repo gallops remains the live mechanism\") retires with the old store.",
+                "Disposition of JJSAS's own executed ceremony content is a mount-time judgment",
+                "under MCM aspirant doctrine — decide, or surface for the operator.",
+                "",
+                "## Done when",
+                "The JJSV* family reads normative — no lintel, cartouche, or registry descriptor",
+                "still says executory — and the incumbent sentence is gone."
+              ],
+              "jjgtn_silks": "harden-sheaf-normative",
+              "jjgtn_basis": "c8313e7"
+            }
+          ],
+          "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
+          "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the rung's spec closure: the JJSV* family stops describing a future\nand starts enacting the live mechanism, completing the rung's done-line.",
+          "jjgpn_slated": "260718-1002"
         }
       }
     },
@@ -4496,14 +4740,16 @@
       "jjghn_order": [
         "₢B4AAA",
         "₢B4AAB",
-        "₢CAAAG"
+        "₢CAAAG",
+        "₢CAAAV"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-1100",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1723",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Context-wording fix against an observed agent failure mode; the diagnosis is banked here, the repair is a mount-time decision — do not pre-plan it.",
@@ -4519,15 +4765,16 @@
                 "The interdictum context wording is amended so a future agent reads gathering-context-to-recommend around a fired interdictum as itself the prohibited workaround, and halts at the token — reporting it verbatim and doing nothing further unless directed — rather than treating read-only reads as an exempt route."
               ],
               "jjgtn_silks": "interdictum-halt-not-workaround",
-              "jjgtn_basis": "04f2d28"
+              "jjgtn_basis": "356d385"
             }
           ]
         },
         "₢B4AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-1120",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1732",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_haiku",
               "jjgtn_text": [
                 "## Docket",
                 "Move `rbm-abstract-drawio.svg` from the repo root into `diagrams/` (`git mv`, preserving history).",
@@ -4541,15 +4788,16 @@
                 "a repo-wide grep for the old root-relative reference outside `.claude/jjm/retired/` is clean."
               ],
               "jjgtn_silks": "relocate-abstract-diagram-svg",
-              "jjgtn_basis": "ad88bb0"
+              "jjgtn_basis": "ad408dd"
             }
           ]
         },
         "₢CAAAG": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0854",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1740",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Doc-truth reconciliation — small, but it is the identity contract every agent obeys.",
@@ -4569,12 +4817,47 @@
                 "and its examples show real current shapes."
               ],
               "jjgtn_silks": "coronet-doc-gestalt-drift",
-              "jjgtn_basis": "c1da6df"
+              "jjgtn_basis": "424bbeb"
             }
           ],
           "jjgpn_dictation": "slate a pace in B4 to address this spook please, we don't have time now",
           "jjgpn_precis": "Wrap-time spook from the ₣B6 sheaf-authoring session, deferred to a pace: the JJK core context describes coronets as firemark-plus-three-characters, but live coronets carry five-character suffixes across three inconsistent renderings, forcing the agent to guess the jjx_record wire form; reconcile the context doc's identity contract with the actual pace-id gestalt.",
           "jjgpn_slated": "260718-0854"
+        },
+        "₢CAAAV": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1717",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
+              "jjgtn_text": [
+                "## Character",
+                "Structural fix that deletes a bug class — a JJK-crate change touching the gallops on-disk shape and the one live store. Lands with judgment and a quiescent store, not mechanically.",
+                "",
+                "## The defect",
+                "`jjx_list` (jjrmu_muster.rs) renders a heat twice when `gallops.heat_order` (a dup-tolerant Vec) holds a firemark more than once while `gallops.heats` (a keyed BTreeMap) holds it once — both order slots resolve to the same heat, so the rows are byte-identical.",
+                "Observed 260718: ₣B4 itself listed twice, racing 0/3.",
+                "`jjx_validate` passes it clean: `jjrg_validate` (jjrv_validate.rs) enforces the per-heat `order`/`paces` twin invariant (Rule 5 — no dups, key-sets equal) but has no top-level counterpart for `heat_order`/`heats`.",
+                "Fingerprint of a merge convergence concatenating `heat_order`.",
+                "",
+                "## Done when",
+                "The top-level `heat_order`/`heats` divergence class is gone: no heat can render twice in `jjx_list`, and a duplicate or `heats`-inconsistent `heat_order` can no longer pass validate clean — with a test covering the new invariant (mirroring how Rule 5 / the pure appraiser are exercised).",
+                "Preferred shape: eliminate `heat_order` as a separate divergeable structure — collapse to one insertion-ordered keyed map — which also auto-dedups the store on migration; the validate Rule-5 twin is the fallback if the collapse proves messy at mount.",
+                "The one live store ends with ₣B4 appearing once; JJK tests (tt/vow-t) green.",
+                "",
+                "## Cinched",
+                "- Single gallops on disk → migrate/repair in place, NO reprieve episode (operator ruling 260718); the §E schema-change branch-delivery does not apply.",
+                "- MOUNT PRECONDITION: close every other Claude officium (chat) first — the store is mutated (migration and/or dup repair) and a concurrent officium write would re-diverge or corrupt it.",
+                "- Scope is the top-level pair only; the per-heat `order`/`paces` twin stays (already Rule-5 guarded). Symmetry there is a separate pace if wanted."
+              ],
+              "jjgtn_silks": "heat-order-divergence-fix",
+              "jjgtn_basis": "b81b300"
+            }
+          ],
+          "jjgpn_dictation": "\"Would it be simpler to just alter the data structure to not allow duplicates?\"\n\n\"WE don't need reprive episodes because there is only one gallops for now. I'd prefer you slate a single pace to deal with this, and flag clearly that when we mount it, we need to close other chats. Proceed if this makes sense, else raise issues.\"",
+          "jjgpn_precis": "Operator chose the structural fix over a mere validation guard, and cleared the reprieve blocker by ruling that a single on-disk gallops lets the schema change be applied directly. Wants it as one pace, mounted only with all other chats closed so the store migration/repair is safe from concurrent officium writes.",
+          "jjgpn_slated": "260718-1711"
         }
       }
     },
@@ -4785,6 +5068,7 @@
       "jjghn_order": [
         "₢CAAAF",
         "₢CAAAA",
+        "₢CAAAW",
         "₢CAAAC",
         "₢CAAAB",
         "₢CAAAD"
@@ -4793,8 +5077,8 @@
         "₢CAAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1006",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -4818,50 +5102,62 @@
                 "fast-qualify and the perambulation fixture green (the crate and tabtarget wholly withheld)."
               ],
               "jjgtn_silks": "ensoul-crate-and-essai",
-              "jjgtn_basis": "3ba07a7"
+              "jjgtn_basis": "0420309"
             }
-          ]
+          ],
+          "jjgpn_dictation": "I don't clearly see how to feather a _partial_ /rbk-expede process with the 'tight loop' that creates the local place we could use as a basis for the new branch and coldwalk. Ought we split expede into two halves? I need to be able to remember this process clearly, mind you: it is no good otherwise. How do you propose we make it easy to iterate on coldwalk/issue-discovery/repair/repeat? [...] For the record, before we had theurge rust to run all the tests, I had a sophisticated and fragile bash system for that, and so much got so much cleaner when we used a real programming language.",
+          "jjgpn_precis": "The operator needs the repair-lap iteration to be one memorable act, and ruled (via the theurge precedent) that the orchestrator be deterministic Rust rather than sophisticated bash. This pace founds the veiled crate and delivers essai: the whole reversible lap — gates, expede cut, candidate battery, guarded local coldwalk rig — as a single command that never touches a remote.",
+          "jjgpn_slated": "260717-1748"
         },
         "₢CAAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1817",
+              "jjgtn_ts": "260718-1340",
               "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
-                "The irreversible ceremony's conductor — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
+                "Two conductors on either side of the irreversibility seam — machine asserts around human pushes; HCG guided-procedure craft in Rust.",
                 "",
                 "## Docket",
-                "Implement ostend, the once-per-cycle disclosure command, walking the operator through the reveal of the standing dry candidate — never re-cutting: the dry candidate is bit-for-bit what ships, and a terminal re-cut would break exactly that identity.",
-                "Stages, per the release heat's (₣B0) paddock cinches:",
-                "quarantine gates (anonymous-404, freshness) — relocated here from the lap path;",
-                "a candidate-freshness assert before any push — a re-cut of the maintainer tree's shipped bytes now would be tree-equal to the standing candidate; laps and reveal are decoupled in time, so delivered-bytes-bearing drift since the dry cut sends the cycle back to laps, never forward;",
-                "the preview push line handed to the operator, verified after;",
-                "the credential preflight — payor probe and a fresh sitting, since the gauntlet's build verbs are runway-gated — immediately before the gauntlet stage;",
-                "the gauntlet stage — marshal zero sequenced as a worker, then the gauntlet suite — placed after the candidate stands on the quarantine (operator ruling, 260717);",
-                "the file-list review, operator's own eyes, waited on;",
-                "the staging push line, with the before/after ls-remote assert that public main is untouched;",
-                "the promotion line (fast-forward only), with the tree-hash equality assert;",
-                "closing with the hand-off to the harbinger command for the confirmation coldwalk rig against promoted main.",
-                "Every push is typed by the operator; ostend performs every check and never holds a remote write.",
+                "Implement the reveal ceremony's two acts as two hierophant subcommands in the veiled crate:",
+                "docimasy (RBSHD, the reversible proving) and ostend (RBSHO, the irreversible showing), the cachet bridging them —",
+                "the sheaves are the stage authority; do not re-derive stages from RELEASE.md.",
+                "Mirror the worked conductor patterns: rbthdr_essai.rs (worker sequencing, tabtarget location, require-helpers), rbthdr_harbinger.rs (the thin command shape);",
+                "pushes are never held — show the exact push line, verify by remote read after.",
+                "The cachet is a small crate module: grant beside the candidate keyed by the candidate's tree hash (content per RBSHD's grant step), require and re-verify in ostend;",
+                "interior names (cachet file basename, module name) are hearting — mint at mount under the crate's rbthdr_ pattern.",
+                "Candidate freshness in both commands rides the one matcher: scratch re-cut via rbthdr_expede::cut into a disposable target, tree-compare, dispose — no second freshness mechanism.",
+                "Each command takes a rehearse mode proving its reversible stages against the real private quarantine:",
+                "docimasy rehearse skips credential preflight and the gauntlet and grants no cachet;",
+                "ostend rehearse tolerates an absent cachet with a loud warning and stops before the disclosure line.",
+                "Wire the CLI (rbthe_cli.sh), the zipper (rbthz), byte-identical trampolines in tt/, and the main.rs dispatch and usage lines;",
+                "update essai's closing hand-off line in rbthdr_essai.rs to match RBSHE's amended completion (the spec landed first).",
+                "Marshal zero requires the intended tree's basename argument;",
+                "the gauntlet stage prompts before spending, per RBSHD.",
                 "",
                 "## Done when",
-                "A full reveal can be conducted end to end from a standing candidate with every assert machine-performed and every push human-typed;",
-                "the reversible stages proven by rehearsal against the private quarantine (the gauntlet stage skippable in rehearsal);",
+                "Both commands conduct end to end per their sheaves with every assert machine-performed and every push human-typed;",
+                "the reversible stages proven by rehearsal against the private quarantine (gauntlet skipped, no cachet granted);",
+                "the cachet module proven by crate tests (grant, accept, tree-hash-mismatch refusal);",
                 "the two terminal pushes and their asserts proven in first real service — the release heat's reveal;",
-                "fast-qualify and the perambulation fixture green."
+                "fast-qualify and the hierophant's test battery green."
               ],
-              "jjgtn_silks": "ostend-guided-reveal",
-              "jjgtn_basis": "21e5381"
+              "jjgtn_silks": "docimasy-and-ostend-conductors",
+              "jjgtn_basis": "9c90872"
             }
-          ]
+          ],
+          "jjgpn_dictation": "I do _not_ want to be running gauntlet until we are on recipebottle-staging, for the record. [...] I do want more interesting names than lap/reveal/rig: we save simple names for frequently used places, and releases are exceedingly rare (though deserving of unambiguous terms).",
+          "jjgpn_precis": "The operator ruled the gauntlet runs only after the proven candidate stands on the private quarantine, and wanted the rare-but-real command name. Ostend conducts the one irreversible ceremony: quarantine gates, preview, gauntlet, eyes, staging push, promotion — every assert by machine, every push by the operator's hands.",
+          "jjgpn_slated": "260717-1749",
+          "jjgpn_redocket_count": 3
         },
         "₢CAAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-1219",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -4877,14 +5173,17 @@
                 "one shared rig implementation serves both essai and harbinger."
               ],
               "jjgtn_silks": "harbinger-command-absorption",
-              "jjgtn_basis": "585c7a5"
+              "jjgtn_basis": "2bc64f1"
             }
-          ]
+          ],
+          "jjgpn_dictation": "I muse that multiple of the marshal tabtargets could be folded in to this new application. How many commands ought this new app have? I think maybe 2 or 3 only. [...] hierophant is excellent, and I love your new phase names.",
+          "jjgpn_precis": "The operator capped the app at two-to-three commands and ratified harbinger as the third: the stranger rig against promoted main, summonable on its own — the existing minted word kept for the existing concept, its git surgery truly absorbed since it reads no shared authority.",
+          "jjgpn_slated": "260717-1749"
         },
         "₢CAAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1749",
+              "jjgtn_ts": "260718-1034",
               "jjgtn_state": "jjgte_bridled",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
@@ -4893,22 +5192,26 @@
                 "",
                 "## Docket",
                 "Precondition: essai has driven real repair laps and ostend a real reveal in the release heat (₣B0).",
-                "Retire the superseded instruments:",
-                "the /rbk-expede slash command;",
+                "Retire the superseded instruments the cut absorption did not already take:",
                 "the rbw-MH tabtarget and rblm_harbinger.sh module;",
                 "and any standalone marshal tabtargets nothing hand-runs anymore — feign is the likely candidate; judge zero and lustrate by remaining hand-use.",
-                "The proscription library and the expede constructor stay — shipped/worker status unchanged per the paddock.",
+                "The proscription library (rblm_lustrate.sh) and the candidate's sterilize stay — shipped status unchanged per the paddock;",
+                "the cut instruments (/rbk-expede, rbw-ME, rblm_expede.sh, rblm_perambulation.sh) are already gone, retired with the absorption pace.",
                 "Sweep references: the rbk conduct and acronym context files, the zipper enrollments, and any RELEASE.md residue the release heat's closeout amendment left behind.",
                 "",
                 "## Done when",
                 "No retired surface remains reachable;",
                 "context files and zipper agree;",
-                "fast-qualify and the perambulation fixture green."
+                "fast-qualify and the hierophant's test battery green."
               ],
               "jjgtn_silks": "retire-superseded-instruments",
-              "jjgtn_basis": "38a2283"
+              "jjgtn_basis": "9084f4d"
             }
-          ]
+          ],
+          "jjgpn_dictation": "Lets explore small changes first. I muse that multiple of the marshal tabtargets could be folded in to this new application.",
+          "jjgpn_precis": "Folding the marshal surface into the hierophant implies the old instruments eventually leave tt/ — but only after the app has earned their place through real release service. This pace is that earned retirement: sweep the superseded slash command, tabtargets, and module once essai and ostend have conducted a real lap and reveal.",
+          "jjgpn_slated": "260717-1749",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAF": {
           "jjgpn_tacks": [
@@ -4938,7 +5241,61 @@
               "jjgtn_silks": "author-hierophant-sheaf-family",
               "jjgtn_basis": "b40a639"
             }
-          ]
+          ],
+          "jjgpn_dictation": "groom B6; lets muse whether we have the correct shape.  I'm musing we ought to create a sheaf for hierophant and then one per operation that it supports?\n\nI'd frankly prefer spec-first, but either do it now, or chivvy a pace to do it right here right now.  Concerns?",
+          "jjgpn_precis": "Spec-first ruling: before implementing the hierophant, author its sheaf family — a cosmology top plus one operation sheaf per command (essai, ostend, harbinger) — transplanting ceremony authority out of the mortal ₣B0/₣B6 paddocks into a durable veiled RBS* home, chivvied to the front of ₣B6 and executed immediately in-session.",
+          "jjgpn_slated": "260718-0836"
+        },
+        "₢CAAAW": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-1137",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Character",
+                "Architectural absorption, security-critical:",
+                "the hierophant subsumes its own cut, re-authoring the leak-prevention that stands between the private tree and the public remote.",
+                "",
+                "## Docket",
+                "Amend the spec first — the sheaves are the single authority and must never trail the code:",
+                "re-author RBSHC's expede-as-worker ruling and worker roster, and RBSHE's cut step",
+                "(worker invocation, reliance on expede's own refusals, the loupe-and-perambulation pre-cut assay pair)",
+                "to the absorbed shape;",
+                "re-home the single-matcher rule there — today it lives only as comments in the two files this pace deletes",
+                "(rblm_perambulation.sh, rbtdrq_perambulation.rs) — inverted to name the Rust matcher as the one implementation.",
+                "Absorb expede and perambulation into the hierophant crate as Rust, called by essai in-process — no bash reach, no rbw-ME subprocess.",
+                "Port from rblm_perambulation.sh (the table, the longest-prefix matcher, the object-graph sweep) and rblm_expede.sh (clone the public base, materialize the shipped paths, invoke the candidate's own sterilize, transpose the consumer CLAUDE.md, single-commit, delta-sweep, zero-remotes) — preserve every gate and invariant they carry, the port fails if any is dropped.",
+                "The candidate's own rblm_sterilize.sh stays a subprocess — it must be the candidate's copy.",
+                "Port rbtdrq_perambulation.rs's proofs — the planted-leak sweep self-proof and the totality (unjudged / dead-row) check — into hierophant tests; they, not a green lap, are what prove the sweep (the 292-MiB catch: clean tip, leaking history).",
+                "Retire the absorbed standalone cut as this pace's deliberate act: rblm_expede.sh, rblm_perambulation.sh, the theurge fixture and its almanac registration, the rbw-ME enrollment and tabtarget (regenerate the build-generated files via the build), and /rbk-expede — essai supersedes them, and the single-matcher rule forbids a live bash cut beside the Rust one.",
+                "Sweep pyx's veil-scan exemption table: the rows naming rblm_perambulation.sh, rbtdrq_perambulation.rs, and rblm_expede.sh die with their files — a dead row in a security exemption table is silent residue;",
+                "judge at mount whether the absorbed matcher needs any new row (the crate is veiled by directory construction, so pyx never scans it — the expected answer is no).",
+                "",
+                "## Done when",
+                "The spec (RBSHC/RBSHE) reads the absorbed shape and homes the single-matcher rule;",
+                "the hierophant owns the cut in Rust;",
+                "no bash cut and no standalone rbw-ME or /rbk-expede remain;",
+                "essai runs a full green lap over the Rust cut;",
+                "the ported self-proof tests pass — a withheld path planted in candidate history is caught;",
+                "the delivered theurge no longer carries the perambulation fixture, its almanac row, or dead pyx exemption rows;",
+                "the consumer-facing surface is unchanged.",
+                "",
+                "## Cinched",
+                "One matcher only — Rust replaces bash, with no interim where both are live.",
+                "The candidate's own sterilize stays a subprocess.",
+                "The proscription (rblm_lustrate.sh) is NOT absorbed — it ships, and the candidate sources it.",
+                "Retiring the cut instruments is this pace's deliberate purpose, not a side effect — the paddock's 260718 cut-absorption re-ruling carves them out of the retire-after-service gate; the heat's closing pace still retires the remaining old instruments.",
+                "Spec precedes code: the RBSHC/RBSHE amendment is this pace's opening act, never a trailing cleanup.",
+                "Accepted risk (operator, 260718): the bash-cut fallback is surrendered before ostend stands — a Rust-cut defect during laps is repaired in the hierophant, with no bash path back."
+              ],
+              "jjgtn_silks": "hierophant-absorbs-the-cut",
+              "jjgtn_basis": "ac4e6c1"
+            }
+          ],
+          "jjgpn_dictation": "I am actively concerned that we ought to broaden the scope of this heat to pull all of perambulation into the hierophant- won't that make things simpler?\nTo be clear, I do think this requires changes to -expede, but I think it gets simpler, or maybe completely can be subsumed into hierophant as well... ?\nI do want you to go ahead and chivvy it, and I'll have fable critically review it.\nI definitely want to jump forward with this, not do too many baby steps.",
+          "jjgpn_precis": "Fully absorb expede + perambulation into the hierophant crate (Rust) so the conductor owns its own cut in-process rather than sequencing bash workers — the caller graph confirms one durable caller each (expede←essai, perambulation←expede), so it simplifies rather than complicates.\nOne bold pace, not incremental baby steps; proven by the ported planted-leak + totality self-proof tests rather than gated on real release service; retires the standalone bash cut as its stated purpose.\nOperator will have fable critically review this docket.",
+          "jjgpn_slated": "260718-1019",
+          "jjgpn_redocket_count": 1
         }
       }
     },

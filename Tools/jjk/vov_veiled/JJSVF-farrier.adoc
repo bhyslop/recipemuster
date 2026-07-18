@@ -306,14 +306,27 @@ exists to draw.
 That refusal is {jjdxo_officium} open's own; {jjdf_identify}'s `ForeignGround` decline
 propagates unchanged, and the composition adds no rejection kind of its own — the taxonomy
 below stays tree-shaped.
-Deliberately out of scope: the aspirant toothing's `sync_state`-from-last-fetch staleness
-line (JJSAF-farrier.adoc) is not part of this composition — billet resolution only.
++
+Drained (260718, ₢B3·CAAAO): the staleness lead now composes in too —
+`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`.
+It re-derives the same hippodrome/pedigree resolution `jjrds_plan` uses (dispatch sheaf), then
+reuses the dispatch board's own post-glean ancestry probe verbatim
+(`jjrds_staleness_notice`/`jjrfr_outstripped` — never `jjrfr_sync_state`, which compares a
+tree only against its own counterpart and cannot tell a billet its *trunk* has moved).
+Every resolution step is best-effort: foreign ground, no upstream key, an unfounded studbook,
+or an unrecorded sire all silently yield no notice rather than blocking open — the probe must
+never cry on ignorance, matching `jjrfr_outstripped`'s own contract.
+Superseded: the aspirant toothing's `sync_state`-from-last-fetch staleness line
+(JJSAF-farrier.adoc) named a different, weaker mechanism for this same row; this composition
+does not use it.
 +
 The billet co-locates with the officium's exchange in the {jjdb_studbook}'s untracked
 working area (JJSVS-studbook.adoc, "Officium exchange and record") once the enablement seam
 (`jjrm_mcp.rs`, `JJRM_OFFICIUM_STUDBOOK_ENABLED`) flips at the conversion heat; until then the
-composition runs — inert, tested — beside the frozen curia-resident path (JJSAS
-Founding-and-cutover).
+billet-resolution composition runs — inert, tested — beside the frozen curia-resident path
+(JJSAS Founding-and-cutover). The staleness lead above does not wait on that seam: it re-runs
+{jjdf_identify} and the pedigree lookup itself, rather than reusing
+`jjrm_resolve_officium_billet`'s (still-inert) result.
 
 == Rejection kinds
 

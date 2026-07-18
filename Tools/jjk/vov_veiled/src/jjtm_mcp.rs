@@ -29,6 +29,7 @@ use super::jjrm_mcp::{
     jjrm_resolve_officium_billet,
     jjrm_station_name,
     jjrm_studbook_exchange_dir,
+    zjjrm_open_staleness_notice,
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
     ZJJRM_SESSION_ABSENT,
@@ -36,8 +37,10 @@ use super::jjrm_mcp::{
 };
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
+use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
 use super::jjrfg_plaingit::jjrfg_PlainGit;
-use super::jjrfr_farrier::{jjrfr_RejectionKind, jjrfr_Seat};
+use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
+use super::jjrvb_blotter::JJDB_STUDBOOK_DIRNAME;
 use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
 use std::path::Path;
@@ -507,4 +510,110 @@ fn jjtm_studbook_exchange_dir_nests_under_scratch_dirname() {
 #[test]
 fn jjtm_officium_studbook_enablement_seam_defaults_off() {
     assert!(!JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium must stay inert until the conversion heat flips it");
+}
+
+// ===== Open's staleness lead (warn-at-open) =====
+
+/// A full infield: bare upstream, a hippodrome clone tracking it, and a
+/// studbook whose one pedigree records the upstream — the same shape
+/// `jjtds_spine.rs`'s `zjjtds_infield` builds for the dispatch board's own
+/// staleness tests, reproduced here since it is test-module-private there.
+fn zjjtm_staleness_infield(name: &str) -> (JjkTestDir, std::path::PathBuf) {
+    let infield = JjkTestDir::new(name);
+    let bare = infield.path().join("upstream");
+    std::fs::create_dir_all(&bare).unwrap();
+    zjjtm_git(&bare, &["init", "-q", "--bare", "-b", ZJJTM_TRUNK]);
+
+    let hippodrome = infield.path().join("hippodrome");
+    std::fs::create_dir_all(&hippodrome).unwrap();
+    zjjtm_init_local(&hippodrome);
+    zjjtm_commit_all(&hippodrome, "base.txt", "base", "init");
+    let bare_url = bare.to_string_lossy().into_owned();
+    zjjtm_git(&hippodrome, &["remote", "add", "origin", &bare_url]);
+    zjjtm_git(&hippodrome, &["push", "-q", "-u", "origin", ZJJTM_TRUNK]);
+
+    let studbook_root = infield.path().join(JJDB_STUDBOOK_DIRNAME);
+    std::fs::create_dir_all(&studbook_root).unwrap();
+    let body = serde_json::json!({
+        "jjop_sires": [{
+            "jjop_kind": "plain-git",
+            "jjop_addresses": [bare_url],
+            "jjop_trunk": ZJJTM_TRUNK,
+        }]
+    });
+    std::fs::write(studbook_root.join(JJRDS_PEDIGREES_REL_PATH), serde_json::to_vec_pretty(&body).unwrap()).unwrap();
+
+    (infield, hippodrome)
+}
+
+#[test]
+fn jjtm_open_staleness_notice_is_none_when_current() {
+    let (_infield, hippodrome) = zjjtm_staleness_infield("jjtm_open_staleness_current");
+    assert_eq!(zjjrm_open_staleness_notice(&jjrfg_PlainGit, &hippodrome), None);
+}
+
+#[test]
+fn jjtm_open_staleness_notice_names_refit_when_trunk_moved() {
+    let (infield, hippodrome) = zjjtm_staleness_infield("jjtm_open_staleness_stale");
+
+    // A second clone (another station) advances trunk and pushes past this
+    // hippodrome's back — the scenario Finding B describes: a tree re-entered
+    // for `jjx_open` without ever re-dispatching through the board.
+    let other = infield.path().join("other-station");
+    zjjtm_git(infield.path(), &["clone", "-q", &infield.path().join("upstream").to_string_lossy(), &other.to_string_lossy()]);
+    zjjtm_git(&other, &["config", "user.email", "jjtm@example.invalid"]);
+    zjjtm_git(&other, &["config", "user.name", "jjtm"]);
+    zjjtm_commit_all(&other, "b.txt", "moved", "trunk advances from elsewhere");
+    zjjtm_git(&other, &["push", "-q", "origin", ZJJTM_TRUNK]);
+
+    let notice = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &hippodrome);
+    assert!(
+        notice.as_deref().unwrap_or("").contains("refit"),
+        "a stale hippodrome must lead with a notice naming refit, got: {:?}",
+        notice
+    );
+}
+
+#[test]
+fn jjtm_open_staleness_notice_warns_on_billet_reentry_after_trunk_moves() {
+    // The Partition-seat path, and Finding B's exact motivating scenario: a
+    // billet born before trunk advanced, never re-dispatched, re-entered later
+    // by a plain `jjx_open`.
+    let (infield, hippodrome) = zjjtm_staleness_infield("jjtm_open_staleness_billet");
+    let billet_root = infield.path().join("jjqb_AAAAA");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("AAAAA".to_string()), &billet_root, ZJJTM_TRUNK)
+        .unwrap();
+
+    // Fresh: the billet just anchored at trunk's tip.
+    assert_eq!(zjjrm_open_staleness_notice(&jjrfg_PlainGit, &billet_root), None);
+
+    // Trunk advances from the hippodrome and is pushed; the billet itself is
+    // never touched again.
+    zjjtm_commit_all(&hippodrome, "b.txt", "moved", "trunk advances");
+    zjjtm_git(&hippodrome, &["push", "-q", "origin", ZJJTM_TRUNK]);
+
+    let notice = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &billet_root);
+    assert!(
+        notice.as_deref().unwrap_or("").contains("refit"),
+        "a session re-entering a stale billet must be warned, got: {:?}",
+        notice
+    );
+}
+
+#[test]
+fn jjtm_open_staleness_notice_is_none_when_studbook_unreadable() {
+    // No pedigree at all: a plain local repo, no studbook — the probe must
+    // degrade silently rather than block open.
+    let td = JjkTestDir::new("jjtm_open_staleness_unreadable");
+    zjjtm_init_local(td.path());
+    zjjtm_commit_all(td.path(), "a.txt", "hello", "init");
+    assert_eq!(zjjrm_open_staleness_notice(&jjrfg_PlainGit, td.path()), None);
+}
+
+#[test]
+fn jjtm_open_staleness_notice_is_none_on_foreign_ground() {
+    let td = JjkTestDir::new("jjtm_open_staleness_foreign");
+    // No git init — foreign ground.
+    assert_eq!(zjjrm_open_staleness_notice(&jjrfg_PlainGit, td.path()), None);
 }

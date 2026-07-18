@@ -43,7 +43,9 @@ use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_
 use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
 use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort};
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
-use crate::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_Rejection, jjrfr_Seat};
+use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_Rejection, jjrfr_Seat};
+use crate::jjrfg_plaingit::jjrfg_PlainGit;
+use crate::jjrrd_refit::jjrrd_run_refit;
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 /// The officia directory's fixed relative path — reused by the muck sweep's
@@ -68,6 +70,7 @@ const JJRM_CMD_NAME_OPEN: &str = "jjx_open";
 const JJRM_CMD_NAME_RECORD: &str = "jjx_record";
 const JJRM_CMD_NAME_LOG: &str = "jjx_log";
 const JJRM_CMD_NAME_VALIDATE: &str = "jjx_validate";
+const JJRM_CMD_NAME_REFIT: &str = "jjx_refit";
 const JJRM_CMD_NAME_LIST: &str = "jjx_list";
 const JJRM_CMD_NAME_ORIENT: &str = "jjx_orient";
 const JJRM_CMD_NAME_SHOW: &str = "jjx_show";
@@ -99,7 +102,7 @@ const JJRM_CMD_NAME_CHECK: &str = "jjx_check";
 // Complete registry of all commands
 const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_OPEN,
-    JJRM_CMD_NAME_RECORD, JJRM_CMD_NAME_LOG, JJRM_CMD_NAME_VALIDATE,
+    JJRM_CMD_NAME_RECORD, JJRM_CMD_NAME_LOG, JJRM_CMD_NAME_VALIDATE, JJRM_CMD_NAME_REFIT,
     JJRM_CMD_NAME_LIST, JJRM_CMD_NAME_ORIENT, JJRM_CMD_NAME_SHOW,
     JJRM_CMD_NAME_ARCHIVE, JJRM_CMD_NAME_CREATE, JJRM_CMD_NAME_ENROLL,
     JJRM_CMD_NAME_REORDER, JJRM_CMD_NAME_REDOCKET, JJRM_CMD_NAME_RELABEL,
@@ -362,6 +365,12 @@ pub struct jjrm_LogParams {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ValidateParams {}
 
+// jjx_refit takes no params — session-facing, the tree at the server's cwd is
+// the whole input (the no-cwd rule: the door captures cwd, jjrrd_run_refit
+// never reads the environment itself).
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_RefitParams {}
+
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_ListParams {
     pub status: Option<String>,
@@ -581,7 +590,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_refit, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -1953,6 +1962,43 @@ fn zjjrm_revert_managed(path: &str) {
     let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", path]).output();
 }
 
+/// Officium-open's staleness lead (JJSVD "Refit", JJSAC Act II): whether the
+/// tree at `cwd` — hippodrome or billet alike — sits behind its sire's trunk,
+/// and if so, the refit-naming notice text to lead the open with.
+///
+/// Composes over `jjdf_identify` (JJSVF "Toothing: officium open") to find the
+/// hippodrome and derive the pedigree lookup key exactly as `jjrds_plan` does,
+/// then reuses the dispatch board's own post-glean ancestry check verbatim
+/// (`jjrds_staleness_notice`/`jjrfr_outstripped`) rather than the weaker
+/// self-vs-own-upstream `jjrfr_sync_state`, which cannot tell a billet its
+/// *trunk* has moved (JJSVF `jjrfr_outstripped` doc).
+///
+/// Best-effort and non-gating, like the reprieve nag / retention monitum
+/// below: foreign ground, no upstream key, an unfounded studbook, or an
+/// unrecorded sire all silently yield no notice rather than blocking open —
+/// the probe must never cry on ignorance.
+pub(crate) fn zjjrm_open_staleness_notice<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
+    farrier: &F,
+    cwd: &Path,
+) -> Option<String> {
+    let identity = farrier.jjrfr_identify(cwd).ok()?;
+    let hippodrome_root = match &identity.seat {
+        jjrfr_Seat::Primary => identity.root.clone(),
+        jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
+    };
+    let infield_root = hippodrome_root.parent()?.to_path_buf();
+    let derived_key = identity.upstream_key.as_deref()?;
+    let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
+    let pedigree = crate::jjrds_spine::jjrds_pedigree_lookup(
+        &studbook,
+        derived_key,
+        crate::jjrds_spine::JJRDS_KIND_PLAIN_GIT,
+    )
+    .ok()?;
+    let _ = farrier.jjrfr_glean(&identity.root);
+    crate::jjrds_spine::jjrds_staleness_notice(farrier, &identity.root, &pedigree.trunk).ok()?
+}
+
 /// Handle jjx_open: create a new officium.
 ///
 /// `size_limit` is the convergence budget. 0 (the standing default) means no mutation — the
@@ -1963,6 +2009,23 @@ fn zjjrm_revert_managed(path: &str) {
 async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData> {
     let cn = JJRM_CMD_NAME_OPEN;
     let mut output = vvc::vvco_Output::buffer();
+
+    // cwd captured once, at the very top (the no-cwd rule's caller side) — feeds
+    // both the staleness lead below and the session-recall survey further down.
+    let cwd = match std::env::current_dir() {
+        Ok(p) => p,
+        Err(e) => {
+            return Ok(CallToolResult::error(vec![Content::text(
+                format!("{}: current_dir error: {}", cn, e),
+            )]));
+        }
+    };
+
+    // Staleness lead (JJSVD "Refit": "open leads its report with the staleness
+    // warning and names refit as the remedy"). Non-gating — see the helper.
+    if let Some(notice) = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &cwd) {
+        vvco_out!(output, "{}", notice);
+    }
 
     // Disk space guard — block before any state changes
     match crate::jjrdk_diskcheck::jjrdk_check_disk_space() {
@@ -2016,22 +2079,14 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
     // yet, so the label shows the bare officium handle until the first mount.
     zjjrm_refresh_emblem(&exchange, None);
 
-    // Session-recall survey + cwd. The Claude Code session UUID is an uncontrolled
-    // foreign signal exposed through several undocumented, drift-prone channels; the
-    // invitatory captures every known channel verbatim so the chat that produced this
-    // commit can be located (`git log --grep='session: '`) and resumed
-    // (`claude --resume <uuid>` from the recorded cwd). This is a redundancy survey,
-    // not a resolution — each channel records its value or a `-`/`(ambiguous)` sentinel,
-    // and capture never aborts the open. cwd is our own process state, so a current_dir
-    // failure (unlike a missing channel) still aborts.
-    let cwd = match std::env::current_dir() {
-        Ok(p) => p,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("{}: current_dir error: {}", cn, e),
-            )]));
-        }
-    };
+    // Session-recall survey (cwd already captured at the top). The Claude Code
+    // session UUID is an uncontrolled foreign signal exposed through several
+    // undocumented, drift-prone channels; the invitatory captures every known
+    // channel verbatim so the chat that produced this commit can be located
+    // (`git log --grep='session: '`) and resumed (`claude --resume <uuid>` from
+    // the recorded cwd). This is a redundancy survey, not a resolution — each
+    // channel records its value or a `-`/`(ambiguous)` sentinel, and capture
+    // never aborts the open.
     let mut body = zjjrm_session_survey(&cwd)
         .iter()
         .map(|(label, value)| format!("{}: {}", label, value))
@@ -2219,7 +2274,7 @@ pub(crate) enum zjjrm_GuardBucket {
     /// Per-command designation logic at the dispatch arm (orient, record, landing).
     Designation,
     /// Frontier-only: every docket-authoring and state-mutating verb, close,
-    /// validate, apostille, and the remote family.
+    /// validate, refit, apostille, and the remote family.
     Frontier,
 }
 
@@ -2487,6 +2542,14 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     size_limit: vvc::VVCG_SIZE_LIMIT,
                 }))
+            }
+            JJRM_CMD_NAME_REFIT => {
+                let _p = deser!(jjrm_RefitParams);
+                let cwd = match std::env::current_dir() {
+                    Ok(p) => p,
+                    Err(e) => return jjrm_result((1, format!("{}: current_dir error: {}", cmd, e))),
+                };
+                jjrm_result(jjrrd_run_refit(&jjrfg_PlainGit, &cwd))
             }
             JJRM_CMD_NAME_LIST => {
                 let p = deser!(jjrm_ListParams);

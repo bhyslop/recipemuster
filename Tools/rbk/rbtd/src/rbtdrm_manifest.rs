@@ -180,15 +180,6 @@ pub const RBTDRM_FIXTURE_LOUPE: &str = "loupe";
 /// against the maintainer's working tree. The release ceremony invokes it by name.
 pub const RBTDRM_FIXTURE_DAMNATIO: &str = "damnatio";
 
-/// perambulation — the ship/withhold judgment over every tracked path is TOTAL,
-/// and the object-graph sweep that enforces it catches a planted leak. Named for
-/// the manorial walking of the bounds: the act that fixes what lies within the
-/// delivered estate and what lies without, and which by its nature must close.
-/// A member of no suite, for loupe's reason: the delivered tree tracks only the
-/// shipped paths, so every withhold row would go dead in a consumer's hands. The
-/// maintainer's assay of the maintainer's tree — expede refuses to cut while it
-/// is red.
-pub const RBTDRM_FIXTURE_PERAMBULATION: &str = "perambulation";
 // Depot-lifecycle fixture (marshal-zero gate + ephemeral create→destroy arc).
 // Shares the freehold scheme with the durable fixtures; tears down only the
 // fresh leasehold it mints, never the standing freehold.

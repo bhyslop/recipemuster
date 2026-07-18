@@ -48,7 +48,10 @@ through the quarantine gates, preview, gauntlet, file-list review, one staging p
 the quarantine gate and the file-list review live in the reveal, not the lap.
 Iteration coldwalks are a distinct instrument from the final stranger proofs —
 the confirmation coldwalk (harbinger, against promoted main) follows promotion, and the operator walk runs against promoted public main.
-Until the hierophant stands, /rbk-expede and the bash harbinger remain the fallback instruments, hand-driven under the same doctrine.
+The cut is the hierophant's own in Rust (₣B6 cut-absorption re-ruling, 260718):
+/rbk-expede and the bash expede/perambulation retire with the absorbing pace, so laps carry no bash-cut fallback —
+a cut defect is repaired in the hierophant crate;
+the bash harbinger alone remains hand-drivable as the rig fallback until its own absorption.
 This heat races the moment the staging heat's (₣Bs) integrity probe closes green — it does not wait for that heat to close;
 the staging heat's residue runs as fill work across this heat's ceremony gaps and its nomination pace follows the release, by design.
 Post-promotion the staging branch is deleted — ceremony hygiene, recorded with the delivery pattern in the ceremony document.

@@ -30,10 +30,10 @@
 # THIS FILE STAYS BEHIND, and its tabtarget (tt/rbw-MH) with it. Harbinger is a
 # release-rig verb — it exists to shake down a delivery before real users arrive, and
 # a consumer holding a candidate has no delivery to shake down. It is withheld by the
-# perambulation exactly as expede is: the module by an explicit row, the tabtarget by
-# the tt/rbw-M stem. The delivered rblm_cli.sh's furnish sources this module only when
-# the command is rblm_harbinger, so a stripped tree that never carries it dies naming
-# what is missing rather than dangling on an absent function.
+# perambulation: the module by an explicit row, the tabtarget by the tt/rbw-M stem.
+# The delivered rblm_cli.sh's furnish sources this module only when the command is
+# rblm_harbinger, so a stripped tree that never carries it dies naming what is
+# missing rather than dangling on an absent function.
 #
 # HARBINGER PUSHES NOTHING, EVER. It clones over HTTPS (anonymous read of the public
 # repo), then severs the clone's origin and installs a pre-push hook that refuses every

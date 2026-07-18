@@ -191,7 +191,11 @@ pub trait jjrfr_FarrierCore {
     fn jjrfr_comb(&self, root: &Path) -> Result<jjrfr_CombReport, jjrfr_Rejection>;
 
     /// Ahead/behind vs. the remote, from the last `jjrfr_glean` — never blocks on
-    /// the network. Ambient at open and orient: the staleness warning's source.
+    /// the network. Aspirant source for a future orient-time staleness line
+    /// (JJSAF-farrier.adoc, "mount / orient"); open's own staleness warning is
+    /// `jjrfr_outstripped`, not this (JJSVF-farrier.adoc, "Toothing: officium
+    /// open" — sync_state compares a tree only against its own counterpart and
+    /// cannot tell a billet its *trunk* has moved).
     fn jjrfr_sync_state(&self, root: &Path) -> Result<jjrfr_SyncState, jjrfr_Rejection>;
 
     /// Take the counterfoil at the tree's current position. Ambient on record.

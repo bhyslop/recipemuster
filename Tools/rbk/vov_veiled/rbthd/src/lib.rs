@@ -18,11 +18,11 @@
 //
 // The hierophant conducts the delivery ceremony as the theurge conducts the
 // tests (RBSHC). It owns three commands split on the one load-bearing seam,
-// reversible vs irreversible: essai (the repair lap, built here), and — later
-// paces — ostend (the guided reveal) and harbinger (the stranger rig). This
-// crate is withheld from delivery by directory construction; it may therefore
-// cite the closed spec (RBSHE/RBSHC, rbth_ quoins) directly, which shipped
-// source may never do.
+// reversible vs irreversible: essai (the repair lap) and harbinger (the
+// stranger rig), built here, and — a later pace — ostend (the guided reveal).
+// This crate is withheld from delivery by directory construction; it may
+// therefore cite the closed spec (RBSHE/RBSHC/RBSHH, rbth_ quoins) directly,
+// which shipped source may never do.
 
 #![allow(non_camel_case_types)]
 #![deny(warnings)]
@@ -30,5 +30,11 @@
 pub mod rbthdr_log;
 pub mod rbthdr_run;
 pub mod rbthdr_repo;
+pub mod rbthdr_perambulation;
+pub mod rbthdr_expede;
 pub mod rbthdr_rig;
 pub mod rbthdr_essai;
+pub mod rbthdr_harbinger;
+
+#[cfg(test)]
+mod rbthdt_perambulation;

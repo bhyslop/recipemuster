@@ -21,13 +21,16 @@
 //! stirrup: pace-blind, parameterized (billet, tier, opening prompt);
 //! pace-coupling lives in the callers here.
 //!
-//! Inertness: nothing on the frozen path reaches this module. The doors are
-//! new opt-in surfaces (a station without a founded studbook meets the
-//! fair-faced studbook rejection at pedigree lookup), and the staleness
-//! surfacing composed here is NOT wired into the live jjx_open/notch/wrap
-//! paths — that wiring is the conversion heat's act, behind
-//! `JJRM_OFFICIUM_STUDBOOK_ENABLED` (jjrm_mcp.rs), which a guard test pins
-//! false.
+//! Inertness: nothing on the frozen path reaches this module's doors — they
+//! are new opt-in surfaces (a station without a founded studbook meets the
+//! fair-faced studbook rejection at pedigree lookup), and `jjrds_run`'s spine
+//! itself still runs without muck (above). The staleness surfacing composed
+//! here is no longer inert, though: `jjrds_staleness_notice` is wired into the
+//! live `jjx_open` path unconditionally (`zjjrm_open_staleness_notice`,
+//! jjrm_mcp.rs) — that wiring does not wait on
+//! `JJRM_OFFICIUM_STUDBOOK_ENABLED`, which gates only where the officium's own
+//! exchange directory lives, not this probe. Notch/wrap wiring remains
+//! unwired.
 
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrfr_farrier::{
@@ -270,9 +273,10 @@ JJ conduct core (dispatched session):\n\
 - If the mounted pace is bridled at a sub-frontier tier (haiku, sonnet): designee protocol — orient, work the docket, jjx_record, finish with jjx_landing; never wrap; stop and surface on any hole.\n\
 - Otherwise (unbridled, or bridled at your own frontier tier): full ceremony; never auto-wrap — ask the operator.\n";
 
-/// The staleness recommendation body — one text, led by the open and appended
-/// by notch and wrap while trunk has moved (JJSVD "Refit"). Names refit as the
-/// remedy; refit is ashlar, so the words here are operator-facing.
+/// The staleness recommendation body — one text (JJSVD "Refit"). `jjx_open`
+/// leads with it today (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`); notch
+/// and wrap are to append the same text once their own wiring lands. Names
+/// refit as the remedy; refit is ashlar, so the words here are operator-facing.
 pub const JJRDS_REFIT_RECOMMENDATION: &str =
     "trunk has moved: this billet is behind trunk's remote counterpart. Remedy: refit — merge trunk into the billet and push (never rebase).";
 
@@ -280,8 +284,11 @@ pub const JJRDS_REFIT_RECOMMENDATION: &str =
 /// leaves behind — billet behind trunk's remote counterpart, a local ancestry
 /// check after any glean, needing only the trunk name refit already takes.
 /// `None` means current (or nothing known to be ahead — the probe never cries
-/// on ignorance). NOT wired into the live jjx_open/notch/wrap paths: that
-/// wiring is the conversion heat's act behind `JJRM_OFFICIUM_STUDBOOK_ENABLED`.
+/// on ignorance). Wired into the live jjx_open path unconditionally
+/// (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`) — that wiring does not wait
+/// on `JJRM_OFFICIUM_STUDBOOK_ENABLED`, which gates only where the officium's
+/// own exchange directory lives, not this probe. Notch/wrap wiring remains
+/// unwired.
 pub fn jjrds_staleness_notice<F: jjrfr_FarrierBillet>(
     farrier: &F,
     billet_root: &Path,

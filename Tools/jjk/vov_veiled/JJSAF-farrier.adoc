@@ -57,9 +57,11 @@ The remaining compositions stay aspirant:
 |===
 |Toothing |Composition
 
-|*(officium open — not a spoken verb)* |Canon: drained (billet resolution only) — `identify`
-composes the station/hippodrome-or-billet/session billet (`JJSVF-farrier.adoc`, "Toothing:
-officium open"); the `sync_state` staleness line stays aspirant, not yet composed here
+|*(officium open — not a spoken verb)* |Canon: drained — `identify` composes the
+station/hippodrome-or-billet/session billet, and (260718, ₢B3·CAAAO) the staleness lead
+composes in too, via the dispatch board's own post-glean ancestry probe
+(`jjrds_staleness_notice`/`jjrfr_outstripped`), never the `sync_state` line named below — see
+`JJSVF-farrier.adoc`, "Toothing: officium open", for the full composition and why
 
 |mount / orient |studbook read (no lock) + `sync_state` staleness line
 

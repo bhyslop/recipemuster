@@ -51,6 +51,7 @@ pub mod jjrmu_muster;
 pub mod jjrnc_notch;
 pub mod jjrno_nominate;
 pub mod jjrpd_parade;
+pub mod jjrrd_refit;
 pub mod jjrrl_rail;
 pub mod jjrrn_rein;
 pub mod jjrrs_restring;
@@ -94,6 +95,9 @@ mod jjtsc_scout;
 
 #[cfg(test)]
 mod jjtfu_furlough;
+
+#[cfg(test)]
+mod jjtrd_refit;
 
 #[cfg(test)]
 mod jjtrl_rail;
