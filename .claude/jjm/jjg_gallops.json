@@ -3999,8 +3999,8 @@
         "₢B0AAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1055",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260717-1751",
+              "jjgtn_state": "jjgte_abandoned",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
@@ -4020,7 +4020,7 @@
                 "fast-qualify and the perambulation fixture green (the module and tabtarget stay withheld)."
               ],
               "jjgtn_silks": "harbinger-local-candidate-mode",
-              "jjgtn_basis": "bd07bf8"
+              "jjgtn_basis": "6240d19"
             }
           ]
         },
