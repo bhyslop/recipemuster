@@ -2,6 +2,7 @@
   "jjgrn_next_heat_seed": "B7",
   "jjgrn_next_pace_seed": "CAAAA",
   "jjgrn_heat_order": [
+    "₣B6",
     "₣B4",
     "₣B0",
     "₣Bs",
@@ -34,8 +35,7 @@
     "₣Ba",
     "₣B2",
     "₣B3",
-    "₣B4",
-    "₣B6"
+    "₣B4"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -4519,7 +4519,7 @@
     "₣B6": {
       "jjghn_silks": "rbk-09-ensoul-hierophant",
       "jjghn_creation_time": "260717",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [],
       "jjghn_paces": {}
     },
