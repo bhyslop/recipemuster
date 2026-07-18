@@ -9,7 +9,7 @@ harbinger — the stranger rig against promoted public main, summonable on its o
 The command seam is the ceremony's one load-bearing boundary: reversible versus irreversible.
 The app sequences proven workers; it absorbs orchestration, never authority.
 
-## Cinched (design discussion, 260717)
+## Cinched (design discussion, 260717; spec-first ruling, 260718)
 
 - The proscription stays homed in its shipped bash library —
   rblm_lustrate.sh ships because candidate-side damnatio must source it —
@@ -21,11 +21,15 @@ The app sequences proven workers; it absorbs orchestration, never authority.
   It carries its own withheld build tabtarget; crate directory, module prefix, and tabtarget names are minted at mount under the minting rules.
 - Public acts remain human-hands-only by structural incapacity: the hierophant never holds a push.
 - Marshal workers that read the proscription (zero, lustrate, feign) are sequenced, never reimplemented.
-- The harbinger module's git surgery (clone, sever, hook, walk branch, prompt) is truly absorbed — it reads no shared authority — one implementation serving both essai's rig stage and the harbinger command.
+- The harbinger module's git surgery (clone, sever, hook, walk branch, prompt) is truly absorbed — it reads no shared authority —
+  one implementation serving both essai's rig stage and the harbinger command.
 - Old instruments (/rbk-expede, the standalone marshal tabtargets) stand until the hierophant earns their retirement through real service in the release heat's laps;
   retirement is this heat's closing pace, never a side effect.
-- The ceremony itself — lap loop, gauntlet placement, disclosure rules — is cinched in the release heat's (₣B0) paddock, the single authority;
-  this heat implements it and does not restate it.
+- The ceremony and the hierophant's vocabulary are spec-homed (spec-first ruling, 260718, authored by this heat's opening pace):
+  the RBS0 Marshal Operations branch defines the rbth_ terms and includes the sheaf family —
+  RBSHC the cosmology, RBSHE/RBSHO/RBSHH the three operation sheaves — the single authority;
+  this heat implements the spec and does not restate it.
+  The release heat's (₣B0) paddock holds its rulings as provenance and points here too.
 
 ## Done when
 
