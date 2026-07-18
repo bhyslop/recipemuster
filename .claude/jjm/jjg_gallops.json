@@ -4532,8 +4532,9 @@
         "₢CAAAP": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1001",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260718-1008",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "The refit engine (`jjrrf_refit`) is built and tested but nothing invokes it:",
                 "the staleness warning's advice names refit, and no operator door exists.",
@@ -4549,7 +4550,7 @@
                 "the stale module comment is gone."
               ],
               "jjgtn_silks": "refit-operator-door",
-              "jjgtn_basis": "e32facb"
+              "jjgtn_basis": "ec8c26b"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
