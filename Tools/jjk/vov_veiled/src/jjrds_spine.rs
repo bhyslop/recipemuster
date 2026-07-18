@@ -273,9 +273,10 @@ JJ conduct core (dispatched session):\n\
 - If the mounted pace is bridled at a sub-frontier tier (haiku, sonnet): designee protocol — orient, work the docket, jjx_record, finish with jjx_landing; never wrap; stop and surface on any hole.\n\
 - Otherwise (unbridled, or bridled at your own frontier tier): full ceremony; never auto-wrap — ask the operator.\n";
 
-/// The staleness recommendation body — one text, led by the open and appended
-/// by notch and wrap while trunk has moved (JJSVD "Refit"). Names refit as the
-/// remedy; refit is ashlar, so the words here are operator-facing.
+/// The staleness recommendation body — one text (JJSVD "Refit"). `jjx_open`
+/// leads with it today (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`); notch
+/// and wrap are to append the same text once their own wiring lands. Names
+/// refit as the remedy; refit is ashlar, so the words here are operator-facing.
 pub const JJRDS_REFIT_RECOMMENDATION: &str =
     "trunk has moved: this billet is behind trunk's remote counterpart. Remedy: refit — merge trunk into the billet and push (never rebase).";
 
