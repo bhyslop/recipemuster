@@ -38,6 +38,8 @@ zrbthz_kindle() {
   buz_enroll RBTHZ_BUILD "rbthw-b" "rbthe_cli.sh" "rbthe_build" "" "Build the hierophant crate"
   buz_enroll RBTHZ_TEST  "rbthw-t" "rbthe_cli.sh" "rbthe_test"  "" "Run the hierophant crate tests — the cut's self-proofs"
   buz_enroll RBTHZ_ESSAI "rbthw-e" "rbthe_cli.sh" "rbthe_essai" "" "Essai — the reversible repair lap (gate, cut, prove, rig; zero remote acts)"
+  buz_enroll RBTHZ_DOCIMASY "rbthw-d" "rbthe_cli.sh" "rbthe_docimasy" "" "Docimasy — the reveal's reversible proving act (grants the cachet; optional trailing 'rehearse' arg)"
+  buz_enroll RBTHZ_OSTEND "rbthw-o" "rbthe_cli.sh" "rbthe_ostend" "" "Ostend — the reveal's irreversible showing (optional trailing 'rehearse' arg)"
   buz_enroll RBTHZ_HARBINGER "rbthw-h" "rbthe_cli.sh" "rbthe_harbinger" "" "Harbinger — the stranger rig against promoted public main (zero remote acts)"
 
   readonly ZRBTHZ_KINDLED=1

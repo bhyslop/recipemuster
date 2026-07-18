@@ -66,6 +66,26 @@ rbthe_essai() {
   "${ZRBTHE_BINARY}" essai
 }
 
+rbthe_docimasy() {
+  buc_doc_brief "Docimasy — the reveal's reversible proving act (quarantine gate, freshness, preview, credential preflight, gauntlet; grants the cachet)"
+  buc_doc_oparm "rehearse" "Prove the reversible stages only: skip credential preflight, the gauntlet, and the cachet grant"
+  buc_doc_shown || return 0
+
+  zrbthe_cargo_build
+  buc_step "Conducting docimasy"
+  "${ZRBTHE_BINARY}" docimasy "$@"
+}
+
+rbthe_ostend() {
+  buc_doc_brief "Ostend — the reveal's irreversible showing (re-asserted ground, file-list eyes, disclosure, promotion)"
+  buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the disclosure line"
+  buc_doc_shown || return 0
+
+  zrbthe_cargo_build
+  buc_step "Conducting ostend"
+  "${ZRBTHE_BINARY}" ostend "$@"
+}
+
 rbthe_harbinger() {
   buc_doc_brief "Harbinger — the stranger rig against promoted public main (zero remote acts)"
   buc_doc_shown || return 0

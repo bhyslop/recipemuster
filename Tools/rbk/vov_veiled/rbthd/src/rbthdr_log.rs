@@ -77,6 +77,23 @@ pub fn raw(block: &str) {
     let _ = writeln!(stderr, "{}", block);
 }
 
+/// Interactive confirmation ({rbbc_prompt}, RBS0 "Human Bash Ceremony Control
+/// Voicings"): shows `msg`, blocks on the hierophant's own stdin for a y/N
+/// line, and fatals on anything but an affirmative — decline, empty input, or
+/// closed stdin are all a decline. Only the ostend and the docimasy's gauntlet
+/// stage prompt; every other worker's own confirmation gate is left to fire on
+/// its own inherited stdio (rbthdr_run::stream leaves it unmolested here).
+pub fn confirm(msg: &str) {
+    zrbthdr_emit(&format!("?? {} [y/N] ", msg));
+    let mut line = String::new();
+    let read = std::io::stdin().read_line(&mut line);
+    let affirmative = matches!(read, Ok(n) if n > 0)
+        && matches!(line.trim().to_lowercase().as_str(), "y" | "yes");
+    if !affirmative {
+        crate::rbthdr_fatal!("declined: {}", msg);
+    }
+}
+
 /// The diagnostic fatal sink — prints the tagged, located message and exits 1.
 /// Never returns.
 #[doc(hidden)]

@@ -103,7 +103,7 @@ pub fn conduct() -> ExitCode {
     rbthdr_log::line(&format!("Disposable rig:                             {}", rig.rig_dir.display()));
     rbthdr_log::blank();
     rbthdr_log::success("Essai lap complete — a walk-ready rig stands beside a proven candidate.");
-    rbthdr_log::line("Dispose and re-cut, or hand the candidate to ostend (RBSHE completion).");
+    rbthdr_log::line("Dispose and re-cut, or hand the standing candidate to docimasy — the reveal's proving act (RBSHE completion).");
 
     ExitCode::SUCCESS
 }

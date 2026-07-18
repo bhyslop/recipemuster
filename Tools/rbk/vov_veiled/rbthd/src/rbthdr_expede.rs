@@ -580,3 +580,46 @@ fn zrbthdr_git(clone: &str, args: &[&str], top: &Path, act: &str) {
         crate::rbthdr_fatal!("failed to {} (git exited {}):\n{}", act, got.code, got.stderr.trim());
     }
 }
+
+// ── The freshness matcher ───────────────────────────────────
+
+/// Assert that a scratch re-cut of the maintainer tree's shipped bytes, right
+/// now, is tree-equal to the standing candidate — the ONE freshness matcher
+/// shared by the docimasy and the ostend (RBSHD step 2, RBSHO step 2, RBSHC
+/// "The cut, and the single matcher": laps and the reveal are decoupled in
+/// time, so freshness is asserted, never presumed).
+///
+/// Reuses `cut` itself as the matcher — a second, independent freshness check
+/// would be exactly the second matcher the single-matcher rule forbids. The
+/// scratch cut lands at a FIXED sibling location distinct from the standing
+/// candidate's own (RBTHDR_FRESHNESS_DIRNAME), so this can never collide with,
+/// or dispose of, the candidate it is comparing against; it is disposed by
+/// the same retire-aside rename discipline as every other sibling artifact,
+/// win or lose.
+///
+/// Fatal on drift, naming the standing remedy: the cycle returns to essai,
+/// never forward.
+pub fn assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
+    let freshness_parent = parent.join(rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME);
+    rbthdr_repo::guard_disposable(&freshness_parent, rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME, top);
+    if !rbthdr_repo::retire_aside(&freshness_parent, top) {
+        rbthdr_log::line("no prior freshness scratch to retire");
+    }
+
+    rbthdr_log::step("Scratch re-cutting the maintainer tree's shipped bytes to assert freshness");
+    let scratch_clone = cut(top, &freshness_parent);
+
+    let standing_tree = rbthdr_repo::tree_hash(candidate_clone, top);
+    let scratch_tree = rbthdr_repo::tree_hash(&scratch_clone, top);
+
+    rbthdr_log::step("Disposing the freshness scratch");
+    rbthdr_repo::retire_aside(&freshness_parent, top);
+
+    if standing_tree != scratch_tree {
+        crate::rbthdr_fatal!(
+            "candidate freshness drift: a re-cut of the maintainer tree's shipped bytes now (tree {}) does not match the standing candidate (tree {}) — the cycle returns to essai, never forward",
+            scratch_tree, standing_tree
+        );
+    }
+    rbthdr_log::line(&format!("candidate fresh: re-cut tree {} matches the standing candidate", standing_tree));
+}

@@ -177,7 +177,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("CLAUDE.md", Ship),
     ("LICENSE", Ship),
     ("diagrams/", Ship),
-    ("rbm-abstract-drawio.svg", Ship),
     (".gitattributes", Ship),
     (".gitignore", Ship),
     // ROOT FILES THAT STAY BEHIND. RELEASE.md is the release-qualification
