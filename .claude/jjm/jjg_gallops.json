@@ -4359,33 +4359,39 @@
         "₢B2AAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260715-0824",
+              "jjgtn_ts": "260718-1035",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
-                "Investigative reassessment — confirm the problem is real and the fix is sound before building anything.",
+                "Investigative reassessment — confirm the residual problem is real and the fix is sound before building anything.",
                 "",
                 "## Context",
-                "Discussion 2026-07-15 (opus): the operator is unhappy with the sophistication of RELEASE.md, `/rbk-expede`, and `rblm_expede.sh`.",
-                "Two dissatisfactions surfaced: (1) release orchestration is a stochastic LLM-driven slash command where deterministic Rust would fit; (2) the shipped `rbtd` (theurge) crate carries maintainer-only release assays as source — `loupe`, `damnatio`, `perambulation` are members of no suite yet ship under `Tools/rbk/`.",
-                "Narrowed by grep: `damnatio.rs` is clean (prose only); the one file naming withheld paths literally is `rbtdrq_perambulation.rs` (`Tools/rbk/rblm_perambulation.sh`, `Tools/rbk/vov_veiled/planted-spec.adoc`).",
-                "Left unresolved: whether that is a LIVE leak or vacuously-green-latent — `loupe` harvests its needle set from veiled trees that no longer stand in the stripped candidate, so it may pass through uncaught, or `pyx`'s candidate scan may already cover it. Settling this needs reading loupe's harvest logic and the candidate stripped-tree coverage, not grep.",
+                "Discussion 2026-07-15 (opus): the operator was unhappy with the sophistication of RELEASE.md, /rbk-expede, and rblm_expede.sh —",
+                "release orchestration stochastic where deterministic Rust would fit,",
+                "and maintainer-only release assays shipping as source in the delivered rbtd crate (loupe, damnatio, perambulation — members of no suite).",
+                "Largely superseded by events: the hierophant heat (₣B6) built the veiled Rust crate this docket once proposed as \"Approach A\",",
+                "and its cut-absorption re-ruling (260718) pulled the expede/perambulation absorption forward —",
+                "the cut is deterministic Rust, the perambulation fixture and bash modules retired, /rbk-expede gone.",
+                "What remains of the original concern: loupe and damnatio are still no-suite maintainer assays shipping as source in delivered rbtd.",
                 "",
-                "Approach A (proposed, unratified): a NEW veiled RB rust crate under `Tools/rbk/vov_veiled/` — withheld by directory construction (the veil boundary is a directory boundary; the perambulation withholds `Tools/*/vov_veiled/` wholesale, so nothing under it can leak by a forgotten row). It hosts BOTH the deterministic expede orchestration (retiring the stochastic slash-command sophistication) AND the maintainer-only no-suite assays lifted out of shipped `rbtd`. Layering: the veiled crate DEPENDS ON the shipped `rbtd` harness (reuses its fixture types / band codes) — veiled→shipped is fine, shipped→veiled stays forbidden. `/rbk-expede` collapses to invoke-and-report; `RELEASE.md` steps 6–9 stay human ceremony (correctly so).",
-                "",
-                "Considered and rejected: (i) hosting in the `vvr`/vok–vvk composition (the `vvx` binary) — wrong coupling: release machinery imports rbk, not Job Jockey, and vvr is slated to leave with the JJ split, so it would marry RB machinery to a departing host. (ii) An intermediate relocate-to-sibling-crate \"B\" step later undone by A — guaranteed rework, A subsumes it. (iii) cfg-gating the veiled assays inside shipped `rbtd` — that fragile per-file withholding IS the current leak; a veiled directory removes the class.",
-                "",
-                "Cost note: a standalone veiled crate needs its own thin binary + a withheld tabtarget (sibling to `rbtd`; `tt/rbw-M*` is already withheld) rather than borrowing vvr's dispatch — modest, and immune to the JJ split.",
+                "## Docket",
+                "Reassess the residue:",
+                "whether loupe and damnatio should lift out of shipped rbtd into the veiled hierophant crate",
+                "(veiled→shipped dependency stays fine, shipped→veiled stays forbidden),",
+                "or stay shipped with a recorded reason;",
+                "pyx is a shipped suite member and must stay behind regardless.",
+                "Carry the durable disposition of the leak-status determination the release heat produced",
+                "(its loupe finding routes here — the perambulation-leak-status pace in ₣B0).",
                 "",
                 "## Done when",
-                "- Leak status settled: is `rbtdrq_perambulation.rs` (and loupe's needle constant) a live disclosure in a real candidate, or latent?",
-                "- Approach A re-judged given that finding — including that `pyx` is a shipped suite member and must stay behind, and the harness-coupling cost of a veiled crate depending on shipped `rbtd`.",
-                "- Outcome: either a concrete implementation pace is slated, or the issue is declined with a recorded reason."
+                "Loupe and damnatio each have a settled home — lifted via a slated implementation pace, or staying with a recorded reason —",
+                "and the leak-status disposition is recorded durably."
               ],
               "jjgtn_silks": "reassess-release-machinery-veiling",
-              "jjgtn_basis": "f31947e"
+              "jjgtn_basis": "acb4ef1"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢B2AAG": {
           "jjgpn_tacks": [
