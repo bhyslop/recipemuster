@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAM",
+  "jjgrn_next_pace_seed": "CAAAN",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -4588,7 +4588,8 @@
         "₢CAAAI",
         "₢CAAAJ",
         "₢CAAAK",
-        "₢CAAAL"
+        "₢CAAAL",
+        "₢CAAAM"
       ],
       "jjghn_paces": {
         "₢CAAAG": {
@@ -4740,6 +4741,29 @@
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The first real checking added onto the already-wielded tool:\nthe two seating validators fall out of the frozen census as properties, per the gradual add-checking intent.",
+          "jjgpn_slated": "260718-0944"
+        },
+        "₢CAAAM": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-0944",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The use-anchor: regenerate the acronym index the claude-*.md files maintain by hand today from the same frozen census, riding the voff managed-section rail (VOSMM \"Report and Acronym Index\").",
+                "Determine at mount which index-of-record tables convert first and how hand-authored prose beside them is preserved.",
+                "Generated output may land in delivered files, but its content must nowhere name the matricula (VOr_q4f name-hygiene).",
+                "",
+                "## Done when",
+                "The binary regenerates the acronym index from the census and a hand edit inside a managed section is overwritten on the next run;",
+                "with this the heat's done-when holds entire — one tabtarget run over the whole git-tracked tree emits both presentments, the estray section, and the regenerated index."
+              ],
+              "jjgtn_silks": "acronym-index-render",
+              "jjgtn_basis": "5aca2e6"
+            }
+          ],
+          "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
+          "jjgpn_precis": "The use-anchor closes the ladder:\nthe acronym index regenerates from the census, retiring hand maintenance and proving the heat's done-when after the gradual deepening.",
           "jjgpn_slated": "260718-0944"
         }
       }
