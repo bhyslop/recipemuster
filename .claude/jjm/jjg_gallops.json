@@ -4827,8 +4827,8 @@
         "₢CAAAV": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1717",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260718-2146",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -4852,7 +4852,7 @@
                 "- Scope is the top-level pair only; the per-heat `order`/`paces` twin stays (already Rule-5 guarded). Symmetry there is a separate pace if wanted."
               ],
               "jjgtn_silks": "heat-order-divergence-fix",
-              "jjgtn_basis": "b81b300"
+              "jjgtn_basis": "8fafe12"
             }
           ],
           "jjgpn_dictation": "\"Would it be simpler to just alter the data structure to not allow duplicates?\"\n\n\"WE don't need reprive episodes because there is only one gallops for now. I'd prefer you slate a single pace to deal with this, and flag clearly that when we mount it, we need to close other chats. Proceed if this makes sense, else raise issues.\"",
