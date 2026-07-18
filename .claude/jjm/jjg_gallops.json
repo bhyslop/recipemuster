@@ -2,6 +2,7 @@
   "jjgrn_next_heat_seed": "B7",
   "jjgrn_next_pace_seed": "CAAAV",
   "jjgrn_heat_order": [
+    "₣B3",
     "₣B6",
     "₣B4",
     "₣B0",
@@ -33,7 +34,6 @@
     "₣BL",
     "₣Ba",
     "₣B2",
-    "₣B3",
     "₣B4"
   ],
   "jjgrn_heats": {
@@ -4448,7 +4448,7 @@
     "₣B3": {
       "jjghn_silks": "jjk-04-studbook-conversion",
       "jjghn_creation_time": "260714",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢CAAAO",
         "₢CAAAP",
