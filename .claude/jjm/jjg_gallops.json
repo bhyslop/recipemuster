@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAE",
+  "jjgrn_next_pace_seed": "CAAAF",
   "jjgrn_heat_order": [
     "₣B6",
     "₣B4",
@@ -3583,6 +3583,7 @@
         "₢B0AAL",
         "₢B0AAK",
         "₢B0AAM",
+        "₢CAAAE",
         "₢B0AAN",
         "₢B0AAI",
         "₢B0AAA",
@@ -4080,6 +4081,36 @@
               "jjgtn_basis": "c2f7a36"
             }
           ]
+        },
+        "₢CAAAE": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260717-1751",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Bounded investigation with a ruling — read, determine, route; build nothing.",
+                "",
+                "## Docket",
+                "Settle whether the withheld-path literals in shipped theurge source are a live disclosure in a real candidate or latent:",
+                "rbtdrq_perambulation.rs names the perambulation script path and a veiled spec path as literals (grep \"vov_veiled\" Tools/rbk/rbtd/src/ for the current census),",
+                "and loupe harvests its needle set from veiled trees that no longer stand in a stripped candidate, so it may pass vacuously.",
+                "Read loupe's harvest logic and pyx's candidate scan coverage to determine whether any gate would catch these in a candidate; confirm against the promoted public tree.",
+                "If live and repair-worthy: the fix is delivered-bytes-bearing and joins this heat's lap fixes — operator routes it.",
+                "If latent or accepted: record the reason; the r02 release-machinery reassessment pace (₣B2) carries the durable disposition.",
+                "Context: the narrowing grep and the unresolved liveness question are banked in that ₣B2 pace's docket — this pace pulls only the determination forward, because every remaining lap re-discloses these bytes.",
+                "",
+                "## Done when",
+                "A written determination — live versus latent, caught versus uncaught, with the code paths read —",
+                "and an operator routing: a lap fix slated, or a decline recorded."
+              ],
+              "jjgtn_silks": "perambulation-leak-status",
+              "jjgtn_basis": "37ff786"
+            }
+          ],
+          "jjgpn_dictation": "Groom B2; I'm wondering if we ought to pull forward a veiled rust program to absorb basically all the marshal steps as well as this careful dance to prepare a release candidate. [...] All right, drop the B2 angle. [...] go",
+          "jjgpn_precis": "The B2 pull-forward was declined, but its one release-relevant fragment carves out: whether shipped theurge source leaking withheld path literals is a live disclosure r01's laps keep re-shipping. This pace settles liveness before the terminal reveal, feeding a lap fix if live and the r02 reassessment if not.",
+          "jjgpn_slated": "260717-1751"
         }
       }
     },
