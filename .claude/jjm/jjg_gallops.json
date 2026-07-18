@@ -4662,7 +4662,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260718-1012",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Complete the vanilla-hippodrome premise: de-insert JJK from consumer repos —",
                 "CLAUDE.md includes, `.claude/jjm`, MCP config —",
@@ -4684,7 +4685,7 @@
                 "and the chat store stands untouched."
               ],
               "jjgtn_silks": "deinsert-consumer-repos",
-              "jjgtn_basis": "9521e38"
+              "jjgtn_basis": "7475a25"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
