@@ -9,7 +9,7 @@
 use std::fs;
 use std::path::Path;
 use crate::jjrt_types::jjrg_Gallops;
-use crate::jjrv_validate::jjrg_validate;
+use crate::jjrv_validate::{jjrg_validate, jjrg_reconcile};
 
 /// Validated Gallops wrapper
 ///
@@ -222,7 +222,19 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
     // Read original bytes
     let original_bytes = fs::read(path)
         .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
-    zjjdr_from_bytes(&original_bytes, true)
+    zjjdr_from_bytes(&original_bytes, true, true)
+}
+
+/// Strict load-back for the save path — the same validated load as jjdr_load, but with
+/// healing OFF (heal=false). jjdr_save calls it on the temp file it just wrote, so a
+/// heat_order/heats divergence a mutator just produced is refused by jjrg_validate rather
+/// than silently reconciled: pre-existing on-disk damage self-heals on read, but newly-written
+/// damage dies loud, preserving the round-trip gate's loud-canonicality contract. Not public —
+/// the save path is its only caller.
+fn zjjdr_load_strict(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
+    let original_bytes = fs::read(path)
+        .map_err(|e| format!("Failed to read file '{}': {}", path.display(), e))?;
+    zjjdr_from_bytes(&original_bytes, true, false)
 }
 
 /// Hark (retrospective) load — read-only sibling of jjdr_load. JJS0 `jjdr_hark`.
@@ -232,7 +244,7 @@ pub fn jjdr_load(path: &Path) -> Result<jjdr_ValidatedGallops, String> {
 /// probe + write-forward, and semantic validation; skips the round-trip canonical check
 /// unconditionally (historical bytes are never re-saved) and never writes. Rivet JJr_a7c.
 pub fn jjdr_hark(bytes: &[u8]) -> Result<jjdr_ValidatedGallops, String> {
-    zjjdr_from_bytes(bytes, false)
+    zjjdr_from_bytes(bytes, false, true)
 }
 
 /// Read one file's bytes as of a prior git revision: `git show <rev>:<path>`.
@@ -258,17 +270,35 @@ pub fn jjri_show_blob(rev: &str, path: &str) -> Result<Vec<u8>, String> {
 /// historical bytes are never re-saved. The reprieve probe + in-memory write-forward and the
 /// semantic validation run identically on both paths, so a hark's Gallops is as validated as a disk
 /// load's and the unbypassable-validation invariant holds.
-fn zjjdr_from_bytes(original_bytes: &[u8], check_roundtrip: bool) -> Result<jjdr_ValidatedGallops, String> {
+fn zjjdr_from_bytes(original_bytes: &[u8], check_roundtrip: bool, heal: bool) -> Result<jjdr_ValidatedGallops, String> {
     let mut gallops: jjrg_Gallops = serde_json::from_slice(original_bytes)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
     // Reprieve probe is the single source of old-format detection (rivet JJr_a7c).
     // Any live episode means the on-disk shape is not yet canonical; tolerate the
     // round-trip mismatch so the next save rewrites the clean format back to disk.
+    // Probed on the as-parsed store, before any heal, so the detection semantics
+    // are unchanged by the reconcile below.
     let reprieve = jjdz_probe(&gallops, original_bytes);
     let is_migration_mode = reprieve.iter().any(|s| s.live);
 
-    if check_roundtrip && !is_migration_mode {
+    // Reconcile the top-level heat_order/heats twin (heal path only). A read of the
+    // live store restores a merge-diverged heat_order to a clean permutation of the
+    // heats key-set in memory (jjrg_reconcile — ordering-only, idempotent), so the
+    // next save lands clean. A reconcile that changed something is tolerated at the
+    // round-trip gate exactly as migration mode is — the healed form is what the next
+    // save writes, so the on-disk mismatch is expected, not corruption. The save-side
+    // load-back passes heal=false: there a divergence a mutator just produced stays a
+    // jjrg_validate failure and the save refuses, so newly-written damage dies loud
+    // while pre-existing on-disk damage self-heals. Standing invariant repair, disjoint
+    // from the episode-gated reprieve write-forward.
+    let reconciled = if heal {
+        !jjrg_reconcile(&mut gallops).is_empty()
+    } else {
+        false
+    };
+
+    if check_roundtrip && !is_migration_mode && !reconciled {
         let reserialized = serde_json::to_string_pretty(&gallops)
             .map_err(|e| format!("Failed to reserialize JSON: {}", e))?;
 
@@ -299,7 +329,7 @@ fn zjjdr_from_bytes(original_bytes: &[u8], check_roundtrip: bool) -> Result<jjdr
 /// Performs atomic write with validation:
 /// 1. Serialize to JSON
 /// 2. Write to temp file
-/// 3. Validate temp file via jjdr_load
+/// 3. Validate temp file via a strict load-back (zjjdr_load_strict, heal off)
 /// 4. Rename temp to target (atomic)
 ///
 /// If validation fails, temp file is deleted and error returned.
@@ -316,8 +346,9 @@ pub fn jjdr_save(gallops: &jjrg_Gallops, path: &Path) -> Result<(), String> {
     fs::write(&temp_path, &json)
         .map_err(|e| format!("Failed to write temp file: {}", e))?;
 
-    // Validate what we wrote by loading it back
-    match jjdr_load(&temp_path) {
+    // Validate what we wrote by loading it back — strict (heal off), so a heat_order/heats
+    // divergence just written by a mutator is refused here rather than silently reconciled.
+    match zjjdr_load_strict(&temp_path) {
         Ok(_) => {
             // Validation passed, rename to target
             fs::rename(&temp_path, path)

@@ -23,7 +23,7 @@
 use std::path::PathBuf;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrt_types::jjrg_Gallops;
-use crate::jjrv_validate::jjrg_validate;
+use crate::jjrv_validate::{jjrg_validate, jjrg_reconcile};
 use crate::jjri_io::{jjdz_probe, jjdz_Status, jjdz_write_forward, jjri_consign};
 
 const JJRVL_CMD_NAME_VALIDATE: &str = "jjx_validate";
@@ -77,6 +77,12 @@ pub(crate) fn zjjrvl_appraise(original_bytes: &[u8]) -> zjjrvl_Appraisal {
         jjdz_write_forward(&mut gallops);
     }
 
+    // Reconcile the top-level heat_order/heats twin — the same standing repair jjdr_load applies
+    // on read (jjrg_reconcile). A merge-diverged heat_order normalizes here (exit 2) rather than
+    // tripping the byte comparison below as an opaque diff; the per-axis report names what was
+    // fixed, so the normalize stdout is self-describing rather than a bare byte offset.
+    let repairs = jjrg_reconcile(&mut gallops);
+
     // Semantic validation. An invariant failure is broken — never a silent fix.
     if let Err(errors) = jjrg_validate(&gallops) {
         return zjjrvl_Appraisal::Broken(format!(
@@ -90,7 +96,7 @@ pub(crate) fn zjjrvl_appraise(original_bytes: &[u8]) -> zjjrvl_Appraisal {
         Ok(s) => s,
         Err(e) => return zjjrvl_Appraisal::Broken(format!("reserialize failed: {}", e)),
     };
-    let census = zjjrvl_census(&reprieve);
+    let census = zjjrvl_census(&reprieve, &repairs);
 
     if canonical.as_bytes() == original_bytes {
         zjjrvl_Appraisal::Canonical(census)
@@ -196,14 +202,22 @@ fn zjjrvl_commit_normalization(
 
 /// One-line reprieve census for the outcome stdout — names each registered episode's verdict
 /// against the on-disk store, so a normalized result says *what* shape it migrated and a clean
-/// result is positive evidence rather than bare silence (the self-describing-stdout cinch).
-fn zjjrvl_census(reprieve: &[jjdz_Status]) -> String {
-    if reprieve.is_empty() {
-        return "no reprieve episodes registered.".to_string();
+/// result is positive evidence rather than bare silence (the self-describing-stdout cinch). Any
+/// heat_order/heats reconcile that fired is appended per-axis, so a normalize that deduped a
+/// merge-diverged heat_order names the firemarks it touched rather than a bare byte offset.
+fn zjjrvl_census(reprieve: &[jjdz_Status], repairs: &[String]) -> String {
+    let reprieve_part = if reprieve.is_empty() {
+        "no reprieve episodes registered.".to_string()
+    } else {
+        let parts: Vec<String> = reprieve
+            .iter()
+            .map(|s| format!("{} {}", s.label, s.jjdz_verdict()))
+            .collect();
+        format!("reprieve: {}.", parts.join(", "))
+    };
+    if repairs.is_empty() {
+        reprieve_part
+    } else {
+        format!("{} reconcile: {}.", reprieve_part, repairs.join("; "))
     }
-    let parts: Vec<String> = reprieve
-        .iter()
-        .map(|s| format!("{} {}", s.label, s.jjdz_verdict()))
-        .collect();
-    format!("reprieve: {}.", parts.join(", "))
 }

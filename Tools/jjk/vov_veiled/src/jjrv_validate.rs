@@ -123,11 +123,120 @@ pub fn jjrg_validate(gallops: &jjrg_Gallops) -> Result<(), Vec<String>> {
         }
     }
 
+    // Top-level order/heats twin invariant — the heat-level mirror of Rule 5.
+    // heat_order must be a duplicate-free permutation of the heats key-set: no
+    // firemark twice (else jjx_list renders the heat twice — the observed
+    // defect), no order slot without a heat, no heat without an order slot (else
+    // the heat is invisible). jjrg_reconcile is the repair-half that restores
+    // this on read; this check-half is what makes the strict save path refuse a
+    // divergence a mutator would otherwise persist.
+    let heat_order_set: HashSet<&String> = gallops.heat_order.iter().collect();
+    if heat_order_set.len() != gallops.heat_order.len() {
+        errors.push("heat_order contains duplicate entries".to_string());
+    }
+    let in_order_not_heats: Vec<_> = gallops
+        .heat_order
+        .iter()
+        .filter(|fm| !gallops.heats.contains_key(*fm))
+        .collect();
+    let in_heats_not_order: Vec<_> = gallops
+        .heats
+        .keys()
+        .filter(|fm| !heat_order_set.contains(fm))
+        .collect();
+    if !in_order_not_heats.is_empty() {
+        errors.push(format!(
+            "heat_order contains firemarks not in heats: {:?}",
+            in_order_not_heats
+        ));
+    }
+    if !in_heats_not_order.is_empty() {
+        errors.push(format!(
+            "heats contains firemarks not in heat_order: {:?}",
+            in_heats_not_order
+        ));
+    }
+
     if errors.is_empty() {
         Ok(())
     } else {
         Err(errors)
     }
+}
+
+/// Reconcile the top-level `heat_order` against `heats` — the repair-half of the
+/// top-level order/heats twin invariant (the heat-level mirror of the per-heat
+/// Rule 5). Ordering-only and idempotent: it restores `heat_order` to a
+/// duplicate-free permutation of the `heats` key-set without inventing or losing
+/// a heat record, so it is information-safe to run unconditionally on read.
+///
+/// Three axes, each a git merge concatenating `heat_order` can produce:
+///   - a firemark appearing twice in `heat_order` → keep the first (earliest /
+///     highest-priority) slot, drop the rest (the observed jjx_list double-render);
+///   - a `heat_order` slot naming no heat → drop it (it renders nothing);
+///   - a heat absent from `heat_order` → append it (in `heats` key order) so it is
+///     never invisible.
+///
+/// Returns one description per axis that changed something; an empty vec is the
+/// no-op (already-reconciled) case, and callers read `.is_empty()` as "the store
+/// was clean". The strict assertion that this repair is complete lives in
+/// `jjrg_validate`, which the save-side load-back runs so a mutator that writes a
+/// divergence is refused loud rather than silently healed. Disjoint from the
+/// reprieve write-forward (episode-gated schema migration): this is a standing
+/// invariant repair, not a migration, and registers no reprieve episode.
+pub fn jjrg_reconcile(gallops: &mut jjrg_Gallops) -> Vec<String> {
+    let mut kept: Vec<String> = Vec::with_capacity(gallops.heat_order.len());
+    let mut seen: HashSet<String> = HashSet::new();
+    let mut dups: Vec<String> = Vec::new();
+    let mut orphans: Vec<String> = Vec::new();
+
+    for fm in &gallops.heat_order {
+        if !gallops.heats.contains_key(fm) {
+            orphans.push(fm.clone());
+        } else if seen.insert(fm.clone()) {
+            kept.push(fm.clone());
+        } else {
+            dups.push(fm.clone());
+        }
+    }
+
+    let mut appended: Vec<String> = Vec::new();
+    for fm in gallops.heats.keys() {
+        if !seen.contains(fm) {
+            seen.insert(fm.clone());
+            kept.push(fm.clone());
+            appended.push(fm.clone());
+        }
+    }
+
+    let mut report = Vec::new();
+    if !dups.is_empty() {
+        report.push(format!(
+            "deduped heat_order (kept first, dropped {}): {}",
+            dups.len(),
+            dups.join(", ")
+        ));
+    }
+    if !orphans.is_empty() {
+        report.push(format!(
+            "dropped {} heat_order slot(s) naming no heat: {}",
+            orphans.len(),
+            orphans.join(", ")
+        ));
+    }
+    if !appended.is_empty() {
+        report.push(format!(
+            "appended {} heat(s) missing from heat_order: {}",
+            appended.len(),
+            appended.join(", ")
+        ));
+    }
+
+    if !report.is_empty() {
+        gallops.heat_order = kept;
+    }
+
+    report
 }
 
 fn zjjrg_validate_heat(heat_key: &str, heat: &jjrg_Heat, errors: &mut Vec<String>) {

@@ -15,7 +15,7 @@ use std::path::Path;
 pub use crate::jjrt_types::*;
 
 // Re-export validation
-pub use crate::jjrv_validate::jjrg_validate;
+pub use crate::jjrv_validate::{jjrg_validate, jjrg_reconcile};
 
 // Re-export utilities
 pub use crate::jjru_util::{jjrg_capture_commit_sha, jjrg_make_tack, jjrg_read_stdin, jjrg_read_stdin_optional};

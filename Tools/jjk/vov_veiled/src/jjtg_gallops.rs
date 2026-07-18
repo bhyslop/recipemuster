@@ -112,6 +112,99 @@ fn jjtg_validate_appraise_invariant_violation_is_broken() {
     assert!(matches!(zjjrvl_appraise(&bytes), zjjrvl_Appraisal::Broken(_)));
 }
 
+// ===== top-level heat_order/heats reconcile + twin invariant =====
+
+/// canonical_gallops with a well-formed second heat ₣AB in both heats and heat_order —
+/// the base the reconcile tests diverge one axis from.
+fn two_heat_gallops() -> jjrg_Gallops {
+    let mut g = canonical_gallops();
+    let (hk, heat) = make_valid_heat("AB", "second-heat");
+    g.heat_order.push(hk.clone());
+    g.heats.insert(hk, heat);
+    g
+}
+
+#[test]
+fn jjtg_reconcile_dedups_heat_order_keep_first() {
+    // A merge concatenating heat_order duplicates a firemark; reconcile keeps the first
+    // (highest-priority) slot and drops the rest — the observed jjx_list double-render.
+    let mut g = two_heat_gallops(); // heat_order == [₣AC, ₣AB]
+    g.heat_order.push("₣AC".to_string()); // [₣AC, ₣AB, ₣AC]
+    let report = jjrg_reconcile(&mut g);
+    assert_eq!(g.heat_order, vec!["₣AC".to_string(), "₣AB".to_string()]);
+    assert!(report.iter().any(|r| r.contains("deduped")), "report names the dedup: {:?}", report);
+}
+
+#[test]
+fn jjtg_reconcile_drops_orphan_heat_order_entry() {
+    // A heat_order slot naming no heat renders nothing (muster filter_maps it); reconcile drops it.
+    let mut g = canonical_gallops(); // heat_order == [₣AC]
+    g.heat_order.push("₣ZZ".to_string()); // ₣ZZ has no heat
+    let report = jjrg_reconcile(&mut g);
+    assert_eq!(g.heat_order, vec!["₣AC".to_string()]);
+    assert!(report.iter().any(|r| r.contains("naming no heat")), "report names the orphan: {:?}", report);
+}
+
+#[test]
+fn jjtg_reconcile_appends_invisible_heat() {
+    // A heat in heats but absent from heat_order is invisible (never rendered); reconcile appends
+    // it in heats key order so it can never silently vanish.
+    let mut g = canonical_gallops(); // heat_order == [₣AC]
+    let (hk, heat) = make_valid_heat("AB", "invisible-heat");
+    g.heats.insert(hk, heat); // heats only — never added to heat_order
+    let report = jjrg_reconcile(&mut g);
+    assert_eq!(g.heat_order, vec!["₣AC".to_string(), "₣AB".to_string()]);
+    assert!(report.iter().any(|r| r.contains("missing from heat_order")), "report names the append: {:?}", report);
+}
+
+#[test]
+fn jjtg_reconcile_idempotent() {
+    let mut g = two_heat_gallops();
+    g.heat_order.push("₣AC".to_string()); // diverged
+    assert!(!jjrg_reconcile(&mut g).is_empty(), "first reconcile repairs");
+    assert!(jjrg_reconcile(&mut g).is_empty(), "second reconcile is a no-op on an already-clean store");
+}
+
+#[test]
+fn jjtg_validate_top_level_heat_order_dup() {
+    let mut g = canonical_gallops();
+    g.heat_order.push("₣AC".to_string()); // [₣AC, ₣AC]
+    let errors = g.jjrg_validate().unwrap_err();
+    assert!(errors.iter().any(|e| e.contains("heat_order contains duplicate entries")));
+}
+
+#[test]
+fn jjtg_validate_top_level_invisible_heat() {
+    let mut g = canonical_gallops();
+    let (hk, heat) = make_valid_heat("AB", "invisible-heat");
+    g.heats.insert(hk, heat); // heats only
+    let errors = g.jjrg_validate().unwrap_err();
+    assert!(errors.iter().any(|e| e.contains("heats contains firemarks not in heat_order")));
+}
+
+#[test]
+fn jjtg_validate_appraise_diverged_heat_order_normalizes() {
+    // The live-store repair path: a store whose heat_order carries a merge-dup appraises Normalize
+    // (exit 2, self-describing census), and re-appraising the normalized form is Canonical (exit 0)
+    // — the in-session fix for the observed ₣B4 double-render, no reprieve episode.
+    let mut g = canonical_gallops();
+    g.heat_order.push("₣AC".to_string()); // duplicate slot
+    let bytes = serde_json::to_string_pretty(&g).unwrap().into_bytes();
+    let canon = match zjjrvl_appraise(&bytes) {
+        zjjrvl_Appraisal::Normalize(c, census) => {
+            assert!(census.contains("reconcile"), "normalize census names the reconcile: {}", census);
+            *c
+        }
+        other => panic!("diverged heat_order must Normalize, got {}", appraisal_name(&other)),
+    };
+    assert_eq!(canon.heat_order, vec!["₣AC".to_string()]);
+    let canon_bytes = serde_json::to_string_pretty(&canon).unwrap().into_bytes();
+    assert!(
+        matches!(zjjrvl_appraise(&canon_bytes), zjjrvl_Appraisal::Canonical(_)),
+        "re-appraising the reconciled form is Canonical (idempotent)"
+    );
+}
+
 // ===== hark (retrospective load — jjrg_hark / jjdr_hark) =====
 
 #[test]
@@ -312,6 +405,8 @@ fn jjtg_validate_minimal_valid_gallops() {
 fn jjtg_validate_gallops_with_heat() {
     let mut gallops = make_valid_gallops();
     let (heat_key, heat) = make_valid_heat("AB", "my-heat");
+    // heat_order must carry the heat, else the top-level twin invariant reports it.
+    gallops.heat_order.push(heat_key.clone());
     gallops.heats.insert(heat_key, heat);
     assert!(gallops.jjrg_validate().is_ok());
 }
@@ -488,6 +583,7 @@ fn jjtg_validate_complete_state_valid() {
     if let Some(pace) = heat.paces.values_mut().next() {
         pace.tacks[0].state = jjrg_PaceState::Complete;
     }
+    gallops.heat_order.push(heat_key.clone());
     gallops.heats.insert(heat_key, heat);
     assert!(gallops.jjrg_validate().is_ok());
 }
@@ -499,6 +595,7 @@ fn jjtg_validate_abandoned_state_valid() {
     if let Some(pace) = heat.paces.values_mut().next() {
         pace.tacks[0].state = jjrg_PaceState::Abandoned;
     }
+    gallops.heat_order.push(heat_key.clone());
     gallops.heats.insert(heat_key, heat);
     assert!(gallops.jjrg_validate().is_ok());
 }
