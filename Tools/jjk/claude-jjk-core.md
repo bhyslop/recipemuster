@@ -76,8 +76,8 @@ All JJK commands are accessed via the single `mcp__vvx__jjx` MCP tool with four 
 
 **Interdictum — the gating refusal.** A jjx result whose first word is `INTERDICTUM` bars the act; it is not a calling error to fix and retry.
 
-- **Stop the act and its objective by any route** — no altered-params retry, no other command to the same end. Unrelated work continues.
-- **Report it verbatim.** The message is self-sufficient: what refused, why, the remedies. Pursue one only if the operator directs it.
+- **Stop the act and its objective by any route** — no altered-params retry, no other command to the same end, and no gathering of context to hand the operator a recommendation the interdictum did not invite. What is barred is not only the literal act but everything downstream that served it, a substitute recommendation included; a *read-only* read pursued to that end is the workaround, not an exempt route. The rationalization "reads aren't to the same end" is exactly the loophole this shuts. Unrelated work continues.
+- **Report it verbatim, and stop there.** The message is self-sufficient: what refused, why, the remedies. The verbatim report is your whole response — do nothing further unless the operator directs it, and pursue a named remedy only on their word.
 - **Do not model the guard.** This context says nothing about what generates an interdictum — carried mechanism becomes a self-check, and second implementations drift. Attempt the act; obey the token.
 
 **Verb names are NOT command names**: there is no `jjx_slate`, `jjx_mount`, `jjx_notch`, `jjx_groom` command. The verb table below maps horse vocabulary to actual MCP commands.
