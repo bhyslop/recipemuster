@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAY",
+  "jjgrn_next_pace_seed": "CAAAZ",
   "jjgrn_heat_order": [
     "₣B5",
     "₣B3",
@@ -4741,7 +4741,8 @@
         "₢B4AAB",
         "₢CAAAG",
         "₢CAAAV",
-        "₢CAAAX"
+        "₢CAAAX",
+        "₢CAAAY"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -4893,6 +4894,34 @@
           "jjgpn_dictation": "I never actually wanted the slash command to require me to emplace the coronet: that should be obvious from chat context.",
           "jjgpn_precis": "Operator wants `/jjc-wrap` to infer the pace coronet from the session's own context — the pace it just landed or mounted — instead of demanding it as an argument.\nThe tier stays a required explicit ruling.\nRewrite step 1's fail-fast-on-missing-coronet rule to infer-and-proceed: state the inferred coronet and continue, asking only on genuine ambiguity.",
           "jjgpn_slated": "260718-2108"
+        },
+        "₢CAAAY": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260718-2146",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Sibling of the just-closed top-level heat_order/heats fix — apply the same repair-half to the per-heat order/paces twin one level down. Ordering-only, no schema change, no reprieve episode.",
+                "",
+                "## The defect",
+                "The per-heat `order: Vec` / `paces: BTreeMap` twin (jjrg_Heat) carries the SAME merge-concat exposure the top-level pair had, but only the check-half exists: Rule 5 in jjrg_validate (jjrv_validate.rs, zjjrg_validate_heat) rejects a diverged per-heat twin as an ERROR — so a merge-diverged per-heat `order` bricks every load (jjdr_load runs jjrg_validate) and jjx_validate reports Broken/exit-1, untouched, instead of normalizing. There is no per-heat reconcile. Flagged by the fable review of the top-level fix.",
+                "",
+                "## Done when",
+                "A per-heat order/paces divergence (dup in order, orphan order entry, pace missing from order) normalizes rather than bricks — mirroring the landed top-level jjrg_reconcile: an ordering-only, idempotent per-heat repair-half, run in the same heal path (zjjdr_from_bytes heal=true, zjjrvl_appraise), with save's load-back staying strict so a mutator-written per-heat divergence still dies loud. Tests mirror the top-level reconcile/twin tests. tt/vow-t green.",
+                "",
+                "## Cinched",
+                "- NOT schema-affecting: normalizes existing order/paces field contents, no serialized-shape change → no reprieve episode.",
+                "- Normalize-vs-brick line follows the top-level precedent: repair where information-safe (a coronet present in `paces` gets its order slot deduped/appended); a coronet in `order` with NO pace record is lost work — stays Broken/exit-1, never invented.",
+                "- Live-store repair (if the current store holds any per-heat divergence) is one serialized jjx_validate commit; running it under the fresh binary needs an MCP restart — see this pace's predecessor spook."
+              ],
+              "jjgtn_silks": "per-heat-order-divergence-fix",
+              "jjgtn_basis": "cb904f3"
+            }
+          ],
+          "jjgpn_dictation": "wrap current, then slate a repair pace in this heat. Is the next pace in this heat schema-affecting? I will start other parallel chats if not.",
+          "jjgpn_precis": "After wrapping the top-level fix, the operator wants its sibling slated: extend the reconcile pattern to the per-heat order/paces twin, which today is check-only (Rule 5) and bricks exit-1 on a merge-diverged order rather than normalizing — the same ordering-only merge fingerprint one level down, flagged by the fable review. The operator gated parallel-chat work on whether this pace is schema-affecting; it is not (normalizes existing field contents, no serialized-shape change).",
+          "jjgpn_slated": "260718-2146"
         }
       }
     },
