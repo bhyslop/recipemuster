@@ -29,15 +29,17 @@ tree's contents are correct to sweep. Do not refuse or pause over a dirty tree.
      silently.
    - Drop to a question only on genuine ambiguity: no pace was mounted or landed
      this session, or two equally-recent candidates exist.
-2. Ensure a review-grade landing exists on the pace. If none does, write one
-   from this session's knowledge via `jjx_landing` before spawning the
-   reviewer. A landing is **evidence pointers only, never advocacy**:
-   - which commits are this pace's work;
-   - mid-session operator rulings that changed scope or waived a docket
-     clause (verbatim where possible);
-   - what verification was run (suites/fixtures) and its outcomes.
-   Forbidden content: arguments for why the work is correct, guide rules
-   "considered", edge cases "handled" — no pre-framing the review.
+2. Ensure a **review-grade** landing exists — judged by its *content*, not by
+   mere existence. Read the pace's most recent landing (if any) and hold it
+   against the landing-content contract (JJSCLD `content`): evidence pointers for
+   the reviewer, never advocacy. Then:
+   - If no landing exists, OR the most recent one is advocacy-laden, write a
+     fresh review-grade landing from this session's knowledge via `jjx_landing`
+     before spawning the reviewer — it supersedes the advocacy one (the reviewer
+     reads the latest). Never wave a landing through as "review-grade" just
+     because one is present: a designee's completion report is advocacy-laden by
+     construction, so expect to rewrite.
+   - If the most recent landing already meets the contract, use it as-is.
 3. Spawn ONE Agent (subagent_type `general-purpose`, `model` set to the tier,
    `run_in_background: false`) with the reviewer prompt below, substituting the
    coronet. Do not perform the review yourself in the main session — the point
@@ -63,11 +65,11 @@ Protocol:
    - Write `# jjezs_halter <CORONET>` to the officium's `gazette_in.md`
      (path from jjx_open), then `jjx_show {"remaining": false}` and read
      `gazette_out.md` — paddock context and the pace docket.
-   - The landing — read it as **claims to verify, not findings to inherit**:
-     its commit pointers, operator rulings, and verification claims guide
-     where you look, but you confirm each against the record yourself. An
-     operator ruling cited there may legitimately waive a docket clause;
-     verify the ruling is stated as the operator's, then honor it.
+   - The pace's most recent landing — read it as **claims to verify, not
+     findings to inherit**: its commit pointers, operator rulings, and
+     verification claims guide where you look, but you confirm each against the
+     record yourself. An operator ruling cited there may legitimately waive a
+     docket clause; verify the ruling is stated as the operator's, then honor it.
    - The pace's commits:
      `git log --all --grep '<bare-coronet>' --stat` (bare = coronet without ₢)
      to find the work and its diff. Read the actual changed code.

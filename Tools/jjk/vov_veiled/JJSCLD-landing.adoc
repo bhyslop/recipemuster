@@ -11,7 +11,13 @@ Create an L (landing) commit recording agent return from autonomous execution.
 * agent (positional) — agent tier that executed (haiku, sonnet, opus)
 
 //axd_optional
-* `content` (string) — agent completion report (body content). Defaults to empty.
+* `content` (string) — the landing's evidence body (defaults to empty), governed by the contract below.
+
+The landing-content contract is normative and homed here; the Designee protocol in `claude-jjk-core.md` and the jjc-wrap ceremony cite it, never restate it.
+A landing is _evidence for the reviewer, never advocacy_ — it points at what to verify, it does not argue the work is right.
+Include only which commits are this pace's work, any mid-session operator ruling that changed scope or waived a docket clause (verbatim where possible), and what verification was run (suites / fixtures) with its outcomes.
+Forbid arguments for why the work is correct, guide rules "considered", edge cases "handled", and scope-justification for unmet docket clauses — anything that pre-frames the review.
+The reviewer reads the content as claims to verify, not findings to inherit; a designee writes it at land time, a full-ceremony agent never lands.
 
 {jjds_stdout} Commit hash
 
@@ -27,4 +33,4 @@ Create an L (landing) commit recording agent return from autonomous execution.
 
 {jjds_example}
 
-MCP tool call with parameters: coronet=`AFABC`, agent=`sonnet`, content=`"Agent completed successfully. Build passed."`
+MCP tool call with parameters: coronet=`AFABC`, agent=`sonnet`, content=`"Work: commit a1b2c3d. Verified: tt/vow-t green (639/0). Operator ruled the Done-when perf clause out of scope this pace."` — evidence pointers (commits, verification, the operator ruling), no argument that the work is correct.

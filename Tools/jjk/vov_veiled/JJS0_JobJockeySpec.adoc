@@ -3603,12 +3603,12 @@ Standard notch commits use `n` to denote routine progress tracking.
 ----
 jjb:BRAND:₢XXXXX:L: {agent} {landed|crashed}
 
-{agent completion report}
+{landing evidence body}
 
 Co-Authored-By: ...
 ----
 
-Subject format: `{agent} {landed|crashed}` where agent is the executor tier (haiku/sonnet/opus) and landed/crashed indicates success/failure. Body contains the agent's raw completion report.
+Subject format: `{agent} {landed|crashed}` where agent is the executor tier (haiku/sonnet/opus) and landed/crashed indicates success/failure. Body is the landing's evidence body per the `jjx_landing` `content` contract (evidence for the reviewer, never advocacy) — not a free completion report.
 
 *{jjdxo_invitatory} marker* (created by {jjdo_open}):
 ----

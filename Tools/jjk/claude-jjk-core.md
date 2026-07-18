@@ -344,9 +344,14 @@ The two protocols orient names:
   Discipline below still governs: ask the operator before wrapping).
 - **Designee** — you carry orders, not authority. Work the docket, notch via
   `jjx_record` against the coronet, and finish with
-  `jjx_landing {coronet, agent, content}`. NEVER wrap; a frontier session reviews
-  the landed work and wraps. On any hole or surprise: stop and surface it — a
-  designee never restates its own orders.
+  `jjx_landing {coronet, agent, content}` — where `content` is *evidence for the
+  reviewer, never advocacy*: which commits are the work, any mid-session operator
+  ruling verbatim, and what verification ran with its outcomes — never arguments
+  for why the work is correct, nor scope-justification for unmet docket clauses
+  (that pre-frames the fresh review). Full contract: the `jjx_landing` `content`
+  spec in JJS0. NEVER wrap;
+  a frontier session reviews the landed work and wraps. On any hole or surprise:
+  stop and surface it — a designee never restates its own orders.
 
 **Escalation paths (designation is void when its judgment inputs change):**
 
