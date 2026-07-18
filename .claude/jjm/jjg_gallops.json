@@ -4029,7 +4029,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260718-1035",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "## Character",
                 "Release-ceremony cycle: laps iterated to dry in the reversible tier, then the reveal's public acts once, by hand.",
@@ -4055,7 +4056,7 @@
                 "the operator's greenfield walk unblocked."
               ],
               "jjgtn_silks": "repair-recut-iterate-promote",
-              "jjgtn_basis": "dce2290"
+              "jjgtn_basis": "15be2f2"
             }
           ],
           "jjgpn_redocket_count": 3
