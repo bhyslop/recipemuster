@@ -4089,7 +4089,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260717-1751",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Bounded investigation with a ruling — read, determine, route; build nothing.",
@@ -4108,7 +4109,7 @@
                 "and an operator routing: a lap fix slated, or a decline recorded."
               ],
               "jjgtn_silks": "perambulation-leak-status",
-              "jjgtn_basis": "37ff786"
+              "jjgtn_basis": "c5bacad"
             }
           ],
           "jjgpn_dictation": "Groom B2; I'm wondering if we ought to pull forward a veiled rust program to absorb basically all the marshal steps as well as this careful dance to prepare a release candidate. [...] All right, drop the B2 angle. [...] go",
