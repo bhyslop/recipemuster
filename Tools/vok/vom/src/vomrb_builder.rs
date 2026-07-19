@@ -5,9 +5,10 @@
 //! VOM builder - the mutable Tier 1 accumulator (VOSMM-entity.adoc "Census
 //! Lifecycle" raise/seat methods). Owns the walk -> tokenize ->
 //! classify-by-subtraction -> seat pipeline; vomrb_seal consumes it into the
-//! frozen vomrm_Matricula. No vesture claims a declaration yet, so every
-//! ours-cipher token subtracts straight to the estray set (VOSMM "Classify by
-//! Subtraction") - the signet trie stands ready for the first vesture.
+//! frozen vomrm_Matricula. Each vesture in vomrv_vesture claims its
+//! declaration sites first (line-by-line, seated into the signet trie); an
+//! ours-cipher token from the wide tokenize net becomes an estray only if no
+//! vesture claimed it (VOSMM "Classify by Subtraction").
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -34,23 +35,55 @@ impl vomrb_Builder {
     /// Walk the candidate corpus and classify-by-subtraction (VOSMM "seat").
     pub fn vomrb_seat(&mut self, repo_root: &Path) -> Result<(), String> {
         let tracked = vof::vofr_git_tracked_files(repo_root)?;
+        let mut claimed: BTreeSet<String> = BTreeSet::new();
+        let mut corpus: Vec<String> = Vec::new();
 
-        for rel_path in tracked {
-            if vof::vofr_is_veiled_path(&rel_path) {
+        for rel_path in &tracked {
+            if vof::vofr_is_veiled_path(rel_path) {
                 continue;
             }
-            if !crate::vomra_allowlist::voma_is_allowed(&rel_path) {
+            if !crate::vomra_allowlist::voma_is_allowed(rel_path) {
                 continue;
             }
 
-            let Ok(content) = std::fs::read_to_string(repo_root.join(&rel_path)) else {
+            // A git-tracked file's own basename is itself a declaration site:
+            // the vesture's `envelope` field (VOS0 Liturgy) makes the file
+            // the inscription, so the stem is claimed the same as any
+            // in-content declaration. Multi-dot basenames (tabtarget-style
+            // `colophon.Frontispiece.imprint.sh`) are that vesture's concern,
+            // not this bare-stem claim - skipped rather than mis-claimed.
+            if let Some(stem) = rel_path.file_stem().and_then(|s| s.to_str()) {
+                if !stem.contains('.') && zvomrb_is_ours_token(stem) {
+                    self.signet_trie.vomrs_seat(stem, stem);
+                    claimed.insert(stem.to_string());
+                }
+            }
+
+            let Ok(content) = std::fs::read_to_string(repo_root.join(rel_path)) else {
                 continue;
             };
 
-            for token in zvomrb_tokenize(&content) {
-                if zvomrb_is_ours_token(token) {
-                    self.estrays.insert(token.to_string());
+            for line in content.lines() {
+                for (signet, inscription) in crate::vomrv_vesture::vomrv_claim_line(line) {
+                    self.signet_trie.vomrs_seat(&signet, &inscription);
+                    claimed.insert(inscription);
                 }
+            }
+
+            corpus.push(content);
+        }
+
+        for content in &corpus {
+            for token in zvomrb_tokenize(content) {
+                if !zvomrb_is_ours_token(token) || claimed.contains(token) {
+                    continue;
+                }
+                if crate::vomrv_vesture::vomrv_claim_rivet(token) {
+                    self.signet_trie.vomrs_seat(token, token);
+                    claimed.insert(token.to_string());
+                    continue;
+                }
+                self.estrays.insert(token.to_string());
             }
         }
 

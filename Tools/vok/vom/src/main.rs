@@ -7,7 +7,8 @@
 //! Thin dispatch into the vom library (rbtd-style bin<->lib split). Operator-only;
 //! never ships (VOr_q4f). Drives the full raise -> seat -> seal -> render
 //! lifecycle (VOSMM-entity.adoc "Census Lifecycle"); classify-by-subtraction
-//! still lands every ours-cipher token as an estray until a vesture claims one.
+//! lands an ours-cipher token as an estray only when no vesture in
+//! vomrv_vesture claims it.
 
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
@@ -28,6 +29,10 @@ fn main() {
     match builder.vomrb_seat(Path::new(".")) {
         Ok(()) => {
             let census = builder.vomrb_seal();
+            vomrl_info_now!(
+                "signet trie: {} claimed",
+                census.vomrm_signet_trie().vomrs_len()
+            );
             vomrl_info_now!("estray census: {} token(s)", census.vomrm_estrays().len());
             print!("{}", census.vomrm_render());
         }

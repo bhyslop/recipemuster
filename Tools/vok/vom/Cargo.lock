@@ -502,6 +502,7 @@ dependencies = [
 name = "vom"
 version = "0.0.1"
 dependencies = [
+ "regex",
  "vof",
 ]
 

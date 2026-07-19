@@ -15,16 +15,18 @@
 //! Census lifecycle lands here: vomrb_Builder is raised, seats claimed and
 //! estray inscriptions, and vomrb_seal consumes it into the immutable
 //! vomrm_Matricula - a Rust typestate mirroring VOSMM's build-then-freeze
-//! shape (Memos/memo-20260620-freeze-builder-pattern/, provenance only). No
-//! vesture claims a declaration yet (classify-by-subtraction stays
-//! all-estray); the seating validators arrive in a later pace.
+//! shape (Memos/memo-20260620-freeze-builder-pattern/, provenance only).
+//! Rust, Bash, and AsciiDoc attribute/anchor vestures claim declarations
+//! (vomrv_vesture); the seating validators (collision, terminal-exclusivity)
+//! arrive in a later pace.
 //!
 //! Module prefix tree (rbtd-style {crate}{r|t}{classifier}_ scheme):
 //!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (frozen
 //!             census), vomrb_builder (mutable Builder), vomrs_signet (signet
-//!             trie), vomra_allowlist (Tier 0 file-selection allowlist)
+//!             trie), vomra_allowlist (Tier 0 file-selection allowlist),
+//!             vomrv_vesture (per-vesture declaration-site recognizers)
 //!   vomt{c}_  test modules    - vomtm_matricula, vomtb_builder, vomts_signet,
-//!             vomta_allowlist
+//!             vomta_allowlist, vomtv_vesture
 //! Grown as real API lands (mint-follows-API); see Tools/vok/README.md.
 
 #![deny(warnings)]
@@ -36,6 +38,7 @@ pub mod vomrb_builder;
 pub mod vomrl_log;
 pub mod vomrm_matricula;
 pub mod vomrs_signet;
+pub mod vomrv_vesture;
 
 #[cfg(test)]
 mod vomta_allowlist;
@@ -45,5 +48,7 @@ mod vomtb_builder;
 mod vomtm_matricula;
 #[cfg(test)]
 mod vomts_signet;
+#[cfg(test)]
+mod vomtv_vesture;
 
 // eof

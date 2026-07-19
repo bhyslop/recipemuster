@@ -9,17 +9,32 @@
 //! are the whole git-tracked tree (no subtree anchor), so only the shape half
 //! is carried here. Homed VOK-side per VOSMM-entity.adoc Tier 0, pending
 //! migration to the pedigree home at studbook founding.
+//!
+//! Carries the one file-role exclusion VOSMM names outright (Scan Mechanics:
+//! "Memos are the first reference-only case — excluded from the MVP
+//! declaration scan"); the fuller declaration-bearing/reference-only/
+//! index-of-record/generated layer stays deferred to the tackle-table
+//! projection.
 
 use std::path::Path;
 
 /// Allowlisted file-name shapes, recursive over the whole candidate tree.
 pub const VOMA_ALLOWLIST: &[&str] = &["*.md", "*.adoc", "*.rs", "*.sh"];
 
+/// Reference-only path prefixes excluded from the MVP declaration scan.
+pub const VOMA_REFERENCE_ONLY: &[&str] = &["Memos/"];
+
 /// Check whether a path's shape is allowlisted.
 pub fn voma_is_allowed(path: &Path) -> bool {
     let Some(name) = path.file_name().and_then(|n| n.to_str()) else {
         return false;
     };
+    let Some(path_str) = path.to_str() else {
+        return false;
+    };
+    if VOMA_REFERENCE_ONLY.iter().any(|prefix| path_str.starts_with(prefix)) {
+        return false;
+    }
     VOMA_ALLOWLIST
         .iter()
         .any(|pattern| name.ends_with(pattern.trim_start_matches('*')))

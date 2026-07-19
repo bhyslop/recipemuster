@@ -26,4 +26,12 @@ fn vomta_is_allowed_rejects_other_shapes() {
     assert!(!voma_is_allowed(Path::new("no_extension")));
 }
 
+#[test]
+fn vomta_is_allowed_rejects_memos_as_reference_only() {
+    assert!(!voma_is_allowed(Path::new(
+        "Memos/memo-20260620-freeze-builder-pattern/README.md"
+    )));
+    assert!(!voma_is_allowed(Path::new("Memos/memo-example.adoc")));
+}
+
 // eof

@@ -6,3 +6,4 @@ description = "Vox Matricula - transient inscription census over the naming syst
 
 [dependencies]
 vof = { path = "../vof" }
+regex = "1"
