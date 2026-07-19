@@ -3639,7 +3639,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260718-1814",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present closeout ceremony; short; run fresh, not tired.",
@@ -3671,7 +3672,7 @@
                 "and the hierophant heat (₣B6) returned to racing for its closing sweep."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "100c3f2"
+              "jjgtn_basis": "dd4b6a4"
             }
           ],
           "jjgpn_redocket_count": 2
