@@ -4,11 +4,11 @@
   "jjgrn_heat_order": [
     "₣B5",
     "₣B3",
-    "₣B6",
     "₣B4",
     "₣B0",
     "₣Bs",
     "₣Bd",
+    "₣B6",
     "₣Bg",
     "₣B1",
     "₣Bz",
@@ -5128,7 +5128,7 @@
     "₣B6": {
       "jjghn_silks": "rbk-09-ensoul-hierophant",
       "jjghn_creation_time": "260717",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢CAAAF",
         "₢CAAAA",
