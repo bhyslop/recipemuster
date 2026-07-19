@@ -3638,9 +3638,8 @@
         "₢B0AAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260717-1751",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260718-1814",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
                 "Operator-present closeout ceremony; short; run fresh, not tired.",
@@ -3660,19 +3659,22 @@
                 "this heat's actual stage → promote → walk shape recorded as the first-delivery exception beside restored walk-gates-promotion standing doctrine;",
                 "and the two-instrument delivery model — the hierophant's essai laps (reversible iteration, local coldwalk, no per-lap gauntlet) and ostend reveal (quarantine, gauntlet, one staging push, one promotion, confirmation coldwalk) — replacing the single-pass step-2-through-9 narrative.",
                 "Record the release per the ceremony document.",
+                "After the release is recorded, return the stabled hierophant heat (₣B6) to racing:",
+                "its closing sweep (₢CAAAD, the superseded-instrument retirement) is precondition-gated on the real essai/ostend service this release delivers, and becomes mountable only here — a deliberate cross-heat hand-off.",
                 "Precondition: the greenfield walk has closed green with its divergence census dispositioned.",
                 "",
                 "## Done when",
                 "Liveness and the spot-check green;",
                 "the staging branch deleted and the quarantine repository deleted;",
                 "the ceremony document amended to the two-instrument model;",
-                "the release recorded."
+                "the release recorded;",
+                "and the hierophant heat (₣B6) returned to racing for its closing sweep."
               ],
               "jjgtn_silks": "carry-out-release",
-              "jjgtn_basis": "338a347"
+              "jjgtn_basis": "100c3f2"
             }
           ],
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         },
         "₢B0AAC": {
           "jjgpn_tacks": [
