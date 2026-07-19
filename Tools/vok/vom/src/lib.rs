@@ -18,7 +18,7 @@
 //! shape (Memos/memo-20260620-freeze-builder-pattern/, provenance only).
 //! Rust, Bash, and AsciiDoc attribute/anchor vestures claim declarations
 //! (vomrv_vesture); the seating validators (collision, terminal-exclusivity)
-//! arrive in a later pace.
+//! are not yet implemented.
 //!
 //! Module prefix tree (rbtd-style {crate}{r|t}{classifier}_ scheme):
 //!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (frozen

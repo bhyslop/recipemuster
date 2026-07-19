@@ -53,7 +53,7 @@ static ZVOMRV_RIVET: LazyLock<Regex> =
 /// Claim every declaration a known vesture recognizes on one line. Returns
 /// (signet, inscription) pairs to seat; signet and inscription are the same
 /// token for the MVP (exact signet/epithet decomposition is seating-validator
-/// work, VOSMM "Seating Validators", not this pace's concern).
+/// work, VOSMM "Seating Validators").
 pub fn vomrv_claim_line(line: &str) -> Vec<(String, String)> {
     let mut claims = Vec::new();
 
