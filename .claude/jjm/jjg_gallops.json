@@ -8188,7 +8188,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2032",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Goal",
                 "Run the ACGm_105 word-cancer move corpus-wide:",
@@ -8223,7 +8224,7 @@
                 "the phrases' home choices are recorded in the touched specs, not this paddock."
               ],
               "jjgtn_silks": "word-cancer-corpus-sweep",
-              "jjgtn_basis": "15d5bc0"
+              "jjgtn_basis": "3962f37"
             }
           ],
           "jjgpn_redocket_count": 1
