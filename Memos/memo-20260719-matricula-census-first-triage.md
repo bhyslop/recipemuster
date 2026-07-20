@@ -6,10 +6,13 @@ Two mechanical rulings landed this pace; the census now reads
 
 ## Rulings applied (code, tested)
 
-1. **Historical prose is reference-only scope.** `.claude/` (heat blotters,
-   chat captures) and `Study/` (scratch investigations) joined `Memos/` in
-   `VOMA_REFERENCE_ONLY` — records *about* names, never declarations of them.
-   Removed every self-quoting blotter "collision" and vendor-doc fragment site.
+1. **Historical prose is reference-only scope.** `.claude/jjm/` (heat
+   blotters, chat archives, gallops record) and `Study/` (scratch
+   investigations) joined `Memos/` in `VOMA_REFERENCE_ONLY` — records *about*
+   names, never declarations of them. Removed every self-quoting blotter
+   "collision" and vendor-doc fragment site. Deliberately narrower than all
+   of `.claude/`: `.claude/commands/` is a live minted namespace (Extended
+   Namespace Checklist) and stays in the census.
 2. **The ours-cipher gate now bounds seating, not just estrays.** Line-claim
    seating passes `zvomrb_is_ours_token`, the same gate the estray net and the
    file-stem claim already used (VOSMM "Classify by Subtraction": the
