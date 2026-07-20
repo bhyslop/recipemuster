@@ -4748,8 +4748,10 @@
         "₢CAAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260720-0747",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260720-0748",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
                 "this docket points at it and carries only the rulings that bind it.",
@@ -4798,7 +4800,7 @@
                 "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
               ],
               "jjgtn_silks": "execute-cutover-ceremony",
-              "jjgtn_basis": "4b130fb"
+              "jjgtn_basis": "8d4c3b7"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
