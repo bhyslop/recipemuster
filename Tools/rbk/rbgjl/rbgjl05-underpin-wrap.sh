@@ -3,7 +3,7 @@
 # Builder: gcr.io/go-containerregistry/gcrane:debug (floating bootstrap — wsl pinning is
 #          deferred to the bootstrap-builder digest-pin itch; gcrane auths GAR ambiently
 #          via google.Keychain -> ADC -> the GCE metadata server as the Mason SA. The
-#          :debug variant carries /busybox/sh. Auth canon: RBSCB)
+#          :debug variant carries /busybox/sh)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_TAG_ROOTFS
 #

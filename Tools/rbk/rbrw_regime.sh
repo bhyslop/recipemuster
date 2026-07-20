@@ -65,13 +65,13 @@ zrbrw_enforce() {
     || buc_reject "${BUBC_band_regime}" "RBRW_ORG_ID must be a numeric GCP organization ID: ${RBRW_ORG_ID}"
 
   # GCP workforce-pool id: lowercase letter-led, [a-z0-9-], no trailing hyphen,
-  # 4-32 chars, and the gcp- prefix is reserved by GCP (RBSRW).
+  # 4-32 chars, and the gcp- prefix is reserved by GCP.
   [[ "${RBRW_WORKFORCE_POOL_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRW_WORKFORCE_POOL_ID: ${RBRW_WORKFORCE_POOL_ID} (lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
   [[ "${RBRW_WORKFORCE_POOL_ID}" != gcp-* ]] \
     || buc_reject "${BUBC_band_regime}" "RBRW_WORKFORCE_POOL_ID must not start with the reserved gcp- prefix: ${RBRW_WORKFORCE_POOL_ID}"
 
-  # Session duration: NNNs form, bounded 900s (15 min) to 43200s (12 hours) per RBSRW.
+  # Session duration: NNNs form, bounded 900s (15 min) to 43200s (12 hours).
   [[ "${RBRW_SESSION_DURATION}" =~ ^[0-9]+s$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRW_SESSION_DURATION: ${RBRW_SESSION_DURATION} (expected NNNs, e.g. 3600s)"
   (( 10#${RBRW_SESSION_DURATION%s} >= 900 && 10#${RBRW_SESSION_DURATION%s} <= 43200 )) \

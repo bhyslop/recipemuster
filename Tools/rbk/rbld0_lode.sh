@@ -85,7 +85,7 @@ zrbld_kindle() {
   # shell). Floating Google-hosted name, like ZRBLD_GOOGLE_DOCKER_BUILDER above:
   # gcr.io is always-pullable under Private Google Access, and the persistent
   # :debug tag is the name we ride — version-freezing belongs to the reliquary
-  # gather, not a bash-frozen digest in this constant. Auth canon: RBSCB.
+  # gather, not a bash-frozen digest in this constant.
   buc_log_args 'Define Google-hosted gcrane builder image'
   readonly ZRBLD_GCRANE_BUILDER="gcr.io/go-containerregistry/gcrane:debug"
 

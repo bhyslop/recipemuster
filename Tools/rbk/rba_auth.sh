@@ -175,8 +175,8 @@ rba_token_capture() {
 #
 # The accessor's federated-token path. Leg 1 obtains an IdP id_token by one of two
 # mechanism-gated arms (RBRF_MECHANISM): the interactive device flow (a human avows,
-# RFC 8628) or the programmatic RFC 7523 grant (a self-supplied JWT, no human —
-# RBSFA). Leg 2 exchanges that id_token at Google STS for a workforce federated
+# RFC 8628) or the programmatic RFC 7523 grant (a self-supplied JWT, no human).
+# Leg 2 exchanges that id_token at Google STS for a workforce federated
 # access token, mechanism-invariant; that federated token alone is cached,
 # per-sitting. The mantle token (Leg 3, the don) is a separate artifact, separately
 # scoped, and never cached — it is not built here. The persisted sitting cache is the
@@ -330,7 +330,7 @@ zrba_idtoken_subject_capture() {
 # display-only, and only a successful copy is announced (it replaces the
 # operator's prior clipboard contents). Mechanism is the BUK platform
 # normalizer buc_clipboard_copy_predicate; its optional probe-and-skip tools
-# are inventoried in RBS0 per BCG Command Dependency Discipline.
+# are inventoried per BCG Command Dependency Discipline.
 zrba_user_code_clipboard() {
   local -r z_code="${1:?zrba_user_code_clipboard: user code required}"
 
@@ -387,7 +387,7 @@ zrba_leg1_idtoken_capture() {
   # designs it for open display (possession grants nothing without the human's
   # own IdP sign-in, and a substituted sign-in cannot pass admission), so the
   # retired /dev/tty emission and its headless fail-fast gate defended no
-  # threat. Spec home: RBS0 rbtf_avow.
+  # threat.
   buyy_href_yawp "${z_verification_uri}" "${z_verification_uri}"; local -r z_uri_yp="${z_buym_yelp}"
   buyy_ui_yawp   "${z_user_code}";                                local -r z_code_yp="${z_buym_yelp}"
   buc_step "Avowal — sign in to open your sitting:"
@@ -464,9 +464,9 @@ zrba_b64url_capture() {
 # caged asserter private key and POSTing it to the reachable grant endpoint, the
 # confidential client authenticated by its secret. Echoes the OIDC id_token; Leg 2
 # consumes it in-process, never persisted. Reads its inputs solely from the
-# programmatic RBRF_ self-supply fields (RBSFA/RBSRF) — it never learns "Keycloak".
+# programmatic RBRF_ self-supply fields — it never learns "Keycloak".
 #
-# Custody (BCG / RBSFK two-keys): the asserter private key is read ONLY by openssl
+# Custody (BCG two-keys): the asserter private key is read ONLY by openssl
 # via its regime PATH and never enters a shell var; the client secret is read ONLY by
 # curl via its file reference (--data-urlencode name@file) and never enters a shell
 # var or the argument list; the minted id_token is emitted by jq straight to stdout,
@@ -488,7 +488,7 @@ zrba_leg1_programmatic_idtoken_capture() {
 
   # Fresh assertion timestamps: BCG bars $() on external commands, so date writes a
   # file read back with the $(<file) builtin. exp = iat + TTL; a unique jti per mint
-  # (one-time use — Keycloak disables reuse by default, RBSFK).
+  # (one-time use — Keycloak disables reuse by default).
   date +%s > "${ZRBA_FED_PROG_NOW_FILE}" || return 1
   local -r z_iat=$(<"${ZRBA_FED_PROG_NOW_FILE}")
   [[ "${z_iat}" =~ ^[0-9]+$ ]] || return 1
@@ -497,7 +497,7 @@ zrba_leg1_programmatic_idtoken_capture() {
 
   # Compose the non-secret JWT header and payload as JSON via jq (safe quoting of the
   # regime-sourced values). aud = RBRF_IDP_ISSUER — the assertion aud is cinched to
-  # that existing field, no separate field (RBSFA); the IdP resolves the asserter
+  # that existing field, no separate field; the IdP resolves the asserter
   # subject to its federated-linked user through the realm's asserting-trust link.
   jq -cn --arg kid "${RBRF_ASSERTER_KID}" \
      '{alg:"RS256",typ:"JWT",kid:$kid}' \
@@ -622,7 +622,7 @@ zrba_leg2_federated_capture() {
 # relay complete the same sign-in — no terminal gate, human presence enforced by
 # the IdP sign-in, and a truly unattended miss polls to the bounded device-code
 # expiry and dies loud); the programmatic arm is the RFC 7523 grant (no human,
-# no sitting to open — a self-supplied JWT, RBSFA). Leg 2 (STS) and the sitting
+# no sitting to open — a self-supplied JWT). Leg 2 (STS) and the sitting
 # cache are mechanism-invariant, so only the id_token's origin differs.
 zrba_sitting_open() {
   zrba_sentinel
@@ -714,7 +714,7 @@ rba_avow() {
   zrba_sitting_open
 }
 
-# rba_novate — the force-fresh renewal act (RBS0 rbtf_novate): a deliberate
+# rba_novate — the force-fresh renewal act: a deliberate
 # avowal that bypasses the sitting-reuse branch and atomically overwrites any
 # standing sitting with a freshly-opened, full-window one (novation:
 # extinguish-by-replacement, riding zrba_sitting_write's temp-then-rename).

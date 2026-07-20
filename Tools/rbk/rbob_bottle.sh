@@ -454,7 +454,7 @@ zrbob_reclaim_subnet() {
 
 # Closed placeholder vocabulary for the per-nameplate usage note. A token names
 # one of these exactly; anything else is a typo and is fatal. Widening the
-# vocabulary is adding an arm here plus a line in RBSCH — not a format change.
+# vocabulary is adding an arm here plus a line in the spec — not a format change.
 # BCG predicate: 0 if the name is a sanctioned charge-note placeholder.
 zrbob_note_vocab_ok() {
   case "${1}" in
@@ -466,8 +466,8 @@ zrbob_note_vocab_ok() {
 # Surface the optional per-nameplate usage note at the charge tail. The note is
 # data — read, never sourced or executed. Placeholder tokens {{NAME}} resolve by
 # indirect expansion (${!NAME}) after NAME is validated against the closed
-# vocabulary; an unknown or malformed token is fatal, never emitted raw (RBSCH
-# rbnnh_charge_note; BCG interface-contamination). Emission routes through BUC.
+# vocabulary; an unknown or malformed token is fatal, never emitted raw
+# (rbnnh_charge_note; BCG interface-contamination). Emission routes through BUC.
 zrbob_render_charge_note() {
   zrbob_sentinel
 
@@ -594,7 +594,7 @@ rbob_charge() {
   fi
 
   # Usage note surfaces last — after the hook, so a hook precondition failure
-  # suppresses it (RBSCH rbnnh_charge_note). No-op when the note file is absent.
+  # suppresses it (rbnnh_charge_note). No-op when the note file is absent.
   zrbob_render_charge_note
 }
 

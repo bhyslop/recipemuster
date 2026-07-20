@@ -5,7 +5,7 @@
 #          digest-pin itch, RBS0 rbsk_pinning_boundary. gcrane reads the PUBLIC quay
 #          source anonymously and auths the GAR push ambiently via google.Keychain
 #          -> ADC -> the GCE metadata server as the Mason SA, no explicit login. The
-#          :debug variant carries /busybox/sh. Auth canon: RBSCB)
+#          :debug variant carries /busybox/sh)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_PODVM_FAMILY
 #
@@ -23,7 +23,7 @@
 # trust grade wants) and preserves the manifest digest byte-for-byte (memo-20260608
 # §4). Each selected leaf is a single-platform manifest, so the Lode package stays a
 # FLAT package (no parent-index web) — banish stays single-call atomic by
-# construction (RBSLB). Do not capture the family index itself; that would web the
+# construction. Do not capture the family index itself; that would web the
 # package.
 
 set -euo pipefail

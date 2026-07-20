@@ -155,7 +155,7 @@ rbfl_abjure() {
   # parent-before-child FAILED_PRECONDITION means a single packages.delete of an
   # index web removes nothing) and verifying absence via package GET to 404 — so
   # the build's success IS the delete outcome, closing the host trust-200 LRO
-  # gap; see RBSCB and rbgjl06. Load-then-pass (BCG): the file is consumed
+  # gap; see rbgjl06. Load-then-pass (BCG): the file is consumed
   # before dispatch, no FD held across the build.
   local z_packages=()
   local z_pkg_line=""

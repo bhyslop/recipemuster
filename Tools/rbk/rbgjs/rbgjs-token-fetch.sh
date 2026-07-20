@@ -1,7 +1,7 @@
 #!/bin/bash
 # RBGJS token-fetch — OAuth2 access token from the Cloud Build metadata server
 # (Mason SA). Sole consumer: the immure residency guard's curl blob-HEAD
-# (rbgjl09) — registry steps auth ambiently via gcrane (RBSCB). The token is
+# (rbgjl09) — registry steps auth ambiently via gcrane. The token is
 # fetched in-memory and never written to /workspace, which carries non-secret
 # data only.
 #   requires: (none — ambient metadata server)

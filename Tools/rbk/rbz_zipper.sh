@@ -82,7 +82,7 @@ zrbz_kindle() {
   # (workforce pool + terrier bucket; the depot-grain polity folder is founded at
   # depot levy), raze, its withheld
   # pool-destroyer inverse (internal release-ladder infra, stripped at delivery),
-  # and escheat, the terrier-hygiene sweep (RBSME).
+  # and escheat, the terrier-hygiene sweep.
   # The M5 colophon regroup later gathers levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
@@ -98,7 +98,7 @@ zrbz_kindle() {
   # strips the tabtarget); the verb ships in rbgp_payor.sh. Internal release-ladder
   # infra only — consumers never get a one-keystroke pool-destroyer.
   buz_enroll RBZ_RAZE_MANOR             "rbw-mR"  "${z_mod}" "rbgp_manor_raze"     ""  "Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery)"
-  # escheat is the manor-hygiene sweep of the terrier (RBSME): plan-then-confirm
+  # escheat is the manor-hygiene sweep of the terrier: plan-then-confirm
   # strike of orphaned polity slices and dead-schema strays; the mutating sibling
   # of the pure read rehearse. Ships to consumers (idempotent, confirm-gated).
   buz_enroll RBZ_ESCHEAT_MANOR          "rbw-mE"  "${z_mod}" "rbgp_manor_escheat"  ""  "Escheat the terrier — sweep orphaned polity slices and dead-schema strays from the manor terrier (plan-then-confirm payor hygiene)"

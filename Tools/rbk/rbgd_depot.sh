@@ -60,7 +60,7 @@ zrbgd_kindle() {
 
   # Cloud Resource Manager (CRM) APIs. The IAM-policy pair rides CRM v3: Google's
   # Data Access audit-log procedure is documented only against v3 getIamPolicy/
-  # setIamPolicy, and CRM v1 is on the deprecation path (see RBSMF audit-log step).
+  # setIamPolicy, and CRM v1 is on the deprecation path (see the audit-log step).
   # The project-lifecycle reads/deletes below stay on the v1 base they were proven against.
   readonly RBGD_API_CRM_GET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT_V3}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
   readonly RBGD_API_CRM_SET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT_V3}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"

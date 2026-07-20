@@ -11,7 +11,7 @@
 #
 # Runs cloud-side on purpose: the signature check is security-critical, so it
 # belongs in the trusted GCP environment, never on the maybe-compromised
-# workstation (RBSLU; paddock acquisition premise). The workstation only ever
+# workstation (paddock acquisition premise). The workstation only ever
 # assembles the URL.
 #   requires: SUMS_URL         URL of the published SHA256SUMS
 #             SIG_URL          URL of the detached SHA256SUMS.gpg

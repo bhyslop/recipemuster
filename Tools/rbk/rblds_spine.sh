@@ -39,8 +39,6 @@
 # rbfc-furnished module — which is what lets abjure ride it from the separate
 # rbfl process. rbld and rbfl are never co-furnished, so the single
 # cross-source raises no double-source.
-#
-# Contract: RBSCJ "Capture Composition Contract".
 
 set -euo pipefail
 
@@ -67,7 +65,7 @@ ZRBLDS_SOURCED=1
 # register. Sentinel-free return-1 primitive, like the rbfcb_ build primitives the
 # dispatch loop already rides; the caller buc_die's with the step identity.
 #
-# Coverage is flat by design (RBSCJ "Substitution-coverage check"): substitutions
+# Coverage is flat by design ("Substitution-coverage check"): substitutions
 # automap into every step, so there is no cross-step ordering; the /workspace
 # inter-step channel keeps its own in-step guards and is out of scope.
 #

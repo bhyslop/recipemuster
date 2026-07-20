@@ -19,8 +19,8 @@
 # RBA CLI - Recipe Bottle Auth command-line interface
 #
 # Surfaces the sitting-lifecycle operator verbs as tabtargets — where avow
-# itself never is: novate, the one mutating surface (RBS0 rbtf_novate), and
-# espy, the read-only probe (RBS0 rbtf_espy). Thin arm over the rba library:
+# itself never is: novate, the one mutating surface, and
+# espy, the read-only probe. Thin arm over the rba library:
 # the furnish carries only the avowal-path stack (trust + manor pool + OAuth
 # transport), none of the depot/don machinery the probe CLI (rbgv_cli.sh) pulls.
 
@@ -59,10 +59,10 @@ rba_novate_sitting() {
   buc_success "Sitting novated — fresh full-window federated token obtained (${#z_token} chars)"
 }
 
-# Espy the sitting — the read-only probe (RBS0 rbtf_espy): report whether a
+# Espy the sitting — the read-only probe: report whether a
 # sitting is live and how much runway remains, from the cache alone — never
 # opening one, never prompting, no network. An absent or lapsed sitting is a
-# reported verdict, exit 0 (the descry precedent, RBSFD); only a broken read
+# reported verdict, exit 0 (the descry precedent); only a broken read
 # dies. Liveness and sufficiency judgments belong to the callers: the verdict
 # rides a fact file keyed by the active foedus, the branch point for the
 # theurge gate arc's fail-fast before its may-prompt baseline avow.

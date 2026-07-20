@@ -130,7 +130,7 @@ rbld_underpin() {
   # tree; the Lode's provenance envelope must be the product of committed code.
   bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
-  # Two declarative version arguments (no FQIN — see RBSLU): the param1 channel
+  # Two declarative version arguments (no FQIN): the param1 channel
   # routes the first to BUZ_FOLIO and forwards the rest, so release is the folio
   # and point the first positional. The host assembles the resolved URL from the
   # path-convention template; the cloud step discovers and verifies the checksum.

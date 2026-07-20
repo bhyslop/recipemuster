@@ -46,8 +46,8 @@ zrbgp_furnish() {
   source "${z_rbk_kit_dir}/rbgd_depot.sh"
   source "${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}"
-  # Federation regime file. affiance and jilt are folio-addressed (param1,
-  # RBSMA/RBSMJ): each sources the NAMED foedus's rbrf.env, resolved from the
+  # Federation regime file. affiance and jilt are folio-addressed (param1):
+  # each sources the NAMED foedus's rbrf.env, resolved from the
   # operator-supplied folio (an rbef_-sprued library subdirectory) exactly as
   # descry addresses its subject — never the active/pinned foedus, whose selector
   # (RBRR_ACTIVE_FOEDUS) is reserved for the credential accessor. Every other payor
@@ -113,7 +113,7 @@ zrbgp_furnish() {
   # sitting machinery — the don's STS audience rides the provider) on top of the
   # depot/repo regimes. Gird (the payor-wielded founding first-governor admission)
   # drives the shared core with the payor credential, not a don, and the
-  # pool-scoped admission core reads no provider (RBSTN), so gird enforces RBRW
+  # pool-scoped admission core reads no provider, so gird enforces RBRW
   # without RBRF — an active foedus need not stand before the founding admission.
   # Every other command works a specific depot.
   case "${z_command}" in
