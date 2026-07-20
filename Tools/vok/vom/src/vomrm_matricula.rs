@@ -10,6 +10,7 @@
 
 use std::collections::BTreeSet;
 
+use crate::vomrp_presentment::vomrp_Presentment;
 use crate::vomrs_signet::vomrs_SignetTrie;
 
 /// The crate's identity line, incorporating the foundation cipher's project
@@ -61,6 +62,18 @@ impl vomrm_Matricula {
             out.push('\n');
         }
         out
+    }
+
+    /// The exact-collision presentments (VOSMM "Seating Validators") - pure
+    /// read over the frozen signet trie, never a separate pass.
+    pub fn vomrm_exact_collisions(&self) -> Vec<vomrp_Presentment> {
+        crate::vomrq_validate::vomrq_exact_collisions(&self.signet_trie)
+    }
+
+    /// The terminal-exclusivity presentments (VOSMM "Seating Validators") -
+    /// pure read over the frozen signet trie, never a separate pass.
+    pub fn vomrm_terminal_exclusivity(&self) -> Vec<vomrp_Presentment> {
+        crate::vomrq_validate::vomrq_terminal_exclusivity(&self.signet_trie)
     }
 }
 

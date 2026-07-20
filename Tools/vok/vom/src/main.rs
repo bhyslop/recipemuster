@@ -20,6 +20,7 @@ use std::path::Path;
 // itself is data, not a diagnostic, so it rides plain print! to stdout —
 // the stream vomrl_log reserves for exactly this (see its module doc).
 use vom::vomrb_builder::vomrb_Builder;
+use vom::vomrp_presentment::vomrp_render_all;
 use vom::{vomrl_error_now, vomrl_info_now};
 
 fn main() {
@@ -34,6 +35,17 @@ fn main() {
                 census.vomrm_signet_trie().vomrs_len()
             );
             vomrl_info_now!("estray census: {} token(s)", census.vomrm_estrays().len());
+
+            let collisions = census.vomrm_exact_collisions();
+            let terminal_breaches = census.vomrm_terminal_exclusivity();
+            vomrl_info_now!(
+                "seating validators: {} collision(s), {} terminal-exclusivity breach(es)",
+                collisions.len(),
+                terminal_breaches.len()
+            );
+
+            print!("{}", vomrp_render_all(&collisions));
+            print!("{}", vomrp_render_all(&terminal_breaches));
             print!("{}", census.vomrm_render());
         }
         Err(e) => {
