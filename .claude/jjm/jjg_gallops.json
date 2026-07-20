@@ -2,6 +2,7 @@
   "jjgrn_next_heat_seed": "B7",
   "jjgrn_next_pace_seed": "CAAAa",
   "jjgrn_heat_order": [
+    "₣Bz",
     "₣B5",
     "₣B3",
     "₣B4",
@@ -11,7 +12,6 @@
     "₣B6",
     "₣Bg",
     "₣B1",
-    "₣Bz",
     "₣Bw",
     "₣Bv",
     "₣Bu",
@@ -8037,7 +8037,7 @@
     "₣Bz": {
       "jjghn_silks": "rbk-23-win-acg-incorporate",
       "jjghn_creation_time": "260712",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢BzAAA",
         "₢BzAAB",
