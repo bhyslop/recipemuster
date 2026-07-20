@@ -4576,7 +4576,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2026",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "Complete the record-read repoint so ONE flip converts every reader — via ref-read.",
                 "Both gallops readers",
@@ -4629,7 +4630,7 @@
                 "and the flying-guidon wait-then-refuse are each asserted by a test."
               ],
               "jjgtn_silks": "repoint-spine-reader",
-              "jjgtn_basis": "a02a1ce"
+              "jjgtn_basis": "7ce9131"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
