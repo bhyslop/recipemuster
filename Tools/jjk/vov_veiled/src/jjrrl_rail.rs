@@ -56,7 +56,7 @@ pub struct jjrrl_RailArgs {
 }
 
 /// Execute rail command - reorder Paces within a Heat
-pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
+pub fn jjrrl_run_rail(args: jjrrl_RailArgs, officium: &str) -> (i32, String) {
     use crate::jjrg_gallops::jjrg_RailArgs;
     use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
@@ -81,7 +81,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
         args.order.clone()
     };
 
-    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
+    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -96,7 +96,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
     let move_first = args.first;
     let move_last = args.last;
 
-    // Capture old order for no-op detection
+    // Capture old order (the session read) for no-op detection.
     let fm = jjrf_Firemark::jjrf_parse(&firemark).expect("rail given invalid firemark");
     let old_order: Vec<String> = gallops.heats.get(&fm.jjrf_display())
         .map(|h| h.order.clone())
@@ -112,56 +112,83 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
         last: args.last,
     };
 
-    match gallops.jjrg_rail(rail_args) {
-        Ok(new_order) => {
-            // No-op detection: if order unchanged, exit 0 with message
-            if new_order == old_order {
-                let position = if move_first { "first" }
-                    else if move_last { "last" }
-                    else if move_before.is_some() { "requested position" }
-                    else if move_after.is_some() { "requested position" }
-                    else { "requested position" };
-                let coronet_display = move_coronet.as_deref().unwrap_or("pace");
-                vvco_out!(output, "{}: no change — {} is already {}", cn, coronet_display, position);
-                for coronet in new_order {
-                    vvco_out!(output, "{}", coronet);
-                }
-                return (0, output.vvco_finish());
+    // No-op detection runs the reorder on a probe clone, so the gallops the write
+    // seam mutates (the session read off, the locked tip on) stays pristine for
+    // one application. An unchanged order must not reach persist — jjri_persist
+    // errors on an empty commit — so it short-circuits here as the pre-seam path
+    // did. Seam-on the probe reads the session's pinned view, not the tip: a
+    // reorder that is a no-op on that view but not on the tip is skipped — a known
+    // parallel-path corner, inert while the seam is closed.
+    let new_order: Vec<String> = {
+        let mut probe = gallops.clone();
+        match probe.jjrg_rail(rail_args.clone()) {
+            Ok(order) => order,
+            Err(e) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                return (1, output.vvco_finish());
             }
+        }
+    };
 
-            // Compute descriptive subject for commit message
-            let subject = if let Some(ref moved) = move_coronet {
-                // Move mode: describe where the pace was moved
-                let target = if move_first { "to first".to_string() }
-                    else if move_last { "to last".to_string() }
-                    else if let Some(ref b) = move_before { format!("before {}", b) }
-                    else if let Some(ref a) = move_after { format!("after {}", a) }
-                    else { "???".to_string() };
-                format!("moved {} {}", moved, target)
-            } else {
-                // Order mode: list the new order
-                format!("order: {}", new_order.join(", "))
-            };
+    if new_order == old_order {
+        let position = if move_first { "first" }
+            else if move_last { "last" }
+            else if move_before.is_some() { "requested position" }
+            else if move_after.is_some() { "requested position" }
+            else { "requested position" };
+        let coronet_display = move_coronet.as_deref().unwrap_or("pace");
+        vvco_out!(output, "{}: no change — {} is already {}", cn, coronet_display, position);
+        for coronet in new_order {
+            vvco_out!(output, "{}", coronet);
+        }
+        return (0, output.vvco_finish());
+    }
 
-            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Rail, &subject);
+    // Compute descriptive subject for commit message
+    let subject = if let Some(ref moved) = move_coronet {
+        // Move mode: describe where the pace was moved
+        let target = if move_first { "to first".to_string() }
+            else if move_last { "to last".to_string() }
+            else if let Some(ref b) = move_before { format!("before {}", b) }
+            else if let Some(ref a) = move_after { format!("after {}", a) }
+            else { "???".to_string() };
+        format!("moved {} {}", moved, target)
+    } else {
+        // Order mode: list the new order
+        format!("order: {}", new_order.join(", "))
+    };
 
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
-                Ok(hash) => {
-                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
-                }
-                Err(e) => {
-                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-                    return (1, output.vvco_finish());
-                }
-            }
+    let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Rail, &subject);
 
-            for coronet in new_order {
+    match crate::jjrm_mcp::zjjrm_write_gallops(
+        &lock,
+        &args.file,
+        &fm,
+        message,
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output,
+        officium,
+        cn,
+        gallops,
+        |g| g.jjrg_rail(rail_args),
+    ) {
+        Ok((seam_order, hash)) => {
+            vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
+            for coronet in seam_order {
                 vvco_out!(output, "{}", coronet);
             }
             (0, output.vvco_finish())
         }
-        Err(e) => {
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
             vvco_err!(output, "{}: error: {}", cn, e);
+            (1, output.vvco_finish())
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            (1, output.vvco_finish())
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
             (1, output.vvco_finish())
         }
     }

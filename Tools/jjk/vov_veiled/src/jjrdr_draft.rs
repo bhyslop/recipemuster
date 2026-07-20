@@ -45,7 +45,7 @@ pub struct jjrdr_DraftArgs {
 }
 
 /// Handler function for draft command
-pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
+pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
     let cn = JJRDR_CMD_NAME_DRAFT;
     use crate::jjrg_gallops::jjrg_DraftArgs;
     let mut output = vvco_Output::buffer();
@@ -83,59 +83,94 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
         first: args.first,
     };
 
-    match gallops.jjrg_draft(draft_args) {
-        Ok(result) => {
-            // Save gallops
-            if let Err(e) = gallops.jjrg_save(&args.file) {
-                vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-
-            // Commit using machine_commit - draft affects source and dest paddocks
-            let src_fm = src_fm.expect("draft succeeded, so its source heat was found");
-            let dest_fm = jjrf_Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
-
-            let gallops_path = args.file.to_string_lossy().to_string();
-            let src_paddock_path = jjri_paddock_path(src_fm.jjrf_as_str());
-            let dest_paddock_path = jjri_paddock_path(dest_fm.jjrf_as_str());
-
-            let commit_args = vvc::vvcm_CommitArgs {
-                files: vec![
-                    gallops_path,
-                    src_paddock_path,
-                    dest_paddock_path,
-                ],
-                message: jjrn_format_heat_message(&dest_fm, jjrn_HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet)),
-                size_limit: vvc::VVCG_SIZE_LIMIT,
-                warn_limit: vvc::VVCG_WARN_LIMIT,
-            };
-
-            match vvc::machine_commit(&lock, &commit_args, &mut output) {
-                Ok(hash) => {
-                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
-                }
-                Err(e @ vvc::vvcm_CommitError::OverLimit { .. }) => {
-                    // A barred act leaves nothing behind: restore the files this
-                    // relocate wrote, so the refusal is a refusal and not a
-                    // half-applied move waiting to ride the next command's commit.
-                    for f in &commit_args.files {
-                        let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", f.as_str()]).output();
-                        let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", f.as_str()]).output();
-                    }
-                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+    if !crate::jjrvb_blotter::JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        // Seam-off: the pre-seam path — mutate the session gallops, save it, and
+        // machine_commit the gallops with the two paddocks (unchanged, staged
+        // defensively) to the consumer repo, keeping draft's own commit-error arms.
+        match gallops.jjrg_draft(draft_args) {
+            Ok(result) => {
+                // Save gallops
+                if let Err(e) = gallops.jjrg_save(&args.file) {
+                    vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
-                Err(e) => {
-                    vvco_err!(output, "{}: commit warning: {}", cn, e);
-                }
-            }
 
-            vvco_out!(output, "{}", result.new_coronet);
-            (0, output.vvco_finish())
+                // Commit using machine_commit - draft affects source and dest paddocks
+                let src_fm = src_fm.expect("draft succeeded, so its source heat was found");
+                let dest_fm = jjrf_Firemark::jjrf_parse(&to).expect("draft given invalid destination firemark");
+
+                let gallops_path = args.file.to_string_lossy().to_string();
+                let src_paddock_path = jjri_paddock_path(src_fm.jjrf_as_str());
+                let dest_paddock_path = jjri_paddock_path(dest_fm.jjrf_as_str());
+
+                let commit_args = vvc::vvcm_CommitArgs {
+                    files: vec![
+                        gallops_path,
+                        src_paddock_path,
+                        dest_paddock_path,
+                    ],
+                    message: jjrn_format_heat_message(&dest_fm, jjrn_HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet)),
+                    size_limit: vvc::VVCG_SIZE_LIMIT,
+                    warn_limit: vvc::VVCG_WARN_LIMIT,
+                };
+
+                match vvc::machine_commit(&lock, &commit_args, &mut output) {
+                    Ok(hash) => {
+                        vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
+                    }
+                    Err(e @ vvc::vvcm_CommitError::OverLimit { .. }) => {
+                        // A barred act leaves nothing behind: restore the files this
+                        // relocate wrote, so the refusal is a refusal and not a
+                        // half-applied move waiting to ride the next command's commit.
+                        for f in &commit_args.files {
+                            let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", f.as_str()]).output();
+                            let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", f.as_str()]).output();
+                        }
+                        vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+                        return (1, output.vvco_finish());
+                    }
+                    Err(e) => {
+                        vvco_err!(output, "{}: commit warning: {}", cn, e);
+                    }
+                }
+
+                vvco_out!(output, "{}", result.new_coronet);
+                (0, output.vvco_finish())
+            }
+            Err(e) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                (1, output.vvco_finish())
+            }
         }
-        Err(e) => {
-            vvco_err!(output, "{}: error: {}", cn, e);
-            (1, output.vvco_finish())
+    } else {
+        // Seam-on: journal the relocate to the studbook against the locked tip.
+        // draft mutates no file but the gallops (jjrg_draft is pure in-memory —
+        // the paddocks stage nothing), so there is no consumer remainder to commit,
+        // and the commit message names the TIP's own minted coronet, never a
+        // divergent session pre-run (the machine_commit family's ruling).
+        match crate::jjrm_mcp::zjjrm_journal_gallops(officium, cn, |g| {
+            let result = g.jjrg_draft(draft_args)?;
+            let dest_fm = jjrf_Firemark::jjrf_parse(&to)
+                .map_err(|e| format!("draft given invalid destination firemark: {}", e))?;
+            let message = jjrn_format_heat_message(&dest_fm, jjrn_HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet));
+            Ok((result, message))
+        }) {
+            Ok((result, _sha)) => {
+                vvco_out!(output, "{}", result.new_coronet);
+                (0, output.vvco_finish())
+            }
+            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                (1, output.vvco_finish())
+            }
+            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+                (1, output.vvco_finish())
+            }
+            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+                vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+                (1, output.vvco_finish())
+            }
         }
     }
     // lock released here

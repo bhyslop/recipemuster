@@ -68,7 +68,7 @@ fn get_pace_silks_or_default(gallops: &jjrg_Gallops, firemark_key: &str, coronet
 /// `Spook: none`, so every wrap carries the line as a reliable grep surface.
 ///
 /// Returns exit code (0 for success, non-zero for failure).
-pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Option<String>) -> (i32, String) {
+pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Option<String>, officium: &str) -> (i32, String) {
     let cn = JJRWP_CMD_NAME_WRAP;
     let mut output = vvco_Output::buffer();
 
@@ -232,14 +232,14 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         silks: None,
     };
 
-    if let Err(e) = gallops.jjrg_tally(tally_args) {
+    // Apply the transition to the session gallops — it backs the chalk message and
+    // the post-wrap lookahead below in both seam states. Seam-off it is also what
+    // persists; seam-on it is display-only (the journal re-applies the same state
+    // transition to the locked tip, and a state change mints no identity, so the
+    // double application is safe — the trap the machine_commit family's ruling
+    // reserved for the mint-bearing draft/restring, not for wrap).
+    if let Err(e) = gallops.jjrg_tally(tally_args.clone()) {
         vvco_err!(output, "{}: error: {}", cn, e);
-        return (1, output.vvco_finish());
-    }
-
-    // Save gallops
-    if let Err(e) = gallops.jjrg_save(&gallops_path) {
-        vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
         return (1, output.vvco_finish());
     }
 
@@ -283,67 +283,94 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         spook_line
     );
 
-    let chalk_commit_args = vvc::vvcm_CommitArgs {
-        files: vec![".claude/jjm/jjg_gallops.json".to_string()],
-        message: chalk_message,
-        size_limit: vvc::VVCG_SIZE_LIMIT,
-        warn_limit: vvc::VVCG_WARN_LIMIT,
+    // Commit the W chalk. Off: save the gallops and machine_commit it to the
+    // consumer repo (the pre-seam path). On: journal the same state transition to
+    // the studbook against the locked tip — the gallops leaves the consumer repo
+    // (the work commit above already carried the user's code), and the chalk
+    // message rides the journal commit. Either way `chalk_hash` is the marker SHA.
+    let chalk_hash = if !crate::jjrvb_blotter::JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        if let Err(e) = gallops.jjrg_save(&gallops_path) {
+            vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
+            return (1, output.vvco_finish());
+        }
+        let chalk_commit_args = vvc::vvcm_CommitArgs {
+            files: vec![".claude/jjm/jjg_gallops.json".to_string()],
+            message: chalk_message,
+            size_limit: vvc::VVCG_SIZE_LIMIT,
+            warn_limit: vvc::VVCG_WARN_LIMIT,
+        };
+        match vvc::machine_commit(&_lock, &chalk_commit_args, &mut output) {
+            Ok(chalk_hash) => chalk_hash,
+            Err(e) => {
+                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+                vvco_err!(output, "{}: warning: chalk uncommitted — gallops state updated but not committed", cn);
+                return (1, output.vvco_finish());
+            }
+        }
+    } else {
+        match crate::jjrm_mcp::zjjrm_journal_gallops(officium, cn, |g| g.jjrg_tally(tally_args).map(|u| (u, chalk_message))) {
+            Ok((_unit, sha)) => sha,
+            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                return (1, output.vvco_finish());
+            }
+            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+                return (1, output.vvco_finish());
+            }
+            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+                vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+                vvco_err!(output, "{}: warning: chalk uncommitted — gallops state updated but not committed", cn);
+                return (1, output.vvco_finish());
+            }
+        }
     };
 
-    match vvc::machine_commit(&_lock, &chalk_commit_args, &mut output) {
-        Ok(chalk_hash) => {
-            vvco_out!(output, "{}", chalk_hash);
-            let fm = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
-                .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
-            {
-                Some(f) => f,
-                None => {
-                    vvco_err!(output, "{}: error: wrapped pace '{}' not found in any heat", cn, coronet.jjrf_display());
-                    return (1, output.vvco_finish());
-                }
-            };
-            let fm_key = fm.jjrf_display();
-            let fm_str = fm.jjrf_as_str();
-
-            // Lookahead: find next actionable pace in this heat (both open
-            // states — a bridled pace is next-actionable, at its tier).
-            let next_pace_info = gallops.heats.get(&fm_key).and_then(|heat| {
-                heat.order.iter().find_map(|c| {
-                    heat.paces.get(c.as_str()).and_then(|pace| {
-                        pace.tacks.first().and_then(|tack| {
-                            match tack.state {
-                                jjrg_PaceState::Rough | jjrg_PaceState::Bridled => {
-                                    Some((c.clone(), tack.silks.clone(), tack.tier, tack.effort))
-                                }
-                                _ => None,
-                            }
-                        })
-                    })
-                })
-            });
-
-            vvco_out!(output, "");
-            // Heat-qualified coronets for the operator-facing relay line.
-            let wrapped_display = gallops.jjrg_qualify_coronet(&coronet.jjrf_display());
-            match next_pace_info {
-                Some((next_coronet, next_silks, tier, effort)) => {
-                    let designation = zjjrx_designation_suffix(tier, effort);
-                    let next_display = gallops.jjrg_qualify_coronet(&next_coronet);
-                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped. Next: {} ({}{}) \u{2014} `/clear` then `mount {}`",
-                        wrapped_display, next_silks, next_display, designation, fm_str);
-                }
-                None => {
-                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
-                        wrapped_display, fm_str);
-                }
-            }
-            (0, output.vvco_finish())
+    vvco_out!(output, "{}", chalk_hash);
+    let fm = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
+        .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
+    {
+        Some(f) => f,
+        None => {
+            vvco_err!(output, "{}: error: wrapped pace '{}' not found in any heat", cn, coronet.jjrf_display());
+            return (1, output.vvco_finish());
         }
-        Err(e) => {
-            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-            vvco_err!(output, "{}: warning: chalk uncommitted — gallops state updated but not committed", cn);
-            (1, output.vvco_finish())
+    };
+    let fm_key = fm.jjrf_display();
+    let fm_str = fm.jjrf_as_str();
+
+    // Lookahead: find next actionable pace in this heat (both open
+    // states — a bridled pace is next-actionable, at its tier).
+    let next_pace_info = gallops.heats.get(&fm_key).and_then(|heat| {
+        heat.order.iter().find_map(|c| {
+            heat.paces.get(c.as_str()).and_then(|pace| {
+                pace.tacks.first().and_then(|tack| {
+                    match tack.state {
+                        jjrg_PaceState::Rough | jjrg_PaceState::Bridled => {
+                            Some((c.clone(), tack.silks.clone(), tack.tier, tack.effort))
+                        }
+                        _ => None,
+                    }
+                })
+            })
+        })
+    });
+
+    vvco_out!(output, "");
+    // Heat-qualified coronets for the operator-facing relay line.
+    let wrapped_display = gallops.jjrg_qualify_coronet(&coronet.jjrf_display());
+    match next_pace_info {
+        Some((next_coronet, next_silks, tier, effort)) => {
+            let designation = zjjrx_designation_suffix(tier, effort);
+            let next_display = gallops.jjrg_qualify_coronet(&next_coronet);
+            vvco_out!(output, "AGENT_RESPONSE: {} wrapped. Next: {} ({}{}) \u{2014} `/clear` then `mount {}`",
+                wrapped_display, next_silks, next_display, designation, fm_str);
+        }
+        None => {
+            vvco_out!(output, "AGENT_RESPONSE: {} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
+                wrapped_display, fm_str);
         }
     }
+    (0, output.vvco_finish())
     // lock released here
 }

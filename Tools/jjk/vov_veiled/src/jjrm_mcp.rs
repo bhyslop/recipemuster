@@ -43,10 +43,11 @@ use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_
 use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
 use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, jjrg_Gallops};
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
-use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
+use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_FarrierLock, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrrd_refit::jjrrd_run_refit;
-use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
+use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save, jjdb_JournalReject, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
+use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 /// The officia directory's fixed relative path — reused by the muck sweep's
@@ -192,6 +193,184 @@ pub(crate) fn zjjrm_load_gallops(path: &Path) -> Result<jjrg_Gallops, String> {
     zjjrm_load_gallops_over(true, path, &studbook)
 }
 
+/// A refusal from the command surface's write seam (`zjjrm_write_gallops`).
+/// `Handler` is the command's own mutation declining — the caller formats it
+/// exactly as its pre-seam `Err` arm did, so seam-off output stays
+/// byte-identical; `Commit` is the seam-off consumer-repo commit gate (size
+/// interdictum / fault, rendered via `jjri_commit_refusal`); `Blotter` is the
+/// seam-on studbook ceremony's lock/advance/proffer rejection (new to the on
+/// path, no pre-seam analogue).
+pub(crate) enum zjjrm_WriteRefusal {
+    Handler(String),
+    Commit(vvc::vvcm_CommitError),
+    Blotter(jjrfr_Rejection),
+}
+
+/// The testable write-seam branch — the write analogue of
+/// `zjjrm_load_gallops_over`, mirroring `jjrds_plan`'s `over_studbook` idiom: a
+/// test drives `over_studbook` true against a fixture studbook while
+/// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` itself stays false.
+///
+/// Off: `mutate` runs against `session_gallops` (the seam-aware read the caller
+/// already took) and `jjri_persist` co-commits `[gallops, paddock]` to the
+/// consumer repo under `lock` — byte-identical to the pre-seam
+/// load-mutate-persist. On: `mutate` re-runs INSIDE the JJSVJ ceremony against
+/// the LOCKED, advanced studbook tip — never `session_gallops`, which may be a
+/// stale per-session read — so a concurrent station's paces are never clobbered
+/// (the currency cinch: write-currency is the blotter lease's own enforcement).
+/// Only the gallops journals to the studbook; the paddock `.md` and any code
+/// stay on the consumer-repo path (JJSVS "Scope at birth": the studbook holds
+/// the gallops alone). A declined `mutate` aborts the ceremony with nothing
+/// committed, preserving the pre-seam invariant that a failed command commits
+/// nothing.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn zjjrm_write_gallops_over<F, R>(
+    farrier: &F,
+    over_studbook: bool,
+    lock: &vvc::vvcc_CommitLock,
+    path: &Path,
+    firemark: &crate::jjrf_favor::jjrf_Firemark,
+    message: String,
+    size_limit: u64,
+    output: &mut vvc::vvco_Output,
+    studbook: &jjdb_BlotterConfig,
+    guidon: &str,
+    mut session_gallops: jjrg_Gallops,
+    mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<R, String>,
+) -> Result<(R, String), zjjrm_WriteRefusal>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+{
+    if !over_studbook {
+        let r = mutate(&mut session_gallops).map_err(zjjrm_WriteRefusal::Handler)?;
+        let hash = crate::jjri_io::jjri_persist(lock, &session_gallops, path, firemark, message, size_limit, output)
+            .map_err(zjjrm_WriteRefusal::Commit)?;
+        return Ok((r, hash));
+    }
+
+    zjjrm_journal_run(farrier, studbook, guidon, |g| mutate(g).map(|r| (r, message)))
+}
+
+/// The seam-ON journal core, shared by `zjjrm_write_gallops_over` (the clean
+/// jjri_persist family) and `zjjrm_journal_gallops` (the machine_commit family,
+/// whose seam-OFF path is its own multi-file commit). Re-runs `mutate` against
+/// the LOCKED, advanced studbook tip (Shape B — never a pre-lock read), journals
+/// the result, and returns it with the studbook commit SHA. A `None` tip means
+/// the studbook was never seeded — a founding gap, surfaced loud, never papered.
+fn zjjrm_journal_run<F, R>(
+    farrier: &F,
+    studbook: &jjdb_BlotterConfig,
+    guidon: &str,
+    mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<(R, String), String>,
+) -> Result<(R, String), zjjrm_WriteRefusal>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+{
+    let mut captured: Option<R> = None;
+    let outcome = jjdb_gallops_journal_try_save(farrier, studbook, guidon, |tip| {
+        let mut g = match tip {
+            Some(vg) => vg.into_inner(),
+            None => return Err("studbook tip carries no gallops tenant — founding incomplete".to_string()),
+        };
+        let (r, message) = mutate(&mut g)?;
+        captured = Some(r);
+        Ok((g, message))
+    });
+    match outcome {
+        Ok(sha) => Ok((captured.expect("journal adopted a commit without running the transform"), sha)),
+        Err(jjdb_JournalReject::Abort(e)) => Err(zjjrm_WriteRefusal::Handler(e)),
+        Err(jjdb_JournalReject::Ceremony(r)) => Err(zjjrm_WriteRefusal::Blotter(r)),
+    }
+}
+
+/// Command-surface gallops WRITE — every mutating `jjx_*` command's persist
+/// funnels through here (the write analogue of `zjjrm_load_gallops`). Honors
+/// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`, the same const the read half and the
+/// dispatch spine obey, so one flip moves every writer. Off (compiled default,
+/// mainline-inert): mutate the session read and `jjri_persist` directly — the
+/// pre-seam path. On: derive the infield root fresh from `cwd` and the studbook
+/// config (as the read half does), compose the session's guidon from
+/// `officium`/station/`operation` (the mark the cashier door reads), and journal
+/// the gallops mutation to the studbook.
+///
+/// Scope of "every mutating command": the commands that mutate the gallops STORE
+/// OF RECORD. `jjx_validate` (`jjrvl_validate.rs`) is deliberately exempt seam-on
+/// — it NORMALIZES the in-repo gallops (canonical rewrite) and finalizes an
+/// in-progress git merge, both consumer-repo-store maintenance with no studbook
+/// analogue: every studbook write already lands canonical through `jjdr_save`, and
+/// the studbook is a linear blotter that never merges (a corrupt tenant panics
+/// loud rather than earning a validate verdict; the reprieve write-forward rides
+/// `jjdr_hark` on the next read). Seam-on, validate operates only on the
+/// consumer-side copy, which this store model defines as outside the store of
+/// record — so its exemption is principled, not a gap. `jjri_consign`'s only
+/// caller is validate, so exempting it strands no other command. (Flip-time UX —
+/// whether validate should name the studbook or notice-and-noop against the
+/// fossil consumer gallops — is banked for the conversion heat, not this wiring.)
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn zjjrm_write_gallops<R>(
+    lock: &vvc::vvcc_CommitLock,
+    path: &Path,
+    firemark: &crate::jjrf_favor::jjrf_Firemark,
+    message: String,
+    size_limit: u64,
+    output: &mut vvc::vvco_Output,
+    officium: &str,
+    operation: &str,
+    mut session_gallops: jjrg_Gallops,
+    mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<R, String>,
+) -> Result<(R, String), zjjrm_WriteRefusal> {
+    if !JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        // The off branch never touches a studbook config or composes a guidon —
+        // mutate the session read and persist directly, exactly as before.
+        let r = mutate(&mut session_gallops).map_err(zjjrm_WriteRefusal::Handler)?;
+        let hash = crate::jjri_io::jjri_persist(lock, &session_gallops, path, firemark, message, size_limit, output)
+            .map_err(zjjrm_WriteRefusal::Commit)?;
+        return Ok((r, hash));
+    }
+    let cwd = std::env::current_dir()
+        .map_err(|e| zjjrm_WriteRefusal::Handler(format!("current_dir error: {}", e)))?;
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .ok_or_else(|| zjjrm_WriteRefusal::Handler("could not derive infield root from cwd".to_string()))?;
+    let studbook = jjdb_studbook_config(&infield_root);
+    let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
+    zjjrm_write_gallops_over(
+        &jjrfg_PlainGit,
+        true,
+        lock,
+        path,
+        firemark,
+        message,
+        size_limit,
+        output,
+        &studbook,
+        &guidon,
+        session_gallops,
+        mutate,
+    )
+}
+
+/// The seam-ON gallops journal for the machine_commit family (wrap/draft/
+/// restring/retire) — commands whose seam-OFF path is their own multi-file
+/// `machine_commit`, not `jjri_persist`, so they cannot ride `zjjrm_write_gallops`.
+/// Each gates itself on `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` and keeps its pre-seam
+/// commit for the off path; on the on path it calls here to journal the gallops
+/// alone to the studbook (Shape B, against the tip), leaving the paddock `.md` and
+/// the user's code on the consumer-repo path. Derives the studbook and composes
+/// the guidon exactly as `zjjrm_write_gallops` does.
+pub(crate) fn zjjrm_journal_gallops<R>(
+    officium: &str,
+    operation: &str,
+    mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<(R, String), String>,
+) -> Result<(R, String), zjjrm_WriteRefusal> {
+    let cwd = std::env::current_dir()
+        .map_err(|e| zjjrm_WriteRefusal::Handler(format!("current_dir error: {}", e)))?;
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .ok_or_else(|| zjjrm_WriteRefusal::Handler("could not derive infield root from cwd".to_string()))?;
+    let studbook = jjdb_studbook_config(&infield_root);
+    let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
+    zjjrm_journal_run(&jjrfg_PlainGit, &studbook, &guidon, mutate)
+}
+
 /// One-time studbook currency glean (seam-gated): the "one glean rides
 /// officium open per session" half of the build-gap rescope's
 /// currency-at-read ruling — every per-command ref-read the session takes
@@ -307,6 +486,7 @@ fn zjjrm_run_sift() -> (i32, String) {
 /// note.
 fn zjjrm_dispatch_inner_msg(
     cmd: &str,
+    officium: &str,
     firemark: &crate::jjrf_favor::jjrf_Firemark,
     size_limit: u64,
     message: String,
@@ -324,7 +504,7 @@ fn zjjrm_dispatch_inner_msg(
     };
 
     let gallops_path = gallops_pathbuf();
-    let mut gallops = match zjjrm_load_gallops(&gallops_path) {
+    let gallops = match zjjrm_load_gallops(&gallops_path) {
         Ok(g) => g,
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
@@ -333,34 +513,34 @@ fn zjjrm_dispatch_inner_msg(
         }
     };
 
-    let output = match handler(&mut gallops) {
-        Ok(o) => o,
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                format!("jjx {}: error: {}", cmd, e),
-            )]));
-        }
-    };
-
+    // Mutation and persist funnel through the write seam: off, `handler` runs
+    // against this read and `jjri_persist` commits to the consumer repo; on, it
+    // re-runs against the locked studbook tip. The Handler/Commit arms render the
+    // exact pre-seam wire strings, so seam-off output is byte-identical.
     let mut persist_output = vvco_Output::buffer();
-    match crate::jjri_io::jjri_persist(
+    match zjjrm_write_gallops(
         &lock,
-        &gallops,
         &gallops_path,
         firemark,
         message,
         size_limit,
         &mut persist_output,
+        officium,
+        cmd,
+        gallops,
+        handler,
     ) {
-        Ok(_hash) => {}
-        Err(e) => {
-            return Ok(CallToolResult::error(vec![Content::text(
-                crate::jjri_io::jjri_commit_refusal(cmd, &e),
-            )]));
-        }
+        Ok((output, _hash)) => Ok(CallToolResult::success(vec![Content::text(output)])),
+        Err(zjjrm_WriteRefusal::Handler(e)) => Ok(CallToolResult::error(vec![Content::text(
+            format!("jjx {}: error: {}", cmd, e),
+        )])),
+        Err(zjjrm_WriteRefusal::Commit(e)) => Ok(CallToolResult::error(vec![Content::text(
+            crate::jjri_io::jjri_commit_refusal(cmd, &e),
+        )])),
+        Err(zjjrm_WriteRefusal::Blotter(r)) => Ok(CallToolResult::error(vec![Content::text(
+            format!("jjx {}: studbook journal refused: {}", cmd, r),
+        )])),
     }
-
-    Ok(CallToolResult::success(vec![Content::text(output)]))
 }
 
 /// Resolve the single heat firemark a mixed batch targets, enforcing the
@@ -2894,7 +3074,7 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     firemark: p.firemark,
                     size_limit: p.size_limit,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_CREATE => {
                 let p = deser!(jjrm_CreateParams);
@@ -2924,7 +3104,7 @@ impl jjrm_McpServer {
                     after: p.after,
                     first: p.first,
                     size_limit: p.size_limit,
-                }, slate_input.docket, slate_input.dictation, slate_input.precis))
+                }, slate_input.docket, slate_input.dictation, slate_input.precis, officium_id))
             }
             JJRM_CMD_NAME_REORDER => {
                 let p = deser!(jjrm_ReorderParams);
@@ -2937,7 +3117,7 @@ impl jjrm_McpServer {
                     after: p.after,
                     first: p.first,
                     last: p.last,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_REDOCKET => {
                 let p = deser!(jjrm_ReviseDocketParams);
@@ -2975,7 +3155,7 @@ impl jjrm_McpServer {
                 let before = p.before.clone();
                 let after = p.after.clone();
                 let first = p.first;
-                zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, size_limit, message, move |gallops| {
                     jjrm_apply_batch(gallops, &batch, &firemark_for_handler, before, after, first)
                 })
             }
@@ -2985,14 +3165,14 @@ impl jjrm_McpServer {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
                     silks: p.silks,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_DROP => {
                 let p = deser!(jjrm_DropParams);
                 jjrm_result(jjrtl_run_drop(jjrtl_DropArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_RELOCATE => {
                 let p = deser!(jjrm_RelocateParams);
@@ -3003,7 +3183,7 @@ impl jjrm_McpServer {
                     before: p.before,
                     after: p.after,
                     first: p.first,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_ALTER => {
                 let p = deser!(jjrm_AlterParams);
@@ -3014,14 +3194,14 @@ impl jjrm_McpServer {
                     stabled: p.stabled,
                     silks: p.silks,
                     size_limit: p.size_limit,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_CLOSE => {
                 let p = deser!(jjrm_CloseParams);
                 jjrm_result(zjjrx_run_wrap(jjrx_WrapArgs {
                     coronet: p.coronet,
                     size_limit: p.size_limit,
-                }, p.summary, p.spook))
+                }, p.summary, p.spook, officium_id))
             }
             JJRM_CMD_NAME_SEARCH => {
                 let p = deser!(jjrm_SearchParams);
@@ -3115,7 +3295,7 @@ impl jjrm_McpServer {
                 let message = jjrn_format_heat_discussion(&firemark, &description);
                 let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
                 let firemark_for_handler = firemark.clone();
-                zjjrm_dispatch_inner_msg(cmd, &firemark, size_limit, message, move |gallops| {
+                zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, size_limit, message, move |gallops| {
                     jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content)?;
                     Ok(format!("{}: paddock updated", cmd))
                 })
@@ -3127,7 +3307,7 @@ impl jjrm_McpServer {
                     firemark: p.firemark,
                     to: p.to,
                     size_limit: p.size_limit,
-                }, p.coronets))
+                }, p.coronets, officium_id))
             }
             JJRM_CMD_NAME_LANDING => {
                 let p = deser!(jjrm_LandingParams);
@@ -3218,7 +3398,7 @@ impl jjrm_McpServer {
                         jjrn_HeatAction::Tally,
                         &format!("bridled ₢{} at {}", coronet.trim_start_matches('₢'), designation),
                     );
-                    zjjrm_dispatch_inner_msg(cmd, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
+                    zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
                         let ctx = gallops.jjrg_bridle(&coronet, tier, effort, &basis, &ts)?;
                         Ok(format!(
                             "{} ({}): rough → bridled [{}]",
@@ -3231,7 +3411,7 @@ impl jjrm_McpServer {
                         jjrn_HeatAction::Tally,
                         &format!("released ₢{} to rough", coronet.trim_start_matches('₢')),
                     );
-                    zjjrm_dispatch_inner_msg(cmd, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
+                    zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
                         let ctx = gallops.jjrg_release(&coronet, &basis, &ts)?;
                         let prior = match (ctx.tier, ctx.effort) {
                             (Some(t), Some(e)) => format!("{} {}", t.jjrg_as_str(), e.jjrg_as_str()),

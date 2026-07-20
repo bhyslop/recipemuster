@@ -44,7 +44,7 @@ pub struct jjrfu_FurloughArgs {
 }
 
 /// Handler for jjx_furlough command
-pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
+pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs, officium: &str) -> (i32, String) {
     let cn = JJRFU_CMD_NAME_FURLOUGH;
     let mut output = vvco_Output::buffer();
 
@@ -78,6 +78,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
     let description = changes.join(", ");
 
     let firemark_str = args.firemark.clone();
+    let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
     let furlough_args = jjrg_FurloughArgs {
         firemark: args.firemark,
         racing: args.racing,
@@ -85,25 +86,49 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
         silks: args.silks,
     };
 
-    match gallops.jjrg_furlough(furlough_args) {
-        Ok(()) => {
-            let fm = jjrf_Firemark::jjrf_parse(&firemark_str).expect("furlough given invalid firemark");
-            let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Furlough, &description);
-
-            match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT), &mut output) {
-                Ok(hash) => {
-                    vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
-                }
+    // fm/message precede the write seam; a malformed firemark is surfaced by
+    // jjrg_furlough itself, so on a parse miss run the mutation for its
+    // authoritative error (the Ok arm is the old `.expect`'s panic verbatim).
+    let fm = match jjrf_Firemark::jjrf_parse(&firemark_str) {
+        Ok(fm) => fm,
+        Err(_) => {
+            return match gallops.jjrg_furlough(furlough_args) {
+                Ok(()) => unreachable!("furlough given invalid firemark"),
                 Err(e) => {
-                    vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-                    return (1, output.vvco_finish());
+                    vvco_err!(output, "{}: error: {}", cn, e);
+                    (1, output.vvco_finish())
                 }
-            }
+            };
+        }
+    };
+    let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Furlough, &description);
 
+    match crate::jjrm_mcp::zjjrm_write_gallops(
+        &lock,
+        &args.file,
+        &fm,
+        message,
+        size_limit,
+        &mut output,
+        officium,
+        cn,
+        gallops,
+        |g| g.jjrg_furlough(furlough_args),
+    ) {
+        Ok(((), hash)) => {
+            vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
             (0, output.vvco_finish())
         }
-        Err(e) => {
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
             vvco_err!(output, "{}: error: {}", cn, e);
+            (1, output.vvco_finish())
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            (1, output.vvco_finish())
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
             (1, output.vvco_finish())
         }
     }
