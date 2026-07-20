@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B8",
-  "jjgrn_next_pace_seed": "CAAAj",
+  "jjgrn_next_pace_seed": "CAAAk",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -5665,7 +5665,8 @@
         "₢CAAAf",
         "₢CAAAg",
         "₢CAAAh",
-        "₢CAAAi"
+        "₢CAAAi",
+        "₢CAAAj"
       ],
       "jjghn_paces": {
         "₢CAAAf": {
@@ -5790,6 +5791,37 @@
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "The gate is the self-maintaining writer of the table and the job the operator reaches for most often; building it before bulk population gives the convergence act its row machinery.",
+          "jjgpn_slated": "260719-2258"
+        },
+        "₢CAAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The reprieve-shaped convergence: populate rows for the standing word stock in one deliberate act —",
+                "new mints already comply from the doctrine's landing via the mint gate.",
+                "Includes the reserved-word membership migration:",
+                "the Seed: word lists inside MCM's withheld-word and antipattern definitions",
+                "(mcm_hallowed_word, mcm_fallow_word, mcm_furrowed_word; mcm_trodden_word, mcm_leached_word)",
+                "move into the table under the four-value mint-status tag (disqualified / reserved / earmarked / minted),",
+                "the MCM category riding as provenance on the row,",
+                "and MCM's Seed: lines relax to pointers (ACG reference-the-home — words homed once, meaning kept at MCM).",
+                "Which standing minted words converge in this act is an operator election at mount.",
+                "Per-row retroactive sweeps of existing prose debut per-row at mint time, never big-bang — the population act itself does not lint.",
+                "",
+                "## Done when",
+                "The elected standing stock has rows in the live table;",
+                "the MCM Seed: memberships live only in the table, with MCM keeping each category's meaning and pointing here;",
+                "and the convergence is recorded as the one deliberate act the doctrine requires."
+              ],
+              "jjgtn_silks": "grimoire-standing-stock-convergence",
+              "jjgtn_basis": "49dcd0c"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The current concept requires one deliberate convergence of the standing stock — including the MCM Seed migration into the four-status table — rather than big-bang or drift.",
           "jjgpn_slated": "260719-2258"
         }
       }
