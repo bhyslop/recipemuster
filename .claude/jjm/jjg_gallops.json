@@ -8051,8 +8051,8 @@
         "₢BzAAA": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0830",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260719-2033",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Character",
                 "Generative groom pace — its deliverable is the refreshed slate, not code.",
@@ -8078,7 +8078,7 @@
                 "the ready paces are bridled with tiers recorded."
               ],
               "jjgtn_silks": "acg-roster-scout",
-              "jjgtn_basis": "feb2a50"
+              "jjgtn_basis": "9d96c1b"
             }
           ]
         },
