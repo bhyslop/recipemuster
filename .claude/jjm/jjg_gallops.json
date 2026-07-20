@@ -5145,8 +5145,9 @@
         "₢CAAAs": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260720-0849",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260720-0850",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "State and home a formal premise or requirement ruling symlink-dependent",
                 "behavior out of scope for this project's code — decide the shape (a",
@@ -5177,7 +5178,7 @@
                 "grounding evidence."
               ],
               "jjgtn_silks": "symlink-premise",
-              "jjgtn_basis": "1d2f6b8"
+              "jjgtn_basis": "b3ec958"
             }
           ],
           "jjgpn_dictation": "woof hold on regarding symlinks...\n\nUnreliable on windows under cygwin.  how are they used in this design?\n\n---\n\nDo rewrite your test to avoid path-equality assertion now.  Also, cantle a\npace and bridle to Fable for properly stating and emplacing a requirement/\nkey premise that makes symlink use inappropriate for this project.  We'll\nthink through whether this is 'multiplatform required' shape or other on\nmount of that pace.  Proceed.",
