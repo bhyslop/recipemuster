@@ -4459,8 +4459,10 @@
         "₢CAAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2221",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260719-2222",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Implementation of a cinched design — a wide-ranging repair across code, regime, specs, and onboarding.",
@@ -4513,7 +4515,7 @@
                 "any bash touched is BCG-compliant and `tt/rbw-tl.Shellcheck.sh` lands clean."
               ],
               "jjgtn_silks": "pin-vessel-less-capture-tools",
-              "jjgtn_basis": "2f673ba"
+              "jjgtn_basis": "89f710a"
             }
           ],
           "jjgpn_dictation": "Would you write a memo detailing all of these findings and then slate a pace in B2 to resolve this? While I want you to name the memo in the new pace, keep the docket from getting into the cryptographic attack vector- we just need to work out a right way to use a reliquary for these operations, I think.",
