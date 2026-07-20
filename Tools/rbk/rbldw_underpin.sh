@@ -53,8 +53,8 @@ set -euo pipefail
 # ceiling. Three steps across two builders: the fetch/verify rides the Debian Google
 # builder (curl + apt-installed gnupg), the wrap and vouch-push ride the floating gcrane
 # builder. wsl is evicted but NOT pinned this pace — it is vessel-less with no reliquary
-# source, so its tool-pinning defers to the bootstrap-builder digest-pin itch (RBS0
-# rbsk_pinning_boundary); both gcrane rows ride the floating bootstrap builder, same tier
+# source, so its tool-pinning defers to the bootstrap-builder digest-pin itch
+# (RBr_p7c); both gcrane rows ride the floating bootstrap builder, same tier
 # as conclave. The heavy capture poll ceiling gives headroom for the in-step
 # apt-get(gnupg) + keyserver fetch + gcrane append.
 # Args: token url stamp

@@ -1035,6 +1035,14 @@ Rationale: a result that depends on whatever tag happened to be current at build
 The narrow bootstrap exception is bounded, supervised, and re-runnable; it touches nothing a consumer relies on.
 The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the per-grade trust details live in RBSCB.
 
+[[RBr_p7c]]
+//axvc_dictum
+RBr_p7c::
+Invariant a build upholds: a build consuming a sealed reliquary carries zero unpinned aspects — every tool and base image resolves content-pinned from the project reliquary.
+Reliquary generation — the conclave ceremony that produces the reliquary and therefore cannot resolve from it — is the one phase permitted to ride the floating Google-hosted bootstrap builder, since the first tool must bootstrap from somewhere; a reader must not pin that generation-phase pull.
+A build that rides the floating bootstrap tier yet executes under sensitive authority is digest-pinned rather than left on a mutable tag: the Director-run delete bootstrap is the worked case — it consumes no reliquary (the delete of the last reliquary must still work) so cannot resolve a pinned tool, but the identity holding delete authority must never execute floating bytes, so its bootstrap is pinned to a reviewed digest.
+A reader must not relax such a bootstrap to a mutable tag — the asymmetry is the boundary, not an oversight.
+
 [[RBr_b4e]]
 //axvc_spoor
 RBr_b4e::
@@ -2532,6 +2540,13 @@ The per-session human sign-in act (Scots law: to appear formally in answer to a 
 Surfaced through the credential accessor, never as a tabtarget: a cloud command that finds no live sitting runs the device-flow kickoff inline, surfacing the verification prompt on the shared progress stream — console, log, and any watching relay alike — so a headless-but-human-reachable caller completes the same human sign-in.
 No terminal gate guards the kickoff (retired 260701): human presence is enforced by the IdP sign-in itself, never by terminal possession, and the user code is display-safe by design (RFC 8628) — possession grants nothing without the human's own IdP authentication, and a substituted sign-in cannot pass admission.
 A truly unattended miss polls to the bounded device-code expiry and fails loud; unattended operation belongs to the programmatic mechanism, never this path.
++
+[[RBr_u9k]]
+//axvc_dictum
+RBr_u9k::
+Invariant a display path upholds: the device-flow user code is display-safe — possession grants nothing without the human's own IdP authentication (RFC 8628), and a substituted sign-in cannot pass admission.
+Surfacing the user code on a shared stream (progress log, clipboard) therefore leaks no authority.
+A reader must not treat the user code as a secret to gate behind terminal possession — the retired /dev/tty emission and its headless fail-fast defended no threat.
 
 [[rbtf_sitting]]
 {rbtf_sitting}::
@@ -2552,6 +2567,13 @@ a freshly-opened sitting has full runway by construction.
 The floor is what makes the
 {rbsk_human_present}
 mid-flight re-mint promise hold by construction: a run admitted at the gate re-mints mantle tokens from a sitting still live.
++
+[[RBr_r3n]]
+//axvc_dictum
+RBr_r3n::
+Invariant the sitting-reuse gate upholds: reuse is proactively runway-bounded, not merely lapse-bounded — on the reuse path only (automatic for every federated command, never a per-command preflight), the remaining runway must clear a blanket required-runway floor (default ~2h), and a shorter sitting is turned away with a named band rejection advising novation.
+A freshly-opened sitting has full runway by construction, so the floor never bites it.
+The reuse-path-only placement is deliberate: a reader must not add a per-command preflight or drop the floor.
 
 [[rbtf_novate]]
 {rbtf_novate}::

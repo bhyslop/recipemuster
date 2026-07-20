@@ -86,7 +86,7 @@ zrbof_require_foedus() {
 
   # A subdirectory can stand without its regime file: rbef_keycloak commits only an
   # rbrf.env.template until the test facility renders its git-ignored live regime
-  # (rivet RBr_e4a), so the two tests name distinct states.
+  # (RBr_e4a), so the two tests name distinct states.
   local z_rbrf=""
   z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") \
     || buc_reject "${z_band}" "Failed to resolve the regime path for foedus '${z_foedus}'"

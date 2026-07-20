@@ -56,11 +56,7 @@ zrba_kindle() {
   readonly ZRBA_SITTING_SKEW_SEC=60
   readonly ZRBA_DEVICE_POLL_MAX_SEC=900
 
-  # Proactive runway floor (RBS0 rbtf_sitting): the blanket required-runway
-  # default the avow sitting-reuse gate demands, sized so an admitted sitting
-  # outlives the worst-case cloud build (~95 min) with margin. Per-operation
-  # bounds ride the rba_avow parameter seam; none are populated until one
-  # earns its existence.
+  # Proactive runway floor — the blanket required-runway default (RBr_r3n).
   readonly ZRBA_SITTING_RUNWAY_FLOOR_SEC=7200
 
   # Programmatic (RFC 7523) assertion tuning: the self-supplied JWT's lifetime and
@@ -323,8 +319,7 @@ zrba_idtoken_subject_capture() {
 # Best-effort clipboard copy of the device-flow user code at avowal-prompt
 # emission. Custody rule: ONLY the user code ever rides this path — never the
 # device code, the federated token, or a mantle token. The user code is
-# display-safe by design (RBS0 rbtf_avow: possession grants nothing without
-# the human's own IdP sign-in); accepted residual: clipboard sync/history may
+# display-safe by design (RBr_u9k); accepted residual: clipboard sync/history may
 # spread the single-use ~15-minute code to synced devices. Convenience only,
 # never load-bearing — no tool found or a failed copy degrades to
 # display-only, and only a successful copy is announced (it replaces the
@@ -676,15 +671,8 @@ zrba_sitting_open() {
 # (zrba_sitting_open). The suite-head seam stands: an automated run avows once
 # at suite head; cases thereafter take the cache-hit path.
 #
-# Runway gate (RBS0 rbtf_sitting): on the reuse path ONLY — automatic for
-# every federated command since every accessor site funnels through here,
-# never a per-command preflight step — the cached sitting's remaining runway
-# must clear the required floor. A shorter sitting is turned away with the
-# named band rejection advising novate; a freshly-opened sitting has full
-# runway by construction, so the fresh path is ungated. The required runway
-# arrives as the optional first argument, defaulting to the blanket floor —
-# the parameterized seam; no per-operation bound is populated until one earns
-# its existence.
+# Runway gate (RBr_r3n). Required runway: the optional first argument,
+# defaulting to the blanket floor.
 rba_avow() {
   zrba_sentinel
   zrbrf_sentinel

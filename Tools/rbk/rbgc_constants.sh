@@ -83,7 +83,7 @@ zrbgc_kindle() {
 
   # serviceusage enable INTERNAL flake — whole-attempt retry budget for
   # rbge_api_enable on the fresh-project enable race. Signature and membrane:
-  # rivets RBr_4e7 / RBr_d21 at RBS0 rbtoe_api_enable.
+  # RBr_4e7 / RBr_d21.
   readonly RBGC_API_ENABLE_RETRY_ATTEMPTS=3
   readonly RBGC_API_ENABLE_RETRY_PAUSE_SEC=15
 

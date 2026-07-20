@@ -495,7 +495,7 @@ vocabulary that is grep-locatable by prefix but owns no subdocument. An AXLA
 prefix naming resident artifact types (e.g. `rbi_` GAR tags), `axvs_fascicle` for
 the field keys of one wire envelope (e.g. `rblv_`).
 
-Four rulings, now live rather than pending:
+Five rulings, now live rather than pending:
 
 - **Test names never appear in source comments.** A comment naming its defending
   tests goes stale on every test rename with no forcing function. The linkage
@@ -503,6 +503,15 @@ Four rulings, now live rather than pending:
 - **Tripwire residues cite the rivet.** A residue cites the rivet ID in prose;
   the relocation sweeps this pace gates may now land each citation once, against
   a real anchor.
+- **A citation is the bare identifier — never the word "rivet."** The `RBr_`
+  prefix and its mixed case declare the kind at a glance, so welding the word
+  *rivet* to the ID restates what the identifier already announces — and in
+  shipped source it leaks the closed-spec vocabulary the opaque tail exists to
+  hide. A reference site carries the ID alone (`RBr_p7c`), exactly as a precept
+  (MCM `mcm_precept`) is cited bare (`CBi_101`, never "precept CBi_101"); the
+  word *rivet* belongs only to prose discussing the mechanism and to the
+  definition site's `axvc_` voicing. This governs every citation — tripwire,
+  shipped source, and spec-side alike.
 - **Shipped source cites no spec acronym — rivet or nothing.** The `.sh` files
   ship while the closed specs do not: a readable spec name in released source
   leaks the veiled tree's structure, dangles for every consumer, and drifts on
@@ -561,5 +570,5 @@ ruling: shipped source cites no spec acronym.)
 | detect-only | Licensing: the verb reads and reports; no repair until a verifier exists |
 | Name-identity | Concept linkage where the implementing symbol *is* the link to its quoin |
 | Citation-collapse | ACGm_104's degenerate case: the receiving home already carries the comment's content, so the comment shrinks to residue and nothing relocates |
-| Residue | What survives at the code after a collapse: the citation alone (the rivet ID) — never the rationale, which lives solely at the spec home |
+| Residue | What survives at the code after a collapse: the citation alone (the bare `RBr_` ID, never the word *rivet*) — never the rationale, which lives solely at the spec home |
 | Cited constraint / Rivet | A normative proposition the spec defines once under an opaque minted ID (`RBr_`+tail) that code and tests cite. Specified at its MCM/AXLA home as `mcm_rivet`, a fourth census category; kind declared by an `axvc_` voicing, not by the ID |

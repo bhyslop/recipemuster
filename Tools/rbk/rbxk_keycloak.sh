@@ -78,7 +78,7 @@ zrbxk_kindle() {
   # suffix — the suffix is the only fact this module owns, so the template can
   # never drift from the regime filename. It carries the vendor-agnostic core;
   # setup renders the git-IGNORED live file the folio-addressed verbs source
-  # (rivet RBr_e4a).
+  # (RBr_e4a).
   local z_live=""
   z_live=$(rbcc_rbrf_file_capture "${RBXK_foedus}") \
     || buc_die "Failed to resolve the ${RBXK_foedus} federation regime path"
