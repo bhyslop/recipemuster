@@ -1,5 +1,11 @@
 # Diptych: A Dual-Representation Document System for Human-AI Collaboration
 
+> **Staleness notice (2026-07-20).** This memo remains the founding vision and
+> provenance record, but several concrete mechanisms below were superseded by
+> the aspirant sheaf `Tools/vok/vov_veiled/VOSYD-diptych.adoc`, which is the
+> later thought wherever the two disagree. Sections carrying an express
+> supersession warning are stale in their mechanism; their motivation stands.
+
 ## Origin
 
 This memo records a design conversation between editor and digital mind (Claude Opus 4.6) that began with a practical frustration — AsciiDoc ceremony consuming tokens in concept model documents — and arrived at something larger: a yin-yang document format natively optimized for two consumers simultaneously.
@@ -44,6 +50,11 @@ Neither representation is degraded. Each is the *native* form for its consumer. 
 The codec is the hinge. The hinge is trivial.
 
 ## Prefix Character Grammar
+
+> **Superseded (2026-07-20).** This prefix-character scheme — including the
+> `$`/`@`/`#`/`^` sigils used in examples throughout this memo — did not
+> survive design; the standing lexical law lives in
+> `Tools/vok/vov_veiled/VOSYD-diptych.adoc`.
 
 The format uses single-character prefixes to discriminate structural roles. Each line's purpose is immediately clear from its first character. No closing delimiters. No matching pairs. No indirection.
 
@@ -98,6 +109,9 @@ Three structural lines become one. The prose body is unchanged.
 
 ## Sentence Boundary Tokens
 
+> **Superseded (2026-07-20).** Punctuation handling was settled on a different
+> mechanism; see `Tools/vok/vov_veiled/VOSYD-diptych.adoc`.
+
 Rather than relying on period detection and capitalization heuristics, the recto format uses explicit sentence boundary tokens. A single character (to be determined) signals: "attach period to previous word, capitalize next word, this is a semantic sentence boundary."
 
 This eliminates ambiguity (is `.` end-of-sentence, abbreviation, or path component?) and enables auto-punctuation for lists. A list-mode token followed by items could auto-generate oxford comma patterns — the semantic content is "these items form a list," not "these items have commas between them."
@@ -116,6 +130,9 @@ $jjdhr_heat.
 The period stays with `$jjdhr_heat` because the sentence boundary token preceding the next sentence governs the join. The codec doesn't need to guess about punctuation — it follows the tokens.
 
 ## Formatting State Machine
+
+> **Superseded (2026-07-20).** Toggle semantics did not survive design; see
+> `Tools/vok/vov_veiled/VOSYD-diptych.adoc`.
 
 Bold, italic, and other formatting use toggle semantics rather than paired delimiters. A token enters bold mode; content flows; a token exits (or a reset-to-normal token clears all). Default is to continue the current run's formatting.
 
@@ -226,6 +243,9 @@ ClaudeMark as a separate named format is superseded. The lectio output inherits 
 `memo-20260610-quoin-minting-introspection.md` (2026-06-10) reports from the model's side what the mapping spine actually buys — certain coreference rather than token savings — and what minting choices serve it: early divergence, cross-kit sub-letter rhyme, Zipf-shaped brevity, real-word stems, legend cargo for partial views. Its §7 rule set is the validator's feedstock; its guidance constrains new mints immediately and recension targets eventually.
 
 ### Vox Obscura / Voce Viva
+
+> **Superseded (2026-07-20).** The residence call below (`vvr`) was ruled
+> differently; see `Tools/vok/vov_veiled/VOSYD-diptych.adoc`.
 
 The Diptych codec, the lectionary engine, and the recto/verso transforms are hidden infrastructure — Vox Obscura. Users never see the word-per-line storage format or the codec mechanics. They interact with the verso (or lectio) through transparent tooling.
 

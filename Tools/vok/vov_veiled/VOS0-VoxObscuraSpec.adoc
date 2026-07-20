@@ -1630,6 +1630,6 @@ Both are aspirant: they mint nothing citable yet.
 //axvd_cartouche axd_aspirant axd_cosmology
 include::VOSYD-diptych.adoc[leveloffset=+1]
 
-//axvd_cartouche axd_aspirant axd_entity
+//axvd_cartouche axd_aspirant axd_cosmology
 include::VOSVK-variants.adoc[leveloffset=+1]
 

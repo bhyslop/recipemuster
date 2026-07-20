@@ -1,5 +1,5 @@
-//axvd_sheaf axd_aspirant axd_entity
-This is an aspirant entity sheaf of the {vos0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+//axvd_sheaf axd_aspirant axd_cosmology
+This is an aspirant cosmology sheaf of the {vos0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
 
 == Charter
 
