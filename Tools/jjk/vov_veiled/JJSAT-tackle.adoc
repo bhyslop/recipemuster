@@ -327,3 +327,12 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   the bounds member and its in-table seating (ambit and hame released, swingletree and
   plain bounds standing in their places); the flattened-edge declaration with ACG as
   first migrant.
+* Maintenance-window design chat (260720, Fable) — binary staleness as the first
+  mechanical `check_build` consumer; the build-flag reproducibility analysis
+  (`--locked`, toolchain pin, remap via the workbench monopoly); the test-facility
+  claims shape (two registries, role-over-instance grant, exclusive vs
+  shared-as-conduct-promise); the swingletree tag-registry lean; the MVP-downscope
+  verb-census evidence.
+  Confidence-graded record with ratification ledger:
+  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md` — most items are
+  unreviewed supposition; read the ledger before treating any as settled.

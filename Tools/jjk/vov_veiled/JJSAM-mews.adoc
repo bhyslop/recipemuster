@@ -225,3 +225,9 @@ no kit prefix will exist (resolved 260705).
   (`Tools/jjk/vov_veiled/claude-jjk-bhyslop.md` §I) is the live per-node state and carries the
   rocket runtime posture; stabled heat ₣BG holds only the spec-*style* scrub of the `BUSJ*`
   family and is orthogonal to fleet function.
+* `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md` — unreviewed supposition
+  (confidence-graded, ratification ledger inside): the reservation mechanism widened beyond
+  nodes to non-local cloud facilities (depots, foedera, test facilities) as a second
+  reservable resource kind; role-over-instance grants; exclusive vs shared-as-conduct-promise
+  claim modes; candidate word *creance* for the grant token.
+  Feeds the fleet-store and reservation forks above.
