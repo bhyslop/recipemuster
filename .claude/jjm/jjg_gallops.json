@@ -1,5 +1,5 @@
 {
-  "jjgrn_next_heat_seed": "B8",
+  "jjgrn_next_heat_seed": "B9",
   "jjgrn_next_pace_seed": "CAAAn",
   "jjgrn_heat_order": [
     "₣B2",
@@ -9,6 +9,7 @@
     "₣B4",
     "₣B0",
     "₣Bd",
+    "₣B8",
     "₣Bs",
     "₣B6",
     "₣Bg",
@@ -5925,6 +5926,13 @@
           "jjgpn_slated": "260719-2258"
         }
       }
+    },
+    "₣B8": {
+      "jjghn_silks": "diptych-format-mulling",
+      "jjghn_creation_time": "260719",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [],
+      "jjghn_paces": {}
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
