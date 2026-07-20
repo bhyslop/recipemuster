@@ -39,6 +39,39 @@ Two mechanical rulings landed this pace; the census now reads
   (allowlist module header) — these presentments are true duplicates to the
   MVP's eye and go quiet once file roles land.
 
+## Second batch (same day, pace census-declaration-vs-inscription)
+
+The declaration-site vs inscription-site distinction, landed as four
+mechanical rulings; census now reads **92 presentments (2 collision + 90
+terminal-exclusivity), 1913 estrays** (from 178/1876 after batch one;
+470/7204 at first jog).
+
+1. **Envelope dispatch.** A file is dressed by the vesture whose envelope
+   claims it (VOS0 "Liturgy Domains"); only the dressed vesture's patterns
+   claim there. `tt/` is tabtarget formulary (claims nothing — colophons,
+   not prefix space); `.md` bodies are reference-only prose (stem claims
+   still run, so slash-command names survive).
+2. **Bash-const home-file rule.** `NAME=` claims a declaration only when the
+   signet head and the file-stem head agree by bidirectional prefix,
+   case-folded. Cross-family assignment is an inscription site; an unhomed
+   ours wire name (`BURD_REGIME_FILE`, `BURC_OUTPUT_ROOT_DIR`) reads as
+   estray — the honest verdict, and gentle pressure toward a spec home
+   (BUS0 attribute declarations would give them one).
+3. **`mod` lines are registrations.** The module's declaration is the file
+   itself (stem claim); claiming `mod x;` twice-declared all 71 modules.
+4. **Collision distinctness is per-file.** A module named for its primary
+   act (stem + in-content declaration) is one mint through two claim
+   mechanisms; 13 same-file "collisions" collapsed. Same-file double
+   declaration defers to a future shadowing lint.
+
+Surviving collisions, both real: `rblm_lustrate` (declared in
+`rblm_cli.sh:257` AND as `rblm_lustrate.sh` — a genuine duplicate for
+operator review) and `build` (cross-crate `build.rs` stems — the
+prefix-coincidence residue class below). The 90 terminal-exclusivity
+presentments are now the standing operator-question surface: cipher
+self-trips, function-family prefixes (`buc_die`/`buc_die_if`), and
+const-family prefixes (`RBCC_fact_ext_depot`).
+
 ## Known residue (ruled: deferred, visible)
 
 - **False-ours by prefix coincidence**: `BUILD_ARGS` (reads as `bu…`) still
