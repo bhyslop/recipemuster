@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B8",
-  "jjgrn_next_pace_seed": "CAAAg",
+  "jjgrn_next_pace_seed": "CAAAh",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -5662,7 +5662,8 @@
       "jjghn_creation_time": "260719",
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
-        "₢CAAAf"
+        "₢CAAAf",
+        "₢CAAAg"
       ],
       "jjghn_paces": {
         "₢CAAAf": {
@@ -5695,6 +5696,39 @@
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "The operator wants the current grimoire concept implemented as its own heat rather than appended to ₣B5, with the first pace gated on the matricula heat's completion; this pace honors the retired mulling heat's slate-time authority that the hand-run sample census precedes all implementation.",
+          "jjgpn_slated": "260719-2257"
+        },
+        "₢CAAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Promote the grimoire out of VOSMM's deferred scope into a sheaf of its own —",
+                "the parceling VOSMM defers to \"when the matricula itself ascends\", satisfied by this heat's gate.",
+                "Carry over whole: the charter lean (governed words — minted-with-forms or blocked-with-status),",
+                "the jobs, the residence ruling (studbook third tenant),",
+                "the flat-row doctrine,",
+                "the four-value mint-status tag with the MCM category riding as provenance,",
+                "the toothing slots and clause-grammar landing,",
+                "the reserved-word migration intent,",
+                "and the sample-census findings from the preceding pace.",
+                "VOSMM's grimoire section reduces to a pointer at the new home and restates nothing.",
+                "The sketch's recorded open items (accepted-homograph durable record; widened single table vs sibling table) either settle here or bank in the new sheaf as its mulling surface.",
+                "Home, acronym, and register (aspirant vs settling) are mount-time judgments taken with the operator, minted under CLAUDE.md prefix discipline.",
+                "",
+                "## Done when",
+                "The grimoire has one sheaf home carrying the whole current concept;",
+                "VOSMM's deferred-scope section points there and restates nothing;",
+                "and no other file still carries grimoire design authority."
+              ],
+              "jjgtn_silks": "grimoire-sheaf-promotion",
+              "jjgtn_basis": "fbb4fea"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "Implementing the current concept requires a settled spec home of its own; the sketch's terms defer promotion until the matricula ascends, which this heat's ₣B5 gate satisfies, so the promotion is cut as the pace after the census.",
           "jjgpn_slated": "260719-2257"
         }
       }
