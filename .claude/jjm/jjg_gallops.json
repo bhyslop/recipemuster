@@ -8134,7 +8134,8 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2032",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Goal",
                 "Audit the shared foundry support surface once, as a unit:",
@@ -8178,7 +8179,7 @@
                 "everything homed is collapsed to its citation form."
               ],
               "jjgtn_silks": "shared-support-sweep",
-              "jjgtn_basis": "15d5bc0"
+              "jjgtn_basis": "0c0ce98"
             }
           ],
           "jjgpn_redocket_count": 1
