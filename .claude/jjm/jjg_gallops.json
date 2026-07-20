@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAr",
+  "jjgrn_next_pace_seed": "CAAAs",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4541,6 +4541,7 @@
         "₢CAAAo",
         "₢CAAAp",
         "₢CAAAq",
+        "₢CAAAr",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -5064,6 +5065,47 @@
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
           "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 2.\nThe officium seam is dead — flipping it changes nothing until open/validate/exchange branch on it —\nand the station-name refusal at open is unwritten.\nThis pace wires both, mechanical and mainline-inert.",
           "jjgpn_slated": "260720-0746"
+        },
+        "₢CAAAr": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0747",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Give the founding a production entrypoint.",
+                "`jjdb_found` (git init/seed/push) and `jjdb_founding_import`",
+                "(live-state merge retaining racing+stabled, collision-refusing on duplicate firemark|coronet —",
+                "both library-tested, zero production callers)",
+                "compose into one operator-drivable ceremony command that founds a studbook from nothing",
+                "and seeds BOTH files:",
+                "gallops.json (imported live state)",
+                "and pedigrees.json (the founding-seed gap —",
+                "the dispatch reader requires it in both seam states; nothing in production writes it).",
+                "",
+                "## Cinched",
+                "- Entrypoint surface (ruled at the rescope): a `vvr` subcommand fronted by a `jjw-*` tabtarget —",
+                "  an operator ceremony door, never a `jjx_` MCP command.",
+                "- Fixture-only in this pace: build and test against scratch targets;",
+                "  the real found is the ceremony pace's act under the standing RECREATE-CLEAN ruling.",
+                "- The import is the ceremony's moment of authority transfer,",
+                "  so the orchestrator is a single deterministic act — found + import + seed in one run —",
+                "  leaving no partially-founded middle state for the ceremony to hold.",
+                "- Self-hosting gate: full `tt/vow-t.Test.sh` green before wrap.",
+                "",
+                "## Done when",
+                "One command founds a scratch studbook end-to-end in tests —",
+                "init/seed/push, live-state import with collision refusal loud,",
+                "pedigrees seeded such that the dispatch reader accepts the founded store —",
+                "and the pedigree seed source (which rows, from where — the standing scratch instance is the shape specimen)",
+                "is settled at mount and recorded where the ceremony's steps live (JJSAS)."
+              ],
+              "jjgtn_silks": "build-founding-orchestrator",
+              "jjgtn_basis": "53e265d"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gaps 3 and 4 folded.\nThe founding importer and found are tested library islands with no entrypoint,\nand nothing in production writes pedigrees.json.\nThis pace builds the one-shot operator door that founds, imports live state, and seeds both files —\ndeliberately atomic so the eventual ceremony's authority transfer has no middle state.\nLast of the four builds so journal-shape learnings from the write pace precede the seed.",
+          "jjgpn_slated": "260720-0747"
         }
       }
     },
