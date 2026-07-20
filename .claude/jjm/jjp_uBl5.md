@@ -38,7 +38,7 @@ The generated-content contract — what the census can emit per index row versus
 
 ## Deferred (out of this heat)
 The post-MVP widening is ₣Bj: the richer interrogations (what-owns / what-is-free / who-references), safe-reprefix, the engagement determinations, the gestalt-label subsystem, the reference-placement lint, the facade lint (citing ₣Bx's revetment face law), the probe harness, and the tackle-table deep-lint surface.
-The grimoire stays ₣Bg's mulling residence; it promotes to its own aspirant only behind the studbook (₣B3) and this MVP.
+The grimoire's implementation is homed at ₣B7: its first pace gates on this heat wrapping; sheaf promotion happens there (needing no store), and store-touching work there gates on the studbook (₣B3); until that promotion lands, the sketch keeps accreting in VOSMM.
 The infield-resident brand kind (jjq_/jjy_) is deferred and externally blocked on the coronet-charset re-gestalt (billet dirnames derive from coronets).
 The file-selection allowlist is in-MVP (Tier 0) but stays schema-compatible with the tackle table (₣Bu owns that schema), migrating to the pedigree home at studbook founding.
 Watch for overlap with ₣AJ on the lintel-validator surface (attestation-agreement, timeless-prose) — reconcile before building that surface.
