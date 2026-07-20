@@ -5120,6 +5120,7 @@
         "₢CAAAL",
         "₢CAAAc",
         "₢CAAAb",
+        "₢CAAAd",
         "₢CAAAM"
       ],
       "jjghn_paces": {
@@ -5374,6 +5375,35 @@
           "jjgpn_dictation": "We should chivvy a pace to work through the first batch of census content.",
           "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row, minted ₢CAAAa concurrently with another clone's B3 slate, was lost when the merged store took gamma's side; the work itself is complete and committed, W commit 40d00caa9).\nThe first live jog surfaced a census that was mechanically sound but noise-dominated in three classes\n(historical-prose sites, per-file shell locals, sub-signet fragments);\nthis pace ruled each class through scope, recognition, or grade —\ndeepening the tool through use before the index-render pace trusts the census.",
           "jjgpn_slated": "260719-2141"
+        },
+        "₢CAAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2217",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Factor the hand-maintained acronym tables out of the mixed-prose claude-*.md context files into dedicated index-of-record claude-*.md siblings,",
+                "wired into CLAUDE.md beside their sources,",
+                "so index-of-record becomes a path-grain file role (VOSMM \"Scan Mechanics\" file-role layer) and the prose files stay purely hand-authored.",
+                "Pure move: table content lands byte-faithful in its new home — no rewording, no generated content yet;",
+                "the successor pace owns the census-driven rewrite.",
+                "Discovery recipe for the table census: walk the @-includes in CLAUDE.md and grep those files for acronym-mapping tables (`grep -n \"Acronym Mappings\" Tools/*/claude-*.md Tools/*/vov_veiled/claude-*.md`).",
+                "Each factored file inherits its source's delivery posture (delivered vs stays-home/veiled);",
+                "the veiled-naming line — nothing veiled named by path, basename, or acronym in a delivered file — must hold across the split.",
+                "",
+                "## Done when",
+                "Every hand-maintained acronym table lives in a dedicated claude-*.md file reachable from CLAUDE.md;",
+                "the source prose files carry no acronym tables;",
+                "the loaded agent context is equivalent — same tables visible, same homes discoverable."
+              ],
+              "jjgtn_silks": "acronym-table-factoring",
+              "jjgtn_basis": "58b9cbe"
+            }
+          ],
+          "jjgpn_dictation": "I wonder that this pace is a little bit malformed.  Maybe a precursor step that makes sense is to factor all acronym tables out into their own claude*.md files (separate pace?) then reslate current pace to rewrite those with what matricula found?  Maybe this is a whole new top-level metricula command?\n[next message] go ahead and slate/reslate all now.",
+          "jjgpn_precis": "The render pace was aiming managed sections at tables embedded mid-file in prose-heavy context files whose per-row descriptions the census cannot know.\nFactoring the tables into dedicated files first makes index-of-record a path-grain file role exactly as VOSMM models it:\nthe matricula's rewrite target becomes whole dedicated files, hand prose stays hand-owned, and the generated-content contract surfaces before the render is built.",
+          "jjgpn_slated": "260719-2217"
         }
       }
     },
