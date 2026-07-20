@@ -59,11 +59,11 @@ fn vomtv_claims_rust_static_declaration() {
 }
 
 #[test]
-fn vomtv_claims_rust_mod_declaration() {
-    assert_eq!(
-        vomrv_claim_line(&zvomtv_rust(), "pub mod vomra_allowlist;"),
-        vec![("vomra_allowlist".to_string(), "vomra_allowlist".to_string())]
-    );
+fn vomtv_mod_line_is_a_registration_not_a_declaration() {
+    // A `mod x;` line registers a module whose declaration is the file
+    // itself (the file-stem claim); claiming it here would twice-declare
+    // every module.
+    assert!(vomrv_claim_line(&zvomtv_rust(), "pub mod vomra_allowlist;").is_empty());
 }
 
 #[test]

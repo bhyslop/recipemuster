@@ -34,12 +34,16 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
-// Rust: `fn`/`const`/`static`/`struct`/`enum`/`trait`/`type`/`mod` item
+// Rust: `fn`/`const`/`static`/`struct`/`enum`/`trait`/`type` item
 // declarations, optionally `pub`/`pub(crate)`-qualified (RCG "Declaration
 // Naming"; `static` rides alongside `const` though the guide's table
-// predates it).
+// predates it). `mod` is deliberately absent: a `mod x;` line REGISTERS a
+// module whose declaration is the file itself (carried by the file-stem
+// claim), so claiming it here would twice-declare every module. The cost -
+// an inline `mod x { }` block goes unclaimed - is accepted MVP recall; this
+// codebase homes modules in files.
 static ZVOMRV_RUST: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"^\s*(?:pub(?:\([^)]*\))?\s+)?(?:fn|const|static|struct|enum|trait|type|mod)\s+([A-Za-z_][A-Za-z0-9_]*)").unwrap()
+    Regex::new(r"^\s*(?:pub(?:\([^)]*\))?\s+)?(?:fn|const|static|struct|enum|trait|type)\s+([A-Za-z_][A-Za-z0-9_]*)").unwrap()
 });
 
 // Bash: `name() {` function declarations (BCG "Function Patterns").
