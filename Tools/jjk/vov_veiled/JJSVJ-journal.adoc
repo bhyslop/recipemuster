@@ -8,9 +8,9 @@ lock.
 This sheaf is the ONE home of both sequences:
 every operation that writes a {jjdb_blotter} cites this bracket and restates none of it,
 so the operations cannot drift apart in the shared stretch.
-The op names composing the sequences — `lodge`, `glean`, `advance`, `consign`, `sync_state`,
-and the lock trio `stake`/`pluck`/`sight` — are {jjdf_farrier} primitives ({jjdf_core} and
-{jjdf_lock}); their method contracts live in the farrier sheaf's op census.
+The op names composing the sequences — `lodge`, `glean`, `advance`, `proffer`, `consign`,
+`sync_state`, and the lock trio `stake`/`pluck`/`sight` — are {jjdf_farrier} primitives
+({jjdf_core} and {jjdf_lock}); their method contracts live in the farrier sheaf's op census.
 
 == The journal ceremony
 
@@ -38,45 +38,54 @@ The bracket:
   rejected) →
   `sight` to confirm the held {jjdb_guidon} is ours.
 . *Advance*:
-  *equalize* the local {jjdb_blotter} with the remote tip — made equal to it, never merely
-  moved toward it.
-  Total against every position the clone can be in;
-  a clone ahead of the tip is retrenched back to it.
-. *Mutate and lodge*:
-  apply the record change, plus the {jjdb_counterfoil} naming the work repo and its commit;
-  `lodge` with explicit files.
-. *Consign content*:
-  `--atomic`, binding the content update to a lease on our own lock ref —
-  if the lock was broken under us, the whole push fails.
+  carry the local {jjdb_blotter} forward to the remote tip — *fast-forward-only*,
+  a no-op when already there.
+  A clone holding commits the tip does not have is an impossible state under this ceremony
+  (the branch adopts only accepted positions, step 5),
+  so advance refuses it (diverged) and surfaces it for the attended session and operator —
+  never auto-destroys.
+. *Mutate*:
+  apply the record change against the tip's own state — post-lock, post-advance,
+  so a stale pre-lock read can never be carried across the lock —
+  plus the {jjdb_counterfoil} naming the work repo and its commit,
+  returning an explicit file list.
+. *Proffer content*:
+  compose ONE commit whose sole parent is the tip, carrying exactly the named files,
+  *without moving the local branch*;
+  push it `--atomic`, binding the content update to a lease on our own lock ref —
+  if the lock was broken under us, the whole push fails;
+  and only on acceptance advance the local branch to the accepted position.
   No corruption, no service but git.
-  A refused push lands nothing on the remote and leaves its commit in the local clone alone,
-  unpushed and unauthorized;
-  the next ceremony's *Advance* retrenches it away — that is its disposition, and the ceremony
-  owes it no other.
+  A refused push lands nothing on the remote and leaves the local branch and its record
+  untouched — the refused commit never rides the branch,
+  so no residue exists for any later ceremony to scrub.
 . *Release*:
   `pluck`, best-effort;
   a die here leaves a stale lock still flying its {jjdb_guidon} for the {jjdb_break}.
 
-*Equalized under the lock* — a rivet, cited in shipped code by the opaque token `JJr_b52`:
+*Compose-then-push* — a rivet, cited in shipped code by the opaque token `JJr_b52`:
 when `mutate` runs, the local {jjdb_blotter} holds *nothing of its own* —
-it equals the remote tip as of this ceremony's `glean`,
-so every commit `lodge` writes takes a tip the remote itself authored as its sole parent,
-and content the lease refused is *retrenched*, never re-consigned.
-The citation sites are the `advance` implementation and the ceremony's own advance step;
+it stands at the remote tip as of this ceremony's `glean`,
+so the one commit `proffer` composes takes a tip the remote itself authored as its sole
+parent;
+and the local branch moves *only to positions the remote has accepted*,
+so content the lease refused never existed on the branch and is never re-consigned.
+The citation sites are the `advance` and `proffer` implementations and the ceremony's own
+steps;
 one `grep JJr_b52` returns this definition and every site it guards.
 
 *As gleaned* is the rivet's exact reach, and the limit is deliberate.
 `glean` precedes `stake` and is opportunistic (step 2), so a station that lands a full
-ceremony between our `glean` and our `stake` leaves us equalized to a tip that is no longer
+ceremony between our `glean` and our `stake` leaves us standing at a tip that is no longer
 the remote's —
-whereupon `mutate` builds on a stale image and `consign` is refused (diverged) under a lock we
+whereupon `mutate` builds on a stale image and `proffer` is refused (diverged) under a lock we
 legitimately hold.
 That is a wasted ceremony, never a corruption:
-the refusal is `consign`'s ordinary fast-forward protection, the next ceremony gleans afresh
+the refusal is the push's ordinary fast-forward protection, the next ceremony gleans afresh
 and self-heals,
-and the rivet's *retrench* half is untouched by the window —
-a refused commit is local-only, so it is never in the tracking ref this step equalizes to,
-whatever that ref's vintage.
+and the refusal leaves nothing behind —
+the composed commit was never on the branch, so the stale image costs one retry and no
+residue.
 Closing the window (a re-`glean` after `stake`) is a separate act, weighed on its own.
 WEIGHED, and left open deliberately:
 the window costs at most one wasted, self-healing ceremony in a glean-to-stake race measured
@@ -86,32 +95,34 @@ lengthening the very window in which a contender is refused LockHeld and in whic
 strands a stale lock.
 The cure would spread the disease it treats; the window stays open until the trade reverses.
 
-The rivet is what a fast-forward cannot give.
-A refused ceremony leaves a commit the remote never accepted sitting in the clone (step 5),
-and a fast-forward leaves a clone that is merely *ahead* exactly where it stands:
-`lodge` then stacks on the refused commit and `consign` carries both,
+The rivet is what committing on the branch cannot give, however the branch is later repaired.
+A ceremony that commits on its branch *before* the remote accepts has, on refusal, a commit
+the remote never authorized sitting where the next lodge would stack on it and the next push
+would carry it —
 so content one lock refused arrives on the shared store under a later, unrelated lock,
-with nothing recording that it was ever refused —
-and had another station written in between, the same commit wedges the station instead,
+with nothing recording that it was ever refused;
+or, had another station written in between, the same commit wedges the station instead,
 with a divergence it has no verb to recover from.
-Which of the two befalls a station is pure timing.
-Equalize forecloses both:
-the clone is made equal to the tip, so there is nothing to carry and nothing to diverge from.
+The retired construction answered by *equalize-and-retrench*:
+advance made the clone equal to the tip, destroying the refused commit under the next lock.
+That worked, but it kept a destructive verb (`git reset --hard`) in the write path to scrub a
+state the ceremony itself had created.
+Compose-then-push removes the state instead of the evidence:
+the branch never holds an unaccepted commit, so there is nothing to carry, nothing to diverge
+from, and nothing to destroy —
+the fast-forward that equalize was once too weak for is now sufficient,
+because the invariant it could not deliver is delivered at the proffer instead.
 
-Retrenching is safe because a {jjdb_blotter_p} clone is a cache, never a work tree
-(entity sheaf, Local clone):
-it is engine-driven and sole-door, so it holds nothing a human authored.
-Discarding a local-only commit there is a deliberate ruling, stated here — never a silent
-papering-over — and git's reflog keeps the commit forensically recoverable regardless.
-Equalizing moves the local cache and pushes nothing,
-so the never-force rivet (`JJr_d81`, farrier sheaf) — which governs the remote's history — is
-untouched.
-Dirt is equalized away with everything else local,
-which heals a second wedge: a die between `mutate` and `lodge` leaves the clone dirty with no
-one to clean it,
-and an advance that refused dirt would refuse every ceremony thereafter.
-Untracked residue alone survives the equalize, and cannot ride onto the store:
-`lodge` deposits an explicit file list, never a stage-all.
+The working tree beneath the ceremony is *writer-only scratch* (entity sheaf, Local clone;
+readers reach the store by ref-read, never the tree):
+a die between `mutate` and `proffer` leaves stray file content but no commit,
+the next ceremony's advance passes unrelated scratch untouched,
+and stray content cannot ride onto the store —
+`proffer` composes from the tip's own tree plus an explicit file list, never a stage-all.
+A refused commit is unreachable rather than destroyed
+(git's object store keeps it forensically recoverable until pruned),
+and the never-force rivet (`JJr_d81`, farrier sheaf) — which governs the remote's history —
+is untouched throughout.
 
 Durable-first is the bracket's law, not a preference:
 an orphaned work commit (committed, never journaled) is recoverable;
@@ -129,10 +140,10 @@ path ({jjdk_lockless_reads}).
 
 The bracket is the {jjdb_journal} with its write steps removed and nothing else changed:
 *Take the lock* (`glean` → `stake` → `sight`) →
-*Advance* (equalize, `JJr_b52`) →
+*Advance* (fast-forward-only, `JJr_b52`) →
 read →
 *Release* (`pluck`, best-effort).
-No mutate, no lodge, no consign.
+No mutate, no proffer.
 What the acting consumer reads under this bracket is the store's truth at that moment —
 no other station can be mid-write, and the advance step is what makes the local clone that
 truth rather than a stale copy.
@@ -181,26 +192,26 @@ absence reads as design rather than oversight.
 
 *The lease protects a live writer* — a rivet, cited in shipped code by the opaque token
 `JJr_c4e`:
-a writer whose lock is broken and restaked under it fails its own atomic `consign` and lands
+a writer whose lock is broken and restaked under it fails its own atomic `proffer` and lands
 *nothing* on the remote (journal step 5).
 The whole safety case of the {jjdd_cashier} rests here.
 Breaking a lock cannot corrupt the store, and cannot half-apply a write, *however wrong the
 operator's judgment of staleness was* —
 the worst outcome against a live writer is a lost ceremony, which the writer's station reports
 as a `LockBroken` refusal and can simply run again.
-The citation sites are the `consign` lease contract (farrier sheaf) and the door's own
+The citation sites are the `proffer` lease contract (farrier sheaf) and the door's own
 consequence line;
 one `grep JJr_c4e` returns this definition and every site it guards.
 
 *The lease does not protect a live acting reader*, and this is an ACCEPTED EXPOSURE, ruled
 here in writing.
-The read bracket has no `consign`, so nothing detects a lock broken under a reader:
+The read bracket has no `proffer`, so nothing detects a lock broken under a reader:
 the reader completes and *acts* on what it read, believing the exclusivity the bracket
 promises — that no station can be mid-write — when in fact a writer may have staked and
 proceeded in the meantime.
 Nothing corrupts the store (a reader writes nothing), and nothing reports it either.
 The exposure is accepted on the same footing as the `JJr_b52` re-glean window above:
-closing it would mean giving the read bracket a consign-shaped epilogue — machinery whose
+closing it would mean giving the read bracket a proffer-shaped epilogue — machinery whose
 only purpose is to detect an operator breaking a lock they were warned not to break —
 and the loss it would prevent is one acting reader's decision made on a stale image, in a
 race the operator has to lose deliberately to enter.

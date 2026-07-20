@@ -270,7 +270,7 @@ fn zjjtfg_two_clones_from_baseline(bare: &Path, name: &str) -> (JjkTestDir, JjkT
 }
 
 #[test]
-fn jjtfg_advance_equalizes_a_behind_line_with_the_remote_tip() {
+fn jjtfg_advance_fast_forwards_a_behind_line_to_the_remote_tip() {
     let bare = JjkTestDir::new("jjtfg_advance_behind_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_behind");
 
