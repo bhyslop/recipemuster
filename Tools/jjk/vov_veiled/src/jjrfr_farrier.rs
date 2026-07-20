@@ -166,10 +166,9 @@ pub enum jjrfr_GleanOutcome {
     Unreachable,
 }
 
-/// The atomic-under-lease flavor of `consign`: the holder's own guidon, binding
-/// the content push to the holder's own lock ref (JJSVF consign contract, JJSVJ
+/// The atomic-under-lease binding of `proffer`: the holder's own guidon, binding
+/// the content push to the holder's own lock ref (JJSVF proffer contract, JJSVJ
 /// step 5) — if the lock was broken under the holder, the whole push fails.
-/// `None` at `jjrfr_consign` selects the plain fast-forward flavor instead.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrfr_ConsignLease(pub String);
 
@@ -209,25 +208,43 @@ pub trait jjrfr_FarrierCore {
     /// local. Sequence-internal, opportunistic; fetches and never merges.
     fn jjrfr_glean(&self, root: &Path) -> jjrfr_GleanOutcome;
 
-    /// Equalize the tree's line of work with its remote counterpart's tip, as of
-    /// the last `jjrfr_glean` — made *equal to* the tip, never merely moved
-    /// toward it: a line holding commits the counterpart does not have is
-    /// retrenched back to it (`JJr_b52`). The kind resolves the counterpart
-    /// itself — callers never speak a kind-native ref dialect. Never merges
-    /// toward a remote, never rebases. Composed by the journal.
-    ///
-    /// A kind may be total here and reject nothing (the fallible signature is the
-    /// trait's, not any one kind's); the rejection set each kind speaks is the op
-    /// census's to state, farrier sheaf.
+    /// Advance the tree's line of work to its remote counterpart's tip, as of
+    /// the last `jjrfr_glean` — strictly forward, never destructive (`JJr_b52`,
+    /// the no-residue construction): a line at or behind the tip moves up to it;
+    /// a line holding commits the counterpart does not have rejects `Diverged` —
+    /// halt-and-surface for the attended session, since under compose-then-push
+    /// (`jjrfr_proffer`) the local branch only ever moves to positions the
+    /// remote has accepted, and a diverged blotter clone is an impossible state
+    /// nothing here may auto-destroy. The kind resolves the counterpart itself —
+    /// callers never speak a kind-native ref dialect. Never merges toward a
+    /// remote, never rebases. Composed by the journal.
     fn jjrfr_advance(&self, root: &Path) -> Result<(), jjrfr_Rejection>;
 
-    /// Hand `branch` into the remote's custody. `lease` absent selects plain
-    /// fast-forward (hippodrome branches); present selects atomic-under-lease
-    /// (blotter content — the lease binds the push to the holder's own lock
-    /// ref, rejecting `LockBroken` when it no longer flies the leased guidon;
-    /// a plain content race stays `Diverged`). Never force in either flavor
-    /// (`JJr_d81`).
-    fn jjrfr_consign(&self, root: &Path, branch: &str, lease: Option<&jjrfr_ConsignLease>) -> Result<(), jjrfr_Rejection>;
+    /// Hand `branch` into the remote's custody: plain fast-forward push
+    /// (hippodrome/billet branches; a content race rejects `Diverged`). Never
+    /// force (`JJr_d81`). Blotter content never passes here — it goes through
+    /// `jjrfr_proffer`, which is what binds a write to the held lock.
+    fn jjrfr_consign(&self, root: &Path, branch: &str) -> Result<(), jjrfr_Rejection>;
+
+    /// Proffer a composed write for the remote's acceptance — the blotter write
+    /// primitive (`JJr_b52`, compose-then-push). Composes one commit whose sole
+    /// parent is `branch`'s remote counterpart's tip (as of the last
+    /// `jjrfr_glean`), carrying exactly `files` as they now stand in the working
+    /// tree, WITHOUT moving the local branch; pushes it atomic-under-lease (the
+    /// lease binds the push to the holder's own lock ref — `LockBroken` when it
+    /// no longer flies the leased guidon, `Diverged` on a plain content race);
+    /// and only on acceptance advances the local branch to the accepted
+    /// position. A refusal leaves the local branch and its record untouched —
+    /// no residue exists for any later ceremony to scrub. Never force
+    /// (`JJr_d81`). Returns the accepted position's SHA.
+    fn jjrfr_proffer(
+        &self,
+        root: &Path,
+        branch: &str,
+        files: &[PathBuf],
+        message: &str,
+        lease: &jjrfr_ConsignLease,
+    ) -> Result<String, jjrfr_Rejection>;
 }
 
 /// The lock facet (`jjdf_lock`): the guidon verbs over a blotter's lock ref — the

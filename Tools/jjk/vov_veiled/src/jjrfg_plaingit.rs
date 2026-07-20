@@ -63,6 +63,7 @@ const ZJJRFG_OP_COUNTERFOIL: &str = "counterfoil";
 const ZJJRFG_OP_LODGE: &str = "lodge";
 const ZJJRFG_OP_ADVANCE: &str = "advance";
 const ZJJRFG_OP_CONSIGN: &str = "consign";
+const ZJJRFG_OP_PROFFER: &str = "proffer";
 const ZJJRFG_OP_LINE_OF_WORK: &str = "line_of_work";
 const ZJJRFG_OP_STAKE: &str = "stake";
 const ZJJRFG_OP_PLUCK: &str = "pluck";
@@ -106,10 +107,18 @@ impl zjjrfg_GitOutput {
 /// non-zero exit status is NOT a panic: it is the normal shape of "git said no,"
 /// which the caller classifies.
 fn zjjrfg_run_git(root: &Path, args: &[&str]) -> zjjrfg_GitOutput {
-    let output = std::process::Command::new("git")
-        .arg("-C")
-        .arg(root)
-        .args(args)
+    zjjrfg_run_git_env(root, args, &[])
+}
+
+/// `zjjrfg_run_git` with extra child environment variables — the proffer path's
+/// temp-index composition (`GIT_INDEX_FILE`) is the sole consumer.
+fn zjjrfg_run_git_env(root: &Path, args: &[&str], envs: &[(&str, &std::ffi::OsStr)]) -> zjjrfg_GitOutput {
+    let mut cmd = std::process::Command::new("git");
+    cmd.arg("-C").arg(root).args(args);
+    for (key, value) in envs {
+        cmd.env(key, value);
+    }
+    let output = cmd
         .output()
         .unwrap_or_else(|e| panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e));
     zjjrfg_GitOutput {
@@ -370,45 +379,136 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         if !upstream.ok {
             zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &upstream.zjjrfg_detail());
         }
-        let out = zjjrfg_run_git(root, &["reset", "--hard", upstream.stdout.trim()]);
+        let counterpart = upstream.stdout.trim().to_string();
+        let ancestry = zjjrfg_run_git(root, &["merge-base", "--is-ancestor", "HEAD", &counterpart]);
+        if !ancestry.ok {
+            if ancestry.code == Some(1) {
+                // The line holds commits the counterpart does not — impossible
+                // under compose-then-push, so this is halt-and-surface for the
+                // attended session, never an auto-destroy.
+                return Err(jjrfr_Rejection::jjrfr_new(
+                    jjrfr_RejectionKind::Diverged,
+                    ZJJRFG_OP_ADVANCE,
+                    root,
+                    format!(
+                        "local line holds commits {} does not — a state proffer cannot produce; surface to the operator, never auto-destroy",
+                        counterpart
+                    ),
+                ));
+            }
+            zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &ancestry.zjjrfg_detail());
+        }
+        let out = zjjrfg_run_git(root, &["merge", "--ff-only", &counterpart]);
         if !out.ok {
             zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &out.zjjrfg_detail());
         }
         Ok(())
     }
 
-    fn jjrfr_consign(&self, root: &Path, branch: &str, lease: Option<&jjrfr_ConsignLease>) -> Result<(), jjrfr_Rejection> {
+    fn jjrfr_consign(&self, root: &Path, branch: &str) -> Result<(), jjrfr_Rejection> {
+        // JJr_d81
         let refspec = format!("{}:{}", branch, branch);
-        let out = match lease {
-            Some(jjrfr_ConsignLease(guidon)) => {
-                // JJr_d81
-                // Atomic two-ref push: the content branch (plain, still
-                // fast-forward-protected) plus a same-value update of the
-                // guidon ref under a lease on the held guidon's blob. While
-                // the lock is ours the guidon update is an up-to-date no-op;
-                // a lock broken under us fails its lease, and --atomic pulls
-                // the content update down with it.
-                let blob_sha = zjjrfg_hash_object(root, guidon, true, ZJJRFG_OP_CONSIGN);
-                let lease_flag = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, &blob_sha);
-                let guidon_refspec = format!("{}:{}", blob_sha, ZJJRFG_GUIDON_REF);
-                zjjrfg_run_git(root, &["push", "--atomic", &lease_flag, ZJJRFG_REMOTE, &refspec, &guidon_refspec])
-            }
-            None => zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &refspec]),
-        };
+        let out = zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &refspec]);
         if out.ok {
             return Ok(());
         }
         if zjjrfg_push_rejected(&out.stderr) {
-            // A rejection naming the guidon ref is the lock broken under the
-            // holder; one naming only the branch is a plain content race.
-            let kind = if out.stderr.contains(ZJJRFG_GUIDON_REF) {
-                jjrfr_RejectionKind::LockBroken
-            } else {
-                jjrfr_RejectionKind::Diverged
-            };
-            return Err(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_CONSIGN, root, out.stderr));
+            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_CONSIGN, root, out.stderr));
         }
         zjjrfg_unexpected(ZJJRFG_OP_CONSIGN, root, &out.zjjrfg_detail())
+    }
+
+    fn jjrfr_proffer(
+        &self,
+        root: &Path,
+        branch: &str,
+        files: &[PathBuf],
+        message: &str,
+        lease: &jjrfr_ConsignLease,
+    ) -> Result<String, jjrfr_Rejection> {
+        // JJr_b52
+        //
+        // Compose against the counterpart's tip in a disposable index: the local
+        // branch, the real index, and HEAD stay untouched until the remote has
+        // accepted the write.
+        let counterpart = zjjrfg_counterpart(branch);
+        let tip_probe = format!("{}^{{commit}}", counterpart);
+        let tip_out = zjjrfg_run_git(root, &["rev-parse", "--verify", &tip_probe]);
+        if !tip_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &tip_out.zjjrfg_detail());
+        }
+        let tip = tip_out.stdout.trim().to_string();
+
+        let git_dir_out = zjjrfg_run_git(root, &["rev-parse", "--absolute-git-dir"]);
+        if !git_dir_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &git_dir_out.zjjrfg_detail());
+        }
+        let tmp_index = PathBuf::from(git_dir_out.stdout.trim()).join(format!("jjrfg_proffer_index_{}", std::process::id()));
+        let _ = std::fs::remove_file(&tmp_index);
+        let envs: [(&str, &std::ffi::OsStr); 1] = [("GIT_INDEX_FILE", tmp_index.as_os_str())];
+
+        let read_tree = zjjrfg_run_git_env(root, &["read-tree", &tip], &envs);
+        if !read_tree.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &read_tree.zjjrfg_detail());
+        }
+        let file_strs: Vec<String> = files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
+        let mut add_args: Vec<&str> = vec!["add", "--"];
+        add_args.extend(file_strs.iter().map(String::as_str));
+        let add_out = zjjrfg_run_git_env(root, &add_args, &envs);
+        if !add_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &add_out.zjjrfg_detail());
+        }
+        let tree_out = zjjrfg_run_git_env(root, &["write-tree"], &envs);
+        if !tree_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &tree_out.zjjrfg_detail());
+        }
+        let tree = tree_out.stdout.trim().to_string();
+        let commit_out = zjjrfg_run_git(root, &["commit-tree", &tree, "-p", &tip, "-m", message]);
+        if !commit_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &commit_out.zjjrfg_detail());
+        }
+        let commit = commit_out.stdout.trim().to_string();
+        let _ = std::fs::remove_file(&tmp_index);
+
+        // JJr_d81
+        // Atomic two-ref push: the composed commit onto the content branch
+        // (plain, still fast-forward-protected) plus a same-value update of the
+        // guidon ref under a lease on the held guidon's blob. While the lock is
+        // ours the guidon update is an up-to-date no-op; a lock broken under us
+        // fails its lease, and --atomic pulls the content update down with it.
+        let blob_sha = zjjrfg_hash_object(root, &lease.0, true, ZJJRFG_OP_PROFFER);
+        let lease_flag = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, &blob_sha);
+        let refspec = format!("{}:refs/heads/{}", commit, branch);
+        let guidon_refspec = format!("{}:{}", blob_sha, ZJJRFG_GUIDON_REF);
+        let out = zjjrfg_run_git(root, &["push", "--atomic", &lease_flag, ZJJRFG_REMOTE, &refspec, &guidon_refspec]);
+        if !out.ok {
+            if zjjrfg_push_rejected(&out.stderr) {
+                // A rejection naming the guidon ref is the lock broken under the
+                // holder; one naming only the branch is a plain content race.
+                // Either way the local branch never moved — nothing to scrub.
+                let kind = if out.stderr.contains(ZJJRFG_GUIDON_REF) {
+                    jjrfr_RejectionKind::LockBroken
+                } else {
+                    jjrfr_RejectionKind::Diverged
+                };
+                return Err(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_PROFFER, root, out.stderr));
+            }
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &out.zjjrfg_detail());
+        }
+
+        // Adopt: fast-forward the local branch to the accepted position — a
+        // compare-and-swap against the tip we composed on — then sync the real
+        // index to it (the working tree already holds the caller's content).
+        let branch_ref = format!("refs/heads/{}", branch);
+        let adopt = zjjrfg_run_git(root, &["update-ref", &branch_ref, &commit, &tip]);
+        if !adopt.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &adopt.zjjrfg_detail());
+        }
+        let sync_index = zjjrfg_run_git(root, &["read-tree", &commit]);
+        if !sync_index.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &sync_index.zjjrfg_detail());
+        }
+        Ok(commit)
     }
 }
 

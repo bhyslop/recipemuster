@@ -87,6 +87,6 @@ pub fn jjrrf_refit<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     if before.members == after.members {
         return Ok(jjrrf_RefitOutcome::UpToDate);
     }
-    farrier.jjrfr_consign(billet_root, branch, None)?;
+    farrier.jjrfr_consign(billet_root, branch)?;
     Ok(jjrrf_RefitOutcome::Refitted)
 }

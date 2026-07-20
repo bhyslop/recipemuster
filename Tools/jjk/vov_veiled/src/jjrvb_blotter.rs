@@ -18,8 +18,8 @@
 //! wrap) runs on a different root than the blotter and is therefore a caller
 //! concern, not this module's — a caller that has issued work produces its own
 //! counterfoil first and folds it into what it writes via the `mutate` closure
-//! below. `jjdb_journal` covers the blotter-side bracket: lock, advance, mutate
-//! and lodge, consign, release.
+//! below. `jjdb_journal` covers the blotter-side bracket: lock, advance, mutate,
+//! proffer, release.
 
 use crate::jjrf_favor::jjrf_emblazon_ordinal;
 use crate::jjrfr_farrier::{
@@ -177,20 +177,24 @@ pub fn jjdb_read(config: &jjdb_BlotterConfig, rel_path: &Path) -> std::io::Resul
 /// The journal ceremony (`jjdb_journal`, journal sheaf): the blotter-side
 /// bracket every write passes through, ordered durable-first. `guidon` is the
 /// caller-composed lock-holder mark (officium, station, acquire time,
-/// operation); `mutate` receives the blotter's local root, performs whatever
-/// file writes it needs, and returns the explicit file list plus commit message
-/// `jjrfr_lodge` will use (additive discipline — no stage-all, no amend).
+/// operation); `mutate` receives the blotter's local root — post-lock,
+/// post-advance, so the working tree it reads and writes IS the remote tip's
+/// state and a stale pre-lock read can never be carried across the lock — and
+/// returns the explicit file list plus commit message `jjrfr_proffer` will use
+/// (additive discipline — no stage-all, no amend).
 ///
 /// Sequence: glean (opportunistic) -> stake (via the RAII guard) -> sight
-/// (confirm the held guidon is ours) -> advance (equalize with the remote tip)
-/// -> mutate and lodge -> consign (atomic-under-lease against our own lock ref)
-/// -> release (best-effort pluck via the guard's drop).
+/// (confirm the held guidon is ours) -> advance (fast-forward-only, to the
+/// gleaned remote tip) -> mutate -> proffer (compose against the tip without
+/// moving the local branch, push atomic-under-lease, adopt locally only on
+/// acceptance — `JJr_b52`) -> release (best-effort pluck via the guard's drop).
 ///
-/// Returns the new local HEAD SHA on success — the position now also live on
-/// the remote, since consign succeeded. A rejection at any lock-held step
-/// leaves `mutate` never called; a rejection at advance, lodge, or consign
-/// still releases the lock on the way out (the guard drops on every exit path),
-/// since holding it serves no purpose once this ceremony cannot complete.
+/// Returns the accepted position's SHA on success — live on the remote and
+/// adopted locally. A rejection at any lock-held step leaves `mutate` never
+/// called; a rejection at advance or proffer still releases the lock on the
+/// way out (the guard drops on every exit path), and a refused proffer leaves
+/// the local branch and its record untouched — no residue exists for any later
+/// ceremony to scrub.
 pub fn jjdb_journal<F, M>(
     farrier: &F,
     config: &jjdb_BlotterConfig,
@@ -219,50 +223,38 @@ where
         );
     }
 
-    // Advance: equalize the local blotter with the gleaned remote tip (JJr_b52).
+    // Advance: fast-forward-only to the gleaned remote tip (JJr_b52) — under
+    // compose-then-push the local branch holds nothing of its own, so there is
+    // never anything to retrench; a diverged clone rejects for the attended
+    // session instead.
     farrier.jjrfr_advance(root)?;
 
-    // Mutate and lodge: the caller writes its content; we allocate the next
-    // revision ordinal under the lock we already hold — derived from the
-    // linear history's length at the tip we just advanced to, no side table
-    // (blotter sheaf "Revision ordinals") — bake it in, and commit exactly
-    // the files the caller named.
+    // Mutate: the caller writes its content against the tip's own state; we
+    // allocate the next revision ordinal under the lock we already hold —
+    // derived from the linear history's length at the tip we just advanced to,
+    // no side table (blotter sheaf "Revision ordinals") — and bake it in.
     let (files, message) = mutate(root);
     let ordinal = config.ordinal_founding + zjjrvb_commit_count(root);
     let baked_message = zjjrvb_bake_ordinal(config.ordinal_sigil, ordinal, &message);
-    farrier.jjrfr_lodge(root, &files, &baked_message)?;
 
-    // Consign content: atomic-under-lease against our own lock ref — if the
-    // lock was broken under us, the whole push fails (journal sheaf, step 5).
-    // No corruption, no service but git: a rejection lands nothing on the
-    // remote, and the refused commit stays in the local clone alone until the
-    // next ceremony's advance retrenches it away (JJr_b52).
-    farrier.jjrfr_consign(
+    // Proffer: compose the commit against the tip without moving the local
+    // branch, push atomic-under-lease against our own lock ref — if the lock
+    // was broken under us, the whole push fails (journal sheaf, step 5) — and
+    // adopt locally only on acceptance (JJr_b52). No corruption, no service
+    // but git: a rejection lands nothing on the remote and leaves the local
+    // branch and its record untouched.
+    let new_head = farrier.jjrfr_proffer(
         root,
         &config.trunk,
-        Some(&jjrfr_ConsignLease(guard.jjrfr_guidon().to_string())),
+        &files,
+        &baked_message,
+        &jjrfr_ConsignLease(guard.jjrfr_guidon().to_string()),
     )?;
-
-    let new_head = zjjrvb_head_sha(farrier, root);
 
     // Release: best-effort pluck via the guard's drop, right here at the
     // ceremony's natural end.
     drop(guard);
     Ok(new_head)
-}
-
-/// The tree's current position, single-repo grain — the counterfoil op's
-/// member->SHA manifest has exactly one entry for a non-constellation kind
-/// (`jjdf_counterfoil`, farrier sheaf).
-fn zjjrvb_head_sha<F: jjrfr_FarrierCore>(farrier: &F, root: &Path) -> String {
-    let counterfoil = farrier
-        .jjrfr_counterfoil(root)
-        .unwrap_or_else(|e| panic!("jjdb_journal: counterfoil failed at {}: {}", root.display(), e));
-    counterfoil
-        .members
-        .get(".")
-        .cloned()
-        .unwrap_or_else(|| panic!("jjdb_journal: counterfoil carried no single-repo member at {}", root.display()))
 }
 
 /// The linear history's length at the tree's current position — a blotter
@@ -362,25 +354,53 @@ pub fn jjdb_read_pinned(config: &jjdb_BlotterConfig, pin: &str, rel_path: &str) 
     zjjdb_read_git(&config.local_root, &["show", &format!("{}:{}", pin, rel_path)])
 }
 
-/// Persist a Gallops through the studbook's journal ceremony. Reuses
-/// `jjdr_save`'s atomic write plus load-back validation unchanged (the old
-/// path's own machinery, frozen) for the file itself, then commits it through
-/// `jjdb_journal` instead of `vvc::machine_commit` — the studbook is a
-/// JJ-owned blotter, not a consumer repo, so the vvc commit-lock apparatus
-/// does not apply here.
-pub fn jjdb_gallops_journal_save<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
+/// Persist a Gallops through the studbook's journal ceremony, mutate-as-transform
+/// (`JJr_b52`): `transform` receives the gallops as the locked, advanced remote
+/// tip holds it — `None` only when the tip carries no gallops tenant yet — and
+/// returns the record to write, so a stale pre-lock read can never be carried
+/// across the lock. Reuses `jjdr_save`'s atomic write plus load-back validation
+/// unchanged (the old path's own machinery, frozen) for the file itself, then
+/// commits it through `jjdb_journal` instead of `vvc::machine_commit` — the
+/// studbook is a JJ-owned blotter, not a consumer repo, so the vvc commit-lock
+/// apparatus does not apply here.
+pub fn jjdb_gallops_journal_save<F, M>(
     farrier: &F,
     config: &jjdb_BlotterConfig,
     guidon: &str,
-    gallops: &crate::jjrt_types::jjrg_Gallops,
+    transform: M,
     message: String,
-) -> Result<String, jjrfr_Rejection> {
+) -> Result<String, jjrfr_Rejection>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+    M: FnOnce(Option<crate::jjri_io::jjdr_ValidatedGallops>) -> crate::jjrt_types::jjrg_Gallops,
+{
     jjdb_journal(farrier, config, guidon, |root| {
+        // Post-lock, post-advance: the pin IS the tip the local branch now
+        // stands on, so this read is the store's truth at this moment. A
+        // corrupt tenant panics loud — halt-and-surface, never paper over.
+        let current = match zjjdb_tip_gallops(config) {
+            Ok(current) => current,
+            Err(e) => panic!("jjdb_gallops_journal_save: could not read the locked tip's gallops: {}", e),
+        };
+        let gallops = transform(current);
         let path = root.join(JJDB_GALLOPS_REL_PATH);
-        crate::jjri_io::jjdr_save(gallops, &path)
+        crate::jjri_io::jjdr_save(&gallops, &path)
             .unwrap_or_else(|e| panic!("jjdb_gallops_journal_save: jjdr_save failed at {}: {}", path.display(), e));
         (vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], message)
     })
+}
+
+/// The pinned tip's gallops tenant, or `None` when the tip has no such tenant
+/// yet (a pre-seed store) — distinguished structurally via `ls-tree`, never by
+/// sniffing an error message.
+fn zjjdb_tip_gallops(config: &jjdb_BlotterConfig) -> Result<Option<crate::jjri_io::jjdr_ValidatedGallops>, String> {
+    let pin = jjdb_pin(config)?;
+    let listing = zjjdb_read_git(&config.local_root, &["ls-tree", &pin, "--", JJDB_GALLOPS_REL_PATH])?;
+    if listing.is_empty() {
+        return Ok(None);
+    }
+    let bytes = jjdb_read_pinned(config, &pin, JJDB_GALLOPS_REL_PATH)?;
+    crate::jjri_io::jjdr_hark(&bytes).map(Some)
 }
 
 /// Load a Gallops from the studbook via ref-read: pin the fetched snapshot, then
