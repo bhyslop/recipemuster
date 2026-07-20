@@ -5675,7 +5675,7 @@
         "₢CAAAf": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2257",
+              "jjgtn_ts": "260719-2303",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Focus",
@@ -5694,20 +5694,21 @@
                 "## Done when",
                 "A dozen verbs across the six families have authored rows on the candidate schema;",
                 "the findings are applied to MCM's clause grammar or explicitly ruled no-change;",
-                "and the validated row schema is recorded where the promotion pace will home it."
+                "and the validated row schema is recorded in the VOSMM sketch — the standing accretion point — for the promotion pace to carry into the new home."
               ],
               "jjgtn_silks": "grimoire-sample-census",
-              "jjgtn_basis": "565011e"
+              "jjgtn_basis": "34b8730"
             }
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "The operator wants the current grimoire concept implemented as its own heat rather than appended to ₣B5, with the first pace gated on the matricula heat's completion; this pace honors the retired mulling heat's slate-time authority that the hand-run sample census precedes all implementation.",
-          "jjgpn_slated": "260719-2257"
+          "jjgpn_slated": "260719-2257",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAg": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2257",
+              "jjgtn_ts": "260719-2303",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Focus",
@@ -5721,21 +5722,28 @@
                 "the reserved-word migration intent,",
                 "and the sample-census findings from the preceding pace.",
                 "VOSMM's grimoire section reduces to a pointer at the new home and restates nothing.",
-                "The sketch's recorded open items (accepted-homograph durable record; widened single table vs sibling table) either settle here or bank in the new sheaf as its mulling surface.",
-                "Home, acronym, and register (aspirant vs settling) are mount-time judgments taken with the operator, minted under CLAUDE.md prefix discipline.",
+                "The sketch's recorded open items settle here with the operator —",
+                "the accepted-homograph durable record, the widened single table vs sibling table, and the durable-document set the read-side jobs scan —",
+                "because later paces in this heat consume all three;",
+                "banking them as an open mulling surface would re-gate the rest of the heat.",
+                "An open mulling surface may remain only for content no pace in this heat consumes.",
+                "Home and acronym are mount-time judgments taken with the operator, minted under CLAUDE.md prefix discipline;",
+                "the register must leave the consumed rulings binding — aspirant status for the whole sheaf would re-gate implementation.",
                 "",
                 "## Done when",
                 "The grimoire has one sheaf home carrying the whole current concept;",
+                "the rulings this heat's later paces consume are settled and binding in it;",
                 "VOSMM's deferred-scope section points there and restates nothing;",
                 "and no other file still carries grimoire design authority."
               ],
               "jjgtn_silks": "grimoire-sheaf-promotion",
-              "jjgtn_basis": "fbb4fea"
+              "jjgtn_basis": "34b8730"
             }
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "Implementing the current concept requires a settled spec home of its own; the sketch's terms defer promotion until the matricula ascends, which this heat's ₣B5 gate satisfies, so the promotion is cut as the pace after the census.",
-          "jjgpn_slated": "260719-2257"
+          "jjgpn_slated": "260719-2257",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAh": {
           "jjgpn_tacks": [
@@ -5830,16 +5838,16 @@
         "₢CAAAk": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2258",
+              "jjgtn_ts": "260719-2303",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Focus",
                 "The read-side lints over the live table, matricula-side:",
                 "the missed-citation prose lint with its two verdict branches —",
                 "a hit is a missed citation (enquoin it) or an innocent homograph (reword or formally accept),",
-                "acceptance-by-domain carried durably on the row —",
-                "and the blocked-word lint, the reserve-violation sign-flip of the same machinery,",
-                "over the durable documents at least.",
+                "acceptance carried durably per the mechanism the promoted sheaf settled (the recorded lean: acceptance-by-domain on the row) —",
+                "and the blocked-word lint, the reserve-violation sign-flip of the same machinery.",
+                "The scan corpus is the durable-document set the promoted sheaf settled.",
                 "Detection is exact-match over row forms (VOr_m7w);",
                 "branch verdicts stay the operator's;",
                 "advisory always, never a gate (the sketch's spine precedent: a hallowed word legitimately seated).",
@@ -5847,16 +5855,17 @@
                 "",
                 "## Done when",
                 "A scan surfaces plain-prose hits of minted words and seated blocked words with their sites and branch prompts;",
-                "an accepted homograph stays accepted across re-scans via the row's domain acceptance;",
+                "an accepted homograph stays accepted across re-scans via the settled acceptance mechanism;",
                 "and the output is advisory reporting, gating nothing."
               ],
               "jjgtn_silks": "grimoire-lint-jobs",
-              "jjgtn_basis": "fddb948"
+              "jjgtn_basis": "34b8730"
             }
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "The read-side lints — missed-citation and blocked-word — are payoff jobs of the concept, built as advisory matricula-side reads of the live table.",
-          "jjgpn_slated": "260719-2258"
+          "jjgpn_slated": "260719-2258",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAl": {
           "jjgpn_tacks": [

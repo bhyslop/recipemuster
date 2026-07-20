@@ -16,7 +16,8 @@ Store paths: studbook (JJSVS-studbook.adoc), journal-ceremony writes (JJSVJ-jour
 
 ## Cinched
 The first pace gates on ₣B5 (implement-matricula) wrapping — operator ruling at nomination.
-Storage-touching work waits on the studbook standing (₣B3): the residence ruling makes the store a hard dependency and VOr_q4f structural.
+Storage-touching work waits on the studbook standing (₣B3): the residence ruling makes the store a hard dependency and VOr_q4f structural; sheaf authoring and the hand census need no store.
+The promotion lands with its consumed rulings settled and binding — the accepted-homograph record, the widened-table question, the durable-document set for the read-side jobs; an open mulling surface may remain only for content no pace in this heat consumes.
 One flat table: forms enumerated literally, never derived; relationships enter as categorical tags, never row-to-row edges.
 Mechanical, never linguistic (VOr_m7w): exact-match detection; meaning verdicts stay the operator's; every lint advisory, never a gate.
 Never ships (VOr_q4f): generated constants may ride shipped code, but nothing delivered names the grimoire or the matricula.
@@ -29,5 +30,5 @@ Safe-reprefix and any rename or eviction execution machinery: the make-room job 
 ## Done when
 The sample census has amended (or explicitly confirmed) MCM's clause grammar;
 the grimoire holds its own sheaf with VOSMM reduced to a pointer;
-the table stands in the studbook with the standing stock converged and MCM's Seed: lines relaxed to pointers;
-and the mint gate, the two lints, the generated constants, and the make-room report all run against the live table.
+the table stands in the studbook with the elected standing stock converged and MCM's Seed: lines relaxed to pointers;
+and the mint gate, the lints (missed-citation, blocked-word, printed-string), the generated constants, and the make-room report all run against the live table.
