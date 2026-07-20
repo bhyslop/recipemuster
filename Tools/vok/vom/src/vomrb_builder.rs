@@ -79,8 +79,9 @@ impl vomrb_Builder {
                 }
             }
 
+            let dress = crate::vomrv_vesture::vomrv_dress(path);
             for (line_no, line) in content.lines().enumerate() {
-                for (signet, inscription) in crate::vomrv_vesture::vomrv_claim_line(line) {
+                for (signet, inscription) in crate::vomrv_vesture::vomrv_claim_line(&dress, line) {
                     // The ours-or-foreign gate is the project cipher (VOSMM
                     // "Classify by Subtraction") - it bounds the census
                     // universe at seating exactly as it bounds the estray
