@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAq",
+  "jjgrn_next_pace_seed": "CAAAr",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4540,6 +4540,7 @@
         "₢CAAAn",
         "₢CAAAo",
         "₢CAAAp",
+        "₢CAAAq",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -5030,6 +5031,38 @@
           ],
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
           "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 1's WRITE half, the bulk of the build.\nEvery jjx mutation must journal through the rehearsed JJSVJ blotter ceremony instead of overwriting a file,\nbehind the same seam const as the read half so read and write can never split across stores —\nthe operator's no-lost-paces steer made structural.",
+          "jjgpn_slated": "260720-0746"
+        },
+        "₢CAAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0746",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Wire the dead officium seam live and guard open.",
+                "Today `JJRM_OFFICIUM_STUDBOOK_ENABLED` has zero production reads —",
+                "the exchange dir is built in-repo unconditionally",
+                "and the studbook-side helper (`jjrm_studbook_exchange_dir`, targeting `officia_scratch/` under the studbook clone) is test-only.",
+                "Branch officium open/validate/exchange resolution on the seam,",
+                "and write the station-name refusal:",
+                "`jjrm_station_name()` returning None refuses `jjx_open` with a fair-faced error.",
+                "",
+                "## Cinched",
+                "- Both seams stay false at land (mainline-inert); seam-on proven by tests only.",
+                "- Self-hosting gate: the landed binary runs the next session's live mounts —",
+                "  full `tt/vow-t.Test.sh` green before wrap, seam-off path byte-identical under the existing suite.",
+                "",
+                "## Done when",
+                "Seam-on tests resolve the officium exchange under the studbook clone",
+                "and an unnamed station is refused at open;",
+                "seam-off officium behavior is unchanged."
+              ],
+              "jjgtn_silks": "relocate-officium-exchange",
+              "jjgtn_basis": "2c2cf42"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 2.\nThe officium seam is dead — flipping it changes nothing until open/validate/exchange branch on it —\nand the station-name refusal at open is unwritten.\nThis pace wires both, mechanical and mainline-inert.",
           "jjgpn_slated": "260720-0746"
         }
       }
