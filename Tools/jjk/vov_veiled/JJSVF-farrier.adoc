@@ -80,8 +80,8 @@ Any op added to the census mints under MCM Lapidary behind this Palisade.
 [[jjdf_core]]
 {jjdf_core}::
 The ops every farrier kind serves: orientation ({jjdf_identify}), inspection (`comb`,
-`sync_state`, `counterfoil`), deposit (`lodge`), and remote sync (`glean`, `advance`,
-`consign`).
+`sync_state`, `counterfoil`), deposit (`lodge`, `proffer`), and remote sync (`glean`,
+`advance`, `consign`).
 
 [[jjdf_lock]]
 {jjdf_lock}::
