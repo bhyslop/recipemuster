@@ -5258,7 +5258,9 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2155",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Focus",
                 "The use-anchor: regenerate the acronym index the claude-*.md files maintain by hand today from the same frozen census, riding the voff managed-section rail (VOSMM \"Report and Acronym Index\").",
@@ -5270,7 +5272,7 @@
                 "with this the heat's done-when holds entire — one tabtarget run over the whole git-tracked tree emits both presentments, the estray section, and the regenerated index."
               ],
               "jjgtn_silks": "acronym-index-render",
-              "jjgtn_basis": "fe5981c"
+              "jjgtn_basis": "51ab582"
             }
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
