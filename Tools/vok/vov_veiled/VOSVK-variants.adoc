@@ -1,0 +1,69 @@
+//axvd_sheaf axd_aspirant axd_entity
+This is an aspirant entity sheaf of the {vos0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+
+== Charter
+
+A *variant kind* is one way a quoin's display surface inflects — number, possession, tense — as distinct from the quoin's identity, which never varies.
+This sheaf homes the roster of kinds, the declaration law, and the letter-election slots, so that no consumer re-derives them and no two consumers drift.
+One enumeration, two consumers: the Diptych grammar (VOSYD-diptych.adoc) reads the kinds as reference-operator and declarator keys; the grimoire (VOSMM-entity.adoc, deferred sketch) keys its row form-columns on the same roster.
+Concept ancestor: MCM `mcm_variant`; at settling this content may infuse there rather than ascend here.
+
+== Founding Census (decision record, 260720)
+
+No enumeration existed anywhere before this sheaf.
+The AsciiDoc-era declared sets disagree by spec — MCM and RBS0 declare four kinds (`_s`, `_p`, `_ed`, `_ing`); BUS0, AXLA, JJS0, and VOS0 declare two (`_s`, `_p`) — and live usage across the veiled canons at the census ran plural 211, possessive 49, past 2, progressive 1, plus one `_es` and one `_ies`.
+The `_es`/`_ies` irregularity is not a kind: it is a spelling of plural, forced into the identifier because AsciiDoc encoded the variant there.
+Under Diptych the kind lives in the pilcrow key and the spelling in the declaration, so that whole irregularity class dies.
+
+== The Roster
+
+Closed, centrally amended — a new kind is a deliberate amendment to this sheaf, never a discovery (the precept-terminal-letter posture).
+
+* *base* — the quoin's undeclined display text.
+* *plural* — noun kind.
+* *possessive* — noun kind.
+* *past* — verb kind.
+* *progressive* — verb kind.
+
+Unadmitted until a real specimen demands: plural-possessive, third-person-singular, comparative and superlative, any further inflection.
+The founding census shows the verb kinds nearly theoretical — three uses repo-wide — retained because they are already declared law in MCM and RBS0, not because usage earns them; a settling-time review may demote them.
+
+== Laws
+
+* *Declared, never derived.*
+  Every kind's spelling is authored per quoin at its definition site (Codex to Codices, Task Lens to Task Lenses).
+  No consumer ever inflects mechanically: irregular morphology is the norm on this vocabulary, not the exception, and the codec stays dumb.
+* *Absent means unavailable.*
+  A kind not declared for a quoin cannot be referenced; a reference operator naming an undeclared kind rejects loud — a validator rule for free.
+* *One string per quoin.*
+  The reference payload is always the bare immutable quoin; the kind rides only the key.
+* *Grimoire alignment.*
+  Grimoire rows key their form columns on this roster.
+  Where a single-word quoin's declared spelling and its word's grimoire row overlap, the matricula may run an advisory exact-match agreement lint (VOr_m7w-clean); the two homes answer different questions — display text of a reference here, surface forms of a word there — so the overlap is checked, never collapsed.
+  Grimoire assists authorship (its mint-gate row is the source a session copies declarations from) and is never a read-time dependency: the studbook never distributes, and a canon must render from a bare clone.
+
+== Letter Slots (open; election is an operator act)
+
+Lean on record: lowercase operator (reference side) pairs with uppercase declarator (definition side).
+Candidate assignment mirrors the old suffix initials for migration muscle memory — s/S plural, p/P possessive, d/D past, g/G progressive — with the base reference key elected beside them in the pilcrow table.
+The operator has ruled continuity with the old suffixes non-binding (260720); the election runs its gates when the pilcrow table is cut.
+
+== Candidate Vocabulary (mulling words; gates at graduation)
+
+[cols="1,3,2"]
+|===
+| Slot | Meaning | Word status
+
+| the concept itself
+| The system of kinds by which one quoin's surface inflects.
+| Candidates: *declension* (gate ran clean 260720 — the grammarian's word for exactly this, the set of inflected forms of one word; rare, real, register-adjacent to the liturgical family); *inflection* (ambient in linguistics prose and already used descriptively in VOSMM — weak).
+  Disqualified: *paradigm* (trodden).
+  Working prose says "variant kind" until election.
+|===
+
+== Sources (provenance, not authority)
+
+* Founding census greps, design chat 2026-07-20 (Fable).
+* MCM `mcm_variant` — the concept ancestor.
+* VOSYD-diptych.adoc — the consuming grammar.
+* VOSMM-entity.adoc, Grimoire (deferred sketch) — the consuming table.

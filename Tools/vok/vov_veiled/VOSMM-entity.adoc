@@ -448,6 +448,7 @@ status of its own yet.
 
 The grimoire is the design-time home for the human-presentation forms of a minted word — one flat row per word that surfaces in prose.
 A row enumerates its forms literally — `foedus`, `foedera`, `foedus's` — never as a stemming or derivation rule: the irregular forms cannot be derived, only known.
+The roster of form kinds a row's columns key on is homed once in the variant-kinds sheaf (VOSVK-variants.adoc), shared with the Diptych grammar (VOSYD-diptych.adoc) — one enumeration, two consumers.
 This is the freeze pattern in linguistic form — the forms are authored once with full wisdom (the linguistic act, a mind's), then read forever by exact match (the mechanical act).
 The
 {vosmm_matricula}

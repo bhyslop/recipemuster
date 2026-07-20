@@ -1621,3 +1621,15 @@ over a fallible gate (sprue, rivet) is advisory, not an assertion.
 //axvd_cartouche axd_aspirant
 include::VOSMM-entity.adoc[leveloffset=+1]
 
+== Diptych
+
+The Diptych branch is the dual-representation canon format — word-per-line recto for git, joined verso for LLM reading and editing, one mechanical codec between — intended to replace the canons' AsciiDoc expression while preserving their MCM semantics.
+Its grammar, charset law, mezzanine, and projection registers live in the aspirant subdoc VOSYD-diptych.adoc; the variant-kind roster it shares with the grimoire lives beside it in VOSVK-variants.adoc.
+Both are aspirant: they mint nothing citable yet.
+
+//axvd_cartouche axd_aspirant axd_cosmology
+include::VOSYD-diptych.adoc[leveloffset=+1]
+
+//axvd_cartouche axd_aspirant axd_entity
+include::VOSVK-variants.adoc[leveloffset=+1]
+

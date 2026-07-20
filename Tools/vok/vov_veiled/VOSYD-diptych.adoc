@@ -1,0 +1,212 @@
+//axvd_sheaf axd_aspirant axd_cosmology
+This is an aspirant cosmology sheaf of the {vos0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+
+== Charter
+
+Diptych is a dual-representation document format for concept-model canons, replacing their AsciiDoc expression while preserving their MCM semantics — the mapping spine, the quoins, the voicings.
+One canonical source is stored word-per-line: the *recto*, git's face, optimized for word-grain diffs and move-traceable ancestry.
+A joined-prose projection — the *verso* — serves LLM reading and editing.
+A trivial mechanical codec transforms between them.
+The founding exploration is `Memos/memo-20260209-diptych-vision.md` and the model-side minting introspection is `Memos/retired/memo-20260610-quoin-minting-introspection.md` — both provenance, never authority; where this sheaf and the vision memo disagree, this sheaf is the later thought.
+
+One grammar serves many consumers: the codec, the validator, the recension (canon-wide tool-executed re-minting), and the matricula's Diptych vesture recognizer.
+All live in the vom crate — the same operator-only codebase that raises the census and will maintain the grimoire performs all recto/verso work (operator ruling, 260720).
+The distribution boundary is unchanged: vom never ships (VOr_q4f).
+
+== Cinched Constraints
+
+* Home is this sheaf under VOS0; not a standalone codex unless it ascends.
+* Word-per-line recto storage; one file per codex holding every sheaf.
+* AsciiDoc-first projection (Markdown deferred).
+  The fidelity gate is asciidoctor render-equivalence of original versus projection; the membrane is the version-pinned Ruby `asciidoctor` gem.
+* Normalize is emit-after-encode — no separate normalizer; exactly one canonical recto byte-form exists for given content.
+* Reverse parse is required.
+  Risk is managed by an echo-diff-for-review write loop; both encode and reverse parse reject loud on unclaimed constructs.
+* New AXLA annotation form only; legacy voicings are translated at ingestion, never stored.
+* No stored mapping section — the matricula owns reference-to-definition integrity, and the projector synthesizes any legend a partial view needs (the introspection memo's legend-cargo rule made structural rather than bolted on).
+* Category-legend representation is deferred to the matricula.
+* Section structure is relative, with no end tokens (below).
+* The mezzanine is immutable and edits are generative (below).
+
+== The Lexical Law
+
+Recto has one partition rule and one construct.
+
+*The space partition.*
+A line containing a space is a *pilcrow line*; a line without one is a single content word; a blank line is a paragraph boundary.
+The partition is sound because syntactic punctuation never rides a word (below), so content lines are always exactly one token.
+
+*The pilcrow line.*
+Key, single space, payload.
+The key is an entry in a closed, centrally-controlled table — the pilcrow table — matched by exact token, never by prefix.
+The table entry declares the payload's arity and type: quoin, literal, delta, punctuation marks, format kind.
+Keys are currently single letters; because keys are space-delimited exact tokens, key length is a convention, not a ceiling.
+The *pilcrow* is the leading key itself — the word is hearting-tier, spoken, never quoined.
+
+A content word accidentally joined to its neighbor produces a pilcrow line with an unknown key and rejects loud — the classic dropped-newline defect announces itself.
+
+=== Punctuation
+
+Syntactic punctuation — sentence enders, commas, semicolons, colons, quotes, parentheses — always rides its own pilcrow line; a run of adjacent marks rides one line, in order.
+Punctuation that is part of a token's spelling (`e.g.`, `Coronet's`, `well-known`, `2.0`, `.claude/`) stays in the token.
+Consequences, each load-bearing:
+
+* Every line's token is pure — exact-match for the census, the grimoire prose-lint, and plain grep, with zero stripping anywhere.
+* Words are position-independent: a word is byte-identical mid-sentence or sentence-final, so `git diff --color-moved` tracks reworded and moved prose word by word.
+* The abbreviation-versus-terminal ambiguity dissolves structurally: an attached period is lexical, a punctuation-line period is syntactic — sentence grain falls out for free.
+* A bare mark can never open a line (dot-initial content like `.claude/` stays unambiguous), so every punctuation line is pilcrow-marked by law, not taste.
+
+=== References and Variants
+
+A reference is a pilcrow line whose payload is the bare quoin.
+Variant forms are sibling keys carrying the same bare quoin — the kind lives in the key, never in the identifier.
+The kind roster, the per-quoin spelling declarations, and the letter elections are homed in the variant-kinds sheaf (VOSVK-variants.adoc), shared with the grimoire.
+
+One quoin is therefore one string at every occurrence — singular, plural, possessive, header, table cell.
+This strengthens the certain-coreference property the mapping spine exists to buy (introspection memo, provenance), and makes every-reference retrieval a search for one exact string, with no suffix rules to know.
+
+=== Sections
+
+Every section boundary is an opener carrying a relative delta: child, sibling, or up-k-then-open.
+There are no absolute levels and no end tokens: the next opener implicitly closes scope — the house pattern of AXLA's hierarchy markers.
+AsciiDoc cannot express parent prose resuming after a child section, so an end token would let recto express states the fidelity gate cannot render; the delta grammar matches the projection's envelope exactly.
+Moving or re-parenting a subtree changes one line — the subtree root's delta — and every interior line is byte-identical, so ancestry reads as a pure move.
+A header is its delta line plus the content lines that follow, closed by a mandatory blank line — no pair, no continuation.
+
+=== Emphasis
+
+An emphasis span opens with a pilcrow line carrying the format kind and closes with the generic end key.
+Two laws hold it: a span must close within its own paragraph window, so an unclosed span fails loud at the next blank line and never poisons the document; and spans do not nest, forbidden until the render-equivalence iterations produce a real counter-example.
+A span's interior is ordinary content lines, so emphasized text containing references works with no special case.
+
+=== Paragraphs
+
+The blank line is the paragraph boundary — the same semantic AsciiDoc and Markdown attach to it, so mappability is free.
+An express start-of-paragraph marker is rejected as non-load-bearing: it would say nothing the blank line does not already say, and would give the format two ways to mark one boundary.
+
+=== Continuation
+
+There is no continuation construct.
+Headers close on the blank line; emphasis closes on its end key; nothing else wanted one.
+
+=== Tables
+
+Tables are first-class, never pass-through: the existing canons are dense with references inside tables, and an opaque table would blind recension and link-coverage exactly there.
+Cell bodies are ordinary recto streams — words, references, punctuation lines.
+Rows are explicit, never derived from column count: count-derived grouping is AsciiDoc's classic silent misalignment, and explicit rows make it loud.
+The column spec rides the table opener's payload.
+Grammar detail is an open fork.
+
+=== Verbatim
+
+A fence opener suspends the space partition until its close; fence terminator mechanics are an open fork.
+
+== Charset Law
+
+* Encoding is UTF-8, normalization form NFC, mandatory — NFC-versus-NFD is two byte-spellings of one glyph, the exact defect class this law kills.
+* Printable ASCII is admitted ambiently.
+* Every non-ASCII codepoint must be *enrolled*: one small versioned table of deliberately admitted glyphs, and an unenrolled codepoint rejects loud at encode.
+  The hazard enrollment guards is the confusables — curly-versus-straight apostrophe, no-break-space-versus-space, en-versus-em dash — each an unsqueezed choice wearing Unicode clothing, invisible in an editor.
+* Execution-aid glyphs (₣, ₢, and kin) are never enrolled for prose: planning vocabulary stays out of specifications, enforced rather than merely intended.
+  A canon that must *specify* such a glyph carries it in literal position, where foreign characters are already lawful.
+* Physical layer: LF endings only; no tabs; no trailing whitespace; no indentation; at most one consecutive blank line; file ends with exactly one LF.
+
+== Squeeze Doctrine
+
+Squeeze choices, not bytes.
+Recto's readers are git and the codec — neither prices bytes, and delta compression makes word-per-line verbosity nearly free — but every optional spelling taxes every future tool, diff, and normalization forever.
+So: one spelling per meaning everywhere, and mnemonic legibility everywhere, because the hand lane is lawful — any text editor, POSIX tool, or raw LLM edit is legitimate, and a violation surfaces loud at the next normalize, which the write loop always runs before commit.
+
+== The Mezzanine
+
+The shared in-memory representation — the one parse every consumer rides — is a typed tree obeying AXLA's immutability law:
+
+* Each tree is an `axd_petrify` value: raised by a parse Builder, sealed, then queried pure.
+  The pipeline is raise, seal, validate, emit; only a valid sealed tree ever reaches bytes.
+* Edits are generative, never mutative — the `axd_insignia` derivation law applied to representations: an edit derives a fresh sealed tree from the old one, and the source is never altered.
+  Old and new coexist, which makes the echo-diff loop free, rejection atomic, and readers lock-free; structural sharing prices an edit at the changed path, not the document.
+* Trees are byte-lossless: nodes carry their exact tokens, and recto-to-tree-to-recto is identity on canonical input, because normalize-is-emit-after-encode demands it.
+  A sealed tree therefore has a content identity.
+
+The node census — the pilcrow table seen from the other side, every key mapping to a node kind:
+
+  Canon
+    Section        (tree, derived from header deltas)
+      Block        (paragraph | bullet item | table | fence | definition)
+        Sentence   (derived from terminal punctuation lines)
+          Token    (word | reference | variant reference | punctuation | span edge | literal)
+
+Sections and sentences are derived nodes; lines are the stored grain — the tree adds structure, never information.
+Field-level design defers to implementation under RCG.
+
+== Projections
+
+A projection is writable only if it is reversible.
+
+* *Verso* — the editing face: words joined, identifiers dressed inline.
+  The dress characters absent from recto appear here, where they are load-bearing: joined prose has no line grain, so a reference must be marked or reverse parse could not tell it from its display text.
+  The dress election is an open fork.
+* *Lectio* — the constrained-reader face: references resolved to display text (guillemet notation per the superseded ClaudeMark memo), machinery stripped.
+  Read-only by construction, not by policy.
+
+*The replace operation* (sketch; any MCP surface follows VOSMM's deferred-scope posture — the bill is paid only if it arrives): the caller supplies a before-text and an after-text in the projection dialect it was reading.
+The projector emits a span map — projected token to recto line — as a pure function of the sealed tree, so locating the before-text is a string match in the projection mapped to exact recto bounds, no heuristics.
+The before-text must match exactly once; zero or many rejects loud (the Edit-tool contract, already familiar to every session).
+The request names the sealed tree it read; a differing head tree rejects — optimistic concurrency, free under immutability.
+Reverse parse unwinds projection-isms into recto and rejects loud on anything unclaimed.
+
+== The Spine — Consumers of the One Grammar
+
+* *Codec* — recto to mezzanine to projections and back.
+* *Validator* — mechanized curation: the introspection memo's rule set (legend coverage, anchor-attribute bijection, interior edit distance, chunk ceiling, legend cargo), round-trip fidelity, plus the grammar's own laws — delta validity, span balance within windows, charset enrollment, undeclared-variant rejection, and the advisory agreement lint against grimoire rows where they overlap (exact-match, VOr_m7w-clean).
+* *Recension* — canon-side global re-minting over the same lexer.
+  Scope boundary per the vision memo: canon renames here; cross-universe renames ride the zipper registries; a full remint orchestrates both and is promised by no first delivery.
+  Reconciliation owed: VOSMM's deferred safe-reprefix is this concept's sibling — the two must converge on one home when either ascends.
+* *Vesture recognizer* — the definition-site grammar doubles as the matricula's Diptych vesture, retiring those estrays.
+
+== Elected and Candidate Vocabulary
+
+[cols="1,3,2"]
+|===
+| Slot | Meaning | Word status
+
+| line-kind key
+| The leading key of a structural recto line.
+| ELECTED (hearting): *pilcrow* — the scribal structure-mark generalized to the class; gate ran clean 260720.
+  Disqualified, ledgered: catchword (minted, `jjdb_catchword`), rubric (minted, `rbtgog_rubric`), incipit (minted, `jjdt_incipit`), siglum (audible collision with the minted sigil), tittle (false-friend of title), paraph (paraphrase grep-shadow), rune (Go's word for codepoint).
+
+| stored face / projected face
+| The word-per-line canonical source; the joined-prose projection.
+| Working words *recto* / *verso* (vision memo); unminted, re-ratify at settling.
+  Canon is already MCM-minted (`mcm_canon`) and is consumed, never re-minted; *lectio* / *lectionary* stand unminted from the memo.
+
+| verso reference dress
+| The inline mark distinguishing a reference in joined prose.
+| OPEN — elect with the verso grammar.
+
+| enrollment table
+| The versioned table of admitted non-ASCII codepoints.
+| OPEN — plain description suffices until tooling needs a name.
+
+| fence terminator
+| How a verbatim window closes.
+| OPEN.
+|===
+
+== Open Forks (the mulling surface)
+
+* Definition-site shape — whether display text and the variant declarators consolidate onto the definition line or stay adjacent lines; the operator is deliberately not ready to consolidate (260720 ruling: variants adjacent, the rest open).
+* Table grammar detail — opener payload, row and cell keys, header row, column-spec fidelity.
+* Fence terminator mechanics.
+* Verso grammar — the dress election, and how far verso mirrors the vision memo's original inline form.
+* Emphasis nesting — forbidden until the migration's render-equivalence iterations surface a true counter-example.
+* Grimoire-generated declarators — whether single-word quoins' variant declarations are freshen-generated from grimoire rows; banked, sequenced behind the studbook-farrier MVP like all grimoire tooling.
+* Recension and safe-reprefix convergence — owed to VOSMM when either ascends.
+* Letter elections for the pilcrow table, with VOSVK-variants.adoc for the variant kinds.
+
+== Sources (provenance, not authority)
+
+* `Memos/memo-20260209-diptych-vision.md` — the founding vision: the spine, recension scope honesty, and the removal-conditions ledger of tolerated inconsistencies awaiting migration.
+* `Memos/retired/memo-20260610-quoin-minting-introspection.md` — the model-side report: certain coreference over token count; the validator rule-set feedstock.
+* Design chat, 2026-07-20 (Fable) — the space partition, punctuation law, relative deltas, pilcrow election and gate ledger, charset enrollment, squeeze doctrine, mezzanine immutability ruling, projection registers, and the replace sketch.
+* `AXMCM-ClaudeMarkConceptMemo.md` — the superseded ClaudeMark exploration; its guillemet notation survives in lectio.
