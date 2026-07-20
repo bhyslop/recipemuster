@@ -9,7 +9,7 @@
 
 use std::path::PathBuf;
 use vvc::{vvco_err, vvco_Output};
-use crate::jjrg_gallops::{jjrg_Gallops, jjrg_HeatStatus, jjrg_PaceState};
+use crate::jjrg_gallops::{jjrg_HeatStatus, jjrg_PaceState};
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 
 const JJRMU_CMD_NAME_LIST: &str = "jjx_list";
@@ -30,7 +30,7 @@ pub struct jjrmu_MusterArgs {
 pub async fn jjrmu_run_muster(args: jjrmu_MusterArgs) -> (i32, String) {
     let cn = JJRMU_CMD_NAME_LIST;
     let mut output = vvco_Output::buffer();
-    let gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);

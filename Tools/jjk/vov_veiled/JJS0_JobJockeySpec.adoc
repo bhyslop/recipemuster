@@ -412,6 +412,7 @@
 :jjdk_lockless_reads:  <<jjdk_lockless_reads,Lockless Reads>>
 :jjdk_sole_door:       <<jjdk_sole_door,Sole Door>>
 :jjdk_no_catch_all:    <<jjdk_no_catch_all,No Catch-All>>
+:jjdk_no_symlinks:     <<jjdk_no_symlinks,No Symlinks>>
 
 // end::mapping-section[]
 
@@ -1041,6 +1042,34 @@ performs the same resolved-path check at session creation.
 Fail fast before any
 {jjdo_relay}
 is ever attempted.
+
+[[jjdk_no_symlinks]]
+//axk_premise
+{jjdk_no_symlinks}::
+JJ neither creates symlinks nor lets symlink resolution be load-bearing:
+symlink transparency is out of scope.
+Symlinks are unreliable under Cygwin on the load-bearing Windows test hosts,
+and resolution authorities provably disagree —
+`jjrfr_identify` (`jjrfg_plaingit.rs`) adopts `git rev-parse --show-toplevel` output verbatim,
+which unwinds platform-planted symlinks (macOS's `/var` → `/private/var`, the sighted case)
+that a caller's own spelling of the same tree does not,
+while `std::fs::canonicalize` — the obvious reconciler —
+carries a known Windows wart that need not agree with a Cygwin git's own emission.
++
+Consequently, each claimed tree has one path authority:
+the root {jjdf_identify} emits is adopted verbatim,
+derived from by pure path math,
+never re-canonicalized for identity,
+and never compared as a string against a path from any other authority —
+a same-directory question is answered functionally
+(`zjjtm_assert_same_dir`, `jjtm_mcp.rs`, is the proof pattern).
+And JJ-authored artifacts are never symlinks:
+the {jjdw_yard} stiles are plain two-line scripts for exactly this reason (dispatch sheaf).
++
+Platform-planted symlinks cannot be forbidden — the OS minted `/var` before JJ arrived —
+so a tree reached through one is promised coherent behavior through the resolved authority alone,
+never its unresolved spelling back.
+The {jjdxo_officium} `cwd:` line recorded verbatim at {jjdo_open} — no symlink resolution — instantiates the same bound.
 
 == Equestrian Vocabulary
 

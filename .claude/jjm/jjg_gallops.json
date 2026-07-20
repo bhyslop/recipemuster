@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAn",
+  "jjgrn_next_pace_seed": "CAAAu",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4537,6 +4537,12 @@
         "₢CAAAQ",
         "₢CAAAa",
         "₢CAAAR",
+        "₢CAAAn",
+        "₢CAAAo",
+        "₢CAAAs",
+        "₢CAAAp",
+        "₢CAAAq",
+        "₢CAAAr",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -4743,23 +4749,51 @@
         "₢CAAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2219",
+              "jjgtn_ts": "260720-0748",
               "jjgtn_state": "jjgte_bridled",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
-                "this docket points at it and does not restate the ceremony.",
-                "Sole-operator, one afternoon: quiesce sessions, final-sync clones,",
-                "founding import (live state only — racing and stabled heats, paddocks, dockets),",
-                "switch every install together —",
-                "flip the enablement seams (`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`,",
-                "`JJRM_OFFICIUM_STUDBOOK_ENABLED`),",
-                "and tombstone the old in-repo gallops so old binaries fail loud, never silently",
-                "resurrect (`JJr_` rivet treatment, demolition condition attached).",
-                "The tombstone's schema-impact determination rides claude-jjk-bhyslop §E/§F and JJSCRP.",
+                "this docket points at it and carries only the rulings that bind it.",
+                "Precondition (made explicit by the rescope): the four build paces ahead of this one landed —",
+                "command-surface read and journal-write behind the seam, officium relocation, founding orchestrator.",
+                "Sole-operator, one afternoon.",
+                "",
+                "The seams are compile-time consts, so the ceremony spans TWO sessions:",
+                "",
+                "- Old-binary session: quiesce (no officium open on either machine, no billet mid-work) →",
+                "  final-sync clones →",
+                "  flip commit (both seams true: `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`, `JJRM_OFFICIUM_STUDBOOK_ENABLED`) →",
+                "  rebuild + install `vvx`, commits recorded, converged to every operated clone —",
+                "  then, as its LAST act, the operator recreates the bare remote clean (260719 ruling)",
+                "  and runs the founding orchestrator (found + live-state import + pedigrees seed).",
+                "  The import is the moment of authority transfer:",
+                "  this session issues NO jjx call after it —",
+                "  its MCP server still runs the old binary and would write the dead store.",
+                "- New-binary session: verify sighted —",
+                "  command surface and dispatch spine both read the studbook,",
+                "  officium exchange relocated, station-name guard live —",
+                "  then tombstone the old in-repo gallops LAST",
+                "  (old binaries fail loud, never silently resurrect; `JJr_` rivet treatment with demolition condition attached),",
+                "  the tombstone commit and this pace's wrap landing as the first live journaled writes —",
+                "  the write-path proof itself.",
+                "",
+                "Same afternoon: retarget or retire the real-remote rehearsal tests (the ignored jjtvb set) —",
+                "once the studbook is live, rehearsal writes must never land there (260719 ruling).",
                 "Anticipate the MCP first-contact trust prompt in fresh billets (Finding C) —",
-                "harness behavior to expect at the Palisade, never a fault to fix.",
+                "harness behavior at the Palisade, never a fault to fix.",
+                "",
+                "## Cinched",
+                "- Abort-safe until tombstone: the old store stays on disk and authoritative until the tombstone act —",
+                "  a failed verification reverts the flip commit, rebuilds, and loses nothing;",
+                "  the candidate studbook discards freely (recreate-clean reruns from nothing).",
+                "- Delivery rides a §F branch and converges across the operated clones as one coordinated act;",
+                "  reprieve episode ruled NOT owed",
+                "  (the tombstone retires the store wholesale; no serialized field changes) —",
+                "  claude-jjk-bhyslop §E/§F, JJSCRP.",
+                "- RECREATE CLEAN stands: found against a recreated-empty remote,",
+                "  never additively atop the standing scratch instance.",
                 "",
                 "## Done when",
                 "Every install reads and writes heat/pace state through the studbook alone,",
@@ -4767,12 +4801,13 @@
                 "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
               ],
               "jjgtn_silks": "execute-cutover-ceremony",
-              "jjgtn_basis": "bb9080f"
+              "jjgtn_basis": "8d4c3b7"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony itself — the one-afternoon full cutover JJSAS specifies,\nmade executable by the seam, door, and founding-stage paces slated before it.",
-          "jjgpn_slated": "260718-1001"
+          "jjgpn_slated": "260718-1001",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAT": {
           "jjgpn_tacks": [
@@ -4887,6 +4922,268 @@
           "jjgpn_dictation": "I really really do not want a git reset --hard anywhere in this sequence. Do we have some serious design problems? [...] I do want though to have tha conversation about removing reset --hard from the write path: what notions do you have for this?",
           "jjgpn_precis": "The operator categorically rejects `git reset --hard` in the studbook sequences\nand directed a design conversation on removing it from the write path.\nThe session settled the direction:\nnever create refused-push residue (compose-then-push, branch advances only on success),\nderive mutations from post-lock state (mutate-as-transform),\nrevise the `JJr_b52` rivet doctrine alongside the code,\nand halt-and-surface on impossible states rather than auto-destroy.",
           "jjgpn_slated": "260719-2026"
+        },
+        "₢CAAAn": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0750",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
+              "jjgtn_text": [
+                "## Character",
+                "Planning/triage — read the embedded findings, RULE the rescope, enact it via slate/reslate/cantle. Decide, do not build.",
+                "",
+                "## The finding (grounded 260720 AM; processed immediately — line anchors current)",
+                "The cutover-ceremony pace's premise (an afternoon flip-and-import) does not match the code. Three parallel surveys of the `jjk` crate (`Tools/jjk/vov_veiled/src/`; binary `vvr` ← `Tools/vok/src/vorm_main.rs`, installed `Tools/vvk/bin/vvx`) agree: the cutover machinery is substantially UNBUILT. Four gaps against the Rung-1 done-line:",
+                "",
+                "1. **MCP command-surface repoint — MISSING (the bulk).** Every `jjx_*` command reads AND writes state to the in-repo `.claude/jjm/jjg_gallops.json` unconditionally (`jjrm_mcp.rs`: `GALLOPS_PATH`@50, `gallops_pathbuf`@120, load@237-245, plus `jjri_persist`/`jjdr_save` writes) — seam-blind. `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` gates ONLY the saddle/lunge dispatch spine (`jjrds_spine.rs:847`), never commands. Rung-1's \"every install reads AND writes state through the studbook alone, every `jjx_*` command's read repointed\" requires this. Read half can lean on the built+tested `jjdb_gallops_journal_load` (git-show over the studbook pin) — currently an uncalled island. WRITE half must journal through the blotter ceremony (JJSVJ: lock `refs/jjv/guidon` → commit → push), NOT a file overwrite — and whether ANY command-write is wired to the journal was NOT directly surveyed (confirm at build; likely also unbuilt).",
+                "",
+                "2. **Officium relocation — DEAD SEAM.** `JJRM_OFFICIUM_STUDBOOK_ENABLED` (`jjrm_mcp.rs:1828`) has zero production reads; `zjjrm_exchange_dir`@1771 builds `.claude/jjm/officia/<id>/` unconditionally; the relocation helper `jjrm_studbook_exchange_dir`@1840 (target `<studbook>/officia_scratch/<id>/`) is test-only. Flipping the const does nothing until the branch is written into open/validate/exchange — plus the station-name refusal (`jjrm_station_name()` None → refuse open) is unwritten.",
+                "",
+                "3. **Founding orchestrator — NO ENTRYPOINT.** `jjdb_founding_import` (`jjrvb_blotter.rs:192` — retains racing+stabled, collision-refuses on dup firemark|coronet, tested) and `jjdb_found`@120 (git init/seed/push) are LIBRARY functions with zero production callers. No `vvr` subcommand, no `jjw-*` tabtarget, no `jjx` command drives them. Refusal+merge core is real; the ceremony that runs it is not.",
+                "",
+                "4. **pedigrees.json writer — MISSING.** Reader B needs `pedigrees.json` in BOTH seam states; the founding importer seeds gallops only; nothing in production writes it (test helpers only). The founding seed must produce it (likely folds into gap 3).",
+                "",
+                "## The crux (why the paddock read \"verified built, awaiting the flip\")",
+                "The paddock's record-read finding named `jjdb_gallops_journal_load` \"complete and tested behind the seam.\" True of the FUNCTION — but it is an island: no live command calls it, and the command surface never consults the seam. \"Awaiting the flip\" is really \"awaiting the command-surface wiring (read AND journal-write), THEN the flip.\" The dispatch-spine reader (`jjrds_plan`) IS built-behind-seam; the command-surface reader is not wired at all.",
+                "",
+                "## Ordering kicker",
+                "The tombstone (the one finish-ready act) cannot go first: because the command surface reads the in-repo gallops unconditionally, tombstoning `.claude/jjm/jjg_gallops.json` breaks the CURRENT binary's every `jjx` command too, not just old binaries. Tombstone is LAST — after the command surface reads the studbook.",
+                "",
+                "## Ready assets (real components, not a ceremony)",
+                "Dispatch-door reader (built-behind-seam); founding importer collision-refusal + live-state merge (library-tested); tombstone fail-loud (loader has no version guard, no default fallback — any non-gallops content trips a loud parse error at `jjrm_mcp.rs:237-245`); schema call SETTLED — **NO reprieve episode** (tombstone retires the file wholesale, changes no serialized field; §E definition + JJSCRP:62 — the reprieve is the inverse, making a NEW binary tolerate an OLD store). **§F branch delivery + cross-install convergence DO apply.**",
+                "",
+                "## Ground truth for the eventual build/cutover",
+                "Studbook clone resolves by pure convention (peer dir of the project clone; NO env/config) — on this station `/Users/bhyslop/projects/jjqs_studbook` (operator-mutable instance of the durable \"infield peer dir\" rule). Exists as the scratch rehearsal seed: 55-byte empty gallops + `pedigrees.json`, branch `trunk`, remote `git@github.com:bhyslop/jjqs_studbook.git`. This IS the RECREATE-CLEAN (260719) target. Build+install: `vvr` ← `Tools/vok/src/vorm_main.rs` → `Tools/vvk/bin/vvx`.",
+                "",
+                "## Recommendation (Fable weighs, rules, ENACTS — does not build)",
+                "Build-first. The current cutover pace is really a build effort THEN the ceremony. Suggested shape (segmentation is Fable's to rule):",
+                "- **Cantle build paces** (ahead of the ceremony) for the four gaps — likely: (a) command-surface repoint [read via `jjdb_gallops_journal_load` + journal-write via JJSVJ] — the big one, may split; (b) officium relocation wiring + station-name refusal; (c) founding orchestrator entrypoint (drives `jjdb_founding_import`, seeds `pedigrees.json`, stands up via `jjdb_found`); (d) pedigrees writer, likely folded into (c). Each build pace landable+testable under CURRENT JJ (both seams false), on a §F branch.",
+                "- **Reslate the cutover-ceremony pace** to the post-build afternoon ceremony: quiesce (both machines) → final-sync → recreate-clean remote → run founding orchestrator → flip both seams → rebuild+install `vvx` → verify command surface + both readers on studbook + officium relocated → tombstone. Done-line unchanged; only its precondition (machinery built) is now explicit.",
+                "- **Live inventory to act on:** `jjx_coronets B3` / `jjx_show B3`. The near paces today are the cutover-ceremony (this pace's target), de-insertion, sheaf-hardening, and the terminal carry-forward — de-insertion + sheaf-hardening stay downstream of the ceremony; the carry-forward stays terminal.",
+                "",
+                "## Cinched",
+                "- Fable DECIDES + ENACTS the rescope (slate/reslate/cantle only); Fable does NOT build the machinery.",
+                "- RECREATE CLEAN (260719) stands: eventual founding runs against a recreated-empty remote, never additively atop the scratch instance.",
+                "- No memo — this docket is the finding's home (operator ruling).",
+                "- Findings grounded 260720 AM; trust them for the decision, spot-check only if a ruling hinges on a detail — do not re-survey.",
+                "",
+                "## Done when",
+                "The heat is re-shaped so the path to cutover is correctly sequenced: build pace(s) for the missing machinery slated ahead of the ceremony (each with a clear, landable docket), and the cutover-ceremony pace reslated to the post-build ceremony — OR any gap needing an operator ruling surfaced. No machinery built in this pace."
+              ],
+              "jjgtn_silks": "cutover-buildgap-rescope",
+              "jjgtn_basis": "939926a"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.",
+          "jjgpn_precis": "Operator directs a Fable-bridled planning pace carrying the survey findings that the studbook-cutover machinery is substantially unbuilt (command-surface repoint, officium relocation, founding orchestrator, pedigrees writer all missing). Fable rules and enacts the rescope — cantle build pace(s) and/or reslate the cutover-ceremony pace — but performs no build itself.",
+          "jjgpn_slated": "260720-0725"
+        },
+        "₢CAAAo": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0903",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_text": [
+                "Wire the studbook seam into the jjx command surface's READ half.",
+                "Today every `jjx_*` command loads gallops from the in-repo `.claude/jjm/jjg_gallops.json` unconditionally (`jjrm_mcp.rs`) —",
+                "the seam `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` gates only the dispatch spine.",
+                "When the seam is on, command reads resolve through the studbook journal read",
+                "(`jjdb_gallops_journal_load` — built, tested, currently an uncalled island);",
+                "when off, the in-repo read stands byte-identical.",
+                "Seam on with the studbook clone absent or unreadable is a loud fair-faced refusal,",
+                "never a silent fallback to the old store.",
+                "",
+                "## Cinched",
+                "- Same-const atomicity: the command read branches on the SAME `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` the dispatch spine already obeys —",
+                "  one flip moves both readers; no half-flipped binary can exist.",
+                "- Both seams stay false at land (mainline-inert).",
+                "  Seam-on proven by unit tests against fixture studbooks only — no live flip,",
+                "  and the write path stays untouched (its sibling pace journals writes).",
+                "- Currency-at-read (ruled at the rescope; operator may override): no per-command glean —",
+                "  reads take the local studbook clone as it stands;",
+                "  one glean rides officium open per session (this pace wires it, seam-gated);",
+                "  write-currency belongs to the blotter lease.",
+                "- Self-hosting gate: the landed binary runs the next session's live mounts —",
+                "  full `tt/vow-t.Test.sh` green before wrap, seam-off path byte-identical under the existing suite.",
+                "",
+                "## Done when",
+                "Seam-on tests read command state from a fixture studbook journal,",
+                "refuse loud on a missing clone,",
+                "and glean once at open;",
+                "seam-off behavior is unchanged under the full existing suite."
+              ],
+              "jjgtn_silks": "repoint-command-reader",
+              "jjgtn_basis": "40829e3"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 1's READ half.\nThe rescope survey found the jjx command surface seam-blind — every command reads the in-repo gallops unconditionally while the tested studbook journal read sits uncalled.\nThis pace wires the read half behind the same seam const the spine obeys, with the rescope-ruled currency policy (glean at open, none per command), leaving the write half to its sibling.",
+          "jjgpn_slated": "260720-0746"
+        },
+        "₢CAAAp": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0748",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
+              "jjgtn_text": [
+                "Wire the studbook seam into the jjx command surface's WRITE half.",
+                "First act: confirm the survey's open question —",
+                "whether ANY command write is journal-wired today",
+                "(the rescope survey found `jjri_persist`/`jjdr_save` writing the in-repo file unconditionally",
+                "and did not directly survey journal wiring; likely unbuilt).",
+                "When the seam is on, every state-mutating `jjx_*` command persists through the blotter journal ceremony",
+                "(JJSVJ: take the `refs/jjv/guidon` lock, commit to the studbook clone, push, release),",
+                "with lock contention and push-lease failure refusing loud — the rehearsed semantics;",
+                "when off, today's in-repo persist stands untouched.",
+                "",
+                "## Cinched",
+                "- Same-const atomicity: the write half branches on the SAME `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` as the read half and the spine —",
+                "  no binary can read one store while writing the other.",
+                "- Writes go through the JJSVJ blotter ceremony,",
+                "  never a direct file write into the studbook clone;",
+                "  the lock/commit/push shape is settled, not a mount-time option.",
+                "- Both seams stay false at land (mainline-inert).",
+                "  Seam-on proven against fixture studbooks (isolated temp repos) only —",
+                "  never the real remote, never this project's own refs.",
+                "- Self-hosting gate: the landed binary runs the next session's live mounts —",
+                "  full `tt/vow-t.Test.sh` green before wrap, seam-off path byte-identical under the existing suite.",
+                "",
+                "## Done when",
+                "Seam-on tests land each mutating command as a journaled studbook commit through the lock ceremony;",
+                "read-after-write within a session sees the write;",
+                "contention and lease failure refuse loud;",
+                "seam-off behavior is unchanged."
+              ],
+              "jjgtn_silks": "journal-command-writes",
+              "jjgtn_basis": "e338b41"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 1's WRITE half, the bulk of the build.\nEvery jjx mutation must journal through the rehearsed JJSVJ blotter ceremony instead of overwriting a file,\nbehind the same seam const as the read half so read and write can never split across stores —\nthe operator's no-lost-paces steer made structural.",
+          "jjgpn_slated": "260720-0746"
+        },
+        "₢CAAAq": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0748",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_text": [
+                "Wire the dead officium seam live and guard open.",
+                "Today `JJRM_OFFICIUM_STUDBOOK_ENABLED` has zero production reads —",
+                "the exchange dir is built in-repo unconditionally",
+                "and the studbook-side helper (`jjrm_studbook_exchange_dir`, targeting `officia_scratch/` under the studbook clone) is test-only.",
+                "Branch officium open/validate/exchange resolution on the seam,",
+                "and write the station-name refusal:",
+                "`jjrm_station_name()` returning None refuses `jjx_open` with a fair-faced error.",
+                "",
+                "## Cinched",
+                "- Both seams stay false at land (mainline-inert); seam-on proven by tests only.",
+                "- Self-hosting gate: the landed binary runs the next session's live mounts —",
+                "  full `tt/vow-t.Test.sh` green before wrap, seam-off path byte-identical under the existing suite.",
+                "",
+                "## Done when",
+                "Seam-on tests resolve the officium exchange under the studbook clone",
+                "and an unnamed station is refused at open;",
+                "seam-off officium behavior is unchanged."
+              ],
+              "jjgtn_silks": "relocate-officium-exchange",
+              "jjgtn_basis": "87ab155"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 2.\nThe officium seam is dead — flipping it changes nothing until open/validate/exchange branch on it —\nand the station-name refusal at open is unwritten.\nThis pace wires both, mechanical and mainline-inert.",
+          "jjgpn_slated": "260720-0746"
+        },
+        "₢CAAAr": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0748",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_text": [
+                "Give the founding a production entrypoint.",
+                "`jjdb_found` (git init/seed/push) and `jjdb_founding_import`",
+                "(live-state merge retaining racing+stabled, collision-refusing on duplicate firemark|coronet —",
+                "both library-tested, zero production callers)",
+                "compose into one operator-drivable ceremony command that founds a studbook from nothing",
+                "and seeds BOTH files:",
+                "gallops.json (imported live state)",
+                "and pedigrees.json (the founding-seed gap —",
+                "the dispatch reader requires it in both seam states; nothing in production writes it).",
+                "",
+                "## Cinched",
+                "- Entrypoint surface (ruled at the rescope): a `vvr` subcommand fronted by a `jjw-*` tabtarget —",
+                "  an operator ceremony door, never a `jjx_` MCP command.",
+                "- Fixture-only in this pace: build and test against scratch targets;",
+                "  the real found is the ceremony pace's act under the standing RECREATE-CLEAN ruling.",
+                "- The import is the ceremony's moment of authority transfer,",
+                "  so the orchestrator is a single deterministic act — found + import + seed in one run —",
+                "  leaving no partially-founded middle state for the ceremony to hold.",
+                "- Self-hosting gate: full `tt/vow-t.Test.sh` green before wrap.",
+                "",
+                "## Done when",
+                "One command founds a scratch studbook end-to-end in tests —",
+                "init/seed/push, live-state import with collision refusal loud,",
+                "pedigrees seeded such that the dispatch reader accepts the founded store —",
+                "and the pedigree seed source (which rows, from where — the standing scratch instance is the shape specimen)",
+                "is settled at mount and recorded where the ceremony's steps live (JJSAS)."
+              ],
+              "jjgtn_silks": "build-founding-orchestrator",
+              "jjgtn_basis": "9185169"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gaps 3 and 4 folded.\nThe founding importer and found are tested library islands with no entrypoint,\nand nothing in production writes pedigrees.json.\nThis pace builds the one-shot operator door that founds, imports live state, and seeds both files —\ndeliberately atomic so the eventual ceremony's authority transfer has no middle state.\nLast of the four builds so journal-shape learnings from the write pace precede the seed.",
+          "jjgpn_slated": "260720-0747"
+        },
+        "₢CAAAs": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0924",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_text": [
+                "State and home a formal premise or requirement ruling symlink-dependent",
+                "behavior out of scope for this project's code — decide the shape (a",
+                "declared design premise per `axk_premise`? a correctness requirement? a",
+                "\"multiplatform required\" constraint? something else) and its proper",
+                "spec/guide home. Do not implement against it this pace.",
+                "",
+                "Grounded in a concrete finding: testing `zjjrm_infield_root` (jjrm_mcp.rs)",
+                "surfaced that `jjrfr_identify` (jjrfg_plaingit.rs) resolves through `git",
+                "rev-parse --show-toplevel`, silently unwinding platform-specific symlinks",
+                "(macOS's /var -> /private/var, the case actually hit). A naive path-string",
+                "comparison against that resolved value is fragile, and Rust's",
+                "`std::fs::canonicalize` — the obvious fix — carries a known Windows wart",
+                "that may not agree with a Cygwin git binary's own path emission. This",
+                "project's Test Environments name Windows/Cygwin hosts as load-bearing, so",
+                "the platform gap is live, not hypothetical.",
+                "",
+                "## Character",
+                "Judgment call: what shape the constraint takes, and its proper home.",
+                "",
+                "## Cinched",
+                "- Decide and home the premise/requirement only; no production-code changes",
+                "  or retrofits against it this pace.",
+                "",
+                "## Done when",
+                "The premise (or requirement) is stated once, formally, in its proper",
+                "spec/guide home, citing `jjrfr_identify`'s git-resolution behavior as",
+                "grounding evidence."
+              ],
+              "jjgtn_silks": "symlink-premise",
+              "jjgtn_basis": "8014811"
+            }
+          ],
+          "jjgpn_dictation": "woof hold on regarding symlinks...\n\nUnreliable on windows under cygwin.  how are they used in this design?\n\n---\n\nDo rewrite your test to avoid path-equality assertion now.  Also, cantle a\npace and bridle to Fable for properly stating and emplacing a requirement/\nkey premise that makes symlink use inappropriate for this project.  We'll\nthink through whether this is 'multiplatform required' shape or other on\nmount of that pace.  Proceed.",
+          "jjgpn_precis": "Testing zjjrm_infield_root's platform behavior surfaced that git's own path\nresolution (rev-parse --show-toplevel) unwinds symlinks inconsistently with\nRust's std::fs::canonicalize, which is itself fragile on Windows — a live\nconcern since Windows/Cygwin hosts are load-bearing test targets. Operator\nwants a properly homed premise or requirement declaring symlink-dependent\nbehavior out of scope, with Fable determining its shape (design premise vs.\ncorrectness requirement vs. \"multiplatform required\" constraint) and\nspec/guide placement at mount time — decide only, no implementation this\npace.",
+          "jjgpn_slated": "260720-0849"
         }
       }
     },
@@ -4901,7 +5198,8 @@
         "₢CAAAV",
         "₢CAAAX",
         "₢CAAAY",
-        "₢CAAAZ"
+        "₢CAAAZ",
+        "₢CAAAt"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -5115,6 +5413,43 @@
           "jjgpn_dictation": "Can you slate a pace on B4 to carry out the improvements you recommend?",
           "jjgpn_precis": "Slate the landing-content fix recommended after auditing the ₢B6·CAAAB landings and the designee-side prompting.\nTwo halves: teach the producer side (Designee protocol in claude-jjk-core.md + the JJSCLD spec) the evidence-only standard so landings are born review-grade, and harden jjc-wrap step 2 to judge an existing landing's content rather than treat its mere existence as review-grade.\nThe empirical trigger: a sonnet designee's completion report on ₢B6·CAAAB came out advocacy-laden (pre-arguing scope and design choices), exactly the pre-framing the fresh reviewer is meant to avoid.",
           "jjgpn_slated": "260718-2238"
+        },
+        "₢CAAAt": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0906",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Relax `jjx_enroll`'s model-tier gate so a sonnet-tier session may slate a pace, not only opus/fable.",
+                "",
+                "Today `jjx_enroll` carries no gate arm of its own:",
+                "it falls through the catch-all `_ => zjjrm_GuardBucket::Frontier` in `zjjrm_guard_bucket` (`jjrm_mcp.rs`),",
+                "and the dispatch gate refuses every sub-frontier caller on a Frontier-bucket command via `zjjrm_frontier_refusal` (the \"frontier-only (opus or fable)\" interdictum; `zjjrm_is_frontier` = fable|opus).",
+                "The mount agent finds the gate there and chooses the mechanism — this docket fixes the end state, not the shape.",
+                "",
+                "## Cinched",
+                "- Scope the relaxation to `jjx_enroll` alone (which is slate, chivvy, and cantle — one command, three verbs).",
+                "  The rest of the Frontier catch-all — close and apostille foremost, plus validate, refit, and the redocket/curry/relabel/drop/relocate/alter/reorder/archive/transfer and remote families — stays frontier-only.",
+                "  Do not lower `zjjrm_is_frontier` globally, and do not lower the whole Frontier bucket.",
+                "- The ask is sonnet specifically; leave haiku and the non-designable tiers (gpt, gemini, unknown) refused as they are unless the operator extends the ask at mount.",
+                "",
+                "## Character",
+                "A small, surgical gate change that carries one deliberately-unresolved design question — to be thought through at mount, never settled at slate:",
+                "whether a sonnet-slated pace should get special review before it is bridled, or before it is implemented — does a sonnet-authored docket warrant a frontier pass that an opus/fable-authored one does not?",
+                "Do not resolve this now; surface it at mount and let the operator rule.",
+                "",
+                "## Done when",
+                "A sonnet-tier session calls `jjx_enroll` (slate) and it proceeds instead of raising the frontier interdictum;",
+                "every other Frontier-bucket verb still refuses sub-frontier callers unchanged;",
+                "unit tests cover both sonnet-admitted-to-enroll and a still-refused frontier verb."
+              ],
+              "jjgtn_silks": "enroll-admits-sonnet",
+              "jjgtn_basis": "7daa2db"
+            }
+          ],
+          "jjgpn_dictation": "Have an opus agent review your work and raise issues if there are any. Otherwise, direct it to wrap, and additionally to slate a pace on heat B4 to enable sonnet to slate a pace, though we should think about at pace mount time whether we want a sonnet-slated pace to get special review before either bridling or implementation.",
+          "jjgpn_precis": "Relax `jjx_enroll`'s frontier-only (opus/fable) model gate so sonnet-tier sessions can slate paces too, scoped to enroll alone and leaving the rest of the frontier surface untouched; leave open, for a mount-time operator ruling, whether a sonnet-slated pace needs special review before bridling or implementation.",
+          "jjgpn_slated": "260720-0906"
         }
       }
     },
