@@ -8085,8 +8085,8 @@
         "₢BzAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2032",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260719-2133",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Goal",
@@ -8125,7 +8125,7 @@
                 "new rivets are minted per the MCM placement law with their spec definition sites landed."
               ],
               "jjgtn_silks": "a8-rivet-or-nothing-sweep",
-              "jjgtn_basis": "e759512"
+              "jjgtn_basis": "2c05c2f"
             }
           ],
           "jjgpn_redocket_count": 1
