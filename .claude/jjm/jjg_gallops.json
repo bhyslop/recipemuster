@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAs",
+  "jjgrn_next_pace_seed": "CAAAt",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4539,6 +4539,7 @@
         "₢CAAAR",
         "₢CAAAn",
         "₢CAAAo",
+        "₢CAAAs",
         "₢CAAAp",
         "₢CAAAq",
         "₢CAAAr",
@@ -5140,6 +5141,48 @@
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
           "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gaps 3 and 4 folded.\nThe founding importer and found are tested library islands with no entrypoint,\nand nothing in production writes pedigrees.json.\nThis pace builds the one-shot operator door that founds, imports live state, and seeds both files —\ndeliberately atomic so the eventual ceremony's authority transfer has no middle state.\nLast of the four builds so journal-shape learnings from the write pace precede the seed.",
           "jjgpn_slated": "260720-0747"
+        },
+        "₢CAAAs": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0849",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "State and home a formal premise or requirement ruling symlink-dependent",
+                "behavior out of scope for this project's code — decide the shape (a",
+                "declared design premise per `axk_premise`? a correctness requirement? a",
+                "\"multiplatform required\" constraint? something else) and its proper",
+                "spec/guide home. Do not implement against it this pace.",
+                "",
+                "Grounded in a concrete finding: testing `zjjrm_infield_root` (jjrm_mcp.rs)",
+                "surfaced that `jjrfr_identify` (jjrfg_plaingit.rs) resolves through `git",
+                "rev-parse --show-toplevel`, silently unwinding platform-specific symlinks",
+                "(macOS's /var -> /private/var, the case actually hit). A naive path-string",
+                "comparison against that resolved value is fragile, and Rust's",
+                "`std::fs::canonicalize` — the obvious fix — carries a known Windows wart",
+                "that may not agree with a Cygwin git binary's own path emission. This",
+                "project's Test Environments name Windows/Cygwin hosts as load-bearing, so",
+                "the platform gap is live, not hypothetical.",
+                "",
+                "## Character",
+                "Judgment call: what shape the constraint takes, and its proper home.",
+                "",
+                "## Cinched",
+                "- Decide and home the premise/requirement only; no production-code changes",
+                "  or retrofits against it this pace.",
+                "",
+                "## Done when",
+                "The premise (or requirement) is stated once, formally, in its proper",
+                "spec/guide home, citing `jjrfr_identify`'s git-resolution behavior as",
+                "grounding evidence."
+              ],
+              "jjgtn_silks": "symlink-premise",
+              "jjgtn_basis": "1d2f6b8"
+            }
+          ],
+          "jjgpn_dictation": "woof hold on regarding symlinks...\n\nUnreliable on windows under cygwin.  how are they used in this design?\n\n---\n\nDo rewrite your test to avoid path-equality assertion now.  Also, cantle a\npace and bridle to Fable for properly stating and emplacing a requirement/\nkey premise that makes symlink use inappropriate for this project.  We'll\nthink through whether this is 'multiplatform required' shape or other on\nmount of that pace.  Proceed.",
+          "jjgpn_precis": "Testing zjjrm_infield_root's platform behavior surfaced that git's own path\nresolution (rev-parse --show-toplevel) unwinds symlinks inconsistently with\nRust's std::fs::canonicalize, which is itself fragile on Windows — a live\nconcern since Windows/Cygwin hosts are load-bearing test targets. Operator\nwants a properly homed premise or requirement declaring symlink-dependent\nbehavior out of scope, with Fable determining its shape (design premise vs.\ncorrectness requirement vs. \"multiplatform required\" constraint) and\nspec/guide placement at mount time — decide only, no implementation this\npace.",
+          "jjgpn_slated": "260720-0849"
         }
       }
     },
