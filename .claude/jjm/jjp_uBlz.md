@@ -5,9 +5,8 @@ the post-pilot roster that rbk-07 (₣Bb) chartered, decided, and deliberately d
 This heat is the delegation regime —
 mechanical detect recipes, corpus sweeps, and operation-cut pair audits —
 where ₣Bb was the pilot regime that hardened the guide.
-The heat sits stabled until convened;
-the scout pace runs first at convening and re-grounds every docket
-against the repo as it then stands.
+Convened 260719; the scout pace ran first and re-grounded every docket
+against the repo as it stands.
 Paces here are either known-issue (written as discovery recipes, never site enumerations)
 or generative (they slate further paces when worked).
 
@@ -39,18 +38,23 @@ when their routed items land here, they retire.
 - A8 governs shipped source: spec-acronym citations re-form as rivet or nothing;
   the ruling and the rivet mechanics live in ACG's rivet rulings and MCM mcm_rivet —
   read them before re-forming anything.
-- Hot-lane triage: audit only surfaces whose owning heats have landed;
-  check the muster at mount.
-  rbk-43-fbl-sitting-lifecycle (₣Bq) retired 260712,
+- Hot-lane triage (scout-refreshed at convening, 260719):
+  the federation/Manor/Payor vocabulary lane and the delete/banish lane have landed —
+  the access memo's routed items and the builder-deletion comment are in scope.
+  The sitting-lifecycle lane retired 260712 (rbk-43),
   opening the sitting-lifecycle comments to the shared-support sweep.
-  The rivet/RBS0 definition surface is itself a lane:
-  ₣Bs (rbk-10-rebaseline-all) was racing on it at slating —
-  premise quoins, new rivet mints, and rivet-definition amendments in RBS0 —
-  so the a8 sweep's minting waits for that surface to quiet
-  or coordinates explicitly; the scout re-checks the muster.
+  The CMK annotation-migration lane is racing —
+  legacy //axl_voices sites stay report-only.
+  The rivet/RBS0 definition surface is still hot:
+  ₣Bs (rbk-10-create-staging) has two unlanded spec-doctrine paces
+  (the hyperscaler premise quoin mint and the indeterminacy sheaf with rivet mints),
+  so the a8 sweep's minting into RBS0 waits for that surface to quiet
+  or coordinates explicitly.
 - Pull, not push: per-operation pairs beyond the seed are slated on demand —
   by the scout at convening, or pulled by regenerate-from-specs trials —
   never as an exhaustive sheaf-census roster.
+  Scout ruling at convening: no new pair tranche slated;
+  the polity seed's recipe-fitness verdict gates the next pull.
   The pull-tail reminder lives in the itch file, owned by no pace.
 - Inherited baton (₣Bb's forward-pointer, banked here before that heat retires):
   promote the two-axis Zeroes Theory statement to the language-neutral

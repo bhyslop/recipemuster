@@ -8085,7 +8085,7 @@
         "₢BzAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0845",
+              "jjgtn_ts": "260719-2032",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Goal",
@@ -8096,17 +8096,20 @@
                 "- The ruling lives in ACG's rivet rulings; the placement law at MCM mcm_rivet.",
                 "  Read both first; never restate rationale beside a rivet.",
                 "- Population is shipped source only — veiled trees cite acronyms freely.",
-                "- The RBS0 rivet/premise surface is a hot lane while ₣Bs (rbk-10-rebaseline-all)",
-                "  races on it: do not mint rivet definition sites into RBS0",
-                "  until that heat has landed or the overlap is explicitly cleared —",
+                "- The RBS0 rivet/premise surface is a hot lane while ₣Bs (rbk-10-create-staging)",
+                "  races on its remaining spec-doctrine paces: do not mint rivet definition sites",
+                "  into RBS0 until that heat has landed or the overlap is explicitly cleared —",
                 "  the paddock's hot-lane cinch names this instance.",
                 "",
                 "## Discovery",
                 "grep -rEn \"RBS[A-Z0-9]{1,3}\" Tools/rbk --include=\"*.sh\" — then drop vov_veiled hits",
                 "and non-comment matches.",
                 "The federation/polity cluster (rbgp, rba, rbxk, rbgft, rbrf, rbof) is the densest ground.",
-                "The access-probe memo's routed F1/F6 (rbgv_probe.sh against the access specs)",
-                "are paraphrase-form sites the grep cannot see — take them from the memo.",
+                "Access-probe memo routed items, re-grounded by the scout (260719):",
+                "F1 dissolved in the federation rework — RBSAJ is deleted and the retry phrase",
+                "is gone from shipped source; no collapse owed, record the disposition.",
+                "F6 survives mutated — the payor-probe procedure comment in rbgv_probe.sh",
+                "restates RBSAO's steps; audit rbgv_probe.sh by eye, the memo's line numbers are dead.",
                 "Pre-existing rbch_beckon/rbch_palpate citations were left for this sweep",
                 "(conjure memo, A8 consequence).",
                 "",
@@ -8121,14 +8124,15 @@
                 "new rivets are minted per the MCM placement law with their spec definition sites landed."
               ],
               "jjgtn_silks": "a8-rivet-or-nothing-sweep",
-              "jjgtn_basis": "0a02437"
+              "jjgtn_basis": "15d5bc0"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢BzAAC": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0845",
+              "jjgtn_ts": "260719-2032",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Goal",
@@ -8150,8 +8154,14 @@
                 "- rbk-43 (₣Bq) has retired: the sitting-lifecycle comments",
                 "  (redon-tick header, re-don cadence and two-clocks blocks) are now in scope —",
                 "  the conjure memo's hot-lane section names them as held cite-then-restate candidates.",
-                "- The delete/banish item (builder-deletion comment against the pinning boundary)",
-                "  is in scope only if its lane has landed — check at mount.",
+                "- The delete/banish lane has landed (scout check, 260719):",
+                "  the builder-deletion comment (ZRBFC_DELETE_BUILDER, rbfc0_core.sh) is in scope —",
+                "  cite-then-restate candidate against the pinning-boundary homes.",
+                "- Cross-heat coordination: ₣Bs's indeterminacy-sheaf pace (₢Bs·BsAAW)",
+                "  will mint rivets cited from the rbgc_constants propagation/moby#44350",
+                "  survey-comment area.",
+                "  Leave that comment area untouched here unless ₣Bs has landed by mount;",
+                "  if it has landed, audit it normally.",
                 "",
                 "## Discovery",
                 "The conjure memo's hot-lane and leftovers sections are the banked starting census;",
@@ -8167,14 +8177,15 @@
                 "everything homed is collapsed to its citation form."
               ],
               "jjgtn_silks": "shared-support-sweep",
-              "jjgtn_basis": "0a02437"
+              "jjgtn_basis": "15d5bc0"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢BzAAD": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0830",
+              "jjgtn_ts": "260719-2032",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Goal",
@@ -8182,11 +8193,15 @@
                 "for each independently-reworded idea, triage one home, collapse the other sites.",
                 "",
                 "## Cinched",
-                "- Banked corpus items from the pilots:",
-                "  the walking-dead zero-tag filter (three wordings, two of them specs —",
-                "  the cross-spec home triage is the judgment);",
-                "  the conclave-Lode layout phrase (sites include the rbgjl capture steps);",
-                "  the bounded propagation-absorbing-retry phrase from the access-probe pair.",
+                "- Banked corpus items from the pilots, re-grounded by the scout (260719):",
+                "  the walking-dead zero-tag filter (alive — rbfcg_gar.sh comment plus the",
+                "  RBSCL/RBSIR spec wordings; the cross-spec home triage is the judgment);",
+                "  the conclave-Lode layout phrase (alive — sites include the rbgjl capture steps",
+                "  and rbgjr01);",
+                "  the bounded propagation-absorbing-retry phrase is DEAD —",
+                "  the federation rework removed it from shipped source and specs",
+                "  (it survives only in memos); no collapse owed, record the disposition",
+                "  when the access memo retires.",
                 "- Cross-spec collapses are reviewed moves, never mechanical.",
                 "",
                 "## Discovery",
@@ -8200,14 +8215,16 @@
                 "if any source comment moves.",
                 "",
                 "## Done when",
-                "Each banked item has one declared home with the other sites collapsed;",
+                "Each banked item has one declared home with the other sites collapsed",
+                "or its death recorded;",
                 "fresh items are either collapsed or slated;",
                 "the phrases' home choices are recorded in the touched specs, not this paddock."
               ],
               "jjgtn_silks": "word-cancer-corpus-sweep",
-              "jjgtn_basis": "feb2a50"
+              "jjgtn_basis": "15d5bc0"
             }
-          ]
+          ],
+          "jjgpn_redocket_count": 1
         },
         "₢BzAAE": {
           "jjgpn_tacks": [
