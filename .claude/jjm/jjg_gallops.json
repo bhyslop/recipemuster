@@ -4980,8 +4980,9 @@
         "₢CAAAo": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260720-0746",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260720-0748",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_text": [
                 "Wire the studbook seam into the jjx command surface's READ half.",
                 "Today every `jjx_*` command loads gallops from the in-repo `.claude/jjm/jjg_gallops.json` unconditionally (`jjrm_mcp.rs`) —",
@@ -5012,7 +5013,7 @@
                 "seam-off behavior is unchanged under the full existing suite."
               ],
               "jjgtn_silks": "repoint-command-reader",
-              "jjgtn_basis": "003ffd5"
+              "jjgtn_basis": "daf275e"
             }
           ],
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
