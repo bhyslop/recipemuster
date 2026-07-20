@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAp",
+  "jjgrn_next_pace_seed": "CAAAq",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4539,6 +4539,7 @@
         "₢CAAAR",
         "₢CAAAn",
         "₢CAAAo",
+        "₢CAAAp",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -4987,6 +4988,48 @@
           ],
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
           "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 1's READ half.\nThe rescope survey found the jjx command surface seam-blind — every command reads the in-repo gallops unconditionally while the tested studbook journal read sits uncalled.\nThis pace wires the read half behind the same seam const the spine obeys, with the rescope-ruled currency policy (glean at open, none per command), leaving the write half to its sibling.",
+          "jjgpn_slated": "260720-0746"
+        },
+        "₢CAAAp": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0746",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Wire the studbook seam into the jjx command surface's WRITE half.",
+                "First act: confirm the survey's open question —",
+                "whether ANY command write is journal-wired today",
+                "(the rescope survey found `jjri_persist`/`jjdr_save` writing the in-repo file unconditionally",
+                "and did not directly survey journal wiring; likely unbuilt).",
+                "When the seam is on, every state-mutating `jjx_*` command persists through the blotter journal ceremony",
+                "(JJSVJ: take the `refs/jjv/guidon` lock, commit to the studbook clone, push, release),",
+                "with lock contention and push-lease failure refusing loud — the rehearsed semantics;",
+                "when off, today's in-repo persist stands untouched.",
+                "",
+                "## Cinched",
+                "- Same-const atomicity: the write half branches on the SAME `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` as the read half and the spine —",
+                "  no binary can read one store while writing the other.",
+                "- Writes go through the JJSVJ blotter ceremony,",
+                "  never a direct file write into the studbook clone;",
+                "  the lock/commit/push shape is settled, not a mount-time option.",
+                "- Both seams stay false at land (mainline-inert).",
+                "  Seam-on proven against fixture studbooks (isolated temp repos) only —",
+                "  never the real remote, never this project's own refs.",
+                "- Self-hosting gate: the landed binary runs the next session's live mounts —",
+                "  full `tt/vow-t.Test.sh` green before wrap, seam-off path byte-identical under the existing suite.",
+                "",
+                "## Done when",
+                "Seam-on tests land each mutating command as a journaled studbook commit through the lock ceremony;",
+                "read-after-write within a session sees the write;",
+                "contention and lease failure refuse loud;",
+                "seam-off behavior is unchanged."
+              ],
+              "jjgtn_silks": "journal-command-writes",
+              "jjgtn_basis": "a772b23"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 1's WRITE half, the bulk of the build.\nEvery jjx mutation must journal through the rehearsed JJSVJ blotter ceremony instead of overwriting a file,\nbehind the same seam const as the read half so read and write can never split across stores —\nthe operator's no-lost-paces steer made structural.",
           "jjgpn_slated": "260720-0746"
         }
       }
