@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAo",
+  "jjgrn_next_pace_seed": "CAAAp",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4538,6 +4538,7 @@
         "₢CAAAa",
         "₢CAAAR",
         "₢CAAAn",
+        "₢CAAAo",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -4945,6 +4946,48 @@
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.",
           "jjgpn_precis": "Operator directs a Fable-bridled planning pace carrying the survey findings that the studbook-cutover machinery is substantially unbuilt (command-surface repoint, officium relocation, founding orchestrator, pedigrees writer all missing). Fable rules and enacts the rescope — cantle build pace(s) and/or reslate the cutover-ceremony pace — but performs no build itself.",
           "jjgpn_slated": "260720-0725"
+        },
+        "₢CAAAo": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0746",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Wire the studbook seam into the jjx command surface's READ half.",
+                "Today every `jjx_*` command loads gallops from the in-repo `.claude/jjm/jjg_gallops.json` unconditionally (`jjrm_mcp.rs`) —",
+                "the seam `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` gates only the dispatch spine.",
+                "When the seam is on, command reads resolve through the studbook journal read",
+                "(`jjdb_gallops_journal_load` — built, tested, currently an uncalled island);",
+                "when off, the in-repo read stands byte-identical.",
+                "Seam on with the studbook clone absent or unreadable is a loud fair-faced refusal,",
+                "never a silent fallback to the old store.",
+                "",
+                "## Cinched",
+                "- Same-const atomicity: the command read branches on the SAME `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` the dispatch spine already obeys —",
+                "  one flip moves both readers; no half-flipped binary can exist.",
+                "- Both seams stay false at land (mainline-inert).",
+                "  Seam-on proven by unit tests against fixture studbooks only — no live flip,",
+                "  and the write path stays untouched (its sibling pace journals writes).",
+                "- Currency-at-read (ruled at the rescope; operator may override): no per-command glean —",
+                "  reads take the local studbook clone as it stands;",
+                "  one glean rides officium open per session (this pace wires it, seam-gated);",
+                "  write-currency belongs to the blotter lease.",
+                "- Self-hosting gate: the landed binary runs the next session's live mounts —",
+                "  full `tt/vow-t.Test.sh` green before wrap, seam-off path byte-identical under the existing suite.",
+                "",
+                "## Done when",
+                "Seam-on tests read command state from a fixture studbook journal,",
+                "refuse loud on a missing clone,",
+                "and glean once at open;",
+                "seam-off behavior is unchanged under the full existing suite."
+              ],
+              "jjgtn_silks": "repoint-command-reader",
+              "jjgtn_basis": "003ffd5"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
+          "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 1's READ half.\nThe rescope survey found the jjx command surface seam-blind — every command reads the in-repo gallops unconditionally while the tested studbook journal read sits uncalled.\nThis pace wires the read half behind the same seam const the spine obeys, with the rescope-ruled currency policy (glean at open, none per command), leaving the write half to its sibling.",
+          "jjgpn_slated": "260720-0746"
         }
       }
     },
