@@ -162,6 +162,91 @@ fn zjjrvb_found_git(root: &Path, args: &[&str]) -> String {
     String::from_utf8(out.stdout).expect("git stdout must be UTF-8")
 }
 
+// ---- Founding import ----
+
+/// Compose the founding import (JJSAS "Founding and cutover"): filter a source
+/// gallops to live state — racing and stabled heats ride, retired heats stay
+/// behind as work-repo fossils — and, when a standing target is given, merge
+/// the lineage in under collision refusal: a firemark or coronet the target
+/// already holds refuses the whole import by name, never a silent union.
+/// Independent installs mint from independent seeds, so cross-lineage ids can
+/// collide — the 260719 double-mint between two clones of one project is the
+/// live specimen this gate exists for. Coronets are refused alongside
+/// firemarks because they are flat global ids (JJS0 jjdt_coronet): a colliding
+/// coronet is just as fatal to lookups and billet branches as a colliding
+/// firemark, though JJSAS's clause predates the flat re-gestalt and names only
+/// firemarks.
+///
+/// The filter runs before the collision check: a retired source heat neither
+/// rides nor refuses. On a clean merge the target's heats keep their order and
+/// the imported lineage appends; the mint seeds take the elementwise maximum
+/// (by insignia decode) so the merged store can never re-mint an id either
+/// lineage already spent; the target's retention policy stands.
+///
+/// `target: None` is the founding case — an empty store — where the filtered
+/// source carries its own seeds and retention policy. `target: Some` is the
+/// later second-project import, its own designed ceremony per JJSAS; this
+/// function is that ceremony's refusal gate and merge core. Pure record
+/// composition: no git, no filesystem, no lock — the caller seats the result
+/// through `jjdb_found` or the journal ceremony.
+pub fn jjdb_founding_import(
+    source: &crate::jjrt_types::jjrg_Gallops,
+    target: Option<&crate::jjrt_types::jjrg_Gallops>,
+) -> Result<crate::jjrt_types::jjrg_Gallops, String> {
+    use crate::jjrt_types::jjrg_HeatStatus;
+
+    let mut live = source.clone();
+    live.heats.retain(|_, h| !matches!(h.status, jjrg_HeatStatus::Retired));
+    let retained: std::collections::BTreeSet<String> = live.heats.keys().cloned().collect();
+    live.heat_order.retain(|k| retained.contains(k));
+
+    let target = match target {
+        None => return Ok(live),
+        Some(t) => t,
+    };
+
+    let mut collisions: Vec<String> = Vec::new();
+    for (heat_key, heat) in &live.heats {
+        if target.heats.contains_key(heat_key) {
+            collisions.push(format!("firemark {}", heat_key));
+        }
+        for pace_key in heat.paces.keys() {
+            if target.heats.values().any(|th| th.paces.contains_key(pace_key)) {
+                collisions.push(format!("coronet {}", pace_key));
+            }
+        }
+    }
+    if !collisions.is_empty() {
+        return Err(format!(
+            "founding import refused: the target store already holds {}",
+            collisions.join(", ")
+        ));
+    }
+
+    let mut merged = target.clone();
+    merged.heat_order.extend(live.heat_order.iter().cloned());
+    merged.heats.append(&mut live.heats);
+    merged.next_heat_seed = zjjrvb_later_heat_seed(&target.next_heat_seed, &source.next_heat_seed)?;
+    merged.next_pace_seed = zjjrvb_later_pace_seed(&target.next_pace_seed, &source.next_pace_seed)?;
+    Ok(merged)
+}
+
+/// The later of two firemark mint seeds by insignia decode, returned in its
+/// stored (bare) form.
+fn zjjrvb_later_heat_seed(a: &str, b: &str) -> Result<String, String> {
+    let av = crate::jjrf_favor::jjrf_Firemark::jjrf_parse(a)?.jjrf_decode()?;
+    let bv = crate::jjrf_favor::jjrf_Firemark::jjrf_parse(b)?.jjrf_decode()?;
+    Ok(if av >= bv { a.to_string() } else { b.to_string() })
+}
+
+/// The later of two coronet mint seeds by insignia decode, returned in its
+/// stored (bare) form.
+fn zjjrvb_later_pace_seed(a: &str, b: &str) -> Result<String, String> {
+    let av = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(a)?.jjrf_decode()?;
+    let bv = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(b)?.jjrf_decode()?;
+    Ok(if av >= bv { a.to_string() } else { b.to_string() })
+}
+
 // ---- Read path ----
 
 /// The lock-free, staleness-tolerant read path (`jjdk_lockless_reads`, blotter
