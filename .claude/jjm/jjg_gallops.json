@@ -7,8 +7,8 @@
     "₣B3",
     "₣B4",
     "₣B0",
-    "₣Bs",
     "₣Bd",
+    "₣Bs",
     "₣B6",
     "₣Bg",
     "₣B1",
@@ -6262,7 +6262,7 @@
     "₣Bs": {
       "jjghn_silks": "rbk-10-create-staging",
       "jjghn_creation_time": "260705",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BsAAX",
         "₢BsAAP",
