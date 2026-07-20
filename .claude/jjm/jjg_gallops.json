@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B8",
-  "jjgrn_next_pace_seed": "CAAAh",
+  "jjgrn_next_pace_seed": "CAAAi",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -5663,7 +5663,8 @@
       "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢CAAAf",
-        "₢CAAAg"
+        "₢CAAAg",
+        "₢CAAAh"
       ],
       "jjghn_paces": {
         "₢CAAAf": {
@@ -5729,6 +5730,35 @@
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "Implementing the current concept requires a settled spec home of its own; the sketch's terms defer promotion until the matricula ascends, which this heat's ₣B5 gate satisfies, so the promotion is cut as the pace after the census.",
+          "jjgpn_slated": "260719-2257"
+        },
+        "₢CAAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "GATE: needs the studbook standing — ₣B3 (studbook conversion) far enough that the store's journal-ceremony write path and lockless read path are live.",
+                "Seat the grimoire as the studbook's third tenant per the residence ruling:",
+                "the one flat table at its store home,",
+                "row appends riding the journal ceremony (JJSVJ-journal.adoc) under the store lock,",
+                "reads riding the lockless staleness-tolerant path (JJSVB-blotter.adoc).",
+                "Widening the studbook's scope-at-birth roster is part of this act (JJSVS-studbook.adoc).",
+                "Table file format and physical shape are mount-time decisions against the promoted sheaf's schema.",
+                "First content: the sample-census rows.",
+                "",
+                "## Done when",
+                "The table exists in the studbook carrying the sample-census rows;",
+                "a row append lands through the journal ceremony;",
+                "and a reader reaches the rows through the lockless path."
+              ],
+              "jjgtn_silks": "grimoire-studbook-tenancy",
+              "jjgtn_basis": "fab8026"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The residence ruling seats the table in the studbook as its third tenant; implementation proper begins by standing up that tenancy on the store's native write and read paths.",
           "jjgpn_slated": "260719-2257"
         }
       }
