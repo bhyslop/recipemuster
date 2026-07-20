@@ -4925,8 +4925,8 @@
         "₢CAAAn": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260720-0725",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260720-0750",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -4972,7 +4972,7 @@
                 "The heat is re-shaped so the path to cutover is correctly sequenced: build pace(s) for the missing machinery slated ahead of the ceremony (each with a clear, landable docket), and the cutover-ceremony pace reslated to the post-build ceremony — OR any gap needing an operator ruling surfaced. No machinery built in this pace."
               ],
               "jjgtn_silks": "cutover-buildgap-rescope",
-              "jjgtn_basis": "b857f6d"
+              "jjgtn_basis": "939926a"
             }
           ],
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.",
