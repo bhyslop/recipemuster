@@ -79,7 +79,7 @@ zrbgp_kindle() {
   # interpolated host-side into the cloud-destined script.
   readonly ZRBGP_POSTURE_REQUEST_MAX_TIME_SEC=10
 
-  # Terrier bucket — manor-grain, homed in the Manor's payor project (RBS0), so
+  # Terrier bucket — manor-grain, homed in the Manor's payor project, so
   # the name derives from the payor project, not the depot. One terrier bucket per
   # manor; durable, UBLA-enabled. Constant home is here (rbgp kindle runs after
   # the RBRP regime is enforced; rbdc_derived runs before it and is depot-facet).
@@ -1099,7 +1099,7 @@ zrbgp_establish_mantle_sa() {
 # ADMIN_READ + DATA_READ on the using service artifactregistry.googleapis.com,
 # never on iamcredentials. auditConfigs are dropped unless the write carries them,
 # so the v3 set masks updateMask=auditConfigs,etag — writing only the audit config,
-# never bindings, riding the read etag for concurrency. See RBSMF.
+# never bindings, riding the read etag for concurrency.
 zrbgp_enable_ar_audit_logs() {
   zrbgp_sentinel
 
@@ -1141,8 +1141,7 @@ zrbgp_enable_ar_audit_logs() {
   # Content gate: setIamPolicy returns the resulting policy, which must carry the
   # Artifact Registry auditConfigs entry. A masked write that silently dropped
   # auditConfigs still returns HTTP 200, so the status check is not sufficient — this
-  # confirms the entry actually landed. See RBSMF "Enable Artifact Registry Data-Access
-  # Audit Logs" (the returned-policy require).
+  # confirms the entry actually landed.
   local z_audit_service
   z_audit_service=$(rbuh_json_field_capture "depot_audit_set" \
     '.auditConfigs[]? | select(.service=="artifactregistry.googleapis.com") | .service') \
@@ -1153,7 +1152,7 @@ zrbgp_enable_ar_audit_logs() {
 rbgp_manor_affiance() {
   zrbgp_sentinel
 
-  buc_doc_brief "Affiance the manor to its external OIDC IdP — seat this foedus's provider and attribute mapping under the manor's standing workforce pool (RBSMA)"
+  buc_doc_brief "Affiance the manor to its external OIDC IdP — seat this foedus's provider and attribute mapping under the manor's standing workforce pool"
   buc_doc_shown || return 0
 
   # Dirty-tree guard — affiance's provider id is the committed RBRF value, and
@@ -1166,24 +1165,24 @@ rbgp_manor_affiance() {
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
   # The manor pool coordinates (org / pool id) are read from the kindled RBRW
-  # regime (manor-level, RBSRW); the per-foedus provider id from the kindled
-  # RBRF regime. affiance is folio-addressed (param1, RBSMA): the caller's furnish
+  # regime (manor-level); the per-foedus provider id from the kindled
+  # RBRF regime. affiance is folio-addressed (param1): the caller's furnish
   # folio-resolves the RBRF from the operator-supplied foedus, then sources,
   # kindles, and enforces both before dispatch (like RBRD/RBRP for depot_levy), so
   # the body stays foedus-blind — it works whatever foedus the furnish sourced.
   # The org-level workforcePoolAdmin
-  # grant (spike F1) is the finisher's to seat (RBSMS) — affiance assumes it
+  # grant (spike F1) is the finisher's to seat — affiance assumes it
   # present; a payor lacking it meets a 403 at provider creation, directing them
-  # to run the finisher first (RBSMA F1 NOTE).
+  # to run the finisher first (F1 NOTE).
   local -r z_org="organizations/${RBRW_ORG_ID}"
   local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
   local -r z_provider_id="${RBRF_PROVIDER_ID}"
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
 
-  # Require the manor workforce pool present and live (RBSMA pool-present gate).
+  # Require the manor workforce pool present and live (pool-present gate).
   # The pool is manor-level, founded once by the manor-setup finisher and
-  # standing for the manor's lifetime (RBSRW); affiance founds no pool — it only
+  # standing for the manor's lifetime; affiance founds no pool — it only
   # hangs a provider beneath the standing one. Absent (404) or soft-deleted
   # (200, state DELETED) is fatal, directing the operator to the finisher.
   buc_step 'Require manor workforce pool present'
@@ -1220,12 +1219,12 @@ rbgp_manor_affiance() {
 
   case "${z_provider_code}" in
     200)
-      # Provider present under the pool (RBSMA branch dispatch). Read its state: a
+      # Provider present under the pool (branch dispatch). Read its state: a
       # live provider runs the re-sync arm directly; a soft-deleted one (state
       # DELETED) is undeleted first, then re-synced exactly as live. Undelete
       # restores the provider's LAST uploaded key snapshot, so under the programmatic
       # mechanism only the re-sync patch converges the ephemeral JWKS — a
-      # delete/undelete cycle alone cannot (RBSMA re-sync-arm NOTE).
+      # delete/undelete cycle alone cannot (re-sync-arm NOTE).
       local z_provider_state
       z_provider_state=$(rbuh_json_field_capture "affiance_provider_get" '.state // "UNKNOWN"') \
         || z_provider_state="UNKNOWN"
@@ -1248,9 +1247,9 @@ rbgp_manor_affiance() {
         buc_info "Provider ${z_provider_id} present (state ${z_provider_state}) — ensuring current"
       fi
 
-      # Re-sync arm (RBSMA), mechanism-conditional. Under the programmatic mechanism
+      # Re-sync arm, mechanism-conditional. Under the programmatic mechanism
       # the uploaded public JWKS is ephemeral — the realm signing key is minted fresh
-      # per charge (RBSFK) — so a standing provider validates self-supplied JWTs
+      # per charge — so a standing provider validates self-supplied JWTs
       # against a stale key until this patch rewrites the snapshot (the twiddle). The
       # updateMask names ONLY oidc.jwksJson, the instaurate pool-reconcile precedent;
       # every other field is left as it stands (full drift-reconcile deferred). Under
@@ -1276,8 +1275,8 @@ rbgp_manor_affiance() {
       esac
       ;;
     404)
-      # The provider oidc block is the one mechanism-variant part of affiance
-      # (RBSMA): pool, attributeMapping, issuerUri, and clientId are
+      # The provider oidc block is the one mechanism-variant part of affiance:
+      # pool, attributeMapping, issuerUri, and clientId are
       # mechanism-invariant; interactive adds device-flow web-sso over
       # issuer-discovered keys, programmatic adds the uploaded public JWKS GCP
       # validates self-supplied JWTs against. affiance treats RBRF_IDP_JWKS_JSON as
@@ -1315,7 +1314,7 @@ rbgp_manor_affiance() {
           # web-sso) but is carried because the proof observed gcloud demand the
           # web-sso flags alongside --jwk-json-path; whether the REST create
           # likewise requires it is an impl-confirm to settle at the orchestrator's
-          # first live create (RBSMA webSsoConfig NOTE).
+          # first live create (webSsoConfig NOTE).
           jq -n \
             --arg displayName "${z_provider_id}" \
             --arg issuerUri   "${RBRF_IDP_ISSUER}" \
@@ -1369,18 +1368,18 @@ rbgp_manor_affiance() {
 rbgp_manor_jilt() {
   zrbgp_sentinel
 
-  buc_doc_brief "Jilt one foedus — delete its provider from the manor's standing workforce pool, dissolving that trust (RBSMJ)"
+  buc_doc_brief "Jilt one foedus — delete its provider from the manor's standing workforce pool, dissolving that trust"
   buc_doc_shown || return 0
 
-  # Affiance's structural inverse — provider-grain (RBSMJ): jilt deletes exactly
+  # Affiance's structural inverse — provider-grain: jilt deletes exactly
   # the provider affiance seated and nothing else; the shared pool stands for
   # every other foedus (pool teardown is the separate manor raze, never jilt).
   # Reads the pool coordinates from the kindled RBRW regime and the provider id
-  # from the kindled RBRF regime. jilt is folio-addressed (param1, RBSMJ): the
+  # from the kindled RBRF regime. jilt is folio-addressed (param1): the
   # caller's furnish folio-resolves the RBRF from the operator-supplied foedus and
   # enforces both, so the body deletes that folio's provider while staying
   # foedus-blind. Mechanism-blind: deleting the provider ends the trust regardless of how
-  # citizens acquired tokens against it — no RBRF_MECHANISM arm (RBSMJ).
+  # citizens acquired tokens against it — no RBRF_MECHANISM arm.
   local -r z_org="organizations/${RBRW_ORG_ID}"
   local -r z_pool_id="${RBRW_WORKFORCE_POOL_ID}"
   local -r z_provider_id="${RBRF_PROVIDER_ID}"
@@ -1434,7 +1433,7 @@ rbgp_manor_jilt() {
 
   # Verify dissolution: poll until state DELETED (soft-delete terminal) or 404
   # (gone). Either is success — the verify tolerates whether the GET surfaces a
-  # soft-deleted provider, mirroring the depot-unmake resource-state poll (RBSMJ).
+  # soft-deleted provider, mirroring the depot-unmake resource-state poll.
   buc_step 'Verify dissolution'
   # Loop counter/accumulator + per-iteration synthesized locals (BCG Exceptions
   # 1/2/4 — declare outside, assign inside)
@@ -1578,7 +1577,7 @@ rbgp_manor_raze() {
   buc_info "Re-found under a fresh id: set RBRW_WORKFORCE_POOL_ID to a new id, commit, then run the manor-setup finisher and re-affiance the foedera"
 }
 
-# The manor-setup finisher (RBSMS): one idempotent, payor-credentialed verb that founds
+# The manor-setup finisher: one idempotent, payor-credentialed verb that founds
 # the manor's scriptable substrate after the manual payor guide — the ensure-exists
 # inverse of manor_raze. First readies the payor project itself (the required-API set,
 # billing linkage — the two steps migrated out of the manual guide across the
@@ -1683,7 +1682,7 @@ rbgp_manor_instaurate() {
   # Spike Finding F1: pool creation 403s until the payor holds
   # roles/iam.workforcePoolAdmin at the organization. Must precede the pool founding.
   # Idempotent (etag read-modify-write) — a payor already holding it passes straight
-  # through. Affiance assumes the finisher already seated this (RBSMA F1 NOTE).
+  # through. Affiance assumes the finisher already seated this (F1 NOTE).
   buc_step 'Seat org-level workforcePoolAdmin (spike F1 — must precede pool founding)'
   rbgi_add_project_iam_role \
     "${z_token}" \
@@ -1693,7 +1692,7 @@ rbgp_manor_instaurate() {
     "user:${RBRP_OPERATOR_EMAIL}" \
     "instaurate_org_grant"
 
-  # === Ensure the manor workforce pool via LIST-AND-MATCH (RBSMS drift guard) ===
+  # === Ensure the manor workforce pool via LIST-AND-MATCH (drift guard) ===
   # Page workforcePools.list under the org with showDeleted=true (so a soft-deleted
   # pool squatting the id is visible as drift, never a silent create-over). The pool
   # AT the expected id (RBRW_WORKFORCE_POOL_ID) is ours by COORDINATE — matched by id
@@ -1810,11 +1809,11 @@ rbgp_manor_instaurate() {
   elif test -n "${z_other_live_id}"; then
     # A live RB pool stands under a different id — refuse rather than found a second.
     buc_warn "A live Recipe Bottle workforce pool stands under id '${z_other_live_id}', but RBRW_WORKFORCE_POOL_ID is '${z_pool_id}' (coordinate drift)"
-    buc_info "The finisher refuses to found a second pool. Reconcile RBRW_WORKFORCE_POOL_ID with the standing pool's id (org+pool-id are pool-time-immutable, RBSRW)."
+    buc_info "The finisher refuses to found a second pool. Reconcile RBRW_WORKFORCE_POOL_ID with the standing pool's id (org+pool-id are pool-time-immutable)."
     buc_die "Workforce pool coordinate drift: configured id '${z_pool_id}' does not match the standing RB pool '${z_other_live_id}'"
   else
     # No RB-marked pool under the org -> create it at the configured id. The org is an
-    # immutable body field (parent), never a query parameter (RBSMA create-shape).
+    # immutable body field (parent), never a query parameter (create-shape).
     buc_step "Create workforce identity pool ${z_pool_id} under ${z_org}"
     local -r z_pool_body="${BURD_TEMP_DIR}/rbgp_instaurate_pool.json"
     jq -n \
@@ -1898,7 +1897,7 @@ zrbgp_escheat_depots() {
   done
 }
 
-# Escheat helper — probe each depot candidate's liveness (RBSME rule): ACTIVE
+# Escheat helper — probe each depot candidate's liveness: ACTIVE
 # with the depot displayName anchor is live; ACTIVE without it is an anomaly
 # (kept, flagged); any other state, 403, or 404 is dead. A candidate that cannot
 # even be a project id (shape-invalid — e.g. a nested folder name) is dead by
@@ -2057,9 +2056,9 @@ zrbgp_escheat_plan() {
   done
 }
 
-# The manor-hygiene sweep (RBSME): strike from the terrier what no live
+# The manor-hygiene sweep: strike from the terrier what no live
 # admission path owns — orphaned polity slices (their depot unmade) and
-# dead-schema strays (objects failing the RBSTN muniment contract). Plan-then-
+# dead-schema strays (objects failing the muniment contract). Plan-then-
 # confirm: nothing mutates before the operator confirms against the shown plan
 # (the plan IS the confirmation subject, so the gate sits after the survey,
 # unlike raze's zero-traffic confirm-first). Already-clean short-circuits to an
@@ -2449,7 +2448,7 @@ rbgp_depot_levy() {
   # The Cloud Build Service Agent (service-{PN}@gcp-sa-cloudbuild.iam.gserviceaccount.com)
   # needs serviceAccountTokenCreator on Mason to impersonate it during builds.create.
   # The service agent is auto-created when the Cloud Build API is enabled; its email is
-  # deterministic from the project number. See RBSCIP for the two-SA distinction.
+  # deterministic from the project number.
   rbgi_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" > /dev/null \
     || buc_die "Failed to provision Cloud Build service agent"
   local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
@@ -2461,7 +2460,7 @@ rbgp_depot_levy() {
   buc_step 'Establish the mantle service accounts'
   # The three federation mantles (governor/director/retriever) — the impersonatable
   # identities a citizen dons at runtime — created beside Mason and granted their full
-  # resource authority once, here, via the shared rbgw capability-sets. See RBSMF.
+  # resource authority once, here, via the shared rbgw capability-sets.
   local -r z_gov_mantle_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
   local -r z_dir_mantle_email="${RBCC_account_mantle_director}@${RBGD_SA_EMAIL_FULL}"
   local -r z_ret_mantle_email="${RBCC_account_mantle_retriever}@${RBGD_SA_EMAIL_FULL}"
@@ -2887,7 +2886,7 @@ rbgp_depot_info() {
 }
 
 # Require one (role, member) binding present in a captured IAM policy, or die
-# naming the absent piece. Read-only — mutates nothing. See RBSDC.
+# naming the absent piece. Read-only — mutates nothing.
 zrbgp_recognosce_require_binding() {
   zrbgp_sentinel
 
@@ -2907,7 +2906,7 @@ zrbgp_recognosce_require_binding() {
     || buc_die "recognosce: founding incomplete — ${z_member} missing ${z_role} on ${z_where}"
 }
 
-# Recognosce the depot founding (RBSDC): a read-only inspection that confirms,
+# Recognosce the depot founding: a read-only inspection that confirms,
 # against live GCP, that the three mantle SAs exist and carry their full
 # capability-sets and that the Artifact Registry Data-Access audit config is in
 # force. Exit 0 means, and only means, the founding is whole; any absent piece is
@@ -3005,7 +3004,7 @@ rbgp_depot_recognosce() {
 # governor — this pace is that accessor's first consumer). The token-agnostic
 # *_core helpers carry the composition so the levy founding exception (the payor
 # breveting the first governor) and the interim proof can drive the same logic
-# payor-credentialed. Contract: the RBSP* polity-verb specs and the paddock
+# payor-credentialed. Contract: the polity-verb specs and the paddock
 # Verbs-and-orderings table.
 #
 # Bucket grain: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET);
@@ -3156,7 +3155,6 @@ zrbgp_attaint_core() {
 # payor's own OAuth credential drives the shared admission core (zrbgp_brevet_core) instead
 # of a donned governor token. Governor-only by construction (no mantle parameter) — once a
 # governor is girded, every further admission flows through governor-wielded rbgp_brevet.
-# Contract: RBSPG.
 rbgp_gird() {
   zrbgp_sentinel
 
