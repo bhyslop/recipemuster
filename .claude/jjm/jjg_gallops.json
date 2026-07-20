@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAd",
+  "jjgrn_next_pace_seed": "CAAAe",
   "jjgrn_heat_order": [
     "₣Bz",
     "₣B5",
@@ -4265,7 +4265,8 @@
         "₢B2AAF",
         "₢B2AAG",
         "₢B2AAH",
-        "₢B2AAI"
+        "₢B2AAI",
+        "₢CAAAd"
       ],
       "jjghn_paces": {
         "₢B2AAA": {
@@ -4454,6 +4455,43 @@
               "jjgtn_basis": "a325431"
             }
           ]
+        },
+        "₢CAAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2157",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Exploratory design — settle the approach in discussion before applying it; this pace decides the shape, it does not silently implement one.",
+                "",
+                "## Context",
+                "`Memos/memo-20260719-pinning-boundary-vessel-less-capture-gap.md` is the full finding.",
+                "In brief: RBS0's `rbsk_pinning_boundary` premise and the `RBr_p7c` rivet claim the vessel-less substrate captures — wsl (underpin) and podvm (immure) — resolve a *pinned* `gcrane`, but both ride the floating mutable-tag bootstrap builder (`ZRBLD_GCRANE_BUILDER`), the same tier as conclave rather than bole's pinned reliquary tier.",
+                "The premise miscategorizes them as sealed-reliquary captures; they carry no `RBRV_RELIQUARY` slot, so `zrbfc_resolve_tool_images` cannot serve them as written.",
+                "",
+                "## Needed change",
+                "Work out the right way for these vessel-less captures to obtain pinned tool images despite having no vessel reliquary slot.",
+                "bole is the existence proof that a capture can resolve from a reliquary; the design question is how the vessel-less kinds reach one.",
+                "The memo records a digest-pin-in-place fallback (the delete-builder precedent) — weigh it, but the operator's leaning is the reliquary route.",
+                "Once the approach is settled and applied, correct `rbsk_pinning_boundary` and `RBr_p7c` to describe the vessel-less captures truthfully; the memo carries ready wording for both the deferred-state and the now-pinned outcomes.",
+                "Four code sites (`rbldw_underpin.sh`, `rbldv_immure.sh`, `rbgjl05-underpin-wrap.sh`, `rbgjl08-immure-capture.sh`) cite `RBr_p7c` today — whichever way the rivet lands, it must actually cover their case.",
+                "",
+                "## Cinched",
+                "- Do not revert bole's pinned reliquary resolution or conclave's necessary float.",
+                "- The repair shape is chosen in discussion with the operator before it is applied.",
+                "",
+                "## Done when",
+                "The vessel-less captures resolve pinned tool images by a settled approach, and `rbsk_pinning_boundary` + `RBr_p7c` describe them truthfully — every `RBr_p7c` code citation landing on a home that covers it.",
+                "Any bash touched is BCG-compliant; `tt/rbw-tl.Shellcheck.sh` clean."
+              ],
+              "jjgtn_silks": "pin-vessel-less-capture-tools",
+              "jjgtn_basis": "5ca0c3c"
+            }
+          ],
+          "jjgpn_dictation": "Would you write a memo detailing all of these findings and then slate a pace in B2 to resolve this? While I want you to name the memo in the new pace, keep the docket from getting into the cryptographic attack vector- we just need to work out a right way to use a reliquary for these operations, I think.",
+          "jjgpn_precis": "The pinning-boundary spec claims wsl/podvm captures resolve a pinned gcrane; they actually float on a mutable-tag builder because they are vessel-less (no reliquary slot). Resolve the gap — work out how these captures obtain pinned (ideally reliquary-resolved) tool images — and correct the RBS0 premise and RBr_p7c wording to match. Full findings and the security rationale live in the named memo; keep the docket to the design question, not the attack vector.",
+          "jjgpn_slated": "260719-2157"
         }
       }
     },
