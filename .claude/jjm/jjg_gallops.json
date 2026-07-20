@@ -5288,7 +5288,7 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2141",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Focus",
                 "Work through the first live census batch (470 presentments, 7204 estrays from the first proven jog through the JJ seam)",
@@ -5310,7 +5310,7 @@
                 "are banked in a short operator-facing triage note distinguishing real corpus questions from tool residue."
               ],
               "jjgtn_silks": "census-first-triage",
-              "jjgtn_basis": "128f50c"
+              "jjgtn_basis": "c3f9998"
             }
           ],
           "jjgpn_dictation": "We should chivvy a pace to work through the first batch of census content.",
