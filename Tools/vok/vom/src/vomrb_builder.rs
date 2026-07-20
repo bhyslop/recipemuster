@@ -14,7 +14,7 @@ use std::collections::BTreeSet;
 use std::path::Path;
 
 use crate::vomrm_matricula::vomrm_Matricula;
-use crate::vomrs_signet::vomrs_SignetTrie;
+use crate::vomrs_signet::{vomrs_Site, vomrs_SignetTrie};
 
 /// The mutable Builder a scan owns; consumed by `vomrb_seal` into an immutable
 /// census (VOSMM "raise").
@@ -35,8 +35,7 @@ impl vomrb_Builder {
     /// Walk the candidate corpus and classify-by-subtraction (VOSMM "seat").
     pub fn vomrb_seat(&mut self, repo_root: &Path) -> Result<(), String> {
         let tracked = vof::vofr_git_tracked_files(repo_root)?;
-        let mut claimed: BTreeSet<String> = BTreeSet::new();
-        let mut corpus: Vec<String> = Vec::new();
+        let mut corpus: Vec<(String, String)> = Vec::new();
 
         for rel_path in &tracked {
             if vof::vofr_is_veiled_path(rel_path) {
@@ -45,49 +44,72 @@ impl vomrb_Builder {
             if !crate::vomra_allowlist::voma_is_allowed(rel_path) {
                 continue;
             }
+            let Ok(content) = std::fs::read_to_string(repo_root.join(rel_path)) else {
+                continue;
+            };
+            let Some(path_str) = rel_path.to_str() else {
+                continue;
+            };
+            corpus.push((path_str.to_string(), content));
+        }
 
-            // A git-tracked file's own basename is itself a declaration site:
-            // the vesture's `envelope` field (VOS0 Liturgy) makes the file
-            // the inscription, so the stem is claimed the same as any
-            // in-content declaration. Multi-dot basenames (tabtarget-style
+        self.vomrb_seat_corpus(&corpus);
+        Ok(())
+    }
+
+    /// Classify-by-subtraction over an already-gathered (path, content)
+    /// corpus, decoupled from the git/filesystem walk so seating validators
+    /// can be exercised against planted fixture corpora (VOSMM "Seating
+    /// Validators").
+    pub fn vomrb_seat_corpus(&mut self, corpus: &[(String, String)]) {
+        let mut claimed: BTreeSet<String> = BTreeSet::new();
+
+        for (path, content) in corpus {
+            // A tracked file's own basename is itself a declaration site: the
+            // vesture's `envelope` field (VOS0 Liturgy) makes the file the
+            // inscription, so the stem is claimed the same as any in-content
+            // declaration. Multi-dot basenames (tabtarget-style
             // `colophon.Frontispiece.imprint.sh`) are that vesture's concern,
             // not this bare-stem claim - skipped rather than mis-claimed.
-            if let Some(stem) = rel_path.file_stem().and_then(|s| s.to_str()) {
+            if let Some(stem) = Path::new(path).file_stem().and_then(|s| s.to_str()) {
                 if !stem.contains('.') && zvomrb_is_ours_token(stem) {
-                    self.signet_trie.vomrs_seat(stem, stem);
+                    self.signet_trie
+                        .vomrs_seat(stem, stem, vomrs_Site::vomrs_new(path.clone(), 0));
                     claimed.insert(stem.to_string());
                 }
             }
 
-            let Ok(content) = std::fs::read_to_string(repo_root.join(rel_path)) else {
-                continue;
-            };
-
-            for line in content.lines() {
+            for (line_no, line) in content.lines().enumerate() {
                 for (signet, inscription) in crate::vomrv_vesture::vomrv_claim_line(line) {
-                    self.signet_trie.vomrs_seat(&signet, &inscription);
+                    self.signet_trie.vomrs_seat(
+                        &signet,
+                        &inscription,
+                        vomrs_Site::vomrs_new(path.clone(), line_no + 1),
+                    );
                     claimed.insert(inscription);
                 }
             }
-
-            corpus.push(content);
         }
 
-        for content in &corpus {
-            for token in zvomrb_tokenize(content) {
-                if !zvomrb_is_ours_token(token) || claimed.contains(token) {
-                    continue;
+        for (path, content) in corpus {
+            for (line_no, line) in content.lines().enumerate() {
+                for token in zvomrb_tokenize(line) {
+                    if !zvomrb_is_ours_token(token) || claimed.contains(token) {
+                        continue;
+                    }
+                    if crate::vomrv_vesture::vomrv_claim_rivet(token) {
+                        self.signet_trie.vomrs_seat(
+                            token,
+                            token,
+                            vomrs_Site::vomrs_new(path.clone(), line_no + 1),
+                        );
+                        claimed.insert(token.to_string());
+                        continue;
+                    }
+                    self.estrays.insert(token.to_string());
                 }
-                if crate::vomrv_vesture::vomrv_claim_rivet(token) {
-                    self.signet_trie.vomrs_seat(token, token);
-                    claimed.insert(token.to_string());
-                    continue;
-                }
-                self.estrays.insert(token.to_string());
             }
         }
-
-        Ok(())
     }
 
     /// Consume the Builder, returning the immutable census (VOSMM "seal").

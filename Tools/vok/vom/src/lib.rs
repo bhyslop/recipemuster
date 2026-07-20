@@ -24,9 +24,11 @@
 //!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (frozen
 //!             census), vomrb_builder (mutable Builder), vomrs_signet (signet
 //!             trie), vomra_allowlist (Tier 0 file-selection allowlist),
-//!             vomrv_vesture (per-vesture declaration-site recognizers)
+//!             vomrv_vesture (per-vesture declaration-site recognizers),
+//!             vomrp_presentment (seating-validator output record),
+//!             vomrq_validate (the two MVP seating validators)
 //!   vomt{c}_  test modules    - vomtm_matricula, vomtb_builder, vomts_signet,
-//!             vomta_allowlist, vomtv_vesture
+//!             vomta_allowlist, vomtv_vesture, vomtq_validate
 //! Grown as real API lands (mint-follows-API); see Tools/vok/README.md.
 
 #![deny(warnings)]
@@ -37,6 +39,8 @@ pub mod vomra_allowlist;
 pub mod vomrb_builder;
 pub mod vomrl_log;
 pub mod vomrm_matricula;
+pub mod vomrp_presentment;
+pub mod vomrq_validate;
 pub mod vomrs_signet;
 pub mod vomrv_vesture;
 
@@ -46,6 +50,8 @@ mod vomta_allowlist;
 mod vomtb_builder;
 #[cfg(test)]
 mod vomtm_matricula;
+#[cfg(test)]
+mod vomtq_validate;
 #[cfg(test)]
 mod vomts_signet;
 #[cfg(test)]
