@@ -258,6 +258,34 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   after-code-changes suite table keys on subdomains — regime, foundry, bottle);
   fineness is an authoring-time judgment weighed against maintenance drag.
 
+== MVP decision questions (the gate list)
+
+The questions a deciding session must answer before the MVP cut is fixed, gathered in one
+findable place; each entry cites its substance home and this list restates nothing.
+A ruled entry keeps its ruling on record until the cut lands, then strikes.
+
+. Table authorship — RULED 260720 (operator): JJ write verbs from the outset,
+  hand-editing never the path, the write door's refusals as acceptance tests.
+  Substance: the API-sketch settling entry above; ratification ledger in
+  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md`.
+. Write-surface decomposition and its word elections — OPEN; settles at the API-sketch
+  entry, deliberately uncinched ahead of it.
+. Staleness inclusion — OPEN rider on the API sketch: joins the MVP only when the five
+  gaps enumerated in the memo settle (artifact declaration member, stamp content and
+  home, out-of-band rebuild detection, dirty-tree verdict, invocation ownership).
+. The table's physical home at MVP time — OPEN: canon places it studbook-side, and the
+  matricula's interim allowlist is recorded as migrating "at studbook founding" (VOSMM),
+  but the founding precedes tackle implementation — the migration trigger must re-tie to
+  tackle implementation, never the founding event, or the obligation misfires unmet.
+. Acceptance spine — PROPOSED, unratified: four read-side commands (census selection
+  byte-identical to the current allowlist, coverage audit, path resolve, staleness
+  advisor) plus the write-door refusal tests.
+  Substance: the 260720 memo; ratify or amend at the deciding session.
+. Check-member scope — RECOMMENDED, unratified: the three fixed members stand, the
+  idiosyncratic verb tail stays outside tackle, no actions layer until a consumer
+  exists.
+  Evidence: the builds table in `Memos/memo-20260707-rbm-domain-census.md`.
+
 == Open forks (the mulling surface)
 
 * *The central-corpus home* — the reference form is canon: first-class registry entries keyed
