@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAb",
+  "jjgrn_next_pace_seed": "CAAAc",
   "jjgrn_heat_order": [
     "₣Bz",
     "₣B5",
@@ -5061,6 +5061,7 @@
         "₢CAAAK",
         "₢CAAAL",
         "₢CAAAa",
+        "₢CAAAb",
         "₢CAAAM"
       ],
       "jjghn_paces": {
@@ -5280,6 +5281,41 @@
           "jjgpn_dictation": "We should chivvy a pace to work through the first batch of census content.",
           "jjgpn_precis": "The first live jog surfaced a census that is mechanically sound but noise-dominated in three classes\n(historical-prose sites, per-file shell locals, sub-signet fragments);\nthis pace rules each class through scope, recognition, or grade —\ndeepening the tool through use before the index-render pace trusts the census.",
           "jjgpn_slated": "260719-2042"
+        },
+        "₢CAAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2104",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Shrink the presentment list by teaching the census the declaration-site vs inscription-site distinction, in the Liturgy's own terms, two layers:",
+                "",
+                "- Envelope dispatch: a file is dressed by the vesture whose envelope claims it, and only that vesture's line patterns claim declarations there.",
+                "  First consequence: `tt/*.sh` is the tabtarget vesture (VOS0 `vosldt_tabtarget`), whose body is formulary (BUS0 dispatch vocabulary) — config-line assignments (`BURD_*`) claim nothing, honoring the two-universes doctrine that tabtargets are colophons, not prefix space.",
+                "- Home-file rule for the bash-const vesture: `NAME=` claims a declaration only when the signet's head agrees with the declaring file's own stem family (mechanical string-prefix agreement, VOr_m7w-clean);",
+                "  a cross-family assignment is an inscription site — not seated, and if the signet ends up with no declaration home anywhere it surfaces as estray (the honest verdict for unhomed wire names like `BURD_REGIME_FILE`).",
+                "",
+                "Expected cascade: the 212-site `BURD_LAUNCHER` class, the `BURD_NO_LOG`/`BURD_INTERACTIVE` classes, and the README doc-vs-code duplicates all go quiet without a suppression list.",
+                "",
+                "## Cinched",
+                "Mechanical, never linguistic (VOr_m7w) — both layers are path/string set operations over material already in the trie or on disk.",
+                "Known and accepted: the home-file rule hides a deliberately cross-family declaration; that placement question is the reference-placement lint deferred to the post-MVP widening heat, never this pace's scope.",
+                "Tests pin both layers with planted corpora; re-run census against the real tree is the proof.",
+                "",
+                "## Done when",
+                "Presentment count drops significantly on a re-run (the tabtarget-formulary and cross-family-assignment classes no longer present),",
+                "true same-family collisions still present,",
+                "an unhomed ours name reads as estray rather than collision,",
+                "and the triage memo gains a short record of the two rulings and the new census numbers."
+              ],
+              "jjgtn_silks": "census-declaration-vs-inscription",
+              "jjgtn_basis": "8b05071"
+            }
+          ],
+          "jjgpn_dictation": "yes, but chivvy: lets significantly shrink the list before proceeding with the rest of B5",
+          "jjgpn_precis": "The first census page is dominated by assignment-as-declaration noise (tabtarget formulary lines, cross-family bash assignments, README examples);\nthis pace lands envelope dispatch and the home-file claim rule so the presentment list shrinks to real findings before the index-render pace proceeds.",
+          "jjgpn_slated": "260719-2104"
         }
       }
     },
