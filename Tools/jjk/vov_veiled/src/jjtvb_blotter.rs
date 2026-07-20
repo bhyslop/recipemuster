@@ -25,10 +25,12 @@ use super::jjrvb_blotter::{
     jjdb_founding_import,
     jjdb_gallops_journal_load,
     jjdb_gallops_journal_save,
+    jjdb_gallops_journal_try_save,
     jjdb_journal,
     jjdb_read,
     jjdb_studbook_config,
     jjdb_BlotterConfig,
+    jjdb_JournalReject,
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
@@ -335,6 +337,133 @@ fn jjtvb_gallops_journal_save_hands_the_transform_the_locked_tip_state() {
         current
     }, "derive".to_string())
     .unwrap();
+}
+
+// ---- The WRITE seam's fallible ceremony (jjdb_gallops_journal_try_save) ----
+// The command surface's write half routes every mutating jjx command's mutation
+// through this when the seam is on. These prove the seam-on guarantees the
+// done-when names; the seam-off command paths are proven byte-identical by the
+// rest of the suite (the const is compiled false).
+
+/// Seam-ON happy path: a command-style mutation journals to the studbook and a
+/// read-after-write within the session sees it — the seam's core promise
+/// ("lands each mutating command as a journaled studbook commit"; "read-after-write
+/// within a session sees the write").
+#[test]
+fn jjtvb_gallops_journal_try_save_round_trips_a_command_mutation() {
+    let (_bare, _local, config) = zjjtvb_scratch("jjtvb_try_save_roundtrip");
+    // Seed a tenant so the transform is handed Some(tip), as a live command is.
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AA".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+
+    // A command handler mutates the locked tip and hands back its record + message.
+    jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-cmd", |tip| {
+        let mut g = tip.expect("the seeded tenant must be handed in").into_inner();
+        g.next_heat_seed = "AB".to_string();
+        Ok((g, "command mutation".to_string()))
+    })
+    .unwrap();
+
+    // Read-after-write within the session sees the landed mutation.
+    let loaded = jjdb_gallops_journal_load(&config).unwrap();
+    assert_eq!(loaded.inner().next_heat_seed, "AB");
+}
+
+/// Seam-ON abort: a declining transform (a command handler whose precondition no
+/// longer holds on the locked tip) lands NOTHING and releases the lock — the
+/// pre-seam invariant "a failed command commits nothing", made structural. The
+/// remote tip is unchanged and a following ceremony succeeds against the freed lock.
+#[test]
+fn jjtvb_gallops_journal_try_save_abort_commits_nothing_and_releases() {
+    let (bare, _local, config) = zjjtvb_scratch("jjtvb_try_save_abort");
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AA".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+    let after_seed = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+
+    // The transform declines (a stale-precondition command handler).
+    let result = jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-declines", |_tip| {
+        Err::<(jjrg_Gallops, String), String>("precondition no longer holds on the tip".to_string())
+    });
+    match result {
+        Err(jjdb_JournalReject::Abort(msg)) => assert!(msg.contains("precondition no longer holds")),
+        other => panic!("a declining transform must abort with its own message, got {:?}", other),
+    }
+
+    // Nothing landed: the remote tip is exactly where the seed left it.
+    assert_eq!(
+        zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]),
+        after_seed,
+        "an aborted transform must land nothing on the remote"
+    );
+
+    // The lock was released — a following ceremony acquires it and succeeds.
+    jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-after", |tip| {
+        let mut g = tip.expect("seeded tenant").into_inner();
+        g.next_heat_seed = "AC".to_string();
+        Ok((g, "after abort".to_string()))
+    })
+    .expect("the lock must be free after an abort");
+    assert_eq!(jjdb_gallops_journal_load(&config).unwrap().inner().next_heat_seed, "AC");
+}
+
+/// Seam-ON contention: a foreign station holding the lock makes the ceremony
+/// refuse loud (Ceremony/LockHeld) and never run the transform ("contention ...
+/// refuse loud").
+#[test]
+fn jjtvb_gallops_journal_try_save_refuses_loud_on_contention() {
+    let (_bare, local, config) = zjjtvb_scratch("jjtvb_try_save_contention");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-another-station").unwrap();
+
+    let called = Cell::new(false);
+    let result = jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-contender", |tip| {
+        called.set(true);
+        let g = tip.map(|v| v.into_inner()).unwrap_or_else(zjjtvb_valid_gallops);
+        Ok((g, "should not land".to_string()))
+    });
+
+    match result {
+        Err(jjdb_JournalReject::Ceremony(r)) => assert_eq!(r.kind, jjrfr_RejectionKind::LockHeld),
+        other => panic!("a held lock must refuse loud as a Ceremony rejection, got {:?}", other),
+    }
+    assert!(!called.get(), "the transform must not run when the lock cannot be acquired");
+}
+
+/// Seam-ON message-from-transform: the commit subject carries the message the
+/// transform RETURNS (derived from the locked tip), never a caller pre-composed
+/// one — the guard against a minted-result message (a relocate's new coronet)
+/// composing from a divergent pre-lock session read.
+#[test]
+fn jjtvb_gallops_journal_try_save_bakes_the_transform_returned_message() {
+    let (bare, _local, config) = zjjtvb_scratch("jjtvb_try_save_message");
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AA".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+
+    // The message is derived from the TIP the transform is handed, not passed in.
+    jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-msg", |tip| {
+        let g = tip.expect("seeded tenant").into_inner();
+        let message = format!("derived from tip seed {}", g.next_heat_seed);
+        Ok((g, message))
+    })
+    .unwrap();
+
+    let subject = zjjtvb_git(bare.path(), &["log", "-1", "--format=%s", ZJJTVB_TRUNK]);
+    assert!(
+        subject.contains("derived from tip seed AA"),
+        "the commit subject must carry the transform-returned message, got '{}'",
+        subject
+    );
 }
 
 /// The read path is ref-read, not a working-tree read: `jjdb_gallops_journal_load`
