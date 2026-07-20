@@ -55,6 +55,24 @@ fn vomtq_planted_terminal_exclusivity_surfaces_exactly_one_presentment() {
 }
 
 #[test]
+fn vomtq_foreign_declarations_never_seat() {
+    // A foreign declaration (no project cipher prefix) is outside the mint
+    // universe: it must neither seat nor present, even when it collides or
+    // prefixes another foreign name (VOSMM "Classify by Subtraction": the
+    // ours-or-foreign gate is the project cipher).
+    let corpus = vec![
+        ("a.sh".to_string(), "TOKEN=x\nTOKEN_JSON=y\n".to_string()),
+        ("b.sh".to_string(), "TOKEN=z\n".to_string()),
+    ];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    assert!(census.vomrm_exact_collisions().is_empty());
+    assert!(census.vomrm_terminal_exclusivity().is_empty());
+}
+
+#[test]
 fn vomtq_clean_corpus_yields_no_presentments() {
     let corpus = vec![(
         "a.rs".to_string(),

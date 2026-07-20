@@ -34,4 +34,14 @@ fn vomta_is_allowed_rejects_memos_as_reference_only() {
     assert!(!voma_is_allowed(Path::new("Memos/memo-example.adoc")));
 }
 
+#[test]
+fn vomta_is_allowed_rejects_historical_prose_as_reference_only() {
+    assert!(!voma_is_allowed(Path::new(
+        ".claude/jjm/retired/jjh_b260114-r260124-example.md"
+    )));
+    assert!(!voma_is_allowed(Path::new(
+        "Study/study-net-namespace-permutes/old/example.sh"
+    )));
+}
+
 // eof

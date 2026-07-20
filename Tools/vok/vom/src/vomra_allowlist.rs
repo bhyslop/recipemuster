@@ -22,7 +22,10 @@ use std::path::Path;
 pub const VOMA_ALLOWLIST: &[&str] = &["*.md", "*.adoc", "*.rs", "*.sh"];
 
 /// Reference-only path prefixes excluded from the MVP declaration scan.
-pub const VOMA_REFERENCE_ONLY: &[&str] = &["Memos/"];
+/// `.claude/` (heat blotters, chat captures) and `Study/` (scratch
+/// investigations) are historical prose in the same reference-only sense as
+/// Memos: records ABOUT names, never declarations of them.
+pub const VOMA_REFERENCE_ONLY: &[&str] = &["Memos/", ".claude/", "Study/"];
 
 /// Check whether a path's shape is allowlisted.
 pub fn voma_is_allowed(path: &Path) -> bool {

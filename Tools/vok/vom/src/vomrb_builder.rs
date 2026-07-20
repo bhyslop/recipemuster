@@ -81,6 +81,15 @@ impl vomrb_Builder {
 
             for (line_no, line) in content.lines().enumerate() {
                 for (signet, inscription) in crate::vomrv_vesture::vomrv_claim_line(line) {
+                    // The ours-or-foreign gate is the project cipher (VOSMM
+                    // "Classify by Subtraction") - it bounds the census
+                    // universe at seating exactly as it bounds the estray
+                    // net below and the file-stem claim above; a foreign
+                    // declaration (`TOKEN=`, a vendor doc's `to=`) is
+                    // outside the mint universe entirely.
+                    if !zvomrb_is_ours_token(&signet) {
+                        continue;
+                    }
                     self.signet_trie.vomrs_seat(
                         &signet,
                         &inscription,
