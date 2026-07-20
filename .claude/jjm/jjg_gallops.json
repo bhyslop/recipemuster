@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAa",
+  "jjgrn_next_pace_seed": "CAAAb",
   "jjgrn_heat_order": [
     "₣Bz",
     "₣B5",
@@ -4465,6 +4465,7 @@
         "₢CAAAO",
         "₢CAAAP",
         "₢CAAAQ",
+        "₢CAAAa",
         "₢CAAAR",
         "₢CAAAS",
         "₢CAAAT",
@@ -4765,6 +4766,55 @@
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the rung's spec closure: the JJSV* family stops describing a future\nand starts enacting the live mechanism, completing the rung's done-line.",
           "jjgpn_slated": "260718-1002"
+        },
+        "₢CAAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2026",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Retire `git reset --hard` from the studbook write path.",
+                "Today `jjrfr_advance` retrenches the clone to the remote tip under the journal lock",
+                "(`JJr_b52`, equalized-under-the-lock) to scrub refused-push residue.",
+                "Replace the scrub with never creating residue:",
+                "compose the write against the gleaned remote tip without moving the local branch —",
+                "commit object first, push it, advance the local branch only on success —",
+                "so a refused push leaves the branch untouched and there is nothing to retrench;",
+                "the opening equalize becomes fast-forward-only and `reset --hard` leaves the farrier.",
+                "",
+                "## Cinched",
+                "",
+                "Direction settled 260719 with the operator:",
+                "",
+                "- Compose-then-push, plus mutate-as-transform:",
+                "  the journal hands its mutate closure post-lock, post-equalize state",
+                "  and the closure derives the new record from THAT,",
+                "  so a stale pre-lock read can never be carried across the lock.",
+                "- The rivet moves with the code: `JJr_b52`'s equalize-and-retrench doctrine",
+                "  (journal sheaf ceremony prose, farrier sheaf advance op) is revised in this same pace —",
+                "  the spec never lies about the ceremony.",
+                "  Reconcile the sheaf's \"what a fast-forward cannot give\" argument",
+                "  with the new no-residue construction.",
+                "- Weird residual states (a diverged clone that should be impossible):",
+                "  halt and surface for the attended model and operator — never auto-destroy.",
+                "- Readers are off the working tree per the ref-read pace before this one;",
+                "  this pace may treat the studbook working tree as writer-only scratch.",
+                "",
+                "## Done when",
+                "",
+                "No `reset --hard` remains anywhere in the farrier or blotter;",
+                "the journal ceremony's existing contention tests",
+                "(lease refusal, lock break, two-station rehearsal) pass unchanged in outcome;",
+                "a refused consign is proven by test to leave the local branch and record untouched;",
+                "and the revised journal/farrier sheaf prose describes the ceremony as built."
+              ],
+              "jjgtn_silks": "retire-write-path-reset",
+              "jjgtn_basis": "1dec23f"
+            }
+          ],
+          "jjgpn_dictation": "I really really do not want a git reset --hard anywhere in this sequence. Do we have some serious design problems? [...] I do want though to have tha conversation about removing reset --hard from the write path: what notions do you have for this?",
+          "jjgpn_precis": "The operator categorically rejects `git reset --hard` in the studbook sequences\nand directed a design conversation on removing it from the write path.\nThe session settled the direction:\nnever create refused-push residue (compose-then-push, branch advances only on success),\nderive mutations from post-lock state (mutate-as-transform),\nrevise the `JJr_b52` rivet doctrine alongside the code,\nand halt-and-surface on impossible states rather than auto-destroy.",
+          "jjgpn_slated": "260719-2026"
         }
       }
     },
