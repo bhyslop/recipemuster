@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B8",
-  "jjgrn_next_pace_seed": "CAAAm",
+  "jjgrn_next_pace_seed": "CAAAn",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -5668,7 +5668,8 @@
         "₢CAAAi",
         "₢CAAAj",
         "₢CAAAk",
-        "₢CAAAl"
+        "₢CAAAl",
+        "₢CAAAm"
       ],
       "jjghn_paces": {
         "₢CAAAf": {
@@ -5883,6 +5884,35 @@
           ],
           "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
           "jjgpn_precis": "The third job of the sketch: presentation constants generated from the table plus a printed-string lint, applying word-care where it is most operator-visible.",
+          "jjgpn_slated": "260719-2258"
+        },
+        "₢CAAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The make-room job: given a word, report its weighted footprint",
+                "(code identifiers > wire keys > spec quoins > prose)",
+                "and the ambient inventory of eviction-cheap seats —",
+                "the eviction-cost census behind \"free this excellent word for a better home\".",
+                "Footprint advises cost, never verdicts:",
+                "value stays the operator's judgment,",
+                "and the execute half is authorship — each prose site needs a written sentence — permanently manual, never a safe-reprefix sibling.",
+                "Concept home: the promoted grimoire sheaf.",
+                "",
+                "## Done when",
+                "The footprint report runs for a named word over the repo scan,",
+                "weights the seat classes as the doctrine orders them,",
+                "and stops at advice — no rename or eviction machinery."
+              ],
+              "jjgtn_silks": "grimoire-make-room-census",
+              "jjgtn_basis": "1b32ac6"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The make-room job joined the concept at the worked-census lean; it closes the heat as an advisory footprint report with no execution machinery.",
           "jjgpn_slated": "260719-2258"
         }
       }
