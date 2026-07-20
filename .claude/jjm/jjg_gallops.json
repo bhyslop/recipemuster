@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAt",
+  "jjgrn_next_pace_seed": "CAAAu",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -5198,7 +5198,8 @@
         "₢CAAAV",
         "₢CAAAX",
         "₢CAAAY",
-        "₢CAAAZ"
+        "₢CAAAZ",
+        "₢CAAAt"
       ],
       "jjghn_paces": {
         "₢B4AAA": {
@@ -5412,6 +5413,43 @@
           "jjgpn_dictation": "Can you slate a pace on B4 to carry out the improvements you recommend?",
           "jjgpn_precis": "Slate the landing-content fix recommended after auditing the ₢B6·CAAAB landings and the designee-side prompting.\nTwo halves: teach the producer side (Designee protocol in claude-jjk-core.md + the JJSCLD spec) the evidence-only standard so landings are born review-grade, and harden jjc-wrap step 2 to judge an existing landing's content rather than treat its mere existence as review-grade.\nThe empirical trigger: a sonnet designee's completion report on ₢B6·CAAAB came out advocacy-laden (pre-arguing scope and design choices), exactly the pre-framing the fresh reviewer is meant to avoid.",
           "jjgpn_slated": "260718-2238"
+        },
+        "₢CAAAt": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0906",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "Relax `jjx_enroll`'s model-tier gate so a sonnet-tier session may slate a pace, not only opus/fable.",
+                "",
+                "Today `jjx_enroll` carries no gate arm of its own:",
+                "it falls through the catch-all `_ => zjjrm_GuardBucket::Frontier` in `zjjrm_guard_bucket` (`jjrm_mcp.rs`),",
+                "and the dispatch gate refuses every sub-frontier caller on a Frontier-bucket command via `zjjrm_frontier_refusal` (the \"frontier-only (opus or fable)\" interdictum; `zjjrm_is_frontier` = fable|opus).",
+                "The mount agent finds the gate there and chooses the mechanism — this docket fixes the end state, not the shape.",
+                "",
+                "## Cinched",
+                "- Scope the relaxation to `jjx_enroll` alone (which is slate, chivvy, and cantle — one command, three verbs).",
+                "  The rest of the Frontier catch-all — close and apostille foremost, plus validate, refit, and the redocket/curry/relabel/drop/relocate/alter/reorder/archive/transfer and remote families — stays frontier-only.",
+                "  Do not lower `zjjrm_is_frontier` globally, and do not lower the whole Frontier bucket.",
+                "- The ask is sonnet specifically; leave haiku and the non-designable tiers (gpt, gemini, unknown) refused as they are unless the operator extends the ask at mount.",
+                "",
+                "## Character",
+                "A small, surgical gate change that carries one deliberately-unresolved design question — to be thought through at mount, never settled at slate:",
+                "whether a sonnet-slated pace should get special review before it is bridled, or before it is implemented — does a sonnet-authored docket warrant a frontier pass that an opus/fable-authored one does not?",
+                "Do not resolve this now; surface it at mount and let the operator rule.",
+                "",
+                "## Done when",
+                "A sonnet-tier session calls `jjx_enroll` (slate) and it proceeds instead of raising the frontier interdictum;",
+                "every other Frontier-bucket verb still refuses sub-frontier callers unchanged;",
+                "unit tests cover both sonnet-admitted-to-enroll and a still-refused frontier verb."
+              ],
+              "jjgtn_silks": "enroll-admits-sonnet",
+              "jjgtn_basis": "7daa2db"
+            }
+          ],
+          "jjgpn_dictation": "Have an opus agent review your work and raise issues if there are any. Otherwise, direct it to wrap, and additionally to slate a pace on heat B4 to enable sonnet to slate a pace, though we should think about at pace mount time whether we want a sonnet-slated pace to get special review before either bridling or implementation.",
+          "jjgpn_precis": "Relax `jjx_enroll`'s frontier-only (opus/fable) model gate so sonnet-tier sessions can slate paces too, scoped to enroll alone and leaving the rest of the frontier surface untouched; leave open, for a mount-time operator ruling, whether a sonnet-slated pace needs special review before bridling or implementation.",
+          "jjgpn_slated": "260720-0906"
         }
       }
     },
