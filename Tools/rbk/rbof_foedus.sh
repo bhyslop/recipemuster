@@ -21,15 +21,14 @@
 #
 #   descry  (rbw-jd) — read a named foedus's provider presence under the one
 #                      manor pool (healthy, or a named deficit). Read-only,
-#                      payor-credentialed, mutates nothing. Contract: RBSFD.
+#                      payor-credentialed, mutates nothing.
 #   instate (rbw-jI) — re-point the active-foedus selector RBRR_ACTIVE_FOEDUS in
 #                      rbrr.env via an atomic single-field rewrite. No clean-tree
 #                      gate, no commit, no Manor mutation, no sitting reset.
-#                      Contract: RBSFI.
 #   canvass (rbw-jc) — enumerate every foedus the manor holds (providers.list
 #                      under the one workforce pool), emitting one fact file per
 #                      foedus and marking the regime-selected one. Read-only,
-#                      payor-credentialed. Contract: RBS0 {rbtf_canvass}.
+#                      payor-credentialed.
 #
 # None of them founds or dissolves a foedus — that is the federation manor
 # verbs' (affiance/jilt) concern. The reuse-if-valid-else-establish decision
@@ -52,7 +51,7 @@ zrbof_sentinel() {
 
 # Echo the discovered foedus identities (rbef_ subdirectory names), space-
 # separated, or "(none)". Pure — for embedding in a rejection message so a bad
-# or missing identity fails by listing the available ones (RBSFD/RBSFI shape).
+# or missing identity fails by listing the available ones.
 zrbof_list_foedera() {
   local z_avail=""
   local z_entry=""
@@ -87,7 +86,7 @@ zrbof_require_foedus() {
 
   # A subdirectory can stand without its regime file: rbef_keycloak commits only an
   # rbrf.env.template until the test facility renders its git-ignored live regime
-  # (RBSRF's one sanctioned deviation), so the two tests name distinct states.
+  # (rivet RBr_e4a), so the two tests name distinct states.
   local z_rbrf=""
   z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") \
     || buc_reject "${z_band}" "Failed to resolve the regime path for foedus '${z_foedus}'"
@@ -156,8 +155,8 @@ rbof_descry() {
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
 
-  # Confirm the manor pool coordinates (descry's half of the RBRW sync guard,
-  # RBSFD): the read confirms a live pool stands under the org at the expected
+  # Confirm the manor pool coordinates (descry's half of the RBRW sync guard):
+  # the read confirms a live pool stands under the org at the expected
   # id. No live pool at the coordinate — absent (404) or soft-deleted (200,
   # state DELETED, squatting the id through the ~30-day purge window) — is the
   # coordinate-drift deficit: a reported verdict, not an error (the RB pool may
@@ -189,7 +188,7 @@ rbof_descry() {
   esac
 
   # Read the provider's presence — the foedus verdict proper (a foedus IS a
-  # provider under the one manor pool, RBSFD). Only reached when the pool
+  # provider under the one manor pool). Only reached when the pool
   # coordinates confirmed; a coordinate-drift deficit already IS the verdict.
   # 200 present / 404 absent; any other code is a broken read.
   if test -z "${z_verdict}"; then
@@ -416,7 +415,7 @@ rbof_instate() {
   # assignment, pass the rest through unchanged, write a temp file then rename.
   # No other field is touched; no clean-tree gate (instate writes the very change
   # the operator is about to commit); not committed; no Manor mutation; no
-  # sitting reset (re-signing against the new foedus is avow's concern). RBSFI.
+  # sitting reset (re-signing against the new foedus is avow's concern).
   local -r z_file="${RBCC_rbrr_file}"
   test -f "${z_file}" || buc_die "Repo regime file not found: ${z_file}"
 

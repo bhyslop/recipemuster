@@ -31,11 +31,11 @@
 # content is the authoritative record (peruse reconstructs the holding from
 # content — only the depot attribution column reads from the key, placement being
 # the index's alone to tell). No provider dimension: the grantable principal
-# names the pool and subject, never the asserting provider (RBSTN), so two
+# names the pool and subject, never the asserting provider, so two
 # foedera admitting the same subject onto the same mantle hold the SAME grant —
 # one muniment, not two. Per-entry muniments are immutable: a holding exists or
 # it does not, so engross is a create (ifGenerationMatch=0) and expunge a delete —
-# the RBSTR generation-conditional update path is unexercised under this
+# the generation-conditional update path is unexercised under this
 # granularity.
 #
 # Callers authenticate and pass the bearer token (token-first), like the rbgb_
@@ -113,7 +113,7 @@ zrbgft_muniment_name_capture() {
 # Write the muniment for (subject, mantle) into the depot's polity slice.
 # ifGenerationMatch=0 create — Cloud Storage writes only if absent. Echoes
 # "created" on a fresh write (200/201) or "present" on the 412 precondition
-# (RBSTR: a duplicate create is idempotent success, the muniment already holds).
+# (a duplicate create is idempotent success, the muniment already holds).
 # Any other code rejects in the engross band (BUBC_band_engross).
 rbgft_engross() {
   zrbgft_sentinel
@@ -143,7 +143,7 @@ rbgft_engross() {
   local z_name_enc
   z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die "Failed to encode object name"
 
-  buc_log_args 'Media upload with ifGenerationMatch=0 — create only if absent; concurrent creators race cleanly (RBSTR)'
+  buc_log_args 'Media upload with ifGenerationMatch=0 — create only if absent; concurrent creators race cleanly'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_UPLOAD}/b/${z_bucket}/o?uploadType=media&name=${z_name_enc}&ifGenerationMatch=0"
   rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_ENGROSS}" "${ZRBGFT_MUNIMENT_BODY}"
 
@@ -207,8 +207,7 @@ rbgft_expunge() {
 # content stays the authoritative record; the depot column reads from the object
 # key's first segment, because placement is the index's alone to tell: which
 # polity slice holds a muniment is not record content, and identical (mantle,
-# subject) records co-reside across polity slices (RBSPO
-# depot-attributed emission). A
+# subject) records co-reside across polity slices. A
 # read-after-list 404 — an object expunged between the listing and its fetch — is
 # a benign vanish and is skipped, not fatal: a pure read must not crash because a
 # concurrent unseat withdrew an entry, and the wider the sweep the wider that
@@ -317,14 +316,14 @@ rbgft_peruse() {
 
 # rbgft_peruse_manor <token> <bucket>
 # The manor-wide read — every muniment in the terrier across all polities, no
-# prefix filter (read is bucket-level per RBS0). Echoes the same tab-separated
+# prefix filter (read is bucket-level). Echoes the same tab-separated
 # "<depot>\t<mantle>\t<subject>" line per muniment as the per-polity
 # peruse. The depot attribution column is what makes a manor-wide roll readable:
 # it ties each holding to its polity slice — identical (mantle, subject) records
 # co-reside across slices (including orphans a freehold churn
 # leaves behind, since unmaking a depot project never sweeps the payor-grain
 # terrier), so a depot-blind roll cannot witness a depot-scoped admission churn
-# (RBSPO depot-attributed emission). The read rehearse composes manor-wide.
+# (depot-attributed emission). The read rehearse composes manor-wide.
 rbgft_peruse_manor() {
   zrbgft_sentinel
 
@@ -341,8 +340,8 @@ rbgft_peruse_manor() {
 }
 
 # rbgft_escheat_survey <token> <bucket>
-# The classifying hygiene read (RBSME): list every object in the terrier bucket
-# and judge each against the current muniment contract (RBSTN), emitting one
+# The classifying hygiene read: list every object in the terrier bucket
+# and judge each against the current muniment contract, emitting one
 # tab-separated "<verdict>\t<detail>\t<name>" line per object — verdict "sound"
 # with the depot key segment as detail, or verdict "stray" with the deficit word
 # (key-shape | mantle | body-json | body-fields | mismatch). Deliberately reads
@@ -485,7 +484,7 @@ rbgft_escheat_survey() {
 }
 
 # rbgft_escheat_expunge_raw <token> <bucket> <object_name>
-# The raw hygiene delete (RBSME): strike one bucket object by its listed name,
+# The raw hygiene delete: strike one bucket object by its listed name,
 # unconditioned — no muniment-name composition, because an escheat subject's key
 # may be exactly what fails the contract. Echoes "deleted" (204) or "absent"
 # (404 — already vanished, clean). Any other code rejects in the escheat band
