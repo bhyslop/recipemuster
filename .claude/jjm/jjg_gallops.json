@@ -4771,8 +4771,8 @@
         "₢CAAAa": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2026",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260719-2106",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_fable",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -4812,7 +4812,7 @@
                 "and the revised journal/farrier sheaf prose describes the ceremony as built."
               ],
               "jjgtn_silks": "retire-write-path-reset",
-              "jjgtn_basis": "dbe98ff"
+              "jjgtn_basis": "725e9ac"
             }
           ],
           "jjgpn_dictation": "I really really do not want a git reset --hard anywhere in this sequence. Do we have some serious design problems? [...] I do want though to have tha conversation about removing reset --hard from the write path: what notions do you have for this?",
