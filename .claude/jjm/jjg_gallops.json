@@ -4702,9 +4702,8 @@
         "₢CAAAR": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1008",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260719-2204",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "Stage everything the cutover afternoon consumes, so the ceremony only executes.",
                 "Three parts, all ahead of the ceremony:",
@@ -4725,7 +4724,7 @@
                 "and the importer's collision refusal is demonstrated."
               ],
               "jjgtn_silks": "stage-founding-seed",
-              "jjgtn_basis": "54c5164"
+              "jjgtn_basis": "15585ed"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
@@ -4735,10 +4734,8 @@
         "₢CAAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1008",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_xhigh",
+              "jjgtn_ts": "260719-2208",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
                 "this docket points at it and does not restate the ceremony.",
@@ -4759,7 +4756,7 @@
                 "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
               ],
               "jjgtn_silks": "execute-cutover-ceremony",
-              "jjgtn_basis": "084a12f"
+              "jjgtn_basis": "55ff185"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",

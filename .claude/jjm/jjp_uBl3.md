@@ -192,6 +192,29 @@ coronets inside are record-of-the-moment, never live references.
   CUTOVER HAZARD NOTE (added at carry): the ceremony de-inserts JJK from consumer repos —
   that sweep must not touch this chat store.
 
+## Founding-import rulings (recorded 260719, staging pace)
+
+- Reuse-or-recreate RULING: RECREATE CLEAN —
+  the ceremony founds against a recreated-empty remote,
+  never additively atop the standing scratch instance.
+  Grounds (sighted 260719): the scratch instance's tip carries rehearsal droppings
+  (rehearsal.txt, aftermath.txt, stranded.txt),
+  and its history holds the stranded pre-fix commit a refused lock let through —
+  reuse would seat both in the permanent record's genesis forever.
+  Ruled under operator delegation this session; reversible until the ceremony executes.
+- Ceremony consequences of the ruling:
+  the operator deletes and recreates the bare GitHub remote and removes local clones before the found;
+  the corrected two-tenant founding ceremony re-runs from nothing, seeded with the live-state import.
+  At cutover the real-remote rehearsal tests (the ignored jjtvb set) must be retargeted or retired —
+  once the studbook is live, rehearsal writes must never land there.
+- Live collision specimen (260719; coronet is record-of-the-moment):
+  two clones independently minted ₢CAAAa — the studbook write-path pace here,
+  a census pace in the sibling clone — surfacing via a rebase-union that broke the sibling's store;
+  repaired by convergence merge 05014a451 with the census rows re-expressed under fresh mints.
+  Direct evidence for the founding importer's collision refusal (built at this pace),
+  and a live proof of the never-rebase rule:
+  the union's fossil is a commit brand naming a parent the rebased commit no longer has.
+
 ## Done when
 
 The founding-and-cutover rung's done-line is sighted,

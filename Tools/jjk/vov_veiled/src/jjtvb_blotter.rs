@@ -12,9 +12,17 @@ use super::jjrds_spine::{
     JJRDS_KIND_PLAIN_GIT,
     JJRDS_PEDIGREES_REL_PATH,
 };
-use super::jjrt_types::jjrg_Gallops;
+use super::jjrt_types::{
+    jjrg_Gallops,
+    jjrg_Heat,
+    jjrg_HeatStatus,
+    jjrg_Pace,
+    jjrg_PaceState,
+    jjrg_Tack,
+};
 use super::jjrvb_blotter::{
     jjdb_found,
+    jjdb_founding_import,
     jjdb_gallops_journal_load,
     jjdb_gallops_journal_save,
     jjdb_journal,
@@ -502,37 +510,42 @@ fn zjjtvb_real_pedigrees_json() -> String {
 }
 
 /// Found the REAL production `jjqs_studbook` against its real GitHub remote
-/// at the station's real infield root — the one-shot ceremony ₢BrAAU exists
-/// to run, standing the scratch studbook up for ₢BrAAW's rehearsal. Real
-/// network, real remote, not run by the ordinary suite: `--ignored`, and
-/// `JJTVB_REAL_INFIELD_ROOT` must name the infield explicitly so a stray
+/// at the station's real infield root. Originally the ₢BrAAU scratch founding
+/// (empty gallops); now the conversion ceremony's founding act under the
+/// recreate-clean ruling (₣B3 paddock, recorded 260719): the operator deletes
+/// and recreates the bare remote and removes local clones, then this runs.
+/// Real network, real remote, not run by the ordinary suite: `--ignored`, and
+/// both env vars must name their roots explicitly so a stray
 /// `--include-ignored` sweep cannot land it anywhere by accident.
 ///
-/// The seed carries BOTH studbook tenants, not just the gallops: `jjrds_plan`
-/// reads `pedigrees.json` before anything else, so a station founded without
-/// it cannot dispatch at all. The ₢BrAAU run seeded one file short of what
-/// JJSVS Founding-and-cutover describes; this is that seed corrected, and the
-/// re-found is what carries it onto the real store.
+/// The seed carries BOTH studbook tenants (the ₢BrAAU run seeded one file
+/// short — `jjrds_plan` reads `pedigrees.json` before anything else, so a
+/// station founded without it cannot dispatch), and the gallops tenant is the
+/// LIVE in-repo store passed through the founding import (JJSAS: live state
+/// only — racing and stabled heats ride, retired heats stay behind as
+/// work-repo fossils). `jjdr_save` writes the seed canonical, exactly the
+/// bytes every later load round-trips.
 #[test]
 #[ignore]
 fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
     let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT")
         .expect("set JJTVB_REAL_INFIELD_ROOT to the real infield root to run this ceremony");
+    let hippodrome_root = std::env::var("JJTVB_REAL_HIPPODROME_ROOT")
+        .expect("set JJTVB_REAL_HIPPODROME_ROOT to the hippodrome whose live gallops seeds the founding");
     let config = jjdb_studbook_config(Path::new(&infield_root));
 
-    let gallops = jjrg_Gallops {
-        next_heat_seed: "AA".to_string(),
-        next_pace_seed: "CAAAA".to_string(),
-        heat_order: vec![],
-        heats: BTreeMap::new(),
-        retention_since: None,
-    };
-    let gallops_json = serde_json::to_string_pretty(&gallops).expect("a fresh Gallops must serialize");
+    let live_path = Path::new(&hippodrome_root).join(".claude/jjm/jjg_gallops.json");
+    let live_bytes = std::fs::read(&live_path)
+        .unwrap_or_else(|e| panic!("could not read the live gallops at {}: {}", live_path.display(), e));
+    let live = crate::jjri_io::jjdr_hark(&live_bytes).expect("the live gallops must validate before it can seed a founding");
+    let seed_gallops = jjdb_founding_import(live.inner(), None)
+        .expect("the founding import must compose from the live gallops");
 
     let pedigrees_json = zjjtvb_real_pedigrees_json();
 
     let sha = jjdb_found(&config, |root| {
-        zjjtvb_write(root, "gallops.json", &gallops_json);
+        crate::jjri_io::jjdr_save(&seed_gallops, &root.join("gallops.json"))
+            .expect("the composed seed must save canonical");
         zjjtvb_write(root, JJRDS_PEDIGREES_REL_PATH, &pedigrees_json);
         (
             vec![PathBuf::from("gallops.json"), PathBuf::from(JJRDS_PEDIGREES_REL_PATH)],
@@ -541,6 +554,159 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
     });
 
     println!("founded jjqs_studbook at {} ({})", sha, config.local_root.display());
+}
+
+// ---- Founding import (scratch — the collision-refusal demonstration) ----
+
+/// A scratch heat under the given status: `₢`-keyed paces each carrying one
+/// minimal tack, mirroring the stored shape.
+fn zjjtvb_import_heat(heat_id: &str, status: jjrg_HeatStatus, pace_bodies: &[&str]) -> (String, jjrg_Heat) {
+    let heat_key = format!("₣{}", heat_id);
+    let mut paces = BTreeMap::new();
+    let mut order = Vec::new();
+    for body in pace_bodies {
+        let pace_key = format!("₢{}", body);
+        paces.insert(
+            pace_key.clone(),
+            jjrg_Pace {
+                tacks: vec![jjrg_Tack {
+                    ts: "260719-1200".to_string(),
+                    state: jjrg_PaceState::Rough,
+                    tier: None,
+                    effort: None,
+                    text: vec!["scratch docket".to_string()],
+                    silks: "scratch-pace".to_string(),
+                    basis: "0000000".to_string(),
+                }],
+                ..Default::default()
+            },
+        );
+        order.push(pace_key);
+    }
+    let heat = jjrg_Heat {
+        silks: format!("scratch-heat-{}", heat_id),
+        creation_time: "260719".to_string(),
+        status,
+        order,
+        paces,
+    };
+    (heat_key, heat)
+}
+
+/// A scratch gallops from (key, heat) pairs, heat_order in the given sequence.
+fn zjjtvb_import_gallops(heat_seed: &str, pace_seed: &str, heats_in: Vec<(String, jjrg_Heat)>) -> jjrg_Gallops {
+    let mut heats = BTreeMap::new();
+    let mut heat_order = Vec::new();
+    for (k, h) in heats_in {
+        heat_order.push(k.clone());
+        heats.insert(k, h);
+    }
+    jjrg_Gallops {
+        next_heat_seed: heat_seed.to_string(),
+        next_pace_seed: pace_seed.to_string(),
+        heat_order,
+        heats,
+        retention_since: None,
+    }
+}
+
+/// The founding case (no target): racing and stabled heats ride, the retired
+/// heat stays behind — dropped from both the heats map and heat_order — and
+/// the source's own mint seeds carry through untouched (JJSAS: live state
+/// only).
+#[test]
+fn jjtvb_founding_import_carries_live_state_only() {
+    let source = zjjtvb_import_gallops(
+        "AD",
+        "CAAAD",
+        vec![
+            zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"]),
+            zjjtvb_import_heat("AB", jjrg_HeatStatus::Stabled, &["CAAAB"]),
+            zjjtvb_import_heat("AC", jjrg_HeatStatus::Retired, &["CAAAC"]),
+        ],
+    );
+
+    let seed = jjdb_founding_import(&source, None).expect("a lone lineage must compose");
+
+    assert_eq!(seed.heat_order, vec!["₣AA".to_string(), "₣AB".to_string()]);
+    assert!(seed.heats.contains_key("₣AA") && seed.heats.contains_key("₣AB"));
+    assert!(!seed.heats.contains_key("₣AC"), "a retired heat must stay behind");
+    assert_eq!(seed.next_heat_seed, "AD");
+    assert_eq!(seed.next_pace_seed, "CAAAD");
+}
+
+/// A firemark the target already holds refuses the import by name (JJSAS
+/// multiproject import discipline: independent installs minted from
+/// independent seeds, so cross-project imports can collide).
+#[test]
+fn jjtvb_founding_import_refuses_a_firemark_collision() {
+    let target = zjjtvb_import_gallops(
+        "AB",
+        "CAAAB",
+        vec![zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"])],
+    );
+    let source = zjjtvb_import_gallops(
+        "AB",
+        "CAAAC",
+        vec![zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAB"])],
+    );
+
+    let err = jjdb_founding_import(&source, Some(&target)).expect_err("a colliding firemark must refuse");
+    assert!(err.contains("firemark ₣AA"), "the refusal must name the colliding firemark, got: {}", err);
+}
+
+/// A coronet collision refuses even across distinct firemarks — coronets are
+/// flat global ids, so the same body under two heats is exactly the 260719
+/// live specimen (one coronet independently minted by two clones, surfacing
+/// only at convergence).
+#[test]
+fn jjtvb_founding_import_refuses_a_coronet_collision_across_firemarks() {
+    let target = zjjtvb_import_gallops(
+        "AB",
+        "CAAAG",
+        vec![zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAF"])],
+    );
+    let source = zjjtvb_import_gallops(
+        "AC",
+        "CAAAG",
+        vec![zjjtvb_import_heat("AB", jjrg_HeatStatus::Racing, &["CAAAF"])],
+    );
+
+    let err = jjdb_founding_import(&source, Some(&target)).expect_err("a colliding coronet must refuse");
+    assert!(err.contains("coronet ₢CAAAF"), "the refusal must name the colliding coronet, got: {}", err);
+}
+
+/// The clean-merge case: disjoint lineages append in order, the mint seeds
+/// take the elementwise maximum (here each side is ahead on a different seed),
+/// and the live-state filter runs BEFORE the collision check — a retired
+/// source heat whose key collides with the target neither rides nor refuses.
+#[test]
+fn jjtvb_founding_import_merges_disjoint_lineages_with_seed_maximum() {
+    let target = zjjtvb_import_gallops(
+        "AC",
+        "CAAAD",
+        vec![zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"])],
+    );
+    let source = zjjtvb_import_gallops(
+        "AB",
+        "CAAAZ",
+        vec![
+            zjjtvb_import_heat("AB", jjrg_HeatStatus::Racing, &["CAAAB"]),
+            zjjtvb_import_heat("AA", jjrg_HeatStatus::Retired, &["CAAAC"]),
+        ],
+    );
+
+    let merged = jjdb_founding_import(&source, Some(&target)).expect("disjoint live lineages must merge");
+
+    assert_eq!(merged.heat_order, vec!["₣AA".to_string(), "₣AB".to_string()]);
+    assert_eq!(
+        merged.heats["₣AA"].silks, "scratch-heat-AA",
+        "the target's own ₣AA must survive; the source's retired ₣AA neither rides nor refuses"
+    );
+    assert!(merged.heats["₣AA"].paces.contains_key("₢CAAAA"), "the target's pace stands");
+    assert!(!merged.heats["₣AA"].paces.contains_key("₢CAAAC"), "the retired source heat's pace stays behind");
+    assert_eq!(merged.next_heat_seed, "AC", "heat seed takes the target side (the later)");
+    assert_eq!(merged.next_pace_seed, "CAAAZ", "pace seed takes the source side (the later)");
 }
 
 /// Rehearsal, and the substrate proof every other rehearsal item stands on
