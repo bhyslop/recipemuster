@@ -298,6 +298,27 @@ fn jjtvb_gallops_journal_save_then_load_round_trips() {
     assert!(loaded.inner().heats.is_empty());
 }
 
+/// The read path is ref-read, not a working-tree read: `jjdb_gallops_journal_load`
+/// resolves the pinned `origin/trunk` snapshot and reads the blob from its object
+/// database, so a divergent (even corrupt) studbook working tree is invisible to
+/// it. This is the `jjdk_lockless_reads` strengthening — a read touches only the
+/// object database — and the guarantee the cutover leans on: the studbook working
+/// tree is writer-only scratch a reader never sees.
+#[test]
+fn jjtvb_gallops_journal_load_reads_the_pin_never_the_working_tree() {
+    let (_bare, local, config) = zjjtvb_scratch("jjtvb_gallops_pin_not_worktree");
+    let gallops = zjjtvb_valid_gallops();
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-pin", &gallops, "save gallops".to_string()).unwrap();
+
+    // Corrupt the working-tree copy after the committed write. A working-tree
+    // read would choke on this; the ref-read never looks at it.
+    zjjtvb_write(local.path(), "gallops.json", "{ not even json");
+
+    let loaded = jjdb_gallops_journal_load(&config).unwrap();
+    assert_eq!(loaded.inner().next_heat_seed, gallops.next_heat_seed);
+    assert!(loaded.inner().heats.is_empty());
+}
+
 #[test]
 fn jjtvb_gallops_over_studbook_enablement_seam_defaults_off() {
     assert!(!JJDB_GALLOPS_OVER_STUDBOOK_ENABLED, "the studbook-backed surface must stay inert until the conversion heat flips it");

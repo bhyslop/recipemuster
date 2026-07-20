@@ -5,6 +5,7 @@
 use super::jjrds_spine::{
     jjrds_billet_dirname,
     jjrds_board,
+    jjrds_currency,
     jjrds_pair_admitted,
     jjrds_pedigree_lookup,
     jjrds_plan,
@@ -30,6 +31,7 @@ use super::jjrfr_farrier::{
     jjrfr_BilletBirth,
     jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
+    jjrfr_FarrierLock,
     jjrfr_LineOfWork,
 };
 use super::jjrt_types::{
@@ -43,13 +45,18 @@ use super::jjrt_types::{
     jjrg_Tier,
 };
 use super::jjrvb_blotter::{
+    jjdb_pin,
     jjdb_BlotterConfig,
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
     JJDB_STUDBOOK_DIRNAME,
 };
 use super::jjtu_testdir::JjkTestDir;
-use std::path::Path;
+use std::path::{
+    Path,
+    PathBuf,
+};
+use std::time::Duration;
 
 const ZJJTDS_TRUNK: &str = "jjtds-trunk";
 
@@ -378,7 +385,7 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
 
     // A rough pace takes the judgment constant; the billet is an infield peer
     // under the jjqb_ signet; the prompt carries the engagement verb.
-    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome).unwrap();
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
     assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("AAAAA".to_string()));
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
@@ -386,11 +393,11 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
     assert_eq!(plan.trunk, ZJJTDS_TRUNK);
 
     // A bridled pace launches its designation exactly.
-    let bridled = jjrds_plan(jjrds_Door::Saddle, "₢AAAAB", &hippodrome).unwrap();
+    let bridled = jjrds_plan(jjrds_Door::Saddle, "₢AAAAB", &hippodrome, false).unwrap();
     assert_eq!((bridled.tier, bridled.effort), (jjrg_Tier::Sonnet, Some(jjrg_Effort::High)));
 
     // A firemark saddles the heat's next actionable pace.
-    let by_heat = jjrds_plan(jjrds_Door::Saddle, "AA", &hippodrome).unwrap();
+    let by_heat = jjrds_plan(jjrds_Door::Saddle, "AA", &hippodrome, false).unwrap();
     assert_eq!(by_heat.billet_root, infield_canon.join("jjqb_AAAAA"));
 }
 
@@ -399,14 +406,14 @@ fn jjtds_plan_lunge_takes_a_firemark_only() {
     let (infield, hippodrome) = zjjtds_infield("jjtds_plan_lunge");
     let infield_canon = infield.path().canonicalize().unwrap();
 
-    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome).unwrap();
+    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
     assert_eq!(plan.billet_root, infield_canon.join("jjqb_AA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Detached);
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "groom ₣AA");
 
     assert!(matches!(
-        jjrds_plan(jjrds_Door::Lunge, "AAAAA", &hippodrome),
+        jjrds_plan(jjrds_Door::Lunge, "AAAAA", &hippodrome, false),
         Err(jjrds_Rejection::BadTarget { .. })
     ));
 }
@@ -415,7 +422,7 @@ fn jjtds_plan_lunge_takes_a_firemark_only() {
 fn jjtds_plan_rejects_foreign_ground_and_unrecorded_sires() {
     let foreign = JjkTestDir::new("jjtds_plan_foreign");
     assert!(matches!(
-        jjrds_plan(jjrds_Door::Lunge, "AA", foreign.path()),
+        jjrds_plan(jjrds_Door::Lunge, "AA", foreign.path(), false),
         Err(jjrds_Rejection::ForeignGround(_))
     ));
 
@@ -426,7 +433,7 @@ fn jjtds_plan_rejects_foreign_ground_and_unrecorded_sires() {
         JJRDS_KIND_PLAIN_GIT,
     );
     assert!(matches!(
-        jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome),
+        jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false),
         Err(jjrds_Rejection::UnrecordedSire { .. })
     ));
 }
@@ -434,7 +441,7 @@ fn jjtds_plan_rejects_foreign_ground_and_unrecorded_sires() {
 #[test]
 fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_board_saddle");
-    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome).unwrap();
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
 
     // Birth.
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan).unwrap(), None);
@@ -454,7 +461,7 @@ fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
 #[test]
 fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_billet() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_board_lunge");
-    let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome).unwrap();
+    let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom).unwrap(), None);
 
     // Trunk advances; the groom's re-board re-detaches to the fresh tip.
@@ -466,7 +473,7 @@ fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_bille
     assert_eq!(zjjtds_git(&groom.billet_root, &["rev-parse", "HEAD"]), advanced);
 
     // A pace billet born before the advance boards with the staleness notice.
-    let pace = jjrds_plan(jjrds_Door::Saddle, "AAAAB", &hippodrome).unwrap();
+    let pace = jjrds_plan(jjrds_Door::Saddle, "AAAAB", &hippodrome, false).unwrap();
     zjjtds_commit_all(&hippodrome, "c.txt", "moved again", "trunk advances again");
     // Board births at the counterpart (pre-fetch, still at the old tip), then
     // gleans — which reveals the newer trunk and trips the probe.
@@ -476,4 +483,161 @@ fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_bille
         jjrds_board(&jjrfg_PlainGit, &pace).unwrap()
     };
     assert!(notice.unwrap_or_default().contains("refit"));
+}
+
+// ---- Enabled path: reads over the studbook, and the door's currency step ----
+//
+// These exercise the `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` seam through the
+// parameter the door pins to the const (`over_studbook`) while the const itself
+// stays false. The studbook is a real founded blotter (bare remote + a clone on
+// `trunk`), so the pin and the `git show` ref-read run against real object
+// databases.
+
+const ZJJTDS_STUDBOOK_TRUNK: &str = "trunk";
+
+/// Found a studbook blotter inside `infield` at the `jjqs_studbook` dirname: a
+/// bare remote plus a clone on `trunk` whose origin/trunk carries a canonical
+/// gallops.json and a pedigrees.json recording `sire_address`. Built by hand
+/// (not `jjdb_found`) so the clone carries a git identity in the test
+/// environment. Returns the blotter config `jjdb_studbook_config` would produce
+/// for this infield's local clone (remote_url differs harmlessly — plan's
+/// pinned reads never consult it).
+fn zjjtds_found_studbook(infield: &Path, sire_address: &str) -> jjdb_BlotterConfig {
+    let bare = infield.join("studbook_upstream");
+    std::fs::create_dir_all(&bare).unwrap();
+    zjjtds_git(&bare, &["init", "-q", "--bare", "-b", ZJJTDS_STUDBOOK_TRUNK]);
+
+    let local = infield.join(JJDB_STUDBOOK_DIRNAME);
+    std::fs::create_dir_all(&local).unwrap();
+    zjjtds_git(&local, &["init", "-q", "-b", ZJJTDS_STUDBOOK_TRUNK]);
+    zjjtds_git(&local, &["config", "user.email", "jjtds@example.invalid"]);
+    zjjtds_git(&local, &["config", "user.name", "jjtds-studbook"]);
+
+    crate::jjri_io::jjdr_save(&zjjtds_gallops(), &local.join("gallops.json")).unwrap();
+    let pedigrees = serde_json::json!({
+        "jjop_sires": [{
+            "jjop_kind": JJRDS_KIND_PLAIN_GIT,
+            "jjop_addresses": [sire_address],
+            "jjop_trunk": ZJJTDS_TRUNK,
+        }]
+    });
+    std::fs::write(local.join(JJRDS_PEDIGREES_REL_PATH), serde_json::to_vec_pretty(&pedigrees).unwrap()).unwrap();
+
+    zjjtds_git(&local, &["add", "--", "gallops.json", JJRDS_PEDIGREES_REL_PATH]);
+    zjjtds_git(&local, &["commit", "-q", "-m", "found studbook"]);
+    zjjtds_git(&local, &["remote", "add", "origin", &bare.to_string_lossy()]);
+    zjjtds_git(&local, &["push", "-q", "-u", "origin", ZJJTDS_STUDBOOK_TRUNK]);
+
+    jjdb_BlotterConfig {
+        local_root: local,
+        remote_url: bare.to_string_lossy().into_owned(),
+        trunk: ZJJTDS_STUDBOOK_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    }
+}
+
+/// An infield for the enabled path: a sire bare + a hippodrome clone carrying NO
+/// `.claude/jjm` at all, and a founded studbook whose one pedigree records the
+/// sire. The absent in-repo gallops is the point — the enabled readers resolve
+/// gallops AND pedigree from the studbook's pinned snapshot, so they must touch
+/// neither the in-repo gallops nor the studbook working tree.
+fn zjjtds_infield_over(name: &str) -> (JjkTestDir, PathBuf) {
+    let infield = JjkTestDir::new(name);
+    let bare = infield.path().join("upstream");
+    std::fs::create_dir_all(&bare).unwrap();
+    zjjtds_git(&bare, &["init", "-q", "--bare", "-b", ZJJTDS_TRUNK]);
+
+    let hippodrome = infield.path().join("hippodrome");
+    std::fs::create_dir_all(&hippodrome).unwrap();
+    zjjtds_git(&hippodrome, &["init", "-q", "-b", ZJJTDS_TRUNK]);
+    zjjtds_git(&hippodrome, &["config", "user.email", "jjtds@example.invalid"]);
+    zjjtds_git(&hippodrome, &["config", "user.name", "jjtds"]);
+    zjjtds_commit_all(&hippodrome, "base.txt", "base", "init");
+    let bare_url = bare.to_string_lossy().into_owned();
+    zjjtds_git(&hippodrome, &["remote", "add", "origin", &bare_url]);
+    zjjtds_git(&hippodrome, &["push", "-q", "-u", "origin", ZJJTDS_TRUNK]);
+
+    zjjtds_found_studbook(infield.path(), &bare_url);
+    (infield, hippodrome)
+}
+
+/// A standalone founded studbook, for the door's currency step in isolation.
+/// Returns the guard, the bare remote's path, and the local clone's config.
+fn zjjtds_studbook_only(name: &str) -> (JjkTestDir, PathBuf, jjdb_BlotterConfig) {
+    let td = JjkTestDir::new(name);
+    let config = zjjtds_found_studbook(td.path(), "ssh://example.invalid/sire");
+    let bare = td.path().join("studbook_upstream");
+    (td, bare, config)
+}
+
+#[test]
+fn jjtds_plan_over_studbook_reads_both_from_the_pin_touching_no_worktree_gallops() {
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_plan_over");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    assert!(!hippodrome.join(".claude/jjm").exists(), "the fixture must carry no in-repo gallops");
+
+    // Behind the seam (over_studbook = true, const still false), gallops and
+    // pedigree both resolve from the studbook's pinned snapshot.
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
+    assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("AAAAA".to_string()));
+    assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
+    assert_eq!(plan.opening_prompt, "mount ₢AAAAA");
+    assert_eq!(plan.trunk, ZJJTDS_TRUNK, "the trunk comes from the pinned pedigree");
+
+    // The frozen path has no in-repo gallops to read here, so it refuses — proof
+    // the enabled read really came from the studbook, not a stray local store.
+    assert!(matches!(
+        jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false),
+        Err(jjrds_Rejection::BadTarget { .. })
+    ));
+}
+
+#[test]
+fn jjtds_currency_glean_makes_a_consigned_write_visible_to_the_next_pin() {
+    let (td, bare, config) = zjjtds_studbook_only("jjtds_currency_seen");
+    let pin_before = jjdb_pin(&config).unwrap();
+
+    // A second station clones the studbook remote and lands a new commit on trunk.
+    let other = td.path().join("other_station");
+    zjjtds_git(td.path(), &["clone", "-q", "-b", ZJJTDS_STUDBOOK_TRUNK, &bare.to_string_lossy(), &other.to_string_lossy()]);
+    zjjtds_git(&other, &["config", "user.email", "jjtds@example.invalid"]);
+    zjjtds_git(&other, &["config", "user.name", "jjtds-other"]);
+    let new_tip = zjjtds_commit_all(&other, "note.txt", "a later write", "another station writes");
+    zjjtds_git(&other, &["push", "-q", "origin", ZJJTDS_STUDBOOK_TRUNK]);
+
+    // Before the door gleans, our clone's pin has not moved.
+    assert_eq!(jjdb_pin(&config).unwrap(), pin_before, "no glean yet → the pin is stale");
+
+    // The door's currency step gleans; the next pin now sees the consigned write.
+    jjrds_currency(&jjrfg_PlainGit, &config, Duration::ZERO).unwrap();
+    assert_eq!(jjdb_pin(&config).unwrap(), new_tip, "after the door glean the next pin is current");
+    assert_ne!(new_tip, pin_before);
+}
+
+#[test]
+fn jjtds_currency_refuses_on_an_unreachable_glean() {
+    let (_td, _bare, config) = zjjtds_studbook_only("jjtds_currency_unreachable");
+    zjjtds_git(&config.local_root, &["remote", "set-url", "origin", "/nonexistent/jjtds-nowhere"]);
+
+    assert!(matches!(
+        jjrds_currency(&jjrfg_PlainGit, &config, Duration::ZERO),
+        Err(jjrds_Rejection::StudbookUnreachable { .. })
+    ));
+}
+
+#[test]
+fn jjtds_currency_refuses_a_flying_guidon_naming_the_holder() {
+    let (_td, _bare, config) = zjjtds_studbook_only("jjtds_currency_guidon");
+    let holder = "station=other op=writing";
+    jjrfg_PlainGit.jjrfr_stake(&config.local_root, holder).unwrap();
+
+    match jjrds_currency(&jjrfg_PlainGit, &config, Duration::ZERO) {
+        Err(jjrds_Rejection::WriteInFlight { holder: seen }) => assert_eq!(seen, holder),
+        other => panic!("a flying guidon must refuse WriteInFlight, naming the holder; got {:?}", other),
+    }
+
+    // Release the remote lock the test staked.
+    jjrfg_PlainGit.jjrfr_pluck(&config.local_root, holder).unwrap();
 }

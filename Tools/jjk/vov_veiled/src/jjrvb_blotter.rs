@@ -305,7 +305,62 @@ pub const JJDB_GALLOPS_OVER_STUDBOOK_ENABLED: bool = false;
 
 /// The gallops file's fixed relative path within the studbook — its first
 /// tenant (`jjdb_studbook` Scope at birth).
-const ZJJDB_GALLOPS_REL_PATH: &str = "gallops.json";
+pub const JJDB_GALLOPS_REL_PATH: &str = "gallops.json";
+
+// ---- Pinned-snapshot ref-read (the read path, object-database only) ----
+
+/// Run `git -C root <args>` for a read, returning raw stdout bytes on success
+/// and git's stderr as the error on any non-zero exit. Reaches straight to git,
+/// same as the founding ceremony (`zjjrvb_found_git`): the read path is a plain
+/// object-database query the farrier trait carries no op for, and this engine —
+/// like founding — is not the vocabulary Palisade's concern. A spawn failure is
+/// an environment precondition violation, not a classified outcome, so it panics.
+fn zjjdb_read_git(root: &Path, args: &[&str]) -> Result<Vec<u8>, String> {
+    let out = std::process::Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(args)
+        .output()
+        .unwrap_or_else(|e| panic!("jjdb ref-read: git spawn failed for -C {} {:?}: {}", root.display(), args, e));
+    if !out.status.success() {
+        return Err(format!(
+            "git -C {} {:?} failed: {}",
+            root.display(),
+            args,
+            String::from_utf8_lossy(&out.stderr).trim()
+        ));
+    }
+    Ok(out.stdout)
+}
+
+/// Pin the studbook's read snapshot: resolve the SHA that the fetched
+/// remote-tracking ref `refs/remotes/origin/<trunk>` points at. Pure-local —
+/// reads the ref store, never the network: the dispatch door's glean is what
+/// advances the ref, and every read taken behind a single pin sees one coherent
+/// commit. This strengthens `jjdk_lockless_reads` — the read touches only the
+/// object database, never the studbook working tree (writer-only scratch under
+/// the journal lock).
+pub fn jjdb_pin(config: &jjdb_BlotterConfig) -> Result<String, String> {
+    let refname = format!("refs/remotes/{}/{}", "origin", config.trunk);
+    let out = zjjdb_read_git(&config.local_root, &["rev-parse", "--verify", &refname])?;
+    let sha = String::from_utf8(out)
+        .map_err(|e| format!("git rev-parse of {} returned non-UTF-8: {}", refname, e))?
+        .trim()
+        .to_string();
+    if sha.is_empty() {
+        return Err(format!("studbook clone at {} has no {} — glean it before pinning", config.local_root.display(), refname));
+    }
+    Ok(sha)
+}
+
+/// Read one tenant blob from a pinned snapshot: `git -C local_root show
+/// <pin>:<rel>`. Object-database only — never the working tree, so a read is
+/// blind to any uncommitted studbook state and to the writer-only scratch the
+/// journal ceremony mutates under lock. `rel_path` is a studbook-relative posix
+/// path (a wire constant like `JJDB_GALLOPS_REL_PATH`, never a station path).
+pub fn jjdb_read_pinned(config: &jjdb_BlotterConfig, pin: &str, rel_path: &str) -> Result<Vec<u8>, String> {
+    zjjdb_read_git(&config.local_root, &["show", &format!("{}:{}", pin, rel_path)])
+}
 
 /// Persist a Gallops through the studbook's journal ceremony. Reuses
 /// `jjdr_save`'s atomic write plus load-back validation unchanged (the old
@@ -321,19 +376,24 @@ pub fn jjdb_gallops_journal_save<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     message: String,
 ) -> Result<String, jjrfr_Rejection> {
     jjdb_journal(farrier, config, guidon, |root| {
-        let path = root.join(ZJJDB_GALLOPS_REL_PATH);
+        let path = root.join(JJDB_GALLOPS_REL_PATH);
         crate::jjri_io::jjdr_save(gallops, &path)
             .unwrap_or_else(|e| panic!("jjdb_gallops_journal_save: jjdr_save failed at {}: {}", path.display(), e));
-        (vec![PathBuf::from(ZJJDB_GALLOPS_REL_PATH)], message)
+        (vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], message)
     })
 }
 
-/// Load a Gallops from the studbook via the lock-free read path. Reuses
-/// `jjdr_load` unchanged (round-trip, reprieve, and semantic validation all
-/// carry over) pointed at the studbook's local clone instead of a consumer
-/// repo's `.claude/jjm/`.
+/// Load a Gallops from the studbook via ref-read: pin the fetched snapshot, then
+/// read `gallops.json` from that one commit's object database — never the
+/// studbook working tree. Reuses `jjdr_hark` (the read-only, never-re-saved
+/// sibling of `jjdr_load`: same deserialize, reprieve write-forward, and
+/// semantic validation, round-trip check stood down since the pinned bytes are
+/// never saved back) — a read mutates nothing, so the working-tree freshen the
+/// old path implied is gone entirely.
 pub fn jjdb_gallops_journal_load(
     config: &jjdb_BlotterConfig,
 ) -> Result<crate::jjri_io::jjdr_ValidatedGallops, String> {
-    crate::jjri_io::jjdr_load(&config.local_root.join(ZJJDB_GALLOPS_REL_PATH))
+    let pin = jjdb_pin(config)?;
+    let bytes = jjdb_read_pinned(config, &pin, JJDB_GALLOPS_REL_PATH)?;
+    crate::jjri_io::jjdr_hark(&bytes)
 }
