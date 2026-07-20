@@ -13,7 +13,7 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 const JJRFU_CMD_NAME_FURLOUGH: &str = "jjx_furlough";
 
 use crate::jjrf_favor::jjrf_Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops, jjrg_FurloughArgs};
+use crate::jjrg_gallops::jjrg_FurloughArgs;
 use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 /// Arguments for jjx_furlough command
@@ -57,7 +57,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs) -> (i32, String) {
         }
     };
 
-    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);

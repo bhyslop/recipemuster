@@ -12,7 +12,6 @@
 use std::path::PathBuf;
 use vvc::{vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Firemark};
-use crate::jjrg_gallops::{jjrg_Gallops};
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
@@ -51,7 +50,7 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, gazette: &mut jjrz_Gazette) -> (i3
     };
 
     // Getter mode: display paddock content
-    let gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);

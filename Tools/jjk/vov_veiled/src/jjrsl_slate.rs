@@ -13,7 +13,6 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 const JJRSL_CMD_NAME_ENROLL: &str = "jjx_enroll";
 
 use crate::jjrf_favor::jjrf_Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops};
 use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 /// Arguments for jjx_slate command
@@ -74,7 +73,7 @@ pub fn jjrsl_run_slate(
 
     let text = docket;
 
-    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);

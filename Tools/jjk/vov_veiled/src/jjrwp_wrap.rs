@@ -217,7 +217,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
 
     // Transition pace state to complete
     let gallops_path = PathBuf::from(".claude/jjm/jjg_gallops.json");
-    let mut gallops = match jjrg_Gallops::jjrg_load(&gallops_path) {
+    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&gallops_path) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);

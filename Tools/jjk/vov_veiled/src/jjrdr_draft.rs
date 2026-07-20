@@ -14,7 +14,6 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 const JJRDR_CMD_NAME_DRAFT: &str = "jjx_draft";
 
 use crate::jjrf_favor::jjrf_Firemark;
-use crate::jjrg_gallops::jjrg_Gallops;
 use crate::jjri_io::jjri_paddock_path;
 use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
@@ -60,7 +59,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs) -> (i32, String) {
         }
     };
 
-    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);

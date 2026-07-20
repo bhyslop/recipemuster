@@ -41,11 +41,12 @@ use crate::jjrrs_restring::{jjrrs_RestringArgs, jjrrs_run};
 use crate::jjrld_landing::{jjrld_LandingArgs, jjrld_run_landing};
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, JJRZ_SLUG_HALTER, jjrz_parse_slate_input, jjrz_parse_paddock_input, jjrz_parse_halter_input, jjrz_parse_batch_input};
 use crate::jjrg_gallops::{jjrg_slate, jjrg_curry_apply};
-use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort};
+use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, jjrg_Gallops};
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
-use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_Rejection, jjrfr_Seat};
+use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrrd_refit::jjrrd_run_refit;
+use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 /// The officia directory's fixed relative path — reused by the muck sweep's
@@ -119,6 +120,94 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
 
 fn gallops_pathbuf() -> PathBuf {
     PathBuf::from(GALLOPS_PATH)
+}
+
+// ============================================================================
+// Command-surface gallops read (enablement seam — build-gap rescope, read half)
+// ============================================================================
+
+/// Derive the station's infield root (the hippodrome/billet tree's parent)
+/// from `cwd`, per JJSVF's officium-open composition — factored out of
+/// `zjjrm_open_staleness_notice` so every studbook-seam call site here shares
+/// one derivation rather than each re-deriving its own variant.
+pub(crate) fn zjjrm_infield_root<F: jjrfr_FarrierCore>(farrier: &F, cwd: &Path) -> Option<PathBuf> {
+    let identity = farrier.jjrfr_identify(cwd).ok()?;
+    let hippodrome_root = match &identity.seat {
+        jjrfr_Seat::Primary => identity.root.clone(),
+        jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
+    };
+    hippodrome_root.parent().map(|p| p.to_path_buf())
+}
+
+/// The testable seam branch — mirrors `jjrds_plan`'s `over_studbook` idiom
+/// (`jjrds_spine.rs`): a test drives `over_studbook` true against a fixture
+/// studbook config while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` itself stays
+/// false. Off: loads `path` exactly as every `jjx_*` command always has —
+/// byte-identical. On: ignores `path` and ref-reads the studbook's pinned tip
+/// instead (`jjdb_gallops_journal_load` — no glean, no lock, JJSVJ; the local
+/// clone as it stands, per the build-gap rescope's currency-at-read ruling).
+/// A missing or unreadable clone surfaces its error here — a loud refusal,
+/// never a silent fallback to `path`.
+pub(crate) fn zjjrm_load_gallops_over(
+    over_studbook: bool,
+    path: &Path,
+    studbook: &jjdb_BlotterConfig,
+) -> Result<jjrg_Gallops, String> {
+    if over_studbook {
+        jjdb_gallops_journal_load(studbook).map(|vg| vg.into_inner())
+    } else {
+        jjrg_Gallops::jjrg_load(path)
+    }
+}
+
+/// Command-surface gallops read — every `jjx_*` command's load funnels
+/// through here (`jjrm_mcp.rs`'s own handlers directly; the dozen
+/// `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`).
+/// Honors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (`jjrvb_blotter.rs`) — the
+/// same const the dispatch spine's `jjrds_plan` obeys via its own
+/// `over_studbook` parameter, so one flip moves every reader. Off (the
+/// compiled default, mainline-inert): a direct pass-through to
+/// `zjjrm_load_gallops_over(false, ...)`, which is exactly the pre-seam
+/// `jjrg_Gallops::jjrg_load(path)` call this replaced. On: derives the
+/// infield root fresh from `cwd` each call (cheap, pure-local path math —
+/// never a network glean; that ran once at `jjx_open`,
+/// `zjjrm_glean_studbook`) and ref-reads the studbook.
+///
+/// Deliberately NOT wired into `jjrno_nominate.rs` (jjx_create's
+/// load-or-init founding bootstrap) or any write/save half — those are the
+/// sibling founding-orchestrator and journal-command-writes paces' territory
+/// (paddock "Build-gap rescope"), not this read-repoint's.
+pub(crate) fn zjjrm_load_gallops(path: &Path) -> Result<jjrg_Gallops, String> {
+    if !JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        // The off branch never touches a studbook config — call `jjrg_load`
+        // directly rather than route through `zjjrm_load_gallops_over` with
+        // a throwaway config just to satisfy its signature.
+        return jjrg_Gallops::jjrg_load(path);
+    }
+    let cwd = std::env::current_dir()
+        .map_err(|e| format!("zjjrm_load_gallops: current_dir error: {}", e))?;
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .ok_or_else(|| "zjjrm_load_gallops: could not derive infield root from cwd".to_string())?;
+    let studbook = jjdb_studbook_config(&infield_root);
+    zjjrm_load_gallops_over(true, path, &studbook)
+}
+
+/// One-time studbook currency glean (seam-gated): the "one glean rides
+/// officium open per session" half of the build-gap rescope's
+/// currency-at-read ruling — every per-command ref-read the session takes
+/// afterward (`zjjrm_load_gallops`) is pure-local against whatever this
+/// glean lands. Read-only: no lock, no write-in-flight check (that guard is
+/// `jjrds_currency`'s, ahead of a journal write — a different concern from
+/// this session-open concern ahead of a series of ref-reads). Parameterized
+/// like the load functions above for direct unit testing.
+pub(crate) fn zjjrm_glean_studbook<F: jjrfr_FarrierCore>(farrier: &F, studbook: &jjdb_BlotterConfig) -> Result<(), String> {
+    if farrier.jjrfr_glean(&studbook.local_root) == jjrfr_GleanOutcome::Unreachable {
+        return Err(format!(
+            "zjjrm_glean_studbook: studbook unreachable at {}",
+            studbook.local_root.display()
+        ));
+    }
+    Ok(())
 }
 
 // ============================================================================
@@ -235,7 +324,7 @@ fn zjjrm_dispatch_inner_msg(
     };
 
     let gallops_path = gallops_pathbuf();
-    let mut gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_path) {
+    let mut gallops = match zjjrm_load_gallops(&gallops_path) {
         Ok(g) => g,
         Err(e) => {
             return Ok(CallToolResult::error(vec![Content::text(
@@ -1486,7 +1575,7 @@ fn zjjrm_lede_firemark(lede: &str) -> Option<String> {
         crate::jjrf_favor::JJRF_FIREMARK_LEN => crate::jjrf_favor::jjrf_Firemark::jjrf_parse(lede).ok().map(|f| f.jjrf_display()),
         crate::jjrf_favor::JJRF_CORONET_LEN => {
             let coronet = crate::jjrf_favor::jjrf_Coronet::jjrf_parse(lede).ok()?;
-            let gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()).ok()?;
+            let gallops = zjjrm_load_gallops(&gallops_pathbuf()).ok()?;
             gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
         }
         _ => None,
@@ -1583,7 +1672,7 @@ fn zjjrm_resolve_emblem_marker(identity: &str) -> jjrm_EmblemMarker {
         pace_silks: None,
         heat_silks: String::new(),
     };
-    let gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()) {
+    let gallops = match zjjrm_load_gallops(&gallops_pathbuf()) {
         Ok(g) => g,
         Err(_) => return marker,
     };
@@ -2034,11 +2123,7 @@ pub(crate) fn zjjrm_open_staleness_notice<F: jjrfr_FarrierCore + jjrfr_FarrierBi
     cwd: &Path,
 ) -> Option<String> {
     let identity = farrier.jjrfr_identify(cwd).ok()?;
-    let hippodrome_root = match &identity.seat {
-        jjrfr_Seat::Primary => identity.root.clone(),
-        jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
-    };
-    let infield_root = hippodrome_root.parent()?.to_path_buf();
+    let infield_root = zjjrm_infield_root(farrier, cwd)?;
     let derived_key = identity.upstream_key.as_deref()?;
     let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
     let pedigree = crate::jjrds_spine::jjrds_pedigree_lookup(
@@ -2077,6 +2162,27 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
     // warning and names refit as the remedy"). Non-gating — see the helper.
     if let Some(notice) = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &cwd) {
         vvco_out!(output, "{}", notice);
+    }
+
+    // Studbook currency glean (seam-gated, build-gap rescope currency-at-read
+    // ruling): "one glean rides officium open per session" — every
+    // per-command read this session takes afterward (`zjjrm_load_gallops`)
+    // is a pure-local ref-read against whatever this glean lands. Off (the
+    // compiled default): dead code, no glean, no behavior change. On: unlike
+    // the staleness lead above, this is gating — a failed glean seats a
+    // session behind a studbook clone nothing can advance, so open refuses
+    // loud and delivers no officium rather than risk every later read
+    // working off a store that never even fetched once.
+    if JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        let Some(infield_root) = zjjrm_infield_root(&jjrfg_PlainGit, &cwd) else {
+            return Ok(CallToolResult::error(vec![Content::text(format!(
+                "{}: could not derive infield root from cwd for studbook glean", cn
+            ))]));
+        };
+        let studbook = jjdb_studbook_config(&infield_root);
+        if let Err(e) = zjjrm_glean_studbook(&jjrfg_PlainGit, &studbook) {
+            return Ok(CallToolResult::error(vec![Content::text(format!("{}: {}", cn, e))]));
+        }
     }
 
     // Disk space guard — block before any state changes
@@ -2191,7 +2297,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
                 )]));
             }
         };
-        let gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_path) {
+        let gallops = match zjjrm_load_gallops(&gallops_path) {
             Ok(g) => g,
             Err(e) => {
                 let _ = std::fs::remove_dir_all(&exchange);
@@ -2406,7 +2512,7 @@ pub(crate) fn zjjrm_judge_designation(
 /// the record/landing guard for sub-frontier callers (frontier callers are
 /// unrestricted on those commands and never reach this). Read-only.
 fn zjjrm_check_designation(cmd: &str, coronet: &str, caller: zjjrm_CallerTier) -> Result<(), String> {
-    let gallops = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf())
+    let gallops = zjjrm_load_gallops(&gallops_pathbuf())
         .map_err(|e| format!("jjx {}: error loading Gallops for designation guard: {}", cmd, e))?;
     let ctx = gallops.jjrg_resolve_pace(coronet)
         .map_err(|e| format!("jjx {}: {}", cmd, e))?;
@@ -2850,7 +2956,7 @@ impl jjrm_McpServer {
                 // Load gallops once to scan reslate coronets to their live heats
                 // (JJS0 jjdt_coronet Resolution); the mutation reloads under lock.
                 let firemark = {
-                    let scan_gallops = match crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()) {
+                    let scan_gallops = match zjjrm_load_gallops(&gallops_pathbuf()) {
                         Ok(g) => g,
                         Err(e) => return Ok(CallToolResult::error(vec![Content::text(
                             format!("{}: error loading Gallops: {}", cmd, e),
@@ -3070,7 +3176,7 @@ impl jjrm_McpServer {
                     };
                     // Resolve the pace's live heat by paces-scan (JJS0 jjdt_coronet
                     // Resolution) for the commit affiliation.
-                    let resolved = crate::jjrg_gallops::jjrg_Gallops::jjrg_load(&gallops_pathbuf()).ok()
+                    let resolved = zjjrm_load_gallops(&gallops_pathbuf()).ok()
                         .and_then(|g| g.jjrg_heat_key_of_coronet(&coronet_parsed.jjrf_display()))
                         .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok());
                     match resolved {

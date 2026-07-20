@@ -17,7 +17,6 @@ use vvc::{vvco_out, vvco_err};
 const JJRRL_CMD_NAME_REORDER: &str = "jjx_reorder";
 
 use crate::jjrf_favor::jjrf_Firemark;
-use crate::jjrg_gallops::jjrg_Gallops;
 
 /// Arguments for jjx_rail command
 #[derive(Args, Debug)]
@@ -82,7 +81,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs) -> (i32, String) {
         args.order.clone()
     };
 
-    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
