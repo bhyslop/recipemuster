@@ -8232,8 +8232,9 @@
         "₢BzAAE": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0830",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260719-2032",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_fable",
               "jjgtn_text": [
                 "## Goal",
                 "Run the ACGm_107 skidmark move across the spec corpus:",
@@ -8262,7 +8263,7 @@
                 "RBSCJ's drain is either landed under the fable ruling or explicitly declined."
               ],
               "jjgtn_silks": "skidmark-drain",
-              "jjgtn_basis": "feb2a50"
+              "jjgtn_basis": "d367cb1"
             }
           ]
         },
