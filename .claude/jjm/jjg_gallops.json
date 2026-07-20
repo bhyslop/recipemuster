@@ -1,7 +1,8 @@
 {
-  "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAe",
+  "jjgrn_next_heat_seed": "B8",
+  "jjgrn_next_pace_seed": "CAAAn",
   "jjgrn_heat_order": [
+    "₣B2",
     "₣Bz",
     "₣B5",
     "₣B3",
@@ -33,7 +34,7 @@
     "₣BI",
     "₣BL",
     "₣Ba",
-    "₣B2"
+    "₣B7"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -4258,7 +4259,7 @@
     "₣B2": {
       "jjghn_silks": "rbk-15-r02-small-cleanups",
       "jjghn_creation_time": "260713",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢B2AAA",
         "₢B2AAB",
@@ -4459,8 +4460,10 @@
         "₢CAAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2217",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260719-2222",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Implementation of a cinched design — a wide-ranging repair across code, regime, specs, and onboarding.",
@@ -4475,13 +4478,16 @@
                 "The conclave cohort already seals every tool these captures need",
                 "(`zrbfc_resolve_tool_images` in `rbfca_assembly.sh` names the member tags),",
                 "so the repair requires no cohort growth.",
-                "After the repair, the only floating builder rows in the system are conclave's own gcrane rows —",
+                "After the repair, the only floating builder rows among the build steps we author are conclave's own gcrane rows —",
                 "which restores `RBr_p7c`'s original claim (generation as the one floating phase) to truth.",
                 "",
                 "## Needed change",
                 "Elect a reliquary for vessel-less capture tooling via a single new RBRR field,",
                 "with render/validate coverage per the existing RBRR pattern",
                 "(mint the name at mount under lapidary; describe the role, never enumerate the kinds).",
+                "The field is born legal-empty (see Cinched), so the marshal-zero blank template carries it empty and un-elected stations still validate;",
+                "being an enrolled regime field, it also takes a site-vs-common proscription ruling in `rblm_lustrate.sh`'s table",
+                "(with sterile and feigned values if site-scoped) — damnatio follows that table automatically.",
                 "Provide its express-or-chain writer — extending the post-conclave yoke gesture or minting a sibling verb is a mount-time decision.",
                 "Rework the underpin and immure recipes to resolve gcloud/docker/gcrane from the elected reliquary;",
                 "retire the floating constants this strands, leaving the gcrane bootstrap constant conclave-only.",
@@ -4491,30 +4497,32 @@
                 "Sweep the spec sheaves and onboarding for the old floating story and the new conclave-then-elect ordering:",
                 "`grep -rln 'RBr_p7c\\|GCRANE_BUILDER' Tools/rbk/vov_veiled/` and",
                 "`grep -rln 'underpin\\|immure\\|conclave' Tools/rbk/rbh0/` are the discovery recipes, not a site list.",
+                "Note the settled ruling in the memo's Status stanza so memo and docket tell one story.",
                 "",
                 "## Cinched",
                 "- Reliquary route, not digest-pin-in-place: the vessel-less captures (wsl underpin, podvm immure) resolve pinned tools from a reliquary elected by one shared repo-regime (RBRR) field. Ruled in discussion 2026-07-19.",
                 "- The election is durable committed regime, written express-or-chain with the operator committing — never chain-consumed transiently at capture time, never per-kind fields, never skeleton vessel regimes for the vessel-less kinds.",
-                "- Do not revert bole's pinned resolution; conclave's float stays accepted and becomes the system's only floating rows.",
+                "- The field is legal-empty until elected: shape-validated when present, and a vessel-less capture attempted against an empty election rejects loud with a named precision-band code at use time — the `RBRV_RELIQUARY` precedent, never a required-at-validation field.",
+                "- Do not revert bole's pinned resolution; conclave's float stays accepted and becomes the sole remaining floating rows.",
                 "- Fresh-depot ordering conclave → elect → capture is accepted as correct; onboarding and ladder surfaces reflect it rather than work around it.",
                 "- The self-attesting vouch structure (the capture step writes its own envelope) is out of scope.",
                 "",
                 "## Done when",
                 "underpin and immure resolve every builder image from the elected reliquary — at least one capture demonstrated live against a real depot — and the only floating builder rows left are conclave's;",
-                "the RBRR field renders and validates, and its writer works express-or-chain under the uncommitted-write / operator-commit discipline;",
+                "the RBRR field renders and validates (empty and elected both), its writer works express-or-chain under the uncommitted-write / operator-commit discipline, and its proscription ruling stands in the lustrate table;",
                 "`rbsk_pinning_boundary` and `RBr_p7c` describe the pinned reality truthfully with every citation landing on a covering home;",
                 "spec sheaves and onboarding tell the new story;",
-                "picket + regime-poison green (regime and foundry surfaces both touched);",
+                "picket + regime-poison green — regime-poison extended to the new field if its validation warrants a negative case;",
                 "any bash touched is BCG-compliant and `tt/rbw-tl.Shellcheck.sh` lands clean."
               ],
               "jjgtn_silks": "pin-vessel-less-capture-tools",
-              "jjgtn_basis": "5c4a262"
+              "jjgtn_basis": "89f710a"
             }
           ],
           "jjgpn_dictation": "Would you write a memo detailing all of these findings and then slate a pace in B2 to resolve this? While I want you to name the memo in the new pace, keep the docket from getting into the cryptographic attack vector- we just need to work out a right way to use a reliquary for these operations, I think.",
           "jjgpn_precis": "The pinning-boundary spec claims wsl/podvm captures resolve a pinned gcrane; they actually float on a mutable-tag builder because they are vessel-less (no reliquary slot). Resolve the gap — work out how these captures obtain pinned (ideally reliquary-resolved) tool images — and correct the RBS0 premise and RBr_p7c wording to match. Full findings and the security rationale live in the named memo; keep the docket to the design question, not the attack vector.",
           "jjgpn_slated": "260719-2157",
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         }
       }
     },
@@ -5122,7 +5130,7 @@
         "₢CAAAL",
         "₢CAAAc",
         "₢CAAAb",
-        "₢CAAAd",
+        "₢CAAAe",
         "₢CAAAM"
       ],
       "jjghn_paces": {
@@ -5380,7 +5388,7 @@
           "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row, minted ₢CAAAa concurrently with another clone's B3 slate, was lost when the merged store took gamma's side; the work itself is complete and committed, W commit 40d00caa9).\nThe first live jog surfaced a census that was mechanically sound but noise-dominated in three classes\n(historical-prose sites, per-file shell locals, sub-signet fragments);\nthis pace ruled each class through scope, recognition, or grade —\ndeepening the tool through use before the index-render pace trusts the census.",
           "jjgpn_slated": "260719-2141"
         },
-        "₢CAAAd": {
+        "₢CAAAe": {
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2217",
@@ -5646,6 +5654,275 @@
           "jjgpn_precis": "Fully absorb expede + perambulation into the hierophant crate (Rust) so the conductor owns its own cut in-process rather than sequencing bash workers — the caller graph confirms one durable caller each (expede←essai, perambulation←expede), so it simplifies rather than complicates.\nOne bold pace, not incremental baby steps; proven by the ported planted-leak + totality self-proof tests rather than gated on real release service; retires the standalone bash cut as its stated purpose.\nOperator will have fable critically review this docket.",
           "jjgpn_slated": "260718-1019",
           "jjgpn_redocket_count": 1
+        }
+      }
+    },
+    "₣B7": {
+      "jjghn_silks": "jjk-16-implement-grimoire",
+      "jjghn_creation_time": "260719",
+      "jjghn_status": "jjghe_stabled",
+      "jjghn_order": [
+        "₢CAAAf",
+        "₢CAAAg",
+        "₢CAAAh",
+        "₢CAAAi",
+        "₢CAAAj",
+        "₢CAAAk",
+        "₢CAAAl",
+        "₢CAAAm"
+      ],
+      "jjghn_paces": {
+        "₢CAAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2303",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "GATE: do not mount until ₣B5 (implement-matricula) has wrapped — operator ruling at slate.",
+                "Honor the slate-time authority from the retired grimoire mulling heat",
+                "(`.claude/jjm/retired/jjh_b260707-r260717-jjk-12-aspirant-grimoire.md`):",
+                "hand-run the grimoire row schema over a dozen standing verbs",
+                "spanning authority-bearing, operator-plain, intransitive, plain-compound, the destruction family, and the read family —",
+                "before any implementation pace.",
+                "Schema under test: VOSMM-entity.adoc, Grimoire deferred sketch — the toothing slots and clause-grammar landing, the four-value mint-status tag, the flat-row doctrine.",
+                "Findings amend the doctrine home (MCM's clause grammar in Lapidary) on evidence,",
+                "or rule no-change explicitly;",
+                "the sketch's row shape is corrected in place if the census demands it.",
+                "No code in this pace.",
+                "",
+                "## Done when",
+                "A dozen verbs across the six families have authored rows on the candidate schema;",
+                "the findings are applied to MCM's clause grammar or explicitly ruled no-change;",
+                "and the validated row schema is recorded in the VOSMM sketch — the standing accretion point — for the promotion pace to carry into the new home."
+              ],
+              "jjgtn_silks": "grimoire-sample-census",
+              "jjgtn_basis": "34b8730"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The operator wants the current grimoire concept implemented as its own heat rather than appended to ₣B5, with the first pace gated on the matricula heat's completion; this pace honors the retired mulling heat's slate-time authority that the hand-run sample census precedes all implementation.",
+          "jjgpn_slated": "260719-2257",
+          "jjgpn_redocket_count": 1
+        },
+        "₢CAAAg": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2303",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Promote the grimoire out of VOSMM's deferred scope into a sheaf of its own —",
+                "the parceling VOSMM defers to \"when the matricula itself ascends\", satisfied by this heat's gate.",
+                "Carry over whole: the charter lean (governed words — minted-with-forms or blocked-with-status),",
+                "the jobs, the residence ruling (studbook third tenant),",
+                "the flat-row doctrine,",
+                "the four-value mint-status tag with the MCM category riding as provenance,",
+                "the toothing slots and clause-grammar landing,",
+                "the reserved-word migration intent,",
+                "and the sample-census findings from the preceding pace.",
+                "VOSMM's grimoire section reduces to a pointer at the new home and restates nothing.",
+                "The sketch's recorded open items settle here with the operator —",
+                "the accepted-homograph durable record, the widened single table vs sibling table, and the durable-document set the read-side jobs scan —",
+                "because later paces in this heat consume all three;",
+                "banking them as an open mulling surface would re-gate the rest of the heat.",
+                "An open mulling surface may remain only for content no pace in this heat consumes.",
+                "Home and acronym are mount-time judgments taken with the operator, minted under CLAUDE.md prefix discipline;",
+                "the register must leave the consumed rulings binding — aspirant status for the whole sheaf would re-gate implementation.",
+                "",
+                "## Done when",
+                "The grimoire has one sheaf home carrying the whole current concept;",
+                "the rulings this heat's later paces consume are settled and binding in it;",
+                "VOSMM's deferred-scope section points there and restates nothing;",
+                "and no other file still carries grimoire design authority."
+              ],
+              "jjgtn_silks": "grimoire-sheaf-promotion",
+              "jjgtn_basis": "34b8730"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "Implementing the current concept requires a settled spec home of its own; the sketch's terms defer promotion until the matricula ascends, which this heat's ₣B5 gate satisfies, so the promotion is cut as the pace after the census.",
+          "jjgpn_slated": "260719-2257",
+          "jjgpn_redocket_count": 1
+        },
+        "₢CAAAh": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "GATE: needs the studbook standing — ₣B3 (studbook conversion) far enough that the store's journal-ceremony write path and lockless read path are live.",
+                "Seat the grimoire as the studbook's third tenant per the residence ruling:",
+                "the one flat table at its store home,",
+                "row appends riding the journal ceremony (JJSVJ-journal.adoc) under the store lock,",
+                "reads riding the lockless staleness-tolerant path (JJSVB-blotter.adoc).",
+                "Widening the studbook's scope-at-birth roster is part of this act (JJSVS-studbook.adoc).",
+                "Table file format and physical shape are mount-time decisions against the promoted sheaf's schema.",
+                "First content: the sample-census rows.",
+                "",
+                "## Done when",
+                "The table exists in the studbook carrying the sample-census rows;",
+                "a row append lands through the journal ceremony;",
+                "and a reader reaches the rows through the lockless path."
+              ],
+              "jjgtn_silks": "grimoire-studbook-tenancy",
+              "jjgtn_basis": "fab8026"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The residence ruling seats the table in the studbook as its third tenant; implementation proper begins by standing up that tenancy on the store's native write and read paths.",
+          "jjgpn_slated": "260719-2257"
+        },
+        "₢CAAAi": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The self-maintaining mint gate — the highest-frequency job in operator practice (the worked-census frequency fact):",
+                "at mint time, test a candidate word and its every inflection against the seated forms.",
+                "The gate's input IS an authored row — the candidate word and its forms, the linguistic act a mind performs at probe time —",
+                "and adoption appends that row to the table in the same act;",
+                "a rejected candidate's row is discarded with its verdict ledgered.",
+                "Exact match only (VOr_m7w); the meaning verdict stays the operator's.",
+                "Concept home: the promoted grimoire sheaf (formerly the VOSMM sketch).",
+                "Tool placement and invocation surface are mount-time decisions against the matricula as ₣B5 built it.",
+                "",
+                "## Done when",
+                "The gate runs against the live studbook table,",
+                "reports collisions across a candidate's full form set,",
+                "and an accepted candidate's row is appended through the store write path in the same act,",
+                "with a rejected candidate's verdict ledgered."
+              ],
+              "jjgtn_silks": "grimoire-mint-gate",
+              "jjgtn_basis": "43a6412"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The gate is the self-maintaining writer of the table and the job the operator reaches for most often; building it before bulk population gives the convergence act its row machinery.",
+          "jjgpn_slated": "260719-2258"
+        },
+        "₢CAAAj": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The reprieve-shaped convergence: populate rows for the standing word stock in one deliberate act —",
+                "new mints already comply from the doctrine's landing via the mint gate.",
+                "Includes the reserved-word membership migration:",
+                "the Seed: word lists inside MCM's withheld-word and antipattern definitions",
+                "(mcm_hallowed_word, mcm_fallow_word, mcm_furrowed_word; mcm_trodden_word, mcm_leached_word)",
+                "move into the table under the four-value mint-status tag (disqualified / reserved / earmarked / minted),",
+                "the MCM category riding as provenance on the row,",
+                "and MCM's Seed: lines relax to pointers (ACG reference-the-home — words homed once, meaning kept at MCM).",
+                "Which standing minted words converge in this act is an operator election at mount.",
+                "Per-row retroactive sweeps of existing prose debut per-row at mint time, never big-bang — the population act itself does not lint.",
+                "",
+                "## Done when",
+                "The elected standing stock has rows in the live table;",
+                "the MCM Seed: memberships live only in the table, with MCM keeping each category's meaning and pointing here;",
+                "and the convergence is recorded as the one deliberate act the doctrine requires."
+              ],
+              "jjgtn_silks": "grimoire-standing-stock-convergence",
+              "jjgtn_basis": "49dcd0c"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The current concept requires one deliberate convergence of the standing stock — including the MCM Seed migration into the four-status table — rather than big-bang or drift.",
+          "jjgpn_slated": "260719-2258"
+        },
+        "₢CAAAk": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2303",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The read-side lints over the live table, matricula-side:",
+                "the missed-citation prose lint with its two verdict branches —",
+                "a hit is a missed citation (enquoin it) or an innocent homograph (reword or formally accept),",
+                "acceptance carried durably per the mechanism the promoted sheaf settled (the recorded lean: acceptance-by-domain on the row) —",
+                "and the blocked-word lint, the reserve-violation sign-flip of the same machinery.",
+                "The scan corpus is the durable-document set the promoted sheaf settled.",
+                "Detection is exact-match over row forms (VOr_m7w);",
+                "branch verdicts stay the operator's;",
+                "advisory always, never a gate (the sketch's spine precedent: a hallowed word legitimately seated).",
+                "Where these ride — a vom verb, a report section — is a mount-time decision against the matricula as ₣B5 built it.",
+                "",
+                "## Done when",
+                "A scan surfaces plain-prose hits of minted words and seated blocked words with their sites and branch prompts;",
+                "an accepted homograph stays accepted across re-scans via the settled acceptance mechanism;",
+                "and the output is advisory reporting, gating nothing."
+              ],
+              "jjgtn_silks": "grimoire-lint-jobs",
+              "jjgtn_basis": "34b8730"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The read-side lints — missed-citation and blocked-word — are payoff jobs of the concept, built as advisory matricula-side reads of the live table.",
+          "jjgpn_slated": "260719-2258",
+          "jjgpn_redocket_count": 1
+        },
+        "₢CAAAl": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Generate the human-presentation string constants for Rust and bash from the table,",
+                "then lint printed strings against them —",
+                "error output is operator-facing (ashlar), where word-care bites hardest.",
+                "Generated output may ride in shipped code;",
+                "the grimoire and its readers never ship,",
+                "and nothing delivered names the grimoire or the matricula (VOr_q4f name-hygiene).",
+                "Emission mechanics are mount-time decisions; the voff managed-section rail is the standing precedent.",
+                "",
+                "## Done when",
+                "Generated constants exist for at least one Rust and one bash consumer;",
+                "a printed-string lint reports drift from the table forms;",
+                "and delivered artifacts carry no grimoire or matricula naming."
+              ],
+              "jjgtn_silks": "grimoire-string-constants",
+              "jjgtn_basis": "bce3a8a"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The third job of the sketch: presentation constants generated from the table plus a printed-string lint, applying word-care where it is most operator-visible.",
+          "jjgpn_slated": "260719-2258"
+        },
+        "₢CAAAm": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2258",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "The make-room job: given a word, report its weighted footprint",
+                "(code identifiers > wire keys > spec quoins > prose)",
+                "and the ambient inventory of eviction-cheap seats —",
+                "the eviction-cost census behind \"free this excellent word for a better home\".",
+                "Footprint advises cost, never verdicts:",
+                "value stays the operator's judgment,",
+                "and the execute half is authorship — each prose site needs a written sentence — permanently manual, never a safe-reprefix sibling.",
+                "Concept home: the promoted grimoire sheaf.",
+                "",
+                "## Done when",
+                "The footprint report runs for a named word over the repo scan,",
+                "weights the seat classes as the doctrine orders them,",
+                "and stops at advice — no rename or eviction machinery."
+              ],
+              "jjgtn_silks": "grimoire-make-room-census",
+              "jjgtn_basis": "1b32ac6"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The make-room job joined the concept at the worked-census lean; it closes the heat as an advisory footprint report with no execution machinery.",
+          "jjgpn_slated": "260719-2258"
         }
       }
     },
