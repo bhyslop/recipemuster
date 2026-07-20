@@ -50,6 +50,28 @@ force a rebuild on a daily backstop cadence regardless.
   *which command to run*; it never learns dependency graphs or incremental
   compilation — that stays cargo's. JJ is the "should I bother, and with what"
   layer.
+- **Open gaps (enumerated 260720 for the API-sketch settling act; the staleness
+  surface joins the MVP only when these settle):**
+  1. *Artifact declaration.* No schema member names what `check_build` produces,
+     and the stamp needs an artifact (or list of them) to attach to. A new
+     tackle-grain member, skip-when-absent — a schema addition, which is why
+     this gap alone keeps staleness out of "clearly specified."
+  2. *Stamp content and home.* Lean: {roster fingerprint, artifact content hash}
+     in station-local scratch — per-clone derived state, so the
+     no-station-local-facts rivet bars the studbook; the exact directory rides
+     BUK station geography.
+  3. *Out-of-band rebuild detection.* If a build can happen without stamping (a
+     workbench run directly), stamps rot in the unsafe direction (stale stamp
+     reads as fresh). Recording the artifact hash in the stamp closes it
+     mechanically: current artifact hash ≠ stamped hash → verdict never fresh.
+  4. *Dirty-tree verdict.* Commit-before-build is the preferred discipline, but
+     the advisor needs a defined verdict when claimed files are dirty (lean:
+     indeterminate, never fresh — one-sidedness preserved).
+  5. *Invocation ownership.* Whether JJ wraps `check_build` in a
+     build-and-stamp verb, or the workbench cooperates via a stamp hook — the
+     rollout seam, and it decides who is allowed to mint a stamp at all.
+  The daily forced-rebuild cadence is policy atop the advisor and is explicitly
+  not MVP.
 
 ## 2. Build-invocation discipline (`--locked`, toolchain pin, path remap)
 
