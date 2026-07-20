@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B8",
-  "jjgrn_next_pace_seed": "CAAAf",
+  "jjgrn_next_pace_seed": "CAAAg",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -5661,8 +5661,43 @@
       "jjghn_silks": "jjk-16-implement-grimoire",
       "jjghn_creation_time": "260719",
       "jjghn_status": "jjghe_stabled",
-      "jjghn_order": [],
-      "jjghn_paces": {}
+      "jjghn_order": [
+        "₢CAAAf"
+      ],
+      "jjghn_paces": {
+        "₢CAAAf": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2257",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "GATE: do not mount until ₣B5 (implement-matricula) has wrapped — operator ruling at slate.",
+                "Honor the slate-time authority from the retired grimoire mulling heat",
+                "(`.claude/jjm/retired/jjh_b260707-r260717-jjk-12-aspirant-grimoire.md`):",
+                "hand-run the grimoire row schema over a dozen standing verbs",
+                "spanning authority-bearing, operator-plain, intransitive, plain-compound, the destruction family, and the read family —",
+                "before any implementation pace.",
+                "Schema under test: VOSMM-entity.adoc, Grimoire deferred sketch — the toothing slots and clause-grammar landing, the four-value mint-status tag, the flat-row doctrine.",
+                "Findings amend the doctrine home (MCM's clause grammar in Lapidary) on evidence,",
+                "or rule no-change explicitly;",
+                "the sketch's row shape is corrected in place if the census demands it.",
+                "No code in this pace.",
+                "",
+                "## Done when",
+                "A dozen verbs across the six families have authored rows on the candidate schema;",
+                "the findings are applied to MCM's clause grammar or explicitly ruled no-change;",
+                "and the validated row schema is recorded where the promotion pace will home it."
+              ],
+              "jjgtn_silks": "grimoire-sample-census",
+              "jjgtn_basis": "565011e"
+            }
+          ],
+          "jjgpn_dictation": "Would you read the grimoire sheaf?  I am musing we ought to add a sequence of paces to B5 to implement the grimoire concept.\n\nI have to go very soon.  Are you prepared to draft this new heat and dockets to implement current grimoire concept?  Okay to gate first pace on completion of matricula flavor.",
+          "jjgpn_precis": "The operator wants the current grimoire concept implemented as its own heat rather than appended to ₣B5, with the first pace gated on the matricula heat's completion; this pace honors the retired mulling heat's slate-time authority that the hand-run sample census precedes all implementation.",
+          "jjgpn_slated": "260719-2257"
+        }
+      }
     },
     "₣BG": {
       "jjghn_silks": "rbk-22-win-orchestration-scrub",
