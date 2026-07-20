@@ -152,7 +152,7 @@ fn zjjtdm_fixture(name: &str) -> (JjkTestDir, std::path::PathBuf, jjdb_BlotterCo
         ordinal_sigil: JJDB_CATCHWORD_SIGIL,
         ordinal_founding: JJDB_CATCHWORD_FOUNDING,
     };
-    jjdb_gallops_journal_save(&jjrfg_PlainGit, &studbook_config, "jjtdm-seed", &zjjtdm_gallops(), "seed gallops".to_string())
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &studbook_config, "jjtdm-seed", |_| zjjtdm_gallops(), "seed gallops".to_string())
         .unwrap();
 
     (infield, hippodrome, studbook_config)

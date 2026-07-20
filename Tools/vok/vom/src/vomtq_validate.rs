@@ -55,6 +55,87 @@ fn vomtq_planted_terminal_exclusivity_surfaces_exactly_one_presentment() {
 }
 
 #[test]
+fn vomtq_foreign_declarations_never_seat() {
+    // A foreign declaration (no project cipher prefix) is outside the mint
+    // universe: it must neither seat nor present, even when it collides or
+    // prefixes another foreign name (VOSMM "Classify by Subtraction": the
+    // ours-or-foreign gate is the project cipher).
+    let corpus = vec![
+        ("a.sh".to_string(), "TOKEN=x\nTOKEN_JSON=y\n".to_string()),
+        ("b.sh".to_string(), "TOKEN=z\n".to_string()),
+    ];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    assert!(census.vomrm_exact_collisions().is_empty());
+    assert!(census.vomrm_terminal_exclusivity().is_empty());
+}
+
+#[test]
+fn vomtq_tabtarget_formulary_never_presents_and_lands_estray() {
+    // The same config-line assignment across many tabtargets is formulary
+    // filling a protocol slot, not competing mints; the unhomed wire name
+    // surfaces as estray - the honest verdict.
+    let corpus = vec![
+        (
+            "tt/rbw-cC.Charge.tadmor.sh".to_string(),
+            "BURD_LAUNCHER=launcher.rbw_workbench.sh\n".to_string(),
+        ),
+        (
+            "tt/vow-b.Build.sh".to_string(),
+            "BURD_LAUNCHER=launcher.vow_workbench.sh\n".to_string(),
+        ),
+    ];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    assert!(census.vomrm_exact_collisions().is_empty());
+    assert!(census.vomrm_terminal_exclusivity().is_empty());
+    assert!(census.vomrm_estrays().contains("BURD_LAUNCHER"));
+}
+
+#[test]
+fn vomtq_same_family_duplicate_declaration_still_presents() {
+    // The home-file rule must not swallow true collisions: two modules of
+    // one family both declaring the same constant is a real duplicate.
+    let corpus = vec![
+        ("Tools/buk/burc_cli.sh".to_string(), "BURC_THING=1\n".to_string()),
+        ("Tools/buk/burc_regime.sh".to_string(), "BURC_THING=2\n".to_string()),
+    ];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    let collisions = census.vomrm_exact_collisions();
+    assert_eq!(collisions.len(), 1, "expected exactly one collision presentment");
+    assert_eq!(collisions[0].inscriptions, vec!["BURC_THING".to_string()]);
+}
+
+#[test]
+fn vomtq_cross_family_assignments_read_as_estray_not_collision() {
+    // A wire name set by two cooperating modules, homed in neither: no
+    // declaration anywhere, so it is an estray, never a collision.
+    let corpus = vec![
+        (
+            "Tools/buk/bud_dispatch.sh".to_string(),
+            "BURD_REGIME_FILE=x\n".to_string(),
+        ),
+        (
+            "Tools/buk/bul_launcher.sh".to_string(),
+            "BURD_REGIME_FILE=y\n".to_string(),
+        ),
+    ];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    assert!(census.vomrm_exact_collisions().is_empty());
+    assert!(census.vomrm_estrays().contains("BURD_REGIME_FILE"));
+}
+
+#[test]
 fn vomtq_clean_corpus_yields_no_presentments() {
     let corpus = vec![(
         "a.rs".to_string(),
@@ -66,6 +147,21 @@ fn vomtq_clean_corpus_yields_no_presentments() {
 
     assert!(census.vomrm_exact_collisions().is_empty());
     assert!(census.vomrm_terminal_exclusivity().is_empty());
+}
+
+#[test]
+fn vomtq_same_file_stem_and_content_declaration_is_one_mint() {
+    // A module named for its primary act: the file-stem envelope and the
+    // in-content declaration are one mint, never a collision.
+    let corpus = vec![(
+        "Tools/vok/vof/src/voftt_thing.rs".to_string(),
+        "pub fn voftt_thing() {}\n".to_string(),
+    )];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    assert!(census.vomrm_exact_collisions().is_empty());
 }
 
 #[test]

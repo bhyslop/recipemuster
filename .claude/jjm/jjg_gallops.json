@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAa",
+  "jjgrn_next_pace_seed": "CAAAd",
   "jjgrn_heat_order": [
     "₣Bz",
     "₣B5",
@@ -4465,6 +4465,7 @@
         "₢CAAAO",
         "₢CAAAP",
         "₢CAAAQ",
+        "₢CAAAa",
         "₢CAAAR",
         "₢CAAAS",
         "₢CAAAT",
@@ -4574,58 +4575,68 @@
         "₢CAAAQ": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1521",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260719-2043",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
-                "Complete the record-read repoint so ONE flip converts every reader.",
-                "The jjx surface already reads gallops-over-studbook behind",
-                "`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (built and tested, awaiting the cutover's flip),",
-                "but the dispatch spine's own target-resolution read (`jjrds_plan`)",
-                "still loads the hippodrome's in-repo gallops directly,",
-                "while the pedigree it reads beside it already comes from the studbook.",
-                "Repoint that second reader behind the same seam.",
-                "Source: ₣B3 paddock carry (Finding B, RECORD-READ REPOINT: two readers, not one).",
+                "Complete the record-read repoint so ONE flip converts every reader — via ref-read.",
+                "Both gallops readers",
+                "(the jjx surface's `jjdb_gallops_journal_load` and the dispatch spine's target-resolution read in `jjrds_plan`)",
+                "resolve, behind `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`,",
+                "from a pinned snapshot of the studbook clone's fetched remote-tracking ref —",
+                "the `origin/<trunk>` SHA resolved once, gallops and pedigrees both read from that one commit —",
+                "never from the studbook working tree,",
+                "which becomes writer-only scratch touched solely under the journal lock.",
                 "",
                 "## Cinched",
                 "",
-                "Settled at the 260718 planning session",
-                "(the slate had left currency-at-read for the mount to settle):",
+                "Settled 260719 (operator session; supersedes the 260718 freshen cinches):",
                 "",
-                "- Currency-at-read policy: reads stay lockless and pure-local",
-                "  (the `jjdk_lockless_reads` premise holds);",
-                "  currency comes from an opportunistic freshen of the studbook clone —",
-                "  fetch plus fast-forward-only equalize,",
-                "  tolerating network failure by proceeding on last-known state —",
-                "  performed at session entry.",
-                "  For this pace that is the dispatch door, before planning;",
-                "  officium-open wires the same primitive when `JJRM_OFFICIUM_STUDBOOK_ENABLED` flips",
-                "  (noted at that seam, not built early).",
-                "- HAZARD, why fast-forward-only: `jjrfr_advance` is retrench-style",
-                "  (discards local-only commits) and is safe only under the journal lock —",
-                "  a read-side reuse could destroy a concurrent writer's",
-                "  lodged-but-unconsigned commit on the same station.",
-                "  Never reuse it outside the lock.",
+                "- Ref-read replaces the working-tree freshen entirely:",
+                "  no fast-forward equalize, no new farrier op,",
+                "  and no `git reset --hard` anywhere on any read path.",
+                "  Reads mutate nothing — the `jjdk_lockless_reads` premise stands and is strengthened:",
+                "  a read touches only the object database.",
+                "- Currency at the dispatch door, strict: glean first;",
+                "  an Unreachable glean REFUSES the dispatch loud",
+                "  (operator ruling reversing the earlier tolerate-and-proceed cinch:",
+                "  JJ is useless without the network anyway,",
+                "  and a failed git operation is for the attended model to work on,",
+                "  never to silently ride past).",
+                "- Courtesy sight at the door, after the glean:",
+                "  a flying guidon means a write ceremony is mid-flight this second —",
+                "  wait a beat and re-glean to read its result;",
+                "  if it persists, refuse naming the holder.",
+                "  This is a freshness courtesy, not a lock: reads take no lock, ever",
+                "  (operator ruling: the journal lock is held at most one jjx operation,",
+                "  and cross-chat orthogonality is the operator's own responsibility).",
                 "- `jjrds_plan`'s \"no mutation, no network\" contract stands:",
-                "  the freshen belongs to the door driver, never inside plan.",
+                "  glean and sight belong to the door driver; plan's ref-read is pure-local.",
+                "- The jjx surface reader converts to the same mechanism:",
+                "  `jjdb_gallops_journal_load` keeps its name and seam; its insides move to ref-read.",
                 "- The seam must be drivable by a test while the const stays false:",
                 "  route enablement through a parameter the public surface pins to the const.",
+                "- BANKED, not built: cross-station duplicate-billet bookkeeping",
+                "  (two stations saddling the same pace) — operator-managed for now;",
+                "  a future reservation-at-dispatch, sibling of the rung-2 REMOTE-AWARE SEAT carry.",
                 "",
                 "## Done when",
                 "",
-                "With the seam enabled in a test, both readers resolve from the studbook",
-                "and neither touches the in-repo gallops",
+                "With the seam enabled in a test, both readers resolve from the pinned ref snapshot",
+                "and neither touches the in-repo gallops nor the studbook working tree",
                 "(the enabled-path test runs against a hippodrome carrying no `.claude/jjm` at all);",
-                "the freshen's currency and its network-failure tolerance are each asserted by a test."
+                "currency (a consigned remote write is seen by the next door entry),",
+                "the Unreachable-glean refusal,",
+                "and the flying-guidon wait-then-refuse are each asserted by a test."
               ],
               "jjgtn_silks": "repoint-spine-reader",
-              "jjgtn_basis": "137072d"
+              "jjgtn_basis": "cecb661"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace finishes the RECORD-READ REPOINT seam: the dispatch spine's second reader\nmust ride the same enablement seam as the jjx surface before the ceremony can flip once.",
           "jjgpn_slated": "260718-1001",
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         },
         "₢CAAAR": {
           "jjgpn_tacks": [
@@ -4756,6 +4767,57 @@
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the rung's spec closure: the JJSV* family stops describing a future\nand starts enacting the live mechanism, completing the rung's done-line.",
           "jjgpn_slated": "260718-1002"
+        },
+        "₢CAAAa": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2106",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_tier": "jjgde_fable",
+              "jjgtn_effort": "jjgde_high",
+              "jjgtn_text": [
+                "Retire `git reset --hard` from the studbook write path.",
+                "Today `jjrfr_advance` retrenches the clone to the remote tip under the journal lock",
+                "(`JJr_b52`, equalized-under-the-lock) to scrub refused-push residue.",
+                "Replace the scrub with never creating residue:",
+                "compose the write against the gleaned remote tip without moving the local branch —",
+                "commit object first, push it, advance the local branch only on success —",
+                "so a refused push leaves the branch untouched and there is nothing to retrench;",
+                "the opening equalize becomes fast-forward-only and `reset --hard` leaves the farrier.",
+                "",
+                "## Cinched",
+                "",
+                "Direction settled 260719 with the operator:",
+                "",
+                "- Compose-then-push, plus mutate-as-transform:",
+                "  the journal hands its mutate closure post-lock, post-equalize state",
+                "  and the closure derives the new record from THAT,",
+                "  so a stale pre-lock read can never be carried across the lock.",
+                "- The rivet moves with the code: `JJr_b52`'s equalize-and-retrench doctrine",
+                "  (journal sheaf ceremony prose, farrier sheaf advance op) is revised in this same pace —",
+                "  the spec never lies about the ceremony.",
+                "  Reconcile the sheaf's \"what a fast-forward cannot give\" argument",
+                "  with the new no-residue construction.",
+                "- Weird residual states (a diverged clone that should be impossible):",
+                "  halt and surface for the attended model and operator — never auto-destroy.",
+                "- Readers are off the working tree per the ref-read pace before this one;",
+                "  this pace may treat the studbook working tree as writer-only scratch.",
+                "",
+                "## Done when",
+                "",
+                "No `reset --hard` remains anywhere in the farrier or blotter;",
+                "the journal ceremony's existing contention tests",
+                "(lease refusal, lock break, two-station rehearsal) pass unchanged in outcome;",
+                "a refused consign is proven by test to leave the local branch and record untouched;",
+                "and the revised journal/farrier sheaf prose describes the ceremony as built."
+              ],
+              "jjgtn_silks": "retire-write-path-reset",
+              "jjgtn_basis": "725e9ac"
+            }
+          ],
+          "jjgpn_dictation": "I really really do not want a git reset --hard anywhere in this sequence. Do we have some serious design problems? [...] I do want though to have tha conversation about removing reset --hard from the write path: what notions do you have for this?",
+          "jjgpn_precis": "The operator categorically rejects `git reset --hard` in the studbook sequences\nand directed a design conversation on removing it from the write path.\nThe session settled the direction:\nnever create refused-push residue (compose-then-push, branch advances only on success),\nderive mutations from post-lock state (mutate-as-transform),\nrevise the `JJr_b52` rivet doctrine alongside the code,\nand halt-and-surface on impossible states rather than auto-destroy.",
+          "jjgpn_slated": "260719-2026"
         }
       }
     },
@@ -4998,6 +5060,8 @@
         "₢CAAAJ",
         "₢CAAAK",
         "₢CAAAL",
+        "₢CAAAc",
+        "₢CAAAb",
         "₢CAAAM"
       ],
       "jjghn_paces": {
@@ -5184,6 +5248,74 @@
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The operator wants the consumption path standing before deep capability;\nthis pace lands the runnable walking skeleton — crate, tabtargets, and the minted names — so a degenerate binary exists to wield from the start.",
           "jjgpn_slated": "260718-0953"
+        },
+        "₢CAAAb": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2141",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Focus",
+                "Shrink the presentment list by teaching the census the declaration-site vs inscription-site distinction, in the Liturgy's own terms, two layers:",
+                "",
+                "- Envelope dispatch: a file is dressed by the vesture whose envelope claims it, and only that vesture's line patterns claim declarations there.",
+                "  First consequence: `tt/*.sh` is the tabtarget vesture (VOS0 `vosldt_tabtarget`), whose body is formulary (BUS0 dispatch vocabulary) — config-line assignments (`BURD_*`) claim nothing, honoring the two-universes doctrine that tabtargets are colophons, not prefix space.",
+                "- Home-file rule for the bash-const vesture: `NAME=` claims a declaration only when the signet's head agrees with the declaring file's own stem family (mechanical string-prefix agreement, VOr_m7w-clean);",
+                "  a cross-family assignment is an inscription site — not seated, and if the signet ends up with no declaration home anywhere it surfaces as estray (the honest verdict for unhomed wire names like `BURD_REGIME_FILE`).",
+                "",
+                "Expected cascade: the 212-site `BURD_LAUNCHER` class, the `BURD_NO_LOG`/`BURD_INTERACTIVE` classes, and the README doc-vs-code duplicates all go quiet without a suppression list.",
+                "",
+                "## Cinched",
+                "Mechanical, never linguistic (VOr_m7w) — both layers are path/string set operations over material already in the trie or on disk.",
+                "Known and accepted: the home-file rule hides a deliberately cross-family declaration; that placement question is the reference-placement lint deferred to the post-MVP widening heat, never this pace's scope.",
+                "Tests pin both layers with planted corpora; re-run census against the real tree is the proof.",
+                "",
+                "## Done when",
+                "Presentment count drops significantly on a re-run (the tabtarget-formulary and cross-family-assignment classes no longer present),",
+                "true same-family collisions still present,",
+                "an unhomed ours name reads as estray rather than collision,",
+                "and the triage memo gains a short record of the two rulings and the new census numbers."
+              ],
+              "jjgtn_silks": "census-declaration-vs-inscription",
+              "jjgtn_basis": "12b459c"
+            }
+          ],
+          "jjgpn_dictation": "yes, but chivvy: lets significantly shrink the list before proceeding with the rest of B5",
+          "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row was lost when the merged store took gamma's side; the work itself is complete and committed).\nThe first census page was dominated by assignment-as-declaration noise (tabtarget formulary lines, cross-family bash assignments, README examples);\nthis pace lands envelope dispatch and the home-file claim rule so the presentment list shrinks to real findings before the index-render pace proceeds.",
+          "jjgpn_slated": "260719-2141"
+        },
+        "₢CAAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2141",
+              "jjgtn_state": "jjgte_complete",
+              "jjgtn_text": [
+                "## Focus",
+                "Work through the first live census batch (470 presentments, 7204 estrays from the first proven jog through the JJ seam)",
+                "by ruling each observed noise class rather than hand-dismissing findings:",
+                "historical-prose sites (retired blotters, chat captures, study scratch) via the Tier-0 file-selection allowlist;",
+                "per-file shell working variables in step-script families read as global declarations (declaration-recognition fidelity);",
+                "sub-signet trodden fragments seated by the tokenizer (seating grade),",
+                "which also pollute terminal-exclusivity with string-prefix coincidences.",
+                "Every class gets a ruling — excluded by scope, refined in recognition, or explicitly deferred — never a silent drop.",
+                "",
+                "## Cinched",
+                "Allowlist tightening stays schema-compatible with the tackle table (paddock: Tier-0 clause).",
+                "Mechanical, never linguistic (VOr_m7w) — a grade rule is a set/shape rule, not a word judgment.",
+                "Residue-driven: the estray set and surviving noise decide which classifier or rule lands next, per the paddock's classifier-growth resolution.",
+                "",
+                "## Done when",
+                "A re-run census reflects the rulings — the ruled-out classes no longer present —",
+                "and the surviving findings (e.g. the cipher registry's own seated-with-children entries, true near-miss collisions)",
+                "are banked in a short operator-facing triage note distinguishing real corpus questions from tool residue."
+              ],
+              "jjgtn_silks": "census-first-triage",
+              "jjgtn_basis": "c3f9998"
+            }
+          ],
+          "jjgpn_dictation": "We should chivvy a pace to work through the first batch of census content.",
+          "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row, minted ₢CAAAa concurrently with another clone's B3 slate, was lost when the merged store took gamma's side; the work itself is complete and committed, W commit 40d00caa9).\nThe first live jog surfaced a census that was mechanically sound but noise-dominated in three classes\n(historical-prose sites, per-file shell locals, sub-signet fragments);\nthis pace ruled each class through scope, recognition, or grade —\ndeepening the tool through use before the index-render pace trusts the census.",
+          "jjgpn_slated": "260719-2141"
         }
       }
     },

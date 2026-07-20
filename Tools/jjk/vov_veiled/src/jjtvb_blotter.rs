@@ -174,27 +174,35 @@ fn jjtvb_journal_rejects_lock_broken_mid_ceremony_and_pushes_nothing() {
     );
 }
 
-/// JJr_b52, the standing regression the real-remote rehearsal bought: a
-/// ceremony whose consign the lease refused leaves its commit in the local clone
-/// alone. The SAME station's next authorized ceremony must retrench it — the
-/// refused content must never reach the shared store, and it must not wedge the
-/// station either. Before the equalize contract, advance left a clone merely
-/// ahead of the tip untouched, lodge stacked on the refused commit, and consign
-/// carried both under a later, unrelated lock.
+/// JJr_b52, the no-residue proof: a ceremony whose proffer the lease refused
+/// leaves the local branch and its record UNTOUCHED — the refused commit never
+/// rides the branch, so there is nothing for any later ceremony to scrub, and
+/// the station's next authorized write proceeds clean. (Under the retired
+/// equalize-and-retrench construction the refused commit landed on the branch
+/// and had to be destroyed under the next lock; compose-then-push never
+/// creates it there at all.)
 #[test]
-fn jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony() {
-    let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_retrench");
+fn jjtvb_journal_refused_proffer_leaves_branch_and_record_untouched() {
+    let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_refused");
+    let local_baseline = zjjtvb_git(local.path(), &["rev-parse", "HEAD"]);
 
-    // Drive the station into the stranded state: another station breaks our lock
-    // mid-ceremony, so our consign fails its lease with the commit already made.
+    // Drive the station into the refused state: another station breaks our lock
+    // mid-ceremony, so our proffer fails its lease with the commit composed.
     let err = jjdb_journal(&jjrfg_PlainGit, &config, "guidon-victim", |root| {
         jjrfg_PlainGit.jjrfr_pluck(root, "guidon-victim").unwrap();
         jjrfg_PlainGit.jjrfr_stake(root, "guidon-usurper").unwrap();
         zjjtvb_write(root, "refused.txt", "refused by the lock, never authorized");
         (vec![PathBuf::from("refused.txt")], "REFUSED: the lock said no".to_string())
     })
-    .expect_err("the broken lease must refuse the consign");
+    .expect_err("the broken lease must refuse the proffer");
     assert_eq!(err.kind, jjrfr_RejectionKind::LockBroken);
+
+    // The refused-consign invariant: local branch and record untouched.
+    let head = zjjtvb_git(local.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, local_baseline, "a refused proffer must leave the local branch exactly where it stood");
+    let on_branch = zjjtvb_git(local.path(), &["log", "--pretty=%s", "HEAD"]);
+    assert!(!on_branch.contains("REFUSED"), "the refused commit must never ride the local branch");
+
     jjrfg_PlainGit.jjrfr_pluck(local.path(), "guidon-usurper").unwrap();
 
     // With the lock free again, the station writes something else entirely.
@@ -215,8 +223,6 @@ fn jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony() {
         "the authorized write must land; remote history was:\n{}",
         pushed
     );
-    let refused_content = local.path().join("refused.txt");
-    assert!(!refused_content.exists(), "the refused content must be retrenched out of the local clone too");
 }
 
 #[test]
@@ -291,7 +297,53 @@ fn jjtvb_gallops_journal_save_then_load_round_trips() {
     let (_bare, _local, config) = zjjtvb_scratch("jjtvb_gallops_roundtrip");
     let gallops = zjjtvb_valid_gallops();
 
-    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-gallops", &gallops, "save gallops".to_string()).unwrap();
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-gallops", |current| {
+        assert!(current.is_none(), "a store with no gallops tenant yet must hand the transform None");
+        zjjtvb_valid_gallops()
+    }, "save gallops".to_string())
+    .unwrap();
+
+    let loaded = jjdb_gallops_journal_load(&config).unwrap();
+    assert_eq!(loaded.inner().next_heat_seed, gallops.next_heat_seed);
+    assert!(loaded.inner().heats.is_empty());
+}
+
+/// Mutate-as-transform (JJr_b52): the transform receives the gallops as the
+/// locked tip holds it — never a value the caller composed from a pre-lock
+/// read — so a second write derives from what the first actually landed.
+#[test]
+fn jjtvb_gallops_journal_save_hands_the_transform_the_locked_tip_state() {
+    let (_bare, _local, config) = zjjtvb_scratch("jjtvb_gallops_transform");
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AZ".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-derive", |current| {
+        let current = current.expect("the seeded tenant must be handed in").into_inner();
+        assert_eq!(current.next_heat_seed, "AZ", "the transform must see what the prior write landed");
+        current
+    }, "derive".to_string())
+    .unwrap();
+}
+
+/// The read path is ref-read, not a working-tree read: `jjdb_gallops_journal_load`
+/// resolves the pinned `origin/trunk` snapshot and reads the blob from its object
+/// database, so a divergent (even corrupt) studbook working tree is invisible to
+/// it. This is the `jjdk_lockless_reads` strengthening — a read touches only the
+/// object database — and the guarantee the cutover leans on: the studbook working
+/// tree is writer-only scratch a reader never sees.
+#[test]
+fn jjtvb_gallops_journal_load_reads_the_pin_never_the_working_tree() {
+    let (_bare, local, config) = zjjtvb_scratch("jjtvb_gallops_pin_not_worktree");
+    let gallops = zjjtvb_valid_gallops();
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-pin", |_| zjjtvb_valid_gallops(), "save gallops".to_string()).unwrap();
+
+    // Corrupt the working-tree copy after the committed write. A working-tree
+    // read would choke on this; the ref-read never looks at it.
+    zjjtvb_write(local.path(), "gallops.json", "{ not even json");
 
     let loaded = jjdb_gallops_journal_load(&config).unwrap();
     assert_eq!(loaded.inner().next_heat_seed, gallops.next_heat_seed);
@@ -500,7 +552,7 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
 ///
 /// One write exercises the whole bracket where no scratch bare repo can reach
 /// it: stake's compare-and-swap on the custom `refs/jjv/guidon` ref, sight's
-/// ls-remote-then-fetch read-back, advance, lodge, the atomic two-ref consign
+/// ls-remote-then-fetch read-back, advance, the atomic two-ref proffer
 /// under lease, the ordinal bake, and pluck — all against a real server whose
 /// receive-pack is a Palisade we do not govern. A refusal here (a rejected ref
 /// namespace, an unsupported `--atomic` with `--force-with-lease`) is the
@@ -557,10 +609,10 @@ fn jjtvb_journal_the_real_pedigree_onto_the_standing_studbook() {
 /// A per-run mark for every byte a rehearsal writes. The real studbook is a real
 /// store and it ACCUMULATES — the scenarios below are re-run against a trunk that
 /// already holds what their last run left. Fixed content would therefore write
-/// NOTHING on a second run: advance equalizes the clone with the remote tip
-/// (JJr_b52), the file is already there byte-identical, and the lodge has no
-/// change to commit. Found the honest way — the first re-run after the equalize
-/// fix landed died in lodge, on content its own previous run had put there.
+/// NOTHING NEW on a second run: advance carries the clone to the remote tip
+/// (JJr_b52), and the file is already there byte-identical. Found the honest
+/// way — under the retired lodge-based ceremony the first re-run died in
+/// lodge, on content its own previous run had put there.
 fn zjjtvb_run_mark() -> String {
     chrono::Utc::now().format("%Y%m%dT%H%M%S%.6fZ").to_string()
 }
@@ -703,8 +755,8 @@ fn jjtvb_rehearsal_atomic_push_lease_failure() {
         "the refusal must name the broken lock, not a content race"
     );
 
-    // The invariant: the remote is untouched. Alpha's commit exists locally and
-    // stranded, but nothing it wrote reached the shared store.
+    // The invariant: the remote is untouched, and alpha's refused commit never
+    // rode its local branch — nothing it wrote reached the shared store.
     let remote_tip = zjjtvb_git(&alpha.local_root, &["ls-remote", "origin", &alpha.trunk]);
     let remote_sha = remote_tip.split_whitespace().next().unwrap();
     assert_eq!(remote_sha, baseline, "a lease-failed consign must land NOTHING on the real remote");
@@ -721,13 +773,13 @@ fn jjtvb_rehearsal_atomic_push_lease_failure() {
 /// Rehearsal 3b — the aftermath, against the real remote. This probe once ran as
 /// a finding-recorder and found one: a lease-failed ceremony stranded its commit
 /// locally, and the station's next authorized ceremony pushed it onto the shared
-/// store, unauthorized. JJr_b52 is the answer that finding bought — advance
-/// equalizes, so the refused commit is retrenched — and this probe now asserts
-/// that invariant where the finding was made, against real GitHub rather than a
-/// scratch bare repo. Ignored and env-gated like its rehearsal siblings, so it
-/// does not run in the standing suite; the every-run guard is the scratch sibling
-/// `jjtvb_journal_retrenches_a_lease_refused_commit_on_the_next_ceremony`. Not
-/// yet re-run against the real remote since the fix landed.
+/// store, unauthorized. JJr_b52 is the answer that finding bought — first as
+/// equalize-and-retrench, now as compose-then-push: a refused proffer never puts
+/// the commit on the branch at all — and this probe asserts the invariant where
+/// the finding was made, against real GitHub rather than a scratch bare repo.
+/// Ignored and env-gated like its rehearsal siblings, so it does not run in the
+/// standing suite; the every-run guard is the scratch sibling
+/// `jjtvb_journal_refused_proffer_leaves_branch_and_record_untouched`.
 #[test]
 #[ignore]
 fn jjtvb_rehearsal_stranded_commit_aftermath() {
@@ -779,7 +831,7 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
     assert!(
         !stranded_landed,
         "JJr_b52 violated on the real remote: a commit the lock REFUSED rode onto the shared store \
-         on the station's next write. Advance must equalize with the remote tip, retrenching the \
-         refused commit — never fast-forward toward it and leave the commit standing."
+         on the station's next write. A refused proffer must leave the local branch untouched, so \
+         no refused commit can exist for a later ceremony to carry."
     );
 }

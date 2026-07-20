@@ -184,9 +184,9 @@ pub struct jjrdm_ReapReport {
 /// copy through the journal sheaf's read bracket (JJSVJ "The read bracket"):
 /// glean, stake, sight, advance, read, release — the `jjdb_journal` minus its
 /// write steps. The snapshot arms the reap, so it is an acting read, never a
-/// reporting one: advance equalizes the local clone to the remote tip under
-/// the lock, so what this reads is the store's truth at this moment, not a
-/// stale local copy. Keyed on the bare coronet: gallops pace keys carry the
+/// reporting one: advance fast-forwards the local clone to the remote tip
+/// under the lock, so what this reads is the store's truth at this moment,
+/// not a stale local copy. Keyed on the bare coronet: gallops pace keys carry the
 /// self-typing `₢` sigil on disk, and billet dirnames are already bare.
 fn zjjrdm_snapshot_resolved_paces<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     farrier: &F,
@@ -399,7 +399,7 @@ fn zjjrdm_auto_commit_push<F: jjrfr_FarrierCore>(farrier: &F, candidate: &jjrdm_
         ));
     }
     farrier.jjrfr_lodge(&candidate.billet_root, &work_paths, JJRDM_AUTO_COMMIT_MESSAGE)?;
-    farrier.jjrfr_consign(&candidate.billet_root, coronet, None)
+    farrier.jjrfr_consign(&candidate.billet_root, coronet)
 }
 
 /// Execute the plan lock-free: clean candidates reap outright; dirty

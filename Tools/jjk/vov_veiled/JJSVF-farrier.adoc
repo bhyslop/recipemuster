@@ -80,8 +80,8 @@ Any op added to the census mints under MCM Lapidary behind this Palisade.
 [[jjdf_core]]
 {jjdf_core}::
 The ops every farrier kind serves: orientation ({jjdf_identify}), inspection (`comb`,
-`sync_state`, `counterfoil`), deposit (`lodge`), and remote sync (`glean`, `advance`,
-`consign`).
+`sync_state`, `counterfoil`), deposit (`lodge`, `proffer`), and remote sync (`glean`,
+`advance`, `consign`).
 
 [[jjdf_lock]]
 {jjdf_lock}::
@@ -172,27 +172,36 @@ the {jjdf_farrier} fetches and never merges — {jjdd_refit} (dispatch sheaf) is
 staleness remedy.
 
 `advance`::
-Equalize the line of work with the remote tip: made *equal to* its counterpart, never merely
-moved toward it — a line ahead of the tip is retrenched back to it, discarding what the
-counterpart does not have.
+Carry the line of work forward to the remote tip: *fast-forward-only*, a no-op when already
+there, and never destructive.
+A line holding commits the counterpart does not have rejects (diverged) — under the
+compose-then-push rivet (`JJr_b52`, {jjdb_journal}) the local branch adopts only positions
+the remote has accepted, so that state is impossible and is surfaced for the attended
+session, never auto-destroyed.
 The {jjdf_farrier} never merges toward a remote and never rebases.
-Composed by the {jjdb_journal}, whose equalized-under-the-lock rivet (`JJr_b52`) is why it
-equalizes rather than fast-forwards, and why discarding is safe.
-+
-Total against every local position — ahead, behind, diverged, dirty — so its rejection set is
-empty:
-(diverged) is `consign`'s alone, and (dirty tree) no longer gates the move.
-The fallible signature stands for a kind that must speak a rejection here;
-it is a cross-kind contract, not plain git's own totality hardened into the trait.
+Unrelated working-tree scratch neither blocks the move nor is destroyed by it — the move
+touches only the paths the tip changed.
 
 `consign`::
-Hand a branch into the remote's custody.
-Two flavors: plain fast-forward (hippodrome branches) and atomic-under-lease
-({jjdb_blotter} content — the lease binds the push to the holder's own lock ref,
-{jjdb_journal}).
+Hand a branch into the remote's custody: plain fast-forward push (hippodrome and billet
+branches; a content race rejects (diverged)).
+{jjdb_blotter} content never passes here — it goes through `proffer`, which is what binds a
+write to the held lock.
 *Never force* — a rivet, cited in shipped code by the opaque token `JJr_d81`:
-the consign implementation and the lease-guarded `pluck` of the {jjdb_break} are its
-citation sites, and one `grep JJr_d81` returns this definition and every site it guards.
+the consign and proffer implementations and the lease-guarded `pluck` of the {jjdb_break} are
+its citation sites, and one `grep JJr_d81` returns this definition and every site it guards.
+
+`proffer`::
+Proffer a composed write for the remote's acceptance — the {jjdb_blotter} write primitive
+(`JJr_b52`, compose-then-push):
+compose one commit whose sole parent is the branch's remote counterpart's tip (as of the last
+`glean`), carrying exactly the named files, *without moving the local branch*;
+push it atomic-under-lease against the holder's own lock ref ({jjdb_journal});
+and only on acceptance advance the local branch to the accepted position.
+A refusal — (lock-broken) when the lock no longer flies the leased guidon, (diverged) on a
+plain content race — leaves the local branch and its record untouched: no residue exists for
+any later ceremony to scrub.
+Never force (`JJr_d81`).
 +
 The lease is also what *protects a live writer from a broken lock* (`JJr_c4e`, journal
 sheaf): a holder whose lock is broken and restaked under it fails this push entire and lands

@@ -37,6 +37,8 @@ use crate::jjrfr_farrier::{
     jjrfr_BilletBirth,
     jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
+    jjrfr_FarrierLock,
+    jjrfr_GleanOutcome,
     jjrfr_LineOfWork,
     jjrfr_Rejection,
     jjrfr_Seat,
@@ -47,9 +49,13 @@ use crate::jjrt_types::{
     jjrg_Tier,
 };
 use crate::jjrvb_blotter::{
+    jjdb_pin,
     jjdb_read,
+    jjdb_read_pinned,
     jjdb_studbook_config,
     jjdb_BlotterConfig,
+    JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
+    JJDB_GALLOPS_REL_PATH,
 };
 use serde::Deserialize;
 use std::path::{
@@ -111,6 +117,15 @@ pub enum jjrds_Rejection {
     /// The studbook clone could not be read at all — most often a station whose
     /// studbook is not yet founded (JJSVS Founding-and-cutover).
     StudbookUnreadable { path: PathBuf, detail: String },
+    /// The dispatch door's glean of the studbook could not reach the remote —
+    /// currency at the door is strict, so an Unreachable glean refuses the whole
+    /// dispatch loud (operator ruling 260719: a failed git operation is for the
+    /// attended session, never to silently ride past).
+    StudbookUnreachable { path: PathBuf },
+    /// A write ceremony is mid-flight on the studbook this second: the courtesy
+    /// sight found a guidon still flying after the wait-and-re-glean. Refused so a
+    /// read never rides a half-written store; names the holder the guidon carries.
+    WriteInFlight { holder: String },
     /// The derived upstream key resolves no sire in the studbook's pedigrees.
     UnrecordedSire { key: String },
     /// The claiming kind contradicts the pedigree's recorded kind.
@@ -139,6 +154,20 @@ impl std::fmt::Display for jjrds_Rejection {
                     detail
                 )
             }
+            jjrds_Rejection::StudbookUnreachable { path } => {
+                write!(
+                    f,
+                    "studbook unreachable at {}: the dispatch door's glean could not reach the remote — currency at the door is strict, so the dispatch refuses rather than read a stale snapshot",
+                    path.display()
+                )
+            }
+            jjrds_Rejection::WriteInFlight { holder } => {
+                write!(
+                    f,
+                    "a write ceremony is in flight on the studbook (held by '{}') — wait a beat and re-dispatch so its result is read",
+                    holder
+                )
+            }
             jjrds_Rejection::UnrecordedSire { key } => {
                 write!(
                     f,
@@ -165,7 +194,10 @@ impl std::fmt::Display for jjrds_Rejection {
 /// Pedigree lookup — the spine's studbook read: lock-free (`jjdk_lockless_reads`),
 /// one indirection from the kind-derived upstream key through the sire to its
 /// pedigree, then the record/ground cross-check against the claiming kind
-/// (`jjdf_identify` contract, farrier sheaf).
+/// (`jjdf_identify` contract, farrier sheaf). Reads the studbook's working tree
+/// directly — the frozen-path form, used while the gallops-over-studbook seam is
+/// closed. The enabled path reads the same file from the pinned snapshot instead
+/// (`jjrds_pedigree_lookup_pinned`), so gallops and pedigree share one commit.
 pub fn jjrds_pedigree_lookup(
     studbook: &jjdb_BlotterConfig,
     derived_key: &str,
@@ -176,9 +208,39 @@ pub fn jjrds_pedigree_lookup(
         path: studbook.local_root.join(rel),
         detail: e.to_string(),
     })?;
+    zjjrds_pedigree_from_bytes(&bytes, &studbook.local_root.join(rel), derived_key, claiming_kind)
+}
+
+/// Pinned pedigree lookup — the enabled path's studbook read: the same
+/// resolution as `jjrds_pedigree_lookup`, but from the pinned snapshot's object
+/// database (`git show <pin>:pedigrees.json`) rather than the working tree, so a
+/// dispatch reads pedigree and gallops from one coherent commit and touches no
+/// studbook working-tree state.
+pub fn jjrds_pedigree_lookup_pinned(
+    studbook: &jjdb_BlotterConfig,
+    pin: &str,
+    derived_key: &str,
+    claiming_kind: &str,
+) -> Result<jjrds_Pedigree, jjrds_Rejection> {
+    let bytes = jjdb_read_pinned(studbook, pin, JJRDS_PEDIGREES_REL_PATH).map_err(|detail| {
+        jjrds_Rejection::StudbookUnreadable { path: studbook.local_root.join(JJRDS_PEDIGREES_REL_PATH), detail }
+    })?;
+    zjjrds_pedigree_from_bytes(&bytes, &studbook.local_root.join(JJRDS_PEDIGREES_REL_PATH), derived_key, claiming_kind)
+}
+
+/// The pedigree resolution proper, over already-read bytes — shared by the
+/// working-tree and pinned readers so parse, indirection, and the record/ground
+/// cross-check have one home. `path_for_err` names the source only for the
+/// malformed-file rejection.
+fn zjjrds_pedigree_from_bytes(
+    bytes: &[u8],
+    path_for_err: &Path,
+    derived_key: &str,
+    claiming_kind: &str,
+) -> Result<jjrds_Pedigree, jjrds_Rejection> {
     let file: zjjrds_PedigreeFile =
-        serde_json::from_slice(&bytes).map_err(|e| jjrds_Rejection::StudbookUnreadable {
-            path: studbook.local_root.join(rel),
+        serde_json::from_slice(bytes).map_err(|e| jjrds_Rejection::StudbookUnreadable {
+            path: path_for_err.to_path_buf(),
             detail: format!("malformed pedigrees file: {}", e),
         })?;
     let pedigree = file
@@ -436,6 +498,63 @@ pub fn jjrds_billet_dirname(identity_body: &str) -> String {
     format!("{}{}", JJRDS_BILLET_DIR_PREFIX, identity_body)
 }
 
+// ---- Infield resolution and the door's currency step ----
+
+/// Resolve the infield coordinates from the captured invocation path: identify
+/// (a decline is the fair-faced foreign-ground rejection), climb from the
+/// claimed tree to its hippodrome (a billet's primary), then to the infield that
+/// holds the studbook. Shared by the door's currency step and by `jjrds_plan`,
+/// so both name the same clone. Never reads the environment — `cwd` is the one
+/// captured path (the no-cwd rule `jjrfr_identify` honors).
+fn zjjrds_infield(cwd: &Path) -> Result<(crate::jjrfr_farrier::jjrfr_Identity, PathBuf, PathBuf), jjrds_Rejection> {
+    let farrier = jjrfg_PlainGit;
+    let identity = farrier.jjrfr_identify(cwd).map_err(jjrds_Rejection::ForeignGround)?;
+    let hippodrome_root = match &identity.seat {
+        jjrfr_Seat::Primary => identity.root.clone(),
+        jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
+    };
+    let infield_root = hippodrome_root
+        .parent()
+        .unwrap_or_else(|| panic!("hippodrome at {} has no parent to serve as the infield", hippodrome_root.display()))
+        .to_path_buf();
+    Ok((identity, hippodrome_root, infield_root))
+}
+
+/// The beat the courtesy sight waits before re-gleaning, giving a genuinely
+/// in-flight write ceremony a moment to complete so its result is the one read.
+/// `jjrds_currency` takes the pause as a parameter so a test drives it to zero;
+/// the live door passes this.
+pub const JJRDS_CURRENCY_BEAT: std::time::Duration = std::time::Duration::from_millis(750);
+
+/// The dispatch door's currency step (operator ruling 260719, JJSVD): glean the
+/// studbook clone so the pinned snapshot every read takes is current, then a
+/// courtesy sight for an in-flight write.
+///
+/// Strict currency: an Unreachable glean REFUSES the whole dispatch — a failed
+/// git operation is for the attended session, never to silently ride a stale
+/// store. Courtesy sight: a flying guidon means a write ceremony is mid-flight
+/// this second, so wait a beat, re-glean to pick up its result, and sight again;
+/// a guidon still flying refuses, naming the holder its mark carries. This is a
+/// freshness courtesy, not a lock — the read takes no lock, ever. Meaningful
+/// only over the studbook; the door skips it when the seam is closed.
+pub fn jjrds_currency<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
+    farrier: &F,
+    studbook: &jjdb_BlotterConfig,
+    beat: std::time::Duration,
+) -> Result<(), jjrds_Rejection> {
+    if farrier.jjrfr_glean(&studbook.local_root) == jjrfr_GleanOutcome::Unreachable {
+        return Err(jjrds_Rejection::StudbookUnreachable { path: studbook.local_root.clone() });
+    }
+    if farrier.jjrfr_sight(&studbook.local_root).map_err(jjrds_Rejection::Farrier)?.is_some() {
+        std::thread::sleep(beat);
+        let _ = farrier.jjrfr_glean(&studbook.local_root);
+        if let Some(holder) = farrier.jjrfr_sight(&studbook.local_root).map_err(jjrds_Rejection::Farrier)? {
+            return Err(jjrds_Rejection::WriteInFlight { holder });
+        }
+    }
+    Ok(())
+}
+
 // ---- The launch plan ----
 
 /// Everything the spine resolved ahead of boarding: where the billet sits, what
@@ -462,23 +581,26 @@ pub struct jjrds_LaunchPlan {
 /// Plan a dispatch: the spine's resolution half — identify at the captured
 /// invocation path (the door captures cwd exactly once; this function never
 /// reads the environment), pedigree lookup, target resolution, and the
-/// two-source (tier, effort) choice. No mutation, no network.
-pub fn jjrds_plan(door: jjrds_Door, raw_target: &str, cwd: &Path) -> Result<jjrds_LaunchPlan, jjrds_Rejection> {
-    // Identify: the MVP kind roster is plain-git alone; a decline is the
-    // fair-faced foreign-ground rejection.
-    let farrier = jjrfg_PlainGit;
-    let identity = farrier.jjrfr_identify(cwd).map_err(jjrds_Rejection::ForeignGround)?;
-
-    // cwd elects the clone, from trunk or billet alike: a partition's primary
-    // is the hippodrome; billets are its infield peers.
-    let hippodrome_root = match &identity.seat {
-        jjrfr_Seat::Primary => identity.root.clone(),
-        jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
-    };
-    let infield_root = hippodrome_root
-        .parent()
-        .unwrap_or_else(|| panic!("hippodrome at {} has no parent to serve as the infield", hippodrome_root.display()))
-        .to_path_buf();
+/// two-source (tier, effort) choice. No mutation, no network: `over_studbook`
+/// selects only WHERE the gallops and pedigree are read from, and both the
+/// working-tree and ref-read forms are pure-local.
+///
+/// `over_studbook` is the enablement seam the door pins to
+/// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (`jjrds_run`); a test drives it `true`
+/// while the const stays `false`. Off (the frozen path): the pedigree reads the
+/// studbook working tree and the gallops the hippodrome's in-repo
+/// `.claude/jjm/jjg_gallops.json`. On (the enabled path): one pin over the
+/// fetched `origin/<trunk>` snapshot backs BOTH reads — gallops and pedigree
+/// from one commit — and neither the in-repo gallops nor the studbook working
+/// tree is touched. The pin is a pure-local ref-read; the currency glean that
+/// advances it belongs to the door (`jjrds_currency`), never here.
+pub fn jjrds_plan(
+    door: jjrds_Door,
+    raw_target: &str,
+    cwd: &Path,
+    over_studbook: bool,
+) -> Result<jjrds_LaunchPlan, jjrds_Rejection> {
+    let (identity, hippodrome_root, infield_root) = zjjrds_infield(cwd)?;
 
     // Pedigree lookup: derived key → sire → pedigree, then the record/ground
     // cross-check. A tree with no upstream cannot key a sire.
@@ -486,15 +608,42 @@ pub fn jjrds_plan(door: jjrds_Door, raw_target: &str, cwd: &Path) -> Result<jjrd
         key: "(no upstream configured on this clone)".to_string(),
     })?;
     let studbook = jjdb_studbook_config(&infield_root);
-    let pedigree = jjrds_pedigree_lookup(&studbook, &derived_key, JJRDS_KIND_PLAIN_GIT)?;
+
+    // One pin backs every enabled-path read, so gallops and pedigree resolve
+    // from one coherent commit. Pure-local (`jjdb_pin` reads the ref store); a
+    // studbook with no fetched snapshot is unreadable here.
+    let pin = if over_studbook {
+        Some(jjdb_pin(&studbook).map_err(|detail| jjrds_Rejection::StudbookUnreadable {
+            path: studbook.local_root.clone(),
+            detail,
+        })?)
+    } else {
+        None
+    };
+
+    let pedigree = match &pin {
+        Some(pin) => jjrds_pedigree_lookup_pinned(&studbook, pin, &derived_key, JJRDS_KIND_PLAIN_GIT)?,
+        None => jjrds_pedigree_lookup(&studbook, &derived_key, JJRDS_KIND_PLAIN_GIT)?,
+    };
 
     // Target typing and door-specific resolution.
     let target = jjrds_type_target(raw_target)?;
     let (birth, identity_body, designation, opening_prompt) = match door {
         jjrds_Door::Saddle => {
-            let gallops_path = hippodrome_root.join(".claude/jjm/jjg_gallops.json");
-            let gallops = crate::jjri_io::jjdr_load(&gallops_path)
-                .map_err(|e| jjrds_Rejection::BadTarget { detail: e })?;
+            let gallops = match &pin {
+                Some(pin) => {
+                    let bytes = jjdb_read_pinned(&studbook, pin, JJDB_GALLOPS_REL_PATH)
+                        .map_err(|detail| jjrds_Rejection::StudbookUnreadable {
+                            path: studbook.local_root.clone(),
+                            detail,
+                        })?;
+                    crate::jjri_io::jjdr_hark(&bytes).map_err(|e| jjrds_Rejection::BadTarget { detail: e })?
+                }
+                None => {
+                    let gallops_path = hippodrome_root.join(".claude/jjm/jjg_gallops.json");
+                    crate::jjri_io::jjdr_load(&gallops_path).map_err(|e| jjrds_Rejection::BadTarget { detail: e })?
+                }
+            };
             let saddled = jjrds_resolve_saddle(gallops.inner(), &target)?;
             let prompt = format!(
                 "mount {}{}",
@@ -691,7 +840,24 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
     let mut out = String::new();
     let farrier = jjrfg_PlainGit;
 
-    let plan = match jjrds_plan(door, raw_target, cwd) {
+    // Currency at the door: over the studbook, glean it fresh (an Unreachable
+    // glean refuses) and courtesy-sight for an in-flight write BEFORE the
+    // pure-local pinned read plan takes. Skipped while the seam is closed —
+    // the frozen path reads the in-repo gallops and needs no studbook glean.
+    let over_studbook = JJDB_GALLOPS_OVER_STUDBOOK_ENABLED;
+    if over_studbook {
+        match zjjrds_infield(cwd) {
+            Ok((_, _, infield_root)) => {
+                let studbook = jjdb_studbook_config(&infield_root);
+                if let Err(e) = jjrds_currency(&farrier, &studbook, JJRDS_CURRENCY_BEAT) {
+                    return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e));
+                }
+            }
+            Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
+        }
+    }
+
+    let plan = match jjrds_plan(door, raw_target, cwd, over_studbook) {
         Ok(p) => p,
         Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
     };

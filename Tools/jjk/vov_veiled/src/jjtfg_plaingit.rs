@@ -270,7 +270,7 @@ fn zjjtfg_two_clones_from_baseline(bare: &Path, name: &str) -> (JjkTestDir, JjkT
 }
 
 #[test]
-fn jjtfg_advance_equalizes_a_behind_line_with_the_remote_tip() {
+fn jjtfg_advance_fast_forwards_a_behind_line_to_the_remote_tip() {
     let bare = JjkTestDir::new("jjtfg_advance_behind_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_behind");
 
@@ -284,63 +284,64 @@ fn jjtfg_advance_equalizes_a_behind_line_with_the_remote_tip() {
     assert_eq!(head, tip);
 }
 
-/// JJr_b52: a line ahead of the tip is retrenched back to it, not left alone.
-/// This is the defect's root — a commit the remote never accepted, sitting where
-/// the next lodge would stack on it and the next consign would carry it along.
+/// JJr_b52: a line ahead of the tip is an impossible state under
+/// compose-then-push — the local branch only ever moves to positions the
+/// remote accepted — so advance halts and surfaces (`Diverged`) rather than
+/// auto-destroying what it cannot explain. The position is left untouched.
 #[test]
-fn jjtfg_advance_retrenches_a_line_ahead_of_the_remote_tip() {
+fn jjtfg_advance_rejects_diverged_on_a_line_ahead_of_the_remote_tip() {
     let bare = JjkTestDir::new("jjtfg_advance_ahead_bare");
     let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_ahead");
-    let tip = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
 
-    zjjtfg_commit_all(local1.path(), "refused.txt", "never authorized", "refused");
+    let ahead = zjjtfg_commit_all(local1.path(), "unexplained.txt", "not the remote's", "unexplained");
     jjrfg_PlainGit.jjrfr_glean(local1.path());
-    jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
+    let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
 
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
-    assert_eq!(head, tip, "a local-only commit must be retrenched, not preserved");
-    assert!(!local1.path().join("refused.txt").exists(), "its content must go with it");
+    assert_eq!(head, ahead, "advance must leave the unexplained position untouched — never auto-destroy");
+    assert!(local1.path().join("unexplained.txt").exists(), "its content must stand for the operator to inspect");
 }
 
-/// JJr_b52: dirt no longer blocks the move — it is equalized away with
-/// everything else local. This heals the wedge a crash between mutate and lodge
-/// would otherwise leave: a clone dirty forever, refusing every later ceremony.
+/// JJr_b52: unrelated dirt does not block the fast-forward and is not
+/// destroyed by it — the working tree is writer-only scratch, and the move
+/// touches only the paths the tip changed.
 #[test]
-fn jjtfg_advance_equalizes_away_a_dirty_tree() {
+fn jjtfg_advance_fast_forwards_past_unrelated_dirt() {
     let bare = JjkTestDir::new("jjtfg_advance_dirty_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_dirty");
     let tip = zjjtfg_commit_all(local2.path(), "ahead.txt", "ahead", "ahead");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
     jjrfg_PlainGit.jjrfr_glean(local1.path());
-    zjjtfg_write(local1.path(), "base.txt", "half-written by a ceremony that died");
+    zjjtfg_write(local1.path(), "scratch.txt", "half-written by a ceremony that died");
 
     jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
 
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, tip);
-    let base = std::fs::read_to_string(local1.path().join("base.txt")).unwrap();
-    assert_eq!(base, "base", "the tracked file must be restored to the remote's content");
+    let scratch = std::fs::read_to_string(local1.path().join("scratch.txt")).unwrap();
+    assert_eq!(scratch, "half-written by a ceremony that died", "unrelated scratch survives the move untouched");
 }
 
-/// JJr_b52: diverged left advance's rejection set. The position that used to
-/// wedge the station — ahead AND behind — is now just another local position
-/// equalize is total against; `Diverged` is `consign`'s alone.
+/// JJr_b52: a genuinely diverged line — ahead AND behind — is the same
+/// impossible state as merely-ahead: halt and surface, position untouched.
 #[test]
-fn jjtfg_advance_equalizes_a_diverged_line() {
+fn jjtfg_advance_rejects_diverged_on_a_forked_line() {
     let bare = JjkTestDir::new("jjtfg_advance_diverged_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_advance_diverged");
 
-    let tip = zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
+    zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
 
-    zjjtfg_commit_all(local1.path(), "from-local1.txt", "from local1", "from local1");
+    let forked = zjjtfg_commit_all(local1.path(), "from-local1.txt", "from local1", "from local1");
     jjrfg_PlainGit.jjrfr_glean(local1.path());
 
-    jjrfg_PlainGit.jjrfr_advance(local1.path()).unwrap();
+    let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
 
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
-    assert_eq!(head, tip);
-    assert!(!local1.path().join("from-local1.txt").exists());
+    assert_eq!(head, forked, "the forked position must stand for the operator to inspect");
+    assert!(local1.path().join("from-local1.txt").exists());
 }
 
 #[test]
@@ -349,86 +350,111 @@ fn jjtfg_consign_plain_pushes_a_fast_forward_commit() {
     let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_plain");
     let tip = zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
 
-    jjrfg_PlainGit.jjrfr_consign(local1.path(), ZJJTFG_TRUNK, None).unwrap();
+    jjrfg_PlainGit.jjrfr_consign(local1.path(), ZJJTFG_TRUNK).unwrap();
 
     let remote_tip = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
     assert_eq!(remote_tip, tip);
 }
 
 #[test]
-fn jjtfg_consign_rejects_diverged_without_lease() {
+fn jjtfg_consign_rejects_diverged_on_a_content_race() {
     let bare = JjkTestDir::new("jjtfg_consign_diverged_bare");
     let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_diverged");
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
     zjjtfg_commit_all(local1.path(), "from-local1.txt", "from local1", "from local1");
 
-    let result = jjrfg_PlainGit.jjrfr_consign(local1.path(), ZJJTFG_TRUNK, None);
+    let result = jjrfg_PlainGit.jjrfr_consign(local1.path(), ZJJTFG_TRUNK);
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
 }
 
+/// Proffer's happy path: the composed write lands on the remote AND the local
+/// branch adopts it — while the held lock stands exactly as it stood.
 #[test]
-fn jjtfg_consign_atomic_lease_succeeds_while_lock_held() {
-    let bare = JjkTestDir::new("jjtfg_consign_lease_ok_bare");
-    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_ok");
+fn jjtfg_proffer_lands_the_composed_write_while_lock_held() {
+    let bare = JjkTestDir::new("jjtfg_proffer_ok_bare");
+    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_proffer_ok");
     jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-holder").unwrap();
-    let tip = zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
+    zjjtfg_write(local1.path(), "new.txt", "new");
 
-    jjrfg_PlainGit
-        .jjrfr_consign(local1.path(), ZJJTFG_TRUNK, Some(&jjrfr_ConsignLease("guidon-holder".to_string())))
+    let sha = jjrfg_PlainGit
+        .jjrfr_proffer(
+            local1.path(),
+            ZJJTFG_TRUNK,
+            &[PathBuf::from("new.txt")],
+            "proffered write",
+            &jjrfr_ConsignLease("guidon-holder".to_string()),
+        )
         .unwrap();
 
     let remote_tip = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
-    assert_eq!(remote_tip, tip);
+    assert_eq!(remote_tip, sha, "the accepted position must be live on the remote");
+    let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, sha, "the local branch must adopt the accepted position");
     let flying = jjrfg_PlainGit.jjrfr_sight(local1.path()).unwrap();
-    assert_eq!(flying.as_deref(), Some("guidon-holder"), "consign must leave the held lock exactly as it stood");
+    assert_eq!(flying.as_deref(), Some("guidon-holder"), "proffer must leave the held lock exactly as it stood");
 }
 
+/// The refused-consign proof (JJr_b52, compose-then-push): a lock broken under
+/// the holder fails the whole push AND leaves the local branch and its record
+/// untouched — no refused commit rides the branch, nothing exists to scrub.
 #[test]
-fn jjtfg_consign_atomic_lease_rejects_lock_broken_and_pushes_nothing() {
-    let bare = JjkTestDir::new("jjtfg_consign_lease_broken_bare");
-    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_broken");
+fn jjtfg_proffer_rejects_lock_broken_leaving_branch_and_remote_untouched() {
+    let bare = JjkTestDir::new("jjtfg_proffer_broken_bare");
+    let (local1, _local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_proffer_broken");
     let baseline = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
+    let local_baseline = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-holder").unwrap();
-    zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
+    zjjtfg_write(local1.path(), "new.txt", "new");
 
     // The lock breaks under the holder (plucked, not re-staked) between its
-    // sight and its consign — the atomic lease must fail the content push too.
+    // sight and its proffer — the atomic lease must fail the content push too.
     jjrfg_PlainGit.jjrfr_pluck(local1.path(), "guidon-holder").unwrap();
 
-    let result = jjrfg_PlainGit.jjrfr_consign(
+    let result = jjrfg_PlainGit.jjrfr_proffer(
         local1.path(),
         ZJJTFG_TRUNK,
-        Some(&jjrfr_ConsignLease("guidon-holder".to_string())),
+        &[PathBuf::from("new.txt")],
+        "must never land",
+        &jjrfr_ConsignLease("guidon-holder".to_string()),
     );
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockBroken);
     let remote_tip = zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]);
-    assert_eq!(remote_tip, baseline, "a broken-lock consign must land nothing on the remote");
+    assert_eq!(remote_tip, baseline, "a broken-lock proffer must land nothing on the remote");
+    let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, local_baseline, "a refused proffer must leave the local branch untouched");
+    let on_branch = zjjtfg_git(local1.path(), &["log", "--pretty=%s", "HEAD"]);
+    assert!(!on_branch.contains("must never land"), "the refused commit must not ride the branch");
 }
 
 #[test]
-fn jjtfg_consign_atomic_lease_rejects_content_race_as_diverged() {
-    let bare = JjkTestDir::new("jjtfg_consign_lease_race_bare");
-    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_consign_lease_race");
+fn jjtfg_proffer_rejects_content_race_as_diverged_leaving_branch_untouched() {
+    let bare = JjkTestDir::new("jjtfg_proffer_race_bare");
+    let (local1, local2) = zjjtfg_two_clones_from_baseline(bare.path(), "jjtfg_proffer_race");
     jjrfg_PlainGit.jjrfr_stake(local1.path(), "guidon-holder").unwrap();
+    let local_baseline = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
 
-    // The lock stands untouched, but content lands from elsewhere — the
-    // rejection classifies on the branch, never the guidon.
+    // The lock stands untouched, but content lands from elsewhere after our
+    // glean — the rejection classifies on the branch, never the guidon.
     zjjtfg_commit_all(local2.path(), "from-local2.txt", "from local2", "from local2");
     zjjtfg_git(local2.path(), &["push", "-q", "origin", ZJJTFG_TRUNK]);
-    zjjtfg_commit_all(local1.path(), "new.txt", "new", "new");
+    zjjtfg_write(local1.path(), "new.txt", "new");
 
-    let result = jjrfg_PlainGit.jjrfr_consign(
+    let result = jjrfg_PlainGit.jjrfr_proffer(
         local1.path(),
         ZJJTFG_TRUNK,
-        Some(&jjrfr_ConsignLease("guidon-holder".to_string())),
+        &[PathBuf::from("new.txt")],
+        "raced write",
+        &jjrfr_ConsignLease("guidon-holder".to_string()),
     );
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
     let flying = jjrfg_PlainGit.jjrfr_sight(local1.path()).unwrap();
     assert_eq!(flying.as_deref(), Some("guidon-holder"), "a content-race rejection must leave the held lock standing");
+    let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(head, local_baseline, "a refused proffer must leave the local branch untouched");
 }
 
 #[test]
