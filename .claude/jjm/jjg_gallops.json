@@ -8270,8 +8270,9 @@
         "₢BzAAF": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260712-0830",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260719-2032",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "The seed of the per-operation tranche — first worked instance of the",
@@ -8308,7 +8309,7 @@
                 "the audit's verdict on recipe fitness is recorded for the scout's next-tranche ruling."
               ],
               "jjgtn_silks": "polity-pair-audit",
-              "jjgtn_basis": "feb2a50"
+              "jjgtn_basis": "721a185"
             }
           ]
         },
