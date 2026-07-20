@@ -40,7 +40,7 @@ pub fn vomrq_exact_collisions(trie: &vomrs_SignetTrie) -> Vec<vomrp_Presentment>
                 "signet `{signet}` declared at {} distinct sites",
                 distinct.len()
             ),
-            rule: "CLAUDE.md 'Word Selection Discipline': semantic uniqueness repo-wide, one meaning per word, ever",
+            rule: "semantic uniqueness (MCM 'Lapidary')",
             advisory: zvomrq_is_advisory(signet),
         });
     }
@@ -75,7 +75,7 @@ pub fn vomrq_terminal_exclusivity(trie: &vomrs_SignetTrie) -> Vec<vomrp_Presentm
                 children.len(),
                 children.join(", ")
             ),
-            rule: "CLAUDE.md 'Prefix Naming Discipline' Rule 2 - Terminal Exclusivity: a prefix either IS a name or HAS children, never both",
+            rule: "terminal exclusivity (VOS0 'Terminal Exclusivity')",
             advisory: zvomrq_is_advisory(signet),
         });
     }
