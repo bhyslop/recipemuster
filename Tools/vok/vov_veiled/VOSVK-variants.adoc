@@ -11,7 +11,7 @@ Concept ancestor: MCM `mcm_variant`; at settling this content may infuse there r
 == Founding Census (decision record, 260720)
 
 No enumeration existed anywhere before this sheaf.
-The AsciiDoc-era declared sets disagree by spec — MCM and RBS0 declare four kinds (`_s`, `_p`, `_ed`, `_ing`); BUS0, AXLA, JJS0, and VOS0 declare two (`_s`, `_p`) — and live usage across the veiled canons at the census ran plural 211, possessive 49, past 2, progressive 1, plus one `_es` and one `_ies`.
+The AsciiDoc-era declared sets disagree by spec — MCM and RBS0 declare four kinds (`_s`, `_p`, `_ed`, `_ing`); BUS0, AXLA, JJS0, and VOS0 declare two (`_s`, `_p`) — and live usage across the veiled canons at the census ran plural 211, possessive 49, past 2, progressive 1, plus one `_es` and one `_ies` (suffix-shaped counts, approximate).
 The `_es`/`_ies` irregularity is not a kind: it is a spelling of plural, forced into the identifier because AsciiDoc encoded the variant there.
 Under Diptych the kind lives in the pilcrow key and the spelling in the declaration, so that whole irregularity class dies.
 
@@ -19,7 +19,7 @@ Under Diptych the kind lives in the pilcrow key and the spelling in the declarat
 
 Closed, centrally amended — a new kind is a deliberate amendment to this sheaf, never a discovery (the precept-terminal-letter posture).
 
-* *base* — the quoin's undeclined display text.
+* *base* — the quoin's undeclined display text; its spelling is the display text itself, so it homes with the definition-site fork (VOSYD) rather than a declarator.
 * *plural* — noun kind.
 * *possessive* — noun kind.
 * *past* — verb kind.

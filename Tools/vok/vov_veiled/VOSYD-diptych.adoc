@@ -49,6 +49,8 @@ A content word accidentally joined to its neighbor produces a pilcrow line with 
 
 Syntactic punctuation — sentence enders, commas, semicolons, colons, quotes, parentheses — always rides its own pilcrow line; a run of adjacent marks rides one line, in order.
 Punctuation that is part of a token's spelling (`e.g.`, `Coronet's`, `well-known`, `2.0`, `.claude/`) stays in the token.
+The join rule is a fixed per-mark direction table in the codec: closers (sentence enders, comma, semicolon, colon, closing quote, closing parenthesis) attach backward with no space before them; openers attach forward; a mixed run attaches per-mark, in order.
+If the enrollment elects curly quotes as canonical, quote direction lives in the glyph itself.
 Consequences, each load-bearing:
 
 * Every line's token is pure — exact-match for the census, the grimoire prose-lint, and plain grep, with zero stripping anywhere.
@@ -148,6 +150,8 @@ A projection is writable only if it is reversible.
   The dress election is an open fork.
 * *Lectio* — the constrained-reader face: references resolved to display text (guillemet notation per the superseded ClaudeMark memo), machinery stripped.
   Read-only by construction, not by policy.
+  Lectio is a family, not one format: each lectionary rule-set is a pure query over the sealed tree — a subtree slice, quoin-definition closure (definitions only for the quoins the slice references, the legend-cargo rule generalized), per-tier simplification for weaker readers.
+  Read-only status is what licenses Markdown and any other non-reversible flavor here: the AsciiDoc-first cinch is scoped to the fidelity gate, which only round-tripping faces bear.
 
 *The replace operation* (sketch; any MCP surface follows VOSMM's deferred-scope posture — the bill is paid only if it arrives): the caller supplies a before-text and an after-text in the projection dialect it was reading.
 The projector emits a span map — projected token to recto line — as a pure function of the sealed tree, so locating the before-text is a string match in the projection mapped to exact recto bounds, no heuristics.
@@ -198,7 +202,13 @@ Reverse parse unwinds projection-isms into recto and rejects loud on anything un
 * Definition-site shape — whether display text and the variant declarators consolidate onto the definition line or stay adjacent lines; the operator is deliberately not ready to consolidate (260720 ruling: variants adjacent, the rest open).
 * Table grammar detail — opener payload, row and cell keys, header row, column-spec fidelity.
 * Fence terminator mechanics.
-* Verso grammar — the dress election, and how far verso mirrors the vision memo's original inline form.
+* Verso grammar — two endpoints stand.
+  Minimal dress: the binding decision travels syntactically; round-trip-safe, the conservative first build.
+  Link-by-default: a prose occurrence of a declared display text *is* a reference and innocence is the marked exception — deterministic undressed reversal, unlocked because the canon's own variant declarations form a self-contained reverse map (display text to quoin and kind) while grimoire recognition extends it advisorily; the saturated-linking agenda arriving as law.
+  Lean: conservative first; link-by-default is the destination.
+* Dash law — whether the spaced em-dash rides a punctuation line or stands as an enrolled content word, with unspaced dashes as lexical interior; unsettled.
+* Annotation and voicing form — how AXLA's new-form voicings and hierarchy markers ride pilcrow lines: motif and dimension tokens as payload, AXLA's lookahead arities and read windows becoming lexer law, and the two token streams (attribute and literal) becoming payload types the pilcrow table declares.
+  Sketched early in the founding chat, not yet cut; the payload-type list in The Lexical Law grows here.
 * Emphasis nesting — forbidden until the migration's render-equivalence iterations surface a true counter-example.
 * Grimoire-generated declarators — whether single-word quoins' variant declarations are freshen-generated from grimoire rows; banked, sequenced behind the studbook-farrier MVP like all grimoire tooling.
 * Recension and safe-reprefix convergence — owed to VOSMM when either ascends.
