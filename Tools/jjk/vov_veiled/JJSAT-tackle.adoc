@@ -239,6 +239,16 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   against the matricula's and JJ dispatch's *actual* queries; its outcome determines what
   the implementation paces are, and it settles the remaining word spends (mint follows
   API).
+  Widened 260720 (operator ruling; substance home
+  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md`): the sketch also
+  covers the table *write* surface — JJ-sole-author toothings stand in the MVP from the
+  outset (add/amend/remove shapes, and a list that shows what each claim matches, the
+  derived roster printed and never persisted), with the write door's refusals as
+  acceptance tests and hand-editing never the path; the verb decomposition and its word
+  elections are deliberately uncinched until this sketch settles them.
+  The staleness surface (the source→binary advisor as the first mechanical `check_build`
+  consumer) is a candidate rider on this same sketch; its open gaps are enumerated in the
+  memo and it joins the MVP only when they settle.
 . RIDES A PACE — the JJK README prefix registry gains the `jjo` container row
   (Reconciliation obligations).
 . RIDES A PACE — the matricula's interim allowlist is confirmed schema-compatible against
