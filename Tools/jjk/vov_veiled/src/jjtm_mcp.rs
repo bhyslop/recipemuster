@@ -42,7 +42,7 @@ use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
 use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
 use super::jjrfg_plaingit::jjrfg_PlainGit;
-use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_RejectionKind, jjrfr_Seat};
+use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
 use super::jjrvb_blotter::{
     jjdb_BlotterConfig,
     JJDB_CATCHWORD_FOUNDING,
@@ -673,13 +673,14 @@ fn zjjtm_gallops_scratch(name: &str, seed: &str) -> (JjkTestDir, JjkTestDir, jjd
 
 #[test]
 fn jjtm_load_gallops_over_enabled_reads_the_studbook_pin() {
-    let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_load_seam_on", "SEAM-ON-MARKER");
+    // next_heat_seed is a fixed-width 2-char field — the marker must fit it.
+    let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_load_seam_on", "SB");
     // A path that does not exist at all — proves the on-branch never touches it.
     let untouched_path = Path::new("/nonexistent/jjtm-never-read.json");
 
     let gallops = zjjrm_load_gallops_over(true, untouched_path, &config).unwrap();
 
-    assert_eq!(gallops.next_heat_seed, "SEAM-ON-MARKER");
+    assert_eq!(gallops.next_heat_seed, "SB");
 }
 
 #[test]
@@ -723,7 +724,7 @@ fn jjtm_load_gallops_over_enabled_refuses_loud_when_clone_never_gleaned() {
 fn jjtm_load_gallops_over_disabled_reads_path_and_never_touches_studbook() {
     let td = JjkTestDir::new("jjtm_load_seam_off");
     let path = td.path().join(JJDB_GALLOPS_REL_PATH);
-    std::fs::write(&path, serde_json::to_string_pretty(&zjjtm_gallops_valid("SEAM-OFF-MARKER")).unwrap()).unwrap();
+    std::fs::write(&path, serde_json::to_string_pretty(&zjjtm_gallops_valid("PA")).unwrap()).unwrap();
     // A studbook config pointed at nothing — proves the off branch never
     // reaches for it (a touch would error, not just misread).
     let poison_config = jjdb_BlotterConfig {
@@ -736,12 +737,32 @@ fn jjtm_load_gallops_over_disabled_reads_path_and_never_touches_studbook() {
 
     let loaded = zjjrm_load_gallops_over(false, &path, &poison_config).unwrap();
 
-    assert_eq!(loaded.next_heat_seed, "SEAM-OFF-MARKER");
+    assert_eq!(loaded.next_heat_seed, "PA");
+}
+
+/// A marker file planted directly under the infield root, checked back
+/// through whatever root `zjjrm_infield_root` derives — a functional
+/// same-directory proof that never compares path strings. `jjrfr_identify`
+/// resolves through `git rev-parse --show-toplevel`, which unwinds
+/// platform-specific symlinks (e.g. macOS's /var -> /private/var) that the
+/// test's own unresolved path construction does not — a raw
+/// `assert_eq!(root, Some(expected_path))` is platform-fragile for exactly
+/// that reason, and `std::fs::canonicalize` is its own Windows wart, so
+/// this sidesteps path comparison entirely rather than papering over it.
+fn zjjtm_assert_same_dir(root: Option<PathBuf>, expected: &Path) {
+    let root = root.expect("a git tree must resolve an infield root");
+    let via_root = std::fs::read_to_string(root.join("jjtm-marker.txt")).expect("marker must read back through the derived root");
+    let via_expected = std::fs::read_to_string(expected.join("jjtm-marker.txt")).expect("marker must read back through the planted path");
+    assert_eq!(
+        via_root, via_expected,
+        "the derived root must be the same directory as the marker's, however each path string reads"
+    );
 }
 
 #[test]
 fn jjtm_infield_root_is_hippodrome_parent_for_primary_seat() {
     let infield = JjkTestDir::new("jjtm_infield_root_primary");
+    std::fs::write(infield.path().join("jjtm-marker.txt"), "primary").unwrap();
     let hippodrome = infield.path().join("hippodrome");
     std::fs::create_dir_all(&hippodrome).unwrap();
     zjjtm_init_local(&hippodrome);
@@ -749,16 +770,25 @@ fn jjtm_infield_root_is_hippodrome_parent_for_primary_seat() {
 
     let root = zjjrm_infield_root(&jjrfg_PlainGit, &hippodrome);
 
-    assert_eq!(root, Some(infield.path().to_path_buf()));
+    zjjtm_assert_same_dir(root, infield.path());
 }
 
 #[test]
 fn jjtm_infield_root_is_primary_root_parent_for_partition_seat() {
     let infield = JjkTestDir::new("jjtm_infield_root_partition");
+    std::fs::write(infield.path().join("jjtm-marker.txt"), "partition").unwrap();
+    // billet_create anchors at trunk's remote counterpart — the hippodrome
+    // needs a real pushed origin, the same shape zjjtm_staleness_infield
+    // builds for the same reason.
+    let bare = infield.path().join("upstream");
+    std::fs::create_dir_all(&bare).unwrap();
+    zjjtm_git(&bare, &["init", "-q", "--bare", "-b", ZJJTM_TRUNK]);
     let hippodrome = infield.path().join("hippodrome");
     std::fs::create_dir_all(&hippodrome).unwrap();
     zjjtm_init_local(&hippodrome);
     zjjtm_commit_all(&hippodrome, "a.txt", "hello", "init");
+    zjjtm_git(&hippodrome, &["remote", "add", "origin", &bare.to_string_lossy()]);
+    zjjtm_git(&hippodrome, &["push", "-q", "-u", "origin", ZJJTM_TRUNK]);
     let billet_root = infield.path().join("jjqb_AAAAA");
     jjrfg_PlainGit
         .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("AAAAA".to_string()), &billet_root, ZJJTM_TRUNK)
@@ -766,7 +796,7 @@ fn jjtm_infield_root_is_primary_root_parent_for_partition_seat() {
 
     let root = zjjrm_infield_root(&jjrfg_PlainGit, &billet_root);
 
-    assert_eq!(root, Some(infield.path().to_path_buf()));
+    zjjtm_assert_same_dir(root, infield.path());
 }
 
 #[test]
@@ -778,7 +808,7 @@ fn jjtm_infield_root_is_none_on_foreign_ground() {
 
 #[test]
 fn jjtm_glean_studbook_succeeds_against_a_reachable_remote() {
-    let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_glean_ok", "whatever");
+    let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_glean_ok", "GK");
 
     let result = zjjrm_glean_studbook(&jjrfg_PlainGit, &config);
 
