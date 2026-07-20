@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAc",
+  "jjgrn_next_pace_seed": "CAAAd",
   "jjgrn_heat_order": [
     "₣Bz",
     "₣B5",
@@ -5060,6 +5060,7 @@
         "₢CAAAJ",
         "₢CAAAK",
         "₢CAAAL",
+        "₢CAAAc",
         "₢CAAAb",
         "₢CAAAM"
       ],
@@ -5281,6 +5282,39 @@
           ],
           "jjgpn_dictation": "yes, but chivvy: lets significantly shrink the list before proceeding with the rest of B5",
           "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row was lost when the merged store took gamma's side; the work itself is complete and committed).\nThe first census page was dominated by assignment-as-declaration noise (tabtarget formulary lines, cross-family bash assignments, README examples);\nthis pace lands envelope dispatch and the home-file claim rule so the presentment list shrinks to real findings before the index-render pace proceeds.",
+          "jjgpn_slated": "260719-2141"
+        },
+        "₢CAAAc": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2141",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Work through the first live census batch (470 presentments, 7204 estrays from the first proven jog through the JJ seam)",
+                "by ruling each observed noise class rather than hand-dismissing findings:",
+                "historical-prose sites (retired blotters, chat captures, study scratch) via the Tier-0 file-selection allowlist;",
+                "per-file shell working variables in step-script families read as global declarations (declaration-recognition fidelity);",
+                "sub-signet trodden fragments seated by the tokenizer (seating grade),",
+                "which also pollute terminal-exclusivity with string-prefix coincidences.",
+                "Every class gets a ruling — excluded by scope, refined in recognition, or explicitly deferred — never a silent drop.",
+                "",
+                "## Cinched",
+                "Allowlist tightening stays schema-compatible with the tackle table (paddock: Tier-0 clause).",
+                "Mechanical, never linguistic (VOr_m7w) — a grade rule is a set/shape rule, not a word judgment.",
+                "Residue-driven: the estray set and surviving noise decide which classifier or rule lands next, per the paddock's classifier-growth resolution.",
+                "",
+                "## Done when",
+                "A re-run census reflects the rulings — the ruled-out classes no longer present —",
+                "and the surviving findings (e.g. the cipher registry's own seated-with-children entries, true near-miss collisions)",
+                "are banked in a short operator-facing triage note distinguishing real corpus questions from tool residue."
+              ],
+              "jjgtn_silks": "census-first-triage",
+              "jjgtn_basis": "128f50c"
+            }
+          ],
+          "jjgpn_dictation": "We should chivvy a pace to work through the first batch of census content.",
+          "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row, minted ₢CAAAa concurrently with another clone's B3 slate, was lost when the merged store took gamma's side; the work itself is complete and committed, W commit 40d00caa9).\nThe first live jog surfaced a census that was mechanically sound but noise-dominated in three classes\n(historical-prose sites, per-file shell locals, sub-signet fragments);\nthis pace ruled each class through scope, recognition, or grade —\ndeepening the tool through use before the index-render pace trusts the census.",
           "jjgpn_slated": "260719-2141"
         }
       }
