@@ -5253,7 +5253,7 @@
           "jjgpn_tacks": [
             {
               "jjgtn_ts": "260719-2141",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_text": [
                 "## Focus",
                 "Shrink the presentment list by teaching the census the declaration-site vs inscription-site distinction, in the Liturgy's own terms, two layers:",
@@ -5277,7 +5277,7 @@
                 "and the triage memo gains a short record of the two rulings and the new census numbers."
               ],
               "jjgtn_silks": "census-declaration-vs-inscription",
-              "jjgtn_basis": "05014a4"
+              "jjgtn_basis": "12b459c"
             }
           ],
           "jjgpn_dictation": "yes, but chivvy: lets significantly shrink the list before proceeding with the rest of B5",
