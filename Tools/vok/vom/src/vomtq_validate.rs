@@ -150,6 +150,21 @@ fn vomtq_clean_corpus_yields_no_presentments() {
 }
 
 #[test]
+fn vomtq_same_file_stem_and_content_declaration_is_one_mint() {
+    // A module named for its primary act: the file-stem envelope and the
+    // in-content declaration are one mint, never a collision.
+    let corpus = vec![(
+        "Tools/vok/vof/src/voftt_thing.rs".to_string(),
+        "pub fn voftt_thing() {}\n".to_string(),
+    )];
+    let mut builder = vomrb_Builder::vomrb_raise();
+    builder.vomrb_seat_corpus(&corpus);
+    let census = builder.vomrb_seal();
+
+    assert!(census.vomrm_exact_collisions().is_empty());
+}
+
+#[test]
 fn vomtq_rivet_finding_is_advisory() {
     use super::vomrs_signet::{vomrs_Site, vomrs_SignetTrie};
     let mut trie = vomrs_SignetTrie::vomrs_raise();
