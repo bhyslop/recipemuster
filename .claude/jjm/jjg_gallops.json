@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAn",
+  "jjgrn_next_pace_seed": "CAAAo",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4537,6 +4537,7 @@
         "₢CAAAQ",
         "₢CAAAa",
         "₢CAAAR",
+        "₢CAAAn",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -4887,6 +4888,61 @@
           "jjgpn_dictation": "I really really do not want a git reset --hard anywhere in this sequence. Do we have some serious design problems? [...] I do want though to have tha conversation about removing reset --hard from the write path: what notions do you have for this?",
           "jjgpn_precis": "The operator categorically rejects `git reset --hard` in the studbook sequences\nand directed a design conversation on removing it from the write path.\nThe session settled the direction:\nnever create refused-push residue (compose-then-push, branch advances only on success),\nderive mutations from post-lock state (mutate-as-transform),\nrevise the `JJr_b52` rivet doctrine alongside the code,\nand halt-and-surface on impossible states rather than auto-destroy.",
           "jjgpn_slated": "260719-2026"
+        },
+        "₢CAAAn": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260720-0725",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Planning/triage — read the embedded findings, RULE the rescope, enact it via slate/reslate/cantle. Decide, do not build.",
+                "",
+                "## The finding (grounded 260720 AM; processed immediately — line anchors current)",
+                "The cutover-ceremony pace's premise (an afternoon flip-and-import) does not match the code. Three parallel surveys of the `jjk` crate (`Tools/jjk/vov_veiled/src/`; binary `vvr` ← `Tools/vok/src/vorm_main.rs`, installed `Tools/vvk/bin/vvx`) agree: the cutover machinery is substantially UNBUILT. Four gaps against the Rung-1 done-line:",
+                "",
+                "1. **MCP command-surface repoint — MISSING (the bulk).** Every `jjx_*` command reads AND writes state to the in-repo `.claude/jjm/jjg_gallops.json` unconditionally (`jjrm_mcp.rs`: `GALLOPS_PATH`@50, `gallops_pathbuf`@120, load@237-245, plus `jjri_persist`/`jjdr_save` writes) — seam-blind. `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` gates ONLY the saddle/lunge dispatch spine (`jjrds_spine.rs:847`), never commands. Rung-1's \"every install reads AND writes state through the studbook alone, every `jjx_*` command's read repointed\" requires this. Read half can lean on the built+tested `jjdb_gallops_journal_load` (git-show over the studbook pin) — currently an uncalled island. WRITE half must journal through the blotter ceremony (JJSVJ: lock `refs/jjv/guidon` → commit → push), NOT a file overwrite — and whether ANY command-write is wired to the journal was NOT directly surveyed (confirm at build; likely also unbuilt).",
+                "",
+                "2. **Officium relocation — DEAD SEAM.** `JJRM_OFFICIUM_STUDBOOK_ENABLED` (`jjrm_mcp.rs:1828`) has zero production reads; `zjjrm_exchange_dir`@1771 builds `.claude/jjm/officia/<id>/` unconditionally; the relocation helper `jjrm_studbook_exchange_dir`@1840 (target `<studbook>/officia_scratch/<id>/`) is test-only. Flipping the const does nothing until the branch is written into open/validate/exchange — plus the station-name refusal (`jjrm_station_name()` None → refuse open) is unwritten.",
+                "",
+                "3. **Founding orchestrator — NO ENTRYPOINT.** `jjdb_founding_import` (`jjrvb_blotter.rs:192` — retains racing+stabled, collision-refuses on dup firemark|coronet, tested) and `jjdb_found`@120 (git init/seed/push) are LIBRARY functions with zero production callers. No `vvr` subcommand, no `jjw-*` tabtarget, no `jjx` command drives them. Refusal+merge core is real; the ceremony that runs it is not.",
+                "",
+                "4. **pedigrees.json writer — MISSING.** Reader B needs `pedigrees.json` in BOTH seam states; the founding importer seeds gallops only; nothing in production writes it (test helpers only). The founding seed must produce it (likely folds into gap 3).",
+                "",
+                "## The crux (why the paddock read \"verified built, awaiting the flip\")",
+                "The paddock's record-read finding named `jjdb_gallops_journal_load` \"complete and tested behind the seam.\" True of the FUNCTION — but it is an island: no live command calls it, and the command surface never consults the seam. \"Awaiting the flip\" is really \"awaiting the command-surface wiring (read AND journal-write), THEN the flip.\" The dispatch-spine reader (`jjrds_plan`) IS built-behind-seam; the command-surface reader is not wired at all.",
+                "",
+                "## Ordering kicker",
+                "The tombstone (the one finish-ready act) cannot go first: because the command surface reads the in-repo gallops unconditionally, tombstoning `.claude/jjm/jjg_gallops.json` breaks the CURRENT binary's every `jjx` command too, not just old binaries. Tombstone is LAST — after the command surface reads the studbook.",
+                "",
+                "## Ready assets (real components, not a ceremony)",
+                "Dispatch-door reader (built-behind-seam); founding importer collision-refusal + live-state merge (library-tested); tombstone fail-loud (loader has no version guard, no default fallback — any non-gallops content trips a loud parse error at `jjrm_mcp.rs:237-245`); schema call SETTLED — **NO reprieve episode** (tombstone retires the file wholesale, changes no serialized field; §E definition + JJSCRP:62 — the reprieve is the inverse, making a NEW binary tolerate an OLD store). **§F branch delivery + cross-install convergence DO apply.**",
+                "",
+                "## Ground truth for the eventual build/cutover",
+                "Studbook clone resolves by pure convention (peer dir of the project clone; NO env/config) — on this station `/Users/bhyslop/projects/jjqs_studbook` (operator-mutable instance of the durable \"infield peer dir\" rule). Exists as the scratch rehearsal seed: 55-byte empty gallops + `pedigrees.json`, branch `trunk`, remote `git@github.com:bhyslop/jjqs_studbook.git`. This IS the RECREATE-CLEAN (260719) target. Build+install: `vvr` ← `Tools/vok/src/vorm_main.rs` → `Tools/vvk/bin/vvx`.",
+                "",
+                "## Recommendation (Fable weighs, rules, ENACTS — does not build)",
+                "Build-first. The current cutover pace is really a build effort THEN the ceremony. Suggested shape (segmentation is Fable's to rule):",
+                "- **Cantle build paces** (ahead of the ceremony) for the four gaps — likely: (a) command-surface repoint [read via `jjdb_gallops_journal_load` + journal-write via JJSVJ] — the big one, may split; (b) officium relocation wiring + station-name refusal; (c) founding orchestrator entrypoint (drives `jjdb_founding_import`, seeds `pedigrees.json`, stands up via `jjdb_found`); (d) pedigrees writer, likely folded into (c). Each build pace landable+testable under CURRENT JJ (both seams false), on a §F branch.",
+                "- **Reslate the cutover-ceremony pace** to the post-build afternoon ceremony: quiesce (both machines) → final-sync → recreate-clean remote → run founding orchestrator → flip both seams → rebuild+install `vvx` → verify command surface + both readers on studbook + officium relocated → tombstone. Done-line unchanged; only its precondition (machinery built) is now explicit.",
+                "- **Live inventory to act on:** `jjx_coronets B3` / `jjx_show B3`. The near paces today are the cutover-ceremony (this pace's target), de-insertion, sheaf-hardening, and the terminal carry-forward — de-insertion + sheaf-hardening stay downstream of the ceremony; the carry-forward stays terminal.",
+                "",
+                "## Cinched",
+                "- Fable DECIDES + ENACTS the rescope (slate/reslate/cantle only); Fable does NOT build the machinery.",
+                "- RECREATE CLEAN (260719) stands: eventual founding runs against a recreated-empty remote, never additively atop the scratch instance.",
+                "- No memo — this docket is the finding's home (operator ruling).",
+                "- Findings grounded 260720 AM; trust them for the decision, spot-check only if a ruling hinges on a detail — do not re-survey.",
+                "",
+                "## Done when",
+                "The heat is re-shaped so the path to cutover is correctly sequenced: build pace(s) for the missing machinery slated ahead of the ceremony (each with a clear, landable docket), and the cutover-ceremony pace reslated to the post-build ceremony — OR any gap needing an operator ruling surfaced. No machinery built in this pace."
+              ],
+              "jjgtn_silks": "cutover-buildgap-rescope",
+              "jjgtn_basis": "e0d96a7"
+            }
+          ],
+          "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.",
+          "jjgpn_precis": "Operator directs a Fable-bridled planning pace carrying the survey findings that the studbook-cutover machinery is substantially unbuilt (command-surface repoint, officium relocation, founding orchestrator, pedigrees writer all missing). Fable rules and enacts the rescope — cantle build pace(s) and/or reslate the cutover-ceremony pace — but performs no build itself.",
+          "jjgpn_slated": "260720-0725"
         }
       }
     },
