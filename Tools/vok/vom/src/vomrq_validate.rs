@@ -18,15 +18,20 @@ fn zvomrq_is_advisory(signet: &str) -> bool {
     crate::vomrv_vesture::vomrv_claim_rivet(signet)
 }
 
-/// Exact collision: a signet declared at two or more distinct sites
-/// (count-blind - many sites still surface as one presentment).
+/// Exact collision: a signet declared in two or more distinct FILES
+/// (count-blind - many sites still surface as one presentment). Distinctness
+/// is per-file, not per-line: a module named for its primary act declares
+/// one mint through two claim mechanisms (the file-stem envelope and the
+/// in-content declaration), and same-file sites are that one mint, never
+/// competing ones. A true same-file double declaration is a shadowing
+/// concern for a future lint, outside the MVP collision rule.
 pub fn vomrq_exact_collisions(trie: &vomrs_SignetTrie) -> Vec<vomrp_Presentment> {
     let mut out = Vec::new();
     for signet in trie.vomrs_signets() {
         let sites = trie.vomrs_sites(signet);
         let mut distinct: Vec<&(String, crate::vomrs_signet::vomrs_Site)> = Vec::new();
         for entry in sites {
-            if !distinct.iter().any(|(_, s)| *s == entry.1) {
+            if !distinct.iter().any(|(_, s)| s.file == entry.1.file) {
                 distinct.push(entry);
             }
         }
@@ -37,7 +42,7 @@ pub fn vomrq_exact_collisions(trie: &vomrs_SignetTrie) -> Vec<vomrp_Presentment>
             inscriptions: vec![signet.to_string()],
             sites: distinct.iter().map(|(_, s)| s.clone()).collect(),
             detail: format!(
-                "signet `{signet}` declared at {} distinct sites",
+                "signet `{signet}` declared in {} distinct files",
                 distinct.len()
             ),
             rule: "semantic uniqueness (MCM 'Lapidary')",

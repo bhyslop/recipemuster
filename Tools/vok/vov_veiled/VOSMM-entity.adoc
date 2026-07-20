@@ -508,6 +508,19 @@ It rides as maintained input to the still-transient
 and so leaves VOr_k3p untouched (distinct from the maintained non-transient census listed above);
 detection is exact-match (VOr_m7w holds) and the blocked-violation-versus-legitimate-use verdict stays the operator's — `spine` is a `mcm_hallowed_word` yet legitimately seated at `rblds_spine.sh` and as "the spine" in ACG, so the lint is advisory, never a gate.
 Whether a blocked word takes a grimoire row (widening the charter from one-row-per-minted-word to *governed words: minted-with-forms or blocked-with-status*, letting a `mcm_furrowed_word` ripen to minted status in place) or rides a sibling table the same tooling reads: open, recorded, the lean toward the single widened table.
+*Status values (260719 lean).*
+MCM's five soil categories factor along this very migration boundary:
+they differ five ways in *rationale* (how a mind assigns, and each census's growth-tell)
+but only four ways in *behavior* (what tooling does on a hit) —
+trodden and leached both hard-fail the mint gate, the gate indifferent to which defect;
+hallowed and fallow both mean sound-but-reserved, warn-and-walk-freely;
+furrowed alone carries intent-to-mint and the ripen-in-place lifecycle;
+minted completes the set.
+So the mint-status tag takes four values — disqualified, reserved, earmarked, minted —
+with the MCM category riding as provenance on the row (reserved/hallowed), never branched on by tooling:
+MCM keeps five meanings, the table takes four statuses,
+and a six-value enum mirroring the full taxonomy would be the table absorbing doctrine it shouldn't hold —
+which is itself one more reason the single widened table stays the lean.
 The precise how — row shape, the durable-document set, the accepted-use ledger — is deferred with the rest of the sketch.
 
 *Toothing slots and the clause grammar (260707 lean).*

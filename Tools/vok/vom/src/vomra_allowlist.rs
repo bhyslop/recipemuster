@@ -22,7 +22,13 @@ use std::path::Path;
 pub const VOMA_ALLOWLIST: &[&str] = &["*.md", "*.adoc", "*.rs", "*.sh"];
 
 /// Reference-only path prefixes excluded from the MVP declaration scan.
-pub const VOMA_REFERENCE_ONLY: &[&str] = &["Memos/"];
+/// `.claude/jjm/` (heat blotters, chat archives, gallops record) and
+/// `Study/` (scratch investigations) are historical prose in the same
+/// reference-only sense as Memos: records ABOUT names, never declarations
+/// of them. Deliberately NOT all of `.claude/` - `.claude/commands/` is a
+/// live minted namespace (CLAUDE.md Extended Namespace Checklist: command
+/// files `.claude/commands/{cmd}.md`), so its basenames stay in the census.
+pub const VOMA_REFERENCE_ONLY: &[&str] = &["Memos/", ".claude/jjm/", "Study/"];
 
 /// Check whether a path's shape is allowlisted.
 pub fn voma_is_allowed(path: &Path) -> bool {
