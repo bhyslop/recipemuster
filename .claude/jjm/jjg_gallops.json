@@ -4459,7 +4459,7 @@
         "₢CAAAd": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2217",
+              "jjgtn_ts": "260719-2221",
               "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Character",
@@ -4475,13 +4475,16 @@
                 "The conclave cohort already seals every tool these captures need",
                 "(`zrbfc_resolve_tool_images` in `rbfca_assembly.sh` names the member tags),",
                 "so the repair requires no cohort growth.",
-                "After the repair, the only floating builder rows in the system are conclave's own gcrane rows —",
+                "After the repair, the only floating builder rows among the build steps we author are conclave's own gcrane rows —",
                 "which restores `RBr_p7c`'s original claim (generation as the one floating phase) to truth.",
                 "",
                 "## Needed change",
                 "Elect a reliquary for vessel-less capture tooling via a single new RBRR field,",
                 "with render/validate coverage per the existing RBRR pattern",
                 "(mint the name at mount under lapidary; describe the role, never enumerate the kinds).",
+                "The field is born legal-empty (see Cinched), so the marshal-zero blank template carries it empty and un-elected stations still validate;",
+                "being an enrolled regime field, it also takes a site-vs-common proscription ruling in `rblm_lustrate.sh`'s table",
+                "(with sterile and feigned values if site-scoped) — damnatio follows that table automatically.",
                 "Provide its express-or-chain writer — extending the post-conclave yoke gesture or minting a sibling verb is a mount-time decision.",
                 "Rework the underpin and immure recipes to resolve gcloud/docker/gcrane from the elected reliquary;",
                 "retire the floating constants this strands, leaving the gcrane bootstrap constant conclave-only.",
@@ -4491,30 +4494,32 @@
                 "Sweep the spec sheaves and onboarding for the old floating story and the new conclave-then-elect ordering:",
                 "`grep -rln 'RBr_p7c\\|GCRANE_BUILDER' Tools/rbk/vov_veiled/` and",
                 "`grep -rln 'underpin\\|immure\\|conclave' Tools/rbk/rbh0/` are the discovery recipes, not a site list.",
+                "Note the settled ruling in the memo's Status stanza so memo and docket tell one story.",
                 "",
                 "## Cinched",
                 "- Reliquary route, not digest-pin-in-place: the vessel-less captures (wsl underpin, podvm immure) resolve pinned tools from a reliquary elected by one shared repo-regime (RBRR) field. Ruled in discussion 2026-07-19.",
                 "- The election is durable committed regime, written express-or-chain with the operator committing — never chain-consumed transiently at capture time, never per-kind fields, never skeleton vessel regimes for the vessel-less kinds.",
-                "- Do not revert bole's pinned resolution; conclave's float stays accepted and becomes the system's only floating rows.",
+                "- The field is legal-empty until elected: shape-validated when present, and a vessel-less capture attempted against an empty election rejects loud with a named precision-band code at use time — the `RBRV_RELIQUARY` precedent, never a required-at-validation field.",
+                "- Do not revert bole's pinned resolution; conclave's float stays accepted and becomes the sole remaining floating rows.",
                 "- Fresh-depot ordering conclave → elect → capture is accepted as correct; onboarding and ladder surfaces reflect it rather than work around it.",
                 "- The self-attesting vouch structure (the capture step writes its own envelope) is out of scope.",
                 "",
                 "## Done when",
                 "underpin and immure resolve every builder image from the elected reliquary — at least one capture demonstrated live against a real depot — and the only floating builder rows left are conclave's;",
-                "the RBRR field renders and validates, and its writer works express-or-chain under the uncommitted-write / operator-commit discipline;",
+                "the RBRR field renders and validates (empty and elected both), its writer works express-or-chain under the uncommitted-write / operator-commit discipline, and its proscription ruling stands in the lustrate table;",
                 "`rbsk_pinning_boundary` and `RBr_p7c` describe the pinned reality truthfully with every citation landing on a covering home;",
                 "spec sheaves and onboarding tell the new story;",
-                "picket + regime-poison green (regime and foundry surfaces both touched);",
+                "picket + regime-poison green — regime-poison extended to the new field if its validation warrants a negative case;",
                 "any bash touched is BCG-compliant and `tt/rbw-tl.Shellcheck.sh` lands clean."
               ],
               "jjgtn_silks": "pin-vessel-less-capture-tools",
-              "jjgtn_basis": "5c4a262"
+              "jjgtn_basis": "2f673ba"
             }
           ],
           "jjgpn_dictation": "Would you write a memo detailing all of these findings and then slate a pace in B2 to resolve this? While I want you to name the memo in the new pace, keep the docket from getting into the cryptographic attack vector- we just need to work out a right way to use a reliquary for these operations, I think.",
           "jjgpn_precis": "The pinning-boundary spec claims wsl/podvm captures resolve a pinned gcrane; they actually float on a mutable-tag builder because they are vessel-less (no reliquary slot). Resolve the gap — work out how these captures obtain pinned (ideally reliquary-resolved) tool images — and correct the RBS0 premise and RBr_p7c wording to match. Full findings and the security rationale live in the named memo; keep the docket to the design question, not the attack vector.",
           "jjgpn_slated": "260719-2157",
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         }
       }
     },
