@@ -30,8 +30,8 @@ set -euo pipefail
 test -z "${ZRBFCB_SOURCED:-}" || return 0
 ZRBFCB_SOURCED=1
 
-# zrbfc_redon_tick — one mid-flight re-don attempt, on the poll's cadence
-# (RBS0 rbsk_human_present). The don alone, never the avow-folding accessor,
+# zrbfc_redon_tick — one mid-flight re-don attempt, on the poll's cadence.
+# The don alone, never the avow-folding accessor,
 # so a lapsed sitting fails loud here instead of re-entering the interactive
 # avowal mid-loop. Called in the process frame, never `$()`: it announces on
 # the progress stream and its deaths must exit the run. Result rides the
@@ -319,7 +319,7 @@ zrbfc_write_script_body() {
 # <snippets_dir>/rbgjs-<name>.sh with its leading shebang stripped — the same
 # shebang-strip rule zrbfc_write_script_body applies. A body with no markers is
 # rewritten unchanged (a no-op), so every assembler may call this for every step.
-# This is the host side of the shared cloud-step library (RBSCJ "Composed-snippet
+# This is the host side of the shared cloud-step library (the "Composed-snippet
 # library"): a snippet reads shell vars the kind sets before the marker and is
 # blind to substitution names, which is what lets one snippet serve callers with
 # disjoint _RBGx_ substitution sets. Pure primitive — args only, no kindle state,

@@ -47,7 +47,7 @@ RBCC_nodes_subdir="rbmn_nodes"
 RBCC_vessels_subdir="rbmv_vessels"
 RBCC_foedera_subdir="rbmf_foedera"
 # Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
-# per standing foedus (RBSRF). The single home for "where the foedera live": the
+# per standing foedus. The single home for "where the foedera live": the
 # library DIRECTORY is a distinct fact from any one foedus's rbrf.env, and the
 # enumeration sites (canvass, the foedus-identity validator) need it as such.
 # rbcc_rbrf_file_capture below composes the per-foedus file off this same root, so
@@ -56,7 +56,7 @@ RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
 RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
 RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
 RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
-# Workforce regime file — the manor's ONE workforce pool identity (RBSRW).
+# Workforce regime file — the manor's ONE workforce pool identity.
 # Manor-level (axrd_singleton, one per manor), so it sits flat at the moorings
 # root, a sibling of the rbmf_foedera library rather than a member of it — where
 # the per-foedus rbrf.env files live. Holds the pool coordinates (org, pool id,
@@ -64,7 +64,7 @@ RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
 RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # Federation regime file — resolved from the ACTIVE foedus's selector, NOT a
 # source-time constant. The foedera library (RBCC_foedera_subdir) holds one
-# rbef_ subdirectory per standing foedus (RBSRF); RBRR_ACTIVE_FOEDUS names the
+# rbef_ subdirectory per standing foedus; RBRR_ACTIVE_FOEDUS names the
 # active one. That selector is only populated once rbrr.env is sourced during
 # furnish — AFTER this module — so the path cannot be constant-folded here.
 # rbcc_rbrf_file_capture (below) composes it post-rbrr; every consumer sources
@@ -79,7 +79,7 @@ RBCC_rbrn_file="rbrn.env"
 RBCC_rbro_file="rbro.env"
 # Vessel regime file — a bare basename, not a moorings-rooted path: the regime is
 # manifold (one per vessel), so each call site composes the vessel directory from
-# RBRR_VESSEL_DIR. Placement and contract are homed at the rbrv_regime quoin (RBS0).
+# RBRR_VESSEL_DIR. Placement and contract are homed at the rbrv_regime quoin.
 # Sibling to the basename-style RBCC_rbrn_file / RBCC_rbro_file above.
 RBCC_rbrv_file="rbrv.env"
 
@@ -172,7 +172,7 @@ RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retrie
 RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
 RBCC_fact_ext_audit_hallmark="audit-hallmark"
 # Foedus descry health verdict — descry writes <foedus>.foedus-health carrying
-# one of healthy / provider-absent / coordinate-drift (RBSFD provider-grain
+# one of healthy / provider-absent / coordinate-drift (provider-grain
 # verdicts) for the reuse-or-establish fixture to branch on (reuse iff healthy).
 RBCC_fact_ext_foedus_health="foedus-health"
 # Foedus canvass census — canvass writes one <foedus>.foedus per provider under
@@ -183,7 +183,7 @@ RBCC_fact_ext_foedus="foedus"
 # Sitting espy verdict — the read-only probe (rba_espy_sitting) writes
 # <foedus>.sitting carrying verdict= (live / lapsed / absent) and, when the
 # cache holds an expiry, runway= (whole seconds remaining) — for the theurge
-# gate arc to branch on before the may-prompt baseline avow (RBS0 rbtf_espy).
+# gate arc to branch on before the may-prompt baseline avow.
 RBCC_fact_ext_sitting="sitting"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
@@ -229,7 +229,7 @@ RBCC_container_sentry="sentry"
 # after rbrr.env is sourced, which every runtime consumer does before calling
 # this; a no-repo-regime context simply never calls it. This on-demand
 # resolution replaces the former source-time RBCC_rbrf_file constant — the
-# deferred federation family-of-named-instances rework (RBSRF).
+# deferred federation family-of-named-instances rework.
 rbcc_rbrf_file_capture() {
   local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
   test -n "${z_foedus}" || return 1

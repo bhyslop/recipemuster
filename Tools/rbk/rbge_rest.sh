@@ -181,8 +181,8 @@ rbge_api_enable() {
   local -r z_enable_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:enable"
   local -r z_poll_root="https://serviceusage.googleapis.com/v1"
 
-  # Whole-attempt retry over the serviceusage INTERNAL flake — rivets RBr_4e7
-  # (signature) / RBr_d21 (membrane) at RBS0 rbtoe_api_enable.
+  # Whole-attempt retry over the serviceusage INTERNAL flake — RBr_4e7
+  # (signature) / RBr_d21 (membrane).
   local z_attempt=1
   while :; do
     local z_infix="api-enable-${z_api_service}-a${z_attempt}"

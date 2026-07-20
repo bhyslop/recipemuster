@@ -4,7 +4,7 @@
 #          conclave captures the reliquary tools themselves, so it cannot bootstrap
 #          from a reliquary; gcrane authenticates GAR ambiently via its google.Keychain
 #          -> ADC -> the GCE metadata server as the Mason SA, no explicit login. The
-#          :debug variant carries /busybox/sh for the orchestration. Auth canon: RBSCB)
+#          :debug variant carries /busybox/sh for the orchestration)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_TAG_SPRUE, _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA,
 #                _RBGL_ACQUIRED_BY
@@ -65,7 +65,7 @@ while IFS='|' read -r NAME UPSTREAM; do
   # makes the Lode package a parent-index/child-manifest web, where GAR refuses to
   # delete a child while its parent index exists (FAILED_PRECONDITION, "referenced by
   # parent manifests") and a single packages.delete removes nothing — banish then
-  # needs multiple convergence rounds instead of one. References: RBSLC, RBSLB, RBSCB.
+  # needs multiple convergence rounds instead of one.
   gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
     || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
 

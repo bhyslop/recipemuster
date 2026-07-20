@@ -15,7 +15,7 @@
 # Base pinning: rbgjb03 resolved each populated base slot's tag to a digest and
 # wrote the pinned ref "<ref>@sha256:<digest>" to .resolved_base_n, read here
 # per slot as the RBF_IMAGE_n build-arg and the rbi_resolved_base_n image
-# label; rivet RBr_b4e.
+# label; RBr_b4e.
 # The rbi_resolved_base_n label key is a literal here (cloud steps source no
 # constants); its host home is RBGC_IMAGE_LABEL_RESOLVED_BASE. The neighbor
 # labels (hallmark, git.commit, git.branch) stay unsprued by deliberate

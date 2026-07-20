@@ -188,9 +188,9 @@ rbld_ensconce() {
   buc_info "Ensconce base: ${z_origin}"
 
   # Resolve tool images from the reliquary. bole is a sealed-reliquary consumer, so
-  # BOTH steps ride the PINNED reliquary gcrane (z_rbfc_tool_gcrane) — zero unpinned
-  # aspects (RBS0 rbsk_pinning_boundary). The vessel supplies RBRV_RELIQUARY; gcrane
-  # auths GAR ambiently whether pulled from gcr.io or our AR.
+  # both steps ride the pinned reliquary gcrane (z_rbfc_tool_gcrane) (RBr_p7c). The
+  # vessel supplies RBRV_RELIQUARY; gcrane auths GAR ambiently whether pulled from
+  # gcr.io or our AR.
   zrbfc_resolve_tool_images
 
   buc_step "Authenticating as Director"

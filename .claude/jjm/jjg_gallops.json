@@ -1,14 +1,14 @@
 {
   "jjgrn_next_heat_seed": "B7",
-  "jjgrn_next_pace_seed": "CAAAd",
+  "jjgrn_next_pace_seed": "CAAAe",
   "jjgrn_heat_order": [
     "₣Bz",
     "₣B5",
     "₣B3",
     "₣B4",
     "₣B0",
-    "₣Bs",
     "₣Bd",
+    "₣Bs",
     "₣B6",
     "₣Bg",
     "₣B1",
@@ -4265,7 +4265,8 @@
         "₢B2AAF",
         "₢B2AAG",
         "₢B2AAH",
-        "₢B2AAI"
+        "₢B2AAI",
+        "₢CAAAd"
       ],
       "jjghn_paces": {
         "₢B2AAA": {
@@ -4454,6 +4455,66 @@
               "jjgtn_basis": "a325431"
             }
           ]
+        },
+        "₢CAAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2217",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Implementation of a cinched design — a wide-ranging repair across code, regime, specs, and onboarding.",
+                "Surface surprises as they arise; do not re-open the settled shape.",
+                "",
+                "## Context",
+                "`Memos/memo-20260719-pinning-boundary-vessel-less-capture-gap.md` is the full finding;",
+                "the repair shape it deliberately left open was settled in operator discussion 2026-07-19 (see Cinched).",
+                "Code facts sharpening the memo's table:",
+                "underpin's fetch step also rides the floating docker builder (`rbldw_underpin.sh` recipe rows),",
+                "and immure rides gcloud + gcrane + docker.",
+                "The conclave cohort already seals every tool these captures need",
+                "(`zrbfc_resolve_tool_images` in `rbfca_assembly.sh` names the member tags),",
+                "so the repair requires no cohort growth.",
+                "After the repair, the only floating builder rows in the system are conclave's own gcrane rows —",
+                "which restores `RBr_p7c`'s original claim (generation as the one floating phase) to truth.",
+                "",
+                "## Needed change",
+                "Elect a reliquary for vessel-less capture tooling via a single new RBRR field,",
+                "with render/validate coverage per the existing RBRR pattern",
+                "(mint the name at mount under lapidary; describe the role, never enumerate the kinds).",
+                "Provide its express-or-chain writer — extending the post-conclave yoke gesture or minting a sibling verb is a mount-time decision.",
+                "Rework the underpin and immure recipes to resolve gcloud/docker/gcrane from the elected reliquary;",
+                "retire the floating constants this strands, leaving the gcrane bootstrap constant conclave-only.",
+                "Correct `rbsk_pinning_boundary` and `RBr_p7c` (RBS0) on the memo's now-pinned branch;",
+                "every code site citing `RBr_p7c` must land on a home that covers it —",
+                "after the repair the wsl/podvm sites no longer float, so recheck what they should cite.",
+                "Sweep the spec sheaves and onboarding for the old floating story and the new conclave-then-elect ordering:",
+                "`grep -rln 'RBr_p7c\\|GCRANE_BUILDER' Tools/rbk/vov_veiled/` and",
+                "`grep -rln 'underpin\\|immure\\|conclave' Tools/rbk/rbh0/` are the discovery recipes, not a site list.",
+                "",
+                "## Cinched",
+                "- Reliquary route, not digest-pin-in-place: the vessel-less captures (wsl underpin, podvm immure) resolve pinned tools from a reliquary elected by one shared repo-regime (RBRR) field. Ruled in discussion 2026-07-19.",
+                "- The election is durable committed regime, written express-or-chain with the operator committing — never chain-consumed transiently at capture time, never per-kind fields, never skeleton vessel regimes for the vessel-less kinds.",
+                "- Do not revert bole's pinned resolution; conclave's float stays accepted and becomes the system's only floating rows.",
+                "- Fresh-depot ordering conclave → elect → capture is accepted as correct; onboarding and ladder surfaces reflect it rather than work around it.",
+                "- The self-attesting vouch structure (the capture step writes its own envelope) is out of scope.",
+                "",
+                "## Done when",
+                "underpin and immure resolve every builder image from the elected reliquary — at least one capture demonstrated live against a real depot — and the only floating builder rows left are conclave's;",
+                "the RBRR field renders and validates, and its writer works express-or-chain under the uncommitted-write / operator-commit discipline;",
+                "`rbsk_pinning_boundary` and `RBr_p7c` describe the pinned reality truthfully with every citation landing on a covering home;",
+                "spec sheaves and onboarding tell the new story;",
+                "picket + regime-poison green (regime and foundry surfaces both touched);",
+                "any bash touched is BCG-compliant and `tt/rbw-tl.Shellcheck.sh` lands clean."
+              ],
+              "jjgtn_silks": "pin-vessel-less-capture-tools",
+              "jjgtn_basis": "5c4a262"
+            }
+          ],
+          "jjgpn_dictation": "Would you write a memo detailing all of these findings and then slate a pace in B2 to resolve this? While I want you to name the memo in the new pace, keep the docket from getting into the cryptographic attack vector- we just need to work out a right way to use a reliquary for these operations, I think.",
+          "jjgpn_precis": "The pinning-boundary spec claims wsl/podvm captures resolve a pinned gcrane; they actually float on a mutable-tag builder because they are vessel-less (no reliquary slot). Resolve the gap — work out how these captures obtain pinned (ideally reliquary-resolved) tool images — and correct the RBS0 premise and RBr_p7c wording to match. Full findings and the security rationale live in the named memo; keep the docket to the design question, not the attack vector.",
+          "jjgpn_slated": "260719-2157",
+          "jjgpn_redocket_count": 1
         }
       }
     },
@@ -5061,6 +5122,7 @@
         "₢CAAAL",
         "₢CAAAc",
         "₢CAAAb",
+        "₢CAAAd",
         "₢CAAAM"
       ],
       "jjghn_paces": {
@@ -5198,27 +5260,29 @@
         "₢CAAAM": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-0954",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260719-2218",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "## Focus",
-                "The use-anchor: regenerate the acronym index the claude-*.md files maintain by hand today from the same frozen census, riding the voff managed-section rail (VOSMM \"Report and Acronym Index\").",
-                "Determine at mount which index-of-record tables convert first and how hand-authored prose beside them is preserved.",
+                "The use-anchor: regenerate the factored index-of-record claude-*.md acronym files from the frozen census via a render verb — a sibling verb on the vom binary with its own tabtarget, distinct from the read-only census report run (report never mutates the tree; render rewrites index files).",
+                "Rides the voff managed-section rail (VOSMM \"Report and Acronym Index\").",
+                "The factoring pace before this one fixed the targets: whole dedicated files, never surgical sections inside mixed prose.",
+                "Determine while building: the generated-content contract — what the census can emit per row versus the hand-authored per-row prose the census cannot know, and how that prose is preserved (hand-owned blocks the render round-trips, or prose remaining in the neighboring prose file).",
                 "Generated output may land in delivered files, but its content must nowhere name the matricula (VOr_q4f name-hygiene).",
                 "",
                 "## Done when",
-                "The binary regenerates the acronym index from the census and a hand edit inside a managed section is overwritten on the next run;",
-                "with this the heat's done-when holds entire — one tabtarget run over the whole git-tracked tree emits both presentments, the estray section, and the regenerated index."
+                "The render verb regenerates the index files from the census, and a hand edit inside a managed section is overwritten on the next render run;",
+                "the census report run remains read-only;",
+                "with this the heat's done-when holds entire — the report tabtarget emits both presentments and the estray section, and the render tabtarget regenerates the index from the same frozen census."
               ],
               "jjgtn_silks": "acronym-index-render",
-              "jjgtn_basis": "e6d8fe3"
+              "jjgtn_basis": "5f524f1"
             }
           ],
           "jjgpn_dictation": "I personally muse that we ought to first figure out how to get job jockey to use this matricula feature before we implement it (i.e. degenerate operation) so we can gradually add checking and fix issues as we deepen the matricula ability to study.",
           "jjgpn_precis": "The use-anchor closes the ladder:\nthe acronym index regenerates from the census, retiring hand maintenance and proving the heat's done-when after the gradual deepening.",
-          "jjgpn_slated": "260718-0944"
+          "jjgpn_slated": "260718-0944",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAN": {
           "jjgpn_tacks": [
@@ -5315,6 +5379,35 @@
           "jjgpn_dictation": "We should chivvy a pace to work through the first batch of census content.",
           "jjgpn_precis": "Re-mint after the cross-clone coronet collision repair (the original row, minted ₢CAAAa concurrently with another clone's B3 slate, was lost when the merged store took gamma's side; the work itself is complete and committed, W commit 40d00caa9).\nThe first live jog surfaced a census that was mechanically sound but noise-dominated in three classes\n(historical-prose sites, per-file shell locals, sub-signet fragments);\nthis pace ruled each class through scope, recognition, or grade —\ndeepening the tool through use before the index-render pace trusts the census.",
           "jjgpn_slated": "260719-2141"
+        },
+        "₢CAAAd": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260719-2217",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Focus",
+                "Factor the hand-maintained acronym tables out of the mixed-prose claude-*.md context files into dedicated index-of-record claude-*.md siblings,",
+                "wired into CLAUDE.md beside their sources,",
+                "so index-of-record becomes a path-grain file role (VOSMM \"Scan Mechanics\" file-role layer) and the prose files stay purely hand-authored.",
+                "Pure move: table content lands byte-faithful in its new home — no rewording, no generated content yet;",
+                "the successor pace owns the census-driven rewrite.",
+                "Discovery recipe for the table census: walk the @-includes in CLAUDE.md and grep those files for acronym-mapping tables (`grep -n \"Acronym Mappings\" Tools/*/claude-*.md Tools/*/vov_veiled/claude-*.md`).",
+                "Each factored file inherits its source's delivery posture (delivered vs stays-home/veiled);",
+                "the veiled-naming line — nothing veiled named by path, basename, or acronym in a delivered file — must hold across the split.",
+                "",
+                "## Done when",
+                "Every hand-maintained acronym table lives in a dedicated claude-*.md file reachable from CLAUDE.md;",
+                "the source prose files carry no acronym tables;",
+                "the loaded agent context is equivalent — same tables visible, same homes discoverable."
+              ],
+              "jjgtn_silks": "acronym-table-factoring",
+              "jjgtn_basis": "58b9cbe"
+            }
+          ],
+          "jjgpn_dictation": "I wonder that this pace is a little bit malformed.  Maybe a precursor step that makes sense is to factor all acronym tables out into their own claude*.md files (separate pace?) then reslate current pace to rewrite those with what matricula found?  Maybe this is a whole new top-level metricula command?\n[next message] go ahead and slate/reslate all now.",
+          "jjgpn_precis": "The render pace was aiming managed sections at tables embedded mid-file in prose-heavy context files whose per-row descriptions the census cannot know.\nFactoring the tables into dedicated files first makes index-of-record a path-grain file role exactly as VOSMM models it:\nthe matricula's rewrite target becomes whole dedicated files, hand prose stays hand-owned, and the generated-content contract surfaces before the render is built.",
+          "jjgpn_slated": "260719-2217"
         }
       }
     },
@@ -6393,7 +6486,7 @@
     "₣Bs": {
       "jjghn_silks": "rbk-10-create-staging",
       "jjghn_creation_time": "260705",
-      "jjghn_status": "jjghe_racing",
+      "jjghn_status": "jjghe_stabled",
       "jjghn_order": [
         "₢BsAAX",
         "₢BsAAP",
@@ -8216,8 +8309,8 @@
         "₢BzAAB": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260719-2032",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260719-2133",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Goal",
@@ -8256,7 +8349,7 @@
                 "new rivets are minted per the MCM placement law with their spec definition sites landed."
               ],
               "jjgtn_silks": "a8-rivet-or-nothing-sweep",
-              "jjgtn_basis": "e759512"
+              "jjgtn_basis": "2c05c2f"
             }
           ],
           "jjgpn_redocket_count": 1

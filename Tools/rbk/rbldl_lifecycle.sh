@@ -296,7 +296,7 @@ rbld_banish() {
   # Cloud-dispatched delete: a Director-run build deletes the package in-pool by
   # convergence (GAR's parent-before-child FAILED_PRECONDITION; absence-poll to
   # 404 is the only success signal) — the build's success IS the delete outcome,
-  # closing the host trust-200 LRO gap; see RBSCB and rbgjl06.
+  # closing the host trust-200 LRO gap; see rbgjl06.
   buc_step "Dispatching cloud delete for Lode package: ${z_pkg}"
   zrbld_cloud_delete_dispatch "${z_token}" "Banish" "${ZRBLD_BANISH_PREFIX}" "${z_pkg}"
 

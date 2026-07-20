@@ -33,7 +33,7 @@
 # which plumbs the folio channel the verbs read). It never reimplements affiance
 # or jilt, never speaks GCP REST, and never holds the payor credential: its only
 # HTTP is the local-crucible JWKS fetch, the one bridge. Cloud mutation flows
-# exclusively through the called manor verbs (RBSMA/RBSMJ).
+# exclusively through the called manor verbs (affiance/jilt).
 #
 # The module is BLIND to the realm JSON — it names its vessel and foedus by
 # reference and never reads realm contents (affiliation by reference, never
@@ -41,9 +41,9 @@
 # ignored live rbrf.env per charge, both from facility knowledge (nameplate port,
 # facility constants), never from realm contents: the ephemeral realm signing key's
 # public half (the twiddle, uploaded to the provider by affiance's programmatic
-# re-sync arm, RBSMA) and the reachable RFC 7523 grant endpoint (the loopback POST
-# target the accessor reads, RBSRF rbrf_grant_endpoint — accessor-facing, never
-# uploaded to GCP). Contract sources: RBSMA/RBSMJ, RBSFK, RBSRF, RBSPB.
+# re-sync arm) and the reachable RFC 7523 grant endpoint (the loopback POST
+# target the accessor reads — accessor-facing, never
+# uploaded to GCP).
 
 set -euo pipefail
 
@@ -78,7 +78,7 @@ zrbxk_kindle() {
   # suffix — the suffix is the only fact this module owns, so the template can
   # never drift from the regime filename. It carries the vendor-agnostic core;
   # setup renders the git-IGNORED live file the folio-addressed verbs source
-  # (RBSRF's one sanctioned ships-committed deviation).
+  # (RBr_e4a).
   local z_live=""
   z_live=$(rbcc_rbrf_file_capture "${RBXK_foedus}") \
     || buc_die "Failed to resolve the ${RBXK_foedus} federation regime path"
@@ -202,7 +202,7 @@ zrbxk_poll_ready() {
 # public-key members GCP's uploaded-JWKS parser accepts (kty/kid/use/alg/n/e);
 # an exporter's x5c/x5t cert fields are rejected (misleadingly as "Only RSA, EC
 # key types are supported"), so they are stripped before upload. Compact (-c) so
-# the rendered regime value is one line. (RBSMA jwksJson NOTE; proof fetch_jwks.)
+# the rendered regime value is one line.
 zrbxk_fetch_jwks() {
   zrbxk_sentinel
 
@@ -248,7 +248,7 @@ zrbxk_render_live() {
 
   # The reachable RFC 7523 grant POST target — the realm's token endpoint on the
   # local crucible, composed from the nameplate port (facility knowledge), never
-  # from realm contents. This is the loopback POST target RBSFK pins as local,
+  # from realm contents. This is the loopback POST target pinned as local,
   # distinct from the fictional https frontend issuer RBRF_IDP_ISSUER carries.
   local z_base=""
   z_base=$(zrbxk_kc_base_capture) \
@@ -266,11 +266,11 @@ zrbxk_render_live() {
       printf '%s\n' "${z_tline}"
     done < "${ZRBXK_TEMPLATE}"
     printf '\n'
-    printf '# Ephemeral public JWKS (the twiddle) — orchestrator-rendered per charge; committed nowhere (RBSFK).\n'
+    printf '# Ephemeral public JWKS (the twiddle) — orchestrator-rendered per charge; committed nowhere.\n'
     printf "RBRF_IDP_JWKS_JSON='%s'\n" "${z_jwks}"
     printf '\n'
     printf '# Reachable RFC 7523 grant endpoint (the loopback POST target) — orchestrator-rendered\n'
-    printf '# per charge from the nameplate port; never from realm contents (RBSRF rbrf_grant_endpoint).\n'
+    printf '# per charge from the nameplate port; never from realm contents.\n'
     printf "RBRF_GRANT_ENDPOINT='%s'\n" "${z_grant_endpoint}"
     printf '\n# eof\n'
   } > "${ZRBXK_LIVE}" || buc_die "Failed to render live regime: ${ZRBXK_LIVE}"
@@ -284,7 +284,7 @@ zrbxk_render_live() {
 rbxk_setup() {
   zrbxk_sentinel
 
-  buc_doc_brief "Stand up the Keycloak programmatic test facility — charge the Crucible, render its ephemeral JWKS into the ignored live regime, and affiance rbef_keycloak (RBSMA)"
+  buc_doc_brief "Stand up the Keycloak programmatic test facility — charge the Crucible, render its ephemeral JWKS into the ignored live regime, and affiance rbef_keycloak"
   buc_doc_shown || return 0
 
   # Clean-tree gate FIRST — the precision-band creed variant (BCG Precision
@@ -304,7 +304,7 @@ rbxk_setup() {
 
   # Affiance the named foedus through its tabtarget (folio channel). The live
   # rbrf.env is untracked, so affiance's clean-tree gate passes; its programmatic
-  # re-sync arm patches the fresh JWKS into a standing provider (RBSMA).
+  # re-sync arm patches the fresh JWKS into a standing provider.
   buc_step "Affiance ${RBXK_foedus}"
   zrbxk_run_tabtarget "rbw-mA" "" "${RBXK_foedus}"
 
@@ -319,7 +319,7 @@ rbxk_teardown() {
 
   # Jilt the foedus, then quench. jilt is operator-confirmed (dangerous — it
   # dissolves a trust), but a test-facility teardown is a deliberate, often
-  # fixture-driven (unattended) act, so pass the confirm-skip seam (RBSMJ). Both
+  # fixture-driven (unattended) act, so pass the confirm-skip seam. Both
   # verbs are idempotent: jilt tolerates an already-absent provider, quench an
   # already-quenched crucible, so teardown converges however far setup got.
   buc_step "Jilt ${RBXK_foedus}"

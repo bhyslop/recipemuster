@@ -199,7 +199,7 @@ pub const RBTDGC_TWEAK_REGIME_POISON: &str = "buost_regime_poison";
 // RBPC freehold test constants (rbpc_constants.sh)
 pub const RBTDGC_FREEHOLD_SUBJECT: &str = "9657166c-8a2d-4f5d-bcd1-ef481ee31f3e";
 
-// RBGC propagation budget (rbgc_constants.sh; profile locked by RBSCIP)
+// RBGC propagation budget (rbgc_constants.sh; profile locked)
 pub const RBTDGC_PROPAGATION_INITIAL_DELAY_SEC: i32 = 3;
 pub const RBTDGC_PROPAGATION_MAX_DELAY_SEC: i32 = 20;
 pub const RBTDGC_PROPAGATION_DEADLINE_SEC: i32 = 420;

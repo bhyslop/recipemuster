@@ -879,7 +879,7 @@ rbfd_ordain() {
 
   # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
   # inside rbfd_build, bind gates inside rbfd_mirror, graft is deliberately
-  # ungated (rivet RBr_d71).
+  # ungated (RBr_d71).
   case "${z_mode}" in
     rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
     rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
@@ -938,7 +938,7 @@ rbfd_build() {
     buc_die "Vessel directory required"
   fi
 
-  # Dirty-tree guard + pure-chain-head posture: rivet RBr_9c2.
+  # Dirty-tree guard + pure-chain-head posture: RBr_9c2.
   bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
 
   # Load and validate vessel
@@ -1393,7 +1393,7 @@ rbfd_graft() {
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
-  # No dirty-tree guard — deliberate; rivet RBr_d71.
+  # No dirty-tree guard — deliberate; RBr_d71.
 
   # Verify local image exists
   buc_step "Verifying local image exists"

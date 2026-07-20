@@ -21,6 +21,12 @@ Every value is a public identifier and carries no secrets, so each file ships co
 
 NOTE: *One sanctioned ships-committed deviation — the `rbef_keycloak` test foedus.* The ships-committed rule holds for every foedus but one. `rbef_keycloak` (the programmatic test trust) commits only an `rbrf.env.template` carrying the vendor-agnostic core and the namespaced attribute mapping; its LIVE `rbrf.env` is git-IGNORED and rendered per charge by the Keycloak test-facility orchestrator (`rbxk_keycloak`) from that template plus TWO rendered fields — the realm's fresh public JWKS ({rbrf_idp_jwks_json}) and the reachable grant endpoint ({rbrf_grant_endpoint}) — both composed from the orchestrator's own knowledge (nameplate port, facility constants), never from realm contents. The deviation is confined to this one foedus and is forced by the twiddle: the realm signing key is ephemeral — minted fresh per charge ({rbtf_realm}) — so its public JWKS cannot be a committed canonical value; the grant endpoint rides the same render because the reachable POST target is charge-time knowledge (the crucible's port), not a committed IdP fact. `rbef_entrada` and every real-IdP foedus keep ships-committed untouched: the live file IS the committed file.
 
+[[RBr_e4a]]
+//axvc_camber
+RBr_e4a::
+Deliberate deviation from the ships-committed rule: `rbef_keycloak` alone commits only an `rbrf.env.template`, its LIVE `rbrf.env` git-ignored and rendered per charge by `rbxk_keycloak`.
+A foedus subdirectory standing without its live regime file is this one sanctioned exception, not a fault — so a reader must not "repair" the missing-file tolerance into a hard presence check.
+
 NOTE: *Active foedus and selection.* A foedus's stable identity is its subdirectory name in this library; the manor pool it hangs under is stable and manor-lifetime, so nothing rotates beneath the foedus. The single *active*
 {rbtf_foedus}
 — the configured federation a run authenticates against — is named not here but by the {rbrr_active_foedus} selector in the sibling {rbrr_regime}; this regime carries one foedus's configured shape, never which is active. The manor may stand up several foedera, each its own provider under the one pool and its own subdirectory; the authoritative registry of what exists is the Manor itself, enumerated by

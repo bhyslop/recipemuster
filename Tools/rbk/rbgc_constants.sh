@@ -67,7 +67,7 @@ zrbgc_kindle() {
   # IAM-grant propagation retry — exponential-backoff budget shared by every
   # get-modify-set IAM grant site in rbgi_iam.sh, the capabilities GAR IAM
   # loops in rbgw_capabilities.sh, and the theurge's post-admission
-  # invocations (projected to Rust via rbgc_emit_consts). RBSCIP locks the
+  # invocations (projected to Rust via rbgc_emit_consts). The spec locks the
   # profile and homes the rationale (the propagation classes; why the 403
   # wait is blind).
   readonly RBGC_PROPAGATION_INITIAL_DELAY_SEC=3
@@ -83,7 +83,7 @@ zrbgc_kindle() {
 
   # serviceusage enable INTERNAL flake — whole-attempt retry budget for
   # rbge_api_enable on the fresh-project enable race. Signature and membrane:
-  # rivets RBr_4e7 / RBr_d21 at RBS0 rbtoe_api_enable.
+  # RBr_4e7 / RBr_d21.
   readonly RBGC_API_ENABLE_RETRY_ATTEMPTS=3
   readonly RBGC_API_ENABLE_RETRY_PAUSE_SEC=15
 
@@ -351,9 +351,9 @@ zrbgc_kindle() {
   # identity (RBRD) enters a local-only build's image refs.
   readonly RBGC_KLUDGE_REGISTRY_ROOT="rbkludge.invalid"
 
-  # GAR Cleanup Policy (applied at depot levy — see RBSMF "Create Container Repository").
+  # GAR Cleanup Policy (applied at depot levy — see "Create Container Repository").
   # Reaps untagged manifests on GAR's daily cleanup cadence; underwrites the V2-DELETE-by-tag
-  # contract documented in RBSIJ for multi-platform orphan children.
+  # contract documented in the spec for multi-platform orphan children.
   readonly RBGC_GAR_CLEANUP_POLICY_ID="rb-delete-untagged"
   readonly RBGC_GAR_CLEANUP_OLDER_THAN_SEC="86400s"
 
@@ -399,12 +399,12 @@ zrbgc_sentinel() {
 # consts to stdout via buz_emit_const_i32 (BUK zipper must be kindled).
 # Same arrangement as rbcc_emit_consts/rbpc_emit_consts: rbz_emit_consts
 # calls this because every emit caller sources and kindles rbgc alongside
-# rbz. RBSCIP locks the profile; the theurge's post-admission invocations
+# rbz. The spec locks the profile; the theurge's post-admission invocations
 # consume it (RBr_3f4).
 rbgc_emit_consts() {
   zrbgc_sentinel
 
-  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked by RBSCIP)"
+  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked)"
 
   local z_name=""
   local z_stem=""

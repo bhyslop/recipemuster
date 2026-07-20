@@ -98,7 +98,7 @@ zrbfc_plumb_core() {
   fi
 
   # Resolved-base labels (conjure only): read back from the first built
-  # platform's attest tag; rivet RBr_b4e.
+  # platform's attest tag; RBr_b4e.
   if test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" && test -n "${RBRV_CONJURE_PLATFORMS:-}"; then
     buc_step "Reading resolved-base labels from attest image config"
     local z_first_plat="${RBRV_CONJURE_PLATFORMS//,/ }"
@@ -368,7 +368,7 @@ zrbfc_plumb_show_sections() {
       fi
     fi
 
-    # Resolved base (signed); rivet RBr_b4e.
+    # Resolved base (signed); RBr_b4e.
     local -r z_attest_config="${z_dir}/attest_config.json"
     if test -f "${z_attest_config}"; then
       local z_rb_n=""

@@ -98,7 +98,7 @@ zrbrv_enforce() {
   # Bind vessels must be digest-pinned: the vouch's verify-provenance pins the
   # mirrored image against the @sha256: digest in RBRV_BIND_IMAGE, so a tag-only
   # source passes the mirror but fails the vouch deep in the cloud build. Reject
-  # it here at config time. Invariant homed in RBSRV.
+  # it here at config time.
   if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
     local z_bind_digest_re='@sha256:[0-9a-f]{64}$'
     [[ "${RBRV_BIND_IMAGE}" =~ ${z_bind_digest_re} ]] \

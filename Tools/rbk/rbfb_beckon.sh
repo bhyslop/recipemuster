@@ -30,8 +30,7 @@ set -euo pipefail
 
 # Announce the consumers of the hallmark fact just written (ordain or kludge).
 #
-# The roster is exactly the RBF_FACT_HALLMARK chain consumers enumerated in
-# RBS0 "Chaining-Fact Roles": the rbch_palpate readers (summon, plumb, rekon)
+# The roster is exactly the RBF_FACT_HALLMARK chain consumers: the rbch_palpate readers (summon, plumb, rekon)
 # and the rbch_enchase writers that resolve THIS fact (anoint, drive). It MUST
 # agree with that enumeration — a consumer added there without a line here (or
 # vice versa) is the drift this single home exists to prevent.

@@ -89,7 +89,7 @@ zrbld_immure_resolve_family() {
 # runs strictly after residency (rbgjl09) — the vouch artifact never precedes the
 # anti-hollow-mirror guard. podvm is vessel-less (no reliquary slot), so its gcrane
 # rides the floating bootstrap builder, same tier as conclave/wsl — pinning defers to
-# the bootstrap-builder digest-pin itch (RBS0 rbsk_pinning_boundary).
+# the bootstrap-builder digest-pin itch (RBr_p7c).
 # Args: token brand quay_family version selection stamp preserved
 #   preserved — compact JSON array of already-captured members (refresh add-only);
 #               "[]" for a fresh capture. Passed through as _RBGL_PODVM_PRESERVED so

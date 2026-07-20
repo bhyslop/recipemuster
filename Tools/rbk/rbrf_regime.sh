@@ -38,7 +38,7 @@ zrbrf_kindle() {
   buv_regime_enroll RBRF
 
   # The manor pool's org / pool id / session duration are manor-level and live in
-  # the sibling RBRW regime (RBSRW) — the one-pool Model relocated them out of the
+  # the sibling RBRW regime — the one-pool Model relocated them out of the
   # per-foedus federation regime. RBRF now carries only the per-foedus provider-side
   # trust: this foedus IS a provider under the manor's one pool.
   buv_group_enroll "Provider Identity"
@@ -51,7 +51,7 @@ zrbrf_kindle() {
   buv_enum_enroll    RBRF_MECHANISM                   "Token-acquisition mechanism: rbnfe_interactive (device flow) or rbnfe_programmatic (self-supplied JWT)" \
                      rbnfe_interactive rbnfe_programmatic
 
-  # Vendor-agnostic trust core — present under both mechanisms (RBSRF).
+  # Vendor-agnostic trust core — present under both mechanisms.
   buv_group_enroll "IdP Trust (core)"
   buv_string_enroll  RBRF_IDP_ISSUER           8  512  "OIDC issuer URI of the external IdP (resolvable under interactive; self-declared https identifier matched against the JWT iss under programmatic)"
   buv_string_enroll  RBRF_IDP_CLIENT_ID        1  256  "Public client (application) ID registered at the IdP (device-flow client under interactive; must equal the JWT aud under programmatic)"
@@ -66,7 +66,7 @@ zrbrf_kindle() {
   buv_group_enroll "Programmatic Mechanism"
   buv_gate_enroll    RBRF_MECHANISM  rbnfe_programmatic
   buv_string_enroll  RBRF_IDP_JWKS_JSON        1 8192  "Uploaded public JWKS GCP validates self-supplied JWTs against (REST oidc.jwksJson); ephemeral key re-synced per charge by the orchestrator, committed nowhere"
-  # The caller's self-supply set (RBSRF): the reachable grant POST target, the two
+  # The caller's self-supply set: the reachable grant POST target, the two
   # secret-path references (never the material — sourced regime vars land in process
   # env, so secret VALUES may not ride them), and the three committed assertion facts.
   buv_string_enroll  RBRF_GRANT_ENDPOINT       8  512  "Reachable RFC 7523 grant token-endpoint URL the signed assertion is POSTed to — orchestrator-rendered per charge; https:// or a loopback http:// (cleartext tolerated on loopback only)"
@@ -96,14 +96,14 @@ zrbrf_enforce() {
   buv_vet RBRF
 
   # The manor pool's org, pool id, and session duration validate in the sibling
-  # RBRW regime (RBSRW), not here — RBRF validates only the per-foedus provider trust.
+  # RBRW regime, not here — RBRF validates only the per-foedus provider trust.
   [[ "${RBRF_PROVIDER_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (GCP provider id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
 
   [[ "${RBRF_IDP_ISSUER}" =~ ^https:// ]] \
     || buc_reject "${BUBC_band_regime}" "RBRF_IDP_ISSUER must be an https:// URI: ${RBRF_IDP_ISSUER}"
 
-  # https required under both mechanisms (RBSRF: under programmatic GCP still
+  # https required under both mechanisms (under programmatic GCP still
   # demands the https scheme even though it never resolves the issuer).
   case "${RBRF_ATTRIBUTE_MAPPING}" in
     *google.subject*) ;;
@@ -142,7 +142,7 @@ zrbrf_enforce() {
       # localhost / 127.0.0.1, the local test crucible; a non-loopback http:// is
       # rejected. This field's charge-time render admits loopback cleartext,
       # deliberately unlike the interactive RBRF_IDP_TOKEN_ENDPOINT's https-only
-      # committed fact (RBSRF rbrf_grant_endpoint).
+      # committed fact (rbrf_grant_endpoint).
       case "${RBRF_GRANT_ENDPOINT}" in
         https://*) ;;
         http://localhost|http://localhost:*|http://localhost/*) ;;
@@ -152,7 +152,7 @@ zrbrf_enforce() {
 
       # The two secret-path references are repo-root-relative, never absolute —
       # the material lives in a file the accessor reads by path, never inline in
-      # this regime (RBSRF / RBSFK two-keys custody). Presence and non-emptiness
+      # this regime (two-keys custody). Presence and non-emptiness
       # are the enrollment floor; this bars an absolute path (a production foedus's
       # ../station-fenced form stays relative and is admitted).
       case "${RBRF_ASSERTER_KEY_FILE}" in
@@ -164,7 +164,7 @@ zrbrf_enforce() {
 
       # The three assertion facts (kid, issuer, subject) need only be present and
       # non-empty — the enrollment min-length floor already enforces that, so no
-      # custom check here (RBSRF: "present non-empty strings").
+      # custom check here ("present non-empty strings").
       ;;
   esac
 }

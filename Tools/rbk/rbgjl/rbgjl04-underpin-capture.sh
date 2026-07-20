@@ -22,7 +22,7 @@
 # artifact) and for the host capture-file via /builder/outputs/output.
 # Single-platform (linux/amd64): the rootfs is an opaque blob, not a multi-arch
 # manifest. No digest is pinned here — the published checksum is discovered and
-# signature-verified at capture, per the no-FQIN premise (RBSLU).
+# signature-verified at capture, per the no-FQIN premise.
 #
 # Package shape:  <host>/<path>/<LODES_ROOT>/<stamp>     (one package = one Lode)
 # Member tag on that package (clean scheme — no digest/fingerprint layer):

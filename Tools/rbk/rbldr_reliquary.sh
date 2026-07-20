@@ -26,9 +26,7 @@
 #
 # Conclave captures the build-tool cohort:
 # one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
-# steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER): the tools captured
-# here ARE the reliquary, so capture cannot bootstrap from one — conclave is the
-# generation phase the pinning rule permits to run unpinned (RBS0 rbsk_pinning_boundary).
+# steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER) (RBr_p7c).
 
 set -euo pipefail
 
