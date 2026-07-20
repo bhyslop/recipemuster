@@ -2,6 +2,7 @@
   "jjgrn_next_heat_seed": "B7",
   "jjgrn_next_pace_seed": "CAAAf",
   "jjgrn_heat_order": [
+    "₣B2",
     "₣Bz",
     "₣B5",
     "₣B3",
@@ -32,8 +33,7 @@
     "₣Au",
     "₣BI",
     "₣BL",
-    "₣Ba",
-    "₣B2"
+    "₣Ba"
   ],
   "jjgrn_heats": {
     "₣A9": {
@@ -4258,7 +4258,7 @@
     "₣B2": {
       "jjghn_silks": "rbk-15-r02-small-cleanups",
       "jjghn_creation_time": "260713",
-      "jjghn_status": "jjghe_stabled",
+      "jjghn_status": "jjghe_racing",
       "jjghn_order": [
         "₢B2AAA",
         "₢B2AAB",
