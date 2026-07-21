@@ -5330,8 +5330,8 @@
         "₢CAAAx": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260721-1531",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260721-1617",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_opus",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -5377,7 +5377,7 @@
                 "without reddening a single read-handler test."
               ],
               "jjgtn_silks": "complete-read-repoint",
-              "jjgtn_basis": "6cebae6"
+              "jjgtn_basis": "673ee1a"
             }
           ],
           "jjgpn_dictation": "Operator: \"ask fable agent's opinion and follow it.\" Fable returned Option A and found the read\nrepoint incomplete: four read handlers (jjx_show/parade, jjx_orient/mount, jjx_brief/get_spec,\njjx_search/scout) still read the in-repo gallops directly; ~10 tests pass only because of the gap;\nthe seam-on test pattern is a solved problem via the existing _over + ZjjtvbGround idioms. Revert\nthe premature flip, complete the read repoint as its own build pace, land green, then re-flip.",
