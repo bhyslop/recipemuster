@@ -2141,28 +2141,27 @@ fn zjjrm_gazette_paths_block(
 /// Enablement seam: mirrors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
 /// (`jjrvb_blotter.rs`). Wired live in this module — `jjrm_exchange_dir`,
 /// `zjjrm_officia_root`, and the station-name refusal in `zjjrm_handle_open`
-/// all branch on it — but the constant itself stays `false` here
-/// (mainline-inert); flipping it is the conversion heat's act (JJSAS
-/// Founding-and-cutover), not this pace's. Nothing outside this module reads
-/// the constant directly — every other module (including `jjrlg_legatio.rs`)
-/// reaches the seam only by calling `jjrm_exchange_dir`, the sole funnel
-/// every officium-exchange-dir construction converges onto: `jjrlg_legatio.rs`
-/// delegates here for its legatio/pensum state (living inside the officium
-/// dir) rather than keeping its own duplicated `OFFICIA_DIR` const and join,
-/// so that state relocates in lockstep with gazettes when the seam flips.
+/// all branch on it. Flipped `true` at the 260721 studbook cutover (JJSAS
+/// Founding-and-cutover): the officium exchange and record now live in the
+/// studbook clone. Nothing outside this module reads the constant directly —
+/// every other module (including `jjrlg_legatio.rs`) reaches the seam only by
+/// calling `jjrm_exchange_dir`, the sole funnel every officium-exchange-dir
+/// construction converges onto: `jjrlg_legatio.rs` delegates here for its
+/// legatio/pensum state (living inside the officium dir) rather than keeping
+/// its own duplicated `OFFICIA_DIR` const and join, so that state relocated in
+/// lockstep with gazettes when the seam flipped.
 ///
 /// A second, indirect dependent: `jjrdm_muck`'s liveness join
 /// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
-/// which is correct only while this constant is `false` — a dispatched
+/// which was correct only while this constant was `false` — a dispatched
 /// session's officia live wherever the vvx process's cwd is (the billet
-/// root), a relationship this constant's own flip severs by relocating
-/// every officium's exchange to `jjrm_studbook_exchange_dir` instead. The
-/// join must be re-cut at that same flip (a durable per-officium billet
-/// marker is the natural carrier, since today's record captures only the
-/// seat's role, never which billet) — see `jjrdm_muck`'s module doc. That
-/// module is not wired into the live dispatch spine either way, so it is
-/// left untouched until that flip.
-pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
+/// root), a relationship this constant's flip severs by relocating every
+/// officium's exchange to `jjrm_studbook_exchange_dir` instead. The join is
+/// now owed its re-cut (a durable per-officium billet marker is the natural
+/// carrier, since today's record captures only the seat's role, never which
+/// billet) — see `jjrdm_muck`'s module doc. That module is not wired into the
+/// live dispatch spine, so the re-cut is deferred, not a cutover blocker.
+pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = true;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
 /// "Officium exchange and record"): exchange (gazettes) and record (identity

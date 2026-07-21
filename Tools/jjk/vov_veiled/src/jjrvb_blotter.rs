@@ -491,12 +491,12 @@ fn zjjrvb_commit_count(root: &Path) -> u64 {
 
 // ---- Gallops-over-studbook surface (enablement seam) ----
 
-/// Enablement seam: the gallops-over-studbook surface below is complete and
-/// tested, but not yet live. Every `jjx_*` command still calls jjri_io's
-/// jjdr_load/jjdr_save/jjri_persist/jjri_consign directly and unconditionally —
-/// nothing outside this module and its tests reads this constant. Flipping it
-/// is the conversion heat's act (JJSVS Founding-and-cutover), not this pace's.
-pub const JJDB_GALLOPS_OVER_STUDBOOK_ENABLED: bool = false;
+/// Enablement seam: the gallops-over-studbook surface below is LIVE as of the
+/// 260721 studbook cutover (JJSAS Founding-and-cutover). Every `jjx_*` command's
+/// read and write branches on this const and now journals through the studbook;
+/// the seam-off path (`= false`) is the retired old-store path. Kept as a const
+/// rather than inlined so an accidental revert is one visible, greppable line.
+pub const JJDB_GALLOPS_OVER_STUDBOOK_ENABLED: bool = true;
 
 /// The gallops file's fixed relative path within the studbook — its first
 /// tenant (`jjdb_studbook` Scope at birth).
