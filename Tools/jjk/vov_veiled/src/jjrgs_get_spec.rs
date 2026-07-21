@@ -14,7 +14,6 @@ use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Coronet;
 use crate::jjrg_gallops::{
-    jjrg_Gallops as Gallops,
     jjrg_lines_to_text,
     jjrg_PaceState as PaceState,
     JJRG_STATE_ABANDONED,
@@ -46,7 +45,7 @@ pub fn jjrgs_run_get_spec(args: jjrgs_GetSpecArgs) -> (i32, String) {
         }
     };
 
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);

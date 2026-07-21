@@ -161,9 +161,10 @@ pub(crate) fn zjjrm_load_gallops_over(
     }
 }
 
-/// Command-surface gallops read — every `jjx_*` command's load funnels
-/// through here (`jjrm_mcp.rs`'s own handlers directly; the dozen
-/// `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`).
+/// Command-surface gallops read — every `jjx_*` command's working-tree
+/// gallops load funnels through here (`jjrm_mcp.rs`'s own handlers directly;
+/// the `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`),
+/// the deliberately-excluded `jjrno_nominate` bootstrap aside (below).
 /// Honors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (`jjrvb_blotter.rs`) — the
 /// same const the dispatch spine's `jjrds_plan` obeys via its own
 /// `over_studbook` parameter, so one flip moves every reader. Off (the

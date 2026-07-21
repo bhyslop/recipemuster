@@ -140,7 +140,7 @@ fn zjjrpd_load_gallops(args: &jjrpd_ParadeArgs) -> Result<Gallops, String> {
             let bytes = jjri_show_blob(rev, &path)?;
             Gallops::jjrg_hark(&bytes)
         }
-        None => Gallops::jjrg_load(&args.file),
+        None => crate::jjrm_mcp::zjjrm_load_gallops(&args.file),
     }
 }
 

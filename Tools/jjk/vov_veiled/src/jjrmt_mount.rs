@@ -13,7 +13,6 @@ use crate::jjrf_favor::jjrf_Firemark;
 use crate::jjrf_favor::jjrf_Coronet;
 use crate::jjrf_favor::{jjrf_bare, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
 use crate::jjrg_gallops::{
-    jjrg_Gallops as Gallops,
     jjrg_HeatStatus as HeatStatus,
     jjrg_lines_to_text,
     jjrg_PaceState as PaceState,
@@ -51,7 +50,7 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
         }
     }
 
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
