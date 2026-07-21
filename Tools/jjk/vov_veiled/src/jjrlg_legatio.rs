@@ -35,12 +35,6 @@ const LEGATIO_FILE_PREFIX: &str = "legatio_";
 /// Legatio state file extension
 const LEGATIO_FILE_EXT: &str = ".json";
 
-/// Officia root directory (mirrors jjrm_mcp.rs constant)
-const OFFICIA_DIR: &str = ".claude/jjm/officia";
-
-/// Officium sun prefix character (mirrors jjrm_mcp.rs constant)
-const OFFICIUM_SUN_PREFIX: char = crate::jjrf_favor::JJRF_INCIPIT_PREFIX; // ☉ — single-homed sigil
-
 // Command name constants — RCG String Boundary Discipline
 const JJRLG_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRLG_CMD_NAME_SEND: &str = "jjx_send";
@@ -180,9 +174,13 @@ fn zjjrlg_shell_quote(s: &str) -> String {
 // ============================================================================
 
 /// Resolve officium ID to its directory path.
+///
+/// Delegates to `jjrm_mcp::jjrm_exchange_dir` — the sole officium-exchange-dir
+/// funnel every module resolves through, so legatio/pensum state (persisted
+/// here, inside the officium dir) relocates in lockstep with gazettes when
+/// `JJRM_OFFICIUM_STUDBOOK_ENABLED` flips.
 fn zjjrlg_officium_dir(officium_id: &str) -> PathBuf {
-    let bare_id = officium_id.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    PathBuf::from(OFFICIA_DIR).join(bare_id)
+    crate::jjrm_mcp::jjrm_exchange_dir(officium_id)
 }
 
 /// Resolve legatio token to its state file path within an officium.

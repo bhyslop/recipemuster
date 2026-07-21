@@ -25,14 +25,17 @@
 
 use super::jjrm_mcp::{
     jjrm_apply_batch,
+    jjrm_exchange_dir,
     jjrm_resolve_batch_firemark,
     jjrm_resolve_officium_billet,
     jjrm_station_name,
     jjrm_studbook_exchange_dir,
+    zjjrm_exchange_dir_over,
     zjjrm_glean_studbook,
     zjjrm_infield_root,
     zjjrm_load_gallops_over,
     zjjrm_open_staleness_notice,
+    zjjrm_open_station_refusal,
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
     ZJJRM_SESSION_ABSENT,
@@ -45,6 +48,7 @@ use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
 use super::jjrvb_blotter::{
     jjdb_BlotterConfig,
+    jjdb_studbook_config,
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
     JJDB_GALLOPS_REL_PATH,
@@ -519,6 +523,38 @@ fn jjtm_studbook_exchange_dir_nests_under_scratch_dirname() {
 #[test]
 fn jjtm_officium_studbook_enablement_seam_defaults_off() {
     assert!(!JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium must stay inert until the conversion heat flips it");
+}
+
+#[test]
+fn jjtm_exchange_dir_over_resolves_under_studbook_when_seam_on() {
+    let studbook = jjdb_studbook_config(Path::new("/infield"));
+    let dir = zjjrm_exchange_dir_over("260712-1000-abcd", true, &studbook);
+    assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
+}
+
+#[test]
+fn jjtm_exchange_dir_over_strips_incipit_prefix_when_seam_on() {
+    let studbook = jjdb_studbook_config(Path::new("/infield"));
+    let dir = zjjrm_exchange_dir_over("\u{2609}260712-1000-abcd", true, &studbook);
+    assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
+}
+
+#[test]
+fn jjtm_exchange_dir_over_seam_off_matches_the_live_wrapper() {
+    // Seam off ignores the studbook config entirely — the third arg is a
+    // throwaway, proving the off-branch never touches it.
+    let throwaway = jjdb_studbook_config(Path::new("/unused"));
+    let via_over = zjjrm_exchange_dir_over("260712-1000-abcd", false, &throwaway);
+    let via_wrapper = jjrm_exchange_dir("260712-1000-abcd");
+    assert_eq!(via_over, via_wrapper, "seam-off must stay byte-identical between the testable branch and the live wrapper");
+}
+
+#[test]
+fn jjtm_open_station_refusal_fires_only_when_seam_on_and_unnamed() {
+    assert!(zjjrm_open_station_refusal("jjx_open", None, true).is_some());
+    assert!(zjjrm_open_station_refusal("jjx_open", Some("mac.lan"), true).is_none());
+    assert!(zjjrm_open_station_refusal("jjx_open", None, false).is_none(), "seam-off must never refuse — jjx_open's seam-off behavior is unchanged");
+    assert!(zjjrm_open_station_refusal("jjx_open", Some("mac.lan"), false).is_none());
 }
 
 // ===== Open's staleness lead (warn-at-open) =====

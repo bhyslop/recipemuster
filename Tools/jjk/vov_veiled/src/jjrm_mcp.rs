@@ -2014,7 +2014,7 @@ fn zjjrm_refresh_emblem(officium_dir: &Path, new_marker: Option<jjrm_EmblemMarke
 /// Validate officium directory exists and touch heartbeat.
 fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    let exchange = PathBuf::from(OFFICIA_DIR).join(bare_id);
+    let exchange = jjrm_exchange_dir(officium);
     if !exchange.is_dir() {
         return Err(format!(
             "Officium directory not found: {}. Call jjx_open to create a new officium.",
@@ -2026,7 +2026,38 @@ fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
     Ok(())
 }
 
-/// Resolve an officium ID to its absolute exchange directory.
+/// The testable seam branch — mirrors `zjjrm_load_gallops_over`'s
+/// `over_studbook` idiom (itself mirroring `jjrds_plan`'s): a test drives
+/// `over_studbook` true against a fixture studbook config while
+/// `JJRM_OFFICIUM_STUDBOOK_ENABLED` itself stays false. Off: the pre-seam
+/// relative-join-then-canonicalize, byte-identical to before this pace. On:
+/// the studbook's own `officia_scratch` subtree (`jjrm_studbook_exchange_dir`)
+/// — `jjrlg_legatio.rs`'s legatio/pensum state resolves through this SAME
+/// function (no separate copy), so it relocates in lockstep with gazettes
+/// when the seam flips.
+pub(crate) fn zjjrm_exchange_dir_over(
+    officium: &str,
+    over_studbook: bool,
+    studbook: &jjdb_BlotterConfig,
+) -> std::path::PathBuf {
+    let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
+    if over_studbook {
+        return jjrm_studbook_exchange_dir(&studbook.local_root, bare_id);
+    }
+    let relative = PathBuf::from(OFFICIA_DIR).join(bare_id);
+    std::fs::canonicalize(&relative).unwrap_or_else(|_| {
+        std::env::current_dir()
+            .map(|cwd| cwd.join(&relative))
+            .unwrap_or(relative)
+    })
+}
+
+/// Resolve an officium ID to its absolute exchange directory — the sole
+/// funnel every caller in this module, and `jjrlg_legatio.rs`, resolves
+/// through. (The funnel census this pace's docket demanded before wiring
+/// found a fan-out: `jjrlg_legatio.rs` kept its own duplicated `OFFICIA_DIR`
+/// const and join for legatio/pensum state files living inside the officium
+/// dir; it now delegates here instead.)
 ///
 /// `OFFICIA_DIR` is relative to the server's working directory; canonicalize
 /// turns it absolute so the gazette paths we hand back are unambiguous no
@@ -2037,24 +2068,53 @@ fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
 /// exist. jjx_open creates this directory and every gazette consumer validates
 /// it first, so canonicalize normally succeeds; on failure we fall back to the
 /// cwd-joined relative path rather than break gazette I/O.
-fn zjjrm_exchange_dir(officium: &str) -> std::path::PathBuf {
-    let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
-    let relative = PathBuf::from(OFFICIA_DIR).join(bare_id);
-    std::fs::canonicalize(&relative).unwrap_or_else(|_| {
-        std::env::current_dir()
-            .map(|cwd| cwd.join(&relative))
-            .unwrap_or(relative)
-    })
+///
+/// Seam-gated (`JJRM_OFFICIUM_STUDBOOK_ENABLED`): off (compiled default,
+/// mainline-inert) skips studbook-config construction entirely — the
+/// pre-seam behavior, byte-identical. On: derives the infield root fresh
+/// from `cwd` (cheap, pure-local path math, no network glean — that already
+/// ran once at `jjx_open`, `zjjrm_glean_studbook`) and delegates to
+/// `zjjrm_exchange_dir_over(officium, true, &studbook)`.
+pub fn jjrm_exchange_dir(officium: &str) -> std::path::PathBuf {
+    if !JJRM_OFFICIUM_STUDBOOK_ENABLED {
+        let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
+        let relative = PathBuf::from(OFFICIA_DIR).join(bare_id);
+        return std::fs::canonicalize(&relative).unwrap_or_else(|_| {
+            std::env::current_dir()
+                .map(|cwd| cwd.join(&relative))
+                .unwrap_or(relative)
+        });
+    }
+    let cwd = std::env::current_dir().unwrap_or_default();
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .expect("studbook-seam exchange dir requires a resolvable infield root");
+    let studbook = jjdb_studbook_config(&infield_root);
+    zjjrm_exchange_dir_over(officium, true, &studbook)
+}
+
+/// The officia root — the parent directory holding every officium's
+/// exchange dir, needed before any one officium's id is minted
+/// (`zjjrm_handle_open`'s own list-and-mint loop). Shares `jjrm_exchange_dir`'s
+/// seam gate and off-path byte-for-byte.
+fn zjjrm_officia_root() -> PathBuf {
+    if !JJRM_OFFICIUM_STUDBOOK_ENABLED {
+        return PathBuf::from(OFFICIA_DIR);
+    }
+    let cwd = std::env::current_dir().unwrap_or_default();
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .expect("studbook-seam officia root requires a resolvable infield root");
+    let studbook = jjdb_studbook_config(&infield_root);
+    studbook.local_root.join(ZJJRM_OFFICIUM_SCRATCH_DIRNAME)
 }
 
 /// Resolve officium ID to absolute gazette input file path (agent → server).
 fn zjjrm_gazette_in_path(officium: &str) -> std::path::PathBuf {
-    zjjrm_exchange_dir(officium).join(GAZETTE_IN_FILE)
+    jjrm_exchange_dir(officium).join(GAZETTE_IN_FILE)
 }
 
 /// Resolve officium ID to absolute gazette output file path (server → agent).
 fn zjjrm_gazette_out_path(officium: &str) -> std::path::PathBuf {
-    zjjrm_exchange_dir(officium).join(GAZETTE_OUT_FILE)
+    jjrm_exchange_dir(officium).join(GAZETTE_OUT_FILE)
 }
 
 /// Format the gazette path pair for emission to the agent.
@@ -2078,12 +2138,19 @@ fn zjjrm_gazette_paths_block(
 // ============================================================================
 
 /// Enablement seam: mirrors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
-/// (`jjrvb_blotter.rs`). The officium exchange/record relocation below is
-/// complete and tested but not yet live — `zjjrm_handle_open` and
-/// `zjjrm_exchange_dir` still address the curia's own `.claude/jjm/officia/`
-/// unconditionally; nothing outside this module and its tests reads this
-/// constant. Flipping it is the conversion heat's act (JJSAS
-/// Founding-and-cutover), not this pace's.
+/// (`jjrvb_blotter.rs`). Wired live in this module — `jjrm_exchange_dir`,
+/// `zjjrm_officia_root`, and the station-name refusal in `zjjrm_handle_open`
+/// all branch on it — but the constant itself stays `false` here
+/// (mainline-inert); flipping it is the conversion heat's act (JJSAS
+/// Founding-and-cutover), not this pace's. Nothing outside this module reads
+/// the constant directly — every other module (including `jjrlg_legatio.rs`)
+/// reaches the seam only by calling `jjrm_exchange_dir`, the sole funnel
+/// every officium-exchange-dir construction converges onto (the funnel
+/// census this pace's docket demanded before wiring found a fan-out:
+/// `jjrlg_legatio.rs` kept its own duplicated `OFFICIA_DIR` const and join
+/// for legatio/pensum state files living inside the officium dir; it now
+/// delegates to `jjrm_exchange_dir` instead, so that state relocates in
+/// lockstep with gazettes when the seam flips).
 ///
 /// A second, indirect dependent: `jjrdm_muck`'s liveness join
 /// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
@@ -2093,7 +2160,9 @@ fn zjjrm_gazette_paths_block(
 /// every officium's exchange to `jjrm_studbook_exchange_dir` instead. The
 /// join must be re-cut at that same flip (a durable per-officium billet
 /// marker is the natural carrier, since today's record captures only the
-/// seat's role, never which billet) — see `jjrdm_muck`'s module doc.
+/// seat's role, never which billet) — see `jjrdm_muck`'s module doc. That
+/// module is not wired into the live dispatch spine either way, so this
+/// pace leaves it untouched.
 pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
@@ -2102,9 +2171,10 @@ pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
 /// committed history later by a gitignore-line change, never a relocation.
 const ZJJRM_OFFICIUM_SCRATCH_DIRNAME: &str = "officia_scratch";
 
-/// The studbook-relative exchange directory for one officium — the relocation
-/// target of `zjjrm_exchange_dir` once `JJRM_OFFICIUM_STUDBOOK_ENABLED` flips.
-/// `studbook_root` is the studbook's local clone root
+/// The studbook-relative exchange directory for one officium — what
+/// `jjrm_exchange_dir` resolves to once `JJRM_OFFICIUM_STUDBOOK_ENABLED`
+/// flips (already wired; only the constant is pinned false). `studbook_root`
+/// is the studbook's local clone root
 /// (`jjrvb_blotter::jjdb_BlotterConfig::local_root`).
 pub fn jjrm_studbook_exchange_dir(studbook_root: &Path, bare_id: &str) -> PathBuf {
     studbook_root
@@ -2161,6 +2231,29 @@ pub fn jjrm_resolve_officium_billet<F: jjrfr_FarrierCore>(
 /// officium-open composition adds no rejection kind of its own (JJSVF).
 pub fn jjrm_station_name() -> Option<String> {
     sysinfo::System::host_name()
+}
+
+/// Station-name refusal for `jjx_open` (seam-gated,
+/// `JJRM_OFFICIUM_STUDBOOK_ENABLED`): `station` and `over_studbook` are
+/// supplied rather than read from the environment or the const, so a test
+/// proves the refusal without depending on this real machine's hostname or
+/// flipping the seam. Off (compiled default): always `None` — jjx_open's
+/// seam-off behavior is unchanged. On: a `None` station refuses.
+pub(crate) fn zjjrm_open_station_refusal(
+    cn: &str,
+    station: Option<&str>,
+    over_studbook: bool,
+) -> Option<String> {
+    if over_studbook && station.is_none() {
+        Some(format!(
+            "{}: this station reports no name — refusing to open an officium. Two \
+unnamed stations would collapse onto the same identity in the studbook record; \
+name this machine (hostname) and retry.",
+            cn
+        ))
+    } else {
+        None
+    }
 }
 
 /// Reject a param-supplied target on the gazette-only read paths (orient, show).
@@ -2338,6 +2431,14 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
         }
     };
 
+    // Station-name guard (seam-gated, JJSVF officium-open composition): once
+    // station identity enters the studbook record, an unnamed station never
+    // opens — two would collapse the same identity. Off (compiled default):
+    // never fires, jjx_open's seam-off behavior is unchanged.
+    if let Some(msg) = zjjrm_open_station_refusal(cn, jjrm_station_name().as_deref(), JJRM_OFFICIUM_STUDBOOK_ENABLED) {
+        return Ok(CallToolResult::error(vec![Content::text(msg)]));
+    }
+
     // Staleness lead (JJSVD "Refit": "open leads its report with the staleness
     // warning and names refit as the remedy"). Non-gating — see the helper.
     if let Some(notice) = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &cwd) {
@@ -2382,7 +2483,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
         ))]));
     }
 
-    let officia = PathBuf::from(OFFICIA_DIR);
+    let officia = zjjrm_officia_root();
     if let Err(e) = std::fs::create_dir_all(&officia) {
         return Ok(CallToolResult::error(vec![Content::text(
             format!("{}: error creating officia dir: {}", cn, e),
@@ -2817,7 +2918,7 @@ impl jjrm_McpServer {
         // which identity rides the emblem is JJK's mount/groom semantics, not
         // the agent's lede choice (paddock "Emblem and window reference"). The
         // call never affects the command result; see zjjrm_refresh_emblem.
-        zjjrm_refresh_emblem(&zjjrm_exchange_dir(officium_id), None);
+        zjjrm_refresh_emblem(&jjrm_exchange_dir(officium_id), None);
 
         macro_rules! deser {
             ($t:ty) => {
@@ -2988,7 +3089,7 @@ impl jjrm_McpServer {
                     let md = gazette.jjrz_emit();
                     if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                     zjjrm_refresh_emblem(
-                        &zjjrm_exchange_dir(officium_id),
+                        &jjrm_exchange_dir(officium_id),
                         Some(zjjrm_resolve_emblem_marker(&mounted)),
                     );
                     output.push('\n');
@@ -3053,7 +3154,7 @@ impl jjrm_McpServer {
                             // (`None` — the emblem still repaints from the held
                             // coronet); otherwise fill the empty-or-firemark slot with
                             // the heat firemark as before.
-                            let exchange = zjjrm_exchange_dir(officium_id);
+                            let exchange = jjrm_exchange_dir(officium_id);
                             let groom_marker = if zjjrm_standing_is_coronet(&exchange) {
                                 None
                             } else {
