@@ -23,6 +23,7 @@ Job Jockey (JJ) is installed for managing project initiatives.
 - Restating commits/specs the mount agent already loads. Point, don't paraphrase.
 - Pre-baking implementation (function names, signatures, locations for new code). Mount-time decisions.
 - Site enumerations. Write a discovery recipe (`grep "pattern" Tools/rbk/`) instead of listing six file:line entries.
+- **Every-X dockets without a census.** A docket that quantifies over a set of code sites ("repoint every mutating command") must carry the set's heterogeneity census or mandate it as the mount's first checkpointed artifact — never open with a binary "confirm whether" first act. The mandate form (discovery recipe + census-first requirement) is the usual fit under the stale-by-mount filter; the census is the plan, and a representative-specimen survey excludes by construction the outliers where the risk lives.
 - Body over ~15 lines warrants suspicion of overprescription.
 - **Plan-step structure stays in the plan.** Docket phase/step labels (A/B/C, "Phase 1", "first/then/finally") must not appear as code comments; line order already conveys execution.
 - **Absolute paths to working trees.** Don't pin a docket to a specific repo clone (`/Users/foo/projects/your-project`, `~/proj/`). Mount may legitimately run against a different clone — if work needs to happen in *the* working directory, say so without naming it. Absolute paths *are* acceptable for external data roots (log dirs, `/tmp/...` scratch, machine-pinned data), flagged as operator-mutable rather than identity.
@@ -310,6 +311,22 @@ and it is the only way to record an effort word.
    reason to withhold designation; it is the finding that sets the tier to a
    frontier one. Refusing to bridle a ready pace because its work is hard is
    the failure mode this step exists to prevent.
+   Two gap classes are recognizable from the docket's text shape alone;
+   check for both:
+   - **Scope-legibility gap.** A docket that quantifies over a set of code
+     sites ("every mutating command", "all X") is ready only if it carries
+     the set's heterogeneity census — the enumeration plus the per-member
+     facts that shape the work — or mandates that census as the mount's
+     first checkpointed artifact. Absent both, the forks that decide the
+     tier are invisible: refuse, naming the census as the reslate need.
+   - **Affordance gap.** A done-when promising per-member proof ("tests
+     land each X") is ready only if the harness affords driving a member
+     end-to-end. If it does not, the docket must either scope the
+     affordance in or name the accepted lower bar — an operator decision
+     at slate, never an executor's reinterpretation at land.
+   These checks belong to whichever gate first reads the docket with
+   judgment: a rough pace mounted directly at full ceremony never passes
+   the bridle, so the mounting session applies them at mount.
 3. Judge the **tier**: where does judgment live *during execution*, not how
    much the pace matters. Operator presence LOWERS the requirement (judgment on
    tap, so the designee just executes carefully and surfaces clearly), and
