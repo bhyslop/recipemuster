@@ -16,7 +16,9 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# JJSL CLI - Dispatch stiles: the shell face of the JJ dispatch doors.
+# JJSL CLI - the shell face of the JJ operator doors over vvx: the dispatch
+# stiles (saddle, lunge) plus the lock-hygiene (sight, cashier) and studbook
+# founding (found) ceremonies.
 #
 # The operator-facing doors are the jjy_ trampolines this CLI installs into the
 # infield (jjy_saddle, jjy_lunge). Each trampoline captures the operator's cwd
@@ -160,6 +162,6 @@ zjjsl_furnish() {
   zjjsl_kindle
 }
 
-buc_execute jjsl_ "Dispatch Stiles" zjjsl_furnish "$@"
+buc_execute jjsl_ "JJ Operator Doors" zjjsl_furnish "$@"
 
 # eof

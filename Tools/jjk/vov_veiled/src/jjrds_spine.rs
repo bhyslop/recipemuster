@@ -108,8 +108,11 @@ struct zjjrds_PedigreeFile {
 /// Founding-and-cutover): the write side of the pedigree wire, serializing the
 /// SAME structs the read side deserializes — one home for the `jjop_` key
 /// names, so a seeded pedigree can never drift from what the lookup expects.
-/// Pretty-printed to the canonical on-disk form. The founding is the only
-/// production writer; everything else in this module reads.
+/// Pretty-printed (serde declaration order — `jjop_kind`, `jjop_addresses`,
+/// `jjop_trunk`); the reader resolves by key name, so field order is free and
+/// this becomes the on-disk form the found writes and every later read
+/// round-trips. The founding is the only production writer; everything else in
+/// this module reads.
 pub fn jjrds_seed_pedigrees_json(sires: Vec<jjrds_Pedigree>) -> Result<String, String> {
     let file = zjjrds_PedigreeFile { sires };
     serde_json::to_string_pretty(&file).map_err(|e| format!("pedigrees seed: could not serialize: {}", e))

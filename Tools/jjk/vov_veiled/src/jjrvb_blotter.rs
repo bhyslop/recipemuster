@@ -286,6 +286,18 @@ pub fn jjdb_found_studbook(
     live: &crate::jjrt_types::jjrg_Gallops,
     sire: &jjdb_SireSeed,
 ) -> Result<String, String> {
+    // Found only from nothing: a pre-existing clone would be re-init'd and have
+    // its tenants overwritten and a bogus commit landed before jjdb_found panics
+    // at `remote add`, mangling a standing store. The recreate-clean ruling
+    // removes local clones before the found; this refusal enforces it mechanically,
+    // so even a confirm-skipped run cannot clobber a standing studbook.
+    if config.local_root.exists() {
+        return Err(format!(
+            "founding refused: a studbook clone already stands at {} — founding runs only from nothing (recreate-clean: remove the clone and recreate the bare remote first)",
+            config.local_root.display()
+        ));
+    }
+
     let seed_gallops = jjdb_founding_import(live, None)?;
     let pedigree = crate::jjrds_spine::jjrds_Pedigree {
         kind: sire.kind.clone(),

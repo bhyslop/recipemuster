@@ -508,11 +508,12 @@ fn run_found(args: FoundArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
     {
+        use jjk::jjrc_core::JJRC_DEFAULT_GALLOPS_PATH;
         use jjk::jjrdc_cashier::jjrdc_infield_root;
         use jjk::jjrds_spine::JJRDS_KIND_PLAIN_GIT;
         use jjk::jjrfg_plaingit::jjrfg_PlainGit;
-        use jjk::jjrfr_farrier::jjrfr_FarrierCore;
-        use jjk::jjrvb_blotter::{jjdb_found_studbook, jjdb_studbook_config, jjdb_SireSeed};
+        use jjk::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_Seat};
+        use jjk::jjrvb_blotter::{jjdb_founding_import, jjdb_found_studbook, jjdb_studbook_config, jjdb_SireSeed};
 
         // Elect the hippodrome and derive the sire address from its own identity
         // — the same canonicalized origin dispatch derives, so the seeded
@@ -531,6 +532,13 @@ fn run_found(args: FoundArgs) -> i32 {
                 return 1;
             }
         };
+        // The primary hippodrome root: a billet worktree (Partition seat) climbs
+        // to its primary, so the live gallops and the infield resolve from one
+        // consistent root rather than the partition's own checkout.
+        let hippodrome_root = match &identity.seat {
+            jjrfr_Seat::Primary => identity.root.clone(),
+            jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
+        };
         let infield_root = match jjrdc_infield_root(&args.cwd) {
             Ok(root) => root,
             Err(rejection) => {
@@ -542,7 +550,7 @@ fn run_found(args: FoundArgs) -> i32 {
 
         // The live in-repo gallops seeds the import (read-only — jjdr_hark never
         // re-saves the source store).
-        let live_path = identity.root.join(".claude/jjm/jjg_gallops.json");
+        let live_path = hippodrome_root.join(JJRC_DEFAULT_GALLOPS_PATH);
         let live_bytes = match std::fs::read(&live_path) {
             Ok(bytes) => bytes,
             Err(e) => {
@@ -565,12 +573,25 @@ fn run_found(args: FoundArgs) -> i32 {
         };
 
         if args.dry_run {
+            // Run the pure import so the confirmed plan matches the act — the
+            // seeded heat count is post-filter, not the raw live count.
+            let (seeded, behind) = match jjdb_founding_import(live.inner(), None) {
+                Ok(seed) => {
+                    let seeded = seed.heats.len();
+                    (seeded, live.inner().heats.len() - seeded)
+                }
+                Err(e) => {
+                    vvco_err!(out, "jjx_found: {}", e);
+                    return 1;
+                }
+            };
             vvco_out!(out, "jjx_found (dry run): would found the studbook, then stop before touching git");
             vvco_out!(out, "  infield root:  {}", infield_root.display());
-            vvco_out!(out, "  studbook root: {}", config.local_root.display());
+            vvco_out!(out, "  studbook root: {}{}", config.local_root.display(),
+                if config.local_root.exists() { "  [ALREADY STANDS — founding will refuse; recreate-clean first]" } else { "" });
             vvco_out!(out, "  remote:        {}", config.remote_url);
             vvco_out!(out, "  sire address:  {} (kind {}, trunk {})", sire.address, sire.kind, sire.trunk);
-            vvco_out!(out, "  live gallops:  {} heat(s) at {}", live.inner().heats.len(), live_path.display());
+            vvco_out!(out, "  live gallops:  {} heat(s) seed, {} retired left behind ({})", seeded, behind, live_path.display());
             return 0;
         }
 

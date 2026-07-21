@@ -614,49 +614,26 @@ fn jjtvb_journal_bakes_a_monotonically_advancing_ordinal_across_writes() {
     );
 }
 
-/// The station's own hippodrome upstream, canonicalized (a trailing `.git`
-/// stripped) — the address every clone of it under this infield derives from
-/// its `origin`, and therefore the address the seeded pedigree must carry for
-/// dispatch to serve any of them.
-const ZJJTVB_REAL_SIRE_ADDRESS: &str = "git@github.com:bhyslop/recipemuster";
-
-/// That upstream's main line of work.
-const ZJJTVB_REAL_SIRE_TRUNK: &str = "main";
-
-/// The real station's seed pedigree — one entry, serving every clone of the
-/// hippodrome upstream under this infield. Shared by the founding ceremony's
-/// seed and by the journal write that carries it onto a store already founded
-/// without it.
-fn zjjtvb_real_pedigrees_json() -> String {
-    let pedigrees = serde_json::json!({
-        "jjop_sires": [{
-            "jjop_kind": JJRDS_KIND_PLAIN_GIT,
-            "jjop_addresses": [ZJJTVB_REAL_SIRE_ADDRESS],
-            "jjop_trunk": ZJJTVB_REAL_SIRE_TRUNK,
-        }]
-    });
-    serde_json::to_string_pretty(&pedigrees).expect("the seed pedigree must serialize")
-}
-
-/// Found the REAL production `jjqs_studbook` against its real GitHub remote
-/// at the station's real infield root. Originally the ₢BrAAU scratch founding
-/// (empty gallops); now the conversion ceremony's founding act under the
-/// recreate-clean ruling (₣B3 paddock, recorded 260719): the operator deletes
-/// and recreates the bare remote and removes local clones, then this runs.
-/// Real network, real remote, not run by the ordinary suite: `--ignored`, and
-/// both env vars must name their roots explicitly so a stray
-/// `--include-ignored` sweep cannot land it anywhere by accident.
+/// Found the REAL production `jjqs_studbook` against its real GitHub remote at
+/// the station's real infield root — the env-var-driven integration path over
+/// the SAME engine (`jjdb_found_studbook`) the operator's `jjx_found` door
+/// composes, so exactly one writer and one seed byte-shape exist. The sanctioned
+/// operator entrypoint is the door (the `jjw-bf` tabtarget); this is its
+/// `cargo test` sibling for a scripted real found. Runs under the recreate-clean
+/// ruling (₣B3 paddock, recorded 260719): the operator deletes and recreates the
+/// bare remote and removes local clones first (the engine's own already-founded
+/// guard refuses otherwise). Real network, real remote, not run by the ordinary
+/// suite: `--ignored`, and both env vars must name their roots explicitly so a
+/// stray `--include-ignored` sweep cannot land it anywhere by accident.
 ///
-/// The seed carries BOTH studbook tenants (the ₢BrAAU run seeded one file
-/// short — `jjrds_plan` reads `pedigrees.json` before anything else, so a
-/// station founded without it cannot dispatch), and the gallops tenant is the
-/// LIVE in-repo store passed through the founding import (JJSAS: live state
-/// only — racing and stabled heats ride, retired heats stay behind as
-/// work-repo fossils). `jjdr_save` writes the seed canonical, exactly the
-/// bytes every later load round-trips.
+/// The sire is DERIVED by identifying the hippodrome (as the door does), never a
+/// hand-typed constant — the seeded address is the key dispatch derives.
 #[test]
 #[ignore]
 fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
+    use super::jjrfr_farrier::jjrfr_FarrierCore;
+    use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_SireSeed};
+
     let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT")
         .expect("set JJTVB_REAL_INFIELD_ROOT to the real infield root to run this ceremony");
     let hippodrome_root = std::env::var("JJTVB_REAL_HIPPODROME_ROOT")
@@ -667,20 +644,18 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
     let live_bytes = std::fs::read(&live_path)
         .unwrap_or_else(|e| panic!("could not read the live gallops at {}: {}", live_path.display(), e));
     let live = crate::jjri_io::jjdr_hark(&live_bytes).expect("the live gallops must validate before it can seed a founding");
-    let seed_gallops = jjdb_founding_import(live.inner(), None)
-        .expect("the founding import must compose from the live gallops");
 
-    let pedigrees_json = zjjtvb_real_pedigrees_json();
+    let identity = jjrfg_PlainGit
+        .jjrfr_identify(Path::new(&hippodrome_root))
+        .expect("the hippodrome must identify to seed the sire");
+    let address = identity.upstream_key.expect("the hippodrome must have an origin remote to seed the sire");
+    let sire = jjdb_SireSeed {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        address,
+        trunk: "main".to_string(),
+    };
 
-    let sha = jjdb_found(&config, |root| {
-        crate::jjri_io::jjdr_save(&seed_gallops, &root.join("gallops.json"))
-            .expect("the composed seed must save canonical");
-        zjjtvb_write(root, JJRDS_PEDIGREES_REL_PATH, &pedigrees_json);
-        (
-            vec![PathBuf::from("gallops.json"), PathBuf::from(JJRDS_PEDIGREES_REL_PATH)],
-            "found jjqs_studbook".to_string(),
-        )
-    });
+    let sha = jjdb_found_studbook(&config, live.inner(), &sire).expect("the real founding must compose and land");
 
     println!("founded jjqs_studbook at {} ({})", sha, config.local_root.display());
 }
@@ -1206,4 +1181,33 @@ fn jjtvb_found_studbook_seeds_both_tenants_and_dispatch_resolves_the_sire() {
     assert_eq!(pedigree.kind, JJRDS_KIND_PLAIN_GIT);
     assert_eq!(pedigree.addresses, vec![SCRATCH_SIRE.to_string()]);
     assert_eq!(pedigree.trunk, "main");
+}
+
+/// The already-founded guard: founding refuses a studbook clone that already
+/// stands rather than re-init'ing it and clobbering its tenants. The refusal
+/// fires before any git touch — the remote here is unreachable and never
+/// reached — so recreate-clean is enforced even under a confirm-skipped run.
+#[test]
+fn jjtvb_found_studbook_refuses_a_clone_that_already_stands() {
+    use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_SireSeed};
+
+    let infield = JjkTestDir::new("jjtvb_found_studbook_stands_infield");
+    let local_root = infield.path().join("jjqs_studbook");
+    std::fs::create_dir_all(&local_root).unwrap();
+    let config = jjdb_BlotterConfig {
+        local_root,
+        remote_url: "unreachable://never-touched".to_string(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+    let live = zjjtvb_import_gallops("AB", "CAAAB", vec![zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"])]);
+    let sire = jjdb_SireSeed {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        address: "git@github.com:bhyslop/scratch-hippodrome".to_string(),
+        trunk: "main".to_string(),
+    };
+
+    let err = jjdb_found_studbook(&config, &live, &sire).expect_err("founding must refuse a standing clone");
+    assert!(err.contains("already stands"), "the refusal must name the standing clone, got: {}", err);
 }

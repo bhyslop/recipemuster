@@ -179,6 +179,9 @@ one durable home, no parallel memo — refreshed by build learnings.
   The entrypoint is the `jjx_found` vvr door fronted by the `jjw-bf` tabtarget, an attended
   ceremony deliberately NOT an MCP command; the real found runs it against the recreated-clean
   remote per the recreate-clean ruling.
+  Founding refuses a studbook root that already stands (found only from nothing), so
+  recreate-clean is enforced mechanically — even a confirm-skipped run cannot clobber a
+  standing store; the operator removes the local clone before the found.
 * *Multiproject import discipline.*
   Independent installs minted firemarks from independent seeds, so cross-project imports can
   collide.
