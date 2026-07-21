@@ -104,11 +104,10 @@ network posture, not dependency tier:
 
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 
-<!-- Universal minting doctrine is CMK-homed (factored out 2026-07-21 so other
-     projects can include it); this repo keeps only its Project Prefix Registry
-     below. Hand-included for now — enroll in the kit registry if/when it
-     should auto-deliver with CMK installs. -->
-@Tools/cmk/claude-cmk-minting.md
+<!-- Universal minting doctrine is CMK-homed in Tools/cmk/claude-cmk-minting.md
+     (factored out 2026-07-21 so other projects can include it), enrolled in the
+     kit registry and delivered via the managed include block below. This repo
+     keeps only its Project Prefix Registry here. -->
 
 ## Project Prefix Registry (rbm-local)
 
