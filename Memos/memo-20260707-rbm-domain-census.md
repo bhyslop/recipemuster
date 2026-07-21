@@ -21,7 +21,7 @@ Paths are best-current-knowledge, not verified claims; this is a census in progr
 | RB specs | `Tools/rbk/vov_veiled/**/*.adoc` (incl. the hierophant sheaves RBSHC/RBSHE/RBSHH) | MCM/AXLA authoring + RBS0 |
 | CMK specs | `Tools/cmk/vov_veiled/**/*.adoc` (MCM, AXLA themselves) | MCM's own rules, self-hosting |
 | VOK specs | `Tools/vok/vov_veiled/**/*.adoc` | MCM/AXLA + VOS0 |
-| Guides | the guide family (BCG, RCG, WSG, CBG, JDG, PCG, ACG, HCG, GMG) | GMG (the guide for guides) |
+| Guides | the guide family (BCG, RCG, WSG, CBG, JDG, PUCG, ACG, HCG, GMG) | GMG (the guide for guides) |
 | JJ rust | the VOW-pipeline crates: `jjk` (`Tools/jjk/vov_veiled/`), `vvr` (`Tools/vok/`), `vvc`, `vof` | RCG |
 | JJ tests | JJ crate test modules | RCG + test conduct |
 | Matricula | `Tools/vok/vom/**` — operator-only, never ships (VOr_q4f) | RCG + VOSMM |
@@ -35,7 +35,7 @@ Paths are best-current-knowledge, not verified claims; this is a census in progr
 | Tabtargets | `tt/*.sh` | BUS0 dispatch discipline (no business logic) |
 | Launchers | `rbmm_moorings/rbml_launchers/*.sh` | BUK launcher discipline |
 | Regimes | the `*.env` regime carriers under moorings (incl. `rbmf_foedera/`) | the RBSR* regime spec family |
-| Diagrams | `diagrams/*.puml` | PCG |
+| Diagrams | `diagrams/*.puml` | PUCG |
 | Rendered SVGs | `diagrams/*.svg` (+ dark siblings) | generated — regenerate via pluml case, never hand-edit |
 | Memos | `Memos/**/*.md` | provenance-never-authority |
 | Retired memos | `Memos/retired/**` | historical record, never resurrect without direction |

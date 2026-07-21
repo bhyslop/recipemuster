@@ -4,13 +4,13 @@ SPDX-License-Identifier: Apache-2.0
 See LICENSE for terms.
 -->
 
-# PlantUml Coding Guide (PCG) — Diagram Source & Render Discipline
+# PlantUml Coding Guide (PUCG) — Diagram Source & Render Discipline
 
 *Guide-family member — see GMG (Guide Meta-Guide) for the family's shared authoring conventions.*
 
 ## Purpose
 
-PCG codifies the discipline for the project's PlantUML diagrams: how the
+PUCG codifies the discipline for the project's PlantUML diagrams: how the
 committed `.puml` sources are authored, and how they are rendered to the
 committed `.svg` siblings linked from `README.md`. It is a foreign-environment
 sibling to CBG (Cloud Build step bodies) and WSG (ssh-to-Windows transport),
@@ -22,7 +22,7 @@ membrane where our text crosses into it.
 
 ## How this document is organized — two genres on purpose
 
-Like CBG, PCG separates two kinds of knowledge:
+Like CBG, PUCG separates two kinds of knowledge:
 
 - **Authored Disciplines** (prose, no IDs) — patterns for what *we* control: the
   `.puml` sources and the render path. Internalized, not cited.
@@ -41,7 +41,7 @@ absorb only the surveyed signature, log the bend with a removal condition.
 removes the foreign decision entirely rather than depending on the neighbor to
 make it correctly. HTTP charset negotiation is such a decision: the robust render
 path encodes UTF-8 source into charset-independent ASCII *before* transit
-(PCr_101), so no charset is ever negotiated on the wire.
+(PUCr_101), so no charset is ever negotiated on the wire.
 
 **The render is one membrane, and byte-stable.** Diagrams render through exactly
 one path — the `pluml` crucible render case (`rbtdrc_pluml_render_diagrams`). No
@@ -54,12 +54,12 @@ a diff in its source, never render nondeterminism.
 ### Sources stay ASCII; mojibake is forbidden
 
 `.puml` sources are UTF-8 by file encoding, but **while the render transport
-remains charset-unsafe (PCr_101 open), diagram text MUST be plain ASCII.** Every
+remains charset-unsafe (PUCr_101 open), diagram text MUST be plain ASCII.** Every
 multibyte glyph (em dash `—`, typographic quotes, arrows) is a hostage to the
 transport and gets frozen into the committed `.svg` as mojibake. **No committed
 PlantUML artifact — `.puml` source or rendered `.svg` — may contain the mojibake
 signature** (`&#226;&#8364;…`); a diagram that does is a defect, not a stylistic
-choice. When PCr_101 is retired and the transport carries exact bytes, deliberate
+choice. When PUCr_101 is retired and the transport carries exact bytes, deliberate
 multibyte may return — until then, ASCII is the rule, not the preference.
 
 (Scope: this forbids mojibake in *PlantUML render artifacts*, where it is a live
@@ -72,7 +72,7 @@ Render via PlantUML's deflate-encoded URL form, not raw-text POST that leaves th
 body charset to the server. The encoding (UTF-8 → deflate → URL-safe ASCII; see
 `plantuml.com/text-encoding`) is *independent of HTTP charset negotiation* — that
 is the whole point: it carries exact UTF-8 bytes through a neighbor that
-otherwise mis-decodes them. See PCr_101 for the failure this avoids and the one
+otherwise mis-decodes them. See PUCr_101 for the failure this avoids and the one
 fallback.
 
 ### Enforcement is mechanical, not advisory
@@ -86,9 +86,9 @@ corrupt-but-well-formed output. Until it exists, this prose is the only fence.
 
 ## Cited Rules (numbered — each has a citer)
 
-### PCr_ — PlantUML render transport (the server we don't control)
+### PUCr_ — PlantUML render transport (the server we don't control)
 
-**PCr_101 — raw-text POST body decodes as ISO-8859-1 absent a charset.**
+**PUCr_101 — raw-text POST body decodes as ISO-8859-1 absent a charset.**
 The PlantUML server's text endpoint (`POST /svg/uml`) decodes the request body
 as the servlet default **ISO-8859-1** when the `Content-Type` carries no
 `charset`. UTF-8 multibyte input is then read byte-by-byte as Latin-1 and frozen
@@ -116,5 +116,5 @@ server reports "Default Encoding: UTF-8").
 
 ---
 
-This document is a seed, founded on PCr_101 — the em-dash mojibake in the
+This document is a seed, founded on PUCr_101 — the em-dash mojibake in the
 federation-tier diagrams. Further PlantUML disciplines accrete here as found.

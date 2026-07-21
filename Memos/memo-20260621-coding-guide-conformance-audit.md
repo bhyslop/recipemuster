@@ -42,7 +42,7 @@ authority; this table is a navigational index into the acronym maps in
 | **Cloud-build steps** | polyglot bash/sh + python step bodies spliced into Cloud Build | `Tools/rbk/rbgj*/*` | **CBG** (+ ACG cross-cut) |
 | **Windows transport** | ssh-to-Windows transport bash | `buw` jpS/jws launchers, `bujp` preflight, transport-touching code | **WSG** |
 | **In-vessel jailer sh** | sentry + pentacle — zero-dependency POSIX `sh` run inside the security envelope | `rbmm_moorings/rbmv_vessels/common-sentry-context/{rbjs_sentry,rbjp_pentacle}.sh` | **JDG** (+ ACG cross-cut) |
-| **Diagrams** | PlantUML source + rendered light/dark SVG pairs | `diagrams/rbdg*.puml` / `*.svg` | **PCG** |
+| **Diagrams** | PlantUML source + rendered light/dark SVG pairs | `diagrams/rbdg*.puml` / `*.svg` | **PUCG** |
 | **Handbooks / procedures** | durable operator-facing procedures | handbook content (`rbh*`, onboarding) | **HCG** |
 | **The guides themselves** | how to author a guide | `Tools/**/vov_veiled/*Guide*` | **GMG** (meta) |
 | **Allocation (cross-cutting)** | *where a fact is homed* — spec ↔ source | **all code** | **ACG** — see caveat |
@@ -73,7 +73,7 @@ up" code that reads as wrong *because the correct form does*. Before changing
 anything that looks off, check these membranes:
 
 - **Cited deviations (rivets).** An opaque token — `RBr_<tail>`, `JJr_a7c`,
-  `CBb_`/`CBi_`/`CBp_`/`CBh_`, `JDo_`/`JDp_`, `PCr_` — in a comment (or, in the
+  `CBb_`/`CBi_`/`CBp_`/`CBh_`, `JDo_`/`JDp_`, `PUCr_` — in a comment (or, in the
   jailer dialect, riding an execution-time phase announcement as a second token)
   is a *cited constraint*. Its rationale lives once in a closed `.adoc` spec.
   `grep` the token and read the spec; **never** restate the rationale beside the

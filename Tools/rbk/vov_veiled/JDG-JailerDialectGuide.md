@@ -31,7 +31,7 @@ defect rather than silently repairing it.
 
 ## How this document is organized — two genres on purpose
 
-Like CBG and PCG, JDG separates two kinds of knowledge:
+Like CBG and PUCG, JDG separates two kinds of knowledge:
 
 - **Authored Disciplines** (prose, no IDs) — the *shape* of the dialect: how a
   jailer script is built. Systematic, interderivable, internalized — numbering
@@ -40,7 +40,7 @@ Like CBG and PCG, JDG separates two kinds of knowledge:
   a review flagging a violation, a comment justifying a bend, or a standing
   deviation in the type specimen itself.
 
-One honest divergence from CBG/PCG. There, the Cited Rules are purely *foreign*
+One honest divergence from CBG/PUCG. There, the Cited Rules are purely *foreign*
 facts about a Palisade we do not control, and everything *ours* stays an Authored
 Discipline. JDG cites some of its **own** contract — the observability rules
 (`JDo_`) — because external legibility *is* the dialect's defining purpose: a

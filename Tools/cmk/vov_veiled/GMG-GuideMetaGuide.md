@@ -9,7 +9,7 @@ See LICENSE for terms.
 ## Purpose
 
 GMG is the guide for writing guides. The project's guides — BCG, RCG, WSG, HCG,
-CBG, PCG, ACG, JDG, AWG — recur in shape and framing; GMG homes that shared form once
+CBG, PUCG, ACG, JDG, AWG — recur in shape and framing; GMG homes that shared form once
 so a guide can **cite the convention rather than re-derive it**, and so a new
 guide starts from a known skeleton instead of a blank page. It is ACG's
 "statements → definition sites" turned on the guide family itself: the
@@ -17,7 +17,7 @@ duplicated framing gets a home.
 
 v1 posture: **bless and name what the family already does.** GMG mandates
 nothing new and re-explains nothing already homed elsewhere — it points. The
-living exemplars of every convention below are CBG, PCG, JDG (modern form) and
+living exemplars of every convention below are CBG, PUCG, JDG (modern form) and
 ACG (the catalog variant); read them, don't re-read their patterns here.
 
 ## What a guide is
@@ -58,7 +58,7 @@ Each is a reusable framing motif. A guide adopts those its subject warrants and
 ignores the rest; HCG and RCG, for instance, voice few of them.
 
 - **Foreign-environment sibling** — declare when the guide governs an
-  environment BCG's host helpers cannot reach (WSG, CBG, PCG, JDG). State the
+  environment BCG's host helpers cannot reach (WSG, CBG, PUCG, JDG). State the
   shared philosophy, then the divergent mechanics. The crossing is the point.
 - **Two genres on purpose** — split **Authored Disciplines** (prose, no IDs,
   internalize) from **Cited Rules** (numbered, each pointed at). The governing
@@ -66,7 +66,7 @@ ignores the rest; HCG and RCG, for instance, voice few of them.
   this in full; cite it.)
 - **Cited-rule scheme** — a rule ID is `{ACRONYM}{family}_{NNN}`: a guide
   acronym, a semantic family letter, an underscore, a sequence (`CBi_101`,
-  `PCr_101`, `JDo_101`). Mark `✅` active / `❌` known-gap; close with
+  `PUCr_101`, `JDo_101`). Mark `✅` active / `❌` known-gap; close with
   `*Cited by:*` and, for a blessed-but-unrepaired deviation, `*Known
   deviation:*`. The handle is **semantic by design** (legible in a terse code
   comment) — the prose-guide, semantic-ID kin of MCM's **rivet** (`mcm_rivet`,
@@ -95,7 +95,7 @@ owns the one-line bridge to its own subject.
 - **MCM**, **AXLA** — the spec-side analogues: MCM is to specs what GMG is to
   guides; AXLA homes spec motifs as GMG homes guide-framing motifs. The rivet
   (`mcm_rivet`) is the spec-side kin of the cited-rule scheme.
-- **CBG**, **PCG**, **JDG** — the modern-form exemplars that bear every
+- **CBG**, **PUCG**, **JDG** — the modern-form exemplars that bear every
   convention above.
 
 ## Acronym Registry
