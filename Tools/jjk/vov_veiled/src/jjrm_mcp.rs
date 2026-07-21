@@ -3181,7 +3181,7 @@ impl jjrm_McpServer {
                 jjrm_result(jjrx_run_nominate(jjrx_NominateArgs {
                     file: gallops_pathbuf(),
                     silks: p.silks,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_ENROLL => {
                 let p = deser!(jjrm_EnrollParams);

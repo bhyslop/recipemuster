@@ -21,6 +21,7 @@ use super::jjrt_types::{
     jjrg_Tack,
     jjrg_DraftArgs,
     jjrg_FurloughArgs,
+    jjrg_NominateArgs,
     jjrg_RailArgs,
     jjrg_RestringArgs,
     jjrg_SlateArgs,
@@ -1241,13 +1242,15 @@ fn jjtvb_found_studbook_refuses_a_clone_that_already_stands() {
 // ============================================================================
 // The mechanism-level ceremony tests above prove the shared journal core; these
 // prove each mutating command's OWN seam-ON path against a fixture studbook + a
-// real temp consumer repo — the nine wired write paths that were compile-checked
-// but had never executed (memo-20260720-journal-writes-pace-retrospective). The
+// real temp consumer repo — the write paths that were compile-checked but had
+// never executed (memo-20260720-journal-writes-pace-retrospective; nominate
+// closed separately as CAAAw, the CAAAv census's cutover-blocking find). The
 // jjri_persist five (slate/relabel/drop/rail/furlough) ride the shared
 // `zjjrm_write_gallops_over` with each command's own mutation closure; the
-// machine_commit four (retire/draft/restring/wrap) drive their extracted `_over`
-// on-branch. The seam const stays false throughout — reachability comes from the
-// explicit `over_studbook`/studbook parameters, never a flip.
+// machine_commit five (retire/nominate/draft/restring/wrap) drive their
+// extracted `_over` on-branch. The seam const stays false throughout —
+// reachability comes from the explicit `over_studbook`/studbook parameters,
+// never a flip.
 
 /// Serializes every proving-ground test. A REAL `vvcc_CommitLock` is acquired
 /// (the cinch: no test-only constructor on the production lock — the
@@ -1563,6 +1566,51 @@ fn jjtvb_seam_on_retire_journals_excision_and_lands_the_trophy_on_the_consumer()
     assert!(
         name_status.lines().any(|l| l.starts_with('A')),
         "the retire commit must add the trophy on the consumer path, name-status: {}",
+        name_status
+    );
+}
+
+#[test]
+fn jjtvb_seam_on_nominate_journals_the_new_heat_and_lands_the_paddock_on_the_consumer() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_nominate",
+        zjjtvb_seed_gallops(vec![]),
+    );
+    let nominate_args = jjrg_NominateArgs {
+        silks: "nominated-heat".to_string(),
+        created: "260101".to_string(),
+    };
+    let mut output = vvc::vvco_Output::buffer();
+    let code = crate::jjrno_nominate::jjrno_nominate_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-nominate",
+        nominate_args,
+        ground.consumer_path(),
+        &mut output,
+        "jjx_create",
+    );
+    assert_eq!(code, 0, "nominate_over must succeed on the two-store path");
+
+    // Studbook half: the new heat journaled, minted from the tip's own
+    // next_heat_seed ("AB", the seeded gallops' seed), which also advanced.
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    let g = loaded.inner();
+    assert!(g.heats.contains_key("\u{20A3}AB"), "nominate must journal the new heat to the studbook tip");
+    assert_eq!(g.next_heat_seed, "AC", "nominate must advance next_heat_seed on the tip");
+
+    // Consumer half: the fs tail wrote the paddock template, committed on the
+    // consumer path (an addition, mirroring retire's trophy commit).
+    let fm = jjrf_Firemark::jjrf_parse("AB").unwrap();
+    let paddock_rel = crate::jjri_io::jjri_paddock_path(fm.jjrf_as_str());
+    let paddock_abs = ground.consumer_path().join(&paddock_rel);
+    assert!(paddock_abs.exists(), "nominate's fs tail must write the consumer paddock");
+    let content = std::fs::read_to_string(&paddock_abs).unwrap();
+    assert!(content.contains("nominated-heat"), "the paddock template must name the heat's silks");
+    let name_status = zjjtvb_git(ground.consumer_path(), &["show", "--name-status", "--format=", "HEAD"]);
+    assert!(
+        name_status.lines().any(|l| l.starts_with('A')),
+        "the nominate commit must add the paddock on the consumer path, name-status: {}",
         name_status
     );
 }
