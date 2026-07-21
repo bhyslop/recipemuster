@@ -143,35 +143,74 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
             }
         }
     } else {
-        // Seam-on: journal the relocate to the studbook against the locked tip.
-        // draft mutates no file but the gallops (jjrg_draft is pure in-memory —
-        // the paddocks stage nothing), so there is no consumer remainder to commit,
-        // and the commit message names the TIP's own minted coronet, never a
-        // divergent session pre-run (the machine_commit family's ruling).
-        match crate::jjrm_mcp::zjjrm_journal_gallops(officium, cn, |g| {
-            let result = g.jjrg_draft(draft_args)?;
-            let dest_fm = jjrf_Firemark::jjrf_parse(&to)
-                .map_err(|e| format!("draft given invalid destination firemark: {}", e))?;
-            let message = jjrn_format_heat_message(&dest_fm, jjrn_HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet));
-            Ok((result, message))
-        }) {
-            Ok((result, _sha)) => {
-                vvco_out!(output, "{}", result.new_coronet);
-                (0, output.vvco_finish())
-            }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+        // Seam-on: derive the studbook + guidon, then journal the relocate through
+        // the extracted ON path (jjrdr_draft_over) — the explicit-config form a test
+        // drives against a fixture studbook while the const stays false.
+        let (studbook, guidon) = match crate::jjrm_mcp::zjjrm_studbook_and_guidon(officium, cn) {
+            Ok(sg) => sg,
+            Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
-                (1, output.vvco_finish())
+                return (1, output.vvco_finish());
             }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
-                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-                (1, output.vvco_finish())
-            }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
-                vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
-                (1, output.vvco_finish())
-            }
-        }
+        };
+        let code = jjrdr_draft_over(
+            &crate::jjrfg_plaingit::jjrfg_PlainGit,
+            &studbook,
+            &guidon,
+            draft_args,
+            &coronet,
+            &to,
+            &mut output,
+            cn,
+        );
+        (code, output.vvco_finish())
     }
     // lock released here
+}
+
+/// The seam-ON draft (relocate) path, extracted from the const gate so a test
+/// drives it against a fixture studbook while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
+/// stays false (the `_over` idiom). draft is a pure in-memory member of the
+/// machine_commit family: `jjrg_draft` mutates only the gallops, so the on path
+/// journals to the studbook against the locked tip and has no consumer remainder to
+/// commit; the message names the TIP's own minted coronet (message-from-transform).
+/// `studbook`/`guidon` arrive resolved. Writes to `output`, returns the exit code.
+#[allow(clippy::too_many_arguments)]
+fn jjrdr_draft_over<F>(
+    farrier: &F,
+    studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
+    guidon: &str,
+    draft_args: crate::jjrg_gallops::jjrg_DraftArgs,
+    coronet: &str,
+    to: &str,
+    output: &mut vvco_Output,
+    cn: &str,
+) -> i32
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
+{
+    match crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+        let result = g.jjrg_draft(draft_args)?;
+        let dest_fm = jjrf_Firemark::jjrf_parse(to)
+            .map_err(|e| format!("draft given invalid destination firemark: {}", e))?;
+        let message = jjrn_format_heat_message(&dest_fm, jjrn_HeatAction::Draft, &format!("{} → {}", coronet, result.new_coronet));
+        Ok((result, message))
+    }) {
+        Ok((result, _sha)) => {
+            vvco_out!(output, "{}", result.new_coronet);
+            0
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            1
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            1
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+            1
+        }
+    }
 }
