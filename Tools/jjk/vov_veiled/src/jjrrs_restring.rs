@@ -212,7 +212,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
 /// `studbook`/`guidon` arrive resolved. On success returns the `jjrg_RestringResult`
 /// for the shared JSON tail; on refusal writes to `output` and returns the exit code.
 #[allow(clippy::too_many_arguments)]
-fn jjrrs_restring_over<F>(
+pub(crate) fn jjrrs_restring_over<F>(
     farrier: &F,
     studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
     guidon: &str,

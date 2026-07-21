@@ -393,7 +393,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
 /// to `output` (the Blotter arm keeps wrap's chalk-uncommitted warning) and returns
 /// the exit code.
 #[allow(clippy::too_many_arguments)]
-fn jjrwp_wrap_over<F>(
+pub(crate) fn jjrwp_wrap_over<F>(
     farrier: &F,
     studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
     guidon: &str,

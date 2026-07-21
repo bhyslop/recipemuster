@@ -176,7 +176,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
 /// commit; the message names the TIP's own minted coronet (message-from-transform).
 /// `studbook`/`guidon` arrive resolved. Writes to `output`, returns the exit code.
 #[allow(clippy::too_many_arguments)]
-fn jjrdr_draft_over<F>(
+pub(crate) fn jjrdr_draft_over<F>(
     farrier: &F,
     studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
     guidon: &str,
