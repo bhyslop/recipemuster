@@ -5292,8 +5292,8 @@
         "₢CAAAw": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260721-1214",
-              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_ts": "260721-1348",
+              "jjgtn_state": "jjgte_complete",
               "jjgtn_tier": "jjgde_sonnet",
               "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
@@ -5319,7 +5319,7 @@
                 "seam-off byte-identical; an executed seam-on test proves it against a fixture studbook; full suite green."
               ],
               "jjgtn_silks": "nominate-write-seam-wire",
-              "jjgtn_basis": "8c63d56"
+              "jjgtn_basis": "503d8b1"
             }
           ],
           "jjgpn_dictation": "Ask a fable agent advice.  If it is unequivocal, proceed, else lets discuss its recommendations.",
