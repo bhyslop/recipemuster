@@ -5230,8 +5230,9 @@
         "₢CAAAv": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260721-0712",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260721-0713",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
               "jjgtn_text": [
                 "## Character",
                 "Test-affordance build + per-member proof.",
@@ -5263,7 +5264,7 @@
                 "the full suite is green with seam-off behavior unchanged."
               ],
               "jjgtn_silks": "journal-writes-command-proof",
-              "jjgtn_basis": "e38bccb"
+              "jjgtn_basis": "451f8ce"
             }
           ],
           "jjgpn_dictation": "Hold on are you proposing paces to update bridle guidance, or are you repairing the work of the prior pace?  Do go ahead and do any updating of bridle guidance now, then succinctly describe the pace you have in mind to fix prior pace, if indeed that is what you meant.\n[on the good-vs-harm weighing that preceded it:] help me think through whether those other two clauses do more good than harm, I think I am inclined to add them too\n[on the described pace:] go",
