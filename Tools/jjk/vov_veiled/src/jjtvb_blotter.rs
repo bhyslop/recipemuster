@@ -1130,3 +1130,80 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
          no refused commit can exist for a later ceremony to carry."
     );
 }
+
+// ---- Founding orchestrator (the studbook founding ceremony, fixture-only) ----
+
+/// The founding orchestrator end-to-end against a SCRATCH studbook: one
+/// deterministic found+import+seed act stands a studbook up from nothing,
+/// seeding BOTH tenants in the genesis commit — the imported live-state gallops
+/// (retired filtered out, proving the import ran rather than a raw copy) and the
+/// sire pedigree (the founding-seed gap `jjrds_plan` reads first) — such that the
+/// dispatch reader resolves the seeded sire. The real found against the real
+/// remote is the cutover ceremony's own act (JJSAS Founding-and-cutover,
+/// recreate-clean ruling); the collision refusal the import carries is exercised
+/// on its own above (`jjtvb_founding_import_refuses_*`), unreachable on this
+/// target-none founding path.
+#[test]
+fn jjtvb_found_studbook_seeds_both_tenants_and_dispatch_resolves_the_sire() {
+    use super::jjrds_spine::jjrds_pedigree_lookup;
+    use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_gallops_journal_load, jjdb_SireSeed};
+
+    let infield = JjkTestDir::new("jjtvb_found_studbook_infield");
+    let bare = JjkTestDir::new("jjtvb_found_studbook_bare");
+    zjjtvb_init_bare(bare.path());
+    let config = jjdb_BlotterConfig {
+        local_root: infield.path().join("jjqs_studbook"),
+        remote_url: bare.path().to_string_lossy().into_owned(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+
+    // Live in-repo state to import: racing and stabled ride, retired stays behind.
+    let live = zjjtvb_import_gallops(
+        "AD",
+        "CAAAD",
+        vec![
+            zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"]),
+            zjjtvb_import_heat("AB", jjrg_HeatStatus::Stabled, &["CAAAB"]),
+            zjjtvb_import_heat("AC", jjrg_HeatStatus::Retired, &["CAAAC"]),
+        ],
+    );
+
+    const SCRATCH_SIRE: &str = "git@github.com:bhyslop/scratch-hippodrome";
+    let sire = jjdb_SireSeed {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        address: SCRATCH_SIRE.to_string(),
+        trunk: "main".to_string(),
+    };
+
+    let sha = jjdb_found_studbook(&config, &live, &sire).expect("the founding must compose and land");
+
+    // One genesis commit on the remote carries BOTH tenants.
+    let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+    assert_eq!(remote_tip, sha, "the founding commit must land on the remote's trunk");
+    let files = zjjtvb_git(bare.path(), &["show", "--name-only", "--pretty=format:", ZJJTVB_TRUNK]);
+    let names: Vec<&str> = files.lines().filter(|l| !l.is_empty()).collect();
+    assert!(names.contains(&"gallops.json"), "the genesis commit must seed gallops.json, got: {:?}", names);
+    assert!(
+        names.contains(&JJRDS_PEDIGREES_REL_PATH),
+        "the genesis commit must seed pedigrees.json (the founding-seed gap), got: {:?}",
+        names
+    );
+
+    // The seeded gallops is the live-state IMPORT, not a raw copy: retired gone,
+    // racing and stabled ride, the source's mint seeds carry through.
+    let founded = jjdb_gallops_journal_load(&config).expect("the founded gallops must read back through the production path");
+    assert_eq!(founded.inner().heat_order, vec!["₣AA".to_string(), "₣AB".to_string()]);
+    assert!(!founded.inner().heats.contains_key("₣AC"), "the retired heat must stay behind (live-state import)");
+    assert_eq!(founded.inner().next_heat_seed, "AD");
+    assert_eq!(founded.inner().next_pace_seed, "CAAAD");
+
+    // The dispatch reader resolves the seeded sire — the founded store is
+    // servable (a station without pedigrees.json could not dispatch at all).
+    let pedigree = jjrds_pedigree_lookup(&config, SCRATCH_SIRE, JJRDS_KIND_PLAIN_GIT)
+        .expect("dispatch must resolve the seeded sire from the founded studbook");
+    assert_eq!(pedigree.kind, JJRDS_KIND_PLAIN_GIT);
+    assert_eq!(pedigree.addresses, vec![SCRATCH_SIRE.to_string()]);
+    assert_eq!(pedigree.trunk, "main");
+}

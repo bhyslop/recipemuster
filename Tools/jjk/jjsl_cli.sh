@@ -104,6 +104,24 @@ jjsl_cashier() {
   "${ZJJSL_VVX}" jjx_cashier --cwd "${z_cwd}" --break
 }
 
+# Found the studbook from nothing (JJSAS Founding-and-cutover, jjdb_found_studbook).
+# An irreversible ceremony — a genesis commit pushed to the studbook remote — so
+# the confirm gate is THIS door's contract, mirroring cashier: the resolved plan
+# is shown first (the door's own dry run), the operator answers, then the real
+# found runs. The invocation cwd elects the hippodrome (a bare tabtarget run
+# self-anchors to the kit repo, itself a legitimate hippodrome).
+jjsl_found() {
+  zjjsl_sentinel
+  local -r z_cwd="$(zjjsl_invoke_dir)"
+
+  # The plan the operator judges from - the Rust door owns its format.
+  "${ZJJSL_VVX}" jjx_found --cwd "${z_cwd}" --dry-run
+
+  buc_require "About to FOUND the studbook shown above - a genesis commit pushed to its remote, irreversible." "found"
+
+  "${ZJJSL_VVX}" jjx_found --cwd "${z_cwd}"
+}
+
 # The directory that elects the clone. A trampoline captures the operator's cwd;
 # a bare tabtarget run has already lost it to BUK's self-anchoring, and there PWD
 # is the kit repo itself - which is a legitimate hippodrome, so this door works
@@ -134,7 +152,7 @@ zjjsl_furnish() {
 
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   case "${z_command}" in
-    jjsl_sight|jjsl_cashier) ;;
+    jjsl_sight|jjsl_cashier|jjsl_found) ;;
     *) buc_doc_env "BUZ_FOLIO             " "Dispatch target or infield directory (param1 channel)" ;;
   esac
   buc_doc_env_done || return 0

@@ -163,6 +163,22 @@ one durable home, no parallel memo — refreshed by build learnings.
   Pre-cutover history does not migrate, and the new engine builds *no* old-side read path —
   the fossils stay in the work repos as human-readable provenance; `jjx_log` starts fresh at
   the founding import.
+* *Founding seeds both tenants; the pedigree seed derives from the hippodrome.*
+  The genesis commit seeds `gallops.json` (the live-state import) AND `pedigrees.json` in one
+  deterministic found+import+seed act (`jjdb_found_studbook`), leaving no partially-founded
+  middle state — `jjrds_plan` reads the pedigrees tenant first, so a station founded without it
+  cannot dispatch (the ₢BrAAU founding was one file short, and the seed was added only by a
+  later journal write).
+  The seed is one sire: `jjop_kind` = `plain-git` (the MVP's sole farrier kind),
+  `jjop_addresses` = the hippodrome's own canonicalized origin, `jjop_trunk` the operator-named
+  line of work (default `main`, a durable record value not inferred from a volatile checkout).
+  The address is DERIVED at the founding door by identifying the hippodrome being founded
+  (`jjrfr_identify` → `upstream_key`), the very canonicalization dispatch later applies to that
+  same origin — so a seeded address can never drift from the key the lookup matches; the
+  operator types no address.
+  The entrypoint is the `jjx_found` vvr door fronted by the `jjw-bf` tabtarget, an attended
+  ceremony deliberately NOT an MCP command; the real found runs it against the recreated-clean
+  remote per the recreate-clean ruling.
 * *Multiproject import discipline.*
   Independent installs minted firemarks from independent seeds, so cross-project imports can
   collide.

@@ -247,6 +247,69 @@ fn zjjrvb_later_pace_seed(a: &str, b: &str) -> Result<String, String> {
     Ok(if av >= bv { a.to_string() } else { b.to_string() })
 }
 
+// ---- Founding orchestrator (studbook-specific) ----
+
+/// A sire's founding pedigree seed: the values the founding writes into the
+/// studbook's pedigrees tenant so dispatch resolves this sire. `address` and
+/// `kind` are DERIVED at the door from identifying the hippodrome being founded
+/// (never operator-typed), so the seeded address is byte-identical to the key
+/// dispatch later derives from that same origin — seed and lookup cannot drift.
+/// `trunk` is the sire's line of work, a durable record value the operator
+/// names rather than one inferred from a volatile checkout.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct jjdb_SireSeed {
+    pub kind: String,
+    pub address: String,
+    pub trunk: String,
+}
+
+/// The studbook founding ceremony (JJSAS Founding-and-cutover): compose the
+/// live-state import (racing and stabled ride, retired stays behind) and found
+/// the instance from nothing, seeding BOTH studbook tenants in the single
+/// genesis commit — `gallops.json` (the imported live state) and
+/// `pedigrees.json` (the sire seed `jjrds_plan` reads first, so a station
+/// without it cannot dispatch). One deterministic act: found + import + seed in
+/// one run, leaving no partially-founded middle state for the cutover ceremony
+/// to hold.
+///
+/// The two fallible steps — the import's collision refusal and the pedigrees
+/// serialize — run and surface loud (Result) BEFORE `jjdb_found`, so by the time
+/// the seed closure runs everything is a pure write. Git failures panic through
+/// `jjdb_found`: this is an attended, one-shot ceremony (`jjdb_found`'s own
+/// contract), not a composed primitive with a rejection taxonomy.
+///
+/// Studbook-specific (it seeds pedigrees, a studbook tenant the future mews
+/// store has no analogue for), so it sits above the generic engine primitives
+/// it composes rather than inside them. Returns the genesis HEAD SHA.
+pub fn jjdb_found_studbook(
+    config: &jjdb_BlotterConfig,
+    live: &crate::jjrt_types::jjrg_Gallops,
+    sire: &jjdb_SireSeed,
+) -> Result<String, String> {
+    let seed_gallops = jjdb_founding_import(live, None)?;
+    let pedigree = crate::jjrds_spine::jjrds_Pedigree {
+        kind: sire.kind.clone(),
+        addresses: vec![sire.address.clone()],
+        trunk: sire.trunk.clone(),
+    };
+    let pedigrees_json = crate::jjrds_spine::jjrds_seed_pedigrees_json(vec![pedigree])?;
+
+    let sha = jjdb_found(config, |root| {
+        crate::jjri_io::jjdr_save(&seed_gallops, &root.join(JJDB_GALLOPS_REL_PATH))
+            .unwrap_or_else(|e| panic!("jjdb_found_studbook: gallops seed save failed at {}: {}", root.display(), e));
+        std::fs::write(root.join(crate::jjrds_spine::JJRDS_PEDIGREES_REL_PATH), &pedigrees_json)
+            .unwrap_or_else(|e| panic!("jjdb_found_studbook: pedigrees seed write failed at {}: {}", root.display(), e));
+        (
+            vec![
+                PathBuf::from(JJDB_GALLOPS_REL_PATH),
+                PathBuf::from(crate::jjrds_spine::JJRDS_PEDIGREES_REL_PATH),
+            ],
+            "found studbook".to_string(),
+        )
+    });
+    Ok(sha)
+}
+
 // ---- Read path ----
 
 /// The lock-free, staleness-tolerant read path (`jjdk_lockless_reads`, blotter

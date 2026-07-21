@@ -48,6 +48,10 @@ zjjz_kindle() {
   buz_enroll JJZ_DISPATCH_SIGHT   "jjw-dc"   "jjsl_cli.sh" "jjsl_sight"     ""        "Sight every JJ blotter lock and report who holds it (read-only)"
   buz_enroll JJZ_DISPATCH_CASHIER "jjw-dC"   "jjsl_cli.sh" "jjsl_cashier"   ""        "Cashier a derelict lock-holder: report, then break a stranded lock (confirm-gated)"
 
+  # Blotter — studbook lifecycle ceremonies (jjw-b)
+  buz_group JJZ__GROUP_BLOTTER   "jjw-b"   "Blotter — studbook lifecycle ceremonies"
+  buz_enroll JJZ_BLOTTER_FOUND    "jjw-bf"   "jjsl_cli.sh" "jjsl_found"     ""        "Found the studbook from nothing: live-state import + seed both tenants in one genesis commit (confirm-gated)"
+
   readonly ZJJZ_KINDLED=1
 }
 
