@@ -211,7 +211,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs, officium: &str) -> (i32, String)
 /// the fixture points at the temp consumer repo. Writes to `output`, returns the
 /// exit code; the caller finishes the buffer.
 #[allow(clippy::too_many_arguments)]
-fn jjrrt_retire_over<F>(
+pub(crate) fn jjrrt_retire_over<F>(
     farrier: &F,
     studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
     guidon: &str,

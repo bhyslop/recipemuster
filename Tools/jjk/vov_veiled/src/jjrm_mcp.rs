@@ -252,7 +252,8 @@ where
 }
 
 /// The seam-ON journal core, shared by `zjjrm_write_gallops_over` (the clean
-/// jjri_persist family) and `zjjrm_journal_gallops` (the machine_commit family,
+/// jjri_persist family) and each machine_commit command's extracted ON path
+/// (`jjrrt_retire_over`/`jjrdr_draft_over`/`jjrrs_restring_over`/`jjrwp_wrap_over`,
 /// whose seam-OFF path is its own multi-file commit). Re-runs `mutate` against
 /// the LOCKED, advanced studbook tip (Shape B — never a pre-lock read), journals
 /// the result, and returns it with the studbook commit SHA. A `None` tip means
@@ -289,13 +290,13 @@ where
 }
 
 /// Derive the studbook config and compose the session guidon from cwd + env —
-/// the shared `cwd → infield_root → studbook + guidon` step both const-gated ON
-/// writers take (`zjjrm_write_gallops`'s tail and `zjjrm_journal_gallops`, and
-/// each machine_commit command's ON delegate). One home, so the derivation is
-/// exercised once under test (a fixture sets cwd to an infield tree) instead of
-/// first executing at flip-time — the composition is otherwise unreachable while
-/// the const is false. Returns `Err` as a plain string; each caller wraps it in
-/// its own refusal shape.
+/// the shared `cwd → infield_root → studbook + guidon` step every const-gated ON
+/// writer takes (`zjjrm_write_gallops`'s tail and each machine_commit command's ON
+/// delegate: retire/draft/restring/wrap). One home, so the derivation is exercised
+/// once under test (a fixture sets cwd to an infield tree) instead of first
+/// executing at flip-time — the composition is otherwise unreachable while the
+/// const is false. Returns `Err` as a plain string; each caller wraps it in its
+/// own refusal shape.
 pub(crate) fn zjjrm_studbook_and_guidon(
     officium: &str,
     operation: &str,
@@ -368,24 +369,6 @@ pub(crate) fn zjjrm_write_gallops<R>(
         session_gallops,
         mutate,
     )
-}
-
-/// The seam-ON gallops journal for the machine_commit family (wrap/draft/
-/// restring/retire) — commands whose seam-OFF path is their own multi-file
-/// `machine_commit`, not `jjri_persist`, so they cannot ride `zjjrm_write_gallops`.
-/// Each gates itself on `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` and keeps its pre-seam
-/// commit for the off path; on the on path it calls here to journal the gallops
-/// alone to the studbook (Shape B, against the tip), leaving the paddock `.md` and
-/// the user's code on the consumer-repo path. Derives the studbook and composes
-/// the guidon exactly as `zjjrm_write_gallops` does.
-pub(crate) fn zjjrm_journal_gallops<R>(
-    officium: &str,
-    operation: &str,
-    mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<(R, String), String>,
-) -> Result<(R, String), zjjrm_WriteRefusal> {
-    let (studbook, guidon) =
-        zjjrm_studbook_and_guidon(officium, operation).map_err(zjjrm_WriteRefusal::Handler)?;
-    zjjrm_journal_run(&jjrfg_PlainGit, &studbook, &guidon, mutate)
 }
 
 /// One-time studbook currency glean (seam-gated): the "one glean rides

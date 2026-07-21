@@ -308,21 +308,28 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             }
         }
     } else {
-        match crate::jjrm_mcp::zjjrm_journal_gallops(officium, cn, |g| g.jjrg_tally(tally_args).map(|u| (u, chalk_message))) {
-            Ok((_unit, sha)) => sha,
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+        // Seam-on: derive the studbook + guidon, then journal the same state
+        // transition through the extracted ON path (jjrwp_wrap_over) — the
+        // explicit-config form a test drives against a fixture studbook while the
+        // const stays false.
+        let (studbook, guidon) = match crate::jjrm_mcp::zjjrm_studbook_and_guidon(officium, cn) {
+            Ok(sg) => sg,
+            Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
-                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-                return (1, output.vvco_finish());
-            }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
-                vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
-                vvco_err!(output, "{}: warning: chalk uncommitted — gallops state updated but not committed", cn);
-                return (1, output.vvco_finish());
-            }
+        };
+        match jjrwp_wrap_over(
+            &crate::jjrfg_plaingit::jjrfg_PlainGit,
+            &studbook,
+            &guidon,
+            tally_args,
+            chalk_message,
+            &mut output,
+            cn,
+        ) {
+            Ok(sha) => sha,
+            Err(code) => return (code, output.vvco_finish()),
         }
     };
 
@@ -373,4 +380,47 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     }
     (0, output.vvco_finish())
     // lock released here
+}
+
+/// The seam-ON wrap path, extracted from the const gate so a test drives it
+/// against a fixture studbook while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` stays
+/// false (the `_over` idiom). wrap is the machine_commit family's easiest member:
+/// `jjrg_tally` mints no identity, so the on path journals the same Complete-state
+/// transition to the studbook against the locked tip — the gallops leaves the
+/// consumer repo (the work commit already carried the user's code) and the chalk
+/// message rides the journal commit. `studbook`/`guidon` arrive resolved. On
+/// success returns the marker SHA for the shared lookahead tail; on refusal writes
+/// to `output` (the Blotter arm keeps wrap's chalk-uncommitted warning) and returns
+/// the exit code.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn jjrwp_wrap_over<F>(
+    farrier: &F,
+    studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
+    guidon: &str,
+    tally_args: jjrg_TallyArgs,
+    chalk_message: String,
+    output: &mut vvco_Output,
+    cn: &str,
+) -> Result<String, i32>
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
+{
+    match crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+        g.jjrg_tally(tally_args).map(|u| (u, chalk_message))
+    }) {
+        Ok((_unit, sha)) => Ok(sha),
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            Err(1)
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            Err(1)
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+            vvco_err!(output, "{}: warning: chalk uncommitted — gallops state updated but not committed", cn);
+            Err(1)
+        }
+    }
 }

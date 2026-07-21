@@ -141,30 +141,26 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
         }
         result
     } else {
-        match crate::jjrm_mcp::zjjrm_journal_gallops(officium, cn, |g| {
-            let result = g.jjrg_restring(restring_args)?;
-            let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark)
-                .map_err(|e| format!("restring returned invalid dest firemark: {}", e))?;
-            let message = jjrn_format_heat_message(
-                &dest_fm,
-                jjrn_HeatAction::Draft,
-                &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark),
-            );
-            Ok((result, message))
-        }) {
-            Ok((result, _sha)) => result,
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+        // Seam-on: derive the studbook + guidon, then journal the bulk relocate
+        // through the extracted ON path (jjrrs_restring_over) — the explicit-config
+        // form a test drives against a fixture studbook while the const stays false.
+        let (studbook, guidon) = match crate::jjrm_mcp::zjjrm_studbook_and_guidon(officium, cn) {
+            Ok(sg) => sg,
+            Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
-                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-                return (1, output.vvco_finish());
-            }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
-                vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
-                return (1, output.vvco_finish());
-            }
+        };
+        match jjrrs_restring_over(
+            &crate::jjrfg_plaingit::jjrfg_PlainGit,
+            &studbook,
+            &guidon,
+            restring_args,
+            &mut output,
+            cn,
+        ) {
+            Ok(result) => result,
+            Err(code) => return (code, output.vvco_finish()),
         }
     };
 
@@ -205,4 +201,51 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
         }
     }
     // lock released here
+}
+
+/// The seam-ON restring (bulk relocate) path, extracted from the const gate so a
+/// test drives it against a fixture studbook while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
+/// stays false (the `_over` idiom). restring is a pure in-memory member of the
+/// machine_commit family: `jjrg_restring` mutates only the gallops, so the on path
+/// journals to the studbook against the locked tip and has no consumer remainder to
+/// commit; the message counts the tip's own drafted set (message-from-transform).
+/// `studbook`/`guidon` arrive resolved. On success returns the `jjrg_RestringResult`
+/// for the shared JSON tail; on refusal writes to `output` and returns the exit code.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn jjrrs_restring_over<F>(
+    farrier: &F,
+    studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
+    guidon: &str,
+    restring_args: jjrg_RestringArgs,
+    output: &mut vvco_Output,
+    cn: &str,
+) -> Result<crate::jjrg_gallops::jjrg_RestringResult, i32>
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
+{
+    match crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+        let result = g.jjrg_restring(restring_args)?;
+        let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark)
+            .map_err(|e| format!("restring returned invalid dest firemark: {}", e))?;
+        let message = jjrn_format_heat_message(
+            &dest_fm,
+            jjrn_HeatAction::Draft,
+            &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark),
+        );
+        Ok((result, message))
+    }) {
+        Ok((result, _sha)) => Ok(result),
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            Err(1)
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            Err(1)
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+            Err(1)
+        }
+    }
 }
