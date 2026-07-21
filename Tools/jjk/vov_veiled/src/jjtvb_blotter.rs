@@ -1685,3 +1685,35 @@ fn jjtvb_seam_on_refuses_loud_on_a_declining_mutation() {
     let after = jjdb_gallops_journal_load(ground.studbook()).unwrap().inner().heats.len();
     assert_eq!(before, after, "a refused mutation must journal nothing");
 }
+
+// ---- residue: the shared cwd→studbook+guidon derivation the ON writers delegate to ----
+
+/// The derivation `zjjrm_studbook_and_guidon` composes (cwd → infield_root →
+/// studbook config + guidon) is otherwise reachable only through the const-gated
+/// ON writers, so it would first execute at flip-time. Driving it here against a
+/// real infield cwd (a hippodrome git repo under an infield dir, the primary-seat
+/// shape) closes that residue: the composition executes, and it points at the
+/// infield's `jjqs_studbook`. cwd-serialized like the grounds above.
+#[test]
+fn jjtvb_studbook_and_guidon_derives_from_a_real_infield_cwd() {
+    let _serial = ZJJTVB_GROUND_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let infield = JjkTestDir::new("jjtvb_derive_infield");
+    let hippodrome = infield.path().join("hippodrome");
+    std::fs::create_dir_all(&hippodrome).unwrap();
+    zjjtvb_init_local(&hippodrome);
+    zjjtvb_commit_all(&hippodrome, "a.txt", "hello", "init");
+
+    let prior_cwd = std::env::current_dir().expect("a cwd to restore");
+    std::env::set_current_dir(&hippodrome).expect("point cwd at the hippodrome");
+    let derived = crate::jjrm_mcp::zjjrm_studbook_and_guidon("\u{2609}260101-0000-test", "jjx_test");
+    // Restore cwd before asserting, so a failed assertion never leaves the runner adrift.
+    std::env::set_current_dir(&prior_cwd).expect("restore cwd");
+
+    let (studbook, guidon) = derived.expect("a valid infield cwd must derive the studbook + guidon");
+    assert!(
+        studbook.local_root.ends_with("jjqs_studbook"),
+        "the derived studbook must live at the infield's jjqs_studbook, got {}",
+        studbook.local_root.display()
+    );
+    assert!(!guidon.is_empty(), "the derivation must compose a non-empty guidon");
+}
