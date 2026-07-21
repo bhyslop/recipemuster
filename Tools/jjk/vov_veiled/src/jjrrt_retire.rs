@@ -170,100 +170,144 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs, officium: &str) -> (i32, String)
         (0, output.vvco_finish())
         // lock released here
     } else {
-        // ===== Seam-on: journal the excision to the studbook, then apply the fs tail =====
-        // The fail-fast guard and the gallops-in-commit are seam-off's — seam-on
-        // the studbook is authority and the consumer gallops is never written, so
-        // a guard on the consumer gallops.json checks the wrong store; the journal
-        // ceremony (lock → advance → re-run against tip) IS the currency the guard
-        // once stood in for. Paddock content is consumer-side (never a studbook
-        // tenant), read before the ceremony. Steeplechase still reads the consumer
-        // git log — its repoint is a banked flip-time concern for the conversion
-        // heat, inert while the seam is closed.
-        let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
-            Ok(l) => l,
+        // ===== Seam-on: derive the studbook + guidon, then journal the excision
+        // through the extracted ON path (jjrrt_retire_over) — the explicit-config
+        // form a test drives against a fixture studbook + temp consumer repo while
+        // the const stays false, so this two-store path executes before flip-time
+        // rather than first in production. =====
+        let (studbook, guidon) = match crate::jjrm_mcp::zjjrm_studbook_and_guidon(officium, cn) {
+            Ok(sg) => sg,
             Err(e) => {
                 vvco_err!(output, "{}: error: {}", cn, e);
                 return (1, output.vvco_finish());
             }
-        };
-
-        let paddock_file = crate::jjri_io::jjri_paddock_path(firemark.jjrf_as_str());
-        let paddock_content = match std::fs::read_to_string(base_path.join(&paddock_file)) {
-            Ok(c) => c,
-            Err(e) => {
-                vvco_err!(output, "{}: error: Failed to read paddock file '{}': {}", cn, paddock_file, e);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        let retire_args = jjrg_RetireArgs {
-            firemark: args.firemark.clone(),
-            today: jjrc_timestamp_date(),
         };
         let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
-
-        // Derive+excise against the LOCKED TIP, size-check the tip-derived trophy
-        // there (a pre-ceremony check against a session read would be a stale
-        // estimate — the tip can carry a concurrent station's paces), and journal
-        // the excision. Nothing on disk yet; a decline (vanished heat = another
-        // station already retired it) or a reject lands nothing anywhere.
-        let plan = match crate::jjrm_mcp::zjjrm_journal_gallops(officium, cn, |g| {
-            let plan = crate::jjrg_gallops::jjrg_retire_excise(g, &retire_args, &paddock_content, &steeplechase)?;
-            let trophy_bytes = plan.trophy_content.len() as u64;
-            if trophy_bytes > size_limit {
-                return Err(format!(
-                    "trophy is {} bytes, over the {}-byte ceiling — retry with a raised size_limit if the bulk is legitimate",
-                    trophy_bytes, size_limit
-                ));
-            }
-            let message = jjrn_format_heat_message(&firemark, jjrn_HeatAction::Retire, &plan.silks);
-            Ok((plan, message))
-        }) {
-            Ok((plan, _sha)) => plan,
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
-                vvco_err!(output, "{}: error: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
-                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
-                return (1, output.vvco_finish());
-            }
-            Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
-                vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        // Post-journal: the excision is durable in the studbook, so apply the fs
-        // tail (write trophy, delete paddock) and commit [trophy, paddock] to the
-        // consumer repo. Any failure past here is a loud split-state — the studbook
-        // says retired and the repair is additive (the files ARE the repair), never
-        // a backward revert that would manufacture a record contradicting the store
-        // of truth.
-        if let Err(e) = crate::jjrg_gallops::jjrg_retire_apply(base_path, &plan) {
-            vvco_err!(output, "{}: studbook retired the heat but the fs apply failed — the repair is to write and commit the trophy: {}", cn, e);
-            return (1, output.vvco_finish());
-        }
-
-        let commit_args = vvc::vvcm_CommitArgs {
-            files: vec![
-                plan.trophy_rel_path.clone(),
-                plan.paddock_path.clone(),
-            ],
-            message: jjrn_format_heat_message(&firemark, jjrn_HeatAction::Retire, &plan.silks),
+        let code = jjrrt_retire_over(
+            &crate::jjrfg_plaingit::jjrfg_PlainGit,
+            &studbook,
+            &guidon,
+            &firemark,
+            &args.firemark,
+            base_path,
+            &steeplechase,
             size_limit,
-            warn_limit: vvc::VVCG_WARN_LIMIT,
-        };
-        if let Err(e) = vvc::machine_commit(&lock, &commit_args, &mut output) {
-            vvco_err!(output, "{}: studbook retired the heat but the consumer commit failed (trophy+paddock are staged on disk — commit them): {}", cn, crate::jjri_io::jjri_commit_refusal(cn, &e));
-            return (1, output.vvco_finish());
-        }
-
-        // Output result
-        vvco_out!(output, "trophy: {}", plan.trophy_rel_path);
-        vvco_out!(output, "Heat {} retired successfully", plan.firemark_key);
-
-        (0, output.vvco_finish())
-        // lock released here
+            &mut output,
+            cn,
+        );
+        (code, output.vvco_finish())
     }
+}
+
+/// The seam-ON retire path, extracted from the const gate so a test drives it
+/// against a fixture studbook + temp consumer repo while
+/// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` stays false (the `_over` idiom:
+/// `zjjrm_write_gallops_over`, `zjjrm_load_gallops_over`). retire is the
+/// machine_commit family's true two-store member: journal the excision to the
+/// studbook against the locked tip, then apply the fs tail (write trophy, delete
+/// paddock) and commit trophy+paddock to the consumer repo. `studbook`/`guidon`
+/// arrive resolved (never cwd-derived here) so the fixture aims the journal at its
+/// scratch store; the consumer commit and its own lock ride the process cwd, which
+/// the fixture points at the temp consumer repo. Writes to `output`, returns the
+/// exit code; the caller finishes the buffer.
+#[allow(clippy::too_many_arguments)]
+fn jjrrt_retire_over<F>(
+    farrier: &F,
+    studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
+    guidon: &str,
+    firemark: &jjrf_Firemark,
+    args_firemark: &str,
+    base_path: &Path,
+    steeplechase: &[crate::jjrs_steeplechase::jjrs_SteeplechaseEntry],
+    size_limit: u64,
+    output: &mut vvco_Output,
+    cn: &str,
+) -> i32
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
+{
+    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
+        Ok(l) => l,
+        Err(e) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            return 1;
+        }
+    };
+
+    let paddock_file = crate::jjri_io::jjri_paddock_path(firemark.jjrf_as_str());
+    let paddock_content = match std::fs::read_to_string(base_path.join(&paddock_file)) {
+        Ok(c) => c,
+        Err(e) => {
+            vvco_err!(output, "{}: error: Failed to read paddock file '{}': {}", cn, paddock_file, e);
+            return 1;
+        }
+    };
+
+    let retire_args = jjrg_RetireArgs {
+        firemark: args_firemark.to_string(),
+        today: jjrc_timestamp_date(),
+    };
+
+    // Derive+excise against the LOCKED TIP, size-check the tip-derived trophy
+    // there (a pre-ceremony check against a session read would be a stale
+    // estimate — the tip can carry a concurrent station's paces), and journal
+    // the excision. Nothing on disk yet; a decline (vanished heat = another
+    // station already retired it) or a reject lands nothing anywhere.
+    let plan = match crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+        let plan = crate::jjrg_gallops::jjrg_retire_excise(g, &retire_args, &paddock_content, steeplechase)?;
+        let trophy_bytes = plan.trophy_content.len() as u64;
+        if trophy_bytes > size_limit {
+            return Err(format!(
+                "trophy is {} bytes, over the {}-byte ceiling — retry with a raised size_limit if the bulk is legitimate",
+                trophy_bytes, size_limit
+            ));
+        }
+        let message = jjrn_format_heat_message(firemark, jjrn_HeatAction::Retire, &plan.silks);
+        Ok((plan, message))
+    }) {
+        Ok((plan, _sha)) => plan,
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            return 1;
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            return 1;
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+            return 1;
+        }
+    };
+
+    // Post-journal: the excision is durable in the studbook, so apply the fs
+    // tail (write trophy, delete paddock) and commit [trophy, paddock] to the
+    // consumer repo. Any failure past here is a loud split-state — the studbook
+    // says retired and the repair is additive (the files ARE the repair), never
+    // a backward revert that would manufacture a record contradicting the store
+    // of truth.
+    if let Err(e) = crate::jjrg_gallops::jjrg_retire_apply(base_path, &plan) {
+        vvco_err!(output, "{}: studbook retired the heat but the fs apply failed — the repair is to write and commit the trophy: {}", cn, e);
+        return 1;
+    }
+
+    let commit_args = vvc::vvcm_CommitArgs {
+        files: vec![
+            plan.trophy_rel_path.clone(),
+            plan.paddock_path.clone(),
+        ],
+        message: jjrn_format_heat_message(firemark, jjrn_HeatAction::Retire, &plan.silks),
+        size_limit,
+        warn_limit: vvc::VVCG_WARN_LIMIT,
+    };
+    if let Err(e) = vvc::machine_commit(&lock, &commit_args, output) {
+        vvco_err!(output, "{}: studbook retired the heat but the consumer commit failed (trophy+paddock are staged on disk — commit them): {}", cn, crate::jjri_io::jjri_commit_refusal(cn, &e));
+        return 1;
+    }
+
+    vvco_out!(output, "trophy: {}", plan.trophy_rel_path);
+    vvco_out!(output, "Heat {} retired successfully", plan.firemark_key);
+
+    0
+    // lock released here
 }

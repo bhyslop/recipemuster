@@ -257,7 +257,12 @@ where
 /// the LOCKED, advanced studbook tip (Shape B — never a pre-lock read), journals
 /// the result, and returns it with the studbook commit SHA. A `None` tip means
 /// the studbook was never seeded — a founding gap, surfaced loud, never papered.
-fn zjjrm_journal_run<F, R>(
+///
+/// `pub(crate)` so each machine_commit command's extracted ON path
+/// (`jjr<x>_..._over`) journals through this same core against a fixture studbook,
+/// the explicit-config analogue of the jjri_persist family's
+/// `zjjrm_write_gallops_over`.
+pub(crate) fn zjjrm_journal_run<F, R>(
     farrier: &F,
     studbook: &jjdb_BlotterConfig,
     guidon: &str,
@@ -281,6 +286,26 @@ where
         Err(jjdb_JournalReject::Abort(e)) => Err(zjjrm_WriteRefusal::Handler(e)),
         Err(jjdb_JournalReject::Ceremony(r)) => Err(zjjrm_WriteRefusal::Blotter(r)),
     }
+}
+
+/// Derive the studbook config and compose the session guidon from cwd + env —
+/// the shared `cwd → infield_root → studbook + guidon` step both const-gated ON
+/// writers take (`zjjrm_write_gallops`'s tail and `zjjrm_journal_gallops`, and
+/// each machine_commit command's ON delegate). One home, so the derivation is
+/// exercised once under test (a fixture sets cwd to an infield tree) instead of
+/// first executing at flip-time — the composition is otherwise unreachable while
+/// the const is false. Returns `Err` as a plain string; each caller wraps it in
+/// its own refusal shape.
+pub(crate) fn zjjrm_studbook_and_guidon(
+    officium: &str,
+    operation: &str,
+) -> Result<(jjdb_BlotterConfig, String), String> {
+    let cwd = std::env::current_dir().map_err(|e| format!("current_dir error: {}", e))?;
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .ok_or_else(|| "could not derive infield root from cwd".to_string())?;
+    let studbook = jjdb_studbook_config(&infield_root);
+    let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
+    Ok((studbook, guidon))
 }
 
 /// Command-surface gallops WRITE — every mutating `jjx_*` command's persist
@@ -327,12 +352,8 @@ pub(crate) fn zjjrm_write_gallops<R>(
             .map_err(zjjrm_WriteRefusal::Commit)?;
         return Ok((r, hash));
     }
-    let cwd = std::env::current_dir()
-        .map_err(|e| zjjrm_WriteRefusal::Handler(format!("current_dir error: {}", e)))?;
-    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
-        .ok_or_else(|| zjjrm_WriteRefusal::Handler("could not derive infield root from cwd".to_string()))?;
-    let studbook = jjdb_studbook_config(&infield_root);
-    let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
+    let (studbook, guidon) =
+        zjjrm_studbook_and_guidon(officium, operation).map_err(zjjrm_WriteRefusal::Handler)?;
     zjjrm_write_gallops_over(
         &jjrfg_PlainGit,
         true,
@@ -362,12 +383,8 @@ pub(crate) fn zjjrm_journal_gallops<R>(
     operation: &str,
     mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<(R, String), String>,
 ) -> Result<(R, String), zjjrm_WriteRefusal> {
-    let cwd = std::env::current_dir()
-        .map_err(|e| zjjrm_WriteRefusal::Handler(format!("current_dir error: {}", e)))?;
-    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
-        .ok_or_else(|| zjjrm_WriteRefusal::Handler("could not derive infield root from cwd".to_string()))?;
-    let studbook = jjdb_studbook_config(&infield_root);
-    let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
+    let (studbook, guidon) =
+        zjjrm_studbook_and_guidon(officium, operation).map_err(zjjrm_WriteRefusal::Handler)?;
     zjjrm_journal_run(&jjrfg_PlainGit, &studbook, &guidon, mutate)
 }
 
