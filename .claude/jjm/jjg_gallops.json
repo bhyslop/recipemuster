@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAv",
+  "jjgrn_next_pace_seed": "CAAAw",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4544,6 +4544,7 @@
         "₢CAAAu",
         "₢CAAAq",
         "₢CAAAr",
+        "₢CAAAv",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -5221,6 +5222,49 @@
           "jjgpn_dictation": "I want you to cantle a pace that we bridle for fable after this one to review what happened during this pace: the plan seems to not have been sound based off the u-turns that we took, and the amount of times we had to go back to Fable.  Can you determine the UUID of this chat and place it into the cantled pace?",
           "jjgpn_precis": "A retrospective review pace, bridled for fable, examining why the journal-command-writes pace's plan proved unsound — the mid-execution u-turns (the write-helper redesigned as command quirks surfaced piecemeal) and the repeated returns to a fable agent for design rulings. The chat transcript UUID is embedded so the reviewer can pull the session and judge where the up-front survey/rescope fell short.",
           "jjgpn_slated": "260720-1131"
+        },
+        "₢CAAAv": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260721-0712",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Test-affordance build + per-member proof.",
+                "Closes the coverage gap the journal-command-writes pace wrapped with:",
+                "its done-when's \"seam-on tests land each mutating command\" landed as mechanism-level ceremony tests only,",
+                "so the nine per-command seam-on paths have never executed.",
+                "After the cutover flip those paths are production and the seam-off suite stops covering the live store —",
+                "these tests become the only standing proof of the live write path.",
+                "",
+                "## Cinched",
+                "- The affordance is a FIXTURE, never a production test door:",
+                "  a real temp consumer repo in which a real `vvcc_CommitLock` is acquired,",
+                "  plus a scratch infield + fixture studbook layout.",
+                "  No test-only constructor on the production lock type (interface-contamination guard).",
+                "- Seam-on proven against fixture studbooks only — never the real remote, never this project's own refs",
+                "  (the write-seam pace's standing cinch).",
+                "- Census of the member set: every caller of the write seam —",
+                "  grep `zjjrm_write_gallops` / `zjjrm_journal_gallops` callers",
+                "  (the jjri_persist family and the machine_commit family), rail's probe-clone no-op path included;",
+                "  validate stays exempt per the ruling documented on `zjjrm_write_gallops`.",
+                "  Retrospective provenance: `Memos/memo-20260720-journal-writes-pace-retrospective.md`.",
+                "- Self-hosting gate: full `tt/vow-t.Test.sh` green before wrap, seam-off path untouched under the existing suite.",
+                "",
+                "## Done when",
+                "Each mutating command has an executed seam-on proof:",
+                "its mutation lands as a journaled studbook commit against a fixture studbook,",
+                "its consumer-side half (paddock, code, trophy — where the command has one) lands on the consumer path,",
+                "and its refusal paths refuse loud;",
+                "the full suite is green with seam-off behavior unchanged."
+              ],
+              "jjgtn_silks": "journal-writes-command-proof",
+              "jjgtn_basis": "e38bccb"
+            }
+          ],
+          "jjgpn_dictation": "Hold on are you proposing paces to update bridle guidance, or are you repairing the work of the prior pace?  Do go ahead and do any updating of bridle guidance now, then succinctly describe the pace you have in mind to fix prior pace, if indeed that is what you meant.\n[on the good-vs-harm weighing that preceded it:] help me think through whether those other two clauses do more good than harm, I think I am inclined to add them too\n[on the described pace:] go",
+          "jjgpn_precis": "Born from the retrospective pace's coverage-gap finding:\nthe write-seam pace's done-when promised seam-on tests for each mutating command,\nbut what landed proves the shared ceremony mechanism only, and no roster pace owned the gap.\nThe operator weighed good-vs-harm on the two proposed remedies and ratified this one —\na fixture-shaped test affordance (real temp repo + real lock, no production test door)\nfollowed by per-command seam-on proofs, slated ahead of the cutover ceremony\nso the flip never turns untested paths into production.",
+          "jjgpn_slated": "260721-0712"
         }
       }
     },
