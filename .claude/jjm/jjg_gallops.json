@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAx",
+  "jjgrn_next_pace_seed": "CAAAy",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4546,6 +4546,7 @@
         "₢CAAAr",
         "₢CAAAv",
         "₢CAAAw",
+        "₢CAAAx",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -5325,6 +5326,61 @@
           "jjgpn_dictation": "Ask a fable agent advice.  If it is unequivocal, proceed, else lets discuss its recommendations.",
           "jjgpn_precis": "Cantled from the CAAAv census: nominate (jjx_create) was found un-wired to the write seam,\na gap the operator delegated to fable judgment and the fable ruled cutover-blocking and design-bearing —\nits own wiring pace, not scope-crept into the test pace, per the heat's own census-first doctrine.",
           "jjgpn_slated": "260721-0958"
+        },
+        "₢CAAAx": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260721-1515",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Build pace, precondition to the cutover flip (the sibling cutover-ceremony pace). Careful read-path + test-architecture work; the write-repoint's mirror on the read side.",
+                "",
+                "Complete the command-surface READ repoint the write-repoint left unfinished.",
+                "Four live read handlers still load the in-repo gallops directly instead of the",
+                "const-gated funnel, so flipping the seam leaves show/orient/brief/search reading",
+                "a dead store — split-brain against every other read, then broken at the tombstone.",
+                "This gap is why the flip (reverted at b39356b0 -> 04acb5f02) reddened the suite.",
+                "",
+                "Census recipe — grep CALL SITES, not const references (the shape the first",
+                "census got wrong, which excluded these four by construction):",
+                "`grep -rn 'jjrg_load(\\|jjrg_hark(' Tools/jjk/vov_veiled/src/`.",
+                "Confirmed gap set: parade's non-hark arm (jjrpd_parade), mount (jjrmt_mount),",
+                "scout (jjrsc_scout), get_spec (jjrgs_get_spec). Leave parade's hark arm",
+                "(jjrg_hark — historical git-blob read, correct post-tombstone) and the seam-off",
+                "arms inside already-gated code (nominate, the funnel itself).",
+                "",
+                "Repoint each gap handler through `zjjrm_load_gallops` — behaviorally inert while",
+                "the const is false (seam-off reads the passed file byte-identically), so the",
+                "suite stays green with the const unchanged. Then establish the seam-on",
+                "read-handler test pattern using the write-side's established idiom: the existing",
+                "`zjjrm_load_gallops_over` primitive plus a ZjjtvbGround variant that lays the",
+                "seeded studbook at `<consumer-parent>/jjqs_studbook` (matching",
+                "jjdb_studbook_config's infield_root.join derivation) so the cwd-derived funnel is",
+                "drivable end-to-end. Convert the ~10 existing full-run_-handler temp-file tests",
+                "(get_coronets, parade, mount, scout, get_spec) to the const-independent",
+                "`_over(false, ...)` form so they survive the flip; add one seam-on `_over(true, ...)`",
+                "proof per handler that it reads the studbook. Fix the funnel's doc comment, which",
+                "currently claims universal funneling — false until this pace lands.",
+                "",
+                "## Cinched",
+                "- Inert behind the seam: the suite stays green with the const false; no behavior changes until the flip.",
+                "- parade's hark arm stays file/blob-based (git-revision retrospective reads).",
+                "- Follows the write-repoint's _over / ZjjtvbGround pattern; invent no new test architecture.",
+                "",
+                "## Done when",
+                "The four handlers load through the const-gated funnel; every read handler with full-run_ tests",
+                "carries a const-independent seam-off test and a seam-on proof it reads the studbook when the const",
+                "is true; the full kit suite is green with the const false; and the flip can set the const true",
+                "without reddening a single read-handler test."
+              ],
+              "jjgtn_silks": "complete-read-repoint",
+              "jjgtn_basis": "04acb5f"
+            }
+          ],
+          "jjgpn_dictation": "Operator: \"ask fable agent's opinion and follow it.\" Fable returned Option A and found the read\nrepoint incomplete: four read handlers (jjx_show/parade, jjx_orient/mount, jjx_brief/get_spec,\njjx_search/scout) still read the in-repo gallops directly; ~10 tests pass only because of the gap;\nthe seam-on test pattern is a solved problem via the existing _over + ZjjtvbGround idioms. Revert\nthe premature flip, complete the read repoint as its own build pace, land green, then re-flip.",
+          "jjgpn_precis": "Cantled build pace completing the command-surface read repoint before the cutover flip re-runs,\nper Fable's Option A. The premature flip commit (b39356b0) was reverted (04acb5f02); this pace\ncloses the read-side gap the write-repoint's const-site census structurally missed.",
+          "jjgpn_slated": "260721-1515"
         }
       }
     },
