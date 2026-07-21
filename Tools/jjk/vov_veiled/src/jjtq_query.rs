@@ -3,10 +3,13 @@
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
 use crate::jjrg_gallops::{jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_Gallops, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS, JJRG_STATE_ROUGH, JJRG_STATE_COMPLETE, JJRG_STATE_ABANDONED};
-use crate::jjtu_testdir::JjkTestDir;
-use crate::jjrgc_get_coronets::{jjrgc_run_get_coronets, jjrgc_GetCoronetsArgs};
-use crate::jjrgs_get_spec::{jjrgs_run_get_spec, jjrgs_GetSpecArgs};
+use crate::jjtu_testdir::{JjkTestDir, jjtu_seam_on_ground, jjtu_poison_config};
+use crate::jjrf_favor::{jjrf_Firemark, jjrf_Coronet};
+use crate::jjrgc_get_coronets::jjrgc_coronets_over;
+use crate::jjrgs_get_spec::jjrgs_get_spec_over;
+use crate::jjrm_mcp::zjjrm_load_gallops_over;
 use std::collections::BTreeMap;
+use std::path::Path;
 
 fn create_test_gallops() -> jjrg_Gallops {
     let mut paces = BTreeMap::new();
@@ -300,8 +303,12 @@ fn jjtq_get_coronets_rough_filter() {
 }
 
 // ============================================================================
-// Abandoned-marker tests — exercise the real run_* functions over a temp
-// gallops, locking the output contract (not a reimplementation of the logic).
+// Abandoned-marker tests — exercise the real render boundary over a resolved
+// load, locking the output contract (not a reimplementation of the logic).
+// Driven through the seam-resolved `_over` doors (`zjjrm_load_gallops_over`)
+// rather than the const-gated public entry, so they are const-INDEPENDENT: a
+// seam-OFF form here survives the studbook cutover flip, and a seam-ON proof
+// per handler witnesses the studbook read the flip turns on.
 // ============================================================================
 
 fn save_mixed_states(dir: &JjkTestDir) -> std::path::PathBuf {
@@ -314,13 +321,16 @@ fn save_mixed_states(dir: &JjkTestDir) -> std::path::PathBuf {
 fn jjtq_coronets_default_tags_abandoned() {
     let td = JjkTestDir::new("jjk_test_coronets_abandoned");
     let file = save_mixed_states(&td);
+    let firemark = jjrf_Firemark::jjrf_parse("₣AC").unwrap();
 
-    let (code, out) = jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
-        file,
-        firemark: "₣AC".to_string(),
-        remaining: false,
-        rough: false,
-    });
+    // Seam-OFF: the render funnels a path-loaded gallops; the poison config
+    // proves off never reaches for the studbook.
+    let (code, out) = jjrgc_coronets_over(
+        zjjrm_load_gallops_over(false, &file, &jjtu_poison_config()),
+        &firemark,
+        false,
+        false,
+    );
 
     assert_eq!(code, 0);
     // Coronets render heat-qualified (JJS0 jjdt_coronet) — heat ₣AC, so ₢AC·<body>;
@@ -337,13 +347,14 @@ fn jjtq_coronets_default_tags_abandoned() {
 fn jjtq_coronets_remaining_still_excludes_abandoned() {
     let td = JjkTestDir::new("jjk_test_coronets_remaining");
     let file = save_mixed_states(&td);
+    let firemark = jjrf_Firemark::jjrf_parse("₣AC").unwrap();
 
-    let (code, out) = jjrgc_run_get_coronets(jjrgc_GetCoronetsArgs {
-        file,
-        firemark: "₣AC".to_string(),
-        remaining: true,
-        rough: false,
-    });
+    let (code, out) = jjrgc_coronets_over(
+        zjjrm_load_gallops_over(false, &file, &jjtu_poison_config()),
+        &firemark,
+        true,
+        false,
+    );
 
     assert_eq!(code, 0);
     // --remaining excludes abandoned entirely: no line, no marker. Check the bare
@@ -354,14 +365,39 @@ fn jjtq_coronets_remaining_still_excludes_abandoned() {
 }
 
 #[test]
+fn jjtq_coronets_seam_on_reads_studbook() {
+    // Seam-ON: over=true ignores the (nonexistent) path and ref-reads the seeded
+    // studbook. code==0 plus the studbook's own rows prove the read came from the
+    // studbook — a path read would have errored on the nonexistent file.
+    let (_ground, config) = jjtu_seam_on_ground(
+        "jjtq_coronets_seam_on",
+        create_test_gallops_with_mixed_states(),
+    );
+    let firemark = jjrf_Firemark::jjrf_parse("₣AC").unwrap();
+
+    let (code, out) = jjrgc_coronets_over(
+        zjjrm_load_gallops_over(true, Path::new("/nonexistent/jjtq-never-read.json"), &config),
+        &firemark,
+        false,
+        false,
+    );
+
+    assert_eq!(code, 0, "seam-on read must succeed from the studbook, got:\n{}", out);
+    let tagged = format!("₢AC·ACAAD  [{}]", JJRG_STATE_ABANDONED);
+    assert!(out.lines().any(|l| l == tagged.as_str()), "studbook rows missing, got:\n{}", out);
+    assert!(out.lines().any(|l| l == "₢AC·ACAAA"));
+}
+
+#[test]
 fn jjtq_brief_leads_with_abandoned_marker() {
     let td = JjkTestDir::new("jjk_test_brief_abandoned");
     let file = save_mixed_states(&td);
+    let coronet = jjrf_Coronet::jjrf_parse("₢ACAAD").unwrap();
 
-    let (code, out) = jjrgs_run_get_spec(jjrgs_GetSpecArgs {
-        file,
-        coronet: "₢ACAAD".to_string(),
-    });
+    let (code, out) = jjrgs_get_spec_over(
+        zjjrm_load_gallops_over(false, &file, &jjtu_poison_config()),
+        &coronet,
+    );
 
     assert_eq!(code, 0);
     assert!(out.starts_with(&format!("[{}]", JJRG_STATE_ABANDONED)), "brief should lead with marker, got:\n{}", out);
@@ -372,14 +408,35 @@ fn jjtq_brief_leads_with_abandoned_marker() {
 fn jjtq_brief_live_pace_is_verbatim() {
     let td = JjkTestDir::new("jjk_test_brief_live");
     let file = save_mixed_states(&td);
+    let coronet = jjrf_Coronet::jjrf_parse("₢ACAAB").unwrap();
 
-    let (code, out) = jjrgs_run_get_spec(jjrgs_GetSpecArgs {
-        file,
-        coronet: "₢ACAAB".to_string(),
-    });
+    let (code, out) = jjrgs_get_spec_over(
+        zjjrm_load_gallops_over(false, &file, &jjtu_poison_config()),
+        &coronet,
+    );
 
     assert_eq!(code, 0);
     // Live pace: no marker, docket text verbatim.
     assert!(!out.contains(&format!("[{}]", JJRG_STATE_ABANDONED)));
     assert_eq!(out.trim_end(), "Needs work");
+}
+
+#[test]
+fn jjtq_brief_seam_on_reads_studbook() {
+    // Seam-ON companion to the get_coronets proof: the get_spec render consumes a
+    // studbook-loaded gallops when over=true, path untouched (nonexistent).
+    let (_ground, config) = jjtu_seam_on_ground(
+        "jjtq_brief_seam_on",
+        create_test_gallops_with_mixed_states(),
+    );
+    let coronet = jjrf_Coronet::jjrf_parse("₢ACAAD").unwrap();
+
+    let (code, out) = jjrgs_get_spec_over(
+        zjjrm_load_gallops_over(true, Path::new("/nonexistent/jjtq-never-read.json"), &config),
+        &coronet,
+    );
+
+    assert_eq!(code, 0, "seam-on read must succeed from the studbook, got:\n{}", out);
+    assert!(out.starts_with(&format!("[{}]", JJRG_STATE_ABANDONED)), "studbook docket missing, got:\n{}", out);
+    assert!(out.contains("Gave up"));
 }

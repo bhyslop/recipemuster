@@ -5,15 +5,22 @@
 //!
 //! Module-private helpers (`zjjrpd_*`) are deliberately NOT reached from this
 //! sibling test module — `z` means private, never widened for test access (RCG).
-//! Their behavior is covered through the public `jjrpd_run_parade` boundary
-//! below: length dispatch, the empty-targets error, the always-on gazette, and
-//! the remaining filter all exercise the private helpers as a side effect.
+//! Their behavior is covered through the `pub(crate)` `jjrpd_parade_over`
+//! boundary (the seam-resolved sibling of the public `jjrpd_run_parade`): length
+//! dispatch, the empty-targets error, the always-on gazette, and the remaining
+//! filter all exercise the private helpers as a side effect. Driving through
+//! `_over` with an explicit `zjjrm_load_gallops_over` load makes these tests
+//! const-INDEPENDENT, so they survive the studbook cutover flip (seam-off form)
+//! and a seam-ON proof witnesses the studbook read the flip turns on.
 
-use super::jjrpd_parade::{jjrpd_run_parade, jjrpd_ParadeArgs};
+use super::jjrpd_parade::{jjrpd_parade_over, jjrpd_ParadeArgs};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, jjrg_Tier, JJRG_UNKNOWN_BASIS, JJRG_TIER_ABSENT};
 use super::jjrz_gazette::{jjrz_Gazette, jjrz_Slug, jjrz_parse_reslate_input};
 use super::jjrf_favor::{JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrm_mcp::zjjrm_load_gallops_over;
+use crate::jjtu_testdir::{jjtu_seam_on_ground, jjtu_poison_config};
 use std::collections::BTreeMap;
+use std::path::Path;
 
 // ===== Helper functions =====
 
@@ -185,7 +192,8 @@ fn jjtpd_empty_targets_errors() {
     let path = write_temp_gallops("empty_targets", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-    let (code, out) = jjrpd_run_parade(
+    let (code, out) = jjrpd_parade_over(
+        zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false, hark: None },
         &mut gz,
     );
@@ -207,7 +215,8 @@ fn jjtpd_heterogeneous_list_populates_gazette_for_each_target() {
     let path = write_temp_gallops("heterogeneous", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-    let (code, out) = jjrpd_run_parade(
+    let (code, out) = jjrpd_parade_over(
+        zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs {
             file: path.clone(),
             targets: vec!["₣AB".to_string(), "₢CDAAA".to_string()],
@@ -235,7 +244,8 @@ fn jjtpd_bad_target_length_errors() {
     let path = write_temp_gallops("bad_length", &gallops);
 
     let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-    let (code, out) = jjrpd_run_parade(
+    let (code, out) = jjrpd_parade_over(
+        zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec!["ABC".to_string()], remaining: false, hark: None },
         &mut gz,
     );
@@ -255,7 +265,8 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
 
     // Firemark + remaining: the complete pace is excluded from the gazette.
     let mut gz_heat = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-    let (c1, _) = jjrpd_run_parade(
+    let (c1, _) = jjrpd_parade_over(
+        zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining: true, hark: None },
         &mut gz_heat,
     );
@@ -264,13 +275,39 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
 
     // Coronet target: returned regardless of remaining.
     let mut gz_pace = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-    let (c2, _) = jjrpd_run_parade(
+    let (c2, _) = jjrpd_parade_over(
+        zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₢ABAAA".to_string()], remaining: true, hark: None },
         &mut gz_pace,
     );
     assert_eq!(c2, 0);
     assert!(gz_pace.jjrz_emit().contains("₢ABAAA"), "a directly-named coronet must return regardless of state");
     let _ = std::fs::remove_file(&path);
+}
+
+#[test]
+fn jjtpd_seam_on_reads_studbook() {
+    // Seam-ON: over=true ignores the (nonexistent) path and ref-reads the seeded
+    // studbook; the firemark target expands from the studbook's own heat. code==0
+    // plus the pace in the gazette prove the read came from the studbook, not the
+    // path (a path read would have errored on the nonexistent file).
+    let mut gallops = make_valid_gallops();
+    let (k, h) = make_heat_with_docket("AB", jjrg_HeatStatus::Racing, jjrg_PaceState::Rough, "## Goal\nalpha");
+    add_heat(&mut gallops, k, h);
+    let (_ground, config) = jjtu_seam_on_ground("jjtpd_seam_on", gallops);
+
+    let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+    let never = Path::new("/nonexistent/jjtpd-never-read.json");
+    let (code, _out) = jjrpd_parade_over(
+        zjjrm_load_gallops_over(true, never, &config),
+        jjrpd_ParadeArgs { file: never.to_path_buf(), targets: vec!["₣AB".to_string()], remaining: false, hark: None },
+        &mut gz,
+    );
+
+    assert_eq!(code, 0, "seam-on parade must render from the studbook");
+    let emitted = gz.jjrz_emit();
+    assert!(emitted.contains("₢ABAAA"), "studbook heat's pace missing from gazette: {}", emitted);
+    assert!(emitted.contains("alpha"), "studbook docket missing from gazette: {}", emitted);
 }
 
 // ===== Bridled tier surfacing =====
@@ -286,7 +323,8 @@ fn jjtpd_bridled_pace_shows_its_tier_in_both_table_views() {
 
     for remaining in [true, false] {
         let mut gz = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
-        let (code, out) = jjrpd_run_parade(
+        let (code, out) = jjrpd_parade_over(
+            zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
             jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining, hark: None },
             &mut gz,
         );
