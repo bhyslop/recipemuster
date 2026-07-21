@@ -63,6 +63,22 @@ pub struct jjrpd_ParadeArgs {
 /// and paddock bodies reach the caller only through the gazette — never the
 /// tool-result.
 pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+    // Production funnels through the const-gated load (zjjrpd_load_gallops's
+    // non-hark arm reaches zjjrm_load_gallops); the seam-resolved boundary below
+    // renders whatever that load produced.
+    jjrpd_parade_over(zjjrpd_load_gallops(&args), args, gazette)
+}
+
+/// The seam-resolved render boundary — a `pub(crate)` (non-`z`) door so the
+/// sibling test module drives the studbook seam through a public boundary
+/// (jjtpd's z-privacy rule) via `zjjrm_load_gallops_over(false|true, ..)` feeding
+/// `loaded`, mirroring the write side's `jjrrt_retire_over`. `loaded` is the
+/// gallops the caller resolved: const-gated in production, seam-explicit in test.
+pub(crate) fn jjrpd_parade_over(
+    loaded: Result<Gallops, String>,
+    args: jjrpd_ParadeArgs,
+    gazette: &mut jjrz_Gazette,
+) -> (i32, String) {
     let cn = JJRPD_CMD_NAME_SHOW;
     let mut output = vvco_Output::buffer();
 
@@ -75,7 +91,7 @@ pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (
         }
     }
 
-    let gallops = match zjjrpd_load_gallops(&args) {
+    let gallops = match loaded {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);

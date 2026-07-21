@@ -9,7 +9,7 @@
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 use crate::jjrf_favor::jjrf_Firemark;
-use crate::jjrg_gallops::jjrg_PaceState;
+use crate::jjrg_gallops::{jjrg_Gallops, jjrg_PaceState};
 use std::path::PathBuf;
 
 const JJRGC_CMD_NAME_CORONETS: &str = "jjx_coronets";
@@ -45,7 +45,28 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
         }
     };
 
-    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
+    jjrgc_coronets_over(
+        crate::jjrm_mcp::zjjrm_load_gallops(&args.file),
+        &firemark,
+        args.remaining,
+        args.rough,
+    )
+}
+
+/// The seam-resolved render half, extracted so a sibling test drives the studbook
+/// seam via `zjjrm_load_gallops_over(false|true, ..)` while the const stays false
+/// — the read analogue of the write side's `jjrrt_retire_over`. `loaded` is the
+/// gallops the const-gated funnel resolved; `firemark` the caller already parsed.
+pub(crate) fn jjrgc_coronets_over(
+    loaded: Result<jjrg_Gallops, String>,
+    firemark: &jjrf_Firemark,
+    remaining: bool,
+    rough: bool,
+) -> (i32, String) {
+    let cn = JJRGC_CMD_NAME_CORONETS;
+    let mut output = vvco_Output::buffer();
+
+    let gallops = match loaded {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);
@@ -66,11 +87,11 @@ pub fn jjrgc_run_get_coronets(args: jjrgc_GetCoronetsArgs) -> (i32, String) {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {
                 // Apply --remaining filter: skip complete/abandoned
-                if args.remaining && (tack.state == jjrg_PaceState::Complete || tack.state == jjrg_PaceState::Abandoned) {
+                if remaining && (tack.state == jjrg_PaceState::Complete || tack.state == jjrg_PaceState::Abandoned) {
                     continue;
                 }
                 // Apply --rough filter: only include rough
-                if args.rough && tack.state != jjrg_PaceState::Rough {
+                if rough && tack.state != jjrg_PaceState::Rough {
                     continue;
                 }
                 // Tag abandoned paces so a dropped pace can't be mistaken for a
