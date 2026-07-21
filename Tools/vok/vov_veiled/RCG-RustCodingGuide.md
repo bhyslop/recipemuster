@@ -283,7 +283,7 @@ All naming follows the project's minting rules. Key constraints:
 
 The registry *is* grep — `grep jjrg_` is the census, and rivets are opaque yet greppable at their definition. Identifier-synthesis breaks that axiom by creating a name no grep finds at birth: a Zeroes-Theory violation, a new and invisible path by which names enter existence. If code generation is ever genuinely required, the generated name must stay greppable back to its source via an immediate, greppable tag at the generation site — never silently pasted. (This is the declaration-side twin of the rivet rule: opaque or readable, every minted name is greppable where it is born.)
 
-Reference: CLAUDE.md "Prefix Naming Discipline" section.
+Reference: claude-cmk-minting.md "Prefix Naming Discipline" section.
 
 ## Interface Contamination Discipline
 
