@@ -1,6 +1,6 @@
 {
   "jjgrn_next_heat_seed": "B9",
-  "jjgrn_next_pace_seed": "CAAAw",
+  "jjgrn_next_pace_seed": "CAAAx",
   "jjgrn_heat_order": [
     "₣B2",
     "₣Bz",
@@ -4545,6 +4545,7 @@
         "₢CAAAq",
         "₢CAAAr",
         "₢CAAAv",
+        "₢CAAAw",
         "₢CAAAS",
         "₢CAAAT",
         "₢CAAAU",
@@ -5287,6 +5288,41 @@
           "jjgpn_dictation": "Hold on are you proposing paces to update bridle guidance, or are you repairing the work of the prior pace?  Do go ahead and do any updating of bridle guidance now, then succinctly describe the pace you have in mind to fix prior pace, if indeed that is what you meant.\n[on the good-vs-harm weighing that preceded it:] help me think through whether those other two clauses do more good than harm, I think I am inclined to add them too\n[on the described pace:] go",
           "jjgpn_precis": "Born from the retrospective pace's coverage-gap finding:\nthe write-seam pace's done-when promised seam-on tests for each mutating command,\nbut what landed proves the shared ceremony mechanism only, and no roster pace owned the gap.\nThe operator weighed good-vs-harm on the two proposed remedies and ratified this one —\na fixture-shaped test affordance (real temp repo + real lock, no production test door)\nfollowed by per-command seam-on proofs, slated ahead of the cutover ceremony\nso the flip never turns untested paths into production.",
           "jjgpn_slated": "260721-0712"
+        },
+        "₢CAAAw": {
+          "jjgpn_tacks": [
+            {
+              "jjgtn_ts": "260721-0958",
+              "jjgtn_state": "jjgte_rough",
+              "jjgtn_text": [
+                "## Character",
+                "Wire nominate (jjx_create) into the `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` write seam.",
+                "Design-bearing, not mechanical: found unwired by the CAAAv census —",
+                "`jjrno_nominate.rs` calls `jjri_persist` bare and references the const nowhere,",
+                "so seam-on a heat's genesis lands only in the (post-cutover tombstoned) consumer gallops",
+                "and never reaches the studbook. The read pace deliberately deferred nominate here; the writes pace dropped it.",
+                "",
+                "## Cinched",
+                "- CUTOVER-BLOCKING: the flip must not happen with nominate unwired —",
+                "  post-flip heat creation would allocate `next_heat_seed` and insert the heat solely in the tombstoned store,",
+                "  invisible to every seam-on (studbook-tip) read.",
+                "- Two design forks the mount must resolve, both already solved elsewhere in this heat:",
+                "  the paddock-template write lives INSIDE `jjrg_nominate` (jjro_ops.rs) — hoist it to an fs tail as retire's excise/apply split did;",
+                "  the printed firemark must derive from the TIP's `next_heat_seed` under Shape B — the message-from-transform shape draft/restring use.",
+                "- Mainline-inert (const false), seam-off byte-identical; its seam-on proof rides the CAAAv fixture affordance (cheap once that exists).",
+                "",
+                "## Done when",
+                "Seam-on, nominate journals the heat-genesis gallops mutation to the studbook against the locked tip,",
+                "its paddock template lands on the consumer path, and the returned firemark derives from the tip;",
+                "seam-off byte-identical; an executed seam-on test proves it against a fixture studbook; full suite green."
+              ],
+              "jjgtn_silks": "nominate-write-seam-wire",
+              "jjgtn_basis": "67bebe7"
+            }
+          ],
+          "jjgpn_dictation": "Ask a fable agent advice.  If it is unequivocal, proceed, else lets discuss its recommendations.",
+          "jjgpn_precis": "Cantled from the CAAAv census: nominate (jjx_create) was found un-wired to the write seam,\na gap the operator delegated to fable judgment and the fable ruled cutover-blocking and design-bearing —\nits own wiring pace, not scope-crept into the test pace, per the heat's own census-first doctrine.",
+          "jjgpn_slated": "260721-0958"
         }
       }
     },
