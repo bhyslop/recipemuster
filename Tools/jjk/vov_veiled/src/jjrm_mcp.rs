@@ -2030,7 +2030,8 @@ fn zjjrm_validate_officium(officium: &str) -> Result<(), String> {
 /// `over_studbook` idiom (itself mirroring `jjrds_plan`'s): a test drives
 /// `over_studbook` true against a fixture studbook config while
 /// `JJRM_OFFICIUM_STUDBOOK_ENABLED` itself stays false. Off: the pre-seam
-/// relative-join-then-canonicalize, byte-identical to before this pace. On:
+/// relative-join-then-canonicalize, byte-identical to the unconditional
+/// resolver it replaced. On:
 /// the studbook's own `officia_scratch` subtree (`jjrm_studbook_exchange_dir`)
 /// — `jjrlg_legatio.rs`'s legatio/pensum state resolves through this SAME
 /// function (no separate copy), so it relocates in lockstep with gazettes
@@ -2054,10 +2055,10 @@ pub(crate) fn zjjrm_exchange_dir_over(
 
 /// Resolve an officium ID to its absolute exchange directory — the sole
 /// funnel every caller in this module, and `jjrlg_legatio.rs`, resolves
-/// through. (The funnel census this pace's docket demanded before wiring
-/// found a fan-out: `jjrlg_legatio.rs` kept its own duplicated `OFFICIA_DIR`
-/// const and join for legatio/pensum state files living inside the officium
-/// dir; it now delegates here instead.)
+/// through: `jjrlg_legatio.rs` delegates here for its legatio/pensum state
+/// files (which live inside the officium dir) rather than keeping its own
+/// duplicated `OFFICIA_DIR` const and join, so that state relocates in
+/// lockstep with gazettes when the seam flips.
 ///
 /// `OFFICIA_DIR` is relative to the server's working directory; canonicalize
 /// turns it absolute so the gazette paths we hand back are unambiguous no
@@ -2145,12 +2146,10 @@ fn zjjrm_gazette_paths_block(
 /// Founding-and-cutover), not this pace's. Nothing outside this module reads
 /// the constant directly — every other module (including `jjrlg_legatio.rs`)
 /// reaches the seam only by calling `jjrm_exchange_dir`, the sole funnel
-/// every officium-exchange-dir construction converges onto (the funnel
-/// census this pace's docket demanded before wiring found a fan-out:
-/// `jjrlg_legatio.rs` kept its own duplicated `OFFICIA_DIR` const and join
-/// for legatio/pensum state files living inside the officium dir; it now
-/// delegates to `jjrm_exchange_dir` instead, so that state relocates in
-/// lockstep with gazettes when the seam flips).
+/// every officium-exchange-dir construction converges onto: `jjrlg_legatio.rs`
+/// delegates here for its legatio/pensum state (living inside the officium
+/// dir) rather than keeping its own duplicated `OFFICIA_DIR` const and join,
+/// so that state relocates in lockstep with gazettes when the seam flips.
 ///
 /// A second, indirect dependent: `jjrdm_muck`'s liveness join
 /// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
@@ -2161,8 +2160,8 @@ fn zjjrm_gazette_paths_block(
 /// join must be re-cut at that same flip (a durable per-officium billet
 /// marker is the natural carrier, since today's record captures only the
 /// seat's role, never which billet) — see `jjrdm_muck`'s module doc. That
-/// module is not wired into the live dispatch spine either way, so this
-/// pace leaves it untouched.
+/// module is not wired into the live dispatch spine either way, so it is
+/// left untouched until that flip.
 pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
