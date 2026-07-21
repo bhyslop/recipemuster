@@ -813,6 +813,22 @@ fn jjtvb_founding_import_merges_disjoint_lineages_with_seed_maximum() {
     assert_eq!(merged.next_pace_seed, "CAAAZ", "pace seed takes the source side (the later)");
 }
 
+/// The ₢BrAAW rehearsal's pedigree payload — one sire for the recipemuster
+/// hippodrome — composed through the production writer (`jjrds_seed_pedigrees_json`)
+/// so this rehearsal backfill and the founding share the one seed byte-shape.
+/// The literal address is this frozen rehearsal artifact's, targeting the
+/// specific standing studbook; the founding path derives its sire from the
+/// hippodrome's identity instead. This ignored rehearsal set is retargeted or
+/// retired at cutover (₣B3 paddock).
+fn zjjtvb_real_pedigrees_json() -> String {
+    crate::jjrds_spine::jjrds_seed_pedigrees_json(vec![crate::jjrds_spine::jjrds_Pedigree {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        addresses: vec!["git@github.com:bhyslop/recipemuster".to_string()],
+        trunk: "main".to_string(),
+    }])
+    .expect("the rehearsal seed pedigree must serialize")
+}
+
 /// Rehearsal, and the substrate proof every other rehearsal item stands on
 /// (₢BrAAW): carry the seed pedigree onto the REAL standing studbook through
 /// the full journal ceremony, against the real GitHub remote — the ₢BrAAU
