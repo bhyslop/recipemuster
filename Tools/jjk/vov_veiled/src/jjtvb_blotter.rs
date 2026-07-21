@@ -1476,13 +1476,15 @@ fn jjtvb_seam_on_rail_journals_the_reorder() {
         "jjtvb_seam_on_rail",
         zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZL", jjrg_HeatStatus::Racing, &["AAA", "AAB"])]),
     );
+    // Move mode (order mode is retired): move the second pace to first, which
+    // swaps the two-pace sequence.
     let rail_args = jjrg_RailArgs {
         firemark: "ZL".to_string(),
-        order: vec!["\u{20A2}ZLAAB".to_string(), "\u{20A2}ZLAAA".to_string()],
-        move_coronet: None,
+        order: vec![],
+        move_coronet: Some("ZLAAB".to_string()),
         before: None,
         after: None,
-        first: false,
+        first: true,
         last: false,
     };
     let res = zjjtvb_drive_write_over(&ground, "ZL", "rail msg", |g| g.jjrg_rail(rail_args));
