@@ -154,6 +154,7 @@ Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog 
 <!-- MANAGED:VVK-INCLUDES:BEGIN -->
 @Tools/buk/claude-buk-core.md
 @Tools/cmk/claude-cmk-core.md
+@Tools/cmk/claude-cmk-minting.md
 @Tools/jjk/claude-jjk-core.md
 @Tools/vvk/claude-vvk-core.md
 <!-- MANAGED:VVK-INCLUDES:END -->
