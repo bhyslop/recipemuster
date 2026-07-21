@@ -5330,8 +5330,10 @@
         "₢CAAAx": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260721-1515",
-              "jjgtn_state": "jjgte_rough",
+              "jjgtn_ts": "260721-1531",
+              "jjgtn_state": "jjgte_bridled",
+              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_effort": "jjgde_high",
               "jjgtn_text": [
                 "## Character",
                 "Build pace, precondition to the cutover flip (the sibling cutover-ceremony pace). Careful read-path + test-architecture work; the write-repoint's mirror on the read side.",
@@ -5375,7 +5377,7 @@
                 "without reddening a single read-handler test."
               ],
               "jjgtn_silks": "complete-read-repoint",
-              "jjgtn_basis": "04acb5f"
+              "jjgtn_basis": "6cebae6"
             }
           ],
           "jjgpn_dictation": "Operator: \"ask fable agent's opinion and follow it.\" Fable returned Option A and found the read\nrepoint incomplete: four read handlers (jjx_show/parade, jjx_orient/mount, jjx_brief/get_spec,\njjx_search/scout) still read the in-repo gallops directly; ~10 tests pass only because of the gap;\nthe seam-on test pattern is a solved problem via the existing _over + ZjjtvbGround idioms. Revert\nthe premature flip, complete the read repoint as its own build pace, land green, then re-flip.",
