@@ -81,10 +81,10 @@ fn make_heat_bridled(heat_id: &str, tier: Option<jjrg_Tier>) -> (String, jjrg_He
     (heat_key, heat)
 }
 
-/// Persist a gallops to a per-test temp directory so `jjrpd_run_parade`
-/// (which loads from disk) can be driven at its public boundary. Each test
-/// gets its OWN directory: jjrg_save writes a `.tmp.<pid>.json` alongside the
-/// target, and since parallel tests share one pid, a shared directory would
+/// Persist a gallops to a per-test temp directory so a seam-OFF load
+/// (`zjjrm_load_gallops_over(false, &path, ..)`) can read it from disk. Each
+/// test gets its OWN directory: jjrg_save writes a `.tmp.<pid>.json` alongside
+/// the target, and since parallel tests share one pid, a shared directory would
 /// race that temp name across saves. The unique `name` isolates each test.
 fn write_temp_gallops(name: &str, gallops: &jjrg_Gallops) -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!("jjtpd_{}_{}", name, std::process::id()));
@@ -177,7 +177,7 @@ fn jjtpd_target_length_invalid_three_chars() {
     assert!(target_str.len() != JJRF_FIREMARK_LEN && target_str.len() != JJRF_CORONET_LEN);
 }
 
-// ===== Public-boundary dispatch tests (jjrpd_run_parade) =====
+// ===== Boundary dispatch tests (jjrpd_parade_over) =====
 
 #[test]
 fn jjtpd_empty_targets_errors() {
