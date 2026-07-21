@@ -4751,14 +4751,15 @@
         "₢CAAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260721-0713",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
+              "jjgtn_ts": "260721-0718",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
                 "this docket points at it and carries only the rulings that bind it.",
-                "Precondition (made explicit by the rescope): the four build paces ahead of this one landed —",
-                "command-surface read and journal-write behind the seam, officium relocation, founding orchestrator.",
+                "Precondition: the build paces ahead of this one landed —",
+                "command-surface read and journal-write behind the seam, officium relocation,",
+                "founding orchestrator, and the per-command seam-on proof",
+                "(whose census defines the member set the scratch shakedown drives).",
                 "Sole-operator, one afternoon.",
                 "",
                 "The seams are compile-time consts, so the ceremony spans TWO sessions:",
@@ -4807,25 +4808,32 @@
                 "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
               ],
               "jjgtn_silks": "execute-cutover-ceremony",
-              "jjgtn_basis": "f02ca73"
+              "jjgtn_basis": "abb8787"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony itself — the one-afternoon full cutover JJSAS specifies,\nmade executable by the seam, door, and founding-stage paces slated before it.",
           "jjgpn_slated": "260718-1001",
-          "jjgpn_redocket_count": 2
+          "jjgpn_redocket_count": 3
         },
         "₢CAAAT": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260718-1012",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260721-0718",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Complete the vanilla-hippodrome premise: de-insert JJK from consumer repos —",
                 "CLAUDE.md includes, `.claude/jjm`, MCP config —",
                 "context provisioning having moved to the dispatch layer",
                 "(JJSAS \"Founding and cutover\"; the same ceremony performs this sweep).",
+                "",
+                "First artifact — the insertion census, before any sweep edit:",
+                "enumerate the repo set and the insertion sites.",
+                "The studbook's pedigrees file seeds the repo enumeration (every registered sire),",
+                "extended by a legacy sweep over the operator's clones;",
+                "per repo, discover the three insertion kinds by recipe",
+                "(grep for the CLAUDE.md include lines, `.claude/jjm` presence, MCP config entries).",
+                "Checkpoint the census, then sweep it — never discover mid-sweep.",
                 "",
                 "## Cinched",
                 "- HAZARD (260709 carry, restated at the ₣B3 cut): the host-separated",
@@ -4837,18 +4845,19 @@
                 "  at mount, and record the reconciliation where the ceremony's steps live.",
                 "",
                 "## Done when",
-                "Consumer repos carry no JJK insertions beyond the standing tombstone,",
+                "Consumer repos carry no JJK insertions beyond the standing tombstone —",
+                "each census row swept or explicitly excepted —",
                 "sessions still dispatch and mount through the studbook path afterward,",
                 "and the chat store stands untouched."
               ],
               "jjgtn_silks": "deinsert-consumer-repos",
-              "jjgtn_basis": "7475a25"
+              "jjgtn_basis": "abb8787"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony's de-insertion half — consumer repos go vanilla —\ncarrying the chat-store hazard note as a hard boundary on the sweep.",
           "jjgpn_slated": "260718-1002",
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         },
         "₢CAAAU": {
           "jjgpn_tacks": [
@@ -5076,15 +5085,19 @@
         "₢CAAAq": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260720-0748",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_sonnet",
+              "jjgtn_ts": "260721-0718",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Wire the dead officium seam live and guard open.",
                 "Today `JJRM_OFFICIUM_STUDBOOK_ENABLED` has zero production reads —",
                 "the exchange dir is built in-repo unconditionally",
                 "and the studbook-side helper (`jjrm_studbook_exchange_dir`, targeting `officia_scratch/` under the studbook clone) is test-only.",
-                "Branch officium open/validate/exchange resolution on the seam,",
+                "",
+                "First act — funnel census: enumerate every site that builds or resolves the exchange-dir path",
+                "(grep the constructor and its callers) and confirm the funnel is single before wiring;",
+                "a fan-out found is a checkpoint to surface, never a discovery to absorb mid-build.",
+                "",
+                "Then branch officium open/validate/exchange resolution on the seam,",
                 "and write the station-name refusal:",
                 "`jjrm_station_name()` returning None refuses `jjx_open` with a fair-faced error.",
                 "",
@@ -5099,12 +5112,13 @@
                 "seam-off officium behavior is unchanged."
               ],
               "jjgtn_silks": "relocate-officium-exchange",
-              "jjgtn_basis": "87ab155"
+              "jjgtn_basis": "abb8787"
             }
           ],
           "jjgpn_dictation": "Lets chivvy a pace to identify your findings, rationale, and recommendations which we can bridle for Fable; I expect this will be a planning pace that may cantle another pace and/ or reslate our current one.  So Fable will decide but not do the work.  Don't use a memo, but okay to make the docket extra dense since we indeed will process it immediately.\n\ngo.  Make sure these paces are subtly correct in how we transform job jockey so that we don't lose paces during mount sequences.  We _can_ mount more than one pace in a chat, though we typically don't for context savings: Make the plan simple and robust I think... be aware that we will be using job jockey to change job jockey and that comes with special hazards.  Proceed, or raise issues.",
           "jjgpn_precis": "Cut by the buildgap-rescope pace under the quoted delegation: gap 2.\nThe officium seam is dead — flipping it changes nothing until open/validate/exchange branch on it —\nand the station-name refusal at open is unwritten.\nThis pace wires both, mechanical and mainline-inert.",
-          "jjgpn_slated": "260720-0746"
+          "jjgpn_slated": "260720-0746",
+          "jjgpn_redocket_count": 1
         },
         "₢CAAAr": {
           "jjgpn_tacks": [
