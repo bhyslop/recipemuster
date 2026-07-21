@@ -4751,10 +4751,8 @@
         "₢CAAAS": {
           "jjgpn_tacks": [
             {
-              "jjgtn_ts": "260720-0748",
-              "jjgtn_state": "jjgte_bridled",
-              "jjgtn_tier": "jjgde_opus",
-              "jjgtn_effort": "jjgde_high",
+              "jjgtn_ts": "260721-0712",
+              "jjgtn_state": "jjgte_rough",
               "jjgtn_text": [
                 "Execute the cutover per JJSAS \"Founding and cutover\" — the plan's one durable home;",
                 "this docket points at it and carries only the rulings that bind it.",
@@ -4767,7 +4765,12 @@
                 "- Old-binary session: quiesce (no officium open on either machine, no billet mid-work) →",
                 "  final-sync clones →",
                 "  flip commit (both seams true: `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`, `JJRM_OFFICIUM_STUDBOOK_ENABLED`) →",
-                "  rebuild + install `vvx`, commits recorded, converged to every operated clone —",
+                "  rebuild + install `vvx`, commits recorded, converged to every operated clone →",
+                "  the scratch shakedown: a scripted sweep driving each mutating command",
+                "  with the flipped binary in a scratch infield against a scratch remote,",
+                "  proving the const-true compile live (the real seam branch, glean-at-open, station-name guidon)",
+                "  before any authority transfer — a red sweep aborts the ceremony with nothing founded,",
+                "  and no shakedown write ever lands in the real studbook (RECREATE-CLEAN's genesis stays clean) —",
                 "  then, as its LAST act, the operator recreates the bare remote clean (260719 ruling)",
                 "  and runs the founding orchestrator (found + live-state import + pedigrees seed).",
                 "  The import is the moment of authority transfer:",
@@ -4803,13 +4806,13 @@
                 "and the tombstoned gallops fails an old binary loud — each sighted, not assumed."
               ],
               "jjgtn_silks": "execute-cutover-ceremony",
-              "jjgtn_basis": "8d4c3b7"
+              "jjgtn_basis": "9c7c7b5"
             }
           ],
           "jjgpn_dictation": "first, de-bridle B3AAA so you can do the work.  I do want you to proceed with the pace cutting now.",
           "jjgpn_precis": "Operator directed the entry-groom expansion of ₣B3's founding-and-cutover rung into\nimplementation paces.\nThis pace is the ceremony itself — the one-afternoon full cutover JJSAS specifies,\nmade executable by the seam, door, and founding-stage paces slated before it.",
           "jjgpn_slated": "260718-1001",
-          "jjgpn_redocket_count": 1
+          "jjgpn_redocket_count": 2
         },
         "₢CAAAT": {
           "jjgpn_tacks": [
