@@ -42,6 +42,7 @@ use super::jjrvb_blotter::{
     jjdb_JournalReject,
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
+    JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
 };
 use super::jjtu_testdir::JjkTestDir;
 use std::cell::Cell;
@@ -493,6 +494,11 @@ fn jjtvb_gallops_journal_load_reads_the_pin_never_the_working_tree() {
     let loaded = jjdb_gallops_journal_load(&config).unwrap();
     assert_eq!(loaded.inner().next_heat_seed, gallops.next_heat_seed);
     assert!(loaded.inner().heats.is_empty());
+}
+
+#[test]
+fn jjtvb_gallops_over_studbook_enablement_seam_defaults_off() {
+    assert!(!JJDB_GALLOPS_OVER_STUDBOOK_ENABLED, "the studbook-backed surface must stay inert until the conversion heat flips it");
 }
 
 // ---- Founding ceremony ----

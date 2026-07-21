@@ -25,6 +25,7 @@
 
 use super::jjrm_mcp::{
     jjrm_apply_batch,
+    jjrm_exchange_dir,
     jjrm_resolve_batch_firemark,
     jjrm_resolve_officium_billet,
     jjrm_station_name,
@@ -38,6 +39,7 @@ use super::jjrm_mcp::{
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
     ZJJRM_SESSION_ABSENT,
+    JJRM_OFFICIUM_STUDBOOK_ENABLED,
 };
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
@@ -519,6 +521,11 @@ fn jjtm_studbook_exchange_dir_nests_under_scratch_dirname() {
 }
 
 #[test]
+fn jjtm_officium_studbook_enablement_seam_defaults_off() {
+    assert!(!JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium must stay inert until the conversion heat flips it");
+}
+
+#[test]
 fn jjtm_exchange_dir_over_resolves_under_studbook_when_seam_on() {
     let studbook = jjdb_studbook_config(Path::new("/infield"));
     let dir = zjjrm_exchange_dir_over("260712-1000-abcd", true, &studbook);
@@ -530,6 +537,16 @@ fn jjtm_exchange_dir_over_strips_incipit_prefix_when_seam_on() {
     let studbook = jjdb_studbook_config(Path::new("/infield"));
     let dir = zjjrm_exchange_dir_over("\u{2609}260712-1000-abcd", true, &studbook);
     assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
+}
+
+#[test]
+fn jjtm_exchange_dir_over_seam_off_matches_the_live_wrapper() {
+    // Seam off ignores the studbook config entirely — the third arg is a
+    // throwaway, proving the off-branch never touches it.
+    let throwaway = jjdb_studbook_config(Path::new("/unused"));
+    let via_over = zjjrm_exchange_dir_over("260712-1000-abcd", false, &throwaway);
+    let via_wrapper = jjrm_exchange_dir("260712-1000-abcd");
+    assert_eq!(via_over, via_wrapper, "seam-off must stay byte-identical between the testable branch and the live wrapper");
 }
 
 #[test]
