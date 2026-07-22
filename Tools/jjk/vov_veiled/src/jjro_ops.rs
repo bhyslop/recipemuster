@@ -21,6 +21,37 @@ use crate::jjrv_validate::{zjjrg_is_kebab_case, zjjrg_is_yymmdd};
 ///
 /// Creates a new Heat with empty Pace structure and creates the paddock file.
 pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_path: &Path) -> Result<jjrg_NominateResult, String> {
+    // Compose the two halves into today's behavior: derive-and-insert (no fs),
+    // then apply the fs tail. The paddock-template builder lives once in
+    // jjrg_nominate_excise, so the seam-on path (which drives excise against the
+    // studbook tip and applies the tail only after the journal lands) can never
+    // drift from this one.
+    let plan = jjrg_nominate_excise(gallops, args)?;
+    jjrg_nominate_apply(base_path, &plan)?;
+
+    Ok(jjrg_NominateResult { firemark: plan.firemark_str })
+}
+
+/// The pure plan a nominate produces before any filesystem write: the paddock
+/// template content already derived and the heat already inserted into the
+/// gallops, but nothing on disk yet. Split out so the studbook write seam
+/// derives against the LOCKED TIP and mutates under the lock (which is also
+/// where next_heat_seed is allocated from — Shape B), then applies the fs tail
+/// (`jjrg_nominate_apply`) only AFTER the journal lands — no orphan-paddock
+/// window, because a journal reject leaves the disk untouched.
+pub struct jjrg_NominatePlan {
+    pub firemark_str: String,
+    pub paddock_rel_path: String,
+    pub paddock_content: String,
+    pub silks: String,
+}
+
+/// Validate and insert the new heat — pure of the filesystem. Allocates the
+/// Firemark from `next_heat_seed` (the studbook tip's, seam-on), builds the
+/// paddock template content, inserts the `jjrg_Heat`, and advances
+/// `next_heat_seed`. The paddock is only planned here; writing it is
+/// `jjrg_nominate_apply`'s job.
+pub fn jjrg_nominate_excise(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs) -> Result<jjrg_NominatePlan, String> {
     // Validate silks is alphanumeric-kebab
     if !zjjrg_is_kebab_case(&args.silks) {
         return Err(format!("silks must be non-empty alphanumeric-kebab (letters, digits, hyphens), got '{}'", args.silks));
@@ -35,24 +66,15 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     let firemark_str = format!("{}{}", JJRF_FIREMARK_PREFIX, gallops.next_heat_seed);
     let heat_id = gallops.next_heat_seed.clone();
 
-    // Create paddock file with template
-    let paddock_path = base_path.join(jjri_paddock_path(&heat_id));
-    if let Some(parent) = paddock_path.parent() {
-        fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create paddock directory: {}", e))?;
-    }
-
+    let paddock_rel_path = jjri_paddock_path(&heat_id);
     let paddock_content = format!(
         "# Paddock: {}\n\n## Context\n\n(Describe the initiative's background and goals)\n\n## References\n\n(List relevant files, docs, or prior work)\n",
         args.silks
     );
 
-    fs::write(&paddock_path, paddock_content)
-        .map_err(|e| format!("Failed to write paddock file: {}", e))?;
-
     // Create new Heat
     let heat = jjrg_Heat {
-        silks: args.silks,
+        silks: args.silks.clone(),
         creation_time: args.created,
         status: jjrg_HeatStatus::Stabled,
         order: Vec::new(),
@@ -66,7 +88,29 @@ pub fn jjrg_nominate(gallops: &mut jjrg_Gallops, args: jjrg_NominateArgs, base_p
     // Increment next_heat_seed
     gallops.next_heat_seed = zjjrg_increment_seed(&gallops.next_heat_seed);
 
-    Ok(jjrg_NominateResult { firemark: firemark_str })
+    Ok(jjrg_NominatePlan {
+        firemark_str,
+        paddock_rel_path,
+        paddock_content,
+        silks: args.silks,
+    })
+}
+
+/// The filesystem tail of a nominate: write the paddock template under
+/// `base_path`. Runs inline seam-off; seam-on only AFTER the journal has landed
+/// the heat insertion to the studbook, so a journal reject leaves nothing on
+/// disk to reverse.
+pub fn jjrg_nominate_apply(base_path: &Path, plan: &jjrg_NominatePlan) -> Result<(), String> {
+    let paddock_path = base_path.join(&plan.paddock_rel_path);
+    if let Some(parent) = paddock_path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create paddock directory: {}", e))?;
+    }
+
+    fs::write(&paddock_path, &plan.paddock_content)
+        .map_err(|e| format!("Failed to write paddock file: {}", e))?;
+
+    Ok(())
 }
 
 /// Index of the first actionable pace in a heat's order — the slot `--first`

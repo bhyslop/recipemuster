@@ -521,8 +521,8 @@ fn jjtm_studbook_exchange_dir_nests_under_scratch_dirname() {
 }
 
 #[test]
-fn jjtm_officium_studbook_enablement_seam_defaults_off() {
-    assert!(!JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium must stay inert until the conversion heat flips it");
+fn jjtm_officium_studbook_enablement_seam_is_live() {
+    assert!(JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium is live post-cutover (₣B3 founding-and-cutover); a revert to false would silently relocate the officium exchange back into the consumer repo");
 }
 
 #[test]
@@ -540,13 +540,19 @@ fn jjtm_exchange_dir_over_strips_incipit_prefix_when_seam_on() {
 }
 
 #[test]
-fn jjtm_exchange_dir_over_seam_off_matches_the_live_wrapper() {
-    // Seam off ignores the studbook config entirely — the third arg is a
-    // throwaway, proving the off-branch never touches it.
-    let throwaway = jjdb_studbook_config(Path::new("/unused"));
-    let via_over = zjjrm_exchange_dir_over("260712-1000-abcd", false, &throwaway);
+fn jjtm_exchange_dir_live_wrapper_matches_the_seam_on_branch() {
+    // Post-cutover the seam is on, so the live wrapper resolves under the
+    // studbook — byte-identical to the seam-on testable branch driven with the
+    // studbook config the wrapper itself derives from cwd (the test runs inside
+    // a hippodrome, so that derivation resolves, exactly as the live wrapper
+    // assumes).
+    let cwd = std::env::current_dir().expect("test cwd");
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .expect("the test runs inside a hippodrome, so the infield root resolves");
+    let studbook = jjdb_studbook_config(&infield_root);
+    let via_over = zjjrm_exchange_dir_over("260712-1000-abcd", true, &studbook);
     let via_wrapper = jjrm_exchange_dir("260712-1000-abcd");
-    assert_eq!(via_over, via_wrapper, "seam-off must stay byte-identical between the testable branch and the live wrapper");
+    assert_eq!(via_over, via_wrapper, "seam-on: the live wrapper must match the seam-on testable branch");
 }
 
 #[test]

@@ -217,7 +217,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
 
     let mut output = vvco_Output::buffer();
 
-    let gallops = match Gallops::jjrg_load(&args.file) {
+    let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error: {}", cn, e);

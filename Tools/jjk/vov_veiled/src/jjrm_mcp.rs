@@ -161,9 +161,10 @@ pub(crate) fn zjjrm_load_gallops_over(
     }
 }
 
-/// Command-surface gallops read — every `jjx_*` command's load funnels
-/// through here (`jjrm_mcp.rs`'s own handlers directly; the dozen
-/// `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`).
+/// Command-surface gallops read — every `jjx_*` command's working-tree
+/// gallops load funnels through here (`jjrm_mcp.rs`'s own handlers directly;
+/// the `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`),
+/// the deliberately-excluded `jjrno_nominate` bootstrap aside (below).
 /// Honors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (`jjrvb_blotter.rs`) — the
 /// same const the dispatch spine's `jjrds_plan` obeys via its own
 /// `over_studbook` parameter, so one flip moves every reader. Off (the
@@ -2141,9 +2142,8 @@ fn zjjrm_gazette_paths_block(
 /// Enablement seam: mirrors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
 /// (`jjrvb_blotter.rs`). Wired live in this module — `jjrm_exchange_dir`,
 /// `zjjrm_officia_root`, and the station-name refusal in `zjjrm_handle_open`
-/// all branch on it — but the constant itself stays `false` here
-/// (mainline-inert); flipping it is the conversion heat's act (JJSAS
-/// Founding-and-cutover), not this pace's. Nothing outside this module reads
+/// all branch on it. Flipped live (`true`) by ₣B3's founding-and-cutover
+/// ceremony (JJSAS Founding-and-cutover). Nothing outside this module reads
 /// the constant directly — every other module (including `jjrlg_legatio.rs`)
 /// reaches the seam only by calling `jjrm_exchange_dir`, the sole funnel
 /// every officium-exchange-dir construction converges onto: `jjrlg_legatio.rs`
@@ -2162,7 +2162,7 @@ fn zjjrm_gazette_paths_block(
 /// seat's role, never which billet) — see `jjrdm_muck`'s module doc. That
 /// module is not wired into the live dispatch spine either way, so it is
 /// left untouched until that flip.
-pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = false;
+pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = true;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
 /// "Officium exchange and record"): exchange (gazettes) and record (identity
@@ -3181,7 +3181,7 @@ impl jjrm_McpServer {
                 jjrm_result(jjrx_run_nominate(jjrx_NominateArgs {
                     file: gallops_pathbuf(),
                     silks: p.silks,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_ENROLL => {
                 let p = deser!(jjrm_EnrollParams);

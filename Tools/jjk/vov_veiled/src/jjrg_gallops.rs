@@ -21,7 +21,7 @@ pub use crate::jjrv_validate::{jjrg_validate, jjrg_reconcile};
 pub use crate::jjru_util::{jjrg_capture_commit_sha, jjrg_make_tack, jjrg_read_stdin, jjrg_read_stdin_optional};
 
 // Re-export operations
-pub use crate::jjro_ops::{jjrg_nominate, jjrg_slate, jjrg_rail, jjrg_tally, jjrg_draft, jjrg_retire, jjrg_retire_excise, jjrg_retire_apply, jjrg_RetirePlan, jjrg_build_trophy_preview, jjrg_furlough, jjrg_curry_apply, jjrg_restring};
+pub use crate::jjro_ops::{jjrg_nominate, jjrg_nominate_excise, jjrg_nominate_apply, jjrg_NominatePlan, jjrg_slate, jjrg_rail, jjrg_tally, jjrg_draft, jjrg_retire, jjrg_retire_excise, jjrg_retire_apply, jjrg_RetirePlan, jjrg_build_trophy_preview, jjrg_furlough, jjrg_curry_apply, jjrg_restring};
 
 // Backwards compatibility: impl methods on jjrg_Gallops
 impl jjrg_Gallops {
