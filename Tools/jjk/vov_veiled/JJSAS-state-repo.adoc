@@ -197,6 +197,12 @@ one durable home, no parallel memo — refreshed by build learnings.
   Founding refuses a studbook root that already stands (found only from nothing), so
   recreate-clean is enforced mechanically — even a confirm-skipped run cannot clobber a
   standing store; the operator removes the local clone before the found.
+  SUPERSEDED AT EXECUTION (cutover pace ₢B3·CAAAS): the recreate-clean ruling did not govern the
+  actual cutover — the operator ruled forward-not-backward, seating the clean live gallops directly
+  as the authoritative studbook state (the studbook already held both tenants; studbook seat commit
+  d29b7e5), skipping the recreate-clean re-found entirely.
+  The mechanical already-standing refusal in `jjdb_found_studbook` stands as built, but the ceremony
+  did not run the found against a recreated-clean remote and removed no clone.
 * *Multiproject import discipline.*
   Independent installs minted firemarks from independent seeds, so cross-project imports can
   collide.

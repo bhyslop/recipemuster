@@ -3729,29 +3729,29 @@ Job Jockey's record, decoupled from the repos it jockeys.
 The subdocument below is the world model — the shared gestalt of the revision-control sheaf
 family; its sibling contract sheaves (store, driver, dispatch, tackle) accrete here as each
 lands, draining the aspirant nucleations durable-first.
-The family stands executory (AXLA `axd_executory`): binding as design, enacted by no shipped
-surface yet — the in-repo gallops of this codex remains the live mechanism, until the
-conversion heat's cutover ceremony retires this sentence.
+The family stands normative (AXLA `axd_normative`): the shipped surface enacts it — the
+studbook is the live heat/pace store, and this codex's former in-repo gallops stands as a
+fail-loud tombstone.
 
-//axvd_cartouche axd_executory axd_cosmology
+//axvd_cartouche axd_normative axd_cosmology
 include::JJSVC-cosmology.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_executory axd_entity
+//axvd_cartouche axd_normative axd_entity
 include::JJSVB-blotter.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_executory axd_routine
+//axvd_cartouche axd_normative axd_routine
 include::JJSVJ-journal.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_executory axd_entity
+//axvd_cartouche axd_normative axd_entity
 include::JJSVS-studbook.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_executory axd_entity
+//axvd_cartouche axd_normative axd_entity
 include::JJSVF-farrier.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_executory axd_operation
+//axvd_cartouche axd_normative axd_operation
 include::JJSVD-dispatch.adoc[leveloffset=+2]
 
-//axvd_cartouche axd_executory axd_entity
+//axvd_cartouche axd_normative axd_entity
 include::JJSVT-tackle.adoc[leveloffset=+2]
 
 == Aspirant Nucleations
