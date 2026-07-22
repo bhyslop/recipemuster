@@ -197,6 +197,11 @@
 :vosmp_presentment:     <<vosmp_presentment,Presentment>>
 :vosmp_presentment_s:   <<vosmp_presentment,Presentments>>
 
+// Diptych vocabulary (single-file spec source + codec; grammar and method prose in VOSYD-diptych.adoc; family letter y provisional — see that sheaf's settling register)
+:vosyd_diptych:         <<vosyd_diptych,Diptych>>
+:vosyd_diptych_s:       <<vosyd_diptych,Diptychs>>
+:vosyd_diptych_p:       <<vosyd_diptych,Diptych's>>
+
 // Mutability dimensions — imported from AXLA, cited never restated (used by the Matricula vocabulary)
 :axd_petrify:           <<axd_petrify,Petrify>>
 :axd_immutable:         <<axd_immutable,Immutable>>
@@ -1620,4 +1625,33 @@ over a fallible gate (sprue, rivet) is advisory, not an assertion.
 
 //axvd_cartouche axd_aspirant
 include::VOSMM-entity.adoc[leveloffset=+1]
+
+== Diptych
+
+The Diptych branch is the single-file specification source format and its codec.
+Its vocabulary is defined here at the cosmology top; the grammar, codec
+operations, migration doctrine, and settling register live in the consuming
+subdoc VOSYD-diptych.adoc, included below.
+
+[[vosyd_diptych]]
+//axve_entity axd_mutable
+{vosyd_diptych}::
+One file per codex holding the complete
+{vosa_concept_model}
+source — every sheaf — in a line-classed, word-per-line record grammar.
+The
+{vosyd_diptych}
+is the canonical source git tracks at word grain; its AsciiDoc and Markdown
+forms are derived, disposable projections rendered just in time, and agent
+edits return to it through a verifying reverse parse.
+It stores no mapping section: display text and variant forms ride each
+definition record, and the
+{vosmm_matricula}
+guarantees reference↔definition integrity as census passes over the
+diptych's one node tree.
+Named for the two-faced hinged tablet of antiquity: one artifact, co-equal
+faces, a trivial hinge.
+
+//axvd_cartouche axd_aspirant axd_entity
+include::VOSYD-diptych.adoc[leveloffset=+1]
 

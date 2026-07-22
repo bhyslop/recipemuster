@@ -1,0 +1,255 @@
+//axvd_sheaf axd_aspirant axd_entity
+This is an aspirant entity sheaf of the {vos0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+
+== Overview
+
+Charter: a
+{vosyd_diptych}
+is one file per codex holding every sheaf in a word-per-line record grammar —
+the canonical source git tracks at word grain —
+from which the specification's readable forms are rendered just in time,
+and to which agent edits return through a verifying reverse parse.
+
+The
+{vosyd_diptych}
+replaces the AsciiDoc *expression* of a concept model, never its semantics.
+MCM keeps the semantic law (linked terms, categories, exposure, Lapidary);
+AXLA keeps the annotation law (voicings, dimensions, lookahead arities, the lintel and its prose);
+this sheaf owns only the storage grammar and the machines that project and maintain it.
+The
+{vosmm_matricula}
+is the maintainer: reference↔definition matching, arity validation, tree-nesting
+rules, and lintel law all run as census passes over the diptych's structure,
+which is designed to be the matricula's native input.
+
+Provenance corpus, cited never restated: the founding vision memo
+(`Memos/memo-20260209-diptych-vision.md` — stale in parts, superseded where
+this sheaf differs) and the validator feedstock
+(`Memos/memo-20260610-quoin-minting-introspection.md` §7).
+
+== The Diptych
+
+The
+{vosyd_diptych}
+(defined at the cosmology top) is a line-classed record grammar:
+the first character(s) of a line determine its class, prose is the unmarked
+default, and the only stateful mode is verbatim passthrough.
+Sigil characters are provisional until the grammar settles; the record
+*classes* are the settled content of this section.
+
+=== Record classes
+
+* *Node* — a hierarchy heading: level plus title, no anchor.
+The document is one tree; every other structural record seats in it.
+* *Definition node* — a quoin definition: anchor, display text, variant forms
+(plural, possessive, past, progressive — enumerated literally), and a seat
+kind.
+Two seat kinds are preserved for projection fidelity: heading-seated
+(rendered as an anchored section title at a level) and dlist-seated
+(rendered as an anchored definition-list term under the current node).
+A definition node is a hierarchy node; scope is a subtree property.
+* *Annotation* — the AXLA voicing line in the direct form only:
+primary motif first, dimensions following
+(`//axk_premise` shape).
+The legacy explicit-relationship form is never stored; encode translates it
+on ingestion.
+* *Reference token* — a linked-term reference, line-isolated in prose
+(the memo's `$`-prefix shape).
+* *Backtick token* — the sprue/inlay token stream, lexically distinct from
+reference tokens so AXLA's per-stream lookahead counting holds unchanged.
+* *Prose word* — one word per line; a trailing punctuation cluster attaches
+to its word's line; a leading cluster likewise.
+Attachment charsets are a settling-register item.
+* *Markup flag* — bold and italic as per-line flags, never spans:
+each word in an emphasized run carries the flag; projection joins contiguous
+flagged runs into one span.
+No toggle state, no delimiter matching.
+* *Verbatim fence* — code blocks and tables pass through untokenized under a
+kind/language tag until the closing fence.
+* *Sheaf boundary* — one record carrying the sheaf's identity, its
+normativeness dimension, its genre dimension, and the codex binding.
+The sheaf-side lintel and codex-side cartouche of the multi-file world merge
+here; their agreement validator dissolves by construction.
+The fair-faced opening sentence remains as prose beneath the record, and the
+matricula cross-checks sentence against tokens.
+
+The category legend (the mapping-section comment block of the multi-file
+world) is deliberately unspecified here — deferred; the
+{vosmm_matricula}
+sorts legend representation later.
+
+=== What the grammar preserves from AXLA
+
+The annotation layer's positional lookahead grammar carries over verbatim:
+an annotation reads typed arguments from the token stream that follows, with
+primary-then-dimensions ordering and per-stream counting exactly as AXLA
+defines.
+Argument tokens stay in the prose, doing double duty as readable sentence and
+machine argument; the diptych merely line-isolates them.
+Detail-site hierarchy markers become typed nodes in the one tree, and AXLA's
+nesting rules become matricula tree validators.
+This sheaf mints no annotation vocabulary and changes no arity: AXLA is the
+authority, mechanized here.
+
+=== No mapping section
+
+The diptych stores no mapping section.
+Display text and variant forms live on the definition node; the matricula
+guarantees what the mapping section guaranteed by ceremony —
+every reference resolves, every referenced variant is declared, exactly one
+definition per
+{vosli_inscription}.
+The projection synthesizes mapping sections (including foreign-import
+attribute lines) because the AsciiDoc form still needs attributes to resolve.
+
+== Codec
+
+Three operations, embodied in the matricula binary (vom) beside the census —
+a deliberate widening of that crate's charter from naming census to
+census-and-codec, sharing its allowlist substrate and its never-ships posture.
+Operation names below are working descriptions, not mints; naming is a
+settling-register item.
+
+* *Encode* — one AsciiDoc file tree (codex plus its `include::` sheaves) into
+one
+{vosyd_diptych}.
+Wild-corpus-facing: it claims the recognized MCM/AXLA construct subset and
+rejects loud on anything outside it, never best-effort.
+Its unclaimed-construct report, run corpus-wide, is the migration survey that
+sizes the long tail before any conversion is attempted.
+Two ingestion behaviors: legacy voicing lines translate mechanically to the
+direct form (drop the relationship token); a lintel or cartouche carrying
+only a normativeness token lands on an operator worklist — genre assignment
+is judgment, never auto-repair.
+* *Emit* — one
+{vosyd_diptych}
+into the canonical AsciiDoc projection: the multi-file include tree fanned
+back out, with mapping sections, cartouches, and lintels synthesized
+deterministically from the stored records.
+One canonical layout; the projection is a derived artifact, regenerated into
+a gitignored derived root, never hand-edited.
+* *Prove* — the fidelity gate, per file or corpus-wide:
+emit-after-encode must be byte-identical to its own prior projection, and
+the asciidoctor rendering of the original source and of the projection must
+be equivalent.
+There is no separate normalizer: normalization *is* emit∘encode, reviewed by
+ordinary git diff, judged by the render-equivalence gate — which is blind to
+what normalization touches (comments, attribute ordering, alignment) and
+sensitive to what it must not touch (rendered content).
+
+Asciidoctor is a foreign tool at the Palisade: exactly one membrane wraps it,
+surfaced both as a step inside prove and as a thin standalone render command.
+The pure choice of distribution is the Ruby `asciidoctor` gem invoked as CLI
+— the de facto definition of the language until the Eclipse specification
+ratifies — version-pinned in the membrane so verdicts are reproducible.
+
+=== The write path
+
+Agent read access is by rendered slice; agent write access returns through
+the echo loop:
+submitted edited slice → reverse parse → splice into the diptych →
+re-render → echo the diff between submitted and regenerated forms for
+review.
+Semantic loss in the reverse parse is thereby visible at review time.
+The reverse parser never faces wild AsciiDoc — the corpus's wildness is
+consumed once by migration — so it parses only the canonical projection as
+edited by an agent, and an edit that breaks the canonical shape rejects loud
+with the offending line, never best-effort.
+The slice-addressing grammar and the MCP verb surface are deferred scope;
+the echo contract above is the settled part.
+
+== Invariants (rivets deferred)
+
+These propositions are load-bearing; each takes an opaque `VOr_` rivet at
+settling, when citing code exists.
+Until then they bind as aspirant prose.
+
+* *Canonical source.* The
+{vosyd_diptych}
+is the sole source of its codex; every AsciiDoc or Markdown form is a
+derived, disposable projection.
+Post-migration, hand edits land on the diptych (directly or through the echo
+loop), never on a projection.
+* *Fidelity.* Migration of a file is gated on the prove pass; thereafter emit
+is byte-stable and the render-equivalence gate holds continuously.
+* *Reject loud.* Encode and the reverse parser fail on the first unclaimed
+construct with its location; silent best-effort is forbidden in both
+directions.
+* *Never ships.* The codec rides the matricula binary and inherits its
+distribution boundary (VOr_q4f); no diptych machinery enters the parcel.
+* *AXLA unchanged.* The diptych stores AXLA's direct annotation form and
+positional lookahead grammar without extension or reinterpretation; a
+grammar need discovered here is an AXLA amendment, banked in Reconciliation,
+never a local dialect.
+
+== Migration
+
+Per-codex and incremental: one codex converts when its prove pass lands
+green, and the multi-file AsciiDoc source for that codex retires in the same
+act.
+The word-per-line re-flow discharges the removal-conditions ledger the vision
+memo carries (semantic-linefeed renormalization among them) as each codex
+converts.
+Word-grain history begins at conversion; prior ancestry remains in the
+retired files' history.
+
+== Deferred scope
+
+Named to bound this sheaf; none specified here:
+
+* The Markdown projection — including the emphasis-vocabulary recension the
+markup flags will need when the projection language changes.
+* The lectionary/lectio pipeline (task-scoped composed views).
+* Recension (tool-executed global re-minting over diptychs) and auto-link.
+* The MCP slice surface and its addressing grammar.
+* Category legend representation (operator ruling: matricula sorts this
+later).
+* Multi-word backtick spans (banked; the per-line-flag shape is the candidate
+answer).
+* Integration of the matricula's lintel and seating validators as standing
+diptych gates (they run over AsciiDoc today; re-seating them is promotion
+work).
+
+== Settling register
+
+Entries cite their substance's home; drain modes per the aspirant practice.
+
+* Sigil charset and the full line grammar — SHAPES THE CUT: the grammar page
+must exist before encode is cut into paces.
+* Naming elections — SETTLING PACE: the `vosy` family letter (grep-clean,
+provisionally standing), operation names for encode/emit/prove, and the word
+election for the artifact itself.
+Ledgered alternates: *canon* (disqualified while `mcm_canon` holds the word),
+*recto/verso* (superseded framing — the stored form no longer pairs with one
+privileged LLM face; projections are plural).
+* Punctuation attachment and tokenization charsets (trailing/leading
+clusters, hyphenated compounds, em-dashes) — RIDES A PACE.
+* Slice addressing grammar — SHAPES THE CUT for the MCP surface, deferred
+with it.
+* Genre-worklist handling for one-token lintels — RIDES A PACE (encode
+emits the worklist; the operator assigns).
+* Derived-root layout and lifecycle — RIDES A PACE.
+
+== Doctrine homes — cite, never restate
+
+* Concept-model semantics, Lapidary word law: MCM.
+* Annotation grammar, lookahead arities, lintel/cartouche and Timeless Prose:
+AXLA.
+* Census machinery, allowlist substrate, distribution boundary, presentment
+form: VOSMM and the Matricula vocabulary at the VOS0 cosmology top.
+* Aspirant refinement practice: AWG.
+* Founding vision and validator feedstock: the two memos named in Overview
+(provenance only).
+
+== Reconciliation (banked nudges)
+
+* VOS0 Matricula prose: widen the stated charter from naming census to
+census-and-codec when the codec lands in vom.
+* JJS0's Diptych-migration demolition-date citation gains this spec home;
+repoint at settling.
+* MCM's "Diptych-era" aside likewise repoints here at settling.
+* AXLA's legacy-annotation sweep clause ("until deliberate remint tooling
+retires them") is discharged by encode; note the discharge in AXLA when
+migration begins.
+* The vision memo retires to `Memos/retired/` when every concern it carries
+is dispositioned by this sheaf's settling.
