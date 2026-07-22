@@ -17,7 +17,6 @@ use crate::jjrg_gallops::{
     jjrg_lines_to_text,
     jjrg_PaceState as PaceState,
 };
-use crate::jjri_io::jjri_paddock_path;
 use crate::jjrp_print::{jjrp_Table, jjrp_Column, jjrp_Align};
 use crate::jjrs_steeplechase::{jjrs_get_entries, jjrs_ReinArgs};
 use crate::jjrpd_parade::jjrpd_write_pace_digest;
@@ -36,8 +35,10 @@ pub struct jjrmt_MountArgs {
     pub firemark: String,
 }
 
-/// Run the mount command - return Heat context
-pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+/// Run the mount command - return Heat context. `studbook_root` locates the
+/// paddock tenant file (paddock tenancy, operator ruling 260722) — threaded
+/// from the dispatch door, never derived from cwd here.
+pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette, studbook_root: &std::path::Path) -> (i32, String) {
     let cn = JJRMT_CMD_NAME_ORIENT;
     let mut output = vvco_Output::buffer();
 
@@ -199,12 +200,12 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
         return (1, output.vvco_finish());
     }
 
-    // Read paddock file content
-    let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
+    // Read paddock tenant file from the studbook
+    let paddock_path = crate::jjri_io::jjri_paddock_file(studbook_root, firemark.jjrf_as_str());
     let paddock_content = match fs::read_to_string(&paddock_path) {
         Ok(content) => content,
         Err(e) => {
-            vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, paddock_path, e);
+            vvco_err!(output, "{}: error reading paddock file '{}': {}", cn, paddock_path.display(), e);
             return (1, output.vvco_finish());
         }
     };
@@ -289,7 +290,7 @@ pub async fn jjrmt_run_mount(args: jjrmt_MountArgs, gazette: &mut jjrz_Gazette) 
 
     // Output plain text format
     vvco_out!(output, "Heat: {} ({}) [{}]", heat.silks, heat_key, status_str);
-    vvco_out!(output, "Paddock: {}", paddock_path);
+    vvco_out!(output, "Paddock: {}", paddock_path.display());
     vvco_out!(output, "");
 
     // Save gazette data before output section consumes variables

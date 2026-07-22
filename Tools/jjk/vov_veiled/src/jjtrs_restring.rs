@@ -484,10 +484,10 @@ fn jjtrs_restring_result_contains_correct_metadata() {
     // Verify result contains expected metadata
     assert_eq!(result.source_firemark, "₣AB");
     assert_eq!(result.source_silks, "source-heat");
-    assert_eq!(result.source_paddock, ".claude/jjm/jjp_uAuB.md");
+    assert_eq!(result.source_paddock, "paddocks/jjp_uAuB.md");
     assert_eq!(result.dest_firemark, "₣AC");
     assert_eq!(result.dest_silks, "dest-heat");
-    assert_eq!(result.dest_paddock, ".claude/jjm/jjp_uAuC.md");
+    assert_eq!(result.dest_paddock, "paddocks/jjp_uAuC.md");
     assert_eq!(result.drafted.len(), 1);
 }
 

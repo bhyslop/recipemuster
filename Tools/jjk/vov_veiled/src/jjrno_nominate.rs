@@ -156,23 +156,23 @@ pub(crate) fn jjrno_nominate_over<F>(
 where
     F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
 {
-    let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
-        Ok(l) => l,
-        Err(e) => {
-            vvco_err!(output, "{}: error: {}", cn, e);
-            return 1;
-        }
-    };
+    let _ = base_path; // paddock tenancy: the template writes under the studbook root
 
     // Derive+insert against the LOCKED TIP (next_heat_seed is the tip's, so a
-    // concurrent station's genesis is never clobbered), then journal it. Nothing
-    // on disk yet; a reject lands nothing anywhere.
-    let plan = match crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+    // concurrent station's genesis is never clobbered), then journal it.
+    // Paddock tenancy (operator ruling 260722): the template writes under the
+    // studbook root INSIDE the ceremony so it rides the same ₶ commit as the
+    // heat insertion. A reject lands nothing on the remote; a reject after the
+    // write leaves the template as loud additive residue in the clone's
+    // working tree, never a backward revert.
+    let plan = match crate::jjrm_mcp::zjjrm_journal_run_files(farrier, studbook, guidon, |g, root| {
         let plan = crate::jjrg_gallops::jjrg_nominate_excise(g, nominate_args)?;
         let fm = jjrf_Firemark::jjrf_parse(&plan.firemark_str)
             .map_err(|e| format!("nominate minted invalid firemark: {}", e))?;
         let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Nominate, &plan.silks);
-        Ok((plan, message))
+        crate::jjrg_gallops::jjrg_nominate_apply(root, &plan)?;
+        let extra = vec![std::path::PathBuf::from(plan.paddock_rel_path.clone())];
+        Ok((plan, message, extra))
     }) {
         Ok((plan, _sha)) => plan,
         Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
@@ -189,32 +189,10 @@ where
         }
     };
 
-    // Post-journal: the nomination is durable in the studbook, so apply the fs
-    // tail (write the paddock template) and commit it to the consumer repo. Any
-    // failure past here is a loud split-state — the studbook says nominated and
-    // the repair is additive (writing and committing the paddock IS the repair),
-    // never a backward revert that would manufacture a record contradicting the
-    // store of truth.
-    if let Err(e) = crate::jjrg_gallops::jjrg_nominate_apply(base_path, &plan) {
-        vvco_err!(output, "{}: studbook nominated the heat but the fs apply failed — the repair is to write and commit the paddock: {}", cn, e);
-        return 1;
-    }
-
-    let fm = jjrf_Firemark::jjrf_parse(&plan.firemark_str).expect("nominate journaled a valid firemark");
-    let commit_args = vvc::vvcm_CommitArgs {
-        files: vec![plan.paddock_rel_path.clone()],
-        message: jjrn_format_heat_message(&fm, jjrn_HeatAction::Nominate, &plan.silks),
-        size_limit: vvc::VVCG_SIZE_LIMIT,
-        warn_limit: vvc::VVCG_WARN_LIMIT,
-    };
-    if let Err(e) = vvc::machine_commit(&lock, &commit_args, output) {
-        vvco_err!(output, "{}: studbook nominated the heat but the consumer commit failed (paddock is staged on disk — commit it): {}", cn, crate::jjri_io::jjri_commit_refusal(cn, &e));
-        return 1;
-    }
-
+    // The paddock template already rode the journal ceremony's ₶ commit above —
+    // no consumer-repo commit remains for nominate.
     vvco_out!(output, "{}", plan.firemark_str);
     0
-    // lock released here
 }
 
 #[cfg(test)]

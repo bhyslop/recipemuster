@@ -614,22 +614,49 @@ where
     F: jjrfr_FarrierCore + jjrfr_FarrierLock,
     M: FnOnce(Option<crate::jjri_io::jjdr_ValidatedGallops>) -> Result<(crate::jjrt_types::jjrg_Gallops, String), String>,
 {
+    jjdb_gallops_journal_try_save_files(farrier, config, guidon, |tip, _root| {
+        transform(tip).map(|(g, m)| (g, m, Vec::new()))
+    })
+}
+
+/// Tenant-file sibling of `jjdb_gallops_journal_try_save`: the transform also
+/// receives the studbook ROOT — so it can perform tenant fs-ops (paddock
+/// write/delete, trophy write) against the locked, advanced clone — and
+/// returns the extra tenant rel-paths to ride the same journal commit beside
+/// the gallops. Proffer stages each path from the working tree via `git add`,
+/// so a path whose file was deleted stages the deletion. Introduced with the
+/// paddock-tenancy move (operator ruling 260722, superseding JJSVS "Scope at
+/// birth"): a paddock revision, a nominate's template, or a retire's
+/// trophy+excision now land in ONE ₶ commit with the gallops instead of a
+/// consumer-side machine_commit.
+pub fn jjdb_gallops_journal_try_save_files<F, M>(
+    farrier: &F,
+    config: &jjdb_BlotterConfig,
+    guidon: &str,
+    transform: M,
+) -> Result<String, jjdb_JournalReject<String>>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+    M: FnOnce(Option<crate::jjri_io::jjdr_ValidatedGallops>, &Path) -> Result<(crate::jjrt_types::jjrg_Gallops, String, Vec<PathBuf>), String>,
+{
     jjdb_journal_try(farrier, config, guidon, |root| {
         // Post-lock, post-advance: the pin IS the tip the local branch now
         // stands on, so this read is the store's truth at this moment. A
         // corrupt tenant panics loud — halt-and-surface, never paper over.
         let current = match zjjdb_tip_gallops(config) {
             Ok(current) => current,
-            Err(e) => panic!("jjdb_gallops_journal_try_save: could not read the locked tip's gallops: {}", e),
+            Err(e) => panic!("jjdb_gallops_journal_try_save_files: could not read the locked tip's gallops: {}", e),
         };
         // The transform returns the record AND its commit message, so a message
         // derived from a MINTED result (a relocate's new coronet) composes from
         // the tip's own mint, never a divergent session pre-run.
-        let (gallops, message) = transform(current)?;
+        let (gallops, message, extra_files) = transform(current, root)?;
         let path = root.join(JJDB_GALLOPS_REL_PATH);
         crate::jjri_io::jjdr_save(&gallops, &path)
-            .unwrap_or_else(|e| panic!("jjdb_gallops_journal_try_save: jjdr_save failed at {}: {}", path.display(), e));
-        Ok((vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], message))
+            .unwrap_or_else(|e| panic!("jjdb_gallops_journal_try_save_files: jjdr_save failed at {}: {}", path.display(), e));
+        let mut files = vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)];
+        files.extend(extra_files);
+        Ok((files, message))
     })
 }
 

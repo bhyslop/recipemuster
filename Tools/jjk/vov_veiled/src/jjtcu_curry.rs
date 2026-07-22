@@ -73,7 +73,7 @@ fn empty_gallops() -> jjrg_Gallops {
 #[test]
 fn jjtcu_curry_apply_rejects_empty_content() {
     let firemark = jjrf_Firemark::jjrf_parse("AB").unwrap();
-    let err = jjrg_curry_apply(&empty_gallops(), &firemark, "").unwrap_err();
+    let err = jjrg_curry_apply(&empty_gallops(), &firemark, "", std::path::Path::new("jjtcu-unused-root")).unwrap_err();
     assert!(err.contains("empty paddock"), "got: {}", err);
     assert!(err.contains("never blanks"), "names the refusal: {}", err);
 }
@@ -81,7 +81,7 @@ fn jjtcu_curry_apply_rejects_empty_content() {
 #[test]
 fn jjtcu_curry_apply_rejects_whitespace_only_content() {
     let firemark = jjrf_Firemark::jjrf_parse("AB").unwrap();
-    let err = jjrg_curry_apply(&empty_gallops(), &firemark, "  \n\t\n  ").unwrap_err();
+    let err = jjrg_curry_apply(&empty_gallops(), &firemark, "  \n\t\n  ", std::path::Path::new("jjtcu-unused-root")).unwrap_err();
     assert!(err.contains("empty paddock"), "got: {}", err);
 }
 

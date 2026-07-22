@@ -46,7 +46,7 @@ use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, j
 use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_FarrierLock, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrrd_refit::jjrrd_run_refit;
-use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save, jjdb_JournalReject, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
+use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
 
 const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
@@ -219,9 +219,11 @@ pub(crate) enum zjjrm_WriteRefusal {
 /// the LOCKED, advanced studbook tip — never `session_gallops`, which may be a
 /// stale per-session read — so a concurrent station's paces are never clobbered
 /// (the currency cinch: write-currency is the blotter lease's own enforcement).
-/// Only the gallops journals to the studbook; the paddock `.md` and any code
-/// stay on the consumer-repo path (JJSVS "Scope at birth": the studbook holds
-/// the gallops alone). A declined `mutate` aborts the ceremony with nothing
+/// The paddock `.md` is a studbook TENANT (operator ruling 260722, superseding
+/// JJSVS "Scope at birth" — the studbook no longer holds the gallops alone): a
+/// paddock-writing command passes its tenant rel-path via `extra_files` so the
+/// file rides the same ₶ commit as the gallops; work code stays on the
+/// consumer-repo path. A declined `mutate` aborts the ceremony with nothing
 /// committed, preserving the pre-seam invariant that a failed command commits
 /// nothing.
 #[allow(clippy::too_many_arguments)]
@@ -236,6 +238,7 @@ pub(crate) fn zjjrm_write_gallops_over<F, R>(
     output: &mut vvc::vvco_Output,
     studbook: &jjdb_BlotterConfig,
     guidon: &str,
+    extra_files: Vec<PathBuf>,
     mut session_gallops: jjrg_Gallops,
     mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<R, String>,
 ) -> Result<(R, String), zjjrm_WriteRefusal>
@@ -249,7 +252,7 @@ where
         return Ok((r, hash));
     }
 
-    zjjrm_journal_run(farrier, studbook, guidon, |g| mutate(g).map(|r| (r, message)))
+    zjjrm_journal_run_files(farrier, studbook, guidon, |g, _root| mutate(g).map(|r| (r, message, extra_files)))
 }
 
 /// The seam-ON journal core, shared by `zjjrm_write_gallops_over` (the clean
@@ -273,15 +276,37 @@ pub(crate) fn zjjrm_journal_run<F, R>(
 where
     F: jjrfr_FarrierCore + jjrfr_FarrierLock,
 {
+    zjjrm_journal_run_files(farrier, studbook, guidon, |g, _root| {
+        mutate(g).map(|(r, m)| (r, m, Vec::new()))
+    })
+}
+
+/// Tenant-file sibling of `zjjrm_journal_run` (paddock-tenancy move, operator
+/// ruling 260722): the mutate also receives the studbook ROOT — so a command
+/// can perform its tenant fs-ops (paddock write/delete, trophy write) against
+/// the locked, advanced clone inside the ceremony — and returns the extra
+/// tenant rel-paths to ride the same ₶ commit beside the gallops. A ceremony
+/// reject after mutate ran leaves the fs-ops on disk as loud additive residue
+/// (the same split-state posture the _over commands already document), never
+/// a backward revert.
+pub(crate) fn zjjrm_journal_run_files<F, R>(
+    farrier: &F,
+    studbook: &jjdb_BlotterConfig,
+    guidon: &str,
+    mutate: impl FnOnce(&mut jjrg_Gallops, &Path) -> Result<(R, String, Vec<PathBuf>), String>,
+) -> Result<(R, String), zjjrm_WriteRefusal>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+{
     let mut captured: Option<R> = None;
-    let outcome = jjdb_gallops_journal_try_save(farrier, studbook, guidon, |tip| {
+    let outcome = jjdb_gallops_journal_try_save_files(farrier, studbook, guidon, |tip, root| {
         let mut g = match tip {
             Some(vg) => vg.into_inner(),
             None => return Err("studbook tip carries no gallops tenant — founding incomplete".to_string()),
         };
-        let (r, message) = mutate(&mut g)?;
+        let (r, message, extra_files) = mutate(&mut g, root)?;
         captured = Some(r);
-        Ok((g, message))
+        Ok((g, message, extra_files))
     });
     match outcome {
         Ok(sha) => Ok((captured.expect("journal adopted a commit without running the transform"), sha)),
@@ -308,6 +333,19 @@ pub(crate) fn zjjrm_studbook_and_guidon(
     let studbook = jjdb_studbook_config(&infield_root);
     let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
     Ok((studbook, guidon))
+}
+
+/// Derive the studbook root alone from cwd — the read-side sibling of
+/// `zjjrm_studbook_and_guidon`, for the door arms that resolve paddock tenant
+/// files (orient/show/scout/paddock-read and the paddock-writing arms' rel
+/// target). Paddocks are studbook tenants (operator ruling 260722, superseding
+/// JJSVS "Scope at birth"); this is the door's one cwd capture — the resolved
+/// root is threaded down as an explicit param, never re-derived in a leaf.
+pub(crate) fn zjjrm_studbook_root() -> Result<PathBuf, String> {
+    let cwd = std::env::current_dir().map_err(|e| format!("current_dir error: {}", e))?;
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .ok_or_else(|| "could not derive infield root from cwd".to_string())?;
+    Ok(jjdb_studbook_config(&infield_root).local_root)
 }
 
 /// Command-surface gallops WRITE — every mutating `jjx_*` command's persist
@@ -343,6 +381,7 @@ pub(crate) fn zjjrm_write_gallops<R>(
     output: &mut vvc::vvco_Output,
     officium: &str,
     operation: &str,
+    extra_files: Vec<PathBuf>,
     mut session_gallops: jjrg_Gallops,
     mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<R, String>,
 ) -> Result<(R, String), zjjrm_WriteRefusal> {
@@ -367,6 +406,7 @@ pub(crate) fn zjjrm_write_gallops<R>(
         output,
         &studbook,
         &guidon,
+        extra_files,
         session_gallops,
         mutate,
     )
@@ -491,6 +531,7 @@ fn zjjrm_dispatch_inner_msg(
     firemark: &crate::jjrf_favor::jjrf_Firemark,
     size_limit: u64,
     message: String,
+    extra_files: Vec<PathBuf>,
     handler: impl FnOnce(&mut crate::jjrg_gallops::jjrg_Gallops) -> Result<String, String>,
 ) -> Result<CallToolResult, ErrorData> {
     use vvc::vvco_Output;
@@ -528,6 +569,7 @@ fn zjjrm_dispatch_inner_msg(
         &mut persist_output,
         officium,
         cmd,
+        extra_files,
         gallops,
         handler,
     ) {
@@ -600,14 +642,17 @@ pub fn jjrm_apply_batch(
     gallops: &mut crate::jjrg_gallops::jjrg_Gallops,
     batch: &crate::jjrz_gazette::jjrz_BatchInput,
     firemark: &crate::jjrf_favor::jjrf_Firemark,
+    paddock_root: &Path,
     before: Option<String>,
     after: Option<String>,
     first: bool,
 ) -> Result<String, String> {
     let mut lines: Vec<String> = Vec::new();
-    // Paddock first — write the paddock file; jjri_persist co-commits it.
+    // Paddock first — write the paddock tenant file under `paddock_root` (the
+    // studbook root in production; the dispatch arm rides its rel-path on the
+    // ₶ commit via extra_files).
     if let Some((_, content)) = &batch.paddock {
-        jjrg_curry_apply(gallops, firemark, content)?;
+        jjrg_curry_apply(gallops, firemark, content, paddock_root)?;
         lines.push("paddock revised".to_string());
     }
     // Reslates — order irrelevant, each targets its own coronet.
@@ -3030,10 +3075,14 @@ impl jjrm_McpServer {
                 }
                 let firemark = targets.into_iter().next().unwrap();
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+                let studbook_root = match zjjrm_studbook_root() {
+                    Ok(r) => r,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(format!("{}: {}", cmd, e))])),
+                };
                 let (code, mut output) = jjrmt_run_mount(jjrmt_MountArgs {
                     file: gallops_pathbuf(),
                     firemark: firemark.clone(),
-                }, &mut gazette).await;
+                }, &mut gazette, &studbook_root).await;
                 // The gazette is written only after the designation guard below
                 // passes — a refused orient leaves no gazette and no emblem.
                 if code == 0 {
@@ -3125,12 +3174,16 @@ impl jjrm_McpServer {
                 // heat, an unparseable lede leaves the standing marker untouched.
                 let groom_firemark = targets.first().and_then(|lede| zjjrm_lede_firemark(lede));
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+                let studbook_root = match zjjrm_studbook_root() {
+                    Ok(r) => r,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(format!("{}: {}", cmd, e))])),
+                };
                 let (code, mut output) = jjrpd_run_parade(jjrpd_ParadeArgs {
                     file: gallops_pathbuf(),
                     targets,
                     remaining: p.remaining,
                     hark: p.hark.clone(),
-                }, &mut gazette);
+                }, &mut gazette, &studbook_root);
                 // The gazette is now show's load-bearing payload (the round-trip
                 // surface), not an optional convenience. Crash-fast on a failed
                 // write rather than inherit the historical .ok() silence — a
@@ -3255,8 +3308,21 @@ impl jjrm_McpServer {
                 let before = p.before.clone();
                 let after = p.after.clone();
                 let first = p.first;
-                zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, size_limit, message, move |gallops| {
-                    jjrm_apply_batch(gallops, &batch, &firemark_for_handler, before, after, first)
+                // Paddock tenancy: a batch with a paddock notice writes the tenant
+                // file under the studbook root and rides it on the ₶ commit.
+                let studbook_root = match zjjrm_studbook_root() {
+                    Ok(r) => r,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: {}", cmd, e),
+                    )])),
+                };
+                let extra_files = if batch.paddock.is_some() {
+                    vec![PathBuf::from(crate::jjri_io::jjri_paddock_path(firemark.jjrf_as_str()))]
+                } else {
+                    Vec::new()
+                };
+                zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, size_limit, message, extra_files, move |gallops| {
+                    jjrm_apply_batch(gallops, &batch, &firemark_for_handler, &studbook_root, before, after, first)
                 })
             }
             JJRM_CMD_NAME_RELABEL => {
@@ -3305,11 +3371,15 @@ impl jjrm_McpServer {
             }
             JJRM_CMD_NAME_SEARCH => {
                 let p = deser!(jjrm_SearchParams);
+                let studbook_root = match zjjrm_studbook_root() {
+                    Ok(r) => r,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(format!("{}: {}", cmd, e))])),
+                };
                 jjrm_result(jjrsc_run_scout(jjrsc_ScoutArgs {
                     file: gallops_pathbuf(),
                     pattern: p.pattern,
                     actionable: p.actionable,
-                }))
+                }, &studbook_root))
             }
             JJRM_CMD_NAME_BRIEF => {
                 let p = deser!(jjrm_GetBriefParams);
@@ -3348,10 +3418,14 @@ impl jjrm_McpServer {
                     )])),
                 };
                 let mut gazette = jjrz_Gazette::jjrz_build(&[jjrz_Slug::Paddock, jjrz_Slug::Pace]);
+                let studbook_root = match zjjrm_studbook_root() {
+                    Ok(r) => r,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(format!("{}: {}", cmd, e))])),
+                };
                 let (code, mut output) = jjrcu_run_curry(jjrcu_CurryArgs {
                     file: gallops_pathbuf(),
                     firemark,
-                }, &mut gazette);
+                }, &mut gazette, &studbook_root);
                 let md = gazette.jjrz_emit();
                 if !md.is_empty() { std::fs::write(&gazette_out_path, md.as_bytes()).ok(); }
                 if code == 0 {
@@ -3395,8 +3469,18 @@ impl jjrm_McpServer {
                 let message = jjrn_format_heat_discussion(&firemark, &description);
                 let size_limit = p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
                 let firemark_for_handler = firemark.clone();
-                zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, size_limit, message, move |gallops| {
-                    jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content)?;
+                // Paddock tenancy: the revision writes the tenant file under the
+                // studbook root and rides it on the ₶ commit — no more empty
+                // curry commits with the file stranded consumer-side.
+                let studbook_root = match zjjrm_studbook_root() {
+                    Ok(r) => r,
+                    Err(e) => return Ok(CallToolResult::error(vec![Content::text(
+                        format!("{}: {}", cmd, e),
+                    )])),
+                };
+                let extra_files = vec![PathBuf::from(crate::jjri_io::jjri_paddock_path(firemark.jjrf_as_str()))];
+                zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, size_limit, message, extra_files, move |gallops| {
+                    jjrg_curry_apply(gallops, &firemark_for_handler, &paddock_content, &studbook_root)?;
                     Ok(format!("{}: paddock updated", cmd))
                 })
             }
@@ -3498,7 +3582,7 @@ impl jjrm_McpServer {
                         jjrn_HeatAction::Tally,
                         &format!("bridled ₢{} at {}", coronet.trim_start_matches('₢'), designation),
                     );
-                    zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
+                    zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, vvc::VVCG_SIZE_LIMIT, message, Vec::new(), move |gallops| {
                         let ctx = gallops.jjrg_bridle(&coronet, tier, effort, &basis, &ts)?;
                         Ok(format!(
                             "{} ({}): rough → bridled [{}]",
@@ -3511,7 +3595,7 @@ impl jjrm_McpServer {
                         jjrn_HeatAction::Tally,
                         &format!("released ₢{} to rough", coronet.trim_start_matches('₢')),
                     );
-                    zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, vvc::VVCG_SIZE_LIMIT, message, move |gallops| {
+                    zjjrm_dispatch_inner_msg(cmd, officium_id, &firemark, vvc::VVCG_SIZE_LIMIT, message, Vec::new(), move |gallops| {
                         let ctx = gallops.jjrg_release(&coronet, &basis, &ts)?;
                         let prior = match (ctx.tier, ctx.effort) {
                             (Some(t), Some(e)) => format!("{} {}", t.jjrg_as_str(), e.jjrg_as_str()),

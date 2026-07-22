@@ -704,7 +704,7 @@ fn jjtz_output_paddock_getter_round_trip() {
 
 #[test]
 fn jjtz_output_with_preamble_parses() {
-    let preamble = "Heat: my-heat (Aw) [racing]\nPaddock: .claude/jjm/jjp_uAlw.md\n\nNext: do-stuff (AwAAJ) [rough]\n\n";
+    let preamble = "Heat: my-heat (Aw) [racing]\nPaddock: paddocks/jjp_uAlw.md\n\nNext: do-stuff (AwAAJ) [rough]\n\n";
     let gazette = jjrz_build_read_output("Aw", "Paddock text", &[("AwAAJ", "Docket text")]);
     let full_output = format!("{}\n{}", preamble, gazette);
     let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Paddock, jjrz_Slug::Pace], &full_output).unwrap();

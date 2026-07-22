@@ -49,16 +49,19 @@ fn zjjdr_find_first_diff(a: &[u8], b: &[u8]) -> usize {
         .unwrap_or_else(|| a.len().min(b.len()))
 }
 
-/// Encode a firemark string into a case-safe paddock filename path.
+/// Encode a firemark string into a case-safe paddock filename path,
+/// relative to the STUDBOOK root (paddocks are studbook tenants — operator
+/// ruling 260722, superseding JJSVS "Scope at birth"; the consumer-repo
+/// `.claude/jjm/` home died with the de-insertion sweep).
 ///
 /// Each character is prefixed with 'u' (uppercase) or 'l' (lowercase),
 /// ensuring the resulting filename is unambiguous on case-insensitive
 /// filesystems (macOS HFS+/APFS).
 ///
 /// Examples:
-///   "AG" → ".claude/jjm/jjp_uAuG.md"
-///   "Ag" → ".claude/jjm/jjp_uAlg.md"
-///   "ag" → ".claude/jjm/jjp_lalg.md"
+///   "AG" → "paddocks/jjp_uAuG.md"
+///   "Ag" → "paddocks/jjp_uAlg.md"
+///   "ag" → "paddocks/jjp_lalg.md"
 pub fn jjri_paddock_path(firemark: &str) -> String {
     let encoded: String = firemark.chars().map(|c| {
         if c.is_uppercase() {
@@ -67,7 +70,15 @@ pub fn jjri_paddock_path(firemark: &str) -> String {
             format!("l{}", c)
         }
     }).collect();
-    format!(".claude/jjm/jjp_{}.md", encoded)
+    format!("paddocks/jjp_{}.md", encoded)
+}
+
+/// Absolute paddock file path: the studbook-relative tenant path joined under
+/// an explicit studbook root. The root is always threaded from the caller —
+/// never derived from cwd here — so fixture-rooted tests can never escape
+/// into the real studbook.
+pub fn jjri_paddock_file(studbook_root: &Path, firemark: &str) -> std::path::PathBuf {
+    studbook_root.join(jjri_paddock_path(firemark))
 }
 
 /// Reprieve mechanism rivet — opaque cited token (MCM `mcm_rivet`); the proposition and

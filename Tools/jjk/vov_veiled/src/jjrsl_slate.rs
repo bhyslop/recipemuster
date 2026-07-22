@@ -124,6 +124,7 @@ pub fn jjrsl_run_slate(
         &mut output,
         officium,
         cn,
+        Vec::new(),
         gallops,
         |g| g.jjrg_slate(slate_args),
     ) {
