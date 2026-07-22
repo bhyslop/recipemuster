@@ -1,0 +1,144 @@
+//axvd_sheaf axd_aspirant
+This is an aspirant sheaf of the {bus0_imprimatur}: not yet binding — do not rely on it, decide from it, or cite the names it mints until it is infused into the codex.
+
+== Charter
+
+BUK users construct, verify, and run against multiple concurrent python venvs,
+each exactly reproducible from committed declarations,
+with no manual steps and no reliance on ambient station state.
+This sheaf homes the mechanism side of python's arrival:
+PCG's Environment Discipline is the authorship law
+(no ambient interpreter, no runtime pip, never activate),
+and the lifecycle machinery specified here is what makes that law satisfiable —
+the entry path guarantees the environment, or refuses fair-faced.
+
+== Founding Census (decision record, 260721)
+
+The concrete need is live drift, not speculation.
+A sibling repo (rpa) holds two python venvs built by different sessions under no shared doctrine,
+disagreeing on every convention this sheaf settles:
+one sibling-emplaced, uv-built, hash-locked, multi-GB (CUDA torch, `+cu128` wheels);
+one in-tree gitignored, bare unpinned requirements, light.
+Provenance: rpa commit `efcc035` and its `Tools/rpa/provision/env-manifest.md`.
+
+That same rpa provisioning proved the full uv chain in anger:
+pinned uv, `uv pip compile` with `--generate-hashes`,
+an index-strategy flag that turned out load-bearing
+(the cu128 torch index serves stale `certifi`/`requests` pins,
+and uv's default first-index strategy refuses PyPI fallthrough by anti-confusion design),
+and an offline conversion smoke test with a socket-level network trap.
+The chain is real; what BUK adds is ownership, convergence, and uniformity.
+
+In-house prior art: the apck neural-spike ensure (`apcc_cli.sh`)
+established the idempotent-ensure gesture but converges on a presence check alone —
+no lockfile, no pins.
+The gesture survives here; the rigor bar comes from the rpa chain.
+
+== Founding Rulings (decision record, 260721)
+
+Operator-ratified in the founding session; recorded here as settled inputs to settling, not as infused canon.
+
+*Regime-per-venv.*
+Each venv is declared by an instance of a shared regime —
+the nameplate/vessel pattern:
+one enrollment, one `buru.env` per venv directory,
+`buv`-vetted, with render and validate verbs.
+Only variables live in the regime;
+the requirements files stay files at fixed basenames beside it,
+and no path variable ever points at a sibling in the same directory.
+
+*The regime prefix is `BURU`.*
+Election ledger, so dead ends are never re-tried:
+`BURP` (privileged-credentials regime) and `BURV` (volatile-roots regime, live in the theurge) are taken;
+`BURY` and `BURI` were disqualified one glyph from the live quoin families `busy_` (yelp) and `busi_` (scribed command file) —
+which surfaced the general rule that a candidate BUR letter must be free in the regime family
+*and* at its lowercase `bus?_` quoin twin.
+Survivors were a, b, f, g, k, l, m, o, q, u, w, z;
+`u` was elected for the uv engine, with `BURM` the runner-up.
+
+*uv is the sole engine, and BUK bootstraps it itself.*
+Pinned version plus per-platform sha256, verified download, versioned emplacement —
+never the vendor's install script, which fetches latest and is unpinned by construction.
+
+*The uv pin homes in BURC.*
+`BURC_UV_VERSION` and `BURC_UV_SHA256_LINUX_X86_64`,
+enrolled optional so python-free consumers omit them;
+the venv module refuses fair-faced when they are absent but needed;
+platform sha siblings are added additively as platforms arrive.
+One home — no kit-constant fallback, no dual source.
+
+*Three-layer reproducibility chain, every layer committed.*
+The uv pin (BURC) fetches a verified engine;
+the engine installs the exact per-venv CPython `X.Y.Z`,
+hash-verified against the manifest embedded in that pinned uv —
+the system interpreter leaves the story entirely;
+the interpreter's packages converge from a hash-locked requirements file.
+PCG's 3.12 floor remains law; pins name exact versions above it.
+
+*Per-venv regime fields.*
+`BURU_MONIKER` (equals the containing dirname),
+`BURU_DESCRIPTION`,
+`BURU_PYTHON_VERSION` (exact `X.Y.Z`),
+`BURU_INDEX_STRATEGY` (the resolution recipe is committed — the census's cu128 evidence; empty means the safe first-index default),
+`BURU_PROOF_MODULE` (optional consumer-authored python file run in the venv after converge, nonzero fails ensure —
+installed is not working when function depends on driver and hardware;
+BUK stays domain-blind).
+
+*Emplacement is in-repo, moorings-homed, with no dot-prefixed names — ever.*
+
+----
+<moorings>/buru_venvs/<moniker>/   buru.env, requirements.in, requirements.lock.txt   (tracked)
+<moorings>/buru_venvs/<moniker>/venv/                                                 (ignored)
+<moorings>/buru_tools/uv-<version>/, buru_tools/python/                               (ignored)
+----
+
+`buru_tools/` is a sibling of `buru_venvs/`, never inside it, so the moniker namespace stays clean.
+Ignored directories self-ignore via a dropped `.gitignore`
+(git's own dot-name, outside the ruling);
+the consumer's top-level `.gitignore` is never edited.
+Everything is visible to `ls` and `du`, as multi-GB state should be.
+
+*Never activate.*
+The run seam execs `<moniker>/venv/bin/python` by absolute path, per PCG law.
+
+== Leanings (on record; final at mount)
+
+* Verb set: `ensure` (convergent), `verify` (offline, constant-time), `nuke`, `list`, `run`, `compile-lock`, plus the regime render/validate pair.
+* Verify-in-path, converge-on-demand: consumer commands call `verify` and refuse fair-faced naming the ensure tabtarget; only an explicit `ensure` reaches the network — a routine command can never surprise the operator with a multi-GB download.
+* Stamp: sha256 over the lockfile, the python pin, and the uv pin, recorded in the venv at converge; `verify` compares.
+* Converge via `uv pip sync` against the hash-locked file — sync removes packages that left the lock, so convergence is real rather than nuke-and-rebuild.
+* The exact uv invocations (`--generate-hashes`, `--require-hashes`, the venv-internal `.gitignore` drop) are carried from memory and one proven external run; the first implementation act proves them empirically before anything builds on them.
+* Interpreter store repo-local under `buru_tools/python/` via `UV_PYTHON_INSTALL_DIR` — hermetic posture at roughly 70MB per interpreter — rather than uv's station default.
+* The uv wheel cache stays at its station default (`~/.cache/uv`): content-addressed and non-authoritative — hashes are verified at install regardless, so the cache can speed convergence but can never change what lands.
+* Download staging rides `BURD_TEMP_DIR`; no new scratch directory.
+* `compile-lock` is v1 scope: a lock-based subsystem without its regeneration verb leaves operators hand-running uv with undocumented flags — the exact irreproducibility this subsystem exists to kill.
+
+== Settling Register
+
+Drain modes per AWG: SHAPES THE CUT / SETTLING PACE / RIDES A PACE.
+
+* Module file layout and colophon enrollment (`buru_regime.sh` + `buru_cli.sh` presumed; workbench wiring, tabtarget channels) — SHAPES THE CUT.
+* v1 scope boundary (is `compile-lock` in, per the leaning; which verbs land first) — SHAPES THE CUT.
+* Empirical proof of the exact uv invocations and behaviors — SETTLING PACE, first in order.
+* Self-test posture: which butt tier proves the network-dependent uv bootstrap, and whether an empty-requirements venv proves the create/stamp/verify/nuke cycle hermetically — SETTLING PACE.
+* Interpreter store locality (repo-local leaning vs station-shared) — RIDES A PACE.
+* Platform sha-field expansion cadence (cygwin, wsl, darwin) — RIDES A PACE, additive.
+* IDE discovery accommodation for the undotted `venv/` dirname (a documented one-line editor config, or nothing) — RIDES A PACE.
+
+== Reconciliation (banked nudges; land as deliberate acts, never drive-by)
+
+* BUS0's regime-count sentence ("BUK defines two regimes") predates BURN/BURP/BURD/BURE/BURX and is already stale; correct it when BURU infuses.
+* PCG Environment Discipline's "(module pending; not yet minted)" parenthetical retires with a pointer when the module lands — never before.
+* `claude-buk-core.md` gains the buru acronym rows at landing.
+* `burc_regime.sh` gains the two optional uv-pin fields as an early implementation act.
+* At settling, the sheaf's quoin prefix election runs its gate (`busu_` is the aligned candidate under BUS0's single-letter convention).
+* Cross-repo (rpa, banked for an rpa-side session): the nucleating plan's interim-module pointers describe a module that never landed, and its env manifest calls a committed lockfile untracked.
+
+== Sources (provenance, not authority)
+
+* Founding design chat, 2026-07-21 (Fable), this repo.
+* rpa commit `efcc035` and `Tools/rpa/provision/env-manifest.md` — the uv chain proven in anger, including the offline socket-trap conversion proof.
+* rpa `Plans/plan-20260721-buk-python-venv-subsystem.md` — the nucleating anchor.
+* PCG (`PCG_PythonCodingGuide.md`), Environment Discipline — the authorship-side law this mechanism serves.
+* apck `apcc_cli.sh` neural-spike ensure — the in-house idempotent-ensure gesture.
+* BUS0 Regime Configuration sections and `rbtd/src/main.rs` BURV roots — the election ledger's collision evidence.
