@@ -57,7 +57,7 @@ use crate::jjrvb_blotter::{
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
     JJDB_GALLOPS_REL_PATH,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::{
     Path,
     PathBuf,
@@ -88,7 +88,7 @@ pub const JJRDS_PEDIGREES_REL_PATH: &str = "pedigrees.json";
 /// meaningfully. It lands as an optional field the day address mobility is
 /// real — a non-breaking add, unlike the removal it would otherwise cost
 /// (operator ruling 260713, superseding the 260709 cinch's key clause).
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct jjrds_Pedigree {
     #[serde(rename = "jjop_kind")]
     pub kind: String,
@@ -98,10 +98,24 @@ pub struct jjrds_Pedigree {
     pub trunk: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 struct zjjrds_PedigreeFile {
     #[serde(rename = "jjop_sires")]
     sires: Vec<jjrds_Pedigree>,
+}
+
+/// Compose the pedigrees-file seed the founding ceremony writes (JJSAS
+/// Founding-and-cutover): the write side of the pedigree wire, serializing the
+/// SAME structs the read side deserializes — one home for the `jjop_` key
+/// names, so a seeded pedigree can never drift from what the lookup expects.
+/// Pretty-printed (serde declaration order — `jjop_kind`, `jjop_addresses`,
+/// `jjop_trunk`); the reader resolves by key name, so field order is free and
+/// this becomes the on-disk form the found writes and every later read
+/// round-trips. The founding is the only production writer; everything else in
+/// this module reads.
+pub fn jjrds_seed_pedigrees_json(sires: Vec<jjrds_Pedigree>) -> Result<String, String> {
+    let file = zjjrds_PedigreeFile { sires };
+    serde_json::to_string_pretty(&file).map_err(|e| format!("pedigrees seed: could not serialize: {}", e))
 }
 
 // ---- Spine rejections ----

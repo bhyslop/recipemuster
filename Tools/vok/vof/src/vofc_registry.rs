@@ -216,7 +216,7 @@ pub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[
     vofc_Kit {
         cipher: &CM,
         display_name: "Concept Model",
-        claude_includes: &["claude-cmk-core.md"],
+        claude_includes: &["claude-cmk-core.md", "claude-cmk-minting.md"],
     },
     vofc_Kit {
         cipher: &JJ,

@@ -12,7 +12,7 @@ use std::path::PathBuf;
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
 use crate::jjrf_favor::jjrf_Firemark;
-use crate::jjrg_gallops::{jjrg_Gallops, jjrg_RestringArgs};
+use crate::jjrg_gallops::jjrg_RestringArgs;
 use crate::jjrn_notch::{jjrn_HeatAction, jjrn_format_heat_message};
 
 const JJRRS_CMD_NAME_RESTRING: &str = "jjx_restring";
@@ -37,7 +37,7 @@ pub struct jjrrs_RestringArgs {
 }
 
 /// Execute restring command - bulk draft multiple paces atomically
-pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
+pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> (i32, String) {
     let cn = JJRRS_CMD_NAME_RESTRING;
     let mut output = vvco_Output::buffer();
 
@@ -58,7 +58,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         }
     };
 
-    let mut gallops = match jjrg_Gallops::jjrg_load(&args.file) {
+    let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
         Err(e) => {
             vvco_err!(output, "{}: error loading Gallops: {}", cn, e);
@@ -72,66 +72,97 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         coronets,
     };
 
-    // Execute restring operation
-    let result = match gallops.jjrg_restring(restring_args) {
-        Ok(r) => r,
-        Err(e) => {
-            vvco_err!(output, "{}: error: {}", cn, e);
-            return (1, output.vvco_finish());
-        }
-    };
-
-    // Save gallops
-    if let Err(e) = gallops.jjrg_save(&args.file) {
-        vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
-        return (1, output.vvco_finish());
-    }
-
-    // Parse both firemarks for commit file list
-    let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark).expect("restring returned invalid dest firemark");
-
-    let gallops_path = args.file.to_string_lossy().to_string();
-    let source_paddock_path = result.source_paddock.clone();
-    let dest_paddock_path = result.dest_paddock.clone();
-
-    // Build commit message using heat-level action
-    let commit_message = jjrn_format_heat_message(
-        &dest_fm,
-        jjrn_HeatAction::Draft,  // Reusing Draft action since this is a bulk draft operation
-        &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark)
-    );
-
-    let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
-    let commit_args = vvc::vvcm_CommitArgs {
-        files: vec![
-            gallops_path,
-            source_paddock_path,
-            dest_paddock_path,
-        ],
-        message: commit_message,
-        size_limit,
-        warn_limit: vvc::VVCG_WARN_LIMIT,
-    };
-
-    match vvc::machine_commit(&lock, &commit_args, &mut output) {
-        Ok(hash) => {
-            vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
-        }
-        Err(e @ vvc::vvcm_CommitError::OverLimit { .. }) => {
-            // A barred act leaves nothing behind: restore the files this restring
-            // wrote, so the refusal is a refusal and not a half-applied transfer
-            // waiting to ride the next command's commit.
-            for f in &commit_args.files {
-                let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", f.as_str()]).output();
-                let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", f.as_str()]).output();
+    // Execute restring, then persist. Off: mutate the session gallops, save it, and
+    // machine_commit the gallops with the two paddocks (unchanged, staged
+    // defensively) to the consumer repo, keeping restring's own commit-error arms.
+    // On: journal the bulk relocate to the studbook against the locked tip — a pure
+    // in-memory mutation, so no consumer remainder to commit, and the message counts
+    // the tip's own drafted set. Either way `result` drives the shared JSON output.
+    let result = if !crate::jjrvb_blotter::JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        // Execute restring operation
+        let result = match gallops.jjrg_restring(restring_args) {
+            Ok(r) => r,
+            Err(e) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                return (1, output.vvco_finish());
             }
-            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+        };
+
+        // Save gallops
+        if let Err(e) = gallops.jjrg_save(&args.file) {
+            vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
-        Err(e) => {
-            vvco_err!(output, "{}: commit warning: {}", cn, e);
+
+        // Parse both firemarks for commit file list
+        let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark).expect("restring returned invalid dest firemark");
+
+        let gallops_path = args.file.to_string_lossy().to_string();
+        let source_paddock_path = result.source_paddock.clone();
+        let dest_paddock_path = result.dest_paddock.clone();
+
+        // Build commit message using heat-level action
+        let commit_message = jjrn_format_heat_message(
+            &dest_fm,
+            jjrn_HeatAction::Draft,  // Reusing Draft action since this is a bulk draft operation
+            &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark)
+        );
+
+        let size_limit = args.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT);
+        let commit_args = vvc::vvcm_CommitArgs {
+            files: vec![
+                gallops_path,
+                source_paddock_path,
+                dest_paddock_path,
+            ],
+            message: commit_message,
+            size_limit,
+            warn_limit: vvc::VVCG_WARN_LIMIT,
+        };
+
+        match vvc::machine_commit(&lock, &commit_args, &mut output) {
+            Ok(hash) => {
+                vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
+            }
+            Err(e @ vvc::vvcm_CommitError::OverLimit { .. }) => {
+                // A barred act leaves nothing behind: restore the files this restring
+                // wrote, so the refusal is a refusal and not a half-applied transfer
+                // waiting to ride the next command's commit.
+                for f in &commit_args.files {
+                    let _ = vvc::vvce_git_command(&["checkout", "HEAD", "--", f.as_str()]).output();
+                    let _ = vvc::vvce_git_command(&["reset", "--quiet", "--", f.as_str()]).output();
+                }
+                vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+                return (1, output.vvco_finish());
+            }
+            Err(e) => {
+                vvco_err!(output, "{}: commit warning: {}", cn, e);
+            }
         }
-    }
+        result
+    } else {
+        // Seam-on: derive the studbook + guidon, then journal the bulk relocate
+        // through the extracted ON path (jjrrs_restring_over) — the explicit-config
+        // form a test drives against a fixture studbook while the const stays false.
+        let (studbook, guidon) = match crate::jjrm_mcp::zjjrm_studbook_and_guidon(officium, cn) {
+            Ok(sg) => sg,
+            Err(e) => {
+                vvco_err!(output, "{}: error: {}", cn, e);
+                return (1, output.vvco_finish());
+            }
+        };
+        match jjrrs_restring_over(
+            &crate::jjrfg_plaingit::jjrfg_PlainGit,
+            &studbook,
+            &guidon,
+            restring_args,
+            &mut output,
+            cn,
+        ) {
+            Ok(result) => result,
+            Err(code) => return (code, output.vvco_finish()),
+        }
+    };
 
     // Output JSON result
     let drafted_json: Vec<_> = result.drafted.iter().map(|m| {
@@ -170,4 +201,51 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String) -> (i32, String) {
         }
     }
     // lock released here
+}
+
+/// The seam-ON restring (bulk relocate) path, extracted from the const gate so a
+/// test drives it against a fixture studbook while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`
+/// stays false (the `_over` idiom). restring is a pure in-memory member of the
+/// machine_commit family: `jjrg_restring` mutates only the gallops, so the on path
+/// journals to the studbook against the locked tip and has no consumer remainder to
+/// commit; the message counts the tip's own drafted set (message-from-transform).
+/// `studbook`/`guidon` arrive resolved. On success returns the `jjrg_RestringResult`
+/// for the shared JSON tail; on refusal writes to `output` and returns the exit code.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn jjrrs_restring_over<F>(
+    farrier: &F,
+    studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
+    guidon: &str,
+    restring_args: jjrg_RestringArgs,
+    output: &mut vvco_Output,
+    cn: &str,
+) -> Result<crate::jjrg_gallops::jjrg_RestringResult, i32>
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
+{
+    match crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+        let result = g.jjrg_restring(restring_args)?;
+        let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark)
+            .map_err(|e| format!("restring returned invalid dest firemark: {}", e))?;
+        let message = jjrn_format_heat_message(
+            &dest_fm,
+            jjrn_HeatAction::Draft,
+            &format!("restring {} paces from {}", result.drafted.len(), result.source_firemark),
+        );
+        Ok((result, message))
+    }) {
+        Ok((result, _sha)) => Ok(result),
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+            vvco_err!(output, "{}: error: {}", cn, e);
+            Err(1)
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_commit_refusal(cn, &e));
+            Err(1)
+        }
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+            vvco_err!(output, "{}: studbook journal refused: {}", cn, r);
+            Err(1)
+        }
+    }
 }

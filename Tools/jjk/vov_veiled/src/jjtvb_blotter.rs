@@ -19,16 +19,26 @@ use super::jjrt_types::{
     jjrg_Pace,
     jjrg_PaceState,
     jjrg_Tack,
+    jjrg_DraftArgs,
+    jjrg_FurloughArgs,
+    jjrg_RailArgs,
+    jjrg_RestringArgs,
+    jjrg_SlateArgs,
+    jjrg_TallyArgs,
+    JJRG_UNKNOWN_BASIS,
 };
+use super::jjrf_favor::jjrf_Firemark;
 use super::jjrvb_blotter::{
     jjdb_found,
     jjdb_founding_import,
     jjdb_gallops_journal_load,
     jjdb_gallops_journal_save,
+    jjdb_gallops_journal_try_save,
     jjdb_journal,
     jjdb_read,
     jjdb_studbook_config,
     jjdb_BlotterConfig,
+    jjdb_JournalReject,
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
@@ -337,6 +347,133 @@ fn jjtvb_gallops_journal_save_hands_the_transform_the_locked_tip_state() {
     .unwrap();
 }
 
+// ---- The WRITE seam's fallible ceremony (jjdb_gallops_journal_try_save) ----
+// The command surface's write half routes every mutating jjx command's mutation
+// through this when the seam is on. These prove the seam-on guarantees the
+// done-when names; the seam-off command paths are proven byte-identical by the
+// rest of the suite (the const is compiled false).
+
+/// Seam-ON happy path: a command-style mutation journals to the studbook and a
+/// read-after-write within the session sees it — the seam's core promise
+/// ("lands each mutating command as a journaled studbook commit"; "read-after-write
+/// within a session sees the write").
+#[test]
+fn jjtvb_gallops_journal_try_save_round_trips_a_command_mutation() {
+    let (_bare, _local, config) = zjjtvb_scratch("jjtvb_try_save_roundtrip");
+    // Seed a tenant so the transform is handed Some(tip), as a live command is.
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AA".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+
+    // A command handler mutates the locked tip and hands back its record + message.
+    jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-cmd", |tip| {
+        let mut g = tip.expect("the seeded tenant must be handed in").into_inner();
+        g.next_heat_seed = "AB".to_string();
+        Ok((g, "command mutation".to_string()))
+    })
+    .unwrap();
+
+    // Read-after-write within the session sees the landed mutation.
+    let loaded = jjdb_gallops_journal_load(&config).unwrap();
+    assert_eq!(loaded.inner().next_heat_seed, "AB");
+}
+
+/// Seam-ON abort: a declining transform (a command handler whose precondition no
+/// longer holds on the locked tip) lands NOTHING and releases the lock — the
+/// pre-seam invariant "a failed command commits nothing", made structural. The
+/// remote tip is unchanged and a following ceremony succeeds against the freed lock.
+#[test]
+fn jjtvb_gallops_journal_try_save_abort_commits_nothing_and_releases() {
+    let (bare, _local, config) = zjjtvb_scratch("jjtvb_try_save_abort");
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AA".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+    let after_seed = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+
+    // The transform declines (a stale-precondition command handler).
+    let result = jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-declines", |_tip| {
+        Err::<(jjrg_Gallops, String), String>("precondition no longer holds on the tip".to_string())
+    });
+    match result {
+        Err(jjdb_JournalReject::Abort(msg)) => assert!(msg.contains("precondition no longer holds")),
+        other => panic!("a declining transform must abort with its own message, got {:?}", other),
+    }
+
+    // Nothing landed: the remote tip is exactly where the seed left it.
+    assert_eq!(
+        zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]),
+        after_seed,
+        "an aborted transform must land nothing on the remote"
+    );
+
+    // The lock was released — a following ceremony acquires it and succeeds.
+    jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-after", |tip| {
+        let mut g = tip.expect("seeded tenant").into_inner();
+        g.next_heat_seed = "AC".to_string();
+        Ok((g, "after abort".to_string()))
+    })
+    .expect("the lock must be free after an abort");
+    assert_eq!(jjdb_gallops_journal_load(&config).unwrap().inner().next_heat_seed, "AC");
+}
+
+/// Seam-ON contention: a foreign station holding the lock makes the ceremony
+/// refuse loud (Ceremony/LockHeld) and never run the transform ("contention ...
+/// refuse loud").
+#[test]
+fn jjtvb_gallops_journal_try_save_refuses_loud_on_contention() {
+    let (_bare, local, config) = zjjtvb_scratch("jjtvb_try_save_contention");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-another-station").unwrap();
+
+    let called = Cell::new(false);
+    let result = jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-contender", |tip| {
+        called.set(true);
+        let g = tip.map(|v| v.into_inner()).unwrap_or_else(zjjtvb_valid_gallops);
+        Ok((g, "should not land".to_string()))
+    });
+
+    match result {
+        Err(jjdb_JournalReject::Ceremony(r)) => assert_eq!(r.kind, jjrfr_RejectionKind::LockHeld),
+        other => panic!("a held lock must refuse loud as a Ceremony rejection, got {:?}", other),
+    }
+    assert!(!called.get(), "the transform must not run when the lock cannot be acquired");
+}
+
+/// Seam-ON message-from-transform: the commit subject carries the message the
+/// transform RETURNS (derived from the locked tip), never a caller pre-composed
+/// one — the guard against a minted-result message (a relocate's new coronet)
+/// composing from a divergent pre-lock session read.
+#[test]
+fn jjtvb_gallops_journal_try_save_bakes_the_transform_returned_message() {
+    let (bare, _local, config) = zjjtvb_scratch("jjtvb_try_save_message");
+    jjdb_gallops_journal_save(&jjrfg_PlainGit, &config, "guidon-seed", |_| {
+        let mut g = zjjtvb_valid_gallops();
+        g.next_heat_seed = "AA".to_string();
+        g
+    }, "seed".to_string())
+    .unwrap();
+
+    // The message is derived from the TIP the transform is handed, not passed in.
+    jjdb_gallops_journal_try_save(&jjrfg_PlainGit, &config, "guidon-msg", |tip| {
+        let g = tip.expect("seeded tenant").into_inner();
+        let message = format!("derived from tip seed {}", g.next_heat_seed);
+        Ok((g, message))
+    })
+    .unwrap();
+
+    let subject = zjjtvb_git(bare.path(), &["log", "-1", "--format=%s", ZJJTVB_TRUNK]);
+    assert!(
+        subject.contains("derived from tip seed AA"),
+        "the commit subject must carry the transform-returned message, got '{}'",
+        subject
+    );
+}
+
 /// The read path is ref-read, not a working-tree read: `jjdb_gallops_journal_load`
 /// resolves the pinned `origin/trunk` snapshot and reads the blob from its object
 /// database, so a divergent (even corrupt) studbook working tree is invisible to
@@ -485,49 +622,26 @@ fn jjtvb_journal_bakes_a_monotonically_advancing_ordinal_across_writes() {
     );
 }
 
-/// The station's own hippodrome upstream, canonicalized (a trailing `.git`
-/// stripped) — the address every clone of it under this infield derives from
-/// its `origin`, and therefore the address the seeded pedigree must carry for
-/// dispatch to serve any of them.
-const ZJJTVB_REAL_SIRE_ADDRESS: &str = "git@github.com:bhyslop/recipemuster";
-
-/// That upstream's main line of work.
-const ZJJTVB_REAL_SIRE_TRUNK: &str = "main";
-
-/// The real station's seed pedigree — one entry, serving every clone of the
-/// hippodrome upstream under this infield. Shared by the founding ceremony's
-/// seed and by the journal write that carries it onto a store already founded
-/// without it.
-fn zjjtvb_real_pedigrees_json() -> String {
-    let pedigrees = serde_json::json!({
-        "jjop_sires": [{
-            "jjop_kind": JJRDS_KIND_PLAIN_GIT,
-            "jjop_addresses": [ZJJTVB_REAL_SIRE_ADDRESS],
-            "jjop_trunk": ZJJTVB_REAL_SIRE_TRUNK,
-        }]
-    });
-    serde_json::to_string_pretty(&pedigrees).expect("the seed pedigree must serialize")
-}
-
-/// Found the REAL production `jjqs_studbook` against its real GitHub remote
-/// at the station's real infield root. Originally the ₢BrAAU scratch founding
-/// (empty gallops); now the conversion ceremony's founding act under the
-/// recreate-clean ruling (₣B3 paddock, recorded 260719): the operator deletes
-/// and recreates the bare remote and removes local clones, then this runs.
-/// Real network, real remote, not run by the ordinary suite: `--ignored`, and
-/// both env vars must name their roots explicitly so a stray
-/// `--include-ignored` sweep cannot land it anywhere by accident.
+/// Found the REAL production `jjqs_studbook` against its real GitHub remote at
+/// the station's real infield root — the env-var-driven integration path over
+/// the SAME engine (`jjdb_found_studbook`) the operator's `jjx_found` door
+/// composes, so exactly one writer and one seed byte-shape exist. The sanctioned
+/// operator entrypoint is the door (the `jjw-bf` tabtarget); this is its
+/// `cargo test` sibling for a scripted real found. Runs under the recreate-clean
+/// ruling (₣B3 paddock, recorded 260719): the operator deletes and recreates the
+/// bare remote and removes local clones first (the engine's own already-founded
+/// guard refuses otherwise). Real network, real remote, not run by the ordinary
+/// suite: `--ignored`, and both env vars must name their roots explicitly so a
+/// stray `--include-ignored` sweep cannot land it anywhere by accident.
 ///
-/// The seed carries BOTH studbook tenants (the ₢BrAAU run seeded one file
-/// short — `jjrds_plan` reads `pedigrees.json` before anything else, so a
-/// station founded without it cannot dispatch), and the gallops tenant is the
-/// LIVE in-repo store passed through the founding import (JJSAS: live state
-/// only — racing and stabled heats ride, retired heats stay behind as
-/// work-repo fossils). `jjdr_save` writes the seed canonical, exactly the
-/// bytes every later load round-trips.
+/// The sire is DERIVED by identifying the hippodrome (as the door does), never a
+/// hand-typed constant — the seeded address is the key dispatch derives.
 #[test]
 #[ignore]
 fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
+    use super::jjrfr_farrier::jjrfr_FarrierCore;
+    use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_SireSeed};
+
     let infield_root = std::env::var("JJTVB_REAL_INFIELD_ROOT")
         .expect("set JJTVB_REAL_INFIELD_ROOT to the real infield root to run this ceremony");
     let hippodrome_root = std::env::var("JJTVB_REAL_HIPPODROME_ROOT")
@@ -538,20 +652,18 @@ fn jjtvb_found_the_real_studbook_at_its_real_infield_root() {
     let live_bytes = std::fs::read(&live_path)
         .unwrap_or_else(|e| panic!("could not read the live gallops at {}: {}", live_path.display(), e));
     let live = crate::jjri_io::jjdr_hark(&live_bytes).expect("the live gallops must validate before it can seed a founding");
-    let seed_gallops = jjdb_founding_import(live.inner(), None)
-        .expect("the founding import must compose from the live gallops");
 
-    let pedigrees_json = zjjtvb_real_pedigrees_json();
+    let identity = jjrfg_PlainGit
+        .jjrfr_identify(Path::new(&hippodrome_root))
+        .expect("the hippodrome must identify to seed the sire");
+    let address = identity.upstream_key.expect("the hippodrome must have an origin remote to seed the sire");
+    let sire = jjdb_SireSeed {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        address,
+        trunk: "main".to_string(),
+    };
 
-    let sha = jjdb_found(&config, |root| {
-        crate::jjri_io::jjdr_save(&seed_gallops, &root.join("gallops.json"))
-            .expect("the composed seed must save canonical");
-        zjjtvb_write(root, JJRDS_PEDIGREES_REL_PATH, &pedigrees_json);
-        (
-            vec![PathBuf::from("gallops.json"), PathBuf::from(JJRDS_PEDIGREES_REL_PATH)],
-            "found jjqs_studbook".to_string(),
-        )
-    });
+    let sha = jjdb_found_studbook(&config, live.inner(), &sire).expect("the real founding must compose and land");
 
     println!("founded jjqs_studbook at {} ({})", sha, config.local_root.display());
 }
@@ -707,6 +819,22 @@ fn jjtvb_founding_import_merges_disjoint_lineages_with_seed_maximum() {
     assert!(!merged.heats["₣AA"].paces.contains_key("₢CAAAC"), "the retired source heat's pace stays behind");
     assert_eq!(merged.next_heat_seed, "AC", "heat seed takes the target side (the later)");
     assert_eq!(merged.next_pace_seed, "CAAAZ", "pace seed takes the source side (the later)");
+}
+
+/// The ₢BrAAW rehearsal's pedigree payload — one sire for the recipemuster
+/// hippodrome — composed through the production writer (`jjrds_seed_pedigrees_json`)
+/// so this rehearsal backfill and the founding share the one seed byte-shape.
+/// The literal address is this frozen rehearsal artifact's, targeting the
+/// specific standing studbook; the founding path derives its sire from the
+/// hippodrome's identity instead. This ignored rehearsal set is retargeted or
+/// retired at cutover (₣B3 paddock).
+fn zjjtvb_real_pedigrees_json() -> String {
+    crate::jjrds_spine::jjrds_seed_pedigrees_json(vec![crate::jjrds_spine::jjrds_Pedigree {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        addresses: vec!["git@github.com:bhyslop/recipemuster".to_string()],
+        trunk: "main".to_string(),
+    }])
+    .expect("the rehearsal seed pedigree must serialize")
 }
 
 /// Rehearsal, and the substrate proof every other rehearsal item stands on
@@ -1000,4 +1128,592 @@ fn jjtvb_rehearsal_stranded_commit_aftermath() {
          on the station's next write. A refused proffer must leave the local branch untouched, so \
          no refused commit can exist for a later ceremony to carry."
     );
+}
+
+// ---- Founding orchestrator (the studbook founding ceremony, fixture-only) ----
+
+/// The founding orchestrator end-to-end against a SCRATCH studbook: one
+/// deterministic found+import+seed act stands a studbook up from nothing,
+/// seeding BOTH tenants in the genesis commit — the imported live-state gallops
+/// (retired filtered out, proving the import ran rather than a raw copy) and the
+/// sire pedigree (the founding-seed gap `jjrds_plan` reads first) — such that the
+/// dispatch reader resolves the seeded sire. The real found against the real
+/// remote is the cutover ceremony's own act (JJSAS Founding-and-cutover,
+/// recreate-clean ruling); the collision refusal the import carries is exercised
+/// on its own above (`jjtvb_founding_import_refuses_*`), unreachable on this
+/// target-none founding path.
+#[test]
+fn jjtvb_found_studbook_seeds_both_tenants_and_dispatch_resolves_the_sire() {
+    use super::jjrds_spine::jjrds_pedigree_lookup;
+    use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_gallops_journal_load, jjdb_SireSeed};
+
+    let infield = JjkTestDir::new("jjtvb_found_studbook_infield");
+    let bare = JjkTestDir::new("jjtvb_found_studbook_bare");
+    zjjtvb_init_bare(bare.path());
+    let config = jjdb_BlotterConfig {
+        local_root: infield.path().join("jjqs_studbook"),
+        remote_url: bare.path().to_string_lossy().into_owned(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+
+    // Live in-repo state to import: racing and stabled ride, retired stays behind.
+    let live = zjjtvb_import_gallops(
+        "AD",
+        "CAAAD",
+        vec![
+            zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"]),
+            zjjtvb_import_heat("AB", jjrg_HeatStatus::Stabled, &["CAAAB"]),
+            zjjtvb_import_heat("AC", jjrg_HeatStatus::Retired, &["CAAAC"]),
+        ],
+    );
+
+    const SCRATCH_SIRE: &str = "git@github.com:bhyslop/scratch-hippodrome";
+    let sire = jjdb_SireSeed {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        address: SCRATCH_SIRE.to_string(),
+        trunk: "main".to_string(),
+    };
+
+    let sha = jjdb_found_studbook(&config, &live, &sire).expect("the founding must compose and land");
+
+    // One genesis commit on the remote carries BOTH tenants.
+    let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+    assert_eq!(remote_tip, sha, "the founding commit must land on the remote's trunk");
+    let files = zjjtvb_git(bare.path(), &["show", "--name-only", "--pretty=format:", ZJJTVB_TRUNK]);
+    let names: Vec<&str> = files.lines().filter(|l| !l.is_empty()).collect();
+    assert!(names.contains(&"gallops.json"), "the genesis commit must seed gallops.json, got: {:?}", names);
+    assert!(
+        names.contains(&JJRDS_PEDIGREES_REL_PATH),
+        "the genesis commit must seed pedigrees.json (the founding-seed gap), got: {:?}",
+        names
+    );
+
+    // The seeded gallops is the live-state IMPORT, not a raw copy: retired gone,
+    // racing and stabled ride, the source's mint seeds carry through.
+    let founded = jjdb_gallops_journal_load(&config).expect("the founded gallops must read back through the production path");
+    assert_eq!(founded.inner().heat_order, vec!["₣AA".to_string(), "₣AB".to_string()]);
+    assert!(!founded.inner().heats.contains_key("₣AC"), "the retired heat must stay behind (live-state import)");
+    assert_eq!(founded.inner().next_heat_seed, "AD");
+    assert_eq!(founded.inner().next_pace_seed, "CAAAD");
+
+    // The dispatch reader resolves the seeded sire — the founded store is
+    // servable (a station without pedigrees.json could not dispatch at all).
+    let pedigree = jjrds_pedigree_lookup(&config, SCRATCH_SIRE, JJRDS_KIND_PLAIN_GIT)
+        .expect("dispatch must resolve the seeded sire from the founded studbook");
+    assert_eq!(pedigree.kind, JJRDS_KIND_PLAIN_GIT);
+    assert_eq!(pedigree.addresses, vec![SCRATCH_SIRE.to_string()]);
+    assert_eq!(pedigree.trunk, "main");
+}
+
+/// The already-founded guard: founding refuses a studbook clone that already
+/// stands rather than re-init'ing it and clobbering its tenants. The refusal
+/// fires before any git touch — the remote here is unreachable and never
+/// reached — so recreate-clean is enforced even under a confirm-skipped run.
+#[test]
+fn jjtvb_found_studbook_refuses_a_clone_that_already_stands() {
+    use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_SireSeed};
+
+    let infield = JjkTestDir::new("jjtvb_found_studbook_stands_infield");
+    let local_root = infield.path().join("jjqs_studbook");
+    std::fs::create_dir_all(&local_root).unwrap();
+    let config = jjdb_BlotterConfig {
+        local_root,
+        remote_url: "unreachable://never-touched".to_string(),
+        trunk: ZJJTVB_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+    let live = zjjtvb_import_gallops("AB", "CAAAB", vec![zjjtvb_import_heat("AA", jjrg_HeatStatus::Racing, &["CAAAA"])]);
+    let sire = jjdb_SireSeed {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        address: "git@github.com:bhyslop/scratch-hippodrome".to_string(),
+        trunk: "main".to_string(),
+    };
+
+    let err = jjdb_found_studbook(&config, &live, &sire).expect_err("founding must refuse a standing clone");
+    assert!(err.contains("already stands"), "the refusal must name the standing clone, got: {}", err);
+}
+
+// ============================================================================
+// Per-command seam-ON proofs (the CAAAv coverage-gap closure)
+// ============================================================================
+// The mechanism-level ceremony tests above prove the shared journal core; these
+// prove each mutating command's OWN seam-ON path against a fixture studbook + a
+// real temp consumer repo — the nine wired write paths that were compile-checked
+// but had never executed (memo-20260720-journal-writes-pace-retrospective). The
+// jjri_persist five (slate/relabel/drop/rail/furlough) ride the shared
+// `zjjrm_write_gallops_over` with each command's own mutation closure; the
+// machine_commit four (retire/draft/restring/wrap) drive their extracted `_over`
+// on-branch. The seam const stays false throughout — reachability comes from the
+// explicit `over_studbook`/studbook parameters, never a flip.
+
+/// Serializes every proving-ground test. A REAL `vvcc_CommitLock` is acquired
+/// (the cinch: no test-only constructor on the production lock — the
+/// interface-contamination guard), and both the acquire and retire's consumer
+/// `machine_commit` ride the PROCESS cwd, which a ground repoints to its temp
+/// consumer repo — so two grounds must never overlap in the parallel runner.
+static ZJJTVB_GROUND_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+/// A per-command seam-ON proving ground: a founded scratch studbook seeded with
+/// `seed` beside a real temp consumer repo, with the process cwd pointed at that
+/// consumer repo (so a real commit lock acquires against it and any consumer-side
+/// commit lands there). Never the real studbook remote — the config points at
+/// scratch dirs alone (the write-seam pace's standing cinch). The serialization
+/// guard drops last, after cwd is restored.
+struct ZjjtvbGround {
+    consumer: JjkTestDir,
+    _bare: JjkTestDir,
+    _local: JjkTestDir,
+    studbook: jjdb_BlotterConfig,
+    prior_cwd: PathBuf,
+    _serial: std::sync::MutexGuard<'static, ()>,
+}
+
+impl ZjjtvbGround {
+    fn new(name: &str, seed: jjrg_Gallops) -> Self {
+        let serial = ZJJTVB_GROUND_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        // Scratch studbook (bare + clone), seeded with the caller's gallops through
+        // the journal ceremony so the tenant lands exactly where a live journal reads
+        // it. Path-based (git -C), so cwd-independent — built before the cwd hop.
+        let (bare, local, studbook) = zjjtvb_scratch(&format!("{}_sb", name));
+        jjdb_gallops_journal_save(&jjrfg_PlainGit, &studbook, "guidon-seed", move |_| seed, "seed".to_string())
+            .expect("seeding the fixture studbook must land the gallops tenant");
+        // Temp consumer repo with a base commit so HEAD exists for the lock ref.
+        let consumer = JjkTestDir::new(&format!("{}_consumer", name));
+        zjjtvb_init_local(consumer.path());
+        zjjtvb_commit_all(consumer.path(), "base.txt", "base", "init");
+        let prior_cwd = std::env::current_dir().expect("a cwd to restore");
+        std::env::set_current_dir(consumer.path()).expect("point the process cwd at the consumer repo");
+        ZjjtvbGround { consumer, _bare: bare, _local: local, studbook, prior_cwd, _serial: serial }
+    }
+
+    fn studbook(&self) -> &jjdb_BlotterConfig {
+        &self.studbook
+    }
+
+    fn consumer_path(&self) -> &Path {
+        self.consumer.path()
+    }
+
+    /// Acquire a REAL commit lock against the consumer repo (the process cwd),
+    /// exactly as a live command does — the jjri_persist family's on path takes it
+    /// (unused on the studbook branch, but real, per the cinch).
+    fn lock(&self) -> vvc::vvcc_CommitLock {
+        vvc::vvcc_CommitLock::vvcc_acquire().expect("the fixture consumer repo must yield the commit lock")
+    }
+}
+
+impl Drop for ZjjtvbGround {
+    fn drop(&mut self) {
+        // Restore cwd here (runs before the fields drop), while the serialization
+        // guard is still held — any lock a test acquired has already released
+        // against this still-current cwd.
+        let _ = std::env::set_current_dir(&self.prior_cwd);
+    }
+}
+
+/// One tack, Rough, for a seed pace.
+fn zjjtvb_seed_pace(heat_id: &str, pace_suffix: &str) -> (String, jjrg_Pace) {
+    let pace_key = format!("\u{20A2}{}{}", heat_id, pace_suffix);
+    let tack = jjrg_Tack {
+        ts: "260101-1200".to_string(),
+        state: jjrg_PaceState::Rough,
+        tier: None,
+        effort: None,
+        text: vec!["docket".to_string()],
+        silks: format!("pace-{}{}", heat_id, pace_suffix),
+        basis: JJRG_UNKNOWN_BASIS.to_string(),
+    };
+    (pace_key, jjrg_Pace { tacks: vec![tack], ..Default::default() })
+}
+
+/// A racing/stabled heat with the given pace suffixes (coronet body = heat_id +
+/// suffix), in order.
+fn zjjtvb_seed_heat(heat_id: &str, status: jjrg_HeatStatus, pace_suffixes: &[&str]) -> (String, jjrg_Heat) {
+    let heat_key = format!("\u{20A3}{}", heat_id);
+    let mut paces = BTreeMap::new();
+    let mut order = Vec::new();
+    for s in pace_suffixes {
+        let (pk, pace) = zjjtvb_seed_pace(heat_id, s);
+        order.push(pk.clone());
+        paces.insert(pk, pace);
+    }
+    (heat_key, jjrg_Heat {
+        silks: format!("heat-{}", heat_id),
+        creation_time: "260101".to_string(),
+        status,
+        order,
+        paces,
+    })
+}
+
+/// A gallops carrying the given heats (heat_order tracks them), with mint seeds
+/// clear of the fixtures' own ids.
+fn zjjtvb_seed_gallops(heats: Vec<(String, jjrg_Heat)>) -> jjrg_Gallops {
+    let mut heat_order = Vec::new();
+    let mut heat_map = BTreeMap::new();
+    for (k, h) in heats {
+        heat_order.push(k.clone());
+        heat_map.insert(k, h);
+    }
+    jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
+        heat_order,
+        heats: heat_map,
+        retention_since: None,
+    }
+}
+
+/// Drive the jjri_persist family's seam-ON path: `zjjrm_write_gallops_over` with
+/// `over_studbook = true` and the command's own mutation closure, against the
+/// ground's fixture studbook. A real lock is acquired (unused on this branch, per
+/// the cinch) and released when this returns; `path`/`firemark`/`size_limit`/
+/// `session_gallops` are the branch's ignored args.
+fn zjjtvb_drive_write_over<R>(
+    ground: &ZjjtvbGround,
+    firemark: &str,
+    message: &str,
+    mutate: impl FnOnce(&mut jjrg_Gallops) -> Result<R, String>,
+) -> Result<(R, String), crate::jjrm_mcp::zjjrm_WriteRefusal> {
+    let lock = ground.lock();
+    let mut output = vvc::vvco_Output::buffer();
+    let fm = jjrf_Firemark::jjrf_parse(firemark).expect("valid fixture firemark");
+    crate::jjrm_mcp::zjjrm_write_gallops_over(
+        &jjrfg_PlainGit,
+        true,
+        &lock,
+        Path::new("unused-on-the-studbook-path"),
+        &fm,
+        message.to_string(),
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output,
+        ground.studbook(),
+        "guidon-command",
+        zjjtvb_valid_gallops(),
+        mutate,
+    )
+}
+
+// ---- jjri_persist family (B1: the shared over-seam with each command's closure) ----
+
+#[test]
+fn jjtvb_seam_on_slate_journals_the_new_pace() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_slate",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZS", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let slate_args = jjrg_SlateArgs {
+        firemark: "ZS".to_string(),
+        silks: "slated-pace".to_string(),
+        text: "docket".to_string(),
+        dictation: None,
+        precis: None,
+        slated: "260101-1200".to_string(),
+        before: None,
+        after: None,
+        first: false,
+    };
+    let res = zjjtvb_drive_write_over(&ground, "ZS", "slate msg", |g| g.jjrg_slate(slate_args));
+    assert!(res.is_ok(), "slate must journal to the studbook");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    assert_eq!(
+        loaded.inner().heats.get("\u{20A3}ZS").unwrap().order.len(),
+        2,
+        "slate must add a pace to the studbook tip"
+    );
+}
+
+#[test]
+fn jjtvb_seam_on_relabel_journals_the_new_silks() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_relabel",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZR", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let tally_args = jjrg_TallyArgs {
+        coronet: "ZRAAA".to_string(),
+        state: None,
+        text: None,
+        silks: Some("relabeled".to_string()),
+    };
+    let res = zjjtvb_drive_write_over(&ground, "ZR", "relabel msg", |g| g.jjrg_tally(tally_args));
+    assert!(res.is_ok(), "relabel must journal to the studbook");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    let pace = loaded.inner().heats.get("\u{20A3}ZR").unwrap().paces.get("\u{20A2}ZRAAA").unwrap();
+    assert!(
+        pace.tacks.iter().any(|t| t.silks == "relabeled"),
+        "relabel must journal the new silks to the studbook tip"
+    );
+}
+
+#[test]
+fn jjtvb_seam_on_drop_journals_the_abandonment() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_drop",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZD", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let tally_args = jjrg_TallyArgs {
+        coronet: "ZDAAA".to_string(),
+        state: Some(jjrg_PaceState::Abandoned),
+        text: None,
+        silks: None,
+    };
+    let res = zjjtvb_drive_write_over(&ground, "ZD", "drop msg", |g| g.jjrg_tally(tally_args));
+    assert!(res.is_ok(), "drop must journal to the studbook");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    let pace = loaded.inner().heats.get("\u{20A3}ZD").unwrap().paces.get("\u{20A2}ZDAAA").unwrap();
+    assert!(
+        pace.tacks.iter().any(|t| matches!(t.state, jjrg_PaceState::Abandoned)),
+        "drop must journal the Abandoned state to the studbook tip"
+    );
+}
+
+#[test]
+fn jjtvb_seam_on_rail_journals_the_reorder() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_rail",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZL", jjrg_HeatStatus::Racing, &["AAA", "AAB"])]),
+    );
+    // Move mode (order mode is retired): move the second pace to first, which
+    // swaps the two-pace sequence.
+    let rail_args = jjrg_RailArgs {
+        firemark: "ZL".to_string(),
+        order: vec![],
+        move_coronet: Some("ZLAAB".to_string()),
+        before: None,
+        after: None,
+        first: true,
+        last: false,
+    };
+    let res = zjjtvb_drive_write_over(&ground, "ZL", "rail msg", |g| g.jjrg_rail(rail_args));
+    assert!(res.is_ok(), "rail must journal to the studbook");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    assert_eq!(
+        loaded.inner().heats.get("\u{20A3}ZL").unwrap().order,
+        vec!["\u{20A2}ZLAAB".to_string(), "\u{20A2}ZLAAA".to_string()],
+        "rail must journal the reordered sequence to the studbook tip"
+    );
+}
+
+#[test]
+fn jjtvb_seam_on_furlough_journals_the_status_change() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_furlough",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZF", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let furlough_args = jjrg_FurloughArgs {
+        firemark: "ZF".to_string(),
+        racing: false,
+        stabled: true,
+        silks: None,
+    };
+    let res = zjjtvb_drive_write_over(&ground, "ZF", "furlough msg", |g| g.jjrg_furlough(furlough_args));
+    assert!(res.is_ok(), "furlough must journal to the studbook");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    assert!(
+        matches!(loaded.inner().heats.get("\u{20A3}ZF").unwrap().status, jjrg_HeatStatus::Stabled),
+        "furlough must journal the Stabled status to the studbook tip"
+    );
+}
+
+// ---- machine_commit family (B2: each command's extracted `_over` on-branch) ----
+
+#[test]
+fn jjtvb_seam_on_retire_journals_excision_and_lands_the_trophy_on_the_consumer() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_retire",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZT", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let fm = jjrf_Firemark::jjrf_parse("ZT").unwrap();
+    // The paddock is consumer-side: retire reads it, then its fs tail deletes it and
+    // machine_commits [trophy, paddock] to the consumer repo. Seed + track it.
+    let paddock_rel = crate::jjri_io::jjri_paddock_path(fm.jjrf_as_str());
+    let paddock_abs = ground.consumer_path().join(&paddock_rel);
+    std::fs::create_dir_all(paddock_abs.parent().unwrap()).unwrap();
+    zjjtvb_commit_all(ground.consumer_path(), &paddock_rel, "## Shape\nfixture paddock\n", "seed paddock");
+
+    let mut output = vvc::vvco_Output::buffer();
+    let code = crate::jjrrt_retire::jjrrt_retire_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-retire",
+        &fm,
+        "ZT",
+        ground.consumer_path(),
+        &[],
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output,
+        "jjx_archive",
+    );
+    assert_eq!(code, 0, "retire_over must succeed on the two-store path");
+
+    // Studbook half: the excision journaled — the tip no longer carries the heat.
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    assert!(
+        !loaded.inner().heats.contains_key("\u{20A3}ZT"),
+        "retire must excise the heat from the studbook tip"
+    );
+
+    // Consumer half: the fs tail deleted the paddock, and the last commit added a
+    // trophy (an addition on the consumer path).
+    assert!(!paddock_abs.exists(), "retire's fs tail must delete the consumer paddock");
+    let name_status = zjjtvb_git(ground.consumer_path(), &["show", "--name-status", "--format=", "HEAD"]);
+    assert!(
+        name_status.lines().any(|l| l.starts_with('A')),
+        "the retire commit must add the trophy on the consumer path, name-status: {}",
+        name_status
+    );
+}
+
+#[test]
+fn jjtvb_seam_on_draft_journals_the_relocate() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_draft",
+        zjjtvb_seed_gallops(vec![
+            zjjtvb_seed_heat("ZG", jjrg_HeatStatus::Racing, &["AAA"]),
+            zjjtvb_seed_heat("ZH", jjrg_HeatStatus::Racing, &[]),
+        ]),
+    );
+    let mut output = vvc::vvco_Output::buffer();
+    let draft_args = jjrg_DraftArgs {
+        coronet: "ZGAAA".to_string(),
+        to: "ZH".to_string(),
+        before: None,
+        after: None,
+        first: false,
+    };
+    let code = crate::jjrdr_draft::jjrdr_draft_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-draft",
+        draft_args,
+        "ZGAAA",
+        "ZH",
+        &mut output,
+        "jjx_redocket",
+    );
+    assert_eq!(code, 0, "draft_over must journal the relocate");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    let g = loaded.inner();
+    assert!(g.heats.get("\u{20A3}ZG").unwrap().order.is_empty(), "draft must empty the source heat on the tip");
+    assert_eq!(g.heats.get("\u{20A3}ZH").unwrap().order.len(), 1, "draft must land the pace in the destination heat");
+}
+
+#[test]
+fn jjtvb_seam_on_restring_journals_the_bulk_relocate() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_restring",
+        zjjtvb_seed_gallops(vec![
+            zjjtvb_seed_heat("ZI", jjrg_HeatStatus::Racing, &["AAA"]),
+            zjjtvb_seed_heat("ZJ", jjrg_HeatStatus::Racing, &[]),
+        ]),
+    );
+    let mut output = vvc::vvco_Output::buffer();
+    let restring_args = jjrg_RestringArgs {
+        source_firemark: "ZI".to_string(),
+        dest_firemark: "ZJ".to_string(),
+        coronets: vec!["ZIAAA".to_string()],
+    };
+    let result = crate::jjrrs_restring::jjrrs_restring_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-restring",
+        restring_args,
+        &mut output,
+        "jjx_transfer",
+    );
+    assert!(result.is_ok(), "restring_over must journal the bulk relocate");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    let g = loaded.inner();
+    assert!(g.heats.get("\u{20A3}ZI").unwrap().order.is_empty(), "restring must empty the source heat on the tip");
+    assert_eq!(g.heats.get("\u{20A3}ZJ").unwrap().order.len(), 1, "restring must land the transferred pace in the destination heat");
+}
+
+#[test]
+fn jjtvb_seam_on_wrap_journals_the_completion() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_wrap",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZW", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let mut output = vvc::vvco_Output::buffer();
+    let tally_args = jjrg_TallyArgs {
+        coronet: "ZWAAA".to_string(),
+        state: Some(jjrg_PaceState::Complete),
+        text: None,
+        silks: None,
+    };
+    let result = crate::jjrwp_wrap::jjrwp_wrap_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-wrap",
+        tally_args,
+        "wrap chalk".to_string(),
+        &mut output,
+        "jjx_close",
+    );
+    assert!(result.is_ok(), "wrap_over must journal the completion");
+    let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
+    let pace = loaded.inner().heats.get("\u{20A3}ZW").unwrap().paces.get("\u{20A2}ZWAAA").unwrap();
+    assert!(
+        pace.tacks.iter().any(|t| matches!(t.state, jjrg_PaceState::Complete)),
+        "wrap must journal the Complete state to the studbook tip"
+    );
+}
+
+// ---- refusal (the done-when's "refusal paths refuse loud") ----
+
+#[test]
+fn jjtvb_seam_on_refuses_loud_on_a_declining_mutation() {
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_refusal",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZX", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let before = jjdb_gallops_journal_load(ground.studbook()).unwrap().inner().heats.len();
+    // A mutation whose precondition fails on the locked tip declines — the seam must
+    // surface it as a loud Handler refusal, journaling nothing.
+    let res = zjjtvb_drive_write_over(&ground, "ZX", "declining msg", |_g| {
+        Err::<(), String>("precondition fails on the tip".to_string())
+    });
+    match res {
+        Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+            assert!(e.contains("precondition fails"), "the refusal must carry the mutation's own message, got: {}", e)
+        }
+        _ => panic!("a declining mutation must refuse loud as a Handler"),
+    }
+    let after = jjdb_gallops_journal_load(ground.studbook()).unwrap().inner().heats.len();
+    assert_eq!(before, after, "a refused mutation must journal nothing");
+}
+
+// ---- residue: the shared cwd→studbook+guidon derivation the ON writers delegate to ----
+
+/// The derivation `zjjrm_studbook_and_guidon` composes (cwd → infield_root →
+/// studbook config + guidon) is otherwise reachable only through the const-gated
+/// ON writers, so it would first execute at flip-time. Driving it here against a
+/// real infield cwd (a hippodrome git repo under an infield dir, the primary-seat
+/// shape) closes that residue: the composition executes, and it points at the
+/// infield's `jjqs_studbook`. cwd-serialized like the grounds above.
+#[test]
+fn jjtvb_studbook_and_guidon_derives_from_a_real_infield_cwd() {
+    let _serial = ZJJTVB_GROUND_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let infield = JjkTestDir::new("jjtvb_derive_infield");
+    let hippodrome = infield.path().join("hippodrome");
+    std::fs::create_dir_all(&hippodrome).unwrap();
+    zjjtvb_init_local(&hippodrome);
+    zjjtvb_commit_all(&hippodrome, "a.txt", "hello", "init");
+
+    let prior_cwd = std::env::current_dir().expect("a cwd to restore");
+    std::env::set_current_dir(&hippodrome).expect("point cwd at the hippodrome");
+    let derived = crate::jjrm_mcp::zjjrm_studbook_and_guidon("\u{2609}260101-0000-test", "jjx_test");
+    // Restore cwd before asserting, so a failed assertion never leaves the runner adrift.
+    std::env::set_current_dir(&prior_cwd).expect("restore cwd");
+
+    let (studbook, guidon) = derived.expect("a valid infield cwd must derive the studbook + guidon");
+    assert!(
+        studbook.local_root.ends_with("jjqs_studbook"),
+        "the derived studbook must live at the infield's jjqs_studbook, got {}",
+        studbook.local_root.display()
+    );
+    assert!(!guidon.is_empty(), "the derivation must compose a non-empty guidon");
 }

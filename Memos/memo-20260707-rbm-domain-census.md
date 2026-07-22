@@ -1,6 +1,6 @@
 # The RB home-repo domain census (tackle's worked example)
 
-Design-session record, 2026-07-07 (Fable session, operator Brad).
+Design-session record, 2026-07-07 (Fable session, operator Brad); refreshed 2026-07-20.
 Provenance, never authority.
 
 This memo is the *living* census: the concrete inventory of this repo's domains and the
@@ -18,22 +18,24 @@ Paths are best-current-knowledge, not verified claims; this is a census in progr
 | Domain | Files (approximate scope) | Governed by |
 |---|---|---|
 | JJ specs | `Tools/jjk/vov_veiled/**/*.adoc` | MCM/AXLA authoring + JJS0 doctrine |
-| RB specs | `Tools/rbk/vov_veiled/**/*.adoc` | MCM/AXLA authoring + RBS0 |
+| RB specs | `Tools/rbk/vov_veiled/**/*.adoc` (incl. the hierophant sheaves RBSHC/RBSHE/RBSHH) | MCM/AXLA authoring + RBS0 |
 | CMK specs | `Tools/cmk/vov_veiled/**/*.adoc` (MCM, AXLA themselves) | MCM's own rules, self-hosting |
 | VOK specs | `Tools/vok/vov_veiled/**/*.adoc` | MCM/AXLA + VOS0 |
-| Guides | the guide family (BCG, RCG, WSG, CBG, JDG, PCG, ACG, HCG, GMG) | GMG (the guide for guides) |
-| JJ rust | the JJ/vvx crates (VOW pipeline kits) | RCG |
+| Guides | the guide family (BCG, RCG, WSG, CBG, JDG, PUCG, ACG, HCG, GMG) | GMG (the guide for guides) |
+| JJ rust | the VOW-pipeline crates: `jjk` (`Tools/jjk/vov_veiled/`), `vvr` (`Tools/vok/`), `vvc`, `vof` | RCG |
 | JJ tests | JJ crate test modules | RCG + test conduct |
+| Matricula | `Tools/vok/vom/**` — operator-only, never ships (VOr_q4f) | RCG + VOSMM |
 | Theurge | `Tools/rbk/rbtd/**/*.rs` | RCG + RBSTC + theurge-ifrit context |
-| Ifrit | `rbev-vessels/common-ifrit-context/` | RCG + RBSIP posture |
+| Hierophant | `Tools/rbk/vov_veiled/rbthd/**` — veiled, withheld from delivery; zero third-party deps by construction | RCG + RBSHC (normative) |
+| Ifrit | `rbmm_moorings/rbmv_vessels/common-ifrit-context/` + `common-ifrit-forge-context/` (one crate `rbid`, two vessel build contexts) | RCG + RBSIP posture |
 | BUK bash | `Tools/buk/**/*.sh` | BCG |
 | RB bash | `Tools/rbk/*.sh` (flat — the decomposed modules) | BCG + RBK conduct |
 | Cloud steps | `Tools/rbk/rbgj*/` step scripts | CBG |
 | Jailer sh | sentry/pentacle in-vessel scripts (`rbjs_sentry.sh` kin) | JDG |
 | Tabtargets | `tt/*.sh` | BUS0 dispatch discipline (no business logic) |
 | Launchers | `rbmm_moorings/rbml_launchers/*.sh` | BUK launcher discipline |
-| Regimes | the `*.env` regime carriers under moorings | the RBSR* regime spec family |
-| Diagrams | `diagrams/*.puml` | PCG |
+| Regimes | the `*.env` regime carriers under moorings (incl. `rbmf_foedera/`) | the RBSR* regime spec family |
+| Diagrams | `diagrams/*.puml` | PUCG |
 | Rendered SVGs | `diagrams/*.svg` (+ dark siblings) | generated — regenerate via pluml case, never hand-edit |
 | Memos | `Memos/**/*.md` | provenance-never-authority |
 | Retired memos | `Memos/retired/**` | historical record, never resurrect without direction |
@@ -41,6 +43,7 @@ Paths are best-current-knowledge, not verified claims; this is a census in progr
 | Generated consts | `rbtdgc_consts.rs`, `claude-rbk-tabtarget-context.md` | regenerate via build, never hand-edit |
 | Public face | `README.md` | MCM revetment law (ashlar-or-prose only) |
 | APCK | `Tools/apck/**` | RCG + APCS0/APCPS, no-JavaScript rule |
+| Studies | `Study/**` (e.g. `study-model-prompt-tuning/`, crate `smpt`) | none declared — a live specimen of the unclaimed-in-bounds verdict (or of a bounds decision, if Studies sit outside bounds) |
 | Aspirant sheaves | `Tools/jjk/vov_veiled/JJSA*.adoc` + aspirant-lintel members elsewhere (VOSMM, RBSCV, RBSPC…) | MCM/AXLA + AWG (Aspirant Writing Guide) |
 
 Notes on fuzziness (deliberate, recorded):
@@ -53,6 +56,34 @@ Notes on fuzziness (deliberate, recorded):
   Tackle stays simple rather than over-fitted: overlap means *both apply* (union of
   bundles), the audit report makes every overlap visible, and a genuine contradiction
   between two bundles is surfaced to the operator, never auto-resolved.
+
+## The builds (independent compilation units and their verbs)
+
+The evidence base for tackle's check-member design: what "build/test/etc." concretely
+means per domain today.
+Nine independent Rust builds (eleven `Cargo.toml`s; the two ifrit contexts share one
+crate, and Studies sit outside the tabtarget system).
+
+| Build | Source | Build | Test | Other verbs |
+|---|---|---|---|---|
+| VOW pipeline (`vvr` + `jjk` + `vvc` + `vof`) | `Tools/vok/`, `Tools/jjk/vov_veiled/`, `Tools/vvc/` | `tt/vow-b` | `tt/vow-t` | run `vow-r`, clean `vow-c`, freshen `vow-F`, parcel-release `vow-R.*` |
+| Matricula (`vom`) | `Tools/vok/vom/` | `tt/vow-mb` | `tt/vow-mt` | run `vow-mr` (operator-only) |
+| Theurge (`rbtd`) | `Tools/rbk/rbtd/` | `tt/rbw-tb` | `tt/rbw-tt` | suites `rbw-ts.*`, fixture `rbw-tf`, case `rbw-tc`, qualify `rbw-tq`/`rbw-tr` |
+| Hierophant (`rbthd`) | `Tools/rbk/vov_veiled/rbthd/` | `tt/rbthw-b` | `tt/rbthw-t` | ceremony acts: docimasy `rbthw-d`, essai `rbthw-e`, ostend `rbthw-o`, harbinger `rbthw-h` |
+| APCK (`apcd`) | `Tools/apck/apcd/` | `tt/apcw-b` | `tt/apcw-t` | run `apcw-r`, deploy `apcw-D`, dictionary-refresh `apcw-dr`, batch-assay `apcw-ba`, container lifecycle `apcw-c*` |
+| Ifrit (`rbid`, two contexts) | `rbmm_moorings/rbmv_vessels/common-ifrit-*-context/` | inside vessel image builds (kludge `rbw-cK*`, ordain `rbw-fO`) | exercised, not unit-tested: sortie `rbw-Is`, siege suite | — |
+| Study (`smpt`) | `Study/study-model-prompt-tuning/` | raw cargo, no tabtarget | — | exploratory |
+
+Cross-domain scenario harnesses (rust-driven, drive major scenarios and evaluate):
+the theurge suite ladder — dependency strata reveille/picket/bivouac/echelon, release/probe
+ladders gauntlet/skirmish/dogfight/siege/blockade/parley — plus BUK self-test `buw-st`.
+These belong to no single fileset domain; they are consumers of many.
+
+Verb-census observation (feeds the fixed-members vs. open-actions fork): *build*, *test*,
+and *lint* recur across every domain; beyond them the tail is idiosyncratic — run, deploy,
+refresh, assay, render, charge/quench, clean, freshen, parcel-release, and hierophant's
+ceremony acts.
+The recurring three fit fixed typed members; the tail does not fit any small closed enum.
 
 ## The arrows (relations between domains)
 
@@ -67,6 +98,8 @@ Each is declared, never inferred; some carry their own governing discipline:
 | Ifrit | crucible containment | attacks (adversarial test) | RBSIP |
 | JJ tests | JJ rust | tests | RCG test conduct |
 | BUTT | BUK bash | tests | BUK self-test frame |
+| Hierophant | RB bash (the `rblm_` marshal workers) | sequences as subprocesses | RBSHC (worker-never-authority; structural incapacity) |
+| Hierophant | release tree state | proves + shows, keyed by tree hash (the cachet) | RBSHC reversible/irreversible seam |
 | JJS0/RBS* specs | their implementations | specifies | MCM/AXLA (executory→normative ladder) |
 | Zipper registry | generated consts + tabtarget context | generates | build-freshness gate (`rbq_qualify`) |
 | Diagrams (.puml) | rendered SVGs | generates | pluml crucible case |
@@ -77,5 +110,7 @@ Each is declared, never inferred; some carry their own governing discipline:
 The tackle sheaf's census table is a frozen illustration and deliberately does not grow.
 This memo is where new domains and new arrows get recorded as they are noticed, so the
 concept document never silently drifts into being an RB inventory.
+The builds table above exists for the same reason at command grain: it is the evidence the
+check-member design decision (fixed members vs. open actions) reads.
 When tackle's real table exists (pedigree-side), this memo retires into provenance — the
 table becomes the census and the matricula's audit becomes the freshness check.

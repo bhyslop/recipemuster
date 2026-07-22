@@ -474,30 +474,69 @@ pub fn jjrg_retire(
     base_path: &Path,
     steeplechase: &[jjrs_SteeplechaseEntry],
 ) -> Result<jjrg_RetireResult, String> {
-    // Parse and normalize firemark
+    // Compose the two halves into today's behavior: read the paddock (consumer
+    // fs), derive-and-excise (no fs), then apply the fs tail. The content builder
+    // and filename format live once in jjrg_retire_excise, so the seam-on path
+    // (which drives excise against the studbook tip and applies the tail only
+    // after the journal lands) can never drift from this one.
+    let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
+        .map_err(|e| format!("Invalid firemark: {}", e))?;
+    let paddock_file = jjri_paddock_path(firemark.jjrf_as_str());
+    let paddock_content = fs::read_to_string(base_path.join(&paddock_file))
+        .map_err(|e| format!("Failed to read paddock file '{}': {}", paddock_file, e))?;
+
+    let plan = jjrg_retire_excise(gallops, &args, &paddock_content, steeplechase)?;
+    jjrg_retire_apply(base_path, &plan)?;
+
+    Ok(jjrg_RetireResult {
+        trophy_path: plan.trophy_rel_path,
+        paddock_path: plan.paddock_path,
+        silks: plan.silks,
+        firemark: plan.firemark_key,
+    })
+}
+
+/// The pure plan a retire produces before any filesystem write: the trophy
+/// content already derived and the heat already excised from the gallops, but
+/// nothing on disk yet. Split out so the studbook write seam derives against the
+/// LOCKED TIP and mutates under the lock, then applies the fs tail
+/// (`jjrg_retire_apply`) only AFTER the journal lands — no orphan-trophy rollback
+/// window, because a journal reject leaves the disk untouched.
+pub struct jjrg_RetirePlan {
+    pub firemark_key: String,
+    pub trophy_rel_path: String,
+    pub trophy_content: String,
+    pub paddock_path: String,
+    pub silks: String,
+}
+
+/// Derive the trophy and excise the heat — pure of the filesystem. Verifies the
+/// heat exists (its absence is the caller's decline signal: seam-on, a vanished
+/// heat means another station retired it under the lock — Shape B declining
+/// exactly as intended), builds the trophy content from THIS gallops (the studbook
+/// tip, seam-on), computes the trophy filename from this heat's own
+/// creation_time/silks (silks drift via jjx_alter, so a session-derived name could
+/// be stale — the tip's is authoritative), then removes the heat (next_heat_seed
+/// untouched). `paddock_content` is read by the caller from the consumer fs — the
+/// paddock is never a studbook tenant — so this function stays fs-free.
+pub fn jjrg_retire_excise(
+    gallops: &mut jjrg_Gallops,
+    args: &jjrg_RetireArgs,
+    paddock_content: &str,
+    steeplechase: &[jjrs_SteeplechaseEntry],
+) -> Result<jjrg_RetirePlan, String> {
     let firemark = jjrf_Firemark::jjrf_parse(&args.firemark)
         .map_err(|e| format!("Invalid firemark: {}", e))?;
     let firemark_key = firemark.jjrf_display();
 
-    // Validate today is YYMMDD
     if !zjjrg_is_yymmdd(&args.today) {
         return Err(format!("today must be YYMMDD format, got '{}'", args.today));
     }
 
-    // Verify heat exists
     let heat = gallops.heats.get(&firemark_key)
         .ok_or_else(|| format!("Heat '{}' not found", firemark_key))?;
 
-    // Read paddock content before we remove anything
-    let paddock_file = jjri_paddock_path(firemark.jjrf_as_str());
-    let paddock_path = base_path.join(&paddock_file);
-    let paddock_content = fs::read_to_string(&paddock_path)
-        .map_err(|e| format!("Failed to read paddock file '{}': {}", paddock_file, e))?;
-
-    // Build trophy content
-    let trophy_content = zjjrg_build_trophy_content(&firemark_key, heat, &paddock_content, &args.today, steeplechase)?;
-
-    // Compute trophy path: .claude/jjm/retired/jjh_b<created>-r<today>-<silks>.md
+    let trophy_content = zjjrg_build_trophy_content(&firemark_key, heat, paddock_content, &args.today, steeplechase)?;
     let trophy_filename = format!(
         "jjh_b{}-r{}-{}.md",
         heat.creation_time,
@@ -505,37 +544,40 @@ pub fn jjrg_retire(
         heat.silks
     );
     let trophy_rel_path = format!(".claude/jjm/retired/{}", trophy_filename);
-    let trophy_full_path = base_path.join(&trophy_rel_path);
+    let silks = heat.silks.clone();
+    let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
 
-    // Create retired directory if needed
+    gallops.heats.remove(&firemark_key);
+    gallops.heat_order.retain(|f| f != &firemark_key);
+
+    Ok(jjrg_RetirePlan {
+        firemark_key,
+        trophy_rel_path,
+        trophy_content,
+        paddock_path,
+        silks,
+    })
+}
+
+/// The filesystem tail of a retire: write the trophy and delete the paddock,
+/// under `base_path`. Runs inline seam-off; seam-on only AFTER the journal has
+/// landed the excision to the studbook, so a journal reject leaves nothing on
+/// disk to reverse.
+pub fn jjrg_retire_apply(base_path: &Path, plan: &jjrg_RetirePlan) -> Result<(), String> {
+    let trophy_full_path = base_path.join(&plan.trophy_rel_path);
     if let Some(parent) = trophy_full_path.parent() {
         fs::create_dir_all(parent)
             .map_err(|e| format!("Failed to create retired directory: {}", e))?;
     }
-
-    // Write trophy file
-    fs::write(&trophy_full_path, trophy_content)
+    fs::write(&trophy_full_path, &plan.trophy_content)
         .map_err(|e| format!("Failed to write trophy file: {}", e))?;
 
-    // Capture info for result before removing heat
-    let silks = heat.silks.clone();
-
-    // Remove heat from gallops (do NOT change next_heat_seed)
-    gallops.heats.remove(&firemark_key);
-    gallops.heat_order.retain(|f| f != &firemark_key);
-
-    // Delete paddock file
-    if paddock_path.exists() {
-        fs::remove_file(&paddock_path)
+    let paddock_full = base_path.join(&plan.paddock_path);
+    if paddock_full.exists() {
+        fs::remove_file(&paddock_full)
             .map_err(|e| format!("Failed to delete paddock file: {}", e))?;
     }
-
-    Ok(jjrg_RetireResult {
-        trophy_path: trophy_rel_path,
-        paddock_path: paddock_file,
-        silks,
-        firemark: firemark_key,
-    })
+    Ok(())
 }
 
 /// Build trophy markdown preview (dry-run, no file modifications)

@@ -552,7 +552,7 @@ ruling: shipped source cites no spec acronym.)
 - **MCM** — builds the named homes ACG references; the design-time home.
 - **AXLA** — the motif vocabulary; the lookahead scanning rule and the
   name-identity symbol-link dependency live against it.
-- **CLAUDE.md "Prefix Naming Discipline" (mint)** — governs the naming homes
+- **claude-cmk-minting.md "Prefix Naming Discipline" (mint)** — governs the naming homes
   themselves.
 
 ## Acronym Registry

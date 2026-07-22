@@ -247,6 +247,81 @@ fn zjjrvb_later_pace_seed(a: &str, b: &str) -> Result<String, String> {
     Ok(if av >= bv { a.to_string() } else { b.to_string() })
 }
 
+// ---- Founding orchestrator (studbook-specific) ----
+
+/// A sire's founding pedigree seed: the values the founding writes into the
+/// studbook's pedigrees tenant so dispatch resolves this sire. `address` and
+/// `kind` are DERIVED at the door from identifying the hippodrome being founded
+/// (never operator-typed), so the seeded address is byte-identical to the key
+/// dispatch later derives from that same origin — seed and lookup cannot drift.
+/// `trunk` is the sire's line of work, a durable record value the operator
+/// names rather than one inferred from a volatile checkout.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct jjdb_SireSeed {
+    pub kind: String,
+    pub address: String,
+    pub trunk: String,
+}
+
+/// The studbook founding ceremony (JJSAS Founding-and-cutover): compose the
+/// live-state import (racing and stabled ride, retired stays behind) and found
+/// the instance from nothing, seeding BOTH studbook tenants in the single
+/// genesis commit — `gallops.json` (the imported live state) and
+/// `pedigrees.json` (the sire seed `jjrds_plan` reads first, so a station
+/// without it cannot dispatch). One deterministic act: found + import + seed in
+/// one run, leaving no partially-founded middle state for the cutover ceremony
+/// to hold.
+///
+/// The two fallible steps — the import's collision refusal and the pedigrees
+/// serialize — run and surface loud (Result) BEFORE `jjdb_found`, so by the time
+/// the seed closure runs everything is a pure write. Git failures panic through
+/// `jjdb_found`: this is an attended, one-shot ceremony (`jjdb_found`'s own
+/// contract), not a composed primitive with a rejection taxonomy.
+///
+/// Studbook-specific (it seeds pedigrees, a studbook tenant the future mews
+/// store has no analogue for), so it sits above the generic engine primitives
+/// it composes rather than inside them. Returns the genesis HEAD SHA.
+pub fn jjdb_found_studbook(
+    config: &jjdb_BlotterConfig,
+    live: &crate::jjrt_types::jjrg_Gallops,
+    sire: &jjdb_SireSeed,
+) -> Result<String, String> {
+    // Found only from nothing: a pre-existing clone would be re-init'd and have
+    // its tenants overwritten and a bogus commit landed before jjdb_found panics
+    // at `remote add`, mangling a standing store. The recreate-clean ruling
+    // removes local clones before the found; this refusal enforces it mechanically,
+    // so even a confirm-skipped run cannot clobber a standing studbook.
+    if config.local_root.exists() {
+        return Err(format!(
+            "founding refused: a studbook clone already stands at {} — founding runs only from nothing (recreate-clean: remove the clone and recreate the bare remote first)",
+            config.local_root.display()
+        ));
+    }
+
+    let seed_gallops = jjdb_founding_import(live, None)?;
+    let pedigree = crate::jjrds_spine::jjrds_Pedigree {
+        kind: sire.kind.clone(),
+        addresses: vec![sire.address.clone()],
+        trunk: sire.trunk.clone(),
+    };
+    let pedigrees_json = crate::jjrds_spine::jjrds_seed_pedigrees_json(vec![pedigree])?;
+
+    let sha = jjdb_found(config, |root| {
+        crate::jjri_io::jjdr_save(&seed_gallops, &root.join(JJDB_GALLOPS_REL_PATH))
+            .unwrap_or_else(|e| panic!("jjdb_found_studbook: gallops seed save failed at {}: {}", root.display(), e));
+        std::fs::write(root.join(crate::jjrds_spine::JJRDS_PEDIGREES_REL_PATH), &pedigrees_json)
+            .unwrap_or_else(|e| panic!("jjdb_found_studbook: pedigrees seed write failed at {}: {}", root.display(), e));
+        (
+            vec![
+                PathBuf::from(JJDB_GALLOPS_REL_PATH),
+                PathBuf::from(crate::jjrds_spine::JJRDS_PEDIGREES_REL_PATH),
+            ],
+            "found studbook".to_string(),
+        )
+    });
+    Ok(sha)
+}
+
 // ---- Read path ----
 
 /// The lock-free, staleness-tolerant read path (`jjdk_lockless_reads`, blotter
@@ -280,15 +355,15 @@ pub fn jjdb_read(config: &jjdb_BlotterConfig, rel_path: &Path) -> std::io::Resul
 /// way out (the guard drops on every exit path), and a refused proffer leaves
 /// the local branch and its record untouched — no residue exists for any later
 /// ceremony to scrub.
-pub fn jjdb_journal<F, M>(
+pub fn jjdb_journal_try<F, M, E>(
     farrier: &F,
     config: &jjdb_BlotterConfig,
     guidon: &str,
     mutate: M,
-) -> Result<String, jjrfr_Rejection>
+) -> Result<String, jjdb_JournalReject<E>>
 where
     F: jjrfr_FarrierCore + jjrfr_FarrierLock,
-    M: FnOnce(&Path) -> (Vec<PathBuf>, String),
+    M: FnOnce(&Path) -> Result<(Vec<PathBuf>, String), E>,
 {
     let root = config.local_root.as_path();
 
@@ -301,7 +376,7 @@ where
     let sighted = farrier.jjrfr_sight(root)?;
     if sighted.as_deref() != Some(guard.jjrfr_guidon()) {
         panic!(
-            "jjdb_journal: sight after stake did not confirm our own guidon at {} (expected {:?}, saw {:?})",
+            "jjdb_journal_try: sight after stake did not confirm our own guidon at {} (expected {:?}, saw {:?})",
             root.display(),
             guard.jjrfr_guidon(),
             sighted
@@ -317,8 +392,11 @@ where
     // Mutate: the caller writes its content against the tip's own state; we
     // allocate the next revision ordinal under the lock we already hold —
     // derived from the linear history's length at the tip we just advanced to,
-    // no side table (blotter sheaf "Revision ordinals") — and bake it in.
-    let (files, message) = mutate(root);
+    // no side table (blotter sheaf "Revision ordinals") — and bake it in. A
+    // declined mutate (`Abort`) returns here with the lock never proffered
+    // against — the guard drops on this early exit exactly as it does on a
+    // ceremony rejection, so nothing lands and no residue is left.
+    let (files, message) = mutate(root).map_err(jjdb_JournalReject::Abort)?;
     let ordinal = config.ordinal_founding + zjjrvb_commit_count(root);
     let baked_message = zjjrvb_bake_ordinal(config.ordinal_sigil, ordinal, &message);
 
@@ -340,6 +418,46 @@ where
     // ceremony's natural end.
     drop(guard);
     Ok(new_head)
+}
+
+/// The outcome of a fallible journal ceremony (`jjdb_journal_try`): a rejection
+/// from the ceremony's own lock/advance/proffer steps, or a caller's `Abort` —
+/// a mutate that declined against the locked tip (a command handler whose
+/// precondition no longer holds on the advanced tip). Kept distinct so a
+/// consumer can tell "the ceremony could not run" (surface as a blotter
+/// refusal) from "the ceremony ran and the handler said no" (surface as the
+/// handler's own error, nothing committed).
+#[derive(Debug)]
+pub enum jjdb_JournalReject<E> {
+    Ceremony(jjrfr_Rejection),
+    Abort(E),
+}
+
+impl<E> From<jjrfr_Rejection> for jjdb_JournalReject<E> {
+    fn from(r: jjrfr_Rejection) -> Self {
+        jjdb_JournalReject::Ceremony(r)
+    }
+}
+
+/// Infallible journal: the original ceremony surface, for a mutate that cannot
+/// decline against the tip (the founding-seed and existing gallops-save
+/// callers). A thin adapter over `jjdb_journal_try` whose mutate is total — the
+/// `Abort` arm is `Infallible`, so it is unreachable.
+pub fn jjdb_journal<F, M>(
+    farrier: &F,
+    config: &jjdb_BlotterConfig,
+    guidon: &str,
+    mutate: M,
+) -> Result<String, jjrfr_Rejection>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+    M: FnOnce(&Path) -> (Vec<PathBuf>, String),
+{
+    jjdb_journal_try::<F, _, std::convert::Infallible>(farrier, config, guidon, |root| Ok(mutate(root)))
+        .map_err(|reject| match reject {
+            jjdb_JournalReject::Ceremony(r) => r,
+            jjdb_JournalReject::Abort(never) => match never {},
+        })
 }
 
 /// The linear history's length at the tree's current position — a blotter
@@ -472,6 +590,46 @@ where
         crate::jjri_io::jjdr_save(&gallops, &path)
             .unwrap_or_else(|e| panic!("jjdb_gallops_journal_save: jjdr_save failed at {}: {}", path.display(), e));
         (vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], message)
+    })
+}
+
+/// Fallible sibling of `jjdb_gallops_journal_save`, over `jjdb_journal_try`: the
+/// `transform` may DECLINE against the locked tip — a command handler whose
+/// precondition no longer holds on the advanced tip (a stale-read casualty the
+/// re-run against the tip catches) — aborting the ceremony with nothing written
+/// and the lock released, preserving the pre-seam invariant that a failed
+/// command commits nothing. On a declined transform the whole ceremony lands
+/// nothing on the remote (JJr_b52's compose-then-push guarantee: no residue on
+/// any rejected path). `Ceremony` carries a lock/advance/proffer rejection;
+/// `Abort` carries the handler's own error string, surfaced as the command's
+/// error with nothing committed. The command surface's write half (the
+/// gallops-over-studbook seam) is the caller.
+pub fn jjdb_gallops_journal_try_save<F, M>(
+    farrier: &F,
+    config: &jjdb_BlotterConfig,
+    guidon: &str,
+    transform: M,
+) -> Result<String, jjdb_JournalReject<String>>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+    M: FnOnce(Option<crate::jjri_io::jjdr_ValidatedGallops>) -> Result<(crate::jjrt_types::jjrg_Gallops, String), String>,
+{
+    jjdb_journal_try(farrier, config, guidon, |root| {
+        // Post-lock, post-advance: the pin IS the tip the local branch now
+        // stands on, so this read is the store's truth at this moment. A
+        // corrupt tenant panics loud — halt-and-surface, never paper over.
+        let current = match zjjdb_tip_gallops(config) {
+            Ok(current) => current,
+            Err(e) => panic!("jjdb_gallops_journal_try_save: could not read the locked tip's gallops: {}", e),
+        };
+        // The transform returns the record AND its commit message, so a message
+        // derived from a MINTED result (a relocate's new coronet) composes from
+        // the tip's own mint, never a divergent session pre-run.
+        let (gallops, message) = transform(current)?;
+        let path = root.join(JJDB_GALLOPS_REL_PATH);
+        crate::jjri_io::jjdr_save(&gallops, &path)
+            .unwrap_or_else(|e| panic!("jjdb_gallops_journal_try_save: jjdr_save failed at {}: {}", path.display(), e));
+        Ok((vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], message))
     })
 }
 

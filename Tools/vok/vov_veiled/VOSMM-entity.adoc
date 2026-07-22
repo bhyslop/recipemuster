@@ -43,7 +43,7 @@ claim what it owns, and treat the unclaimed-but-ours remainder — the
 The minting rules the
 {vosmm_matricula}
 enforces are not defined here.
-Terminal-exclusivity, exact collision, and the MCM Lapidary word-selection discipline are CMK/MCM doctrine (CLAUDE.md "Prefix Naming Discipline"); this spec cites them as the authority and the
+Terminal-exclusivity, exact collision, and the MCM Lapidary word-selection discipline are CMK/MCM doctrine (claude-cmk-minting.md "Prefix Naming Discipline"); this spec cites them as the authority and the
 {vosmm_matricula}
 mechanizes them.
 This spec mints only the vocabulary the census itself needs.
@@ -448,6 +448,7 @@ status of its own yet.
 
 The grimoire is the design-time home for the human-presentation forms of a minted word — one flat row per word that surfaces in prose.
 A row enumerates its forms literally — `foedus`, `foedera`, `foedus's` — never as a stemming or derivation rule: the irregular forms cannot be derived, only known.
+The roster of form kinds a row's columns key on is homed once in the variant-kinds sheaf (VOSVK-variants.adoc), shared with the Diptych grammar (VOSYD-diptych.adoc) — one enumeration, two consumers.
 This is the freeze pattern in linguistic form — the forms are authored once with full wisdom (the linguistic act, a mind's), then read forever by exact match (the mechanical act).
 The
 {vosmm_matricula}
@@ -457,7 +458,7 @@ It serves three jobs, each a reach into word-surface space the identifier scan c
 
 . Lint prose for a missed citation — a word standing in plain prose where it ought to be a linked-term reference to its
 {vosli_inscription}.
-. Mechanize the Lapidary word-selection gate — at mint time, test a candidate word and its every inflection against the seated forms, the collision check the MVP leaves to manual grep (CLAUDE.md "Prefix Naming Discipline").
+. Mechanize the Lapidary word-selection gate — at mint time, test a candidate word and its every inflection against the seated forms, the collision check the MVP leaves to manual grep (claude-cmk-minting.md "Prefix Naming Discipline").
 . Generate the human-presentation string constants for Rust and bash, then lint printed strings against them — error output is operator-facing (ashlar), where word-care bites hardest.
 
 The distribution boundary holds as for the acronym index: the grimoire's output (the generated constants) may ride in shipped code, but the grimoire and the
@@ -545,7 +546,7 @@ itself ascends — not here.
 
 == Doctrine Homes — Cite, Never Restate
 
-* Minting rules (terminal-exclusivity, exact collision, MCM Lapidary word-selection): CMK/MCM and CLAUDE.md "Prefix Naming Discipline". The
+* Minting rules (terminal-exclusivity, exact collision, MCM Lapidary word-selection): CMK/MCM and claude-cmk-minting.md "Prefix Naming Discipline". The
 {vosmm_matricula}
 mechanizes them; it does not redefine them.
 * Lintel-validator doctrine: AXLA — the declaration pair and cross-check (`axl_lintel`, `axvd_cartouche`) and the Timeless Prose law (`axl_timeless`). Mechanized here, defined there.

@@ -215,6 +215,33 @@ coronets inside are record-of-the-moment, never live references.
   and a live proof of the never-rebase rule:
   the union's fossil is a commit brand naming a parent the rebased commit no longer has.
 
+## Build-gap rescope (recorded 260720, rescope pace)
+
+- FINDING (grounded 260720 AM; the finding's full home is the rescope pace's docket — operator ruling: no memo):
+  the cutover machinery is substantially unbuilt.
+  Four gaps against Rung 1: command-surface read repoint, command-surface journal-write,
+  officium relocation wiring (dead seam), founding orchestrator entrypoint with the pedigrees seed writer.
+  The frozen ₣Br carry's "verified built, awaiting the flip" is true of the dispatch spine and the journal-read function,
+  not of the command surface — the tested reader was an uncalled island.
+  Warn-at-open and the refit door are NOT gaps: both landed as this heat's own earlier paces; the four stand alone.
+- RULING (build-first, enacted at the rescope):
+  four build paces cantled ahead of the ceremony —
+  command read repoint, journal-write, officium relocation with the station-name refusal,
+  founding orchestrator with the pedigrees seed folded in —
+  each mainline-inert (both seams false) and proven by tests, self-hosting-gated on the full kit suite;
+  the ceremony pace reslated to the post-build flip.
+- Same-const atomicity (cinched at the rescope, from the operator's no-lost-paces steer):
+  command reads AND writes branch on the same enablement const the dispatch spine obeys,
+  so no binary can read one store while writing the other, and one flip moves everything.
+- Two-session ceremony (cinched at the rescope):
+  the seams are compile-time consts, so the ceremony's own MCP server keeps the old binary —
+  the old-binary session ends at the founding import (the moment of authority transfer, no jjx after it),
+  and a fresh new-binary session verifies, tombstones LAST, and wraps —
+  abort-safe until tombstone, the old store authoritative on disk until that act.
+- Currency-at-read (ruled at the rescope; operator may override):
+  no per-command glean — one glean rides officium open per session;
+  write-currency is the blotter lease's own enforcement.
+
 ## Done when
 
 The founding-and-cutover rung's done-line is sighted,

@@ -83,6 +83,13 @@ enum Commands {
     #[command(name = "jjx_cashier")]
     JjxCashier(CashierArgs),
 
+    /// Found the studbook from nothing (JJSAS Founding-and-cutover): compose the
+    /// live-state import and seed both tenants (gallops + pedigrees) in one
+    /// genesis commit against the studbook's remote. Operator ceremony door,
+    /// deliberately NOT an MCP command — fronted by the jjw-bf tabtarget.
+    #[command(name = "jjx_found")]
+    JjxFound(FoundArgs),
+
     /// External subcommands (delegated to kit CLIs)
     #[command(external_subcommand)]
     External(Vec<OsString>),
@@ -99,6 +106,26 @@ struct CashierArgs {
     /// Break the sighted locks, rather than only reporting them
     #[arg(long = "break")]
     do_break: bool,
+}
+
+/// Arguments for jjx_found — the studbook founding door. The operator's
+/// invocation directory elects the hippodrome being founded: its origin is
+/// identified for the sire pedigree's address (the same canonicalization
+/// dispatch derives), its live gallops seeds the import, and its parent serves
+/// as the infield root the studbook lands beside.
+#[derive(clap::Args, Debug)]
+struct FoundArgs {
+    /// The operator's invocation directory (elects the hippodrome to found against)
+    #[arg(long)]
+    cwd: PathBuf,
+
+    /// The sire's trunk — the pedigree's line of work (a durable record value)
+    #[arg(long, default_value = "main")]
+    trunk: String,
+
+    /// Resolve and print the founding plan, then stop before touching git
+    #[arg(long)]
+    dry_run: bool,
 }
 
 /// Arguments for jjx_dispatch — the spine's CLI face. The door captures the
@@ -273,6 +300,7 @@ async fn main() -> ExitCode {
         Some(Commands::Mcp) => run_mcp().await,
         Some(Commands::JjxDispatch(args)) => run_dispatch(args),
         Some(Commands::JjxCashier(args)) => run_cashier(args),
+        Some(Commands::JjxFound(args)) => run_found(args),
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
             use clap::CommandFactory;
@@ -465,6 +493,123 @@ fn run_cashier(args: CashierArgs) -> i32 {
     {
         let _ = args;
         vvco_err!(out, "jjx_cashier: error: jjk feature not enabled");
+        1
+    }
+}
+
+/// Run the studbook founding door (JJSAS Founding-and-cutover). Elects the
+/// hippodrome from the invocation cwd, derives the sire pedigree's address from
+/// that hippodrome's own identity (the same canonicalized origin dispatch later
+/// derives — seed and lookup cannot drift), reads its live gallops for the
+/// import, and composes the single deterministic found+import+seed act. The real
+/// found is the cutover ceremony's act; `--dry-run` resolves and prints the plan
+/// without touching git.
+fn run_found(args: FoundArgs) -> i32 {
+    let mut out = vvco_Output::console();
+    #[cfg(feature = "jjk")]
+    {
+        use jjk::jjrc_core::JJRC_DEFAULT_GALLOPS_PATH;
+        use jjk::jjrdc_cashier::jjrdc_infield_root;
+        use jjk::jjrds_spine::JJRDS_KIND_PLAIN_GIT;
+        use jjk::jjrfg_plaingit::jjrfg_PlainGit;
+        use jjk::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_Seat};
+        use jjk::jjrvb_blotter::{jjdb_founding_import, jjdb_found_studbook, jjdb_studbook_config, jjdb_SireSeed};
+
+        // Elect the hippodrome and derive the sire address from its own identity
+        // — the same canonicalized origin dispatch derives, so the seeded
+        // address is byte-identical to the key the lookup will match against.
+        let identity = match jjrfg_PlainGit.jjrfr_identify(&args.cwd) {
+            Ok(id) => id,
+            Err(rejection) => {
+                vvco_err!(out, "jjx_found: {}", rejection);
+                return 1;
+            }
+        };
+        let address = match identity.upstream_key.clone() {
+            Some(addr) => addr,
+            None => {
+                vvco_err!(out, "jjx_found: the hippodrome at {} has no origin remote — no sire address to seed", identity.root.display());
+                return 1;
+            }
+        };
+        // The primary hippodrome root: a billet worktree (Partition seat) climbs
+        // to its primary, so the live gallops and the infield resolve from one
+        // consistent root rather than the partition's own checkout.
+        let hippodrome_root = match &identity.seat {
+            jjrfr_Seat::Primary => identity.root.clone(),
+            jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
+        };
+        let infield_root = match jjrdc_infield_root(&args.cwd) {
+            Ok(root) => root,
+            Err(rejection) => {
+                vvco_err!(out, "jjx_found: {}", rejection);
+                return 1;
+            }
+        };
+        let config = jjdb_studbook_config(&infield_root);
+
+        // The live in-repo gallops seeds the import (read-only — jjdr_hark never
+        // re-saves the source store).
+        let live_path = hippodrome_root.join(JJRC_DEFAULT_GALLOPS_PATH);
+        let live_bytes = match std::fs::read(&live_path) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                vvco_err!(out, "jjx_found: could not read the live gallops at {}: {}", live_path.display(), e);
+                return 1;
+            }
+        };
+        let live = match jjk::jjri_io::jjdr_hark(&live_bytes) {
+            Ok(validated) => validated,
+            Err(e) => {
+                vvco_err!(out, "jjx_found: the live gallops at {} does not validate: {}", live_path.display(), e);
+                return 1;
+            }
+        };
+
+        let sire = jjdb_SireSeed {
+            kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+            address,
+            trunk: args.trunk.clone(),
+        };
+
+        if args.dry_run {
+            // Run the pure import so the confirmed plan matches the act — the
+            // seeded heat count is post-filter, not the raw live count.
+            let (seeded, behind) = match jjdb_founding_import(live.inner(), None) {
+                Ok(seed) => {
+                    let seeded = seed.heats.len();
+                    (seeded, live.inner().heats.len() - seeded)
+                }
+                Err(e) => {
+                    vvco_err!(out, "jjx_found: {}", e);
+                    return 1;
+                }
+            };
+            vvco_out!(out, "jjx_found (dry run): would found the studbook, then stop before touching git");
+            vvco_out!(out, "  infield root:  {}", infield_root.display());
+            vvco_out!(out, "  studbook root: {}{}", config.local_root.display(),
+                if config.local_root.exists() { "  [ALREADY STANDS — founding will refuse; recreate-clean first]" } else { "" });
+            vvco_out!(out, "  remote:        {}", config.remote_url);
+            vvco_out!(out, "  sire address:  {} (kind {}, trunk {})", sire.address, sire.kind, sire.trunk);
+            vvco_out!(out, "  live gallops:  {} heat(s) seed, {} retired left behind ({})", seeded, behind, live_path.display());
+            return 0;
+        }
+
+        match jjdb_found_studbook(&config, live.inner(), &sire) {
+            Ok(sha) => {
+                vvco_out!(out, "jjx_found: founded the studbook at {} ({})", config.local_root.display(), sha);
+                0
+            }
+            Err(e) => {
+                vvco_err!(out, "jjx_found: {}", e);
+                1
+            }
+        }
+    }
+    #[cfg(not(feature = "jjk"))]
+    {
+        let _ = args;
+        vvco_err!(out, "jjx_found: error: jjk feature not enabled");
         1
     }
 }

@@ -25,11 +25,17 @@
 
 use super::jjrm_mcp::{
     jjrm_apply_batch,
+    jjrm_exchange_dir,
     jjrm_resolve_batch_firemark,
     jjrm_resolve_officium_billet,
     jjrm_station_name,
     jjrm_studbook_exchange_dir,
+    zjjrm_exchange_dir_over,
+    zjjrm_glean_studbook,
+    zjjrm_infield_root,
+    zjjrm_load_gallops_over,
     zjjrm_open_staleness_notice,
+    zjjrm_open_station_refusal,
     zjjrm_ProcEntry,
     zjjrm_procmap_select,
     ZJJRM_SESSION_ABSENT,
@@ -40,10 +46,17 @@ use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_He
 use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
-use super::jjrvb_blotter::JJDB_STUDBOOK_DIRNAME;
+use super::jjrvb_blotter::{
+    jjdb_BlotterConfig,
+    jjdb_studbook_config,
+    JJDB_CATCHWORD_FOUNDING,
+    JJDB_CATCHWORD_SIGIL,
+    JJDB_GALLOPS_REL_PATH,
+    JJDB_STUDBOOK_DIRNAME,
+};
 use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 // ===== Helpers =====
 
@@ -512,6 +525,38 @@ fn jjtm_officium_studbook_enablement_seam_defaults_off() {
     assert!(!JJRM_OFFICIUM_STUDBOOK_ENABLED, "the studbook-resident officium must stay inert until the conversion heat flips it");
 }
 
+#[test]
+fn jjtm_exchange_dir_over_resolves_under_studbook_when_seam_on() {
+    let studbook = jjdb_studbook_config(Path::new("/infield"));
+    let dir = zjjrm_exchange_dir_over("260712-1000-abcd", true, &studbook);
+    assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
+}
+
+#[test]
+fn jjtm_exchange_dir_over_strips_incipit_prefix_when_seam_on() {
+    let studbook = jjdb_studbook_config(Path::new("/infield"));
+    let dir = zjjrm_exchange_dir_over("\u{2609}260712-1000-abcd", true, &studbook);
+    assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
+}
+
+#[test]
+fn jjtm_exchange_dir_over_seam_off_matches_the_live_wrapper() {
+    // Seam off ignores the studbook config entirely — the third arg is a
+    // throwaway, proving the off-branch never touches it.
+    let throwaway = jjdb_studbook_config(Path::new("/unused"));
+    let via_over = zjjrm_exchange_dir_over("260712-1000-abcd", false, &throwaway);
+    let via_wrapper = jjrm_exchange_dir("260712-1000-abcd");
+    assert_eq!(via_over, via_wrapper, "seam-off must stay byte-identical between the testable branch and the live wrapper");
+}
+
+#[test]
+fn jjtm_open_station_refusal_fires_only_when_seam_on_and_unnamed() {
+    assert!(zjjrm_open_station_refusal("jjx_open", None, true).is_some());
+    assert!(zjjrm_open_station_refusal("jjx_open", Some("mac.lan"), true).is_none());
+    assert!(zjjrm_open_station_refusal("jjx_open", None, false).is_none(), "seam-off must never refuse — jjx_open's seam-off behavior is unchanged");
+    assert!(zjjrm_open_station_refusal("jjx_open", Some("mac.lan"), false).is_none());
+}
+
 // ===== Open's staleness lead (warn-at-open) =====
 
 /// A full infield: bare upstream, a hippodrome clone tracking it, and a
@@ -616,4 +661,211 @@ fn jjtm_open_staleness_notice_is_none_on_foreign_ground() {
     let td = JjkTestDir::new("jjtm_open_staleness_foreign");
     // No git init — foreign ground.
     assert_eq!(zjjrm_open_staleness_notice(&jjrfg_PlainGit, td.path()), None);
+}
+
+// ===== Command-surface gallops read (studbook seam, build-gap rescope) =====
+//
+// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` stays false at land (mainline-inert —
+// see jjtvb_blotter.rs's own seam-defaults-off test); these exercise the
+// on-branch directly via `zjjrm_load_gallops_over`'s explicit parameter,
+// mirroring how `jjrds_plan`'s `over_studbook` parameter is tested in
+// jjtds_spine.rs. The seam-off branch needs no dedicated fixture here: it is
+// byte-identical to the pre-seam `jjrg_Gallops::jjrg_load(path)` call every
+// existing jjx_* command test already exercises.
+
+fn zjjtm_gallops_valid(seed: &str) -> jjrg_Gallops {
+    jjrg_Gallops {
+        next_heat_seed: seed.to_string(),
+        next_pace_seed: "CAAAA".to_string(),
+        heat_order: vec![],
+        heats: BTreeMap::new(),
+        retention_since: None,
+    }
+}
+
+/// A studbook scratch triple (bare remote, local clone, config) with one
+/// `gallops.json` committed and pushed — the same shape `jjtvb_blotter.rs`'s
+/// `zjjtvb_scratch` builds, reproduced here since it is test-module-private
+/// there. `seed` rides `next_heat_seed` so a test can tell "read the
+/// studbook" apart from "read anything else".
+fn zjjtm_gallops_scratch(name: &str, seed: &str) -> (JjkTestDir, JjkTestDir, jjdb_BlotterConfig) {
+    let bare = JjkTestDir::new(&format!("{}_bare", name));
+    zjjtm_git(bare.path(), &["init", "-q", "--bare", "-b", ZJJTM_TRUNK]);
+    let local = JjkTestDir::new(&format!("{}_local", name));
+    zjjtm_init_local(local.path());
+    let json = serde_json::to_string_pretty(&zjjtm_gallops_valid(seed)).unwrap();
+    zjjtm_commit_all(local.path(), JJDB_GALLOPS_REL_PATH, &json, "seed gallops");
+    zjjtm_git(local.path(), &["remote", "add", "origin", &bare.path().to_string_lossy()]);
+    zjjtm_git(local.path(), &["push", "-q", "-u", "origin", ZJJTM_TRUNK]);
+    let config = jjdb_BlotterConfig {
+        local_root: local.path().to_path_buf(),
+        remote_url: bare.path().to_string_lossy().into_owned(),
+        trunk: ZJJTM_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+    (bare, local, config)
+}
+
+#[test]
+fn jjtm_load_gallops_over_enabled_reads_the_studbook_pin() {
+    // next_heat_seed is a fixed-width 2-char field — the marker must fit it.
+    let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_load_seam_on", "SB");
+    // A path that does not exist at all — proves the on-branch never touches it.
+    let untouched_path = Path::new("/nonexistent/jjtm-never-read.json");
+
+    let gallops = zjjrm_load_gallops_over(true, untouched_path, &config).unwrap();
+
+    assert_eq!(gallops.next_heat_seed, "SB");
+}
+
+#[test]
+fn jjtm_load_gallops_over_enabled_refuses_loud_when_clone_absent() {
+    let td = JjkTestDir::new("jjtm_load_seam_on_absent");
+    let config = jjdb_BlotterConfig {
+        local_root: td.path().join("never-founded"),
+        remote_url: String::new(),
+        trunk: ZJJTM_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+
+    let result = zjjrm_load_gallops_over(true, Path::new("irrelevant.json"), &config);
+
+    assert!(result.is_err(), "a missing studbook clone must refuse loud, never silently fall back");
+}
+
+#[test]
+fn jjtm_load_gallops_over_enabled_refuses_loud_when_clone_never_gleaned() {
+    // A real local git repo, but never pushed/fetched against any remote —
+    // refs/remotes/origin/<trunk> does not exist, so the pin has nothing to
+    // resolve.
+    let local = JjkTestDir::new("jjtm_load_seam_on_never_gleaned");
+    zjjtm_init_local(local.path());
+    zjjtm_commit_all(local.path(), "base.txt", "base", "init");
+    let config = jjdb_BlotterConfig {
+        local_root: local.path().to_path_buf(),
+        remote_url: String::new(),
+        trunk: ZJJTM_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+
+    let result = zjjrm_load_gallops_over(true, Path::new("irrelevant.json"), &config);
+
+    assert!(result.is_err(), "an ungleaned clone (no fetched pin yet) must refuse loud");
+}
+
+#[test]
+fn jjtm_load_gallops_over_disabled_reads_path_and_never_touches_studbook() {
+    let td = JjkTestDir::new("jjtm_load_seam_off");
+    let path = td.path().join(JJDB_GALLOPS_REL_PATH);
+    std::fs::write(&path, serde_json::to_string_pretty(&zjjtm_gallops_valid("PA")).unwrap()).unwrap();
+    // A studbook config pointed at nothing — proves the off branch never
+    // reaches for it (a touch would error, not just misread).
+    let poison_config = jjdb_BlotterConfig {
+        local_root: PathBuf::from("/nonexistent/jjtm-poison"),
+        remote_url: String::new(),
+        trunk: String::new(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+
+    let loaded = zjjrm_load_gallops_over(false, &path, &poison_config).unwrap();
+
+    assert_eq!(loaded.next_heat_seed, "PA");
+}
+
+/// A marker file planted directly under the infield root, checked back
+/// through whatever root `zjjrm_infield_root` derives — a functional
+/// same-directory proof that never compares path strings. `jjrfr_identify`
+/// resolves through `git rev-parse --show-toplevel`, which unwinds
+/// platform-specific symlinks (e.g. macOS's /var -> /private/var) that the
+/// test's own unresolved path construction does not — a raw
+/// `assert_eq!(root, Some(expected_path))` is platform-fragile for exactly
+/// that reason, and `std::fs::canonicalize` is its own Windows wart, so
+/// this sidesteps path comparison entirely rather than papering over it.
+fn zjjtm_assert_same_dir(root: Option<PathBuf>, expected: &Path) {
+    let root = root.expect("a git tree must resolve an infield root");
+    let via_root = std::fs::read_to_string(root.join("jjtm-marker.txt")).expect("marker must read back through the derived root");
+    let via_expected = std::fs::read_to_string(expected.join("jjtm-marker.txt")).expect("marker must read back through the planted path");
+    assert_eq!(
+        via_root, via_expected,
+        "the derived root must be the same directory as the marker's, however each path string reads"
+    );
+}
+
+#[test]
+fn jjtm_infield_root_is_hippodrome_parent_for_primary_seat() {
+    let infield = JjkTestDir::new("jjtm_infield_root_primary");
+    std::fs::write(infield.path().join("jjtm-marker.txt"), "primary").unwrap();
+    let hippodrome = infield.path().join("hippodrome");
+    std::fs::create_dir_all(&hippodrome).unwrap();
+    zjjtm_init_local(&hippodrome);
+    zjjtm_commit_all(&hippodrome, "a.txt", "hello", "init");
+
+    let root = zjjrm_infield_root(&jjrfg_PlainGit, &hippodrome);
+
+    zjjtm_assert_same_dir(root, infield.path());
+}
+
+#[test]
+fn jjtm_infield_root_is_primary_root_parent_for_partition_seat() {
+    let infield = JjkTestDir::new("jjtm_infield_root_partition");
+    std::fs::write(infield.path().join("jjtm-marker.txt"), "partition").unwrap();
+    // billet_create anchors at trunk's remote counterpart — the hippodrome
+    // needs a real pushed origin, the same shape zjjtm_staleness_infield
+    // builds for the same reason.
+    let bare = infield.path().join("upstream");
+    std::fs::create_dir_all(&bare).unwrap();
+    zjjtm_git(&bare, &["init", "-q", "--bare", "-b", ZJJTM_TRUNK]);
+    let hippodrome = infield.path().join("hippodrome");
+    std::fs::create_dir_all(&hippodrome).unwrap();
+    zjjtm_init_local(&hippodrome);
+    zjjtm_commit_all(&hippodrome, "a.txt", "hello", "init");
+    zjjtm_git(&hippodrome, &["remote", "add", "origin", &bare.to_string_lossy()]);
+    zjjtm_git(&hippodrome, &["push", "-q", "-u", "origin", ZJJTM_TRUNK]);
+    let billet_root = infield.path().join("jjqb_AAAAA");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("AAAAA".to_string()), &billet_root, ZJJTM_TRUNK)
+        .unwrap();
+
+    let root = zjjrm_infield_root(&jjrfg_PlainGit, &billet_root);
+
+    zjjtm_assert_same_dir(root, infield.path());
+}
+
+#[test]
+fn jjtm_infield_root_is_none_on_foreign_ground() {
+    let td = JjkTestDir::new("jjtm_infield_root_foreign");
+    // No git init — foreign ground.
+    assert_eq!(zjjrm_infield_root(&jjrfg_PlainGit, td.path()), None);
+}
+
+#[test]
+fn jjtm_glean_studbook_succeeds_against_a_reachable_remote() {
+    let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_glean_ok", "GK");
+
+    let result = zjjrm_glean_studbook(&jjrfg_PlainGit, &config);
+
+    assert!(result.is_ok(), "a clone with a live origin must glean cleanly: {:?}", result);
+}
+
+#[test]
+fn jjtm_glean_studbook_refuses_loud_when_remote_is_unreachable() {
+    let local = JjkTestDir::new("jjtm_glean_unreachable");
+    zjjtm_init_local(local.path());
+    zjjtm_commit_all(local.path(), "base.txt", "base", "init");
+    zjjtm_git(local.path(), &["remote", "add", "origin", "/nonexistent/jjtm-nowhere"]);
+    let config = jjdb_BlotterConfig {
+        local_root: local.path().to_path_buf(),
+        remote_url: String::new(),
+        trunk: ZJJTM_TRUNK.to_string(),
+        ordinal_sigil: JJDB_CATCHWORD_SIGIL,
+        ordinal_founding: JJDB_CATCHWORD_FOUNDING,
+    };
+
+    let result = zjjrm_glean_studbook(&jjrfg_PlainGit, &config);
+
+    assert!(result.is_err(), "an unreachable remote must refuse loud, never silently succeed");
 }

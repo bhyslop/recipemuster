@@ -2400,3 +2400,8 @@ include::BUSJHM-HandbookMacos.adoc[]
 
 //axvd_cartouche axd_normative
 include::BUSJHL-HandbookLinux.adoc[]
+
+== Python Venvs
+
+//axvd_cartouche axd_aspirant
+include::BUSPY-PythonVenvs.adoc[leveloffset=+1]

@@ -239,6 +239,16 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   against the matricula's and JJ dispatch's *actual* queries; its outcome determines what
   the implementation paces are, and it settles the remaining word spends (mint follows
   API).
+  Widened 260720 (operator ruling; substance home
+  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md`): the sketch also
+  covers the table *write* surface — JJ-sole-author toothings stand in the MVP from the
+  outset (add/amend/remove shapes, and a list that shows what each claim matches, the
+  derived roster printed and never persisted), with the write door's refusals as
+  acceptance tests and hand-editing never the path; the verb decomposition and its word
+  elections are deliberately uncinched until this sketch settles them.
+  The staleness surface (the source→binary advisor as the first mechanical `check_build`
+  consumer) is a candidate rider on this same sketch; its open gaps are enumerated in the
+  memo and it joins the MVP only when they settle.
 . RIDES A PACE — the JJK README prefix registry gains the `jjo` container row
   (Reconciliation obligations).
 . RIDES A PACE — the matricula's interim allowlist is confirmed schema-compatible against
@@ -247,6 +257,34 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   RB bash row splits into finer tackles so the check members route honestly (the
   after-code-changes suite table keys on subdomains — regime, foundry, bottle);
   fineness is an authoring-time judgment weighed against maintenance drag.
+
+== MVP decision questions (the gate list)
+
+The questions a deciding session must answer before the MVP cut is fixed, gathered in one
+findable place; each entry cites its substance home and this list restates nothing.
+A ruled entry keeps its ruling on record until the cut lands, then strikes.
+
+. Table authorship — RULED 260720 (operator): JJ write verbs from the outset,
+  hand-editing never the path, the write door's refusals as acceptance tests.
+  Substance: the API-sketch settling entry above; ratification ledger in
+  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md`.
+. Write-surface decomposition and its word elections — OPEN; settles at the API-sketch
+  entry, deliberately uncinched ahead of it.
+. Staleness inclusion — OPEN rider on the API sketch: joins the MVP only when the five
+  gaps enumerated in the memo settle (artifact declaration member, stamp content and
+  home, out-of-band rebuild detection, dirty-tree verdict, invocation ownership).
+. The table's physical home at MVP time — OPEN: canon places it studbook-side, and the
+  matricula's interim allowlist is recorded as migrating "at studbook founding" (VOSMM),
+  but the founding precedes tackle implementation — the migration trigger must re-tie to
+  tackle implementation, never the founding event, or the obligation misfires unmet.
+. Acceptance spine — PROPOSED, unratified: four read-side commands (census selection
+  byte-identical to the current allowlist, coverage audit, path resolve, staleness
+  advisor) plus the write-door refusal tests.
+  Substance: the 260720 memo; ratify or amend at the deciding session.
+. Check-member scope — RECOMMENDED, unratified: the three fixed members stand, the
+  idiosyncratic verb tail stays outside tackle, no actions layer until a consumer
+  exists.
+  Evidence: the builds table in `Memos/memo-20260707-rbm-domain-census.md`.
 
 == Open forks (the mulling surface)
 
@@ -327,3 +365,12 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   the bounds member and its in-table seating (ambit and hame released, swingletree and
   plain bounds standing in their places); the flattened-edge declaration with ACG as
   first migrant.
+* Maintenance-window design chat (260720, Fable) — binary staleness as the first
+  mechanical `check_build` consumer; the build-flag reproducibility analysis
+  (`--locked`, toolchain pin, remap via the workbench monopoly); the test-facility
+  claims shape (two registries, role-over-instance grant, exclusive vs
+  shared-as-conduct-promise); the swingletree tag-registry lean; the MVP-downscope
+  verb-census evidence.
+  Confidence-graded record with ratification ledger:
+  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md` — most items are
+  unreviewed supposition; read the ledger before treating any as settled.

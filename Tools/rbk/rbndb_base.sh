@@ -30,7 +30,7 @@
 #   rbrd_check    <bearer_token>   — pre-submit existence + byte-diff
 #
 # Module convention: rbn{R}{X}_ where R=d (depot regime) and X=b
-# (bespoke implementation). See CLAUDE.md "Prefix Naming Discipline".
+# (bespoke implementation). See claude-cmk-minting.md "Prefix Naming Discipline".
 
 set -euo pipefail
 

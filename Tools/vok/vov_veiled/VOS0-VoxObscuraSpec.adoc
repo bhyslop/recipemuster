@@ -1628,30 +1628,13 @@ include::VOSMM-entity.adoc[leveloffset=+1]
 
 == Diptych
 
-The Diptych branch is the single-file specification source format and its codec.
-Its vocabulary is defined here at the cosmology top; the grammar, codec
-operations, migration doctrine, and settling register live in the consuming
-subdoc VOSYD-diptych.adoc, included below.
+The Diptych branch is the dual-representation canon format — word-per-line recto for git, joined verso for LLM reading and editing, one mechanical codec between — intended to replace the canons' AsciiDoc expression while preserving their MCM semantics.
+Its grammar, charset law, mezzanine, and projection registers live in the aspirant subdoc VOSYD-diptych.adoc; the variant-kind roster it shares with the grimoire lives beside it in VOSVK-variants.adoc.
+Both are aspirant: they mint nothing citable yet.
 
-[[vosyd_diptych]]
-//axve_entity axd_mutable
-{vosyd_diptych}::
-One file per codex holding the complete
-{vosa_concept_model}
-source — every sheaf — in a line-classed, word-per-line record grammar.
-The
-{vosyd_diptych}
-is the canonical source git tracks at word grain; its AsciiDoc and Markdown
-forms are derived, disposable projections rendered just in time, and agent
-edits return to it through a verifying reverse parse.
-It stores no mapping section: display text and variant forms ride each
-definition record, and the
-{vosmm_matricula}
-guarantees reference↔definition integrity as census passes over the
-diptych's one node tree.
-Named for the two-faced hinged tablet of antiquity: one artifact, co-equal
-faces, a trivial hinge.
-
-//axvd_cartouche axd_aspirant axd_entity
+//axvd_cartouche axd_aspirant axd_cosmology
 include::VOSYD-diptych.adoc[leveloffset=+1]
+
+//axvd_cartouche axd_aspirant axd_cosmology
+include::VOSVK-variants.adoc[leveloffset=+1]
 

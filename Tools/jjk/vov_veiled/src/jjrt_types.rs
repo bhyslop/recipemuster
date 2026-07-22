@@ -403,6 +403,7 @@ pub struct jjrg_SlateResult {
 /// Supports two modes:
 /// - Order mode: provide `order` array to replace entire sequence
 /// - Move mode: provide `move_coronet` + one positioning field to relocate a single pace
+#[derive(Clone)]
 pub struct jjrg_RailArgs {
     pub firemark: String,
     /// Order mode: new sequence of all coronets
@@ -420,6 +421,7 @@ pub struct jjrg_RailArgs {
 }
 
 /// Arguments for the tally operation
+#[derive(Clone)]
 pub struct jjrg_TallyArgs {
     pub coronet: String,
     pub state: Option<jjrg_PaceState>,

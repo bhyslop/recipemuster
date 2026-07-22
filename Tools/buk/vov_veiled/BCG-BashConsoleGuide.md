@@ -1065,7 +1065,7 @@ The one-yawp-one-capture rhythm is the invariant. Pre-captured constants (e.g., 
 
 | Element                      | Pattern                      | Example                      | Location | Name/ Case Constraints        |
 |------------------------------|------------------------------|------------------------------|----------|-------------------------------|
-| Module prefix                | `[a-z]{2,4}_`                | `rbv_`, `buc_`, `auth_`      | Both     | single char group             |
+| Module prefix                | `[a-z]{2,6}_`                | `rbv_`, `buc_`, `auth_`      | Both     | single char group             |
 | Implementation file          | `«prefix»_«name».sh`         | `rbv_podman.sh`              | N/A      | lowercase (prefer 1 word, allow snake_case) |
 | CLI file                     | `«prefix»_cli.sh`            | `rbv_cli.sh`                 | N/A      | snake_case (fixed)            |
 | Decomposition CLI            | `«prefix»0_cli.sh`           | —                            | N/A      | fixed (decomposed module)     |
@@ -1926,7 +1926,7 @@ buc_warn    # Instead of echo >&2
 - [ ] Array iteration uses index pattern for `set -u` safety
 
 ### Naming Conventions
-- [ ] Module prefix: 2-4 lowercase letters + underscore
+- [ ] Module prefix: 2-6 lowercase letters + underscore
 - [ ] Public functions: `«prefix»_«command»` (snake_case)
 - [ ] Internal functions: `z«prefix»_«name»` (snake_case)
 - [ ] Internal constants: `Z«PREFIX»_«NAME»` (SCREAMING_SNAKE)
