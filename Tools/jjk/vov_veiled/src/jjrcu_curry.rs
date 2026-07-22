@@ -12,7 +12,6 @@
 use std::path::PathBuf;
 use vvc::{vvco_err, vvco_Output};
 use crate::jjrf_favor::{jjrf_Firemark};
-use crate::jjri_io::jjri_paddock_path;
 use crate::jjrz_gazette::{jjrz_Gazette, jjrz_Slug};
 
 const JJRCU_CMD_NAME_PADDOCK: &str = "jjx_paddock";
@@ -35,7 +34,7 @@ pub struct jjrcu_CurryArgs {
 /// jjx_curry command, applied in-memory via jjrg_curry_apply and committed
 /// through the shared dispatch lifecycle (jjrm_mcp CURRY arm), so it folds
 /// into one commit with any batched reslates/slates.
-pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, gazette: &mut jjrz_Gazette, studbook_root: &std::path::Path) -> (i32, String) {
     let cn = JJRCU_CMD_NAME_PADDOCK;
 
     let mut output = vvco_Output::buffer();
@@ -64,9 +63,8 @@ pub fn jjrcu_run_curry(args: jjrcu_CurryArgs, gazette: &mut jjrz_Gazette) -> (i3
         return (1, output.vvco_finish());
     }
 
-    let paddock_path_string = jjri_paddock_path(firemark.jjrf_as_str());
-    let paddock_path = std::path::Path::new(&paddock_path_string);
-    let paddock_content = match std::fs::read_to_string(paddock_path) {
+    let paddock_path = crate::jjri_io::jjri_paddock_file(studbook_root, firemark.jjrf_as_str());
+    let paddock_content = match std::fs::read_to_string(&paddock_path) {
         Ok(c) => c,
         Err(e) => {
             vvco_err!(output, "{}: error reading paddock: {}", cn, e);

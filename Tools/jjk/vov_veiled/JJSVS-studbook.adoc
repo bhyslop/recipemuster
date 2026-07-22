@@ -1,4 +1,4 @@
-//axvd_sheaf axd_executory axd_entity
+//axvd_sheaf axd_normative axd_entity
 This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Studbook
@@ -93,6 +93,18 @@ First tenant: the {jjdgr_gallops} only.
 Captured chat histories and action-choices are the *intended second tenant*, deferred;
 their contract — including the chat↔commit correlation — stays aspirant with them
 (`JJSAS-state-repo.adoc`).
+SUPERSEDED AFTER CUTOVER (operator ruling 260722, paddock-tenancy repair): the
+gallops-alone scope did not survive contact with the de-insertion sweep (₢B3·CAAAT),
+which emptied the consumer-repo `.claude/jjm/` home the paddock subsystem still read —
+the two landed rulings collided, and every paddock consumer broke.
+The operator ruled the JJ state tenants into the studbook: heat paddocks (`paddocks/`,
+case-safe `jjp_` filenames unchanged), retire trophies (`retired/`), and the operator
+files `jji_itch.md` / `jjz_scar.md` (studbook root, kit-unread), seated by migration
+commit e0d4f73 from the pre-sweep tree.
+Tenant writes ride the mutation's own {jjdb_journal} bracket (a curry, nominate, or
+retire commits its paddock/trophy beside the gallops in one ₶ commit); work code stays
+on the consumer-repo path.
+The deferred chat-history second tenant is untouched by this ruling.
 
 == Officium exchange and record
 

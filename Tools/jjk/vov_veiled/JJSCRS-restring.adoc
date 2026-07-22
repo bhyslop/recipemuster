@@ -65,13 +65,13 @@ plus paddock moves for N
   "source": {
     "firemark": "AF",
     "silks": "jjk-restring-rust",
-    "paddock": ".claude/jjm/jjp_AF.md",
+    "paddock": "paddocks/jjp_uAuF.md",
     "empty_after": false
   },
   "destination": {
     "firemark": "AG",
     "silks": "jjk-alpha-launch",
-    "paddock": ".claude/jjm/jjp_AG.md"
+    "paddock": "paddocks/jjp_uAuG.md"
   },
   "drafted": [
     {

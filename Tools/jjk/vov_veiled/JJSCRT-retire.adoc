@@ -92,9 +92,11 @@ A trophy is an archive: the planning floor that serves a live heat would drop fr
 {subject/description}
 
 ----
-. Compute trophy filename: `.claude/jjm/retired/jjh_b{created}-r{today}-{silks}.md`
-where `{today}` is current date in YYMMDD format
-. Create `.claude/jjm/retired/` directory if it does not exist
+. Compute trophy filename: `retired/jjh_b{created}-r{today}-{silks}.md` under the
+studbook root, where `{today}` is current date in YYMMDD format (tenant tenancy —
+`JJSVS-studbook.adoc` "Scope at birth" supersession; the trophy write and the paddock
+deletion ride the excision's own journal commit)
+. Create the studbook `retired/` directory if it does not exist
 . Write trophy markdown to trophy file
 . Remove
 {jjdhr_heat}

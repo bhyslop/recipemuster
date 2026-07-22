@@ -62,11 +62,11 @@ pub struct jjrpd_ParadeArgs {
 /// auto-selects the first racing heat (the orient/mount/groom default). Pace
 /// and paddock bodies reach the caller only through the gazette — never the
 /// tool-result.
-pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette) -> (i32, String) {
+pub fn jjrpd_run_parade(args: jjrpd_ParadeArgs, gazette: &mut jjrz_Gazette, studbook_root: &std::path::Path) -> (i32, String) {
     // Production funnels through the const-gated load (zjjrpd_load_gallops's
     // non-hark arm reaches zjjrm_load_gallops); the seam-resolved boundary below
     // renders whatever that load produced.
-    jjrpd_parade_over(zjjrpd_load_gallops(&args), args, gazette)
+    jjrpd_parade_over(zjjrpd_load_gallops(&args), args, gazette, studbook_root)
 }
 
 /// The seam-resolved render boundary — a `pub(crate)` (non-`z`) door so the
@@ -78,6 +78,7 @@ pub(crate) fn jjrpd_parade_over(
     loaded: Result<Gallops, String>,
     args: jjrpd_ParadeArgs,
     gazette: &mut jjrz_Gazette,
+    studbook_root: &std::path::Path,
 ) -> (i32, String) {
     let cn = JJRPD_CMD_NAME_SHOW;
     let mut output = vvco_Output::buffer();
@@ -130,8 +131,8 @@ pub(crate) fn jjrpd_parade_over(
     for target in &targets {
         let target_str = jjrf_bare(target);
         let res = match target_str.len() {
-            JJRF_CORONET_LEN => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces, hark),
-            JJRF_FIREMARK_LEN => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces, hark),
+            JJRF_CORONET_LEN => zjjrpd_emit_coronet(&mut output, &gallops, target, gazette, &mut added_paddocks, &mut added_paces, hark, studbook_root),
+            JJRF_FIREMARK_LEN => zjjrpd_emit_firemark(&mut output, &gallops, target, args.remaining, single_firemark, gazette, &mut added_paddocks, &mut added_paces, hark, studbook_root),
             n => Err(format!(
                 "{}: error: target '{}' must be Firemark ({} chars) or Coronet ({} chars), got {} chars",
                 cn, target, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN, n
@@ -167,6 +168,7 @@ fn zjjrpd_gazette_paddock_once(
     added: &mut std::collections::HashSet<String>,
     firemark: &jjrf_Firemark,
     hark: Option<&str>,
+    studbook_root: &std::path::Path,
 ) {
     let heat_key = firemark.jjrf_display();
     if added.insert(heat_key.clone()) {
@@ -177,7 +179,7 @@ fn zjjrpd_gazette_paddock_once(
             Some(rev) => jjri_show_blob(rev, &paddock_path)
                 .ok()
                 .and_then(|bytes| String::from_utf8(bytes).ok()),
-            None => fs::read_to_string(&paddock_path).ok(),
+            None => fs::read_to_string(studbook_root.join(&paddock_path)).ok(),
         };
         if let Some(content) = content {
             gazette.jjrz_add(jjrz_Slug::Paddock, &heat_key, &content).ok();
@@ -196,6 +198,7 @@ fn zjjrpd_emit_coronet(
     added_paddocks: &mut std::collections::HashSet<String>,
     added_paces: &mut std::collections::HashSet<String>,
     hark: Option<&str>,
+    studbook_root: &std::path::Path,
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
     let coronet = jjrf_Coronet::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
@@ -227,7 +230,7 @@ fn zjjrpd_emit_coronet(
     }
     vvco_out!(output, "");
 
-    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark, hark);
+    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark, hark, studbook_root);
     if added_paces.insert(coronet_key.clone()) {
         let pace_text = jjrg_lines_to_text(&current_tack.text);
         gazette.jjrz_add(jjrz_Slug::Pace, &coronet_key, &pace_text).ok();
@@ -248,6 +251,7 @@ fn zjjrpd_emit_firemark(
     added_paddocks: &mut std::collections::HashSet<String>,
     added_paces: &mut std::collections::HashSet<String>,
     hark: Option<&str>,
+    studbook_root: &std::path::Path,
 ) -> Result<(), String> {
     let cn = JJRPD_CMD_NAME_SHOW;
     let firemark = jjrf_Firemark::jjrf_parse(target).map_err(|e| format!("{}: error: {}", cn, e))?;
@@ -347,7 +351,7 @@ fn zjjrpd_emit_firemark(
 
     // Always populate the gazette: paddock once, then each pace docket
     // (remaining-filtered to match the table).
-    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark, hark);
+    zjjrpd_gazette_paddock_once(gazette, added_paddocks, &firemark, hark, studbook_root);
     for coronet_key in &heat.order {
         if let Some(pace) = heat.paces.get(coronet_key) {
             if let Some(tack) = pace.tacks.first() {

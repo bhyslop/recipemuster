@@ -1,4 +1,4 @@
-//axvd_sheaf axd_executory axd_entity
+//axvd_sheaf axd_normative axd_entity
 This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
 
 = Tackle

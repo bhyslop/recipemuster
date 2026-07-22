@@ -182,7 +182,7 @@ fn jjtm_apply_batch_reslates_and_slates_in_file_order() {
     let b = jjrz_parse_batch_input(md).unwrap();
     let fm = jjrm_resolve_batch_firemark(&b, &gallops).unwrap();
 
-    let out = jjrm_apply_batch(&mut gallops, &b, &fm, None, None, false).unwrap();
+    let out = jjrm_apply_batch(&mut gallops, &b, &fm, std::path::Path::new("jjtm-unused-root"), None, None, false).unwrap();
     assert!(out.contains("1 reslate"));
     assert!(out.contains("2 slate"));
 
@@ -218,7 +218,7 @@ fn jjtm_apply_batch_intent_posture() {
     let md = "# jjezs_reslate ₢BDAAA\n\n## Goal\nnew goal\n\n# jjezs_slate batch-pace\n\nbatch docket\n";
     let b = jjrz_parse_batch_input(md).unwrap();
     let fm = jjrm_resolve_batch_firemark(&b, &gallops).unwrap();
-    jjrm_apply_batch(&mut gallops, &b, &fm, None, None, false).unwrap();
+    jjrm_apply_batch(&mut gallops, &b, &fm, std::path::Path::new("jjtm-unused-root"), None, None, false).unwrap();
 
     let heat = gallops.heats.get("₣BD").unwrap();
     let reslated = heat.paces.get("₢BDAAA").unwrap();
@@ -248,7 +248,7 @@ fn jjtm_apply_batch_positioned_slates_fold_in_contiguously() {
     let fm = jjrm_resolve_batch_firemark(&b, &gallops).unwrap();
 
     // first=true aims the run at the head of the heat.
-    jjrm_apply_batch(&mut gallops, &b, &fm, None, None, true).unwrap();
+    jjrm_apply_batch(&mut gallops, &b, &fm, std::path::Path::new("jjtm-unused-root"), None, None, true).unwrap();
 
     let heat = gallops.heats.get("₣BD").unwrap();
     assert_eq!(heat.order.len(), 3);

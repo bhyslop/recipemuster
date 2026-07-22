@@ -169,6 +169,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs, officium: &str) -> (i32, String) {
         &mut output,
         officium,
         cn,
+        Vec::new(),
         gallops,
         |g| g.jjrg_rail(rail_args),
     ) {

@@ -1038,6 +1038,7 @@ fn zjjtvb_drive_write_over<R>(
         &mut output,
         ground.studbook(),
         "guidon-command",
+        Vec::new(),
         zjjtvb_valid_gallops(),
         mutate,
     )
@@ -1167,18 +1168,24 @@ fn jjtvb_seam_on_furlough_journals_the_status_change() {
 // ---- machine_commit family (B2: each command's extracted `_over` on-branch) ----
 
 #[test]
-fn jjtvb_seam_on_retire_journals_excision_and_lands_the_trophy_on_the_consumer() {
+fn jjtvb_seam_on_retire_journals_excision_with_trophy_and_paddock_tenants() {
     let ground = ZjjtvbGround::new(
         "jjtvb_seam_on_retire",
         zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZT", jjrg_HeatStatus::Racing, &["AAA"])]),
     );
     let fm = jjrf_Firemark::jjrf_parse("ZT").unwrap();
-    // The paddock is consumer-side: retire reads it, then its fs tail deletes it and
-    // machine_commits [trophy, paddock] to the consumer repo. Seed + track it.
+    // Paddock tenancy: the paddock is a studbook tenant — seed it onto the
+    // studbook tip through the journal ceremony, exactly as the migration
+    // seated the live ones.
     let paddock_rel = crate::jjri_io::jjri_paddock_path(fm.jjrf_as_str());
-    let paddock_abs = ground.consumer_path().join(&paddock_rel);
-    std::fs::create_dir_all(paddock_abs.parent().unwrap()).unwrap();
-    zjjtvb_commit_all(ground.consumer_path(), &paddock_rel, "## Shape\nfixture paddock\n", "seed paddock");
+    let paddock_rel_seed = paddock_rel.clone();
+    jjdb_journal(&jjrfg_PlainGit, ground.studbook(), "guidon-seed-paddock", |root| {
+        let p = root.join(&paddock_rel_seed);
+        std::fs::create_dir_all(p.parent().unwrap()).unwrap();
+        std::fs::write(&p, "## Shape\nfixture paddock\n").unwrap();
+        (vec![PathBuf::from(paddock_rel_seed.clone())], "seed paddock".to_string())
+    })
+    .expect("seeding the fixture paddock must land");
 
     let mut output = vvc::vvco_Output::buffer();
     let code = crate::jjrrt_retire::jjrrt_retire_over(
@@ -1193,28 +1200,34 @@ fn jjtvb_seam_on_retire_journals_excision_and_lands_the_trophy_on_the_consumer()
         &mut output,
         "jjx_archive",
     );
-    assert_eq!(code, 0, "retire_over must succeed on the two-store path");
+    assert_eq!(code, 0, "retire_over must succeed on the two-store path: {}", output.vvco_finish());
 
-    // Studbook half: the excision journaled — the tip no longer carries the heat.
+    // The excision journaled — the tip no longer carries the heat.
     let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
     assert!(
         !loaded.inner().heats.contains_key("\u{20A3}ZT"),
         "retire must excise the heat from the studbook tip"
     );
 
-    // Consumer half: the fs tail deleted the paddock, and the last commit added a
-    // trophy (an addition on the consumer path).
-    assert!(!paddock_abs.exists(), "retire's fs tail must delete the consumer paddock");
-    let name_status = zjjtvb_git(ground.consumer_path(), &["show", "--name-status", "--format=", "HEAD"]);
+    // Tenant half: the fs tail (inside the ceremony) deleted the paddock and
+    // wrote the trophy under the studbook root, and both rode the ₶ commit.
+    let root = &ground.studbook().local_root;
+    assert!(!root.join(&paddock_rel).exists(), "retire must delete the studbook paddock tenant");
+    let name_status = zjjtvb_git(root, &["show", "--name-status", "--format=", "HEAD"]);
     assert!(
-        name_status.lines().any(|l| l.starts_with('A')),
-        "the retire commit must add the trophy on the consumer path, name-status: {}",
+        name_status.lines().any(|l| l.starts_with('A') && l.contains("retired/")),
+        "the retire ₶ commit must add the trophy tenant, name-status: {}",
+        name_status
+    );
+    assert!(
+        name_status.lines().any(|l| l.starts_with('D') && l.contains("paddocks/")),
+        "the retire ₶ commit must delete the paddock tenant, name-status: {}",
         name_status
     );
 }
 
 #[test]
-fn jjtvb_seam_on_nominate_journals_the_new_heat_and_lands_the_paddock_on_the_consumer() {
+fn jjtvb_seam_on_nominate_journals_the_new_heat_with_its_paddock_tenant() {
     let ground = ZjjtvbGround::new(
         "jjtvb_seam_on_nominate",
         zjjtvb_seed_gallops(vec![]),
@@ -1233,27 +1246,28 @@ fn jjtvb_seam_on_nominate_journals_the_new_heat_and_lands_the_paddock_on_the_con
         &mut output,
         "jjx_create",
     );
-    assert_eq!(code, 0, "nominate_over must succeed on the two-store path");
+    assert_eq!(code, 0, "nominate_over must succeed on the two-store path: {}", output.vvco_finish());
 
-    // Studbook half: the new heat journaled, minted from the tip's own
-    // next_heat_seed ("AB", the seeded gallops' seed), which also advanced.
+    // The new heat journaled, minted from the tip's own next_heat_seed ("AB",
+    // the seeded gallops' seed), which also advanced.
     let loaded = jjdb_gallops_journal_load(ground.studbook()).unwrap();
     let g = loaded.inner();
     assert!(g.heats.contains_key("\u{20A3}AB"), "nominate must journal the new heat to the studbook tip");
     assert_eq!(g.next_heat_seed, "AC", "nominate must advance next_heat_seed on the tip");
 
-    // Consumer half: the fs tail wrote the paddock template, committed on the
-    // consumer path (an addition, mirroring retire's trophy commit).
+    // Tenant half: the template wrote under the studbook root inside the
+    // ceremony and rode the same ₶ commit as the heat insertion.
     let fm = jjrf_Firemark::jjrf_parse("AB").unwrap();
     let paddock_rel = crate::jjri_io::jjri_paddock_path(fm.jjrf_as_str());
-    let paddock_abs = ground.consumer_path().join(&paddock_rel);
-    assert!(paddock_abs.exists(), "nominate's fs tail must write the consumer paddock");
+    let root = &ground.studbook().local_root;
+    let paddock_abs = root.join(&paddock_rel);
+    assert!(paddock_abs.exists(), "nominate must write the paddock tenant under the studbook root");
     let content = std::fs::read_to_string(&paddock_abs).unwrap();
     assert!(content.contains("nominated-heat"), "the paddock template must name the heat's silks");
-    let name_status = zjjtvb_git(ground.consumer_path(), &["show", "--name-status", "--format=", "HEAD"]);
+    let name_status = zjjtvb_git(root, &["show", "--name-status", "--format=", "HEAD"]);
     assert!(
-        name_status.lines().any(|l| l.starts_with('A')),
-        "the nominate commit must add the paddock on the consumer path, name-status: {}",
+        name_status.lines().any(|l| l.starts_with('A') && l.contains("paddocks/")),
+        "the nominate ₶ commit must add the paddock tenant, name-status: {}",
         name_status
     );
 }

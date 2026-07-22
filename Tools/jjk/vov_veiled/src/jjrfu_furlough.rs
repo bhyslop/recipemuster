@@ -112,6 +112,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs, officium: &str) -> (i32, Str
         &mut output,
         officium,
         cn,
+        Vec::new(),
         gallops,
         |g| g.jjrg_furlough(furlough_args),
     ) {

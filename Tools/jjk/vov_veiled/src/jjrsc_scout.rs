@@ -211,8 +211,9 @@ pub(crate) fn zjjrsc_search(
     (blocks, freq)
 }
 
-/// Run the scout command - search across heats/paces
-pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
+/// Run the scout command - search across heats/paces. `studbook_root`
+/// locates the paddock tenant files (paddock tenancy, operator ruling 260722).
+pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs, studbook_root: &std::path::Path) -> (i32, String) {
     let cn = JJRSC_CMD_NAME_SCOUT;
 
     let mut output = vvco_Output::buffer();
@@ -234,7 +235,7 @@ pub fn jjrsc_run_scout(args: jjrsc_ScoutArgs) -> (i32, String) {
     };
 
     let (blocks, freq) = zjjrsc_search(&gallops, &matchers, args.actionable, |firemark| {
-        fs::read_to_string(jjri_paddock_path(firemark)).ok()
+        fs::read_to_string(studbook_root.join(jjri_paddock_path(firemark))).ok()
     });
 
     if !freq.is_empty() {

@@ -561,8 +561,9 @@ pub struct jjrg_RetirePlan {
 /// tip, seam-on), computes the trophy filename from this heat's own
 /// creation_time/silks (silks drift via jjx_alter, so a session-derived name could
 /// be stale — the tip's is authoritative), then removes the heat (next_heat_seed
-/// untouched). `paddock_content` is read by the caller from the consumer fs — the
-/// paddock is never a studbook tenant — so this function stays fs-free.
+/// untouched). `paddock_content` is read by the caller from the paddock tenant
+/// file (studbook-rooted since the 260722 tenancy ruling; consumer-rooted on the
+/// frozen seam-off path) — so this function stays fs-free.
 pub fn jjrg_retire_excise(
     gallops: &mut jjrg_Gallops,
     args: &jjrg_RetireArgs,
@@ -587,7 +588,7 @@ pub fn jjrg_retire_excise(
         args.today,
         heat.silks
     );
-    let trophy_rel_path = format!(".claude/jjm/retired/{}", trophy_filename);
+    let trophy_rel_path = format!("retired/{}", trophy_filename);
     let silks = heat.silks.clone();
     let paddock_path = jjri_paddock_path(firemark.jjrf_as_str());
 
@@ -745,14 +746,18 @@ fn zjjrg_build_trophy_content(
 /// Curry-apply - write Heat paddock content as an in-memory-phase side effect.
 ///
 /// The pure-transform half of the old self-committing `jjrg_curry`: verifies the
-/// heat exists in the already-loaded gallops and writes the paddock file. It does
-/// NOT load, lock, or commit — the shared dispatch lifecycle (jjri_persist, which
-/// co-commits `[gallops, paddock]` under the heat firemark) owns persistence, so a
-/// paddock revision folds into the same single commit as any batched reslate/slate.
+/// heat exists in the already-loaded gallops and writes the paddock tenant file
+/// under `paddock_root` — the STUDBOOK root in production (paddock tenancy,
+/// operator ruling 260722), a fixture root in tests; always threaded, never
+/// derived from cwd. It does NOT load, lock, or commit — the shared dispatch
+/// lifecycle owns persistence (seam-on the tenant rel-path rides the ₶ commit
+/// via `extra_files`), so a paddock revision folds into the same single commit
+/// as any batched reslate/slate.
 pub fn jjrg_curry_apply(
     gallops: &jjrg_Gallops,
     firemark: &jjrf_Firemark,
     new_content: &str,
+    paddock_root: &Path,
 ) -> Result<(), String> {
     // Wipe backstop: a paddock is born non-empty (jjrg_nominate seeds the
     // template) and a revision always carries full replacement content, so an
@@ -770,9 +775,13 @@ pub fn jjrg_curry_apply(
         return Err(format!("Heat '{}' not found", firemark_key));
     }
 
-    let paddock_path_string = jjri_paddock_path(firemark.jjrf_as_str());
-    fs::write(&paddock_path_string, new_content)
-        .map_err(|e| format!("Failed to write paddock file: {}", e))?;
+    let paddock_path = paddock_root.join(jjri_paddock_path(firemark.jjrf_as_str()));
+    if let Some(parent) = paddock_path.parent() {
+        fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create paddock dir '{}': {}", parent.display(), e))?;
+    }
+    fs::write(&paddock_path, new_content)
+        .map_err(|e| format!("Failed to write paddock file '{}': {}", paddock_path.display(), e))?;
     Ok(())
 }
 
