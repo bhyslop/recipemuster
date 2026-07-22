@@ -497,8 +497,8 @@ fn jjtvb_gallops_journal_load_reads_the_pin_never_the_working_tree() {
 }
 
 #[test]
-fn jjtvb_gallops_over_studbook_enablement_seam_defaults_off() {
-    assert!(!JJDB_GALLOPS_OVER_STUDBOOK_ENABLED, "the studbook-backed surface must stay inert until the conversion heat flips it");
+fn jjtvb_gallops_over_studbook_enablement_seam_is_live() {
+    assert!(JJDB_GALLOPS_OVER_STUDBOOK_ENABLED, "the studbook-backed surface is live post-cutover (₣B3 founding-and-cutover); a revert to false would silently repoint every read and write back at the in-repo gallops");
 }
 
 // ---- Founding ceremony ----
