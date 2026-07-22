@@ -20,7 +20,9 @@ the rejection names {jjdo_curry} as the write path and directs a re-write).
 *{jjdo_curry}* (writer; `gazette_in.md` present with one `jjezs_paddock` notice, no `firemark` param):
 writes new paddock content to the file.
 The write rides the shared {jjsodp_command_lifecycle} rather than a commit path of its own:
-the dispatcher holds the lock, {jjdr_persist} co-commits {jjdgr_gallops} and the paddock file under the {jjdhr_heat_p} {jjdt_firemark},
+the paddock is a studbook tenant (`JJSVS-studbook.adoc` "Scope at birth" supersession),
+written under the studbook root inside the journal ceremony
+and riding the same journal commit as {jjdgr_gallops} under the {jjdhr_heat_p} {jjdt_firemark},
 and the handler — a pure write funnel — knows nothing of locks, persistence, or commit messages.
 The commit is a heat discussion, carrying the optional note as its description.
 The notice body must be non-empty:

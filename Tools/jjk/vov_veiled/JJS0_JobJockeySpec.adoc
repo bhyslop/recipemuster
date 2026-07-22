@@ -1839,7 +1839,10 @@ Cross-officium seed collision is acceptable.
 is the path to the paddock file containing
 {jjdhr_heat}
 context and background.
-Format: `.claude/jjm/jjp_{encoded}.md` where `{encoded}` is the
+Format: `paddocks/jjp_{encoded}.md` relative to the studbook root — the paddock is a
+studbook tenant (operator ruling 260722, `JJSVS-studbook.adoc` "Scope at birth"
+supersession; formerly `.claude/jjm/jjp_{encoded}.md` in the consumer repo, a home the
+de-insertion sweep retired) — where `{encoded}` is the
 {jjdt_firemark}
 (without `₣` prefix) with each character prefixed by `u` (uppercase) or `l`
 (lowercase) to ensure uniqueness on case-insensitive filesystems (macOS

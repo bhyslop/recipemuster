@@ -173,6 +173,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs, officium: &str) -> (i32, Strin
         &mut output,
         officium,
         cn,
+        Vec::new(),
         gallops,
         |g| g.jjrg_tally(tally_args),
     ) {
@@ -278,6 +279,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs, officium: &str) -> (i32, String) {
         &mut output,
         officium,
         cn,
+        Vec::new(),
         gallops,
         |g| g.jjrg_tally(tally_args),
     ) {

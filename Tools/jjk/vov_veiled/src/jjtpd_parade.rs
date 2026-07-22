@@ -196,6 +196,7 @@ fn jjtpd_empty_targets_errors() {
         zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec![], remaining: false, hark: None },
         &mut gz,
+        std::path::Path::new("jjtpd-unused-root"),
     );
     assert_eq!(code, 1);
     assert!(out.contains("no target specified"), "got: {}", out);
@@ -224,6 +225,7 @@ fn jjtpd_heterogeneous_list_populates_gazette_for_each_target() {
             hark: None,
         },
         &mut gz,
+        std::path::Path::new("jjtpd-unused-root"),
     );
     assert_eq!(code, 0);
     let emitted = gz.jjrz_emit();
@@ -248,6 +250,7 @@ fn jjtpd_bad_target_length_errors() {
         zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec!["ABC".to_string()], remaining: false, hark: None },
         &mut gz,
+        std::path::Path::new("jjtpd-unused-root"),
     );
     assert_eq!(code, 1);
     assert!(out.contains("must be Firemark"), "got: {}", out);
@@ -269,6 +272,7 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
         zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining: true, hark: None },
         &mut gz_heat,
+        std::path::Path::new("jjtpd-unused-root"),
     );
     assert_eq!(c1, 0);
     assert!(!gz_heat.jjrz_emit().contains("₢ABAAA"), "remaining should exclude the complete pace from firemark expansion");
@@ -279,6 +283,7 @@ fn jjtpd_remaining_filters_firemark_but_coronet_returns_regardless() {
         zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
         jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₢ABAAA".to_string()], remaining: true, hark: None },
         &mut gz_pace,
+        std::path::Path::new("jjtpd-unused-root"),
     );
     assert_eq!(c2, 0);
     assert!(gz_pace.jjrz_emit().contains("₢ABAAA"), "a directly-named coronet must return regardless of state");
@@ -302,6 +307,7 @@ fn jjtpd_seam_on_reads_studbook() {
         zjjrm_load_gallops_over(true, never, &config),
         jjrpd_ParadeArgs { file: never.to_path_buf(), targets: vec!["₣AB".to_string()], remaining: false, hark: None },
         &mut gz,
+        std::path::Path::new("jjtpd-unused-root"),
     );
 
     assert_eq!(code, 0, "seam-on parade must render from the studbook");
@@ -327,6 +333,7 @@ fn jjtpd_bridled_pace_shows_its_tier_in_both_table_views() {
             zjjrm_load_gallops_over(false, &path, &jjtu_poison_config()),
             jjrpd_ParadeArgs { file: path.clone(), targets: vec!["₣AB".to_string()], remaining, hark: None },
             &mut gz,
+        std::path::Path::new("jjtpd-unused-root"),
         );
         assert_eq!(code, 0);
         assert!(out.contains("bridled opus"), "remaining={}: tier missing from table: {}", remaining, out);

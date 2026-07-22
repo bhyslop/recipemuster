@@ -44,7 +44,7 @@ and empty `heats`
 {jjdgm_seed}
 as
 {jjdt_firemark}
-. Compute paddock path: `.claude/jjm/jjp_XX.md` where XX is the 2 base64 chars
+. Compute paddock path: `paddocks/jjp_XX.md` under the studbook root, where XX is the 2 base64 chars (paddock tenancy — `JJSVS-studbook.adoc` "Scope at birth" supersession; the template rides the nomination's own journal commit)
 . Create paddock file with template:
 +
 ----
