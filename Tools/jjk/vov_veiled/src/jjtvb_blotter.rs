@@ -4,7 +4,6 @@
 
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
-    jjrfr_break,
     jjrfr_FarrierLock,
     jjrfr_RejectionKind,
 };
@@ -37,7 +36,6 @@ use super::jjrvb_blotter::{
     jjdb_gallops_journal_try_save,
     jjdb_journal,
     jjdb_read,
-    jjdb_studbook_config,
     jjdb_BlotterConfig,
     jjdb_JournalReject,
     JJDB_CATCHWORD_FOUNDING,
