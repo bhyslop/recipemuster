@@ -197,11 +197,6 @@
 :vosmp_presentment:     <<vosmp_presentment,Presentment>>
 :vosmp_presentment_s:   <<vosmp_presentment,Presentments>>
 
-// Diptych vocabulary (single-file spec source + codec; grammar and method prose in VOSYD-diptych.adoc; family letter y provisional — see that sheaf's settling register)
-:vosyd_diptych:         <<vosyd_diptych,Diptych>>
-:vosyd_diptych_s:       <<vosyd_diptych,Diptychs>>
-:vosyd_diptych_p:       <<vosyd_diptych,Diptych's>>
-
 // Mutability dimensions — imported from AXLA, cited never restated (used by the Matricula vocabulary)
 :axd_petrify:           <<axd_petrify,Petrify>>
 :axd_immutable:         <<axd_immutable,Immutable>>
