@@ -2116,12 +2116,14 @@ pub(crate) fn zjjrm_exchange_dir_over(
 /// it first, so canonicalize normally succeeds; on failure we fall back to the
 /// cwd-joined relative path rather than break gazette I/O.
 ///
-/// Seam-gated (`JJRM_OFFICIUM_STUDBOOK_ENABLED`): off (compiled default,
-/// mainline-inert) skips studbook-config construction entirely — the
-/// pre-seam behavior, byte-identical. On: derives the infield root fresh
-/// from `cwd` (cheap, pure-local path math, no network glean — that already
-/// ran once at `jjx_open`, `zjjrm_glean_studbook`) and delegates to
-/// `zjjrm_exchange_dir_over(officium, true, &studbook)`.
+/// Seam-gated (`JJRM_OFFICIUM_STUDBOOK_ENABLED`, compiled `true`): derives
+/// the infield root fresh from `cwd` (cheap, pure-local path math, no
+/// network glean — that already ran once at `jjx_open`,
+/// `zjjrm_glean_studbook`) and delegates to
+/// `zjjrm_exchange_dir_over(officium, true, &studbook)`. Off (dead code at
+/// this compiled value) would skip studbook-config construction entirely —
+/// the pre-seam behavior, byte-identical to the unconditional resolver it
+/// replaced.
 pub fn jjrm_exchange_dir(officium: &str) -> std::path::PathBuf {
     if !JJRM_OFFICIUM_STUDBOOK_ENABLED {
         let bare_id = officium.trim_start_matches(OFFICIUM_SUN_PREFIX);
@@ -2198,15 +2200,15 @@ fn zjjrm_gazette_paths_block(
 ///
 /// A second, indirect dependent: `jjrdm_muck`'s liveness join
 /// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
-/// which is correct only while this constant is `false` — a dispatched
+/// which was correct only while this constant was `false` — a dispatched
 /// session's officia live wherever the vvx process's cwd is (the billet
-/// root), a relationship this constant's own flip severs by relocating
-/// every officium's exchange to `jjrm_studbook_exchange_dir` instead. The
-/// join must be re-cut at that same flip (a durable per-officium billet
-/// marker is the natural carrier, since today's record captures only the
-/// seat's role, never which billet) — see `jjrdm_muck`'s module doc. That
-/// module is not wired into the live dispatch spine either way, so it is
-/// left untouched until that flip.
+/// root), a relationship this constant's flip to `true` severed by
+/// relocating every officium's exchange to `jjrm_studbook_exchange_dir`
+/// instead. The join was not re-cut at that flip (a durable per-officium
+/// billet marker is the natural carrier, since today's record captures
+/// only the seat's role, never which billet) — see `jjrdm_muck`'s module
+/// doc. That module is still not wired into the live dispatch spine, so
+/// nothing exercises the stale join.
 pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = true;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
@@ -2216,9 +2218,8 @@ pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = true;
 const ZJJRM_OFFICIUM_SCRATCH_DIRNAME: &str = "officia_scratch";
 
 /// The studbook-relative exchange directory for one officium — what
-/// `jjrm_exchange_dir` resolves to once `JJRM_OFFICIUM_STUDBOOK_ENABLED`
-/// flips (already wired; only the constant is pinned false). `studbook_root`
-/// is the studbook's local clone root
+/// `jjrm_exchange_dir` resolves to now that `JJRM_OFFICIUM_STUDBOOK_ENABLED`
+/// is compiled `true`. `studbook_root` is the studbook's local clone root
 /// (`jjrvb_blotter::jjdb_BlotterConfig::local_root`).
 pub fn jjrm_studbook_exchange_dir(studbook_root: &Path, bare_id: &str) -> PathBuf {
     studbook_root
@@ -2278,11 +2279,12 @@ pub fn jjrm_station_name() -> Option<String> {
 }
 
 /// Station-name refusal for `jjx_open` (seam-gated,
-/// `JJRM_OFFICIUM_STUDBOOK_ENABLED`): `station` and `over_studbook` are
-/// supplied rather than read from the environment or the const, so a test
-/// proves the refusal without depending on this real machine's hostname or
-/// flipping the seam. Off (compiled default): always `None` — jjx_open's
-/// seam-off behavior is unchanged. On: a `None` station refuses.
+/// `JJRM_OFFICIUM_STUDBOOK_ENABLED`, compiled `true`): `station` and
+/// `over_studbook` are supplied rather than read from the environment or
+/// the const, so a test proves the refusal without depending on this real
+/// machine's hostname. On (the live path): a `None` station refuses. Off
+/// (dead code at this compiled value): always `None` — the pre-seam
+/// behavior, unchanged.
 pub(crate) fn zjjrm_open_station_refusal(
     cn: &str,
     station: Option<&str>,
@@ -2475,10 +2477,10 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
         }
     };
 
-    // Station-name guard (seam-gated, JJSVF officium-open composition): once
-    // station identity enters the studbook record, an unnamed station never
-    // opens — two would collapse the same identity. Off (compiled default):
-    // never fires, jjx_open's seam-off behavior is unchanged.
+    // Station-name guard (seam-gated, JJSVF officium-open composition,
+    // JJRM_OFFICIUM_STUDBOOK_ENABLED compiled `true`): station identity is
+    // in the studbook record, so an unnamed station never opens — two would
+    // collapse the same identity.
     if let Some(msg) = zjjrm_open_station_refusal(cn, jjrm_station_name().as_deref(), JJRM_OFFICIUM_STUDBOOK_ENABLED) {
         return Ok(CallToolResult::error(vec![Content::text(msg)]));
     }

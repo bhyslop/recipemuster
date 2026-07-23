@@ -1,5 +1,5 @@
 //axvd_sheaf axd_normative axd_entity
-This is an executory entity sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
+This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 
 = Farrier
 
@@ -330,12 +330,12 @@ Superseded: the aspirant toothing's `sync_state`-from-last-fetch staleness line
 does not use it.
 +
 The billet co-locates with the officium's exchange in the {jjdb_studbook}'s untracked
-working area (JJSVS-studbook.adoc, "Officium exchange and record") once the enablement seam
-(`jjrm_mcp.rs`, `JJRM_OFFICIUM_STUDBOOK_ENABLED`) flips at the conversion heat; until then the
-billet-resolution composition runs — inert, tested — beside the frozen curia-resident path
-(JJSAS Founding-and-cutover). The staleness lead above does not wait on that seam: it re-runs
-{jjdf_identify} and the pedigree lookup itself, rather than reusing
-`jjrm_resolve_officium_billet`'s (still-inert) result.
+working area (JJSVS-studbook.adoc, "Officium exchange and record"): the enablement seam
+(`jjrm_mcp.rs`, `JJRM_OFFICIUM_STUDBOOK_ENABLED`) flipped at the conversion heat
+(JJSAS Founding-and-cutover), and the billet-resolution composition runs live, in place of
+the former curia-resident path. The staleness lead above does not wait on that seam: it
+re-runs {jjdf_identify} and the pedigree lookup itself, rather than reusing
+`jjrm_resolve_officium_billet`'s result.
 
 == Rejection kinds
 
