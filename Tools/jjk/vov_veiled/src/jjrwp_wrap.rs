@@ -366,10 +366,9 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     vvco_out!(output, "");
     // Heat-qualified coronets for the operator-facing relay line.
     let wrapped_display = gallops.jjrg_qualify_coronet(&coronet.jjrf_display());
-    // Hand-merge era interim (260722 operator rulings, carried in the
-    // footprint-delivery heat's seed): until the wrap converge machinery lands,
-    // billet work reaches the trunk only by an operator-directed plain merge in
-    // the hippodrome — merge, never rebase. A billet is recognized by its branch
+    // Hand-merge era interim: until the wrap converge machinery lands, billet
+    // work reaches the trunk only by an operator-directed plain merge in the
+    // hippodrome — merge, never rebase. A billet is recognized by its branch
     // name equaling the wrapped coronet's bare body (the hippodrome sits on the
     // trunk, so it never matches); the probe is advisory, so a git failure falls
     // back to the standard guidance. Dies when the converge machinery replaces it.
