@@ -277,12 +277,20 @@ recording that standing determination here is what keeps it from being re-litiga
 memory.
 
 The permission posture is a second vendor surface stirrup speaks to, admitted at the same
-membrane as the tier-and-effort Palisade above: `--permission-mode acceptEdits`, composed
-unconditionally for every launched session, both doors alike. The vendor's default posture
-prompts the operator before each in-billet edit; every dispatched session is billet-resident
-by construction — its own worktree, its own branch, its own `BURV_*` scratch roots — so the
-blast radius that ordinarily argues for prompting is already fenced by the billet itself, and
-the prompt earns nothing a per-door knob would not also fail to earn.
+membrane as the tier-and-effort Palisade above: `--permission-mode auto`, composed
+unconditionally for every launched session, both doors alike. Auto mode is the vendor's
+classifier-gated autonomy (status line: `auto mode on`): a separate classifier model reviews
+each act before it runs — in-billet reads and edits pass without review, and everything else,
+an out-of-billet gazette write included, routes to the classifier rather than to an operator
+prompt. The classifier's default blocks align with the JJ conduct core's own git
+prohibitions — the discard family (`reset --hard`, `restore`, `checkout`-to-discard,
+`clean`, `stash drop`) — so the gate outside the billet rhymes with the conduct the session
+already carries. The launch flag is the whole channel: the vendor ignores a repo-settings
+grant of auto mode by design (a repository cannot grant itself autonomy), so the
+saddle-written billet settings neither can nor need to speak it. Known boundary, accepted:
+haiku-family models do not support auto mode on any vendor provider, and the flag's fallback
+on an unsupported model is undocumented — observed at the next sub-frontier dispatch, not
+engineered around.
 
 == The BUK meld
 

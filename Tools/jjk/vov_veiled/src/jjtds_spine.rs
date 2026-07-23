@@ -244,7 +244,7 @@ fn jjtds_stirrup_composes_the_launch_command() {
     assert_eq!(cmd.get_current_dir(), Some(billet));
     assert!(args.windows(2).any(|w| w[0] == "--model" && w[1] == "claude-sonnet-5"));
     assert!(args.windows(2).any(|w| w[0] == "--effort" && w[1] == "high"));
-    assert!(args.windows(2).any(|w| w[0] == "--permission-mode" && w[1] == "acceptEdits"), "the billet is the fence: in-billet edits accept without a prompt");
+    assert!(args.windows(2).any(|w| w[0] == "--permission-mode" && w[1] == "auto"), "classifier-gated autonomy: out-of-billet acts route to the classifier, not the operator");
     assert!(args.windows(2).any(|w| w[0] == "--append-system-prompt" && w[1] == JJRDS_CONDUCT_CORE));
     assert_eq!(args.last().map(String::as_str), Some("mount ₢AAAAB"), "the opening prompt rides last");
     let envs: Vec<(String, String)> = cmd
