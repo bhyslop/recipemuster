@@ -205,6 +205,7 @@ throughput than a single-tier map.
 Model-tier enforcement is a hard gate, not an honor system: every orchestrator invocation
 carries a self-reported model identity, and breeze-phase commands refuse frontier-tier callers —
 conducting is small-model work; judgment is reserved for school and corral.
+That premise carries an open fork against it below.
 
 *Bare-prompt reproducibility* is the scientific core: same prompt + same model + same worktree
 state = comparable output.
@@ -218,6 +219,53 @@ warrant and collects commits.
 The orchestrator handles state and sequencing; the sessions handle work and judgment.
 It emits directives, never interprets warrants or provender prose — a switchboard, not a
 reader.
+
+== The vendor session boundary
+
+Breeze dispatches every beat across a boundary it cannot edit, and that boundary returns
+verdicts that do not match reality.
+The zero-attention premise is what makes the mismatch expensive: nobody is watching at the
+moment it happens.
+This is a behavioral membrane at the same edge the dispatch layer already admits as a
+vocabulary Palisade for model-family words — a sibling instance of Palisade conduct, not the
+same cell.
+
+*The characterized signature.*
+In a non-interactive session there is nobody to answer a permission prompt, so a prompt
+resolves as a denial.
+The beat does not fail: it completes, reporting that the work could not be done as though that
+were a finding.
+A partially-permissioned breeze therefore degrades into confident nonsense rather than into the
+`failed` status the beat map defines for exactly this case, and no signal at the boundary
+distinguishes the two.
+
+*Conduct.*
+Characterize the signature precisely; contain it at one membrane — the spine's launch
+primitive, which composes the session's permission posture unconditionally, is that one place;
+absorb only the surveyed shape and fail fast on everything else; log every bend; and retire the
+membrane when the neighbor heals.
+The design consequence for breeze: a beat's permission posture is a precondition of the beat
+being interpretable at all, never a convenience, and the orchestrator cannot learn from the
+boundary alone that the precondition was violated.
+What is recorded here is the neighbor's shape, never its current spelling: the argument words
+belong to the membrane that speaks them, and the design owes only the behavior they answer.
+
+== The unbounded beat
+
+Breeze is zero-attention, concurrent, and mixed-tier, and its failure story is entirely
+semantic: a beat is complete or failed by what it concluded, never by what it consumed.
+The beat row carries no ceiling on turns or spend.
+A beat that never stops is the one failure mode that costs while nobody is watching, and it is
+precisely the failure the attention model is least equipped to notice — corral sees composed
+outcomes, and longe runs before the volte, not during it.
+
+The vendor surface affords such ceilings, so this is a design decision owed rather than a
+constraint suffered.
+Two things follow.
+The beat row plausibly owes a bound field beside its model assignment.
+And the orchestrator owes a disposition for a beat that reaches its bound — an outcome that is
+neither complete nor failed under the current three-state status, and that must not be
+laundered into either.
 
 == The gait library
 
@@ -254,6 +302,14 @@ each collision below is a design decision for a future pace, not a defect in eit
 * *Dispatch vs the dispatch spine* — per-beat session launch must ride jjy_saddle / jjy_lunge
   and the entrance spine (identify, pedigree lookup, billet-ensure, context provisioning)
   rather than a parallel launcher.
+* *Designation overlap vs school's model assignment* — the dispatch bullet above reaches only
+  launch mechanics, and the deeper collision is one of authority.
+  The spine's tier roster and its two-source (tier, effort) choice already constitute what a
+  beat row calls its model assignment — built, specified, and in force today.
+  Bridling already performs a judgment rhyming with school's: a frontier agent reads a docket,
+  rules it ready, and assigns the tier its execution needs.
+  The fork: is bridle a coarse-grained school over a whole pace, or does school subsume bridle
+  at beat grain?
 * *Identity ladder vs the pace-identity re-gestalt* — quirt/martingale/kimberwick allocation
   must re-derive over immutable studbook-minted pace identities and the insignia glyph space.
 * *Pace-state enum* — the V4 enum (green / ready / reined / candidate / complete / abandoned)
@@ -266,12 +322,18 @@ each collision below is a design decision for a future pace, not a defect in eit
   and school walks the association graph's declared edges, not just blazes (the tackle
   aspirant sheaf's relation layer).
 
-== Open forks (carried from the V4 workup)
+== Open forks
+
+Carried from the V4 workup unless an entry says otherwise.
 
 * Gait record schema — beat templates, confidence gates, model preferences, required blazes;
   deferred until first gaits are built.
-* Provender emission convention — how a session emits provender (structured block, tool call,
-  delimiter); deferred until first gaits.
+* Provender emission convention — how a session emits provender.
+  Candidates: structured block, tool call, delimiter, and a schema the caller supplies to
+  constrain the session's terminal message, so the verdict arrives machine-typed at the
+  boundary rather than parsed out of prose — the last sits best with the standing posture that
+  the orchestrator reads structure and never interprets prose.
+  Deferred until first gaits.
 * Provender size limits — same size-guard philosophy as commits?
 * Memory curation — how prior-volte context reaches school prompts.
 * Longe output format and verb surface.
@@ -279,13 +341,27 @@ each collision below is a design decision for a future pace, not a defect in eit
 * Chukker 0 semantics — always the first execution layer, or available for setup beats?
 * Kimberwick exhaustion — how surfaced, what remains available.
 * Failed-beat retry — re-arm in place vs new volte only.
-* Beat-completion detection — how the orchestrator knows a session finished its beat (worktree
-  commits, exit code, status file) and maps the result back to the beat row.
+* Beat-completion detection — how the orchestrator knows a session finished its beat and maps
+  the result back to the beat row.
+  Two candidates remain: worktree commits, status file.
+  Exit status is eliminated by evidence — a non-interactive vendor session exits successfully
+  whenever its turn completes, whatever the session concluded, so a clean finish and a critical
+  finding are indistinguishable by it.
+  Exit status is a liveness signal, never a verdict.
 * API-key direct REST dispatch — deferred alternative to session-based dispatch.
 * Command-surface visibility — how beat status, chukker progress, and provender roll up into
   show/orient; read-only provender inspection for debugging.
 * Phase-boundary validation — pre-school blaze/chain checks, pre-breeze beat-map integrity
   (including nosebag expectation satisfaction), post-corral volte completion.
+* Small-model orchestrator (raised against a premise of this sheaf, not carried) — breeze is
+  assigned to a small-model orchestrator and the assignment is defended by a hard gate refusing
+  frontier-tier callers.
+  That was drawn before the dispatch spine existed.
+  The spine is deterministic engine code doing precisely the work breeze describes as precision,
+  not judgment; if breeze becomes engine code, the tier gate is moot by construction rather than
+  enforced, and switchboard-not-a-reader stops being a discipline and becomes a type.
+  Raised, not resolved: several sections above rest on the premise, and settling it is its own
+  design pace.
 
 == Superseded and landed (history, not carried)
 
