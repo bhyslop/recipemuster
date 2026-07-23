@@ -276,6 +276,14 @@ mode, Agent SDK, `--model`);
 recording that standing determination here is what keeps it from being re-litigated from
 memory.
 
+The permission posture is a second vendor surface stirrup speaks to, admitted at the same
+membrane as the tier-and-effort Palisade above: `--permission-mode acceptEdits`, composed
+unconditionally for every launched session, both doors alike. The vendor's default posture
+prompts the operator before each in-billet edit; every dispatched session is billet-resident
+by construction — its own worktree, its own branch, its own `BURV_*` scratch roots — so the
+blast radius that ordinarily argues for prompting is already fenced by the billet itself, and
+the prompt earns nothing a per-door knob would not also fail to earn.
+
 == The BUK meld
 
 BUK dispatch self-anchors — cwd normalizes to the invoked tree's root, and moorings ride
