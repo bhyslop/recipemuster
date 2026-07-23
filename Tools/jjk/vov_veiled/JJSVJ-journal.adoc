@@ -1,5 +1,5 @@
 //axvd_sheaf axd_normative axd_routine
-This is an executory routine sheaf of the {jjs0_imprimatur}: binding as design — cite it and build to it; the work product does not yet enact it.
+This is a normative routine sheaf of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
 
 = Journal Ceremony and Break Sequence
 
