@@ -489,6 +489,56 @@ The convention governs gazette markdown only;
 this specification's own AsciiDoc source answers instead to MCM line-break discipline.
 Deviations accumulated under an earlier, broader reading of this principle are tolerated until the Diptych migration re-flows the source wholesale.
 
+=== The Phase Ladder
+
+Some work is too long for one {jjdhr_heat} and too uncertain to plan whole.
+Such an arc is shaped as a *phase ladder*:
+a succession of {jjdhr_heat_s}, one rung apiece,
+the ladder itself recorded in the {jjsp_paddock} of whichever heat currently stands on it.
+
+The ladder names its rungs and details only the rung underfoot.
+A rung gains internal granularity once its predecessor lands and not before,
+because the {jjsuv_groom} that details it holds learnings the earlier cut could not —
+so a rung detailed in advance is a rung detailed by the least-informed generation.
+Each rung's done-line is a _state predicate_: a condition to sight in the world,
+never an adjective, and never an ordinal, which a {jjsuv_rail} silently redefines.
+
+Every phase boundary is a slated {jjdpr_pace}, never {jjsp_paddock} prose.
+That pace nominates the successor {jjdhr_heat},
+carries the live findings into its {jjsp_paddock},
+and expands the next rung into {jjdpr_pace_s}.
+The distinction is enforcement, not bookkeeping:
+a slated {jjdpr_pace} stands in the roster and blocks a clean {jjsuv_retire}, and prose does not,
+so a boundary recorded as prose is a boundary that can be retired past without anyone noticing.
+
+Findings travel _verbatim_.
+The carry copies each finding intact — never re-glossed, never condensed, never fused with its neighbours —
+because a paraphrase is where knowledge leaks across a hop,
+and the leak is invisible at the hop that causes it.
+The proof of carriage is a byte diff against the source, not a careful reading.
+Verbatim carriage imports the source's deixis along with its words:
+"this heat", "this session", a coronet, a branch name inside a carried block
+speak from where the block was written, not from where it now sits.
+The carrying {jjdpr_pace} frames the block instead of repairing it —
+naming the source, the cut, and whose voice its deictic words speak in —
+and any note added at carry is marked as added and sits outside the carried prose.
+
+Only _live_ findings travel.
+A carry is a liveness filter, not an archival copy:
+each finding is judged still-binding at the moment of carriage,
+and a dispositioned one is struck with its disposition recorded.
+The filter is what keeps a ladder's {jjsp_paddock} from growing monotonically;
+without it the paddock accretes every generation's findings
+until no reader can tell which of them still bind.
+Retired ancestors are provenance, never authority —
+a {jjdhe_retired} {jjdhr_heat_p} {jjsp_paddock} may be read for history and never cited as a live constraint,
+which is exactly why live findings must *arrive* in the standing paddock rather than merely be reachable from it.
+
+A ladder ends by record, not by silence.
+The terminal rung's {jjsp_paddock} states that the ladder ends there and slates no boundary {jjdpr_pace};
+a later {jjsuv_groom} that finds a rung beyond it slates that boundary itself
+and restates the ending record for its own successor.
+
 === Crash-Safe Architecture
 
 Every operation follows the same invariant regardless of transport:
