@@ -366,16 +366,43 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     vvco_out!(output, "");
     // Heat-qualified coronets for the operator-facing relay line.
     let wrapped_display = gallops.jjrg_qualify_coronet(&coronet.jjrf_display());
+    // Hand-merge era interim: until the wrap converge machinery lands, billet
+    // work reaches the trunk only by an operator-directed plain merge in the
+    // hippodrome — merge, never rebase. A billet is recognized by its branch
+    // name equaling the wrapped coronet's bare body (the hippodrome sits on the
+    // trunk, so it never matches); the probe is advisory, so a git failure falls
+    // back to the standard guidance. Dies when the converge machinery replaces it.
+    let billet_branch = vvc::vvce_git_command(&["rev-parse", "--abbrev-ref", "HEAD"])
+        .output()
+        .ok()
+        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        .filter(|b| *b == coronet.jjrf_display());
     match next_pace_info {
         Some((next_coronet, next_silks, tier, effort)) => {
             let designation = zjjrx_designation_suffix(tier, effort);
             let next_display = gallops.jjrg_qualify_coronet(&next_coronet);
-            vvco_out!(output, "AGENT_RESPONSE: {} wrapped. Next: {} ({}{}) \u{2014} `/clear` then `mount {}`",
-                wrapped_display, next_silks, next_display, designation, fm_str);
+            match &billet_branch {
+                Some(b) => {
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped on billet branch '{}'. Hand-merge era: offer `git push origin {}` from here; the operator then merges in the hippodrome \u{2014} `git merge {}` on the trunk, then push; merge, never rebase \u{2014} and this session exits. Next: {} ({}{}) mounts from a fresh session \u{2014} `mount {}`",
+                        wrapped_display, b, b, b, next_silks, next_display, designation, fm_str);
+                }
+                None => {
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped. Next: {} ({}{}) \u{2014} `/clear` then `mount {}`",
+                        wrapped_display, next_silks, next_display, designation, fm_str);
+                }
+            }
         }
         None => {
-            vvco_out!(output, "AGENT_RESPONSE: {} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
-                wrapped_display, fm_str);
+            match &billet_branch {
+                Some(b) => {
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped on billet branch '{}'. All paces complete. Hand-merge era: offer `git push origin {}` from here; the operator then merges in the hippodrome \u{2014} `git merge {}` on the trunk, then push; merge, never rebase \u{2014} and this session exits. Then `retire {}` from a fresh session",
+                        wrapped_display, b, b, b, fm_str);
+                }
+                None => {
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped. All paces complete \u{2014} `/clear` then `retire {}`",
+                        wrapped_display, fm_str);
+                }
+            }
         }
     }
     (0, output.vvco_finish())
