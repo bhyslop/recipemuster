@@ -24,6 +24,13 @@ pub(crate) const JJRZ_SLUG_STEEPLECHASE: &str = "jjezs_steeplechase";
 pub(crate) const JJRZ_SLUG_DICTATION: &str = "jjezs_dictation";
 pub(crate) const JJRZ_SLUG_PRECIS: &str = "jjezs_precis";
 
+/// Fused-header guard token: the literal notice-boundary prefix. A body line
+/// containing this substring mid-line (never at line start, which is already
+/// the boundary case) signals a swallowed notice — a preceding body lacking
+/// its trailing newline fused the next header onto its last line, and the
+/// boundary scan never sees a line starting with `#`.
+pub(crate) const JJRZ_NOTICE_TOKEN: &str = "# jjezs_";
+
 /// Slug direction — metadata for how each slug is used in operations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrz_Direction {
@@ -179,6 +186,20 @@ impl jjrz_Gazette {
                     }
                 }
             } else if let Some((_, _, ref mut content_lines, _)) = current {
+                // A line starting exactly at the token (idx 0) is either a real
+                // boundary (already handled above) or, inside a fence, a
+                // deliberately quoted header — legitimate either way. Only a
+                // token appearing after other characters on the line (idx > 0)
+                // signals the fusion hazard: the previous body's last line had
+                // no trailing newline and glued onto this header's text.
+                if let Some(idx) = line.find(JJRZ_NOTICE_TOKEN) {
+                    if idx > 0 {
+                        diagnostics.push(format!(
+                            "Line {}: body content contains a fused notice header ('{}') — a preceding notice's body likely swallowed this header (missing trailing newline); rejecting whole gazette, no partial apply",
+                            line_num, JJRZ_NOTICE_TOKEN
+                        ));
+                    }
+                }
                 content_lines.push(line.to_string());
             }
         }
