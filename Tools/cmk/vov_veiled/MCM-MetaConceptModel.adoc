@@ -1661,6 +1661,10 @@ git log and blame carry every line's date and reason with a forcing function, wh
 drift and pollute present-tense reading.
 A durable document — spec, guide, code, context file — speaks of itself only in the present tense.
 A dated artifact — memo, scar, commit message — is itself a historical record and may carry revision metadata without fault.
+The boundary follows the document's own voice, not its container:
+a living work-record (a heat paddock, a pace docket) is durable in its own voice,
+while a dated frozen record quoted intact inside it remains a dated artifact —
+the quoted record's date is deixis, naming whose epoch speaks.
 Detection and drain moves are catalogued in ACG (ACGm_107).
 
 [[mcm_stun]]
