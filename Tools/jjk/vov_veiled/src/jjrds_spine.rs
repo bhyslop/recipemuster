@@ -816,7 +816,7 @@ pub fn jjrds_stirrup_command(
     if let Some(e) = effort {
         cmd.arg("--effort").arg(e.jjrg_as_str());
     }
-    cmd.arg("--permission-mode").arg("acceptEdits");
+    cmd.arg("--permission-mode").arg("auto");
     cmd.arg("--mcp-config").arg(mcp_config_path);
     cmd.arg("--append-system-prompt").arg(JJRDS_CONDUCT_CORE);
     cmd.arg(opening_prompt);
