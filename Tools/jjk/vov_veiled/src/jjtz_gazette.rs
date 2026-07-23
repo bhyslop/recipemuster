@@ -122,6 +122,37 @@ fn jjtz_parse_malformed_header_no_slug() {
     assert!(err[0].contains("malformed header"));
 }
 
+#[test]
+fn jjtz_parse_fused_notice_header_rejected() {
+    // Body's last line lacks a trailing newline before the next header, so the
+    // next notice's header text fuses onto the same physical line — the
+    // boundary scan never sees a line starting with `#`, and the swallowed
+    // header must be caught by content-scan instead.
+    let md = format!(
+        "# {} pace-one\n\nFirst docket# {} pace-two\n\nSecond docket\n",
+        JJRZ_SLUG_RESLATE, JJRZ_SLUG_RESLATE
+    );
+    let err = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Reslate], &md).unwrap_err();
+    assert_eq!(err.len(), 1);
+    assert!(err[0].contains("Line 3"));
+    assert!(err[0].contains("fused notice header"));
+}
+
+#[test]
+fn jjtz_parse_clean_batch_still_applies() {
+    // A well-formed multi-notice batch (proper trailing newlines throughout)
+    // is unaffected by the fused-header guard.
+    let md = format!(
+        "# {} pace-one\n\nFirst docket\n\n# {} pace-two\n\nSecond docket\n",
+        JJRZ_SLUG_RESLATE, JJRZ_SLUG_RESLATE
+    );
+    let g = jjrz_Gazette::jjrz_parse(&[jjrz_Slug::Reslate], &md).unwrap();
+    let entries = g.jjrz_query_by_slug(jjrz_Slug::Reslate);
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].1, "First docket");
+    assert_eq!(entries[1].1, "Second docket");
+}
+
 // --- Build/Add/Freeze ---
 
 #[test]

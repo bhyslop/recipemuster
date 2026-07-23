@@ -169,6 +169,7 @@ Gazette markdown uses `#`-headers to delimit notices:
 * Remainder of the header line is the lede (may be empty)
 * Content runs from the line after the header to the next `#`-header or EOF
 * Leading and trailing blank lines in content are trimmed
+* A body line containing the literal notice-boundary token (`# jjezs_`) mid-line rejects the whole gazette loud, naming the offending line — no partial apply (the swallowed-notice guard: a body lacking its trailing newline can fuse the next header onto its last line, so the boundary scan never sees it as a `#`-header and would otherwise silently absorb it as content)
 
 Round-trip guarantee: for any gazette `g` constructed by parse with vocabulary `v`, `parse(v, emit(g))` produces a gazette with identical notice map contents.
 
