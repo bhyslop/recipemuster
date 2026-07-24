@@ -43,7 +43,7 @@ use super::jjrm_mcp::{
 };
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
-use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
+use super::jjrds_spine::{jjrds_Ground, JJRDS_PEDIGREES_REL_PATH};
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
 use super::jjrvb_blotter::{
@@ -874,4 +874,185 @@ fn jjtm_glean_studbook_refuses_loud_when_remote_is_unreachable() {
     let result = zjjrm_glean_studbook(&jjrfg_PlainGit, &config);
 
     assert!(result.is_err(), "an unreachable remote must refuse loud, never silently succeed");
+}
+
+// ===== The ground guard =====
+//
+// The judgment is pure over (command, ground, aim), so these drive it directly:
+// the ground taxonomy's own resolution from real worktrees is jjtds_spine's.
+
+/// A parent-heat resolver for the one case that consults one — the notch's
+/// heat-affiliated form. Every coronet in these tests harbours in ₣AA.
+fn zjjtm_heat_of(_coronet: &str) -> Option<String> {
+    Some("₣AA".to_string())
+}
+
+/// No heat resolves — the shape a gallops the guard cannot read presents.
+fn zjjtm_heat_of_none(_coronet: &str) -> Option<String> {
+    None
+}
+
+fn zjjtm_pace_billet(coronet: &str) -> jjrds_Ground {
+    jjrds_Ground::PaceBillet { coronet: coronet.to_string() }
+}
+
+#[test]
+fn jjtm_ground_need_binds_exactly_the_three_work_repo_verbs() {
+    use super::jjrm_mcp::{zjjrm_ground_need, zjjrm_GroundNeed};
+
+    for bound in ["jjx_orient", "jjx_record", "jjx_close"] {
+        assert_eq!(zjjrm_ground_need(bound), zjjrm_GroundNeed::OwnPaceBillet, "{} reaches the work repo", bound);
+    }
+    // Every studbook verb is free — grooming any heat from any billet is legal.
+    for free in [
+        "jjx_show", "jjx_search", "jjx_brief", "jjx_coronets", "jjx_paddock", "jjx_curry",
+        "jjx_enroll", "jjx_redocket", "jjx_log", "jjx_list", "jjx_apostille", "jjx_landing",
+        "jjx_create", "jjx_archive", "jjx_reorder", "jjx_relabel", "jjx_drop", "jjx_relocate",
+        "jjx_alter", "jjx_transfer", "jjx_validate",
+    ] {
+        assert_eq!(zjjrm_ground_need(free), zjjrm_GroundNeed::Free, "{} touches only the studbook", free);
+    }
+}
+
+#[test]
+fn jjtm_ground_lets_every_studbook_verb_pass_from_all_three_grounds() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let grounds = [
+        jjrds_Ground::Hippodrome,
+        zjjtm_pace_billet("CAAAA"),
+        jjrds_Ground::GroomBillet,
+    ];
+    for ground in &grounds {
+        for cmd in ["jjx_show", "jjx_curry", "jjx_enroll", "jjx_redocket", "jjx_apostille", "jjx_landing"] {
+            assert!(
+                zjjrm_judge_ground(cmd, ground, Some("CAAAB"), &zjjtm_heat_of).is_ok(),
+                "{} must pass on {}", cmd, ground.jjrds_as_str()
+            );
+        }
+    }
+}
+
+#[test]
+fn jjtm_ground_refuses_the_bound_verbs_off_a_pace_billet() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    for ground in [jjrds_Ground::Hippodrome, jjrds_Ground::GroomBillet, jjrds_Ground::Unboarded { line: "operator-branch".to_string() }] {
+        for (cmd, aim) in [("jjx_orient", "CAAAA"), ("jjx_record", "CAAAA"), ("jjx_close", "CAAAA")] {
+            let refusal = zjjrm_judge_ground(cmd, &ground, Some(aim), &zjjtm_heat_of)
+                .expect_err("a work-repo verb has no ground to stand on here");
+            assert!(refusal.starts_with("INTERDICTUM — ground gate:"), "token leads: {}", refusal);
+            assert!(refusal.contains(cmd));
+            assert!(refusal.contains("Remedy:"), "every refusal names its remedy: {}", refusal);
+        }
+    }
+}
+
+#[test]
+fn jjtm_ground_names_slating_as_the_notch_remedy_and_saddling_as_the_mount_remedy() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let notch = zjjrm_judge_ground("jjx_record", &jjrds_Ground::GroomBillet, Some("CAAAA"), &zjjtm_heat_of).unwrap_err();
+    assert!(notch.contains("slate a pace for this work"), "the misplaced-work remedy is a slated pace: {}", notch);
+
+    let mount = zjjrm_judge_ground("jjx_orient", &jjrds_Ground::Hippodrome, Some("CAAAA"), &zjjtm_heat_of).unwrap_err();
+    assert!(mount.contains("jjy_saddle"), "the mount remedy is the shell door: {}", mount);
+}
+
+#[test]
+fn jjtm_ground_admits_re_orienting_the_billets_own_pace() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let ground = zjjtm_pace_billet("CAAAA");
+    // Re-orientation is not a remount: the same pace, mounted again, stays legal.
+    assert!(zjjrm_judge_ground("jjx_orient", &ground, Some("CAAAA"), &zjjtm_heat_of).is_ok());
+    assert!(zjjrm_judge_ground("jjx_close", &ground, Some("CAAAA"), &zjjtm_heat_of).is_ok());
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of).is_ok());
+}
+
+#[test]
+fn jjtm_ground_aim_reads_each_bound_verb_where_it_carries_its_target() {
+    use super::jjrm_mcp::zjjrm_ground_aim;
+
+    // Orient's target lives in the gazette halter notice; the other two in
+    // params. Every form arrives bare, so a qualified emission ingests unchanged.
+    let halter = "# jjezs_halter ₢AA·CAAAA\n";
+    assert_eq!(zjjrm_ground_aim("jjx_orient", &serde_json::json!({}), Some(halter)).as_deref(), Some("CAAAA"));
+    assert_eq!(
+        zjjrm_ground_aim("jjx_record", &serde_json::json!({"identity": "₢CAAAA"}), None).as_deref(),
+        Some("CAAAA")
+    );
+    assert_eq!(
+        zjjrm_ground_aim("jjx_close", &serde_json::json!({"coronet": "CAAAA"}), None).as_deref(),
+        Some("CAAAA")
+    );
+
+    // Nothing to read: an unwritten gazette, a missing param, a free verb.
+    assert_eq!(zjjrm_ground_aim("jjx_orient", &serde_json::json!({}), None), None);
+    assert_eq!(zjjrm_ground_aim("jjx_record", &serde_json::json!({}), None), None);
+    assert_eq!(zjjrm_ground_aim("jjx_show", &serde_json::json!({}), Some(halter)), None);
+
+    // Orient mounts one target: a heterogeneous set is the show verb's shape,
+    // and the orient handler owns that refusal in its own words.
+    let two = "# jjezs_halter ₢CAAAA\n# jjezs_halter ₢CAAAB\n";
+    assert_eq!(zjjrm_ground_aim("jjx_orient", &serde_json::json!({}), Some(two)), None);
+}
+
+#[test]
+fn jjtm_ground_refuses_a_foreign_pace_inside_a_pace_billet() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let ground = zjjtm_pace_billet("CAAAA");
+    for cmd in ["jjx_orient", "jjx_record", "jjx_close"] {
+        let refusal = zjjrm_judge_ground(cmd, &ground, Some("CAAAB"), &zjjtm_heat_of)
+            .expect_err("the remount singularity: another pace's work in this billet");
+        assert!(refusal.starts_with("INTERDICTUM — ground gate:"));
+        assert!(refusal.contains("₢CAAAA"), "the seated pace is named: {}", refusal);
+        assert!(refusal.contains("₢CAAAB"), "the aimed pace is named: {}", refusal);
+        assert!(refusal.contains("jjy_saddle CAAAB"), "the remedy saddles the other pace: {}", refusal);
+    }
+}
+
+#[test]
+fn jjtm_ground_takes_a_heat_aim_for_notch_alone() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let ground = zjjtm_pace_billet("CAAAA");
+
+    // The notch's admitted second form: the billet's pace or its parent heat.
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("AA"), &zjjtm_heat_of).is_ok());
+
+    // Another heat is neither.
+    let stray = zjjrm_judge_ground("jjx_record", &ground, Some("AB"), &zjjtm_heat_of).unwrap_err();
+    assert!(stray.contains("₣AA"), "the billet's own heat is named: {}", stray);
+    assert!(stray.contains("₣AB"), "the aimed heat is named: {}", stray);
+
+    // Mount and wrap bind to a pace, so a heat aim — which resolves to whichever
+    // pace is next actionable — is exactly the severance the guard exists to stop.
+    for cmd in ["jjx_orient", "jjx_close"] {
+        let refusal = zjjrm_judge_ground(cmd, &ground, Some("AA"), &zjjtm_heat_of)
+            .expect_err("a heat aim cannot bind a billet-bound verb");
+        assert!(refusal.contains("names a heat"), "{}", refusal);
+        assert!(refusal.contains("₢CAAAA"), "the seated pace is offered instead: {}", refusal);
+    }
+}
+
+#[test]
+fn jjtm_ground_refuses_a_heat_notch_it_cannot_resolve() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let refusal = zjjrm_judge_ground("jjx_record", &zjjtm_pace_billet("CAAAA"), Some("AA"), &zjjtm_heat_of_none)
+        .expect_err("an unresolvable parent heat admits nothing");
+    assert!(refusal.contains("(unresolved)"), "the gap is stated, never guessed past: {}", refusal);
+}
+
+#[test]
+fn jjtm_ground_leaves_an_unreadable_aim_to_the_handlers_own_parse() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let ground = zjjtm_pace_billet("CAAAA");
+    // No aim to read, and a token that types as no identity: the guard has
+    // nothing to judge and the command answers in its own words.
+    assert!(zjjrm_judge_ground("jjx_orient", &ground, None, &zjjtm_heat_of).is_ok());
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("not-an-identity"), &zjjtm_heat_of).is_ok());
 }

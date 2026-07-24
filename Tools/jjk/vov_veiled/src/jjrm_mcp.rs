@@ -45,6 +45,7 @@ use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, 
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
 use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_FarrierLock, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
+use crate::jjrds_spine::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
@@ -2485,6 +2486,14 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
         return Ok(CallToolResult::error(vec![Content::text(msg)]));
     }
 
+    // Ground lead on a groom billet (JJSVD, groom-billet posture): the first
+    // thing a grooming session reads is what its ground affords, ahead even of
+    // the staleness lead — a groom billet was just detached at trunk tip, so it
+    // has ground to declare far more often than it has staleness to report.
+    if jjrds_ground(&jjrfg_PlainGit, &cwd) == Some(jjrds_Ground::GroomBillet) {
+        vvco_out!(output, "{}", JJRDS_GROOM_POSTURE);
+    }
+
     // Staleness lead (JJSVD "Refit": "open leads its report with the staleness
     // warning and names refit as the remedy"). Non-gating — see the helper.
     if let Some(notice) = zjjrm_open_staleness_notice(&jjrfg_PlainGit, &cwd) {
@@ -2868,6 +2877,158 @@ pub(crate) fn zjjrm_protocol_verdict(caller: zjjrm_CallerTier) -> String {
 }
 
 // ============================================================================
+// The ground guard
+// ============================================================================
+
+/// What ground a command demands (JJSVD, the ground guards). Two buckets, and
+/// the sparse one is the bound one: a verb belongs there only because it
+/// touches the work repo, so the default is freedom.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum zjjrm_GroundNeed {
+    /// Ground-free from any ground. Every studbook verb: the store is one
+    /// clone the whole station shares, so grooming any heat from any billet is
+    /// deliberately legal — cross-heat reference is how detail work happens.
+    Free,
+    /// The billet of the pace the call names, and no other. The three verbs
+    /// that reach the work repo: a mount takes up a pace's tree, a notch
+    /// commits into it, a wrap delivers its estate.
+    OwnPaceBillet,
+}
+
+/// Map a command to its ground need — the whole policy, in one place, keyed on
+/// the taxonomy `jjdf_identify` yields.
+pub(crate) fn zjjrm_ground_need(cmd: &str) -> zjjrm_GroundNeed {
+    match cmd {
+        JJRM_CMD_NAME_ORIENT | JJRM_CMD_NAME_RECORD | JJRM_CMD_NAME_CLOSE => {
+            zjjrm_GroundNeed::OwnPaceBillet
+        }
+        _ => zjjrm_GroundNeed::Free,
+    }
+}
+
+/// The identity a bound call aims at, pulled from wherever that command carries
+/// it: orient from its halter lede, record from its identity, close from its
+/// coronet. `None` means the call named nothing this guard can read — a missing
+/// param, an unwritten gazette, an unparseable notice — and the command's own
+/// handler answers for that, in its own words.
+pub(crate) fn zjjrm_ground_aim(cmd: &str, params: &serde_json::Value, gazette_in: Option<&str>) -> Option<String> {
+    let raw = match cmd {
+        JJRM_CMD_NAME_ORIENT => {
+            let targets = jjrz_parse_halter_input(gazette_in?).ok()?;
+            (targets.len() == 1).then(|| targets.into_iter().next().unwrap())?
+        }
+        JJRM_CMD_NAME_RECORD => params.get("identity")?.as_str()?.to_string(),
+        JJRM_CMD_NAME_CLOSE => params.get("coronet")?.as_str()?.to_string(),
+        _ => return None,
+    };
+    let bare = crate::jjrf_favor::jjrf_bare(&raw);
+    (!bare.is_empty()).then(|| bare.to_string())
+}
+
+/// Render a coronet body for an operator-facing refusal — glyph on, exactly as
+/// every emission carries it.
+fn zjjrm_coronet_display(body: &str) -> String {
+    format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, body)
+}
+
+/// Judge one call against the ground it stands on — the ground guards' whole
+/// ruling (JJSVD): mount, notch, and wrap run in the billet of the pace they
+/// name; everything else runs anywhere.
+///
+/// The refusals are interdicta (JJS0 `jjdz_interdictum`): the token leads, the
+/// body stands alone, and each names the remedy its own case calls for — saddle
+/// the pace, or slate one for the work that wants doing. Token spelled
+/// literally: `grep INTERDICTUM` is the generator census.
+///
+/// `heat_of` resolves a coronet to its parent heat, and is consulted only for
+/// the one case that needs it — a heat-affiliated notch, which JJSVD admits
+/// from the billet of any pace that heat harbours. It is a parameter so the
+/// gallops read stays lazy and the judgment stays testable without one.
+pub(crate) fn zjjrm_judge_ground(
+    cmd: &str,
+    ground: &jjrds_Ground,
+    aim: Option<&str>,
+    heat_of: &dyn Fn(&str) -> Option<String>,
+) -> Result<(), String> {
+    use crate::jjrf_favor::{JJRF_CORONET_LEN, JJRF_FIREMARK_LEN};
+
+    if zjjrm_ground_need(cmd) == zjjrm_GroundNeed::Free {
+        return Ok(());
+    }
+
+    let seated = match ground {
+        jjrds_Ground::PaceBillet { coronet } => coronet,
+        _ => {
+            let (why, remedy) = match cmd {
+                JJRM_CMD_NAME_RECORD => (
+                    "a notch commits work-repo files — they have no durable home here",
+                    "slate a pace for this work, then saddle it from the shell (`jjy_saddle <coronet>` in the infield).",
+                ),
+                JJRM_CMD_NAME_CLOSE => (
+                    "a wrap delivers a billet's estate to trunk — there is none here to deliver",
+                    "wrap the pace from its own billet — `jjy_saddle <coronet>` in the infield.",
+                ),
+                _ => (
+                    "a mount takes up a pace's own tree — this ground seats none",
+                    "saddle the pace from the shell — `jjy_saddle <coronet>` in the infield.",
+                ),
+            };
+            return Err(format!(
+                "INTERDICTUM — ground gate: {} refuses; this session stands on {}, and {}.\n\nRemedy: {}",
+                cmd, ground.jjrds_as_str(), why, remedy
+            ));
+        }
+    };
+
+    let Some(aim) = aim else { return Ok(()) };
+    let seated_display = zjjrm_coronet_display(seated);
+
+    if aim.len() == JJRF_CORONET_LEN {
+        if aim == seated {
+            return Ok(());
+        }
+        let named = zjjrm_coronet_display(aim);
+        let act = match cmd {
+            JJRM_CMD_NAME_RECORD => "a notch here affiliates to that pace or its parent heat",
+            JJRM_CMD_NAME_CLOSE => "a wrap closes the pace whose estate this billet carries",
+            _ => "a mount binds to the pace this billet seats",
+        };
+        return Err(format!(
+            "INTERDICTUM — ground gate: {} refuses; this billet seats {}, and {} — {} names another.\n\nRemedy: aim this call at {}, or saddle the other pace from the shell (`jjy_saddle {}` in the infield).",
+            cmd, seated_display, act, named, seated_display, aim
+        ));
+    }
+
+    if aim.len() == JJRF_FIREMARK_LEN {
+        // A heat aim is the notch's own admitted second form (the billet's pace
+        // or its parent heat). The other two bind to a pace and cannot take one:
+        // a heat resolves to whichever pace is next actionable, which is exactly
+        // the reading that severs branch affiliation from pace affiliation.
+        if cmd != JJRM_CMD_NAME_RECORD {
+            return Err(format!(
+                "INTERDICTUM — ground gate: {} refuses; '{}{}' names a heat, and in a pace billet this call binds to the pace the billet seats ({}).\n\nRemedy: name {} instead, or saddle the heat from the shell (`jjy_saddle {}` in the infield).",
+                cmd, crate::jjrf_favor::JJRF_FIREMARK_PREFIX, aim, seated_display, seated_display, aim
+            ));
+        }
+        let parent = heat_of(seated);
+        if parent.as_deref().map(crate::jjrf_favor::jjrf_bare) == Some(aim) {
+            return Ok(());
+        }
+        let parent_display = parent
+            .map(|p| format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, crate::jjrf_favor::jjrf_bare(&p)))
+            .unwrap_or_else(|| "(unresolved)".to_string());
+        return Err(format!(
+            "INTERDICTUM — ground gate: {} refuses; this billet seats {}, whose heat is {} — '{}{}' is neither.\n\nRemedy: notch against {} or {}.",
+            cmd, seated_display, parent_display, crate::jjrf_favor::JJRF_FIREMARK_PREFIX, aim, seated_display, parent_display
+        ));
+    }
+
+    // Neither length types as an identity — the handler's own parse says so
+    // far better than a ground refusal could.
+    Ok(())
+}
+
+// ============================================================================
 // MCP Server
 // ============================================================================
 
@@ -2953,6 +3114,27 @@ impl jjrm_McpServer {
             }
             other => other,
         };
+
+        // Ground gate: one resolution, one judgment, for every verb (JJSVD, the
+        // ground guards). It stands here — after the officium envelope and the
+        // gazette read, so orient's halter lede is in hand, and ahead of the
+        // match, so no handler carries a ground rule of its own. The same
+        // resolution feeds the groom-billet posture the grooming reads lead
+        // with, so the ground is read once per call.
+        let ground = std::env::current_dir().ok().and_then(|cwd| jjrds_ground(&jjrfg_PlainGit, &cwd));
+        if let Some(ref ground) = ground {
+            let aim = zjjrm_ground_aim(cmd, &v, gazette_in_content.as_deref());
+            let heat_of = |coronet: &str| {
+                zjjrm_load_gallops(&gallops_pathbuf())
+                    .ok()?
+                    .jjrg_resolve_pace(coronet)
+                    .ok()
+                    .map(|ctx| ctx.firemark_key)
+            };
+            if let Err(msg) = zjjrm_judge_ground(cmd, ground, aim.as_deref(), &heat_of) {
+                return Ok(CallToolResult::error(vec![Content::text(msg)]));
+            }
+        }
 
         // Emblem overlay (best-effort, fail-soft): repaint this window's
         // work-identity label once per engagement, here at the single dispatcher
@@ -3180,12 +3362,20 @@ impl jjrm_McpServer {
                     Ok(r) => r,
                     Err(e) => return Ok(CallToolResult::error(vec![Content::text(format!("{}: {}", cmd, e))])),
                 };
-                let (code, mut output) = jjrpd_run_parade(jjrpd_ParadeArgs {
+                let (code, parade) = jjrpd_run_parade(jjrpd_ParadeArgs {
                     file: gallops_pathbuf(),
                     targets,
                     remaining: p.remaining,
                     hark: p.hark.clone(),
                 }, &mut gazette, &studbook_root);
+                // The grooming read leads with its ground on a groom billet —
+                // the posture's engine-side layer, ahead of everything the read
+                // is about, so what the session may do is known before it reads
+                // anything that might tempt it otherwise.
+                let mut output = match &ground {
+                    Some(jjrds_Ground::GroomBillet) => format!("{}\n\n{}", JJRDS_GROOM_POSTURE, parade),
+                    _ => parade,
+                };
                 // The gazette is now show's load-bearing payload (the round-trip
                 // surface), not an optional convenience. Crash-fast on a failed
                 // write rather than inherit the historical .ok() silence — a
