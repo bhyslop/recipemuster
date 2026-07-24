@@ -579,10 +579,10 @@ fn rbtdrn_self_catch_and_keep_identifier(_dir: &Path) -> rbtdre_Verdict {
 fn rbtdrn_self_keep_path_prefix(_dir: &Path) -> rbtdre_Verdict {
     let row = zrbtdrn_EvictionRow {
         kill_stem: ZRBTDRN_SELF_STEM,
-        keep_contexts: &[zrbtdrn_KeepContext::PathPrefix("Tools/rbk/vov_veiled/legacy/")],
+        keep_contexts: &[zrbtdrn_KeepContext::PathPrefix("Tools/rbk/vendor/legacy/")],
     };
     let content = "zzdeadstem all over\nanother zzdeadstem line\n";
-    let hits = zrbtdrn_match("Tools/rbk/vov_veiled/legacy/old.adoc", content, &row);
+    let hits = zrbtdrn_match("Tools/rbk/vendor/legacy/old.adoc", content, &row);
 
     if hits.is_empty() {
         rbtdre_Verdict::Pass
