@@ -48,7 +48,7 @@ This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, a
 //    or common — stays homed in its shipped bash library (rblm_lustrate.sh),
 //    read through the same subprocess reach damnatio already proves, never
 //    carried as a copy;
-//  - fixture and suite names (reveille, gauntlet, loupe, cupel, pyx, damnatio)
+//  - fixture and suite names (reveille, gauntlet, cupel, pyx, damnatio)
 //    are the theurge registry's — referenced as literals;
 //  - RELEASE.md remains the operator-facing procedure — step order, command
 //    lines, and promotion-day housekeeping for a given release live there; it
@@ -136,7 +136,7 @@ modules, invoked as subprocesses; the proscription they share stays homed in
 its shipped library, and the hierophant reads it through the same subprocess
 reach the damnatio fixture already proves — a second copy of that table is
 the drift this rule forbids.
-Beside the cut, the one other truly absorbed module is
+Beside the cut, one other truly absorbed module is
 {rbth_rig}
 construction — clone, sever, hook, walk branch, prompt — which reads no shared
 authority: one implementation serves both the
@@ -144,6 +144,15 @@ authority: one implementation serves both the
 rig stage and the
 {rbth_harbinger}
 command, differing only in clone source.
+The veil assay is absorbed on the same footing: the content-grain leak scan —
+census, matcher, self-proof — that once rode as a shipped theurge fixture is
+authored in Rust inside the crate and run in-process by
+{rbth_essai},
+pre-cut on the maintainer tree and post-cut on the candidate's root context
+document.
+It is absorbed for a second reason the cut and the rig are not: a leak-scanner
+that enumerates the withheld documents by name cannot itself ship, so its only
+lawful home is behind the veil.
 
 == The cut, and the single matcher
 
@@ -183,6 +192,11 @@ stand for it: a planted withheld path must be caught, and the totality check
 must close.
 A second matcher live beside it, in any language, is forbidden — two
 matchers drift, and drift is how a withheld path ships.
+The rule's reach is the ship/withhold *path* judgment, and nothing wider: the
+absorbed veil assay is a distinct grain — does a shipping file *name* a
+withheld thing, not does a path ship — so it stands beside the perambulation
+without being a second implementation of it, and it never authors a
+ship/withhold verdict of its own.
 
 One boundary is deliberately not absorbed: the candidate's own sterilize
 remains a subprocess, because it must be the *candidate's copy* — a process

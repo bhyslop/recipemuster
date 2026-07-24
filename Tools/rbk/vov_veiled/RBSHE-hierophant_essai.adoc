@@ -45,10 +45,14 @@ base
 . *Pre-cut assays, on the maintainer tree*:
 .. run the reveille suite — the maintainer tree must be green before it is
 worth cutting
-.. run the loupe fixture — the assay that reads the veiled trees, meaningful
-only here (in the candidate it is red by construction);
-the perambulation's totality gate is not a fixture but the cut's own first
-refusal, in-process (step 3)
+.. run the veil assay in-process — the content-grain leak scan that reads the
+veiled trees to harvest its census, meaningful only here (in the candidate it
+is red by construction);
+it is one of the hierophant's own absorbed modules (the cosmology's
+Worker-never-authority section), no longer a theurge fixture, so it leaves no
+veil apparatus in shipped code.
+The perambulation's totality gate is likewise not a fixture but the cut's own
+first refusal, in-process (step 3)
 .. {rbbc_fatal}
 on any red: repair on the maintainer tree first
 
@@ -86,6 +90,12 @@ reading the maintainer tree cannot perform
 .. run damnatio on `POSTULANT_LOCAL`, before any feigning — the proof of
 erasure; damnatio reddens on feigned fields by construction, which is what
 keeps a probe branch from ever being mistaken for a candidate
+.. assay the candidate's transposed root CLAUDE.md for the veil token,
+in-process — re-homed from damnatio's strip-landed case, whose census-bearing
+scan could run only where the veiled trees still stand; the path-grain half
+(a withheld tree survived the strip) is already the cut's object-graph delta
+sweep (the cosmology's single-matcher section), so only this content-grain
+needle remains
 .. feign-probe reveille: cut a throwaway probe branch, feign a station, run
 the candidate's reveille from the consumer's seat, then return to
 `POSTULANT_LOCAL` and delete the probe branch outright

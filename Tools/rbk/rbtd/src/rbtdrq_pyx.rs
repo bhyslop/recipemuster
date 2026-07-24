@@ -29,17 +29,9 @@
 // The fixture reads committed files only. It runs no tool, opens no socket,
 // consults no live service. That is what admits it to reveille (credless, no
 // external dependency) and what lets the release ceremony re-run it on the
-// STRIPPED candidate tree, where the veiled specs and the non-shipping kits are
-// gone. Every corpus root below is therefore existence-tolerant: a root absent
-// from the stripped tree is skipped, not failed.
-//
-// The veil-leak case that once lived here is evicted to its own fixture, loupe
-// (rbtdrq_loupe.rs): it reads the tree in two roles at once, assaying the
-// SHIPPING files while harvesting its needle set from the WITHHELD ones, and
-// that needs a still-standing veiled tree to mean anything — a stripped-tree
-// re-run would go vacuously green. The scan machinery it reaches (constants,
-// census walk, matcher, self-proof) stays here because zrbtdrq_veil_tree_exists
-// also backs damnatio's strip-landed check.
+// STRIPPED candidate tree, where the non-shipping specs and kits are gone. Every
+// corpus root below is therefore existence-tolerant: a root absent from the
+// stripped tree is skipped, not failed.
 //
 // The known-vulnerability advisory audit is deliberately NOT here. Its verdict
 // moves with a live advisory database while the tree stands still, so it is not
@@ -339,238 +331,6 @@ pub(crate) const ZRBTDRQ_SHAPES: &[zrbtdrq_Shape] = &[
     zrbtdrq_Shape { label: "Anthropic API key",          prefix: "sk-ant-",          body: zrbtdrq_Body::Token,   body_min: 20 },
 ];
 
-// ── Veil scan ───────────────────────────────────────────────
-
-/// The directory basename that marks a tree as withheld from the distribution.
-/// It is both the needle the scan hunts in shipping files and the directory the
-/// scan refuses to walk.
-pub(crate) const ZRBTDRQ_VEIL_DIR: &str = "vov_veiled";
-
-/// Directories the veil walk never descends: build output, and the veiled trees
-/// themselves — a veiled file may name its veiled siblings freely, that is what
-/// being veiled means.
-pub(crate) const ZRBTDRQ_VEIL_SKIP_DIRS: &[&str] = &["target", ZRBTDRQ_VEIL_DIR];
-
-/// Repo-relative roots walked by the veil scan — the shipping tree. `diagrams/`
-/// rides here and not in the secret roots because a rendered diagram displays its
-/// source text to a reader: a withheld name in a `.puml` title is baked into the
-/// committed `.svg` and is read by a consumer who never greps anything.
-pub(crate) const ZRBTDRQ_VEIL_ROOTS: &[&str] =
-    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
-
-/// Repo-relative single files added to the veil corpus.
-///
-/// The repo-root `CLAUDE.md` is deliberately ABSENT — this scan's census is
-/// harvested from the veiled trees, so it only runs where they still stand (the
-/// maintainer tree), and there root CLAUDE.md is the maintainer's own context,
-/// naming withheld material on purpose. In the candidate, root CLAUDE.md carries
-/// the consumer template's bytes: expede transposes them from the path named
-/// below onto it, byte-asserted, between materialization and the commit — never
-/// a copy this ceremony performs. Scanning the template at its veiled home here
-/// covers that content pre-cut; damnatio's rbtdrq_veil_stripped covers the
-/// candidate's actual root CLAUDE.md directly, once no veiled tree stands to
-/// census from.
-///
-/// `LICENSE`, `.gitignore`, and `.gitattributes` are named explicitly for the
-/// same reason README.md is: they ship, but they sit at the repo root, outside
-/// every walked veil root. A shipping file the tree walk never reaches is a
-/// shipping file no needle ever touches — so a withheld path named in an ignore
-/// pattern or an attribute rule would ride to a consumer unseen. Enumerating
-/// them here folds those root ship-files into the same pre-cut scan the walked
-/// tree gets.
-pub(crate) const ZRBTDRQ_VEIL_FILES: &[&str] =
-    &[
-        "README.md",
-        "Tools/rbk/vov_veiled/CLAUDE.consumer.md",
-        "LICENSE",
-        ".gitignore",
-        ".gitattributes",
-    ];
-
-/// Repo-relative root under which veiled trees are hunted to build the census.
-pub(crate) const ZRBTDRQ_VEIL_CENSUS_ROOT: &str = "Tools";
-
-/// Extensions of the withheld documents whose BASENAMES may not be named by a
-/// shipping file. Documents only: a withheld `.sh` is reachable in prose only by
-/// its path, which the veil-directory needle already catches, while a bare
-/// document basename (`SOMEDOC-Topic.adoc`) is the citation form that slips past
-/// a path check.
-pub(crate) const ZRBTDRQ_VEIL_DOC_EXTS: &[&str] = &["adoc", "md"];
-
-/// Substrings a line must carry before it can possibly name a withheld document.
-/// A pure speed gate over the census loop, and exactly the extensions above.
-pub(crate) const ZRBTDRQ_VEIL_DOC_MARKS: &[&str] = &[".adoc", ".md"];
-
-/// Repo-relative paths exempt from the veil scan, each with the reason. Same
-/// doctrine as the secret-scan exemptions: an exemption is an OPERATOR ACT, exact
-/// path, never a prefix. Every row must address the veiled tree to do its work —
-/// a scan spelling its own needles, a table naming what it hunts, the census whose
-/// charter is to judge every withheld tree by name, or the delivery tool that
-/// transposes a withheld template onto the candidate.
-pub(crate) const ZRBTDRQ_VEIL_EXEMPT: &[(&str, &str)] = &[
-    (ZRBTDRQ_SELF_EXEMPT, "the veil scan spells the token and the corpus paths it hunts"),
-    (
-        "Tools/rbk/rbtd/src/rbtdrn_conformance.rs",
-        "its curl-scan exemption table addresses a withheld tree by path; dead in the stripped tree, where that tree is gone",
-    ),
-    (
-        "Tools/rbk/rbtd/src/rbtdrq_loupe.rs",
-        "the hostname-leak case's scan skip-dir list spells the veiled-dir literal it must not descend into",
-    ),
-    (
-        "rbmm_moorings/rbml_launchers/launcher.rbthw_workbench.sh",
-        "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no candidate carries it",
-    ),
-];
-
-/// One line may name a withheld thing two ways. Reported distinctly so a finding
-/// says which law it broke.
-pub(crate) const ZRBTDRQ_VEIL_PATH_DETAIL: &str = "names the withheld tree";
-pub(crate) const ZRBTDRQ_VEIL_DOC_DETAIL: &str = "names withheld document";
-
-/// True when `basename` is a withheld document — one of the extensions above.
-fn zrbtdrq_is_veil_doc(basename: &str) -> bool {
-    ZRBTDRQ_VEIL_DOC_EXTS
-        .iter()
-        .any(|ext| basename.ends_with(&format!(".{}", ext)))
-}
-
-/// Collect the basenames of every withheld document beneath `dir`, descending
-/// into it whole once a veiled tree is entered.
-pub(crate) fn zrbtdrq_census_walk(dir: &Path, inside: bool, out: &mut BTreeSet<String>) {
-    let entries = match std::fs::read_dir(dir) {
-        Ok(e) => e,
-        Err(_) => return,
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        let name = match path.file_name().and_then(|s| s.to_str()) {
-            Some(n) => n.to_string(),
-            None => continue,
-        };
-        if path.is_dir() {
-            if ZRBTDRQ_SKIP_DIRS.contains(&name.as_str()) {
-                continue;
-            }
-            zrbtdrq_census_walk(&path, inside || name == ZRBTDRQ_VEIL_DIR, out);
-            continue;
-        }
-        if inside && zrbtdrq_is_veil_doc(&name) {
-            out.insert(name);
-        }
-    }
-}
-
-/// True when any veiled tree exists beneath `dir` — the test that tells the
-/// maintainer's tree from the stripped candidate.
-pub(crate) fn zrbtdrq_veil_tree_exists(dir: &Path) -> bool {
-    let entries = match std::fs::read_dir(dir) {
-        Ok(e) => e,
-        Err(_) => return false,
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() {
-            continue;
-        }
-        let name = match path.file_name().and_then(|s| s.to_str()) {
-            Some(n) => n.to_string(),
-            None => continue,
-        };
-        if name == ZRBTDRQ_VEIL_DIR {
-            return true;
-        }
-        if ZRBTDRQ_SKIP_DIRS.contains(&name.as_str()) {
-            continue;
-        }
-        if zrbtdrq_veil_tree_exists(&path) {
-            return true;
-        }
-    }
-    false
-}
-
-/// Scan one shipping file's text for both veil needles, appending findings.
-pub(crate) fn zrbtdrq_veil_scan_text(
-    rel: &str,
-    text: &str,
-    census: &BTreeSet<String>,
-    findings: &mut Vec<zrbtdrq_Finding>,
-) {
-    for (index, line) in text.lines().enumerate() {
-        if line.contains(ZRBTDRQ_VEIL_DIR) {
-            findings.push(zrbtdrq_Finding {
-                file: rel.to_string(),
-                line: index + 1,
-                detail: ZRBTDRQ_VEIL_PATH_DETAIL.to_string(),
-            });
-        }
-        if !ZRBTDRQ_VEIL_DOC_MARKS.iter().any(|mark| line.contains(mark)) {
-            continue;
-        }
-        for doc in census {
-            if line.contains(doc.as_str()) {
-                findings.push(zrbtdrq_Finding {
-                    file: rel.to_string(),
-                    line: index + 1,
-                    detail: format!("{} {}", ZRBTDRQ_VEIL_DOC_DETAIL, doc),
-                });
-            }
-        }
-    }
-}
-
-/// The veil matcher's self-proof, run before its live-tree verdict is trusted.
-/// The census it proves against is synthetic, so the proof holds in a tree whose
-/// veiled documents have all been stripped away.
-pub(crate) fn zrbtdrq_veil_self_proof() -> Vec<zrbtdrq_Finding> {
-    let mut findings = Vec::new();
-    let census: BTreeSet<String> = ["ZZQ-Example.adoc".to_string()].into_iter().collect();
-
-    let positives: &[&str] = &[
-        "  - see Tools/rbk/vov_veiled/whatever.sh for the rule",
-        "# Contract: ZZQ-Example.adoc.",
-        "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context acronym row)",
-    ];
-    for probe in positives {
-        let mut hits = Vec::new();
-        zrbtdrq_veil_scan_text("self-proof", probe, &census, &mut hits);
-        if hits.is_empty() {
-            findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_SELF_EXEMPT.to_string(),
-                line: 0,
-                detail: format!("veil matcher missed a known leak: {:?}", probe),
-            });
-        }
-    }
-
-    let negatives: &[&str] = &[
-        "start with the README.md at the project root",
-        "the terrier records which citizens hold which mantles",
-        "ZZQ-Example.txt is not a withheld document",
-    ];
-    for probe in negatives {
-        let mut hits = Vec::new();
-        zrbtdrq_veil_scan_text("self-proof", probe, &census, &mut hits);
-        if !hits.is_empty() {
-            findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_SELF_EXEMPT.to_string(),
-                line: 0,
-                detail: format!("veil matcher fired on a benign line: {:?}", probe),
-            });
-        }
-    }
-
-    findings
-}
-
-// The veil-leak CASE (rbtdrq_veil_leak) lives in rbtdrq_loupe.rs now — evicted
-// into its own source-tree-only fixture so it cannot go vacuously green on the
-// stripped candidate. The scan machinery above (constants, census walk, matcher,
-// self-proof) stays here because zrbtdrq_veil_tree_exists is also damnatio's
-// strip-landed check, and the walker/report/finding types below are pyx's own
-// shared helpers reached from both loupe and damnatio.
-
 // ── README anchor check ─────────────────────────────────────
 
 /// Repo-relative source of the linked-term anchors the handbook yelps point at.
@@ -836,9 +596,9 @@ pub(crate) fn zrbtdrq_scan_text(rel: &str, text: &str, findings: &mut Vec<zrbtdr
 
 /// Recursively collect scannable files under `dir` into `out`, skipping the
 /// extensions and oversize payloads that cannot hold a hand-authored token.
-/// `skip_dirs` is per-scan: the secret scan reads the veiled trees (a credential
-/// committed there is still a maintainer's problem), while the veil scan must not
-/// (see ZRBTDRQ_VEIL_SKIP_DIRS).
+/// `skip_dirs` is per-scan: the secret scan reads every tree (a credential
+/// committed anywhere is still a maintainer's problem), so it skips only build
+/// output.
 pub(crate) fn zrbtdrq_walk(dir: &Path, skip_dirs: &[&str], out: &mut Vec<PathBuf>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
@@ -1110,6 +870,18 @@ fn rbtdrq_readme_anchors(dir: &Path) -> rbtdre_Verdict {
 /// The one extension the no-.adoc case forbids in the shipping corpus.
 pub(crate) const ZRBTDRQ_ADOC_EXT: &str = ".adoc";
 
+/// Repo-relative roots walked by the no-.adoc case — the shipping tree.
+/// `diagrams/` rides here for the reason it rides the secret roots: a rendered
+/// diagram displays its source text to a reader.
+pub(crate) const ZRBTDRQ_ADOC_ROOTS: &[&str] =
+    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
+
+/// Directories the no-.adoc walk never descends: build output, and `vov_veiled`
+/// — a maintainer-only tree that never reaches a consumer, so skipping it changes
+/// nothing on the delivered tree and only spares the maintainer's own run from
+/// its `.adoc` corpus.
+pub(crate) const ZRBTDRQ_ADOC_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
+
 /// Repo-relative paths exempt from the no-.adoc case, each with the reason. Same
 /// doctrine as the other exemption tables: exact path, never a prefix, and every
 /// row is an OPERATOR ACT — an `.adoc` that should ship is a ruling, never a
@@ -1177,15 +949,14 @@ fn zrbtdrq_adoc_self_proof() -> Vec<zrbtdrq_Finding> {
     findings
 }
 
-/// No `.adoc` file may ship. Every tracked spec sits under a withheld prefix
-/// today (`vov_veiled`, or a kit that never ships), but nothing mechanical
-/// enforces that placement — a spec landing under a ship-judged tree (`Tools/rbk/`
-/// ships whole) would ride silently into the candidate. The exemption table is
-/// the only door, and it starts empty: an `.adoc` that should ship is an operator
-/// ruling, never a default. Existence-tolerant roots and the veiled-dir skip are
-/// what let one case hold on both the maintainer tree and the candidate — the
-/// maintainer tree's own `.adoc` corpus lives entirely under `vov_veiled`, which
-/// this walk never enters.
+/// No `.adoc` file may ship. Every tracked spec sits under a prefix that never
+/// reaches a consumer today, but nothing mechanical enforces that placement — a
+/// spec landing under a ship-judged tree (`Tools/rbk/` ships whole) would ride
+/// silently into the candidate. The exemption table is the only door, and it
+/// starts empty: an `.adoc` that should ship is an operator ruling, never a
+/// default. Existence-tolerant roots and the skip list are what let one case hold
+/// on both the maintainer tree and the delivered tree — the maintainer's own
+/// `.adoc` corpus lives under a skipped directory this walk never enters.
 fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
@@ -1200,10 +971,10 @@ fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
     }
 
     let mut files = Vec::new();
-    for sub in ZRBTDRQ_VEIL_ROOTS {
+    for sub in ZRBTDRQ_ADOC_ROOTS {
         let path = root.join(sub);
         if path.is_dir() {
-            zrbtdrq_walk_paths(&path, ZRBTDRQ_VEIL_SKIP_DIRS, &mut files);
+            zrbtdrq_walk_paths(&path, ZRBTDRQ_ADOC_SKIP_DIRS, &mut files);
         }
     }
 

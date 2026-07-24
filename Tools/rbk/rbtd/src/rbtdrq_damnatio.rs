@@ -90,13 +90,8 @@ use crate::rbtdrm_manifest::RBTDRM_FIXTURE_DAMNATIO;
 use crate::rbtdrq_pyx::{
     zrbtdrq_report,
     zrbtdrq_root,
-    zrbtdrq_veil_scan_text,
-    zrbtdrq_veil_self_proof,
-    zrbtdrq_veil_tree_exists,
     zrbtdrq_walk,
     zrbtdrq_Finding,
-    ZRBTDRQ_VEIL_CENSUS_ROOT,
-    ZRBTDRQ_VEIL_SKIP_DIRS,
 };
 
 // ── The swept corpus ────────────────────────────────────────
@@ -109,13 +104,11 @@ use crate::rbtdrq_pyx::{
 pub(crate) const ZRBTDRQ_IDENTITY_ROOTS: &[&str] =
     &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
 
-/// The delivered tree's root context document, named once because two damnatio
-/// checks reach it for different needle classes: the identity sweep below hunts
-/// site-shaped identity, and rbtdrq_veil_stripped hunts veil needles once no
-/// veiled tree stands. In the maintainer tree it is the maintainer's own context;
-/// in the candidate it is the consumer template's bytes, transposed onto it by
-/// expede itself between materialization and the commit and byte-asserted —
-/// never a copy this ceremony performs.
+/// The delivered tree's root context document, hunted for site-shaped identity by
+/// the identity sweep below. In the maintainer tree it is the maintainer's own
+/// context; in the candidate it is the consumer template's bytes, transposed onto
+/// it by expede between materialization and the commit and byte-asserted — never
+/// a copy this ceremony performs.
 pub(crate) const ZRBTDRQ_ROOT_CLAUDE: &str = "CLAUDE.md";
 
 /// Repo-relative single files added to the sweep — the consumer-facing documents
@@ -123,10 +116,11 @@ pub(crate) const ZRBTDRQ_ROOT_CLAUDE: &str = "CLAUDE.md";
 /// in.
 pub(crate) const ZRBTDRQ_IDENTITY_FILES: &[&str] = &["README.md", ZRBTDRQ_ROOT_CLAUDE];
 
-/// The veiled trees are skipped: they never ship, and a withheld design document
-/// may name the operator's project freely — that is what being withheld means.
-/// Build output is skipped for the reason pyx skips it.
-pub(crate) const ZRBTDRQ_IDENTITY_SKIP_DIRS: &[&str] = ZRBTDRQ_VEIL_SKIP_DIRS;
+/// Directories the identity sweep never descends: build output, and `vov_veiled`
+/// — a maintainer-only tree that never reaches a consumer, so skipping it changes
+/// nothing on the delivered tree and only spares the maintainer's own run from a
+/// design document that names the project on purpose.
+pub(crate) const ZRBTDRQ_IDENTITY_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
 
 // ── The needles ─────────────────────────────────────────────
 
@@ -726,63 +720,12 @@ fn rbtdrq_proscription_complete(dir: &Path) -> rbtdre_Verdict {
 /// The proscription's one home — the file a completeness finding points at.
 pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_lustrate.sh";
 
-// ── Case: the strip landed ──────────────────────────────────
-
-/// No veiled tree may stand in the delivered candidate. The sweep above skips the
-/// veiled trees, and the proscription says nothing about them, so on the
-/// maintainer's tree both are silent about the largest body of withheld material
-/// in the repository. This case is what makes that silence safe: it fails
-/// outright if a veiled tree survived the strip.
-///
-/// Once no veiled tree stands, the candidate's root CLAUDE.md is checked for the
-/// same two veil needles pyx's veil corpus hunts (ZRBTDRQ_VEIL_FILES) — a leak
-/// that scan cannot catch on its own, because its census is harvested from the
-/// veiled trees and it runs only where they still stand (loupe is SOURCE-TREE
-/// ONLY). On the maintainer tree this second check is silent: root CLAUDE.md
-/// there is the maintainer's own context and names withheld material on purpose.
-/// zrbtdrq_veil_tree_exists is what tells the two trees apart, for both checks.
-fn rbtdrq_veil_stripped(dir: &Path) -> rbtdre_Verdict {
-    let root = match zrbtdrq_root() {
-        Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
-    };
-
-    let mut findings = Vec::new();
-    let inventory = BTreeSet::new();
-
-    let census_root = root.join(ZRBTDRQ_VEIL_CENSUS_ROOT);
-    if zrbtdrq_veil_tree_exists(&census_root) {
-        findings.push(zrbtdrq_Finding {
-            file: ZRBTDRQ_VEIL_CENSUS_ROOT.to_string(),
-            line: 0,
-            detail: "a withheld tree still stands — the strip did not land".to_string(),
-        });
-    } else {
-        findings.extend(zrbtdrq_veil_self_proof());
-
-        if let Ok(bytes) = std::fs::read(root.join(ZRBTDRQ_ROOT_CLAUDE)) {
-            let text = String::from_utf8_lossy(&bytes);
-            let empty_census = BTreeSet::new();
-            zrbtdrq_veil_scan_text(ZRBTDRQ_ROOT_CLAUDE, &text, &empty_census, &mut findings);
-        }
-    }
-
-    zrbtdrq_report(
-        dir,
-        "veilstrip",
-        &findings,
-        &inventory,
-        "surviving withheld tree(s) or veil-leaking root CLAUDE.md",
-    )
-}
-
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTDRQ_CASES_DAMNATIO: &[rbtdre_Case] = &[
     case!(rbtdrq_identity_shapes),
     case!(rbtdrq_proscribed_values),
     case!(rbtdrq_proscription_complete),
-    case!(rbtdrq_veil_stripped),
 ];
 
 pub static RBTDRQ_FIXTURE_DAMNATIO: rbtdre_Fixture = rbtdre_Fixture {
