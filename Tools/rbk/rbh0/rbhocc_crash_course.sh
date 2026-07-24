@@ -78,6 +78,14 @@ rbho_crash_course() {
 
   buh_step1 "Validate your station"
   buh_e
+  buh_line "On a genuinely fresh clone there is no station file yet. Create one"
+  buh_line "with the fresh-station bootstrap:"
+  buh_e
+  buh_tt   "   " "buw-SI"
+  buh_e
+  buh_line "This writes a complete ${RBYC_BURS} file with every required field"
+  buh_line "and a purpose comment for each — safe to re-run any time."
+  buh_e
   buh_line "Every ${RBYC_REGIME} has a validate tabtarget that checks the file against"
   buh_line "its schema. This may fail if your station file is missing fields"
   buh_line "beyond the minimum the launcher required — that is expected."
@@ -115,6 +123,11 @@ rbho_crash_course() {
   buh_line "the ${RBYC_PAYOR} must establish a ${RBYC_MANOR} and ${RBYC_LEVY} a ${RBYC_DEPOT} to populate them."
   buh_line "On a team repo, they are already populated and validation passes."
   buh_line "Either way, read the output — it tells you exactly what state you're in."
+  buh_e
+  buh_line "A blank ${RBYC_RBRD} does not block local ${RBYC_CRUCIBLE} work — the next track"
+  buh_line "on the start menu kludges and charges the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} entirely"
+  buh_line "on Docker, no cloud identity required. ${RBYC_RBRD} only gates ${RBYC_DEPOT}-backed"
+  buh_line "builds (Cloud Build, GAR-hosted images) — the ${RBYC_PAYOR} track further down."
   buh_e
   if test "${z_rbrd_populated}" = "1"; then
     zrbho_po_status 1 "${RBYC_RBRD} populated — depot project: ${z_rbrd_project}"

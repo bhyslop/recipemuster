@@ -86,15 +86,15 @@ if test -z "${BURD_NO_LOG:-}"; then
   source "${BURC_TOOLS_DIR}/buk/buym_yelp.sh"    || buc_die "Failed to source buym_yelp.sh"
   source "${BURC_TOOLS_DIR}/buk/buh_handbook.sh" || buc_die "Failed to source buh_handbook.sh"
 
+  # Shared with tt/buw-SI.StationInit.sh — single home for the field template
+  source "${BURC_TOOLS_DIR}/buk/burs_template.sh" || buc_die "Failed to source burs_template.sh"
+
   # Load BURS configuration and kindle
   z_station_file="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
   if ! test -f "${z_station_file}"; then
     buyy_ui_yawp  "${z_station_file}";              z_path_yp="${z_buym_yelp}"
     buyy_ui_yawp  "${BURC_STATION_FILE}";           z_rel_yp="${z_buym_yelp}"
     buyy_ui_yawp  "${BURD_REGIME_FILE}";            z_burc_yp="${z_buym_yelp}"
-    buyy_cmd_yawp "BURS_LOG_DIR=../logs-buk";       z_var_log_yp="${z_buym_yelp}"
-    buyy_cmd_yawp "BURS_USER=<your-username>";      z_var_usr_yp="${z_buym_yelp}"
-    buyy_cmd_yawp "BURS_TINCTURE=a";                z_var_tin_yp="${z_buym_yelp}"
 
     buh_e
     buh_section "SETUP NEEDED: Station Regime file not found"
@@ -115,28 +115,23 @@ if test -z "${BURD_NO_LOG:-}"; then
     buh_e
     buh_line    "  Other toolkits in the project may define additional regime files."
     buh_e
-    buh_line    "  To get started, create the Station Regime file with this content:"
+    buh_line    "  The fastest fix: run the fresh-station bootstrap, which writes a"
+    buh_line    "  complete Station Regime file for you."
+    buh_tt      "  " "buw-SI"
     buh_e
-    buh_line    "    ${z_var_log_yp}"
-    buh_line    "    ${z_var_usr_yp}"
-    buh_line    "    ${z_var_tin_yp}"
+    buh_line    "  Or create it yourself with this content:"
     buh_e
-    buh_line    "  All three variables are required."
+    for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
+      buyy_cmd_yawp "${ZBURS_TEMPLATE_NAMES[${z_i}]}=${ZBURS_TEMPLATE_VALUES[${z_i}]}"
+      buh_line    "    ${z_buym_yelp}"
+    done
     buh_e
-    buh_line    "  BURS_LOG_DIR names the directory for operation logs. All tabtargets"
-    buh_line    "  run from the project root, so relative paths resolve from there. The"
-    buh_line    "  example above places logs in the parent directory of the repo. You"
-    buh_line    "  may also use an absolute path, or a path inside the repo itself"
-    buh_line    "  (.gitignored) — the Config Regime's choice of BURC_STATION_FILE path"
-    buh_line    "  often signals which convention a project prefers."
+    buh_line    "  All ${#ZBURS_TEMPLATE_NAMES[@]} variables are required."
     buh_e
-    buh_line    "  BURS_USER is your local developer username (1-32 chars). Per-user"
-    buh_line    "  profile lookups under ${BURD_MOORINGS_DIR}/${BUBC_rbmu_users_subdir}/<BURS_USER>/ key on this name."
-    buh_e
-    buh_line    "  BURS_TINCTURE is a 1-3 char tag (lowercase alphanumeric, leading"
-    buh_line    "  letter, no hyphen). Use 'a' until you have a reason to change it;"
-    buh_line    "  downstream tooling may compose it into per-station resource names"
-    buh_line    "  so concurrent stations sharing an upstream account stay disjoint."
+    for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
+      buh_line    "  ${ZBURS_TEMPLATE_NAMES[${z_i}]}: ${ZBURS_TEMPLATE_COMMENTS[${z_i}]}"
+      buh_e
+    done
     buh_e
     exit 1
   fi
