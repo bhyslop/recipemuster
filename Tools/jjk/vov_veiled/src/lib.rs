@@ -147,6 +147,9 @@ mod jjtvg_guidon;
 #[cfg(test)]
 mod jjtdc_cashier;
 
+#[cfg(test)]
+mod jjtwp_wrap;
+
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};
 pub use jjrn_notch::{jjrn_ChalkMarker, jjrn_HeatAction, jjrn_format_notch_prefix, jjrn_format_heat_message, jjrn_format_heat_discussion};

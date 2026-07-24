@@ -350,9 +350,12 @@ JJ conduct core (dispatched session):\n\
 - Otherwise (unbridled, or bridled at your own frontier tier): full ceremony; never auto-wrap — ask the operator.\n";
 
 /// The staleness recommendation body — one text (JJSVD "Refit"). `jjx_open`
-/// leads with it today (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`); notch
-/// and wrap are to append the same text once their own wiring lands. Names
-/// refit as the remedy; refit is ashlar, so the words here are operator-facing.
+/// leads with it today (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`); notch is
+/// to append the same text once its own wiring lands. Wrap deliberately does
+/// NOT share this text: there the same probe gates rather than advises, and a
+/// refusal speaks the interdictum genre (`jjri_staleness_interdictum`), which
+/// this advisory body would dilute. Names refit as the remedy; refit is ashlar,
+/// so the words here are operator-facing.
 pub const JJRDS_REFIT_RECOMMENDATION: &str =
     "trunk has moved: this billet is behind trunk's remote counterpart. Remedy: refit — merge trunk into the billet and push (never rebase).";
 

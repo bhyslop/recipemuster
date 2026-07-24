@@ -29,7 +29,10 @@
 //! `origin/<trunk>`, a local ancestry check after any glean. The dispatch
 //! board surfaces it via `jjrds_staleness_notice` (dispatch spine), and
 //! `jjx_open` leads its own report with the same notice
-//! (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`); notch and wrap do not yet.
+//! (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`). Wrap consults the same probe
+//! but does not advise on it: at wrap entry the probe is a gate
+//! (`jjrwp_staleness_gate`), and a stale billet meets an interdictum naming
+//! refit rather than a notice. Notch remains unwired.
 
 use crate::jjrfr_farrier::{
     jjrfr_FarrierBillet,
