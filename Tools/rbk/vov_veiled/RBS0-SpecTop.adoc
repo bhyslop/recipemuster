@@ -586,6 +586,7 @@
 :rbsk_in_pool_preflight:     <<rbsk_in_pool_preflight,In-Pool Reliquary Preflight>>
 :rbsk_pinning_boundary:      <<rbsk_pinning_boundary,Supply-Chain Pinning Boundary>>
 :rbsk_human_present:         <<rbsk_human_present,Human Present>>
+:rbsk_vedette:               <<rbsk_vedette,Vedette>>
 
 // Recipe Bottle Ifrit (adversarial AI escape testing)
 // rbsi_ prefix: RB Security Ifrit (adversarial validation concepts)
@@ -1090,6 +1091,21 @@ Mechanism boundary: the
 {rbrf_mechanism_programmatic}
 mechanism deliberately voids this premise — it deletes the human by construction (a self-supplied JWT, no sitting, no avow) — and exists only for the unattended test-bed, never a production foedus.
 The voiding is bounded to that test scope; it relaxes nothing for production, where the interactive mechanism and this premise hold.
+
+[[rbsk_vedette]]
+//axk_premise
+{rbsk_vedette}::
+The hyperscaler withholds terminal-state contracts on exactly the racy operations — IAM grant propagation and billing linkage expose no "the work is done / the work will never be done" signal — so retry/poll/timeout scaffolding is permanent design, never a workaround awaiting a vendor fix.
+That scaffolding is a posted vedette: a standing forward watch kept at the Palisade because the neighbor will never signal completion.
++
+The completion contract is a solved, available pattern — Azure ARM's async-operation protocol, {gcp_service}'s own AIP-151 — applied selectively, with the gaps landing on precisely the operations that cause races.
+Eventual consistency itself is occasionally a legitimate scale necessity; the absence of a pollable completion signal with a bounded budget is not — it is a product choice, and this premise holds it permanent.
+{at_recipe_bottle} is not waiting for the vendor to fix an oversight; it is deliberately absorbing a deliberate posture.
++
+The smell test for honest scaffolding: a poll-until-terminal-state loop is the vedette on watch; a fixed blind sleep is the sentry asleep at the post — a guessed timeout standing in for a signal that should exist, and the fingerprint to hunt down.
++
+RBSCIP is the operational law instantiating this premise; its call-context rule (post-grant sites wait the budget; cold-call sites fail fast) and the single shared `RBGC_PROPAGATION_*` backoff budget are corollaries.
+Provenance: `Memos/memo-20260521-hyperscaler-cost-cap-and-api-consistency-premise.md` (Axis B).
 
 == Dependency Inventory
 

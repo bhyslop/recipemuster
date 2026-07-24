@@ -49,6 +49,12 @@ the federation legs and the access probes — fail fast on any 401/403
 ({rbtf_don} fault posture).
 Neither narrows into the other: the budget is the correctness mechanism at
 these sites, not a tuning knob.
+This whole decision is the operational law instantiating the
+{rbsk_vedette}
+premise: the vendor will never ship the terminal-state signal these sites
+lack, so the call-context rule above and the single shared
+`RBGC_PROPAGATION_*` budget below stand as its corollaries — permanent
+design, not a workaround inventory.
 
 The admission-grant window is where the two postures meet, and the siting
 rule follows from who *can* prove propagation. Only actual access as the
@@ -88,7 +94,7 @@ runs; any other exit returns immediately, and an exhausted budget surfaces
 the final admission exit so a real denial still fails the case. The
 production don stays lean — no retry rides `rba_don_capture`.
 Retirement condition: a vendor terminal-state contract for IAM-grant
-propagation (the Axis-B premise — `memo-20260521` — expects never) or the
+propagation (the {rbsk_vedette} premise expects never) or the
 retirement of hot-path admission grants; standing absorption of a permanent
 premise, not a demolition-dated flake workaround.
 
