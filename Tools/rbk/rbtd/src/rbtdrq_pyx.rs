@@ -370,8 +370,22 @@ pub(crate) const ZRBTDRQ_VEIL_ROOTS: &[&str] =
 /// covers that content pre-cut; damnatio's rbtdrq_veil_stripped covers the
 /// candidate's actual root CLAUDE.md directly, once no veiled tree stands to
 /// census from.
+///
+/// `LICENSE`, `.gitignore`, and `.gitattributes` are named explicitly for the
+/// same reason README.md is: they ship, but they sit at the repo root, outside
+/// every walked veil root. A shipping file the tree walk never reaches is a
+/// shipping file no needle ever touches — so a withheld path named in an ignore
+/// pattern or an attribute rule would ride to a consumer unseen. Enumerating
+/// them here folds those root ship-files into the same pre-cut scan the walked
+/// tree gets.
 pub(crate) const ZRBTDRQ_VEIL_FILES: &[&str] =
-    &["README.md", "Tools/rbk/vov_veiled/CLAUDE.consumer.md"];
+    &[
+        "README.md",
+        "Tools/rbk/vov_veiled/CLAUDE.consumer.md",
+        "LICENSE",
+        ".gitignore",
+        ".gitattributes",
+    ];
 
 /// Repo-relative root under which veiled trees are hunted to build the census.
 pub(crate) const ZRBTDRQ_VEIL_CENSUS_ROOT: &str = "Tools";
