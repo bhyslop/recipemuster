@@ -13,7 +13,9 @@ use std::collections::HashSet;
 
 use vvc::{vvco_err, vvco_Output};
 
-use crate::jjrf_favor::{jjrf_bare, jjrf_Coronet, jjrf_Firemark, JJRF_FIREMARK_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrf_favor::{jjrf_bare, jjrf_livery_parse, jjrf_Coronet, jjrf_Firemark, jjrf_LiveryKind, JJRF_FIREMARK_PREFIX, JJRF_FIREMARK_LEN, JJRF_CORONET_LEN};
+use crate::jjrfg_plaingit::jjrfg_PlainGit;
+use crate::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_LineOfWork};
 use crate::jjrn_notch::{jjrn_format_notch_prefix, JJRN_COMMIT_PREFIX};
 
 const JJRNC_CMD_NAME_RECORD: &str = "jjx_record";
@@ -227,6 +229,23 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
     let rc = vvc::commit(&commit_args, &mut output);
 
+    // Ruling 3 (₣B9 paddock, carried 260722 wrap-convergence session): notch
+    // consigns the billet branch every time. The commit already landed
+    // locally, so a push failure here cannot be undone (additive discipline)
+    // — it surfaces loud instead, turning the local-only commit into a
+    // reportable gap rather than a silent one.
+    let rc = if rc == 0 {
+        match zjjrnc_consign_current_branch(&jjrfg_PlainGit) {
+            Ok(()) => rc,
+            Err(e) => {
+                vvco_err!(output, "{}: error: commit landed locally, but consigning the billet branch failed: {}", cn, e);
+                1
+            }
+        }
+    } else {
+        rc
+    };
+
     // After the fact, never ahead of it: the commit has landed, and the monitum names what
     // it recorded. The advisory is the whole safety mechanism of the allowed empty notch,
     // so it never gates — the exit code stays the commit's own.
@@ -235,6 +254,26 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
     }
 
     (rc, output.vvco_finish())
+}
+
+/// Push the checked-out branch when — and only when — it wears the pace
+/// livery badge (`jjls_pace/{coronet}`, JJRF_LIVERY_PACE): the billet's own
+/// WIP carrier, the branch Ruling 3 names. A branch outside that badge
+/// (hippodrome trunk, a `jjls_groom` billet, a detached HEAD) is left
+/// untouched — notch's ground is not yet gated (a separate seeded build), so
+/// this is the one signal available here to tell a pace billet apart from
+/// everything else notch can currently run from.
+fn zjjrnc_consign_current_branch<F: jjrfr_FarrierCore>(farrier: &F) -> Result<(), String> {
+    let cwd = std::env::current_dir().map_err(|e| format!("failed to read current directory: {}", e))?;
+    let identity = farrier.jjrfr_identify(&cwd).map_err(|e| e.to_string())?;
+    let branch = match &identity.line_of_work {
+        jjrfr_LineOfWork::Branch(name) => name,
+        jjrfr_LineOfWork::Detached(_) => return Ok(()),
+    };
+    if !matches!(jjrf_livery_parse(branch), Some((jjrf_LiveryKind::Pace, _))) {
+        return Ok(());
+    }
+    farrier.jjrfr_consign(&cwd, branch).map_err(|e| e.to_string())
 }
 
 /// The empty-notch self-report — a monitum (JJS0 `jjdz_monitum`): non-gating, emitted after
