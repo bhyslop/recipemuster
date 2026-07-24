@@ -337,8 +337,8 @@ pub fn jjrdm_plan<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 
 /// The path prefix muck must never lodge, even when dirty and confirmed:
 /// JJ's own officium exchange (gazettes, heartbeats) is a knowledge
-/// product, never a work-repo artifact (260709 footprint-posture cinch —
-/// "knowledge products ... never land there"). A founded install gitignores
+/// product, never a work-repo artifact — the footprint partition, rivet
+/// `JJr_f30`. A founded install gitignores
 /// this, so `comb` ordinarily never surfaces it as dirty in the first
 /// place; this filter is belt-and-braces against an incomplete or
 /// hand-edited `.gitignore`.

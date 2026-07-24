@@ -41,13 +41,72 @@ the derivation chain that consumes the entry is world model, homed in the cosmol
 Each {jjdb_pedigree} carries:
 
 * the {jjdf_farrier} kind — which revision-control driver serves clones of this sire —
-  and its parameters (trunk name, remotes posture);
+  and its parameters (trunk name, {jjdb_footprint});
 * the sire's tackle set — its filesets and the governance each carries, and in time their
   declared interrelations — as a sibling entry ({jjdl_tackle}, tackle sheaf).
   The {jjdl_bounds} seat in the tackle table itself, never here: coverage is tackle
   machinery, and a second home would be a second truth;
 * reserved, parked: a per-sire edit-scope wildcard list, if billets-per-pace ever prove
   insufficient for collision avoidance.
+
+== Footprint
+
+What JJ leaves behind in a sire is partitioned by ownership, never by convenience.
+
+*Work products* — commits and branches, the code changes themselves — are the registered
+body's property.
+They reach the sire in the form its owner tolerates, and naming that form is the
+{jjdb_pedigree_p} office, never the {jjdw_engine_p} to assume.
+*Knowledge products* — the {jjdgr_gallops}, {jjdb_counterfoil_s}, captured session
+transcripts, guides, and grimoire — are JJ's own, and never land in a sire at all:
+they live in the {jjdb_studbook} and the {jjdw_infield}.
+This partition is what lets a {jjdw_hippodrome} stay vanilla;
+it is the boundary "What never enters the record" draws, read from the other side.
+
+The proposition is a rivet, cited in shipped code by the opaque token `JJr_f30`:
+its identifier carries no meaning, so it leaks none into the rust that ships without this
+veiled spec, and one `grep JJr_f30` returns this definition and every site it guards.
+The {jjdd_muck} sweep's JJ-owned-prefix filter is a citation site — it refuses to lodge
+JJ's own {jjdxo_exchange} into a work repo even when the sweep is dirty and confirmed.
+
+[[jjdb_footprint]]
+{jjdb_footprint}::
+The per-{jjdb_pedigree} posture governing the form in which work products reach their sire:
+the {jjdf_farrier} parameter that the narrower *remotes posture* widened into once the
+partition above was seen to be the thing being parameterized.
+Two arms stand:
++
+* *default* — personal branches: JJ pushes branches of its own to the sire, and the body's
+  owner takes the work from there;
+* *constrained* — one personal branch carrying a prepared patch series (format-patch
+  lineage), for a body whose owner tolerates no more than that.
++
+The constrained arm is spoken by a {jjdf_farrier} kind of its own rather than by a flag on
+the default one: how a series is prepared and offered is driver behaviour, and a kind is
+where driver behaviour lives.
++
+Whichever arm a {jjdb_pedigree} names, the partition is unconditional —
+no posture makes a knowledge product deliverable.
+
+== Sojourn
+
+[[jjdk_sojourn]]
+//axk_premise
+{jjdk_sojourn}::
+A {jjdb_pedigree} records a bounded stay, not a possession:
+JJ arrives at a sire, delivers traction on it, and departs.
+The bodies of work outlive JJ; JJ's claim on any of them ends when the work does.
+The world model already speaks this from the ground's side — JJ visits a {jjdw_hippodrome},
+never moves in — and this premise is that stance read from the record's side.
++
+Consequently a {jjdb_pedigree} entry *concludes by status, never by deletion*.
+The {jjdb_studbook} is a register, and a register that erases its concluded lines stops
+being a record of what was served.
++
+A disengagement ceremony — retiring a footprint per the posture the {jjdb_pedigree} names —
+is out of scope at MVP.
+What the premise binds now is that concluding a stay is a status transition, and that
+nothing left standing in the sire is JJ's to reclaim.
 
 == Counterfoil
 
