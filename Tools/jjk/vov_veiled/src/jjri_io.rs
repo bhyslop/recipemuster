@@ -8,6 +8,7 @@
 
 use std::fs;
 use std::path::Path;
+use crate::jjrfr_farrier::jjrfr_Rejection;
 use crate::jjrt_types::jjrg_Gallops;
 use crate::jjrv_validate::{jjrg_validate, jjrg_reconcile};
 
@@ -422,6 +423,26 @@ pub fn jjri_staleness_interdictum(cmd: &str, branch: &str, trunk: &str) -> Strin
          Remedy: refit — merge trunk into this billet and push (never rebase); the wrap then \
          re-attempts and passes. Refit is an operator-directed act: the gate never runs it, and \
          re-attempting the wrap unchanged only meets this same refusal."
+    )
+}
+
+/// The converge's refusal — the wrap reached trunk and trunk would not take the
+/// bequest, which under fast-forward-protected push means trunk moved between the
+/// gate's glean and the delivery. Not an interdictum: nothing is barred, a race
+/// was lost, and the same wrap succeeds once the billet holds the new tip.
+///
+/// The single home for its text, same genre law as its siblings above — the body
+/// stands alone, naming what refused, what did and did not happen, and the remedy.
+/// The no-residue statement is load-bearing: an agent reading a failed delivery
+/// must know there is nothing to scrub, or it will invent a repair.
+pub fn jjri_converge_refusal(cmd: &str, trunk: &str, rejection: &jjrfr_Rejection) -> String {
+    format!(
+        "{cmd}: error: the converge did not land; trunk '{trunk}' refused the wrap's commit \
+         ({rejection}).\n\n\
+         Trunk is untouched and the pace stays open. The work commit stands on this billet's own \
+         branch — nothing to undo, and nothing was left half-delivered.\n\n\
+         Remedy: trunk moved under this wrap. Refit — merge trunk into this billet and push \
+         (never rebase) — then wrap again; the re-attempt carries the same work forward."
     )
 }
 

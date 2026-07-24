@@ -18,6 +18,7 @@
 //! session."
 
 use crate::jjrfr_farrier::{
+    jjrfr_BequeathOutcome,
     jjrfr_BilletBirth,
     jjrfr_CombReport,
     jjrfr_ConsignLease,
@@ -75,6 +76,7 @@ const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
 const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
 const ZJJRFG_OP_OUTSTRIPPED: &str = "outstripped";
 const ZJJRFG_OP_ENFOLD: &str = "enfold";
+const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
 const ZJJRFG_OP_PRIMARY_ROOT: &str = "primary_root";
 
 struct zjjrfg_GitOutput {
@@ -673,6 +675,54 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             Some(1) => Ok(true),
             _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.zjjrfg_detail()),
         }
+    }
+
+    fn jjrfr_bequeath(&self, billet_root: &Path, trunk: &str, message: &str) -> Result<jjrfr_BequeathOutcome, jjrfr_Rejection> {
+        let counterpart = zjjrfg_counterpart(trunk);
+        let tip_out = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", &format!("{}^{{commit}}", counterpart)]);
+        if !tip_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BEQUEATH, billet_root, &tip_out.zjjrfg_detail());
+        }
+        let tip = tip_out.stdout.trim().to_string();
+
+        // The estate is the billet's tip tree, read straight off its line of work:
+        // no index, no working-tree write, nothing staged. `commit-tree` takes a
+        // tree object, so the whole composition is object-database arithmetic.
+        let estate_out = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", "HEAD^{tree}"]);
+        if !estate_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BEQUEATH, billet_root, &estate_out.zjjrfg_detail());
+        }
+        let estate = estate_out.stdout.trim().to_string();
+
+        let held_out = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", &format!("{}^{{tree}}", tip)]);
+        if !held_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BEQUEATH, billet_root, &held_out.zjjrfg_detail());
+        }
+        if held_out.stdout.trim() == estate {
+            return Ok(jjrfr_BequeathOutcome::Unchanged);
+        }
+
+        let commit_out = zjjrfg_run_git(billet_root, &["commit-tree", &estate, "-p", &tip, "-m", message]);
+        if !commit_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BEQUEATH, billet_root, &commit_out.zjjrfg_detail());
+        }
+        let commit = commit_out.stdout.trim().to_string();
+
+        // JJr_d81
+        // Plain, fast-forward-protected push of the composed commit onto trunk.
+        // The parent is the counterpart tip, so this fast-forwards unless trunk
+        // moved between the caller's glean and here — which git rejects, and
+        // which is `Diverged`. Nothing local moved to scrub: the composed commit
+        // is a dangling object the next reap collects.
+        let refspec = format!("{}:refs/heads/{}", commit, trunk);
+        let out = zjjrfg_run_git(billet_root, &["push", ZJJRFG_REMOTE, &refspec]);
+        if !out.ok {
+            if zjjrfg_push_rejected(&out.stderr) {
+                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_BEQUEATH, billet_root, out.stderr));
+            }
+            zjjrfg_unexpected(ZJJRFG_OP_BEQUEATH, billet_root, &out.zjjrfg_detail());
+        }
+        Ok(jjrfr_BequeathOutcome::Landed(commit))
     }
 
     fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection> {

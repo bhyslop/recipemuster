@@ -172,6 +172,18 @@ pub enum jjrfr_GleanOutcome {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrfr_ConsignLease(pub String);
 
+/// `bequeath`'s total outcome. `Unchanged` is a first-class result, not a
+/// rejection: a billet whose tree already stands at trunk's tip has an estate to
+/// pass that trunk already holds — the verification-only pace's ordinary shape —
+/// and composing a commit for it would put an empty position on the trunk every
+/// such wrap. Nothing is composed and nothing is pushed, so there is no position
+/// to name.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum jjrfr_BequeathOutcome {
+    Landed(String),
+    Unchanged,
+}
+
 // ---- Facet traits ----
 
 /// The core facet (`jjdf_core`): the ops every farrier kind serves — orientation,
@@ -310,6 +322,28 @@ pub trait jjrfr_FarrierBillet {
     /// `false` when no counterpart is known locally: nothing observed can be
     /// ahead, and the warning this probe feeds must not cry on ignorance.
     fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
+
+    /// Pass the billet's whole estate up to the trunk: compose ONE commit whose
+    /// tree is the billet's line-of-work tip tree exactly as it stands, with the
+    /// trunk branch's remote counterpart tip — its position as of the last
+    /// `jjrfr_glean` — as SOLE parent, and hand that commit into the remote's
+    /// custody on trunk. The estate passes whole; the billet's interior history
+    /// does not travel with it, which is what makes this a bequest rather than a
+    /// merge. The billet branch itself keeps that history and is untouched here.
+    ///
+    /// Composed, never checked out: no working tree anywhere is written, no local
+    /// line of work moves, and the primary's tree is never read (the same
+    /// posture `jjrfr_enfold` states — the operator's local trunk ref is not
+    /// consulted, only its counterpart). A caller that has just passed the
+    /// staleness gate therefore hands this a trivial input by construction: the
+    /// counterpart tip is already the billet's ancestor.
+    ///
+    /// `Unchanged` when the composed tree already equals the counterpart tip's
+    /// tree — nothing is composed and nothing is pushed. Never force
+    /// (`JJr_d81`); a content race on trunk rejects `Diverged`, and because the
+    /// composition happens before any push and moves nothing local, a refusal
+    /// leaves no residue on either side.
+    fn jjrfr_bequeath(&self, billet_root: &Path, trunk: &str, message: &str) -> Result<jjrfr_BequeathOutcome, jjrfr_Rejection>;
 
     /// Reap a billet; refuses `DirtyTree` on dirty.
     fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
