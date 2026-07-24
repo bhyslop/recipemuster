@@ -32,8 +32,12 @@ The per-sire record: one {jjdb_pedigree} per *sire* — the registered external 
 JJ serves, a transport-independent identity (a git clone today, perhaps a tarball someday
 under another driver kind) — stored in the {jjdb_studbook} — the {jjdb_studbook} is a
 register of {jjdb_pedigree_s}.
-The {jjdb_pedigree} keys on the sire's minted immutable identity;
-an origin URL is a kind-owned mutable address attribute, never the key.
+The {jjdb_pedigree} keys on the sire's addresses directly.
+The registered-identity indirection — a derived key resolving to a minted sire id, the
+{jjdb_pedigree} keyed on that id rather than the address — is deliberately not carried: no
+consumer resolves it, so the field would seed durable committed records with a value nothing
+sets meaningfully (`jjrds_Pedigree` doc comment, journal spine). It lands as an optional field
+the day address mobility is real.
 A new sire needs a founding {jjdb_pedigree} entry before JJ serves it — a deliberate
 ceremony;
 the derivation chain that consumes the entry is world model, homed in the cosmology sheaf.
