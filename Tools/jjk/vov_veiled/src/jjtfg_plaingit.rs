@@ -786,7 +786,7 @@ fn jjtfg_billet_seat_reseats_a_durable_branch_with_its_history() {
         .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("durable".to_string()), first.path(), ZJJTFG_TRUNK)
         .unwrap();
     let wip = zjjtfg_commit_all(first.path(), "wip.txt", "carried work", "wip on the durable branch");
-    jjrfg_PlainGit.jjrfr_billet_remove(first.path()).unwrap();
+    jjrfg_PlainGit.jjrfr_billet_remove(first.path(), false).unwrap();
 
     let second = zjjtfg_billet_slot("jjtfg_billet_seat_second");
     jjrfg_PlainGit.jjrfr_billet_seat(primary.path(), "durable", second.path()).unwrap();
@@ -1080,7 +1080,7 @@ fn jjtfg_billet_remove_reaps_a_clean_billet() {
         .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("removable".to_string()), billet.path(), ZJJTFG_TRUNK)
         .unwrap();
 
-    jjrfg_PlainGit.jjrfr_billet_remove(billet.path()).unwrap();
+    jjrfg_PlainGit.jjrfr_billet_remove(billet.path(), false).unwrap();
 
     assert!(!billet.path().exists());
     let worktrees = zjjtfg_git(primary.path(), &["worktree", "list"]);
@@ -1096,9 +1096,25 @@ fn jjtfg_billet_remove_rejects_dirty_tree() {
         .unwrap();
     zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
 
-    let result = jjrfg_PlainGit.jjrfr_billet_remove(billet.path());
+    let result = jjrfg_PlainGit.jjrfr_billet_remove(billet.path(), false);
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
+}
+
+#[test]
+fn jjtfg_billet_remove_forced_removes_a_dirty_tree() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_remove_forced");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_remove_forced_billet");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("forced-billet".to_string()), billet.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
+
+    jjrfg_PlainGit.jjrfr_billet_remove(billet.path(), true).unwrap();
+
+    assert!(!billet.path().exists());
+    let worktrees = zjjtfg_git(primary.path(), &["worktree", "list"]);
+    assert!(!worktrees.contains("forced-billet"));
 }
 
 /// Bare remote, a primary tracking it with a pushed baseline, and a billet

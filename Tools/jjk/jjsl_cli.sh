@@ -106,6 +106,43 @@ jjsl_cashier() {
   "${ZJJSL_VVX}" jjx_cashier --cwd "${z_cwd}" --break
 }
 
+# Muck: destroy a named billet's destroy arm (JJSVD jjdd_muck). Plan-then-confirm:
+# the report is shown first, the operator answers, then the destroy runs — the
+# constellation's one deliberate data-loss surface.
+jjsl_muck() {
+  zjjsl_sentinel
+  zjjsl_muck_confirmed ""
+}
+
+# Muck's salvage-then-destroy arm: open only on a dirty pace billet (the plan's
+# own report names which arms are open) — lodges the non-JJ-owned dirty paths
+# onto the pace's own seated branch, consigns, then destroys.
+jjsl_muck_salvage() {
+  zjjsl_sentinel
+  zjjsl_muck_confirmed "--salvage"
+}
+
+# Shared plan-then-confirm body for both muck verbs. The confirm gate is THIS
+# door's contract, not the reap's: the report is shown, the operator answers,
+# and only then does the SAME resolution get destroyed.
+zjjsl_muck_confirmed() {
+  local -r z_arm_flag="${1}"
+  local -r z_cwd="$(zjjsl_invoke_dir)"
+  local -r z_target="${BUZ_FOLIO:-}"
+  test -n "${z_target}" || buc_die "jjsl muck: no target supplied (a yard dirname, or the coronet/firemark identity behind one)"
+
+  # The report the operator judges from - the Rust door owns its format.
+  "${ZJJSL_VVX}" jjx_muck --cwd "${z_cwd}" --target "${z_target}"
+
+  buc_require "About to MUCK the billet reported above - deliberate data loss, dismissing whatever it carries." "muck"
+
+  if [ -z "${z_arm_flag}" ]; then
+    "${ZJJSL_VVX}" jjx_muck --cwd "${z_cwd}" --target "${z_target}" --execute
+  else
+    "${ZJJSL_VVX}" jjx_muck --cwd "${z_cwd}" --target "${z_target}" --execute "${z_arm_flag}"
+  fi
+}
+
 # Found the studbook from nothing (JJSAS Founding-and-cutover, jjdb_found_studbook).
 # An irreversible ceremony — a genesis commit pushed to the studbook remote — so
 # the confirm gate is THIS door's contract, mirroring cashier: the resolved plan

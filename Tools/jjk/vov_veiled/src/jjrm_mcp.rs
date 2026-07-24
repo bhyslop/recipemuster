@@ -50,16 +50,15 @@ use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
 
-/// The officia directory's fixed relative path — reused by the muck sweep's
-/// liveness join (`jjrdm_muck`), which resolves it against a billet root
-/// rather than the server's own working directory.
+/// The officia directory's fixed relative path, relative to the server's
+/// own working directory.
 pub const OFFICIA_DIR: &str = ".claude/jjm/officia";
 const HEARTBEAT_FILE: &str = "heartbeat";
 const GAZETTE_IN_FILE: &str = "gazette_in.md";
 const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
-/// The officium liveness/retention window — one constant, one rhyme, shared
-/// with the muck sweep's retention window (`jjrdm_muck`, JJSVD "Muck").
+/// The officium exsanguination window: how stale a heartbeat must be before
+/// `zjjrm_exsanguinate` reaps its officium directory.
 pub const JJRM_EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = crate::jjrf_favor::JJRF_INCIPIT_PREFIX; // ☉ — single-homed sigil
 const OFFICIUM_SUFFIX_LEN: usize = 4; // random discriminant chars appended to YYMMDD-NNNN
@@ -1298,25 +1297,6 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
     (reaped, active)
 }
 
-/// Whether one officium directory carries a live heartbeat — the read-only
-/// predicate `zjjrm_exsanguinate` above applies destructively. Consumed by
-/// the muck sweep's liveness join (`jjrdm_muck`, JJSVD "Muck"): a billet with
-/// a live officium under it is never reaped, no platform process-probe
-/// needed. A missing or unreadable heartbeat is never live (matches
-/// `zjjrm_exsanguinate`'s own no-heartbeat skip); a clock-skewed future mtime
-/// reads as live rather than crying on ignorance.
-pub fn jjrm_officium_dir_is_live(officium_dir: &Path) -> bool {
-    let heartbeat = officium_dir.join(HEARTBEAT_FILE);
-    let mtime = match heartbeat.metadata().and_then(|m| m.modified()) {
-        Ok(t) => t,
-        Err(_) => return false,
-    };
-    match std::time::SystemTime::now().duration_since(mtime) {
-        Ok(age) => age.as_secs() <= JJRM_EXSANGUINATION_THRESHOLD_SECS,
-        Err(_) => true,
-    }
-}
-
 /// Short random discriminant for officium IDs: `len` lowercase-alphanumeric chars.
 ///
 /// The daily ordinal NNNN is seeded per-machine (scan of the local officia dir),
@@ -2213,18 +2193,6 @@ fn zjjrm_gazette_paths_block(
 /// delegates here for its legatio/pensum state (living inside the officium
 /// dir) rather than keeping its own duplicated `OFFICIA_DIR` const and join,
 /// so that state relocates in lockstep with gazettes when the seam flips.
-///
-/// A second, indirect dependent: `jjrdm_muck`'s liveness join
-/// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
-/// which was correct only while this constant was `false` — a dispatched
-/// session's officia live wherever the vvx process's cwd is (the billet
-/// root), a relationship this constant's flip to `true` severed by
-/// relocating every officium's exchange to `jjrm_studbook_exchange_dir`
-/// instead. The join was not re-cut at that flip (a durable per-officium
-/// billet marker is the natural carrier, since today's record captures
-/// only the seat's role, never which billet) — see `jjrdm_muck`'s module
-/// doc. That module is still not wired into the live dispatch spine, so
-/// nothing exercises the stale join.
 pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = true;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS

@@ -83,6 +83,13 @@ enum Commands {
     #[command(name = "jjx_cashier")]
     JjxCashier(CashierArgs),
 
+    /// Muck: the operator-directed destroy door for a named billet (JJSVD
+    /// jjdd_muck). Plan-and-report by default; --execute performs the
+    /// confirmed arm. Deliberately NOT an MCP command — the confirm gate
+    /// lives in the tabtarget door.
+    #[command(name = "jjx_muck")]
+    JjxMuck(MuckArgs),
+
     /// Found the studbook from nothing (JJSAS Founding-and-cutover): compose the
     /// live-state import and seed both tenants (gallops + pedigrees) in one
     /// genesis commit against the studbook's remote. Operator ceremony door,
@@ -106,6 +113,30 @@ struct CashierArgs {
     /// Break the sighted locks, rather than only reporting them
     #[arg(long = "break")]
     do_break: bool,
+}
+
+/// Arguments for jjx_muck — the destroy door's two modes. Plan-and-report is
+/// the default and always exits 0 (read-only); `--execute` performs the
+/// confirmed arm, `--salvage` selecting salvage-then-destroy over plain
+/// destroy (only open on a dirty pace billet — the plan's own report is
+/// authoritative on which arms are open).
+#[derive(clap::Args, Debug)]
+struct MuckArgs {
+    /// The operator's invocation directory (cwd elects the clone)
+    #[arg(long)]
+    cwd: PathBuf,
+
+    /// The billet to destroy: a yard dirname, or the coronet/firemark identity behind one
+    #[arg(long)]
+    target: String,
+
+    /// Execute the confirmed arm, rather than only reporting the plan
+    #[arg(long)]
+    execute: bool,
+
+    /// With --execute on a dirty pace billet, salvage before destroying
+    #[arg(long)]
+    salvage: bool,
 }
 
 /// Arguments for jjx_found — the studbook founding door. The operator's
@@ -300,6 +331,7 @@ async fn main() -> ExitCode {
         Some(Commands::Mcp) => run_mcp().await,
         Some(Commands::JjxDispatch(args)) => run_dispatch(args),
         Some(Commands::JjxCashier(args)) => run_cashier(args),
+        Some(Commands::JjxMuck(args)) => run_muck(args),
         Some(Commands::JjxFound(args)) => run_found(args),
         Some(Commands::External(args)) => dispatch_external(args).await,
         None => {
@@ -505,6 +537,75 @@ fn run_cashier(args: CashierArgs) -> i32 {
     {
         let _ = args;
         vvco_err!(out, "jjx_cashier: error: jjk feature not enabled");
+        1
+    }
+}
+
+/// Run the muck door (JJSVD `jjdd_muck`): plan-and-report is the default and
+/// always exits 0 on a resolvable target — the report IS the confirm
+/// display, so the shell door prints it and gates the operator's confirm
+/// before ever passing `--execute`. `--execute` performs the confirmed arm
+/// (`--salvage` selects salvage-then-destroy; absent, plain destroy) against
+/// the SAME resolution this call just reported, never a stale one.
+fn run_muck(args: MuckArgs) -> i32 {
+    let mut out = vvco_Output::console();
+    #[cfg(feature = "jjk")]
+    {
+        use jjk::jjrdc_cashier::jjrdc_infield_root;
+        use jjk::jjrdm_muck::{jjrdm_plan, jjrdm_reap, jjrdm_report, jjrdm_Arm};
+        use jjk::jjrfg_plaingit::jjrfg_PlainGit;
+        use jjk::jjrvb_blotter::jjdb_studbook_config;
+        use jjk::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
+
+        let infield_root = match jjrdc_infield_root(&args.cwd) {
+            Ok(root) => root,
+            Err(rejection) => {
+                vvco_err!(out, "jjx_muck: {}", rejection);
+                return 1;
+            }
+        };
+        let studbook = jjdb_studbook_config(&infield_root);
+        // No officium context: muck is operator-typed like cashier, not
+        // MCP-invoked, so the guidon names no officium rather than inventing
+        // one (the same posture `jjrds_record_dispatch` takes).
+        let guidon = jjdb_guidon_compose("", &jjdb_station_name(), chrono::Utc::now(), "muck");
+
+        let plan = match jjrdm_plan(&jjrfg_PlainGit, &studbook, &infield_root, &args.target, &guidon) {
+            Ok(p) => p,
+            Err(rejection) => {
+                vvco_err!(out, "jjx_muck: {}", rejection);
+                return 1;
+            }
+        };
+
+        vvco_out!(out, "{}", jjrdm_report(&plan));
+
+        if !args.execute {
+            return 0;
+        }
+
+        let arm = if args.salvage { jjrdm_Arm::SalvageThenDestroy } else { jjrdm_Arm::Destroy };
+        match jjrdm_reap(&jjrfg_PlainGit, &infield_root, &plan, arm) {
+            Ok(outcome) => {
+                vvco_out!(out, "\nmuck: destroyed {}", outcome.billet_root.display());
+                if outcome.salvaged {
+                    vvco_out!(out, "  salvaged onto the pace's own branch before destroy");
+                }
+                for swept in &outcome.scratch_swept {
+                    vvco_out!(out, "  scratch cleared: {}", swept.display());
+                }
+                0
+            }
+            Err(rejection) => {
+                vvco_err!(out, "jjx_muck: not destroyed: {}", rejection);
+                1
+            }
+        }
+    }
+    #[cfg(not(feature = "jjk"))]
+    {
+        let _ = args;
+        vvco_err!(out, "jjx_muck: error: jjk feature not enabled");
         1
     }
 }
