@@ -17,6 +17,14 @@
 //! normalization. It never invents or repairs missing/contradictory data — structural breakage is
 //! exit 1, never a silent fix.
 //!
+//! Store of record (const-gated `_over` idiom, `jjrrt_run_retire` the template): seam-on (the
+//! compiled default post-cutover) the store of record is the studbook, so `jjrvl_run_validate_over`
+//! appraises the studbook tip's bytes (via jjdb_read_pinned) and journals any normalization back
+//! through the standard studbook writer. Seam-off (`jjrvl_run_validate_raw`) it reads the in-repo
+//! bytes directly and self-commits there — the pre-cutover behavior the two byte-fixture tests
+//! drive. Either way the read is raw bytes, never jjdr_load: its round-trip gate is exactly the
+//! fatal-on-non-canonical behavior this pass replaces.
+//!
 //! The pure verdict (zjjrvl_appraise) is split from the effectful commit so the canonicalizer is
 //! unit-tested against in-memory byte fixtures, never a live gallops.
 
@@ -105,8 +113,152 @@ pub(crate) fn zjjrvl_appraise(original_bytes: &[u8]) -> zjjrvl_Appraisal {
     }
 }
 
-/// Run the validate command — normalize-and-report over the Gallops store.
-pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs) -> (i32, String) {
+/// Run the validate command — normalize-and-report over the Gallops store of
+/// record. Const-gated `_over` idiom (`jjrrt_run_retire` is the template): off,
+/// it appraises the in-repo `args.file` and self-commits there; on (the compiled
+/// default post-cutover), the store of record is the studbook, so it appraises
+/// the studbook tip and journals any normalization back through the standard
+/// studbook writer. The banked flip-time question — whether validate names the
+/// studbook or notices-and-no-ops against the fossil consumer gallops
+/// (`zjjrm_write_gallops`'s doc) — is answered here: name the studbook, so
+/// `jjx_validate` checks the store of record rather than a tombstone.
+pub fn jjrvl_run_validate(args: jjrvl_ValidateArgs, officium: &str) -> (i32, String) {
+    if !crate::jjrvb_blotter::JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        return jjrvl_run_validate_raw(args);
+    }
+    let cn = JJRVL_CMD_NAME_VALIDATE;
+    let (studbook, guidon) = match crate::jjrm_mcp::zjjrm_studbook_and_guidon(officium, cn) {
+        Ok(sg) => sg,
+        Err(e) => {
+            let mut output = vvco_Output::buffer();
+            vvco_err!(output, "{}: broken — {}", cn, e);
+            return (JJRVL_EXIT_BROKEN, output.vvco_finish());
+        }
+    };
+    let mut output = vvco_Output::buffer();
+    let code = jjrvl_run_validate_over(
+        &crate::jjrfg_plaingit::jjrfg_PlainGit,
+        &studbook,
+        &guidon,
+        args.size_limit,
+        &mut output,
+        cn,
+    );
+    (code, output.vvco_finish())
+}
+
+/// The seam-ON validate path, extracted from the const gate so a test drives it
+/// against a fixture studbook while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` stays
+/// false (the `_over` idiom: `jjrrt_retire_over`). Read the studbook tip bytes
+/// for the byte-canonical appraisal (the same `jjdb_read_pinned` the studbook
+/// read seam is built on), reuse the unchanged pure appraiser, and — on a
+/// non-canonical tip — re-canonicalize the LOCKED, advanced tip inside the
+/// standard studbook journal ceremony (`zjjrm_journal_run`), so the normalize
+/// targets whatever the locked tip actually holds rather than a stale pre-lock
+/// read (the same "derive against the locked tip" discipline retire keeps). The
+/// studbook has no commit-machinery size guard, so the byte ceiling is an
+/// explicit in-mutate check (retire's precedent). Normalize is a near-dead
+/// safety net in practice — every studbook write lands canonical through
+/// `jjdr_save` and `jjdr_hark` write-forwards on read — reachable only by a live
+/// reprieve migration, a serializer drift across binary versions, or a
+/// hand-edited tip, which is precisely validate's remaining purpose. `studbook`/
+/// `guidon` arrive resolved so the fixture aims the ceremony at its scratch store.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn jjrvl_run_validate_over<F>(
+    farrier: &F,
+    studbook: &crate::jjrvb_blotter::jjdb_BlotterConfig,
+    guidon: &str,
+    size_limit: u64,
+    output: &mut vvco_Output,
+    cn: &str,
+) -> i32
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierLock,
+{
+    let pin = match crate::jjrvb_blotter::jjdb_pin(studbook) {
+        Ok(p) => p,
+        Err(e) => {
+            vvco_err!(output, "{}: broken — cannot pin studbook: {}", cn, e);
+            return JJRVL_EXIT_BROKEN;
+        }
+    };
+    let original_bytes = match crate::jjrvb_blotter::jjdb_read_pinned(
+        studbook, &pin, crate::jjrvb_blotter::JJDB_GALLOPS_REL_PATH,
+    ) {
+        Ok(b) => b,
+        Err(e) => {
+            vvco_err!(output, "{}: broken — cannot read studbook gallops: {}", cn, e);
+            return JJRVL_EXIT_BROKEN;
+        }
+    };
+
+    match zjjrvl_appraise(&original_bytes) {
+        zjjrvl_Appraisal::Canonical(census) => {
+            vvco_out!(output, "{}: clean — valid and already canonical. {}", cn, census);
+            JJRVL_EXIT_CLEAN
+        }
+        zjjrvl_Appraisal::Broken(msg) => {
+            vvco_err!(output, "{}: broken — {}", cn, msg);
+            JJRVL_EXIT_BROKEN
+        }
+        zjjrvl_Appraisal::Normalize(_gallops, census) => {
+            let brand = vvc::vvcc_get_brand();
+            let subject = format!("VALIDATE normalized gallops — {}", census);
+            let action = crate::jjrnm_markers::JJRNM_VALIDATE.to_string();
+            let message = vvc::vvcc_format_branded(
+                crate::jjrn_notch::JJRN_COMMIT_PREFIX,
+                &brand,
+                "", // gallops-wide: no heat/pace identity
+                &action,
+                &subject,
+                None,
+            );
+            let result = crate::jjrm_mcp::zjjrm_journal_run(farrier, studbook, guidon, |g| {
+                // Re-canonicalize the locked tip: `g` was already write-forwarded by
+                // jjdr_hark on the ceremony's tip read, so reconcile (idempotent) then
+                // let the journal's jjdr_save re-serialize canonically. The explicit
+                // byte-ceiling check stands in for the commit-machinery size guard the
+                // studbook journal path lacks.
+                let _ = jjrg_reconcile(g);
+                let canonical = serde_json::to_string_pretty(g)
+                    .map_err(|e| format!("reserialize failed: {}", e))?;
+                if canonical.len() as u64 > size_limit {
+                    return Err(format!(
+                        "normalized gallops is {} bytes, over the {}-byte ceiling — retry with a raised size_limit if the bulk is legitimate",
+                        canonical.len(), size_limit
+                    ));
+                }
+                Ok(((), message))
+            });
+            match result {
+                Ok(((), sha)) => {
+                    let short = &sha[..sha.len().min(9)];
+                    vvco_out!(output, "{}: normalized — journaled canonical gallops to the studbook {}. {}", cn, short, census);
+                    JJRVL_EXIT_NORMALIZED
+                }
+                Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Handler(e)) => {
+                    vvco_err!(output, "{}: broken — {}", cn, e);
+                    JJRVL_EXIT_BROKEN
+                }
+                Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Commit(e)) => {
+                    vvco_err!(output, "{}: broken — {}", cn, crate::jjri_io::jjri_commit_refusal(cn, &e));
+                    JJRVL_EXIT_BROKEN
+                }
+                Err(crate::jjrm_mcp::zjjrm_WriteRefusal::Blotter(r)) => {
+                    vvco_err!(output, "{}: broken — studbook journal refused: {}", cn, r);
+                    JJRVL_EXIT_BROKEN
+                }
+            }
+        }
+    }
+}
+
+/// The seam-OFF validate path — the pre-cutover behavior, verbatim: appraise the
+/// in-repo `args.file` bytes and, on a non-canonical store, self-commit the
+/// canonical form there under the byte budget. Reached only when the studbook
+/// seam is off (the compiled default is on); the two byte-fixture tests
+/// (`jjtg_validate_run_*`) drive it directly against a raw on-disk file.
+pub(crate) fn jjrvl_run_validate_raw(args: jjrvl_ValidateArgs) -> (i32, String) {
     let cn = JJRVL_CMD_NAME_VALIDATE;
     let mut output = vvco_Output::buffer();
 

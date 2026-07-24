@@ -47,10 +47,9 @@ use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_Farrier
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrds_spine::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
-use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
+use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
 
-const GALLOPS_PATH: &str = ".claude/jjm/jjg_gallops.json";
 /// The officia directory's fixed relative path — reused by the muck sweep's
 /// liveness join (`jjrdm_muck`), which resolves it against a billet root
 /// rather than the server's own working directory.
@@ -120,8 +119,12 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_SIFT,
 ];
 
+/// The consumer-repo Gallops path — post-cutover a deliberate tombstone (rivet
+/// `JJr_d9f`), the store of record having moved to the studbook. The one string
+/// home is `jjrc_core::JJRC_DEFAULT_GALLOPS_PATH`; this thin wrapper is the sole
+/// `jjrm_mcp` alias, so the literal is never re-spelled here.
 fn gallops_pathbuf() -> PathBuf {
-    PathBuf::from(GALLOPS_PATH)
+    crate::jjrc_core::jjrc_default_gallops_path()
 }
 
 // ============================================================================
@@ -139,6 +142,23 @@ pub(crate) fn zjjrm_infield_root<F: jjrfr_FarrierCore>(farrier: &F, cwd: &Path) 
         jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
     };
     hippodrome_root.parent().map(|p| p.to_path_buf())
+}
+
+/// The single live-store resolver: cwd → infield root → studbook config. Every
+/// seam-on caller that needs to name where the one live Gallops sits (the read
+/// seam, the write seam's guidon derivation, the studbook-root door arms, the
+/// open-time monita) funnels through here rather than re-deriving its own
+/// variant — so "where the live store is" has exactly one home, and the `path`
+/// parameters those callers still carry are the seam-off/test tail alone. A
+/// missing cwd or an infield root that cannot be derived surfaces loud; the few
+/// panic-semantics derivations (`jjrm_exchange_dir`, `zjjrm_officia_root`, the
+/// open glean) deliberately keep their own shape and are NOT folded in here.
+pub(crate) fn zjjrm_studbook_config() -> Result<jjdb_BlotterConfig, String> {
+    let cwd = std::env::current_dir()
+        .map_err(|e| format!("could not read cwd: {}", e))?;
+    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
+        .ok_or_else(|| "could not derive infield root from cwd".to_string())?;
+    Ok(jjdb_studbook_config(&infield_root))
 }
 
 /// The testable seam branch — mirrors `jjrds_plan`'s `over_studbook` idiom
@@ -187,11 +207,7 @@ pub(crate) fn zjjrm_load_gallops(path: &Path) -> Result<jjrg_Gallops, String> {
         // a throwaway config just to satisfy its signature.
         return jjrg_Gallops::jjrg_load(path);
     }
-    let cwd = std::env::current_dir()
-        .map_err(|e| format!("zjjrm_load_gallops: current_dir error: {}", e))?;
-    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
-        .ok_or_else(|| "zjjrm_load_gallops: could not derive infield root from cwd".to_string())?;
-    let studbook = jjdb_studbook_config(&infield_root);
+    let studbook = zjjrm_studbook_config()?;
     zjjrm_load_gallops_over(true, path, &studbook)
 }
 
@@ -328,10 +344,7 @@ pub(crate) fn zjjrm_studbook_and_guidon(
     officium: &str,
     operation: &str,
 ) -> Result<(jjdb_BlotterConfig, String), String> {
-    let cwd = std::env::current_dir().map_err(|e| format!("current_dir error: {}", e))?;
-    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
-        .ok_or_else(|| "could not derive infield root from cwd".to_string())?;
-    let studbook = jjdb_studbook_config(&infield_root);
+    let studbook = zjjrm_studbook_config()?;
     let guidon = jjdb_guidon_compose(officium, &jjdb_station_name(), chrono::Utc::now(), operation);
     Ok((studbook, guidon))
 }
@@ -343,10 +356,7 @@ pub(crate) fn zjjrm_studbook_and_guidon(
 /// JJSVS "Scope at birth"); this is the door's one cwd capture — the resolved
 /// root is threaded down as an explicit param, never re-derived in a leaf.
 pub(crate) fn zjjrm_studbook_root() -> Result<PathBuf, String> {
-    let cwd = std::env::current_dir().map_err(|e| format!("current_dir error: {}", e))?;
-    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
-        .ok_or_else(|| "could not derive infield root from cwd".to_string())?;
-    Ok(jjdb_studbook_config(&infield_root).local_root)
+    Ok(zjjrm_studbook_config()?.local_root)
 }
 
 /// Command-surface gallops WRITE — every mutating `jjx_*` command's persist
@@ -360,18 +370,23 @@ pub(crate) fn zjjrm_studbook_root() -> Result<PathBuf, String> {
 /// the gallops mutation to the studbook.
 ///
 /// Scope of "every mutating command": the commands that mutate the gallops STORE
-/// OF RECORD. `jjx_validate` (`jjrvl_validate.rs`) is deliberately exempt seam-on
-/// — it NORMALIZES the in-repo gallops (canonical rewrite) and finalizes an
-/// in-progress git merge, both consumer-repo-store maintenance with no studbook
-/// analogue: every studbook write already lands canonical through `jjdr_save`, and
-/// the studbook is a linear blotter that never merges (a corrupt tenant panics
-/// loud rather than earning a validate verdict; the reprieve write-forward rides
-/// `jjdr_hark` on the next read). Seam-on, validate operates only on the
-/// consumer-side copy, which this store model defines as outside the store of
-/// record — so its exemption is principled, not a gap. `jjri_consign`'s only
-/// caller is validate, so exempting it strands no other command. (Flip-time UX —
-/// whether validate should name the studbook or notice-and-noop against the
-/// fossil consumer gallops — is banked for the conversion heat, not this wiring.)
+/// OF RECORD. `jjx_validate` (`jjrvl_validate.rs`) does NOT write through this
+/// funnel, but it is no longer exempt from the studbook — it carries its own
+/// const-gated `_over` seam (`jjrvl_run_validate_over`), because its I/O shape is
+/// unlike a mutating command's: it reads the STORED BYTES for a byte-canonical
+/// comparison (which this funnel's parsed read discards) and only conditionally
+/// writes (on a non-canonical store). Seam-on it appraises the studbook tip and
+/// journals any normalization back through `zjjrm_journal_run` — the banked
+/// flip-time question (name the studbook, or notice-and-noop against the fossil
+/// consumer gallops) resolved to name the studbook, so `jjx_validate` checks the
+/// store of record. In practice that normalize is a near-dead safety net — every
+/// studbook write lands canonical through `jjdr_save` and the reprieve
+/// write-forward rides `jjdr_hark` on the next read — reachable only by a live
+/// reprieve migration, a serializer drift across binary versions, or a hand-edited
+/// tip. The merge-finalization duty the old exemption named is retired: the
+/// studbook is a linear blotter that never merges. `jjri_consign` (the consumer
+/// self-commit) survives only as validate's seam-OFF write, exercised by the
+/// byte-fixture tests.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn zjjrm_write_gallops<R>(
     lock: &vvc::vvcc_CommitLock,
@@ -1677,8 +1692,8 @@ pub const JJRM_EMBLEM_SUFFIX: &str = "emblem";
 /// vvx reads at write time, never compiled in"), relative to the project root
 /// (the server cwd). Edit it and the next jjx engagement repaints with the new
 /// per-region style. An absent file or absent field folds to the built-in
-/// paneboard default — the writer simply omits the attribute. Sibling to
-/// `GALLOPS_PATH` under `.claude/jjm/`; the `jje_` file prefix is its home.
+/// paneboard default — the writer simply omits the attribute. Sibling to the
+/// consumer Gallops path under `.claude/jjm/`; the `jje_` file prefix is its home.
 const EMBLEM_STYLE_PATH: &str = ".claude/jjm/jje_emblem.json";
 
 /// Officium-resident marker recording what work identity this session last
@@ -2321,25 +2336,40 @@ fn zjjrm_rejected_target_param(v: &serde_json::Value) -> Option<&'static str> {
     }
 }
 
+/// Best-effort studbook tip read for the lockless open-time monita — the
+/// studbook-of-record analogue of their former raw `std::fs::read` of the
+/// consumer file (which post-cutover is a tombstone that never parses, so the
+/// monita silently died at the flip). Returns the parsed Gallops beside the raw
+/// tip bytes (the reprieve probe needs both), or `None` on any failure — the
+/// monita are non-gating by contract, so a stale or absent clone must fold to
+/// silence, never block open. Reads the local pinned tip only (the studbook
+/// glean already ran earlier in open), never a network fetch. Takes the studbook
+/// config so a test can aim it at a fixture store; the monita derive theirs from
+/// cwd through the one `zjjrm_studbook_config` resolver.
+pub(crate) fn zjjrm_peek_gallops(studbook: &jjdb_BlotterConfig) -> Option<(jjrg_Gallops, Vec<u8>)> {
+    let pin = jjdb_pin(studbook).ok()?;
+    let bytes = jjdb_read_pinned(studbook, &pin, JJDB_GALLOPS_REL_PATH).ok()?;
+    let gallops: jjrg_Gallops = serde_json::from_slice(&bytes).ok()?;
+    Some((gallops, bytes))
+}
+
 /// Best-effort, read-only reprieve nag for jjx_open.
 ///
-/// Reads the on-disk Gallops without the commit lock and emits one status line per registered
+/// Peeks the studbook tip without the commit lock and emits one status line per registered
 /// reprieve episode — `<label> <episode>: <verdict> (<rivet>)`, e.g.
 /// `reprieve V3→V4: dormant (JJr_a7c)` — carrying the opaque rivet token as a grep/census
 /// surface: pending when the tolerance is still load-bearing on this install, dormant when the
 /// store is already canonical for that episode (a removal candidate once every clone agrees).
 /// Non-gating by contract — any read or parse failure is silently skipped so jjx_open always
-/// succeeds. The lockless peek sees only whole files (jjdr_save renames atomically) and mutates
-/// nothing.
+/// succeeds. The lockless peek reads the pinned tip's object bytes and mutates nothing.
 fn zjjrm_reprieve_nag(output: &mut vvc::vvco_Output) {
-    let path = gallops_pathbuf();
-    let bytes = match std::fs::read(&path) {
-        Ok(b) => b,
+    let studbook = match zjjrm_studbook_config() {
+        Ok(s) => s,
         Err(_) => return,
     };
-    let gallops: crate::jjrt_types::jjrg_Gallops = match serde_json::from_slice(&bytes) {
-        Ok(g) => g,
-        Err(_) => return,
+    let (gallops, bytes) = match zjjrm_peek_gallops(&studbook) {
+        Some(g) => g,
+        None => return,
     };
     for status in crate::jjri_io::jjdz_probe(&gallops, &bytes) {
         // Legible label + inline gloss + opaque rivet token (JJr_a7c) — the rivet rides the
@@ -2361,21 +2391,20 @@ fn zjjrm_reprieve_nag(output: &mut vvc::vvco_Output) {
 /// monitum (JJS0 `jjdz_monitum`), sibling to the reprieve nag above and deliberately independent of
 /// it (no shared monitum abstraction until a third instance earns it).
 ///
-/// Reads the on-disk Gallops without the commit lock and reports the chat-history retention policy
+/// Peeks the studbook tip without the commit lock and reports the chat-history retention policy
 /// in three states (`jjri_retention_state`): Off emits nothing (the quiet shareable default), On
 /// prints the since-date, Malformed prints loud and notes capture is disabled. Non-gating by
 /// contract — any read or parse failure is silently skipped and bad config never blocks open, since
-/// a malformed date is a read-time classification, not a parse error. The lockless peek sees only
-/// whole files (jjdr_save renames atomically) and mutates nothing.
+/// a malformed date is a read-time classification, not a parse error. The lockless peek reads the
+/// pinned tip's object bytes and mutates nothing.
 fn zjjrm_retention_monitum(output: &mut vvc::vvco_Output) {
-    let path = gallops_pathbuf();
-    let bytes = match std::fs::read(&path) {
-        Ok(b) => b,
+    let studbook = match zjjrm_studbook_config() {
+        Ok(s) => s,
         Err(_) => return,
     };
-    let gallops: crate::jjrt_types::jjrg_Gallops = match serde_json::from_slice(&bytes) {
-        Ok(g) => g,
-        Err(_) => return,
+    let (gallops, _bytes) = match zjjrm_peek_gallops(&studbook) {
+        Some(g) => g,
+        None => return,
     };
     match crate::jjri_io::jjri_retention_state(&gallops) {
         crate::jjri_io::jjri_RetentionState::Off => {}
@@ -2621,8 +2650,15 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
     // invitatory. Over budget hard-fails — required size in the message, the store reverted, the
     // freshly-claimed officium rolled back — so a blocked convergence leaves no staged store.
     // size_limit == 0 keeps the default lockless empty-invitatory marker (open mutates nothing).
+    //
+    // Const-gated OFF post-cutover: the store of record is the studbook, so there is no consumer
+    // gallops to converge, and saving one back to the in-repo path would resurrect the Gallops
+    // shape its tombstone (JJr_d9f) forbids ("Do not restore Gallops shape to this file"). The
+    // consumer convergence is a fossil while the studbook seam is live — open falls through to the
+    // empty-invitatory marker, and the reprieve conversions this once drove now ride jjdr_hark on
+    // the studbook read.
     let mut converged = false;
-    if size_limit > 0 {
+    if size_limit > 0 && !JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
         let gallops_path = gallops_pathbuf();
         let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
             Ok(l) => l,
@@ -3250,7 +3286,7 @@ impl jjrm_McpServer {
                 zjjrm_validate_result(jjrvl_run_validate(jjrvl_ValidateArgs {
                     file: gallops_pathbuf(),
                     size_limit: vvc::VVCG_SIZE_LIMIT,
-                }))
+                }, officium_id))
             }
             JJRM_CMD_NAME_REFIT => {
                 let _p = deser!(jjrm_RefitParams);
