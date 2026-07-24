@@ -575,7 +575,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             let next_display = gallops.jjrg_qualify_coronet(&next_coronet);
             match &landed {
                 Some(where_it_went) => {
-                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped and {} \u{2014} this session exits. Next: {} ({}{}) mounts from a fresh session \u{2014} `mount {}`",
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped and {} \u{2014} this session exits, clearing the billet. Next: {} ({}{}) mounts from a fresh session \u{2014} `mount {}`",
                         wrapped_display, where_it_went, next_silks, next_display, designation, fm_str);
                 }
                 None => {
@@ -587,7 +587,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         None => {
             match &landed {
                 Some(where_it_went) => {
-                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped and {}. All paces complete \u{2014} this session exits; then `retire {}` from a fresh session",
+                    vvco_out!(output, "AGENT_RESPONSE: {} wrapped and {}. All paces complete \u{2014} this session exits, clearing the billet; then `retire {}` from a fresh session",
                         wrapped_display, where_it_went, fm_str);
                 }
                 None => {
