@@ -29,7 +29,7 @@
 // jjdxf_: Fundus profiles (test infrastructure configurations)
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
-// jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree and counterfoil)
+// jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree, footprint, and counterfoil)
 // jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck sweep, refit)
 // jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade)
 // jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
@@ -254,11 +254,13 @@
 :jjdb_varvel:     <<jjdb_varvel,Varvel>>
 :jjdb_counterfoil:    <<jjdb_counterfoil,Counterfoil>>
 :jjdb_counterfoil_s:  <<jjdb_counterfoil,Counterfoils>>
+:jjdb_footprint:  <<jjdb_footprint,Footprint>>
 :jjdb_guidon:     <<jjdb_guidon,Guidon>>
 :jjdb_guidon_p:   <<jjdb_guidon,Guidon's>>
 :jjdb_guidon_s:   <<jjdb_guidon,Guidons>>
 :jjdb_journal:    <<jjdb_journal,Journal ceremony>>
 :jjdb_pedigree:   <<jjdb_pedigree,Pedigree>>
+:jjdb_pedigree_p: <<jjdb_pedigree,Pedigree's>>
 :jjdb_pedigree_s: <<jjdb_pedigree,Pedigrees>>
 :jjdb_studbook:   <<jjdb_studbook,Studbook>>
 :jjdb_studbook_p: <<jjdb_studbook,Studbook's>>
@@ -413,6 +415,7 @@
 :jjdk_sole_door:       <<jjdk_sole_door,Sole Door>>
 :jjdk_no_catch_all:    <<jjdk_no_catch_all,No Catch-All>>
 :jjdk_no_symlinks:     <<jjdk_no_symlinks,No Symlinks>>
+:jjdk_sojourn:         <<jjdk_sojourn,Sojourn>>
 
 // end::mapping-section[]
 
