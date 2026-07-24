@@ -32,6 +32,7 @@ pub mod rbthdr_log;
 pub mod rbthdr_run;
 pub mod rbthdr_repo;
 pub mod rbthdr_perambulation;
+pub mod rbthdr_loupe;
 pub mod rbthdr_expede;
 pub mod rbthdr_rig;
 pub mod rbthdr_cachet;
@@ -42,5 +43,7 @@ pub mod rbthdr_harbinger;
 
 #[cfg(test)]
 mod rbthdt_perambulation;
+#[cfg(test)]
+mod rbthdt_loupe;
 #[cfg(test)]
 mod rbthdt_cachet;

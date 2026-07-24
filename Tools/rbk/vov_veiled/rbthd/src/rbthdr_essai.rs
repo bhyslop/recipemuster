@@ -31,6 +31,7 @@ use std::process::ExitCode;
 
 use crate::rbthdr_expede;
 use crate::rbthdr_log;
+use crate::rbthdr_loupe;
 use crate::rbthdr_repo;
 use crate::rbthdr_rig;
 use crate::rbthdr_run;
@@ -46,7 +47,6 @@ const RBTHDR_COL_BUILD: &str = "rbw-tb.";
 
 /// Suite and fixture imprints.
 const RBTHDR_SUITE_REVEILLE: &str = "reveille";
-const RBTHDR_FIX_LOUPE: &str = "loupe";
 const RBTHDR_FIX_CUPEL: &str = "cupel";
 const RBTHDR_FIX_PYX: &str = "pyx";
 const RBTHDR_FIX_DAMNATIO: &str = "damnatio";
@@ -182,11 +182,22 @@ fn zrbthdr_precut_assays(top: &Path) {
     let reveille = zrbthdr_find_tt(&tt, RBTHDR_COL_SUITE, Some(RBTHDR_SUITE_REVEILLE));
     zrbthdr_require_source(rbthdr_run::stream(&reveille, &[], top, &[]), "reveille suite");
 
-    // The assay that reads the veiled trees — meaningful only here; in the
-    // candidate it is red by construction. The perambulation's totality gate
-    // is not a fixture: it is the cut's own first refusal, in-process (RBSHE).
-    let fixture = zrbthdr_find_tt(&tt, RBTHDR_COL_FIXTURE, None);
-    zrbthdr_require_source(rbthdr_run::stream(&fixture, &[RBTHDR_FIX_LOUPE], top, &[]), "loupe fixture");
+    // The veiled-tree assay, in-process (RBSHC "Worker, never authority": the
+    // veil assay is one of the hierophant's own absorbed modules, beside the cut
+    // and the rig). It reads the veiled trees to harvest its census, meaningful
+    // only here; in the candidate it is red by construction. The perambulation's
+    // totality gate is likewise not a fixture: it is the cut's own first refusal,
+    // in-process (step 3).
+    let leaks = rbthdr_loupe::assay(top);
+    if !leaks.is_empty() {
+        for leak in &leaks {
+            rbthdr_log::line(&format!("veil leak: {}", leak));
+        }
+        crate::rbthdr_fatal!(
+            "the veiled-tree assay found {} leak(s) — repair on the maintainer tree, then run essai again (RBSHE)",
+            leaks.len()
+        );
+    }
     rbthdr_log::line("maintainer tree green; the veiled-tree assay passes");
 }
 
@@ -238,6 +249,22 @@ fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
     // It reddens on feigned fields by construction, which is what keeps a probe
     // branch from ever being mistaken for a candidate.
     zrbthdr_require_candidate(rbthdr_run::stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "candidate damnatio");
+
+    // The candidate's transposed root CLAUDE.md must carry no veil needle —
+    // re-homed in-process from the theurge damnatio fixture's veil_stripped case,
+    // whose census-bearing scan could only run where the veiled trees still
+    // stand. The path-grain half (a withheld tree survived the strip) is already
+    // covered by expede's object-graph delta sweep at cut time.
+    let needles = rbthdr_loupe::assay_candidate(candidate_clone);
+    if !needles.is_empty() {
+        for needle in &needles {
+            rbthdr_log::line(&format!("candidate veil needle: {}", needle));
+        }
+        crate::rbthdr_fatal!(
+            "the candidate's root CLAUDE.md carries {} veil needle(s) — abandon the candidate, repair on the maintainer tree, and re-cut (RBSHE)",
+            needles.len()
+        );
+    }
 
     zrbthdr_feign_probe(candidate_clone, &tt, top);
 }

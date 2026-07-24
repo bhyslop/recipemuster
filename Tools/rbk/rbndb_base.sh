@@ -69,8 +69,8 @@ zrbndb_sentinel() {
 
 # Authenticate the host docker client to the depot's GAR registry
 # using a bearer token. Idempotent — repeated calls refresh credential.
-# Bounded retry on the moby/moby#44350 premature-timeout transient (see
-# RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE); the rbgo_docker_login twin serves the
+# Bounded retry on the moby/moby#44350 premature-timeout transient — RBr_5b8
+# (signature) / RBr_2f8 (membrane); the rbgo_docker_login twin serves the
 # foundry cluster, but the depot-regime cluster does not reach rbgo, so this
 # shares only the signature + retry-budget constants out of rbgc. Real auth
 # failures do not match the signature and fail fast.
@@ -108,7 +108,8 @@ zrbndb_docker_login() {
 
 # Run a host-docker registry read (manifest inspect, pull) with bounded
 # retry on the same moby#44350 premature-timeout transient login wraps
-# above. The docker client's internal retry covers only layer downloads;
+# above — RBr_5b8 (signature) / RBr_2f8 (membrane). The docker client's
+# internal retry covers only layer downloads;
 # the initial resolve leg (token fetch + manifest HEAD) is one-shot, so a
 # single daemon->registry timeout otherwise kills the command. Absorbs
 # ONLY the surveyed signature, warning each bend. A non-matching failure

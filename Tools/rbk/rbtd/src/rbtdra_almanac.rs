@@ -69,15 +69,6 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrf_fast::RBTDRF_FIXTURE_PODVM_RESOLVE,
     &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
     &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
-    // loupe: the source-tree veil assay — a member of NO SUITE, and damnatio's
-    // mirror. Its census is harvested from the veiled trees, so it holds only of
-    // the tree BEFORE the cut; in a tree with no veiled trees the census is empty
-    // and it is red by construction. The reveille suite SHIPS — the delivered tree
-    // carries the theurge crate and the suite tabtarget — so a reveille membership
-    // would hand every consumer a red fixture asserting the absence of documents
-    // they were never given. The release ceremony invokes it by name pre-strip.
-    // Runnable via FixtureRun.
-    &crate::rbtdrq_loupe::RBTDRQ_FIXTURE_LOUPE,
     // damnatio: the delivered-tree identity assay — a member of NO SUITE, by
     // construction. Its cases hold only of a stripped, lustrated candidate, so
     // against the maintainer's working tree it is red on purpose; a suite that ran

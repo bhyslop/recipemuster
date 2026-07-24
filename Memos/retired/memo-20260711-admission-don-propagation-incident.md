@@ -2,7 +2,7 @@
 
 Status: absorbed with membrane (`rbtdrk_invoke_admission_settled`, rivets RBr_7a9/RBr_3f4);
 standing under the Axis-B premise, not demolition-dated.
-Collection context: `memo-20260711-gauntlet-indeterminacy-incident-collection.md`, roster row 3.
+Census home: `Tools/rbk/vov_veiled/RBSWB-Watchbill.adoc` (the watchbill).
 
 ## Signature (grep anchors)
 
@@ -66,7 +66,7 @@ RBr_7a9 (spoor), RBr_3f4 (membrane), both defined at RBSCIP with an evidence row
 - **RoE Palisade conduct, point by point:** characterized (exact signature, two surveyed
   observations); contained (one membrane, fixture-side; production untouched); absorbed
   only the signature (exit 109 alone; everything else dies clean); logged (a bend line per
-  retry — attempt 8's 16 absorbed bends are recorded in the collection memo's roster);
+  retry — attempt 8's 16 absorbed bends are recorded in the watchbill census);
   retirement stated (below).
 
 ## Retirement

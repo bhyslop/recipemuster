@@ -2,8 +2,8 @@
 
 Status: absorbed with membrane (commit `be42ad698`); membrane unexercised since
 (attempt 8 green with no transient), but identical-shape login membrane is
-field-proven. Collection context:
-`memo-20260711-gauntlet-indeterminacy-incident-collection.md`.
+field-proven. Census home:
+`Tools/rbk/vov_veiled/RBSWB-Watchbill.adoc` (the watchbill).
 
 ## Signature (grep anchors)
 
@@ -76,6 +76,6 @@ is a fixable docker-client defect — retire `zrbndb_registry_read`'s loop (and
 the sibling login membranes) when the fleet's docker carries a moby#44350 fix.
 No active tracking exists, so in practice it stands with the 2026-05-30 login
 membrane and retires with it, as one class. Sibling incident reports of the
-same run of gauntlet repairs: attempts 2 and 3, per the collection memo roster.
+same run of gauntlet repairs: attempts 2 and 3, per the watchbill provenance.
 
 <!-- eof -->
