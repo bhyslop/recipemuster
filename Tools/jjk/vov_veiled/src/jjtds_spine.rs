@@ -996,6 +996,7 @@ fn jjtds_trailing_step_stands_a_dirty_pace_billet() {
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("stands"), "expected a standing report, got: {}", report);
     assert!(report.contains("muck"), "a standing billet must name muck as the remedy: {}", report);
+    assert!(report.contains("uncommitted changes"), "the report must name the failed conjunct (JJSVD \"The stile\"): {}", report);
     assert!(yard.billet_root.exists(), "a dirty billet must never be destroyed");
 }
 
@@ -1012,6 +1013,7 @@ fn jjtds_trailing_step_stands_an_unpushed_pace_billet() {
 
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(report.contains("never consigned"), "the report must name the failed conjunct (JJSVD \"The stile\"): {}", report);
     assert!(yard.billet_root.exists(), "an unpushed billet must never be destroyed");
 }
 
@@ -1028,6 +1030,11 @@ fn jjtds_trailing_step_stands_a_groom_billet_with_a_raw_local_commit() {
 
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(
+        report.contains("not reachable from trunk's counterpart"),
+        "the report must name the failed conjunct (JJSVD \"The stile\"): {}",
+        report
+    );
     assert!(yard.billet_root.exists(), "an unreachable groom billet must never be destroyed");
 }
 

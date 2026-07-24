@@ -1305,53 +1305,87 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
         Err(e) => return format!("stile: billet stands at {} — could not identify it: {}\n", billet_root.display(), e),
     };
     let ground = jjrds_ground_of(&identity);
-    let passes = match &ground {
-        jjrds_Ground::PaceBillet { .. } => zjjrds_stile_pace_passes(farrier, billet_root),
-        jjrds_Ground::GroomBillet => zjjrds_stile_groom_passes(farrier, billet_root, trunk),
+    let verdict = match &ground {
+        jjrds_Ground::PaceBillet { .. } => zjjrds_stile_pace_verdict(farrier, billet_root),
+        jjrds_Ground::GroomBillet => zjjrds_stile_groom_verdict(farrier, billet_root, trunk),
         // Neither ground the door ever seats a session in — the litmus is total
         // rather than partial, and entitles destruction to neither.
-        jjrds_Ground::Hippodrome | jjrds_Ground::Unboarded { .. } => Ok(false),
+        jjrds_Ground::Hippodrome | jjrds_Ground::Unboarded { .. } => Ok(zjjrds_StileVerdict::NotABillet),
     };
-    match passes {
-        Ok(true) => match farrier.jjrfr_billet_remove(billet_root) {
+    match verdict {
+        Ok(zjjrds_StileVerdict::Passes) => match farrier.jjrfr_billet_remove(billet_root) {
             Ok(()) => format!("stile: billet cleared ({})\n", billet_root.display()),
             Err(e) => format!("stile: billet stands at {} — {}\n", billet_root.display(), e),
         },
-        Ok(false) => format!(
-            "stile: billet stands at {} ({}) — `muck` to clear it, or exit clean later\n",
+        Ok(conjunct) => format!(
+            "stile: billet stands at {} ({}) — {} — `muck` to clear it, or exit clean later\n",
             billet_root.display(),
-            ground.jjrds_as_str()
+            ground.jjrds_as_str(),
+            conjunct.zjjrds_as_str()
         ),
         Err(e) => format!("stile: billet stands at {} — {}\n", billet_root.display(), e),
     }
 }
 
+/// The exit litmus's verdict — named per JJSVD "The stile": a standing billet
+/// names the failed conjunct, not just the fact of standing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum zjjrds_StileVerdict {
+    Passes,
+    Dirty,
+    /// Pace arm: local commits exist beyond the billet's own counterpart.
+    AheadOfCounterpart,
+    /// Pace arm: no counterpart known yet — nothing consigned. Ignorance
+    /// stands, the litmus's ignorance-stands arm (JJSVD).
+    Untracked,
+    /// Groom arm: the detached tip is not an ancestor of trunk's counterpart.
+    Unreachable,
+    /// A ground the door never seats a session in.
+    NotABillet,
+}
+
+impl zjjrds_StileVerdict {
+    fn zjjrds_as_str(&self) -> &'static str {
+        match self {
+            zjjrds_StileVerdict::Passes => "passes",
+            zjjrds_StileVerdict::Dirty => "uncommitted changes",
+            zjjrds_StileVerdict::AheadOfCounterpart => "commits not yet in remote custody",
+            zjjrds_StileVerdict::Untracked => "never consigned — no counterpart known",
+            zjjrds_StileVerdict::Unreachable => "detached tip not reachable from trunk's counterpart",
+            zjjrds_StileVerdict::NotABillet => "not a billet the stile boards",
+        }
+    }
+}
+
 /// The pace-billet arm: clean AND not ahead of its own counterpart — every
 /// commit already in remote custody.
-fn zjjrds_stile_pace_passes<F: jjrfr_FarrierCore>(farrier: &F, billet_root: &Path) -> Result<bool, jjrfr_Rejection> {
+fn zjjrds_stile_pace_verdict<F: jjrfr_FarrierCore>(farrier: &F, billet_root: &Path) -> Result<zjjrds_StileVerdict, jjrfr_Rejection> {
     let comb = farrier.jjrfr_comb(billet_root)?;
     if !comb.jjrfr_is_clean() {
-        return Ok(false);
+        return Ok(zjjrds_StileVerdict::Dirty);
     }
     match farrier.jjrfr_sync_state(billet_root)? {
-        jjrfr_SyncState::Tracking { ahead: 0, .. } => Ok(true),
-        // Ahead: unpushed commits exist. Untracked: no counterpart known yet —
-        // ignorance stands, the litmus's ignorance-stands arm (JJSVD).
-        jjrfr_SyncState::Tracking { .. } | jjrfr_SyncState::Untracked => Ok(false),
+        jjrfr_SyncState::Tracking { ahead: 0, .. } => Ok(zjjrds_StileVerdict::Passes),
+        jjrfr_SyncState::Tracking { .. } => Ok(zjjrds_StileVerdict::AheadOfCounterpart),
+        jjrfr_SyncState::Untracked => Ok(zjjrds_StileVerdict::Untracked),
     }
 }
 
 /// The groom-billet arm: clean AND its detached position is reachable from
 /// trunk's remote counterpart — a raw detached commit is reachable from
 /// nothing and stands.
-fn zjjrds_stile_groom_passes<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
+fn zjjrds_stile_groom_verdict<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     farrier: &F,
     billet_root: &Path,
     trunk: &str,
-) -> Result<bool, jjrfr_Rejection> {
+) -> Result<zjjrds_StileVerdict, jjrfr_Rejection> {
     let comb = farrier.jjrfr_comb(billet_root)?;
     if !comb.jjrfr_is_clean() {
-        return Ok(false);
+        return Ok(zjjrds_StileVerdict::Dirty);
     }
-    farrier.jjrfr_reachable(billet_root, trunk)
+    if farrier.jjrfr_reachable(billet_root, trunk)? {
+        Ok(zjjrds_StileVerdict::Passes)
+    } else {
+        Ok(zjjrds_StileVerdict::Unreachable)
+    }
 }
