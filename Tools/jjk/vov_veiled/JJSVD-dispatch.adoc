@@ -196,7 +196,7 @@ its tier source, never its own spine:
 +
 . *{jjdd_muck}* — the billet-clearing sweep, silent when its reap set is empty.
 . *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
-  a decline is the fair-faced foreign-ground rejection.
+  a decline is the fair-faced {jjdf_foreign_ground} rejection.
 . *Pedigree lookup* — a {jjdb_studbook} read, no lock, one indirection:
   derived key → sire → {jjdb_pedigree};
   a key resolving no sire is the unrecorded-sire rejection, and a claiming

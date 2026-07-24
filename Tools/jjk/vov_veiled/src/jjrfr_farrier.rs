@@ -41,6 +41,8 @@ pub enum jjrfr_RejectionKind {
     Diverged,
     LockHeld,
     LockBroken,
+    SeatVestige,
+    LineSeated,
 }
 
 impl jjrfr_RejectionKind {
@@ -51,6 +53,8 @@ impl jjrfr_RejectionKind {
             jjrfr_RejectionKind::Diverged => "diverged",
             jjrfr_RejectionKind::LockHeld => "lock-held",
             jjrfr_RejectionKind::LockBroken => "lock-broken",
+            jjrfr_RejectionKind::SeatVestige => "seat-vestige",
+            jjrfr_RejectionKind::LineSeated => "line-seated",
         }
     }
 }

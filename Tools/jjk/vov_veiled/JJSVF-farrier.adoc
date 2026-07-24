@@ -177,7 +177,7 @@ staleness remedy.
 `advance`::
 Carry the line of work forward to the remote tip: *fast-forward-only*, a no-op when already
 there, and never destructive.
-A line holding commits the counterpart does not have rejects (diverged) — under the
+A line holding commits the counterpart does not have rejects ({jjdf_diverged}) — under the
 compose-then-push rivet (`JJr_b52`, {jjdb_journal}) the local branch adopts only positions
 the remote has accepted, so that state is impossible and is surfaced for the attended
 session, never auto-destroyed.
@@ -187,7 +187,7 @@ touches only the paths the tip changed.
 
 `consign`::
 Hand a branch into the remote's custody: plain fast-forward push (hippodrome and billet
-branches; a content race rejects (diverged)).
+branches; a content race rejects ({jjdf_diverged})).
 {jjdb_blotter} content never passes here — it goes through `proffer`, which is what binds a
 write to the held lock.
 *Never force* — a rivet, cited in shipped code by the opaque token `JJr_d81`:
@@ -201,7 +201,7 @@ compose one commit whose sole parent is the branch's remote counterpart's tip (a
 `glean`), carrying exactly the named files, *without moving the local branch*;
 push it atomic-under-lease against the holder's own lock ref ({jjdb_journal});
 and only on acceptance advance the local branch to the accepted position.
-A refusal — (lock-broken) when the lock no longer flies the leased guidon, (diverged) on a
+A refusal — ({jjdf_lock_broken}) when the lock no longer flies the leased guidon, ({jjdf_diverged}) on a
 plain content race — leaves the local branch and its record untouched: no residue exists for
 any later ceremony to scrub.
 Never force (`JJr_d81`).
@@ -226,7 +226,7 @@ maximum-danger facet, where a reflex-firing name costs most.
 
 `stake`::
 Stake the {jjdb_guidon} in: atomically create the lock ref bearing it — the compare-and-swap
-claim — or reject (lock-held).
+claim — or reject ({jjdf_lock_held}).
 
 `pluck`::
 Pluck the lock out: lease-guarded delete against an observed {jjdb_guidon}, never blind.
@@ -256,6 +256,14 @@ via `billet_seat`, never re-births.
 Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}
 billet-ensure: billets are chat-ephemeral, branches durable (dispatch sheaf), so a reaped
 billet's branch re-seats with its own WIP history, un-anchored and un-reset.
+A branch the constellation already seats rejects in a named kind — seat-vestige when the
+recorded seat's root is gone, line-seated when it stands — rather than failing loud as a
+caller-contract violation: both are states the operator reaches by ordinary means, and both
+carry a remedy the refusal can name.
+`billet_create`'s collision arm keeps the caller-contract posture, being a JJ composition
+fault rather than a state the operator arrives at.
+A branch that does not exist at all remains a caller-contract violation here, since
+`line_exists` is the observation the spine consults first.
 
 `billet_detach`::
 Re-detach an existing billet at the trunk branch's remote counterpart — groom-billet reuse
@@ -344,8 +352,87 @@ re-runs {jjdf_identify} and the pedigree lookup itself, rather than reusing
 
 One farrier-wide taxonomy of rejection *kinds*, wrapped in a context layer naming op, repo,
 and detail.
-A kind is a shared semantic fact — dirty-tree means the same thing from `billet_detach` or
-`billet_remove` — so consumers branch on kind, never on message text.
-Kinds known at MVP: foreign-ground ({jjdf_identify_p} sole failure), dirty-tree, diverged,
-lock-held, lock-broken.
+A kind is a shared semantic fact — {jjdf_dirty_tree} means the same thing from
+`billet_detach` or `billet_remove` — so consumers branch on kind, never on message text.
 A new kind must be allocated in this sheaf, and named git-free per the {jjdf_palisade}.
+
+The {jjdf_palisade} runs between kind and detail:
+the kind is the git-free fact a consumer branches on;
+the detail is the taxonomy's one membrane,
+quoting the neighbor's evidence verbatim — stderr, porcelain lines,
+and the exact foreign command an operator-typed remedy requires —
+because precise characterization is Palisade conduct, never vocabulary adoption.
+Detail text is for eyes alone:
+no consumer parses it or branches on it,
+and that standing prohibition is what makes the verbatim quote safe.
+
+=== Which verdicts are surveyed
+
+The taxonomy is closed and stays small: a driver classifies only the verdicts that earn a
+kind, and every other failure keeps the loud unclassified panic — the panic is the
+discipline, not a defect.
+The Palisade's absorb-only-the-surveyed-signature conduct (CMK rules of engagement, the
+headwater) is what bounds the survey; this is its farrier-side test.
+
+A verdict is surveyed when all three hold:
+
+* it is *field-observed*, or *structurally relied upon by a cinched invariant*;
+* it is *probe-detectable* — exit code, porcelain output, or a registry read, never stderr
+  prose, whose wording is the neighbor's to change without notice;
+* it carries a *remedy the refusal can name*.
+
+A signature failing any conjunct is left to the panic, which surfaces it whole for the
+attended session rather than mislabeling it under a familiar kind.
+Two consequences the census makes concrete: a failed push whose cause is an unreachable
+remote rather than a ref rejection is not surveyed, because separating unreachable from
+refused needs stderr prose;
+and an `enfold` conflict is not surveyed, because its only remedy is the attended session's
+own work.
+
+=== The kinds
+
+[[jjdf_foreign_ground]]
+{jjdf_foreign_ground}::
+{jjdf_identify_p} sole failure:
+the probed tree is no claimed ground of any farrier kind.
+
+[[jjdf_dirty_tree]]
+{jjdf_dirty_tree}::
+Uncommitted changes stand where the op requires a clean tree —
+the same fact from `billet_detach` or `billet_remove`.
+
+[[jjdf_diverged]]
+{jjdf_diverged}::
+The counterpart holds commits the offered line does not — a content race;
+the remote's refusal of a non-fast-forward write, surfaced as fact.
+
+[[jjdf_lock_held]]
+{jjdf_lock_held}::
+The guidon lock already flies another holder's claim.
+
+[[jjdf_lock_broken]]
+{jjdf_lock_broken}::
+The lock no longer flies the leased guidon —
+the holder's lease was severed out from under it.
+
+[[jjdf_seat_vestige]]
+{jjdf_seat_vestige}::
+The constellation records a seat whose root is gone — an out-of-band removal of a billet
+leaves the registration standing, and the next seat of that branch dies on it.
+Detected by a registry read, never by message text, and remedied by pruning the registry —
+*advice, never automatic*: the refusal names the command and the operator types it, because
+a driver that tidies the operator's own destruction hides the fact that it happened.
+
+[[jjdf_line_seated]]
+{jjdf_line_seated}::
+The named line of work is already seated in a live billet.
+This is where the constellation's own seat exclusivity becomes legible to JJ: git enforces
+one live checkout per branch for free, and this kind is that enforcement surfaced as a
+domain fact, so an invariant resting on it rests on a named kind rather than on a foreign
+refusal.
+The remedy names the standing billet's root: work there, or reap it first.
+
+The last two arrive at `billet_seat` from a single foreign refusal, rendered identically, and
+are told apart only by the registry probe;
+a probe that matches no seat at all leaves the panic standing, since classifying that arm
+would mean reading the message text this sheaf bars.
