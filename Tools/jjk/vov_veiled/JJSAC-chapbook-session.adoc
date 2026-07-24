@@ -45,17 +45,13 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_billet`
-*The billet* — the pace's {jjdd_billet}: chat-ephemeral scaffolding over a durable branch.
+*The billet* — the pace's {jjdd_billet}: session-transient scaffolding over a durable branch.
 
 == Act I — Dispatch
 
 //axhci_interaction
 `jjcbs_operator` `jjcbs_dispatch`
 The operator saddles a pace at the shell (or lunges a heat for a groom) — {jjdd_saddle} and {jjdd_lunge}, the dispatch sheaf's doors.
-
-//axhci_interaction
-`jjcbs_dispatch` `jjcbs_studbook`
-Nuke-on-start: {jjdd_muck}, the {jjdd_spine_p} leading billet-clearing step, snapshots pace states under the studbook lock, plans retirement of every billet whose pace is closed and whose age exceeds retention, confirms, and reaps — refusing with advice on any dirty anomaly, and silent when the reap set is empty.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_hippodrome`
@@ -115,17 +111,16 @@ the wrap: remaining work committed, the pace state mutates, and the same {jjdb_j
 //axhci_interaction
 `jjcbs_session` `jjcbs_operator`
 The session ends and the operator is back at the shell.
-The billet stands — nothing reaps at wrap; the branch is pushed, so the worktree holds only convenience.
 
 //axhci_interaction
-`jjcbs_operator` `jjcbs_dispatch`
-Days later, the next dispatch — either door: {jjdd_muck} finds this pace closed and its billet past retention, and this crossing it has work, so it plans, confirms, and reaps.
-The teardown actor is the dispatch layer at next start — never the session, which cannot remove its own floor, and never a door of its own: teardown is the {jjdd_spine_p} leading step.
+`jjcbs_dispatch` `jjcbs_hippodrome`
+The {jjdd_stile_p} trailing step runs the exit litmus — pure git, no studbook read — and the billet passes: the wrapped work is committed and consigned, so the worktree holds nothing the branch and journal do not, and the stile destroys it on the spot, one line naming where the work stands.
+The teardown actor is the stile — parent of the session it launched, standing outside the billet — never the session, which cannot remove its own floor; a billet that fails the litmus stands, one line naming the failed conjunct, and {jjdd_muck} is the operator's remedy.
 
 == Pending-citation register (the convergence gauge)
 
 The register reads *zero* — every flagged beat has hardened to a citation.
-Hardened: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf); the dispatch family — the doors, the {jjdd_spine}, {jjdd_muck}, the {jjdd_billet} cast lane, {jjdd_refit}, and launch-time provisioning (the dispatch sheaf); the two parties — the operator and engine cast lanes ({jjdw_operator}, {jjdw_engine} — the cosmology sheaf's two-parties section).
+Hardened: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf); the dispatch family — the doors, the {jjdd_spine}, the {jjdd_stile}, {jjdd_muck}, the {jjdd_billet} cast lane, {jjdd_refit}, and launch-time provisioning (the dispatch sheaf); the two parties — the operator and engine cast lanes ({jjdw_operator}, {jjdw_engine} — the cosmology sheaf's two-parties section).
 
 Deferred sibling tales, named so they are not smuggled into this one:
 the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.
