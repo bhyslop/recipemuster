@@ -36,7 +36,7 @@ The {jjdb_pedigree} keys on the sire's addresses directly.
 The registered-identity indirection — a derived key resolving to a minted sire id, the
 {jjdb_pedigree} keyed on that id rather than the address — is deliberately not carried: no
 consumer resolves it, so the field would seed durable committed records with a value nothing
-sets meaningfully (`jjrds_Pedigree` doc comment, journal spine). It lands as an optional field
+sets meaningfully (`jjrds_Pedigree` doc comment, journal backbone). It lands as an optional field
 the day address mobility is real.
 A new sire needs a founding {jjdb_pedigree} entry before JJ serves it — a deliberate
 ceremony;

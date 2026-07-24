@@ -240,7 +240,7 @@ A partially-permissioned breeze therefore degrades into confident nonsense rathe
 distinguishes the two.
 
 *Conduct.*
-Characterize the signature precisely; contain it at one membrane — the spine's launch
+Characterize the signature precisely; contain it at one membrane — the approach's launch
 primitive, which composes the session's permission posture unconditionally, is that one place;
 absorb only the surveyed shape and fail fast on everything else; log every bend; and retire the
 membrane when the neighbor heals.
@@ -299,12 +299,12 @@ each collision below is a design decision for a future pace, not a defect in eit
   Where volte execution state lives — and how concurrent beat completions record — must be
   re-derived over the blotter's single-writer-under-lock model.
 * *One-active-volte vs the guidon* — the volte mutex and the lock discipline should rhyme.
-* *Dispatch vs the dispatch spine* — per-beat session launch must ride jjy_saddle / jjy_lunge
-  and the entrance spine (identify, pedigree lookup, billet-ensure, context provisioning)
+* *Dispatch vs the stile's approach* — per-beat session launch must ride jjy_saddle / jjy_lunge
+  and the stile's approach (identify, pedigree lookup, billet-ensure, context provisioning)
   rather than a parallel launcher.
 * *Designation overlap vs school's model assignment* — the dispatch bullet above reaches only
   launch mechanics, and the deeper collision is one of authority.
-  The spine's tier roster and its two-source (tier, effort) choice already constitute what a
+  The approach's tier roster and its two-source (tier, effort) choice already constitute what a
   beat row calls its model assignment — built, specified, and in force today.
   Bridling already performs a judgment rhyming with school's: a frontier agent reads a docket,
   rules it ready, and assigns the tier its execution needs.
@@ -356,8 +356,8 @@ Carried from the V4 workup unless an entry says otherwise.
 * Small-model orchestrator (raised against a premise of this sheaf, not carried) — breeze is
   assigned to a small-model orchestrator and the assignment is defended by a hard gate refusing
   frontier-tier callers.
-  That was drawn before the dispatch spine existed.
-  The spine is deterministic engine code doing precisely the work breeze describes as precision,
+  That was drawn before the stile's approach existed.
+  The approach is deterministic engine code doing precisely the work breeze describes as precision,
   not judgment; if breeze becomes engine code, the tier gate is moot by construction rather than
   enforced, and switchboard-not-a-reader stops being a discipline and becomes a type.
   Raised, not resolved: several sections above rest on the premise, and settling it is its own

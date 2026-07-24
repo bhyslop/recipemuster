@@ -19,7 +19,7 @@
 //! studbook) is reproduced locally rather than shared, matching this crate's own
 //! convention (`jjtrd_refit.rs`, `jjtm_mcp.rs`).
 
-use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
+use super::jjrds_stile::JJRDS_PEDIGREES_REL_PATH;
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
     jjrfr_BequeathOutcome,

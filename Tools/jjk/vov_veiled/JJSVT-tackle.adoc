@@ -370,7 +370,7 @@ the reference form does not depend on the answer.
 
 == How it reaches a session
 
-At saddle time the dispatch spine resolves the sire's {jjdb_pedigree}, reads its tackle set,
+At saddle time the stile's approach resolves the sire's {jjdb_pedigree}, reads its tackle set,
 and provisions the session's context at *file* grain (dispatch sheaf, Launch-time
 provisioning).
 This is what replaces repo-resident context at repo grain with runtime binding, and what lets

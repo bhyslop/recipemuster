@@ -11,7 +11,7 @@ use super::jjrdm_muck::{
     jjrdm_PaceEvidence,
     jjrdm_Rejection,
 };
-use super::jjrds_spine::{jjrds_billet_dirname, JJRDS_SCRATCH_DIRNAME};
+use super::jjrds_stile::{jjrds_billet_dirname, JJRDS_SCRATCH_DIRNAME};
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
     jjrfr_BilletBirth,
@@ -145,7 +145,7 @@ fn zjjtdm_fixture(name: &str) -> (JjkTestDir, std::path::PathBuf, jjdb_BlotterCo
 
 fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str, serial: u64) -> std::path::PathBuf {
     // Yard signet on the dirname, livery badge on the branch — the same split
-    // the dispatch spine makes, so salvage meets here what it meets in the field.
+    // the stile's approach makes, so salvage meets here what it meets in the field.
     let billet_root = infield.join(jjrds_billet_dirname(serial, coronet));
     let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, coronet);
     jjrfg_PlainGit

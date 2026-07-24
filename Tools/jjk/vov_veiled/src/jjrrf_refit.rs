@@ -7,7 +7,7 @@
 //! `jjrfr_enfold`, `jjrfr_counterfoil`, `jjrfr_consign`) — this module owns no
 //! primitive of its own, matching the dispatch sheaf's own posture.
 //!
-//! Refit fetches first, because staleness is fetch-revealed: the entrance spine
+//! Refit fetches first, because staleness is fetch-revealed: the stile's approach
 //! learns trunk has moved at its `glean` step, and refit is the remedy the open
 //! then names. The merge input is therefore the trunk's remote counterpart, as
 //! of that fetch (the `enfold` contract, farrier sheaf) — never the operator's
@@ -27,7 +27,7 @@
 //! The read-only "has trunk moved" probe that warns ahead of running refit
 //! lives in the farrier itself (`jjrfr_outstripped`), not here — billet behind
 //! `origin/<trunk>`, a local ancestry check after any glean. The dispatch
-//! board surfaces it via `jjrds_staleness_notice` (dispatch spine), and
+//! board surfaces it via `jjrds_staleness_notice` (stile's approach), and
 //! `jjx_open` leads its own report with the same notice
 //! (`zjjrm_open_staleness_notice`, `jjrm_mcp.rs`). Wrap consults the same probe
 //! but does not advise on it: at wrap entry the probe is a gate

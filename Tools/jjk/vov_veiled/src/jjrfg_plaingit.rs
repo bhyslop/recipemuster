@@ -730,7 +730,7 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // constellation already seats is a named rejection, not a
         // caller-contract violation — seat-vestige or line-seated, told apart by
         // the registry alone (farrier sheaf). A missing branch stays a
-        // caller-contract violation: the spine consults jjrfr_line_exists first.
+        // caller-contract violation: the approach consults jjrfr_line_exists first.
         let out = zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, branch]);
         if !out.ok {
             if let Some(rejection) = zjjrfg_classify_refused_seat(root, branch) {

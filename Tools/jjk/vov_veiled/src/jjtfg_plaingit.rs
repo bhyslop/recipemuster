@@ -945,7 +945,7 @@ fn jjtfg_line_abroad_answers_both_ways_and_only_after_a_glean() {
     assert!(jjrfg_PlainGit.jjrfr_line_abroad(primary.path(), "jjls_pace/AAAAA").unwrap());
     assert!(!jjrfg_PlainGit.jjrfr_line_abroad(primary.path(), "jjls_pace/NOSUCH").unwrap());
     // Abroad is not home: the adopt arm's two observations must disagree here,
-    // or the spine could never tell a re-seat from an adoption.
+    // or the approach could never tell a re-seat from an adoption.
     assert!(!jjrfg_PlainGit.jjrfr_line_exists(primary.path(), "jjls_pace/AAAAA").unwrap());
 }
 
@@ -977,7 +977,7 @@ fn jjtfg_billet_adopt_seats_the_remote_line_and_consigns_back_to_it() {
 }
 
 /// A branch already standing at home is a caller-contract violation here — the
-/// spine consults `line_exists` first, and re-seating is `billet_seat`'s work.
+/// approach consults `line_exists` first, and re-seating is `billet_seat`'s work.
 #[test]
 #[should_panic(expected = "unclassified git failure")]
 fn jjtfg_billet_adopt_fails_loud_when_the_line_already_stands_at_home() {

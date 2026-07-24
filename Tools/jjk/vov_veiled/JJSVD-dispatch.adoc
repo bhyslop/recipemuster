@@ -3,20 +3,20 @@ This is a normative operation sheaf of the {jjs0_imprimatur}: binding — code, 
 
 = Dispatch and Billet
 
-The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} — one
-shared {jjdd_spine}, the {jjdd_billet} a dispatched session runs in, the {jjdd_stile} that
+The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} —
+sharing one approach, the {jjdd_billet} a dispatched session runs in, the {jjdd_stile} that
 brackets the whole crossing and clears its own billet at exit, the {jjdd_muck} door for what
 a stile leaves standing, the {jjdd_refit} staleness remedy, and the {jjdd_cashier}.
 Everything here composes {jjdf_farrier} primitives and the {jjdb_journal};
 this sheaf owns no primitive of its own.
 
 *The doors are the sole entrance*: every JJ-dispatched session arrives
-through {jjdd_saddle} or {jjdd_lunge}, and the two share the one {jjdd_spine}.
+through {jjdd_saddle} or {jjdd_lunge}, and the two share the one approach.
 A bare hand-launched session carries no MCP registration and no JJ context — it is simply a
 non-JJ session, forever legitimate as such;
 no fallback paths until genuinely forced.
 The consequence is load-bearing, not cosmetic: the entrance must be pleasant very early —
-which is why the spine leads with no housekeeping at all: billet clearing rides the
+which is why the approach leads with no housekeeping at all: billet clearing rides the
 {jjdd_stile_p} exit, never its entrance.
 
 == The billet
@@ -147,7 +147,7 @@ the launch takes the judgment constant (Session launch below).
 The door that dismisses a derelict lock-holder from service:
 `sight` every JJ {jjdb_blotter} lock, report the observed {jjdb_guidon_s}, then lease-guarded
 `pluck` per lock, never blind.
-Outside the {jjdd_spine} — no dispatch crosses it, and nothing composes it.
+Outside the {jjdd_stile_p} approach — no dispatch crosses it, and nothing composes it.
 The door cites the {jjdb_break} per lock and adds nothing to its mechanism (journal sheaf):
 what the door contributes is *deliberateness*, which is the door's property and never the
 sequence's.
@@ -200,12 +200,27 @@ That refusal text must NAME this door.
 A cure the sufferer cannot find is not a cure, and the refusal is the only moment the
 operator is guaranteed to be looking.
 
-== The entrance spine
+== The stile
 
-[[jjdd_spine]]
-{jjdd_spine}::
-The one shared sequence behind both doors — a door contributes only its target typing and
-its tier source, never its own spine:
+[[jjdd_stile]]
+{jjdd_stile}::
+The application lifecycle as one bounded crossing: a door, the approach below, the launched
+session, and the trailing step below — one process, entered at the shell and left at
+session exit.
+The word is literal: a stile is a structure for crossing a fence, and the crossing is the
+thing — the {jjdd_billet} is ground the stile stands up on the way in and typically clears
+on the way out.
+The door driver spawns the session and waits, so the stile is still standing — outside the
+billet, parent of the session it launched — when the session returns;
+that geometry is what the trailing step rides, and it is why no occupancy record exists
+anywhere: the destructor is the occupant's own parent, acting only after its child has
+exited.
+A future immediate-work crossing (pace-free, journal-born) is a stile kind, not a new noun;
+kinds cost a roster word, exactly as {jjdd_billet} kinds do.
++
+*The approach.*
+The crossing's opening segment — the one shared sequence behind both doors, where a door
+contributes only its target typing and its tier source, never its own approach:
 +
 . *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
   a decline is the fair-faced {jjdf_foreign_ground} rejection.
@@ -237,7 +252,7 @@ its tier source, never its own spine:
   only a line standing nowhere is born (`billet_create`).
   The abroad question is the one answer a fetch changes, so the ensure gleans just before
   asking it and never earlier: the counterpart read is network-silent, and a stale no forks.
-. *`glean`* — the spine fetches and never merges;
+. *`glean`* — the approach fetches and never merges;
   staleness becomes known here so the open can report it, and {jjdd_refit} is the remedy.
 . *BURV export* — the per-billet env posture (BUK meld below).
 . *Provision* — JJ context and MCP registration, session-scoped (Launch-time provisioning
@@ -246,35 +261,17 @@ its tier source, never its own spine:
   prompt, at the (tier, effort) the two-source choice yields (Session launch below).
   The interior launch primitive is stirrup — hearting, pace-blind, parameterized (billet,
   tier, opening prompt); pace-coupling lives in the caller, and later dispatch surfaces
-  reuse the same spine and primitive, never a parallel launcher.
-
+  reuse the same approach and primitive, never a parallel launcher.
++
 *Report precedes launch.*
 The door's report introduces the session it launches, so it reaches the operator's console
 BEFORE the Launch step hands over the terminal — the whole resolved report (billet, launch
 tier and effort, opening prompt, and any staleness notice), never trailing the session's exit.
-The console-handoff is the spine's last act for exactly this reason: a report emitted after it
+The console-handoff is the approach's last act for exactly this reason: a report emitted after it
 would land beneath the very session it was meant to precede.
-
-Mount absorbs cold start — billet ensure, glean, orient are the spine's work, and no
++
+Mount absorbs cold start — billet ensure, glean, orient are the approach's work, and no
 separate cold-start engagement verb exists.
-
-== The stile
-
-[[jjdd_stile]]
-{jjdd_stile}::
-The application lifecycle as one bounded crossing: a door, the {jjdd_spine}, the launched
-session, and the trailing step below — one process, entered at the shell and left at
-session exit.
-The word is literal: a stile is a structure for crossing a fence, and the crossing is the
-thing — the {jjdd_billet} is ground the stile stands up on the way in and typically clears
-on the way out.
-The door driver spawns the session and waits, so the stile is still standing — outside the
-billet, parent of the session it launched — when the session returns;
-that geometry is what the trailing step rides, and it is why no occupancy record exists
-anywhere: the destructor is the occupant's own parent, acting only after its child has
-exited.
-A future immediate-work crossing (pace-free, journal-born) is a stile kind, not a new noun;
-kinds cost a roster word, exactly as {jjdd_billet} kinds do.
 +
 *The trailing step.*
 The stile's closing act, after the session returns and ahead of its own exit: run the exit
@@ -315,7 +312,7 @@ clears them with the billet's residue.
 Mucking out the stable by hand: the operator-directed destroy door for a named
 {jjdd_billet} the {jjdd_stile_p} trailing step left standing — dirty, stranded work
 aboard, or orphaned by a killed door.
-Operator-typed like the {jjdd_cashier}, outside the {jjdd_spine}: no dispatch crosses it,
+Operator-typed like the {jjdd_cashier}, outside the {jjdd_stile_p} approach: no dispatch crosses it,
 and nothing composes it.
 It is the constellation's one deliberate data-loss surface;
 everything else refuses loss by construction, and that division of labor is the design —
@@ -439,7 +436,7 @@ family already resolves to the {jjdw_infield} (peer placement load-bearing, cosm
 sheaf).
 The genuine hazard is concurrency, not geometry: shared per-dispatch output state
 (`../output-buk/current/`, `logs-buk/last.txt`).
-The {jjdd_spine} closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
+The {jjdd_stile_p} approach closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
 `BURV_TEMP_ROOT_DIR`, and `BURV_LOG_DIR` — absolute paths, the whoever-dispatches-owns-the-knob
 protocol; theurge needs no change (it sets BURV innermost, and innermost wins).
 Named behavior change: chain facts (`current/` → `previous/`) become *billet-scoped* — a
@@ -459,7 +456,7 @@ Nothing ever lands in a {jjdw_hippodrome}, and no gitignore is needed anywhere �
 == Launch-time provisioning
 
 {jjdw_hippodrome_s} carry no JJ inserts (cosmology sheaf), so MCP config, the verb table,
-and JJ context arrive *at session launch from the spine* — session-scoped config plus the
+and JJ context arrive *at session launch from the approach* — session-scoped config plus the
 opening prompt — never from repo-resident inserts;
 the project's own CLAUDE.md, whatever the vanilla project ships, still governs its code.
 
@@ -476,7 +473,7 @@ of silent ignorance.
 Selection is safe only when paired with discoverability.
 
 Per-scope discipline context arrives through the sire's {jjdl_tackle} bindings, read from
-the {jjdb_pedigree} at this point in the spine (tackle sheaf);
+the {jjdb_pedigree} at this point in the approach (tackle sheaf);
 the two repairs above are that sheaf's consumer obligations, stated there.
 Officium exchange (gazettes) relocates into the {jjdb_studbook} clone's untracked working
 area — a forward reference to its aspirant home (state-repo sheaf), landing with it.
@@ -497,7 +494,7 @@ The kit-core protocol texts pick this seam up at implementation.
 
 == Rejections
 
-The {jjdd_spine_p} refusals are fair-faced ashlar output, named per the farrier taxonomy
+The {jjdd_stile_p} approach refusals are fair-faced ashlar output, named per the farrier taxonomy
 where a primitive supplies them:
 foreign ground ({jjdf_identify} declines — no kind claims the tree),
 unrecorded sire (the claimed key resolves no sire),

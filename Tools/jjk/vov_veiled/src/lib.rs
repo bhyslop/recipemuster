@@ -34,7 +34,7 @@ pub mod jjrfg_plaingit;
 pub mod jjrrf_refit;
 pub mod jjrvb_blotter;
 pub mod jjrvg_guidon;
-pub mod jjrds_spine;
+pub mod jjrds_stile;
 pub mod jjrdm_muck;
 pub mod jjrdc_cashier;
 // Per-command modules (jjrxx_command pattern)
@@ -139,7 +139,7 @@ mod jjtrf_refit;
 mod jjtvb_blotter;
 
 #[cfg(test)]
-mod jjtds_spine;
+mod jjtds_stile;
 
 #[cfg(test)]
 mod jjtdm_muck;

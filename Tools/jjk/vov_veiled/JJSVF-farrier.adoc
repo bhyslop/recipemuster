@@ -115,9 +115,9 @@ The consumer captures the path once (the door captures cwd);
 
 The answer is *claim-or-decline*, so {jjdf_identify} doubles as ground detection:
 the consumer probes the farrier-kind roster, and a claim names the claiming kind.
-(The dispatch spine cross-checks the claiming kind against the kind recorded in the
+(The stile's approach cross-checks the claiming kind against the kind recorded in the
 {jjdb_pedigree} downstream;
-a mismatch is the spine's named rejection — record/ground drift — never
+a mismatch is the approach's named rejection — record/ground drift — never
 {jjdf_identify}'s.)
 
 A claimed tree resolves exactly four things:
@@ -128,7 +128,7 @@ A claimed tree resolves exactly four things:
 * *canonical upstream key* — the kind owns canonicalization;
   one key per tree — a constellation kind keys on its own upstream.
   The key is derived address, never the {jjdb_pedigree} key itself:
-  the spine's pedigree lookup resolves it in one indirection,
+  the approach's pedigree lookup resolves it in one indirection,
   derived key → sire → {jjdb_pedigree} (studbook sheaf).
 * *seat* — primary or partition.
   A partition seat carries its primary's root;
@@ -257,7 +257,7 @@ The kind sets the born branch's upstream to its own eventual counterpart, not tr
 later `consign` lands where this station itself will look.
 
 `billet_seat`::
-Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}
+Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_stile_p} approach
 billet-ensure: billets are session-transient, branches durable (dispatch sheaf), so a
 destroyed billet's branch re-seats with its own WIP history, un-anchored and un-reset.
 A branch the constellation already seats rejects in a named kind — {jjdf_seat_vestige} when the
@@ -267,11 +267,11 @@ carry a remedy the refusal can name.
 `billet_create`'s collision arm keeps the caller-contract posture, being a JJ composition
 fault rather than a state the operator arrives at.
 A branch that does not exist at all remains a caller-contract violation here, since
-`line_exists` is the observation the spine consults first.
+`line_exists` is the observation the approach consults first.
 
 `billet_adopt`::
 Seat a branch this station does not yet carry, taking its position from the remote
-counterpart — the adopt-never-fork arm behind the {jjdd_spine_p} billet-ensure.
+counterpart — the adopt-never-fork arm behind the {jjdd_stile_p} approach billet-ensure.
 A fresh local branch is minted AT the counterpart's tip, as of the last `glean`, and seated in
 the fresh partition, so a station meeting work another station pushed rejoins THAT line of
 work rather than forking a rival one from trunk that no ceremony would ever reconcile.
@@ -291,12 +291,12 @@ refuses on dirty.
 
 `line_exists`::
 Whether a named branch exists in the constellation — read-only, network-silent;
-the observation behind the spine's create-or-seat choice at billet ensure.
+the observation behind the approach's create-or-seat choice at billet ensure.
 
 `line_abroad`::
 Whether a named branch stands ABROAD — whether its remote counterpart is known to the
 constellation, as of the last `glean`;
-the observation behind the spine's adopt-or-birth choice, consulted once `line_exists` has
+the observation behind the approach's adopt-or-birth choice, consulted once `line_exists` has
 answered no.
 A line absent at home but standing abroad is another station's pushed work, and precisely the
 line a birth here would rival.

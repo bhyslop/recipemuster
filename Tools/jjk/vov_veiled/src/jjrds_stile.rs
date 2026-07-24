@@ -2,19 +2,19 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-//! Dispatch spine — the one shared sequence behind both doors (`jjdd_spine`,
-//! JJSVD-dispatch.adoc): saddle and lunge contribute only their target typing
-//! and their tier source; everything else runs here. This module composes
-//! `jjdf_farrier` primitives and the blotter's engine-known config — it owns no
-//! git of its own.
+//! The stile's approach — the one shared sequence behind both doors (`jjdd_stile`,
+//! JJSVD-dispatch.adoc "The approach"): saddle and lunge contribute only their
+//! target typing and their tier source; everything else runs here. This module
+//! composes `jjdf_farrier` primitives and the blotter's engine-known config — it
+//! owns no git of its own.
 //!
-//! Spine order (JJSVD "The entrance spine"): identify at the captured
+//! Approach order (JJSVD "The approach"): identify at the captured
 //! invocation path, pedigree lookup (one indirection: derived key → sire →
 //! pedigree), billet ensure, glean, BURV export, provision, launch. The
 //! launch primitive is stirrup: pace-blind, parameterized (billet, tier,
 //! opening prompt); pace-coupling lives in the callers here. Muck
-//! (`jjrdm_muck`) is not a step of this spine — it is the operator-directed
-//! destroy door, outside the spine entirely: no dispatch crosses it, and
+//! (`jjrdm_muck`) is not a step of this approach — it is the operator-directed
+//! destroy door, outside the stile entirely: no dispatch crosses it, and
 //! nothing here composes it (JJSVD "Muck").
 //!
 //! Inertness: nothing on the frozen path reaches this module's doors — they
@@ -121,9 +121,9 @@ pub fn jjrds_seed_pedigrees_json(sires: Vec<jjrds_Pedigree>) -> Result<String, S
     serde_json::to_string_pretty(&file).map_err(|e| format!("pedigrees seed: could not serialize: {}", e))
 }
 
-// ---- Spine rejections ----
+// ---- Approach rejections ----
 
-/// The spine's fair-faced refusals (JJSVD "Rejections"): named per the farrier
+/// The approach's fair-faced refusals (JJSVD "Rejections"): named per the farrier
 /// taxonomy where a primitive supplies them, plus the two lookup rejections the
 /// sheaf names for the pedigree step. Everything else fails loud through the
 /// composed primitive's own rejection or panic.
@@ -152,7 +152,7 @@ pub enum jjrds_Rejection {
     BadTarget { detail: String },
     /// An invalid (family, effort) launch pair at stirrup.
     BadLaunchPair { family: String, effort: String },
-    /// A farrier primitive rejected mid-spine (e.g. a dirty groom billet at
+    /// A farrier primitive rejected mid-approach (e.g. a dirty groom billet at
     /// re-detach).
     Farrier(jjrfr_Rejection),
 }
@@ -208,7 +208,7 @@ impl std::fmt::Display for jjrds_Rejection {
     }
 }
 
-/// Pedigree lookup — the spine's studbook read: lock-free (`jjdk_lockless_reads`),
+/// Pedigree lookup — the approach's studbook read: lock-free (`jjdk_lockless_reads`),
 /// one indirection from the kind-derived upstream key through the sire to its
 /// pedigree, then the record/ground cross-check against the claiming kind
 /// (`jjdf_identify` contract, farrier sheaf). Reads the studbook's working tree
@@ -386,7 +386,7 @@ pub fn jjrds_staleness_notice<F: jjrfr_FarrierBillet>(
 // ---- Doors and targets ----
 
 /// The two doors (`jjdd_saddle`, `jjdd_lunge`). A door contributes its target
-/// typing and its tier source; the spine below is shared.
+/// typing and its tier source; the approach below is shared.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrds_Door {
     Saddle,
@@ -692,7 +692,7 @@ pub fn jjrds_currency<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 
 // ---- The launch plan ----
 
-/// Everything the spine resolved ahead of boarding: what the billet seats, who
+/// Everything the approach resolved ahead of boarding: what the billet seats, who
 /// it dispatches to, and how the session launches. Planning is pure resolution;
 /// where the billet stands is NOT resolved here — that waits on the yard step
 /// (`jjrds_rediscover`, then either the standing billet or a dirname minted from
@@ -875,7 +875,7 @@ pub fn jjrds_record_dispatch<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
         .map_err(jjrds_Rejection::Farrier)
 }
 
-/// Plan a dispatch: the spine's resolution half — identify at the captured
+/// Plan a dispatch: the approach's resolution half — identify at the captured
 /// invocation path (the door captures cwd exactly once; this function never
 /// reads the environment), pedigree lookup, target resolution, and the
 /// two-source (tier, effort) choice. No mutation, no network: `over_studbook`
@@ -1019,9 +1019,9 @@ fn zjjrds_stands_abroad<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
         .map_err(jjrds_Rejection::Farrier)
 }
 
-/// Board the billet: the spine's mutation half — billet ensure
+/// Board the billet: the approach's mutation half — billet ensure
 /// (seat-or-adopt-or-create; a groom billet in reuse re-detaches to trunk tip), then
-/// glean (the spine fetches and never merges), then the staleness probe whose
+/// glean (the approach fetches and never merges), then the staleness probe whose
 /// answer the launch surfaces. Returns the staleness notice, if any.
 pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     farrier: &F,
@@ -1089,7 +1089,7 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
 
 /// The session-scoped MCP config content, generated per dispatch (JJSVD
 /// "Launch-time provisioning"): hippodromes carry no JJ inserts, so MCP
-/// registration arrives from the spine, pointing at the kit repo's vvx.
+/// registration arrives from the approach, pointing at the kit repo's vvx.
 pub fn jjrds_mcp_config_json(kit_root: &Path) -> String {
     serde_json::json!({
         "mcpServers": {
@@ -1102,7 +1102,7 @@ pub fn jjrds_mcp_config_json(kit_root: &Path) -> String {
     .to_string()
 }
 
-/// Stirrup — the launch primitive at the spine's end: pace-blind,
+/// Stirrup — the launch primitive at the approach's end: pace-blind,
 /// parameterized (billet, tier, opening prompt); pace-coupling lives in the
 /// caller. The one consumer of the tier roster: callers speak tier words,
 /// never model IDs, and an invalid (family, effort) pair refuses fair-facedly.
@@ -1144,7 +1144,7 @@ pub fn jjrds_stirrup_command(
 
 // ---- The door driver (CLI entry) ----
 
-/// The spine's terminal shape. Either the dispatch finishes here — a refusal, a
+/// The approach's terminal shape. Either the dispatch finishes here — a refusal, a
 /// dry run, or a provisioning failure, with the report string carrying the whole
 /// of what to say and the code the exit code — or a session stands composed and
 /// ready to launch. The launch is the one console-handoff I/O effect, and it is
@@ -1159,7 +1159,7 @@ pub enum jjrds_Outcome {
     /// hands it the terminal; the session's own exit code becomes the dispatch's.
     /// `billet_root`/`trunk` ride along so the caller can run the stile's
     /// trailing step (`jjrds_trailing_step`) against the same billet once the
-    /// session returns — the spine resolves both already; re-deriving them from
+    /// session returns — the approach resolves both already; re-deriving them from
     /// the launched `Command` would mean parsing its own `current_dir` back out.
     Launch { cmd: std::process::Command, billet_root: PathBuf, trunk: String },
 }
@@ -1290,7 +1290,7 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
 /// no confirm: the litmus is the proof that destruction loses nothing.
 ///
 /// The caller is the door driver, sitting outside the billet as the launched
-/// session's own parent — the geometry the spine never reaches on its own,
+/// session's own parent — the geometry the approach never reaches on its own,
 /// since `jjrds_run` only composes the command and returns before it is
 /// spawned. One line reports the outcome either way (JJSVD "The stile"): a
 /// cleared billet names where the work now stands — the destroyed worktree

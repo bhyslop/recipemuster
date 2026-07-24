@@ -7,7 +7,7 @@ use super::jjrfr_farrier::{
     jjrfr_FarrierLock,
     jjrfr_RejectionKind,
 };
-use super::jjrds_spine::{
+use super::jjrds_stile::{
     JJRDS_KIND_PLAIN_GIT,
     JJRDS_PEDIGREES_REL_PATH,
 };
@@ -791,7 +791,7 @@ fn jjtvb_founding_import_merges_disjoint_lineages_with_seed_maximum() {
 /// target-none founding path.
 #[test]
 fn jjtvb_found_studbook_seeds_both_tenants_and_dispatch_resolves_the_sire() {
-    use super::jjrds_spine::jjrds_pedigree_lookup;
+    use super::jjrds_stile::jjrds_pedigree_lookup;
     use super::jjrvb_blotter::{jjdb_found_studbook, jjdb_gallops_journal_load, jjdb_SireSeed};
 
     let infield = JjkTestDir::new("jjtvb_found_studbook_infield");
