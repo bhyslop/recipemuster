@@ -720,6 +720,35 @@ fn jjtfg_billet_create_seats_a_new_branch_worktree_at_the_counterpart() {
 }
 
 #[test]
+fn jjtfg_billet_create_self_tracks_before_and_after_the_first_consign() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_create_self_tracks");
+    let billet = zjjtfg_billet_slot("jjtfg_billet_create_self_tracks_billet");
+
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("billet-branch".to_string()), billet.path(), ZJJTFG_TRUNK)
+        .unwrap();
+
+    // Before the first consign, the branch's own counterpart does not exist
+    // yet: `@{upstream}` fails to resolve and `sync_state` answers Untracked —
+    // the litmus's ignorance-stands arm, never a false Tracking-against-trunk.
+    assert_eq!(jjrfg_PlainGit.jjrfr_sync_state(billet.path()).unwrap(), jjrfr_SyncState::Untracked);
+
+    jjrfg_PlainGit.jjrfr_consign(billet.path(), "billet-branch").unwrap();
+
+    // After the first consign the own counterpart exists and tracking is live:
+    // this is the SAME line, not trunk's — a plain further commit reads ahead
+    // of the billet's OWN counterpart, never trunk's.
+    assert_eq!(
+        zjjtfg_git(billet.path(), &["rev-parse", "--abbrev-ref", "@{upstream}"]),
+        "origin/billet-branch"
+    );
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_sync_state(billet.path()).unwrap(),
+        jjrfr_SyncState::Tracking { ahead: 0, behind: 0 }
+    );
+}
+
+#[test]
 #[should_panic(expected = "unclassified git failure")]
 fn jjtfg_billet_create_has_one_canonical_form_and_fails_loud_on_a_name_collision() {
     let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_create_collision");

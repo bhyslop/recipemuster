@@ -253,6 +253,8 @@ unpushed trunk work into the billet branch and publish it at the first `consign`
 `enfold` no-exfiltration law, applied at birth.
 A branch-name collision fails loud as a caller-contract violation: a durable branch re-seats
 via `billet_seat`, never re-births.
+The kind sets the born branch's upstream to its own eventual counterpart, not trunk's, so a
+later `consign` lands where this station itself will look.
 
 `billet_seat`::
 Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}

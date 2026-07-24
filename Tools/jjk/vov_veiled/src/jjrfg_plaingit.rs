@@ -700,6 +700,25 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         if !out.ok {
             zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &out.zjjrfg_detail());
         }
+        // Anchoring at trunk's counterpart births the branch with git's ambient
+        // upstream default pointed at THAT ref, not at a counterpart of the new
+        // branch's own name — the opposite of what `sync_state` needs to report
+        // truthfully once this branch is pushed. Re-point the tracking config to
+        // the branch's own eventual counterpart (own name doesn't have to exist
+        // yet: config accepts it unresolved, and `sync_state` reads that as
+        // Untracked until the first `consign` creates it) — the same self-tracking
+        // contract `billet_adopt` gets for free because its start-point ref
+        // already shares the branch's name.
+        if let jjrfr_BilletBirth::Branch(name) = birth {
+            let remote_cfg = zjjrfg_run_git(root, &["config", &format!("branch.{}.remote", name), ZJJRFG_REMOTE]);
+            if !remote_cfg.ok {
+                zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &remote_cfg.zjjrfg_detail());
+            }
+            let merge_cfg = zjjrfg_run_git(root, &["config", &format!("branch.{}.merge", name), &format!("refs/heads/{}", name)]);
+            if !merge_cfg.ok {
+                zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &merge_cfg.zjjrfg_detail());
+            }
+        }
         Ok(())
     }
 

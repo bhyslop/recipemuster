@@ -20,6 +20,7 @@ use super::jjrds_spine::{
     jjrds_roster_row,
     jjrds_staleness_notice,
     jjrds_stirrup_command,
+    jjrds_trailing_step,
     jjrds_type_target,
     jjrds_yard,
     jjrds_Door,
@@ -964,4 +965,86 @@ fn jjtds_dispatch_record_names_the_event_alone() {
         jjrds_dispatch_record(jjrds_Door::Lunge, &jjrfr_BilletBirth::Detached, "B9", "cerebro"),
         "dispatch lunge — groom billet for ₣B9 at station cerebro"
     );
+}
+
+// ---- The stile's trailing step ----
+
+#[test]
+fn jjtds_trailing_step_destroys_a_clean_and_pushed_pace_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_pace_destructs");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+
+    jjrfg_PlainGit.jjrfr_consign(&yard.billet_root, "jjls_pace/AAAAA").unwrap();
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("cleared"), "expected a clearance report, got: {}", report);
+    assert!(!yard.billet_root.exists(), "a clean-and-pushed pace billet must be destroyed");
+}
+
+#[test]
+fn jjtds_trailing_step_stands_a_dirty_pace_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_pace_dirty");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+    jjrfg_PlainGit.jjrfr_consign(&yard.billet_root, "jjls_pace/AAAAA").unwrap();
+
+    std::fs::write(yard.billet_root.join("uncommitted.txt"), "dirt").unwrap();
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(report.contains("muck"), "a standing billet must name muck as the remedy: {}", report);
+    assert!(yard.billet_root.exists(), "a dirty billet must never be destroyed");
+}
+
+#[test]
+fn jjtds_trailing_step_stands_an_unpushed_pace_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_pace_unpushed");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+
+    // Committed, so the tree is clean — but never consigned, so the litmus's
+    // ignorance-stands arm holds: nothing is proven held in remote custody.
+    zjjtds_commit_all(&yard.billet_root, "wip.txt", "wip", "wip on the pace branch");
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(yard.billet_root.exists(), "an unpushed billet must never be destroyed");
+}
+
+#[test]
+fn jjtds_trailing_step_stands_a_groom_billet_with_a_raw_local_commit() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_stands");
+    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200501);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+
+    // A raw local commit on the detached tip: reachable from nothing, so the
+    // groom-billet arm of the litmus refuses.
+    zjjtds_commit_all(&yard.billet_root, "raw.txt", "raw", "raw local groom commit");
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(yard.billet_root.exists(), "an unreachable groom billet must never be destroyed");
+}
+
+#[test]
+fn jjtds_trailing_step_leaves_scratch_untouched_either_way() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_untouched");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+    jjrfg_PlainGit.jjrfr_consign(&yard.billet_root, "jjls_pace/AAAAA").unwrap();
+
+    std::fs::create_dir_all(&yard.scratch_root).unwrap();
+    let marker = yard.scratch_root.join("logs-buk-marker.txt");
+    std::fs::write(&marker, "forensics").unwrap();
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("cleared"), "expected the billet to clear: {}", report);
+    assert!(!yard.billet_root.exists());
+    assert!(marker.exists(), "the per-billet scratch is forensics and must survive the billet's destruction");
 }

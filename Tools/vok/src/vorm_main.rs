@@ -422,13 +422,25 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
         }
         match outcome {
             jjrds_Outcome::Done(code) => code,
-            jjrds_Outcome::Launch(mut cmd) => match cmd.status() {
-                Ok(status) => status.code().unwrap_or(1),
-                Err(e) => {
-                    vvco_err!(out, "jjx_dispatch: stirrup failed to launch claude: {}", e);
-                    1
+            jjrds_Outcome::Launch { mut cmd, billet_root, trunk } => {
+                let code = match cmd.status() {
+                    Ok(status) => status.code().unwrap_or(1),
+                    Err(e) => {
+                        vvco_err!(out, "jjx_dispatch: stirrup failed to launch claude: {}", e);
+                        return 1;
+                    }
+                };
+                // The stile's trailing step: the session has returned and this
+                // driver is still standing, outside the billet, as its parent —
+                // exactly the geometry the trailing step rides (JJSVD "The
+                // stile"). The session's own exit code is the dispatch's; the
+                // step trouble-reports and never masks it.
+                let report = jjk::jjrds_spine::jjrds_trailing_step(&jjk::jjrfg_plaingit::jjrfg_PlainGit, &billet_root, &trunk);
+                if !report.is_empty() {
+                    vvco_out!(out, "{}", report.trim_end());
                 }
-            },
+                code
+            }
         }
     }
     #[cfg(not(feature = "jjk"))]
