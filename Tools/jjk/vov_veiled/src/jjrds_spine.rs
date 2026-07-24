@@ -1296,9 +1296,11 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
 /// The caller is the door driver, sitting outside the billet as the launched
 /// session's own parent — the geometry the spine never reaches on its own,
 /// since `jjrds_run` only composes the command and returns before it is
-/// spawned. One line reports the outcome either way; a standing billet names
-/// the failed conjunct and `muck` as the remedy. The per-billet scratch is
-/// never inspected here and stands untouched regardless.
+/// spawned. One line reports the outcome either way (JJSVD "The stile"): a
+/// cleared billet names where the work now stands — the destroyed worktree
+/// being precisely where it no longer does — and a standing billet names the
+/// failed conjunct and `muck` as the remedy. The per-billet scratch is never
+/// inspected here and stands untouched regardless.
 pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: &F, billet_root: &Path, trunk: &str) -> String {
     let identity = match farrier.jjrfr_identify(billet_root) {
         Ok(id) => id,
@@ -1314,7 +1316,7 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
     };
     match verdict {
         Ok(zjjrds_StileVerdict::Passes) => match farrier.jjrfr_billet_remove(billet_root) {
-            Ok(()) => format!("stile: billet cleared ({})\n", billet_root.display()),
+            Ok(()) => format!("stile: billet cleared ({}) — {}\n", billet_root.display(), zjjrds_where_it_stands(&identity, trunk)),
             Err(e) => format!("stile: billet stands at {} — {}\n", billet_root.display(), e),
         },
         Ok(conjunct) => format!(
@@ -1324,6 +1326,21 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
             conjunct.zjjrds_as_str()
         ),
         Err(e) => format!("stile: billet stands at {} — {}\n", billet_root.display(), e),
+    }
+}
+
+/// Where the work stands once a passing billet is cleared, for the cleared line
+/// (JJSVD "The stile": "a cleared billet names where the work stands"). The
+/// reaped worktree is not the answer — it is the one place the work no longer
+/// is. A pace billet's work stands on its durable branch: `billet_remove` takes
+/// only the worktree, and the branch — pushed, since the litmus proved it not
+/// ahead of its own counterpart — survives in the primary's ref store to
+/// re-seat from. A groom billet carried nothing of its own; clean and reachable
+/// from trunk's counterpart, its position is already in trunk.
+fn zjjrds_where_it_stands(identity: &crate::jjrfr_farrier::jjrfr_Identity, trunk: &str) -> String {
+    match &identity.line_of_work {
+        jjrfr_LineOfWork::Branch(name) => format!("work stands on branch {}", name),
+        jjrfr_LineOfWork::Detached(_) => format!("work stands in trunk {}", trunk),
     }
 }
 

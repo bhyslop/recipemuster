@@ -980,6 +980,11 @@ fn jjtds_trailing_step_destroys_a_clean_and_pushed_pace_billet() {
 
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("cleared"), "expected a clearance report, got: {}", report);
+    assert!(
+        report.contains("work stands on branch jjls_pace/AAAAA"),
+        "a cleared pace billet must name where the work stands — its durable branch (JJSVD \"The stile\"): {}",
+        report
+    );
     assert!(!yard.billet_root.exists(), "a clean-and-pushed pace billet must be destroyed");
 }
 
@@ -1036,6 +1041,26 @@ fn jjtds_trailing_step_stands_a_groom_billet_with_a_raw_local_commit() {
         report
     );
     assert!(yard.billet_root.exists(), "an unreachable groom billet must never be destroyed");
+}
+
+#[test]
+fn jjtds_trailing_step_clears_a_groom_billet_left_at_trunk_tip() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_clears");
+    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200501);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+
+    // A groom that made no commit sits exactly at trunk's counterpart — clean
+    // and reachable, so it passes and clears, and the work it carried (none of
+    // its own) already stands in trunk.
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("cleared"), "a clean groom billet at trunk tip must clear: {}", report);
+    assert!(
+        report.contains(&format!("work stands in trunk {}", plan.trunk)),
+        "a cleared groom billet must name trunk as where the work stands (JJSVD \"The stile\"): {}",
+        report
+    );
+    assert!(!yard.billet_root.exists(), "a passing groom billet must be destroyed");
 }
 
 #[test]
