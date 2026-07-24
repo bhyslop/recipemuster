@@ -2738,6 +2738,14 @@ impl zjjrm_CallerTier {
             zjjrm_CallerTier::Designable(jjrg_Tier::Fable) | zjjrm_CallerTier::Designable(jjrg_Tier::Opus)
         )
     }
+
+    /// Slate-qualified = frontier plus sonnet — the docket-authoring floor for
+    /// jjx_enroll alone. Sonnet may slate paces; haiku and the non-designable
+    /// families stay refused. The rest of the frontier surface keeps zjjrm_is_frontier.
+    pub(crate) fn zjjrm_is_slate_qualified(&self) -> bool {
+        self.zjjrm_is_frontier()
+            || matches!(self, zjjrm_CallerTier::Designable(jjrg_Tier::Sonnet))
+    }
 }
 
 /// Extract the caller tier from the verbatim model ID string.
@@ -2767,8 +2775,14 @@ pub(crate) enum zjjrm_GuardBucket {
     Open,
     /// Per-command designation logic at the dispatch arm (orient, record, landing).
     Designation,
-    /// Frontier-only: every docket-authoring and state-mutating verb, close,
-    /// validate, refit, apostille, and the remote family.
+    /// The docket-authoring floor for jjx_enroll (slate/chivvy/cantle) alone:
+    /// admits opus, fable, and sonnet. Carved out of Frontier so a sonnet
+    /// session may slate paces while the rest of the frontier surface stays
+    /// opus/fable.
+    Slate,
+    /// Frontier-only: every remaining state-mutating verb — create, the docket
+    /// batch/edit family, close, validate, refit, apostille, and the remote
+    /// family.
     Frontier,
 }
 
@@ -2786,6 +2800,7 @@ pub(crate) fn zjjrm_guard_bucket(cmd: &str) -> zjjrm_GuardBucket {
         JJRM_CMD_NAME_ORIENT | JJRM_CMD_NAME_RECORD | JJRM_CMD_NAME_LANDING => {
             zjjrm_GuardBucket::Designation
         }
+        JJRM_CMD_NAME_ENROLL => zjjrm_GuardBucket::Slate,
         _ => zjjrm_GuardBucket::Frontier,
     }
 }
@@ -2797,6 +2812,17 @@ pub(crate) fn zjjrm_guard_bucket(cmd: &str) -> zjjrm_GuardBucket {
 pub(crate) fn zjjrm_frontier_refusal(cmd: &str, model: &str, caller: zjjrm_CallerTier) -> String {
     format!(
         "INTERDICTUM — model gate: {} is frontier-only (opus or fable).\n\n  Received model: {}\n  Extracted tier: {}\n\nRemedy: run this command from a frontier-tier session.",
+        cmd, model, caller.zjjrm_as_str()
+    )
+}
+
+/// Fair-faced slate-gate refusal — the jjx_enroll floor admits the senior
+/// authoring tiers (opus, fable, sonnet); haiku and the non-designable families
+/// are refused here. Interdictum shape mirrors `zjjrm_frontier_refusal`: the
+/// token leads, the body stands alone. Token spelled literally for the grep census.
+pub(crate) fn zjjrm_slate_refusal(cmd: &str, model: &str, caller: zjjrm_CallerTier) -> String {
+    format!(
+        "INTERDICTUM — model gate: {} admits opus, fable, or sonnet (docket authoring).\n\n  Received model: {}\n  Extracted tier: {}\n\nRemedy: run this command from an opus, fable, or sonnet session.",
         cmd, model, caller.zjjrm_as_str()
     )
 }
@@ -3049,15 +3075,24 @@ impl jjrm_McpServer {
     async fn jjx(&self, Parameters(p): Parameters<jjrm_JjxParams>) -> Result<CallToolResult, ErrorData> {
         let cmd = p.command.as_str();
 
-        // Model gate: three-bucket per-command policy, checked first. OPEN
-        // commands take every tier; FRONTIER-ONLY commands refuse here;
+        // Model gate: per-command bucket policy, checked first. OPEN commands
+        // take every tier; FRONTIER-ONLY commands refuse every sub-frontier
+        // caller; SLATE (jjx_enroll) admits opus/fable/sonnet and refuses below;
         // DESIGNATION-GUARDED commands (orient, record, landing) apply their
         // per-command logic at the dispatch arm, after target resolution.
         let caller = zjjrm_extract_tier(&p.model);
-        if zjjrm_guard_bucket(cmd) == zjjrm_GuardBucket::Frontier && !caller.zjjrm_is_frontier() {
-            return Ok(CallToolResult::error(vec![Content::text(
-                zjjrm_frontier_refusal(cmd, &p.model, caller),
-            )]));
+        match zjjrm_guard_bucket(cmd) {
+            zjjrm_GuardBucket::Frontier if !caller.zjjrm_is_frontier() => {
+                return Ok(CallToolResult::error(vec![Content::text(
+                    zjjrm_frontier_refusal(cmd, &p.model, caller),
+                )]));
+            }
+            zjjrm_GuardBucket::Slate if !caller.zjjrm_is_slate_qualified() => {
+                return Ok(CallToolResult::error(vec![Content::text(
+                    zjjrm_slate_refusal(cmd, &p.model, caller),
+                )]));
+            }
+            _ => {}
         }
         eprintln!("jjx {}: model={} tier={}", cmd, p.model, caller.zjjrm_as_str());
 
