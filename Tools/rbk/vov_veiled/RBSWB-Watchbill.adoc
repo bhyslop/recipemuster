@@ -1,0 +1,124 @@
+//axvd_sheaf axd_normative
+This is a normative portion of the {rbs0_imprimatur}: binding — code, tests, and decisions may rely on it.
+==== Doctrine
+
+The watchbill is the standing census of posted vedettes:
+every indeterminacy membrane {at_recipe_bottle} keeps at the Palisade,
+each entry naming its class, its site, its budget constants, and its retirement stance.
+It instantiates the
+{rbsk_vedette}
+premise — the neighbor will never signal completion on exactly the racy operations,
+so each membrane below is a posted watch, permanent budgeted design, never a workaround inventory —
+and it is the one place the watches are mustered together,
+so that a membrane can neither be forgotten (an unlisted absorb is a conduct gap)
+nor silently outlive its stance (each entry's retirement voice is re-read whenever the census is).
+
+Three indeterminacy classes are surveyed.
+Each class keeps one deep-law chapter; the watchbill points at the chapters and never restates them:
+
+* **Fresh-project provisioning race** —
+serviceusage `services:enable` against a seconds-old project completes its LRO `done:true` carrying a transient INTERNAL:
+a completion verdict handed back without a completion.
+Chapter: {rbtoe_api_enable}, where the RBr_4e7 spoor and RBr_d21 membrane are homed.
+* **IAM propagation** —
+a just-written grant is unenforceable at the resource-scope cache for minutes, with no terminal-state signal to poll;
+the admission don (`generateAccessToken` by a just-admitted principal) is Class C at a third operation type.
+Chapter: RBSCIP, the IAM deep law — its class taxonomy (A/B/C), call-context rule, siting rule,
+and the RBr_7a9 / RBr_3f4 and RBr_c81 rivets are homed there.
+* **Foreign-client premature timeout** —
+docker's registry-auth client times out prematurely against a healthy-but-slow backend,
+and the unretried resolve leg turns one slow response into a dead command.
+Chapter: this sheaf — the RBr_5b8 spoor and RBr_2f8 membrane below are its rivet home,
+because the fault is a foreign *tool's* defect (moby/moby#44350), not a vendor contract posture,
+and it therefore carries the census's one demolition-dated stance.
+
+--
+[[RBr_5b8]]
+//axvc_spoor
+RBr_5b8::
+docker's registry-auth client carries a hardcoded, non-configurable 15s timeout (moby/registry/auth.go);
+against a healthy-but-slow GAR auth backend it fires prematurely,
+surfacing the Go net/http stdlib string held in `RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE`
+(`Client.Timeout exceeded while awaiting headers` — a standard-library invariant, stable across docker versions).
+Neither `docker login` nor the initial resolve leg of pull / manifest inspect (token fetch + manifest HEAD)
+carries an internal retry — the docker client retries only layer downloads, after resolve —
+so a single slow token response kills the command.
+Upstream: moby/moby#44350.
+Surveyed twice: 2026-05-30 at the login site (commit `40c429ddb`),
+and 2026-07-10 at the pull resolve leg (gauntlet attempt 7:
+the manifest inspect seconds earlier succeeded on its own token fetch,
+and the next attempt ran the entire ladder clean — a single-request transient).
+Real auth failures emit `unauthorized` and never match the signature.
+
+[[RBr_2f8]]
+//axvc_membrane
+RBr_2f8::
+Three sites absorb exactly the RBr_5b8 signature under one shared budget
+(`RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS` attempts, `RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC` pause):
+`rbgo_docker_login` (foundry cluster),
+and `zrbndb_docker_login` / `zrbndb_registry_read` (depot-regime cluster,
+which does not reach rbgo and so shares only the signature and budget constants out of rbgc).
+Each warns per bend naming the attempt count and moby#44350;
+a non-matching failure dies fast (login) or returns rc untouched to the caller's own error path (registry read);
+an exhausted budget dies naming the transient.
+At the registry-read site the absorb is load-bearing beyond flake-tolerance:
+`rbrd_check`'s absent-tripwire path prescribes depot re-levy, which must never fire on a timeout.
+Retirement condition: a fleet docker carrying a moby/moby#44350 fix retires all three sites together, as one class —
+this is a fixable foreign-tool defect, unlike vendor-withheld contracts;
+no active upstream tracking exists, so this census entry is the tickler.
+--
+
+==== Census
+
+One entry per standing membrane, with its exercised evidence frozen at the survey that proved it:
+
+[cols="2,2,2,2,3",options="header"]
+|===
+|Membrane (site)
+|Class
+|Budget
+|Rivets
+|Retirement stance
+
+|`rbge_api_enable` inline whole-attempt retry (`Tools/rbk/rbge_rest.sh`)
+|Fresh-project provisioning race
+|`RBGC_API_ENABLE_RETRY_*` (3 attempts / 15s pause)
+|RBr_4e7 / RBr_d21 at {rbtoe_api_enable}
+|Standing under {rbsk_vedette} — a quiet cycle proves quiet, not healed.
+Evidence: one surveyed occurrence (2026-07-09, gauntlet fresh levy); no bend logged through the rest of that rebaseline cycle — quiet, as a per-fresh-project race would be.
+
+|`rbtdrk_invoke_admission_settled`, fixture-side (the consumer downstream of the grant owns the wait)
+|IAM propagation, Class C (admission don)
+|`RBGC_PROPAGATION_*` (3s initial / 2x / 20s cap / 420s deadline)
+|RBr_7a9 / RBr_3f4 at RBSCIP
+|Standing under {rbsk_vedette}, deliberately not demolition-dated (voiced at RBr_3f4).
+Evidence: field-proven at gauntlet scale — one green rebaseline run absorbed 16 bends across brevet-director, don-director, and don-retriever, every one within budget, none escaping to a false failure.
+
+|`rbgo_docker_login` / `zrbndb_docker_login` / `zrbndb_registry_read` (`Tools/rbk/rbgo_oauth.sh`, `Tools/rbk/rbndb_base.sh`)
+|Foreign-client premature timeout (moby/moby#44350)
+|`RBGC_HTTP_TRANSIENT_RETRY_*` (3 attempts / 3s pause) gated on `RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE`
+|RBr_5b8 / RBr_2f8, homed above
+|Demolition-conditioned as one class (voiced at RBr_2f8): retire all three sites together when the fleet's docker carries the fix.
+Evidence: the login membrane is field-proven since its 2026-05-30 landing; the registry-read membrane is unexercised since landing — its identical-shape login sibling stands as the class proof.
+|===
+
+The wincred headless-persist bend beside the login site (`RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE`) is a credential-store Palisade, not an indeterminacy membrane, and is deliberately not mustered here.
+
+==== Provenance
+
+The census rows freeze what the incident reports surveyed; the reports themselves are retired provenance, not authority:
+
+* `Memos/retired/memo-20260711-gauntlet-attempt2-serviceusage-enable-internal.md` — the fresh-project provisioning race (gauntlet attempt 2).
+* `Memos/retired/memo-20260711-admission-don-propagation-incident.md` — the admission-don Class-C observation (gauntlet attempt 3).
+* `Memos/retired/memo-20260711-gauntlet-attempt7-gar-token-timeout.md` — the pull resolve-leg timeout (gauntlet attempt 7).
+
+Pre-pace lineage of the same classes, cross-linked so the class record keeps one entry point:
+`memo-20260513-iam-propagation-race-director-invest-gar.md`,
+`memo-20260514-pristine-gauntlet-iam-flap.md`,
+`memo-20260604-credential-churn-leak-and-propagation-races.md`,
+`memo-20260604-dogfight-ordain-poll-connect-timeout.md`,
+`memo-20260705-wifi-tls-timeout-incident.md`,
+and retired `memo-20260611-heat-BH-class-c-setiampolicy-write-flap.md` (read-back-as-gate falsified).
+Commit `40c429ddb` (2026-05-30) is the moby#44350 class origin —
+its "pull/push retry internally" premise, falsified at the resolve leg, lived only in a commit message;
+that unrecorded-premise failure mode is what the RBr_5b8 spoor now guards against.

@@ -1105,6 +1105,7 @@ Eventual consistency itself is occasionally a legitimate scale necessity; the ab
 The smell test for honest scaffolding: a poll-until-terminal-state loop is the vedette on watch; a fixed blind sleep is the sentry asleep at the post — a guessed timeout standing in for a signal that should exist, and the fingerprint to hunt down.
 +
 RBSCIP is the operational law instantiating this premise; its call-context rule (post-grant sites wait the budget; cold-call sites fail fast) and the single shared `RBGC_PROPAGATION_*` backoff budget are corollaries.
+The watchbill (RBSWB) is the standing census of the vedettes this premise posts.
 Provenance: `Memos/memo-20260521-hyperscaler-cost-cap-and-api-consistency-premise.md` (Axis B).
 
 == Dependency Inventory
@@ -5715,8 +5716,12 @@ RBr_d21::
 a whole-attempt bounded retry (`RBGC_API_ENABLE_RETRY_ATTEMPTS` attempts, `RBGC_API_ENABLE_RETRY_PAUSE_SEC` pause),
 warning on every bend;
 any other LRO error, and the exhausted budget, still die fast.
-Retirement condition: when fresh-levy ladder runs no longer log the bend warning across a full rebaseline cycle,
-remove the retry loop and let the enable die on its first LRO error again.
+Retirement stance: standing under the
+{rbsk_vedette}
+premise — the enable LRO hands back a completion verdict without a completion (`done:true` carrying transient INTERNAL),
+and no contract promises otherwise on a fresh project,
+so a quiet rebaseline cycle proves quiet, not healed.
+Deliberately not demolition-dated; census home: the watchbill (RBSWB).
 --
 
 
@@ -6141,6 +6146,12 @@ include::RBSCJ-CloudBuildJson.adoc[]
 
 //axvd_cartouche axd_normative
 include::RBSCIP-IamPropagation.adoc[]
+
+[[rbswb_trade_study]]
+=== Watchbill
+
+//axvd_cartouche axd_normative
+include::RBSWB-Watchbill.adoc[]
 
 === Horizon Roadmap
 

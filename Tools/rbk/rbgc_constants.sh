@@ -88,7 +88,7 @@ zrbgc_kindle() {
   readonly RBGC_API_ENABLE_RETRY_PAUSE_SEC=15
 
   # docker daemon->registry premature-timeout transient — the moby/moby#44350
-  # signature. docker's registry-auth client carries a hardcoded,
+  # signature, RBr_5b8 / RBr_2f8. docker's registry-auth client carries a hardcoded,
   # non-configurable 15s timeout (moby/registry/auth.go); against a
   # healthy-but-slow GAR auth backend it fires prematurely, emitting this Go
   # net/http stdlib string. Neither login nor the initial resolve leg of

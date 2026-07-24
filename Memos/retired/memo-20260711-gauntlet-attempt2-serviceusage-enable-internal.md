@@ -1,8 +1,8 @@
 # Incident report: serviceusage enable INTERNAL flake killed a fresh-project levy (2026-07-09)
 
 Status: absorbed with membrane (commit `3cf94b248`); rivets minted at the spec
-home, so the durable facts already outlive this memo. Collection context:
-`memo-20260711-gauntlet-indeterminacy-incident-collection.md`.
+home, so the durable facts already outlive this memo. Census home:
+`Tools/rbk/vov_veiled/RBSWB-Watchbill.adoc` (the watchbill).
 
 ## Signature (grep anchors)
 
@@ -87,6 +87,6 @@ for the superordinate memo: either re-voice `RBr_d21`'s retirement clause to
 Axis-B standing, or keep the demolition condition as a deliberate census
 trigger. First-person frequency: one occurrence observed in this chat; later
 attempts are other chats' evidence. Sibling incident reports of the same run
-of gauntlet repairs: attempts 3 and 7, per the collection memo roster.
+of gauntlet repairs: attempts 3 and 7, per the watchbill provenance.
 
 <!-- eof -->
