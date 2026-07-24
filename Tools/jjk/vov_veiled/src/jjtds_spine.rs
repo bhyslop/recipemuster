@@ -6,6 +6,8 @@ use super::jjrds_spine::{
     jjrds_billet_dirname,
     jjrds_board,
     jjrds_currency,
+    jjrds_ground,
+    jjrds_Ground,
     jjrds_pair_admitted,
     jjrds_pedigree_lookup,
     jjrds_plan,
@@ -20,6 +22,7 @@ use super::jjrds_spine::{
     jjrds_Target,
     jjrds_TierRow,
     JJRDS_CONDUCT_CORE,
+    JJRDS_GROOM_POSTURE,
     JJRDS_JUDGMENT_EFFORT,
     JJRDS_JUDGMENT_TIER,
     JJRDS_KIND_PLAIN_GIT,
@@ -413,7 +416,9 @@ fn jjtds_plan_lunge_takes_a_firemark_only() {
     assert_eq!(plan.billet_root, infield_canon.join("jjqb_AA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Detached);
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
-    assert_eq!(plan.opening_prompt, "groom ₣AA");
+    // The door's first impression: the verb, then the posture the engine repeats.
+    assert!(plan.opening_prompt.starts_with("groom ₣AA"));
+    assert!(plan.opening_prompt.contains(JJRDS_GROOM_POSTURE));
 
     assert!(matches!(
         jjrds_plan(jjrds_Door::Lunge, "AAAAA", &hippodrome, false),
@@ -439,6 +444,59 @@ fn jjtds_plan_rejects_foreign_ground_and_unrecorded_sires() {
         jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false),
         Err(jjrds_Rejection::UnrecordedSire { .. })
     ));
+}
+
+// ---- Ground ----
+
+#[test]
+fn jjtds_ground_reads_the_three_kinds_off_real_billets() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_ground_kinds");
+
+    // The operator's own clone.
+    assert_eq!(jjrds_ground(&jjrfg_PlainGit, &hippodrome), Some(jjrds_Ground::Hippodrome));
+
+    // A pace billet, boarded by the saddle door: the coronet comes back off the
+    // livery badge, bare.
+    let pace = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    jjrds_board(&jjrfg_PlainGit, &pace).unwrap();
+    assert_eq!(
+        jjrds_ground(&jjrfg_PlainGit, &pace.billet_root),
+        Some(jjrds_Ground::PaceBillet { coronet: "AAAAA".to_string() })
+    );
+
+    // A groom billet, boarded by the lunge door.
+    let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
+    jjrds_board(&jjrfg_PlainGit, &groom).unwrap();
+    assert_eq!(jjrds_ground(&jjrfg_PlainGit, &groom.billet_root), Some(jjrds_Ground::GroomBillet));
+}
+
+#[test]
+fn jjtds_ground_calls_an_unbadged_partition_unboarded() {
+    let (infield, hippodrome) = zjjtds_infield("jjtds_ground_unboarded");
+
+    // A worktree the operator made by hand, on a branch JJ never authored:
+    // a partition, but not a billet — so neither of the two billet kinds.
+    let hand = infield.path().join("hand_made");
+    zjjtds_git(&hippodrome, &["worktree", "add", "-q", "-b", "operator-branch", hand.to_str().unwrap()]);
+    assert_eq!(
+        jjrds_ground(&jjrfg_PlainGit, &hand),
+        Some(jjrds_Ground::Unboarded { line: "operator-branch".to_string() })
+    );
+
+    // The reserved groom roster word parses, so its contract violation is
+    // nameable rather than silently read as a line of work.
+    let reserved = infield.path().join("reserved_word");
+    zjjtds_git(&hippodrome, &["worktree", "add", "-q", "-b", "jjls_groom/AA", reserved.to_str().unwrap()]);
+    assert_eq!(
+        jjrds_ground(&jjrfg_PlainGit, &reserved),
+        Some(jjrds_Ground::Unboarded { line: "jjls_groom/AA".to_string() })
+    );
+}
+
+#[test]
+fn jjtds_ground_declines_on_foreign_ground() {
+    let foreign = JjkTestDir::new("jjtds_ground_foreign");
+    assert_eq!(jjrds_ground(&jjrfg_PlainGit, foreign.path()), None);
 }
 
 #[test]

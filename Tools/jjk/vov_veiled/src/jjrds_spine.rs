@@ -522,6 +522,85 @@ pub fn jjrds_billet_dirname(identity_body: &str) -> String {
     format!("{}{}", JJRDS_BILLET_DIR_PREFIX, identity_body)
 }
 
+// ---- Ground: which tree a caller stands in ----
+
+/// The groom-billet posture, said wherever a groom session meets its own
+/// ground: at the door in the opening prompt, and again at every orientation
+/// the engine answers. One home, so the door's first impression and the
+/// engine's authoritative line cannot drift apart.
+///
+/// The line is the soft layer under the ground guard: it says what the ground
+/// affords BEFORE anything is attempted, so the guard's refusal is met as a
+/// reminder rather than a surprise.
+pub const JJRDS_GROOM_POSTURE: &str = "Ground: groom billet — detached and ephemeral. \
+Work-repo edits have no durable home here and notch refuses them; \
+discovery that warrants work becomes a slated pace.";
+
+/// Where a caller stands, read from `jjdf_identify` alone: the seat separates a
+/// hippodrome from a partition of one, and the partition's line of work says
+/// which billet kind it is (JJSVD "The billet" — a pace billet seats the pace's
+/// livery branch, a groom billet a detached tip).
+///
+/// Deliberately NOT read from the billet dirname: the `jjqb_` signet is a
+/// denormalized label whose shape belongs to the yard, while seat and line of
+/// work are identify's own answers and stay true however the yard renames.
+///
+/// One honest imprecision, recorded rather than papered over: a detached
+/// partition an operator made by hand is indistinguishable from a groom billet
+/// and reads as one. Both afford exactly what the groom posture says, so the
+/// conflation costs nothing the ground guard depends on.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum jjrds_Ground {
+    /// The operator's own clone — the primary seat.
+    Hippodrome,
+    /// A partition seating a pace's livery branch, carrying that pace's coronet
+    /// body (bare, no glyph).
+    PaceBillet { coronet: String },
+    /// A partition at a detached tip.
+    GroomBillet,
+    /// A partition JJ never boarded: it seats a branch outside the livery pace
+    /// roster. An operator's own worktree lands here, and so does the reserved
+    /// `jjls_groom` word — a contract violation nameable exactly because the
+    /// badge parses.
+    Unboarded { line: String },
+}
+
+impl jjrds_Ground {
+    /// How a refusal names this ground to the operator.
+    pub fn jjrds_as_str(&self) -> String {
+        match self {
+            jjrds_Ground::Hippodrome => "hippodrome ground".to_string(),
+            jjrds_Ground::PaceBillet { coronet } => format!("the pace billet of {}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, coronet),
+            jjrds_Ground::GroomBillet => "a groom billet".to_string(),
+            jjrds_Ground::Unboarded { line } => format!("an unboarded partition seating '{}'", line),
+        }
+    }
+}
+
+/// Read the ground from a resolved identity — the pure half, so a caller that
+/// already holds an identity never identifies twice.
+pub fn jjrds_ground_of(identity: &crate::jjrfr_farrier::jjrfr_Identity) -> jjrds_Ground {
+    use crate::jjrf_favor::{jjrf_livery_parse, jjrf_LiveryKind};
+
+    match (&identity.seat, &identity.line_of_work) {
+        (jjrfr_Seat::Primary, _) => jjrds_Ground::Hippodrome,
+        (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Detached(_)) => jjrds_Ground::GroomBillet,
+        (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Branch(name)) => {
+            match jjrf_livery_parse(name) {
+                Some((jjrf_LiveryKind::Pace, body)) => jjrds_Ground::PaceBillet { coronet: body.to_string() },
+                _ => jjrds_Ground::Unboarded { line: name.clone() },
+            }
+        }
+    }
+}
+
+/// Read the ground at an explicit probe path. `None` when no kind claims the
+/// tree: ground is a fact to observe, and a caller that could not observe one
+/// judges nothing — the verb it guards fails on its own terms instead.
+pub fn jjrds_ground<F: jjrfr_FarrierCore>(farrier: &F, cwd: &Path) -> Option<jjrds_Ground> {
+    farrier.jjrfr_identify(cwd).ok().map(|id| jjrds_ground_of(&id))
+}
+
 // ---- Infield resolution and the door's currency step ----
 
 /// Resolve the infield coordinates from the captured invocation path: identify
@@ -699,7 +778,15 @@ pub fn jjrds_plan(
                     })
                 }
             };
-            let prompt = format!("groom {}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, firemark);
+            // The door's first impression carries the posture beside the verb,
+            // so the session reads what its ground affords before it has done
+            // anything the ground would refuse.
+            let prompt = format!(
+                "groom {}{}\n\n{}",
+                crate::jjrf_favor::JJRF_FIREMARK_PREFIX,
+                firemark,
+                JJRDS_GROOM_POSTURE
+            );
             (jjrfr_BilletBirth::Detached, firemark, None, prompt)
         }
     };
