@@ -4,8 +4,9 @@ This is a normative operation sheaf of the {jjs0_imprimatur}: binding — code, 
 = Dispatch and Billet
 
 The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} — one
-shared {jjdd_spine}, the {jjdd_billet} a dispatched session runs in, the {jjdd_muck} step
-that clears spent billets, the {jjdd_refit} staleness remedy, and the {jjdd_cashier}.
+shared {jjdd_spine}, the {jjdd_billet} a dispatched session runs in, the {jjdd_stile} that
+brackets the whole crossing and clears its own billet at exit, the {jjdd_muck} door for what
+a stile leaves standing, the {jjdd_refit} staleness remedy, and the {jjdd_cashier}.
 Everything here composes {jjdf_farrier} primitives and the {jjdb_journal};
 this sheaf owns no primitive of its own.
 
@@ -15,7 +16,8 @@ A bare hand-launched session carries no MCP registration and no JJ context — i
 non-JJ session, forever legitimate as such;
 no fallback paths until genuinely forced.
 The consequence is load-bearing, not cosmetic: the entrance must be pleasant very early —
-which is what forces {jjdd_muck}'s silence when it has nothing to reap.
+which is why the spine leads with no housekeeping at all: billet clearing rides the
+{jjdd_stile_p} exit, never its entrance.
 
 == The billet
 
@@ -27,8 +29,9 @@ axis (farrier sheaf, Two axes — worktree for plain git, full clone the fallbac
 without worktrees), plus a branch-or-detached-tip and an env posture (the per-billet BURV
 exports below).
 The object noun completing the verbs-act-on-nouns grammar: mount acts on a pace,
-{jjdd_saddle} creates a {jjdd_billet}, {jjdd_muck} collects it.
-Boarded on arrival, kept for the duration, collected after — never by the session inside it.
+{jjdd_saddle} creates a {jjdd_billet}, the {jjdd_stile} clears it at exit, and {jjdd_muck}
+destroys the residue.
+Boarded on arrival, kept for the duration, cleared at exit — never by the session inside it.
 +
 Two kinds, split by door.
 A *pace billet* ({jjdd_saddle}) seats the pace's branch, which wears the {jjdd_livery} —
@@ -50,9 +53,12 @@ Billets are {jjdw_infield} peers of their {jjdw_hippodrome} — peer placement i
 no history duplication, no fetch between billet and hippodrome;
 the billet-side cost is working files and cold build artifacts only.
 +
-*Billets are chat-ephemeral; branches are durable.*
+*Billets are session-transient; branches are durable.*
 The pace branch is the WIP carrier across chats, journaled in pace state;
-the worktree is disposable scaffolding.
+the worktree is disposable scaffolding, destroyed by its own {jjdd_stile_p} trailing step
+whenever it passes the exit litmus and rematerialized by a later dispatch's ensure.
+The weight of retaining work is borne by the branches and the {jjdb_journal}, never the
+yard.
 `git worktree list` is the authoritative local registry of which branch is seated where —
 no worktree path is ever written into the {jjdb_studbook} (the no-worktree-paths rivet,
 studbook sheaf).
@@ -187,8 +193,9 @@ Per lock, the gate shows:
   exactly the mistake a one-line report invites.
 --
 +
-*Discoverability.* A stranded lock surfaces to the operator as a `LockHeld` refusal — at
-every {jjdd_muck}, hence at every dispatch, once muck is live.
+*Discoverability.* A stranded lock surfaces to the operator as a `LockHeld` refusal at the
+next locked {jjdb_studbook} write — the yard step's birth record on the entrance path, or
+any journal ceremony.
 That refusal text must NAME this door.
 A cure the sufferer cannot find is not a cure, and the refusal is the only moment the
 operator is guaranteed to be looking.
@@ -200,7 +207,6 @@ operator is guaranteed to be looking.
 The one shared sequence behind both doors — a door contributes only its target typing and
 its tier source, never its own spine:
 +
-. *{jjdd_muck}* — the billet-clearing sweep, silent when its reap set is empty.
 . *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
   a decline is the fair-faced {jjdf_foreign_ground} rejection.
 . *Pedigree lookup* — a {jjdb_studbook} read, no lock, one indirection:
@@ -252,38 +258,102 @@ would land beneath the very session it was meant to precede.
 Mount absorbs cold start — billet ensure, glean, orient are the spine's work, and no
 separate cold-start engagement verb exists.
 
+== The stile
+
+[[jjdd_stile]]
+{jjdd_stile}::
+The application lifecycle as one bounded crossing: a door, the {jjdd_spine}, the launched
+session, and the trailing step below — one process, entered at the shell and left at
+session exit.
+The word is literal: a stile is a structure for crossing a fence, and the crossing is the
+thing — the {jjdd_billet} is ground the stile stands up on the way in and typically clears
+on the way out.
+The door driver spawns the session and waits, so the stile is still standing — outside the
+billet, parent of the session it launched — when the session returns;
+that geometry is what the trailing step rides, and it is why no occupancy record exists
+anywhere: the destructor is the occupant's own parent, acting only after its child has
+exited.
+A future immediate-work crossing (pace-free, journal-born) is a stile kind, not a new noun;
+kinds cost a roster word, exactly as {jjdd_billet} kinds do.
++
+*The trailing step.*
+The stile's closing act, after the session returns and ahead of its own exit: run the exit
+litmus against the billet, and destroy a passing one (`billet_remove`, un-forced — the
+op's refuse-on-dirt is the same verdict `comb` renders, since ignored files are invisible
+to both and cold build residue therefore never blocks).
+Automatic, no confirm — the litmus is the proof that destruction loses nothing, and that
+proof is what entitles the automation.
+One line reports the outcome either way: a cleared billet names where the work stands;
+a standing billet names the failed conjunct and {jjdd_muck} as the remedy.
+The session's own exit code is the stile's — trailing-step trouble reports and never masks
+it.
+The per-billet scratch stands untouched either way: logs are forensics, and {jjdd_muck}
+clears them with the billet's residue.
++
+*The exit litmus*, kind-aware, refuse-and-stand:
++
+--
+* A *pace billet* passes when `comb` is clean AND `sync_state` shows its tip not ahead of
+  its counterpart — every commit already in remote custody, so the directory holds nothing
+  the branch and {jjdb_journal} do not.
+* A *groom billet* passes when `comb` is clean AND its detached position is `reachable`
+  from the trunk branch's remote counterpart (farrier sheaf);
+  a raw detached commit is reachable from nothing and stands.
+* Refusal remedies nothing: the trailing step never lodges, never consigns, never
+  publishes an off-ceremony commit — the billet stands for {jjdd_muck} or a later clean
+  exit.
+* Ignorance stands: no counterpart locally known means nothing can be proven held, and a
+  litmus that cannot prove must not destroy — the opposite polarity from `outstripped`,
+  whose warning must not cry on ignorance.
+--
+
 == Muck
 
 [[jjdd_muck]]
+//axd_ashlar
 {jjdd_muck}::
-Mucking out the stable: the reap of spent {jjdd_billet_s}, homed as the {jjdd_spine_p}
-leading step — run implicitly on both doors, never directly invoked, no door of its own.
-Reaping is nuke-on-start: teardown belongs to the next dispatch, never to the session whose
-floor a billet is.
+Mucking out the stable by hand: the operator-directed destroy door for a named
+{jjdd_billet} the {jjdd_stile_p} trailing step left standing — dirty, stranded work
+aboard, or orphaned by a killed door.
+Operator-typed like the {jjdd_cashier}, outside the {jjdd_spine}: no dispatch crosses it,
+and nothing composes it.
+It is the constellation's one deliberate data-loss surface;
+everything else refuses loss by construction, and that division of labor is the design —
+the trailing step automates only what provably loses nothing, and every lossy call is
+attended here.
+No retention window, no liveness join: the operator names the billet — a {jjdw_yard}
+dirname, or the identity behind one — and the plan's report is the occupancy evidence a
+human weighs.
 +
-The reap set: pace billets whose pace is closed and whose age exceeds retention;
-groom billets past retention (they carry nothing durable).
-The liveness guard is the pure JJ-data join — live {jjdxo_officium_s} × billets — a platform
-process-probe only ever belt-and-braces;
-the retention window equals the {jjdxo_exsanguination} window — one constant, one rhyme.
-The sweep globs `jjqb_*` ({jjdw_yard}), a positive match that structurally excludes the kit
-and record repos it must never reap.
+*Plan-then-confirm, never silent.*
+The plan resolves the named billet and shows the operator what the decision needs:
 +
-Behavior: snapshot pace states through the journal sheaf's read bracket — the snapshot arms
-the reap, so it is an acting read, never a reporting one ({jjdk_lockless_reads} scope rule):
-lock, advance, read, release, and what it reads is the store's truth at that moment.
-Then plan, confirm, and reap lock-free.
-The bracket's accepted costs land here on the entrance path:
-a sweep may be refused LockHeld while a stranger is mid-write (it reports and yields — the
-next dispatch sweeps),
-and a crashed sweep strands a stale lock for the {jjdb_break} like any other bracket holder.
-Plan-then-confirm when the reap set is non-empty;
-*silent when empty* — the sole-entrance consequence above forces this.
-On a dirty billet, refuse-with-advice by default;
-auto-commit-push rides behind an explicit confirm — never silently.
+--
+* the billet's kind and seat, and the *dirty paths by name* — what destroy would lose is
+  never summarized as a count;
+* the branch posture (`sync_state`): commits not yet in remote custody are named as loss,
+  never as advice;
+* the pace's own state — resolved or still open — read through the journal sheaf's read
+  bracket (an acting read: the snapshot arms this confirm), with the wrap
+  {jjdb_counterfoil_s} as evidence, never as gate: the operator may destroy a mid-work
+  billet deliberately;
+* which arms are open (below).
+--
 +
-Deliberately sacrificed for MVP: immediate reap of a not-yet-closed billet.
-Such a billet waits for pace-close plus retention, and the next dispatch takes it.
+*The arms.*
+On a dirty pace billet, two: *destroy*, losing the named paths;
+or *salvage-then-destroy* — lodge the non-JJ-owned dirty paths (the `JJr_f30` filter,
+studbook sheaf) and consign to the pace's own seated {jjdd_livery} branch, then remove.
+A dirty groom billet has one arm: nothing must survive it, so salvage has no home to
+consign to and destroy is the whole choice.
+The removal is `billet_remove` behind its explicit force — the confirmed destroy arm is
+the force's only caller.
++
+*Scratch.*
+The door clears the destroyed billet's scratch sibling with it, and orphan scratch — a
+scratch directory whose billet no longer stands — is equally its to clear:
+the {jjdd_stile} deliberately leaves scratch as forensics, so this door is where forensics
+end.
 
 == Refit
 
@@ -431,6 +501,7 @@ The {jjdd_spine_p} refusals are fair-faced ashlar output, named per the farrier 
 where a primitive supplies them:
 foreign ground ({jjdf_identify} declines — no kind claims the tree),
 unrecorded sire (the claimed key resolves no sire),
-record/ground drift (claiming kind contradicts the recorded kind),
-and {jjdd_muck_p} dirty-anomaly refusal (refuse-with-advice, above).
+and record/ground drift (claiming kind contradicts the recorded kind).
+A trailing-step stand is a report line, never a rejection — the session it follows has
+already succeeded, and the stile's exit code stays the session's.
 Everything else fails loud through the composed primitive's own named rejection kind.

@@ -133,8 +133,8 @@ its opaque tail mints at implementation, citing this section.
 == The read bracket
 
 The ceremony's read-only variant, for a consumer whose read *arms an act* —
-a decision that mutates the world (the type specimen is {jjdd_muck}, whose snapshot decides
-which billets are destroyed) —
+a decision that mutates the world (the type specimen is {jjdd_muck}, whose plan snapshot
+arms the operator's destroy confirm) —
 as opposed to a read that merely reports, which stays on the entity sheaf's lock-free read
 path ({jjdk_lockless_reads}).
 

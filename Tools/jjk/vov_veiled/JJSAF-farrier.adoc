@@ -89,9 +89,10 @@ keep, it is a report mode, not a verb.
 
 Canon: drained to the dispatch sheaf (`JJSVD-dispatch.adoc`, the `jjdd_` quoins) —
 the two doors, the billet entity (both kinds, dirnames per the yard split), the entrance
-spine with muck as its leading step (no unsaddle door), the muck and refit contracts, the
-cashier door, the lifecycle doctrine (chat-ephemeral billets over durable branches,
-structural session isolation, sole entrance), and the session-launch tier machinery.
+spine, the stile with its exit-litmus trailing step, the muck destroy door and refit
+contracts, the cashier door, the lifecycle doctrine (session-transient billets over durable
+branches, structural session isolation, sole entrance), and the session-launch tier
+machinery.
 
 == The BUK meld (studied 260704)
 
@@ -180,12 +181,17 @@ uses.
   absorb (a named ROE Palisade conduct step), incorporate (AXLA's include-incorporation).
   enfold INFUSED 260706 (farrier sheaf, op census — billet facet); refit INFUSED
   (dispatch sheaf, `jjdd_refit`).
-* *muck* — the sweep, the spine's leading step (no longer a door, never operator-typed):
-  mucking out the stable — the plan-then-confirm nuke-on-start reap of closed-pace billets
-  past retention, silent when the reap set is empty.
+* *muck* — the operator-directed destroy door: mucking out the stable by hand — the
+  plan-then-confirm removal of a billet the stile's trailing step left standing, the
+  constellation's one deliberate data-loss surface.
   Gate clean (0 hits); *sluice* held as alternate (washing — less exact than the spent-bedding
   removal muck names).
   INFUSED (dispatch sheaf, `jjdd_muck`).
+* *stile* — the application lifecycle as one bounded crossing (door, entrance spine, session,
+  trailing step), the billet's creator and typical destroyer: a structure for crossing a
+  fence, the crossing being the thing.
+  Gate clean (0 hits, word-boundary repo-wide).
+  INFUSED (dispatch sheaf, `jjdd_stile`).
 * *stirrup* — the launch primitive (elected 260707, session-launch design pace): the
   mounting-assist apparatus — the step by which the rider gets aboard the already-prepared
   horse — naming the interior act at the end of the entrance spine that starts a configured

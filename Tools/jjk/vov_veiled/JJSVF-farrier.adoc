@@ -92,8 +92,9 @@ compare-and-swap primitives composed only by the {jjdb_journal} and the {jjdb_br
 {jjdf_billet}::
 The billet lifecycle ops
 `billet_create`/`billet_seat`/`billet_adopt`/`billet_detach`/`billet_remove`/
-`enfold`, plus the observations `line_exists`, `line_abroad`, and `outstripped`, consumed by
-the dispatch doors ({jjdd_saddle}, {jjdd_lunge} — dispatch sheaf).
+`enfold`, plus the observations `line_exists`, `line_abroad`, `outstripped`, and
+`reachable`, consumed by the dispatch doors and the {jjdd_stile_p} trailing step
+({jjdd_saddle}, {jjdd_lunge}, {jjdd_stile} — dispatch sheaf).
 
 == Op census — method contracts
 
@@ -255,8 +256,8 @@ via `billet_seat`, never re-births.
 
 `billet_seat`::
 Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}
-billet-ensure: billets are chat-ephemeral, branches durable (dispatch sheaf), so a reaped
-billet's branch re-seats with its own WIP history, un-anchored and un-reset.
+billet-ensure: billets are session-transient, branches durable (dispatch sheaf), so a
+destroyed billet's branch re-seats with its own WIP history, un-anchored and un-reset.
 A branch the constellation already seats rejects in a named kind — {jjdf_seat_vestige} when the
 recorded seat's root is gone, {jjdf_line_seated} when it stands — rather than failing loud as a
 caller-contract violation: both are states the operator reaches by ordinary means, and both
@@ -312,9 +313,22 @@ counterpart, never against trunk's.
 Answers false when no counterpart is locally known: nothing observed can be ahead, and the
 staleness warning this probe feeds ({jjdd_refit}, dispatch sheaf) must not cry on ignorance.
 
+`reachable`::
+The stranding probe: is the tree's current position an ancestor of — or equal to — the named
+branch's remote counterpart, as of the last `glean`?
+A local ancestry check, network-silent, the {jjdd_stile_p} groom-litmus conjunct (dispatch
+sheaf).
+Answers false when no counterpart is locally known: nothing can be proven held on ignorance,
+and the exit litmus this probe feeds must never destroy on an unproven claim — the opposite
+polarity from `outstripped` above, stated so the two neighbors are never harmonized.
+
 `billet_remove`::
-Reap a billet;
-refuses on dirty.
+Remove a billet from the yard.
+Un-forced, it refuses on dirt — the {jjdd_stile_p} trailing-step form, whose refusal is the
+same verdict `comb` renders (ignored files are invisible to both, so cold build residue
+never blocks removal).
+Behind an explicit force — the {jjdd_muck} door's confirmed destroy arm is the force's only
+caller — it removes regardless: the one deliberate data-loss call in the taxonomy.
 
 `enfold`::
 Merge the trunk branch's remote counterpart — its position as of the last `glean` — *into* a

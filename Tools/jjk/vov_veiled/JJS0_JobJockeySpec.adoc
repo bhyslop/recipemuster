@@ -265,7 +265,7 @@
 :jjdb_studbook:   <<jjdb_studbook,Studbook>>
 :jjdb_studbook_p: <<jjdb_studbook,Studbook's>>
 
-// Dispatch layer (doors, entrance spine, billet lifecycle, muck sweep, refit)
+// Dispatch layer (doors, entrance spine, stile lifecycle, billet lifecycle, muck door, refit)
 :jjdd_saddle:       <<jjdd_saddle,Saddle>>
 :jjdd_lunge:        <<jjdd_lunge,Lunge>>
 :jjdd_billet:       <<jjdd_billet,Billet>>
@@ -275,6 +275,9 @@
 :jjdd_livery_p:     <<jjdd_livery,livery's>>
 :jjdd_spine:        <<jjdd_spine,entrance spine>>
 :jjdd_spine_p:      <<jjdd_spine,entrance spine's>>
+:jjdd_stile:        <<jjdd_stile,stile>>
+:jjdd_stile_s:      <<jjdd_stile,stiles>>
+:jjdd_stile_p:      <<jjdd_stile,stile's>>
 :jjdd_muck:         <<jjdd_muck,muck>>
 :jjdd_muck_p:       <<jjdd_muck,muck's>>
 :jjdd_refit:        <<jjdd_refit,refit>>
