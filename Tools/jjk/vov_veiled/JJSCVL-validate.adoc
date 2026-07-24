@@ -25,19 +25,20 @@ census, so a clean result is positive evidence rather than mere silence.
 {jjds_exit_enumerated}
 
 * 0 — clean: valid and already canonical; no write.
-* 2 — normalized: valid but non-canonical; rewritten to canonical form and committed under {jjda_size_limit}.
+* 2 — normalized: valid but non-canonical; rewritten to canonical form and journaled to the {jjdb_studbook} under {jjda_size_limit}.
 * 1 — broken: parse or invariant failure; file untouched.
 
 {jjds_behavior}
 
+The store of record is the {jjdb_studbook}: validate appraises the
+{jjdb_studbook_p} pinned tip and, on a non-canonical store, journals the
+canonical rewrite back to it.
 The normalize commit is gallops-wide, affiliated with neither
 {jjdhr_heat}
 nor
 {jjdpr_pace}.
-When a merge is in progress it finalizes that merge (two parents) — validate is
-the post-merge
-{jjdgr_gallops}
-cleanup step.
+The {jjdb_studbook} is a linear journal that never merges, so there is no merge
+to finalize; a structurally corrupt tip is reported broken, never repaired.
 Re-running after a normalize yields clean (idempotent).
 
 *Validation Rules:*

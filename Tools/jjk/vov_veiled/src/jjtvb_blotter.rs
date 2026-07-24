@@ -41,7 +41,10 @@ use super::jjrvb_blotter::{
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
+    JJDB_GALLOPS_REL_PATH,
 };
+use super::jjrvl_validate::jjrvl_run_validate_over;
+use super::jjrm_mcp::zjjrm_peek_gallops;
 use super::jjtu_testdir::JjkTestDir;
 use std::cell::Cell;
 use std::collections::BTreeMap;
@@ -1269,6 +1272,124 @@ fn jjtvb_seam_on_nominate_journals_the_new_heat_with_its_paddock_tenant() {
         name_status.lines().any(|l| l.starts_with('A') && l.contains("paddocks/")),
         "the nominate ₶ commit must add the paddock tenant, name-status: {}",
         name_status
+    );
+}
+
+// ---- validate seam-ON: appraise the studbook tip, not the consumer tombstone ----
+
+#[test]
+fn jjtvb_seam_on_validate_clean_tip_is_exit0() {
+    // A studbook seeded through the journal ceremony lands canonical by
+    // construction (jjdr_save serializes pretty), so validate against the tip
+    // is clean — the steady state post-cutover.
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_validate_clean",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZV", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    let mut output = vvc::vvco_Output::buffer();
+    let code = jjrvl_run_validate_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-validate",
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output,
+        "jjx_validate",
+    );
+    assert_eq!(code, 0, "a canonical studbook tip validates clean: {}", output.vvco_finish());
+}
+
+#[test]
+fn jjtvb_seam_on_validate_noncanonical_tip_normalizes_to_studbook() {
+    // A non-canonical tip (valid gallops, compact whitespace) normalizes: validate
+    // journals the canonical form back to the studbook (exit 2), and a re-run is
+    // clean — the normalize landed on the studbook, not on any consumer file.
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_validate_normalize",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZN", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    // Overwrite the tip's gallops with a compact (non-canonical) serialization of a
+    // valid gallops, through the raw journal — the seam validate must repair.
+    jjdb_journal(&jjrfg_PlainGit, ground.studbook(), "guidon-seed-compact", |root| {
+        let compact = serde_json::to_vec(
+            &zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZN", jjrg_HeatStatus::Racing, &["AAA"])]),
+        ).unwrap();
+        std::fs::write(root.join(JJDB_GALLOPS_REL_PATH), &compact).unwrap();
+        (vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], "seed compact gallops".to_string())
+    })
+    .expect("seeding the compact gallops tip must land");
+
+    let mut output = vvc::vvco_Output::buffer();
+    let code = jjrvl_run_validate_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-validate",
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output,
+        "jjx_validate",
+    );
+    assert_eq!(code, 2, "a non-canonical studbook tip normalizes: {}", output.vvco_finish());
+    // The normalize landed canonical on the studbook: the tip re-loads, and a
+    // second validate is clean (idempotent).
+    assert!(jjdb_gallops_journal_load(ground.studbook()).is_ok(), "normalized tip must load");
+    let mut output2 = vvc::vvco_Output::buffer();
+    let code2 = jjrvl_run_validate_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-validate",
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output2,
+        "jjx_validate",
+    );
+    assert_eq!(code2, 0, "a normalized tip is clean on re-run (idempotent): {}", output2.vvco_finish());
+}
+
+#[test]
+fn jjtvb_seam_on_validate_garbage_tip_is_exit1() {
+    // A structurally-unparseable tip is broken (exit 1), reported not panicked —
+    // validate is the graceful reporter of a corrupt store of record.
+    let ground = ZjjtvbGround::new(
+        "jjtvb_seam_on_validate_broken",
+        zjjtvb_seed_gallops(vec![zjjtvb_seed_heat("ZB", jjrg_HeatStatus::Racing, &["AAA"])]),
+    );
+    jjdb_journal(&jjrfg_PlainGit, ground.studbook(), "guidon-seed-garbage", |root| {
+        std::fs::write(root.join(JJDB_GALLOPS_REL_PATH), b"{ not a gallops").unwrap();
+        (vec![PathBuf::from(JJDB_GALLOPS_REL_PATH)], "seed garbage gallops".to_string())
+    })
+    .expect("seeding the garbage gallops tip must land");
+
+    let mut output = vvc::vvco_Output::buffer();
+    let code = jjrvl_run_validate_over(
+        &jjrfg_PlainGit,
+        ground.studbook(),
+        "guidon-validate",
+        vvc::VVCG_SIZE_LIMIT,
+        &mut output,
+        "jjx_validate",
+    );
+    assert_eq!(code, 1, "a garbage studbook tip is broken: {}", output.vvco_finish());
+}
+
+#[test]
+fn jjtvb_seam_on_retention_monitum_reads_the_studbook_tip() {
+    // The open-time monita read the studbook tip now (they silently died on the
+    // tombstone at cutover). Prove the read source: a tip carrying a retention
+    // date surfaces through the peek and classifies On.
+    let mut seed = zjjtvb_seed_gallops(vec![]);
+    seed.retention_since = Some("2026-01-01".to_string());
+    let ground = ZjjtvbGround::new("jjtvb_seam_on_retention_peek", seed);
+    let (gallops, _bytes) = zjjrm_peek_gallops(ground.studbook())
+        .expect("the peek must read the studbook tip");
+    assert_eq!(
+        gallops.retention_since.as_deref(),
+        Some("2026-01-01"),
+        "the peek must surface the tip's retention policy"
+    );
+    assert!(
+        matches!(
+            crate::jjri_io::jjri_retention_state(&gallops),
+            crate::jjri_io::jjri_RetentionState::On(_)
+        ),
+        "a tip with a valid retention date classifies On"
     );
 }
 

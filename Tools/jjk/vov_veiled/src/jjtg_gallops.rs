@@ -6,7 +6,7 @@ use super::jjrg_gallops::*;
 use super::jjri_io::{jjri_RetentionState, jjri_retention_state};
 use super::jjrv_validate::{zjjrg_is_base64, zjjrg_is_kebab_case, zjjrg_is_yymmdd, zjjrg_is_yymmdd_hhmm};
 use super::jjru_util::zjjrg_increment_seed;
-use super::jjrvl_validate::{jjrvl_run_validate, jjrvl_ValidateArgs, zjjrvl_appraise, zjjrvl_Appraisal};
+use super::jjrvl_validate::{jjrvl_run_validate_raw, jjrvl_ValidateArgs, zjjrvl_appraise, zjjrvl_Appraisal};
 use super::jjtu_testdir::JjkTestDir;
 use std::collections::BTreeMap;
 
@@ -358,7 +358,7 @@ fn jjtg_validate_run_clean_returns_exit0_and_leaves_file() {
     let path = dir.path().join("jjg_gallops.json");
     let bytes = serde_json::to_string_pretty(&canonical_gallops()).unwrap().into_bytes();
     std::fs::write(&path, &bytes).unwrap();
-    let (code, _out) = jjrvl_run_validate(jjrvl_ValidateArgs { file: path.clone(), size_limit: 50_000 });
+    let (code, _out) = jjrvl_run_validate_raw(jjrvl_ValidateArgs { file: path.clone(), size_limit: 50_000 });
     assert_eq!(code, 0, "canonical file is clean");
     assert_eq!(std::fs::read(&path).unwrap(), bytes, "clean path must not touch the file");
 }
@@ -369,7 +369,7 @@ fn jjtg_validate_run_broken_returns_exit1_and_leaves_file() {
     let path = dir.path().join("jjg_gallops.json");
     let garbage = b"{ not valid".to_vec();
     std::fs::write(&path, &garbage).unwrap();
-    let (code, _out) = jjrvl_run_validate(jjrvl_ValidateArgs { file: path.clone(), size_limit: 50_000 });
+    let (code, _out) = jjrvl_run_validate_raw(jjrvl_ValidateArgs { file: path.clone(), size_limit: 50_000 });
     assert_eq!(code, 1, "unparseable file is broken");
     assert_eq!(std::fs::read(&path).unwrap(), garbage, "broken path must not touch the file");
 }
