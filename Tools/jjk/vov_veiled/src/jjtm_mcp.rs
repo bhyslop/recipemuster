@@ -296,6 +296,7 @@ use super::jjrm_mcp::{
     zjjrm_GuardBucket,
     zjjrm_judge_designation,
     zjjrm_protocol_verdict,
+    zjjrm_slate_refusal,
 };
 use super::jjrt_types::jjrg_Tier;
 
@@ -338,16 +339,44 @@ fn jjtm_guard_buckets_partition_the_command_surface() {
     for cmd in ["jjx_orient", "jjx_record", "jjx_landing"] {
         assert_eq!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Designation, "{}", cmd);
     }
-    // FRONTIER-ONLY: docket-authoring and state-mutating verbs, close, validate,
+    // SLATE: jjx_enroll alone — the docket-authoring floor admitting sonnet.
+    assert_eq!(zjjrm_guard_bucket("jjx_enroll"), zjjrm_GuardBucket::Slate);
+    // FRONTIER-ONLY: the remaining state-mutating verbs, close, validate,
     // the apostille (bridle/unbridle) command itself, and the remote family.
     for cmd in [
-        "jjx_create", "jjx_enroll", "jjx_redocket", "jjx_relabel", "jjx_drop",
+        "jjx_create", "jjx_redocket", "jjx_relabel", "jjx_drop",
         "jjx_relocate", "jjx_reorder", "jjx_alter", "jjx_close", "jjx_validate",
         "jjx_archive", "jjx_transfer", "jjx_paddock", "jjx_curry", "jjx_apostille",
         "jjx_bind", "jjx_send", "jjx_plant", "jjx_fetch", "jjx_relay", "jjx_check",
     ] {
         assert_eq!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Frontier, "{}", cmd);
     }
+}
+
+#[test]
+fn jjtm_slate_gate_admits_sonnet_and_up_only() {
+    // The slate floor lifts jjx_enroll to admit sonnet without touching the rest
+    // of the frontier surface. Sonnet is slate-qualified but NOT frontier, so it
+    // slates paces yet stays refused on every other Frontier-bucket verb.
+    let sonnet = zjjrm_extract_tier("claude-sonnet-5");
+    assert!(sonnet.zjjrm_is_slate_qualified());
+    assert!(!sonnet.zjjrm_is_frontier());
+
+    // Frontier tiers remain slate-qualified (the floor only widens downward).
+    assert!(zjjrm_extract_tier("claude-opus-4-8").zjjrm_is_slate_qualified());
+    assert!(zjjrm_extract_tier("claude-fable-5").zjjrm_is_slate_qualified());
+
+    // Haiku and the non-designable families stay below the slate floor.
+    assert!(!zjjrm_extract_tier("claude-haiku-4-5-20251001").zjjrm_is_slate_qualified());
+    assert!(!zjjrm_extract_tier("gpt-5.5").zjjrm_is_slate_qualified());
+    assert!(!zjjrm_extract_tier("gemini-3-pro").zjjrm_is_slate_qualified());
+    assert!(!zjjrm_extract_tier("mystery-model").zjjrm_is_slate_qualified());
+
+    // The slate refusal is an interdictum that names the floor and a remedy.
+    let refusal = zjjrm_slate_refusal("jjx_enroll", "claude-haiku-4-5", zjjrm_extract_tier("claude-haiku-4-5"));
+    assert!(refusal.starts_with("INTERDICTUM — "), "token must lead: {}", refusal);
+    assert!(refusal.contains("jjx_enroll") && refusal.contains("sonnet"), "got: {}", refusal);
+    assert!(refusal.contains("Remedy"), "names a remedy: {}", refusal);
 }
 
 #[test]

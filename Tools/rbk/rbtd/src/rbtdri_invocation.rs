@@ -550,6 +550,19 @@ fn rbtdri_invoke_impl(
         .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv_output))
         .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp));
 
+    // A child tabtarget launch must not inherit the parent's dispatch mode. A
+    // saddled interactive session exports BURD_NO_LOG (so its own TUI escapes
+    // the log tee) and may export BURD_INTERACTIVE; a child rbtd that inherits
+    // either takes the wrong bud_dispatch branch — the no-log branch never
+    // folds the child's stderr into stdout, and the interactive branch reroutes
+    // it through the tee — so a black-box surface fixture reading the child's
+    // stdout sees the wrong stream. These two vars are the only dispatch-mode
+    // selectors; clear the inheritance here so mode is chosen per launch. A
+    // deliberate opt-in (a case that WANTS a no-log child) re-sets its key
+    // through extra_env immediately below, so this clears only inheritance.
+    cmd.env_remove("BURD_NO_LOG");
+    cmd.env_remove("BURD_INTERACTIVE");
+
     for (key, value) in extra_env {
         cmd.env(key, value);
     }
