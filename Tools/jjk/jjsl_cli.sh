@@ -25,7 +25,7 @@
 # into JJSL_INVOKE_DIR (cwd elects the clone; BUK dispatch then self-anchors to
 # the kit repo root, losing it) and sets BURD_NO_LOG so the launched Claude
 # session owns the terminal - an interactive TUI cannot run under the log tee.
-# The spine itself is Rust: vvx jjx_dispatch (jjrds_spine.rs).
+# The stile's approach itself is Rust: vvx jjx_dispatch (jjrds_stile.rs).
 
 set -euo pipefail
 
@@ -47,7 +47,7 @@ zjjsl_sentinel() {
   test "${ZJJSL_KINDLED:-}" = "1" || buc_die "Module jjsl not kindled"
 }
 
-# Route one door through the Rust spine. The invocation directory must have
+# Route one door through the Rust stile approach. The invocation directory must have
 # been captured by a trampoline - a bare tabtarget run has already lost the
 # operator's cwd to BUK's self-anchoring, so it refuses with advice.
 zjjsl_door() {

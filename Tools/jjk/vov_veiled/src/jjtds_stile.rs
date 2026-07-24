@@ -2,7 +2,7 @@
 // All rights reserved.
 // SPDX-License-Identifier: LicenseRef-Proprietary
 
-use super::jjrds_spine::{
+use super::jjrds_stile::{
     jjrds_billet_dirname,
     jjrds_billet_identity,
     jjrds_board,
@@ -106,7 +106,7 @@ fn zjjtds_tack(state: jjrg_PaceState, tier: Option<jjrg_Tier>, effort: Option<jj
         tier,
         effort,
         text: vec!["a docket line".to_string()],
-        silks: "spine-test-pace".to_string(),
+        silks: "stile-test-pace".to_string(),
         basis: "0000000".to_string(),
     }
 }
@@ -129,7 +129,7 @@ fn zjjtds_gallops() -> jjrg_Gallops {
     });
     let mut heats = std::collections::BTreeMap::new();
     heats.insert("₣AA".to_string(), jjrg_Heat {
-        silks: "spine-test-heat".to_string(),
+        silks: "stile-test-heat".to_string(),
         creation_time: "260712".to_string(),
         status: jjrg_HeatStatus::Racing,
         order: vec!["₢AAAAC".to_string(), "₢AAAAA".to_string(), "₢AAAAB".to_string()],

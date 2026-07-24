@@ -309,14 +309,14 @@ pub trait jjrfr_FarrierBillet {
     fn jjrfr_billet_create(&self, root: &Path, birth: &jjrfr_BilletBirth, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
 
     /// Seat an existing branch into a fresh partition — the reuse form behind
-    /// the spine's billet-ensure: billets are chat-ephemeral, branches durable
+    /// the approach's billet-ensure: billets are chat-ephemeral, branches durable
     /// (dispatch sheaf), so a reaped billet's branch re-seats here on the next
     /// dispatch rather than re-birthing.
     fn jjrfr_billet_seat(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
 
     /// Seat a branch this station does not yet carry, taking its position from
     /// the remote counterpart — the second station's adopt-never-fork arm behind
-    /// the spine's billet-ensure. A fresh local branch is minted AT the
+    /// the approach's billet-ensure. A fresh local branch is minted AT the
     /// counterpart's tip (as of the last `jjrfr_glean`) and seated in the fresh
     /// partition, so a station meeting work another station pushed rejoins that
     /// line of work instead of forking a rival one from trunk.
@@ -327,17 +327,17 @@ pub trait jjrfr_FarrierBillet {
     fn jjrfr_billet_adopt(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
 
     /// Re-detach an existing billet at the trunk branch's remote counterpart —
-    /// groom-billet reuse (dispatch sheaf entrance spine: "a groom billet in
+    /// groom-billet reuse (dispatch sheaf stile's approach: "a groom billet in
     /// reuse re-detaches to trunk tip"). Refuses `DirtyTree` on dirt.
     fn jjrfr_billet_detach(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
 
     /// Whether `branch` exists in the constellation — the observation behind the
-    /// spine's create-or-seat choice at billet-ensure. Read-only, network-silent.
+    /// approach's create-or-seat choice at billet-ensure. Read-only, network-silent.
     fn jjrfr_line_exists(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// Whether `branch` stands ABROAD — whether its remote counterpart is known
     /// to this constellation, as of the last `jjrfr_glean`. The observation
-    /// behind the spine's adopt-or-fork choice once `jjrfr_line_exists` has
+    /// behind the approach's adopt-or-fork choice once `jjrfr_line_exists` has
     /// answered no: a line absent at home but standing abroad is another
     /// station's pushed work, and the one that a fork would rival.
     /// Read-only, network-silent — the glean is the caller's beat, so an
@@ -346,7 +346,7 @@ pub trait jjrfr_FarrierBillet {
     fn jjrfr_line_abroad(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// WHERE `branch` is seated, if the constellation seats it in a partition at
-    /// all — the observation behind the spine's rediscovery of a standing billet
+    /// all — the observation behind the approach's rediscovery of a standing billet
     /// (`jjdd_billet` reuse). The kind's own partition registry is the authority,
     /// never a dirname: a billet's dirname is a denormalized label, so a search
     /// by name would answer for the yard while this answers for the seat.

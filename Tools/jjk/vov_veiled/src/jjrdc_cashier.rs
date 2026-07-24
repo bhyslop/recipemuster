@@ -13,7 +13,7 @@
 //! the deliberateness the gate imposes. The sequence's safety is the sequence's:
 //! sight-arms-pluck is never blind, so the door takes no bracket of its own.
 //!
-//! Outside the entrance spine. Nothing composes this module; the operator does.
+//! Outside the stile's approach. Nothing composes this module; the operator does.
 
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrfr_farrier::{
@@ -146,8 +146,8 @@ pub fn jjrdc_cashier_store(infield_root: &Path, store_name: &str) -> Result<Opti
 
 /// Resolve the station's infield root from the operator's invocation directory:
 /// cwd elects the clone, a partition's primary is the hippodrome, and the
-/// infield is the hippodrome's parent — the spine's own resolution, run here
-/// without the spine (this door needs no pedigree, and must work on a station
+/// infield is the hippodrome's parent — the approach's own resolution, run here
+/// without the approach (this door needs no pedigree, and must work on a station
 /// whose studbook was never founded).
 pub fn jjrdc_infield_root(cwd: &Path) -> Result<PathBuf, jjrfr_Rejection> {
     let identity = jjrfg_PlainGit.jjrfr_identify(cwd)?;

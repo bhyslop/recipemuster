@@ -74,7 +74,7 @@ ceremony carrying the counterfoil
 
 |slate / reslate / paddock |journal ceremony only — no hippodrome ops
 
-|saddle / lunge |Canon: drained — the entrance spine (`JJSVD-dispatch.adoc`)
+|saddle / lunge |Canon: drained — the stile's approach (`JJSVD-dispatch.adoc`)
 
 |break |Canon: drained — the cashier door (`JJSVD-dispatch.adoc`, `jjdd_cashier`), citing
 the journal sheaf's break sequence per lock
@@ -88,8 +88,8 @@ keep, it is a report mode, not a verb.
 == Saddle, lunge, billet — the dispatch layer
 
 Canon: drained to the dispatch sheaf (`JJSVD-dispatch.adoc`, the `jjdd_` quoins) —
-the two doors, the billet entity (both kinds, dirnames per the yard split), the entrance
-spine, the stile with its exit-litmus trailing step, the muck destroy door and refit
+the two doors, the billet entity (both kinds, dirnames per the yard split), the stile with
+its approach and its exit-litmus trailing step, the muck destroy door and refit
 contracts, the cashier door, the lifecycle doctrine (session-transient billets over durable
 branches, structural session isolation, sole entrance), and the session-launch tier
 machinery.
@@ -129,7 +129,7 @@ uses.
   the interior-rename pace freed the word — `jjrsd_saddle.rs` / `JJSCSD-saddle.adoc` are
   now `jjrmt_mount.rs` / `JJSCMT-mount.adoc` (Prerequisite remint above).
   INFUSED (dispatch sheaf, `jjdd_saddle`); the gate is CLOSED.
-* *unsaddle* — RETIRED before infusion: the reap folded into the entrance spine as
+* *unsaddle* — RETIRED before infusion: the reap folded into the stile's approach as
   muck's own behavior, leaving no door to name, and its refuse-if-dirty was redundant with
   muck's dirty guard.
   Never infused, so the word simply releases; the saddle election above is untouched.
@@ -187,14 +187,14 @@ uses.
   Gate clean (0 hits); *sluice* held as alternate (washing — less exact than the spent-bedding
   removal muck names).
   INFUSED (dispatch sheaf, `jjdd_muck`).
-* *stile* — the application lifecycle as one bounded crossing (door, entrance spine, session,
+* *stile* — the application lifecycle as one bounded crossing (door, approach, session,
   trailing step), the billet's creator and typical destroyer: a structure for crossing a
   fence, the crossing being the thing.
   Gate clean (0 hits, word-boundary repo-wide).
   INFUSED (dispatch sheaf, `jjdd_stile`).
 * *stirrup* — the launch primitive (elected 260707, session-launch design pace): the
   mounting-assist apparatus — the step by which the rider gets aboard the already-prepared
-  horse — naming the interior act at the end of the entrance spine that starts a configured
+  horse — naming the interior act at the end of the stile's approach that starts a configured
   session in a billet (parameterized billet, tier, opening prompt; pace-blind; the tier-roster
   table's one launch consumer).
   HEARTING per the enfold precedent (uncatalogued, grep hygiene only); gate clean (0 hits).
@@ -240,7 +240,7 @@ uses.
 
 * `Memos/memo-20260630-jj-revision-control-architecture.md` — the VCS-driver and lock sections
   this sheaf supersedes as mulling home.
-* BUK dispatch spine: `tt/z-launcher.sh`, `Tools/buk/bul_launcher.sh`, `bud_dispatch.sh`,
+* BUK dispatch chain: `tt/z-launcher.sh`, `Tools/buk/bul_launcher.sh`, `bud_dispatch.sh`,
   `burc_regime.sh`, `burs_regime.sh`; theurge BURV sites: `rbtdri_invocation.rs`,
   `rbtdrh_chain.rs`.
 * Chat gamma-fable-regional-gallops (260704) — op census, billet lifecycle, BUK meld study,

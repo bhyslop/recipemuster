@@ -299,7 +299,7 @@ pub fn jjdb_found_studbook(
     }
 
     let seed_gallops = jjdb_founding_import(live, None)?;
-    let pedigree = crate::jjrds_spine::jjrds_Pedigree {
+    let pedigree = crate::jjrds_stile::jjrds_Pedigree {
         kind: sire.kind.clone(),
         addresses: vec![sire.address.clone()],
         trunk: sire.trunk.clone(),
@@ -308,17 +308,17 @@ pub fn jjdb_found_studbook(
         // JJ's refs sit under a house path.
         livery_prefix: None,
     };
-    let pedigrees_json = crate::jjrds_spine::jjrds_seed_pedigrees_json(vec![pedigree])?;
+    let pedigrees_json = crate::jjrds_stile::jjrds_seed_pedigrees_json(vec![pedigree])?;
 
     let sha = jjdb_found(config, |root| {
         crate::jjri_io::jjdr_save(&seed_gallops, &root.join(JJDB_GALLOPS_REL_PATH))
             .unwrap_or_else(|e| panic!("jjdb_found_studbook: gallops seed save failed at {}: {}", root.display(), e));
-        std::fs::write(root.join(crate::jjrds_spine::JJRDS_PEDIGREES_REL_PATH), &pedigrees_json)
+        std::fs::write(root.join(crate::jjrds_stile::JJRDS_PEDIGREES_REL_PATH), &pedigrees_json)
             .unwrap_or_else(|e| panic!("jjdb_found_studbook: pedigrees seed write failed at {}: {}", root.display(), e));
         (
             vec![
                 PathBuf::from(JJDB_GALLOPS_REL_PATH),
-                PathBuf::from(crate::jjrds_spine::JJRDS_PEDIGREES_REL_PATH),
+                PathBuf::from(crate::jjrds_stile::JJRDS_PEDIGREES_REL_PATH),
             ],
             "found studbook".to_string(),
         )
@@ -527,7 +527,7 @@ fn zjjrvb_commit_count(root: &Path) -> u64 {
 // ---- Gallops-over-studbook surface (enablement seam) ----
 
 /// Enablement seam: the gallops-over-studbook surface below is LIVE. The
-/// command read/write handlers and the dispatch spine's target resolution
+/// command read/write handlers and the approach's target resolution
 /// (`jjrds_plan`) branch on this constant to reach the studbook clone in place
 /// of the in-repo gallops. Flipped live by ₣B3's founding-and-cutover ceremony
 /// (JJSAS Founding-and-cutover).

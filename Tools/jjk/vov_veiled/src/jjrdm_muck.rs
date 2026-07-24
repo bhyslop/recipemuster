@@ -5,7 +5,7 @@
 //! Muck — the operator-directed destroy door (`jjdd_muck`, JJSVD-dispatch.adoc
 //! "Muck") for a named billet the {jjdd_stile_p} trailing step left standing:
 //! dirty, stranded work aboard, or orphaned by a killed door. Operator-typed
-//! like the {jjdd_cashier}, outside the entrance spine — no dispatch crosses
+//! like the {jjdd_cashier}, outside the stile's approach — no dispatch crosses
 //! it, and nothing composes it. It is the constellation's one deliberate
 //! data-loss surface.
 //!
@@ -32,7 +32,7 @@
 //! equally its to clear: the {jjdd_stile} deliberately leaves scratch as
 //! forensics, so this door is where forensics end.
 
-use crate::jjrds_spine::{
+use crate::jjrds_stile::{
     jjrds_billet_identity,
     jjrds_type_target,
     jjrds_Target,

@@ -43,7 +43,7 @@ use super::jjrm_mcp::{
 };
 use super::jjrz_gazette::{jjrz_BatchInput, jjrz_parse_batch_input};
 use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_Pace, jjrg_Tack, jjrg_HeatStatus, jjrg_PaceState, JJRG_UNKNOWN_BASIS};
-use super::jjrds_spine::{jjrds_Ground, JJRDS_PEDIGREES_REL_PATH};
+use super::jjrds_stile::{jjrds_Ground, JJRDS_PEDIGREES_REL_PATH};
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{jjrfr_BilletBirth, jjrfr_FarrierBillet, jjrfr_RejectionKind, jjrfr_Seat};
 use super::jjrvb_blotter::{
@@ -596,7 +596,7 @@ fn jjtm_open_station_refusal_fires_only_when_seam_on_and_unnamed() {
 
 /// A full infield: bare upstream, a hippodrome clone tracking it, and a
 /// studbook whose one pedigree records the upstream — the same shape
-/// `jjtds_spine.rs`'s `zjjtds_infield` builds for the dispatch board's own
+/// `jjtds_stile.rs`'s `zjjtds_infield` builds for the dispatch board's own
 /// staleness tests, reproduced here since it is test-module-private there.
 fn zjjtm_staleness_infield(name: &str) -> (JjkTestDir, std::path::PathBuf) {
     let infield = JjkTestDir::new(name);
@@ -704,7 +704,7 @@ fn jjtm_open_staleness_notice_is_none_on_foreign_ground() {
 // see jjtvb_blotter.rs's own seam-defaults-off test); these exercise the
 // on-branch directly via `zjjrm_load_gallops_over`'s explicit parameter,
 // mirroring how `jjrds_plan`'s `over_studbook` parameter is tested in
-// jjtds_spine.rs. The seam-off branch needs no dedicated fixture here: it is
+// jjtds_stile.rs. The seam-off branch needs no dedicated fixture here: it is
 // byte-identical to the pre-seam `jjrg_Gallops::jjrg_load(path)` call every
 // existing jjx_* command test already exercises.
 
@@ -908,7 +908,7 @@ fn jjtm_glean_studbook_refuses_loud_when_remote_is_unreachable() {
 // ===== The ground guard =====
 //
 // The judgment is pure over (command, ground, aim), so these drive it directly:
-// the ground taxonomy's own resolution from real worktrees is jjtds_spine's.
+// the ground taxonomy's own resolution from real worktrees is jjtds_stile's.
 
 /// A parent-heat resolver for the one case that consults one — the notch's
 /// heat-affiliated form. Every coronet in these tests harbours in ₣AA.

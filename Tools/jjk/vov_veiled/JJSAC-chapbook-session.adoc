@@ -25,7 +25,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_dispatch`
-*The dispatch layer* — the shell-side {jjdd_spine} behind the {jjdd_saddle} and {jjdd_lunge} doors.
+*The dispatch layer* — the shell-side {jjdd_stile_p} approach behind the {jjdd_saddle} and {jjdd_lunge} doors.
 
 //axhca_actor axd_internal
 `jjcbs_engine`
@@ -67,7 +67,7 @@ Resolve engine and provisioned context from the {jjdw_infield} peer ring — lau
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_session`
-Launch Claude Code inside the {jjdd_billet}, context provisioned, the engagement verb as opening prompt, at the (tier, effort) the {jjdd_spine_p} two-source choice yields.
+Launch Claude Code inside the {jjdd_billet}, context provisioned, the engagement verb as opening prompt, at the (tier, effort) the {jjdd_stile_p} approach two-source choice yields.
 
 == Act II — The mounted work
 
@@ -120,7 +120,7 @@ The teardown actor is the stile — parent of the session it launched, standing 
 == Pending-citation register (the convergence gauge)
 
 The register reads *zero* — every flagged beat has hardened to a citation.
-Hardened: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf); the dispatch family — the doors, the {jjdd_spine}, the {jjdd_stile}, {jjdd_muck}, the {jjdd_billet} cast lane, {jjdd_refit}, and launch-time provisioning (the dispatch sheaf); the two parties — the operator and engine cast lanes ({jjdw_operator}, {jjdw_engine} — the cosmology sheaf's two-parties section).
+Hardened: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf); the dispatch family — the doors, the {jjdd_stile} and its approach, {jjdd_muck}, the {jjdd_billet} cast lane, {jjdd_refit}, and launch-time provisioning (the dispatch sheaf); the two parties — the operator and engine cast lanes ({jjdw_operator}, {jjdw_engine} — the cosmology sheaf's two-parties section).
 
 Deferred sibling tales, named so they are not smuggled into this one:
 the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.

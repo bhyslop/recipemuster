@@ -277,7 +277,7 @@ A ruled entry keeps its ruling on record until the cut lands, then strikes.
   matricula's interim allowlist is recorded as migrating "at studbook founding" (VOSMM),
   but the founding precedes tackle implementation — the migration trigger must re-tie to
   tackle implementation, never the founding event, or the obligation misfires unmet.
-. Acceptance spine — PROPOSED, unratified: four read-side commands (census selection
+. Acceptance backbone — PROPOSED, unratified: four read-side commands (census selection
   byte-identical to the current allowlist, coverage audit, path resolve, staleness
   advisor) plus the write-door refusal tests.
   Substance: the 260720 memo; ratify or amend at the deciding session.

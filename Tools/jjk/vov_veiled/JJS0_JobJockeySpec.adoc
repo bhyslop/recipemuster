@@ -30,7 +30,7 @@
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree, footprint, and counterfoil)
-// jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck door, refit)
+// jjdd_:  Dispatch layer vocabulary (the doors, the stile crossing and its approach, the billet lifecycle, the muck door, refit)
 // jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds)
 // jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
 // jjdk_:  Key premises (design constraints)
@@ -265,7 +265,7 @@
 :jjdb_studbook:   <<jjdb_studbook,Studbook>>
 :jjdb_studbook_p: <<jjdb_studbook,Studbook's>>
 
-// Dispatch layer (doors, entrance spine, stile lifecycle, billet lifecycle, muck door, refit)
+// Dispatch layer (doors, stile crossing and its approach, billet lifecycle, muck door, refit)
 :jjdd_saddle:       <<jjdd_saddle,Saddle>>
 :jjdd_lunge:        <<jjdd_lunge,Lunge>>
 :jjdd_billet:       <<jjdd_billet,Billet>>
@@ -273,8 +273,6 @@
 :jjdd_billet_p:     <<jjdd_billet,Billet's>>
 :jjdd_livery:       <<jjdd_livery,livery>>
 :jjdd_livery_p:     <<jjdd_livery,livery's>>
-:jjdd_spine:        <<jjdd_spine,entrance spine>>
-:jjdd_spine_p:      <<jjdd_spine,entrance spine's>>
 :jjdd_stile:        <<jjdd_stile,stile>>
 :jjdd_stile_s:      <<jjdd_stile,stiles>>
 :jjdd_stile_p:      <<jjdd_stile,stile's>>

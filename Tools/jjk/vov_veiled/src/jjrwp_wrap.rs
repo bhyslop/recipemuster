@@ -103,10 +103,10 @@ where
     let derived_key = identity.upstream_key.clone()?;
 
     let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
-    let pedigree = crate::jjrds_spine::jjrds_pedigree_lookup(
+    let pedigree = crate::jjrds_stile::jjrds_pedigree_lookup(
         &studbook,
         &derived_key,
-        crate::jjrds_spine::JJRDS_KIND_PLAIN_GIT,
+        crate::jjrds_stile::JJRDS_KIND_PLAIN_GIT,
     )
     .ok()?;
 

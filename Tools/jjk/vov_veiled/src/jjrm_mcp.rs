@@ -45,7 +45,7 @@ use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, 
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
 use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_FarrierLock, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
-use crate::jjrds_spine::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
+use crate::jjrds_stile::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
@@ -161,7 +161,7 @@ pub(crate) fn zjjrm_studbook_config() -> Result<jjdb_BlotterConfig, String> {
 }
 
 /// The testable seam branch — mirrors `jjrds_plan`'s `over_studbook` idiom
-/// (`jjrds_spine.rs`): a test drives `over_studbook` true against a fixture
+/// (`jjrds_stile.rs`): a test drives `over_studbook` true against a fixture
 /// studbook config while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` itself stays
 /// false. Off: loads `path` exactly as every `jjx_*` command always has —
 /// byte-identical. On: ignores `path` and ref-reads the studbook's pinned tip
@@ -186,7 +186,7 @@ pub(crate) fn zjjrm_load_gallops_over(
 /// the `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`),
 /// the deliberately-excluded `jjrno_nominate` bootstrap aside (below).
 /// Honors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (`jjrvb_blotter.rs`) — the
-/// same const the dispatch spine's `jjrds_plan` obeys via its own
+/// same const the approach's `jjrds_plan` obeys via its own
 /// `over_studbook` parameter, so one flip moves every reader. Off (the
 /// compiled default, mainline-inert): a direct pass-through to
 /// `zjjrm_load_gallops_over(false, ...)`, which is exactly the pre-seam
@@ -361,7 +361,7 @@ pub(crate) fn zjjrm_studbook_root() -> Result<PathBuf, String> {
 /// Command-surface gallops WRITE — every mutating `jjx_*` command's persist
 /// funnels through here (the write analogue of `zjjrm_load_gallops`). Honors
 /// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`, the same const the read half and the
-/// dispatch spine obey, so one flip moves every writer. Off (compiled default,
+/// stile's approach obey, so one flip moves every writer. Off (compiled default,
 /// mainline-inert): mutate the session read and `jjri_persist` directly — the
 /// pre-seam path. On: derive the infield root fresh from `cwd` and the studbook
 /// config (as the read half does), compose the session's guidon from
@@ -2443,14 +2443,14 @@ pub(crate) fn zjjrm_open_staleness_notice<F: jjrfr_FarrierCore + jjrfr_FarrierBi
     let infield_root = zjjrm_infield_root(farrier, cwd)?;
     let derived_key = identity.upstream_key.as_deref()?;
     let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
-    let pedigree = crate::jjrds_spine::jjrds_pedigree_lookup(
+    let pedigree = crate::jjrds_stile::jjrds_pedigree_lookup(
         &studbook,
         derived_key,
-        crate::jjrds_spine::JJRDS_KIND_PLAIN_GIT,
+        crate::jjrds_stile::JJRDS_KIND_PLAIN_GIT,
     )
     .ok()?;
     let _ = farrier.jjrfr_glean(&identity.root);
-    crate::jjrds_spine::jjrds_staleness_notice(farrier, &identity.root, &pedigree.trunk).ok()?
+    crate::jjrds_stile::jjrds_staleness_notice(farrier, &identity.root, &pedigree.trunk).ok()?
 }
 
 /// Handle jjx_open: create a new officium.

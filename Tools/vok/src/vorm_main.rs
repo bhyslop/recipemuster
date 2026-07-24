@@ -71,7 +71,7 @@ enum Commands {
     #[command(name = "mcp")]
     Mcp,
 
-    /// JJ dispatch spine: plan, board, and launch a session through a door
+    /// JJ stile's approach: plan, board, and launch a session through a door
     /// (invoked by the jjy_ trampolines via the kit's jjw tabtargets)
     #[command(name = "jjx_dispatch")]
     JjxDispatch(DispatchArgs),
@@ -159,7 +159,7 @@ struct FoundArgs {
     dry_run: bool,
 }
 
-/// Arguments for jjx_dispatch — the spine's CLI face. The door captures the
+/// Arguments for jjx_dispatch — the approach's CLI face. The door captures the
 /// operator's invocation directory (cwd elects the clone) before BUK dispatch
 /// self-anchors, and hands it through explicitly.
 #[derive(clap::Args, Debug)]
@@ -430,7 +430,7 @@ async fn run_mcp() -> i32 {
     }
 }
 
-/// Run the JJ dispatch spine (jjy_ door path). The spine resolves and composes
+/// Run the JJ stile's approach (jjy_ door path). The approach resolves and composes
 /// but does not launch: it returns the report and, when a session is ready, the
 /// composed command. We print the report here FIRST, then hand the terminal to
 /// the session, so the door's whole report precedes the session it introduces
@@ -439,16 +439,16 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
     {
-        use jjk::jjrds_spine::jjrds_Outcome;
+        use jjk::jjrds_stile::jjrds_Outcome;
         let door = match args.door.as_str() {
-            "saddle" => jjk::jjrds_spine::jjrds_Door::Saddle,
-            "lunge" => jjk::jjrds_spine::jjrds_Door::Lunge,
+            "saddle" => jjk::jjrds_stile::jjrds_Door::Saddle,
+            "lunge" => jjk::jjrds_stile::jjrds_Door::Lunge,
             other => {
                 vvco_err!(out, "jjx_dispatch: error: unknown door '{}' — saddle or lunge", other);
                 return 1;
             }
         };
-        let (outcome, text) = jjk::jjrds_spine::jjrds_run(door, &args.target, &args.cwd, &args.kit_root, args.dry_run);
+        let (outcome, text) = jjk::jjrds_stile::jjrds_run(door, &args.target, &args.cwd, &args.kit_root, args.dry_run);
         if !text.is_empty() {
             vvco_out!(out, "{}", text.trim_end());
         }
@@ -467,7 +467,7 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
                 // exactly the geometry the trailing step rides (JJSVD "The
                 // stile"). The session's own exit code is the dispatch's; the
                 // step trouble-reports and never masks it.
-                let report = jjk::jjrds_spine::jjrds_trailing_step(&jjk::jjrfg_plaingit::jjrfg_PlainGit, &billet_root, &trunk);
+                let report = jjk::jjrds_stile::jjrds_trailing_step(&jjk::jjrfg_plaingit::jjrfg_PlainGit, &billet_root, &trunk);
                 if !report.is_empty() {
                     vvco_out!(out, "{}", report.trim_end());
                 }
@@ -623,7 +623,7 @@ fn run_found(args: FoundArgs) -> i32 {
     {
         use jjk::jjrc_core::JJRC_DEFAULT_GALLOPS_PATH;
         use jjk::jjrdc_cashier::jjrdc_infield_root;
-        use jjk::jjrds_spine::JJRDS_KIND_PLAIN_GIT;
+        use jjk::jjrds_stile::JJRDS_KIND_PLAIN_GIT;
         use jjk::jjrfg_plaingit::jjrfg_PlainGit;
         use jjk::jjrfr_farrier::{jjrfr_FarrierCore, jjrfr_Seat};
         use jjk::jjrvb_blotter::{jjdb_founding_import, jjdb_found_studbook, jjdb_studbook_config, jjdb_SireSeed};
