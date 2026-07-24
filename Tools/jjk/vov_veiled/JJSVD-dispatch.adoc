@@ -32,10 +32,16 @@ Boarded on arrival, kept for the duration, collected after — never by the sess
 +
 Two kinds, split by door.
 A *pace billet* ({jjdd_saddle}) seats the pace's branch, which wears the {jjdd_livery} —
-`jjls_pace/{coronet}` — and its dirname is `jjqb_{coronet}` per the {jjdw_yard} charter.
+`jjls_pace/{coronet}` — and its dirname is `jjqb_{catchword}_{coronet}` per the {jjdw_yard}
+charter.
 A *groom billet* ({jjdd_lunge}) seats a detached checkout at trunk tip — nothing must
-survive it — and its dirname is `jjqb_{firemark}`, the same signet, typed by length exactly
-as identities are everywhere.
+survive it — and its dirname is `jjqb_{catchword}_{firemark}`, the same signet.
+The leading serial is the {jjdb_catchword} the birth's dispatch record allocated (blotter
+sheaf): it sorts the yard by birth and is what keeps concurrent groom billets of one heat
+distinct.
+The identity behind it types by length exactly as identities are everywhere;
+a reader steps over the serial rather than parsing it, so the dirname stays a denormalized
+label and never an identity.
 The two brands answer to different owners and so do not match:
 the {jjdw_yard} signet marks JJ's own infield, where a bare body is unambiguous;
 the {jjdd_livery} marks JJ's refs inside a repository JJ does not own.
@@ -202,8 +208,22 @@ its tier source, never its own spine:
   a key resolving no sire is the unrecorded-sire rejection, and a claiming
   kind that contradicts the recorded kind is the record/ground-drift rejection
   ({jjdf_identify} contract, farrier sheaf).
+. *Yard step* — rediscover the standing {jjdd_billet}, or record the birth and wear the
+  serial it allocates.
+  Rediscovery asks the kind's own partition registry where the pace's {jjdd_livery} branch
+  is seated, never the yard by name: a dirname is a label, so a search by name would answer
+  for the yard while the registry answers for the seat, and the kind's checkout exclusivity
+  is what pins at most one live pace billet per {jjdt_coronet}.
+  A groom billet seats no branch and so never rediscovers — concurrent grooms of one heat
+  are deliberately legal, told apart by their serials alone.
+  A birth is a {jjdb_studbook} WRITE (the dispatch record, blotter sheaf): online and
+  refusable under a held {jjdb_guidon}, the accepted cost of a durable birth timeline.
+  A dispatch that rediscovers is rejoining, not a birth, and records nothing.
 . *Billet ensure* — `billet_create`-or-reuse ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
+  A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
+  each carrying its own remedy (farrier sheaf) — so the yard step never invents an anomaly
+  taxonomy of its own.
 . *`glean`* — the spine fetches and never merges;
   staleness becomes known here so the open can report it, and {jjdd_refit} is the remedy.
 . *BURV export* — the per-billet env posture (BUK meld below).

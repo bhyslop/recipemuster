@@ -253,6 +253,11 @@ pub trait jjrfr_FarrierCore {
     /// position. A refusal leaves the local branch and its record untouched —
     /// no residue exists for any later ceremony to scrub. Never force
     /// (`JJr_d81`). Returns the accepted position's SHA.
+    ///
+    /// An EMPTY `files` list is admitted and means the record-only commit: the
+    /// composed tree is the counterpart tip's own, so the whole content of the
+    /// write is its message. The dispatch record is the standing consumer —
+    /// a billet's birth is an event, and an event has no file.
     fn jjrfr_proffer(
         &self,
         root: &Path,
@@ -317,6 +322,16 @@ pub trait jjrfr_FarrierBillet {
     /// Whether `branch` exists in the constellation — the observation behind the
     /// spine's create-or-seat choice at billet-ensure. Read-only, network-silent.
     fn jjrfr_line_exists(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
+
+    /// WHERE `branch` is seated, if the constellation seats it in a partition at
+    /// all — the observation behind the spine's rediscovery of a standing billet
+    /// (`jjdd_billet` reuse). The kind's own partition registry is the authority,
+    /// never a dirname: a billet's dirname is a denormalized label, so a search
+    /// by name would answer for the yard while this answers for the seat.
+    /// A record whose root no longer stands is NOT a seat and reads `None` — the
+    /// caller proceeds to seat, meeting the `SeatVestige` refusal with its own
+    /// remedy rather than a silent skip invented here. Read-only, network-silent.
+    fn jjrfr_line_seated(&self, root: &Path, branch: &str) -> Result<Option<PathBuf>, jjrfr_Rejection>;
 
     /// The staleness probe: is this billet outstripped by trunk — does the trunk
     /// branch's remote counterpart (as of the last `jjrfr_glean`) hold work the

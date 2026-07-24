@@ -552,12 +552,19 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         if !read_tree.ok {
             zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &read_tree.zjjrfg_detail());
         }
-        let file_strs: Vec<String> = files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
-        let mut add_args: Vec<&str> = vec!["add", "--"];
-        add_args.extend(file_strs.iter().map(String::as_str));
-        let add_out = zjjrfg_run_git_env(root, &add_args, &envs);
-        if !add_out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &add_out.zjjrfg_detail());
+        // An empty list stages nothing, leaving the disposable index holding the
+        // tip's own tree — the record-only commit whose whole content is its
+        // message. The add is skipped rather than run with no pathspec: git
+        // answers that with advice text, and reading advice text is exactly what
+        // this driver does not do.
+        if !files.is_empty() {
+            let file_strs: Vec<String> = files.iter().map(|p| p.to_string_lossy().into_owned()).collect();
+            let mut add_args: Vec<&str> = vec!["add", "--"];
+            add_args.extend(file_strs.iter().map(String::as_str));
+            let add_out = zjjrfg_run_git_env(root, &add_args, &envs);
+            if !add_out.ok {
+                zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &add_out.zjjrfg_detail());
+            }
         }
         let tree_out = zjjrfg_run_git_env(root, &["write-tree"], &envs);
         if !tree_out.ok {
@@ -737,6 +744,16 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             Some(1) => Ok(false),
             _ => zjjrfg_unexpected(ZJJRFG_OP_LINE_EXISTS, root, &out.zjjrfg_detail()),
         }
+    }
+
+    fn jjrfr_line_seated(&self, root: &Path, branch: &str) -> Result<Option<PathBuf>, jjrfr_Rejection> {
+        // The same porcelain registry read the refused-seat classification runs
+        // on — one parse, two consumers. A prunable record is a vestige, not a
+        // seat: it reads as no seat here, and the seat that follows meets the
+        // SeatVestige refusal that names the prune.
+        Ok(zjjrfg_seat_record(root, branch)
+            .filter(|record| !record.prunable)
+            .map(|record| PathBuf::from(record.root)))
     }
 
     fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {

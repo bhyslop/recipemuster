@@ -72,6 +72,16 @@ and any future ingestion convenience must require the glyph
 {jjdb_catchword}::
 The {jjdb_studbook_p} revision ordinal mark: glyph ₶ (U+20B6), founding value 200000 —
 a width horizon of ~800K revisions.
++
+*The catchword serials a billet.*
+The birth of a {jjdd_billet} is a journaled write — the dispatch record, whose commit carries the
+event (door, kind, target, station) and no file at all — and the {jjdb_catchword} that
+ceremony allocates becomes the billet's serial, leading its dirname per the {jjdw_yard}
+charter.
+The serial is a label and never an identity: it sorts the yard by birth and keeps concurrent
+groom billets of one heat apart, and no reader parses it.
+This is the one consumer that needs the number back out of a journal write;
+every other caller wants only the position the write landed at.
 
 [[jjdb_varvel]]
 //axve_entity axd_ordinal
