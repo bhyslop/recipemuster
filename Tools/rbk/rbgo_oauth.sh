@@ -97,8 +97,8 @@ rbgo_curl_status_is_transient_predicate() {
 # External Functions (rbgo_*)
 
 # Authenticate the host docker client to a GAR registry with bounded retry on
-# the moby/moby#44350 premature-timeout transient (see
-# RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE). docker login is the lone login/pull/push
+# the moby/moby#44350 premature-timeout transient — RBr_5b8 (signature) /
+# RBr_2f8 (membrane). docker login is the lone login/pull/push
 # verb with no internal retry and a hardcoded 15s daemon->registry auth timeout;
 # against a healthy-but-slow backend it fails where the endpoint is in fact fine.
 # This mirrors the curl-transient tolerance in rbgu_http_json: retry only the

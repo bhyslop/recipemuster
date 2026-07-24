@@ -180,11 +180,9 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     (".gitattributes", Ship),
     (".gitignore", Ship),
     // ROOT FILES THAT STAY BEHIND. RELEASE.md is the release-qualification
-    // procedure, the rig's own runbook; the MCP config names the operator's
-    // servers; the iml is IDE furniture; the gateway proposal is an unsettled
-    // internal design note.
+    // procedure, the rig's own runbook; the iml is IDE furniture; the gateway
+    // proposal is an unsettled internal design note.
     ("RELEASE.md", Withhold),
-    (".mcp.json", Withhold),
     ("brm_recipemuster.iml", Withhold),
     ("podman-gateway-proposal.md", Withhold),
 ];
