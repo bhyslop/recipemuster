@@ -77,14 +77,15 @@ Tools never commit in the consumer's codebase. A tool MAY presume git and refuse
 
 **Never wrap tabtarget invocations with `tee`, `tail`, `head`, `grep`, `2>&1`, or any other pipe — NO exceptions.**
 
-Tabtargets self-log to `../logs-buk/`:
-- `last.txt` — most recent invocation across all tabtargets
-- `same-{cmd}.txt` — most recent invocation of this specific tabtarget
-- `hist-{cmd}-{timestamp}.txt` — historical invocations
+Tabtargets self-log to `../logs-buk/` — a directory scoped to the station (the machine), not to any one clone or worktree, so every clone, worktree, and billet on that station shares the same `logs-buk/`:
+- `last.txt` — most recent invocation across **all** tabtargets on the station. **Never read this** — any tabtarget run anywhere on the station between your dispatch and your read overwrites it out from under you.
+- `same-{cmd}.txt` — most recent invocation of this specific tabtarget on the station. Same race, narrowed to one colophon: another clone or billet running the identical tabtarget still overwrites it.
+- `hist-{cmd}-{timestamp}.txt` — one immutable file per invocation. The only race-free pointer.
 
 Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates work the tool already did. The real hazard is piping a tabtarget into `tail`/`head`/`grep`: zsh defaults `pipefail` OFF, so the pipeline returns the last command's exit status — usually 0. **A failing test reports as success.**
 
-- Run the tabtarget directly, then read from `../logs-buk/` in a separate command
+- Run the tabtarget directly, then read the announced `hist-` path in a separate command. Non-interactive dispatch prints all three paths on a `log files:` line; interactive dispatch prints the `hist-` path alone on a `log (interactive:)` line — either way the path is handed to you, so use it verbatim.
+- **Never locate the hist file by `ls -t` or any other newest-match search** — that reinstates the exact race the announced path exists to avoid, since another invocation on the station can drop a newer `hist-` file between your dispatch and your search. If the announced path wasn't captured, re-run the tabtarget and read its freshly printed line.
 - Environment variables before the command are fine: `BURE_CONFIRM=skip ./tt/rbw-cQ.Quench.tadmor.sh`
 - If you genuinely must pipe live output (rare — usually you can read the log instead), set `-o pipefail` on the same line, or check `${PIPESTATUS[0]}` (bash) / `${pipestatus[1]}` (zsh)
 
@@ -95,9 +96,10 @@ Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates 
 # Wrong — even a bare `| head` discards the real signal
 ./tt/rbw-ts.TestSuite.reveille.sh | head -50
 
-# Right — separate commands; exit code preserved
+# Right — separate commands; exit code preserved; read the hist path the dispatch announced
 ./tt/rbw-ts.TestSuite.gauntlet.sh
-tail -80 ../logs-buk/last.txt
+# (dispatch's "log files:" line named ../logs-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt — use that verbatim)
+tail -80 ../logs-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt
 ```
 
 **There is no safe `tee | tail`.** Do not reason "I'll just truncate the output for readability" — the truncation and the exit-code-eating are inseparable. Truncate by reading the log file afterward.
