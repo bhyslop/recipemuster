@@ -46,6 +46,8 @@ Each {jjdb_pedigree} carries:
   declared interrelations — as a sibling entry ({jjdl_tackle}, tackle sheaf).
   The {jjdl_bounds} seat in the tackle table itself, never here: coverage is tackle
   machinery, and a second home would be a second truth;
+* the {jjdd_livery} path prefix, org-demand-only and absent in the ordinary case — the
+  posture and its home are the dispatch sheaf's ({jjdd_livery}, dispatch sheaf);
 * reserved, declared but not carried: the {jjdb_footprint} posture (Footprint, below).
   No consumer resolves it, so carrying it would seed durable committed records with a value
   nothing sets meaningfully;
