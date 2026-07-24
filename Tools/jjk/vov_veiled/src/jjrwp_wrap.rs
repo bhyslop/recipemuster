@@ -6,8 +6,14 @@
 //!
 //! Stages all changes, generates a commit message with Claude,
 //! and transitions the pace state to complete with chalk marker.
+//!
+//! Ahead of all of that stands the staleness gate (`jjrwp_staleness_gate`): a
+//! billet whose position trails its sire's trunk never wraps. The refusal is an
+//! interdictum naming refit, and it is the whole act — no retry, no automatic
+//! remedy. Everything downstream of the gate may therefore assume the billet
+//! carries trunk's tip.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::io::Write;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
@@ -27,6 +33,85 @@ pub struct jjrx_WrapArgs {
     /// Size limit in bytes (overrides default 50KB guard)
     #[arg(long)]
     pub size_limit: Option<u64>,
+}
+
+/// The wrap-entry staleness gate's verdict. `Outstripped` carries the two names
+/// the refusal speaks — the billet's own branch and the pedigree's trunk — so the
+/// text home (`jjri_staleness_interdictum`) is fed by the gate, not by a second
+/// resolution.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum jjrwp_GateVerdict {
+    /// Wrap may proceed: the billet already holds trunk's remote counterpart, or
+    /// this ground is not one the gate judges.
+    Clear,
+    /// Trunk has advanced past what this billet has enfolded. Wrap refuses.
+    Outstripped { branch: String, trunk: String },
+}
+
+/// The wrap-entry staleness gate: does trunk carry work this billet has never
+/// enfolded? Read-only apart from the fetch — it decides, and never remedies.
+///
+/// Composed exactly as the refit door resolves the same tree (`jjrrd_refit.rs`):
+/// identify at `cwd`, take the sire's pedigree trunk, glean, then ask the
+/// farrier's own staleness probe (`jjrfr_outstripped`). Glean leads because
+/// staleness is fetch-revealed; an unreachable remote is not a refusal — the
+/// probe then speaks from the last-known counterpart, which is the strongest
+/// verdict an offline station can honestly give.
+///
+/// Judged ground is a billet alone (`jjrfr_Seat::Partition` on a branch): the
+/// gate's contract is about a billet trailing its sire's trunk, and a wrap run
+/// from the hippodrome is the ground guards' territory, not this gate's. Every
+/// unresolvable step — foreign ground, a detached checkout, no upstream key, an
+/// unrecorded sire, a farrier rejection — returns `Clear`. This gate refuses only
+/// on a fact it observed; it never cries on ignorance, the same posture
+/// `jjrfr_outstripped` itself takes when no counterpart is known.
+///
+/// The verdict is total by operator ruling: a wrap that meets `Outstripped` stops
+/// there. The gate runs no refit of its own, so the wrap that follows an
+/// operator-directed refit finds the billet holding trunk's tip — which is what
+/// lets the converge beat treat its own input as trivial by construction.
+pub fn jjrwp_staleness_gate<F>(farrier: &F, cwd: &Path) -> jjrwp_GateVerdict
+where
+    F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierBillet,
+{
+    use crate::jjrfr_farrier::{jjrfr_LineOfWork, jjrfr_Seat};
+
+    let identity = match farrier.jjrfr_identify(cwd) {
+        Ok(id) => id,
+        Err(_) => return jjrwp_GateVerdict::Clear,
+    };
+    let hippodrome_root = match &identity.seat {
+        jjrfr_Seat::Partition { primary_root } => primary_root.clone(),
+        jjrfr_Seat::Primary => return jjrwp_GateVerdict::Clear,
+    };
+    let branch = match &identity.line_of_work {
+        jjrfr_LineOfWork::Branch(name) => name.clone(),
+        jjrfr_LineOfWork::Detached(_) => return jjrwp_GateVerdict::Clear,
+    };
+    let infield_root = match hippodrome_root.parent() {
+        Some(p) => p.to_path_buf(),
+        None => return jjrwp_GateVerdict::Clear,
+    };
+    let derived_key = match &identity.upstream_key {
+        Some(k) => k.clone(),
+        None => return jjrwp_GateVerdict::Clear,
+    };
+
+    let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
+    let pedigree = match crate::jjrds_spine::jjrds_pedigree_lookup(
+        &studbook,
+        &derived_key,
+        crate::jjrds_spine::JJRDS_KIND_PLAIN_GIT,
+    ) {
+        Ok(p) => p,
+        Err(_) => return jjrwp_GateVerdict::Clear,
+    };
+
+    let _ = farrier.jjrfr_glean(&identity.root);
+    match farrier.jjrfr_outstripped(&identity.root, &pedigree.trunk) {
+        Ok(true) => jjrwp_GateVerdict::Outstripped { branch, trunk: pedigree.trunk },
+        Ok(false) | Err(_) => jjrwp_GateVerdict::Clear,
+    }
 }
 
 /// Render a bridled next-pace's designation as `" [bridled tier effort]"`,
@@ -80,6 +165,20 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             return (1, output.vvco_finish());
         }
     };
+
+    // Staleness gate, at wrap entry and ahead of every mutation — the lock, the
+    // staging, the commits. A billet trailing its sire's trunk refuses here and
+    // stops: no retry, and no refit run from inside the refusal. Passing the gate
+    // is what leaves the converge beat a trivial input.
+    let gate_cwd = std::env::current_dir().ok();
+    if let Some(cwd) = gate_cwd.as_deref() {
+        if let jjrwp_GateVerdict::Outstripped { branch, trunk } =
+            jjrwp_staleness_gate(&crate::jjrfg_plaingit::jjrfg_PlainGit, cwd)
+        {
+            vvco_err!(output, "{}", crate::jjri_io::jjri_staleness_interdictum(cn, &branch, &trunk));
+            return (2, output.vvco_finish());
+        }
+    }
 
     let stdin_summary = summary;
 

@@ -404,6 +404,27 @@ pub fn jjri_size_interdictum(cmd: &str, cost: &vvc::vvcg_Cost, limit: u64) -> St
     msg
 }
 
+/// The wrap staleness gate's refusal — an interdictum (JJS0 `jjdz_interdictum`), and the
+/// single home for its text.
+///
+/// Same genre law as the size interdictum above: the token leads, spelled literally, and
+/// the body stands alone — standing agent context carries nothing about this guard, so the
+/// emission names what refused, why, and the remedy. Refit is the named remedy and is
+/// ashlar, so the words here are operator-facing. The refusal is total by ruling: no retry
+/// clears it and the gate never runs refit itself, so both are said outright rather than
+/// left to inference.
+pub fn jjri_staleness_interdictum(cmd: &str, branch: &str, trunk: &str) -> String {
+    format!(
+        "INTERDICTUM — wrap staleness gate: {cmd} refuses; billet branch '{branch}' is behind \
+         the remote counterpart of trunk '{trunk}', so trunk carries work this billet has never \
+         enfolded.\n\n\
+         Nothing was committed and the pace stays open; the working tree is untouched.\n\n\
+         Remedy: refit — merge trunk into this billet and push (never rebase); the wrap then \
+         re-attempts and passes. Refit is an operator-directed act: the gate never runs it, and \
+         re-attempting the wrap unchanged only meets this same refusal."
+    )
+}
+
 /// Render a commit failure for the wire.
 ///
 /// The size gate emits its token with no prefix ahead of it — a prefix breaks the one
