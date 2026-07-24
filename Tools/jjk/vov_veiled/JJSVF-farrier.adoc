@@ -90,9 +90,10 @@ compare-and-swap primitives composed only by the {jjdb_journal} and the {jjdb_br
 
 [[jjdf_billet]]
 {jjdf_billet}::
-The billet lifecycle ops `billet_create`/`billet_seat`/`billet_detach`/`billet_remove`/
-`enfold`, plus the observations `line_exists` and `outstripped`, consumed by the dispatch
-doors ({jjdd_saddle}, {jjdd_lunge} — dispatch sheaf).
+The billet lifecycle ops
+`billet_create`/`billet_seat`/`billet_adopt`/`billet_detach`/`billet_remove`/
+`enfold`, plus the observations `line_exists`, `line_abroad`, and `outstripped`, consumed by
+the dispatch doors ({jjdd_saddle}, {jjdd_lunge} — dispatch sheaf).
 
 == Op census — method contracts
 
@@ -265,6 +266,21 @@ fault rather than a state the operator arrives at.
 A branch that does not exist at all remains a caller-contract violation here, since
 `line_exists` is the observation the spine consults first.
 
+`billet_adopt`::
+Seat a branch this station does not yet carry, taking its position from the remote
+counterpart — the adopt-never-fork arm behind the {jjdd_spine_p} billet-ensure.
+A fresh local branch is minted AT the counterpart's tip, as of the last `glean`, and seated in
+the fresh partition, so a station meeting work another station pushed rejoins THAT line of
+work rather than forking a rival one from trunk that no ceremony would ever reconcile.
+The kind sets the adopted line's upstream to the counterpart it was born from, so a later
+`consign` lands where the other station is looking.
+This is the sole birth anchoring at something other than trunk's counterpart, and the
+`enfold` no-exfiltration law holds all the same: a counterpart is by definition already in the
+remote's custody, so nothing unpushed is carried in.
+Both halves of the caller contract are observed first and fail loud when violated: the branch
+must not exist locally (`line_exists`, else `billet_seat` is the op) and its counterpart must
+be known (`line_abroad`).
+
 `billet_detach`::
 Re-detach an existing billet at the trunk branch's remote counterpart — groom-billet reuse
 (dispatch sheaf: "a groom billet in reuse re-detaches to trunk tip");
@@ -273,6 +289,19 @@ refuses on dirty.
 `line_exists`::
 Whether a named branch exists in the constellation — read-only, network-silent;
 the observation behind the spine's create-or-seat choice at billet ensure.
+
+`line_abroad`::
+Whether a named branch stands ABROAD — whether its remote counterpart is known to the
+constellation, as of the last `glean`;
+the observation behind the spine's adopt-or-birth choice, consulted once `line_exists` has
+answered no.
+A line absent at home but standing abroad is another station's pushed work, and precisely the
+line a birth here would rival.
+Read-only and network-silent like its at-home sibling: the `glean` is the caller's beat, so an
+unreachable remote leaves this answering from what was last seen rather than blocking a
+dispatch.
+Adopting late is the cost of working offline;
+refusing the dispatch would be the larger one.
 
 `outstripped`::
 The staleness probe: does the trunk branch's remote counterpart — its position as of the last

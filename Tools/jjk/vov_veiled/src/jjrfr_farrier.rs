@@ -314,6 +314,18 @@ pub trait jjrfr_FarrierBillet {
     /// dispatch rather than re-birthing.
     fn jjrfr_billet_seat(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
 
+    /// Seat a branch this station does not yet carry, taking its position from
+    /// the remote counterpart — the second station's adopt-never-fork arm behind
+    /// the spine's billet-ensure. A fresh local branch is minted AT the
+    /// counterpart's tip (as of the last `jjrfr_glean`) and seated in the fresh
+    /// partition, so a station meeting work another station pushed rejoins that
+    /// line of work instead of forking a rival one from trunk.
+    ///
+    /// Caller contract, both halves observed first: the branch must NOT exist
+    /// locally (`jjrfr_line_exists`) and its counterpart MUST be known
+    /// (`jjrfr_line_abroad`). Violating either fails loud.
+    fn jjrfr_billet_adopt(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
+
     /// Re-detach an existing billet at the trunk branch's remote counterpart —
     /// groom-billet reuse (dispatch sheaf entrance spine: "a groom billet in
     /// reuse re-detaches to trunk tip"). Refuses `DirtyTree` on dirt.
@@ -322,6 +334,16 @@ pub trait jjrfr_FarrierBillet {
     /// Whether `branch` exists in the constellation — the observation behind the
     /// spine's create-or-seat choice at billet-ensure. Read-only, network-silent.
     fn jjrfr_line_exists(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
+
+    /// Whether `branch` stands ABROAD — whether its remote counterpart is known
+    /// to this constellation, as of the last `jjrfr_glean`. The observation
+    /// behind the spine's adopt-or-fork choice once `jjrfr_line_exists` has
+    /// answered no: a line absent at home but standing abroad is another
+    /// station's pushed work, and the one that a fork would rival.
+    /// Read-only, network-silent — the glean is the caller's beat, so an
+    /// unreachable remote leaves this answering from what was last seen rather
+    /// than blocking the dispatch.
+    fn jjrfr_line_abroad(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// WHERE `branch` is seated, if the constellation seats it in a partition at
     /// all — the observation behind the spine's rediscovery of a standing billet

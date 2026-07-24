@@ -219,11 +219,18 @@ its tier source, never its own spine:
   A birth is a {jjdb_studbook} WRITE (the dispatch record, blotter sheaf): online and
   refusable under a held {jjdb_guidon}, the accepted cost of a durable birth timeline.
   A dispatch that rediscovers is rejoining, not a birth, and records nothing.
-. *Billet ensure* — `billet_create`-or-reuse ({jjdf_billet} facet);
+. *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
   A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
   each carrying its own remedy (farrier sheaf) — so the yard step never invents an anomaly
   taxonomy of its own.
+  The three arms are read in one order, and the order is the whole of adopt-never-fork:
+  a line standing at home re-seats (`billet_seat`);
+  a line absent at home but standing abroad is another station's pushed work and is adopted
+  (`billet_adopt`), so one pace is one line of work across stations;
+  only a line standing nowhere is born (`billet_create`).
+  The abroad question is the one answer a fetch changes, so the ensure gleans just before
+  asking it and never earlier: the counterpart read is network-silent, and a stale no forks.
 . *`glean`* — the spine fetches and never merges;
   staleness becomes known here so the open can report it, and {jjdd_refit} is the remedy.
 . *BURV export* — the per-billet env posture (BUK meld below).

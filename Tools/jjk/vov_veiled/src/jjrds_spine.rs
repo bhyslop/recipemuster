@@ -1002,8 +1002,28 @@ pub fn jjrds_plan(
     })
 }
 
+/// Does the pace's branch stand abroad — is another station's pushed work
+/// waiting for this one to adopt? The glean rides here rather than at the top of
+/// the ensure because this is the sole question whose answer it changes: the
+/// counterpart read is network-silent, so without a fresh fetch it would answer
+/// from whatever this station last happened to see, and a stale no forks.
+///
+/// An unreachable remote is not a refusal: the read simply answers from what was
+/// last seen, and an offline station falls through to birth. Adopting late is
+/// the cost of working offline; refusing the dispatch would be a larger one.
+fn zjjrds_stands_abroad<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
+    farrier: &F,
+    hippodrome_root: &Path,
+    branch: &str,
+) -> Result<bool, jjrds_Rejection> {
+    let _ = farrier.jjrfr_glean(hippodrome_root);
+    farrier
+        .jjrfr_line_abroad(hippodrome_root, branch)
+        .map_err(jjrds_Rejection::Farrier)
+}
+
 /// Board the billet: the spine's mutation half — billet ensure
-/// (create-or-reuse; a groom billet in reuse re-detaches to trunk tip), then
+/// (seat-or-adopt-or-create; a groom billet in reuse re-detaches to trunk tip), then
 /// glean (the spine fetches and never merges), then the staleness probe whose
 /// answer the launch surfaces. Returns the staleness notice, if any.
 pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
@@ -1035,6 +1055,17 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
                 // own remedy (`jjrfr_billet_seat`).
                 farrier
                     .jjrfr_billet_seat(&plan.hippodrome_root, branch, &yard.billet_root)
+                    .map_err(jjrds_Rejection::Farrier)?;
+            }
+            jjrfr_BilletBirth::Branch(branch)
+                if zjjrds_stands_abroad(farrier, &plan.hippodrome_root, branch)? =>
+            {
+                // Absent at home, standing abroad: another station has worked
+                // this pace and pushed. Adopting its line is what makes one
+                // pace one line of work across stations — a birth here would
+                // fork a rival from trunk that no ceremony ever reconciles.
+                farrier
+                    .jjrfr_billet_adopt(&plan.hippodrome_root, branch, &yard.billet_root)
                     .map_err(jjrds_Rejection::Farrier)?;
             }
             birth => {
