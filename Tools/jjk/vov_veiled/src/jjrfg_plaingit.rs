@@ -80,6 +80,7 @@ const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
 const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
 const ZJJRFG_OP_LINE_ABROAD: &str = "line_abroad";
 const ZJJRFG_OP_OUTSTRIPPED: &str = "outstripped";
+const ZJJRFG_OP_REACHABLE: &str = "reachable";
 const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
 const ZJJRFG_OP_PRIMARY_ROOT: &str = "primary_root";
@@ -806,6 +807,28 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             Some(0) => Ok(false),
             Some(1) => Ok(true),
             _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.zjjrfg_detail()),
+        }
+    }
+
+    fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {
+        let counterpart = zjjrfg_counterpart(trunk);
+        // No counterpart known locally → not reachable: nothing can be proven
+        // held on ignorance, and the exit litmus this feeds must not destroy
+        // on an unproven claim (trait contract) — the opposite polarity from
+        // `jjrfr_outstripped`'s own ignorance answer.
+        let seen = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", "--quiet", &counterpart]);
+        if !seen.ok {
+            return Ok(false);
+        }
+        // Ancestry, reversed from `jjrfr_outstripped`: exit 0 means HEAD is
+        // already contained in the counterpart's history (nothing would be
+        // lost by destroying it), 1 means HEAD holds a raw commit the
+        // counterpart does not — a stranded position that stands.
+        let out = zjjrfg_run_git(billet_root, &["merge-base", "--is-ancestor", "HEAD", &counterpart]);
+        match out.code {
+            Some(0) => Ok(true),
+            Some(1) => Ok(false),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &out.zjjrfg_detail()),
         }
     }
 

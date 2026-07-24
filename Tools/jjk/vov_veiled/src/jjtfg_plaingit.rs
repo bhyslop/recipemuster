@@ -998,6 +998,51 @@ fn jjtfg_outstripped_is_false_when_no_counterpart_is_known() {
     assert!(!jjrfg_PlainGit.jjrfr_outstripped(td.path(), ZJJTFG_TRUNK).unwrap());
 }
 
+/// Bare remote, a primary tracking it with a pushed baseline, and a billet
+/// detached at trunk's counterpart — the groom-billet birth form `reachable`'s
+/// tests exercise (mirrors `zjjtfg_billeted_with_remote`, Detached instead of
+/// Branch).
+fn zjjtfg_detached_billeted_with_remote(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDir) {
+    let (bare, primary) = zjjtfg_local_with_remote(name);
+    let billet = zjjtfg_billet_slot(&format!("{}_billet", name));
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    (bare, primary, billet)
+}
+
+#[test]
+fn jjtfg_reachable_is_true_at_the_trunk_tip() {
+    let (_bare, _primary, billet) = zjjtfg_detached_billeted_with_remote("jjtfg_reachable_at_tip");
+
+    // Freshly detached exactly at trunk's counterpart: HEAD equals it, the
+    // ancestor-or-equal case.
+    assert!(jjrfg_PlainGit.jjrfr_reachable(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
+fn jjtfg_reachable_is_false_for_a_raw_local_commit() {
+    let (_bare, _primary, billet) = zjjtfg_detached_billeted_with_remote("jjtfg_reachable_raw_commit");
+
+    // A groom billet must retain nothing: a commit made directly on the
+    // detached checkout is a raw commit reachable from nowhere, and the
+    // stranding probe must say so.
+    zjjtfg_commit_all(billet.path(), "stray.txt", "stray work", "raw detached commit");
+
+    assert!(!jjrfg_PlainGit.jjrfr_reachable(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
+fn jjtfg_reachable_is_false_when_no_counterpart_is_known() {
+    // A remote-less repo has no counterpart to be an ancestor of — the probe
+    // must not prove destruction-safety on ignorance.
+    let td = JjkTestDir::new("jjtfg_reachable_no_counterpart");
+    zjjtfg_init_local(td.path());
+    zjjtfg_commit_all(td.path(), "a.txt", "hello", "init");
+
+    assert!(!jjrfg_PlainGit.jjrfr_reachable(td.path(), ZJJTFG_TRUNK).unwrap());
+}
+
 #[test]
 fn jjtfg_billet_remove_reaps_a_clean_billet() {
     let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_remove_clean");

@@ -364,6 +364,17 @@ pub trait jjrfr_FarrierBillet {
     /// ahead, and the warning this probe feeds must not cry on ignorance.
     fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
 
+    /// The stranding probe: is the tree's current position an ancestor of — or
+    /// equal to — the named branch's remote counterpart, as of the last
+    /// `jjrfr_glean`? A local ancestry check, network-silent, the
+    /// {jjdd_stile} groom-litmus conjunct (dispatch sheaf). `false` when no
+    /// counterpart is known locally: nothing can be proven held on ignorance,
+    /// and the exit litmus this probe feeds must never destroy on an unproven
+    /// claim — the opposite polarity from `jjrfr_outstripped` above, whose
+    /// `false`-on-ignorance suppresses a warning rather than blocking a
+    /// destruction; the two neighbors are deliberately never harmonized.
+    fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
+
     /// Pass the billet's whole estate up to the trunk: compose ONE commit whose
     /// tree is the billet's line-of-work tip tree exactly as it stands, with the
     /// trunk branch's remote counterpart tip — its position as of the last
