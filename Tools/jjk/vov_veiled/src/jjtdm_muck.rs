@@ -159,9 +159,12 @@ fn zjjtdm_fixture(name: &str) -> (JjkTestDir, std::path::PathBuf, jjdb_BlotterCo
 }
 
 fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str) -> std::path::PathBuf {
+    // Yard signet on the dirname, livery badge on the branch — the same split
+    // the dispatch spine makes, so salvage meets here what it meets in the field.
     let billet_root = infield.join(jjrds_billet_dirname(coronet));
+    let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, coronet);
     jjrfg_PlainGit
-        .jjrfr_billet_create(hippodrome, &jjrfr_BilletBirth::Branch(coronet.to_string()), &billet_root, ZJJTDM_HIP_TRUNK)
+        .jjrfr_billet_create(hippodrome, &jjrfr_BilletBirth::Branch(branch), &billet_root, ZJJTDM_HIP_TRUNK)
         .unwrap();
     billet_root
 }
@@ -324,7 +327,9 @@ fn jjtdm_reap_salvages_a_dirty_pace_billet_when_confirmed() {
     assert_eq!(report.outcomes.len(), 1);
     assert!(matches!(&report.outcomes[0], jjrdm_Outcome::Salvaged(p) if p == &billet));
     assert!(!billet.exists(), "a salvaged billet must still be reaped");
-    let remote_subject = zjjtdm_git(&hippodrome, &["log", "-1", "--pretty=%s", "refs/remotes/origin/AAAAC"]);
+    // Salvage consigns the badged branch, so the badge is what lands in the
+    // sire's ref store — the mint's whole point, observed at the far end.
+    let remote_subject = zjjtdm_git(&hippodrome, &["log", "-1", "--pretty=%s", "refs/remotes/origin/jjls_pace/AAAAC"]);
     assert_eq!(remote_subject, "muck: auto-commit-push before reap");
 }
 
@@ -436,7 +441,7 @@ fn jjtdm_reap_refuses_to_salvage_a_billet_whose_checkout_drifted() {
 
     // Between plan and reap, the billet's checkout drifts off its pace
     // branch by hand — salvage must refuse rather than lodge onto the
-    // wrong line and consign the untouched coronet branch.
+    // wrong line and consign the untouched livery branch.
     zjjtdm_git(&billet, &["checkout", "-q", "-b", "some-other-line"]);
 
     let report = jjrdm_reap(&jjrfg_PlainGit, &plan, true);
@@ -445,7 +450,34 @@ fn jjtdm_reap_refuses_to_salvage_a_billet_whose_checkout_drifted() {
     match &report.outcomes[0] {
         jjrdm_Outcome::Refused { billet_root, detail } => {
             assert_eq!(billet_root, &billet);
-            assert!(detail.contains("no longer seats branch"));
+            assert!(detail.contains("no longer seats pace"));
+        }
+        other => panic!("expected Refused, got {:?}", other),
+    }
+}
+
+#[test]
+fn jjtdm_reap_refuses_to_salvage_a_billet_on_an_unbadged_line() {
+    // The drift that motivated the livery mint's own sweep: a checkout sitting
+    // on a bare-coronet branch is no longer this pace's line of work, however
+    // much the name resembles the identity. Salvage reads the badge, so the
+    // retired form is refused exactly like any other foreign branch — nothing
+    // here may pattern-match a naked identity back into recognition.
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_unbadged_line");
+    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC");
+    std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
+    zjjtdm_backdate(&billet, JJRDM_RETENTION_SECS + 3600);
+    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), ZJJTDM_GUIDON).unwrap();
+    assert_eq!(plan.dirty.len(), 1);
+
+    zjjtdm_git(&billet, &["checkout", "-q", "-b", "AAAAC"]);
+
+    let report = jjrdm_reap(&jjrfg_PlainGit, &plan, true);
+
+    assert_eq!(report.outcomes.len(), 1);
+    match &report.outcomes[0] {
+        jjrdm_Outcome::Refused { detail, .. } => {
+            assert!(detail.contains("no longer seats pace"));
         }
         other => panic!("expected Refused, got {:?}", other),
     }

@@ -362,7 +362,7 @@ fn jjtds_staleness_notice_names_refit_only_when_outstripped() {
     let (infield, hippodrome) = zjjtds_infield("jjtds_staleness");
     let billet_root = infield.path().join(jjrds_billet_dirname("AAAAA"));
     jjrfg_PlainGit
-        .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("AAAAA".to_string()), &billet_root, ZJJTDS_TRUNK)
+        .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("jjls_pace/AAAAA".to_string()), &billet_root, ZJJTDS_TRUNK)
         .unwrap();
 
     assert_eq!(jjrds_staleness_notice(&jjrfg_PlainGit, &billet_root, ZJJTDS_TRUNK).unwrap(), None);
@@ -385,10 +385,12 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
     let infield_canon = infield.path().canonicalize().unwrap();
 
     // A rough pace takes the judgment constant; the billet is an infield peer
-    // under the jjqb_ signet; the prompt carries the engagement verb.
+    // under the jjqb_ signet while its branch wears the livery badge — the two
+    // surfaces diverge deliberately, the yard being JJ's own and the ref store
+    // the sire's; the prompt carries the engagement verb.
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
     assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
-    assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("AAAAA".to_string()));
+    assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("jjls_pace/AAAAA".to_string()));
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "mount ₢AAAAA");
     assert_eq!(plan.trunk, ZJJTDS_TRUNK);
@@ -447,7 +449,7 @@ fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
     // Birth.
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan).unwrap(), None);
     let seated = jjrfg_PlainGit.jjrfr_identify(&plan.billet_root).unwrap();
-    assert_eq!(seated.line_of_work, jjrfr_LineOfWork::Branch("AAAAA".to_string()));
+    assert_eq!(seated.line_of_work, jjrfr_LineOfWork::Branch("jjls_pace/AAAAA".to_string()));
 
     // Reuse: a standing billet boards as-is.
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan).unwrap(), None);
@@ -582,7 +584,7 @@ fn jjtds_plan_over_studbook_reads_both_from_the_pin_touching_no_worktree_gallops
     // pedigree both resolve from the studbook's pinned snapshot.
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
     assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
-    assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("AAAAA".to_string()));
+    assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("jjls_pace/AAAAA".to_string()));
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "mount ₢AAAAA");
     assert_eq!(plan.trunk, ZJJTDS_TRUNK, "the trunk comes from the pinned pedigree");

@@ -47,6 +47,10 @@ use crate::jjrds_spine::{
     jjrds_Target,
     JJRDS_BILLET_DIR_PREFIX,
 };
+use crate::jjrf_favor::{
+    jjrf_livery_parse,
+    jjrf_LiveryKind,
+};
 use crate::jjrfr_farrier::{
     jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
@@ -378,13 +382,27 @@ fn zjjrdm_auto_commit_push<F: jjrfr_FarrierCore>(farrier: &F, candidate: &jjrdm_
         }
     };
 
+    // The seated branch wears the livery badge, so the check reads the badge
+    // rather than composing one: muck resolves no pedigree, and a sire with a
+    // recorded livery prefix would defeat any composed comparison. Reading is
+    // also the stricter form — what gets consigned below is exactly the branch
+    // observed seated, never a name assembled beside it.
     let identity = farrier.jjrfr_identify(&candidate.billet_root)?;
-    if identity.line_of_work != jjrfr_LineOfWork::Branch(coronet.clone()) {
+    let seated_branch = match &identity.line_of_work {
+        jjrfr_LineOfWork::Branch(name) => name.clone(),
+        jjrfr_LineOfWork::Detached(_) => String::new(),
+    };
+    let seats_the_pace = jjrf_livery_parse(&seated_branch)
+        .is_some_and(|(kind, body)| kind == jjrf_LiveryKind::Pace && body == coronet);
+    if !seats_the_pace {
         return Err(jjrfr_Rejection::jjrfr_new(
             jjrfr_RejectionKind::DirtyTree,
             "jjrdm_reap",
             candidate.billet_root.clone(),
-            format!("billet no longer seats branch '{}' — resolve by hand before salvaging", coronet),
+            format!(
+                "billet no longer seats pace '{}' livery branch — resolve by hand before salvaging",
+                coronet
+            ),
         ));
     }
 
@@ -399,7 +417,7 @@ fn zjjrdm_auto_commit_push<F: jjrfr_FarrierCore>(farrier: &F, candidate: &jjrdm_
         ));
     }
     farrier.jjrfr_lodge(&candidate.billet_root, &work_paths, JJRDM_AUTO_COMMIT_MESSAGE)?;
-    farrier.jjrfr_consign(&candidate.billet_root, coronet)
+    farrier.jjrfr_consign(&candidate.billet_root, &seated_branch)
 }
 
 /// Execute the plan lock-free: clean candidates reap outright; dirty

@@ -467,15 +467,21 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     let wrapped_display = gallops.jjrg_qualify_coronet(&coronet.jjrf_display());
     // Hand-merge era interim: until the wrap converge machinery lands, billet
     // work reaches the trunk only by an operator-directed plain merge in the
-    // hippodrome — merge, never rebase. A billet is recognized by its branch
-    // name equaling the wrapped coronet's bare body (the hippodrome sits on the
-    // trunk, so it never matches); the probe is advisory, so a git failure falls
-    // back to the standard guidance. Dies when the converge machinery replaces it.
+    // hippodrome — merge, never rebase. A billet is recognized by reading its
+    // branch's livery badge and matching the carried body against the wrapped
+    // pace (the hippodrome sits on the trunk, which wears no badge, so it never
+    // matches); reading rather than composing keeps this blind to a sire's
+    // recorded livery prefix. The probe is advisory, so a git failure falls back
+    // to the standard guidance. Dies when the converge machinery replaces it.
     let billet_branch = vvc::vvce_git_command(&["rev-parse", "--abbrev-ref", "HEAD"])
         .output()
         .ok()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-        .filter(|b| *b == coronet.jjrf_display());
+        .filter(|b| {
+            crate::jjrf_favor::jjrf_livery_parse(b).is_some_and(|(kind, body)| {
+                kind == crate::jjrf_favor::jjrf_LiveryKind::Pace && body == coronet.jjrf_as_str()
+            })
+        });
     match next_pace_info {
         Some((next_coronet, next_silks, tier, effort)) => {
             let designation = zjjrx_designation_suffix(tier, effort);

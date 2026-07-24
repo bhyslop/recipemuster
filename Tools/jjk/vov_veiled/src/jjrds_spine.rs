@@ -96,6 +96,13 @@ pub struct jjrds_Pedigree {
     pub addresses: Vec<String>,
     #[serde(rename = "jjop_trunk")]
     pub trunk: String,
+    /// The livery path prefix this sire's owner demands JJ's refs sit under
+    /// (`jjdd_livery`). Absent is the ordinary case — the livery sprue is
+    /// itself the namespace root, so a prefix is owed only where a house
+    /// convention demands one. Optional in the wire so every pedigree written
+    /// before the livery mint reads unchanged.
+    #[serde(rename = "jjop_livery_prefix", default, skip_serializing_if = "Option::is_none")]
+    pub livery_prefix: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -581,8 +588,9 @@ pub fn jjrds_currency<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 #[derive(Debug)]
 pub struct jjrds_LaunchPlan {
     pub door: jjrds_Door,
-    /// The billet's line: `Branch(coronet)` for a pace billet, `Detached` for a
-    /// groom billet (at trunk's counterpart).
+    /// The billet's line: `Branch` carrying the pace's livery branch name
+    /// (`jjdd_livery` — the badge, not the bare coronet) for a pace billet,
+    /// `Detached` for a groom billet (at trunk's counterpart).
     pub birth: jjrfr_BilletBirth,
     pub billet_dirname: String,
     pub billet_root: PathBuf,
@@ -667,8 +675,16 @@ pub fn jjrds_plan(
                 crate::jjrf_favor::JJRF_CORONET_PREFIX,
                 saddled.coronet
             );
+            // The branch wears the livery badge; the dirname stays the bare
+            // body under the yard signet. Two different surfaces: the yard is
+            // JJ's own infield, where a bare body is unambiguous, while the
+            // branch lands in the sire's ref store, which JJ does not own.
             (
-                jjrfr_BilletBirth::Branch(saddled.coronet.clone()),
+                jjrfr_BilletBirth::Branch(crate::jjrf_favor::jjrf_livery_compose(
+                    pedigree.livery_prefix.as_deref(),
+                    crate::jjrf_favor::jjrf_LiveryKind::Pace,
+                    &saddled.coronet,
+                )),
                 saddled.coronet.clone(),
                 saddled.designation,
                 prompt,
@@ -718,18 +734,18 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
 ) -> Result<Option<String>, jjrds_Rejection> {
     if plan.billet_root.exists() {
         match &plan.birth {
-            jjrfr_BilletBirth::Branch(coronet) => {
+            jjrfr_BilletBirth::Branch(branch) => {
                 // A standing pace billet must already seat its own branch;
                 // anything else in that slot is an anomaly to surface, not ride.
                 let seated = farrier
                     .jjrfr_identify(&plan.billet_root)
                     .map_err(jjrds_Rejection::ForeignGround)?;
-                if seated.line_of_work != jjrfr_LineOfWork::Branch(coronet.clone()) {
+                if seated.line_of_work != jjrfr_LineOfWork::Branch(branch.clone()) {
                     return Err(jjrds_Rejection::BadTarget {
                         detail: format!(
                             "billet {} stands but does not seat branch '{}' — resolve by hand before dispatching",
                             plan.billet_root.display(),
-                            coronet
+                            branch
                         ),
                     });
                 }
@@ -742,14 +758,14 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
         }
     } else {
         match &plan.birth {
-            jjrfr_BilletBirth::Branch(coronet)
+            jjrfr_BilletBirth::Branch(branch)
                 if farrier
-                    .jjrfr_line_exists(&plan.hippodrome_root, coronet)
+                    .jjrfr_line_exists(&plan.hippodrome_root, branch)
                     .map_err(jjrds_Rejection::Farrier)? =>
             {
                 // The durable branch survives its reaped billet: re-seat it.
                 farrier
-                    .jjrfr_billet_seat(&plan.hippodrome_root, coronet, &plan.billet_root)
+                    .jjrfr_billet_seat(&plan.hippodrome_root, branch, &plan.billet_root)
                     .map_err(jjrds_Rejection::Farrier)?;
             }
             birth => {

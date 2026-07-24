@@ -303,6 +303,10 @@ pub fn jjdb_found_studbook(
         kind: sire.kind.clone(),
         addresses: vec![sire.address.clone()],
         trunk: sire.trunk.clone(),
+        // The livery sprue is itself the namespace root, so a founding pedigree
+        // records no prefix: one is added by hand the day a sire's owner demands
+        // JJ's refs sit under a house path.
+        livery_prefix: None,
     };
     let pedigrees_json = crate::jjrds_spine::jjrds_seed_pedigrees_json(vec![pedigree])?;
 
