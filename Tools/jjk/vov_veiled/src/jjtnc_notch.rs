@@ -121,14 +121,11 @@ fn jjtnc_empty_notch_monitum_listed_files_name_the_gap() {
 // jjrnc_run_notch reads and writes only through the ambient process cwd (no
 // -C, no root parameter — vvce_git_command's own contract), so exercising it
 // end-to-end means pointing the process cwd at a real repo. That is
-// process-global state, so every test below is serialized through
-// ZJJTNC_CWD_SERIAL, mirroring the ground established by
-// jjtvb_blotter::ZjjtvbGround.
+// process-global state, so every test below is serialized through the
+// crate-wide jjtu_testdir::JJTU_CWD_SERIAL.
 
 const ZJJTNC_TRUNK: &str = "jjtnc-trunk";
 const ZJJTNC_CORONET: &str = "CAAAA";
-
-static ZJJTNC_CWD_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 fn zjjtnc_git(dir: &Path, args: &[&str]) -> String {
     let out = std::process::Command::new("git")
@@ -175,7 +172,7 @@ struct ZjjtncCwdGround {
 
 impl ZjjtncCwdGround {
     fn new(dir: &Path) -> Self {
-        let serial = ZJJTNC_CWD_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let serial = super::jjtu_testdir::JJTU_CWD_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
         let prior_cwd = std::env::current_dir().expect("a cwd to restore");
         std::env::set_current_dir(dir).expect("point the process cwd at the test repo");
         ZjjtncCwdGround { prior_cwd, _serial: serial }

@@ -898,12 +898,13 @@ fn jjtvb_found_studbook_refuses_a_clone_that_already_stands() {
 // reachability comes from the explicit `over_studbook`/studbook parameters,
 // never a flip.
 
-/// Serializes every proving-ground test. A REAL `vvcc_CommitLock` is acquired
-/// (the cinch: no test-only constructor on the production lock — the
-/// interface-contamination guard), and both the acquire and retire's consumer
-/// `machine_commit` ride the PROCESS cwd, which a ground repoints to its temp
-/// consumer repo — so two grounds must never overlap in the parallel runner.
-static ZJJTVB_GROUND_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
+// Every proving-ground test serializes through the crate-wide
+// jjtu_testdir::JJTU_CWD_SERIAL. A REAL `vvcc_CommitLock` is acquired
+// (the cinch: no test-only constructor on the production lock — the
+// interface-contamination guard), and both the acquire and retire's consumer
+// `machine_commit` ride the PROCESS cwd, which a ground repoints to its temp
+// consumer repo — so two grounds must never overlap in the parallel runner,
+// nor overlap any other module's cwd-hopping ground.
 
 /// A per-command seam-ON proving ground: a founded scratch studbook seeded with
 /// `seed` beside a real temp consumer repo, with the process cwd pointed at that
@@ -922,7 +923,7 @@ struct ZjjtvbGround {
 
 impl ZjjtvbGround {
     fn new(name: &str, seed: jjrg_Gallops) -> Self {
-        let serial = ZJJTVB_GROUND_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let serial = super::jjtu_testdir::JJTU_CWD_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
         // Scratch studbook (bare + clone), seeded with the caller's gallops through
         // the journal ceremony so the tenant lands exactly where a live journal reads
         // it. Path-based (git -C), so cwd-independent — built before the cwd hop.
@@ -1522,7 +1523,7 @@ fn jjtvb_seam_on_refuses_loud_on_a_declining_mutation() {
 /// infield's `jjqs_studbook`. cwd-serialized like the grounds above.
 #[test]
 fn jjtvb_studbook_and_guidon_derives_from_a_real_infield_cwd() {
-    let _serial = ZJJTVB_GROUND_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    let _serial = super::jjtu_testdir::JJTU_CWD_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     let infield = JjkTestDir::new("jjtvb_derive_infield");
     let hippodrome = infield.path().join("hippodrome");
     std::fs::create_dir_all(&hippodrome).unwrap();
