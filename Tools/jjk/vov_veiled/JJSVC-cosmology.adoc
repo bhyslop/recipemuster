@@ -92,6 +92,11 @@ Charter: *every* JJ-owned infield resident carries a yard brand — `jjq_` if a 
 The split is yard-side vs. wire-side legibility: the yard signets name what the operator
 touches on disk; `jjx_` names the MCP wire.
 {jjdw_hippodrome_s} stay consumer-named — the brand marks JJ's own residents only.
++
+The {jjdw_yard} brands JJ's own turf and stops there.
+JJ's marks inside a sire — branch names in a ref store JJ does not own — wear the
+{jjdd_livery} instead (dispatch sheaf), which is why a {jjdd_billet_p} dirname and its
+branch name deliberately do not match.
 
 == Hippodrome
 

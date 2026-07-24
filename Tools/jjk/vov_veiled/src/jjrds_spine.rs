@@ -741,11 +741,30 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
                     .jjrfr_identify(&plan.billet_root)
                     .map_err(jjrds_Rejection::ForeignGround)?;
                 if seated.line_of_work != jjrfr_LineOfWork::Branch(branch.clone()) {
-                    return Err(jjrds_Rejection::BadTarget {
-                        detail: format!(
-                            "billet {} stands but does not seat branch '{}' — resolve by hand before dispatching",
+                    // A billet predating the livery mint seats the retired
+                    // bare-body branch. It is the one anomaly here with a known
+                    // cause and a one-line remedy, so it is named rather than
+                    // swept into the generic advice — the refusal a station
+                    // meets once per standing billet at the mint's crossing.
+                    let seated_bare = matches!(
+                        &seated.line_of_work,
+                        jjrfr_LineOfWork::Branch(name) if crate::jjrf_favor::jjrf_livery_parse(name).is_none()
+                    );
+                    let remedy = if seated_bare {
+                        format!(
+                            "this billet predates the livery badge — rename its branch in place: `git -C {} branch -m {}`",
                             plan.billet_root.display(),
                             branch
+                        )
+                    } else {
+                        "resolve by hand before dispatching".to_string()
+                    };
+                    return Err(jjrds_Rejection::BadTarget {
+                        detail: format!(
+                            "billet {} stands but does not seat branch '{}' — {}",
+                            plan.billet_root.display(),
+                            branch,
+                            remedy
                         ),
                     });
                 }

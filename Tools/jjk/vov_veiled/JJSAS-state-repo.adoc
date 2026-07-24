@@ -225,6 +225,24 @@ cited by code and tests via opaque ID; tails minted at implementation) and three
   `jjqb_{coronet}` pace billet) and `jjy_` for launcher scripts (`jjy_saddle`, `jjy_lunge`) —
   terminal-exclusivity forbade a sub-lettered billet container sharing a signet with the
   scripts' flat `jjy_` names, and `jjq` was one of the two free jj-letters left.
+* *livery* — the branch-name badge JJ's refs wear inside a sire, sibling to *yard* on the
+  far side of the ownership line (yard brands JJ's own infield; livery brands JJ's marks in
+  a ref store JJ does not own). Sprue `jjls_` — `l` livery, `s` studbook — under the
+  canonical `prefixXY_word` shape; roster `jjls_pace` live, `jjls_groom` reserved.
+  Provisionally accepted 260723 in design session, re-confirmed at the build.
+  EVICTION: `jjl` was the README Ledger allocation cited below as a rejected alternate at
+  the 260705 `jjv` mint. It had gone dormant — its only artifact, an
+  unreferenced 4-row `jjl_ledger.json` last written 2025-12-29 — so the mint evicted it,
+  deleting the file and the README row, and `jjl` became non-terminal to carry this child.
+  Surviving `jjl` grep hits are dated frozen records (that `jjv` entry; the 20260110
+  acronym-study survey), left standing: history is their content.
+  WORD COLLISION, OPERATOR-TOLERATED: *livery* is live foreign-minted in RBK
+  (`chaining-fact-livery`, the `RBTDRM_FIXTURE_CHAINING_LIVERY` / `RBTDRV_LIVERY_*` family),
+  and an earlier JJK livery alternate died at that same gate (farrier sheaf ledger). A standing,
+  revisitable exception to semantic uniqueness — the sprue token `jjls` grepped clean and
+  is what the code and refs actually carry, so the collision costs prose only.
+  The word gate is spent: never re-run it as if clean.
+  INFUSED 260723 (dispatch sheaf, `jjdd_livery`).
 * *blotter* — the locked-store entity the studbook instantiates; elected 260705 at the canon
   workup under grep gate (paddock cinch). Alternates held: ratchet, cadastre.
   INFUSED 260706 (blotter sheaf, `jjdb_blotter`).

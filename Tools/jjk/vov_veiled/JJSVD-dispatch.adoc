@@ -31,12 +31,14 @@ The object noun completing the verbs-act-on-nouns grammar: mount acts on a pace,
 Boarded on arrival, kept for the duration, collected after — never by the session inside it.
 +
 Two kinds, split by door.
-A *pace billet* ({jjdd_saddle}) seats the pace's branch — the bare {jjdt_coronet}, no glyph:
-a git ref is machine context — and its dirname is `jjqb_{coronet}` per the {jjdw_yard}
-charter.
+A *pace billet* ({jjdd_saddle}) seats the pace's branch, which wears the {jjdd_livery} —
+`jjls_pace/{coronet}` — and its dirname is `jjqb_{coronet}` per the {jjdw_yard} charter.
 A *groom billet* ({jjdd_lunge}) seats a detached checkout at trunk tip — nothing must
 survive it — and its dirname is `jjqb_{firemark}`, the same signet, typed by length exactly
 as identities are everywhere.
+The two brands answer to different owners and so do not match:
+the {jjdw_yard} signet marks JJ's own infield, where a bare body is unambiguous;
+the {jjdd_livery} marks JJ's refs inside a repository JJ does not own.
 Billets are {jjdw_infield} peers of their {jjdw_hippodrome} — peer placement is load-bearing
 (station geography, cosmology sheaf) — and worktrees share the hippodrome's object store:
 no history duplication, no fetch between billet and hippodrome;
@@ -49,6 +51,46 @@ the worktree is disposable scaffolding.
 no worktree path is ever written into the {jjdb_studbook} (the no-worktree-paths rivet,
 studbook sheaf).
 +
+[[jjdd_livery]]
+//axk_premise
+{jjdd_livery}::
+The badge every JJ-authored branch name wears in a sire's ref store.
+A bare identity body is a legitimate ref name, and that is the hazard:
+JJ works in repositories owned by other organizations, where an unbadged five-character
+branch claims globally invasive namespace and says nothing about whose it is or what it
+carries.
+The badge is the remedy — and the premise it bounds is that JJ *never* legislates a foreign
+ref store, only conducts itself legibly within one.
++
+The static sprue `jjls_` is the badge — `l` livery, `s` studbook, written honestly:
+these branches are the work-repo objects the {jjdb_studbook_p} {jjdb_counterfoil_s} name.
+The full literal token is the point: one grep over `jjls_` unites this definition, the code
+constant, and every live branch in every sire.
+A kind is a *roster word*, never a namespace letter, so a future kind costs a word and
+nothing else:
++
+* `jjls_pace/{coronet}` — LIVE. The pace's WIP carrier.
+  Named for the pace, not the mount: the branch outlives every mount of it.
+* `jjls_groom` — RESERVED, never populated.
+  A groom billet is detached and carries nothing durable, so a branch under this word is a
+  contract violation, not a line of work.
+  The word is rostered — and parsed — precisely so that violation is nameable when met.
++
+The sprue is the namespace root and the slash separates badge from identity, so kind lives
+in the greppable token rather than a cryptic path segment;
+git's ref store gives the whole `jjls_` family terminal exclusivity for free.
+A {jjdb_pedigree} may record a path prefix nesting the whole badge, but only where a sire's
+owner demands one — never by default.
+The disengagement sweep is therefore `refs/heads/**/jjls_*`.
++
+The body rides bare, no glyph: a git ref is a foreign-traversed surface, so the sigil stays
+behind ({jjdt_insignia} carriage law) and the badge is what the ref carries instead.
+Reading the badge is how a branch name resolves back to an identity — strip any prefix by
+finding the sprue-bearing segment, admit the roster word exactly, then length-type the tail
+as backstop.
+Consumers *read* rather than compose wherever a pedigree is not already in hand, so a
+recorded prefix can never defeat a comparison.
+
 *Every dispatched session gets its own billet; trunk belongs to the operator alone.*
 Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
 Git itself enforces the split: a branch checked out in one worktree cannot be checked out in

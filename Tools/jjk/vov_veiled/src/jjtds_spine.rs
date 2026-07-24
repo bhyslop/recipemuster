@@ -644,3 +644,25 @@ fn jjtds_currency_refuses_a_flying_guidon_naming_the_holder() {
     // Release the remote lock the test staked.
     jjrfg_PlainGit.jjrfr_pluck(&config.local_root, holder).unwrap();
 }
+
+#[test]
+fn jjtds_board_names_the_livery_rename_for_a_pre_mint_billet() {
+    // The mint's crossing: a billet seated before the livery badge sits on the
+    // retired bare-body branch. Board refuses — but the refusal must carry the
+    // rename, since this is the one drift with a known cause and a one-line fix.
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_board_pre_mint_billet");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    jjrfg_PlainGit
+        .jjrfr_billet_create(
+            &hippodrome,
+            &jjrfr_BilletBirth::Branch("AAAAA".to_string()),
+            &plan.billet_root,
+            ZJJTDS_TRUNK,
+        )
+        .unwrap();
+
+    let rejection = jjrds_board(&jjrfg_PlainGit, &plan).unwrap_err();
+    let detail = rejection.to_string();
+    assert!(detail.contains("predates the livery badge"), "got: {}", detail);
+    assert!(detail.contains("branch -m jjls_pace/AAAAA"), "got: {}", detail);
+}

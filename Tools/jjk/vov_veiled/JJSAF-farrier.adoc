@@ -146,6 +146,9 @@ uses.
   Both held alternates died at the census gates: livery is foreign-minted in RBK
   (`chaining-fact-livery`, `RBTDRM_FIXTURE_CHAINING_LIVERY`); stall is trodden
   (stalling/stalls saturate ambient prose, JJK core doctrine included).
+  (*livery* was later taken anyway, for the branch-name badge `jjls_`, the collision
+  operator-tolerated — state-repo sheaf ledger. That toleration is that mint's alone and
+  reopens nothing here.)
   Disqualified earlier: seat (per-seat licensing troddenness; RBK's minted *unseat* as
   near-neighbor).
   INFUSED (dispatch sheaf, `jjdd_billet`).
