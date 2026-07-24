@@ -543,7 +543,7 @@ fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
     // Reap, then board again: nothing stands to rediscover, so a fresh serial
     // is minted and the durable branch re-seats there with its history.
     let wip = zjjtds_commit_all(&born.billet_root, "wip.txt", "carried", "wip on the pace branch");
-    jjrfg_PlainGit.jjrfr_billet_remove(&born.billet_root).unwrap();
+    jjrfg_PlainGit.jjrfr_billet_remove(&born.billet_root, false).unwrap();
     let reseated = zjjtds_yard(&plan, 200507);
     assert_eq!(reseated.billet_dirname, "jjqb_200507_AAAAA");
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &reseated).unwrap(), None);

@@ -8,28 +8,23 @@
 //! `jjdf_farrier` primitives and the blotter's engine-known config — it owns no
 //! git of its own.
 //!
-//! Spine order (JJSVD "The entrance spine"): muck — built in `jjrdm_muck`,
-//! its slot is the leading step, but NOT YET CALLED from `jjrds_run` below:
-//! muck reads pace-closed state from the studbook's gallops copy, which
-//! stays a parallel, non-authoritative path until the cutover ceremony,
-//! while `jjrds_plan`/`jjrds_board` still read the frozen local gallops —
-//! wiring muck here before that cutover would let it judge every pace
-//! "open" (or, for a groom billet, judge on no pace at all) against a copy
-//! nothing keeps current — then identify at the captured invocation path,
-//! pedigree lookup (one indirection: derived key → sire → pedigree), billet
-//! ensure, glean, BURV export, provision, launch. The launch primitive is
-//! stirrup: pace-blind, parameterized (billet, tier, opening prompt);
-//! pace-coupling lives in the callers here.
+//! Spine order (JJSVD "The entrance spine"): identify at the captured
+//! invocation path, pedigree lookup (one indirection: derived key → sire →
+//! pedigree), billet ensure, glean, BURV export, provision, launch. The
+//! launch primitive is stirrup: pace-blind, parameterized (billet, tier,
+//! opening prompt); pace-coupling lives in the callers here. Muck
+//! (`jjrdm_muck`) is not a step of this spine — it is the operator-directed
+//! destroy door, outside the spine entirely: no dispatch crosses it, and
+//! nothing here composes it (JJSVD "Muck").
 //!
 //! Inertness: nothing on the frozen path reaches this module's doors — they
 //! are new opt-in surfaces (a station without a founded studbook meets the
-//! fair-faced studbook rejection at pedigree lookup), and `jjrds_run`'s spine
-//! itself still runs without muck (above). The staleness surfacing composed
-//! here is no longer inert, though: `jjrds_staleness_notice` is wired into the
-//! live `jjx_open` path unconditionally (`zjjrm_open_staleness_notice`,
-//! jjrm_mcp.rs) — that wiring does not wait on
-//! `JJRM_OFFICIUM_STUDBOOK_ENABLED`, which gates only where the officium's own
-//! exchange directory lives, not this probe. Notch/wrap wiring remains
+//! fair-faced studbook rejection at pedigree lookup). The staleness surfacing
+//! composed here is no longer inert, though: `jjrds_staleness_notice` is
+//! wired into the live `jjx_open` path unconditionally
+//! (`zjjrm_open_staleness_notice`, jjrm_mcp.rs) — that wiring does not wait
+//! on `JJRM_OFFICIUM_STUDBOOK_ENABLED`, which gates only where the officium's
+//! own exchange directory lives, not this probe. Notch/wrap wiring remains
 //! unwired.
 
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
@@ -509,13 +504,14 @@ pub fn jjrds_resolve_saddle(
 /// serial the dispatch record minted, then the identity it dispatched to (a
 /// coronet for a pace billet, a firemark for a groom billet). The serial sorts
 /// the yard by creation and keeps concurrent groom billets of one heat distinct;
-/// the muck sweep's positive glob (`jjqb_*`) keys on this prefix.
+/// muck's own billet resolution (`jjrdm_muck`) keys on this prefix too.
 pub const JJRDS_BILLET_DIR_PREFIX: &str = "jjqb_";
 
 /// The dispatch-scratch container dirname — the infield-resident home of
 /// per-billet BUK state (BURV output/temp/log roots) and the session-scoped
-/// MCP config. Deliberately NOT under the `jjqb_` signet: the muck sweep's
-/// positive glob must never match it, and it must never shadow a billet.
+/// MCP config. Deliberately NOT under the `jjqb_` signet: a billet
+/// resolution's positive glob must never match it, and it must never shadow
+/// a billet.
 pub const JJRDS_SCRATCH_DIRNAME: &str = "jjqd_scratch";
 
 /// Mint a billet's dirname: the yard signet, the dispatch record's catchword,
@@ -1315,7 +1311,7 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
         jjrds_Ground::Hippodrome | jjrds_Ground::Unboarded { .. } => Ok(zjjrds_StileVerdict::NotABillet),
     };
     match verdict {
-        Ok(zjjrds_StileVerdict::Passes) => match farrier.jjrfr_billet_remove(billet_root) {
+        Ok(zjjrds_StileVerdict::Passes) => match farrier.jjrfr_billet_remove(billet_root, false) {
             Ok(()) => format!("stile: billet cleared ({}) — {}\n", billet_root.display(), zjjrds_where_it_stands(&identity, trunk)),
             Err(e) => format!("stile: billet stands at {} — {}\n", billet_root.display(), e),
         },

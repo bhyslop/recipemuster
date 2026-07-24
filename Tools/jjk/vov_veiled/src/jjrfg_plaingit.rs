@@ -899,19 +899,26 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         Ok(jjrfr_BequeathOutcome::Landed(commit))
     }
 
-    fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
-        let comb = self.jjrfr_comb(billet_root)?;
-        if !comb.jjrfr_is_clean() {
-            return Err(jjrfr_Rejection::jjrfr_new(
-                jjrfr_RejectionKind::DirtyTree,
-                ZJJRFG_OP_BILLET_REMOVE,
-                billet_root,
-                "uncommitted changes block reaping the billet",
-            ));
+    fn jjrfr_billet_remove(&self, billet_root: &Path, force: bool) -> Result<(), jjrfr_Rejection> {
+        if !force {
+            let comb = self.jjrfr_comb(billet_root)?;
+            if !comb.jjrfr_is_clean() {
+                return Err(jjrfr_Rejection::jjrfr_new(
+                    jjrfr_RejectionKind::DirtyTree,
+                    ZJJRFG_OP_BILLET_REMOVE,
+                    billet_root,
+                    "uncommitted changes block reaping the billet",
+                ));
+            }
         }
         let primary_root = zjjrfg_primary_root(billet_root);
         let billet_str = billet_root.to_string_lossy().into_owned();
-        let out = zjjrfg_run_git(&primary_root, &["worktree", "remove", &billet_str]);
+        let mut args = vec!["worktree", "remove"];
+        if force {
+            args.push("--force");
+        }
+        args.push(&billet_str);
+        let out = zjjrfg_run_git(&primary_root, &args);
         if !out.ok {
             zjjrfg_unexpected(ZJJRFG_OP_BILLET_REMOVE, billet_root, &out.zjjrfg_detail());
         }

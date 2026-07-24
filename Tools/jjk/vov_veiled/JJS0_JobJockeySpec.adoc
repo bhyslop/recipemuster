@@ -30,7 +30,7 @@
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree, footprint, and counterfoil)
-// jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck sweep, refit)
+// jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck door, refit)
 // jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds)
 // jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
 // jjdk_:  Key premises (design constraints)

@@ -397,8 +397,13 @@ pub trait jjrfr_FarrierBillet {
     /// leaves no residue on either side.
     fn jjrfr_bequeath(&self, billet_root: &Path, trunk: &str, message: &str) -> Result<jjrfr_BequeathOutcome, jjrfr_Rejection>;
 
-    /// Reap a billet; refuses `DirtyTree` on dirty.
-    fn jjrfr_billet_remove(&self, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
+    /// Reap a billet. Un-forced, refuses `DirtyTree` on dirty — the
+    /// {jjdd_stile_p} trailing-step form, whose refusal is the same verdict
+    /// `jjrfr_comb` renders. Behind `force: true`, removes regardless: the
+    /// {jjdd_muck} door's confirmed destroy arm is the force's only caller,
+    /// and this is the one deliberate data-loss call in the taxonomy
+    /// (JJSVF-farrier.adoc `billet_remove`).
+    fn jjrfr_billet_remove(&self, billet_root: &Path, force: bool) -> Result<(), jjrfr_Rejection>;
 
     /// Merge the trunk branch's remote counterpart — its position as of the last
     /// `jjrfr_glean` — *into* a billet branch. Never rebase; fail-loud on
