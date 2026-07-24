@@ -577,27 +577,31 @@ The {jjdt_incipit} appears in the {jjdxo_exchange} path and in the {jjdxo_invita
 
 ==== Directory Layout
 
-Each {jjdxo_officium} creates a directory via {jjdo_open}:
+Each {jjdxo_officium} creates a directory via {jjdo_open}, within the {jjdb_studbook_p} local clone:
 +
 ----
-.claude/jjm/officia/<id>/gazette_in.md   (ephemeral: agent → server)
-.claude/jjm/officia/<id>/gazette_out.md  (ephemeral: server → agent)
-.claude/jjm/officia/<id>/heartbeat
+officia_scratch/<id>/gazette_in.md   (ephemeral: agent → server)
+officia_scratch/<id>/gazette_out.md  (ephemeral: server → agent)
+officia_scratch/<id>/heartbeat
 ----
 +
-The `officia/` directory is the parent for all active {jjdxo_officium_s}.
+The `officia_scratch/` directory is the parent for all active {jjdxo_officium_s}.
+Its tenancy — one untracked location per station, co-locating {jjdxo_exchange} with the officium's record half — is the {jjdb_studbook_p} contract (`JJSVS-studbook.adoc` "Officium exchange and record").
++
 Gazette files (`gazette_in.md`, `gazette_out.md`) have single-MCP-call lifetime — they are parameters and return values, not persistent state.
 The {jjdxo_heartbeat} file provides liveness detection.
 +
-The entire `.claude/jjm/officia/` tree is gitignored — it is ephemeral exchange infrastructure, not tracked state.
+The `officia_scratch/` tree is untracked — it is ephemeral exchange infrastructure, not tracked state.
 This eliminates git noise from officium operations and makes incorrect {jjdxo_exsanguination} benign (no tracked files lost).
 +
 Directories that survive session termination are stale and are reaped by {jjdxo_exsanguination} at the next {jjdo_open}.
++
+The absolute {jjdxo_gazette} paths are emitted by {jjdo_open} and {jjdo_orient}; the `<id>` segment is the {jjdt_incipit} with its sigil stripped.
 
 [[jjdxo_exchange]]
 //axve_entity
 {jjdxo_exchange}::
-The per-{jjdxo_officium} directory (`.claude/jjm/officia/<id>/`) used for {jjsz_gazette} file exchange between {jjdx_tool_s} and Claude.
+The per-{jjdxo_officium} directory (`officia_scratch/<id>/` within the {jjdb_studbook_p} local clone) used for {jjsz_gazette} file exchange between {jjdx_tool_s} and Claude.
 +
 Only one {jjsz_gazette} file exists at a time: {jjdxo_gazette}.
 Operations that produce gazette output write to this file; Claude reads it.
@@ -628,7 +632,7 @@ The agent calls {jjdo_open} once per chat session.
 . Mint the {jjdxo_officium_p} {jjdt_incipit} (datestamp + autonumber)
 . Create {jjdxo_exchange} directory with {jjdxo_gazette} and {jjdxo_heartbeat} files (both empty)
 . Capture the Claude Code session UUID into the session-recall survey — read every known channel (roster and sources defined under Steeplechase Commit Patterns below) and record each verbatim. The session UUID is an uncontrolled foreign signal, so this is a redundancy survey, not a resolution: record-only, validate nothing. A channel that is absent emits `-`; a channel that cannot disambiguate (e.g. an mtime tie between the two newest `.jsonl` transcripts) emits `(ambiguous)`. Capture never aborts {jjdo_open} — no single channel is load-bearing for the open
-. Collect model inventory via `vvcp_probe()` if daily probe has not yet run (check `.claude/jjm/officia/.probe_date` datestamp file)
+. Collect model inventory via `vvcp_probe()` if daily probe has not yet run (check the `officia_scratch/.probe_date` datestamp file)
 . Create invitatory commit (action code `i`, `jjb`-branded) with the session-recall survey block (`session:` plus the redundant `session-*` channels) and `cwd:` always present in body, optionally followed by model inventory when the daily probe ran
 . Return the {jjdt_incipit} string (e.g. `☉260327-1000`)
 +
@@ -666,7 +670,7 @@ Returns counts of active and reaped officia for {jjdo_open} summary output.
 +
 {jjds_behavior}
 +
-. Scan `.claude/jjm/officia/` for directories (skip hidden entries)
+. Scan `officia_scratch/` for directories (skip hidden entries)
 . For each directory, check {jjdxo_heartbeat} mtime
 . Remove directories whose {jjdxo_heartbeat} exceeds the staleness threshold (7 days); count as reaped
 . Count directories within threshold as active
@@ -674,7 +678,7 @@ Returns counts of active and reaped officia for {jjdo_open} summary output.
 . Return (active count, reaped count)
 +
 The week-long staleness threshold ensures all same-day directories survive long enough for the autonumber scan to see them, preventing {jjdxo_officium} identity collisions within a day.
-Because the `officia/` tree is gitignored, incorrect reaping is benign — no tracked files are lost.
+Because the `officia_scratch/` tree is untracked, incorrect reaping is benign — no tracked files are lost.
 
 ==== Steeplechase Commit Patterns
 
@@ -1633,7 +1637,7 @@ subdocument.
 //axl_voices axr_record_json
 {jjdgr_gallops}::
 The root JSON structure containing all Job Jockey data.
-Singleton record persisted at `.claude/jjm/jjg_gallops.json`.
+Singleton record persisted as `gallops.json` at the {jjdb_studbook_p} root — its first tenant, read and written through the {jjdb_journal} bracket (`JJSVS-studbook.adoc`).
 
 ==== Members
 
@@ -2343,8 +2347,7 @@ are referenced as types, not arguments.
 {jjda_file}::
 Path to the
 {jjdgr_gallops}
-JSON file.
-Default: `.claude/jjm/jjg_gallops.json`.
+JSON file — the {jjdb_studbook_p} `gallops.json`, resolved from the station's {jjdb_studbook} clone root.
 +
 The {jjdx_mcp} resolves this path internally.
 {jjda_file} is not exposed as an {jjdx_tool} parameter.
