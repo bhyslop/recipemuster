@@ -60,8 +60,18 @@ The probe is `git worktree list --porcelain`, matched on `branch refs/heads/<bra
   the pace half for free, and this refusal is where that enforcement becomes
   legible. Remedy: that path is the live billet — work there, or reap it first.
 
+A probe matching **no** entry for the branch is the third arm, and it keeps the
+panic: classifying it would mean reading the message text the criterion bars.
+
 Both pass all three conjuncts. The first is field-observed (the incident); the
 second is structurally relied upon by a cinched invariant.
+
+For signature B this survey does not fill a gap — it **overturns a standing
+ruling**. `billet_seat` currently rules the already-seated case a caller-contract
+violation, in the driver comment and in JJSVF's op contract. That ruling is
+retired for `billet_seat` and explicitly preserved for `billet_create`'s
+collision arm, which remains a JJ composition fault rather than a state the
+operator arrives at by ordinary means.
 
 ## Findings recorded, not surveyed
 

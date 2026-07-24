@@ -31,7 +31,7 @@
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree, footprint, and counterfoil)
 // jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck sweep, refit)
-// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade)
+// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds)
 // jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
@@ -281,7 +281,7 @@
 :jjdd_cashier:      <<jjdd_cashier,cashier>>
 :jjdd_cashier_p:    <<jjdd_cashier,cashier's>>
 
-// Farrier driver (revision-control driver entity; facets, identify contract, vocabulary Palisade)
+// Farrier driver (revision-control driver entity; facets, identify contract, vocabulary Palisade, rejection kinds)
 :jjdf_farrier:      <<jjdf_farrier,Farrier>>
 :jjdf_farrier_p:    <<jjdf_farrier,Farrier's>>
 :jjdf_core:         <<jjdf_core,core facet>>
@@ -290,6 +290,13 @@
 :jjdf_identify:     <<jjdf_identify,identify>>
 :jjdf_identify_p:   <<jjdf_identify,identify's>>
 :jjdf_palisade:     <<jjdf_palisade,vocabulary Palisade>>
+:jjdf_foreign_ground:  <<jjdf_foreign_ground,foreign-ground>>
+:jjdf_dirty_tree:      <<jjdf_dirty_tree,dirty-tree>>
+:jjdf_diverged:        <<jjdf_diverged,diverged>>
+:jjdf_lock_held:       <<jjdf_lock_held,lock-held>>
+:jjdf_lock_broken:     <<jjdf_lock_broken,lock-broken>>
+:jjdf_seat_vestige:    <<jjdf_seat_vestige,seat-vestige>>
+:jjdf_line_seated:     <<jjdf_line_seated,line-seated>>
 
 // Tackle (the domain binding: fileset + governance; claims, bounds, blaze registries)
 :jjdl_tackle:       <<jjdl_tackle,Tackle>>

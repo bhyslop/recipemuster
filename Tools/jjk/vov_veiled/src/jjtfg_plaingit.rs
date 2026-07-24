@@ -47,6 +47,19 @@ fn zjjtfg_git(dir: &Path, args: &[&str]) -> String {
     String::from_utf8(out.stdout).expect("git stdout must be UTF-8").trim().to_string()
 }
 
+/// The inverse of `zjjtfg_git`: run a command expected to fail and return what git
+/// said about it. The seat signatures' indistinguishability is asserted against this.
+fn zjjtfg_git_failure(dir: &Path, args: &[&str]) -> String {
+    let out = std::process::Command::new("git")
+        .arg("-C")
+        .arg(dir)
+        .args(args)
+        .output()
+        .expect("test harness git invocation must spawn");
+    assert!(!out.status.success(), "test harness git -C {} {:?} was expected to fail", dir.display(), args);
+    format!("exit {:?} | {}", out.status.code(), String::from_utf8_lossy(&out.stderr).trim())
+}
+
 fn zjjtfg_init_local(dir: &Path) {
     zjjtfg_git(dir, &["init", "-q", "-b", ZJJTFG_TRUNK]);
     zjjtfg_git(dir, &["config", "user.email", "jjtfg@example.invalid"]);
@@ -753,6 +766,88 @@ fn jjtfg_billet_seat_reseats_a_durable_branch_with_its_history() {
     assert_eq!(head, wip, "re-seating must carry the branch's WIP history, not re-anchor it");
     let identity = jjrfg_PlainGit.jjrfr_identify(second.path()).unwrap();
     assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Branch("durable".to_string()));
+}
+
+/// The incident this survey was cut from: a billet removed out of band leaves the
+/// registration standing, and the next seat of its branch dies on the residue.
+#[test]
+fn jjtfg_billet_seat_rejects_seat_vestige_when_the_recorded_root_is_gone() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_seat_vestige");
+    let first = zjjtfg_billet_slot("jjtfg_seat_vestige_first");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("durable".to_string()), first.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    // The out-of-band removal: the root goes, the registration stays.
+    std::fs::remove_dir_all(first.path()).unwrap();
+
+    let second = zjjtfg_billet_slot("jjtfg_seat_vestige_second");
+    let rejection = jjrfg_PlainGit
+        .jjrfr_billet_seat(primary.path(), "durable", second.path())
+        .expect_err("a vestige registration must reject, never panic");
+
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::SeatVestige);
+    assert!(rejection.detail.contains("worktree prune"), "the refusal must name the remedy: {}", rejection.detail);
+
+    // Advice, never automatic: the driver leaves the registry exactly as it found it.
+    let registry = zjjtfg_git(primary.path(), &["worktree", "list", "--porcelain"]);
+    assert!(registry.contains("prunable"), "the driver must never prune on the operator's behalf");
+}
+
+/// The exclusivity a live billet holds over its branch — the mechanism the
+/// at-most-one-live-billet-per-coronet invariant leans on, surfaced as a kind.
+#[test]
+fn jjtfg_billet_seat_rejects_line_seated_when_a_live_billet_holds_the_branch() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_line_seated");
+    let live = zjjtfg_billet_slot("jjtfg_line_seated_live");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("durable".to_string()), live.path(), ZJJTFG_TRUNK)
+        .unwrap();
+
+    let second = zjjtfg_billet_slot("jjtfg_line_seated_second");
+    let rejection = jjrfg_PlainGit
+        .jjrfr_billet_seat(primary.path(), "durable", second.path())
+        .expect_err("a branch seated in a live billet must reject, never panic");
+
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::LineSeated);
+    assert!(
+        rejection.detail.contains(&live.path().to_string_lossy().into_owned()),
+        "the refusal must name the standing billet: {}",
+        rejection.detail
+    );
+}
+
+/// The two kinds are told apart by the registry alone: git renders both refusals
+/// identically, so a classification reading message text would collapse them.
+#[test]
+fn jjtfg_billet_seat_signatures_are_indistinguishable_in_gits_own_words() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_seat_same_words");
+    let live = zjjtfg_billet_slot("jjtfg_seat_same_words_live");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch("durable".to_string()), live.path(), ZJJTFG_TRUNK)
+        .unwrap();
+    let seated_refusal = zjjtfg_git_failure(primary.path(), &["worktree", "add", "-q", "/nonexistent-slot-a", "durable"]);
+
+    std::fs::remove_dir_all(live.path()).unwrap();
+    let vestige_refusal = zjjtfg_git_failure(primary.path(), &["worktree", "add", "-q", "/nonexistent-slot-b", "durable"]);
+
+    assert_eq!(
+        seated_refusal, vestige_refusal,
+        "if git ever distinguishes these, the registry probe may be revisited — until then it is the sole discriminator"
+    );
+}
+
+/// A refusal the registry cannot explain keeps the panic: classifying it would mean
+/// reading the message text the farrier sheaf bars.
+#[test]
+#[should_panic(expected = "unclassified git failure")]
+fn jjtfg_billet_seat_panics_when_the_registry_records_no_seat() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_seat_unrecorded");
+    let occupied = JjkTestDir::new("jjtfg_seat_unrecorded_occupied");
+    std::fs::write(occupied.path().join("squatter.txt"), "not a billet").unwrap();
+    zjjtfg_git(primary.path(), &["branch", "durable"]);
+
+    // The branch is seated nowhere; the add fails on the occupied destination.
+    let _ = jjrfg_PlainGit.jjrfr_billet_seat(primary.path(), "durable", occupied.path());
 }
 
 #[test]

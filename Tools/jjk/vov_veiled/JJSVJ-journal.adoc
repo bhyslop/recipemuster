@@ -42,7 +42,7 @@ The bracket:
   a no-op when already there.
   A clone holding commits the tip does not have is an impossible state under this ceremony
   (the branch adopts only accepted positions, step 5),
-  so advance refuses it (diverged) and surfaces it for the attended session and operator —
+  so advance refuses it ({jjdf_diverged}) and surfaces it for the attended session and operator —
   never auto-destroys.
 . *Mutate*:
   apply the record change against the tip's own state — post-lock, post-advance,
@@ -78,7 +78,7 @@ one `grep JJr_b52` returns this definition and every site it guards.
 `glean` precedes `stake` and is opportunistic (step 2), so a station that lands a full
 ceremony between our `glean` and our `stake` leaves us standing at a tip that is no longer
 the remote's —
-whereupon `mutate` builds on a stale image and `proffer` is refused (diverged) under a lock we
+whereupon `mutate` builds on a stale image and `proffer` is refused ({jjdf_diverged}) under a lock we
 legitimately hold.
 That is a wasted ceremony, never a corruption:
 the refusal is the push's ordinary fast-forward protection, the next ceremony gleans afresh

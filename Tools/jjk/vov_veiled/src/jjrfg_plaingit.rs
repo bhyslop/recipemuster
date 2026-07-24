@@ -7,8 +7,11 @@
 //! (JJSVF-farrier.adoc). Worktrees ride within this kind on the partition axis.
 //!
 //! Classification policy: a git failure that the farrier sheaf names as a known
-//! rejection kind (foreign ground, dirty tree, diverged, lock-held, lock-broken)
-//! translates to `jjrfr_Rejection` and is returned. A git failure this driver
+//! rejection kind (foreign ground, dirty tree, diverged, lock-held, lock-broken,
+//! seat-vestige, line-seated) translates to `jjrfr_Rejection` and is returned.
+//! Which verdicts earn a kind is the sheaf's own three-conjunct test — field-observed
+//! or invariant-bearing, probe-detectable, remedy-naming — never this driver's to
+//! widen: an unsurveyed signature keeps the panic. A git failure this driver
 //! cannot classify is a plumbing fault, not a domain rejection — the taxonomy is
 //! closed by the sheaf, with no catch-all variant to hide in — so it panics with
 //! the raw detail attached rather than being silently mislabeled under a familiar
@@ -195,6 +198,81 @@ fn zjjrfg_hash_object(root: &Path, content: &str, write: bool, op: &'static str)
 /// create form).
 fn zjjrfg_lease_flag(target_ref: &str, expected: &str) -> String {
     format!("--force-with-lease={}:{}", target_ref, expected)
+}
+
+/// One entry of the worktree registry, as far as seat classification reads it: the
+/// recorded root, and whether git itself judges the record prunable.
+struct zjjrfg_SeatRecord {
+    root: String,
+    prunable: bool,
+}
+
+/// Find the registry's record of `branch`, if the constellation seats it anywhere.
+///
+/// The registry is read in porcelain, never in message text: entries are
+/// blank-line-separated blocks of `<key> [value]` lines, and the two facts this
+/// needs are the block's `worktree` root and whether it carries a `prunable`
+/// marker. The parse tolerates keys it does not know — git adds them over time,
+/// and an unknown key is not this reader's business.
+fn zjjrfg_seat_record(root: &Path, branch: &str) -> Option<zjjrfg_SeatRecord> {
+    let out = zjjrfg_run_git(root, &["worktree", "list", "--porcelain"]);
+    if !out.ok {
+        return None;
+    }
+    let wanted = format!("refs/heads/{}", branch);
+    for block in out.stdout.split("\n\n") {
+        let mut recorded_root = None;
+        let mut prunable = false;
+        let mut matches = false;
+        for line in block.lines() {
+            let (key, value) = match line.split_once(' ') {
+                Some((key, value)) => (key, value),
+                None => (line, ""),
+            };
+            match key {
+                "worktree" => recorded_root = Some(value.to_string()),
+                "prunable" => prunable = true,
+                "branch" if value == wanted => matches = true,
+                _ => {}
+            }
+        }
+        if matches {
+            return Some(zjjrfg_SeatRecord { root: recorded_root?, prunable });
+        }
+    }
+    None
+}
+
+/// Classify a refused seat of `branch` by reading the worktree registry — the sole
+/// discriminator, since git renders both signatures identically (same exit status,
+/// same fatal line naming the same path). A registry that records no seat for the
+/// branch leaves the caller its panic: classifying that arm would mean reading the
+/// message text, which the farrier sheaf bars.
+fn zjjrfg_classify_refused_seat(root: &Path, branch: &str) -> Option<jjrfr_Rejection> {
+    let record = zjjrfg_seat_record(root, branch)?;
+    let (kind, detail) = if record.prunable {
+        (
+            jjrfr_RejectionKind::SeatVestige,
+            format!(
+                "the constellation still records a seat for '{}' at {}, whose root is gone. \
+                 Remedy: `git -C {} worktree prune` clears the record, after which the seat succeeds. \
+                 The branch and its commits are untouched by the prune.",
+                branch,
+                record.root,
+                root.display()
+            ),
+        )
+    } else {
+        (
+            jjrfr_RejectionKind::LineSeated,
+            format!(
+                "'{}' is already seated in the billet at {}. \
+                 Remedy: work in that billet, or reap it before seating the branch elsewhere.",
+                branch, record.root
+            ),
+        )
+    };
+    Some(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_BILLET_SEAT, root, detail))
 }
 
 /// Classify a tree's seat from its git metadata: git-dir equal to git-common-dir
@@ -618,12 +696,16 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         let billet_str = billet_root.to_string_lossy().into_owned();
         // Seat the existing durable branch as-is: no anchoring, no reset — the
         // branch carries its own WIP history across chats (dispatch sheaf:
-        // "billets are chat-ephemeral; branches are durable"). Git itself
-        // rejects a branch already checked out in another worktree; that and a
-        // missing branch both fail loud as caller-contract violations (the
-        // spine consults jjrfr_line_exists first).
+        // "billets are chat-ephemeral; branches are durable"). A branch the
+        // constellation already seats is a named rejection, not a
+        // caller-contract violation — seat-vestige or line-seated, told apart by
+        // the registry alone (farrier sheaf). A missing branch stays a
+        // caller-contract violation: the spine consults jjrfr_line_exists first.
         let out = zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, branch]);
         if !out.ok {
+            if let Some(rejection) = zjjrfg_classify_refused_seat(root, branch) {
+                return Err(rejection);
+            }
             zjjrfg_unexpected(ZJJRFG_OP_BILLET_SEAT, root, &out.zjjrfg_detail());
         }
         Ok(())
