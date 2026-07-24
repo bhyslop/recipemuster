@@ -385,16 +385,37 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
             if ancestry.code == Some(1) {
                 // The line holds commits the counterpart does not — impossible
                 // under compose-then-push, so this is halt-and-surface for the
-                // attended session, never an auto-destroy.
-                return Err(jjrfr_Rejection::jjrfr_new(
-                    jjrfr_RejectionKind::Diverged,
-                    ZJJRFG_OP_ADVANCE,
-                    root,
-                    format!(
-                        "local line holds commits {} does not — a state proffer cannot produce; surface to the operator, never auto-destroy",
-                        counterpart
-                    ),
-                ));
+                // attended session, never an auto-destroy. Split the verdict: a
+                // line purely ahead (counterpart is an ancestor of HEAD) is
+                // fast-forwardable the other way — name the stranded commits and
+                // the push remedy; a line holding commits on both sides is a
+                // true fork — surface it as such, touch nothing.
+                let reverse = zjjrfg_run_git(root, &["merge-base", "--is-ancestor", &counterpart, "HEAD"]);
+                if reverse.ok {
+                    let stranded = zjjrfg_run_git(root, &["log", "--oneline", &format!("{}..HEAD", counterpart)]);
+                    return Err(jjrfr_Rejection::jjrfr_new(
+                        jjrfr_RejectionKind::Diverged,
+                        ZJJRFG_OP_ADVANCE,
+                        root,
+                        format!(
+                            "LOCAL-AHEAD: local holds commits {} does not — fast-forwardable the other way:\n{}\nRemedy: an operator-confirmed push (consign) converges the line.",
+                            counterpart,
+                            stranded.stdout.trim()
+                        ),
+                    ));
+                }
+                if reverse.code == Some(1) {
+                    return Err(jjrfr_Rejection::jjrfr_new(
+                        jjrfr_RejectionKind::Diverged,
+                        ZJJRFG_OP_ADVANCE,
+                        root,
+                        format!(
+                            "FORKED: local and {} each hold commits the other does not — true divergence; surface to the operator, never auto-destroy",
+                            counterpart
+                        ),
+                    ));
+                }
+                zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &reverse.zjjrfg_detail());
             }
             zjjrfg_unexpected(ZJJRFG_OP_ADVANCE, root, &ancestry.zjjrfg_detail());
         }

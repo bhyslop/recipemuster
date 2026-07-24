@@ -288,6 +288,8 @@ fn jjtfg_advance_fast_forwards_a_behind_line_to_the_remote_tip() {
 /// compose-then-push — the local branch only ever moves to positions the
 /// remote accepted — so advance halts and surfaces (`Diverged`) rather than
 /// auto-destroying what it cannot explain. The position is left untouched.
+/// This is the LOCAL-AHEAD verdict: the refusal names the stranded commit
+/// and the push remedy, distinct from a true fork.
 #[test]
 fn jjtfg_advance_rejects_diverged_on_a_line_ahead_of_the_remote_tip() {
     let bare = JjkTestDir::new("jjtfg_advance_ahead_bare");
@@ -297,7 +299,11 @@ fn jjtfg_advance_rejects_diverged_on_a_line_ahead_of_the_remote_tip() {
     jjrfg_PlainGit.jjrfr_glean(local1.path());
     let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
 
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
+    let rejection = result.unwrap_err();
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::Diverged);
+    assert!(rejection.detail.contains("LOCAL-AHEAD"), "detail: {}", rejection.detail);
+    assert!(rejection.detail.contains("unexplained"), "stranded commit must be named: {}", rejection.detail);
+    assert!(rejection.detail.contains("consign"), "the push remedy must be named: {}", rejection.detail);
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, ahead, "advance must leave the unexplained position untouched — never auto-destroy");
     assert!(local1.path().join("unexplained.txt").exists(), "its content must stand for the operator to inspect");
@@ -325,6 +331,7 @@ fn jjtfg_advance_fast_forwards_past_unrelated_dirt() {
 
 /// JJr_b52: a genuinely diverged line — ahead AND behind — is the same
 /// impossible state as merely-ahead: halt and surface, position untouched.
+/// This is the FORKED verdict, distinguished in the refusal from LOCAL-AHEAD.
 #[test]
 fn jjtfg_advance_rejects_diverged_on_a_forked_line() {
     let bare = JjkTestDir::new("jjtfg_advance_diverged_bare");
@@ -338,7 +345,10 @@ fn jjtfg_advance_rejects_diverged_on_a_forked_line() {
 
     let result = jjrfg_PlainGit.jjrfr_advance(local1.path());
 
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
+    let rejection = result.unwrap_err();
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::Diverged);
+    assert!(rejection.detail.contains("FORKED"), "detail: {}", rejection.detail);
+    assert!(!rejection.detail.contains("LOCAL-AHEAD"), "a fork must not read as local-ahead: {}", rejection.detail);
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, forked, "the forked position must stand for the operator to inspect");
     assert!(local1.path().join("from-local1.txt").exists());
