@@ -154,6 +154,7 @@ zrbz_kindle() {
   z_mod="rbgp_cli.sh"
   buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_payor_install"   "param1"  "Ingest payor OAuth credentials from the downloaded client secret JSON"
   z_mod="rbh0/rbhp0_cli.sh"
+  buz_enroll RBZ_PAYOR_ORGANIZATION     "rbw-gPO" "${z_mod}" "rbhp_organization"    ""  "Guided GCP organization founding — Cloud Identity signup + DNS domain verification yielding RBRW_ORG_ID"
   buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
   buz_enroll RBZ_QUOTA_BUILD            "rbw-gPQ" "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
   buz_enroll RBZ_FEDERATION_ENTRA       "rbw-gPF" "${z_mod}" "rbhp_federation_entra" ""  "Guided Entra federation setup — IdP-console app registration yielding the foedus core values"
