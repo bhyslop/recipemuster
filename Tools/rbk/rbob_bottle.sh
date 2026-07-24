@@ -283,7 +283,7 @@ zrbob_compose() {
 # Discriminate kludge hallmarks (local-only, no GAR presence) from conjure /
 # bind / graft hallmarks. Used by charge preflight to redirect the diagnostic
 # away from the summon path, which is guaranteed to fail for kludge stamps.
-zrbob_hallmark_is_kludge_predicate_predicate() {
+zrbob_hallmark_is_kludge_predicate() {
   case "${1}" in
     "${RBGC_HALLMARK_PREFIX_KLUDGE}"*) return 0 ;;
     *) return 1 ;;
