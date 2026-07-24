@@ -24,7 +24,7 @@ All Job Jockey artifacts use the `jj` prefix with category-specific third letter
 | `jjh_` | Heat | Bounded initiative files |
 | `jji_` | Itch | Future work aggregate |
 | `jjk_` | sKill | (Future) Skill definitions |
-| `jjl_` | Ledger | Version history registry |
+| `jjls_` | Livery/Studbook | Billet branch-name badge (`jjls_pace/{coronet}`) |
 | `jjm/` | Memory | State directory (`.claude/jjm/`) |
 | `jjn_` | Notch | (Future) JJ-aware git commits |
 | `jjs_` | Scar | Closed work aggregate |

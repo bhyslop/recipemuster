@@ -133,6 +133,9 @@ A claimed tree resolves exactly four things:
   the linkage mechanics are the kind's own (worktree gitdir for plain git, a planted
   station-local marker for full-clone fallbacks).
 * *line of work* — branch or detached: one seat-grain designation, even for constellations.
+  The branch name is reported verbatim, in the kind's own ref dialect:
+  reading JJ's {jjdd_livery} out of it is a consumer's act, above the {jjdf_palisade},
+  never {jjdf_identify_p} — a kind knows ref names, not JJ's identities.
 
 {jjdf_identify} is *total* for a claimed tree: detached, mid-merge, and dirty states report
 faithfully, never reject;

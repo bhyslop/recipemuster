@@ -132,6 +132,113 @@ pub fn jjrf_bare(token: &str) -> &str {
     }
 }
 
+// ---- The livery badge ----
+
+/// The livery sprue: the static token every JJ-authored branch name carries
+/// (`jjdd_livery`, dispatch sheaf). `l` reads livery, `s` studbook — these
+/// branches are the work-repo objects the studbook's counterfoils name.
+///
+/// A bare identity body is a legitimate ref name, and that is exactly the
+/// hazard: JJ operates in repos owned by other organizations, where an
+/// unbadged five-character branch claims globally invasive namespace with
+/// nothing marking it as JJ's or saying what it is for. The badge is the
+/// remedy, and the full literal token is its point — one grep over `jjls_`
+/// unites this constant, the spec definition, and every live branch in every
+/// sire.
+pub const JJRF_LIVERY_SPRUE: &str = "jjls_";
+
+/// The pace-billet roster word: the WIP carrier a pace's work rides across
+/// chats. Named for the pace, not the mount — the branch outlives every
+/// mount of it.
+pub const JJRF_LIVERY_PACE: &str = "jjls_pace";
+
+/// The groom-billet roster word — RESERVED, never populated. A groom billet
+/// is a detached checkout carrying nothing durable, so a branch under this
+/// word is a contract violation, not a line of work. The word is minted (and
+/// parsed) so that violation is nameable at the moment it is met rather than
+/// silently unrecognized.
+pub const JJRF_LIVERY_GROOM: &str = "jjls_groom";
+
+/// The badge/identity separator. The sprue is the namespace root and the slash
+/// is git's own hierarchy mark, so kind lives in the greppable token and never
+/// in a cryptic path segment — and git's ref store gives the whole `jjls_`
+/// family terminal exclusivity for free.
+pub const JJRF_LIVERY_SEPARATOR: char = '/';
+
+/// Which roster word a livery branch flies.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum jjrf_LiveryKind {
+    Pace,
+    Groom,
+}
+
+impl jjrf_LiveryKind {
+    /// The roster word itself — the whole greppable token, never assembled
+    /// from parts at a call site.
+    pub fn jjrf_as_str(&self) -> &'static str {
+        match self {
+            jjrf_LiveryKind::Pace => JJRF_LIVERY_PACE,
+            jjrf_LiveryKind::Groom => JJRF_LIVERY_GROOM,
+        }
+    }
+
+    /// The identity-body length this kind's tail must carry — the length-type
+    /// backstop, the same typed-by-length convention identities use everywhere.
+    pub fn jjrf_body_len(&self) -> usize {
+        match self {
+            jjrf_LiveryKind::Pace => JJRF_CORONET_LEN,
+            jjrf_LiveryKind::Groom => JJRF_FIREMARK_LEN,
+        }
+    }
+}
+
+/// Dress a bare identity body in its livery: the one place a JJ branch name is
+/// composed. `prefix` is the pedigree's recorded path prefix — `None` by
+/// default and org-demand-only, for a sire whose owner requires JJ's refs to
+/// sit under a house path. The sprue, not the prefix, is the namespace root:
+/// an unprefixed name is the ordinary form.
+///
+/// The body arrives bare (`jjrf_as_str`), never sigiled — a git ref is a
+/// foreign-traversed surface, so the sigil stays behind (the carriage law
+/// above). The badge is what a ref carries instead.
+pub fn jjrf_livery_compose(prefix: Option<&str>, kind: jjrf_LiveryKind, body: &str) -> String {
+    let badged = format!("{}{}{}", kind.jjrf_as_str(), JJRF_LIVERY_SEPARATOR, body);
+    match prefix.map(str::trim).filter(|p| !p.is_empty()) {
+        Some(p) => format!("{}{}{}", p.trim_end_matches(JJRF_LIVERY_SEPARATOR), JJRF_LIVERY_SEPARATOR, badged),
+        None => badged,
+    }
+}
+
+/// Read a branch name's livery: the parse half, and the only place a ref name
+/// is decoded back to an identity. Returns the roster kind and the bare body,
+/// or `None` for any name this family does not claim.
+///
+/// Three steps, in the order the badge is built: strip any pedigree prefix by
+/// finding the sprue-bearing segment (so a prefix JJ never recorded still
+/// reads, and the prefix stays a presentation detail rather than a parse
+/// input); admit the segment only if it is a roster word exactly — an
+/// unrostered `jjls_*` is refused, never guessed at, so a future kind costs a
+/// roster word rather than a silent reinterpretation; then length-type the
+/// tail as backstop.
+///
+/// Charset validation is deliberately not repeated here: this returns the bare
+/// body to callers whose own `jjrf_parse` is the validating home.
+pub fn jjrf_livery_parse(branch: &str) -> Option<(jjrf_LiveryKind, &str)> {
+    let (word, tail) = branch.rsplit_once(JJRF_LIVERY_SEPARATOR)?;
+    let word = match word.rsplit_once(JJRF_LIVERY_SEPARATOR) {
+        Some((_prefix, last)) => last,
+        None => word,
+    };
+    let kind = if word == JJRF_LIVERY_PACE {
+        jjrf_LiveryKind::Pace
+    } else if word == JJRF_LIVERY_GROOM {
+        jjrf_LiveryKind::Groom
+    } else {
+        return None;
+    };
+    (tail.len() == kind.jjrf_body_len()).then_some((kind, tail))
+}
+
 /// Heat identity - 2 base64 characters encoding 0-4095
 /// The body is private — set at construction, immutable thereafter (`axd_immutable`).
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]

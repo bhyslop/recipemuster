@@ -271,6 +271,8 @@
 :jjdd_billet:       <<jjdd_billet,Billet>>
 :jjdd_billet_s:     <<jjdd_billet,Billets>>
 :jjdd_billet_p:     <<jjdd_billet,Billet's>>
+:jjdd_livery:       <<jjdd_livery,livery>>
+:jjdd_livery_p:     <<jjdd_livery,livery's>>
 :jjdd_spine:        <<jjdd_spine,entrance spine>>
 :jjdd_spine_p:      <<jjdd_spine,entrance spine's>>
 :jjdd_muck:         <<jjdd_muck,muck>>

@@ -439,3 +439,83 @@ fn jjtf_coronet_parse_tolerates_qualified_form() {
     // Display alone (no live heat) is the bare form; qualification needs the gallops.
     assert_eq!(qualified.jjrf_display(), "₢CAAAB");
 }
+
+// ---- The livery badge ----
+
+#[test]
+fn jjtf_livery_composes_the_pace_badge() {
+    // The ordinary form: sprue as namespace root, no pedigree prefix.
+    assert_eq!(
+        jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAAA9"),
+        "jjls_pace/CAAA9"
+    );
+    // The body rides bare — a git ref is a foreign-traversed surface, so the
+    // sigil stays behind and the badge is what the ref carries instead.
+    assert!(!jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAAA9").contains(JJRF_CORONET_PREFIX));
+}
+
+#[test]
+fn jjtf_livery_prefix_is_org_demand_only() {
+    // A pedigree-recorded path prefix nests the whole badge; absent (and empty,
+    // the shape a hand-edited pedigree yields) it never appears at all.
+    assert_eq!(
+        jjrf_livery_compose(Some("teams/jj"), jjrf_LiveryKind::Pace, "CAAA9"),
+        "teams/jj/jjls_pace/CAAA9"
+    );
+    assert_eq!(
+        jjrf_livery_compose(Some("teams/jj/"), jjrf_LiveryKind::Pace, "CAAA9"),
+        "teams/jj/jjls_pace/CAAA9"
+    );
+    assert_eq!(
+        jjrf_livery_compose(Some("  "), jjrf_LiveryKind::Pace, "CAAA9"),
+        "jjls_pace/CAAA9"
+    );
+}
+
+#[test]
+fn jjtf_livery_round_trips_through_any_prefix() {
+    // Parse strips the prefix by finding the sprue-bearing segment, so a prefix
+    // JJ never recorded still reads — the prefix is presentation, not a parse input.
+    for prefix in [None, Some("teams/jj"), Some("a/b/c")] {
+        let branch = jjrf_livery_compose(prefix, jjrf_LiveryKind::Pace, "CAAA9");
+        assert_eq!(jjrf_livery_parse(&branch), Some((jjrf_LiveryKind::Pace, "CAAA9")));
+    }
+}
+
+#[test]
+fn jjtf_livery_parses_the_reserved_groom_word() {
+    // Groom is never populated, but it parses: the reservation is enforceable
+    // only if a violating branch is nameable when met.
+    assert_eq!(
+        jjrf_livery_parse("jjls_groom/B9"),
+        Some((jjrf_LiveryKind::Groom, "B9"))
+    );
+}
+
+#[test]
+fn jjtf_livery_declines_what_it_does_not_claim() {
+    // The bare-coronet form this mint retired — the whole point is that it no
+    // longer reads as a JJ branch.
+    assert_eq!(jjrf_livery_parse("CAAA9"), None);
+    // Trunk and ordinary consumer branches.
+    assert_eq!(jjrf_livery_parse("main"), None);
+    assert_eq!(jjrf_livery_parse("feature/CAAA9"), None);
+    // An unrostered sprue word is refused, never guessed at: a future kind
+    // costs a roster word rather than a silent reinterpretation.
+    assert_eq!(jjrf_livery_parse("jjls_scout/CAAA9"), None);
+    // The length-type backstop: a roster word alone does not make a body.
+    assert_eq!(jjrf_livery_parse("jjls_pace/CAAA"), None);
+    assert_eq!(jjrf_livery_parse("jjls_pace/CAAA99"), None);
+    assert_eq!(jjrf_livery_parse("jjls_groom/B9X"), None);
+    // A bare roster word with no identity at all.
+    assert_eq!(jjrf_livery_parse("jjls_pace"), None);
+}
+
+#[test]
+fn jjtf_livery_roster_words_all_carry_the_sprue() {
+    // The grep tie is the mint's whole point: one grep over the sprue must
+    // reach every roster word.
+    for kind in [jjrf_LiveryKind::Pace, jjrf_LiveryKind::Groom] {
+        assert!(kind.jjrf_as_str().starts_with(JJRF_LIVERY_SPRUE));
+    }
+}
