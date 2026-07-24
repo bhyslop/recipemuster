@@ -108,6 +108,12 @@ surprising for a command billed as inspection ("View the project config").
 handbook predicted, and normally resolved by the Payor track in Beat 2, not
 before. (It turned out to matter much sooner than that — see Finding 4.)
 
+**Disposition (2026-07-24, ₢B0AAL): declined.** `rbw-rrr`'s render-hard-fails-
+on-unset behavior is shared `buv_render` machinery, not a bug local to RBRR —
+changing it would change every regime's renderer. The handbook already frames
+the failure as expected and self-explanatory (Finding 3's own text confirms
+this), so the surprise is cosmetic, not a blocker. No code change.
+
 ### Finding 4 — Kludge (documented as depot-free/local-only) hard-fails on empty RBRD
 
 Followed `tt/rbw-Ofc.OnboardingFirstCrucible.sh` into the `ccyolo` track. Both

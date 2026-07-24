@@ -58,6 +58,8 @@ zburs_furnish() {
   zburd_kindle
   zburd_enforce
 
+  test -f "${BURD_STATION_FILE}" \
+    || buc_die "Station Regime file not found: ${BURD_STATION_FILE} — run tt/buw-SI.StationInit.sh to create it"
   source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS: ${BURD_STATION_FILE}"
 
   zburs_kindle
