@@ -42,16 +42,53 @@ rbho_payor_handbook() {
   buh_line "and a founding ${RBYC_GOVERNOR} girded to administer it."
   buh_e
 
-  buh_line "This ceremony takes about 30 minutes."
+  buh_line "The steps are ordered so each vendor console is visited as one contiguous"
+  buh_line "stretch: the two founding guides (organization, then the identity-provider"
+  buh_line "registration) come first, then the manor setup, then a scripted block that"
+  buh_line "needs no console. Later guides depend on values the earlier ones yield."
+  buh_e
+  buh_line "The scripted block runs about 30 minutes; the two founding guides add"
+  buh_line "console time, and the organization guide's DNS verification bakes on its"
+  buh_line "own clock. Users who already administer a GCP organization skip Step 1."
   buh_e
 
   buh_step_style "Step " " — "
+
+  buh_step1 "Found your GCP organization"
+  buh_e
+  buh_line "The manor's one workforce identity pool is owned by a GCP organization —"
+  buh_line "a resource node founded by a Cloud Identity signup over a DNS domain you"
+  buh_line "control. The guide yields RBRW_ORG_ID."
+  buh_e
+  buh_line "Run the guided setup:"
+  buh_tt  "  " "${RBZ_PAYOR_ORGANIZATION}"
+  buh_e
+  buh_line "SKIP this step entirely if you already administer a GCP organization —"
+  buh_line "the guide tells you how to read its numeric ID and record it."
+  buh_line "Domain verification propagates on DNS's clock (minutes to hours); you may"
+  buh_line "leave it baking and start Step 2, which touches a different vendor."
+  buh_e
+
+  buh_step1 "Register the federation application"
+  buh_e
+  buh_line "Keyless sign-in rides a standing trust between the ${RBYC_MANOR} and your"
+  buh_line "identity provider — a foedus. Register the application at the IdP's own"
+  buh_line "console now (guided walk, Entra shown); the trust is pledged later, in the"
+  buh_line "scripted block, once the workforce pool exists."
+  buh_e
+  buh_tt  "  " "${RBZ_FEDERATION_ENTRA}"
+  buh_e
+  buh_line "The walk yields the foedus's core trust values, landing in the committed"
+  buh_line "federation ${RBYC_REGIME}. This is Microsoft-side console work — you may run"
+  buh_line "it while Step 1's DNS verification is still baking."
+  buh_e
 
   buh_step1 "Establish the Manor"
   buh_e
   buh_line "The ${RBYC_MANORS} GCP project hosts the OAuth client and billing"
   buh_line "account. It must be created before any infrastructure can be"
-  buh_line "provisioned."
+  buh_line "provisioned — created inside the organization from Step 1, so its"
+  buh_line "OAuth consent screen can be Internal."
   buh_e
   buh_line "Run the guided setup:"
   buh_tt  "  " "${RBZ_PAYOR_ESTABLISH}"
@@ -63,9 +100,9 @@ rbho_payor_handbook() {
 
   buh_step1 "Install OAuth credentials"
   buh_e
-  buh_line "Step 1 ended with saving a JSON client secret file into its durable"
-  buh_line "home - the client_secrets/ subdirectory of your secrets directory"
-  buh_line "(RBRR_SECRETS_DIR in rbrr.env). Install it:"
+  buh_line "Establishing the Manor (Step 3) ended with saving a JSON client secret"
+  buh_line "file into its durable home - the client_secrets/ subdirectory of your"
+  buh_line "secrets directory (RBRR_SECRETS_DIR in rbrr.env). Install it:"
   buh_e
   buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " «secrets-dir»/client_secrets/client_secret_*.json"
   buh_e
@@ -82,24 +119,25 @@ rbho_payor_handbook() {
   buh_line "One idempotent command readies the ${RBYC_MANORS} scriptable"
   buh_line "substrate: it enables the payor-project APIs, links billing, seats"
   buh_line "the workforce identity pool, and provisions the terrier bucket."
-  buh_line "Set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in ${RBYC_RBRD} first —"
-  buh_line "the depot regime is enforced and the bucket's region rides"
-  buh_line "RBRD_GCP_REGION. Safe to re-run at any time (ensure-exists):"
+  buh_e
+  buh_line "Set two regimes first:"
+  buh_line "  * ${RBYC_RBRD} — RBRD_DEPOT_MONIKER and RBRD_GCP_REGION (the depot"
+  buh_line "    regime is enforced; the terrier bucket's region rides RBRD_GCP_REGION)."
+  buh_line "  * the workforce ${RBYC_REGIME} (rbrw.env) — RBRW_WORKFORCE_POOL_ID and"
+  buh_line "    RBRW_SESSION_DURATION, alongside the RBRW_ORG_ID from Step 1. This"
+  buh_line "    command founds the pool from all three (ensure-exists)."
+  buh_e
+  buh_line "Safe to re-run at any time:"
   buh_e
   buh_tt  "  " "${RBZ_INSTAURATE_MANOR}"
   buh_e
 
-  buh_step1 "Affiance a foedus"
+  buh_step1 "Affiance the foedus"
   buh_e
-  buh_line "Keyless sign-in rides a standing trust between the ${RBYC_MANOR} and"
-  buh_line "your identity provider — a foedus. First register the application"
-  buh_line "at the IdP's own console (guided walk, Entra shown):"
-  buh_e
-  buh_tt  "  " "${RBZ_FEDERATION_ENTRA}"
-  buh_e
-  buh_line "The walk yields the foedus's core trust values, landing in the"
-  buh_line "committed federation ${RBYC_REGIME}. Then pledge the trust — seat the"
-  buh_line "foedus's provider under the workforce pool:"
+  buh_line "Step 2 registered the application at the IdP and landed the foedus's"
+  buh_line "core trust values in the committed federation ${RBYC_REGIME}. Now that the"
+  buh_line "workforce pool stands, pledge the trust — seat the foedus's provider"
+  buh_line "under the pool:"
   buh_e
   buh_tt  "  " "${RBZ_AFFIANCE_MANOR}" "" " <foedus>"
   buh_e
