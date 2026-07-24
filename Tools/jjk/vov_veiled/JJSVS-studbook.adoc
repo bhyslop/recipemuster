@@ -77,8 +77,8 @@ it is the boundary "What never enters the record" draws, read from the other sid
 The proposition is a rivet, cited in shipped code by the opaque token `JJr_f30`:
 its identifier carries no meaning, so it leaks none into the rust that ships without this
 veiled spec, and one `grep JJr_f30` returns this definition and every site it guards.
-The {jjdd_muck} sweep's JJ-owned-prefix filter is a citation site — it refuses to lodge
-JJ's own {jjdxo_exchange} into a work repo even when the sweep is dirty and confirmed.
+The {jjdd_muck} door's JJ-owned-prefix filter is a citation site — its salvage arm refuses
+to lodge JJ's own {jjdxo_exchange} into a work repo even on a dirty, confirmed billet.
 
 [[jjdb_footprint]]
 {jjdb_footprint}::

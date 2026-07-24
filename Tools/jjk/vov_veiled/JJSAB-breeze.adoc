@@ -291,8 +291,8 @@ The V4 workup was drawn before the studbook, farrier, blotter, and dispatch laye
 each collision below is a design decision for a future pace, not a defect in either side:
 
 * *Beat worktrees vs billets* — branch-per-beat with `jj/martingale/kimberwick` naming predates
-  the billet lifecycle (dirname = branch name, nuke-on-start sweep, liveness join).
-  A beat's execution container is plausibly just a billet; the sweep and retention story should
+  the billet lifecycle (catchword-serialed dirnames, livery branches, stile-exit clearing).
+  A beat's execution container is plausibly just a billet; the exit-clearing story should
   be one story, not two.
 * *Beat map home vs the blotter* — "warrants in gallops for lane isolation" predates the
   studbook as the gallops' physical vessel and the journal ceremony as the sole write bracket.
