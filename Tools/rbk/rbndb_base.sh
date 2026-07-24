@@ -307,12 +307,16 @@ rbrd_check() {
   # Byte-exact match via openssl sha256 digests (declared dependency; replaces
   # cmp). On drift, refuse to proceed and point the operator at both copies for
   # manual inspection — no diff dependency for the drift report.
-  local z_inscribed_digest=""
-  local z_local_digest=""
-  z_inscribed_digest=$(openssl dgst -sha256 -r < "${z_inscribed_file}") \
+  local -r z_inscribed_digest_temp="${BURD_TEMP_DIR}/rbndb_check_inscribed_digest.txt"
+  local -r z_local_digest_temp="${BURD_TEMP_DIR}/rbndb_check_local_digest.txt"
+  openssl dgst -sha256 -r < "${z_inscribed_file}" > "${z_inscribed_digest_temp}" \
     || buc_die "Failed to digest inscribed tripwire copy: ${z_inscribed_file}"
-  z_local_digest=$(openssl dgst -sha256 -r < "${RBCC_rbrd_file}") \
+  openssl dgst -sha256 -r < "${RBCC_rbrd_file}" > "${z_local_digest_temp}" \
     || buc_die "Failed to digest local ${RBCC_rbrd_file}"
+  local -r z_inscribed_digest=$(<"${z_inscribed_digest_temp}")
+  local -r z_local_digest=$(<"${z_local_digest_temp}")
+  test -n "${z_inscribed_digest}" || buc_die "Failed to read or empty: ${z_inscribed_digest_temp}"
+  test -n "${z_local_digest}" || buc_die "Failed to read or empty: ${z_local_digest_temp}"
   if [[ "${z_inscribed_digest}" != "${z_local_digest}" ]]; then
     buc_warn "RBRD drift detected"
     buc_info "Local ${RBCC_rbrd_file} differs from the depot-inscribed copy (sha256 mismatch)."
