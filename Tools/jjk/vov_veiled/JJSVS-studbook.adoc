@@ -41,11 +41,16 @@ the derivation chain that consumes the entry is world model, homed in the cosmol
 Each {jjdb_pedigree} carries:
 
 * the {jjdf_farrier} kind — which revision-control driver serves clones of this sire —
-  and its parameters (trunk name, {jjdb_footprint});
+  and its parameters (trunk name);
 * the sire's tackle set — its filesets and the governance each carries, and in time their
   declared interrelations — as a sibling entry ({jjdl_tackle}, tackle sheaf).
   The {jjdl_bounds} seat in the tackle table itself, never here: coverage is tackle
   machinery, and a second home would be a second truth;
+* reserved, declared but not carried: the {jjdb_footprint} posture (Footprint, below).
+  No consumer resolves it, so carrying it would seed durable committed records with a value
+  nothing sets meaningfully;
+  it lands as an optional field the day a consumer is real — a non-breaking add, on the same
+  deferral the address-mobility attribute rides;
 * reserved, parked: a per-sire edit-scope wildcard list, if billets-per-pace ever prove
   insufficient for collision avoidance.
 
@@ -55,8 +60,8 @@ What JJ leaves behind in a sire is partitioned by ownership, never by convenienc
 
 *Work products* — commits and branches, the code changes themselves — are the registered
 body's property.
-They reach the sire in the form its owner tolerates, and naming that form is the
-{jjdb_pedigree_p} office, never the {jjdw_engine_p} to assume.
+They reach the sire in the form its owner tolerates, and that form is the
+{jjdb_pedigree_p} to name, never the {jjdw_engine_p} to assume.
 *Knowledge products* — the {jjdgr_gallops}, {jjdb_counterfoil_s}, captured session
 transcripts, guides, and grimoire — are JJ's own, and never land in a sire at all:
 they live in the {jjdb_studbook} and the {jjdw_infield}.
@@ -71,9 +76,17 @@ JJ's own {jjdxo_exchange} into a work repo even when the sweep is dirty and conf
 
 [[jjdb_footprint]]
 {jjdb_footprint}::
-The per-{jjdb_pedigree} posture governing the form in which work products reach their sire:
-the {jjdf_farrier} parameter that the narrower *remotes posture* widened into once the
-partition above was seen to be the thing being parameterized.
+The per-{jjdb_pedigree} posture governing the form in which work products reach their sire —
+the axis the narrower *remotes posture* named, before the partition above was seen to be the
+thing being parameterized.
++
+*Declared, not carried.*
+No {jjdb_pedigree} record holds a footprint field, and nothing reads one:
+the default arm below is simply what the machinery does, unconditionally.
+This entry names the axis and fixes its arms so the field is a non-breaking add whenever a
+consumer earns it;
+until then a reader must not expect to find a footprint in the record.
++
 Two arms stand:
 +
 * *default* — personal branches: JJ pushes branches of its own to the sire, and the body's
