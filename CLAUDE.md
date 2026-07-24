@@ -13,6 +13,7 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 - CMK: `@Tools/cmk/claude-cmk-core.md`
 - VOK: `@Tools/vok/claude-vok-acronyms.md`
 - APCK: `@Tools/apck/claude-apck-acronyms.md`
+- JJK: `@Tools/jjk/vov_veiled/claude-jjk-veiled-acronyms.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
 ## Retired Memos
@@ -161,7 +162,7 @@ Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog 
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/buk/vov_veiled/claude-buk-veiled.md
-@Tools/jjk/vov_veiled/claude-jjk-bhyslop.md
+@Tools/jjk/vov_veiled/claude-jjk-veiled-acronyms.md
 
 @Tools/vok/claude-vok-context.md
 @Tools/vok/claude-vok-acronyms.md
