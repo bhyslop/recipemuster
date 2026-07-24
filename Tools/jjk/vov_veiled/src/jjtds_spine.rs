@@ -549,6 +549,56 @@ fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
     assert_eq!(zjjtds_git(&reseated.billet_root, &["rev-parse", "HEAD"]), wip);
 }
 
+/// A second station saddles a pace this station already worked and pushed: it
+/// clones the sire, seats the pace's livery branch, commits, and publishes.
+fn zjjtds_pace_worked_on_another_station(infield: &Path, name: &str, branch: &str) -> String {
+    let other = infield.join(name);
+    std::fs::create_dir_all(&other).unwrap();
+    zjjtds_git(&other, &["clone", "-q", &infield.join("upstream").to_string_lossy(), "."]);
+    zjjtds_git(&other, &["config", "user.email", "jjtds@example.invalid"]);
+    zjjtds_git(&other, &["config", "user.name", "jjtds-other-station"]);
+    zjjtds_git(&other, &["checkout", "-q", "-b", branch]);
+    let tip = zjjtds_commit_all(&other, "abroad.txt", "worked elsewhere", "wip on another station");
+    zjjtds_git(&other, &["push", "-q", "origin", branch]);
+    tip
+}
+
+#[test]
+fn jjtds_board_adopts_a_pace_line_another_station_pushed() {
+    let (infield, hippodrome) = zjjtds_infield("jjtds_board_adopt");
+    let abroad = zjjtds_pace_worked_on_another_station(infield.path(), "other_station", "jjls_pace/AAAAA");
+
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap(), None);
+
+    // One pace, one line of work across stations: the billet stands ON the other
+    // station's tip, not on a rival birth from trunk.
+    assert_eq!(zjjtds_git(&yard.billet_root, &["rev-parse", "HEAD"]), abroad);
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_identify(&yard.billet_root).unwrap().line_of_work,
+        jjrfr_LineOfWork::Branch("jjls_pace/AAAAA".to_string())
+    );
+}
+
+#[test]
+fn jjtds_board_births_from_trunk_when_no_line_stands_abroad() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_board_no_abroad");
+    let trunk_tip = zjjtds_git(&hippodrome, &["rev-parse", &format!("refs/remotes/origin/{}", ZJJTDS_TRUNK)]);
+
+    // Nothing pushed under the pace's livery badge anywhere: the adopt probe
+    // answers no and boarding falls through to an ordinary birth.
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap(), None);
+
+    assert_eq!(zjjtds_git(&yard.billet_root, &["rev-parse", "HEAD"]), trunk_tip);
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_identify(&yard.billet_root).unwrap().line_of_work,
+        jjrfr_LineOfWork::Branch("jjls_pace/AAAAA".to_string())
+    );
+}
+
 #[test]
 fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_billet() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_board_lunge");

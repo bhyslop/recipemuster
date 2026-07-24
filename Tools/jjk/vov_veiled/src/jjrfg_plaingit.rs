@@ -74,9 +74,11 @@ const ZJJRFG_OP_PLUCK: &str = "pluck";
 const ZJJRFG_OP_SIGHT: &str = "sight";
 const ZJJRFG_OP_BILLET_CREATE: &str = "billet_create";
 const ZJJRFG_OP_BILLET_SEAT: &str = "billet_seat";
+const ZJJRFG_OP_BILLET_ADOPT: &str = "billet_adopt";
 const ZJJRFG_OP_BILLET_DETACH: &str = "billet_detach";
 const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
 const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
+const ZJJRFG_OP_LINE_ABROAD: &str = "line_abroad";
 const ZJJRFG_OP_OUTSTRIPPED: &str = "outstripped";
 const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
@@ -169,11 +171,12 @@ fn zjjrfg_run_git_with_stdin(root: &Path, args: &[&str], stdin_data: &str) -> zj
     }
 }
 
-/// The one composer of a trunk branch's remote-counterpart ref: fully qualified
-/// so a perverse local branch literally named `origin/<trunk>` cannot shadow it
+/// The one composer of a branch's remote-counterpart ref — trunk's, at every
+/// anchoring site, and a billet branch's at the adopt arm: fully qualified so a
+/// perverse local branch literally named `origin/<branch>` cannot shadow it
 /// (the enfold contract, farrier sheaf).
-fn zjjrfg_counterpart(trunk: &str) -> String {
-    format!("refs/remotes/{}/{}", ZJJRFG_REMOTE, trunk)
+fn zjjrfg_counterpart(branch: &str) -> String {
+    format!("refs/remotes/{}/{}", ZJJRFG_REMOTE, branch)
 }
 
 /// Compute a blob's object id for `content` under `root`'s object database.
@@ -718,6 +721,25 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         Ok(())
     }
 
+    fn jjrfr_billet_adopt(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection> {
+        let billet_str = billet_root.to_string_lossy().into_owned();
+        // Mint the local branch AT its own counterpart, not at trunk's: that is
+        // the whole of adopt-never-fork, and the only place a birth anchors at
+        // something other than trunk. The no-exfiltration posture holds all the
+        // same — a counterpart is by definition already in the remote's custody,
+        // so nothing unpushed is carried in.
+        //
+        // git sets the upstream itself when a branch is born from a
+        // remote-tracking ref, so the adopted line consigns back to the branch
+        // the other station pushed rather than to a rival name.
+        let counterpart = zjjrfg_counterpart(branch);
+        let out = zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, "-b", branch, &counterpart]);
+        if !out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_ADOPT, root, &out.zjjrfg_detail());
+        }
+        Ok(())
+    }
+
     fn jjrfr_billet_detach(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
         let comb = self.jjrfr_comb(billet_root)?;
         if !comb.jjrfr_is_clean() {
@@ -743,6 +765,17 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             Some(0) => Ok(true),
             Some(1) => Ok(false),
             _ => zjjrfg_unexpected(ZJJRFG_OP_LINE_EXISTS, root, &out.zjjrfg_detail()),
+        }
+    }
+
+    fn jjrfr_line_abroad(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection> {
+        // The remote-tracking ref, read exactly as `line_exists` reads the local
+        // one: the same verify-quiet shape, one namespace over.
+        let out = zjjrfg_run_git(root, &["show-ref", "--verify", "--quiet", &zjjrfg_counterpart(branch)]);
+        match out.code {
+            Some(0) => Ok(true),
+            Some(1) => Ok(false),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_LINE_ABROAD, root, &out.zjjrfg_detail()),
         }
     }
 

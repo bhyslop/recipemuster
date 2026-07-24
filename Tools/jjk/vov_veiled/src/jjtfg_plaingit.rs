@@ -889,6 +889,76 @@ fn jjtfg_line_exists_answers_both_ways() {
     assert!(!jjrfg_PlainGit.jjrfr_line_exists(primary.path(), "no-such-line").unwrap());
 }
 
+/// Another station works a pace and pushes its branch: the line stands abroad
+/// but not at home, and only a glean can reveal it — the precondition the adopt
+/// arm turns on.
+fn zjjtfg_line_pushed_by_another_station(bare: &Path, name: &str, branch: &str) -> String {
+    let other = JjkTestDir::new(name);
+    zjjtfg_git(other.path(), &["clone", "-q", &bare.to_string_lossy(), "."]);
+    zjjtfg_git(other.path(), &["config", "user.email", "jjtfg@example.invalid"]);
+    zjjtfg_git(other.path(), &["config", "user.name", "jjtfg"]);
+    zjjtfg_git(other.path(), &["checkout", "-q", "-b", branch]);
+    let tip = zjjtfg_commit_all(other.path(), "abroad.txt", "worked elsewhere", "wip on another station");
+    zjjtfg_git(other.path(), &["push", "-q", "origin", branch]);
+    tip
+}
+
+#[test]
+fn jjtfg_line_abroad_answers_both_ways_and_only_after_a_glean() {
+    let (bare, primary) = zjjtfg_local_with_remote("jjtfg_line_abroad");
+    zjjtfg_line_pushed_by_another_station(bare.path(), "jjtfg_line_abroad_other", "jjls_pace/AAAAA");
+
+    // Network-silent by contract: before the glean this station has never seen
+    // the counterpart, so the honest answer is no.
+    assert!(!jjrfg_PlainGit.jjrfr_line_abroad(primary.path(), "jjls_pace/AAAAA").unwrap());
+    let _ = jjrfg_PlainGit.jjrfr_glean(primary.path());
+
+    assert!(jjrfg_PlainGit.jjrfr_line_abroad(primary.path(), "jjls_pace/AAAAA").unwrap());
+    assert!(!jjrfg_PlainGit.jjrfr_line_abroad(primary.path(), "jjls_pace/NOSUCH").unwrap());
+    // Abroad is not home: the adopt arm's two observations must disagree here,
+    // or the spine could never tell a re-seat from an adoption.
+    assert!(!jjrfg_PlainGit.jjrfr_line_exists(primary.path(), "jjls_pace/AAAAA").unwrap());
+}
+
+#[test]
+fn jjtfg_billet_adopt_seats_the_remote_line_and_consigns_back_to_it() {
+    let (bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_adopt");
+    let abroad = zjjtfg_line_pushed_by_another_station(bare.path(), "jjtfg_billet_adopt_other", "jjls_pace/AAAAA");
+    // The operator's local trunk moves on unpushed: adopting must land on the
+    // pushed line, nowhere near this tip.
+    zjjtfg_commit_all(primary.path(), "unpushed.txt", "local only", "unpushed trunk work");
+    let _ = jjrfg_PlainGit.jjrfr_glean(primary.path());
+    let billet = zjjtfg_billet_slot("jjtfg_billet_adopt_billet");
+
+    jjrfg_PlainGit.jjrfr_billet_adopt(primary.path(), "jjls_pace/AAAAA", billet.path()).unwrap();
+
+    let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
+    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Branch("jjls_pace/AAAAA".to_string()));
+    assert_eq!(
+        zjjtfg_git(billet.path(), &["rev-parse", "HEAD"]),
+        abroad,
+        "adopting must take the other station's position, never fork from trunk"
+    );
+    // The upstream is what makes the adopted line the SAME line: a consign from
+    // here lands where the other station is looking.
+    assert_eq!(
+        zjjtfg_git(billet.path(), &["rev-parse", "--abbrev-ref", "@{upstream}"]),
+        "origin/jjls_pace/AAAAA"
+    );
+}
+
+/// A branch already standing at home is a caller-contract violation here — the
+/// spine consults `line_exists` first, and re-seating is `billet_seat`'s work.
+#[test]
+#[should_panic(expected = "unclassified git failure")]
+fn jjtfg_billet_adopt_fails_loud_when_the_line_already_stands_at_home() {
+    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_adopt_collision");
+    zjjtfg_git(primary.path(), &["branch", "jjls_pace/AAAAA"]);
+    let billet = zjjtfg_billet_slot("jjtfg_billet_adopt_collision_billet");
+
+    let _ = jjrfg_PlainGit.jjrfr_billet_adopt(primary.path(), "jjls_pace/AAAAA", billet.path());
+}
+
 #[test]
 fn jjtfg_outstripped_is_false_while_the_billet_holds_the_counterpart_tip() {
     let (_bare, _primary, billet) = zjjtfg_billeted_with_remote("jjtfg_outstripped_current");
