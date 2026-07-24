@@ -187,10 +187,10 @@ zrbob_furnish() {
   case "${z_command}" in
     rbob_charge)
       local z_ordained=0
-      if test -n "${RBRN_SENTRY_HALLMARK}" && ! zrbob_hallmark_is_kludge "${RBRN_SENTRY_HALLMARK}"; then
+      if test -n "${RBRN_SENTRY_HALLMARK}" && ! zrbob_hallmark_is_kludge_predicate "${RBRN_SENTRY_HALLMARK}"; then
         z_ordained=1
       fi
-      if test -n "${RBRN_BOTTLE_HALLMARK}" && ! zrbob_hallmark_is_kludge "${RBRN_BOTTLE_HALLMARK}"; then
+      if test -n "${RBRN_BOTTLE_HALLMARK}" && ! zrbob_hallmark_is_kludge_predicate "${RBRN_BOTTLE_HALLMARK}"; then
         z_ordained=1
       fi
       if test "${z_ordained}" = "1"; then
