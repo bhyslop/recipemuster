@@ -76,6 +76,9 @@ mod jjtn_notch;
 mod jjtnc_notch;
 
 #[cfg(test)]
+mod jjtld_landing;
+
+#[cfg(test)]
 mod jjtg_gallops;
 
 #[cfg(test)]

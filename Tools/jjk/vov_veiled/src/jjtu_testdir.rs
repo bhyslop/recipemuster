@@ -11,6 +11,14 @@ use std::path::{Path, PathBuf};
 use crate::jjrg_gallops::jjrg_Gallops;
 use crate::jjrvb_blotter::{jjdb_BlotterConfig, jjdb_studbook_config, JJDB_GALLOPS_REL_PATH};
 
+/// The one crate-wide cwd serial. The process cwd is process-global state, so
+/// every test ground that repoints it — whatever module it lives in — must
+/// serialize through THIS mutex and no other: two modules each holding their
+/// own serial still race each other in the parallel runner, and a cwd yanked
+/// mid-test sends one fixture's git effects into another fixture's repo (the
+/// observed shape: one module's commit pushed to another module's remote).
+pub static JJTU_CWD_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 pub struct JjkTestDir(PathBuf);
 
 impl JjkTestDir {

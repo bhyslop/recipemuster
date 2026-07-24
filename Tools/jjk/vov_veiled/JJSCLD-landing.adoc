@@ -29,6 +29,10 @@ The reviewer reads the content as claims to verify, not findings to inherit; a d
 . Format subject: `jjb:BRAND:₢XXXXX:L: {agent} landed`
 . Format body: `content` parameter + Co-Authored-By
 . Mint via `vvc::marker` primitive (index-invariant, guard-free)
+. Consign the billet branch to its remote counterpart when — and only when — the checked-out branch wears the pace livery badge;
+remote custody of the landing is part of landing itself, never deferred to a session exit (a same-session land→wrap fires none),
+and the exit stile's litmus remains the backstop that refuses to clear a billet this push never reached.
+A consign failure surfaces loud and fails the command while the local L commit stands (additive discipline).
 . Output commit hash
 
 {jjds_example}
