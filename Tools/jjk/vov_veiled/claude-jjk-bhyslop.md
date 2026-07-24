@@ -287,7 +287,7 @@ cosmology) — this is the quick-lookup pointer, not the definition.
 - **`jjq_`** — infield **directory** residents (has children; names no bare dir):
   - `jjqa_app` — the kit repo (engine + provisioned context; was `jjy_app`).
   - `jjqs_studbook` — the record repo (was `jjy_studbook`).
-  - `jjqb_{coronet}` — a pace **billet** (per-pace worktree dir); `jjqb_{firemark}` a groom billet — one signet, typed by length.
+  - `jjqb_{catchword}_{coronet}` — a pace **billet** (per-pace worktree dir); `jjqb_{catchword}_{firemark}` a groom billet — one signet, the identity behind the serial typed by length.
   - `jjqd_scratch` — the dispatch-scratch container: per-billet BUK state (BURV output/temp/log roots) and session-scoped MCP config, keyed by billet dirname beneath it. Deliberately outside the `jjqb_` glob so the muck sweep can never match it.
 - **`jjy_`** — infield **launcher scripts** (stiles): `jjy_saddle`, `jjy_lunge` (flat).
 
@@ -295,12 +295,16 @@ Two letters, not one: terminal-exclusivity forbids `jjy_`'s flat script names co
 sub-lettered billet container, and `jjq` was one of the last two free `jj`-letters (260707
 census). The split is by resident kind — directories vs scripts.
 
-**Billet naming: one coronet, two derivations.** The billet's **git branch** is the *bare
-coronet* (`XxAAA` — machine context per the wire-vs-display rule, NOT the §F human-branch
-form); its **dirname** is `jjqb_{coronet}`; `git worktree list` ties them. The muck sweep globs
-`jjqb_*` — a positive match that structurally excludes the `jjqa_`/`jjqs_` repos it must never
-reap. Constraint owed upstream: the pace-id re-gestalt must keep the coronet charset git-ref-
-and dirname-safe (no leading `-`).
+**Billet naming: two surfaces, two owners.** The billet's **git branch** wears the *livery
+badge* — `jjls_pace/{coronet}`, JJ's mark in a ref store JJ does not own. Its **dirname** is
+`jjqb_{catchword}_{identity}`, in JJ's own yard: the leading serial is the catchword the
+birth's dispatch record allocated, so a plain listing sorts by birth and concurrent groom
+billets of one heat stay distinct. `git worktree list` ties branch to dirname, and it — never
+the dirname — is what a dispatch rediscovers a standing billet by. The serial is a label and
+never an identity: readers step over it to the tail token and never parse it. The muck sweep
+globs `jjqb_*` — a positive match that structurally excludes the `jjqa_`/`jjqs_` repos it must
+never reap. Constraint owed upstream: the pace-id re-gestalt must keep the coronet charset
+git-ref- and dirname-safe (no leading `-`).
 
 ### K. Operator-only verb — jog (naming census)
 

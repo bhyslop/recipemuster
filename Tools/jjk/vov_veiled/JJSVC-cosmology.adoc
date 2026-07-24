@@ -85,7 +85,7 @@ gitignore entry — the infield tracks nothing, and nothing JJ owns ever lands i
 The dirname brand (mnemonic: yard) marking JJ-owned residents of the {jjdw_infield},
 carried by two signets split by resident kind:
 `jjq_` for the directory residents — `jjqa_app` the kit repo, `jjqs_studbook` the record
-repo, and each `jjqb_{coronet}` pace billet — and `jjy_` for the launcher scripts
+repo, and each `jjqb_{catchword}_{identity}` billet — and `jjy_` for the launcher scripts
 (dispatch sheaf).
 Charter: *every* JJ-owned infield resident carries a yard brand — `jjq_` if a directory,
 `jjy_` if a script.

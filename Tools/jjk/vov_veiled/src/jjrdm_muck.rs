@@ -43,9 +43,9 @@
 //! the billet — JJSVF "Toothing: officium open").
 
 use crate::jjrds_spine::{
+    jjrds_billet_identity,
     jjrds_type_target,
     jjrds_Target,
-    JJRDS_BILLET_DIR_PREFIX,
 };
 use crate::jjrf_favor::{
     jjrf_livery_parse,
@@ -128,10 +128,10 @@ impl From<jjrfr_Rejection> for jjrdm_Rejection {
 
 // ---- Kinds and candidates ----
 
-/// Which kind of billet a `jjqb_*` dirname resolved to, per the yard
-/// signet's typed-by-length convention: a pace billet seats a durable
-/// branch (the bare coronet); a groom billet is always detached and carries
-/// nothing durable (`jjdd_billet`).
+/// Which kind of billet a `jjqb_*` dirname resolved to, from the identity
+/// behind its serial: a pace billet seats a durable branch wearing the livery
+/// badge; a groom billet is always detached and carries nothing durable
+/// (`jjdd_billet`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum jjrdm_Kind {
     Pace(String),
@@ -256,12 +256,16 @@ fn zjjrdm_has_live_officium(billet_root: &Path) -> bool {
     entries.flatten().filter(|e| e.path().is_dir()).any(|e| jjrm_officium_dir_is_live(&e.path()))
 }
 
-/// Halter-type a billet dirname's suffix (past the `jjqb_` signet) into its
-/// kind — a coronet suffix is a pace billet, a firemark suffix a groom
-/// billet, per the yard signet's typed-by-length convention. `None` for
-/// anything that is not a well-formed `jjqb_*` billet name.
+/// Halter-type a billet dirname into its kind — a coronet is a pace billet, a
+/// firemark a groom billet, typed by length exactly as identities are
+/// everywhere. `None` for anything that is not a well-formed billet name.
+///
+/// The identity comes from the yard's own tail-token read, never from slicing
+/// the dirname here: the serial the dispatch record minted sits between the
+/// signet and the identity, and a sweep that typed the whole suffix would find
+/// neither length and skip every serialed billet in silence.
 fn zjjrdm_billet_kind(dirname: &str) -> Option<jjrdm_Kind> {
-    let suffix = dirname.strip_prefix(JJRDS_BILLET_DIR_PREFIX)?;
+    let suffix = jjrds_billet_identity(dirname)?;
     match jjrds_type_target(suffix).ok()? {
         jjrds_Target::Coronet(c) => Some(jjrdm_Kind::Pace(c)),
         jjrds_Target::Firemark(f) => Some(jjrdm_Kind::Groom(f)),

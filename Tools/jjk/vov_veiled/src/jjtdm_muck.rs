@@ -158,10 +158,16 @@ fn zjjtdm_fixture(name: &str) -> (JjkTestDir, std::path::PathBuf, jjdb_BlotterCo
     (infield, hippodrome, studbook_config)
 }
 
+/// The serial a fixture's billets wear: every billet the dispatch spine mints
+/// carries the catchword its dispatch record allocated, so the sweep's own
+/// fixtures wear one too — a fixture on the pre-catchword shape would leave the
+/// serialed shape (the only one now minted) untested.
+const ZJJTDM_SERIAL: u64 = 200500;
+
 fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str) -> std::path::PathBuf {
     // Yard signet on the dirname, livery badge on the branch — the same split
     // the dispatch spine makes, so salvage meets here what it meets in the field.
-    let billet_root = infield.join(jjrds_billet_dirname(coronet));
+    let billet_root = infield.join(jjrds_billet_dirname(ZJJTDM_SERIAL, coronet));
     let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, coronet);
     jjrfg_PlainGit
         .jjrfr_billet_create(hippodrome, &jjrfr_BilletBirth::Branch(branch), &billet_root, ZJJTDM_HIP_TRUNK)
@@ -170,7 +176,7 @@ fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str) -> std::
 }
 
 fn zjjtdm_groom_billet(infield: &Path, hippodrome: &Path, firemark: &str) -> std::path::PathBuf {
-    let billet_root = infield.join(jjrds_billet_dirname(firemark));
+    let billet_root = infield.join(jjrds_billet_dirname(ZJJTDM_SERIAL, firemark));
     jjrfg_PlainGit.jjrfr_billet_create(hippodrome, &jjrfr_BilletBirth::Detached, &billet_root, ZJJTDM_HIP_TRUNK).unwrap();
     billet_root
 }
@@ -204,6 +210,41 @@ fn jjtdm_plan_reaps_a_closed_past_retention_clean_pace_billet() {
     assert!(plan.dirty.is_empty());
     assert_eq!(plan.reap[0].billet_root, billet);
     assert_eq!(plan.reap[0].kind, jjrdm_Kind::Pace("AAAAC".to_string()));
+}
+
+#[test]
+fn jjtdm_plan_types_a_serialed_billet_and_the_pre_catchword_shape_alike() {
+    // The classifier reads the identity through the yard's tail-token home, so
+    // the serial the dispatch record minted is stepped over rather than typed.
+    // A sweep that typed the whole suffix would find neither length and skip
+    // every serialed billet in silence — the sibling breakage this covers.
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_serial_typing");
+
+    // The minted shape (the helper wears the serial) and, beside it, a billet
+    // seated before the catchword ruling — both still in the yard, both typed.
+    let serialed = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC");
+    let pre_catchword = infield.path().join("jjqb_AAAAD");
+    jjrfg_PlainGit
+        .jjrfr_billet_create(
+            &hippodrome,
+            &jjrfr_BilletBirth::Branch(crate::jjrf_favor::jjrf_livery_compose(
+                None,
+                crate::jjrf_favor::jjrf_LiveryKind::Pace,
+                "AAAAD",
+            )),
+            &pre_catchword,
+            ZJJTDM_HIP_TRUNK,
+        )
+        .unwrap();
+    zjjtdm_backdate(&serialed, JJRDM_RETENTION_SECS + 3600);
+    zjjtdm_backdate(&pre_catchword, JJRDM_RETENTION_SECS + 3600);
+
+    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), ZJJTDM_GUIDON).unwrap();
+
+    assert_eq!(plan.reap.len(), 2, "both shapes must be seen: {:?}", plan.reap);
+    let kinds: Vec<jjrdm_Kind> = plan.reap.iter().map(|c| c.kind.clone()).collect();
+    assert!(kinds.contains(&jjrdm_Kind::Pace("AAAAC".to_string())));
+    assert!(kinds.contains(&jjrdm_Kind::Pace("AAAAD".to_string())));
 }
 
 #[test]

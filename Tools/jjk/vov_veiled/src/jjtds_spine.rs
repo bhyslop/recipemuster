@@ -4,23 +4,30 @@
 
 use super::jjrds_spine::{
     jjrds_billet_dirname,
+    jjrds_billet_identity,
     jjrds_board,
     jjrds_currency,
+    jjrds_dispatch_record,
     jjrds_ground,
     jjrds_Ground,
     jjrds_pair_admitted,
     jjrds_pedigree_lookup,
     jjrds_plan,
+    jjrds_record_dispatch,
+    jjrds_rediscover,
     jjrds_resolve_launch,
     jjrds_resolve_saddle,
     jjrds_roster_row,
     jjrds_staleness_notice,
     jjrds_stirrup_command,
     jjrds_type_target,
+    jjrds_yard,
     jjrds_Door,
+    jjrds_LaunchPlan,
     jjrds_Rejection,
     jjrds_Target,
     jjrds_TierRow,
+    jjrds_Yard,
     JJRDS_CONDUCT_CORE,
     JJRDS_GROOM_POSTURE,
     JJRDS_JUDGMENT_EFFORT,
@@ -36,6 +43,7 @@ use super::jjrfr_farrier::{
     jjrfr_FarrierCore,
     jjrfr_FarrierLock,
     jjrfr_LineOfWork,
+    jjrfr_RejectionKind,
 };
 use super::jjrt_types::{
     jjrg_Effort,
@@ -49,6 +57,7 @@ use super::jjrt_types::{
 };
 use super::jjrvb_blotter::{
     jjdb_pin,
+    jjdb_studbook_config,
     jjdb_BlotterConfig,
     JJDB_CATCHWORD_FOUNDING,
     JJDB_CATCHWORD_SIGIL,
@@ -174,6 +183,16 @@ fn zjjtds_infield(name: &str) -> (JjkTestDir, std::path::PathBuf) {
     crate::jjri_io::jjdr_save(&zjjtds_gallops(), &jjm.join("jjg_gallops.json")).unwrap();
 
     (infield, hippodrome)
+}
+
+/// The yard step as the door runs it, with a caller-named serial standing in
+/// for the dispatch record's catchword — so a boarding test drives the whole
+/// rediscover-or-mint choice without a founded studbook to journal against.
+fn zjjtds_yard(plan: &jjrds_LaunchPlan, catchword: u64) -> jjrds_Yard {
+    let root = jjrds_rediscover(&jjrfg_PlainGit, plan)
+        .unwrap()
+        .unwrap_or_else(|| plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body)));
+    jjrds_yard(&plan.infield_root, root)
 }
 
 // ---- Halter typing ----
@@ -363,7 +382,7 @@ fn jjtds_pedigree_lookup_names_an_unfounded_studbook() {
 #[test]
 fn jjtds_staleness_notice_names_refit_only_when_outstripped() {
     let (infield, hippodrome) = zjjtds_infield("jjtds_staleness");
-    let billet_root = infield.path().join(jjrds_billet_dirname("AAAAA"));
+    let billet_root = infield.path().join(jjrds_billet_dirname(200500, "AAAAA"));
     jjrfg_PlainGit
         .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch("jjls_pace/AAAAA".to_string()), &billet_root, ZJJTDS_TRUNK)
         .unwrap();
@@ -392,7 +411,8 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
     // surfaces diverge deliberately, the yard being JJ's own and the ref store
     // the sire's; the prompt carries the engagement verb.
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
-    assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
+    assert_eq!(plan.identity_body, "AAAAA");
+    assert_eq!(zjjtds_yard(&plan, 200500).billet_root, infield_canon.join("jjqb_200500_AAAAA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("jjls_pace/AAAAA".to_string()));
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "mount ₢AAAAA");
@@ -404,7 +424,7 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
 
     // A firemark saddles the heat's next actionable pace.
     let by_heat = jjrds_plan(jjrds_Door::Saddle, "AA", &hippodrome, false).unwrap();
-    assert_eq!(by_heat.billet_root, infield_canon.join("jjqb_AAAAA"));
+    assert_eq!(zjjtds_yard(&by_heat, 200500).billet_root, infield_canon.join("jjqb_200500_AAAAA"));
 }
 
 #[test]
@@ -413,7 +433,7 @@ fn jjtds_plan_lunge_takes_a_firemark_only() {
     let infield_canon = infield.path().canonicalize().unwrap();
 
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
-    assert_eq!(plan.billet_root, infield_canon.join("jjqb_AA"));
+    assert_eq!(zjjtds_yard(&plan, 200501).billet_root, infield_canon.join("jjqb_200501_AA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Detached);
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     // The door's first impression: the verb, then the posture the engine repeats.
@@ -458,16 +478,18 @@ fn jjtds_ground_reads_the_three_kinds_off_real_billets() {
     // A pace billet, boarded by the saddle door: the coronet comes back off the
     // livery badge, bare.
     let pace = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
-    jjrds_board(&jjrfg_PlainGit, &pace).unwrap();
+    let pace_yard = zjjtds_yard(&pace, 200500);
+    jjrds_board(&jjrfg_PlainGit, &pace, &pace_yard).unwrap();
     assert_eq!(
-        jjrds_ground(&jjrfg_PlainGit, &pace.billet_root),
+        jjrds_ground(&jjrfg_PlainGit, &pace_yard.billet_root),
         Some(jjrds_Ground::PaceBillet { coronet: "AAAAA".to_string() })
     );
 
     // A groom billet, boarded by the lunge door.
     let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
-    jjrds_board(&jjrfg_PlainGit, &groom).unwrap();
-    assert_eq!(jjrds_ground(&jjrfg_PlainGit, &groom.billet_root), Some(jjrds_Ground::GroomBillet));
+    let groom_yard = zjjtds_yard(&groom, 200501);
+    jjrds_board(&jjrfg_PlainGit, &groom, &groom_yard).unwrap();
+    assert_eq!(jjrds_ground(&jjrfg_PlainGit, &groom_yard.billet_root), Some(jjrds_Ground::GroomBillet));
 }
 
 #[test]
@@ -504,44 +526,54 @@ fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_board_saddle");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
 
-    // Birth.
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan).unwrap(), None);
-    let seated = jjrfg_PlainGit.jjrfr_identify(&plan.billet_root).unwrap();
+    // Birth: nothing stands, so the yard step mints.
+    let born = zjjtds_yard(&plan, 200500);
+    assert_eq!(born.billet_dirname, "jjqb_200500_AAAAA");
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &born).unwrap(), None);
+    let seated = jjrfg_PlainGit.jjrfr_identify(&born.billet_root).unwrap();
     assert_eq!(seated.line_of_work, jjrfr_LineOfWork::Branch("jjls_pace/AAAAA".to_string()));
 
-    // Reuse: a standing billet boards as-is.
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan).unwrap(), None);
+    // Reuse: rediscovery finds the standing billet by its seat, so a second
+    // dispatch rejoins it under its ORIGINAL serial and never mints a second.
+    let rejoined = zjjtds_yard(&plan, 999999);
+    assert_eq!(rejoined.billet_dirname, "jjqb_200500_AAAAA", "reuse rediscovers rather than re-mints");
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &rejoined).unwrap(), None);
 
-    // Reap, then board again: the durable branch re-seats with its history.
-    let wip = zjjtds_commit_all(&plan.billet_root, "wip.txt", "carried", "wip on the pace branch");
-    jjrfg_PlainGit.jjrfr_billet_remove(&plan.billet_root).unwrap();
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan).unwrap(), None);
-    assert_eq!(zjjtds_git(&plan.billet_root, &["rev-parse", "HEAD"]), wip);
+    // Reap, then board again: nothing stands to rediscover, so a fresh serial
+    // is minted and the durable branch re-seats there with its history.
+    let wip = zjjtds_commit_all(&born.billet_root, "wip.txt", "carried", "wip on the pace branch");
+    jjrfg_PlainGit.jjrfr_billet_remove(&born.billet_root).unwrap();
+    let reseated = zjjtds_yard(&plan, 200507);
+    assert_eq!(reseated.billet_dirname, "jjqb_200507_AAAAA");
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &reseated).unwrap(), None);
+    assert_eq!(zjjtds_git(&reseated.billet_root, &["rev-parse", "HEAD"]), wip);
 }
 
 #[test]
 fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_billet() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_board_lunge");
     let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom).unwrap(), None);
+    let groom_yard = zjjtds_yard(&groom, 200500);
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom, &groom_yard).unwrap(), None);
 
-    // Trunk advances; the groom's re-board re-detaches to the fresh tip.
+    // Trunk advances; boarding the same yard again re-detaches to the fresh tip.
     zjjtds_commit_all(&hippodrome, "b.txt", "moved", "trunk advances");
     zjjtds_git(&hippodrome, &["push", "-q", "origin", ZJJTDS_TRUNK]);
-    let _ = jjrfg_PlainGit.jjrfr_glean(&groom.billet_root);
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom).unwrap(), None);
+    let _ = jjrfg_PlainGit.jjrfr_glean(&groom_yard.billet_root);
+    assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom, &groom_yard).unwrap(), None);
     let advanced = zjjtds_git(&hippodrome, &["rev-parse", &format!("refs/remotes/origin/{}", ZJJTDS_TRUNK)]);
-    assert_eq!(zjjtds_git(&groom.billet_root, &["rev-parse", "HEAD"]), advanced);
+    assert_eq!(zjjtds_git(&groom_yard.billet_root, &["rev-parse", "HEAD"]), advanced);
 
     // A pace billet born before the advance boards with the staleness notice.
     let pace = jjrds_plan(jjrds_Door::Saddle, "AAAAB", &hippodrome, false).unwrap();
+    let pace_yard = zjjtds_yard(&pace, 200501);
     zjjtds_commit_all(&hippodrome, "c.txt", "moved again", "trunk advances again");
     // Board births at the counterpart (pre-fetch, still at the old tip), then
     // gleans — which reveals the newer trunk and trips the probe.
     let notice = {
-        jjrds_board(&jjrfg_PlainGit, &pace).unwrap();
+        jjrds_board(&jjrfg_PlainGit, &pace, &pace_yard).unwrap();
         zjjtds_git(&hippodrome, &["push", "-q", "origin", ZJJTDS_TRUNK]);
-        jjrds_board(&jjrfg_PlainGit, &pace).unwrap()
+        jjrds_board(&jjrfg_PlainGit, &pace, &pace_yard).unwrap()
     };
     assert!(notice.unwrap_or_default().contains("refit"));
 }
@@ -641,7 +673,7 @@ fn jjtds_plan_over_studbook_reads_both_from_the_pin_touching_no_worktree_gallops
     // Behind the seam (over_studbook = true, const still false), gallops and
     // pedigree both resolve from the studbook's pinned snapshot.
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
-    assert_eq!(plan.billet_root, infield_canon.join("jjqb_AAAAA"));
+    assert_eq!(zjjtds_yard(&plan, 200500).billet_root, infield_canon.join("jjqb_200500_AAAAA"));
     assert_eq!(plan.birth, jjrfr_BilletBirth::Branch("jjls_pace/AAAAA".to_string()));
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.opening_prompt, "mount ₢AAAAA");
@@ -704,23 +736,182 @@ fn jjtds_currency_refuses_a_flying_guidon_naming_the_holder() {
 }
 
 #[test]
-fn jjtds_board_names_the_livery_rename_for_a_pre_mint_billet() {
+fn jjtds_rediscover_names_the_livery_rename_for_a_pre_mint_billet() {
     // The mint's crossing: a billet seated before the livery badge sits on the
-    // retired bare-body branch. Board refuses — but the refusal must carry the
-    // rename, since this is the one drift with a known cause and a one-line fix.
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_board_pre_mint_billet");
+    // retired bare-body branch, so the registry seats the badge nowhere while
+    // the yard carries a label for the pace. Rediscovery refuses rather than
+    // minting past it — minting would birth a fresh branch off trunk and fork
+    // the standing billet's work away in silence — and the refusal carries the
+    // rename, this being the one drift with a known cause and a one-line fix.
+    let (infield, hippodrome) = zjjtds_infield("jjtds_rediscover_pre_mint_billet");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let pre_mint = infield.path().join("jjqb_AAAAA");
     jjrfg_PlainGit
         .jjrfr_billet_create(
             &hippodrome,
             &jjrfr_BilletBirth::Branch("AAAAA".to_string()),
-            &plan.billet_root,
+            &pre_mint,
             ZJJTDS_TRUNK,
         )
         .unwrap();
 
-    let rejection = jjrds_board(&jjrfg_PlainGit, &plan).unwrap_err();
+    let rejection = jjrds_rediscover(&jjrfg_PlainGit, &plan).unwrap_err();
     let detail = rejection.to_string();
     assert!(detail.contains("predates the livery badge"), "got: {}", detail);
     assert!(detail.contains("branch -m jjls_pace/AAAAA"), "got: {}", detail);
+}
+
+// ---- The yard: serial labels and the tail-token read ----
+
+#[test]
+fn jjtds_billet_identity_reads_the_tail_token_past_any_serial() {
+    // The minted shape, and the pre-catchword shape that still stands in the
+    // yard: both answer with the identity alone.
+    assert_eq!(jjrds_billet_identity("jjqb_200500_AAAAA"), Some("AAAAA"));
+    assert_eq!(jjrds_billet_identity("jjqb_200500_AA"), Some("AA"));
+    assert_eq!(jjrds_billet_identity("jjqb_AAAAA"), Some("AAAAA"));
+    assert_eq!(jjrds_billet_identity("jjqb_AA"), Some("AA"));
+
+    // `_` is in the insignia charset, so an identity may carry one. The read
+    // steps over the SERIAL, never over the last underscore.
+    assert_eq!(jjrds_billet_identity("jjqb_200500_CAA_B"), Some("CAA_B"));
+    assert_eq!(jjrds_billet_identity("jjqb_200500_A_"), Some("A_"));
+    assert_eq!(jjrds_billet_identity("jjqb_CAA_B"), Some("CAA_B"));
+
+    // A digit run no longer than an identity body is not a serial: the whole
+    // suffix is the token, so a pre-catchword coronet of digits reads whole.
+    assert_eq!(jjrds_billet_identity("jjqb_12_AB"), Some("12_AB"));
+
+    // Not a billet at all.
+    assert_eq!(jjrds_billet_identity("jjqs_studbook"), None);
+    assert_eq!(jjrds_billet_identity("jjqd_scratch"), None);
+}
+
+#[test]
+fn jjtds_billet_dirname_wears_the_serial_ahead_of_the_identity() {
+    // Creation-timeline sortable in a plain listing: the serial leads, so
+    // lexical order over the yard is mint order.
+    assert_eq!(jjrds_billet_dirname(200500, "AAAAA"), "jjqb_200500_AAAAA");
+    let mut yard = vec![
+        jjrds_billet_dirname(200512, "AB"),
+        jjrds_billet_dirname(200500, "AAAAA"),
+        jjrds_billet_dirname(200507, "AB"),
+    ];
+    yard.sort();
+    assert_eq!(yard, vec!["jjqb_200500_AAAAA", "jjqb_200507_AB", "jjqb_200512_AB"]);
+
+    // And the label round-trips through the read that consumes it.
+    assert_eq!(jjrds_billet_identity(&jjrds_billet_dirname(200500, "CAA_B")), Some("CAA_B"));
+}
+
+#[test]
+fn jjtds_rediscover_never_rejoins_a_groom_billet_so_grooms_coexist() {
+    // Concurrent grooms of one heat are deliberately legal: a groom billet
+    // seats no branch, so nothing rediscovers, and each dispatch mints its own
+    // yard slot — uniqueness riding the serial alone.
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_rediscover_groom");
+    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
+
+    let first = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &first).unwrap();
+    assert_eq!(jjrds_rediscover(&jjrfg_PlainGit, &plan).unwrap(), None, "a groom billet never rediscovers");
+
+    let second = zjjtds_yard(&plan, 200501);
+    assert_ne!(first.billet_root, second.billet_root);
+    jjrds_board(&jjrfg_PlainGit, &plan, &second).unwrap();
+
+    // Both stand, both are groom ground, and their scratch is keyed apart.
+    assert_eq!(jjrds_ground(&jjrfg_PlainGit, &first.billet_root), Some(jjrds_Ground::GroomBillet));
+    assert_eq!(jjrds_ground(&jjrfg_PlainGit, &second.billet_root), Some(jjrds_Ground::GroomBillet));
+    assert_ne!(first.scratch_root, second.scratch_root);
+}
+
+// ---- The dispatch record ----
+
+/// The studbook's trunk tip subject, as the record wrote it.
+fn zjjtds_tip_subject(config: &jjdb_BlotterConfig) -> String {
+    zjjtds_git(&config.local_root, &["log", "-1", "--format=%s", &jjdb_pin(config).unwrap()])
+}
+
+#[test]
+fn jjtds_record_dispatch_lands_the_event_and_yields_the_billet_serial() {
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_record_dispatch");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+    let station = "jjtds-station";
+
+    // A saddle: the record names door, kind, target, and station — and nothing
+    // else. No worktree path appears in it.
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    let before = jjdb_pin(&studbook).unwrap();
+    let catchword = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &plan, station).unwrap();
+
+    let subject = zjjtds_tip_subject(&studbook);
+    assert_eq!(
+        subject,
+        format!("₶{}: dispatch saddle — pace billet for ₢AAAAA at station {}", catchword, station)
+    );
+    assert!(!subject.contains("jjqb_"), "the record is of the event, never the worktree path");
+
+    // Content-less by construction: the record's tree is its parent's own.
+    let tip = jjdb_pin(&studbook).unwrap();
+    assert_ne!(tip, before);
+    assert_eq!(
+        zjjtds_git(&studbook.local_root, &["rev-parse", &format!("{}^{{tree}}", tip)]),
+        zjjtds_git(&studbook.local_root, &["rev-parse", &format!("{}^{{tree}}", before)]),
+        "an event has no file: the record carries its parent's tree"
+    );
+
+    // The catchword the ceremony allocated is the serial the billet wears.
+    assert_eq!(
+        jjrds_yard(&plan.infield_root, plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body)))
+            .billet_dirname,
+        format!("jjqb_{}_AAAAA", catchword)
+    );
+
+    // A lunge behind it: the next serial, and the groom kind named with the
+    // heat's own sigil.
+    let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, true).unwrap();
+    let next = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &groom, station).unwrap();
+    assert_eq!(next, catchword + 1, "serials advance with the journal, so the yard sorts by birth");
+    assert_eq!(
+        zjjtds_tip_subject(&studbook),
+        format!("₶{}: dispatch lunge — groom billet for ₣AA at station {}", next, station)
+    );
+}
+
+#[test]
+fn jjtds_record_dispatch_refuses_under_a_held_guidon_and_lands_nothing() {
+    // The accepted cost of making birth a journaled write: a dispatch is
+    // LockHeld-refusable, exactly as every other studbook write is.
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_record_lockheld");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+
+    let holder = "officium=other station=elsewhere operation=curry";
+    jjrfg_PlainGit.jjrfr_stake(&studbook.local_root, holder).unwrap();
+    let before = jjdb_pin(&studbook).unwrap();
+
+    match jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &plan, "jjtds-station") {
+        Err(jjrds_Rejection::Farrier(r)) => assert_eq!(r.kind, jjrfr_RejectionKind::LockHeld),
+        other => panic!("a held guidon must refuse the dispatch record; got {:?}", other),
+    }
+    assert_eq!(jjdb_pin(&studbook).unwrap(), before, "a refused record lands nothing");
+
+    jjrfg_PlainGit.jjrfr_pluck(&studbook.local_root, holder).unwrap();
+}
+
+#[test]
+fn jjtds_dispatch_record_names_the_event_alone() {
+    // Composition in isolation, so the record's shape is pinned independently
+    // of the ceremony that carries it.
+    assert_eq!(
+        jjrds_dispatch_record(jjrds_Door::Saddle, &jjrfr_BilletBirth::Branch("jjls_pace/CAAAB".to_string()), "CAAAB", "macmini"),
+        "dispatch saddle — pace billet for ₢CAAAB at station macmini"
+    );
+    assert_eq!(
+        jjrds_dispatch_record(jjrds_Door::Lunge, &jjrfr_BilletBirth::Detached, "B9", "cerebro"),
+        "dispatch lunge — groom billet for ₣B9 at station cerebro"
+    );
 }

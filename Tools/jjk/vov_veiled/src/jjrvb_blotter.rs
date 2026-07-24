@@ -353,8 +353,9 @@ pub fn jjdb_read(config: &jjdb_BlotterConfig, rel_path: &Path) -> std::io::Resul
 /// moving the local branch, push atomic-under-lease, adopt locally only on
 /// acceptance — `JJr_b52`) -> release (best-effort pluck via the guard's drop).
 ///
-/// Returns the accepted position's SHA on success — live on the remote and
-/// adopted locally. A rejection at any lock-held step leaves `mutate` never
+/// Returns the landing on success — the accepted position's SHA, live on the
+/// remote and adopted locally, beside the revision ordinal the ceremony
+/// allocated for it. A rejection at any lock-held step leaves `mutate` never
 /// called; a rejection at advance or proffer still releases the lock on the
 /// way out (the guard drops on every exit path), and a refused proffer leaves
 /// the local branch and its record untouched — no residue exists for any later
@@ -364,7 +365,7 @@ pub fn jjdb_journal_try<F, M, E>(
     config: &jjdb_BlotterConfig,
     guidon: &str,
     mutate: M,
-) -> Result<String, jjdb_JournalReject<E>>
+) -> Result<jjdb_Landing, jjdb_JournalReject<E>>
 where
     F: jjrfr_FarrierCore + jjrfr_FarrierLock,
     M: FnOnce(&Path) -> Result<(Vec<PathBuf>, String), E>,
@@ -421,7 +422,20 @@ where
     // Release: best-effort pluck via the guard's drop, right here at the
     // ceremony's natural end.
     drop(guard);
-    Ok(new_head)
+    Ok(jjdb_Landing { sha: new_head, catchword: ordinal })
+}
+
+/// Where a journal write landed: the accepted position's SHA and the revision
+/// ordinal (`jjdb_catchword`) allocated for it under the lock. The ordinal is
+/// handed back because a caller may need the number the ceremony minted — the
+/// dispatch record's is the billet's serial (JJSVB "Revision ordinals", the
+/// catchword-serialed billet ruling) — and it is derivable nowhere else: it is
+/// read from the locked, advanced tip's own history, so a caller counting
+/// commits itself would be counting a different moment.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct jjdb_Landing {
+    pub sha: String,
+    pub catchword: u64,
 }
 
 /// The outcome of a fallible journal ceremony (`jjdb_journal_try`): a rejection
@@ -445,14 +459,31 @@ impl<E> From<jjrfr_Rejection> for jjdb_JournalReject<E> {
 
 /// Infallible journal: the original ceremony surface, for a mutate that cannot
 /// decline against the tip (the founding-seed and existing gallops-save
-/// callers). A thin adapter over `jjdb_journal_try` whose mutate is total — the
-/// `Abort` arm is `Infallible`, so it is unreachable.
+/// callers). A thin adapter over `jjdb_journal_mark`, dropping the mark for the
+/// callers that only need the position.
 pub fn jjdb_journal<F, M>(
     farrier: &F,
     config: &jjdb_BlotterConfig,
     guidon: &str,
     mutate: M,
 ) -> Result<String, jjrfr_Rejection>
+where
+    F: jjrfr_FarrierCore + jjrfr_FarrierLock,
+    M: FnOnce(&Path) -> (Vec<PathBuf>, String),
+{
+    jjdb_journal_mark(farrier, config, guidon, mutate).map(|landing| landing.sha)
+}
+
+/// Infallible journal, keeping the mark: the surface for a caller that needs the
+/// catchword the ceremony allocated — the dispatch record, whose catchword
+/// serials the billet it is recording. A thin adapter over `jjdb_journal_try`
+/// whose mutate is total, so the `Abort` arm is `Infallible` and unreachable.
+pub fn jjdb_journal_mark<F, M>(
+    farrier: &F,
+    config: &jjdb_BlotterConfig,
+    guidon: &str,
+    mutate: M,
+) -> Result<jjdb_Landing, jjrfr_Rejection>
 where
     F: jjrfr_FarrierCore + jjrfr_FarrierLock,
     M: FnOnce(&Path) -> (Vec<PathBuf>, String),
@@ -662,6 +693,7 @@ where
         files.extend(extra_files);
         Ok((files, message))
     })
+    .map(|landing| landing.sha)
 }
 
 /// The pinned tip's gallops tenant, or `None` when the tip has no such tenant
