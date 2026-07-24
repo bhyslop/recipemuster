@@ -256,8 +256,8 @@ via `billet_seat`, never re-births.
 Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}
 billet-ensure: billets are chat-ephemeral, branches durable (dispatch sheaf), so a reaped
 billet's branch re-seats with its own WIP history, un-anchored and un-reset.
-A branch the constellation already seats rejects in a named kind — seat-vestige when the
-recorded seat's root is gone, line-seated when it stands — rather than failing loud as a
+A branch the constellation already seats rejects in a named kind — {jjdf_seat_vestige} when the
+recorded seat's root is gone, {jjdf_line_seated} when it stands — rather than failing loud as a
 caller-contract violation: both are states the operator reaches by ordinary means, and both
 carry a remedy the refusal can name.
 `billet_create`'s collision arm keeps the caller-contract posture, being a JJ composition

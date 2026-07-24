@@ -11,15 +11,36 @@ use std::path::PathBuf;
 
 #[test]
 fn jjtfr_rejection_kind_as_str_is_git_free() {
+    // Exhaustive match, no wildcard arm: a new jjrfr_RejectionKind variant fails
+    // this to compile until it is added both here and to the `kinds` list below.
+    fn jjtfr_exhaustive(kind: jjrfr_RejectionKind) -> jjrfr_RejectionKind {
+        match kind {
+            jjrfr_RejectionKind::ForeignGround => kind,
+            jjrfr_RejectionKind::DirtyTree => kind,
+            jjrfr_RejectionKind::Diverged => kind,
+            jjrfr_RejectionKind::LockHeld => kind,
+            jjrfr_RejectionKind::LockBroken => kind,
+            jjrfr_RejectionKind::SeatVestige => kind,
+            jjrfr_RejectionKind::LineSeated => kind,
+        }
+    }
     let kinds = [
         jjrfr_RejectionKind::ForeignGround,
         jjrfr_RejectionKind::DirtyTree,
         jjrfr_RejectionKind::Diverged,
         jjrfr_RejectionKind::LockHeld,
         jjrfr_RejectionKind::LockBroken,
+        jjrfr_RejectionKind::SeatVestige,
+        jjrfr_RejectionKind::LineSeated,
     ];
+    for k in kinds {
+        jjtfr_exhaustive(k);
+    }
     let strs: Vec<&str> = kinds.iter().map(|k| k.jjrfr_as_str()).collect();
-    assert_eq!(strs, ["foreign-ground", "dirty-tree", "diverged", "lock-held", "lock-broken"]);
+    assert_eq!(
+        strs,
+        ["foreign-ground", "dirty-tree", "diverged", "lock-held", "lock-broken", "seat-vestige", "line-seated"]
+    );
     for s in &strs {
         assert!(!s.contains("git"), "rejection kind string must stay git-free: {}", s);
     }

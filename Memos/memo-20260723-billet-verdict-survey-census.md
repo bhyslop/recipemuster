@@ -93,3 +93,20 @@ operator arrives at by ordinary means.
 4. **`billet_create` onto an occupied path.** The inverse residue: registration
    pruned, directory surviving. Not observed. The catchword build, which changes
    how billet dirnames are minted, should re-judge it.
+
+## Correction (2026-07-23, appended at the verdict-survey wrap review)
+
+The recipe's own grep — `grep -n zjjrfg_unexpected Tools/jjk/vov_veiled/src/jjrfg_plaingit.rs`
+— reproduces **43** matched lines, not 44. One of those 43 is the `zjjrfg_unexpected`
+*definition* line itself, not a call site, so the call-site count is **42**, and the
+"21 ops" figure above the Recipe heading stands unchanged.
+
+The verdict table also left one call site unjudged: the panic inside
+`zjjrfg_hash_object`, the shared helper `proffer`, `stake`, and `pluck` all call to
+hash (and, for `proffer`/`stake`, write) a blob before using its SHA. That panic
+fires only on a local `git hash-object` failure — the same class as the in-house
+object-database composition steps already surveyed and kept as panic (the
+`proffer` (461, 467, 475, 482, 486, 491, 528, 532), `bequeath` (684, 693, 699, 707)
+row): every input is composed by this driver moments earlier, so the panic is
+**not observed** and there is no domain verdict to name. It fails the first
+conjunct and joins that row's verdict — **panic**, uncontested by this census.
