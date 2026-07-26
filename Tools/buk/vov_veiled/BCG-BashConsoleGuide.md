@@ -1619,7 +1619,7 @@ External commands are potential failure points, portability hazards, and supply-
 
 These external commands are accepted in any BUK-based project. Each has no bash 3.2 builtin replacement and is mandated by POSIX on any system that runs bash:
 
-`chmod`, `cp`, `date`, `find`, `mkdir`, `mktemp`, `mv`, `rm`, `sed`, `sleep`, `sort`, `stty`
+`chmod`, `cp`, `date`, `find`, `mkdir`, `mktemp`, `mv`, `rm`, `sleep`, `sort`, `stty`
 
 Commands on this list need no justification — they are the irreducible dependency floor.
 
@@ -1635,6 +1635,7 @@ These commands have bash builtin or declared-dependency replacements. Do not rei
 | `grep` | `case`, `test`, `[[ =~ ]]` | BCG-blessed pattern matching; see Test vs Bracket Expressions |
 | `head` | `read -r` | First-line extraction is a single builtin call |
 | `ls` | Glob expansion | `for f in dir/*` iterates without spawning a process |
+| `sed` | `${var//pattern/repl}` (extglob), `[[ =~ ]]` BASH_REMATCH | Substitution via extglob quantifiers (`+([0-9;])`); capture via regex match groups |
 | `sha256sum`/`shasum` | `openssl dgst -sha256 -r` | Platform names differ; openssl is universal |
 | `tr` | `${var//old/new}` parameter expansion | Character replacement is a builtin |
 | `wc` | `${#var}`, `${#arr[@]}` | Length measurement is a builtin |

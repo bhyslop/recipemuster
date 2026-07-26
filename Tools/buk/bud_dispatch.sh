@@ -19,6 +19,7 @@
 # Bash Utility Regime Dispatch - Direct bash dispatch
 
 set -euo pipefail
+shopt -s extglob
 
 BURE_VERBOSE=${BURE_VERBOSE:-0}
 
@@ -233,12 +234,22 @@ zbud_process_args() {
 # Function to curate logs for the 'same' log file (normalized output)
 zbud_curate_same() {
   # Convert to unix line endings, strip colors, normalize temp dir, remove VOLATILE lines
-  sed -e 's/\r/\n/g'                             \
-      -e '/^$/d'                                 \
-      -e 's/\x1b[\[][0-9;]*[a-zA-Z]//g'          \
-      -e 's/\x1b[(][A-Z]//g'                     \
-      -e "s|${BURD_TEMP_DIR}|BURD_EPHEMERAL_DIR|g" \
-      -e '/VOLATILE/d'
+  local z_line
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    test -n "${z_line}" || continue
+    z_line="${z_line//$'\x1b'\[+([0-9;])[a-zA-Z]/}"
+    z_line="${z_line//$'\x1b'\([A-Z]/}"
+    z_line="${z_line//${BURD_TEMP_DIR}/BURD_EPHEMERAL_DIR}"
+    case "${z_line}" in
+      *VOLATILE*) continue ;;
+    esac
+    local -a z_frames
+    IFS=$'\r' read -ra z_frames <<< "${z_line}"
+    local z_frame
+    for z_frame in "${z_frames[@]}"; do
+      printf '%s\n' "${z_frame}"
+    done
+  done
 }
 
 # Function to curate logs for the historical log file (with timestamps)

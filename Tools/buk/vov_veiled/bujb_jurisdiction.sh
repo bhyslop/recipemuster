@@ -2369,14 +2369,14 @@ bujb_invigilate_linux() {
   zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sleep-targets-" \
       'systemctl is-enabled sleep.target suspend.target hibernate.target hybrid-sleep.target' \
     || true
-  local z_targets z_target z_i=1
+  local z_targets z_target
   z_targets=$(<"${ZBUJB_LAST_AP_STDOUT}")
   for z_target in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
-    z_val=$(printf '%s\n' "${z_targets}" | sed -n "${z_i}p")
+    z_val=""
+    IFS= read -r z_val || true
     test "${z_val}" = "masked" \
       || buc_die "${z_target} mask state: expected masked, got '${z_val:-<unreported>}' — caparison-linux (BUSJCL)"
-    z_i=$((z_i + 1))
-  done
+  done <<< "${z_targets}"
 
   buc_step "  Fact: systemctl is-enabled tailscaled = enabled"
   zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}tailscaled-is-enabled-" 'systemctl is-enabled tailscaled' \
