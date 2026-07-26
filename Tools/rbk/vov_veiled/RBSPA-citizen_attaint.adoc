@@ -33,10 +33,9 @@ followed by the depot-scoped sweep — the only verb that removes the
 (absent muniment, absent binding), so the across-all-mantles loop is safe whatever the
 citizen actually held.
 
-NOTE: *Crash leaves surplus, never resurrection.* The teardown runs muniment-then-binding
-per mantle, then the sweep. A crash mid-teardown leaves a partial expulsion as visible
-surplus — some bindings still live without their muniments — which the read-only
-reconciliation diff surfaces and a re-run clears. No partial path re-grants anything.
+NOTE: *Crash leaves surplus, never resurrection* (RBr_m4d). The teardown runs
+muniment-then-binding per mantle, then the sweep; a crash mid-teardown is a visible
+partial expulsion a re-run clears, and no partial path re-grants anything.
 
 //axhos_step
 . *Don the governor

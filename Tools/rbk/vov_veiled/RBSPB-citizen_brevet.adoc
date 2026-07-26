@@ -39,6 +39,17 @@ is engrossed before any IAM binding. A crash after the muniment but before a bin
 leaves a visible deficit — a recorded holding without its grant — corrected by
 re-running brevet (idempotent); never a silent surplus.
 
+[[RBr_m4d]]
+//axvc_dictum
+RBr_m4d::
+Invariant the admission compositions defend — intent-first ordering: the
+{rbtf_muniment}
+mutation precedes every IAM mutation (engross before any grant, expunge before any
+revoke), so a crash between record and binding is corrected by re-running the
+idempotent verb and never leaves a change the record gave no notice of.
+The bare line order in each composition core is the whole enforcement;
+a reader must not reorder or parallelize it.
+
 NOTE: *Two distinct canonical IAM paths* (BCG Interface Contamination). The
 mantle-SA `tokenCreator` binding names a `principal://` member through the SA-scope
 principal grant, never the `serviceAccount:` member sibling; the depot
