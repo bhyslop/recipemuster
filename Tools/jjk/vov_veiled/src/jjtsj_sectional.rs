@@ -42,8 +42,10 @@ fn jjtsj_outcome_classifies_application_error() {
 
     let body = jjtsj_read(&dir);
     let lines: Vec<&str> = body.lines().collect();
-    assert_eq!(lines.len(), 2);
-    assert!(lines[1].contains("status=error"), "line 1: {}", lines[1]);
+    assert_eq!(lines.len(), 3, "open, raw, outcome: {:?}", lines);
+    assert!(lines[1].starts_with("RAW "), "line 1: {}", lines[1]);
+    assert!(lines[1].contains("INTERDICTUM"), "raw foreign text before the verdict: {}", lines[1]);
+    assert!(lines[2].contains("status=error"), "line 2: {}", lines[2]);
 }
 
 #[test]
@@ -57,8 +59,10 @@ fn jjtsj_outcome_classifies_transport_error() {
 
     let body = jjtsj_read(&dir);
     let lines: Vec<&str> = body.lines().collect();
-    assert_eq!(lines.len(), 2);
-    assert!(lines[1].contains("status=error"), "line 1: {}", lines[1]);
+    assert_eq!(lines.len(), 3, "open, raw, outcome: {:?}", lines);
+    assert!(lines[1].starts_with("RAW "), "line 1: {}", lines[1]);
+    assert!(lines[1].contains("boom"), "raw foreign text before the verdict: {}", lines[1]);
+    assert!(lines[2].contains("status=error"), "line 2: {}", lines[2]);
 }
 
 /// The stall fingerprint: a killed mid-ceremony command writes the open line

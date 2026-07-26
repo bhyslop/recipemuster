@@ -54,8 +54,27 @@ pub(crate) fn zjjrsj_step_open_at(path: &std::path::Path, cmd: &str) {
 /// resolves onto. Classifies the result as ok or error; an error can arrive
 /// at either layer — the transport-level `ErrorData`, or an
 /// application-level `CallToolResult` whose `is_error` flag is set
-/// (refusals, INTERDICTUM, deser failures).
+/// (refusals, INTERDICTUM, deser failures). For an error at either layer,
+/// the raw result text lands on a RAW line ahead of the OUTCOME line —
+/// raw foreign error text before any classification verdict —
+/// JSON-escaped so a multi-line foreign message still holds the file's
+/// line grain.
 pub(crate) fn zjjrsj_step_outcome_at(path: &std::path::Path, cmd: &str, result: &Result<CallToolResult, ErrorData>) {
+    let raw: Option<String> = match result {
+        Ok(r) if r.is_error == Some(true) => Some(
+            r.content
+                .iter()
+                .filter_map(|c| c.as_text().map(|t| t.text.as_str()))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        ),
+        Ok(_) => None,
+        Err(e) => Some(e.message.to_string()),
+    };
+    if let Some(raw) = raw {
+        let escaped = serde_json::to_string(&raw).unwrap_or_else(|_| "\"<unencodable>\"".to_string());
+        zjjrsj_append(path, &format!("RAW {} cmd={} {}", chrono::Utc::now().to_rfc3339(), cmd, escaped));
+    }
     let status = match result {
         Ok(r) if r.is_error == Some(true) => "error",
         Ok(_) => "ok",
