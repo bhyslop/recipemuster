@@ -393,7 +393,7 @@ zrbfd_stitch_build_json() {
 
   # Resolve base images: ANCHOR (locator) → full GAR reference, or pass ORIGIN through.
   # The locator carries its own namespace path (e.g. rbi_ld/<touchmark>:rbi_bole);
-  # paths within a GAR repo are prefix-free per the wrest/jettison convention.
+  # paths within a GAR repo are prefix-free, so the locator is used as-is.
   # Locator captures (z_image_locator_n) feed _RBGR_BASE_LOCATOR_n substitutions
   # for the in-pool preflight step — anchored slots get HEAD-checked, pass-through
   # slots stay empty (preflight cannot reach upstream from the worker pool).

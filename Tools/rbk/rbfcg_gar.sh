@@ -66,10 +66,7 @@ zrbfc_list_packages_capture() {
   sort "${z_raw_file}" > "${z_sorted_file}" \
     || buc_die "Failed to sort GAR package list"
 
-  # Per-package tags.list filter: skip packages with zero live tags. Post-jettison
-  # walking-dead packages persist in GAR's package container until the depot cleanup
-  # policy reaps the orphan children on its daily run; filtering at this read site
-  # decouples display state from GAR's lazy reclamation cadence.
+  # Per-package tags.list filter: skip packages with zero live tags. RBr_w9k
   : > "${ZRBFC_PACKAGE_LIST_FILE}"
   local z_element z_basename z_pkg_name z_pkg_encoded z_tag_infix z_tag_count
   local -i z_tag_idx=0
