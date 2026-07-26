@@ -565,7 +565,7 @@ z_result=$((z_value * 2 + 10))    # Instead of: expr or bc
 
 ### Temp Files Instead of Command Substitution
 
-All external command output capture uses temp files. The three prohibited `$()` patterns are: `local z_var=$(cmd)` (local swallows exit status), pipelines inside `$()` (hidden intermediate failures), and unguarded `$()` (silent failure). The only `$()` permitted on functions is for `_capture` (secrets that must not touch disk) and `_recite` (read-only roll access) — both with explicit `|| buc_die` or `|| return 1`. Bash introspection (`compgen`, `declare -F`, `mktemp`) is also permitted in `$()` as no file-based alternative exists.
+All external command output capture uses temp files. The three prohibited `$()` patterns are: `local z_var=$(cmd)` (local swallows exit status), pipelines inside `$()` (hidden intermediate failures), and unguarded `$()` (silent failure). The only `$()` permitted on functions is for `_capture` (secrets that must not touch disk) and `_recite` (read-only roll access) — both with explicit `|| buc_die` or `|| return 1`. Bash introspection (`compgen`, `declare -F`) is also permitted in `$()` as no file-based alternative exists.
 
 These rules govern **command substitution** — `$(command)`, which spawns a subshell, runs a command, and can fail. They do not apply to `$(<file)`, which despite sharing the `$()` syntax is a bash **builtin file redirect**: no subshell, no command, nothing to fail. `$(<file)` needs no `|| buc_die` guard — it takes content validation (`test -n` on the result) instead, since a successful read of an empty or missing file still yields the empty string.
 
@@ -1185,7 +1185,7 @@ some_cmd || { echo "ERROR" >&2; exit 1; }
 The prohibition above is specific to error-handling blocks where `exit`/`return` must reach the calling shell. Subshells are legitimate in these contexts:
 
 - **Test execution** — principled isolation between suites and cases; see **Test Execution Patterns**
-- **`$()` command substitution** — inside `_capture`/`_recite` functions only, or bash introspection (`compgen`, `declare -F`, `mktemp`); see **Capture Functions** and **Command Substitution Rules** checklist
+- **`$()` command substitution** — inside `_capture`/`_recite` functions only, or bash introspection (`compgen`, `declare -F`); see **Capture Functions** and **Command Substitution Rules** checklist
 - **Isolation subshells** — environment containment with exit-status propagation (below)
 
 #### Isolation Subshells (environment containment)
@@ -1619,7 +1619,7 @@ External commands are potential failure points, portability hazards, and supply-
 
 These external commands are accepted in any BUK-based project. Each has no bash 3.2 builtin replacement and is mandated by POSIX on any system that runs bash:
 
-`chmod`, `cp`, `date`, `find`, `mkdir`, `mktemp`, `mv`, `rm`, `sleep`, `sort`, `stty`
+`chmod`, `cp`, `date`, `find`, `mkdir`, `mv`, `rm`, `sleep`, `sort`, `stty`
 
 Commands on this list need no justification — they are the irreducible dependency floor.
 
@@ -1635,6 +1635,7 @@ These commands have bash builtin or declared-dependency replacements. Do not rei
 | `grep` | `case`, `test`, `[[ =~ ]]` | BCG-blessed pattern matching; see Test vs Bracket Expressions |
 | `head` | `read -r` | First-line extraction is a single builtin call |
 | `ls` | Glob expansion | `for f in dir/*` iterates without spawning a process |
+| `mktemp` | A name under `BURD_TEMP_DIR`/`BUT_TEMP_DIR`, keyed by a monotonic counter (never `$$` — a subshell never gets a fresh PID, so a command that itself nests another capture would collide on a `$$`-keyed name) | Never a POSIX Utility (only the transient POSIX.1-2001 `mktemp()` C function, removed 2008); kept in the GCB-bash tool floor for cloud-side build tooling running on a controlled Debian builder |
 | `sed` | `${var//pattern/repl}` (extglob), `[[ =~ ]]` BASH_REMATCH | Substitution via extglob quantifiers (`*([0-9;])` for a regex `*`, zero-or-more — `+(...)` is one-or-more and under-matches); capture via regex match groups |
 | `sha256sum`/`shasum` | `openssl dgst -sha256 -r` | Platform names differ; openssl is universal |
 | `tr` | `${var//old/new}` parameter expansion | Character replacement is a builtin |
@@ -1896,7 +1897,7 @@ buc_warn    # Instead of echo >&2
 - [ ] NO pipelines inside `$()` — use `_capture` function or temp files
 - [ ] NO unguarded `$()` — every `$(cmd)` must have `|| buc_die` or `|| return 1`
 - [ ] NO `$()` on external commands — use temp files; `_capture`/`_recite` for contracted functions only
-- [ ] Bash introspection (`compgen`, `declare -F`, `mktemp`) permitted in `$()` — no file-based alternative
+- [ ] Bash introspection (`compgen`, `declare -F`) permitted in `$()` — no file-based alternative
 - [ ] `$(<file)` is a builtin redirect, not command substitution — needs content validation (`test -n`), NOT a `|| buc_die` guard
 - [ ] Temp files for all external command output capture
 - [ ] `_capture` and `_recite` functions properly named with suffix

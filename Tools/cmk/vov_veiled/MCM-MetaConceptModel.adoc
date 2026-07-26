@@ -1177,7 +1177,7 @@ the
 is a poor judge of its own reserves, since its nature is to adopt the
 {mcm_editor_p}
 word-use quickly, so the census grows by noticing surprise, not by introspection.
-Seed: spine, axis, seam, sweep, proof, probe.
+Seed: spine, axis, seam, sweep, proof, probe, grain.
 Standing conflict: probe is seeded here while still minted in
 {mcm_cold_probe}
 — the reservation is claimed ahead of the eviction, deferred until the global-rename tooling matures enough to sweep the live use.
