@@ -80,6 +80,7 @@ const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
 const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
 const ZJJRFG_OP_LINE_ABROAD: &str = "line_abroad";
 const ZJJRFG_OP_OUTSTRIPPED: &str = "outstripped";
+const ZJJRFG_OP_COUNTERPART_CHALK: &str = "counterpart_chalk";
 const ZJJRFG_OP_REACHABLE: &str = "reachable";
 const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
@@ -827,6 +828,20 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             Some(1) => Ok(true),
             _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.zjjrfg_detail()),
         }
+    }
+
+    fn jjrfr_counterpart_chalk(&self, billet_root: &Path, trunk: &str) -> Result<Option<(String, String)>, jjrfr_Rejection> {
+        let counterpart = zjjrfg_counterpart(trunk);
+        let sha_out = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", "--quiet", &counterpart]);
+        if !sha_out.ok {
+            return Ok(None);
+        }
+        let sha = sha_out.stdout.trim().to_string();
+        let msg_out = zjjrfg_run_git(billet_root, &["log", "-1", "--format=%B", &counterpart]);
+        if !msg_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_COUNTERPART_CHALK, billet_root, &msg_out.zjjrfg_detail());
+        }
+        Ok(Some((sha, msg_out.stdout)))
     }
 
     fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {
