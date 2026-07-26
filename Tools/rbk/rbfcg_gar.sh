@@ -269,8 +269,7 @@ zrbfc_gar_extract_artifact() {
 # Registry API — manifest -> .config.digest -> blob — no docker, no gcloud. Used by
 # plumb to read the rbi_resolved_base_n labels back from the signed attest image.
 # Resolves a multi-platform index to its first platform; image labels are identical
-# across platforms (set once at buildx, preserved byte-identically by the
-# per-platform pullback), so any platform's config carries them.
+# across platforms (RBr_b4e), so any platform's config carries them.
 # Args: token package tag out_config_file
 # Returns: 0 and writes the config JSON to out_config_file; 1 if the image is not
 # found (HTTP 404 — graceful, e.g. a pre-resolved-base hallmark). Infrastructure
