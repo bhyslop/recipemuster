@@ -134,7 +134,16 @@ BUBC_band_escheat=114   # terrier escheat rejection (survey list/fetch deficit, 
 # refuses acquisition outright) and the admission band (109, the don's Leg-3
 # 403), and it shares no spawn path with either along a single pipeline.
 BUBC_band_runway=115    # sitting-runway rejection (live sitting below the required-runway floor at reuse; novate to open a fresh one)
-# Free codes: 116-122, allocated upward from 116.
+# Unseised substrate-reliquary election: the vessel-less substrate captures
+# (underpin, immure) refuse AT USE when RBRR_SUBSTRATE_RELIQUARY is unseised,
+# rather than silently floating on a mutable builder tag. Distinct from
+# band_regime (100): the capture dispatch crosses zrbrr_enforce (which fires 100
+# on a malformed reliquary field) along the same spawn path, so the allocation
+# rule forbids the share — crossed along a pipeline, not alternatives (the
+# band_vacant precedent). One gate: underpin's and immure's rejects are
+# alternative firings that never co-occur, so they share this code.
+BUBC_band_unseised=116  # unseised substrate-reliquary election rejection (underpin/immure at-use — RBRR_SUBSTRATE_RELIQUARY unseised; seise one with rbw-rrs)
+# Free codes: 117-122, allocated upward from 117.
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 

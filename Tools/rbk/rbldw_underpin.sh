@@ -153,7 +153,7 @@ rbld_underpin() {
   # rather than silently floating on a mutable tag; seise one with rbfl_seise.
   local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
   test -n "${z_substrate_reliquary}" \
-    || buc_reject "${BUBC_band_regime}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
+    || buc_reject "${BUBC_band_unseised}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
   zrbfc_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"

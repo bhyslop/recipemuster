@@ -193,6 +193,7 @@ pub const RBTDGC_BAND_ENGROSS: i32 = 111;
 pub const RBTDGC_BAND_EXPUNGE: i32 = 112;
 pub const RBTDGC_BAND_PERUSE: i32 = 113;
 pub const RBTDGC_BAND_RUNWAY: i32 = 115;
+pub const RBTDGC_BAND_UNSEISED: i32 = 116;
 pub const RBTDGC_BAND_SELFTEST: i32 = 123;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string
