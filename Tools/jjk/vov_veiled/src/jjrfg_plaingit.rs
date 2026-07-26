@@ -350,6 +350,13 @@ pub(crate) fn zjjrfg_push_rejected(stderr: &str) -> bool {
     stderr.contains("[rejected]") || stderr.contains("stale info") || stderr.contains("non-fast-forward")
 }
 
+/// Git's own stable vocabulary for a fetch of a named ref the remote no longer
+/// advertises — the signature `jjrfr_sight` races when the guidon lock is
+/// released between its ls-remote and this fetch.
+pub(crate) fn zjjrfg_guidon_vanished(stderr: &str) -> bool {
+    stderr.contains("couldn't find remote ref")
+}
+
 impl jjrfr_FarrierCore for jjrfg_PlainGit {
     fn jjrfr_identify(&self, probe_path: &Path) -> Result<jjrfr_Identity, jjrfr_Rejection> {
         let top = zjjrfg_run_git(probe_path, &["rev-parse", "--show-toplevel"]);
@@ -669,6 +676,12 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         // cat-file can read what it actually says.
         let fetch = zjjrfg_run_git(root, &["fetch", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]);
         if !fetch.ok {
+            // The lock can be plucked between the ls-remote above and this
+            // fetch — that race reads identically to "no lock now" (the empty
+            // ls-remote branch above), not a plumbing fault.
+            if zjjrfg_guidon_vanished(&fetch.stderr) {
+                return Ok(None);
+            }
             zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &fetch.zjjrfg_detail());
         }
         let content = zjjrfg_run_git(root, &["cat-file", "-p", &sha]);
