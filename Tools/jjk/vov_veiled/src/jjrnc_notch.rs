@@ -264,9 +264,12 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 /// build), so this is the one signal available here to tell a pace billet
 /// apart from everything else they can currently run from.
 ///
-/// Two callers weld their durable side-effect to this push: notch (Ruling 3,
-/// every commit reaches remote custody immediately) and landing (the L commit
-/// must not wait on a session exit that a same-session land→wrap never fires).
+/// Three callers weld their durable side-effect to this push: notch (Ruling 3,
+/// every commit reaches remote custody immediately), landing (the L commit
+/// must not wait on a session exit that a same-session land→wrap never
+/// fires), and wrap (the branch must still reach remote custody as part of
+/// wrap itself, so the exit stile clears the billet after the converge has
+/// already delivered the tree to trunk).
 pub(crate) fn jjrnc_consign_current_branch<F: jjrfr_FarrierCore>(farrier: &F) -> Result<(), String> {
     let cwd = std::env::current_dir().map_err(|e| format!("failed to read current directory: {}", e))?;
     let identity = farrier.jjrfr_identify(&cwd).map_err(|e| e.to_string())?;
