@@ -139,6 +139,12 @@ A claimed tree resolves exactly four things:
   reading JJ's {jjdd_livery} out of it is a consumer's act, above the {jjdf_palisade},
   never {jjdf_identify_p} — a kind knows ref names, not JJ's identities.
 
+The *seat* and *line of work* are the substrate JJ's dispatch {jjdd_ground} taxonomy reduces
+downstream (dispatch sheaf) — hippodrome, pace billet, groom billet, or unboarded.
+That {jjdd_ground} is a different sense of the word from the claim-or-decline detection above:
+the decline is {jjdf_foreign_ground} — no kind claims the tree at all — while {jjdd_ground}
+classifies which JJ-claimed footing a tree a kind already claimed sits on.
+
 {jjdf_identify} is *total* for a claimed tree: detached, mid-merge, and dirty states report
 faithfully, never reject;
 the sole failure is foreign ground (no kind claims), and all refusal policy lives in

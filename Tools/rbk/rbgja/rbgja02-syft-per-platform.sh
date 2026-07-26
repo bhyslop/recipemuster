@@ -36,8 +36,9 @@ echo "Fetching OAuth2 token from metadata server"
 TOKEN_JSON=$(curl -sf -H "Metadata-Flavor: Google" \
   "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token") \
   || { echo "Failed to fetch OAuth2 token from metadata server" >&2; exit 1; }
-TOKEN=$(printf '%s' "${TOKEN_JSON}" | sed 's/.*"access_token":"\([^"]*\)".*/\1/') \
+[[ "${TOKEN_JSON}" =~ \"access_token\":\"([^\"]*)\" ]] \
   || { echo "Failed to parse access_token" >&2; exit 1; }
+TOKEN="${BASH_REMATCH[1]}"
 test -n "${TOKEN}" || { echo "OAuth2 token empty" >&2; exit 1; }
 
 # Split platforms and suffixes

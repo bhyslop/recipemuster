@@ -80,3 +80,24 @@ studbook-droppings sweep) and `CAAAy` (blocker memo) merged to main and pushed;
 vvx rebuilt and installed from converged main. Remaining in ₣B3 — ₢B3·CAAAy
 (drain-jjsas-cutover-section) and ₢B3·B3AAA (cut-the-footprint-heat) — each
 wraps by hand the same way.
+
+## Retirement disposition (2026-07-26)
+
+Retired: the wrap machinery landed, and every "spec homes owed" row above was
+taken by the specs in the footprint-delivery heat's spec-accord pace —
+JJSRWP-wrap rewritten to the gate + converge sequence, JJSVD's trunk prose and
+refit reconciled with the wrap-entry gate (and the ground guards homed there),
+JJSAC's Act III gaining the converge beat.
+
+One departure from the letter of ruling 4, recorded so a later reader is not
+puzzled by the muck spec: ruling 4's *converged-to-trunk reap gate* was
+**superseded** by the later muck redesign (the operator-directed named-billet
+destroy door), which rules pace state — the wrap counterfoils included — as
+evidence for the operator's confirm, never as a gate ("the operator may destroy
+a mid-work billet deliberately"). The genuinely-owed half of ruling 4 did land:
+the wrap's journal entry now records the trunk position its squash produced (the
+second counterfoil — the `Converge:` trailer), homed in the studbook and journal
+sheaves. Supersession ruled by the operator at retirement.
+
+Ruling 6 (the kit split) is a rung of its own, carried forward to the successor
+heat by the ladder's boundary pace — not this memo's to close.

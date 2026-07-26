@@ -32,7 +32,7 @@ If absent or empty, the trailer is `Spook: none`, so every wrap carries the line
 
 * 0 — success
 * 1 — general error (parse failure, gallops error, git error)
-* 2 — size guard exceeded (use {jjda_size_limit} to override)
+* 2 — refused before mutating: the staleness gate (billet trails trunk; {jjdd_refit} is the remedy) or the size guard (use {jjda_size_limit} to override)
 
 {jjds_behavior}
 

@@ -139,6 +139,20 @@ the {jjdb_studbook} points at the {jjdw_hippodrome}, never the reverse.
 The only hippodrome-side mark is the session-id commit trailer,
 a denormalized cache justified by query convenience, never by recoverability.
 
+*Two counterfoils, one stub shape.*
+The stub above names *issued work* — a notch's commit, or the work-half of a wrap.
+A wrap records a second, the *converge counterfoil*: the trunk position its squash-converge
+produced (wrap sheaf).
+The squash bequeaths the billet's tree to trunk as one commit whose sole parent is trunk's
+tip, so no ancestry runs from trunk back to the billet's branch — the accepted position is
+recorded here or nowhere.
+It rides the wrap's {jjdb_journal} entry as a `Converge:` trailer, paired with a `Billet:`
+trailer on trunk's own record naming the branch whose interior history did not travel;
+an absent value spells `none`, keeping the trailer a reliable grep surface across the corpus.
+Where the work {jjdb_counterfoil} is a member→SHA manifest, this one is a commit-message
+trailer rather than a structured field — a squash's lost ancestry recovered by name, since
+there is no ancestry to walk.
+
 *Rebase soft spot (known, accepted):*
 a rebase after journaling rewrites SHAs and dangles the {jjdb_counterfoil} —
 degraded provenance, not corruption; nothing downstream builds on it.
