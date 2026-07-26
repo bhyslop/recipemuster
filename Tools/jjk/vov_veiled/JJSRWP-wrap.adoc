@@ -38,6 +38,9 @@ Trunk's own record of the pace is a W marker carrying a `Billet:` trailer naming
 .. *Refused* — trunk moved between the gate's glean and this push (fast-forward-protected), so the delivery lost a race: exit 1, trunk untouched, the pace still open, and by compose-then-push construction no residue to scrub — refit, then wrap again.
 . *W marker*: record the wrap in the {jjdb_journal} — the same complete-state transition journaled to the {jjdb_studbook} against the locked tip, the chalk message riding the journal commit (the gallops has left the consumer repo; the work commit above carried the user's code).
 The marker carries two one-line trailers, each always present and spelling an absent value `none`: `Converge:` — the trunk position the squash produced (the second {jjdb_counterfoil} the bequest makes necessary, since it leaves no ancestry a check could follow) — and `Spook:` — the wrap-time friction report.
+. Consign the billet branch to its remote counterpart when — and only when — the checked-out branch wears the pace livery badge;
+remote custody of the billet's own commits is part of wrap itself, never left for the exit stile to warn about after the converge already delivered the tree to trunk.
+A consign failure surfaces loud and fails the command while the local commits stand (additive discipline).
 . Lookahead: walk the parent heat's order for the next actionable pace — the first in state {jjdpe_rough} or bridled (a bridled next-pace renders its tier).
 . Emit the `AGENT_RESPONSE:` relay line, converge-era: a delivered billet reports where the work landed and directs the session to exit — the next pace mounts from a fresh session on its own billet, or the heat is complete and retires; a wrap that resolved no billet keeps the plain `/clear`-then-`mount`/`retire` form.
 . Release the lock and return the marker SHA.

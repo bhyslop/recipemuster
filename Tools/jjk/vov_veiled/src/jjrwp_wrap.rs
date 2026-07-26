@@ -24,7 +24,6 @@
 //! want of a billet delivers nothing either.
 
 use std::path::{Path, PathBuf};
-use std::io::Write;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
@@ -354,35 +353,32 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             return (1, output.vvco_finish());
         }
 
-        let mut claude_cmd = match vvc::vvce_claude_command()
-            .args([
-                "--print",
-                &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
-            ])
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
-        {
-            Ok(c) => c,
+        // JJr_9m4: the claude spawn is a remote-reaching subprocess wait, so it
+        // runs under the same deadline law as the git ops — bounded, no retry
+        // (a second paid call is not a retry the membrane owes), guided on
+        // expiry.
+        let mut claude_cmd = vvc::vvce_claude_command();
+        claude_cmd.args([
+            "--print",
+            &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
+        ]);
+        let claude_output = match vvc::vvce_env::vvce_output_deadline(
+            &mut claude_cmd,
+            Some(diff_content.stdout.clone()),
+            vvc::VVCC_CLAUDE_DEADLINE,
+        ) {
+            Ok(Some(o)) => o,
+            Ok(None) => {
+                vvco_err!(
+                    output,
+                    "{}: error: claude exceeded its {}s deadline — an API stall or hung CLI, not a diff problem. Re-run the wrap.",
+                    cn,
+                    vvc::VVCC_CLAUDE_DEADLINE.as_secs()
+                );
+                return (1, output.vvco_finish());
+            }
             Err(e) => {
                 vvco_err!(output, "{}: error: failed to spawn claude command: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        // Write diff to stdin
-        if let Some(mut stdin) = claude_cmd.stdin.take() {
-            if let Err(e) = stdin.write_all(&diff_content.stdout) {
-                vvco_err!(output, "{}: error: failed to write to claude stdin: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        }
-
-        let claude_output = match claude_cmd.wait_with_output() {
-            Ok(o) => o,
-            Err(e) => {
-                vvco_err!(output, "{}: error: failed to wait for claude: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -589,6 +585,19 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             Err(code) => return (code, output.vvco_finish()),
         }
     };
+
+    // Ruling 3 (the 260722 wrap-convergence design session): wrap consigns the
+    // billet branch after its final commit, so a same-session land→wrap exits
+    // with the stile clearing the billet — the converge above already
+    // delivered the tree to trunk, but the branch itself must still reach
+    // remote custody (backup posture; the REMOTE-AWARE SEAT seam depends on
+    // branches being pushed). The badge guard inside makes this a no-op on
+    // hippodrome/groom ground. A push failure surfaces loud while the local
+    // commits stand (additive discipline), matching notch Ruling 3 and landing.
+    if let Err(e) = crate::jjrnc_notch::jjrnc_consign_current_branch(&crate::jjrfg_plaingit::jjrfg_PlainGit) {
+        vvco_err!(output, "{}: error: wrap committed locally, but consigning the billet branch failed: {}", cn, e);
+        return (1, output.vvco_finish());
+    }
 
     vvco_out!(output, "{}", chalk_hash);
     let fm = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())

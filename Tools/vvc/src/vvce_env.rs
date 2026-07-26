@@ -181,6 +181,96 @@ pub fn vvce_claude_command() -> std::process::Command {
     cmd
 }
 
+/// Run a command to completion under a deadline — the bounded sibling of
+/// `Command::output()` (JJr_9m4: every remote-reaching subprocess wait carries
+/// a deadline).
+///
+/// Returns `Ok(Some(output))` when the child exits within the deadline,
+/// `Ok(None)` when the deadline expired (the child is killed and reaped —
+/// no zombie survives the expiry), and `Err` only on a spawn failure, which
+/// stays the caller's precondition territory exactly as with `output()`.
+///
+/// Stdout and stderr are drained on their own threads while the wait polls
+/// `try_wait`, so a child filling a pipe can never deadlock against the
+/// deadline watching it. `stdin_data`, when given, is written on its own
+/// thread for the same reason; when absent the caller's own stdin
+/// configuration stands.
+pub fn vvce_output_deadline(
+    cmd: &mut std::process::Command,
+    stdin_data: Option<Vec<u8>>,
+    deadline: std::time::Duration,
+) -> std::io::Result<Option<std::process::Output>> {
+    use std::io::Read;
+    use std::io::Write;
+
+    cmd.stdout(std::process::Stdio::piped());
+    cmd.stderr(std::process::Stdio::piped());
+    if stdin_data.is_some() {
+        cmd.stdin(std::process::Stdio::piped());
+    }
+    let mut child = cmd.spawn()?;
+
+    let stdin_thread = stdin_data.map(|data| {
+        let mut stdin_pipe = child.stdin.take().expect("piped stdin must be present on a fresh child");
+        std::thread::spawn(move || {
+            let _ = stdin_pipe.write_all(&data);
+            // stdin_pipe drops here, closing the pipe so the child sees EOF.
+        })
+    });
+
+    let mut stdout_pipe = child.stdout.take().expect("piped stdout must be present on a fresh child");
+    let mut stderr_pipe = child.stderr.take().expect("piped stderr must be present on a fresh child");
+    let stdout_thread = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = stdout_pipe.read_to_end(&mut buf);
+        buf
+    });
+    let stderr_thread = std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = stderr_pipe.read_to_end(&mut buf);
+        buf
+    });
+
+    let started = std::time::Instant::now();
+    let poll = std::time::Duration::from_millis(50);
+    let status = loop {
+        match child.try_wait()? {
+            Some(status) => break Some(status),
+            None => {
+                if started.elapsed() >= deadline {
+                    break None;
+                }
+                std::thread::sleep(poll);
+            }
+        }
+    };
+
+    let status = match status {
+        Some(status) => status,
+        None => {
+            // Expired: kill, then reap — kill() on an already-dead child is a
+            // benign race, and wait() guarantees no zombie either way. The
+            // drain threads are deliberately NOT joined here: a grandchild the
+            // kill cannot reach may still hold the pipes open, and joining
+            // would hand the stall right back to the caller the deadline just
+            // rescued. The threads exit on their own when the pipes close.
+            let _ = child.kill();
+            let _ = child.wait();
+            drop(stdin_thread);
+            drop(stdout_thread);
+            drop(stderr_thread);
+            return Ok(None);
+        }
+    };
+
+    if let Some(t) = stdin_thread {
+        let _ = t.join();
+    }
+    let stdout = stdout_thread.join().unwrap_or_default();
+    let stderr = stderr_thread.join().unwrap_or_default();
+    Ok(Some(std::process::Output { status, stdout, stderr }))
+}
+
 #[cfg(test)]
 mod tests {
     // Note: These tests are intentionally minimal because they would
