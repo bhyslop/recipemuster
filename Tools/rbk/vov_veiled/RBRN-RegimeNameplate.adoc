@@ -45,6 +45,8 @@ The {rbrv_sigil} of the vessel supplying the sentry container image.
 {rbrn_sentry_hallmark}
 
 Hallmark timestamp for the sentry container image.
+Vacant is a legal shape: marshal-zero mints the blank-pair cold state, and the field stays empty until a build is driven (rbw-nd).
+Validation reports a vacant hallmark but still passes; consumption (charge) is the point that refuses an unarmed nameplate.
 
 //axhrgv_variable
 {rbrn_bottle_vessel}
@@ -55,6 +57,8 @@ The {rbrv_sigil} of the vessel supplying the bottle container image.
 {rbrn_bottle_hallmark}
 
 Hallmark timestamp for the bottle container image.
+Vacant is a legal shape: marshal-zero mints the blank-pair cold state, and the field stays empty until a build is driven (rbw-nd).
+Validation reports a vacant hallmark but still passes; consumption (charge) is the point that refuses an unarmed nameplate.
 
 //axhrgb_group
 {rbrn_group_service_readiness}

@@ -523,11 +523,9 @@ rbob_charge() {
 
   # Vacancy gate: hallmarks enroll min-0 (blank is the canonical marshal-zero
   # state), so consumption is where an unarmed nameplate must refuse — quench
-  # and the exec verbs stay legal on a vacant nameplate.
-  test -n "${RBRN_SENTRY_HALLMARK}" \
-    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
-  test -n "${RBRN_BOTTLE_HALLMARK}" \
-    || buc_die "Nameplate '${RBRN_MONIKER}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
+  # and the exec verbs stay legal on a vacant nameplate. The gate is homed in
+  # the rbrn regime module (the hallmarks' own home); charge cites it.
+  rbrn_require_armed "${RBRN_MONIKER}" "${RBRN_SENTRY_HALLMARK}" "${RBRN_BOTTLE_HALLMARK}"
 
   # Preflight: ensure all hallmark arks exist locally. Vouch presence is the
   # hallmark-level signal — if vouch is missing, the full hallmark is treated
