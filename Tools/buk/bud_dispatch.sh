@@ -246,9 +246,13 @@ zbud_curate_same() {
     local -a z_frames
     IFS=$'\r' read -ra z_frames <<< "${z_line}"
     local z_frame
-    for z_frame in "${z_frames[@]}"; do
-      printf '%s\n' "${z_frame}"
-    done
+    if test "${#z_frames[@]}" -gt 0; then
+      for z_frame in "${z_frames[@]}"; do
+        printf '%s\n' "${z_frame}"
+      done
+    else
+      printf '\n'
+    fi
   done
 }
 
