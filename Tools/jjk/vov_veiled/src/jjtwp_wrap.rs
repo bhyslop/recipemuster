@@ -20,6 +20,7 @@
 //! convention (`jjtrd_refit.rs`, `jjtm_mcp.rs`).
 
 use super::jjrds_stile::JJRDS_PEDIGREES_REL_PATH;
+use super::jjrf_favor::{jjrf_livery_compose, jjrf_LiveryKind};
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
     jjrfr_BequeathOutcome,
@@ -28,22 +29,26 @@ use super::jjrfr_farrier::{
     jjrfr_FarrierCore,
     jjrfr_RejectionKind,
 };
+use super::jjrg_gallops::{jjrg_Gallops, jjrg_Heat, jjrg_HeatStatus, jjrg_Pace, jjrg_PaceState, jjrg_Tack, JJRG_UNKNOWN_BASIS};
 use super::jjri_io::{
     jjri_converge_refusal,
     jjri_staleness_interdictum,
 };
 use super::jjrrd_refit::jjrrd_run_refit;
-use super::jjrvb_blotter::JJDB_STUDBOOK_DIRNAME;
+use super::jjrvb_blotter::{jjdb_studbook_config, JJDB_GALLOPS_REL_PATH, JJDB_STUDBOOK_DIRNAME};
 use super::jjrwp_wrap::{
     jjrwp_billet_ground,
     jjrwp_chalk_message,
     jjrwp_staleness_gate,
+    jjrx_WrapArgs,
+    zjjrx_run_wrap,
     jjrwp_BilletGround,
     jjrwp_GateVerdict,
     JJRWP_TRAILER_NONE,
 };
 use super::jjtu_testdir::JjkTestDir;
-use std::path::Path;
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
 
 const ZJJTWP_TRUNK: &str = "jjtwp-trunk";
 const ZJJTWP_CORONET: &str = "AAAAA";
@@ -490,4 +495,208 @@ fn jjtwp_converge_refusal_names_the_trunk_the_no_residue_fact_and_refit() {
     assert!(msg.contains("untouched"), "the no-residue fact is stated: {}", msg);
     assert!(msg.to_lowercase().contains("refit"), "the remedy is named: {}", msg);
     assert!(msg.contains("never rebase"), "got: {}", msg);
+}
+
+// ---- Consign wiring (Ruling 3 mirror, ₣B9 paddock ₢CAABf) ----
+//
+// `zjjrx_run_wrap` reads and writes only through the ambient process cwd, and
+// (on a staged diff) shells out to the claude CLI to author a commit message —
+// neither of which the rest of this file's tests drive end-to-end. Under the
+// live studbook seam (`JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`) the gallops tally
+// journals to the studbook, not the billet, so a billet whose own work was
+// already committed before wrap runs (no fresh staging) reaches the consign
+// weld without the claude CLI at all: these tests seed the studbook's gallops
+// journal and the billet's own work commit BEFORE calling wrap, matching the
+// notch/landing consign trio's cwd-hopping pattern (`jjtnc_notch.rs`,
+// `jjtld_landing.rs`) plus the seam-on studbook ground (`jjtu_seam_on_ground`).
+
+/// A gallops holding exactly the one pace `ZJJTWP_CORONET` names, rough and
+/// ready to tally — the minimal store `zjjrx_run_wrap` needs to find its own
+/// coronet, transition it to complete, and run the lookahead.
+fn zjjtwp_consign_gallops() -> jjrg_Gallops {
+    let heat_key = "₣ZZ".to_string();
+    let pace_key = format!("₢{}", ZJJTWP_CORONET);
+    let tack = jjrg_Tack {
+        ts: "260101-1200".to_string(),
+        state: jjrg_PaceState::Rough,
+        tier: None,
+        effort: None,
+        text: vec!["consign wiring test pace".to_string()],
+        silks: "consign-wiring".to_string(),
+        basis: JJRG_UNKNOWN_BASIS.to_string(),
+    };
+    let mut paces = BTreeMap::new();
+    paces.insert(pace_key.clone(), jjrg_Pace { tacks: vec![tack], ..Default::default() });
+    let mut heats = BTreeMap::new();
+    heats.insert(heat_key.clone(), jjrg_Heat {
+        silks: "heat-zz".to_string(),
+        creation_time: "260101".to_string(),
+        status: jjrg_HeatStatus::Racing,
+        order: vec![pace_key],
+        paces,
+    });
+    jjrg_Gallops {
+        next_heat_seed: "AB".to_string(),
+        next_pace_seed: "CAAAA".to_string(),
+        heat_order: vec![heat_key],
+        heats,
+        retention_since: None,
+    }
+}
+
+/// Turn the infield's studbook directory — already holding the pedigree file
+/// `zjjtwp_infield` wrote — into a real studbook clone: git-initialized,
+/// seeded with the consign-gallops fixture, and pushed to a local bare origin
+/// so `refs/remotes/origin/{trunk}` resolves exactly as
+/// `jjtu_seam_on_ground` lays it at the real derived path
+/// (`jjdb_studbook_config`'s own output). Wrap's studbook-config derivation
+/// (`zjjrm_infield_root` → `jjdb_studbook_config`) finds this directory from
+/// the billet's cwd, so no separate config needs threading to the command.
+fn zjjtwp_seed_studbook_gallops(infield: &JjkTestDir) {
+    let config = jjdb_studbook_config(infield.path());
+    let trunk = config.trunk.clone();
+    let local = &config.local_root;
+
+    let bare = infield.path().join("studbook_origin.git");
+    std::fs::create_dir_all(&bare).unwrap();
+    zjjtwp_git(&bare, &["init", "-q", "--bare", "-b", &trunk]);
+
+    zjjtwp_git(local, &["init", "-q", "-b", &trunk]);
+    zjjtwp_git(local, &["config", "user.email", "jjtwp@example.invalid"]);
+    zjjtwp_git(local, &["config", "user.name", "jjtwp"]);
+    zjjtwp_consign_gallops()
+        .jjrg_save(&local.join(JJDB_GALLOPS_REL_PATH))
+        .expect("seed gallops saves to the studbook clone");
+    zjjtwp_git(local, &["add", "-A"]);
+    zjjtwp_git(local, &["commit", "-q", "-m", "seed studbook"]);
+    zjjtwp_git(local, &["remote", "add", "origin", &bare.to_string_lossy()]);
+    zjjtwp_git(local, &["push", "-q", "-u", "origin", &trunk]);
+}
+
+/// Points the process cwd at `dir` for the guard's lifetime, serialized
+/// against every other cwd-hopping test in this module.
+struct ZjjtwpCwdGround {
+    prior_cwd: PathBuf,
+    _serial: std::sync::MutexGuard<'static, ()>,
+}
+
+impl ZjjtwpCwdGround {
+    fn new(dir: &Path) -> Self {
+        let serial = super::jjtu_testdir::JJTU_CWD_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let prior_cwd = std::env::current_dir().expect("a cwd to restore");
+        std::env::set_current_dir(dir).expect("point the process cwd at the test repo");
+        ZjjtwpCwdGround { prior_cwd, _serial: serial }
+    }
+}
+
+impl Drop for ZjjtwpCwdGround {
+    fn drop(&mut self) {
+        let _ = std::env::set_current_dir(&self.prior_cwd);
+    }
+}
+
+/// An infield plus a pace billet wearing the `jjls_pace/{coronet}` badge,
+/// carrying its own work commit, with the infield's studbook journal seeded —
+/// the shared precondition every consign-wiring test builds on, mirroring
+/// `zjjtnc_billeted_primary` / `zjjtld_billeted_primary`. The work commit
+/// lands BEFORE wrap runs (never staged at wrap time), so the tree is clean
+/// when `zjjrx_run_wrap` stages — no claude-CLI commit-message path fires,
+/// and this is exactly the commit the consign weld must still push.
+fn zjjtwp_billeted_infield(name: &str) -> (JjkTestDir, PathBuf, String) {
+    let (infield, hippodrome) = zjjtwp_infield(name);
+    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, ZJJTWP_CORONET);
+    let billet_root = infield.path().join(format!("jjqb_{}_badged", ZJJTWP_CORONET));
+    jjrfg_PlainGit
+        .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch(branch.clone()), &billet_root, ZJJTWP_TRUNK)
+        .unwrap();
+    zjjtwp_seed_studbook_gallops(&infield);
+    zjjtwp_commit_all(&billet_root, "work.txt", "mine", "pace work");
+    (infield, billet_root, branch)
+}
+
+fn zjjtwp_remote_branch_tip(bare: &Path, branch: &str) -> Option<String> {
+    let refs = zjjtwp_git(bare, &["for-each-ref", "--format=%(refname) %(objectname)"]);
+    refs.lines()
+        .find(|line| line.starts_with(&format!("refs/heads/{} ", branch)))
+        .map(|line| line.rsplit(' ').next().unwrap().to_string())
+}
+
+fn zjjtwp_wrap_args() -> jjrx_WrapArgs {
+    jjrx_WrapArgs { coronet: ZJJTWP_CORONET.to_string(), size_limit: None }
+}
+
+// A wrap on a badged pace-billet branch (`jjls_pace/{coronet}`) pushes it to
+// the remote after its final commit — the Ruling 3 mirror: the converge above
+// already delivers the tree to trunk, but the branch itself must still reach
+// remote custody, so a same-session land→wrap exits with the stile clearing
+// the billet instead of raising a false-alarm custody warning.
+#[test]
+fn jjtwp_wrap_consigns_the_badged_pace_branch() {
+    let (infield, billet_root, branch) = zjjtwp_billeted_infield("jjtwp_consign");
+    let _ground = ZjjtwpCwdGround::new(&billet_root);
+
+    let (rc, output) = zjjrx_run_wrap(zjjtwp_wrap_args(), Some("consign wiring test".to_string()), None, "");
+
+    assert_eq!(rc, 0, "wrap output: {}", output);
+    let local_head = zjjtwp_git(&billet_root, &["rev-parse", "HEAD"]);
+    let remote_tip = zjjtwp_remote_branch_tip(&infield.path().join("upstream"), &branch);
+    assert_eq!(remote_tip, Some(local_head), "the wrap's chalk commit must be pushed as part of wrap");
+}
+
+// A wrap on a branch outside the pace livery badge (a bare-coronet checkout,
+// the shape every other wrap fixture in this file uses) commits locally but
+// leaves the remote untouched — the badge is the one signal telling a pace
+// billet apart from everything else wrap can currently run from.
+#[test]
+fn jjtwp_wrap_on_an_unbadged_branch_never_consigns() {
+    let (infield, hippodrome) = zjjtwp_infield("jjtwp_wrap_unbadged");
+    let billet_root = zjjtwp_billet(&infield, &hippodrome);
+    zjjtwp_seed_studbook_gallops(&infield);
+    zjjtwp_commit_all(&billet_root, "work.txt", "mine", "pace work");
+    let _ground = ZjjtwpCwdGround::new(&billet_root);
+
+    let (rc, output) = zjjrx_run_wrap(zjjtwp_wrap_args(), Some("consign wiring test".to_string()), None, "");
+
+    assert_eq!(rc, 0, "wrap output: {}", output);
+    let remote_tip = zjjtwp_remote_branch_tip(&infield.path().join("upstream"), ZJJTWP_CORONET);
+    assert_eq!(remote_tip, None, "an unbadged branch must never be pushed by wrap");
+}
+
+// The failure surface: a push a plain fast-forward cannot make (another
+// station already advanced the same pace branch on the remote) reports loud
+// through the same channel as every other wrap error, and the exit code stops
+// meaning success — while the converge that already delivered the tree to
+// trunk, and the billet's own local work commit, both stand (additive
+// discipline never rolls either back).
+#[test]
+fn jjtwp_wrap_reports_a_diverged_consign_as_failure() {
+    let (infield, billet_root, branch) = zjjtwp_billeted_infield("jjtwp_wrap_diverged");
+    let bare = infield.path().join("upstream");
+    // Another station mints its own local branch of the same badged name off
+    // trunk and publishes it first — the billet only ever holds the badge
+    // locally (worktree-add -b), so this publication is what the billet's
+    // later push cannot fast-forward past.
+    let other = JjkTestDir::new("jjtwp_wrap_diverged_other");
+    let bare_url = bare.to_string_lossy().into_owned();
+    zjjtwp_git(other.path(), &["clone", "-q", "-b", ZJJTWP_TRUNK, &bare_url, "."]);
+    zjjtwp_git(other.path(), &["config", "user.email", "jjtwp@example.invalid"]);
+    zjjtwp_git(other.path(), &["config", "user.name", "jjtwp"]);
+    zjjtwp_git(other.path(), &["checkout", "-q", "-b", &branch]);
+    zjjtwp_commit_all(other.path(), "other.txt", "from another station", "other station advances the pace branch");
+    zjjtwp_git(other.path(), &["push", "-q", "origin", &branch]);
+
+    let _ground = ZjjtwpCwdGround::new(&billet_root);
+
+    let (rc, output) = zjjrx_run_wrap(zjjtwp_wrap_args(), Some("consign wiring test".to_string()), None, "");
+
+    assert_eq!(rc, 1, "a diverged push must fail the wrap: {}", output);
+    assert!(output.contains("consign"), "the failure must name what failed: {}", output);
+    // The billet's own work commit already stood before wrap ran — additive
+    // discipline never rolls it back, and the seam-on chalk step journals to
+    // the studbook rather than adding a further commit here.
+    let local_subject = zjjtwp_git(&billet_root, &["log", "-1", "--pretty=%s"]);
+    assert!(local_subject.contains("pace work"), "the billet's own work commit must stand despite the failed push: {}", local_subject);
+    let remote_tip = zjjtwp_remote_branch_tip(&bare, &branch);
+    let other_head = zjjtwp_git(other.path(), &["rev-parse", "HEAD"]);
+    assert_eq!(remote_tip, Some(other_head), "the remote must still hold only the other station's commit");
 }

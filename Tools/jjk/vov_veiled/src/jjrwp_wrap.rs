@@ -590,6 +590,19 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         }
     };
 
+    // Ruling 3 mirror (₣B9 paddock ₢CAABf, discharging cinch commit 361652aa6):
+    // wrap consigns the billet branch after its final commit, so a same-session
+    // land→wrap exits with the stile clearing the billet — the converge above
+    // already delivered the tree to trunk, but the branch itself must still
+    // reach remote custody (backup posture; rung 2's REMOTE-AWARE SEAT depends
+    // on branches being pushed). The badge guard inside makes this a no-op on
+    // hippodrome/groom ground. A push failure surfaces loud while the local
+    // commits stand (additive discipline), matching notch Ruling 3 and landing.
+    if let Err(e) = crate::jjrnc_notch::jjrnc_consign_current_branch(&crate::jjrfg_plaingit::jjrfg_PlainGit) {
+        vvco_err!(output, "{}: error: wrap committed locally, but consigning the billet branch failed: {}", cn, e);
+        return (1, output.vvco_finish());
+    }
+
     vvco_out!(output, "{}", chalk_hash);
     let fm = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())
         .and_then(|k| crate::jjrf_favor::jjrf_Firemark::jjrf_parse(&k).ok())
