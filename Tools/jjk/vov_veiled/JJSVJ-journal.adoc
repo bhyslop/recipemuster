@@ -130,6 +130,13 @@ a journal entry naming a nonexistent SHA is the worse failure.
 The ordering classifies as a rivet;
 its opaque tail mints at implementation, citing this section.
 
+A wrap's entry records one position the bracket itself did not issue: the trunk commit its
+squash-converge produced, carried in the entry's message as a `Converge:` trailer — the
+*converge counterfoil* (studbook sheaf, Counterfoil).
+The squash bequeaths the billet's tree to trunk with trunk's tip as sole parent, leaving no
+ancestry from trunk back to the billet, so durable-first's SHA-naming cannot reach it and the
+accepted position is recorded in the entry or nowhere.
+
 == The read bracket
 
 The ceremony's read-only variant, for a consumer whose read *arms an act* —
