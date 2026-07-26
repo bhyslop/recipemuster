@@ -392,6 +392,12 @@ zbuv_check_capture() {
   fi
 
   # Unset detection — distinguish "not set" from "set but empty"
+  # The min-0 types diverge on unset: set-empty passes for all, but an omitted
+  # line passes only for string|secret|gname — fqin is deliberately absent here,
+  # so a fqin whose line is missing fails "is not set" while a set-empty fqin
+  # passes as vacant. Unification direction is unresolved (fqin's stricter
+  # unset-fail — "declared vacancy must appear in the file" — is a candidate to
+  # extend, not relax); do not "fix" the asymmetry by adding fqin without a ruling.
   if test -z "${!z_varname+x}"; then
     case "${z_type}" in
       string|secret|gname)
@@ -778,6 +784,7 @@ buv_report() {
 
     local z_varname="${z_buv_varname_roll[$z_i]}"
     local z_type="${z_buv_type_roll[$z_i]}"
+    local z_desc="${z_buv_desc_roll[$z_i]}"
     local z_val="${!z_varname:-}"
     local z_err
 
@@ -789,7 +796,12 @@ buv_report() {
 
     z_err=$(zbuv_check_capture "${z_i}")
     if test -z "${z_err}"; then
-      buc_step "  PASS  ${z_varname}=${z_display_val} [${z_type}]"
+      zbuv_req_status "${z_i}"
+      if test "${ZBUV_REQ_STATUS}" = "opt" && test -z "${z_val}"; then
+        buc_step "  VACANT  ${z_varname} [${z_type}] (${z_desc})"
+      else
+        buc_step "  PASS  ${z_varname}=${z_display_val} [${z_type}]"
+      fi
     elif test "${z_err}" = "${BUV_check_gated}"; then
       buc_step "  SKIP  ${z_varname} (gated)"
     else

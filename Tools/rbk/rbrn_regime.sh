@@ -137,6 +137,33 @@ rbrn_list_capture() {
   echo "${z_result}"
 }
 
+# Armament predicate — a hallmark is "armed" when non-empty. Vacant (empty) is
+# the legal marshal-zero cold state, not a defect: the fleet survey reports it
+# and consumption (charge) refuses it. Pure on the passed value — no kindle
+# state — so the fleet-survey isolation subshell, which sources a nameplate raw
+# and unkindled, can call it too.
+rbrn_hallmark_armed_predicate() {
+  test -n "${1:-}" || return 1
+  return 0
+}
+
+# Armament gate — the homed consumption refusal a charge cites in place of its
+# own inline checks. Pure on its args (moniker + both hallmark values), so it
+# needs no kindled rbrn state. Vacancy is a legal shape; this is the single
+# point where an unarmed nameplate is refused at consumption. Half-armed is a
+# legitimate transient (rbw-nd drives one field at a time) — each field is
+# gated independently, so the message names the vacant one.
+rbrn_require_armed() {
+  local -r z_moniker="${1:-}"
+  local -r z_sentry_hallmark="${2:-}"
+  local -r z_bottle_hallmark="${3:-}"
+
+  rbrn_hallmark_armed_predicate "${z_sentry_hallmark}" \
+    || buc_die "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
+  rbrn_hallmark_armed_predicate "${z_bottle_hallmark}" \
+    || buc_die "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
+}
+
 ######################################################################
 # Cross-Nameplate Functions
 #
