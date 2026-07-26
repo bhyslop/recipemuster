@@ -57,6 +57,9 @@ The emptiness is not what refuses — the missing subject is, and the caller cor
 . Run `git commit --allow-empty -m "..."` — {jjdo_record} never refuses an empty commit.
 Its siblings already permit one: {jjdo_close} commits a clean tree, and the chalk marker is *defined* as an empty commit.
 The motivating case is a verification run — a session that proves something and changes nothing on disk — whose record would otherwise have to be a bare `git commit --allow-empty`, carrying no affiliation and vanishing from the pace's swim lane.
+. Consign the billet branch: on a successful commit, push the checked-out branch, so every notch reaches remote custody at once and no work is stranded local-only.
+The push is gated on the pace {jjdd_livery} (`jjls_pace/{coronet}`): a branch outside that badge — hippodrome trunk, a reserved `jjls_groom` billet, a detached HEAD — is left untouched.
+The commit has already landed locally, so a push failure cannot be undone (additive discipline); it surfaces loud and the notch exits 1, turning a local-only commit into a reportable gap rather than a silent one.
 . If the commit was empty, emit the empty-notch {jjdz_monitum} — after the fact, never ahead of it, and never gating (the exit code stays the commit's own).
 The advisory is the whole safety mechanism of the allowed empty commit: it names what the commit recorded, and, when files were listed but held no changes, that gap and its likeliest causes.
 . Release lock

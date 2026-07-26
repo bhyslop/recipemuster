@@ -157,6 +157,11 @@ fn zjjtwp_sire_trunk(infield: &JjkTestDir) -> String {
     zjjtwp_git(&infield.path().join("upstream"), &["rev-parse", ZJJTWP_TRUNK])
 }
 
+/// The coronet every fixture billet wraps under.
+fn zjjtwp_coronet() -> super::jjrf_favor::jjrf_Coronet {
+    super::jjrf_favor::jjrf_Coronet::jjrf_parse(ZJJTWP_CORONET).unwrap()
+}
+
 // ---- Ground resolution ----
 
 #[test]
@@ -202,7 +207,7 @@ fn jjtwp_gate_clears_a_billet_born_at_the_current_trunk() {
     let billet_root = zjjtwp_billet(&infield, &hippodrome);
 
     assert_eq!(
-        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root)),
+        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root), &zjjtwp_coronet()),
         jjrwp_GateVerdict::Clear
     );
 }
@@ -216,7 +221,7 @@ fn jjtwp_gate_refuses_a_billet_trunk_has_outstripped() {
     // The gate gleans for itself: no fetch is staged here, and it still sees the
     // advance — staleness is fetch-revealed, and the gate does the revealing.
     assert_eq!(
-        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root)),
+        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root), &zjjtwp_coronet()),
         jjrwp_GateVerdict::Outstripped
     );
 }
@@ -230,7 +235,7 @@ fn jjtwp_gate_clears_the_same_billet_once_refit_has_run() {
     zjjtwp_advance_trunk(&hippodrome);
 
     assert_eq!(
-        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root)),
+        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root), &zjjtwp_coronet()),
         jjrwp_GateVerdict::Outstripped
     );
 
@@ -238,9 +243,63 @@ fn jjtwp_gate_clears_the_same_billet_once_refit_has_run() {
     assert_eq!(code, 0, "refit output: {}", output);
 
     assert_eq!(
-        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root)),
+        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root), &zjjtwp_coronet()),
         jjrwp_GateVerdict::Clear,
         "a refitted billet must pass the gate the pre-refit attempt met"
+    );
+}
+
+#[test]
+fn jjtwp_gate_resumes_when_trunk_holds_this_paces_own_landed_chalk() {
+    // The crash-mid-wrap specimen: the converge already pushed this pace's own
+    // W chalk to trunk (composed, not descended from the billet's history — a
+    // squash leaves no ancestry), but the crash struck before the journal wrote.
+    // A resumed wrap meets a trunk it never enfolded, yet the advance is its own
+    // already-delivered work, not drift — the gate must resume, never refuse.
+    let (infield, hippodrome) = zjjtwp_infield("jjtwp_gate_resume");
+    let billet_root = zjjtwp_billet(&infield, &hippodrome);
+    zjjtwp_commit_all(&billet_root, "work.txt", "mine", "pace work");
+
+    let coronet = zjjtwp_coronet();
+    let chalk_message = format!(
+        "{}\n\nBillet: {}",
+        super::jjrn_notch::jjrn_format_chalk_message(&coronet, super::jjrn_notch::jjrn_ChalkMarker::Wrap, "pace complete"),
+        ZJJTWP_CORONET
+    );
+    let landed = match jjrfg_PlainGit.jjrfr_bequeath(&billet_root, ZJJTWP_TRUNK, &chalk_message).unwrap() {
+        jjrfr_BequeathOutcome::Landed(sha) => sha,
+        other => panic!("the crash specimen's own converge must land, got {:?}", other),
+    };
+    assert_eq!(zjjtwp_sire_trunk(&infield), landed, "the specimen's converge must actually be trunk's tip");
+
+    match jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root), &coronet) {
+        jjrwp_GateVerdict::Resume(sha) => assert_eq!(sha, landed, "the resume must name the exact position the crashed converge landed"),
+        other => panic!("a trunk carrying this pace's own chalk must resume, not {:?}", other),
+    }
+}
+
+#[test]
+fn jjtwp_gate_refuses_a_trunk_carrying_another_paces_chalk() {
+    // Recognition is scoped to THIS coronet: a foreign pace's own W chalk landed
+    // on trunk still reads as drift from this billet's perspective, not a resume
+    // — the header names a different identity, so the gate must not confuse it
+    // for its own crash-mid-wrap signature.
+    let (infield, hippodrome) = zjjtwp_infield("jjtwp_gate_foreign_chalk");
+    let billet_root = zjjtwp_billet(&infield, &hippodrome);
+
+    let foreign = super::jjrf_favor::jjrf_Coronet::jjrf_parse("BBBBB").unwrap();
+    let chalk_message = format!(
+        "{}\n\nBillet: {}",
+        super::jjrn_notch::jjrn_format_chalk_message(&foreign, super::jjrn_notch::jjrn_ChalkMarker::Wrap, "a different pace complete"),
+        "BBBBB"
+    );
+    zjjtwp_commit_all(&hippodrome, "c.txt", "elsewhere", &chalk_message);
+    zjjtwp_git(&hippodrome, &["push", "-q", "origin", ZJJTWP_TRUNK]);
+
+    assert_eq!(
+        jjrwp_staleness_gate(&jjrfg_PlainGit, &zjjtwp_ground(&billet_root), &zjjtwp_coronet()),
+        jjrwp_GateVerdict::Outstripped,
+        "another pace's own chalk must not be mistaken for this pace's resume"
     );
 }
 
@@ -251,7 +310,7 @@ fn jjtwp_converge_lands_the_billet_tree_on_trunk_over_the_trunk_tip() {
     let (infield, hippodrome) = zjjtwp_infield("jjtwp_converge_lands");
     let billet_root = zjjtwp_billet(&infield, &hippodrome);
     let ground = zjjtwp_ground(&billet_root);
-    assert_eq!(jjrwp_staleness_gate(&jjrfg_PlainGit, &ground), jjrwp_GateVerdict::Clear);
+    assert_eq!(jjrwp_staleness_gate(&jjrfg_PlainGit, &ground, &zjjtwp_coronet()), jjrwp_GateVerdict::Clear);
 
     // Two commits on the billet: what the squash must collapse into one.
     let trunk_before = zjjtwp_sire_trunk(&infield);
