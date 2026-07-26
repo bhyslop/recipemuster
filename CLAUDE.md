@@ -139,6 +139,12 @@ An element is **load-bearing** when its removal would create a gap between inten
 
 Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog instantiates. Domain forms: BCG (Zeroes Theory, Interface Contamination), RCG (Constant and Constructor Discipline), ACG (Allodial Discipline).
 
+### Zeroes Theory
+
+Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space. The litmus: **"How many zeroes did this choice add to the enumerated state space?"** If the answer isn't zero, it needs explicit justification. The multiplication runs along several axes — the input forms accepted at one moment, the formats tolerated across time, and the interior representation chosen for data.
+
+Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline. Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
+
 <!-- Partnership rules of engagement (never distributed; hand-maintained outside
      the managed block). Salutation leads — the wake-up greeting — then the stance.
      Companion detail at Tools/cmk/claude-cmk-roe-detail.md is read on

@@ -2369,10 +2369,14 @@ bujb_invigilate_linux() {
   zbujb_admin_exec_native "${ZBUJB_CHIT_invigilate}sleep-targets-" \
       'systemctl is-enabled sleep.target suspend.target hibernate.target hybrid-sleep.target' \
     || true
-  local z_targets z_target z_i=1
-  z_targets=$(<"${ZBUJB_LAST_AP_STDOUT}")
+  local z_target z_line
+  local -a z_target_lines=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_target_lines+=("${z_line}")
+  done < "${ZBUJB_LAST_AP_STDOUT}"
+  local z_i=0
   for z_target in sleep.target suspend.target hibernate.target hybrid-sleep.target; do
-    z_val=$(printf '%s\n' "${z_targets}" | sed -n "${z_i}p")
+    z_val="${z_target_lines[z_i]:-}"
     test "${z_val}" = "masked" \
       || buc_die "${z_target} mask state: expected masked, got '${z_val:-<unreported>}' — caparison-linux (BUSJCL)"
     z_i=$((z_i + 1))

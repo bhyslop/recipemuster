@@ -18,30 +18,14 @@
 #
 # Recipe Bottle Federation Terrier - muniment access sub-operations
 #
-# The data layer over a provisioned terrier: the atomic sub-operations engross /
-# expunge / peruse / peruse_manor that touch the Manor-homed terrier bucket, each
-# a single conditioned REST call whose atomicity Cloud Storage adjudicates (no
-# external lock, no cloud-build invocation). brevet / unseat / rehearse are the
-# civic wrappers that compose these — rehearse over the manor-wide read; this
-# module carries no lock logic and no IAM — it is glue over a service.
-#
-# A muniment is one GCS object per (principal subject, mantle held) pair — the
-# settled per-entry granularity, the exact mirror of the pool-scoped IAM grant it
-# records. Its object name indexes the pair under the polity managed folder; its
-# content is the authoritative record (peruse reconstructs the holding from
-# content — only the depot attribution column reads from the key, placement being
-# the index's alone to tell). No provider dimension: the grantable principal
-# names the pool and subject, never the asserting provider, so two
-# foedera admitting the same subject onto the same mantle hold the SAME grant —
-# one muniment, not two. Per-entry muniments are immutable: a holding exists or
-# it does not, so engross is a create (ifGenerationMatch=0) and expunge a delete —
-# the generation-conditional update path is unexercised under this
-# granularity.
+# The data layer over a provisioned terrier: engross / expunge / peruse /
+# peruse_manor against the Manor-homed terrier bucket, each a single conditioned
+# REST call whose atomicity Cloud Storage adjudicates — this module carries no
+# lock logic and no IAM.
 #
 # Callers authenticate and pass the bearer token (token-first), like the rbgb_
-# bucket primitives: the payor reads/writes as project owner today; a donned
-# governor mantle writes own-polity once admission lands. The muniment wire keys
-# live under the rbgft_ sprue (rbgft_subject, rbgft_mantle).
+# bucket primitives. The muniment wire keys live under the rbgft_ sprue
+# (rbgft_subject, rbgft_mantle).
 
 set -euo pipefail
 
@@ -85,12 +69,9 @@ zrbgft_sentinel() {
   test "${ZRBGFT_KINDLED:-}" = "1" || buc_die "Module rbgft not kindled - call zrbgft_kindle first"
 }
 
-# Compose the muniment object name: the per-entry index under the polity managed
-# folder. Three structural segments — <depot>/<mantle>/<subject> — the depot
-# leads (the managed-folder grain) and the raw principal subject trails (it
-# alone may carry its own slashes); the whole name is percent-encoded once at
-# transit time by the caller (rbuh_urlencode_capture), matching the rbgb_
-# object idiom.
+# Compose the muniment object name <depot>/<mantle>/<subject>; the raw subject
+# trails (it alone may carry its own slashes). The caller percent-encodes once
+# at transit time (rbuh_urlencode_capture), matching the rbgb_ object idiom.
 zrbgft_muniment_name_capture() {
   zrbgft_sentinel
   local -r z_depot="${1}"
@@ -202,19 +183,13 @@ rbgft_expunge() {
 # Shared list-and-fetch core for the muniment reads. Pages a GCS object listing
 # (prefix empty = the whole terrier, manor-wide; "<depot>/" = one polity slice),
 # fetches each object's body, and echoes one tab-separated
-# "<depot>\t<mantle>\t<subject>" line per muniment. The record
-# fields (mantle, subject) read from the rbgft_ content fields — the
-# content stays the authoritative record; the depot column reads from the object
-# key's first segment, because placement is the index's alone to tell: which
-# polity slice holds a muniment is not record content, and identical (mantle,
-# subject) records co-reside across polity slices. A
-# read-after-list 404 — an object expunged between the listing and its fetch — is
-# a benign vanish and is skipped, not fatal: a pure read must not crash because a
-# concurrent unseat withdrew an entry, and the wider the sweep the wider that
-# window. Any other list/fetch non-OK, or a body missing the rbgft_ fields,
-# rejects in the peruse band (BUBC_band_peruse — one read gate, its deficits
-# rules within it). <list_infix> is suffixed with the page number; <get_infix>
-# names the per-object fetch capture.
+# "<depot>\t<mantle>\t<subject>" line per muniment — mantle and subject from the
+# rbgft_ content fields, the depot column from the object key's first segment.
+# A read-after-list 404 (an object expunged between the listing and its fetch)
+# is a benign vanish, skipped, not fatal. Any other list/fetch non-OK, or a body
+# missing the rbgft_ fields, rejects in the peruse band (BUBC_band_peruse).
+# <list_infix> is suffixed with the page number; <get_infix> names the
+# per-object fetch capture.
 zrbgft_list_fetch_emit() {
   zrbgft_sentinel
 
@@ -291,12 +266,10 @@ zrbgft_list_fetch_emit() {
 }
 
 # rbgft_peruse <token> <bucket> <depot_project_id>
-# The pure list-and-fetch read of one polity's muniments — no precondition. Lists
-# every object under the polity folder prefix, fetches each, and echoes one
-# tab-separated "<depot>\t<mantle>\t<subject>" line per muniment
-# (the shared lister's uniform emit — the depot column is constant here, by
-# construction the polity asked for; record fields from content, never the key).
-# The per-polity slice of the roll, and the read side of the reconciliation diff.
+# Read one polity's muniments — no precondition. Lists under the polity folder
+# prefix and echoes the shared lister's tab-separated
+# "<depot>\t<mantle>\t<subject>" lines (the depot column constant here, by
+# construction the polity asked for).
 rbgft_peruse() {
   zrbgft_sentinel
 
@@ -317,13 +290,7 @@ rbgft_peruse() {
 # rbgft_peruse_manor <token> <bucket>
 # The manor-wide read — every muniment in the terrier across all polities, no
 # prefix filter (read is bucket-level). Echoes the same tab-separated
-# "<depot>\t<mantle>\t<subject>" line per muniment as the per-polity
-# peruse. The depot attribution column is what makes a manor-wide roll readable:
-# it ties each holding to its polity slice — identical (mantle, subject) records
-# co-reside across slices (including orphans a freehold churn
-# leaves behind, since unmaking a depot project never sweeps the payor-grain
-# terrier), so a depot-blind roll cannot witness a depot-scoped admission churn
-# (depot-attributed emission). The read rehearse composes manor-wide.
+# "<depot>\t<mantle>\t<subject>" line per muniment as the per-polity peruse.
 rbgft_peruse_manor() {
   zrbgft_sentinel
 

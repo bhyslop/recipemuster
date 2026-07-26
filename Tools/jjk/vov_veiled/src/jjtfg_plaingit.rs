@@ -5,8 +5,10 @@
 use super::jjrfg_plaingit::{
     jjrfg_PlainGit,
     zjjrfg_canonicalize_upstream,
+    zjjrfg_guidon_vanished,
     zjjrfg_push_rejected,
     zjjrfg_resolve_relative,
+    ZJJRFG_GUIDON_REF,
 };
 use super::jjrfr_farrier::{
     jjrfr_break,
@@ -544,6 +546,56 @@ fn jjtfg_sight_is_none_when_unlocked() {
     let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
 
     assert_eq!(sighted, None);
+}
+
+#[test]
+fn jjtfg_guidon_vanished_matches_fetch_transport_vocabulary_only() {
+    // The literal message from a real git fetch of a ref the remote no longer
+    // advertises — captured live rather than hand-typed, so the classifier is
+    // proven against git's own wording.
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_guidon_vanished_vocab");
+    let detail = zjjtfg_git_failure(local.path(), &["fetch", "origin", ZJJRFG_GUIDON_REF]);
+
+    assert!(zjjrfg_guidon_vanished(&detail), "expected the vanished-ref signature in: {}", detail);
+    assert!(!zjjrfg_guidon_vanished("fatal: Could not read from remote repository."));
+}
+
+/// Drives the exact TOCTOU race `jjrfr_sight` must survive: the guidon lock is
+/// released between its ls-remote (sees the lock held) and its fetch (would
+/// read the content). Deterministic, not timing-based: `remote.origin.uploadpack`
+/// is repointed at a wrapper script that lets the first call (the ls-remote
+/// advertisement) go through untouched, then plucks the guidon ref before any
+/// later call — so the fetch that follows genuinely races a vanished ref, the
+/// same way a concurrent officium's release would.
+#[test]
+fn jjtfg_sight_resolves_none_when_guidon_vanishes_between_lsremote_and_fetch() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_sight_vanish_race");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-about-to-vanish").unwrap();
+
+    let mark = local.path().join("jjtfg_shim_fired");
+    let shim = local.path().join("jjtfg_uploadpack_shim.sh");
+    std::fs::write(
+        &shim,
+        format!(
+            "#!/bin/sh\nset -e\nif [ ! -f '{mark}' ]; then\n  touch '{mark}'\n  git upload-pack \"$@\"\n  git -C '{bare}' update-ref -d {guidon_ref}\nelse\n  exec git upload-pack \"$@\"\nfi\n",
+            mark = mark.display(),
+            bare = bare.path().display(),
+            guidon_ref = ZJJRFG_GUIDON_REF,
+        ),
+    )
+    .unwrap();
+    let mut perms = std::fs::metadata(&shim).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
+    std::fs::set_permissions(&shim, perms).unwrap();
+    zjjtfg_git(local.path(), &["config", "remote.origin.uploadpack", &shim.to_string_lossy()]);
+
+    // The ls-remote inside sight is the shim's first invocation: it advertises
+    // the guidon ref (still present) and only afterward plucks it, so the
+    // fetch that sight issues next finds the ref genuinely gone.
+    let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+
+    assert_eq!(sighted, None, "a guidon plucked mid-sight must read as no lock now, never panic");
+    assert!(mark.exists(), "the race shim must have fired for this test to prove anything");
 }
 
 #[test]

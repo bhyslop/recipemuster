@@ -2994,23 +2994,14 @@ rbgp_depot_recognosce() {
 }
 
 # Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
-# rbgp_rehearse) — the operator-facing federation admission surface under the
-# rbw-p launcher family. Each is a thin idempotent composition over the terrier
-# muniment sub-ops (rbgft_) and the two IAM binding types: tokenCreator on the
-# mantle SA (a principal:// member) and serviceUsageConsumer on the depot project
-# (spike F2). Intent-first ordering: the muniment write precedes every binding.
+# rbgp_rehearse) — the operator-facing admission surface under the rbw-p
+# launcher family. Each dons the governor mantle (rba_avow then rba_don_capture
+# governor); the token-agnostic *_core helpers let the payor-credentialed paths
+# (gird, the interim proof) drive the same composition. Muniment mutations
+# precede IAM mutations in every core (RBr_m4d).
 #
-# The verbs run as a donned governor mantle (rba_avow then rba_don_capture
-# governor — this pace is that accessor's first consumer). The token-agnostic
-# *_core helpers carry the composition so the levy founding exception (the payor
-# breveting the first governor) and the interim proof can drive the same logic
-# payor-credentialed. Contract: the polity-verb specs and the paddock
-# Verbs-and-orderings table.
-#
-# Bucket grain: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET);
-# a donned governor reaches it via the manor's payor-project id, which the MVP
-# draws from the enforced payor regime (a multi-operator successor would source
-# the manor id from federation/depot config instead).
+# Bucket: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET),
+# reached via the enforced payor regime.
 
 # Map a mantle name (governor|director|retriever) to its mantle SA email in the
 # current depot. Dies on an unknown mantle — the only accepted set anywhere.
@@ -3037,12 +3028,9 @@ zrbgp_principal_member_capture() {
     "${RBRW_WORKFORCE_POOL_ID}" "${z_subject}"
 }
 
-# brevet core — token-agnostic admission composition. Ensures the muniment first,
-# then idempotently ensures both bindings: tokenCreator on the mantle SA and
-# serviceUsageConsumer on the depot project. First-vs-further admission differs
-# only in that the depot-scoped binding is already present on a further mantle —
-# the idempotent ensure absorbs it. Donned-governor verb and payor founding/proof
-# paths share this.
+# brevet core — token-agnostic admission composition shared by the donned-governor
+# verb and the payor founding/proof paths. Muniment before bindings (RBr_m4d);
+# every step idempotent.
 zrbgp_brevet_core() {
   zrbgp_sentinel
 
@@ -3079,10 +3067,9 @@ zrbgp_brevet_core() {
   buc_success "Breveted ${z_subject} onto the ${z_mantle} mantle"
 }
 
-# unseat core — token-agnostic withdrawal of one mantle. Withdraws the muniment,
-# then removes only the tokenCreator binding; the depot-scoped serviceUsageConsumer
-# stays in place — a citizen unseated of every mantle is suspended, not erased, and
-# cheap to re-brevet. attaint alone sweeps the depot-scoped binding.
+# unseat core — token-agnostic withdrawal of one mantle: muniment then the
+# tokenCreator binding only (RBr_m4d); the depot-scoped binding stays —
+# suspension, swept by attaint alone.
 zrbgp_unseat_core() {
   zrbgp_sentinel
 
@@ -3114,11 +3101,9 @@ zrbgp_unseat_core() {
   buc_success "Unseated ${z_subject} from the ${z_mantle} mantle"
 }
 
-# attaint core — token-agnostic whole-person expulsion from the depot. Unseats the
-# subject from every mantle (idempotent — a mantle not held is a no-op), then
-# sweeps the depot-scoped serviceUsageConsumer binding unseat leaves behind, then
-# notes the deregistration. A partial teardown lands as visible surplus, never a
-# resurrection. The IdP-side identity removal is the IdP admin's, out of scope here.
+# attaint core — token-agnostic whole-person expulsion: unseat every mantle
+# (idempotent), sweep the depot-scoped binding, note the deregistration
+# (RBr_m4d).
 zrbgp_attaint_core() {
   zrbgp_sentinel
 
@@ -3149,12 +3134,9 @@ zrbgp_attaint_core() {
   buc_success "Attainted ${z_subject} from ${z_depot}"
 }
 
-# rbgp_gird <subject> — the founding exception: the payor seats the FIRST governor of this
-# depot, the one admission gesture outside governor wielding. A fresh-levied depot carries
-# its mantle SAs but no admitted citizen, so no governor yet exists to brevet one; the
-# payor's own OAuth credential drives the shared admission core (zrbgp_brevet_core) instead
-# of a donned governor token. Governor-only by construction (no mantle parameter) — once a
-# governor is girded, every further admission flows through governor-wielded rbgp_brevet.
+# rbgp_gird <subject> — the payor seats the first governor of this depot,
+# driving zrbgp_brevet_core with the payor OAuth credential instead of a donned
+# governor token. Governor-only; no mantle parameter.
 rbgp_gird() {
   zrbgp_sentinel
 

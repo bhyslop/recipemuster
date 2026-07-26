@@ -31,12 +31,11 @@ remove is the second positional argument (`governor` | `director` | `retriever`)
 composition body is token-agnostic — the shared core the donned verb, the
 founding-exception path, and the interim proof all drive.
 
-NOTE: *Intent-first ordering.* The
+NOTE: *Intent-first ordering* (RBr_m4d). The
 {rbtf_muniment}
-is withdrawn before the binding is removed. A crash after the muniment withdraw but
-before the revoke leaves a visible surplus — a live binding without its recorded
-holding — which the read-only reconciliation diff surfaces and a re-run of unseat
-clears; never a silent grant a rehearsal would miss.
+is withdrawn before the binding is removed; the crash residue here is a visible
+surplus — a live binding without its recorded holding — which the read-only
+reconciliation diff surfaces and a re-run of unseat clears.
 
 NOTE: *One canonical revoke path.* Unseat removes the `principal://` member from the
 `RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR` binding on the mantle

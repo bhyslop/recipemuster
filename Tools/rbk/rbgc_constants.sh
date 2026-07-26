@@ -87,18 +87,8 @@ zrbgc_kindle() {
   readonly RBGC_API_ENABLE_RETRY_ATTEMPTS=3
   readonly RBGC_API_ENABLE_RETRY_PAUSE_SEC=15
 
-  # docker daemon->registry premature-timeout transient — the moby/moby#44350
-  # signature, RBr_5b8 / RBr_2f8. docker's registry-auth client carries a hardcoded,
-  # non-configurable 15s timeout (moby/registry/auth.go); against a
-  # healthy-but-slow GAR auth backend it fires prematurely, emitting this Go
-  # net/http stdlib string. Neither login nor the initial resolve leg of
-  # pull / manifest inspect (token fetch + manifest HEAD) carries an internal
-  # retry — the docker client retries only layer downloads, after resolve —
-  # so callers wrap them (rbgo_docker_login, zrbndb_docker_login,
-  # zrbndb_registry_read) reusing the HTTP retry budget above. The string is
-  # a Go standard-library invariant, stable across docker versions; this is a
-  # surveyed-signature allowlist, NOT a catch-all — real auth failures emit
-  # "unauthorized" and fail fast.
+  # The surveyed moby/moby#44350 premature-timeout signature the docker
+  # transient membrane matches on (RBr_5b8 / RBr_2f8).
   readonly RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE='Client.Timeout exceeded while awaiting headers'
 
   # docker login credential-persist failure under headless Cygwin. Docker

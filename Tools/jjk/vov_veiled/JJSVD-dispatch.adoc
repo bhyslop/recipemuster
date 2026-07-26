@@ -103,12 +103,76 @@ as backstop.
 Consumers *read* rather than compose wherever a pedigree is not already in hand, so a
 recorded prefix can never defeat a comparison.
 
-*Every dispatched session gets its own billet; trunk belongs to the operator alone.*
+*Every dispatched session gets its own billet; the trunk ref advances only through the wrap ceremony's converge, under the operator's wrap confirmation.*
+The {jjdw_hippodrome} is a lazy follower — its working tree pulls the sire's trunk at the operator's own cadence, and correctness never waits on that pull — while the trunk itself moves only when a wrap bequeaths a billet's estate onto it (wrap sheaf).
 Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
 Git itself enforces the split: a branch checked out in one worktree cannot be checked out in
 another — pace billets own unique branches and groom billets are detached, so the constraint
 never binds, and a billet mechanically cannot seat the trunk branch while the
 {jjdw_hippodrome} holds it.
+
+== Ground
+
+[[jjdd_ground]]
+{jjdd_ground}::
+Where a session stands, reduced from {jjdf_identify}'s two facts — seat and line of work — and
+nothing else.
+Distinct from the {jjdf_foreign_ground} the {jjdf_identify} contract already names: that is a
+tree no kind claims at all, the fair-faced decline at the {jjdf_palisade};
+a session that has reached a JJ verb stands on ground JJ does claim, and this taxonomy names
+which of four it is.
++
+--
+* *Hippodrome* — the primary seat: the operator's own clone, a {jjdw_hippodrome}.
+* *Pace billet* — a partition seat on a branch wearing the pace {jjdd_livery}
+  (`jjls_pace/{coronet}`): the one ground a mounted pace runs on.
+* *Groom billet* — a partition seat, detached at trunk tip: a {jjdd_lunge}'s assessment ground,
+  carrying nothing durable.
+* *Unboarded* — a partition seat on a branch wearing no pace livery: an operator's own
+  {jjdw_infield} worktree, or the reserved `jjls_groom` word a groom billet must never populate
+  — a ground nameable precisely because the badge parses (The billet, above).
+--
++
+The ground is never read from a dirname — a dirname is a label a reader steps over ({jjdw_yard}
+charter) — but from the seat and line of work {jjdf_identify} resolves; the ground is their
+reduction, and no verb re-derives it.
++
+*The ground guards.*
+Every verb declares a ground requirement, and the {jjdd_stile_p} dispatch door resolves the
+ground once and judges it once — ahead of every handler, so no command carries a ground rule of
+its own.
+Two buckets:
++
+--
+* *Own pace billet* — the mount ({jjdo_orient}), the notch ({jjdo_record}), and the wrap
+  ({jjdo_close}).
+  Each acts on a billet's own tree — a mount takes up the pace's tree, a notch commits work-repo
+  files, a wrap delivers the billet's estate to trunk — so off a pace billet each refuses
+  fair-faced and names its remedy: *saddle the pace from the shell* for a mount or wrap, *slate a
+  pace for this work, then saddle it* for a notch.
+  The billet must be the aim's own: a mount re-orienting the pace it already seats is legal
+  (re-orientation, not a remount), but a mount or wrap aimed at another pace refuses.
+  The notch alone admits a second aim — its parent heat's {jjdt_firemark} beside its own
+  {jjdt_coronet}, so heat-affiliated work commits from the pace's billet; the empty notch is
+  own-pace-billet like every other.
+* *Free* — every other verb.
+  The studbook reads and writes alike ({jjdo_show}, {jjdo_paddock}, {jjdo_log}, {jjdo_brief},
+  {jjdo_coronets}, {jjdo_enroll}, {jjdo_redocket}, {jjdo_curry}, and the rest) run from any
+  ground: grooming any heat from any billet is deliberately legal, because cross-heat reference
+  is how detail work happens, and these verbs touch the {jjdb_studbook}, never the work repo.
+--
++
+*The groom posture.*
+A groom billet is detached and ephemeral: work-repo edits have no durable home there, and the
+notch refuses them.
+So {jjdo_open} and every groom-ground read lead with that posture in one line, and the
+{jjdd_lunge}'s opening prompt carries the same sentence — discovery that warrants work becomes a
+slated pace, never a commit here.
+A groom billet that nonetheless holds a work-repo commit is a pace in denial, caught without a
+guard of its own: the notch ground gate refuses the commit at the moment of temptation, and any
+commit that reaches the tree by another route fails the {jjdd_stile_p} exit litmus and stands
+for {jjdd_muck}.
+The remedy is always the same — slate the work, then saddle it.
 
 == The doors
 
@@ -357,15 +421,21 @@ end.
 [[jjdd_refit]]
 {jjdd_refit}::
 The session-facing staleness remedy: when the ground moves, refit.
-No verb refuses on a stale trunk — staleness is drift, never corruption (the billet branch
-is additive and the {jjdb_studbook} advances under its own lock) — so {jjdo_open} leads its
-report with the staleness warning and names {jjdd_refit} as the remedy, and notch and wrap
-append the same recommendation whenever trunk has moved.
+Staleness is drift, never corruption — the billet branch is additive and the {jjdb_studbook}
+advances under its own lock — so no ordinary verb refuses on it: {jjdo_open} leads its report
+with the staleness warning and names {jjdd_refit} as the remedy, and every other command
+proceeds without a staleness word of its own.
+The lone exception is the wrap ceremony, whose entry gate refuses a wrap on a billet trailing
+the sire's trunk — an interdictum naming refit (wrap sheaf), because bequeathing an estate
+onto a trunk the billet has never enfolded would lose that trunk work.
+There refit is not a recommendation but the blocking remedy: the operator runs it, and the
+wrap re-attempts on a billet now holding trunk's tip and passes by construction.
 +
 Behavior: `enfold` trunk into the billet branch — merge, never rebase: journaled
-{jjdb_counterfoil_s} survive, and the branch's interior history dies at the operator's trunk
-merge anyway — then `consign` the merge immediately: the operation exists to clear staleness
-for every station and runs online by construction;
+{jjdb_counterfoil_s} survive, and the branch's interior history never reaches trunk anyway,
+since the wrap's converge squashes the estate onto trunk's tip (wrap sheaf) — then `consign`
+the merge immediately: the operation exists to clear staleness for every station and runs
+online by construction;
 offline degrades to warn-and-proceed.
 On conflict the attended session resolves as its first order of business — *attended* is the
 load-bearing property, not tier;

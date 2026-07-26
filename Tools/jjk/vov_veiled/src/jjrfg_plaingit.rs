@@ -56,7 +56,7 @@ const ZJJRFG_REMOTE: &str = "origin";
 
 /// The blotter's one well-known lock ref (`jjdb_blotter`, blotter sheaf):
 /// `refs/jjv/*` is reserved to JJ entire, and the guidon is its sole resident.
-const ZJJRFG_GUIDON_REF: &str = "refs/jjv/guidon";
+pub(crate) const ZJJRFG_GUIDON_REF: &str = "refs/jjv/guidon";
 
 /// The op tags carried in rejection and panic context — one const per op, so
 /// every failure site of an op names it identically.
@@ -80,6 +80,7 @@ const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
 const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
 const ZJJRFG_OP_LINE_ABROAD: &str = "line_abroad";
 const ZJJRFG_OP_OUTSTRIPPED: &str = "outstripped";
+const ZJJRFG_OP_COUNTERPART_CHALK: &str = "counterpart_chalk";
 const ZJJRFG_OP_REACHABLE: &str = "reachable";
 const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
@@ -347,6 +348,13 @@ fn zjjrfg_line_of_work(root: &Path) -> jjrfr_LineOfWork {
 /// lease-guarded — not a guess, the literal tokens git's transport layer emits.
 pub(crate) fn zjjrfg_push_rejected(stderr: &str) -> bool {
     stderr.contains("[rejected]") || stderr.contains("stale info") || stderr.contains("non-fast-forward")
+}
+
+/// Git's own stable vocabulary for a fetch of a named ref the remote no longer
+/// advertises — the signature `jjrfr_sight` races when the guidon lock is
+/// released between its ls-remote and this fetch.
+pub(crate) fn zjjrfg_guidon_vanished(stderr: &str) -> bool {
+    stderr.contains("couldn't find remote ref")
 }
 
 impl jjrfr_FarrierCore for jjrfg_PlainGit {
@@ -668,6 +676,12 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         // cat-file can read what it actually says.
         let fetch = zjjrfg_run_git(root, &["fetch", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]);
         if !fetch.ok {
+            // The lock can be plucked between the ls-remote above and this
+            // fetch — that race reads identically to "no lock now" (the empty
+            // ls-remote branch above), not a plumbing fault.
+            if zjjrfg_guidon_vanished(&fetch.stderr) {
+                return Ok(None);
+            }
             zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &fetch.zjjrfg_detail());
         }
         let content = zjjrfg_run_git(root, &["cat-file", "-p", &sha]);
@@ -827,6 +841,20 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             Some(1) => Ok(true),
             _ => zjjrfg_unexpected(ZJJRFG_OP_OUTSTRIPPED, billet_root, &out.zjjrfg_detail()),
         }
+    }
+
+    fn jjrfr_counterpart_chalk(&self, billet_root: &Path, trunk: &str) -> Result<Option<(String, String)>, jjrfr_Rejection> {
+        let counterpart = zjjrfg_counterpart(trunk);
+        let sha_out = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", "--quiet", &counterpart]);
+        if !sha_out.ok {
+            return Ok(None);
+        }
+        let sha = sha_out.stdout.trim().to_string();
+        let msg_out = zjjrfg_run_git(billet_root, &["log", "-1", "--format=%B", &counterpart]);
+        if !msg_out.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_COUNTERPART_CHALK, billet_root, &msg_out.zjjrfg_detail());
+        }
+        Ok(Some((sha, msg_out.stdout)))
     }
 
     fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {
