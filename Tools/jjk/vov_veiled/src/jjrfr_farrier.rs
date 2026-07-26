@@ -364,6 +364,17 @@ pub trait jjrfr_FarrierBillet {
     /// ahead, and the warning this probe feeds must not cry on ignorance.
     fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
 
+    /// The trunk branch's remote counterpart tip, sha and full commit message
+    /// verbatim — the wrap staleness gate's own-chalk recognition reads this
+    /// when `jjrfr_outstripped` answers `true`, to tell a crash-mid-wrap resume
+    /// (trunk carries this very pace's own already-landed chalk) from genuine
+    /// drift, since ancestry alone cannot: a bequeathed commit is composed, not
+    /// descended from the billet's history, so a squash leaves no ancestry a
+    /// resume could be told apart from drift by. `None` when no counterpart is
+    /// known locally — the same ignorance-is-not-a-verdict posture
+    /// `jjrfr_outstripped` holds.
+    fn jjrfr_counterpart_chalk(&self, billet_root: &Path, trunk: &str) -> Result<Option<(String, String)>, jjrfr_Rejection>;
+
     /// The stranding probe: is the tree's current position an ancestor of — or
     /// equal to — the named branch's remote counterpart, as of the last
     /// `jjrfr_glean`? A local ancestry check, network-silent, the
