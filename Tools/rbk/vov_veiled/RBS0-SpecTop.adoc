@@ -367,6 +367,7 @@
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrr_public_docs_url:       <<rbrr_public_docs_url,RBRR_PUBLIC_DOCS_URL>>
 :rbrr_substrate_reliquary:   <<rbrr_substrate_reliquary,RBRR_SUBSTRATE_RELIQUARY>>
+:rbrr_group_substrate_reliquary: <<rbrr_group_substrate_reliquary,Substrate Reliquary Group>>
 :rbrr_group_public_docs:     <<rbrr_group_public_docs,Public Docs Group>>
 :rbrr_runtime_prefix:        <<rbrr_runtime_prefix,RBRR_RUNTIME_PREFIX>>
 :rbrr_group_resource_prefixing: <<rbrr_group_resource_prefixing,Runtime Prefix Group>>
@@ -4468,6 +4469,15 @@ Seised express-or-chain by {rbtgo_director_seise} after a reliquary {rbtgo_lode_
 
 // RBRG variable definitions eliminated — reliquaries replace pin-based tool image management
 // Tool images (gcloud, docker, alpine, syft, binfmt, gcrane) now sourced from reliquary at ordain time
+
+[[rbrr_group_substrate_reliquary]]
+//axvr_group
+{rbrr_group_substrate_reliquary}::
+The repo-level election of the reliquary
+{rbtga_lode}
+the vessel-less substrate captures
+({rbtgo_lode_underpin}, {rbtgo_lode_immure})
+resolve their build tools from.
 
 [[rbrr_group_resource_prefixing]]
 //axvr_group
