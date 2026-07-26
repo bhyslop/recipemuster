@@ -56,7 +56,7 @@ const ZJJRFG_REMOTE: &str = "origin";
 
 /// The blotter's one well-known lock ref (`jjdb_blotter`, blotter sheaf):
 /// `refs/jjv/*` is reserved to JJ entire, and the guidon is its sole resident.
-const ZJJRFG_GUIDON_REF: &str = "refs/jjv/guidon";
+pub(crate) const ZJJRFG_GUIDON_REF: &str = "refs/jjv/guidon";
 
 /// The op tags carried in rejection and panic context — one const per op, so
 /// every failure site of an op names it identically.
@@ -86,11 +86,11 @@ const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
 const ZJJRFG_OP_PRIMARY_ROOT: &str = "primary_root";
 
-struct zjjrfg_GitOutput {
-    ok: bool,
-    code: Option<i32>,
-    stdout: String,
-    stderr: String,
+pub(crate) struct zjjrfg_GitOutput {
+    pub(crate) ok: bool,
+    pub(crate) code: Option<i32>,
+    pub(crate) stdout: String,
+    pub(crate) stderr: String,
 }
 
 impl zjjrfg_GitOutput {
@@ -350,6 +350,115 @@ pub(crate) fn zjjrfg_push_rejected(stderr: &str) -> bool {
     stderr.contains("[rejected]") || stderr.contains("stale info") || stderr.contains("non-fast-forward")
 }
 
+// ---- The transport vedette (JJSVF "The transport vedette") ----
+
+/// JJr_9m4
+///
+/// Per-attempt deadline on every remote-touching git op. 30s bounds the
+/// studbook's small pushes generously while keeping the full retry ladder
+/// (attempt + 2s + attempt + 5s + attempt ≈ 97s worst case) inside the
+/// patience of the tooling above, so the membrane reports before the
+/// operator's harness gives up on the command.
+const ZJJRFG_VEDETTE_DEADLINE: std::time::Duration = std::time::Duration::from_secs(30);
+
+/// Backoff ladder between transient retries; its length plus one is the
+/// attempt bound.
+const ZJJRFG_VEDETTE_BACKOFFS: [std::time::Duration; 2] =
+    [std::time::Duration::from_secs(2), std::time::Duration::from_secs(5)];
+
+/// The signature the bounded runner synthesizes when the deadline expires —
+/// self-minted, so it can never collide with anything git itself says.
+const ZJJRFG_DEADLINE_TOKEN: &str = "vedette deadline expired";
+
+/// The `jjdf_transient` signature roster (JJSVF "The transport vedette") —
+/// the roster's one home. Surveyed signatures only: the stable transport
+/// tokens field-observed in the 260724 flap (denied handshake, severed
+/// connection), plus the vedette's own deadline expiry. An unsurveyed
+/// signature keeps its existing conduct — classification or panic.
+pub(crate) fn zjjrfg_transient(stderr: &str) -> bool {
+    stderr.contains("Permission denied (publickey)")
+        || stderr.contains("Could not read from remote repository")
+        || stderr.contains("Connection reset")
+        || stderr.contains(ZJJRFG_DEADLINE_TOKEN)
+}
+
+/// Run one remote-touching git attempt under the vedette deadline. Expiry
+/// kills the child and synthesizes a failed output carrying the deadline
+/// token, which the transient classifier absorbs — a stalled op thereby
+/// returns a verdict, which is the whole point (JJr_9m4: the deadline
+/// precedes classification, because a stall returns nothing to classify).
+/// Stdin is nulled: a remote op must never sit on a credential prompt.
+pub(crate) fn zjjrfg_run_git_bounded(root: &Path, args: &[&str], deadline: std::time::Duration) -> zjjrfg_GitOutput {
+    let mut cmd = std::process::Command::new("git");
+    cmd.arg("-C").arg(root).args(args);
+    cmd.stdin(Stdio::null());
+    match vvc::vvce_output_deadline(&mut cmd, None, deadline) {
+        Err(e) => panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e),
+        Ok(Some(output)) => zjjrfg_GitOutput {
+            ok: output.status.success(),
+            code: output.status.code(),
+            stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
+            stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
+        },
+        Ok(None) => zjjrfg_GitOutput {
+            ok: false,
+            code: None,
+            stdout: String::new(),
+            stderr: format!("{} after {}s for git {:?}", ZJJRFG_DEADLINE_TOKEN, deadline.as_secs(), args),
+        },
+    }
+}
+
+/// A remote op's verdict after the vedette has done its work: `Done` carries
+/// git's own answer (success or a failure the caller classifies exactly as it
+/// always did); `Exhausted` carries the last transient failure after the
+/// bounded retries ran dry.
+enum zjjrfg_RemoteVerdict {
+    Done(zjjrfg_GitOutput),
+    Exhausted(zjjrfg_GitOutput),
+}
+
+/// The vedette membrane for idempotent remote ops (reads, and the pushes whose
+/// re-offer is guarded by the remote's own compare-and-swap — JJr_e5s): run
+/// bounded, retry with backoff on the transient signatures alone, and hand
+/// everything else back unabsorbed. The lock verbs do not pass here — their
+/// create/delete shape needs a sight re-probe between attempts, and they carry
+/// their own loops.
+fn zjjrfg_run_git_remote(root: &Path, args: &[&str]) -> zjjrfg_RemoteVerdict {
+    let mut backoffs = ZJJRFG_VEDETTE_BACKOFFS.iter();
+    loop {
+        let out = zjjrfg_run_git_bounded(root, args, ZJJRFG_VEDETTE_DEADLINE);
+        if out.ok || !zjjrfg_transient(&out.stderr) {
+            return zjjrfg_RemoteVerdict::Done(out);
+        }
+        match backoffs.next() {
+            Some(pause) => std::thread::sleep(*pause),
+            None => return zjjrfg_RemoteVerdict::Exhausted(out),
+        }
+    }
+}
+
+/// The guided halt for a remote op whose transient retries ran dry — never a
+/// raw panic, never an unbounded hang (JJSVF "The transport vedette"): it
+/// names the op, what the transport said, and the remedy.
+fn zjjrfg_exhausted(op: &str, root: &Path, detail: &str) -> ! {
+    panic!(
+        "plain-git {} exhausted its transient retries at {}: {}\n\
+         The remote intermittently refused or stalled — a service-side flap, not a local fault. \
+         Remedy: re-run the command; if it persists, probe the remote directly (network, `ssh -T` to the host).",
+        op,
+        root.display(),
+        detail.trim()
+    )
+}
+
+/// Git's own stable vocabulary for a fetch of a named ref the remote no longer
+/// advertises — the signature `jjrfr_sight` races when the guidon lock is
+/// released between its ls-remote and this fetch.
+pub(crate) fn zjjrfg_guidon_vanished(stderr: &str) -> bool {
+    stderr.contains("couldn't find remote ref")
+}
+
 impl jjrfr_FarrierCore for jjrfg_PlainGit {
     fn jjrfr_identify(&self, probe_path: &Path) -> Result<jjrfr_Identity, jjrfr_Rejection> {
         let top = zjjrfg_run_git(probe_path, &["rev-parse", "--show-toplevel"]);
@@ -447,11 +556,14 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     }
 
     fn jjrfr_glean(&self, root: &Path) -> jjrfr_GleanOutcome {
-        let out = zjjrfg_run_git(root, &["fetch", ZJJRFG_REMOTE]);
-        if out.ok {
-            jjrfr_GleanOutcome::Updated
-        } else {
-            jjrfr_GleanOutcome::Unreachable
+        // Opportunistic by contract, so exhaustion renders the unreachable
+        // answer instead of the guided halt — and the retries in front of that
+        // answer are what make it honest (JJSVF "The transport vedette"): a
+        // single transient denial once masqueraded here as an outage, and the
+        // remedy that verdict names (wait for reachability) was false for it.
+        match zjjrfg_run_git_remote(root, &["fetch", ZJJRFG_REMOTE]) {
+            zjjrfg_RemoteVerdict::Done(out) if out.ok => jjrfr_GleanOutcome::Updated,
+            zjjrfg_RemoteVerdict::Done(_) | zjjrfg_RemoteVerdict::Exhausted(_) => jjrfr_GleanOutcome::Unreachable,
         }
     }
 
@@ -513,8 +625,15 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
 
     fn jjrfr_consign(&self, root: &Path, branch: &str) -> Result<(), jjrfr_Rejection> {
         // JJr_d81
+        // JJr_e5s: the retried push re-offers the identical refspec — the
+        // remote's own fast-forward compare is the probe deciding whether a
+        // timed-out first attempt landed (a landed one makes the re-offer an
+        // up-to-date no-op).
         let refspec = format!("{}:{}", branch, branch);
-        let out = zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &refspec]);
+        let out = match zjjrfg_run_git_remote(root, &["push", ZJJRFG_REMOTE, &refspec]) {
+            zjjrfg_RemoteVerdict::Done(out) => out,
+            zjjrfg_RemoteVerdict::Exhausted(out) => zjjrfg_exhausted(ZJJRFG_OP_CONSIGN, root, &out.zjjrfg_detail()),
+        };
         if out.ok {
             return Ok(());
         }
@@ -593,7 +712,15 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
         let lease_flag = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, &blob_sha);
         let refspec = format!("{}:refs/heads/{}", commit, branch);
         let guidon_refspec = format!("{}:{}", blob_sha, ZJJRFG_GUIDON_REF);
-        let out = zjjrfg_run_git(root, &["push", "--atomic", &lease_flag, ZJJRFG_REMOTE, &refspec, &guidon_refspec]);
+        // JJr_e5s: the retried push re-offers the identical composed commit
+        // under the identical lease — the fast-forward rule and the lease are
+        // the probe deciding whether a timed-out first attempt landed (a
+        // landed one makes the re-offer an up-to-date no-op on both refs).
+        // Recomposition inside the retry would turn one landed write into two.
+        let out = match zjjrfg_run_git_remote(root, &["push", "--atomic", &lease_flag, ZJJRFG_REMOTE, &refspec, &guidon_refspec]) {
+            zjjrfg_RemoteVerdict::Done(out) => out,
+            zjjrfg_RemoteVerdict::Exhausted(out) => zjjrfg_exhausted(ZJJRFG_OP_PROFFER, root, &out.zjjrfg_detail()),
+        };
         if !out.ok {
             if zjjrfg_push_rejected(&out.stderr) {
                 // A rejection naming the guidon ref is the lock broken under the
@@ -630,32 +757,80 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         let blob_sha = zjjrfg_hash_object(root, guidon, true, ZJJRFG_OP_STAKE);
         let refspec = format!("{}:{}", blob_sha, ZJJRFG_GUIDON_REF);
         let lease = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, "");
-        let out = zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &lease, &refspec]);
-        if out.ok {
-            return Ok(());
+        // JJr_e5s: the create shape reads its own landed success as a refusal —
+        // a staked guidon meeting its own retry answers lock-held — so every
+        // re-offer is preceded by a sight, and a post-transient lease rejection
+        // gets one too before it is believed.
+        let mut retried = false;
+        let mut backoffs = ZJJRFG_VEDETTE_BACKOFFS.iter();
+        loop {
+            let out = zjjrfg_run_git_bounded(root, &["push", ZJJRFG_REMOTE, &lease, &refspec], ZJJRFG_VEDETTE_DEADLINE);
+            if out.ok {
+                return Ok(());
+            }
+            if zjjrfg_transient(&out.stderr) {
+                if self.jjrfr_sight(root)?.as_deref() == Some(guidon) {
+                    return Ok(());
+                }
+                match backoffs.next() {
+                    Some(pause) => {
+                        std::thread::sleep(*pause);
+                        retried = true;
+                        continue;
+                    }
+                    None => zjjrfg_exhausted(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail()),
+                }
+            }
+            if zjjrfg_push_rejected(&out.stderr) {
+                if retried && self.jjrfr_sight(root)?.as_deref() == Some(guidon) {
+                    return Ok(());
+                }
+                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockHeld, ZJJRFG_OP_STAKE, root, out.stderr));
+            }
+            zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail())
         }
-        if zjjrfg_push_rejected(&out.stderr) {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockHeld, ZJJRFG_OP_STAKE, root, out.stderr));
-        }
-        zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail())
     }
 
     fn jjrfr_pluck(&self, root: &Path, observed_guidon: &str) -> Result<(), jjrfr_Rejection> {
         let expected_sha = zjjrfg_hash_object(root, observed_guidon, false, ZJJRFG_OP_PLUCK);
         let lease = zjjrfg_lease_flag(ZJJRFG_GUIDON_REF, &expected_sha);
         let refspec = format!(":{}", ZJJRFG_GUIDON_REF);
-        let out = zjjrfg_run_git(root, &["push", ZJJRFG_REMOTE, &lease, &refspec]);
-        if out.ok {
-            return Ok(());
+        // JJr_e5s: the delete shape reads its own landed success as an
+        // unclassifiable refusal — a plucked ref meeting its own retry answers
+        // "remote ref does not exist" — so a transient is re-probed by sight
+        // before any re-offer. A sight showing no guidon, or another holder's,
+        // means ours is out either way: the release this op exists for has
+        // happened, whoever's write raced ours.
+        let mut backoffs = ZJJRFG_VEDETTE_BACKOFFS.iter();
+        loop {
+            let out = zjjrfg_run_git_bounded(root, &["push", ZJJRFG_REMOTE, &lease, &refspec], ZJJRFG_VEDETTE_DEADLINE);
+            if out.ok {
+                return Ok(());
+            }
+            if zjjrfg_transient(&out.stderr) {
+                match self.jjrfr_sight(root)? {
+                    Some(content) if content == observed_guidon => match backoffs.next() {
+                        Some(pause) => {
+                            std::thread::sleep(*pause);
+                            continue;
+                        }
+                        None => zjjrfg_exhausted(ZJJRFG_OP_PLUCK, root, &out.zjjrfg_detail()),
+                    },
+                    _ => return Ok(()),
+                }
+            }
+            if zjjrfg_push_rejected(&out.stderr) {
+                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockBroken, ZJJRFG_OP_PLUCK, root, out.stderr));
+            }
+            zjjrfg_unexpected(ZJJRFG_OP_PLUCK, root, &out.zjjrfg_detail())
         }
-        if zjjrfg_push_rejected(&out.stderr) {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockBroken, ZJJRFG_OP_PLUCK, root, out.stderr));
-        }
-        zjjrfg_unexpected(ZJJRFG_OP_PLUCK, root, &out.zjjrfg_detail())
     }
 
     fn jjrfr_sight(&self, root: &Path) -> Result<Option<String>, jjrfr_Rejection> {
-        let ls = zjjrfg_run_git(root, &["ls-remote", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]);
+        let ls = match zjjrfg_run_git_remote(root, &["ls-remote", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]) {
+            zjjrfg_RemoteVerdict::Done(out) => out,
+            zjjrfg_RemoteVerdict::Exhausted(out) => zjjrfg_exhausted(ZJJRFG_OP_SIGHT, root, &out.zjjrfg_detail()),
+        };
         if !ls.ok {
             zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &ls.zjjrfg_detail());
         }
@@ -667,8 +842,17 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
         // ls-remote reports the guidon ref's SHA, not its content — fetch the
         // blob into the local object database (no local ref created) so
         // cat-file can read what it actually says.
-        let fetch = zjjrfg_run_git(root, &["fetch", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]);
+        let fetch = match zjjrfg_run_git_remote(root, &["fetch", ZJJRFG_REMOTE, ZJJRFG_GUIDON_REF]) {
+            zjjrfg_RemoteVerdict::Done(out) => out,
+            zjjrfg_RemoteVerdict::Exhausted(out) => zjjrfg_exhausted(ZJJRFG_OP_SIGHT, root, &out.zjjrfg_detail()),
+        };
         if !fetch.ok {
+            // The lock can be plucked between the ls-remote above and this
+            // fetch — that race reads identically to "no lock now" (the empty
+            // ls-remote branch above), not a plumbing fault.
+            if zjjrfg_guidon_vanished(&fetch.stderr) {
+                return Ok(None);
+            }
             zjjrfg_unexpected(ZJJRFG_OP_SIGHT, root, &fetch.zjjrfg_detail());
         }
         let content = zjjrfg_run_git(root, &["cat-file", "-p", &sha]);
@@ -903,8 +1087,14 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // moved between the caller's glean and here — which git rejects, and
         // which is `Diverged`. Nothing local moved to scrub: the composed commit
         // is a dangling object the next reap collects.
+        // JJr_e5s: the retried push re-offers the identical composed commit —
+        // the fast-forward compare is the probe deciding whether a timed-out
+        // first attempt landed (the half-landed wrap's own face).
         let refspec = format!("{}:refs/heads/{}", commit, trunk);
-        let out = zjjrfg_run_git(billet_root, &["push", ZJJRFG_REMOTE, &refspec]);
+        let out = match zjjrfg_run_git_remote(billet_root, &["push", ZJJRFG_REMOTE, &refspec]) {
+            zjjrfg_RemoteVerdict::Done(out) => out,
+            zjjrfg_RemoteVerdict::Exhausted(out) => zjjrfg_exhausted(ZJJRFG_OP_BEQUEATH, billet_root, &out.zjjrfg_detail()),
+        };
         if !out.ok {
             if zjjrfg_push_rejected(&out.stderr) {
                 return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_BEQUEATH, billet_root, out.stderr));

@@ -5,8 +5,10 @@
 use super::jjrfg_plaingit::{
     jjrfg_PlainGit,
     zjjrfg_canonicalize_upstream,
+    zjjrfg_guidon_vanished,
     zjjrfg_push_rejected,
     zjjrfg_resolve_relative,
+    ZJJRFG_GUIDON_REF,
 };
 use super::jjrfr_farrier::{
     jjrfr_break,
@@ -544,6 +546,166 @@ fn jjtfg_sight_is_none_when_unlocked() {
     let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
 
     assert_eq!(sighted, None);
+}
+
+#[test]
+fn jjtfg_guidon_vanished_matches_fetch_transport_vocabulary_only() {
+    // The literal message from a real git fetch of a ref the remote no longer
+    // advertises — captured live rather than hand-typed, so the classifier is
+    // proven against git's own wording.
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_guidon_vanished_vocab");
+    let detail = zjjtfg_git_failure(local.path(), &["fetch", "origin", ZJJRFG_GUIDON_REF]);
+
+    assert!(zjjrfg_guidon_vanished(&detail), "expected the vanished-ref signature in: {}", detail);
+    assert!(!zjjrfg_guidon_vanished("fatal: Could not read from remote repository."));
+}
+
+/// Drives the exact TOCTOU race `jjrfr_sight` must survive: the guidon lock is
+/// released between its ls-remote (sees the lock held) and its fetch (would
+/// read the content). Deterministic, not timing-based: `remote.origin.uploadpack`
+/// is repointed at a wrapper script that lets the first call (the ls-remote
+/// advertisement) go through untouched, then plucks the guidon ref before any
+/// later call — so the fetch that follows genuinely races a vanished ref, the
+/// same way a concurrent officium's release would.
+#[test]
+fn jjtfg_sight_resolves_none_when_guidon_vanishes_between_lsremote_and_fetch() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_sight_vanish_race");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-about-to-vanish").unwrap();
+
+    let mark = local.path().join("jjtfg_shim_fired");
+    let shim = local.path().join("jjtfg_uploadpack_shim.sh");
+    std::fs::write(
+        &shim,
+        format!(
+            "#!/bin/sh\nset -e\nif [ ! -f '{mark}' ]; then\n  touch '{mark}'\n  git upload-pack \"$@\"\n  git -C '{bare}' update-ref -d {guidon_ref}\nelse\n  exec git upload-pack \"$@\"\nfi\n",
+            mark = mark.display(),
+            bare = bare.path().display(),
+            guidon_ref = ZJJRFG_GUIDON_REF,
+        ),
+    )
+    .unwrap();
+    let mut perms = std::fs::metadata(&shim).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
+    std::fs::set_permissions(&shim, perms).unwrap();
+    zjjtfg_git(local.path(), &["config", "remote.origin.uploadpack", &shim.to_string_lossy()]);
+
+    // The ls-remote inside sight is the shim's first invocation: it advertises
+    // the guidon ref (still present) and only afterward plucks it, so the
+    // fetch that sight issues next finds the ref genuinely gone.
+    let sighted = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+
+    assert_eq!(sighted, None, "a guidon plucked mid-sight must read as no lock now, never panic");
+    assert!(mark.exists(), "the race shim must have fired for this test to prove anything");
+}
+
+/// Write an executable shim script and repoint the named remote transport
+/// config key at it — the deterministic lever the vedette tests pull to make
+/// the remote misbehave on demand (the same mechanism as the vanish-race shim).
+fn zjjtfg_install_transport_shim(local: &Path, config_key: &str, body: &str) {
+    let shim = local.join(format!("jjtfg_shim_{}.sh", config_key.replace('.', "_")));
+    std::fs::write(&shim, body).unwrap();
+    let mut perms = std::fs::metadata(&shim).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
+    std::fs::set_permissions(&shim, perms).unwrap();
+    zjjtfg_git(local, &["config", config_key, &shim.to_string_lossy()]);
+}
+
+/// A shim body that fails its first `fail_count` calls with the flap's own
+/// denial line on stderr, then execs the real transport helper. `count_file`
+/// accumulates one line per call, so tests can assert the attempt count.
+fn zjjtfg_flaky_shim_body(count_file: &Path, real_helper: &str, fail_count: u32) -> String {
+    format!(
+        "#!/bin/sh\necho x >> '{count}'\nif [ \"$(wc -l < '{count}' | tr -d ' ')\" -le {fails} ]; then\n  echo 'git@github.com: Permission denied (publickey).' >&2\n  echo 'fatal: Could not read from remote repository.' >&2\n  exit 1\nfi\nexec {real} \"$@\"\n",
+        count = count_file.display(),
+        fails = fail_count,
+        real = real_helper,
+    )
+}
+
+#[test]
+fn jjtfg_transient_matches_flap_vocabulary_only() {
+    use super::jjrfg_plaingit::zjjrfg_transient;
+    // The field-observed 260724 flap signatures (provenance memos cited in the
+    // vedette section of JJSVF) and the vedette's own deadline token.
+    assert!(zjjrfg_transient("git@github.com: Permission denied (publickey)."));
+    assert!(zjjrfg_transient("fatal: Could not read from remote repository."));
+    assert!(zjjrfg_transient("Connection reset by peer"));
+    assert!(zjjrfg_transient("vedette deadline expired after 30s for git [\"fetch\", \"origin\"]"));
+    // Never the surveyed rejection vocabularies — those keep their own conduct.
+    assert!(!zjjrfg_transient("! [rejected] trunk -> trunk (non-fast-forward)"));
+    assert!(!zjjrfg_transient("stale info"));
+    assert!(!zjjrfg_transient("fatal: couldn't find remote ref refs/jjv/guidon"));
+    assert!(!zjjrfg_transient(""));
+}
+
+/// The denial face (Phenomenon 1 of the flap memos): a fetch denied once and
+/// clean on retry must land as `Updated` — the retry absorbing the transient —
+/// where the pre-vedette driver reported the false outage.
+#[test]
+fn jjtfg_glean_retries_through_a_transient_denial() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_glean_transient_retry");
+    let count = local.path().join("jjtfg_call_count");
+    let body = zjjtfg_flaky_shim_body(&count, "git upload-pack", 1);
+    zjjtfg_install_transport_shim(local.path(), "remote.origin.uploadpack", &body);
+
+    let outcome = jjrfg_PlainGit.jjrfr_glean(local.path());
+
+    assert_eq!(outcome, jjrfr_GleanOutcome::Updated, "one transient denial must be absorbed by retry");
+    let calls = std::fs::read_to_string(&count).unwrap().lines().count();
+    assert_eq!(calls, 2, "exactly one denied attempt then one clean retry");
+}
+
+/// Exhaustion on the opportunistic op: a remote transiently denying every
+/// attempt renders glean's unreachable answer — never a panic, never a hang —
+/// after the full bounded ladder.
+#[test]
+fn jjtfg_glean_unreachable_after_transient_exhaustion() {
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_glean_transient_exhaust");
+    let count = local.path().join("jjtfg_call_count");
+    let body = zjjtfg_flaky_shim_body(&count, "git upload-pack", 99);
+    zjjtfg_install_transport_shim(local.path(), "remote.origin.uploadpack", &body);
+
+    let outcome = jjrfg_PlainGit.jjrfr_glean(local.path());
+
+    assert_eq!(outcome, jjrfr_GleanOutcome::Unreachable);
+    let calls = std::fs::read_to_string(&count).unwrap().lines().count();
+    assert_eq!(calls, 3, "the retry ladder is bounded: initial attempt plus one per backoff rung");
+}
+
+/// The mutating side of the membrane: a push denied once retries and lands
+/// (JJr_e5s — the re-offer is the identical refspec, so absorbing the denial
+/// is safe by the remote's own compare).
+#[test]
+fn jjtfg_consign_retries_through_a_transient_denial() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_consign_transient_retry");
+    let tip = zjjtfg_commit_all(local.path(), "work.txt", "work", "work commit");
+    let count = local.path().join("jjtfg_call_count");
+    let body = zjjtfg_flaky_shim_body(&count, "git receive-pack", 1);
+    zjjtfg_install_transport_shim(local.path(), "remote.origin.receivepack", &body);
+
+    jjrfg_PlainGit.jjrfr_consign(local.path(), ZJJTFG_TRUNK).unwrap();
+
+    assert_eq!(zjjtfg_git(bare.path(), &["rev-parse", ZJJTFG_TRUNK]), tip, "the retried push must have landed");
+    let calls = std::fs::read_to_string(&count).unwrap().lines().count();
+    assert_eq!(calls, 2, "exactly one denied attempt then one clean retry");
+}
+
+/// The stall face (Phenomenon 2 of the flap memos): a transport that hangs must
+/// be killed at the deadline and come back classified transient — a stalled op
+/// returns a verdict, which is what makes retry reachable at all (JJr_9m4).
+#[test]
+fn jjtfg_bounded_run_kills_a_stalled_op_at_the_deadline() {
+    use super::jjrfg_plaingit::{zjjrfg_run_git_bounded, zjjrfg_transient};
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_bounded_stall");
+    zjjtfg_install_transport_shim(local.path(), "remote.origin.uploadpack", "#!/bin/sh\nsleep 30\n");
+
+    let started = std::time::Instant::now();
+    let out = zjjrfg_run_git_bounded(local.path(), &["fetch", "origin"], std::time::Duration::from_millis(400));
+    let elapsed = started.elapsed();
+
+    assert!(!out.ok, "a stalled fetch must not report success");
+    assert!(zjjrfg_transient(&out.stderr), "deadline expiry must classify transient, saw: {}", out.stderr);
+    assert!(elapsed < std::time::Duration::from_secs(10), "the deadline must fire long before the stall ends (elapsed {:?})", elapsed);
 }
 
 #[test]
