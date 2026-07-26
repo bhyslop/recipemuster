@@ -120,7 +120,7 @@ pub(crate) const ZRBTDRU_LABEL_PY: &str = "py";
 /// POSIX Utility Allowlist — the irreducible external-command floor. No bash
 /// 3.2 builtin replacement; mandated by POSIX wherever bash runs.
 pub(crate) const ZRBTDRU_POSIX_FLOOR: &[&str] = &[
-    "chmod", "cp", "date", "find", "mkdir", "mktemp", "mv", "rm", "sed",
+    "chmod", "cp", "date", "find", "mkdir", "mktemp", "mv", "rm",
     "sleep", "sort", "stty",
 ];
 
@@ -208,6 +208,7 @@ pub(crate) const ZRBTDRU_EVICTIONS: &[zrbtdru_Eviction] = &[
     zrbtdru_Eviction { command: "grep", replacement: "case / test / [[ =~ ]]" },
     zrbtdru_Eviction { command: "head", replacement: "read -r" },
     zrbtdru_Eviction { command: "ls", replacement: "glob expansion (for f in dir/*)" },
+    zrbtdru_Eviction { command: "sed", replacement: "${var//pattern/repl} (extglob) / [[ =~ ]] BASH_REMATCH" },
     zrbtdru_Eviction { command: "sha256sum", replacement: "openssl dgst -sha256 -r" },
     zrbtdru_Eviction { command: "shasum", replacement: "openssl dgst -sha256 -r" },
     zrbtdru_Eviction { command: "tr", replacement: "${var//old/new} parameter expansion" },
