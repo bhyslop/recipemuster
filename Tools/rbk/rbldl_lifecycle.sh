@@ -141,7 +141,7 @@ rbld_augur() {
     || buc_reject "${BUBC_band_chain}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
 
   # Assert a KNOWN Lode kind by decoding the touchmark's kind-letter prefix — the
-  # single home for touchmark kind decode, shared with feoff/yoke. Unlike those
+  # single home for touchmark kind decode, shared with feoff/yoke/seise. Unlike those
   # one-kind gates, augur accepts ANY known kind: it inspects every Lode kind. This
   # replaces augur's former regex shape-check, which proved well-formedness but never
   # that the prefix named a real kind (the decoder is the sole kind channel).

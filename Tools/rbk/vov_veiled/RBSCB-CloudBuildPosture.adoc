@@ -291,7 +291,7 @@ This restricts which GCP APIs can be called and from where, reducing data exfilt
 Evaluated and consciously deferred; each has a specific revisit trigger.
 
 **Dockerfile base image digest validation.**
-Builder step images are mostly pinned (reliquary tools ride a content-frozen cohort stamp); the one always-pullable Google-hosted bootstrap builder (`gcr.io/go-containerregistry/gcrane:debug`, conclave-only) rides a floating tag by design, and user-authored Dockerfiles in vessel build contexts are not validated.
+Builder step images are mostly pinned (reliquary tools ride a content-frozen cohort stamp); within the capture pipeline the one always-pullable Google-hosted bootstrap builder (`gcr.io/go-containerregistry/gcrane:debug`, conclave-only) rides a floating tag by design, and user-authored Dockerfiles in vessel build contexts are not validated.
 A vessel with `FROM ubuntu:22.04` passes today — mutable tag, supply-chain risk.
 This constrains vessel authors (policy decision with RBSRV implications), orthogonal to pipeline infrastructure.
 Separate future heat.

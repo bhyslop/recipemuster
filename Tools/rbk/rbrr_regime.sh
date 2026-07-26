@@ -103,6 +103,10 @@ zrbrr_enforce() {
   # touchmark is the kind-letter 'r' followed by 12 stamp digits). An empty
   # election validates; a substrate capture attempted against it rejects loud
   # at use time, not here.
+  # The 'r' is a hardcoded literal, not RBGC_LODE_KIND_RELIQUARY: rbrr enforce runs
+  # before rbgc is kindled (and some enforce callers never source rbgc at all), so
+  # the kind-letter constant is not in scope here — the literal is forced by kindle
+  # order.
   test -z "${RBRR_SUBSTRATE_RELIQUARY}" \
     || [[ "${RBRR_SUBSTRATE_RELIQUARY}" =~ ^r[0-9]{12}$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRR_SUBSTRATE_RELIQUARY format: ${RBRR_SUBSTRATE_RELIQUARY} (expected a reliquary touchmark rNNNNNNNNNNNN, or empty)"

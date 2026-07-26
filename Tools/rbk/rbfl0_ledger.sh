@@ -18,7 +18,8 @@
 #
 # Recipe Bottle Foundry Ledger - kindle entry: the single rbfl inclusion-guard and
 # kindle/sentinel, sourcing the Foundry Core entry (rbfck_) and the guard-free body
-# clusters (rbfla_ anoint, rbfly_ yoke, rbfld_ delete, rbfln_ inventory, rbflw_ wrest).
+# clusters (rbfla_ anoint, rbfly_ yoke, rbflf_ feoff, rbfls_ seise, rbfld_ delete,
+# rbfln_ inventory, rbflw_ wrest).
 # The readonly ZRBFL_* constants the kindle sets are read globally.
 
 set -euo pipefail

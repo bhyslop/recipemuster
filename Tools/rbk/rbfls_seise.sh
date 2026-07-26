@@ -50,7 +50,7 @@ rbfl_seise() {
   test -z "${z_express}" || z_source="express"
 
   # Assert the touchmark is a reliquary kind up front by decoding its kind-letter
-  # prefix — the single home for touchmark kind decode, shared with yoke/feoff. A
+  # prefix — the single home for touchmark kind decode, shared with yoke/feoff/augur. A
   # non-reliquary capture (a bole or underpin chained ahead of this election)
   # carries no tool cohort to resolve from: reject up front rather than fail late
   # at capture time.

@@ -2248,8 +2248,10 @@ pub static RBTDRV_CASES_PARLEY: &[rbtdre_Case] = &[case!(rbtdrv_parley)];
 // Lode, then divine-enumerate to confirm the registry is restored. The wsl kind's
 // structural-outlier analogue of lode-lifecycle: its capture is curl + GPG-verify
 // + opaque-blob wrap, not a registry pull. Underpin takes the substrate version
-// as arguments (release point), so it needs no vessel precondition. Consumption
-// (wsl --import) is deferred — this stops at the registry, no host in the loop.
+// as arguments (release point), so it needs no vessel precondition — but it does
+// require a seised RBRR_SUBSTRATE_RELIQUARY, the pinned tool cohort its cloud
+// builders resolve from (an unseised election refuses at use, band_unseised).
+// Consumption (wsl --import) is deferred — this stops at the registry, no host in the loop.
 fn rbtdrv_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Step 1: underpin the pinned Ubuntu rootfs version into a fresh Lode.
@@ -2315,6 +2317,9 @@ pub static RBTDRV_CASES_WSL_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_wsl_lifec
 // image verb proving per-member delete, banish the whole Lode, then divine-enumerate to
 // confirm the registry is restored. Structural analogue of both reliquary-lifecycle
 // (multi-member cohort + member-jettison case) and wsl-lifecycle (opaque-blob capture).
+// Like underpin, immure is vessel-less but requires a seised RBRR_SUBSTRATE_RELIQUARY —
+// the pinned tool cohort its cloud builders resolve from (an unseised election refuses
+// at use, band_unseised).
 
 /// Podvm-wsl kind argument — family brand passed to immure.
 const RBTDRV_PODVM_FAMILY: &str = "podvm-wsl";
