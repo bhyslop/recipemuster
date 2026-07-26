@@ -148,7 +148,7 @@ zrbfc_kindle() {
   # this-many polls, so the held token never ages past the mantle's ~60-minute
   # generateAccessToken ceiling. 360 polls × 5 s = 30 min — 2× margin under
   # the ceiling; the worst-case conjure budget (QUEUE 180 + CONJURE 960 polls
-  # ≈ 95 min) spans ~3 re-dons, each reading a sitting live by construction.
+  # ≈ 95 min) spans ~3 re-dons.
   # Test seam: RBCC_tweak_redon_cadence.
   readonly ZRBFC_BUILD_POLL_REDON_CADENCE=360
   # Cloud-dispatched tool-plane delete (banish/abjure). The host waits for one

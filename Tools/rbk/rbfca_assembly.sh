@@ -30,9 +30,9 @@ set -euo pipefail
 # Sets module-level z_rbfc_tool_* mutable kindle state for downstream step assembly.
 # Idempotent — safe to call multiple times per invocation.
 #
-# Conclave Lode layout: each ref composes RBGC_LODE_TAG_SPRUE onto the bare
-# RBGC_RELIQUARY_TOOL_* seed to address its member tag on the one package — the
-# seeds stay inputs, the resolved ref a build consumes is always the :rbi_<tool> tag.
+# Conclave Lode layout: each RBGC_RELIQUARY_TOOL_* seed resolves to its
+# :rbi_<tool> member tag on the one package — the seeds stay inputs, the
+# resolved ref is what a build consumes.
 zrbfc_resolve_tool_images() {
   zrbfc_sentinel
 
