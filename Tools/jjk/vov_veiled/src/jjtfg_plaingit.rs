@@ -8,6 +8,7 @@ use super::jjrfg_plaingit::{
     zjjrfg_guidon_vanished,
     zjjrfg_push_rejected,
     zjjrfg_resolve_relative,
+    ZJJRFG_GUIDON_REF,
 };
 use super::jjrfr_farrier::{
     jjrfr_break,
@@ -30,10 +31,6 @@ use std::path::{
 };
 
 const ZJJTFG_TRUNK: &str = "jjtfg-trunk";
-
-/// Mirrors the private `ZJJRFG_GUIDON_REF` in `jjrfg_plaingit.rs` — the blotter's
-/// one well-known lock ref — for tests that must name it directly.
-const ZJJTFG_GUIDON_REF: &str = "refs/jjv/guidon";
 
 fn zjjtfg_git(dir: &Path, args: &[&str]) -> String {
     let out = std::process::Command::new("git")
@@ -555,10 +552,9 @@ fn jjtfg_sight_is_none_when_unlocked() {
 fn jjtfg_guidon_vanished_matches_fetch_transport_vocabulary_only() {
     // The literal message from a real git fetch of a ref the remote no longer
     // advertises — captured live rather than hand-typed, so the classifier is
-    // proven against git's own wording, the same shape reported in the
-    // original panic (JJr_b52 sibling bug).
+    // proven against git's own wording.
     let (_bare, local) = zjjtfg_local_with_remote("jjtfg_guidon_vanished_vocab");
-    let detail = zjjtfg_git_failure(local.path(), &["fetch", "origin", ZJJTFG_GUIDON_REF]);
+    let detail = zjjtfg_git_failure(local.path(), &["fetch", "origin", ZJJRFG_GUIDON_REF]);
 
     assert!(zjjrfg_guidon_vanished(&detail), "expected the vanished-ref signature in: {}", detail);
     assert!(!zjjrfg_guidon_vanished("fatal: Could not read from remote repository."));
@@ -584,7 +580,7 @@ fn jjtfg_sight_resolves_none_when_guidon_vanishes_between_lsremote_and_fetch() {
             "#!/bin/sh\nset -e\nif [ ! -f '{mark}' ]; then\n  touch '{mark}'\n  git upload-pack \"$@\"\n  git -C '{bare}' update-ref -d {guidon_ref}\nelse\n  exec git upload-pack \"$@\"\nfi\n",
             mark = mark.display(),
             bare = bare.path().display(),
-            guidon_ref = ZJJTFG_GUIDON_REF,
+            guidon_ref = ZJJRFG_GUIDON_REF,
         ),
     )
     .unwrap();

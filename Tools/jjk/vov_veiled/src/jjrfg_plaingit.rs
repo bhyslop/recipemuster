@@ -56,7 +56,7 @@ const ZJJRFG_REMOTE: &str = "origin";
 
 /// The blotter's one well-known lock ref (`jjdb_blotter`, blotter sheaf):
 /// `refs/jjv/*` is reserved to JJ entire, and the guidon is its sole resident.
-const ZJJRFG_GUIDON_REF: &str = "refs/jjv/guidon";
+pub(crate) const ZJJRFG_GUIDON_REF: &str = "refs/jjv/guidon";
 
 /// The op tags carried in rejection and panic context — one const per op, so
 /// every failure site of an op names it identically.
