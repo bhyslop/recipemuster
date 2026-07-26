@@ -103,6 +103,7 @@ pub(crate) const RBTDRK_DEPOT_STATE_COMPLETE: &str = "COMPLETE";
 
 pub(crate) const RBTDRK_FIELD_RBRD_CLOUD_PREFIX: &str = "RBRD_CLOUD_PREFIX";
 pub(crate) const RBTDRK_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
+pub(crate) const RBTDRK_FIELD_RBRR_SUBSTRATE_RELIQUARY: &str = "RBRR_SUBSTRATE_RELIQUARY";
 pub(crate) const RBTDRK_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 
 /// BURS station-file env var (exported by bul_launcher.sh) — absolute path

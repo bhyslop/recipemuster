@@ -50,13 +50,14 @@ set -euo pipefail
 # wrap + vouch-push) and its substitutions blob, then ride the capture spine to submit
 # and poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
 # regime timeout); this body chooses only the recipe, the substitutions, and the poll
-# ceiling. Three steps across two builders: the fetch/verify rides the Debian Google
-# builder (curl + apt-installed gnupg), the wrap and vouch-push ride the floating gcrane
-# builder. wsl is evicted but NOT pinned this pace — it is vessel-less with no reliquary
-# source, so its tool-pinning defers to the bootstrap-builder digest-pin itch
-# (RBr_p7c); both gcrane rows ride the floating bootstrap builder, same tier
-# as conclave. The heavy capture poll ceiling gives headroom for the in-step
-# apt-get(gnupg) + keyserver fetch + gcrane append.
+# ceiling. Three steps across two builders: the fetch/verify rides the reliquary docker
+# builder (curl + apt-installed gnupg), the wrap and vouch-push ride the reliquary gcrane
+# builder. wsl is vessel-less — it carries no RBRV_RELIQUARY — but resolves the pinned
+# cohort from the repo-elected RBRR_SUBSTRATE_RELIQUARY, so every builder is a content-
+# pinned reliquary member, zero unpinned aspects (RBr_p7c), same as bole. The caller
+# resolves the tools (zrbfc_resolve_tool_images_from) before this runs. The heavy
+# capture poll ceiling gives headroom for the in-step apt-get(gnupg) + keyserver fetch
+# + gcrane append.
 # Args: token url stamp
 zrbld_underpin_submit() {
   zrbld_sentinel
@@ -70,14 +71,14 @@ zrbld_underpin_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the spine.
-  # Fetch/verify on the Debian Google builder (curl + apt-installed gnupg); wrap + vouch
-  # on the floating gcrane builder (busybox). No reliquary bootstrap and no pinning —
-  # wsl is vessel-less, so its tool-pinning defers to the bootstrap-builder digest-pin
-  # itch; both gcrane rows ride the floating bootstrap builder, same tier as conclave.
+  # Fetch/verify on the reliquary docker builder (curl + apt-installed gnupg); wrap +
+  # vouch on the reliquary gcrane builder (busybox). Both resolve from the pinned
+  # substrate-reliquary cohort (z_rbfc_tool_*), never a floating bootstrap — bole's
+  # pattern, extended to the vessel-less substrate captures (RBr_p7c).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|underpin-fetch|bash"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl05-underpin-wrap.sh|${ZRBLD_GCRANE_BUILDER}|underpin-wrap|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${z_rbfc_tool_docker}|underpin-fetch|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl05-underpin-wrap.sh|${z_rbfc_tool_gcrane}|underpin-wrap|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing underpin substitutions blob"
@@ -144,6 +145,16 @@ rbld_underpin() {
   local z_url=""
   printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}"
   buc_info "Underpin source: ${z_url}"
+
+  # Resolve build tools from the repo-elected substrate reliquary. underpin is
+  # vessel-less — it carries no RBRV_RELIQUARY — so it resolves the pinned cohort
+  # from RBRR_SUBSTRATE_RELIQUARY instead (RBr_p7c: a capture consuming a sealed
+  # reliquary carries zero unpinned aspects). An unseised election refuses here
+  # rather than silently floating on a mutable tag; seise one with rbfl_seise.
+  local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
+  test -n "${z_substrate_reliquary}" \
+    || buc_reject "${BUBC_band_regime}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
+  zrbfc_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"
   local z_token=""

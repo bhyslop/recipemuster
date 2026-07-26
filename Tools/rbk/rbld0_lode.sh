@@ -69,33 +69,21 @@ zrbld_kindle() {
   buc_log_args 'Define immure operation file prefix'
   readonly ZRBLD_IMMURE_PREFIX="${BURD_TEMP_DIR}/rbld_immure_"
 
-  # Google-hosted docker builder — always pullable even under NO_PUBLIC_EGRESS.
-  # Conclave captures the reliquary tool cohort itself, so it cannot resolve its
-  # builders from a reliquary (the bootstrap it would be creating); both conclave
-  # steps ride this Google-hosted builder instead of the reliquary-resolved docker.
-  buc_log_args 'Define Google-hosted docker builder image'
-  readonly ZRBLD_GOOGLE_DOCKER_BUILDER="gcr.io/cloud-builders/docker"
-
   # gcrane builder — crane's Google-auth sibling (same cp/manifest/tag engine).
-  # The bole capture step rides this: gcrane authenticates GAR (*.pkg.dev)
-  # ambiently through google.Keychain -> ADC -> the GCE metadata server as the
-  # Mason SA, so the step needs no token fetch, no crane auth login, and no
+  # CONCLAVE-ONLY: conclave captures the reliquary tool cohort itself, so it cannot
+  # resolve its builders from a reliquary (the bootstrap it would be creating); both
+  # conclave steps ride this floating Google-hosted gcrane. gcrane authenticates GAR
+  # (*.pkg.dev) ambiently through google.Keychain -> ADC -> the GCE metadata server
+  # as the Mason SA, so the step needs no token fetch, no crane auth login, and no
   # credential-helper image. The :debug variant carries /busybox/sh and busybox
-  # sha256sum for the orchestration (the non-debug image is distroless — no
-  # shell). Floating Google-hosted name, like ZRBLD_GOOGLE_DOCKER_BUILDER above:
-  # gcr.io is always-pullable under Private Google Access, and the persistent
-  # :debug tag is the name we ride — version-freezing belongs to the reliquary
-  # gather, not a bash-frozen digest in this constant.
-  buc_log_args 'Define Google-hosted gcrane builder image'
+  # sha256sum for the orchestration (the non-debug image is distroless — no shell).
+  # gcr.io is always-pullable under Private Google Access, and the persistent :debug
+  # tag is the name we ride — version-freezing belongs to the reliquary gather, not a
+  # bash-frozen digest here. This is the sole floating capture builder: bole and the
+  # vessel-less substrate captures (underpin, immure) resolve pinned builders from a
+  # reliquary; only conclave, which produces the reliquary, may not (RBr_p7c).
+  buc_log_args 'Define Google-hosted gcrane builder image (conclave-only)'
   readonly ZRBLD_GCRANE_BUILDER="gcr.io/go-containerregistry/gcrane:debug"
-
-  # gcloud builder — python3 + stdlib urllib/json, Google-hosted and always pullable.
-  # The immure select step (rbgjl07) rides this to PARSE the upstream OCI index, which
-  # the no-jq bash GCB discipline does not cover; python is the native tool, the
-  # rbgjl06-package-delete.py precedent. Floating bootstrap (same itch as the gcrane
-  # builder above) — bounded: capture runs as the writer-only Mason SA.
-  buc_log_args 'Define Google-hosted gcloud (python3) builder image'
-  readonly ZRBLD_GCLOUD_BUILDER="gcr.io/cloud-builders/gcloud:latest"
 
   buc_log_args 'Define divine operation file prefix'
   readonly ZRBLD_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"

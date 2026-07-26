@@ -1,11 +1,10 @@
 #!/bin/bash
 # RBGJL Step 08: Copy the selected podvm disk leaves into a Lode via gcrane (capture)
-# Builder: gcr.io/go-containerregistry/gcrane:debug (floating bootstrap — podvm is
-#          vessel-less like wsl, so its tool-pinning defers to the bootstrap-builder
-#          digest-pin itch (RBr_p7c). gcrane reads the PUBLIC quay
-#          source anonymously and auths the GAR push ambiently via google.Keychain
-#          -> ADC -> the GCE metadata server as the Mason SA, no explicit login. The
-#          :debug variant carries /busybox/sh)
+# Builder: the pinned gcrane member of the repo-elected substrate reliquary (resolved
+#          from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c).
+#          gcrane reads the PUBLIC quay source anonymously and auths the GAR push
+#          ambiently via google.Keychain -> ADC -> the GCE metadata server as the Mason
+#          SA, no explicit login. The :debug variant carries /busybox/sh)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_PODVM_FAMILY
 #

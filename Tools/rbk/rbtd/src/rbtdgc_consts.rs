@@ -97,6 +97,7 @@ pub const RBTDGC_ANOINT_GRAFT: &str = "rbw-rva";
 pub const RBTDGC_FEOFF_BOLE: &str = "rbw-rvf";
 pub const RBTDGC_RENDER_REPO: &str = "rbw-rrr";
 pub const RBTDGC_VALIDATE_REPO: &str = "rbw-rrv";
+pub const RBTDGC_SEISE_SUBSTRATE: &str = "rbw-rrs";
 pub const RBTDGC_RENDER_DEPOT: &str = "rbw-rdr";
 pub const RBTDGC_VALIDATE_DEPOT: &str = "rbw-rdv";
 pub const RBTDGC_INSCRIBE_DEPOT: &str = "rbw-rdi";

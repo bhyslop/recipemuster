@@ -84,12 +84,13 @@ zrbld_immure_resolve_family() {
 # want the larger budget). Four steps across three builders: index-select rides the
 # gcloud builder (python3 — parses the upstream OCI index, which the no-jq bash GCB
 # discipline does not cover; rbgjl06 precedent); gcrane cp and the vouch-push ride the
-# floating gcrane builder (busybox); the residency HEAD rides the Debian docker builder
-# (curl, allowlisted). The recipe-row ORDER is part of the contract: vouch (rbgjl02)
+# gcrane builder (busybox); the residency HEAD rides the docker builder (curl,
+# allowlisted). The recipe-row ORDER is part of the contract: vouch (rbgjl02)
 # runs strictly after residency (rbgjl09) — the vouch artifact never precedes the
-# anti-hollow-mirror guard. podvm is vessel-less (no reliquary slot), so its gcrane
-# rides the floating bootstrap builder, same tier as conclave/wsl — pinning defers to
-# the bootstrap-builder digest-pin itch (RBr_p7c).
+# anti-hollow-mirror guard. podvm is vessel-less (no RBRV_RELIQUARY), so all three
+# builders resolve from the pinned repo-elected substrate-reliquary cohort
+# (z_rbfc_tool_*), never a floating bootstrap — bole's pattern (RBr_p7c). The caller
+# resolves the tools (zrbfc_resolve_tool_images_from) before this runs.
 # Args: token brand quay_family version selection stamp preserved
 #   preserved — compact JSON array of already-captured members (refresh add-only);
 #               "[]" for a fresh capture. Passed through as _RBGL_PODVM_PRESERVED so
@@ -110,15 +111,16 @@ zrbld_immure_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the spine.
-  # Select on the gcloud builder (python3 — index parse); residency on the Debian docker
-  # builder (curl HEAD); cp + vouch on the floating gcrane builder (busybox). The gcrane
-  # builder reads public quay anonymously and pushes GAR ambiently (google.Keychain ->
-  # Mason SA).
+  # Select on the reliquary gcloud builder (python3 — index parse); residency on the
+  # reliquary docker builder (curl HEAD); cp + vouch on the reliquary gcrane builder
+  # (busybox). All three resolve from the pinned substrate-reliquary cohort
+  # (z_rbfc_tool_*). The gcrane builder reads public quay anonymously and pushes GAR
+  # ambiently (google.Keychain -> Mason SA).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl07-immure-select.py|${ZRBLD_GCLOUD_BUILDER}|immure-select|python3"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl08-immure-capture.sh|${ZRBLD_GCRANE_BUILDER}|immure-capture|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl09-immure-residency.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|immure-residency|bash"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl07-immure-select.py|${z_rbfc_tool_gcloud}|immure-select|python3"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl08-immure-capture.sh|${z_rbfc_tool_gcrane}|immure-capture|busybox"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl09-immure-residency.sh|${z_rbfc_tool_docker}|immure-residency|bash"
+    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing immure substitutions blob"
@@ -233,6 +235,16 @@ rbld_immure() {
   local z_kind="" z_quay_family="" z_selection=""
   zrbld_immure_resolve_family "${z_brand}"
   buc_info "Immure family resolved: ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
+
+  # Resolve build tools from the repo-elected substrate reliquary. immure is
+  # vessel-less — it carries no RBRV_RELIQUARY — so it resolves the pinned cohort
+  # from RBRR_SUBSTRATE_RELIQUARY instead (RBr_p7c: a capture consuming a sealed
+  # reliquary carries zero unpinned aspects). An unseised election refuses here
+  # rather than silently floating on a mutable tag; seise one with rbfl_seise.
+  local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
+  test -n "${z_substrate_reliquary}" \
+    || buc_reject "${BUBC_band_regime}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an immure substrate capture"
+  zrbfc_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"
   local z_token=""
