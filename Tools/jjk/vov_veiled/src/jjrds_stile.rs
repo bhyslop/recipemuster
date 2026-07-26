@@ -147,6 +147,14 @@ pub enum jjrds_Rejection {
     UnrecordedSire { key: String },
     /// The claiming kind contradicts the pedigree's recorded kind.
     RecordGroundDrift { claimed: String, recorded: String },
+    /// A billet already stands for this pace — the yard gate's fail-fast refusal
+    /// (JJSVD "Yard step"): at most one live billet per coronet, so a saddle
+    /// whose pace already has a standing billet refuses before the birth record's
+    /// journal write and before any session spawn. Names the standing partition
+    /// and the remedies. Keyed on the livery-branch seat and the coronet-labelled
+    /// yard entry both, so a partition the seat-read misses (a detached tip, a
+    /// lost registration) is still caught; `detail` says which key answered.
+    StandingBillet { root: PathBuf, detail: String },
     /// The dispatch target token failed halter typing, or resolution against
     /// the gallops (unknown identity, no actionable pace, terminal pace state).
     BadTarget { detail: String },
@@ -197,6 +205,15 @@ impl std::fmt::Display for jjrds_Rejection {
                     f,
                     "record/ground drift: the ground claims kind '{}' but the pedigree records '{}'",
                     claimed, recorded
+                )
+            }
+            jjrds_Rejection::StandingBillet { root, detail } => {
+                write!(
+                    f,
+                    "a billet already stands for this pace at {} ({}) — at most one live billet per pace: \
+                     work in that session, or `muck` it (salvage-then-destroy) before saddling again",
+                    root.display(),
+                    detail
                 )
             }
             jjrds_Rejection::BadTarget { detail } => write!(f, "bad dispatch target: {}", detail),
@@ -695,9 +712,9 @@ pub fn jjrds_currency<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 /// Everything the approach resolved ahead of boarding: what the billet seats, who
 /// it dispatches to, and how the session launches. Planning is pure resolution;
 /// where the billet stands is NOT resolved here — that waits on the yard step
-/// (`jjrds_rediscover`, then either the standing billet or a dirname minted from
-/// the dispatch record's catchword), because a mint costs a journal write and
-/// planning takes no lock and touches no remote.
+/// (`jjrds_yard_gate`, then a dirname minted from the dispatch record's
+/// catchword), because a mint costs a journal write and planning takes no lock
+/// and touches no remote.
 #[derive(Debug)]
 pub struct jjrds_LaunchPlan {
     pub door: jjrds_Door,
@@ -717,10 +734,10 @@ pub struct jjrds_LaunchPlan {
 }
 
 /// Where a dispatch's billet stands, once the yard step has answered: the
-/// dirname (rediscovered or freshly minted), the billet root under the infield,
-/// and the per-billet scratch keyed by that same dirname — so two concurrent
-/// groom billets of one heat, distinguished by their serials, carry distinct
-/// BUK state rather than sharing one.
+/// freshly minted dirname, the billet root under the infield, and the per-billet
+/// scratch keyed by that same dirname — so two concurrent groom billets of one
+/// heat, distinguished by their serials, carry distinct BUK state rather than
+/// sharing one.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrds_Yard {
     pub billet_dirname: String,
@@ -729,10 +746,9 @@ pub struct jjrds_Yard {
 }
 
 /// Compose the yard coordinates from a billet root — the one place the dirname
-/// and the scratch root are derived, so a rediscovered billet and a freshly
-/// minted one are keyed identically. The scratch always sits under THIS
-/// station's infield, even in the (registry-answered) case where the billet
-/// itself does not.
+/// and the scratch root are derived, so every minted billet is keyed
+/// identically. The scratch always sits under THIS station's infield, keyed by
+/// the billet's own dirname.
 pub fn jjrds_yard(infield_root: &Path, billet_root: PathBuf) -> jjrds_Yard {
     let billet_dirname = billet_root
         .file_name()
@@ -745,51 +761,63 @@ pub fn jjrds_yard(infield_root: &Path, billet_root: PathBuf) -> jjrds_Yard {
     }
 }
 
-/// Rediscover the standing billet this dispatch would rejoin, if one stands
-/// (`jjdd_billet` reuse): the constellation's own partition registry is the
-/// authority, asked for the pace's livery branch. `None` means nothing stands
-/// and the caller mints.
+/// The yard gate — the dispatch spine's fail-fast refusal of a duplicate
+/// dispatch (`jjdd_billet`, at most one live billet per coronet): a saddle whose
+/// pace already has a standing billet refuses HERE, before the birth record's
+/// journal write and before any session spawn, rather than rejoining a live
+/// session's worktree or minting a rival one past a missed seat. `Ok(())` means
+/// nothing stands and the caller is clear to mint.
 ///
-/// A groom billet never rediscovers: it seats no branch, and concurrent grooms
-/// of one heat are deliberately legal — each dispatch mints its own, told apart
-/// by its serial. The pace half is pinned the other way, at most one live billet
-/// per coronet, and the constellation's checkout exclusivity is what enforces it.
+/// Two keys, because a standing billet can evade either read alone:
+/// - the livery-branch SEAT the constellation's partition registry records
+///   (`jjrfr_line_seated`), the authority for a billet on its own branch;
+/// - the coronet-labelled YARD entry (`zjjrds_yard_label`), which catches a
+///   partition the seat-read misses — a detached tip, a lost or unregistered
+///   worktree, a pre-livery bare-branch billet — since its dirname still wears
+///   the coronet whatever its HEAD points at.
+/// Either key answering yes is a standing billet and refuses; only when BOTH are
+/// silent is the pace clear. The registry alone is not enough: the constellation's
+/// checkout exclusivity guards only the narrow worktree-add seat arm, never the
+/// dispatch, so a re-saddle rejoins a live worktree (a second session into one
+/// billet) or, where the seat-read misses, mints a rival past it — the hole this
+/// gate closes.
 ///
-/// The one anomaly named here: a dirname in the yard labelled with this pace's
-/// coronet while the registry seats its livery branch nowhere. That is a billet
-/// predating the livery badge, and it is refused with the rename remedy rather
-/// than left behind — minting past it would birth a fresh branch off trunk and
-/// silently fork the standing billet's work away.
-pub fn jjrds_rediscover<F: jjrfr_FarrierBillet>(
+/// A groom billet seats no branch and grooms of one heat are deliberately
+/// concurrent, so a detached (groom) birth passes the gate untouched — the guard
+/// is the pace half of the at-most-one ruling alone.
+pub fn jjrds_yard_gate<F: jjrfr_FarrierBillet>(
     farrier: &F,
     plan: &jjrds_LaunchPlan,
-) -> Result<Option<PathBuf>, jjrds_Rejection> {
+) -> Result<(), jjrds_Rejection> {
     let branch = match &plan.birth {
         jjrfr_BilletBirth::Branch(branch) => branch,
-        jjrfr_BilletBirth::Detached => return Ok(None),
+        jjrfr_BilletBirth::Detached => return Ok(()),
     };
+    // K1 — the livery-branch seat: the registry is the authority for a billet
+    // standing on its own branch.
     if let Some(root) = farrier.jjrfr_line_seated(&plan.hippodrome_root, branch).map_err(jjrds_Rejection::Farrier)? {
-        return Ok(Some(root));
-    }
-    if let Some(standing) = zjjrds_yard_label(&plan.infield_root, &plan.identity_body) {
-        return Err(jjrds_Rejection::BadTarget {
-            detail: format!(
-                "billet {} is labelled for this pace but the constellation seats branch '{}' nowhere — \
-                 this billet predates the livery badge; rename its branch in place: `git -C {} branch -m {}`",
-                standing.display(),
-                branch,
-                standing.display(),
-                branch
-            ),
+        return Err(jjrds_Rejection::StandingBillet {
+            root,
+            detail: format!("its livery branch '{}' is seated there", branch),
         });
     }
-    Ok(None)
+    // K2 — the coronet-labelled yard entry: catches a standing partition the
+    // seat-read misses (detached tip, lost registration, pre-livery bare branch).
+    if let Some(root) = zjjrds_yard_label(&plan.infield_root, &plan.identity_body) {
+        return Err(jjrds_Rejection::StandingBillet {
+            root,
+            detail: format!("the constellation seats its livery branch '{}' nowhere — a detached or unregistered partition", branch),
+        });
+    }
+    Ok(())
 }
 
 /// The yard's own answer to "is a billet here labelled for this identity" — the
 /// glob half, read through the one tail-token home so a serialed label and a
-/// pre-catchword one both resolve. Anomaly detection only: the registry, never
-/// this, decides what a dispatch rejoins.
+/// pre-catchword one both resolve. The yard gate's second key (K2): a filesystem
+/// read independent of the registry, so a standing partition the seat-read misses
+/// (a detached tip, a lost registration) is still caught by its coronet-labelled
+/// dirname.
 fn zjjrds_yard_label(infield_root: &Path, identity_body: &str) -> Option<PathBuf> {
     let entries = std::fs::read_dir(infield_root).ok()?;
     entries.flatten().map(|e| e.path()).find(|path| {
@@ -842,10 +870,11 @@ pub fn jjrds_dispatch_record(door: jjrds_Door, birth: &jjrfr_BilletBirth, identi
 /// ceremony allocated — the serial the new billet's dirname wears.
 ///
 /// This is the one place dispatch WRITES. It runs only when a billet is about to
-/// be minted: a dispatch that rediscovers a standing billet is rejoining, not a
-/// birth, and journals nothing. The accepted cost is named in the ruling this
-/// builds: a mint is a locked journal write, online and `LockHeld`-refusable —
-/// the same bracket muck already rides at every dispatch.
+/// be minted: the yard gate has already cleared the way (no standing billet for
+/// this pace), so every dispatch that reaches here is a genuine birth. The
+/// accepted cost is named in the ruling this builds: a mint is a locked journal
+/// write, online and `LockHeld`-refusable — the same bracket muck already rides
+/// at every dispatch.
 ///
 /// The record is content-less by construction: an event has no file, so the
 /// commit's whole content is its message and its tree is the tip's own.
@@ -1029,11 +1058,13 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     yard: &jjrds_Yard,
 ) -> Result<Option<String>, jjrds_Rejection> {
     if yard.billet_root.exists() {
-        // A standing billet reached here through rediscovery, which answered
-        // from the constellation's registry — so a pace billet already seats
-        // its own branch and there is nothing to ensure. A groom billet is
-        // never rediscovered, so it lands here only if the operator built the
-        // directory by hand; re-detaching is the honest reading of that.
+        // Board is total over billet-root existence, so a partition already
+        // standing at this path is honoured rather than clobbered — a pace
+        // billet already seats its own branch and needs no ensure. The yard
+        // gate refuses a standing pace billet upstream, so the dispatch path
+        // never reaches here with one; a partition present at a freshly minted
+        // path is an operator's own hand-built directory, and a groom's is
+        // re-detached to the freshest trunk tip — the honest reading of that.
         if plan.birth == jjrfr_BilletBirth::Detached {
             farrier
                 .jjrfr_billet_detach(&yard.billet_root, &plan.trunk)
@@ -1197,14 +1228,14 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
     };
 
-    // The yard step: rejoin the standing billet the registry names, or record
-    // the birth and wear the catchword it allocated. Rediscovery is pure-local
-    // and runs even on a dry run; the record is a studbook write, so it waits
-    // until past the dry-run stop.
-    let rediscovered = match jjrds_rediscover(&farrier, &plan) {
-        Ok(r) => r,
-        Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
-    };
+    // The yard gate: refuse a duplicate dispatch (a pace whose billet already
+    // stands) before the birth record's journal write and before any session
+    // spawn, so a re-saddle can never rejoin a live worktree or mint a rival past
+    // a missed seat. Pure-local, so it runs even on a dry run; the birth record
+    // it clears the way for is a studbook write and waits past the dry-run stop.
+    if let Err(e) = jjrds_yard_gate(&farrier, &plan) {
+        return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e));
+    }
 
     out.push_str(&format!(
         "launch:  {} / {}\nprompt:  {}\n",
@@ -1214,25 +1245,18 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
     ));
 
     if dry_run {
-        out.push_str(&format!(
-            "dry run: stopping before the dispatch record, board, and launch ({})\n",
-            match &rediscovered {
-                Some(root) => format!("would rejoin the billet at {}", root.display()),
-                None => "would mint a billet".to_string(),
-            }
-        ));
+        out.push_str("dry run: stopping before the dispatch record, board, and launch (would mint a billet)\n");
         return (jjrds_Outcome::Done(0), out);
     }
 
-    let billet_root = match rediscovered {
-        Some(root) => root,
-        None => {
-            let studbook = jjdb_studbook_config(&plan.infield_root);
-            let station = crate::jjrvg_guidon::jjdb_station_name();
-            match jjrds_record_dispatch(&farrier, &studbook, &plan, &station) {
-                Ok(catchword) => plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body)),
-                Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at the record: {}\n", out, e)),
-            }
+    // The gate passed, so nothing stands: mint a fresh billet. The birth record
+    // allocates the catchword the dirname wears.
+    let billet_root = {
+        let studbook = jjdb_studbook_config(&plan.infield_root);
+        let station = crate::jjrvg_guidon::jjdb_station_name();
+        match jjrds_record_dispatch(&farrier, &studbook, &plan, &station) {
+            Ok(catchword) => plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body)),
+            Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at the record: {}\n", out, e)),
         }
     };
     let yard = jjrds_yard(&plan.infield_root, billet_root);

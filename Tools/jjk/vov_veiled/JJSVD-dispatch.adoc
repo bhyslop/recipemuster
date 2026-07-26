@@ -293,17 +293,30 @@ contributes only its target typing and its tier source, never its own approach:
   a key resolving no sire is the unrecorded-sire rejection, and a claiming
   kind that contradicts the recorded kind is the record/ground-drift rejection
   ({jjdf_identify} contract, farrier sheaf).
-. *Yard step* — rediscover the standing {jjdd_billet}, or record the birth and wear the
-  serial it allocates.
-  Rediscovery asks the kind's own partition registry where the pace's {jjdd_livery} branch
-  is seated, never the yard by name: a dirname is a label, so a search by name would answer
-  for the yard while the registry answers for the seat, and the kind's checkout exclusivity
-  is what pins at most one live pace billet per {jjdt_coronet}.
-  A groom billet seats no branch and so never rediscovers — concurrent grooms of one heat
+. *Yard step* — the yard gate, then the birth record.
+  At most one live pace billet per {jjdt_coronet}, and the gate is what enforces it: a saddle
+  whose pace ALREADY has a standing billet refuses HERE, before the birth record's journal
+  write and before any session spawn, rather than rejoining a live session's worktree or
+  minting a rival one past a missed seat.
+  The gate reads two keys, because a standing billet can evade either alone: the {jjdd_livery}-branch
+  SEAT the kind's own partition registry records (the authority for a billet on its own branch),
+  and the {jjdt_coronet}-labelled YARD entry (which catches a partition the seat-read misses —
+  a detached tip, a lost registration, a pre-livery bare-branch billet — its dirname wearing the
+  coronet whatever its HEAD points at).
+  Neither key is the yard-by-name mistake it might look like: a dirname is a label, so the seat
+  key asks the registry, not the name, and the yard key is only the second, independent read that
+  the seat-read alone would miss.
+  Either key answering yes is a standing billet: the refusal names the partition and the remedies —
+  work in that session, or {jjdd_muck} it (salvage-then-destroy).
+  Checkout exclusivity is NOT this enforcement: it guards only the narrow seat arm — a second
+  worktree add on an already-seated branch — never the dispatch, so without the gate a re-saddle
+  rejoins a live worktree (a second session into one billet) or, where the seat-read misses, mints
+  a rival past it.
+  A groom billet seats no branch and passes the gate untouched — concurrent grooms of one heat
   are deliberately legal, told apart by their serials alone.
-  A birth is a {jjdb_studbook} WRITE (the dispatch record, blotter sheaf): online and
-  refusable under a held {jjdb_guidon}, the accepted cost of a durable birth timeline.
-  A dispatch that rediscovers is rejoining, not a birth, and records nothing.
+  Only when both keys are silent is the pace clear: the birth is a {jjdb_studbook} WRITE (the
+  dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
+  cost of a durable birth timeline, and the fresh billet wears the serial it allocates.
 . *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
   A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
