@@ -237,7 +237,7 @@ zbud_curate_same() {
   local z_line
   while IFS= read -r z_line || test -n "${z_line}"; do
     test -n "${z_line}" || continue
-    z_line="${z_line//$'\x1b'\[+([0-9;])[a-zA-Z]/}"
+    z_line="${z_line//$'\x1b'\[*([0-9;])[a-zA-Z]/}"
     z_line="${z_line//$'\x1b'\([A-Z]/}"
     z_line="${z_line//${BURD_TEMP_DIR}/BURD_EPHEMERAL_DIR}"
     case "${z_line}" in

@@ -1635,7 +1635,7 @@ These commands have bash builtin or declared-dependency replacements. Do not rei
 | `grep` | `case`, `test`, `[[ =~ ]]` | BCG-blessed pattern matching; see Test vs Bracket Expressions |
 | `head` | `read -r` | First-line extraction is a single builtin call |
 | `ls` | Glob expansion | `for f in dir/*` iterates without spawning a process |
-| `sed` | `${var//pattern/repl}` (extglob), `[[ =~ ]]` BASH_REMATCH | Substitution via extglob quantifiers (`+([0-9;])`); capture via regex match groups |
+| `sed` | `${var//pattern/repl}` (extglob), `[[ =~ ]]` BASH_REMATCH | Substitution via extglob quantifiers (`*([0-9;])` for a regex `*`, zero-or-more — `+(...)` is one-or-more and under-matches); capture via regex match groups |
 | `sha256sum`/`shasum` | `openssl dgst -sha256 -r` | Platform names differ; openssl is universal |
 | `tr` | `${var//old/new}` parameter expansion | Character replacement is a builtin |
 | `wc` | `${#var}`, `${#arr[@]}` | Length measurement is a builtin |
