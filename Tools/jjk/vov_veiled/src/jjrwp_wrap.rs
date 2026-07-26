@@ -590,12 +590,12 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
         }
     };
 
-    // Ruling 3 mirror (₣B9 paddock ₢CAABf, discharging cinch commit 361652aa6):
-    // wrap consigns the billet branch after its final commit, so a same-session
-    // land→wrap exits with the stile clearing the billet — the converge above
-    // already delivered the tree to trunk, but the branch itself must still
-    // reach remote custody (backup posture; rung 2's REMOTE-AWARE SEAT depends
-    // on branches being pushed). The badge guard inside makes this a no-op on
+    // Ruling 3 (the 260722 wrap-convergence design session): wrap consigns the
+    // billet branch after its final commit, so a same-session land→wrap exits
+    // with the stile clearing the billet — the converge above already
+    // delivered the tree to trunk, but the branch itself must still reach
+    // remote custody (backup posture; the REMOTE-AWARE SEAT seam depends on
+    // branches being pushed). The badge guard inside makes this a no-op on
     // hippodrome/groom ground. A push failure surfaces loud while the local
     // commits stand (additive discipline), matching notch Ruling 3 and landing.
     if let Err(e) = crate::jjrnc_notch::jjrnc_consign_current_branch(&crate::jjrfg_plaingit::jjrfg_PlainGit) {

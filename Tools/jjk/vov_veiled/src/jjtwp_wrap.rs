@@ -497,7 +497,7 @@ fn jjtwp_converge_refusal_names_the_trunk_the_no_residue_fact_and_refit() {
     assert!(msg.contains("never rebase"), "got: {}", msg);
 }
 
-// ---- Consign wiring (Ruling 3 mirror, ₣B9 paddock ₢CAABf) ----
+// ---- Consign wiring (Ruling 3 mirror) ----
 //
 // `zjjrx_run_wrap` reads and writes only through the ambient process cwd, and
 // (on a staged diff) shells out to the claude CLI to author a commit message —
