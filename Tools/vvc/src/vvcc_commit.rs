@@ -34,6 +34,15 @@ use std::path::Path;
 /// Lock reference path for commit operations
 const VVCC_LOCK_REF: &str = "refs/vvg/locks/vvx";
 
+/// JJr_9m4
+///
+/// Deadline on the claude commit-message generation spawn — the one non-git
+/// remote-reaching subprocess in the commit paths. Generous, because a large
+/// diff legitimately takes a while; bounded, because an API stall must fail
+/// guided rather than hang the ceremony. No retry: a second paid call is not
+/// a retry the membrane owes — the guided failure names re-running instead.
+pub const VVCC_CLAUDE_DEADLINE: std::time::Duration = std::time::Duration::from_secs(120);
+
 /// Arguments for commit operation
 ///
 /// Note: No Default impl - callers must explicitly specify all fields,
@@ -221,18 +230,24 @@ fn zvvcc_generate_message_with_claude(diff: &str) -> Result<String, String> {
         diff
     );
 
-    let output = crate::vvce_claude_command()
-        .args([
-            "--print",
-            "--system-prompt",
-            "Output only a conventional git commit message. No explanation or commentary. Do not wrap in markdown code blocks.",
-            "--model",
-            "haiku",
-            "--no-session-persistence",
-            &prompt,
-        ])
-        .output()
-        .map_err(|e| format!("Failed to invoke claude: {}", e))?;
+    let mut cmd = crate::vvce_claude_command();
+    cmd.args([
+        "--print",
+        "--system-prompt",
+        "Output only a conventional git commit message. No explanation or commentary. Do not wrap in markdown code blocks.",
+        "--model",
+        "haiku",
+        "--no-session-persistence",
+        &prompt,
+    ]);
+    let output = crate::vvce_env::vvce_output_deadline(&mut cmd, None, VVCC_CLAUDE_DEADLINE)
+        .map_err(|e| format!("Failed to invoke claude: {}", e))?
+        .ok_or_else(|| {
+            format!(
+                "claude --print exceeded its {}s deadline — an API stall or hung CLI, not a diff problem. Re-run the command.",
+                VVCC_CLAUDE_DEADLINE.as_secs()
+            )
+        })?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

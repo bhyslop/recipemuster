@@ -31,7 +31,7 @@
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree, footprint, and counterfoil)
 // jjdd_:  Dispatch layer vocabulary (the doors, the stile crossing and its approach, the billet lifecycle, the ground taxonomy and its guards, the muck door, refit)
-// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds)
+// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds, the transport vedette)
 // jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
@@ -300,6 +300,8 @@
 :jjdf_lock_broken:     <<jjdf_lock_broken,lock-broken>>
 :jjdf_seat_vestige:    <<jjdf_seat_vestige,seat-vestige>>
 :jjdf_line_seated:     <<jjdf_line_seated,line-seated>>
+:jjdf_vedette:         <<jjdf_vedette,transport vedette>>
+:jjdf_transient:       <<jjdf_transient,transient>>
 
 // Tackle (the domain binding: fileset + governance; claims, bounds, blaze registries)
 :jjdl_tackle:       <<jjdl_tackle,Tackle>>
