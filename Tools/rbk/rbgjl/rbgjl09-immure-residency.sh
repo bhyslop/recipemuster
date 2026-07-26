@@ -1,9 +1,10 @@
 #!/bin/bash
 # RBGJL Step 09: Blob-residency guard for the captured podvm leaves (anti-hollow-mirror)
-# Builder: gcr.io/cloud-builders/docker (Google-hosted, Debian — carries curl; the
-#          gcrane:debug capture builder has no curl, so the registry-v2 HEAD guard
-#          lives here, after the cp). The Mason SA token comes from the metadata
-#          server (rbgjs token-fetch).
+# Builder: the pinned docker member of the repo-elected substrate reliquary (resolved
+#          from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c;
+#          Debian — carries curl; the gcrane capture builder has no curl, so the
+#          registry-v2 HEAD guard lives here, after the cp). The Mason SA token comes
+#          from the metadata server (rbgjs token-fetch).
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP
 #
 # Note: this script runs inside a Cloud Build container, not under BCG module

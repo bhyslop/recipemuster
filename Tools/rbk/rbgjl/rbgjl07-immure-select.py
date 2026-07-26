@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # RBGJL Step 07: Select podvm disk leaves from a quay family index (the immure select)
-# Builder: gcr.io/cloud-builders/gcloud:latest (floating bootstrap; python3 + urllib +
-#   json — the reliquary-less capture rides this, not a pinned tool). Python, not bash:
+# Builder: the pinned gcloud member of the repo-elected substrate reliquary (resolved
+#   from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c; python3
+#   + urllib + json). Python, not bash:
 #   this step PARSES a structured upstream OCI index (correlate platform.architecture +
 #   annotations.disktype within a child descriptor, extract a third field), which the
 #   "no jq, author-by-hand with grep+cut" bash GCB discipline does not cover. python's

@@ -1,12 +1,14 @@
 #!/bin/bash
 # RBGJL Step 04: Fetch + GPG-verify a WSL rootfs and stage it for the wrap step
-# Builder: gcr.io/cloud-builders/docker (Google-hosted, always pullable; Debian-based
-#          — carries curl, and gnupg is apt-installed by the gpg-verify-sums snippet
-#          if absent). The acquisition tool is curl over HTTPS, not a registry pull,
-#          so this kind needs neither gcrane nor a reliquary bootstrap. This step does
+# Builder: the pinned docker member of the repo-elected substrate reliquary (resolved
+#          from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c;
+#          Debian-based — carries curl, and gnupg is apt-installed by the
+#          gpg-verify-sums snippet if absent). The acquisition tool is curl over HTTPS,
+#          not a registry pull, so capture pulls no upstream image — but the builder
+#          itself is reliquary-pinned, not a floating Google-hosted tag. This step does
 #          NOT push: it fetches, verifies, authors the envelope, and stages rootfs.tar
 #          for the gcrane-append wrap (rbgjl05) — the fetch/verify builder (curl+gpg,
-#          Debian) and the wrap builder (gcrane:debug busybox) cannot be one image.
+#          Debian) and the wrap builder (reliquary gcrane, busybox) cannot be one image.
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_TAG_ROOTFS, _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA,
 #                _RBGL_ACQUIRED_BY, _RBGL_WSL_URL, _RBGL_WSL_KEY_FPR
