@@ -24,6 +24,8 @@ A wrap run from a {jjdw_hippodrome}, a detached checkout, or foreign ground reso
 Glean, then ask whether trunk carries work this billet has never enfolded.
 If it does: emit the staleness interdictum naming {jjdd_refit} as the remedy and exit 2 — nothing committed, the working tree untouched, the pace still open.
 The refusal is total — no retry, and no refit from inside the gate; an unreachable remote or an unknown counterpart is not a refusal, since the gate refuses only on an observed fact.
+One outstripping tip does not refuse: if trunk's counterpart tip is this pace's own W marker — a crash between the converge push and the journal write left trunk ahead by exactly this wrap's own delivery, a signature ancestry cannot see through a squash — the gate resumes rather than refuses.
+The wrap proceeds, carrying the recognized position into the converge below, so a crashed wrap completes instead of demanding a refit that would only merge the pace's own work back into itself.
 . Acquire the commit lock.
 . Stage all changes (`git add -A`).
 . Size guard: weigh the staged tree through the shared cost model against {jjda_size_limit}; over the ceiling, release the lock and exit 2.
@@ -32,7 +34,7 @@ The refusal is total — no retry, and no refit from inside the gate; an unreach
 . *Converge*, behind the work commit and ahead of the journal: bequeath the billet's whole tree to the sire's trunk as ONE commit parented on trunk's remote counterpart tip and pushed to trunk — no working tree is checked out anywhere.
 Trunk's own record of the pace is a W marker carrying a `Billet:` trailer naming the branch whose interior history did not travel.
 .. *Landed* — trunk took the bequest; the produced commit is the position the journal records below.
-.. *Unchanged* — trunk already holds this billet's tree; nothing is delivered and the recorded position is `none`.
+.. *Unchanged* — trunk already holds this billet's tree; nothing is delivered and the recorded position is `none`, except when resuming a crash, where it is the position the gate recognized — the pace's own prior converge, not a verification no-op.
 .. *Refused* — trunk moved between the gate's glean and this push (fast-forward-protected), so the delivery lost a race: exit 1, trunk untouched, the pace still open, and by compose-then-push construction no residue to scrub — refit, then wrap again.
 . *W marker*: record the wrap in the {jjdb_journal} — the same complete-state transition journaled to the {jjdb_studbook} against the locked tip, the chalk message riding the journal commit (the gallops has left the consumer repo; the work commit above carried the user's code).
 The marker carries two one-line trailers, each always present and spelling an absent value `none`: `Converge:` — the trunk position the squash produced (the second {jjdb_counterfoil} the bequest makes necessary, since it leaves no ancestry a check could follow) — and `Spook:` — the wrap-time friction report.
