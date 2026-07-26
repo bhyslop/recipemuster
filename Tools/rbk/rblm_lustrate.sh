@@ -137,6 +137,7 @@ ZRBLM_PROSCRIPTION=(
   "RBRR|RBRR_SECRETS_DIR|common|"
   "RBRR|RBRR_PUBLIC_DOCS_URL|site|${RBLM_public_docs_url}"
   "RBRR|RBRR_ACTIVE_FOEDUS|common|"
+  "RBRR|RBRR_SUBSTRATE_RELIQUARY|site|"
 
   # ── RBRD — depot regime ──
   "RBRD|RBRD_CLOUD_PREFIX|site||feign-"

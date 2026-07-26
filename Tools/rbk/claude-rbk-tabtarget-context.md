@@ -185,6 +185,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rvf` | DirectorFeoffsVessel | param1 | Feoff a conjure vessel - elect its base anchor from a bole Lode touchmark (express-or-chain) |
 | `rbw-rrr` | RenderRepoRegime | — | Render repo regime |
 | `rbw-rrv` | ValidateRepoRegime | — | Validate repo regime |
+| `rbw-rrs` | DirectorSeisesSubstrateReliquary | param1 | Seise the repo substrate reliquary - elect the reliquary the vessel-less substrate captures (underpin, immure) resolve tools from (express-or-chain) |
 | `rbw-rdr` | RenderDepotRegime | — | Render depot regime |
 | `rbw-rdv` | ValidateDepotRegime | — | Validate depot regime |
 | `rbw-rdi` | InscribeDepotRegime | param1 | Inscribe RBRD tripwire image to GAR (bearer token via positional) |

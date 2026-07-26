@@ -33,12 +33,16 @@ use crate::rbtdgc_consts::{
 use crate::rbtdrk_freehold::{
     rbtdrk_read_env_value, rbtdrk_resolve, RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
     RBTDRK_FIELD_RBRD_DEPOT_MONIKER, RBTDRK_FIELD_RBRR_RUNTIME_PREFIX,
+    RBTDRK_FIELD_RBRR_SUBSTRATE_RELIQUARY,
 };
 
-/// Site-specific RBRR field rblm_zero blanks. Currently just the runtime
-/// prefix — depot identity (CLOUD_PREFIX, DEPOT_MONIKER) moved to RBRD.
+/// Site-specific RBRR fields rblm_zero blanks: the runtime prefix and the
+/// substrate reliquary (elected during onboarding after a conclave, like the
+/// per-vessel RBRV_RELIQUARY). Depot identity (CLOUD_PREFIX, DEPOT_MONIKER)
+/// moved to RBRD.
 const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
     RBTDRK_FIELD_RBRR_RUNTIME_PREFIX,
+    RBTDRK_FIELD_RBRR_SUBSTRATE_RELIQUARY,
 ];
 
 /// Site-specific RBRD fields rblm_zero blanks. Both define the depot-bound

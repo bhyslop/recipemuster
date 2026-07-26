@@ -184,7 +184,7 @@ A Config Regime is a structured configuration system: a specification document, 
 
 **Recipe Bottle regimes** (in `rbmm_moorings/`):
 - **RBRP** (`rbrp.env`) — Payor project identity. Set `RBRP_PAYOR_PROJECT_ID` to your GCP project.
-- **RBRR** (`rbrr.env`) — Repository configuration. Runtime prefix, vessel directory, secrets directory, build timeouts, and `RBRR_ACTIVE_FOEDUS` — the selector naming which foedus you sign in against.
+- **RBRR** (`rbrr.env`) — Repository configuration. Runtime prefix, vessel directory, secrets directory, build timeouts, `RBRR_ACTIVE_FOEDUS` — the selector naming which foedus you sign in against — and `RBRR_SUBSTRATE_RELIQUARY`, the reliquary the vessel-less substrate captures (underpin, immure) draw their build tools from (empty until you seise one; only needed if you run those captures).
 - **RBRD** (`rbrd.env`) — Depot identity. Cloud prefix, depot moniker, GCP region, build machine type.
 - **RBRW** (`rbrw.env`) — Workforce. The manor's one identity pool, which every depot's sign-in trusts.
 - **RBRF** (`rbmf_foedera/{foedus}/rbrf.env`) — Federation. One per standing foedus: the identity provider's trust values. Stored once in the library; the active one is resolved through `RBRR_ACTIVE_FOEDUS`, never copied.

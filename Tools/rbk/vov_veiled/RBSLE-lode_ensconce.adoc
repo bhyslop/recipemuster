@@ -63,7 +63,7 @@ names a local vessel directory: "origin names a producer vessel — base-Lode ca
 //axhos_step
 . *Resolve Tool Images*:
 .. {rbbc_use}
-the Google-hosted gcrane builder for the capture step (always-pullable, auths GAR ambiently via its google.Keychain — not a reliquary tool) and the reliquary docker image for the vouch step, the latter resolved from the vessel's `RBRV_RELIQUARY` via the shared tool-image resolver
+the pinned reliquary gcrane member for both the capture and vouch steps, resolved from the vessel's `RBRV_RELIQUARY` via the shared tool-image resolver (zero unpinned aspects — gcrane auths GAR ambiently via its google.Keychain)
 
 //axhos_step
 . *Authenticate as

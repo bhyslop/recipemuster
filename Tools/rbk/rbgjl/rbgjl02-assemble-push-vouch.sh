@@ -1,7 +1,7 @@
 #!/bin/bash
 # RBGJL Step 02: Push each Lode's provenance envelope as its :rbi_vouch artifact
-# Builder: gcrane (pinned reliquary gcrane for bole; floating bootstrap gcrane for
-#          conclave/wsl — the recipe row in each per-kind body sets which)
+# Builder: gcrane (pinned reliquary gcrane for bole/wsl/podvm; floating bootstrap
+#          gcrane for conclave — the recipe row in each per-kind body sets which)
 # Entrypoint: busybox (gcrane:debug's only shell)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_TAG_VOUCH,
 #                _RBGL_GIT_COMMIT (spine-injected, never in a body's blob)
@@ -9,9 +9,9 @@
 # Note: this script runs inside a Cloud Build container, not under BCG module
 # discipline (CBG governs).
 #
-# The capture step (rbgjl01 ensconce / rbgjl03 conclave / rbgjl04 underpin) staged one
-# envelope per captured Lode at /workspace/lode_<stamp>_vouch.json and listed the
-# stamps in /workspace/lode_stamps.txt. Each envelope rides into the SAME package as
+# The capture step (rbgjl01 ensconce / rbgjl03 conclave / rbgjl04 underpin / rbgjl07
+# immure) staged one envelope per captured Lode at /workspace/lode_<stamp>_vouch.json
+# and listed the stamps in /workspace/lode_stamps.txt. Each envelope rides into the SAME package as
 # the captured manifest, under the :rbi_vouch tag — a distinct manifest, one per Lode.
 # Vouch content is architecture-independent; the single appended layer is sufficient.
 

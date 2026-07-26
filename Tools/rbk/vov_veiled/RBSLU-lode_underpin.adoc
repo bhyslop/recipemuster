@@ -68,12 +68,14 @@ Retirement condition: Canonical restores checksummed tarball publication under
 `wsl/`.
 --
 
-NOTE: Underpin bootstraps from no reliquary.
-Its acquisition tool is curl over HTTPS (with gnupg and docker buildx, all present
-on the Google-hosted `gcr.io/cloud-builders/docker` builder), not a registry pull,
-so it needs no reliquary tool cohort.
-The opaque tarball is wrapped as a single-layer OCI member by `FROM scratch` +
-`COPY` (never `ADD`, which would extract and destroy the opaque blob).
+NOTE: Underpin resolves its tools from the repo-elected substrate reliquary.
+wsl is vessel-less, so it carries no per-vessel reliquary slot; instead it resolves the
+pinned tool cohort from `RBRR_SUBSTRATE_RELIQUARY` — the curl + gnupg fetch/verify on
+the reliquary docker builder, the wrap and vouch push on the reliquary gcrane builder —
+elected by {rbtgo_director_seise} after a reliquary {rbtgo_lode_conclave}.
+Its acquisition is curl over HTTPS, not a registry pull; the opaque tarball is
+gcrane-appended as an opaque single-layer OCI member (never extracted).
+A capture against an unseised election refuses rather than floating on a mutable tag.
 
 NOTE: *Dirty-tree guard*.
 Underpin refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.
@@ -118,10 +120,11 @@ path — is known before the build
 .. Example: `w260608120000`
 
 //axhos_step
-. *Submit Two-Step Capture Cloud Build*:
+. *Submit Three-Step Capture Cloud Build*:
 .. Compose `builds.create` JSON with:
-... Step 1 — the Google-hosted docker builder image, script `rbgjl04-underpin-capture.sh` (the curl + GPG-verify + opaque-blob-wrap capture step)
-... Step 2 — the Google-hosted docker builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... Step 1 — the reliquary docker builder image, script `rbgjl04-underpin-capture.sh` (the curl + GPG-verify fetch step, staging the opaque tarball)
+... Step 2 — the reliquary gcrane builder image, script `rbgjl05-underpin-wrap.sh` (gcrane-append the tarball as an opaque single-layer OCI member)
+... Step 3 — the reliquary gcrane builder image, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
 ... substitutions carrying GAR host/path, the
 {gar_lodes_namespace}
 root, `«TOUCHMARK»`, the rootfs member tag, the acquiring SA email, the trust grade, the envelope schema, the assembled `«URL»`, and the pinned signing-key fingerprint

@@ -99,7 +99,7 @@ rblm_zero() {
   buh_line "           ${z_rbrd}"
   buh_e
   buh_line "  RBRR fields blanked (zeroed to onboarding start):"
-  buh_line "    RBRR_RUNTIME_PREFIX"
+  buh_line "    RBRR_RUNTIME_PREFIX, RBRR_SUBSTRATE_RELIQUARY"
   buh_e
   buh_line "  RBRR fields pre-filled to defaults:"
   buh_line "    RBRR_DNS_SERVER, RBRR_GCB_TIMEOUT,"
@@ -156,6 +156,7 @@ rblm_zero() {
       RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
       # Site-specific fields blanked
       RBRR_RUNTIME_PREFIX=*)                printf '%s\n' "RBRR_RUNTIME_PREFIX="                        ;;
+      RBRR_SUBSTRATE_RELIQUARY=*)           printf '%s\n' "RBRR_SUBSTRATE_RELIQUARY="                   ;;
       # Everything else passes through (comments, shebang, blanks)
       *)                                    printf '%s\n' "${z_line}"                                   ;;
     esac

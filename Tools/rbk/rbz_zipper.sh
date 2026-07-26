@@ -249,6 +249,8 @@ zrbz_kindle() {
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO            "rbw-rrr" "${z_mod}" "rbrr_render"    ""  "Render repo regime"
   buz_enroll RBZ_VALIDATE_REPO          "rbw-rrv" "${z_mod}" "rbrr_validate"  ""  "Validate repo regime"
+  z_mod="rbfl0_cli.sh"
+  buz_enroll RBZ_SEISE_SUBSTRATE        "rbw-rrs" "${z_mod}" "rbfl_seise"     "param1"  "Seise the repo substrate reliquary - elect the reliquary the vessel-less substrate captures (underpin, immure) resolve tools from (express-or-chain)"
   z_mod="rbrd_cli.sh"
   buz_enroll RBZ_RENDER_DEPOT           "rbw-rdr" "${z_mod}" "rbrd_render"    ""        "Render depot regime"
   buz_enroll RBZ_VALIDATE_DEPOT         "rbw-rdv" "${z_mod}" "rbrd_validate"  ""        "Validate depot regime"
