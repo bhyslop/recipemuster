@@ -49,11 +49,14 @@ buv_dir_exists() {
 buv_dir_empty() {
   local z_dirpath="${1:-}"
   test -d "${z_dirpath}" || buc_die "Required directory not found: ${z_dirpath}"
-  local z_check_file
-  z_check_file=$(mktemp)
-  find "${z_dirpath}" -maxdepth 1 -mindepth 1 -print -quit > "${z_check_file}"
-  test ! -s "${z_check_file}" || { rm -f "${z_check_file}"; buc_die "Directory must be empty: ${z_dirpath}"; }
-  rm -f "${z_check_file}"
+  # Per-call scratch name under BURD_TEMP_DIR: a monotonic counter, not mktemp
+  # (BUV's first BURD_TEMP_DIR dependency, taken on deliberately) — never
+  # deleted after, per BCG temp-file persistence (forensic debugging).
+  ZBUV_DIR_EMPTY_SEQ=$((${ZBUV_DIR_EMPTY_SEQ:-0} + 1))
+  local -r z_check_file="${BURD_TEMP_DIR}/buv-dir-empty-${ZBUV_DIR_EMPTY_SEQ}.txt"
+  find "${z_dirpath}" -maxdepth 1 -mindepth 1 -print -quit > "${z_check_file}" \
+    || buc_die "Failed to probe directory: ${z_dirpath}"
+  test ! -s "${z_check_file}" || buc_die "Directory must be empty: ${z_dirpath}"
 }
 
 # ---------------------------------------------------------------------------
