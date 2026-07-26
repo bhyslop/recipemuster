@@ -346,8 +346,8 @@ pub trait jjrfr_FarrierBillet {
     fn jjrfr_line_abroad(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// WHERE `branch` is seated, if the constellation seats it in a partition at
-    /// all — the observation behind the approach's rediscovery of a standing billet
-    /// (`jjdd_billet` reuse). The kind's own partition registry is the authority,
+    /// all — the yard gate's seat-read (K1) of a standing billet (`jjdd_billet`).
+    /// The kind's own partition registry is the authority,
     /// never a dirname: a billet's dirname is a denormalized label, so a search
     /// by name would answer for the yard while this answers for the seat.
     /// A record whose root no longer stands is NOT a seat and reads `None` — the

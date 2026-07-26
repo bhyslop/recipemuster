@@ -14,7 +14,6 @@ use super::jjrds_stile::{
     jjrds_pedigree_lookup,
     jjrds_plan,
     jjrds_record_dispatch,
-    jjrds_rediscover,
     jjrds_resolve_launch,
     jjrds_resolve_saddle,
     jjrds_roster_row,
@@ -23,6 +22,7 @@ use super::jjrds_stile::{
     jjrds_trailing_step,
     jjrds_type_target,
     jjrds_yard,
+    jjrds_yard_gate,
     jjrds_Door,
     jjrds_LaunchPlan,
     jjrds_Rejection,
@@ -187,12 +187,13 @@ fn zjjtds_infield(name: &str) -> (JjkTestDir, std::path::PathBuf) {
 }
 
 /// The yard step as the door runs it, with a caller-named serial standing in
-/// for the dispatch record's catchword — so a boarding test drives the whole
-/// rediscover-or-mint choice without a founded studbook to journal against.
+/// for the dispatch record's catchword — so a boarding test drives the gate and
+/// the mint without a founded studbook to journal against. The gate is asserted
+/// clear (nothing stands); a standing-billet refusal is a test's own concern and
+/// is exercised against `jjrds_yard_gate` directly.
 fn zjjtds_yard(plan: &jjrds_LaunchPlan, catchword: u64) -> jjrds_Yard {
-    let root = jjrds_rediscover(&jjrfg_PlainGit, plan)
-        .unwrap()
-        .unwrap_or_else(|| plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body)));
+    jjrds_yard_gate(&jjrfg_PlainGit, plan).unwrap();
+    let root = plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body));
     jjrds_yard(&plan.infield_root, root)
 }
 
@@ -523,7 +524,7 @@ fn jjtds_ground_declines_on_foreign_ground() {
 }
 
 #[test]
-fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
+fn jjtds_board_creates_then_reseats_a_pace_billet_across_a_reap() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_board_saddle");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
 
@@ -534,20 +535,43 @@ fn jjtds_board_creates_reuses_and_reseats_a_pace_billet() {
     let seated = jjrfg_PlainGit.jjrfr_identify(&born.billet_root).unwrap();
     assert_eq!(seated.line_of_work, jjrfr_LineOfWork::Branch("jjls_pace/AAAAA".to_string()));
 
-    // Reuse: rediscovery finds the standing billet by its seat, so a second
-    // dispatch rejoins it under its ORIGINAL serial and never mints a second.
-    let rejoined = zjjtds_yard(&plan, 999999);
-    assert_eq!(rejoined.billet_dirname, "jjqb_200500_AAAAA", "reuse rediscovers rather than re-mints");
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &rejoined).unwrap(), None);
-
-    // Reap, then board again: nothing stands to rediscover, so a fresh serial
-    // is minted and the durable branch re-seats there with its history.
+    // Reap, then board again: nothing stands, so a fresh serial is minted and
+    // the durable branch re-seats there with its history — reuse is a re-seat of
+    // the durable branch into a fresh worktree, never a rejoin of the old one.
     let wip = zjjtds_commit_all(&born.billet_root, "wip.txt", "carried", "wip on the pace branch");
     jjrfg_PlainGit.jjrfr_billet_remove(&born.billet_root, false).unwrap();
     let reseated = zjjtds_yard(&plan, 200507);
     assert_eq!(reseated.billet_dirname, "jjqb_200507_AAAAA");
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &reseated).unwrap(), None);
     assert_eq!(zjjtds_git(&reseated.billet_root, &["rev-parse", "HEAD"]), wip);
+}
+
+#[test]
+fn jjtds_yard_gate_refuses_a_registry_seated_standing_billet() {
+    // The dominant hole: a pace whose billet already stands, seating its livery
+    // branch, is refused by K1 (the registry seat-read) before any journal write
+    // or session spawn — the silent rejoin that landed a second live client three
+    // times in one session now dies here.
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_yard_gate_seated");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+
+    // A first dispatch mints and boards the billet; it stands, seated.
+    let born = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &born).unwrap();
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_line_seated(&hippodrome, "jjls_pace/AAAAA").unwrap().as_deref(),
+        Some(born.billet_root.as_path()),
+        "the registry seats the livery branch at the standing billet",
+    );
+
+    // A second saddle of the same pace refuses — the standing billet named, with
+    // the muck remedy.
+    let rejection = jjrds_yard_gate(&jjrfg_PlainGit, &plan).unwrap_err();
+    assert!(matches!(rejection, jjrds_Rejection::StandingBillet { .. }));
+    let detail = rejection.to_string();
+    assert!(detail.contains(&born.billet_root.display().to_string()), "got: {}", detail);
+    assert!(detail.contains("jjls_pace/AAAAA"), "got: {}", detail);
+    assert!(detail.contains("muck"), "got: {}", detail);
 }
 
 /// A second station saddles a pace this station already worked and pushed: it
@@ -787,29 +811,34 @@ fn jjtds_currency_refuses_a_flying_guidon_naming_the_holder() {
 }
 
 #[test]
-fn jjtds_rediscover_names_the_livery_rename_for_a_pre_mint_billet() {
-    // The mint's crossing: a billet seated before the livery badge sits on the
-    // retired bare-body branch, so the registry seats the badge nowhere while
-    // the yard carries a label for the pace. Rediscovery refuses rather than
-    // minting past it — minting would birth a fresh branch off trunk and fork
-    // the standing billet's work away in silence — and the refusal carries the
-    // rename, this being the one drift with a known cause and a one-line fix.
-    let (infield, hippodrome) = zjjtds_infield("jjtds_rediscover_pre_mint_billet");
+fn jjtds_yard_gate_refuses_a_registry_evading_standing_billet() {
+    // A standing partition the registry seat-read misses: its HEAD is detached,
+    // so `worktree list` records no seat for the livery branch, yet the
+    // coronet-labelled dir still stands. K1 goes silent; K2 (the yard glob)
+    // catches it — the specimen for the seat-evasion routes the census names
+    // (detached tip, lost registration, pre-livery bare branch).
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_yard_gate_evading");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
-    let pre_mint = infield.path().join("jjqb_AAAAA");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(
-            &hippodrome,
-            &jjrfr_BilletBirth::Branch("AAAAA".to_string()),
-            &pre_mint,
-            ZJJTDS_TRUNK,
-        )
-        .unwrap();
+    let born = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &born).unwrap();
 
-    let rejection = jjrds_rediscover(&jjrfg_PlainGit, &plan).unwrap_err();
+    // Detach the billet's HEAD: the registry no longer records the livery branch
+    // as seated, so K1 (the seat-read) goes silent.
+    zjjtds_git(&born.billet_root, &["checkout", "-q", "--detach", "HEAD"]);
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_line_seated(&hippodrome, "jjls_pace/AAAAA").unwrap(),
+        None,
+        "a detached billet seats the livery branch nowhere the registry can see",
+    );
+
+    // The dir still stands, coronet-labelled, so K2 catches it and the gate
+    // refuses rather than minting a rival past the missed seat.
+    let rejection = jjrds_yard_gate(&jjrfg_PlainGit, &plan).unwrap_err();
+    assert!(matches!(rejection, jjrds_Rejection::StandingBillet { .. }));
     let detail = rejection.to_string();
-    assert!(detail.contains("predates the livery badge"), "got: {}", detail);
-    assert!(detail.contains("branch -m jjls_pace/AAAAA"), "got: {}", detail);
+    assert!(detail.contains(&born.billet_root.display().to_string()), "got: {}", detail);
+    assert!(detail.contains("nowhere"), "got: {}", detail);
+    assert!(detail.contains("muck"), "got: {}", detail);
 }
 
 // ---- The yard: serial labels and the tail-token read ----
@@ -856,16 +885,17 @@ fn jjtds_billet_dirname_wears_the_serial_ahead_of_the_identity() {
 }
 
 #[test]
-fn jjtds_rediscover_never_rejoins_a_groom_billet_so_grooms_coexist() {
-    // Concurrent grooms of one heat are deliberately legal: a groom billet
-    // seats no branch, so nothing rediscovers, and each dispatch mints its own
-    // yard slot — uniqueness riding the serial alone.
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_rediscover_groom");
+fn jjtds_yard_gate_never_refuses_a_groom_billet_so_grooms_coexist() {
+    // Concurrent grooms of one heat are deliberately legal: a groom billet seats
+    // no branch, so the gate passes it untouched even while one already stands,
+    // and each dispatch mints its own yard slot — uniqueness riding the serial
+    // alone. The gate guards the pace half of the at-most-one ruling only.
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_yard_gate_groom");
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
 
     let first = zjjtds_yard(&plan, 200500);
     jjrds_board(&jjrfg_PlainGit, &plan, &first).unwrap();
-    assert_eq!(jjrds_rediscover(&jjrfg_PlainGit, &plan).unwrap(), None, "a groom billet never rediscovers");
+    assert!(jjrds_yard_gate(&jjrfg_PlainGit, &plan).is_ok(), "a groom billet never trips the gate");
 
     let second = zjjtds_yard(&plan, 200501);
     assert_ne!(first.billet_root, second.billet_root);
