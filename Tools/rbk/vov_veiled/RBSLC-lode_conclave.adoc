@@ -24,7 +24,7 @@ submits a
 job on the tethered (egress-permitted) pool, executed by the
 {rbtr_mason}
 service account via the metadata server.
-The workstation never fetches the upstream bytes — it trusts the GCP environment over a potentially-compromised station.
+The workstation never fetches the upstream bytes, per the trust rationale homed at {rbtga_lode}.
 
 NOTE: Conclave bootstraps from no reliquary.
 The tool images captured here ARE a reliquary, so capture cannot resolve its builders from one.
