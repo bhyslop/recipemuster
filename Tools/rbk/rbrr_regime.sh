@@ -58,6 +58,9 @@ zrbrr_kindle() {
   buv_group_enroll "Active Foedus"
   buv_xname_enroll   RBRR_ACTIVE_FOEDUS            6   64  "Active-foedus selector — the rbef_ subdirectory of the moorings foedera library the manor authenticates against"
 
+  buv_group_enroll "Substrate Reliquary"
+  buv_string_enroll  RBRR_SUBSTRATE_RELIQUARY      0   14  "Reliquary Lode touchmark the vessel-less substrate captures (underpin, immure) resolve their build tools from — legal-empty until seised; a substrate capture against an empty election rejects at use time"
+
   # Guard against unexpected RBRR_ variables not in enrollment
   buv_scope_sentinel RBRR RBRR_
 
@@ -95,6 +98,18 @@ zrbrr_enforce() {
 
   [[ "${RBRR_ACTIVE_FOEDUS}" == rbef_* ]] \
     || buc_reject "${BUBC_band_regime}" "RBRR_ACTIVE_FOEDUS must bear the rbef_ foedus-instance sprue: ${RBRR_ACTIVE_FOEDUS}"
+
+  # Legal-empty until seised: shape-checked only when present (a reliquary
+  # touchmark is the kind-letter 'r' followed by 12 stamp digits). An empty
+  # election validates; a substrate capture attempted against it rejects loud
+  # at use time, not here.
+  # The 'r' is a hardcoded literal, not RBGC_LODE_KIND_RELIQUARY: rbrr enforce runs
+  # before rbgc is kindled (and some enforce callers never source rbgc at all), so
+  # the kind-letter constant is not in scope here — the literal is forced by kindle
+  # order.
+  test -z "${RBRR_SUBSTRATE_RELIQUARY}" \
+    || [[ "${RBRR_SUBSTRATE_RELIQUARY}" =~ ^r[0-9]{12}$ ]] \
+    || buc_reject "${BUBC_band_regime}" "Invalid RBRR_SUBSTRATE_RELIQUARY format: ${RBRR_SUBSTRATE_RELIQUARY} (expected a reliquary touchmark rNNNNNNNNNNNN, or empty)"
 }
 
 # eof

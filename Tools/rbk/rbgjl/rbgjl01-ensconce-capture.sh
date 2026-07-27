@@ -1,6 +1,9 @@
 #!/bin/bash
 # RBGJL Step 01: Ensconce a base image into a Lode (capture) via gcrane
-# Builder: gcr.io/go-containerregistry/gcrane:debug (Google-hosted, ambient GAR auth)
+# Builder: the pinned gcrane member of the vessel's reliquary (resolved from
+#          RBRV_RELIQUARY by the host — zero unpinned aspects, RBr_p7c; gcrane auths
+#          GAR ambiently via google.Keychain -> ADC -> the GCE metadata server as the
+#          Mason SA)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT,
 #                _RBGL_TAG_BOLE, _RBGL_TAG_DIGEST_PREFIX,
 #                _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA, _RBGL_ACQUIRED_BY,

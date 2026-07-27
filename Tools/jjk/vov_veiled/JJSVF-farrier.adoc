@@ -6,7 +6,8 @@ This is a normative entity sheaf of the {jjs0_imprimatur}: binding — code, tes
 JJ's polymorphic revision-control driver: the layer that fits the same JJ intent to whatever
 ground a repo runs on.
 This sheaf is the trait's contract home: the facet split, the op census as method contracts,
-the rejection-kind taxonomy, and the {jjdf_palisade} at the trait boundary.
+the rejection-kind taxonomy, the {jjdf_palisade} at the trait boundary, and the
+{jjdf_vedette} at the transport boundary.
 The ceremonies above the trait — the {jjdb_journal}, the {jjdb_break}, the dispatch doors —
 stay JJ's;
 no driver ever owns a transaction.
@@ -115,9 +116,9 @@ The consumer captures the path once (the door captures cwd);
 
 The answer is *claim-or-decline*, so {jjdf_identify} doubles as ground detection:
 the consumer probes the farrier-kind roster, and a claim names the claiming kind.
-(The dispatch spine cross-checks the claiming kind against the kind recorded in the
+(The stile's approach cross-checks the claiming kind against the kind recorded in the
 {jjdb_pedigree} downstream;
-a mismatch is the spine's named rejection — record/ground drift — never
+a mismatch is the approach's named rejection — record/ground drift — never
 {jjdf_identify}'s.)
 
 A claimed tree resolves exactly four things:
@@ -128,7 +129,7 @@ A claimed tree resolves exactly four things:
 * *canonical upstream key* — the kind owns canonicalization;
   one key per tree — a constellation kind keys on its own upstream.
   The key is derived address, never the {jjdb_pedigree} key itself:
-  the spine's pedigree lookup resolves it in one indirection,
+  the approach's pedigree lookup resolves it in one indirection,
   derived key → sire → {jjdb_pedigree} (studbook sheaf).
 * *seat* — primary or partition.
   A partition seat carries its primary's root;
@@ -138,6 +139,12 @@ A claimed tree resolves exactly four things:
   The branch name is reported verbatim, in the kind's own ref dialect:
   reading JJ's {jjdd_livery} out of it is a consumer's act, above the {jjdf_palisade},
   never {jjdf_identify_p} — a kind knows ref names, not JJ's identities.
+
+The *seat* and *line of work* are the substrate JJ's dispatch {jjdd_ground} taxonomy reduces
+downstream (dispatch sheaf) — hippodrome, pace billet, groom billet, or unboarded.
+That {jjdd_ground} is a different sense of the word from the claim-or-decline detection above:
+the decline is {jjdf_foreign_ground} — no kind claims the tree at all — while {jjdd_ground}
+classifies which JJ-claimed footing a tree a kind already claimed sits on.
 
 {jjdf_identify} is *total* for a claimed tree: detached, mid-merge, and dirty states report
 faithfully, never reject;
@@ -257,7 +264,7 @@ The kind sets the born branch's upstream to its own eventual counterpart, not tr
 later `consign` lands where this station itself will look.
 
 `billet_seat`::
-Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_spine_p}
+Seat an *existing* branch into a fresh partition — the reuse form behind the {jjdd_stile_p} approach
 billet-ensure: billets are session-transient, branches durable (dispatch sheaf), so a
 destroyed billet's branch re-seats with its own WIP history, un-anchored and un-reset.
 A branch the constellation already seats rejects in a named kind — {jjdf_seat_vestige} when the
@@ -267,11 +274,11 @@ carry a remedy the refusal can name.
 `billet_create`'s collision arm keeps the caller-contract posture, being a JJ composition
 fault rather than a state the operator arrives at.
 A branch that does not exist at all remains a caller-contract violation here, since
-`line_exists` is the observation the spine consults first.
+`line_exists` is the observation the approach consults first.
 
 `billet_adopt`::
 Seat a branch this station does not yet carry, taking its position from the remote
-counterpart — the adopt-never-fork arm behind the {jjdd_spine_p} billet-ensure.
+counterpart — the adopt-never-fork arm behind the {jjdd_stile_p} approach billet-ensure.
 A fresh local branch is minted AT the counterpart's tip, as of the last `glean`, and seated in
 the fresh partition, so a station meeting work another station pushed rejoins THAT line of
 work rather than forking a rival one from trunk that no ceremony would ever reconcile.
@@ -291,12 +298,12 @@ refuses on dirty.
 
 `line_exists`::
 Whether a named branch exists in the constellation — read-only, network-silent;
-the observation behind the spine's create-or-seat choice at billet ensure.
+the observation behind the approach's create-or-seat choice at billet ensure.
 
 `line_abroad`::
 Whether a named branch stands ABROAD — whether its remote counterpart is known to the
 constellation, as of the last `glean`;
-the observation behind the spine's adopt-or-birth choice, consulted once `line_exists` has
+the observation behind the approach's adopt-or-birth choice, consulted once `line_exists` has
 answered no.
 A line absent at home but standing abroad is another station's pushed work, and precisely the
 line a birth here would rival.
@@ -481,3 +488,73 @@ The last two arrive at `billet_seat` from a single foreign refusal, rendered ide
 are told apart only by the registry probe;
 a probe that matches no seat at all leaves the panic standing, since classifying that arm
 would mean reading the message text this sheaf bars.
+
+== The transport vedette
+
+[[jjdf_vedette]]
+{jjdf_vedette}::
+The driver's posted watch at its remote transport boundary — the membrane every
+remote-touching op passes through, in one fixed order: deadline, classify, bounded retry,
+guided fail.
+The remote neighbor intermittently returns verdicts that do not match reality — a denied
+handshake that succeeds on immediate retry — and stalls that return no verdict at all;
+both are Palisade weather, absorbed here and nowhere else.
+RB precedent, cited never restated: the posted-vedette premise (RBS0 `rbsk_vedette`) and the
+transient-classifier machinery (`rbgo_curl_status_is_transient_predicate`).
++
+The deadline leads because a stalled op returns no verdict: classification, and therefore
+retry, is unreachable without it — an unbounded transport wait is the deeper defect than any
+panic.
+Every remote-reaching subprocess wait in dispatch carries a per-attempt deadline — a rivet,
+cited in code by the opaque token `JJr_9m4`;
+expiry kills the attempt and classifies {jjdf_transient}, never hangs.
+The law covers dispatch's one non-git remote spawn — the commit-message generation call —
+which cites the same rivet;
+it retries nothing (a second paid call is not a retry the membrane owes) and fails guided on
+expiry.
+The deadline and retry budget are code-homed constants beside the membrane;
+this sheaf fixes their existence and order, never their values.
++
+Coverage is the census of remote-reaching ops, which is smaller than the op census above and
+enumerated here as the membrane's own roster: `glean`, `consign`, `proffer`, `sight`, the
+lock verbs `stake` and `pluck`, and the wrap converge's trunk push (`bequeath`) — every other
+op is local by construction, including the probes (`sync_state`, `outstripped`, `reachable`,
+`line_abroad`), which answer from the last `glean` and never touch the network themselves.
++
+Retry is bounded, backs off, and fires on {jjdf_transient} alone — a surveyed rejection and
+an unclassified failure both keep their existing conduct.
+Exhaustion ends in a guided halt naming the op, the attempts spent, and the remedy — never a
+raw panic, never an unbounded hang.
+`glean` is the one exception by its own contract: opportunistic and never blocking a
+ceremony, it renders its unreachable answer on exhaustion instead of halting — and the
+retries in front of that answer are what make it honest, where a single transient failure
+once masqueraded as an outage.
+
+[[jjdf_transient]]
+{jjdf_transient}::
+The third verdict category at the transport boundary: a foreign-service refusal or stall
+whose retry succeeds with the environment unchanged.
+Carved from BOTH poles: it is not the unclassified panic (a transient is surveyed and
+retryable, a panic is neither), and it is not `glean`'s unreachable answer (an unreachable
+remote stays unreachable on retry; a transient does not).
+It is not a rejection kind and never crosses the trait surface: the kind taxonomy above
+stays closed and untouched, and no consumer ever sees a transient — the driver absorbs it
+or exhausts.
++
+The signature roster is Palisade signature-absorption, not a kind survey — the
+three-conjunct test governs kinds, and this category mints none.
+Absorb only the surveyed signatures: git's stable transport tokens for the denied handshake
+and the severed connection, plus the vedette's own deadline expiry.
+The roster's one home is the driver's classifier, beside the tokens it names;
+an unsurveyed signature keeps the panic.
++
+A mutating op's retry re-offers the identical composed write, never a recomposition — a
+rivet, cited in code by the opaque token `JJr_e5s`:
+a timed-out push may have landed server-side, and the remote's own compare-and-swap — the
+fast-forward rule, the guidon lease — is then the probe that decides, accepting the re-offer
+as an up-to-date no-op when the first attempt landed and refusing it honestly when the
+ground truly moved.
+Recomposing inside a retry loop would turn one landed write into two.
+The lock verbs re-probe by `sight` before any re-offer, because their create/delete shape
+reads its own landed success as a refusal: a staked guidon meeting its own retry answers
+lock-held, and only a sight can tell "ours flies" from "another's flies".

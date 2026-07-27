@@ -121,7 +121,7 @@ BUBC_band_vacant=110    # read-side absent-artifact rejection (summon/plumb/augu
 BUBC_band_engross=111   # terrier engross rejection (unexpected HTTP on the conditioned create)
 BUBC_band_expunge=112   # terrier expunge rejection (unexpected HTTP on the conditioned delete)
 BUBC_band_peruse=113    # terrier read rejection (list/fetch deficit or malformed muniment body; peruse and peruse_manor share the gate)
-# The escheat hygiene sweep (RBSME) rides its own gate: its raw-grain survey and
+# The escheat hygiene sweep rides its own gate: its raw-grain survey and
 # expunge deliberately bypass the muniment sub-operations above, and the verb
 # never calls them, so no spawn path chains the gates — but the semantic is its
 # own (a hygiene refusal, not an admission-path refusal), so it takes the last
@@ -134,7 +134,16 @@ BUBC_band_escheat=114   # terrier escheat rejection (survey list/fetch deficit, 
 # refuses acquisition outright) and the admission band (109, the don's Leg-3
 # 403), and it shares no spawn path with either along a single pipeline.
 BUBC_band_runway=115    # sitting-runway rejection (live sitting below the required-runway floor at reuse; novate to open a fresh one)
-# Free codes: 116-122, allocated upward from 116.
+# Unseised substrate-reliquary election: the vessel-less substrate captures
+# (underpin, immure) refuse AT USE when RBRR_SUBSTRATE_RELIQUARY is unseised,
+# rather than silently floating on a mutable builder tag. Distinct from
+# band_regime (100): the capture dispatch crosses zrbrr_enforce (which fires 100
+# on a malformed reliquary field) along the same spawn path, so the allocation
+# rule forbids the share — crossed along a pipeline, not alternatives (the
+# band_vacant precedent). One gate: underpin's and immure's rejects are
+# alternative firings that never co-occur, so they share this code.
+BUBC_band_unseised=116  # unseised substrate-reliquary election rejection (underpin/immure at-use — RBRR_SUBSTRATE_RELIQUARY unseised; seise one with rbw-rrs)
+# Free codes: 117-122, allocated upward from 117.
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 

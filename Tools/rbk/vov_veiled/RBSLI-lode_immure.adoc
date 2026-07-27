@@ -92,12 +92,13 @@ artifacts; selection keys on each child descriptor's `platform.architecture` (th
 spelling `x86_64` / `aarch64`) plus `annotations.disktype`.
 The layer's embedded filename is unreliable for version and arch and is never read.
 
-NOTE: Immure bootstraps from no reliquary.
-podvm is vessel-less — like wsl — so it has no reliquary slot to resolve tools from;
-its index parsing rides python3 on the Google-hosted gcloud builder, and its registry
-copy rides gcrane on the floating gcrane builder.
-Pinning these floating builders is the bootstrap-builder digest-pin itch, not this
-operation.
+NOTE: Immure resolves its tools from the repo-elected substrate reliquary.
+podvm is vessel-less — like wsl — so it carries no per-vessel reliquary slot; instead it
+resolves the pinned tool cohort from `RBRR_SUBSTRATE_RELIQUARY` (index parsing on the
+reliquary gcloud builder, registry copy on the reliquary gcrane builder, residency HEAD
+on the reliquary docker builder), elected by {rbtgo_director_seise} after a reliquary
+{rbtgo_lode_conclave}.
+A capture against an unseised election refuses rather than floating on a mutable tag.
 
 NOTE: *Dirty-tree guard*.
 Immure refuses on a working tree with unstaged or staged changes, per the uniform Lode capture guard — see {rbtgo_lode_ensconce}.
@@ -144,10 +145,10 @@ path — is known before the build
 //axhos_step
 . *Submit Four-Step Capture Cloud Build*:
 .. Compose `builds.create` JSON with:
-... Step 1 — the Google-hosted gcloud builder, script `rbgjl07-immure-select.py` (python3: the index read + leaf select + envelope author)
-... Step 2 — the floating gcrane builder, script `rbgjl08-immure-capture.sh` (`gcrane cp` each selected leaf by digest)
-... Step 3 — the Google-hosted docker builder, script `rbgjl09-immure-residency.sh` (the blob-residency HEAD guard)
-... Step 4 — the floating gcrane builder, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
+... Step 1 — the reliquary gcloud builder, script `rbgjl07-immure-select.py` (python3: the index read + leaf select + envelope author)
+... Step 2 — the reliquary gcrane builder, script `rbgjl08-immure-capture.sh` (`gcrane cp` each selected leaf by digest)
+... Step 3 — the reliquary docker builder, script `rbgjl09-immure-residency.sh` (the blob-residency HEAD guard)
+... Step 4 — the reliquary gcrane builder, script `rbgjl02-assemble-push-vouch.sh` (the vouch push)
 ... substitutions carrying GAR host/path, the
 {gar_lodes_namespace}
 root, `«TOUCHMARK»`, the member-tag sprue, the acquiring SA email, the recorded trust grade, the envelope schema, `«FAMILY»`, the version, `«SELECTION»`, and the present-set (the already-captured members to preserve verbatim — empty for a fresh capture)

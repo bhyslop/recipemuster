@@ -132,10 +132,15 @@ zbuto_next_invoke_capture() {
 zbuto_invoke() {
   buto_trace "Invoking: $*"
 
-  local z_tmp_stdout
-  z_tmp_stdout=$(mktemp)
-  local z_tmp_stderr
-  z_tmp_stderr=$(mktemp)
+  # Per-call scratch names: a monotonic counter, not $$ — $$ is fixed for the
+  # whole process (bash never changes it in a subshell), so a command that
+  # itself nests another zbuto_invoke would collide on a $$-keyed name; the
+  # counter increments across that same fork, so nested and sequential calls
+  # alike always land on a fresh name. BUT_TEMP_DIR is the per-test-case
+  # scratch dir zbute_tcase exports before any case body runs.
+  ZBUTO_INVOKE_SEQ=$((${ZBUTO_INVOKE_SEQ:-0} + 1))
+  local -r z_tmp_stdout="${BUT_TEMP_DIR}/zbuto-invoke-${ZBUTO_INVOKE_SEQ}.stdout"
+  local -r z_tmp_stderr="${BUT_TEMP_DIR}/zbuto-invoke-${ZBUTO_INVOKE_SEQ}.stderr"
 
   # BURV bridge setup if enabled
   local z_burv_output=""
@@ -174,7 +179,8 @@ zbuto_invoke() {
     ZBUTO_STDERR=$(<"${z_tmp_stderr}")
   fi
 
-  rm -f "${z_tmp_stdout}" "${z_tmp_stderr}"
+  # Left in place under BUT_TEMP_DIR — BCG temp-file persistence (forensic
+  # debugging); cleanup is infrastructure's job, never module code's.
 
   ZBUTO_BURV_OUTPUT="${z_burv_output}"
   ZBUTO_BURV_OUTPUT_DIR="${z_burv_output:+${z_burv_output}/current}"

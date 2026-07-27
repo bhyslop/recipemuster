@@ -10,10 +10,9 @@ to the local container runtime.
 `rbfl_wrest` is locator-generic: the same procedure pulls
 {rbtga_ark}
 hallmark members
-and Lode members.
-The package path embedded in the
-{rbst_locator}
-selects the domain — the procedure itself does not branch.
+and Lode members,
+per the domain-blind property of the
+{rbst_locator}.
 
 NOTE: This is a {rbtr_director} operation (Director credentials, registry write/admin tier — same authority as {rbtgo_image_delete}). It is not the {rbtr_retriever}-tier counterpart of {rbtgo_ark_summon}: summon performs vouch ceremony before pulling under retriever credentials, while wrest is a direct pull with no vouch and no health classification. Use wrest for diagnostic or development pulls; use summon for production retrieval.
 
@@ -92,4 +91,4 @@ local image ID: `«IMAGE_ID»`
 
 //axhoc_completion
 Successful execution wrests the image and displays the local image ID.
-The locator-generic shape means a hallmark member or a Lode member is retrieved by the same call — domain identity lives in the locator's package path, not in branched logic.
+A hallmark member or a Lode member is retrieved by the same call, per the domain-blind property of the {rbst_locator}.

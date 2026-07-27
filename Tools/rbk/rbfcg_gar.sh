@@ -66,10 +66,7 @@ zrbfc_list_packages_capture() {
   sort "${z_raw_file}" > "${z_sorted_file}" \
     || buc_die "Failed to sort GAR package list"
 
-  # Per-package tags.list filter: skip packages with zero live tags. Post-jettison
-  # walking-dead packages persist in GAR's package container until the depot cleanup
-  # policy reaps the orphan children on its daily run; filtering at this read site
-  # decouples display state from GAR's lazy reclamation cadence.
+  # Per-package tags.list filter: skip packages with zero live tags. RBr_w9k
   : > "${ZRBFC_PACKAGE_LIST_FILE}"
   local z_element z_basename z_pkg_name z_pkg_encoded z_tag_infix z_tag_count
   local -i z_tag_idx=0
@@ -269,8 +266,7 @@ zrbfc_gar_extract_artifact() {
 # Registry API — manifest -> .config.digest -> blob — no docker, no gcloud. Used by
 # plumb to read the rbi_resolved_base_n labels back from the signed attest image.
 # Resolves a multi-platform index to its first platform; image labels are identical
-# across platforms (set once at buildx, preserved byte-identically by the
-# per-platform pullback), so any platform's config carries them.
+# across platforms (RBr_b4e), so any platform's config carries them.
 # Args: token package tag out_config_file
 # Returns: 0 and writes the config JSON to out_config_file; 1 if the image is not
 # found (HTTP 404 — graceful, e.g. a pre-resolved-base hallmark). Infrastructure

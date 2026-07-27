@@ -192,6 +192,47 @@ impl jjrf_LiveryKind {
     }
 }
 
+/// Case-armor a bare identity body for a case-insensitive filesystem: ahead of
+/// each character emit a case marker (`u` for an ASCII uppercase letter, `l`
+/// for anything else — lowercase or caseless), so `CAABz` becomes `uCuAuAuBlz`.
+///
+/// A loose git ref is a filename, and on a case-insensitive volume two coronets
+/// differing only in letter case (`CAABz` / `CAABZ`) fuse onto one ref file. The
+/// marker moves the case distinction into a character the fold cannot erase: `u`
+/// and `l` are stable under case-folding, so `…lz` and `…uZ` fold to `…lz` and
+/// `…uz` and stay apart. The map `c ↦ (marker, fold(c))` is injective over the
+/// charset, so the armored form is injective under case-folding. Adopts the
+/// paddock filename precedent (₣Bz → `jjp_uBlz.md`); inverse `zjjrf_case_disarm`.
+fn zjjrf_case_armor(body: &str) -> String {
+    let mut armored = String::with_capacity(body.len() * 2);
+    for c in body.chars() {
+        armored.push(if c.is_ascii_uppercase() { 'u' } else { 'l' });
+        armored.push(c);
+    }
+    armored
+}
+
+/// Read a case-armored body back to its bare form — the exact inverse of
+/// `zjjrf_case_armor`, and the recognizer that tells an armored livery tail
+/// apart from a foreign name of coincidental length. `None` unless the length is
+/// even and every pair is a `u`/`l` marker agreeing with the case of the
+/// character it precedes; on a match that character is the bare output.
+fn zjjrf_case_disarm(armored: &str) -> Option<String> {
+    let chars: Vec<char> = armored.chars().collect();
+    if chars.len() % 2 != 0 {
+        return None;
+    }
+    let mut body = String::with_capacity(chars.len() / 2);
+    for pair in chars.chunks_exact(2) {
+        match (pair[0], pair[1]) {
+            ('u', c) if c.is_ascii_uppercase() => body.push(c),
+            ('l', c) if !c.is_ascii_uppercase() => body.push(c),
+            _ => return None,
+        }
+    }
+    Some(body)
+}
+
 /// Dress a bare identity body in its livery: the one place a JJ branch name is
 /// composed. `prefix` is the pedigree's recorded path prefix — `None` by
 /// default and org-demand-only, for a sire whose owner requires JJ's refs to
@@ -200,9 +241,10 @@ impl jjrf_LiveryKind {
 ///
 /// The body arrives bare (`jjrf_as_str`), never sigiled — a git ref is a
 /// foreign-traversed surface, so the sigil stays behind (the carriage law
-/// above). The badge is what a ref carries instead.
+/// above). It is case-armored (`zjjrf_case_armor`) before badging so the ref
+/// survives a case-insensitive filesystem; `jjrf_livery_parse` is the inverse.
 pub fn jjrf_livery_compose(prefix: Option<&str>, kind: jjrf_LiveryKind, body: &str) -> String {
-    let badged = format!("{}{}{}", kind.jjrf_as_str(), JJRF_LIVERY_SEPARATOR, body);
+    let badged = format!("{}{}{}", kind.jjrf_as_str(), JJRF_LIVERY_SEPARATOR, zjjrf_case_armor(body));
     match prefix.map(str::trim).filter(|p| !p.is_empty()) {
         Some(p) => format!("{}{}{}", p.trim_end_matches(JJRF_LIVERY_SEPARATOR), JJRF_LIVERY_SEPARATOR, badged),
         None => badged,
@@ -221,9 +263,17 @@ pub fn jjrf_livery_compose(prefix: Option<&str>, kind: jjrf_LiveryKind, body: &s
 /// roster word rather than a silent reinterpretation; then length-type the
 /// tail as backstop.
 ///
+/// The tail comes in two shapes, length-selected. The case-armored form the
+/// compose half writes is marker-per-character (twice the body length); disarm
+/// both recognizes it and strips it to the bare body. A bare-length tail is a
+/// pre-armoring billet branch — read for as long as one still stands, retired
+/// once none do (the "old branches age out" cinch). The bare body is returned
+/// owned, since disarm builds a fresh string; callers compare it to a bare
+/// coronet exactly as before.
+///
 /// Charset validation is deliberately not repeated here: this returns the bare
 /// body to callers whose own `jjrf_parse` is the validating home.
-pub fn jjrf_livery_parse(branch: &str) -> Option<(jjrf_LiveryKind, &str)> {
+pub fn jjrf_livery_parse(branch: &str) -> Option<(jjrf_LiveryKind, String)> {
     let (word, tail) = branch.rsplit_once(JJRF_LIVERY_SEPARATOR)?;
     let word = match word.rsplit_once(JJRF_LIVERY_SEPARATOR) {
         Some((_prefix, last)) => last,
@@ -236,7 +286,14 @@ pub fn jjrf_livery_parse(branch: &str) -> Option<(jjrf_LiveryKind, &str)> {
     } else {
         return None;
     };
-    (tail.len() == kind.jjrf_body_len()).then_some((kind, tail))
+    let bare_len = kind.jjrf_body_len();
+    if tail.len() == bare_len * 2 {
+        return zjjrf_case_disarm(tail).map(|body| (kind, body));
+    }
+    if tail.len() == bare_len {
+        return Some((kind, tail.to_string()));
+    }
+    None
 }
 
 /// Heat identity - 2 base64 characters encoding 0-4095

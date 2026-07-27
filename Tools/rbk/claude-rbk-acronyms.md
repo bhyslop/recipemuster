@@ -19,6 +19,7 @@
   - **RBFLY** → `rbk/rbfly_*.sh` (Foundry Ledger yoke — reliquary-touchmark yoke into vessel regimes)
   - **RBFLA** → `rbk/rbfla_anoint.sh` (Foundry Ledger anoint — rewrites RBRV_GRAFT_IMAGE in one graft vessel from the chained build facts; a durable-config chain LINK)
   - **RBFLF** → `rbk/rbflf_feoff.sh` (Foundry Ledger feoff — elects one conjure vessel's base anchor (RBRV_IMAGE_n_ANCHOR) from a bole Lode touchmark express-or-chain, extracted out of conjure so conjure stays a pure chain head; a durable-config chain LINK, colophon `rbw-rvf`. Sibling of anoint/yoke on the durable-config surface — depth-1 relay-then-read, bole-kind gate via the touchmark prefix decoder, buc_reject BUBC_band_chain on broken chain / non-bole)
+  - **RBFLS** → `rbk/rbfls_seise.sh` (Foundry Ledger seise — elects the repo-scoped substrate reliquary (RBRR_SUBSTRATE_RELIQUARY) from a reliquary Lode touchmark express-or-chain, the reliquary the vessel-less substrate captures underpin/immure resolve their build tools from; a durable-config chain LINK, colophon `rbw-rrs`. Repo-regime sibling of feoff/yoke — depth-1 relay-then-read, reliquary-kind gate via the touchmark prefix decoder, buc_reject BUBC_band_chain on broken chain / non-reliquary)
   - **RBFLD** → `rbk/rbfld_*.sh` (Foundry Ledger delete — reliquary / ledger removal gesture)
   - **RBFLN** → `rbk/rbfln_*.sh` (Foundry Ledger inventory — ledger listing / enumeration gesture)
   - **RBFLW** → `rbk/rbflw_*.sh` (Foundry Ledger wrest — image wrest from registry)

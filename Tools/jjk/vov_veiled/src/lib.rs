@@ -34,7 +34,7 @@ pub mod jjrfg_plaingit;
 pub mod jjrrf_refit;
 pub mod jjrvb_blotter;
 pub mod jjrvg_guidon;
-pub mod jjrds_spine;
+pub mod jjrds_stile;
 pub mod jjrdm_muck;
 pub mod jjrdc_cashier;
 // Per-command modules (jjrxx_command pattern)
@@ -57,6 +57,7 @@ pub mod jjrrn_rein;
 pub mod jjrrs_restring;
 pub mod jjrrt_retire;
 pub mod jjrsc_scout;
+pub mod jjrsj_sectional;
 pub mod jjrsl_slate;
 pub mod jjrtl_tally;
 pub mod jjrvl_validate;
@@ -139,7 +140,7 @@ mod jjtrf_refit;
 mod jjtvb_blotter;
 
 #[cfg(test)]
-mod jjtds_spine;
+mod jjtds_stile;
 
 #[cfg(test)]
 mod jjtdm_muck;
@@ -152,6 +153,9 @@ mod jjtdc_cashier;
 
 #[cfg(test)]
 mod jjtwp_wrap;
+
+#[cfg(test)]
+mod jjtsj_sectional;
 
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};

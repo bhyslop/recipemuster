@@ -3,7 +3,20 @@
 Date: 2026-07-19
 Author: Claude (Fable 5 investigation, Opus 4.8 write-up), with Brad
 Status: Findings recorded. Repair slated in ₣B2 (rbk-15-r02-small-cleanups). The
-repair approach is deliberately left open — see "Candidate repair shapes" below.
+repair approach was deliberately left open — see "Candidate repair shapes" below.
+
+RESOLVED (2026-07-26, ₣B2): Shape 1 (reliquary-resolution) was chosen over shape 2
+(digest-pin in place), per operator discussion 2026-07-19. The vessel-less substrate
+captures (wsl underpin, podvm immure) now resolve their pinned tools (gcrane, docker,
+gcloud) from a repo-elected reliquary named by a single new repo-regime field,
+`RBRR_SUBSTRATE_RELIQUARY`, seised express-or-chain by the new `rbfl_seise` verb
+(`rbw-rrs`) after a reliquary conclave. The field is legal-empty until seised; a
+substrate capture against an empty election refuses at use time (precision-band
+reject) rather than floating. Conclave's own gcrane rows remain the sole floating
+capture builder — which restores `RBr_p7c`'s original claim (generation as the one
+floating phase) to truth. `rbsk_pinning_boundary`, `RBr_p7c` (RBS0), and RBSCB were
+corrected to describe the pinned reality; the four `RBr_p7c` code citations
+(underpin, immure, rbgjl05, rbgjl08) now read as pinned-conformance, matching bole.
 
 ## One-line
 

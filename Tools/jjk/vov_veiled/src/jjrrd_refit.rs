@@ -17,7 +17,7 @@
 
 use std::path::Path;
 
-use crate::jjrds_spine::{
+use crate::jjrds_stile::{
     jjrds_pedigree_lookup,
     JJRDS_KIND_PLAIN_GIT,
 };

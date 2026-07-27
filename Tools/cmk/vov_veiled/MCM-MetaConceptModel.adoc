@@ -1177,7 +1177,7 @@ the
 is a poor judge of its own reserves, since its nature is to adopt the
 {mcm_editor_p}
 word-use quickly, so the census grows by noticing surprise, not by introspection.
-Seed: spine, axis, seam, sweep, proof, probe.
+Seed: spine, axis, seam, sweep, proof, probe, grain.
 Standing conflict: probe is seeded here while still minted in
 {mcm_cold_probe}
 — the reservation is claimed ahead of the eviction, deferred until the global-rename tooling matures enough to sweep the live use.
@@ -1222,7 +1222,11 @@ blast (its root for scope-of-damage and the containment of it — "blast radius"
 never spoken bare, always productive across compounds, so enclosing the bare word would strand both),
 gloss (its noun and verb for the one-line explanation that stands a concept up in place — "reference
 the home, gloss in one line", "its inline gloss" — already the explanatory brush in normative prose,
-reserved before that prose hardens into a mint).
+reserved before that prose hardens into a mint),
+ladder (its figure for any ordered progression spoken in passing —
+the exposure ladder, a phase ladder, a release ladder —
+load-bearing as explanation everywhere, enclosed nowhere),
+rung (ladder's step-word, spoken beside it and reserved with it).
 
 [[mcm_furrowed_word]]
 {mcm_furrowed_word}::
@@ -1235,7 +1239,7 @@ and
 are withheld to stay unminted (one to protect the word's resonance, one the collaboration's reach), a
 {mcm_furrowed_word}
 is enclosure merely deferred: it will be minted once its concept is ready, or released if the intent lapses.
-Seed: tendon, blazon.
+Seed: tendon, blazon, accord.
 
 === Exposure
 

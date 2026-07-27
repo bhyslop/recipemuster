@@ -24,7 +24,6 @@
 //! want of a billet delivers nothing either.
 
 use std::path::{Path, PathBuf};
-use std::io::Write;
 
 use vvc::{vvco_out, vvco_err, vvco_Output};
 
@@ -50,16 +49,45 @@ pub struct jjrx_WrapArgs {
     pub size_limit: Option<u64>,
 }
 
-/// The wrap-entry staleness gate's verdict. The two names the refusal speaks —
-/// the billet's own branch and the pedigree's trunk — are the ground the gate was
-/// asked about, so the verdict carries no payload of its own and the text home
-/// (`jjri_staleness_interdictum`) is fed from that one resolution.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// The wrap-entry staleness gate's verdict. `Clear` and `Outstripped` carry no
+/// payload of their own — the text home (`jjri_staleness_interdictum`) is fed
+/// from the ground resolution the gate was asked about. `Resume` carries the sha
+/// trunk's counterpart already stood at: the position a crashed prior wrap
+/// landed, recognized by its own chalk header rather than by ancestry (a
+/// bequeathed commit is composed, not descended, so a squash leaves no ancestry
+/// a resume could be told apart from drift by).
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum jjrwp_GateVerdict {
     /// Wrap may proceed: the billet already holds trunk's remote counterpart.
     Clear,
     /// Trunk has advanced past what this billet has enfolded. Wrap refuses.
     Outstripped,
+    /// Trunk's advance IS this pace's own already-landed W chalk (a crash
+    /// between the converge push and the studbook journal write). Wrap
+    /// proceeds — the resume never refuses, and never re-runs a refit whose
+    /// only effect would be merging the pace's own work back into itself.
+    Resume(String),
+}
+
+/// Recognize a crash-mid-wrap resume at trunk's counterpart tip: does its
+/// header carry a W marker for THIS coronet? Reads the branded header alone
+/// (`jjb:BRAND:IDENTITY:ACTION: subject`) — brand and subject are not
+/// consulted, only that the identity field is this pace's own and the action
+/// is the Wrap marker. Never an ancestry guess: this is exactly the signature
+/// ancestry cannot see through a squash.
+fn zjjrwp_is_own_chalk(message: &str, coronet: &jjrf_Coronet) -> bool {
+    let identity = format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, coronet.jjrf_as_str());
+    let wrap_action = jjrn_ChalkMarker::Wrap.jjrn_code().to_string();
+    let first_line = message.lines().next().unwrap_or("");
+    // "prefix:brand:identity:action: subject" — the four leading fields, subject
+    // (which may itself contain colons) left whole in the final split element.
+    let fields: Vec<&str> = first_line.splitn(5, ':').collect();
+    match fields.as_slice() {
+        [_prefix, _brand, field_identity, field_action, ..] => {
+            *field_identity == identity && *field_action == wrap_action
+        }
+        _ => false,
+    }
 }
 
 /// The billet facts a wrap stands on: which tree it is wrapping, what that tree's
@@ -103,10 +131,10 @@ where
     let derived_key = identity.upstream_key.clone()?;
 
     let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
-    let pedigree = crate::jjrds_spine::jjrds_pedigree_lookup(
+    let pedigree = crate::jjrds_stile::jjrds_pedigree_lookup(
         &studbook,
         &derived_key,
-        crate::jjrds_spine::JJRDS_KIND_PLAIN_GIT,
+        crate::jjrds_stile::JJRDS_KIND_PLAIN_GIT,
     )
     .ok()?;
 
@@ -126,13 +154,22 @@ where
 /// there. The gate runs no refit of its own, so the wrap that follows an
 /// operator-directed refit finds the billet holding trunk's tip — which is what
 /// lets the converge beat treat its own input as trivial by construction.
-pub fn jjrwp_staleness_gate<F>(farrier: &F, ground: &jjrwp_BilletGround) -> jjrwp_GateVerdict
+///
+/// `Outstripped` is not the whole story: before it stands, the gate reads trunk's
+/// counterpart tip and asks whether ITS chalk header names this pace's own
+/// coronet with the Wrap marker — the crash-mid-wrap signature (trunk pushed,
+/// journal never wrote). That recognition earns `Resume`, never `Outstripped`;
+/// any other outstripping trunk tip, own coronet or not, stays `Outstripped`.
+pub fn jjrwp_staleness_gate<F>(farrier: &F, ground: &jjrwp_BilletGround, coronet: &jjrf_Coronet) -> jjrwp_GateVerdict
 where
     F: crate::jjrfr_farrier::jjrfr_FarrierCore + crate::jjrfr_farrier::jjrfr_FarrierBillet,
 {
     let _ = farrier.jjrfr_glean(&ground.billet_root);
     match farrier.jjrfr_outstripped(&ground.billet_root, &ground.trunk) {
-        Ok(true) => jjrwp_GateVerdict::Outstripped,
+        Ok(true) => match farrier.jjrfr_counterpart_chalk(&ground.billet_root, &ground.trunk) {
+            Ok(Some((sha, message))) if zjjrwp_is_own_chalk(&message, coronet) => jjrwp_GateVerdict::Resume(sha),
+            _ => jjrwp_GateVerdict::Outstripped,
+        },
         Ok(false) | Err(_) => jjrwp_GateVerdict::Clear,
     }
 }
@@ -228,11 +265,23 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     // Staleness gate, at wrap entry and ahead of every mutation — the lock, the
     // staging, the commits. A billet trailing its sire's trunk refuses here and
     // stops: no retry, and no refit run from inside the refusal. Passing the gate
-    // is what leaves the converge beat a trivial input.
+    // is what leaves the converge beat a trivial input. `Resume` is the one
+    // outstripped verdict that does not refuse: trunk's advance is this pace's
+    // own already-landed chalk (crash between the converge push and the journal
+    // write), so the wrap continues — `resumed_converge` carries the recognized
+    // position through to the converge beat below.
+    let mut resumed_converge: Option<String> = None;
     if let Some(g) = &ground {
-        if jjrwp_staleness_gate(&crate::jjrfg_plaingit::jjrfg_PlainGit, g) == jjrwp_GateVerdict::Outstripped {
-            vvco_err!(output, "{}", crate::jjri_io::jjri_staleness_interdictum(cn, &g.branch, &g.trunk));
-            return (2, output.vvco_finish());
+        match jjrwp_staleness_gate(&crate::jjrfg_plaingit::jjrfg_PlainGit, g, &coronet) {
+            jjrwp_GateVerdict::Outstripped => {
+                vvco_err!(output, "{}", crate::jjri_io::jjri_staleness_interdictum(cn, &g.branch, &g.trunk));
+                return (2, output.vvco_finish());
+            }
+            jjrwp_GateVerdict::Resume(sha) => {
+                vvco_out!(output, "{}: resuming a crash-mid-wrap — trunk '{}' already holds this pace's own chalk as {}", cn, g.trunk, sha);
+                resumed_converge = Some(sha);
+            }
+            jjrwp_GateVerdict::Clear => {}
         }
     }
 
@@ -304,35 +353,32 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             return (1, output.vvco_finish());
         }
 
-        let mut claude_cmd = match vvc::vvce_claude_command()
-            .args([
-                "--print",
-                &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
-            ])
-            .stdin(std::process::Stdio::piped())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::piped())
-            .spawn()
-        {
-            Ok(c) => c,
+        // JJr_9m4: the claude spawn is a remote-reaching subprocess wait, so it
+        // runs under the same deadline law as the git ops — bounded, no retry
+        // (a second paid call is not a retry the membrane owes), guided on
+        // expiry.
+        let mut claude_cmd = vvc::vvce_claude_command();
+        claude_cmd.args([
+            "--print",
+            &format!("Generate a concise commit message for this diff. The commit wraps pace {}. Output only the message, no quotes.", args.coronet)
+        ]);
+        let claude_output = match vvc::vvce_env::vvce_output_deadline(
+            &mut claude_cmd,
+            Some(diff_content.stdout.clone()),
+            vvc::VVCC_CLAUDE_DEADLINE,
+        ) {
+            Ok(Some(o)) => o,
+            Ok(None) => {
+                vvco_err!(
+                    output,
+                    "{}: error: claude exceeded its {}s deadline — an API stall or hung CLI, not a diff problem. Re-run the wrap.",
+                    cn,
+                    vvc::VVCC_CLAUDE_DEADLINE.as_secs()
+                );
+                return (1, output.vvco_finish());
+            }
             Err(e) => {
                 vvco_err!(output, "{}: error: failed to spawn claude command: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        };
-
-        // Write diff to stdin
-        if let Some(mut stdin) = claude_cmd.stdin.take() {
-            if let Err(e) = stdin.write_all(&diff_content.stdout) {
-                vvco_err!(output, "{}: error: failed to write to claude stdin: {}", cn, e);
-                return (1, output.vvco_finish());
-            }
-        }
-
-        let claude_output = match claude_cmd.wait_with_output() {
-            Ok(o) => o,
-            Err(e) => {
-                vvco_err!(output, "{}: error: failed to wait for claude: {}", cn, e);
                 return (1, output.vvco_finish());
             }
         };
@@ -458,8 +504,21 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
                     Some(sha)
                 }
                 Ok(jjrfr_BequeathOutcome::Unchanged) => {
-                    vvco_out!(output, "{}: nothing to converge — trunk '{}' already holds this billet's tree", cn, g.trunk);
-                    None
+                    // A resume whose billet gained no further work since the crash:
+                    // the bequest sees the tree already there and rightly composes
+                    // nothing, but the position the gate recognized is still the
+                    // pace's own delivered work, not a verification-only no-op — the
+                    // journal's Converge trailer is owed that sha, not `none`.
+                    match &resumed_converge {
+                        Some(sha) => {
+                            vvco_out!(output, "{}: resumed — trunk '{}' already holds this billet's converge as {}", cn, g.trunk, sha);
+                            Some(sha.clone())
+                        }
+                        None => {
+                            vvco_out!(output, "{}: nothing to converge — trunk '{}' already holds this billet's tree", cn, g.trunk);
+                            None
+                        }
+                    }
                 }
                 Err(rejection) => {
                     vvco_err!(output, "{}", crate::jjri_io::jjri_converge_refusal(cn, &g.trunk, &rejection));
@@ -526,6 +585,19 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             Err(code) => return (code, output.vvco_finish()),
         }
     };
+
+    // Ruling 3 (the 260722 wrap-convergence design session): wrap consigns the
+    // billet branch after its final commit, so a same-session land→wrap exits
+    // with the stile clearing the billet — the converge above already
+    // delivered the tree to trunk, but the branch itself must still reach
+    // remote custody (backup posture; the REMOTE-AWARE SEAT seam depends on
+    // branches being pushed). The badge guard inside makes this a no-op on
+    // hippodrome/groom ground. A push failure surfaces loud while the local
+    // commits stand (additive discipline), matching notch Ruling 3 and landing.
+    if let Err(e) = crate::jjrnc_notch::jjrnc_consign_current_branch(&crate::jjrfg_plaingit::jjrfg_PlainGit) {
+        vvco_err!(output, "{}: error: wrap committed locally, but consigning the billet branch failed: {}", cn, e);
+        return (1, output.vvco_finish());
+    }
 
     vvco_out!(output, "{}", chalk_hash);
     let fm = match gallops.jjrg_heat_key_of_coronet(&coronet.jjrf_display())

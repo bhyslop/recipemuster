@@ -39,12 +39,12 @@ zrbrn_fleet_survey() {
   zrbrr_sentinel
 
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
-  local -r z_row_fmt="%-10s %-8s %6s %6s  %-17s %-14s %-14s  %3s %3s\n"
+  local -r z_row_fmt="%-10s %-8s %6s %6s  %-17s %-14s %-14s  %4s %3s %3s\n"
   echo ""
   printf "${z_row_fmt}" \
-    "Moniker" "Entry" "WS" "Enc" "Subnet" "Sentry IP" "Bottle IP" "Snt" "Btl"
+    "Moniker" "Entry" "WS" "Enc" "Subnet" "Sentry IP" "Bottle IP" "Arm" "Snt" "Btl"
   printf "${z_row_fmt}" \
-    "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "---" "---"
+    "--------" "-----" "------" "------" "-----------------" "--------------" "--------------" "----" "---" "---"
 
   local z_sv_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_sv_i=""
@@ -66,6 +66,14 @@ zrbrn_fleet_survey() {
         z_bottle_local="??"
       fi
 
+      # Armament — readiness-to-charge, distinct from the local-image-presence
+      # columns above. Per-field so a half-armed transient (rbw-nd arms one
+      # field at a time) reads honestly: "SB" both, "S-"/"-B" half, "--" vacant.
+      local z_arm_sentry="-"
+      local z_arm_bottle="-"
+      rbrn_hallmark_armed_predicate "${RBRN_SENTRY_HALLMARK}" && z_arm_sentry="S"
+      rbrn_hallmark_armed_predicate "${RBRN_BOTTLE_HALLMARK}" && z_arm_bottle="B"
+
       local z_ws_port="${RBRN_ENTRY_PORT_WORKSTATION:-}"
       local z_enc_port="${RBRN_ENTRY_PORT_ENCLAVE:-}"
       if [[ "${RBRN_ENTRY_MODE}" != "rbnne_enabled" ]]; then
@@ -77,6 +85,7 @@ zrbrn_fleet_survey() {
         "${RBRN_MONIKER}" "${RBRN_ENTRY_MODE}" "${z_ws_port}" "${z_enc_port}" \
         "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
         "${RBRN_ENCLAVE_SENTRY_IP}" "${RBRN_ENCLAVE_BOTTLE_IP}" \
+        "${z_arm_sentry}${z_arm_bottle}" \
         "${z_sentry_local}" "${z_bottle_local}" || buc_die "Failed to printf survey row"
     ) || buc_die "Survey isolation failed for: ${z_sv_files[$z_sv_i]}"
   done

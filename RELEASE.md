@@ -35,7 +35,7 @@ tt/rbw-aN.NovateSitting.sh
 
 The marshal-zero operation returns local state to the blank onboarding-start template:
 
-- Blanks the site-specific [Repo Regime](README.md#RBRR) field (`RBRR_RUNTIME_PREFIX`) and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`)
+- Blanks the site-specific [Repo Regime](README.md#RBRR) fields (`RBRR_RUNTIME_PREFIX`, `RBRR_SUBSTRATE_RELIQUARY`) and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`)
 - Blanks [Hallmark](README.md#Hallmark) pins (`RBRN_SENTRY_HALLMARK`, `RBRN_BOTTLE_HALLMARK`) in each [Nameplate](README.md#Nameplate) regime file ([RBRN](README.md#RBRN))
 - Blanks depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in each [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
 - **Preserves** the [Payor](README.md#Payor) OAuth credential — no credential files are deleted (there are none to delete: the federation era holds no service-account keyfiles)
@@ -56,7 +56,7 @@ The release gate — the full release-qualification ladder, run from the marshal
 **Entry contract** — the gauntlet's first fixture (the marshal-zero attestation gate) refuses to run unless ALL of the following hold:
 
 - working tree clean
-- the site-specific [Repo Regime](README.md#RBRR) field (`RBRR_RUNTIME_PREFIX`) blank, and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`) blank
+- the site-specific [Repo Regime](README.md#RBRR) fields (`RBRR_RUNTIME_PREFIX`, `RBRR_SUBSTRATE_RELIQUARY`) blank, and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`) blank
 - [Hallmark](README.md#Hallmark) pins blank in every [Nameplate](README.md#Nameplate) regime ([RBRN](README.md#RBRN))
 - depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) blank in every [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
 

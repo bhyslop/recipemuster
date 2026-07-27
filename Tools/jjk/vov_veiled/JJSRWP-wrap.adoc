@@ -1,7 +1,8 @@
 //axvd_sheaf axd_normative
 This is a normative portion of the {jjs0_imprimatur}: binding — code, tests, and decisions may rely on it.
-Mark a pace complete and commit all changes in one self-contained operation.
-This routine combines staging, committing, state transition, and chalk marker creation.
+Mark a pace complete and deliver its work to trunk in one self-contained operation.
+Ahead of everything stands a staleness gate; behind the work commit stands the converge.
+Between them the routine stages, commits, transitions the pace state, then bequeaths the billet's estate to the sire's trunk and records the wrap in the {jjdb_journal}.
 Used by the `wrap` verb (mapped to `jjx_close`) to provide a single-command wrap experience.
 
 {jjds_arguments}
@@ -12,34 +13,45 @@ Used by the `wrap` verb (mapped to `jjx_close`) to provide a single-command wrap
 
 //axd_optional
 * `summary` (string) — wrap summary text (used as chalk description; if absent, uses "pace {silks} complete")
+* `spook` (string) — wrap-time friction report; rides the W marker as a single-line `Spook:` trailer (`Spook: none` when absent or empty)
 * `--size-limit` — maximum commit size in bytes (default: 50KB)
 
 {jjds_behavior}
 
-. Acquire lock (`refs/vvg/locks/vvx`)
-. Stage all changes (`git add -A`)
-. Size guard check:
-.. Get staged content size
-.. If over limit: release lock, exit 2
-. Generate commit message via Claude from diff
-. Commit staged changes
-. Transition pace state to complete via internal tack prepend (state={jjdpe_complete})
-. Create W chalk marker with outcome summary (uses `summary` parameter if provided, else "pace {silks} complete" from gallops)
-. Lookahead: walk parent heat's order array for next actionable pace (first with state {jjdpe_rough})
-. Emit `AGENT_RESPONSE:` line to stderr:
-.. If next pace found: `AGENT_RESPONSE: ₢{coronet} wrapped. Next: {next_silks} (₢{next_coronet}) — \`/clear\` then \`mount {firemark}\``
-.. If no next pace: `AGENT_RESPONSE: ₢{coronet} wrapped. All paces complete — \`/clear\` then \`retire {firemark}\``
-. Release lock
-. Return commit hash
+. Resolve the billet ground — {jjdf_identify} at cwd, then the sire's {jjdb_pedigree} trunk.
+A wrap run from a {jjdw_hippodrome}, a detached checkout, or foreign ground resolves no billet: the gate and the converge below both stand down, and the wrap records the pace without delivering.
+. *Staleness gate*, at wrap entry and ahead of every mutation (the lock, the staging, the commits).
+Glean, then ask whether trunk carries work this billet has never enfolded.
+If it does: emit the staleness interdictum naming {jjdd_refit} as the remedy and exit 2 — nothing committed, the working tree untouched, the pace still open.
+The refusal is total — no retry, and no refit from inside the gate; an unreachable remote or an unknown counterpart is not a refusal, since the gate refuses only on an observed fact.
+One outstripping tip does not refuse: if trunk's counterpart tip is this pace's own W marker — a crash between the converge push and the journal write left trunk ahead by exactly this wrap's own delivery, a signature ancestry cannot see through a squash — the gate resumes rather than refuses.
+The wrap proceeds, carrying the recognized position into the converge below, so a crashed wrap completes instead of demanding a refit that would only merge the pace's own work back into itself.
+. Acquire the commit lock.
+. Stage all changes (`git add -A`).
+. Size guard: weigh the staged tree through the shared cost model against {jjda_size_limit}; over the ceiling, release the lock and exit 2.
+. Work commit: a stage holding changes is committed on the billet branch under a message generated from the diff; a stage with nothing in it (a verification-only pace) skips the commit and proceeds.
+. Transition pace state to complete (state={jjdpe_complete}).
+. *Converge*, behind the work commit and ahead of the journal: bequeath the billet's whole tree to the sire's trunk as ONE commit parented on trunk's remote counterpart tip and pushed to trunk — no working tree is checked out anywhere.
+Trunk's own record of the pace is a W marker carrying a `Billet:` trailer naming the branch whose interior history did not travel.
+.. *Landed* — trunk took the bequest; the produced commit is the position the journal records below.
+.. *Unchanged* — trunk already holds this billet's tree; nothing is delivered and the recorded position is `none`, except when resuming a crash, where it is the position the gate recognized — the pace's own prior converge, not a verification no-op.
+.. *Refused* — trunk moved between the gate's glean and this push (fast-forward-protected), so the delivery lost a race: exit 1, trunk untouched, the pace still open, and by compose-then-push construction no residue to scrub — refit, then wrap again.
+. *W marker*: record the wrap in the {jjdb_journal} — the same complete-state transition journaled to the {jjdb_studbook} against the locked tip, the chalk message riding the journal commit (the gallops has left the consumer repo; the work commit above carried the user's code).
+The marker carries two one-line trailers, each always present and spelling an absent value `none`: `Converge:` — the trunk position the squash produced (the second {jjdb_counterfoil} the bequest makes necessary, since it leaves no ancestry a check could follow) — and `Spook:` — the wrap-time friction report.
+. Consign the billet branch to its remote counterpart when — and only when — the checked-out branch wears the pace livery badge;
+remote custody of the billet's own commits is part of wrap itself, never left for the exit stile to warn about after the converge already delivered the tree to trunk.
+A consign failure surfaces loud and fails the command while the local commits stand (additive discipline).
+. Lookahead: walk the parent heat's order for the next actionable pace — the first in state {jjdpe_rough} or bridled (a bridled next-pace renders its tier).
+. Emit the `AGENT_RESPONSE:` relay line, converge-era: a delivered billet reports where the work landed and directs the session to exit — the next pace mounts from a fresh session on its own billet, or the heat is complete and retires; a wrap that resolved no billet keeps the plain `/clear`-then-`mount`/`retire` form.
+. Release the lock and return the marker SHA.
 
 {jjds_exit_enumerated}
 
 * 0 — success
-* 1 — general error (parse failure, gallops error, git error)
-* 2 — size guard exceeded (use --size-limit to override)
+* 1 — general error (parse failure, gallops error, git error, or the converge losing its push race — trunk moved under the wrap)
+* 2 — refused before mutating: the staleness gate (the billet trails trunk; {jjdd_refit} is the remedy) or the size guard (use --size-limit to override)
 
 *Design rationale:*
 {jjdr_wrap}
-consolidates the multi-step wrap workflow into a single vvx command.
-This eliminates the need for slash commands to orchestrate separate notch, tally, and chalk operations.
-The distinct exit code 2 for size guard allows callers to advise users about the --size-limit flag.
+consolidates the multi-step wrap workflow — gate, stage, commit, transition, converge, journal — into a single vvx command, so no slash command orchestrates separate notch, tally, and chalk operations, and delivery to trunk is the wrap's own act rather than a hand merge that follows it.
+Exit code 2 is the pre-mutation refusal band — staleness gate or size guard — so a caller keys on it to steer the operator toward refit or the --size-limit flag before anything was staged.

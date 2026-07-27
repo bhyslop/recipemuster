@@ -30,8 +30,8 @@
 // jjdxw_: Window emblem overlay (per-window labels, references, resolution)
 // jjdw_:  World model (revision-control cosmology: the infield and its residents)
 // jjdb_:  Blotter store vocabulary (the locked store, its guidon, journal ceremony, break sequence; the studbook instance, its pedigree, footprint, and counterfoil)
-// jjdd_:  Dispatch layer vocabulary (the doors, the entrance spine, the billet lifecycle, the muck sweep, refit)
-// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds)
+// jjdd_:  Dispatch layer vocabulary (the doors, the stile crossing and its approach, the billet lifecycle, the ground taxonomy and its guards, the muck door, refit)
+// jjdf_:  Farrier driver vocabulary (the driver entity, its three facets, the identify contract, the vocabulary Palisade, the rejection kinds, the transport vedette)
 // jjdl_:  Tackle vocabulary (the domain binding, its claims, its bounds, the blaze registries; `t` is spent on Types)
 // jjdk_:  Key premises (design constraints)
 // jjdz_:  Serialization concerns
@@ -265,7 +265,7 @@
 :jjdb_studbook:   <<jjdb_studbook,Studbook>>
 :jjdb_studbook_p: <<jjdb_studbook,Studbook's>>
 
-// Dispatch layer (doors, entrance spine, stile lifecycle, billet lifecycle, muck door, refit)
+// Dispatch layer (doors, stile crossing and its approach, billet lifecycle, ground taxonomy and its guards, muck door, refit)
 :jjdd_saddle:       <<jjdd_saddle,Saddle>>
 :jjdd_lunge:        <<jjdd_lunge,Lunge>>
 :jjdd_billet:       <<jjdd_billet,Billet>>
@@ -273,8 +273,8 @@
 :jjdd_billet_p:     <<jjdd_billet,Billet's>>
 :jjdd_livery:       <<jjdd_livery,livery>>
 :jjdd_livery_p:     <<jjdd_livery,livery's>>
-:jjdd_spine:        <<jjdd_spine,entrance spine>>
-:jjdd_spine_p:      <<jjdd_spine,entrance spine's>>
+:jjdd_ground:       <<jjdd_ground,ground>>
+:jjdd_ground_s:     <<jjdd_ground,grounds>>
 :jjdd_stile:        <<jjdd_stile,stile>>
 :jjdd_stile_s:      <<jjdd_stile,stiles>>
 :jjdd_stile_p:      <<jjdd_stile,stile's>>
@@ -300,6 +300,8 @@
 :jjdf_lock_broken:     <<jjdf_lock_broken,lock-broken>>
 :jjdf_seat_vestige:    <<jjdf_seat_vestige,seat-vestige>>
 :jjdf_line_seated:     <<jjdf_line_seated,line-seated>>
+:jjdf_vedette:         <<jjdf_vedette,transport vedette>>
+:jjdf_transient:       <<jjdf_transient,transient>>
 
 // Tackle (the domain binding: fileset + governance; claims, bounds, blaze registries)
 :jjdl_tackle:       <<jjdl_tackle,Tackle>>
@@ -583,6 +585,12 @@ Implemented using the `rmcp` crate (official Rust MCP SDK), version pinned exact
 The {jjdx_mcp} process is stateless infrastructure — it does not manage {jjdxo_officium} lifecycle.
 {jjdxo_officium_s} are created by explicit agent action ({jjdo_open}), not by server process startup.
 See <<jjdxo_officium>> for lifecycle details.
++
+*Answer-always.*
+Every {jjdx_tool} call terminates in a verdict the client receives — a success result or an error result, never silence.
+The `rmcp` transport spawns each request handler without an unwind guard and drops its join handle, so a {jjdx_handler} panic that escaped the dispatcher would kill the response task before it answered and strand the client forever on a healthy server.
+JJK's failure conduct panics by design — vedette exhaustion, an unclassified git failure, a nested lock acquire — so the dispatcher catches the unwind at the one membrane every command is driven through and answers it as an error verdict carrying the panic text verbatim.
+Fail-loud is thereby preserved as a verdict, not discarded as a hang.
 
 [[jjdx_tool]]
 //axl_voices axo_entity

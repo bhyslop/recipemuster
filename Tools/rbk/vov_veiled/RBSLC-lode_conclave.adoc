@@ -24,13 +24,14 @@ submits a
 job on the tethered (egress-permitted) pool, executed by the
 {rbtr_mason}
 service account via the metadata server.
-The workstation never fetches the upstream bytes — it trusts the GCP environment over a potentially-compromised station.
+The workstation never fetches the upstream bytes, per the trust rationale homed at {rbtga_lode}.
 
 NOTE: Conclave bootstraps from no reliquary.
 The tool images captured here ARE a reliquary, so capture cannot resolve its builders from one.
-Both steps ride the Google-hosted `gcr.io/cloud-builders/docker` builder (always pullable), and the
+Both steps ride the Google-hosted `gcrane:debug` builder (a floating bootstrap tag, always pullable) — the same gcrane tool the bole kind uses, but on a floating tag rather than the pinned reliquary member, because conclave is what generates the reliquary.
+The
 {rbtga_lode_vouch}
-envelope — not the acquisition tool — is the unifier, so a docker-pull path alongside the bole kind's gcrane capture is correct.
+envelope — not the builder — is what unifies the Lode kinds.
 
 NOTE: `gcrane` is captured as its `:debug` variant.
 That variant carries a busybox shell, and a cohort member is resolved as a Cloud Build
@@ -45,7 +46,7 @@ NOTE: Conclave is capture-pure.
 It mints the Lode, emits the
 {rbtga_lode_vouch}
 provenance envelope, and reports the touchmark — but writes NO consumer config.
-Election (where a vessel pins the reliquary touchmark) is a separate consumption-side yoke-stamp layer that reads the
+Election of the reliquary — where a vessel pins the touchmark (the yoke-stamp layer) or the repo regime elects it for the vessel-less substrate captures (the seise layer) — is a separate consumption-side step that reads the
 {rbf_fact_lode}
 this operation writes; it is not part of conclave.
 

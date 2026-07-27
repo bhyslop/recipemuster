@@ -25,7 +25,7 @@
 # into JJSL_INVOKE_DIR (cwd elects the clone; BUK dispatch then self-anchors to
 # the kit repo root, losing it) and sets BURD_NO_LOG so the launched Claude
 # session owns the terminal - an interactive TUI cannot run under the log tee.
-# The spine itself is Rust: vvx jjx_dispatch (jjrds_spine.rs).
+# The stile's approach itself is Rust: vvx jjx_dispatch (jjrds_stile.rs).
 
 set -euo pipefail
 
@@ -47,7 +47,7 @@ zjjsl_sentinel() {
   test "${ZJJSL_KINDLED:-}" = "1" || buc_die "Module jjsl not kindled"
 }
 
-# Route one door through the Rust spine. The invocation directory must have
+# Route one door through the Rust stile approach. The invocation directory must have
 # been captured by a trampoline - a bare tabtarget run has already lost the
 # operator's cwd to BUK's self-anchoring, so it refuses with advice.
 zjjsl_door() {
@@ -104,6 +104,43 @@ jjsl_cashier() {
   buc_require "About to CASHIER the locks reported above - dismissing whoever holds them." "cashier"
 
   "${ZJJSL_VVX}" jjx_cashier --cwd "${z_cwd}" --break
+}
+
+# Muck: destroy a named billet's destroy arm (JJSVD jjdd_muck). Plan-then-confirm:
+# the report is shown first, the operator answers, then the destroy runs — the
+# constellation's one deliberate data-loss surface.
+jjsl_muck() {
+  zjjsl_sentinel
+  zjjsl_muck_confirmed ""
+}
+
+# Muck's salvage-then-destroy arm: open only on a dirty pace billet (the plan's
+# own report names which arms are open) — lodges the non-JJ-owned dirty paths
+# onto the pace's own seated branch, consigns, then destroys.
+jjsl_muck_salvage() {
+  zjjsl_sentinel
+  zjjsl_muck_confirmed "--salvage"
+}
+
+# Shared plan-then-confirm body for both muck verbs. The confirm gate is THIS
+# door's contract, not the reap's: the report is shown, the operator answers,
+# and only then does the SAME resolution get destroyed.
+zjjsl_muck_confirmed() {
+  local -r z_arm_flag="${1}"
+  local -r z_cwd="$(zjjsl_invoke_dir)"
+  local -r z_target="${BUZ_FOLIO:-}"
+  test -n "${z_target}" || buc_die "jjsl muck: no target supplied (a yard dirname, or the coronet/firemark identity behind one)"
+
+  # The report the operator judges from - the Rust door owns its format.
+  "${ZJJSL_VVX}" jjx_muck --cwd "${z_cwd}" --target "${z_target}"
+
+  buc_require "About to MUCK the billet reported above - deliberate data loss, dismissing whatever it carries." "muck"
+
+  if [ -z "${z_arm_flag}" ]; then
+    "${ZJJSL_VVX}" jjx_muck --cwd "${z_cwd}" --target "${z_target}" --execute
+  else
+    "${ZJJSL_VVX}" jjx_muck --cwd "${z_cwd}" --target "${z_target}" --execute "${z_arm_flag}"
+  fi
 }
 
 # Found the studbook from nothing (JJSAS Founding-and-cutover, jjdb_found_studbook).

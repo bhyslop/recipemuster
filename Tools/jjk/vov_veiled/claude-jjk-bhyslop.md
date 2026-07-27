@@ -288,7 +288,7 @@ cosmology) — this is the quick-lookup pointer, not the definition.
   - `jjqa_app` — the kit repo (engine + provisioned context; was `jjy_app`).
   - `jjqs_studbook` — the record repo (was `jjy_studbook`).
   - `jjqb_{catchword}_{coronet}` — a pace **billet** (per-pace worktree dir); `jjqb_{catchword}_{firemark}` a groom billet — one signet, the identity behind the serial typed by length.
-  - `jjqd_scratch` — the dispatch-scratch container: per-billet BUK state (BURV output/temp/log roots) and session-scoped MCP config, keyed by billet dirname beneath it. Deliberately outside the `jjqb_` glob so the muck sweep can never match it.
+  - `jjqd_scratch` — the dispatch-scratch container: per-billet BUK state (BURV output/temp/log roots) and session-scoped MCP config, keyed by billet dirname beneath it. Deliberately outside the `jjqb_` glob so a billet resolution can never match it.
 - **`jjy_`** — infield **launcher scripts** (stiles): `jjy_saddle`, `jjy_lunge` (flat).
 
 Two letters, not one: terminal-exclusivity forbids `jjy_`'s flat script names coexisting with a
@@ -301,10 +301,10 @@ badge* — `jjls_pace/{coronet}`, JJ's mark in a ref store JJ does not own. Its 
 birth's dispatch record allocated, so a plain listing sorts by birth and concurrent groom
 billets of one heat stay distinct. `git worktree list` ties branch to dirname, and it — never
 the dirname — is what a dispatch rediscovers a standing billet by. The serial is a label and
-never an identity: readers step over it to the tail token and never parse it. The muck sweep
-globs `jjqb_*` — a positive match that structurally excludes the `jjqa_`/`jjqs_` repos it must
-never reap. Constraint owed upstream: the pace-id re-gestalt must keep the coronet charset
-git-ref- and dirname-safe (no leading `-`).
+never an identity: readers step over it to the tail token and never parse it. Muck's own
+billet resolution (`jjrdm_muck`) globs `jjqb_*` — a positive match that structurally excludes
+the `jjqa_`/`jjqs_` repos it must never touch. Constraint owed upstream: the pace-id re-gestalt
+must keep the coronet charset git-ref- and dirname-safe (no leading `-`).
 
 ### K. Operator-only verb — jog (naming census)
 

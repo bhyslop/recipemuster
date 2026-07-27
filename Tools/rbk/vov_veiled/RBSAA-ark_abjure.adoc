@@ -117,6 +117,4 @@ if the build fails: the in-pool step has printed the failing package and verdict
 Procedure completes successfully when the cloud-dispatched delete build reaches terminal SUCCESS — every package discovered beneath the hallmark subtree verified absent from the registry by the in-pool step — and the abjuration confirmation is displayed.
 The ark is now formally renounced and no longer part of the repository corpus.
 Because enumeration drives the delete set, there is no separate existence check and no orphan-detection branch: whatever lives in the subtree is removed, and an empty subtree is itself the "not present" signal.
-Each enumerated package is deleted in-pool by **convergence**: GAR refuses to delete a child manifest while its parent index still exists (FAILED_PRECONDITION, "manifest is referenced by parent manifests"), so each round the step fires a delete at every remaining version (force=true) and at the package shell — parents free their children, which a later round deletes — and polls the package GET until it 404s, the per-round "referenced by parent" skips being expected rather than errors.
-The delete build runs as {rbtr_director} (which already holds repoAdmin/delete); Mason stays writer-only.
-Posture and the convergence rationale live in RBSCB.
+Each enumerated package is deleted in-pool by **convergence**; the mechanism — why a single delete does not converge, the per-round force-delete-then-poll-until-404 shape — and the Director-not-Mason trust posture are homed in RBSCB and not restated here.

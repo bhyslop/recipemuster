@@ -47,6 +47,8 @@ zjjz_kindle() {
   buz_enroll JJZ_DISPATCH_INSTALL "jjw-di"   "jjsl_cli.sh" "jjsl_install"   "param1"  "Install the jjy_ trampolines into an infield directory (idempotent)"
   buz_enroll JJZ_DISPATCH_SIGHT   "jjw-dc"   "jjsl_cli.sh" "jjsl_sight"     ""        "Sight every JJ blotter lock and report who holds it (read-only)"
   buz_enroll JJZ_DISPATCH_CASHIER "jjw-dC"   "jjsl_cli.sh" "jjsl_cashier"   ""        "Cashier a derelict lock-holder: report, then break a stranded lock (confirm-gated)"
+  buz_enroll JJZ_DISPATCH_MUCK    "jjw-dM"   "jjsl_cli.sh" "jjsl_muck"      "param1"  "Muck a named billet: plan, then destroy (confirm-gated) — the operator's one deliberate data-loss surface"
+  buz_enroll JJZ_DISPATCH_MUCKS   "jjw-dMs"  "jjsl_cli.sh" "jjsl_muck_salvage" "param1" "Muck a named billet: plan, then salvage onto its own branch before destroy (confirm-gated, pace billets only)"
 
   # Blotter — studbook lifecycle ceremonies (jjw-b)
   buz_group JJZ__GROUP_BLOTTER   "jjw-b"   "Blotter — studbook lifecycle ceremonies"

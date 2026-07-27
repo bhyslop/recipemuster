@@ -416,6 +416,7 @@ version = "0.0.1"
 dependencies = [
  "chrono",
  "clap",
+ "futures",
  "regex",
  "rmcp",
  "schemars",
@@ -892,6 +893,7 @@ dependencies = [
 name = "vvr"
 version = "0.0.1"
 dependencies = [
+ "chrono",
  "clap",
  "jjk",
  "serde_json",

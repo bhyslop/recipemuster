@@ -25,20 +25,20 @@ set -euo pipefail
 ######################################################################
 # Step Assembly (zrbfc_*)
 
-# Internal: Resolve tool image references from the reliquary-kind (conclave) Lode.
-# Must be called after vessel load (reads RBRV_RELIQUARY — the conclave touchmark).
-# Sets module-level z_rbfc_tool_* mutable kindle state for downstream step assembly.
-# Idempotent — safe to call multiple times per invocation.
+# Internal: Resolve tool image references from a named reliquary-kind (conclave)
+# Lode touchmark. Sets module-level z_rbfc_tool_* mutable kindle state for
+# downstream step assembly. Idempotent — safe to call multiple times.
 #
 # Conclave Lode layout: each ref composes RBGC_LODE_TAG_SPRUE onto the bare
 # RBGC_RELIQUARY_TOOL_* seed to address its member tag on the one package — the
 # seeds stay inputs, the resolved ref a build consumes is always the :rbi_<tool> tag.
-zrbfc_resolve_tool_images() {
+#
+# Args: touchmark — a reliquary Lode touchmark (already validated non-empty by
+#       the caller, which supplies the caller-specific empty-reject message).
+zrbfc_resolve_tool_images_from() {
   zrbfc_sentinel
 
-  local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  test -n "${z_reliquary}" \
-    || buc_die "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
+  local -r z_reliquary="${1:?Reliquary touchmark required}"
 
   local -r z_lode_pkg="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_LODES_ROOT}/${z_reliquary}"
   z_rbfc_tool_gcloud="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCLOUD}"
@@ -48,6 +48,18 @@ zrbfc_resolve_tool_images() {
   z_rbfc_tool_binfmt="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_BINFMT}"
   z_rbfc_tool_gcrane="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCRANE}"
   buc_log_args "Tool images resolved from reliquary Lode: ${RBGL_LODES_ROOT}/${z_reliquary}"
+}
+
+# Internal: Resolve tool images from the loaded vessel's RBRV_RELIQUARY (the
+# made side and bole). Must be called after vessel load.
+zrbfc_resolve_tool_images() {
+  zrbfc_sentinel
+
+  local -r z_reliquary="${RBRV_RELIQUARY:-}"
+  test -n "${z_reliquary}" \
+    || buc_die "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
+
+  zrbfc_resolve_tool_images_from "${z_reliquary}"
 }
 
 # Internal: assemble about step scripts into JSON array file

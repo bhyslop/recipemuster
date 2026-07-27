@@ -10,7 +10,7 @@
 //! own convention (`jjtm_mcp.rs`'s `zjjtm_staleness_infield` doc: "reproduced
 //! here since it is test-module-private there").
 
-use super::jjrds_spine::JJRDS_PEDIGREES_REL_PATH;
+use super::jjrds_stile::JJRDS_PEDIGREES_REL_PATH;
 use super::jjrfg_plaingit::jjrfg_PlainGit;
 use super::jjrfr_farrier::{
     jjrfr_BilletBirth,

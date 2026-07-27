@@ -3,20 +3,20 @@ This is a normative operation sheaf of the {jjs0_imprimatur}: binding — code, 
 
 = Dispatch and Billet
 
-The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} — one
-shared {jjdd_spine}, the {jjdd_billet} a dispatched session runs in, the {jjdd_stile} that
+The operation family at JJ's shell edge: two doors — {jjdd_saddle} and {jjdd_lunge} —
+sharing one approach, the {jjdd_billet} a dispatched session runs in, the {jjdd_stile} that
 brackets the whole crossing and clears its own billet at exit, the {jjdd_muck} door for what
 a stile leaves standing, the {jjdd_refit} staleness remedy, and the {jjdd_cashier}.
 Everything here composes {jjdf_farrier} primitives and the {jjdb_journal};
 this sheaf owns no primitive of its own.
 
 *The doors are the sole entrance*: every JJ-dispatched session arrives
-through {jjdd_saddle} or {jjdd_lunge}, and the two share the one {jjdd_spine}.
+through {jjdd_saddle} or {jjdd_lunge}, and the two share the one approach.
 A bare hand-launched session carries no MCP registration and no JJ context — it is simply a
 non-JJ session, forever legitimate as such;
 no fallback paths until genuinely forced.
 The consequence is load-bearing, not cosmetic: the entrance must be pleasant very early —
-which is why the spine leads with no housekeeping at all: billet clearing rides the
+which is why the approach leads with no housekeeping at all: billet clearing rides the
 {jjdd_stile_p} exit, never its entrance.
 
 == The billet
@@ -81,7 +81,8 @@ constant, and every live branch in every sire.
 A kind is a *roster word*, never a namespace letter, so a future kind costs a word and
 nothing else:
 +
-* `jjls_pace/{coronet}` — LIVE. The pace's WIP carrier.
+* `jjls_pace/{coronet}` — LIVE. The pace's WIP carrier; the coronet segment rides
+  case-armored (the carriage law below).
   Named for the pace, not the mount: the branch outlives every mount of it.
 * `jjls_groom` — RESERVED, never populated.
   A groom billet is detached and carries nothing durable, so a branch under this word is a
@@ -95,20 +96,93 @@ A {jjdb_pedigree} may record a path prefix nesting the whole badge, but only whe
 owner demands one — never by default.
 The disengagement sweep is therefore `refs/heads/**/jjls_*`.
 +
-The body rides bare, no glyph: a git ref is a foreign-traversed surface, so the sigil stays
-behind ({jjdt_insignia} carriage law) and the badge is what the ref carries instead.
+The body rides glyphless — a git ref is a foreign-traversed surface, so the sigil stays
+behind ({jjdt_insignia} carriage law) — but never bare: a loose ref is a filename, and on a
+case-insensitive volume two bodies differing only in letter case fuse onto one ref file.
+The tail is therefore the body *case-armored*: a case marker rides ahead of each character —
+`u` for an uppercase letter, `l` for anything else — so coronet `CAABz` wears `uCuAuAuBlz`.
+The markers survive the case-fold the letters do not, so the armored form stays injective
+under folding and case-distinct coronets keep distinct refs on any filesystem;
+it is the same marker scheme the paddock filename wears (JJS0 `jjdhm_paddock`).
 Reading the badge is how a branch name resolves back to an identity — strip any prefix by
 finding the sprue-bearing segment, admit the roster word exactly, then length-type the tail
-as backstop.
+and disarm it: an armored tail, twice the bare body length, yields the bare body only when
+every marker agrees with its character's case.
+A bare-length tail also reads — the tolerance that keeps a standing unarmored billet branch
+legible — and that arm retires when the last such branch closes.
 Consumers *read* rather than compose wherever a pedigree is not already in hand, so a
 recorded prefix can never defeat a comparison.
 
-*Every dispatched session gets its own billet; trunk belongs to the operator alone.*
+*Every dispatched session gets its own billet; the trunk ref advances only through the wrap ceremony's converge, under the operator's wrap confirmation.*
+The {jjdw_hippodrome} is a lazy follower — its working tree pulls the sire's trunk at the operator's own cadence, and correctness never waits on that pull — while the trunk itself moves only when a wrap bequeaths a billet's estate onto it (wrap sheaf).
 Session isolation is structural, not disciplinary — even a "read-only" groom can run builds.
 Git itself enforces the split: a branch checked out in one worktree cannot be checked out in
 another — pace billets own unique branches and groom billets are detached, so the constraint
 never binds, and a billet mechanically cannot seat the trunk branch while the
 {jjdw_hippodrome} holds it.
+
+== Ground
+
+[[jjdd_ground]]
+{jjdd_ground}::
+Where a session stands, reduced from {jjdf_identify}'s two facts — seat and line of work — and
+nothing else.
+Distinct from the {jjdf_foreign_ground} the {jjdf_identify} contract already names: that is a
+tree no kind claims at all, the fair-faced decline at the {jjdf_palisade};
+a session that has reached a JJ verb stands on ground JJ does claim, and this taxonomy names
+which of four it is.
++
+--
+* *Hippodrome* — the primary seat: the operator's own clone, a {jjdw_hippodrome}.
+* *Pace billet* — a partition seat on a branch wearing the pace {jjdd_livery}
+  (`jjls_pace/{coronet}`): the one ground a mounted pace runs on.
+* *Groom billet* — a partition seat, detached at trunk tip: a {jjdd_lunge}'s assessment ground,
+  carrying nothing durable.
+* *Unboarded* — a partition seat on a branch wearing no pace livery: an operator's own
+  {jjdw_infield} worktree, or the reserved `jjls_groom` word a groom billet must never populate
+  — a ground nameable precisely because the badge parses (The billet, above).
+--
++
+The ground is never read from a dirname — a dirname is a label a reader steps over ({jjdw_yard}
+charter) — but from the seat and line of work {jjdf_identify} resolves; the ground is their
+reduction, and no verb re-derives it.
++
+*The ground guards.*
+Every verb declares a ground requirement, and the {jjdd_stile_p} dispatch door resolves the
+ground once and judges it once — ahead of every handler, so no command carries a ground rule of
+its own.
+Two buckets:
++
+--
+* *Own pace billet* — the mount ({jjdo_orient}), the notch ({jjdo_record}), and the wrap
+  ({jjdo_close}).
+  Each acts on a billet's own tree — a mount takes up the pace's tree, a notch commits work-repo
+  files, a wrap delivers the billet's estate to trunk — so off a pace billet each refuses
+  fair-faced and names its remedy: *saddle the pace from the shell* for a mount or wrap, *slate a
+  pace for this work, then saddle it* for a notch.
+  The billet must be the aim's own: a mount re-orienting the pace it already seats is legal
+  (re-orientation, not a remount), but a mount or wrap aimed at another pace refuses.
+  The notch alone admits a second aim — its parent heat's {jjdt_firemark} beside its own
+  {jjdt_coronet}, so heat-affiliated work commits from the pace's billet; the empty notch is
+  own-pace-billet like every other.
+* *Free* — every other verb.
+  The studbook reads and writes alike ({jjdo_show}, {jjdo_paddock}, {jjdo_log}, {jjdo_brief},
+  {jjdo_coronets}, {jjdo_enroll}, {jjdo_redocket}, {jjdo_curry}, and the rest) run from any
+  ground: grooming any heat from any billet is deliberately legal, because cross-heat reference
+  is how detail work happens, and these verbs touch the {jjdb_studbook}, never the work repo.
+--
++
+*The groom posture.*
+A groom billet is detached and ephemeral: work-repo edits have no durable home there, and the
+notch refuses them.
+So {jjdo_open} and every groom-ground read lead with that posture in one line, and the
+{jjdd_lunge}'s opening prompt carries the same sentence — discovery that warrants work becomes a
+slated pace, never a commit here.
+A groom billet that nonetheless holds a work-repo commit is a pace in denial, caught without a
+guard of its own: the notch ground gate refuses the commit at the moment of temptation, and any
+commit that reaches the tree by another route fails the {jjdd_stile_p} exit litmus and stands
+for {jjdd_muck}.
+The remedy is always the same — slate the work, then saddle it.
 
 == The doors
 
@@ -147,7 +221,7 @@ the launch takes the judgment constant (Session launch below).
 The door that dismisses a derelict lock-holder from service:
 `sight` every JJ {jjdb_blotter} lock, report the observed {jjdb_guidon_s}, then lease-guarded
 `pluck` per lock, never blind.
-Outside the {jjdd_spine} — no dispatch crosses it, and nothing composes it.
+Outside the {jjdd_stile_p} approach — no dispatch crosses it, and nothing composes it.
 The door cites the {jjdb_break} per lock and adds nothing to its mechanism (journal sheaf):
 what the door contributes is *deliberateness*, which is the door's property and never the
 sequence's.
@@ -200,69 +274,11 @@ That refusal text must NAME this door.
 A cure the sufferer cannot find is not a cure, and the refusal is the only moment the
 operator is guaranteed to be looking.
 
-== The entrance spine
-
-[[jjdd_spine]]
-{jjdd_spine}::
-The one shared sequence behind both doors — a door contributes only its target typing and
-its tier source, never its own spine:
-+
-. *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
-  a decline is the fair-faced {jjdf_foreign_ground} rejection.
-. *Pedigree lookup* — a {jjdb_studbook} read, no lock, one indirection:
-  derived key → sire → {jjdb_pedigree};
-  a key resolving no sire is the unrecorded-sire rejection, and a claiming
-  kind that contradicts the recorded kind is the record/ground-drift rejection
-  ({jjdf_identify} contract, farrier sheaf).
-. *Yard step* — rediscover the standing {jjdd_billet}, or record the birth and wear the
-  serial it allocates.
-  Rediscovery asks the kind's own partition registry where the pace's {jjdd_livery} branch
-  is seated, never the yard by name: a dirname is a label, so a search by name would answer
-  for the yard while the registry answers for the seat, and the kind's checkout exclusivity
-  is what pins at most one live pace billet per {jjdt_coronet}.
-  A groom billet seats no branch and so never rediscovers — concurrent grooms of one heat
-  are deliberately legal, told apart by their serials alone.
-  A birth is a {jjdb_studbook} WRITE (the dispatch record, blotter sheaf): online and
-  refusable under a held {jjdb_guidon}, the accepted cost of a durable birth timeline.
-  A dispatch that rediscovers is rejoining, not a birth, and records nothing.
-. *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
-  a groom billet in reuse re-detaches to trunk tip.
-  A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
-  each carrying its own remedy (farrier sheaf) — so the yard step never invents an anomaly
-  taxonomy of its own.
-  The three arms are read in one order, and the order is the whole of adopt-never-fork:
-  a line standing at home re-seats (`billet_seat`);
-  a line absent at home but standing abroad is another station's pushed work and is adopted
-  (`billet_adopt`), so one pace is one line of work across stations;
-  only a line standing nowhere is born (`billet_create`).
-  The abroad question is the one answer a fetch changes, so the ensure gleans just before
-  asking it and never earlier: the counterpart read is network-silent, and a stale no forks.
-. *`glean`* — the spine fetches and never merges;
-  staleness becomes known here so the open can report it, and {jjdd_refit} is the remedy.
-. *BURV export* — the per-billet env posture (BUK meld below).
-. *Provision* — JJ context and MCP registration, session-scoped (Launch-time provisioning
-  below).
-. *Launch* — start Claude Code inside the {jjdd_billet} with the engagement verb as opening
-  prompt, at the (tier, effort) the two-source choice yields (Session launch below).
-  The interior launch primitive is stirrup — hearting, pace-blind, parameterized (billet,
-  tier, opening prompt); pace-coupling lives in the caller, and later dispatch surfaces
-  reuse the same spine and primitive, never a parallel launcher.
-
-*Report precedes launch.*
-The door's report introduces the session it launches, so it reaches the operator's console
-BEFORE the Launch step hands over the terminal — the whole resolved report (billet, launch
-tier and effort, opening prompt, and any staleness notice), never trailing the session's exit.
-The console-handoff is the spine's last act for exactly this reason: a report emitted after it
-would land beneath the very session it was meant to precede.
-
-Mount absorbs cold start — billet ensure, glean, orient are the spine's work, and no
-separate cold-start engagement verb exists.
-
 == The stile
 
 [[jjdd_stile]]
 {jjdd_stile}::
-The application lifecycle as one bounded crossing: a door, the {jjdd_spine}, the launched
+The application lifecycle as one bounded crossing: a door, the approach below, the launched
 session, and the trailing step below — one process, entered at the shell and left at
 session exit.
 The word is literal: a stile is a structure for crossing a fence, and the crossing is the
@@ -275,6 +291,74 @@ anywhere: the destructor is the occupant's own parent, acting only after its chi
 exited.
 A future immediate-work crossing (pace-free, journal-born) is a stile kind, not a new noun;
 kinds cost a roster word, exactly as {jjdd_billet} kinds do.
++
+*The approach.*
+The crossing's opening segment — the one shared sequence behind both doors, where a door
+contributes only its target typing and its tier source, never its own approach:
++
+. *{jjdf_identify}* at the captured invocation path — the door captures cwd exactly once;
+  a decline is the fair-faced {jjdf_foreign_ground} rejection.
+. *Pedigree lookup* — a {jjdb_studbook} read, no lock, one indirection:
+  derived key → sire → {jjdb_pedigree};
+  a key resolving no sire is the unrecorded-sire rejection, and a claiming
+  kind that contradicts the recorded kind is the record/ground-drift rejection
+  ({jjdf_identify} contract, farrier sheaf).
+. *Yard step* — the yard gate, then the birth record.
+  At most one live pace billet per {jjdt_coronet}, and the gate is what enforces it: a saddle
+  whose pace ALREADY has a standing billet refuses HERE, before the birth record's journal
+  write and before any session spawn, rather than rejoining a live session's worktree or
+  minting a rival one past a missed seat.
+  The gate reads two keys, because a standing billet can evade either alone: the {jjdd_livery}-branch
+  SEAT the kind's own partition registry records (the authority for a billet on its own branch),
+  and the {jjdt_coronet}-labelled YARD entry (which catches a partition the seat-read misses —
+  a detached tip, a lost registration, a pre-livery bare-branch billet — its dirname wearing the
+  coronet whatever its HEAD points at).
+  Neither key is the yard-by-name mistake it might look like: a dirname is a label, so the seat
+  key asks the registry, not the name, and the yard key is only the second, independent read that
+  the seat-read alone would miss.
+  Either key answering yes is a standing billet: the refusal names the partition and the remedies —
+  work in that session, or {jjdd_muck} it (salvage-then-destroy).
+  Checkout exclusivity is NOT this enforcement: it guards only the narrow seat arm — a second
+  worktree add on an already-seated branch — never the dispatch, so without the gate a re-saddle
+  rejoins a live worktree (a second session into one billet) or, where the seat-read misses, mints
+  a rival past it.
+  A groom billet seats no branch and passes the gate untouched — concurrent grooms of one heat
+  are deliberately legal, told apart by their serials alone.
+  Only when both keys are silent is the pace clear: the birth is a {jjdb_studbook} WRITE (the
+  dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
+  cost of a durable birth timeline, and the fresh billet wears the serial it allocates.
+. *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
+  a groom billet in reuse re-detaches to trunk tip.
+  A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
+  each carrying its own remedy (farrier sheaf) — so the yard step never invents an anomaly
+  taxonomy of its own.
+  The three arms are read in one order, and the order is the whole of adopt-never-fork:
+  a line standing at home re-seats (`billet_seat`);
+  a line absent at home but standing abroad is another station's pushed work and is adopted
+  (`billet_adopt`), so one pace is one line of work across stations;
+  only a line standing nowhere is born (`billet_create`).
+  The abroad question is the one answer a fetch changes, so the ensure gleans just before
+  asking it and never earlier: the counterpart read is network-silent, and a stale no forks.
+. *`glean`* — the approach fetches and never merges;
+  staleness becomes known here so the open can report it, and {jjdd_refit} is the remedy.
+. *BURV export* — the per-billet env posture (BUK meld below).
+. *Provision* — JJ context and MCP registration, session-scoped (Launch-time provisioning
+  below).
+. *Launch* — start Claude Code inside the {jjdd_billet} with the engagement verb as opening
+  prompt, at the (tier, effort) the two-source choice yields (Session launch below).
+  The interior launch primitive is stirrup — hearting, pace-blind, parameterized (billet,
+  tier, opening prompt); pace-coupling lives in the caller, and later dispatch surfaces
+  reuse the same approach and primitive, never a parallel launcher.
++
+*Report precedes launch.*
+The door's report introduces the session it launches, so it reaches the operator's console
+BEFORE the Launch step hands over the terminal — the whole resolved report (billet, launch
+tier and effort, opening prompt, and any staleness notice), never trailing the session's exit.
+The console-handoff is the approach's last act for exactly this reason: a report emitted after it
+would land beneath the very session it was meant to precede.
++
+Mount absorbs cold start — billet ensure, glean, orient are the approach's work, and no
+separate cold-start engagement verb exists.
 +
 *The trailing step.*
 The stile's closing act, after the session returns and ahead of its own exit: run the exit
@@ -315,7 +399,7 @@ clears them with the billet's residue.
 Mucking out the stable by hand: the operator-directed destroy door for a named
 {jjdd_billet} the {jjdd_stile_p} trailing step left standing — dirty, stranded work
 aboard, or orphaned by a killed door.
-Operator-typed like the {jjdd_cashier}, outside the {jjdd_spine}: no dispatch crosses it,
+Operator-typed like the {jjdd_cashier}, outside the {jjdd_stile_p} approach: no dispatch crosses it,
 and nothing composes it.
 It is the constellation's one deliberate data-loss surface;
 everything else refuses loss by construction, and that division of labor is the design —
@@ -360,15 +444,21 @@ end.
 [[jjdd_refit]]
 {jjdd_refit}::
 The session-facing staleness remedy: when the ground moves, refit.
-No verb refuses on a stale trunk — staleness is drift, never corruption (the billet branch
-is additive and the {jjdb_studbook} advances under its own lock) — so {jjdo_open} leads its
-report with the staleness warning and names {jjdd_refit} as the remedy, and notch and wrap
-append the same recommendation whenever trunk has moved.
+Staleness is drift, never corruption — the billet branch is additive and the {jjdb_studbook}
+advances under its own lock — so no ordinary verb refuses on it: {jjdo_open} leads its report
+with the staleness warning and names {jjdd_refit} as the remedy, and every other command
+proceeds without a staleness word of its own.
+The lone exception is the wrap ceremony, whose entry gate refuses a wrap on a billet trailing
+the sire's trunk — an interdictum naming refit (wrap sheaf), because bequeathing an estate
+onto a trunk the billet has never enfolded would lose that trunk work.
+There refit is not a recommendation but the blocking remedy: the operator runs it, and the
+wrap re-attempts on a billet now holding trunk's tip and passes by construction.
 +
 Behavior: `enfold` trunk into the billet branch — merge, never rebase: journaled
-{jjdb_counterfoil_s} survive, and the branch's interior history dies at the operator's trunk
-merge anyway — then `consign` the merge immediately: the operation exists to clear staleness
-for every station and runs online by construction;
+{jjdb_counterfoil_s} survive, and the branch's interior history never reaches trunk anyway,
+since the wrap's converge squashes the estate onto trunk's tip (wrap sheaf) — then `consign`
+the merge immediately: the operation exists to clear staleness for every station and runs
+online by construction;
 offline degrades to warn-and-proceed.
 On conflict the attended session resolves as its first order of business — *attended* is the
 load-bearing property, not tier;
@@ -439,7 +529,7 @@ family already resolves to the {jjdw_infield} (peer placement load-bearing, cosm
 sheaf).
 The genuine hazard is concurrency, not geometry: shared per-dispatch output state
 (`../output-buk/current/`, `logs-buk/last.txt`).
-The {jjdd_spine} closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
+The {jjdd_stile_p} approach closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
 `BURV_TEMP_ROOT_DIR`, and `BURV_LOG_DIR` — absolute paths, the whoever-dispatches-owns-the-knob
 protocol; theurge needs no change (it sets BURV innermost, and innermost wins).
 Named behavior change: chain facts (`current/` → `previous/`) become *billet-scoped* — a
@@ -459,7 +549,7 @@ Nothing ever lands in a {jjdw_hippodrome}, and no gitignore is needed anywhere �
 == Launch-time provisioning
 
 {jjdw_hippodrome_s} carry no JJ inserts (cosmology sheaf), so MCP config, the verb table,
-and JJ context arrive *at session launch from the spine* — session-scoped config plus the
+and JJ context arrive *at session launch from the approach* — session-scoped config plus the
 opening prompt — never from repo-resident inserts;
 the project's own CLAUDE.md, whatever the vanilla project ships, still governs its code.
 
@@ -476,7 +566,7 @@ of silent ignorance.
 Selection is safe only when paired with discoverability.
 
 Per-scope discipline context arrives through the sire's {jjdl_tackle} bindings, read from
-the {jjdb_pedigree} at this point in the spine (tackle sheaf);
+the {jjdb_pedigree} at this point in the approach (tackle sheaf);
 the two repairs above are that sheaf's consumer obligations, stated there.
 Officium exchange (gazettes) relocates into the {jjdb_studbook} clone's untracked working
 area — a forward reference to its aspirant home (state-repo sheaf), landing with it.
@@ -497,7 +587,7 @@ The kit-core protocol texts pick this seam up at implementation.
 
 == Rejections
 
-The {jjdd_spine_p} refusals are fair-faced ashlar output, named per the farrier taxonomy
+The {jjdd_stile_p} approach refusals are fair-faced ashlar output, named per the farrier taxonomy
 where a primitive supplies them:
 foreign ground ({jjdf_identify} declines — no kind claims the tree),
 unrecorded sire (the claimed key resolves no sire),

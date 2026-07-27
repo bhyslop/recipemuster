@@ -39,7 +39,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_PAYOR,
     RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
     RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_ENGROSS, RBTDGC_BAND_EXPUNGE,
-    RBTDGC_BAND_PERUSE, RBTDGC_BAND_RUNWAY, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
+    RBTDGC_BAND_PERUSE, RBTDGC_BAND_RUNWAY, RBTDGC_BAND_UNSEISED, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
     RBTDGC_BREVET_POLITY,
     RBTDGC_CANVASS_FOEDUS,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
@@ -2241,6 +2241,51 @@ fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
 pub static RBTDRV_CASES_PARLEY: &[rbtdre_Case] = &[case!(rbtdrv_parley)];
 
 
+// The repo-regime field the vessel-less substrate captures elect their pinned
+// tool cohort from — poisoned empty to drive the at-use unseised reject.
+const RBTDRV_VAR_SUBSTRATE_RELIQUARY: &str = "RBRR_SUBSTRATE_RELIQUARY";
+
+/// Drive a vessel-less substrate capture verb with RBRR_SUBSTRATE_RELIQUARY forced
+/// empty (the regime-poison seam, set-empty form) and assert the at-use unseised
+/// reject fires band_unseised. Creditless by construction — the reject precedes
+/// authentication and the tool-image resolve, so no GAR round-trip occurs — but it
+/// rides the clean-tree gate ahead of it, so a dirty tree exits band_clean_tree
+/// instead; that is why these cases live beside the live-capture positives (picket
+/// tier, clean-tree precondition) rather than in reveille, whose one tweak slot
+/// belongs to the credless guard. Set-empty, not unset: an unset trips the buv
+/// enroll (band_enroll), never the at-use gate. The verb's required positional args
+/// must still be present — the reject fires after arg presence, before use.
+fn zrbtdrv_assert_unseised(
+    ctx: &mut rbtdri_Context,
+    dir: &Path,
+    colophon: &str,
+    args: &[&str],
+    label: &str,
+) -> rbtdre_Verdict {
+    let poison = format!("{}=", RBTDRV_VAR_SUBSTRATE_RELIQUARY);
+    let result = match rbtdri_invoke_global(
+        ctx,
+        colophon,
+        args,
+        &[
+            (RBTDRI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+            (RBTDRI_BURE_TWEAK_VALUE_KEY, &poison),
+        ],
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("{}: invocation: {}", label, e)),
+    };
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
+    if result.exit_code != RBTDGC_BAND_UNSEISED {
+        return rbtdre_Verdict::Fail(format!(
+            "{}: {} under empty RBRR_SUBSTRATE_RELIQUARY exited {} — expected band_unseised {}\nstdout:\n{}\n\nstderr:\n{}",
+            label, colophon, result.exit_code, RBTDGC_BAND_UNSEISED, result.stdout, result.stderr
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
 // Wsl-lifecycle fixture — fetched-side rootfs capture against live GAR. Single
 // self-contained round-trip: underpin a vendor-published Ubuntu rootfs into a
 // fresh rbi_ld Lode, divine-enumerate to confirm it appears, divine-inspect to
@@ -2248,8 +2293,10 @@ pub static RBTDRV_CASES_PARLEY: &[rbtdre_Case] = &[case!(rbtdrv_parley)];
 // Lode, then divine-enumerate to confirm the registry is restored. The wsl kind's
 // structural-outlier analogue of lode-lifecycle: its capture is curl + GPG-verify
 // + opaque-blob wrap, not a registry pull. Underpin takes the substrate version
-// as arguments (release point), so it needs no vessel precondition. Consumption
-// (wsl --import) is deferred — this stops at the registry, no host in the loop.
+// as arguments (release point), so it needs no vessel precondition — but it does
+// require a seised RBRR_SUBSTRATE_RELIQUARY, the pinned tool cohort its cloud
+// builders resolve from (an unseised election refuses at use, band_unseised).
+// Consumption (wsl --import) is deferred — this stops at the registry, no host in the loop.
 fn rbtdrv_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         // Step 1: underpin the pinned Ubuntu rootfs version into a fresh Lode.
@@ -2304,7 +2351,23 @@ fn rbtdrv_wsl_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_WSL_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_wsl_lifecycle)];
+// Wsl-unseised negative — underpin against an empty substrate-reliquary election
+// refuses at use with band_unseised, before any credential or network touch,
+// proving a vessel-less capture never silently floats on a mutable builder tag.
+fn rbtdrv_wsl_unseised(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        zrbtdrv_assert_unseised(
+            ctx,
+            dir,
+            RBTDGC_UNDERPIN_WSL,
+            &[RBTDRV_WSL_RELEASE, RBTDRV_WSL_POINT],
+            "wsl-unseised",
+        )
+    })
+}
+
+pub static RBTDRV_CASES_WSL_LIFECYCLE: &[rbtdre_Case] =
+    &[case!(rbtdrv_wsl_lifecycle), case!(rbtdrv_wsl_unseised)];
 
 
 // Podvm-lifecycle fixture — fetched-side podvm disk-leaf capture against live GAR. Single
@@ -2315,6 +2378,9 @@ pub static RBTDRV_CASES_WSL_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_wsl_lifec
 // image verb proving per-member delete, banish the whole Lode, then divine-enumerate to
 // confirm the registry is restored. Structural analogue of both reliquary-lifecycle
 // (multi-member cohort + member-jettison case) and wsl-lifecycle (opaque-blob capture).
+// Like underpin, immure is vessel-less but requires a seised RBRR_SUBSTRATE_RELIQUARY —
+// the pinned tool cohort its cloud builders resolve from (an unseised election refuses
+// at use, band_unseised).
 
 /// Podvm-wsl kind argument — family brand passed to immure.
 const RBTDRV_PODVM_FAMILY: &str = "podvm-wsl";
@@ -2478,7 +2544,23 @@ fn rbtdrv_podvm_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_PODVM_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_podvm_lifecycle)];
+// Podvm-unseised negative — immure against an empty substrate-reliquary election
+// refuses at use with band_unseised, before any credential or network touch,
+// proving a vessel-less capture never silently floats on a mutable builder tag.
+fn rbtdrv_podvm_unseised(dir: &Path) -> rbtdre_Verdict {
+    rbtdrc_with_ctx(|ctx| {
+        zrbtdrv_assert_unseised(
+            ctx,
+            dir,
+            RBTDGC_IMMURE_PODVM,
+            &[RBTDRV_PODVM_FAMILY, RBTDRV_PODVM_VERSION],
+            "podvm-unseised",
+        )
+    })
+}
+
+pub static RBTDRV_CASES_PODVM_LIFECYCLE: &[rbtdre_Case] =
+    &[case!(rbtdrv_podvm_lifecycle), case!(rbtdrv_podvm_unseised)];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched

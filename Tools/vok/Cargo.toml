@@ -16,6 +16,7 @@ jjk = []
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
+chrono = "0.4"
 serde_json = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 vof = { path = "vof" }

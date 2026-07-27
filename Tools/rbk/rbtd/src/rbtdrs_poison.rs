@@ -183,6 +183,15 @@ fn rbtdrs_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtdre_Verdict {
         RBTDGC_BAND_ENROLL, "rbrr-bad-runtime-prefix-too-long")
 }
 
+fn rbtdrs_rbrr_bad_substrate_reliquary(dir: &Path) -> rbtdre_Verdict {
+    // Legal-empty, so any non-empty value runs the zrbrr_enforce format check;
+    // a non-touchmark shape (not r + 12 digits) clears the buv enroll (≤14 chars)
+    // but fails the format regex → regime.
+    rbtdrs_poison(dir, RBTDGC_VALIDATE_REPO, &[],
+        "RBRR_SUBSTRATE_RELIQUARY=not-a-relic",
+        RBTDGC_BAND_REGIME, "rbrr-bad-substrate-reliquary")
+}
+
 // ── RBRD (depot) — verb rbw-rdv against the tracked rbrd.env ─
 
 fn rbtdrs_rbrd_missing_moniker(dir: &Path) -> rbtdre_Verdict {
@@ -396,6 +405,7 @@ pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
     case!(rbtdrs_rbrr_bad_runtime_prefix_uppercase),
     case!(rbtdrs_rbrr_bad_runtime_prefix_no_trailing_hyphen),
     case!(rbtdrs_rbrr_bad_runtime_prefix_too_long),
+    case!(rbtdrs_rbrr_bad_substrate_reliquary),
     case!(rbtdrs_rbrd_missing_moniker),
     case!(rbtdrs_rbrd_bad_moniker),
     case!(rbtdrs_rbrd_bad_cloud_prefix_uppercase),

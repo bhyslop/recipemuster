@@ -11,7 +11,9 @@
 //! Handlers return (i32, String) — exit code and accumulated output.
 //! The MCP layer converts this to CallToolResult (success/error).
 
+use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
+use futures::FutureExt;
 use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{ServerCapabilities, ServerInfo, CallToolResult, Content};
@@ -45,21 +47,21 @@ use crate::jjrt_types::{jjrg_SlateArgs, jjrg_PaceState, jjrg_Tier, jjrg_Effort, 
 use crate::jjrn_notch::{jjrn_format_heat_discussion, jjrn_format_heat_message, jjrn_HeatAction};
 use crate::jjrfr_farrier::{jjrfr_FarrierBillet, jjrfr_FarrierCore, jjrfr_FarrierLock, jjrfr_GleanOutcome, jjrfr_Rejection, jjrfr_Seat};
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
-use crate::jjrds_spine::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
+use crate::jjrds_stile::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
+use crate::jjrsj_sectional::{jjrsj_sectional_path, zjjrsj_step_open_at, zjjrsj_step_outcome_at, jjrsj_trace_arm, jjrsj_trace_disarm};
 
-/// The officia directory's fixed relative path — reused by the muck sweep's
-/// liveness join (`jjrdm_muck`), which resolves it against a billet root
-/// rather than the server's own working directory.
+/// The officia directory's fixed relative path, relative to the server's
+/// own working directory.
 pub const OFFICIA_DIR: &str = ".claude/jjm/officia";
 const HEARTBEAT_FILE: &str = "heartbeat";
 const GAZETTE_IN_FILE: &str = "gazette_in.md";
 const GAZETTE_OUT_FILE: &str = "gazette_out.md";
 const PROBE_DATE_FILE: &str = ".probe_date";
-/// The officium liveness/retention window — one constant, one rhyme, shared
-/// with the muck sweep's retention window (`jjrdm_muck`, JJSVD "Muck").
+/// The officium exsanguination window: how stale a heartbeat must be before
+/// `zjjrm_exsanguinate` reaps its officium directory.
 pub const JJRM_EXSANGUINATION_THRESHOLD_SECS: u64 = 7 * 24 * 3600;
 const OFFICIUM_SUN_PREFIX: char = crate::jjrf_favor::JJRF_INCIPIT_PREFIX; // ☉ — single-homed sigil
 const OFFICIUM_SUFFIX_LEN: usize = 4; // random discriminant chars appended to YYMMDD-NNNN
@@ -162,7 +164,7 @@ pub(crate) fn zjjrm_studbook_config() -> Result<jjdb_BlotterConfig, String> {
 }
 
 /// The testable seam branch — mirrors `jjrds_plan`'s `over_studbook` idiom
-/// (`jjrds_spine.rs`): a test drives `over_studbook` true against a fixture
+/// (`jjrds_stile.rs`): a test drives `over_studbook` true against a fixture
 /// studbook config while `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` itself stays
 /// false. Off: loads `path` exactly as every `jjx_*` command always has —
 /// byte-identical. On: ignores `path` and ref-reads the studbook's pinned tip
@@ -187,7 +189,7 @@ pub(crate) fn zjjrm_load_gallops_over(
 /// the `jjr*_*.rs` handler modules via `crate::jjrm_mcp::zjjrm_load_gallops`),
 /// the deliberately-excluded `jjrno_nominate` bootstrap aside (below).
 /// Honors `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED` (`jjrvb_blotter.rs`) — the
-/// same const the dispatch spine's `jjrds_plan` obeys via its own
+/// same const the approach's `jjrds_plan` obeys via its own
 /// `over_studbook` parameter, so one flip moves every reader. Off (the
 /// compiled default, mainline-inert): a direct pass-through to
 /// `zjjrm_load_gallops_over(false, ...)`, which is exactly the pre-seam
@@ -362,7 +364,7 @@ pub(crate) fn zjjrm_studbook_root() -> Result<PathBuf, String> {
 /// Command-surface gallops WRITE — every mutating `jjx_*` command's persist
 /// funnels through here (the write analogue of `zjjrm_load_gallops`). Honors
 /// `JJDB_GALLOPS_OVER_STUDBOOK_ENABLED`, the same const the read half and the
-/// dispatch spine obey, so one flip moves every writer. Off (compiled default,
+/// stile's approach obey, so one flip moves every writer. Off (compiled default,
 /// mainline-inert): mutate the session read and `jjri_persist` directly — the
 /// pre-seam path. On: derive the infield root fresh from `cwd` and the studbook
 /// config (as the read half does), compose the session's guidon from
@@ -478,6 +480,62 @@ fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, ErrorD
 /// Return deserialization error as MCP error result.
 fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, ErrorData> {
     Ok(CallToolResult::error(vec![Content::text(format!("jjx {}: invalid params: {}", cmd, e))]))
+}
+
+/// Recover the verbatim panic message from a caught unwind payload. A panic
+/// carries either a `&'static str` (a bare `panic!("literal")`) or a `String`
+/// (a formatted `panic!("{}", ..)`, an `unwrap`/`expect`); anything else is a
+/// foreign payload we can only name. No embellishment — the message is handed
+/// through as the failure identifies itself (RCG Specification Authority: error
+/// paths list the fact, they do not guess intent).
+fn zjjrm_panic_text(payload: Box<dyn std::any::Any + Send>) -> String {
+    if let Some(s) = payload.downcast_ref::<&'static str>() {
+        (*s).to_string()
+    } else if let Some(s) = payload.downcast_ref::<String>() {
+        s.clone()
+    } else {
+        "<non-string panic payload>".to_string()
+    }
+}
+
+/// The dispatch membrane: the single sectional-bracketed frame every jjx command
+/// is driven through. It opens the sectional step, drives the command future
+/// under `catch_unwind`, then closes the outcome line — whether the future
+/// returned or panicked.
+///
+/// Answer-always (JJS0 "MCP Transport"): `rmcp` spawns each request handler with
+/// no unwind guard and drops the join handle, so a panic that escapes here would
+/// kill the response task before it answers — the client waits forever on a
+/// healthy server. JJK's failure conduct panics by design (vedette exhaustion,
+/// unclassified git failure, nested lock acquire), so the guard is load-bearing,
+/// not defensive. A caught panic becomes an error verdict carrying the panic
+/// text verbatim: fail-loud is preserved as a verdict rather than discarded as a
+/// hang, and the sectional shows an `OUTCOME` line instead of a torn tail.
+///
+/// One membrane, every command — handlers never catch and never touch the
+/// sectional. `AssertUnwindSafe` is sound here because the membrane is terminal:
+/// a caught panic yields an error verdict and the `&mut Gallops` it may have left
+/// half-written is never reused (each call reloads from disk — the crash-safe
+/// invariant), so no observer sees a torn value.
+async fn zjjrm_drive_membrane<F>(
+    sectional: &Path,
+    cmd: &str,
+    fut: F,
+) -> Result<CallToolResult, ErrorData>
+where
+    F: std::future::Future<Output = Result<CallToolResult, ErrorData>>,
+{
+    zjjrsj_step_open_at(sectional, cmd);
+    let result = match AssertUnwindSafe(fut).catch_unwind().await {
+        Ok(r) => r,
+        Err(payload) => Ok(CallToolResult::error(vec![Content::text(format!(
+            "jjx {}: handler panicked: {}",
+            cmd,
+            zjjrm_panic_text(payload),
+        ))])),
+    };
+    zjjrsj_step_outcome_at(sectional, cmd, &result);
+    result
 }
 
 /// jjx_sift — spawn the standalone census (matricula) binary and relay its census.
@@ -1296,25 +1354,6 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
         }
     }
     (reaped, active)
-}
-
-/// Whether one officium directory carries a live heartbeat — the read-only
-/// predicate `zjjrm_exsanguinate` above applies destructively. Consumed by
-/// the muck sweep's liveness join (`jjrdm_muck`, JJSVD "Muck"): a billet with
-/// a live officium under it is never reaped, no platform process-probe
-/// needed. A missing or unreadable heartbeat is never live (matches
-/// `zjjrm_exsanguinate`'s own no-heartbeat skip); a clock-skewed future mtime
-/// reads as live rather than crying on ignorance.
-pub fn jjrm_officium_dir_is_live(officium_dir: &Path) -> bool {
-    let heartbeat = officium_dir.join(HEARTBEAT_FILE);
-    let mtime = match heartbeat.metadata().and_then(|m| m.modified()) {
-        Ok(t) => t,
-        Err(_) => return false,
-    };
-    match std::time::SystemTime::now().duration_since(mtime) {
-        Ok(age) => age.as_secs() <= JJRM_EXSANGUINATION_THRESHOLD_SECS,
-        Err(_) => true,
-    }
 }
 
 /// Short random discriminant for officium IDs: `len` lowercase-alphanumeric chars.
@@ -2213,18 +2252,6 @@ fn zjjrm_gazette_paths_block(
 /// delegates here for its legatio/pensum state (living inside the officium
 /// dir) rather than keeping its own duplicated `OFFICIA_DIR` const and join,
 /// so that state relocates in lockstep with gazettes when the seam flips.
-///
-/// A second, indirect dependent: `jjrdm_muck`'s liveness join
-/// (`zjjrdm_has_live_officium`) reads a billet's own `.claude/jjm/officia`,
-/// which was correct only while this constant was `false` — a dispatched
-/// session's officia live wherever the vvx process's cwd is (the billet
-/// root), a relationship this constant's flip to `true` severed by
-/// relocating every officium's exchange to `jjrm_studbook_exchange_dir`
-/// instead. The join was not re-cut at that flip (a durable per-officium
-/// billet marker is the natural carrier, since today's record captures
-/// only the seat's role, never which billet) — see `jjrdm_muck`'s module
-/// doc. That module is still not wired into the live dispatch spine, so
-/// nothing exercises the stale join.
 pub const JJRM_OFFICIUM_STUDBOOK_ENABLED: bool = true;
 
 /// The officium's fixed subdir within the studbook's local clone (JJSVS
@@ -2475,14 +2502,14 @@ pub(crate) fn zjjrm_open_staleness_notice<F: jjrfr_FarrierCore + jjrfr_FarrierBi
     let infield_root = zjjrm_infield_root(farrier, cwd)?;
     let derived_key = identity.upstream_key.as_deref()?;
     let studbook = crate::jjrvb_blotter::jjdb_studbook_config(&infield_root);
-    let pedigree = crate::jjrds_spine::jjrds_pedigree_lookup(
+    let pedigree = crate::jjrds_stile::jjrds_pedigree_lookup(
         &studbook,
         derived_key,
-        crate::jjrds_spine::JJRDS_KIND_PLAIN_GIT,
+        crate::jjrds_stile::JJRDS_KIND_PLAIN_GIT,
     )
     .ok()?;
     let _ = farrier.jjrfr_glean(&identity.root);
-    crate::jjrds_spine::jjrds_staleness_notice(farrier, &identity.root, &pedigree.trunk).ok()?
+    crate::jjrds_stile::jjrds_staleness_notice(farrier, &identity.root, &pedigree.trunk).ok()?
 }
 
 /// Handle jjx_open: create a new officium.
@@ -3228,7 +3255,19 @@ impl jjrm_McpServer {
             }
         }
 
-
+        // Sectional + answer-always membrane: every command is driven through
+        // zjjrm_drive_membrane, which opens the sectional step, catches a
+        // handler panic into an error verdict — so a fail-loud panic answers the
+        // client instead of stranding it (JJS0 "MCP Transport") — and closes the
+        // outcome line whether the future returned or panicked. The async block
+        // is that membrane's future, every command's own `return` exiting into
+        // it (closure semantics), so coverage is structural rather than
+        // per-ceremony. The trace arming beside it routes the farrier's
+        // git-child narration into the same file for the duration of this
+        // command, keeping the farrier officium-blind.
+        let jjrsj_sectional = jjrsj_sectional_path(officium_id);
+        jjrsj_trace_arm(jjrsj_sectional.clone());
+        let jjrsj_dispatch_result = zjjrm_drive_membrane(&jjrsj_sectional, cmd, async {
         match cmd {
             JJRM_CMD_NAME_RECORD => {
                 let p = deser!(jjrm_RecordParams);
@@ -3941,6 +3980,9 @@ impl jjrm_McpServer {
                 ))]))
             }
         }
+        }).await;
+        jjrsj_trace_disarm();
+        jjrsj_dispatch_result
     }
 
     /// vvx_tt — run a tt/*.sh tabtarget. Sibling to `jjx` on the vvx surface,
@@ -4004,6 +4046,66 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
+    }
+
+    /// A panicking handler must answer the client with an error verdict carrying
+    /// the panic text — never let the unwind escape (rmcp drops the join handle,
+    /// so an escaped panic is a permanent client hang). The sectional must close
+    /// with an OUTCOME line, not a torn tail. Answer-always: JJS0 "MCP Transport".
+    ///
+    /// The deliberate panic still prints to stderr via the default hook even
+    /// though it is caught here — that stderr line is fail-loud surviving, not a
+    /// test defect.
+    #[test]
+    fn panicking_handler_answers_as_error_not_torn_tail() {
+        let dir = scratch_officia("membrane_panic");
+        let sectional = dir.join("sectional.log");
+        let result = futures::executor::block_on(zjjrm_drive_membrane(
+            &sectional,
+            "jjx_record",
+            async { panic!("deliberate handler panic: {}", "vedette exhausted") },
+        ));
+
+        // Answered, never propagated — and the verdict is an error carrying the
+        // panic text verbatim.
+        let ctr = result.expect("membrane must answer, never let the panic escape");
+        assert_eq!(ctr.is_error, Some(true), "a caught panic is an error verdict");
+        let text = ctr
+            .content
+            .iter()
+            .filter_map(|c| c.as_text().map(|t| t.text.as_str()))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(text.contains("handler panicked"), "verdict names the panic: {}", text);
+        assert!(
+            text.contains("deliberate handler panic: vedette exhausted"),
+            "panic text carried verbatim: {}",
+            text
+        );
+
+        // The sectional closes with an error OUTCOME, not a torn tail:
+        // OPEN, then a RAW line carrying the panic text, then OUTCOME.
+        let body = std::fs::read_to_string(&sectional).unwrap();
+        let lines: Vec<&str> = body.lines().collect();
+        assert!(
+            lines.iter().any(|l| l.starts_with("OPEN ") && l.contains("cmd=jjx_record")),
+            "sectional opened the step: {:?}",
+            lines
+        );
+        assert!(
+            lines.iter().any(|l| l.starts_with("OUTCOME ")
+                && l.contains("cmd=jjx_record")
+                && l.contains("status=error")),
+            "sectional closes with an error outcome, not a torn tail: {:?}",
+            lines
+        );
+        assert!(
+            lines.iter().any(|l| l.starts_with("RAW ") && l.contains("deliberate handler panic")),
+            "panic text lands on the RAW line ahead of the verdict: {:?}",
+            lines
+        );
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

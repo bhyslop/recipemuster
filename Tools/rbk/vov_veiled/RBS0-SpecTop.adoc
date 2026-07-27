@@ -43,6 +43,7 @@
 :rbtr_director:              <<rbtr_director,Director Role>>
 :rbtr_director_s:            <<rbtr_director,Director Roles>>
 :rbtr_governor:              <<rbtr_governor,Governor Role>>
+:rbtr_governor_s:            <<rbtr_governor,Governor Roles>>
 :rbtr_marshal:               <<rbtr_marshal,Marshal Role>>
 :rbtr_mason:                 <<rbtr_mason,Mason Role>>
 :at_operator:                <<at_operator,Operator>>
@@ -133,6 +134,7 @@
 :rbtgo_director_yoke:             <<rbtgo_director_yoke,rbfl_yoke>>
 :rbtgo_director_feoff:            <<rbtgo_director_feoff,rbfl_feoff>>
 :rbtgo_director_anoint:           <<rbtgo_director_anoint,rbfl_anoint>>
+:rbtgo_director_seise:            <<rbtgo_director_seise,rbfl_seise>>
 :rbtgo_nameplate_drive:          <<rbtgo_nameplate_drive,rbrn_drive>>
 :rbtgo_image_delete:              <<rbtgo_image_delete,rbfl_jettison>>
 :rbtgo_image_audit:               <<rbtgo_image_audit,Image Audit>>
@@ -365,6 +367,8 @@
 :rbrr_gcb_timeout:           <<rbrr_gcb_timeout,RBRR_GCB_TIMEOUT>>
 :rbrr_gcb_min_concurrent_builds: <<rbrr_gcb_min_concurrent_builds,RBRR_GCB_MIN_CONCURRENT_BUILDS>>
 :rbrr_public_docs_url:       <<rbrr_public_docs_url,RBRR_PUBLIC_DOCS_URL>>
+:rbrr_substrate_reliquary:   <<rbrr_substrate_reliquary,RBRR_SUBSTRATE_RELIQUARY>>
+:rbrr_group_substrate_reliquary: <<rbrr_group_substrate_reliquary,Substrate Reliquary Group>>
 :rbrr_group_public_docs:     <<rbrr_group_public_docs,Public Docs Group>>
 :rbrr_runtime_prefix:        <<rbrr_runtime_prefix,RBRR_RUNTIME_PREFIX>>
 :rbrr_group_resource_prefixing: <<rbrr_group_resource_prefixing,Runtime Prefix Group>>
@@ -462,6 +466,7 @@
 :rbrv_vessel_mode_bind:      <<rbrv_vessel_mode_bind,bind>>
 :rbrv_vessel_mode_conjure:   <<rbrv_vessel_mode_conjure,conjure>>
 :rbrv_vessel_mode_graft:     <<rbrv_vessel_mode_graft,graft>>
+:rbrv_egress_mode:           <<rbrv_egress_mode,RBRV_EGRESS_MODE>>
 :rbrv_group_grafting:        <<rbrv_group_grafting,Grafting Group>>
 :rbrv_graft_image:           <<rbrv_graft_image,RBRV_GRAFT_IMAGE>>
 :rbrv_graft_optional_dockerfile: <<rbrv_graft_optional_dockerfile,RBRV_GRAFT_OPTIONAL_DOCKERFILE>>
@@ -1030,7 +1035,10 @@ A build that consumes a sealed reliquary MUST carry zero unpinned aspects: every
 Reliquary _generation_ — the conclave ceremony that captures the sealed cohort into one {rbtga_lode} — is the one and only phase permitted to pull unpinned upstream images, since the first tool must be bootstrapped from somewhere.
 +
 The boundary is staged on the reliquary itself: once a reliquary is sealed, everything downstream of it is pinned; everything that produces it may not yet be.
-The capture family obeys the same boundary as the made side — the capture image tool (`gcrane`) is a reliquary cohort member, so a sealed-reliquary capture (bole/wsl/podvm) resolves a pinned `gcrane`; only conclave, which builds the reliquary and therefore cannot resolve from it, rides the floating Google-hosted bootstrap builder.
+The capture family obeys the same boundary as the made side, splitting by how it names its reliquary.
+Bole is vessel-adjacent — it carries a per-vessel {rbrv_reliquary} — so it resolves the pinned cohort (its capture tool `gcrane` is a reliquary cohort member).
+The vessel-less substrate captures (wsl {rbtgo_lode_underpin}, podvm {rbtgo_lode_immure}) load no vessel, so they resolve the pinned cohort from the repo-elected {rbrr_substrate_reliquary} instead — every builder they ride (`gcrane`, `docker`, `gcloud`) is a content-pinned reliquary member, zero unpinned aspects.
+Only conclave, which builds the reliquary and therefore cannot resolve from it, rides the floating Google-hosted bootstrap builder — the sole remaining floating phase.
 +
 Rationale: a result that depends on whatever tag happened to be current at build time is a versioning failure, not a convenience — the same anti-ambient-state ethos as content-addressed anchors, the depot tripwire, and SLSA vouch.
 The narrow bootstrap exception is bounded, supervised, and re-runnable; it touches nothing a consumer relies on.
@@ -1041,6 +1049,7 @@ The durable supply-chain canon, the gcr.io-bootstrap-only provenance, and the pe
 RBr_p7c::
 Invariant a build upholds: a build consuming a sealed reliquary carries zero unpinned aspects — every tool and base image resolves content-pinned from the project reliquary.
 Reliquary generation — the conclave ceremony that produces the reliquary and therefore cannot resolve from it — is the one phase permitted to ride the floating Google-hosted bootstrap builder, since the first tool must bootstrap from somewhere; a reader must not pin that generation-phase pull.
+This holds across the whole capture family, not only the made side: the vessel-less substrate captures (wsl underpin, podvm immure) carry no per-vessel reliquary, but they resolve the pinned cohort from the repo-elected {rbrr_substrate_reliquary} rather than a mutable tag — so generation stays the SOLE floating phase, and a reader must not read a vessel-less capture as floating.
 A build that rides the floating bootstrap tier yet executes under sensitive authority is digest-pinned rather than left on a mutable tag: the Director-run delete bootstrap is the worked case — it consumes no reliquary (the delete of the last reliquary must still work) so cannot resolve a pinned tool, but the identity holding delete authority must never execute floating bytes, so its bootstrap is pinned to a reviewed digest.
 A reader must not relax such a bootstrap to a mutable tag — the asymmetry is the boundary, not an oversight.
 
@@ -1762,6 +1771,17 @@ on the graft branch of vessel configuration.
 
 //axvd_cartouche axd_normative
 include::RBSDA-director_anoint.adoc[]
+
+[[rbtgo_director_seise]]
+//axvo_method axd_transient axd_inlaid axd_grouped
+=== {rbtgo_director_seise}
+
+`rbfl_seise` —
+Seises the repo's substrate reliquary: resolves a reliquary {rbtga_lode} touchmark express-or-chain, then writes `RBRR_SUBSTRATE_RELIQUARY` into the one {rbrr_regime} file.
+Unlike {rbtgo_director_feoff}/{rbtgo_director_yoke}/{rbtgo_director_anoint}, which write per-vessel {rbrv_regime} fields, seise writes the single repo-scoped {rbrr_regime} field the vessel-less substrate captures ({rbtgo_lode_underpin}, {rbtgo_lode_immure}) resolve their build tools from — the {rbch_enchase} sibling for the substrate branch, on the same {rbf_fact_lode} touchmark chain conclave hands forward: conclave → seise → commit → capture.
+
+//axvd_cartouche axd_normative
+include::RBSDE-director_seise.adoc[]
 
 [[rbtgo_nameplate_drive]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -3323,7 +3343,7 @@ This is the sanctioned crossing of a transient chained value into durable, commi
 A broken resolve rejects with the named chaining band (`BUBC_band_chain`), never a bare nonzero.
 The chain is relayed-then-read: the verb forwards the baton before electing, so the fact stays live for a following chain verb or a retry (rivet RBr_3e7).
 It does not gate on a clean tree, and the tool never commits — the operator seals the durable effect with their own commit (rivet RBr_a52).
-Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, {rbtgo_director_anoint}, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and both the {rbrv_regime} and {rbrn_regime} families.
+Members are defined by this nature, not a fixed roster: {rbtgo_director_feoff}, {rbtgo_director_yoke}, {rbtgo_director_seise}, {rbtgo_director_anoint}, and {rbtgo_nameplate_drive} — spanning both the touchmark and hallmark chains and the {rbrv_regime}, {rbrr_regime}, and {rbrn_regime} families.
 
 [[rbch_palpate]]
 {rbch_palpate}::
@@ -4066,6 +4086,9 @@ A colophon whose operation holds no quoin stays inventory-only.
 {rbtgo_director_anoint} `rbw-rva`
 
 //axhfi_identifier
+{rbtgo_director_seise} `rbw-rrs`
+
+//axhfi_identifier
 {rbtgo_nameplate_drive} `rbw-nd`
 
 //axhfi_identifier
@@ -4436,8 +4459,27 @@ A
 {rbst_url} —
 public docs URL — readme target for buh_tlt glossary links, updated per-release or per-incorporation.
 
+[[rbrr_substrate_reliquary]]
+//axvr_variable axd_optional
+{rbrr_substrate_reliquary}::
+A
+{rbst_touchmark} —
+the reliquary {rbtga_lode} the vessel-less substrate captures ({rbtgo_lode_underpin}, {rbtgo_lode_immure}) resolve their build tools from.
+Unlike the made side and bole, which carry a per-vessel {rbrv_reliquary}, the substrate captures are vessel-less — they load no vessel — so the repo regime elects one reliquary for them here.
+Legal-empty until seised: the field validates blank so an installation that never runs a substrate capture need not elect one, and a substrate capture attempted against an empty election refuses at use time rather than floating on a mutable tag.
+Seised express-or-chain by {rbtgo_director_seise} after a reliquary {rbtgo_lode_conclave}, on the same uncommitted-write / operator-commit discipline as {rbtgo_director_feoff}.
+
 // RBRG variable definitions eliminated — reliquaries replace pin-based tool image management
 // Tool images (gcloud, docker, alpine, syft, binfmt, gcrane) now sourced from reliquary at ordain time
+
+[[rbrr_group_substrate_reliquary]]
+//axvr_group
+{rbrr_group_substrate_reliquary}::
+The repo-level election of the reliquary
+{rbtga_lode}
+the vessel-less substrate captures
+({rbtgo_lode_underpin}, {rbtgo_lode_immure})
+resolve their build tools from.
 
 [[rbrr_group_resource_prefixing]]
 //axvr_group
@@ -4970,6 +5012,13 @@ The name comes from botanical grafting — foreign material spliced onto rootsto
 The graft may take or may not; the metaphor fits the trust posture exactly.
 Serialized as `rbnve_graft` in bash regime variable value.
 
+[[rbrv_egress_mode]]
+//axvr_variable axd_required axt_enumeration
+{rbrv_egress_mode}::
+Selects which worker pool the primary build operation uses.
+Must be `tether` (public egress) or `airgap` (`NO_PUBLIC_EGRESS`).
+Capture operations always use tether; about and vouch always use airgap, regardless of this setting.
+
 [[rbrv_group_binding]]
 //axvr_group axd_conditional
 {rbrv_group_binding}::
@@ -5103,7 +5152,9 @@ through as the upstream tag (development path).
 {rbrv_group_reliquary}::
 Tool image reliquary binding for
 {rbrv_regime}.
-Applies to every vessel regardless of mode.
+Universal across the ordain path — conjure, bind, and graft alike, regardless of mode:
+the about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly in every mode,
+so the binding is never mode-conditional.
 
 [[rbrv_reliquary]]
 //axvr_variable axd_required

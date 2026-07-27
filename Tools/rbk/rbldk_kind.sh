@@ -25,7 +25,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection — this cluster is multiply-sourced (rbld0_lode for
-# the Lode verbs, rbfl0_ledger for yoke's reliquary kind gate), so it carries its
+# the Lode verbs, rbfl0_ledger for the yoke/feoff/seise kind gates), so it carries its
 # own guard (BCG "the single-guard rule, and its one exception"). rbld and rbfl are
 # never co-furnished, so the guard is the documented backstop, not a live fire.
 test -z "${ZRBLDK_SOURCED:-}" || buc_die "Module rbldk multiply sourced - check sourcing hierarchy"
@@ -46,8 +46,10 @@ ZRBLDK_SOURCED=1
 # needs a Lode's kind, on both the express path (a bare touchmark: operator input
 # or display) and the chained path (a touchmark handed forward through the depth-1
 # fact chain). The touchmark is the sole carrier of kind: its kind-letter prefix
-# decodes here, and the chain carries no separate kind-brand fact. The two
-# consumers are feoff (its bole gate) and yoke (its reliquary gate).
+# decodes here, and the chain carries no separate kind-brand fact. The consumers
+# are the three one-kind gates — feoff (its bole gate), yoke and seise (their
+# reliquary gates) — and augur (which accepts any known kind, inspecting every
+# Lode kind).
 #
 # _capture shape: stdout once or return 1; the caller guards with || buc_die.
 # Args: <touchmark>

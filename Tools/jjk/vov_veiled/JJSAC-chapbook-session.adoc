@@ -25,7 +25,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhca_actor axd_internal
 `jjcbs_dispatch`
-*The dispatch layer* — the shell-side {jjdd_spine} behind the {jjdd_saddle} and {jjdd_lunge} doors.
+*The dispatch layer* — the shell-side {jjdd_stile_p} approach behind the {jjdd_saddle} and {jjdd_lunge} doors.
 
 //axhca_actor axd_internal
 `jjcbs_engine`
@@ -67,7 +67,7 @@ Resolve engine and provisioned context from the {jjdw_infield} peer ring — lau
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_session`
-Launch Claude Code inside the {jjdd_billet}, context provisioned, the engagement verb as opening prompt, at the (tier, effort) the {jjdd_spine_p} two-source choice yields.
+Launch Claude Code inside the {jjdd_billet}, context provisioned, the engagement verb as opening prompt, at the (tier, effort) the {jjdd_stile_p} approach two-source choice yields.
 
 == Act II — The mounted work
 
@@ -75,7 +75,8 @@ Launch Claude Code inside the {jjdd_billet}, context provisioned, the engagement
 `jjcbs_session` `jjcbs_engine`
 {jjdo_open} —
 the officium opens; the engine identifies the billet from the filesystem alone ({jjdf_identify} — the same derivation dispatch ran: agreement by independent rediscovery, no env handoff) and reports trunk staleness loudly.
-On a stale trunk the open leads with the staleness warning and names {jjdd_refit} as the remedy; no verb refuses on staleness — drift, never corruption.
+On a stale trunk the open leads with the staleness warning and names {jjdd_refit} as the remedy; the open never refuses on staleness — drift, never corruption — though the wrap's entry gate does (Act III).
+(A groom-ground open leads instead with the ground posture — detached, ephemeral, notch-refusing, dispatch sheaf; this mounted pace stands on its own billet.)
 
 //axhci_interaction
 `jjcbs_session` `jjcbs_engine`
@@ -94,7 +95,7 @@ the notch, with an explicit file list.
 
 //axhci_interaction
 `jjcbs_engine` `jjcbs_hippodrome`
-Inside the notch: status, commit the explicit list on the billet branch, take the {jjdb_counterfoil}, push the branch — the work half of the {jjdb_journal}, durable-first.
+Inside the notch: status, commit the explicit list on the billet branch, take the {jjdb_counterfoil}, push the branch — the consign, gated on the pace {jjdd_livery} so heat and detached grounds never push — the work half of the {jjdb_journal}, durable-first.
 
 //axhci_interaction
 `jjcbs_engine` `jjcbs_studbook`
@@ -106,7 +107,14 @@ Durable-first is visible in the interaction order — the hippodrome commit of t
 //axhci_interaction
 `jjcbs_session` `jjcbs_engine`
 {jjdo_close} —
-the wrap: remaining work committed, the pace state mutates, and the same {jjdb_journal} bracket carries it into the studbook (the previous two interactions' shape, replayed).
+the wrap.
+Its entry gate reads the billet against the sire's trunk first: a billet trailing trunk refuses here, an interdictum naming {jjdd_refit}, and nothing downstream runs.
+Past the gate, remaining work is committed, the pace state mutates, and the same {jjdb_journal} bracket carries it into the studbook (the previous two interactions' shape, replayed).
+
+//axhci_interaction
+`jjcbs_engine` `jjcbs_hippodrome`
+The converge: behind the work commit, the wrap bequeaths the billet's whole tree to the sire's trunk as one commit parented on trunk's tip — no checkout anywhere — so delivery is the wrap's own act and no hand merge follows it.
+The {jjdb_journal} entry records the position produced as a second {jjdb_counterfoil} — the `Converge:` trailer, since a bequest leaves no ancestry a check could follow (wrap sheaf).
 
 //axhci_interaction
 `jjcbs_session` `jjcbs_operator`
@@ -120,10 +128,11 @@ The teardown actor is the stile — parent of the session it launched, standing 
 == Pending-citation register (the convergence gauge)
 
 The register reads *zero* — every flagged beat has hardened to a citation.
-Hardened: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf); the dispatch family — the doors, the {jjdd_spine}, the {jjdd_stile}, {jjdd_muck}, the {jjdd_billet} cast lane, {jjdd_refit}, and launch-time provisioning (the dispatch sheaf); the two parties — the operator and engine cast lanes ({jjdw_operator}, {jjdw_engine} — the cosmology sheaf's two-parties section).
+Hardened: hippodrome and infield ({jjdw_hippodrome}, {jjdw_infield} — the cosmology sheaf); the blotter cast lane and the journal-ceremony interactions ({jjdb_blotter}, {jjdb_journal} — the blotter and journal sheaves); the studbook cast lane and the counterfoil mentions ({jjdb_studbook}, {jjdb_counterfoil} — the studbook sheaf); the farrier interactions — billet-ensure, fetch-never-merge, and the identify at open ({jjdf_farrier}, {jjdf_billet}, {jjdf_core}, {jjdf_identify} — the farrier sheaf); the dispatch family — the doors, the {jjdd_stile} and its approach, {jjdd_muck}, the {jjdd_billet} cast lane, {jjdd_ground} and its guards, {jjdd_refit}, and launch-time provisioning (the dispatch sheaf); the wrap's entry gate and the converge to trunk (the wrap sheaf); the two parties — the operator and engine cast lanes ({jjdw_operator}, {jjdw_engine} — the cosmology sheaf's two-parties section).
 
 Deferred sibling tales, named so they are not smuggled into this one:
-the two-station lock contention tale, the stale-lock break tale, and the stale-trunk resync tale — unhappy paths belong to their own chapbooks.
+the two-station lock contention tale and the stale-lock break tale — unhappy paths belong to their own chapbooks.
+The stale-trunk resync tale is no longer among them: the wrap-entry gate and {jjdd_refit} render that beat inline (Act III), so it has hardened rather than deferred.
 
 == Sources (provenance, not authority)
 
