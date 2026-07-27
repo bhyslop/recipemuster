@@ -49,7 +49,7 @@ use crate::jjrds_stile::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
-use crate::jjrsj_sectional::{jjrsj_step_open, jjrsj_step_outcome};
+use crate::jjrsj_sectional::{jjrsj_sectional_path, jjrsj_step_open, jjrsj_step_outcome, jjrsj_trace_arm, jjrsj_trace_disarm};
 
 /// The officia directory's fixed relative path, relative to the server's
 /// own working directory.
@@ -3200,8 +3200,11 @@ impl jjrm_McpServer {
         // Sectional: step-open before dispatch, step-outcome after — the
         // async block is the driver membrane every command's own `return`
         // exits into (closure semantics), so coverage is structural rather
-        // than per-ceremony. See jjrsj_sectional.rs.
+        // than per-ceremony. See jjrsj_sectional.rs. The trace arming beside
+        // it routes the farrier's git-child narration into the same file for
+        // the duration of this command, keeping the farrier officium-blind.
         jjrsj_step_open(officium_id, cmd);
+        jjrsj_trace_arm(jjrsj_sectional_path(officium_id));
         let jjrsj_dispatch_result: Result<CallToolResult, ErrorData> = async {
         match cmd {
             JJRM_CMD_NAME_RECORD => {
@@ -3916,6 +3919,7 @@ impl jjrm_McpServer {
             }
         }
         }.await;
+        jjrsj_trace_disarm();
         jjrsj_step_outcome(officium_id, cmd, &jjrsj_dispatch_result);
         jjrsj_dispatch_result
     }

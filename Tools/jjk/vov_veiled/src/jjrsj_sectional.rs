@@ -14,9 +14,19 @@
 //! log — the studbook remains the record; no recovery logic may trust it.
 //! (Provenance: Memos/memo-20260724-github-ssh-flap-jjx-stall-phenomena.md,
 //! "The observability gap".)
+//!
+//! Beneath the command grain, the same file carries the git grain: while a
+//! command is in flight the dispatcher arms the trace sink here, and the
+//! farrier's git-execution boundary narrates every git child it spawns
+//! (GIT-OPEN/GIT-OUTCOME lines, composed in `jjrfg_plaingit`) between that
+//! command's OPEN and OUTCOME. A torn tail thereby names the exact child in
+//! flight — "hung inside this git op" versus "hung between steps" —
+//! which the 2026-07-26 refit wedge lacked
+//! (Provenance: Memos/memo-20260726-refit-wedge-incident.md).
 
 use std::io::Write;
 use std::path::PathBuf;
+use std::sync::Mutex;
 
 use rmcp::model::CallToolResult;
 use rmcp::ErrorData;
@@ -39,6 +49,38 @@ pub fn jjrsj_sectional_path(officium: &str) -> PathBuf {
 fn zjjrsj_append(path: &std::path::Path, line: &str) {
     if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(path) {
         let _ = writeln!(f, "{}", line);
+    }
+}
+
+/// The armed trace sink: the sectional path of the officium whose command is
+/// in flight. The dispatcher arms it at step-open and disarms it after the
+/// outcome, so anything narrated from the officium-blind depths (the farrier's
+/// git-child lines) lands between that command's OPEN and OUTCOME in the same
+/// file — one timeline, one torn tail. The server handles one command at a
+/// time (stdio MCP), so this is a plain slot; the Mutex is only Rust's
+/// spelling of a mutable static, not a concurrency design.
+static ZJJRSJ_TRACE_SINK: Mutex<Option<PathBuf>> = Mutex::new(None);
+
+/// Arm the trace sink at `path`. Overwrites any prior arming — a command that
+/// died before disarming (a panic mid-ceremony) is healed by the next arm.
+pub fn jjrsj_trace_arm(path: PathBuf) {
+    *ZJJRSJ_TRACE_SINK.lock().unwrap_or_else(|poisoned| poisoned.into_inner()) = Some(path);
+}
+
+/// Disarm the trace sink. Narration while disarmed is silently dropped —
+/// the sink is evidence, never authority, so absence of a sink is not an error.
+pub fn jjrsj_trace_disarm() {
+    *ZJJRSJ_TRACE_SINK.lock().unwrap_or_else(|poisoned| poisoned.into_inner()) = None;
+}
+
+/// Append one narration line to the armed sink, if any. The caller composes
+/// the whole line (the git-grain GIT-OPEN/GIT-OUTCOME grammar lives with its
+/// narrator in `jjrfg_plaingit`); this module owns only the sink and the
+/// best-effort append posture it shares with the step lines above.
+pub fn jjrsj_trace(line: &str) {
+    let sink = ZJJRSJ_TRACE_SINK.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    if let Some(path) = sink.as_ref() {
+        zjjrsj_append(path, line);
     }
 }
 
