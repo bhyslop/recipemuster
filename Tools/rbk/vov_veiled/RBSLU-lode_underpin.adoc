@@ -35,8 +35,8 @@ job on the tethered (egress-permitted) pool, executed by the
 {rbtr_mason}
 service account via the metadata server.
 The workstation assembles the URL but never fetches the rootfs bytes — and never
-performs the signature check, which is security-critical and so belongs in the
-trusted GCP environment, not on a potentially-compromised station.
+performs the security-critical signature check, which stays cloud-side per the
+trust rationale homed at {rbtga_lode}.
 
 NOTE: Underpin verifies against the vendor's published, GPG-signed checksum.
 The cloud step fetches the published `SHA256SUMS` and its detached signature,
