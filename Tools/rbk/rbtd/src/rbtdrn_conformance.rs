@@ -662,12 +662,25 @@ fn zrbtdrn_prefix_of(name: &str) -> &str {
     name.split('_').next().unwrap_or(name)
 }
 
+/// Sheaves whose mapping-declared quoins are pre-registered ahead of their
+/// defining prose — a foreign-kit drafting gap, never this heat's to close.
+/// Each entry names its removal condition; delete the entry once met.
+///
+/// - `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc`: the "Dispatch (tabtarget
+///   system)" mapping block (`vosdc_colophon`, `vosdf_frontispiece`,
+///   `vosdi_imprint`, `vosdm_formulary`, `vosdl_launcher`, and their `_s`
+///   variants) is declared with no anchor yet authored anywhere in the VOK
+///   kit. Remove this entry once VOS0 authors those definition sites.
+const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &["Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc"];
+
 /// Check 1 — citation integrity: every mapping-declared quoin and every
 /// `{term}`/`RBr_xxx` citation anywhere in the corpus resolves to a real
 /// `[[anchor]]` definition site. `all_files` covers both `.adoc` and `.sh`
 /// content (a rivet may be cited from either); braced-citation and mapping
 /// scanning apply only to the `.adoc` corpus, since `{term}` and `:term:` are
-/// AsciiDoc syntax.
+/// AsciiDoc syntax. `unanchored_exempt_paths` names sheaves whose pre-existing
+/// unanchored mapping entries are a recorded, out-of-scope drafting gap
+/// rather than a fresh violation.
 ///
 /// A `{term}` citation is judged only when `term`'s prefix is a *known quoin
 /// family* — some other mapping-declared name shares the same prefix
@@ -679,6 +692,7 @@ fn zrbtdrn_prefix_of(name: &str) -> &str {
 fn zrbtdrn_check_citations(
     adoc_files: &[(&str, &str)],
     all_files: &[(&str, &str)],
+    unanchored_exempt_paths: &[&str],
 ) -> Vec<zrbtdrn_OneHomeHit> {
     let mut anchors: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut mapping: std::collections::HashMap<String, String> = std::collections::HashMap::new();
@@ -702,6 +716,9 @@ fn zrbtdrn_check_citations(
     let mut hits = Vec::new();
 
     for (path, content) in adoc_files {
+        if unanchored_exempt_paths.contains(path) {
+            continue;
+        }
         for (idx, line) in content.lines().enumerate() {
             if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
                 if !anchors.contains(&target) {
@@ -766,16 +783,34 @@ const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 /// any other sheaf is the intended end-state, never a violation.
 const ZRBTDRN_CODEX_SHEAF: &str = "Tools/rbk/vov_veiled/RBS0-SpecTop.adoc";
 
+/// Sheaves whose role is a rivet *census/index* — pointing at where a rivet is
+/// homed ("Chapter: RBSCIP... the RBr_7a9 rivet is homed there"), never
+/// consuming its content as working vocabulary. MCM's hoist law guards
+/// against a sibling sheaf silently depending on another's interior; an index
+/// entry is the opposite — a directory pointer whose whole job is to name
+/// rivets without restating them. Hoisting on an index citation would drag
+/// every catalogued rivet into RBS0 and destroy the census function, so a
+/// sheaf named here is exempt as a *citer* (never as a definer).
+///
+/// - `RBSWB-Watchbill.adoc`: the indeterminacy-membrane census (`//axvd_sheaf
+///   axd_normative`; doctrine text: "the watchbill points at the chapters and
+///   never restates them"). Its citations of RBSCIP's `RBr_7a9`/`RBr_3f4`/
+///   `RBr_c81` are directory entries, not content consumption.
+const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["Tools/rbk/vov_veiled/RBSWB-Watchbill.adoc"];
+
 /// Check 2 — rivet-hoist placement (MCM `mcm_rivet`: a rivet hoists to the
 /// codex the moment a second sheaf cites it). A rivet anchored in one `.adoc`
 /// sheaf and cited by bare token from a *different* `.adoc` sheaf should have
 /// hoisted; `waivers` names the rivets whose deferral is recorded and
 /// conditioned rather than silently exempted. A rivet anchored in `codex`
-/// (RBS0) is exempt outright — that IS the hoisted state.
+/// (RBS0) is exempt outright — that IS the hoisted state. A citation FROM a
+/// sheaf in `index_sheaves` never counts — the citer's whole role is to point
+/// at content homed elsewhere, not to consume it.
 fn zrbtdrn_check_rivet_hoist(
     adoc_files: &[(&str, &str)],
     waivers: &[&str],
     codex: &str,
+    index_sheaves: &[&str],
 ) -> Vec<zrbtdrn_OneHomeHit> {
     let mut def_sheaf: std::collections::HashMap<String, &str> = std::collections::HashMap::new();
     for (path, content) in adoc_files {
@@ -790,6 +825,9 @@ fn zrbtdrn_check_rivet_hoist(
 
     let mut hits = Vec::new();
     for (path, content) in adoc_files {
+        if index_sheaves.contains(path) {
+            continue;
+        }
         for (idx, line) in content.lines().enumerate() {
             if zrbtdrn_parse_anchor(line).is_some() {
                 continue;
@@ -875,8 +913,8 @@ fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
     let sh_refs: Vec<(&str, &str)> =
         sh_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
 
-    let mut hits = zrbtdrn_check_citations(&adoc_refs, &all_refs);
-    hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF));
+    let mut hits = zrbtdrn_check_citations(&adoc_refs, &all_refs, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
+    hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES));
     hits.extend(zrbtdrn_check_a8_residue(&sh_refs));
 
     let report = zrbtdrn_onehome_render(&hits);
@@ -910,9 +948,13 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
          Cites the present one {rbk_present}, its variant {rbk_present_s}, and the broken one {rbk_missing}.\n\
          Also cites RBr_zzz which has no anchor.\n",
     );
-    let adoc = vec![a];
-    let all = vec![a];
-    let hits = zrbtdrn_check_citations(&adoc, &all);
+    let exempt = (
+        "Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc",
+        ":rbk_exempt:                  <<rbk_exempt,Exempt>>\n",
+    );
+    let adoc = vec![a, exempt];
+    let all = vec![a, exempt];
+    let hits = zrbtdrn_check_citations(&adoc, &all, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
     let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
     let mut got = kinds.clone();
@@ -932,7 +974,8 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
 /// Rivet-hoist placement: a rivet cited from its own defining sheaf clears; the
 /// same rivet cited from a second sheaf is flagged; a waived rivet cited
 /// cross-sheaf clears despite the waiver being live; a rivet anchored in the
-/// codex itself clears no matter how many sheaves cite it.
+/// codex itself clears no matter how many sheaves cite it; a rivet cited from
+/// a census/index sheaf clears regardless of home.
 fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
     let home = ("Tools/rbk/vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
     let sibling = ("Tools/rbk/vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
@@ -940,9 +983,10 @@ fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
     let waived_citer = ("Tools/rbk/vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
     let codex_home = (ZRBTDRN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
     let codex_citer = ("Tools/rbk/vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
-    let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer];
+    let index_citer = (ZRBTDRN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
+    let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer, index_citer];
 
-    let hits = zrbtdrn_check_rivet_hoist(&adoc, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF);
+    let hits = zrbtdrn_check_rivet_hoist(&adoc, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES);
     if hits.len() != 1 || hits[0].kind != "unhoisted-rivet" || !hits[0].detail.contains("RBr_a11") {
         return rbtdre_Verdict::Fail(format!(
             "expected exactly 1 unhoisted-rivet hit for RBr_a11 (RBr_m4d waived), got:\n{}",

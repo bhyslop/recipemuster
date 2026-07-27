@@ -43,6 +43,7 @@
 :rbtr_director:              <<rbtr_director,Director Role>>
 :rbtr_director_s:            <<rbtr_director,Director Roles>>
 :rbtr_governor:              <<rbtr_governor,Governor Role>>
+:rbtr_governor_s:            <<rbtr_governor,Governor Roles>>
 :rbtr_marshal:               <<rbtr_marshal,Marshal Role>>
 :rbtr_mason:                 <<rbtr_mason,Mason Role>>
 :at_operator:                <<at_operator,Operator>>
