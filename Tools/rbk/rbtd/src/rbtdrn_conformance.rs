@@ -629,9 +629,19 @@ fn zrbtdrn_parse_braced_citations(line: &str) -> Vec<String> {
     out
 }
 
-/// Every `RBr_xxx` token on `line`, via the shared identifier tokenizer.
+/// Every real `RBr_xxx` token on `line` — `RBr_` followed by the mint
+/// convention's exactly-3-char lowercase-alnum opaque tail (`RBr_a3f`,
+/// `RBr_m4d`, …). A bare `RBr_` with no tail is prose *describing* the naming
+/// convention itself (MCM/ACG doctrine text), never a real citation, so it is
+/// excluded by the length/shape requirement rather than by name.
 fn zrbtdrn_parse_rivet_tokens(line: &str) -> Vec<String> {
-    zrbtdrn_tokens(line).into_iter().filter(|t| t.starts_with("RBr_")).collect()
+    zrbtdrn_tokens(line)
+        .into_iter()
+        .filter(|t| match t.strip_prefix("RBr_") {
+            Some(tail) => tail.len() == 3 && tail.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()),
+            None => false,
+        })
+        .collect()
 }
 
 /// True when `token` has the shipped spec-acronym shape: `RBS` followed by one
@@ -645,12 +655,27 @@ fn zrbtdrn_is_spec_acronym(token: &str) -> bool {
     }
 }
 
+/// The prefix segment of a snake_case identifier — everything before the
+/// first underscore. Used to recognize a *known quoin family*: a prefix with
+/// at least one other mapping-declared member elsewhere in the corpus.
+fn zrbtdrn_prefix_of(name: &str) -> &str {
+    name.split('_').next().unwrap_or(name)
+}
+
 /// Check 1 — citation integrity: every mapping-declared quoin and every
 /// `{term}`/`RBr_xxx` citation anywhere in the corpus resolves to a real
 /// `[[anchor]]` definition site. `all_files` covers both `.adoc` and `.sh`
 /// content (a rivet may be cited from either); braced-citation and mapping
 /// scanning apply only to the `.adoc` corpus, since `{term}` and `:term:` are
 /// AsciiDoc syntax.
+///
+/// A `{term}` citation is judged only when `term`'s prefix is a *known quoin
+/// family* — some other mapping-declared name shares the same prefix
+/// elsewhere in the corpus. AsciiDoc's `{...}` syntax collides with incidental
+/// curly-brace prose (wire-format templates, shell-variable interpolation,
+/// example error strings); restricting to established families is the
+/// mechanical way to tell a real citation from that noise without parsing
+/// quote/code-span context.
 fn zrbtdrn_check_citations(
     adoc_files: &[(&str, &str)],
     all_files: &[(&str, &str)],
@@ -667,6 +692,12 @@ fn zrbtdrn_check_citations(
             }
         }
     }
+    let mut prefix_counts: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
+    for name in mapping.keys() {
+        *prefix_counts.entry(zrbtdrn_prefix_of(name)).or_insert(0) += 1;
+    }
+    let known_families: std::collections::HashSet<&str> =
+        prefix_counts.into_iter().filter(|(_, n)| *n > 0).map(|(p, _)| p).collect();
 
     let mut hits = Vec::new();
 
@@ -683,6 +714,9 @@ fn zrbtdrn_check_citations(
                 }
             }
             for term in zrbtdrn_parse_braced_citations(line) {
+                if !known_families.contains(zrbtdrn_prefix_of(&term)) {
+                    continue;
+                }
                 let resolves = mapping.get(&term).map_or(false, |target| anchors.contains(target));
                 if !resolves {
                     hits.push(zrbtdrn_OneHomeHit {
@@ -727,14 +761,21 @@ fn zrbtdrn_check_citations(
 ///   RBSPB-citizen_brevet.adoc to RBS0-SpecTop.adoc.
 const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 
+/// The codex sheaf itself — RBS0, the hoist target MCM's rivet law names. A
+/// rivet anchored here is definitionally already hoisted, so citing it from
+/// any other sheaf is the intended end-state, never a violation.
+const ZRBTDRN_CODEX_SHEAF: &str = "Tools/rbk/vov_veiled/RBS0-SpecTop.adoc";
+
 /// Check 2 — rivet-hoist placement (MCM `mcm_rivet`: a rivet hoists to the
 /// codex the moment a second sheaf cites it). A rivet anchored in one `.adoc`
 /// sheaf and cited by bare token from a *different* `.adoc` sheaf should have
 /// hoisted; `waivers` names the rivets whose deferral is recorded and
-/// conditioned rather than silently exempted.
+/// conditioned rather than silently exempted. A rivet anchored in `codex`
+/// (RBS0) is exempt outright — that IS the hoisted state.
 fn zrbtdrn_check_rivet_hoist(
     adoc_files: &[(&str, &str)],
     waivers: &[&str],
+    codex: &str,
 ) -> Vec<zrbtdrn_OneHomeHit> {
     let mut def_sheaf: std::collections::HashMap<String, &str> = std::collections::HashMap::new();
     for (path, content) in adoc_files {
@@ -758,7 +799,7 @@ fn zrbtdrn_check_rivet_hoist(
                     continue;
                 }
                 if let Some(&home) = def_sheaf.get(&id) {
-                    if home != *path {
+                    if home != *path && home != codex {
                         hits.push(zrbtdrn_OneHomeHit {
                             path: path.to_string(),
                             line: idx + 1,
@@ -835,7 +876,7 @@ fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
         sh_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
 
     let mut hits = zrbtdrn_check_citations(&adoc_refs, &all_refs);
-    hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS));
+    hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF));
     hits.extend(zrbtdrn_check_a8_residue(&sh_refs));
 
     let report = zrbtdrn_onehome_render(&hits);
@@ -890,15 +931,18 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
 
 /// Rivet-hoist placement: a rivet cited from its own defining sheaf clears; the
 /// same rivet cited from a second sheaf is flagged; a waived rivet cited
-/// cross-sheaf clears despite the waiver being live.
+/// cross-sheaf clears despite the waiver being live; a rivet anchored in the
+/// codex itself clears no matter how many sheaves cite it.
 fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
     let home = ("Tools/rbk/vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
     let sibling = ("Tools/rbk/vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
     let waived_home = ("Tools/rbk/vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
     let waived_citer = ("Tools/rbk/vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
-    let adoc = vec![home, sibling, waived_home, waived_citer];
+    let codex_home = (ZRBTDRN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
+    let codex_citer = ("Tools/rbk/vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
+    let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer];
 
-    let hits = zrbtdrn_check_rivet_hoist(&adoc, ZRBTDRN_HOIST_WAIVERS);
+    let hits = zrbtdrn_check_rivet_hoist(&adoc, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF);
     if hits.len() != 1 || hits[0].kind != "unhoisted-rivet" || !hits[0].detail.contains("RBr_a11") {
         return rbtdre_Verdict::Fail(format!(
             "expected exactly 1 unhoisted-rivet hit for RBr_a11 (RBr_m4d waived), got:\n{}",
