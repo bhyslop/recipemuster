@@ -11,10 +11,9 @@ using the Docker Registry HTTP API V2 implemented by
 `rbfl_jettison` is locator-generic: the same procedure backs
 {rbtga_ark}
 hallmark members
-and Lode members.
-The package path embedded in the
-{rbst_locator}
-selects the domain — the procedure itself does not branch.
+and Lode members,
+per the domain-blind property of the
+{rbst_locator}.
 
 NOTE: To delete an entire {rbtga_ark} (the full `{gar_hallmarks_namespace}/«HALLMARK»/` subtree — every basename including `image`, `about`, `vouch`, and any `pouch`/`diags`/`attest` tags present), use {rbtgo_ark_abjure} instead.
 
@@ -92,4 +91,4 @@ state immediately; it must stand.
 
 //axhoc_completion
 Procedure completes successfully when the tag has been jettisoned from the registry and the jettisoned message is displayed.
-The locator-generic shape means a hallmark member or a Lode member is deleted by the same call — domain identity lives in the locator's package path, not in branched logic.
+A hallmark member or a Lode member is deleted by the same call, per the domain-blind property of the {rbst_locator}.

@@ -253,7 +253,7 @@ def main():
         f.write(stamp + "\n")
 
     # Host-facing result (the capture-file carries the same envelope). One slot —
-    # immure produces exactly one Lode (the cohort is one package). The spine
+    # immure produces exactly one Lode (RBGC_LODE_TAG_SPRUE). The spine
     # extracts buildStepOutputs from THIS step (index 0); pin the extract slot to 0.
     result = {"rbls_slot_1": {"rbls_stamp": stamp, "rbls_vouch": envelope}}
     os.makedirs("/builder/outputs", exist_ok=True)

@@ -37,7 +37,7 @@ use crate::jjrfr_farrier::{
     jjrfr_Seat,
     jjrfr_SyncState,
 };
-use std::io::Write;
+use crate::jjrsj_sectional::jjrsj_trace;
 use std::path::{
     Path,
     PathBuf,
@@ -86,6 +86,7 @@ const ZJJRFG_OP_ENFOLD: &str = "enfold";
 const ZJJRFG_OP_BEQUEATH: &str = "bequeath";
 const ZJJRFG_OP_PRIMARY_ROOT: &str = "primary_root";
 
+#[derive(Debug)]
 pub(crate) struct zjjrfg_GitOutput {
     pub(crate) ok: bool,
     pub(crate) code: Option<i32>,
@@ -110,6 +111,81 @@ impl zjjrfg_GitOutput {
     }
 }
 
+// ---- Git-child narration, and the one local runner ----
+
+/// Cap on a narrated args rendering: enough to identify any op (the verb and
+/// its refs lead the line) while a chalk-sized commit message cannot bloat
+/// the evidence file.
+const ZJJRFG_TRACE_ARGS_CAP: usize = 300;
+
+/// Deadline on every LOCAL git child — the vedette's deadline law (JJr_9m4:
+/// a stall returns nothing to classify) extended to the local runner, whose
+/// ops answer in milliseconds. Generous by orders of magnitude so a cold
+/// cache or a big enfold merge never trips it. Expiry is a PANIC, never a
+/// synthesized failure: several callers legitimately read a non-zero exit as
+/// an answer (`rev-parse --verify --quiet` failing means "no such ref"), so
+/// an expiry disguised as git-said-no would become a wrong answer instead of
+/// a loud fault.
+const ZJJRFG_LOCAL_DEADLINE: std::time::Duration = std::time::Duration::from_secs(60);
+
+/// Render args for a narration line: git's Debug form (newlines inside a
+/// commit message stay escaped, holding the file's line grain), capped at
+/// `ZJJRFG_TRACE_ARGS_CAP` chars.
+fn zjjrfg_trace_render(args: &[&str]) -> String {
+    let full = format!("{:?}", args);
+    if full.chars().count() > ZJJRFG_TRACE_ARGS_CAP {
+        let mut capped: String = full.chars().take(ZJJRFG_TRACE_ARGS_CAP).collect();
+        capped.push('…');
+        capped
+    } else {
+        full
+    }
+}
+
+/// Narrate a git child's spawn — written BEFORE the spawn, so a wedged child
+/// leaves this line without a matching GIT-OUTCOME: the "hung inside this
+/// op" fingerprint, the git grain of the sectional's entry-without-exit law
+/// (jjrsj_sectional.rs). Which op is in flight is read off the args
+/// themselves — `fetch` is a glean, `merge` an enfold, `push` a consign —
+/// never a threaded op tag.
+fn zjjrfg_trace_open(rendered: &str) {
+    jjrsj_trace(&format!("GIT-OPEN {} git={}", chrono::Utc::now().to_rfc3339(), rendered));
+}
+
+/// Narrate a git child's end: elapsed milliseconds and a status word (`ok`,
+/// `exit-N`, `killed`, `expired`, `spawn-failed`). A vedette retry ladder
+/// reads as repeated OPEN/OUTCOME pairs with backoff gaps between their
+/// timestamps — retries visible as retries, never as silence.
+fn zjjrfg_trace_outcome(rendered: &str, started: std::time::Instant, status: &str) {
+    jjrsj_trace(&format!(
+        "GIT-OUTCOME {} ms={} status={} git={}",
+        chrono::Utc::now().to_rfc3339(),
+        started.elapsed().as_millis(),
+        status,
+        rendered
+    ));
+}
+
+/// The status word for a child that ran to completion.
+fn zjjrfg_trace_status(status: &std::process::ExitStatus) -> String {
+    match status.code() {
+        Some(0) => "ok".to_string(),
+        Some(code) => format!("exit-{}", code),
+        None => "killed".to_string(),
+    }
+}
+
+/// Fold a completed child's output into the driver's own shape — the one
+/// place the UTF-8 precondition is asserted.
+fn zjjrfg_output_to_git(output: std::process::Output) -> zjjrfg_GitOutput {
+    zjjrfg_GitOutput {
+        ok: output.status.success(),
+        code: output.status.code(),
+        stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
+        stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
+    }
+}
+
 /// Run `git -C root <args>`, capturing output. A spawn failure (binary missing) or
 /// non-UTF-8 output is an environment precondition violation, not a farrier
 /// rejection — it panics here rather than posing as a classified outcome. A
@@ -122,19 +198,54 @@ fn zjjrfg_run_git(root: &Path, args: &[&str]) -> zjjrfg_GitOutput {
 /// `zjjrfg_run_git` with extra child environment variables — the proffer path's
 /// temp-index composition (`GIT_INDEX_FILE`) is the sole consumer.
 fn zjjrfg_run_git_env(root: &Path, args: &[&str], envs: &[(&str, &std::ffi::OsStr)]) -> zjjrfg_GitOutput {
+    zjjrfg_run_git_local(root, args, envs, None, ZJJRFG_LOCAL_DEADLINE)
+}
+
+/// The one local runner every non-remote git child passes through: narrated
+/// (GIT-OPEN/GIT-OUTCOME) and deadline-bounded (`ZJJRFG_LOCAL_DEADLINE`; the
+/// explicit parameter is the deterministic test seam). Expiry kills the child
+/// and panics — see the deadline const for why it never synthesizes a failed
+/// output the way the remote runner does.
+pub(crate) fn zjjrfg_run_git_local(
+    root: &Path,
+    args: &[&str],
+    envs: &[(&str, &std::ffi::OsStr)],
+    stdin_data: Option<&str>,
+    deadline: std::time::Duration,
+) -> zjjrfg_GitOutput {
     let mut cmd = std::process::Command::new("git");
     cmd.arg("-C").arg(root).args(args);
     for (key, value) in envs {
         cmd.env(key, value);
     }
-    let output = cmd
-        .output()
-        .unwrap_or_else(|e| panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e));
-    zjjrfg_GitOutput {
-        ok: output.status.success(),
-        code: output.status.code(),
-        stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
-        stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
+    if stdin_data.is_none() {
+        // Match `Command::output()`'s posture: the child gets a closed stdin,
+        // never the server's own transport pipe.
+        cmd.stdin(Stdio::null());
+    }
+    let rendered = zjjrfg_trace_render(args);
+    zjjrfg_trace_open(&rendered);
+    let started = std::time::Instant::now();
+    match vvc::vvce_output_deadline(&mut cmd, stdin_data.map(|s| s.as_bytes().to_vec()), deadline) {
+        Err(e) => {
+            zjjrfg_trace_outcome(&rendered, started, "spawn-failed");
+            panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e)
+        }
+        Ok(Some(output)) => {
+            zjjrfg_trace_outcome(&rendered, started, &zjjrfg_trace_status(&output.status));
+            zjjrfg_output_to_git(output)
+        }
+        Ok(None) => {
+            zjjrfg_trace_outcome(&rendered, started, "expired");
+            panic!(
+                "plain-git local op exceeded its {}s deadline and was killed: git -C {} {:?}. \
+                 A local git op answers in milliseconds; a stall this long is an environment \
+                 fault, and the deadline turns it into this verdict instead of a silent hang.",
+                deadline.as_secs(),
+                root.display(),
+                args
+            )
+        }
     }
 }
 
@@ -144,33 +255,11 @@ fn zjjrfg_unexpected(op: &str, root: &Path, detail: &str) -> ! {
     panic!("plain-git {} hit an unclassified git failure at {}: {}", op, root.display(), detail.trim())
 }
 
-/// Run `git -C root <args>`, feeding `stdin_data` to the child's stdin. Spawn or
-/// pipe-write failure panics, matching `zjjrfg_run_git`'s precondition posture.
+/// Run `git -C root <args>`, feeding `stdin_data` to the child's stdin. Spawn
+/// failure panics, matching `zjjrfg_run_git`'s precondition posture; the pipe
+/// write rides the local runner's own stdin thread.
 fn zjjrfg_run_git_with_stdin(root: &Path, args: &[&str], stdin_data: &str) -> zjjrfg_GitOutput {
-    let mut child = std::process::Command::new("git")
-        .arg("-C")
-        .arg(root)
-        .args(args)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap_or_else(|e| panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e));
-    child
-        .stdin
-        .take()
-        .expect("piped stdin must be present on a freshly spawned child")
-        .write_all(stdin_data.as_bytes())
-        .unwrap_or_else(|e| panic!("git stdin write failed for -C {} {:?}: {}", root.display(), args, e));
-    let output = child
-        .wait_with_output()
-        .unwrap_or_else(|e| panic!("git wait failed for -C {} {:?}: {}", root.display(), args, e));
-    zjjrfg_GitOutput {
-        ok: output.status.success(),
-        code: output.status.code(),
-        stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
-        stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
-    }
+    zjjrfg_run_git_local(root, args, &[], Some(stdin_data), ZJJRFG_LOCAL_DEADLINE)
 }
 
 /// The one composer of a branch's remote-counterpart ref — trunk's, at every
@@ -392,20 +481,27 @@ pub(crate) fn zjjrfg_run_git_bounded(root: &Path, args: &[&str], deadline: std::
     let mut cmd = std::process::Command::new("git");
     cmd.arg("-C").arg(root).args(args);
     cmd.stdin(Stdio::null());
+    let rendered = zjjrfg_trace_render(args);
+    zjjrfg_trace_open(&rendered);
+    let started = std::time::Instant::now();
     match vvc::vvce_output_deadline(&mut cmd, None, deadline) {
-        Err(e) => panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e),
-        Ok(Some(output)) => zjjrfg_GitOutput {
-            ok: output.status.success(),
-            code: output.status.code(),
-            stdout: String::from_utf8(output.stdout).expect("git stdout must be UTF-8"),
-            stderr: String::from_utf8(output.stderr).expect("git stderr must be UTF-8"),
-        },
-        Ok(None) => zjjrfg_GitOutput {
-            ok: false,
-            code: None,
-            stdout: String::new(),
-            stderr: format!("{} after {}s for git {:?}", ZJJRFG_DEADLINE_TOKEN, deadline.as_secs(), args),
-        },
+        Err(e) => {
+            zjjrfg_trace_outcome(&rendered, started, "spawn-failed");
+            panic!("git spawn failed for -C {} {:?}: {}", root.display(), args, e)
+        }
+        Ok(Some(output)) => {
+            zjjrfg_trace_outcome(&rendered, started, &zjjrfg_trace_status(&output.status));
+            zjjrfg_output_to_git(output)
+        }
+        Ok(None) => {
+            zjjrfg_trace_outcome(&rendered, started, "expired");
+            zjjrfg_GitOutput {
+                ok: false,
+                code: None,
+                stdout: String::new(),
+                stderr: format!("{} after {}s for git {:?}", ZJJRFG_DEADLINE_TOKEN, deadline.as_secs(), args),
+            }
+        }
     }
 }
 
