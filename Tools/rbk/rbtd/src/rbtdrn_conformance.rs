@@ -575,9 +575,12 @@ fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
 }
 
 /// True when `line` is a mapping-section attribute declaration
-/// `:name:  <<name,Display Text>>` — the MCM quoin-registration line. Returns
-/// the declared name.
-fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<String> {
+/// `:name:  <<target,Display Text>>` — the MCM quoin-registration line.
+/// Returns `(name, target)`. A variant (`name` = `axo_entity_s`) points its
+/// `target` at the base quoin's anchor (`axo_entity`), never its own — MCM's
+/// `_s`/`_p`/`_ed`/`_ing` suffix mechanism, so `name` and `target` differ by
+/// design and only `target` need resolve to an anchor.
+fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
     let t = line.trim_start();
     let rest = t.strip_prefix(':')?;
     let colon = rest.find(':')?;
@@ -589,10 +592,12 @@ fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<String> {
         return None;
     }
     let tail = rest[colon + 1..].trim_start();
-    if tail.starts_with("<<") {
-        Some(name.to_string())
-    } else {
+    let target = tail.strip_prefix("<<")?;
+    let target = target.split(',').next().unwrap_or("").trim();
+    if target.is_empty() {
         None
+    } else {
+        Some((name.to_string(), target.to_string()))
     }
 }
 
@@ -651,10 +656,14 @@ fn zrbtdrn_check_citations(
     all_files: &[(&str, &str)],
 ) -> Vec<zrbtdrn_OneHomeHit> {
     let mut anchors: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut mapping: std::collections::HashMap<String, String> = std::collections::HashMap::new();
     for (_, content) in adoc_files {
         for line in content.lines() {
             if let Some(name) = zrbtdrn_parse_anchor(line) {
                 anchors.insert(name);
+            }
+            if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
+                mapping.insert(name, target);
             }
         }
     }
@@ -663,23 +672,24 @@ fn zrbtdrn_check_citations(
 
     for (path, content) in adoc_files {
         for (idx, line) in content.lines().enumerate() {
-            if let Some(name) = zrbtdrn_parse_quoin_mapping(line) {
-                if !anchors.contains(&name) {
+            if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
+                if !anchors.contains(&target) {
                     hits.push(zrbtdrn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "unanchored-quoin",
-                        detail: format!("mapping declares '{}' but no [[{}]] anchor exists", name, name),
+                        detail: format!("mapping declares '{}' -> <<{}>> but no [[{}]] anchor exists", name, target, target),
                     });
                 }
             }
             for term in zrbtdrn_parse_braced_citations(line) {
-                if !anchors.contains(&term) {
+                let resolves = mapping.get(&term).map_or(false, |target| anchors.contains(target));
+                if !resolves {
                     hits.push(zrbtdrn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "broken-quoin-citation",
-                        detail: format!("{{{}}} resolves to no [[{}]] anchor", term, term),
+                        detail: format!("{{{}}} resolves to no declared-and-anchored quoin", term),
                     });
                 }
             }
@@ -852,10 +862,11 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
     let a = (
         "Tools/rbk/vov_veiled/RBSAA-fake.adoc",
         ":rbk_present:                 <<rbk_present,Present>>\n\
+         :rbk_present_s:               <<rbk_present,Presents>>\n\
          :rbk_absent:                  <<rbk_absent,Absent>>\n\
          [[rbk_present]]\n\
          rbk_present:: defined here.\n\
-         Cites the present one {rbk_present} and the broken one {rbk_missing}.\n\
+         Cites the present one {rbk_present}, its variant {rbk_present_s}, and the broken one {rbk_missing}.\n\
          Also cites RBr_zzz which has no anchor.\n",
     );
     let adoc = vec![a];
