@@ -179,6 +179,7 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 - Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
 - Public project page: https://scaleinv.github.io/recipebottle
 
+@Tools/rbk/claude-rbk-core.md
 @Tools/rbk/claude-rbk-acronyms.md
 
 @Tools/rbk/vov_veiled/claude-rbk-veiled.md
