@@ -132,6 +132,7 @@ The payor is the only role requiring manual console work. Every other role signs
 @Tools/buk/claude-buk-core.md
 @Tools/buk/claude-buk-acronyms.md
 
+@Tools/rbk/claude-rbk-core.md
 @Tools/rbk/claude-rbk-acronyms.md
 
 @Tools/rbk/claude-rbk-conduct.md

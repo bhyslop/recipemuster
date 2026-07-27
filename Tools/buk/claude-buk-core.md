@@ -102,3 +102,19 @@ tt/rbw-tf.FixtureRun.sh tadmor
 # Wrong: never run fixtures concurrently
 tt/rbw-tf.FixtureRun.sh regime-validation & tt/rbw-tf.FixtureRun.sh tadmor &
 ```
+
+## Acronym Notes
+
+Annotations for the acronym homes indexed in `claude-buk-acronyms.md` — the per-row descriptions and family topology the index does not carry.
+
+- **BUC**  → `buk/buc_command.sh` (command utilities, buc_* functions)
+- **BUD**  → `buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
+- **BUG**  → `buk/bug_git.sh` (bash git utilities, bug_* functions — home of the "tools never commit, gate on a clean tree" gate `bug_require_clean_tree_creed`)
+- **BUH**  → `buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
+- **BUT**  → `buk/but_test.sh` (test utilities, but_* functions)
+- **BUYM** → `buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
+- **BUV**  → `buk/buv_validation.sh` (validation utilities, buv_* functions)
+- **BUW**  → `buk/buw_workbench.sh` (workbench utilities, buw_* functions)
+- **BUTT** → `buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
+- **BURC** → `buk/burc_cli.sh`, `buk/burc_regime.sh` (regime configuration)
+- **BURS** → `buk/burs_cli.sh`, `buk/burs_regime.sh` (regime station)
