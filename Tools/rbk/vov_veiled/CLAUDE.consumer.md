@@ -130,6 +130,7 @@ The payor is the only role requiring manual console work. Every other role signs
 - **Mantle tokens**: minted per call from a live sitting and never written to disk as durable credentials. Lose your sitting and you re-avow; there is nothing to restore.
 
 @Tools/buk/claude-buk-core.md
+@Tools/buk/claude-buk-acronyms.md
 
 @Tools/rbk/claude-rbk-acronyms.md
 

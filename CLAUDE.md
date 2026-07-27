@@ -9,9 +9,10 @@ Full read and edit access is pre-approved for all files in:
 
 Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
 - RBK: `@Tools/rbk/claude-rbk-acronyms.md`
-- BUK: `@Tools/buk/claude-buk-core.md`
-- CMK: `@Tools/cmk/claude-cmk-core.md`
-- VOK: `@Tools/vok/claude-vok-context.md`
+- BUK: `@Tools/buk/claude-buk-acronyms.md`
+- CMK: `@Tools/cmk/claude-cmk-acronyms.md`
+- VOK: `@Tools/vok/claude-vok-acronyms.md`
+- APCK: `@Tools/apck/claude-apck-acronyms.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
 ## Retired Memos
@@ -158,15 +159,19 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
      launch-time load (kits ship more claude-*.md than belong here; on-demand
      files stay out). Edit content in the @-targets, not here. -->
 @Tools/buk/claude-buk-core.md
+@Tools/buk/claude-buk-acronyms.md
 @Tools/cmk/claude-cmk-core.md
+@Tools/cmk/claude-cmk-acronyms.md
 @Tools/cmk/claude-cmk-minting.md
 @Tools/jjk/claude-jjk-core.md
 @Tools/vvk/claude-vvk-core.md
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/buk/vov_veiled/claude-buk-veiled.md
+@Tools/buk/vov_veiled/claude-buk-veiled-acronyms.md
 
 @Tools/vok/claude-vok-context.md
+@Tools/vok/claude-vok-acronyms.md
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
@@ -177,6 +182,7 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/rbk/claude-rbk-acronyms.md
 
 @Tools/rbk/vov_veiled/claude-rbk-veiled.md
+@Tools/rbk/vov_veiled/claude-rbk-veiled-acronyms.md
 
 @Tools/rbk/claude-rbk-conduct.md
 
@@ -185,3 +191,4 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 For theurge/ifrit crucible testing work, read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
 
 @Tools/apck/claude-apck-context.md
+@Tools/apck/claude-apck-acronyms.md
