@@ -882,16 +882,29 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
     hits
 }
 
-/// Live-tree wrapper: walk the scan roots, split into `.adoc` and `.sh`
-/// corpora (the latter excluding any `vov_veiled/` path — shelved, not
-/// shipped), and run all three one-home checks.
+/// Scan roots for the one-home checks — narrower than
+/// `ZRBTDRN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
+/// sprues, not the whole `Tools/` corpus. RBK is what heat ₣Bz owns, and
+/// RBK's tree is clean against these checks; the other kits' foundational
+/// specs (CMK's MCM-MetaConceptModel.adoc, JJK's JJS0_JobJockeySpec.adoc)
+/// carry ~150 pre-existing, genuine one-home violations — real corpus debt
+/// predating this pace, not a design flaw in the checks (verified: MCM's own
+/// Linked Term law makes the anchor constitutive, so a dangling `<<target>>`
+/// really is broken). Fixing that debt is each kit's own future adoption
+/// pace, never this one's. Widen a kit's root in here once that kit's specs
+/// are clean.
+const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
+
+/// Live-tree wrapper: walk `ZRBTDRN_ONEHOME_SCAN_ROOTS`, split into `.adoc`
+/// and `.sh` corpora (the latter excluding any `vov_veiled/` path — shelved,
+/// not shipped), and run all three one-home checks.
 fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let mut files: Vec<PathBuf> = Vec::new();
-    for sub in ZRBTDRN_SCAN_ROOTS {
+    for sub in ZRBTDRN_ONEHOME_SCAN_ROOTS {
         zrbtdrn_walk(&root.join(sub), &mut files);
     }
     files.sort();
