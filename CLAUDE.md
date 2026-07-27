@@ -153,16 +153,15 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 
 @Tools/cmk/claude-cmk-roe.md
 
-<!-- Distributable-kit guidance: managed @-include block (mirrors what consumer
-     repos receive via vvx_emplace). Edit content in the @-targets, not here;
-     `tt/vow-F.Freshen.sh` regenerates this block from the kit registry. -->
-<!-- MANAGED:VVK-INCLUDES:BEGIN -->
+<!-- Distributable-kit guidance: hand-maintained @-include block, and the
+     curation record for it — each line is a kit guidance file curated for
+     launch-time load (kits ship more claude-*.md than belong here; on-demand
+     files stay out). Edit content in the @-targets, not here. -->
 @Tools/buk/claude-buk-core.md
 @Tools/cmk/claude-cmk-core.md
 @Tools/cmk/claude-cmk-minting.md
 @Tools/jjk/claude-jjk-core.md
 @Tools/vvk/claude-vvk-core.md
-<!-- MANAGED:VVK-INCLUDES:END -->
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/buk/vov_veiled/claude-buk-veiled.md

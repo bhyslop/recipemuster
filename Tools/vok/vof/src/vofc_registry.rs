@@ -169,15 +169,6 @@ pub const ALL_CIPHERS: &[vofc_Cipher] = &[
 // Typed kit declarations for distribution. Field names align with VOS entity
 // members (vosem_kit_id, vosem_display_name).
 
-/// Single CLAUDE.md managed-region tag for the consolidated @-include block.
-///
-/// The target repo's CLAUDE.md carries exactly one
-/// `<!-- MANAGED:{tag}:BEGIN -->` / `:END` region whose body is the set of
-/// `@`-include lines for installed kits' public guidance files. The guidance
-/// content lives in the `@`-targets, never inline — so the region cannot go
-/// stale. Replaces the former per-kit inline-template mechanism.
-pub const VOFC_INCLUDE_REGION_TAG: &str = "VVK-INCLUDES";
-
 /// A distributable kit with typed cipher reference.
 /// Kit identifier derived from cipher via cipher.kit_id().
 #[derive(Debug, Clone, Copy)]
@@ -186,11 +177,6 @@ pub struct vofc_Kit {
     pub cipher: &'static vofc_Cipher,
     /// Human-readable name. See vosem_display_name.
     pub display_name: &'static str,
-    /// Public Claude guidance files (claude-{kit}-*.md), relative to the kit
-    /// directory. Shipped via normal collection and `@`-included by the
-    /// target's CLAUDE.md. Veiled per-owner files (claude-{kit}-{owner}.md)
-    /// are NOT listed here — they never distribute.
-    pub claude_includes: &'static [&'static str],
 }
 
 /// Asset routing rule for kit installation.
@@ -206,27 +192,23 @@ pub struct vofc_AssetRoute {
 }
 
 /// Kits included in VVK distribution.
-/// Order matters: kits are installed in this order, affecting CLAUDE.md section ordering.
+/// Order matters: kits are installed in this order.
 pub const DISTRIBUTABLE_KITS: &[vofc_Kit] = &[
     vofc_Kit {
         cipher: &BU,
         display_name: "Bash Utilities",
-        claude_includes: &["claude-buk-core.md"],
     },
     vofc_Kit {
         cipher: &CM,
         display_name: "Concept Model",
-        claude_includes: &["claude-cmk-core.md", "claude-cmk-minting.md"],
     },
     vofc_Kit {
         cipher: &JJ,
         display_name: "Job Jockey",
-        claude_includes: &["claude-jjk-core.md"],
     },
     vofc_Kit {
         cipher: &VV,
         display_name: "Voce Viva",
-        claude_includes: &["claude-vvk-core.md"],
     },
 ];
 

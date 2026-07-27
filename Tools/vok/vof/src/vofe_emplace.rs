@@ -16,17 +16,18 @@
 //! 5. Delete .vvk/ and kit directories (nuclear cleanup)
 //! 6. Create .vvk/, copy brand file
 //! 7. Copy kit directories, route commands/hooks
-//! 8. Freshen CLAUDE.md with kit sections
-//! 9. Commit installation
+//! 8. Commit installation
+//!
+//! CLAUDE.md is never touched: the target repo hand-maintains its own
+//! `@`-include lines for kit guidance files.
 //!
 //! Vacate behavior (removes Claude integration, preserves kit scripts):
 //! 1. Parse burc.env, verify git clean
 //! 2. Read brand file from .vvk/ to get kit list
 //! 3. Remove commands and hooks from .claude/
-//! 4. Collapse CLAUDE.md sections to UNINSTALLED markers
-//! 5. Delete vvx binary from Tools/vvk/bin/
-//! 6. Delete brand file and .vvk/
-//! 7. Commit uninstallation
+//! 4. Delete vvx binary from Tools/vvk/bin/
+//! 5. Delete brand file and .vvk/
+//! 6. Commit uninstallation
 //!
 //! Note: Kit directories (buk/, jjk/, etc.) are intentionally preserved.
 //! They contain open-source utilities usable outside Claude Code.
@@ -36,8 +37,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use crate::voff_freshen::{voff_freshen, voff_collapse, voff_remove_regions, voff_ManagedSection, voff_FreshenResult};
-use crate::vofc_registry::{DISTRIBUTABLE_KITS, VOFC_INCLUDE_REGION_TAG, VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
+use crate::vofc_registry::{VOFC_COMMAND_SIGNET_SUFFIX, VOFC_HOOK_SIGNET_SUFFIX};
 
 // RCG output discipline: all emission via vvc::vvco_Output — no direct println!/eprintln!
 use vvc::{vvco_Output, vvco_err};
@@ -153,8 +153,6 @@ pub struct vofe_EmplaceResult {
     pub commands_routed: u32,
     /// Hooks routed to .claude/hooks/
     pub hooks_routed: u32,
-    /// CLAUDE.md sections updated
-    pub claude_sections_updated: Vec<String>,
 }
 
 /// Parsed BURC environment.
@@ -186,8 +184,6 @@ pub struct vofe_VacateResult {
     pub commands_removed: u32,
     /// Hooks removed from .claude/hooks/
     pub hooks_removed: u32,
-    /// CLAUDE.md sections collapsed
-    pub claude_sections_collapsed: Vec<String>,
 }
 
 // =============================================================================
@@ -283,13 +279,7 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
     commands_routed += parcel_cmds;
     hooks_routed += parcel_hks;
 
-    // 8. Freshen CLAUDE.md: sweep any legacy per-kit inline blocks (migration)
-    //    and upsert the single consolidated @-include region.
-    let claude_path = burc.project_root.join("CLAUDE.md");
-    zvofe_freshen_claude(&claude_path, &burc, &kit_ids)?;
-    let section_tags = vec![VOFC_INCLUDE_REGION_TAG.to_string()];
-
-    // 9. Commit installation
+    // 8. Commit installation
     let commit_msg = format!("VVK install: brand {}", brand);
     zvofe_git_commit(&burc.project_root, &commit_msg)?;
 
@@ -299,7 +289,6 @@ pub fn vofe_emplace(args: &vofe_EmplaceArgs) -> Result<vofe_EmplaceResult, Strin
         files_copied: total_files,
         commands_routed,
         hooks_routed,
-        claude_sections_updated: section_tags,
     })
 }
 
@@ -349,13 +338,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         }
     }
 
-    // 5. Collapse CLAUDE.md: sweep legacy per-kit blocks, collapse the single
-    //    @-include region to an UNINSTALLED breadcrumb.
-    let claude_path = burc.project_root.join("CLAUDE.md");
-    zvofe_collapse_claude(&claude_path)?;
-    let section_tags = vec![VOFC_INCLUDE_REGION_TAG.to_string()];
-
-    // 6. Delete vvx binary from Tools/vvk/bin/
+    // 5. Delete vvx binary from Tools/vvk/bin/
     // Kit directories are intentionally preserved (open-source utilities)
     let vvk_bin_dir = burc.tools_dir.join("vvk").join("bin");
     if vvk_bin_dir.exists() {
@@ -377,7 +360,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         }
     }
 
-    // 7. Delete brand file and .vvk/
+    // 6. Delete brand file and .vvk/
     fs::remove_file(&brand_path)
         .map_err(|e| format!("Failed to remove brand file: {}", e))?;
 
@@ -387,7 +370,7 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         let _ = fs::remove_dir(&vvk_dir);
     }
 
-    // 8. Commit uninstallation
+    // 7. Commit uninstallation
     zvofe_git_commit(&burc.project_root, "VVK uninstall")?;
 
     Ok(vofe_VacateResult {
@@ -395,51 +378,6 @@ pub fn vofe_vacate(args: &vofe_VacateArgs) -> Result<vofe_VacateResult, String> 
         files_deleted: total_files,
         commands_removed,
         hooks_removed,
-        claude_sections_collapsed: section_tags,
-    })
-}
-
-/// Result of forge freshen operation.
-#[derive(Debug)]
-pub struct vofe_FreshenResult {
-    /// CLAUDE.md sections updated (replaced existing markers)
-    pub updated: Vec<String>,
-    /// CLAUDE.md sections expanded (from UNINSTALLED markers)
-    pub expanded: Vec<String>,
-    /// CLAUDE.md sections appended (no prior markers)
-    pub appended: Vec<String>,
-}
-
-/// Freshen CLAUDE.md in place (no parcel): migrate away from any legacy per-kit
-/// inline blocks and upsert the single consolidated `@`-include region for the
-/// kits in BURC_MANAGED_KITS. Does NOT commit — caller decides when.
-///
-/// # Arguments
-/// * `burc_path` - Path to target repo's burc.env file
-///
-/// # Returns
-/// FreshenResult with update summary, or error message
-pub fn vofe_freshen_forge(burc_path: &Path) -> Result<vofe_FreshenResult, String> {
-    let burc = vofe_parse_burc(burc_path)?;
-    let claude_path = burc.project_root.join("CLAUDE.md");
-
-    let result = zvofe_freshen_claude(&claude_path, &burc, &burc.managed_kits)?;
-
-    let mut out = vvco_Output::console();
-    for tag in &result.updated {
-        vvco_err!(out, "  freshen: updated [{}]", tag);
-    }
-    for tag in &result.expanded {
-        vvco_err!(out, "  freshen: expanded [{}] (was UNINSTALLED)", tag);
-    }
-    for tag in &result.appended {
-        vvco_err!(out, "  freshen: appended [{}] (new region)", tag);
-    }
-
-    Ok(vofe_FreshenResult {
-        updated: result.updated,
-        expanded: result.expanded,
-        appended: result.appended,
     })
 }
 
@@ -726,104 +664,6 @@ fn zvofe_copy_all_files(source_dir: &Path, dest_dir: &Path) -> Result<u32, Strin
     }
 
     Ok(count)
-}
-
-/// Freshen CLAUDE.md: migrate away from any legacy per-kit inline blocks and
-/// upsert the single consolidated `@`-include region for the installed kits.
-///
-/// Returns the underlying freshen result (updated/expanded/appended) so the
-/// standalone forge-freshen path can report what changed.
-fn zvofe_freshen_claude(
-    claude_path: &Path,
-    burc: &vofe_BurcEnv,
-    kit_ids: &[String],
-) -> Result<voff_FreshenResult, String> {
-    let content = if claude_path.exists() {
-        fs::read_to_string(claude_path)
-            .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?
-    } else {
-        "# Claude Code Project Memory\n".to_string()
-    };
-
-    // Migration: excise legacy per-kit MANAGED blocks (old inline model).
-    let legacy_tags = zvofe_legacy_tags();
-    let legacy_refs: Vec<&str> = legacy_tags.iter().map(|s| s.as_str()).collect();
-    let swept = voff_remove_regions(&content, &legacy_refs);
-
-    // Upsert the single @-include region.
-    let section = voff_ManagedSection {
-        tag: VOFC_INCLUDE_REGION_TAG.to_string(),
-        content: zvofe_build_include_body(burc, kit_ids)?,
-    };
-    let result = voff_freshen(&swept, std::slice::from_ref(&section));
-
-    fs::write(claude_path, &result.content)
-        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
-
-    Ok(result)
-}
-
-/// Legacy per-kit managed-section tags (uppercased kit id) from the old inline
-/// model. Swept on every freshen so a once-installed consumer migrates cleanly.
-fn zvofe_legacy_tags() -> Vec<String> {
-    DISTRIBUTABLE_KITS
-        .iter()
-        .map(|k| k.cipher.kit_id().to_uppercase())
-        .collect()
-}
-
-/// Build the `@`-include region body: one line per public guidance file of each
-/// installed kit, in registry order, written project-root-relative.
-fn zvofe_build_include_body(
-    burc: &vofe_BurcEnv,
-    kit_ids: &[String],
-) -> Result<String, String> {
-    let tools_rel = burc
-        .tools_dir
-        .strip_prefix(&burc.project_root)
-        .map_err(|_| {
-            format!(
-                "BURC_TOOLS_DIR ({}) is not under project root ({})",
-                burc.tools_dir.display(),
-                burc.project_root.display()
-            )
-        })?;
-
-    let mut lines = Vec::new();
-    for kit in DISTRIBUTABLE_KITS {
-        let kit_id = kit.cipher.kit_id();
-        if !kit_ids.iter().any(|k| k == &kit_id) {
-            continue;
-        }
-        for include in kit.claude_includes {
-            let rel = tools_rel.join(&kit_id).join(include);
-            lines.push(format!("@{}", rel.display()));
-        }
-    }
-
-    Ok(lines.join("\n"))
-}
-
-/// Collapse CLAUDE.md for uninstall: excise any legacy per-kit blocks and
-/// collapse the single `@`-include region to an UNINSTALLED breadcrumb (so a
-/// future reinstall re-expands it in place).
-fn zvofe_collapse_claude(claude_path: &Path) -> Result<(), String> {
-    if !claude_path.exists() {
-        return Ok(()); // Nothing to collapse
-    }
-
-    let content = fs::read_to_string(claude_path)
-        .map_err(|e| format!("Failed to read CLAUDE.md: {}", e))?;
-
-    let legacy_tags = zvofe_legacy_tags();
-    let legacy_refs: Vec<&str> = legacy_tags.iter().map(|s| s.as_str()).collect();
-    let swept = voff_remove_regions(&content, &legacy_refs);
-    let collapsed = voff_collapse(&swept, &[VOFC_INCLUDE_REGION_TAG]);
-
-    fs::write(claude_path, &collapsed)
-        .map_err(|e| format!("Failed to write CLAUDE.md: {}", e))?;
-
-    Ok(())
 }
 
 /// Remove files matching a pattern from a directory.
