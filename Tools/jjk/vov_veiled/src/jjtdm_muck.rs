@@ -147,7 +147,7 @@ fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str, serial: 
     // Yard signet on the dirname, livery badge on the branch — the same split
     // the stile's approach makes, so salvage meets here what it meets in the field.
     let billet_root = infield.join(jjrds_billet_dirname(serial, coronet));
-    let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, coronet);
+    let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, serial, coronet);
     jjrfg_PlainGit
         .jjrfr_billet_create(hippodrome, &jjrfr_BilletBirth::Branch(branch), &billet_root, ZJJTDM_HIP_TRUNK)
         .unwrap();
@@ -405,9 +405,9 @@ fn jjtdm_reap_salvages_a_dirty_pace_billet_before_destroying_it() {
     assert!(!billet.exists());
     // Salvage consigns the badged branch, so the badge is what lands in the
     // sire's ref store — the mint's whole point, observed at the far end. Derive
-    // the ref through compose so it carries the case-armored spelling the billet
+    // the ref through compose so it carries the serialed spelling the billet
     // was born with, never a hand-copied one.
-    let badged = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, "AAAAC");
+    let badged = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, ZJJTDM_SERIAL, "AAAAC");
     let remote_ref = format!("refs/remotes/origin/{}", badged);
     let remote_subject = zjjtdm_git(&hippodrome, &["log", "-1", "--pretty=%s", &remote_ref]);
     assert_eq!(remote_subject, "muck: salvage before destroy");

@@ -357,6 +357,18 @@ pub trait jjrfr_FarrierBillet {
     /// remedy rather than a silent skip invented here. Read-only, network-silent.
     fn jjrfr_line_seated(&self, root: &Path, branch: &str) -> Result<Option<PathBuf>, jjrfr_Rejection>;
 
+    /// Every branch the constellation seats in a partition, paired with the
+    /// partition root — the enumeration form of `jjrfr_line_seated`, for the yard
+    /// gate's seat-read (K1) once a billet's branch name can no longer be derived
+    /// from its identity. A per-birth serial (`jjrf_livery_compose`) makes each
+    /// occupancy's branch unique and unguessable ahead of the mint, so the gate
+    /// can no longer ask "is THIS name seated" — it enumerates the seats and lets
+    /// the caller livery-parse each one, matching by the identity behind the
+    /// badge rather than the exact name. Records whose root no longer stands are
+    /// omitted (a vestige is not a seat), exactly as `jjrfr_line_seated` omits
+    /// them. Read-only, network-silent.
+    fn jjrfr_seated_lines(&self, root: &Path) -> Result<Vec<(String, PathBuf)>, jjrfr_Rejection>;
+
     /// The staleness probe: is this billet outstripped by trunk — does the trunk
     /// branch's remote counterpart (as of the last `jjrfr_glean`) hold work the
     /// billet's position lacks? A local ancestry check, network-silent, run after

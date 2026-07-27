@@ -192,31 +192,19 @@ impl jjrf_LiveryKind {
     }
 }
 
-/// Case-armor a bare identity body for a case-insensitive filesystem: ahead of
-/// each character emit a case marker (`u` for an ASCII uppercase letter, `l`
-/// for anything else — lowercase or caseless), so `CAABz` becomes `uCuAuAuBlz`.
+/// Read a case-armored livery tail back to its bare form — the recognizer for
+/// the interim armored branch cohort (`u`/`l` marker-per-character), a now-closed
+/// population that `jjrf_livery_parse` still reads but `jjrf_livery_compose` no
+/// longer writes. `None` unless the length is even and every pair is a `u`/`l`
+/// marker agreeing with the case of the character it precedes; on a match that
+/// character is the bare output.
 ///
-/// A loose git ref is a filename, and on a case-insensitive volume two coronets
-/// differing only in letter case (`CAABz` / `CAABZ`) fuse onto one ref file. The
-/// marker moves the case distinction into a character the fold cannot erase: `u`
-/// and `l` are stable under case-folding, so `…lz` and `…uZ` fold to `…lz` and
-/// `…uz` and stay apart. The map `c ↦ (marker, fold(c))` is injective over the
-/// charset, so the armored form is injective under case-folding. Adopts the
-/// paddock filename precedent (₣Bz → `jjp_uBlz.md`); inverse `zjjrf_case_disarm`.
-fn zjjrf_case_armor(body: &str) -> String {
-    let mut armored = String::with_capacity(body.len() * 2);
-    for c in body.chars() {
-        armored.push(if c.is_ascii_uppercase() { 'u' } else { 'l' });
-        armored.push(c);
-    }
-    armored
-}
-
-/// Read a case-armored body back to its bare form — the exact inverse of
-/// `zjjrf_case_armor`, and the recognizer that tells an armored livery tail
-/// apart from a foreign name of coincidental length. `None` unless the length is
-/// even and every pair is a `u`/`l` marker agreeing with the case of the
-/// character it precedes; on a match that character is the bare output.
+/// The former compose half (`zjjrf_case_armor`) is retired: a decimal birth
+/// serial is fold-stable without a per-character marker (the serialed form
+/// `jjrf_livery_compose` now writes), and it is unique per birth besides, so the
+/// armor's whole purpose is met for free. This inverse survives only to read the
+/// fading cohort of branches the armored composer wrote before its retirement —
+/// a closed set with no new members (see `jjrf_livery_parse`'s arm order).
 fn zjjrf_case_disarm(armored: &str) -> Option<String> {
     let chars: Vec<char> = armored.chars().collect();
     if chars.len() % 2 != 0 {
@@ -241,10 +229,19 @@ fn zjjrf_case_disarm(armored: &str) -> Option<String> {
 ///
 /// The body arrives bare (`jjrf_as_str`), never sigiled — a git ref is a
 /// foreign-traversed surface, so the sigil stays behind (the carriage law
-/// above). It is case-armored (`zjjrf_case_armor`) before badging so the ref
-/// survives a case-insensitive filesystem; `jjrf_livery_parse` is the inverse.
-pub fn jjrf_livery_compose(prefix: Option<&str>, kind: jjrf_LiveryKind, body: &str) -> String {
-    let badged = format!("{}{}{}", kind.jjrf_as_str(), JJRF_LIVERY_SEPARATOR, zjjrf_case_armor(body));
+/// above).
+///
+/// The tail leads with the birth `catchword` (`jjdb_catchword`), then `_`, then
+/// the bare body: `jjls_pace/200393_CAAB_`. The catchword is the SAME serial the
+/// billet's dirname wears (`jjrds_billet_dirname`) — one allocation at the birth
+/// ceremony, worn as two denormalized labels, never a second journal write. A
+/// decimal serial is stable under case-folding, so the composed name is
+/// case-fold-injective by construction (the retired armor's whole purpose), and
+/// unique per billet birth, so each occupancy takes its own ref rather than
+/// silently reusing one. `jjrf_livery_parse` is the inverse; it steps over the
+/// serial without ever interpreting it (the carriage law extends to the ref).
+pub fn jjrf_livery_compose(prefix: Option<&str>, kind: jjrf_LiveryKind, catchword: u64, body: &str) -> String {
+    let badged = format!("{}{}{}_{}", kind.jjrf_as_str(), JJRF_LIVERY_SEPARATOR, catchword, body);
     match prefix.map(str::trim).filter(|p| !p.is_empty()) {
         Some(p) => format!("{}{}{}", p.trim_end_matches(JJRF_LIVERY_SEPARATOR), JJRF_LIVERY_SEPARATOR, badged),
         None => badged,
@@ -255,24 +252,29 @@ pub fn jjrf_livery_compose(prefix: Option<&str>, kind: jjrf_LiveryKind, body: &s
 /// is decoded back to an identity. Returns the roster kind and the bare body,
 /// or `None` for any name this family does not claim.
 ///
-/// Three steps, in the order the badge is built: strip any pedigree prefix by
-/// finding the sprue-bearing segment (so a prefix JJ never recorded still
-/// reads, and the prefix stays a presentation detail rather than a parse
-/// input); admit the segment only if it is a roster word exactly — an
-/// unrostered `jjls_*` is refused, never guessed at, so a future kind costs a
-/// roster word rather than a silent reinterpretation; then length-type the
-/// tail as backstop.
+/// Strip any pedigree prefix by finding the sprue-bearing segment (so a prefix
+/// JJ never recorded still reads, and the prefix stays a presentation detail
+/// rather than a parse input); admit the segment only if it is a roster word
+/// exactly — an unrostered `jjls_*` is refused, never guessed at, so a future
+/// kind costs a roster word rather than a silent reinterpretation; then
+/// length-and-shape-type the tail.
 ///
-/// The tail comes in two shapes, length-selected. The case-armored form the
-/// compose half writes is marker-per-character (twice the body length); disarm
-/// both recognizes it and strips it to the bare body. A bare-length tail is a
-/// pre-armoring billet branch — read for as long as one still stands, retired
-/// once none do (the "old branches age out" cinch). The bare body is returned
-/// owned, since disarm builds a fresh string; callers compare it to a bare
-/// coronet exactly as before.
+/// The tail comes in three shapes, disjoint by length and leading character, so
+/// arm order does not disambiguate — it only orders the cheap tests first:
+/// - **Serialed** (what compose now writes): a decimal digit-run LONGER than any
+///   body, then `_`, then the bare body — `200393_CAAB_`. The serial is stepped
+///   over, never interpreted (the carriage law of `jjrds_billet_identity`, the
+///   dirname's own read, mirrored here). Because the catchword holds no `_`, the
+///   first `_` always ends it, even when the body itself carries one.
+/// - **Bare-legacy**: a body-length tail, a pre-serial billet branch, read for
+///   as long as one still stands (the "old branches age out" cinch).
+/// - **Armored-legacy**: twice the body length, the interim `u`/`l`
+///   marker-per-character form — a closed, fading cohort (`zjjrf_case_disarm`),
+///   no new members, read until the population clears.
 ///
-/// Charset validation is deliberately not repeated here: this returns the bare
-/// body to callers whose own `jjrf_parse` is the validating home.
+/// The bare body is returned owned; callers compare it to a bare coronet exactly
+/// as before. Charset validation is deliberately not repeated here: this returns
+/// the bare body to callers whose own `jjrf_parse` is the validating home.
 pub fn jjrf_livery_parse(branch: &str) -> Option<(jjrf_LiveryKind, String)> {
     let (word, tail) = branch.rsplit_once(JJRF_LIVERY_SEPARATOR)?;
     let word = match word.rsplit_once(JJRF_LIVERY_SEPARATOR) {
@@ -287,11 +289,21 @@ pub fn jjrf_livery_parse(branch: &str) -> Option<(jjrf_LiveryKind, String)> {
         return None;
     };
     let bare_len = kind.jjrf_body_len();
+    if tail.len() == bare_len {
+        return Some((kind, tail.to_string()));
+    }
     if tail.len() == bare_len * 2 {
         return zjjrf_case_disarm(tail).map(|body| (kind, body));
     }
-    if tail.len() == bare_len {
-        return Some((kind, tail.to_string()));
+    // Serialed: step over a leading digit-run of catchword width (LONGER than
+    // any body, the same discriminator the dirname read uses), its `_`, and
+    // read the body behind it.
+    let (serial, body) = tail.split_once('_')?;
+    if serial.len() > bare_len
+        && serial.bytes().all(|b| b.is_ascii_digit())
+        && body.len() == bare_len
+    {
+        return Some((kind, body.to_string()));
     }
     None
 }

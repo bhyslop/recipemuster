@@ -604,7 +604,7 @@ impl Drop for ZjjtwpCwdGround {
 /// and this is exactly the commit the consign weld must still push.
 fn zjjtwp_billeted_infield(name: &str) -> (JjkTestDir, PathBuf, String) {
     let (infield, hippodrome) = zjjtwp_infield(name);
-    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, ZJJTWP_CORONET);
+    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200500, ZJJTWP_CORONET);
     let billet_root = infield.path().join(format!("jjqb_{}_badged", ZJJTWP_CORONET));
     jjrfg_PlainGit
         .jjrfr_billet_create(&hippodrome, &jjrfr_BilletBirth::Branch(branch.clone()), &billet_root, ZJJTWP_TRUNK)
