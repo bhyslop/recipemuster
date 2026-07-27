@@ -380,9 +380,11 @@ clears them with the billet's residue.
 * A *pace billet* passes when `comb` is clean AND `sync_state` shows its tip not ahead of
   its counterpart — every commit already in remote custody, so the directory holds nothing
   the branch and {jjdb_journal} do not.
-* A *groom billet* passes when `comb` is clean AND its detached position is `reachable`
-  from the trunk branch's remote counterpart (farrier sheaf);
-  a raw detached commit is reachable from nothing and stands.
+* A *groom billet* passes when `comb` is clean AND its content against the trunk
+  branch's remote counterpart is `reachable` (farrier sheaf) — the diff from their
+  merge-base to its tip is empty; a marker-only commit (every dispatch's
+  {jjdo_open} echo) carries no content and passes, while a raw detached commit
+  with real content stands.
 * Refusal remedies nothing: the trailing step never lodges, never consigns, never
   publishes an off-ceremony commit — the billet stands for {jjdd_muck} or a later clean
   exit.
