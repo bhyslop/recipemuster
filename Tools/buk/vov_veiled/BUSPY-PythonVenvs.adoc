@@ -129,7 +129,7 @@ Drain modes per AWG: SHAPES THE CUT / SETTLING PACE / RIDES A PACE.
 
 * BUS0's regime-count sentence ("BUK defines two regimes") predates BURN/BURP/BURD/BURE/BURX and is already stale; correct it when BURU infuses.
 * PCG Environment Discipline's "(module pending; not yet minted)" parenthetical retires with a pointer when the module lands — never before.
-* `claude-buk-core.md` gains the buru acronym rows at landing.
+* `claude-buk-acronyms.md` gains the buru acronym rows at landing.
 * `burc_regime.sh` gains the two optional uv-pin fields as an early implementation act.
 * At settling, the sheaf's quoin prefix election runs its gate (`busu_` is the aligned candidate under BUS0's single-letter convention).
 * Cross-repo (rpa, banked for an rpa-side session): the nucleating plan's interim-module pointers describe a module that never landed, and its env manifest calls a committed lockfile untracked.
