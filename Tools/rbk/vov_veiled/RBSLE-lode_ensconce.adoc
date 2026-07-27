@@ -22,7 +22,7 @@ submits a
 job on the tethered (egress-permitted) pool, executed by the
 {rbtr_mason}
 service account via the metadata server.
-The workstation never fetches the upstream bytes — it trusts the GCP environment over a potentially-compromised station.
+The workstation never fetches the upstream bytes, per the trust rationale homed at {rbtga_lode}.
 
 NOTE: *Dirty-tree guard*.
 Every Lode capture verb refuses on a working tree with unstaged or staged changes (`bug_require_clean_tree_creed`), before any credential load or submission.
