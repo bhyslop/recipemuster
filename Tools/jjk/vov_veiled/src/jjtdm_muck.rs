@@ -404,8 +404,12 @@ fn jjtdm_reap_salvages_a_dirty_pace_billet_before_destroying_it() {
     assert!(outcome.salvaged);
     assert!(!billet.exists());
     // Salvage consigns the badged branch, so the badge is what lands in the
-    // sire's ref store — the mint's whole point, observed at the far end.
-    let remote_subject = zjjtdm_git(&hippodrome, &["log", "-1", "--pretty=%s", "refs/remotes/origin/jjls_pace/AAAAC"]);
+    // sire's ref store — the mint's whole point, observed at the far end. Derive
+    // the ref through compose so it carries the case-armored spelling the billet
+    // was born with, never a hand-copied one.
+    let badged = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, "AAAAC");
+    let remote_ref = format!("refs/remotes/origin/{}", badged);
+    let remote_subject = zjjtdm_git(&hippodrome, &["log", "-1", "--pretty=%s", &remote_ref]);
     assert_eq!(remote_subject, "muck: salvage before destroy");
 }
 

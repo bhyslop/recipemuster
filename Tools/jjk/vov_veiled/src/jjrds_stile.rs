@@ -636,7 +636,7 @@ pub fn jjrds_ground_of(identity: &crate::jjrfr_farrier::jjrfr_Identity) -> jjrds
         (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Detached(_)) => jjrds_Ground::GroomBillet,
         (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Branch(name)) => {
             match jjrf_livery_parse(name) {
-                Some((jjrf_LiveryKind::Pace, body)) => jjrds_Ground::PaceBillet { coronet: body.to_string() },
+                Some((jjrf_LiveryKind::Pace, body)) => jjrds_Ground::PaceBillet { coronet: body },
                 _ => jjrds_Ground::Unboarded { line: name.clone() },
             }
         }

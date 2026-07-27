@@ -444,10 +444,12 @@ fn jjtf_coronet_parse_tolerates_qualified_form() {
 
 #[test]
 fn jjtf_livery_composes_the_pace_badge() {
-    // The ordinary form: sprue as namespace root, no pedigree prefix.
+    // The ordinary form: sprue as namespace root, no pedigree prefix. The body
+    // is case-armored (marker-per-character, `u` upper / `l` lower-or-caseless)
+    // so the ref survives a case-insensitive filesystem: CAAA9 → uCuAuAuAl9.
     assert_eq!(
         jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAAA9"),
-        "jjls_pace/CAAA9"
+        "jjls_pace/uCuAuAuAl9"
     );
     // The body rides bare — a git ref is a foreign-traversed surface, so the
     // sigil stays behind and the badge is what the ref carries instead.
@@ -460,15 +462,15 @@ fn jjtf_livery_prefix_is_org_demand_only() {
     // the shape a hand-edited pedigree yields) it never appears at all.
     assert_eq!(
         jjrf_livery_compose(Some("teams/jj"), jjrf_LiveryKind::Pace, "CAAA9"),
-        "teams/jj/jjls_pace/CAAA9"
+        "teams/jj/jjls_pace/uCuAuAuAl9"
     );
     assert_eq!(
         jjrf_livery_compose(Some("teams/jj/"), jjrf_LiveryKind::Pace, "CAAA9"),
-        "teams/jj/jjls_pace/CAAA9"
+        "teams/jj/jjls_pace/uCuAuAuAl9"
     );
     assert_eq!(
         jjrf_livery_compose(Some("  "), jjrf_LiveryKind::Pace, "CAAA9"),
-        "jjls_pace/CAAA9"
+        "jjls_pace/uCuAuAuAl9"
     );
 }
 
@@ -478,17 +480,52 @@ fn jjtf_livery_round_trips_through_any_prefix() {
     // JJ never recorded still reads — the prefix is presentation, not a parse input.
     for prefix in [None, Some("teams/jj"), Some("a/b/c")] {
         let branch = jjrf_livery_compose(prefix, jjrf_LiveryKind::Pace, "CAAA9");
-        assert_eq!(jjrf_livery_parse(&branch), Some((jjrf_LiveryKind::Pace, "CAAA9")));
+        assert_eq!(jjrf_livery_parse(&branch), Some((jjrf_LiveryKind::Pace, "CAAA9".to_string())));
     }
+}
+
+#[test]
+fn jjtf_livery_case_siblings_never_collide() {
+    // The APFS fusion this armoring exists to prevent: two coronets differing
+    // only in letter case (`CAABz` / `CAABZ`) resolved to one loose-ref file, so
+    // two live billets silently shared a branch. A case-insensitive filesystem
+    // folds names before it compares them, so the armored names must stay
+    // distinct even under a fold — the harness cannot fold the real filesystem
+    // here, so the encoding property is proven directly.
+    let lower = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAABz");
+    let upper = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAABZ");
+    assert_ne!(lower, upper);
+    assert_ne!(lower.to_lowercase(), upper.to_lowercase());
+    // Distinctness costs no decodability: each still round-trips to its own
+    // bare coronet, case intact.
+    assert_eq!(jjrf_livery_parse(&lower), Some((jjrf_LiveryKind::Pace, "CAABz".to_string())));
+    assert_eq!(jjrf_livery_parse(&upper), Some((jjrf_LiveryKind::Pace, "CAABZ".to_string())));
+}
+
+#[test]
+fn jjtf_livery_reads_the_legacy_bare_form() {
+    // The bare-length tail is a pre-armoring billet branch. Parse reads it for
+    // as long as one still stands — the "old branches age out" cinch — and
+    // hands back the same bare coronet the armored form yields.
+    assert_eq!(
+        jjrf_livery_parse("jjls_pace/CAAA9"),
+        Some((jjrf_LiveryKind::Pace, "CAAA9".to_string()))
+    );
+    // Through a pedigree prefix, exactly as the armored form.
+    assert_eq!(
+        jjrf_livery_parse("teams/jj/jjls_pace/CAAA9"),
+        Some((jjrf_LiveryKind::Pace, "CAAA9".to_string()))
+    );
 }
 
 #[test]
 fn jjtf_livery_parses_the_reserved_groom_word() {
     // Groom is never populated, but it parses: the reservation is enforceable
-    // only if a violating branch is nameable when met.
+    // only if a violating branch is nameable when met. (Bare-length tail: the
+    // legacy arm — a firemark is two characters, its armored form four.)
     assert_eq!(
         jjrf_livery_parse("jjls_groom/B9"),
-        Some((jjrf_LiveryKind::Groom, "B9"))
+        Some((jjrf_LiveryKind::Groom, "B9".to_string()))
     );
 }
 
@@ -509,6 +546,12 @@ fn jjtf_livery_declines_what_it_does_not_claim() {
     assert_eq!(jjrf_livery_parse("jjls_groom/B9X"), None);
     // A bare roster word with no identity at all.
     assert_eq!(jjrf_livery_parse("jjls_pace"), None);
+    // An armored-length (10) Pace tail is refused unless it is validly armored:
+    // a marker that is neither u/l, or a marker disagreeing with its character's
+    // case, fails the recognizer rather than being coerced to a body.
+    assert_eq!(jjrf_livery_parse("jjls_pace/abcdefghij"), None);
+    assert_eq!(jjrf_livery_parse("jjls_pace/uzuAuAuAl9"), None); // 'u' before a lowercase char
+    assert_eq!(jjrf_livery_parse("jjls_pace/lCuAuAuAl9"), None); // 'l' before an uppercase char
 }
 
 #[test]
