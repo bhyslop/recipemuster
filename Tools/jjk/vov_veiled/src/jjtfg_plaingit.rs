@@ -708,6 +708,110 @@ fn jjtfg_bounded_run_kills_a_stalled_op_at_the_deadline() {
     assert!(elapsed < std::time::Duration::from_secs(10), "the deadline must fire long before the stall ends (elapsed {:?})", elapsed);
 }
 
+/// Git-child narration and the local runner's deadline law, in ONE test: the
+/// trace sink is process-global, so this must remain the crate's sole arming
+/// test — two tests arming concurrently would race the slot. Other tests'
+/// farrier children may interleave lines into the armed file while this runs;
+/// every assertion is therefore anchored on a marker unique to this test.
+///
+/// The deadline half: a local git child that stalls (a sleep-forever
+/// pre-commit hook standing in for a wedged environment) is killed at the
+/// deadline and PANICS — a verdict, never a silent hang, and never a
+/// synthesized git-said-no, which callers like `line_exists` would misread
+/// as an answer.
+#[test]
+fn jjtfg_narration_and_local_deadline() {
+    use super::jjrfg_plaingit::{zjjrfg_run_git_bounded, zjjrfg_run_git_local};
+    use super::jjrsj_sectional::{jjrsj_trace_arm, jjrsj_trace_disarm};
+
+    struct ZDisarm;
+    impl Drop for ZDisarm {
+        fn drop(&mut self) {
+            jjrsj_trace_disarm();
+        }
+    }
+
+    let (_bare, local) = zjjtfg_local_with_remote("jjtfg_narration");
+    let trace_path = local.path().join("jjtfg_trace.log");
+    jjrsj_trace_arm(trace_path.clone());
+    let _disarm = ZDisarm;
+
+    // ok and exit-1 statuses, through a real farrier op (show-ref rides the
+    // local runner), marked by branch names unique to this test.
+    zjjtfg_git(local.path(), &["branch", "jjtfg-trace-mark"]);
+    assert!(jjrfg_PlainGit.jjrfr_line_exists(local.path(), "jjtfg-trace-mark").unwrap());
+    assert!(!jjrfg_PlainGit.jjrfr_line_exists(local.path(), "jjtfg-trace-absent").unwrap());
+
+    // Local deadline: a pre-commit hook that outsleeps it, met by a commit
+    // with a staged file (so the hook genuinely runs) at a 300ms deadline.
+    let hooks = local.path().join("jjtfg_hooks");
+    std::fs::create_dir_all(&hooks).unwrap();
+    let hook = hooks.join("pre-commit");
+    std::fs::write(&hook, "#!/bin/sh\nsleep 30\n").unwrap();
+    let mut perms = std::fs::metadata(&hook).unwrap().permissions();
+    std::os::unix::fs::PermissionsExt::set_mode(&mut perms, 0o755);
+    std::fs::set_permissions(&hook, perms).unwrap();
+    zjjtfg_git(local.path(), &["config", "core.hooksPath", &hooks.to_string_lossy()]);
+    zjjtfg_write(local.path(), "jjtfg_stall.txt", "stall");
+    zjjtfg_git(local.path(), &["add", "--", "jjtfg_stall.txt"]);
+
+    let started = std::time::Instant::now();
+    let expiry = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        zjjrfg_run_git_local(
+            local.path(),
+            &["commit", "-q", "-m", "jjtfg-stall-probe"],
+            &[],
+            None,
+            std::time::Duration::from_millis(300),
+        )
+    }));
+    let elapsed = started.elapsed();
+    let payload = expiry.expect_err("an expired local op must panic, never return an output");
+    let message = payload
+        .downcast_ref::<String>()
+        .map(String::as_str)
+        .or_else(|| payload.downcast_ref::<&str>().copied())
+        .unwrap_or("");
+    assert!(message.contains("deadline"), "the panic must name the deadline, saw: {}", message);
+    assert!(elapsed < std::time::Duration::from_secs(10), "the local deadline must fire long before the stall ends (elapsed {:?})", elapsed);
+
+    // Bounded remote expiry narration: the vedette stall shim, fetching a
+    // refspec unique to this test so the expired line is unmistakably ours.
+    zjjtfg_install_transport_shim(local.path(), "remote.origin.uploadpack", "#!/bin/sh\nsleep 30\n");
+    let out = zjjrfg_run_git_bounded(
+        local.path(),
+        &["fetch", "origin", "jjtfg-trunk:refs/jjtfg/trace-remote"],
+        std::time::Duration::from_millis(300),
+    );
+    assert!(!out.ok, "the stalled fetch must come back expired, not ok");
+
+    let body = std::fs::read_to_string(&trace_path).expect("the armed trace file must exist");
+    let lines: Vec<&str> = body.lines().collect();
+    let open_mark = lines
+        .iter()
+        .position(|l| l.starts_with("GIT-OPEN ") && l.contains("jjtfg-trace-mark"))
+        .expect("a GIT-OPEN line for the marked show-ref");
+    let done_mark = lines
+        .iter()
+        .position(|l| {
+            l.starts_with("GIT-OUTCOME ") && l.contains("jjtfg-trace-mark") && l.contains("status=ok") && l.contains("ms=")
+        })
+        .expect("a GIT-OUTCOME status=ok line with elapsed ms for the marked show-ref");
+    assert!(open_mark < done_mark, "GIT-OPEN must precede its GIT-OUTCOME");
+    assert!(
+        lines.iter().any(|l| l.starts_with("GIT-OUTCOME ") && l.contains("jjtfg-trace-absent") && l.contains("status=exit-1")),
+        "a non-zero exit narrates its code, never masquerading as ok"
+    );
+    assert!(
+        lines.iter().any(|l| l.starts_with("GIT-OUTCOME ") && l.contains("jjtfg-stall-probe") && l.contains("status=expired")),
+        "the local expiry narrates status=expired before its panic"
+    );
+    assert!(
+        lines.iter().any(|l| l.starts_with("GIT-OUTCOME ") && l.contains("trace-remote") && l.contains("status=expired")),
+        "the bounded remote expiry narrates status=expired"
+    );
+}
+
 #[test]
 fn jjtfg_stake_rejects_lock_held_when_already_staked() {
     let (_bare, local) = zjjtfg_local_with_remote("jjtfg_stake_held");
