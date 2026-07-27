@@ -456,7 +456,7 @@ fn zjjrdm_salvage<F: jjrfr_FarrierCore>(farrier: &F, plan: &jjrdm_Plan) -> Resul
         jjrfr_LineOfWork::Detached(_) => String::new(),
     };
     let seats_the_pace =
-        jjrf_livery_parse(&seated_branch).is_some_and(|(kind, body)| kind == jjrf_LiveryKind::Pace && body == coronet);
+        jjrf_livery_parse(&seated_branch).is_some_and(|(kind, body)| kind == jjrf_LiveryKind::Pace && body == *coronet);
     if !seats_the_pace {
         return Err(jjrfr_Rejection::jjrfr_new(
             jjrfr_RejectionKind::DirtyTree,
