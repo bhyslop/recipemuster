@@ -7,7 +7,11 @@ tabtargets, never raw cargo:
 - `tt/vow-mb.MatriculaBuild.sh` — build the vom crate (also the remedy when
   `jjx_sift` reports the census binary missing)
 - `tt/vow-mt.MatriculaTest.sh` — run vom unit tests
-- `tt/vow-mr.MatriculaRun.sh` — run the matricula binary
+- `tt/vow-mr.MatriculaRun.sh` — run the matricula binary (the read-only
+  report: presentments, estray section, digest audit, cadastre freshness)
+- `tt/vow-mc.RenderCadastre.sh` — render the cadastre, the one generated
+  complete name-census file (`Tools/vok/vod_cadastre.md`, do-not-hand-edit);
+  the hand-curated `claude-*-acronyms.md` digests are never rewritten by it
 
 ## Acronym Notes
 

@@ -18,7 +18,7 @@
 //! shape (Memos/memo-20260620-freeze-builder-pattern/, provenance only).
 //! Rust, Bash, and AsciiDoc attribute/anchor vestures claim declarations
 //! (vomrv_vesture); the seating validators (collision, terminal-exclusivity)
-//! are not yet implemented.
+//! read the frozen trie (vomrq_validate).
 //!
 //! Module prefix tree (rbtd-style {crate}{r|t}{classifier}_ scheme):
 //!   vomr{c}_  runtime source - vomrl_log (output), vomrm_matricula (frozen
@@ -26,9 +26,13 @@
 //!             trie), vomra_allowlist (Tier 0 file-selection allowlist),
 //!             vomrv_vesture (per-vesture declaration-site recognizers),
 //!             vomrp_presentment (seating-validator output record),
-//!             vomrq_validate (the two MVP seating validators)
+//!             vomrq_validate (the two MVP seating validators),
+//!             vomrc_cadastre (the generated complete-census file + its
+//!             freshness gate), vomrd_digest (read-only audit of the
+//!             hand-curated acronym digests)
 //!   vomt{c}_  test modules    - vomtm_matricula, vomtb_builder, vomts_signet,
-//!             vomta_allowlist, vomtv_vesture, vomtq_validate
+//!             vomta_allowlist, vomtv_vesture, vomtq_validate,
+//!             vomtc_cadastre, vomtd_digest
 //! Grown as real API lands (mint-follows-API); see Tools/vok/README.md.
 
 #![deny(warnings)]
@@ -37,6 +41,8 @@
 
 pub mod vomra_allowlist;
 pub mod vomrb_builder;
+pub mod vomrc_cadastre;
+pub mod vomrd_digest;
 pub mod vomrl_log;
 pub mod vomrm_matricula;
 pub mod vomrp_presentment;
@@ -48,6 +54,10 @@ pub mod vomrv_vesture;
 mod vomta_allowlist;
 #[cfg(test)]
 mod vomtb_builder;
+#[cfg(test)]
+mod vomtc_cadastre;
+#[cfg(test)]
+mod vomtd_digest;
 #[cfg(test)]
 mod vomtm_matricula;
 #[cfg(test)]

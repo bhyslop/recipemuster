@@ -53,6 +53,7 @@ zvoz_kindle() {
   buz_enroll VOZ_MATRICULA_BUILD "vow-mb" "${z_vom_mod}" "vome_build" "" "Build the matricula (vom) crate"
   buz_enroll VOZ_MATRICULA_TEST  "vow-mt" "${z_vom_mod}" "vome_test" "" "Test the matricula (vom) crate"
   buz_enroll VOZ_MATRICULA_RUN   "vow-mr" "${z_vom_mod}" "vome_run"  "" "Run the degenerate matricula (vom) binary"
+  buz_enroll VOZ_MATRICULA_CADASTRE "vow-mc" "${z_vom_mod}" "vome_cadastre" "" "Render the cadastre - the generated complete name-census file (Tools/vok/vod_cadastre.md)"
 
   readonly ZVOZ_KINDLED=1
 }

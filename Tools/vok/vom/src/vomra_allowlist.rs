@@ -30,6 +30,19 @@ pub const VOMA_ALLOWLIST: &[&str] = &["*.md", "*.adoc", "*.rs", "*.sh"];
 /// files `.claude/commands/{cmd}.md`), so its basenames stay in the census.
 pub const VOMA_REFERENCE_ONLY: &[&str] = &["Memos/", ".claude/jjm/", "Study/"];
 
+/// Generated-role paths (VOSMM Scan Mechanics file-role layer): the cadastre
+/// is a projection OF the census, so scanning its content would feed the
+/// census its own output. Content-excluded only - the file-stem declaration
+/// still seats, since the filename is a real minted name whatever writes the
+/// bytes.
+pub const VOMA_GENERATED: &[&str] = &[crate::vomrc_cadastre::VOMRC_CADASTRE_PATH];
+
+/// Check whether a path carries the generated file-role (content excluded
+/// from the scan; stem still seats).
+pub fn voma_is_generated(path: &Path) -> bool {
+    path.to_str().is_some_and(|p| VOMA_GENERATED.contains(&p))
+}
+
 /// Check whether a path's shape is allowlisted.
 pub fn voma_is_allowed(path: &Path) -> bool {
     let Some(name) = path.file_name().and_then(|n| n.to_str()) else {

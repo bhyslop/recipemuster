@@ -25,7 +25,7 @@ would clash with.
 . Plan a re-mint — what a
 {vosls_signet}
 currently owns before it is moved.
-. Generate the acronym index the `claude-*.md` files maintain by hand today.
+. Render the cadastre — the one generated complete-census file — and mechanically audit the hand-curated `claude-*.md` acronym digests, retiring the digests' completeness and freshness burden while their row curation stays hand-owned (VOr_m7w).
 
 The organizing reframe is that every persistent identifier the project mints — what we informally call quoins, sprues, rivets, and filenames — is an
 {vosli_inscription}
@@ -150,10 +150,11 @@ the census accepts queries and no mutation; the seating invariants (terminal-exc
 === render
 
 Produce the operator-facing report — the
-{vosmp_presentment_s}
-and the
+{vosmp_presentment_s},
+the
 {vosme_estray}
-section — and the regenerated acronym index, both pure over the frozen census.
+section, and the digest audit — and, as its own verb, the cadastre: the one generated complete-census file, a pure projection over the frozen census (see Report and Cadastre).
+The report never rewrites the hand-curated digests; the render verb writes the cadastre and nothing else.
 
 == Invariants
 
@@ -239,7 +240,7 @@ trie, the
 {vosme_estray}
 set, and the query indices.
 
-Tier 3 — Reading it (pure over the frozen census): the MVP validators and the report render plus acronym-index generation.
+Tier 3 — Reading it (pure over the frozen census): the MVP validators, the report render with the digest audit, and cadastre generation.
 
 The parts are mostly allocation, not new minting.
 {vosli_inscription},
@@ -335,14 +336,33 @@ embedded in a memo path is a reference, never a mark on the prose) and its exemp
 Detection is a date-shaped-token pattern over sheaf bodies with lintel-token context — exact
 and structural, no meaning interpreted.
 
-== Report and Acronym Index
+== Report and Cadastre
 
-The MVP delivery is a whole-environment scan run as a standalone VOK executable through its own tabtarget, with no MCP surface.
-It reports the
+The MVP delivery is a whole-environment scan run as a standalone VOK executable through its own tabtargets, with no MCP surface.
+The report run is read-only over the tree: it emits the
 {vosmp_presentment_s}
 (the two minting violations) and the
 {vosme_estray}
-section, and it regenerates the acronym index from the same frozen census rather than leaving it hand-maintained.
+section, and it audits the hand-curated `claude-*.md` acronym digests for dead rows.
+A mechanical census cannot own a curated digest — selecting the important rows out of every declaration home is editorial judgment, which VOr_m7w bars — so the digests stay hand-owned, and what the census retires is their completeness and freshness burden, never their curation.
+
+The render verb owns exactly one generated file, the cadastre: a do-not-hand-edit header naming its regenerate tabtarget (the `rbtdgc_consts.rs` generated-file precedent), one section per registered
+{voslc_cipher},
+one row per seated declaration home in trie order, repo-root-relative paths, no globs and no multi-file coalescing — a pure projection of the
+{vosls_signet}
+trie, any hand edit overwritten by the next render run.
+The freshness half of the precedent rides the report: a committed cadastre that no longer matches the frozen census is itself a
+{vosmp_presentment}
+naming the regenerate tabtarget.
+The cadastre carries the generated file-role: its content is excluded from the scan corpus, so the census never feeds on its own projection, while its file-stem declaration still seats — the filename is a real minted name whatever writes the bytes.
+Its content and its render tabtarget's name nowhere name the census tool — the VOr_q4f name-hygiene guard applied at the artifact.
+
+The digest audit reads each curated row as a validation subject, never round-tripping it: a
+{voslc_cipher}
+-prefixed row head with no seated declaration home is a dead-row
+{vosmp_presentment}
+(advisory — a home the allowlist cannot see, a diagram source say, reads as dead without being so); a non-cipher head (a guide acronym, a foreign tree) is out of jurisdiction and skipped, as is a row whose every home is a veiled path — the census walk excludes veiled trees, so a veiled-homed row would read falsely dead exactly as a veiled digest would.
+Two digest designs are rejected and not to be reopened: whole-file regeneration of the digests (it silently deletes the census-blind guide rows loaded into every agent session), and tool-owned managed sub-regions inside them (they re-create the mixed-ownership seam the digests were deliberately cleaned of).
 
 The report is execution-time output to a terminal (ACG three-homes: execution-time).
 It carries no sprue, because it is not a wire format.
@@ -372,7 +392,7 @@ A name synthesized by a macro (`paste!`/`concat_idents!`) or bash `eval` is invi
 not something to chase with an expander.
 RCG and BCG already forbid identifier-synthesis, which is what makes this axiom safe to lean on.
 
-A file-role layer sits atop the allowlist and git-tracked gate: a path is declaration-bearing, reference-only, index-of-record (the `claude-*.md` acronym tables the MVP regenerates), or generated.
+A file-role layer sits atop the allowlist and git-tracked gate: a path is declaration-bearing, reference-only, index-of-record (the hand-curated `claude-*.md` acronym tables the report audits), or generated (the cadastre, content-excluded from the scan while its file-stem declaration still seats).
 The layer is anticipated as a facet of the tackle table's typed governance members (`JJSVT-tackle.adoc`) — role at scan grain is the member axis at binding grain — and names with that table when the tackle-projection direction above lands.
 Memos are the first reference-only case — excluded from the MVP declaration scan, with a removal condition: they re-enter as a reference corpus when reference-tracing lands later, because a memo citing an old name is a reference a rename should know about.
 
@@ -380,7 +400,7 @@ Memos are the first reference-only case — excluded from the MVP declaration sc
 
 The MVP is the scan plus the two seating validators plus the
 {vosme_estray}
-report plus acronym-index generation.
+report plus cadastre generation and the digest audit.
 The concept widens later, and that widening is out of scope for this spec:
 
 * The richer interrogations — what-owns / what-is-free / who-references.
@@ -461,7 +481,7 @@ It serves three jobs, each a reach into word-surface space the identifier scan c
 . Mechanize the Lapidary word-selection gate — at mint time, test a candidate word and its every inflection against the seated forms, the collision check the MVP leaves to manual grep (claude-cmk-minting.md "Prefix Naming Discipline").
 . Generate the human-presentation string constants for Rust and bash, then lint printed strings against them — error output is operator-facing (ashlar), where word-care bites hardest.
 
-The distribution boundary holds as for the acronym index: the grimoire's output (the generated constants) may ride in shipped code, but the grimoire and the
+The distribution boundary holds as for the cadastre: the grimoire's output (the generated constants) may ride in shipped code, but the grimoire and the
 {vosmm_matricula}
 that reads it never ship (VOr_q4f).
 Rows stay flat and independent — any relationship a later job wants (the asterism, say) enters as a single categorical tag on the row, never a row-to-row edge, until a real traversal earns the graph.
