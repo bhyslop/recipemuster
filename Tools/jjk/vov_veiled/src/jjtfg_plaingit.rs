@@ -1328,6 +1328,34 @@ fn jjtfg_reachable_is_false_for_a_raw_local_commit() {
 }
 
 #[test]
+fn jjtfg_reachable_is_true_for_a_marker_only_commit() {
+    let (_bare, _primary, billet) = zjjtfg_detached_billeted_with_remote("jjtfg_reachable_marker_only");
+
+    // The shape every dispatch's `jjdo_open` leaves behind: a commit atop the
+    // detached tip with no tree change. Ancestry would call this stranded
+    // forever; the content probe sees an empty delta and says so.
+    zjjtfg_git(billet.path(), &["commit", "--allow-empty", "-q", "-m", "officium marker"]);
+
+    assert!(jjrfg_PlainGit.jjrfr_reachable(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
+fn jjtfg_reachable_is_false_when_no_merge_base_exists() {
+    let (_bare, _primary, billet) = zjjtfg_detached_billeted_with_remote("jjtfg_reachable_no_merge_base");
+
+    // A counterpart IS known, but the billet's tip shares no history with it —
+    // `merge-base` itself answers "none" (exit 1), a classified git verdict,
+    // not an unclassified failure. Ignorance still stands: nothing can be
+    // proven held, so the probe must not destroy on it.
+    zjjtfg_git(billet.path(), &["checkout", "--orphan", "jjtfg_unrelated"]);
+    std::fs::write(billet.path().join("only.txt"), "unrelated root").unwrap();
+    zjjtfg_git(billet.path(), &["add", "-A"]);
+    zjjtfg_git(billet.path(), &["commit", "-q", "-m", "unrelated root commit"]);
+
+    assert!(!jjrfg_PlainGit.jjrfr_reachable(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
 fn jjtfg_reachable_is_false_when_no_counterpart_is_known() {
     // A remote-less repo has no counterpart to be an ancestor of — the probe
     // must not prove destruction-safety on ignorance.

@@ -1375,7 +1375,7 @@ enum zjjrds_StileVerdict {
     /// Pace arm: no counterpart known yet — nothing consigned. Ignorance
     /// stands, the litmus's ignorance-stands arm (JJSVD).
     Untracked,
-    /// Groom arm: the detached tip is not an ancestor of trunk's counterpart.
+    /// Groom arm: the detached tip carries content beyond trunk's counterpart.
     Unreachable,
     /// A ground the door never seats a session in.
     NotABillet,
@@ -1388,7 +1388,7 @@ impl zjjrds_StileVerdict {
             zjjrds_StileVerdict::Dirty => "uncommitted changes",
             zjjrds_StileVerdict::AheadOfCounterpart => "commits not yet in remote custody",
             zjjrds_StileVerdict::Untracked => "never consigned — no counterpart known",
-            zjjrds_StileVerdict::Unreachable => "detached tip not reachable from trunk's counterpart",
+            zjjrds_StileVerdict::Unreachable => "detached tip carries content beyond trunk's counterpart",
             zjjrds_StileVerdict::NotABillet => "not a billet the stile boards",
         }
     }
@@ -1408,9 +1408,10 @@ fn zjjrds_stile_pace_verdict<F: jjrfr_FarrierCore>(farrier: &F, billet_root: &Pa
     }
 }
 
-/// The groom-billet arm: clean AND its detached position is reachable from
-/// trunk's remote counterpart — a raw detached commit is reachable from
-/// nothing and stands.
+/// The groom-billet arm: clean AND its content against trunk's remote
+/// counterpart is empty — a marker-only commit (every dispatch's `jjdo_open`
+/// echo) carries no content and passes, while a raw detached commit with
+/// real content stands.
 fn zjjrds_stile_groom_verdict<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     farrier: &F,
     billet_root: &Path,
