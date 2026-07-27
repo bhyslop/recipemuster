@@ -1141,10 +1141,16 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // tip directly, so trunk moving on its own never manufactures a
         // delta the billet itself never made.
         let base_out = zjjrfg_run_git(billet_root, &["merge-base", "HEAD", &counterpart]);
-        if !base_out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &base_out.zjjrfg_detail());
-        }
-        let base = base_out.stdout.trim();
+        let base = match base_out.code {
+            Some(0) => base_out.stdout.trim().to_string(),
+            // No common ancestor (unrelated histories) is a classified git
+            // answer, not an unclassified failure: nothing can be proven
+            // held on ignorance, so the billet stands — same polarity as
+            // the unknown-counterpart arm above.
+            Some(1) => return Ok(false),
+            _ => zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &base_out.zjjrfg_detail()),
+        };
+        let base = base.as_str();
         let out = zjjrfg_run_git(billet_root, &["diff", "--quiet", base, "HEAD"]);
         match out.code {
             Some(0) => Ok(true),

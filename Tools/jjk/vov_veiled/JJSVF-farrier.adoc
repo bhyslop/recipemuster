@@ -323,13 +323,17 @@ Answers false when no counterpart is locally known: nothing observed can be ahea
 staleness warning this probe feeds ({jjdd_refit}, dispatch sheaf) must not cry on ignorance.
 
 `reachable`::
-The stranding probe: is the tree's current position an ancestor of — or equal to — the named
-branch's remote counterpart, as of the last `glean`?
-A local ancestry check, network-silent, the {jjdd_stile_p} groom-litmus conjunct (dispatch
+The stranding probe: is the tree's content, against the named branch's remote counterpart as
+of the last `glean`, empty — does the diff from their merge-base to HEAD show nothing?
+A local content check, network-silent, the {jjdd_stile_p} groom-litmus conjunct (dispatch
 sheaf).
-Answers false when no counterpart is locally known: nothing can be proven held on ignorance,
-and the exit litmus this probe feeds must never destroy on an unproven claim — the opposite
-polarity from `outstripped` above, stated so the two neighbors are never harmonized.
+Content, not ancestry: every dispatch's open lands an empty marker commit on a groom billet's
+detached HEAD, so an ancestry check would call the everyday groom billet stranded forever;
+this probe instead asks whether the billet's tip tree differs from the merge-base at all.
+Answers false when no counterpart is locally known, or when no merge-base exists between HEAD
+and the counterpart: nothing can be proven held on ignorance, and the exit litmus this probe
+feeds must never destroy on an unproven claim — the opposite polarity from `outstripped`
+above, stated so the two neighbors are never harmonized.
 
 `billet_remove`::
 Remove a billet from the yard.
