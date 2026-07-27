@@ -466,6 +466,7 @@
 :rbrv_vessel_mode_bind:      <<rbrv_vessel_mode_bind,bind>>
 :rbrv_vessel_mode_conjure:   <<rbrv_vessel_mode_conjure,conjure>>
 :rbrv_vessel_mode_graft:     <<rbrv_vessel_mode_graft,graft>>
+:rbrv_egress_mode:           <<rbrv_egress_mode,RBRV_EGRESS_MODE>>
 :rbrv_group_grafting:        <<rbrv_group_grafting,Grafting Group>>
 :rbrv_graft_image:           <<rbrv_graft_image,RBRV_GRAFT_IMAGE>>
 :rbrv_graft_optional_dockerfile: <<rbrv_graft_optional_dockerfile,RBRV_GRAFT_OPTIONAL_DOCKERFILE>>
@@ -5010,6 +5011,13 @@ Selects grafting configuration: vessel accepts a locally-built image pushed to G
 The name comes from botanical grafting — foreign material spliced onto rootstock.
 The graft may take or may not; the metaphor fits the trust posture exactly.
 Serialized as `rbnve_graft` in bash regime variable value.
+
+[[rbrv_egress_mode]]
+//axvr_variable axd_required axt_enumeration
+{rbrv_egress_mode}::
+Selects which worker pool the primary build operation uses.
+Must be `tether` (public egress) or `airgap` (`NO_PUBLIC_EGRESS`).
+Capture operations always use tether; about and vouch always use airgap, regardless of this setting.
 
 [[rbrv_group_binding]]
 //axvr_group axd_conditional
