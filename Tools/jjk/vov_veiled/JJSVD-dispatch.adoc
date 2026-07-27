@@ -81,7 +81,8 @@ constant, and every live branch in every sire.
 A kind is a *roster word*, never a namespace letter, so a future kind costs a word and
 nothing else:
 +
-* `jjls_pace/{coronet}` — LIVE. The pace's WIP carrier.
+* `jjls_pace/{coronet}` — LIVE. The pace's WIP carrier; the coronet segment rides
+  case-armored (the carriage law below).
   Named for the pace, not the mount: the branch outlives every mount of it.
 * `jjls_groom` — RESERVED, never populated.
   A groom billet is detached and carries nothing durable, so a branch under this word is a
@@ -95,11 +96,20 @@ A {jjdb_pedigree} may record a path prefix nesting the whole badge, but only whe
 owner demands one — never by default.
 The disengagement sweep is therefore `refs/heads/**/jjls_*`.
 +
-The body rides bare, no glyph: a git ref is a foreign-traversed surface, so the sigil stays
-behind ({jjdt_insignia} carriage law) and the badge is what the ref carries instead.
+The body rides glyphless — a git ref is a foreign-traversed surface, so the sigil stays
+behind ({jjdt_insignia} carriage law) — but never bare: a loose ref is a filename, and on a
+case-insensitive volume two bodies differing only in letter case fuse onto one ref file.
+The tail is therefore the body *case-armored*: a case marker rides ahead of each character —
+`u` for an uppercase letter, `l` for anything else — so coronet `CAABz` wears `uCuAuAuBlz`.
+The markers survive the case-fold the letters do not, so the armored form stays injective
+under folding and case-distinct coronets keep distinct refs on any filesystem;
+it is the same marker scheme the paddock filename wears (JJS0 `jjdhm_paddock`).
 Reading the badge is how a branch name resolves back to an identity — strip any prefix by
 finding the sprue-bearing segment, admit the roster word exactly, then length-type the tail
-as backstop.
+and disarm it: an armored tail, twice the bare body length, yields the bare body only when
+every marker agrees with its character's case.
+A bare-length tail also reads — the tolerance that keeps a standing unarmored billet branch
+legible — and that arm retires when the last such branch closes.
 Consumers *read* rather than compose wherever a pedigree is not already in hand, so a
 recorded prefix can never defeat a comparison.
 
