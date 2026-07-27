@@ -8,5 +8,5 @@ NOTE: Cleanup of prior state is handled by `docker compose down --remove-orphans
 This removes all containers and networks for the nameplate's compose project in a single command.
 Tolerates missing projects (first start on a fresh system).
 
-After compose-down, a subnet conflict detection step checks whether any foreign Docker network occupies this nameplate's enclave subnet.
-If a stale network from a different compose project is found (e.g., containers died without compose-down after a reboot), the operation fails with an actionable cleanup command.
+After compose-down, {rbsc_charge} reclaims this nameplate's enclave subnet.
+If a foreign Docker network occupies it (e.g., containers died without compose-down after a reboot), that network's attached containers are force-removed and the network itself is torn down, freeing the subnet regardless of the network's prefix or how it was created — fatal only if the occupying network cannot be removed.

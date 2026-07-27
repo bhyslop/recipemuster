@@ -585,6 +585,12 @@ Implemented using the `rmcp` crate (official Rust MCP SDK), version pinned exact
 The {jjdx_mcp} process is stateless infrastructure — it does not manage {jjdxo_officium} lifecycle.
 {jjdxo_officium_s} are created by explicit agent action ({jjdo_open}), not by server process startup.
 See <<jjdxo_officium>> for lifecycle details.
++
+*Answer-always.*
+Every {jjdx_tool} call terminates in a verdict the client receives — a success result or an error result, never silence.
+The `rmcp` transport spawns each request handler without an unwind guard and drops its join handle, so a {jjdx_handler} panic that escaped the dispatcher would kill the response task before it answered and strand the client forever on a healthy server.
+JJK's failure conduct panics by design — vedette exhaustion, an unclassified git failure, a nested lock acquire — so the dispatcher catches the unwind at the one membrane every command is driven through and answers it as an error verdict carrying the panic text verbatim.
+Fail-loud is thereby preserved as a verdict, not discarded as a hang.
 
 [[jjdx_tool]]
 //axl_voices axo_entity

@@ -5143,7 +5143,9 @@ through as the upstream tag (development path).
 {rbrv_group_reliquary}::
 Tool image reliquary binding for
 {rbrv_regime}.
-Applies to every vessel regardless of mode.
+Universal across the ordain path — conjure, bind, and graft alike, regardless of mode:
+the about/vouch pipeline (gcloud, docker, alpine, syft) consumes reliquary tool images uniformly in every mode,
+so the binding is never mode-conditional.
 
 [[rbrv_reliquary]]
 //axvr_variable axd_required
