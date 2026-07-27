@@ -535,6 +535,505 @@ fn rbtdrn_curl_containment(dir: &Path) -> rbtdre_Verdict {
     }
 }
 
+// ── One-home discipline backstop (citation integrity, rivet hoist, A8 residue)
+//
+// The mechanically-checkable slice of ACG's one-home discipline: a between-
+// audits guard, not a keystone. Paraphrase detection (the actual word cancer
+// the manual audits hunt) is irreducibly semantic and stays out of scope.
+// Three pure checks over an in-memory (rel_path, content) corpus — hermetic
+// and self-proven like the eviction/curl checkers above — plus a live-tree
+// wrapper per check.
+
+/// One one-home-discipline finding: where, what kind, and the detail prose.
+struct zrbtdrn_OneHomeHit {
+    path: String,
+    line: usize,
+    kind: &'static str,
+    detail: String,
+}
+
+fn zrbtdrn_onehome_render(hits: &[zrbtdrn_OneHomeHit]) -> String {
+    let mut report = String::new();
+    for h in hits {
+        report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.kind, h.detail));
+    }
+    report
+}
+
+/// True when `line`, after stripping a leading AsciiDoc list-bullet marker
+/// (`*`, `**`, …) if present, OPENS with an anchor `[[name]]` or
+/// `[[name,display]]` — the shared definition-site syntax for both quoins and
+/// rivets. Trailing content after the anchor is ignored (JJS0's
+/// `[[jjdpe_defined]] {jjdpe_defined}:: ...` same-line form); a bullet prefix
+/// is tolerated (JJS0's `* [[jjdgm_order]]` list-item form). Returns the bare
+/// name.
+fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
+    let t = line.trim();
+    let t = t.trim_start_matches('*').trim_start();
+    let rest = t.strip_prefix("[[")?;
+    let end = rest.find("]]")?;
+    let inner = &rest[..end];
+    let name = inner.split(',').next().unwrap_or("").trim();
+    if name.is_empty() {
+        None
+    } else {
+        Some(name.to_string())
+    }
+}
+
+/// True when `line` is a mapping-section attribute declaration
+/// `:name:  <<target,Display Text>>` — the MCM quoin-registration line.
+/// Returns `(name, target)`. A variant (`name` = `axo_entity_s`) points its
+/// `target` at the base quoin's anchor (`axo_entity`), never its own — MCM's
+/// `_s`/`_p`/`_ed`/`_ing` suffix mechanism, so `name` and `target` differ by
+/// design and only `target` need resolve to an anchor.
+fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
+    let t = line.trim_start();
+    let rest = t.strip_prefix(':')?;
+    let colon = rest.find(':')?;
+    let name = &rest[..colon];
+    if name.is_empty() || !name.chars().next()?.is_ascii_lowercase() {
+        return None;
+    }
+    if !name.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_') {
+        return None;
+    }
+    let tail = rest[colon + 1..].trim_start();
+    let target = tail.strip_prefix("<<")?;
+    let target = target.split(',').next().unwrap_or("").trim();
+    if target.is_empty() {
+        None
+    } else {
+        Some((name.to_string(), target.to_string()))
+    }
+}
+
+/// Extract every `{term}` brace citation on `line` whose inner text is a
+/// snake_case identifier carrying an underscore — the project-quoin shape,
+/// distinguishing a real linked-term citation from AsciiDoc's own built-in
+/// attributes (`{basebackend}`, `{docdir}`, …), which never carry one.
+fn zrbtdrn_parse_braced_citations(line: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let chars: Vec<char> = line.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '{' {
+            if let Some(end) = chars[i + 1..].iter().position(|&c| c == '}') {
+                let inner: String = chars[i + 1..i + 1 + end].iter().collect();
+                let is_ident = !inner.is_empty()
+                    && inner.chars().next().unwrap().is_ascii_lowercase()
+                    && inner.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+                    && inner.contains('_');
+                if is_ident {
+                    out.push(inner);
+                }
+                i = i + 1 + end + 1;
+                continue;
+            }
+        }
+        i += 1;
+    }
+    out
+}
+
+/// Every real `RBr_xxx` token on `line` — `RBr_` followed by the mint
+/// convention's exactly-3-char lowercase-alnum opaque tail (`RBr_a3f`,
+/// `RBr_m4d`, …). A bare `RBr_` with no tail is prose *describing* the naming
+/// convention itself (MCM/ACG doctrine text), never a real citation, so it is
+/// excluded by the length/shape requirement rather than by name.
+fn zrbtdrn_parse_rivet_tokens(line: &str) -> Vec<String> {
+    zrbtdrn_tokens(line)
+        .into_iter()
+        .filter(|t| match t.strip_prefix("RBr_") {
+            Some(tail) => tail.len() == 3 && tail.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()),
+            None => false,
+        })
+        .collect()
+}
+
+/// True when `token` has the shipped spec-acronym shape: `RBS` followed by one
+/// or more uppercase-letter/digit characters (`RBS0`, `RBSPB`, `RBSIJ`, …). A8
+/// source-residue bars this shape from shipped `.sh` files — only a bare
+/// `RBr_` rivet ID or nothing may cite a spec from source.
+fn zrbtdrn_is_spec_acronym(token: &str) -> bool {
+    match token.strip_prefix("RBS") {
+        Some(rest) => !rest.is_empty() && rest.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit()),
+        None => false,
+    }
+}
+
+/// The prefix segment of a snake_case identifier — everything before the
+/// first underscore. Used to recognize a *known quoin family*: a prefix
+/// carried by at least one mapping-declared name in the corpus.
+fn zrbtdrn_prefix_of(name: &str) -> &str {
+    name.split('_').next().unwrap_or(name)
+}
+
+/// Sheaves whose mapping-declared quoins are pre-registered ahead of their
+/// defining prose — a foreign-kit drafting gap, outside this fixture's
+/// jurisdiction to close. Each entry names its removal condition; delete the
+/// entry once met.
+///
+/// - `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc`: the "Dispatch (tabtarget
+///   system)" mapping block (`vosdc_colophon`, `vosdf_frontispiece`,
+///   `vosdi_imprint`, `vosdm_formulary`, `vosdl_launcher`, and their `_s`
+///   variants) is declared with no anchor yet authored anywhere in the VOK
+///   kit. Remove this entry once VOS0 authors those definition sites.
+const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &["Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc"];
+
+/// Check 1 — citation integrity: every mapping-declared quoin and every
+/// `{term}`/`RBr_xxx` citation anywhere in the corpus resolves to a real
+/// `[[anchor]]` definition site. `all_files` covers both `.adoc` and `.sh`
+/// content (a rivet may be cited from either); braced-citation and mapping
+/// scanning apply only to the `.adoc` corpus, since `{term}` and `:term:` are
+/// AsciiDoc syntax. `unanchored_exempt_paths` names sheaves whose pre-existing
+/// unanchored mapping entries are a recorded, out-of-scope drafting gap
+/// rather than a fresh violation.
+///
+/// A `{term}` citation is judged only when `term`'s prefix is a *known quoin
+/// family* — at least one mapping-declared name carries that same prefix
+/// somewhere in the corpus. AsciiDoc's `{...}` syntax collides with incidental
+/// curly-brace prose (wire-format templates, shell-variable interpolation,
+/// example error strings); restricting to established families is the
+/// mechanical way to tell a real citation from that noise without parsing
+/// quote/code-span context.
+fn zrbtdrn_check_citations(
+    adoc_files: &[(&str, &str)],
+    all_files: &[(&str, &str)],
+    unanchored_exempt_paths: &[&str],
+) -> Vec<zrbtdrn_OneHomeHit> {
+    let mut anchors: std::collections::HashSet<String> = std::collections::HashSet::new();
+    let mut mapping: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    for (_, content) in adoc_files {
+        for line in content.lines() {
+            if let Some(name) = zrbtdrn_parse_anchor(line) {
+                anchors.insert(name);
+            }
+            if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
+                mapping.insert(name, target);
+            }
+        }
+    }
+    let known_families: std::collections::HashSet<&str> =
+        mapping.keys().map(|name| zrbtdrn_prefix_of(name)).collect();
+
+    let mut hits = Vec::new();
+
+    for (path, content) in adoc_files {
+        if unanchored_exempt_paths.contains(path) {
+            continue;
+        }
+        for (idx, line) in content.lines().enumerate() {
+            if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
+                if !anchors.contains(&target) {
+                    hits.push(zrbtdrn_OneHomeHit {
+                        path: path.to_string(),
+                        line: idx + 1,
+                        kind: "unanchored-quoin",
+                        detail: format!("mapping declares '{}' -> <<{}>> but no [[{}]] anchor exists", name, target, target),
+                    });
+                }
+            }
+            for term in zrbtdrn_parse_braced_citations(line) {
+                if !known_families.contains(zrbtdrn_prefix_of(&term)) {
+                    continue;
+                }
+                let resolves = mapping.get(&term).map_or(false, |target| anchors.contains(target));
+                if !resolves {
+                    hits.push(zrbtdrn_OneHomeHit {
+                        path: path.to_string(),
+                        line: idx + 1,
+                        kind: "broken-quoin-citation",
+                        detail: format!("{{{}}} resolves to no declared-and-anchored quoin", term),
+                    });
+                }
+            }
+        }
+    }
+
+    for (path, content) in all_files {
+        for (idx, line) in content.lines().enumerate() {
+            if zrbtdrn_parse_anchor(line).is_some() {
+                continue;
+            }
+            for id in zrbtdrn_parse_rivet_tokens(line) {
+                if !anchors.contains(&id) {
+                    hits.push(zrbtdrn_OneHomeHit {
+                        path: path.to_string(),
+                        line: idx + 1,
+                        kind: "broken-rivet-citation",
+                        detail: format!("{} resolves to no [[{}]] anchor", id, id),
+                    });
+                }
+            }
+        }
+    }
+
+    hits
+}
+
+/// Rivets whose cross-sheaf citation is a deliberate, recorded hoist
+/// deferral — never an unexamined exemption. Each entry names its removal
+/// condition; delete the entry (and perform the hoist) once met.
+///
+/// - `RBr_m4d`: hoist deferred while RBS0 remains under active spec-doctrine
+///   work. Remove this entry when RBr_m4d's definition prose moves from
+///   RBSPB-citizen_brevet.adoc to RBS0-SpecTop.adoc.
+const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
+
+/// The codex sheaf itself — RBS0, the hoist target MCM's rivet law names. A
+/// rivet anchored here is definitionally already hoisted, so citing it from
+/// any other sheaf is the intended end-state, never a violation.
+const ZRBTDRN_CODEX_SHEAF: &str = "Tools/rbk/vov_veiled/RBS0-SpecTop.adoc";
+
+/// Sheaves whose role is a rivet *census/index* — pointing at where a rivet is
+/// homed ("Chapter: RBSCIP... the RBr_7a9 rivet is homed there"), never
+/// consuming its content as working vocabulary. MCM's hoist law guards
+/// against a sibling sheaf silently depending on another's interior; an index
+/// entry is the opposite — a directory pointer whose whole job is to name
+/// rivets without restating them. Hoisting on an index citation would drag
+/// every catalogued rivet into RBS0 and destroy the census function, so a
+/// sheaf named here is exempt as a *citer* (never as a definer).
+///
+/// - `RBSWB-Watchbill.adoc`: the indeterminacy-membrane census (`//axvd_sheaf
+///   axd_normative`; doctrine text: "the watchbill points at the chapters and
+///   never restates them"). Its citations of RBSCIP's `RBr_7a9`/`RBr_3f4`/
+///   `RBr_c81` are directory entries, not content consumption.
+const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["Tools/rbk/vov_veiled/RBSWB-Watchbill.adoc"];
+
+/// Check 2 — rivet-hoist placement (MCM `mcm_rivet`: a rivet hoists to the
+/// codex the moment a second sheaf cites it). A rivet anchored in one `.adoc`
+/// sheaf and cited by bare token from a *different* `.adoc` sheaf should have
+/// hoisted; `waivers` names the rivets whose deferral is recorded and
+/// conditioned rather than silently exempted. A rivet anchored in `codex`
+/// (RBS0) is exempt outright — that IS the hoisted state. A citation FROM a
+/// sheaf in `index_sheaves` never counts — the citer's whole role is to point
+/// at content homed elsewhere, not to consume it.
+fn zrbtdrn_check_rivet_hoist(
+    adoc_files: &[(&str, &str)],
+    waivers: &[&str],
+    codex: &str,
+    index_sheaves: &[&str],
+) -> Vec<zrbtdrn_OneHomeHit> {
+    let mut def_sheaf: std::collections::HashMap<String, &str> = std::collections::HashMap::new();
+    for (path, content) in adoc_files {
+        for line in content.lines() {
+            if let Some(name) = zrbtdrn_parse_anchor(line) {
+                if name.starts_with("RBr_") {
+                    def_sheaf.entry(name).or_insert(path);
+                }
+            }
+        }
+    }
+
+    let mut hits = Vec::new();
+    for (path, content) in adoc_files {
+        if index_sheaves.contains(path) {
+            continue;
+        }
+        for (idx, line) in content.lines().enumerate() {
+            if zrbtdrn_parse_anchor(line).is_some() {
+                continue;
+            }
+            for id in zrbtdrn_parse_rivet_tokens(line) {
+                if waivers.contains(&id.as_str()) {
+                    continue;
+                }
+                if let Some(&home) = def_sheaf.get(&id) {
+                    if home != *path && home != codex {
+                        hits.push(zrbtdrn_OneHomeHit {
+                            path: path.to_string(),
+                            line: idx + 1,
+                            kind: "unhoisted-rivet",
+                            detail: format!("{} defined in {} cited cross-sheaf here — hoist to the codex", id, home),
+                        });
+                    }
+                }
+            }
+        }
+    }
+    hits
+}
+
+/// Check 3 — A8 source-residue: a shipped `.sh` file carries no spec-acronym
+/// token (`RBS0`, `RBSPB`, …) — only a bare `RBr_` rivet ID or nothing. Callers
+/// exclude any `vov_veiled/` path before calling — that tree is shelved/veiled,
+/// never shipped, so its residue rules are out of scope.
+fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit> {
+    let mut hits = Vec::new();
+    for (path, content) in sh_files {
+        for (idx, line) in content.lines().enumerate() {
+            for token in zrbtdrn_tokens(line) {
+                if zrbtdrn_is_spec_acronym(&token) {
+                    hits.push(zrbtdrn_OneHomeHit {
+                        path: path.to_string(),
+                        line: idx + 1,
+                        kind: "a8-spec-acronym-residue",
+                        detail: format!("shipped source cites spec acronym {} — residue must be bare RBr_ or nothing", token),
+                    });
+                }
+            }
+        }
+    }
+    hits
+}
+
+/// Scan roots for the one-home checks — narrower than
+/// `ZRBTDRN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
+/// sprues, not the whole `Tools/` corpus. RBK's tree is this fixture's
+/// jurisdiction and is clean against these checks; the other kits'
+/// foundational specs (CMK's MCM-MetaConceptModel.adoc, JJK's
+/// JJS0_JobJockeySpec.adoc) carry pre-existing one-home violations in bulk —
+/// genuine corpus debt, not a design flaw in the checks (verified: MCM's own
+/// Linked Term law makes the anchor constitutive, so a dangling `<<target>>`
+/// really is broken). Closing that debt belongs to each kit, not to this
+/// fixture. Widen a kit's root in here once that kit's specs are clean.
+const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
+
+/// Live-tree wrapper: walk `ZRBTDRN_ONEHOME_SCAN_ROOTS`, split into `.adoc`
+/// and `.sh` corpora (the latter excluding any `vov_veiled/` path — shelved,
+/// not shipped), and run all three one-home checks.
+fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let mut files: Vec<PathBuf> = Vec::new();
+    for sub in ZRBTDRN_ONEHOME_SCAN_ROOTS {
+        zrbtdrn_walk(&root.join(sub), &mut files);
+    }
+    files.sort();
+
+    let mut adoc_owned: Vec<(String, String)> = Vec::new();
+    let mut sh_owned: Vec<(String, String)> = Vec::new();
+    for path in &files {
+        let content = match std::fs::read_to_string(path) {
+            Ok(c) => c,
+            Err(_) => continue,
+        };
+        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, path);
+        match path.extension().and_then(|e| e.to_str()) {
+            Some("adoc") => adoc_owned.push((rel, content)),
+            Some("sh") if !rel.contains("/vov_veiled/") => sh_owned.push((rel, content)),
+            _ => {}
+        }
+    }
+
+    let adoc_refs: Vec<(&str, &str)> =
+        adoc_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
+    let mut all_owned: Vec<(String, String)> = adoc_owned.clone();
+    all_owned.extend(sh_owned.iter().cloned());
+    let all_refs: Vec<(&str, &str)> =
+        all_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
+    let sh_refs: Vec<(&str, &str)> =
+        sh_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
+
+    let mut hits = zrbtdrn_check_citations(&adoc_refs, &all_refs, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
+    hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES));
+    hits.extend(zrbtdrn_check_a8_residue(&sh_refs));
+
+    let report = zrbtdrn_onehome_render(&hits);
+    let _ = std::fs::write(dir.join("conformance-onehome.txt"), &report);
+
+    if hits.is_empty() {
+        rbtdre_Verdict::Pass
+    } else {
+        rbtdre_Verdict::Fail(format!(
+            "{} one-home discipline violation(s) in the live tree:\n{}",
+            hits.len(),
+            report
+        ))
+    }
+}
+
+// ── One-home self-test cases — each check proves itself ─────
+
+/// Citation integrity: a mapping-declared quoin with no anchor, a `{term}`
+/// citation to a real anchor (clears), a `{term}` citation to nothing
+/// (broken), and a bare `RBr_xxx` citation to nothing (broken) — all in one
+/// synthetic corpus, none touching the live tree.
+fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
+    let a = (
+        "Tools/rbk/vov_veiled/RBSAA-fake.adoc",
+        ":rbk_present:                 <<rbk_present,Present>>\n\
+         :rbk_present_s:               <<rbk_present,Presents>>\n\
+         :rbk_absent:                  <<rbk_absent,Absent>>\n\
+         :rbk_listed:                  <<rbk_listed,Listed>>\n\
+         :rbk_sameline:                <<rbk_sameline,Sameline>>\n\
+         [[rbk_present]]\n\
+         rbk_present:: defined here.\n\
+         * [[rbk_listed]]\n\
+         {rbk_listed}\n\
+         lives on a list-bullet anchor line (JJS0's `* [[name]]` pattern).\n\
+         [[rbk_sameline]] {rbk_sameline}:: anchor and term share one line (JJS0's `[[x]] {x}::` pattern).\n\
+         Cites the present one {rbk_present}, its variant {rbk_present_s}, the list-anchored {rbk_listed}, the same-line {rbk_sameline}, and the broken one {rbk_missing}.\n\
+         Also cites RBr_zzz which has no anchor.\n",
+    );
+    let exempt = (
+        "Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc",
+        ":rbk_exempt:                  <<rbk_exempt,Exempt>>\n",
+    );
+    let adoc = vec![a, exempt];
+    let all = vec![a, exempt];
+    let hits = zrbtdrn_check_citations(&adoc, &all, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
+    let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
+    let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
+    let mut got = kinds.clone();
+    got.sort();
+    expected.sort();
+    if got != expected {
+        return rbtdre_Verdict::Fail(format!(
+            "expected kinds {:?}, got {:?}:\n{}",
+            expected,
+            kinds,
+            zrbtdrn_onehome_render(&hits)
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+/// Rivet-hoist placement: a rivet cited from its own defining sheaf clears; the
+/// same rivet cited from a second sheaf is flagged; a waived rivet cited
+/// cross-sheaf clears despite the waiver being live; a rivet anchored in the
+/// codex itself clears no matter how many sheaves cite it; a rivet cited from
+/// a census/index sheaf clears regardless of home.
+fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
+    let home = ("Tools/rbk/vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
+    let sibling = ("Tools/rbk/vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
+    let waived_home = ("Tools/rbk/vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
+    let waived_citer = ("Tools/rbk/vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
+    let codex_home = (ZRBTDRN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
+    let codex_citer = ("Tools/rbk/vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
+    let index_citer = (ZRBTDRN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
+    let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer, index_citer];
+
+    let hits = zrbtdrn_check_rivet_hoist(&adoc, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES);
+    if hits.len() != 1 || hits[0].kind != "unhoisted-rivet" || !hits[0].detail.contains("RBr_a11") {
+        return rbtdre_Verdict::Fail(format!(
+            "expected exactly 1 unhoisted-rivet hit for RBr_a11 (RBr_m4d waived), got:\n{}",
+            zrbtdrn_onehome_render(&hits)
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
+/// A8 source-residue: a bare `RBr_` residue clears; a spec-acronym citation
+/// (`RBSAA`) is flagged.
+fn rbtdrn_self_a8_residue(_dir: &Path) -> rbtdre_Verdict {
+    let sh = vec![(
+        "Tools/rbk/probe.sh",
+        "# clean residue cites RBr_a11 only\nz_x=1\n# violation cites RBSAA directly\n",
+    )];
+    let hits = zrbtdrn_check_a8_residue(&sh);
+    if hits.len() != 1 || hits[0].kind != "a8-spec-acronym-residue" || hits[0].line != 3 {
+        return rbtdre_Verdict::Fail(format!(
+            "expected exactly 1 a8-spec-acronym-residue hit at line 3, got:\n{}",
+            zrbtdrn_onehome_render(&hits)
+        ));
+    }
+    rbtdre_Verdict::Pass
+}
+
 // ── Self-test cases — the checker proves itself ─────────────
 
 /// A synthetic stem that appears in no real source — the self-tests run the
@@ -681,6 +1180,10 @@ pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
     case!(rbtdrn_self_curl_catches_deviants),
     case!(rbtdrn_self_curl_unscannable),
     case!(rbtdrn_curl_containment),
+    case!(rbtdrn_self_citation_integrity),
+    case!(rbtdrn_self_rivet_hoist),
+    case!(rbtdrn_self_a8_residue),
+    case!(rbtdrn_onehome_live),
 ];
 
 pub static RBTDRN_FIXTURE_CONFORMANCE: rbtdre_Fixture = rbtdre_Fixture {

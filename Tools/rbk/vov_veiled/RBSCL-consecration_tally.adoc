@@ -42,7 +42,7 @@ HTTP 200 response
 .. Extract `.packages[].name` from the response, strip the resource prefix, and URL-decode `%2F` back to `/`
 .. Filter to names whose path under `«HALLMARKS_ROOT»/` is exactly two segments (`<hallmark>/<basename>`); excludes both shallower and deeper entries, and excludes anything outside `{gar_hallmarks_namespace}/` (Lodes, probe artifacts)
 .. For each retained `<hallmark>/<basename>` package, {rbbc_call}
-link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[GAR REST API: tags.list] for the package and {rbbc_require} at least one tag returned (HTTP 200 with non-empty `.tags[]`). Skip packages with zero tags — these are post-jettison walking-dead, filtered per the read-side convention homed at {rbtgo_image_jettison}.
+link:https://cloud.google.com/artifact-registry/docs/reference/rest/v1/projects.locations.repositories.packages.tags/list[GAR REST API: tags.list] for the package and {rbbc_require} at least one tag returned (HTTP 200 with non-empty `.tags[]`). Skip packages with zero tags — these are post-jettison walking-dead, filtered per the read-side convention homed at {rbtgo_image_delete}.
 .. {rbbc_store}
 `«PAIRS»` as sorted `<hallmark> <basename>` pairs (one per line) for packages with at least one live tag. An empty result is a valid outcome — no hallmarks in the repository.
 
