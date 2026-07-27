@@ -1370,7 +1370,7 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
     };
     let ground = jjrds_ground_of(&identity);
     let verdict = match &ground {
-        jjrds_Ground::PaceBillet { .. } => zjjrds_stile_pace_verdict(farrier, billet_root),
+        jjrds_Ground::PaceBillet { .. } => zjjrds_stile_pace_verdict(farrier, billet_root, trunk),
         jjrds_Ground::GroomBillet => zjjrds_stile_groom_verdict(farrier, billet_root, trunk),
         // Neither ground the door ever seats a session in — the litmus is total
         // rather than partial, and entitles destruction to neither.
@@ -1395,10 +1395,12 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
 /// (JJSVD "The stile": "a cleared billet names where the work stands"). The
 /// reaped worktree is not the answer — it is the one place the work no longer
 /// is. A pace billet's work stands on its durable branch: `billet_remove` takes
-/// only the worktree, and the branch — pushed, since the litmus proved it not
-/// ahead of its own counterpart — survives in the primary's ref store to
-/// re-seat from. A groom billet carried nothing of its own; clean and reachable
-/// from trunk's counterpart, its position is already in trunk.
+/// only the worktree, and the branch survives in the primary's ref store to
+/// re-seat from — pushed, where the custody pass proved it not ahead of its own
+/// counterpart; a local-only marker, where the content-proof pass cleared a
+/// dropped no-work billet the branch never carried anything of value onto. A
+/// groom billet seats no branch and carried nothing of its own; content-empty
+/// against trunk's custody base, its position is already in trunk.
 fn zjjrds_where_it_stands(identity: &crate::jjrfr_farrier::jjrfr_Identity, trunk: &str) -> String {
     match &identity.line_of_work {
         jjrfr_LineOfWork::Branch(name) => format!("work stands on branch {}", name),
@@ -1412,10 +1414,14 @@ fn zjjrds_where_it_stands(identity: &crate::jjrfr_farrier::jjrfr_Identity, trunk
 enum zjjrds_StileVerdict {
     Passes,
     Dirty,
-    /// Pace arm: local commits exist beyond the billet's own counterpart.
+    /// Pace arm: local commits exist beyond the billet's own counterpart, and
+    /// the content-proof pass did not clear them either — real work trunk lacks.
     AheadOfCounterpart,
-    /// Pace arm: no counterpart known yet — nothing consigned. Ignorance
-    /// stands, the litmus's ignorance-stands arm (JJSVD).
+    /// Pace arm: never consigned (no counterpart of its own), and the
+    /// content-proof pass did not clear it — it carries content beyond trunk's
+    /// custody base, or nothing can be proven held at all. The re-scoped
+    /// ignorance-stands arm: a derivable custody base is proof, so only genuine
+    /// content or total ignorance stands here (JJSVD).
     Untracked,
     /// Groom arm: the detached tip carries content beyond trunk's counterpart.
     Unreachable,
@@ -1436,24 +1442,50 @@ impl zjjrds_StileVerdict {
     }
 }
 
-/// The pace-billet arm: clean AND not ahead of its own counterpart — every
-/// commit already in remote custody.
-fn zjjrds_stile_pace_verdict<F: jjrfr_FarrierCore>(farrier: &F, billet_root: &Path) -> Result<zjjrds_StileVerdict, jjrfr_Rejection> {
+/// The pace-billet arm: clean, AND cleared by either of two independent passes.
+/// The *custody pass* — its tip not ahead of its own counterpart, every commit
+/// already in remote custody — clears a consigned-not-wrapped billet whose real
+/// work is safe on its own pushed branch. The *content-proof pass* — no content
+/// added beyond trunk's custody base — clears a dropped no-work billet whose
+/// only commit is the officium marker, though it was never consigned: a
+/// derivable custody base is proof, not ignorance. The passes are additive, not
+/// a replacement; only when neither holds — genuine unconsigned content, or
+/// total ignorance of any custody base — does the billet stand, named from the
+/// sync posture.
+fn zjjrds_stile_pace_verdict<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
+    farrier: &F,
+    billet_root: &Path,
+    trunk: &str,
+) -> Result<zjjrds_StileVerdict, jjrfr_Rejection> {
     let comb = farrier.jjrfr_comb(billet_root)?;
     if !comb.jjrfr_is_clean() {
         return Ok(zjjrds_StileVerdict::Dirty);
     }
-    match farrier.jjrfr_sync_state(billet_root)? {
-        jjrfr_SyncState::Tracking { ahead: 0, .. } => Ok(zjjrds_StileVerdict::Passes),
-        jjrfr_SyncState::Tracking { .. } => Ok(zjjrds_StileVerdict::AheadOfCounterpart),
-        jjrfr_SyncState::Untracked => Ok(zjjrds_StileVerdict::Untracked),
+    let sync = farrier.jjrfr_sync_state(billet_root)?;
+    // Custody pass: every commit already in the billet's own remote custody.
+    if matches!(sync, jjrfr_SyncState::Tracking { ahead: 0, .. }) {
+        return Ok(zjjrds_StileVerdict::Passes);
     }
+    // Content-proof pass: nothing added beyond trunk's custody base, so the
+    // billet holds nothing trunk does not — the dropped no-work billet clears
+    // even though it was never consigned.
+    if farrier.jjrfr_reachable(billet_root, trunk)? {
+        return Ok(zjjrds_StileVerdict::Passes);
+    }
+    // Neither pass: the billet carries unconsigned content, or nothing can be
+    // proven held at all.
+    Ok(match sync {
+        jjrfr_SyncState::Tracking { .. } => zjjrds_StileVerdict::AheadOfCounterpart,
+        jjrfr_SyncState::Untracked => zjjrds_StileVerdict::Untracked,
+    })
 }
 
-/// The groom-billet arm: clean AND its content against trunk's remote
-/// counterpart is empty — a marker-only commit (every dispatch's `jjdo_open`
-/// echo) carries no content and passes, while a raw detached commit with
-/// real content stands.
+/// The groom-billet arm: clean AND cleared by the content-proof pass — every
+/// commit beyond trunk's custody base is tree-identical to its parent, so a
+/// marker-only commit (every dispatch's `jjdo_open` echo) passes while a raw
+/// detached commit with real content stands. A groom is detached and never
+/// consigned, so the content-proof pass is its whole litmus — the pace arm's
+/// custody pass has no counterpart here.
 fn zjjrds_stile_groom_verdict<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     farrier: &F,
     billet_root: &Path,

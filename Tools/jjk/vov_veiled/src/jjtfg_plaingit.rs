@@ -1367,6 +1367,22 @@ fn jjtfg_reachable_is_false_when_no_counterpart_is_known() {
 }
 
 #[test]
+fn jjtfg_reachable_is_false_for_a_content_then_revert_pair() {
+    let (_bare, _primary, billet) = zjjtfg_detached_billeted_with_remote("jjtfg_reachable_content_revert");
+
+    // A commit that adds content, then one that removes it again: the tip tree
+    // equals the merge-base tree, so a NET diff from base to tip would call the
+    // billet empty and clear it — orphaning the content the first commit
+    // carried. The per-commit tree-identity proof sees the first commit is
+    // content-bearing and stands. This is the fork the stile cinch resolves.
+    zjjtfg_commit_all(billet.path(), "work.txt", "real work", "add content");
+    zjjtfg_git(billet.path(), &["rm", "-q", "work.txt"]);
+    zjjtfg_git(billet.path(), &["commit", "-q", "-m", "revert content"]);
+
+    assert!(!jjrfg_PlainGit.jjrfr_reachable(billet.path(), ZJJTFG_TRUNK).unwrap());
+}
+
+#[test]
 fn jjtfg_billet_remove_reaps_a_clean_billet() {
     let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_remove_clean");
     let billet = zjjtfg_billet_slot("jjtfg_billet_remove_clean_billet");
