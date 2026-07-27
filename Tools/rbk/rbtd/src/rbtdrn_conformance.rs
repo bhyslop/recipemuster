@@ -663,15 +663,16 @@ fn zrbtdrn_is_spec_acronym(token: &str) -> bool {
 }
 
 /// The prefix segment of a snake_case identifier — everything before the
-/// first underscore. Used to recognize a *known quoin family*: a prefix with
-/// at least one other mapping-declared member elsewhere in the corpus.
+/// first underscore. Used to recognize a *known quoin family*: a prefix
+/// carried by at least one mapping-declared name in the corpus.
 fn zrbtdrn_prefix_of(name: &str) -> &str {
     name.split('_').next().unwrap_or(name)
 }
 
 /// Sheaves whose mapping-declared quoins are pre-registered ahead of their
-/// defining prose — a foreign-kit drafting gap, never this heat's to close.
-/// Each entry names its removal condition; delete the entry once met.
+/// defining prose — a foreign-kit drafting gap, outside this fixture's
+/// jurisdiction to close. Each entry names its removal condition; delete the
+/// entry once met.
 ///
 /// - `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc`: the "Dispatch (tabtarget
 ///   system)" mapping block (`vosdc_colophon`, `vosdf_frontispiece`,
@@ -690,8 +691,8 @@ const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &["Tools/vok/vov_veiled/V
 /// rather than a fresh violation.
 ///
 /// A `{term}` citation is judged only when `term`'s prefix is a *known quoin
-/// family* — some other mapping-declared name shares the same prefix
-/// elsewhere in the corpus. AsciiDoc's `{...}` syntax collides with incidental
+/// family* — at least one mapping-declared name carries that same prefix
+/// somewhere in the corpus. AsciiDoc's `{...}` syntax collides with incidental
 /// curly-brace prose (wire-format templates, shell-variable interpolation,
 /// example error strings); restricting to established families is the
 /// mechanical way to tell a real citation from that noise without parsing
@@ -713,12 +714,8 @@ fn zrbtdrn_check_citations(
             }
         }
     }
-    let mut prefix_counts: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
-    for name in mapping.keys() {
-        *prefix_counts.entry(zrbtdrn_prefix_of(name)).or_insert(0) += 1;
-    }
     let known_families: std::collections::HashSet<&str> =
-        prefix_counts.into_iter().filter(|(_, n)| *n > 0).map(|(p, _)| p).collect();
+        mapping.keys().map(|name| zrbtdrn_prefix_of(name)).collect();
 
     let mut hits = Vec::new();
 
@@ -779,9 +776,8 @@ fn zrbtdrn_check_citations(
 /// deferral — never an unexamined exemption. Each entry names its removal
 /// condition; delete the entry (and perform the hoist) once met.
 ///
-/// - `RBr_m4d`: hoist deferred while RBS0 sits cinched hot (₣Bs
-///   rbk-10-create-staging carries two unlanded spec-doctrine paces). Remove
-///   this entry when RBr_m4d's definition prose moves from
+/// - `RBr_m4d`: hoist deferred while RBS0 remains under active spec-doctrine
+///   work. Remove this entry when RBr_m4d's definition prose moves from
 ///   RBSPB-citizen_brevet.adoc to RBS0-SpecTop.adoc.
 const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 
@@ -884,15 +880,14 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 
 /// Scan roots for the one-home checks — narrower than
 /// `ZRBTDRN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
-/// sprues, not the whole `Tools/` corpus. RBK is what heat ₣Bz owns, and
-/// RBK's tree is clean against these checks; the other kits' foundational
-/// specs (CMK's MCM-MetaConceptModel.adoc, JJK's JJS0_JobJockeySpec.adoc)
-/// carry ~150 pre-existing, genuine one-home violations — real corpus debt
-/// predating this pace, not a design flaw in the checks (verified: MCM's own
+/// sprues, not the whole `Tools/` corpus. RBK's tree is this fixture's
+/// jurisdiction and is clean against these checks; the other kits'
+/// foundational specs (CMK's MCM-MetaConceptModel.adoc, JJK's
+/// JJS0_JobJockeySpec.adoc) carry pre-existing one-home violations in bulk —
+/// genuine corpus debt, not a design flaw in the checks (verified: MCM's own
 /// Linked Term law makes the anchor constitutive, so a dangling `<<target>>`
-/// really is broken). Fixing that debt is each kit's own future adoption
-/// pace, never this one's. Widen a kit's root in here once that kit's specs
-/// are clean.
+/// really is broken). Closing that debt belongs to each kit, not to this
+/// fixture. Widen a kit's root in here once that kit's specs are clean.
 const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
 
 /// Live-tree wrapper: walk `ZRBTDRN_ONEHOME_SCAN_ROOTS`, split into `.adoc`
