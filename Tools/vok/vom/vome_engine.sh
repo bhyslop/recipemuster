@@ -97,4 +97,14 @@ vome_run() {
   "${ZVOME_BINARY}" "$@"
 }
 
+vome_cadastre() {
+  zvome_sentinel
+
+  zvome_build_binary
+
+  buc_step "Rendering cadastre"
+  "${ZVOME_BINARY}" cadastre || buc_die "cadastre render failed"
+  buc_success "Cadastre rendered"
+}
+
 # eof
