@@ -12,11 +12,7 @@ through the ordered charge that raises the guard before the workload's first pac
 to the standing guard holding under a determined adversary,
 and how the whole structure is torn down when the run ends.
 
-The tale binds stitching only:
-a cast of actors quartered into venues, and an ordered run of interactions.
-Every parameter, output, guarantee, and rejection band lives in the cited contracts, never here.
-The marker skeleton is the truth;
-any rendered diagram — its boxes, its arrows, its inscriptions — is derived presentation.
+This sheaf is a {axd_chapbook}; its genre contract governs and is not restated here.
 
 *Oracle.*
 The story spine is the siege suite
@@ -277,8 +273,8 @@ the guarantee the tale exists to tell survives the swap of everything but the gu
 
 == Surfaced Gaps
 
-Story-first authoring exists to surface exactly these.
-Both gaps are graduation conditions for this chapbook, alongside its cast-and-interaction ratification.
+Story-first authoring exists to surface exactly what follows.
+Each surfaced gap is a graduation condition for this chapbook, alongside its cast-and-interaction ratification.
 
 *The teardown has no operation quoin.*
 Charge is a catalogued operation —
