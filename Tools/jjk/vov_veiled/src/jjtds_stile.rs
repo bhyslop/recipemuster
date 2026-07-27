@@ -1072,18 +1072,40 @@ fn jjtds_trailing_step_stands_a_groom_billet_with_a_raw_local_commit() {
     let yard = zjjtds_yard(&plan, 200501);
     jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
 
-    // A raw local commit on the detached tip: reachable from nothing, so the
-    // groom-billet arm of the litmus refuses.
+    // A raw local commit on the detached tip carries real content against
+    // trunk's counterpart, so the groom-billet arm of the litmus refuses.
     zjjtds_commit_all(&yard.billet_root, "raw.txt", "raw", "raw local groom commit");
 
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("stands"), "expected a standing report, got: {}", report);
     assert!(
-        report.contains("not reachable from trunk's counterpart"),
+        report.contains("carries content beyond trunk's counterpart"),
         "the report must name the failed conjunct (JJSVD \"The stile\"): {}",
         report
     );
-    assert!(yard.billet_root.exists(), "an unreachable groom billet must never be destroyed");
+    assert!(yard.billet_root.exists(), "a content-bearing groom billet must never be destroyed");
+}
+
+#[test]
+fn jjtds_trailing_step_clears_a_groom_billet_with_a_marker_only_commit() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_marker_only");
+    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200502);
+    jjrds_board(&jjrfg_PlainGit, &plan, &yard).unwrap();
+
+    // An empty marker commit atop the detached tip — the shape every
+    // dispatch's `jjdo_open` leaves behind. Ancestry alone would call this
+    // stranded forever; the content litmus sees an empty delta and passes.
+    zjjtds_git(&yard.billet_root, &["commit", "--allow-empty", "-q", "-m", "officium marker"]);
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("cleared"), "a marker-only groom billet must clear: {}", report);
+    assert!(
+        report.contains(&format!("work stands in trunk {}", plan.trunk)),
+        "a cleared groom billet must name trunk as where the work stands (JJSVD \"The stile\"): {}",
+        report
+    );
+    assert!(!yard.billet_root.exists(), "a marker-only groom billet must be destroyed unattended");
 }
 
 #[test]

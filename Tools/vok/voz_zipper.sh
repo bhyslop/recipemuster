@@ -46,7 +46,6 @@ zvoz_kindle() {
   buz_enroll VOZ_CLEAN    "vow-c" "${z_mod}" "vob_clean"   ""        "Remove Rust build artifacts from kit target directories"
   buz_enroll VOZ_TEST     "vow-t" "${z_mod}" "vob_test"    ""        "Run all kit crate tests"
   buz_enroll VOZ_RELEASE  "vow-R" "${z_mod}" "vob_release" "imprint" "Build a VVK parcel for the imprinted kit set (full|buk-only|buk-jjk)"
-  buz_enroll VOZ_FRESHEN  "vow-F" "${z_mod}" "vob_freshen" ""        "Freshen CLAUDE.md @-includes from installed kits"
 
   # Matricula (vom) crate — operator-only inscription census; never ships
   # (VOr_q4f). Its own crate-local build/test/run, distinct from the vvr build.

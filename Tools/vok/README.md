@@ -245,7 +245,7 @@ vvx jj <subcommand>    # JJK functionality (when jjk feature enabled)
 | **Vox Obscura** | The hidden voice - source infrastructure (VOK) |
 | **vvr** | Voce Viva Rust - the compiled binary |
 | **vvx** | Platform wrapper that dispatches to correct vvr binary |
-| **Whisper** | Kit's declaration to conclave — a static `vofc_Kit` entry (cipher, display_name, claude_includes). |
+| **Whisper** | Kit's declaration to conclave — a static `vofc_Kit` entry (cipher, display_name). |
 
 ## Prefix Maps
 

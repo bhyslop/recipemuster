@@ -377,15 +377,20 @@ pub trait jjrfr_FarrierBillet {
     /// `jjrfr_outstripped` holds.
     fn jjrfr_counterpart_chalk(&self, billet_root: &Path, trunk: &str) -> Result<Option<(String, String)>, jjrfr_Rejection>;
 
-    /// The stranding probe: is the tree's current position an ancestor of — or
-    /// equal to — the named branch's remote counterpart, as of the last
-    /// `jjrfr_glean`? A local ancestry check, network-silent, the
-    /// {jjdd_stile} groom-litmus conjunct (dispatch sheaf). `false` when no
-    /// counterpart is known locally: nothing can be proven held on ignorance,
-    /// and the exit litmus this probe feeds must never destroy on an unproven
-    /// claim — the opposite polarity from `jjrfr_outstripped` above, whose
-    /// `false`-on-ignorance suppresses a warning rather than blocking a
-    /// destruction; the two neighbors are deliberately never harmonized.
+    /// The stranding probe: is the tree's content, against the named branch's
+    /// remote counterpart as of the last `jjrfr_glean`, empty — the diff from
+    /// their merge-base to HEAD shows nothing? A local content check,
+    /// network-silent, the {jjdd_stile} groom-litmus conjunct (dispatch
+    /// sheaf). Content, not ancestry: every dispatch's `jjdo_open` lands an
+    /// empty marker commit on a groom billet's detached HEAD, so an ancestry
+    /// check would call the everyday groom billet stranded forever; this
+    /// probe instead asks whether the billet's tip tree differs from the
+    /// merge-base at all. `false` when no counterpart is known locally:
+    /// nothing can be proven held on ignorance, and the exit litmus this
+    /// probe feeds must never destroy on an unproven claim — the opposite
+    /// polarity from `jjrfr_outstripped` above, whose `false`-on-ignorance
+    /// suppresses a warning rather than blocking a destruction; the two
+    /// neighbors are deliberately never harmonized.
     fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// Pass the billet's whole estate up to the trunk: compose ONE commit whose

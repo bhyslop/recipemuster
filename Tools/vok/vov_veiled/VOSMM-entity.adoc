@@ -69,7 +69,7 @@ The
 is an additive sibling to the existing `vof` library, never a rework of it.
 It reuses `vof` as a path dependency: the
 {voslc_cipher}
-registry (`vofc_registry`) is its input grammar, the release tree-walk (`vofr_collect`) generalizes into its candidate gate, and emission rides the managed-section rail (`voff_freshen`).
+registry (`vofc_registry`) is its input grammar, and the release tree-walk (`vofr_collect`) generalizes into its candidate gate.
 
 === Census Lifecycle
 

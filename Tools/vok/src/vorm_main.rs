@@ -58,10 +58,6 @@ enum Commands {
     #[command(name = "vvx_vacate")]
     VvxVacate(VacateArgs),
 
-    /// Freshen CLAUDE.md managed sections from kit forge templates
-    #[command(name = "vvx_freshen")]
-    VvxFreshen(FreshenArgs),
-
     /// Diagnostic: derive and print this process's emblem window reference and
     /// file path from the environment (paneboard emblem feature). Writes nothing.
     #[command(name = "vvx_emblem_probe", hide = true)]
@@ -293,14 +289,6 @@ struct VacateArgs {
     burc: PathBuf,
 }
 
-/// Arguments for vvx_freshen command
-#[derive(clap::Args, Debug)]
-struct FreshenArgs {
-    /// Path to burc.env file (resolves project_root and tools_dir)
-    #[arg(long)]
-    burc: PathBuf,
-}
-
 /// Environment gate — panics if Claude Code environment is misconfigured.
 /// Called unconditionally before any argument parsing or library use.
 fn vosr_init() {
@@ -326,7 +314,6 @@ async fn main() -> ExitCode {
         Some(Commands::ReleaseBrand(args)) => run_release_brand(args),
         Some(Commands::VvxEmplace(args)) => run_emplace(args),
         Some(Commands::VvxVacate(args)) => run_vacate(args),
-        Some(Commands::VvxFreshen(args)) => run_freshen(args),
         Some(Commands::VvxEmblemProbe) => run_emblem_probe(),
         Some(Commands::Mcp) => run_mcp().await,
         Some(Commands::JjxDispatch(args)) => run_dispatch(args),
@@ -982,12 +969,6 @@ fn run_emplace(args: EmplaceArgs) -> i32 {
             output.insert("commands_routed".to_string(), serde_json::Value::Number(result.commands_routed.into()));
             output.insert("hooks_routed".to_string(), serde_json::Value::Number(result.hooks_routed.into()));
 
-            let sections: Vec<serde_json::Value> = result.claude_sections_updated
-                .iter()
-                .map(|s| serde_json::Value::String(s.clone()))
-                .collect();
-            output.insert("claude_sections_updated".to_string(), serde_json::Value::Array(sections));
-
             vvco_out!(out, "{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
 
             vvco_err!(out, "emplace: success - {} files, {} commands, {} hooks",
@@ -1026,12 +1007,6 @@ fn run_vacate(args: VacateArgs) -> i32 {
             output.insert("commands_removed".to_string(), serde_json::Value::Number(result.commands_removed.into()));
             output.insert("hooks_removed".to_string(), serde_json::Value::Number(result.hooks_removed.into()));
 
-            let sections: Vec<serde_json::Value> = result.claude_sections_collapsed
-                .iter()
-                .map(|s| serde_json::Value::String(s.clone()))
-                .collect();
-            output.insert("claude_sections_collapsed".to_string(), serde_json::Value::Array(sections));
-
             vvco_out!(out, "{}", serde_json::to_string_pretty(&serde_json::Value::Object(output)).unwrap());
 
             vvco_err!(out, "vacate: success - {} files, {} commands, {} hooks removed",
@@ -1045,22 +1020,3 @@ fn run_vacate(args: VacateArgs) -> i32 {
     }
 }
 
-/// Run vvx_freshen command
-fn run_freshen(args: FreshenArgs) -> i32 {
-    let mut out = vvco_Output::console();
-    vvco_err!(out, "freshen: updating CLAUDE.md from forge templates...");
-    vvco_err!(out, "  burc: {}", args.burc.display());
-
-    match vof::vofe_freshen_forge(&args.burc) {
-        Ok(result) => {
-            let total = result.updated.len() + result.expanded.len() + result.appended.len();
-            vvco_err!(out, "freshen: success - {} sections processed ({} updated, {} expanded, {} appended)",
-                total, result.updated.len(), result.expanded.len(), result.appended.len());
-            0
-        }
-        Err(e) => {
-            vvco_err!(out, "freshen: error: {}", e);
-            1
-        }
-    }
-}

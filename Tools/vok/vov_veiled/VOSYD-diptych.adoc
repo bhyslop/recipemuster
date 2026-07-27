@@ -210,7 +210,7 @@ Reverse parse unwinds projection-isms into recto and rejects loud on anything un
 * Annotation and voicing form — how AXLA's new-form voicings and hierarchy markers ride pilcrow lines: motif and dimension tokens as payload, AXLA's lookahead arities and read windows becoming lexer law, and the two token streams (attribute and literal) becoming payload types the pilcrow table declares.
   Sketched early in the founding chat, not yet cut; the payload-type list in The Lexical Law grows here.
 * Emphasis nesting — forbidden until the migration's render-equivalence iterations surface a true counter-example.
-* Grimoire-generated declarators — whether single-word quoins' variant declarations are freshen-generated from grimoire rows; banked, sequenced behind the studbook-farrier MVP like all grimoire tooling.
+* Grimoire-generated declarators — whether single-word quoins' variant declarations are machine-regenerated from grimoire rows; banked, sequenced behind the studbook-farrier MVP like all grimoire tooling.
 * Recension and safe-reprefix convergence — owed to VOSMM when either ascends.
 * Letter elections for the pilcrow table, with VOSVK-variants.adoc for the variant kinds.
 
