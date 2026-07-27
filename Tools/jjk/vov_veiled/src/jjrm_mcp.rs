@@ -11,7 +11,9 @@
 //! Handlers return (i32, String) — exit code and accumulated output.
 //! The MCP layer converts this to CallToolResult (success/error).
 
+use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
+use futures::FutureExt;
 use rmcp::handler::server::router::tool::ToolRouter;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{ServerCapabilities, ServerInfo, CallToolResult, Content};
@@ -49,7 +51,7 @@ use crate::jjrds_stile::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
-use crate::jjrsj_sectional::{jjrsj_step_open, jjrsj_step_outcome};
+use crate::jjrsj_sectional::{jjrsj_sectional_path, zjjrsj_step_open_at, zjjrsj_step_outcome_at, jjrsj_trace_arm, jjrsj_trace_disarm};
 
 /// The officia directory's fixed relative path, relative to the server's
 /// own working directory.
@@ -478,6 +480,62 @@ fn zjjrm_validate_result(result: (i32, String)) -> Result<CallToolResult, ErrorD
 /// Return deserialization error as MCP error result.
 fn jjrm_deser_error(cmd: &str, e: serde_json::Error) -> Result<CallToolResult, ErrorData> {
     Ok(CallToolResult::error(vec![Content::text(format!("jjx {}: invalid params: {}", cmd, e))]))
+}
+
+/// Recover the verbatim panic message from a caught unwind payload. A panic
+/// carries either a `&'static str` (a bare `panic!("literal")`) or a `String`
+/// (a formatted `panic!("{}", ..)`, an `unwrap`/`expect`); anything else is a
+/// foreign payload we can only name. No embellishment — the message is handed
+/// through as the failure identifies itself (RCG Specification Authority: error
+/// paths list the fact, they do not guess intent).
+fn zjjrm_panic_text(payload: Box<dyn std::any::Any + Send>) -> String {
+    if let Some(s) = payload.downcast_ref::<&'static str>() {
+        (*s).to_string()
+    } else if let Some(s) = payload.downcast_ref::<String>() {
+        s.clone()
+    } else {
+        "<non-string panic payload>".to_string()
+    }
+}
+
+/// The dispatch membrane: the single sectional-bracketed frame every jjx command
+/// is driven through. It opens the sectional step, drives the command future
+/// under `catch_unwind`, then closes the outcome line — whether the future
+/// returned or panicked.
+///
+/// Answer-always (JJS0 "MCP Transport"): `rmcp` spawns each request handler with
+/// no unwind guard and drops the join handle, so a panic that escapes here would
+/// kill the response task before it answers — the client waits forever on a
+/// healthy server. JJK's failure conduct panics by design (vedette exhaustion,
+/// unclassified git failure, nested lock acquire), so the guard is load-bearing,
+/// not defensive. A caught panic becomes an error verdict carrying the panic
+/// text verbatim: fail-loud is preserved as a verdict rather than discarded as a
+/// hang, and the sectional shows an `OUTCOME` line instead of a torn tail.
+///
+/// One membrane, every command — handlers never catch and never touch the
+/// sectional. `AssertUnwindSafe` is sound here because the membrane is terminal:
+/// a caught panic yields an error verdict and the `&mut Gallops` it may have left
+/// half-written is never reused (each call reloads from disk — the crash-safe
+/// invariant), so no observer sees a torn value.
+async fn zjjrm_drive_membrane<F>(
+    sectional: &Path,
+    cmd: &str,
+    fut: F,
+) -> Result<CallToolResult, ErrorData>
+where
+    F: std::future::Future<Output = Result<CallToolResult, ErrorData>>,
+{
+    zjjrsj_step_open_at(sectional, cmd);
+    let result = match AssertUnwindSafe(fut).catch_unwind().await {
+        Ok(r) => r,
+        Err(payload) => Ok(CallToolResult::error(vec![Content::text(format!(
+            "jjx {}: handler panicked: {}",
+            cmd,
+            zjjrm_panic_text(payload),
+        ))])),
+    };
+    zjjrsj_step_outcome_at(sectional, cmd, &result);
+    result
 }
 
 /// jjx_sift — spawn the standalone census (matricula) binary and relay its census.
@@ -3197,12 +3255,19 @@ impl jjrm_McpServer {
             }
         }
 
-        // Sectional: step-open before dispatch, step-outcome after — the
-        // async block is the driver membrane every command's own `return`
-        // exits into (closure semantics), so coverage is structural rather
-        // than per-ceremony. See jjrsj_sectional.rs.
-        jjrsj_step_open(officium_id, cmd);
-        let jjrsj_dispatch_result: Result<CallToolResult, ErrorData> = async {
+        // Sectional + answer-always membrane: every command is driven through
+        // zjjrm_drive_membrane, which opens the sectional step, catches a
+        // handler panic into an error verdict — so a fail-loud panic answers the
+        // client instead of stranding it (JJS0 "MCP Transport") — and closes the
+        // outcome line whether the future returned or panicked. The async block
+        // is that membrane's future, every command's own `return` exiting into
+        // it (closure semantics), so coverage is structural rather than
+        // per-ceremony. The trace arming beside it routes the farrier's
+        // git-child narration into the same file for the duration of this
+        // command, keeping the farrier officium-blind.
+        let jjrsj_sectional = jjrsj_sectional_path(officium_id);
+        jjrsj_trace_arm(jjrsj_sectional.clone());
+        let jjrsj_dispatch_result = zjjrm_drive_membrane(&jjrsj_sectional, cmd, async {
         match cmd {
             JJRM_CMD_NAME_RECORD => {
                 let p = deser!(jjrm_RecordParams);
@@ -3915,8 +3980,8 @@ impl jjrm_McpServer {
                 ))]))
             }
         }
-        }.await;
-        jjrsj_step_outcome(officium_id, cmd, &jjrsj_dispatch_result);
+        }).await;
+        jjrsj_trace_disarm();
         jjrsj_dispatch_result
     }
 
@@ -3981,6 +4046,66 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
+    }
+
+    /// A panicking handler must answer the client with an error verdict carrying
+    /// the panic text — never let the unwind escape (rmcp drops the join handle,
+    /// so an escaped panic is a permanent client hang). The sectional must close
+    /// with an OUTCOME line, not a torn tail. Answer-always: JJS0 "MCP Transport".
+    ///
+    /// The deliberate panic still prints to stderr via the default hook even
+    /// though it is caught here — that stderr line is fail-loud surviving, not a
+    /// test defect.
+    #[test]
+    fn panicking_handler_answers_as_error_not_torn_tail() {
+        let dir = scratch_officia("membrane_panic");
+        let sectional = dir.join("sectional.log");
+        let result = futures::executor::block_on(zjjrm_drive_membrane(
+            &sectional,
+            "jjx_record",
+            async { panic!("deliberate handler panic: {}", "vedette exhausted") },
+        ));
+
+        // Answered, never propagated — and the verdict is an error carrying the
+        // panic text verbatim.
+        let ctr = result.expect("membrane must answer, never let the panic escape");
+        assert_eq!(ctr.is_error, Some(true), "a caught panic is an error verdict");
+        let text = ctr
+            .content
+            .iter()
+            .filter_map(|c| c.as_text().map(|t| t.text.as_str()))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert!(text.contains("handler panicked"), "verdict names the panic: {}", text);
+        assert!(
+            text.contains("deliberate handler panic: vedette exhausted"),
+            "panic text carried verbatim: {}",
+            text
+        );
+
+        // The sectional closes with an error OUTCOME, not a torn tail:
+        // OPEN, then a RAW line carrying the panic text, then OUTCOME.
+        let body = std::fs::read_to_string(&sectional).unwrap();
+        let lines: Vec<&str> = body.lines().collect();
+        assert!(
+            lines.iter().any(|l| l.starts_with("OPEN ") && l.contains("cmd=jjx_record")),
+            "sectional opened the step: {:?}",
+            lines
+        );
+        assert!(
+            lines.iter().any(|l| l.starts_with("OUTCOME ")
+                && l.contains("cmd=jjx_record")
+                && l.contains("status=error")),
+            "sectional closes with an error outcome, not a torn tail: {:?}",
+            lines
+        );
+        assert!(
+            lines.iter().any(|l| l.starts_with("RAW ") && l.contains("deliberate handler panic")),
+            "panic text lands on the RAW line ahead of the verdict: {:?}",
+            lines
+        );
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

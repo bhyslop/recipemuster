@@ -117,7 +117,7 @@ printf '%s' "${ENVELOPE}" > "/workspace/lode_${STAMP}_vouch.json"
 echo "${STAMP}" >> /workspace/lode_stamps.txt
 
 # Host-facing result (the capture-file carries the same envelope). One slot —
-# conclave produces exactly one Lode (the cohort is one package).
+# conclave produces exactly one Lode (RBGC_RELIQUARY_TOOL_* / RBGC_LODE_TAG_SPRUE).
 RESULT="{\"rbls_slot_1\":{\"rbls_stamp\":\"${STAMP}\",\"rbls_vouch\":${ENVELOPE}}}"
 
 echo "=== Writing capture results ==="
