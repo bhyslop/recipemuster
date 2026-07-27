@@ -561,14 +561,18 @@ fn zrbtdrn_onehome_render(hits: &[zrbtdrn_OneHomeHit]) -> String {
 }
 
 /// True when `line`, after stripping a leading AsciiDoc list-bullet marker
-/// (`*`, `**`, …) if present, is exactly an anchor `[[name]]` or
+/// (`*`, `**`, …) if present, OPENS with an anchor `[[name]]` or
 /// `[[name,display]]` — the shared definition-site syntax for both quoins and
-/// rivets, whether standalone or opening a list item (JJS0's `* [[jjdgm_order]]`
-/// pattern). Returns the bare name.
+/// rivets. Trailing content after the anchor is ignored (JJS0's
+/// `[[jjdpe_defined]] {jjdpe_defined}:: ...` same-line form); a bullet prefix
+/// is tolerated (JJS0's `* [[jjdgm_order]]` list-item form). Returns the bare
+/// name.
 fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
     let t = line.trim();
     let t = t.trim_start_matches('*').trim_start();
-    let inner = t.strip_prefix("[[")?.strip_suffix("]]")?;
+    let rest = t.strip_prefix("[[")?;
+    let end = rest.find("]]")?;
+    let inner = &rest[..end];
     let name = inner.split(',').next().unwrap_or("").trim();
     if name.is_empty() {
         None
@@ -947,12 +951,14 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
          :rbk_present_s:               <<rbk_present,Presents>>\n\
          :rbk_absent:                  <<rbk_absent,Absent>>\n\
          :rbk_listed:                  <<rbk_listed,Listed>>\n\
+         :rbk_sameline:                <<rbk_sameline,Sameline>>\n\
          [[rbk_present]]\n\
          rbk_present:: defined here.\n\
          * [[rbk_listed]]\n\
          {rbk_listed}\n\
          lives on a list-bullet anchor line (JJS0's `* [[name]]` pattern).\n\
-         Cites the present one {rbk_present}, its variant {rbk_present_s}, the list-anchored {rbk_listed}, and the broken one {rbk_missing}.\n\
+         [[rbk_sameline]] {rbk_sameline}:: anchor and term share one line (JJS0's `[[x]] {x}::` pattern).\n\
+         Cites the present one {rbk_present}, its variant {rbk_present_s}, the list-anchored {rbk_listed}, the same-line {rbk_sameline}, and the broken one {rbk_missing}.\n\
          Also cites RBr_zzz which has no anchor.\n",
     );
     let exempt = (
