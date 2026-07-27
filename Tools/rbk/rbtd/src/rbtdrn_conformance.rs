@@ -560,11 +560,14 @@ fn zrbtdrn_onehome_render(hits: &[zrbtdrn_OneHomeHit]) -> String {
     report
 }
 
-/// True when `line`, trimmed, is exactly an AsciiDoc anchor `[[name]]` or
+/// True when `line`, after stripping a leading AsciiDoc list-bullet marker
+/// (`*`, `**`, …) if present, is exactly an anchor `[[name]]` or
 /// `[[name,display]]` — the shared definition-site syntax for both quoins and
-/// rivets. Returns the bare name.
+/// rivets, whether standalone or opening a list item (JJS0's `* [[jjdgm_order]]`
+/// pattern). Returns the bare name.
 fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
     let t = line.trim();
+    let t = t.trim_start_matches('*').trim_start();
     let inner = t.strip_prefix("[[")?.strip_suffix("]]")?;
     let name = inner.split(',').next().unwrap_or("").trim();
     if name.is_empty() {
@@ -943,9 +946,13 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
         ":rbk_present:                 <<rbk_present,Present>>\n\
          :rbk_present_s:               <<rbk_present,Presents>>\n\
          :rbk_absent:                  <<rbk_absent,Absent>>\n\
+         :rbk_listed:                  <<rbk_listed,Listed>>\n\
          [[rbk_present]]\n\
          rbk_present:: defined here.\n\
-         Cites the present one {rbk_present}, its variant {rbk_present_s}, and the broken one {rbk_missing}.\n\
+         * [[rbk_listed]]\n\
+         {rbk_listed}\n\
+         lives on a list-bullet anchor line (JJS0's `* [[name]]` pattern).\n\
+         Cites the present one {rbk_present}, its variant {rbk_present_s}, the list-anchored {rbk_listed}, and the broken one {rbk_missing}.\n\
          Also cites RBr_zzz which has no anchor.\n",
     );
     let exempt = (
