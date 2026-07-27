@@ -1383,9 +1383,9 @@ All other verbs are delivered via the {jjsuc_insert} verb table.
 [[jjsuc_insert]]
 //axl_voices axi_cc_claudemd_section
 {jjsuc_insert}::
-The `MANAGED:JJK` section of the project CLAUDE.md file.
+The JJK guidance file (`claude-jjk-core.md`) `@`-included by the project CLAUDE.md file.
 Contains the quick verb mapping table, CLI command reference, and operational guidance that enables the LLM to translate upper API verbs into {jjdx_cli} invocations.
-This section is the primary mechanism by which the upper and lower API layers are bridged at runtime.
+This guidance is the primary mechanism by which the upper and lower API layers are bridged at runtime.
 
 == Types
 

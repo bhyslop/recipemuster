@@ -714,7 +714,7 @@ fn zjjdb_tip_gallops(config: &jjdb_BlotterConfig) -> Result<Option<crate::jjri_i
 /// studbook working tree. Reuses `jjdr_hark` (the read-only, never-re-saved
 /// sibling of `jjdr_load`: same deserialize, reprieve write-forward, and
 /// semantic validation, round-trip check stood down since the pinned bytes are
-/// never saved back) — a read mutates nothing, so the working-tree freshen the
+/// never saved back) — a read mutates nothing, so the working-tree refresh the
 /// old path implied is gone entirely.
 pub fn jjdb_gallops_journal_load(
     config: &jjdb_BlotterConfig,
