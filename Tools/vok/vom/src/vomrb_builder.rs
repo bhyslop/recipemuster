@@ -44,8 +44,16 @@ impl vomrb_Builder {
             if !crate::vomra_allowlist::voma_is_allowed(rel_path) {
                 continue;
             }
-            let Ok(content) = std::fs::read_to_string(repo_root.join(rel_path)) else {
-                continue;
+            // A generated-role file (the cadastre) enters content-blank: its
+            // stem still seats as a declaration, but its body is a projection
+            // of this very census and must never feed back into it.
+            let content = if crate::vomra_allowlist::voma_is_generated(rel_path) {
+                String::new()
+            } else {
+                let Ok(read) = std::fs::read_to_string(repo_root.join(rel_path)) else {
+                    continue;
+                };
+                read
             };
             let Some(path_str) = rel_path.to_str() else {
                 continue;

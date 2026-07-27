@@ -51,4 +51,17 @@ fn vomta_is_allowed_keeps_live_command_namespace_in_scope() {
     assert!(voma_is_allowed(Path::new(".claude/commands/vvc-commit.md")));
 }
 
+#[test]
+fn vomta_generated_role_is_shape_allowed_but_marked_generated() {
+    // The cadastre stays in the walk (its stem must seat) but is marked
+    // generated so the builder blanks its content - the census never feeds
+    // on its own projection.
+    let cadastre = Path::new(super::vomrc_cadastre::VOMRC_CADASTRE_PATH);
+    assert!(voma_is_allowed(cadastre));
+    assert!(super::vomra_allowlist::voma_is_generated(cadastre));
+    assert!(!super::vomra_allowlist::voma_is_generated(Path::new(
+        "Tools/vok/claude-vok-context.md"
+    )));
+}
+
 // eof

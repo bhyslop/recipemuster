@@ -13,6 +13,12 @@ authorizes the wrap on a passing review. In particular, the "wrap sweeps all
 uncommitted changes" caution is expressly waived here: the operator asserts the
 tree's contents are correct to sweep. Do not refuse or pause over a dirty tree.
 
+Invoking this command likewise constitutes the operator's direction to refit the
+billet — to enfold trunk's advance before the review runs (step 3) — exactly as
+it waives the dirty-tree caution. It is per-invocation direction, not standing
+permission: a designee session executes this refit as a typed operator order and
+gains no authority to refit on its own judgment.
+
 ## What you (the calling session) do
 
 1. Parse the tier and coronet from the arguments by their disjoint shapes (a
@@ -40,11 +46,24 @@ tree's contents are correct to sweep. Do not refuse or pause over a dirty tree.
      because one is present: a designee's completion report is advocacy-laden by
      construction, so expect to rewrite.
    - If the most recent landing already meets the contract, use it as-is.
-3. Spawn ONE Agent (subagent_type `general-purpose`, `model` set to the tier,
+3. **Refit preflight — enfold trunk before the review runs.** Call
+   `mcp__vvx__jjx` with command `jjx_refit`, empty params, from this billet, so
+   the reviewer judges the tree that will actually land rather than a pre-refit
+   one. The command's invocation is itself the operator's direction to run this
+   (see the authorization above); do not pause to ask, and do not gate it on any
+   foreknowledge of staleness — refit reports up-to-date for free when trunk has
+   not moved. Route on the outcome:
+   - **up-to-date** or **refitted** → proceed to spawn the reviewer (step 4).
+   - **any other outcome** — offline, or a refusal (a content conflict, a dirty
+     billet, or a resolution failure) — stop and surface the `jjx_refit` message
+     verbatim to the operator. Do not spawn the reviewer, do not retry, and do
+     not interpret, judge, or repair a conflict here; richer conflict handling is
+     a deliberately separate concern, not this command's.
+4. Spawn ONE Agent (subagent_type `general-purpose`, `model` set to the tier,
    `run_in_background: false`) with the reviewer prompt below, substituting the
    coronet. Do not perform the review yourself in the main session — the point
    is a fresh-context reviewer.
-4. Relay the reviewer's outcome to the operator verbatim in substance:
+5. Relay the reviewer's outcome to the operator verbatim in substance:
    either "wrapped, with this summary and spook" or the specific repair
    recommendations. Do not apply repairs unless the operator directs it.
 
