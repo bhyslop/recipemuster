@@ -188,8 +188,9 @@ So {jjdo_open} and every groom-ground read lead with that posture in one line, a
 slated pace, never a commit here.
 A groom billet that nonetheless holds a work-repo commit is a pace in denial, caught without a
 guard of its own: the notch ground gate refuses the commit at the moment of temptation, and any
-commit that reaches the tree by another route fails the {jjdd_stile_p} exit litmus and stands
-for {jjdd_muck}.
+content-bearing commit that reaches the tree by another route fails the {jjdd_stile_p} exit
+litmus and stands for {jjdd_muck} (a content-less marker clears, so the everyday {jjdo_open}
+echo is no denial).
 The remedy is always the same — slate the work, then saddle it.
 
 == The doors
@@ -387,20 +388,26 @@ clears them with the billet's residue.
 *The exit litmus*, kind-aware, refuse-and-stand:
 +
 --
-* A *pace billet* passes when `comb` is clean AND `sync_state` shows its tip not ahead of
-  its counterpart — every commit already in remote custody, so the directory holds nothing
-  the branch and {jjdb_journal} do not.
-* A *groom billet* passes when `comb` is clean AND its content against the trunk
-  branch's remote counterpart is `reachable` (farrier sheaf) — the diff from their
-  merge-base to its tip is empty; a marker-only commit (every dispatch's
-  {jjdo_open} echo) carries no content and passes, while a raw detached commit
-  with real content stands.
+* A *pace billet* passes when `comb` is clean AND either of two passes clears it. The
+  *custody pass* — `sync_state` shows its tip not ahead of its own counterpart, every commit
+  already in remote custody — clears a consigned-not-wrapped billet whose work is safe on its
+  pushed branch. The *content-proof pass* — its content beyond trunk's custody base is
+  `reachable` (farrier sheaf) — clears a dropped no-work billet whose only commit is the
+  {jjdo_open} marker, though it was never consigned, because a derivable custody base is proof,
+  not ignorance. The two passes are additive; only unconsigned content, or total ignorance,
+  stands.
+* A *groom billet* passes when `comb` is clean AND its content beyond trunk's custody base is
+  `reachable` (farrier sheaf) — every commit the tip added is tree-identical to its parent, so
+  a marker-only commit (every dispatch's {jjdo_open} echo) carries no content and passes, while
+  a raw detached commit with real content stands. A groom is never consigned, so the
+  content-proof pass is its whole litmus.
 * Refusal remedies nothing: the trailing step never lodges, never consigns, never
   publishes an off-ceremony commit — the billet stands for {jjdd_muck} or a later clean
   exit.
-* Ignorance stands: no counterpart locally known means nothing can be proven held, and a
-  litmus that cannot prove must not destroy — the opposite polarity from `outstripped`,
-  whose warning must not cry on ignorance.
+* Total ignorance stands: no counterpart locally known — nor any merge-base with one — means
+  nothing can be proven held, and a litmus that cannot prove must not destroy. A derivable
+  custody base is NOT ignorance: content proven empty against it clears. The opposite polarity
+  from `outstripped`, whose warning must not cry on ignorance.
 --
 
 == Muck

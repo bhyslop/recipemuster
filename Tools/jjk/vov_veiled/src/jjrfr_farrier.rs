@@ -389,20 +389,25 @@ pub trait jjrfr_FarrierBillet {
     /// `jjrfr_outstripped` holds.
     fn jjrfr_counterpart_chalk(&self, billet_root: &Path, trunk: &str) -> Result<Option<(String, String)>, jjrfr_Rejection>;
 
-    /// The stranding probe: is the tree's content, against the named branch's
-    /// remote counterpart as of the last `jjrfr_glean`, empty — the diff from
-    /// their merge-base to HEAD shows nothing? A local content check,
-    /// network-silent, the {jjdd_stile} groom-litmus conjunct (dispatch
-    /// sheaf). Content, not ancestry: every dispatch's `jjdo_open` lands an
-    /// empty marker commit on a groom billet's detached HEAD, so an ancestry
-    /// check would call the everyday groom billet stranded forever; this
-    /// probe instead asks whether the billet's tip tree differs from the
-    /// merge-base at all. `false` when no counterpart is known locally:
-    /// nothing can be proven held on ignorance, and the exit litmus this
-    /// probe feeds must never destroy on an unproven claim — the opposite
-    /// polarity from `jjrfr_outstripped` above, whose `false`-on-ignorance
-    /// suppresses a warning rather than blocking a destruction; the two
-    /// neighbors are deliberately never harmonized.
+    /// The content-proof probe: has this line of work added any content beyond
+    /// the custody base — the merge-base of its tip with the named branch's
+    /// remote counterpart (as of the last `jjrfr_glean`)? A local content check,
+    /// network-silent, the {jjdd_stile} exit-litmus content-proof pass: the
+    /// groom arm's whole litmus, and the pace arm's additional route to
+    /// clearance beside the custody pass (dispatch sheaf). Content, not
+    /// ancestry, and per-commit, not net: every dispatch's `jjdo_open` lands an
+    /// empty marker commit, so an ancestry check would call the everyday billet
+    /// stranded forever — but a NET diff from the base to the tip would call a
+    /// content-then-revert pair empty and orphan the intermediate content it
+    /// carried. So each commit the tip added beyond the base must be
+    /// tree-identical to its first parent; `true` only when every one is (an
+    /// empty range — the tip IS the base — is vacuously so). `false` when no
+    /// counterpart is known locally, or when the tip shares no history with it
+    /// (no merge-base): nothing can be proven held on total ignorance of a
+    /// custody base, and the exit litmus this probe feeds must never destroy on
+    /// an unproven claim — the opposite polarity from `jjrfr_outstripped` above,
+    /// whose `false`-on-ignorance suppresses a warning rather than blocking a
+    /// destruction; the two neighbors are deliberately never harmonized.
     fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// Pass the billet's whole estate up to the trunk: compose ONE commit whose

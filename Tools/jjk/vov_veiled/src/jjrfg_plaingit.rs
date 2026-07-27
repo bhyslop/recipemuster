@@ -1202,37 +1202,55 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
 
     fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {
         let counterpart = zjjrfg_counterpart(trunk);
-        // No counterpart known locally → not reachable: nothing can be proven
-        // held on ignorance, and the exit litmus this feeds must not destroy
-        // on an unproven claim (trait contract) — the opposite polarity from
-        // `jjrfr_outstripped`'s own ignorance answer.
+        // No counterpart known locally → not reachable: this is total
+        // ignorance of a custody base — nothing can be proven held, and the exit
+        // litmus this feeds must not destroy on an unproven claim (trait
+        // contract) — the opposite polarity from `jjrfr_outstripped`'s own
+        // ignorance answer.
         let seen = zjjrfg_run_git(billet_root, &["rev-parse", "--verify", "--quiet", &counterpart]);
         if !seen.ok {
             return Ok(false);
         }
-        // Content, not ancestry: every dispatch's `jjdo_open` lands an empty
-        // marker commit on the billet's detached HEAD, so an ancestry check
-        // against the counterpart would call the everyday groom billet
-        // stranded forever. Diff against the merge-base, not the counterpart
-        // tip directly, so trunk moving on its own never manufactures a
-        // delta the billet itself never made.
+        // The custody base: the merge-base of the tip with trunk's counterpart —
+        // where this line of work last shared history with what is held in
+        // remote custody. Comparing against the base, not the counterpart tip
+        // directly, keeps trunk moving on its own from manufacturing a delta the
+        // billet itself never made.
         let base_out = zjjrfg_run_git(billet_root, &["merge-base", "HEAD", &counterpart]);
         let base = match base_out.code {
             Some(0) => base_out.stdout.trim().to_string(),
             // No common ancestor (unrelated histories) is a classified git
             // answer, not an unclassified failure: nothing can be proven
-            // held on ignorance, so the billet stands — same polarity as
-            // the unknown-counterpart arm above.
+            // held on total ignorance of a base, so the billet stands — same
+            // polarity as the unknown-counterpart arm above.
             Some(1) => return Ok(false),
             _ => zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &base_out.zjjrfg_detail()),
         };
-        let base = base.as_str();
-        let out = zjjrfg_run_git(billet_root, &["diff", "--quiet", base, "HEAD"]);
-        match out.code {
-            Some(0) => Ok(true),
-            Some(1) => Ok(false),
-            _ => zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &out.zjjrfg_detail()),
+        // Content, not ancestry, and per-commit, not net. Every dispatch's
+        // `jjdo_open` lands an empty marker commit, so an ancestry check would
+        // call the everyday billet stranded forever — but a NET diff from the
+        // base to the tip would call a content-then-revert pair empty and clear
+        // it, orphaning the intermediate content the pair carried. So walk each
+        // commit the tip added beyond the base and require it tree-identical to
+        // its first parent: one content-bearing step stands the billet. An empty
+        // range (the tip IS the base) is vacuously reachable.
+        let list = zjjrfg_run_git(billet_root, &["rev-list", &format!("{}..HEAD", base)]);
+        if !list.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &list.zjjrfg_detail());
         }
+        for commit in list.stdout.split_whitespace() {
+            // A commit is content-less when its tree equals its first parent's.
+            // `diff --quiet` between the two commits is a pure tree comparison
+            // (two rev args, no worktree touched): exit 0 identical, 1 differ.
+            let parent = format!("{}^", commit);
+            let out = zjjrfg_run_git(billet_root, &["diff", "--quiet", &parent, commit]);
+            match out.code {
+                Some(0) => continue,
+                Some(1) => return Ok(false),
+                _ => zjjrfg_unexpected(ZJJRFG_OP_REACHABLE, billet_root, &out.zjjrfg_detail()),
+            }
+        }
+        Ok(true)
     }
 
     fn jjrfr_bequeath(&self, billet_root: &Path, trunk: &str, message: &str) -> Result<jjrfr_BequeathOutcome, jjrfr_Rejection> {

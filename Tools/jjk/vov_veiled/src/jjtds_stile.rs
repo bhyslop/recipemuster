@@ -1148,6 +1148,25 @@ fn jjtds_trailing_step_stands_an_unpushed_pace_billet() {
 }
 
 #[test]
+fn jjtds_trailing_step_clears_a_pace_billet_with_a_marker_only_commit() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_pace_marker_only");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
+
+    // A dropped pace: the session opened an officium — an empty marker commit on
+    // the livery branch — and did no consignable work, so the branch was never
+    // consigned. The custody pass cannot clear it (nothing pushed), but the
+    // content-proof pass proves it empty against trunk's custody base, so the
+    // no-work billet clears unattended — no `muck` beat.
+    zjjtds_git(&yard.billet_root, &["commit", "--allow-empty", "-q", "-m", "officium marker"]);
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("cleared"), "a marker-only pace billet must clear: {}", report);
+    assert!(!yard.billet_root.exists(), "a dropped no-work pace billet must be destroyed unattended");
+}
+
+#[test]
 fn jjtds_trailing_step_stands_a_groom_billet_with_a_raw_local_commit() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_stands");
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
