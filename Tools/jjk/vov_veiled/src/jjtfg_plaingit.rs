@@ -1486,11 +1486,42 @@ fn jjtfg_enfold_rejects_dirty_tree() {
 }
 
 #[test]
-#[should_panic(expected = "unclassified git failure")]
-fn jjtfg_enfold_fails_loud_on_conflict() {
+fn jjtfg_enfold_rejects_conflict_naming_files_and_worktree_correct_remedy() {
     let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_conflict");
     zjjtfg_commit_all(billet.path(), "base.txt", "billet changed this line", "billet edits base.txt");
     zjjtfg_trunk_advances(primary.path(), "base.txt", "trunk changed this line too", "trunk edits base.txt");
 
-    let _ = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK);
+    let rejection = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap_err();
+
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::Conflict);
+    assert!(rejection.detail.contains("base.txt"), "the conflicted file is named: {}", rejection.detail);
+    assert!(
+        rejection.detail.contains("rev-parse -q --verify MERGE_HEAD"),
+        "the worktree-correct merge-state check is named: {}",
+        rejection.detail
+    );
+    assert!(
+        rejection.detail.contains("never a .git/MERGE_HEAD file test"),
+        "the guidance steers off the filesystem MERGE_HEAD test that misreads in a worktree: {}",
+        rejection.detail
+    );
+    assert!(rejection.detail.contains("merge --abort"), "the abort remedy is named: {}", rejection.detail);
+    assert!(rejection.detail.contains("Do not wrap"), "the wrap hazard is warned: {}", rejection.detail);
+}
+
+/// A billet left mid-merge by a prior conflict re-renders the SAME conflict
+/// verdict on the next enfold — the idempotency precheck ahead of the dirty-tree
+/// gate — so a re-run never degrades to the misdirecting dirty-tree refusal a
+/// conflicted worktree would otherwise present (the 2026-07-26 wedge's misread).
+#[test]
+fn jjtfg_enfold_reports_conflict_idempotently_on_a_re_run() {
+    let (_bare, primary, billet) = zjjtfg_billeted_with_remote("jjtfg_enfold_conflict_rerun");
+    zjjtfg_commit_all(billet.path(), "base.txt", "billet changed this line", "billet edits base.txt");
+    zjjtfg_trunk_advances(primary.path(), "base.txt", "trunk changed this line too", "trunk edits base.txt");
+
+    let first = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap_err();
+    assert_eq!(first.kind, jjrfr_RejectionKind::Conflict);
+
+    let second = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap_err();
+    assert_eq!(second.kind, jjrfr_RejectionKind::Conflict, "the standing merge re-reports conflict, never dirty-tree");
 }

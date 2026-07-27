@@ -22,6 +22,7 @@ fn jjtfr_rejection_kind_as_str_is_git_free() {
             jjrfr_RejectionKind::LockBroken => kind,
             jjrfr_RejectionKind::SeatVestige => kind,
             jjrfr_RejectionKind::LineSeated => kind,
+            jjrfr_RejectionKind::Conflict => kind,
         }
     }
     let kinds = [
@@ -32,6 +33,7 @@ fn jjtfr_rejection_kind_as_str_is_git_free() {
         jjrfr_RejectionKind::LockBroken,
         jjrfr_RejectionKind::SeatVestige,
         jjrfr_RejectionKind::LineSeated,
+        jjrfr_RejectionKind::Conflict,
     ];
     for k in kinds {
         jjtfr_exhaustive(k);
@@ -39,7 +41,7 @@ fn jjtfr_rejection_kind_as_str_is_git_free() {
     let strs: Vec<&str> = kinds.iter().map(|k| k.jjrfr_as_str()).collect();
     assert_eq!(
         strs,
-        ["foreign-ground", "dirty-tree", "diverged", "lock-held", "lock-broken", "seat-vestige", "line-seated"]
+        ["foreign-ground", "dirty-tree", "diverged", "lock-held", "lock-broken", "seat-vestige", "line-seated", "conflict"]
     );
     for s in &strs {
         assert!(!s.contains("git"), "rejection kind string must stay git-free: {}", s);

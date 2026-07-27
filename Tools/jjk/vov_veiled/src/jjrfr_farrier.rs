@@ -43,6 +43,7 @@ pub enum jjrfr_RejectionKind {
     LockBroken,
     SeatVestige,
     LineSeated,
+    Conflict,
 }
 
 impl jjrfr_RejectionKind {
@@ -55,6 +56,7 @@ impl jjrfr_RejectionKind {
             jjrfr_RejectionKind::LockBroken => "lock-broken",
             jjrfr_RejectionKind::SeatVestige => "seat-vestige",
             jjrfr_RejectionKind::LineSeated => "line-seated",
+            jjrfr_RejectionKind::Conflict => "conflict",
         }
     }
 }
@@ -417,9 +419,13 @@ pub trait jjrfr_FarrierBillet {
     fn jjrfr_billet_remove(&self, billet_root: &Path, force: bool) -> Result<(), jjrfr_Rejection>;
 
     /// Merge the trunk branch's remote counterpart — its position as of the last
-    /// `jjrfr_glean` — *into* a billet branch. Never rebase; fail-loud on
-    /// conflict, resolution belonging to the attended session. The bare primitive
-    /// beneath the dispatch sheaf's refit.
+    /// `jjrfr_glean` — *into* a billet branch. Never rebase. A conflict rejects
+    /// `Conflict`, naming the conflicted files and the worktree-correct
+    /// completion-or-abort remedy, and leaves the merge standing for the attended
+    /// session to resolve in place — resolution belongs to that session, and an
+    /// auto-abort would forfeit the posture-correct merge parent this op's own
+    /// no-exfiltration law depends on. The bare primitive beneath the dispatch
+    /// sheaf's refit.
     ///
     /// The caller names the trunk branch: trunk-ness is pedigree-relative and
     /// classified above the trait (the identify contract), never inferred by a

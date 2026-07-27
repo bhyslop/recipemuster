@@ -213,3 +213,30 @@ fn jjtrf_refit_propagates_a_dirty_billet_rejection_unchanged() {
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
 }
+
+/// A synthesized conflict: the billet and the published trunk edit the same file
+/// divergently, so refit's enfold cannot compose. Refit surfaces the named
+/// conflict verdict — files, worktree-correct merge-state check, and the
+/// completion-or-abort remedy — rather than a panic through the door. This is the
+/// contract the 2026-07-26 refit-wedge incident showed was owed: an unguided
+/// half-merge is what an agent misreads and worsens.
+#[test]
+fn jjtrf_refit_reports_conflict_when_trunk_and_billet_edit_the_same_file() {
+    let (_bare, primary, billet) = zjjtrf_billeted_primary("jjtrf_conflict");
+    // The billet edits the baseline file one way...
+    zjjtrf_commit_all(billet.path(), "base.txt", "billet's edit\n", "billet edits base");
+    // ...and trunk publishes a divergent edit to the same file.
+    zjjtrf_trunk_advances(primary.path(), "base.txt", "trunk's edit\n", "trunk edits base");
+
+    let rejection = jjrrf_refit(&jjrfg_PlainGit, billet.path(), ZJJTRF_BRANCH, ZJJTRF_TRUNK).unwrap_err();
+
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::Conflict);
+    assert!(rejection.detail.contains("base.txt"), "the conflicted file is named: {}", rejection.detail);
+    assert!(
+        rejection.detail.contains("rev-parse -q --verify MERGE_HEAD")
+            && rejection.detail.contains("never a .git/MERGE_HEAD file test"),
+        "the merge-state check is worktree-correct and steers off the filesystem test: {}",
+        rejection.detail
+    );
+    assert!(rejection.detail.contains("merge --abort"), "the abort remedy is named: {}", rejection.detail);
+}
