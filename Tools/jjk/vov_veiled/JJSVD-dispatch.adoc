@@ -35,8 +35,8 @@ Boarded on arrival, kept for the duration, cleared at exit — never by the sess
 +
 Two kinds, split by door.
 A *pace billet* ({jjdd_saddle}) seats the pace's branch, which wears the {jjdd_livery} —
-`jjls_pace/{coronet}` — and its dirname is `jjqb_{catchword}_{coronet}` per the {jjdw_yard}
-charter.
+`jjls_pace/{catchword}_{coronet}` — and its dirname is `jjqb_{catchword}_{coronet}` per the
+{jjdw_yard} charter: the one birth {jjdb_catchword} labels both, ref tail and dirname alike.
 A *groom billet* ({jjdd_lunge}) seats a detached checkout at trunk tip — nothing must
 survive it — and its dirname is `jjqb_{catchword}_{firemark}`, the same signet.
 The leading serial is the {jjdb_catchword} the birth's dispatch record allocated (blotter
@@ -81,8 +81,8 @@ constant, and every live branch in every sire.
 A kind is a *roster word*, never a namespace letter, so a future kind costs a word and
 nothing else:
 +
-* `jjls_pace/{coronet}` — LIVE. The pace's WIP carrier; the coronet segment rides
-  case-armored (the carriage law below).
+* `jjls_pace/{catchword}_{coronet}` — LIVE. The pace's WIP carrier; the tail leads with the
+  birth {jjdb_catchword} serial ahead of the coronet body (the carriage law below).
   Named for the pace, not the mount: the branch outlives every mount of it.
 * `jjls_groom` — RESERVED, never populated.
   A groom billet is detached and carries nothing durable, so a branch under this word is a
@@ -97,21 +97,29 @@ owner demands one — never by default.
 The disengagement sweep is therefore `refs/heads/**/jjls_*`.
 +
 The body rides glyphless — a git ref is a foreign-traversed surface, so the sigil stays
-behind ({jjdt_insignia} carriage law) — but never bare: a loose ref is a filename, and on a
-case-insensitive volume two bodies differing only in letter case fuse onto one ref file.
-The tail is therefore the body *case-armored*: a case marker rides ahead of each character —
-`u` for an uppercase letter, `l` for anything else — so coronet `CAABz` wears `uCuAuAuBlz`.
-The markers survive the case-fold the letters do not, so the armored form stays injective
-under folding and case-distinct coronets keep distinct refs on any filesystem;
-it is the same marker scheme the paddock filename wears (JJS0 `jjdhm_paddock`).
+behind ({jjdt_insignia} carriage law) — but never bare, on two counts.
+A loose ref is a filename, and on a case-insensitive volume two bodies differing only in
+letter case fuse onto one ref file; and a body derived from the coronet alone is the same ref
+at every birth, so re-dispatching a pace would silently reuse one branch across occupancies.
+The tail therefore leads with the birth {jjdb_catchword} — the same serial the dirname wears
+({jjdw_yard}), one allocation worn as two denormalized labels, never a second journal write —
+then `_`, then the bare body: `jjls_pace/200393_CAAB_`.
+A decimal serial is stable under case-folding, so the composed name is case-fold-injective by
+construction (case-distinct coronets keep distinct refs on any filesystem); and it is unique
+per birth, so each occupancy takes its own ref and silent reuse under one name is structurally
+impossible.
 Reading the badge is how a branch name resolves back to an identity — strip any prefix by
-finding the sprue-bearing segment, admit the roster word exactly, then length-type the tail
-and disarm it: an armored tail, twice the bare body length, yields the bare body only when
-every marker agrees with its character's case.
-A bare-length tail also reads — the tolerance that keeps a standing unarmored billet branch
-legible — and that arm retires when the last such branch closes.
+finding the sprue-bearing segment, admit the roster word exactly, then type the tail by shape:
+a serialed tail is a digit-run LONGER than any body, then `_`, then the body — the serial
+stepped over and never interpreted, exactly as the dirname read steps over its own, so the
+carriage law extends to the ref.
+A bare-length tail also reads — a pre-serial billet branch, legible while one still stands —
+and an interim *case-armored* tail (a case marker ahead of each character, twice the bare body
+length) reads too: a closed, fading cohort of branches born before the serial, kept legible
+until they age out.
 Consumers *read* rather than compose wherever a pedigree is not already in hand, so a
-recorded prefix can never defeat a comparison.
+recorded prefix can never defeat a comparison — and a per-birth serial is unguessable ahead of
+the mint, so a consumer that must find a pace's branch enumerates and reads, never derives.
 
 *Every dispatched session gets its own billet; the trunk ref advances only through the wrap ceremony's converge, under the operator's wrap confirmation.*
 The {jjdw_hippodrome} is a lazy follower — its working tree pulls the sire's trunk at the operator's own cadence, and correctness never waits on that pull — while the trunk itself moves only when a wrap bequeaths a billet's estate onto it (wrap sheaf).
@@ -309,13 +317,15 @@ contributes only its target typing and its tier source, never its own approach:
   write and before any session spawn, rather than rejoining a live session's worktree or
   minting a rival one past a missed seat.
   The gate reads two keys, because a standing billet can evade either alone: the {jjdd_livery}-branch
-  SEAT the kind's own partition registry records (the authority for a billet on its own branch),
+  SEAT the kind's own partition registry records (the authority for a billet on its own branch) —
+  enumerated and matched by the {jjdt_coronet} behind each badge, since a per-birth serial makes the
+  branch name unguessable ahead of the mint —
   and the {jjdt_coronet}-labelled YARD entry (which catches a partition the seat-read misses —
   a detached tip, a lost registration, a pre-livery bare-branch billet — its dirname wearing the
   coronet whatever its HEAD points at).
-  Neither key is the yard-by-name mistake it might look like: a dirname is a label, so the seat
-  key asks the registry, not the name, and the yard key is only the second, independent read that
-  the seat-read alone would miss.
+  Neither key is the yard-by-name mistake it might look like: a dirname is a label and a serialed
+  branch is unguessable, so the seat key enumerates the registry and reads the coronet behind each
+  badge, and the yard key is only the second, independent read the seat-read alone would miss.
   Either key answering yes is a standing billet: the refusal names the partition and the remedies —
   work in that session, or {jjdd_muck} it (salvage-then-destroy).
   Checkout exclusivity is NOT this enforcement: it guards only the narrow seat arm — a second

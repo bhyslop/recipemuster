@@ -718,10 +718,14 @@ pub fn jjrds_currency<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 #[derive(Debug)]
 pub struct jjrds_LaunchPlan {
     pub door: jjrds_Door,
-    /// The billet's line: `Branch` carrying the pace's livery branch name
-    /// (`jjdd_livery` — the badge, not the bare coronet) for a pace billet,
-    /// `Detached` for a groom billet (at trunk's counterpart).
-    pub birth: jjrfr_BilletBirth,
+    /// The pedigree's recorded livery path prefix (`None` by default,
+    /// org-demand-only), carried from planning to the mint so the branch name can
+    /// be dressed there — beside the dirname, from the one catchword — rather than
+    /// here, where the serial is not yet known. Meaningful for a saddle only; a
+    /// lunge births detached and carries no branch. Which of the two a dispatch is
+    /// (pace branch vs groom detached) reads from `door`, never from this field's
+    /// presence — a `None` prefix is an unprefixed pace, not a groom.
+    pub livery_prefix: Option<String>,
     /// The identity this dispatch is for, bare: the pace's coronet for a saddle,
     /// the heat's firemark for a lunge.
     pub identity_body: String,
@@ -789,24 +793,36 @@ pub fn jjrds_yard_gate<F: jjrfr_FarrierBillet>(
     farrier: &F,
     plan: &jjrds_LaunchPlan,
 ) -> Result<(), jjrds_Rejection> {
-    let branch = match &plan.birth {
-        jjrfr_BilletBirth::Branch(branch) => branch,
-        jjrfr_BilletBirth::Detached => return Ok(()),
-    };
+    // Only a saddle seats a livery branch; a lunge births detached and has no
+    // pace billet to collide with.
+    if !matches!(plan.door, jjrds_Door::Saddle) {
+        return Ok(());
+    }
+    let coronet = &plan.identity_body;
     // K1 — the livery-branch seat: the registry is the authority for a billet
-    // standing on its own branch.
-    if let Some(root) = farrier.jjrfr_line_seated(&plan.hippodrome_root, branch).map_err(jjrds_Rejection::Farrier)? {
-        return Err(jjrds_Rejection::StandingBillet {
-            root,
-            detail: format!("its livery branch '{}' is seated there", branch),
-        });
+    // standing on its own branch. A per-birth serial makes the branch name
+    // unguessable ahead of the mint (`jjrf_livery_compose`), so the gate can no
+    // longer ask "is THIS name seated" — it enumerates every seat and matches by
+    // the coronet behind the badge, never by a composed name.
+    for (branch, root) in farrier.jjrfr_seated_lines(&plan.hippodrome_root).map_err(jjrds_Rejection::Farrier)? {
+        if crate::jjrf_favor::jjrf_livery_parse(&branch)
+            .is_some_and(|(kind, body)| kind == crate::jjrf_favor::jjrf_LiveryKind::Pace && &body == coronet)
+        {
+            return Err(jjrds_Rejection::StandingBillet {
+                root,
+                detail: format!("its livery branch '{}' is seated there", branch),
+            });
+        }
     }
     // K2 — the coronet-labelled yard entry: catches a standing partition the
     // seat-read misses (detached tip, lost registration, pre-livery bare branch).
-    if let Some(root) = zjjrds_yard_label(&plan.infield_root, &plan.identity_body) {
+    if let Some(root) = zjjrds_yard_label(&plan.infield_root, coronet) {
         return Err(jjrds_Rejection::StandingBillet {
             root,
-            detail: format!("the constellation seats its livery branch '{}' nowhere — a detached or unregistered partition", branch),
+            detail: format!(
+                "a partition labelled for {}{} stands there, its livery branch seated nowhere — a detached or unregistered partition",
+                crate::jjrf_favor::JJRF_CORONET_PREFIX, coronet
+            ),
         });
     }
     Ok(())
@@ -831,11 +847,13 @@ fn zjjrds_yard_label(infield_root: &Path, identity_body: &str) -> Option<PathBuf
 
 // ---- The dispatch record ----
 
-/// The word for a billet's kind, as the dispatch record names it.
-fn zjjrds_billet_kind_word(birth: &jjrfr_BilletBirth) -> &'static str {
-    match birth {
-        jjrfr_BilletBirth::Branch(_) => "pace billet",
-        jjrfr_BilletBirth::Detached => "groom billet",
+/// The word for a billet's kind, as the dispatch record names it. Keyed on the
+/// door, not on a birth: the record is composed inside the journal mutate, before
+/// the catchword that dresses the branch even exists.
+fn zjjrds_billet_kind_word(door: jjrds_Door) -> &'static str {
+    match door {
+        jjrds_Door::Saddle => "pace billet",
+        jjrds_Door::Lunge => "groom billet",
     }
 }
 
@@ -848,10 +866,10 @@ fn zjjrds_billet_kind_word(birth: &jjrfr_BilletBirth) -> &'static str {
 /// The target carries its sigil: a commit message is operator-facing output, so
 /// the minted-mark carriage law makes the glyph mandatory here exactly as the
 /// dirname's foreign-traversed surface bars it.
-pub fn jjrds_dispatch_record(door: jjrds_Door, birth: &jjrfr_BilletBirth, identity_body: &str, station: &str) -> String {
-    let sigil = match birth {
-        jjrfr_BilletBirth::Branch(_) => crate::jjrf_favor::JJRF_CORONET_PREFIX,
-        jjrfr_BilletBirth::Detached => crate::jjrf_favor::JJRF_FIREMARK_PREFIX,
+pub fn jjrds_dispatch_record(door: jjrds_Door, identity_body: &str, station: &str) -> String {
+    let sigil = match door {
+        jjrds_Door::Saddle => crate::jjrf_favor::JJRF_CORONET_PREFIX,
+        jjrds_Door::Lunge => crate::jjrf_favor::JJRF_FIREMARK_PREFIX,
     };
     format!(
         "dispatch {} — {} for {}{} at station {}",
@@ -859,7 +877,7 @@ pub fn jjrds_dispatch_record(door: jjrds_Door, birth: &jjrfr_BilletBirth, identi
             jjrds_Door::Saddle => "saddle",
             jjrds_Door::Lunge => "lunge",
         },
-        zjjrds_billet_kind_word(birth),
+        zjjrds_billet_kind_word(door),
         sigil,
         identity_body,
         station,
@@ -898,7 +916,7 @@ pub fn jjrds_record_dispatch<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
             jjrds_Door::Lunge => "lunge",
         },
     );
-    let subject = jjrds_dispatch_record(plan.door, &plan.birth, &plan.identity_body, station);
+    let subject = jjrds_dispatch_record(plan.door, &plan.identity_body, station);
     crate::jjrvb_blotter::jjdb_journal_mark(farrier, studbook, &guidon, |_root| (Vec::new(), subject))
         .map(|landing| landing.catchword)
         .map_err(jjrds_Rejection::Farrier)
@@ -954,7 +972,7 @@ pub fn jjrds_plan(
 
     // Target typing and door-specific resolution.
     let target = jjrds_type_target(raw_target)?;
-    let (birth, identity_body, designation, opening_prompt) = match door {
+    let (livery_prefix, identity_body, designation, opening_prompt) = match door {
         jjrds_Door::Saddle => {
             let gallops = match &pin {
                 Some(pin) => {
@@ -979,13 +997,12 @@ pub fn jjrds_plan(
             // The branch wears the livery badge; the dirname stays the bare
             // body under the yard signet. Two different surfaces: the yard is
             // JJ's own infield, where a bare body is unambiguous, while the
-            // branch lands in the sire's ref store, which JJ does not own.
+            // branch lands in the sire's ref store, which JJ does not own. Both
+            // labels are composed at the mint from the one birth catchword — the
+            // plan carries only the prefix, since the serial is not known until
+            // the dispatch record lands.
             (
-                jjrfr_BilletBirth::Branch(crate::jjrf_favor::jjrf_livery_compose(
-                    pedigree.livery_prefix.as_deref(),
-                    crate::jjrf_favor::jjrf_LiveryKind::Pace,
-                    &saddled.coronet,
-                )),
+                pedigree.livery_prefix.clone(),
                 saddled.coronet.clone(),
                 saddled.designation,
                 prompt,
@@ -1009,7 +1026,7 @@ pub fn jjrds_plan(
                 firemark,
                 JJRDS_GROOM_POSTURE
             );
-            (jjrfr_BilletBirth::Detached, firemark, None, prompt)
+            (None, firemark, None, prompt)
         }
     };
 
@@ -1017,7 +1034,7 @@ pub fn jjrds_plan(
 
     Ok(jjrds_LaunchPlan {
         door,
-        birth,
+        livery_prefix,
         identity_body,
         hippodrome_root,
         infield_root,
@@ -1052,9 +1069,15 @@ fn zjjrds_stands_abroad<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
 /// (seat-or-adopt-or-create; a groom billet in reuse re-detaches to trunk tip), then
 /// glean (the approach fetches and never merges), then the staleness probe whose
 /// answer the launch surfaces. Returns the staleness notice, if any.
+///
+/// `birth` arrives from the caller rather than the plan: a pace's branch name
+/// carries the birth catchword, minted only when the dispatch record lands, so
+/// the serialed `Branch` is composed at the mint (`jjrf_livery_compose`) and
+/// handed in here — the plan carried only the prefix.
 pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     farrier: &F,
     plan: &jjrds_LaunchPlan,
+    birth: &jjrfr_BilletBirth,
     yard: &jjrds_Yard,
 ) -> Result<Option<String>, jjrds_Rejection> {
     if yard.billet_root.exists() {
@@ -1065,13 +1088,18 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
         // never reaches here with one; a partition present at a freshly minted
         // path is an operator's own hand-built directory, and a groom's is
         // re-detached to the freshest trunk tip — the honest reading of that.
-        if plan.birth == jjrfr_BilletBirth::Detached {
+        if *birth == jjrfr_BilletBirth::Detached {
             farrier
                 .jjrfr_billet_detach(&yard.billet_root, &plan.trunk)
                 .map_err(jjrds_Rejection::Farrier)?;
         }
     } else {
-        match &plan.birth {
+        // Under per-birth serials a fresh birth's branch never pre-exists, so the
+        // seat and adopt arms are dormant on the ordinary dispatch path: they fire
+        // only for a birth whose branch a caller resolved from an existing
+        // occupancy rather than minting fresh. Held, not derivation-based, so the
+        // resolution that reawakens them can be supplied without reshaping board.
+        match birth {
             jjrfr_BilletBirth::Branch(branch)
                 if farrier
                     .jjrfr_line_exists(&plan.hippodrome_root, branch)
@@ -1108,7 +1136,7 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     // the remedy. The probe is meaningful for a pace billet's branch; a groom
     // billet just re-detached to the freshest counterpart this station knew.
     let _ = farrier.jjrfr_glean(&yard.billet_root);
-    match plan.birth {
+    match birth {
         jjrfr_BilletBirth::Branch(_) => {
             jjrds_staleness_notice(farrier, &yard.billet_root, &plan.trunk).map_err(jjrds_Rejection::Farrier)
         }
@@ -1250,12 +1278,26 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
     }
 
     // The gate passed, so nothing stands: mint a fresh billet. The birth record
-    // allocates the catchword the dirname wears.
-    let billet_root = {
+    // allocates the catchword both denormalized labels wear — the dirname under
+    // the yard signet, and the branch's livery serial — composed together here
+    // from the one allocation, never a second journal write.
+    let (billet_root, birth) = {
         let studbook = jjdb_studbook_config(&plan.infield_root);
         let station = crate::jjrvg_guidon::jjdb_station_name();
         match jjrds_record_dispatch(&farrier, &studbook, &plan, &station) {
-            Ok(catchword) => plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body)),
+            Ok(catchword) => {
+                let root = plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body));
+                let birth = match plan.door {
+                    jjrds_Door::Saddle => jjrfr_BilletBirth::Branch(crate::jjrf_favor::jjrf_livery_compose(
+                        plan.livery_prefix.as_deref(),
+                        crate::jjrf_favor::jjrf_LiveryKind::Pace,
+                        catchword,
+                        &plan.identity_body,
+                    )),
+                    jjrds_Door::Lunge => jjrfr_BilletBirth::Detached,
+                };
+                (root, birth)
+            }
             Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at the record: {}\n", out, e)),
         }
     };
@@ -1264,13 +1306,13 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
     out.push_str(&format!(
         "billet:  {}  ({})\n",
         yard.billet_root.display(),
-        match &plan.birth {
+        match &birth {
             jjrfr_BilletBirth::Branch(b) => format!("branch {}", b),
             jjrfr_BilletBirth::Detached => "detached at trunk tip".to_string(),
         },
     ));
 
-    let staleness = match jjrds_board(&farrier, &plan, &yard) {
+    let staleness = match jjrds_board(&farrier, &plan, &birth, &yard) {
         Ok(s) => s,
         Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at boarding: {}\n", out, e)),
     };

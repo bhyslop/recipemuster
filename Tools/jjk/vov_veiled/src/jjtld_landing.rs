@@ -92,7 +92,7 @@ fn zjjtld_billeted_primary(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDir, S
     zjjtld_commit_all(primary.path(), "base.txt", "base", "init");
     zjjtld_git(primary.path(), &["remote", "add", "origin", &bare.path().to_string_lossy()]);
     zjjtld_git(primary.path(), &["push", "-q", "-u", "origin", ZJJTLD_TRUNK]);
-    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, ZJJTLD_CORONET);
+    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200500, ZJJTLD_CORONET);
     let billet = zjjtld_billet_slot(&format!("{}_billet", name));
     jjrfg_PlainGit
         .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch(branch.clone()), billet.path(), ZJJTLD_TRUNK)

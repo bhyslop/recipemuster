@@ -1132,6 +1132,40 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
             .map(|record| PathBuf::from(record.root)))
     }
 
+    fn jjrfr_seated_lines(&self, root: &Path) -> Result<Vec<(String, PathBuf)>, jjrfr_Rejection> {
+        // The same porcelain the seat-record read parses, walked whole rather
+        // than filtered to one branch: every block that both seats a branch and
+        // is not prunable yields its short branch name and its root. A prunable
+        // record is a vestige, not a seat — omitted here exactly as
+        // `jjrfr_line_seated` omits it.
+        let out = zjjrfg_run_git(root, &["worktree", "list", "--porcelain"]);
+        if !out.ok {
+            return Ok(Vec::new());
+        }
+        let mut seated = Vec::new();
+        for block in out.stdout.split("\n\n") {
+            let mut recorded_root = None;
+            let mut branch = None;
+            let mut prunable = false;
+            for line in block.lines() {
+                let (key, value) = line.split_once(' ').unwrap_or((line, ""));
+                match key {
+                    "worktree" => recorded_root = Some(PathBuf::from(value)),
+                    "prunable" => prunable = true,
+                    "branch" => branch = value.strip_prefix("refs/heads/").map(str::to_string),
+                    _ => {}
+                }
+            }
+            if prunable {
+                continue;
+            }
+            if let (Some(name), Some(part_root)) = (branch, recorded_root) {
+                seated.push((name, part_root));
+            }
+        }
+        Ok(seated)
+    }
+
     fn jjrfr_outstripped(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection> {
         let counterpart = zjjrfg_counterpart(trunk);
         // No counterpart known locally → not outstripped: nothing observed can

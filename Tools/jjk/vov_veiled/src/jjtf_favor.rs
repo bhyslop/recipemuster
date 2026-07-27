@@ -444,16 +444,16 @@ fn jjtf_coronet_parse_tolerates_qualified_form() {
 
 #[test]
 fn jjtf_livery_composes_the_pace_badge() {
-    // The ordinary form: sprue as namespace root, no pedigree prefix. The body
-    // is case-armored (marker-per-character, `u` upper / `l` lower-or-caseless)
-    // so the ref survives a case-insensitive filesystem: CAAA9 → uCuAuAuAl9.
+    // The ordinary form: sprue as namespace root, no pedigree prefix. The tail
+    // leads with the birth catchword, then `_`, then the bare body — the serial
+    // the billet's dirname also wears: CAAA9 born at 200393 → 200393_CAAA9.
     assert_eq!(
-        jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAAA9"),
-        "jjls_pace/uCuAuAuAl9"
+        jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200393, "CAAA9"),
+        "jjls_pace/200393_CAAA9"
     );
     // The body rides bare — a git ref is a foreign-traversed surface, so the
     // sigil stays behind and the badge is what the ref carries instead.
-    assert!(!jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAAA9").contains(JJRF_CORONET_PREFIX));
+    assert!(!jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200393, "CAAA9").contains(JJRF_CORONET_PREFIX));
 }
 
 #[test]
@@ -461,16 +461,16 @@ fn jjtf_livery_prefix_is_org_demand_only() {
     // A pedigree-recorded path prefix nests the whole badge; absent (and empty,
     // the shape a hand-edited pedigree yields) it never appears at all.
     assert_eq!(
-        jjrf_livery_compose(Some("teams/jj"), jjrf_LiveryKind::Pace, "CAAA9"),
-        "teams/jj/jjls_pace/uCuAuAuAl9"
+        jjrf_livery_compose(Some("teams/jj"), jjrf_LiveryKind::Pace, 200393, "CAAA9"),
+        "teams/jj/jjls_pace/200393_CAAA9"
     );
     assert_eq!(
-        jjrf_livery_compose(Some("teams/jj/"), jjrf_LiveryKind::Pace, "CAAA9"),
-        "teams/jj/jjls_pace/uCuAuAuAl9"
+        jjrf_livery_compose(Some("teams/jj/"), jjrf_LiveryKind::Pace, 200393, "CAAA9"),
+        "teams/jj/jjls_pace/200393_CAAA9"
     );
     assert_eq!(
-        jjrf_livery_compose(Some("  "), jjrf_LiveryKind::Pace, "CAAA9"),
-        "jjls_pace/uCuAuAuAl9"
+        jjrf_livery_compose(Some("  "), jjrf_LiveryKind::Pace, 200393, "CAAA9"),
+        "jjls_pace/200393_CAAA9"
     );
 }
 
@@ -479,21 +479,22 @@ fn jjtf_livery_round_trips_through_any_prefix() {
     // Parse strips the prefix by finding the sprue-bearing segment, so a prefix
     // JJ never recorded still reads — the prefix is presentation, not a parse input.
     for prefix in [None, Some("teams/jj"), Some("a/b/c")] {
-        let branch = jjrf_livery_compose(prefix, jjrf_LiveryKind::Pace, "CAAA9");
+        let branch = jjrf_livery_compose(prefix, jjrf_LiveryKind::Pace, 200393, "CAAA9");
         assert_eq!(jjrf_livery_parse(&branch), Some((jjrf_LiveryKind::Pace, "CAAA9".to_string())));
     }
 }
 
 #[test]
 fn jjtf_livery_case_siblings_never_collide() {
-    // The APFS fusion this armoring exists to prevent: two coronets differing
-    // only in letter case (`CAABz` / `CAABZ`) resolved to one loose-ref file, so
-    // two live billets silently shared a branch. A case-insensitive filesystem
-    // folds names before it compares them, so the armored names must stay
-    // distinct even under a fold — the harness cannot fold the real filesystem
-    // here, so the encoding property is proven directly.
-    let lower = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAABz");
-    let upper = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, "CAABZ");
+    // The APFS fusion the serial exists to prevent: two coronets differing only
+    // in letter case (`CAABz` / `CAABZ`) once folded to one loose-ref file, so two
+    // live billets silently shared a branch. Each billet birth mints a unique
+    // catchword (the monotonic journal ordinal), so the two paces' births carry
+    // two distinct decimal serials — and digits are fold-stable — so the names
+    // stay distinct even under a case-fold. The harness cannot fold the real
+    // filesystem here, so the property is proven directly on the composed names.
+    let lower = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200393, "CAABz");
+    let upper = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200394, "CAABZ");
     assert_ne!(lower, upper);
     assert_ne!(lower.to_lowercase(), upper.to_lowercase());
     // Distinctness costs no decodability: each still round-trips to its own
@@ -503,18 +504,55 @@ fn jjtf_livery_case_siblings_never_collide() {
 }
 
 #[test]
+fn jjtf_livery_reuse_yields_distinct_refs() {
+    // Two births of ONE coronet take two catchwords, so each occupancy gets its
+    // own ref — the fused-ref incident's third finding (silent branch reuse under
+    // one name) made structurally impossible. Both still parse to the same
+    // coronet: the serial labels the occupancy, the body names the pace. The
+    // body's own trailing `_` proves the parse ends the serial at the FIRST `_`
+    // (the catchword holds none), never a naive underscore split.
+    let first = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200393, "CAAB_");
+    let second = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200401, "CAAB_");
+    assert_ne!(first, second);
+    assert_eq!(jjrf_livery_parse(&first), Some((jjrf_LiveryKind::Pace, "CAAB_".to_string())));
+    assert_eq!(jjrf_livery_parse(&second), Some((jjrf_LiveryKind::Pace, "CAAB_".to_string())));
+}
+
+#[test]
 fn jjtf_livery_reads_the_legacy_bare_form() {
-    // The bare-length tail is a pre-armoring billet branch. Parse reads it for
-    // as long as one still stands — the "old branches age out" cinch — and
-    // hands back the same bare coronet the armored form yields.
+    // The bare-length tail is a pre-serial billet branch. Parse reads it for as
+    // long as one still stands — the "old branches age out" cinch — and hands
+    // back the same bare coronet the serialed form yields.
     assert_eq!(
         jjrf_livery_parse("jjls_pace/CAAA9"),
         Some((jjrf_LiveryKind::Pace, "CAAA9".to_string()))
     );
-    // Through a pedigree prefix, exactly as the armored form.
+    // Through a pedigree prefix, exactly as the serialed form.
     assert_eq!(
         jjrf_livery_parse("teams/jj/jjls_pace/CAAA9"),
         Some((jjrf_LiveryKind::Pace, "CAAA9".to_string()))
+    );
+}
+
+#[test]
+fn jjtf_livery_still_reads_the_armored_cohort() {
+    // The interim case-armored form is a closed, fading cohort: compose no longer
+    // writes it, but parse reads it until the population clears (the retained
+    // third arm). CAAB_ armored is uCuAuAuBl_ — marker-per-character, `u` upper /
+    // `l` lower-or-caseless.
+    assert_eq!(
+        jjrf_livery_parse("jjls_pace/uCuAuAuBl_"),
+        Some((jjrf_LiveryKind::Pace, "CAAB_".to_string()))
+    );
+    // Case intact under the fold the armor was built for — the property the
+    // serial now carries for new births.
+    assert_eq!(
+        jjrf_livery_parse("jjls_pace/uCuAuAuBlz"),
+        Some((jjrf_LiveryKind::Pace, "CAABz".to_string()))
+    );
+    assert_eq!(
+        jjrf_livery_parse("jjls_pace/uCuAuAuBuZ"),
+        Some((jjrf_LiveryKind::Pace, "CAABZ".to_string()))
     );
 }
 
@@ -552,6 +590,12 @@ fn jjtf_livery_declines_what_it_does_not_claim() {
     assert_eq!(jjrf_livery_parse("jjls_pace/abcdefghij"), None);
     assert_eq!(jjrf_livery_parse("jjls_pace/uzuAuAuAl9"), None); // 'u' before a lowercase char
     assert_eq!(jjrf_livery_parse("jjls_pace/lCuAuAuAl9"), None); // 'l' before an uppercase char
+    // A serialed tail is refused unless the digit-run is longer than any body
+    // (the dirname read's own discriminator) and the body behind it is
+    // body-length exactly.
+    assert_eq!(jjrf_livery_parse("jjls_pace/200393_CAAB"), None);  // body too short (4)
+    assert_eq!(jjrf_livery_parse("jjls_pace/20033_CAAB9"), None);  // serial run not longer than the body
+    assert_eq!(jjrf_livery_parse("jjls_pace/2003x3_CAAB9"), None); // serial run not all digits
 }
 
 #[test]

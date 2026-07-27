@@ -196,7 +196,7 @@ fn zjjtnc_billeted_primary(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDir, S
     zjjtnc_commit_all(primary.path(), "base.txt", "base", "init");
     zjjtnc_git(primary.path(), &["remote", "add", "origin", &bare.path().to_string_lossy()]);
     zjjtnc_git(primary.path(), &["push", "-q", "-u", "origin", ZJJTNC_TRUNK]);
-    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, ZJJTNC_CORONET);
+    let branch = jjrf_livery_compose(None, jjrf_LiveryKind::Pace, 200500, ZJJTNC_CORONET);
     let billet = zjjtnc_billet_slot(&format!("{}_billet", name));
     jjrfg_PlainGit
         .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Branch(branch.clone()), billet.path(), ZJJTNC_TRUNK)
