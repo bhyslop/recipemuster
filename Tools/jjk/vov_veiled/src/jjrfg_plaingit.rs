@@ -8,17 +8,18 @@
 //!
 //! Classification policy: a git failure that the farrier sheaf names as a known
 //! rejection kind (foreign ground, dirty tree, diverged, lock-held, lock-broken,
-//! seat-vestige, line-seated) translates to `jjrfr_Rejection` and is returned.
-//! Which verdicts earn a kind is the sheaf's own three-conjunct test — field-observed
-//! or invariant-bearing, probe-detectable, remedy-naming — never this driver's to
-//! widen: an unsurveyed signature keeps the panic. A git failure this driver
-//! cannot classify is a plumbing fault, not a domain rejection — the taxonomy is
-//! closed by the sheaf, with no catch-all variant to hide in — so it panics with
-//! the raw detail attached rather than being silently mislabeled under a familiar
-//! kind. A merge conflict at `jjrfr_enfold` is one such case: it is not a named
-//! rejection kind, so it panics and leaves the conflict markers standing for the
-//! attended session, per the billet sheaf's "resolution belonging to the attended
-//! session."
+//! seat-vestige, line-seated, conflict) translates to `jjrfr_Rejection` and is
+//! returned. Which verdicts earn a kind is the sheaf's own three-conjunct test —
+//! field-observed or invariant-bearing, probe-detectable, remedy-naming — never
+//! this driver's to widen: an unsurveyed signature keeps the panic. A git failure
+//! this driver cannot classify is a plumbing fault, not a domain rejection — the
+//! taxonomy is closed by the sheaf, with no catch-all variant to hide in — so it
+//! panics with the raw detail attached rather than being silently mislabeled under
+//! a familiar kind. A merge at `jjrfr_enfold` shows both halves: a content
+//! conflict is surveyed (`conflict`), classified from two porcelain probes — a
+//! merge in progress plus unmerged paths — and left standing with its markers for
+//! the attended session to resolve, per the billet sheaf's "resolution belonging
+//! to the attended session"; every other failed-merge signature keeps the panic.
 
 use crate::jjrfr_farrier::{
     jjrfr_BequeathOutcome,
@@ -367,6 +368,47 @@ fn zjjrfg_classify_refused_seat(root: &Path, branch: &str) -> Option<jjrfr_Rejec
         )
     };
     Some(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_BILLET_SEAT, root, detail))
+}
+
+/// Classify an `enfold` merge left in a conflicted state — the one surveyed
+/// failure of that op (`jjdf_conflict`, farrier sheaf). Read in porcelain, never
+/// message text, and gated on TWO probes together so no other failed-merge shape
+/// can wear the kind: a merge stands in progress (the worktree-correct
+/// `rev-parse --verify MERGE_HEAD`, never a `.git/MERGE_HEAD` file test — a billet
+/// is a partition whose merge state lives in its own gitdir) AND the index carries
+/// unmerged paths. Either probe alone returns `None`, leaving the caller its
+/// panic. The detail is ashlar: it names the conflicted files and the
+/// completion-or-abort remedy the attended session runs itself — *advice, never
+/// automatic*, the sibling of `zjjrfg_classify_refused_seat`'s operator-typed prune.
+fn zjjrfg_classify_conflict(billet_root: &Path) -> Option<jjrfr_Rejection> {
+    let merging = zjjrfg_run_git(billet_root, &["rev-parse", "-q", "--verify", "MERGE_HEAD"]);
+    if !merging.ok {
+        return None;
+    }
+    let unmerged = zjjrfg_run_git(billet_root, &["diff", "--name-only", "--diff-filter=U"]);
+    if !unmerged.ok {
+        return None;
+    }
+    let files: Vec<&str> = unmerged.stdout.lines().filter(|line| !line.is_empty()).collect();
+    if files.is_empty() {
+        return None;
+    }
+    let root = billet_root.display();
+    let detail = format!(
+        "trunk and the billet changed the same content, so the merge cannot compose. \
+         Conflicted files:\n{files}\n\
+         A merge is in progress with conflict markers standing — confirm with \
+         `git -C {root} rev-parse -q --verify MERGE_HEAD` (never a .git/MERGE_HEAD file test: \
+         a billet is a worktree, whose merge state lives in its own gitdir). \
+         Resolution belongs to this session — edit each file to settle its markers, \
+         `git -C {root} add` it, then `git -C {root} commit` to complete the merge; \
+         or `git -C {root} merge --abort` to back the billet out to its pre-enfold state. \
+         Do not wrap until the merge is resolved: wrap stages every dirty file, so a wrapped \
+         merge would commit the standing markers as real content.",
+        files = files.join("\n"),
+        root = root,
+    );
+    Some(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Conflict, ZJJRFG_OP_ENFOLD, billet_root, detail))
 }
 
 /// Classify a tree's seat from its git metadata: git-dir equal to git-common-dir
@@ -1240,6 +1282,14 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
     }
 
     fn jjrfr_enfold(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
+        // Idempotency precheck: a billet already mid-merge from a prior enfold
+        // conflict re-renders the same conflict verdict, rather than degrading to
+        // the dirty-tree gate below (a conflicted tree is dirty). A re-run thereby
+        // reports the standing collision stably, never a second, misdirecting
+        // verdict — the exact misread the 2026-07-26 wedge turned on.
+        if let Some(rejection) = zjjrfg_classify_conflict(billet_root) {
+            return Err(rejection);
+        }
         let comb = self.jjrfr_comb(billet_root)?;
         if !comb.jjrfr_is_clean() {
             return Err(jjrfr_Rejection::jjrfr_new(
@@ -1254,14 +1304,18 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // work out as billet ancestry at the next consign (the enfold contract,
         // farrier sheaf).
         let counterpart = zjjrfg_counterpart(trunk);
-        // Never rebase: a plain merge, fast-forwarding when possible and
-        // otherwise recording a real merge commit. A conflict is not one of the
-        // taxonomy's rejection kinds — it is not this driver's to resolve
-        // (billet sheaf: "resolution belonging to the attended session") — so it
-        // falls through to the unclassified panic, leaving the conflict markers
-        // standing exactly as git left them.
+        // Never rebase: a plain merge, fast-forwarding when possible and otherwise
+        // recording a real merge commit. A content conflict is the one surveyed
+        // failure (jjdf_conflict): it rejects with the conflicted files and the
+        // worktree-correct completion-or-abort remedy, leaving the merge standing
+        // for the attended session — never auto-aborted, which would forfeit the
+        // posture-correct MERGE_HEAD parent (the counterpart, not the local trunk
+        // ref). Every other failed-merge signature keeps the unclassified panic.
         let out = zjjrfg_run_git(billet_root, &["merge", "-q", &counterpart, "-m", "enfold trunk"]);
         if !out.ok {
+            if let Some(rejection) = zjjrfg_classify_conflict(billet_root) {
+                return Err(rejection);
+            }
             zjjrfg_unexpected(ZJJRFG_OP_ENFOLD, billet_root, &out.zjjrfg_detail());
         }
         Ok(())
