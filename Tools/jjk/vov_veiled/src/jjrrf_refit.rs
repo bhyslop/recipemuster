@@ -15,8 +15,10 @@
 //!
 //! Then `consign` the merge immediately: the operation exists to clear staleness
 //! for every station and runs online by construction. It never refuses on
-//! staleness itself — only an orthogonal precondition (a dirty billet, at
-//! `jjrfr_enfold`) can reject; staleness is drift, never corruption.
+//! staleness itself — only an orthogonal condition at `jjrfr_enfold` rejects: a
+//! dirty billet, or a content conflict (`jjdf_conflict`) trunk and the billet
+//! both touched, whose resolution belongs to the attended session. Staleness
+//! itself is drift, never corruption.
 //!
 //! An unreachable remote does not fail: refit merges what this station already
 //! knows and pushes nothing (`jjrrf_RefitOutcome::OfflineWarned`). Offline it

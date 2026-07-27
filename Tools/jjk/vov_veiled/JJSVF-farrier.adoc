@@ -323,13 +323,17 @@ Answers false when no counterpart is locally known: nothing observed can be ahea
 staleness warning this probe feeds ({jjdd_refit}, dispatch sheaf) must not cry on ignorance.
 
 `reachable`::
-The stranding probe: is the tree's current position an ancestor of — or equal to — the named
-branch's remote counterpart, as of the last `glean`?
-A local ancestry check, network-silent, the {jjdd_stile_p} groom-litmus conjunct (dispatch
+The stranding probe: is the tree's content, against the named branch's remote counterpart as
+of the last `glean`, empty — does the diff from their merge-base to HEAD show nothing?
+A local content check, network-silent, the {jjdd_stile_p} groom-litmus conjunct (dispatch
 sheaf).
-Answers false when no counterpart is locally known: nothing can be proven held on ignorance,
-and the exit litmus this probe feeds must never destroy on an unproven claim — the opposite
-polarity from `outstripped` above, stated so the two neighbors are never harmonized.
+Content, not ancestry: every dispatch's open lands an empty marker commit on a groom billet's
+detached HEAD, so an ancestry check would call the everyday groom billet stranded forever;
+this probe instead asks whether the billet's tip tree differs from the merge-base at all.
+Answers false when no counterpart is locally known, or when no merge-base exists between HEAD
+and the counterpart: nothing can be proven held on ignorance, and the exit litmus this probe
+feeds must never destroy on an unproven claim — the opposite polarity from `outstripped`
+above, stated so the two neighbors are never harmonized.
 
 `billet_remove`::
 Remove a billet from the yard.
@@ -342,7 +346,12 @@ caller — it removes regardless: the one deliberate data-loss call in the taxon
 `enfold`::
 Merge the trunk branch's remote counterpart — its position as of the last `glean` — *into* a
 billet branch;
-never rebase, fail-loud on conflict, resolution belonging to the attended session.
+never rebase.
+A conflict rejects {jjdf_conflict}, naming the conflicted files and the worktree-correct
+completion-or-abort remedy, and leaves the merge standing for the attended session to resolve
+in place — never a raw fail-loud, and never an auto-abort (which would strand the operator
+re-initiating the merge by hand, at risk of naming the local trunk ref against this op's own
+no-exfiltration law below).
 The caller names the trunk branch (trunk-ness is pedigree-relative, classified above the
 trait); the kind resolves the counterpart itself, the `advance` posture — callers never speak
 a kind-native ref dialect.
@@ -435,11 +444,16 @@ A verdict is surveyed when all three hold:
 
 A signature failing any conjunct is left to the panic, which surfaces it whole for the
 attended session rather than mislabeling it under a familiar kind.
-Two consequences the census makes concrete: a failed push whose cause is an unreachable
-remote rather than a ref rejection is not surveyed, because separating unreachable from
-refused needs stderr prose;
-and an `enfold` conflict is not surveyed, because its only remedy is the attended session's
-own work.
+The census makes the boundary concrete: a failed push whose cause is an unreachable remote
+rather than a ref rejection is not surveyed, because separating unreachable from refused needs
+stderr prose — a fault the probe conjunct cannot see through.
+An `enfold` conflict, by contrast, *is* surveyed ({jjdf_conflict}): that the attended session
+executes the remedy is not a bar — {jjdf_seat_vestige} is remedied by an operator-typed
+command too, *advice, never automatic* — and the remedy the refusal names is a procedure frame
+(resolve the named files, then commit — or abort the merge), probe-detected without reading a
+line of stderr prose.
+The distinction the frame keeps honest: the fix is the session's open-ended judgment, not a
+single deterministic command the driver could run for it.
 
 === The kinds
 
@@ -488,6 +502,23 @@ The last two arrive at `billet_seat` from a single foreign refusal, rendered ide
 are told apart only by the registry probe;
 a probe that matches no seat at all leaves the panic standing, since classifying that arm
 would mean reading the message text this sheaf bars.
+
+[[jjdf_conflict]]
+{jjdf_conflict}::
+`enfold`'s content collision: the trunk counterpart and the billet line changed the same
+content, so the trunk-ward merge cannot compose without a decision only the attended session
+holds.
+Detected by two probes together, never by message text: a merge stands in progress (the
+worktree-correct `MERGE_HEAD` verification, not a `.git/MERGE_HEAD` file test — a billet is a
+partition, whose merge state lives in its own gitdir) *and* the index carries unmerged paths;
+either probe alone leaves the panic standing, since any other failed-merge shape is unsurveyed.
+The merge is left standing, markers and all — *advice, never automatic*, the same posture
+{jjdf_seat_vestige} holds: the refusal names the conflicted files and the completion-or-abort
+frame (resolve the named files and commit, or abort the merge), and the session does the work,
+because a driver that aborts the merge hides the collision and forfeits the posture-correct
+merge parent the standing `MERGE_HEAD` preserves.
+The one kind for every merge-in-progress collision shape — add/add, modify/modify,
+delete/modify all read as unmerged paths and share the frame; the kind is not split by shape.
 
 == The transport vedette
 

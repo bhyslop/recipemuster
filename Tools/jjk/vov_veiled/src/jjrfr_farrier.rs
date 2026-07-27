@@ -43,6 +43,7 @@ pub enum jjrfr_RejectionKind {
     LockBroken,
     SeatVestige,
     LineSeated,
+    Conflict,
 }
 
 impl jjrfr_RejectionKind {
@@ -55,6 +56,7 @@ impl jjrfr_RejectionKind {
             jjrfr_RejectionKind::LockBroken => "lock-broken",
             jjrfr_RejectionKind::SeatVestige => "seat-vestige",
             jjrfr_RejectionKind::LineSeated => "line-seated",
+            jjrfr_RejectionKind::Conflict => "conflict",
         }
     }
 }
@@ -375,15 +377,20 @@ pub trait jjrfr_FarrierBillet {
     /// `jjrfr_outstripped` holds.
     fn jjrfr_counterpart_chalk(&self, billet_root: &Path, trunk: &str) -> Result<Option<(String, String)>, jjrfr_Rejection>;
 
-    /// The stranding probe: is the tree's current position an ancestor of — or
-    /// equal to — the named branch's remote counterpart, as of the last
-    /// `jjrfr_glean`? A local ancestry check, network-silent, the
-    /// {jjdd_stile} groom-litmus conjunct (dispatch sheaf). `false` when no
-    /// counterpart is known locally: nothing can be proven held on ignorance,
-    /// and the exit litmus this probe feeds must never destroy on an unproven
-    /// claim — the opposite polarity from `jjrfr_outstripped` above, whose
-    /// `false`-on-ignorance suppresses a warning rather than blocking a
-    /// destruction; the two neighbors are deliberately never harmonized.
+    /// The stranding probe: is the tree's content, against the named branch's
+    /// remote counterpart as of the last `jjrfr_glean`, empty — the diff from
+    /// their merge-base to HEAD shows nothing? A local content check,
+    /// network-silent, the {jjdd_stile} groom-litmus conjunct (dispatch
+    /// sheaf). Content, not ancestry: every dispatch's `jjdo_open` lands an
+    /// empty marker commit on a groom billet's detached HEAD, so an ancestry
+    /// check would call the everyday groom billet stranded forever; this
+    /// probe instead asks whether the billet's tip tree differs from the
+    /// merge-base at all. `false` when no counterpart is known locally:
+    /// nothing can be proven held on ignorance, and the exit litmus this
+    /// probe feeds must never destroy on an unproven claim — the opposite
+    /// polarity from `jjrfr_outstripped` above, whose `false`-on-ignorance
+    /// suppresses a warning rather than blocking a destruction; the two
+    /// neighbors are deliberately never harmonized.
     fn jjrfr_reachable(&self, billet_root: &Path, trunk: &str) -> Result<bool, jjrfr_Rejection>;
 
     /// Pass the billet's whole estate up to the trunk: compose ONE commit whose
@@ -417,9 +424,13 @@ pub trait jjrfr_FarrierBillet {
     fn jjrfr_billet_remove(&self, billet_root: &Path, force: bool) -> Result<(), jjrfr_Rejection>;
 
     /// Merge the trunk branch's remote counterpart — its position as of the last
-    /// `jjrfr_glean` — *into* a billet branch. Never rebase; fail-loud on
-    /// conflict, resolution belonging to the attended session. The bare primitive
-    /// beneath the dispatch sheaf's refit.
+    /// `jjrfr_glean` — *into* a billet branch. Never rebase. A conflict rejects
+    /// `Conflict`, naming the conflicted files and the worktree-correct
+    /// completion-or-abort remedy, and leaves the merge standing for the attended
+    /// session to resolve in place — resolution belongs to that session, and an
+    /// auto-abort would forfeit the posture-correct merge parent this op's own
+    /// no-exfiltration law depends on. The bare primitive beneath the dispatch
+    /// sheaf's refit.
     ///
     /// The caller names the trunk branch: trunk-ness is pedigree-relative and
     /// classified above the trait (the identify contract), never inferred by a
