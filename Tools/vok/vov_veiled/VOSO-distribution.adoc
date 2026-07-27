@@ -4,10 +4,10 @@ This is a normative portion of the {vos0_imprimatur}: binding — code, tests, a
 //
 // This is a pure-consumer subdoc of VOS0-VoxObscuraSpec.adoc (the Vox cosmology
 // SpecTop), include::'d under its == Operations branch at leveloffset=+1. It defines
-// NO quoins: the four operation quoins (vosor_release, vosoi_install, vosou_uninstall,
-// vosof_freshen) and every term these procedures consume are defined and registered
+// NO quoins: the three operation quoins (vosor_release, vosoi_install, vosou_uninstall)
+// and every term these procedures consume are defined and registered
 // at the cosmology top. This file carries only the procedure bodies — the Obscura
-// release/install/uninstall/freshen machinery — that consume that vocabulary.
+// release/install/uninstall machinery — that consume that vocabulary.
 
 == {vosor_release}
 
@@ -278,38 +278,6 @@ copy `claude/hooks/*` to `.claude/hooks/`
 "{m} commands installed, {p} hooks installed"
 
 //axhos_step
-. *Freshen CLAUDE.md*:
-.. If CLAUDE.md absent:
-{vosc_call}
-create with header `# Claude Code Project Memory`
-.. {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-.. {vosc_call}
-build the
-{vose_include_region}
-body: one `@`-include line per
-{vose_kit_include}
-of each installed
-{vose_kit},
-in registry order
-.. Upsert the
-{vose_include_region}:
-... If its
-{vose_marker_s}
-exist: replace content between markers
-... Else if the
-{vose_uninstalled_marker}
-exists: expand at that location
-... Else: append at end of file
-.. {vosc_step}
-"CLAUDE.md include region updated"
-+
-NOTE: This is a deterministic text transformation implemented in Rust.
-No LLM assistance required for marker manipulation.
-
-//axhos_step
 . *Write MCP configuration*:
 .. {vosc_call}
 write
@@ -336,8 +304,6 @@ at `.mcp.json`
 * Commands in `.claude/commands/`
 * Hooks in `.claude/hooks/`
 * Brand file at `.vvk/vvbf_brand.json`
-* Updated CLAUDE.md with the
-{vose_include_region}
 * Single git commit
 
 //axhoc_completion
@@ -345,6 +311,14 @@ All
 {vose_kit_s}
 installed atomically.
 Clean git history with single install commit.
+
+CLAUDE.md is never written by
+{vosoi_install}:
+the operator hand-adds one `@`-include line per public guidance file (`claude-{kit}-*.md`) of each installed
+{vose_kit},
+per the
+{vose_kit_p}
+README.
 
 
 == {vosou_uninstall}
@@ -354,7 +328,7 @@ Removes Claude Code integration from
 while preserving
 {vose_kit}
 directories.
-Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, the CLAUDE.md include region, vvx binary).
+Unveiled kit content is typically open-source and remains functional outside Claude Code; vacate removes only the Claude-specific layer (commands, hooks, vvx binary).
 Uses brand file to enumerate what to remove.
 
 Invocation (from target repo root):
@@ -427,24 +401,6 @@ remove files matching `{cipher}h-*.md` from `.claude/hooks/`
 "{n} commands removed, {m} hooks removed"
 
 //axhos_step
-. *Collapse CLAUDE.md region*:
-.. If CLAUDE.md exists:
-... {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-... If the
-{vose_include_region}
-{vose_marker_s}
-exist: replace with a single
-{vose_uninstalled_marker}
-... If markers absent: no action (region was never added or already collapsed)
-.. {vosc_step}
-"CLAUDE.md include region collapsed"
-+
-NOTE: Preserves the region's position for future reinstall.
-
-//axhos_step
 . *Remove vvx binary*:
 .. {vosc_call}
 delete
@@ -489,8 +445,6 @@ removed from `${BURC_TOOLS_DIR}/vvk/bin/vvx`
 removed from `.mcp.json`
 * Commands removed from `.claude/commands/`
 * Hooks removed from `.claude/hooks/`
-* CLAUDE.md include region collapsed to a single
-{vose_uninstalled_marker}
 * Brand file and `.vvk/` removed
 * Kit directories *preserved* (unveiled content remains functional)
 * Single git commit
@@ -498,115 +452,9 @@ removed from `.mcp.json`
 //axhoc_completion
 Claude Code integration cleanly removed.
 Kit directories remain for continued use outside Claude Code.
-The
-{vose_uninstalled_marker}
-preserves the region's position for future reinstall.
-
-
-== {vosof_freshen}
-
-Rebuilds CLAUDE.md's
-{vose_include_region}
-from the kit
-{vose_conclave},
-bypassing the
-{vose_parcel}
-pipeline.
-Operates directly within the
-{vosp_kit_forge}
-itself.
-
-This is a development-time operation for use in the
-{vosp_kit_forge}
-when the kit
-{vose_conclave}
-has changed — kits added or removed, or a
-{vose_kit_include}
-list edited — and CLAUDE.md's
-{vose_include_region}
-needs to match without a full
-{vosor_release}
-and
-{vosoi_install}
-cycle.
-
-Invocation (via tabtarget):
-
-----
-tt/vow-F.Freshen.sh
-----
-
-Or directly:
-
-----
-vvx_freshen --burc .buk/burc.env
-----
-
-//axd_required
-* Path to `burc.env` file (`--burc` argument)
-
-//axhos_step
-. *Parse burc.env*:
-.. {vosc_call}
-parse burc.env for `BURC_PROJECT_ROOT`, `BURC_TOOLS_DIR`, `BURC_MANAGED_KITS`
-.. {vosc_fatal}
-if missing or empty: "burc.env missing required variable: {name}"
-
-//axhos_step
-. *Build include region body*:
-.. For each kit in `BURC_MANAGED_KITS`:
-... {vosc_call}
-look up the
+CLAUDE.md is untouched:
+its hand-maintained `@`-include lines continue to resolve against the preserved
 {vose_kit}
-{vose_whisper}
-in the
-{vose_conclave}
-... For each
-{vose_kit_include}
-of the
-{vose_kit}:
-{vosc_call}
-emit one `@`-include line, project-root-relative to the kit's installed directory
-
-//axhos_step
-. *Freshen CLAUDE.md*:
-.. If CLAUDE.md absent:
-{vosc_call}
-create with header `# Claude Code Project Memory`
-.. {vosc_call}
-sweep any legacy per-kit
-{vose_marker_s}
-left by the retired inline mechanism
-.. Upsert the
-{vose_include_region}:
-... If its
-{vose_marker_s}
-exist: replace content between markers
-... Else if the
-{vose_uninstalled_marker}
-exists: expand at that location
-... Else: append at end of file
-.. {vosc_step}
-report the
-{vose_include_region}
-as updated, expanded, or appended
-
-NOTE: No git commit is performed.
-The caller decides when to commit, enabling
-{vosof_freshen}
-to be composed with other operations.
-
-//axhoom_motif_output
-* Updated CLAUDE.md with the
-{vose_include_region}
-rebuilt from the kit
-{vose_conclave}
-
-//axhoc_completion
-CLAUDE.md's
-{vose_include_region}
-reflects the current kit
-{vose_conclave}.
-No other files modified.
+directories.
 
 

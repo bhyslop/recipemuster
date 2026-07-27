@@ -108,14 +108,6 @@
 :vose_kit:              <<vose_kit,Kit>>
 :vose_kit_s:            <<vose_kit,Kits>>
 :vose_kit_p:            <<vose_kit,Kit's>>
-:vose_include_region:   <<vose_include_region,Include Region>>
-:vose_include_region_s: <<vose_include_region,Include Regions>>
-:vose_kit_include:      <<vose_kit_include,Kit Include>>
-:vose_kit_include_s:    <<vose_kit_include,Kit Includes>>
-:vose_kit_include_p:    <<vose_kit_include,Kit Include's>>
-:vose_marker:           <<vose_marker,Marker>>
-:vose_marker_s:         <<vose_marker,Markers>>
-:vose_uninstalled_marker: <<vose_uninstalled_marker,Uninstalled Marker>>
 :vose_canonical_binary:  <<vose_canonical_binary,Canonical Binary>>
 
 // Entity members
@@ -126,7 +118,6 @@
 :vosem_display_name:    <<vosem_display_name,display_name>>
 :vosem_brand:        <<vosem_brand,brand>>
 :vosem_kit_id:          <<vosem_kit_id,kit_id>>
-:vosem_tag:             <<vosem_tag,tag>>
 
 // Places
 :vosp_kit_forge:        <<vosp_kit_forge,Kit Forge>>
@@ -150,7 +141,6 @@
 :vosor_release:         <<vosor_release,Release>>
 :vosoi_install:         <<vosoi_install,Install>>
 :vosou_uninstall:       <<vosou_uninstall,Uninstall>>
-:vosof_freshen:         <<vosof_freshen,Freshen>>
 
 // Routines (internal reusable procedures)
 :vosr_lock:             <<vosr_lock,lock routine>>
@@ -213,7 +203,7 @@ section and the vocabulary its sheaves consume, and the identity each sheaf name
 
 The Vox Obscura Specification is the cosmology top for the Vox Obscura naming system — the `vo` cipher as a whole.
 It centralizes the Liturgy vocabulary (Cipher, Signet, Epithet, Inscription, Vesture and the domain vestures), then hosts its branches as `include::` subdocs that purely consume that centralized vocabulary, following the RBS0/JJS0/BUS0 SpecTop precedent.
-Its branches are the Obscura distribution machinery (release, install, uninstall, freshen — see VOSO-distribution.adoc), the commit/lock routine family (the VOSR* subdocs), and the Matricula transient inscription census (VOSMM-entity.adoc).
+Its branches are the Obscura distribution machinery (release, install, uninstall — see VOSO-distribution.adoc), the commit/lock routine family (the VOSR* subdocs), and the Matricula transient inscription census (VOSMM-entity.adoc).
 
 The remainder of this document defines the centralized vocabulary; the branches consume it.
 
@@ -238,8 +228,7 @@ through a
 {vose_whisper}
 - a static registry entry recording the
 {vose_kit_p}
-identity and its
-{vose_kit_include_s}.
+identity.
 
 The
 {vosor_release}
@@ -256,23 +245,17 @@ to a
 {vosp_target_repo}.
 The
 {vosou_uninstall}
-operation removes Claude Code integration (commands, hooks, the CLAUDE.md include region, vvx binary) while preserving
+operation removes Claude Code integration (commands, hooks, vvx binary) while preserving
 {vose_kit}
 directories.
 Uses
 {vosls_signet}
 -based prefix matching for command/hook removal.
-The
-{vosof_freshen}
-operation rebuilds CLAUDE.md's
-{vose_include_region}
-in the
-{vosp_kit_forge}
-from the kit
-{vose_registry}
-without a
-{vose_parcel},
-enabling rapid iteration during development.
+The target repo's CLAUDE.md is hand-maintained:
+its `@`-include lines for kit guidance files are added by the operator at install and left in place at uninstall,
+where they continue to resolve against the preserved
+{vose_kit}
+directories.
 
 **Related Specifications:**
 
@@ -823,10 +806,8 @@ declaration to the
 {vose_conclave}:
 a static `vofc_Kit` entry recording the
 {vose_kit_p}
-{vost_cipher},
-display name,
-and
-{vose_kit_include_s}.
+{vost_cipher}
+and display name.
 +
 Declaration form:
 +
@@ -836,7 +817,6 @@ Declaration form:
 vofc_Kit {
     cipher: &JJ,
     display_name: "Job Jockey",
-    claude_includes: &["claude-jjk-core.md"],
 }
 ----
 +
@@ -896,7 +876,7 @@ with unique characteristics:
 +
 * Has a
 {vose_whisper}
-like other kits (for CLAUDE.md knowledge)
+like other kits
 * Contents are primarily binaries and the uninstall script
 * The
 {vose_parcel}
@@ -908,91 +888,6 @@ selects one and emplaces it as the
 {vosp_target_repo}
 — the universal kit
 * Uses cipher `vv` (Voce Viva)
-
-[[vose_include_region]]
-//axo_entity
-{vose_include_region}::
-The single block of content in the target CLAUDE.md file bounded by
-{vose_marker_s},
-tagged `VVK-INCLUDES`.
-Its body is a set of `@`-include lines — one per
-{vose_kit_include}
-of each installed
-{vose_kit},
-in registry order, written project-root-relative.
-The guidance text lives in the `@`-targets, never inline, so the
-{vose_include_region}
-cannot go stale.
-Exactly one
-{vose_include_region}
-exists per target CLAUDE.md, replacing the former per-kit inline mechanism.
-+
-Members:
-
-[[vosem_tag]]
-//axl_voices axr_member axd_required
-* {vosem_tag} - Identifier used in
-{vose_marker_s}
-(the literal `VVK-INCLUDES`)
-
-[[vose_kit_include]]
-//axo_entity
-{vose_kit_include}::
-A public Claude guidance file (`claude-{kit}-*.md`) that a
-{vose_kit}
-declares for inclusion.
-Each
-{vose_kit_include}
-becomes one `@`-include line in the
-{vose_include_region}
-body.
-Declared as the `claude_includes` field of a
-{vose_kit_p}
-{vose_whisper},
-collected by the
-{vose_conclave}.
-Veiled per-owner files (`claude-{kit}-{owner}.md`) are never
-{vose_kit_include_s}
-— they do not distribute.
-
-[[vose_marker]]
-//axl_voices axt_string
-{vose_marker}::
-Delimiters bounding the
-{vose_include_region}
-in CLAUDE.md.
-+
-Format: `<\!-- MANAGED:{tag}:BEGIN -->` and `<\!-- MANAGED:{tag}:END -->`
-+
-Content between
-{vose_marker_s}
-is replaced entirely on
-{vosoi_install}.
-Content outside
-{vose_marker_s}
-is preserved.
-
-[[vose_uninstalled_marker]]
-//axl_voices axt_string
-{vose_uninstalled_marker}::
-Placeholder preserving position of the removed
-{vose_include_region}.
-+
-Format: `<\!-- MANAGED:{tag}:UNINSTALLED -->`
-+
-On
-{vosoi_install},
-an
-{vose_uninstalled_marker}
-is expanded back to
-{vose_marker_s}
-at the same location.
-On
-{vosou_uninstall},
-{vose_marker_s}
-are collapsed to a single
-{vose_uninstalled_marker},
-preserving the region's position for future reinstall.
 
 [[vose_canonical_binary]]
 //axl_voices axo_entity
@@ -1295,7 +1190,7 @@ maintained manually or by the build tabtarget.
 
 == Operations
 
-The four Obscura distribution operations are defined here at the cosmology top; their procedure bodies live in the consuming subdoc VOSO-distribution.adoc, included below.
+The three Obscura distribution operations are defined here at the cosmology top; their procedure bodies live in the consuming subdoc VOSO-distribution.adoc, included below.
 
 [[vosor_release]]
 //axvo_procedure axd_transient axd_inlaid
@@ -1321,28 +1216,11 @@ Procedure: see VOSO-distribution.adoc.
 //axvo_procedure axd_transient axd_inlaid
 {vosou_uninstall}::
 `vofe_vacate` —
-Removes Claude Code integration (commands, hooks, the CLAUDE.md
-{vose_include_region},
-the vvx binary) while preserving
+Removes Claude Code integration (commands, hooks, the vvx binary) while preserving
 {vose_kit}
 directories; uses
 {vosls_signet}
 -based prefix matching for command/hook removal.
-Procedure: see VOSO-distribution.adoc.
-
-[[vosof_freshen]]
-//axvo_procedure axd_transient axd_inlaid
-{vosof_freshen}::
-`vofe_freshen_forge` —
-Rebuilds CLAUDE.md's
-{vose_include_region}
-in the
-{vosp_kit_forge}
-from the kit
-{vose_registry}
-without a
-{vose_parcel},
-enabling rapid iteration during development.
 Procedure: see VOSO-distribution.adoc.
 
 //axvd_cartouche axd_normative
@@ -1505,8 +1383,7 @@ A
 is a static `vofc_Kit` entry in the
 {vose_conclave}
 table (`DISTRIBUTABLE_KITS` in `vofc_registry.rs`).
-Declaration order is significant: kits install in table order, which fixes the order of `@`-include lines in the
-{vose_include_region}.
+Declaration order is significant: kits install in table order.
 
 === Fields
 
@@ -1518,11 +1395,6 @@ Declaration order is significant: kits install in table order, which fixes the o
 {vose_kit_p}
 {vost_cipher},
 a const in the cipher registry.
-
-* `claude_includes` — the
-{vose_kit_p}
-{vose_kit_include_s}
-(`claude-{kit}-*.md` basenames relative to the kit directory); may be empty.
 
 [[vosem_kit_id]]
 //axr_member

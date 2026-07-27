@@ -144,7 +144,7 @@ revision-control family, and the future-tense ceremony plan is drained to their 
 * The vanilla-hippodrome premise the de-insertion completed — a work clone carrying no JJK
   inserts — is canon in the cosmology sheaf (`JJSVC-cosmology.adoc`, "Vanilla hippodromes",
   `jjdw_hippodrome`); the de-insertion's preserved exceptions (the `JJr_d9f` tombstone marker,
-  the host-separated chat store, the Freshen-regenerated `MANAGED:VVK-INCLUDES` line) each carry
+  the host-separated chat store, the hand-maintained kit `@`-include lines in CLAUDE.md) each carry
   their own standing demolition or exception condition.
 * The build-under-current-JJ parallel-path delivery — old path frozen and authoritative, new
   surface inert until enabled — is the `jjdz_reprieve` delivery shape (`JJS0_JobJockeySpec.adoc`,
