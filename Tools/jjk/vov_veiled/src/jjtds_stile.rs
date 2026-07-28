@@ -16,6 +16,7 @@ use super::jjrds_stile::{
     jjrds_record_dispatch,
     jjrds_resolve_launch,
     jjrds_resolve_saddle,
+    jjrds_resume,
     jjrds_roster_row,
     jjrds_staleness_notice,
     jjrds_stirrup_command,
@@ -25,10 +26,13 @@ use super::jjrds_stile::{
     jjrds_yard_gate,
     jjrds_Door,
     jjrds_LaunchPlan,
+    jjrds_Outcome,
     jjrds_Rejection,
+    jjrds_ResumePlan,
     jjrds_Target,
     jjrds_TierRow,
     jjrds_Yard,
+    jjrds_YardVerdict,
     JJRDS_CONDUCT_CORE,
     JJRDS_GROOM_POSTURE,
     JJRDS_JUDGMENT_EFFORT,
@@ -610,31 +614,79 @@ fn jjtds_board_gives_each_birth_of_a_pace_its_own_ref() {
 }
 
 #[test]
-fn jjtds_yard_gate_refuses_a_registry_seated_standing_billet() {
-    // The dominant hole: a pace whose billet already stands, seating its livery
-    // branch, is refused by K1 (the registry seat-read) before any journal write
-    // or session spawn — the silent rejoin that landed a second live client three
-    // times in one session now dies here.
+fn jjtds_yard_gate_resumes_a_registry_seated_standing_billet() {
+    // The dominant hole turned to a resume: a pace whose billet already stands,
+    // seating its livery branch, is met by K1 (the registry seat-read) with a
+    // Resume verdict — the standing worktree and its serial branch reused in
+    // place, no birth and no serial — rather than the flat refusal that once
+    // taxed every mid-work session death with a muck-and-recreate cycle. The
+    // silent rejoin the gate still forecloses is a matter of the attended confirm
+    // above the launch, not of a refusal here.
     let (_infield, hippodrome) = zjjtds_infield("jjtds_yard_gate_seated");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
 
     // A first dispatch mints and boards the billet; it stands, seated.
     let born = zjjtds_yard(&plan, 200500);
     jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &born).unwrap();
+    let branch = zjjtds_pace_branch("AAAAA");
     assert_eq!(
-        jjrfg_PlainGit.jjrfr_line_seated(&hippodrome, &zjjtds_pace_branch("AAAAA")).unwrap().as_deref(),
+        jjrfg_PlainGit.jjrfr_line_seated(&hippodrome, &branch).unwrap().as_deref(),
         Some(born.billet_root.as_path()),
         "the registry seats the livery branch at the standing billet",
     );
 
-    // A second saddle of the same pace refuses — the standing billet named, with
-    // the muck remedy.
-    let rejection = jjrds_yard_gate(&jjrfg_PlainGit, &plan).unwrap_err();
-    assert!(matches!(rejection, jjrds_Rejection::StandingBillet { .. }));
-    let detail = rejection.to_string();
-    assert!(detail.contains(&born.billet_root.display().to_string()), "got: {}", detail);
-    assert!(detail.contains(&zjjtds_pace_branch("AAAAA")), "got: {}", detail);
-    assert!(detail.contains("muck"), "got: {}", detail);
+    // A second saddle of the same pace resumes it — the standing partition and
+    // its seated serial branch named, no fresh mint.
+    match jjrds_yard_gate(&jjrfg_PlainGit, &plan).unwrap() {
+        jjrds_YardVerdict::Resume { root, branch: seated } => {
+            assert_eq!(root, born.billet_root, "resume reuses the standing partition, mints no new one");
+            assert_eq!(seated, branch, "resume carries the existing serial branch");
+        }
+        other => panic!("expected a Resume verdict for a cleanly-seated billet, got {:?}", other),
+    }
+}
+
+#[test]
+fn jjtds_yard_gate_clears_a_fresh_pace_so_the_true_birth_path_is_unchanged() {
+    // The first saddle of a pace stands nothing: the gate is Clear and the
+    // ordinary fresh-birth path runs untouched. The resume arm changes only the
+    // already-standing case.
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_yard_gate_clear");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    assert!(
+        matches!(jjrds_yard_gate(&jjrfg_PlainGit, &plan).unwrap(), jjrds_YardVerdict::Clear),
+        "a pace with no standing billet clears the gate",
+    );
+}
+
+#[test]
+fn jjtds_resume_reuses_the_standing_billet_without_a_fresh_mint() {
+    // The confirmed resume composes its Launch against the EXISTING billet root:
+    // same dirname, same scratch, the seated serial branch — jjrds_resume
+    // allocates no catchword and boards no fresh partition. The Done-when
+    // specimen: a standing vacated billet re-enters in place.
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_resume_reuse");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let born = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &born).unwrap();
+
+    let resume = jjrds_ResumePlan {
+        billet_root: born.billet_root.clone(),
+        branch: zjjtds_pace_branch("AAAAA"),
+        infield_root: plan.infield_root.clone(),
+        trunk: plan.trunk.clone(),
+        tier: plan.tier,
+        effort: plan.effort,
+        opening_prompt: plan.opening_prompt.clone(),
+        kit_root: hippodrome.clone(),
+    };
+    let (outcome, _text) = jjrds_resume(&jjrfg_PlainGit, &resume);
+    match outcome {
+        jjrds_Outcome::Launch { billet_root, .. } => {
+            assert_eq!(billet_root, born.billet_root, "resume launches in the standing billet — no new dir minted");
+        }
+        _ => panic!("a confirmed resume composes a Launch"),
+    }
 }
 
 /// The catchword the stile tests compose pace-livery branches under — a fixed

@@ -765,57 +765,73 @@ pub fn jjrds_yard(infield_root: &Path, billet_root: PathBuf) -> jjrds_Yard {
     }
 }
 
-/// The yard gate — the dispatch spine's fail-fast refusal of a duplicate
-/// dispatch (`jjdd_billet`, at most one live billet per coronet): a saddle whose
-/// pace already has a standing billet refuses HERE, before the birth record's
-/// journal write and before any session spawn, rather than rejoining a live
-/// session's worktree or minting a rival one past a missed seat. `Ok(())` means
-/// nothing stands and the caller is clear to mint.
+/// The yard gate's verdict for a saddle. `Clear` mints a fresh billet; `Resume`
+/// re-enters a cleanly-standing one in place under an attended confirm; the
+/// anomalous seat-evading partition is neither — it is the `StandingBillet`
+/// refusal (the fork's reasoning lives on `jjrds_yard_gate`).
+#[derive(Debug)]
+pub enum jjrds_YardVerdict {
+    /// Nothing stands: mint a fresh billet along the ordinary dispatch path.
+    Clear,
+    /// A billet stands cleanly for this pace — its livery branch seated in a
+    /// registered partition (K1). Carries the partition root and the seated
+    /// livery branch for the resume report and launch.
+    Resume { root: PathBuf, branch: String },
+}
+
+/// The yard gate — the dispatch spine's fork between a fresh birth, an attended
+/// resume, and a refusal (`jjdd_billet`, at most one live billet per coronet):
+/// a saddle whose pace already has a billet does not silently rejoin a live
+/// worktree or mint a rival past a missed seat — it resumes a cleanly-standing
+/// one under confirm, and refuses an anomalous one before the birth record's
+/// journal write and any session spawn.
 ///
-/// Two keys, because a standing billet can evade either read alone:
-/// - the livery-branch SEAT the constellation's partition registry records
-///   (`jjrfr_line_seated`), the authority for a billet on its own branch;
-/// - the coronet-labelled YARD entry (`zjjrds_yard_label`), which catches a
+/// Two keys, because a standing billet can evade either read alone, and the two
+/// answers part here:
+/// - K1, the livery-branch SEAT the constellation's partition registry records
+///   (`jjrfr_seated_lines`), the authority for a billet on its own branch — a
+///   CLEAN standing billet, so its answer is `Resume`, not a refusal;
+/// - K2, the coronet-labelled YARD entry (`zjjrds_yard_label`), which catches a
 ///   partition the seat-read misses — a detached tip, a lost or unregistered
-///   worktree, a pre-livery bare-branch billet — since its dirname still wears
-///   the coronet whatever its HEAD points at.
-/// Either key answering yes is a standing billet and refuses; only when BOTH are
-/// silent is the pace clear. The registry alone is not enough: the constellation's
-/// checkout exclusivity guards only the narrow worktree-add seat arm, never the
-/// dispatch, so a re-saddle rejoins a live worktree (a second session into one
-/// billet) or, where the seat-read misses, mints a rival past it — the hole this
-/// gate closes.
+///   worktree, a pre-livery bare-branch billet — its livery branch seated
+///   nowhere, so re-entering it would need branch-resolution this arm does not
+///   own: its answer is the `StandingBillet` refusal, muck the remedy.
+/// Only when BOTH are silent is the pace `Clear`. The registry alone is not
+/// enough: the constellation's checkout exclusivity guards only the narrow
+/// worktree-add seat arm, never the dispatch, so without the gate a re-saddle
+/// rejoins a live worktree or, where the seat-read misses, mints a rival past it
+/// — the hole this gate closes.
 ///
 /// A groom billet seats no branch and grooms of one heat are deliberately
-/// concurrent, so a detached (groom) birth passes the gate untouched — the guard
-/// is the pace half of the at-most-one ruling alone.
+/// concurrent, so a detached (groom) birth is always `Clear` — the guard is the
+/// pace half of the at-most-one ruling alone.
 pub fn jjrds_yard_gate<F: jjrfr_FarrierBillet>(
     farrier: &F,
     plan: &jjrds_LaunchPlan,
-) -> Result<(), jjrds_Rejection> {
+) -> Result<jjrds_YardVerdict, jjrds_Rejection> {
     // Only a saddle seats a livery branch; a lunge births detached and has no
     // pace billet to collide with.
     if !matches!(plan.door, jjrds_Door::Saddle) {
-        return Ok(());
+        return Ok(jjrds_YardVerdict::Clear);
     }
     let coronet = &plan.identity_body;
     // K1 — the livery-branch seat: the registry is the authority for a billet
     // standing on its own branch. A per-birth serial makes the branch name
     // unguessable ahead of the mint (`jjrf_livery_compose`), so the gate can no
     // longer ask "is THIS name seated" — it enumerates every seat and matches by
-    // the coronet behind the badge, never by a composed name.
+    // the coronet behind the badge, never by a composed name. A hit is the clean
+    // standing billet — `Resume`.
     for (branch, root) in farrier.jjrfr_seated_lines(&plan.hippodrome_root).map_err(jjrds_Rejection::Farrier)? {
         if crate::jjrf_favor::jjrf_livery_parse(&branch)
             .is_some_and(|(kind, body)| kind == crate::jjrf_favor::jjrf_LiveryKind::Pace && &body == coronet)
         {
-            return Err(jjrds_Rejection::StandingBillet {
-                root,
-                detail: format!("its livery branch '{}' is seated there", branch),
-            });
+            return Ok(jjrds_YardVerdict::Resume { root, branch });
         }
     }
     // K2 — the coronet-labelled yard entry: catches a standing partition the
     // seat-read misses (detached tip, lost registration, pre-livery bare branch).
+    // Its livery branch is seated nowhere, so this is the anomalous case the
+    // resume arm does not own — refuse, muck the remedy.
     if let Some(root) = zjjrds_yard_label(&plan.infield_root, coronet) {
         return Err(jjrds_Rejection::StandingBillet {
             root,
@@ -825,7 +841,33 @@ pub fn jjrds_yard_gate<F: jjrfr_FarrierBillet>(
             ),
         });
     }
-    Ok(())
+    Ok(jjrds_YardVerdict::Clear)
+}
+
+/// The resume confirm's report (JJSVD "Yard step", resume arm): the standing
+/// billet named by its partition root, its seated livery branch, and the dirty
+/// paths BY NAME — never a count, muck's own report discipline, since a count
+/// hides which work is aboard. The live-session possibility is spoken last so the
+/// operator answers occupied-vs-vacated.
+fn zjjrds_resume_report<F: jjrfr_FarrierCore>(farrier: &F, root: &Path, branch: &str) -> String {
+    let mut s = String::new();
+    s.push_str(&format!("a billet already stands for this pace at {}\n", root.display()));
+    s.push_str(&format!("  branch:  {}\n", branch));
+    match farrier.jjrfr_comb(root) {
+        Ok(comb) if comb.dirty_paths.is_empty() => s.push_str("  tree:    clean\n"),
+        Ok(comb) => {
+            s.push_str("  tree:    DIRTY — uncommitted paths aboard:\n");
+            for path in &comb.dirty_paths {
+                s.push_str(&format!("             {}\n", path.display()));
+            }
+        }
+        Err(e) => s.push_str(&format!("  tree:    (could not comb the billet: {})\n", e)),
+    }
+    s.push_str(
+        "This billet may be occupied by a live session on another terminal — \
+         resume only if you know that session has ended.\n",
+    );
+    s
 }
 
 /// The yard's own answer to "is a billet here labelled for this identity" — the
@@ -1230,6 +1272,28 @@ pub enum jjrds_Outcome {
     /// session returns — the approach resolves both already; re-deriving them from
     /// the launched `Command` would mean parsing its own `current_dir` back out.
     Launch { cmd: std::process::Command, billet_root: PathBuf, trunk: String },
+    /// A billet stands cleanly for this pace: the report (already in this
+    /// outcome's text) names it, and the caller must obtain an attended confirm
+    /// before the resume launches. On confirm the caller runs `jjrds_resume`
+    /// (which returns a `Launch`); on decline it stops, changing nothing. The
+    /// confirm is held at the door driver (JJSVD "The stile").
+    Standing { resume: jjrds_ResumePlan },
+}
+
+/// The coordinates a confirmed resume launches from: an existing billet reused
+/// in place. No catchword, no serial, no birth record — the standing worktree
+/// and its seated livery branch ARE the state (JJSVD "Yard step", resume arm),
+/// so a resume carries only what the launch needs, not a fresh birth's ceremony.
+#[derive(Debug)]
+pub struct jjrds_ResumePlan {
+    pub billet_root: PathBuf,
+    pub branch: String,
+    pub infield_root: PathBuf,
+    pub trunk: String,
+    pub tier: jjrg_Tier,
+    pub effort: Option<jjrg_Effort>,
+    pub opening_prompt: String,
+    pub kit_root: PathBuf,
 }
 
 /// Resolve one dispatch to the point of launch — plan, board, provision, and
@@ -1265,14 +1329,16 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
     };
 
-    // The yard gate: refuse a duplicate dispatch (a pace whose billet already
-    // stands) before the birth record's journal write and before any session
-    // spawn, so a re-saddle can never rejoin a live worktree or mint a rival past
-    // a missed seat. Pure-local, so it runs even on a dry run; the birth record
-    // it clears the way for is a studbook write and waits past the dry-run stop.
-    if let Err(e) = jjrds_yard_gate(&farrier, &plan) {
-        return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e));
-    }
+    // The yard gate: fork on a pace whose billet already stands, before the birth
+    // record's journal write and before any session spawn, so a re-saddle can
+    // never rejoin a live worktree or mint a rival past a missed seat. A clean
+    // standing billet resumes; an anomalous one refuses (muck the remedy).
+    // Pure-local, so it runs even on a dry run; the birth record it clears the way
+    // for is a studbook write and waits past the dry-run stop.
+    let verdict = match jjrds_yard_gate(&farrier, &plan) {
+        Ok(v) => v,
+        Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
+    };
 
     out.push_str(&format!(
         "launch:  {} / {}\nprompt:  {}\n",
@@ -1280,6 +1346,29 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         plan.effort.map(|e| e.jjrg_as_str()).unwrap_or("(vendor default)"),
         plan.opening_prompt,
     ));
+
+    // A clean standing billet resumes in place: report it, and hand the caller a
+    // resume plan to launch once the attended confirm answers. No birth record,
+    // no serial. The dry run stops at the report, exactly as the fresh path stops
+    // before its mint.
+    if let jjrds_YardVerdict::Resume { root, branch } = verdict {
+        out.push_str(&zjjrds_resume_report(&farrier, &root, &branch));
+        if dry_run {
+            out.push_str("dry run: stopping before the resume confirm and launch (would re-enter this billet)\n");
+            return (jjrds_Outcome::Done(0), out);
+        }
+        let resume = jjrds_ResumePlan {
+            billet_root: root,
+            branch,
+            infield_root: plan.infield_root.clone(),
+            trunk: plan.trunk.clone(),
+            tier: plan.tier,
+            effort: plan.effort,
+            opening_prompt: plan.opening_prompt.clone(),
+            kit_root: kit_root.to_path_buf(),
+        };
+        return (jjrds_Outcome::Standing { resume }, out);
+    }
 
     if dry_run {
         out.push_str("dry run: stopping before the dispatch record, board, and launch (would mint a billet)\n");
@@ -1353,6 +1442,60 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
     };
 
     (jjrds_Outcome::Launch { cmd, billet_root: yard.billet_root, trunk: plan.trunk.clone() }, out)
+}
+
+/// Compose a confirmed resume's launch: reuse the standing billet in place. No
+/// birth record (no catchword, no serial) and no billet-ensure — the worktree
+/// stands and its livery branch is seated, so `jjrds_yard` re-derives the
+/// EXISTING dirname and its existing scratch, and the crossing rejoins the same
+/// billet the earlier session left. The tail mirrors `jjrds_run` from the yard
+/// onward, minus everything a fresh birth owes: glean so staleness can be
+/// reported (`jjdd_refit` the remedy), provision the per-billet scratch, stirrup.
+/// Returns a `Launch` on the same contract as a fresh dispatch, so the door
+/// driver's launch-and-trail path handles a resume identically.
+pub fn jjrds_resume<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
+    farrier: &F,
+    resume: &jjrds_ResumePlan,
+) -> (jjrds_Outcome, String) {
+    let mut out = String::new();
+    let yard = jjrds_yard(&resume.infield_root, resume.billet_root.clone());
+    out.push_str(&format!("resuming: {}  (branch {})\n", yard.billet_root.display(), resume.branch));
+
+    // Glean so staleness becomes known and the resume can report it; the billet
+    // stands and its branch is seated, so nothing is ensured or born.
+    let _ = farrier.jjrfr_glean(&yard.billet_root);
+    match jjrds_staleness_notice(farrier, &yard.billet_root, &resume.trunk) {
+        Ok(Some(notice)) => out.push_str(&format!("{}\n", notice)),
+        Ok(None) => {}
+        Err(e) => return (jjrds_Outcome::Done(1), format!("{}resume refused at staleness probe: {}\n", out, jjrds_Rejection::Farrier(e))),
+    }
+
+    // Provision: the session-scoped MCP config and the per-billet BUK scratch,
+    // keyed by the existing dirname — the resumed billet shares the scratch the
+    // birth first minted for it.
+    for sub in ["output-buk", "temp-buk", "logs-buk"] {
+        if let Err(e) = std::fs::create_dir_all(yard.scratch_root.join(sub)) {
+            return (jjrds_Outcome::Done(1), format!("{}resume failed provisioning scratch at {}: {}\n", out, yard.scratch_root.display(), e));
+        }
+    }
+    let mcp_path = yard.scratch_root.join("mcp.json");
+    if let Err(e) = std::fs::write(&mcp_path, jjrds_mcp_config_json(&resume.kit_root)) {
+        return (jjrds_Outcome::Done(1), format!("{}resume failed writing MCP config at {}: {}\n", out, mcp_path.display(), e));
+    }
+
+    let cmd = match jjrds_stirrup_command(
+        &yard.billet_root,
+        resume.tier,
+        resume.effort,
+        &resume.opening_prompt,
+        &mcp_path,
+        &yard.scratch_root,
+    ) {
+        Ok(c) => c,
+        Err(e) => return (jjrds_Outcome::Done(1), format!("{}resume refused at stirrup: {}\n", out, e)),
+    };
+
+    (jjrds_Outcome::Launch { cmd, billet_root: yard.billet_root, trunk: resume.trunk.clone() }, out)
 }
 
 // ---- The stile's trailing step ----
