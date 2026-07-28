@@ -1630,8 +1630,8 @@ fn jjtds_trailing_step_clears_a_groom_billet_left_at_trunk_tip() {
 }
 
 #[test]
-fn jjtds_trailing_step_leaves_scratch_untouched_either_way() {
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_untouched");
+fn jjtds_trailing_step_clears_scratch_with_a_passing_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_dies_with_billet");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
     let yard = zjjtds_yard(&plan, 200500);
     jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
@@ -1644,5 +1644,24 @@ fn jjtds_trailing_step_leaves_scratch_untouched_either_way() {
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("cleared"), "expected the billet to clear: {}", report);
     assert!(!yard.billet_root.exists());
-    assert!(marker.exists(), "the per-billet scratch is forensics and must survive the billet's destruction");
+    assert!(!yard.scratch_root.exists(), "scratch dies with a passing billet");
+}
+
+#[test]
+fn jjtds_trailing_step_leaves_scratch_standing_on_a_standing_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_stands_with_billet");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
+    jjrfg_PlainGit.jjrfr_consign(&yard.billet_root, &zjjtds_pace_branch("AAAAA")).unwrap();
+
+    std::fs::write(yard.billet_root.join("uncommitted.txt"), "dirt").unwrap();
+    std::fs::create_dir_all(&yard.scratch_root).unwrap();
+    let marker = yard.scratch_root.join("logs-buk-marker.txt");
+    std::fs::write(&marker, "forensics").unwrap();
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(yard.billet_root.exists(), "a dirty billet must never be destroyed");
+    assert!(marker.exists(), "a standing billet's scratch is forensics and must survive — muck is its remedy");
 }

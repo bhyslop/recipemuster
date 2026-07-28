@@ -440,8 +440,9 @@ One line reports the outcome either way: a cleared billet names where the work s
 a standing billet names the failed conjunct and {jjdd_muck} as the remedy.
 The session's own exit code is the stile's — trailing-step trouble reports and never masks
 it.
-The per-billet scratch stands untouched either way: logs are forensics, and {jjdd_muck}
-clears them with the billet's residue.
+The per-billet scratch dies with a cleared billet, cleared in the same act as the worktree;
+a standing billet's scratch stands too — logs are forensics only for work that stands, and
+{jjdd_muck} clears them with the billet's residue.
 +
 *The exit litmus*, kind-aware, refuse-and-stand:
 +
@@ -511,10 +512,11 @@ The removal is `billet_remove` behind its explicit force — the confirmed destr
 the force's only caller.
 +
 *Scratch.*
-The door clears the destroyed billet's scratch sibling with it, and orphan scratch — a
-scratch directory whose billet no longer stands — is equally its to clear:
-the {jjdd_stile} deliberately leaves scratch as forensics, so this door is where forensics
-end.
+Scratch dies with its billet: the door clears the destroyed billet's own scratch sibling
+with it, and nothing else — {jjdd_muck} is a billet singleton, so its sweep never reaches
+past the billet named in its own confirmed plan.
+Scratch orphaned by any other route (a killed door, a crash) is not this door's target and
+is left for hand cleaning.
 
 == Refit
 

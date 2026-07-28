@@ -1712,8 +1712,10 @@ pub fn jjrds_resume<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
 /// spawned. One line reports the outcome either way (JJSVD "The stile"): a
 /// cleared billet names where the work now stands — the destroyed worktree
 /// being precisely where it no longer does — and a standing billet names the
-/// failed conjunct and `muck` as the remedy. The per-billet scratch is never
-/// inspected here and stands untouched regardless.
+/// failed conjunct and `muck` as the remedy. A cleared billet's scratch
+/// sibling dies with it — scratch is forensics only for a billet that stands;
+/// a standing billet's scratch is left for `muck` to clear with the rest of
+/// its residue.
 pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: &F, billet_root: &Path, trunk: &str) -> String {
     let identity = match farrier.jjrfr_identify(billet_root) {
         Ok(id) => id,
@@ -1729,7 +1731,12 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
     };
     match verdict {
         Ok(zjjrds_StileVerdict::Passes) => match farrier.jjrfr_billet_remove(billet_root, false) {
-            Ok(()) => format!("stile: billet cleared ({}) — {}\n", billet_root.display(), zjjrds_where_it_stands(&identity, trunk)),
+            Ok(()) => {
+                if let Some(infield_root) = billet_root.parent() {
+                    let _ = std::fs::remove_dir_all(jjrds_yard(infield_root, billet_root.to_path_buf()).scratch_root);
+                }
+                format!("stile: billet cleared ({}) — {}\n", billet_root.display(), zjjrds_where_it_stands(&identity, trunk))
+            }
             Err(e) => format!("stile: billet stands at {} — {}\n", billet_root.display(), e),
         },
         Ok(conjunct) => format!(
