@@ -151,6 +151,28 @@ zbutcym_cold_die_plain() {
   printf 'survived\n' >&2
 }
 
+# Drive the dispatch-arm kindle in a FRESH BASH PROCESS under a controlled
+# environment (the butcdc pattern: the testbench's own process is already
+# kindled, and its ambient is uncontrolled).  Both output streams are
+# redirected to files, so the probe's stderr is never a tty — the fallback
+# arm's tty-positive branch (stderr IS a terminal => color) is therefore
+# unprovable in this harness and is deliberately not asserted anywhere.
+# Writes "<color|plain>|<ZBUYM_USE_HYPERLINKS>" to the named file.
+# Usage: zbutcym_verdict_probe <outfile> [env-assignment-or--u-name ...]
+zbutcym_verdict_probe() {
+  local -r z_out="${1}"
+  shift
+
+  local -r z_body='source "${BURD_BUK_DIR}/buym_yelp.sh"
+                   zbuym_kindle
+                   z_mode=plain
+                   test -z "${BUYC_CYAN}" || z_mode=color
+                   printf "%s|%s\n" "${z_mode}" "${ZBUYM_USE_HYPERLINKS}"'
+
+  env "$@" bash -c "${z_body}" > "${z_out}" 2>"${z_out}.err" \
+    || buto_fatal "Verdict probe failed — see ${z_out}.err"
+}
+
 ######################################################################
 # Test cases
 
@@ -415,6 +437,41 @@ butcym_cold_die_plain_tcase() {
     *"${z_gray}"*) buto_fatal "Gray sigil ANSI present under buyc_plain" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
+}
+
+butcym_verdict_zero_beats_env_tcase() {
+  buto_trace "dispatch arm: BURD_COLOR=0 suppresses color despite a color-favorable TERM"
+
+  local -r z_out="${BUT_TEMP_DIR}/butcym_verdict_zero.txt"
+  zbutcym_verdict_probe "${z_out}" -u NO_COLOR -u BURD_NO_HYPERLINKS BURD_COLOR=0 TERM=xterm-256color
+
+  local -r z_got=$(<"${z_out}")
+  test "${z_got}" = "plain|0" \
+    || buto_fatal "Verdict 0 must beat local detection, got '${z_got}' (expected 'plain|0')"
+}
+
+butcym_verdict_one_beats_env_tcase() {
+  buto_trace "dispatch arm: BURD_COLOR=1 enables color despite TERM=dumb"
+
+  local -r z_out="${BUT_TEMP_DIR}/butcym_verdict_one.txt"
+  zbutcym_verdict_probe "${z_out}" -u NO_COLOR -u BURD_NO_HYPERLINKS BURD_COLOR=1 TERM=dumb
+
+  local -r z_got=$(<"${z_out}")
+  test "${z_got}" = "color|1" \
+    || buto_fatal "Verdict 1 must beat local detection, got '${z_got}' (expected 'color|1')"
+}
+
+butcym_fallback_non_tty_tcase() {
+  buto_trace "fallback arm: no verdict + color-favorable TERM + non-tty stderr stays plain"
+
+  local -r z_out="${BUT_TEMP_DIR}/butcym_fallback_nontty.txt"
+  zbutcym_verdict_probe "${z_out}" -u BURD_COLOR -u NO_COLOR -u BURD_NO_HYPERLINKS TERM=xterm-256color
+
+  # The probe's stderr is a file, never a tty — this is the tty term doing
+  # the suppressing; before it existed this environment colored.
+  local -r z_got=$(<"${z_out}")
+  test "${z_got}" = "plain|0" \
+    || buto_fatal "Fallback must stay plain off-tty, got '${z_got}' (expected 'plain|0')"
 }
 
 # eof

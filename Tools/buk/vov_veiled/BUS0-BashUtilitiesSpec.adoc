@@ -960,7 +960,10 @@ Resolution order: structured markers (HREF, LINK) via BASH_REMATCH extraction, t
 //axl_voices axo_entity
 {busy_configurator}::
 A `buyc_*` function called before kindle to set the formatting mode flag.
-Three configurators exist: `buyc_dispatch` (probe TERM/NO_COLOR/BURD_*), `buyc_unconditional` (always color), `buyc_plain` (never color).
+Three configurators exist: `buyc_dispatch` (the default: obey the
+{burd_color}
+verdict when present, else fall back to local NO_COLOR/TERM/tty detection),
+`buyc_unconditional` (always color), `buyc_plain` (never color).
 Kindle reads the mode flag and defines the readonly `BUYC_*` public color palette and hyperlink mode.
 
 == Control Voicings
@@ -1804,6 +1807,10 @@ spawn boundary as if it were ambient
 then be read stale by a re-dispatch that should have recomputed it fresh.
 {bure_color}
 remains the operator's own optional override, read here, never written.
+The yelp kindle's dispatch arm is the verdict's reader;
+its own local detection runs only where no verdict is present,
+because under dispatch the module's streams are already pipes
+and a local tty probe carries no signal.
 
 [[burd_log_last]]
 //axvr_variable axtu_path
