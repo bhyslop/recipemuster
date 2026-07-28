@@ -295,6 +295,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     // Stage all changes
     let add_output = match vvc::vvce_git_command(&["add", "-A"])
@@ -425,6 +426,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     let tally_args = jjrg_TallyArgs {
         coronet: args.coronet.clone(),
@@ -439,6 +441,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
     // transition to the locked tip, and a state change mints no identity, so the
     // double application is safe — the trap the machine_commit family's ruling
     // reserved for the mint-bearing draft/restring, not for wrap).
+    crate::jjrsj_sectional::jjrsj_phase(cn, "transform");
     if let Err(e) = gallops.jjrg_tally(tally_args.clone()) {
         vvco_err!(output, "{}: error: {}", cn, e);
         return (1, output.vvco_finish());
@@ -546,6 +549,7 @@ pub fn zjjrx_run_wrap(args: jjrx_WrapArgs, summary: Option<String>, spook: Optio
             vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
+        crate::jjrsj_sectional::jjrsj_phase(cn, "save");
         let chalk_commit_args = vvc::vvcm_CommitArgs {
             files: vec![".claude/jjm/jjg_gallops.json".to_string()],
             message: chalk_message,

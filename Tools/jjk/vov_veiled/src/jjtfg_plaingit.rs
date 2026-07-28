@@ -754,7 +754,7 @@ fn jjtfg_bounded_run_kills_a_stalled_op_at_the_deadline() {
 #[test]
 fn jjtfg_narration_and_local_deadline() {
     use super::jjrfg_plaingit::{zjjrfg_run_git_bounded, zjjrfg_run_git_local};
-    use super::jjrsj_sectional::{jjrsj_trace_arm, jjrsj_trace_disarm};
+    use super::jjrsj_sectional::{jjrsj_phase, jjrsj_trace_arm, jjrsj_trace_disarm};
 
     struct ZDisarm;
     impl Drop for ZDisarm {
@@ -842,6 +842,21 @@ fn jjtfg_narration_and_local_deadline() {
         lines.iter().any(|l| l.starts_with("GIT-OUTCOME ") && l.contains("trace-remote") && l.contains("status=expired")),
         "the bounded remote expiry narrates status=expired"
     );
+
+    // Phase-grain beats land in the same armed sink, beside the git grain —
+    // a mid-command kill's tail names the last phase entered, not just the
+    // last git child.
+    jjrsj_phase("jjtfg-trace-mark-cmd", "lock");
+    jjrsj_phase("jjtfg-trace-mark-cmd", "load");
+    let body = std::fs::read_to_string(&trace_path).expect("the armed trace file must exist");
+    let lines: Vec<&str> = body.lines().collect();
+    assert!(
+        lines.iter().any(|l| l.starts_with("PHASE ") && l.contains("cmd=jjtfg-trace-mark-cmd") && l.contains("step=lock")),
+        "a lock phase beat must land in the armed sink: {:?}", lines
+    );
+    let lock_pos = lines.iter().position(|l| l.contains("step=lock") && l.contains("jjtfg-trace-mark-cmd"));
+    let load_pos = lines.iter().position(|l| l.contains("step=load") && l.contains("jjtfg-trace-mark-cmd"));
+    assert!(lock_pos.unwrap() < load_pos.unwrap(), "phase beats narrate in step order");
 }
 
 #[test]

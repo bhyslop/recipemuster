@@ -37,6 +37,7 @@ pub mod jjrvg_guidon;
 pub mod jjrds_stile;
 pub mod jjrdm_muck;
 pub mod jjrdc_cashier;
+pub mod jjrk_klaxon;
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
 pub mod jjrcu_curry;
@@ -156,6 +157,9 @@ mod jjtwp_wrap;
 
 #[cfg(test)]
 mod jjtsj_sectional;
+
+#[cfg(test)]
+mod jjtk_klaxon;
 
 // Re-export commonly used types (with RCG prefixes)
 pub use jjrf_favor::{jjrf_Coronet, jjrf_Firemark, jjrf_Incipit, jjrf_Pensum};

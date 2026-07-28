@@ -71,6 +71,7 @@ pub fn jjrsl_run_slate(
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let text = docket;
 
@@ -81,6 +82,7 @@ pub fn jjrsl_run_slate(
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     let firemark = args.firemark.clone();
     let silks = args.silks.clone();

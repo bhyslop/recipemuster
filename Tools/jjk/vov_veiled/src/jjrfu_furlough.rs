@@ -56,6 +56,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs, officium: &str) -> (i32, Str
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
@@ -64,6 +65,7 @@ pub fn jjrfu_run_furlough(args: jjrfu_FurloughArgs, officium: &str) -> (i32, Str
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     // Build description for commit message
     let mut changes = Vec::new();

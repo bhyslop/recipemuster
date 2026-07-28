@@ -51,7 +51,13 @@ use crate::jjrds_stile::{jjrds_ground, jjrds_Ground, JJRDS_GROOM_POSTURE};
 use crate::jjrrd_refit::jjrrd_run_refit;
 use crate::jjrvb_blotter::{jjdb_studbook_config, jjdb_gallops_journal_load, jjdb_gallops_journal_try_save_files, jjdb_JournalReject, jjdb_BlotterConfig, jjdb_pin, jjdb_read_pinned, JJDB_GALLOPS_REL_PATH, JJDB_GALLOPS_OVER_STUDBOOK_ENABLED};
 use crate::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
-use crate::jjrsj_sectional::{jjrsj_sectional_path, zjjrsj_step_open_at, zjjrsj_step_outcome_at, jjrsj_trace_arm, jjrsj_trace_disarm};
+use crate::jjrsj_sectional::{jjrsj_sectional_path, zjjrsj_step_open_at, zjjrsj_step_outcome_at, jjrsj_trace_arm, jjrsj_trace_disarm, jjrsj_phase};
+
+// RCG output discipline: all emission via jjrk_*! — no direct println!/eprintln!
+use crate::{
+    jjrk_error_now,
+    jjrk_info_now,
+};
 
 const HEARTBEAT_FILE: &str = "heartbeat";
 const GAZETTE_IN_FILE: &str = "gazette_in.md";
@@ -252,6 +258,7 @@ pub(crate) enum zjjrm_WriteRefusal {
 /// nothing.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn zjjrm_write_gallops_over<F, R>(
+    cmd: &str,
     farrier: &F,
     over_studbook: bool,
     lock: &vvc::vvcc_CommitLock,
@@ -270,8 +277,9 @@ where
     F: jjrfr_FarrierCore + jjrfr_FarrierLock,
 {
     if !over_studbook {
+        jjrsj_phase(cmd, "transform");
         let r = mutate(&mut session_gallops).map_err(zjjrm_WriteRefusal::Handler)?;
-        let hash = crate::jjri_io::jjri_persist(lock, &session_gallops, path, firemark, message, size_limit, output)
+        let hash = crate::jjri_io::jjri_persist(cmd, lock, &session_gallops, path, firemark, message, size_limit, output)
             .map_err(zjjrm_WriteRefusal::Commit)?;
         return Ok((r, hash));
     }
@@ -411,14 +419,16 @@ pub(crate) fn zjjrm_write_gallops<R>(
     if !JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
         // The off branch never touches a studbook config or composes a guidon —
         // mutate the session read and persist directly, exactly as before.
+        jjrsj_phase(operation, "transform");
         let r = mutate(&mut session_gallops).map_err(zjjrm_WriteRefusal::Handler)?;
-        let hash = crate::jjri_io::jjri_persist(lock, &session_gallops, path, firemark, message, size_limit, output)
+        let hash = crate::jjri_io::jjri_persist(operation, lock, &session_gallops, path, firemark, message, size_limit, output)
             .map_err(zjjrm_WriteRefusal::Commit)?;
         return Ok((r, hash));
     }
     let (studbook, guidon) =
         zjjrm_studbook_and_guidon(officium, operation).map_err(zjjrm_WriteRefusal::Handler)?;
     zjjrm_write_gallops_over(
+        operation,
         &jjrfg_PlainGit,
         true,
         lock,
@@ -623,6 +633,7 @@ fn zjjrm_dispatch_inner_msg(
             )]));
         }
     };
+    jjrsj_phase(cmd, "lock");
 
     let gallops_path = gallops_pathbuf();
     let gallops = match zjjrm_load_gallops(&gallops_path) {
@@ -633,13 +644,14 @@ fn zjjrm_dispatch_inner_msg(
             )]));
         }
     };
+    jjrsj_phase(cmd, "load");
 
     // Mutation and persist funnel through the write seam: off, `handler` runs
     // against this read and `jjri_persist` commits to the consumer repo; on, it
     // re-runs against the locked studbook tip. The Handler/Commit arms render the
     // exact pre-seam wire strings, so seam-off output is byte-identical.
     let mut persist_output = vvco_Output::buffer();
-    match zjjrm_write_gallops(
+    let result = match zjjrm_write_gallops(
         &lock,
         &gallops_path,
         firemark,
@@ -662,7 +674,9 @@ fn zjjrm_dispatch_inner_msg(
         Err(zjjrm_WriteRefusal::Blotter(r)) => Ok(CallToolResult::error(vec![Content::text(
             format!("jjx {}: studbook journal refused: {}", cmd, r),
         )])),
-    }
+    };
+    jjrsj_phase(cmd, "unlock");
+    result
 }
 
 /// Resolve the single heat firemark a mixed batch targets, enforcing the
@@ -1337,7 +1351,7 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
         let heartbeat = path.join(HEARTBEAT_FILE);
         if !heartbeat.exists() {
             // No heartbeat file — legacy or corrupt. Log warning, skip.
-            eprintln!("jjx exsanguinate: no heartbeat in {:?}, skipping", path.file_name());
+            jjrk_info_now!("jjx exsanguinate: no heartbeat in {:?}, skipping", path.file_name());
             continue;
         }
         let mtime = match heartbeat.metadata().and_then(|m| m.modified()) {
@@ -1350,7 +1364,7 @@ fn zjjrm_exsanguinate(officia: &Path) -> (usize, usize) {
         };
         if age.as_secs() > JJRM_EXSANGUINATION_THRESHOLD_SECS {
             if let Err(e) = std::fs::remove_dir_all(&path) {
-                eprintln!("jjx exsanguinate: failed to remove {:?}: {}", path.file_name(), e);
+                jjrk_error_now!("jjx exsanguinate: failed to remove {:?}: {}", path.file_name(), e);
             } else {
                 reaped += 1;
             }
@@ -2638,7 +2652,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
                 body.push_str(&data);
             }
             Err(e) => {
-                eprintln!("{}: probe warning: {}", cn, e);
+                jjrk_error_now!("{}: probe warning: {}", cn, e);
             }
         }
     }
@@ -2680,6 +2694,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
                 )]));
             }
         };
+        jjrsj_phase(cn, "lock");
         let gallops = match zjjrm_load_gallops(&gallops_path) {
             Ok(g) => g,
             Err(e) => {
@@ -2689,12 +2704,14 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
                 )]));
             }
         };
+        jjrsj_phase(cn, "load");
         if let Err(e) = crate::jjri_io::jjdr_save(&gallops, &gallops_path) {
             let _ = std::fs::remove_dir_all(&exchange);
             return Ok(CallToolResult::error(vec![Content::text(
                 format!("{}: convergence save error: {}", cn, e),
             )]));
         }
+        jjrsj_phase(cn, "save");
         let path_str = gallops_path.to_string_lossy().to_string();
         let dirty = vvc::vvce_git_command(&["status", "--porcelain", "--", path_str.as_str()])
             .output()
@@ -3161,7 +3178,7 @@ impl jjrm_McpServer {
             }
             _ => {}
         }
-        eprintln!("jjx {}: model={} tier={}", cmd, p.model, caller.zjjrm_as_str());
+        jjrk_info_now!("jjx {}: model={} tier={}", cmd, p.model, caller.zjjrm_as_str());
 
         // jjx_open creates the officium — handle before officium validation.
         // size_limit (default 0) is the convergence budget; 0 means open mutates nothing.
@@ -3278,6 +3295,7 @@ impl jjrm_McpServer {
         // command, keeping the farrier officium-blind.
         let jjrsj_sectional = jjrsj_sectional_path(officium_id);
         jjrsj_trace_arm(jjrsj_sectional.clone());
+        jjrsj_phase(cmd, "gazette");
         let jjrsj_dispatch_result = zjjrm_drive_membrane(&jjrsj_sectional, cmd, async {
         match cmd {
             JJRM_CMD_NAME_RECORD => {
@@ -4002,14 +4020,14 @@ impl jjrm_McpServer {
     #[tool(name = "vvx_tt", description = "Run a tt/*.sh tabtarget from the repo root and return its exit status, self-logged ../logs-buk/ output path, and a tail of its output. Bounded to tt/*.sh — no arbitrary commands. Absorbs the tabtarget discipline so it need not be remembered: runs from the repo root, captures output (the exit code is preserved, never eaten by a tail/head/grep pipe), and points at the self-logged record for the full text.")]
     async fn vvx_tt(&self, Parameters(p): Parameters<jjrm_VvxTtParams>) -> Result<CallToolResult, ErrorData> {
         let (code, report) = zjjrm_run_tabtarget(p);
-        eprintln!("vvx_tt: exit={}", code);
+        jjrk_info_now!("vvx_tt: exit={}", code);
         jjrm_result((code, report))
     }
 
     #[tool(name = "vvx_render", description = "Put an image on the standalone diagram viewer — the lower tool behind the `unfurl` verb. Pushes the light image over paneboard's localhost wire: a fresh look (fit-to-window) when `anew` is true, an update at the viewer's held zoom+pan when false. Best-effort / fail-soft: an absent or unreachable viewer is a soft notice, not an error — bringing the viewer up is paneboard's job. Takes no officium and touches no gallops. The optional `dark` path is accepted for a stable signature but not yet transported (today only the light image is pushed).")]
     async fn vvx_render(&self, Parameters(p): Parameters<jjrm_RenderParams>) -> Result<CallToolResult, ErrorData> {
         let report = zjjrm_render_report(&p);
-        eprintln!("vvx_render: {}", report);
+        jjrk_info_now!("vvx_render: {}", report);
         Ok(CallToolResult::success(vec![Content::text(report)]))
     }
 }

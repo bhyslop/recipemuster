@@ -58,6 +58,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let mut gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
@@ -66,6 +67,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     let coronet = args.coronet.clone();
     let to = args.to.clone();
@@ -87,6 +89,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
         // Seam-off: the pre-seam path — mutate the session gallops, save it, and
         // machine_commit the gallops with the two paddocks (unchanged, staged
         // defensively) to the consumer repo, keeping draft's own commit-error arms.
+        crate::jjrsj_sectional::jjrsj_phase(cn, "transform");
         match gallops.jjrg_draft(draft_args) {
             Ok(result) => {
                 // Save gallops
@@ -94,6 +97,7 @@ pub fn jjrdr_run_draft(args: jjrdr_DraftArgs, officium: &str) -> (i32, String) {
                     vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
                     return (1, output.vvco_finish());
                 }
+                crate::jjrsj_sectional::jjrsj_phase(cn, "save");
 
                 // Commit using machine_commit - draft affects source and dest paddocks
                 let src_fm = src_fm.expect("draft succeeded, so its source heat was found");

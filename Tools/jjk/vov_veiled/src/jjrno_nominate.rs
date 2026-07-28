@@ -57,6 +57,7 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs, officium: &str) -> (i32, Strin
                 return (1, output.vvco_finish());
             }
         };
+        crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
         let mut gallops = if args.file.exists() {
             match jjrg_Gallops::jjrg_load(&args.file) {
@@ -82,12 +83,13 @@ pub fn jjrx_run_nominate(args: jjrx_NominateArgs, officium: &str) -> (i32, Strin
             }
         };
 
+        crate::jjrsj_sectional::jjrsj_phase(cn, "transform");
         match gallops.jjrg_nominate(nominate_args, base_path) {
             Ok(result) => {
                 let fm = jjrf_Firemark::jjrf_parse(&result.firemark).expect("nominate returned invalid firemark");
                 let message = jjrn_format_heat_message(&fm, jjrn_HeatAction::Nominate, &silks);
 
-                match crate::jjri_io::jjri_persist(&lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
+                match crate::jjri_io::jjri_persist(cn, &lock, &gallops, &args.file, &fm, message, vvc::VVCG_SIZE_LIMIT, &mut output) {
                     Ok(hash) => {
                         vvco_out!(output, "{}: committed {}", cn, &hash[..8]);
                     }

@@ -71,6 +71,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs, officium: &str) -> (i32, String) {
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let order: Vec<String> = if args.order.len() == 1 && args.order[0].starts_with('[') {
         match serde_json::from_str(&args.order[0]) {
@@ -88,6 +89,7 @@ pub fn jjrrl_run_rail(args: jjrrl_RailArgs, officium: &str) -> (i32, String) {
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     let firemark = args.firemark.clone();
     let move_coronet = args.r#move.clone();

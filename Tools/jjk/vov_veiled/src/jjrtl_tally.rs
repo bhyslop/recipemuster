@@ -128,6 +128,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs, officium: &str) -> (i32, Strin
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
@@ -136,6 +137,7 @@ pub fn jjrtl_run_relabel(args: jjrtl_RelabelArgs, officium: &str) -> (i32, Strin
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     // Get firemark for commit message before we move args
     let coronet_str = args.coronet.clone();
@@ -224,6 +226,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs, officium: &str) -> (i32, String) {
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let gallops = match crate::jjrm_mcp::zjjrm_load_gallops(&args.file) {
         Ok(g) => g,
@@ -232,6 +235,7 @@ pub fn jjrtl_run_drop(args: jjrtl_DropArgs, officium: &str) -> (i32, String) {
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     // Capture firemark, silks, prior state, and display coronet before we move
     // args — prior state lets the drop echo its own prior→new transition.

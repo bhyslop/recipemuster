@@ -1032,6 +1032,7 @@ fn zjjtvb_drive_write_over<R>(
     let mut output = vvc::vvco_Output::buffer();
     let fm = jjrf_Firemark::jjrf_parse(firemark).expect("valid fixture firemark");
     crate::jjrm_mcp::zjjrm_write_gallops_over(
+        "zjjtvb_drive_write_over",
         &jjrfg_PlainGit,
         true,
         &lock,
