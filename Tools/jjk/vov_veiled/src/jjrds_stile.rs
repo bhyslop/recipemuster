@@ -45,6 +45,7 @@ use crate::jjrt_types::{
     jjrg_Tier,
 };
 use crate::jjrvb_blotter::{
+    jjdb_journal_marks,
     jjdb_pin,
     jjdb_read,
     jjdb_read_pinned,
@@ -1012,6 +1013,115 @@ pub fn jjrds_record_dispatch<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
         .map_err(jjrds_Rejection::Farrier)
 }
 
+// ---- The live-line resolution: a coronet's current branch, from the journal ----
+
+/// The lede a SADDLE's dispatch record opens with, through the coronet sigil —
+/// the reader's needle for a pace birth, kept beside `jjrds_dispatch_record`
+/// (which composes it) so a drift test catches any skew. Only a saddle seats a
+/// pace billet's livery branch: a groom lunge records "groom billet" and opens
+/// no line, so it is deliberately not matched here.
+pub const JJRDS_SADDLE_BIRTH_LEDE: &str = "dispatch saddle — pace billet for ₢";
+
+/// A journal mark's meaning to the live-line resolver. Births OPEN a coronet's
+/// branch-bearing line (a saddle's dispatch record, carrying the catchword the
+/// branch was dressed with); wraps CLOSE it (the W chalk the wrap ceremony
+/// journals). Every other journal subject — a groom lunge, a slate, a curry,
+/// each non-saddle write — is neither, and classifies to `None`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum jjrds_LineEvent {
+    Birth { coronet: String, catchword: u64 },
+    Wrap { coronet: String },
+}
+
+/// Classify one journal mark — its catchword and unbaked subject — as a birth,
+/// a wrap, or neither. The reader half of `jjrds_dispatch_record` (births) and
+/// `jjrn_format_chalk_message` (the wrap chalk), co-located here so the writers
+/// and this reader stay honest — the studbook journal is composed by known JJ
+/// code, and this is where its subjects are read back.
+pub fn jjrds_classify_line_event(catchword: u64, subject: &str) -> Option<jjrds_LineEvent> {
+    // Birth: a saddle's dispatch record. The coronet is the whitespace-free
+    // token right after the sigil, before " at station".
+    if let Some(rest) = subject.strip_prefix(JJRDS_SADDLE_BIRTH_LEDE) {
+        let coronet = rest.split_whitespace().next()?.to_string();
+        return Some(jjrds_LineEvent::Birth { coronet, catchword });
+    }
+    // Wrap: the W chalk header `jjb:BRAND:₢CORONET:W: subject`. splitn(5, ':')
+    // keeps the subject (which may itself carry colons) whole in the final field;
+    // BRAND holds no colon, so the four leading fields are stable.
+    let fields: Vec<&str> = subject.splitn(5, ':').collect();
+    if let [prefix, _brand, identity, action, ..] = fields.as_slice() {
+        let is_wrap = action.parse::<char>().ok() == Some(crate::jjrn_notch::jjrn_ChalkMarker::Wrap.jjrn_code());
+        if *prefix == crate::jjrn_notch::JJRN_COMMIT_PREFIX && is_wrap {
+            if let Some(coronet) = identity.strip_prefix(crate::jjrf_favor::JJRF_CORONET_PREFIX) {
+                return Some(jjrds_LineEvent::Wrap { coronet: coronet.to_string() });
+            }
+        }
+    }
+    None
+}
+
+/// Resolve a coronet's CURRENT live branch from the studbook journal marks
+/// (newest-first) — the one line every re-saddle of this coronet re-seats, and
+/// this pace's whole reason (`jjdd_billet`, the studbook-routed resumption): the
+/// selection routes through the journal, the lock-coherent record of births and
+/// wraps, NEVER git-ref enumeration, which is race-partial (an unpushed or
+/// offline rival is invisible) and would lull a caller into "I am the only line."
+///
+/// The rule reads both sources. Walking newest→oldest, the first WRAP for this
+/// coronet closes the epoch — every birth below it belongs to a line the wrap
+/// converged, so the walk stops there. Among the births ABOVE that wrap (or all
+/// births, if none wrapped), the EARLIEST is the founding one: a per-birth serial
+/// makes each occupancy's dirname unique, but the branch is born once at the
+/// founding saddle and re-seated by every saddle after it, so the founding
+/// catchword is the one the live branch's name carries. That name is composed
+/// here — `jjrf_livery_compose` with the pedigree's prefix — and handed to
+/// board, whose seat/adopt arms then reawaken on a name that actually stands.
+///
+/// `None` when no live line stands: the coronet was never born, or the newest
+/// event for it is a wrap. The caller births fresh from trunk — the founding
+/// saddle of a new line.
+pub fn jjrds_resolve_live_branch(marks: &[(u64, String)], coronet: &str, prefix: Option<&str>) -> Option<String> {
+    let mut founding: Option<u64> = None;
+    for (catchword, subject) in marks {
+        match jjrds_classify_line_event(*catchword, subject) {
+            // The most recent wrap for this coronet: the line below is closed.
+            Some(jjrds_LineEvent::Wrap { coronet: c }) if c == coronet => break,
+            // A birth in the current epoch: keep the earliest (min), so a re-saddle
+            // that journals a fresh event never repoints the branch off its founding.
+            Some(jjrds_LineEvent::Birth { coronet: c, catchword: cw }) if c == coronet => {
+                founding = Some(founding.map_or(cw, |f| f.min(cw)));
+            }
+            _ => {}
+        }
+    }
+    founding.map(|cw| {
+        crate::jjrf_favor::jjrf_livery_compose(prefix, crate::jjrf_favor::jjrf_LiveryKind::Pace, cw, coronet)
+    })
+}
+
+/// The live-line resolution's read side: pin the studbook's gleaned snapshot,
+/// read its journal marks, and resolve the coronet's current branch
+/// (`jjrds_resolve_live_branch`). `Ok(None)` is a coronet with no live line —
+/// the founding-birth case the caller dresses fresh. A pin or read failure
+/// surfaces loud (`StudbookUnreadable`): the door has already gleaned and
+/// planned against this studbook, so a failure here is a genuine fault, never a
+/// quiet fall-through to a fork.
+pub fn jjrds_live_branch(
+    studbook: &jjdb_BlotterConfig,
+    coronet: &str,
+    prefix: Option<&str>,
+) -> Result<Option<String>, jjrds_Rejection> {
+    let pin = jjdb_pin(studbook).map_err(|detail| jjrds_Rejection::StudbookUnreadable {
+        path: studbook.local_root.clone(),
+        detail,
+    })?;
+    let marks = jjdb_journal_marks(studbook, &pin).map_err(|detail| jjrds_Rejection::StudbookUnreadable {
+        path: studbook.local_root.clone(),
+        detail,
+    })?;
+    Ok(jjrds_resolve_live_branch(&marks, coronet, prefix))
+}
+
 /// Plan a dispatch: the approach's resolution half — identify at the captured
 /// invocation path (the door captures cwd exactly once; this function never
 /// reads the environment), pedigree lookup, target resolution, and the
@@ -1443,23 +1553,44 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         return (jjrds_Outcome::Done(0), out);
     }
 
-    // The gate passed, so nothing stands: mint a fresh billet. The birth record
-    // allocates the catchword both denormalized labels wear — the dirname under
-    // the yard signet, and the branch's livery serial — composed together here
-    // from the one allocation, never a second journal write.
+    // The gate passed, so nothing stands. Before minting this dispatch's own
+    // birth record, resolve whether a prior line already stands for this pace —
+    // the studbook-routed resumption (`jjdd_billet`): a saddle whose coronet was
+    // born before (its billet since reaped, or worked and pushed on another
+    // station) re-seats or adopts that line rather than forking a rival from
+    // trunk. The read takes the journal as it stood BEFORE this event, so the
+    // question stays "was there a prior line," and it is meaningful only over the
+    // studbook — the frozen path has no journal and always births fresh.
+    let studbook = jjdb_studbook_config(&plan.infield_root);
+    let resolved_line: Option<String> = if over_studbook && matches!(plan.door, jjrds_Door::Saddle) {
+        match jjrds_live_branch(&studbook, &plan.identity_body, plan.livery_prefix.as_deref()) {
+            Ok(line) => line,
+            Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused resolving the live line: {}\n", out, e)),
+        }
+    } else {
+        None
+    };
+
+    // Mint the billet: the birth record allocates the catchword the dirname wears.
+    // A founding saddle with no prior line dresses the branch from that same
+    // catchword; a re-seat or adopt keeps the dirname's fresh serial but dresses
+    // the branch in the RESOLVED name, so the dirname labels this occupancy while
+    // the branch stays the founding line's — the two denormalized labels part
+    // exactly where the resumption reuses a durable branch.
     let (billet_root, birth) = {
-        let studbook = jjdb_studbook_config(&plan.infield_root);
         let station = crate::jjrvg_guidon::jjdb_station_name();
         match jjrds_record_dispatch(&farrier, &studbook, &plan, &station) {
             Ok(catchword) => {
                 let root = plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body));
                 let birth = match plan.door {
-                    jjrds_Door::Saddle => jjrfr_BilletBirth::Branch(crate::jjrf_favor::jjrf_livery_compose(
-                        plan.livery_prefix.as_deref(),
-                        crate::jjrf_favor::jjrf_LiveryKind::Pace,
-                        catchword,
-                        &plan.identity_body,
-                    )),
+                    jjrds_Door::Saddle => jjrfr_BilletBirth::Branch(resolved_line.unwrap_or_else(|| {
+                        crate::jjrf_favor::jjrf_livery_compose(
+                            plan.livery_prefix.as_deref(),
+                            crate::jjrf_favor::jjrf_LiveryKind::Pace,
+                            catchword,
+                            &plan.identity_body,
+                        )
+                    })),
                     jjrds_Door::Lunge => jjrfr_BilletBirth::Detached,
                 };
                 (root, birth)

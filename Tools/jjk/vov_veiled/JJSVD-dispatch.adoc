@@ -384,7 +384,16 @@ contributes only its target typing and its tier source, never its own approach:
   {jjdt_coronet} lookup can never match one.
   Only when both keys are silent is the pace clear to be born: the birth is a {jjdb_studbook} WRITE
   (the dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
-  cost of a durable birth timeline, and the fresh billet wears the serial it allocates.
+  cost of a durable birth timeline, and the fresh billet's DIRNAME wears the serial it allocates.
+  The BRANCH it seats, though, is not always fresh: it is the pace's CURRENT LIVE LINE, resolved
+  through the journal (Current-line resolution, studbook sheaf) — the coronet's founding birth since
+  its last wrap — never composed anew when a prior line already stands, and never decided by ref
+  enumeration, which is race-partial.
+  The read takes the journal as it stood BEFORE this dispatch's own birth, so the question stays
+  "was there a prior line"; a coronet with none founds a fresh one, its dirname and branch sharing
+  the single serial.
+  This is what reawakens the ensure's seat and adopt arms below: they probe a name resolved from the
+  record — one that actually stands — rather than a fresh name that by construction stands nowhere.
 . *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
   A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
