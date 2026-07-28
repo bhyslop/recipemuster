@@ -49,6 +49,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let coronets: Vec<String> = match serde_json::from_str(&coronets) {
         Ok(c) => c,
@@ -65,6 +66,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     let restring_args = jjrg_RestringArgs {
         source_firemark: args.firemark.clone(),
@@ -79,6 +81,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
     // in-memory mutation, so no consumer remainder to commit, and the message counts
     // the tip's own drafted set. Either way `result` drives the shared JSON output.
     let result = if !crate::jjrvb_blotter::JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+        crate::jjrsj_sectional::jjrsj_phase(cn, "transform");
         // Execute restring operation
         let result = match gallops.jjrg_restring(restring_args) {
             Ok(r) => r,
@@ -93,6 +96,7 @@ pub fn jjrrs_run(args: jjrrs_RestringArgs, coronets: String, officium: &str) -> 
             vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
+        crate::jjrsj_sectional::jjrsj_phase(cn, "save");
 
         // Parse both firemarks for commit file list
         let dest_fm = jjrf_Firemark::jjrf_parse(&result.dest_firemark).expect("restring returned invalid dest firemark");

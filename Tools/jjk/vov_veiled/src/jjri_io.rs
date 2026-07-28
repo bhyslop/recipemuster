@@ -9,6 +9,7 @@
 use std::fs;
 use std::path::Path;
 use crate::jjrfr_farrier::jjrfr_Rejection;
+use crate::jjrsj_sectional::jjrsj_phase;
 use crate::jjrt_types::jjrg_Gallops;
 use crate::jjrv_validate::{jjrg_validate, jjrg_reconcile};
 
@@ -468,6 +469,7 @@ pub fn jjri_commit_refusal(cmd: &str, err: &vvc::vvcm_CommitError) -> String {
 /// size gate's refusal (which it must emit as an interdictum, via jjri_commit_refusal)
 /// from an ordinary fault.
 pub fn jjri_persist(
+    cmd: &str,
     lock: &vvc::vvcc_CommitLock,
     gallops: &jjrg_Gallops,
     file: &Path,
@@ -478,6 +480,7 @@ pub fn jjri_persist(
 ) -> Result<String, vvc::vvcm_CommitError> {
     // Save gallops first
     jjdr_save(gallops, file)?;
+    jjrsj_phase(cmd, "save");
 
     // Construct paths for commit
     let gallops_path = file.to_string_lossy().to_string();
@@ -514,6 +517,7 @@ pub fn jjri_persist(
 /// underlying `git commit` finalizes it with two parents — validate is the post-merge gallops
 /// cleanup step.
 pub fn jjri_consign(
+    cmd: &str,
     lock: &vvc::vvcc_CommitLock,
     gallops: &jjrg_Gallops,
     file: &Path,
@@ -523,6 +527,7 @@ pub fn jjri_consign(
 ) -> Result<Option<String>, vvc::vvcm_CommitError> {
     // Save the canonical gallops first (atomic write + load-back validation).
     jjdr_save(gallops, file)?;
+    jjrsj_phase(cmd, "consign");
 
     let path_str = file.to_string_lossy().to_string();
 

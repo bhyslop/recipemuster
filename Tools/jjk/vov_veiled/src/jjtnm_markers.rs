@@ -4,6 +4,8 @@
 
 //! Tests for jjrnm_markers - validate marker code registry
 
+// RCG output discipline: all emission via jjrk_*! — no direct println!/eprintln!
+use crate::jjrk_trace_now;
 use crate::jjrnm_markers::*;
 use std::collections::HashSet;
 
@@ -81,11 +83,11 @@ fn jjtnm_test_case_awareness() {
 
     // This is informational - document case pairs but don't fail
     if !case_pairs.is_empty() {
-        println!("\nCase-distinct marker pairs detected:");
+        jjrk_trace_now!("Case-distinct marker pairs detected:");
         for (upper, variants) in case_pairs {
-            println!("  '{}' family:", upper);
+            jjrk_trace_now!("  '{}' family:", upper);
             for (code, name) in variants {
-                println!("    '{}' = {}", code, name);
+                jjrk_trace_now!("    '{}' = {}", code, name);
             }
         }
     }

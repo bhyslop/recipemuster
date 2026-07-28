@@ -311,6 +311,7 @@ fn zjjrvl_commit_normalization(
             return (JJRVL_EXIT_BROKEN, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
     let brand = vvc::vvcc_get_brand();
     let subject = format!("VALIDATE normalized gallops — {}", census);
@@ -325,7 +326,8 @@ fn zjjrvl_commit_normalization(
     );
 
     let mut commit_out = vvco_Output::buffer();
-    let result = jjri_consign(&lock, gallops, &args.file, message, args.size_limit, &mut commit_out);
+    let result = jjri_consign(cn, &lock, gallops, &args.file, message, args.size_limit, &mut commit_out);
+    crate::jjrsj_sectional::jjrsj_phase(cn, "unlock");
     // lock drops at end of scope
     match result {
         Ok(Some(hash)) => {

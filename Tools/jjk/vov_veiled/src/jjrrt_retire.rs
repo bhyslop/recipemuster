@@ -56,6 +56,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs, officium: &str) -> (i32, String)
             return (1, output.vvco_finish());
         }
     };
+    crate::jjrsj_sectional::jjrsj_phase(cn, "load");
 
     // Get steeplechase entries (filtered by firemark identity)
     let rein_args = jjrs_ReinArgs {
@@ -109,6 +110,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs, officium: &str) -> (i32, String)
                 return (1, output.vvco_finish());
             }
         };
+        crate::jjrsj_sectional::jjrsj_phase(cn, "lock");
 
         // Execute retire
         let retire_args = jjrg_RetireArgs {
@@ -116,6 +118,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs, officium: &str) -> (i32, String)
             today: jjrc_timestamp_date(),
         };
 
+        crate::jjrsj_sectional::jjrsj_phase(cn, "transform");
         let result = match gallops.jjrg_retire(retire_args, base_path, &steeplechase) {
             Ok(r) => r,
             Err(e) => {
@@ -129,6 +132,7 @@ pub fn jjrrt_run_retire(args: jjrrt_RetireArgs, officium: &str) -> (i32, String)
             vvco_err!(output, "{}: error saving Gallops: {}", cn, e);
             return (1, output.vvco_finish());
         }
+        crate::jjrsj_sectional::jjrsj_phase(cn, "save");
 
         // Commit using vvcm_commit with explicit file list
         // Files: gallops.json, trophy file (created), paddock file (deleted - git add handles this)

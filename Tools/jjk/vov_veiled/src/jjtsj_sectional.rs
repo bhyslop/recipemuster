@@ -5,7 +5,7 @@
 use rmcp::model::{CallToolResult, Content};
 use rmcp::ErrorData;
 
-use super::jjrsj_sectional::{zjjrsj_step_open_at, zjjrsj_step_outcome_at};
+use super::jjrsj_sectional::{zjjrsj_step_open_at, zjjrsj_step_outcome_at, zjjrsj_phase_line};
 use super::jjtu_testdir::JjkTestDir;
 
 fn jjtsj_read(dir: &JjkTestDir) -> String {
@@ -91,4 +91,27 @@ fn jjtsj_torn_tail_reads_as_entry_without_exit() {
         "no outcome should exist for the killed step: {:?}",
         lines
     );
+}
+
+#[test]
+fn jjtsj_phase_line_shape() {
+    let now = "2026-01-02T03:04:05Z".parse().unwrap();
+    let line = zjjrsj_phase_line(now, "jjx_record", "lock");
+    assert_eq!(line, "PHASE 2026-01-02T03:04:05+00:00 cmd=jjx_record step=lock");
+}
+
+/// The done-when contract in miniature: a sequence of phase beats followed
+/// by no further beat reads, on a torn tail, as "the last phase entered" —
+/// the same entry-without-exit shape `jjtsj_torn_tail_reads_as_entry_without_exit`
+/// proves for the command grain.
+#[test]
+fn jjtsj_phase_sequence_torn_tail_names_last_phase_entered() {
+    let now: chrono::DateTime<chrono::Utc> = "2026-01-02T03:04:05Z".parse().unwrap();
+    let steps = ["lock", "load", "transform"];
+    let lines: Vec<String> = steps.iter().map(|s| zjjrsj_phase_line(now, "jjx_curry", s)).collect();
+    // A mid-command kill after "transform" (before "save") leaves exactly
+    // these three lines — no "save" or "unlock" beat follows.
+    assert_eq!(lines.len(), 3);
+    assert!(lines.last().unwrap().contains("step=transform"), "torn tail: {:?}", lines);
+    assert!(!lines.iter().any(|l| l.contains("step=save") || l.contains("step=unlock")));
 }

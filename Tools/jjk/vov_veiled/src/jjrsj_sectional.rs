@@ -135,3 +135,21 @@ pub fn jjrsj_step_open(officium: &str, cmd: &str) {
 pub fn jjrsj_step_outcome(officium: &str, cmd: &str, result: &Result<CallToolResult, ErrorData>) {
     zjjrsj_step_outcome_at(&jjrsj_sectional_path(officium), cmd, result);
 }
+
+/// Render one phase-grain beat line. Pure — no armed-sink dependency — so
+/// deterministic tests can assert the grammar without arming the process-
+/// global trace sink (`jjtfg_narration_and_local_deadline` is this crate's
+/// sole arming test; a second arming test would race its slot).
+pub(crate) fn zjjrsj_phase_line(now: chrono::DateTime<chrono::Utc>, cmd: &str, step: &str) -> String {
+    format!("PHASE {} cmd={} step={}", now.to_rfc3339(), cmd, step)
+}
+
+/// Append a phase-grain beat to the armed sink: marks entry into one named
+/// step of the crash-safe dispatch spine (lock, load, transform, save,
+/// unlock) or a sibling I/O step (gazette, consign). One line per phase
+/// entry — not an open/close bracket like the git grain, since the spine's
+/// steps run in a fixed order with no child process to time — so a
+/// mid-command kill's torn tail names the last phase the command reached.
+pub fn jjrsj_phase(cmd: &str, step: &str) {
+    jjrsj_trace(&zjjrsj_phase_line(chrono::Utc::now(), cmd, step));
+}
