@@ -6,6 +6,8 @@ use super::jjrfg_plaingit::{
     jjrfg_PlainGit,
     zjjrfg_canonicalize_upstream,
     zjjrfg_guidon_vanished,
+    zjjrfg_lock_contended,
+    zjjrfg_lock_held_refusal,
     zjjrfg_push_rejected,
     zjjrfg_resolve_relative,
     ZJJRFG_GUIDON_REF,
@@ -495,6 +497,36 @@ fn jjtfg_push_rejected_matches_transport_vocabulary_only() {
     assert!(zjjrfg_push_rejected("! [remote rejected] trunk -> trunk (stale info)"));
     assert!(zjjrfg_push_rejected("Updates were rejected because a pushed branch tip is non-fast-forward"));
     assert!(!zjjrfg_push_rejected("fatal: Could not read from remote repository."));
+}
+
+#[test]
+fn jjtfg_lock_contended_matches_the_ref_store_phrase_only() {
+    assert!(zjjrfg_lock_contended(
+        "remote: error: cannot lock ref 'refs/jjv/guidon': reference already exists\n\
+         ! [remote rejected] deadbeef -> refs/jjv/guidon (failed to update ref)"
+    ));
+    // A bare `[remote rejected]` token alone — a hook, quota, or protected-ref
+    // denial — must stay unclassified by this predicate.
+    assert!(!zjjrfg_lock_contended("! [remote rejected] trunk -> trunk (pre-receive hook declined)"));
+    assert!(!zjjrfg_lock_contended("! [rejected] trunk -> trunk (fetch first)"));
+    assert!(!zjjrfg_lock_contended("fatal: Could not read from remote repository."));
+}
+
+#[test]
+fn jjtfg_lock_held_refusal_forks_its_remedy_tail_on_age_and_names_no_git_internals() {
+    let fresh = zjjrfg_lock_held_refusal(Path::new("/r"), false);
+    assert_eq!(fresh.kind, jjrfr_RejectionKind::LockHeld);
+    assert!(fresh.detail.contains("re-run"));
+    assert!(!fresh.detail.contains("cashier"));
+
+    let stranded = zjjrfg_lock_held_refusal(Path::new("/r"), true);
+    assert_eq!(stranded.kind, jjrfr_RejectionKind::LockHeld);
+    assert!(stranded.detail.contains("cashier"));
+
+    for r in [&fresh, &stranded] {
+        assert!(!r.detail.contains("refs/jjv/guidon"), "the operator's face must not carry the ref path");
+        assert!(!r.detail.to_lowercase().contains("sha"), "the operator's face must not carry a SHA");
+    }
 }
 
 #[test]
