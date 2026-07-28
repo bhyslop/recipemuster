@@ -1,0 +1,39 @@
+//axvd_sheaf axd_normative axd_regime
+This is a normative regime sheaf of the {bus0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhrb_regime
+{bure_regime}
+
+This regime is the ambient channel for caller-supplied behavioral overrides to BUK primitives.
+Unlike the file-sourced regimes,
+{bure_regime}
+variables are set directly in the caller's environment rather than read from an assignment file,
+and it is kindled and validated when buc_command.sh is sourced.
+Its inlet is
+{bus_inlet_ambient}
+— the one family whose values legitimately ride the session environment
+and its inheritance
+({BUr_q2m}).
+Two sub-natures share the family, separated by doctrine:
+operator comfort dials
+({bure_countdown}, {bure_verbose}, {bure_color})
+and the test tweak seam
+({bure_tweak_name}, {bure_tweak_value}),
+bounded below to sparing, one-at-a-time use.
+
+//axhrv_variable
+{bure_countdown}
+
+//axhrv_variable
+{bure_verbose}
+
+//axhrv_variable
+{bure_color}
+
+//axhrv_variable
+{bure_tweak_name}
+
+//axhrv_variable
+{bure_tweak_value}
+
+//axhrv_variable
+{bure_label}

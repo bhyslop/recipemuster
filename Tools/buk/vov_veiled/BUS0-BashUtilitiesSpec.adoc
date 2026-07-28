@@ -682,22 +682,22 @@ API: `buto_launch_expect_ok(launcher, colophon, args...)`, `buto_launch_expect_f
 Every call to `zbuto_invoke` sets four globals that subsequent assertions can inspect.
 
 [[busig_stdout]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {busig_stdout}::
 Captured stdout from the invoked command.
 
 [[busig_stderr]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {busig_stderr}::
 Captured stderr from the invoked command.
 
 [[busig_status]]
-//axl_voices axrg_variable axtu_integer
+//axvr_variable axtu_integer
 {busig_status}::
 Exit code from the invoked command.
 
 [[busig_burv_output]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {busig_burv_output}::
 BURV output directory for the invocation.
 Empty when
@@ -722,14 +722,14 @@ before invoking the case function.
 The subshell boundary ensures that variable mutations, function redefinitions, and side effects in one case cannot leak to another.
 
 [[busx_temp_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {busx_temp_dir}::
 Per-case temporary directory (`BUT_TEMP_DIR`), set by
 {busx_tcase}.
 Created as a subdirectory of the fixture's root temp dir, named after the case function.
 
 [[busx_burv_root]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {busx_burv_root}::
 Per-case BURV isolation root (`BUTE_BURV_ROOT`), set by
 {busx_tcase}.
@@ -1386,8 +1386,6 @@ Repo root, expressed relative to the assignment file's location.
 //axvr_variable axd_required axtu_string
 {burc_managed_kits}::
 Comma-separated list of kits managed by vvx.
-At release time, determines which kits are built into the binary.
-At install time, must exactly match the parcel's kit list.
 
 [[burc_temp_root_dir]]
 //axvr_variable axd_required axtu_path
@@ -1397,7 +1395,7 @@ Parent directory for per-dispatch scratch subdirs (temp-<stamp>).
 [[burc_output_root_dir]]
 //axvr_variable axd_required axtu_path
 {burc_output_root_dir}::
-Parent directory containing `current/`, cleared and recreated each dispatch.
+Parent directory containing `current/`.
 
 [[burc_log_last]]
 //axvr_variable axd_required axtu_xname
@@ -1408,6 +1406,9 @@ Filename stem for the most recent command execution log.
 //axvr_variable axd_required axtu_xname
 {burc_log_ext}::
 File extension for log files, without leading dot.
+
+//axvd_cartouche axd_normative axd_regime
+include::BUSRC-RegimeConfiguration.adoc[]
 
 === BURS Regime
 
@@ -1428,9 +1429,6 @@ Inlet:
 //axvr_variable axd_required axtu_xname
 {burs_user}::
 Local developer username.
-Routes to the correct `.buk/rbmu_users/` subdirectory for
-{burp_regime}
-profiles.
 
 [[burs_tincture]]
 //axvr_variable axd_required axtu_string
@@ -1438,14 +1436,15 @@ profiles.
 Per-station tincture composed by test fixtures into cloud/runtime prefixes
 and family stems so parallel test runs from different stations land in
 disjoint GCP projects on a shared payor manor.
-Test-only by intent — production code reads `rbrr.env` directly and is
-unaware of the tincture.
 Format: 1-3 lowercase alphanumeric characters, leading letter, no hyphen.
 
 [[burs_log_dir]]
 //axvr_variable axd_required axtu_path
 {burs_log_dir}::
 Directory where this developer stores BUK operation logs.
+
+//axvd_cartouche axd_normative axd_regime
+include::BUSRS-RegimeStation.adoc[]
 
 === BURN Regime
 
@@ -1488,12 +1487,10 @@ IP address or hostname of the remote node.
 //axvr_variable axd_required axtu_xname
 {burn_platform}::
 OS family of the node.
-Used by handbook diagnostics; the
-{bus_jurisdiction}
-implementation in
-{bujb_jurisdiction}
-selects shell mappings by garrison shell-letter rather than by node platform.
 Values: `bunne_linux`, `bunne_mac`, `bunne_windows`.
+
+//axvd_cartouche axd_normative axd_regime
+include::BUSRN-RegimeNode.adoc[]
 
 === BURN/BURP Identifier Vocabulary
 
@@ -1648,20 +1645,20 @@ bud_dispatch
 ({bus_inlet_tabtarget}).
 
 [[burd_regime_file]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_regime_file}::
 Path to the BURC regime assignment file to source during setup.
 Installed by the shared launcher from {burd_config_dir}.
 
 [[burd_no_log]]
-//axl_voices axrg_variable axtu_string axd_optional
+//axvr_variable axtu_string axd_optional
 {burd_no_log}::
 The tabtarget's own declaration that its dispatch runs unlogged — a static
 property of the tabtarget file, never inherited
 ({BUr_q2m}).
 
 [[burd_interactive]]
-//axl_voices axrg_variable axtu_string axd_optional
+//axvr_variable axtu_string axd_optional
 {burd_interactive}::
 The tabtarget's own declaration of interactive mode — output goes to the
 terminal via uncurated tee rather than the curated log pipeline.
@@ -1671,35 +1668,35 @@ a static property of the tabtarget file, never inherited
 ({BUr_q2m}).
 
 [[burd_coordinator_script]]
-//axl_voices axrg_variable axtu_path axd_required
+//axvr_variable axtu_path axd_required
 {burd_coordinator_script}::
 Path to the coordinator script (workbench/testbench) that handles the dispatched command.
 
 [[burd_launcher]]
-//axl_voices axrg_variable axtu_path axd_required
+//axvr_variable axtu_path axd_required
 {burd_launcher}::
 Path to the launcher bootstrap script, set by the tabtarget before exec.
 
 [[burd_station_file]]
-//axl_voices axrg_variable axtu_path axd_required
+//axvr_variable axtu_path axd_required
 {burd_station_file}::
 Absolute path to the developer's station regime assignment file.
 Set by the launcher from BURC_STATION_FILE.
 
 [[burd_term_cols]]
-//axl_voices axrg_variable axtu_integer
+//axvr_variable axtu_integer
 {burd_term_cols}::
 Terminal column width at dispatch time.
 Detected from stty if available, defaults to 80.
 
 [[burd_config_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_config_dir}::
 Absolute path to the project's config/moorings directory.
 Installed by the project-intimate tabtarget trampoline (`tt/z-launcher.sh`).
 
 [[burd_moorings_dir]]
-//axl_voices axrg_variable axtu_xname
+//axvr_variable axtu_xname
 {burd_moorings_dir}::
 Basename of
 {burd_config_dir},
@@ -1713,78 +1710,78 @@ derived by the shared launcher for operator-facing display.
 Variables derived during dispatch setup.
 
 [[burd_now_stamp]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_now_stamp}::
 Unique timestamp combining date, time, PID, and random component.
 
 [[burd_now_epoch]]
-//axl_voices axrg_variable axtu_integer
+//axvr_variable axtu_integer
 {burd_now_epoch}::
 UTC epoch seconds captured from same `date` invocation as {burd_now_stamp}.
 
 [[burd_temp_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_temp_dir}::
 Ephemeral directory for this dispatch invocation.
 
 [[burd_output_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_output_dir}::
 Fixed output directory for this dispatch (`current/`).
 
 [[burd_previous_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_previous_dir}::
 Fixed directory holding the prior dispatch's outputs (`previous/`), promoted from that dispatch's {burd_output_dir} at dispatch start.
 
 [[burd_transcript]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_transcript}::
 Path to the transcript file within the temporary directory.
 
 [[burd_git_context]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_git_context}::
 Git describe output capturing repository state at dispatch time.
 
 [[burd_log_last]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_log_last}::
 Path to the "last" log file, overwritten each dispatch.
 
 [[burd_log_same]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_log_same}::
 Path to the curated "same" log file for the command+target combination.
 
 [[burd_log_hist]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_log_hist}::
 Path to the timestamped historical log file.
 
 [[burd_tools_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_tools_dir}::
 Path to the project tools root directory, derived from
 {burc_tools_dir}
 during dispatch setup.
 
 [[burd_buk_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_buk_dir}::
 Path to the BUK subdirectory, derived as
 {burc_tools_dir}/buk
 during dispatch setup.
 
 [[burd_tabtarget_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burd_tabtarget_dir}::
 Path to the tabtarget directory, derived from
 {burc_tabtarget_dir}
 during dispatch setup.
 
 [[burd_ostype]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_ostype}::
 The shell's `OSTYPE` value captured at dispatch, for platform-conditional
 coordinator logic.
@@ -1797,42 +1794,42 @@ coordinator logic.
 Variables extracted from the tabtarget filename during argument processing.
 
 [[burd_command]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_command}::
 Primary command token (first token from tabtarget split).
 
 [[burd_target]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_target}::
 Complete tabtarget string as received by dispatch.
 
 [[burd_cli_args]]
-//axl_voices axrg_variable axtu_string axd_repeated
+//axvr_variable axtu_string axd_repeated
 {burd_cli_args}::
 Array of additional CLI arguments passed after the tabtarget.
 
 [[burd_token_1]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_token_1}::
 Positional token 1 from tabtarget split (the colophon).
 
 [[burd_token_2]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_token_2}::
 Positional token 2 from tabtarget split (the frontispiece).
 
 [[burd_token_3]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_token_3}::
 Positional token 3 from tabtarget split (the imprint, if present).
 
 [[burd_token_4]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_token_4}::
 Positional token 4 from tabtarget split.
 
 [[burd_token_5]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burd_token_5}::
 Positional token 5 from tabtarget split.
 
@@ -1871,13 +1868,13 @@ When unset, countdown proceeds normally with interactive tty cancel window.
 Any other value fails validation.
 
 [[bure_verbose]]
-//axl_voices axrg_variable axtu_integer
+//axvr_variable axtu_integer
 {bure_verbose}::
 Verbosity level controlling diagnostic output.
 0=silent, 1=show messages, 2=enable bash trace.
 
 [[bure_color]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {bure_color}::
 Color output policy.
 Input as auto/0/1; resolved to 0 or 1 during dispatch.
@@ -1915,7 +1912,7 @@ pair in the environment before invoking a tabtarget.
 The pair is ambient — it propagates through `zbuto_invoke` like all BURE variables, without requiring re-kindle in the invoked command.
 
 [[bure_tweak_name]]
-//axl_voices axrg_variable axtu_string axd_optional
+//axvr_variable axtu_string axd_optional
 {bure_tweak_name}::
 Consumer-interpreted tweak identifier.
 The name selects which behavioral override the consuming kit applies.
@@ -1925,7 +1922,7 @@ The sprue doubles as a virtual registry: `grep buo` enumerates every tweak acros
 Example: `buorb_ensconce_stamp` — tells RBK to pin a capture's identity stamp, forcing the stamp-collision condition the cloud-side guard exists to reject.
 
 [[bure_tweak_value]]
-//axl_voices axrg_variable axtu_string axd_optional
+//axvr_variable axtu_string axd_optional
 {bure_tweak_value}::
 Consumer-interpreted tweak payload.
 The value is opaque to BUK; its format and interpretation are defined by whatever kit checks
@@ -1938,7 +1935,7 @@ Consumer kits that require both must enforce that themselves.
 ==== Exchange Labels
 
 [[bure_label]]
-//axl_voices axrg_variable axtu_xname axd_optional
+//axvr_variable axtu_xname axd_optional
 {bure_label}::
 Correlation label for cross-project exchange.
 When set, propagated verbatim into
@@ -1950,6 +1947,9 @@ Maximum 120 characters, xname format.
 BUD writes whatever
 {bure_label}
 contains without interpreting the semantics.
+
+//axvd_cartouche axd_normative axd_regime
+include::BUSRE-RegimeEnvironment.adoc[]
 
 === BURV Regime
 
@@ -1988,25 +1988,28 @@ Innermost composition wins: a composer nearer the child overrides an
 outer one.
 
 [[burv_output_root_dir]]
-//axl_voices axrg_variable axtu_path axd_optional
+//axvr_variable axtu_path axd_optional
 {burv_output_root_dir}::
 Overrides
 {burc_output_root_dir}
 for the composed child.
 
 [[burv_temp_root_dir]]
-//axl_voices axrg_variable axtu_path axd_optional
+//axvr_variable axtu_path axd_optional
 {burv_temp_root_dir}::
 Overrides
 {burc_temp_root_dir}
 for the composed child.
 
 [[burv_log_dir]]
-//axl_voices axrg_variable axtu_path axd_optional
+//axvr_variable axtu_path axd_optional
 {burv_log_dir}::
 Overrides
 {burs_log_dir}
 for the composed child.
+
+//axvd_cartouche axd_normative axd_regime
+include::BUSRV-RegimeVerification.adoc[]
 
 === BURX Regime
 
@@ -2040,62 +2043,58 @@ Absence of
 indicates the dispatch is still running.
 
 [[burx_pid]]
-//axl_voices axrg_variable axtu_integer
+//axvr_variable axtu_integer
 {burx_pid}::
 Process ID of the dispatched command.
 
 [[burx_began_at]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burx_began_at}::
 Nanosecond-precision timestamp when dispatch started.
 Format: `YYYYMMDD-HHMMSS.NNNNNNNNN`.
 
 [[burx_tabtarget]]
-//axl_voices axrg_variable axtu_string
+//axvr_variable axtu_string
 {burx_tabtarget}::
 The tabtarget that was dispatched.
 Corresponds to
 {burd_target}.
 
 [[burx_temp_dir]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burx_temp_dir}::
 Absolute path to the dispatch temporary directory.
 Corresponds to
 {burd_temp_dir}.
 
 [[burx_transcript]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burx_transcript}::
 Absolute path to the transcript file.
 Corresponds to
 {burd_transcript}.
 
 [[burx_log_hist]]
-//axl_voices axrg_variable axtu_path
+//axvr_variable axtu_path
 {burx_log_hist}::
 Absolute path to the historical log file.
 Corresponds to
 {burd_log_hist}.
 
 [[burx_label]]
-//axl_voices axrg_variable axtu_string axd_optional
+//axvr_variable axtu_string axd_optional
 {burx_label}::
-Correlation label from
+Correlation label propagated from
 {bure_label}.
-Always present — empty string when
-{bure_label}
-is not set.
-Format and interpretation are opaque to BUD.
 
 [[burx_exit_status]]
-//axl_voices axrg_variable axtu_integer axd_optional
+//axvr_variable axtu_integer axd_optional
 {burx_exit_status}::
 Unix exit code of the dispatched command.
 Absence indicates the dispatch is still running.
 
 [[burx_ended_at]]
-//axl_voices axrg_variable axtu_string axd_optional
+//axvr_variable axtu_string axd_optional
 {burx_ended_at}::
 Nanosecond-precision timestamp when dispatch completed.
 Same format as
@@ -2103,6 +2102,9 @@ Same format as
 Present only when
 {burx_exit_status}
 is present.
+
+//axvd_cartouche axd_normative axd_regime
+include::BUSRX-RegimeExchange.adoc[]
 
 == Remote Node Access
 
