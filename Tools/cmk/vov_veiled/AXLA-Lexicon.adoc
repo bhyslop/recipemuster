@@ -159,6 +159,7 @@
 
 // Axial Voicing Regime Terms (definition-site annotations)
 :axvr_group:                          <<axvr_group,Group Voicing>>
+:axvr_prefix:                         <<axvr_prefix,Prefix Voicing>>
 :axvr_regime:                         <<axvr_regime,Regime Voicing>>
 :axvr_variable:                       <<axvr_variable,Variable Voicing>>
 
@@ -2463,6 +2464,25 @@ the parent regime (an anchor that voices
 {axd_conditional}
 (group activation depends on gate conditions in subdocument).
 
+[[axvr_prefix]]
+{axvr_prefix}::
+Voices a regime prefix definition.
+The annotated term is a dedicated
+{mcm_quoin}
+naming the stable character sequence that namespaces every
+{axrg_variable}
+within one
+{axrg_regime};
+the concept it instantiates is
+{axrg_prefix}.
+The definition text must include the parent regime (an anchor that voices
+{axrg_regime}),
+tying the prefix unequivocally to its regime.
+This voicing completes the `axvr_*` family: with a term for the prefix, every
+definition-site regime role is voiced by an `axvr_*` member, and the
+{axl_coping}
+creep-back rule holds without a carve-out for the prefix case.
+
 [[axvr_kindle]]
 {axvr_kindle}::
 Voices a regime kindle operation definition.
@@ -4598,6 +4618,24 @@ Prose lives in exactly one home, so the codex definition and the sheaf render ca
 drift — the anti-duplication sibling of
 {axl_timeless},
 whose law is anti-journaling.
++
+The sanctioned definition-site regime family is `axvr_*`, sole and exclusive:
+a codex anchor's regime role is voiced by an `axvr_*` term.
+The `axrg_*` family is the prose motif those voicings cite — the concept an
+{axvr_variable}
+names, never the annotation that voices it.
+A regime role annotated in any other form — the superseded `//axl_voices` keyword, or an
+`axrg_*` term standing where an `axvr_*` term belongs — is legacy creep-back:
+outside the sanctioned family, swept toward it rather than tolerated.
++
+Regime-level doctrine sites in the codex, outside the roster the sheaf renders.
+A conceptual subsection framing the regime as a whole — not any one field — is neither an
+{axvr_variable}
+nor an
+{axvr_group},
+so the completeness census neither expects a render for it nor counts its absence a gap.
+Worked instance: BURE's Tweak-Mechanism doctrine, kept in its codex as regime-level
+conceptual prose distinct from the variable roster its sheaf renders.
 +
 The law is mechanical, keyed to the
 {axl_lintel}:
