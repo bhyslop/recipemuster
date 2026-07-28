@@ -417,11 +417,6 @@ async fn run_mcp() -> i32 {
     }
 }
 
-/// Run the JJ stile's approach (jjy_ door path). The approach resolves and composes
-/// but does not launch: it returns the report and, when a session is ready, the
-/// composed command. We print the report here FIRST, then hand the terminal to
-/// the session, so the door's whole report precedes the session it introduces
-/// (JJSVD "Report precedes launch").
 /// Launch a composed dispatch session and run the stile's trailing step once it
 /// returns — the geometry a fresh dispatch and a confirmed resume share (JJSVD
 /// "The stile"). This driver is the session's parent here, outside the billet,
@@ -449,6 +444,12 @@ fn zvorm_launch_session(
     code
 }
 
+/// Run the JJ stile's approach (jjy_ door path). The approach resolves and composes
+/// but does not launch: it returns the report and, when a session is ready, the
+/// composed command. We print the report here FIRST, then hand the terminal to
+/// the session, so the door's whole report precedes the session it introduces
+/// (JJSVD "Report precedes launch"). A clean standing billet returns instead as a
+/// resume: the report names it, this driver confirms, then launches in place.
 fn run_dispatch(args: DispatchArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]

@@ -765,22 +765,17 @@ pub fn jjrds_yard(infield_root: &Path, billet_root: PathBuf) -> jjrds_Yard {
     }
 }
 
-/// The yard gate's verdict for a saddle (`jjdd_billet`, at most one live billet
-/// per coronet). `Clear` means nothing stands and the caller mints a fresh
-/// billet; `Resume` means a billet stands CLEANLY for this pace and the re-saddle
-/// re-enters it in place under an attended confirm. An ANOMALOUS standing
-/// partition — one the seat-read misses — is neither: it is the `StandingBillet`
-/// refusal, muck its remedy, since re-seating a partition whose branch is seated
-/// nowhere is branch-resolution work this arm does not own.
+/// The yard gate's verdict for a saddle. `Clear` mints a fresh billet; `Resume`
+/// re-enters a cleanly-standing one in place under an attended confirm; the
+/// anomalous seat-evading partition is neither — it is the `StandingBillet`
+/// refusal (the fork's reasoning lives on `jjrds_yard_gate`).
 #[derive(Debug)]
 pub enum jjrds_YardVerdict {
     /// Nothing stands: mint a fresh billet along the ordinary dispatch path.
     Clear,
     /// A billet stands cleanly for this pace — its livery branch seated in a
-    /// registered partition (K1). The re-saddle resumes it: the standing worktree
-    /// and its serial branch are reused, no new birth and no new serial. Carries
-    /// the partition root and the seated livery branch for the resume report and
-    /// launch.
+    /// registered partition (K1). Carries the partition root and the seated
+    /// livery branch for the resume report and launch.
     Resume { root: PathBuf, branch: String },
 }
 
@@ -824,8 +819,8 @@ pub fn jjrds_yard_gate<F: jjrfr_FarrierBillet>(
     // standing on its own branch. A per-birth serial makes the branch name
     // unguessable ahead of the mint (`jjrf_livery_compose`), so the gate can no
     // longer ask "is THIS name seated" — it enumerates every seat and matches by
-    // the coronet behind the badge, never by a composed name. A hit is a CLEAN
-    // standing billet: the re-saddle resumes it rather than refusing.
+    // the coronet behind the badge, never by a composed name. A hit is the clean
+    // standing billet — `Resume`.
     for (branch, root) in farrier.jjrfr_seated_lines(&plan.hippodrome_root).map_err(jjrds_Rejection::Farrier)? {
         if crate::jjrf_favor::jjrf_livery_parse(&branch)
             .is_some_and(|(kind, body)| kind == crate::jjrf_favor::jjrf_LiveryKind::Pace && &body == coronet)
@@ -849,12 +844,11 @@ pub fn jjrds_yard_gate<F: jjrfr_FarrierBillet>(
     Ok(jjrds_YardVerdict::Clear)
 }
 
-/// The resume confirm's report (JJSVD "Yard step", resume arm): the cleanly-
-/// standing billet named by its partition root, its seated livery branch, and
-/// the dirty paths BY NAME — never a count, muck's own report discipline, since
-/// a count hides which work is aboard. The live-session possibility is spoken
-/// last so the operator answers occupied-vs-vacated: the attended confirm is the
-/// only occupancy oracle the system keeps, no record standing anywhere.
+/// The resume confirm's report (JJSVD "Yard step", resume arm): the standing
+/// billet named by its partition root, its seated livery branch, and the dirty
+/// paths BY NAME — never a count, muck's own report discipline, since a count
+/// hides which work is aboard. The live-session possibility is spoken last so the
+/// operator answers occupied-vs-vacated.
 fn zjjrds_resume_report<F: jjrfr_FarrierCore>(farrier: &F, root: &Path, branch: &str) -> String {
     let mut s = String::new();
     s.push_str(&format!("a billet already stands for this pace at {}\n", root.display()));
@@ -1282,9 +1276,7 @@ pub enum jjrds_Outcome {
     /// outcome's text) names it, and the caller must obtain an attended confirm
     /// before the resume launches. On confirm the caller runs `jjrds_resume`
     /// (which returns a `Launch`); on decline it stops, changing nothing. The
-    /// confirm is the one attended gate INSIDE the crossing, held by the door
-    /// driver while it is still the future session's parent — the occupancy
-    /// oracle the system keeps in place of any record (JJSVD "The stile").
+    /// confirm is held at the door driver (JJSVD "The stile").
     Standing { resume: jjrds_ResumePlan },
 }
 

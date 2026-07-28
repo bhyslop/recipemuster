@@ -298,11 +298,10 @@ billet, parent of the session it launched — when the session returns;
 that geometry is what the trailing step rides, and it is why no occupancy record exists
 anywhere: the destructor is the occupant's own parent, acting only after its child has
 exited.
-The one attended gate INSIDE the crossing is the resume confirm (Yard step above): when a
-billet stands cleanly for a re-saddled pace, the door driver — still the future session's
-parent — reports it and holds for the operator's word before re-entering it in place, the
-occupancy oracle that keeps "no record exists anywhere" true even as a billet is reused rather
-than born.
+The one attended gate INSIDE the crossing is the resume confirm (Yard step above): the door
+driver, still the future session's parent, holds for the operator's word before re-entering a
+standing billet — the occupancy oracle that keeps "no record exists anywhere" true even as a
+billet is reused rather than born.
 A resumed billet is no new kind and mints no serial; the trailing step's exit litmus reads it
 exactly as any other pace billet.
 A future immediate-work crossing (pace-free, journal-born) is a stile kind, not a new noun;
@@ -324,8 +323,7 @@ contributes only its target typing and its tier source, never its own approach:
   whose pace ALREADY has a billet neither silently rejoins a live worktree nor mints a rival
   past a missed seat — it RESUMES a cleanly-standing one under an attended confirm, and REFUSES
   an anomalous one, HERE, before the birth record's journal write and before any session spawn.
-  The gate reads two keys, because a standing billet can evade either alone, and the two answers
-  PART here.
+  The gate reads two keys, because a standing billet can evade either alone.
   The {jjdd_livery}-branch SEAT the kind's own partition registry records (the authority for a
   billet on its own branch) — enumerated and matched by the {jjdt_coronet} behind each badge,
   since a per-birth serial makes the branch name unguessable ahead of the mint — is a CLEANLY
@@ -342,8 +340,7 @@ contributes only its target typing and its tier source, never its own approach:
   badge, and the yard key is only the second, independent read the seat-read alone would miss.
   The resume confirm is the occupancy oracle the geometry keeps in place of any record (The stile
   below): it NAMES the live-session possibility — the standing partition, its seated branch, its
-  dirty paths by name — and the attending operator answers occupied-vs-vacated, since no record of
-  that lives anywhere.
+  dirty paths by name — and the attending operator answers occupied-vs-vacated.
   Checkout exclusivity is NOT this enforcement: it guards only the narrow seat arm — a second
   worktree add on an already-seated branch — never the dispatch, so without the gate a re-saddle
   rejoins a live worktree (a second session into one billet) or, where the seat-read misses, mints
@@ -352,8 +349,7 @@ contributes only its target typing and its tier source, never its own approach:
   are deliberately legal, told apart by their serials alone.
   Only when both keys are silent is the pace clear to be born: the birth is a {jjdb_studbook} WRITE
   (the dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
-  cost of a durable birth timeline, and the fresh billet wears the serial it allocates — a resume,
-  reusing a billet already standing, allocates none.
+  cost of a durable birth timeline, and the fresh billet wears the serial it allocates.
 . *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
   A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
@@ -383,9 +379,8 @@ BEFORE the Launch step hands over the terminal — the whole resolved report (bi
 tier and effort, opening prompt, and any staleness notice), never trailing the session's exit.
 The console-handoff is the approach's last act for exactly this reason: a report emitted after it
 would land beneath the very session it was meant to precede.
-On a resume the report names the standing billet (its branch, its dirty paths by name) and the
-attended confirm gates before the same handoff — the same precedence, the confirm one beat ahead
-of the terminal it holds.
+On a resume the standing-billet report and the attended confirm ride the same precedence: both
+land before the handoff.
 +
 Mount absorbs cold start — billet ensure, glean, orient are the approach's work, and no
 separate cold-start engagement verb exists.
@@ -637,7 +632,6 @@ unrecorded sire (the claimed key resolves no sire),
 and record/ground drift (claiming kind contradicts the recorded kind).
 A trailing-step stand is a report line, never a rejection — the session it follows has
 already succeeded, and the stile's exit code stays the session's.
-The standing-billet refusal is the yard gate's own, and it fires only for the anomalous
-seat-evading partition (Yard step): a cleanly-standing billet resumes under confirm rather
-than refusing, so the refusal now names only the partition {jjdd_muck} is the remedy for.
+The standing-billet refusal is the yard gate's own and fires only for the anomalous
+seat-evading partition (Yard step); {jjdd_muck} is its remedy.
 Everything else fails loud through the composed primitive's own named rejection kind.
