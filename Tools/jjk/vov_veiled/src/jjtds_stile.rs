@@ -11,6 +11,7 @@ use super::jjrds_stile::{
     jjrds_ground,
     jjrds_Ground,
     jjrds_pair_admitted,
+    jjrds_groomed_heat,
     jjrds_pedigree_lookup,
     jjrds_plan,
     jjrds_record_dispatch,
@@ -468,7 +469,7 @@ fn jjtds_plan_saddle_resolves_billet_tier_and_prompt() {
 }
 
 #[test]
-fn jjtds_plan_lunge_takes_a_firemark_only() {
+fn jjtds_plan_lunge_by_firemark_grooms_the_heat() {
     let (infield, hippodrome) = zjjtds_infield("jjtds_plan_lunge");
     let infield_canon = infield.path().canonicalize().unwrap();
 
@@ -477,14 +478,100 @@ fn jjtds_plan_lunge_takes_a_firemark_only() {
     assert_eq!(plan.livery_prefix, None);
     assert_eq!(zjjtds_birth(&plan), jjrfr_BilletBirth::Detached);
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
+    assert_eq!(plan.aim, jjrds_Target::Firemark("AA".to_string()));
     // The door's first impression: the verb, then the posture the engine repeats.
     assert!(plan.opening_prompt.starts_with("groom ₣AA"));
     assert!(plan.opening_prompt.contains(JJRDS_GROOM_POSTURE));
+}
 
+/// The widened contract: a coronet grooms that pace on the same ground, and the
+/// billet still wears the HEAT — the yard's kind channel admits no groom in
+/// coronet clothing (JJSVD "The billet").
+#[test]
+fn jjtds_plan_lunge_by_coronet_grooms_the_pace_but_labels_the_heat() {
+    let (infield, hippodrome) = zjjtds_infield("jjtds_plan_lunge_pace");
+    let infield_canon = infield.path().canonicalize().unwrap();
+
+    let plan = jjrds_plan(jjrds_Door::Lunge, "AAAAB", &hippodrome, false).unwrap();
+
+    // The label drops to the pace's heat, so the dirname is indistinguishable
+    // from a heat groom's — which is the whole point: muck and the yard gate
+    // both type kind from this identity's length alone.
+    assert_eq!(plan.identity_body, "AA");
+    assert_eq!(zjjtds_yard(&plan, 200502).billet_root, infield_canon.join("jjqb_200502_AA"));
+    assert_eq!(zjjtds_birth(&plan), jjrfr_BilletBirth::Detached);
+    assert_eq!(plan.livery_prefix, None);
+
+    // Only the aim still names the pace, and the prompt carries it qualified —
+    // the heat rides beside the coronet, so the groom opens in heat context.
+    assert_eq!(plan.aim, jjrds_Target::Coronet("AAAAB".to_string()));
+    assert!(plan.opening_prompt.starts_with("groom ₢AA·AAAAB"));
+    assert!(plan.opening_prompt.contains(JJRDS_GROOM_POSTURE));
+
+    // Same ground, same tier source as the heat groom: the judgment constant.
+    assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
+
+    // A glyphed and a qualified spelling of the same aim resolve identically.
+    for spelling in ["₢AAAAB", "₢AA·AAAAB"] {
+        let echo = jjrds_plan(jjrds_Door::Lunge, spelling, &hippodrome, false).unwrap();
+        assert_eq!(echo.identity_body, "AA");
+        assert_eq!(echo.aim, jjrds_Target::Coronet("AAAAB".to_string()));
+    }
+
+    // A coronet naming no pace refuses — existence is the gate the heat lookup
+    // owes anyway.
     assert!(matches!(
-        jjrds_plan(jjrds_Door::Lunge, "AAAAA", &hippodrome, false),
+        jjrds_plan(jjrds_Door::Lunge, "ZZZZZ", &hippodrome, false),
         Err(jjrds_Rejection::BadTarget { .. })
     ));
+}
+
+/// State is not the groom's gate: a settled pace's docket is as groomable as a
+/// live one's — the one place lunge's resolution parts from saddle's, which
+/// refuses both of these.
+#[test]
+fn jjtds_lunge_grooms_a_pace_whatever_its_state() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_plan_lunge_state");
+
+    // ₢AAAAC is Complete in the fixture; saddle refuses it, lunge does not.
+    assert!(matches!(
+        jjrds_plan(jjrds_Door::Saddle, "AAAAC", &hippodrome, false),
+        Err(jjrds_Rejection::BadTarget { .. })
+    ));
+    let groom = jjrds_plan(jjrds_Door::Lunge, "AAAAC", &hippodrome, false).unwrap();
+    assert_eq!(groom.identity_body, "AA");
+    assert_eq!(groom.aim, jjrds_Target::Coronet("AAAAC".to_string()));
+}
+
+/// The heat resolution in isolation, so the yard label's source is pinned
+/// independently of the plan that carries it.
+#[test]
+fn jjtds_groomed_heat_finds_the_pace_owner() {
+    let gallops = zjjtds_gallops();
+    for coronet in ["AAAAA", "AAAAB", "AAAAC"] {
+        assert_eq!(jjrds_groomed_heat(&gallops, coronet).unwrap(), "AA");
+    }
+    assert!(matches!(
+        jjrds_groomed_heat(&gallops, "ZZZZZ"),
+        Err(jjrds_Rejection::BadTarget { .. })
+    ));
+}
+
+/// The regression the widening could have caused: a pace-aimed groom standing in
+/// the yard must NOT read as its pace's standing billet, or the gate would
+/// refuse a legitimate saddle of that pace.
+#[test]
+fn jjtds_yard_gate_ignores_a_pace_aimed_groom_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_gate_vs_pace_groom");
+
+    // Board a groom billet aimed at ₢AAAAA, then saddle that very pace.
+    let groom = jjrds_plan(jjrds_Door::Lunge, "AAAAA", &hippodrome, false).unwrap();
+    let groom_yard = zjjtds_yard(&groom, 200501);
+    jjrds_board(&jjrfg_PlainGit, &groom, &zjjtds_birth(&groom), &groom_yard).unwrap();
+    assert!(groom_yard.billet_root.is_dir());
+
+    let saddle = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    jjrds_yard_gate(&jjrfg_PlainGit, &saddle).expect("a groom billet is not a standing pace billet");
 }
 
 #[test]
@@ -1159,12 +1246,19 @@ fn jjtds_dispatch_record_names_the_event_alone() {
     // Composition in isolation, so the record's shape is pinned independently
     // of the ceremony that carries it.
     assert_eq!(
-        jjrds_dispatch_record(jjrds_Door::Saddle, "CAAAB", "macmini"),
+        jjrds_dispatch_record(jjrds_Door::Saddle, &jjrds_Target::Coronet("CAAAB".to_string()), "macmini"),
         "dispatch saddle — pace billet for ₢CAAAB at station macmini"
     );
     assert_eq!(
-        jjrds_dispatch_record(jjrds_Door::Lunge, "B9", "cerebro"),
+        jjrds_dispatch_record(jjrds_Door::Lunge, &jjrds_Target::Firemark("B9".to_string()), "cerebro"),
         "dispatch lunge — groom billet for ₣B9 at station cerebro"
+    );
+    // A pace-aimed lunge records the PACE, sigil following the aim rather than
+    // the door — the billet it labels wears the heat, but the durable event is
+    // what the dispatch was for.
+    assert_eq!(
+        jjrds_dispatch_record(jjrds_Door::Lunge, &jjrds_Target::Coronet("CAACI".to_string()), "cerebro"),
+        "dispatch lunge — groom billet for ₢CAACI at station cerebro"
     );
 }
 

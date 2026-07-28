@@ -51,7 +51,7 @@ Everything it asks of the engine crosses an MCP door.
 
 //axhci_interaction
 `jjcbs_operator` `jjcbs_dispatch`
-The operator saddles a pace at the shell (or lunges a heat for a groom) — {jjdd_saddle} and {jjdd_lunge}, the dispatch sheaf's doors.
+The operator saddles a pace at the shell (or lunges a heat or a pace for a groom) — {jjdd_saddle} and {jjdd_lunge}, the dispatch sheaf's doors.
 
 //axhci_interaction
 `jjcbs_dispatch` `jjcbs_hippodrome`
