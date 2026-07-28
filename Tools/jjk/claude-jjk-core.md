@@ -434,13 +434,10 @@ Synthesize intent from the conversation — describe *what* was accomplished, no
 
 When user says "notch", determine context (pace or heat affiliated) and invoke `jjx_record` with the appropriate identity and explicit file list.
 
-**Multi-Officium Discipline:**
-Multiple Claude officia (concurrent chat sessions, each with its own ☉-prefixed officium ID) may work in the same repo. The explicit file list in `jjx_record` enables orthogonal commits.
+**Additive-Only Discipline:**
 
 - Claude is **additive only** — make commits, never discard changes
-- "Unexpected" uncommitted changes are likely another officium's work
 - If something looks wrong, ASK — do not "fix" by discarding
-- Commit only YOUR files; ignore everything else
 
 **Forbidden Git Commands — NO exceptions, NO "safe" variants:**
 - `git reset` — ALL forms: `--hard`, `--soft`, `--mixed`, with paths, without paths. Even `git reset HEAD <file>` (unstaging) is forbidden — it's too close to destructive variants and Claude will reason its way into worse forms.
@@ -452,7 +449,7 @@ Multiple Claude officia (concurrent chat sessions, each with its own ☉-prefixe
 **What to do instead:**
 - Staging wrong? Run `jjx_record` with the correct file list — it handles staging
 - Made a mistake? Make a new commit that fixes it — additive, not destructive
-- Confused by repo state? ASK the user — another officium may be mid-work
+- Confused by repo state? ASK the user
 - Need to undo something? Explain the situation to the user and let them decide
 
 **JJX Commands Are Self-Committing:**
@@ -471,4 +468,4 @@ Use `jjx_close` with `{coronet: "CORONET", summary: "Added bitmap displays to or
 **Always answer the spook (friction) question at wrap.** Alongside `summary`, pass `spook` — a short, grep-friendly report of friction *you* hit during this chat: re-reads forced by a missing pointer, a docket aimed at a renamed file, a confusing paddock, a verb that fought you. Ask yourself "what snagged?" assuming something did, not "did anything snag?" — at wrap the pull is to tidy up and under-report, and that bias is the failure mode this channel exists to resist. Report only first-person in-chat events you observed (actionable). "Nothing snagged" is a first-class answer: pass `spook: "none"` (or omit it) — required to answer, never required to invent.
 The agent always has context about what was accomplished — include it.
 
-**Wrap is unscoped — known JJK bug, do NOT "fix" it.** Unlike `notch`/`jjx_record` (explicit file list), `jjx_close` (wrap) stages and commits **every** dirty file in the tree — your code, the gallops state, and anything another officium left uncommitted. Wrap is not yet as file-specific as notch; that gap is a known bug, deferred pending the planned git-worktrees switch — do not attempt to repair it. For now: before wrapping, make sure the tree holds only your work, or expect wrap to sweep all of it into one commit.
+**Wrap commits the whole billet.** Unlike `notch`/`jjx_record` (explicit file list), `jjx_close` (wrap) stages and commits **every** dirty file in the tree — by design: each chat works in its own dedicated billet, so everything dirty there is this pace's estate, delivered together at wrap.
