@@ -671,6 +671,12 @@ This eliminates git noise from officium operations and makes incorrect {jjdxo_ex
 Directories that survive session termination are stale and are reaped by {jjdxo_exsanguination} at the next {jjdo_open}.
 +
 The absolute {jjdxo_gazette} paths are emitted by {jjdo_open} and {jjdo_orient}; the `<id>` segment is the {jjdt_incipit} with its sigil stripped.
++
+The server resolves the {jjdb_studbook_p} clone behind these paths once per server process,
+from its launch working directory,
+and that resolution holds for the process lifetime —
+the {jjdxo_exchange} never relocates under a running server,
+whatever its working directory later does.
 
 [[jjdxo_exchange]]
 //axve_entity

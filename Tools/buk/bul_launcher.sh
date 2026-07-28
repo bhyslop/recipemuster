@@ -74,8 +74,9 @@ zburc_enforce
 
 # BURS station load is skipped under BURD_NO_LOG. No-log tabtargets (e.g.
 # handbooks) need only BURC and must run on a fresh clone before any station
-# file exists. The flag is exported by the tabtarget ahead of dispatch, so it
-# is visible here. This collapses the former separate nolog launcher.
+# file exists. The flag is the tabtarget's own — exported in its BURD_* block
+# ahead of dispatch, never ambient (BUS0 regime inlets, BUr_q2m) — so it is
+# visible here. This collapses the former separate nolog launcher.
 if test -z "${BURD_NO_LOG:-}"; then
   # bud_dispatch is the canonical exporter of BURD_TABTARGET_DIR, but the
   # SETUP NEEDED block below uses buyy_tt_yawp which requires it earlier.

@@ -560,6 +560,7 @@ fn rbtdri_invoke_impl(
     // selectors; clear the inheritance here so mode is chosen per launch. A
     // deliberate opt-in (a case that WANTS a no-log child) re-sets its key
     // through extra_env immediately below, so this clears only inheritance.
+    // BUr_q2m: inheritance is never a regime inlet.
     cmd.env_remove("BURD_NO_LOG");
     cmd.env_remove("BURD_INTERACTIVE");
 
