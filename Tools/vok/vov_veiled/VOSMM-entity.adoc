@@ -336,6 +336,44 @@ embedded in a memo path is a reference, never a mark on the prose) and its exemp
 Detection is a date-shaped-token pattern over sheaf bodies with lintel-token context — exact
 and structural, no meaning interpreted.
 
+== Coping Validator
+
+The coping validator reads the same sheaf/codex declaration pair as the lintel validators, but
+only for a *regime* sheaf — one whose lintel carries `axd_regime` — against the codex regime
+section its `axhrb_regime` marker names.
+It mechanizes AXLA's Coping law (`axl_coping`), citing that home rather than restating it
+(Doctrine Homes below); it is mechanical, honoring the never-linguistic invariant (VOr_m7w),
+and rides the same walk and frozen census as the seating validators.
+Like the lintel validators, it stands apart from the MVP delivery.
+
+*Completeness* is the roster cross-check: every codex anchor voiced `axvr_variable` or
+`axvr_group` has exactly one matching render in the bound sheaf (`axhrv_variable` or
+`axhrgv_variable` for a variable, `axhrgb_group` for a group), and every render resolves to a
+codex anchor of the matching voicing — none missing, none extra.
+The census keys on the voicing, never on the name: an anchor voiced otherwise — an `axo_entity`
+sharing the regime prefix, a doctrine subsection framing the regime as a whole — is not a
+roster member, and neither expects a render nor counts its absence a gap.
+A mismatched pair emits a
+{vosmp_presentment}
+carrying the unmatched anchor or render and both sheaf and codex sites.
+
+*Annotation* is the anti-duplication read — the law's second rule: a sheaf render whose prose
+body restates its codex definition rather than adding detail beyond it emits a
+{vosmp_presentment}
+citing the law.
+A render carrying only its marker and attribute reference, or prose that genuinely exceeds the
+codex definition, is silent.
+
+*Sequencing guard*: the completeness verdict is withheld for any regime still carrying legacy
+definition-site voicing — a `//axl_voices` keyword line, or an `//axrg_*` annotation standing
+where an `//axvr_*` term belongs.
+Such a regime emits a loud-incomplete
+{vosmp_presentment}
+naming the legacy sites, never a false-complete pass: an unswept roster cannot be censused for
+completeness against the very annotations the sweep has not yet normalized.
+This lets a regime family still on the legacy form fail gracefully under the census — reporting
+its unswept state — rather than a spurious clean roster.
+
 == Report and Cadastre
 
 The MVP delivery is a whole-environment scan run as a standalone VOK executable through its own tabtargets, with no MCP surface.
@@ -570,6 +608,7 @@ itself ascends — not here.
 {vosmm_matricula}
 mechanizes them; it does not redefine them.
 * Lintel-validator doctrine: AXLA — the declaration pair and cross-check (`axl_lintel`, `axvd_cartouche`) and the Timeless Prose law (`axl_timeless`). Mechanized here, defined there.
+* Coping-validator doctrine: AXLA — the Coping law (`axl_coping`), its creep-back clause (the sanctioned `axvr_*` definition-site family), and its doctrine-placement clause. Mechanized here, defined there.
 * Naming vocabulary (
 {voslc_cipher},
 {vosls_signet},
