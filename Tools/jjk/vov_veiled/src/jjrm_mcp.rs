@@ -3015,13 +3015,16 @@ fn zjjrm_coronet_display(body: &str) -> String {
 ///
 /// `heat_of` resolves a coronet to its parent heat, and is consulted only for
 /// the one case that needs it — a heat-affiliated notch, which JJSVD admits
-/// from the billet of any pace that heat harbours. It is a parameter so the
-/// gallops read stays lazy and the judgment stays testable without one.
+/// from the billet of any pace that heat harbours. `state_of` resolves a
+/// coronet to its pace's current state, consulted only for a notch on its own
+/// billet — the spent-ground clause. Both are parameters so the gallops read
+/// stays lazy and the judgment stays testable without one.
 pub(crate) fn zjjrm_judge_ground(
     cmd: &str,
     ground: &jjrds_Ground,
     aim: Option<&str>,
     heat_of: &dyn Fn(&str) -> Option<String>,
+    state_of: &dyn Fn(&str) -> Option<crate::jjrt_types::jjrg_PaceState>,
 ) -> Result<(), String> {
     use crate::jjrf_favor::{JJRF_CORONET_LEN, JJRF_FIREMARK_LEN};
 
@@ -3053,8 +3056,25 @@ pub(crate) fn zjjrm_judge_ground(
         }
     };
 
-    let Some(aim) = aim else { return Ok(()) };
     let seated_display = zjjrm_coronet_display(seated);
+
+    // Spent ground: the billet's own pace is already closed (complete or
+    // abandoned) — wrap already ran, and re-saddle deliberately opens a fresh
+    // epoch from trunk, so a notch here strands silently. Keyed on ground plus
+    // state alone, never on the aim's affiliation, so a pace-affiliated,
+    // heat-affiliated, or empty-notch commit all refuse alike.
+    if cmd == JJRM_CMD_NAME_RECORD {
+        if let Some(state) = state_of(seated) {
+            if state.jjrg_is_resolved() {
+                return Err(format!(
+                    "INTERDICTUM — ground gate: {} refuses; this billet seats {}, and its pace is spent — a notch has no durable home here.\n\nRemedy: exit the session; new work is a fresh slate-and-saddle.",
+                    cmd, seated_display
+                ));
+            }
+        }
+    }
+
+    let Some(aim) = aim else { return Ok(()) };
 
     if aim.len() == JJRF_CORONET_LEN {
         if aim == seated {
@@ -3213,7 +3233,14 @@ impl jjrm_McpServer {
                     .ok()
                     .map(|ctx| ctx.firemark_key)
             };
-            if let Err(msg) = zjjrm_judge_ground(cmd, ground, aim.as_deref(), &heat_of) {
+            let state_of = |coronet: &str| {
+                zjjrm_load_gallops(&gallops_pathbuf())
+                    .ok()?
+                    .jjrg_resolve_pace(coronet)
+                    .ok()
+                    .map(|ctx| ctx.state)
+            };
+            if let Err(msg) = zjjrm_judge_ground(cmd, ground, aim.as_deref(), &heat_of, &state_of) {
                 return Ok(CallToolResult::error(vec![Content::text(msg)]));
             }
         }
