@@ -23,8 +23,10 @@
 # The operator-facing doors are the jjy_ trampolines this CLI installs into the
 # infield (jjy_saddle, jjy_lunge). Each trampoline captures the operator's cwd
 # into JJSL_INVOKE_DIR (cwd elects the clone; BUK dispatch then self-anchors to
-# the kit repo root, losing it) and sets BURD_NO_LOG so the launched Claude
-# session owns the terminal - an interactive TUI cannot run under the log tee.
+# the kit repo root, losing it) - and nothing else: the door tabtargets carry
+# their own BURD_NO_LOG in their BURD_* block (the TUI they hand the terminal
+# to cannot run under the log tee), because a dispatch-mode flag is the
+# tabtarget's static property, never ambient environment (BUr_q2m).
 # The stile's approach itself is Rust: vvx jjx_dispatch (jjrds_stile.rs).
 
 set -euo pipefail
@@ -66,7 +68,7 @@ zjjsl_door() {
 zjjsl_stamp() {
   local -r z_path="${1}"
   local -r z_tabtarget="${2}"
-  printf '#!/bin/sh\nJJSL_INVOKE_DIR="$PWD" BURD_NO_LOG=1 exec "%s" "$@"\n' "${z_tabtarget}" > "${z_path}"
+  printf '#!/bin/sh\nJJSL_INVOKE_DIR="$PWD" exec "%s" "$@"\n' "${z_tabtarget}" > "${z_path}"
   chmod 755 "${z_path}"
   buc_step "stamped ${z_path}"
 }

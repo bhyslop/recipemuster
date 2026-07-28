@@ -116,6 +116,16 @@
 :bus_enum_sprue:                   <<bus_enum_sprue,Regime Enum Sprue>>
 :bus_enum_sprue_s:                 <<bus_enum_sprue,Regime Enum Sprues>>
 
+// Regime Inlets (per-family value-provenance law)
+:bus_inlet:                        <<bus_inlet,Inlet>>
+:bus_inlet_s:                      <<bus_inlet,Inlets>>
+:bus_inlet_assignment:             <<bus_inlet_assignment,Assignment Inlet>>
+:bus_inlet_tabtarget:              <<bus_inlet_tabtarget,Tabtarget Inlet>>
+:bus_inlet_ambient:                <<bus_inlet_ambient,Ambient Inlet>>
+:bus_inlet_composed:               <<bus_inlet_composed,Composed Inlet>>
+:bus_inlet_derived:                <<bus_inlet_derived,Derived Inlet>>
+:BUr_q2m:                          <<BUr_q2m,BUr_q2m>>
+
 // BURC Regime: Configuration (project-level BUK settings)
 :burc_regime:                      <<burc_regime,BURC Regime>>
 :burc_station_file:                <<burc_station_file,BURC_STATION_FILE>>
@@ -182,6 +192,8 @@
 :burd_launcher:                    <<burd_launcher,BURD_LAUNCHER>>
 :burd_station_file:                <<burd_station_file,BURD_STATION_FILE>>
 :burd_term_cols:                   <<burd_term_cols,BURD_TERM_COLS>>
+:burd_config_dir:                  <<burd_config_dir,BURD_CONFIG_DIR>>
+:burd_moorings_dir:                <<burd_moorings_dir,BURD_MOORINGS_DIR>>
 
 // BURD Computed Variables
 :burd_now_stamp:                   <<burd_now_stamp,BURD_NOW_STAMP>>
@@ -194,6 +206,10 @@
 :burd_log_last:                    <<burd_log_last,BURD_LOG_LAST>>
 :burd_log_same:                    <<burd_log_same,BURD_LOG_SAME>>
 :burd_log_hist:                    <<burd_log_hist,BURD_LOG_HIST>>
+:burd_tools_dir:                   <<burd_tools_dir,BURD_TOOLS_DIR>>
+:burd_buk_dir:                     <<burd_buk_dir,BURD_BUK_DIR>>
+:burd_tabtarget_dir:               <<burd_tabtarget_dir,BURD_TABTARGET_DIR>>
+:burd_ostype:                      <<burd_ostype,BURD_OSTYPE>>
 
 // BURD Parsed Variables
 :burd_command:                     <<burd_command,BURD_COMMAND>>
@@ -214,6 +230,13 @@
 :bure_tweak_name:                  <<bure_tweak_name,BURE_TWEAK_NAME>>
 :bure_tweak_value:                 <<bure_tweak_value,BURE_TWEAK_VALUE>>
 :bure_label:                       <<bure_label,BURE_LABEL>>
+
+// BURV Regime: Verification (harness-composed placement redirection)
+:burv_prefix:                      <<burv_prefix,BURV_>>
+:burv_regime:                      <<burv_regime,BURV Regime>>
+:burv_output_root_dir:             <<burv_output_root_dir,BURV_OUTPUT_ROOT_DIR>>
+:burv_temp_root_dir:               <<burv_temp_root_dir,BURV_TEMP_ROOT_DIR>>
+:burv_log_dir:                     <<burv_log_dir,BURV_LOG_DIR>>
 
 // Test Registry
 :busr_fixture:                    <<busr_fixture,Fixture>>
@@ -1068,35 +1091,140 @@ Highlighted or set off from procedural prose.
 
 == Regime Configuration
 
-BUK defines two
-{axrg_regime_s}
-for project and developer configuration.
+BUK's configuration is carried entirely by
+{axrg_regime_s}:
+eight families, each declaring its
+{bus_inlet}
+— the one sanctioned path by which its values arrive.
+File-sourced families use
 {axrg_assignment_s}
-use
+in
 {axf_bash}
 format (shell variable assignment files that are sourced).
+Each family's prefix quoin and definition live in its own section below;
+this roster is the census:
 
-=== Regime Prefixes
+[cols="1,3,2"]
+|===
+|Family |Nature |Inlet
 
-[[burc_prefix]]
-//axl_voices axrg_prefix
-{burc_prefix}::
-Bash Utility Configuration Regime
+|{burc_regime} |Project-level BUK settings — repository structure and tabtarget infrastructure |{bus_inlet_assignment}
+|{burs_regime} |Developer-level station settings — personal, uncommitted |{bus_inlet_assignment}
+|{burn_regime} |Node shape — the address-of-record of a remote target |{bus_inlet_assignment}
+|{burp_regime} |Per-station-user credentials for one node |{bus_inlet_assignment}
+|{burd_regime} |Ephemeral dispatch runtime — per-tabtarget identity plus derived execution state |{bus_inlet_tabtarget} (input), {bus_inlet_derived} (computed, parsed)
+|{bure_regime} |Ambient behavioral overrides to BUK primitives |{bus_inlet_ambient}
+|{burv_regime} |Harness-composed placement redirection for one launched child |{bus_inlet_composed}
+|{burx_regime} |Cross-project dispatch record, written for a remote reader |{bus_inlet_derived}
+|===
 
-[[burs_prefix]]
-//axl_voices axrg_prefix
-{burs_prefix}::
-Bash Utility Station Regime
+=== Regime Inlets
 
-[[burn_prefix]]
-//axl_voices axrg_prefix
-{burn_prefix}::
-Bash Utility Regime Node
+Every
+{axrg_regime}
+family declares its
+{bus_inlet}
+— its value-provenance law.
+A value whose arrival cannot be traced to its family's
+{bus_inlet}
+is contraband, however conveniently the environment supplied it.
 
-[[bure_prefix]]
-//axl_voices axrg_prefix
-{bure_prefix}::
-Bash Utility Environment Regime
+[[bus_inlet]]
+{bus_inlet}::
+The one sanctioned path by which values enter a
+{axrg_regime}
+family.
+Declared per family — or per variable group where a family's groups differ,
+as
+{burd_regime}
+does.
+Four
+{bus_inlet_s}
+exist;
+process-environment inheritance is expressly not a fifth
+({BUr_q2m}).
+
+[[bus_inlet_assignment]]
+{bus_inlet_assignment}::
+Values sourced from the family's
+{axrg_assignment}
+file at
+{bukro_kindle}
+({burc_regime}, {burs_regime}, {burn_regime}, {burp_regime}).
+The file is the inlet;
+the file's own path arrives through the dispatch chain.
+
+[[bus_inlet_tabtarget]]
+{bus_inlet_tabtarget}::
+Values installed by the committed dispatch chain itself —
+the tabtarget's own `BURD_*` block
+and the launcher scripts it execs —
+ahead of dispatch
+({burd_group_input}).
+Per-tabtarget identity lives here:
+a flag like
+{burd_no_log}
+is a static property of the tabtarget file,
+never a runtime mood.
+
+[[bus_inlet_ambient]]
+{bus_inlet_ambient}::
+Values read from the caller's session environment
+({bure_regime} alone).
+Ambient presence is the design:
+the caller sets a value once,
+and every dispatch in the session sees it —
+inheritance included.
+Sparing by doctrine;
+see the Tweak Mechanism under
+{bure_regime}.
+
+[[bus_inlet_composed]]
+{bus_inlet_composed}::
+Values a dispatching harness composes into one child's environment at
+spawn, scoped to that child's lifetime
+({burv_regime}).
+The composer owns the values;
+innermost composition wins.
+
+[[bus_inlet_derived]]
+{bus_inlet_derived}::
+Values the dispatch spine constructs during execution and publishes onward
+({burd_group_computed}, {burd_group_parsed}, {burx_regime}).
+No caller installs these;
+they are dispatch's own record.
+
+[[BUr_q2m]]
+//axvc_dictum
+{BUr_q2m}::
+Process-environment inheritance is never a
+{bus_inlet}.
+A regime value crossing a process boundary by mere inheritance —
+set by an ancestor for its own dispatch,
+still visible generations later —
+carries no provenance,
+and is contraband in every family except
+{bure_regime},
+whose
+{bus_inlet_ambient}
+makes session-wide visibility the design.
+A harness that launches a new dispatch context therefore strips the
+{bus_inlet_tabtarget}
+mode flags it does not itself compose
+({burd_no_log}, {burd_interactive})
+at the spawn boundary,
+so every launched context takes its dispatch mode from its own
+{bus_inlet_s}.
+The seductive wrong form this bars:
+exporting a `BURD_*` flag ahead of a launch so a whole session inherits a
+dispatch mode —
+every tabtarget the launched session runs silently stops logging,
+and the read-the-hist-file discipline dies without a symptom.
+The consuming-side tell is symmetric:
+feeling the need to unset or override a `BURD_*` value at an invocation is
+evidence of contraband upstream —
+a boundary that failed to strip —
+never a technique to keep.
 
 === Regime Enum Sprue Convention
 
@@ -1210,11 +1338,18 @@ state, including the source-file path from which the regime was sourced.
 
 === BURC Regime
 
+[[burc_prefix]]
+//axl_voices axrg_prefix
+{burc_prefix}::
+Bash Utility Regime Configuration
+
 [[burc_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {burc_regime}::
 Configuration regime for project-level BUK settings.
 BURC assignment files in `.buk/burc.env` define repository structure and tabtarget infrastructure.
+Inlet:
+{bus_inlet_assignment}.
 
 [[burc_station_file]]
 //axvr_variable axd_required axtu_path
@@ -1276,11 +1411,18 @@ File extension for log files, without leading dot.
 
 === BURS Regime
 
+[[burs_prefix]]
+//axl_voices axrg_prefix
+{burs_prefix}::
+Bash Utility Regime Station
+
 [[burs_regime]]
 //axvr_regime axf_bash axrd_file_sourced axrd_singleton
 {burs_regime}::
 Configuration regime for developer-level BUK settings.
 BURS assignment files are personal to each developer and not committed to version control.
+Inlet:
+{bus_inlet_assignment}.
 
 [[burs_user]]
 //axvr_variable axd_required axtu_xname
@@ -1307,10 +1449,17 @@ Directory where this developer stores BUK operation logs.
 
 === BURN Regime
 
+[[burn_prefix]]
+//axl_voices axrg_prefix
+{burn_prefix}::
+Bash Utility Regime Node
+
 [[burn_regime]]
 //axvr_regime axf_bash axrd_file_sourced
 {burn_regime}::
 Per-node configuration regime describing the shape of a remote target.
+Inlet:
+{bus_inlet_assignment}.
 A
 {burn_regime}
 instance is identified by its
@@ -1435,6 +1584,8 @@ Bash Utility Regime Privileged
 Per-station-user credential regime carrying both privileged (admin)
 and workload key references for a single
 {burn_investiture}.
+Inlet:
+{bus_inlet_assignment}.
 A
 {burp_regime}
 instance is identified by its
@@ -1514,7 +1665,7 @@ registration.
 [[burd_prefix]]
 //axl_voices axrg_prefix
 {burd_prefix}::
-Bash Utility Dispatch Runtime
+Bash Utility Regime Dispatch
 
 [[burd_regime]]
 //axvr_regime axf_bash axrd_constructed axrd_singleton
@@ -1522,28 +1673,69 @@ Bash Utility Dispatch Runtime
 Ephemeral runtime state assembled by bud_dispatch.sh during tabtarget execution.
 Unlike file-sourced regimes, BURD variables are constructed inline — no assignment file exists.
 The dispatch main function IS the kindle: zbud_setup sources configuration and derives computed state, zbud_process_args parses the tabtarget into tokens.
+Inlets, by group:
+{bus_inlet_tabtarget}
+(input),
+{bus_inlet_derived}
+(computed, parsed).
+Never
+{bus_inlet_ambient}:
+a `BURD_*` value observed by inheritance rather than installed by the
+dispatch chain is contraband
+({BUr_q2m}).
 
 ==== Input Variables
 
 [[burd_group_input]]
 //axl_voices axhrgb_group
 {burd_group_input}::
-Variables set by the caller before dispatch invocation.
+Variables installed by the committed dispatch chain itself, ahead of
+bud_dispatch
+({bus_inlet_tabtarget}):
+the tabtarget's own `BURD_*` block installs its identity
+({burd_launcher} and the mode flags {burd_no_log}, {burd_interactive}),
+and the launcher scripts it execs install the rest.
+Never set from the ambient environment
+({BUr_q2m}).
 
 [[burd_regime_file]]
 //axl_voices axrg_variable axtu_path
 {burd_regime_file}::
 Path to the BURC regime assignment file to source during setup.
+Installed by the shared launcher from {burd_config_dir}.
 
 [[burd_no_log]]
 //axl_voices axrg_variable axtu_string axd_optional
 {burd_no_log}::
-When non-empty, suppresses all log file creation and output.
+The tabtarget's own declaration that its dispatch runs unlogged — a static
+property of the tabtarget file, installed only in its `BURD_*` block or
+composed per-launch by a test harness, never inherited
+({BUr_q2m}).
+When non-empty:
+no log files are created,
+the launcher skips the
+{burs_regime}
+station load
+(a no-log tabtarget must run on a fresh clone before any station file
+exists),
+and the coordinator's streams pass through unmerged.
+Two tabtarget populations carry it:
+handbook and regime tabtargets that must run pre-station,
+and interactive doors that hand the terminal to a program that cannot run
+under the log tee.
+The suppression belongs to the door's own dispatch alone —
+a session or child the door launches takes its dispatch modes from its own
+{bus_inlet_s}.
 
 [[burd_interactive]]
 //axl_voices axrg_variable axtu_string axd_optional
 {burd_interactive}::
-When non-empty, enables interactive mode with uncurated tee logging.
+The tabtarget's own declaration of interactive mode — output goes to the
+terminal via uncurated tee rather than the curated log pipeline.
+Same inlet law as
+{burd_no_log}:
+a static property of the tabtarget file, never inherited
+({BUr_q2m}).
 
 [[burd_coordinator_script]]
 //axl_voices axrg_variable axtu_path axd_required
@@ -1566,6 +1758,21 @@ Set by the launcher from BURC_STATION_FILE.
 {burd_term_cols}::
 Terminal column width at dispatch time.
 Detected from stty if available, defaults to 80.
+
+[[burd_config_dir]]
+//axl_voices axrg_variable axtu_path
+{burd_config_dir}::
+Absolute path to the project's config/moorings directory.
+Installed by the project-intimate tabtarget trampoline (`tt/z-launcher.sh`),
+the sole file that knows where this project keeps it;
+the shared kit consumes this rather than hardcoding a name.
+
+[[burd_moorings_dir]]
+//axl_voices axrg_variable axtu_xname
+{burd_moorings_dir}::
+Basename of
+{burd_config_dir},
+derived by the shared launcher for operator-facing display.
 
 ==== Computed Variables
 
@@ -1627,6 +1834,39 @@ Path to the curated "same" log file for the command+target combination.
 {burd_log_hist}::
 Path to the timestamped historical log file.
 
+[[burd_tools_dir]]
+//axl_voices axrg_variable axtu_path
+{burd_tools_dir}::
+Path to the project tools root directory, derived from
+{burc_tools_dir}
+during dispatch setup.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI
+processes, which use it to locate utilities without re-sourcing BURC.
+
+[[burd_buk_dir]]
+//axl_voices axrg_variable axtu_path
+{burd_buk_dir}::
+Path to the BUK subdirectory, derived as
+{burc_tools_dir}/buk
+during dispatch setup.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI
+processes.
+
+[[burd_tabtarget_dir]]
+//axl_voices axrg_variable axtu_path
+{burd_tabtarget_dir}::
+Path to the tabtarget directory, derived from
+{burc_tabtarget_dir}
+during dispatch setup.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI
+processes.
+
+[[burd_ostype]]
+//axl_voices axrg_variable axtu_string
+{burd_ostype}::
+The shell's `OSTYPE` value captured at dispatch, for platform-conditional
+coordinator logic.
+
 ==== Parsed Variables
 
 [[burd_group_parsed]]
@@ -1674,7 +1914,24 @@ Positional token 4 from tabtarget split.
 {burd_token_5}::
 Positional token 5 from tabtarget split.
 
+==== Kindle and Validate
+
+{bukro_kindle} is inline within zbud_main — no separate kindle function:
+zbud_setup sources the regime file, derives computed variables, and creates
+ephemeral directories; zbud_process_args parses the tabtarget and sets
+parsed variables.
+{bukro_validate} runs a compgen scan after all variables are set and dies
+on any `BURD_*` variable outside the known roster — the mechanical edge of
+the inlet law: a stray inherited or hand-exported `BURD_*` name fails loud.
+A sentinel (zburd_sentinel) lets downstream code assert dispatch is
+properly initialized.
+
 === BURE Regime
+
+[[bure_prefix]]
+//axl_voices axrg_prefix
+{bure_prefix}::
+Bash Utility Regime Environment
 
 [[bure_regime]]
 //axvr_regime axf_bash axrd_constructed axrd_singleton
@@ -1682,6 +1939,15 @@ Positional token 5 from tabtarget split.
 Ambient regime for caller-supplied behavioral overrides to BUK primitives.
 Unlike file-sourced regimes, BURE variables are set directly in the caller's environment.
 Kindled and validated when buc_command.sh is sourced.
+Inlet:
+{bus_inlet_ambient}
+— the one family whose values legitimately ride the session environment
+and its inheritance
+({BUr_q2m}).
+Two sub-natures share the family, separated by doctrine:
+operator comfort dials ({bure_countdown}, {bure_verbose}, {bure_color})
+and the test tweak seam ({bure_tweak_name}, {bure_tweak_value}),
+which the Tweak Mechanism below bounds to sparing, one-at-a-time use.
 
 [[bure_countdown]]
 //axvr_variable axtu_string axd_optional
@@ -1772,12 +2038,69 @@ BUD writes whatever
 {bure_label}
 contains without interpreting the semantics.
 
+=== BURV Regime
+
+[[burv_prefix]]
+//axl_voices axrg_prefix
+{burv_prefix}::
+Bash Utility Regime Verification
+
+[[burv_regime]]
+//axvr_regime axf_bash axrd_constructed
+{burv_regime}::
+Harness-composed placement redirection:
+relocates the station-directory roots (output, temp, logs) for one
+launched child, so a driving harness can observe, isolate, and chain the
+child's products.
+The child's work is untouched — only where its products land moves.
+Read exclusively by the dispatch chain, which folds each BURV value over
+its BURC/BURS counterpart at launch;
+business code never reads BURV.
+Inlet:
+{bus_inlet_composed}
+— composed by a dispatching harness at the child's process boundary,
+scoped to that child's lifetime, never set ambiently for a session at
+large
+({BUr_q2m}).
++
+Three composers stand.
+The BUT bridge (`zbuto_invoke` under `BUTE_BURV_ROOT`) and the theurge
+child launch each compose for one tabtarget invocation.
+The JJ dispatch stirrup composes for one billet session —
+there the session is the child, and its whole tabtarget population shares
+the redirect, which is what makes a billet's tabtargets first-class:
+they log and chain exactly as in a hippodrome, into billet-scoped roots
+(the whoever-dispatches-owns-the-knob protocol; JJSVD).
+Innermost composition wins: a composer nearer the child overrides an
+outer one.
+
+[[burv_output_root_dir]]
+//axl_voices axrg_variable axtu_path axd_optional
+{burv_output_root_dir}::
+Overrides
+{burc_output_root_dir}
+for the composed child.
+
+[[burv_temp_root_dir]]
+//axl_voices axrg_variable axtu_path axd_optional
+{burv_temp_root_dir}::
+Overrides
+{burc_temp_root_dir}
+for the composed child.
+
+[[burv_log_dir]]
+//axl_voices axrg_variable axtu_path axd_optional
+{burv_log_dir}::
+Overrides
+{burs_log_dir}
+for the composed child.
+
 === BURX Regime
 
 [[burx_prefix]]
 //axl_voices axrg_prefix
 {burx_prefix}::
-Bash Utility Exchange Regime
+Bash Utility Regime Exchange
 
 [[burx_regime]]
 //axvr_regime axf_bash axrd_constructed axrd_singleton
@@ -1792,6 +2115,9 @@ as `burx.env` via
 Unlike single-project regimes,
 {burx_regime}
 is designed to be read across a remote project boundary.
+Inlet:
+{bus_inlet_derived}
+— dispatch alone writes it; no caller installs BURX values.
 +
 Variables appear in two phases:
 initial fields are written at dispatch start;
@@ -1864,9 +2190,6 @@ Same format as
 Present only when
 {burx_exit_status}
 is present.
-
-//axvd_cartouche axd_normative
-include::BUSD-DispatchRuntime.adoc[]
 
 == Remote Node Access
 

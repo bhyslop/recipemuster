@@ -1215,7 +1215,8 @@ pub fn jjrds_mcp_config_json(kit_root: &Path) -> String {
 /// never model IDs, and an invalid (family, effort) pair refuses fair-facedly.
 /// Returns the composed command, cwd set inside the billet, env carrying the
 /// per-billet BURV exports (the BUK meld: output, temp, and the log-dir
-/// override), ready to spawn with inherited stdio.
+/// override) and stripped of the door's own dispatch-mode flags (BUr_q2m),
+/// ready to spawn with inherited stdio.
 pub fn jjrds_stirrup_command(
     billet_root: &Path,
     tier: jjrg_Tier,
@@ -1246,6 +1247,14 @@ pub fn jjrds_stirrup_command(
     cmd.env("BURV_OUTPUT_ROOT_DIR", scratch_root.join("output-buk"));
     cmd.env("BURV_TEMP_ROOT_DIR", scratch_root.join("temp-buk"));
     cmd.env("BURV_LOG_DIR", scratch_root.join("logs-buk"));
+    // BUr_q2m: the launched session is a new dispatch context — it takes its
+    // dispatch modes from its own inlets, never from this door's. The door
+    // tabtarget's own no-log flag (the TUI cannot run under the log tee) and
+    // the trampoline's cwd capture stop here, so every tabtarget the session
+    // runs self-logs into the BURV roots composed above.
+    cmd.env_remove("BURD_NO_LOG");
+    cmd.env_remove("BURD_INTERACTIVE");
+    cmd.env_remove("JJSL_INVOKE_DIR");
     Ok(cmd)
 }
 

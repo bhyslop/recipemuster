@@ -571,13 +571,22 @@ This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
 
 #### Control Variables
 
-Set these *before* invoking a tabtarget to modify dispatch behavior:
+Set these *before* invoking a tabtarget to modify dispatch behavior (BURE is
+the ambient override family — the only one set from the caller's environment):
 
 | Variable | Values | Effect |
 |----------|--------|--------|
 | `BURE_VERBOSE` | `0`, `1`, `2`, `3` | `0`=quiet, `1`=debug output, `2`=bash trace (`set -x`), `3`=trace + deep diagnostics |
-| `BURD_NO_LOG` | any value | Disables all logging |
-| `BURD_INTERACTIVE` | any value | Line-buffered output mode for interactive commands |
+
+Two dispatch-mode flags exist but are *not* ambient controls: they are static
+properties of a tabtarget, exported in its own `BURD_*` block, and never set
+from the environment — a launching harness strips any inherited copy so each
+launched context chooses its own mode:
+
+| Variable | Values | Effect |
+|----------|--------|--------|
+| `BURD_NO_LOG` | any value | This tabtarget's dispatch runs unlogged (no log files, no station load, streams unmerged) |
+| `BURD_INTERACTIVE` | any value | This tabtarget runs interactive: output to terminal via uncurated tee |
 
 #### The Three-Log Pattern
 

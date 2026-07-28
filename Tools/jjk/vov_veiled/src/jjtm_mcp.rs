@@ -555,33 +555,39 @@ fn jjtm_officium_studbook_enablement_seam_is_live() {
 }
 
 #[test]
-fn jjtm_exchange_dir_over_resolves_under_studbook_when_seam_on() {
+fn jjtm_exchange_dir_over_resolves_under_studbook() {
     let studbook = jjdb_studbook_config(Path::new("/infield"));
-    let dir = zjjrm_exchange_dir_over("260712-1000-abcd", true, &studbook);
+    let dir = zjjrm_exchange_dir_over("260712-1000-abcd", &studbook);
     assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
 }
 
 #[test]
-fn jjtm_exchange_dir_over_strips_incipit_prefix_when_seam_on() {
+fn jjtm_exchange_dir_over_strips_incipit_prefix() {
     let studbook = jjdb_studbook_config(Path::new("/infield"));
-    let dir = zjjrm_exchange_dir_over("\u{2609}260712-1000-abcd", true, &studbook);
+    let dir = zjjrm_exchange_dir_over("\u{2609}260712-1000-abcd", &studbook);
     assert_eq!(dir, jjrm_studbook_exchange_dir(&studbook.local_root, "260712-1000-abcd"));
 }
 
 #[test]
-fn jjtm_exchange_dir_live_wrapper_matches_the_seam_on_branch() {
-    // Post-cutover the seam is on, so the live wrapper resolves under the
-    // studbook — byte-identical to the seam-on testable branch driven with the
-    // studbook config the wrapper itself derives from cwd (the test runs inside
-    // a hippodrome, so that derivation resolves, exactly as the live wrapper
-    // assumes).
-    let cwd = std::env::current_dir().expect("test cwd");
-    let infield_root = zjjrm_infield_root(&jjrfg_PlainGit, &cwd)
-        .expect("the test runs inside a hippodrome, so the infield root resolves");
-    let studbook = jjdb_studbook_config(&infield_root);
-    let via_over = zjjrm_exchange_dir_over("260712-1000-abcd", true, &studbook);
-    let via_wrapper = jjrm_exchange_dir("260712-1000-abcd");
-    assert_eq!(via_over, via_wrapper, "seam-on: the live wrapper must match the seam-on testable branch");
+fn jjtm_exchange_dir_is_stable_across_cwd_movement() {
+    // The live wrapper rides the process-lifetime officium studbook, primed
+    // once at first use — never a per-call ambient-cwd read. So a server (or
+    // shared test process) whose cwd moves cannot silently relocate gazette
+    // paths. The retired fork this replaces (a live wrapper deriving from
+    // cwd per call beside an explicit-config testable branch) agreed only
+    // under a stable cwd and raced this module's cwd-hopping tests.
+    let before = jjrm_exchange_dir("260712-1000-abcd");
+    {
+        let _serial = super::jjtu_testdir::JJTU_CWD_SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let prior = std::env::current_dir().expect("a cwd to restore");
+        let hop = JjkTestDir::new("jjtm_exchange_dir_stability_hop");
+        std::env::set_current_dir(hop.path()).expect("hop the process cwd");
+        let during = jjrm_exchange_dir("260712-1000-abcd");
+        std::env::set_current_dir(&prior).expect("restore cwd");
+        assert_eq!(before, during, "exchange-dir resolution must not read ambient cwd per call");
+    }
+    let after = jjrm_exchange_dir("260712-1000-abcd");
+    assert_eq!(before, after, "resolution is stable for the process lifetime");
 }
 
 #[test]
