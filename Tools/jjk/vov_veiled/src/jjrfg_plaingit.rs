@@ -39,6 +39,10 @@ use crate::jjrfr_farrier::{
     jjrfr_SyncState,
 };
 use crate::jjrsj_sectional::jjrsj_trace;
+use crate::jjrvg_guidon::{
+    jjdb_guidon_read,
+    jjdb_is_stranded,
+};
 use std::path::{
     Path,
     PathBuf,
@@ -254,6 +258,26 @@ pub(crate) fn zjjrfg_run_git_local(
 /// farrier sheaf's known rejection kinds.
 fn zjjrfg_unexpected(op: &str, root: &Path, detail: &str) -> ! {
     panic!("plain-git {} hit an unclassified git failure at {}: {}", op, root.display(), detail.trim())
+}
+
+/// The clean "studbook busy" refusal for a contended studbook lock — a
+/// monitum, never a diagnostic sink: no guidon, ref path, SHA, remote URL, or
+/// git stderr reaches it (that detail already sank to the journal at the call
+/// site). The remedy tail forks on the holder's age: fresh reads as a live
+/// writer that will release on its own; stranded reads as a likely-crashed
+/// holder and names the cure.
+pub(crate) fn zjjrfg_lock_held_refusal(root: &Path, stranded: bool) -> jjrfr_Rejection {
+    let tail = if stranded {
+        "likely a crashed holder — cashier the lock with /jjc-cashier."
+    } else {
+        "it clears itself when the holder finishes — re-run the command."
+    };
+    jjrfr_Rejection::jjrfr_new(
+        jjrfr_RejectionKind::LockHeld,
+        ZJJRFG_OP_STAKE,
+        root,
+        format!("the studbook is busy — another session holds the lock; {}", tail),
+    )
 }
 
 /// Run `git -C root <args>`, feeding `stdin_data` to the child's stdin. Spawn
@@ -479,6 +503,16 @@ fn zjjrfg_line_of_work(root: &Path) -> jjrfr_LineOfWork {
 /// lease-guarded — not a guess, the literal tokens git's transport layer emits.
 pub(crate) fn zjjrfg_push_rejected(stderr: &str) -> bool {
     stderr.contains("[rejected]") || stderr.contains("stale info") || stderr.contains("non-fast-forward")
+}
+
+/// Git's server-side ref-transaction race — the studbook lock ref contended at
+/// the remote's own ref store (`jjdf_lock_held`, JJSVF), distinct from the
+/// client-side lease/fast-forward rejections `zjjrfg_push_rejected` above
+/// recognizes. Keyed on git's stable ref-store phrase alone, NOT the bare
+/// `[remote rejected]` token — that token also covers hook/quota/protected-ref
+/// denials that must stay unclassified.
+pub(crate) fn zjjrfg_lock_contended(stderr: &str) -> bool {
+    stderr.contains("cannot lock ref") && stderr.contains("reference already exists")
 }
 
 // ---- The transport vedette (JJSVF "The transport vedette") ----
@@ -924,6 +958,49 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                     return Ok(());
                 }
                 return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockHeld, ZJJRFG_OP_STAKE, root, out.stderr));
+            }
+            if zjjrfg_lock_contended(&out.stderr) {
+                // A held lock merely being CONTENDED — the server's own
+                // ref-transaction race, distinct from the client-side CAS
+                // rejection above — rides the same silent backoff ladder a
+                // transient does, since a fresh holder's write is likely to
+                // clear within it. Every re-offer is preceded by a sight
+                // (JJr_e5s): the same race that lets our own retry meet its
+                // own landed stake applies here too.
+                let sighted = self.jjrfr_sight(root)?;
+                if sighted.as_deref() == Some(guidon) {
+                    return Ok(());
+                }
+                let now = chrono::Utc::now();
+                let stranded = sighted
+                    .as_deref()
+                    .map(|verbatim| jjdb_is_stranded(&jjdb_guidon_read(verbatim), now))
+                    .unwrap_or(false);
+                // The gory detail sinks to the journal alone — the refusal
+                // built below is the operator's whole monitum, never a
+                // diagnostic sink (no ref, holder, or git stderr on its face).
+                jjrsj_trace(&format!(
+                    "LOCK-HELD {} op={} root={} stranded={} detail={}",
+                    now.to_rfc3339(),
+                    ZJJRFG_OP_STAKE,
+                    root.display(),
+                    stranded,
+                    out.stderr.trim()
+                ));
+                // A mid-backoff re-probe already past the stranded age skips
+                // the remaining backoffs — waiting out the rest of the ladder
+                // for a holder this old would only delay a verdict the sight
+                // already settled.
+                if stranded {
+                    return Err(zjjrfg_lock_held_refusal(root, true));
+                }
+                match backoffs.next() {
+                    Some(pause) => {
+                        std::thread::sleep(*pause);
+                        continue;
+                    }
+                    None => return Err(zjjrfg_lock_held_refusal(root, false)),
+                }
             }
             zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail())
         }

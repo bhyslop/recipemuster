@@ -479,6 +479,18 @@ the remote's refusal of a non-fast-forward write, surfaced as fact.
 [[jjdf_lock_held]]
 {jjdf_lock_held}::
 The guidon lock already flies another holder's claim.
+Detected from two surveyed git signatures: the client-side lease/fast-forward rejection
+(`{jjdf_transient}`'s sibling roster in `zjjrfg_push_rejected`), and the remote's own
+ref-transaction race — the stable ref-store phrase `cannot lock ref … reference already
+exists`, keyed on that phrase alone and never the bare `[remote rejected]` token, which also
+covers hook, quota, and protected-ref denials that must stay unclassified.
+The second signature rides `stake`'s existing bounded vedette backoff silently before
+refusing, and the refusal forks its remedy tail on the holder's age (read from the sighted
+guidon's own `acquired` field, never git's clock): a holder younger than the stranded
+threshold reads as merely busy and names re-run as the cure; one at or past it reads as a
+likely-crashed holder and names `/jjc-cashier`.
+The operator's refusal is a monitum — no guidon, ref path, SHA, remote URL, or git stderr
+reaches it; that detail sinks to the sectional journal alone.
 
 [[jjdf_lock_broken]]
 {jjdf_lock_broken}::

@@ -175,3 +175,20 @@ pub fn jjdb_is_probably_live(read: &jjdb_GuidonRead, now: DateTime<Utc>) -> bool
         None => false,
     }
 }
+
+/// The age past which a held studbook lock reads as a likely-crashed holder
+/// rather than one merely mid-operation — the stake refusal's remedy fork
+/// (JJSVF "The transport vedette"). Distinct from `JJDB_LIVENESS_WARN_SECONDS`
+/// above: that threshold is the cashier's shorter advisory-only warning, this
+/// one is calibrated for the operator's re-run-vs-cashier decision.
+pub const JJDB_STRANDED_SECONDS: i64 = 120;
+
+/// Whether a sighted mark's age crosses the stranded threshold. A mark with no
+/// readable acquire time never claims staleness it cannot evidence — the same
+/// conservative posture as `jjdb_is_probably_live`.
+pub fn jjdb_is_stranded(read: &jjdb_GuidonRead, now: DateTime<Utc>) -> bool {
+    match read.acquired {
+        Some(acquired) => now.signed_duration_since(acquired).num_seconds() >= JJDB_STRANDED_SECONDS,
+        None => false,
+    }
+}
