@@ -281,6 +281,30 @@ fn jjtds_stirrup_composes_the_launch_command() {
 }
 
 #[test]
+fn jjtds_stirrup_strips_the_doors_dispatch_modes() {
+    // BUr_q2m: the launched session is a new dispatch context — the door's
+    // own no-log flag and the trampoline's cwd capture must not ride
+    // inheritance into it.
+    let cmd = jjrds_stirrup_command(
+        Path::new("/tmp/jjtds-billet"),
+        jjrg_Tier::Sonnet,
+        None,
+        "mount ₢AAAAB",
+        Path::new("/tmp/mcp.json"),
+        Path::new("/tmp/scratch"),
+    )
+    .unwrap();
+    let stripped: Vec<String> = cmd
+        .get_envs()
+        .filter(|(_, v)| v.is_none())
+        .map(|(k, _)| k.to_string_lossy().into_owned())
+        .collect();
+    for flag in ["BURD_NO_LOG", "BURD_INTERACTIVE", "JJSL_INVOKE_DIR"] {
+        assert!(stripped.iter().any(|k| k == flag), "{} must be stripped at the spawn boundary (BUr_q2m)", flag);
+    }
+}
+
+#[test]
 fn jjtds_stirrup_omits_the_effort_knob_when_undesignated() {
     let cmd = jjrds_stirrup_command(
         Path::new("/tmp/jjtds-billet"),
