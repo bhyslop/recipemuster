@@ -99,6 +99,21 @@ fn zjjrvb_bake_ordinal(sigil: char, ordinal: u64, message: &str) -> String {
     format!("{}: {}", jjrf_emblazon_ordinal(sigil, ordinal), message)
 }
 
+/// Read a baked subject back to its ordinal and unbaked message — the inverse
+/// of `zjjrvb_bake_ordinal`, the one home the leading `{sigil}{ordinal}: ` token
+/// is parsed off. `None` for any line the ceremony did not bake (the genesis
+/// seed a founding wrote by hand, a pre-ordinal or foreign commit): the sigil is
+/// absent, so the line self-identifies as none of this ceremony's, and the
+/// journal-marks reader skips it rather than guessing. The split is on the FIRST
+/// `": "`, which the ordinal token always ends with, so a message that itself
+/// carries `": "` (a wrap's chalk header) rides whole in the tail.
+fn zjjrvb_unbake_ordinal(sigil: char, subject: &str) -> Option<(u64, String)> {
+    let rest = subject.strip_prefix(sigil)?;
+    let (digits, message) = rest.split_once(": ")?;
+    let ordinal: u64 = digits.parse().ok()?;
+    Some((ordinal, message.to_string()))
+}
+
 // ---- Founding ceremony ----
 
 /// Found a blotter instance from nothing (JJSVS Founding-and-cutover): local
@@ -590,6 +605,25 @@ pub fn jjdb_pin(config: &jjdb_BlotterConfig) -> Result<String, String> {
 /// path (a wire constant like `JJDB_GALLOPS_REL_PATH`, never a station path).
 pub fn jjdb_read_pinned(config: &jjdb_BlotterConfig, pin: &str, rel_path: &str) -> Result<Vec<u8>, String> {
     zjjdb_read_git(&config.local_root, &["show", &format!("{}:{}", pin, rel_path)])
+}
+
+/// Read the journal's marks along a pinned snapshot: every commit's revision
+/// ordinal (`jjdb_catchword`) paired with its unbaked subject, newest-first
+/// (`git log <pin> --format=%s`, object-database only, never the working tree).
+/// The ordinal grammar (`{sigil}{ordinal}: `) is this module's, so the parse
+/// home is here (`zjjrvb_unbake_ordinal`); what a subject MEANS — a dispatch
+/// birth, a wrap chalk — is the caller's to classify. A line the ceremony never
+/// baked (a founding's hand-written genesis, a foreign commit) carries no ordinal
+/// token and is dropped, so the marks are exactly the journal's own ceremonial
+/// history. Lock-free (`jjdk_lockless_reads`): the pin is the door's gleaned
+/// snapshot, coherent across every read taken behind it.
+pub fn jjdb_journal_marks(config: &jjdb_BlotterConfig, pin: &str) -> Result<Vec<(u64, String)>, String> {
+    let out = zjjdb_read_git(&config.local_root, &["log", pin, "--format=%s"])?;
+    let text = String::from_utf8(out).map_err(|e| format!("journal log at {} returned non-UTF-8: {}", config.local_root.display(), e))?;
+    Ok(text
+        .lines()
+        .filter_map(|line| zjjrvb_unbake_ordinal(config.ordinal_sigil, line))
+        .collect())
 }
 
 /// Persist a Gallops through the studbook's journal ceremony, mutate-as-transform

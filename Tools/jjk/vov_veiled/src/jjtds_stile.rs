@@ -6,19 +6,23 @@ use super::jjrds_stile::{
     jjrds_billet_dirname,
     jjrds_billet_identity,
     jjrds_board,
+    jjrds_classify_line_event,
     jjrds_currency,
     jjrds_dispatch_record,
     jjrds_ground,
     jjrds_Ground,
+    jjrds_live_branch,
     jjrds_pair_admitted,
     jjrds_groomed_heat,
     jjrds_pedigree_lookup,
     jjrds_plan,
     jjrds_record_dispatch,
     jjrds_resolve_launch,
+    jjrds_resolve_live_branch,
     jjrds_resolve_saddle,
     jjrds_resume,
     jjrds_roster_row,
+    jjrds_run,
     jjrds_staleness_notice,
     jjrds_stirrup_command,
     jjrds_trailing_step,
@@ -27,6 +31,7 @@ use super::jjrds_stile::{
     jjrds_yard_gate,
     jjrds_Door,
     jjrds_LaunchPlan,
+    jjrds_LineEvent,
     jjrds_Outcome,
     jjrds_Rejection,
     jjrds_ResumePlan,
@@ -40,6 +45,7 @@ use super::jjrds_stile::{
     JJRDS_JUDGMENT_TIER,
     JJRDS_KIND_PLAIN_GIT,
     JJRDS_PEDIGREES_REL_PATH,
+    JJRDS_SADDLE_BIRTH_LEDE,
     JJRDS_TIER_ROSTER,
 };
 use super::jjrfg_plaingit::jjrfg_PlainGit;
@@ -679,8 +685,10 @@ fn jjtds_board_gives_each_birth_of_a_pace_its_own_ref() {
     // the same coronet: a distinct catchword mints a distinct branch, so board
     // finds nothing standing under it and births fresh from trunk — it does NOT
     // rejoin the first birth's line. The first birth's work is not lost: it stands
-    // on its own durable ref, recoverable (the studbook-routed resumption that
-    // would auto-continue it is a slated pace, not this one).
+    // on its own durable ref, recoverable — the studbook-routed resumption that
+    // auto-continues it lives a layer up in jjrds_run's live-line resolution, not
+    // in board, and is covered by the re-seat and adopt specimens below; board's
+    // own contract (a name that stands nowhere births fresh) is what this pins.
     jjrfg_PlainGit.jjrfr_billet_remove(&first.billet_root, false).unwrap();
     let second_birth = zjjtds_birth_at(&plan, 200507);
     let second_branch = match &second_birth {
@@ -829,29 +837,34 @@ fn zjjtds_pace_worked_on_another_station(infield: &Path, name: &str, branch: &st
     tip
 }
 
-// IGNORED until the studbook-routed billet-resumption seam lands. Per-birth
-// serials made the livery branch non-derivable, so a second occupancy can no
-// longer find an abroad ref by composing its name — only discovery reaches it,
-// and the selection rule ("which ref is the live line") belongs to the studbook,
-// not git-ref enumeration. This test still asserts the TRUE end-state invariant
-// (one pace, one line of work across stations — adopt, never fork); the seam
-// restores it via studbook discovery and lifts this attribute. It is deliberately
-// NOT flipped to assert the interim fork: an executable spec that blesses the
-// fork would enshrine the regression. Restoration home: the studbook-routed
-// billet-resumption pace.
+/// One pace, one line of work across stations (this pace's done-when): a second
+/// station saddling a coronet another station worked and pushed ADOPTS that
+/// line, never forks a rival from trunk. Per-birth serials make the branch name
+/// non-derivable from this station's own mint, so the STUDBOOK JOURNAL — the
+/// record both stations share — is what names the abroad line: `jjrds_live_branch`
+/// resolves it, and board adopts the abroad ref under that resolved name. Was
+/// `#[ignore]`d while serials had killed derivation and no studbook route stood;
+/// the resumption seam restores the invariant.
 #[test]
-#[ignore = "cross-station adopt needs studbook-routed resumption (slated pace); serials made the branch non-derivable"]
 fn jjtds_board_adopts_a_pace_line_another_station_pushed() {
-    let (infield, hippodrome) = zjjtds_infield("jjtds_board_adopt");
-    // The other station worked and pushed this pace under ITS birth's serial — a
-    // different catchword than this station will mint — so the abroad ref cannot
-    // be reached by re-derivation; only discovery finds it.
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_board_adopt");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+
+    // The other station's birth is journaled in the shared studbook; it then works
+    // and pushes the pace's livery branch to the sire under THAT birth's serial —
+    // a catchword this station never minted, so only the journal names it.
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    let abroad_catchword = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &plan, "other-station").unwrap();
     let abroad_branch =
-        crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, 200311, "AAAAA");
+        crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, abroad_catchword, "AAAAA");
     let abroad = zjjtds_pace_worked_on_another_station(infield.path(), "other_station", &abroad_branch);
 
-    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
-    let birth = zjjtds_birth_at(&plan, 200500);
+    // This station resolves the live line from the studbook — the abroad branch,
+    // by name — and boards it: absent at home, standing abroad, so board adopts.
+    let resolved = jjrds_live_branch(&studbook, "AAAAA", None).unwrap();
+    assert_eq!(resolved.as_deref(), Some(abroad_branch.as_str()), "the journal names the abroad line");
+    let birth = jjrfr_BilletBirth::Branch(resolved.unwrap());
     let yard = zjjtds_yard(&plan, 200500);
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &birth, &yard).unwrap(), None);
 
@@ -909,6 +922,223 @@ fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_bille
         jjrds_board(&jjrfg_PlainGit, &pace, &zjjtds_birth(&pace), &pace_yard).unwrap()
     };
     assert!(notice.unwrap_or_default().contains("refit"));
+}
+
+// ---- The live-line resolution: a coronet's current branch from the journal ----
+
+/// A birth mark composed the way the dispatch record does — the reader's input,
+/// built through the writer so the classifier tracks the real encoding.
+fn zjjtds_birth_mark(catchword: u64, coronet: &str) -> (u64, String) {
+    (catchword, jjrds_dispatch_record(jjrds_Door::Saddle, &jjrds_Target::Coronet(coronet.to_string()), "macmini"))
+}
+
+/// A wrap-chalk mark in the journal's `jjb:BRAND:₢C:W:` shape. The recognizer
+/// parses the four leading fields, so the brand's exact value is immaterial — a
+/// fixed stand-in keeps the pure test off vvc's brand configuration.
+fn zjjtds_wrap_mark(coronet: &str) -> (u64, String) {
+    (0, format!("jjb:1019-abcdef0:₢{}:W: wrapped it", coronet))
+}
+
+/// Compose the livery branch the resolver should name for a coronet born at a
+/// catchword — the expected-value home for these tests.
+fn zjjtds_live_expect(catchword: u64, coronet: &str, prefix: Option<&str>) -> Option<String> {
+    Some(crate::jjrf_favor::jjrf_livery_compose(prefix, crate::jjrf_favor::jjrf_LiveryKind::Pace, catchword, coronet))
+}
+
+#[test]
+fn jjtds_saddle_birth_lede_matches_the_dispatch_record() {
+    // The reader needle and the writer must not drift: a saddle's dispatch record
+    // opens with exactly the lede the classifier strips.
+    let record = jjrds_dispatch_record(jjrds_Door::Saddle, &jjrds_Target::Coronet("CAAAA".to_string()), "macmini");
+    assert!(
+        record.starts_with(JJRDS_SADDLE_BIRTH_LEDE),
+        "the dispatch record {:?} must open with the birth lede {:?}",
+        record, JJRDS_SADDLE_BIRTH_LEDE
+    );
+}
+
+#[test]
+fn jjtds_classify_line_event_reads_births_and_wraps_only() {
+    // A saddle's dispatch record is a birth carrying its catchword.
+    assert_eq!(
+        jjrds_classify_line_event(200500, &zjjtds_birth_mark(200500, "CAAAA").1),
+        Some(jjrds_LineEvent::Birth { coronet: "CAAAA".to_string(), catchword: 200500 })
+    );
+    // The W chalk is a wrap.
+    assert_eq!(
+        jjrds_classify_line_event(200600, "jjb:1019-abcdef0:₢CAAAA:W: done"),
+        Some(jjrds_LineEvent::Wrap { coronet: "CAAAA".to_string() })
+    );
+    // A groom lunge records a groom billet, not a pace line — neither.
+    assert_eq!(
+        jjrds_classify_line_event(
+            200501,
+            &jjrds_dispatch_record(jjrds_Door::Lunge, &jjrds_Target::Coronet("CAAAA".to_string()), "macmini")
+        ),
+        None
+    );
+    // A heat-level slate (S), a pace notch (n), a landing (L): none open or close
+    // a branch-bearing line.
+    assert_eq!(jjrds_classify_line_event(200502, "jjb:1019-abcdef0:₣AA:S: slated a pace"), None);
+    assert_eq!(jjrds_classify_line_event(200503, "jjb:1019-abcdef0:₢CAAAA:n: some work"), None);
+    assert_eq!(jjrds_classify_line_event(200504, "jjb:1019-abcdef0:₢CAAAA:L: agent landed"), None);
+    // A founding's hand-written genesis, or any non-ceremonial subject: neither.
+    assert_eq!(jjrds_classify_line_event(200000, "found studbook"), None);
+}
+
+#[test]
+fn jjtds_resolve_live_branch_finds_the_founding_birth_of_the_current_epoch() {
+    // No marks for the coronet: no live line.
+    assert_eq!(jjrds_resolve_live_branch(&[], "CAAAA", None), None);
+
+    // One birth: its own catchword names the line.
+    let one = vec![zjjtds_birth_mark(200500, "CAAAA")];
+    assert_eq!(jjrds_resolve_live_branch(&one, "CAAAA", None), zjjtds_live_expect(200500, "CAAAA", None));
+
+    // Two births of one coronet (a re-saddle journaled a fresh event), newest
+    // first: the EARLIEST is the founding branch every saddle re-seats — a fresh
+    // event never repoints the line off its founding serial.
+    let two = vec![zjjtds_birth_mark(200530, "CAAAA"), zjjtds_birth_mark(200500, "CAAAA")];
+    assert_eq!(jjrds_resolve_live_branch(&two, "CAAAA", None), zjjtds_live_expect(200500, "CAAAA", None));
+
+    // Other coronets' births and wraps are ignored entirely.
+    let mixed = vec![
+        zjjtds_birth_mark(200540, "CAAAB"),
+        zjjtds_birth_mark(200530, "CAAAA"),
+        zjjtds_wrap_mark("CAAAB"),
+        zjjtds_birth_mark(200500, "CAAAA"),
+    ];
+    assert_eq!(jjrds_resolve_live_branch(&mixed, "CAAAA", None), zjjtds_live_expect(200500, "CAAAA", None));
+}
+
+#[test]
+fn jjtds_resolve_live_branch_stops_at_the_most_recent_wrap() {
+    // Newest event for the coronet is a wrap: the line is closed, none stands.
+    let closed = vec![zjjtds_wrap_mark("CAAAA"), zjjtds_birth_mark(200500, "CAAAA")];
+    assert_eq!(jjrds_resolve_live_branch(&closed, "CAAAA", None), None);
+
+    // A new epoch opened after a wrap: the births ABOVE the wrap are the live
+    // line, and the closed line below it never repoints the resolution.
+    let reopened = vec![
+        zjjtds_birth_mark(200720, "CAAAA"), // newest — post-wrap epoch
+        zjjtds_birth_mark(200700, "CAAAA"), // founding of the post-wrap epoch
+        zjjtds_wrap_mark("CAAAA"),          // closes the first epoch
+        zjjtds_birth_mark(200500, "CAAAA"), // the first epoch's founding, now closed
+    ];
+    assert_eq!(jjrds_resolve_live_branch(&reopened, "CAAAA", None), zjjtds_live_expect(200700, "CAAAA", None));
+}
+
+#[test]
+fn jjtds_resolve_live_branch_dresses_the_livery_prefix() {
+    let prefixed = vec![zjjtds_birth_mark(200500, "CAAAA")];
+    assert_eq!(
+        jjrds_resolve_live_branch(&prefixed, "CAAAA", Some("house/refs")),
+        zjjtds_live_expect(200500, "CAAAA", Some("house/refs"))
+    );
+}
+
+#[test]
+fn jjtds_live_branch_reads_a_journaled_birth_from_the_founded_studbook() {
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_live_branch_birth");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+
+    // No birth yet: no live line.
+    assert_eq!(jjrds_live_branch(&studbook, "AAAAA", None).unwrap(), None);
+
+    // Journal a saddle birth for AAAAA; the resolver derives its livery branch
+    // from the very catchword the record allocated.
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    let catchword = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &plan, "jjtds-station").unwrap();
+    assert_eq!(
+        jjrds_live_branch(&studbook, "AAAAA", None).unwrap(),
+        zjjtds_live_expect(catchword, "AAAAA", None)
+    );
+
+    // A coronet never born stays None.
+    assert_eq!(jjrds_live_branch(&studbook, "AAAAB", None).unwrap(), None);
+}
+
+#[test]
+fn jjtds_live_branch_recovers_a_reaped_billets_line_for_re_seat() {
+    // The continuation specimen (this pace's done-when): a billet lost with its
+    // work still on a durable branch, then re-saddled, recovers that branch rather
+    // than forking fresh. The studbook journal names the line; board re-seats it
+    // because it stands locally.
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_live_branch_reseat");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+
+    // Founding saddle: journal the birth, board the fresh line, land wip on it.
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    let catchword = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &plan, "this-station").unwrap();
+    let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, catchword, "AAAAA");
+    let first_yard = zjjtds_yard(&plan, catchword);
+    jjrds_board(&jjrfg_PlainGit, &plan, &jjrfr_BilletBirth::Branch(branch.clone()), &first_yard).unwrap();
+    let wip = zjjtds_commit_all(&first_yard.billet_root, "wip.txt", "carried", "wip on the pace line");
+
+    // The billet is lost; the durable branch survives its reaped worktree.
+    jjrfg_PlainGit.jjrfr_billet_remove(&first_yard.billet_root, false).unwrap();
+
+    // Re-saddle: the studbook still names the founding line, so resolution returns
+    // that branch and board re-seats it — the fresh billet stands ON the wip, not
+    // a fresh trunk fork, and its dirname takes a new serial while the branch keeps
+    // the founding one.
+    let resolved = jjrds_live_branch(&studbook, "AAAAA", None).unwrap();
+    assert_eq!(resolved.as_deref(), Some(branch.as_str()), "the journal recovers the reaped billet's line");
+    let second_yard = zjjtds_yard(&plan, catchword + 5);
+    assert_ne!(second_yard.billet_root, first_yard.billet_root, "the re-seat mints a fresh dirname");
+    assert_eq!(
+        jjrds_board(&jjrfg_PlainGit, &plan, &jjrfr_BilletBirth::Branch(resolved.unwrap()), &second_yard).unwrap(),
+        None
+    );
+    assert_eq!(
+        zjjtds_git(&second_yard.billet_root, &["rev-parse", "HEAD"]),
+        wip,
+        "the re-saddle recovers the prior work"
+    );
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_identify(&second_yard.billet_root).unwrap().line_of_work,
+        jjrfr_LineOfWork::Branch(branch)
+    );
+}
+
+#[test]
+fn jjtds_run_saddle_resumes_a_pushed_line_across_stations() {
+    // The pace's headline, end to end through the saddle door: a saddle of a
+    // coronet another station worked and pushed ADOPTS that line rather than
+    // forking a rival from trunk — jjrds_run resolves the live branch from the
+    // studbook and boards it. Exercises the const-on studbook path (the live
+    // JJDB_GALLOPS_OVER_STUDBOOK_ENABLED), so the founded studbook is real, and
+    // guards the wiring the resolver and board tests can only prove in halves.
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_run_resumes");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+
+    // Another station's birth is journaled in the shared studbook, then its work
+    // is pushed to the sire under that birth's serial.
+    let seed_plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    let abroad_catchword = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &seed_plan, "other-station").unwrap();
+    let abroad_branch =
+        crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, abroad_catchword, "AAAAA");
+    let abroad = zjjtds_pace_worked_on_another_station(infield.path(), "other_station", &abroad_branch);
+
+    // The saddle door, all the way to a composed launch: it resolves the live
+    // line and adopts it, so the billet stands on the abroad tip.
+    let (outcome, report) = jjrds_run(jjrds_Door::Saddle, "AAAAA", &hippodrome, &hippodrome, false);
+    let billet_root = match outcome {
+        jjrds_Outcome::Launch { billet_root, .. } => billet_root,
+        _ => panic!("a saddle over a resolvable line composes a Launch; report:\n{}", report),
+    };
+    assert_eq!(
+        zjjtds_git(&billet_root, &["rev-parse", "HEAD"]),
+        abroad,
+        "the saddle adopts the abroad line, not a rival birth from trunk"
+    );
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_identify(&billet_root).unwrap().line_of_work,
+        jjrfr_LineOfWork::Branch(abroad_branch)
+    );
 }
 
 // ---- Enabled path: reads over the studbook, and the door's currency step ----
@@ -1400,8 +1630,8 @@ fn jjtds_trailing_step_clears_a_groom_billet_left_at_trunk_tip() {
 }
 
 #[test]
-fn jjtds_trailing_step_leaves_scratch_untouched_either_way() {
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_untouched");
+fn jjtds_trailing_step_clears_scratch_with_a_passing_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_dies_with_billet");
     let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
     let yard = zjjtds_yard(&plan, 200500);
     jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
@@ -1414,5 +1644,24 @@ fn jjtds_trailing_step_leaves_scratch_untouched_either_way() {
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
     assert!(report.contains("cleared"), "expected the billet to clear: {}", report);
     assert!(!yard.billet_root.exists());
-    assert!(marker.exists(), "the per-billet scratch is forensics and must survive the billet's destruction");
+    assert!(!yard.scratch_root.exists(), "scratch dies with a passing billet");
+}
+
+#[test]
+fn jjtds_trailing_step_leaves_scratch_standing_on_a_standing_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_scratch_stands_with_billet");
+    let plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
+    let yard = zjjtds_yard(&plan, 200500);
+    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
+    jjrfg_PlainGit.jjrfr_consign(&yard.billet_root, &zjjtds_pace_branch("AAAAA")).unwrap();
+
+    std::fs::write(yard.billet_root.join("uncommitted.txt"), "dirt").unwrap();
+    std::fs::create_dir_all(&yard.scratch_root).unwrap();
+    let marker = yard.scratch_root.join("logs-buk-marker.txt");
+    std::fs::write(&marker, "forensics").unwrap();
+
+    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
+    assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(yard.billet_root.exists(), "a dirty billet must never be destroyed");
+    assert!(marker.exists(), "a standing billet's scratch is forensics and must survive — muck is its remedy");
 }
