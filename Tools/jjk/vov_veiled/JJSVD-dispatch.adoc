@@ -39,12 +39,28 @@ A *pace billet* ({jjdd_saddle}) seats the pace's branch, which wears the {jjdd_l
 {jjdw_yard} charter: the one birth {jjdb_catchword} labels both, ref tail and dirname alike.
 A *groom billet* ({jjdd_lunge}) seats a detached checkout at trunk tip — nothing must
 survive it — and its dirname is `jjqb_{catchword}_{firemark}`, the same signet.
+A {jjdd_lunge} aimed at a pace is no exception: its billet wears that pace's HEAT
+{jjdt_firemark}, never the {jjdt_coronet} it grooms.
 The leading serial is the {jjdb_catchword} the birth's dispatch record allocated (blotter
 sheaf): it sorts the yard by birth and is what keeps concurrent groom billets of one heat
 distinct.
 The identity behind it types by length exactly as identities are everywhere;
 a reader steps over the serial rather than parsing it, so the dirname stays a denormalized
 label and never an identity.
++
+*The dirname's identity is the yard's kind channel*, and that is what the firemark rule
+above protects.
+Two readers derive a billet's KIND from that identity's length alone, neither of them
+asking git: the yard gate's YARD key, which scans for a {jjdt_coronet}-labelled entry and
+would read a pace-aimed groom as the standing pace billet it is not (Yard step below);
+and {jjdd_muck}'s resolution, which types a {jjdt_coronet} dirname as a pace billet and then
+demands the seated {jjdd_livery} branch a detached groom can never show — stranding it as
+unmuckable by machine.
+A groom wearing a {jjdt_coronet} would corrupt both at once, and no kind-awareness taught to
+one reader would reach the other.
+So the aim rides the surfaces that carry meaning — the opening prompt and the dispatch
+record — while the dirname carries only the label its two readers can safely type.
++
 The two brands answer to different owners and so do not match:
 the {jjdw_yard} signet marks JJ's own infield, where a bare body is unambiguous;
 the {jjdd_livery} marks JJ's refs inside a repository JJ does not own.
@@ -221,8 +237,24 @@ This definition is the word's one dispatch-layer home.
 {jjdd_lunge}::
 The groom dispatch: working the horse from the ground on the long line, deliberately
 unmounted — assessment without riding.
-A {jjdt_firemark} gets a groom billet (detached at trunk tip);
-the launch takes the judgment constant (Session launch below).
+A {jjdt_firemark} grooms that heat; a {jjdt_coronet} grooms that pace.
+The target types by length exactly as identities do everywhere, and the two aims share one
+ground: either way the session gets a groom billet (detached at trunk tip) and the launch
+takes the judgment constant (Session launch below).
+The aim differs, the posture does not — which is why the pace groom is this door widened and
+not a door of its own.
++
+The aim reaches the session through the *opening prompt*, which names a pace in the
+qualified emission form (`₢{firemark}·{coronet}`) so it arrives already in its heat's
+context, and through the *dispatch record*, whose sigil follows the target rather than the
+door.
+The billet's dirname does not carry it: both aims wear the heat {jjdt_firemark} there, for
+the kind-channel reason homed at {jjdd_billet} above.
++
+A {jjdt_coronet} naming no pace refuses — the lookup is owed anyway, since the heat the
+dirname wears is read from it.
+A pace's STATE is not read: a groom assesses a docket, and a settled pace's docket is as
+legible as a live one's.
 
 [[jjdd_cashier]]
 //axd_ashlar
@@ -335,6 +367,9 @@ contributes only its target typing and its tier source, never its own approach:
   a rival past it.
   A groom billet seats no branch and passes the gate untouched — concurrent grooms of one heat
   are deliberately legal, told apart by their serials alone.
+  It passes the YARD key by construction rather than by exemption: a groom dirname wears a
+  {jjdt_firemark} whatever the {jjdd_lunge} was aimed at ({jjdd_billet} above), so a
+  {jjdt_coronet} lookup can never match one.
   Only when both keys are silent is the pace clear: the birth is a {jjdb_studbook} WRITE (the
   dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
   cost of a durable birth timeline, and the fresh billet wears the serial it allocates.

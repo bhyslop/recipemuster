@@ -515,6 +515,36 @@ pub fn jjrds_resolve_saddle(
     }
 }
 
+/// The heat a pace-aimed lunge labels its billet with: the groomed pace's own
+/// heat, bare. The lunge's counterpart to `jjrds_resolve_saddle` — a groom
+/// billet wears a firemark whatever the aim was (JJSVD "The billet", the yard's
+/// kind channel), so a coronet aim must find its heat before the yard can name
+/// the billet at all.
+///
+/// Pace STATE is deliberately not read, and this is the one place the two
+/// resolutions part: saddle refuses a complete or abandoned pace because there
+/// is no work to mount, while a groom assesses a docket, and a settled pace's
+/// docket is as legible as a live one's. Existence is the whole gate.
+pub fn jjrds_groomed_heat(
+    gallops: &crate::jjrt_types::jjrg_Gallops,
+    coronet: &str,
+) -> Result<String, jjrds_Rejection> {
+    let pace_key = format!("{}{}", crate::jjrf_favor::JJRF_CORONET_PREFIX, coronet);
+    gallops
+        .heats
+        .iter()
+        .find(|(_, heat)| heat.paces.contains_key(&pace_key))
+        .map(|(heat_key, _)| {
+            heat_key
+                .strip_prefix(crate::jjrf_favor::JJRF_FIREMARK_PREFIX)
+                .unwrap_or(heat_key)
+                .to_string()
+        })
+        .ok_or_else(|| jjrds_Rejection::BadTarget {
+            detail: format!("no pace '{}' in the gallops", pace_key),
+        })
+}
+
 // ---- The yard: billet and scratch naming ----
 
 /// The billet dirname signet (`jjdw_yard`): `jjqb_{catchword}_{identity}` — the
@@ -726,9 +756,21 @@ pub struct jjrds_LaunchPlan {
     /// (pace branch vs groom detached) reads from `door`, never from this field's
     /// presence — a `None` prefix is an unprefixed pace, not a groom.
     pub livery_prefix: Option<String>,
-    /// The identity this dispatch is for, bare: the pace's coronet for a saddle,
-    /// the heat's firemark for a lunge.
+    /// The YARD LABEL, bare: the pace's coronet for a saddle, the heat's
+    /// firemark for a lunge — including a lunge aimed at a pace, which wears
+    /// that pace's heat here. This is what the dirname carries, and it is
+    /// deliberately NOT always the dispatch's target: the dirname's identity is
+    /// the yard's kind channel (JJSVD "The billet"), read by length alone by both
+    /// the yard gate's yard key and muck's kind resolution, so a groom must never
+    /// wear a coronet whatever it was aimed at. What the dispatch is FOR is
+    /// `aim`.
     pub identity_body: String,
+    /// What the dispatch is FOR, typed: the pace for a saddle or a pace-aimed
+    /// lunge, the heat for a heat-aimed lunge. Equals `identity_body` for every
+    /// aim but the pace-aimed lunge, where the label drops to the heat and only
+    /// this field still names the pace. The meaning-bearing surfaces read it —
+    /// the dispatch record's sigil and the opening prompt — never the dirname.
+    pub aim: jjrds_Target,
     pub hippodrome_root: PathBuf,
     pub infield_root: PathBuf,
     pub trunk: String,
@@ -866,10 +908,16 @@ fn zjjrds_billet_kind_word(door: jjrds_Door) -> &'static str {
 /// The target carries its sigil: a commit message is operator-facing output, so
 /// the minted-mark carriage law makes the glyph mandatory here exactly as the
 /// dirname's foreign-traversed surface bars it.
-pub fn jjrds_dispatch_record(door: jjrds_Door, identity_body: &str, station: &str) -> String {
-    let sigil = match door {
-        jjrds_Door::Saddle => crate::jjrf_favor::JJRF_CORONET_PREFIX,
-        jjrds_Door::Lunge => crate::jjrf_favor::JJRF_FIREMARK_PREFIX,
+///
+/// The record names the AIM, not the yard label, and its sigil follows the aim's
+/// own type rather than the door — a lunge aimed at a pace records that pace,
+/// though its billet is labelled by the heat. The record is the durable event
+/// and the dirname is a label, so this is the surface that must stay true to
+/// what the dispatch was for.
+pub fn jjrds_dispatch_record(door: jjrds_Door, aim: &jjrds_Target, station: &str) -> String {
+    let (sigil, body) = match aim {
+        jjrds_Target::Coronet(c) => (crate::jjrf_favor::JJRF_CORONET_PREFIX, c),
+        jjrds_Target::Firemark(f) => (crate::jjrf_favor::JJRF_FIREMARK_PREFIX, f),
     };
     format!(
         "dispatch {} — {} for {}{} at station {}",
@@ -879,7 +927,7 @@ pub fn jjrds_dispatch_record(door: jjrds_Door, identity_body: &str, station: &st
         },
         zjjrds_billet_kind_word(door),
         sigil,
-        identity_body,
+        body,
         station,
     )
 }
@@ -916,7 +964,7 @@ pub fn jjrds_record_dispatch<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
             jjrds_Door::Lunge => "lunge",
         },
     );
-    let subject = jjrds_dispatch_record(plan.door, &plan.identity_body, station);
+    let subject = jjrds_dispatch_record(plan.door, &plan.aim, station);
     crate::jjrvb_blotter::jjdb_journal_mark(farrier, studbook, &guidon, |_root| (Vec::new(), subject))
         .map(|landing| landing.catchword)
         .map_err(jjrds_Rejection::Farrier)
@@ -972,22 +1020,31 @@ pub fn jjrds_plan(
 
     // Target typing and door-specific resolution.
     let target = jjrds_type_target(raw_target)?;
-    let (livery_prefix, identity_body, designation, opening_prompt) = match door {
+    // Both doors may need the gallops now — saddle always, lunge only for a
+    // coronet aim (whose heat the yard label is read from) — so the read is
+    // composed once here and taken on demand, leaving a heat-aimed lunge as
+    // gallops-free as it has always been.
+    let gallops = || -> Result<crate::jjri_io::jjdr_ValidatedGallops, jjrds_Rejection> {
+        match &pin {
+            Some(pin) => {
+                let bytes = jjdb_read_pinned(&studbook, pin, JJDB_GALLOPS_REL_PATH).map_err(|detail| {
+                    jjrds_Rejection::StudbookUnreadable {
+                        path: studbook.local_root.clone(),
+                        detail,
+                    }
+                })?;
+                crate::jjri_io::jjdr_hark(&bytes).map_err(|e| jjrds_Rejection::BadTarget { detail: e })
+            }
+            None => {
+                let gallops_path = hippodrome_root.join(".claude/jjm/jjg_gallops.json");
+                crate::jjri_io::jjdr_load(&gallops_path).map_err(|e| jjrds_Rejection::BadTarget { detail: e })
+            }
+        }
+    };
+
+    let (livery_prefix, identity_body, aim, designation, opening_prompt) = match door {
         jjrds_Door::Saddle => {
-            let gallops = match &pin {
-                Some(pin) => {
-                    let bytes = jjdb_read_pinned(&studbook, pin, JJDB_GALLOPS_REL_PATH)
-                        .map_err(|detail| jjrds_Rejection::StudbookUnreadable {
-                            path: studbook.local_root.clone(),
-                            detail,
-                        })?;
-                    crate::jjri_io::jjdr_hark(&bytes).map_err(|e| jjrds_Rejection::BadTarget { detail: e })?
-                }
-                None => {
-                    let gallops_path = hippodrome_root.join(".claude/jjm/jjg_gallops.json");
-                    crate::jjri_io::jjdr_load(&gallops_path).map_err(|e| jjrds_Rejection::BadTarget { detail: e })?
-                }
-            };
+            let gallops = gallops()?;
             let saddled = jjrds_resolve_saddle(gallops.inner(), &target)?;
             let prompt = format!(
                 "mount {}{}",
@@ -1004,29 +1061,39 @@ pub fn jjrds_plan(
             (
                 pedigree.livery_prefix.clone(),
                 saddled.coronet.clone(),
+                jjrds_Target::Coronet(saddled.coronet.clone()),
                 saddled.designation,
                 prompt,
             )
         }
         jjrds_Door::Lunge => {
+            // Both aims share this ground, and both label their billet with a
+            // firemark: a heat aim wears its own, a pace aim wears its pace's
+            // heat. The label is never the coronet, because the dirname's
+            // identity is the yard's kind channel (JJSVD "The billet") — the
+            // yard gate's yard key and muck's kind resolution both read a
+            // coronet dirname as a pace billet, and a groom is not one.
             let firemark = match &target {
                 jjrds_Target::Firemark(fm) => fm.clone(),
-                jjrds_Target::Coronet(c) => {
-                    return Err(jjrds_Rejection::BadTarget {
-                        detail: format!("lunge takes a firemark; '{}' is a coronet — groom the heat, not a pace", c),
-                    })
-                }
+                jjrds_Target::Coronet(coronet) => jjrds_groomed_heat(gallops()?.inner(), coronet)?,
             };
-            // The door's first impression carries the posture beside the verb,
-            // so the session reads what its ground affords before it has done
-            // anything the ground would refuse.
-            let prompt = format!(
-                "groom {}{}\n\n{}",
-                crate::jjrf_favor::JJRF_FIREMARK_PREFIX,
-                firemark,
-                JJRDS_GROOM_POSTURE
-            );
-            (None, firemark, None, prompt)
+            // The verb, then the aim, then the posture — the door's first
+            // impression, so the session reads what its ground affords before it
+            // has done anything the ground would refuse. A pace aim is named in
+            // the qualified emission form, which carries the heat beside the
+            // coronet, so the groom opens already in its heat's context.
+            let mark = match &target {
+                jjrds_Target::Firemark(fm) => format!("{}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, fm),
+                jjrds_Target::Coronet(coronet) => format!(
+                    "{}{}{}{}",
+                    crate::jjrf_favor::JJRF_CORONET_PREFIX,
+                    firemark,
+                    crate::jjrf_favor::JJRF_CORONET_QUALIFIER,
+                    coronet
+                ),
+            };
+            let prompt = format!("groom {}\n\n{}", mark, JJRDS_GROOM_POSTURE);
+            (None, firemark, target.clone(), None, prompt)
         }
     };
 
@@ -1036,6 +1103,7 @@ pub fn jjrds_plan(
         door,
         livery_prefix,
         identity_body,
+        aim,
         hippodrome_root,
         infield_root,
         trunk: pedigree.trunk,
