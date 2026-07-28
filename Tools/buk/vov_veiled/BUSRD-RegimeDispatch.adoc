@@ -117,6 +117,9 @@ and
 {burd_git_context}
 
 //axhrgv_variable
+{burd_color}
+
+//axhrgv_variable
 {burd_log_last}
 
 //axhrgv_variable
