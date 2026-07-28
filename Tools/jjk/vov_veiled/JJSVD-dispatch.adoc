@@ -630,11 +630,17 @@ The genuine hazard is concurrency, not geometry: shared per-dispatch output stat
 The {jjdd_stile_p} approach closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
 `BURV_TEMP_ROOT_DIR`, and `BURV_LOG_DIR` — absolute paths, the whoever-dispatches-owns-the-knob
 protocol; theurge needs no change (it sets BURV innermost, and innermost wins).
-The stirrup composes these and strips the door's own dispatch-mode flags
-(`BURD_NO_LOG`, `BURD_INTERACTIVE`) plus the trampoline's cwd capture at the same
-boundary (BUr_q2m: inheritance is never a regime inlet) — the launched session is
-a first-class dispatch context whose tabtargets self-log into the billet-scoped
-roots, exactly as in a hippodrome.
+Governing sentence: the launched session sees exactly what a hand-launched
+hippodrome session would have seen — operator ambient (`BURE_*` and vendor env)
+intact — plus the per-billet BURV trio; everything the door's own dispatch chain
+exported stops at the stirrup. The stirrup composes the BURV trio and strips every
+such export at the same boundary (BUr_q2m: inheritance is never a regime inlet) —
+the whole `BURD_*`/`BURC_*` family (dispatch-mode flags, parsed-tabtarget state,
+regime-config re-derivations) plus the trampoline's ungoverned `JJSL_INVOKE_DIR`
+cwd capture, by family membership rather than a hand-picked subset — because the
+launched session is a first-class dispatch context whose tabtargets self-log into
+the billet-scoped roots and re-derive their own dispatch state fresh, exactly as
+in a hippodrome.
 Named behavior change: chain facts (`current/` → `previous/`) become *billet-scoped* — a
 tabtarget inside the billet and one in a trunk terminal no longer see each other's flow,
 which also closes a latent cross-clone chain race that predates billets.

@@ -63,6 +63,7 @@ zburd_kindle() {
   buv_string_enroll  BURD_TRANSCRIPT            1  256  "Path to transcript file for this invocation"
   buv_string_enroll  BURD_GIT_CONTEXT           1  128  "Git context string at dispatch time"
   buv_string_enroll  BURD_OSTYPE                1   32  "Operating-system type at dispatch time (e.g. cygwin, linux-gnu, darwin) — lets native binaries learn the platform bash already knows"
+  buv_enum_enroll    BURD_COLOR                     "Resolved color verdict (0/1), computed once at dispatch time from BURE_COLOR/NO_COLOR/tty detection" 0 1
 
   buv_group_enroll "Parsed Tabtarget"
   buv_string_enroll  BURD_TARGET                1  256  "Target parsed from tabtarget filename"

@@ -203,6 +203,7 @@
 :burd_previous_dir:                <<burd_previous_dir,BURD_PREVIOUS_DIR>>
 :burd_transcript:                  <<burd_transcript,BURD_TRANSCRIPT>>
 :burd_git_context:                 <<burd_git_context,BURD_GIT_CONTEXT>>
+:burd_color:                       <<burd_color,BURD_COLOR>>
 :burd_log_last:                    <<burd_log_last,BURD_LOG_LAST>>
 :burd_log_same:                    <<burd_log_same,BURD_LOG_SAME>>
 :burd_log_hist:                    <<burd_log_hist,BURD_LOG_HIST>>
@@ -1178,6 +1179,19 @@ inheritance included.
 Sparing by doctrine;
 see the Tweak Mechanism under
 {bure_regime}.
++
+An ambient family still admits innermost harness override at a spawn
+boundary: a composing harness may stamp a specific
+{bure_regime}
+value onto a managed child's environment for that child's lifetime,
+the same innermost-wins law
+{bus_inlet_composed}
+states for
+{burv_regime} —
+theurge's own managed-child spawns stamping
+`BURE_CONFIRM=skip`
+and its tweak pair are the standing precedent this generalizes,
+not a one-off bent for that caller alone.
 
 [[bus_inlet_composed]]
 {bus_inlet_composed}::
@@ -1208,12 +1222,38 @@ and is contraband in every family except
 whose
 {bus_inlet_ambient}
 makes session-wide visibility the design.
-A harness that launches a new dispatch context therefore strips the
-{bus_inlet_tabtarget}
-mode flags it does not itself compose
-({burd_no_log}, {burd_interactive})
-at the spawn boundary,
-so every launched context takes its dispatch mode from its own
++
+One principle, two enforcement profiles, chosen by whether the spawned
+child re-derives its own dispatch context or never will:
++
+--
+* *Re-deriving child* (a dispatched tabtarget spawning another): leans on
+  that re-derivation, and strips only the static
+  {bus_inlet_tabtarget}
+  mode flags it does not itself compose
+  ({burd_no_log}, {burd_interactive})
+  at the spawn boundary — every other
+  {burd_regime}
+  value the child re-derives fresh on its own next dispatch regardless, so
+  stripping it early buys nothing.
+* *Non-re-deriving child* (a launched interactive session that runs many
+  further tabtargets over its own lifetime, none of which re-derives the
+  launching dispatch's context on the child's behalf): gets the full strip
+  of every
+  {bus_inlet_tabtarget}
+  and
+  {bus_inlet_derived}
+  export the launching dispatch produced — the whole
+  `BURD_*`/`BURC_*`
+  family, by family membership, not a hand-picked subset — so that every
+  tabtarget the child later runs starts from a clean
+  {bus_inlet_s}
+  of its own rather than a stale ancestor's.
+--
++
+So every launched context takes its dispatch mode — and, for the
+non-re-deriving case, its whole dispatch-computed environment — from its
+own
 {bus_inlet_s}.
 The seductive wrong form this bars:
 exporting a `BURD_*` flag ahead of a launch so a whole session inherits a
@@ -1748,6 +1788,23 @@ Path to the transcript file within the temporary directory.
 {burd_git_context}::
 Git describe output capturing repository state at dispatch time.
 
+[[burd_color]]
+//axvr_variable axtu_string axd_optional
+{burd_color}::
+The resolved color verdict (`0`/`1`), computed once per dispatch from
+{bure_color}/`NO_COLOR`/tty detection.
+Lives under the
+{burd_prefix}
+prefix rather than
+{bure_prefix}
+because it is dispatch's own computation, not operator-typed input — a
+computed verdict living under the operator-ambient prefix would pass a
+spawn boundary as if it were ambient
+({bus_inlet_ambient}),
+then be read stale by a re-dispatch that should have recomputed it fresh.
+{bure_color}
+remains the operator's own optional override, read here, never written.
+
 [[burd_log_last]]
 //axvr_variable axtu_path
 {burd_log_last}::
@@ -1880,9 +1937,14 @@ Verbosity level controlling diagnostic output.
 [[bure_color]]
 //axvr_variable axtu_string
 {bure_color}::
-Color output policy.
-Input as auto/0/1; resolved to 0 or 1 during dispatch.
-Respects NO_COLOR environment convention.
+Operator override for color output policy, input as auto/0/1 — read during
+dispatch, never written.
+The resolved 0/1 verdict (also weighing the `NO_COLOR` convention and tty
+detection) is dispatch's own computation and lives under
+{burd_color}
+({BUr_q2m}):
+a computed value staying under this ambient-family name would pass a spawn
+boundary as if it were operator input and be read stale downstream.
 
 ==== Tweak Mechanism
 
