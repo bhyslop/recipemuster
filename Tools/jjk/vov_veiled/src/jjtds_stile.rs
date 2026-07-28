@@ -22,6 +22,7 @@ use super::jjrds_stile::{
     jjrds_resolve_saddle,
     jjrds_resume,
     jjrds_roster_row,
+    jjrds_run,
     jjrds_staleness_notice,
     jjrds_stirrup_command,
     jjrds_trailing_step,
@@ -1099,6 +1100,44 @@ fn jjtds_live_branch_recovers_a_reaped_billets_line_for_re_seat() {
     assert_eq!(
         jjrfg_PlainGit.jjrfr_identify(&second_yard.billet_root).unwrap().line_of_work,
         jjrfr_LineOfWork::Branch(branch)
+    );
+}
+
+#[test]
+fn jjtds_run_saddle_resumes_a_pushed_line_across_stations() {
+    // The pace's headline, end to end through the saddle door: a saddle of a
+    // coronet another station worked and pushed ADOPTS that line rather than
+    // forking a rival from trunk — jjrds_run resolves the live branch from the
+    // studbook and boards it. Exercises the const-on studbook path (the live
+    // JJDB_GALLOPS_OVER_STUDBOOK_ENABLED), so the founded studbook is real, and
+    // guards the wiring the resolver and board tests can only prove in halves.
+    let (infield, hippodrome) = zjjtds_infield_over("jjtds_run_resumes");
+    let infield_canon = infield.path().canonicalize().unwrap();
+    let studbook = jjdb_studbook_config(&infield_canon);
+
+    // Another station's birth is journaled in the shared studbook, then its work
+    // is pushed to the sire under that birth's serial.
+    let seed_plan = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, true).unwrap();
+    let abroad_catchword = jjrds_record_dispatch(&jjrfg_PlainGit, &studbook, &seed_plan, "other-station").unwrap();
+    let abroad_branch =
+        crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, abroad_catchword, "AAAAA");
+    let abroad = zjjtds_pace_worked_on_another_station(infield.path(), "other_station", &abroad_branch);
+
+    // The saddle door, all the way to a composed launch: it resolves the live
+    // line and adopts it, so the billet stands on the abroad tip.
+    let (outcome, report) = jjrds_run(jjrds_Door::Saddle, "AAAAA", &hippodrome, &hippodrome, false);
+    let billet_root = match outcome {
+        jjrds_Outcome::Launch { billet_root, .. } => billet_root,
+        _ => panic!("a saddle over a resolvable line composes a Launch; report:\n{}", report),
+    };
+    assert_eq!(
+        zjjtds_git(&billet_root, &["rev-parse", "HEAD"]),
+        abroad,
+        "the saddle adopts the abroad line, not a rival birth from trunk"
+    );
+    assert_eq!(
+        jjrfg_PlainGit.jjrfr_identify(&billet_root).unwrap().line_of_work,
+        jjrfr_LineOfWork::Branch(abroad_branch)
     );
 }
 
