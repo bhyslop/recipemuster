@@ -931,6 +931,23 @@ fn zjjtm_pace_billet(coronet: &str) -> jjrds_Ground {
     jjrds_Ground::PaceBillet { coronet: coronet.to_string() }
 }
 
+/// The billet's own pace stands rough — the ordinary open-pace shape every
+/// pre-existing ground-guard test exercises.
+fn zjjtm_state_of_rough(_coronet: &str) -> Option<jjrg_PaceState> {
+    Some(jjrg_PaceState::Rough)
+}
+
+/// The billet's own pace already closed — the spent-ground specimen.
+fn zjjtm_state_of_complete(_coronet: &str) -> Option<jjrg_PaceState> {
+    Some(jjrg_PaceState::Complete)
+}
+
+/// The billet's own pace was abandoned rather than wrapped — the guard's
+/// other spent state, per `jjrg_PaceState::jjrg_is_resolved`.
+fn zjjtm_state_of_abandoned(_coronet: &str) -> Option<jjrg_PaceState> {
+    Some(jjrg_PaceState::Abandoned)
+}
+
 #[test]
 fn jjtm_ground_need_binds_exactly_the_three_work_repo_verbs() {
     use super::jjrm_mcp::{zjjrm_ground_need, zjjrm_GroundNeed};
@@ -961,7 +978,7 @@ fn jjtm_ground_lets_every_studbook_verb_pass_from_all_three_grounds() {
     for ground in &grounds {
         for cmd in ["jjx_show", "jjx_curry", "jjx_enroll", "jjx_redocket", "jjx_apostille", "jjx_landing"] {
             assert!(
-                zjjrm_judge_ground(cmd, ground, Some("CAAAB"), &zjjtm_heat_of).is_ok(),
+                zjjrm_judge_ground(cmd, ground, Some("CAAAB"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok(),
                 "{} must pass on {}", cmd, ground.jjrds_as_str()
             );
         }
@@ -974,7 +991,7 @@ fn jjtm_ground_refuses_the_bound_verbs_off_a_pace_billet() {
 
     for ground in [jjrds_Ground::Hippodrome, jjrds_Ground::GroomBillet, jjrds_Ground::Unboarded { line: "operator-branch".to_string() }] {
         for (cmd, aim) in [("jjx_orient", "CAAAA"), ("jjx_record", "CAAAA"), ("jjx_close", "CAAAA")] {
-            let refusal = zjjrm_judge_ground(cmd, &ground, Some(aim), &zjjtm_heat_of)
+            let refusal = zjjrm_judge_ground(cmd, &ground, Some(aim), &zjjtm_heat_of, &zjjtm_state_of_rough)
                 .expect_err("a work-repo verb has no ground to stand on here");
             assert!(refusal.starts_with("INTERDICTUM — ground gate:"), "token leads: {}", refusal);
             assert!(refusal.contains(cmd));
@@ -987,10 +1004,10 @@ fn jjtm_ground_refuses_the_bound_verbs_off_a_pace_billet() {
 fn jjtm_ground_names_slating_as_the_notch_remedy_and_saddling_as_the_mount_remedy() {
     use super::jjrm_mcp::zjjrm_judge_ground;
 
-    let notch = zjjrm_judge_ground("jjx_record", &jjrds_Ground::GroomBillet, Some("CAAAA"), &zjjtm_heat_of).unwrap_err();
+    let notch = zjjrm_judge_ground("jjx_record", &jjrds_Ground::GroomBillet, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_rough).unwrap_err();
     assert!(notch.contains("slate a pace for this work"), "the misplaced-work remedy is a slated pace: {}", notch);
 
-    let mount = zjjrm_judge_ground("jjx_orient", &jjrds_Ground::Hippodrome, Some("CAAAA"), &zjjtm_heat_of).unwrap_err();
+    let mount = zjjrm_judge_ground("jjx_orient", &jjrds_Ground::Hippodrome, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_rough).unwrap_err();
     assert!(mount.contains("jjy_saddle"), "the mount remedy is the shell door: {}", mount);
 }
 
@@ -1000,9 +1017,9 @@ fn jjtm_ground_admits_re_orienting_the_billets_own_pace() {
 
     let ground = zjjtm_pace_billet("CAAAA");
     // Re-orientation is not a remount: the same pace, mounted again, stays legal.
-    assert!(zjjrm_judge_ground("jjx_orient", &ground, Some("CAAAA"), &zjjtm_heat_of).is_ok());
-    assert!(zjjrm_judge_ground("jjx_close", &ground, Some("CAAAA"), &zjjtm_heat_of).is_ok());
-    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of).is_ok());
+    assert!(zjjrm_judge_ground("jjx_orient", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
+    assert!(zjjrm_judge_ground("jjx_close", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
 }
 
 #[test]
@@ -1039,7 +1056,7 @@ fn jjtm_ground_refuses_a_foreign_pace_inside_a_pace_billet() {
 
     let ground = zjjtm_pace_billet("CAAAA");
     for cmd in ["jjx_orient", "jjx_record", "jjx_close"] {
-        let refusal = zjjrm_judge_ground(cmd, &ground, Some("CAAAB"), &zjjtm_heat_of)
+        let refusal = zjjrm_judge_ground(cmd, &ground, Some("CAAAB"), &zjjtm_heat_of, &zjjtm_state_of_rough)
             .expect_err("the remount singularity: another pace's work in this billet");
         assert!(refusal.starts_with("INTERDICTUM — ground gate:"));
         assert!(refusal.contains("₢CAAAA"), "the seated pace is named: {}", refusal);
@@ -1055,17 +1072,17 @@ fn jjtm_ground_takes_a_heat_aim_for_notch_alone() {
     let ground = zjjtm_pace_billet("CAAAA");
 
     // The notch's admitted second form: the billet's pace or its parent heat.
-    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("AA"), &zjjtm_heat_of).is_ok());
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("AA"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
 
     // Another heat is neither.
-    let stray = zjjrm_judge_ground("jjx_record", &ground, Some("AB"), &zjjtm_heat_of).unwrap_err();
+    let stray = zjjrm_judge_ground("jjx_record", &ground, Some("AB"), &zjjtm_heat_of, &zjjtm_state_of_rough).unwrap_err();
     assert!(stray.contains("₣AA"), "the billet's own heat is named: {}", stray);
     assert!(stray.contains("₣AB"), "the aimed heat is named: {}", stray);
 
     // Mount and wrap bind to a pace, so a heat aim — which resolves to whichever
     // pace is next actionable — is exactly the severance the guard exists to stop.
     for cmd in ["jjx_orient", "jjx_close"] {
-        let refusal = zjjrm_judge_ground(cmd, &ground, Some("AA"), &zjjtm_heat_of)
+        let refusal = zjjrm_judge_ground(cmd, &ground, Some("AA"), &zjjtm_heat_of, &zjjtm_state_of_rough)
             .expect_err("a heat aim cannot bind a billet-bound verb");
         assert!(refusal.contains("names a heat"), "{}", refusal);
         assert!(refusal.contains("₢CAAAA"), "the seated pace is offered instead: {}", refusal);
@@ -1076,7 +1093,7 @@ fn jjtm_ground_takes_a_heat_aim_for_notch_alone() {
 fn jjtm_ground_refuses_a_heat_notch_it_cannot_resolve() {
     use super::jjrm_mcp::zjjrm_judge_ground;
 
-    let refusal = zjjrm_judge_ground("jjx_record", &zjjtm_pace_billet("CAAAA"), Some("AA"), &zjjtm_heat_of_none)
+    let refusal = zjjrm_judge_ground("jjx_record", &zjjtm_pace_billet("CAAAA"), Some("AA"), &zjjtm_heat_of_none, &zjjtm_state_of_rough)
         .expect_err("an unresolvable parent heat admits nothing");
     assert!(refusal.contains("(unresolved)"), "the gap is stated, never guessed past: {}", refusal);
 }
@@ -1088,6 +1105,58 @@ fn jjtm_ground_leaves_an_unreadable_aim_to_the_handlers_own_parse() {
     let ground = zjjtm_pace_billet("CAAAA");
     // No aim to read, and a token that types as no identity: the guard has
     // nothing to judge and the command answers in its own words.
-    assert!(zjjrm_judge_ground("jjx_orient", &ground, None, &zjjtm_heat_of).is_ok());
-    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("not-an-identity"), &zjjtm_heat_of).is_ok());
+    assert!(zjjrm_judge_ground("jjx_orient", &ground, None, &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("not-an-identity"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
+}
+
+#[test]
+fn jjtm_ground_refuses_a_notch_on_the_billets_own_spent_pace() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let ground = zjjtm_pace_billet("CAAAA");
+
+    // Pace-affiliated: the aim names the billet's own (now-closed) pace.
+    let pace_aimed = zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_complete)
+        .expect_err("a notch on spent ground refuses regardless of affiliation");
+    assert!(pace_aimed.starts_with("INTERDICTUM — ground gate:"), "token leads: {}", pace_aimed);
+    assert!(pace_aimed.contains("₢CAAAA"), "the seated pace is named: {}", pace_aimed);
+    assert!(pace_aimed.contains("spent"), "the ground is named spent: {}", pace_aimed);
+    assert!(pace_aimed.contains("Remedy:"), "every refusal names its remedy: {}", pace_aimed);
+
+    // Heat-affiliated: the tagalong specimen from the docket — a heat aim on
+    // the same spent billet refuses just the same, never admitted as it would
+    // be on open ground.
+    let heat_aimed = zjjrm_judge_ground("jjx_record", &ground, Some("AA"), &zjjtm_heat_of, &zjjtm_state_of_complete)
+        .expect_err("a heat-affiliated tagalong on spent ground still refuses");
+    assert!(heat_aimed.contains("spent"), "{}", heat_aimed);
+
+    // Empty-notch shape: identity is still supplied (files:[] carries no aim
+    // of its own), so the same ground+state judgment applies untouched.
+    let abandoned = zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_abandoned)
+        .expect_err("an abandoned pace is spent ground too");
+    assert!(abandoned.contains("spent"), "{}", abandoned);
+}
+
+#[test]
+fn jjtm_ground_leaves_an_open_pace_billets_notch_untouched() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    let ground = zjjtm_pace_billet("CAAAA");
+    // A rough (open) pace's own billet notches exactly as before — pace- and
+    // heat-affiliated alike.
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
+    assert!(zjjrm_judge_ground("jjx_record", &ground, Some("AA"), &zjjtm_heat_of, &zjjtm_state_of_rough).is_ok());
+}
+
+#[test]
+fn jjtm_ground_spent_pace_check_binds_the_notch_alone() {
+    use super::jjrm_mcp::zjjrm_judge_ground;
+
+    // Mount and wrap are untouched by the spent-ground clause — the docket
+    // scopes it to jjx_record alone (wrap is what spends the pace in the
+    // first place, and re-mounting a closed pace is a groom-time concern,
+    // not this guard's).
+    let ground = zjjtm_pace_billet("CAAAA");
+    assert!(zjjrm_judge_ground("jjx_orient", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_complete).is_ok());
+    assert!(zjjrm_judge_ground("jjx_close", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_complete).is_ok());
 }
