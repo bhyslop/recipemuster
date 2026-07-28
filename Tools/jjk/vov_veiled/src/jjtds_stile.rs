@@ -29,6 +29,8 @@ use super::jjrds_stile::{
     jjrds_type_target,
     jjrds_yard,
     jjrds_yard_gate,
+    zjjrds_is_chain_export,
+    zjjrds_strip_chain_exports,
     jjrds_Door,
     jjrds_LaunchPlan,
     jjrds_LineEvent,
@@ -292,10 +294,59 @@ fn jjtds_stirrup_composes_the_launch_command() {
 }
 
 #[test]
-fn jjtds_stirrup_strips_the_doors_dispatch_modes() {
-    // BUr_q2m: the launched session is a new dispatch context — the door's
-    // own no-log flag and the trampoline's cwd capture must not ride
-    // inheritance into it.
+fn jjtds_chain_export_predicate_covers_burd_and_burc_and_spares_operator_ambient() {
+    // Census: Memos/memo-20260728-stirrup-env-composition-census.md — the
+    // strip families and the exempt ones, by representative sample.
+    for chain_export in [
+        "BURD_NO_LOG", "BURD_INTERACTIVE", "BURD_CONFIG_DIR", "BURD_TOKEN_1",
+        "BURC_TOOLS_DIR", "BURC_PROJECT_ROOT", "JJSL_INVOKE_DIR",
+    ] {
+        assert!(zjjrds_is_chain_export(chain_export), "{} must be classified chain-export", chain_export);
+    }
+    for operator_shell in ["BURE_COLOR", "BURE_VERBOSE", "BURE_CONFIRM", "BURV_OUTPUT_ROOT_DIR", "BURV_TEMP_ROOT_DIR", "BURV_LOG_DIR", "PATH", "HOME", "TERM", "CLAUDE_CODE_ENTRYPOINT"] {
+        assert!(!zjjrds_is_chain_export(operator_shell), "{} must NOT be classified chain-export", operator_shell);
+    }
+}
+
+#[test]
+fn jjtds_strip_chain_exports_removes_the_whole_family_and_spares_the_rest() {
+    // Pure seam over a synthetic env — proves the family-wide strip without
+    // mutating the test process's own (shared, thread-racy) environment.
+    let mut cmd = std::process::Command::new("claude");
+    let synthetic_env = [
+        ("BURD_NO_LOG", "1"),
+        ("BURD_INTERACTIVE", "1"),
+        ("BURD_CONFIG_DIR", "/some/moorings"),
+        ("BURD_TOKEN_3", "sh"),
+        ("BURC_TOOLS_DIR", "Tools"),
+        ("BURC_MANAGED_KITS", "buk,jjk"),
+        ("JJSL_INVOKE_DIR", "/some/hippodrome"),
+        ("BURE_COLOR", "1"),
+        ("BURE_VERBOSE", "1"),
+        ("PATH", "/usr/bin"),
+    ]
+    .into_iter()
+    .map(|(k, v)| (k.to_string(), v.to_string()));
+    zjjrds_strip_chain_exports(&mut cmd, synthetic_env);
+
+    let removed: Vec<String> = cmd
+        .get_envs()
+        .filter(|(_, v)| v.is_none())
+        .map(|(k, _)| k.to_string_lossy().into_owned())
+        .collect();
+    for chain_export in ["BURD_NO_LOG", "BURD_INTERACTIVE", "BURD_CONFIG_DIR", "BURD_TOKEN_3", "BURC_TOOLS_DIR", "BURC_MANAGED_KITS", "JJSL_INVOKE_DIR"] {
+        assert!(removed.iter().any(|k| k == chain_export), "{} must be stripped at the spawn boundary (BUr_q2m)", chain_export);
+    }
+    for operator_shell in ["BURE_COLOR", "BURE_VERBOSE", "PATH"] {
+        assert!(!removed.iter().any(|k| k == operator_shell), "{} must not be touched — operator ambient passes through (BUr_q2m)", operator_shell);
+    }
+}
+
+#[test]
+fn jjtds_stirrup_strips_every_chain_export_present_in_the_real_ambient() {
+    // BUr_q2m: the launched session is a new dispatch context — whatever the
+    // real ambient process env holds under BURD_/BURC_/JJSL_INVOKE_DIR must
+    // not ride inheritance into the composed command.
     let cmd = jjrds_stirrup_command(
         Path::new("/tmp/jjtds-billet"),
         jjrg_Tier::Sonnet,
@@ -305,13 +356,15 @@ fn jjtds_stirrup_strips_the_doors_dispatch_modes() {
         Path::new("/tmp/scratch"),
     )
     .unwrap();
-    let stripped: Vec<String> = cmd
+    let removed: std::collections::HashSet<String> = cmd
         .get_envs()
         .filter(|(_, v)| v.is_none())
         .map(|(k, _)| k.to_string_lossy().into_owned())
         .collect();
-    for flag in ["BURD_NO_LOG", "BURD_INTERACTIVE", "JJSL_INVOKE_DIR"] {
-        assert!(stripped.iter().any(|k| k == flag), "{} must be stripped at the spawn boundary (BUr_q2m)", flag);
+    for (key, _) in std::env::vars() {
+        if zjjrds_is_chain_export(&key) {
+            assert!(removed.contains(&key), "{} is chain-export and present in this test process's ambient env, so it must be stripped from the composed command", key);
+        }
     }
 }
 

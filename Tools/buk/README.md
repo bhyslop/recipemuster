@@ -567,7 +567,7 @@ This mirrors MBC's `MBC_TTPARAM__FIRST` through `MBC_TTPARAM__FIFTH` pattern.
 
 | Variable | Values | Description |
 |----------|--------|-------------|
-| `BURE_COLOR` | `0` or `1` | Color policy after terminal detection; respects `NO_COLOR` |
+| `BURE_COLOR` | `auto`, `0`, or `1` | Operator override for color policy; read at dispatch, never written. The resolved verdict lands in `BURD_COLOR`; `NO_COLOR` is respected |
 
 #### Control Variables
 

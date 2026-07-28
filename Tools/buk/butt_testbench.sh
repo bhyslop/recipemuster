@@ -46,6 +46,7 @@ source "${BUTT_BUTS_DIR}/butcbx_burx.sh"
 source "${BUTT_BUTS_DIR}/butcfc_facts.sh"
 source "${BUTT_BUTS_DIR}/butclc_links.sh"
 source "${BUTT_BUTS_DIR}/butcym_yelp.sh"
+source "${BUTT_BUTS_DIR}/butcdc_color.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -113,6 +114,13 @@ butt_kindle() {
   butr_case_enroll "buh-link" butclc_link_osc8_tcase
   butr_case_enroll "buh-link" butclc_link_fallback_tcase
   butr_case_enroll "buh-link" butclc_link_variants_tcase
+
+  # dispatch-color fixture (4 cases)
+  butr_fixture_enroll "dispatch-color" "" "zbutt_noop_baste"
+  butr_case_enroll "dispatch-color" butcdc_no_color_forces_zero_tcase
+  butr_case_enroll "dispatch-color" butcdc_explicit_one_passes_through_tcase
+  butr_case_enroll "dispatch-color" butcdc_explicit_zero_passes_through_tcase
+  butr_case_enroll "dispatch-color" butcdc_auto_leaves_operator_input_unset_tcase
 
   # buym-yelp fixture (15 cases)
   butr_fixture_enroll "buym-yelp" "" "zbutt_noop_baste"

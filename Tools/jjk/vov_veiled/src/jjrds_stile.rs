@@ -1381,14 +1381,42 @@ pub fn jjrds_mcp_config_json(kit_root: &Path) -> String {
     .to_string()
 }
 
+/// Chain-export predicate (BUr_q2m): true for every env key the dispatch
+/// chain computes fresh on each invocation — the whole `BURD_`/`BURC_`
+/// families (`bud_dispatch.sh`'s allowlist, `burc_regime.sh`'s enrollment)
+/// plus the one ungoverned `JJSL_INVOKE_DIR` name — never a name the
+/// operator's own shell set. `BURE_*` (operator ambient) and `BURV_*` (the
+/// per-billet payload composed at the stirrup) are deliberately not matched.
+/// Census: `Memos/memo-20260728-stirrup-env-composition-census.md`.
+pub(crate) fn zjjrds_is_chain_export(key: &str) -> bool {
+    key.starts_with("BURD_") || key.starts_with("BURC_") || key == "JJSL_INVOKE_DIR"
+}
+
+/// Removes every chain-export key found in `source_env` from `cmd`. Takes
+/// the env pairs as a parameter rather than reading `std::env::vars()`
+/// itself so the strip is unit-testable against a synthetic env without
+/// mutating the test process's own (shared, thread-racy) environment.
+pub(crate) fn zjjrds_strip_chain_exports(
+    cmd: &mut std::process::Command,
+    source_env: impl Iterator<Item = (String, String)>,
+) {
+    for (key, _) in source_env {
+        if zjjrds_is_chain_export(&key) {
+            cmd.env_remove(key);
+        }
+    }
+}
+
 /// Stirrup — the launch primitive at the approach's end: pace-blind,
 /// parameterized (billet, tier, opening prompt); pace-coupling lives in the
 /// caller. The one consumer of the tier roster: callers speak tier words,
 /// never model IDs, and an invalid (family, effort) pair refuses fair-facedly.
 /// Returns the composed command, cwd set inside the billet, env carrying the
 /// per-billet BURV exports (the BUK meld: output, temp, and the log-dir
-/// override) and stripped of the door's own dispatch-mode flags (BUr_q2m),
-/// ready to spawn with inherited stdio.
+/// override) and stripped of every chain export the door's own dispatch ran
+/// (BUr_q2m) — parity with a hand-launched hippodrome session, operator
+/// ambient (`BURE_*` and vendor env) passed through untouched — ready to
+/// spawn with inherited stdio.
 pub fn jjrds_stirrup_command(
     billet_root: &Path,
     tier: jjrg_Tier,
@@ -1420,13 +1448,12 @@ pub fn jjrds_stirrup_command(
     cmd.env("BURV_TEMP_ROOT_DIR", scratch_root.join("temp-buk"));
     cmd.env("BURV_LOG_DIR", scratch_root.join("logs-buk"));
     // BUr_q2m: the launched session is a new dispatch context — it takes its
-    // dispatch modes from its own inlets, never from this door's. The door
-    // tabtarget's own no-log flag (the TUI cannot run under the log tee) and
-    // the trampoline's cwd capture stop here, so every tabtarget the session
-    // runs self-logs into the BURV roots composed above.
-    cmd.env_remove("BURD_NO_LOG");
-    cmd.env_remove("BURD_INTERACTIVE");
-    cmd.env_remove("JJSL_INVOKE_DIR");
+    // dispatch modes and regime config from its own inlets, never from this
+    // door's. Every BURD_/BURC_ name and JJSL_INVOKE_DIR are this door's own
+    // dispatch-chain computation and stop here, so every tabtarget the
+    // session runs re-derives its own fresh dispatch context under the BURV
+    // roots composed above.
+    zjjrds_strip_chain_exports(&mut cmd, std::env::vars());
     Ok(cmd)
 }
 

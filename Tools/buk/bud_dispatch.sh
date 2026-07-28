@@ -276,21 +276,27 @@ zbud_generate_checksum() {
   return 0
 }
 
-# Resolve color policy once at dispatch time and export BURE_COLOR (0/1)
+# Resolve color policy once at dispatch time and export the verdict as
+# BURD_COLOR (0/1) — a dispatch-computed value, never an operator-set BURE_
+# input (BUr_q2m). BURE_COLOR stays readable here as the optional operator
+# override it always was, but dispatch never writes it: a verdict left under
+# the BURE_ prefix crosses a spawn boundary as if it were operator ambient
+# (BURE_ passes by design), so the child reads a stale pin as an explicit
+# override and never re-derives its own.
 zbud_resolve_color() {
   if test -n "${NO_COLOR:-}"; then
-    export BURE_COLOR=0
+    export BURD_COLOR=0
     return 0
   fi
   case "${BURE_COLOR:-auto}" in
     0|1)
-      export BURE_COLOR
+      export BURD_COLOR="${BURE_COLOR}"
       ;;
     auto|*)
       if test -t 1 && test "${TERM:-}" != "dumb"; then
-          export BURE_COLOR=1
+          export BURD_COLOR=1
       else
-          export BURE_COLOR=0
+          export BURD_COLOR=0
       fi
       ;;
   esac
@@ -353,7 +359,7 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_OSTYPE"
+  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_OSTYPE BURD_COLOR"
   ZBURD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do
@@ -444,6 +450,11 @@ zbud_main() {
   exit "${zBURD_EXIT_STATUS}"
 }
 
-zbud_main "$@"
+# Direct execution only — sourcing (e.g. a test harness calling
+# zbud_resolve_color in isolation) defines the functions without re-running
+# a whole dispatch.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  zbud_main "$@"
+fi
 
 # eof
