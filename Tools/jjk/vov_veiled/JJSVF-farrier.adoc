@@ -568,10 +568,13 @@ lock verbs `stake` and `pluck`, and the wrap converge's trunk push (`bequeath`) 
 op is local by construction, including the probes (`sync_state`, `outstripped`, `reachable`,
 `line_abroad`), which answer from the last `glean` and never touch the network themselves.
 +
-Retry is bounded, backs off, and fires on {jjdf_transient} alone — a surveyed rejection and
-an unclassified failure both keep their existing conduct.
+Retry is bounded, backs off, and fires on {jjdf_transient} alone, with one named exception:
+`stake`'s own held-lock contention (the second {jjdf_lock_held} signature above) rides the
+same ladder silently, because a fresh holder's write is likely to clear within it — every
+other surveyed rejection and an unclassified failure both keep their existing conduct.
 Exhaustion ends in a guided halt naming the op, the attempts spent, and the remedy — never a
-raw panic, never an unbounded hang.
+raw panic, never an unbounded hang; `stake`'s own exhaustion is the clean age-forked refusal
+{jjdf_lock_held} above names, not a halt.
 `glean` is the one exception by its own contract: opportunistic and never blocking a
 ceremony, it renders its unreachable answer on exhaustion instead of halting — and the
 retries in front of that answer are what make it honest, where a single transient failure

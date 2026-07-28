@@ -506,8 +506,7 @@ fn jjtfg_lock_contended_matches_the_ref_store_phrase_only() {
          ! [remote rejected] deadbeef -> refs/jjv/guidon (failed to update ref)"
     ));
     // A bare `[remote rejected]` token alone — a hook, quota, or protected-ref
-    // denial — must stay unclassified by this predicate; that is the one real
-    // judgment call the docket cinches.
+    // denial — must stay unclassified by this predicate.
     assert!(!zjjrfg_lock_contended("! [remote rejected] trunk -> trunk (pre-receive hook declined)"));
     assert!(!zjjrfg_lock_contended("! [rejected] trunk -> trunk (fetch first)"));
     assert!(!zjjrfg_lock_contended("fatal: Could not read from remote repository."));

@@ -147,6 +147,21 @@ fn zjjrfg_trace_render(args: &[&str]) -> String {
     }
 }
 
+/// Flatten interior newlines and cap length — the grain the sectional
+/// journal's every other narrator holds (`jjrsj_sectional.rs`'s one-line-per-
+/// entry grammar): raw git stderr is normally multi-line, and an uncapped,
+/// unflattened field would break that grammar across several physical lines.
+fn zjjrfg_flatten_and_cap(raw: &str, cap: usize) -> String {
+    let flat: String = raw.trim().chars().map(|c| if c == '\n' || c == '\r' { ' ' } else { c }).collect();
+    if flat.chars().count() > cap {
+        let mut capped: String = flat.chars().take(cap).collect();
+        capped.push('…');
+        capped
+    } else {
+        flat
+    }
+}
+
 /// Narrate a git child's spawn — written BEFORE the spawn, so a wedged child
 /// leaves this line without a matching GIT-OUTCOME: the "hung inside this
 /// op" fingerprint, the git grain of the sectional's entry-without-exit law
@@ -972,20 +987,21 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                     return Ok(());
                 }
                 let now = chrono::Utc::now();
-                let stranded = sighted
-                    .as_deref()
-                    .map(|verbatim| jjdb_is_stranded(&jjdb_guidon_read(verbatim), now))
-                    .unwrap_or(false);
+                let read = sighted.as_deref().map(jjdb_guidon_read);
+                let stranded = read.as_ref().map(|r| jjdb_is_stranded(r, now)).unwrap_or(false);
+                let holder = read.as_ref().and_then(|r| r.officium.clone()).unwrap_or_else(|| "-".to_string());
                 // The gory detail sinks to the journal alone — the refusal
                 // built below is the operator's whole monitum, never a
                 // diagnostic sink (no ref, holder, or git stderr on its face).
                 jjrsj_trace(&format!(
-                    "LOCK-HELD {} op={} root={} stranded={} detail={}",
+                    "LOCK-HELD {} op={} root={} ref={} holder={} stranded={} detail={}",
                     now.to_rfc3339(),
                     ZJJRFG_OP_STAKE,
                     root.display(),
+                    ZJJRFG_GUIDON_REF,
+                    holder,
                     stranded,
-                    out.stderr.trim()
+                    zjjrfg_flatten_and_cap(&out.stderr, ZJJRFG_TRACE_ARGS_CAP)
                 ));
                 // A mid-backoff re-probe already past the stranded age skips
                 // the remaining backoffs — waiting out the rest of the ladder
