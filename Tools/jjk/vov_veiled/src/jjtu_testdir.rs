@@ -19,11 +19,51 @@ use crate::jjrvb_blotter::{jjdb_BlotterConfig, jjdb_studbook_config, JJDB_GALLOP
 /// observed shape: one module's commit pushed to another module's remote).
 pub static JJTU_CWD_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
+/// The pure resolution rule behind `jjtu_temp_base`, seamed on the env
+/// var's value so a unit test can prove disjointness without touching
+/// process-global env state (`std::env::set_var` would race the parallel
+/// runner — the same hazard `JJTU_CWD_SERIAL` above exists to guard against).
+fn zjjtu_temp_base_from(value: Option<&str>) -> PathBuf {
+    value
+        .map(PathBuf::from)
+        .map(|p| p.canonicalize().unwrap_or(p))
+        .unwrap_or_else(std::env::temp_dir)
+}
+
+/// The dispatch-composed scratch root when present (`BURD_TEMP_DIR`, set by
+/// `tt/vow-t.Test.sh` for the whole invocation), else the ambient system temp
+/// dir — the one tolerated fallback arm for a raw `cargo test` invocation
+/// outside dispatch. Concurrent billets each get their own `BURD_TEMP_DIR`, so
+/// fixtures rooted here are disjoint by construction instead of colliding on a
+/// shared literal name under system temp. Mirrors the same-shaped helper
+/// already proven in `vvc/src/vvcc_commit.rs` and `vvc/src/vvtg_guard.rs`.
+pub fn jjtu_temp_base() -> PathBuf {
+    zjjtu_temp_base_from(std::env::var("BURD_TEMP_DIR").ok().as_deref())
+}
+
+#[test]
+fn jjtu_temp_base_from_distinct_dispatches_never_overlap() {
+    // Two concurrent billets each carry their own dispatch-composed
+    // BURD_TEMP_DIR; the roots resolved from distinct values must never
+    // overlap, proving the collision the incident hit (a shared literal
+    // name under one ambient system temp dir) cannot recur once each
+    // dispatch supplies its own value.
+    let a = zjjtu_temp_base_from(Some("/tmp/jjqb_dispatch_alpha"));
+    let b = zjjtu_temp_base_from(Some("/tmp/jjqb_dispatch_beta"));
+    assert_ne!(a, b);
+    assert!(!a.starts_with(&b));
+    assert!(!b.starts_with(&a));
+
+    // The undispatched fallback (no BURD_TEMP_DIR) is the one tolerated
+    // second arm and must still resolve to the ambient system temp dir.
+    assert_eq!(zjjtu_temp_base_from(None), std::env::temp_dir());
+}
+
 pub struct JjkTestDir(PathBuf);
 
 impl JjkTestDir {
     pub fn new(name: &str) -> Self {
-        let path = std::env::temp_dir().join(name);
+        let path = jjtu_temp_base().join(name);
         let _ = std::fs::remove_dir_all(&path);
         std::fs::create_dir_all(&path).unwrap();
         Self(path)
