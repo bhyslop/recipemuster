@@ -69,6 +69,7 @@
 :axl_lintel:                          <<axl_lintel,Lintel>>
 :axl_lintel_s:                        <<axl_lintel,Lintels>>
 :axl_timeless:                        <<axl_timeless,Timeless Prose>>
+:axl_coping:                          <<axl_coping,Coping>>
 
 // Axial Dimension Terms
 :axd_ashlar:                          <<axd_ashlar,Ashlar>>
@@ -2049,6 +2050,8 @@ Genre of a
 {mcm_sheaf}
 that binds a *configuration contract* — the variables, validation, and carriage of one
 {axrg_regime}.
+Renders against its codex under
+{axl_coping}.
 Exemplars: the RBSR regime family.
 
 [[axd_cosmology]]
@@ -2574,6 +2577,9 @@ Marks an ungrouped regime variable in a subdocument.
 Lookahead: 1
 {mcm_attribute_reference}
 — the variable being detailed.
+The referenced attribute must correspond to an anchor annotated with
+{axvr_variable}
+in the parent document.
 
 [[axhrgb_group]]
 {axhrgb_group}::
@@ -2603,6 +2609,9 @@ Marks a variable within the current group in a subdocument.
 Lookahead: 1
 {mcm_attribute_reference}
 — the variable being detailed within the current group scope.
+The referenced attribute must correspond to an anchor annotated with
+{axvr_variable}
+in the parent document.
 
 [[axhro_kindle]]
 {axhro_kindle}::
@@ -2707,6 +2716,10 @@ scope
 attribute reference must match a regime defined with
 {axvr_regime}
 in parent
+* {axhrv_variable}
+attribute reference must match a variable defined with
+{axvr_variable}
+in parent
 * {axhrgb_group}
 attribute reference must match a group defined with
 {axvr_group}
@@ -2717,6 +2730,10 @@ first attribute reference must voice
 second must be an
 {axt_enum_value}
 of that specific enumeration type
+* {axhrgv_variable}
+attribute reference must match a variable defined with
+{axvr_variable}
+in parent, within the current group scope
 
 == Axial Lexicon Structural Terms
 
@@ -4494,8 +4511,8 @@ include::RBSLE-lode_ensconce.adoc[]
 
 === Composition Structural Terms
 
-Two lexicon terms complete the document-composition vocabulary: the name of the sheaf-side
-declaration unit, and the prose law the declaration pair keys.
+Three lexicon terms complete the document-composition vocabulary: the name of the sheaf-side
+declaration unit, and the prose laws the declaration pair keys.
 
 [[axl_lintel]]
 {axl_lintel}::
@@ -4549,6 +4566,51 @@ The exemption licenses those decision records, never journaling of the concept i
 an aspirant sheaf still carries the latest best concept only — a resolved fork leaves the
 mulling list rather than gaining a supersession note — and a date-stamped process trail in
 its conceptual prose is the same drift toward journal, merely unlinted.
+The matricula mechanizes this law as a presentment-emitting validator (VOSMM), citing this
+section; it does not redefine it.
+
+[[axl_coping]]
+{axl_coping}::
+A regime sheaf covers its codex's variable roster whole, and annotates it, never restates it.
+Completeness first:
+every anchor voiced
+{axvr_variable}
+or
+{axvr_group}
+in the codex's regime section has exactly one corresponding render in the bound sheaf —
+{axhrv_variable}
+or
+{axhrgv_variable}
+for a variable,
+{axhrgb_group}
+for a group — and every render resolves to a codex anchor of the matching voicing:
+none missing, none extra.
+The census keys on the voicing, never on the name —
+an identifier concept voiced
+{axo_entity}
+that merely shares the regime's prefix is not a variable and takes no render.
+Annotation second:
+a render carries a prose body only where it adds detail beyond the field's codex definition;
+a variable whose codex definition is self-sufficient renders as its marker and its
+{mcm_attribute_reference}
+alone.
+Prose lives in exactly one home, so the codex definition and the sheaf render can never
+drift — the anti-duplication sibling of
+{axl_timeless},
+whose law is anti-journaling.
++
+The law is mechanical, keyed to the
+{axl_lintel}:
+it binds every sheaf whose
+{axl_lintel}
+carries
+{axd_regime},
+against the codex regime its
+{axhrb_regime}
+marker names.
+Named for the masonry course capping a wall: the coping runs exactly where the wall runs —
+no crest uncovered, no coping over air — and it weathers the wall without rebuilding a
+course of it.
 The matricula mechanizes this law as a presentment-emitting validator (VOSMM), citing this
 section; it does not redefine it.
 
@@ -5111,13 +5173,12 @@ corresponding
 must have no
 {axhrgc_gate}
 
-* Every
+* Render completeness of
 {axvr_variable}
-under a regime should appear as either
-{axhrv_variable}
-or
-{axhrgv_variable}
-in the subdocument
+and
+{axvr_group}
+anchors is governed by
+{axl_coping}
 
 === Operation Voicing Annotation Completeness
 
