@@ -469,18 +469,19 @@ fn jjtdm_reap_clears_the_destroyed_billets_own_scratch_sibling() {
 }
 
 #[test]
-fn jjtdm_reap_clears_killed_door_orphan_scratch_left_by_an_unrelated_billet() {
+fn jjtdm_reap_leaves_unrelated_orphan_scratch_untouched() {
     let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_orphan_scratch");
     zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
     // A scratch directory whose billet no longer stands at all — the residue
-    // a killed dispatch door leaves behind.
+    // a killed dispatch door leaves behind. Muck is a billet singleton: this
+    // is not its target, so it is not this door's to clear.
     let orphan_dirname = jjrds_billet_dirname(ZJJTDM_SERIAL_2, "ZZZZZ");
     let orphan = zjjtdm_scratch_dir(infield.path(), &orphan_dirname);
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
 
     jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::Destroy).unwrap();
 
-    assert!(!orphan.exists(), "killed-door orphan scratch is this door's to clear too");
+    assert!(orphan.exists(), "muck clears only its own target's scratch — unrelated orphan scratch is left standing");
 }
 
 #[test]

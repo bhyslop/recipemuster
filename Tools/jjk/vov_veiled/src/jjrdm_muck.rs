@@ -27,10 +27,12 @@
 //! to. The removal is `jjrfr_billet_remove` behind its explicit force — this
 //! door's confirmed destroy arm is the force's only caller.
 //!
-//! The door clears the destroyed billet's scratch sibling with it, and
-//! orphan scratch — a scratch directory whose billet no longer stands — is
-//! equally its to clear: the {jjdd_stile} deliberately leaves scratch as
-//! forensics, so this door is where forensics end.
+//! The door clears the destroyed billet's own scratch sibling with it, and
+//! nothing else — scratch dies with its billet, the {jjdd_stile} clearing a
+//! passing billet's scratch on its own trailing step, this door clearing a
+//! standing billet's on confirmed destroy. Scratch orphaned by any other
+//! route (a killed door, a crash) is not this door's target and is left for
+//! hand cleaning.
 
 use crate::jjrds_stile::{
     jjrds_billet_identity,
@@ -479,35 +481,17 @@ fn zjjrdm_salvage<F: jjrfr_FarrierCore>(farrier: &F, plan: &jjrdm_Plan) -> Resul
     farrier.jjrfr_consign(&plan.billet_root, &seated_branch)
 }
 
-/// Clear every scratch directory under `infield_root`'s scratch container
-/// whose billet no longer stands — orphan scratch, whether left by this
-/// reap's own destroyed billet or by an earlier killed door — leaving any
-/// scratch whose billet still stands untouched. Best-effort: an unremovable
-/// entry is skipped rather than failing the reap that already succeeded.
-fn zjjrdm_sweep_scratch(infield_root: &Path) -> Vec<PathBuf> {
-    let mut swept = Vec::new();
-    let scratch_container = infield_root.join(JJRDS_SCRATCH_DIRNAME);
-    let entries = match std::fs::read_dir(&scratch_container) {
-        Ok(e) => e,
-        Err(_) => return swept,
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if !path.is_dir() {
-            continue;
-        }
-        let dirname = match path.file_name() {
-            Some(n) => n.to_string_lossy().into_owned(),
-            None => continue,
-        };
-        if infield_root.join(&dirname).is_dir() {
-            continue; // the billet still stands
-        }
-        if std::fs::remove_dir_all(&path).is_ok() {
-            swept.push(path);
-        }
+/// Clear the reaped billet's own scratch sibling, and nothing else — muck is
+/// a billet singleton, so its sweep never reaches past the billet it was
+/// confirmed against. Best-effort: an unremovable or absent entry is skipped
+/// rather than failing the reap that already succeeded.
+fn zjjrdm_sweep_scratch(infield_root: &Path, billet_dirname: &str) -> Vec<PathBuf> {
+    let scratch = infield_root.join(JJRDS_SCRATCH_DIRNAME).join(billet_dirname);
+    if std::fs::remove_dir_all(&scratch).is_ok() {
+        vec![scratch]
+    } else {
+        Vec::new()
     }
-    swept
 }
 
 /// One reap's outcome, for the caller's report.
@@ -520,7 +504,8 @@ pub struct jjrdm_Outcome {
 
 /// Execute the confirmed arm: salvage first if `SalvageThenDestroy`, then the
 /// forced destroy (`jjrfr_billet_remove`'s only forced caller — the one
-/// deliberate data-loss call in the taxonomy), then sweep orphan scratch.
+/// deliberate data-loss call in the taxonomy), then clear this billet's own
+/// scratch sibling.
 /// Refuses `InvalidArm` if the plan never opened the requested arm — a
 /// confirm gate answers a plan the caller already holds, so an arm outside
 /// what the plan showed is a caller-contract violation, not a fresh judgment
@@ -538,6 +523,6 @@ pub fn jjrdm_reap<F: jjrfr_FarrierBillet + jjrfr_FarrierCore>(
         zjjrdm_salvage(farrier, plan)?;
     }
     farrier.jjrfr_billet_remove(&plan.billet_root, true)?;
-    let scratch_swept = zjjrdm_sweep_scratch(infield_root);
+    let scratch_swept = zjjrdm_sweep_scratch(infield_root, &plan.billet_dirname);
     Ok(jjrdm_Outcome { billet_root: plan.billet_root.clone(), salvaged: arm == jjrdm_Arm::SalvageThenDestroy, scratch_swept })
 }
