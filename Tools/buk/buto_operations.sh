@@ -24,7 +24,13 @@ set -euo pipefail
 # Color codes
 
 buto_color() {
-  if test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
+  # Obey the dispatch color verdict when present; TERM probe is the
+  # undispatched fallback (mirrors the buym dispatch arm).
+  if test "${BURD_COLOR:-}" = "0"; then
+    printf ''
+  elif test "${BURD_COLOR:-}" = "1"; then
+    printf '\033[%sm' "${1}"
+  elif test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
     printf '\033[%sm' "${1}"
   else
     printf ''
