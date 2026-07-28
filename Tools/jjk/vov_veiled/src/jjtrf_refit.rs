@@ -231,12 +231,12 @@ fn jjtrf_refit_reports_conflict_when_trunk_and_billet_edit_the_same_file() {
     let rejection = jjrrf_refit(&jjrfg_PlainGit, billet.path(), ZJJTRF_BRANCH, ZJJTRF_TRUNK).unwrap_err();
 
     assert_eq!(rejection.kind, jjrfr_RejectionKind::Conflict);
-    assert!(rejection.detail.contains("base.txt"), "the conflicted file is named: {}", rejection.detail);
+    assert!(rejection.monitum.contains("base.txt"), "the conflicted file is named: {}", rejection.monitum);
     assert!(
-        rejection.detail.contains("rev-parse -q --verify MERGE_HEAD")
-            && rejection.detail.contains("never a .git/MERGE_HEAD file test"),
+        rejection.monitum.contains("rev-parse -q --verify MERGE_HEAD")
+            && rejection.monitum.contains("never a .git/MERGE_HEAD file test"),
         "the merge-state check is worktree-correct and steers off the filesystem test: {}",
-        rejection.detail
+        rejection.monitum
     );
-    assert!(rejection.detail.contains("merge --abort"), "the abort remedy is named: {}", rejection.detail);
+    assert!(rejection.monitum.contains("merge --abort"), "the abort remedy is named: {}", rejection.monitum);
 }

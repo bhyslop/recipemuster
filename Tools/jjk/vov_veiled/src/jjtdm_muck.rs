@@ -426,7 +426,7 @@ fn jjtdm_reap_never_salvages_jj_owned_officium_content() {
     let result = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy);
 
     match result {
-        Err(jjrdm_Rejection::Farrier(r)) => assert!(r.detail.contains("nothing legitimate to salvage")),
+        Err(jjrdm_Rejection::Farrier(r)) => assert!(r.monitum.contains("nothing legitimate to salvage")),
         other => panic!("expected a Farrier DirtyTree rejection, got {:?}", other),
     }
     assert!(billet.exists(), "must never lodge JJ-owned officium content into the work repo");
@@ -447,7 +447,7 @@ fn jjtdm_reap_refuses_to_salvage_a_billet_whose_checkout_drifted() {
     let result = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy);
 
     match result {
-        Err(jjrdm_Rejection::Farrier(r)) => assert!(r.detail.contains("no longer seats pace")),
+        Err(jjrdm_Rejection::Farrier(r)) => assert!(r.monitum.contains("no longer seats pace")),
         other => panic!("expected a Farrier DirtyTree rejection, got {:?}", other),
     }
 }
