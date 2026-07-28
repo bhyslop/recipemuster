@@ -143,15 +143,23 @@ pub(crate) fn zjjrm_infield_root<F: jjrfr_FarrierCore>(farrier: &F, cwd: &Path) 
     hippodrome_root.parent().map(|p| p.to_path_buf())
 }
 
-/// The single live-store resolver: cwd → infield root → studbook config. Every
-/// seam-on caller that needs to name where the one live Gallops sits (the read
-/// seam, the write seam's guidon derivation, the studbook-root door arms, the
+/// The single live-store resolver: cwd → infield root → studbook config,
+/// PER CALL — the store follows the calling context. Every seam-on caller
+/// that needs to name where the one live Gallops sits (the read seam, the
+/// write seam's guidon derivation, the studbook-root door arms, the
 /// open-time monita) funnels through here rather than re-deriving its own
-/// variant — so "where the live store is" has exactly one home, and the `path`
-/// parameters those callers still carry are the seam-off/test tail alone. A
-/// missing cwd or an infield root that cannot be derived surfaces loud; the few
-/// panic-semantics derivations (`jjrm_exchange_dir`, `zjjrm_officia_root`, the
-/// open glean) deliberately keep their own shape and are NOT folded in here.
+/// variant — so "where the live store is" has exactly one home, and the
+/// `path` parameters those callers still carry are the seam-off/test tail
+/// alone. A missing cwd or an infield root that cannot be derived surfaces
+/// loud.
+///
+/// Deliberately NOT process-cached, unlike the officium exchange
+/// (`ZJJRM_OFFICIUM_STUDBOOK`): the cwd-hopping proving grounds (jjtvb,
+/// jjtwp, jjtnc, jjtld) repoint the process cwd exactly so store resolution
+/// follows their fixture context — caching would weld every ground to
+/// whichever store primed first (observed: cross-test lock collisions and
+/// wrong-gallops reads). In production the two coincide, since the server's
+/// cwd never moves after launch.
 pub(crate) fn zjjrm_studbook_config() -> Result<jjdb_BlotterConfig, String> {
     let cwd = std::env::current_dir()
         .map_err(|e| format!("could not read cwd: {}", e))?;
@@ -2147,9 +2155,10 @@ pub(crate) fn zjjrm_exchange_dir_over(
 /// handed to agents verbatim and re-resolved on every jjx call — so this is
 /// deliberately NOT a per-call ambient-cwd read: a cwd movement after launch
 /// (or a concurrently cwd-hopping test in a shared test process) cannot
-/// relocate the exchange. First-use panic semantics match the old per-call
-/// expect: a server whose launch cwd yields no infield root cannot serve
-/// officium commands at all.
+/// relocate the exchange. The live-store resolver (`zjjrm_studbook_config`)
+/// deliberately does NOT share this cache — see its comment. First-use panic
+/// semantics match the old per-call expect: a server whose launch cwd yields
+/// no infield root cannot serve officium commands at all.
 static ZJJRM_OFFICIUM_STUDBOOK: std::sync::OnceLock<jjdb_BlotterConfig> = std::sync::OnceLock::new();
 
 fn zjjrm_officium_studbook() -> &'static jjdb_BlotterConfig {

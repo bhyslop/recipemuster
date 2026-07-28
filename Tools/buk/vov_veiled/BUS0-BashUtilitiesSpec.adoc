@@ -1220,6 +1220,11 @@ exporting a `BURD_*` flag ahead of a launch so a whole session inherits a
 dispatch mode —
 every tabtarget the launched session runs silently stops logging,
 and the read-the-hist-file discipline dies without a symptom.
+The consuming-side tell is symmetric:
+feeling the need to unset or override a `BURD_*` value at an invocation is
+evidence of contraband upstream —
+a boundary that failed to strip —
+never a technique to keep.
 
 === Regime Enum Sprue Convention
 
