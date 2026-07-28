@@ -1208,7 +1208,7 @@ mod tests {
 
     #[test]
     fn test_mint_token_empty_dir() {
-        let dir = std::env::temp_dir().join("jjrlg_test_mint_empty");
+        let dir = crate::jjtu_testdir::jjtu_temp_base().join("jjrlg_test_mint_empty");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         assert_eq!(zjjrlg_mint_token(&dir), "L0");
@@ -1217,7 +1217,7 @@ mod tests {
 
     #[test]
     fn test_mint_token_with_existing() {
-        let dir = std::env::temp_dir().join("jjrlg_test_mint_existing");
+        let dir = crate::jjtu_testdir::jjtu_temp_base().join("jjrlg_test_mint_existing");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("legatio_L0.json"), "{}").unwrap();
@@ -1287,7 +1287,7 @@ mod tests {
 
     #[test]
     fn test_pensum_state_roundtrip() {
-        let dir = std::env::temp_dir().join("jjrlg_test_pensum_roundtrip");
+        let dir = crate::jjtu_testdir::jjtu_temp_base().join("jjrlg_test_pensum_roundtrip");
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
 

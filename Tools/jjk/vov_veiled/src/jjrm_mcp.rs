@@ -4052,7 +4052,7 @@ mod tests {
     /// Fresh, empty scratch officia dir. Process-id-scoped so parallel test
     /// binaries don't share state; cleared at entry so a prior crash can't leak in.
     fn scratch_officia(tag: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir()
+        let dir = crate::jjtu_testdir::jjtu_temp_base()
             .join(format!("jjrm_test_officia_{}_{}", tag, std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
