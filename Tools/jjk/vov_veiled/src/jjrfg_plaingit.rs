@@ -295,6 +295,29 @@ pub(crate) fn zjjrfg_lock_held_refusal(root: &Path, stranded: bool) -> jjrfr_Rej
     )
 }
 
+/// Shared by both surveyed lock-held signatures (client-side CAS rejection
+/// and the server-side ref-transaction race): sinks the gory git detail to
+/// the sectional journal alone, judges the sighted holder's age, and hands
+/// back both the verdict and the clean monitum — no ref, SHA, remote URL, or
+/// git stderr ever reaches the caller's operator-facing text.
+fn zjjrfg_lock_held_monitum(root: &Path, op: &'static str, sighted: Option<&str>, raw_detail: &str) -> (bool, jjrfr_Rejection) {
+    let now = chrono::Utc::now();
+    let read = sighted.map(jjdb_guidon_read);
+    let stranded = read.as_ref().map(|r| jjdb_is_stranded(r, now)).unwrap_or(false);
+    let holder = read.as_ref().and_then(|r| r.officium.clone()).unwrap_or_else(|| "-".to_string());
+    jjrsj_trace(&format!(
+        "LOCK-HELD {} op={} root={} ref={} holder={} stranded={} detail={}",
+        now.to_rfc3339(),
+        op,
+        root.display(),
+        ZJJRFG_GUIDON_REF,
+        holder,
+        stranded,
+        zjjrfg_flatten_and_cap(raw_detail, ZJJRFG_TRACE_ARGS_CAP)
+    ));
+    (stranded, zjjrfg_lock_held_refusal(root, stranded))
+}
+
 /// Run `git -C root <args>`, feeding `stdin_data` to the child's stdin. Spawn
 /// failure panics, matching `zjjrfg_run_git`'s precondition posture; the pipe
 /// write rides the local runner's own stdin thread.
@@ -972,7 +995,9 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                 if retried && self.jjrfr_sight(root)?.as_deref() == Some(guidon) {
                     return Ok(());
                 }
-                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockHeld, ZJJRFG_OP_STAKE, root, out.stderr));
+                let sighted = self.jjrfr_sight(root)?;
+                let (_, rejection) = zjjrfg_lock_held_monitum(root, ZJJRFG_OP_STAKE, sighted.as_deref(), &out.stderr);
+                return Err(rejection);
             }
             if zjjrfg_lock_contended(&out.stderr) {
                 // A held lock merely being CONTENDED — the server's own
@@ -986,36 +1011,20 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                 if sighted.as_deref() == Some(guidon) {
                     return Ok(());
                 }
-                let now = chrono::Utc::now();
-                let read = sighted.as_deref().map(jjdb_guidon_read);
-                let stranded = read.as_ref().map(|r| jjdb_is_stranded(r, now)).unwrap_or(false);
-                let holder = read.as_ref().and_then(|r| r.officium.clone()).unwrap_or_else(|| "-".to_string());
-                // The gory detail sinks to the journal alone — the refusal
-                // built below is the operator's whole monitum, never a
-                // diagnostic sink (no ref, holder, or git stderr on its face).
-                jjrsj_trace(&format!(
-                    "LOCK-HELD {} op={} root={} ref={} holder={} stranded={} detail={}",
-                    now.to_rfc3339(),
-                    ZJJRFG_OP_STAKE,
-                    root.display(),
-                    ZJJRFG_GUIDON_REF,
-                    holder,
-                    stranded,
-                    zjjrfg_flatten_and_cap(&out.stderr, ZJJRFG_TRACE_ARGS_CAP)
-                ));
+                let (stranded, rejection) = zjjrfg_lock_held_monitum(root, ZJJRFG_OP_STAKE, sighted.as_deref(), &out.stderr);
                 // A mid-backoff re-probe already past the stranded age skips
                 // the remaining backoffs — waiting out the rest of the ladder
                 // for a holder this old would only delay a verdict the sight
                 // already settled.
                 if stranded {
-                    return Err(zjjrfg_lock_held_refusal(root, true));
+                    return Err(rejection);
                 }
                 match backoffs.next() {
                     Some(pause) => {
                         std::thread::sleep(*pause);
                         continue;
                     }
-                    None => return Err(zjjrfg_lock_held_refusal(root, false)),
+                    None => return Err(rejection),
                 }
             }
             zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail())
