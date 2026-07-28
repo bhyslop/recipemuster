@@ -100,10 +100,9 @@ fn jjtsj_phase_line_shape() {
     assert_eq!(line, "PHASE 2026-01-02T03:04:05+00:00 cmd=jjx_record step=lock");
 }
 
-/// The done-when contract in miniature: a sequence of phase beats followed
-/// by no further beat reads, on a torn tail, as "the last phase entered" —
-/// the same entry-without-exit shape `jjtsj_torn_tail_reads_as_entry_without_exit`
-/// proves for the command grain.
+/// A sequence of phase beats followed by no further beat reads, on a torn
+/// tail, as "the last phase entered" — the same entry-without-exit shape
+/// `jjtsj_torn_tail_reads_as_entry_without_exit` proves for the command grain.
 #[test]
 fn jjtsj_phase_sequence_torn_tail_names_last_phase_entered() {
     let now: chrono::DateTime<chrono::Utc> = "2026-01-02T03:04:05Z".parse().unwrap();

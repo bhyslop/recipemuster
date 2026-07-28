@@ -37,6 +37,7 @@ pub mod jjrvg_guidon;
 pub mod jjrds_stile;
 pub mod jjrdm_muck;
 pub mod jjrdc_cashier;
+pub mod jjrk_klaxon;
 // Per-command modules (jjrxx_command pattern)
 pub mod jjrch_chalk;
 pub mod jjrcu_curry;
@@ -57,7 +58,6 @@ pub mod jjrrn_rein;
 pub mod jjrrs_restring;
 pub mod jjrrt_retire;
 pub mod jjrsc_scout;
-pub mod jjrk_klaxon;
 pub mod jjrsj_sectional;
 pub mod jjrsl_slate;
 pub mod jjrtl_tally;
