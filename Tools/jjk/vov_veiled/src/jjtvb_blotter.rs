@@ -163,8 +163,13 @@ fn jjtvb_journal_rejects_lock_held_and_never_calls_mutate() {
         (vec![PathBuf::from("should-not-land.txt")], "should not land".to_string())
     });
 
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockHeld);
+    let rejection = result.unwrap_err();
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::LockHeld);
     assert!(!called.get(), "mutate must not run when the lock cannot be acquired");
+    let text = rejection.to_string();
+    assert!(!text.contains("refs/jjv"), "the monitum must name no ref path: {}", text);
+    assert!(!text.contains("[rejected]"), "the monitum must carry no raw git stderr: {}", text);
+    assert!(text.contains("the studbook is busy"), "the monitum must read as the composed refusal: {}", text);
 }
 
 #[test]
