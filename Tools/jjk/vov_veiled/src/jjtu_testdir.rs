@@ -19,11 +19,25 @@ use crate::jjrvb_blotter::{jjdb_BlotterConfig, jjdb_studbook_config, JJDB_GALLOP
 /// observed shape: one module's commit pushed to another module's remote).
 pub static JJTU_CWD_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
+/// The dispatch-composed scratch root when present (`BURD_TEMP_DIR`, set by
+/// `tt/vow-t.Test.sh` for the whole invocation), else the ambient system temp
+/// dir — the one tolerated fallback arm for a raw `cargo test` invocation
+/// outside dispatch. Concurrent billets each get their own `BURD_TEMP_DIR`, so
+/// fixtures rooted here are disjoint by construction instead of colliding on a
+/// shared literal name under system temp. Mirrors the same-shaped helper
+/// already proven in `vvc/src/vvcc_commit.rs` and `vvc/src/vvtg_guard.rs`.
+pub fn jjtu_temp_base() -> PathBuf {
+    std::env::var("BURD_TEMP_DIR")
+        .map(PathBuf::from)
+        .map(|p| p.canonicalize().unwrap_or(p))
+        .unwrap_or_else(|_| std::env::temp_dir())
+}
+
 pub struct JjkTestDir(PathBuf);
 
 impl JjkTestDir {
     pub fn new(name: &str) -> Self {
-        let path = std::env::temp_dir().join(name);
+        let path = jjtu_temp_base().join(name);
         let _ = std::fs::remove_dir_all(&path);
         std::fs::create_dir_all(&path).unwrap();
         Self(path)
