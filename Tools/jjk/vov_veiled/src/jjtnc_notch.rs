@@ -116,7 +116,7 @@ fn jjtnc_empty_notch_monitum_listed_files_name_the_gap() {
     assert!(!monitum.contains("No files were listed"));
 }
 
-// ---- jjrnc_run_notch consign wiring (Ruling 3) ----
+// ---- jjrnc_run_notch consign wiring (JJSVJ "The journal ceremony") ----
 //
 // jjrnc_run_notch reads and writes only through the ambient process cwd (no
 // -C, no root parameter — vvce_git_command's own contract), so exercising it
@@ -212,8 +212,8 @@ fn zjjtnc_remote_branch_tip(bare: &Path, branch: &str) -> Option<String> {
 }
 
 // A notch on a badged pace-billet branch (`jjls_pace/{coronet}`) pushes it to
-// the remote immediately — Ruling 3, "notch consigns the billet branch every
-// time".
+// the remote immediately — JJSVJ "The journal ceremony": "notch consigns the
+// billet branch every time".
 #[test]
 fn jjtnc_notch_consigns_the_badged_pace_branch() {
     let (bare, _primary, billet, branch) = zjjtnc_billeted_primary("jjtnc_consign");

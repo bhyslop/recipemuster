@@ -229,11 +229,11 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
     let rc = vvc::commit(&commit_args, &mut output);
 
-    // Ruling 3 (₣B9 paddock, carried 260722 wrap-convergence session): notch
-    // consigns the billet branch every time. The commit already landed
-    // locally, so a push failure here cannot be undone (additive discipline)
-    // — it surfaces loud instead, turning the local-only commit into a
-    // reportable gap rather than a silent one.
+    // JJSVJ "The journal ceremony" (jjdb_journal): notch consigns the billet
+    // branch every time. The commit already landed locally, so a push failure
+    // here cannot be undone (additive discipline) — it surfaces loud instead,
+    // turning the local-only commit into a reportable gap rather than a
+    // silent one.
     let rc = if rc == 0 {
         match jjrnc_consign_current_branch(&jjrfg_PlainGit) {
             Ok(()) => rc,
@@ -258,13 +258,13 @@ pub fn jjrnc_run_notch(args: jjrnc_NotchArgs) -> (i32, String) {
 
 /// Push the checked-out branch when — and only when — it wears the pace
 /// livery badge (`jjls_pace/{coronet}`, JJRF_LIVERY_PACE): the billet's own
-/// WIP carrier, the branch Ruling 3 names. A branch outside that badge
-/// (hippodrome trunk, a `jjls_groom` billet, a detached HEAD) is left
-/// untouched — the callers' grounds are not yet gated (a separate seeded
-/// build), so this is the one signal available here to tell a pace billet
-/// apart from everything else they can currently run from.
+/// WIP carrier, the branch JJSVJ "The journal ceremony" (jjdb_journal) names.
+/// A branch outside that badge (hippodrome trunk, a `jjls_groom` billet, a
+/// detached HEAD) is left untouched — the callers' grounds are not yet gated
+/// (a separate seeded build), so this is the one signal available here to
+/// tell a pace billet apart from everything else they can currently run from.
 ///
-/// Three callers weld their durable side-effect to this push: notch (Ruling 3,
+/// Three callers weld their durable side-effect to this push: notch (JJSVJ,
 /// every commit reaches remote custody immediately), landing (the L commit
 /// must not wait on a session exit that a same-session land→wrap never
 /// fires), and wrap (the branch must still reach remote custody as part of
