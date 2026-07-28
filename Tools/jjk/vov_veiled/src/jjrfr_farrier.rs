@@ -67,30 +67,89 @@ impl std::fmt::Display for jjrfr_RejectionKind {
     }
 }
 
-/// A rejection from a core-facet op: the kind plus the op/repo/detail context every
+/// The raw foreign evidence behind a rejection — git's own stderr or porcelain,
+/// the neighbour's verbatim words. Wrapped in its own type so it can never be
+/// transposed into the operator-facing monitum slot: both are text, and only the
+/// type tells them apart at a construction site. It carries no `Display` — the
+/// operator render has no path to it, and its sole reader is the diagnostic sink
+/// (`jjrfr_diagnostic`), which journals it for the attended session.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct jjrfr_Diagnostic(String);
+
+impl jjrfr_Diagnostic {
+    pub fn jjrfr_as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<String> for jjrfr_Diagnostic {
+    fn from(raw: String) -> Self {
+        jjrfr_Diagnostic(raw)
+    }
+}
+
+impl From<&str> for jjrfr_Diagnostic {
+    fn from(raw: &str) -> Self {
+        jjrfr_Diagnostic(raw.to_string())
+    }
+}
+
+/// A rejection from a core-facet op: the kind plus the op/repo context every
 /// consumer needs to act on it — never a bare failure (op census, farrier sheaf).
+///
+/// Two audiences, two fields, never one (`jjdf_monitum`): the `monitum` is the
+/// operator's whole face and the only thing `Display` renders; the `diagnostic`
+/// is the neighbour's raw evidence, private and reachable only through
+/// `jjrfr_diagnostic`. A render surface that forgets to absorb git's stderr
+/// cannot leak it, because there is no path from the render to the field that
+/// holds it — the leak is a compile fact, not a review catch.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrfr_Rejection {
     pub kind: jjrfr_RejectionKind,
     pub op: &'static str,
     pub repo: PathBuf,
-    pub detail: String,
+    /// The operator's whole face: a git-free, composed remedy. Every
+    /// construction supplies one; a kind whose foreign evidence an operator must
+    /// see composes it into prose here rather than spilling the neighbour's
+    /// stderr into it.
+    pub monitum: String,
+    /// The raw foreign evidence, for the attended session's eyes alone. Private
+    /// and `Display`-less by construction, reachable only through
+    /// `jjrfr_diagnostic` — so no render surface, present or future, can route it
+    /// to the operator by forgetting to absorb it.
+    diagnostic: Option<jjrfr_Diagnostic>,
 }
 
 impl jjrfr_Rejection {
+    /// Compose a rejection with its operator face. `monitum` is git-free remedy
+    /// prose; raw foreign evidence rides `jjrfr_with_diagnostic`, never this.
     pub fn jjrfr_new(
         kind: jjrfr_RejectionKind,
         op: &'static str,
         repo: impl Into<PathBuf>,
-        detail: impl Into<String>,
+        monitum: impl Into<String>,
     ) -> Self {
-        jjrfr_Rejection { kind, op, repo: repo.into(), detail: detail.into() }
+        jjrfr_Rejection { kind, op, repo: repo.into(), monitum: monitum.into(), diagnostic: None }
+    }
+
+    /// Attach the raw foreign evidence a classification consumed — git's stderr
+    /// or porcelain — for the diagnostic sink. Chained at the construction sites
+    /// whose verdict was read from that evidence; the operator face is untouched.
+    pub fn jjrfr_with_diagnostic(mut self, diagnostic: impl Into<jjrfr_Diagnostic>) -> Self {
+        self.diagnostic = Some(diagnostic.into());
+        self
+    }
+
+    /// The raw foreign evidence, if any — the sole reader of the diagnostic slot,
+    /// for the journal/klaxon sink and the attended session it serves.
+    pub fn jjrfr_diagnostic(&self) -> Option<&str> {
+        self.diagnostic.as_ref().map(jjrfr_Diagnostic::jjrfr_as_str)
     }
 }
 
 impl std::fmt::Display for jjrfr_Rejection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} rejected ({}) at {}: {}", self.op, self.kind, self.repo.display(), self.detail)
+        write!(f, "{} rejected ({}) at {}: {}", self.op, self.kind, self.repo.display(), self.monitum)
     }
 }
 

@@ -318,9 +318,9 @@ fn jjtfg_advance_rejects_diverged_on_a_line_ahead_of_the_remote_tip() {
 
     let rejection = result.unwrap_err();
     assert_eq!(rejection.kind, jjrfr_RejectionKind::Diverged);
-    assert!(rejection.detail.contains("LOCAL-AHEAD"), "detail: {}", rejection.detail);
-    assert!(rejection.detail.contains("unexplained"), "stranded commit must be named: {}", rejection.detail);
-    assert!(rejection.detail.contains("consign"), "the push remedy must be named: {}", rejection.detail);
+    assert!(rejection.monitum.contains("LOCAL-AHEAD"), "detail: {}", rejection.monitum);
+    assert!(rejection.monitum.contains("unexplained"), "stranded commit must be named: {}", rejection.monitum);
+    assert!(rejection.monitum.contains("consign"), "the push remedy must be named: {}", rejection.monitum);
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, ahead, "advance must leave the unexplained position untouched — never auto-destroy");
     assert!(local1.path().join("unexplained.txt").exists(), "its content must stand for the operator to inspect");
@@ -364,8 +364,8 @@ fn jjtfg_advance_rejects_diverged_on_a_forked_line() {
 
     let rejection = result.unwrap_err();
     assert_eq!(rejection.kind, jjrfr_RejectionKind::Diverged);
-    assert!(rejection.detail.contains("FORKED"), "detail: {}", rejection.detail);
-    assert!(!rejection.detail.contains("LOCAL-AHEAD"), "a fork must not read as local-ahead: {}", rejection.detail);
+    assert!(rejection.monitum.contains("FORKED"), "detail: {}", rejection.monitum);
+    assert!(!rejection.monitum.contains("LOCAL-AHEAD"), "a fork must not read as local-ahead: {}", rejection.monitum);
     let head = zjjtfg_git(local1.path(), &["rev-parse", "HEAD"]);
     assert_eq!(head, forked, "the forked position must stand for the operator to inspect");
     assert!(local1.path().join("from-local1.txt").exists());
@@ -393,7 +393,22 @@ fn jjtfg_consign_rejects_diverged_on_a_content_race() {
 
     let result = jjrfg_PlainGit.jjrfr_consign(local1.path(), ZJJTFG_TRUNK);
 
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::Diverged);
+    let rejection = result.unwrap_err();
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::Diverged);
+    // The render contract on a real git-driven leak-kind: the operator face
+    // (monitum) carries the composed remedy and NONE of git's push-rejection
+    // prose, while that prose survives behind the diagnostic accessor — the
+    // journal's and the attended session's eyes, never the operator's.
+    assert!(rejection.monitum.contains("re-glean"), "the remedy names the recovery: {}", rejection.monitum);
+    for token in ["[rejected]", "stale info", "non-fast-forward", "refs/heads", "error:"] {
+        assert!(!rejection.monitum.contains(token), "the operator face must not carry '{}': {}", token, rejection.monitum);
+    }
+    let diagnostic = rejection.jjrfr_diagnostic().expect("the raw git evidence survives as diagnostic");
+    assert!(
+        diagnostic.contains("rejected") || diagnostic.contains("non-fast-forward"),
+        "git's own rejection prose reaches the diagnostic sink: {}",
+        diagnostic
+    );
 }
 
 /// Proffer's happy path: the composed write lands on the remote AND the local
@@ -516,16 +531,16 @@ fn jjtfg_lock_contended_matches_the_ref_store_phrase_only() {
 fn jjtfg_lock_held_refusal_forks_its_remedy_tail_on_age_and_names_no_git_internals() {
     let fresh = zjjrfg_lock_held_refusal(Path::new("/r"), false);
     assert_eq!(fresh.kind, jjrfr_RejectionKind::LockHeld);
-    assert!(fresh.detail.contains("re-run"));
-    assert!(!fresh.detail.contains("cashier"));
+    assert!(fresh.monitum.contains("re-run"));
+    assert!(!fresh.monitum.contains("cashier"));
 
     let stranded = zjjrfg_lock_held_refusal(Path::new("/r"), true);
     assert_eq!(stranded.kind, jjrfr_RejectionKind::LockHeld);
-    assert!(stranded.detail.contains("cashier"));
+    assert!(stranded.monitum.contains("cashier"));
 
     for r in [&fresh, &stranded] {
-        assert!(!r.detail.contains("refs/jjv/guidon"), "the operator's face must not carry the ref path");
-        assert!(!r.detail.to_lowercase().contains("sha"), "the operator's face must not carry a SHA");
+        assert!(!r.monitum.contains("refs/jjv/guidon"), "the operator's face must not carry the ref path");
+        assert!(!r.monitum.to_lowercase().contains("sha"), "the operator's face must not carry a SHA");
     }
 }
 
@@ -866,7 +881,14 @@ fn jjtfg_stake_rejects_lock_held_when_already_staked() {
 
     let result = jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-second");
 
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockHeld);
+    let rejection = result.unwrap_err();
+    assert_eq!(rejection.kind, jjrfr_RejectionKind::LockHeld);
+    let text = rejection.to_string();
+    assert!(!text.contains("refs/jjv"), "the monitum must name no ref path: {}", text);
+    assert!(!text.contains("[rejected]"), "the monitum must carry no raw git stderr: {}", text);
+    assert!(!text.contains("stale info"), "the monitum must carry no raw git stderr: {}", text);
+    assert!(text.contains("the studbook is busy"), "the monitum must read as the composed refusal: {}", text);
+    assert!(text.contains("re-run the command"), "a fresh holder's monitum names retry as the remedy: {}", text);
 }
 
 #[test]
@@ -1128,7 +1150,7 @@ fn jjtfg_billet_seat_rejects_seat_vestige_when_the_recorded_root_is_gone() {
         .expect_err("a vestige registration must reject, never panic");
 
     assert_eq!(rejection.kind, jjrfr_RejectionKind::SeatVestige);
-    assert!(rejection.detail.contains("worktree prune"), "the refusal must name the remedy: {}", rejection.detail);
+    assert!(rejection.monitum.contains("worktree prune"), "the refusal must name the remedy: {}", rejection.monitum);
 
     // Advice, never automatic: the driver leaves the registry exactly as it found it.
     let registry = zjjtfg_git(primary.path(), &["worktree", "list", "--porcelain"]);
@@ -1152,9 +1174,9 @@ fn jjtfg_billet_seat_rejects_line_seated_when_a_live_billet_holds_the_branch() {
 
     assert_eq!(rejection.kind, jjrfr_RejectionKind::LineSeated);
     assert!(
-        rejection.detail.contains(&live.path().to_string_lossy().into_owned()),
+        rejection.monitum.contains(&live.path().to_string_lossy().into_owned()),
         "the refusal must name the standing billet: {}",
-        rejection.detail
+        rejection.monitum
     );
 }
 
@@ -1585,19 +1607,19 @@ fn jjtfg_enfold_rejects_conflict_naming_files_and_worktree_correct_remedy() {
     let rejection = jjrfg_PlainGit.jjrfr_enfold(billet.path(), ZJJTFG_TRUNK).unwrap_err();
 
     assert_eq!(rejection.kind, jjrfr_RejectionKind::Conflict);
-    assert!(rejection.detail.contains("base.txt"), "the conflicted file is named: {}", rejection.detail);
+    assert!(rejection.monitum.contains("base.txt"), "the conflicted file is named: {}", rejection.monitum);
     assert!(
-        rejection.detail.contains("rev-parse -q --verify MERGE_HEAD"),
+        rejection.monitum.contains("rev-parse -q --verify MERGE_HEAD"),
         "the worktree-correct merge-state check is named: {}",
-        rejection.detail
+        rejection.monitum
     );
     assert!(
-        rejection.detail.contains("never a .git/MERGE_HEAD file test"),
+        rejection.monitum.contains("never a .git/MERGE_HEAD file test"),
         "the guidance steers off the filesystem MERGE_HEAD test that misreads in a worktree: {}",
-        rejection.detail
+        rejection.monitum
     );
-    assert!(rejection.detail.contains("merge --abort"), "the abort remedy is named: {}", rejection.detail);
-    assert!(rejection.detail.contains("Do not wrap"), "the wrap hazard is warned: {}", rejection.detail);
+    assert!(rejection.monitum.contains("merge --abort"), "the abort remedy is named: {}", rejection.monitum);
+    assert!(rejection.monitum.contains("Do not wrap"), "the wrap hazard is warned: {}", rejection.monitum);
 }
 
 /// A billet left mid-merge by a prior conflict re-renders the SAME conflict

@@ -76,9 +76,22 @@ zbuym_kindle() {
       z_use_color=0
       ;;
     dispatch|*)
-      if test -z "${NO_COLOR:-}" && test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
-        z_use_color=1
-      fi
+      # The dispatch verdict wins when present: under dispatch this module's
+      # streams are always pipes (the log relay), so a local tty probe here
+      # carries no signal — the pre-pipe tty truth lives only in BURD_COLOR,
+      # computed once by zbud_resolve_color (BUr_q2m).  Local detection is
+      # the undispatched fallback alone, and probes stderr because every
+      # buym-rendered line lands there.
+      case "${BURD_COLOR:-}" in
+        0|1)
+          z_use_color="${BURD_COLOR}"
+          ;;
+        *)
+          if test -z "${NO_COLOR:-}" && test -n "${TERM:-}" && test "${TERM}" != "dumb" && test -t 2; then
+            z_use_color=1
+          fi
+          ;;
+      esac
       ;;
   esac
 

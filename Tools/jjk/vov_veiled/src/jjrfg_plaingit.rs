@@ -295,6 +295,55 @@ pub(crate) fn zjjrfg_lock_held_refusal(root: &Path, stranded: bool) -> jjrfr_Rej
     )
 }
 
+/// Shared by both surveyed lock-held signatures (client-side CAS rejection
+/// and the server-side ref-transaction race): sinks the gory git detail to
+/// the sectional journal, judges the sighted holder's age, and hands back the
+/// verdict and the clean monitum with the raw detail riding as diagnostic — no
+/// ref, SHA, remote URL, or git stderr ever reaches the operator's face. Lock
+/// held is `stake`'s rejection alone, so the op is fixed rather than threaded.
+fn zjjrfg_lock_held_monitum(root: &Path, sighted: Option<&str>, raw_detail: &str) -> (bool, jjrfr_Rejection) {
+    let now = chrono::Utc::now();
+    let read = sighted.map(jjdb_guidon_read);
+    let stranded = read.as_ref().map(|r| jjdb_is_stranded(r, now)).unwrap_or(false);
+    let holder = read.as_ref().and_then(|r| r.officium.clone()).unwrap_or_else(|| "-".to_string());
+    jjrsj_trace(&format!(
+        "LOCK-HELD {} op={} root={} ref={} holder={} stranded={} detail={}",
+        now.to_rfc3339(),
+        ZJJRFG_OP_STAKE,
+        root.display(),
+        ZJJRFG_GUIDON_REF,
+        holder,
+        stranded,
+        zjjrfg_flatten_and_cap(raw_detail, ZJJRFG_TRACE_ARGS_CAP)
+    ));
+    (stranded, zjjrfg_lock_held_refusal(root, stranded).jjrfr_with_diagnostic(raw_detail))
+}
+
+/// The kind-wide form of the lock-held monitum split (`jjdf_monitum`): sink the
+/// raw git evidence a classification consumed to the sectional journal for the
+/// attended session, and hand back a rejection whose operator face is the
+/// composed `monitum` while the evidence rides as diagnostic — never on the
+/// face. Every classification that reads git's stderr to reach its verdict
+/// builds its rejection through here, so the neighbour's words reach the journal
+/// and the diagnostic accessor, and nowhere the operator sees.
+fn zjjrfg_diagnosed(
+    kind: jjrfr_RejectionKind,
+    op: &'static str,
+    root: &Path,
+    monitum: String,
+    evidence: &str,
+) -> jjrfr_Rejection {
+    jjrsj_trace(&format!(
+        "REJECT {} op={} kind={} root={} detail={}",
+        chrono::Utc::now().to_rfc3339(),
+        op,
+        kind,
+        root.display(),
+        zjjrfg_flatten_and_cap(evidence, ZJJRFG_TRACE_ARGS_CAP)
+    ));
+    jjrfr_Rejection::jjrfr_new(kind, op, root, monitum).jjrfr_with_diagnostic(evidence)
+}
+
 /// Run `git -C root <args>`, feeding `stdin_data` to the child's stdin. Spawn
 /// failure panics, matching `zjjrfg_run_git`'s precondition posture; the pipe
 /// write rides the local runner's own stdin thread.
@@ -650,12 +699,18 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
     fn jjrfr_identify(&self, probe_path: &Path) -> Result<jjrfr_Identity, jjrfr_Rejection> {
         let top = zjjrfg_run_git(probe_path, &["rev-parse", "--show-toplevel"]);
         if !top.ok {
+            // A git-free monitum, with git's own "not a repository" prose held as
+            // diagnostic: this failure doubles as ground detection for a
+            // kind-roster probe, so it fires routinely and is not journaled here —
+            // the diagnostic accessor holds the neighbour's words for the one
+            // attended-session caller that wants them.
             return Err(jjrfr_Rejection::jjrfr_new(
                 jjrfr_RejectionKind::ForeignGround,
                 ZJJRFG_OP_IDENTIFY,
                 probe_path,
-                top.stderr,
-            ));
+                format!("no revision-control kind claims {} as its ground", probe_path.display()),
+            )
+            .jjrfr_with_diagnostic(top.stderr));
         }
         let root = PathBuf::from(top.stdout.trim());
 
@@ -776,7 +831,13 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
                 // true fork — surface it as such, touch nothing.
                 let reverse = zjjrfg_run_git(root, &["merge-base", "--is-ancestor", &counterpart, "HEAD"]);
                 if reverse.ok {
-                    let stranded = zjjrfg_run_git(root, &["log", "--oneline", &format!("{}..HEAD", counterpart)]);
+                    // The stranded commits are the operator's OWN — queried stdout,
+                    // not git's failure vocabulary — and the remedy is a push the
+                    // operator confirms, unconfirmable without seeing what it would
+                    // push. So the list stays on the monitum, composed from chosen
+                    // fields (`%h %s`, short-sha then subject) rather than a
+                    // verbatim `--oneline` spill.
+                    let stranded = zjjrfg_run_git(root, &["log", "--format=%h %s", &format!("{}..HEAD", counterpart)]);
                     return Err(jjrfr_Rejection::jjrfr_new(
                         jjrfr_RejectionKind::Diverged,
                         ZJJRFG_OP_ADVANCE,
@@ -825,7 +886,15 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
             return Ok(());
         }
         if zjjrfg_push_rejected(&out.stderr) {
-            return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_CONSIGN, root, out.stderr));
+            return Err(zjjrfg_diagnosed(
+                jjrfr_RejectionKind::Diverged,
+                ZJJRFG_OP_CONSIGN,
+                root,
+                "the remote holds work this branch has not — a content race lost the push. \
+                 Remedy: re-glean and retry; the write converges once this line holds the new tip."
+                    .to_string(),
+                &out.stderr,
+            ));
         }
         zjjrfg_unexpected(ZJJRFG_OP_CONSIGN, root, &out.zjjrfg_detail())
     }
@@ -913,12 +982,22 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
                 // A rejection naming the guidon ref is the lock broken under the
                 // holder; one naming only the branch is a plain content race.
                 // Either way the local branch never moved — nothing to scrub.
-                let kind = if out.stderr.contains(ZJJRFG_GUIDON_REF) {
-                    jjrfr_RejectionKind::LockBroken
+                let (kind, monitum) = if out.stderr.contains(ZJJRFG_GUIDON_REF) {
+                    (
+                        jjrfr_RejectionKind::LockBroken,
+                        "the studbook lock was severed under this write — another session broke and \
+                         reclaimed it. Nothing was written and nothing moved; re-run the command to \
+                         re-acquire the lock and retry.",
+                    )
                 } else {
-                    jjrfr_RejectionKind::Diverged
+                    (
+                        jjrfr_RejectionKind::Diverged,
+                        "the studbook moved under this write — a concurrent session landed first. \
+                         Nothing was written and nothing moved; re-run the command to compose against \
+                         the new tip.",
+                    )
                 };
-                return Err(jjrfr_Rejection::jjrfr_new(kind, ZJJRFG_OP_PROFFER, root, out.stderr));
+                return Err(zjjrfg_diagnosed(kind, ZJJRFG_OP_PROFFER, root, monitum.to_string(), &out.stderr));
             }
             zjjrfg_unexpected(ZJJRFG_OP_PROFFER, root, &out.zjjrfg_detail());
         }
@@ -969,10 +1048,17 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                 }
             }
             if zjjrfg_push_rejected(&out.stderr) {
-                if retried && self.jjrfr_sight(root)?.as_deref() == Some(guidon) {
+                // One guidon sight feeds both judgments: the retried-only
+                // self-landed short-circuit (JJr_e5s) and the monitum's
+                // holder read. A first-offer rejection can never be
+                // self-landed, so that check stays gated on `retried` — the
+                // non-retried path still sights exactly once, for the monitum.
+                let sighted = self.jjrfr_sight(root)?;
+                if retried && sighted.as_deref() == Some(guidon) {
                     return Ok(());
                 }
-                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockHeld, ZJJRFG_OP_STAKE, root, out.stderr));
+                let (_, rejection) = zjjrfg_lock_held_monitum(root, sighted.as_deref(), &out.stderr);
+                return Err(rejection);
             }
             if zjjrfg_lock_contended(&out.stderr) {
                 // A held lock merely being CONTENDED — the server's own
@@ -986,36 +1072,20 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                 if sighted.as_deref() == Some(guidon) {
                     return Ok(());
                 }
-                let now = chrono::Utc::now();
-                let read = sighted.as_deref().map(jjdb_guidon_read);
-                let stranded = read.as_ref().map(|r| jjdb_is_stranded(r, now)).unwrap_or(false);
-                let holder = read.as_ref().and_then(|r| r.officium.clone()).unwrap_or_else(|| "-".to_string());
-                // The gory detail sinks to the journal alone — the refusal
-                // built below is the operator's whole monitum, never a
-                // diagnostic sink (no ref, holder, or git stderr on its face).
-                jjrsj_trace(&format!(
-                    "LOCK-HELD {} op={} root={} ref={} holder={} stranded={} detail={}",
-                    now.to_rfc3339(),
-                    ZJJRFG_OP_STAKE,
-                    root.display(),
-                    ZJJRFG_GUIDON_REF,
-                    holder,
-                    stranded,
-                    zjjrfg_flatten_and_cap(&out.stderr, ZJJRFG_TRACE_ARGS_CAP)
-                ));
+                let (stranded, rejection) = zjjrfg_lock_held_monitum(root, sighted.as_deref(), &out.stderr);
                 // A mid-backoff re-probe already past the stranded age skips
                 // the remaining backoffs — waiting out the rest of the ladder
                 // for a holder this old would only delay a verdict the sight
                 // already settled.
                 if stranded {
-                    return Err(zjjrfg_lock_held_refusal(root, true));
+                    return Err(rejection);
                 }
                 match backoffs.next() {
                     Some(pause) => {
                         std::thread::sleep(*pause);
                         continue;
                     }
-                    None => return Err(zjjrfg_lock_held_refusal(root, false)),
+                    None => return Err(rejection),
                 }
             }
             zjjrfg_unexpected(ZJJRFG_OP_STAKE, root, &out.zjjrfg_detail())
@@ -1051,7 +1121,16 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                 }
             }
             if zjjrfg_push_rejected(&out.stderr) {
-                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::LockBroken, ZJJRFG_OP_PLUCK, root, out.stderr));
+                return Err(zjjrfg_diagnosed(
+                    jjrfr_RejectionKind::LockBroken,
+                    ZJJRFG_OP_PLUCK,
+                    root,
+                    "the lock changed under the release — another break or fresh stake raced this one, \
+                     so the guidon no longer flies the leased claim. Nothing to do: the lock this op \
+                     would release is already out."
+                        .to_string(),
+                    &out.stderr,
+                ));
             }
             zjjrfg_unexpected(ZJJRFG_OP_PLUCK, root, &out.zjjrfg_detail())
         }
@@ -1393,7 +1472,16 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         };
         if !out.ok {
             if zjjrfg_push_rejected(&out.stderr) {
-                return Err(jjrfr_Rejection::jjrfr_new(jjrfr_RejectionKind::Diverged, ZJJRFG_OP_BEQUEATH, billet_root, out.stderr));
+                return Err(zjjrfg_diagnosed(
+                    jjrfr_RejectionKind::Diverged,
+                    ZJJRFG_OP_BEQUEATH,
+                    billet_root,
+                    "trunk moved under this delivery — a content race lost the push. The work commit \
+                     stands on this billet's own branch and trunk is untouched; nothing was left \
+                     half-delivered. Remedy: refit (merge trunk in, never rebase), then deliver again."
+                        .to_string(),
+                    &out.stderr,
+                ));
             }
             zjjrfg_unexpected(ZJJRFG_OP_BEQUEATH, billet_root, &out.zjjrfg_detail());
         }
