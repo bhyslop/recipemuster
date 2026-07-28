@@ -301,6 +301,7 @@
 :jjdf_seat_vestige:    <<jjdf_seat_vestige,seat-vestige>>
 :jjdf_line_seated:     <<jjdf_line_seated,line-seated>>
 :jjdf_conflict:        <<jjdf_conflict,conflict>>
+:jjdf_monitum:         <<jjdf_monitum,monitum>>
 :jjdf_vedette:         <<jjdf_vedette,transport vedette>>
 :jjdf_transient:       <<jjdf_transient,transient>>
 

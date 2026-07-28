@@ -416,20 +416,30 @@ re-runs {jjdf_identify} and the pedigree lookup itself, rather than reusing
 == Rejection kinds
 
 One farrier-wide taxonomy of rejection *kinds*, wrapped in a context layer naming op, repo,
-and detail.
+and two audience-typed faces (the {jjdf_monitum} law).
 A kind is a shared semantic fact — {jjdf_dirty_tree} means the same thing from
 `billet_detach` or `billet_remove` — so consumers branch on kind, never on message text.
 A new kind must be allocated in this sheaf, and named git-free per the {jjdf_palisade}.
 
-The {jjdf_palisade} runs between kind and detail:
-the kind is the git-free fact a consumer branches on;
-the detail is the taxonomy's one membrane,
-quoting the neighbor's evidence verbatim — stderr, porcelain lines,
-and the exact foreign command an operator-typed remedy requires —
-because precise characterization is Palisade conduct, never vocabulary adoption.
-Detail text is for eyes alone:
-no consumer parses it or branches on it,
-and that standing prohibition is what makes the verbatim quote safe.
+[[jjdf_monitum]]
+{jjdf_monitum}::
+A rejection faces two audiences and carries a field for each, never one.
+The *monitum* is the operator's whole face: a git-free composed remedy, the only field the
+type renders.
+The *diagnostic* is the neighbour's raw evidence — stderr, porcelain lines, the exact foreign
+command a probe read — held apart for the sectional journal and the attended session, wrapped
+in its own type and reachable only through the diagnostic accessor.
+The {jjdf_palisade} runs between them: the kind is the git-free fact a consumer branches on;
+the diagnostic is the taxonomy's one membrane, quoting the neighbour's evidence verbatim,
+because precise characterization is Palisade conduct, never vocabulary adoption;
+and the monitum is what the operator sees, so no git word may reach it.
+The split is *structural, not conventional*: the render has no path to the diagnostic, so a
+render surface cannot leak the neighbour's stderr by forgetting to absorb it — the leak is a
+compile fact, not a review catch, and it is unrepresentable rather than merely discouraged.
+A kind whose foreign evidence an operator must act on composes it into the monitum in JJ's own
+words — the {jjdf_seat_vestige} prune, the {jjdf_conflict} file list, the LOCAL-AHEAD stranded
+commits from a chosen `--format` (queried stdout the operator wrote, not the neighbour's
+failure vocabulary) — never by spilling the raw stream onto the operator's face.
 
 === Which verdicts are surveyed
 
@@ -489,8 +499,9 @@ refusing, and the refusal forks its remedy tail on the holder's age (read from t
 guidon's own `acquired` field, never git's clock): a holder younger than the stranded
 threshold reads as merely busy and names re-run as the cure; one at or past it reads as a
 likely-crashed holder and names `/jjc-cashier`.
-The operator's refusal is a monitum — no guidon, ref path, SHA, remote URL, or git stderr
-reaches it; that detail sinks to the sectional journal alone.
+The operator's refusal obeys the {jjdf_monitum} law: no guidon, ref path, SHA, remote URL, or
+git stderr reaches its face — the age-forked remedy is git-free, and the raw evidence rides
+the diagnostic to the sectional journal alone.
 
 [[jjdf_lock_broken]]
 {jjdf_lock_broken}::
