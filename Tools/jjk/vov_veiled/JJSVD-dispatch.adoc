@@ -330,6 +330,12 @@ billet, parent of the session it launched — when the session returns;
 that geometry is what the trailing step rides, and it is why no occupancy record exists
 anywhere: the destructor is the occupant's own parent, acting only after its child has
 exited.
+The one attended gate INSIDE the crossing is the resume confirm (Yard step above): the door
+driver, still the future session's parent, holds for the operator's word before re-entering a
+standing billet — the occupancy oracle that keeps "no record exists anywhere" true even as a
+billet is reused rather than born.
+A resumed billet is no new kind and mints no serial; the trailing step's exit litmus reads it
+exactly as any other pace billet.
 A future immediate-work crossing (pace-free, journal-born) is a stile kind, not a new noun;
 kinds cost a roster word, exactly as {jjdd_billet} kinds do.
 +
@@ -344,23 +350,29 @@ contributes only its target typing and its tier source, never its own approach:
   a key resolving no sire is the unrecorded-sire rejection, and a claiming
   kind that contradicts the recorded kind is the record/ground-drift rejection
   ({jjdf_identify} contract, farrier sheaf).
-. *Yard step* — the yard gate, then the birth record.
-  At most one live pace billet per {jjdt_coronet}, and the gate is what enforces it: a saddle
-  whose pace ALREADY has a standing billet refuses HERE, before the birth record's journal
-  write and before any session spawn, rather than rejoining a live session's worktree or
-  minting a rival one past a missed seat.
-  The gate reads two keys, because a standing billet can evade either alone: the {jjdd_livery}-branch
-  SEAT the kind's own partition registry records (the authority for a billet on its own branch) —
-  enumerated and matched by the {jjdt_coronet} behind each badge, since a per-birth serial makes the
-  branch name unguessable ahead of the mint —
-  and the {jjdt_coronet}-labelled YARD entry (which catches a partition the seat-read misses —
+. *Yard step* — the yard gate, then, on a clear pace, the birth record.
+  At most one live pace billet per {jjdt_coronet}, and the gate is what forks on it: a saddle
+  whose pace ALREADY has a billet neither silently rejoins a live worktree nor mints a rival
+  past a missed seat — it RESUMES a cleanly-standing one under an attended confirm, and REFUSES
+  an anomalous one, HERE, before the birth record's journal write and before any session spawn.
+  The gate reads two keys, because a standing billet can evade either alone.
+  The {jjdd_livery}-branch SEAT the kind's own partition registry records (the authority for a
+  billet on its own branch) — enumerated and matched by the {jjdt_coronet} behind each badge,
+  since a per-birth serial makes the branch name unguessable ahead of the mint — is a CLEANLY
+  standing billet, so it resumes: the standing worktree and its seated serial branch are reused
+  in place, no fresh birth and no fresh serial, launched with the mount prompt once the confirm
+  answers.
+  The {jjdt_coronet}-labelled YARD entry (which catches a partition the seat-read misses —
   a detached tip, a lost registration, a pre-livery bare-branch billet — its dirname wearing the
-  coronet whatever its HEAD points at).
+  coronet whatever its HEAD points at) has its livery branch seated nowhere, so re-entering it
+  would need branch-resolution this arm does not own: it refuses, naming the partition and
+  {jjdd_muck} (salvage-then-destroy) as the remedy.
   Neither key is the yard-by-name mistake it might look like: a dirname is a label and a serialed
   branch is unguessable, so the seat key enumerates the registry and reads the coronet behind each
   badge, and the yard key is only the second, independent read the seat-read alone would miss.
-  Either key answering yes is a standing billet: the refusal names the partition and the remedies —
-  work in that session, or {jjdd_muck} it (salvage-then-destroy).
+  The resume confirm is the occupancy oracle the geometry keeps in place of any record (The stile
+  below): it NAMES the live-session possibility — the standing partition, its seated branch, its
+  dirty paths by name — and the attending operator answers occupied-vs-vacated.
   Checkout exclusivity is NOT this enforcement: it guards only the narrow seat arm — a second
   worktree add on an already-seated branch — never the dispatch, so without the gate a re-saddle
   rejoins a live worktree (a second session into one billet) or, where the seat-read misses, mints
@@ -370,8 +382,8 @@ contributes only its target typing and its tier source, never its own approach:
   It passes the YARD key by construction rather than by exemption: a groom dirname wears a
   {jjdt_firemark} whatever the {jjdd_lunge} was aimed at ({jjdd_billet} above), so a
   {jjdt_coronet} lookup can never match one.
-  Only when both keys are silent is the pace clear: the birth is a {jjdb_studbook} WRITE (the
-  dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
+  Only when both keys are silent is the pace clear to be born: the birth is a {jjdb_studbook} WRITE
+  (the dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
   cost of a durable birth timeline, and the fresh billet wears the serial it allocates.
 . *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
@@ -402,6 +414,8 @@ BEFORE the Launch step hands over the terminal — the whole resolved report (bi
 tier and effort, opening prompt, and any staleness notice), never trailing the session's exit.
 The console-handoff is the approach's last act for exactly this reason: a report emitted after it
 would land beneath the very session it was meant to precede.
+On a resume the standing-billet report and the attended confirm ride the same precedence: both
+land before the handoff.
 +
 Mount absorbs cold start — billet ensure, glean, orient are the approach's work, and no
 separate cold-start engagement verb exists.
@@ -586,6 +600,11 @@ The genuine hazard is concurrency, not geometry: shared per-dispatch output stat
 The {jjdd_stile_p} approach closes it by exporting per-billet `BURV_OUTPUT_ROOT_DIR`,
 `BURV_TEMP_ROOT_DIR`, and `BURV_LOG_DIR` — absolute paths, the whoever-dispatches-owns-the-knob
 protocol; theurge needs no change (it sets BURV innermost, and innermost wins).
+The stirrup composes these and strips the door's own dispatch-mode flags
+(`BURD_NO_LOG`, `BURD_INTERACTIVE`) plus the trampoline's cwd capture at the same
+boundary (BUr_q2m: inheritance is never a regime inlet) — the launched session is
+a first-class dispatch context whose tabtargets self-log into the billet-scoped
+roots, exactly as in a hippodrome.
 Named behavior change: chain facts (`current/` → `previous/`) become *billet-scoped* — a
 tabtarget inside the billet and one in a trunk terminal no longer see each other's flow,
 which also closes a latent cross-clone chain race that predates billets.
@@ -648,4 +667,6 @@ unrecorded sire (the claimed key resolves no sire),
 and record/ground drift (claiming kind contradicts the recorded kind).
 A trailing-step stand is a report line, never a rejection — the session it follows has
 already succeeded, and the stile's exit code stays the session's.
+The standing-billet refusal is the yard gate's own and fires only for the anomalous
+seat-evading partition (Yard step); {jjdd_muck} is its remedy.
 Everything else fails loud through the composed primitive's own named rejection kind.

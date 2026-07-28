@@ -497,7 +497,7 @@ fn jjtwp_converge_refusal_names_the_trunk_the_no_residue_fact_and_refit() {
     assert!(msg.contains("never rebase"), "got: {}", msg);
 }
 
-// ---- Consign wiring (Ruling 3 mirror) ----
+// ---- Consign wiring (JJSVJ "The journal ceremony" mirror) ----
 //
 // `zjjrx_run_wrap` reads and writes only through the ambient process cwd, and
 // (on a staged diff) shells out to the claude CLI to author a commit message —
@@ -626,10 +626,10 @@ fn zjjtwp_wrap_args() -> jjrx_WrapArgs {
 }
 
 // A wrap on a badged pace-billet branch (`jjls_pace/{coronet}`) pushes it to
-// the remote after its final commit — the Ruling 3 mirror: the converge above
-// already delivers the tree to trunk, but the branch itself must still reach
-// remote custody, so a same-session land→wrap exits with the stile clearing
-// the billet instead of raising a false-alarm custody warning.
+// the remote after its final commit — the JJSVJ "The journal ceremony" mirror:
+// the converge above already delivers the tree to trunk, but the branch itself
+// must still reach remote custody, so a same-session land→wrap exits with the
+// stile clearing the billet instead of raising a false-alarm custody warning.
 #[test]
 fn jjtwp_wrap_consigns_the_badged_pace_branch() {
     let (infield, billet_root, branch) = zjjtwp_billeted_infield("jjtwp_consign");

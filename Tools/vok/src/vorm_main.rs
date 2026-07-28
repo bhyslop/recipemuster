@@ -417,11 +417,39 @@ async fn run_mcp() -> i32 {
     }
 }
 
+/// Launch a composed dispatch session and run the stile's trailing step once it
+/// returns — the geometry a fresh dispatch and a confirmed resume share (JJSVD
+/// "The stile"). This driver is the session's parent here, outside the billet,
+/// so the trailing step's exit litmus can act on the billet the child just left;
+/// the session's own exit code is the dispatch's, and the step trouble-reports
+/// without masking it.
+#[cfg(feature = "jjk")]
+fn zvorm_launch_session(
+    out: &mut vvco_Output,
+    mut cmd: std::process::Command,
+    billet_root: std::path::PathBuf,
+    trunk: String,
+) -> i32 {
+    let code = match cmd.status() {
+        Ok(status) => status.code().unwrap_or(1),
+        Err(e) => {
+            vvco_err!(out, "jjx_dispatch: stirrup failed to launch claude: {}", e);
+            return 1;
+        }
+    };
+    let report = jjk::jjrds_stile::jjrds_trailing_step(&jjk::jjrfg_plaingit::jjrfg_PlainGit, &billet_root, &trunk);
+    if !report.is_empty() {
+        vvco_out!(out, "{}", report.trim_end());
+    }
+    code
+}
+
 /// Run the JJ stile's approach (jjy_ door path). The approach resolves and composes
 /// but does not launch: it returns the report and, when a session is ready, the
 /// composed command. We print the report here FIRST, then hand the terminal to
 /// the session, so the door's whole report precedes the session it introduces
-/// (JJSVD "Report precedes launch").
+/// (JJSVD "Report precedes launch"). A clean standing billet returns instead as a
+/// resume: the report names it, this driver confirms, then launches in place.
 fn run_dispatch(args: DispatchArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
@@ -441,24 +469,50 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
         }
         match outcome {
             jjrds_Outcome::Done(code) => code,
-            jjrds_Outcome::Launch { mut cmd, billet_root, trunk } => {
-                let code = match cmd.status() {
-                    Ok(status) => status.code().unwrap_or(1),
-                    Err(e) => {
-                        vvco_err!(out, "jjx_dispatch: stirrup failed to launch claude: {}", e);
-                        return 1;
-                    }
-                };
-                // The stile's trailing step: the session has returned and this
-                // driver is still standing, outside the billet, as its parent —
-                // exactly the geometry the trailing step rides (JJSVD "The
-                // stile"). The session's own exit code is the dispatch's; the
-                // step trouble-reports and never masks it.
-                let report = jjk::jjrds_stile::jjrds_trailing_step(&jjk::jjrfg_plaingit::jjrfg_PlainGit, &billet_root, &trunk);
-                if !report.is_empty() {
-                    vvco_out!(out, "{}", report.trim_end());
+            jjrds_Outcome::Launch { cmd, billet_root, trunk } => {
+                zvorm_launch_session(&mut out, cmd, billet_root, trunk)
+            }
+            jjrds_Outcome::Standing { resume } => {
+                // The resume confirm — the one attended gate INSIDE the crossing,
+                // held by this door driver while it is still the future session's
+                // parent (JJSVD "The stile"). The report is already printed above;
+                // deliberateness is the door's: a typed word, never a bare y/n,
+                // and a refuse-not-hang when stdin is not a terminal (a dispatch
+                // that cannot reach the operator cannot resume — muck is the
+                // offline remedy). The operator's answer is the occupancy oracle,
+                // so no record of live-vs-vacated exists anywhere.
+                use std::io::{BufRead, IsTerminal, Write};
+                if !std::io::stdin().is_terminal() {
+                    vvco_err!(
+                        out,
+                        "jjx_dispatch: a billet stands for this pace and resume needs an attended confirm, \
+                         but stdin is not a terminal — saddle from your shell, or muck the billet"
+                    );
+                    return 1;
                 }
-                code
+                print!("\nType 'resume' to re-enter this billet (anything else aborts): ");
+                let _ = std::io::stdout().flush();
+                let mut answer = String::new();
+                if std::io::stdin().lock().read_line(&mut answer).is_err() || answer.trim() != "resume" {
+                    vvco_out!(out, "resume aborted — nothing changed");
+                    return 0;
+                }
+                let (outcome, text) = jjk::jjrds_stile::jjrds_resume(&jjk::jjrfg_plaingit::jjrfg_PlainGit, &resume);
+                if !text.is_empty() {
+                    vvco_out!(out, "{}", text.trim_end());
+                }
+                match outcome {
+                    jjrds_Outcome::Launch { cmd, billet_root, trunk } => {
+                        zvorm_launch_session(&mut out, cmd, billet_root, trunk)
+                    }
+                    jjrds_Outcome::Done(code) => code,
+                    // A confirmed resume composes a Launch or a Done; it never
+                    // re-reports a standing verdict.
+                    jjrds_Outcome::Standing { .. } => {
+                        vvco_err!(out, "jjx_dispatch: internal error: resume returned a standing verdict");
+                        1
+                    }
+                }
             }
         }
     }
