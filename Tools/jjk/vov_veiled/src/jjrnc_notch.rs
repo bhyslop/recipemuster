@@ -301,7 +301,7 @@ pub fn jjrnc_empty_notch_monitum(files: &[String]) -> String {
     } else {
         msg.push_str(&format!(
             "  {} file(s) were listed and none held changes to stage. If content was expected, it may \
-             already be committed (possibly by another officium), or the paths may be wrong.",
+             already be committed, or the paths may be wrong.",
             files.len()
         ));
     }
