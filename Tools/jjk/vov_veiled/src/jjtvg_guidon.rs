@@ -13,8 +13,10 @@ use crate::jjrvg_guidon::{
     jjdb_guidon_compose,
     jjdb_guidon_read,
     jjdb_is_probably_live,
+    jjdb_is_stranded,
     jjdb_render_age,
     JJDB_LIVENESS_WARN_SECONDS,
+    JJDB_STRANDED_SECONDS,
 };
 use chrono::{
     Duration,
@@ -123,4 +125,24 @@ fn jjtvg_a_young_lock_is_probably_live_and_an_old_one_is_not() {
 fn jjtvg_an_unreadable_mark_earns_no_liveness_warning() {
     let read = jjdb_guidon_read("something else entirely");
     assert!(!jjdb_is_probably_live(&read, zjjtvg_when()));
+}
+
+/// The stake refusal's remedy fork: a lock younger than the stranded
+/// threshold reads as merely busy, one at or past it reads as a likely-crashed
+/// holder — distinct from (and longer than) the cashier's own liveness window.
+#[test]
+fn jjtvg_a_lock_crosses_stranded_at_its_own_threshold_not_the_liveness_one() {
+    let now = zjjtvg_when();
+    let fresh = jjdb_guidon_read(&jjdb_guidon_compose("o", "s", now - Duration::seconds(JJDB_STRANDED_SECONDS - 1), "journal"));
+    let stranded = jjdb_guidon_read(&jjdb_guidon_compose("o", "s", now - Duration::seconds(JJDB_STRANDED_SECONDS), "journal"));
+    assert!(!jjdb_is_stranded(&fresh, now));
+    assert!(jjdb_is_stranded(&stranded, now));
+}
+
+/// A mark with no readable acquire time never claims staleness it cannot
+/// evidence — the same conservative posture as the liveness warning above.
+#[test]
+fn jjtvg_an_unreadable_mark_is_never_judged_stranded() {
+    let read = jjdb_guidon_read("something else entirely");
+    assert!(!jjdb_is_stranded(&read, zjjtvg_when()));
 }

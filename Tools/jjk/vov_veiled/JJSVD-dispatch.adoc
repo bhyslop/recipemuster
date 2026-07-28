@@ -208,6 +208,22 @@ content-bearing commit that reaches the tree by another route fails the {jjdd_st
 litmus and stands for {jjdd_muck} (a content-less marker clears, so the everyday {jjdo_open}
 echo is no denial).
 The remedy is always the same — slate the work, then saddle it.
++
+*The spent-pace posture.*
+A pace billet's own tree can outlive the pace it was cut for: the wrap that runs from that
+billet can leave its pace {jjdpe_resolved} (complete or abandoned) while the billet itself
+stands, and re-saddle deliberately opens a fresh epoch from trunk rather than reoccupying the
+spent one — so nothing ever converges a commit landed there afterward, and it strands silently
+on a branch no ceremony returns to.
+The seated coronet alone cannot see this — the branch still wears the pace's badge whether the
+pace is open or resolved — so the notch alone (never the mount, never the wrap) also reads the
+seated pace's own state.
+Once it is {jjdpe_resolved}, the notch refuses fair-faced at the moment of temptation, keyed on
+ground and state together and never on the commit's own affiliation — a pace-affiliated notch, a
+heat-affiliated one, and the empty notch all refuse alike — naming its remedy: exit the session,
+since new work is a fresh slate-and-saddle.
+An open (rough or bridled) pace's own billet notches exactly as the bucket above describes,
+unchanged.
 
 == The doors
 
@@ -384,7 +400,16 @@ contributes only its target typing and its tier source, never its own approach:
   {jjdt_coronet} lookup can never match one.
   Only when both keys are silent is the pace clear to be born: the birth is a {jjdb_studbook} WRITE
   (the dispatch record, blotter sheaf), online and refusable under a held {jjdb_guidon}, the accepted
-  cost of a durable birth timeline, and the fresh billet wears the serial it allocates.
+  cost of a durable birth timeline, and the fresh billet's DIRNAME wears the serial it allocates.
+  The BRANCH it seats, though, is not always fresh: it is the pace's CURRENT LIVE LINE, resolved
+  through the journal (Current-line resolution, studbook sheaf) — the coronet's founding birth since
+  its last wrap — never composed anew when a prior line already stands, and never decided by ref
+  enumeration, which is race-partial.
+  The read takes the journal as it stood BEFORE this dispatch's own birth, so the question stays
+  "was there a prior line"; a coronet with none founds a fresh one, its dirname and branch sharing
+  the single serial.
+  This is what reawakens the ensure's seat and adopt arms below: they probe a name resolved from the
+  record — one that actually stands — rather than a fresh name that by construction stands nowhere.
 . *Billet ensure* — seat-or-adopt-or-create ({jjdf_billet} facet);
   a groom billet in reuse re-detaches to trunk tip.
   A branch the registry seats elsewhere refuses by name here — seat-vestige or line-seated,
@@ -431,8 +456,9 @@ One line reports the outcome either way: a cleared billet names where the work s
 a standing billet names the failed conjunct and {jjdd_muck} as the remedy.
 The session's own exit code is the stile's — trailing-step trouble reports and never masks
 it.
-The per-billet scratch stands untouched either way: logs are forensics, and {jjdd_muck}
-clears them with the billet's residue.
+The per-billet scratch dies with a cleared billet, cleared in the same act as the worktree;
+a standing billet's scratch stands too — logs are forensics only for work that stands, and
+{jjdd_muck} clears them with the billet's residue.
 +
 *The exit litmus*, kind-aware, refuse-and-stand:
 +
@@ -502,10 +528,11 @@ The removal is `billet_remove` behind its explicit force — the confirmed destr
 the force's only caller.
 +
 *Scratch.*
-The door clears the destroyed billet's scratch sibling with it, and orphan scratch — a
-scratch directory whose billet no longer stands — is equally its to clear:
-the {jjdd_stile} deliberately leaves scratch as forensics, so this door is where forensics
-end.
+Scratch dies with its billet: the door clears the destroyed billet's own scratch sibling
+with it, and nothing else — {jjdd_muck} is a billet singleton, so its sweep never reaches
+past the billet named in its own confirmed plan.
+Scratch orphaned by any other route (a killed door, a crash) is not this door's target and
+is left for hand cleaning.
 
 == Refit
 

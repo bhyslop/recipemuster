@@ -163,6 +163,27 @@ Convergence discipline already prefers merge over rebase, which preserves
 An optional `counterfoil_verify` op ({jjdf_farrier} op census, deferred past MVP) turns a
 dangling {jjdb_counterfoil} from a silent lie into a flagged one.
 
+== Current-line resolution
+
+A {jjdt_coronet}'s CURRENT LIVE BRANCH — the one line a re-saddle re-seats and a second station
+adopts, so that one pace is one line of work across billets and stations — is DERIVED from the
+record, never stored and never enumerated.
+It is not a field: no favorite-branch pointer rides the {jjdgr_gallops}, since a cache only a
+running writer knew would be exactly the state this record keeps out.
+It is not a git-ref scan either: ref enumeration is race-partial — an unpushed or offline rival
+branch is invisible to it — and its passing read would lull a caller into "I am the only line,"
+the very fork this resolution exists to forbid, so a partial ref-based guard is worse than none.
+The journal answers instead, lock-coherent: a pace's births are its dispatch records and its
+closes are its wrap {jjdb_counterfoil_s}, both {jjdb_journal} commits along the one linear trunk.
+Among a coronet's births since its most recent wrap, the EARLIEST is the founding one; its branch —
+dressed from that birth's {jjdb_catchword} in the {jjdd_livery} — is the current line.
+A per-birth serial makes each occupancy's dirname unique, but the line is born once at the founding
+saddle and re-entered by every saddle after it, so a later birth's own serial never repoints it.
+A coronet with no birth since its last wrap has no live line: the next saddle founds a fresh one,
+its dirname and branch sharing the single allocated serial.
+This is the same record law the no-worktree-path rule below carries: a derivable fact derives from
+its single home, and the current line is the journal's alone.
+
 == What never enters the record
 
 The {jjdb_studbook} is a regional record; a worktree path is a station-local fact.

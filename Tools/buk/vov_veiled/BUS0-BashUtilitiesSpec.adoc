@@ -1723,6 +1723,10 @@ UTC epoch seconds captured from same `date` invocation as {burd_now_stamp}.
 //axvr_variable axtu_path
 {burd_temp_dir}::
 Ephemeral directory for this dispatch invocation.
+Exported by bud_dispatch.sh and survives the exec boundary into CLI
+processes, which use it as the dispatch-composed scratch root for their own
+test fixtures instead of discovering one ambiently — the same
+survives-the-exec-boundary consumption pattern as {burd_tools_dir}.
 
 [[burd_output_dir]]
 //axvr_variable axtu_path

@@ -479,6 +479,18 @@ the remote's refusal of a non-fast-forward write, surfaced as fact.
 [[jjdf_lock_held]]
 {jjdf_lock_held}::
 The guidon lock already flies another holder's claim.
+Detected from two surveyed git signatures: the client-side lease/fast-forward rejection
+(`{jjdf_transient}`'s sibling roster in `zjjrfg_push_rejected`), and the remote's own
+ref-transaction race — the stable ref-store phrase `cannot lock ref … reference already
+exists`, keyed on that phrase alone and never the bare `[remote rejected]` token, which also
+covers hook, quota, and protected-ref denials that must stay unclassified.
+The second signature rides `stake`'s existing bounded vedette backoff silently before
+refusing, and the refusal forks its remedy tail on the holder's age (read from the sighted
+guidon's own `acquired` field, never git's clock): a holder younger than the stranded
+threshold reads as merely busy and names re-run as the cure; one at or past it reads as a
+likely-crashed holder and names `/jjc-cashier`.
+The operator's refusal is a monitum — no guidon, ref path, SHA, remote URL, or git stderr
+reaches it; that detail sinks to the sectional journal alone.
 
 [[jjdf_lock_broken]]
 {jjdf_lock_broken}::
@@ -556,10 +568,13 @@ lock verbs `stake` and `pluck`, and the wrap converge's trunk push (`bequeath`) 
 op is local by construction, including the probes (`sync_state`, `outstripped`, `reachable`,
 `line_abroad`), which answer from the last `glean` and never touch the network themselves.
 +
-Retry is bounded, backs off, and fires on {jjdf_transient} alone — a surveyed rejection and
-an unclassified failure both keep their existing conduct.
+Retry is bounded, backs off, and fires on {jjdf_transient} alone, with one named exception:
+`stake`'s own held-lock contention (the second {jjdf_lock_held} signature above) rides the
+same ladder silently, because a fresh holder's write is likely to clear within it — every
+other surveyed rejection and an unclassified failure both keep their existing conduct.
 Exhaustion ends in a guided halt naming the op, the attempts spent, and the remedy — never a
-raw panic, never an unbounded hang.
+raw panic, never an unbounded hang; `stake`'s own exhaustion is the clean age-forked refusal
+{jjdf_lock_held} above names, not a halt.
 `glean` is the one exception by its own contract: opportunistic and never blocking a
 ceremony, it renders its unreachable answer on exhaustion instead of halting — and the
 retries in front of that answer are what make it honest, where a single transient failure

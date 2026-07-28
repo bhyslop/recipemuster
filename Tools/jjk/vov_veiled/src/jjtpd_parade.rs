@@ -87,7 +87,7 @@ fn make_heat_bridled(heat_id: &str, tier: Option<jjrg_Tier>) -> (String, jjrg_He
 /// the target, and since parallel tests share one pid, a shared directory would
 /// race that temp name across saves. The unique `name` isolates each test.
 fn write_temp_gallops(name: &str, gallops: &jjrg_Gallops) -> std::path::PathBuf {
-    let dir = std::env::temp_dir().join(format!("jjtpd_{}_{}", name, std::process::id()));
+    let dir = crate::jjtu_testdir::jjtu_temp_base().join(format!("jjtpd_{}_{}", name, std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let path = dir.join("gallops.json");
     gallops.jjrg_save(&path).unwrap();

@@ -362,6 +362,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `BUWGC_TT_LAUNCHER` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `BUWGC_TT_LIST_LAUNCHERS` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `BUW_SCRIPT_DIR` → `Tools/buk/buw_workbench.sh`
+- `BUr_q2m` → `Tools/buk/bul_launcher.sh`
 - `bubc_constants` → `Tools/buk/bubc_constants.sh`
 - `buc_bare` → `Tools/buk/buc_command.sh`
 - `buc_clipboard_copy_predicate` → `Tools/buk/buc_command.sh`
@@ -1545,7 +1546,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `rbida_sorties` → `rbmm_moorings/rbmv_vessels/common-ifrit-context/src/rbida_sorties.rs`
 - `rbjp_pentacle` → `rbmm_moorings/rbmv_vessels/common-sentry-context/rbjp_pentacle.sh`
 - `rbjs_sentry` → `rbmm_moorings/rbmv_vessels/common-sentry-context/rbjs_sentry.sh`
-- `rbk-wrangle` → `.claude/commands/rbk-wrangle.md`
+- `rbk-racecard` → `.claude/commands/rbk-racecard.md`
 - `rbld0_cli` → `Tools/rbk/rbld0_cli.sh`
 - `rbld0_lode` → `Tools/rbk/rbld0_lode.sh`
 - `rbld_augur` → `Tools/rbk/rbldl_lifecycle.sh`
