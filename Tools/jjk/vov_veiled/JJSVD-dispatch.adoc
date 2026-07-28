@@ -554,8 +554,11 @@ opus is the working judgment tier.
 
 The (tier, effort) choice has exactly two sources, split by door:
 
-* {jjdd_lunge}, having no pace, launches the *judgment constant* — opus/xhigh, one named
-  cell in the engine.
+* {jjdd_lunge} launches the *judgment constant* — opus/xhigh, one named cell in the engine —
+  for either aim.
+  A pace-aimed {jjdd_lunge} deliberately does not read that pace's designation: a designation
+  governs who may EXECUTE a docket, and a groom assesses one rather than working it, so
+  grooming a pace bridled at a sub-frontier tier is judgment work like every other groom.
 * {jjdd_saddle} launches the pace's designation exactly;
   on an unbridled pace it launches the same judgment constant — undesignated work is
   judgment work: such a session plans toward a bridle or simply finishes fast.
