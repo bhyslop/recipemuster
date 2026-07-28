@@ -1,0 +1,59 @@
+//axvd_sheaf axd_normative axd_regime
+This is a normative regime sheaf of the {bus0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhrb_regime
+{burp_regime}
+
+This regime carries the per-station-user credentials — both the privileged (admin) and the workload key references — for a single
+{burn_investiture}.
+Its values arrive by
+{bus_inlet_assignment}:
+a burp.env sourced from
+`.buk/rbmu_users/<{burs_user}>/<{burp_investiture}>/burp.env`.
+A
+{burp_regime}
+instance is identified by its
+{burp_investiture}
+(directory name), and locates its node by the directory-name equality between
+{burp_investiture}
+and
+{burn_investiture},
+per
+{burn_host_singularity}.
+
+Public keys are derived from private keys at use-time via `ssh-keygen -y`; neither the privileged nor the workload pubkey is stored in
+{burp_regime}.
+Encrypted (passphrase-protected) private keys are not supported, because `ssh-keygen -y` would prompt interactively and hang the ceremony.
+
+//axhrv_variable
+{burp_privileged_user}
+
+The remote admin OS user this credential authenticates as for the privileged
+{busn_garrison}
+ceremony (e.g., `Administrator` on Windows, `root` or a sudo-capable user on Linux/Mac).
+Garrison runs against this account to provision the workload account.
+Some platforms permit privileged usernames containing spaces (e.g., `b hyslop`); the implementation must quote correctly at every expansion.
+
+//axhrv_variable
+{burp_privileged_key_file}
+
+The operator-managed SSH private key authorized as
+{burp_privileged_user}
+on the node per
+{bus_keys_operator_owned}.
+The matching public key is derived at use-time via `ssh-keygen -y`; no separate pubkey path is stored.
+{busn_garrison}
+authenticates using this key only.
+First-time admin trust is established by
+{busn_caparison}
+per platform: Windows uses `PreferredAuthentications=publickey,password` on its phase-1 admin SSH session so that on a fresh node ssh prompts on /dev/tty for the admin password once; Linux/Mac wrap the operator-manual `ssh-copy-id` flow.
+After caparison, all subsequent admin authentication is by key alone.
+
+//axhrv_variable
+{burp_workload_key_file}
+
+The operator-managed SSH private key the workload account uses to authenticate inbound (from the operator's station) and outbound (to GitHub or other services).
+{busn_garrison}
+copies this private key onto the remote workload account at a shell-letter-specific path hardcoded in
+{bujb_jurisdiction};
+the matching public key is derived via `ssh-keygen -y` for authorized_keys placement on both sides of the trip.
+The workload pubkey must be pre-registered with any outbound service (e.g., GitHub deploy keys) out-of-band; garrison cannot validate that registration.

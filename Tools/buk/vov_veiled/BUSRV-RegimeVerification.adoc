@@ -1,0 +1,31 @@
+//axvd_sheaf axd_normative axd_regime
+This is a normative regime sheaf of the {bus0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhrb_regime
+{burv_regime}
+
+This regime is harness-composed placement redirection:
+it relocates the station-directory roots (output, temp, logs) for one launched child,
+so a driving harness can observe, isolate, and chain the child's products.
+The child's work is untouched —
+only where its products land moves.
+Read exclusively by the dispatch chain,
+which folds each BURV value over its BURC/BURS counterpart at launch;
+business code never reads BURV.
+
+Three composers stand.
+The BUT bridge (`zbuto_invoke` under `BUTE_BURV_ROOT`) and the theurge child launch each compose for one tabtarget invocation.
+The JJ dispatch stirrup composes for one billet session —
+there the session is the child, and its whole tabtarget population shares the redirect,
+which is what makes a billet's tabtargets first-class: they log and chain exactly as in a hippodrome, into billet-scoped roots
+(the whoever-dispatches-owns-the-knob protocol; JJSVD).
+Innermost composition wins:
+a composer nearer the child overrides an outer one.
+
+//axhrv_variable
+{burv_output_root_dir}
+
+//axhrv_variable
+{burv_temp_root_dir}
+
+//axhrv_variable
+{burv_log_dir}

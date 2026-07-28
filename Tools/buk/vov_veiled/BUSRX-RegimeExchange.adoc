@@ -1,0 +1,65 @@
+//axvd_sheaf axd_normative axd_regime
+This is a normative regime sheaf of the {bus0_imprimatur}: binding — code, tests, and decisions may rely on it.
+//axhrb_regime
+{burx_regime}
+
+This regime is the cross-project dispatch record
+bud_dispatch.sh
+writes for a remote reader.
+Every other BUK regime addresses a caller inside this station's own dispatch;
+{burx_regime}
+addresses whoever reads `burx.env` from outside it — dispatch is the sole author
+({bus_inlet_derived}),
+and which transport carries the file, or which boundary the reader crosses to reach it, is not
+this regime's concern.
+Fields arrive in two phases:
+every field below except the terminal pair is written at dispatch start;
+{burx_exit_status}
+and
+{burx_ended_at}
+are appended only at completion, so a reader that finds
+{burx_exit_status}
+absent knows the dispatch is still running rather than having failed to write its record.
+
+//axhrv_variable
+{burx_pid}
+
+//axhrv_variable
+{burx_began_at}
+
+The nanosecond field is fixed at zero — sub-second precision is not load-bearing here, and the
+fixed width exists only to keep downstream BURX parsing stable, a property
+{burx_ended_at}
+shares.
+
+//axhrv_variable
+{burx_tabtarget}
+
+//axhrv_variable
+{burx_temp_dir}
+
+//axhrv_variable
+{burx_transcript}
+
+//axhrv_variable
+{burx_log_hist}
+
+Empty rather than absent when the dispatch ran under
+{burd_no_log}:
+no log files are created, so there is no historical log path to mirror.
+A reader treats an empty value as no-log, never as a missing field.
+
+//axhrv_variable
+{burx_label}
+
+Always present — the empty string, never absence, signals no correlation label was supplied, so
+a reader never needs a presence check before reading it.
+BUD writes whatever
+{bure_label}
+carries verbatim; format, length, and interpretation are owned there, not here.
+
+//axhrv_variable
+{burx_exit_status}
+
+//axhrv_variable
+{burx_ended_at}
