@@ -1123,15 +1123,23 @@ fn jjtm_ground_refuses_a_notch_on_the_billets_own_spent_pace() {
     assert!(pace_aimed.contains("spent"), "the ground is named spent: {}", pace_aimed);
     assert!(pace_aimed.contains("Remedy:"), "every refusal names its remedy: {}", pace_aimed);
 
-    // Heat-affiliated: the tagalong specimen from the docket — a heat aim on
-    // the same spent billet refuses just the same, never admitted as it would
-    // be on open ground.
+    // Heat-affiliated: a tagalong commit naming the parent heat refuses just
+    // the same, never admitted as it would be on open ground.
     let heat_aimed = zjjrm_judge_ground("jjx_record", &ground, Some("AA"), &zjjtm_heat_of, &zjjtm_state_of_complete)
         .expect_err("a heat-affiliated tagalong on spent ground still refuses");
     assert!(heat_aimed.contains("spent"), "{}", heat_aimed);
 
-    // Empty-notch shape: identity is still supplied (files:[] carries no aim
-    // of its own), so the same ground+state judgment applies untouched.
+    // No aim at all: the check runs ahead of the aim-presence check below it,
+    // so it fires even with nothing to judge — the shape an empty notch would
+    // present if `files:[]` ever reached this layer (it does not: the aim is
+    // always the required `identity` param, so a real empty notch is
+    // indistinguishable here from a pace-affiliated one, and is covered by
+    // that case above).
+    let no_aim = zjjrm_judge_ground("jjx_record", &ground, None, &zjjtm_heat_of, &zjjtm_state_of_complete)
+        .expect_err("the spent check precedes the aim check entirely");
+    assert!(no_aim.contains("spent"), "{}", no_aim);
+
+    // Abandoned is the guard's other spent state, alongside complete.
     let abandoned = zjjrm_judge_ground("jjx_record", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_abandoned)
         .expect_err("an abandoned pace is spent ground too");
     assert!(abandoned.contains("spent"), "{}", abandoned);
@@ -1152,10 +1160,9 @@ fn jjtm_ground_leaves_an_open_pace_billets_notch_untouched() {
 fn jjtm_ground_spent_pace_check_binds_the_notch_alone() {
     use super::jjrm_mcp::zjjrm_judge_ground;
 
-    // Mount and wrap are untouched by the spent-ground clause — the docket
-    // scopes it to jjx_record alone (wrap is what spends the pace in the
-    // first place, and re-mounting a closed pace is a groom-time concern,
-    // not this guard's).
+    // Mount and wrap are untouched by the spent-ground clause: it binds to
+    // jjx_record alone (wrap is what spends the pace in the first place, and
+    // re-mounting a closed pace is a groom-time concern, not this guard's).
     let ground = zjjtm_pace_billet("CAAAA");
     assert!(zjjrm_judge_ground("jjx_orient", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_complete).is_ok());
     assert!(zjjrm_judge_ground("jjx_close", &ground, Some("CAAAA"), &zjjtm_heat_of, &zjjtm_state_of_complete).is_ok());
