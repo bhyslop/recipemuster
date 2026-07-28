@@ -992,10 +992,15 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                 }
             }
             if zjjrfg_push_rejected(&out.stderr) {
-                if retried && self.jjrfr_sight(root)?.as_deref() == Some(guidon) {
+                // One guidon sight feeds both judgments: the retried-only
+                // self-landed short-circuit (JJr_e5s) and the monitum's
+                // holder read. A first-offer rejection can never be
+                // self-landed, so that check stays gated on `retried` — the
+                // non-retried path still sights exactly once, for the monitum.
+                let sighted = self.jjrfr_sight(root)?;
+                if retried && sighted.as_deref() == Some(guidon) {
                     return Ok(());
                 }
-                let sighted = self.jjrfr_sight(root)?;
                 let (_, rejection) = zjjrfg_lock_held_monitum(root, ZJJRFG_OP_STAKE, sighted.as_deref(), &out.stderr);
                 return Err(rejection);
             }
