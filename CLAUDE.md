@@ -3,7 +3,6 @@
 ## Directory Permissions
 Full read and edit access is pre-approved for all files in:
 - `Tools/`
-- `Memos/`
 
 ## File Acronym Mappings
 
@@ -18,10 +17,11 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 ## Retired Memos
 
 A memo whose work is fully dispositioned (every concern resolved into a pace, an
-itch/RBSHR entry, or an explicit decline) moves to `Memos/retired/` with its
-basename unchanged. A memo path that no longer resolves has retired — look for
-the same basename under `Memos/retired/`. Retired memos are historical record:
-read them freely, never resurrect work from them without operator direction.
+itch/RBSHR entry, or an explicit decline) moves to `jjqs_studbook/retired/memos/`
+with its basename unchanged. A memo path under `jjqs_studbook/` that no longer
+resolves has retired — look for the same basename under
+`jjqs_studbook/retired/memos/`. Retired memos are historical record: read them
+freely, never resurrect work from them without operator direction.
 
 Memos are provenance, never authority: if a fact must still be true after the
 memo retires, it needs a spec home. The temptation to home durable knowledge in
