@@ -17,7 +17,7 @@ tabtargets, never raw cargo:
 
 Annotations for the acronym homes indexed in `claude-vok-acronyms.md` — the per-row descriptions and family topology the index does not carry.
 
-- **RCG**  → `vok/vov_veiled/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
+- **RCG**  → `jjqs_studbook/guides/vok/RCG-RustCodingGuide.md` (Rust Coding Guide - project Rust conventions)
 - **VOS0**  → `jjqs_studbook/specs/vok/VOS0-VoxObscuraSpec.adoc` (Vox Obscura Specification — the Vox Obscura cosmology SpecTop; centralizes the Liturgy naming vocabulary and hosts the Obscura distribution machinery, the VOSR* commit/lock family, and the Matricula (VOSMM) as branches. The former standalone VLS-VoxLiturgicalSpec.adoc dissolved into this top.)
 - **VOSO** → `jjqs_studbook/specs/vok/VOSO-distribution.adoc` (Vox Obscura distribution-procedure subdoc — pure-consumer subdoc of VOS0 (include::'d under its == Operations branch, defines zero quoins); holds the release/install/uninstall procedure bodies. The operation quoins are defined at the VOS0 cosmology top.)
 - **VOSMM** → `jjqs_studbook/specs/vok/VOSMM-entity.adoc` (Vox Matricula entity subdoc — pure-consumer subdoc of VOS0 (include::'d under its == Matricula branch, defines zero quoins); transient inscription census over the naming system; MVP scan + seating validators; worked instance of AXLA `axd_petrify`. Acronym mirrors the `vosmm_matricula` quoin. The Matricula vocabulary itself is centralized at the VOS0 cosmology top.)
