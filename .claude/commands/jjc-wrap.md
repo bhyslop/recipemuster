@@ -119,10 +119,10 @@ Protocol:
    - If the diff touches bash (`.sh`): first run `tt/rbw-tl.Shellcheck.sh`
      directly (no pipes, no tee), then read `../logs-buk/last.txt` in a
      separate command. A red shellcheck is an automatic FAIL. Then read
-     `Tools/buk/vov_veiled/BCG-BashConsoleGuide.md` and judge the changed
+     `jjqs_studbook/guides/buk/BCG-BashConsoleGuide.md` and judge the changed
      bash against it.
    - If the diff touches Rust (`.rs`): read
-     `Tools/vok/vov_veiled/RCG-RustCodingGuide.md` and judge the changed
+     `jjqs_studbook/guides/vok/RCG-RustCodingGuide.md` and judge the changed
      Rust against it.
    - **Cite the rule or drop the finding**: every compliance finding must name
      the specific BCG/RCG section or convention it violates. Uncited taste is

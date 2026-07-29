@@ -1,8 +1,8 @@
 ## File Acronym Mappings — RBK Veiled (`Tools/rbk/vov_veiled/`)
 
-- **CBG** → `rbk/vov_veiled/CBG-CloudBuildGuide.md`
-- **JDG** → `rbk/vov_veiled/JDG-JailerDialectGuide.md`
-- **PUCG** → `rbk/vov_veiled/PUCG_PlantUmlCodingGuide.md`
+- **CBG** → `jjqs_studbook/guides/rbk/CBG-CloudBuildGuide.md`
+- **JDG** → `jjqs_studbook/guides/rbk/JDG-JailerDialectGuide.md`
+- **PUCG** → `jjqs_studbook/guides/rbk/PUCG_PlantUmlCodingGuide.md`
 - **RBS0** → `jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`
 - **RBRN** → `jjqs_studbook/specs/rbk/RBRN-RegimeNameplate.adoc`
 - **RBHW0** → `rbk/vov_veiled/rbhw0_*.sh`
