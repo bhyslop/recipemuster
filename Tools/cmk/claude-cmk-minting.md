@@ -5,7 +5,7 @@ doctrine, CMK-homed; each host project keeps its own **Project Prefix Registry**
 (the prefix → project table) in its CLAUDE.md. Deep-doctrine pointers below
 (MCM, BUS0, BCG) resolve where those kits' veiled specs are present — they are
 depth, not prerequisites. Full study (rbm-local provenance):
-`Memos/memo-20260110-acronym-selection-study.md`
+`jjqs_studbook/memo-20260110-acronym-selection-study.md`
 
 ### Two Universes
 

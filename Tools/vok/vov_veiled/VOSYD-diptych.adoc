@@ -7,7 +7,7 @@ Diptych is a dual-representation document format for concept-model canons, repla
 One canonical source is stored word-per-line: the *recto*, git's face, optimized for word-grain diffs and move-traceable ancestry.
 A joined-prose projection — the *verso* — serves LLM reading and editing.
 A trivial mechanical codec transforms between them.
-The founding exploration is `Memos/memo-20260209-diptych-vision.md` and the model-side minting introspection is `Memos/retired/memo-20260610-quoin-minting-introspection.md` — both provenance, never authority; where this sheaf and the vision memo disagree, this sheaf is the later thought.
+The founding exploration is `jjqs_studbook/memo-20260209-diptych-vision.md` and the model-side minting introspection is `jjqs_studbook/retired/memos/memo-20260610-quoin-minting-introspection.md` — both provenance, never authority; where this sheaf and the vision memo disagree, this sheaf is the later thought.
 
 One grammar serves many consumers: the codec, the validator, the recension (canon-wide tool-executed re-minting), and the matricula's Diptych vesture recognizer.
 All live in the vom crate — the same operator-only codebase that raises the census and will maintain the grimoire performs all recto/verso work (operator ruling, 260720).
@@ -216,7 +216,7 @@ Reverse parse unwinds projection-isms into recto and rejects loud on anything un
 
 == Sources (provenance, not authority)
 
-* `Memos/memo-20260209-diptych-vision.md` — the founding vision: the spine, recension scope honesty, and the removal-conditions ledger of tolerated inconsistencies awaiting migration.
-* `Memos/retired/memo-20260610-quoin-minting-introspection.md` — the model-side report: certain coreference over token count; the validator rule-set feedstock.
+* `jjqs_studbook/memo-20260209-diptych-vision.md` — the founding vision: the spine, recension scope honesty, and the removal-conditions ledger of tolerated inconsistencies awaiting migration.
+* `jjqs_studbook/retired/memos/memo-20260610-quoin-minting-introspection.md` — the model-side report: certain coreference over token count; the validator rule-set feedstock.
 * Design chat, 2026-07-20 (Fable) — the space partition, punctuation law, relative deltas, pilcrow election and gate ledger, charset enrollment, squeeze doctrine, mezzanine immutability ruling, projection registers, and the replace sketch.
-* `AXMCM-ClaudeMarkConceptMemo.md` — the superseded ClaudeMark exploration; its guillemet notation survives in lectio.
+* `jjqs_studbook/AXMCM-ClaudeMarkConceptMemo.md` — the superseded ClaudeMark exploration; its guillemet notation survives in lectio.

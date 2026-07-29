@@ -1067,7 +1067,7 @@ google-worker DSSE provenance signs the per-platform attest-ark pullback images,
 Demolition: if
 {gcb_service}
 changes which image its google-worker provenance covers, the label's signed home moves — re-verify.
-Full live grounding: `Memos/memo-20260630-conjure-resolved-base-provenance-location.md`.
+Full live grounding: `jjqs_studbook/memo-20260630-conjure-resolved-base-provenance-location.md`.
 
 [[rbsk_human_present]]
 //axk_premise
@@ -1115,7 +1115,7 @@ The smell test for honest scaffolding: a poll-until-terminal-state loop is the v
 +
 RBSCIP is the operational law instantiating this premise; its call-context rule (post-grant sites wait the budget; cold-call sites fail fast) and the single shared `RBGC_PROPAGATION_*` backoff budget are corollaries.
 The watchbill (RBSWB) is the standing census of the vedettes this premise posts.
-Provenance: `Memos/memo-20260521-hyperscaler-cost-cap-and-api-consistency-premise.md` (Axis B).
+Provenance: `jjqs_studbook/memo-20260521-hyperscaler-cost-cap-and-api-consistency-premise.md` (Axis B).
 
 == Dependency Inventory
 
@@ -1593,7 +1593,7 @@ to enable the desired level of parallel build execution.
 include::RBSQB-quota_build.adoc[]
 
 == {rbtr_governor} Operations
-// FABLE-REANCHOR (₣BZ terminal review): the keyfile cult-verb-triad intro that opened this section was demolished with the verbs; the section now holds the gird founding act and the federation admission verbs (brevet/unseat/attaint/rehearse). Its title and intro framing want Fable's terminal pass. See the M7 record in memo-20260615-BZ-pace-design.md.
+// FABLE-REANCHOR (₣BZ terminal review): the keyfile cult-verb-triad intro that opened this section was demolished with the verbs; the section now holds the gird founding act and the federation admission verbs (brevet/unseat/attaint/rehearse). Its title and intro framing want Fable's terminal pass. See the M7 record in jjqs_studbook/memo-20260615-BZ-pace-design.md.
 
 [[rbtgo_governor_gird]]
 //axvo_method axd_transient axd_inlaid axd_grouped
@@ -3441,7 +3441,7 @@ Implementation notes:
 `docker pull --platform` works on CB workers (Docker 20.10.24, Experimental: true);
 `$${VAR}` escaping required for shell variables in {rbtgr_build_json} (Cloud Build interprets `${VAR}` as substitution variables);
 `jq` is not available in `gcr.io/cloud-builders/docker` — the `--platform` flag approach avoids JSON manifest parsing entirely.
-See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment details.
+See `jjqs_studbook/memo-20260305-provenance-architecture-gap.md` for full experiment details.
 +
 **Multi-platform pipeline** (6 steps + `images:` push, single build invocation):
 +

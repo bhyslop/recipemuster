@@ -1,5 +1,5 @@
 @startuml
-title The Single Code Seam - one accessor, every call site model-blind\nSource: memo-20260527-operator-credential-models.md (heat BZ structural payoff)
+title The Single Code Seam - one accessor, every call site model-blind\nSource: jjqs_studbook/memo-20260527-operator-credential-models.md (heat BZ structural payoff)
 
 participant "Consumer\n(any GCP call site)" as CONS
 participant "Token Accessor\n(the one seam fn)" as ACC

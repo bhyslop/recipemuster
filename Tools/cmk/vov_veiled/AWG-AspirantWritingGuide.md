@@ -8,8 +8,8 @@ SPDX-License-Identifier: LicenseRef-Proprietary
 
 v0 posture: **precepts inferred from a type specimen.** The founding session is the
 tackle refinement of chat pym-beta-tackle (its notch stream, plus
-`Memos/memo-20260707-tackle-polarity-and-graph.md` and
-`Memos/memo-20260707-rbm-domain-census.md`, are the provenance corpus).
+`jjqs_studbook/memo-20260707-tackle-polarity-and-graph.md` and
+`jjqs_studbook/memo-20260707-rbm-domain-census.md`, are the provenance corpus).
 Refinement from further specimens is expected; the skeleton is GMG's.
 
 ## Purpose

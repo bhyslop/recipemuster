@@ -115,11 +115,11 @@ the veiled tree and its git history hold them.
 * *Reboot is the canonical Windows state reset.* In-session destructive cleanup (hive unload,
   profile teardown) is unreliable; the chosen primitive is an unconditional reboot, with the
   rejected alternatives recorded in
-  `Memos/memo-20260511-windows-hive-cleanup-reboot-decision.md`.
+  `jjqs_studbook/memo-20260511-windows-hive-cleanup-reboot-decision.md`.
 * *Headless accounts break relative-path key resolution.* Windows OpenSSH resolves a relative
   `AuthorizedKeysFile` via GetUserProfileDirectoryW, which fails for never-logged-on accounts;
   an absolute-path Match block is structurally required.
-  `Memos/memo-20260516-windows-headless-account-anatomy.md` is the account-internals bible.
+  `jjqs_studbook/memo-20260516-windows-headless-account-anatomy.md` is the account-internals bible.
 * *One container daemon per Windows host.* WSL2 distros share one network namespace; two
   daemons fight over kernel iptables/NAT rules.
   ₣A- cinched Docker Desktop only (per-distro WSL integration); a native in-distro daemon is
@@ -197,27 +197,27 @@ no kit prefix will exist (resolved 260705).
 == Sources (provenance, not authority)
 
 * The former rig-and-mews paddock of this heat — superseded by this sheaf.
-* `Memos/memo-20260612-heat-Ba-falconry-asterism-soak.md` — naming deliberation and grep gates.
+* `jjqs_studbook/memo-20260612-heat-Ba-falconry-asterism-soak.md` — naming deliberation and grep gates.
 * Heat ₣A- (windows-remote-control) — archived; its jurisdiction design substance drained into
   the inheritance section above.
-* `Memos/memo-20260604-windows-node-orientation.md` — pointer map over the whole Windows
+* `jjqs_studbook/memo-20260604-windows-node-orientation.md` — pointer map over the whole Windows
   remote-node facility as built.
-* `Memos/memo-20260511-orchestration-style-axla-draft.md` — orchestration-style AXLA dimension
+* `jjqs_studbook/memo-20260511-orchestration-style-axla-draft.md` — orchestration-style AXLA dimension
   draft, parked pending a second exemplar (CMK territory, not fleet).
-* The Windows transport memo family (`Memos/memo-2026*-windows-*.md`) — the Palisade empirical
+* The Windows transport memo family (`jjqs_studbook/memo-2026*-windows-*.md`) — the Palisade empirical
   record.
-* `Memos/memo-20260712-macos-always-awake-test-host.md` — the macOS availability-posture
+* `jjqs_studbook/memo-20260712-macos-always-awake-test-host.md` — the macOS availability-posture
   empirical record (sleep prevention, power-cut recovery, verification traps); first
   non-Windows member of the Palisade memo family, feeding the node-availability-posture fork
   above.
 * The Windows container-runtime empirical family, still live as authority-of-record for its
   surveys, none yet owning a spec home:
-  `Memos/memo-20260603-windows-docker-desktop-bind-mount.md` (the two Desktop walls, both
+  `jjqs_studbook/memo-20260603-windows-docker-desktop-bind-mount.md` (the two Desktop walls, both
   fixed in tree);
-  `Memos/memo-20260603-cygwin-ifrit-first-run-conntrack.md` and
-  `Memos/memo-20260604-conntrack-spoofed-ack-adjudication.md` (the off-path-RST survey that
+  `jjqs_studbook/memo-20260603-cygwin-ifrit-first-run-conntrack.md` and
+  `jjqs_studbook/memo-20260604-conntrack-spoofed-ack-adjudication.md` (the off-path-RST survey that
   minted `rbsq_wdd_offpath_reply` — Desktop is the only runtime exercising it);
-  `Memos/memo-20260517-windows-substrate-landscape-for-theurge.md` (the Cygwin toolchain
+  `jjqs_studbook/memo-20260517-windows-substrate-landscape-for-theurge.md` (the Cygwin toolchain
   substrate: rust target, TMPDIR shape, transport detail).
 * Health of the extant homes (260712 reading): the veiled BUK/RBK apparatus and `BUSJ*` sheaf
   are inert-by-design awaiting this sheaf's re-gestation; WSG and the memo families above are
@@ -225,7 +225,7 @@ no kit prefix will exist (resolved 260705).
   (`Tools/jjk/vov_veiled/claude-jjk-bhyslop.md` §I) is the live per-node state and carries the
   rocket runtime posture; stabled heat ₣BG holds only the spec-*style* scrub of the `BUSJ*`
   family and is orthogonal to fleet function.
-* `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md` — unreviewed supposition
+* `jjqs_studbook/memo-20260720-tackle-staleness-facilities-buildflags.md` — unreviewed supposition
   (confidence-graded, ratification ledger inside): the reservation mechanism widened beyond
   nodes to non-local cloud facilities (depots, foedera, test facilities) as a second
   reservable resource kind; role-over-instance grants; exclusive vs shared-as-conduct-promise

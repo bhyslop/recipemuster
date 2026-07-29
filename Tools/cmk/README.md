@@ -80,7 +80,8 @@ The kit directory contains:
 - `cmw_workbench.sh` - Installation and management script
 - `MCM-MetaConceptModel.adoc` - Meta Concept Model specification
 - `AXLA-Lexicon.adoc` - Axial Lexicon (optional, for AXL-annotated documents)
-- `AXMCM-ClaudeMarkConceptMemo.md` - ClaudeMark format reference
+
+`jjqs_studbook/AXMCM-ClaudeMarkConceptMemo.md` - ClaudeMark format reference (memo cargo, homed in the studbook)
 
 ### Project Files (created at install)
 

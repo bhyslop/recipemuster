@@ -1,5 +1,5 @@
 @startuml
-title Federation Setup - one-time, Payor-side / org admin\nSource: memo-20260527-operator-credential-models.md
+title Federation Setup - one-time, Payor-side / org admin\nSource: jjqs_studbook/memo-20260527-operator-credential-models.md
 
 actor "Payor\n(org admin)" as PAYOR
 participant "gcloud / REST\n(setup only)" as SETUP

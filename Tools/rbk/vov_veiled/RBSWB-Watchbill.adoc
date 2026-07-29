@@ -108,17 +108,17 @@ The wincred headless-persist bend beside the login site (`RBGC_DOCKER_WINCRED_HE
 
 The census rows freeze what the incident reports surveyed; the reports themselves are retired provenance, not authority:
 
-* `Memos/retired/memo-20260711-gauntlet-attempt2-serviceusage-enable-internal.md` — the fresh-project provisioning race (gauntlet attempt 2).
-* `Memos/retired/memo-20260711-admission-don-propagation-incident.md` — the admission-don Class-C observation (gauntlet attempt 3).
-* `Memos/retired/memo-20260711-gauntlet-attempt7-gar-token-timeout.md` — the pull resolve-leg timeout (gauntlet attempt 7).
+* `jjqs_studbook/retired/memos/memo-20260711-gauntlet-attempt2-serviceusage-enable-internal.md` — the fresh-project provisioning race (gauntlet attempt 2).
+* `jjqs_studbook/retired/memos/memo-20260711-admission-don-propagation-incident.md` — the admission-don Class-C observation (gauntlet attempt 3).
+* `jjqs_studbook/retired/memos/memo-20260711-gauntlet-attempt7-gar-token-timeout.md` — the pull resolve-leg timeout (gauntlet attempt 7).
 
 Pre-pace lineage of the same classes, cross-linked so the class record keeps one entry point:
-`memo-20260513-iam-propagation-race-director-invest-gar.md`,
-`memo-20260514-pristine-gauntlet-iam-flap.md`,
-`memo-20260604-credential-churn-leak-and-propagation-races.md`,
-`memo-20260604-dogfight-ordain-poll-connect-timeout.md`,
-`memo-20260705-wifi-tls-timeout-incident.md`,
-and retired `memo-20260611-heat-BH-class-c-setiampolicy-write-flap.md` (read-back-as-gate falsified).
+`jjqs_studbook/memo-20260513-iam-propagation-race-director-invest-gar.md`,
+`jjqs_studbook/memo-20260514-pristine-gauntlet-iam-flap.md`,
+`jjqs_studbook/memo-20260604-credential-churn-leak-and-propagation-races.md`,
+`jjqs_studbook/memo-20260604-dogfight-ordain-poll-connect-timeout.md`,
+`jjqs_studbook/memo-20260705-wifi-tls-timeout-incident.md`,
+and retired `jjqs_studbook/retired/memos/memo-20260611-heat-BH-class-c-setiampolicy-write-flap.md` (read-back-as-gate falsified).
 Commit `40c429ddb` (2026-05-30) is the moby#44350 class origin —
 its "pull/push retry internally" premise, falsified at the resolve leg, lived only in a commit message;
 that unrecorded-premise failure mode is what the RBr_5b8 spoor now guards against.
