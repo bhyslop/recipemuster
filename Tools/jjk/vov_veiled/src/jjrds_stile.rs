@@ -406,6 +406,17 @@ pub fn jjrds_validate_claims(sires: &[jjrds_Pedigree]) -> Result<(), Vec<String>
     }
 }
 
+/// Appraise a pedigrees.json byte image for the unique-claimant law — the
+/// registry-integrity check `jjx_validate` runs over the studbook's pedigree
+/// tenant, beside the gallops canonicalization. A parse failure or a contested
+/// kit is `Err(message)`; a clean (or empty) registry is `Ok`. Keeps
+/// `zjjrds_PedigreeFile` private while giving validate one entry point.
+pub fn jjrds_validate_claims_bytes(bytes: &[u8]) -> Result<(), String> {
+    let file: zjjrds_PedigreeFile = serde_json::from_slice(bytes)
+        .map_err(|e| format!("malformed pedigrees file: {}", e))?;
+    jjrds_validate_claims(&file.sires).map_err(|errs| errs.join("; "))
+}
+
 // ---- Record-driven clone election ----
 
 /// The two refusals declared-clone election can return (`jjdw_infield`, one clone

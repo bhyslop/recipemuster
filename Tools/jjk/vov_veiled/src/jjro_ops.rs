@@ -205,6 +205,11 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
         precis: args.precis,
         slated: Some(args.slated),
         redocket_count: 0,
+        // Sire affiliation is left unset at slate for now: per-pace election reads
+        // the registry the engine must stay agnostic of, so it lands with the
+        // launch inversion. The one-time backfill (jjx_affiliate) stamps every
+        // pre-inversion pace.
+        sire: None,
     };
 
     // Insert into order at determined position

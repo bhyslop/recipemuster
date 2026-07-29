@@ -192,6 +192,20 @@ where
         }
     };
 
+    // Pedigree-registry integrity — the unique-claimant gate over the studbook's
+    // pedigrees tenant, appraised beside the gallops. A contested canonical home
+    // is a structural failure of the record repository, so it bricks the validate
+    // (broken, untouched), never a normalize. An absent pedigrees.json is the
+    // pre-founding state and is not a failure.
+    if let Ok(ped_bytes) = crate::jjrvb_blotter::jjdb_read_pinned(
+        studbook, &pin, crate::jjrds_stile::JJRDS_PEDIGREES_REL_PATH,
+    ) {
+        if let Err(e) = crate::jjrds_stile::jjrds_validate_claims_bytes(&ped_bytes) {
+            vvco_err!(output, "{}: broken — pedigree registry: {}", cn, e);
+            return JJRVL_EXIT_BROKEN;
+        }
+    }
+
     match zjjrvl_appraise(&original_bytes) {
         zjjrvl_Appraisal::Canonical(census) => {
             vvco_out!(output, "{}: clean — valid and already canonical. {}", cn, census);
