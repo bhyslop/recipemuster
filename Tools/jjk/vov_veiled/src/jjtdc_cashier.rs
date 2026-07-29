@@ -123,10 +123,11 @@ fn jjtdc_a_free_store_reports_no_lock_held() {
     assert!(!jjrdc_any_held(std::slice::from_ref(&sighting)));
 }
 
-/// The report is what the operator decides from, so the gate's four required
+/// The report is what the operator decides from, so the gate's required
 /// showings are asserted here: the guidon's fields, acquire time as an AGE, the
-/// store the lock guards, and the DIFFERENTIATED consequence (JJSVD, The confirm
-/// gate).
+/// store the lock guards, the DIFFERENTIATED consequence (JJSVD, The confirm
+/// gate), and the human-only line — the report travels wherever a lock is
+/// sighted, so it carries the agent's stop order itself.
 #[test]
 fn jjtdc_a_held_store_reports_the_fields_the_gate_must_show() {
     let (_bare, _local, config) = zjjtdc_scratch("jjtdc_held");
@@ -152,6 +153,11 @@ fn jjtdc_a_held_store_reports_the_fields_the_gate_must_show() {
     assert!(report.contains(JJRDC_STORE_STUDBOOK), "the store the lock guards must be named: {}", report);
     assert!(report.contains("live WRITER"), "the writer consequence must be shown: {}", report);
     assert!(report.contains("live READER"), "the reader consequence must be shown: {}", report);
+    assert!(
+        report.contains("OPERATOR'S act alone"),
+        "the human-only line must ride the held report: {}",
+        report
+    );
     assert!(
         !report.contains("WARNING"),
         "a 20-minute-old lock must earn no liveness warning: {}",

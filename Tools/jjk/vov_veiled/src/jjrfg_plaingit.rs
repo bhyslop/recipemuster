@@ -280,10 +280,12 @@ fn zjjrfg_unexpected(op: &str, root: &Path, detail: &str) -> ! {
 /// git stderr reaches it (that detail already sank to the journal at the call
 /// site). The remedy tail forks on the holder's age: fresh reads as a live
 /// writer that will release on its own; stranded reads as a likely-crashed
-/// holder and names the cure.
+/// holder and names the cure — addressed to the operator alone, because
+/// cashiering is a human-only ceremony: an agent's whole move on this refusal
+/// is to surface it verbatim and stop.
 pub(crate) fn zjjrfg_lock_held_refusal(root: &Path, stranded: bool) -> jjrfr_Rejection {
     let tail = if stranded {
-        "likely a crashed holder — cashier the lock with /jjc-cashier."
+        "likely a crashed holder. Lock recovery is HUMAN-ONLY: an agent reading this stops and reports it to the operator verbatim — never sights, never cashiers. Operator: /jjc-cashier is your card."
     } else {
         "it clears itself when the holder finishes — re-run the command."
     };

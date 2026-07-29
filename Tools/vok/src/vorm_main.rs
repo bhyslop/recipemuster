@@ -75,7 +75,9 @@ enum Commands {
     /// Cashier a derelict JJ blotter lock-holder: sight every lock and report,
     /// or (with --break) clear a stranded one. Operator-deliberate — the confirm
     /// gate lives in the tabtarget door, and this verb is deliberately NOT an
-    /// MCP command (JJSVD jjdd_cashier).
+    /// MCP command (JJSVD jjdd_cashier). Cashiering is a HUMAN-ONLY ceremony:
+    /// break mode carries an attended-terminal floor beneath the door's typed
+    /// gate, refusing wherever no human could type.
     #[command(name = "jjx_cashier")]
     JjxCashier(CashierArgs),
 
@@ -518,10 +520,32 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
     }
 }
 
+/// Whether a human can type at this process — the controlling terminal opens
+/// (Unix `/dev/tty`, Windows `CONIN$`). The cashier's break mode runs only
+/// where the bash door's own typed gate (`read </dev/tty`) could also run, so
+/// this floor is exactly as permissive as the sanctioned path and refuses the
+/// unattended ones (agent tool calls, nohup relays). Deliberately no env
+/// override: an override would be the routable gate this floor exists to
+/// remove.
+#[cfg(unix)]
+fn zvorm_attended_terminal() -> bool {
+    std::fs::File::open("/dev/tty").is_ok()
+}
+
+/// Windows twin of the attended-terminal floor: `CONIN$` opens only with a
+/// console attached (a mintty-only session lacks one — run the door from a
+/// console-hosted terminal there).
+#[cfg(windows)]
+fn zvorm_attended_terminal() -> bool {
+    std::fs::File::open("CONIN$").is_ok()
+}
+
 /// Run the cashier door (JJSVD `jjdd_cashier`). Sight-and-report always runs and
 /// always exits 0 — a read that reports "no lock held" is a success, not a
 /// failure. `--break` then clears each held lock through the break sequence,
-/// which sights afresh and plucks against exactly what it sighted.
+/// which sights afresh and plucks against exactly what it sighted — behind the
+/// attended-terminal floor: the break is HUMAN-ONLY, so it refuses outright
+/// where no human could type.
 fn run_cashier(args: CashierArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
@@ -545,6 +569,13 @@ fn run_cashier(args: CashierArgs) -> i32 {
         if !args.do_break {
             vvco_out!(out, "{}", jjrdc_report(&sightings));
             return 0;
+        }
+        if !zvorm_attended_terminal() {
+            vvco_err!(
+                out,
+                "jjx_cashier: --break refused — no attended terminal. Cashiering is a HUMAN-ONLY ceremony: the operator runs tt/jjw-dC.Cashier.sh at their own terminal; an agent stops and surfaces the lock-held refusal instead."
+            );
+            return 1;
         }
         if !jjrdc_any_held(&sightings) {
             vvco_out!(out, "\nNothing to cashier — no lock is held.");

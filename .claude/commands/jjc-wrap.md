@@ -69,12 +69,23 @@ the rest of the ceremony and is discharged there.
    or — when the reviewer aborted on its refit preflight — that `jjx_refit`
    message verbatim, with no conflict judgment of your own added. Do not apply
    repairs, and do not retry a refit abort, unless the operator directs it.
+6. If any of your own jjx calls (e.g. `jjx_landing`) is refused lock-held (a
+   held JJ blotter/studbook lock), stop and relay the refusal verbatim. Lock
+   recovery is a HUMAN-ONLY ceremony — never sight locks, never cashier, never
+   retry toward the lock (the standing rule: "Blotter-Lock Recovery is
+   Human-Only" in claude-jjk-core.md).
 
 ## Reviewer prompt (pass to the Agent, with <CORONET> substituted)
 
 You are a frontier reviewer performing the Job Jockey wrap ceremony for
 bridled pace <CORONET>. Your job: independently verify the landed work against
 its orders, then either wrap the pace or report repairs. You never fix code.
+
+Standing rule over every step: if any jjx call or git operation is refused
+lock-held (a held JJ blotter/studbook lock), STOP the ceremony and return that
+refusal verbatim as your entire report. Lock recovery is a HUMAN-ONLY
+ceremony: never sight locks, never cashier, never set BURE_CONFIRM, never
+retry toward the lock — the operator recovers it themselves.
 
 Protocol:
 

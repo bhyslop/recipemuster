@@ -13,7 +13,11 @@
 //! the deliberateness the gate imposes. The sequence's safety is the sequence's:
 //! sight-arms-pluck is never blind, so the door takes no bracket of its own.
 //!
-//! Outside the stile's approach. Nothing composes this module; the operator does.
+//! Outside the stile's approach. Nothing composes this module; the operator
+//! does. Cashiering is a HUMAN-ONLY ceremony — the break rides the door's
+//! operator-typed gate, and the CLI's break mode adds an attended-terminal
+//! floor beneath it. An agent never begins it, not even the sight: a
+//! lock-held refusal is its stop-and-surface signal, never its cue.
 
 use crate::jjrfg_plaingit::jjrfg_PlainGit;
 use crate::jjrfr_farrier::{
@@ -120,8 +124,10 @@ pub fn jjrdc_sight_store<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(farrier: &F, 
     }
 }
 
-/// Sight the whole roster. Read-only, always safe — the door's first mode, and
-/// the one an agent or a script may run freely.
+/// Sight the whole roster. Read-only, always safe MECHANICALLY — the door's
+/// first mode. A script or the operator may run it freely; an AGENT may not
+/// run it in service of lock recovery — sight is the cashier's on-ramp, and
+/// the agent's whole move on a held lock is stop and surface.
 pub fn jjrdc_sight(infield_root: &Path) -> Vec<jjrdc_Sighting> {
     let farrier = jjrfg_PlainGit;
     jjrdc_roster(infield_root)
@@ -208,6 +214,8 @@ pub fn jjrdc_report(sightings: &[jjrdc_Sighting]) -> String {
                 lines.push("  If the holder is a live WRITER: it loses its ceremony and nothing lands.".to_string());
                 lines.push("  If the holder is a live READER: it may finish and ACT on a stale image, with".to_string());
                 lines.push("  nothing to catch it. The two are not the same risk.".to_string());
+                lines.push("  Cashiering this lock is the OPERATOR'S act alone, typed at their own gate —".to_string());
+                lines.push("  an agent that can read this reports it to the operator and STOPS.".to_string());
             }
         }
     }

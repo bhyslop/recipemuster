@@ -73,8 +73,9 @@ impl std::fmt::Display for jjrdm_Rejection {
             // cure the sufferer cannot find is not a cure).
             jjrdm_Rejection::Farrier(r) if r.kind == jjrfr_RejectionKind::LockHeld => write!(
                 f,
-                "{}\n  Another station holds the studbook lock. If it crashed, the lock is stranded:\n  \
-                 sight it with `tt/jjw-dc.SightLocks.sh`, and cashier it with `tt/jjw-dC.Cashier.sh`.",
+                "{}\n  Another station holds the studbook lock. If it crashed, the lock is stranded.\n  \
+                 Lock recovery is HUMAN-ONLY — an agent reading this reports it and stops. Operator,\n  \
+                 by hand: sight with `tt/jjw-dc.SightLocks.sh`, cashier with `tt/jjw-dC.Cashier.sh`.",
                 r
             ),
             jjrdm_Rejection::Farrier(r) => write!(f, "{}", r),
