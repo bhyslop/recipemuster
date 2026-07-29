@@ -1647,6 +1647,14 @@ Anything beyond bash builtins and the POSIX allowlist is a **declared dependency
 
 The project's declared dependencies are inventoried in its consumer-facing spec; that inventory is the authoritative list. The canonical example is `openssl`, which replaces three platform-variant commands (`base64`, `sha256sum`/`shasum`) with a single portable binary present on every target platform.
 
+### Test-Bench Utilities
+
+A kit's bash **test-bench** (test-only infrastructure under the kit's test directory) is held to the full discipline above — evictions still apply, unknown commands still fail — but earns a small **additive allowance**: a command a test harness legitimately needs that shipped code does not. The allowance is scoped to the test directory alone; the same command stays a violation in shipped kit-bash.
+
+The one member today is `env`. A resolution probe that must observe how code behaves under a varied environment has to launch a fresh process with variables **set and unset** — and `env VAR=val -u NAME cmd` is the POSIX primitive for exactly that. No bash builtin composes a fresh process's environment subtractively (a `VAR=val cmd` prefix sets but cannot unset for the child, and cannot take a dynamic assignment list), so `env` is irreducible here — but only for the harness, which is why it is a test-bench allowance rather than a floor entry.
+
+Adding to this allowance carries the same burden as any dependency: name the irreducible need and why no builtin or already-declared dependency serves it.
+
 ### Platform-Variant Command Guidance
 
 Commands that exist on both GNU and BSD but with incompatible flags are the worst kind of dependency: they work on the developer's machine and fail on the consumer's. The canonical examples:

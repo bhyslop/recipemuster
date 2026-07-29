@@ -33,6 +33,7 @@ use super::rbtdru_cupel::{
     ZRBTDRU_GCB_ALLOWED,
     ZRBTDRU_POSIX_FLOOR,
     ZRBTDRU_PY_IMPORT_ALLOWED,
+    ZRBTDRU_TEST_BENCH_ALLOWED,
 };
 use super::rbtdru_python::{
     zrbtdru_py_import_roots,
@@ -291,6 +292,26 @@ fn rbtdtu_classify_gcb_has_no_eviction_free_pass() {
         assert!(zrbtdru_classify(ev.command, &locals, zrbtdru_Domain::Gcb).is_some(),
             "eviction absent from the curated GCB list must be flagged in gcb: {}",
             ev.command);
+    }
+}
+
+#[test]
+fn rbtdtu_classify_test_bench_allowance_scoped_to_kittest() {
+    // The test-bench additive allowance clears under KitTest but stays a
+    // violation in shipped kit-bash and in GCB — the scoping is the whole point.
+    let locals = BTreeSet::new();
+    for cmd in ZRBTDRU_TEST_BENCH_ALLOWED {
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::KitTest).is_none(),
+            "test-bench allowance must clear in KitTest: {cmd}");
+        // A command already cleared kit-wide by a broader allowlist (floor /
+        // declared dep) proves nothing about scoping — skip it for the negatives.
+        if ZRBTDRU_POSIX_FLOOR.contains(cmd) || ZRBTDRU_DECLARED_DEPS.contains(cmd) {
+            continue;
+        }
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Kit).is_some(),
+            "test-bench allowance must stay a violation in shipped kit-bash: {cmd}");
+        assert!(zrbtdru_classify(cmd, &locals, zrbtdru_Domain::Gcb).is_some(),
+            "test-bench allowance must stay a violation in GCB-bash: {cmd}");
     }
 }
 
