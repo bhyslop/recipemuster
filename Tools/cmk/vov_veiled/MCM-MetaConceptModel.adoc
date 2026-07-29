@@ -1115,8 +1115,8 @@ and the
 {mcm_editor}
 alike.
 Founding specimen: Job Jockey's equestrian vocabulary (JJS0, Equestrian Vocabulary), with the racing and dressage layers as sibling families sharing one register.
-Model-side rationale: `Memos/retired/memo-20260610-quoin-minting-introspection.md`;
-prefix-side sibling: `Memos/memo-20260110-acronym-selection-study.md`.
+Model-side rationale: `jjqs_studbook/retired/memos/memo-20260610-quoin-minting-introspection.md`;
+prefix-side sibling: `jjqs_studbook/memo-20260110-acronym-selection-study.md`.
 
 === The Soil Family
 

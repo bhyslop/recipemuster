@@ -14,7 +14,7 @@ Single-arch supersession verified on 3 trigger-dispatched vessels (build IDs
 `16d3b60f`, `fc36b970`, `9180c42a`) with SLSA v1.0 Level 3 provenance.
 Multi-platform supersession verified on `rbev-busybox` 3-platform trigger-dispatched
 build (`2e172ce0`) with SLSA v1.0 Level 3 on all per-platform images.
-See `Memos/memo-20260305-provenance-architecture-gap.md` for full experiment and
+See `jjqs_studbook/memo-20260305-provenance-architecture-gap.md` for full experiment and
 production evidence.
 ====
 

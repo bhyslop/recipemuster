@@ -15,7 +15,7 @@
 //! Census lifecycle lands here: vomrb_Builder is raised, seats claimed and
 //! estray inscriptions, and vomrb_seal consumes it into the immutable
 //! vomrm_Matricula - a Rust typestate mirroring VOSMM's build-then-freeze
-//! shape (Memos/memo-20260620-freeze-builder-pattern/, provenance only).
+//! shape (jjqs_studbook/memo-20260620-freeze-builder-pattern/, provenance only).
 //! Rust, Bash, and AsciiDoc attribute/anchor vestures claim declarations
 //! (vomrv_vesture); the seating validators (collision, terminal-exclusivity)
 //! read the frozen trie (vomrq_validate).

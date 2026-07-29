@@ -318,7 +318,7 @@ zrbld_spine_extract() {
 # extract (rbldb_): its multi-slot 1..3 continue-on-empty loop is genuinely
 # different shape. Consolidated from three byte-parallel per-kind copies after
 # the rbls_ sprue sweep missed one of them and broke the picket suite same-day
-# (memo-20260610-heat-BH-extract-keys-triplication).
+# (jjqs_studbook/retired/memos/memo-20260610-heat-BH-extract-keys-triplication.md).
 # Args: prefix brand label
 #   prefix — the kind's temp-file prefix (ZRBLD_*_PREFIX)
 #   brand  — kind name for the display label (RBGC_LODE_BRAND_* / immure's family)

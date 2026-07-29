@@ -386,4 +386,4 @@ Behavior-preservation is confirmed against the live system at the heat's milesto
 * RBSAI: Ark Inspect specification
 * buv_validation.sh: `buv_val_odref()` — digest-pinned image reference validator
 * RBRV vessel regime: `RBRV_CONJURE_PLATFORMS` vs `RBGC_BUILD_RUNNER_PLATFORM` — binfmt inclusion predicate
-* Memos/memo-20260305-provenance-architecture-gap.md — provenance experiment evidence
+* jjqs_studbook/memo-20260305-provenance-architecture-gap.md — provenance experiment evidence

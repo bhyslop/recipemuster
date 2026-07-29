@@ -288,11 +288,11 @@ counterfoil seam included.
 
 == Sources (provenance, not authority)
 
-* `Memos/memo-20260630-jj-revision-control-architecture.md` — the nucleating memo this sheaf
+* `jjqs_studbook/memo-20260630-jj-revision-control-architecture.md` — the nucleating memo this sheaf
   and the farrier sheaf now supersede as mulling home.
-* `Memos/memo-20260702-jjk-gallops-coronet-collision-incident.md` — the ₢BfAA3 identity
+* `jjqs_studbook/memo-20260702-jjk-gallops-coronet-collision-incident.md` — the ₢BfAA3 identity
   collision; root-cause evidence for the lock.
-* `Memos/memo-20260615-chat-capture-and-cost-reconstruction.md` — in-repo chat archive and the
+* `jjqs_studbook/memo-20260615-chat-capture-and-cost-reconstruction.md` — in-repo chat archive and the
   state-gestalt thread.
 * Chat gamma-fable-regional-gallops (260704) — vocabulary settlement, journal ceremony,
   vanilla-hippodrome premise, BUK meld study.

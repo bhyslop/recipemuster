@@ -138,7 +138,7 @@ is library code; the rule constrains caller bodies only. The wrapper's
 exact three-slot shape (prelude / body / postlude) is the minimum-viable
 scaffolding given WSp_101, WSp_102, WSp_105, and WSp_109 acting in
 combination — see
-`Memos/memo-20260511-windows-transport-wrapper-postlude-synthesis.md`
+`jjqs_studbook/memo-20260511-windows-transport-wrapper-postlude-synthesis.md`
 for the integrative rationale and the elimination argument showing why
 each token is load-bearing.
 

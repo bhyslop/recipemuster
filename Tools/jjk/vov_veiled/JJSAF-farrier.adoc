@@ -238,7 +238,7 @@ uses.
 
 == Sources (provenance, not authority)
 
-* `Memos/memo-20260630-jj-revision-control-architecture.md` — the VCS-driver and lock sections
+* `jjqs_studbook/memo-20260630-jj-revision-control-architecture.md` — the VCS-driver and lock sections
   this sheaf supersedes as mulling home.
 * BUK dispatch chain: `tt/z-launcher.sh`, `Tools/buk/bul_launcher.sh`, `bud_dispatch.sh`,
   `burc_regime.sh`, `burs_regime.sh`; theurge BURV sites: `rbtdri_invocation.rs`,

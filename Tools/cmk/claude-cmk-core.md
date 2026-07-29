@@ -43,7 +43,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 
 ### Minting Guidance
 
-Before introducing new quoin prefixes in an MCM document, consult the CLAUDE.md "Quoin Sub-Letter Discipline" subsection and minting memo Pattern J (`Memos/memo-20260110-acronym-selection-study.md`). The rule: uniform `prefixXY_word` shape, hard 2-letter ceiling, within-domain Y monosemy, documented sub-letter legend in the spec's mapping section.
+Before introducing new quoin prefixes in an MCM document, consult the CLAUDE.md "Quoin Sub-Letter Discipline" subsection and minting memo Pattern J (`jjqs_studbook/memo-20260110-acronym-selection-study.md`). The rule: uniform `prefixXY_word` shape, hard 2-letter ceiling, within-domain Y monosemy, documented sub-letter legend in the spec's mapping section.
 
 **Available commands:**
 - `/cma-prep-pr` - Prepare upstream contribution
@@ -58,7 +58,7 @@ Annotations for the acronym homes indexed in `claude-cmk-acronyms.md` — the pe
 |---------|------|-------------|
 | **MCM** | `cmk/vov_veiled/MCM-MetaConceptModel.adoc` | Meta Concept Model — the spec governing all concept model documents |
 | **AXLA** | `cmk/vov_veiled/AXLA-Lexicon.adoc` | Axial Lexicon — shared vocabulary of motifs reusable across concept models |
-| **AXMCM** | `cmk/vov_veiled/AXMCM-ClaudeMarkConceptMemo.md` | ClaudeMark concept memo |
+| **AXMCM** | `jjqs_studbook/AXMCM-ClaudeMarkConceptMemo.md` | ClaudeMark concept memo |
 | **ACG** | `cmk/vov_veiled/ACG-AllodialCodingGuide.md` | Allodial Coding Guide — source-side complement to MCM: reference the home, don't recreate (values→constants, concepts→quoin-refs). Veiled/proprietary move-catalog; guide-family sibling to BCG/RCG/WSG/CBG. |
 | **GMG** | `cmk/vov_veiled/GMG-GuideMetaGuide.md` | Guide Meta-Guide — the guide for writing guides: the canonical section skeleton and the family's shared framing conventions (foreign-environment sibling, two-genres split, cited-rule scheme). Homes the guide-family form once so a guide cites the convention rather than re-deriving it. The spec-side analogue of MCM/AXLA, for guides. |
 | **AWG** | `cmk/vov_veiled/AWG-AspirantWritingGuide.md` | Aspirant Writing Guide — how an agent–operator pair refines an aspirant sheaf toward settling under MCM/AXLA law and the JJS0 mulling-heat doctrine: charter-first, worked census, mint-follows-API, timeless prose, banked nudges, the settling register with drain modes. Guide-family sibling per GMG; expects delivery via the aspirant-sheaves tackle's trappings. |

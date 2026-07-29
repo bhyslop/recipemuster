@@ -376,7 +376,7 @@ superseded; the notional parking heat remains the only V4-era survivor outside t
 
 * Retired heat jjk-v4-4-school-breeze-founding (₣Ah) — paddock and design-pace dockets, the
   primary drain source.
-* `Memos/memo-20260222-jjk-v4-vision.md`, `Memos/memo-20260224-jjk-v4-gaits.md` — superseded
+* `jjqs_studbook/memo-20260222-jjk-v4-vision.md`, `jjqs_studbook/memo-20260224-jjk-v4-gaits.md` — superseded
   design seeds.
 * cchat series 20260224–20260318 — schema decisions, execution model, gait working concept,
   provender/nosebag/piaffe, symbol selection.
