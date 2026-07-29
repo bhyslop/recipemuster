@@ -11,11 +11,15 @@
 //! that format's single home — no other site spells it.
 //!
 //! The lock primitives never parse a guidon: `stake`, `pluck`, and `consign`'s
-//! lease compare by blob-hash equality alone. So the parse below is *for display
-//! alone*, and it is tolerant by contract: a guidon this engine did not compose —
-//! an older engine's, a hand-staked probe's, a truncated one — is still a lock,
-//! and must stay sightable and breakable. An unparseable field renders as
-//! itself; nothing here can refuse.
+//! lease compare by blob-hash equality alone. The parse below serves two readers
+//! and no primitive: the tolerant DISPLAY read the cashier door renders a sighted
+//! lock with, and the one MECHANICAL read — `jjdb_guidon_same_holder`, the reclaim
+//! predicate the journal's acquiring ceremony composes to recognize its OWN
+//! crashed lock by officium. Both are tolerant by contract: a guidon this engine
+//! did not compose — an older engine's, a hand-staked probe's, a truncated one —
+//! is still a lock, and must stay sightable and breakable; it simply fails the
+//! ownership proof, so it is left for the operator's cashier rather than
+//! reclaimed. An unparseable field renders as itself; nothing here can refuse.
 
 use chrono::{
     DateTime,
@@ -132,6 +136,32 @@ pub fn jjdb_guidon_read(verbatim: &str) -> jjdb_GuidonRead {
     }
 
     read
+}
+
+/// The reclaim predicate: whether a sighted lock is provably the SAME HOLDER as
+/// one this session would stake — its officium field, well-formed and equal. The
+/// officium is a chat session's identity (minted once at open, stable across a
+/// crash on disk), so equality here means "our own prior — crashed — ceremony,"
+/// never another session or station. This is the guidon's ONE mechanical reader;
+/// the reclaiming acquire in the journal ceremony composes it, and every lock
+/// primitive still compares by blob-hash alone.
+///
+/// Conservative by construction: an absent, empty, or sentinel (`-`, the scrub's
+/// spelling of an empty field) officium on EITHER side is not a proof of ownership
+/// and returns false. An unrecognized or older-engine guidon therefore fails the
+/// proof and is left for the operator's cashier, never broken — which is what
+/// keeps the reclaim from ever touching another holder's lock, and what leaves a
+/// raw hand-staked probe (no officium field at all) a plain `LockHeld`.
+pub fn jjdb_guidon_same_holder(observed: &str, ours: &str) -> bool {
+    let officium = |verbatim: &str| -> Option<String> {
+        jjdb_guidon_read(verbatim)
+            .officium
+            .filter(|o| !o.is_empty() && o != "-")
+    };
+    match (officium(observed), officium(ours)) {
+        (Some(a), Some(b)) => a == b,
+        _ => false,
+    }
 }
 
 /// Render an acquire time as an AGE against `now` — the form the cashier door's
