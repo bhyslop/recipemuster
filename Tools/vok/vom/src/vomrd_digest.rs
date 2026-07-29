@@ -105,19 +105,34 @@ pub fn vomrd_audit(
 }
 
 // A non-veiled digest may still curate rows whose homes sit in a veiled
-// tree; those homes are outside census jurisdiction exactly as veiled
-// digests are (the census walk excludes veiled paths), so auditing them
-// would read falsely dead. Skipped only when every backticked home span on
-// the row is veiled - a mixed or path-free row stays in jurisdiction.
+// tree, or in the studbook (a sibling repo the census walk never reaches);
+// those homes are outside census jurisdiction exactly as veiled digests are,
+// so auditing them would read falsely dead. Skipped only when every
+// backticked home span on the row is out-of-jurisdiction - a mixed or
+// path-free row stays in jurisdiction.
 fn zvomrd_row_homes_all_veiled(line: &str) -> bool {
     let mut saw_home = false;
     for cap in ZVOMRD_HOME.captures_iter(line) {
         saw_home = true;
-        if !vof::vofr_is_veiled_path(Path::new(&cap[1])) {
+        if !zvomrd_home_out_of_jurisdiction(&cap[1]) {
             return false;
         }
     }
     saw_home
+}
+
+// A home span is out of census jurisdiction when it is veiled, or when it
+// anchors into the studbook - a sibling repo the census walk excludes just
+// as it excludes veiled trees.
+fn zvomrd_home_out_of_jurisdiction(home: &str) -> bool {
+    vof::vofr_is_veiled_path(Path::new(home)) || zvomrd_is_studbook_home(home)
+}
+
+// Whether a backticked home span anchors into `jjqs_studbook/`.
+fn zvomrd_is_studbook_home(home: &str) -> bool {
+    Path::new(home)
+        .components()
+        .any(|c| c.as_os_str() == "jjqs_studbook")
 }
 
 // A row head is live when some seated signet matches it case-folded - equal,
