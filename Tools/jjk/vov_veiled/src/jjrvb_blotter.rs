@@ -28,7 +28,10 @@ use crate::jjrfr_farrier::{
     jjrfr_FarrierLock,
     jjrfr_LockGuard,
     jjrfr_Rejection,
+    jjrfr_RejectionKind,
 };
+use crate::jjrsj_sectional::jjrsj_trace;
+use crate::jjrvg_guidon::jjdb_guidon_same_holder;
 use std::path::{
     Path,
     PathBuf,
@@ -381,6 +384,61 @@ pub fn jjdb_read(config: &jjdb_BlotterConfig, rel_path: &Path) -> std::io::Resul
 /// way out (the guard drops on every exit path), and a refused proffer leaves
 /// the local branch and its record untouched — no residue exists for any later
 /// ceremony to scrub.
+/// Acquire the journal lock, first reclaiming a derelict lock this SAME session
+/// left staked by a prior crash: the crash-mid-ceremony self-heal the blotter
+/// needs so a wrap or enroll retry completes without the operator cashiering and
+/// without waiting out the stranded lease (`JJDB_STRANDED_SECONDS` stays the
+/// backstop, never the recovery path).
+///
+/// On a plain `LockHeld`, the sighted holder is judged by `jjdb_guidon_same_holder`:
+/// its officium is this session's own iff it matches ours. Reaching a stake at all
+/// means no LIVE in-process holder stands — the guard's `HELD` set panics on a
+/// nested acquire before ever reaching here — so a same-officium REMOTE lock is
+/// necessarily our own crashed prior process, never a live rival. That corpse is
+/// broken (lease-guarded pluck against exactly the observed guidon, never blind)
+/// and the lock re-staked. A holder not provably ours — another session, another
+/// station, an unrecognized guidon — is never touched: the `LockHeld` surfaces
+/// unchanged, remedy fork and all.
+///
+/// Any rejection other than `LockHeld`, and any failure of the reclaim's own
+/// sight or pluck (a race that broke or re-staked the lock between our sight and
+/// our pluck fails the pluck's lease as `LockBroken`), surfaces as itself — the
+/// reclaim never papers over.
+fn zjjrvb_acquire_reclaiming<'a, F>(
+    farrier: &'a F,
+    root: &Path,
+    guidon: &str,
+) -> Result<jjrfr_LockGuard<'a, F>, jjrfr_Rejection>
+where
+    F: jjrfr_FarrierLock,
+{
+    let held = match jjrfr_LockGuard::jjrfr_acquire(farrier, root, guidon) {
+        Ok(guard) => return Ok(guard),
+        Err(rejection) if rejection.kind == jjrfr_RejectionKind::LockHeld => rejection,
+        Err(rejection) => return Err(rejection),
+    };
+
+    // A held lock — is it our own crash corpse? Sight it and judge by officium. A
+    // holder that is not provably ours, or a lock that vanished under the sight,
+    // surfaces the original `LockHeld` untouched.
+    let observed = match farrier.jjrfr_sight(root)? {
+        Some(observed) if jjdb_guidon_same_holder(&observed, guidon) => observed,
+        _ => return Err(held),
+    };
+
+    jjrsj_trace(&format!(
+        "RECLAIM {} root={} own crashed lock reclaimed (officium matches this session)",
+        chrono::Utc::now().to_rfc3339(),
+        root.display(),
+    ));
+
+    // Break exactly the observed corpse, then acquire fresh. A race that changed
+    // the lock between the sight and here fails the pluck's lease as `LockBroken`
+    // and surfaces honestly rather than reclaiming a stranger's stake.
+    farrier.jjrfr_pluck(root, &observed)?;
+    jjrfr_LockGuard::jjrfr_acquire(farrier, root, guidon)
+}
+
 pub fn jjdb_journal_try<F, M, E>(
     farrier: &F,
     config: &jjdb_BlotterConfig,
@@ -394,11 +452,14 @@ where
     let root = config.local_root.as_path();
 
     // Take the lock: glean is opportunistic (never blocks on the network, and
-    // its outcome does not gate the ceremony); stake is the guard's own
-    // compare-and-swap; sight confirms the held guidon is ours before we trust
-    // it enough to advance and write under it.
+    // its outcome does not gate the ceremony); the reclaiming acquire is the
+    // guard's own compare-and-swap, plus the crash-mid-ceremony self-heal — a
+    // `LockHeld` whose sighted holder is provably this session's own crashed prior
+    // run is broken and re-staked, never one that is another holder's; sight then
+    // confirms the held guidon is ours before we trust it enough to advance and
+    // write under it.
     let _ = farrier.jjrfr_glean(root);
-    let guard = jjrfr_LockGuard::jjrfr_acquire(farrier, root, guidon)?;
+    let guard = zjjrvb_acquire_reclaiming(farrier, root, guidon)?;
     let sighted = farrier.jjrfr_sight(root)?;
     if sighted.as_deref() != Some(guard.jjrfr_guidon()) {
         panic!(
