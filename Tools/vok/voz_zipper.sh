@@ -39,13 +39,13 @@ zvoz_kindle() {
   # Verify buz zipper is kindled (workbench kindles buz first)
   zbuz_sentinel
 
-  # VOK management — build, test, and parcel release (vow-)
+  # VOK management — build and test (vow-). Parcel release lives in jjqa_app
+  # now (the canonical kit home post-split); this sire is a consumer copy.
   local z_mod="vob_cli.sh"
-  buz_group VOZ__GROUP_MANAGE "vow-" "VOK build, test, and parcel-release management"
+  buz_group VOZ__GROUP_MANAGE "vow-" "VOK build and test management"
   buz_enroll VOZ_BUILD    "vow-b" "${z_mod}" "vob_build"   ""        "Build the vvr binary and install to VVK bin"
   buz_enroll VOZ_CLEAN    "vow-c" "${z_mod}" "vob_clean"   ""        "Remove Rust build artifacts from kit target directories"
   buz_enroll VOZ_TEST     "vow-t" "${z_mod}" "vob_test"    ""        "Run all kit crate tests"
-  buz_enroll VOZ_RELEASE  "vow-R" "${z_mod}" "vob_release" "imprint" "Build a VVK parcel for the imprinted kit set (full|buk-only|buk-jjk)"
 
   # Matricula (vom) crate — operator-only inscription census; never ships
   # (VOr_q4f). Its own crate-local build/test/run, distinct from the vvr build.
