@@ -14,7 +14,7 @@ fn vomta_is_allowed_matches_shapes() {
     )));
     assert!(voma_is_allowed(Path::new("README.md")));
     assert!(voma_is_allowed(Path::new(
-        "Tools/vok/vov_veiled/VOSMM-entity.adoc"
+        "jjqs_studbook/specs/vok/VOSMM-entity.adoc"
     )));
     assert!(voma_is_allowed(Path::new("tt/vow-mb.MatriculaBuild.sh")));
 }
