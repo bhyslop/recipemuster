@@ -219,4 +219,4 @@ Reverse parse unwinds projection-isms into recto and rejects loud on anything un
 * `jjqs_studbook/memo-20260209-diptych-vision.md` — the founding vision: the spine, recension scope honesty, and the removal-conditions ledger of tolerated inconsistencies awaiting migration.
 * `jjqs_studbook/retired/memos/memo-20260610-quoin-minting-introspection.md` — the model-side report: certain coreference over token count; the validator rule-set feedstock.
 * Design chat, 2026-07-20 (Fable) — the space partition, punctuation law, relative deltas, pilcrow election and gate ledger, charset enrollment, squeeze doctrine, mezzanine immutability ruling, projection registers, and the replace sketch.
-* `AXMCM-ClaudeMarkConceptMemo.md` — the superseded ClaudeMark exploration; its guillemet notation survives in lectio.
+* `jjqs_studbook/AXMCM-ClaudeMarkConceptMemo.md` — the superseded ClaudeMark exploration; its guillemet notation survives in lectio.
