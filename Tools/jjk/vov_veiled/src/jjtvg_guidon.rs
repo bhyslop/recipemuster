@@ -12,6 +12,7 @@
 use crate::jjrvg_guidon::{
     jjdb_guidon_compose,
     jjdb_guidon_read,
+    jjdb_guidon_same_holder,
     jjdb_is_probably_live,
     jjdb_is_stranded,
     jjdb_render_age,
@@ -83,6 +84,41 @@ fn jjtvg_a_partial_mark_yields_the_fields_it_has() {
     assert_eq!(read.operation.as_deref(), Some("journal"));
     assert_eq!(read.acquired, None, "an unparseable time is absent, never a guessed one");
     assert!(!read.jjdb_is_well_formed());
+}
+
+/// The reclaim proof: two marks from the SAME session (same officium) are the
+/// same holder even when station, acquire time, and operation all differ — a
+/// crashed wrap and a fresh enroll retry in the one chat still recognize each
+/// other, which is the officium-only ownership rule this heat cinched.
+#[test]
+fn jjtvg_same_officium_is_the_same_holder_across_operation() {
+    let crashed = jjdb_guidon_compose("☉260729-1068", "beast", zjjtvg_when(), "wrap");
+    let retry = jjdb_guidon_compose("☉260729-1068", "beast", zjjtvg_when() + Duration::seconds(300), "enroll");
+    assert!(jjdb_guidon_same_holder(&crashed, &retry), "same officium is the same holder regardless of operation or time");
+}
+
+/// A different session (different officium) is never the same holder — the proof
+/// that keeps the reclaim from ever breaking another session's lock.
+#[test]
+fn jjtvg_a_different_officium_is_never_the_same_holder() {
+    let ours = jjdb_guidon_compose("☉260729-1068", "beast", zjjtvg_when(), "wrap");
+    let theirs = jjdb_guidon_compose("☉260729-2200", "beast", zjjtvg_when(), "wrap");
+    assert!(!jjdb_guidon_same_holder(&theirs, &ours));
+}
+
+/// The conservative floor: a mark with no readable officium — a raw hand-staked
+/// probe, an older engine's guidon, or the scrub's empty-field sentinel `-` — is
+/// NEVER proven ours, on either side. It is left for the operator's cashier, and
+/// its presence keeps the ordinary `LockHeld` refusal intact.
+#[test]
+fn jjtvg_an_absent_or_sentinel_officium_is_never_proven_ours() {
+    let ours = jjdb_guidon_compose("☉260729-1068", "beast", zjjtvg_when(), "wrap");
+    assert!(!jjdb_guidon_same_holder("who knows what this is", &ours), "a foreign mark has no officium to prove");
+    assert!(!jjdb_guidon_same_holder(&ours, "who knows what this is"), "an absent officium on our side proves nothing either");
+    // Two empty-officium marks both read the `-` sentinel; they must NOT collide.
+    let empty_a = jjdb_guidon_compose("", "beast", zjjtvg_when(), "wrap");
+    let empty_b = jjdb_guidon_compose("", "roan", zjjtvg_when(), "enroll");
+    assert!(!jjdb_guidon_same_holder(&empty_a, &empty_b), "the empty-field sentinel is not an identity two sessions may share");
 }
 
 #[test]
