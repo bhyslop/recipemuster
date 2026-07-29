@@ -322,6 +322,12 @@ pub fn jjdb_found_studbook(
         // records no prefix: one is added by hand the day a sire's owner demands
         // JJ's refs sit under a house path.
         livery_prefix: None,
+        // The record-driven-registry fields are operator-elected, not derivable
+        // from the hippodrome being founded, so founding seeds them empty; the
+        // operator populates them once the second sire enrolls.
+        clone_name: None,
+        handle: None,
+        kits: Vec::new(),
     };
     let pedigrees_json = crate::jjrds_stile::jjrds_seed_pedigrees_json(vec![pedigree])?;
 

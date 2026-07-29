@@ -7,6 +7,10 @@ use super::jjrds_stile::{
     jjrds_billet_identity,
     jjrds_board,
     jjrds_classify_line_event,
+    jjrds_CloneRefusal,
+    jjrds_elect_clone,
+    jjrds_Pedigree,
+    jjrds_validate_claims,
     jjrds_currency,
     jjrds_dispatch_record,
     jjrds_ground,
@@ -1717,4 +1721,86 @@ fn jjtds_trailing_step_leaves_scratch_standing_on_a_standing_billet() {
     assert!(report.contains("stands"), "expected a standing report, got: {}", report);
     assert!(yard.billet_root.exists(), "a dirty billet must never be destroyed");
     assert!(marker.exists(), "a standing billet's scratch is forensics and must survive — muck is its remedy");
+}
+
+// ---- The unique-claimant gate and record-driven clone election ----
+
+/// A pedigree carrying an elected handle, addresses, and canonical-kit claims —
+/// the record-driven-registry shape the launch inversion reads.
+fn zjjtds_ped(handle: &str, kits: &[&str]) -> jjrds_Pedigree {
+    jjrds_Pedigree {
+        kind: JJRDS_KIND_PLAIN_GIT.to_string(),
+        addresses: vec![format!("git@example.invalid/{}", handle)],
+        trunk: ZJJTDS_TRUNK.to_string(),
+        livery_prefix: None,
+        clone_name: Some(handle.to_string()),
+        handle: Some(handle.to_string()),
+        kits: kits.iter().map(|s| s.to_string()).collect(),
+    }
+}
+
+#[test]
+fn jjtds_validate_claims_passes_disjoint_and_flags_a_kit_claimed_twice() {
+    // Disjoint claims: the first kit-claims content under the ruling.
+    let disjoint = vec![
+        zjjtds_ped("jj", &["buk", "vok", "vvc", "vvk", "cmk"]),
+        zjjtds_ped("rb", &["rbk"]),
+    ];
+    assert!(jjrds_validate_claims(&disjoint).is_ok());
+
+    // A kit claimed by two sires: one message, naming the kit and both claimants.
+    let contested = vec![
+        zjjtds_ped("jj", &["buk", "vok"]),
+        zjjtds_ped("rb", &["rbk", "vok"]),
+    ];
+    let errs = jjrds_validate_claims(&contested).unwrap_err();
+    assert_eq!(errs.len(), 1, "exactly one contested kit");
+    assert!(errs[0].contains("vok"), "names the contested kit: {}", errs[0]);
+    assert!(errs[0].contains("jj") && errs[0].contains("rb"), "names both claimants: {}", errs[0]);
+}
+
+#[test]
+fn jjtds_elect_clone_returns_the_declared_clone() {
+    let addr = "git@example.invalid/jjqa".to_string();
+    let entries = vec![
+        ("jjqa_app".to_string(), Some(addr.clone())),
+        ("unrelated".to_string(), Some("git@example.invalid/other".to_string())),
+        ("jjqd_scratch".to_string(), None),
+    ];
+    let got = jjrds_elect_clone(&entries, "jjqa_app", std::slice::from_ref(&addr)).unwrap();
+    assert_eq!(got, "jjqa_app");
+}
+
+#[test]
+fn jjtds_elect_clone_zero_match_names_the_remedy() {
+    // No infield entry keys to this sire — the declared clone is not standing.
+    let entries = vec![("unrelated".to_string(), Some("git@example.invalid/other".to_string()))];
+    let refusal = jjrds_elect_clone(&entries, "jjqa_app", &["git@example.invalid/jjqa".to_string()])
+        .unwrap_err();
+    match refusal {
+        jjrds_CloneRefusal::Uncloned { declared, address } => {
+            assert_eq!(declared, "jjqa_app", "the remedy names the clone to make");
+            assert_eq!(address, "git@example.invalid/jjqa", "the remedy names the address to make it from");
+        }
+        other => panic!("expected Uncloned, got {:?}", other),
+    }
+}
+
+#[test]
+fn jjtds_elect_clone_two_match_names_both_dirs() {
+    // Two infield clones key to one sire — the transitional multi-clone hazard.
+    let addr = "git@example.invalid/rb".to_string();
+    let entries = vec![
+        ("rbm_alpha_recipemuster".to_string(), Some(addr.clone())),
+        ("rbm_candidate".to_string(), Some(addr.clone())),
+    ];
+    let refusal = jjrds_elect_clone(&entries, "rbm_alpha_recipemuster", std::slice::from_ref(&addr))
+        .unwrap_err();
+    match refusal {
+        jjrds_CloneRefusal::Rival { dirs } => {
+            assert!(dirs.contains(&"rbm_alpha_recipemuster".to_string()), "names the declared clone: {:?}", dirs);
+            assert!(dirs.contains(&"rbm_candidate".to_string()), "names the rival clone: {:?}", dirs);
+        }
+        other => panic!("expected Rival, got {:?}", other),
+    }
 }

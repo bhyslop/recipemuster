@@ -303,6 +303,15 @@ pub struct jjrg_Pace {
     /// reset by relocation. The honest raw count, not a churn metric.
     #[serde(default, skip_serializing_if = "zjjrg_u32_is_zero", rename = "jjgpn_redocket_count")]
     pub redocket_count: u32,
+    /// Pace-hard sire affiliation — the sire this pace's work belongs to, held as
+    /// the sire's operator-facing handle (`jjop_handle`). Dispatch's single arrow:
+    /// pace → sire → declared clone → billet; a pace never spans sires. Additive-
+    /// optional so a pre-affiliation store reads and re-serializes byte-identical
+    /// (no reprieve episode). The backfill populates every pre-schema pace once;
+    /// per-pace election at slate lands with the launch inversion, which reads the
+    /// registry the engine must stay agnostic of — so nothing here defaults it.
+    #[serde(default, skip_serializing_if = "Option::is_none", rename = "jjgpn_sire")]
+    pub sire: Option<String>,
 }
 
 /// Zero predicate for the redocket counter's skip_serializing_if — an

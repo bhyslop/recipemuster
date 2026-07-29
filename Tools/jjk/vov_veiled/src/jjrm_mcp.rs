@@ -32,6 +32,7 @@ use crate::jjrno_nominate::{jjrx_NominateArgs, jjrx_run_nominate};
 use crate::jjrsl_slate::{jjrsl_SlateArgs, jjrsl_run_slate};
 use crate::jjrrl_rail::{jjrrl_RailArgs, jjrrl_run_rail};
 use crate::jjrtl_tally::{jjrtl_run_revise_docket, jjrtl_RelabelArgs, jjrtl_run_relabel, jjrtl_DropArgs, jjrtl_run_drop};
+use crate::jjraf_affiliate::{jjaf_run_affiliate, jjaf_AffiliateArgs};
 use crate::jjrdr_draft::{jjrdr_DraftArgs, jjrdr_run_draft};
 use crate::jjrfu_furlough::{jjrfu_FurloughArgs, jjrfu_run_furlough};
 use crate::jjrwp_wrap::{jjrx_WrapArgs, zjjrx_run_wrap};
@@ -99,6 +100,7 @@ const JJRM_CMD_NAME_CURRY: &str = "jjx_curry";
 const JJRM_CMD_NAME_TRANSFER: &str = "jjx_transfer";
 const JJRM_CMD_NAME_LANDING: &str = "jjx_landing";
 const JJRM_CMD_NAME_APOSTILLE: &str = "jjx_apostille";
+const JJRM_CMD_NAME_AFFILIATE: &str = "jjx_affiliate";
 // Legatio commands (remote dispatch)
 const JJRM_CMD_NAME_BIND: &str = "jjx_bind";
 const JJRM_CMD_NAME_SEND: &str = "jjx_send";
@@ -119,6 +121,7 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_CLOSE, JJRM_CMD_NAME_SEARCH, JJRM_CMD_NAME_BRIEF,
     JJRM_CMD_NAME_CORONETS, JJRM_CMD_NAME_PADDOCK, JJRM_CMD_NAME_CURRY,
     JJRM_CMD_NAME_TRANSFER, JJRM_CMD_NAME_LANDING, JJRM_CMD_NAME_APOSTILLE,
+    JJRM_CMD_NAME_AFFILIATE,
     JJRM_CMD_NAME_BIND, JJRM_CMD_NAME_SEND, JJRM_CMD_NAME_PLANT,
     JJRM_CMD_NAME_FETCH, JJRM_CMD_NAME_RELAY, JJRM_CMD_NAME_CHECK,
     JJRM_CMD_NAME_SIFT,
@@ -906,6 +909,19 @@ pub struct jjrm_RelabelParams {
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
+pub struct jjrm_AffiliateParams {
+    /// The sire handle every pace not named in `overrides` receives.
+    pub default: String,
+    /// Per-coronet sire overrides (bare or display coronet → sire handle). The
+    /// operator-confirmed affiliation census: the paces whose remaining work lands
+    /// in a sire other than the default.
+    #[serde(default)]
+    pub overrides: std::collections::BTreeMap<String, String>,
+    #[serde(default)]
+    pub size_limit: Option<u64>,
+}
+
+#[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_DropParams {
     pub coronet: String,
 }
@@ -1050,7 +1066,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_refit, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_refit, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_affiliate, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -3669,6 +3685,15 @@ impl jjrm_McpServer {
                 jjrm_result(jjrtl_run_drop(jjrtl_DropArgs {
                     file: gallops_pathbuf(),
                     coronet: p.coronet,
+                }, officium_id))
+            }
+            JJRM_CMD_NAME_AFFILIATE => {
+                let p = deser!(jjrm_AffiliateParams);
+                jjrm_result(jjaf_run_affiliate(jjaf_AffiliateArgs {
+                    file: gallops_pathbuf(),
+                    default: p.default,
+                    overrides: p.overrides,
+                    size_limit: p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
                 }, officium_id))
             }
             JJRM_CMD_NAME_RELOCATE => {

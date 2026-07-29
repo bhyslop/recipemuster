@@ -85,6 +85,22 @@ pub const JJRDS_PEDIGREES_REL_PATH: &str = "pedigrees.json";
 /// meaningfully. It lands as an optional field the day address mobility is
 /// real — a non-breaking add, unlike the removal it would otherwise cost
 /// (operator ruling 260713, superseding the 260709 cinch's key clause).
+///
+/// Three record-driven-registry fields ride below the standing three — the
+/// launch inversion's record layer, where target election stops climbing from
+/// cwd and reads a recorded decision instead. All optional in the wire (default
+/// + skip-when-empty), so the pre-inversion single-sire pedigrees.json reads and
+/// re-serializes byte-identical and no reprieve is owed; a real sire carries them
+/// once the operator elects its values:
+///   - `clone_name` — the declared infield clone dirname, the recorded decision
+///     `jjrds_elect_clone` resolves against (never a discovery scan). Verified at
+///     use: the named dir's derived upstream key must match one of `addresses`.
+///   - `handle` — the sire's operator-facing handle (its major project prefix),
+///     the legible name a refusal speaks and a future pace→sire affiliation aims.
+///   - `kits` — the canonical-kit claims: the kit modules this sire is the
+///     canonical home for. `jjrds_validate_claims` enforces one canonical home
+///     per kit across the whole set. JJ declares and validates uniqueness; it
+///     never release-gates on them (the parcel machinery may someday read them).
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct jjrds_Pedigree {
     #[serde(rename = "jjop_kind")]
@@ -100,6 +116,35 @@ pub struct jjrds_Pedigree {
     /// before the livery mint reads unchanged.
     #[serde(rename = "jjop_livery_prefix", default, skip_serializing_if = "Option::is_none")]
     pub livery_prefix: Option<String>,
+    /// The declared infield clone dirname (`jjdw_infield`): the recorded decision
+    /// `jjrds_elect_clone` resolves to `infield_root/<clone_name>` — a join, not a
+    /// scan for which clone to use. `None` until the operator elects it; the field
+    /// becomes load-bearing when the launch inversion switches election onto it.
+    #[serde(rename = "jjop_clone", default, skip_serializing_if = "Option::is_none")]
+    pub clone_name: Option<String>,
+    /// The sire's operator-facing handle — its major project prefix (`rb`, `jj`).
+    /// The legible name a refusal speaks; the intended target of a later pace→sire
+    /// affiliation. `None` until elected.
+    #[serde(rename = "jjop_handle", default, skip_serializing_if = "Option::is_none")]
+    pub handle: Option<String>,
+    /// The canonical-kit claims: kit modules this sire is the canonical home for.
+    /// `jjrds_validate_claims` enforces one canonical home per kit across every
+    /// sire. Empty until elected; a sire that homes no shared kit stays empty.
+    #[serde(rename = "jjop_kits", default, skip_serializing_if = "Vec::is_empty")]
+    pub kits: Vec<String>,
+}
+
+impl jjrds_Pedigree {
+    /// How this sire names itself to the operator: its handle where declared,
+    /// else its first address (a pre-handle sire still names something legible in
+    /// a refusal). Degrades to a fixed marker for the address-less shape rather
+    /// than panicking — that shape is caught elsewhere.
+    fn jjrds_moniker(&self) -> String {
+        self.handle
+            .clone()
+            .or_else(|| self.addresses.first().cloned())
+            .unwrap_or_else(|| "(unnamed sire)".to_string())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -118,6 +163,10 @@ struct zjjrds_PedigreeFile {
 /// round-trips. The founding is the only production writer; everything else in
 /// this module reads.
 pub fn jjrds_seed_pedigrees_json(sires: Vec<jjrds_Pedigree>) -> Result<String, String> {
+    // Unique-claimant gate at the write side: a registry that lets two sires
+    // claim one kit never reaches disk. The read side re-runs the same gate so a
+    // hand-edited registry is caught too (zjjrds_pedigree_from_bytes).
+    jjrds_validate_claims(&sires).map_err(|errs| format!("pedigrees seed: {}", errs.join("; ")))?;
     let file = zjjrds_PedigreeFile { sires };
     serde_json::to_string_pretty(&file).map_err(|e| format!("pedigrees seed: could not serialize: {}", e))
 }
@@ -164,6 +213,18 @@ pub enum jjrds_Rejection {
     /// A farrier primitive rejected mid-approach (e.g. a dirty groom billet at
     /// re-detach).
     Farrier(jjrfr_Rejection),
+    /// The pedigree registry lets two sires claim one kit — the unique-claimant
+    /// gate's refusal, fired at the dispatch read so a hand-edited registry with a
+    /// contested canonical home cannot serve dispatch. `detail` carries one line
+    /// per contested kit.
+    ClaimConflict { detail: String },
+    /// A sire's pedigree records no declared infield clone name, so record-driven
+    /// election cannot resolve it — the pre-inversion transitional state, named
+    /// rather than papered over.
+    CloneUndeclared { sire: String },
+    /// Record-driven clone election refused (`jjrds_elect_clone`): the declared
+    /// clone is not standing, or rival clones break the one-clone-per-sire invariant.
+    CloneRefusal(jjrds_CloneRefusal),
 }
 
 impl std::fmt::Display for jjrds_Rejection {
@@ -222,6 +283,15 @@ impl std::fmt::Display for jjrds_Rejection {
                 write!(f, "invalid launch pair: family '{}' does not admit effort '{}'", family, effort)
             }
             jjrds_Rejection::Farrier(r) => write!(f, "{}", r),
+            jjrds_Rejection::ClaimConflict { detail } => {
+                write!(f, "canonical-kit claim conflict: {}", detail)
+            }
+            jjrds_Rejection::CloneUndeclared { sire } => write!(
+                f,
+                "sire '{}' declares no infield clone name — record one in its pedigree before record-driven election can resolve it",
+                sire
+            ),
+            jjrds_Rejection::CloneRefusal(r) => write!(f, "{}", r),
         }
     }
 }
@@ -278,6 +348,11 @@ fn zjjrds_pedigree_from_bytes(
             path: path_for_err.to_path_buf(),
             detail: format!("malformed pedigrees file: {}", e),
         })?;
+    // Unique-claimant gate at the read side: a registry where two sires claim one
+    // kit refuses the whole dispatch, not only the seed write — so a hand-edited
+    // pedigrees.json cannot serve dispatch with a contested canonical home.
+    jjrds_validate_claims(&file.sires)
+        .map_err(|errs| jjrds_Rejection::ClaimConflict { detail: errs.join("; ") })?;
     let pedigree = file
         .sires
         .into_iter()
@@ -290,6 +365,160 @@ fn zjjrds_pedigree_from_bytes(
         });
     }
     Ok(pedigree)
+}
+
+// ---- The unique-claimant gate over canonical-kit claims ----
+
+/// The unique-claimant law over the pedigree set (`jjop_kits`): a kit names
+/// exactly one canonical-home sire, so no two sires may both claim it. Pure over
+/// the sire list — no I/O — so it is the one gate both the write side
+/// (`jjrds_seed_pedigrees_json`, refusing a violating registry before it reaches
+/// disk) and the read side (`zjjrds_pedigree_from_bytes`, refusing a hand-edited
+/// registry at every dispatch) call. JJ declares these claims and validates their
+/// uniqueness; it never release-gates on them. Returns one message per contested
+/// kit, naming the kit and its rival claimants (by handle, or by first address
+/// where a sire declares no handle yet).
+pub fn jjrds_validate_claims(sires: &[jjrds_Pedigree]) -> Result<(), Vec<String>> {
+    use std::collections::BTreeMap;
+    // kit -> the claimant monikers that named it, in declaration order.
+    let mut claimants: BTreeMap<&str, Vec<String>> = BTreeMap::new();
+    for sire in sires {
+        let who = sire.jjrds_moniker();
+        for kit in &sire.kits {
+            claimants.entry(kit.as_str()).or_default().push(who.clone());
+        }
+    }
+    let errors: Vec<String> = claimants
+        .iter()
+        .filter(|(_, who)| who.len() > 1)
+        .map(|(kit, who)| {
+            format!(
+                "kit '{}' is claimed by more than one sire ({}) — a kit has exactly one canonical home",
+                kit,
+                who.join(", ")
+            )
+        })
+        .collect();
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors)
+    }
+}
+
+/// Appraise a pedigrees.json byte image for the unique-claimant law — the
+/// registry-integrity check `jjx_validate` runs over the studbook's pedigree
+/// tenant, beside the gallops canonicalization. A parse failure or a contested
+/// kit is `Err(message)`; a clean (or empty) registry is `Ok`. Keeps
+/// `zjjrds_PedigreeFile` private while giving validate one entry point.
+pub fn jjrds_validate_claims_bytes(bytes: &[u8]) -> Result<(), String> {
+    let file: zjjrds_PedigreeFile = serde_json::from_slice(bytes)
+        .map_err(|e| format!("malformed pedigrees file: {}", e))?;
+    jjrds_validate_claims(&file.sires).map_err(|errs| errs.join("; "))
+}
+
+// ---- Record-driven clone election ----
+
+/// The two refusals declared-clone election can return (`jjdw_infield`, one clone
+/// per sire). Neither is a discovery failure — the declared name is the recorded
+/// decision, so `Uncloned` says the recorded clone is not standing and `Rival`
+/// says the one-clone invariant is broken.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum jjrds_CloneRefusal {
+    /// Zero-match: no clone keyed to this sire stands at its declared name. The
+    /// remedy names the clone to make and the address to make it from.
+    Uncloned { declared: String, address: String },
+    /// Two-match: rival clones of one sire stand in the infield — the transitional
+    /// multi-clone hazard the one-time infield sweep drains. Names both dirs.
+    Rival { dirs: Vec<String> },
+}
+
+impl std::fmt::Display for jjrds_CloneRefusal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            jjrds_CloneRefusal::Uncloned { declared, address } => write!(
+                f,
+                "no infield clone stands at the declared name '{}' — clone {} there before record-driven election can resolve this sire",
+                declared, address
+            ),
+            jjrds_CloneRefusal::Rival { dirs } => write!(
+                f,
+                "rival clones of one sire stand in the infield ({}) — one clone per sire: sweep to a single clone before record-driven election can resolve it",
+                dirs.join(", ")
+            ),
+        }
+    }
+}
+
+/// Elect a sire's infield clone from the recorded declared name — the pure core,
+/// over `(dirname, upstream_key)` entries so it is exhaustively testable with no
+/// filesystem and no farrier. NOT a discovery scan: the declared name is the
+/// recorded decision (`registry over discovery`), and the entries are walked only
+/// to enforce one-clone-per-sire and to name the two refusals. An entry counts as
+/// this sire's clone iff its upstream key matches one of the sire's addresses — so
+/// the elected dir is upstream-verified by construction (the record/ground
+/// cross-check re-homed as registry verification). Two-match precedes zero-match:
+/// the one-clone invariant is absolute, so rival clones refuse even when one bears
+/// the declared name.
+pub fn jjrds_elect_clone(
+    entries: &[(String, Option<String>)],
+    declared: &str,
+    addresses: &[String],
+) -> Result<String, jjrds_CloneRefusal> {
+    let clones: Vec<&String> = entries
+        .iter()
+        .filter(|(_, key)| key.as_ref().is_some_and(|k| addresses.iter().any(|a| a == k)))
+        .map(|(name, _)| name)
+        .collect();
+    if clones.len() >= 2 {
+        return Err(jjrds_CloneRefusal::Rival {
+            dirs: clones.into_iter().cloned().collect(),
+        });
+    }
+    if clones.iter().any(|name| name.as_str() == declared) {
+        Ok(declared.to_string())
+    } else {
+        Err(jjrds_CloneRefusal::Uncloned {
+            declared: declared.to_string(),
+            address: addresses.first().cloned().unwrap_or_default(),
+        })
+    }
+}
+
+/// Resolve a sire's infield clone DIRECTORY from its pedigree — the record-driven
+/// election the launch inversion will make dispatch's clone-election path. NOT
+/// yet wired live: today's live path still climbs from the captured cwd
+/// (`zjjrds_infield`); this is the recorded-decision inverse that supersedes it.
+/// Reads the infield's immediate entries, derives each one's upstream key through
+/// the farrier's identify (a non-repo entry keys to `None` and simply never
+/// matches), and elects via the pure `jjrds_elect_clone`. The declared name
+/// resolves to `infield_root/<name>` — a join, never a scan for which clone to use.
+pub fn jjrds_resolve_clone<F: jjrfr_FarrierCore>(
+    farrier: &F,
+    infield_root: &Path,
+    pedigree: &jjrds_Pedigree,
+) -> Result<PathBuf, jjrds_Rejection> {
+    let declared = pedigree
+        .clone_name
+        .as_deref()
+        .ok_or_else(|| jjrds_Rejection::CloneUndeclared { sire: pedigree.jjrds_moniker() })?;
+    let read = std::fs::read_dir(infield_root).map_err(|e| jjrds_Rejection::StudbookUnreadable {
+        path: infield_root.to_path_buf(),
+        detail: format!("cannot read infield: {}", e),
+    })?;
+    let mut entries: Vec<(String, Option<String>)> = Vec::new();
+    for ent in read.flatten() {
+        let path = ent.path();
+        if !path.is_dir() {
+            continue;
+        }
+        let name = ent.file_name().to_string_lossy().into_owned();
+        let key = farrier.jjrfr_identify(&path).ok().and_then(|id| id.upstream_key);
+        entries.push((name, key));
+    }
+    jjrds_elect_clone(&entries, declared, &pedigree.addresses)
+        .map(|name| infield_root.join(name))
+        .map_err(jjrds_Rejection::CloneRefusal)
 }
 
 // ---- Tier roster and the two-source launch choice ----
