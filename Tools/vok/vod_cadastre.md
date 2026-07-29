@@ -105,7 +105,6 @@ Every minted name seated in this repository, one row per declaration home, group
 - `vob_build` → `Tools/vok/vob_build.sh`
 - `vob_clean` → `Tools/vok/vob_build.sh`
 - `vob_cli` → `Tools/vok/vob_cli.sh`
-- `vob_release` → `Tools/vok/vob_build.sh`
 - `vob_test` → `Tools/vok/vob_build.sh`
 - `vod_cadastre` → `Tools/vok/vod_cadastre.md`
 - `vof_clean` → `Tools/vok/vof_features.sh`
@@ -1554,6 +1553,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `rbjp_pentacle` → `rbmm_moorings/rbmv_vessels/common-sentry-context/rbjp_pentacle.sh`
 - `rbjs_sentry` → `rbmm_moorings/rbmv_vessels/common-sentry-context/rbjs_sentry.sh`
 - `rbk-racecard` → `.claude/commands/rbk-racecard.md`
+- `rbk-whats-next` → `.claude/commands/rbk-whats-next.md`
 - `rbld0_cli` → `Tools/rbk/rbld0_cli.sh`
 - `rbld0_lode` → `Tools/rbk/rbld0_lode.sh`
 - `rbld_augur` → `Tools/rbk/rbldl_lifecycle.sh`
