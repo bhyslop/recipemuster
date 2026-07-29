@@ -219,6 +219,22 @@ retire commits its paddock/trophy beside the gallops in one ₶ commit); work co
 on the consumer-repo path.
 The deferred chat-history second tenant is untouched by this ruling.
 
+== Chat-archive sole copy
+
+The second tenant has an interim precursor already in hand.
+A rough backfill of off-machine chat history — host-separated, predating any capture
+ceremony — was raised outside a sire and now lives in the {jjdb_studbook} alone; the
+working-repo copy that seeded it is gone, so *the {jjdb_studbook} holds the sole copy of
+that history*.
+
+Until the capture-ceremony redo lands — the deferred second tenant's own ceremony,
+aspirant in `JJSAS-state-repo.adoc` — this corpus is irreplaceable record, not a staging
+artifact: *it must never be flattened, migrated, or discarded*, no rewrite of its shape,
+no move to another store, no drop.
+The redo retires this clause: once captured chat histories enter the record as the
+formalized second tenant, the corpus becomes that tenant's founding content and this
+protection folds into the tenant's contract.
+
 == Officium exchange and record
 
 The {jjdb_studbook}'s local clone hosts more than its committed tenants above: a fixed,
