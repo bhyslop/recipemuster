@@ -5,7 +5,7 @@
 //! VVC Probe - Claude Code environment probe
 //!
 //! Discovers model IDs and platform information by spawning minimal claude invocations.
-//! See Tools/vok/vov_veiled/VOSRP-probe.adoc for specification.
+//! See jjqs_studbook/specs/vok/VOSRP-probe.adoc for specification.
 
 use chrono::{DateTime, Utc};
 use tokio::process::Command;

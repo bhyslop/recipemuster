@@ -64,11 +64,11 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 ### Specification
 
-- **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
+- **RBS0** → `jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`
 
-> **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`rbk/vov_veiled/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `rbk/vov_veiled/RBS*-*.adoc`.
+> **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `jjqs_studbook/specs/rbk/RBS*-*.adoc`.
 
-- **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
+- **RBRN**  → `jjqs_studbook/specs/rbk/RBRN-RegimeNameplate.adoc`
 
 ### Shelved code
 

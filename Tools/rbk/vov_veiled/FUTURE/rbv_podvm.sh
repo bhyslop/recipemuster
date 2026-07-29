@@ -22,7 +22,7 @@
 # It has NOT been ported to Google Artifact Registry (GAR/Depot).
 # The operations are functionally correct but the registry target is
 # obsolete for this project.
-# See lenses/RBSPV-PodmanVmSupplyChain.adoc for context.
+# See jjqs_studbook/specs/rbk/RBSPV-PodmanVmSupplyChain.adoc for context.
 ######################################################################
 
 set -euo pipefail
