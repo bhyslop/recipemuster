@@ -290,7 +290,6 @@ Every minted name seated in this repository, one row per declaration home, group
 - `jjsl_install` → `Tools/jjk/jjsl_cli.sh`
 - `jjsl_lunge` → `Tools/jjk/jjsl_cli.sh`
 - `jjsl_muck` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_muck_salvage` → `Tools/jjk/jjsl_cli.sh`
 - `jjsl_saddle` → `Tools/jjk/jjsl_cli.sh`
 - `jjsl_sight` → `Tools/jjk/jjsl_cli.sh`
 - `jjw_main` → `Tools/jjk/jjw_workbench.sh`
@@ -362,7 +361,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `BUWGC_TT_LAUNCHER` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `BUWGC_TT_LIST_LAUNCHERS` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `BUW_SCRIPT_DIR` → `Tools/buk/buw_workbench.sh`
-- `BUr_q2m` → `Tools/buk/bul_launcher.sh`
+- `BUr_q2m` → `Tools/buk/bud_dispatch.sh`
 - `bubc_constants` → `Tools/buk/bubc_constants.sh`
 - `buc_bare` → `Tools/buk/buc_command.sh`
 - `buc_clipboard_copy_predicate` → `Tools/buk/buc_command.sh`
@@ -498,6 +497,11 @@ Every minted name seated in this repository, one row per declaration home, group
 - `butcbx_multi_dual_write_tcase` → `Tools/buk/buts/butcbx_burx.sh`
 - `butcbx_multi_empty_content_tcase` → `Tools/buk/buts/butcbx_burx.sh`
 - `butcbx_multi_preexist_tcase` → `Tools/buk/buts/butcbx_burx.sh`
+- `butcdc_auto_leaves_operator_input_unset_tcase` → `Tools/buk/buts/butcdc_color.sh`
+- `butcdc_color` → `Tools/buk/buts/butcdc_color.sh`
+- `butcdc_explicit_one_passes_through_tcase` → `Tools/buk/buts/butcdc_color.sh`
+- `butcdc_explicit_zero_passes_through_tcase` → `Tools/buk/buts/butcdc_color.sh`
+- `butcdc_no_color_forces_zero_tcase` → `Tools/buk/buts/butcdc_color.sh`
 - `butcfc_chain_survives_consumption_tcase` → `Tools/buk/buts/butcfc_facts.sh`
 - `butcfc_elect_after_relay_tcase` → `Tools/buk/buts/butcfc_facts.sh`
 - `butcfc_elect_chain_tcase` → `Tools/buk/buts/butcfc_facts.sh`
@@ -519,6 +523,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `butcym_cmd_resolve_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_cold_die_plain_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_cold_die_tcase` → `Tools/buk/buts/butcym_yelp.sh`
+- `butcym_fallback_non_tty_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_fast_path_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_gray_color_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_gray_plain_tcase` → `Tools/buk/buts/butcym_yelp.sh`
@@ -530,6 +535,8 @@ Every minted name seated in this repository, one row per declaration home, group
 - `butcym_strip_fast_path_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_strip_href_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_strip_link_tcase` → `Tools/buk/buts/butcym_yelp.sh`
+- `butcym_verdict_one_beats_env_tcase` → `Tools/buk/buts/butcym_yelp.sh`
+- `butcym_verdict_zero_beats_env_tcase` → `Tools/buk/buts/butcym_yelp.sh`
 - `butcym_yelp` → `Tools/buk/buts/butcym_yelp.sh`
 - `butd_dispatch` → `Tools/buk/butd_dispatch.sh`
 - `butd_run_all` → `Tools/buk/butd_dispatch.sh`

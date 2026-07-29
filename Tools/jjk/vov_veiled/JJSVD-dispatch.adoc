@@ -382,7 +382,7 @@ contributes only its target typing and its tier source, never its own approach:
   a detached tip, a lost registration, a pre-livery bare-branch billet — its dirname wearing the
   coronet whatever its HEAD points at) has its livery branch seated nowhere, so re-entering it
   would need branch-resolution this arm does not own: it refuses, naming the partition and
-  {jjdd_muck} (salvage-then-destroy) as the remedy.
+  {jjdd_muck} as the remedy.
   Neither key is the yard-by-name mistake it might look like: a dirname is a label and a serialed
   branch is unguessable, so the seat key enumerates the registry and reads the coronet behind each
   badge, and the yard key is only the second, independent read the seat-read alone would miss.
@@ -514,17 +514,12 @@ The plan resolves the named billet and shows the operator what the decision need
 * the pace's own state — resolved or still open — read through the journal sheaf's read
   bracket (an acting read: the snapshot arms this confirm), with the wrap
   {jjdb_counterfoil_s} as evidence, never as gate: the operator may destroy a mid-work
-  billet deliberately;
-* which arms are open (below).
+  billet deliberately.
 --
 +
-*The arms.*
-On a dirty pace billet, two: *destroy*, losing the named paths;
-or *salvage-then-destroy* — lodge the non-JJ-owned dirty paths (the `JJr_f30` filter,
-studbook sheaf) and consign to the pace's own seated {jjdd_livery} branch, then remove.
-A dirty groom billet has one arm: nothing must survive it, so salvage has no home to
-consign to and destroy is the whole choice.
-The removal is `billet_remove` behind its explicit force — the confirmed destroy arm is
+*The destroy.*
+One door, one act: the confirmed destroy loses the named dirty paths.
+The removal is `billet_remove` behind its explicit force — the confirmed destroy is
 the force's only caller.
 +
 *Scratch.*

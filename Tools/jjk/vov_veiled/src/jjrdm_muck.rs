@@ -19,13 +19,9 @@
 //! branch posture (commits not yet in remote custody named as loss, never as
 //! advice); for a pace billet, the pace's own state read through the journal
 //! sheaf's read bracket — an acting read, since the snapshot arms this
-//! confirm — with the latest tack as evidence, never as gate; and which arms
-//! are open. A dirty pace billet opens two arms: destroy, or
-//! salvage-then-destroy (lodge the non-JJ-owned dirty paths and consign to
-//! the pace's own seated livery branch, then remove). A dirty groom billet
-//! has one arm — nothing must survive it, so salvage has no home to consign
-//! to. The removal is `jjrfr_billet_remove` behind its explicit force — this
-//! door's confirmed destroy arm is the force's only caller.
+//! confirm — with the latest tack as evidence, never as gate. The removal is
+//! `jjrfr_billet_remove` behind its explicit force — this door's confirmed
+//! destroy is the force's only caller.
 //!
 //! The door clears the destroyed billet's own scratch sibling with it, and
 //! nothing else — scratch dies with its billet, the {jjdd_stile} clearing a
@@ -40,15 +36,10 @@ use crate::jjrds_stile::{
     jjrds_Target,
     JJRDS_SCRATCH_DIRNAME,
 };
-use crate::jjrf_favor::{
-    jjrf_livery_parse,
-    jjrf_LiveryKind,
-};
 use crate::jjrfr_farrier::{
     jjrfr_FarrierBillet,
     jjrfr_FarrierCore,
     jjrfr_FarrierLock,
-    jjrfr_LineOfWork,
     jjrfr_LockGuard,
     jjrfr_Rejection,
     jjrfr_RejectionKind,
@@ -61,23 +52,17 @@ use crate::jjrvb_blotter::{
 };
 use std::path::{Path, PathBuf};
 
-/// The commit message a salvage-then-destroy arm lodges its non-JJ-owned dirty
-/// paths under, ahead of the reap it clears the way for.
-const JJRDM_SALVAGE_MESSAGE: &str = "muck: salvage before destroy";
-
 // ---- Rejections ----
 
 /// Muck's own rejection taxonomy: a composed farrier primitive's own kind, the
-/// studbook's gallops copy being unreadable when pace evidence is fetched, the
-/// named target resolving to no billet or more than one, or an arm the plan
-/// never opened.
+/// studbook's gallops copy being unreadable when pace evidence is fetched, or
+/// the named target resolving to no billet or more than one.
 #[derive(Debug)]
 pub enum jjrdm_Rejection {
     Farrier(jjrfr_Rejection),
     GallopsUnreadable(String),
     NotFound { name: String, detail: String },
     Ambiguous { name: String, candidates: Vec<String> },
-    InvalidArm(String),
 }
 
 impl std::fmt::Display for jjrdm_Rejection {
@@ -101,7 +86,6 @@ impl std::fmt::Display for jjrdm_Rejection {
                 name,
                 candidates.iter().map(|c| format!("  {}", c)).collect::<Vec<_>>().join("\n")
             ),
-            jjrdm_Rejection::InvalidArm(detail) => write!(f, "muck: {}", detail),
         }
     }
 }
@@ -122,14 +106,6 @@ impl From<jjrfr_Rejection> for jjrdm_Rejection {
 pub enum jjrdm_Kind {
     Pace(String),
     Groom(String),
-}
-
-/// The two removal arms a dirty pace billet opens; a dirty groom billet, or
-/// any clean billet, opens `Destroy` alone.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum jjrdm_Arm {
-    Destroy,
-    SalvageThenDestroy,
 }
 
 /// The pace evidence a pace billet's confirm carries — never a gate. `Unknown`
@@ -160,19 +136,6 @@ pub struct jjrdm_Plan {
 impl jjrdm_Plan {
     pub fn jjrdm_is_dirty(&self) -> bool {
         !self.dirty_paths.is_empty()
-    }
-
-    /// Which arms this plan opens: `Destroy` alone when clean, or when dirty
-    /// on a groom billet (nothing must survive it, so salvage has no home);
-    /// both arms when dirty on a pace billet.
-    pub fn jjrdm_available_arms(&self) -> Vec<jjrdm_Arm> {
-        if !self.jjrdm_is_dirty() {
-            return vec![jjrdm_Arm::Destroy];
-        }
-        match self.kind {
-            jjrdm_Kind::Pace(_) => vec![jjrdm_Arm::Destroy, jjrdm_Arm::SalvageThenDestroy],
-            jjrdm_Kind::Groom(_) => vec![jjrdm_Arm::Destroy],
-        }
     }
 }
 
@@ -221,16 +184,6 @@ pub fn jjrdm_report(plan: &jjrdm_Plan) -> String {
         Some(jjrdm_PaceEvidence::Unavailable(detail)) => lines.push(format!("  pace:   state unavailable — {}", detail)),
         None => {}
     }
-
-    let arms: Vec<&str> = plan
-        .jjrdm_available_arms()
-        .iter()
-        .map(|arm| match arm {
-            jjrdm_Arm::Destroy => "destroy",
-            jjrdm_Arm::SalvageThenDestroy => "salvage-then-destroy",
-        })
-        .collect();
-    lines.push(format!("  arms:   {}", arms.join(", ")));
 
     lines.join("\n")
 }
@@ -413,74 +366,6 @@ pub fn jjrdm_plan<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
 
 // ---- Reap phase ----
 
-/// The path prefix muck must never lodge, even behind a confirmed
-/// salvage-then-destroy: JJ's own officium exchange (gazettes, heartbeats) is
-/// a knowledge product, never a work-repo artifact — the footprint
-/// partition, rivet `JJr_f30`. A founded install gitignores this, so `comb`
-/// ordinarily never surfaces it as dirty in the first place; this filter is
-/// belt-and-braces against an incomplete or hand-edited `.gitignore`.
-const JJRDM_JJ_OWNED_PREFIX: &str = ".claude/jjm";
-
-/// Whether `path` — a `comb` dirty-path entry — falls under the JJ-owned
-/// tree. Checked in both directions: `git status --porcelain` collapses a
-/// wholly-untracked directory to its own top-level entry rather than
-/// descending into it, so an as-yet-empty `.claude/` reports as bare
-/// `.claude/` even though everything beneath it, once populated, is
-/// JJ-owned.
-fn zjjrdm_is_jj_owned(path: &Path) -> bool {
-    let jj_owned = Path::new(JJRDM_JJ_OWNED_PREFIX);
-    path.starts_with(jj_owned) || jj_owned.starts_with(path)
-}
-
-/// Salvage a dirty pace billet's working changes ahead of the destroy: lodge
-/// every non-JJ-owned dirty path under a standing message, then consign to
-/// the billet's own seated branch (plain fast-forward: a billet branch is an
-/// ordinary hippodrome branch, never blotter content, so no lease applies).
-/// Salvage requires the billet still seat the pace's own branch: a manually
-/// switched or detached checkout would otherwise lodge onto the wrong line
-/// while consigning the untouched coronet branch.
-fn zjjrdm_salvage<F: jjrfr_FarrierCore>(farrier: &F, plan: &jjrdm_Plan) -> Result<(), jjrfr_Rejection> {
-    let coronet = match &plan.kind {
-        jjrdm_Kind::Pace(c) => c,
-        jjrdm_Kind::Groom(_) => {
-            return Err(jjrfr_Rejection::jjrfr_new(
-                jjrfr_RejectionKind::DirtyTree,
-                "jjrdm_reap",
-                plan.billet_root.clone(),
-                "a dirty groom billet carries nothing durable — salvage has no home to consign to",
-            ));
-        }
-    };
-
-    let identity = farrier.jjrfr_identify(&plan.billet_root)?;
-    let seated_branch = match &identity.line_of_work {
-        jjrfr_LineOfWork::Branch(name) => name.clone(),
-        jjrfr_LineOfWork::Detached(_) => String::new(),
-    };
-    let seats_the_pace =
-        jjrf_livery_parse(&seated_branch).is_some_and(|(kind, body)| kind == jjrf_LiveryKind::Pace && body == *coronet);
-    if !seats_the_pace {
-        return Err(jjrfr_Rejection::jjrfr_new(
-            jjrfr_RejectionKind::DirtyTree,
-            "jjrdm_reap",
-            plan.billet_root.clone(),
-            format!("billet no longer seats pace '{}' livery branch — resolve by hand before salvaging", coronet),
-        ));
-    }
-
-    let work_paths: Vec<PathBuf> = plan.dirty_paths.iter().filter(|p| !zjjrdm_is_jj_owned(p)).cloned().collect();
-    if work_paths.is_empty() {
-        return Err(jjrfr_Rejection::jjrfr_new(
-            jjrfr_RejectionKind::DirtyTree,
-            "jjrdm_reap",
-            plan.billet_root.clone(),
-            "only JJ-owned officium files were dirty — nothing legitimate to salvage",
-        ));
-    }
-    farrier.jjrfr_lodge(&plan.billet_root, &work_paths, JJRDM_SALVAGE_MESSAGE)?;
-    farrier.jjrfr_consign(&plan.billet_root, &seated_branch)
-}
-
 /// Clear the reaped billet's own scratch sibling, and nothing else — muck is
 /// a billet singleton, so its sweep never reaches past the billet it was
 /// confirmed against. Best-effort: an unremovable or absent entry is skipped
@@ -498,31 +383,19 @@ fn zjjrdm_sweep_scratch(infield_root: &Path, billet_dirname: &str) -> Vec<PathBu
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct jjrdm_Outcome {
     pub billet_root: PathBuf,
-    pub salvaged: bool,
     pub scratch_swept: Vec<PathBuf>,
 }
 
-/// Execute the confirmed arm: salvage first if `SalvageThenDestroy`, then the
-/// forced destroy (`jjrfr_billet_remove`'s only forced caller — the one
-/// deliberate data-loss call in the taxonomy), then clear this billet's own
-/// scratch sibling.
-/// Refuses `InvalidArm` if the plan never opened the requested arm — a
-/// confirm gate answers a plan the caller already holds, so an arm outside
-/// what the plan showed is a caller-contract violation, not a fresh judgment
-/// call to make here.
-pub fn jjrdm_reap<F: jjrfr_FarrierBillet + jjrfr_FarrierCore>(
+/// Execute the confirmed destroy: the forced destroy
+/// (`jjrfr_billet_remove`'s only forced caller — the one deliberate
+/// data-loss call in the taxonomy), then clear this billet's own scratch
+/// sibling.
+pub fn jjrdm_reap<F: jjrfr_FarrierBillet>(
     farrier: &F,
     infield_root: &Path,
     plan: &jjrdm_Plan,
-    arm: jjrdm_Arm,
 ) -> Result<jjrdm_Outcome, jjrdm_Rejection> {
-    if !plan.jjrdm_available_arms().contains(&arm) {
-        return Err(jjrdm_Rejection::InvalidArm(format!("{:?} is not open on {}", arm, plan.billet_dirname)));
-    }
-    if arm == jjrdm_Arm::SalvageThenDestroy {
-        zjjrdm_salvage(farrier, plan)?;
-    }
     farrier.jjrfr_billet_remove(&plan.billet_root, true)?;
     let scratch_swept = zjjrdm_sweep_scratch(infield_root, &plan.billet_dirname);
-    Ok(jjrdm_Outcome { billet_root: plan.billet_root.clone(), salvaged: arm == jjrdm_Arm::SalvageThenDestroy, scratch_swept })
+    Ok(jjrdm_Outcome { billet_root: plan.billet_root.clone(), scratch_swept })
 }
