@@ -81,7 +81,7 @@ enum Commands {
 
     /// Muck: the operator-directed destroy door for a named billet (JJSVD
     /// jjdd_muck). Plan-and-report by default; --execute performs the
-    /// confirmed arm. Deliberately NOT an MCP command — the confirm gate
+    /// confirmed destroy. Deliberately NOT an MCP command — the confirm gate
     /// lives in the tabtarget door.
     #[command(name = "jjx_muck")]
     JjxMuck(MuckArgs),
@@ -113,9 +113,7 @@ struct CashierArgs {
 
 /// Arguments for jjx_muck — the destroy door's two modes. Plan-and-report is
 /// the default and always exits 0 (read-only); `--execute` performs the
-/// confirmed arm, `--salvage` selecting salvage-then-destroy over plain
-/// destroy (only open on a dirty pace billet — the plan's own report is
-/// authoritative on which arms are open).
+/// confirmed destroy against the same resolution the plan just reported.
 #[derive(clap::Args, Debug)]
 struct MuckArgs {
     /// The operator's invocation directory (cwd elects the clone)
@@ -126,13 +124,9 @@ struct MuckArgs {
     #[arg(long)]
     target: String,
 
-    /// Execute the confirmed arm, rather than only reporting the plan
+    /// Execute the confirmed destroy, rather than only reporting the plan
     #[arg(long)]
     execute: bool,
-
-    /// With --execute on a dirty pace billet, salvage before destroying
-    #[arg(long)]
-    salvage: bool,
 }
 
 /// Arguments for jjx_found — the studbook founding door. The operator's
@@ -585,15 +579,15 @@ fn run_cashier(args: CashierArgs) -> i32 {
 /// Run the muck door (JJSVD `jjdd_muck`): plan-and-report is the default and
 /// always exits 0 on a resolvable target — the report IS the confirm
 /// display, so the shell door prints it and gates the operator's confirm
-/// before ever passing `--execute`. `--execute` performs the confirmed arm
-/// (`--salvage` selects salvage-then-destroy; absent, plain destroy) against
-/// the SAME resolution this call just reported, never a stale one.
+/// before ever passing `--execute`. `--execute` performs the confirmed
+/// destroy against the SAME resolution this call just reported, never a
+/// stale one.
 fn run_muck(args: MuckArgs) -> i32 {
     let mut out = vvco_Output::console();
     #[cfg(feature = "jjk")]
     {
         use jjk::jjrdc_cashier::jjrdc_infield_root;
-        use jjk::jjrdm_muck::{jjrdm_plan, jjrdm_reap, jjrdm_report, jjrdm_Arm};
+        use jjk::jjrdm_muck::{jjrdm_plan, jjrdm_reap, jjrdm_report};
         use jjk::jjrfg_plaingit::jjrfg_PlainGit;
         use jjk::jjrvb_blotter::jjdb_studbook_config;
         use jjk::jjrvg_guidon::{jjdb_guidon_compose, jjdb_station_name};
@@ -625,13 +619,9 @@ fn run_muck(args: MuckArgs) -> i32 {
             return 0;
         }
 
-        let arm = if args.salvage { jjrdm_Arm::SalvageThenDestroy } else { jjrdm_Arm::Destroy };
-        match jjrdm_reap(&jjrfg_PlainGit, &infield_root, &plan, arm) {
+        match jjrdm_reap(&jjrfg_PlainGit, &infield_root, &plan) {
             Ok(outcome) => {
                 vvco_out!(out, "\nmuck: destroyed {}", outcome.billet_root.display());
-                if outcome.salvaged {
-                    vvco_out!(out, "  salvaged onto the pace's own branch before destroy");
-                }
                 for swept in &outcome.scratch_swept {
                     vvco_out!(out, "  scratch cleared: {}", swept.display());
                 }
