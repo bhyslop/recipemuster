@@ -15,7 +15,7 @@ fn zvomtv_bash(path: &str) -> vomrv_Dress {
 }
 
 fn zvomtv_adoc() -> vomrv_Dress {
-    vomrv_dress("Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc")
+    vomrv_dress("jjqs_studbook/specs/vok/VOS0-VoxObscuraSpec.adoc")
 }
 
 #[test]
