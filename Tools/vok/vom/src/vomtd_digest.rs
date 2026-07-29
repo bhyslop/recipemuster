@@ -45,7 +45,7 @@ fn vomtd_non_cipher_head_is_out_of_jurisdiction() {
     let census = zvomtd_census(&[]);
     let digests = vec![(
         "Tools/buk/claude-buk-veiled-acronyms.md".to_string(),
-        "- **RCG** → `vok/vov_veiled/RCG-RustCodingGuide.md`\n- **BCG** → `buk/vov_veiled/BCG-BashConsoleGuide.md`\n".to_string(),
+        "- **RCG** → `jjqs_studbook/guides/vok/RCG-RustCodingGuide.md`\n- **BCG** → `jjqs_studbook/guides/buk/BCG-BashConsoleGuide.md`\n".to_string(),
     )];
 
     assert!(vomrd_audit(&census, &digests).is_empty());
