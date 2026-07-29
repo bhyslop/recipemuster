@@ -74,7 +74,21 @@ fn vomtd_veiled_homed_row_is_out_of_jurisdiction() {
     let census = zvomtd_census(&[]);
     let digests = vec![(
         "Tools/vok/claude-vok-acronyms.md".to_string(),
-        "- **VOS0** → `vok/vov_veiled/VOS0-VoxObscuraSpec.adoc`\n".to_string(),
+        "- **RCG** → `vok/vov_veiled/RCG-RustCodingGuide.md`\n".to_string(),
+    )];
+
+    assert!(vomrd_audit(&census, &digests).is_empty());
+}
+
+#[test]
+fn vomtd_studbook_homed_row_is_out_of_jurisdiction() {
+    // A digest curating a row whose home anchors into jjqs_studbook/: the
+    // studbook is a sibling repo the census walk never reaches, so the row
+    // is skipped, not falsely dead.
+    let census = zvomtd_census(&[]);
+    let digests = vec![(
+        "Tools/vok/claude-vok-acronyms.md".to_string(),
+        "- **VOS0** → `jjqs_studbook/specs/vok/VOS0-VoxObscuraSpec.adoc`\n".to_string(),
     )];
 
     assert!(vomrd_audit(&census, &digests).is_empty());
