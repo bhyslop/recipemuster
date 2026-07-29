@@ -58,9 +58,9 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 ### Guides
 
-- **CBG**  → `rbk/vov_veiled/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
-- **JDG**  → `rbk/vov_veiled/JDG-JailerDialectGuide.md` (Jailer Dialect Guide — the zero-dependency in-vessel POSIX `sh` baked into vessel images and run inside the security envelope (`rbjs_sentry.sh` type specimen, `rbjp_pentacle.sh` sibling); foreign-environment sibling to BCG/CBG/WSG. v1 bless-and-name. Rule families JDo_ (observability contract: phase anchors, exit-code families, `|| exit N`) and JDp_ (parameter-transport Palisade). The type specimen's phase-label and FATAL-shape deviations are citable against JDo_101/JDo_103.)
-- **PUCG**  → `rbk/vov_veiled/PUCG_PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUCr_. Founded on PUCr_101 (charset transport).)
+- **CBG**  → `jjqs_studbook/guides/rbk/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
+- **JDG**  → `jjqs_studbook/guides/rbk/JDG-JailerDialectGuide.md` (Jailer Dialect Guide — the zero-dependency in-vessel POSIX `sh` baked into vessel images and run inside the security envelope (`rbjs_sentry.sh` type specimen, `rbjp_pentacle.sh` sibling); foreign-environment sibling to BCG/CBG/WSG. v1 bless-and-name. Rule families JDo_ (observability contract: phase anchors, exit-code families, `|| exit N`) and JDp_ (parameter-transport Palisade). The type specimen's phase-label and FATAL-shape deviations are citable against JDo_101/JDo_103.)
+- **PUCG**  → `jjqs_studbook/guides/rbk/PUCG_PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUCr_. Founded on PUCr_101 (charset transport).)
 
 ### Specification
 
