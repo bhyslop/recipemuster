@@ -127,6 +127,17 @@ const JJRM_ALL_COMMANDS: &[&str] = &[
     JJRM_CMD_NAME_SIFT,
 ];
 
+/// The unknown-verb diagnostic — one home, cited by the pre-guard resolution
+/// check and by the dispatch fallback arm, so the two can never drift into
+/// two different accounts of the same refusal.
+fn zjjrm_unknown_command(cmd: &str) -> String {
+    format!(
+        "jjx: unknown command '{}'\nAvailable: {}",
+        cmd,
+        JJRM_ALL_COMMANDS.join(", ")
+    )
+}
+
 /// The consumer-repo Gallops path — post-cutover a deliberate tombstone (rivet
 /// `JJr_d9f`), the store of record having moved to the studbook. The one string
 /// home is `jjrc_core::JJRC_DEFAULT_GALLOPS_PATH`; this thin wrapper is the sole
@@ -3181,6 +3192,26 @@ impl jjrm_McpServer {
         // DESIGNATION-GUARDED commands (orient, record, landing) apply their
         // per-command logic at the dispatch arm, after target resolution.
         let caller = zjjrm_extract_tier(&p.model);
+
+        // Resolve the verb before the bucket policy speaks: an unimplemented name
+        // is a calling error, not an authorization one. The bucket's `_ => Frontier`
+        // catch-all cannot tell the two apart, so without this a sub-frontier caller
+        // naming a verb this engine does not carry is handed a frontier refusal that
+        // names it — reading as a permission problem and masking the real condition
+        // (a typo, or an engine older than the verb). Verbs that ARE carried fall
+        // through untouched, so the catch-all keeps failing closed for them.
+        if !JJRM_ALL_COMMANDS.contains(&cmd) {
+            jjrk_info_now!(
+                "jjx {}: unknown command (model={} tier={})",
+                cmd,
+                p.model,
+                caller.zjjrm_as_str()
+            );
+            return Ok(CallToolResult::error(vec![Content::text(
+                zjjrm_unknown_command(cmd),
+            )]));
+        }
+
         match zjjrm_guard_bucket(cmd) {
             zjjrm_GuardBucket::Frontier if !caller.zjjrm_is_frontier() => {
                 return Ok(CallToolResult::error(vec![Content::text(
@@ -4028,10 +4059,9 @@ impl jjrm_McpServer {
                 ))
             }
             _ => {
-                Ok(CallToolResult::error(vec![Content::text(format!(
-                    "jjx: unknown command '{}'\nAvailable: {}",
-                    cmd, JJRM_ALL_COMMANDS.join(", ")
-                ))]))
+                Ok(CallToolResult::error(vec![Content::text(
+                    zjjrm_unknown_command(cmd),
+                )]))
             }
         }
         }).await;
@@ -4305,6 +4335,57 @@ mod tests {
         assert!(script.contains("is \"AA97D5ED-F633-4513-95B2-2A930EBB7365\""));
         assert!(script.contains("return (id of w)"));
         assert!(script.contains("tell application \"iTerm2\""));
+    }
+
+    #[test]
+    fn unknown_command_diagnostic_names_the_verb_and_the_surface() {
+        let msg = zjjrm_unknown_command("jjx_nonesuch");
+        assert!(msg.contains("unknown command 'jjx_nonesuch'"));
+        // The remedy IS the surface: a caller who mistyped, or who is talking to an
+        // engine older than the verb, needs to see what this engine actually carries.
+        assert!(msg.contains(JJRM_CMD_NAME_ORIENT));
+        assert!(msg.contains(JJRM_CMD_NAME_AFFILIATE));
+    }
+
+    #[test]
+    fn command_surface_carries_every_explicitly_bucketed_verb() {
+        // The surface now gates dispatch ahead of the bucket policy, so a verb the
+        // policy names but the surface omits would refuse as unknown before its own
+        // policy ever ran. Every non-default bucket member must therefore be listed.
+        for cmd in [
+            JJRM_CMD_NAME_OPEN,
+            JJRM_CMD_NAME_LIST,
+            JJRM_CMD_NAME_SHOW,
+            JJRM_CMD_NAME_BRIEF,
+            JJRM_CMD_NAME_CORONETS,
+            JJRM_CMD_NAME_LOG,
+            JJRM_CMD_NAME_SEARCH,
+            JJRM_CMD_NAME_SIFT,
+            JJRM_CMD_NAME_ORIENT,
+            JJRM_CMD_NAME_RECORD,
+            JJRM_CMD_NAME_LANDING,
+            JJRM_CMD_NAME_ENROLL,
+        ] {
+            assert!(
+                JJRM_ALL_COMMANDS.contains(&cmd),
+                "{} is bucketed but absent from the command surface — it would refuse as unknown",
+                cmd
+            );
+            // And its bucket must be a real ruling, never the catch-all default.
+            assert!(
+                !matches!(zjjrm_guard_bucket(cmd), zjjrm_GuardBucket::Frontier),
+                "{} fell through to the Frontier catch-all",
+                cmd
+            );
+        }
+    }
+
+    #[test]
+    fn command_surface_lists_each_verb_once() {
+        let mut seen = std::collections::BTreeSet::new();
+        for cmd in JJRM_ALL_COMMANDS {
+            assert!(seen.insert(*cmd), "{} listed twice in the command surface", cmd);
+        }
     }
 
     #[test]
