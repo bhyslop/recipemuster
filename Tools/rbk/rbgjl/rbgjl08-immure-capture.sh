@@ -19,7 +19,7 @@
 # registry copy is gcrane's job, index parsing is python's.
 #
 # gcrane cp <family>@<leaf-digest> is get-or-error (the loud failure the recorded
-# trust grade wants) and preserves the manifest digest byte-for-byte (memo-20260608
+# trust grade wants) and preserves the manifest digest byte-for-byte (jjqs_studbook/memo-20260608-lode-podvm-cerebro-experiment.md
 # §4). Each selected leaf is a single-platform manifest, so the Lode package stays a
 # FLAT package (no parent-index web) — banish stays single-call atomic by
 # construction. Do not capture the family index itself; that would web the
