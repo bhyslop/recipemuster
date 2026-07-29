@@ -212,7 +212,7 @@ impl std::fmt::Display for jjrds_Rejection {
                 write!(
                     f,
                     "a billet already stands for this pace at {} ({}) — at most one live billet per pace: \
-                     work in that session, or `muck` it (salvage-then-destroy) before saddling again",
+                     work in that session, or `muck` it before saddling again",
                     root.display(),
                     detail
                 )

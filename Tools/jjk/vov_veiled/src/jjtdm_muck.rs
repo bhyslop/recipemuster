@@ -6,7 +6,6 @@ use super::jjrdm_muck::{
     jjrdm_plan,
     jjrdm_reap,
     jjrdm_report,
-    jjrdm_Arm,
     jjrdm_Kind,
     jjrdm_PaceEvidence,
     jjrdm_Rejection,
@@ -145,7 +144,7 @@ fn zjjtdm_fixture(name: &str) -> (JjkTestDir, std::path::PathBuf, jjdb_BlotterCo
 
 fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str, serial: u64) -> std::path::PathBuf {
     // Yard signet on the dirname, livery badge on the branch — the same split
-    // the stile's approach makes, so salvage meets here what it meets in the field.
+    // the stile's approach makes, so muck meets here what it meets in the field.
     let billet_root = infield.join(jjrds_billet_dirname(serial, coronet));
     let branch = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, serial, coronet);
     jjrfg_PlainGit
@@ -216,10 +215,10 @@ fn jjtdm_plan_refuses_an_ambiguous_groom_identity() {
     }
 }
 
-// ---- Plan content: dirt, sync posture, arms ----
+// ---- Plan content: dirt, sync posture ----
 
 #[test]
-fn jjtdm_plan_reports_a_clean_pace_billet_with_destroy_only() {
+fn jjtdm_plan_reports_a_clean_pace_billet() {
     let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_clean");
     zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
 
@@ -227,11 +226,10 @@ fn jjtdm_plan_reports_a_clean_pace_billet_with_destroy_only() {
 
     assert!(!plan.jjrdm_is_dirty());
     assert!(plan.dirty_paths.is_empty());
-    assert_eq!(plan.jjrdm_available_arms(), vec![jjrdm_Arm::Destroy]);
 }
 
 #[test]
-fn jjtdm_plan_reports_dirty_paths_by_name_and_opens_both_arms_on_a_pace_billet() {
+fn jjtdm_plan_reports_dirty_paths_by_name_on_a_pace_billet() {
     let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_dirty_pace");
     let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
     std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
@@ -240,16 +238,14 @@ fn jjtdm_plan_reports_dirty_paths_by_name_and_opens_both_arms_on_a_pace_billet()
 
     assert!(plan.jjrdm_is_dirty());
     assert!(plan.dirty_paths.iter().any(|p| p.to_string_lossy().contains("wip.txt")));
-    assert_eq!(plan.jjrdm_available_arms(), vec![jjrdm_Arm::Destroy, jjrdm_Arm::SalvageThenDestroy]);
 
     let report = jjrdm_report(&plan);
     assert!(report.contains("wip.txt"));
     assert!(report.contains("DIRTY"));
-    assert!(report.contains("salvage-then-destroy"));
 }
 
 #[test]
-fn jjtdm_plan_dirty_groom_billet_opens_destroy_only() {
+fn jjtdm_plan_reports_a_dirty_groom_billet() {
     let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_dirty_groom");
     let billet = zjjtdm_groom_billet(infield.path(), &hippodrome, "AA", ZJJTDM_SERIAL);
     std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
@@ -257,10 +253,9 @@ fn jjtdm_plan_dirty_groom_billet_opens_destroy_only() {
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AA", ZJJTDM_GUIDON).unwrap();
 
     assert!(plan.jjrdm_is_dirty());
-    assert_eq!(plan.jjrdm_available_arms(), vec![jjrdm_Arm::Destroy]);
 
     let report = jjrdm_report(&plan);
-    assert!(!report.contains("salvage-then-destroy"));
+    assert!(report.contains("DIRTY"));
 }
 
 #[test]
@@ -335,34 +330,6 @@ fn jjtdm_plan_carries_no_pace_evidence_for_a_groom_billet() {
     assert_eq!(plan.pace_evidence, None);
 }
 
-// ---- The confirm gate: reap only executes an arm the plan opened ----
-
-#[test]
-fn jjtdm_reap_refuses_an_arm_the_plan_never_opened() {
-    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_invalid_arm");
-    zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
-    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
-    assert_eq!(plan.jjrdm_available_arms(), vec![jjrdm_Arm::Destroy], "clean billet opens destroy alone");
-
-    let result = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy);
-
-    assert!(matches!(result, Err(jjrdm_Rejection::InvalidArm(_))));
-    assert!(plan.billet_root.exists(), "a refused reap must leave the billet untouched");
-}
-
-#[test]
-fn jjtdm_reap_refuses_salvage_on_a_dirty_groom_billet_even_requested() {
-    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_groom_salvage_refused");
-    let billet = zjjtdm_groom_billet(infield.path(), &hippodrome, "AA", ZJJTDM_SERIAL);
-    std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
-    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AA", ZJJTDM_GUIDON).unwrap();
-
-    let result = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy);
-
-    assert!(matches!(result, Err(jjrdm_Rejection::InvalidArm(_))));
-    assert!(billet.exists());
-}
-
 // ---- Reap execution ----
 
 #[test]
@@ -371,85 +338,24 @@ fn jjtdm_reap_destroys_a_clean_billet() {
     let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
 
-    let outcome = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::Destroy).unwrap();
+    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan).unwrap();
 
     assert!(!billet.exists());
-    assert!(!outcome.salvaged);
 }
 
 #[test]
-fn jjtdm_reap_destroys_a_dirty_billet_via_the_forced_destroy_arm() {
-    // Destroy is open even when dirty — muck is the constellation's one
+fn jjtdm_reap_destroys_a_dirty_billet_via_the_forced_destroy() {
+    // Destroy runs even when dirty — muck is the constellation's one
     // deliberate data-loss surface, and `billet_remove`'s force is the
-    // confirmed destroy arm's alone.
+    // confirmed destroy's alone.
     let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_dirty_destroy");
     let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
     std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
 
-    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::Destroy).unwrap();
+    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan).unwrap();
 
     assert!(!billet.exists());
-}
-
-#[test]
-fn jjtdm_reap_salvages_a_dirty_pace_billet_before_destroying_it() {
-    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_salvage");
-    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
-    std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
-    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
-
-    let outcome = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy).unwrap();
-
-    assert!(outcome.salvaged);
-    assert!(!billet.exists());
-    // Salvage consigns the badged branch, so the badge is what lands in the
-    // sire's ref store — the mint's whole point, observed at the far end. Derive
-    // the ref through compose so it carries the serialed spelling the billet
-    // was born with, never a hand-copied one.
-    let badged = crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, ZJJTDM_SERIAL, "AAAAC");
-    let remote_ref = format!("refs/remotes/origin/{}", badged);
-    let remote_subject = zjjtdm_git(&hippodrome, &["log", "-1", "--pretty=%s", &remote_ref]);
-    assert_eq!(remote_subject, "muck: salvage before destroy");
-}
-
-#[test]
-fn jjtdm_reap_never_salvages_jj_owned_officium_content() {
-    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_jj_owned");
-    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
-    let officium_dir = billet.join(".claude/jjm/officia/260712-1000-abcd");
-    std::fs::create_dir_all(&officium_dir).unwrap();
-    std::fs::write(officium_dir.join("heartbeat"), "").unwrap();
-    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
-    assert!(plan.jjrdm_is_dirty(), "the officium exchange file makes the billet dirty");
-
-    let result = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy);
-
-    match result {
-        Err(jjrdm_Rejection::Farrier(r)) => assert!(r.monitum.contains("nothing legitimate to salvage")),
-        other => panic!("expected a Farrier DirtyTree rejection, got {:?}", other),
-    }
-    assert!(billet.exists(), "must never lodge JJ-owned officium content into the work repo");
-}
-
-#[test]
-fn jjtdm_reap_refuses_to_salvage_a_billet_whose_checkout_drifted() {
-    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_reap_drifted_checkout");
-    let billet = zjjtdm_pace_billet(infield.path(), &hippodrome, "AAAAC", ZJJTDM_SERIAL);
-    std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
-    let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
-
-    // Between plan and reap, the billet's checkout drifts off its pace
-    // branch by hand — salvage must refuse rather than lodge onto the wrong
-    // line and consign the untouched livery branch.
-    zjjtdm_git(&billet, &["checkout", "-q", "-b", "some-other-line"]);
-
-    let result = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::SalvageThenDestroy);
-
-    match result {
-        Err(jjrdm_Rejection::Farrier(r)) => assert!(r.monitum.contains("no longer seats pace")),
-        other => panic!("expected a Farrier DirtyTree rejection, got {:?}", other),
-    }
 }
 
 // ---- Scratch sweep ----
@@ -462,7 +368,7 @@ fn jjtdm_reap_clears_the_destroyed_billets_own_scratch_sibling() {
     let scratch = zjjtdm_scratch_dir(infield.path(), &dirname);
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
 
-    let outcome = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::Destroy).unwrap();
+    let outcome = jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan).unwrap();
 
     assert!(!scratch.exists());
     assert!(outcome.scratch_swept.contains(&scratch));
@@ -479,7 +385,7 @@ fn jjtdm_reap_leaves_unrelated_orphan_scratch_untouched() {
     let orphan = zjjtdm_scratch_dir(infield.path(), &orphan_dirname);
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
 
-    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::Destroy).unwrap();
+    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan).unwrap();
 
     assert!(orphan.exists(), "muck clears only its own target's scratch — unrelated orphan scratch is left standing");
 }
@@ -493,7 +399,7 @@ fn jjtdm_reap_leaves_a_standing_billets_own_scratch_untouched() {
     let other_scratch = zjjtdm_scratch_dir(infield.path(), &other_dirname);
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AAAAC", ZJJTDM_GUIDON).unwrap();
 
-    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan, jjrdm_Arm::Destroy).unwrap();
+    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan).unwrap();
 
     assert!(other_scratch.exists(), "a still-standing billet's own scratch must survive");
 }
