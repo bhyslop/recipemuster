@@ -77,8 +77,8 @@ it is the boundary "What never enters the record" draws, read from the other sid
 The proposition is a rivet, cited in shipped code by the opaque token `JJr_f30`:
 its identifier carries no meaning, so it leaks none into the rust that ships without this
 veiled spec, and one `grep JJr_f30` returns this definition and every site it guards.
-The {jjdd_muck} door's JJ-owned-prefix filter is a citation site — its salvage arm refuses
-to lodge JJ's own {jjdxo_exchange} into a work repo even on a dirty, confirmed billet.
+The dispatch record is a citation site — it names a billet's birth event but no worktree
+path, keeping JJ's station-local derivables out of the durable record.
 
 [[jjdb_footprint]]
 {jjdb_footprint}::
@@ -234,6 +234,38 @@ no move to another store, no drop.
 The redo retires this clause: once captured chat histories enter the record as the
 formalized second tenant, the corpus becomes that tenant's founding content and this
 protection folds into the tenant's contract.
+
+== Knowledge homing
+
+Where a knowledge document lives is not a matter of convenience;
+it is fixed by the {jjdb_footprint} partition, read from the authoring side.
+The partition sorts what JJ leaves behind in a sire by ownership;
+this law sorts *knowledge itself* by the same cut.
+Customer-facing knowledge — a README face, an operator handbook a delivery carries —
+rides the delivered face of its project.
+Operator-interior knowledge — specifications, guides, concept models, and memos —
+homes in the {jjdb_studbook}, whose physical boundary is the veil that keeps interior
+knowledge off every delivery.
+
+The classifying fact for the specification corpus is trade-secret posture, not policy.
+A spec has never ridden a delivery — recipebottle's public upstream carries none —
+so the corpus is operator-interior *by fact*: the veil is where it already lives, and this
+law only names the home the corpus was already keeping.
+
+*Estate-wide.*
+The law speaks for every jockeyed project's corpus, recipemuster's included;
+no project's specs stand outside it.
+
+*Interim posture, present tense.*
+A session reads a studbook spec by path, through the {jjdb_studbook}'s fixed {jjdw_infield}
+dirname, and commits a spec edit by plain additive git with an explicit file list.
+No further machinery stands: this law names none and waits on none.
+
+*Contract versus standards is organization, not a second home.*
+A guide's contract content and its standards content both come to rest in the one studbook
+estate;
+the distinction survives as how the corpus is arranged within the {jjdb_studbook}, never as
+a fork in where knowledge homes.
 
 == Officium exchange and record
 
