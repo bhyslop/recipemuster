@@ -258,7 +258,14 @@ no project's specs stand outside it.
 
 *Interim posture, present tense.*
 A session reads a studbook spec by path, through the {jjdb_studbook}'s fixed {jjdw_infield}
-dirname, and commits a spec edit by plain additive git with an explicit file list.
+dirname, and commits a knowledge change — a spec edit, a memo, a census alike — by plain
+additive git with an explicit file list.
+That commit is only half the land.
+A studbook knowledge commit is not landed until pushed to origin/trunk —
+the {jjdb_studbook} is the shared knowledge repository and other sessions read its remote,
+so an unpushed commit is an incomplete land;
+a session pushes as part of the land, additively (fetch-rebase-push on rejection, never
+history surgery), and never asks.
 No further machinery stands: this law names none and waits on none.
 
 *Contract versus standards is organization, not a second home.*
