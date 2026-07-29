@@ -79,7 +79,7 @@ The evidence a timeout at this gate actually offers is ambiguous by construction
 {gar_registry}
 and a dying local link are indistinguishable through a `{RBCC_CURL_MAX_TIME_SEC}` ceiling, so a fault seen here is not yet evidence of foreign misbehavior -- and absorbing a station's own network trouble into a provenance gate would bend the discipline toward the wrong neighbor entirely.
 Demolition: if the surveyed band faults at this gate on a demonstrably healthy link, that is a survey, and it earns a membrane in the host HTTP path (extended to carry HEAD) -- never a retry hand-rolled at this call site.
-First data point, and the live grounding for the ambiguity: `Memos/memo-20260712-curl-fault-posture-vouch-gate.md`.
+First data point, and the live grounding for the ambiguity: `jjqs_studbook/memo-20260712-curl-fault-posture-vouch-gate.md`.
 
 //axhos_step
 . *Submit Vouch Cloud Build*:

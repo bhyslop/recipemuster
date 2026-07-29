@@ -392,7 +392,7 @@ grant trio above.  The contract:
   *before* deleting the SA so GCP never retags the binding as a
   `deleted:serviceAccount:...?uid=` ghost.  Deleting the SA first is precisely
   what accrues the unbounded tombstones the binding leak describes; see
-  `Memos/memo-20260604-credential-churn-leak-and-propagation-races.md`.
+  `jjqs_studbook/memo-20260604-credential-churn-leak-and-propagation-races.md`.
 
 ===== Secret Manager Regional Endpoints
 

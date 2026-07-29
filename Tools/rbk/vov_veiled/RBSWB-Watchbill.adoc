@@ -108,9 +108,9 @@ The wincred headless-persist bend beside the login site (`RBGC_DOCKER_WINCRED_HE
 
 The census rows freeze what the incident reports surveyed; the reports themselves are retired provenance, not authority:
 
-* `Memos/retired/memo-20260711-gauntlet-attempt2-serviceusage-enable-internal.md` — the fresh-project provisioning race (gauntlet attempt 2).
-* `Memos/retired/memo-20260711-admission-don-propagation-incident.md` — the admission-don Class-C observation (gauntlet attempt 3).
-* `Memos/retired/memo-20260711-gauntlet-attempt7-gar-token-timeout.md` — the pull resolve-leg timeout (gauntlet attempt 7).
+* `jjqs_studbook/retired/memos/memo-20260711-gauntlet-attempt2-serviceusage-enable-internal.md` — the fresh-project provisioning race (gauntlet attempt 2).
+* `jjqs_studbook/retired/memos/memo-20260711-admission-don-propagation-incident.md` — the admission-don Class-C observation (gauntlet attempt 3).
+* `jjqs_studbook/retired/memos/memo-20260711-gauntlet-attempt7-gar-token-timeout.md` — the pull resolve-leg timeout (gauntlet attempt 7).
 
 Pre-pace lineage of the same classes, cross-linked so the class record keeps one entry point:
 `memo-20260513-iam-propagation-race-director-invest-gar.md`,

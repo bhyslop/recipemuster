@@ -97,7 +97,7 @@ the final wave retires the hallmark variants when Ark earns the `k` command fami
 The wrest/jettison variants are pure pass-throughs and delete cleanly;
 `rekon`/`audit` carry semantic contracts (canonical-member presence assertion, fact-multi emission) that must be re-homed, not deleted.
 _Trigger_: the made-side Ark/Hallmark retrofit heat.
-_Reference_: `Memos/retired/memo-20260610-heat-BH-image-tabtarget-cleanup.md` (waves, removal conditions, the done-when grep).
+_Reference_: `jjqs_studbook/retired/memos/memo-20260610-heat-BH-image-tabtarget-cleanup.md` (waves, removal conditions, the done-when grep).
 
 **VOUCHES superdirectory — GAR-direct plumb and hallmark reverse-map.**
 Plumb currently requires a prior summon (local pull) before it can display provenance — heavy for a read-only inspection —
@@ -197,8 +197,8 @@ WireGuard is ~400KB on Alpine, uses static keypair exchange (no PKI/CA), and fit
 New nameplate fields: tunnel mode, peer endpoint, public keys, allowed IPs.
 VPC side requires a small WireGuard peer instance and PrivateLink endpoints for target services.
 _Trigger_: when a bottle needs to reach a cloud service that supports PrivateLink (AWS Bedrock is the known first case; survey should include Vertex AI, Azure OpenAI, GitLab Dedicated, SageMaker, and others as they emerge).
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (full design exploration, approach comparison, service compatibility survey).
-NOTE: WireGuard-in-sentry is **rejected** by the current shaping — `Memos/memo-20260609-bedrock-quire-shaping.md` §11 moves the tunnel's local end out of the sentry (whose containment-harness purpose it would invert) into a dedicated terminus vessel, the local end of the *Outpost* (`raise`/`strike`); the reach object's current vocabulary and staging live in that memo.
+_Reference_: `jjqs_studbook/memo-20260415-crucible-conduit-architecture.md` (full design exploration, approach comparison, service compatibility survey).
+NOTE: WireGuard-in-sentry is **rejected** by the current shaping — `jjqs_studbook/memo-20260609-bedrock-quire-shaping.md` §11 moves the tunnel's local end out of the sentry (whose containment-harness purpose it would invert) into a dedicated terminus vessel, the local end of the *Outpost* (`raise`/`strike`); the reach object's current vocabulary and staging live in that memo.
 
 **Cloud service conduit nameplate.**
 A nameplate configuration pattern for bottles that access cloud services at runtime.
@@ -209,7 +209,7 @@ the pattern should be researched broadly across cloud AI inference services, man
 _Trigger_: immediate — Bedrock access is a current need.
 Allowlist-only nameplate can be created now;
 tunnel-mode nameplate follows WireGuard sentry work.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (approach A for allowlist-only, approach C for tunnel mode); current shaping `Memos/memo-20260609-bedrock-quire-shaping.md` (the *Quire* — allowlist MVP, Outpost fast-follow, consume-side governance).
+_Reference_: `jjqs_studbook/memo-20260415-crucible-conduit-architecture.md` (approach A for allowlist-only, approach C for tunnel mode); current shaping `jjqs_studbook/memo-20260609-bedrock-quire-shaping.md` (the *Quire* — allowlist MVP, Outpost fast-follow, consume-side governance).
 
 **Bottle credential custody.**
 Move the service secrets a bottle workload uses — cloud API keys, IAM keys, SSH keys — off the operator's workstation and into the bottle itself, injected at charge time via nameplate/regime configuration rather than baked into the bottle image (a published image must never carry a live secret).
@@ -218,7 +218,7 @@ This blocks credential theft from a compromised workstation — the one threat t
 The existing credential regime-path pattern provides the model.
 Orthogonal to but naturally paired with the encrypted tunnel conduit: the tunnel grants the bottle network reach to a cloud service and the sentry custodies the tunnel key, while this item custodies the service secret inside the bottle — network access and the credential to use it configured together.
 _Trigger_: alongside the conduit nameplate work.
-_Reference_: `Memos/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section; the `Credential theft from workstation` row of the threat-model table); the Bedrock instance of this pattern is the Quire's confined-credential identity layer (`Memos/memo-20260609-bedrock-quire-shaping.md` §6).
+_Reference_: `jjqs_studbook/memo-20260415-crucible-conduit-architecture.md` (Credential Confinement section; the `Credential theft from workstation` row of the threat-model table); the Bedrock instance of this pattern is the Quire's confined-credential identity layer (`jjqs_studbook/memo-20260609-bedrock-quire-shaping.md` §6).
 
 NOTE: For SaaS services without PrivateLink (GitHub.com, GitLab.com), the sentry CIDR/domain allowlist + TLS remains the realistic ceiling.
 The sentry still provides the core value: the bottle cannot reach anything the sentry doesn't allow, and the workstation is cut out of the data path.
@@ -290,9 +290,9 @@ Pairs with the "Cloud service conduit nameplate" entry for the invocation path.
 _Trigger_: first concrete Bedrock inference requirement;
 near-term per the Crucible Conduit Architecture section above.
 _Reference_: this roadmap entry;
-`Memos/memo-20260415-crucible-conduit-architecture.md`;
+`jjqs_studbook/memo-20260415-crucible-conduit-architecture.md`;
 Crucible Conduit Architecture section above.
-NOTE: the native-consume half of this entry is renamed and currently shaped as the **Quire** in `Memos/memo-20260609-bedrock-quire-shaping.md` (vocabulary, privacy boundaries, consume-side governance: Precentor/Chorister/Prebend/Cloister, deployment ladder); the custom-model-import half stays with the embassy/bullion delivery path above and remains unshaped.
+NOTE: the native-consume half of this entry is renamed and currently shaped as the **Quire** in `jjqs_studbook/memo-20260609-bedrock-quire-shaping.md` (vocabulary, privacy boundaries, consume-side governance: Precentor/Chorister/Prebend/Cloister, deployment ladder); the custom-model-import half stays with the embassy/bullion delivery path above and remains unshaped.
 
 **Egress lockdown — IMPLEMENTED.**
 Dual-pool architecture: tether pool (public egress) and airgap pool (`NO_PUBLIC_EGRESS`).
@@ -305,7 +305,7 @@ Wrap depot project in VPC-SC perimeter restricting API access.
 Requires egress lockdown (now implemented) as prerequisite, org-level admin for perimeter creation, and verification of every GCP API call in the pipeline.
 _Trigger_: organizational security policy mandating VPC-SC, or data exfiltration risk assessment.
 _Reference_: RBSCB-CloudBuildPosture.adoc (Potential Hardening: VPC Service Controls).
-Cross-reference correction (`Memos/memo-20260609-bedrock-quire-shaping.md`): the conduit/Outpost VPC is an *AWS* network and VPC-SC is a *GCP* service perimeter around the depot project — different clouds; neither can serve the other. The two items are independent.
+Cross-reference correction (`jjqs_studbook/memo-20260609-bedrock-quire-shaping.md`): the conduit/Outpost VPC is an *AWS* network and VPC-SC is a *GCP* service perimeter around the depot project — different clouds; neither can serve the other. The two items are independent.
 
 **Cosign image signing.**
 Cryptographic signatures on images, verifiable by downstream consumers.
@@ -328,7 +328,7 @@ the fixed shape penalizes exactly the packages that most need convergence.
 Repair shape per the memo: die only on consecutive no-progress rounds (remaining-version count supplies the signal), retain a work-scaled absolute ceiling as backstop, and document the abjure-size budget against `RBRR_GCB_TIMEOUT` (per-package ceilings must sum inside the build timeout).
 Latent today — the largest observed web is 55 versions, far from the edge.
 _Trigger_: captured webs an order of magnitude past today's, or a convergence death attributed to the fixed ceiling.
-_Reference_: `Memos/retired/memo-20260610-heat-BH-fable-recommendation-convergence-deadline-shape.md`.
+_Reference_: `jjqs_studbook/retired/memos/memo-20260610-heat-BH-fable-recommendation-convergence-deadline-shape.md`.
 
 **Binary Authorization.**
 Deploy-time policy enforcement (only attested images can be deployed).
@@ -364,7 +364,7 @@ Distinct from the envoy's egress federation (the machine-identity Workload produ
 Remaining open surface lives in the three entries below (sanctioned-set bound, health-assurer representation, per-vendor guides).
 _Reference_: RBS0 federation civics (the `rbtf_` quoins);
 RBSRW-RegimeWorkforce.adoc and RBSRF-RegimeFederation.adoc (the regime homes);
-`Memos/memo-20260609-federation-canon.md` (the pre-build canon — superseded in detail by the built surface).
+`jjqs_studbook/memo-20260609-federation-canon.md` (the pre-build canon — superseded in detail by the built surface).
 
 **Governor federation-affiliation bound to a payor-sanctioned set.**
 The healthy payor–governor model, stated through the
@@ -383,7 +383,7 @@ Enforcement is authorization, not authentication: an IAM condition or provider a
 The exact GCP condition mechanism wants verification before this graduates.
 Premise-touching (the civic hierarchy is a cinched premise): operator-owned — never quietly built.
 _Trigger_: multi-foedus operation becoming real — a second production IdP, or concrete demand for governor-selects.
-_Reference_: `Memos/memo-20260623-Bf-heat-memories.md` and the ₣Bf paddock archive (the governor's-role idea);
+_Reference_: `jjqs_studbook/memo-20260623-Bf-heat-memories.md` and the ₣Bf paddock archive (the governor's-role idea);
 RBSRW-RegimeWorkforce.adoc (the one-pool identity substrate).
 
 **Payor as health-assurer — representing standing authority.**
@@ -393,7 +393,7 @@ The open fork: the payor wields IT-department powers directly via OAuth (the def
 The role earns its mint only if routine super-governor work actually emerges (the load-bearing-complexity test); a fresh civic-asterism word is minted then — "seneschal" is an illustrative register, not a mint.
 Premise-touching (the civic hierarchy is a cinched premise): operator-owned.
 _Trigger_: routine org-health administration beyond founding-adjacent acts actually emerging.
-_Reference_: `Memos/memo-20260623-Bf-heat-memories.md` and the ₣Bf paddock archive (the health-assurer idea).
+_Reference_: `jjqs_studbook/memo-20260623-Bf-heat-memories.md` and the ₣Bf paddock archive (the health-assurer idea).
 
 **Per-vendor federation setup guides.**
 IdP-console setup — registering the app, configuring claims and scopes — is foreign-console human work no API token can drive, so it is a guide per vendor, unified by contract rather than shared body:
@@ -403,4 +403,4 @@ further vendors (Okta, generic OIDC) are further guides under the same contract 
 _Trigger_: first federation against a non-Entra production IdP.
 _Reference_: RBSRF-RegimeFederation.adoc (the vendor-agnostic core plus mechanism gate);
 rbhpf_entra.sh (the template guide);
-`Memos/memo-20260618-Bf-federation-config-model.md` (the conviction's full reasoning).
+`jjqs_studbook/memo-20260618-Bf-federation-config-model.md` (the conviction's full reasoning).

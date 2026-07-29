@@ -133,7 +133,7 @@ reader unable to know which wording is law. Its metastatic form is the
 failure mode of LLM-assisted maintenance of large codebases, and the defect
 this clause exists to forbid. A quoin gives a concept one string; this clause
 gives a claim one wording — the prose analogue of the prefix-collision
-mechanism in `Memos/retired/memo-20260610-quoin-minting-introspection.md`.
+mechanism in `jjqs_studbook/retired/memos/memo-20260610-quoin-minting-introspection.md`.
 Canonical specimen: the 2026-06-10 Diff-Friendly-Prose repair, where a context
 file *characterized* a spec's scope instead of citing it, and the
 characterization carried the error for months.
@@ -150,7 +150,7 @@ cross-medium instance of that fork (temporal mis-homing, above). *Keep the
 load-bearing:* a statement earns its place by being load-bearing (CLAUDE.md), but
 draining what is not must never groom away a constraint — or a reason the long
 term depends on. The reasoning is worked in
-`Memos/memo-20260615-acg-pilot-access-probe-findings.md`.
+`jjqs_studbook/memo-20260615-acg-pilot-access-probe-findings.md`.
 
 **A deliberate absence is a normative statement like any other.** A mechanism
 considered and declined is homed at the spec in present tense, never as a

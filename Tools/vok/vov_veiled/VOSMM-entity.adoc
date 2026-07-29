@@ -83,7 +83,7 @@ is the Matricula's name for the petrifying act; the build-then-freeze semantics 
 In Rust the two phases are a typestate — a Builder the scan owns, consumed by
 {vosms_seal}
 into a frozen struct safe to read concurrently.
-The reference shape is the operator's freezable/immutable collection library (`Memos/memo-20260620-freeze-builder-pattern/`, provenance only).
+The reference shape is the operator's freezable/immutable collection library (`jjqs_studbook/memo-20260620-freeze-builder-pattern/`, provenance only).
 
 //axheb_entity
 {vosmm_matricula}
@@ -618,5 +618,5 @@ mechanizes them; it does not redefine them.
 ): the Liturgy section of VOS0-VoxObscuraSpec.adoc (the Vox Obscura cosmology SpecTop).
 * The narrow filename-only precedent this census widens: VOS0
 {vosk_prefix_validation}.
-* The freeze/builder lifecycle reference shape: `Memos/memo-20260620-freeze-builder-pattern/` (provenance only).
+* The freeze/builder lifecycle reference shape: `jjqs_studbook/memo-20260620-freeze-builder-pattern/` (provenance only).
 * Rivet citation discipline (the `VOr_` opaque ID, kind by `axvc_` voicing): MCM `mcm_rivet`, ACG "residue".

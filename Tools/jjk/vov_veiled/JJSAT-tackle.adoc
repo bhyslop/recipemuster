@@ -12,7 +12,7 @@ A reader must not rely on its content; released code must not cite identifiers i
 The word *tackle* carried a maximal meaning in the retired V4 execution workup, now recast in
 the breeze aspirant sheaf (JJSAB); the one-word-one-concept resolution is stated below.
 The exploratory record — the inclusion-polarity argument and the SlickEdit specimen autopsy —
-is `Memos/memo-20260707-tackle-polarity-and-graph.md` (provenance, never authority).
+is `jjqs_studbook/memo-20260707-tackle-polarity-and-graph.md` (provenance, never authority).
 ====
 
 == What landed, and what this sheaf still holds
@@ -240,7 +240,7 @@ deliberately *not* settled early — the docket anti-patterns govern that direct
   the implementation paces are, and it settles the remaining word spends (mint follows
   API).
   Widened 260720 (operator ruling; substance home
-  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md`): the sketch also
+  `jjqs_studbook/memo-20260720-tackle-staleness-facilities-buildflags.md`): the sketch also
   covers the table *write* surface — JJ-sole-author toothings stand in the MVP from the
   outset (add/amend/remove shapes, and a list that shows what each claim matches, the
   derived roster printed and never persisted), with the write door's refusals as
@@ -267,7 +267,7 @@ A ruled entry keeps its ruling on record until the cut lands, then strikes.
 . Table authorship — RULED 260720 (operator): JJ write verbs from the outset,
   hand-editing never the path, the write door's refusals as acceptance tests.
   Substance: the API-sketch settling entry above; ratification ledger in
-  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md`.
+  `jjqs_studbook/memo-20260720-tackle-staleness-facilities-buildflags.md`.
 . Write-surface decomposition and its word elections — OPEN; settles at the API-sketch
   entry, deliberately uncinched ahead of it.
 . Staleness inclusion — OPEN rider on the API sketch: joins the MVP only when the five
@@ -284,7 +284,7 @@ A ruled entry keeps its ruling on record until the cut lands, then strikes.
 . Check-member scope — RECOMMENDED, unratified: the three fixed members stand, the
   idiosyncratic verb tail stays outside tackle, no actions layer until a consumer
   exists.
-  Evidence: the builds table in `Memos/memo-20260707-rbm-domain-census.md`.
+  Evidence: the builds table in `jjqs_studbook/memo-20260707-rbm-domain-census.md`.
 
 == Open forks (the mulling surface)
 
@@ -353,8 +353,8 @@ A ruled entry keeps its ruling on record until the cut lands, then strikes.
   placement.
 * Design chat pym-beta-tackle (260707, Fable) — the charter wording, inclusion-polarity
   resolution, worked census, association graph, countable ruling, schema settling and word
-  elections; exploratory record in `Memos/memo-20260707-tackle-polarity-and-graph.md`.
-  The living domain census is `Memos/memo-20260707-rbm-domain-census.md`.
+  elections; exploratory record in `jjqs_studbook/memo-20260707-tackle-polarity-and-graph.md`.
+  The living domain census is `jjqs_studbook/memo-20260707-rbm-domain-census.md`.
 * SlickEdit specimen `Tools/vslf-rbw/` + `Tools/vslk/` — the failed worked example mined for
   fileset-definition lessons (memo §autopsy).
 * Gallops serialization (`Tools/jjk/vov_veiled/src/jjrt_types.rs`) — the sprue grammar,
@@ -372,5 +372,5 @@ A ruled entry keeps its ruling on record until the cut lands, then strikes.
   shared-as-conduct-promise); the swingletree tag-registry lean; the MVP-downscope
   verb-census evidence.
   Confidence-graded record with ratification ledger:
-  `Memos/memo-20260720-tackle-staleness-facilities-buildflags.md` — most items are
+  `jjqs_studbook/memo-20260720-tackle-staleness-facilities-buildflags.md` — most items are
   unreviewed supposition; read the ledger before treating any as settled.

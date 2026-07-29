@@ -25,7 +25,7 @@ of a scope→discipline binding that has no single home.
 {jjdl_tackle} is that binding's home;
 every such consumer becomes a projection that re-derives instead of drifting.
 The domain census that grounds the design is provenance
-(`Memos/memo-20260707-rbm-domain-census.md`), never authority — but two of its findings are
+(`jjqs_studbook/memo-20260707-rbm-domain-census.md`), never authority — but two of its findings are
 load-bearing and canon here:
 the operator thinks *domains first* (globs reach files, but a domain is what carries
 governance — so the binding factors globs → domain → everything else, never glob→discipline

@@ -58,7 +58,7 @@ Four recorded pressures, each dissolved structurally rather than patched:
   canonical JSON; a single global record edited under a lock has no cross-clone merge at all.
 * *Identity collision.* Distributed next-free {jjdt_coronet} allocation across divergent
   clones deterministically double-mints (the ₢BfAA3 incident,
-  `Memos/memo-20260702-jjk-gallops-coronet-collision-incident.md`).
+  `jjqs_studbook/memo-20260702-jjk-gallops-coronet-collision-incident.md`).
   One record behind one lock means one seed — the collision class dies at the root.
 * *Vanilla hippodromes.* State out of the work repo is what lets a work repo carry no JJ
   inserts at all ({jjdw_hippodrome}).

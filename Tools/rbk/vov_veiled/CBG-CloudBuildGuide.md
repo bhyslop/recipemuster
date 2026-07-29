@@ -347,7 +347,7 @@ must know:
   the lexer-grade scan — review holds that line. Prefer in-process
   `urllib`/REST over shelling out at all.
 
-*Cited by:* memo-20260610-heat-BH-fable-recommendation-python-import-allowlist;
+*Cited by:* `jjqs_studbook/retired/memos/memo-20260610-heat-BH-fable-recommendation-python-import-allowlist.md`;
 the cupel python case (`rbtdru_gcb_python`).
 
 ### CBh — Host-Composition Seam (what a body is authored against)

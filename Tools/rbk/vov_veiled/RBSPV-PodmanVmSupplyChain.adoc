@@ -138,7 +138,7 @@ The implementation has never been ported from GitHub Container Registry to Googl
 
 The prototype above (ignite-VM, GHCR, `RBRM_*` regime, FROM-scratch repackage) is
 superseded by the universal Lode capture model (heat ₣BH). An off-station
-experiment on 2026-06-08 (full record: `Memos/memo-20260608-lode-podvm-cerebro-experiment.md`)
+experiment on 2026-06-08 (full record: `jjqs_studbook/memo-20260608-lode-podvm-cerebro-experiment.md`)
 characterized the live upstream artifacts and settled the cloud-layer tool choice.
 Findings durable enough to record here:
 
