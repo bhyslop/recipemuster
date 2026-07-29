@@ -125,7 +125,7 @@ lands.
 ## Delivery (how this guide reaches a session)
 
 AWG expects to ride the aspirant-sheaves tackle's *trappings*
-(`Tools/jjk/vov_veiled/JJSAT-tackle.adoc`: the aspirant domain,
+(`jjqs_studbook/specs/jjk/JJSAT-tackle.adoc`: the aspirant domain,
 lintel-audited): a dispatched session whose target files resolve to that tackle
 receives this guide in launch-time provisioning; an ad-hoc session reaches it
 through the pull door on first touch. This is the same repair as the

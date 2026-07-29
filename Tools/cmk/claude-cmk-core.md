@@ -12,7 +12,7 @@ Concept Model Kit (CMK) is installed for managing concept model documents.
 | Term | Prefix | Meaning |
 |------|--------|---------|
 | **Quoin** | `mcm_` | A formal identifier with full cataloguing: attribute reference in the mapping section, anchor at the definition site, and definition text. The cornerstone — addressable from anywhere, tracked across the constellation. |
-| **Rivet** | `mcm_` | A formal identifier for a *normative proposition* (invariant, deliberate deviation, foreign-behavior signature, Palisade membrane) the model defines once and code/tests cite by ID. **Format:** `{proj}r_<opaque-tail>` — e.g. `RBr_a3f`, `JJr_a7c`. Unlike a quoin, a rivet ID is **opaque**: the tail carries no meaning, so it leaks no semantics into the open code that ships without the closed spec (a *readable* name is a quoin, never a rivet). Kind is declared at the definition site by an `axvc_` voicing, never encoded in the ID. **Uniqueness:** generate a tail, `grep` the full ID repo-wide, adopt on zero hits — grep is both the uniqueness check and the census; no registry. Emittable: in comment-free dialects the citation rides the execution-time announcement (JDG `JDo_101`). Formal definition: MCM `mcm_rivet`; built shape: ACG "cited-constraint anchor". |
+| **Rivet** | `mcm_` | A formal identifier for a *normative proposition* (invariant, deliberate deviation, foreign-behavior signature, Palisade membrane) the model defines once and code/tests cite by ID. **Format:** `{proj}r_<opaque-tail>` — e.g. `RBr_a3f`, `JJr_a7c`. Unlike a quoin, a rivet ID is **opaque**: the tail carries no meaning, so it leaks no semantics into the open code that ships without the closed spec (a *readable* name is a quoin, never a rivet). Kind is declared at the definition site by an `axvc_` voicing, never encoded in the ID. **Uniqueness:** generate a tail, `grep` the full ID infield-wide — across the studbook spec home and the consuming code repos that cite it — and adopt on zero hits; grep is both the uniqueness check and the census; no registry. Emittable: in comment-free dialects the citation rides the execution-time announcement (JDG `JDo_101`). Formal definition: MCM `mcm_rivet`; built shape: ACG "cited-constraint anchor". |
 | **Mapping Section** | `mcm_` | The block of attribute references at the top of a document, between `tag::mapping-section[]` markers. Where quoins are registered. |
 | **Concept Model** | `mcm_` | A unified constellation of linked terms whose relationships give meaning to a domain. Manifested as an AsciiDoc document following MCM patterns. |
 | **Variant** | `mcm_` | Suffix modifiers on attribute references: `_s` plural, `_p` possessive, `_ed` past, `_ing` progressive. |
@@ -48,7 +48,7 @@ Before introducing new quoin prefixes in an MCM document, consult the CLAUDE.md 
 **Available commands:**
 - `/cma-prep-pr` - Prepare upstream contribution
 
-For full MCM specification, see `Tools/cmk/vov_veiled/MCM-MetaConceptModel.adoc`.
+For full MCM specification, see `jjqs_studbook/specs/cmk/MCM-MetaConceptModel.adoc`.
 
 ## Acronym Notes
 
@@ -56,8 +56,8 @@ Annotations for the acronym homes indexed in `claude-cmk-acronyms.md` — the pe
 
 | Acronym | File | Description |
 |---------|------|-------------|
-| **MCM** | `cmk/vov_veiled/MCM-MetaConceptModel.adoc` | Meta Concept Model — the spec governing all concept model documents |
-| **AXLA** | `cmk/vov_veiled/AXLA-Lexicon.adoc` | Axial Lexicon — shared vocabulary of motifs reusable across concept models |
+| **MCM** | `jjqs_studbook/specs/cmk/MCM-MetaConceptModel.adoc` | Meta Concept Model — the spec governing all concept model documents |
+| **AXLA** | `jjqs_studbook/specs/cmk/AXLA-Lexicon.adoc` | Axial Lexicon — shared vocabulary of motifs reusable across concept models |
 | **AXMCM** | `jjqs_studbook/AXMCM-ClaudeMarkConceptMemo.md` | ClaudeMark concept memo |
 | **ACG** | `cmk/vov_veiled/ACG-AllodialCodingGuide.md` | Allodial Coding Guide — source-side complement to MCM: reference the home, don't recreate (values→constants, concepts→quoin-refs). Veiled/proprietary move-catalog; guide-family sibling to BCG/RCG/WSG/CBG. |
 | **GMG** | `cmk/vov_veiled/GMG-GuideMetaGuide.md` | Guide Meta-Guide — the guide for writing guides: the canonical section skeleton and the family's shared framing conventions (foreign-environment sibling, two-genres split, cited-rule scheme). Homes the guide-family form once so a guide cites the convention rather than re-deriving it. The spec-side analogue of MCM/AXLA, for guides. |
