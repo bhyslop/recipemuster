@@ -216,7 +216,7 @@ fundus-host list points here for the full registry.
 - **bujn-winpc** — Windows host, tailnet hostname `rocket`. Formal BURN profile
   at `rbmm_moorings/rbmn_nodes/bujn-winpc/` for BUK caparison/garrison/invigilate
   work under heat ₣A-. **Consolidated access reference + live account state:**
-  `Memos/memo-20260516-windows-headless-account-anatomy.md`.
+  `jjqs_studbook/memo-20260516-windows-headless-account-anatomy.md`.
   - Admin SSH: `ssh -i ~/.ssh/id_ed25519_winpc-admin bhyslop@rocket "<cmd>"` (cmd.exe
     default shell, so prepend `powershell -Command` / `bash -c` as the task needs).
     The former `tt/buw-jpS` tabtarget was removed when the jurisdiction apparatus was
@@ -240,7 +240,7 @@ fundus-host list points here for the full registry.
   `bhyslop-asrock-beast`. **The Cygwin-based Docker-Desktop test host** rocket
   structurally cannot be: the operator's persistent RDP logon keeps the DD
   engine alive across disconnect. Provisioned 260712 (heat ₣Bs; as-executed
-  record + replay authority: `Memos/memo-20260712-beast-host-standup.md`).
+  record + replay authority: `jjqs_studbook/memo-20260712-beast-host-standup.md`).
   - **Access: `ssh beast`** (curia ssh-config alias; user `bhyslop`, the
     winpc-admin key). **Linux-shaped ssh, UNLIKE rocket**: registry
     `DefaultShell` is Cygwin bash with `-lc` one-shots, so there is NO cmd.exe
@@ -328,4 +328,4 @@ of a mint, and any time you want the corpus appraised.
   process; where it is absent the command simply fails. If `jjx_sift` reports it
   missing, build it with `tt/vow-mb.MatriculaBuild.sh`.
 - Concept home: JJS0 "Census Operations" (`jjdo_sift`) and the `jjsuv_jog` verb
-  definition; the tool itself is VOSMM-entity.adoc.
+  definition; the tool itself is `jjqs_studbook/specs/vok/VOSMM-entity.adoc`.
