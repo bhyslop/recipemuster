@@ -784,9 +784,9 @@ const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 /// The codex sheaf itself — RBS0, the hoist target MCM's rivet law names. A
 /// rivet anchored here is definitionally already hoisted, so citing it from
 /// any other sheaf is the intended end-state, never a violation. Homed in the
-/// studbook infield since the knowledge-resite move; the path form matches the
-/// studbook-relative rendering the live wrapper produces (rooted at the shared
-/// parent, see `ZRBTDRN_STUDBOOK_SPEC_ROOT`).
+/// studbook infield; the path form matches the studbook-relative rendering the
+/// live wrapper produces (rooted at the shared parent, see
+/// `ZRBTDRN_STUDBOOK_SPEC_ROOT`).
 const ZRBTDRN_CODEX_SHEAF: &str = "jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc";
 
 /// Sheaves whose role is a rivet *census/index* — pointing at where a rivet is
@@ -888,8 +888,8 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 /// `ZRBTDRN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
 /// sprues, not the whole `Tools/` corpus. These roots cover the shipped `.sh`
 /// residue side; the `.adoc` anchor corpus the `RBr_` citations resolve
-/// against no longer lives here — the knowledge-resite move carried it to the
-/// studbook infield (`ZRBTDRN_STUDBOOK_SPEC_ROOT`, reached below). RBK's tree
+/// against does not live here — it is homed in the studbook infield
+/// (`ZRBTDRN_STUDBOOK_SPEC_ROOT`, reached below). RBK's tree
 /// is this fixture's jurisdiction and is clean against these checks; the other
 /// kits' foundational specs (CMK's MCM-MetaConceptModel.adoc, JJK's
 /// JJS0_JobJockeySpec.adoc) carry pre-existing one-home violations in bulk —
@@ -901,9 +901,8 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
 
 /// The studbook infield spec home for RBK — the sibling-repo directory that
-/// holds the RBS* corpus since the knowledge-resite move carried it out of the
-/// work repo. The `RBr_` anchors the citation and hoist checks resolve against
-/// live here now, not under the scan roots above. MCM's rivet census runs
+/// holds the RBS* corpus. The `RBr_` anchors the citation and hoist checks
+/// resolve against live here, not under the scan roots above. MCM's rivet census runs
 /// infield-wide (the studbook definition home plus the consuming code repos, in
 /// one grep), so the live scan reaches across the sibling seam to rebuild the
 /// anchor set. Resolved against the work-repo root's PARENT — the shared parent
