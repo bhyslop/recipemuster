@@ -408,7 +408,7 @@ When user says "foray" or asks to run something on a remote machine:
 
 **`jjx_send`** is for synchronous one-off commands (no pensum, no polling). Use when the command is short and you need inline results.
 
-**Windows fundus body discipline:** When the fundus is a Windows host, both `jjx_send` and `jjx_relay`-dispatched tabtargets traverse the cmd.exe → wsl.exe / cygwin / PowerShell transport stack. Body authoring rules (escape `\$name` for w-letter wsl.exe transit, no heredocs, single-line `;`-joined for cmd.exe transit, lazy-flush avoidance for PowerShell cmdlets, etc.) live in your project's Windows scripting guide, if present. Empirical record under `Memos/memo-YYYYMMDD-windows-transport-{topic}.md`.
+**Windows fundus body discipline:** When the fundus is a Windows host, both `jjx_send` and `jjx_relay`-dispatched tabtargets traverse the cmd.exe → wsl.exe / cygwin / PowerShell transport stack. Body authoring rules (escape `\$name` for w-letter wsl.exe transit, no heredocs, single-line `;`-joined for cmd.exe transit, lazy-flush avoidance for PowerShell cmdlets, etc.) live in your project's Windows scripting guide, if present. Empirical record homes wherever your project keeps operator-interior knowledge, named `memo-YYYYMMDD-windows-transport-{topic}.md`.
 
 ### Unfurl Protocol
 
