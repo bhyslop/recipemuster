@@ -73,7 +73,7 @@ RBLM_harbinger_walk_branch="coldwalk"
 
 # The findings-memo basename slug. The full basename is dated at run time:
 # memo-<YYYYMMDD>-coldwalk-shakedown.md — the maintainer reviews it and commits it into
-# Memos/ affiliated to the pace.
+# the studbook (jjqs_studbook/), affiliated to the pace.
 RBLM_harbinger_memo_slug="coldwalk-shakedown"
 
 ######################################################################
@@ -124,7 +124,7 @@ rblm_harbinger() {
 
   # The dated findings-memo path — absolute, and a sibling of the clone so it survives
   # the clone's discard. The prompt below hands this exact path to the walker; the
-  # maintainer reviews it and commits it into Memos/ after the walk.
+  # maintainer reviews it and commits it into the studbook after the walk.
   local -r z_walkdate_temp="${BURD_TEMP_DIR}/rblm_harbinger_walkdate.txt"
   date +%Y%m%d > "${z_walkdate_temp}" || buc_die "date failed"
   local -r z_walkdate=$(<"${z_walkdate_temp}")
@@ -271,7 +271,7 @@ rblm_harbinger() {
 
   buh_e
   buh_line "  When the walk is done, review ${z_memo_path##*/} in the rig, commit it into"
-  buh_line "  Memos/ as memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md, then discard the rig."
+  buh_line "  the studbook (jjqs_studbook/) as memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md, then discard the rig."
   buh_e
   buc_success "Harbinger ready — guarded cold-walk clone stood up, launch line and stranger prompt printed"
 }

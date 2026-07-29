@@ -207,7 +207,7 @@ pub fn emit_handoff(rig: &rbthdr_Rig) {
         "When the walk is done, review {} in the rig, commit it into",
         zrbthdr_basename(&rig.memo_path)
     ));
-    rbthdr_log::line("Memos/ affiliated to the pace, then discard the rig.");
+    rbthdr_log::line("the studbook (jjqs_studbook/) affiliated to the pace, then discard the rig.");
 }
 
 /// git -C <dir> <args>, fatal on non-zero with the act named.
