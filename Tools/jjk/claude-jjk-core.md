@@ -134,7 +134,6 @@ jjx_log            {firemark, limit?}                              # limit sizes
 jjx_search         {pattern, actionable?}
 jjx_archive        {firemark, size_limit?}
 jjx_transfer       {firemark, to, coronets, size_limit?}
-jjx_continue       {firemark}
 jjx_paddock        {firemark}                                       # READ paddock -> gazette_out.md; staged gazette_in.md rejects loud (the writer is jjx_curry)
 jjx_curry          {note?, size_limit?}                             # WRITE paddock from gazette_in.md jjezs_paddock notice (firemark lede, non-empty body); auto-commits
 jjx_relocate       {coronet, to, before?, after?, first?}
