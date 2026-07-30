@@ -49,9 +49,9 @@ pub const JJRNM_COMPLINE: char = 'o';
 /// Gallops Procedure: Validate - normalize-and-report commit (gallops-wide, no heat/pace identity)
 pub const JJRNM_VALIDATE: char = 'v';
 
-/// Affiliate: the gallops-wide sire-stamp (`jjraf_affiliate`) — the backfill and
-/// deliberate re-affiliation verb. Gallops-wide, so it carries no heat/pace
-/// identity in its chalk.
+/// Affiliate: the identity-grained fill-blanks sire-stamp (`jjraf_affiliate`).
+/// A coronet fill or a firemark heat-drain carries the affected heat's identity
+/// in its chalk (the audit route is read-only and never chalks).
 pub const JJRNM_AFFILIATE: char = 'a';
 
 /// Registry of all marker codes with their names

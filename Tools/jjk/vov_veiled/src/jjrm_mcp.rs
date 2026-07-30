@@ -921,13 +921,17 @@ pub struct jjrm_RelabelParams {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_AffiliateParams {
-    /// The sire handle every pace not named in `overrides` receives.
-    pub default: String,
-    /// Per-coronet sire overrides (bare or display coronet → sire handle). The
-    /// operator-confirmed affiliation census: the paces whose remaining work lands
-    /// in a sire other than the default.
+    /// Target identity, typed by length: a Coronet fills one pace, a Firemark
+    /// fills one heat's blank paces. Absent (with `sire` absent) runs the
+    /// read-only audit of every unaffiliated pace, grouped by heat.
     #[serde(default)]
-    pub overrides: std::collections::BTreeMap<String, String>,
+    pub identity: Option<String>,
+    /// The sire handle to stamp onto the targeted blanks. Fills only paces that
+    /// carry no sire; a coronet already on a different sire refuses loud, a
+    /// firemark leaves every affiliated pace untouched. Absent (with `identity`
+    /// absent) runs the audit.
+    #[serde(default)]
+    pub sire: Option<String>,
     #[serde(default)]
     pub size_limit: Option<u64>,
 }
@@ -3722,8 +3726,8 @@ impl jjrm_McpServer {
                 let p = deser!(jjrm_AffiliateParams);
                 jjrm_result(jjaf_run_affiliate(jjaf_AffiliateArgs {
                     file: gallops_pathbuf(),
-                    default: p.default,
-                    overrides: p.overrides,
+                    identity: p.identity,
+                    sire: p.sire,
                     size_limit: p.size_limit.unwrap_or(vvc::VVCG_SIZE_LIMIT),
                 }, officium_id))
             }
