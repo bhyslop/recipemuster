@@ -62,6 +62,7 @@ use super::jjrfr_farrier::{
     jjrfr_FarrierLock,
     jjrfr_LineOfWork,
     jjrfr_RejectionKind,
+    jjrfr_Seat,
 };
 use super::jjrt_types::{
     jjrg_Effort,
@@ -1759,13 +1760,20 @@ fn jjtds_validate_claims_passes_disjoint_and_flags_a_kit_claimed_twice() {
     assert!(errs[0].contains("jj") && errs[0].contains("rb"), "names both claimants: {}", errs[0]);
 }
 
+// A Partition seat for test entries — a worktree billet's seat. The
+// primary_root value is immaterial to election (only the seat KIND matters), so
+// a fixed marker path stands for it.
+fn zjjtds_billet_seat() -> Option<jjrfr_Seat> {
+    Some(jjrfr_Seat::Partition { primary_root: PathBuf::from("/infield/rbm_alpha_recipemuster") })
+}
+
 #[test]
 fn jjtds_elect_clone_returns_the_declared_clone() {
     let addr = "git@example.invalid/jjqa".to_string();
     let entries = vec![
-        ("jjqa_app".to_string(), Some(addr.clone())),
-        ("unrelated".to_string(), Some("git@example.invalid/other".to_string())),
-        ("jjqd_scratch".to_string(), None),
+        ("jjqa_app".to_string(), Some(addr.clone()), Some(jjrfr_Seat::Primary)),
+        ("unrelated".to_string(), Some("git@example.invalid/other".to_string()), Some(jjrfr_Seat::Primary)),
+        ("jjqd_scratch".to_string(), None, None),
     ];
     let got = jjrds_elect_clone(&entries, "jjqa_app", std::slice::from_ref(&addr)).unwrap();
     assert_eq!(got, "jjqa_app");
@@ -1774,7 +1782,11 @@ fn jjtds_elect_clone_returns_the_declared_clone() {
 #[test]
 fn jjtds_elect_clone_zero_match_names_the_remedy() {
     // No infield entry keys to this sire — the declared clone is not standing.
-    let entries = vec![("unrelated".to_string(), Some("git@example.invalid/other".to_string()))];
+    let entries = vec![(
+        "unrelated".to_string(),
+        Some("git@example.invalid/other".to_string()),
+        Some(jjrfr_Seat::Primary),
+    )];
     let refusal = jjrds_elect_clone(&entries, "jjqa_app", &["git@example.invalid/jjqa".to_string()])
         .unwrap_err();
     match refusal {
@@ -1788,11 +1800,12 @@ fn jjtds_elect_clone_zero_match_names_the_remedy() {
 
 #[test]
 fn jjtds_elect_clone_two_match_names_both_dirs() {
-    // Two infield clones key to one sire — the transitional multi-clone hazard.
+    // Two PRIMARY-seated infield clones key to one sire — the true transitional
+    // multi-clone hazard the one-clone rule refuses.
     let addr = "git@example.invalid/rb".to_string();
     let entries = vec![
-        ("rbm_alpha_recipemuster".to_string(), Some(addr.clone())),
-        ("rbm_candidate".to_string(), Some(addr.clone())),
+        ("rbm_alpha_recipemuster".to_string(), Some(addr.clone()), Some(jjrfr_Seat::Primary)),
+        ("rbm_candidate".to_string(), Some(addr.clone()), Some(jjrfr_Seat::Primary)),
     ];
     let refusal = jjrds_elect_clone(&entries, "rbm_alpha_recipemuster", std::slice::from_ref(&addr))
         .unwrap_err();
@@ -1803,4 +1816,21 @@ fn jjtds_elect_clone_two_match_names_both_dirs() {
         }
         other => panic!("expected Rival, got {:?}", other),
     }
+}
+
+#[test]
+fn jjtds_elect_clone_elects_cleanly_beside_billet_seated_siblings() {
+    // The defect this pace repairs: worktree billets of the true clone share its
+    // origin key, so a seat-blind election would have counted them as rivals and
+    // refused. Here one Primary clone bears the declared name, flanked by two
+    // Partition-seated billets keyed to the SAME sire — election must resolve to
+    // the declared clone, no Rival.
+    let addr = "git@example.invalid/rb".to_string();
+    let entries = vec![
+        ("rbm_alpha_recipemuster".to_string(), Some(addr.clone()), Some(jjrfr_Seat::Primary)),
+        ("jjqb_17_CAADL".to_string(), Some(addr.clone()), zjjtds_billet_seat()),
+        ("jjqb_18_CAADK".to_string(), Some(addr.clone()), zjjtds_billet_seat()),
+    ];
+    let got = jjrds_elect_clone(&entries, "rbm_alpha_recipemuster", std::slice::from_ref(&addr)).unwrap();
+    assert_eq!(got, "rbm_alpha_recipemuster", "the Primary clone elects; billets do not count as rivals");
 }

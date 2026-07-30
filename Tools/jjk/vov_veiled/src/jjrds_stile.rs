@@ -451,24 +451,30 @@ impl std::fmt::Display for jjrds_CloneRefusal {
 }
 
 /// Elect a sire's infield clone from the recorded declared name — the pure core,
-/// over `(dirname, upstream_key)` entries so it is exhaustively testable with no
-/// filesystem and no farrier. NOT a discovery scan: the declared name is the
+/// over `(dirname, upstream_key, seat)` entries so it is exhaustively testable with
+/// no filesystem and no farrier. NOT a discovery scan: the declared name is the
 /// recorded decision (`registry over discovery`), and the entries are walked only
 /// to enforce one-clone-per-sire and to name the two refusals. An entry counts as
-/// this sire's clone iff its upstream key matches one of the sire's addresses — so
-/// the elected dir is upstream-verified by construction (the record/ground
-/// cross-check re-homed as registry verification). Two-match precedes zero-match:
-/// the one-clone invariant is absolute, so rival clones refuse even when one bears
-/// the declared name.
+/// this sire's clone iff its upstream key matches one of the sire's addresses AND
+/// it is Primary-seated — so a Partition-seated worktree billet (`jjqb_*`), which
+/// shares its sire's origin key, never counts toward the one-clone rule and never
+/// provokes the Rival refusal against its own sire. The elected dir is thus
+/// upstream-verified by construction (the record/ground cross-check re-homed as
+/// registry verification) and seat-verified as a true clone rather than a billet.
+/// Two-match precedes zero-match: the one-clone invariant is absolute, so rival
+/// clones refuse even when one bears the declared name.
 pub fn jjrds_elect_clone(
-    entries: &[(String, Option<String>)],
+    entries: &[(String, Option<String>, Option<jjrfr_Seat>)],
     declared: &str,
     addresses: &[String],
 ) -> Result<String, jjrds_CloneRefusal> {
     let clones: Vec<&String> = entries
         .iter()
-        .filter(|(_, key)| key.as_ref().is_some_and(|k| addresses.iter().any(|a| a == k)))
-        .map(|(name, _)| name)
+        .filter(|(_, key, seat)| {
+            matches!(seat, Some(jjrfr_Seat::Primary))
+                && key.as_ref().is_some_and(|k| addresses.iter().any(|a| a == k))
+        })
+        .map(|(name, _, _)| name)
         .collect();
     if clones.len() >= 2 {
         return Err(jjrds_CloneRefusal::Rival {
@@ -489,10 +495,21 @@ pub fn jjrds_elect_clone(
 /// election the launch inversion will make dispatch's clone-election path. NOT
 /// yet wired live: today's live path still climbs from the captured cwd
 /// (`zjjrds_infield`); this is the recorded-decision inverse that supersedes it.
-/// Reads the infield's immediate entries, derives each one's upstream key through
-/// the farrier's identify (a non-repo entry keys to `None` and simply never
-/// matches), and elects via the pure `jjrds_elect_clone`. The declared name
-/// resolves to `infield_root/<name>` — a join, never a scan for which clone to use.
+/// Reads the infield's immediate entries, derives each one's upstream key and seat
+/// through the farrier's identify (a non-repo entry keys to `None`/`None` and simply
+/// never matches), and elects via the pure `jjrds_elect_clone`. The seat travels
+/// into the core beside the key so seat-filtering (Primary-only, excluding
+/// Partition-seated billets) lives in the pure predicate, not in a caller. The
+/// declared name resolves to `infield_root/<name>` — a join, never a scan for which
+/// clone to use.
+///
+/// OPEN (deferred to the operator at the launch-inversion wiring): whether
+/// `infield_root` — the infield-parent, whose immediate children mix true clones,
+/// `jjqb_*` worktree billets, and the studbook — is the right walk root at all, or
+/// whether a clone-only subtree should be walked instead. Seat + address filtering
+/// makes the walk correct over the mixed directory today (billets excluded by
+/// Partition seat, studbook excluded by non-matching key), so this is an
+/// architectural refinement for the wiring pace, not a correctness gap here.
 pub fn jjrds_resolve_clone<F: jjrfr_FarrierCore>(
     farrier: &F,
     infield_root: &Path,
@@ -506,15 +523,18 @@ pub fn jjrds_resolve_clone<F: jjrfr_FarrierCore>(
         path: infield_root.to_path_buf(),
         detail: format!("cannot read infield: {}", e),
     })?;
-    let mut entries: Vec<(String, Option<String>)> = Vec::new();
+    let mut entries: Vec<(String, Option<String>, Option<jjrfr_Seat>)> = Vec::new();
     for ent in read.flatten() {
         let path = ent.path();
         if !path.is_dir() {
             continue;
         }
         let name = ent.file_name().to_string_lossy().into_owned();
-        let key = farrier.jjrfr_identify(&path).ok().and_then(|id| id.upstream_key);
-        entries.push((name, key));
+        let (key, seat) = match farrier.jjrfr_identify(&path) {
+            Ok(id) => (id.upstream_key, Some(id.seat)),
+            Err(_) => (None, None),
+        };
+        entries.push((name, key, seat));
     }
     jjrds_elect_clone(&entries, declared, &pedigree.addresses)
         .map(|name| infield_root.join(name))
