@@ -380,8 +380,8 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_DEPOT_LIFECYCLE => Some(&[
             RBTDGC_LEVY_DEPOT,
             RBTDGC_LIST_DEPOT,
-            RBTDGC_INSCRIBE_DEPOT,
-            RBTDGC_CHECK_DEPOT,
+            RBTDGC_INCUSE_DEPOT,
+            RBTDGC_COLLATE_DEPOT,
             RBTDGC_UNMAKE_DEPOT,
         ]),
         RBTDRM_FIXTURE_FREEHOLD_ESTABLISH => Some(&[

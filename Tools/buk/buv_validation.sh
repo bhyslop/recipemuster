@@ -394,16 +394,14 @@ zbuv_check_capture() {
     fi
   fi
 
-  # Unset detection — distinguish "not set" from "set but empty"
-  # The min-0 types diverge on unset: set-empty passes for all, but an omitted
-  # line passes only for string|secret|gname — fqin is deliberately absent here,
-  # so a fqin whose line is missing fails "is not set" while a set-empty fqin
-  # passes as vacant. Unification direction is unresolved (fqin's stricter
-  # unset-fail — "declared vacancy must appear in the file" — is a candidate to
-  # extend, not relax); do not "fix" the asymmetry by adding fqin without a ruling.
+  # Unset detection — distinguish "not set" from "set but empty".
+  # A min-0 scalar (string|secret|gname|fqin) and every list type pass when
+  # unset: an omitted line reads as a declared vacancy, uniformly across the
+  # four scalar types. A min-1 field that is unset fails loud below. Set-empty
+  # is handled per-type further down.
   if test -z "${!z_varname+x}"; then
     case "${z_type}" in
-      string|secret|gname)
+      string|secret|gname|fqin)
         if test "${z_p1}" = "0"; then return 0; fi ;;
       list_string|list_ipv4|list_gname|list_cidr|list_domain)
         return 0 ;;

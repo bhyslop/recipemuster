@@ -188,8 +188,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rrs` | DirectorSeisesSubstrateReliquary | param1 | Seise the repo substrate reliquary - elect the reliquary the vessel-less substrate captures (underpin, immure) resolve tools from (express-or-chain) |
 | `rbw-rdr` | RenderDepotRegime | — | Render depot regime |
 | `rbw-rdv` | ValidateDepotRegime | — | Validate depot regime |
-| `rbw-rdi` | InscribeDepotRegime | — | Inscribe RBRD tripwire image to GAR standalone — the absent-tripwire recovery (self-authenticates as Payor) |
-| `rbw-rdc` | CheckDepotRegime | — | Check local rbrd.env against inscribed tripwire standalone (self-authenticates as Payor) |
+| `rbw-rdi` | IncuseDepotRegime | — | Incuse the RBRD tripwire image into GAR standalone — the absent-tripwire recovery (self-authenticates as Payor) |
+| `rbw-rdc` | CollateDepotRegime | — | Collate local rbrd.env against the incused tripwire standalone (self-authenticates as Payor) |
 | `rbw-rpr` | RenderPayorRegime | — | Render payor regime |
 | `rbw-rpv` | ValidatePayorRegime | — | Validate payor regime |
 | `rbw-rfr` | RenderFederationRegime | — | Render federation regime |

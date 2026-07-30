@@ -32,7 +32,7 @@
 # Caller-authenticates seam: both functions take the bearer token as a
 # required positional — never minting one. The self-authenticating
 # standalone entries (rbw-rdi / rbw-rdc) live in rbgp_payor.sh as
-# rbgp_tripwire_inscribe / rbgp_tripwire_check.
+# rbgp_incuse / rbgp_collate.
 #
 # Module convention: rbn{R}{X}_ where R=d (depot regime) and X=b
 # (bespoke implementation). See claude-cmk-minting.md "Prefix Naming Discipline".
@@ -264,7 +264,7 @@ rbrd_check() {
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
       buc_info "A live depot missing its tripwire (levy-tail refusal, or the"
       buc_info "tripwire was jettisoned) recovers standalone from a committed tree:"
-      buc_info "  rbw-rdi                 # inscribe tripwire (self-authenticates as Payor)"
+      buc_info "  rbw-rdi                 # incuse tripwire (self-authenticates as Payor)"
       buc_info "If the depot itself must be replaced, escalate to unmake-and-relevy:"
       buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
       buc_info "  rbw-dL                  # relevy + inscribe tripwire"

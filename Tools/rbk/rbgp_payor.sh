@@ -2885,17 +2885,18 @@ rbgp_depot_info() {
   buc_success 'Posture checks complete'
 }
 
-# Standalone tripwire pair — the rbw-rdi / rbw-rdc entries. Payor-wielded:
-# the spec-named absent-tripwire recovery (a levy-tail refusal leaves the
-# depot live but un-inscribed) can precede the founding gird, so no donnable
-# mantle may be presumed there — the installed payor credential is the one
-# credential standing in every recovery scenario. The library seam
-# (rbndb_base.sh) stays token-first; self-authentication lives here alone.
+# Standalone tripwire pair — the rbw-rdi (incuse) / rbw-rdc (collate)
+# entries. Payor-wielded: the spec-named absent-tripwire recovery (a
+# levy-tail refusal leaves the depot live but un-inscribed) can precede the
+# founding gird, so no donnable mantle may be presumed there — the installed
+# payor credential is the one credential standing in every recovery scenario.
+# The library seam (rbndb_base.sh) stays token-first; self-authentication
+# lives here alone.
 
-rbgp_tripwire_inscribe() {
+rbgp_incuse() {
   zrbgp_sentinel
 
-  buc_doc_brief "Inscribe the RBRD tripwire standalone — recover a depot left live but un-inscribed"
+  buc_doc_brief "Incuse the RBRD tripwire standalone — recover a depot left live but un-inscribed"
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
@@ -2905,10 +2906,10 @@ rbgp_tripwire_inscribe() {
   rbrd_inscribe "${z_token}"
 }
 
-rbgp_tripwire_check() {
+rbgp_collate() {
   zrbgp_sentinel
 
-  buc_doc_brief "Check local rbrd.env against the inscribed tripwire standalone (drift detector)"
+  buc_doc_brief "Collate local rbrd.env against the incused tripwire standalone (drift detector)"
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
