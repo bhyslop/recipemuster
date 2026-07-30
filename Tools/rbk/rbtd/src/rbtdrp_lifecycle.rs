@@ -16,9 +16,13 @@
 //
 // RBTDRP — depot-lifecycle fixture for theurge release qualification
 //
-// The ephemeral depot: a full birth-to-death proof that stands up a fresh depot,
-// cycles its SAs, proves the live-unmake guard, and tears it down — the gauntlet's
-// create→destroy lifecycle test, run alongside the durable freehold-establish.
+// The ephemeral depot: a full birth-to-death proof that stands up a fresh
+// depot, drives the spec-named tripwire recovery (levy refused at its
+// inscription tail by the clean-tree gate — the depot live but un-inscribed —
+// then recovered standalone via rbw-rdi and confirmed via rbw-rdc), proves
+// the live-unmake guard, and tears it down — the gauntlet's create→destroy
+// lifecycle test, run alongside the durable freehold-establish (which carries
+// the clean full-levy proof).
 //
 // It shares the freehold scheme (rbtdrk_freehold) — one prefix family, one moniker
 // picker — with the durable fixtures; it does NOT carry its own. The picker's
@@ -27,20 +31,26 @@
 // the deliberate, suiteless freehold-churn destroys that).
 //
 // Case 1 — the marshal-zero attestation gate — lives in the sibling rbtdrp_attest
-// module; the registry below composes it ahead of this arc's four cases.
+// module; the registry below composes it ahead of this arc's five cases.
 
 use std::path::Path;
 
 use crate::case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
+use crate::rbtdre_engine::{
+    rbtdre_commit_regime, rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_RegimeFile,
+    rbtdre_Tariff, rbtdre_Verdict,
+};
 use crate::rbtdri_invocation::{
     rbtdri_Context,
     RBTDRI_BURE_CONFIRM_KEY,
     RBTDRI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtdgc_consts::{
+    RBTDGC_BAND_CLEAN_TREE,
+    RBTDGC_CHECK_DEPOT,
+    RBTDGC_INSCRIBE_DEPOT,
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
     RBTDGC_RBRD_FILE,
@@ -76,6 +86,13 @@ const RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER: &str = "torndown";
 /// `DELETE_REQUESTED` lifecycle state — appears in `rbgp_depot_list` output
 /// after a soft-delete, used by tear-down to relax the post-unmake assertion.
 const RBTDRP_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
+
+/// Probe line appended to rbrd.env (uncommitted) between moniker install and
+/// levy — the deliberate dirty-tracked-tree state that makes levy's tripwire
+/// inscription refuse with the clean-tree band while the depot stands.
+/// Committed by the tripwire-recover case; marshal-zero rewrites rbrd.env
+/// before the next run.
+const RBTDRP_TRIPWIRE_PROBE_LINE: &str = "# rbtdrp tripwire-recovery probe";
 
 // ── Probe ────────────────────────────────────────────────────
 //
@@ -114,11 +131,28 @@ fn rbtdrp_probe_depot_levied() -> Result<(), String> {
 
 // ── Case 2: depot stand-up ───────────────────────────────────
 
-/// Case 2 — depot stand-up. Installs freehold prefixes, picks the next free
-/// moniker in the freehold family, levies the depot, re-lists to refresh
-/// facts, reads project_id from the `<moniker>.depot-project` fact file, and
-/// cross-checks it against the RBDC compose derivation. The moniker survives
-/// in rbrd.env for the SA-cycle and tear-down cases.
+/// Append the tripwire probe line to rbrd.env, uncommitted — the deliberate
+/// dirty-tracked-tree state that drives levy's inscription refusal.
+fn zrbtdrp_append_tripwire_probe(rbrd: &Path) -> Result<(), String> {
+    let mut content = std::fs::read_to_string(rbrd)
+        .map_err(|e| format!("read {}: {}", rbrd.display(), e))?;
+    if !content.ends_with('\n') {
+        content.push('\n');
+    }
+    content.push_str(RBTDRP_TRIPWIRE_PROBE_LINE);
+    content.push('\n');
+    std::fs::write(rbrd, content).map_err(|e| format!("write {}: {}", rbrd.display(), e))
+}
+
+/// Case 2 — depot stand-up, refused at the tripwire tail. Installs freehold
+/// prefixes, picks the next free moniker in the freehold family, appends the
+/// uncommitted probe line to rbrd.env, and levies: every provisioning step
+/// lands, then the tripwire inscription — the levy tail behind the
+/// clean-tree gate — refuses with the clean-tree band, leaving the depot in
+/// the spec-named "live but un-inscribed" state the recovery arc finishes.
+/// Re-lists to refresh facts, reads project_id from the
+/// `<moniker>.depot-project` fact file, and cross-checks it against the RBDC
+/// compose derivation. The moniker survives in rbrd.env for the later cases.
 fn rbtdrp_depot_stand_up(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrp_depot_stand_up_impl(ctx, dir))
 }
@@ -161,6 +195,10 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
         return rbtdre_Verdict::Fail(format!("install depot moniker: {}", e));
     }
 
+    if let Err(e) = zrbtdrp_append_tripwire_probe(&root.join(RBTDGC_RBRD_FILE)) {
+        return rbtdre_Verdict::Fail(format!("append tripwire probe: {}", e));
+    }
+
     let levy = match rbtdrk_invoke_logged(
         ctx,
         RBTDGC_LEVY_DEPOT,
@@ -172,10 +210,11 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("depot levy: {}", e)),
     };
-    if levy.exit_code != 0 {
+    if levy.exit_code != RBTDGC_BAND_CLEAN_TREE {
         return rbtdre_Verdict::Fail(format!(
-            "depot levy exit {}\n{}",
-            levy.exit_code, levy.stderr
+            "depot levy exit {} — expected the clean-tree band {} from the \
+             tripwire inscription refusal at the levy tail\n{}",
+            levy.exit_code, RBTDGC_BAND_CLEAN_TREE, levy.stderr
         ));
     }
 
@@ -210,7 +249,96 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
     rbtdre_Verdict::Pass
 }
 
-// ── Case 4: live-disqualify refusal ──────────────────────────
+// ── Cases 3-4: tripwire recovery arc ─────────────────────────
+
+/// Case 3 — tripwire recover. Pre-condition: stand-up left the depot live but
+/// un-inscribed (the levy-tail refusal) with the probe line uncommitted.
+/// Commits the probe line — the "after committing" step the depot-levy spec
+/// prescribes — then invokes the standalone recovery entry (rbw-rdi,
+/// payor-credentialed, no positional token) and expects a clean inscription.
+fn rbtdrp_tripwire_recover(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "depot levied (RBRD_CLOUD_PREFIX + RBRD_DEPOT_MONIKER set)",
+        check: rbtdrp_probe_depot_levied,
+        remediation: "rerun the stand-up case (rbtdrp_depot_stand_up) before this case",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrp_tripwire_recover_impl(ctx, dir))
+}
+
+fn rbtdrp_tripwire_recover_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let root = ctx.project_root().to_path_buf();
+
+    if let Err(e) = rbtdre_commit_regime(
+        &root,
+        &[rbtdre_RegimeFile::Rbrd],
+        "depot-lifecycle: commit tripwire probe line before standalone inscription",
+    ) {
+        return rbtdre_Verdict::Fail(format!("commit tripwire probe: {}", e));
+    }
+
+    let inscribe = match rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_INSCRIBE_DEPOT,
+        &[],
+        &[],
+        dir,
+        "inscribe",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("tripwire inscribe: {}", e)),
+    };
+    if inscribe.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "tripwire inscribe exit {}\n{}",
+            inscribe.exit_code, inscribe.stderr
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
+/// Case 4 — tripwire confirm. The standalone check (rbw-rdc,
+/// payor-credentialed, no positional token) pulls the just-inscribed tripwire
+/// and byte-compares it against the local rbrd.env — the recover→confirm
+/// ceremony's proof leg.
+fn rbtdrp_tripwire_confirm(dir: &Path) -> rbtdre_Verdict {
+    let probe = rbtdrb_Probe {
+        name: "depot levied (RBRD_CLOUD_PREFIX + RBRD_DEPOT_MONIKER set)",
+        check: rbtdrp_probe_depot_levied,
+        remediation: "rerun the stand-up case (rbtdrp_depot_stand_up) before this case",
+    };
+    if let Err(v) = rbtdrb_assert(&probe) {
+        return v;
+    }
+    rbtdrc_with_ctx(|ctx| rbtdrp_tripwire_confirm_impl(ctx, dir))
+}
+
+fn rbtdrp_tripwire_confirm_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+    let check = match rbtdrk_invoke_logged(
+        ctx,
+        RBTDGC_CHECK_DEPOT,
+        &[],
+        &[],
+        dir,
+        "check",
+    ) {
+        Ok(r) => r,
+        Err(e) => return rbtdre_Verdict::Fail(format!("tripwire check: {}", e)),
+    };
+    if check.exit_code != 0 {
+        return rbtdre_Verdict::Fail(format!(
+            "tripwire check exit {}\n{}",
+            check.exit_code, check.stderr
+        ));
+    }
+
+    rbtdre_Verdict::Pass
+}
+
+// ── Case 5: live-disqualify refusal ──────────────────────────
 
 /// Recovery-diagnostic substring emitted by `rbgp_depot_unmake`'s
 /// live-disqualify branch. The branch names `RBRD_DEPOT_MONIKER` rename or
@@ -218,7 +346,7 @@ fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
 /// which is invariant across cosmetic message edits.
 const RBTDRP_LIVE_DISQUALIFY_RECOVERY: &str = "RBRD_DEPOT_MONIKER";
 
-/// Case 4 — live-disqualify refusal. Pre-condition: depot levied by stand-up
+/// Case 5 — live-disqualify refusal. Pre-condition: depot levied by stand-up
 /// (probe asserts both RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER are non-blank).
 /// Composes the live RBDC_DEPOT_PROJECT_ID and invokes `rbw-dU` with it as $1;
 /// expects non-zero exit + recovery diagnostic naming `RBRD_DEPOT_MONIKER`
@@ -293,9 +421,9 @@ fn rbtdrp_depot_live_disqualify_impl(
     rbtdre_Verdict::Pass
 }
 
-// ── Case 5: depot tear-down ──────────────────────────────────
+// ── Case 6: depot tear-down ──────────────────────────────────
 
-/// Case 5 — depot tear-down. Pre-condition: depot exists from stand-up. Reads
+/// Case 6 — depot tear-down. Pre-condition: depot exists from stand-up. Reads
 /// moniker from rbrd.env, composes the project_id from it, rotates
 /// RBRD_DEPOT_MONIKER to a placeholder so rbgp_depot_unmake's live-disqualify
 /// guard lets the unmake through, invokes rbw-dU with the captured project_id
@@ -357,6 +485,8 @@ fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_V
 pub static RBTDRP_CASES_DEPOT_LIFECYCLE: &[rbtdre_Case] = &[
     case!(rbtdrp_marshal_zero_attestation),
     case!(rbtdrp_depot_stand_up),
+    case!(rbtdrp_tripwire_recover),
+    case!(rbtdrp_tripwire_confirm),
     case!(rbtdrp_depot_live_disqualify),
     case!(rbtdrp_depot_tear_down),
 ];
@@ -370,4 +500,4 @@ pub static RBTDRP_FIXTURE_DEPOT_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     credless: false,
     tariff: rbtdre_Tariff::UNCHECKED,
 };
-const _: () = assert!(RBTDRP_FIXTURE_DEPOT_LIFECYCLE.cases.len() == 4);
+const _: () = assert!(RBTDRP_FIXTURE_DEPOT_LIFECYCLE.cases.len() == 6);

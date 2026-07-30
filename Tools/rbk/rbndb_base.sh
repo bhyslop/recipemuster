@@ -29,6 +29,11 @@
 #   rbrd_inscribe <bearer_token>   — host-side push at end of levy
 #   rbrd_check    <bearer_token>   — pre-submit existence + byte-diff
 #
+# Caller-authenticates seam: both functions take the bearer token as a
+# required positional — never minting one. The self-authenticating
+# standalone entries (rbw-rdi / rbw-rdc) live in rbgp_payor.sh as
+# rbgp_tripwire_inscribe / rbgp_tripwire_check.
+#
 # Module convention: rbn{R}{X}_ where R=d (depot regime) and X=b
 # (bespoke implementation). See claude-cmk-minting.md "Prefix Naming Discipline".
 
@@ -116,8 +121,8 @@ zrbndb_docker_login() {
 # returns rc to the caller's own error path untouched. An exhausted budget
 # dies HERE naming the transient — falling through to the caller would
 # misdiagnose a network timeout as the caller's condition (rbrd_check's
-# absent-tripwire path prescribes depot re-levy; that must never fire on
-# a timeout).
+# absent-tripwire path prescribes standalone re-inscription; that must
+# never fire on a timeout).
 # Args: stdout_file stderr_file command...
 zrbndb_registry_read() {
   zrbndb_sentinel
@@ -154,9 +159,6 @@ zrbndb_registry_read() {
 # Inscribe the tripwire image at end of successful levy.
 # Pre-push existence guard: image present → fatal (depot already
 # inscribed; must be unmade and relevied to refresh).
-# Token sources (in order): positional $1, then BUZ_FOLIO (tabtarget
-# param1 channel). The former is the consuming-CLI path (caller has a
-# token in scope); the latter is the rbw-rdi tabtarget path.
 rbrd_inscribe() {
   zrbndb_sentinel
 
@@ -169,8 +171,8 @@ rbrd_inscribe() {
   # reference must be a committed state.
   bug_require_clean_tree_creed "${RBCC_creed_clean_inscribe}"
 
-  local -r z_token="${1:-${BUZ_FOLIO:-}}"
-  test -n "${z_token}" || buc_die "rbrd_inscribe: bearer token required (positional arg or BUZ_FOLIO)"
+  local -r z_token="${1:-}"
+  test -n "${z_token}" || buc_die "rbrd_inscribe: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_INSCRIBE_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_INSCRIBE_PREFIX}manifest_stderr.txt"
@@ -230,7 +232,6 @@ rbrd_inscribe() {
 # Check local rbmm_moorings/rbrd.env against the inscribed tripwire image
 # before submitting cloud work. Exact-byte mismatch, missing image,
 # or registry/auth failure all fatal with recovery guidance.
-# Token sources mirror rbrd_inscribe: positional $1 then BUZ_FOLIO.
 rbrd_check() {
   zrbndb_sentinel
 
@@ -238,8 +239,8 @@ rbrd_check() {
   buc_doc_param "bearer_token" "OAuth access token with GAR read (any role: Payor, Director, Retriever)"
   buc_doc_shown || return 0
 
-  local -r z_token="${1:-${BUZ_FOLIO:-}}"
-  test -n "${z_token}" || buc_die "rbrd_check: bearer token required (positional arg or BUZ_FOLIO)"
+  local -r z_token="${1:-}"
+  test -n "${z_token}" || buc_die "rbrd_check: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_CHECK_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_CHECK_PREFIX}manifest_stderr.txt"
@@ -261,10 +262,12 @@ rbrd_check() {
     || {
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
-      buc_info "If depot has not been inscribed, or the tripwire was jettisoned,"
-      buc_info "re-levy the depot to mint the tripwire:"
-      buc_info "  rbw-dU \$(rbw-dl)        # unmake (if a stale depot exists)"
-      buc_info "  rbw-dL                  # levy + inscribe tripwire"
+      buc_info "A live depot missing its tripwire (levy-tail refusal, or the"
+      buc_info "tripwire was jettisoned) recovers standalone from a committed tree:"
+      buc_info "  rbw-rdi                 # inscribe tripwire (self-authenticates as Payor)"
+      buc_info "If the depot itself must be replaced, escalate to unmake-and-relevy:"
+      buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
+      buc_info "  rbw-dL                  # relevy + inscribe tripwire"
       buc_die "Cannot proceed without tripwire — depot regime drift cannot be detected"
     }
 

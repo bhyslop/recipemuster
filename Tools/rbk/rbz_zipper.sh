@@ -254,8 +254,12 @@ zrbz_kindle() {
   z_mod="rbrd_cli.sh"
   buz_enroll RBZ_RENDER_DEPOT           "rbw-rdr" "${z_mod}" "rbrd_render"    ""        "Render depot regime"
   buz_enroll RBZ_VALIDATE_DEPOT         "rbw-rdv" "${z_mod}" "rbrd_validate"  ""        "Validate depot regime"
-  buz_enroll RBZ_INSCRIBE_DEPOT         "rbw-rdi" "${z_mod}" "rbrd_inscribe"  "param1"  "Inscribe RBRD tripwire image to GAR (bearer token via positional)"
-  buz_enroll RBZ_CHECK_DEPOT            "rbw-rdc" "${z_mod}" "rbrd_check"     "param1"  "Check local rbrd.env against inscribed tripwire (bearer token via positional)"
+  # The tripwire pair dispatches into the payor module — the standalone
+  # absent-tripwire recovery self-authenticates as Payor (see rbgp_payor.sh),
+  # so rbrd_cli.sh stays a pure local regime CLI.
+  z_mod="rbgp_cli.sh"
+  buz_enroll RBZ_INSCRIBE_DEPOT         "rbw-rdi" "${z_mod}" "rbgp_tripwire_inscribe"  ""  "Inscribe RBRD tripwire image to GAR standalone — the absent-tripwire recovery (self-authenticates as Payor)"
+  buz_enroll RBZ_CHECK_DEPOT            "rbw-rdc" "${z_mod}" "rbgp_tripwire_check"     ""  "Check local rbrd.env against inscribed tripwire standalone (self-authenticates as Payor)"
   z_mod="rbrp_cli.sh"
   buz_enroll RBZ_RENDER_PAYOR           "rbw-rpr" "${z_mod}" "rbrp_render"    ""  "Render payor regime"
   buz_enroll RBZ_VALIDATE_PAYOR         "rbw-rpv" "${z_mod}" "rbrp_validate"  ""  "Validate payor regime"
