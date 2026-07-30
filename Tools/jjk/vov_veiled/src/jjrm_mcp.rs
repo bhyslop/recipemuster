@@ -155,6 +155,14 @@ fn gallops_pathbuf() -> PathBuf {
 /// `zjjrm_open_staleness_notice` so every studbook-seam call site here shares
 /// one derivation rather than each re-deriving its own variant.
 pub(crate) fn zjjrm_infield_root<F: jjrfr_FarrierCore>(farrier: &F, cwd: &Path) -> Option<PathBuf> {
+    // A groom session stands in a git-free scratch ground that sits directly in
+    // the yard, beside the hippodrome clone — so identify (which reads git)
+    // declines it, and its infield is simply its parent. Read that off the
+    // git-free groom typing before reaching for git, so a groom session resolves
+    // its studbook exactly as a billet session does.
+    if jjrds_ground(farrier, cwd) == Some(jjrds_Ground::GroomBillet) {
+        return cwd.parent().map(|p| p.to_path_buf());
+    }
     let identity = farrier.jjrfr_identify(cwd).ok()?;
     let hippodrome_root = match &identity.seat {
         jjrfr_Seat::Primary => identity.root.clone(),
@@ -2709,8 +2717,17 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
     // consumer convergence is a fossil while the studbook seam is live — open falls through to the
     // empty-invitatory marker, and the reprieve conversions this once drove now ride jjdr_hark on
     // the studbook read.
+    // A groom session stands in a git-free scratch ground and mints NO officium
+    // marker echo — the studbook journal is the record of the open, not a commit
+    // in the ground (the groom-scratch cinch; JJSVD "The billet"). So neither the
+    // convergence commit nor the empty invitatory marker below fires for a groom:
+    // both git-commit into cwd, which a git-free ground has no repo to accept, and
+    // an echo is exactly what the cinch bars. The officium still opens; open just
+    // mutates nothing here, as it already does when the studbook seam is live.
+    let in_groom = jjrds_ground(&jjrfg_PlainGit, &cwd) == Some(jjrds_Ground::GroomBillet);
+
     let mut converged = false;
-    if size_limit > 0 && !JJDB_GALLOPS_OVER_STUDBOOK_ENABLED {
+    if size_limit > 0 && !JJDB_GALLOPS_OVER_STUDBOOK_ENABLED && !in_groom {
         let gallops_path = gallops_pathbuf();
         let lock = match vvc::vvcc_CommitLock::vvcc_acquire() {
             Ok(l) => l,
@@ -2765,7 +2782,7 @@ async fn zjjrm_handle_open(size_limit: u64) -> Result<CallToolResult, ErrorData>
         // lock drops here
     }
 
-    if !converged {
+    if !converged && !in_groom {
         let marker_args = vvc::vvcc_MarkerArgs {
             prefix: None,
             message,

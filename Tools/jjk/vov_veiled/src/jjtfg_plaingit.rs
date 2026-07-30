@@ -1186,21 +1186,6 @@ fn jjtfg_billet_create_has_one_canonical_form_and_fails_loud_on_a_name_collision
 }
 
 #[test]
-fn jjtfg_billet_create_seats_detached_at_the_counterpart() {
-    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_create_detached");
-    let baseline = zjjtfg_git(primary.path(), &["rev-parse", "HEAD"]);
-    zjjtfg_commit_all(primary.path(), "unpushed.txt", "local only", "unpushed trunk work");
-    let billet = zjjtfg_billet_slot("jjtfg_billet_create_detached_billet");
-
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
-        .unwrap();
-
-    let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
-    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(baseline));
-}
-
-#[test]
 fn jjtfg_billet_seat_reseats_a_durable_branch_with_its_history() {
     let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_seat");
     let first = zjjtfg_billet_slot("jjtfg_billet_seat_first");
@@ -1299,36 +1284,6 @@ fn jjtfg_billet_seat_panics_when_the_registry_records_no_seat() {
 
     // The branch is seated nowhere; the add fails on the occupied destination.
     let _ = jjrfg_PlainGit.jjrfr_billet_seat(primary.path(), "durable", occupied.path());
-}
-
-#[test]
-fn jjtfg_billet_detach_moves_a_groom_billet_to_the_counterpart() {
-    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_detach");
-    let billet = zjjtfg_billet_slot("jjtfg_billet_detach_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
-        .unwrap();
-    let advanced = zjjtfg_trunk_advances(primary.path(), "b.txt", "moved", "trunk advances");
-    let _ = jjrfg_PlainGit.jjrfr_glean(billet.path());
-
-    jjrfg_PlainGit.jjrfr_billet_detach(billet.path(), ZJJTFG_TRUNK).unwrap();
-
-    let identity = jjrfg_PlainGit.jjrfr_identify(billet.path()).unwrap();
-    assert_eq!(identity.line_of_work, jjrfr_LineOfWork::Detached(advanced));
-}
-
-#[test]
-fn jjtfg_billet_detach_rejects_dirty_tree() {
-    let (_bare, primary) = zjjtfg_local_with_remote("jjtfg_billet_detach_dirty");
-    let billet = zjjtfg_billet_slot("jjtfg_billet_detach_dirty_billet");
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
-        .unwrap();
-    zjjtfg_write(billet.path(), "dirt.txt", "uncommitted");
-
-    let result = jjrfg_PlainGit.jjrfr_billet_detach(billet.path(), ZJJTFG_TRUNK);
-
-    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::DirtyTree);
 }
 
 #[test]
@@ -1449,16 +1404,20 @@ fn jjtfg_outstripped_is_false_when_no_counterpart_is_known() {
     assert!(!jjrfg_PlainGit.jjrfr_outstripped(td.path(), ZJJTFG_TRUNK).unwrap());
 }
 
-/// Bare remote, a primary tracking it with a pushed baseline, and a billet
-/// detached at trunk's counterpart — the groom-billet birth form `reachable`'s
-/// tests exercise (mirrors `zjjtfg_billeted_with_remote`, Detached instead of
-/// Branch).
+/// Bare remote, a primary tracking it with a pushed baseline, and a worktree
+/// detached at trunk's counterpart — the shape `reachable`'s tests exercise.
+/// `billet_create` no longer has a detached form (a groom is a git-free scratch
+/// ground, not a worktree), but `reachable` is still the pace arm's content-proof
+/// pass and needs a detached HEAD, so build one with plain git — the exact
+/// invocation the removed detached birth ran.
 fn zjjtfg_detached_billeted_with_remote(name: &str) -> (JjkTestDir, JjkTestDir, JjkTestDir) {
     let (bare, primary) = zjjtfg_local_with_remote(name);
     let billet = zjjtfg_billet_slot(&format!("{}_billet", name));
-    jjrfg_PlainGit
-        .jjrfr_billet_create(primary.path(), &jjrfr_BilletBirth::Detached, billet.path(), ZJJTFG_TRUNK)
-        .unwrap();
+    let counterpart = format!("refs/remotes/origin/{}", ZJJTFG_TRUNK);
+    zjjtfg_git(
+        primary.path(),
+        &["worktree", "add", "-q", "--detach", &billet.path().to_string_lossy(), &counterpart],
+    );
     (bare, primary, billet)
 }
 

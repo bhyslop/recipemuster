@@ -33,6 +33,7 @@ use super::jjrds_stile::{
     jjrds_type_target,
     jjrds_yard,
     jjrds_yard_gate,
+    zjjrds_hippodrome_currency,
     zjjrds_is_chain_export,
     zjjrds_strip_chain_exports,
     jjrds_Door,
@@ -197,6 +198,12 @@ fn zjjtds_infield(name: &str) -> (JjkTestDir, std::path::PathBuf) {
     // the remote URL (no `.git` suffix here, so the URL is its own key).
     zjjtds_write_pedigrees(&infield.path().join(JJDB_STUDBOOK_DIRNAME), &bare_url, JJRDS_KIND_PLAIN_GIT);
 
+    // In a real hippodrome the JJ state under `.claude/` is tracked or ignored,
+    // so `git status` reads clean; the harness writes an uncommitted gallops, so
+    // exclude `.claude/` locally to keep the hippodrome production-faithful —
+    // otherwise the currency gate reads it as dirt (a test artifact, not real
+    // uncommitted work).
+    std::fs::write(hippodrome.join(".git/info/exclude"), ".claude/\n").unwrap();
     let jjm = hippodrome.join(".claude/jjm");
     std::fs::create_dir_all(&jjm).unwrap();
     crate::jjri_io::jjdr_save(&zjjtds_gallops(), &jjm.join("jjg_gallops.json")).unwrap();
@@ -540,7 +547,6 @@ fn jjtds_plan_lunge_by_firemark_grooms_the_heat() {
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
     assert_eq!(zjjtds_yard(&plan, 200501).billet_root, infield_canon.join("jjqb_200501_AA"));
     assert_eq!(plan.livery_prefix, None);
-    assert_eq!(zjjtds_birth(&plan), jjrfr_BilletBirth::Detached);
     assert_eq!((plan.tier, plan.effort), (jjrg_Tier::Opus, Some(jjrg_Effort::Xhigh)));
     assert_eq!(plan.aim, jjrds_Target::Firemark("AA".to_string()));
     // The door's first impression: the verb, then the posture the engine repeats.
@@ -563,7 +569,6 @@ fn jjtds_plan_lunge_by_coronet_grooms_the_pace_but_labels_the_heat() {
     // both type kind from this identity's length alone.
     assert_eq!(plan.identity_body, "AA");
     assert_eq!(zjjtds_yard(&plan, 200502).billet_root, infield_canon.join("jjqb_200502_AA"));
-    assert_eq!(zjjtds_birth(&plan), jjrfr_BilletBirth::Detached);
     assert_eq!(plan.livery_prefix, None);
 
     // Only the aim still names the pace, and the prompt carries it qualified —
@@ -628,10 +633,10 @@ fn jjtds_groomed_heat_finds_the_pace_owner() {
 fn jjtds_yard_gate_ignores_a_pace_aimed_groom_billet() {
     let (_infield, hippodrome) = zjjtds_infield("jjtds_gate_vs_pace_groom");
 
-    // Board a groom billet aimed at ₢AAAAA, then saddle that very pace.
+    // Pitch a groom ground aimed at ₢AAAAA, then saddle that very pace.
     let groom = jjrds_plan(jjrds_Door::Lunge, "AAAAA", &hippodrome, false).unwrap();
     let groom_yard = zjjtds_yard(&groom, 200501);
-    jjrds_board(&jjrfg_PlainGit, &groom, &zjjtds_birth(&groom), &groom_yard).unwrap();
+    zjjtds_pitch_groom(&groom_yard);
     assert!(groom_yard.billet_root.is_dir());
 
     let saddle = jjrds_plan(jjrds_Door::Saddle, "AAAAA", &hippodrome, false).unwrap();
@@ -677,10 +682,11 @@ fn jjtds_ground_reads_the_three_kinds_off_real_billets() {
         Some(jjrds_Ground::PaceBillet { coronet: "AAAAA".to_string() })
     );
 
-    // A groom billet, boarded by the lunge door.
+    // A groom ground, pitched by the lunge door: git-free, typed from its
+    // firemark yard label, never from git.
     let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
     let groom_yard = zjjtds_yard(&groom, 200501);
-    jjrds_board(&jjrfg_PlainGit, &groom, &zjjtds_birth(&groom), &groom_yard).unwrap();
+    zjjtds_pitch_groom(&groom_yard);
     assert_eq!(jjrds_ground(&jjrfg_PlainGit, &groom_yard.billet_root), Some(jjrds_Ground::GroomBillet));
 }
 
@@ -705,12 +711,90 @@ fn jjtds_ground_calls_an_unbadged_partition_unboarded() {
         jjrds_ground(&jjrfg_PlainGit, &reserved),
         Some(jjrds_Ground::Unboarded { line: "jjls_groom/AA".to_string() })
     );
+
+    // A hand-made DETACHED worktree: JJ no longer makes detached worktrees (a
+    // groom is a git-free scratch ground now), so a detached partition is
+    // unboarded, never a groom — the imprecision the git-free typing resolved.
+    let detached = infield.path().join("hand_detached");
+    zjjtds_git(&hippodrome, &["worktree", "add", "-q", "--detach", detached.to_str().unwrap()]);
+    assert!(
+        matches!(jjrds_ground(&jjrfg_PlainGit, &detached), Some(jjrds_Ground::Unboarded { .. })),
+        "a hand-made detached worktree reads as unboarded, not a groom"
+    );
 }
 
 #[test]
 fn jjtds_ground_declines_on_foreign_ground() {
     let foreign = JjkTestDir::new("jjtds_ground_foreign");
     assert_eq!(jjrds_ground(&jjrfg_PlainGit, foreign.path()), None);
+}
+
+// ---- The hippodrome currency gate (both doors fail outright unless the sire's
+//      trunk is clean and current; the gate auto-forwards only the trivial case) ----
+
+/// Another clone advances origin's trunk, so the hippodrome falls behind it —
+/// the setup behind the forward-and-diverge gate cases. Returns the new tip.
+fn zjjtds_other_advances_origin_trunk(infield: &Path, name: &str) -> String {
+    let bare = infield.join("upstream");
+    let other = infield.join(name);
+    std::fs::create_dir_all(&other).unwrap();
+    zjjtds_git(&other, &["clone", "-q", &bare.to_string_lossy(), "."]);
+    zjjtds_git(&other, &["config", "user.email", "jjtds-other@example.invalid"]);
+    zjjtds_git(&other, &["config", "user.name", "jjtds-other"]);
+    zjjtds_commit_all(&other, "other.txt", "from another clone", "another clone advances trunk");
+    zjjtds_git(&other, &["push", "-q", "origin", ZJJTDS_TRUNK]);
+    zjjtds_git(&other, &["rev-parse", "HEAD"])
+}
+
+#[test]
+fn jjtds_currency_passes_a_clean_current_hippodrome() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_currency_clean");
+    assert!(
+        zjjrds_hippodrome_currency(&jjrfg_PlainGit, &hippodrome, ZJJTDS_TRUNK).is_ok(),
+        "a clean hippodrome at trunk tip dispatches"
+    );
+}
+
+#[test]
+fn jjtds_currency_refuses_a_dirty_hippodrome() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_currency_dirty");
+    std::fs::write(hippodrome.join("uncommitted.txt"), "dirt").unwrap();
+
+    let refusal = zjjrds_hippodrome_currency(&jjrfg_PlainGit, &hippodrome, ZJJTDS_TRUNK).unwrap_err();
+    assert!(
+        matches!(&refusal, jjrds_Rejection::HippodromeUnreconciled { detail, .. } if detail.contains("uncommitted")),
+        "a dirty hippodrome fails outright: {}",
+        refusal
+    );
+}
+
+#[test]
+fn jjtds_currency_forwards_a_behind_hippodrome_then_passes() {
+    let (infield, hippodrome) = zjjtds_infield("jjtds_currency_behind");
+    let tip = zjjtds_other_advances_origin_trunk(infield.path(), "other");
+
+    // The hippodrome's trunk is now behind origin's — the gate fetches, sees it
+    // behind, and fast-forwards the trivial case, so dispatch passes and the
+    // checkout is brought current.
+    assert!(zjjrds_hippodrome_currency(&jjrfg_PlainGit, &hippodrome, ZJJTDS_TRUNK).is_ok());
+    assert_eq!(zjjtds_git(&hippodrome, &["rev-parse", "HEAD"]), tip, "the gate forwarded the checkout to trunk's tip");
+}
+
+#[test]
+fn jjtds_currency_refuses_a_diverged_hippodrome() {
+    let (infield, hippodrome) = zjjtds_infield("jjtds_currency_diverged");
+    // The hippodrome commits locally on trunk (ahead), while another clone pushes
+    // a different commit to origin (origin ahead differently) — a genuine
+    // divergence a fast-forward cannot resolve, so the gate fails outright.
+    zjjtds_commit_all(&hippodrome, "local.txt", "local trunk work", "hippodrome advances its own trunk");
+    zjjtds_other_advances_origin_trunk(infield.path(), "other");
+
+    let refusal = zjjrds_hippodrome_currency(&jjrfg_PlainGit, &hippodrome, ZJJTDS_TRUNK).unwrap_err();
+    assert!(
+        matches!(&refusal, jjrds_Rejection::HippodromeUnreconciled { detail, .. } if detail.contains("diverged")),
+        "a diverged hippodrome fails outright: {}",
+        refusal
+    );
 }
 
 #[test]
@@ -726,10 +810,8 @@ fn jjtds_board_gives_each_birth_of_a_pace_its_own_ref() {
     // First birth: nothing stands, so the yard step mints; board seats the fresh
     // serialed branch and wip lands on it.
     let first_birth = zjjtds_birth_at(&plan, 200500);
-    let first_branch = match &first_birth {
-        jjrfr_BilletBirth::Branch(b) => b.clone(),
-        jjrfr_BilletBirth::Detached => unreachable!("a saddle births a branch"),
-    };
+    let jjrfr_BilletBirth::Branch(first_branch) = &first_birth;
+    let first_branch = first_branch.clone();
     let first = zjjtds_yard(&plan, 200500);
     assert_eq!(first.billet_dirname, "jjqb_200500_AAAAA");
     assert_eq!(jjrds_board(&jjrfg_PlainGit, &plan, &first_birth, &first).unwrap(), None);
@@ -749,10 +831,8 @@ fn jjtds_board_gives_each_birth_of_a_pace_its_own_ref() {
     // own contract (a name that stands nowhere births fresh) is what this pins.
     jjrfg_PlainGit.jjrfr_billet_remove(&first.billet_root, false).unwrap();
     let second_birth = zjjtds_birth_at(&plan, 200507);
-    let second_branch = match &second_birth {
-        jjrfr_BilletBirth::Branch(b) => b.clone(),
-        jjrfr_BilletBirth::Detached => unreachable!("a saddle births a branch"),
-    };
+    let jjrfr_BilletBirth::Branch(second_branch) = &second_birth;
+    let second_branch = second_branch.clone();
     assert_ne!(first_branch, second_branch, "each birth takes its own ref");
     let second = zjjtds_yard(&plan, 200507);
     assert_eq!(second.billet_dirname, "jjqb_200507_AAAAA");
@@ -859,10 +939,11 @@ fn zjjtds_pace_branch(coronet: &str) -> String {
     crate::jjrf_favor::jjrf_livery_compose(None, crate::jjrf_favor::jjrf_LiveryKind::Pace, ZJJTDS_BIRTH_CATCH, coronet)
 }
 
-/// Compose the billet birth the mint would, from a plan and a catchword — the
-/// test-side mirror of the composition `jjrds_run` performs beside the dirname
-/// once the dispatch record has allocated the serial. A saddle dresses the
-/// coronet in its serialed livery; a lunge is detached.
+/// Compose the pace billet birth the mint would, from a plan and a catchword —
+/// the test-side mirror of the composition `jjrds_run` performs beside the
+/// dirname once the dispatch record has allocated the serial. Saddle-only: a
+/// lunge has no birth to compose, it pitches a git-free groom ground
+/// (`zjjtds_pitch_groom`).
 fn zjjtds_birth_at(plan: &jjrds_LaunchPlan, catchword: u64) -> jjrfr_BilletBirth {
     match plan.door {
         jjrds_Door::Saddle => jjrfr_BilletBirth::Branch(crate::jjrf_favor::jjrf_livery_compose(
@@ -871,8 +952,16 @@ fn zjjtds_birth_at(plan: &jjrds_LaunchPlan, catchword: u64) -> jjrfr_BilletBirth
             catchword,
             &plan.identity_body,
         )),
-        jjrds_Door::Lunge => jjrfr_BilletBirth::Detached,
+        jjrds_Door::Lunge => panic!("a lunge pitches a git-free groom ground, not a billet birth"),
     }
+}
+
+/// Pitch a groom ground the way a lunge does: mkdir the git-free serial-named
+/// scratch dir in the yard, no repo. The test-side mirror of run's groom pitch,
+/// standing where `jjrds_board` stands for a saddle — a groom is typed from this
+/// dirname's firemark label, never from git.
+fn zjjtds_pitch_groom(yard: &jjrds_Yard) {
+    std::fs::create_dir_all(&yard.billet_root).unwrap();
 }
 
 /// The birth for the ordinary test: the fixed catchword, matching
@@ -954,24 +1043,15 @@ fn jjtds_board_births_from_trunk_when_no_line_stands_abroad() {
 }
 
 #[test]
-fn jjtds_board_re_detaches_a_groom_billet_and_surfaces_staleness_on_a_pace_billet() {
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_board_lunge");
-    let groom = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
-    let groom_yard = zjjtds_yard(&groom, 200500);
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom, &zjjtds_birth(&groom), &groom_yard).unwrap(), None);
+fn jjtds_board_surfaces_staleness_on_a_pace_billet() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_board_stale");
 
-    // Trunk advances; boarding the same yard again re-detaches to the fresh tip.
-    zjjtds_commit_all(&hippodrome, "b.txt", "moved", "trunk advances");
-    zjjtds_git(&hippodrome, &["push", "-q", "origin", ZJJTDS_TRUNK]);
-    let _ = jjrfg_PlainGit.jjrfr_glean(&groom_yard.billet_root);
-    assert_eq!(jjrds_board(&jjrfg_PlainGit, &groom, &zjjtds_birth(&groom), &groom_yard).unwrap(), None);
-    let advanced = zjjtds_git(&hippodrome, &["rev-parse", &format!("refs/remotes/origin/{}", ZJJTDS_TRUNK)]);
-    assert_eq!(zjjtds_git(&groom_yard.billet_root, &["rev-parse", "HEAD"]), advanced);
-
-    // A pace billet born before the advance boards with the staleness notice.
+    // A pace billet born before trunk advances boards with the staleness notice.
+    // (A groom is git-free and never boarded, so there is no groom board to
+    // surface staleness for — board is pace-only now.)
     let pace = jjrds_plan(jjrds_Door::Saddle, "AAAAB", &hippodrome, false).unwrap();
     let pace_yard = zjjtds_yard(&pace, 200501);
-    zjjtds_commit_all(&hippodrome, "c.txt", "moved again", "trunk advances again");
+    zjjtds_commit_all(&hippodrome, "c.txt", "moved", "trunk advances");
     // Board births at the counterpart (pre-fetch, still at the old tip), then
     // gleans — which reveals the newer trunk and trips the probe.
     let notice = {
@@ -1440,12 +1520,12 @@ fn jjtds_yard_gate_never_refuses_a_groom_billet_so_grooms_coexist() {
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
 
     let first = zjjtds_yard(&plan, 200500);
-    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &first).unwrap();
+    zjjtds_pitch_groom(&first);
     assert!(jjrds_yard_gate(&jjrfg_PlainGit, &plan).is_ok(), "a groom billet never trips the gate");
 
     let second = zjjtds_yard(&plan, 200501);
     assert_ne!(first.billet_root, second.billet_root);
-    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &second).unwrap();
+    zjjtds_pitch_groom(&second);
 
     // Both stand, both are groom ground, and their scratch is keyed apart.
     assert_eq!(jjrds_ground(&jjrfg_PlainGit, &first.billet_root), Some(jjrds_Ground::GroomBillet));
@@ -1625,66 +1705,43 @@ fn jjtds_trailing_step_clears_a_pace_billet_with_a_marker_only_commit() {
 }
 
 #[test]
-fn jjtds_trailing_step_stands_a_groom_billet_with_a_raw_local_commit() {
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_stands");
+fn jjtds_trailing_step_razes_a_groom_ground_whole_even_with_content_aboard() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_razed");
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
     let yard = zjjtds_yard(&plan, 200501);
-    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
+    zjjtds_pitch_groom(&yard);
 
-    // A raw local commit on the detached tip carries real content against
-    // trunk's counterpart, so the groom-billet arm of the litmus refuses.
-    zjjtds_commit_all(&yard.billet_root, "raw.txt", "raw", "raw local groom commit");
+    // A groom ground is a git-free scratch dir holding nothing durable, so exit
+    // razes it whole — no litmus. Even content left aboard (the operator's own
+    // scratch files) is razed unconditionally: durable grooming records live in
+    // the studbook journal, never here.
+    std::fs::write(yard.billet_root.join("scratch-note.txt"), "left behind").unwrap();
 
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
-    assert!(report.contains("stands"), "expected a standing report, got: {}", report);
+    assert!(report.contains("razed"), "a groom ground must be razed at exit: {}", report);
     assert!(
-        report.contains("carries content beyond trunk's counterpart"),
-        "the report must name the failed conjunct (JJSVD \"The stile\"): {}",
+        report.contains("studbook journal"),
+        "the raze report names the studbook journal as where grooming records stand: {}",
         report
     );
-    assert!(yard.billet_root.exists(), "a content-bearing groom billet must never be destroyed");
+    assert!(!yard.billet_root.exists(), "a groom ground is razed whole at exit");
 }
 
 #[test]
-fn jjtds_trailing_step_clears_a_groom_billet_with_a_marker_only_commit() {
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_marker_only");
+fn jjtds_trailing_step_razes_a_groom_ground_and_its_scratch_sibling() {
+    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_scratch");
     let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
     let yard = zjjtds_yard(&plan, 200502);
-    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
+    zjjtds_pitch_groom(&yard);
 
-    // An empty marker commit atop the detached tip — the shape every
-    // dispatch's `jjdo_open` leaves behind. Ancestry alone would call this
-    // stranded forever; the content litmus sees an empty delta and passes.
-    zjjtds_git(&yard.billet_root, &["commit", "--allow-empty", "-q", "-m", "officium marker"]);
+    // The groom's BUK scratch sibling dies with the ground it belonged to.
+    std::fs::create_dir_all(&yard.scratch_root).unwrap();
+    std::fs::write(yard.scratch_root.join("logs-buk-marker.txt"), "forensics").unwrap();
 
     let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
-    assert!(report.contains("cleared"), "a marker-only groom billet must clear: {}", report);
-    assert!(
-        report.contains(&format!("work stands in trunk {}", plan.trunk)),
-        "a cleared groom billet must name trunk as where the work stands (JJSVD \"The stile\"): {}",
-        report
-    );
-    assert!(!yard.billet_root.exists(), "a marker-only groom billet must be destroyed unattended");
-}
-
-#[test]
-fn jjtds_trailing_step_clears_a_groom_billet_left_at_trunk_tip() {
-    let (_infield, hippodrome) = zjjtds_infield("jjtds_trailing_groom_clears");
-    let plan = jjrds_plan(jjrds_Door::Lunge, "AA", &hippodrome, false).unwrap();
-    let yard = zjjtds_yard(&plan, 200501);
-    jjrds_board(&jjrfg_PlainGit, &plan, &zjjtds_birth(&plan), &yard).unwrap();
-
-    // A groom that made no commit sits exactly at trunk's counterpart — clean
-    // and reachable, so it passes and clears, and the work it carried (none of
-    // its own) already stands in trunk.
-    let report = jjrds_trailing_step(&jjrfg_PlainGit, &yard.billet_root, &plan.trunk);
-    assert!(report.contains("cleared"), "a clean groom billet at trunk tip must clear: {}", report);
-    assert!(
-        report.contains(&format!("work stands in trunk {}", plan.trunk)),
-        "a cleared groom billet must name trunk as where the work stands (JJSVD \"The stile\"): {}",
-        report
-    );
-    assert!(!yard.billet_root.exists(), "a passing groom billet must be destroyed");
+    assert!(report.contains("razed"), "a groom ground must be razed at exit: {}", report);
+    assert!(!yard.billet_root.exists(), "the groom ground is gone");
+    assert!(!yard.scratch_root.exists(), "the groom's scratch sibling dies with it");
 }
 
 #[test]

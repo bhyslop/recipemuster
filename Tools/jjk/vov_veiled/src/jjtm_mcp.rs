@@ -884,6 +884,21 @@ fn jjtm_infield_root_is_none_on_foreign_ground() {
 }
 
 #[test]
+fn jjtm_infield_root_is_the_yard_for_a_git_free_groom_ground() {
+    // A groom session stands in a git-free scratch ground sitting directly in the
+    // yard beside the hippodrome — identify (git) declines it, so the infield is
+    // its parent, resolved off the git-free groom typing rather than a git climb.
+    // The dirname's firemark tail (serial + "AA") is what types it a groom.
+    let infield = JjkTestDir::new("jjtm_infield_root_groom");
+    std::fs::write(infield.path().join("jjtm-marker.txt"), "groom").unwrap();
+    let groom = infield.path().join("jjqb_200500_AA");
+    std::fs::create_dir_all(&groom).unwrap();
+
+    let root = zjjrm_infield_root(&jjrfg_PlainGit, &groom);
+    zjjtm_assert_same_dir(root, infield.path());
+}
+
+#[test]
 fn jjtm_glean_studbook_succeeds_against_a_reachable_remote() {
     let (_bare, _local, config) = zjjtm_gallops_scratch("jjtm_glean_ok", "GK");
 

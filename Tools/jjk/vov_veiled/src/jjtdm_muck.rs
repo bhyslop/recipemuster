@@ -153,9 +153,11 @@ fn zjjtdm_pace_billet(infield: &Path, hippodrome: &Path, coronet: &str, serial: 
     billet_root
 }
 
-fn zjjtdm_groom_billet(infield: &Path, hippodrome: &Path, firemark: &str, serial: u64) -> std::path::PathBuf {
+fn zjjtdm_groom_billet(infield: &Path, _hippodrome: &Path, firemark: &str, serial: u64) -> std::path::PathBuf {
+    // A groom ground is a git-free serial-named scratch dir in the yard — mkdir,
+    // no worktree (grooms stopped being worktrees).
     let billet_root = infield.join(jjrds_billet_dirname(serial, firemark));
-    jjrfg_PlainGit.jjrfr_billet_create(hippodrome, &jjrfr_BilletBirth::Detached, &billet_root, ZJJTDM_HIP_TRUNK).unwrap();
+    std::fs::create_dir_all(&billet_root).unwrap();
     billet_root
 }
 
@@ -245,17 +247,25 @@ fn jjtdm_plan_reports_dirty_paths_by_name_on_a_pace_billet() {
 }
 
 #[test]
-fn jjtdm_plan_reports_a_dirty_groom_billet() {
-    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_dirty_groom");
+fn jjtdm_plan_reads_a_groom_ground_git_free_and_razes_it_whole() {
+    // A groom ground is a git-free scratch dir, so muck takes none of the git
+    // probes a pace billet does: content aboard is not "dirt" (there is no git
+    // status), and the report names it a git-free scratch razed whole rather than
+    // enumerating paths. This is the counterpart of the old dirty-groom report,
+    // which a worktree groom carried and a scratch ground cannot.
+    let (infield, hippodrome, studbook) = zjjtdm_fixture("jjtdm_plan_groom_ground");
     let billet = zjjtdm_groom_billet(infield.path(), &hippodrome, "AA", ZJJTDM_SERIAL);
-    std::fs::write(billet.join("wip.txt"), "uncommitted").unwrap();
+    std::fs::write(billet.join("scratch-note.txt"), "left behind").unwrap();
 
     let plan = jjrdm_plan(&jjrfg_PlainGit, &studbook, infield.path(), "AA", ZJJTDM_GUIDON).unwrap();
 
-    assert!(plan.jjrdm_is_dirty());
-
+    assert!(!plan.jjrdm_is_dirty(), "a git-free groom ground carries no git dirt");
     let report = jjrdm_report(&plan);
-    assert!(report.contains("DIRTY"));
+    assert!(report.contains("git-free scratch"), "the groom report names it git-free: {}", report);
+    assert!(report.contains("razed whole"), "the groom report says razed whole: {}", report);
+
+    jjrdm_reap(&jjrfg_PlainGit, infield.path(), &plan).unwrap();
+    assert!(!billet.exists(), "muck razes the groom ground whole");
 }
 
 #[test]

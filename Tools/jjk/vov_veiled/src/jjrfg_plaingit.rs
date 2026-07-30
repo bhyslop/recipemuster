@@ -80,7 +80,6 @@ const ZJJRFG_OP_SIGHT: &str = "sight";
 const ZJJRFG_OP_BILLET_CREATE: &str = "billet_create";
 const ZJJRFG_OP_BILLET_SEAT: &str = "billet_seat";
 const ZJJRFG_OP_BILLET_ADOPT: &str = "billet_adopt";
-const ZJJRFG_OP_BILLET_DETACH: &str = "billet_detach";
 const ZJJRFG_OP_BILLET_REMOVE: &str = "billet_remove";
 const ZJJRFG_OP_LINE_EXISTS: &str = "line_exists";
 const ZJJRFG_OP_LINE_ABROAD: &str = "line_abroad";
@@ -1221,20 +1220,17 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
 impl jjrfr_FarrierBillet for jjrfg_PlainGit {
     fn jjrfr_billet_create(&self, root: &Path, birth: &jjrfr_BilletBirth, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
         let billet_str = billet_root.to_string_lossy().into_owned();
-        // Both birth forms anchor at trunk's remote counterpart, never the
+        // The pace branch anchors at trunk's remote counterpart, never the
         // primary's own checkout (jjrfr_BilletBirth's no-exfiltration posture).
-        // One canonical form per birth kind, never branching on whether the
-        // name happens to already exist: a branch-name collision is a
-        // caller-contract violation, not a case this op tolerates silently —
-        // it surfaces as git's own unclassified failure. A missing counterpart
-        // (never gleaned, or no such trunk on the remote) likewise fails loud.
+        // One canonical form, never branching on whether the name happens to
+        // already exist: a branch-name collision is a caller-contract violation,
+        // not a case this op tolerates silently — it surfaces as git's own
+        // unclassified failure. A missing counterpart (never gleaned, or no such
+        // trunk on the remote) likewise fails loud.
         let counterpart = zjjrfg_counterpart(trunk);
         let out = match birth {
             jjrfr_BilletBirth::Branch(name) => {
                 zjjrfg_run_git(root, &["worktree", "add", "-q", &billet_str, "-b", name, &counterpart])
-            }
-            jjrfr_BilletBirth::Detached => {
-                zjjrfg_run_git(root, &["worktree", "add", "-q", "--detach", &billet_str, &counterpart])
             }
         };
         if !out.ok {
@@ -1249,15 +1245,14 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         // Untracked until the first `consign` creates it) — the same self-tracking
         // contract `billet_adopt` gets for free because its start-point ref
         // already shares the branch's name.
-        if let jjrfr_BilletBirth::Branch(name) = birth {
-            let remote_cfg = zjjrfg_run_git(root, &["config", &format!("branch.{}.remote", name), ZJJRFG_REMOTE]);
-            if !remote_cfg.ok {
-                zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &remote_cfg.zjjrfg_detail());
-            }
-            let merge_cfg = zjjrfg_run_git(root, &["config", &format!("branch.{}.merge", name), &format!("refs/heads/{}", name)]);
-            if !merge_cfg.ok {
-                zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &merge_cfg.zjjrfg_detail());
-            }
+        let jjrfr_BilletBirth::Branch(name) = birth;
+        let remote_cfg = zjjrfg_run_git(root, &["config", &format!("branch.{}.remote", name), ZJJRFG_REMOTE]);
+        if !remote_cfg.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &remote_cfg.zjjrfg_detail());
+        }
+        let merge_cfg = zjjrfg_run_git(root, &["config", &format!("branch.{}.merge", name), &format!("refs/heads/{}", name)]);
+        if !merge_cfg.ok {
+            zjjrfg_unexpected(ZJJRFG_OP_BILLET_CREATE, root, &merge_cfg.zjjrfg_detail());
         }
         Ok(())
     }
@@ -1300,23 +1295,6 @@ impl jjrfr_FarrierBillet for jjrfg_PlainGit {
         Ok(())
     }
 
-    fn jjrfr_billet_detach(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection> {
-        let comb = self.jjrfr_comb(billet_root)?;
-        if !comb.jjrfr_is_clean() {
-            return Err(jjrfr_Rejection::jjrfr_new(
-                jjrfr_RejectionKind::DirtyTree,
-                ZJJRFG_OP_BILLET_DETACH,
-                billet_root,
-                "uncommitted changes block re-detaching the billet",
-            ));
-        }
-        let counterpart = zjjrfg_counterpart(trunk);
-        let out = zjjrfg_run_git(billet_root, &["checkout", "-q", "--detach", &counterpart]);
-        if !out.ok {
-            zjjrfg_unexpected(ZJJRFG_OP_BILLET_DETACH, billet_root, &out.zjjrfg_detail());
-        }
-        Ok(())
-    }
 
     fn jjrfr_line_exists(&self, root: &Path, branch: &str) -> Result<bool, jjrfr_Rejection> {
         let full_ref = format!("refs/heads/{}", branch);

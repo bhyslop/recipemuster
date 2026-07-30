@@ -36,6 +36,7 @@ use crate::jjrfr_farrier::{
     jjrfr_GleanOutcome,
     jjrfr_LineOfWork,
     jjrfr_Rejection,
+    jjrfr_RejectionKind,
     jjrfr_Seat,
     jjrfr_SyncState,
 };
@@ -208,6 +209,12 @@ pub enum jjrds_Rejection {
     /// The dispatch target token failed halter typing, or resolution against
     /// the gallops (unknown identity, no actionable pace, terminal pace state).
     BadTarget { detail: String },
+    /// The hippodrome is not fit to dispatch from — dirty, behind its trunk's
+    /// counterpart past a trivial fast-forward, or the sire could not be reached
+    /// to confirm currency (operator ruling: both doors fail outright unless the
+    /// hippodrome's trunk is clean and current, the currency gate auto-forwarding
+    /// only the trivial case). `detail` names which, and the reconcile remedy.
+    HippodromeUnreconciled { root: PathBuf, detail: String },
     /// An invalid (family, effort) launch pair at stirrup.
     BadLaunchPair { family: String, effort: String },
     /// A farrier primitive rejected mid-approach (e.g. a dirty groom billet at
@@ -279,6 +286,14 @@ impl std::fmt::Display for jjrds_Rejection {
                 )
             }
             jjrds_Rejection::BadTarget { detail } => write!(f, "bad dispatch target: {}", detail),
+            jjrds_Rejection::HippodromeUnreconciled { root, detail } => {
+                write!(
+                    f,
+                    "hippodrome not fit to dispatch from at {}: {} — reconcile the hippodrome (clean its tree and bring trunk current) before saddling or grooming",
+                    root.display(),
+                    detail
+                )
+            }
             jjrds_Rejection::BadLaunchPair { family, effort } => {
                 write!(f, "invalid launch pair: family '{}' does not admit effort '{}'", family, effort)
             }
@@ -862,23 +877,24 @@ pub fn jjrds_billet_identity(dirname: &str) -> Option<&str> {
 /// The line is the soft layer under the ground guard: it says what the ground
 /// affords BEFORE anything is attempted, so the guard's refusal is met as a
 /// reminder rather than a surprise.
-pub const JJRDS_GROOM_POSTURE: &str = "Ground: groom billet — detached and ephemeral. \
+pub const JJRDS_GROOM_POSTURE: &str = "Ground: groom billet — an ephemeral scratch ground, no repo. \
 Work-repo edits have no durable home here and notch refuses them; \
 discovery that warrants work becomes a slated pace.";
 
-/// Where a caller stands, read from `jjdf_identify` alone: the seat separates a
-/// hippodrome from a partition of one, and the partition's line of work says
-/// which billet kind it is (JJSVD "The billet" — a pace billet seats the pace's
-/// livery branch, a groom billet a detached tip).
+/// Where a caller stands, from two readers whose grounds no longer overlap. A
+/// groom ground is a git-free scratch dir the yard labels with a firemark, so
+/// its kind is read from the yard label (JJSVD "The billet"), never from git —
+/// `jjdf_identify` reads git and declines it as foreign ground. Every other kind
+/// — hippodrome, pace billet, hand-made partition — is a git tree, and its kind
+/// is identify's own answer: the seat separates a hippodrome from a partition of
+/// one, and the partition's line of work says whether it is a pace billet or an
+/// unboarded tree.
 ///
-/// Deliberately NOT read from the billet dirname: the `jjqb_` signet is a
-/// denormalized label whose shape belongs to the yard, while seat and line of
-/// work are identify's own answers and stay true however the yard renames.
-///
-/// One honest imprecision, recorded rather than papered over: a detached
-/// partition an operator made by hand is indistinguishable from a groom billet
-/// and reads as one. Both afford exactly what the groom posture says, so the
-/// conflation costs nothing the ground guard depends on.
+/// The groom's positive dirname typing is what resolves the old imprecision a
+/// git-shape read could not: a groom was a detached partition, and a hand-made
+/// detached partition read as one. Now a groom is git-free and firemark-labelled,
+/// and a detached git partition is exactly the hand-made worktree it always was —
+/// unboarded, never a groom.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum jjrds_Ground {
     /// The operator's own clone — the primary seat.
@@ -886,12 +902,14 @@ pub enum jjrds_Ground {
     /// A partition seating a pace's livery branch, carrying that pace's coronet
     /// body (bare, no glyph).
     PaceBillet { coronet: String },
-    /// A partition at a detached tip.
+    /// A git-free scratch ground in the yard, labelled by its heat's firemark —
+    /// where a groom session stands, holding no repo and nothing durable.
     GroomBillet,
-    /// A partition JJ never boarded: it seats a branch outside the livery pace
-    /// roster. An operator's own worktree lands here, and so does the reserved
-    /// `jjls_groom` word — a contract violation nameable exactly because the
-    /// badge parses.
+    /// A git tree JJ never boarded: a partition seating a branch outside the
+    /// livery pace roster, OR a hand-made detached tip. An operator's own
+    /// worktree lands here, and so does the reserved `jjls_groom` word — a
+    /// contract violation nameable exactly because the badge parses. `line` is
+    /// the seated branch, or a detached tip's own marker.
     Unboarded { line: String },
 }
 
@@ -907,14 +925,20 @@ impl jjrds_Ground {
     }
 }
 
-/// Read the ground from a resolved identity — the pure half, so a caller that
-/// already holds an identity never identifies twice.
+/// Read the ground from a resolved GIT identity — the pure half, so a caller
+/// that already holds an identity never identifies twice. Never returns
+/// `GroomBillet`: a groom ground is git-free and has no identity to resolve; it
+/// is typed from its yard label by `jjrds_ground`, above the git read. A
+/// detached partition here is a hand-made worktree, not a groom — unboarded, its
+/// tip's own sha standing in for the branch it does not seat.
 pub fn jjrds_ground_of(identity: &crate::jjrfr_farrier::jjrfr_Identity) -> jjrds_Ground {
     use crate::jjrf_favor::{jjrf_livery_parse, jjrf_LiveryKind};
 
     match (&identity.seat, &identity.line_of_work) {
         (jjrfr_Seat::Primary, _) => jjrds_Ground::Hippodrome,
-        (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Detached(_)) => jjrds_Ground::GroomBillet,
+        (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Detached(sha)) => {
+            jjrds_Ground::Unboarded { line: format!("(detached at {})", sha) }
+        }
         (jjrfr_Seat::Partition { .. }, jjrfr_LineOfWork::Branch(name)) => {
             match jjrf_livery_parse(name) {
                 Some((jjrf_LiveryKind::Pace, body)) => jjrds_Ground::PaceBillet { coronet: body },
@@ -924,10 +948,34 @@ pub fn jjrds_ground_of(identity: &crate::jjrfr_farrier::jjrfr_Identity) -> jjrds
     }
 }
 
-/// Read the ground at an explicit probe path. `None` when no kind claims the
-/// tree: ground is a fact to observe, and a caller that could not observe one
-/// judges nothing — the verb it guards fails on its own terms instead.
+/// The firemark a groom ground's yard label carries, or `None` when the dirname
+/// is not a groom ground — the git-free typing the scratch-dir groom needs, since
+/// a groom is no longer a worktree and `jjdf_identify` (which reads git) declines
+/// it. The kind channel is the yard label's tail read by length (JJSVD "The
+/// billet"): a firemark tail is a groom, a coronet a pace — the same
+/// `jjrds_type_target` discrimination muck's kind resolution runs, so the two
+/// readers of the yard's kind channel stay one law.
+fn zjjrds_groom_ground_label(dirname: &str) -> Option<String> {
+    let tail = jjrds_billet_identity(dirname)?;
+    match jjrds_type_target(tail).ok()? {
+        jjrds_Target::Firemark(fm) => Some(fm),
+        jjrds_Target::Coronet(_) => None,
+    }
+}
+
+/// Read the ground at an explicit probe path. A groom ground answers first from
+/// its git-free yard label; everything else is a git tree read through identify.
+/// `None` when neither claims the tree: ground is a fact to observe, and a caller
+/// that could not observe one judges nothing — the verb it guards fails on its
+/// own terms instead.
 pub fn jjrds_ground<F: jjrfr_FarrierCore>(farrier: &F, cwd: &Path) -> Option<jjrds_Ground> {
+    if cwd
+        .file_name()
+        .and_then(|n| zjjrds_groom_ground_label(&n.to_string_lossy()))
+        .is_some()
+    {
+        return Some(jjrds_Ground::GroomBillet);
+    }
     farrier.jjrfr_identify(cwd).ok().map(|id| jjrds_ground_of(&id))
 }
 
@@ -1535,10 +1583,67 @@ fn zjjrds_stands_abroad<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
         .map_err(jjrds_Rejection::Farrier)
 }
 
-/// Board the billet: the approach's mutation half — billet ensure
-/// (seat-or-adopt-or-create; a groom billet in reuse re-detaches to trunk tip), then
-/// glean (the approach fetches and never merges), then the staleness probe whose
-/// answer the launch surfaces. Returns the staleness notice, if any.
+/// The hippodrome currency gate (operator ruling): both doors fail outright
+/// unless the sire's trunk checkout is clean and current. Fetch the sire, refuse
+/// a dirty tree, and — for a checkout behind trunk's counterpart — fast-forward
+/// the trivial case, refusing anything a plain forward cannot resolve (a diverged
+/// trunk, or a HEAD off trunk a forward does not reach). Online-only, so an
+/// unreachable sire is a real fault the gate refuses on, never a soft pass:
+/// dispatch never rides a currency it could not confirm.
+///
+/// This mutates the sire on the trivial path (the auto-forward the ruling asks
+/// for), so run calls it only on a live dispatch, never a dry run.
+pub(crate) fn zjjrds_hippodrome_currency<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
+    farrier: &F,
+    hippodrome_root: &Path,
+    trunk: &str,
+) -> Result<(), jjrds_Rejection> {
+    let unfit = |detail: String| jjrds_Rejection::HippodromeUnreconciled {
+        root: hippodrome_root.to_path_buf(),
+        detail,
+    };
+
+    // Fetch: the currency read that follows is network-silent, so a fresh glean
+    // is what makes "behind trunk's counterpart" mean behind the remote's trunk.
+    if farrier.jjrfr_glean(hippodrome_root) == jjrfr_GleanOutcome::Unreachable {
+        return Err(unfit("could not reach the sire to confirm trunk currency".to_string()));
+    }
+
+    // Clean: never dispatch from — nor forward over — an unreconciled tree.
+    let comb = farrier.jjrfr_comb(hippodrome_root).map_err(jjrds_Rejection::Farrier)?;
+    if !comb.jjrfr_is_clean() {
+        let paths: Vec<String> = comb.dirty_paths.iter().map(|p| p.display().to_string()).collect();
+        return Err(unfit(format!("uncommitted changes aboard: {}", paths.join(", "))));
+    }
+
+    // Current: is the checkout behind trunk's counterpart? Forward the trivial
+    // case (a checkout on trunk, cleanly behind), and refuse whatever a plain
+    // forward cannot bring current — a diverged trunk, or a HEAD off trunk.
+    if farrier.jjrfr_outstripped(hippodrome_root, trunk).map_err(jjrds_Rejection::Farrier)? {
+        match farrier.jjrfr_advance(hippodrome_root) {
+            Ok(()) => {
+                if farrier.jjrfr_outstripped(hippodrome_root, trunk).map_err(jjrds_Rejection::Farrier)? {
+                    return Err(unfit(format!(
+                        "checkout is behind origin/{} and a fast-forward did not bring it current (its HEAD is not trunk)",
+                        trunk
+                    )));
+                }
+            }
+            Err(r) if r.kind == jjrfr_RejectionKind::Diverged => {
+                return Err(unfit(format!("checkout has diverged from origin/{} — reconcile it by hand", trunk)));
+            }
+            Err(r) => return Err(jjrds_Rejection::Farrier(r)),
+        }
+    }
+    Ok(())
+}
+
+/// Board the billet: the approach's mutation half for a PACE billet —
+/// seat-or-adopt-or-create the worktree, then glean (the approach fetches and
+/// never merges), then the staleness probe whose answer the launch surfaces.
+/// Returns the staleness notice, if any. A groom ground is git-free and pitched
+/// by run directly (`zjjrds_pitch_groom_ground`), never boarded — board is a
+/// worktree op, and a groom is no longer a worktree.
 ///
 /// `birth` arrives from the caller rather than the plan: a pace's branch name
 /// carries the birth catchword, minted only when the dispatch record lands, so
@@ -1550,20 +1655,11 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     birth: &jjrfr_BilletBirth,
     yard: &jjrds_Yard,
 ) -> Result<Option<String>, jjrds_Rejection> {
-    if yard.billet_root.exists() {
-        // Board is total over billet-root existence, so a partition already
-        // standing at this path is honoured rather than clobbered — a pace
-        // billet already seats its own branch and needs no ensure. The yard
-        // gate refuses a standing pace billet upstream, so the dispatch path
-        // never reaches here with one; a partition present at a freshly minted
-        // path is an operator's own hand-built directory, and a groom's is
-        // re-detached to the freshest trunk tip — the honest reading of that.
-        if *birth == jjrfr_BilletBirth::Detached {
-            farrier
-                .jjrfr_billet_detach(&yard.billet_root, &plan.trunk)
-                .map_err(jjrds_Rejection::Farrier)?;
-        }
-    } else {
+    // Board is total over billet-root existence: a partition already standing at
+    // a freshly minted path is an operator's own hand-built directory, honoured
+    // rather than clobbered (the yard gate refuses a standing pace billet
+    // upstream, so the dispatch path never reaches here with one).
+    if !yard.billet_root.exists() {
         // Under per-birth serials a fresh birth's branch never pre-exists, so the
         // seat and adopt arms are dormant on the ordinary dispatch path: they fire
         // only for a birth whose branch a caller resolved from an existing
@@ -1603,15 +1699,21 @@ pub fn jjrds_board<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     }
 
     // Glean: staleness becomes known here so the open can report it; refit is
-    // the remedy. The probe is meaningful for a pace billet's branch; a groom
-    // billet just re-detached to the freshest counterpart this station knew.
+    // the remedy.
     let _ = farrier.jjrfr_glean(&yard.billet_root);
-    match birth {
-        jjrfr_BilletBirth::Branch(_) => {
-            jjrds_staleness_notice(farrier, &yard.billet_root, &plan.trunk).map_err(jjrds_Rejection::Farrier)
-        }
-        jjrfr_BilletBirth::Detached => Ok(None),
-    }
+    jjrds_staleness_notice(farrier, &yard.billet_root, &plan.trunk).map_err(jjrds_Rejection::Farrier)
+}
+
+/// Pitch a groom ground: mkdir the git-free serial-named scratch dir the groom
+/// session stands in (JJSVD "The billet" — a groom is a scratch ground, no repo).
+/// The counterpart of `jjrds_board` for the lunge door: no worktree, no branch,
+/// no glean, no staleness — a groom reads its sire by path and holds nothing
+/// durable, so there is nothing to ensure. The BUK scratch and MCP config are
+/// provisioned by run exactly as for a pace billet.
+fn zjjrds_pitch_groom_ground(billet_root: &Path) -> Result<(), jjrds_Rejection> {
+    std::fs::create_dir_all(billet_root).map_err(|e| jjrds_Rejection::BadTarget {
+        detail: format!("could not pitch the groom ground at {}: {}", billet_root.display(), e),
+    })
 }
 
 // ---- Stirrup: the launch primitive ----
@@ -1784,6 +1886,16 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         Err(e) => return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e)),
     };
 
+    // The hippodrome currency gate (operator ruling): both doors fail outright
+    // unless the sire's trunk is clean and current, the gate auto-forwarding only
+    // the trivial case. It mutates the sire on that trivial path, so it is skipped
+    // on a dry run — a preview never touches the operator's clone.
+    if !dry_run {
+        if let Err(e) = zjjrds_hippodrome_currency(&farrier, &plan.hippodrome_root, &plan.trunk) {
+            return (jjrds_Outcome::Done(1), format!("dispatch refused: {}\n", e));
+        }
+    }
+
     // The yard gate: fork on a pace whose billet already stands, before the birth
     // record's journal write and before any session spawn, so a re-saddle can
     // never rejoin a live worktree or mint a rival past a missed seat. A clean
@@ -1859,16 +1971,18 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         match jjrds_record_dispatch(&farrier, &studbook, &plan, &station) {
             Ok(catchword) => {
                 let root = plan.infield_root.join(jjrds_billet_dirname(catchword, &plan.identity_body));
+                // A saddle mints a pace worktree born on its livery branch; a lunge
+                // pitches a git-free groom ground and has no birth to compose.
                 let birth = match plan.door {
-                    jjrds_Door::Saddle => jjrfr_BilletBirth::Branch(resolved_line.unwrap_or_else(|| {
+                    jjrds_Door::Saddle => Some(jjrfr_BilletBirth::Branch(resolved_line.unwrap_or_else(|| {
                         crate::jjrf_favor::jjrf_livery_compose(
                             plan.livery_prefix.as_deref(),
                             crate::jjrf_favor::jjrf_LiveryKind::Pace,
                             catchword,
                             &plan.identity_body,
                         )
-                    })),
-                    jjrds_Door::Lunge => jjrfr_BilletBirth::Detached,
+                    }))),
+                    jjrds_Door::Lunge => None,
                 };
                 (root, birth)
             }
@@ -1881,14 +1995,22 @@ pub fn jjrds_run(door: jjrds_Door, raw_target: &str, cwd: &Path, kit_root: &Path
         "billet:  {}  ({})\n",
         yard.billet_root.display(),
         match &birth {
-            jjrfr_BilletBirth::Branch(b) => format!("branch {}", b),
-            jjrfr_BilletBirth::Detached => "detached at trunk tip".to_string(),
+            Some(jjrfr_BilletBirth::Branch(b)) => format!("branch {}", b),
+            None => "groom ground — git-free scratch".to_string(),
         },
     ));
 
-    let staleness = match jjrds_board(&farrier, &plan, &birth, &yard) {
-        Ok(s) => s,
-        Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at boarding: {}\n", out, e)),
+    // Board a pace worktree (staleness surfaces from its branch), or pitch a
+    // git-free groom ground (nothing to ensure, no staleness).
+    let staleness = match &birth {
+        Some(birth) => match jjrds_board(&farrier, &plan, birth, &yard) {
+            Ok(s) => s,
+            Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused at boarding: {}\n", out, e)),
+        },
+        None => match zjjrds_pitch_groom_ground(&yard.billet_root) {
+            Ok(()) => None,
+            Err(e) => return (jjrds_Outcome::Done(1), format!("{}dispatch refused pitching the groom ground: {}\n", out, e)),
+        },
     };
     if let Some(notice) = &staleness {
         out.push_str(&format!("{}\n", notice));
@@ -1994,6 +2116,19 @@ pub fn jjrds_resume<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
 /// a standing billet's scratch is left for `muck` to clear with the rest of
 /// its residue.
 pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: &F, billet_root: &Path, trunk: &str) -> String {
+    // A groom ground is a git-free scratch dir typed by its firemark yard label:
+    // it holds no repo and nothing durable, so exit razes it unconditionally —
+    // there is no litmus because there is no content to prove reachable (the
+    // groom arm retired with the worktree, JJSVD "The stile"). Its scratch
+    // sibling dies with it.
+    if billet_root
+        .file_name()
+        .and_then(|n| zjjrds_groom_ground_label(&n.to_string_lossy()))
+        .is_some()
+    {
+        return zjjrds_raze_groom_ground(billet_root);
+    }
+
     let identity = match farrier.jjrfr_identify(billet_root) {
         Ok(id) => id,
         Err(e) => return format!("stile: billet stands at {} — could not identify it: {}\n", billet_root.display(), e),
@@ -2001,10 +2136,12 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
     let ground = jjrds_ground_of(&identity);
     let verdict = match &ground {
         jjrds_Ground::PaceBillet { .. } => zjjrds_stile_pace_verdict(farrier, billet_root, trunk),
-        jjrds_Ground::GroomBillet => zjjrds_stile_groom_verdict(farrier, billet_root, trunk),
-        // Neither ground the door ever seats a session in — the litmus is total
-        // rather than partial, and entitles destruction to neither.
-        jjrds_Ground::Hippodrome | jjrds_Ground::Unboarded { .. } => Ok(zjjrds_StileVerdict::NotABillet),
+        // No ground the door ever seats a pace session in — the litmus is total
+        // rather than partial, and entitles destruction to none. A groom is razed
+        // above and never reaches here.
+        jjrds_Ground::Hippodrome | jjrds_Ground::Unboarded { .. } | jjrds_Ground::GroomBillet => {
+            Ok(zjjrds_StileVerdict::NotABillet)
+        }
     };
     match verdict {
         Ok(zjjrds_StileVerdict::Passes) => match farrier.jjrfr_billet_remove(billet_root, false) {
@@ -2033,9 +2170,10 @@ pub fn jjrds_trailing_step<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(farrier: 
 /// only the worktree, and the branch survives in the primary's ref store to
 /// re-seat from — pushed, where the custody pass proved it not ahead of its own
 /// counterpart; a local-only marker, where the content-proof pass cleared a
-/// dropped no-work billet the branch never carried anything of value onto. A
-/// groom billet seats no branch and carried nothing of its own; content-empty
-/// against trunk's custody base, its position is already in trunk.
+/// dropped no-work billet the branch never carried anything of value onto. Only
+/// a pace billet reaches here — a groom ground is razed on its own path, and a
+/// detached tree is unboarded and never passes — so the detached arm is
+/// defensive, naming trunk where a checked-out tip would already stand.
 fn zjjrds_where_it_stands(identity: &crate::jjrfr_farrier::jjrfr_Identity, trunk: &str) -> String {
     match &identity.line_of_work {
         jjrfr_LineOfWork::Branch(name) => format!("work stands on branch {}", name),
@@ -2058,9 +2196,7 @@ enum zjjrds_StileVerdict {
     /// ignorance-stands arm: a derivable custody base is proof, so only genuine
     /// content or total ignorance stands here (JJSVD).
     Untracked,
-    /// Groom arm: the detached tip carries content beyond trunk's counterpart.
-    Unreachable,
-    /// A ground the door never seats a session in.
+    /// A ground the door never seats a pace session in.
     NotABillet,
 }
 
@@ -2071,7 +2207,6 @@ impl zjjrds_StileVerdict {
             zjjrds_StileVerdict::Dirty => "uncommitted changes",
             zjjrds_StileVerdict::AheadOfCounterpart => "commits not yet in remote custody",
             zjjrds_StileVerdict::Untracked => "never consigned — no counterpart known",
-            zjjrds_StileVerdict::Unreachable => "detached tip carries content beyond trunk's counterpart",
             zjjrds_StileVerdict::NotABillet => "not a billet the stile boards",
         }
     }
@@ -2115,24 +2250,21 @@ fn zjjrds_stile_pace_verdict<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
     })
 }
 
-/// The groom-billet arm: clean AND cleared by the content-proof pass — every
-/// commit beyond trunk's custody base is tree-identical to its parent, so a
-/// marker-only commit (every dispatch's `jjdo_open` echo) passes while a raw
-/// detached commit with real content stands. A groom is detached and never
-/// consigned, so the content-proof pass is its whole litmus — the pace arm's
-/// custody pass has no counterpart here.
-fn zjjrds_stile_groom_verdict<F: jjrfr_FarrierCore + jjrfr_FarrierBillet>(
-    farrier: &F,
-    billet_root: &Path,
-    trunk: &str,
-) -> Result<zjjrds_StileVerdict, jjrfr_Rejection> {
-    let comb = farrier.jjrfr_comb(billet_root)?;
-    if !comb.jjrfr_is_clean() {
-        return Ok(zjjrds_StileVerdict::Dirty);
+/// Raze a groom ground: destroy the git-free scratch ground and its scratch
+/// sibling, unconditionally. A groom holds no repo and never consigns, so
+/// destruction loses nothing there is any way to keep — the exit litmus's groom
+/// arm retired with the worktree (JJSVD "The stile"). The one report line names
+/// where the work stands, which for a groom is always the studbook journal its
+/// currys already reached, never this ground.
+fn zjjrds_raze_groom_ground(billet_root: &Path) -> String {
+    if let Some(infield_root) = billet_root.parent() {
+        let _ = std::fs::remove_dir_all(jjrds_yard(infield_root, billet_root.to_path_buf()).scratch_root);
     }
-    if farrier.jjrfr_reachable(billet_root, trunk)? {
-        Ok(zjjrds_StileVerdict::Passes)
-    } else {
-        Ok(zjjrds_StileVerdict::Unreachable)
+    match std::fs::remove_dir_all(billet_root) {
+        Ok(()) => format!(
+            "stile: groom ground razed ({}) — grooming records stand in the studbook journal\n",
+            billet_root.display()
+        ),
+        Err(e) => format!("stile: groom ground stands at {} — could not raze it: {}\n", billet_root.display(), e),
     }
 }

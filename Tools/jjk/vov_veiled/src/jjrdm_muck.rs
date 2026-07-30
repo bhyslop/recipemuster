@@ -150,6 +150,15 @@ pub fn jjrdm_report(plan: &jjrdm_Plan) -> String {
         jjrdm_Kind::Groom(fm) => format!("groom billet {}{}", crate::jjrf_favor::JJRF_FIREMARK_PREFIX, fm),
     };
     lines.push(format!("{}: {}", plan.billet_dirname, kind_str));
+
+    // A groom ground is a git-free scratch dir with nothing durable aboard — no
+    // seat, no branch, no pace to evidence. Its whole report is the one razed-whole
+    // line; the git-derived lines below are the pace billet's alone.
+    if let jjrdm_Kind::Groom(_) = &plan.kind {
+        lines.push("  ground: git-free scratch — razed whole, nothing durable aboard".to_string());
+        return lines.join("\n");
+    }
+
     lines.push(format!("  seat:   partition of {}", plan.primary_root.display()));
 
     if plan.dirty_paths.is_empty() {
@@ -327,9 +336,14 @@ fn zjjrdm_pace_evidence<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     }
 }
 
-/// Plan the destroy: resolve the operator's named target to one billet, comb
-/// it, read its branch posture, and — for a pace billet — its evidence. Pure
+/// Plan the destroy: resolve the operator's named target to one billet, then —
+/// for a pace billet — comb it and read its branch posture and evidence. Pure
 /// resolution; nothing here mutates (JJSVD "Muck", Plan-then-confirm).
+///
+/// A groom ground is git-free (a scratch dir, no repo), so it takes none of the
+/// git probes a pace billet does: its `primary_root` is the infield it stands in,
+/// it carries no dirty paths and no branch sync, and it has no pace to evidence.
+/// A surviving groom ground is a crashed session's residue — muck razes it whole.
 pub fn jjrdm_plan<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     farrier: &F,
     studbook: &jjdb_BlotterConfig,
@@ -340,6 +354,18 @@ pub fn jjrdm_plan<F: jjrfr_FarrierCore + jjrfr_FarrierLock>(
     let (billet_root, billet_dirname) = zjjrdm_resolve_billet(infield_root, name)?;
     let kind = zjjrdm_billet_kind(&billet_dirname)
         .unwrap_or_else(|| panic!("resolved billet dirname '{}' does not type as a billet", billet_dirname));
+
+    if let jjrdm_Kind::Groom(_) = &kind {
+        return Ok(jjrdm_Plan {
+            billet_root,
+            billet_dirname,
+            kind,
+            primary_root: infield_root.to_path_buf(),
+            dirty_paths: Vec::new(),
+            sync_state: jjrfr_SyncState::Untracked,
+            pace_evidence: None,
+        });
+    }
 
     let identity = farrier.jjrfr_identify(&billet_root)?;
     let primary_root = match &identity.seat {
@@ -387,16 +413,27 @@ pub struct jjrdm_Outcome {
     pub scratch_swept: Vec<PathBuf>,
 }
 
-/// Execute the confirmed destroy: the forced destroy
-/// (`jjrfr_billet_remove`'s only forced caller — the one deliberate
-/// data-loss call in the taxonomy), then clear this billet's own scratch
-/// sibling.
+/// Execute the confirmed destroy, then clear this billet's own scratch sibling.
+/// A pace billet is a worktree, taken by the forced destroy
+/// (`jjrfr_billet_remove`'s only forced caller — the one deliberate data-loss
+/// call in the taxonomy). A groom ground is a git-free scratch dir, razed whole
+/// by a plain directory removal — no worktree to unregister.
 pub fn jjrdm_reap<F: jjrfr_FarrierBillet>(
     farrier: &F,
     infield_root: &Path,
     plan: &jjrdm_Plan,
 ) -> Result<jjrdm_Outcome, jjrdm_Rejection> {
-    farrier.jjrfr_billet_remove(&plan.billet_root, true)?;
+    match &plan.kind {
+        jjrdm_Kind::Groom(_) => {
+            std::fs::remove_dir_all(&plan.billet_root).map_err(|e| jjrdm_Rejection::NotFound {
+                name: plan.billet_dirname.clone(),
+                detail: format!("could not raze the groom ground at {}: {}", plan.billet_root.display(), e),
+            })?;
+        }
+        jjrdm_Kind::Pace(_) => {
+            farrier.jjrfr_billet_remove(&plan.billet_root, true)?;
+        }
+    }
     let scratch_swept = zjjrdm_sweep_scratch(infield_root, &plan.billet_dirname);
     Ok(jjrdm_Outcome { billet_root: plan.billet_root.clone(), scratch_swept })
 }

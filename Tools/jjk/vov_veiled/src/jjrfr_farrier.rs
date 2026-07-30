@@ -32,7 +32,7 @@ use std::sync::{
 /// kind must be allocated there and named git-free per the vocabulary Palisade —
 /// never invented ad hoc by a kind implementation, and never a catch-all bucket.
 /// A kind is a shared semantic fact — `DirtyTree` means the same thing whether it
-/// surfaces from `jjrfr_billet_detach` or `jjrfr_billet_remove` — so consumers
+/// surfaces from `jjrfr_comb`'s consumers or `jjrfr_billet_remove` — so consumers
 /// branch on kind, never on message text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum jjrfr_RejectionKind {
@@ -346,22 +346,23 @@ pub trait jjrfr_FarrierLock {
     fn jjrfr_sight(&self, root: &Path) -> Result<Option<String>, jjrfr_Rejection>;
 }
 
-/// How a new billet is born (`jjrfr_billet_create`): on a fresh branch, or
-/// detached. Both forms anchor at the trunk branch's remote counterpart — its
-/// position as of the last `jjrfr_glean` — never at the primary's own checkout.
-/// Birthing at the primary's HEAD would carry the operator's unpushed trunk work
-/// into the billet branch, publishing it at the first `jjrfr_consign` — the
-/// `jjrfr_enfold` no-exfiltration posture, applied at birth.
+/// How a new billet is born (`jjrfr_billet_create`): on a fresh branch, anchored
+/// at the trunk branch's remote counterpart — its position as of the last
+/// `jjrfr_glean` — never at the primary's own checkout. Birthing at the primary's
+/// HEAD would carry the operator's unpushed trunk work into the billet branch,
+/// publishing it at the first `jjrfr_consign` — the `jjrfr_enfold`
+/// no-exfiltration posture, applied at birth. Only a pace billet is born through
+/// the farrier: a groom is a git-free scratch ground the dispatch spine pitches
+/// directly, never a worktree, so there is no detached birth here.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum jjrfr_BilletBirth {
     Branch(String),
-    Detached,
 }
 
 /// The billet facet (`jjdf_billet`): the partition lifecycle ops, consumed by the
 /// dispatch doors.
 pub trait jjrfr_FarrierBillet {
-    /// Birth a billet: seat an isolated partition on a fresh branch, or detached,
+    /// Birth a pace billet: seat an isolated partition on a fresh branch,
     /// anchored at the trunk branch's remote counterpart (`jjrfr_BilletBirth`).
     /// The caller names the trunk; the kind resolves the counterpart itself —
     /// the `jjrfr_advance`/`jjrfr_enfold` posture. A branch-name collision is a
@@ -386,11 +387,6 @@ pub trait jjrfr_FarrierBillet {
     /// locally (`jjrfr_line_exists`) and its counterpart MUST be known
     /// (`jjrfr_line_abroad`). Violating either fails loud.
     fn jjrfr_billet_adopt(&self, root: &Path, branch: &str, billet_root: &Path) -> Result<(), jjrfr_Rejection>;
-
-    /// Re-detach an existing billet at the trunk branch's remote counterpart —
-    /// groom-billet reuse (dispatch sheaf stile's approach: "a groom billet in
-    /// reuse re-detaches to trunk tip"). Refuses `DirtyTree` on dirt.
-    fn jjrfr_billet_detach(&self, billet_root: &Path, trunk: &str) -> Result<(), jjrfr_Rejection>;
 
     /// Whether `branch` exists in the constellation — the observation behind the
     /// approach's create-or-seat choice at billet-ensure. Read-only, network-silent.
@@ -451,9 +447,11 @@ pub trait jjrfr_FarrierBillet {
     /// The content-proof probe: has this line of work added any content beyond
     /// the custody base — the merge-base of its tip with the named branch's
     /// remote counterpart (as of the last `jjrfr_glean`)? A local content check,
-    /// network-silent, the {jjdd_stile} exit-litmus content-proof pass: the
-    /// groom arm's whole litmus, and the pace arm's additional route to
-    /// clearance beside the custody pass (dispatch sheaf). Content, not
+    /// network-silent, the {jjdd_stile} exit-litmus content-proof pass: the pace
+    /// arm's additional route to clearance beside the custody pass (dispatch
+    /// sheaf). A groom no longer has an arm here — it is a git-free scratch ground
+    /// razed unconditionally at exit, so only the pace billet reaches this probe.
+    /// Content, not
     /// ancestry, and per-commit, not net: every dispatch's `jjdo_open` lands an
     /// empty marker commit, so an ancestry check would call the everyday billet
     /// stranded forever — but a NET diff from the base to the tip would call a
