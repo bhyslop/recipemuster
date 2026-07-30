@@ -207,8 +207,8 @@ pub fn jjrg_slate(gallops: &mut jjrg_Gallops, args: jjrg_SlateArgs) -> Result<jj
         redocket_count: 0,
         // Sire affiliation is left unset at slate for now: per-pace election reads
         // the registry the engine must stay agnostic of, so it lands with the
-        // launch inversion. The one-time backfill (jjx_affiliate) stamps every
-        // pre-inversion pace.
+        // launch inversion. jjx_affiliate fills these blanks by coronet or by
+        // heat until born-affiliated slate lands.
         sire: None,
     };
 
