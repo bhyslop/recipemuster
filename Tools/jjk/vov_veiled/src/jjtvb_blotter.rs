@@ -43,6 +43,7 @@ use super::jjrvb_blotter::{
     JJDB_GALLOPS_OVER_STUDBOOK_ENABLED,
     JJDB_GALLOPS_REL_PATH,
 };
+use super::jjrvg_guidon::jjdb_guidon_compose;
 use super::jjrvl_validate::jjrvl_run_validate_over;
 use super::jjrm_mcp::zjjrm_peek_gallops;
 use super::jjtu_testdir::JjkTestDir;
@@ -170,6 +171,62 @@ fn jjtvb_journal_rejects_lock_held_and_never_calls_mutate() {
     assert!(!text.contains("refs/jjv"), "the monitum must name no ref path: {}", text);
     assert!(!text.contains("[rejected]"), "the monitum must carry no raw git stderr: {}", text);
     assert!(text.contains("the studbook is busy"), "the monitum must read as the composed refusal: {}", text);
+}
+
+/// The crash-mid-ceremony self-heal: a lock this SAME session left staked by a
+/// prior crashed run (same officium) is reclaimed by the next journal, which then
+/// runs to completion — no cashiering, no waiting out the stranded lease. This is
+/// the pace's whole point: the engine does not need a cashier for its own crash.
+#[test]
+fn jjtvb_journal_reclaims_this_sessions_own_derelict_lock() {
+    let (bare, local, config) = zjjtvb_scratch("jjtvb_journal_reclaim_own");
+
+    // Simulate the corpse a crashed prior run left: a well-formed guidon staked
+    // and never released (the guard's Drop never ran). Same officium as the retry
+    // below; station/time/operation deliberately differ, to prove officium alone
+    // is the ownership proof.
+    let corpse = jjdb_guidon_compose("☉jjtvb-reclaim-own", "beast", chrono::Utc::now(), "wrap");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), &corpse).unwrap();
+
+    let retry = jjdb_guidon_compose("☉jjtvb-reclaim-own", "roan", chrono::Utc::now(), "enroll");
+    let called = Cell::new(false);
+    let sha = jjdb_journal(&jjrfg_PlainGit, &config, &retry, |root| {
+        called.set(true);
+        zjjtvb_write(root, "reclaimed.txt", "landed after reclaim");
+        (vec![PathBuf::from("reclaimed.txt")], "reclaimed entry".to_string())
+    })
+    .expect("a session's own derelict lock is reclaimed, so the retry completes");
+
+    assert!(called.get(), "mutate runs — the reclaimed lock let the ceremony proceed");
+    let remote_tip = zjjtvb_git(bare.path(), &["rev-parse", ZJJTVB_TRUNK]);
+    assert_eq!(remote_tip, sha, "the reclaimed ceremony's content landed on the remote");
+    let remaining = zjjtvb_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty(), "the reclaimed-then-completed ceremony releases the lock like any other");
+}
+
+/// The other half of the proof: a lock held by ANOTHER session (a different
+/// officium) is never reclaimed — the ordinary `LockHeld` refusal stands, mutate
+/// never runs, and the foreign lock survives untouched. The reclaim breaks only a
+/// lock provably its own.
+#[test]
+fn jjtvb_journal_never_reclaims_another_sessions_lock() {
+    let (_bare, local, config) = zjjtvb_scratch("jjtvb_journal_reclaim_foreign");
+
+    let foreign = jjdb_guidon_compose("☉jjtvb-other-session", "beast", chrono::Utc::now(), "wrap");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), &foreign).unwrap();
+
+    let ours = jjdb_guidon_compose("☉jjtvb-us", "beast", chrono::Utc::now(), "wrap");
+    let called = Cell::new(false);
+    let result = jjdb_journal(&jjrfg_PlainGit, &config, &ours, |root| {
+        called.set(true);
+        zjjtvb_write(root, "should-not-land.txt", "x");
+        (vec![PathBuf::from("should-not-land.txt")], "should not land".to_string())
+    });
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockHeld, "a foreign holder still refuses");
+    assert!(!called.get(), "mutate must not run against another session's lock");
+    let flying = jjrfg_PlainGit.jjrfr_sight(local.path()).unwrap();
+    assert_eq!(flying.as_deref(), Some(foreign.as_str()), "the foreign lock survives untouched");
 }
 
 #[test]
