@@ -1,6 +1,0 @@
-{
-  "_note": "TOMBSTONE \u2014 intentionally NOT a valid gallops.",
-  "JJr_d9f": "Retired in-repo gallops (heat B3 founding-and-cutover, 2026-07-21). Heat/pace state now lives in the studbook clone (jjqs_studbook), never in this file. This tombstone is deliberate: a const-false (pre-cutover) vvx binary that reads this file fails loud on the missing Gallops fields instead of silently resurrecting a dead store and diverging from the authoritative studbook. Do not restore Gallops shape to this file.",
-  "JJr_d9f_demolition": "Stands until no const-false vvx binary can run against this repo \u2014 every operated clone provably converged to a const-true (studbook-reading) binary and the pre-cutover era closed. The .claude/jjm de-insertion pace deliberately preserves this marker; de-insertion is NOT the demolition condition.",
-  "jjgrn_tombstoned": true
-}

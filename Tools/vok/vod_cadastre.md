@@ -218,6 +218,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `vomtd_family_head_is_live_through_any_seated_member` → `Tools/vok/vom/src/vomtd_digest.rs`
 - `vomtd_non_cipher_head_is_out_of_jurisdiction` → `Tools/vok/vom/src/vomtd_digest.rs`
 - `vomtd_non_row_lines_are_ignored` → `Tools/vok/vom/src/vomtd_digest.rs`
+- `vomtd_studbook_homed_row_is_out_of_jurisdiction` → `Tools/vok/vom/src/vomtd_digest.rs`
 - `vomtd_veiled_homed_row_is_out_of_jurisdiction` → `Tools/vok/vom/src/vomtd_digest.rs`
 - `vomtm_identity_names_crate_and_links_vof` → `Tools/vok/vom/src/vomtm_matricula.rs`
 - `vomtm_matricula` → `Tools/vok/vom/src/vomtm_matricula.rs`
@@ -264,38 +265,8 @@ Every minted name seated in this repository, one row per declaration home, group
 ## Job Jockey (jj)
 
 - `JJ` → `Tools/vok/vof/src/vofc_registry.rs`
-- `JJFP_account_prefix` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_acct_full` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_acct_nogit` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_acct_nokey` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_acct_norepo` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_keypath_param` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_pubkey_param` → `Tools/jjk/jjfp_fundus.sh`
-- `JJFP_ssh_accounts` → `Tools/jjk/jjfp_fundus.sh`
-- `JJW_SCRIPT_DIR` → `Tools/jjk/jjw_workbench.sh`
 - `JJr_9m4` → `Tools/vvc/src/vvcc_commit.rs`
 - `JJr_a7c` → `Tools/cmk/claude-cmk-core.md`
-- `jjc-cashier` → `.claude/commands/jjc-cashier.md`
-- `jjc-wrap` → `.claude/commands/jjc-wrap.md`
-- `jjfp_cli` → `Tools/jjk/jjfp_cli.sh`
-- `jjfp_fundus` → `Tools/jjk/jjfp_fundus.sh`
-- `jjfp_provision` → `Tools/jjk/jjfp_fundus.sh`
-- `jjfp_repo` → `Tools/jjk/jjfp_fundus.sh`
-- `jjfp_scenario` → `Tools/jjk/jjfp_fundus.sh`
-- `jjfp_single` → `Tools/jjk/jjfp_fundus.sh`
-- `jjsl_cashier` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_cli` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_found` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_install` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_lunge` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_muck` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_saddle` → `Tools/jjk/jjsl_cli.sh`
-- `jjsl_sight` → `Tools/jjk/jjsl_cli.sh`
-- `jjw_main` → `Tools/jjk/jjw_workbench.sh`
-- `jjw_route` → `Tools/jjk/jjw_workbench.sh`
-- `jjw_show` → `Tools/jjk/jjw_workbench.sh`
-- `jjw_workbench` → `Tools/jjk/jjw_workbench.sh`
-- `jjz_zipper` → `Tools/jjk/jjz_zipper.sh`
 
 ## Bash Utilities (bu)
 
@@ -812,6 +783,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `RBTDGC_BAND_ADMISSION` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_BAND_BASE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_BAND_CHAIN` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
+- `RBTDGC_BAND_CLEAN_TREE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_BAND_CREDLESS` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_BAND_DESCRY` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_BAND_ENGROSS` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
@@ -832,9 +804,9 @@ Every minted name seated in this repository, one row per declaration home, group
 - `RBTDGC_BREVET_POLITY` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CANVASS_FOEDUS` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CHECK_AVOWAL` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
-- `RBTDGC_CHECK_DEPOT` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CHECK_MANTLE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CHECK_PAYOR` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
+- `RBTDGC_COLLATE_DEPOT` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CONCLAVE_RELIQUARY` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CONTAINER_BOTTLE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_CONTAINER_PENTACLE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
@@ -868,8 +840,8 @@ Every minted name seated in this repository, one row per declaration home, group
 - `RBTDGC_HYGIENE_CHECK_DOCKERFILE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_HYGIENE_CHECK_VESSEL` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_IMMURE_PODVM` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
+- `RBTDGC_INCUSE_DEPOT` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_INFO_DEPOT` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
-- `RBTDGC_INSCRIBE_DEPOT` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_INSTATE_FOEDUS` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_INSTAURATE_MANOR` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
 - `RBTDGC_JETTISON_HALLMARK_IMAGE` → `Tools/rbk/rbtd/src/rbtdgc_consts.rs`
@@ -1193,6 +1165,7 @@ Every minted name seated in this repository, one row per declaration home, group
 - `RBTDRP_RBRN_BLANK_FIELDS` → `Tools/rbk/rbtd/src/rbtdrp_attest.rs`
 - `RBTDRP_RBRR_BLANK_FIELDS` → `Tools/rbk/rbtd/src/rbtdrp_attest.rs`
 - `RBTDRP_TEAR_DOWN_PLACEHOLDER_MONIKER` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
+- `RBTDRP_TRIPWIRE_PROBE_LINE` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
 - `RBTDRQ_CASES_DAMNATIO` → `Tools/rbk/rbtd/src/rbtdrq_damnatio.rs`
 - `RBTDRQ_CASES_PYX` → `Tools/rbk/rbtd/src/rbtdrq_pyx.rs`
 - `RBTDRQ_DAMNATIO_SELF` → `Tools/rbk/rbtd/src/rbtdrq_damnatio.rs`
@@ -1482,12 +1455,14 @@ Every minted name seated in this repository, one row per declaration home, group
 - `rbgp_attribution_trail` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_brevet` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_cli` → `Tools/rbk/rbgp_cli.sh`
+- `rbgp_collate` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_depot_info` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_depot_levy` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_depot_list` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_depot_recognosce` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_depot_unmake` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_gird` → `Tools/rbk/rbgp_payor.sh`
+- `rbgp_incuse` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_manor_affiance` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_manor_escheat` → `Tools/rbk/rbgp_payor.sh`
 - `rbgp_manor_instaurate` → `Tools/rbk/rbgp_payor.sh`
@@ -2129,6 +2104,10 @@ Every minted name seated in this repository, one row per declaration home, group
 - `rbtdrp_marshal_zero_attestation` → `Tools/rbk/rbtd/src/rbtdrp_attest.rs`
 - `rbtdrp_probe_depot_levied` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
 - `rbtdrp_scan_rbrv_file` → `Tools/rbk/rbtd/src/rbtdrp_attest.rs`
+- `rbtdrp_tripwire_confirm` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
+- `rbtdrp_tripwire_confirm_impl` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
+- `rbtdrp_tripwire_recover` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
+- `rbtdrp_tripwire_recover_impl` → `Tools/rbk/rbtd/src/rbtdrp_lifecycle.rs`
 - `rbtdrq_crate_licenses` → `Tools/rbk/rbtd/src/rbtdrq_pyx.rs`
 - `rbtdrq_damnatio` → `Tools/rbk/rbtd/src/rbtdrq_damnatio.rs`
 - `rbtdrq_identity_shapes` → `Tools/rbk/rbtd/src/rbtdrq_damnatio.rs`

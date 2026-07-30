@@ -527,7 +527,7 @@ fn run_dispatch(args: DispatchArgs) -> i32 {
 /// unattended ones (agent tool calls, nohup relays). Deliberately no env
 /// override: an override would be the routable gate this floor exists to
 /// remove.
-#[cfg(unix)]
+#[cfg(all(unix, feature = "jjk"))]
 fn zvorm_attended_terminal() -> bool {
     std::fs::File::open("/dev/tty").is_ok()
 }
@@ -535,7 +535,7 @@ fn zvorm_attended_terminal() -> bool {
 /// Windows twin of the attended-terminal floor: `CONIN$` opens only with a
 /// console attached (a mintty-only session lacks one — run the door from a
 /// console-hosted terminal there).
-#[cfg(windows)]
+#[cfg(all(windows, feature = "jjk"))]
 fn zvorm_attended_terminal() -> bool {
     std::fs::File::open("CONIN$").is_ok()
 }

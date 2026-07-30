@@ -82,7 +82,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("Tools/buk/vov_veiled/", Withhold),
     ("Tools/cmk/vov_veiled/", Withhold),
     ("Tools/gad/vov_veiled/", Withhold),
-    ("Tools/jjk/vov_veiled/", Withhold),
     ("Tools/rbk/vov_veiled/", Withhold),
     ("Tools/vok/vov_veiled/", Withhold),
     // THE DELIVERED KITS. BUK and RBK ship whole apart from their veiled
@@ -104,7 +103,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("Tools/cmk/", Withhold),
     ("Tools/gad/", Withhold),
     ("Tools/hmk/", Withhold),
-    ("Tools/jjk/", Withhold),
     ("Tools/lmci/", Withhold),
     ("Tools/vok/", Withhold),
     ("Tools/vslf-rbw/", Withhold),
@@ -129,7 +127,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("tt/buw-", Ship),
     ("tt/z-launcher.sh", Ship),
     ("tt/apcw-", Withhold),
-    ("tt/jjw-", Withhold),
     ("tt/study-", Withhold),
     ("tt/vow-", Withhold),
     ("tt/vslk-", Withhold),
@@ -170,7 +167,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("Study/", Withhold),
     (".claude/", Withhold),
     (".idea/", Withhold),
-    (".jjk/", Withhold),
     ("_slickedit/", Withhold),
     // The delivered face.
     ("README.md", Ship),
