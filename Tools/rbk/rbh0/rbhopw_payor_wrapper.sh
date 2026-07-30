@@ -185,9 +185,9 @@ rbho_payor_handbook() {
   buh_e
   buh_warn "Missing tripwire — a cloud build dies reporting the image is absent."
   buh_line "  The Depot was levied before the tripwire existed, or the image"
-  buh_line "  was removed. Inscribe it once against the current ${RBYC_RBRD}"
-  buh_line "  (supply a fresh access token):"
-  buh_tt  "    " "${RBZ_INSCRIBE_DEPOT}" "" " \$(gcloud auth print-access-token)"
+  buh_line "  was removed. Incuse it once against the current ${RBYC_RBRD}"
+  buh_line "  (self-authenticates as ${RBYC_PAYOR}):"
+  buh_tt  "    " "${RBZ_INCUSE_DEPOT}"
   buh_e
   buh_warn "Re-inscribe refused — re-running levy on an inscribed Depot dies."
   buh_line "  The tripwire is already present and is never overwritten in"
@@ -196,7 +196,7 @@ rbho_payor_handbook() {
   buh_tt  "    " "${RBZ_LEVY_DEPOT}"
   buh_e
   buh_line "To verify alignment at any time without submitting a build:"
-  buh_tt  "  " "${RBZ_CHECK_DEPOT}" "" " \$(gcloud auth print-access-token)"
+  buh_tt  "  " "${RBZ_COLLATE_DEPOT}"
   buh_e
   buh_line "${RBYC_PAYOR} girds the first ${RBYC_GOVERNOR} of this ${RBYC_DEPOT} —"
   buh_line "seating the freehold subject as its founding governor:"
