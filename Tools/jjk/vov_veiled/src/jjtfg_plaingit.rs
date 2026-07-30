@@ -5,10 +5,12 @@
 use super::jjrfg_plaingit::{
     jjrfg_PlainGit,
     zjjrfg_canonicalize_upstream,
+    zjjrfg_cas_mismatch,
     zjjrfg_guidon_vanished,
     zjjrfg_lock_contended,
     zjjrfg_lock_held_refusal,
     zjjrfg_push_rejected,
+    zjjrfg_ref_absent,
     zjjrfg_resolve_relative,
     ZJJRFG_GUIDON_REF,
 };
@@ -527,6 +529,47 @@ fn jjtfg_lock_contended_matches_the_ref_store_phrase_only() {
     assert!(!zjjrfg_lock_contended("fatal: Could not read from remote repository."));
 }
 
+/// The proffer's lost-trunk-race signature (260729 saddle dispatch, verbatim):
+/// the remote's own ref-store CAS mismatch when trunk moved during the push
+/// transaction. Matched on the stable `cannot lock ref … but expected` pair, and
+/// held disjoint from its two ref-store siblings — a lock-held `reference already
+/// exists` and an absent-ref `unable to resolve reference` must not wear this
+/// signature — and from the client-side `[rejected]` tokens.
+#[test]
+fn jjtfg_cas_mismatch_matches_the_ref_store_phrase_only() {
+    assert!(zjjrfg_cas_mismatch(
+        "remote: error: cannot lock ref 'refs/heads/trunk': is at 9331e5a1c0 but expected 0db6812e4f\n\
+         ! [remote rejected] 0db6812e4f -> trunk (failed to update ref)"
+    ));
+    // The two sibling ref-store phrases — never this signature.
+    assert!(!zjjrfg_cas_mismatch("remote: error: cannot lock ref 'refs/jjv/guidon': reference already exists"));
+    assert!(!zjjrfg_cas_mismatch("remote: error: cannot lock ref 'refs/jjv/guidon': unable to resolve reference 'refs/jjv/guidon'"));
+    // Client-side rejections and unrelated failures stay unclassified by it.
+    assert!(!zjjrfg_cas_mismatch("! [rejected] trunk -> trunk (fetch first)"));
+    assert!(!zjjrfg_cas_mismatch("! [remote rejected] (delete) -> refs/jjv/guidon (stale info)"));
+    assert!(!zjjrfg_cas_mismatch("fatal: Could not read from remote repository."));
+}
+
+/// The pluck's absent-guidon signature (260729 saddle dispatch, verbatim): the
+/// remote's ref-store phrasing for a lease/delete whose target ref no longer
+/// resolves. Matched on the stable `cannot lock ref … unable to resolve
+/// reference` pair, and held disjoint from its two ref-store siblings and from
+/// the client-side tokens.
+#[test]
+fn jjtfg_ref_absent_matches_the_ref_store_phrase_only() {
+    assert!(zjjrfg_ref_absent(
+        "remote: error: cannot lock ref 'refs/jjv/guidon': unable to resolve reference 'refs/jjv/guidon'\n\
+         ! [remote rejected] (delete) -> refs/jjv/guidon (failed to update ref)"
+    ));
+    // The two sibling ref-store phrases — never this signature.
+    assert!(!zjjrfg_ref_absent("remote: error: cannot lock ref 'refs/jjv/guidon': reference already exists"));
+    assert!(!zjjrfg_ref_absent("remote: error: cannot lock ref 'refs/heads/trunk': is at 9331e5a1c0 but expected 0db6812e4f"));
+    // The client-side `stale info` a lease reports once the client itself knows
+    // the ref vanished stays with `zjjrfg_push_rejected`, not here.
+    assert!(!zjjrfg_ref_absent("! [remote rejected] (delete) -> refs/jjv/guidon (stale info)"));
+    assert!(!zjjrfg_ref_absent("fatal: Could not read from remote repository."));
+}
+
 #[test]
 fn jjtfg_lock_held_refusal_forks_its_remedy_tail_on_age_and_names_no_git_internals() {
     let fresh = zjjrfg_lock_held_refusal(Path::new("/r"), false);
@@ -910,6 +953,50 @@ fn jjtfg_pluck_rejects_lock_broken_on_stale_observed_guidon() {
     let result = jjrfg_PlainGit.jjrfr_pluck(local.path(), "guidon-not-what-is-there");
 
     assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockBroken);
+}
+
+/// A release whose guidon is GONE at the remote — a foreign break of a stranded
+/// lock — resolves as `LockBroken` ("already out"), never the unclassified panic
+/// that struck the 260729 saddle dispatch. The signature the driver classifies
+/// is the remote's `unable to resolve reference` ref-store phrasing (proven
+/// disjoint in `jjtfg_ref_absent_matches_the_ref_store_phrase_only`); over the
+/// file transport this same absence surfaces as the client-side `stale info` arm,
+/// so this end-to-end case proves the disposition — absent guidon → LockBroken,
+/// no panic — for whichever arm the transport produces.
+#[test]
+fn jjtfg_pluck_rejects_lock_broken_when_the_guidon_vanished() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_pluck_vanished");
+    jjrfg_PlainGit.jjrfr_stake(local.path(), "guidon-vanishing").unwrap();
+
+    // Another party breaks our lock out of band — the ref is simply gone.
+    zjjtfg_git(bare.path(), &["update-ref", "-d", ZJJRFG_GUIDON_REF]);
+
+    let result = jjrfg_PlainGit.jjrfr_pluck(local.path(), "guidon-vanishing");
+
+    assert_eq!(result.unwrap_err().kind, jjrfr_RejectionKind::LockBroken);
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty(), "the vanished guidon must stay gone");
+}
+
+/// The RAII guard's release cannot panic from `Drop`, even when the guidon
+/// vanished under it: the guard drops cleanly (the pluck now classifies the
+/// absent ref as `LockBroken` rather than panicking), the process survives, and
+/// nothing is left flying. The sibling of the unreachable-remote drop proof,
+/// for the release-time race the classification closes.
+#[test]
+fn jjtfg_lock_guard_drop_survives_a_vanished_guidon() {
+    let (bare, local) = zjjtfg_local_with_remote("jjtfg_guard_vanished");
+    let guard = jjrfr_LockGuard::jjrfr_acquire(&jjrfg_PlainGit, local.path(), "guidon-fleeting").unwrap();
+
+    // The lock is broken out of band while the guard still stands.
+    zjjtfg_git(bare.path(), &["update-ref", "-d", ZJJRFG_GUIDON_REF]);
+
+    // Reaching the line after the drop is the whole proof: a panic escaping the
+    // destructor would abort the process and this test would never assert.
+    drop(guard);
+
+    let remaining = zjjtfg_git(bare.path(), &["for-each-ref", "refs/jjv"]);
+    assert!(remaining.is_empty(), "the guidon was already gone; release leaves nothing flying");
 }
 
 #[test]
