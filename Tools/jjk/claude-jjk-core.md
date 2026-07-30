@@ -458,6 +458,43 @@ When user says "notch", determine context (pace or heat affiliated) and invoke `
 **Diagnose Before Escalating:**
 When a command fails, check the simplest explanation first. "Invalid params" means wrong field names — check the MCP Command Reference above, don't guess.
 
+### Blotter-Lock Recovery is Human-Only — NO Exceptions
+
+A JJ blotter lock guards a SHARED store (the studbook): behind a held lock
+there may be a live session on another machine, and a wrong break can hand a
+live reader a stale image with nothing to catch it. **Cashiering (breaking) a
+blotter lock is a HUMAN-ONLY ceremony. Claude never performs it, never begins
+it, never prepares it — no exceptions, no matter how obvious the recovery
+looks.**
+
+On ANY lock-held refusal (dispatch, notch, wrap, curry — any jjx command):
+
+1. STOP the refused operation.
+2. Report the refusal to the operator VERBATIM.
+3. Do nothing further toward the lock. The operator recovers it themselves,
+   in their own terminal — `/jjc-cashier` is their reference card, not an
+   agent action.
+
+Forbidden — all of it the on-ramp:
+- Invoking `/jjc-cashier` as an action. It is an operator reference card; an
+  agent that reaches it shows the card and stops.
+- `./tt/jjw-dC.Cashier.sh` — with or without `BURE_CONFIRM`; presetting or
+  skipping its typed gate is routing around the ceremony's heart.
+- `./tt/jjw-dc.SightLocks.sh` or the vvx cashier verb in service of lock
+  recovery — "it's only the read-only sight" is how a cashier begins.
+- Raw git against the lock ref or the studbook to clear, delete, or
+  force-update a lock — the same break by a worse road.
+
+The rationalizations ARE the hazard — each has already nearly caused the
+failure this rule exists to prevent, and each is barred: "it's only the
+read-only sight step"; "the wrap/recovery flow told me to resume and the lock
+blocks it"; "the lock is obviously mine / obviously stale / obviously dead";
+"the refusal message names the remedy, so running it is sanctioned" (the
+remedy is named for the OPERATOR); "the operator authorized it in chat" (the
+gate reads the operator's terminal, which an agent does not have — hand them
+the card). A held lock never strands you: the correct next action is always
+available — stop, surface, wait.
+
 ### Wrap Discipline
 
 **NEVER auto-wrap a pace.** Always ask the user explicitly: "Ready to wrap ₢XXXXX?" and wait for confirmation before running `jjx_close`. The user decides when work is complete, not the agent — when work is complete, report outcomes and ask; do not wrap.

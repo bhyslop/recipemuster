@@ -45,8 +45,8 @@ zjjz_kindle() {
   buz_enroll JJZ_DISPATCH_SADDLE  "jjw-ds"   "jjsl_cli.sh" "jjsl_saddle"    "param1"  "Saddle a pace or heat: billet + launch (via jjy_saddle trampoline)"
   buz_enroll JJZ_DISPATCH_LUNGE   "jjw-dl"   "jjsl_cli.sh" "jjsl_lunge"     "param1"  "Lunge a heat: groom billet + launch (via jjy_lunge trampoline)"
   buz_enroll JJZ_DISPATCH_INSTALL "jjw-di"   "jjsl_cli.sh" "jjsl_install"   "param1"  "Install the jjy_ trampolines into an infield directory (idempotent)"
-  buz_enroll JJZ_DISPATCH_SIGHT   "jjw-dc"   "jjsl_cli.sh" "jjsl_sight"     ""        "Sight every JJ blotter lock and report who holds it (read-only)"
-  buz_enroll JJZ_DISPATCH_CASHIER "jjw-dC"   "jjsl_cli.sh" "jjsl_cashier"   ""        "Cashier a derelict lock-holder: report, then break a stranded lock (confirm-gated)"
+  buz_enroll JJZ_DISPATCH_SIGHT   "jjw-dc"   "jjsl_cli.sh" "jjsl_sight"     ""        "Sight every JJ blotter lock and report who holds it (read-only; lock recovery itself is human-only)"
+  buz_enroll JJZ_DISPATCH_CASHIER "jjw-dC"   "jjsl_cli.sh" "jjsl_cashier"   ""        "Cashier a derelict lock-holder - HUMAN-ONLY ceremony: report, then break behind this terminal's typed gate (unskippable)"
   buz_enroll JJZ_DISPATCH_MUCK    "jjw-dM"   "jjsl_cli.sh" "jjsl_muck"      "param1"  "Muck a named billet: plan, then destroy (confirm-gated) — the operator's one deliberate data-loss surface"
 
   # Blotter — studbook lifecycle ceremonies (jjw-b)

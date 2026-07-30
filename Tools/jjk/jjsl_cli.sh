@@ -84,20 +84,26 @@ jjsl_lunge() {
   zjjsl_door "lunge"
 }
 
-# Sight every JJ blotter lock and report — read-only, always safe (JJSVD
-# jjdd_cashier, sight-and-report mode). Breaks nothing; an agent or a script may
-# run this freely.
+# Sight every JJ blotter lock and report — read-only, always safe MECHANICALLY
+# (JJSVD jjdd_cashier, sight-and-report mode). Breaks nothing; a script or the
+# operator may run it freely. An AGENT may not run it in service of lock
+# recovery — sight is the cashier's on-ramp, and cashiering is a human-only
+# ceremony: the agent's whole move on lock-held is stop and surface.
 jjsl_sight() {
   zjjsl_sentinel
+  buc_step "Lock recovery is a human-only ceremony: an agent stops at lock-held and surfaces it - never cashiers (operator card: /jjc-cashier)"
   "${ZJJSL_VVX}" jjx_cashier --cwd "$(zjjsl_invoke_dir)"
 }
 
-# Cashier a derelict lock-holder (JJSVD jjdd_cashier, break mode). The confirm
-# gate is THIS door's contract, not the break sequence's: the sequence is
-# mechanism, the deliberateness is the door's. So the report is shown first, and
-# the operator answers before anything is plucked.
+# Cashier a derelict lock-holder (JJSVD jjdd_cashier, break mode). A HUMAN-ONLY
+# ceremony: the confirm gate is THIS door's contract, not the break sequence's —
+# the sequence is mechanism, the deliberateness is the door's — and the gate is
+# deliberately unskippable (no BURE_CONFIRM route, in either value): the
+# operator's typed word at their own terminal is the only key. An agent never
+# runs this door; it stops and surfaces the lock-held refusal instead.
 jjsl_cashier() {
   zjjsl_sentinel
+  test -z "${BURE_CONFIRM:-}" || buc_die "jjsl cashier: this gate cannot be skipped or preset - cashiering is a human-only ceremony, typed by the operator at this terminal"
   local -r z_cwd="$(zjjsl_invoke_dir)"
 
   # The report the operator judges from - the Rust verb owns its format.

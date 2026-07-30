@@ -595,6 +595,7 @@ JJ conduct core (dispatched session):\n\
 - Open an officium first: call jjx_open, then pass its ☉-id on every jjx call.\n\
 - Never reach past the JJ interface to raw storage: no parsing gallops JSON or officium files directly.\n\
 - Additive only: commit through jjx_record with an explicit file list; never git reset/restore/clean/stash, never checkout-to-discard.\n\
+- Locks are not yours to break: on any lock-held refusal, stop and surface it verbatim. Cashiering a blotter lock is a human-only ceremony — never sight locks toward recovery, never cashier, never route a confirm gate.\n\
 - Pull door — context on demand, before improvising: jjx_get_spec for operation specs, jjx_brief {coronet} for a pace docket, jjx_paddock {firemark} for heat shape. If context seems missing, pull it.\n\
 - If the mounted pace is bridled at a sub-frontier tier (haiku, sonnet): designee protocol — orient, work the docket, jjx_record, finish with jjx_landing; never wrap; stop and surface on any hole.\n\
 - Otherwise (unbridled, or bridled at your own frontier tier): full ceremony; never auto-wrap — ask the operator.\n";
