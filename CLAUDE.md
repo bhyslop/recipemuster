@@ -56,7 +56,7 @@ When working with .adoc files using MCM patterns:
 
 Two Rust build targets. Always use the tabtarget, never raw cargo commands.
 
-**VOW pipeline** (vvk/jjk/cmk kits — parceled for delivery):
+**VOW pipeline** (vvk/cmk kits — parceled for delivery):
 - `tt/vow-b.Build.sh` — build vvr binary and install to VVK bin
 - `tt/vow-t.Test.sh` — run all kit crate tests
 - `tt/vvw-r.RunVVX.sh <cmd>` — run vvx binary with arguments
@@ -163,7 +163,6 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/cmk/claude-cmk-core.md
 @Tools/cmk/claude-cmk-acronyms.md
 @Tools/cmk/claude-cmk-minting.md
-@Tools/jjk/claude-jjk-core.md
 @Tools/vvk/claude-vvk-core.md
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->

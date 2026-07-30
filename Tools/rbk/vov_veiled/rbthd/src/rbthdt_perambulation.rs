@@ -129,7 +129,7 @@ fn rbthdt_totality() {
 const ZRBTHDT_PLANTED: &[&str] = &[
     "Tools/rbk/vov_veiled/planted-spec.adoc",
     "Memos/memo-20260713-the-one-that-got-out.md",
-    "Tools/jjk/jjw_workbench.sh",
+    "Tools/apck/apcw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
     "rbmm_moorings/fdkyclk/fdkyclk-proof.sh",
 ];
