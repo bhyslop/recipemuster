@@ -1077,7 +1077,7 @@ fn jjrm_empty_object() -> serde_json::Value {
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct jjrm_JjxParams {
-    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_refit, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_affiliate, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_continue, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_open")]
+    #[schemars(description = "Command name: jjx_list, jjx_show, jjx_orient, jjx_record, jjx_log, jjx_validate, jjx_refit, jjx_create, jjx_enroll, jjx_close, jjx_archive, jjx_reorder, jjx_redocket, jjx_relabel, jjx_drop, jjx_relocate, jjx_alter, jjx_affiliate, jjx_search, jjx_brief, jjx_coronets, jjx_paddock, jjx_curry, jjx_transfer, jjx_landing, jjx_apostille, jjx_bind, jjx_send, jjx_plant, jjx_fetch, jjx_relay, jjx_check, jjx_sift, jjx_open")]
     pub command: String,
     #[schemars(description = "Command parameters as JSON object. See CLAUDE.md for per-command schemas.")]
     #[serde(default = "jjrm_empty_object")]
@@ -4386,6 +4386,40 @@ mod tests {
         for cmd in JJRM_ALL_COMMANDS {
             assert!(seen.insert(*cmd), "{} listed twice in the command surface", cmd);
         }
+    }
+
+    #[test]
+    fn command_description_matches_the_gating_registry() {
+        // The description is the agent-facing advertisement of what this tool
+        // dispatches; JJRM_ALL_COMMANDS is the enforced gate. A verb in one and
+        // not the other is either a phantom (advertised, refused at dispatch)
+        // or a blind spot (dispatchable, never advertised) — the garland-verb
+        // excision left exactly the former behind.
+        let schema = schemars::schema_for!(jjrm_JjxParams);
+        let description = schema
+            .pointer("/properties/command/description")
+            .and_then(|d| d.as_str())
+            .expect("command property must carry a description");
+
+        let advertised: std::collections::BTreeSet<&str> = description
+            .split(|c: char| !c.is_alphanumeric() && c != '_')
+            .filter(|tok| tok.starts_with("jjx_"))
+            .collect();
+        let registry: std::collections::BTreeSet<&str> =
+            JJRM_ALL_COMMANDS.iter().copied().collect();
+
+        let phantom: Vec<_> = advertised.difference(&registry).collect();
+        assert!(
+            phantom.is_empty(),
+            "description advertises verbs the registry does not carry: {:?}",
+            phantom
+        );
+        let unadvertised: Vec<_> = registry.difference(&advertised).collect();
+        assert!(
+            unadvertised.is_empty(),
+            "registry carries verbs the description does not advertise: {:?}",
+            unadvertised
+        );
     }
 
     #[test]
