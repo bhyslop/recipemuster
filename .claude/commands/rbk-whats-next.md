@@ -1,5 +1,5 @@
 ---
-description: Emit two parallel-dispatch waves for heats ₣B_ and ₣CA — wave 1 now, wave 2 after
+description: Emit two parallel-dispatch waves for heat ₣B_ — wave 1 now, wave 2 after
 ---
 
 Interim stand-in for the parallel-wave advisor door (that door builds
@@ -7,8 +7,8 @@ post-inversion; this command retires when it lands). Read-only: this command
 **never saddles and never mutates state** — it emits a dispatch pick and nothing
 else. Acting on the pick stays the operator's move.
 
-Scope is fixed and hardcoded: heats **₣B_** and **₣CA** only. There is no
-heat-list argument.
+Scope is fixed and hardcoded: heat **₣B_** only. There is no heat-list
+argument.
 
 The pick is governed by **blast radius**, not heat-order seriality. A single
 operator runs one heat's paces in heat order, but this command exists to feed
@@ -22,23 +22,22 @@ If no officium is open this session, call `jjx_open` **alone** (never co-batched
 and capture the ☉-id. Otherwise reuse the open one.
 
 ## Step 2: Pull fresh groom material through the JJ interface
-Never cached state, never raw storage. Write two halter notices to the
-officium's `gazette_in.md` (path from `jjx_open`):
+Never cached state, never raw storage. Write a halter notice to the officium's
+`gazette_in.md` (path from `jjx_open`):
 
 ```
 # jjezs_halter ₣B_
-# jjezs_halter ₣CA
 ```
 
 Then call `jjx_show {"remaining": true}` with the officium and your verbatim
-model id, and **read `gazette_out.md`** for the two paddocks and every remaining
-pace docket. The paddocks carry the cinches the dependency read *and* the prune
-depend on; read them, not just the dockets.
+model id, and **read `gazette_out.md`** for the paddock and every remaining
+pace docket. The paddock carries the cinches the dependency read *and* the prune
+depend on; read it, not just the dockets.
 
 ## Step 3: Read each remaining pace's blast radius
-Consider **every** remaining (non-abandoned, non-bridled-out) pace in both heats
-— not just the front of each heat. For each, read two things from its docket and
-its heat's paddock cinches:
+Consider **every** remaining (non-abandoned, non-bridled-out) pace in the heat
+— not just the front of the heat. For each, read two things from its docket and
+the heat's paddock cinches:
 
 - **Hard dependencies** — a predecessor pace whose land this pace's premise
   assumes. Heat order is *not* itself a dependency: only a genuine inter-pace
@@ -51,8 +50,8 @@ its heat's paddock cinches:
   for the contamination prune below.
 
 A pace is a **wave-1 candidate** when every hard dependency it names has already
-landed — none of them sits among the remaining paces. Candidates are drawn from
-both heats and there may be several per heat.
+landed — none of them sits among the remaining paces. There may be several
+candidates.
 
 ## Step 4: The contamination prune (the whole cross-candidate judgment)
 Point at the parallel-wave advisor door pace's doctrine (₢B_·CAACb) — it is the
@@ -76,10 +75,9 @@ Two candidates are **contaminated** (cannot ride the same wave) if any holds:
   additive git merges them. While the barebones spec-commit posture stands the
   grain is the file.
 
-Run this test **pairwise across the full candidate set** — heat membership is
-not a factor, two candidates of the same heat answer to it exactly as two of
-different heats do. Do not stop at file identity: ask whether the two landings
-own the *same change*, and whether their merge is a rebase or a reconciliation.
+Run this test **pairwise across the full candidate set**. Do not stop at file
+identity: ask whether the two landings own the *same change*, and whether their
+merge is a rebase or a reconciliation.
 
 ## Step 5: Compose the two waves
 - **Wave 1** — a maximal set of candidates that are mutually uncontaminated.
@@ -92,16 +90,14 @@ own the *same change*, and whether their merge is a rebase or a reconciliation.
   it as a hard dependency, or the next actionable pace in that heat), plus any
   candidate the prune bumped from wave 1.
 
-Wave 2 is the near sketch, not an exhaustive plan — a pace or two per heat is
-enough.
+Wave 2 is the near sketch, not an exhaustive plan — a pace or two is enough.
 
 ## Step 6: Render — two waves, nothing else
-Emit exactly two labeled waves. Each wave is a **single flat list, never
-partitioned or subheaded by heat** — the parallelism frontier does not run along
-heat lines, so grouping by heat would reimpose the very seriality this command
+Emit exactly two labeled waves. Each wave is a **single flat list** — the
+parallelism frontier does not run along heat order, so grouping paces by
+their position in the heat would reimpose the very seriality this command
 rejects. Order each wave by blast radius: the paces that unblock the most
-downstream work first. The `₢` + firemark + `·` + body prefix already carries
-the heat, so it stays legible without grouping. For **each** pace name:
+downstream work first. For **each** pace name:
 - its **live-qualified coronet** — `₢` + heat firemark + `·` + body
   (e.g. `₢B_·CAAC8`); never a bare body, never abbreviated (display discipline);
 - its **silks**;
