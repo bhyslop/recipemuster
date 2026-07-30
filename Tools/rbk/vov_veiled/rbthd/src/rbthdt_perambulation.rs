@@ -121,14 +121,14 @@ fn rbthdt_totality() {
 // ── The planted-leak sweep proof ────────────────────────────
 
 /// The planted paths, and the clean ones. Both are ordinary repo paths named
-/// structurally — a veiled spec, a memo, the operator's own kit, a withheld
+/// structurally — a veiled spec, a study note, the operator's own kit, a withheld
 /// tabtarget — against a delivered face that must pass untouched. The
 /// veiled-spec datum carries a SYNTHETIC basename: what it exercises is the
 /// longest-wins override — a veiled half inside a shipping kit — which is a
 /// property of the directory, not of any document sitting in it.
 const ZRBTHDT_PLANTED: &[&str] = &[
     "Tools/rbk/vov_veiled/planted-spec.adoc",
-    "Memos/memo-20260713-the-one-that-got-out.md",
+    "Study/study-20260713-the-one-that-got-out.md",
     "Tools/jjk/jjw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
     "rbmm_moorings/fdkyclk/fdkyclk-proof.sh",

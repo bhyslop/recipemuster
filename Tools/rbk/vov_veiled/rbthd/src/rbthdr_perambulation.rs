@@ -80,7 +80,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // kit's veiled half is deliberately not covered: it lands unjudged and
     // reddens. That is correct — a kit's exposure is a ruling, never a default.
     ("Tools/buk/vov_veiled/", Withhold),
-    ("Tools/cmk/vov_veiled/", Withhold),
     ("Tools/gad/vov_veiled/", Withhold),
     ("Tools/jjk/vov_veiled/", Withhold),
     ("Tools/rbk/vov_veiled/", Withhold),
@@ -166,7 +165,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh", Ship),
     ("rbmm_moorings/rbml_launchers/", Withhold),
     // The operator's own trees.
-    ("Memos/", Withhold),
     ("Study/", Withhold),
     (".claude/", Withhold),
     (".idea/", Withhold),
