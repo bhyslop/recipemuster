@@ -258,8 +258,8 @@ zrbz_kindle() {
   # absent-tripwire recovery self-authenticates as Payor (see rbgp_payor.sh),
   # so rbrd_cli.sh stays a pure local regime CLI.
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_INSCRIBE_DEPOT         "rbw-rdi" "${z_mod}" "rbgp_tripwire_inscribe"  ""  "Inscribe RBRD tripwire image to GAR standalone — the absent-tripwire recovery (self-authenticates as Payor)"
-  buz_enroll RBZ_CHECK_DEPOT            "rbw-rdc" "${z_mod}" "rbgp_tripwire_check"     ""  "Check local rbrd.env against inscribed tripwire standalone (self-authenticates as Payor)"
+  buz_enroll RBZ_INCUSE_DEPOT           "rbw-rdi" "${z_mod}" "rbgp_incuse"             ""  "Incuse the RBRD tripwire image into GAR standalone — the absent-tripwire recovery (self-authenticates as Payor)"
+  buz_enroll RBZ_COLLATE_DEPOT          "rbw-rdc" "${z_mod}" "rbgp_collate"            ""  "Collate local rbrd.env against the incused tripwire standalone (self-authenticates as Payor)"
   z_mod="rbrp_cli.sh"
   buz_enroll RBZ_RENDER_PAYOR           "rbw-rpr" "${z_mod}" "rbrp_render"    ""  "Render payor regime"
   buz_enroll RBZ_VALIDATE_PAYOR         "rbw-rpv" "${z_mod}" "rbrp_validate"  ""  "Validate payor regime"

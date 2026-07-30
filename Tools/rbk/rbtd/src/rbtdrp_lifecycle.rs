@@ -49,8 +49,8 @@ use crate::rbtdri_invocation::{
 };
 use crate::rbtdgc_consts::{
     RBTDGC_BAND_CLEAN_TREE,
-    RBTDGC_CHECK_DEPOT,
-    RBTDGC_INSCRIBE_DEPOT,
+    RBTDGC_COLLATE_DEPOT,
+    RBTDGC_INCUSE_DEPOT,
     RBTDGC_LEVY_DEPOT,
     RBTDGC_LIST_DEPOT,
     RBTDGC_RBRD_FILE,
@@ -281,11 +281,11 @@ fn rbtdrp_tripwire_recover_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_
 
     let inscribe = match rbtdrk_invoke_logged(
         ctx,
-        RBTDGC_INSCRIBE_DEPOT,
+        RBTDGC_INCUSE_DEPOT,
         &[],
         &[],
         dir,
-        "inscribe",
+        "incuse",
     ) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("tripwire inscribe: {}", e)),
@@ -319,11 +319,11 @@ fn rbtdrp_tripwire_confirm(dir: &Path) -> rbtdre_Verdict {
 fn rbtdrp_tripwire_confirm_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let check = match rbtdrk_invoke_logged(
         ctx,
-        RBTDGC_CHECK_DEPOT,
+        RBTDGC_COLLATE_DEPOT,
         &[],
         &[],
         dir,
-        "check",
+        "collate",
     ) {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("tripwire check: {}", e)),
