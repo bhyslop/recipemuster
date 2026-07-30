@@ -581,6 +581,34 @@ pub(crate) fn zjjrfg_lock_contended(stderr: &str) -> bool {
     stderr.contains("cannot lock ref") && stderr.contains("reference already exists")
 }
 
+/// Git's server-side ref-transaction compare-and-swap MISMATCH: the ref-store
+/// phrase for "this ref's old value is not what the push expected", emitted when
+/// a ref moves under an in-flight push between the remote's ref advertisement and
+/// its ref-lock. The client's own fast-forward check cannot pre-detect it — the
+/// ref still stood at advertisement time — so it arrives from the remote, not as
+/// a `zjjrfg_push_rejected` send-pack refusal. Under the studbook posture this is
+/// the everyday shape of a lost trunk race: the guidon serializes journal writers
+/// only, while spec and memo edits land un-serialized, so trunk legitimately moves
+/// under a held lock. Keyed on the stable ref-store pair alone — the caller's own
+/// ref-name fork reads which ref the message names — and disjoint by construction
+/// from the two sibling ref-store phrases (`reference already exists`,
+/// `unable to resolve reference`).
+pub(crate) fn zjjrfg_cas_mismatch(stderr: &str) -> bool {
+    stderr.contains("cannot lock ref") && stderr.contains("but expected")
+}
+
+/// Git's server-side ref-transaction phrase for a lease/delete whose target ref
+/// no longer RESOLVES — the ref is simply gone on the remote at ref-lock time.
+/// Distinct from `zjjrfg_cas_mismatch` (the ref exists, holding a different
+/// value) and from the client-side `stale info` a lease reports once the client
+/// has itself learned from the advertisement that the ref vanished: this is the
+/// remote's phrasing when the client's lease passed at advertisement time but the
+/// ref was gone by the ref-lock — the release-time race a guidon's own
+/// un-serialized neighbours (or a foreign break of a stranded lock) can win.
+pub(crate) fn zjjrfg_ref_absent(stderr: &str) -> bool {
+    stderr.contains("cannot lock ref") && stderr.contains("unable to resolve reference")
+}
+
 // ---- The transport vedette (JJSVF "The transport vedette") ----
 
 /// JJr_9m4
@@ -980,7 +1008,13 @@ impl jjrfr_FarrierCore for jjrfg_PlainGit {
             zjjrfg_RemoteVerdict::Exhausted(out) => zjjrfg_exhausted(ZJJRFG_OP_PROFFER, root, &out.zjjrfg_detail()),
         };
         if !out.ok {
-            if zjjrfg_push_rejected(&out.stderr) {
+            // Two shapes of the same "the remote moved under this write" verdict:
+            // the client-side send-pack refusal (`zjjrfg_push_rejected`) when the
+            // stale counterpart was detectable at advertisement, and the remote's
+            // own ref-store CAS mismatch (`zjjrfg_cas_mismatch`) when trunk moved
+            // during the push transaction itself — the un-serialized-neighbour
+            // race that panicked here before. Both feed the one ref-name fork.
+            if zjjrfg_push_rejected(&out.stderr) || zjjrfg_cas_mismatch(&out.stderr) {
                 // A rejection naming the guidon ref is the lock broken under the
                 // holder; one naming only the branch is a plain content race.
                 // Either way the local branch never moved — nothing to scrub.
@@ -1122,7 +1156,16 @@ impl jjrfr_FarrierLock for jjrfg_PlainGit {
                     _ => return Ok(()),
                 }
             }
-            if zjjrfg_push_rejected(&out.stderr) {
+            // Two shapes of "the lease no longer holds": the guidon was replaced
+            // by a fresh stake (`zjjrfg_push_rejected` / `stale info`), or it is
+            // simply GONE at ref-lock (`zjjrfg_ref_absent` — a foreign break of a
+            // stranded lock, or the sight→pluck race). A release only cares that
+            // the guidon no longer flies our claim; an absent ref satisfies that
+            // as fully as a replaced one, and a `stake` that returned `Ok` proved
+            // the guidon once landed, so an absent ref here masks no never-staked
+            // fault. Both are the release's `LockBroken` — the lock this op would
+            // release is already out. Every other failure still dies loud.
+            if zjjrfg_push_rejected(&out.stderr) || zjjrfg_ref_absent(&out.stderr) {
                 return Err(zjjrfg_diagnosed(
                     jjrfr_RejectionKind::LockBroken,
                     ZJJRFG_OP_PLUCK,
