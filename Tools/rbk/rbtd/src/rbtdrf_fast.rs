@@ -64,9 +64,8 @@ use crate::rbtdrm_manifest::{
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 // Repo-root-relative kit paths. Test harnesses run with cwd = repo root, so
-// these are repo-root-relative. Hoisted per RCG Identity Rule (cf.
-// VVCC_REGISTRY_PATH) so running-code joins reference a named const rather
-// than an inline magic string.
+// these are repo-root-relative. Hoisted per RCG Identity Rule so running-code
+// joins reference a named const rather than an inline magic string.
 pub(crate) const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
 pub(crate) const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
 const RBTDRF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
