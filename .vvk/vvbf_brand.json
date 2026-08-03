@@ -1,0 +1,10 @@
+{
+  "vvbf_brand": "1050",
+  "vvbd_date": "260803-1019",
+  "vvbs_sha": "hand-seated-no-parcel-no-super-sha",
+  "vvbc_commit": "hand-seated-no-parcel-no-forge-commit",
+  "vvbk_kits": [
+    "buk",
+    "cmk"
+  ]
+}
