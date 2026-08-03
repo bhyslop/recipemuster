@@ -38,12 +38,6 @@ NUL
 # Claude Code - ignore machine-specific settings (settings.json IS tracked as shared project config)
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
-
-# JJK salutation: jjqa_app's dispatch materializes this tier-matched text into
-# every billet worktree at saddle/resume (this consumer sire included), though
-# recipemuster's own salutation rides Tools/cmk/claude-cmk-salutation.md.
-# Ignored so the engine-dropped copy never dirties a billet — interim cover
-# until the recipemuster-consumer heat (jjk-20) grooms the consumer-side JJ story.
 .claude/claude-salutation.md
 
 ### Python ###
