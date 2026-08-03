@@ -10,7 +10,6 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 - RBK: `@Tools/rbk/claude-rbk-acronyms.md`
 - BUK: `@Tools/buk/claude-buk-acronyms.md`
 - CMK: `@Tools/cmk/claude-cmk-acronyms.md`
-- VOK: `@Tools/vok/claude-vok-acronyms.md`
 - APCK: `@Tools/apck/claude-apck-acronyms.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
@@ -54,12 +53,7 @@ When working with .adoc files using MCM patterns:
 
 ### Rust Build Discipline
 
-Two Rust build targets. Always use the tabtarget, never raw cargo commands.
-
-**VOW pipeline** (vvk/cmk kits — parceled for delivery):
-- `tt/vow-b.Build.sh` — build vvr binary and install to VVK bin
-- `tt/vow-t.Test.sh` — run all kit crate tests
-- `tt/vvw-r.RunVVX.sh <cmd>` — run vvx binary with arguments
+Always use the tabtarget, never raw cargo commands.
 
 **Theurge** (rbk's own test infrastructure — dispatches through the unified rbw workbench):
 - `tt/rbw-tb.Build.sh` — build theurge crate
@@ -163,14 +157,10 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/cmk/claude-cmk-core.md
 @Tools/cmk/claude-cmk-acronyms.md
 @Tools/cmk/claude-cmk-minting.md
-@Tools/vvk/claude-vvk-core.md
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/buk/vov_veiled/claude-buk-veiled.md
 @Tools/buk/vov_veiled/claude-buk-veiled-acronyms.md
-
-@Tools/vok/claude-vok-context.md
-@Tools/vok/claude-vok-acronyms.md
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling

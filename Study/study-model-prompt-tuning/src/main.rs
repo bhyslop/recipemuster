@@ -239,9 +239,22 @@ fn evaluate(response: &str, expected: &str) -> (bool, String) {
 }
 
 // =========================================================================
-// Runner — matches vvcp_probe.rs pattern: no explicit Stdio, let .output()
-// handle stdin=null, stdout=piped, stderr=piped automatically
+// Runner — no explicit Stdio, let .output() handle stdin=null, stdout=piped,
+// stderr=piped automatically
 // =========================================================================
+
+/// Build a Command for invoking claude as a subprocess.
+///
+/// Removes the CLAUDECODE environment variable to prevent the nested-session
+/// guard (v2.1.39+) from blocking subprocess invocations that are legitimate
+/// tool usage, not interactive nesting. Disconnects stdin so the child cannot
+/// inherit — and deadlock on — an inherited stdin fd.
+fn zsmpt_claude_command() -> std::process::Command {
+    let mut cmd = std::process::Command::new("claude");
+    cmd.env_remove("CLAUDECODE");
+    cmd.stdin(std::process::Stdio::null());
+    cmd
+}
 
 /// Build the argument list for claude invocation.
 /// Returns the args and a display-friendly version of the command.
@@ -370,7 +383,7 @@ async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
     let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
     let (args, _display_cmd) = build_claude_args(model, system_prompt, &user_message);
 
-    let mut cmd = Command::from(vvc::vvce_claude_command());
+    let mut cmd = Command::from(zsmpt_claude_command());
     cmd.env_remove("CLAUDE_CODE_ENTRYPOINT");
     cmd.env_remove("CLAUDE_CODE_DISABLE_AUTO_MEMORY");
     cmd.args(&args);

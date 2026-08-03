@@ -1,6 +1,6 @@
 # RBK Core Context
 
-Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `claude-buk-core.md` and `claude-vok-context.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
+Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `claude-buk-core.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
 
 ## Acronym Notes
 
@@ -66,7 +66,7 @@ Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered si
 - **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
 - **RBQ**  → `rbk/rbq_qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
-- **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
+- **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing)
 - **RBUH** → `rbk/rbuh_http.sh` (Utility HTTP — JSON REST, polling, shared temp-file machinery)
 
 ## Moorings Filesystem Family (`rbm*_`)
