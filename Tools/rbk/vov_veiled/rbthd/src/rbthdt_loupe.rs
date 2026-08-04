@@ -32,7 +32,15 @@
 //            it stands as its own token, never as a substring of a longer,
 //            unrelated identifier.
 //
-// The census is synthetic, so these hold in any tree — no filesystem, no git.
+//   CENSUS   the hostname needle set is non-empty after exemptions, and every
+//            needle in it is one the matcher can actually fire on. This stands in
+//            for the empty-census finding the scan carried while its needles were
+//            harvested live: a literal cannot silently stop extracting, but it CAN
+//            be emptied by edit, or exempted away to nothing, and either would
+//            leave the scan passing every tree vacuously.
+//
+// The veil census is synthetic, so those tests hold in any tree — no filesystem,
+// no git. The hostname census is the real literal: it is the thing under test.
 
 use std::collections::BTreeSet;
 
@@ -41,6 +49,8 @@ use crate::rbthdr_loupe::{
     zrbthdr_veil_scan_text,
     zrbthdr_veil_self_proof,
     zrbthdr_Finding,
+    ZRBTHDR_HOST_CENSUS,
+    ZRBTHDR_HOST_EXEMPT,
 };
 
 /// A synthetic one-document census: the withheld-basename half of the matcher is
@@ -118,6 +128,30 @@ fn rbthdt_veil_self_proof_holds() {
 
 /// A machine name is a leak only as its own token — never as a substring of a
 /// longer, unrelated identifier.
+#[test]
+fn rbthdt_hostname_census_is_live() {
+    let effective: Vec<&str> = ZRBTHDR_HOST_CENSUS
+        .iter()
+        .copied()
+        .filter(|name| !ZRBTHDR_HOST_EXEMPT.contains(name))
+        .collect();
+
+    assert!(
+        !effective.is_empty(),
+        "the hostname census is empty after exemptions — the scan would pass every tree vacuously"
+    );
+
+    // A needle the matcher cannot fire on is a needle that protects nothing: an
+    // empty or whitespace-bearing entry would sit in the list looking like cover.
+    for name in &effective {
+        assert!(
+            zrbthdr_names_token(&format!("host is {} today", name), name),
+            "census entry {:?} is not a token the matcher can catch",
+            name
+        );
+    }
+}
+
 #[test]
 fn rbthdt_hostname_names_token_word_boundary() {
     assert!(zrbthdr_names_token("host is falcon today", "falcon"), "a whole-word match is a leak");

@@ -154,10 +154,6 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/buk/claude-buk-core.md
 @Tools/buk/claude-buk-acronyms.md
 
-<!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
-@Tools/buk/vov_veiled/claude-buk-veiled.md
-@Tools/buk/vov_veiled/claude-buk-veiled-acronyms.md
-
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
 - Architecture: Bash-based CLI tools with Google Cloud integration
@@ -167,6 +163,7 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/rbk/claude-rbk-core.md
 @Tools/rbk/claude-rbk-acronyms.md
 
+<!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/rbk/vov_veiled/claude-rbk-veiled.md
 @Tools/rbk/vov_veiled/claude-rbk-veiled-acronyms.md
 

@@ -690,8 +690,6 @@ The annotated tree below maps its files to the concepts defined above.
 | `    ├── rbmf_foedera/` | [Foedus](#Foedus) library — one committed trust per subdirectory |
 | `    │   ├── rbef_entrada/` | [RBRF](#RBRF) — Microsoft Entra [Foedus](#Foedus) |
 | `    │   └── rbef_keycloak/` | [RBRF](#RBRF) — [fdkyclk](#fdkyclk) synthetic-test [Foedus](#Foedus) |
-| `    ├── rbmn_nodes/` | Remote node profiles — operator test-machine registry |
-| `    ├── rbmu_users/` | Remote user profiles for those nodes |
 | `    ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
 | `    ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
