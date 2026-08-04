@@ -35,7 +35,7 @@
 # rbgp_incuse / rbgp_collate.
 #
 # Module convention: rbn{R}{X}_ where R=d (depot regime) and X=b
-# (bespoke implementation). See claude-cmk-minting.md "Prefix Naming Discipline".
+# (bespoke implementation).
 
 set -euo pipefail
 

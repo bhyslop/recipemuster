@@ -9,7 +9,6 @@ Full read and edit access is pre-approved for all files in:
 Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
 - RBK: `@Tools/rbk/claude-rbk-acronyms.md`
 - BUK: `@Tools/buk/claude-buk-acronyms.md`
-- CMK: `@Tools/cmk/claude-cmk-acronyms.md`
 - APCK: `@Tools/apck/claude-apck-acronyms.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
@@ -98,10 +97,10 @@ network posture, not dependency tier:
 
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 
-<!-- Universal minting doctrine is CMK-homed in Tools/cmk/claude-cmk-minting.md
-     so any consuming project can include it. This repo consumes it through the
-     hand-maintained include block below, and keeps only its own Project Prefix
-     Registry here. -->
+<!-- Universal minting doctrine is CMK-homed, and CMK homes in jjqa_app: this
+     repo no longer carries the kit, so the doctrine is not loaded here. What
+     stays is this repo's own Project Prefix Registry, which the doctrine's
+     Rule 1 defers to the host project for. -->
 
 ## Project Prefix Registry (rbm-local)
 
@@ -140,13 +139,13 @@ Every tolerance, alias, fallback, or alternative path multiplies the enumerated 
 
 Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline. Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
 
-<!-- Partnership rules of engagement (never distributed; hand-maintained outside
-     the managed block). Salutation leads — the wake-up greeting — then the stance.
-     Companion detail at Tools/cmk/claude-cmk-roe-detail.md is read on
-     demand, not @-included. -->
-@Tools/cmk/claude-cmk-salutation.md
-
-@Tools/cmk/claude-cmk-roe.md
+<!-- The wake-up greeting (never distributed; hand-maintained outside the
+     managed block). The file is gitignored and billet-local, materialized at
+     billet preparation by the saddle and tier-matched from the studbook; if
+     the include dangles, run a fresh saddle. The partnership rules of
+     engagement it used to lead into are CMK-homed and CMK homes in jjqa_app,
+     so they are not loaded here. -->
+@.claude/claude-salutation.md
 
 <!-- Distributable-kit guidance: hand-maintained @-include block, and the
      curation record for it — each line is a kit guidance file curated for
@@ -154,9 +153,6 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
      files stay out). Edit content in the @-targets, not here. -->
 @Tools/buk/claude-buk-core.md
 @Tools/buk/claude-buk-acronyms.md
-@Tools/cmk/claude-cmk-core.md
-@Tools/cmk/claude-cmk-acronyms.md
-@Tools/cmk/claude-cmk-minting.md
 
 <!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/buk/vov_veiled/claude-buk-veiled.md
