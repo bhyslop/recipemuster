@@ -7,8 +7,9 @@ surface and travel with the distribution:
 - `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — the crucible-testing context
 
 This file maps what stays behind: the guides, the specification, the shelved
-handbook, the derived diagram, and the contract pointers stripped from the
-delivered rows. **Nothing named here — by path, by basename, or by acronym — may
+handbook, the derived diagram, the contract pointers stripped from the delivered
+rows, and — since the BUK kit's veiled half left this consumer tree — the curated
+few BUK rows recipemuster still cites. **Nothing named here — by path, by basename, or by acronym — may
 appear in a delivered file.** The delivered half must not even acknowledge that
 this material exists: a consumer agent is told nothing about an upstream record it
 cannot read. The pyx release-hygiene fixture holds the path-and-basename half of
@@ -73,6 +74,20 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 ### Shelved code
 
 - **RBHW0** → `rbk/vov_veiled/rbhw0_*.sh` (Windows 0-prefix — VEILED: the windows handbook (`rbhw0_cli.sh`, `rbhw0_top.sh`, `rbhw0_windows.sh`, `rbhwht_handbook_top.sh`, `rbhwcd_docker_context_discipline.sh`, `rbhwdd_docker_desktop.sh`) was shelved off the surface into `rbk/vov_veiled/`. Inert; enrollments + tabtargets removed, not rewired for local execution. It is the `RBHW` **windows** group — the third `rbh*` group, alongside the delivered `RBHO` onboarding and `RBHP` payor.)
+
+### Carried BUK rows
+
+BUK-owned closed documents, folded here when `Tools/buk/vov_veiled/` left this
+consumer tree. The two-part label governing them — a curated subset that is never a
+mirror of BUK's veiled surface, and a shrinking bridge whose rows follow the
+citation census down — stands in full beside the rows in
+`claude-rbk-veiled-acronyms.md`, together with the double duty the list carries
+(resolution map, and this tree's per-kit roster for the veiled-acronym reference
+lint). Read it there before adding or dropping a row.
+
+- **BCG**  → `jjqs_studbook/guides/buk/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **WSG**  → `jjqs_studbook/guides/buk/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
+- **BUS0** → `jjqs_studbook/specs/buk/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 
 ### Veiled diagram
 

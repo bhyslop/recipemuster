@@ -79,13 +79,15 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // beneath them so the judgment holds even where the whole kit ships. A NEW
     // kit's veiled half is deliberately not covered: it lands unjudged and
     // reddens. That is correct — a kit's exposure is a ruling, never a default.
-    ("Tools/buk/vov_veiled/", Withhold),
     ("Tools/gad/vov_veiled/", Withhold),
     ("Tools/rbk/vov_veiled/", Withhold),
-    // THE DELIVERED KITS. BUK and RBK ship whole apart from their veiled
-    // halves: the .sh surface, the shellcheck config, the READMEs, the
-    // agent-context markdown, the theurge crate, the in-pool python step
-    // bodies, the ifrit attack corpus.
+    // THE DELIVERED KITS. RBK ships whole apart from its veiled half; BUK ships
+    // whole outright, having no veiled half in this tree — the kit's closed
+    // record homes at its primary home, and the few rows recipemuster still
+    // cites folded into RBK's veiled index. The shipped surface either way: the
+    // .sh surface, the shellcheck config, the READMEs, the agent-context
+    // markdown, the theurge crate, the in-pool python step bodies, the ifrit
+    // attack corpus.
     ("Tools/buk/", Ship),
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash
@@ -146,9 +148,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("rbmm_moorings/rbrp.env", Ship),
     ("rbmm_moorings/rbrr.env", Ship),
     ("rbmm_moorings/rbrw.env", Ship),
-    // The operator's remote machines.
-    ("rbmm_moorings/rbmn_nodes/", Withhold),
-    ("rbmm_moorings/rbmu_users/", Withhold),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
     ("rbmm_moorings/rbml_launchers/launcher.buw_workbench.sh", Ship),

@@ -42,8 +42,6 @@ readonly RBCC_tabtarget_context_file="${RBCC_KIT_DIR}/claude-rbk-tabtarget-conte
 # Source-time literals, no kindle dependency.
 RBCC_moorings_dir="rbmm_moorings"
 RBCC_launchers_subdir="rbml_launchers"
-RBCC_users_subdir="rbmu_users"
-RBCC_nodes_subdir="rbmn_nodes"
 RBCC_vessels_subdir="rbmv_vessels"
 RBCC_foedera_subdir="rbmf_foedera"
 # Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
