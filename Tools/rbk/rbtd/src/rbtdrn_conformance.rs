@@ -672,14 +672,8 @@ fn zrbtdrn_prefix_of(name: &str) -> &str {
 /// Sheaves whose mapping-declared quoins are pre-registered ahead of their
 /// defining prose — a foreign-kit drafting gap, outside this fixture's
 /// jurisdiction to close. Each entry names its removal condition; delete the
-/// entry once met.
-///
-/// - `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc`: the "Dispatch (tabtarget
-///   system)" mapping block (`vosdc_colophon`, `vosdf_frontispiece`,
-///   `vosdi_imprint`, `vosdm_formulary`, `vosdl_launcher`, and their `_s`
-///   variants) is declared with no anchor yet authored anywhere in the VOK
-///   kit. Remove this entry once VOS0 authors those definition sites.
-const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &["Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc"];
+/// entry once met. Empty: no sheaf in this estate's corpus holds such a gap.
+const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 
 /// Check 1 — citation integrity: every mapping-declared quoin and every
 /// `{term}`/`RBr_xxx` citation anywhere in the corpus resolves to a real
@@ -1056,12 +1050,14 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
          Also cites RBr_zzz which has no anchor.\n",
     );
     let exempt = (
-        "Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc",
+        "Tools/rbk/vov_veiled/RBSAB-fake-exempt.adoc",
         ":rbk_exempt:                  <<rbk_exempt,Exempt>>\n",
     );
     let adoc = vec![a, exempt];
     let all = vec![a, exempt];
-    let hits = zrbtdrn_check_citations(&adoc, &all, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
+    // Synthetic roster, not the live one: the exemption mechanism stays proven
+    // whatever the live roster holds — including empty.
+    let hits = zrbtdrn_check_citations(&adoc, &all, &[exempt.0]);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
     let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
     let mut got = kinds.clone();
