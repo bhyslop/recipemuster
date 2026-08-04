@@ -98,7 +98,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // that share the repo but not the delivery. None is uniform by accident —
     // each is a tree the consumer has no seat for.
     ("Tools/apck/", Withhold),
-    ("Tools/cmk/", Withhold),
     ("Tools/gad/", Withhold),
     ("Tools/hmk/", Withhold),
     ("Tools/lmci/", Withhold),
