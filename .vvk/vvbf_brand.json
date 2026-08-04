@@ -1,9 +1,9 @@
 {
-  "vvbf_brand": "1050",
-  "vvbd_date": "260803-1019",
-  "vvbs_sha": "hand-seated-no-parcel-no-super-sha",
-  "vvbc_commit": "hand-seated-no-parcel-no-forge-commit",
+  "vvbc_commit": "d2ca66be8d7dd7ad432ea5446ae286d9bf489829",
+  "vvbd_date": "260804-1455",
+  "vvbf_brand": "1052",
   "vvbk_kits": [
     "buk"
-  ]
+  ],
+  "vvbs_sha": "45109113bc600acb0ad36753956354b9b3dbc54a8f3369a17756c87a8b1319c3"
 }
