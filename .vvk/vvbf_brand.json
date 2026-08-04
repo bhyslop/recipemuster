@@ -4,7 +4,6 @@
   "vvbs_sha": "hand-seated-no-parcel-no-super-sha",
   "vvbc_commit": "hand-seated-no-parcel-no-forge-commit",
   "vvbk_kits": [
-    "buk",
-    "cmk"
+    "buk"
   ]
 }
