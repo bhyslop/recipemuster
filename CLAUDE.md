@@ -58,7 +58,8 @@ a memo is itself the signal that formal specification is due.
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
-- Assume full edit permissions for all files in the two main directories
+- Assume full edit permissions under `Tools/`, bounded by the drop-zone limit
+  above: a change beneath `Tools/buk/` is made in `jjqa_app`, never here
 - For bash scripts, prefer functional programming style with clear error handling
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
