@@ -553,6 +553,9 @@ Named for the djinn imprisoned in a bottle.
 The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts.
 Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
 
+<a id="Sortie"></a>**[Sortie](#Sortie)** — One named escape attempt in the [Ifrit's](#Ifrit) repertoire: a single attack vector, carried through end to end, returning its own verdict on whether the [Sentry's](#Sentry) containment held.
+[Sorties](#Sortie) are deliberately self-contained and reproducible — one vector apiece, so a verdict names exactly which surface was tried — and run either as the full suite the [Theurge](#Theurge) dispatches, or singly against an already-[Charged](#Charge) [Crucible](#Crucible) when one surface is under investigation.
+
 The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the [Recipe Bottle](#RecipeBottle) specification.
 The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
 Every test that passes is evidence the containment holds — not proof.
