@@ -552,6 +552,8 @@ Named for the djinn imprisoned in a bottle.
 - <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible).
 The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts.
 Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
+- <a id="Sortie"></a>**[Sortie](#Sortie)** — Run the [Ifrit's](#Ifrit) attack scripts directly inside a [Charged](#Charge) [Bottle](#Bottle), outside a full [Theurge](#Theurge) fixture run.
+Each attack reports its own pass/fail verdict from inside the [Bottle](#Bottle) — the same suite the [Theurge](#Theurge) dispatches automatically, invoked by hand to investigate a single [Crucible](#Crucible).
 
 The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the [Recipe Bottle](#RecipeBottle) specification.
 The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
