@@ -64,13 +64,10 @@ User Terminal                Study Binary              Test Claude
 ### Why Rust, Not Bash
 
 A bash script would be readable by any Claude session in the repo. The
-compiled binary keeps the experimental parameters opaque. Also, we reuse
-`vvc::vvce_claude_command()` which handles the `CLAUDECODE` env var
-removal needed for subprocess invocation.
+compiled binary keeps the experimental parameters opaque.
 
 ## Dependencies
 
-- `vvc` crate — for `vvce_claude_command()` (subprocess nesting guard bypass)
 - `tokio` — async subprocess with timeout
 - `serde_json` — JSON parsing for CLI output envelope and API request bodies
 - `reqwest` — HTTP client for direct API calls (PATH B only)
@@ -342,7 +339,7 @@ is visible before any subprocess hang.
 Study/
   study_workbench.sh              # BUK workbench (routes study-* colophons)
   study-model-prompt-tuning/
-    Cargo.toml                    # Depends on vvc, tokio, serde_json, reqwest
+    Cargo.toml                    # Depends on tokio, serde_json, reqwest
     src/main.rs                   # All experiment logic
     README.md                     # This file
 

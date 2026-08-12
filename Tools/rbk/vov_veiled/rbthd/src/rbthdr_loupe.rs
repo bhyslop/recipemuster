@@ -34,9 +34,10 @@
 //     content scan (no shipping file may NAME what the distribution withholds —
 //     the veiled tree by path, or a withheld document by basename) and the
 //     hostname-leak scan (no shipping file may name an operator's own test
-//     machine). Both harvest their needle sets live rather than from a
-//     hand-listed table, so a document veiled tomorrow, or a node enrolled
-//     tomorrow, is protected tomorrow.
+//     machine). The veil census harvests its needle set live rather than from a
+//     hand-listed table, so a document veiled tomorrow is protected tomorrow;
+//     the hostname needles are curated by hand, for the reason given at
+//     `ZRBTHDR_HOST_CENSUS`.
 //   - `assay_candidate` runs POST-CUT on the candidate (RBSHE step 4), re-homed
 //     from the theurge damnatio fixture's `veil_stripped` case: it hunts the veil
 //     token in the candidate's transposed root CLAUDE.md — a leak the pre-cut
@@ -174,26 +175,25 @@ const ZRBTHDR_SIZE_CAP: u64 = 1_048_576;
 
 // ── Hostname constants ──────────────────────────────────────
 
-/// Repo-relative root of the BURN node registry — one subdirectory per operator
-/// test machine (the investiture dirname), each carrying a `burn.env` with a
-/// `BURN_HOST=` value. Withheld by the perambulation, so it never reaches a
-/// candidate; like the veil census, this harvest can only mean anything pre-cut.
-const ZRBTHDR_HOST_CENSUS_ROOT: &str = "rbmm_moorings/rbmn_nodes";
+/// The operator's own test machines — the names no shipping file may carry.
+/// Curated by hand, and by hand deliberately: these were once harvested live
+/// from the BURN node registry, but that registry served the jurisdiction
+/// apparatus that has since retired out of this consumer tree, and node
+/// enrollment now happens only at the kit's primary home. A literal here is
+/// therefore as current as reality permits, and it is safe here for the reason
+/// this whole crate is: the hierophant is veiled and reaches no candidate.
+///
+/// A machine acquired later is protected only once its name is added — the one
+/// cost of the retired harvest, and the reason to add it at acquisition.
+pub(crate) const ZRBTHDR_HOST_CENSUS: &[&str] = &["bujn-winpc", "rocket"];
 
-/// Basenames the host census walk ignores — the registry's own README, never a
-/// node identity.
-const ZRBTHDR_HOST_CENSUS_SKIP_FILES: &[&str] = &["README.md"];
-
-/// Directories skipped while scanning shipping files for a hostname leak. The
-/// registry directories themselves carry the very identities the census is
-/// harvested from — scanning them would match the census against its own source.
-const ZRBTHDR_HOST_SCAN_SKIP_DIRS: &[&str] =
-    &["target", "vov_veiled", "rbmn_nodes", "rbmu_users"];
+/// Directories skipped while scanning shipping files for a hostname leak.
+const ZRBTHDR_HOST_SCAN_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
 
 /// Tokens exempt from the hostname census — an exact string that happens to also
 /// be ordinary vocabulary. Exact token, operator act, same doctrine as
 /// `ZRBTHDR_VEIL_EXEMPT`.
-const ZRBTHDR_HOST_EXEMPT: &[&str] = &[];
+pub(crate) const ZRBTHDR_HOST_EXEMPT: &[&str] = &[];
 
 // ── Repo-relative path ──────────────────────────────────────
 
@@ -353,45 +353,7 @@ fn zrbthdr_walk(dir: &Path, skip_dirs: &[&str], out: &mut Vec<PathBuf>) {
     }
 }
 
-// ── Hostname census and matcher ─────────────────────────────
-
-/// Harvest operator machine identity from the BURN node registry: every
-/// investiture dirname and every `BURN_HOST=` value beneath it. Both name a
-/// specific machine.
-fn zrbthdr_host_census_walk(dir: &Path, out: &mut BTreeSet<String>) {
-    let entries = match std::fs::read_dir(dir) {
-        Ok(e) => e,
-        Err(_) => return,
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        let name = match path.file_name().and_then(|s| s.to_str()) {
-            Some(n) => n.to_string(),
-            None => continue,
-        };
-        if path.is_dir() {
-            out.insert(name.clone());
-            zrbthdr_host_census_walk(&path, out);
-            continue;
-        }
-        if ZRBTHDR_HOST_CENSUS_SKIP_FILES.contains(&name.as_str()) {
-            continue;
-        }
-        let bytes = match std::fs::read(&path) {
-            Ok(b) => b,
-            Err(_) => continue,
-        };
-        let text = String::from_utf8_lossy(&bytes);
-        for line in text.lines() {
-            if let Some(value) = line.strip_prefix("BURN_HOST=") {
-                let value = value.trim();
-                if !value.is_empty() {
-                    out.insert(value.to_string());
-                }
-            }
-        }
-    }
-}
+// ── Hostname matcher ────────────────────────────────────────
 
 /// True when `token` appears in `line` on a word boundary — not merely as a
 /// substring of a longer, unrelated identifier.
@@ -486,23 +448,15 @@ fn zrbthdr_veil_leak(root: &Path) -> Vec<zrbthdr_Finding> {
 }
 
 /// No shipping file may name an operator's own test machine. The needle set is
-/// harvested live from the BURN node registry, so a node enrolled tomorrow is
-/// protected tomorrow. Source-tree only, same as the veil leak: the registry is
-/// stripped whole at release, so an empty census here is a FINDING outright.
+/// the curated `ZRBTHDR_HOST_CENSUS` literal. Source-tree only, same as the veil
+/// leak. There is no empty-census guard: the tripwire that stood here watched a
+/// live extractor that could silently stop extracting, and a literal cannot —
+/// emptying it is a visible, deliberate edit.
 fn zrbthdr_hostname_leak(root: &Path) -> Vec<zrbthdr_Finding> {
     let mut findings = Vec::new();
 
-    let census_root = root.join(ZRBTHDR_HOST_CENSUS_ROOT);
-    let mut census = BTreeSet::new();
-    zrbthdr_host_census_walk(&census_root, &mut census);
-    if census.is_empty() {
-        findings.push(zrbthdr_Finding {
-            file: ZRBTHDR_HOST_CENSUS_ROOT.to_string(),
-            line: 0,
-            detail: "the census matched no operator machine names — the extractor stopped extracting"
-                .to_string(),
-        });
-    }
+    let mut census: BTreeSet<String> =
+        ZRBTHDR_HOST_CENSUS.iter().map(|name| name.to_string()).collect();
     for name in ZRBTHDR_HOST_EXEMPT {
         census.remove(*name);
     }

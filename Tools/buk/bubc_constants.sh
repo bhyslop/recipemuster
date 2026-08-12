@@ -143,7 +143,16 @@ BUBC_band_runway=115    # sitting-runway rejection (live sitting below the requi
 # band_vacant precedent). One gate: underpin's and immure's rejects are
 # alternative firings that never co-occur, so they share this code.
 BUBC_band_unseised=116  # unseised substrate-reliquary election rejection (underpin/immure at-use — RBRR_SUBSTRATE_RELIQUARY unseised; seise one with rbw-rrs)
-# Free codes: 117-122, allocated upward from 117.
+# Branch-synchrony gate: bug_require_branch_synchrony_creed refuses a local
+# branch that is not standing at its freshly fetched upstream tip (no upstream
+# configured, detached HEAD, and tip mismatch are rules of the one gate). One
+# gate, kit-agnostic; the caller's creed rides the message, never the band.
+# Distinct from the clean-tree gate (108) rather than an alternative of it: a
+# publishing operation crosses both along one spawn path, and the conditions are
+# independent — a clean working tree says nothing about what has reached the
+# remote.
+BUBC_band_synchrony=117 # branch-synchrony gate rejection (local branch not standing at its freshly fetched upstream tip)
+# Free codes: 118-122, allocated upward from 118.
 # Self-test probe pins the band top, proving full-width propagation:
 BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 

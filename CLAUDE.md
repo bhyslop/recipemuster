@@ -4,13 +4,42 @@
 Full read and edit access is pre-approved for all files in:
 - `Tools/`
 
+Permission is not durability. `Tools/buk/` is a parcel drop-zone — see the next
+section — and an edit made there is destroyed at the next install.
+
+## Managed Kit Directories
+
+`Tools/buk/` is a consumed copy, not a source. BUK's primary home is the
+`jjqa_app` repository; this tree receives it as a minted parcel and installs it
+by whole-directory replacement — the install verb (`emplace`) deletes the kit
+directory outright, then recopies it from the parcel. Nothing standing in it
+survives.
+
+So an edit to any file beneath `Tools/buk/` is destroyed work, however small and
+however correct. There is no merge and no conflict: the file is deleted, a fresh
+copy from `jjqa_app` is written in its place, and the change is gone — no diff,
+no warning, no trace that it ever stood. This has nearly happened here. A ruled,
+censused, reveille-verified change to `Tools/buk/buv_validation.sh`
+(`d6390f148`) was made in this tree after it stopped being BUK's home, and
+survived only because it was hand-carried upstream ahead of the first install.
+That rescue was a one-time act and has since retired; a second such edit has
+nothing catching it.
+
+A buk file is therefore fixed in `jjqa_app` and arrives here by parcel. That is
+the only path in.
+
+Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in
+`rbmm_moorings/burc.env` — today, `buk` alone. Every other directory under
+`Tools/` is this repo's own and is edited here in the ordinary way. The release
+and install procedures themselves are specified in
+`jjqs_studbook/specs/vok/VOSO-distribution.adoc` (`vosor_release`,
+`vosoi_install`); this tree carries no copy of them, by design.
+
 ## File Acronym Mappings
 
 Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
 - RBK: `@Tools/rbk/claude-rbk-acronyms.md`
 - BUK: `@Tools/buk/claude-buk-acronyms.md`
-- CMK: `@Tools/cmk/claude-cmk-acronyms.md`
-- VOK: `@Tools/vok/claude-vok-acronyms.md`
 - APCK: `@Tools/apck/claude-apck-acronyms.md`
 - GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
@@ -29,7 +58,8 @@ a memo is itself the signal that formal specification is due.
 
 ## Working Preferences
 - When user mentions an acronym, immediately navigate to the corresponding file
-- Assume full edit permissions for all files in the two main directories
+- Assume full edit permissions under `Tools/`, bounded by the drop-zone limit
+  above: a change beneath `Tools/buk/` is made in `jjqa_app`, never here
 - For bash scripts, prefer functional programming style with clear error handling
 - For .adoc files, maintain consistent AsciiDoc formatting
 - For .claudex files, preserve the specific format requirements
@@ -54,12 +84,7 @@ When working with .adoc files using MCM patterns:
 
 ### Rust Build Discipline
 
-Two Rust build targets. Always use the tabtarget, never raw cargo commands.
-
-**VOW pipeline** (vvk/jjk/cmk kits — parceled for delivery):
-- `tt/vow-b.Build.sh` — build vvr binary and install to VVK bin
-- `tt/vow-t.Test.sh` — run all kit crate tests
-- `tt/vvw-r.RunVVX.sh <cmd>` — run vvx binary with arguments
+Always use the tabtarget, never raw cargo commands.
 
 **Theurge** (rbk's own test infrastructure — dispatches through the unified rbw workbench):
 - `tt/rbw-tb.Build.sh` — build theurge crate
@@ -100,14 +125,14 @@ network posture, not dependency tier:
 
 **Single case**: `tt/rbw-tc.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench). Omit case name to list all cases for the fixture; omit fixture to list all fixtures. Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
 
-**BUK self-test**: `tt/buw-st.BukSelfTest.sh` — exercises BUK test framework (kick-tires + bure-tweak, 9 cases)
+**BUK self-test**: `tt/buw-st.BukSelfTest.sh` — exercises the BUK test framework and core modules: kick-tires, band-survival, bure-tweak, burx-exchange, fact-chaining, buh-link, dispatch-color, buym-yelp (8 fixtures, 58 cases)
 
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 
-<!-- Universal minting doctrine is CMK-homed in Tools/cmk/claude-cmk-minting.md
-     (factored out 2026-07-21 so other projects can include it), enrolled in the
-     kit registry and delivered via the managed include block below. This repo
-     keeps only its Project Prefix Registry here. -->
+<!-- Universal minting doctrine is CMK-homed, and CMK homes in jjqa_app: this
+     repo no longer carries the kit, so the doctrine is not loaded here. What
+     stays is this repo's own Project Prefix Registry, which the doctrine's
+     Rule 1 defers to the host project for. -->
 
 ## Project Prefix Registry (rbm-local)
 
@@ -146,32 +171,23 @@ Every tolerance, alias, fallback, or alternative path multiplies the enumerated 
 
 Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline. Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
 
-<!-- Partnership rules of engagement (never distributed; hand-maintained outside
-     the managed block). Salutation leads — the wake-up greeting — then the stance.
-     Companion detail at Tools/cmk/claude-cmk-roe-detail.md is read on
-     demand, not @-included. -->
-@Tools/cmk/claude-cmk-salutation.md
-
-@Tools/cmk/claude-cmk-roe.md
+<!-- The wake-up greeting (never distributed; hand-maintained outside the
+     managed block). The file is gitignored and billet-local, materialized at
+     billet preparation by the saddle and tier-matched from the studbook; if
+     the include dangles, run a fresh saddle. The partnership rules of
+     engagement it used to lead into are CMK-homed and CMK homes in jjqa_app,
+     so they are not loaded here. -->
+@.claude/claude-salutation.md
 
 <!-- Distributable-kit guidance: hand-maintained @-include block, and the
      curation record for it — each line is a kit guidance file curated for
      launch-time load (kits ship more claude-*.md than belong here; on-demand
-     files stay out). Edit content in the @-targets, not here. -->
+     files stay out). Which files load is decided here; their content is edited
+     in neither this file nor the targets themselves — these targets stand in
+     the Tools/buk parcel drop-zone (see Managed Kit Directories above), so a
+     content change is made in jjqa_app and arrives by parcel. -->
 @Tools/buk/claude-buk-core.md
 @Tools/buk/claude-buk-acronyms.md
-@Tools/cmk/claude-cmk-core.md
-@Tools/cmk/claude-cmk-acronyms.md
-@Tools/cmk/claude-cmk-minting.md
-@Tools/jjk/claude-jjk-core.md
-@Tools/vvk/claude-vvk-core.md
-
-<!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
-@Tools/buk/vov_veiled/claude-buk-veiled.md
-@Tools/buk/vov_veiled/claude-buk-veiled-acronyms.md
-
-@Tools/vok/claude-vok-context.md
-@Tools/vok/claude-vok-acronyms.md
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
@@ -182,6 +198,7 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/rbk/claude-rbk-core.md
 @Tools/rbk/claude-rbk-acronyms.md
 
+<!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
 @Tools/rbk/vov_veiled/claude-rbk-veiled.md
 @Tools/rbk/vov_veiled/claude-rbk-veiled-acronyms.md
 
