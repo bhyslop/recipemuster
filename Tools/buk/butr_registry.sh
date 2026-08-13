@@ -30,7 +30,7 @@ ZBUTR_INCLUDED=1
 ######################################################################
 # Internal kindle boilerplate
 
-butr_kindle() {
+zbutr_kindle() {
   test -z "${ZBUTR_KINDLED:-}" || buto_fatal "butr already kindled"
 
   # Fixture rolls (parallel arrays)
@@ -55,7 +55,7 @@ butr_kindle() {
 # Internal sentinel
 
 zbutr_sentinel() {
-  test "${ZBUTR_KINDLED:-}" = "1" || buto_fatal "Module butr not kindled - call butr_kindle first"
+  test "${ZBUTR_KINDLED:-}" = "1" || buto_fatal "Module butr not kindled - call zbutr_kindle first"
 }
 
 ######################################################################

@@ -30,9 +30,9 @@
 #   buh_link   — OSC-8 hyperlink with prefix/suffix
 #   buh_tt     — resolved tabtarget display
 #
-# Callers compose lines from yelp yawp captures (buyy_*_yawp)
+# Callers compose lines from yelp yawp captures (buym_*_yawp)
 # and pass the pre-rendered string to buh_line:
-#   buyy_cmd_yawp "gcloud"; local -r z_cmd="${z_buym_yelp}"
+#   buym_cmd_yawp "gcloud"; local -r z_cmd="${z_buym_yelp}"
 #   buh_line "Run ${z_cmd} to authenticate."
 
 set -euo pipefail
@@ -83,7 +83,7 @@ zbuh_sentinel() {
 ######################################################################
 # Public: Section headers and numbered steps
 
-buh_section() { zbuh_sentinel; z_buh_body_indent=""; buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%s\n' "${z_buym_format}" >&2; }
+buh_section() { zbuh_sentinel; z_buh_body_indent=""; buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%s\n' "${z_buym_format}" >&2; }
 buh_e()       { echo "" >&2; }
 
 buh_step_style() {
@@ -97,7 +97,7 @@ buh_step1() {
   z_buh_step1_n=$((z_buh_step1_n + 1))
   z_buh_step2_n=0
   z_buh_body_indent="   "
-  buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
   printf '%s\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${z_buym_format}" >&2
 }
 
@@ -105,7 +105,7 @@ buh_step2() {
   zbuh_sentinel
   z_buh_step2_n=$((z_buh_step2_n + 1))
   z_buh_body_indent="      "
-  buyf_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
   printf '%s\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${z_buym_format}" >&2
 }
 
@@ -144,7 +144,7 @@ buh_link() {
 
 buh_tt() {
   zbuh_sentinel
-  buyy_tt_yawp "${2:-}" "${3:-}" "${4:-}"
+  buym_tt_yawp "${2:-}" "${3:-}" "${4:-}"
   local -r z_tt="${z_buym_yelp}"
   buh_line "${1:-}${z_tt}"
 }
@@ -161,14 +161,14 @@ buh_tt() {
 
 buh_line() {
   zbuh_sentinel
-  buyf_format_yawp "${BUYC_RESET}" "${1:-}"
+  buym_format_yawp "${BUYC_RESET}" "${1:-}"
   printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 ######################################################################
 # Public: Semantic line functions
 #
-# Each routes through buyf_format_yawp with a BUYC_* ambient color,
+# Each routes through buym_format_yawp with a BUYC_* ambient color,
 # then prints via indent-aware printf.  Diastema markers in the string
 # are resolved to ANSI/OSC-8 at display time.
 #
@@ -179,19 +179,19 @@ buh_line() {
 
 buh_code() {
   zbuh_sentinel
-  buyf_format_yawp "${BUYC_CYAN}" "${1:-}"
+  buym_format_yawp "${BUYC_CYAN}" "${1:-}"
   printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 buh_warn() {
   zbuh_sentinel
-  buyf_format_yawp "${BUYC_BRIGHT_YELLOW}" "${1:-}"
+  buym_format_yawp "${BUYC_BRIGHT_YELLOW}" "${1:-}"
   printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
 buh_error() {
   zbuh_sentinel
-  buyf_format_yawp "${BUYC_BRIGHT_RED}" "${1:-}"
+  buym_format_yawp "${BUYC_BRIGHT_RED}" "${1:-}"
   printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
 }
 
