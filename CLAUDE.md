@@ -40,7 +40,6 @@ and install procedures themselves are specified in
 Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
 - RBK: `@Tools/rbk/claude-rbk-acronyms.md`
 - BUK: `@Tools/buk/claude-buk-acronyms.md`
-- APCK: `@Tools/apck/claude-apck-acronyms.md`
 
 ## Retired Memos
 
@@ -146,7 +145,6 @@ network posture, not dependency tier:
 | `wrs` | Ward Realm Substrate |
 | `hm` | HMK (Hard-state Machine Kit) |
 | `lmci` | LMCI (Language Model Console Integration) |
-| `apc` | APCK (Ann's PHI Clipbuddy Kit) |
 | `vsl` | VSLK (Visual SlickEdit Local Kit) |
 
 For expanded prefix trees within each project, see **File Acronym Mappings** above.
@@ -205,6 +203,3 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/rbk/claude-rbk-tabtarget-context.md
 
 For theurge/ifrit crucible testing work, read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
-
-@Tools/apck/claude-apck-context.md
-@Tools/apck/claude-apck-acronyms.md

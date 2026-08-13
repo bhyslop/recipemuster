@@ -98,7 +98,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // THE WITHHELD KITS. Whole trees: the operator's own tooling, or projects
     // that share the repo but not the delivery. None is uniform by accident —
     // each is a tree the consumer has no seat for.
-    ("Tools/apck/", Withhold),
     ("Tools/hmk/", Withhold),
     ("Tools/lmci/", Withhold),
     ("Tools/vslf-rbw/", Withhold),
@@ -120,7 +119,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("tt/rbw-", Ship),
     ("tt/buw-", Ship),
     ("tt/z-launcher.sh", Ship),
-    ("tt/apcw-", Withhold),
     ("tt/study-", Withhold),
     ("tt/vslk-", Withhold),
     // THE MOORINGS. Every nameplate ships: README documents each as an example
