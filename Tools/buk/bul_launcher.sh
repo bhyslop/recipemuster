@@ -79,7 +79,7 @@ zburc_enforce
 # visible here. This collapses the former separate nolog launcher.
 if test -z "${BURD_NO_LOG:-}"; then
   # bud_dispatch is the canonical exporter of BURD_TABTARGET_DIR, but the
-  # SETUP NEEDED block below uses buyy_tt_yawp which requires it earlier.
+  # SETUP NEEDED block below uses buym_tt_yawp which requires it earlier.
   BURD_TABTARGET_DIR="${BURC_TABTARGET_DIR}"
 
   # Load yelp + handbook so the SETUP NEEDED block can yawp paths, tabtarget
@@ -93,9 +93,9 @@ if test -z "${BURD_NO_LOG:-}"; then
   # Load BURS configuration and kindle
   z_station_file="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
   if ! test -f "${z_station_file}"; then
-    buyy_ui_yawp  "${z_station_file}";              z_path_yp="${z_buym_yelp}"
-    buyy_ui_yawp  "${BURC_STATION_FILE}";           z_rel_yp="${z_buym_yelp}"
-    buyy_ui_yawp  "${BURD_REGIME_FILE}";            z_burc_yp="${z_buym_yelp}"
+    buym_ui_yawp  "${z_station_file}";              z_path_yp="${z_buym_yelp}"
+    buym_ui_yawp  "${BURC_STATION_FILE}";           z_rel_yp="${z_buym_yelp}"
+    buym_ui_yawp  "${BURD_REGIME_FILE}";            z_burc_yp="${z_buym_yelp}"
 
     buh_e
     buh_section "SETUP NEEDED: Station Regime file not found"
@@ -123,7 +123,7 @@ if test -z "${BURD_NO_LOG:-}"; then
     buh_line    "  Or create it yourself with this content:"
     buh_e
     for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
-      buyy_cmd_yawp "${ZBURS_TEMPLATE_NAMES[${z_i}]}=${ZBURS_TEMPLATE_VALUES[${z_i}]}"
+      buym_cmd_yawp "${ZBURS_TEMPLATE_NAMES[${z_i}]}=${ZBURS_TEMPLATE_VALUES[${z_i}]}"
       buh_line    "    ${z_buym_yelp}"
     done
     buh_e

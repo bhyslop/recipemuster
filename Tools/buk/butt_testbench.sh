@@ -56,7 +56,7 @@ zburd_kindle
 # Registration
 
 butt_kindle() {
-  butr_kindle
+  zbutr_kindle
 
   # All fixtures are pure local
   butr_suite_enroll "self-test"

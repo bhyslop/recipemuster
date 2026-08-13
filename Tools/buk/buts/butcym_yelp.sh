@@ -19,7 +19,7 @@
 # BUTCYM - Yelp module test cases for BUK self-test
 #
 # Exercises buym_yelp.sh: diastema markers, yawp functions,
-# buyf_format_yawp resolver, configurators, and buh semantic
+# buym_format_yawp resolver, configurators, and buh semantic
 # line functions.  Pure local — no GCP, no containers.
 
 set -euo pipefail
@@ -28,107 +28,107 @@ set -euo pipefail
 # Helpers — each runs in a subshell via zbuto_invoke
 
 zbutcym_cmd_resolve() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_cmd_yawp "git status"
-  buyf_format_yawp "" "${z_buym_yelp}"
+  buym_cmd_yawp "git status"
+  buym_format_yawp "" "${z_buym_yelp}"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_link_osc8() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_link_yawp "https://example.com" "Depot"
-  buyf_format_yawp "" "${z_buym_yelp}"
+  buym_link_yawp "https://example.com" "Depot"
+  buym_format_yawp "" "${z_buym_yelp}"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_link_fallback() {
   export BURD_NO_HYPERLINKS=1
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_link_yawp "https://example.com" "Depot"
-  buyf_format_yawp "" "${z_buym_yelp}"
+  buym_link_yawp "https://example.com" "Depot"
+  buym_format_yawp "" "${z_buym_yelp}"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_ambient_preservation() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_cmd_yawp "test"
-  buyf_format_yawp "\033[1;33m" "${z_buym_yelp}"
+  buym_cmd_yawp "test"
+  buym_format_yawp "\033[1;33m" "${z_buym_yelp}"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_fast_path() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyf_format_yawp "" "plain text no markers"
+  buym_format_yawp "" "plain text no markers"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_multi_markers() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_link_yawp "https://example.com" "Vessel"
+  buym_link_yawp "https://example.com" "Vessel"
   local z_vessel="${z_buym_yelp}"
-  buyy_link_yawp "https://example.com" "Depot"
+  buym_link_yawp "https://example.com" "Depot"
   local z_depot="${z_buym_yelp}"
-  buyy_cmd_yawp "run"
+  buym_cmd_yawp "run"
   local z_cmd="${z_buym_yelp}"
-  buyf_format_yawp "" "A ${z_vessel} in a ${z_depot} via ${z_cmd}."
+  buym_format_yawp "" "A ${z_vessel} in a ${z_depot} via ${z_cmd}."
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_plain_mode() {
-  buyc_plain
+  buym_plain
   zbuym_kindle
-  buyy_cmd_yawp "test"
-  buyf_format_yawp "" "${z_buym_yelp}"
+  buym_cmd_yawp "test"
+  buym_format_yawp "" "${z_buym_yelp}"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_gray_color() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
   printf '%b' "[${BUYC_GRAY}]" >&2
 }
 
 zbutcym_gray_plain() {
-  buyc_plain
+  buym_plain
   zbuym_kindle
   printf '%b' "[${BUYC_GRAY}]" >&2
 }
 
 zbutcym_strip_cmd() {
   # color ON — strip must ignore terminal mode
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_cmd_yawp "git status"
-  buyf_strip_yawp "Run ${z_buym_yelp} now"
+  buym_cmd_yawp "git status"
+  buym_strip_yawp "Run ${z_buym_yelp} now"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_strip_link() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_link_yawp "https://example.com" "Depot"
-  buyf_strip_yawp "See ${z_buym_yelp}."
+  buym_link_yawp "https://example.com" "Depot"
+  buym_strip_yawp "See ${z_buym_yelp}."
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_strip_href() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyy_href_yawp "https://example.com" "Docs"
-  buyf_strip_yawp "${z_buym_yelp}"
+  buym_href_yawp "https://example.com" "Docs"
+  buym_strip_yawp "${z_buym_yelp}"
   printf '%b' "${z_buym_format}" >&2
 }
 
 zbutcym_strip_fast_path() {
-  buyc_unconditional
+  buym_unconditional
   zbuym_kindle
-  buyf_strip_yawp "plain text no markers"
+  buym_strip_yawp "plain text no markers"
   printf '%b' "${z_buym_format}" >&2
 }
 
@@ -138,14 +138,14 @@ zbutcym_strip_fast_path() {
 # under set -u.  The nested subshell contains buc_die's exit 1 so the
 # helper returns normally and zbuto_invoke captures the rendered stderr.
 zbutcym_cold_die() {
-  buyc_unconditional
+  buym_unconditional
   buc_context "cold-ctx"
   ( buc_die "cold boom" ) || true
   printf 'survived\n' >&2
 }
 
 zbutcym_cold_die_plain() {
-  buyc_plain
+  buym_plain
   buc_context "cold-ctx"
   ( buc_die "cold boom" ) || true
   printf 'survived\n' >&2
@@ -177,7 +177,7 @@ zbutcym_verdict_probe() {
 # Test cases
 
 butcym_cmd_resolve_tcase() {
-  buto_trace "buyy_cmd_yawp: CMD diastema resolves to cyan ANSI"
+  buto_trace "buym_cmd_yawp: CMD diastema resolves to cyan ANSI"
   zbuto_invoke zbutcym_cmd_resolve
   buto_fatal_on_error "${ZBUTO_STATUS}" "cmd resolve failed" "STDERR: ${ZBUTO_STDERR}"
   local z_cyan
@@ -194,7 +194,7 @@ butcym_cmd_resolve_tcase() {
 }
 
 butcym_link_osc8_tcase() {
-  buto_trace "buyy_link_yawp: LINK diastema resolves to OSC-8 hyperlink"
+  buto_trace "buym_link_yawp: LINK diastema resolves to OSC-8 hyperlink"
   zbuto_invoke zbutcym_link_osc8
   buto_fatal_on_error "${ZBUTO_STATUS}" "link osc8 failed" "STDERR: ${ZBUTO_STDERR}"
   local z_osc
@@ -210,7 +210,7 @@ butcym_link_osc8_tcase() {
 }
 
 butcym_link_fallback_tcase() {
-  buto_trace "buyy_link_yawp: BURD_NO_HYPERLINKS falls back to angle-bracket URL"
+  buto_trace "buym_link_yawp: BURD_NO_HYPERLINKS falls back to angle-bracket URL"
   zbuto_invoke zbutcym_link_fallback
   buto_fatal_on_error "${ZBUTO_STATUS}" "link fallback failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -226,7 +226,7 @@ butcym_link_fallback_tcase() {
 }
 
 butcym_ambient_preservation_tcase() {
-  buto_trace "buyf_format_yawp: DIASTEMA_END restores ambient color, not terminal default"
+  buto_trace "buym_format_yawp: DIASTEMA_END restores ambient color, not terminal default"
   zbuto_invoke zbutcym_ambient_preservation
   buto_fatal_on_error "${ZBUTO_STATUS}" "ambient preservation failed" "STDERR: ${ZBUTO_STDERR}"
   # After the CMD region closes, the ambient (bright yellow) should appear
@@ -242,7 +242,7 @@ butcym_ambient_preservation_tcase() {
 }
 
 butcym_fast_path_tcase() {
-  buto_trace "buyf_format_yawp: no diastema markers takes fast path"
+  buto_trace "buym_format_yawp: no diastema markers takes fast path"
   zbuto_invoke zbutcym_fast_path
   buto_fatal_on_error "${ZBUTO_STATUS}" "fast path failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -256,7 +256,7 @@ butcym_fast_path_tcase() {
 }
 
 butcym_multi_markers_tcase() {
-  buto_trace "buyf_format_yawp: multiple links and cmd in one string all resolve"
+  buto_trace "buym_format_yawp: multiple links and cmd in one string all resolve"
   zbuto_invoke zbutcym_multi_markers
   buto_fatal_on_error "${ZBUTO_STATUS}" "multi markers failed" "STDERR: ${ZBUTO_STDERR}"
   local z_osc
@@ -285,7 +285,7 @@ butcym_multi_markers_tcase() {
 }
 
 butcym_plain_mode_tcase() {
-  buto_trace "buyc_plain: no ANSI escapes in output"
+  buto_trace "buym_plain: no ANSI escapes in output"
   zbuto_invoke zbutcym_plain_mode
   buto_fatal_on_error "${ZBUTO_STATUS}" "plain mode failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -329,7 +329,7 @@ butcym_gray_plain_tcase() {
 }
 
 butcym_strip_cmd_tcase() {
-  buto_trace "buyf_strip_yawp: CMD marker strips to bare text, ignores color mode"
+  buto_trace "buym_strip_yawp: CMD marker strips to bare text, ignores color mode"
   zbuto_invoke zbutcym_strip_cmd
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip cmd failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -347,7 +347,7 @@ butcym_strip_cmd_tcase() {
 }
 
 butcym_strip_link_tcase() {
-  buto_trace "buyf_strip_yawp: LINK degrades to 'text <url>' with no ANSI/OSC-8"
+  buto_trace "buym_strip_yawp: LINK degrades to 'text <url>' with no ANSI/OSC-8"
   zbuto_invoke zbutcym_strip_link
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip link failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -367,7 +367,7 @@ butcym_strip_link_tcase() {
 }
 
 butcym_strip_href_tcase() {
-  buto_trace "buyf_strip_yawp: HREF degrades to 'text <url>'"
+  buto_trace "buym_strip_yawp: HREF degrades to 'text <url>'"
   zbuto_invoke zbutcym_strip_href
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip href failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -381,7 +381,7 @@ butcym_strip_href_tcase() {
 }
 
 butcym_strip_fast_path_tcase() {
-  buto_trace "buyf_strip_yawp: no diastema markers takes fast path"
+  buto_trace "buym_strip_yawp: no diastema markers takes fast path"
   zbuto_invoke zbutcym_strip_fast_path
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip fast path failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -419,7 +419,7 @@ butcym_cold_die_tcase() {
 }
 
 butcym_cold_die_plain_tcase() {
-  buto_trace "buc_die cold path under buyc_plain: gray sigil suppressed (NO_COLOR-aware)"
+  buto_trace "buc_die cold path under buym_plain: gray sigil suppressed (NO_COLOR-aware)"
   zbuto_invoke zbutcym_cold_die_plain
   buto_fatal_on_error "${ZBUTO_STATUS}" "cold die plain helper did not survive" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
@@ -434,7 +434,7 @@ butcym_cold_die_plain_tcase() {
   local z_gray
   z_gray=$(printf '\033[90m')
   case "${ZBUTO_STDERR}" in
-    *"${z_gray}"*) buto_fatal "Gray sigil ANSI present under buyc_plain" "Got: ${ZBUTO_STDERR}" ;;
+    *"${z_gray}"*) buto_fatal "Gray sigil ANSI present under buym_plain" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }

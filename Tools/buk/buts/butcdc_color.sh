@@ -29,10 +29,11 @@
 # subshells but never survives a new process.  Sourcing the dispatch spine
 # in-subshell would die on its own top-level BURD_REGIME_FILE assignment,
 # and calling the resolver there would die re-exporting the locked
-# BURD_COLOR.  A fresh process also confines the spine's shadow
-# zburd_sentinel (bud_dispatch.sh, guarding ZBURD_INITIALIZED) so it can
-# never reach the testbench's own zburd_sentinel call.  The spine's
-# execute-only guard is what makes sourcing it inert.
+# BURD_COLOR.  The spine's execute-only guard is what makes sourcing it
+# inert.  A fresh process also confines whatever the spine defines at its
+# own top level, which is what keeps this case sound as the spine grows —
+# the spine's own sentinel is zbud_sentinel and the testbench's is
+# zburd_sentinel, two modules' guards that no longer share a name.
 #
 # All tests are pure local — no GCP, no containers, no network.
 

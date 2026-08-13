@@ -24,7 +24,7 @@ test -z "${ZBUC_INCLUDED:-}" || return 0
 ZBUC_INCLUDED=1
 
 # Color is no longer buc's own concern.  Every display path renders through
-# the buym core (buyf_format_yawp over the kindle-time BUYC_* palette), which
+# the buym core (buym_format_yawp over the kindle-time BUYC_* palette), which
 # owns the single terminal-capability decision and honors NO_COLOR/TERM=dumb.
 # Semantic ambients flow in by BUYC_* name (resolved after kindle); colored
 # prefixes ride buym's WARN/FAIL span markers.
@@ -70,7 +70,7 @@ zbuc_tag_args() {
   zbuc_make_tag "${z_d}" "${z_label}"
   local z_arg
   for z_arg in "$@"; do
-    buyf_strip_yawp "${z_arg}"
+    buym_strip_yawp "${z_arg}"
     printf '%s\n' "${z_buym_format}"
   done | zbuc_log "${ZBUC_TAG}" " ---- "
 }
@@ -88,7 +88,7 @@ buc_debug()    { zbuc_tag_args 3 "buc_debug    " "$@"; zbuc_print 2 ""          
 buc_trace()    { zbuc_tag_args 3 "buc_trace    " "$@"; zbuc_print 3 ""                "$@"; }
 buc_warn() {
   zbuc_tag_args 3 "buc_warn     " "$@"
-  buyy_warn_yawp "WARNING:"; local z_pfx="${z_buym_yelp}"
+  buym_warn_yawp "WARNING:"; local z_pfx="${z_buym_yelp}"
   zbuc_print 0 "" "${z_pfx} $*"
 }
 buc_success() {
@@ -103,7 +103,7 @@ buc_success() {
 buc_die() {
   local z_status=$?
   zbuc_tag_args 3 "buc_die      " "ERROR: [${ZBUC_CONTEXT:-}] $*"
-  buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
+  buym_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
   zbuc_print -1 "" "${z_pfx} [${ZBUC_CONTEXT:-}] $*"
   if test -n "${BUBC_band_base:-}"                                \
      && test "${z_status}" -ge "${BUBC_band_base}"                \
@@ -125,7 +125,7 @@ buc_reject() {
   test "${z_code}" -ge "${BUBC_band_base}" 2>/dev/null || buc_die "buc_reject: code '${z_code}' below band"
   test "${z_code}" -lt "$((BUBC_band_base + BUBC_band_width))" || buc_die "buc_reject: code '${z_code}' above band"
   zbuc_tag_args 3 "buc_reject   " "ERROR: [${ZBUC_CONTEXT:-}] $*"
-  buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
+  buym_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
   zbuc_print -1 "" "${z_pfx} [${ZBUC_CONTEXT:-}] $*"
   exit "${z_code}"
 }
@@ -253,7 +253,7 @@ buc_set_doc_mode() {
 buc_usage_die() {
   set -e
   local usage; usage=$(zbuc_usage)
-  buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
+  buym_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
   zbuc_tint "" "${z_pfx} ${usage}"
   printf '%s\n' "${z_buym_format}"
   exit 1
@@ -268,7 +268,7 @@ zbuc_tint() {
   local z_name="${1:-}"
   local z_ambient=""
   test -z "${z_name}" || z_ambient="${!z_name}"
-  buyf_format_yawp "${z_ambient}" "${2:-}"
+  buym_format_yawp "${z_ambient}" "${2:-}"
 }
 
 # Multi-line print function with verbosity control.
@@ -322,7 +322,7 @@ buc_die_if() {
 
   set -e
   local context="${ZBUC_CONTEXT:-}"
-  buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
+  buym_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
   zbuc_print -1 "" "${z_pfx} [$context] $1"
   shift
   zbuc_print -1 "" "$@"
@@ -339,7 +339,7 @@ buc_die_unless() {
 
   set -e
   local context="${ZBUC_CONTEXT:-}"
-  buyy_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
+  buym_fail_yawp "ERROR:"; local z_pfx="${z_buym_yelp}"
   zbuc_print -1 "" "${z_pfx} [$context] $1"
   shift
   zbuc_print -1 "" "$@"
