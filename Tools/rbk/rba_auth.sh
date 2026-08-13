@@ -383,8 +383,8 @@ zrba_leg1_idtoken_capture() {
   # own IdP sign-in, and a substituted sign-in cannot pass admission), so the
   # retired /dev/tty emission and its headless fail-fast gate defended no
   # threat.
-  buyy_href_yawp "${z_verification_uri}" "${z_verification_uri}"; local -r z_uri_yp="${z_buym_yelp}"
-  buyy_ui_yawp   "${z_user_code}";                                local -r z_code_yp="${z_buym_yelp}"
+  buym_href_yawp "${z_verification_uri}" "${z_verification_uri}"; local -r z_uri_yp="${z_buym_yelp}"
+  buym_ui_yawp   "${z_user_code}";                                local -r z_code_yp="${z_buym_yelp}"
   buc_step "Avowal — sign in to open your sitting:"
   buc_step "    ${z_uri_yp}"
   buc_step "    code: ${z_code_yp}"

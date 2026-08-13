@@ -37,7 +37,7 @@ rbhw_docker_context_discipline() {
   buh_line     "- Native dockerd in WSL (install per vendor docs in the WSL distro)"
   buh_e
   buh_step1    "Inside WSL — Create Named Context:"
-  buyy_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; local -r z_docker_ctx="${z_buym_yelp}"
+  buym_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; local -r z_docker_ctx="${z_buym_yelp}"
   buh_line "Create context ${z_docker_ctx} for the native daemon:"
   buh_code     "docker context create ${ZRBHW_DOCKER_CONTEXT} --docker \"host=unix:///var/run/docker.sock\""
   buh_code     "docker context use ${ZRBHW_DOCKER_CONTEXT}"

@@ -38,7 +38,7 @@ rbho_first_crucible() {
   local -r z_nameplate_file="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
-  buyy_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
+  buym_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
 
   local -r z_test_domain="www.internic.net"
 
@@ -167,10 +167,10 @@ rbho_first_crucible() {
   buh_line "and you can run any ${RBYC_NAMEPLATE} — ${z_moniker} was just this"
   buh_line "session's example."
   buh_e
-  buyy_tt_yawp "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}";          local -r z_tt_kludge="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}";  local -r z_tt_charge="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_CRUCIBLE_SSH}"    "${z_moniker}";  local -r z_tt_ssh="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}";  local -r z_tt_quench="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}";          local -r z_tt_kludge="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}";  local -r z_tt_charge="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_SSH}"    "${z_moniker}";  local -r z_tt_ssh="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}";  local -r z_tt_quench="${z_buym_yelp}"
   buh_line "   ${RBYC_KLUDGE}   ${z_tt_kludge}    build the ${RBYC_BOTTLE} image, write ${RBYC_HALLMARK} into ${RBYC_NAMEPLATE}"
   buh_line "   ${RBYC_CHARGE}   ${z_tt_charge}    start the three containers from the ${RBYC_NAMEPLATE}"
   buh_line "   SSH      ${z_tt_ssh}     log into the ${RBYC_BOTTLE} for interactive work"

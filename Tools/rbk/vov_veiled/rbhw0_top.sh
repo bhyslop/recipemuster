@@ -31,9 +31,9 @@ rbhw_top() {
 
   buh_section  "Windows Test Infrastructure Setup"
   buh_line     "Complete setup sequence for running Recipe Bottle tests on a Windows host."
-  buyy_cmd_yawp "${ZRBHW_WSL_DISTRO}"; local -r z_wsl_distro_yelp="${z_buym_yelp}"
+  buym_cmd_yawp "${ZRBHW_WSL_DISTRO}"; local -r z_wsl_distro_yelp="${z_buym_yelp}"
   buh_line "   Target WSL distro: ${z_wsl_distro_yelp}"
-  buyy_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; local -r z_docker_context_yelp="${z_buym_yelp}"
+  buym_cmd_yawp "${ZRBHW_DOCKER_CONTEXT}"; local -r z_docker_context_yelp="${z_buym_yelp}"
   buh_line "   Docker context:    ${z_docker_context_yelp}"
   buh_e
   buh_section  "Phase 1: SSH Reachability (BUK — operator-manual prerequisite)"
