@@ -41,7 +41,6 @@ Per-kit acronym mappings live in each kit's context file (loaded via `@` include
 - RBK: `@Tools/rbk/claude-rbk-acronyms.md`
 - BUK: `@Tools/buk/claude-buk-acronyms.md`
 - APCK: `@Tools/apck/claude-apck-acronyms.md`
-- GAD: `Tools/gad/CLAUDE.md` (not `@`-included — loaded only when working in that kit)
 
 ## Retired Memos
 
@@ -79,7 +78,7 @@ When working with .adoc files using MCM patterns:
   - Replacement text: `<<anchor,Display Text>>` (what readers see)
   - Definition: `[[anchor]] {attribute}:: Definition text` (meaning)
 - Definitions may be grouped in lists or dispersed through document
-- Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`, `gad_`)
+- Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`)
 - Use snake_case for anchors, match attribute to anchor
 
 ### Rust Build Discipline
@@ -139,7 +138,6 @@ network posture, not dependency tier:
 | Prefix | Project |
 |--------|---------|
 | `rb` | Recipe Bottle |
-| `gad` | GAD (Google AsciiDoc Differ) |
 | `bu` | BUK (Bash Utilities Kit) |
 | `jj` | Job Jockey |
 | `pb` | Paneboard |
