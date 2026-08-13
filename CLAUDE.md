@@ -1,45 +1,69 @@
-# Claude Code Project Memory
+# Recipe Bottle (`rb`) — sire context
 
-## Directory Permissions
-Full read and edit access is pre-approved for all files in:
-- `Tools/`
+The kit context this tree contributes to a kraal session's composed context, and
+its gather manifest. No session sits in this tree: it is prepared as a billet
+standing beside the session's own outspan, and the outspan — which carries no
+repository — is where that session's shell starts. Every path below is therefore
+repo-relative and names a file in the billet, reached by joining the billet root
+the composed frame above names.
 
-Permission is not durability. `Tools/buk/` is a parcel drop-zone — see the next
-section — and an edit made there is destroyed at the next install.
+Tabtarget lines are written the same way, `tt/rbw-…`, and are run by their
+absolute path from wherever the shell happens to stand: `tt/z-launcher.sh`
+normalizes the working directory to the repo root itself, so a tabtarget invoked
+from outside the tree behaves exactly as one invoked inside it. Nothing here
+needs a `cd`, and the log paths a dispatch announces are the ones to read back —
+never a path rebuilt from a remembered layout.
+
+## Current Context
+- Primary focus: Recipe Bottle infrastructure and tooling
+- Architecture: Bash-based CLI tools with Google Cloud integration
+- Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
+- Public project page: https://scaleinv.github.io/recipebottle
 
 ## Managed Kit Directories
 
-`Tools/buk/` is a consumed copy, not a source. BUK's primary home is the
-`jjqa_app` repository; this tree receives it as a minted parcel and installs it
-by whole-directory replacement — the install verb (`emplace`) deletes the kit
+`Tools/buk/` is a consumed copy, not a source. BUK's primary home is the JJ
+application clone, `../jjqa_app` — a peer of the outspan, not a tree inside this
+one; this tree receives BUK as a minted parcel and installs it by
+whole-directory replacement — the install verb (`emplace`) deletes the kit
 directory outright, then recopies it from the parcel. Nothing standing in it
 survives.
 
 So an edit to any file beneath `Tools/buk/` is destroyed work, however small and
 however correct. There is no merge and no conflict: the file is deleted, a fresh
-copy from `jjqa_app` is written in its place, and the change is gone — no diff,
-no warning, no trace that it ever stood. This has nearly happened here. A ruled,
-censused, reveille-verified change to `Tools/buk/buv_validation.sh`
+copy from `../jjqa_app` is written in its place, and the change is gone — no
+diff, no warning, no trace that it ever stood. This has nearly happened here. A
+ruled, censused, reveille-verified change to `Tools/buk/buv_validation.sh`
 (`d6390f148`) was made in this tree after it stopped being BUK's home, and
 survived only because it was hand-carried upstream ahead of the first install.
 That rescue was a one-time act and has since retired; a second such edit has
 nothing catching it.
 
-A buk file is therefore fixed in `jjqa_app` and arrives here by parcel. That is
-the only path in.
+A buk file is therefore fixed in `../jjqa_app` and arrives here by parcel. That
+is the only path in — including a buk file's own carried prose, so a correction
+owed to `Tools/buk/claude-buk-core.md` is made at the BUK home and rides the
+next parcel.
 
 Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in
 `rbmm_moorings/burc.env` — today, `buk` alone. Every other directory under
-`Tools/` is this repo's own and is edited here in the ordinary way. The release
-and install procedures themselves are specified in
+`Tools/` is this repo's own and is edited in the billet in the ordinary way. The
+release and install procedures themselves are specified in
 `jjqs_studbook/specs/vok/VOSO-distribution.adoc` (`vosor_release`,
 `vosoi_install`); this tree carries no copy of them, by design.
 
 ## File Acronym Mappings
 
-Per-kit acronym mappings live in each kit's context file (loaded via `@` includes below).
-- RBK: `@Tools/rbk/claude-rbk-acronyms.md`
-- BUK: `@Tools/buk/claude-buk-acronyms.md`
+Each kit's acronym rows ride that kit's core context file, annotated with the
+per-row descriptions and family topology — RBK's in
+`Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/claude-buk-core.md`, and the
+veiled half's in `Tools/rbk/vov_veiled/claude-rbk-veiled.md`. Those cores load
+below.
+
+Beside each core stands a bare index (`claude-{kit}-acronyms.md`) restating the
+same rows without their annotations. Those indexes are not loaded — see the
+curation record under **Kit context** — and each core is a strict superset of
+its own index, so nothing is lost. They stand for the lints that read them as
+rosters, and for a reader who wants the bare table.
 
 ## Retired Memos
 
@@ -55,12 +79,12 @@ memo retires, it needs a spec home. The temptation to home durable knowledge in
 a memo is itself the signal that formal specification is due.
 
 ## Working Preferences
-- When user mentions an acronym, immediately navigate to the corresponding file
-- Assume full edit permissions under `Tools/`, bounded by the drop-zone limit
-  above: a change beneath `Tools/buk/` is made in `jjqa_app`, never here
+- When an acronym is mentioned, navigate to the corresponding file
+- Everything under `Tools/` is this repo's own and is edited in the billet,
+  bounded by the drop-zone limit above: a change beneath `Tools/buk/` is made in
+  `../jjqa_app`, never here
 - For bash scripts, prefer functional programming style with clear error handling
 - For .adoc files, maintain consistent AsciiDoc formatting
-- For .claudex files, preserve the specific format requirements
 
 ### Heredoc Delimiter Selection
 
@@ -127,7 +151,7 @@ network posture, not dependency tier:
 
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 
-<!-- Universal minting doctrine is CMK-homed, and CMK homes in jjqa_app: this
+<!-- Universal minting doctrine is CMK-homed, and CMK homes in ../jjqa_app: this
      repo no longer carries the kit, so the doctrine is not loaded here. What
      stays is this repo's own Project Prefix Registry, which the doctrine's
      Rule 1 defers to the host project for. -->
@@ -149,10 +173,6 @@ network posture, not dependency tier:
 
 For expanded prefix trees within each project, see **File Acronym Mappings** above.
 
-## Common Workflows
-1. **Bash Development**: Start with relevant utility (BUC/BUD/BUT/BUV/BUW), check dependencies
-2. **Requirements Writing**: Open spec file, review related documents in same directory
-
 ## Design Principles
 
 ### Load-Bearing Complexity
@@ -167,39 +187,69 @@ Every tolerance, alias, fallback, or alternative path multiplies the enumerated 
 
 Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline. Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
 
+## Salutation
+
 <!-- The wake-up greeting (never distributed; hand-maintained outside the
      managed block). The file is gitignored and billet-local, materialized at
      billet preparation by the saddle and tier-matched from the studbook; if
      the include dangles, run a fresh saddle. The partnership rules of
-     engagement it used to lead into are CMK-homed and CMK homes in jjqa_app,
+     engagement it used to lead into are CMK-homed and CMK homes in ../jjqa_app,
      so they are not loaded here. -->
 @.claude/claude-salutation.md
 
-<!-- Distributable-kit guidance: hand-maintained @-include block, and the
-     curation record for it — each line is a kit guidance file curated for
-     launch-time load (kits ship more claude-*.md than belong here; on-demand
-     files stay out). Which files load is decided here; their content is edited
-     in neither this file nor the targets themselves — these targets stand in
-     the Tools/buk parcel drop-zone (see Managed Kit Directories above), so a
-     content change is made in jjqa_app and arrives by parcel. -->
-@Tools/buk/claude-buk-core.md
-@Tools/buk/claude-buk-acronyms.md
+## Kit context
 
-## Current Context
-- Primary focus: Recipe Bottle infrastructure and tooling
-- Architecture: Bash-based CLI tools with Google Cloud integration
-- Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
-- Public project page: https://scaleinv.github.io/recipebottle
+<!-- THE GATHER MANIFEST, and the curation record for it. Every `@` line below
+     is a whole file spliced into the composed context of every session this
+     tree is dispatched to, so each line is standing launch-time weight. Which
+     files load is decided here; their content is edited in the files
+     themselves, and a target standing in the Tools/buk parcel drop-zone (see
+     Managed Kit Directories above) is edited at the BUK home and arrives by
+     parcel.
+
+     Three rulings govern what stands here, each applied to every kit alike:
+
+     1. ANNOTATED CORE IN, BARE INDEX OUT. Each kit ships a core context file
+        carrying its acronym rows WITH the per-row descriptions and family
+        topology, and beside it a bare index restating the same rows without
+        them. Every token in each index is present in its core with the same
+        path, and the rbk core carries eight tokens its index lacks, so each
+        index is a strict subset and adds no fact at launch time. The cores
+        load; the indexes stand as pull doors and as lint rosters.
+
+     2. A GENERATED LOOKUP TABLE IS A PULL DOOR, NOT LAUNCH-TIME WEIGHT. The
+        tabtarget command reference is regenerated by the build from the zipper
+        registry, is the largest single file this manifest could carry, and is
+        consulted a handful of rows at a time — while `ls tt/` already lists the
+        same set. It stands named under Pull doors below.
+
+     3. AN INCLUDE SITS UNDER THE HEADING THAT CLAIMS IT. The composition
+        demotes each gathered file to nest under the heading in effect where its
+        line sits, so placement decides both the composed outline and how much
+        of a gathered file's own outline survives the depth budget. Every
+        include therefore stands directly under this H2, never trailing whatever
+        section happened to precede it. -->
+
+<!-- Distributable kit guidance. -->
+@Tools/buk/claude-buk-core.md
 
 @Tools/rbk/claude-rbk-core.md
-@Tools/rbk/claude-rbk-acronyms.md
-
-<!-- rbm-only veiled guidance (never distributed); hand-maintained outside the block -->
-@Tools/rbk/vov_veiled/claude-rbk-veiled.md
-@Tools/rbk/vov_veiled/claude-rbk-veiled-acronyms.md
 
 @Tools/rbk/claude-rbk-conduct.md
 
-@Tools/rbk/claude-rbk-tabtarget-context.md
+<!-- rbm-only veiled guidance (never distributed). -->
+@Tools/rbk/vov_veiled/claude-rbk-veiled.md
 
-For theurge/ifrit crucible testing work, read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the iteration loop (kludge, charge, test, ordain), architecture of the two Rust binaries, and how to add new security test cases.
+## Pull doors
+
+Named, not loaded — read when the work calls for one.
+
+- `Tools/rbk/claude-rbk-tabtarget-context.md` — the full tabtarget command
+  reference: every colophon, its folio channel, and its purpose. Build-generated
+  from the zipper registry; `ls tt/` lists the same set by filename.
+- `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — theurge/ifrit crucible
+  testing: the iteration loop (kludge, charge, test, ordain), the architecture of
+  the two Rust binaries, and how to add new security test cases.
+- `Tools/rbk/claude-rbk-acronyms.md`, `Tools/buk/claude-buk-acronyms.md`,
+  `Tools/rbk/vov_veiled/claude-rbk-veiled-acronyms.md` — the bare acronym
+  indexes, each a subset of its loaded core.
