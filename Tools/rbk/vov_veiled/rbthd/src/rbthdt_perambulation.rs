@@ -131,7 +131,7 @@ fn rbthdt_totality() {
 const ZRBTHDT_PLANTED: &[&str] = &[
     "Tools/rbk/vov_veiled/planted-spec.adoc",
     "Study/study-model-prompt-tuning/README.md",
-    "Tools/apck/apcw_workbench.sh",
+    "Tools/vslk/vslw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
     "rbmm_moorings/fdkyclk/fdkyclk-proof.sh",
 ];
