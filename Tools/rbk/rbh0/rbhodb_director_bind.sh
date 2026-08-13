@@ -76,8 +76,8 @@ rbho_director_bind() {
     test -n "${z_vessel_stamp}" && z_vessel_yoked=1
   fi
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_vessel}";   local -r z_lk_vessel="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";  local -r z_lk_pluml="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_vessel}";   local -r z_lk_vessel="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";  local -r z_lk_pluml="${z_buym_yelp}"
 
   buh_section "${RBHO_TRACK_BIND} — Pin Upstream by Digest"
   buh_e
@@ -173,7 +173,7 @@ rbho_director_bind() {
   buh_e
   buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
-  buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
+  buym_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
   buh_line "Conclave prints a stamp (e.g., ${z_ds_example}). Yoke wildcard-fans the"
   buh_line "stamp into every ${RBYC_VESSEL}'s ${RBYC_RBRV} under \${RBRR_VESSEL_DIR}"
   buh_line "in one pass — there is no per-vessel argument:"

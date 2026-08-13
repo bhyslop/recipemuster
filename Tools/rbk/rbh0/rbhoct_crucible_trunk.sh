@@ -39,8 +39,8 @@ rbhoct_crucible_trunk() {
   local -r z_bottle_vessel="${3}"
   local -r z_nameplate_file="${4}"
 
-  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
+  buym_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
+  buym_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
 
   local z_nameplate_exists=0
   test -f "${z_nameplate_file}" && z_nameplate_exists=1

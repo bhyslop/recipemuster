@@ -56,7 +56,7 @@ zrbyc_kindle() {
   # Helper: yawp then capture into named readonly
   # Usage: zrbyc_yk RBYC_TERM base_url anchor [display]
   zrbyc_yk() {
-    buyy_link_yawp "${2}" "${3}" "${4:-}"
+    buym_link_yawp "${2}" "${3}" "${4:-}"
     readonly "${1}=${z_buym_yelp}"
   }
 
@@ -154,8 +154,8 @@ zrbyc_kindle() {
 
   # --- Probe markers (pass/warn for handbook status probes) ---
 
-  buyy_pass_yawp " [*] "; readonly RBYC_PROBE_YES="${z_buym_yelp}"
-  buyy_warn_yawp " [ ] "; readonly RBYC_PROBE_NO="${z_buym_yelp}"
+  buym_pass_yawp " [*] "; readonly RBYC_PROBE_YES="${z_buym_yelp}"
+  buym_warn_yawp " [ ] "; readonly RBYC_PROBE_NO="${z_buym_yelp}"
 
   # --- Handbook env var metadata (learner-facing shell vars) ---
   #

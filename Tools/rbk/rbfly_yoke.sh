@@ -119,7 +119,7 @@ rbfl_yoke() {
   # Render the conclave-tabtarget hint from its colophon home (RBZ_CONCLAVE_RELIQUARY)
   # via the tt yawp — never a hardcoded tt/<colophon>.<frontispiece>.sh literal, which
   # rots on rename. buc_die resolves the diastema-wrapped yelp through buyf_format_yawp.
-  buyy_tt_yawp "${RBZ_CONCLAVE_RELIQUARY}"; local -r z_conclave_tt="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CONCLAVE_RELIQUARY}"; local -r z_conclave_tt="${z_buym_yelp}"
   test -z "${z_missing}" || buc_die "Reliquary Lode '${z_stamp}' incomplete in Depot — expected ${#z_expected[@]} tool member tags on ${z_pkg}; missing: ${z_missing}. Re-run ${z_conclave_tt} to capture a fresh reliquary Lode, or verify the touchmark spelling."
   buc_info "Reliquary Lode valid — all ${#z_expected[@]} tool member tags present (${z_roster})"
 
