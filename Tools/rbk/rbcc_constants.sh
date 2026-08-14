@@ -132,7 +132,7 @@ RBCC_verb_roster="roster"
 #
 #   Image/build lifecycle (anoint/drive/inscribe/kludge/ordain/yoke) — name the
 #   registry and build operations. Previously implicit in command-function
-#   names (rbrd_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
+#   names (rbndb_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
 #   here so the group has a single owner rather than being reconstructed by
 #   grep across rbfd_/rbfl_/rbfk_/rbob_/rbrn_.
 RBCC_verb_anoint="anoint"
