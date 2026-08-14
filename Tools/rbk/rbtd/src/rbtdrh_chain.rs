@@ -642,7 +642,7 @@ fn rbtdrh_drive_nihil(dir: &Path) -> Result<i32, String> {
     Ok(output.status.code().unwrap_or(-1))
 }
 
-fn rbtdrh_chain_multi_consumer(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrh_multi_consumer(dir: &Path) -> rbtdre_Verdict {
     // One seeded bole fact, two consumers in successive dispatches: feoff A
     // relays then elects; feoff B's dispatch-start promotion finds A's relayed
     // baton, so B's chain read still elects the same touchmark.
@@ -683,7 +683,7 @@ fn rbtdrh_chain_multi_consumer(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-fn rbtdrh_chain_retry_after_failure(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrh_retry_after_failure(dir: &Path) -> rbtdre_Verdict {
     // Fail-after-forward: consumer 1 relays at the top of the verb, then dies on
     // a missing vessel — a failure unrelated to the chain. Its retry (dispatch 2)
     // still finds the baton, because the relay preceded the failure point.
@@ -723,7 +723,7 @@ fn rbtdrh_chain_retry_after_failure(dir: &Path) -> rbtdre_Verdict {
     }
 }
 
-fn rbtdrh_chain_dies_at_non_chain_dispatch(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrh_dies_at_non_chain_dispatch(dir: &Path) -> rbtdre_Verdict {
     // The staleness bound's kill side: a live bole fact, then a NON-chain dispatch
     // (nihil — promotes but never relays), then a chain consumer. The consumer's
     // dispatch-start promotion finds only nihil's relay-less current/, so the
@@ -930,9 +930,9 @@ pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
     case!(rbtdrh_augur_no_folio),
     case!(rbtdrh_augur_unknown_prefix),
     case!(rbtdrh_rekon_no_folio),
-    case!(rbtdrh_chain_multi_consumer),
-    case!(rbtdrh_chain_retry_after_failure),
-    case!(rbtdrh_chain_dies_at_non_chain_dispatch),
+    case!(rbtdrh_multi_consumer),
+    case!(rbtdrh_retry_after_failure),
+    case!(rbtdrh_dies_at_non_chain_dispatch),
     case!(rbtdrh_furnish_invariant),
 ];
 
