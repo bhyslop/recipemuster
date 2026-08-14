@@ -264,7 +264,7 @@ zrbld_spine_dispatch() {
 
   buc_log_args "${z_label} build JSON: ${z_build_file}"
 
-  rbrd_check "${z_token}"
+  rbndb_check "${z_token}"
 
   buc_step "Submitting ${z_label} Cloud Build"
   rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \

@@ -22,7 +22,7 @@
 #   OAuth credential flow:
 #     zrbgp_refresh_capture         (~76)   refresh-token exchange
 #     zrbgp_authenticate_capture    (~122)  load + exchange
-#     rbgp_payor_install            (~400)  full install ceremony
+#     rbgp_install            (~400)  full install ceremony
 #   Depot lifecycle operations:
 #     zrbgp_billing_attach/detach, liens, bucket helpers (~196-395)
 #     rbgp_depot_levy / unmake / list (~568-1163)
@@ -827,7 +827,7 @@ zrbgp_pool_posture_submit() {
 ######################################################################
 # External Functions (rbgp_*)
 
-rbgp_payor_install() {
+rbgp_install() {
   zrbgp_sentinel
 
   local -r z_oauth_json_file="${BUZ_FOLIO:-}"
@@ -2537,7 +2537,7 @@ rbgp_depot_levy() {
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
 
   buc_step 'Inscribe RBRD tripwire image'
-  rbrd_inscribe "${z_token}"
+  rbndb_inscribe "${z_token}"
 
   buc_success 'Depot creation successful'
   buc_info "Next: gird the first Governor for this depot:"
@@ -2903,7 +2903,7 @@ rbgp_incuse() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  rbrd_inscribe "${z_token}"
+  rbndb_inscribe "${z_token}"
 }
 
 rbgp_collate() {
@@ -2916,7 +2916,7 @@ rbgp_collate() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  rbrd_check "${z_token}"
+  rbndb_check "${z_token}"
 }
 
 # Require one (role, member) binding present in a captured IAM policy, or die

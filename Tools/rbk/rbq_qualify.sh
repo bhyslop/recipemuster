@@ -61,7 +61,7 @@ zrbq_sentinel() {
 ######################################################################
 # External Functions (rbq_*)
 
-rbq_qualify_colophons() {
+rbq_colophons() {
   zrbq_sentinel
 
   buc_step "Qualifying RBW colophon registrations"
@@ -132,13 +132,13 @@ rbq_qualify_colophons() {
   buc_log_args "All ${z_checked} RBW colophons registered"
 }
 
-# rbq_qualify_completeness() - The forward completeness sweep: every enrolled
+# rbq_completeness() - The forward completeness sweep: every enrolled
 # colophon (RBW and BUW — zrbq_furnish kindles both zippers into the shared roll)
 # must have a tabtarget on disk. Homed as an rblm_zero (rbw-MZ) precondition,
 # never the per-dispatch path: rbw-MZ is withheld from delivery, so this proves
 # the source repo complete while a stripped consumer never runs it. The forward
-# sibling of rbq_qualify_colophons above (which sweeps tabtarget -> registered).
-rbq_qualify_completeness() {
+# sibling of rbq_colophons above (which sweeps tabtarget -> registered).
+rbq_completeness() {
   zrbq_sentinel
 
   buc_step "Qualifying colophon completeness (every enrolled colophon has a tabtarget)"
@@ -148,7 +148,7 @@ rbq_qualify_completeness() {
   buc_log_args "All enrolled colophons have tabtargets"
 }
 
-rbq_qualify_context() {
+rbq_context() {
   zrbq_sentinel
 
   buc_step "Qualifying generated context freshness"
@@ -169,7 +169,7 @@ rbq_qualify_context() {
   buc_log_args "Context file is fresh"
 }
 
-rbq_qualify_rust_consts() {
+rbq_rust_consts() {
   zrbq_sentinel
 
   buc_step "Qualifying generated Rust consts freshness"
@@ -190,7 +190,7 @@ rbq_qualify_rust_consts() {
   buc_log_args "Rust consts file is fresh"
 }
 
-rbq_qualify_fast() {
+rbq_fast() {
   zrbq_sentinel
 
   buc_step "Running fast qualification"
@@ -200,9 +200,9 @@ rbq_qualify_fast() {
     "buw-SI.*.sh" \
     "z-launcher.sh" \
     # End of exempt list
-  rbq_qualify_colophons
-  rbq_qualify_context
-  rbq_qualify_rust_consts
+  rbq_colophons
+  rbq_context
+  rbq_rust_consts
   rbrn_preflight
 
   buc_step "Fast qualification passed"
@@ -213,7 +213,7 @@ rbq_qualify_fast() {
 # (rbw-MZ). It is deliberately absent from fast qualify and the charge/ordain
 # workbench gate: routine development and container operations run already-linted,
 # shipped code and do not require the shellcheck binary.
-rbq_qualify_shellcheck() {
+rbq_shellcheck() {
   zrbq_sentinel
 
   buc_step "Running shellcheck"
@@ -243,13 +243,13 @@ rbq_qualify_shellcheck() {
   buc_step "Shellcheck qualification passed"
 }
 
-rbq_qualify_release() {
+rbq_release() {
   zrbq_sentinel
 
   buc_step "Running release qualification"
 
-  rbq_qualify_fast
-  rbq_qualify_shellcheck
+  rbq_fast
+  rbq_shellcheck
 
   buc_step "Running echelon test suite"
   "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.echelon.sh"

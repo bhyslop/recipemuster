@@ -152,7 +152,7 @@ zrbz_kindle() {
   # Guide — human-directed procedures (rbw-g)
   buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Guide — Human-directed procedures"
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_payor_install"   "param1"  "Ingest payor OAuth credentials from the downloaded client secret JSON"
+  buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_install"   "param1"  "Ingest payor OAuth credentials from the downloaded client secret JSON"
   z_mod="rbh0/rbhp0_cli.sh"
   buz_enroll RBZ_PAYOR_ORGANIZATION     "rbw-gPO" "${z_mod}" "rbhp_organization"    ""  "Guided GCP organization founding — Cloud Identity signup + DNS domain verification yielding RBRW_ORG_ID"
   buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
@@ -293,9 +293,9 @@ zrbz_kindle() {
   # colophon to declare and invoke so the census enforcement has a subject.
   buz_enroll RBZ_THEURGE_NIHIL    "rbw-tn"  "${z_mod}" "rbte_nihil"   ""         "Nihil — synthetic colophon that does nothing, for the calibrant census coverage cases (no side effects)"
   z_mod="rbq_cli.sh"
-  buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_qualify_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
-  buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_qualify_release"     ""        "Release qualify: + shellcheck, full test suite"
-  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_qualify_shellcheck"  ""        "Shellcheck only: BCG-configured static analysis, no test suite"
+  buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
+  buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_release"     ""        "Release qualify: + shellcheck, full test suite"
+  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_shellcheck"  ""        "Shellcheck only: BCG-configured static analysis, no test suite"
 
   readonly ZRBZ_KINDLED=1
 }

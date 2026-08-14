@@ -26,8 +26,8 @@
 # differing from the depot's worker-pool quotas, region, and identity.
 #
 # Public functions:
-#   rbrd_inscribe <bearer_token>   — host-side push at end of levy
-#   rbrd_check    <bearer_token>   — pre-submit existence + byte-diff
+#   rbndb_inscribe <bearer_token>   — host-side push at end of levy
+#   rbndb_check    <bearer_token>   — pre-submit existence + byte-diff
 #
 # Caller-authenticates seam: both functions take the bearer token as a
 # required positional — never minting one. The self-authenticating
@@ -120,7 +120,7 @@ zrbndb_docker_login() {
 # ONLY the surveyed signature, warning each bend. A non-matching failure
 # returns rc to the caller's own error path untouched. An exhausted budget
 # dies HERE naming the transient — falling through to the caller would
-# misdiagnose a network timeout as the caller's condition (rbrd_check's
+# misdiagnose a network timeout as the caller's condition (rbndb_check's
 # absent-tripwire path prescribes standalone re-inscription; that must
 # never fire on a timeout).
 # Args: stdout_file stderr_file command...
@@ -159,7 +159,7 @@ zrbndb_registry_read() {
 # Inscribe the tripwire image at end of successful levy.
 # Pre-push existence guard: image present → fatal (depot already
 # inscribed; must be unmade and relevied to refresh).
-rbrd_inscribe() {
+rbndb_inscribe() {
   zrbndb_sentinel
 
   buc_doc_brief "Inscribe RBRD tripwire image to GAR (host-side, at end of levy)"
@@ -167,12 +167,12 @@ rbrd_inscribe() {
   buc_doc_shown || return 0
 
   # Dirty-tree guard — the tripwire image ships the tracked rbrd.env bytes, and
-  # rbrd_check forever after compares local config against them; the inscribed
+  # rbndb_check forever after compares local config against them; the inscribed
   # reference must be a committed state.
   bug_require_clean_tree_creed "${RBCC_creed_clean_inscribe}"
 
   local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die "rbrd_inscribe: bearer token required"
+  test -n "${z_token}" || buc_die "rbndb_inscribe: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_INSCRIBE_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_INSCRIBE_PREFIX}manifest_stderr.txt"
@@ -232,7 +232,7 @@ rbrd_inscribe() {
 # Check local rbmm_moorings/rbrd.env against the inscribed tripwire image
 # before submitting cloud work. Exact-byte mismatch, missing image,
 # or registry/auth failure all fatal with recovery guidance.
-rbrd_check() {
+rbndb_check() {
   zrbndb_sentinel
 
   buc_doc_brief "Check local rbrd.env against inscribed tripwire image (drift detector)"
@@ -240,7 +240,7 @@ rbrd_check() {
   buc_doc_shown || return 0
 
   local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die "rbrd_check: bearer token required"
+  test -n "${z_token}" || buc_die "rbndb_check: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_CHECK_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_CHECK_PREFIX}manifest_stderr.txt"
@@ -272,7 +272,7 @@ rbrd_check() {
     }
 
   # Pull the canonical build-runner platform explicitly: the tripwire is
-  # inscribed single-platform (see rbrd_inscribe), so a host-default pull would
+  # inscribed single-platform (see rbndb_inscribe), so a host-default pull would
   # fail on any host whose native arch differs from RBGC_BUILD_RUNNER_PLATFORM.
   buc_log_args "Pull tripwire image"
   zrbndb_registry_read "${z_pull_stdout}" "${z_pull_stderr}" \
