@@ -67,7 +67,7 @@ zrbro_enforce() {
 rbro_load() {
   local z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
 
-  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing (${z_rbro_file}) - run rbgp_payor_install"
+  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing (${z_rbro_file}) - run rbgp_install"
   test -r "${z_rbro_file}" || buc_die "RBRO file not readable - check permissions"
 
   # Source and validate
