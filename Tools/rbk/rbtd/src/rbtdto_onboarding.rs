@@ -28,31 +28,31 @@ fn rbtdto_conclave_precedes_reliquary_consumers() {
     let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
     let conclave_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_conclave_reliquary"))
+        .position(|n| n.contains("rbtdro_conclave_reliquary"))
         .expect("conclave case present");
     let kludge_tadmor_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_kludge_tadmor"))
+        .position(|n| n.contains("rbtdro_kludge_tadmor_onboarding"))
         .expect("kludge-tadmor case present");
     let kludge_ccyolo_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_kludge_ccyolo"))
+        .position(|n| n.contains("rbtdro_kludge_ccyolo"))
         .expect("kludge-ccyolo case present");
     let conjure_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_conjure_sentry"))
+        .position(|n| n.contains("rbtdro_ordain_conjure_sentry"))
         .expect("ordain-conjure case present");
     let srjcl_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_conjure_jupyter"))
+        .position(|n| n.contains("rbtdro_ordain_conjure_jupyter"))
         .expect("conjure-srjcl case present");
     let airgap_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_airgap_chain"))
+        .position(|n| n.contains("rbtdro_ordain_airgap_chain"))
         .expect("airgap case present");
     let bind_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_onboarding_ordain_bind_plantuml"))
+        .position(|n| n.contains("rbtdro_ordain_bind_plantuml"))
         .expect("ordain-bind case present");
     assert!(conclave_idx < kludge_tadmor_idx);
     assert!(conclave_idx < kludge_ccyolo_idx);
