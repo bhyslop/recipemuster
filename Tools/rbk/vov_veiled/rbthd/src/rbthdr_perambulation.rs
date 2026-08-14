@@ -170,6 +170,12 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("RELEASE.md", Withhold),
     ("brm_recipemuster.iml", Withhold),
     ("podman-gateway-proposal.md", Withhold),
+    // Dated working memos — census artifacts, drain rulings, design notes. Each
+    // is a record of how a decision was reached in this tree, addressed to this
+    // tree's own maintainers; none is part of the delivered face. One rule
+    // rather than a row per memo, because they arrive whenever work needs one
+    // and a per-file row would make the totality gate a tax on writing them.
+    ("memo-", Withhold),
 ];
 
 /// Validate a table's structural invariants — the checks the bash table ran at
