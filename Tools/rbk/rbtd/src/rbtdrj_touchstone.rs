@@ -93,7 +93,7 @@ use crate::rbtdrm_manifest::{
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 /// Child dispatch's trace-tree subdir under its BURD_TEMP_DIR — pinned to the
-/// literal in rbtdb_allocate_roots (main.rs). A layout change there fails
+/// literal in rbtd_allocate_roots (main.rs). A layout change there fails
 /// these assertions loudly rather than letting them pass vacuously.
 const ZRBTDRJ_CHILD_TRACE_SUBDIR: &str = "rbtd";
 
