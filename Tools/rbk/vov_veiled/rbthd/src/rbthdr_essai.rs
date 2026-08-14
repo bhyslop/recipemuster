@@ -29,6 +29,7 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
+use crate::rbthdr_docimasy::{zrbthdr_find_tt, RBTHDR_COL_SUITE, RBTHDR_TT_SUBDIR};
 use crate::rbthdr_expede;
 use crate::rbthdr_log;
 use crate::rbthdr_loupe;
@@ -40,7 +41,6 @@ use crate::rbthdr_run;
 
 /// Tabtarget colophon prefixes, matched against the leading segment of a
 /// tabtarget filename. The frontispiece varies; the colophon does not.
-const RBTHDR_COL_SUITE: &str = "rbw-ts.";
 const RBTHDR_COL_FIXTURE: &str = "rbw-tf.";
 const RBTHDR_COL_QUALIFY_FAST: &str = "rbw-tq.";
 const RBTHDR_COL_BUILD: &str = "rbw-tb.";
@@ -65,9 +65,6 @@ const RBTHDR_FEIGN_TT: &str = "rbw-MF.MarshalFeigns.sh";
 /// consumer's first onboarding act reproduced, never a leak.
 const RBTHDR_STATION_USER: &str = "candidate";
 const RBTHDR_STATION_TINCTURE: &str = "cnd";
-
-/// The `tt/` subdirectory holding tabtargets, relative to a repo root.
-const RBTHDR_TT_SUBDIR: &str = "tt";
 
 /// Conduct one essai lap. Fatal (exit 1) on any deficit or red; ExitCode::SUCCESS
 /// only when a walk-ready rig stands beside a proven candidate.
@@ -306,7 +303,7 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     zrbthdr_require_candidate(head.code, "read candidate branch");
     let sterile_branch = head.stdout.trim().to_string();
 
-    zrbthdr_git(&clone, &["checkout", "-b", RBTHDR_PROBE_BRANCH], top, "cut the probe branch");
+    zrbthdr_git_stream(&clone, &["checkout", "-b", RBTHDR_PROBE_BRANCH], top, "cut the probe branch");
 
     // Hand the candidate its feign tabtarget: a byte-copy of an existing
     // candidate tabtarget under the withheld colophon's name (the trampolines are
@@ -323,8 +320,8 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     // alone.
     let build = zrbthdr_find_tt(tt, RBTHDR_COL_BUILD, None);
     zrbthdr_require_candidate(rbthdr_run::stream(&build, &[], top, &[]), "candidate build (probe)");
-    zrbthdr_git(&clone, &["add", "-A"], top, "stage the probe seed");
-    zrbthdr_git(&clone, &["commit", "-m", "probe: feign a station"], top, "commit the probe seed");
+    zrbthdr_git_stream(&clone, &["add", "-A"], top, "stage the probe seed");
+    zrbthdr_git_stream(&clone, &["commit", "-m", "probe: feign a station"], top, "commit the probe seed");
 
     // Feign a visibly-false station (BURE_CONFIRM=skip — the ceremony drives it
     // headlessly), then run the candidate's reveille from the consumer's seat.
@@ -340,54 +337,15 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     // holds withheld paths (the feigned station, the copied marshal tabtarget), so
     // dropping it leaves the clone carrying exactly one branch and zero remotes.
     rbthdr_log::step("Returning to the sterile branch and dropping the probe");
-    zrbthdr_git(&clone, &["checkout", &sterile_branch], top, "return to the sterile branch");
-    zrbthdr_git(&clone, &["branch", "-D", RBTHDR_PROBE_BRANCH], top, "drop the probe branch");
+    zrbthdr_git_stream(&clone, &["checkout", &sterile_branch], top, "return to the sterile branch");
+    zrbthdr_git_stream(&clone, &["branch", "-D", RBTHDR_PROBE_BRANCH], top, "drop the probe branch");
     rbthdr_log::line(&format!("consumer-seat reveille green; candidate back on {}", sterile_branch));
 }
 
 // ── Small shared helpers ────────────────────────────────────
 
-/// Locate the single tabtarget under `tt` whose name starts with `colophon` and,
-/// if given, embeds `.{imprint}.`. Fatal on zero or multiple matches — a
-/// conductor that guesses which worker to run is worse than one that stops.
-fn zrbthdr_find_tt(tt: &Path, colophon: &str, imprint: Option<&str>) -> PathBuf {
-    let entries = std::fs::read_dir(tt)
-        .unwrap_or_else(|e| crate::rbthdr_fatal!("cannot read tabtarget dir {}: {}", tt.display(), e));
-    let needle = imprint.map(|i| format!(".{}.", i));
-    let mut hits: Vec<PathBuf> = Vec::new();
-    for entry in entries.flatten() {
-        let name = entry.file_name();
-        let name = name.to_string_lossy();
-        if !name.starts_with(colophon) || !name.ends_with(".sh") {
-            continue;
-        }
-        if let Some(needle) = &needle {
-            if !name.contains(needle.as_str()) {
-                continue;
-            }
-        }
-        hits.push(entry.path());
-    }
-    match hits.len() {
-        1 => hits.remove(0),
-        0 => crate::rbthdr_fatal!(
-            "no tabtarget '{}*{}' under {}",
-            colophon,
-            imprint.map(|i| format!("{}.", i)).unwrap_or_default(),
-            tt.display()
-        ),
-        n => crate::rbthdr_fatal!(
-            "ambiguous: {} tabtargets match '{}*{}' under {}",
-            n,
-            colophon,
-            imprint.map(|i| format!("{}.", i)).unwrap_or_default(),
-            tt.display()
-        ),
-    }
-}
-
 /// git -C <clone> <args>, streamed, fatal on non-zero with the act named.
-fn zrbthdr_git(clone: &str, args: &[&str], top: &Path, act: &str) {
+fn zrbthdr_git_stream(clone: &str, args: &[&str], top: &Path, act: &str) {
     let mut full = vec!["-C", clone];
     full.extend_from_slice(args);
     let code = rbthdr_run::stream("git", &full, top, &[]);
