@@ -346,7 +346,7 @@ fn rbtdrs_rbrv_bind_image_tag_only(dir: &Path) -> rbtdre_Verdict {
 
 /// Operator-local variant of rbtdrs_poison: self-skip when the baseline verb is
 /// not green (regime absent on this machine), else assert the poisoned band.
-fn rbtdrs_poison_optional(
+fn rbtdrs_optional(
     dir: &Path,
     validate_colophon: &str,
     folio: &[&str],
@@ -385,13 +385,13 @@ fn rbtdrs_poison_optional(
 }
 
 fn rbtdrs_rbro_missing_refresh_token(dir: &Path) -> rbtdre_Verdict {
-    rbtdrs_poison_optional(dir, RBTDGC_VALIDATE_OAUTH, &[], "RBRO_REFRESH_TOKEN",
+    rbtdrs_optional(dir, RBTDGC_VALIDATE_OAUTH, &[], "RBRO_REFRESH_TOKEN",
         RBTDGC_BAND_ENROLL, "rbro-missing-refresh-token")
 }
 
 fn rbtdrs_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
     // Uppercase clears the length enroll but fails the zburs_enforce regex → regime.
-    rbtdrs_poison_optional(dir, BUWGC_RS_VALIDATE, &[], "BURS_TINCTURE=A1",
+    rbtdrs_optional(dir, BUWGC_RS_VALIDATE, &[], "BURS_TINCTURE=A1",
         RBTDGC_BAND_REGIME, "burs-bad-tincture")
 }
 
