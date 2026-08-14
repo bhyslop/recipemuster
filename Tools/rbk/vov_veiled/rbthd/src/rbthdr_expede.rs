@@ -38,6 +38,7 @@
 
 use std::path::{Path, PathBuf};
 
+use crate::rbthdr_docimasy::RBTHDR_TT_SUBDIR;
 use crate::rbthdr_log;
 use crate::rbthdr_perambulation;
 use crate::rbthdr_repo;
@@ -126,11 +127,6 @@ const RBTHDR_SCRATCH_SUBDIR: &str = "rbthd_scratch";
 /// subprocess as its BURD_BUK_DIR (utility modules only; every
 /// identity-bearing module the script sources resolves from its own tree).
 const RBTHDR_BUK_SUBDIR: &str = "Tools/buk";
-
-/// The tabtarget subtree, RELATIVE, handed to the sterilize subprocess as its
-/// BURD_TABTARGET_DIR — the script itself refuses an absolute one, which
-/// would resolve outside the tree being sterilized.
-const RBTHDR_TT_SUBDIR_REL: &str = "tt";
 
 // ── The cut ─────────────────────────────────────────────────
 
@@ -337,14 +333,14 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // Zero remotes is asserted again at the end, as the finished candidate's
     // standing property.
     rbthdr_log::step("Severing the clone from its origin");
-    zrbthdr_git(&clone, &["remote", "remove", "origin"], top, "sever the clone's origin");
+    zrbthdr_git_capture(&clone, &["remote", "remove", "origin"], top, "sever the clone's origin");
 
     // Open the candidate's own branch, and drop every other. The clone must
     // carry exactly ONE branch, named POSTULANT_LOCAL — so even a forbidden
     // fan-out push (--all) could name nothing but POSTULANT_LOCAL, never
     // main. On an empty base the unborn branch is simply renamed.
     rbthdr_log::step(&format!("Opening the candidate branch {}", RBTHDR_CANDIDATE_BRANCH));
-    zrbthdr_git(&clone, &["checkout", "-b", RBTHDR_CANDIDATE_BRANCH], top, "open the candidate branch");
+    zrbthdr_git_capture(&clone, &["checkout", "-b", RBTHDR_CANDIDATE_BRANCH], top, "open the candidate branch");
     let heads = rbthdr_run::capture(
         "git",
         &["-C", &clone, "for-each-ref", "--format=%(refname:short)", "refs/heads/"],
@@ -358,7 +354,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         if head_ref.is_empty() || head_ref == RBTHDR_CANDIDATE_BRANCH {
             continue;
         }
-        zrbthdr_git(&clone, &["branch", "-D", head_ref], top, "drop a base branch");
+        zrbthdr_git_capture(&clone, &["branch", "-D", head_ref], top, "drop a base branch");
     }
 
     // Removed rather than overwritten. A path the previous release shipped
@@ -430,7 +426,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         &[
             ("BURD_TEMP_DIR", &scratch),
             ("BURD_BUK_DIR", &buk_dir),
-            ("BURD_TABTARGET_DIR", RBTHDR_TT_SUBDIR_REL),
+            ("BURD_TABTARGET_DIR", RBTHDR_TT_SUBDIR),
         ],
     );
     if code != 0 {
@@ -475,8 +471,8 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     }
 
     rbthdr_log::step("Committing the candidate");
-    zrbthdr_git(&clone, &["add", "--all"], top, "stage the candidate");
-    zrbthdr_git(&clone, &["commit", "-m", RBTHDR_CANDIDATE_SUBJECT], top, "commit the candidate");
+    zrbthdr_git_capture(&clone, &["add", "--all"], top, "stage the candidate");
+    zrbthdr_git_capture(&clone, &["commit", "-m", RBTHDR_CANDIDATE_SUBJECT], top, "commit the candidate");
 
     // One commit. Not a convention — the property that makes the candidate
     // mergeable by construction and provable by inspection.
@@ -590,7 +586,7 @@ fn zrbthdr_graph_paths(clone_dir: &Path, range: &[&str], label: &str) -> Vec<Str
 }
 
 /// git -C <clone> <args>, captured, fatal on non-zero with the act named.
-fn zrbthdr_git(clone: &str, args: &[&str], top: &Path, act: &str) {
+fn zrbthdr_git_capture(clone: &str, args: &[&str], top: &Path, act: &str) {
     let mut full = vec!["-C", clone];
     full.extend_from_slice(args);
     let got = rbthdr_run::capture("git", &full, top);
