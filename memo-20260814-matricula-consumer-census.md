@@ -2,8 +2,10 @@
 
 **Date:** 2026-08-14
 **Heat:** ₣CM (rb-matricula-normalization)
-**Status:** Checkpoint artifact. The census half below is a dated frozen record — provenance, never authority.
-The mapping-set half, appended later in this pace, IS the authority the apply-paces execute against, and retires with them.
+**Status:** Checkpoint artifact — a dated frozen record, provenance and never authority.
+Its companion `memo-20260814-matricula-consumer-rulings.md` carries the rulings and mapping sets, and IS the authority the apply-paces execute against.
+
+**This file is frozen. A drain sweep must not rewrite it** — every barring signet is named here in its pre-rename spelling, so a mechanical substitution would destroy the record the rulings were made against.
 
 This is the first consumer drive taken after the fresh BUK distribution (parcel 1054), the `buyy_`→`buym_` sweep, and the apck removal.
 It supersedes the 260811 reading banked in ₣Bj's paddock, which was taken against the pre-install tree; that reading stands as provenance, not as a total to reconcile against.
