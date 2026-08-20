@@ -40,9 +40,9 @@ set -euo pipefail
 # placeholder. No per-mode branching — every consumer is listed uniformly.
 #
 # Args: hallmark (the tag the HEAD just wrote)
-rbfb_beckon_hallmark() {
+rbfb_hallmark() {
   local -r z_hallmark="${1:-}"
-  test -n "${z_hallmark}" || buc_die "rbfb_beckon_hallmark: hallmark required"
+  test -n "${z_hallmark}" || buc_die "rbfb_hallmark: hallmark required"
 
   buc_bare ""
   buc_bare "  This hallmark feeds:"

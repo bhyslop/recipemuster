@@ -35,8 +35,8 @@ fi
 
 zbud_die() { echo "FATAL: $*" >&2; exit 1; }
 
-zburd_sentinel() {
-  test "${ZBURD_INITIALIZED:-}" = "1" || zbud_die "Dispatch not initialized - zbud_main not complete"
+zbud_sentinel() {
+  test "${ZBUD_INITIALIZED:-}" = "1" || zbud_die "Dispatch not initialized - zbud_main not complete"
 }
 
 # String validator with optional length constraints
@@ -79,7 +79,13 @@ zbud_setup() {
   BURD_TOOLS_DIR="${BURC_TOOLS_DIR}"
   BURD_BUK_DIR="${BURC_TOOLS_DIR}/buk"
   BURD_TABTARGET_DIR="${BURC_TABTARGET_DIR}"
-  export BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR
+
+  # The coordinator runs as its own process, so a station value reaches a kit's
+  # CLI only by riding a BURD_ variable across that boundary. Declared here and
+  # left empty for the no-log path below, which sources no station file at all.
+  BURD_TACKROOM=""
+
+  export BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM
 
   # Source station file (skip for no-log handbook tabtargets)
   if test -z "${BURD_NO_LOG:-}"; then
@@ -88,6 +94,15 @@ zbud_setup() {
 
     # Apply BURV (Bash Utility Regime Verification) overrides if set
     BURS_LOG_DIR="${BURV_LOG_DIR:-${BURS_LOG_DIR}}"
+    BURD_TACKROOM="${BURV_TACKROOM:-${BURS_TACKROOM:-}}"
+
+    # Absolutize a relative tackroom against the repo root, the same idiom the
+    # temp directory takes below: z-launcher normalizes cwd to the repo root, so
+    # a station value may be written relative exactly as the log directory is.
+    case "${BURD_TACKROOM}" in
+      ""|/*) ;;
+      *)     BURD_TACKROOM="${PWD}/${BURD_TACKROOM}" ;;
+    esac
 
     # Validate station variables
     zbud_check_string "${BURC_STATION_FILE}" BURS_LOG_DIR 1 256
@@ -359,22 +374,22 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_OSTYPE BURD_COLOR"
-  ZBURD_UNEXPECTED=()
+  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
+  ZBUD_UNEXPECTED=()
   local z_var
   for z_var in $(compgen -v BURD_); do
     case " ${z_known} " in
       *" ${z_var} "*) : ;;
-      *) ZBURD_UNEXPECTED+=("${z_var}") ;;
+      *) ZBUD_UNEXPECTED+=("${z_var}") ;;
     esac
   done
 
   # Die on unexpected variables
-  if test ${#ZBURD_UNEXPECTED[@]} -gt 0; then
-    zbud_die "Unexpected BURD_ variables: ${ZBURD_UNEXPECTED[*]}"
+  if test ${#ZBUD_UNEXPECTED[@]} -gt 0; then
+    zbud_die "Unexpected BURD_ variables: ${ZBUD_UNEXPECTED[*]}"
   fi
 
-  ZBURD_INITIALIZED=1
+  ZBUD_INITIALIZED=1
 
   # Build complete invocation array (always has ≥2 elements, so always safe under set -u)
   local -r z_coordinator_cmd="${BURD_COORDINATOR_SCRIPT}"

@@ -154,10 +154,10 @@ fn zrbtdrp_append_tripwire_probe(rbrd: &Path) -> Result<(), String> {
 /// `<moniker>.depot-project` fact file, and cross-checks it against the RBDC
 /// compose derivation. The moniker survives in rbrd.env for the later cases.
 fn rbtdrp_depot_stand_up(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrp_depot_stand_up_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| zrbtdrp_depot_stand_up_impl(ctx, dir))
 }
 
-fn rbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn zrbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     if let Err(e) = rbtdrk_install_freehold_prefixes(&root) {
@@ -265,10 +265,10 @@ fn rbtdrp_tripwire_recover(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdrp_tripwire_recover_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| zrbtdrp_tripwire_recover_impl(ctx, dir))
 }
 
-fn rbtdrp_tripwire_recover_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn zrbtdrp_tripwire_recover_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let root = ctx.project_root().to_path_buf();
 
     if let Err(e) = rbtdre_commit_regime(
@@ -313,10 +313,10 @@ fn rbtdrp_tripwire_confirm(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdrp_tripwire_confirm_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| zrbtdrp_tripwire_confirm_impl(ctx, dir))
 }
 
-fn rbtdrp_tripwire_confirm_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn zrbtdrp_tripwire_confirm_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let check = match rbtdrk_invoke_logged(
         ctx,
         RBTDGC_COLLATE_DEPOT,
@@ -361,10 +361,10 @@ fn rbtdrp_depot_live_disqualify(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdrb_assert(&probe) {
         return v;
     }
-    rbtdrc_with_ctx(|ctx| rbtdrp_depot_live_disqualify_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| zrbtdrp_depot_live_disqualify_impl(ctx, dir))
 }
 
-fn rbtdrp_depot_live_disqualify_impl(
+fn zrbtdrp_depot_live_disqualify_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
@@ -430,10 +430,10 @@ fn rbtdrp_depot_live_disqualify_impl(
 /// (BURE_CONFIRM=skip), re-lists, and verifies the depot is absent or in
 /// DELETE_REQUESTED state via fact-file content read (no stdout-grep).
 fn rbtdrp_depot_tear_down(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrp_depot_tear_down_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| zrbtdrp_depot_tear_down_impl(ctx, dir))
 }
 
-fn rbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn zrbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let outcome = match rbtdrk_unmake_preamble(
         ctx,
         dir,

@@ -402,7 +402,7 @@ zrbfv_graft_metadata_submit() {
 
   buc_log_args "Combined about+vouch build JSON: ${z_build_file}"
 
-  rbrd_check "${z_token}"
+  rbndb_check "${z_token}"
 
   buc_step "Submitting combined about+vouch Cloud Build"
   rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
@@ -551,7 +551,7 @@ zrbfv_about_submit() {
 
   buc_log_args "About build JSON: ${z_about_build_file}"
 
-  rbrd_check "${z_token}"
+  rbndb_check "${z_token}"
 
   buc_step "Submitting about Cloud Build"
   rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
@@ -792,7 +792,7 @@ zrbfv_vouch_submit() {
 
   buc_log_args "Vouch build JSON: ${z_vouch_build_file}"
 
-  rbrd_check "${z_token}"
+  rbndb_check "${z_token}"
 
   buc_step "Submitting vouch Cloud Build"
   rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \

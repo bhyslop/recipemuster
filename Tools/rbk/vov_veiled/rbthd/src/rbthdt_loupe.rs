@@ -69,7 +69,7 @@ fn zrbthdt_scan(probe: &str, census: &BTreeSet<String>) -> Vec<zrbthdr_Finding> 
 
 /// Lines that name a withheld thing — the veiled-dir token, or the census
 /// document's basename in a citation form. Each must produce at least one hit.
-const ZRBTHDT_PLANTED: &[&str] = &[
+const ZRBTHDT_SCAN_PLANTED: &[&str] = &[
     "  - see Tools/rbk/vov_veiled/whatever.sh for the rule",
     "# Contract: ZZQ-Example.adoc.",
     "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context row)",
@@ -77,7 +77,7 @@ const ZRBTHDT_PLANTED: &[&str] = &[
 
 /// Benign lines a coarser scanner might redden on: a shipping README mention, a
 /// prose line with no withheld name, and a same-stem non-document extension.
-const ZRBTHDT_CLEAN: &[&str] = &[
+const ZRBTHDT_SCAN_CLEAN: &[&str] = &[
     "start with the README.md at the project root",
     "the terrier records which citizens hold which mantles",
     "ZZQ-Example.txt is not a withheld document",
@@ -86,7 +86,7 @@ const ZRBTHDT_CLEAN: &[&str] = &[
 #[test]
 fn rbthdt_veil_scan_catches_planted_leaks() {
     let census = zrbthdt_census();
-    for planted in ZRBTHDT_PLANTED {
+    for planted in ZRBTHDT_SCAN_PLANTED {
         let hits = zrbthdt_scan(planted, &census);
         assert!(
             !hits.is_empty(),
@@ -99,7 +99,7 @@ fn rbthdt_veil_scan_catches_planted_leaks() {
 #[test]
 fn rbthdt_veil_scan_silent_on_clean_lines() {
     let census = zrbthdt_census();
-    for clean in ZRBTHDT_CLEAN {
+    for clean in ZRBTHDT_SCAN_CLEAN {
         let hits = zrbthdt_scan(clean, &census);
         assert!(
             hits.is_empty(),

@@ -89,7 +89,7 @@ rbho_director_graft() {
     fi
   fi
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel="${z_buym_yelp}"
 
   buh_section "Graft — Push a Local Image to the Depot"
   buh_e
@@ -119,7 +119,7 @@ rbho_director_graft() {
   if test "${z_vessel_ready}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_REGIME} present (RBRV_VESSEL_MODE=rbnve_graft)"
   else
-    buyy_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv_missing="${z_buym_yelp}"
+    buym_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv_missing="${z_buym_yelp}"
     buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_REGIME} missing or not a graft vessel: ${z_lk_rbrv_missing}"
   fi
   buh_e
@@ -171,8 +171,8 @@ rbho_director_graft() {
   buh_code "   docker pull busybox:latest"
   buh_code "   docker tag busybox:latest ${z_local_tag}"
   buh_e
-  buyy_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRV_GRAFT_IMAGE"; local -r z_lk_rbrv_field="${z_buym_yelp}"
+  buym_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv="${z_buym_yelp}"
+  buym_cmd_yawp "RBRV_GRAFT_IMAGE"; local -r z_lk_rbrv_field="${z_buym_yelp}"
   buh_line "Then open ${z_lk_rbrv} and set ${z_lk_rbrv_field} to the tag you chose:"
   buh_e
   buh_code "   RBRV_GRAFT_IMAGE=${z_local_tag}"
@@ -196,7 +196,7 @@ rbho_director_graft() {
   buh_e
   buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
-  buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
+  buym_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
   buh_line "Conclave prints a stamp (e.g., ${z_ds_example}). Yoke wildcard-fans the"
   buh_line "stamp into every ${RBYC_VESSEL}'s ${RBYC_RBRV} under \${RBRR_VESSEL_DIR}"
   buh_line "in one pass — there is no per-vessel argument:"

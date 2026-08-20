@@ -46,14 +46,6 @@ __pycache__/
 *$py.class
 lenses/.idea/
 
-# Dictionary refresh staging (manual SSA download)
-Tools/apck/apcd/dictionaries/.ssa_names_staging.zip
-
-# APCK journal directory — runtime captures + tee'd apcap.log belong
-# outside any repo tree; this guard catches a misdirected $HOME resolution
-# that lands in-tree.
-apcjd/
-
 # Rust build artifacts
 **/target/
 

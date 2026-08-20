@@ -33,8 +33,8 @@ rbho_start_here() {
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-  buyy_link_yawp "${z_docs}" "ccyolo"; local -r z_ccyolo="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "tadmor"; local -r z_tadmor="${z_buym_yelp}"
+  buym_link_yawp "${z_docs}" "ccyolo"; local -r z_ccyolo="${z_buym_yelp}"
+  buym_link_yawp "${z_docs}" "tadmor"; local -r z_tadmor="${z_buym_yelp}"
 
   buh_section "Recipe Bottle — Onboarding Start"
   buh_e
@@ -128,8 +128,8 @@ rbho_start_here() {
   buh_tt   "        " "${RBZ_ONBOARD_DIR_AIRGAP}"
   buh_e
   buh_line "    ${RBYC_BIND} — Safe PlantUML Container (~10 min)"
-  buyy_link_yawp "${z_docs}" "Bind" "PlantUML"; local -r z_plantuml="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Nameplate" "pluml"; local -r z_pluml="${z_buym_yelp}"
+  buym_link_yawp "${z_docs}" "Bind" "PlantUML"; local -r z_plantuml="${z_buym_yelp}"
+  buym_link_yawp "${z_docs}" "Nameplate" "pluml"; local -r z_pluml="${z_buym_yelp}"
   buh_line "      Mirror an upstream image by digest — no Dockerfile, no build."
   buh_line "      ${z_plantuml} renders diagrams but its Docker Hub image could"
   buh_line "      phone home. ${RBYC_BIND} pins it; the ${RBYC_SENTRY} blocks all egress."

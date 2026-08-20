@@ -22,7 +22,7 @@
 #   OAuth credential flow:
 #     zrbgp_refresh_capture         (~76)   refresh-token exchange
 #     zrbgp_authenticate_capture    (~122)  load + exchange
-#     rbgp_payor_install            (~400)  full install ceremony
+#     rbgp_install            (~400)  full install ceremony
 #   Depot lifecycle operations:
 #     zrbgp_billing_attach/detach, liens, bucket helpers (~196-395)
 #     rbgp_depot_levy / unmake / list (~568-1163)
@@ -827,7 +827,7 @@ zrbgp_pool_posture_submit() {
 ######################################################################
 # External Functions (rbgp_*)
 
-rbgp_payor_install() {
+rbgp_install() {
   zrbgp_sentinel
 
   local -r z_oauth_json_file="${BUZ_FOLIO:-}"
@@ -886,15 +886,15 @@ rbgp_payor_install() {
   buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
   buh_e
   buh_line "You will see four or five screens:"
-  buyy_ui_yawp "Choose an account"; local -r z_yelp_choose="${z_buym_yelp}"
+  buym_ui_yawp "Choose an account"; local -r z_yelp_choose="${z_buym_yelp}"
   buh_line "  1. ${z_yelp_choose} - Select the Google account for this payor"
-  buyy_ui_yawp "Sign in to Recipe Bottle Payor"; local -r z_yelp_signin="${z_buym_yelp}"
-  buyy_ui_yawp "Continue"; local -r z_yelp_continue="${z_buym_yelp}"
+  buym_ui_yawp "Sign in to Recipe Bottle Payor"; local -r z_yelp_signin="${z_buym_yelp}"
+  buym_ui_yawp "Continue"; local -r z_yelp_continue="${z_buym_yelp}"
   buh_line "  2. ${z_yelp_signin} - Confirms account selection and previews the email-address scope; click ${z_yelp_continue}"
-  buyy_ui_yawp "Google hasn't verified this app"; local -r z_yelp_unverified="${z_buym_yelp}"
+  buym_ui_yawp "Google hasn't verified this app"; local -r z_yelp_unverified="${z_buym_yelp}"
   buh_line "  3. If screen says ${z_yelp_unverified}, click ${z_yelp_continue}"
   buh_line "     Otherwise, proceed to next step"
-  buyy_ui_yawp "Recipe Bottle Payor wants access"; local -r z_yelp_access="${z_buym_yelp}"
+  buym_ui_yawp "Recipe Bottle Payor wants access"; local -r z_yelp_access="${z_buym_yelp}"
   buh_line "  4. ${z_yelp_access} - Review the requested permissions"
   buh_line "     Check the permission checkboxes to grant access, then click ${z_yelp_continue}"
   buh_line "  5. The browser then shows 'This site can't be reached / localhost refused to connect'"
@@ -1186,7 +1186,7 @@ rbgp_manor_affiance() {
   # hangs a provider beneath the standing one. Absent (404) or soft-deleted
   # (200, state DELETED) is fatal, directing the operator to the finisher.
   buc_step 'Require manor workforce pool present'
-  buyy_tt_yawp "${RBZ_INSTAURATE_MANOR}"; local -r z_finisher_tt="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_INSTAURATE_MANOR}"; local -r z_finisher_tt="${z_buym_yelp}"
   local -r z_pool_get_url="${z_pools_base}/${z_pool_id}"
   rbuh_json "GET" "${z_pool_get_url}" "${z_token}" "affiance_pool_get"
   local z_pool_code
@@ -1361,7 +1361,7 @@ rbgp_manor_affiance() {
 
   buc_step 'Manor affianced'
   buc_info "Manor affianced: provider=${z_provider_id} under pool=${z_pool_id} org=${z_org}"
-  buyy_tt_yawp "${RBZ_CHECK_AVOWAL}"; local -r z_acf_tt="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CHECK_AVOWAL}"; local -r z_acf_tt="${z_buym_yelp}"
   buc_info "Verify the trust by avowing — run ${z_acf_tt}"
 }
 
@@ -2537,7 +2537,7 @@ rbgp_depot_levy() {
   zrbgp_depot_list_update || buc_die "Failed to update depot tracking after creation"
 
   buc_step 'Inscribe RBRD tripwire image'
-  rbrd_inscribe "${z_token}"
+  rbndb_inscribe "${z_token}"
 
   buc_success 'Depot creation successful'
   buc_info "Next: gird the first Governor for this depot:"
@@ -2903,7 +2903,7 @@ rbgp_incuse() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  rbrd_inscribe "${z_token}"
+  rbndb_inscribe "${z_token}"
 }
 
 rbgp_collate() {
@@ -2916,7 +2916,7 @@ rbgp_collate() {
   local z_token
   z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
 
-  rbrd_check "${z_token}"
+  rbndb_check "${z_token}"
 }
 
 # Require one (role, member) binding present in a captured IAM policy, or die
@@ -3340,7 +3340,7 @@ rbgp_attribution_trail() {
     || buc_die "Failed to count attribution entries"
 
   test "${z_count}" -gt 0 || {
-    buyy_tt_yawp "${RBZ_CHECK_MANTLE}" "" " retriever"; local -r z_am_tt="${z_buym_yelp}"
+    buym_tt_yawp "${RBZ_CHECK_MANTLE}" "" " retriever"; local -r z_am_tt="${z_buym_yelp}"
     buc_warn "No Data-Access audit entries on ${z_depot} yet. Has a mantle made an Artifact Registry call? Run ${z_am_tt} (avow + don + AR call) first, allow a few seconds for log ingestion, then re-run."
     return 0
   }

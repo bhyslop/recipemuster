@@ -79,7 +79,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // beneath them so the judgment holds even where the whole kit ships. A NEW
     // kit's veiled half is deliberately not covered: it lands unjudged and
     // reddens. That is correct — a kit's exposure is a ruling, never a default.
-    ("Tools/gad/vov_veiled/", Withhold),
     ("Tools/rbk/vov_veiled/", Withhold),
     // THE DELIVERED KITS. RBK ships whole apart from its veiled half; BUK ships
     // whole outright, having no veiled half in this tree — the kit's closed
@@ -99,8 +98,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // THE WITHHELD KITS. Whole trees: the operator's own tooling, or projects
     // that share the repo but not the delivery. None is uniform by accident —
     // each is a tree the consumer has no seat for.
-    ("Tools/apck/", Withhold),
-    ("Tools/gad/", Withhold),
     ("Tools/hmk/", Withhold),
     ("Tools/lmci/", Withhold),
     ("Tools/vslf-rbw/", Withhold),
@@ -122,7 +119,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("tt/rbw-", Ship),
     ("tt/buw-", Ship),
     ("tt/z-launcher.sh", Ship),
-    ("tt/apcw-", Withhold),
     ("tt/study-", Withhold),
     ("tt/vslk-", Withhold),
     // THE MOORINGS. Every nameplate ships: README documents each as an example
@@ -177,6 +173,12 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("RELEASE.md", Withhold),
     ("brm_recipemuster.iml", Withhold),
     ("podman-gateway-proposal.md", Withhold),
+    // Dated working memos — census artifacts, drain rulings, design notes. Each
+    // is a record of how a decision was reached in this tree, addressed to this
+    // tree's own maintainers; none is part of the delivered face. One rule
+    // rather than a row per memo, because they arrive whenever work needs one
+    // and a per-file row would make the totality gate a tax on writing them.
+    ("memo-", Withhold),
 ];
 
 /// Validate a table's structural invariants — the checks the bash table ran at

@@ -71,16 +71,16 @@ fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
     match args.get(1).map(|s| s.as_str()) {
-        Some("single") => rbtdb_run_single(&args[2..]),
-        Some("suite") => rbtdb_run_suite(&args[2..]),
-        Some("dowse") => rbtdb_run_dowse(&args[2..]),
-        _ => rbtdb_run_fixture(&args[1..]),
+        Some("single") => rbtd_run_single(&args[2..]),
+        Some("suite") => rbtd_run_suite(&args[2..]),
+        Some("dowse") => rbtd_run_dowse(&args[2..]),
+        _ => rbtd_run_fixture(&args[1..]),
     }
 }
 
 // ── Dowse (observed-tariff census) ───────────────────────────
 
-fn rbtdb_run_dowse(args: &[String]) -> ExitCode {
+fn rbtd_run_dowse(args: &[String]) -> ExitCode {
     let log_dir = match args.first() {
         Some(d) => PathBuf::from(d),
         None => rbtd::rbtdrg_fatal_now!(
@@ -94,13 +94,13 @@ fn rbtdb_run_dowse(args: &[String]) -> ExitCode {
     }
 }
 
-struct rbtdb_Roots {
+struct rbtd_Roots {
     trace_root: PathBuf,
     burv_temp_root: PathBuf,
     burv_output_root: PathBuf,
 }
 
-fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
+fn rbtd_allocate_roots() -> Result<rbtd_Roots, String> {
     let burd_temp = rbtdrx_path_from_env(RBTDRI_BURD_TEMP_DIR_KEY)?;
 
     // Both BURV roots are anchored under the per-run trace dir
@@ -121,12 +121,12 @@ fn rbtdb_allocate_roots() -> Result<rbtdb_Roots, String> {
     std::fs::create_dir_all(&burv_output_root)
         .map_err(|e| format!("rbtd: failed to create burv output root '{}': {}", burv_output_root.display(), e))?;
 
-    Ok(rbtdb_Roots { trace_root, burv_temp_root, burv_output_root })
+    Ok(rbtd_Roots { trace_root, burv_temp_root, burv_output_root })
 }
 
 // ── Single-fixture runner ────────────────────────────────────
 
-fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
+fn rbtd_run_fixture(args: &[String]) -> ExitCode {
     let (positionals, keep_going) = match rbtdre_parse_keep_going(args) {
         Ok(v) => v,
         Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd: {}", msg),
@@ -163,7 +163,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
         );
     }
 
-    let roots = match rbtdb_allocate_roots() {
+    let roots = match rbtd_allocate_roots() {
         Ok(r) => r,
         Err(msg) => rbtd::rbtdrg_fatal_now!("{}", msg),
     };
@@ -209,7 +209,7 @@ fn rbtdb_run_fixture(args: &[String]) -> ExitCode {
 
 // ── Suite runner ─────────────────────────────────────────────
 
-fn rbtdb_run_suite(args: &[String]) -> ExitCode {
+fn rbtd_run_suite(args: &[String]) -> ExitCode {
     let (positionals, keep_going) = match rbtdre_parse_keep_going(args) {
         Ok(v) => v,
         Err(msg) => rbtd::rbtdrg_fatal_now!("rbtd suite: {}", msg),
@@ -219,13 +219,13 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
             Some(s) => s,
             None => {
                 rbtd::rbtdrg_error_now!("rbtd suite: unknown suite '{}'", name);
-                rbtdb_list_suites();
+                rbtd_list_suites();
                 return ExitCode::FAILURE;
             }
         },
         None => {
             rbtd::rbtdrg_error_now!("rbtd suite: no suite argument");
-            rbtdb_list_suites();
+            rbtd_list_suites();
             return ExitCode::FAILURE;
         }
     };
@@ -255,7 +255,7 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     // Roots allocated once per suite; all fixtures share the trace/burv roots.
     // This matches the bash loop, where every per-fixture process inherited the
     // same BURD_TEMP_DIR and thus the same trace root.
-    let roots = match rbtdb_allocate_roots() {
+    let roots = match rbtd_allocate_roots() {
         Ok(r) => r,
         Err(msg) => rbtd::rbtdrg_fatal_now!("{}", msg),
     };
@@ -339,7 +339,7 @@ fn rbtdb_run_suite(args: &[String]) -> ExitCode {
     }
 }
 
-fn rbtdb_list_suites() {
+fn rbtd_list_suites() {
     rbtd::rbtdrg_info_now!("available suites:");
     for s in RBTDRA_SUITES {
         rbtd::rbtdrg_info_now!("  {}", s.name);
@@ -348,7 +348,7 @@ fn rbtdb_list_suites() {
 
 // ── Single-case runner ───────────────────────────────────────
 
-fn rbtdb_run_single(args: &[String]) -> ExitCode {
+fn rbtd_run_single(args: &[String]) -> ExitCode {
     let fixture = match args.first() {
         Some(f) => f,
         None => {
@@ -356,14 +356,14 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
                 "rbtd single: usage: rbtd single <fixture> [case]\n\
                  omit case to list all cases for the fixture"
             );
-            rbtdb_list_fixtures();
+            rbtd_list_fixtures();
             return ExitCode::FAILURE;
         }
     };
 
     if !RBTDRA_FIXTURES.iter().any(|f| f.name == *fixture) {
         rbtd::rbtdrg_error_now!("rbtd single: unknown fixture '{}'", fixture);
-        rbtdb_list_fixtures();
+        rbtd_list_fixtures();
         return ExitCode::FAILURE;
     }
 
@@ -373,7 +373,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
         Err(e) => rbtd::rbtdrg_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
-    let roots = match rbtdb_allocate_roots() {
+    let roots = match rbtd_allocate_roots() {
         Ok(r) => r,
         Err(msg) => rbtd::rbtdrg_fatal_now!("{}", msg),
     };
@@ -460,7 +460,7 @@ fn rbtdb_run_single(args: &[String]) -> ExitCode {
     }
 }
 
-fn rbtdb_list_fixtures() {
+fn rbtd_list_fixtures() {
     rbtd::rbtdrg_info_now!("available fixtures:");
     let mut eta_min = 0u64;
     let mut eta_max = 0u64;
