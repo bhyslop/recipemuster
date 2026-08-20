@@ -166,10 +166,7 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     (".gitignore", Ship),
     // ROOT FILES THAT STAY BEHIND. RELEASE.md is the release-qualification
     // procedure, the rig's own runbook; the iml is IDE furniture; the gateway
-    // proposal is an unsettled internal design note. The memo- stem covers
-    // maintainer memos pausing at the root on their way to the studbook
-    // shelf: provenance, never delivery, whatever the basename after the stem.
-    ("memo-", Withhold),
+    // proposal is an unsettled internal design note.
     ("RELEASE.md", Withhold),
     ("brm_recipemuster.iml", Withhold),
     ("podman-gateway-proposal.md", Withhold),
