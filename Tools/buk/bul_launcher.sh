@@ -140,6 +140,7 @@ if test -z "${BURD_NO_LOG:-}"; then
 
   # Apply BURV (Bash Utility Regime Verification) overrides if set
   BURS_LOG_DIR="${BURV_LOG_DIR:-${BURS_LOG_DIR}}"
+  BURS_TACKROOM="${BURV_TACKROOM:-${BURS_TACKROOM:-}}"
 
   source "${BURC_TOOLS_DIR}/buk/burs_regime.sh" || buc_die "Failed to source burs_regime.sh"
   zburs_kindle
