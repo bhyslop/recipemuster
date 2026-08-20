@@ -53,6 +53,7 @@ zburd_kindle() {
   buv_string_enroll  BURD_TOOLS_DIR             1  256  "Tools directory path (from BURC)"
   buv_string_enroll  BURD_BUK_DIR               1  256  "BUK directory path (derived)"
   buv_string_enroll  BURD_TABTARGET_DIR         1  256  "Tabtarget directory path (from BURC)"
+  buv_string_enroll  BURD_TACKROOM              0  512  "Station-shared tool store root, carried across the dispatch exec boundary from BURS_TACKROOM so a kit's CLI can read it (empty where the station declares none)"
 
   buv_group_enroll "Computed State"
   buv_string_enroll  BURD_NOW_STAMP             1   64  "Timestamp string computed at dispatch time"

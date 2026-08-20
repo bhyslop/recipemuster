@@ -44,6 +44,9 @@ zburs_kindle() {
   buv_group_enroll "Developer Logging"
   buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs"
 
+  buv_group_enroll "Shared Tooling"
+  buv_string_enroll  BURS_TACKROOM 0  512  "Station-shared root for large immutable tool stores every clone on this station draws from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here). Absolute, or relative to the project root as the log directory is. Optional to BUK and required by any kit that homes a store here, so a clone that builds no Rust may leave it unset"
+
   # Guard against unexpected BURS_ variables not in enrollment
   buv_scope_sentinel BURS BURS_
 
