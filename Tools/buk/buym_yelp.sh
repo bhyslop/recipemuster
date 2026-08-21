@@ -60,6 +60,15 @@ ZBUYM_SOURCED=1
 #
 # Called before kindle.  Each sets ZBUYM_CONFIG_MODE flag.
 # Kindle reads the mode and defines readonly BUYC_* palette.
+#
+# THESE THREE CARRY NO SENTINEL AND MUST NOT GAIN ONE.  Every regular function
+# opens on its module's sentinel by convention; these are the
+# deliberate exception, and the reason is the line above rather than oversight.
+# zbuym_sentinel LAZILY KINDLES rather than dying, so a guard here would kindle
+# the module at the moment the mode is being set — freezing the readonly BUYC_*
+# palette against the DEFAULT mode and discarding the caller's choice.  The
+# failure would be silent: wrong colors, no error.  A conformance read over this
+# rule will name these three; they are left standing knowingly, not overlooked.
 
 ZBUYM_CONFIG_MODE="dispatch"
 

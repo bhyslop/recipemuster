@@ -38,8 +38,8 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBUH_INCLUDED:-}" || return 0
-ZBUH_INCLUDED=1
+test -z "${ZBUH_SOURCED:-}" || return 0
+ZBUH_SOURCED=1
 
 ######################################################################
 # Internal: Kindle and Sentinel
@@ -84,7 +84,7 @@ zbuh_sentinel() {
 # Public: Section headers and numbered steps
 
 buh_section() { zbuh_sentinel; z_buh_body_indent=""; buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%s\n' "${z_buym_format}" >&2; }
-buh_e()       { echo "" >&2; }
+buh_e()       { zbuh_sentinel; echo "" >&2; }
 
 buh_step_style() {
   zbuh_sentinel
@@ -219,9 +219,9 @@ buh_ternary() {
 # never reaches the terminal — the operator would face a blocked read with no
 # visible prompt. Input is typed on the line beneath. Do not rejoin them.
 
-# buh_prompt "prompt text"
+# buh_prompt_plain "prompt text"
 # Displays prompt and reads user input, returns via stdout
-buh_prompt() {
+buh_prompt_plain() {
   zbuh_sentinel
   printf '%s\n' "${1:-}" >&2
   local z_input
@@ -230,7 +230,7 @@ buh_prompt() {
 }
 
 # buh_prompt_secret "prompt text"
-# Like buh_prompt but suppresses terminal echo of typed/pasted input.
+# Like buh_prompt_plain but suppresses terminal echo of typed/pasted input.
 # Emits a trailing newline to stderr so subsequent output starts on a fresh line.
 buh_prompt_secret() {
   zbuh_sentinel
@@ -242,10 +242,11 @@ buh_prompt_secret() {
 }
 
 # buh_prompt_required "prompt text" "error message"
-# Like buh_prompt but dies if input is empty
+# Like buh_prompt_plain but dies if input is empty
 buh_prompt_required() {
+  zbuh_sentinel
   local z_input
-  z_input=$(buh_prompt "${1:-}")
+  z_input=$(buh_prompt_plain "${1:-}")
   if test -z "${z_input}"; then
     printf '%s\n' "${z_buh_body_indent}${ZBUH_E}ERROR:${ZBUH_R} ${2:-Input required}" >&2
     return 1

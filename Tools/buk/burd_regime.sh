@@ -24,14 +24,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZBURD_SOURCED:-}" || buc_die "Module burd multiply sourced - check sourcing hierarchy"
+test -z "${ZBURD_SOURCED:-}" || buc_die_now "Module burd multiply sourced - check sourcing hierarchy"
 ZBURD_SOURCED=1
 
 ######################################################################
 # Internal Functions (zburd_*)
 
 zburd_kindle() {
-  test -z "${ZBURD_KINDLED:-}" || buc_die "Module burd already kindled"
+  test -z "${ZBURD_KINDLED:-}" || buc_die_now "Module burd already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -97,7 +97,7 @@ zburd_kindle() {
 }
 
 zburd_sentinel() {
-  test "${ZBURD_KINDLED:-}" = "1" || buc_die "Module burd not kindled - call zburd_kindle first"
+  test "${ZBURD_KINDLED:-}" = "1" || buc_die_now "Module burd not kindled - call zburd_kindle first"
 }
 
 # Enforce all BURD enrollment validations
@@ -108,8 +108,8 @@ zburd_enforce() {
 
   # Custom enforce: log paths must be set when logging is active
   if test -z "${BURD_NO_LOG:-}" && test -n "${BURD_LOG_LAST:-}"; then
-    test -n "${BURD_LOG_SAME:-}" || buc_die "BURD_LOG_SAME required when logging is active"
-    test -n "${BURD_LOG_HIST:-}" || buc_die "BURD_LOG_HIST required when logging is active"
+    test -n "${BURD_LOG_SAME:-}" || buc_die_now "BURD_LOG_SAME required when logging is active"
+    test -n "${BURD_LOG_HIST:-}" || buc_die_now "BURD_LOG_HIST required when logging is active"
   fi
 }
 

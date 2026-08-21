@@ -17,6 +17,14 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Bash Utility Regime Dispatch - Direct bash dispatch
+#
+# NOTE: This is bootstrap infrastructure, not a full module.
+# No kindle/sentinel pattern - this runs before other modules are loaded.
+# A dispatcher is external code by convention, and this file has no
+# ZBUD_SOURCED guard, no kindle, and no buc_* to call: it is executed,
+# not sourced, and it hand-rolls zbud_die/zbud_show because buc_command.sh
+# is not loaded yet. Declaring a two-segment sentinel here would register
+# the file as a module body to any structural reader.
 
 set -euo pipefail
 shopt -s extglob
@@ -34,10 +42,6 @@ if test "${BURE_VERBOSE}" = "2"; then
 fi
 
 zbud_die() { echo "FATAL: $*" >&2; exit 1; }
-
-zbud_sentinel() {
-  test "${ZBUD_INITIALIZED:-}" = "1" || zbud_die "Dispatch not initialized - zbud_main not complete"
-}
 
 # String validator with optional length constraints
 zbud_check_string() {
@@ -388,8 +392,6 @@ zbud_main() {
   if test ${#ZBUD_UNEXPECTED[@]} -gt 0; then
     zbud_die "Unexpected BURD_ variables: ${ZBUD_UNEXPECTED[*]}"
   fi
-
-  ZBUD_INITIALIZED=1
 
   # Build complete invocation array (always has ≥2 elements, so always safe under set -u)
   local -r z_coordinator_cmd="${BURD_COORDINATOR_SCRIPT}"
