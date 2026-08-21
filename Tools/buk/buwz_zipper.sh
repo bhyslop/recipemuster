@@ -28,7 +28,7 @@ ZBUWZ_SOURCED=1
 # Colophon registry initialization
 
 zbuwz_kindle() {
-  test -z "${ZBUWZ_KINDLED:-}" || buc_die "buwz already kindled"
+  test -z "${ZBUWZ_KINDLED:-}" || buc_die_now "buwz already kindled"
 
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
@@ -37,7 +37,7 @@ zbuwz_kindle() {
   # Must precede the first enroll so the run begins at the roll's current head —
   # which, when RB is kindled first (the theurge build and rbq), lands the BUK
   # run after the RB run, keeping the RBTDGC_ block byte-stable.
-  buz_tome "buwz" "BUWGC_" "BUWZ_"
+  buz_tome_seat "buwz" "BUWGC_" "BUWZ_"
 
   # TabTarget subsystem (buut_cli.sh)
   local z_mod="buut_cli.sh"
@@ -79,7 +79,7 @@ zbuwz_kindle() {
 # Internal sentinel
 
 zbuwz_sentinel() {
-  test "${ZBUWZ_KINDLED:-}" = "1" || buc_die "Module buwz not kindled - call zbuwz_kindle first"
+  test "${ZBUWZ_KINDLED:-}" = "1" || buc_die_now "Module buwz not kindled - call zbuwz_kindle first"
 }
 
 # eof

@@ -49,29 +49,29 @@ Full spec: `Tools/buk/README.md`
 
 **Never use `cd` in Bash commands — NO exceptions.**
 
-The working directory persists between Bash tool calls. A single `cd` corrupts ALL subsequent commands that use relative paths, including every `./tt/` tabtarget.
+The working directory persists across Bash tool calls, so a `cd` is never scoped to the command that ran it: it is a durable edit to the seat, inherited by every command after it. That is a hazard here because relative paths are contract rather than convenience. A tabtarget is invoked as `./tt/...` from the project root, and what it resolves from there — its launcher, its regime config, the `../logs-buk` its station file names by default — silently follows the working directory wherever it has been moved. A cd'd session runs the same tabtarget against a different tree, or writes its logs where nobody will look, and nothing announces the shift, because each command still succeeds on its own terms.
 
-- Use absolute paths instead of cd'ing
+- Use absolute paths instead of cd'ing. Reaching another tree — a sibling repo, a peer worktree — is exactly what an absolute path is for; it is the idiom, not a workaround for the rule.
 
-**There is no safe cd.** Do not reason that "I'll cd back" — the next tool call may be yours or another Claude Code session's, and it will break.
+**There is no safe cd.** Do not reason that "I'll cd back" — the restoring command is one failure, interruption, or forgotten step away from never running, and everything in between has already been aimed at the wrong tree. Owning your working directory does not soften this: a session with a seat of its own still may not move it, because the hazard is the drift itself, not who else might be sharing.
 
 ## Tool Git Discipline
 
-Tools never commit in the consumer's codebase. A tool MAY presume git and refuse downstream steps on a dirty tree, but it never stages or commits — the operator commits with their usual workflow. The uniform gate is `bug_require_clean_tree_creed "<creed>"` (BUG module) — a precision-band deliberate-rejection gate; BUG stays kit-agnostic and the caller supplies its rationale (a creed) for demanding a clean tree. A verb that installs into tracked config calls it first, so an install-then-forgot-to-commit cannot silently ride into a later build.
+Rivet `BUr_k7d` governs, and it is cited here rather than restated: tooling never stages or commits in a repository it does not own, whatever the tool is written in, and the caller seals the delta the tool leaves standing. BUK holds the bash arm of it. The uniform gate is `bug_require_clean_tree_creed "<creed>"` (BUG module) — a precision-band deliberate-rejection gate; BUG stays kit-agnostic and the caller supplies its rationale (a creed) for demanding a clean tree. A verb that installs into tracked config calls it first, so an install-then-forgot-to-commit cannot silently ride into a later build.
 
 ## TabTarget Invocation Discipline
 
 **Never wrap tabtarget invocations with `tee`, `tail`, `head`, `grep`, `2>&1`, or any other pipe — NO exceptions.**
 
-Tabtargets self-log to `../logs-buk/` — a directory scoped to the station (the machine), not to any one clone or worktree, so every clone, worktree, and billet on that station shares the same `logs-buk/`:
-- `last.txt` — most recent invocation across **all** tabtargets on the station. **Never read this** — any tabtarget run anywhere on the station between your dispatch and your read overwrites it out from under you.
-- `same-{cmd}.txt` — most recent invocation of this specific tabtarget on the station. Same race, narrowed to one colophon: another clone or billet running the identical tabtarget still overwrites it.
-- `hist-{cmd}-{timestamp}.txt` — one immutable file per invocation. The only race-free pointer.
+Tabtargets self-log to the directory the station file's `BURS_LOG_DIR` names, and there are two seats. **Station ground** is the default: `../logs-buk/`, relative to the project root, shared by every clone and worktree on that machine. **A dispatched session is the other seat** — the dispatch provisions `BURV_LOG_DIR`, which overrides the station value, so that session's logs land in its own per-billet scratch container and nothing of it reaches the station ground. Three files are written either way, and the seat decides only how wide the race on the first two runs:
+- `last.txt` — most recent invocation across **all** tabtargets writing into that directory. **Never read this** — any tabtarget run that shares the directory, between your dispatch and your read, overwrites it out from under you.
+- `same-{cmd}.txt` — most recent invocation of this specific tabtarget. Same race, narrowed to one colophon: another run of the identical tabtarget still overwrites it.
+- `hist-{cmd}-{timestamp}.txt` — one immutable file per invocation. The only race-free pointer, and the only one safe to read at either seat.
 
 Both stdout and stderr are captured. Adding your own `tee` or `2>&1` duplicates work the tool already did. The real hazard is piping a tabtarget into `tail`/`head`/`grep`: zsh defaults `pipefail` OFF, so the pipeline returns the last command's exit status — usually 0. **A failing test reports as success.**
 
 - Run the tabtarget directly, then read the announced `hist-` path in a separate command. Non-interactive dispatch prints all three paths on a `log files:` line; interactive dispatch prints the `hist-` path alone on a `log (interactive:)` line — either way the path is handed to you, so use it verbatim.
-- **Never locate the hist file by `ls -t` or any other newest-match search** — that reinstates the exact race the announced path exists to avoid, since another invocation on the station can drop a newer `hist-` file between your dispatch and your search. If the announced path wasn't captured, re-run the tabtarget and read its freshly printed line.
+- **Never locate the hist file by `ls -t` or any other newest-match search** — that reinstates the exact race the announced path exists to avoid, since another invocation sharing the log directory can drop a newer `hist-` file between your dispatch and your search. If the announced path wasn't captured, re-run the tabtarget and read its freshly printed line.
 - Environment variables before the command are fine: `BURE_CONFIRM=skip ./tt/rbw-cQ.Quench.tadmor.sh`
 - If you genuinely must pipe live output (rare — usually you can read the log instead), set `-o pipefail` on the same line, or check `${PIPESTATUS[0]}` (bash) / `${pipestatus[1]}` (zsh)
 
@@ -109,6 +109,7 @@ Annotations for the acronym homes indexed in `Tools/buk/claude-buk-acronyms.md` 
 
 - **BUC**  → `Tools/buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `Tools/buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
+- **BUE**  → `Tools/buk/bue_exergue.sh` (exergue module, bue_* functions — stamps a build with the source position it was struck from: the newest first-parent landing on the trunk counterpart that touched an elected root, written into a gitignored generated Rust module, write-if-changed, dying rather than shipping unstamped)
 - **BUG**  → `Tools/buk/bug_git.sh` (bash git utilities, bug_* functions — home of the "tools never commit, gate on a clean tree" gate `bug_require_clean_tree_creed`)
 - **BUH**  → `Tools/buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
 - **BUT**  → `Tools/buk/but_test.sh` (test utilities, but_* functions)

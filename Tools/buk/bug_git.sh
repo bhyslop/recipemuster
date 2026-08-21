@@ -18,31 +18,33 @@
 #
 # BUG Git - bash git utilities (BUK domain)
 #
-# Home for the "tools never commit, but gate on a clean tree" convention: a tool
-# may presume git and refuse downstream steps on a dirty tree, but never commits
-# in the consumer's codebase. Bash-only — Rust git use is outside BUK framing.
+# The bash arm of rivet BUr_k7d: tooling never stages or commits in a repository
+# it does not own. The rivet is dialect-neutral and binds every tool alike, so
+# this module is where bash meets it rather than where the rule is stated. The
+# clean-tree gate below is that rivet's ergonomic backstop, never its safety
+# mechanism — the caller's seal is.
 
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBUG_SOURCED:-}" || buc_die "Module bug multiply sourced - check sourcing hierarchy"
+test -z "${ZBUG_SOURCED:-}" || buc_die_now "Module bug multiply sourced - check sourcing hierarchy"
 ZBUG_SOURCED=1
 
 # Tinder constant (pure string literal — available at source time). The detailed
 # clean-tree error condition, carried as a structured constant rather than an
 # inline free string, so the well-formed gate below states one canonical grievance.
 # Untracked files are not gated, so the condition names staged-or-unstaged only.
-BUG_clean_tree_condition="git working tree carries uncommitted changes (staged or unstaged)"
+readonly BUG_clean_tree_condition="git working tree carries uncommitted changes (staged or unstaged)"
 
 # Tinder constant, sibling to the clean-tree condition above: the branch-synchrony
 # grievance, stated once so every rule of that gate opens with the same sentence.
 # The condition names publication, not direction — behind, ahead, diverged, and
 # never-published all fail the same requirement, and the gate's message supplies
 # which one.
-BUG_synchrony_condition="git branch does not stand at its published upstream tip"
+readonly BUG_synchrony_condition="git branch does not stand at its published upstream tip"
 
-# Clean-tree gate — the sole clean-tree guard (a deliberate-rejection gate per
-# BCG "Precision Exit-Code Band"): it buc_rejects the named clean-tree band
+# Clean-tree gate — the sole clean-tree guard (a deliberate-rejection gate):
+# it buc_rejects the named clean-tree band
 # rather than dying imprecisely, and states the error condition from the
 # BUG_clean_tree_condition constant. BUG holds no opinion on WHY a clean tree
 # matters — the caller supplies its rationale as a creed, appended to the
@@ -51,7 +53,7 @@ BUG_synchrony_condition="git branch does not stand at its published upstream tip
 # Args: <creed>  (the caller's rationale for demanding a clean tree)
 bug_require_clean_tree_creed() {
   local -r z_creed="${1:-}"
-  test -n "${z_creed}" || buc_die "bug_require_clean_tree_creed: creed (rationale) required"
+  test -n "${z_creed}" || buc_die_now "bug_require_clean_tree_creed: creed (rationale) required"
 
   buc_step "Verifying clean working tree"
   if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -59,8 +61,8 @@ bug_require_clean_tree_creed() {
   fi
 }
 
-# Branch-synchrony gate — the second deliberate-rejection gate (BCG "Precision
-# Exit-Code Band"), independent of the clean-tree gate above and never implied by
+# Branch-synchrony gate — the second deliberate-rejection gate,
+# independent of the clean-tree gate above and never implied by
 # it: a clean working tree says only that nothing is uncommitted, and says
 # nothing about whether the commits already made have reached the remote. An
 # operation that writes into a branch other clones read crosses both.
@@ -73,19 +75,19 @@ bug_require_clean_tree_creed() {
 #
 # A detached HEAD, an unconfigured upstream, a remote that carries no such
 # branch, and a tip mismatch are four rules of this one gate rather than four
-# gates (BCG allocation rule: one code per gate, never per rule). Each is the
+# gates (allocation rule: one code per gate, never per rule). Each is the
 # condition stated. BUG holds no opinion on WHY
 # synchrony matters — the caller supplies its rationale as a creed, appended to
 # the condition, so the opinion stays kit-side and BUG stays kit-agnostic.
 # Args: <creed>  (the caller's rationale for demanding branch synchrony)
 bug_require_branch_synchrony_creed() {
   local -r z_creed="${1:-}"
-  test -n "${z_creed}" || buc_die "bug_require_branch_synchrony_creed: creed (rationale) required"
+  test -n "${z_creed}" || buc_die_now "bug_require_branch_synchrony_creed: creed (rationale) required"
 
   buc_step "Verifying branch stands at its published upstream tip"
 
   local z_branch=""
-  z_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die "Failed to resolve current branch"
+  z_branch=$(git rev-parse --abbrev-ref HEAD) || buc_die_now "Failed to resolve current branch"
   test "${z_branch}" != "HEAD" \
     || buc_reject "${BUBC_band_synchrony}" "${BUG_synchrony_condition}: HEAD is detached, so no branch is published — ${z_creed}"
 
@@ -116,17 +118,17 @@ bug_require_branch_synchrony_creed() {
     local z_probe_status=0
     git ls-remote --exit-code "${z_remote}" "${z_upstream_ref}" > /dev/null || z_probe_status=$?
     test "${z_probe_status}" -ne 0 \
-      || buc_die "Failed to fetch ${z_upstream_name} though the remote carries it (fetch exit ${z_fetch_status})"
+      || buc_die_now "Failed to fetch ${z_upstream_name} though the remote carries it (fetch exit ${z_fetch_status})"
     test "${z_probe_status}" -eq 2 \
-      || buc_die "Failed to reach ${z_remote} to resolve ${z_upstream_name} (fetch exit ${z_fetch_status}, ls-remote exit ${z_probe_status})"
+      || buc_die_now "Failed to reach ${z_remote} to resolve ${z_upstream_name} (fetch exit ${z_fetch_status}, ls-remote exit ${z_probe_status})"
     buc_reject "${BUBC_band_synchrony}" "${BUG_synchrony_condition}: the remote carries no ${z_upstream_name}, so branch '${z_branch}' has published nothing — ${z_creed}"
   fi
 
   local z_local_tip=""
-  z_local_tip=$(git rev-parse HEAD) || buc_die "Failed to read local tip"
+  z_local_tip=$(git rev-parse HEAD) || buc_die_now "Failed to read local tip"
 
   local z_remote_tip=""
-  z_remote_tip=$(git rev-parse FETCH_HEAD) || buc_die "Failed to read fetched tip of ${z_upstream_name}"
+  z_remote_tip=$(git rev-parse FETCH_HEAD) || buc_die_now "Failed to read fetched tip of ${z_upstream_name}"
 
   buc_log_args "Local tip:   ${z_local_tip}"
   buc_log_args "Fetched tip: ${z_remote_tip}"

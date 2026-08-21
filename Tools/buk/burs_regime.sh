@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZBURS_SOURCED:-}" || buc_die "Module burs multiply sourced - check sourcing hierarchy"
+test -z "${ZBURS_SOURCED:-}" || buc_die_now "Module burs multiply sourced - check sourcing hierarchy"
 ZBURS_SOURCED=1
 
 ######################################################################
 # Internal Functions (zburs_*)
 
 zburs_kindle() {
-  test -z "${ZBURS_KINDLED:-}" || buc_die "Module burs already kindled"
+  test -z "${ZBURS_KINDLED:-}" || buc_die_now "Module burs already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -57,7 +57,7 @@ zburs_kindle() {
 }
 
 zburs_sentinel() {
-  test "${ZBURS_KINDLED:-}" = "1" || buc_die "Module burs not kindled - call zburs_kindle first"
+  test "${ZBURS_KINDLED:-}" = "1" || buc_die_now "Module burs not kindled - call zburs_kindle first"
 }
 
 # Enforce all BURS enrollment validations

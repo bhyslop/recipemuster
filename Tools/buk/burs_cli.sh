@@ -46,7 +46,7 @@ burs_render() {
 # Furnish and Main
 
 zburs_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   source "${BURD_BUK_DIR}/buv_validation.sh"
@@ -59,8 +59,8 @@ zburs_furnish() {
   zburd_enforce
 
   test -f "${BURD_STATION_FILE}" \
-    || buc_die "Station Regime file not found: ${BURD_STATION_FILE} — run tt/buw-SI.StationInit.sh to create it"
-  source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS: ${BURD_STATION_FILE}"
+    || buc_die_now "Station Regime file not found: ${BURD_STATION_FILE} — run tt/buw-SI.StationInit.sh to create it"
+  source "${BURD_STATION_FILE}" || buc_die_now "Failed to source BURS: ${BURD_STATION_FILE}"
 
   zburs_kindle
   zburs_enforce

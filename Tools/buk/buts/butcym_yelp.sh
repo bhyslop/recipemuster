@@ -132,22 +132,22 @@ zbutcym_strip_fast_path() {
   printf '%b' "${z_buym_format}" >&2
 }
 
-# Cold buc_die: buym sourced (by butt_testbench) but NOT kindled here.
-# buc_die must kindle buym lazily via the zbuc_print sentinel, render the
+# Cold buc_die_now: buym sourced (by butt_testbench) but NOT kindled here.
+# buc_die_now must kindle buym lazily via the zbuc_print sentinel, render the
 # gray operation sigil, and never dereference an unset BUYC_* readonly
-# under set -u.  The nested subshell contains buc_die's exit 1 so the
+# under set -u.  The nested subshell contains buc_die_now's exit 1 so the
 # helper returns normally and zbuto_invoke captures the rendered stderr.
-zbutcym_cold_die() {
+zbutcym_cold_die_unconditional() {
   buym_unconditional
   buc_context "cold-ctx"
-  ( buc_die "cold boom" ) || true
+  ( buc_die_now "cold boom" ) || true
   printf 'survived\n' >&2
 }
 
 zbutcym_cold_die_plain() {
   buym_plain
   buc_context "cold-ctx"
-  ( buc_die "cold boom" ) || true
+  ( buc_die_now "cold boom" ) || true
   printf 'survived\n' >&2
 }
 
@@ -170,7 +170,7 @@ zbutcym_verdict_probe() {
                    printf "%s|%s\n" "${z_mode}" "${ZBUYM_USE_HYPERLINKS}"'
 
   env "$@" bash -c "${z_body}" > "${z_out}" 2>"${z_out}.err" \
-    || buto_fatal "Verdict probe failed — see ${z_out}.err"
+    || buto_fatal_now "Verdict probe failed — see ${z_out}.err"
 }
 
 ######################################################################
@@ -184,11 +184,11 @@ butcym_cmd_resolve_tcase() {
   z_cyan=$(printf '\033[36m')
   case "${ZBUTO_STDERR}" in
     *"${z_cyan}git status"*) ;;
-    *) buto_fatal "Cyan escape not found around 'git status'" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Cyan escape not found around 'git status'" "Got: ${ZBUTO_STDERR}" ;;
   esac
   # Verify no diastema bytes survive
   case "${ZBUTO_STDERR}" in
-    *$'\x02'*) buto_fatal "Diastema byte survived in output" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\x02'*) buto_fatal_now "Diastema byte survived in output" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -201,11 +201,11 @@ butcym_link_osc8_tcase() {
   z_osc=$(printf '\033]8;;')
   case "${ZBUTO_STDERR}" in
     *"${z_osc}https://example.com#Depot"*) ;;
-    *) buto_fatal "OSC-8 URL not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "OSC-8 URL not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
     *"Depot"*) ;;
-    *) buto_fatal "Display text 'Depot' not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Display text 'Depot' not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
 }
 
@@ -215,12 +215,12 @@ butcym_link_fallback_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "link fallback failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"<https://example.com#Depot>"*) ;;
-    *) buto_fatal "Fallback angle-bracket URL not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Fallback angle-bracket URL not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
   local z_osc
   z_osc=$(printf '\033]8;;')
   case "${ZBUTO_STDERR}" in
-    *"${z_osc}"*) buto_fatal "OSC-8 should not appear in fallback mode" ;;
+    *"${z_osc}"*) buto_fatal_now "OSC-8 should not appear in fallback mode" ;;
     *) ;;
   esac
 }
@@ -237,7 +237,7 @@ butcym_ambient_preservation_tcase() {
   # Pattern: cyan "test" then ambient yellow (not reset)
   case "${ZBUTO_STDERR}" in
     *"${z_cyan}test${z_yellow}"*) ;;
-    *) buto_fatal "Ambient color not restored after DIASTEMA_END" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Ambient color not restored after DIASTEMA_END" "Got: ${ZBUTO_STDERR}" ;;
   esac
 }
 
@@ -247,10 +247,10 @@ butcym_fast_path_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "fast path failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"plain text no markers"*) ;;
-    *) buto_fatal "Plain text not found in output" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Plain text not found in output" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\x02'*) buto_fatal "Diastema byte in fast-path output" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\x02'*) buto_fatal_now "Diastema byte in fast-path output" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -271,15 +271,15 @@ butcym_multi_markers_tcase() {
     z_tmp="${z_tmp#*"${z_osc}"}"
   done
   # Each link has two OSC-8 sequences (open + close), so 2 links = 4 occurrences
-  test "${z_count}" -ge 4 || buto_fatal "Expected at least 4 OSC-8 sequences for 2 links, got ${z_count}"
+  test "${z_count}" -ge 4 || buto_fatal_now "Expected at least 4 OSC-8 sequences for 2 links, got ${z_count}"
   # CMD marker resolved
   case "${ZBUTO_STDERR}" in
     *"${z_cyan}run"*) ;;
-    *) buto_fatal "CMD marker not resolved" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "CMD marker not resolved" "Got: ${ZBUTO_STDERR}" ;;
   esac
   # No diastema survivors
   case "${ZBUTO_STDERR}" in
-    *$'\x02'*) buto_fatal "Diastema byte survived in multi-marker output" ;;
+    *$'\x02'*) buto_fatal_now "Diastema byte survived in multi-marker output" ;;
     *) ;;
   esac
 }
@@ -289,15 +289,15 @@ butcym_plain_mode_tcase() {
   zbuto_invoke zbutcym_plain_mode
   buto_fatal_on_error "${ZBUTO_STATUS}" "plain mode failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
-    *$'\033'*) buto_fatal "ESC byte found in plain mode output" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\033'*) buto_fatal_now "ESC byte found in plain mode output" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
   case "${ZBUTO_STDERR}" in
     *"test"*) ;;
-    *) buto_fatal "Content 'test' not found in plain mode output" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Content 'test' not found in plain mode output" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\x02'*) buto_fatal "Diastema byte survived in plain mode" ;;
+    *$'\x02'*) buto_fatal_now "Diastema byte survived in plain mode" ;;
     *) ;;
   esac
 }
@@ -310,7 +310,7 @@ butcym_gray_color_tcase() {
   z_gray=$(printf '\033[90m')
   case "${ZBUTO_STDERR}" in
     *"[${z_gray}]"*) ;;
-    *) buto_fatal "Gray ANSI not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Gray ANSI not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
 }
 
@@ -320,10 +320,10 @@ butcym_gray_plain_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "gray plain failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"[]"*) ;;
-    *) buto_fatal "Gray should be empty in plain mode" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Gray should be empty in plain mode" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\033'*) buto_fatal "ESC byte in plain-mode gray" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\033'*) buto_fatal_now "ESC byte in plain-mode gray" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -334,14 +334,14 @@ butcym_strip_cmd_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip cmd failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"Run git status now"*) ;;
-    *) buto_fatal "Stripped text not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Stripped text not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\033'*) buto_fatal "ESC byte in stripped output (must ignore color mode)" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\033'*) buto_fatal_now "ESC byte in stripped output (must ignore color mode)" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\x02'*) buto_fatal "Diastema byte survived strip" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\x02'*) buto_fatal_now "Diastema byte survived strip" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -352,16 +352,16 @@ butcym_strip_link_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip link failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"See Depot <https://example.com#Depot>."*) ;;
-    *) buto_fatal "Stripped link form not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Stripped link form not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
   local z_osc
   z_osc=$(printf '\033]8;;')
   case "${ZBUTO_STDERR}" in
-    *"${z_osc}"*) buto_fatal "OSC-8 should not appear in strip" "Got: ${ZBUTO_STDERR}" ;;
+    *"${z_osc}"*) buto_fatal_now "OSC-8 should not appear in strip" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\033'*) buto_fatal "ESC byte in stripped link output" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\033'*) buto_fatal_now "ESC byte in stripped link output" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -372,10 +372,10 @@ butcym_strip_href_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip href failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"Docs <https://example.com>"*) ;;
-    *) buto_fatal "Stripped href form not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Stripped href form not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
-    *$'\033'*) buto_fatal "ESC byte in stripped href output" "Got: ${ZBUTO_STDERR}" ;;
+    *$'\033'*) buto_fatal_now "ESC byte in stripped href output" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -386,55 +386,55 @@ butcym_strip_fast_path_tcase() {
   buto_fatal_on_error "${ZBUTO_STATUS}" "strip fast path failed" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"plain text no markers"*) ;;
-    *) buto_fatal "Plain text not found" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Plain text not found" "Got: ${ZBUTO_STDERR}" ;;
   esac
 }
 
 butcym_cold_die_tcase() {
-  buto_trace "buc_die cold path: lazy-kindles buym, renders gray sigil, no unbound crash"
-  zbuto_invoke zbutcym_cold_die
+  buto_trace "buc_die_now cold path: lazy-kindles buym, renders gray sigil, no unbound crash"
+  zbuto_invoke zbutcym_cold_die_unconditional
   buto_fatal_on_error "${ZBUTO_STATUS}" "cold die helper did not survive" "STDERR: ${ZBUTO_STDERR}"
-  # Helper reached its marker — buc_die's exit was contained, no shell crash
+  # Helper reached its marker — buc_die_now's exit was contained, no shell crash
   case "${ZBUTO_STDERR}" in
     *"survived"*) ;;
-    *) buto_fatal "Helper did not survive buc_die" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Helper did not survive buc_die_now" "Got: ${ZBUTO_STDERR}" ;;
   esac
   # The cold BUYC_* dereference did not trip set -u
   case "${ZBUTO_STDERR}" in
-    *"unbound variable"*) buto_fatal "Cold buc_die threw unbound variable" "Got: ${ZBUTO_STDERR}" ;;
+    *"unbound variable"*) buto_fatal_now "Cold buc_die_now threw unbound variable" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
   # Error body rendered
   case "${ZBUTO_STDERR}" in
     *"ERROR:"*"cold boom"*) ;;
-    *) buto_fatal "buc_die error body not rendered" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "buc_die_now error body not rendered" "Got: ${ZBUTO_STDERR}" ;;
   esac
   # Gray operation sigil resolved from the lazy kindle (BUYC_GRAY -> \033[90m)
   local z_gray
   z_gray=$(printf '\033[90m')
   case "${ZBUTO_STDERR}" in
     *"${z_gray}cold-ctx"*) ;;
-    *) buto_fatal "Gray context sigil not rendered from cold kindle" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Gray context sigil not rendered from cold kindle" "Got: ${ZBUTO_STDERR}" ;;
   esac
 }
 
 butcym_cold_die_plain_tcase() {
-  buto_trace "buc_die cold path under buym_plain: gray sigil suppressed (NO_COLOR-aware)"
+  buto_trace "buc_die_now cold path under buym_plain: gray sigil suppressed (NO_COLOR-aware)"
   zbuto_invoke zbutcym_cold_die_plain
   buto_fatal_on_error "${ZBUTO_STATUS}" "cold die plain helper did not survive" "STDERR: ${ZBUTO_STDERR}"
   case "${ZBUTO_STDERR}" in
     *"survived"*) ;;
-    *) buto_fatal "Helper did not survive buc_die (plain)" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "Helper did not survive buc_die_now (plain)" "Got: ${ZBUTO_STDERR}" ;;
   esac
   case "${ZBUTO_STDERR}" in
     *"ERROR:"*"cold boom"*) ;;
-    *) buto_fatal "buc_die error body not rendered (plain)" "Got: ${ZBUTO_STDERR}" ;;
+    *) buto_fatal_now "buc_die_now error body not rendered (plain)" "Got: ${ZBUTO_STDERR}" ;;
   esac
   # Gray sigil must be absent in plain mode — the terminal-awareness fix
   local z_gray
   z_gray=$(printf '\033[90m')
   case "${ZBUTO_STDERR}" in
-    *"${z_gray}"*) buto_fatal "Gray sigil ANSI present under buym_plain" "Got: ${ZBUTO_STDERR}" ;;
+    *"${z_gray}"*) buto_fatal_now "Gray sigil ANSI present under buym_plain" "Got: ${ZBUTO_STDERR}" ;;
     *) ;;
   esac
 }
@@ -447,7 +447,7 @@ butcym_verdict_zero_beats_env_tcase() {
 
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "plain|0" \
-    || buto_fatal "Verdict 0 must beat local detection, got '${z_got}' (expected 'plain|0')"
+    || buto_fatal_now "Verdict 0 must beat local detection, got '${z_got}' (expected 'plain|0')"
 }
 
 butcym_verdict_one_beats_env_tcase() {
@@ -458,7 +458,7 @@ butcym_verdict_one_beats_env_tcase() {
 
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "color|1" \
-    || buto_fatal "Verdict 1 must beat local detection, got '${z_got}' (expected 'color|1')"
+    || buto_fatal_now "Verdict 1 must beat local detection, got '${z_got}' (expected 'color|1')"
 }
 
 butcym_fallback_non_tty_tcase() {
@@ -471,7 +471,7 @@ butcym_fallback_non_tty_tcase() {
   # the suppressing; before it existed this environment colored.
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "plain|0" \
-    || buto_fatal "Fallback must stay plain off-tty, got '${z_got}' (expected 'plain|0')"
+    || buto_fatal_now "Fallback must stay plain off-tty, got '${z_got}' (expected 'plain|0')"
 }
 
 # eof
