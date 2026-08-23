@@ -42,8 +42,6 @@ readonly RBCC_tabtarget_context_file="${RBCC_KIT_DIR}/claude-rbk-tabtarget-conte
 # Source-time literals, no kindle dependency.
 RBCC_moorings_dir="rbmm_moorings"
 RBCC_launchers_subdir="rbml_launchers"
-RBCC_users_subdir="rbmu_users"
-RBCC_nodes_subdir="rbmn_nodes"
 RBCC_vessels_subdir="rbmv_vessels"
 RBCC_foedera_subdir="rbmf_foedera"
 # Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
@@ -134,7 +132,7 @@ RBCC_verb_roster="roster"
 #
 #   Image/build lifecycle (anoint/drive/inscribe/kludge/ordain/yoke) — name the
 #   registry and build operations. Previously implicit in command-function
-#   names (rbrd_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
+#   names (rbndb_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
 #   here so the group has a single owner rather than being reconstructed by
 #   grep across rbfd_/rbfl_/rbfk_/rbob_/rbrn_.
 RBCC_verb_anoint="anoint"
@@ -337,6 +335,7 @@ rbcc_emit_consts() {
     BUBC_band_chain     \
     BUBC_band_descry    \
     BUBC_band_instate   \
+    BUBC_band_clean_tree \
     BUBC_band_admission \
     BUBC_band_vacant    \
     BUBC_band_engross   \

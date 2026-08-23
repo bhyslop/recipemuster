@@ -47,20 +47,15 @@ rbrd_render() {
 ######################################################################
 # Furnish and Main
 
-# Furnish receives the dispatched command name as $1 (per buc_execute's
-# contract), enabling per-command differential setup: validate/render
-# stay lightweight (just RBRD enrollment); check/inscribe need the full
-# GAR-coordinate machinery (RBRR + RBDC + RBGC + RBGL) plus the rbndb
-# bespoke module for the tripwire image FQN.
+# Local regime CLI — validate/render only. The tripwire pair (rbw-rdi /
+# rbw-rdc) dispatches into rbgp_cli.sh, where the payor-credentialed
+# standalone entries live; nothing here reaches the network.
 zrbrd_furnish() {
-  local -r z_command="${1:-}"
-
   buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
 
-  source "${BURD_BUK_DIR}/bug_git.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_regime.sh"
@@ -77,24 +72,6 @@ zrbrd_furnish() {
   zrbrd_enforce
 
   zbupr_kindle
-
-  case "${z_command}" in
-    rbrd_check|rbrd_inscribe)
-      source "${z_rbk_kit_dir}/rbrr_regime.sh"
-      source "${RBCC_rbrr_file}"
-      source "${z_rbk_kit_dir}/rbgc_constants.sh"
-      source "${z_rbk_kit_dir}/rbgl_layout.sh"
-      source "${z_rbk_kit_dir}/rbdc_derived.sh"
-      source "${z_rbk_kit_dir}/rbndb_base.sh"
-
-      zrbrr_kindle
-      zrbrr_enforce
-      zrbgc_kindle
-      zrbgl_kindle
-      zrbdc_kindle
-      zrbndb_kindle
-      ;;
-  esac
 }
 
 buc_execute rbrd_ "Recipe Bottle Depot Regime" zrbrd_furnish "$@"

@@ -32,7 +32,15 @@
 //            it stands as its own token, never as a substring of a longer,
 //            unrelated identifier.
 //
-// The census is synthetic, so these hold in any tree — no filesystem, no git.
+//   CENSUS   the hostname needle set is non-empty after exemptions, and every
+//            needle in it is one the matcher can actually fire on. This stands in
+//            for the empty-census finding the scan carried while its needles were
+//            harvested live: a literal cannot silently stop extracting, but it CAN
+//            be emptied by edit, or exempted away to nothing, and either would
+//            leave the scan passing every tree vacuously.
+//
+// The veil census is synthetic, so those tests hold in any tree — no filesystem,
+// no git. The hostname census is the real literal: it is the thing under test.
 
 use std::collections::BTreeSet;
 
@@ -41,6 +49,8 @@ use crate::rbthdr_loupe::{
     zrbthdr_veil_scan_text,
     zrbthdr_veil_self_proof,
     zrbthdr_Finding,
+    ZRBTHDR_HOST_CENSUS,
+    ZRBTHDR_HOST_EXEMPT,
 };
 
 /// A synthetic one-document census: the withheld-basename half of the matcher is
@@ -59,7 +69,7 @@ fn zrbthdt_scan(probe: &str, census: &BTreeSet<String>) -> Vec<zrbthdr_Finding> 
 
 /// Lines that name a withheld thing — the veiled-dir token, or the census
 /// document's basename in a citation form. Each must produce at least one hit.
-const ZRBTHDT_PLANTED: &[&str] = &[
+const ZRBTHDT_SCAN_PLANTED: &[&str] = &[
     "  - see Tools/rbk/vov_veiled/whatever.sh for the rule",
     "# Contract: ZZQ-Example.adoc.",
     "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context row)",
@@ -67,7 +77,7 @@ const ZRBTHDT_PLANTED: &[&str] = &[
 
 /// Benign lines a coarser scanner might redden on: a shipping README mention, a
 /// prose line with no withheld name, and a same-stem non-document extension.
-const ZRBTHDT_CLEAN: &[&str] = &[
+const ZRBTHDT_SCAN_CLEAN: &[&str] = &[
     "start with the README.md at the project root",
     "the terrier records which citizens hold which mantles",
     "ZZQ-Example.txt is not a withheld document",
@@ -76,7 +86,7 @@ const ZRBTHDT_CLEAN: &[&str] = &[
 #[test]
 fn rbthdt_veil_scan_catches_planted_leaks() {
     let census = zrbthdt_census();
-    for planted in ZRBTHDT_PLANTED {
+    for planted in ZRBTHDT_SCAN_PLANTED {
         let hits = zrbthdt_scan(planted, &census);
         assert!(
             !hits.is_empty(),
@@ -89,7 +99,7 @@ fn rbthdt_veil_scan_catches_planted_leaks() {
 #[test]
 fn rbthdt_veil_scan_silent_on_clean_lines() {
     let census = zrbthdt_census();
-    for clean in ZRBTHDT_CLEAN {
+    for clean in ZRBTHDT_SCAN_CLEAN {
         let hits = zrbthdt_scan(clean, &census);
         assert!(
             hits.is_empty(),
@@ -118,6 +128,30 @@ fn rbthdt_veil_self_proof_holds() {
 
 /// A machine name is a leak only as its own token — never as a substring of a
 /// longer, unrelated identifier.
+#[test]
+fn rbthdt_hostname_census_is_live() {
+    let effective: Vec<&str> = ZRBTHDR_HOST_CENSUS
+        .iter()
+        .copied()
+        .filter(|name| !ZRBTHDR_HOST_EXEMPT.contains(name))
+        .collect();
+
+    assert!(
+        !effective.is_empty(),
+        "the hostname census is empty after exemptions — the scan would pass every tree vacuously"
+    );
+
+    // A needle the matcher cannot fire on is a needle that protects nothing: an
+    // empty or whitespace-bearing entry would sit in the list looking like cover.
+    for name in &effective {
+        assert!(
+            zrbthdr_names_token(&format!("host is {} today", name), name),
+            "census entry {:?} is not a token the matcher can catch",
+            name
+        );
+    }
+}
+
 #[test]
 fn rbthdt_hostname_names_token_word_boundary() {
     assert!(zrbthdr_names_token("host is falcon today", "falcon"), "a whole-word match is a leak");

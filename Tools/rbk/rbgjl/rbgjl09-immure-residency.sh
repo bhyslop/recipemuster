@@ -16,7 +16,7 @@
 # manifest's declared layer size (staged by rbgjl07 in the selection list). This is
 # the anti-hollow-mirror guard the recorded trust grade demands — a registry can
 # hold a manifest whose large layer never fully landed; the digest check alone would
-# not catch it (memo-20260608 §1, proven against 1.13 GB / 245 MB / 200 MB / 194 MB
+# not catch it (jjqs_studbook/memo-20260608-lode-podvm-cerebro-experiment.md §1, proven against 1.13 GB / 245 MB / 200 MB / 194 MB
 # blobs). curl HEAD, no image tool, no blob download.
 
 set -euo pipefail

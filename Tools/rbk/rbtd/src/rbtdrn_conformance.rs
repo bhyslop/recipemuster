@@ -672,14 +672,8 @@ fn zrbtdrn_prefix_of(name: &str) -> &str {
 /// Sheaves whose mapping-declared quoins are pre-registered ahead of their
 /// defining prose — a foreign-kit drafting gap, outside this fixture's
 /// jurisdiction to close. Each entry names its removal condition; delete the
-/// entry once met.
-///
-/// - `Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc`: the "Dispatch (tabtarget
-///   system)" mapping block (`vosdc_colophon`, `vosdf_frontispiece`,
-///   `vosdi_imprint`, `vosdm_formulary`, `vosdl_launcher`, and their `_s`
-///   variants) is declared with no anchor yet authored anywhere in the VOK
-///   kit. Remove this entry once VOS0 authors those definition sites.
-const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &["Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc"];
+/// entry once met. Empty: no sheaf in this estate's corpus holds such a gap.
+const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 
 /// Check 1 — citation integrity: every mapping-declared quoin and every
 /// `{term}`/`RBr_xxx` citation anywhere in the corpus resolves to a real
@@ -783,8 +777,11 @@ const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 
 /// The codex sheaf itself — RBS0, the hoist target MCM's rivet law names. A
 /// rivet anchored here is definitionally already hoisted, so citing it from
-/// any other sheaf is the intended end-state, never a violation.
-const ZRBTDRN_CODEX_SHEAF: &str = "Tools/rbk/vov_veiled/RBS0-SpecTop.adoc";
+/// any other sheaf is the intended end-state, never a violation. Homed in the
+/// studbook infield; the path form matches the studbook-relative rendering the
+/// live wrapper produces (rooted at the shared parent, see
+/// `ZRBTDRN_STUDBOOK_SPEC_ROOT`).
+const ZRBTDRN_CODEX_SHEAF: &str = "jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc";
 
 /// Sheaves whose role is a rivet *census/index* — pointing at where a rivet is
 /// homed ("Chapter: RBSCIP... the RBr_7a9 rivet is homed there"), never
@@ -799,7 +796,10 @@ const ZRBTDRN_CODEX_SHEAF: &str = "Tools/rbk/vov_veiled/RBS0-SpecTop.adoc";
 ///   axd_normative`; doctrine text: "the watchbill points at the chapters and
 ///   never restates them"). Its citations of RBSCIP's `RBr_7a9`/`RBr_3f4`/
 ///   `RBr_c81` are directory entries, not content consumption.
-const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["Tools/rbk/vov_veiled/RBSWB-Watchbill.adoc"];
+///
+/// Studbook-infield path form, matching the live wrapper's studbook-relative
+/// rendering (see `ZRBTDRN_STUDBOOK_SPEC_ROOT`).
+const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["jjqs_studbook/specs/rbk/RBSWB-Watchbill.adoc"];
 
 /// Check 2 — rivet-hoist placement (MCM `mcm_rivet`: a rivet hoists to the
 /// codex the moment a second sheaf cites it). A rivet anchored in one `.adoc`
@@ -880,19 +880,43 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 
 /// Scan roots for the one-home checks — narrower than
 /// `ZRBTDRN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
-/// sprues, not the whole `Tools/` corpus. RBK's tree is this fixture's
-/// jurisdiction and is clean against these checks; the other kits'
-/// foundational specs (CMK's MCM-MetaConceptModel.adoc, JJK's
+/// sprues, not the whole `Tools/` corpus. These roots cover the shipped `.sh`
+/// residue side; the `.adoc` anchor corpus the `RBr_` citations resolve
+/// against does not live here — it is homed in the studbook infield
+/// (`ZRBTDRN_STUDBOOK_SPEC_ROOT`, reached below). RBK's tree
+/// is this fixture's jurisdiction and is clean against these checks; the other
+/// kits' foundational specs (CMK's MCM-MetaConceptModel.adoc, JJK's
 /// JJS0_JobJockeySpec.adoc) carry pre-existing one-home violations in bulk —
 /// genuine corpus debt, not a design flaw in the checks (verified: MCM's own
 /// Linked Term law makes the anchor constitutive, so a dangling `<<target>>`
 /// really is broken). Closing that debt belongs to each kit, not to this
-/// fixture. Widen a kit's root in here once that kit's specs are clean.
+/// fixture. The studbook reach below is likewise scoped to `specs/rbk` alone,
+/// for the same jurisdiction reason.
 const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
 
-/// Live-tree wrapper: walk `ZRBTDRN_ONEHOME_SCAN_ROOTS`, split into `.adoc`
-/// and `.sh` corpora (the latter excluding any `vov_veiled/` path — shelved,
-/// not shipped), and run all three one-home checks.
+/// The studbook infield spec home for RBK — the sibling-repo directory that
+/// holds the RBS* corpus. The `RBr_` anchors the citation and hoist checks
+/// resolve against live here, not under the scan roots above. MCM's rivet census runs
+/// infield-wide (the studbook definition home plus the consuming code repos, in
+/// one grep), so the live scan reaches across the sibling seam to rebuild the
+/// anchor set. Resolved against the work-repo root's PARENT — the shared parent
+/// both repos sit under — so the rendered path form
+/// (`jjqs_studbook/specs/rbk/…`) is stable regardless of the work-repo billet
+/// clone's own directory name. Scoped to `specs/rbk` (not the whole
+/// `specs/`) to hold the same RBK-only jurisdiction the scan roots keep.
+const ZRBTDRN_STUDBOOK_SPEC_ROOT: &str = "jjqs_studbook/specs/rbk";
+
+/// Live-tree wrapper: walk `ZRBTDRN_ONEHOME_SCAN_ROOTS` for the shipped `.sh`
+/// corpus (excluding any `vov_veiled/` path — shelved, not shipped) plus any
+/// in-repo `.adoc`, then reach across the sibling seam into the studbook infield
+/// (`ZRBTDRN_STUDBOOK_SPEC_ROOT`) for the `.adoc` anchor corpus the `RBr_`
+/// citations resolve against, and run all three one-home checks. When the
+/// studbook infield is unreachable — a harbinger disposable clone of public main
+/// has no studbook sibling — the citation-integrity and rivet-hoist checks (both
+/// bound to the spec corpus) are skipped with a visible note in the report, and
+/// only the corpus-independent A8 source-residue check runs. A studbook present
+/// but yielding no `.adoc` is a half-broken sibling checkout, not a legitimate
+/// absence, and fails loud rather than degrading silently to the residue check.
 fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -919,6 +943,55 @@ fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
         }
     }
 
+    // Reach across the sibling seam into the studbook infield for the `.adoc`
+    // anchor corpus. Absent (a harbinger public clone has no studbook sibling)
+    // -> skip the corpus-bound checks and note it; present-but-empty -> a
+    // half-broken sibling checkout, fail loud rather than masquerade as absent.
+    let mut studbook_skip_note: Option<String> = None;
+    match root.parent() {
+        Some(parent) => {
+            let spec_dir = parent.join(ZRBTDRN_STUDBOOK_SPEC_ROOT);
+            if spec_dir.is_dir() {
+                let mut spec_files: Vec<PathBuf> = Vec::new();
+                zrbtdrn_walk(&spec_dir, &mut spec_files);
+                spec_files.sort();
+                let before = adoc_owned.len();
+                for path in &spec_files {
+                    if path.extension().and_then(|e| e.to_str()) != Some("adoc") {
+                        continue;
+                    }
+                    let content = match std::fs::read_to_string(path) {
+                        Ok(c) => c,
+                        Err(_) => continue,
+                    };
+                    let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(parent, path);
+                    adoc_owned.push((rel, content));
+                }
+                if adoc_owned.len() == before {
+                    return rbtdre_Verdict::Fail(format!(
+                        "studbook infield present at {} but yielded no .adoc anchor corpus — \
+                         a half-broken sibling checkout, refusing to run the citation-integrity \
+                         and rivet-hoist checks against an empty anchor set",
+                        spec_dir.display()
+                    ));
+                }
+            } else {
+                studbook_skip_note = Some(format!(
+                    "studbook infield absent ({} not found) — skipped citation-integrity and \
+                     rivet-hoist checks (both need the spec corpus); ran A8 source-residue only",
+                    spec_dir.display()
+                ));
+            }
+        }
+        None => {
+            studbook_skip_note = Some(
+                "work-repo root has no parent — cannot locate the studbook infield; skipped \
+                 citation-integrity and rivet-hoist checks; ran A8 source-residue only"
+                    .to_string(),
+            );
+        }
+    }
+
     let adoc_refs: Vec<(&str, &str)> =
         adoc_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
     let mut all_owned: Vec<(String, String)> = adoc_owned.clone();
@@ -928,11 +1001,18 @@ fn rbtdrn_onehome_live(dir: &Path) -> rbtdre_Verdict {
     let sh_refs: Vec<(&str, &str)> =
         sh_owned.iter().map(|(p, c)| (p.as_str(), c.as_str())).collect();
 
-    let mut hits = zrbtdrn_check_citations(&adoc_refs, &all_refs, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
-    hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES));
+    let mut hits = Vec::new();
+    if studbook_skip_note.is_none() {
+        hits.extend(zrbtdrn_check_citations(&adoc_refs, &all_refs, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS));
+        hits.extend(zrbtdrn_check_rivet_hoist(&adoc_refs, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES));
+    }
     hits.extend(zrbtdrn_check_a8_residue(&sh_refs));
 
-    let report = zrbtdrn_onehome_render(&hits);
+    let mut report = zrbtdrn_onehome_render(&hits);
+    if let Some(note) = &studbook_skip_note {
+        report.push_str(note);
+        report.push('\n');
+    }
     let _ = std::fs::write(dir.join("conformance-onehome.txt"), &report);
 
     if hits.is_empty() {
@@ -970,12 +1050,14 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
          Also cites RBr_zzz which has no anchor.\n",
     );
     let exempt = (
-        "Tools/vok/vov_veiled/VOS0-VoxObscuraSpec.adoc",
+        "Tools/rbk/vov_veiled/RBSAB-fake-exempt.adoc",
         ":rbk_exempt:                  <<rbk_exempt,Exempt>>\n",
     );
     let adoc = vec![a, exempt];
     let all = vec![a, exempt];
-    let hits = zrbtdrn_check_citations(&adoc, &all, ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS);
+    // Synthetic roster, not the live one: the exemption mechanism stays proven
+    // whatever the live roster holds — including empty.
+    let hits = zrbtdrn_check_citations(&adoc, &all, &[exempt.0]);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
     let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
     let mut got = kinds.clone();

@@ -121,19 +121,21 @@ fn rbthdt_totality() {
 // ── The planted-leak sweep proof ────────────────────────────
 
 /// The planted paths, and the clean ones. Both are ordinary repo paths named
-/// structurally — a veiled spec, a memo, the operator's own kit, a withheld
-/// tabtarget — against a delivered face that must pass untouched. The
+/// structurally — a veiled spec, an operator study, the operator's own kit, a
+/// withheld tabtarget — against a delivered face that must pass untouched. The
 /// veiled-spec datum carries a SYNTHETIC basename: what it exercises is the
 /// longest-wins override — a veiled half inside a shipping kit — which is a
-/// property of the directory, not of any document sitting in it.
-const ZRBTHDT_PLANTED: &[&str] = &[
+/// property of the directory, not of any document sitting in it. The study
+/// datum pairs with the root README below: same basename, opposite verdict, so
+/// the directory grain is what is being read and not the filename.
+const ZRBTHDT_SWEEP_PLANTED: &[&str] = &[
     "Tools/rbk/vov_veiled/planted-spec.adoc",
-    "Memos/memo-20260713-the-one-that-got-out.md",
-    "Tools/jjk/jjw_workbench.sh",
+    "Study/study-model-prompt-tuning/README.md",
+    "Tools/vslk/vslw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
     "rbmm_moorings/fdkyclk/fdkyclk-proof.sh",
 ];
-const ZRBTHDT_CLEAN: &[&str] = &[
+const ZRBTHDT_SWEEP_CLEAN: &[&str] = &[
     "README.md",
     "LICENSE",
     "Tools/rbk/rba_auth.sh",
@@ -144,21 +146,21 @@ const ZRBTHDT_CLEAN: &[&str] = &[
 
 #[test]
 fn rbthdt_sweep_catches_planted_leaks() {
-    let dirty: Vec<String> = ZRBTHDT_PLANTED
+    let dirty: Vec<String> = ZRBTHDT_SWEEP_PLANTED
         .iter()
-        .chain(ZRBTHDT_CLEAN.iter())
+        .chain(ZRBTHDT_SWEEP_CLEAN.iter())
         .map(|p| p.to_string())
         .collect();
     let leaks = sweep(&dirty);
 
-    for planted in ZRBTHDT_PLANTED {
+    for planted in ZRBTHDT_SWEEP_PLANTED {
         assert!(
             leaks.iter().any(|leak| leak == planted),
             "the sweep did not catch planted withheld path {} — it would ride a candidate",
             planted
         );
     }
-    for clean in ZRBTHDT_CLEAN {
+    for clean in ZRBTHDT_SWEEP_CLEAN {
         assert!(
             !leaks.iter().any(|leak| leak == clean),
             "the sweep reddened on shipped path {} — a sweep that cries wolf gets disabled",
@@ -169,7 +171,7 @@ fn rbthdt_sweep_catches_planted_leaks() {
 
 #[test]
 fn rbthdt_sweep_silent_on_clean_list() {
-    let clean: Vec<String> = ZRBTHDT_CLEAN.iter().map(|p| p.to_string()).collect();
+    let clean: Vec<String> = ZRBTHDT_SWEEP_CLEAN.iter().map(|p| p.to_string()).collect();
     let leaks = sweep(&clean);
     assert!(
         leaks.is_empty(),

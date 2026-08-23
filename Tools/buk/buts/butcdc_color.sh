@@ -29,10 +29,12 @@
 # subshells but never survives a new process.  Sourcing the dispatch spine
 # in-subshell would die on its own top-level BURD_REGIME_FILE assignment,
 # and calling the resolver there would die re-exporting the locked
-# BURD_COLOR.  A fresh process also confines the spine's shadow
-# zburd_sentinel (bud_dispatch.sh, guarding ZBURD_INITIALIZED) so it can
-# never reach the testbench's own zburd_sentinel call.  The spine's
-# execute-only guard is what makes sourcing it inert.
+# BURD_COLOR.  The spine's execute-only guard is what makes sourcing it
+# inert.  A fresh process also confines whatever the spine defines at its
+# own top level, which is what keeps this case sound as the spine grows —
+# the spine declares no sentinel at all, being bootstrap infrastructure
+# rather than a full module, so nothing it defines can shadow the
+# testbench's zburd_sentinel.
 #
 # All tests are pure local — no GCP, no containers, no network.
 
@@ -53,7 +55,7 @@ zbutcdc_probe() {
                    printf "%s|%s\n" "${BURD_COLOR}" "${BURE_COLOR:-UNSET}"'
 
   env "$@" bash -c "${z_body}" > "${z_out}" 2>"${z_out}.err" \
-    || buto_fatal "Resolver probe failed — see ${z_out}.err"
+    || buto_fatal_now "Resolver probe failed — see ${z_out}.err"
 }
 
 ######################################################################
@@ -67,7 +69,7 @@ butcdc_no_color_forces_zero_tcase() {
 
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "0|1" \
-    || buto_fatal "NO_COLOR must force BURD_COLOR=0 with BURE_COLOR intact, got '${z_got}' (expected '0|1')"
+    || buto_fatal_now "NO_COLOR must force BURD_COLOR=0 with BURE_COLOR intact, got '${z_got}' (expected '0|1')"
 }
 
 butcdc_explicit_one_passes_through_tcase() {
@@ -78,7 +80,7 @@ butcdc_explicit_one_passes_through_tcase() {
 
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "1|1" \
-    || buto_fatal "BURE_COLOR=1 must resolve BURD_COLOR=1 with BURE_COLOR intact, got '${z_got}' (expected '1|1')"
+    || buto_fatal_now "BURE_COLOR=1 must resolve BURD_COLOR=1 with BURE_COLOR intact, got '${z_got}' (expected '1|1')"
 }
 
 butcdc_explicit_zero_passes_through_tcase() {
@@ -89,7 +91,7 @@ butcdc_explicit_zero_passes_through_tcase() {
 
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "0|0" \
-    || buto_fatal "BURE_COLOR=0 must resolve BURD_COLOR=0 with BURE_COLOR intact, got '${z_got}' (expected '0|0')"
+    || buto_fatal_now "BURE_COLOR=0 must resolve BURD_COLOR=0 with BURE_COLOR intact, got '${z_got}' (expected '0|0')"
 }
 
 butcdc_auto_leaves_operator_input_unset_tcase() {
@@ -102,7 +104,7 @@ butcdc_auto_leaves_operator_input_unset_tcase() {
   # leave an operator-ambient BURE_COLOR behind for a child to inherit.
   local -r z_got=$(<"${z_out}")
   test "${z_got}" = "0|UNSET" \
-    || buto_fatal "auto+TERM=dumb must resolve BURD_COLOR=0 leaving BURE_COLOR unset, got '${z_got}' (expected '0|UNSET')"
+    || buto_fatal_now "auto+TERM=dumb must resolve BURD_COLOR=0 leaving BURE_COLOR unset, got '${z_got}' (expected '0|UNSET')"
 }
 
 # eof

@@ -128,7 +128,14 @@ pub(crate) const ZRBTDRU_LABEL_PY: &str = "py";
 /// POSIX Utility Allowlist — the irreducible external-command floor. No bash
 /// 3.2 builtin replacement; mandated by POSIX wherever bash runs.
 pub(crate) const ZRBTDRU_POSIX_FLOOR: &[&str] = &[
-    "chmod", "cp", "date", "find", "mkdir", "mv", "rm",
+    "chmod", "cp", "date",
+    // env: the `env "$@" bash -c` fresh-process harness in butcdc_color.sh and
+    // butcym_yelp.sh runs bash under a controlled environment to prove the
+    // color-verdict behavior; POSIX-mandated and universally present wherever
+    // bash 3.2 runs, the same portability class as the rest of the floor, so no
+    // RBS0 Dependency Inventory row is needed (cf. the cmp precedent).
+    "env",
+    "find", "mkdir", "mv", "rm",
     "sleep", "sort", "stty",
 ];
 

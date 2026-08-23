@@ -1,6 +1,6 @@
 # RBK Core Context
 
-Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `claude-buk-core.md` and `claude-vok-context.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
+Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `claude-buk-core.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
 
 ## Acronym Notes
 
@@ -8,7 +8,7 @@ Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered si
 - **RBDC** → `rbk/rbdc_derived.sh`
 - **RBDG** → `diagrams/rbdg*` (Recipe Bottle Diagram family — committed PlantUML `.puml` sources plus rendered light/dark `.svg` pairs, authored for theme-aware `<picture>` embedding. Container: `rbdg` HAS children, names no file. Members: `rbdgl_` federation-login, `rbdgs_` federation-setup, `rbdgm_` federation-seam. Light SVGs are rendered by the pluml crucible case `rbtdrc_pluml_render_diagrams`; the `*-dark.svg` siblings are produced in the same case by the pure `zrbtdrc_darken_svg` recolor — no second container trip. The diagram set lives in the case's `diagrams/*.puml` glob alone: a new diagram is just a `rbdgX_*.puml` dropped in `diagrams/`, rendered in both modes on the next pluml fixture run.)
 - **RBF**  → Foundry prefix (non-terminal: children rbfb, rbfc, rbfd, rbfh, rbfk, rbfl, rbfr, rbfv). The former `rbf_Foundry.sh` monolith was decomposed and its residual renamed to `rbfd_director.sh`; no file is named bare `rbf_`.
-- **RBFB** → `rbk/rbfb_beckon.sh` (Foundry Beckon — the per-fact "next tabtargets" signpost: after a chain HEAD writes a fact, the emitter for that fact announces the tabtargets that consume it. Guard-free, composes the BUK `buc_tabtarget` primitive. One emitter per fact type; today only `rbfb_beckon_hallmark` (the RBF_FACT_HALLMARK consumer roster — summon/plumb/rekon readers + anoint/drive writers). Sourced by the producing HEADs rbfd ordain + rbfk kludge.)
+- **RBFB** → `rbk/rbfb_beckon.sh` (Foundry Beckon — the per-fact "next tabtargets" signpost: after a chain HEAD writes a fact, the emitter for that fact announces the tabtargets that consume it. Guard-free, composes the BUK `buc_tabtarget` primitive. One emitter per fact type; today only `rbfb_hallmark` (the RBF_FACT_HALLMARK consumer roster — summon/plumb/rekon readers + anoint/drive writers). Sourced by the producing HEADs rbfd ordain + rbfk kludge.)
 - **RBFC** → `rbk/rbfc*` (Foundry Core family — Container (terminal: names no file). The `rbfc_FoundryCore.sh` monolith was decomposed into the children below; the rbfc CLI is now the 0-top `rbfc0_cli.sh`.)
   - **RBFCV** → `rbk/rbfcv_*.sh` (Foundry Core vessel-resolution)
   - **RBFCB** → `rbk/rbfcb_*.sh` (Foundry Core build-host primitives — wait-build-completion, git-metadata, write-script-body, native-path; relocated verbatim from the former `rbfc` monolith and sourced by the rbfc 0-trick entry `rbfc0_core` so every consumer reaches them unchanged; also sourced directly by the `rblds_` spine and the Rust fast-path driver.)
@@ -66,7 +66,7 @@ Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered si
 - **RBYC** → `rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
 - **RBQ**  → `rbk/rbq_qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `rbk/rbtd/` (Theurge — crucible test orchestrator)
-- **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing, orthogonal from VOW)
+- **RBTW** → `rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing)
 - **RBUH** → `rbk/rbuh_http.sh` (Utility HTTP — JSON REST, polling, shared temp-file machinery)
 
 ## Moorings Filesystem Family (`rbm*_`)

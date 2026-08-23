@@ -78,10 +78,10 @@ rbho_director_airgap() {
     esac
   fi
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_forge_vessel}";   local -r z_lk_forge="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_airgap_vessel}";  local -r z_lk_airgap="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";        local -r z_lk_moriah="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_tether_moniker}"; local -r z_lk_tadmor="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_forge_vessel}";   local -r z_lk_forge="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_airgap_vessel}";  local -r z_lk_airgap="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";        local -r z_lk_moriah="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_tether_moniker}"; local -r z_lk_tadmor="${z_buym_yelp}"
 
   buh_section "${RBHO_TRACK_AIRGAP} — Your Own Supply Chain"
   buh_e
@@ -308,13 +308,13 @@ rbho_director_airgap() {
   buh_tt "   " "${RBZ_PLUMB_FULL}" "" " ${z_airgap_vessel} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   if test "${z_tether_ready}" = "1"; then
-    buyy_cmd_yawp "${z_tether_hallmark}"; local -r z_lk_tether_hallmark="${z_buym_yelp}"
+    buym_cmd_yawp "${z_tether_hallmark}"; local -r z_lk_tether_hallmark="${z_buym_yelp}"
     buh_line "Tethered ${RBYC_BOTTLE} — ${z_lk_tadmor}'s current bottle ${RBYC_HALLMARK} is ${z_lk_tether_hallmark}:"
     buh_e
     buh_tt "   " "${RBZ_PLUMB_FULL}" "" " ${z_tether_vessel} ${z_tether_hallmark}"
     buh_e
   else
-    buyy_cmd_yawp "${z_tether_rbrn}"; local -r z_lk_tether_file="${z_buym_yelp}"
+    buym_cmd_yawp "${z_tether_rbrn}"; local -r z_lk_tether_file="${z_buym_yelp}"
     buh_line "Tethered ${RBYC_BOTTLE} — once ${z_lk_tadmor} is ${RBYC_CHARGE}d, read RBRN_BOTTLE_HALLMARK"
     buh_line "from ${z_lk_tether_file} and plumb it:"
     buh_e

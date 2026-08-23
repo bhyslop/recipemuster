@@ -115,10 +115,10 @@ fn rbtdrd_vessel_field(
 // ── Case ─────────────────────────────────────────────────────
 
 fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrd_build_run_lifecycle_impl(ctx, dir))
+    rbtdrc_with_ctx(|ctx| zrbtdrd_build_run_lifecycle_impl(ctx, dir))
 }
 
-fn rbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
+fn zrbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
     if !ctx.project_root().join(vessel_dir).is_dir() {
         return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));

@@ -56,7 +56,7 @@ zburd_kindle
 # Registration
 
 butt_kindle() {
-  butr_kindle
+  zbutr_kindle
 
   # All fixtures are pure local
   butr_suite_enroll "self-test"
@@ -167,7 +167,7 @@ butt_route() {
       butd_run_suite "self-test"
       ;;
     *)
-      buc_die "Unknown command: ${z_command}"
+      buc_die_now "Unknown command: ${z_command}"
       ;;
   esac
 }
@@ -175,7 +175,7 @@ butt_route() {
 butt_main() {
   local -r z_command="${1:-}"
   shift || true
-  test -n "${z_command}" || buc_die "No command specified"
+  test -n "${z_command}" || buc_die_now "No command specified"
   butt_route "${z_command}" "$@"
 }
 

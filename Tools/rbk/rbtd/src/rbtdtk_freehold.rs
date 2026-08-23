@@ -30,7 +30,7 @@ use crate::rbtdth_helpers::rbtdth_scratch_root;
 /// pair, no trailing hyphen (the composer adds it). The cases rely on the
 /// composed form for state detection in rbrr.env.
 #[test]
-fn rbtdtk_freehold_base_shape() {
+fn rbtdtk_base_shape() {
     assert_ne!(RBTDRK_FREEHOLD_CLOUD_BASE, RBTDRK_FREEHOLD_RUNTIME_BASE);
     assert!(!RBTDRK_FREEHOLD_CLOUD_BASE.ends_with('-'));
     assert!(!RBTDRK_FREEHOLD_RUNTIME_BASE.ends_with('-'));
@@ -45,7 +45,7 @@ fn rbtdtk_freehold_base_shape() {
 /// Composed freehold prefix shape: tinctured base ends with a hyphen and
 /// stays disjoint between cloud and runtime.
 #[test]
-fn rbtdtk_freehold_prefix_compose() {
+fn rbtdtk_prefix_compose() {
     let cloud = rbtdrk_freehold_cloud_prefix("xyz");
     let runtime = rbtdrk_freehold_runtime_prefix("xyz");
     assert!(cloud.ends_with('-'));
@@ -72,7 +72,7 @@ fn rbtdtk_family_stem_value() {
 /// stems) — the load-bearing disjointness property for parallel-station
 /// runs on a shared payor manor.
 #[test]
-fn rbtdtk_freehold_disjoint_per_tincture() {
+fn rbtdtk_disjoint_per_tincture() {
     assert_ne!(
         rbtdrk_freehold_cloud_prefix("aa"),
         rbtdrk_freehold_cloud_prefix("bb")
@@ -88,7 +88,7 @@ fn rbtdtk_freehold_disjoint_per_tincture() {
 /// produce disjoint depot project IDs, GAR repos, and SA
 /// emails. Mirrors RBDC composition rules (rbdc_derived.sh) without invoking GCP.
 #[test]
-fn rbtdtk_freehold_dual_station_disjoint() {
+fn rbtdtk_dual_station_disjoint() {
     let (a, b) = ("aaa", "bbb");
     let cloud_a = rbtdrk_freehold_cloud_prefix(a);
     let cloud_b = rbtdrk_freehold_cloud_prefix(b);

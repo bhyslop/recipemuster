@@ -7,8 +7,9 @@ surface and travel with the distribution:
 - `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — the crucible-testing context
 
 This file maps what stays behind: the guides, the specification, the shelved
-handbook, the derived diagram, and the contract pointers stripped from the
-delivered rows. **Nothing named here — by path, by basename, or by acronym — may
+handbook, the derived diagram, the contract pointers stripped from the delivered
+rows, and — since the BUK kit's veiled half left this consumer tree — the curated
+few BUK rows recipemuster still cites. **Nothing named here — by path, by basename, or by acronym — may
 appear in a delivered file.** The delivered half must not even acknowledge that
 this material exists: a consumer agent is told nothing about an upstream record it
 cannot read. The pyx release-hygiene fixture holds the path-and-basename half of
@@ -58,21 +59,35 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 ### Guides
 
-- **CBG**  → `rbk/vov_veiled/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
-- **JDG**  → `rbk/vov_veiled/JDG-JailerDialectGuide.md` (Jailer Dialect Guide — the zero-dependency in-vessel POSIX `sh` baked into vessel images and run inside the security envelope (`rbjs_sentry.sh` type specimen, `rbjp_pentacle.sh` sibling); foreign-environment sibling to BCG/CBG/WSG. v1 bless-and-name. Rule families JDo_ (observability contract: phase anchors, exit-code families, `|| exit N`) and JDp_ (parameter-transport Palisade). The type specimen's phase-label and FATAL-shape deviations are citable against JDo_101/JDo_103.)
-- **PUCG**  → `rbk/vov_veiled/PUCG_PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUCr_. Founded on PUCr_101 (charset transport).)
+- **CBG**  → `jjqs_studbook/guides/rbk/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
+- **JDG**  → `jjqs_studbook/guides/rbk/JDG-JailerDialectGuide.md` (Jailer Dialect Guide — the zero-dependency in-vessel POSIX `sh` baked into vessel images and run inside the security envelope (`rbjs_sentry.sh` type specimen, `rbjp_pentacle.sh` sibling); foreign-environment sibling to BCG/CBG/WSG. v1 bless-and-name. Rule families JDo_ (observability contract: phase anchors, exit-code families, `|| exit N`) and JDp_ (parameter-transport Palisade). The type specimen's phase-label and FATAL-shape deviations are citable against JDo_101/JDo_103.)
+- **PUCG**  → `jjqs_studbook/guides/rbk/PUCG_PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUCr_. Founded on PUCr_101 (charset transport).)
 
 ### Specification
 
-- **RBS0** → `rbk/vov_veiled/RBS0-SpecTop.adoc`
+- **RBS0** → `jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`
 
-> **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`rbk/vov_veiled/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `rbk/vov_veiled/RBS*-*.adoc`.
+> **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `jjqs_studbook/specs/rbk/RBS*-*.adoc`.
 
-- **RBRN**  → `rbk/vov_veiled/RBRN-RegimeNameplate.adoc`
+- **RBRN**  → `jjqs_studbook/specs/rbk/RBRN-RegimeNameplate.adoc`
 
 ### Shelved code
 
 - **RBHW0** → `rbk/vov_veiled/rbhw0_*.sh` (Windows 0-prefix — VEILED: the windows handbook (`rbhw0_cli.sh`, `rbhw0_top.sh`, `rbhw0_windows.sh`, `rbhwht_handbook_top.sh`, `rbhwcd_docker_context_discipline.sh`, `rbhwdd_docker_desktop.sh`) was shelved off the surface into `rbk/vov_veiled/`. Inert; enrollments + tabtargets removed, not rewired for local execution. It is the `RBHW` **windows** group — the third `rbh*` group, alongside the delivered `RBHO` onboarding and `RBHP` payor.)
+
+### Carried BUK rows
+
+BUK-owned closed documents, folded here when `Tools/buk/vov_veiled/` left this
+consumer tree. The two-part label governing them — a curated subset that is never a
+mirror of BUK's veiled surface, and a shrinking bridge whose rows follow the
+citation census down — stands in full beside the rows in
+`claude-rbk-veiled-acronyms.md`, together with the double duty the list carries
+(resolution map, and this tree's per-kit roster for the veiled-acronym reference
+lint). Read it there before adding or dropping a row.
+
+- **BCG**  → `jjqs_studbook/guides/buk/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **WSG**  → `jjqs_studbook/guides/buk/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
+- **BUS0** → `jjqs_studbook/specs/buk/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 
 ### Veiled diagram
 

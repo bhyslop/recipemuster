@@ -672,8 +672,7 @@ fn zrbtdru_is_external(command: &str, locals: &BTreeSet<String>) -> bool {
 /// plus the domain's external-command inventory.
 pub(crate) fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Result<zrbtdru_ScanResult, String> {
     // Pass 1 — function-visibility universe. Walk every kit so cross-kit and
-    // sourced function names resolve (e.g. rbk's Windows handbook sources jjk's
-    // zipper); only dead ABANDONED code stays invisible.
+    // sourced function names resolve; only dead ABANDONED code stays invisible.
     let mut universe_files: Vec<PathBuf> = Vec::new();
     zrbtdru_walk_ext(tools, ZRBTDRU_SH_EXT, ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES, &mut universe_files);
     universe_files.sort();

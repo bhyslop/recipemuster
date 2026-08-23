@@ -47,11 +47,11 @@ use crate::rbthdr_run;
 const RBTHDR_COL_PAYOR_CHECK: &str = "rbw-ap.";
 const RBTHDR_COL_NOVATE_SITTING: &str = "rbw-aN.";
 const RBTHDR_COL_MARSHAL_ZERO: &str = "rbw-MZ.";
-const RBTHDR_COL_SUITE: &str = "rbw-ts.";
+pub(crate) const RBTHDR_COL_SUITE: &str = "rbw-ts.";
 const RBTHDR_SUITE_GAUNTLET: &str = "gauntlet";
 
 /// The `tt/` subdirectory holding tabtargets, relative to a repo root.
-const RBTHDR_TT_SUBDIR: &str = "tt";
+pub(crate) const RBTHDR_TT_SUBDIR: &str = "tt";
 
 /// Conduct the docimasy. `rehearse` proves the reversible stages (quarantine
 /// gate, freshness, preview) against the real private quarantine, skipping
@@ -200,7 +200,7 @@ fn zrbthdr_gauntlet_stage(top: &Path) {
 
 /// Locate the single tabtarget under `tt` whose name starts with `colophon`
 /// and, if given, embeds `.{imprint}.`. Fatal on zero or multiple matches.
-fn zrbthdr_find_tt(tt: &Path, colophon: &str, imprint: Option<&str>) -> PathBuf {
+pub(crate) fn zrbthdr_find_tt(tt: &Path, colophon: &str, imprint: Option<&str>) -> PathBuf {
     let entries = std::fs::read_dir(tt)
         .unwrap_or_else(|e| crate::rbthdr_fatal!("cannot read tabtarget dir {}: {}", tt.display(), e));
     let needle = imprint.map(|i| format!(".{}.", i));

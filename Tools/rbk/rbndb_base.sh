@@ -26,11 +26,16 @@
 # differing from the depot's worker-pool quotas, region, and identity.
 #
 # Public functions:
-#   rbrd_inscribe <bearer_token>   — host-side push at end of levy
-#   rbrd_check    <bearer_token>   — pre-submit existence + byte-diff
+#   rbndb_inscribe <bearer_token>   — host-side push at end of levy
+#   rbndb_check    <bearer_token>   — pre-submit existence + byte-diff
+#
+# Caller-authenticates seam: both functions take the bearer token as a
+# required positional — never minting one. The self-authenticating
+# standalone entries (rbw-rdi / rbw-rdc) live in rbgp_payor.sh as
+# rbgp_incuse / rbgp_collate.
 #
 # Module convention: rbn{R}{X}_ where R=d (depot regime) and X=b
-# (bespoke implementation). See claude-cmk-minting.md "Prefix Naming Discipline".
+# (bespoke implementation).
 
 set -euo pipefail
 
@@ -115,9 +120,9 @@ zrbndb_docker_login() {
 # ONLY the surveyed signature, warning each bend. A non-matching failure
 # returns rc to the caller's own error path untouched. An exhausted budget
 # dies HERE naming the transient — falling through to the caller would
-# misdiagnose a network timeout as the caller's condition (rbrd_check's
-# absent-tripwire path prescribes depot re-levy; that must never fire on
-# a timeout).
+# misdiagnose a network timeout as the caller's condition (rbndb_check's
+# absent-tripwire path prescribes standalone re-inscription; that must
+# never fire on a timeout).
 # Args: stdout_file stderr_file command...
 zrbndb_registry_read() {
   zrbndb_sentinel
@@ -154,10 +159,7 @@ zrbndb_registry_read() {
 # Inscribe the tripwire image at end of successful levy.
 # Pre-push existence guard: image present → fatal (depot already
 # inscribed; must be unmade and relevied to refresh).
-# Token sources (in order): positional $1, then BUZ_FOLIO (tabtarget
-# param1 channel). The former is the consuming-CLI path (caller has a
-# token in scope); the latter is the rbw-rdi tabtarget path.
-rbrd_inscribe() {
+rbndb_inscribe() {
   zrbndb_sentinel
 
   buc_doc_brief "Inscribe RBRD tripwire image to GAR (host-side, at end of levy)"
@@ -165,12 +167,12 @@ rbrd_inscribe() {
   buc_doc_shown || return 0
 
   # Dirty-tree guard — the tripwire image ships the tracked rbrd.env bytes, and
-  # rbrd_check forever after compares local config against them; the inscribed
+  # rbndb_check forever after compares local config against them; the inscribed
   # reference must be a committed state.
   bug_require_clean_tree_creed "${RBCC_creed_clean_inscribe}"
 
-  local -r z_token="${1:-${BUZ_FOLIO:-}}"
-  test -n "${z_token}" || buc_die "rbrd_inscribe: bearer token required (positional arg or BUZ_FOLIO)"
+  local -r z_token="${1:-}"
+  test -n "${z_token}" || buc_die "rbndb_inscribe: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_INSCRIBE_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_INSCRIBE_PREFIX}manifest_stderr.txt"
@@ -230,16 +232,15 @@ rbrd_inscribe() {
 # Check local rbmm_moorings/rbrd.env against the inscribed tripwire image
 # before submitting cloud work. Exact-byte mismatch, missing image,
 # or registry/auth failure all fatal with recovery guidance.
-# Token sources mirror rbrd_inscribe: positional $1 then BUZ_FOLIO.
-rbrd_check() {
+rbndb_check() {
   zrbndb_sentinel
 
   buc_doc_brief "Check local rbrd.env against inscribed tripwire image (drift detector)"
   buc_doc_param "bearer_token" "OAuth access token with GAR read (any role: Payor, Director, Retriever)"
   buc_doc_shown || return 0
 
-  local -r z_token="${1:-${BUZ_FOLIO:-}}"
-  test -n "${z_token}" || buc_die "rbrd_check: bearer token required (positional arg or BUZ_FOLIO)"
+  local -r z_token="${1:-}"
+  test -n "${z_token}" || buc_die "rbndb_check: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_CHECK_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_CHECK_PREFIX}manifest_stderr.txt"
@@ -261,15 +262,17 @@ rbrd_check() {
     || {
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
-      buc_info "If depot has not been inscribed, or the tripwire was jettisoned,"
-      buc_info "re-levy the depot to mint the tripwire:"
-      buc_info "  rbw-dU \$(rbw-dl)        # unmake (if a stale depot exists)"
-      buc_info "  rbw-dL                  # levy + inscribe tripwire"
+      buc_info "A live depot missing its tripwire (levy-tail refusal, or the"
+      buc_info "tripwire was jettisoned) recovers standalone from a committed tree:"
+      buc_info "  rbw-rdi                 # incuse tripwire (self-authenticates as Payor)"
+      buc_info "If the depot itself must be replaced, escalate to unmake-and-relevy:"
+      buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
+      buc_info "  rbw-dL                  # relevy + inscribe tripwire"
       buc_die "Cannot proceed without tripwire — depot regime drift cannot be detected"
     }
 
   # Pull the canonical build-runner platform explicitly: the tripwire is
-  # inscribed single-platform (see rbrd_inscribe), so a host-default pull would
+  # inscribed single-platform (see rbndb_inscribe), so a host-default pull would
   # fail on any host whose native arch differs from RBGC_BUILD_RUNNER_PLATFORM.
   buc_log_args "Pull tripwire image"
   zrbndb_registry_read "${z_pull_stdout}" "${z_pull_stderr}" \

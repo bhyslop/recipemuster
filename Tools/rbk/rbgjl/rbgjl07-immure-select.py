@@ -136,7 +136,7 @@ def main():
     token = get_pull_token(registry, repo)
 
     # The top reference must be a multi-arch index — podvm families publish one index
-    # per version since 5.4 (memo-20260608 §3.2). A single image here means the
+    # per version since 5.4 (jjqs_studbook/memo-20260608-lode-podvm-cerebro-experiment.md §3.2). A single image here means the
     # version/family pairing is wrong; fail loud rather than capture a non-leaf.
     index = fetch_manifest(registry, repo, version, token, ACCEPT_INDEX)
     media = index.get("mediaType", "")
@@ -152,7 +152,7 @@ def main():
 
     # SELECTION is space-separated disktype:arch. Match on the index child DESCRIPTOR
     # (platform.architecture in the alt spelling x86_64/aarch64 + annotations.disktype),
-    # never the layer filename — unreliable per memo-20260608 §3.4. Match the curated
+    # never the layer filename — unreliable per jjqs_studbook/memo-20260608-lode-podvm-cerebro-experiment.md §3.4. Match the curated
     # set LITERALLY; never normalize arch spellings.
     for entry in selection.split():
         if ":" not in entry:
