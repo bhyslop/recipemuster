@@ -36,7 +36,7 @@ zrbz_kindle() {
   # Open the RB tome: this zipper's run projects to RBTDGC_ consts (RBZ_ stem)
   # and to the "rbz" context scope. Must precede the first enroll so the run
   # begins at the roll's current head.
-  buz_tome "rbz" "RBTDGC_" "RBZ_"
+  buz_tome_seat "rbz" "RBTDGC_" "RBZ_"
 
   # Access — credential access probes + the sitting lifecycle (rbw-a): payor
   # OAuth, federated avowal, mantle don, and the sitting-lifecycle operator
