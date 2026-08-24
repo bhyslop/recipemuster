@@ -200,8 +200,8 @@ rbgv_check_mantle() {
 zrbgv_furnish() {
   local -r z_command="${1:-}"
 
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"

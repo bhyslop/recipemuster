@@ -25,10 +25,10 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 # CLI-specific environment function
 zrbv_furnish() {
   # Handle documentation mode
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "RBV_TEMP_DIR          " "Empty temporary directory"
-  buc_doc_env "RBV_RBRR_FILE         " "File containing the RBRR constants"
-  buc_doc_env "RBV_RBRS_FILE         " "File containing the RBRS constants"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "RBV_TEMP_DIR          " "Empty temporary directory"
+  buc_doc_env_row "RBV_RBRR_FILE         " "File containing the RBRR constants"
+  buc_doc_env_row "RBV_RBRS_FILE         " "File containing the RBRS constants"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."

@@ -118,8 +118,8 @@ rbthe_test() {
 # Furnish and Main
 
 zrbthe_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Temp directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Temp directory (dispatch-provided)"
   buc_doc_env_done || return 0
 }
 
