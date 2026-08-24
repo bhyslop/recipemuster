@@ -160,7 +160,7 @@ rbrn_list() {
 # Furnish and Main
 
 zrbrn_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local z_command="${1:-}"

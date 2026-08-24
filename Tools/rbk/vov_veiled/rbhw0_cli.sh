@@ -27,8 +27,8 @@ set -euo pipefail
 source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbhw_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."

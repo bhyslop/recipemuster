@@ -72,8 +72,8 @@ rbrv_list() {
 # Furnish and Main
 
 zrbrv_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BUZ_FOLIO             " "Vessel sigil (e.g., tadmor-sentry); empty for list"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BUZ_FOLIO             " "Vessel sigil (e.g., tadmor-sentry); empty for list"
   buc_doc_env_done || return 0
 
   # Sources (always)

@@ -138,43 +138,6 @@ pub const BUWGC_BAND_CHAIN: &str = "buw-xb";
 pub const BUWGC_SELF_TEST: &str = "buw-st";
 
 // RBCC constants (rbcc_constants.sh single-homed set)
-pub const RBTDGC_MOORINGS_DIR: &str = "rbmm_moorings";
-pub const RBTDGC_VESSELS_SUBDIR: &str = "rbmv_vessels";
-pub const RBTDGC_ACCOUNT_GOVERNOR: &str = "governor";
-pub const RBTDGC_ACCOUNT_RETRIEVER: &str = "retriever";
-pub const RBTDGC_ACCOUNT_DIRECTOR: &str = "director";
-pub const RBTDGC_ACCOUNT_PAYOR: &str = "payor";
-pub const RBTDGC_ACCOUNT_MASON: &str = "mason";
-pub const RBTDGC_MANTLE_GOVERNOR: &str = "rbpa_governor";
-pub const RBTDGC_MANTLE_DIRECTOR: &str = "rbpa_director";
-pub const RBTDGC_MANTLE_RETRIEVER: &str = "rbpa_retriever";
-pub const RBTDGC_RBRR_FILE: &str = "rbmm_moorings/rbrr.env";
-pub const RBTDGC_RBRP_FILE: &str = "rbmm_moorings/rbrp.env";
-pub const RBTDGC_RBRM_FILE: &str = "rbmm_moorings/rbrm.env";
-pub const RBTDGC_RBRD_BASENAME: &str = "rbrd.env";
-pub const RBTDGC_RBRD_FILE: &str = "rbmm_moorings/rbrd.env";
-pub const RBTDGC_RBRN_FILE: &str = "rbrn.env";
-pub const RBTDGC_RBRO_FILE: &str = "rbro.env";
-pub const RBTDGC_RBRV_FILE: &str = "rbrv.env";
-pub const RBTDGC_FOEDERA_SUBDIR: &str = "rbmf_foedera";
-pub const RBTDGC_FACT_EXT_FOEDUS_HEALTH: &str = "foedus-health";
-pub const RBTDGC_FACT_EXT_FOEDUS: &str = "foedus";
-pub const RBTDGC_FACT_EXT_SITTING: &str = "sitting";
-pub const RBTDGC_VERB_DEFROCK: &str = "defrock";
-pub const RBTDGC_VERB_ENROBE: &str = "enrobe";
-pub const RBTDGC_VERB_ROSTER: &str = "roster";
-pub const RBTDGC_VERB_ANOINT: &str = "anoint";
-pub const RBTDGC_VERB_DRIVE: &str = "drive";
-pub const RBTDGC_VERB_INSCRIBE: &str = "inscribe";
-pub const RBTDGC_VERB_KLUDGE: &str = "kludge";
-pub const RBTDGC_VERB_ORDAIN: &str = "ordain";
-pub const RBTDGC_VERB_YOKE: &str = "yoke";
-pub const RBTDGC_CONTAINER_BOTTLE: &str = "bottle";
-pub const RBTDGC_CONTAINER_PENTACLE: &str = "pentacle";
-pub const RBTDGC_CONTAINER_SENTRY: &str = "sentry";
-pub const RBTDGC_TWEAK_CREDLESS_GUARD: &str = "buorb_credless_guard";
-pub const RBTDGC_TWEAK_HTTP_FAULT: &str = "buorb_http_fault";
-pub const RBTDGC_TWEAK_REDON_CADENCE: &str = "buorb_redon_cadence";
 
 // BUBC precision exit-code band (bubc_constants.sh) — numeric
 pub const RBTDGC_BAND_BASE: i32 = 100;
@@ -198,10 +161,8 @@ pub const RBTDGC_BAND_UNSEISED: i32 = 116;
 pub const RBTDGC_BAND_SELFTEST: i32 = 123;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string
-pub const RBTDGC_TWEAK_REGIME_POISON: &str = "buost_regime_poison";
 
 // RBPC freehold test constants (rbpc_constants.sh)
-pub const RBTDGC_FREEHOLD_SUBJECT: &str = "9657166c-8a2d-4f5d-bcd1-ef481ee31f3e";
 
 // RBGC propagation budget (rbgc_constants.sh; profile locked)
 pub const RBTDGC_PROPAGATION_INITIAL_DELAY_SEC: i32 = 3;

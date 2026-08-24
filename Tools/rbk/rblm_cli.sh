@@ -370,12 +370,12 @@ rblm_feign() {
 zrblm_furnish() {
   local z_command="${1:-}"
 
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
   # BUZ_FOLIO (param1 channel) carries expede's target directory and zero's tree
   # identity, and is legitimately empty for the folioless verbs, so it is not a
-  # buc_doc_env here: an empty doc_env var warns, and the warn path needs
+  # buc_doc_env_row here: an empty doc_env var warns, and the warn path needs
   # buym_yelp, which this furnish has not yet sourced (rbgv_cli optional-folio
   # precedent).
   buc_doc_env_done || return 0

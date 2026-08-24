@@ -99,8 +99,8 @@ rbob_charged() {
 # Furnish and Main
 
 zrbob_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BUZ_FOLIO             " "Nameplate moniker (e.g., tadmor)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BUZ_FOLIO             " "Nameplate moniker (e.g., tadmor)"
   buc_doc_env_done || return 0
 
   local z_command="${1:-}"
