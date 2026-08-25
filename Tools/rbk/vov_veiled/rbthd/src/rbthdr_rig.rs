@@ -25,7 +25,7 @@
 // `git clone` takes a local path and an https URL identically, so the source is
 // a bare string and there is no second code path. This module reads no shared
 // authority; it is not a worker reached by subprocess but the hierophant's own
-// absorbed surgery, formerly rblm_harbinger.sh (a superseded bash instrument).
+// absorbed surgery.
 //
 // RIG PUSHES NOTHING, EVER. The station running essai holds real credentials to
 // the public repository; the guard is therefore structural, not a rule to
