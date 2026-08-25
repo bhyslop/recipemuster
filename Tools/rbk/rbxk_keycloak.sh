@@ -48,7 +48,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBXK_SOURCED:-}" || buc_die "Module rbxk multiply sourced - check sourcing hierarchy"
+test -z "${ZRBXK_SOURCED:-}" || buc_die_now "Module rbxk multiply sourced - check sourcing hierarchy"
 ZRBXK_SOURCED=1
 
 # Tinder constants (pure string literals / tinder-on-tinder — available at source
@@ -65,11 +65,11 @@ RBXK_poll_interval_sec="5"
 # Internal Functions (zrbxk_*)
 
 zrbxk_kindle() {
-  test -z "${ZRBXK_KINDLED:-}" || buc_die "Module rbxk already kindled"
+  test -z "${ZRBXK_KINDLED:-}" || buc_die_now "Module rbxk already kindled"
 
   # Dispatch-provided directories this module leans on.
   buv_dir_exists "${BURD_TEMP_DIR}"
-  test -n "${BURD_TABTARGET_DIR:-}" || buc_die "BURD_TABTARGET_DIR is unset — the orchestrator composes verbs through their tabtargets"
+  test -n "${BURD_TABTARGET_DIR:-}" || buc_die_now "BURD_TABTARGET_DIR is unset — the orchestrator composes verbs through their tabtargets"
 
   # The live regime is the keycloak foedus's rbrf.env in the moorings foedera
   # library, resolved through the rbcc resolver by NAME: this module never sources
@@ -81,7 +81,7 @@ zrbxk_kindle() {
   # (RBr_e4a).
   local z_live=""
   z_live=$(rbcc_rbrf_file_capture "${RBXK_foedus}") \
-    || buc_die "Failed to resolve the ${RBXK_foedus} federation regime path"
+    || buc_die_now "Failed to resolve the ${RBXK_foedus} federation regime path"
   readonly ZRBXK_LIVE="${z_live}"
   readonly ZRBXK_TEMPLATE="${ZRBXK_LIVE}.template"
 
@@ -95,20 +95,20 @@ zrbxk_kindle() {
   readonly ZRBXK_JWKS_STRIPPED="${BURD_TEMP_DIR}/rbxk_jwks_stripped.json"
   readonly ZRBXK_HTTP_CODE="${BURD_TEMP_DIR}/rbxk_http_code.txt"
 
-  test -f "${ZRBXK_TEMPLATE}" || buc_die "Keycloak foedus template missing: ${ZRBXK_TEMPLATE}"
-  test -f "${ZRBXK_NAMEPLATE_RBRN}" || buc_die "Keycloak nameplate regime missing: ${ZRBXK_NAMEPLATE_RBRN}"
+  test -f "${ZRBXK_TEMPLATE}" || buc_die_now "Keycloak foedus template missing: ${ZRBXK_TEMPLATE}"
+  test -f "${ZRBXK_NAMEPLATE_RBRN}" || buc_die_now "Keycloak nameplate regime missing: ${ZRBXK_NAMEPLATE_RBRN}"
 
   readonly ZRBXK_KINDLED=1
 }
 
 zrbxk_sentinel() {
-  test "${ZRBXK_KINDLED:-}" = "1" || buc_die "Module rbxk not kindled - call zrbxk_kindle first"
+  test "${ZRBXK_KINDLED:-}" = "1" || buc_die_now "Module rbxk not kindled - call zrbxk_kindle first"
 }
 
 # Echo the host-side Keycloak base URL (http://localhost:<workstation-port>),
 # parsing RBRN_ENTRY_PORT_WORKSTATION from the nameplate regime (never sourcing —
 # the RBRN_ kindle graph is not this module's, and one field is all we need).
-# Echoes the base URL or returns 1; the caller guards with || buc_die.
+# Echoes the base URL or returns 1; the caller guards with || buc_die_now.
 zrbxk_kc_base_capture() {
   local z_line=""
   local z_port=""
@@ -151,17 +151,17 @@ zrbxk_run_tabtarget() {
   zrbxk_sentinel
   local -r z_colophon="${1:-}"
   local -r z_moniker="${2:-}"
-  test -n "${z_colophon}" || buc_die "zrbxk_run_tabtarget: colophon required"
-  shift 2 || buc_die "zrbxk_run_tabtarget: colophon and moniker (possibly empty) required"
+  test -n "${z_colophon}" || buc_die_now "zrbxk_run_tabtarget: colophon required"
+  shift 2 || buc_die_now "zrbxk_run_tabtarget: colophon and moniker (possibly empty) required"
 
   local z_tt=""
   z_tt=$(zrbxk_resolve_tt_capture "${z_colophon}" "${z_moniker}") \
-    || buc_die "No unique executable tabtarget for colophon ${z_colophon} (moniker '${z_moniker}') under ${BURD_TABTARGET_DIR}"
+    || buc_die_now "No unique executable tabtarget for colophon ${z_colophon} (moniker '${z_moniker}') under ${BURD_TABTARGET_DIR}"
 
   buc_log_args "Invoking composed tabtarget: ${z_tt##*/} $*"
   local z_rc=0
   "${z_tt}" "$@" || z_rc=$?
-  test "${z_rc}" -eq 0 || buc_die "Composed tabtarget ${z_tt##*/} failed (exit ${z_rc})"
+  test "${z_rc}" -eq 0 || buc_die_now "Composed tabtarget ${z_tt##*/} failed (exit ${z_rc})"
 }
 
 # Poll the realm's certs endpoint until it answers 200 (Keycloak booted and the
@@ -174,7 +174,7 @@ zrbxk_poll_ready() {
   buc_step "Poll Keycloak realm ${RBXK_realm} ready"
   local z_base=""
   z_base=$(zrbxk_kc_base_capture) \
-    || buc_die "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
+    || buc_die_now "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
   local -r z_url="${z_base}/realms/${RBXK_realm}/protocol/openid-connect/certs"
 
   local z_attempt=1
@@ -195,7 +195,7 @@ zrbxk_poll_ready() {
     z_attempt=$((z_attempt + 1))
   done
 
-  buc_die "Keycloak realm ${RBXK_realm} not ready after ${RBXK_poll_max_attempts} attempts (last HTTP ${z_code}) at ${z_url}"
+  buc_die_now "Keycloak realm ${RBXK_realm} not ready after ${RBXK_poll_max_attempts} attempts (last HTTP ${z_code}) at ${z_url}"
 }
 
 # The one bridge: fetch the realm's signing JWKS and strip it to the strict RSA
@@ -209,25 +209,25 @@ zrbxk_fetch_jwks() {
   buc_step "Fetch and strip the Keycloak JWKS (the bridge)"
   local z_base=""
   z_base=$(zrbxk_kc_base_capture) \
-    || buc_die "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
+    || buc_die_now "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
   local -r z_certs_url="${z_base}/realms/${RBXK_realm}/protocol/openid-connect/certs"
 
   # Body to a temp file, code captured separately (BCG: single external command,
   # failures visible in the temp file afterward).
   local z_curl_status=0
   curl -s -o "${ZRBXK_JWKS_RAW}" -w '%{http_code}' "${z_certs_url}" > "${ZRBXK_HTTP_CODE}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "Keycloak certs fetch failed (curl exit ${z_curl_status}) at ${z_certs_url}"
+  test "${z_curl_status}" -eq 0 || buc_die_now "Keycloak certs fetch failed (curl exit ${z_curl_status}) at ${z_certs_url}"
   local z_code="000"
   z_code=$(<"${ZRBXK_HTTP_CODE}")
-  test "${z_code}" = "200" || buc_die "Keycloak certs fetch returned HTTP ${z_code} at ${z_certs_url}"
+  test "${z_code}" = "200" || buc_die_now "Keycloak certs fetch returned HTTP ${z_code} at ${z_certs_url}"
 
   jq -c '{keys: [.keys[] | select(.use=="sig") | {kty, use, kid, alg, n, e}]}' \
     "${ZRBXK_JWKS_RAW}" > "${ZRBXK_JWKS_STRIPPED}" \
-    || buc_die "Failed to strip Keycloak JWKS to RSA members"
+    || buc_die_now "Failed to strip Keycloak JWKS to RSA members"
 
   # A non-empty keys array is the floor — an empty strip means no signing key yet.
   jq -e '(.keys | length) > 0' "${ZRBXK_JWKS_STRIPPED}" >/dev/null \
-    || buc_die "Stripped JWKS carries no signing keys — realm ${RBXK_realm} exposes no sig key"
+    || buc_die_now "Stripped JWKS carries no signing keys — realm ${RBXK_realm} exposes no sig key"
 
   buc_info "JWKS fetched and stripped to RSA members: ${ZRBXK_JWKS_STRIPPED}"
 }
@@ -240,8 +240,8 @@ zrbxk_render_live() {
   zrbxk_sentinel
 
   buc_step "Render the ignored live regime ${ZRBXK_LIVE}"
-  test -f "${ZRBXK_TEMPLATE}" || buc_die "Keycloak foedus template missing: ${ZRBXK_TEMPLATE}"
-  test -f "${ZRBXK_JWKS_STRIPPED}" || buc_die "Stripped JWKS absent — fetch must precede render: ${ZRBXK_JWKS_STRIPPED}"
+  test -f "${ZRBXK_TEMPLATE}" || buc_die_now "Keycloak foedus template missing: ${ZRBXK_TEMPLATE}"
+  test -f "${ZRBXK_JWKS_STRIPPED}" || buc_die_now "Stripped JWKS absent — fetch must precede render: ${ZRBXK_JWKS_STRIPPED}"
 
   local z_jwks=""
   z_jwks="$(<"${ZRBXK_JWKS_STRIPPED}")"    # bash builtin file read; compact one-line JWKS
@@ -252,7 +252,7 @@ zrbxk_render_live() {
   # distinct from the fictional https frontend issuer RBRF_IDP_ISSUER carries.
   local z_base=""
   z_base=$(zrbxk_kc_base_capture) \
-    || buc_die "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
+    || buc_die_now "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
   local -r z_grant_endpoint="${z_base}/realms/${RBXK_realm}/protocol/openid-connect/token"
 
   # Live regime = the committed template body (its trailing '# eof' dropped by the
@@ -273,7 +273,7 @@ zrbxk_render_live() {
     printf '# per charge from the nameplate port; never from realm contents.\n'
     printf "RBRF_GRANT_ENDPOINT='%s'\n" "${z_grant_endpoint}"
     printf '\n# eof\n'
-  } > "${ZRBXK_LIVE}" || buc_die "Failed to render live regime: ${ZRBXK_LIVE}"
+  } > "${ZRBXK_LIVE}" || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
 
   buc_info "Rendered ${ZRBXK_LIVE} (git-ignored) with a fresh JWKS and grant endpoint ${z_grant_endpoint}"
 }
@@ -325,10 +325,10 @@ rbxk_teardown() {
   buc_step "Jilt ${RBXK_foedus}"
   local z_jilt_tt=""
   z_jilt_tt=$(zrbxk_resolve_tt_capture "rbw-mJ" "") \
-    || buc_die "No unique executable tabtarget for colophon rbw-mJ under ${BURD_TABTARGET_DIR}"
+    || buc_die_now "No unique executable tabtarget for colophon rbw-mJ under ${BURD_TABTARGET_DIR}"
   local z_rc=0
   BURE_CONFIRM=skip "${z_jilt_tt}" "${RBXK_foedus}" || z_rc=$?
-  test "${z_rc}" -eq 0 || buc_die "Jilt tabtarget ${z_jilt_tt##*/} failed (exit ${z_rc})"
+  test "${z_rc}" -eq 0 || buc_die_now "Jilt tabtarget ${z_jilt_tt##*/} failed (exit ${z_rc})"
 
   buc_step "Quench the ${RBXK_moniker} Crucible"
   zrbxk_run_tabtarget "rbw-cQ" "${RBXK_moniker}"

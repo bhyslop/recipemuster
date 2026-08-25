@@ -20,7 +20,7 @@
 
 set -euo pipefail
 
-test -z "${ZRBHO_SOURCED:-}" || buc_die "Module rbho multiply sourced - check sourcing hierarchy"
+test -z "${ZRBHO_SOURCED:-}" || buc_die_now "Module rbho multiply sourced - check sourcing hierarchy"
 ZRBHO_SOURCED=1
 
 # rbho walkthroughs do not require rbho-local state (they probe the
@@ -28,7 +28,7 @@ ZRBHO_SOURCED=1
 # the dependency ordering is correct at furnish time.
 
 zrbho_kindle() {
-  test -z "${ZRBHO_KINDLED:-}" || buc_die "Module rbho already kindled"
+  test -z "${ZRBHO_KINDLED:-}" || buc_die_now "Module rbho already kindled"
   zrbgc_sentinel
   zbuz_sentinel
   zrbz_sentinel
@@ -53,7 +53,7 @@ zrbho_kindle() {
 }
 
 zrbho_sentinel() {
-  test "${ZRBHO_KINDLED:-}" = "1" || buc_die "Module rbho not kindled - call zrbho_kindle first"
+  test "${ZRBHO_KINDLED:-}" = "1" || buc_die_now "Module rbho not kindled - call zrbho_kindle first"
 }
 
 # Probe utilities — no sentinels, all work pre-kindle. Filesystem probes

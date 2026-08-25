@@ -22,7 +22,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFR_SOURCED:-}" || buc_die "Module rbfr multiply sourced - check sourcing hierarchy"
+test -z "${ZRBFR_SOURCED:-}" || buc_die_now "Module rbfr multiply sourced - check sourcing hierarchy"
 ZRBFR_SOURCED=1
 
 # Source shared Foundry Core module
@@ -32,7 +32,7 @@ source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 # Internal Functions (zrbfr_*)
 
 zrbfr_kindle() {
-  test -z "${ZRBFR_KINDLED:-}" || buc_die "Module rbfr already kindled"
+  test -z "${ZRBFR_KINDLED:-}" || buc_die_now "Module rbfr already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
@@ -45,7 +45,7 @@ zrbfr_kindle() {
 
 zrbfr_sentinel() {
   zrbfc_sentinel
-  test "${ZRBFR_KINDLED:-}" = "1" || buc_die "Module rbfr not kindled - call zrbfr_kindle first"
+  test "${ZRBFR_KINDLED:-}" = "1" || buc_die_now "Module rbfr not kindled - call zrbfr_kindle first"
 }
 
 ######################################################################
@@ -62,7 +62,7 @@ rbfr_summon() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
@@ -74,7 +74,7 @@ rbfr_summon() {
 
   buc_step "Authenticating for retrieval"
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die "Failed to get OAuth token"
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token"
 
   # Ark package paths — all basename siblings under the hallmark subtree
   local -r z_image_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}"
@@ -97,17 +97,17 @@ rbfr_summon() {
     -o "${z_image_response_file}"                   \
     "${ZRBFC_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" \
     > "${z_image_status_file}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for image ark (curl exit ${z_curl_status})"
+  test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for image ark (curl exit ${z_curl_status})"
 
   local z_image_http_code
   z_image_http_code=$(<"${z_image_status_file}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image ark"
+  test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image ark"
 
   local z_image_exists=false
   if test "${z_image_http_code}" = "200"; then
     z_image_exists=true
   elif test "${z_image_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_image_http_code} when checking image ark"
+    buc_die_now "Unexpected HTTP status ${z_image_http_code} when checking image ark"
   fi
 
   # Check if about ark exists
@@ -123,17 +123,17 @@ rbfr_summon() {
     -o "${z_about_response_file}"                   \
     "${ZRBFC_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" \
     > "${z_about_status_file}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for about ark (curl exit ${z_curl_status})"
+  test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for about ark (curl exit ${z_curl_status})"
 
   local z_about_http_code
   z_about_http_code=$(<"${z_about_status_file}")
-  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about ark"
+  test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about ark"
 
   local z_about_exists=false
   if test "${z_about_http_code}" = "200"; then
     z_about_exists=true
   elif test "${z_about_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_about_http_code} when checking about ark"
+    buc_die_now "Unexpected HTTP status ${z_about_http_code} when checking about ark"
   fi
 
   # Check if vouch ark exists
@@ -149,17 +149,17 @@ rbfr_summon() {
     -o "${z_vouch_response_file}"                   \
     "${ZRBFC_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" \
     > "${z_vouch_status_file}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for vouch ark (curl exit ${z_curl_status})"
+  test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for vouch ark (curl exit ${z_curl_status})"
 
   local z_vouch_http_code
   z_vouch_http_code=$(<"${z_vouch_status_file}")
-  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for vouch ark"
+  test -n "${z_vouch_http_code}" || buc_die_now "HTTP status code is empty for vouch ark"
 
   local z_vouch_exists=false
   if test "${z_vouch_http_code}" = "200"; then
     z_vouch_exists=true
   elif test "${z_vouch_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_vouch_http_code} when checking vouch ark"
+    buc_die_now "Unexpected HTTP status ${z_vouch_http_code} when checking vouch ark"
   fi
 
   # Evaluate ark state
@@ -183,7 +183,7 @@ rbfr_summon() {
     buc_step "Pulling image ark"
 
     local z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_image_pkg}:${z_hallmark}"
-    docker pull "${z_image_ref}" || buc_die "Failed to pull image ark"
+    docker pull "${z_image_ref}" || buc_die_now "Failed to pull image ark"
     buc_info "Retrieved: ${z_image_ref}"
   fi
 
@@ -192,7 +192,7 @@ rbfr_summon() {
     buc_step "Pulling about ark"
 
     local z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_about_pkg}:${z_hallmark}"
-    docker pull "${z_about_ref}" || buc_die "Failed to pull about ark"
+    docker pull "${z_about_ref}" || buc_die_now "Failed to pull about ark"
     buc_info "Retrieved: ${z_about_ref}"
   fi
 
@@ -201,7 +201,7 @@ rbfr_summon() {
     buc_step "Pulling vouch ark"
 
     local z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vouch_pkg}:${z_hallmark}"
-    docker pull "${z_vouch_ref}" || buc_die "Failed to pull vouch ark"
+    docker pull "${z_vouch_ref}" || buc_die_now "Failed to pull vouch ark"
     buc_info "Retrieved: ${z_vouch_ref}"
   fi
 

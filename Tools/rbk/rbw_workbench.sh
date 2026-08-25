@@ -64,7 +64,7 @@ rbw_route() {
   # Qualification gate for commands that need it
   case "${z_command}" in
     "${RBZ_CRUCIBLE_CHARGE}"|"${RBZ_ORDAIN_HALLMARK}")
-      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_fast || buc_die "Qualification gate failed"
+      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_fast || buc_die_now "Qualification gate failed"
       ;;
   esac
 
@@ -75,7 +75,7 @@ rbw_main() {
   local z_command="${1:-}"
   shift || true
 
-  test -n "${z_command}" || buc_die "No command specified"
+  test -n "${z_command}" || buc_die_now "No command specified"
 
   rbw_route "${z_command}" "$@"
 }

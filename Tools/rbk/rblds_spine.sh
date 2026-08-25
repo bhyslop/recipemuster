@@ -47,7 +47,7 @@ set -euo pipefail
 # single-entry guard-free clusters it carries its own guard (BCG "the single-guard
 # rule, and its one exception"). rbld and rbfl are never co-furnished, so the guard
 # never fires in practice; it is the documented backstop against a future co-furnish.
-test -z "${ZRBLDS_SOURCED:-}" || buc_die "Module rblds multiply sourced - check sourcing hierarchy"
+test -z "${ZRBLDS_SOURCED:-}" || buc_die_now "Module rblds multiply sourced - check sourcing hierarchy"
 ZRBLDS_SOURCED=1
 
 ######################################################################
@@ -63,7 +63,7 @@ ZRBLDS_SOURCED=1
 # this scans the include-expanded body for them on non-comment lines and returns 1
 # at the first reference absent from the blob's keys, logging the offending
 # register. Sentinel-free return-1 primitive, like the rbfcb_ build primitives the
-# dispatch loop already rides; the caller buc_die's with the step identity.
+# dispatch loop already rides; the caller buc_die_now's with the step identity.
 #
 # Coverage is flat by design ("Substitution-coverage check"): substitutions
 # automap into every step, so there is no cross-step ordering; the /workspace
@@ -155,9 +155,9 @@ zrbld_spine_dispatch() {
   local -r z_poll_ceiling="${1:?Poll ceiling required}";    shift
   local -r z_subs_file="${1:?Substitutions file required}"; shift
   local -r z_temp_prefix="${1:?Temp prefix required}";      shift
-  test "$#" -ge 1 || buc_die "zrbld_spine_dispatch: recipe requires at least one step row"
+  test "$#" -ge 1 || buc_die_now "zrbld_spine_dispatch: recipe requires at least one step row"
 
-  test -s "${z_subs_file}" || buc_die "Substitutions file missing or empty: ${z_subs_file}"
+  test -s "${z_subs_file}" || buc_die_now "Substitutions file missing or empty: ${z_subs_file}"
 
   # Stamp the dispatching HEAD commit into the blob — dispatch provenance, spine-owned
   # like the pool and timeout (environment, not kind knowledge). The shared vouch-push
@@ -168,11 +168,11 @@ zrbld_spine_dispatch() {
   # unread — ALLOW_LOOSE automaps it; the coverage check below is refs-need-keys only.
   zrbfc_ensure_git_metadata
   local -r z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
-  test -n "${z_git_commit}" || buc_die "Empty git commit from ${ZRBFC_GIT_COMMIT_FILE}"
+  test -n "${z_git_commit}" || buc_die_now "Empty git commit from ${ZRBFC_GIT_COMMIT_FILE}"
   local -r z_subs_stamped_file="${z_temp_prefix}subs_stamped.json"
   jq --arg zjq_commit "${z_git_commit}" '. + {_RBGL_GIT_COMMIT: $zjq_commit}' \
     "${z_subs_file}" > "${z_subs_stamped_file}" \
-    || buc_die "Failed to stamp git commit into substitutions blob"
+    || buc_die_now "Failed to stamp git commit into substitutions blob"
 
   # Read the substitutions blob's keys once for the dispatch-time coverage check;
   # the per-step scan rides the composition loop below, where each step body is
@@ -180,11 +180,11 @@ zrbld_spine_dispatch() {
   # duplicate keys, so no dedup is needed.
   local -r z_keys_file="${z_temp_prefix}subs_keys.txt"
   jq -r 'keys[]' "${z_subs_stamped_file}" > "${z_keys_file}" \
-    || buc_die "Failed to read substitution keys from ${z_subs_stamped_file}"
+    || buc_die_now "Failed to read substitution keys from ${z_subs_stamped_file}"
 
   buc_step "Composing ${z_label} Cloud Build steps from recipe"
   local -r z_steps_file="${z_temp_prefix}steps.json"
-  echo "[]" > "${z_steps_file}" || buc_die "Failed to initialize ${z_label} steps JSON"
+  echo "[]" > "${z_steps_file}" || buc_die_now "Failed to initialize ${z_label} steps JSON"
 
   local z_row=""
   local z_script_path=""
@@ -198,34 +198,34 @@ zrbld_spine_dispatch() {
   local z_shebang=""
   for z_row in "$@"; do
     IFS='|' read -r z_script_path z_builder z_id z_entrypoint <<<"${z_row}"
-    test -n "${z_script_path}" || buc_die "Recipe row missing script_path: ${z_row}"
-    test -n "${z_builder}"     || buc_die "Recipe row missing builder_image: ${z_row}"
-    test -n "${z_id}"          || buc_die "Recipe row missing id: ${z_row}"
-    test -f "${z_script_path}" || buc_die "Step script not found: ${z_script_path}"
+    test -n "${z_script_path}" || buc_die_now "Recipe row missing script_path: ${z_row}"
+    test -n "${z_builder}"     || buc_die_now "Recipe row missing builder_image: ${z_row}"
+    test -n "${z_id}"          || buc_die_now "Recipe row missing id: ${z_row}"
+    test -f "${z_script_path}" || buc_die_now "Step script not found: ${z_script_path}"
 
     z_body_file="${z_temp_prefix}${z_id}_body.txt"
     z_escaped_file="${z_temp_prefix}${z_id}_escaped.txt"
     z_steps_built="${z_temp_prefix}${z_id}_steps.json"
 
     zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
-      || buc_die "Failed to read step script: ${z_script_path}"
+      || buc_die_now "Failed to read step script: ${z_script_path}"
     zrbfc_expand_includes "${z_body_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
-      || buc_die "Failed to expand snippet includes in step: ${z_script_path}"
+      || buc_die_now "Failed to expand snippet includes in step: ${z_script_path}"
     z_body=$(<"${z_body_file}")
-    test -n "${z_body}" || buc_die "Empty step script body: ${z_script_path}"
+    test -n "${z_body}" || buc_die_now "Empty step script body: ${z_script_path}"
 
     zrbld_spine_validate "${z_keys_file}" "${z_body_file}" \
-      || buc_die "Recipe step '${z_id}' references a substitution register absent from the composition blob (see transcript)"
+      || buc_die_now "Recipe step '${z_id}' references a substitution register absent from the composition blob (see transcript)"
 
     case "${z_entrypoint}" in
       bash)    z_shebang="#!/bin/bash" ;;
       sh)      z_shebang="#!/bin/sh" ;;
       busybox) z_shebang="#!/busybox/sh" ;;
       python3) z_shebang="#!/usr/bin/env python3" ;;
-      *)       buc_die "Unknown entrypoint '${z_entrypoint}' in recipe row: ${z_row}" ;;
+      *)       buc_die_now "Unknown entrypoint '${z_entrypoint}' in recipe row: ${z_row}" ;;
     esac
     printf '%s\n%s' "${z_shebang}" "${z_body}" > "${z_escaped_file}" \
-      || buc_die "Failed to write escaped step body for ${z_id}"
+      || buc_die_now "Failed to write escaped step body for ${z_id}"
 
     jq \
       --arg name "${z_builder}" \
@@ -233,9 +233,9 @@ zrbld_spine_dispatch() {
       --rawfile script "${z_escaped_file}" \
       '. + [{name: $name, id: $id, script: $script}]' \
       "${z_steps_file}" > "${z_steps_built}" \
-      || buc_die "Failed to append step ${z_id}"
+      || buc_die_now "Failed to append step ${z_id}"
     mv "${z_steps_built}" "${z_steps_file}" \
-      || buc_die "Failed to update steps JSON for ${z_id}"
+      || buc_die_now "Failed to update steps JSON for ${z_id}"
   done
 
   buc_log_args "Composing ${z_label} Build resource JSON"
@@ -260,7 +260,7 @@ zrbld_spine_dispatch() {
       },
       timeout: $zjq_timeout
     }' > "${z_build_file}" \
-    || buc_die "Failed to compose ${z_label} build JSON"
+    || buc_die_now "Failed to compose ${z_label} build JSON"
 
   buc_log_args "${z_label} build JSON: ${z_build_file}"
 
@@ -273,9 +273,9 @@ zrbld_spine_dispatch() {
 
   local z_build_id
   z_build_id=$(rbuh_json_field_capture "lode_build_create" '.metadata.build.id') \
-    || buc_die "Failed to capture build ID from builds.create response"
-  test -n "${z_build_id}" || buc_die "Build ID empty in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+    || buc_die_now "Failed to capture build ID from builds.create response"
+  test -n "${z_build_id}" || buc_die_now "Build ID empty in builds.create response"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
   local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "${z_label} Cloud Build submitted: ${z_build_id}"
@@ -298,12 +298,12 @@ zrbld_spine_extract() {
   local -r z_b64_file="${z_dest_file}.b64"
 
   jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC_BUILD_STATUS_FILE}" \
-    > "${z_b64_file}" || buc_die "Failed to extract buildStepOutputs[${z_step_index}] from build result"
-  test -s "${z_b64_file}" || buc_die "No buildStepOutputs[${z_step_index}] in build result — step produced no output"
+    > "${z_b64_file}" || buc_die_now "Failed to extract buildStepOutputs[${z_step_index}] from build result"
+  test -s "${z_b64_file}" || buc_die_now "No buildStepOutputs[${z_step_index}] in build result — step produced no output"
 
   rbgo_base64_decode_file_to_file "${z_b64_file}" "${z_dest_file}" \
-    || buc_die "Failed to decode buildStepOutputs[${z_step_index}] base64"
-  test -s "${z_dest_file}" || buc_die "Empty decoded buildStepOutputs[${z_step_index}]"
+    || buc_die_now "Failed to decode buildStepOutputs[${z_step_index}] base64"
+  test -s "${z_dest_file}" || buc_die_now "Empty decoded buildStepOutputs[${z_step_index}]"
 }
 
 # Internal: the shared single-slot capture extract for the one-Lode kinds
@@ -340,16 +340,16 @@ zrbld_spine_extract_single() {
 
   local -r z_stamp_file="${z_prefix}stamp.txt"
   jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
-    || buc_die "Failed to read stamp from ${z_label} output"
+    || buc_die_now "Failed to read stamp from ${z_label} output"
   local -r z_stamp=$(<"${z_stamp_file}")
   local -r z_keys_file="${z_prefix}output_keys.txt"
   jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
-    || buc_die "Failed to read keys from ${z_label} output"
+    || buc_die_now "Failed to read keys from ${z_label} output"
   local -r z_keys=$(<"${z_keys_file}")
-  test -n "${z_stamp}" || buc_die "${z_label} output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
+  test -n "${z_stamp}" || buc_die_now "${z_label} output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
 
   buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
-    || buc_die "Failed to write touchmark fact for ${z_stamp}"
+    || buc_die_now "Failed to write touchmark fact for ${z_stamp}"
   buc_success "${z_label} captured Lode ${z_stamp} — touchmark fact emitted (${z_brand})"
 }
 

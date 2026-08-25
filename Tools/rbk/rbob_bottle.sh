@@ -27,7 +27,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBOB_SOURCED:-}" || buc_die "Module rbob multiply sourced - check sourcing hierarchy"
+test -z "${ZRBOB_SOURCED:-}" || buc_die_now "Module rbob multiply sourced - check sourcing hierarchy"
 ZRBOB_SOURCED=1
 
 
@@ -67,13 +67,13 @@ zrbob_validate_compose_env() {
     # Check for quotes (compose does not strip them)
     case "${z_value}" in
       *\"*|*\'*)
-        buc_die "Compose compatibility: ${z_field} contains quotes — compose --env-file does not strip quotes, they become part of the value"
+        buc_die_now "Compose compatibility: ${z_field} contains quotes — compose --env-file does not strip quotes, they become part of the value"
         ;;
     esac
     # Check for ${VAR} references (compose interpolates them)
     case "${z_value}" in
       *'${'*)
-        buc_die "Compose compatibility: ${z_field} contains \${VAR} reference — compose --env-file interpolates these, causing unintended expansion"
+        buc_die_now "Compose compatibility: ${z_field} contains \${VAR} reference — compose --env-file interpolates these, causing unintended expansion"
         ;;
     esac
   done
@@ -83,7 +83,7 @@ zrbob_validate_compose_env() {
 # Kindle and Sentinel
 
 zrbob_kindle() {
-  test -z "${ZRBOB_KINDLED:-}" || buc_die "Module rbob already kindled"
+  test -z "${ZRBOB_KINDLED:-}" || buc_die_now "Module rbob already kindled"
 
   # Verify RBRN regime is kindled (provides nameplate config)
   zrbrn_sentinel
@@ -98,7 +98,7 @@ zrbob_kindle() {
   case "${RBRN_RUNTIME}" in
     docker) readonly ZRBOB_RUNTIME="docker" ;;
     podman) readonly ZRBOB_RUNTIME="podman" ;;
-    *) buc_die "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
+    *) buc_die_now "Unknown RBRN_RUNTIME: ${RBRN_RUNTIME}" ;;
   esac
 
   # Compose project identity for this nameplate. The runtime-prefixed moniker
@@ -117,7 +117,7 @@ zrbob_kindle() {
   # Base compose file and the compose-quoting probe are kit machinery, not
   # consumer config — they live with the kit (RBCC_KIT_DIR), not in moorings.
   readonly ZRBOB_COMPOSE_BASE="${RBCC_KIT_DIR}/rbob_compose.yml"
-  test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
+  test -f "${ZRBOB_COMPOSE_BASE}" || buc_die_now "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
 
   readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBRN_MONIKER}/rbnnh_compose.yml"
   # Fragment is optional — existence checked at compose invocation time
@@ -162,7 +162,7 @@ zrbob_kindle() {
   local z_images_env="${BURD_TEMP_DIR}/rbob_images_compose.env"
   printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\n' \
     "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" > "${z_images_env}" \
-    || buc_die "Failed to write image-ref compose env file: ${z_images_env}"
+    || buc_die_now "Failed to write image-ref compose env file: ${z_images_env}"
   readonly ZRBOB_ENV_IMAGES="${z_images_env}"
 
   # Export RBRN/RBRR vars for compose environment: bare name forwarding.
@@ -187,8 +187,8 @@ zrbob_kindle() {
   # The person running charge IS the host identity — no configuration needed.
   local z_uid_file="${BURD_TEMP_DIR}/rbob_host_uid"
   local z_gid_file="${BURD_TEMP_DIR}/rbob_host_gid"
-  id -u > "${z_uid_file}" || buc_die "Failed to determine host UID"
-  id -g > "${z_gid_file}" || buc_die "Failed to determine host GID"
+  id -u > "${z_uid_file}" || buc_die_now "Failed to determine host UID"
+  id -g > "${z_gid_file}" || buc_die_now "Failed to determine host GID"
   local z_host_uid=""
   z_host_uid=$(<"${z_uid_file}")
   local z_host_gid=""
@@ -209,7 +209,7 @@ zrbob_kindle() {
 }
 
 zrbob_sentinel() {
-  test "${ZRBOB_KINDLED:-}" = "1" || buc_die "Module rbob not kindled - call zrbob_kindle first"
+  test "${ZRBOB_KINDLED:-}" = "1" || buc_die_now "Module rbob not kindled - call zrbob_kindle first"
 }
 
 ######################################################################
@@ -229,22 +229,22 @@ zrbob_compose() {
   # Windows-native paths — what Docker Desktop's WSL2 backend needs to bind-mount.
   local z_native_projdir=""
   z_native_projdir=$(buc_native_path_capture "${RBCC_moorings_dir}") \
-    || buc_die "Cannot normalize compose --project-directory: ${RBCC_moorings_dir}"
+    || buc_die_now "Cannot normalize compose --project-directory: ${RBCC_moorings_dir}"
   local z_native_rbrr=""
   z_native_rbrr=$(buc_native_path_capture "${ZRBOB_ENV_RBRR}") \
-    || buc_die "Cannot normalize compose --env-file (RBRR): ${ZRBOB_ENV_RBRR}"
+    || buc_die_now "Cannot normalize compose --env-file (RBRR): ${ZRBOB_ENV_RBRR}"
   local z_native_images=""
   z_native_images=$(buc_native_path_capture "${ZRBOB_ENV_IMAGES}") \
-    || buc_die "Cannot normalize compose --env-file (images): ${ZRBOB_ENV_IMAGES}"
+    || buc_die_now "Cannot normalize compose --env-file (images): ${ZRBOB_ENV_IMAGES}"
   local z_native_rbje=""
   z_native_rbje=$(buc_native_path_capture "${ZRBOB_ENV_RBJE}") \
-    || buc_die "Cannot normalize compose --env-file (RBJE): ${ZRBOB_ENV_RBJE}"
+    || buc_die_now "Cannot normalize compose --env-file (RBJE): ${ZRBOB_ENV_RBJE}"
   local z_native_rbrn=""
   z_native_rbrn=$(buc_native_path_capture "${ZRBOB_ENV_RBRN}") \
-    || buc_die "Cannot normalize compose --env-file (RBRN): ${ZRBOB_ENV_RBRN}"
+    || buc_die_now "Cannot normalize compose --env-file (RBRN): ${ZRBOB_ENV_RBRN}"
   local z_native_base=""
   z_native_base=$(buc_native_path_capture "${ZRBOB_COMPOSE_BASE}") \
-    || buc_die "Cannot normalize compose -f base: ${ZRBOB_COMPOSE_BASE}"
+    || buc_die_now "Cannot normalize compose -f base: ${ZRBOB_COMPOSE_BASE}"
 
   local z_args=()
   z_args+=("compose")
@@ -266,7 +266,7 @@ zrbob_compose() {
   if test -f "${ZRBOB_COMPOSE_FRAGMENT}"; then
     local z_native_fragment=""
     z_native_fragment=$(buc_native_path_capture "${ZRBOB_COMPOSE_FRAGMENT}") \
-      || buc_die "Cannot normalize compose -f fragment: ${ZRBOB_COMPOSE_FRAGMENT}"
+      || buc_die_now "Cannot normalize compose -f fragment: ${ZRBOB_COMPOSE_FRAGMENT}"
     z_args+=("-f" "${z_native_fragment}")
   fi
 
@@ -298,7 +298,7 @@ zrbob_hallmark_is_kludge_predicate() {
 zrbob_summon_full_hallmark() {
   local z_hallmark="${1:-}"
 
-  test -n "${z_hallmark}" || buc_die "zrbob_summon_full_hallmark: hallmark required"
+  test -n "${z_hallmark}" || buc_die_now "zrbob_summon_full_hallmark: hallmark required"
 
   local z_gar_base="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
   local z_image_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
@@ -308,15 +308,15 @@ zrbob_summon_full_hallmark() {
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die "Failed to get OAuth token for auto-summon"
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
 
   rbgo_docker_login "${z_token}" "${z_registry_host}"
 
-  docker pull "${z_image_ref}" || buc_die "Failed to pull image ark: ${z_image_ref}"
-  docker pull "${z_about_ref}" || buc_die "Failed to pull about ark: ${z_about_ref}"
-  docker pull "${z_vouch_ref}" || buc_die "Failed to pull vouch ark: ${z_vouch_ref}"
+  docker pull "${z_image_ref}" || buc_die_now "Failed to pull image ark: ${z_image_ref}"
+  docker pull "${z_about_ref}" || buc_die_now "Failed to pull about ark: ${z_about_ref}"
+  docker pull "${z_vouch_ref}" || buc_die_now "Failed to pull vouch ark: ${z_vouch_ref}"
 
   buc_info "Auto-summoned: ${z_hallmark}"
 }
@@ -331,21 +331,21 @@ zrbob_vouch_gate_and_summon() {
   local z_hallmark="${2:-}"
   local z_image_ref="${3:-}"
 
-  test -n "${z_vessel}"       || buc_die "zrbob_vouch_gate_and_summon: vessel required"
-  test -n "${z_hallmark}" || buc_die "zrbob_vouch_gate_and_summon: hallmark required"
-  test -n "${z_image_ref}"    || buc_die "zrbob_vouch_gate_and_summon: image_ref required"
+  test -n "${z_vessel}"       || buc_die_now "zrbob_vouch_gate_and_summon: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbob_vouch_gate_and_summon: hallmark required"
+  test -n "${z_image_ref}"    || buc_die_now "zrbob_vouch_gate_and_summon: image_ref required"
 
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die "Failed to get OAuth token for auto-summon"
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"
 
   rbgo_docker_login "${z_token}" "${z_registry_host}"
 
-  docker pull "${z_image_ref}" || buc_die "Failed to pull image: ${z_image_ref}"
+  docker pull "${z_image_ref}" || buc_die_now "Failed to pull image: ${z_image_ref}"
 
   buc_info "Auto-summoned: ${z_image_ref}"
 }
@@ -373,7 +373,7 @@ zrbob_reclaim_subnet() {
 
   ${ZRBOB_RUNTIME} network ls --format '{{.Name}}' \
     > "${z_networks_file}" 2>"${z_networks_stderr}" \
-    || buc_die "Failed to list Docker networks — see ${z_networks_stderr}"
+    || buc_die_now "Failed to list Docker networks — see ${z_networks_stderr}"
 
   # Load network names (load-then-iterate per BCG; names are captured before any
   # reclaim, so removing networks mid-loop cannot disturb the iteration)
@@ -421,7 +421,7 @@ zrbob_reclaim_subnet() {
 
       ${ZRBOB_RUNTIME} ps -aq --filter "network=${z_name}" \
         > "${z_containers_file}" 2>"${z_containers_stderr}" \
-        || buc_die "Failed to list containers on '${z_name}' — see ${z_containers_stderr}"
+        || buc_die_now "Failed to list containers on '${z_name}' — see ${z_containers_stderr}"
 
       local z_containers=()
       local z_cline=""
@@ -442,7 +442,7 @@ zrbob_reclaim_subnet() {
 
       ${ZRBOB_RUNTIME} network rm "${z_name}" \
         > "${z_nrm_file}" 2>&1 \
-        || buc_die "Failed to reclaim subnet ${z_target_subnet}: could not remove network '${z_name}' — see ${z_nrm_file}"
+        || buc_die_now "Failed to reclaim subnet ${z_target_subnet}: could not remove network '${z_name}' — see ${z_nrm_file}"
 
       buc_info "Reclaimed subnet ${z_target_subnet} from '${z_name}'"
     done
@@ -485,7 +485,7 @@ zrbob_render_charge_note() {
   while [[ "${z_content}" =~ \{\{([A-Za-z_][A-Za-z0-9_]*)\}\} ]]; do
     z_name="${BASH_REMATCH[1]}"
     zrbob_note_vocab_ok "${z_name}" \
-      || buc_die "Charge note ${ZRBOB_CHARGE_NOTE}: unknown placeholder {{${z_name}}} — not in the closed vocabulary"
+      || buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: unknown placeholder {{${z_name}}} — not in the closed vocabulary"
     z_value="${!z_name}"
     z_content="${z_content//"{{${z_name}}}"/${z_value}}"
   done
@@ -493,7 +493,7 @@ zrbob_render_charge_note() {
   # A residual doubled brace is a malformed token — reject, never emit it raw.
   case "${z_content}" in
     *'{{'* | *'}}'*)
-      buc_die "Charge note ${ZRBOB_CHARGE_NOTE}: malformed placeholder token (stray {{ or }})" ;;
+      buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: malformed placeholder token (stray {{ or }})" ;;
   esac
 
   buc_step "Nameplate usage note (${RBRN_MONIKER}):"
@@ -515,7 +515,7 @@ rbob_charge() {
 
   # Gate: nameplate must have no uncommitted changes
   if ! git diff --quiet -- "${ZRBOB_ENV_RBRN}" 2>/dev/null; then
-    buc_die "Nameplate has uncommitted changes: ${ZRBOB_ENV_RBRN} — commit before charging"
+    buc_die_now "Nameplate has uncommitted changes: ${ZRBOB_ENV_RBRN} — commit before charging"
   fi
 
   # Cross-nameplate validation (silent on success, dies on conflict)
@@ -533,7 +533,7 @@ rbob_charge() {
   # auto-summon below is defense-in-depth for partial-state cases.
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_SENTRY_HALLMARK}"; then
-      buc_die "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
+      buc_die_now "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
     fi
     buc_warn "Sentry vouch artifact missing locally: ${ZRBOB_SENTRY_VOUCH}"
     zrbob_summon_full_hallmark "${RBRN_SENTRY_HALLMARK}"
@@ -541,7 +541,7 @@ rbob_charge() {
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_BOTTLE_HALLMARK}"; then
-      buc_die "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
+      buc_die_now "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
     fi
     buc_warn "Bottle vouch artifact missing locally: ${ZRBOB_BOTTLE_VOUCH}"
     zrbob_summon_full_hallmark "${RBRN_BOTTLE_HALLMARK}"
@@ -549,7 +549,7 @@ rbob_charge() {
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_SENTRY_HALLMARK}"; then
-      buc_die "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
+      buc_die_now "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
     fi
     buc_warn "Sentry image not found locally: ${ZRBOB_SENTRY_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"
@@ -557,7 +557,7 @@ rbob_charge() {
 
   if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_BOTTLE_HALLMARK}"; then
-      buc_die "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
+      buc_die_now "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
     fi
     buc_warn "Bottle image not found locally: ${ZRBOB_BOTTLE_IMAGE}"
     zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${ZRBOB_BOTTLE_IMAGE}"
@@ -588,7 +588,7 @@ rbob_charge() {
 
   if test -x "${ZRBOB_POST_CHARGE_HOOK}"; then
     buc_step "Running post-charge hook: ${ZRBOB_POST_CHARGE_HOOK}"
-    "${ZRBOB_POST_CHARGE_HOOK}" || buc_die "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK}"
+    "${ZRBOB_POST_CHARGE_HOOK}" || buc_die_now "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK}"
   fi
 
   # Usage note surfaces last — after the hook, so a hook precondition failure
@@ -705,8 +705,8 @@ rbob_kludge_bottle() {
   # a standalone drive reads — this is what keeps the local kludge one-shot.
   local z_hallmark=""
   z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
-    || buc_die "Failed to read hallmark from kludge output"
-  test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
+    || buc_die_now "Failed to read hallmark from kludge output"
+  test -n "${z_hallmark}" || buc_die_now "Empty hallmark from kludge output"
 
   BUZ_FOLIO="${RBRN_MONIKER}" rbrn_drive bottle "${z_hallmark}"
 
@@ -732,8 +732,8 @@ rbob_kludge_sentry() {
   # chain rationale that keeps the local kludge one-shot).
   local z_hallmark=""
   z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
-    || buc_die "Failed to read hallmark from kludge output"
-  test -n "${z_hallmark}" || buc_die "Empty hallmark from kludge output"
+    || buc_die_now "Failed to read hallmark from kludge output"
+  test -n "${z_hallmark}" || buc_die_now "Empty hallmark from kludge output"
 
   BUZ_FOLIO="${RBRN_MONIKER}" rbrn_drive sentry "${z_hallmark}"
 

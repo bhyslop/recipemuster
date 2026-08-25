@@ -61,7 +61,7 @@ zrbrs_furnish() {
   zburd_enforce
   zrbcc_kindle
 
-  source "${RBCC_rbrs_file}" || buc_die "Failed to source RBRS: ${RBCC_rbrs_file}"
+  source "${RBCC_rbrs_file}" || buc_die_now "Failed to source RBRS: ${RBCC_rbrs_file}"
 
   zrbrs_kindle
   zrbrs_enforce

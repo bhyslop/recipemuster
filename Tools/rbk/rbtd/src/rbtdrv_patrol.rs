@@ -551,7 +551,7 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // reject with the vacant band (the read-side absent-artifact signature),
         // never a bare death. summon dies at the neither-ark check; plumb at the
         // sole-caller vessel-resolve (no vouch ark), whose band the outer
-        // buc_die propagates unchanged through the band membrane. Both are
+        // buc_die_now propagates unchanged through the band membrane. Both are
         // read-only, so they leave the restored-baseline invariant untouched.
         let summon = match rbtdri_invoke_global(ctx, RBTDGC_SUMMON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) => r,
@@ -871,7 +871,7 @@ fn rbtdrv_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
 // The collision verdict rests on the HOST EXIT CODE: the guard's "touchmark
 // collision" message lands in Cloud Logging (CLOUD_LOGGING_ONLY), not host
 // stdout, but a cloud build FAILURE propagates to a non-zero rbw-lE exit
-// (rbfcb_host.sh: status != SUCCESS -> buc_die). The idempotent step (2) is
+// (rbfcb_host.sh: status != SUCCESS -> buc_die_now). The idempotent step (2) is
 // the positive control: the identical pipeline on the same pinned touchmark
 // SUCCEEDS for the same base, so step (3)'s failure isolates to the differing
 // digest — the collision branch — not debian-specific infra. Both vessels carry

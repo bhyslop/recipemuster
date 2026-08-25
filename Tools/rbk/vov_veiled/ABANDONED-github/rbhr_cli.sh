@@ -30,7 +30,7 @@ zrbhr_furnish() {
   buv_env_string     BURD_NOW_STAMP  1 128
 
   # Validate and source regime file
-  test -f "${RBL_RBRR_FILE}" || buc_die "Regime file not found: ${RBL_RBRR_FILE}"
+  test -f "${RBL_RBRR_FILE}" || buc_die_now "Regime file not found: ${RBL_RBRR_FILE}"
   source  "${RBL_RBRR_FILE}"
   source "${ZRBHR_CLI_SCRIPT_DIR}/rbrr.validator.sh"
 

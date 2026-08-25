@@ -39,18 +39,18 @@ rbfl_feoff() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
-  test -n "${z_vessel}" || buc_die "Vessel required (param1)"
+  test -n "${z_vessel}" || buc_die_now "Vessel required (param1)"
 
   # Resolve the vessel directory (sigil or path). feoff rewrites the rbrv.env
   # text directly — like the election it replaces, it never loads the vessel
   # (loading makes RBRV_* readonly, and feoff only touches one ANCHOR line).
   zrbfc_resolve_vessel "${z_vessel}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
-  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
+  test -f "${z_rbrv_file}" || buc_die_now "Vessel regime file not found: ${z_rbrv_file}"
   local z_sigil="${z_vessel_dir%/}"
   z_sigil="${z_sigil##*/}"
 
@@ -94,8 +94,8 @@ rbfl_feoff() {
   done < "${z_rbrv_file}"
   case "${z_count}" in
     1) ;;
-    0) buc_die "Vessel '${z_sigil}' has no populated RBRV_IMAGE_n_ORIGIN slot — nothing to feoff (feoff elects the anchor for a conjure base origin)" ;;
-    *) buc_die "Vessel '${z_sigil}' has ${z_count} populated RBRV_IMAGE_n_ORIGIN slots — the touchmark cannot disambiguate which to anchor; pin the anchor manually" ;;
+    0) buc_die_now "Vessel '${z_sigil}' has no populated RBRV_IMAGE_n_ORIGIN slot — nothing to feoff (feoff elects the anchor for a conjure base origin)" ;;
+    *) buc_die_now "Vessel '${z_sigil}' has ${z_count} populated RBRV_IMAGE_n_ORIGIN slots — the touchmark cannot disambiguate which to anchor; pin the anchor manually" ;;
   esac
 
   buc_step "Electing base ANCHOR for ${z_sigil} (slot ${z_slot}, source ${z_source})"
@@ -112,11 +112,11 @@ rbfl_feoff() {
       printf '%s\n' "${z_line}"
     fi
   done < "${z_rbrv_file}" > "${z_tmp_file}" \
-    || buc_die "Failed to rewrite ${z_rbrv_file} for ${z_anchor_var}"
+    || buc_die_now "Failed to rewrite ${z_rbrv_file} for ${z_anchor_var}"
   if [[ "${z_found}" != "true" ]]; then
-    printf '%s\n' "${z_anchor_line}" >> "${z_tmp_file}" || buc_die "Failed to append ${z_anchor_var}"
+    printf '%s\n' "${z_anchor_line}" >> "${z_tmp_file}" || buc_die_now "Failed to append ${z_anchor_var}"
   fi
-  mv "${z_tmp_file}" "${z_rbrv_file}" || buc_die "Failed to finalize ${z_rbrv_file}"
+  mv "${z_tmp_file}" "${z_rbrv_file}" || buc_die_now "Failed to finalize ${z_rbrv_file}"
 
   # Loud on success: the elected anchor and its source named prominently, so a
   # wrong election shows at the moment of action rather than only in the git diff.

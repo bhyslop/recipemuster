@@ -52,17 +52,17 @@ zrbgp_furnish() {
   # descry addresses its subject — never the active/pinned foedus, whose selector
   # (RBRR_ACTIVE_FOEDUS) is reserved for the credential accessor. Every other payor
   # verb reads the active foedus, resolved from RBRR_ACTIVE_FOEDUS. An unresolvable
-  # folio is an arg-validation precondition (imprecise buc_die, BCG carve-out).
+  # folio is an arg-validation precondition (imprecise buc_die_now, BCG carve-out).
   case "${z_command}" in
     rbgp_manor_affiance|rbgp_manor_jilt)
       local z_folio="${BUZ_FOLIO:-}"
       [[ "${z_folio}" == rbef_* ]] \
-        || buc_die "Foedus folio required (param1), an rbef_-sprued library name: got '${z_folio}'"
+        || buc_die_now "Foedus folio required (param1), an rbef_-sprued library name: got '${z_folio}'"
       local z_folio_rbrf=""
       z_folio_rbrf=$(rbcc_rbrf_file_capture "${z_folio}") \
-        || buc_die "Failed to resolve the foedus regime path for folio '${z_folio}'"
+        || buc_die_now "Failed to resolve the foedus regime path for folio '${z_folio}'"
       test -f "${z_folio_rbrf}" \
-        || buc_die "No foedus '${z_folio}' in the foedera library: ${z_folio_rbrf}"
+        || buc_die_now "No foedus '${z_folio}' in the foedera library: ${z_folio_rbrf}"
       source "${z_folio_rbrf}"
       ;;
     *)
@@ -131,7 +131,7 @@ zrbgp_furnish() {
   zrbgd_kindle
   zrbgl_kindle
 
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
 

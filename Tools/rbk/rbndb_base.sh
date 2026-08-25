@@ -40,14 +40,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBNDB_SOURCED:-}" || buc_die "Module rbndb multiply sourced - check sourcing hierarchy"
+test -z "${ZRBNDB_SOURCED:-}" || buc_die_now "Module rbndb multiply sourced - check sourcing hierarchy"
 ZRBNDB_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbndb_*)
 
 zrbndb_kindle() {
-  test -z "${ZRBNDB_KINDLED:-}" || buc_die "Module rbndb already kindled"
+  test -z "${ZRBNDB_KINDLED:-}" || buc_die_now "Module rbndb already kindled"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -69,7 +69,7 @@ zrbndb_kindle() {
 }
 
 zrbndb_sentinel() {
-  test "${ZRBNDB_KINDLED:-}" = "1" || buc_die "Module rbndb not kindled - call zrbndb_kindle first"
+  test "${ZRBNDB_KINDLED:-}" = "1" || buc_die_now "Module rbndb not kindled - call zrbndb_kindle first"
 }
 
 # Authenticate the host docker client to the depot's GAR registry
@@ -101,10 +101,10 @@ zrbndb_docker_login() {
     test "${z_rc}" -ne 0 || break
 
     [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
-      || buc_die "Docker login to ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
+      || buc_die_now "Docker login to ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
-      || buc_die "Docker login to ${ZRBNDB_REGISTRY_HOST} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+      || buc_die_now "Docker login to ${ZRBNDB_REGISTRY_HOST} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
 
     buc_warn "Docker login transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
@@ -146,7 +146,7 @@ zrbndb_registry_read() {
       || return "${z_rc}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
-      || buc_die "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+      || buc_die_now "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
 
     buc_warn "Registry read transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
@@ -172,7 +172,7 @@ rbndb_inscribe() {
   bug_require_clean_tree_creed "${RBCC_creed_clean_inscribe}"
 
   local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die "rbndb_inscribe: bearer token required"
+  test -n "${z_token}" || buc_die_now "rbndb_inscribe: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_INSCRIBE_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_INSCRIBE_PREFIX}manifest_stderr.txt"
@@ -196,7 +196,7 @@ rbndb_inscribe() {
     buc_info "must be unmade and relevied:"
     buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
     buc_info "  rbw-dL                  # relevy with new rbrd.env"
-    buc_die "Cannot inscribe over existing tripwire (would mask drift)"
+    buc_die_now "Cannot inscribe over existing tripwire (would mask drift)"
   fi
 
   # Pin the canonical build-runner platform. The image is FROM-scratch data
@@ -206,25 +206,25 @@ rbndb_inscribe() {
   # (pull/create) makes the tripwire pullable on every host regardless of the
   # levying host's arch, instead of baking the inscriber's native arch.
   buc_log_args "Build FROM-scratch image carrying ${RBCC_rbrd_file}"
-  mkdir -p "${z_build_dir}" || buc_die "Failed to create build dir ${z_build_dir}"
+  mkdir -p "${z_build_dir}" || buc_die_now "Failed to create build dir ${z_build_dir}"
 
   cp "${RBCC_rbrd_file}" "${z_rbrd_copy}" \
-    || buc_die "Failed to copy ${RBCC_rbrd_file} into build context"
+    || buc_die_now "Failed to copy ${RBCC_rbrd_file} into build context"
 
   printf '%s\n' \
     'FROM scratch' \
     "COPY ${RBCC_rbrd_basename} /${RBCC_rbrd_basename}" \
     > "${z_dockerfile}" \
-    || buc_die "Failed to write Dockerfile at ${z_dockerfile}"
+    || buc_die_now "Failed to write Dockerfile at ${z_dockerfile}"
 
   docker build --platform "${RBGC_BUILD_RUNNER_PLATFORM}" -t "${ZRBNDB_TRIPWIRE_IMAGE}" "${z_build_dir}" \
       > "${z_build_stdout}" 2>"${z_build_stderr}" \
-    || buc_die "docker build failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_build_stderr}"
+    || buc_die_now "docker build failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_build_stderr}"
 
   buc_log_args "Push tripwire image to GAR"
   docker push "${ZRBNDB_TRIPWIRE_IMAGE}" \
       > "${z_push_stdout}" 2>"${z_push_stderr}" \
-    || buc_die "docker push failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_push_stderr}"
+    || buc_die_now "docker push failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_push_stderr}"
 
   buc_success "Tripwire inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
 }
@@ -240,7 +240,7 @@ rbndb_check() {
   buc_doc_shown || return 0
 
   local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die "rbndb_check: bearer token required"
+  test -n "${z_token}" || buc_die_now "rbndb_check: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_CHECK_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_CHECK_PREFIX}manifest_stderr.txt"
@@ -268,7 +268,7 @@ rbndb_check() {
       buc_info "If the depot itself must be replaced, escalate to unmake-and-relevy:"
       buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
       buc_info "  rbw-dL                  # relevy + inscribe tripwire"
-      buc_die "Cannot proceed without tripwire — depot regime drift cannot be detected"
+      buc_die_now "Cannot proceed without tripwire — depot regime drift cannot be detected"
     }
 
   # Pull the canonical build-runner platform explicitly: the tripwire is
@@ -277,7 +277,7 @@ rbndb_check() {
   buc_log_args "Pull tripwire image"
   zrbndb_registry_read "${z_pull_stdout}" "${z_pull_stderr}" \
       docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" \
-    || buc_die "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_pull_stderr}"
+    || buc_die_now "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_pull_stderr}"
 
   buc_log_args "Create temp container to extract /${RBCC_rbrd_basename}"
   # The tripwire is FROM-scratch (no CMD/ENTRYPOINT); the Linux daemon rejects
@@ -286,23 +286,23 @@ rbndb_check() {
   # placeholder command satisfies the create-time requirement harmlessly.
   docker create --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" "/${RBCC_rbrd_basename}" \
       > "${z_create_stdout}" 2>"${z_create_stderr}" \
-    || buc_die "docker create failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_create_stderr}"
+    || buc_die_now "docker create failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_create_stderr}"
 
   local -r z_cid=$(<"${z_create_stdout}")
-  test -n "${z_cid}" || buc_die "docker create returned empty container ID — see ${z_create_stdout}"
+  test -n "${z_cid}" || buc_die_now "docker create returned empty container ID — see ${z_create_stdout}"
 
   # docker cp's host-side dest must be Windows-native under Cygwin; the cp source
   # is a container path and stays POSIX. z_inscribed_file itself stays POSIX for
   # the openssl read below — only the cp argument is normalized.
   local z_inscribed_native=""
   z_inscribed_native=$(buc_native_path_capture "${z_inscribed_file}") \
-    || buc_die "Cannot normalize inscribed-file path for docker cp: ${z_inscribed_file}"
+    || buc_die_now "Cannot normalize inscribed-file path for docker cp: ${z_inscribed_file}"
 
   docker cp "${z_cid}:/${RBCC_rbrd_basename}" "${z_inscribed_native}" 2>"${z_cp_stderr}" \
     || {
       docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
         || buc_warn "Failed to remove temp container ${z_cid} — see ${z_rm_stderr}"
-      buc_die "docker cp failed extracting /${RBCC_rbrd_basename} from tripwire image — see ${z_cp_stderr}"
+      buc_die_now "docker cp failed extracting /${RBCC_rbrd_basename} from tripwire image — see ${z_cp_stderr}"
     }
 
   docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
@@ -314,13 +314,13 @@ rbndb_check() {
   local -r z_inscribed_digest_temp="${BURD_TEMP_DIR}/rbndb_check_inscribed_digest.txt"
   local -r z_local_digest_temp="${BURD_TEMP_DIR}/rbndb_check_local_digest.txt"
   openssl dgst -sha256 -r < "${z_inscribed_file}" > "${z_inscribed_digest_temp}" \
-    || buc_die "Failed to digest inscribed tripwire copy: ${z_inscribed_file}"
+    || buc_die_now "Failed to digest inscribed tripwire copy: ${z_inscribed_file}"
   openssl dgst -sha256 -r < "${RBCC_rbrd_file}" > "${z_local_digest_temp}" \
-    || buc_die "Failed to digest local ${RBCC_rbrd_file}"
+    || buc_die_now "Failed to digest local ${RBCC_rbrd_file}"
   local -r z_inscribed_digest=$(<"${z_inscribed_digest_temp}")
   local -r z_local_digest=$(<"${z_local_digest_temp}")
-  test -n "${z_inscribed_digest}" || buc_die "Failed to read or empty: ${z_inscribed_digest_temp}"
-  test -n "${z_local_digest}" || buc_die "Failed to read or empty: ${z_local_digest_temp}"
+  test -n "${z_inscribed_digest}" || buc_die_now "Failed to read or empty: ${z_inscribed_digest_temp}"
+  test -n "${z_local_digest}" || buc_die_now "Failed to read or empty: ${z_local_digest_temp}"
   if [[ "${z_inscribed_digest}" != "${z_local_digest}" ]]; then
     buc_warn "RBRD drift detected"
     buc_info "Local ${RBCC_rbrd_file} differs from the depot-inscribed copy (sha256 mismatch)."
@@ -331,7 +331,7 @@ rbndb_check() {
     buc_info "  (b) Unmake and re-levy the depot if rbrd.env genuinely needs to change:"
     buc_info "        rbw-dU \$(rbw-dl)"
     buc_info "        rbw-dL"
-    buc_die "Refusing to submit cloud work against drifted depot regime"
+    buc_die_now "Refusing to submit cloud work against drifted depot regime"
   fi
 
   buc_log_args "Tripwire match — depot regime aligned"

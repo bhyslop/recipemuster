@@ -239,9 +239,9 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 // ── Curl containment scan ───────────────────────────────────
 //
 // The band placement doctrine (BCG "Precision Exit-Code Band", bubc_constants.sh
-// placement comment) bars handing a curl exit status to the buc_die membrane:
+// placement comment) bars handing a curl exit status to the buc_die_now membrane:
 // curl 8.6.0+ mints exit codes 100/101 inside the band window, so a bare
-// `curl ... || buc_die` chain — or a bare curl whose failure propagates under
+// `curl ... || buc_die_now` chain — or a bare curl whose failure propagates under
 // set -e — masquerades as an in-band deliberate rejection at the dispatch
 // boundary. Rather than hunt bad shapes, this scan legislates the one canonical
 // form and errors on everything else (operator ruling 260704):
@@ -264,7 +264,7 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 
 /// Repo-relative path prefixes exempt from the curl containment scan: retired
 /// code deliberately left untouched, and the in-pool cloud-step trees whose
-/// curl discipline is CBG/JDG dialect (`-f` flags, `|| exit N`, no buc_die) —
+/// curl discipline is CBG/JDG dialect (`-f` flags, `|| exit N`, no buc_die_now) —
 /// the band membrane does not exist there.
 const ZRBTDRN_CURL_EXEMPT_PREFIXES: &[&str] = &[
     "Tools/rbk/vov_veiled/ABANDONED-github/",
@@ -429,9 +429,9 @@ fn rbtdrn_self_curl_canon_clears(_dir: &Path) -> rbtdre_Verdict {
         "curl -sS --max-time 5 \\\n",
         "  -o \"${z_file}\" \\\n",
         "  \"${z_url}\" > \"${z_code}\" || z_curl_status=$?\n",
-        "test \"${z_curl_status}\" -eq 0 || buc_die \"probe failed (curl exit ${z_curl_status})\"\n",
-        "command -v curl >/dev/null 2>&1 || buc_die \"curl not found\"\n",
-        "# a bare curl ... || buc_die chain in a comment is ignored\n",
+        "test \"${z_curl_status}\" -eq 0 || buc_die_now \"probe failed (curl exit ${z_curl_status})\"\n",
+        "command -v curl >/dev/null 2>&1 || buc_die_now \"curl not found\"\n",
+        "# a bare curl ... || buc_die_now chain in a comment is ignored\n",
         "buc_log_args \"retrying (curl exit ${z_curl_status})\"\n",
     );
     let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", content);
@@ -446,7 +446,7 @@ fn rbtdrn_self_curl_canon_clears(_dir: &Path) -> rbtdre_Verdict {
     }
 }
 
-/// Each deviant shape is caught with its kind: the bare buc_die chain, the
+/// Each deviant shape is caught with its kind: the bare buc_die_now chain, the
 /// capture-free invocation, the non-leading invocations (capture-assignment
 /// and pipe), and the captured-but-never-tested window miss.
 fn rbtdrn_self_curl_catches_deviants(_dir: &Path) -> rbtdre_Verdict {
@@ -454,7 +454,7 @@ fn rbtdrn_self_curl_catches_deviants(_dir: &Path) -> rbtdre_Verdict {
     let content = format!(
         concat!(
             "curl -s \\\n",
-            "  \"${{z_url}}\" || buc_die \"HEAD failed\"\n",
+            "  \"${{z_url}}\" || buc_die_now \"HEAD failed\"\n",
             "curl -s \"${{z_url}}\" > \"${{z_file}}\"\n",
             "z_code=$(curl -s -w '%{{http_code}}' \"${{z_url}}\")\n",
             "echo \"${{z_body}}\" | curl -s -d @- \"${{z_url}}\"\n",

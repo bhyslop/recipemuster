@@ -34,19 +34,19 @@ zrbhw_furnish() {
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
   local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
-  source "${BURD_BUK_DIR}/buym_yelp.sh"                                || buc_die "Failed to source buym_yelp.sh"
-  source "${BURD_BUK_DIR}/buh_handbook.sh"                             || buc_die "Failed to source buh_handbook.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"                               || buc_die "Failed to source buz_zipper.sh"
-  source "${BURD_BUK_DIR}/buwz_zipper.sh"                              || buc_die "Failed to source buwz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"                              || buc_die "Failed to source rbz_zipper.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"                                || buc_die_now "Failed to source buym_yelp.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"                             || buc_die_now "Failed to source buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"                               || buc_die_now "Failed to source buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh"                              || buc_die_now "Failed to source buwz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh"                              || buc_die_now "Failed to source rbz_zipper.sh"
   zbuz_kindle
   zbuwz_kindle
   zrbz_kindle
-  source "${z_rbh0_dir}/rbhw0_windows.sh"                    || buc_die "Failed to source rbhw0_windows.sh"
-  source "${z_rbh0_dir}/rbhwht_handbook_top.sh"              || buc_die "Failed to source rbhwht_handbook_top.sh"
-  source "${z_rbh0_dir}/rbhw0_top.sh"                        || buc_die "Failed to source rbhw0_top.sh"
-  source "${z_rbh0_dir}/rbhwdd_docker_desktop.sh"            || buc_die "Failed to source rbhwdd_docker_desktop.sh"
-  source "${z_rbh0_dir}/rbhwcd_docker_context_discipline.sh" || buc_die "Failed to source rbhwcd_docker_context_discipline.sh"
+  source "${z_rbh0_dir}/rbhw0_windows.sh"                    || buc_die_now "Failed to source rbhw0_windows.sh"
+  source "${z_rbh0_dir}/rbhwht_handbook_top.sh"              || buc_die_now "Failed to source rbhwht_handbook_top.sh"
+  source "${z_rbh0_dir}/rbhw0_top.sh"                        || buc_die_now "Failed to source rbhw0_top.sh"
+  source "${z_rbh0_dir}/rbhwdd_docker_desktop.sh"            || buc_die_now "Failed to source rbhwdd_docker_desktop.sh"
+  source "${z_rbh0_dir}/rbhwcd_docker_context_discipline.sh" || buc_die_now "Failed to source rbhwcd_docker_context_discipline.sh"
 
   zrbhw_kindle
 }

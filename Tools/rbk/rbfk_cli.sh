@@ -58,7 +58,7 @@ zrbfk_furnish() {
   zburd_kindle
 
   buc_log_args 'Validate required tools'
-  command -v git >/dev/null 2>&1 || buc_die "git not found - required for assuring controlled build context"
+  command -v git >/dev/null 2>&1 || buc_die_now "git not found - required for assuring controlled build context"
 
   buc_log_args 'Container runtime settings'
   RBG_RUNTIME="${RBG_RUNTIME:-podman}"

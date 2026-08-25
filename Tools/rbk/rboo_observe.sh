@@ -25,14 +25,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBOO_SOURCED:-}" || buc_die "Module rboo multiply sourced - check sourcing hierarchy"
+test -z "${ZRBOO_SOURCED:-}" || buc_die_now "Module rboo multiply sourced - check sourcing hierarchy"
 ZRBOO_SOURCED=1
 
 ######################################################################
 # Kindle and Sentinel
 
 zrboo_kindle() {
-  test -z "${ZRBOO_KINDLED:-}" || buc_die "Module rboo already kindled"
+  test -z "${ZRBOO_KINDLED:-}" || buc_die_now "Module rboo already kindled"
 
   # Verify RBOB is kindled (provides container names, runtime)
   zrbob_sentinel
@@ -61,7 +61,7 @@ zrboo_kindle() {
 }
 
 zrboo_sentinel() {
-  test "${ZRBOO_KINDLED:-}" = "1" || buc_die "Module rboo not kindled - call zrboo_kindle first"
+  test "${ZRBOO_KINDLED:-}" = "1" || buc_die_now "Module rboo not kindled - call zrboo_kindle first"
 }
 
 ######################################################################
@@ -108,7 +108,7 @@ rboo_observe() {
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
     ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" \
     > "${z_enclave_file}" 2>"${z_enclave_stderr}" \
-    || buc_die "scry: cannot query Sentry interfaces (is the Crucible charged?) — see ${z_enclave_stderr}"
+    || buc_die_now "scry: cannot query Sentry interfaces (is the Crucible charged?) — see ${z_enclave_stderr}"
 
   # ip -o emits "<idx>: <ifname> ..."; the first line's second field is the leg.
   local z_if_idx=""
@@ -116,14 +116,14 @@ rboo_observe() {
   local z_sentry_enclave_if=""
   read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" || true
   test -n "${z_sentry_enclave_if}" \
-    || buc_die "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
+    || buc_die_now "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
 
   local z_uplink_file="${ZRBOO_SCRY_PREFIX}uplink_addr.txt"
   local z_uplink_stderr="${ZRBOO_SCRY_PREFIX}uplink_stderr.txt"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
     ip -o -4 addr show scope global \
     > "${z_uplink_file}" 2>"${z_uplink_stderr}" \
-    || buc_die "scry: cannot query Sentry uplink interfaces — see ${z_uplink_stderr}"
+    || buc_die_now "scry: cannot query Sentry uplink interfaces — see ${z_uplink_stderr}"
 
   # First global interface whose name differs from the enclave leg is the uplink.
   local z_ifname=""
@@ -136,7 +136,7 @@ rboo_observe() {
     fi
   done < "${z_uplink_file}"
   test -n "${z_sentry_uplink_if}" \
-    || buc_die "scry: no Sentry uplink interface found (enclave=${z_sentry_enclave_if})"
+    || buc_die_now "scry: no Sentry uplink interface found (enclave=${z_sentry_enclave_if})"
 
   buc_info "Network topology:"
   buc_info "  SENTRY:          enclave=${z_sentry_enclave_if} uplink=${z_sentry_uplink_if}"
@@ -184,10 +184,10 @@ rboo_observe() {
     local z_bridge_if_stderr="${ZRBOO_SCRY_PREFIX}bridge_if_stderr.txt"
     "${ZRBOB_RUNTIME}" network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}' \
       > "${z_bridge_if_file}" 2>"${z_bridge_if_stderr}" \
-      || buc_die "scry: cannot inspect network ${ZRBOB_NETWORK} — see ${z_bridge_if_stderr}"
+      || buc_die_now "scry: cannot inspect network ${ZRBOB_NETWORK} — see ${z_bridge_if_stderr}"
     read -r z_rboo_bridge_interface < "${z_bridge_if_file}" || true
     test -n "${z_rboo_bridge_interface}" \
-      || buc_die "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
+      || buc_die_now "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
     buc_info "Starting bridge capture (${z_rboo_bridge_interface}) via podman machine ssh"
     local z_bridge_cmd="sudo -n"
     test -z "${z_duration}" || z_bridge_cmd="${z_bridge_cmd} timeout ${z_duration}"

@@ -21,7 +21,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBPC_SOURCED:-}" || buc_die "Module rbpc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBPC_SOURCED:-}" || buc_die_now "Module rbpc multiply sourced - check sourcing hierarchy"
 ZRBPC_SOURCED=1
 
 # ── Freehold subject ──────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ RBPC_freehold_subject="9657166c-8a2d-4f5d-bcd1-ef481ee31f3e"
 # Rust const projection (rbpc set → RBTDGC_FREEHOLD_*)
 
 # rbpc_emit_consts() - Emit the rbpc freehold constants as Rust string consts to
-# stdout via the shared buz_emit_const primitive (BUK must be kindled). The third
+# stdout via the shared buz_emit_const_str primitive (BUK must be kindled). The third
 # peer emit source, composed after the colophons and rbcc_emit_consts by
 # rbz_emit_consts. Each Rust const is RBTDGC_ + the RBPC stem (RBPC_ prefix
 # stripped) uppercased — the same mechanical transform rbcc_emit_consts applies,
@@ -59,8 +59,8 @@ rbpc_emit_consts() {
   # RBTDGC_FREEHOLD_SUBJECT keeps the strip-prefix-and-uppercase correspondence by
   # hand; a divergence changes the generated const name and breaks the Rust
   # consumer's compile — loud, not silent. A second const reinstates the loop.
-  buz_emit_const "RBTDGC_FREEHOLD_SUBJECT" "${RBPC_freehold_subject}" \
-    || buc_die "rbpc_emit_consts: emit failed for RBPC_freehold_subject"
+  buz_emit_const_str "RBTDGC_FREEHOLD_SUBJECT" "${RBPC_freehold_subject}" \
+    || buc_die_now "rbpc_emit_consts: emit failed for RBPC_freehold_subject"
 }
 
 # eof

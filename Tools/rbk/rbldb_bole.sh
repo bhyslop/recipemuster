@@ -93,7 +93,7 @@ zrbld_ensconce_submit() {
       _RBGL_LODE_2_STAMP:      "",
       _RBGL_LODE_3_STAMP:      ""
     }' > "${z_subs_file}" \
-    || buc_die "Failed to compose ensconce substitutions blob"
+    || buc_die_now "Failed to compose ensconce substitutions blob"
 
   zrbld_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
@@ -129,12 +129,12 @@ zrbld_ensconce_extract() {
     z_slot_key="rbls_slot_${z_n}"
     z_stamp_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_stamp.txt"
     jq -r ".${z_slot_key}.rbls_stamp // empty" "${z_output_file}" > "${z_stamp_file}" \
-      || buc_die "Failed to read stamp for ${z_slot_key}"
+      || buc_die_now "Failed to read stamp for ${z_slot_key}"
     z_stamp=$(<"${z_stamp_file}")
     test -n "${z_stamp}" || continue
 
     buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
-      || buc_die "Failed to write touchmark fact for ${z_stamp}"
+      || buc_die_now "Failed to write touchmark fact for ${z_stamp}"
     buc_success "Ensconced Lode ${z_stamp} — touchmark fact emitted (${RBGC_LODE_BRAND_BOLE})"
   done
 }
@@ -156,7 +156,7 @@ rbld_ensconce() {
   # Resolve vessel argument (sigil or path) and load.
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
 
   # Resolve the single base ORIGIN. Base-kind ensconce captures one base per
@@ -176,14 +176,14 @@ rbld_ensconce() {
   done
 
   test "${z_origin_count}" -ne 0 \
-    || buc_die "Vessel '${RBRV_SIGIL}' declares no upstream base-image slot (RBRV_IMAGE_n_ORIGIN)"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' declares no upstream base-image slot (RBRV_IMAGE_n_ORIGIN)"
   test "${z_origin_count}" -eq 1 \
-    || buc_die "Vessel '${RBRV_SIGIL}' declares ${z_origin_count} base slots; base-kind ensconce captures one base per Lode — invoke per base"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' declares ${z_origin_count} base slots; base-kind ensconce captures one base per Lode — invoke per base"
 
   # Reject producer-vessel pins: an origin naming a local vessel directory is a
   # made-side hallmark-pin (bind/airgap), not an upstream base to capture.
   test ! -d "${RBRR_VESSEL_DIR}/${z_origin}" \
-    || buc_die "Origin '${z_origin}' names a producer vessel — base-Lode capture is for upstream bases, not hallmark-pins"
+    || buc_die_now "Origin '${z_origin}' names a producer vessel — base-Lode capture is for upstream bases, not hallmark-pins"
 
   buc_info "Ensconce base: ${z_origin}"
 
@@ -196,7 +196,7 @@ rbld_ensconce() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.

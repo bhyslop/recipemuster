@@ -41,7 +41,7 @@ source "${BASH_SOURCE[0]%/*}/rbfcp_plumb.sh"
 # Internal Functions (zrbfc_*)
 
 zrbfc_kindle() {
-  test -z "${ZRBFC_KINDLED:-}" || buc_die "Module rbfc already kindled"
+  test -z "${ZRBFC_KINDLED:-}" || buc_die_now "Module rbfc already kindled"
 
   # Validate environment
   zburd_sentinel
@@ -106,15 +106,15 @@ zrbfc_kindle() {
   buc_log_args 'Step script directories (used by shared about/vouch/preflight assembly)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   readonly ZRBFC_RBGJA_STEPS_DIR="${z_self_dir}/rbgja"
-  test -d "${ZRBFC_RBGJA_STEPS_DIR}" || buc_die "RBGJA steps directory not found: ${ZRBFC_RBGJA_STEPS_DIR}"
+  test -d "${ZRBFC_RBGJA_STEPS_DIR}" || buc_die_now "RBGJA steps directory not found: ${ZRBFC_RBGJA_STEPS_DIR}"
   readonly ZRBFC_RBGJV_STEPS_DIR="${z_self_dir}/rbgjv"
-  test -d "${ZRBFC_RBGJV_STEPS_DIR}" || buc_die "RBGJV steps directory not found: ${ZRBFC_RBGJV_STEPS_DIR}"
+  test -d "${ZRBFC_RBGJV_STEPS_DIR}" || buc_die_now "RBGJV steps directory not found: ${ZRBFC_RBGJV_STEPS_DIR}"
   readonly ZRBFC_RBGJR_STEPS_DIR="${z_self_dir}/rbgjr"
-  test -d "${ZRBFC_RBGJR_STEPS_DIR}" || buc_die "RBGJR steps directory not found: ${ZRBFC_RBGJR_STEPS_DIR}"
+  test -d "${ZRBFC_RBGJR_STEPS_DIR}" || buc_die_now "RBGJR steps directory not found: ${ZRBFC_RBGJR_STEPS_DIR}"
 
   buc_log_args 'Shared cloud-step snippet library (zrbfc_expand_includes #@rbgjs_include)'
   readonly ZRBFC_RBGJS_SNIPPETS_DIR="${z_self_dir}/rbgjs"
-  test -d "${ZRBFC_RBGJS_SNIPPETS_DIR}" || buc_die "RBGJS snippets directory not found: ${ZRBFC_RBGJS_SNIPPETS_DIR}"
+  test -d "${ZRBFC_RBGJS_SNIPPETS_DIR}" || buc_die_now "RBGJS snippets directory not found: ${ZRBFC_RBGJS_SNIPPETS_DIR}"
 
   buc_log_args 'Tool image refs — mutable kindle state, populated by zrbfc_resolve_tool_images'
   z_rbfc_tool_gcloud=""
@@ -170,7 +170,7 @@ zrbfc_kindle() {
 }
 
 zrbfc_sentinel() {
-  test "${ZRBFC_KINDLED:-}" = "1" || buc_die "Module rbfc not kindled - call zrbfc_kindle first"
+  test "${ZRBFC_KINDLED:-}" = "1" || buc_die_now "Module rbfc not kindled - call zrbfc_kindle first"
 }
 
 # eof

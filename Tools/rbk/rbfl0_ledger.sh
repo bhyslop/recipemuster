@@ -25,7 +25,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFL_SOURCED:-}" || buc_die "Module rbfl multiply sourced - check sourcing hierarchy"
+test -z "${ZRBFL_SOURCED:-}" || buc_die_now "Module rbfl multiply sourced - check sourcing hierarchy"
 ZRBFL_SOURCED=1
 
 # Source shared Foundry Core entry and the guard-free body clusters
@@ -53,7 +53,7 @@ source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"
 # Internal Functions (zrbfl_*)
 
 zrbfl_kindle() {
-  test -z "${ZRBFL_KINDLED:-}" || buc_die "Module rbfl already kindled"
+  test -z "${ZRBFL_KINDLED:-}" || buc_die_now "Module rbfl already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
@@ -66,7 +66,7 @@ zrbfl_kindle() {
 
 zrbfl_sentinel() {
   zrbfc_sentinel
-  test "${ZRBFL_KINDLED:-}" = "1" || buc_die "Module rbfl not kindled - call zrbfl_kindle first"
+  test "${ZRBFL_KINDLED:-}" = "1" || buc_die_now "Module rbfl not kindled - call zrbfl_kindle first"
 }
 
 # eof

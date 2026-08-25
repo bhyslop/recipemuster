@@ -34,21 +34,21 @@ rbfl_wrest() {
   buc_doc_param "ref" "Image ref: package:tag or package@sha256:<hex>. Type-blind over any rbi_* namespace (e.g. rbi_hm/H/image:H, rbi_ld/b260602120000:rbi_bole)"
   buc_doc_shown || return 0
 
-  test -n "${z_locator}" || buc_die "Image ref required (package:tag or package@sha256:<hex>)"
+  test -n "${z_locator}" || buc_die_now "Image ref required (package:tag or package@sha256:<hex>)"
 
   case "${z_locator}" in
     *:*) : ;;
-    *)   buc_die "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
+    *)   buc_die_now "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
   esac
   local -r z_pkg_path="${z_locator%:*}"
   local -r z_tag="${z_locator##*:}"
-  test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
-  test -n "${z_tag}"      || buc_die "Tag is empty in locator"
+  test -n "${z_pkg_path}" || buc_die_now "Package path is empty in locator"
+  test -n "${z_tag}"      || buc_die_now "Tag is empty in locator"
 
   buc_step "Authenticating as Director"
   local z_token
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get OAuth token"
+    || buc_die_now "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
   local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
@@ -56,11 +56,11 @@ rbfl_wrest() {
   rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
 
   buc_step "Pulling image: ${z_full_ref}"
-  docker pull "${z_full_ref}" || buc_die "Image pull failed"
+  docker pull "${z_full_ref}" || buc_die_now "Image pull failed"
 
   local z_image_id
   docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die "Failed to get image ID"
+    || buc_die_now "Failed to get image ID"
   z_image_id=$(<"${ZRBFC_SCRATCH_FILE}")
 
   echo ""

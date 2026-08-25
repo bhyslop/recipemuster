@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGV_SOURCED:-}" || buc_die "Module rbgv multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGV_SOURCED:-}" || buc_die_now "Module rbgv multiply sourced - check sourcing hierarchy"
 ZRBGV_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgv_*)
 
 zrbgv_kindle() {
-  test -z "${ZRBGV_KINDLED:-}" || buc_die "Module rbgv already kindled"
+  test -z "${ZRBGV_KINDLED:-}" || buc_die_now "Module rbgv already kindled"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -52,7 +52,7 @@ zrbgv_kindle() {
 }
 
 zrbgv_sentinel() {
-  test "${ZRBGV_KINDLED:-}" = "1" || buc_die "Module rbgv not kindled - call zrbgv_kindle first"
+  test "${ZRBGV_KINDLED:-}" = "1" || buc_die_now "Module rbgv not kindled - call zrbgv_kindle first"
 }
 
 # Convert milliseconds to a decimal seconds string suitable for sleep
@@ -73,7 +73,7 @@ zrbgv_ms_to_sleep_capture() {
 
 # HTTP GET with bounded exponential-backoff retry on transient 5xx responses.
 # On any non-5xx response (including auth errors), populates z_code_file and returns.
-# On curl-network failure or exhausted 5xx retries, buc_die. The caller evaluates
+# On curl-network failure or exhausted 5xx retries, buc_die_now. The caller evaluates
 # the final HTTP status via its own case-switch on the populated z_code_file.
 zrbgv_http_get_with_5xx_retry() {
   zrbgv_sentinel
@@ -102,10 +102,10 @@ zrbgv_http_get_with_5xx_retry() {
     buc_log_pipe < "${z_stderr_file}"
 
     test "${z_curl_status}" -eq 0 \
-      || buc_die "${z_label}: curl failed (network/SSL/DNS) — see ${z_stderr_file}"
+      || buc_die_now "${z_label}: curl failed (network/SSL/DNS) — see ${z_stderr_file}"
 
-    z_code=$(<"${z_code_file}") || buc_die "${z_label}: failed to read HTTP code file"
-    test -n "${z_code}" || buc_die "${z_label}: empty HTTP code from curl"
+    z_code=$(<"${z_code_file}") || buc_die_now "${z_label}: failed to read HTTP code file"
+    test -n "${z_code}" || buc_die_now "${z_label}: empty HTTP code from curl"
 
     case "${z_code}" in
       500|502|503|504)
@@ -115,7 +115,7 @@ zrbgv_http_get_with_5xx_retry() {
           z_delay=$(( z_delay * 2 ))
           z_attempt=$(( z_attempt + 1 ))
         else
-          buc_die "${z_label}: repeated transient HTTP ${z_code} after ${ZRBGV_HTTP_RETRY_ATTEMPTS} attempts — see ${z_resp_file}"
+          buc_die_now "${z_label}: repeated transient HTTP ${z_code} after ${ZRBGV_HTTP_RETRY_ATTEMPTS} attempts — see ${z_resp_file}"
         fi
         ;;
       *)
@@ -136,10 +136,10 @@ zrbgv_mantle_ar_call_capture() {
   zrbgv_sentinel
 
   local -r z_token="${1}"
-  test -n "${z_token}" || buc_die "zrbgv_mantle_ar_call_capture: mantle token required"
+  test -n "${z_token}" || buc_die_now "zrbgv_mantle_ar_call_capture: mantle token required"
 
-  test -n "${RBDC_DEPOT_PROJECT_ID:-}" || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
-  test -n "${RBRD_GCP_REGION:-}"       || buc_die "RBRD_GCP_REGION is not set"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}" || buc_die_now "RBDC_DEPOT_PROJECT_ID is not set"
+  test -n "${RBRD_GCP_REGION:-}"       || buc_die_now "RBRD_GCP_REGION is not set"
 
   local -r z_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRD_GCP_REGION}${RBGC_PATH_REPOSITORIES}"
 
@@ -153,8 +153,8 @@ zrbgv_mantle_ar_call_capture() {
     "${ZRBGV_AR_STDERR_FILE}"
 
   local z_code
-  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die "Failed to read mantle AR HTTP code file"
-  test -n "${z_code}"                || buc_die "Empty HTTP code from mantle AR curl"
+  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die_now "Failed to read mantle AR HTTP code file"
+  test -n "${z_code}"                || buc_die_now "Empty HTTP code from mantle AR curl"
 
   printf '%s\n' "${z_code}"
 }
@@ -172,11 +172,11 @@ zrbgv_payor_crm_probe_once() {
   buc_log_args "Authenticate via Payor OAuth refresh token flow"
   local z_token
   z_token=$(zrbgp_authenticate_capture) \
-    || buc_die "Failed to obtain Payor OAuth access token (iteration ${z_iteration})"
-  test -n "${z_token}" || buc_die "Empty Payor OAuth access token (iteration ${z_iteration})"
+    || buc_die_now "Failed to obtain Payor OAuth access token (iteration ${z_iteration})"
+  test -n "${z_token}" || buc_die_now "Empty Payor OAuth access token (iteration ${z_iteration})"
 
   buc_log_args "Build CRM projects.get URL"
-  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die "RBRP_PAYOR_PROJECT_ID is not set"
+  test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die_now "RBRP_PAYOR_PROJECT_ID is not set"
 
   local -r z_crm_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBRP_PAYOR_PROJECT_ID}"
   local -r z_crm_label="Payor OAuth probe iteration ${z_iteration}"
@@ -191,8 +191,8 @@ zrbgv_payor_crm_probe_once() {
     "${ZRBGV_CRM_STDERR_FILE}"
 
   local z_code
-  z_code=$(<"${ZRBGV_CRM_CODE_FILE}") || buc_die "Failed to read CRM HTTP code file"
-  test -n "${z_code}"                 || buc_die "Empty HTTP code from CRM curl"
+  z_code=$(<"${ZRBGV_CRM_CODE_FILE}") || buc_die_now "Failed to read CRM HTTP code file"
+  test -n "${z_code}"                 || buc_die_now "Empty HTTP code from CRM curl"
 
   buc_log_args "CRM projects.get HTTP ${z_code} for Payor iteration ${z_iteration}"
 
@@ -201,7 +201,7 @@ zrbgv_payor_crm_probe_once() {
       buc_step "Payor OAuth probe iteration ${z_iteration}: OK (HTTP ${z_code})"
       ;;
     401|403)
-      buc_die "Payor OAuth probe iteration ${z_iteration}: access denied (HTTP ${z_code})"
+      buc_die_now "Payor OAuth probe iteration ${z_iteration}: access denied (HTTP ${z_code})"
       ;;
     *)
       local z_err=""
@@ -210,7 +210,7 @@ zrbgv_payor_crm_probe_once() {
       else
         z_err="Non-JSON response (HTTP ${z_code})"
       fi
-      buc_die "Payor OAuth probe iteration ${z_iteration}: unexpected HTTP ${z_code}: ${z_err}"
+      buc_die_now "Payor OAuth probe iteration ${z_iteration}: unexpected HTTP ${z_code}: ${z_err}"
       ;;
   esac
 }
@@ -235,7 +235,7 @@ rbgv_payor_oauth_probe() {
   buc_doc_param "delay_ms" "Milliseconds to sleep between iterations (default: 0)"
   buc_doc_shown || return 0
 
-  test -n "${z_count}" || buc_die "count parameter required"
+  test -n "${z_count}" || buc_die_now "count parameter required"
 
   buc_step "Payor OAuth access probe: count=${z_count} delay_ms=${z_delay_ms}"
 

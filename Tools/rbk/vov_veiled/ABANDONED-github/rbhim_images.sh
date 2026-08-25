@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHIM_INCLUDED:-}" || buc_die "Module rbhim multiply included - check sourcing hierarchy"
+test -z "${ZRBHIM_INCLUDED:-}" || buc_die_now "Module rbhim multiply included - check sourcing hierarchy"
 ZRBHIM_INCLUDED=1
 
 ######################################################################
@@ -19,7 +19,7 @@ zrbhim_kindle() {
 }
 
 zrbhim_sentinel() {
-  test "${ZRBHIM_KINDLED:-}" = "1" || buc_die "Module rbhim not kindled - call zrbhim_kindle first"
+  test "${ZRBHIM_KINDLED:-}" = "1" || buc_die_now "Module rbhim not kindled - call zrbhim_kindle first"
 }
 
 ######################################################################
@@ -39,13 +39,13 @@ rbhim_build() {
 
   # Validate parameters
   test -n "${z_recipe_file}" || buc_usage_die
-  test -f "${z_recipe_file}" || buc_die "Recipe file not found: ${z_recipe_file}"
+  test -f "${z_recipe_file}" || buc_die_now "Recipe file not found: ${z_recipe_file}"
 
   # Validate recipe basename
   local z_recipe_basename
   z_recipe_basename=$(basename "${z_recipe_file}")
   echo "${z_recipe_basename}" | grep -q '[A-Z]' && \
-    buc_die "Basename of '${z_recipe_file}' contains uppercase letters so cannot use in image name"
+    buc_die_now "Basename of '${z_recipe_file}' contains uppercase letters so cannot use in image name"
 
   # Perform command
   buc_step "Build image from ${z_recipe_file}"
@@ -212,7 +212,7 @@ rbhim_image_info() {
         tag_details: map({tag: .tag, count: .count})
       })
     | sort_by(-.size)
-  ' > "${ZRBCR_IMAGE_STATS_FILE}" || buc_die "Failed to generate statistics"
+  ' > "${ZRBCR_IMAGE_STATS_FILE}" || buc_die_now "Failed to generate statistics"
 
   # Display results
   buc_step "Listing layers per tag..."

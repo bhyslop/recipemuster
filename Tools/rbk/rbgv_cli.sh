@@ -44,7 +44,7 @@ rbgv_check_payor() {
   local -r z_iterations=5
   local -r z_delay_ms=1500
   buc_step "Payor OAuth access probe"
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
   rbgv_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
@@ -72,7 +72,7 @@ rbgv_check_avowal() {
 
   buc_step "Federated access probe — avowal against the RBRF trust"
   rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -81,8 +81,8 @@ rbgv_check_avowal() {
   rba_avow "${z_required_runway}"
 
   local z_token
-  z_token=$(zrba_sitting_read_capture) || buc_die "Sitting not readable after avowal"
-  test -n "${z_token}" || buc_die "Sitting holds an empty federated token"
+  z_token=$(zrba_sitting_read_capture) || buc_die_now "Sitting not readable after avowal"
+  test -n "${z_token}" || buc_die_now "Sitting holds an empty federated token"
   buc_success "Federated sitting live — federated token obtained (${#z_token} chars)"
 }
 
@@ -118,18 +118,18 @@ rbgv_check_mantle() {
     "${RBCC_mantle_governor}")  z_polity_mantle="${RBCC_account_unhewn_governor}"  ;;
     "${RBCC_mantle_director}")  z_polity_mantle="${RBCC_account_unhewn_director}"  ;;
     "${RBCC_mantle_retriever}") z_polity_mantle="${RBCC_account_unhewn_retriever}" ;;
-    *) buc_die "rbgv_check_mantle: mantle token required (${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}), got '${z_mantle:-<empty>}'" ;;
+    *) buc_die_now "rbgv_check_mantle: mantle token required (${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}), got '${z_mantle:-<empty>}'" ;;
   esac
 
   buc_step "Mantle-access probe — ${z_polity_mantle} mantle as the freehold subject"
 
   buc_step "Resolve the freehold subject"
-  test -n "${RBPC_freehold_subject:-}" || buc_die "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
+  test -n "${RBPC_freehold_subject:-}" || buc_die_now "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
   buc_step "Avow against the RBRF trust to open or reuse the sitting"
   rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -158,7 +158,7 @@ rbgv_check_mantle() {
   # distinguished admission-band return (Leg-3 403) gets its own operator-facing
   # buc_reject carrying the brevet instruction; every other nonzero return
   # (lapsed sitting, transport/HTTP failure) stays the existing imprecise
-  # buc_die. The token is held in a process-local var, never persisted, and
+  # buc_die_now. The token is held in a process-local var, never persisted, and
   # only its length is reported.
   local z_mantle_token
   local z_don_status=0
@@ -166,9 +166,9 @@ rbgv_check_mantle() {
   if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
     buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
-    buc_die "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
+    buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
   fi
-  test -n "${z_mantle_token}" || buc_die "Don of the ${z_polity_mantle} mantle returned an empty token"
+  test -n "${z_mantle_token}" || buc_die_now "Don of the ${z_polity_mantle} mantle returned an empty token"
 
   # Exercise the minted token against Artifact Registry (repositories.list). This
   # proves the donned token actually REACHES AR — not merely that it minted — and
@@ -178,16 +178,16 @@ rbgv_check_mantle() {
   buc_step "Exercise the ${z_polity_mantle} mantle token against Artifact Registry (repositories.list)"
   local z_ar_code
   z_ar_code=$(zrbgv_mantle_ar_call_capture "${z_mantle_token}") \
-    || buc_die "Mantle AR call failed for the ${z_polity_mantle} mantle"
+    || buc_die_now "Mantle AR call failed for the ${z_polity_mantle} mantle"
   case "${z_ar_code}" in
     200|206)
       buc_info "Artifact Registry reachable under the ${z_polity_mantle} mantle (HTTP ${z_ar_code})"
       ;;
     403)
-      buc_die "The ${z_polity_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
+      buc_die_now "The ${z_polity_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
       ;;
     *)
-      buc_die "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_polity_mantle} mantle"
+      buc_die_now "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_polity_mantle} mantle"
       ;;
   esac
 
@@ -227,12 +227,12 @@ zrbgv_furnish() {
   zbuv_kindle
   zburd_kindle
 
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
   # RBRP values load here too so zrbgp_kindle can derive RBGP_TERRIER_BUCKET from
   # RBRP_PAYOR_PROJECT_ID; rbrp's kindle+enforce stay per-probe (rbgv_check_payor),
   # since the payor probe enforces RBRP while the depot probes enforce RBRR/RBRD.
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrr_kindle
   zrbrd_kindle
 

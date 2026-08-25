@@ -87,24 +87,24 @@ rblm_harbinger() {
   buc_doc_brief "Harbinger the cold-agent onboarding shakedown - stand up a guarded disposable clone of promoted public main and print the launch line and stranger prompt"
   buc_doc_shown || return 0
 
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
 
   # Where we are. The rig lands beside this tree, so its identity is the anchor for
   # every derived path below — and the guard that the retirement move can never hit it.
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_harbinger_toplevel.txt"
-  git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
+  git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
   local -r z_toplevel=$(<"${z_toplevel_temp}")
-  test -n "${z_toplevel}" || buc_die "git returned an empty repository root"
+  test -n "${z_toplevel}" || buc_die_now "git returned an empty repository root"
   case "${z_toplevel}" in
     /*) ;;
-    *)  buc_die "Repository root is not an absolute path: ${z_toplevel}" ;;
+    *)  buc_die_now "Repository root is not an absolute path: ${z_toplevel}" ;;
   esac
 
   local -r z_parent="${z_toplevel%/*}"
-  test -n "${z_parent}" || buc_die "Repository root has no parent directory: ${z_toplevel}"
+  test -n "${z_parent}" || buc_die_now "Repository root has no parent directory: ${z_toplevel}"
   case "${z_parent}" in
     /*) ;;
-    *)  buc_die "Repository root's parent is not an absolute path: '${z_parent}' (from ${z_toplevel})" ;;
+    *)  buc_die_now "Repository root's parent is not an absolute path: '${z_parent}' (from ${z_toplevel})" ;;
   esac
   local -r z_target_dir="${z_parent}/${RBLM_harbinger_dirname}"
 
@@ -116,9 +116,9 @@ rblm_harbinger() {
   # can destroy data even if a guard were wrong.
   local -r z_target_base="${z_target_dir##*/}"
   test "${z_target_base}" = "${RBLM_harbinger_dirname}" \
-    || buc_die "Refusing to move '${z_target_dir}' — its basename is not the rig name '${RBLM_harbinger_dirname}'"
+    || buc_die_now "Refusing to move '${z_target_dir}' — its basename is not the rig name '${RBLM_harbinger_dirname}'"
   test "${z_target_dir}" != "${z_toplevel}" \
-    || buc_die "Refusing to move '${z_target_dir}' — it is this repository's own root"
+    || buc_die_now "Refusing to move '${z_target_dir}' — it is this repository's own root"
 
   local -r z_clone_dir="${z_target_dir}/${RBLM_harbinger_clone_subdir}"
 
@@ -126,17 +126,17 @@ rblm_harbinger() {
   # the clone's discard. The prompt below hands this exact path to the walker; the
   # maintainer reviews it and commits it into the studbook after the walk.
   local -r z_walkdate_temp="${BURD_TEMP_DIR}/rblm_harbinger_walkdate.txt"
-  date +%Y%m%d > "${z_walkdate_temp}" || buc_die "date failed"
+  date +%Y%m%d > "${z_walkdate_temp}" || buc_die_now "date failed"
   local -r z_walkdate=$(<"${z_walkdate_temp}")
-  test -n "${z_walkdate}" || buc_die "walk date resolved empty"
+  test -n "${z_walkdate}" || buc_die_now "walk date resolved empty"
   local -r z_memo_path="${z_target_dir}/memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md"
 
   # The retirement sibling for any prior rig — a second-grained stamp so two runs in
   # one day cannot collide. An existing rig is renamed here, never deleted.
   local -r z_retire_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_retire_stamp.txt"
-  date +%Y%m%d-%H%M%S > "${z_retire_stamp_temp}" || buc_die "date failed"
+  date +%Y%m%d-%H%M%S > "${z_retire_stamp_temp}" || buc_die_now "date failed"
   local -r z_retire_stamp=$(<"${z_retire_stamp_temp}")
-  test -n "${z_retire_stamp}" || buc_die "retirement timestamp resolved empty"
+  test -n "${z_retire_stamp}" || buc_die_now "retirement timestamp resolved empty"
   local -r z_retired_dir="${z_target_dir}.retired-${z_retire_stamp}"
 
   buh_section "Marshal Harbinger — cold-agent onboarding shakedown"
@@ -163,28 +163,28 @@ rblm_harbinger() {
 
   buc_step "Retiring any existing rig aside"
   if test -e "${z_target_dir}"; then
-    test ! -e "${z_retired_dir}" || buc_die "Retirement target already exists: ${z_retired_dir}"
-    mv "${z_target_dir}" "${z_retired_dir}" || buc_die "Failed to retire the existing rig: ${z_target_dir} -> ${z_retired_dir}"
+    test ! -e "${z_retired_dir}" || buc_die_now "Retirement target already exists: ${z_retired_dir}"
+    mv "${z_target_dir}" "${z_retired_dir}" || buc_die_now "Failed to retire the existing rig: ${z_target_dir} -> ${z_retired_dir}"
     buh_line "  Retired prior rig: ${z_retired_dir}"
   else
     buh_line "  No prior rig to retire"
   fi
-  mkdir -p "${z_target_dir}" || buc_die "Failed to create the rig: ${z_target_dir}"
+  mkdir -p "${z_target_dir}" || buc_die_now "Failed to create the rig: ${z_target_dir}"
 
   buc_step "Cloning the promoted public repository"
-  git clone "${RBLM_harbinger_public_url}" "${z_clone_dir}" || buc_die "Failed to clone the public repository — is ${RBLM_harbinger_public_url} reachable and public?"
+  git clone "${RBLM_harbinger_public_url}" "${z_clone_dir}" || buc_die_now "Failed to clone the public repository — is ${RBLM_harbinger_public_url} reachable and public?"
 
   # The clone must carry the promoted content, not an empty or wrong tree. The README
   # is the public face and the stranger's first read; its absence means the clone is
   # not what the walk expects, and the walk would start on nothing.
   test -f "${z_clone_dir}/README.md" \
-    || buc_die "The clone carries no README.md — the promoted public tree is empty or wrong; refusing to hand the walker a tree with no onboarding face"
+    || buc_die_now "The clone carries no README.md — the promoted public tree is empty or wrong; refusing to hand the walker a tree with no onboarding face"
 
   # Sever the origin. From here the clone names no remote, so nothing it does can
   # reach the public repository. The materialization is already complete, so the
   # sever costs the walk nothing.
   buc_step "Severing the clone from its origin"
-  git -C "${z_clone_dir}" remote remove origin || buc_die "Failed to sever the clone's origin"
+  git -C "${z_clone_dir}" remote remove origin || buc_die_now "Failed to sever the clone's origin"
 
   # Install the pre-push refusal. Belt to the sever's suspenders: even if the walk (or
   # a helpful agent) re-adds a remote, every push dies here. Written with a loud reason
@@ -197,14 +197,14 @@ rblm_harbinger() {
     'echo "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2' \
     'exit 1' \
     > "${z_hook}" \
-    || buc_die "Failed to write the pre-push hook: ${z_hook}"
-  chmod +x "${z_hook}" || buc_die "Failed to make the pre-push hook executable"
+    || buc_die_now "Failed to write the pre-push hook: ${z_hook}"
+  chmod +x "${z_hook}" || buc_die_now "Failed to make the pre-push hook executable"
 
   # Cut the throwaway walk branch. The consumer flow commits as it kludges; the walker
   # works here, and the clone's own default branch stays untouched as the pristine
   # reference to diff the walk against.
   buc_step "Cutting the throwaway walk branch ${RBLM_harbinger_walk_branch}"
-  git -C "${z_clone_dir}" checkout -b "${RBLM_harbinger_walk_branch}" || buc_die "Failed to cut the walk branch"
+  git -C "${z_clone_dir}" checkout -b "${RBLM_harbinger_walk_branch}" || buc_die_now "Failed to cut the walk branch"
 
   buh_e
   buh_line "  Rig ready. Two steps, by your hand:"

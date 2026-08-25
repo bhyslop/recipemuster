@@ -37,14 +37,14 @@ rbob_validate() {
   buc_step "RBOB Validate: ${RBRN_MONIKER}"
 
   # All values computed at kindle - just verify they exist
-  test -n "${ZRBOB_RUNTIME}" || buc_die "ZRBOB_RUNTIME not set"
-  test -n "${ZRBOB_SENTRY}" || buc_die "ZRBOB_SENTRY not set"
-  test -n "${ZRBOB_PENTACLE}" || buc_die "ZRBOB_PENTACLE not set"
-  test -n "${ZRBOB_BOTTLE}" || buc_die "ZRBOB_BOTTLE not set"
-  test -n "${ZRBOB_NETWORK}" || buc_die "ZRBOB_NETWORK not set"
-  test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
-  test -f "${ZRBOB_PENTACLE_SCRIPT}" || buc_die "Pentacle script not found: ${ZRBOB_PENTACLE_SCRIPT}"
-  test -f "${ZRBOB_COMPOSE_BASE}" || buc_die "Compose base not found: ${ZRBOB_COMPOSE_BASE}"
+  test -n "${ZRBOB_RUNTIME}" || buc_die_now "ZRBOB_RUNTIME not set"
+  test -n "${ZRBOB_SENTRY}" || buc_die_now "ZRBOB_SENTRY not set"
+  test -n "${ZRBOB_PENTACLE}" || buc_die_now "ZRBOB_PENTACLE not set"
+  test -n "${ZRBOB_BOTTLE}" || buc_die_now "ZRBOB_BOTTLE not set"
+  test -n "${ZRBOB_NETWORK}" || buc_die_now "ZRBOB_NETWORK not set"
+  test -f "${ZRBOB_SENTRY_SCRIPT}" || buc_die_now "Sentry script not found: ${ZRBOB_SENTRY_SCRIPT}"
+  test -f "${ZRBOB_PENTACLE_SCRIPT}" || buc_die_now "Pentacle script not found: ${ZRBOB_PENTACLE_SCRIPT}"
+  test -f "${ZRBOB_COMPOSE_BASE}" || buc_die_now "Compose base not found: ${ZRBOB_COMPOSE_BASE}"
 
   buc_step "RBOB configuration valid"
   echo "Moniker:       ${RBRN_MONIKER}"
@@ -142,17 +142,17 @@ zrbob_furnish() {
   local z_folio="${BUZ_FOLIO:-}"
   if test -z "${z_folio}"; then
     local z_monikers
-    z_monikers=$(rbrn_list_capture) || buc_die "No nameplates found"
+    z_monikers=$(rbrn_list_capture) || buc_die_now "No nameplates found"
     buc_step "Available nameplates:"
     local z_moniker=""
     for z_moniker in ${z_monikers}; do
       buc_bare "        ${z_moniker}"
     done
-    buc_die "Nameplate moniker required (pass as argument)"
+    buc_die_now "Nameplate moniker required (pass as argument)"
   fi
   local z_nameplate_file="${RBCC_moorings_dir}/${z_folio}/${RBCC_rbrn_file}"
-  test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
-  source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
+  test -f "${z_nameplate_file}" || buc_die_now "Nameplate not found: ${z_nameplate_file}"
+  source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle
 
   # Differential enforce: nameplate-keyed kludge commands write

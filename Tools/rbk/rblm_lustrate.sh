@@ -46,7 +46,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBLM_LUSTRATE_SOURCED:-}" || buc_die "Module rblm_lustrate multiply sourced - check sourcing hierarchy"
+test -z "${ZRBLM_LUSTRATE_SOURCED:-}" || buc_die_now "Module rblm_lustrate multiply sourced - check sourcing hierarchy"
 ZRBLM_LUSTRATE_SOURCED=1
 
 ######################################################################
@@ -121,7 +121,7 @@ RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/main/README.
 
 # The freehold subject's sterile value. NOT a blank: rbpc_emit_consts projects
 # this constant into the generated Rust (RBTDGC_FREEHOLD_SUBJECT) through
-# buz_emit_const, which rejects an empty value — so a blank here dies at the
+# buz_emit_const_str, which rejects an empty value — so a blank here dies at the
 # candidate's own const regeneration. A placeholder that is shape-free (no UUID
 # for the fixture's sweep to find) and obviously unset is the form that survives.
 RBLM_unset_subject="unset-freehold-subject"
@@ -381,7 +381,7 @@ zrblm_value_capture() {
     case "${z_column}" in
       "${RBLM_column_sterile}") ZRBLM_VALUE="${z_sterile}"                 ;;
       "${RBLM_column_feigned}") ZRBLM_VALUE="${z_feigned:-${z_sterile}}"   ;;
-      *) buc_die "zrblm_value_capture: unknown column: ${z_column}"        ;;
+      *) buc_die_now "zrblm_value_capture: unknown column: ${z_column}"        ;;
     esac
     return 0
   done
@@ -397,9 +397,9 @@ zrblm_scrub_regime() {
   local -r z_file="${1:-}"
   local -r z_scope="${2:-}"
   local -r z_column="${3:-}"
-  test -n "${z_file}"   || buc_die "zrblm_scrub_regime: file required"
-  test -n "${z_scope}"  || buc_die "zrblm_scrub_regime: scope required"
-  test -n "${z_column}" || buc_die "zrblm_scrub_regime: column required"
+  test -n "${z_file}"   || buc_die_now "zrblm_scrub_regime: file required"
+  test -n "${z_scope}"  || buc_die_now "zrblm_scrub_regime: scope required"
+  test -n "${z_column}" || buc_die_now "zrblm_scrub_regime: column required"
   test -f "${z_file}"   || return 0
 
   local -r z_tmp="${z_file}.tmp"
@@ -410,7 +410,7 @@ zrblm_scrub_regime() {
   # truncate it by redirection: a bare `> tmp` on a fresh path would take the
   # umask's mode instead, and the rename would silently rewrite the delivered
   # file's permission bits alongside its content.
-  cp -p "${z_file}" "${z_tmp}" || buc_die "Failed to seed temp file for: ${z_file}"
+  cp -p "${z_file}" "${z_tmp}" || buc_die_now "Failed to seed temp file for: ${z_file}"
 
   while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
@@ -426,9 +426,9 @@ zrblm_scrub_regime() {
         printf '%s\n' "${z_line}"
         ;;
     esac
-  done < "${z_file}" > "${z_tmp}" || buc_die "Failed to scrub: ${z_file}"
+  done < "${z_file}" > "${z_tmp}" || buc_die_now "Failed to scrub: ${z_file}"
 
-  mv "${z_tmp}" "${z_file}" || buc_die "Failed to replace: ${z_file}"
+  mv "${z_tmp}" "${z_file}" || buc_die_now "Failed to replace: ${z_file}"
   buh_line "  Rewrote (${z_column}): ${z_file}"
 }
 
@@ -439,15 +439,15 @@ zrblm_scrub_hardpoint() {
   local -r z_file="${1:-}"
   local -r z_var="${2:-}"
   local -r z_sterile="${3:-}"
-  test -n "${z_file}" || buc_die "zrblm_scrub_hardpoint: file required"
-  test -n "${z_var}"  || buc_die "zrblm_scrub_hardpoint: variable required"
-  test -f "${z_file}" || buc_die "Hardpoint file not found: ${z_file}"
+  test -n "${z_file}" || buc_die_now "zrblm_scrub_hardpoint: file required"
+  test -n "${z_var}"  || buc_die_now "zrblm_scrub_hardpoint: variable required"
+  test -f "${z_file}" || buc_die_now "Hardpoint file not found: ${z_file}"
 
   local -r z_tmp="${z_file}.tmp"
   local z_line=""
   local z_found=0
 
-  cp -p "${z_file}" "${z_tmp}" || buc_die "Failed to seed temp file for: ${z_file}"
+  cp -p "${z_file}" "${z_tmp}" || buc_die_now "Failed to seed temp file for: ${z_file}"
 
   while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
@@ -459,11 +459,11 @@ zrblm_scrub_hardpoint() {
         printf '%s\n' "${z_line}"
         ;;
     esac
-  done < "${z_file}" > "${z_tmp}" || buc_die "Failed to scrub hardpoint: ${z_file}"
+  done < "${z_file}" > "${z_tmp}" || buc_die_now "Failed to scrub hardpoint: ${z_file}"
 
-  test "${z_found}" = "1" || buc_die "Hardpoint ${z_var} not found in ${z_file} — the proscription names a home that moved"
+  test "${z_found}" = "1" || buc_die_now "Hardpoint ${z_var} not found in ${z_file} — the proscription names a home that moved"
 
-  mv "${z_tmp}" "${z_file}" || buc_die "Failed to replace: ${z_file}"
+  mv "${z_tmp}" "${z_file}" || buc_die_now "Failed to replace: ${z_file}"
   buh_line "  Lustrated: ${z_file} (${z_var})"
 }
 

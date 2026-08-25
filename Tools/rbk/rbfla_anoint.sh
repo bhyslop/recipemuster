@@ -35,17 +35,17 @@ rbfl_anoint() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
-  test -n "${z_vessel}" || buc_die "Vessel required (param1)"
+  test -n "${z_vessel}" || buc_die_now "Vessel required (param1)"
 
   # Resolve and load the vessel; anoint addresses graft-mode vessels only.
   zrbfc_resolve_vessel "${z_vessel}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
-    || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
   # Read the chained build facts through the shared express-or-chain resolver —
   # anoint carries no express path, so an empty express makes each resolve a pure
@@ -74,7 +74,7 @@ rbfl_anoint() {
   buc_step "Anointing ${RBRV_SIGIL}"
 
   local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
-  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
+  test -f "${z_rbrv_file}" || buc_die_now "Vessel regime file not found: ${z_rbrv_file}"
 
   local z_rbrv_lines=()
   local z_rbrv_line=""
@@ -83,7 +83,7 @@ rbfl_anoint() {
   done < "${z_rbrv_file}"
 
   local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_anoint_${RBRV_SIGIL}_${RBCC_rbrv_file}.new"
-  : > "${z_tmp_file}" || buc_die "Failed to create ${z_tmp_file}"
+  : > "${z_tmp_file}" || buc_die_now "Failed to create ${z_tmp_file}"
 
   local z_wrote=0
   local z_j=""
@@ -91,12 +91,12 @@ rbfl_anoint() {
     case "${z_rbrv_lines[$z_j]}" in
       RBRV_GRAFT_IMAGE=*)
         printf 'RBRV_GRAFT_IMAGE=%s\n' "${z_image_ref}" >> "${z_tmp_file}" \
-          || buc_die "Failed to write RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}"
+          || buc_die_now "Failed to write RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}"
         z_wrote=1
         ;;
       *)
         printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
-          || buc_die "Failed to write line for ${RBRV_SIGIL}"
+          || buc_die_now "Failed to write line for ${RBRV_SIGIL}"
         ;;
     esac
   done
@@ -104,11 +104,11 @@ rbfl_anoint() {
   case "${z_wrote}" in
     1) ;;
     *) printf '\n# Grafting Configuration\nRBRV_GRAFT_IMAGE=%s\n' "${z_image_ref}" >> "${z_tmp_file}" \
-         || buc_die "Failed to append RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}" ;;
+         || buc_die_now "Failed to append RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}" ;;
   esac
 
   mv "${z_tmp_file}" "${z_rbrv_file}" \
-    || buc_die "Failed to finalize ${z_rbrv_file}"
+    || buc_die_now "Failed to finalize ${z_rbrv_file}"
 
   # Loud on success: name the written value and its source so a wrong anoint shows
   # at the moment of action, not only in the eventual git diff. Anoint reads the
