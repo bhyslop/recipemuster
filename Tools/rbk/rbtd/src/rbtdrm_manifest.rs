@@ -19,14 +19,14 @@
 // Colophon names are projected from the zipper registry into the generated
 // RBTDGC_* consts (rbtdgc_consts.rs). This module consumes them for the
 // per-fixture required-colophon manifest and the role→probe mapping. Colophon
-// existence is now enforced by compilation (this map references the generated
+// existence is enforced by compilation (this map references the generated
 // consts directly) plus the build-time diff gate (rbq regenerates and diffs
-// the consts against the zipper); the former runtime drift check is retired.
+// the consts against the zipper).
 use crate::rbtdgc_consts::*;
 
 // Credential roles are projected from rbcc_constants.sh into the generated
 // RBTDGC_ACCOUNT_* consts (rbtdgc_consts.rs) — consumed here and across the access
-// probe surface. The former hand-written RBTDRM_ROLE_* mirror is retired.
+// probe surface.
 
 /// Map a credential role to its access-probe colophon. Returns None for
 /// unknown roles. Only the payor OAuth probe survives the keyfile JWT-probe
