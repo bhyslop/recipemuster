@@ -48,6 +48,7 @@ use std::path::{
 
 use crate::rbtdru_cupel::{
     zrbtdru_is_gcb,
+    zrbtdru_is_test_bench,
     zrbtdru_walk_ext,
     zrbtdru_Domain,
     zrbtdru_Finding,
@@ -60,6 +61,7 @@ use crate::rbtdru_cupel::{
     ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES,
     ZRBTDRU_POSIX_FLOOR,
     ZRBTDRU_SH_EXT,
+    ZRBTDRU_TEST_BENCH_ALLOWED,
     ZRBTDRU_UNIVERSE_EXCLUDED_DIR_PREFIXES,
 };
 
@@ -616,8 +618,12 @@ pub(crate) fn zrbtdru_classify(
         return None;
     }
     match domain {
-        zrbtdru_Domain::Kit => {
+        zrbtdru_Domain::Kit | zrbtdru_Domain::KitTest => {
             if ZRBTDRU_DECLARED_DEPS.contains(&base) {
+                return None;
+            }
+            // Test-bench bash earns an additive allowance beyond shipped kit-bash.
+            if domain == zrbtdru_Domain::KitTest && ZRBTDRU_TEST_BENCH_ALLOWED.contains(&base) {
                 return None;
             }
             for ev in ZRBTDRU_EVICTIONS {
@@ -691,12 +697,24 @@ pub(crate) fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Resul
     for path in &lint_files {
         let is_gcb = zrbtdru_is_gcb(path);
         let in_domain = match domain {
-            zrbtdru_Domain::Kit => !is_gcb,
             zrbtdru_Domain::Gcb => is_gcb,
+            // Kit / KitTest select the same corpus (non-GCB); the test-bench
+            // refinement happens per file below, at classification. run_domain
+            // only ever passes Kit or Gcb — KitTest is never a scan-selection param.
+            zrbtdru_Domain::Kit | zrbtdru_Domain::KitTest => !is_gcb,
         };
         if !in_domain {
             continue;
         }
+        // Refine the kit corpus per file: a test-bench file classifies under the
+        // KitTest regime (kit discipline plus the test-bench allowance).
+        let classify_domain = if is_gcb {
+            zrbtdru_Domain::Gcb
+        } else if zrbtdru_is_test_bench(path) {
+            zrbtdru_Domain::KitTest
+        } else {
+            zrbtdru_Domain::Kit
+        };
         let src = std::fs::read_to_string(path)
             .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
         let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(root, path);
@@ -705,7 +723,7 @@ pub(crate) fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Resul
                 let base = command.rsplit('/').next().unwrap_or(&command);
                 inventory.insert(base.to_string());
             }
-            if let Some(detail) = zrbtdru_classify(&command, &locals, domain) {
+            if let Some(detail) = zrbtdru_classify(&command, &locals, classify_domain) {
                 findings.push(zrbtdru_Finding {
                     file: rel.clone(),
                     line,

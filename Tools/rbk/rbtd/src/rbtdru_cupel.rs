@@ -89,6 +89,14 @@ pub(crate) const ZRBTDRU_PY_EXT: &str = "py";
 /// as new rbgj* job groups are added.
 pub(crate) const ZRBTDRU_GCB_DIR_PREFIX: &str = "rbgj";
 
+/// Directory-name prefixes marking a kit's bash test-bench — test infrastructure
+/// under the kit roots (BUK's `buts/`). Test-bench bash is held to the full kit
+/// discipline PLUS the ZRBTDRU_TEST_BENCH_ALLOWED additive allowance: the same
+/// portability shipped code obeys, plus the one primitive a test harness needs
+/// that shipped code does not. Partitioning by prefix keeps this drift-proof
+/// like the GCB one; a future rbk test-bench dir joins by adding its prefix here.
+pub(crate) const ZRBTDRU_TEST_DIR_PREFIXES: &[&str] = &["buts"];
+
 /// Dead-code directory prefixes excluded from the function-visibility universe.
 /// `ABANDONED*` is retained for reference but unbuilt and unsourceable, so its
 /// definitions must NOT clear a live command-position token — a live reference
@@ -141,6 +149,18 @@ pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
     // by buc_clipboard_copy_predicate, never required on any host.
     "clip.exe", "pbcopy", "wl-copy", "xclip",
 ];
+
+/// Test-bench additive allowance — external commands permitted in a kit's bash
+/// test-bench (files under ZRBTDRU_TEST_DIR_PREFIXES) beyond the floor and the
+/// declared deps, because a test harness has a legitimate need shipped code does
+/// not. `env` alone: the color/yelp resolution probes must launch a fresh
+/// process under a set-AND-unset environment (BURD_ is kindled readonly, and
+/// readonly never survives into a new process), and `env VAR=val -u NAME cmd` is
+/// the POSIX primitive for exactly that — no bash builtin composes a fresh
+/// process's environment subtractively. Scoped to the test dirs only: `env`
+/// stays a violation in shipped kit-bash. Source of truth: BCG "Test-Bench
+/// Utilities".
+pub(crate) const ZRBTDRU_TEST_BENCH_ALLOWED: &[&str] = &["env"];
 
 /// Curated GCB container-tool allowlist — the external commands present in the
 /// controlled builder images (alpine/docker→busybox, gcloud→Debian,
@@ -230,10 +250,14 @@ pub(crate) const ZRBTDRU_EVICTIONS: &[zrbtdru_Eviction] = &[
 
 // ── Domain and findings ─────────────────────────────────────
 
-/// Execution-environment partition controlling allowlist strictness.
+/// Execution-environment partition controlling allowlist strictness. `KitTest`
+/// is `Kit` plus the test-bench additive allowance (ZRBTDRU_TEST_BENCH_ALLOWED);
+/// it refines `Kit` per file inside the kit scan and is never a scan-selection
+/// param (test-bench files are selected as part of the Kit corpus).
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub(crate) enum zrbtdru_Domain {
     Kit,
+    KitTest,
     Gcb,
 }
 
@@ -293,6 +317,19 @@ pub(crate) fn zrbtdru_is_gcb(path: &Path) -> bool {
         comp.as_os_str()
             .to_str()
             .map(|s| s.starts_with(ZRBTDRU_GCB_DIR_PREFIX))
+            .unwrap_or(false)
+    })
+}
+
+/// True when `path` lies under a kit bash test-bench directory (any path
+/// component beginning with a ZRBTDRU_TEST_DIR_PREFIXES entry). Such files take
+/// the KitTest classification regime — full kit discipline plus the test-bench
+/// additive allowance.
+pub(crate) fn zrbtdru_is_test_bench(path: &Path) -> bool {
+    path.components().any(|comp| {
+        comp.as_os_str()
+            .to_str()
+            .map(|s| ZRBTDRU_TEST_DIR_PREFIXES.iter().any(|p| s.starts_with(p)))
             .unwrap_or(false)
     })
 }
