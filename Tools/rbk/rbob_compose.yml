@@ -19,10 +19,7 @@
 #   sentry: transit (uplink to internet via bridge) + enclave (down to bottle)
 #     Interface naming and default-route assignment are NOT controlled by compose:
 #       - eth0/eth1 ordering is Docker-engine-defined (sentry IP-discovers via RBRN_ENCLAVE_SENTRY_IP)
-#       - default route is assigned to the alphabetically-first attached network's gateway
-#         (compose 'priority:' keys empirically do NOT influence this on linux Docker
-#         engine 28.x or mac Docker Desktop 28.x — sentry replaces the default route
-#         with one via uplink at RBJp1, see rbjs_sentry.sh)
+#       - default-route selection is Docker-engine-defined (RBr_2c9)
 #   pentacle: enclave only (static IP, routes through sentry)
 #   bottle: shares pentacle network namespace (network_mode: service:pentacle)
 #
