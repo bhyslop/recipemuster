@@ -173,7 +173,7 @@ zrbz_kindle() {
 
   # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
-  z_mod="rbfd_cli.sh"
+  z_mod="rbfd0_cli.sh"
   buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfd_ordain"          "param1"  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
   buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "rbfk_cli.sh" "rbfk_kludge"       "param1"  "Kludge a vessel image locally for development"
   z_mod="rbfl0_cli.sh"
