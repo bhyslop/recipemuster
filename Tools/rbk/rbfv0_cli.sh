@@ -49,7 +49,7 @@ zrbfv_furnish() {
   source "${z_rbk_kit_dir}/rbuh_http.sh"
   source "${z_rbk_kit_dir}/rbge_rest.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh"
-  source "${z_rbk_kit_dir}/rbfv_verify.sh"
+  source "${z_rbk_kit_dir}/rbfv0_verify.sh"
   source "${z_rbk_kit_dir}/rbndb_base.sh"
 
   zbuv_kindle

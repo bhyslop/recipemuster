@@ -32,7 +32,7 @@ ZRBFD_SOURCED=1
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 
 # Source Foundry Verify module (ordain cross-module calls: rbfv_vouch, zrbfv_graft_metadata_submit)
-source "${BASH_SOURCE[0]%/*}/rbfv_verify.sh"
+source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh"
 
 # Tinder constants
 # Step id of the hallmark-echoing conjure step — single mint shared by the
