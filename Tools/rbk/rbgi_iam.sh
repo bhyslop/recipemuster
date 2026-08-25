@@ -155,7 +155,8 @@ zrbgi_propagation_error_predicate() {
 ######################################################################
 # External Functions (rbgi_*)
 
-# Add a project-scoped IAM role binding with optimistic concurrency and strong read-back.
+# Add a project-scoped IAM role binding with optimistic concurrency and
+# propagation-delay tolerance. The setIamPolicy 200 is the grant confirmation.
 rbgi_add_project_iam_role() {
   zrbgi_sentinel
 
