@@ -47,6 +47,7 @@ source "${BUTT_BUTS_DIR}/butcfc_facts.sh"
 source "${BUTT_BUTS_DIR}/butclc_links.sh"
 source "${BUTT_BUTS_DIR}/butcym_yelp.sh"
 source "${BUTT_BUTS_DIR}/butcdc_color.sh"
+source "${BUTT_BUTS_DIR}/butcds_desuetude.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -142,6 +143,13 @@ butt_kindle() {
   butr_case_enroll "buym-yelp" butcym_verdict_zero_beats_env_tcase
   butr_case_enroll "buym-yelp" butcym_verdict_one_beats_env_tcase
   butr_case_enroll "buym-yelp" butcym_fallback_non_tty_tcase
+
+  # stale-launcher fixture (4 cases)
+  butr_fixture_enroll "stale-launcher" "" "zbutt_noop_baste"
+  butr_case_enroll "stale-launcher" butcds_stale_bootstrap_refuses_tcase
+  butr_case_enroll "stale-launcher" butcds_refusal_names_condition_and_remedy_tcase
+  butr_case_enroll "stale-launcher" butcds_bash_command_not_found_is_gone_tcase
+  butr_case_enroll "stale-launcher" butcds_sound_bootstrap_passes_tcase
 }
 
 zbutt_noop_baste() {

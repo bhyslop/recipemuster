@@ -20,6 +20,46 @@
 
 set -euo pipefail
 
+######################################################################
+# Bootstrap containment guard — the seam between two custodies.
+#
+# A moorings launcher stub is consumer-owned under the launcher stub law: no
+# parcel install writes it, so a stub predating the current bootstrap contract
+# survives every kit update and reaches this module with buv never loaded.
+# This is the first kit module that contract leaves unmet — zburc_kindle's
+# first act is a buv_regime_enroll call, which would die as a bash
+# command-not-found before any logging exists to record that it happened.
+#
+# The contract is therefore tested, never the error trapped, and the refusal
+# is written straight to stderr: buh, buym and dispatch logging are all
+# themselves downstream of the contract under guard. The message carries the
+# canonical stub inline because a station dark at its launcher cannot reach
+# the emitter tabtarget, which dispatches through a stub of its own.
+#
+# The guard detects; it never repairs. Writing the moorings layer here would
+# be the kit reaching across the very custody line it stands to police.
+if test -z "${ZBUV_SOURCED:-}"; then
+  source "${BASH_SOURCE[0]%/*}/bubc_constants.sh"
+  {
+    echo "burc_regime: STALE LAUNCHER STUB - the bootstrap contract is unmet."
+    echo
+    echo "  This project's moorings launcher reached the BUK kit without loading"
+    echo "  the validation module, so no kit code can run. The stub predates the"
+    echo "  current launcher contract. It is consumer-owned: no kit install"
+    echo "  replaces it, and it will not heal on its own."
+    echo
+    echo "  Remedy - restore the canonical four-line stub, the shape buut_launcher"
+    echo "  emits (tt/buw-tt-cl.CreateLauncher.sh). Where every stub is stale,"
+    echo "  repair one by hand first: the emitter dispatches through a stub too."
+    echo
+    echo '    #!/bin/bash'
+    echo '    # Launcher stub - delegates to <name> workbench'
+    echo '    source "Tools/buk/bul_launcher.sh"'
+    echo '    bul_launch "${BURC_TOOLS_DIR}/<kit>/<name>_workbench.sh" "$@"'
+  } >&2
+  exit "${BUBC_band_desuetude}"
+fi
+
 # Multiple inclusion detection
 test -z "${ZBURC_SOURCED:-}" || buc_die_now "Module burc multiply sourced - check sourcing hierarchy"
 ZBURC_SOURCED=1

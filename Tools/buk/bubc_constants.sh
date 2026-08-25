@@ -157,7 +157,18 @@ readonly BUBC_band_synchrony=117 # branch-synchrony gate rejection (local branch
 # alternative of one: nothing else in the estate reads two positions of the
 # record, and the door chains with no other gate along any spawn path.
 readonly BUBC_band_variorum=118  # census-delta rejection (this work introduces a finding its base position does not carry)
-# Free codes: 119-122, allocated upward from 119.
+# The desuetude gate: a moorings launcher stub that predates the current
+# bootstrap contract reaches kit code with the validation module never loaded.
+# Custody splits by grain under the launcher stub law — the stub instance is
+# consumer-owned and no parcel install replaces it, so a stub can lapse into
+# disuse against the kit it bootstraps and outlive it silently. One gate,
+# fired at the seam where the stale bootstrap first touches a kit module.
+# Distinct from band_regime (100) rather than an alternative of it: 100 rules
+# on a regime file's values, which this gate never reaches — nothing is
+# validated because the validator is absent. It shares no spawn path with any
+# gate above, standing ahead of all of them by construction.
+readonly BUBC_band_desuetude=119 # stale-bootstrap rejection (moorings launcher stub predating the bootstrap contract; regenerate through buut_launcher)
+# Free codes: 120-122, allocated upward from 120.
 # Self-test probe pins the band top, proving full-width propagation:
 readonly BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 
