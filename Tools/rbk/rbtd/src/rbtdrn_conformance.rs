@@ -1693,6 +1693,161 @@ fn rbtdrn_self_feodary_refusals(_dir: &Path) -> rbtdre_Verdict {
     }
     rbtdre_Verdict::Pass
 }
+/// Compose a synthetic kraal under `base`: a billet, and — where `register` is
+/// given — an outspan holding it. Returns the billet root, which is what the
+/// locator is asked about.
+fn zrbtdrn_self_kraal(base: &Path, name: &str, register: Option<&str>) -> std::io::Result<PathBuf> {
+    let kraal = base.join(name);
+    let billet = kraal.join("billet");
+    std::fs::create_dir_all(&billet)?;
+    if let Some(body) = register {
+        let outspan = kraal.join("outspan");
+        std::fs::create_dir_all(&outspan)?;
+        std::fs::write(outspan.join(ZRBTDRN_FEODARY_BASENAME), body)?;
+    }
+    Ok(billet)
+}
+
+/// A register claiming `billet`, carrying `extra` rows verbatim after it.
+fn zrbtdrn_self_register(billet: &Path, extra: &str) -> String {
+    format!(
+        "{{\n  \"jjfd_revision\": {},\n  \"jjfd_trees\": [\n    \
+         {{ \"jjfd_path\": \"{}\", \"jjfd_role\": \"billet\", \"jjfd_sire\": \"rb\" }}{}\n  ]\n}}\n",
+        ZRBTDRN_FEODARY_REVISION,
+        billet.display(),
+        extra
+    )
+}
+
+/// The locator's three verdicts, each driven on a synthetic kraal composed on
+/// disk — the real walk over a real parent directory, not a stubbed one.
+///
+/// This case is why the corpus-bound live case may be trusted when it SKIPS.
+/// A skip is the one verdict that looks like success from the suite line, so
+/// the skip path is the one most able to hide a locator that simply never
+/// finds anything; driving it against a kraal that genuinely has no register,
+/// and against one whose register belongs to somebody else, is what separates
+/// "correctly found nothing" from "looked in the wrong place".
+fn rbtdrn_self_corpus_road_locator(dir: &Path) -> rbtdre_Verdict {
+    let base = match std::fs::canonicalize(dir) {
+        Ok(b) => b,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot canonicalize case dir: {}", e)),
+    };
+    let base = base.join("locator");
+
+    // No register anywhere beside the billet: a station outside any kraal.
+    let bare = match zrbtdrn_self_kraal(&base, "bare", None) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose bare kraal: {}", e)),
+    };
+    match zrbtdrn_locate_corpus_road(&bare) {
+        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
+            if !reason.contains(ZRBTDRN_FEODARY_BASENAME) {
+                return rbtdre_Verdict::Fail(format!(
+                    "registerless station skipped without naming what it looked for: {}",
+                    reason
+                ));
+            }
+        }
+        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
+            return rbtdre_Verdict::Fail(format!("registerless station resolved a road at {}", p.display()))
+        }
+        Err(e) => return rbtdre_Verdict::Fail(format!("registerless station failed: {}", e)),
+    }
+
+    // A register stands beside the billet but claims a different tree — another
+    // kraal's business, and taking its corpus road would be the silent wrong
+    // answer this locator exists to refuse.
+    let foreign_body = zrbtdrn_self_register(
+        Path::new("/nowhere/that/stands"),
+        ",\n    { \"jjfd_path\": \"/nowhere/that/stands/vulgate\", \"jjfd_role\": \"vulgate\" }",
+    );
+    let foreign = match zrbtdrn_self_kraal(&base, "foreign", Some(&foreign_body)) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose foreign kraal: {}", e)),
+    };
+    match zrbtdrn_locate_corpus_road(&foreign) {
+        Ok(zrbtdrn_CorpusRoad::Absent(_)) => {}
+        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
+            return rbtdre_Verdict::Fail(format!(
+                "a register claiming another tree yielded a road at {}",
+                p.display()
+            ))
+        }
+        Err(e) => return rbtdre_Verdict::Fail(format!("foreign register failed loud: {}", e)),
+    }
+
+    // A register that claims this billet and names no corpus road: a broken
+    // kraal, loud rather than absent.
+    let roadless = match zrbtdrn_self_kraal(&base, "roadless", Some("")) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose roadless kraal: {}", e)),
+    };
+    let roadless_body = zrbtdrn_self_register(
+        &roadless,
+        ",\n    { \"jjfd_path\": \"/some/sumpter\", \"jjfd_role\": \"sumpter\" }",
+    );
+    if let Err(e) = std::fs::write(
+        roadless.parent().unwrap().join("outspan").join(ZRBTDRN_FEODARY_BASENAME),
+        &roadless_body,
+    ) {
+        return rbtdre_Verdict::Fail(format!("cannot write roadless register: {}", e));
+    }
+    match zrbtdrn_locate_corpus_road(&roadless) {
+        Err(_) => {}
+        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
+            return rbtdre_Verdict::Fail(format!(
+                "a claiming register naming no corpus road skipped instead of failing: {}",
+                reason
+            ))
+        }
+        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
+            return rbtdre_Verdict::Fail(format!("roadless register yielded a road at {}", p.display()))
+        }
+    }
+
+    // A register that claims this billet and names a road whose spec home
+    // stands: the found case, and the road root is what comes back.
+    let good = match zrbtdrn_self_kraal(&base, "good", Some("")) {
+        Ok(p) => p,
+        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose good kraal: {}", e)),
+    };
+    let road = good.parent().unwrap().join("vulgate");
+    if let Err(e) = std::fs::create_dir_all(road.join(ZRBTDRN_CORPUS_SPEC_SUBDIR)) {
+        return rbtdre_Verdict::Fail(format!("cannot compose corpus road: {}", e));
+    }
+    let good_body = zrbtdrn_self_register(
+        &good,
+        &format!(
+            ",\n    {{ \"jjfd_path\": \"{}\", \"jjfd_role\": \"vulgate\" }}",
+            road.display()
+        ),
+    );
+    if let Err(e) = std::fs::write(
+        good.parent().unwrap().join("outspan").join(ZRBTDRN_FEODARY_BASENAME),
+        &good_body,
+    ) {
+        return rbtdre_Verdict::Fail(format!("cannot write good register: {}", e));
+    }
+    match zrbtdrn_locate_corpus_road(&good) {
+        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
+            if zrbtdrn_real_path(&p) != zrbtdrn_real_path(&road) {
+                return rbtdre_Verdict::Fail(format!(
+                    "located {} where the register named {}",
+                    p.display(),
+                    road.display()
+                ));
+            }
+        }
+        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
+            return rbtdre_Verdict::Fail(format!("a standing corpus road skipped: {}", reason))
+        }
+        Err(e) => return rbtdre_Verdict::Fail(format!("a standing corpus road failed: {}", e)),
+    }
+
+    rbtdre_Verdict::Pass
+}
+
 pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
     case!(rbtdrn_self_catch_and_keep_identifier),
     case!(rbtdrn_self_keep_path_prefix),
@@ -1708,6 +1863,7 @@ pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
     case!(rbtdrn_self_a8_residue),
     case!(rbtdrn_self_feodary_parse),
     case!(rbtdrn_self_feodary_refusals),
+    case!(rbtdrn_self_corpus_road_locator),
     case!(rbtdrn_onehome_residue_live),
     case!(rbtdrn_onehome_corpus_live),
 ];
