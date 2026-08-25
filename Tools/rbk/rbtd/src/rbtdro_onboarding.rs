@@ -387,9 +387,9 @@ fn rbtdro_read_vessel_env(
 /// Drive a freshly-built hallmark into a nameplate's RBRN_{BOTTLE,SENTRY}_HALLMARK
 /// by invoking the real rbw-nd drive tabtarget — the unified drive-link — with the
 /// hallmark passed EXPRESS (`field` is the two-value selector `bottle`|`sentry`).
-/// Replaces the former in-process rbtdro_drive_hallmark reimplementation: the
-/// onboarding harness now exercises the same operator verb the cloud path ships,
-/// and the durable-config discipline (relay-then-read, band-reject) lives in ONE bash home.
+/// The onboarding harness exercises the same operator verb the cloud path ships,
+/// never an in-process reimplementation, so the durable-config discipline
+/// (relay-then-read, band-reject) lives in ONE bash home.
 /// The drive does not commit; callers commit via rbtdre_commit_nameplates.
 fn rbtdro_drive_nameplate(
     ctx: &mut rbtdri_Context,

@@ -23,7 +23,7 @@
 #
 # No-log behavior is NOT a launcher selection: it rides the BURD_NO_LOG env
 # var the tabtarget exports ahead of dispatch (bul_launcher skips the BURS
-# station load under it). The former separate nolog launcher was collapsed.
+# station load under it).
 
 set -u
 

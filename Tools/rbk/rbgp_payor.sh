@@ -3030,9 +3030,11 @@ rbgp_depot_recognosce() {
 # Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
 # rbgp_rehearse) — the operator-facing admission surface under the rbw-p
 # launcher family. Each dons the governor mantle (rba_avow then rba_don_capture
-# governor); the token-agnostic *_core helpers let the payor-credentialed paths
-# (gird, the interim proof) drive the same composition. Muniment mutations
-# precede IAM mutations in every core (RBr_m4d).
+# governor); the token-agnostic *_core helpers let gird — the one remaining
+# payor-credentialed path (the interim proof retired, superseded by the
+# terrier-band coverage in Tools/rbk/rbtd/src/rbtdrv_patrol.rs) — drive the
+# same composition. Muniment mutations precede IAM mutations in every core
+# (RBr_m4d).
 #
 # Bucket: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET),
 # reached via the enforced payor regime.
