@@ -27,7 +27,7 @@ zrbhr_furnish() {
   zrbl_kindle
 
   buv_dir_exists  "${BURD_TEMP_DIR}"
-  buv_string_enroll     BURD_NOW_STAMP  1 128
+  buv_env_string     BURD_NOW_STAMP  1 128
 
   # Validate and source regime file
   test -f "${RBL_RBRR_FILE}" || buc_die_now "Regime file not found: ${RBL_RBRR_FILE}"
@@ -35,7 +35,7 @@ zrbhr_furnish() {
   source "${ZRBHR_CLI_SCRIPT_DIR}/rbrr.validator.sh"
 
   # Validate GitHub environment
-  buv_string_enroll "GITHUB_TOKEN" 1 512
+  buv_env_string "GITHUB_TOKEN" 1 512
 
   # Optional environment
   GITHUB_SHA="${GITHUB_SHA:-unknown}"
