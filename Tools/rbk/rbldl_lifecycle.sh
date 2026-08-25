@@ -35,7 +35,7 @@ rbld_divine() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
   zrbfc_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
@@ -110,9 +110,9 @@ rbld_divine() {
         else "(cohort: \([$names[] | select(. != $vouch)] | length) members)"
         end
     ' "${z_resp_file}" > "${z_image_file}" \
-      || buc_die "Failed to summarize Lode ${z_touch}"
+      || buc_die_now "Failed to summarize Lode ${z_touch}"
     z_image=$(<"${z_image_file}")
-    test -n "${z_image}" || buc_die "Empty summary extraction for Lode ${z_touch}"
+    test -n "${z_image}" || buc_die_now "Empty summary extraction for Lode ${z_touch}"
 
     printf "${z_row_fmt}" "${z_touch}" "${z_image}"
   done
@@ -131,7 +131,7 @@ rbld_augur() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the touchmark express-or-chain: an express argument wins; absent, fall
   # back to the touchmark any capture handed forward through the depth-1 chain — so
@@ -152,7 +152,7 @@ rbld_augur() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
   local -r z_pkg_encoded="${z_pkg//\//%2F}"
@@ -169,7 +169,7 @@ rbld_augur() {
   # non-OK status stays infra-generic through rbuh_require_ok.
   local z_tags_code=""
   z_tags_code=$(rbuh_code_capture "${z_tags_infix}") \
-    || buc_die "Failed to read tags HTTP code for Lode ${z_touchmark}"
+    || buc_die_now "Failed to read tags HTTP code for Lode ${z_touchmark}"
   test "${z_tags_code}" != "404" \
     || buc_reject "${BUBC_band_vacant}" "No Lode at ${z_pkg} — touchmark names no package in the registry"
   rbuh_require_ok "List tags for Lode ${z_touchmark}" "${z_tags_infix}"
@@ -177,7 +177,7 @@ rbld_augur() {
   local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
   local -r z_tags_file="${ZRBLD_AUGUR_PREFIX}tags.txt"
   jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_tags_file}" \
-    || buc_die "Failed to extract member tags for Lode ${z_touchmark}"
+    || buc_die_now "Failed to extract member tags for Lode ${z_touchmark}"
   test -s "${z_tags_file}" \
     || buc_reject "${BUBC_band_vacant}" "No member tags found under ${z_pkg} — Lode not present in registry"
 
@@ -200,18 +200,18 @@ rbld_augur() {
   # single-layer image rbgjl02 wrote (vouch.json at image root).
   buc_step "Decoding provenance envelope (:${RBGC_LODE_TAG_VOUCH})"
   local -r z_vouch_dir="${ZRBLD_AUGUR_PREFIX}vouch"
-  rm -rf "${z_vouch_dir}" || buc_die "Failed to clear vouch scratch dir: ${z_vouch_dir}"
+  rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear vouch scratch dir: ${z_vouch_dir}"
   zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
-    || buc_die "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
+    || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
   local -r z_vouch_json="${z_vouch_dir}/vouch.json"
   test -f "${z_vouch_json}" \
-    || buc_die "Envelope artifact present but vouch.json missing for ${z_touchmark}"
+    || buc_die_now "Envelope artifact present but vouch.json missing for ${z_touchmark}"
 
   # Kind name comes from the envelope's own rblv_kind field — the kind-agnostic source
   # (a new Lode kind needs no change here; the prefix letter is shown as a cross-check).
   local z_trust=""
   z_trust=$(jq -r '.rblv_trust_grade // "(absent)"' "${z_vouch_json}") \
-    || buc_die "Failed to read rblv_trust_grade from envelope for ${z_touchmark}"
+    || buc_die_now "Failed to read rblv_trust_grade from envelope for ${z_touchmark}"
 
   echo ""
   printf "  Provenance envelope (:%s):\n" "${RBGC_LODE_TAG_VOUCH}"
@@ -234,7 +234,7 @@ rbld_augur() {
       "        verification: \(.rblv_verification // "(absent)")",
       "        tags:         \((.rblv_tags // []) | join(", "))")
   ' "${z_vouch_json}" \
-    || buc_die "Failed to render provenance envelope for ${z_touchmark}"
+    || buc_die_now "Failed to render provenance envelope for ${z_touchmark}"
 
   # Honest trust posture — never over-claim what the upstream permits (the Pale).
   echo ""
@@ -268,12 +268,12 @@ rbld_banish() {
   buc_doc_param "touchmark" "Lode stamp to delete (e.g., b260602120000)"
   buc_doc_shown || return 0
 
-  test -n "${z_touchmark}" || buc_die "Touchmark parameter required"
+  test -n "${z_touchmark}" || buc_die_now "Touchmark parameter required"
 
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
   local -r z_pkg_encoded="${z_pkg//\//%2F}"
@@ -287,9 +287,9 @@ rbld_banish() {
 
   local z_tag_count=""
   z_tag_count=$(rbuh_json_field_capture "${z_probe_infix}" '(.tags // []) | length') \
-    || buc_die "Failed to count tags for ${z_pkg}"
+    || buc_die_now "Failed to count tags for ${z_pkg}"
   test "${z_tag_count}" -gt 0 \
-    || buc_die "No Lode found at ${z_pkg} — nothing to banish"
+    || buc_die_now "No Lode found at ${z_pkg} — nothing to banish"
 
   buc_require "Will banish the whole Lode ${z_pkg} (cloud-dispatched delete)" "yes"
 

@@ -63,6 +63,10 @@ zbuwz_kindle() {
   buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
   buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
 
+  # Parcel emplacement (bupe_cli.sh)
+  z_mod="bupe_cli.sh"
+  buz_enroll BUWZ_PARCEL_EMPLACE "buw-pe" "${z_mod}" "bupe_emplace" "param1" "Emplace an extracted parcel into this station; the argument is the parcel directory"
+
   # Test fixtures (bux_cli.sh)
   z_mod="bux_cli.sh"
   buz_enroll BUWZ_DELAY      "buw-xd" "${z_mod}" "bux_delay"       ""  "Sleep 20 seconds (timing fixture)"

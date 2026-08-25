@@ -21,19 +21,19 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGO_SOURCED:-}" || buc_die "Module rbgo multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGO_SOURCED:-}" || buc_die_now "Module rbgo multiply sourced - check sourcing hierarchy"
 ZRBGO_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgo_*)
 
 zrbgo_kindle() {
-  test -z "${ZRBGO_KINDLED:-}" || buc_die "Module rbgo already kindled"
+  test -z "${ZRBGO_KINDLED:-}" || buc_die_now "Module rbgo already kindled"
 
   # Validate required tools (rehomed from rbl_Locator.sh)
-  command -v openssl >/dev/null 2>&1 || buc_die "openssl not found - required for JWT signing and encoding"
-  command -v curl    >/dev/null 2>&1 || buc_die "curl not found - required for OAuth exchange"
-  command -v jq      >/dev/null 2>&1 || buc_die "jq not found - required for JSON parsing"
+  command -v openssl >/dev/null 2>&1 || buc_die_now "openssl not found - required for JWT signing and encoding"
+  command -v curl    >/dev/null 2>&1 || buc_die_now "curl not found - required for OAuth exchange"
+  command -v jq      >/dev/null 2>&1 || buc_die_now "jq not found - required for JSON parsing"
 
   buc_log_args "Ensure RBGC is kindled first"
   zrbgc_sentinel
@@ -45,7 +45,7 @@ zrbgo_kindle() {
 }
 
 zrbgo_sentinel() {
-  test "${ZRBGO_KINDLED:-}" = "1" || buc_die "Module rbgo not kindled - call zrbgo_kindle first"
+  test "${ZRBGO_KINDLED:-}" = "1" || buc_die_now "Module rbgo not kindled - call zrbgo_kindle first"
 }
 
 ######################################################################
@@ -152,19 +152,19 @@ rbgo_docker_login() {
     if [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
       buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); writing the authenticated credential to the base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
       z_auth_b64=$(rbgo_base64_encode_string_capture "oauth2accesstoken:${z_token}") \
-        || buc_die "Cannot base64-encode the docker credential for the file-store bend"
+        || buc_die_now "Cannot base64-encode the docker credential for the file-store bend"
       mkdir -p "${HOME}/.docker" \
-        || buc_die "Cannot create ${HOME}/.docker for the credential-store bend"
+        || buc_die_now "Cannot create ${HOME}/.docker for the credential-store bend"
       printf '{"auths":{"%s":{"auth":"%s"}}}' "${z_host}" "${z_auth_b64}" > "${HOME}/.docker/config.json" \
-        || buc_die "Cannot write ${HOME}/.docker/config.json credential-store bend"
+        || buc_die_now "Cannot write ${HOME}/.docker/config.json credential-store bend"
       return 0
     fi
 
     [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
-      || buc_die "Docker login to ${z_host} failed — see ${z_stderr_file}"
+      || buc_die_now "Docker login to ${z_host} failed — see ${z_stderr_file}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
-      || buc_die "Docker login to ${z_host} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+      || buc_die_now "Docker login to ${z_host} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
 
     buc_warn "Docker login transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"

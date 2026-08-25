@@ -21,7 +21,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBCC_SOURCED:-}" || buc_die "Module rbcc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBCC_SOURCED:-}" || buc_die_now "Module rbcc multiply sourced - check sourcing hierarchy"
 ZRBCC_SOURCED=1
 
 # Kit directory — source-time self-location. rbcc lives at the RBK kit root,
@@ -223,7 +223,7 @@ RBCC_container_sentry="sentry"
 # RBRR_ACTIVE_FOEDUS selector (the runtime accessor path); a foedus name may be
 # passed explicitly (the Entra guide names the interactive rbef_entrada it
 # teaches). Returns nonzero without emitting when no foedus resolves — the
-# caller's `source "$(...)" || buc_die` surfaces it. The selector is only live
+# caller's `source "$(...)" || buc_die_now` surfaces it. The selector is only live
 # after rbrr.env is sourced, which every runtime consumer does before calling
 # this; a no-repo-regime context simply never calls it. This on-demand
 # resolution replaces the former source-time RBCC_rbrf_file constant — the
@@ -243,8 +243,8 @@ rbcc_rbrf_file_capture() {
 # assignments in the sourced file, sourced within a function, remain global).
 rbcc_source_active_rbrf() {
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
-  source "${z_rbrf}"               || buc_die "Failed to source the active foedus RBRF: ${z_rbrf}"
+  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  source "${z_rbrf}"               || buc_die_now "Failed to source the active foedus RBRF: ${z_rbrf}"
 }
 
 ######################################################################
@@ -252,7 +252,7 @@ rbcc_source_active_rbrf() {
 
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
 # string consts to stdout, one `pub const` line per name/value pair via the
-# shared buz_emit_const primitive (BUK must be kindled). The single-homed set:
+# shared buz_emit_const_str primitive (BUK must be kindled). The single-homed set:
 # moorings/vessels dirs, account labels, mantle identity tokens, .env filenames,
 # operation verbs, and container roles. Each Rust const is
 # RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
@@ -318,8 +318,8 @@ rbcc_emit_consts() {
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
-    buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
-      || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+    buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
+      || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
 
   printf '%s\n' ""
@@ -348,7 +348,7 @@ rbcc_emit_consts() {
     z_stem="${z_name#BUBC_}"
     z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
     buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
-      || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+      || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
 
   printf '%s\n' ""
@@ -356,15 +356,15 @@ rbcc_emit_consts() {
   z_name="BUBC_tweak_regime_poison"
   z_stem="${z_name#BUBC_}"
   z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
-  buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
-    || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+  buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
+    || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
 }
 
 ######################################################################
 # Internal Functions (zrbcc_*)
 
 zrbcc_kindle() {
-  test -z "${ZRBCC_KINDLED:-}" || buc_die "Module rbcc already kindled"
+  test -z "${ZRBCC_KINDLED:-}" || buc_die_now "Module rbcc already kindled"
 
   # Curl timeout bounds — all actionable curl sites use these
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
@@ -374,7 +374,7 @@ zrbcc_kindle() {
 }
 
 zrbcc_sentinel() {
-  test "${ZRBCC_KINDLED:-}" = "1" || buc_die "Module rbcc not kindled - call zrbcc_kindle first"
+  test "${ZRBCC_KINDLED:-}" = "1" || buc_die_now "Module rbcc not kindled - call zrbcc_kindle first"
 }
 
 # eof

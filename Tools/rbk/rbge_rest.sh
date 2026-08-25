@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGE_SOURCED:-}" || buc_die "Module rbge multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGE_SOURCED:-}" || buc_die_now "Module rbge multiply sourced - check sourcing hierarchy"
 ZRBGE_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbge_*)
 
 zrbge_kindle() {
-  test -z "${ZRBGE_KINDLED:-}" || buc_die "Module rbge already kindled"
+  test -z "${ZRBGE_KINDLED:-}" || buc_die_now "Module rbge already kindled"
 
   # Ensure dependency kindled first (rbuh owns the HTTP temp-file machinery rbge consumes)
   zrbuh_sentinel
@@ -37,7 +37,7 @@ zrbge_kindle() {
 }
 
 zrbge_sentinel() {
-  test "${ZRBGE_KINDLED:-}" = "1" || buc_die "Module rbge not kindled - call zrbge_kindle first"
+  test "${ZRBGE_KINDLED:-}" = "1" || buc_die_now "Module rbge not kindled - call zrbge_kindle first"
 }
 
 ######################################################################
@@ -102,7 +102,7 @@ rbge_lro_ok() {
     if test -n "${z_lro_error}"; then
       local z_lro_resp_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
       buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
-      buc_die "${z_label}: ${z_lro_error}"
+      buc_die_now "${z_label}: ${z_lro_error}"
     fi
     buc_log_args 'Immediate-done response -> success (no polling)'
     return 0
@@ -143,7 +143,7 @@ rbge_lro_ok() {
 
     local z_code=""
     z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
-    test "${z_code}" = "200" || buc_die "${z_label}: poll failed (HTTP ${z_code})"
+    test "${z_code}" = "200" || buc_die_now "${z_label}: poll failed (HTTP ${z_code})"
 
     z_done=$(rbuh_json_field_capture "${z_poll_infix}" ".done") || z_done=""
     test "${z_done}" = "true" && {
@@ -152,13 +152,13 @@ rbge_lro_ok() {
       if test -n "${z_lro_error}"; then
         local z_lro_resp_file="${ZRBUH_PREFIX}${z_poll_infix}${ZRBUH_POSTFIX_JSON}"
         buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
-        buc_die "${z_label}: ${z_lro_error}"
+        buc_die_now "${z_label}: ${z_lro_error}"
       fi
       buc_log_args "${z_label}: operation completed after ${z_elapsed}s"
       return 0
     }
 
-    test "${z_elapsed}" -ge "${z_timeout}" && buc_die "${z_label}: timeout after ${z_timeout}s"
+    test "${z_elapsed}" -ge "${z_timeout}" && buc_die_now "${z_label}: timeout after ${z_timeout}s"
     buc_log_args "Still running at ${z_elapsed}s..."
   done
 }
@@ -172,9 +172,9 @@ rbge_api_enable() {
   local -r z_project_id="${2}"
   local -r z_token="${3}"
 
-  test -n "${z_api_service}" || buc_die "rbge_api_enable: API service name required"
-  test -n "${z_project_id}" || buc_die "rbge_api_enable: project ID required"
-  test -n "${z_token}" || buc_die "rbge_api_enable: access token required"
+  test -n "${z_api_service}" || buc_die_now "rbge_api_enable: API service name required"
+  test -n "${z_project_id}" || buc_die_now "rbge_api_enable: project ID required"
+  test -n "${z_token}" || buc_die_now "rbge_api_enable: access token required"
 
   buc_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
 
@@ -191,7 +191,7 @@ rbge_api_enable() {
     rbuh_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
 
     local z_code
-    z_code=$(rbuh_code_capture "${z_infix}") || buc_die "rbge_api_enable: failed to read HTTP code"
+    z_code=$(rbuh_code_capture "${z_infix}") || buc_die_now "rbge_api_enable: failed to read HTTP code"
 
     case "${z_code}" in
       200|201|204)
@@ -205,13 +205,13 @@ rbge_api_enable() {
           buc_log_args "API ${z_api_service} already enabled"
           return 0
         else
-          buc_die "rbge_api_enable (HTTP ${z_code}): ${z_err}"
+          buc_die_now "rbge_api_enable (HTTP ${z_code}): ${z_err}"
         fi
         ;;
       *)
         local z_err
         z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
-        buc_die "rbge_api_enable (HTTP ${z_code}): ${z_err}"
+        buc_die_now "rbge_api_enable (HTTP ${z_code}): ${z_err}"
         ;;
     esac
 
@@ -226,7 +226,7 @@ rbge_api_enable() {
 
       local z_elapsed=0
       while test "${z_done}" != "true"; do
-        test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die "API Enable ${z_api_service}: timeout after ${z_elapsed}s"
+        test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "API Enable ${z_api_service}: timeout after ${z_elapsed}s"
         sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
         z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
@@ -235,7 +235,7 @@ rbge_api_enable() {
 
         local z_poll_code
         z_poll_code=$(rbuh_code_capture "${z_final_infix}") || z_poll_code=""
-        test "${z_poll_code}" = "200" || buc_die "API Enable ${z_api_service}: poll failed (HTTP ${z_poll_code})"
+        test "${z_poll_code}" = "200" || buc_die_now "API Enable ${z_api_service}: poll failed (HTTP ${z_poll_code})"
 
         z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
       done
@@ -252,8 +252,8 @@ rbge_api_enable() {
     local z_lro_code
     z_lro_code=$(rbuh_json_field_capture "${z_final_infix}" '.error.code // empty') || z_lro_code=""
 
-    test "${z_lro_code}" = "13" || buc_die "API Enable ${z_api_service}: ${z_lro_error}"
-    test "${z_attempt}" -lt "${RBGC_API_ENABLE_RETRY_ATTEMPTS}" || buc_die "API Enable ${z_api_service}: INTERNAL persisted through ${z_attempt} attempts: ${z_lro_error}"
+    test "${z_lro_code}" = "13" || buc_die_now "API Enable ${z_api_service}: ${z_lro_error}"
+    test "${z_attempt}" -lt "${RBGC_API_ENABLE_RETRY_ATTEMPTS}" || buc_die_now "API Enable ${z_api_service}: INTERNAL persisted through ${z_attempt} attempts: ${z_lro_error}"
 
     buc_warn "API Enable ${z_api_service}: transient INTERNAL (attempt ${z_attempt}/${RBGC_API_ENABLE_RETRY_ATTEMPTS}) — retrying in ${RBGC_API_ENABLE_RETRY_PAUSE_SEC}s"
     sleep "${RBGC_API_ENABLE_RETRY_PAUSE_SEC}"
@@ -268,10 +268,10 @@ rbge_api_enable() {
   rbuh_require_ok "API Enable Verify ${z_api_service}" "${z_verify_infix}"
 
   local z_state
-  z_state=$(rbuh_json_field_capture "${z_verify_infix}" ".state") || buc_die "Failed to read API state"
+  z_state=$(rbuh_json_field_capture "${z_verify_infix}" ".state") || buc_die_now "Failed to read API state"
 
   if test "${z_state}" != "ENABLED"; then
-    buc_die "API ${z_api_service} not enabled after request (state: ${z_state})"
+    buc_die_now "API ${z_api_service} not enabled after request (state: ${z_state})"
   fi
 
   buc_log_args "API ${z_api_service} confirmed enabled"

@@ -38,7 +38,7 @@ rbfl_seise() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the reliquary touchmark express-or-chain: an express argument wins;
   # absent, fall back to the touchmark a conclave handed forward through the
@@ -63,7 +63,7 @@ rbfl_seise() {
   buc_step "Seising substrate reliquary ${z_touchmark} into ${RBCC_rbrr_file} (source ${z_source})"
 
   # Replace-or-append the RBRR_SUBSTRATE_RELIQUARY line in rbrr.env.
-  test -f "${RBCC_rbrr_file}" || buc_die "Repo regime file not found: ${RBCC_rbrr_file}"
+  test -f "${RBCC_rbrr_file}" || buc_die_now "Repo regime file not found: ${RBCC_rbrr_file}"
   local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_seise_${RBCC_rbrr_file##*/}.new"
   local z_line=""
   local z_found=false
@@ -74,12 +74,12 @@ rbfl_seise() {
       printf '%s\n' "${z_line}"
     fi
   done < "${RBCC_rbrr_file}" > "${z_tmp_file}" \
-    || buc_die "Failed to rewrite ${RBCC_rbrr_file} for RBRR_SUBSTRATE_RELIQUARY"
+    || buc_die_now "Failed to rewrite ${RBCC_rbrr_file} for RBRR_SUBSTRATE_RELIQUARY"
   if [[ "${z_found}" != "true" ]]; then
     printf 'RBRR_SUBSTRATE_RELIQUARY=%s\n' "${z_touchmark}" >> "${z_tmp_file}" \
-      || buc_die "Failed to append RBRR_SUBSTRATE_RELIQUARY"
+      || buc_die_now "Failed to append RBRR_SUBSTRATE_RELIQUARY"
   fi
-  mv "${z_tmp_file}" "${RBCC_rbrr_file}" || buc_die "Failed to finalize ${RBCC_rbrr_file}"
+  mv "${z_tmp_file}" "${RBCC_rbrr_file}" || buc_die_now "Failed to finalize ${RBCC_rbrr_file}"
 
   # Loud on success: the elected touchmark and its source named prominently, so a
   # wrong election shows at the moment of action rather than only in the git diff.

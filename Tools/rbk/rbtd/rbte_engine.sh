@@ -31,7 +31,7 @@ ZRBTE_SOURCED=1
 # Kindle
 
 zrbte_kindle() {
-  test -z "${ZRBTE_KINDLED:-}" || buc_die "rbte already kindled"
+  test -z "${ZRBTE_KINDLED:-}" || buc_die_now "rbte already kindled"
 
   local z_dir="${BASH_SOURCE[0]%/*}"
 
@@ -56,7 +56,7 @@ zrbte_kindle() {
         readonly RBTE_MANIFEST_ARG="${z_drive}:/${z_drive_tail}"
         ;;
       *)
-        buc_die "rbte: cannot translate manifest path for Windows cargo (expected /cygdrive/X/...): ${RBTE_MANIFEST}"
+        buc_die_now "rbte: cannot translate manifest path for Windows cargo (expected /cygdrive/X/...): ${RBTE_MANIFEST}"
         ;;
     esac
   else
@@ -76,7 +76,7 @@ zrbte_kindle() {
 # Sentinel
 
 zrbte_sentinel() {
-  test "${ZRBTE_KINDLED:-}" = "1" || buc_die "Module rbte not kindled - call zrbte_kindle first"
+  test "${ZRBTE_KINDLED:-}" = "1" || buc_die_now "Module rbte not kindled - call zrbte_kindle first"
 }
 
 ######################################################################
@@ -89,9 +89,9 @@ zrbte_codegen() {
   zrbte_sentinel
 
   rbz_generate_context "${BURD_TABTARGET_DIR}" "${RBCC_tabtarget_context_file}" \
-    || buc_die "Failed to generate tabtarget context"
+    || buc_die_now "Failed to generate tabtarget context"
   rbz_generate_consts "${RBCC_rbtdgc_consts_file}" \
-    || buc_die "Failed to generate colophon consts"
+    || buc_die_now "Failed to generate colophon consts"
 }
 
 zrbte_build_binary() {
@@ -99,8 +99,8 @@ zrbte_build_binary() {
 
   zrbte_codegen
   buc_step "Building theurge"
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || buc_die "cargo build failed"
-  test -x "${ZRBTE_BINARY}" || buc_die "Theurge binary not found: ${ZRBTE_BINARY}"
+  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || buc_die_now "cargo build failed"
+  test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
 ######################################################################
@@ -112,7 +112,7 @@ rbte_build() {
   zrbte_codegen
   buc_step "Building theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die "cargo build failed"
+  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die_now "cargo build failed"
   buc_success "Theurge built"
 }
 
@@ -122,7 +122,7 @@ rbte_test() {
   zrbte_codegen
   buc_step "Testing theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die "cargo test failed"
+  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die_now "cargo test failed"
   buc_success "All theurge tests passed"
 }
 
@@ -130,7 +130,7 @@ rbte_run() {
   zrbte_sentinel
 
   local z_fixture="${BUZ_FOLIO:-}"
-  test -n "${z_fixture}" || buc_die "No fixture — pass one as the folio (e.g. rbw-tf.FixtureRun.sh tadmor)"
+  test -n "${z_fixture}" || buc_die_now "No fixture — pass one as the folio (e.g. rbw-tf.FixtureRun.sh tadmor)"
 
   zrbte_build_binary
 
@@ -144,7 +144,7 @@ rbte_suite() {
   zrbte_sentinel
 
   local z_suite="${BUZ_FOLIO:-}"
-  test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.reveille.sh)"
+  test -n "${z_suite}" || buc_die_now "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.reveille.sh)"
 
   zrbte_build_binary
 
@@ -174,9 +174,9 @@ rbte_dowse() {
   # regime value (BURS_LOG_DIR); dispatch does not export it to children, so
   # reach it by sourcing the launcher-exported station file — the burs_cli
   # pattern.
-  test -n "${BURD_STATION_FILE:-}" || buc_die "BURD_STATION_FILE not set - launch via tabtarget"
-  source "${BURD_STATION_FILE}" || buc_die "Failed to source station file: ${BURD_STATION_FILE}"
-  test -n "${BURS_LOG_DIR:-}" || buc_die "BURS_LOG_DIR not set in ${BURD_STATION_FILE}"
+  test -n "${BURD_STATION_FILE:-}" || buc_die_now "BURD_STATION_FILE not set - launch via tabtarget"
+  source "${BURD_STATION_FILE}" || buc_die_now "Failed to source station file: ${BURD_STATION_FILE}"
+  test -n "${BURS_LOG_DIR:-}" || buc_die_now "BURS_LOG_DIR not set in ${BURD_STATION_FILE}"
 
   buc_step "Dowsing observed tariff history"
   "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}"

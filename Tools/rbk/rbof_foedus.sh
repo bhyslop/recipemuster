@@ -40,13 +40,13 @@ set -euo pipefail
 # Internal (zrbof_*)
 
 zrbof_kindle() {
-  test -z "${ZRBOF_KINDLED:-}" || buc_die "Module rbof already kindled"
+  test -z "${ZRBOF_KINDLED:-}" || buc_die_now "Module rbof already kindled"
 
   readonly ZRBOF_KINDLED=1
 }
 
 zrbof_sentinel() {
-  test "${ZRBOF_KINDLED:-}" = "1" || buc_die "Module rbof not kindled - call zrbof_kindle first"
+  test "${ZRBOF_KINDLED:-}" = "1" || buc_die_now "Module rbof not kindled - call zrbof_kindle first"
 }
 
 # Echo the discovered foedus identities (rbef_ subdirectory names), space-
@@ -150,7 +150,7 @@ rbof_descry() {
   # credless guard rides inside this capture: a reveille-tier run rejects here
   # before any credential touch.
   local z_token=""
-  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
 
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
@@ -232,15 +232,15 @@ rbof_canvass() {
   # pool coordinates. A selector pointing at no library foedus is corrupt repo
   # regime, not a canvass verdict.
   local -r z_active="${RBRR_ACTIVE_FOEDUS:-}"
-  test -n "${z_active}" || buc_die "RBRR_ACTIVE_FOEDUS is empty — the repo regime selects no active foedus"
+  test -n "${z_active}" || buc_die_now "RBRR_ACTIVE_FOEDUS is empty — the repo regime selects no active foedus"
   local z_active_rbrf=""
   z_active_rbrf=$(rbcc_rbrf_file_capture "${z_active}") \
-    || buc_die "Failed to resolve the regime path for the active foedus '${z_active}'"
-  test -f "${z_active_rbrf}" || buc_die "Active foedus '${z_active}' has no rbrf.env in the foedera library: ${z_active_rbrf}"
+    || buc_die_now "Failed to resolve the regime path for the active foedus '${z_active}'"
+  test -f "${z_active_rbrf}" || buc_die_now "Active foedus '${z_active}' has no rbrf.env in the foedera library: ${z_active_rbrf}"
 
   local z_pool=""
   z_pool=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_WORKFORCE_POOL_ID") \
-    || buc_die "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
+    || buc_die_now "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
 
   # Correlation map: every library foedus's configured provider id. A listed
   # provider matching one of these ids IS that foedus (the canvass→rbef_
@@ -269,7 +269,7 @@ rbof_canvass() {
   # authority affiance/jilt wield; depot mantles cannot reach it. The credless
   # guard rides inside this capture.
   local z_token=""
-  z_token=$(zrbgp_authenticate_capture) || buc_die "Failed to authenticate as Payor via OAuth"
+  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
 
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_providers_base="${z_iam_root}/locations/global/workforcePools/${z_pool}/providers"
@@ -308,18 +308,18 @@ rbof_canvass() {
     z_url="${z_providers_base}"
     if test -n "${z_page_token}"; then
       z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") \
-        || buc_die "Failed to URL-encode providers.list pageToken"
+        || buc_die_now "Failed to URL-encode providers.list pageToken"
       z_url="${z_url}?pageToken=${z_tok_enc}"
     fi
 
     z_infix="canvass_providers_list_${z_page}"
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
     z_code=$(rbuh_code_capture "${z_infix}") \
-      || buc_die "No HTTP code from providers.list under pool ${z_pool}"
+      || buc_die_now "No HTTP code from providers.list under pool ${z_pool}"
     case "${z_code}" in
       200) ;;
       404) z_pool_absent=true; break ;;
-      *)   buc_die "Unexpected HTTP ${z_code} from providers.list under pool ${z_pool}" ;;
+      *)   buc_die_now "Unexpected HTTP ${z_code} from providers.list under pool ${z_pool}" ;;
     esac
 
     z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePoolProviders // [] | length') \
@@ -417,7 +417,7 @@ rbof_instate() {
   # the operator is about to commit); not committed; no Manor mutation; no
   # sitting reset (re-signing against the new foedus is avow's concern).
   local -r z_file="${RBCC_rbrr_file}"
-  test -f "${z_file}" || buc_die "Repo regime file not found: ${z_file}"
+  test -f "${z_file}" || buc_die_now "Repo regime file not found: ${z_file}"
 
   local -r z_var="RBRR_ACTIVE_FOEDUS"
   local -r z_line_new="${z_var}=${z_foedus}"
@@ -431,15 +431,15 @@ rbof_instate() {
       printf '%s\n' "${z_line}"
     fi
   done < "${z_file}" > "${z_tmp}" \
-    || buc_die "Failed to rewrite ${z_file} for ${z_var}"
+    || buc_die_now "Failed to rewrite ${z_file} for ${z_var}"
 
   # Unlike feoff (replace-or-append), the selector is a required enrolled field
   # that must already exist — a missing assignment is a corrupt repo regime, not
   # an append site.
   test "${z_found}" = "true" \
-    || buc_die "No ${z_var} assignment in ${z_file} — the selector must be enrolled and present before instate can re-point it"
+    || buc_die_now "No ${z_var} assignment in ${z_file} — the selector must be enrolled and present before instate can re-point it"
 
-  mv "${z_tmp}" "${z_file}" || buc_die "Failed to finalize ${z_file}"
+  mv "${z_tmp}" "${z_file}" || buc_die_now "Failed to finalize ${z_file}"
 
   buc_success "Instated ${z_foedus} as the active foedus: ${z_var}=${z_foedus}"
   buc_info "Commit the rbrr.env change with your usual git workflow; the authenticate-against-active consumers (avow, the accessor, the federated-access and mantle-access probes) require the selector committed before they run."

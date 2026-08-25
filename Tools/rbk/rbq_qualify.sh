@@ -25,21 +25,21 @@ ZRBQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 source "${BURD_BUK_DIR}/buq_qualify.sh"
 
 # Multiple inclusion detection
-test -z "${ZRBQ_SOURCED:-}" || buc_die "Module rbq multiply sourced - check sourcing hierarchy"
+test -z "${ZRBQ_SOURCED:-}" || buc_die_now "Module rbq multiply sourced - check sourcing hierarchy"
 ZRBQ_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbq_*)
 
 zrbq_kindle() {
-  test -z "${ZRBQ_KINDLED:-}" || buc_die "Module rbq already kindled"
+  test -z "${ZRBQ_KINDLED:-}" || buc_die_now "Module rbq already kindled"
 
   zbuz_sentinel
   zrbz_sentinel
   zrbcc_sentinel
 
-  test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR not set"
-  test -n "${BURC_TOOLS_DIR:-}"     || buc_die "BURC_TOOLS_DIR not set"
+  test -n "${BURC_TABTARGET_DIR:-}" || buc_die_now "BURC_TABTARGET_DIR not set"
+  test -n "${BURC_TOOLS_DIR:-}"     || buc_die_now "BURC_TOOLS_DIR not set"
 
   readonly ZRBQ_TT_DIR="${BURC_TABTARGET_DIR}"
   readonly ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
@@ -55,7 +55,7 @@ zrbq_kindle() {
 }
 
 zrbq_sentinel() {
-  test "${ZRBQ_KINDLED:-}" = "1" || buc_die "Module rbq not kindled - call zrbq_kindle first"
+  test "${ZRBQ_KINDLED:-}" = "1" || buc_die_now "Module rbq not kindled - call zrbq_kindle first"
 }
 
 ######################################################################
@@ -126,7 +126,7 @@ rbq_colophons() {
     for z_j in "${!z_fail_files[@]}"; do
       buc_warn "${z_fail_files[$z_j]}: ${z_fail_reasons[$z_j]}"
     done
-    buc_die "Colophon qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
+    buc_die_now "Colophon qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
   fi
 
   buc_log_args "All ${z_checked} RBW colophons registered"
@@ -156,14 +156,14 @@ rbq_context() {
   local -r z_committed="${RBCC_tabtarget_context_file}"
   local -r z_fresh="${BURD_TEMP_DIR}/rbq_context_check.md"
 
-  buz_emit_context "rbz" "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die "Failed to generate context for comparison"
+  buz_emit_context "rbz" "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die_now "Failed to generate context for comparison"
 
   if ! test -f "${z_committed}"; then
-    buc_die "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
+    buc_die_now "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
-    buc_die "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
+    buc_die_now "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   buc_log_args "Context file is fresh"
@@ -177,14 +177,14 @@ rbq_rust_consts() {
   local -r z_committed="${RBCC_rbtdgc_consts_file}"
   local -r z_fresh="${BURD_TEMP_DIR}/rbq_rust_consts_check.rs"
 
-  rbz_emit_consts > "${z_fresh}" || buc_die "Failed to generate Rust consts for comparison"
+  rbz_emit_consts > "${z_fresh}" || buc_die_now "Failed to generate Rust consts for comparison"
 
   if ! test -f "${z_committed}"; then
-    buc_die "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
+    buc_die_now "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
-    buc_die "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
+    buc_die_now "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   buc_log_args "Rust consts file is fresh"

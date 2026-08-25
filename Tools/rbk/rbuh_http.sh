@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBUH_SOURCED:-}" || buc_die "Module rbuh multiply sourced - check sourcing hierarchy"
+test -z "${ZRBUH_SOURCED:-}" || buc_die_now "Module rbuh multiply sourced - check sourcing hierarchy"
 ZRBUH_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbuh_*)
 
 zrbuh_kindle() {
-  test -z "${ZRBUH_KINDLED:-}" || buc_die "Module rbuh already kindled"
+  test -z "${ZRBUH_KINDLED:-}" || buc_die_now "Module rbuh already kindled"
 
   buv_dir_exists "${BURD_TEMP_DIR}"
 
@@ -44,15 +44,15 @@ zrbuh_kindle() {
   readonly ZRBUH_POSTFIX_CODE="_u_code.txt"
 
   # Validate eventual consistency settings from rbgc
-  test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || buc_die "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
-  test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"      || buc_die "RBGC_MAX_CONSISTENCY_SEC unset"
-  test -n "${RBGC_GONE_CONFIRM_STREAK:-}"      || buc_die "RBGC_GONE_CONFIRM_STREAK unset"
+  test -n "${RBGC_EVENTUAL_CONSISTENCY_SEC:-}" || buc_die_now "RBGC_EVENTUAL_CONSISTENCY_SEC unset"
+  test -n "${RBGC_MAX_CONSISTENCY_SEC:-}"      || buc_die_now "RBGC_MAX_CONSISTENCY_SEC unset"
+  test -n "${RBGC_GONE_CONFIRM_STREAK:-}"      || buc_die_now "RBGC_GONE_CONFIRM_STREAK unset"
 
   readonly ZRBUH_KINDLED=1
 }
 
 zrbuh_sentinel() {
-  test "${ZRBUH_KINDLED:-}" = "1" || buc_die "Module rbuh not kindled - call zrbuh_kindle first"
+  test "${ZRBUH_KINDLED:-}" = "1" || buc_die_now "Module rbuh not kindled - call zrbuh_kindle first"
 }
 
 # HTTP fault-injection seam (BUS0 Tweak Mechanism; buorb_ is RB's buo segment) —
@@ -76,17 +76,17 @@ zrbuh_fault_apply() {
   test "${BURE_TWEAK_NAME}" = "${RBCC_tweak_http_fault}" || return 0
 
   local -r z_spec="${BURE_TWEAK_VALUE:-}"
-  test -n "${z_spec}" || buc_die "http fault: BURE_TWEAK_VALUE required ('INFIX=CODE')"
+  test -n "${z_spec}" || buc_die_now "http fault: BURE_TWEAK_VALUE required ('INFIX=CODE')"
   local -r z_target="${z_spec%%=*}"
   local -r z_forced="${z_spec#*=}"
-  test "${z_target}" != "${z_spec}" || buc_die "http fault: BURE_TWEAK_VALUE must be 'INFIX=CODE', got '${z_spec}'"
-  test -n "${z_target}"             || buc_die "http fault: empty INFIX in '${z_spec}'"
+  test "${z_target}" != "${z_spec}" || buc_die_now "http fault: BURE_TWEAK_VALUE must be 'INFIX=CODE', got '${z_spec}'"
+  test -n "${z_target}"             || buc_die_now "http fault: empty INFIX in '${z_spec}'"
   [[ "${z_forced}" =~ ^[0-9]{3}$ ]] \
-    || buc_die "http fault: forced code must be a 3-digit HTTP code, got '${z_forced}'"
+    || buc_die_now "http fault: forced code must be a 3-digit HTTP code, got '${z_forced}'"
 
   test "${z_infix}" = "${z_target}" || return 0
 
-  printf '%s' "${z_forced}" > "${z_code_file}" || buc_die "http fault: cannot write forced code"
+  printf '%s' "${z_forced}" > "${z_code_file}" || buc_die_now "http fault: cannot write forced code"
   buc_log_args "http fault: forced HTTP ${z_forced} for infix ${z_infix}"
 }
 
@@ -106,7 +106,7 @@ rbuh_json_valid_predicate() {
 
 # Boolean: true (0) when the captured HTTP code for an infix is a 2xx success
 # (200/201/204 — the same success set rbuh_require_ok accepts). Unlike
-# rbuh_require_ok it does not buc_die on failure; callers branch on the result.
+# rbuh_require_ok it does not buc_die_now on failure; callers branch on the result.
 rbuh_code_ok_predicate() {
   zrbuh_sentinel
   local -r z_infix="${1:-}"
@@ -255,10 +255,10 @@ rbuh_json() {
     test "${z_curl_status}" -ne 0 || break
 
     rbgo_curl_status_is_transient_predicate "${z_curl_status}" \
-      || buc_die "HTTP request failed (curl exit ${z_curl_status})"
+      || buc_die_now "HTTP request failed (curl exit ${z_curl_status})"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
-      || buc_die "HTTP request failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (curl exit ${z_curl_status})"
+      || buc_die_now "HTTP request failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (curl exit ${z_curl_status})"
 
     buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
@@ -271,15 +271,15 @@ rbuh_json() {
   cp "${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}" "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_CODE}"
 
   local z_code
-  z_code=$(<"${z_code_file}") || buc_die "Failed to read code file"
-  test -n "${z_code}"         || buc_die "Empty HTTP code from curl"
+  z_code=$(<"${z_code_file}") || buc_die_now "Failed to read code file"
+  test -n "${z_code}"         || buc_die_now "Empty HTTP code from curl"
 
   buc_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
 }
 
 # Single HTTP request — perform curl with stderr capture, return rc.
 # Args: method url token resp_file code_file stderr_file [body_file]
-# Returns: 0 on success, curl exit rc on failure (no buc_die — caller decides policy).
+# Returns: 0 on success, curl exit rc on failure (no buc_die_now — caller decides policy).
 # Hardcoded headers: Authorization: Bearer ${token}, Accept: application/json.
 # When body_file is non-empty: adds Content-Type: application/json, sends @body_file.
 # Pass "-" as body_file to read body from stdin (curl @- convention).
@@ -339,7 +339,7 @@ rbuh_require_ok() {
 
   local z_code
   z_code=$(rbuh_code_capture "${z_infix}") \
-    || buc_die "${z_ctx}: failed to read HTTP code"
+    || buc_die_now "${z_ctx}: failed to read HTTP code"
 
   case "${z_code}" in
     200|201|204) return 0 ;;
@@ -364,7 +364,7 @@ rbuh_require_ok() {
     test -n "${z_err}" || z_err="Non-JSON error body"
   fi
 
-  buc_die "${z_ctx} (HTTP ${z_code}): ${z_err}"
+  buc_die_now "${z_ctx} (HTTP ${z_code}): ${z_err}"
 }
 
 # Poll endpoint until HTTP 200 (for IAM/resource propagation waits)
@@ -389,7 +389,7 @@ rbuh_poll_until_ok() {
       return 0
     fi
 
-    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die_now "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
     buc_log_args "${z_label} not ready (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
@@ -438,7 +438,7 @@ rbuh_poll_until_gone() {
     fi
 
     test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
-      && buc_die "${z_label}: not durably gone after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_code}, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK})"
+      && buc_die_now "${z_label}: not durably gone after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_code}, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK})"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done

@@ -34,7 +34,7 @@ rbfl_tally() {
   buc_step "Authenticating as Retriever"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
-    || buc_die "Failed to get Retriever OAuth token"
+    || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
   zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
@@ -144,7 +144,7 @@ rbfl_rekon_hallmark() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
@@ -157,7 +157,7 @@ rbfl_rekon_hallmark() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
   zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
@@ -176,7 +176,7 @@ rbfl_rekon_hallmark() {
     fi
   done < "${ZRBFC_PACKAGE_LIST_FILE}"
 
-  test -n "${z_found}" || buc_die "Hallmark not found: ${z_hallmark}"
+  test -n "${z_found}" || buc_die_now "Hallmark not found: ${z_hallmark}"
 
   echo ""
   printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH"
@@ -217,7 +217,7 @@ rbfl_audit_hallmarks() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
   zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
@@ -274,13 +274,13 @@ rbfl_list() {
   # versions): a ref carrying :tag or @sha256: is an image, not a path. list
   # walks paths only; acting on an image is wrest (rbw-iw) / jettison (rbw-iJ).
   case "${z_path}" in
-    *@*|*:*) buc_die "'${z_path}' is an image ref, not a path — use rbw-iw (wrest) or rbw-iJ (jettison)" ;;
+    *@*|*:*) buc_die_now "'${z_path}' is an image ref, not a path — use rbw-iw (wrest) or rbw-iJ (jettison)" ;;
   esac
 
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # One enumeration of every package (decoded names, slashes restored, sorted).
   buc_step "Enumerating GAR packages"
@@ -296,7 +296,7 @@ rbfl_list() {
     | sub("^.*/packages/"; "")
     | gsub("%2F"; "/")
   ' "${z_resp_file}" | sort > "${z_pkgs_file}" \
-    || buc_die "Failed to extract GAR package list"
+    || buc_die_now "Failed to extract GAR package list"
 
   # Leaf grain: the path names a package exactly -> list its tags and versions.
   if test -n "${z_path}"; then
@@ -324,11 +324,11 @@ rbfl_list() {
     | split("/")[0]
     | select(length > 0)
   ' "${z_resp_file}" | sort -u > "${z_kids_file}" \
-    || buc_die "Failed to derive child path segments"
+    || buc_die_now "Failed to derive child path segments"
 
   if ! test -s "${z_kids_file}"; then
-    test -n "${z_path}" || buc_die "No packages found in registry"
-    buc_die "No path or package matches: ${z_path}"
+    test -n "${z_path}" || buc_die_now "No packages found in registry"
+    buc_die_now "No path or package matches: ${z_path}"
   fi
 
   echo ""
@@ -371,7 +371,7 @@ zrbfl_list_leaf() {
   local -r z_tags_file="${BURD_TEMP_DIR}/rbfl_leaf_tags.txt"
   jq -r '.tags[]?.name | sub("^.*/tags/"; "")' \
     "${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_tags_file}" \
-    || buc_die "Failed to extract tags for ${z_pkg}"
+    || buc_die_now "Failed to extract tags for ${z_pkg}"
 
   local -r z_vers_infix="rbfl_list_vers"
   rbuh_json "GET" \
@@ -381,7 +381,7 @@ zrbfl_list_leaf() {
   local -r z_vers_file="${BURD_TEMP_DIR}/rbfl_leaf_vers.txt"
   jq -r '.versions[]?.name | sub("^.*/versions/"; "")' \
     "${ZRBUH_PREFIX}${z_vers_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_vers_file}" \
-    || buc_die "Failed to extract versions for ${z_pkg}"
+    || buc_die_now "Failed to extract versions for ${z_pkg}"
 
   echo ""
   printf "  PACKAGE  %s\n" "${z_pkg}"

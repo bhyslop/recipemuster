@@ -32,7 +32,7 @@ rbrf_validate() {
   buc_doc_shown || return 0
 
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
   buc_step "Validating RBRF federation regime file: ${z_rbrf}"
   buv_report RBRF "Federation Regime"
   buc_step "RBRF federation regime valid"
@@ -44,7 +44,7 @@ rbrf_render() {
   buc_doc_shown || return 0
 
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
   buv_render RBRF "RBRF - Recipe Bottle Regime Federation" "${z_rbrf}"
 }
 
@@ -52,7 +52,7 @@ rbrf_render() {
 # Furnish and Main
 
 zrbrf_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
@@ -67,7 +67,7 @@ zrbrf_furnish() {
   # RBRR_ACTIVE_FOEDUS — so this validator sources the repo regime first for the
   # selector, then the active rbrf. It reads the selector only; it does not
   # enforce RBRR (federation-scoped, like rbgv's depot-agnostic probes).
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBCC_rbrr_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
   rbcc_source_active_rbrf
 
   zbuv_kindle

@@ -27,9 +27,9 @@ set -euo pipefail
 source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbxk_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided) — the facility composes charge/quench/affiance/jilt through their tabtargets"
-  buc_doc_env "BURD_TEMP_DIR         " "Dispatch-provided temp directory (JWKS bridge scratch)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided) — the facility composes charge/quench/affiance/jilt through their tabtargets"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Dispatch-provided temp directory (JWKS bridge scratch)"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"

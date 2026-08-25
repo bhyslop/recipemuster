@@ -22,7 +22,7 @@ set -euo pipefail
 
 # Multiple inclusion detection
 # (Module state remains ZRBGC_* per BCG; external constants use RBGC_*)
-test -z "${ZRBGC_SOURCED:-}" || buc_die "Module rbgc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGC_SOURCED:-}" || buc_die_now "Module rbgc multiply sourced - check sourcing hierarchy"
 ZRBGC_SOURCED=1
 
 # Tinder constants (pure string literals, no variable expansion — available at source time)
@@ -34,7 +34,7 @@ RBGC_depot_project_infix="d-"
 # Internal Functions (zrbgc_*)
 
 zrbgc_kindle() {
-  test -z "${ZRBGC_KINDLED:-}" || buc_die "Module rbgc already kindled"
+  test -z "${ZRBGC_KINDLED:-}" || buc_die_now "Module rbgc already kindled"
 
   # Global Resource Naming (Google Cloud global namespace)
   # These resources compete in globally-unique namespaces across all of GCP
@@ -382,7 +382,7 @@ zrbgc_kindle() {
 }
 
 zrbgc_sentinel() {
-  test "${ZRBGC_KINDLED:-}" = "1" || buc_die "Module rbgc not kindled - call zrbgc_kindle first"
+  test "${ZRBGC_KINDLED:-}" = "1" || buc_die_now "Module rbgc not kindled - call zrbgc_kindle first"
 }
 
 # rbgc_emit_consts() - Emit the RBGC-owned propagation budget as Rust i32
@@ -405,7 +405,7 @@ rbgc_emit_consts() {
   ; do
     z_stem="${z_name#RBGC_}"
     buz_emit_const_i32 "RBTDGC_${z_stem}" "${!z_name}" \
-      || buc_die "rbgc_emit_consts: emit failed for ${z_name}"
+      || buc_die_now "rbgc_emit_consts: emit failed for ${z_name}"
   done
 }
 

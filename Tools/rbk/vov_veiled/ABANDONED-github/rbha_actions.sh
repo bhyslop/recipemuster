@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHA_INCLUDED:-}" || buc_die "Module rbgA multiply included - check sourcing hierarchy"
+test -z "${ZRBHA_INCLUDED:-}" || buc_die_now "Module rbgA multiply included - check sourcing hierarchy"
 ZRBHA_INCLUDED=1
 
 ######################################################################
@@ -15,9 +15,9 @@ ZRBHA_INCLUDED=1
 
 zrbha_kindle() {
   # Check required environment
-  test -n "${RBRG_PAT:-}"      || buc_die "RBRG_PAT not set"
-  test -n "${BURD_TEMP_DIR:-}"  || buc_die "BURD_TEMP_DIR not set"
-  test -n "${BURD_NOW_STAMP:-}" || buc_die "BURD_NOW_STAMP not set"
+  test -n "${RBRG_PAT:-}"      || buc_die_now "RBRG_PAT not set"
+  test -n "${BURD_TEMP_DIR:-}"  || buc_die_now "BURD_TEMP_DIR not set"
+  test -n "${BURD_NOW_STAMP:-}" || buc_die_now "BURD_NOW_STAMP not set"
 
   # Module Variables (zrbha_*)
   ZRBHA_GITAPI_URL="https://api.github.com"
@@ -30,7 +30,7 @@ zrbha_kindle() {
 }
 
 zrbha_sentinel() {
-  test "${ZRBHA_KINDLED:-}" = "1" || buc_die "Module rbha not kindled - call zrbha_kindle first"
+  test "${ZRBHA_KINDLED:-}" = "1" || buc_die_now "Module rbha not kindled - call zrbha_kindle first"
 }
 
 zrbha_curl_api() {
@@ -52,7 +52,7 @@ zrbha_curl_post() {
        -H "Accept: ${ZRBHA_MTYPE_GHV3}"      \
        "${z_url}"                            \
        -d "${z_data}"                        \
-    || buc_die "POST request to GitHub API failed"
+    || buc_die_now "POST request to GitHub API failed"
 }
 
 ######################################################################
@@ -69,10 +69,10 @@ rbha_dispatch() {
   zrbha_sentinel
 
   # Validate parameters
-  test -n "${z_repo_owner}"   || buc_die "Repository owner required"
-  test -n "${z_repo_name}"    || buc_die "Repository name required"
-  test -n "${z_event_type}"   || buc_die "Event type required"
-  test -n "${z_payload_json}" || buc_die "Payload JSON required"
+  test -n "${z_repo_owner}"   || buc_die_now "Repository owner required"
+  test -n "${z_repo_name}"    || buc_die_now "Repository name required"
+  test -n "${z_event_type}"   || buc_die_now "Event type required"
+  test -n "${z_payload_json}" || buc_die_now "Payload JSON required"
 
   # Dispatch workflow
   buc_info "Trigger workflow..."
@@ -90,7 +90,7 @@ rbha_dispatch() {
   local z_runs_url="${ZRBHA_GITAPI_URL}/repos/${z_repo_owner}/${z_repo_name}/actions/runs?event=repository_dispatch&branch=main&per_page=1"
   zrbha_curl_api "${z_runs_url}" | jq -r '.workflow_runs[0].id' > "${ZRBHA_WORKFLOW_RUN_ID_FILE}"
 
-  test -s "${ZRBHA_WORKFLOW_RUN_ID_FILE}" || buc_die "Failed to get workflow run ID"
+  test -s "${ZRBHA_WORKFLOW_RUN_ID_FILE}" || buc_die_now "Failed to get workflow run ID"
 
   local z_run_id
   z_run_id=$(<"${ZRBHA_WORKFLOW_RUN_ID_FILE}")
@@ -108,11 +108,11 @@ rbha_wait_completion() {
   zrbha_sentinel
 
   # Validate parameters
-  test -n "${z_repo_owner}" || buc_die "Repository owner required"
-  test -n "${z_repo_name}" || buc_die "Repository name required"
+  test -n "${z_repo_owner}" || buc_die_now "Repository owner required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
 
   # Get run ID
-  test -s "${ZRBHA_WORKFLOW_RUN_ID_FILE}" || buc_die "No workflow run ID found - dispatch first"
+  test -s "${ZRBHA_WORKFLOW_RUN_ID_FILE}" || buc_die_now "No workflow run ID found - dispatch first"
   local z_run_id
   z_run_id=$(<"${ZRBHA_WORKFLOW_RUN_ID_FILE}")
 
@@ -139,7 +139,7 @@ rbha_wait_completion() {
     sleep 3
   done
 
-  test "${z_conclusion}" = "success" || buc_die "Workflow fail: ${z_conclusion}"
+  test "${z_conclusion}" = "success" || buc_die_now "Workflow fail: ${z_conclusion}"
 
   # Clean up run ID file on success
   rm -f "${ZRBHA_WORKFLOW_RUN_ID_FILE}"
@@ -155,9 +155,9 @@ rbha_get_logs() {
   zrbha_sentinel
 
   # Validate parameters
-  test -n "${z_repo_owner}" || buc_die "Repository owner required"
-  test -n "${z_repo_name}" || buc_die "Repository name required"
-  test -n "${z_run_id}" || buc_die "Run ID required"
+  test -n "${z_repo_owner}" || buc_die_now "Repository owner required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
+  test -n "${z_run_id}" || buc_die_now "Run ID required"
 
   # Get logs
   buc_info "Pull logs..."

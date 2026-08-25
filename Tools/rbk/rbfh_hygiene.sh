@@ -21,19 +21,19 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFH_SOURCED:-}" || buc_die "Module rbfh multiply sourced - check sourcing hierarchy"
+test -z "${ZRBFH_SOURCED:-}" || buc_die_now "Module rbfh multiply sourced - check sourcing hierarchy"
 ZRBFH_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbfh_*)
 
 zrbfh_kindle() {
-  test -z "${ZRBFH_KINDLED:-}" || buc_die "Module rbfh already kindled"
+  test -z "${ZRBFH_KINDLED:-}" || buc_die_now "Module rbfh already kindled"
   readonly ZRBFH_KINDLED=1
 }
 
 zrbfh_sentinel() {
-  test "${ZRBFH_KINDLED:-}" = "1" || buc_die "Module rbfh not kindled - call zrbfh_kindle first"
+  test "${ZRBFH_KINDLED:-}" = "1" || buc_die_now "Module rbfh not kindled - call zrbfh_kindle first"
 }
 
 ######################################################################
@@ -48,15 +48,15 @@ zrbfh_sentinel() {
 #
 # Rules apply to every line at column 0 starting with FROM followed by
 # whitespace, after column-0 `#` comments are filtered out. Violation
-# emits {path}:{lineno}: {rule} — {offending line} precision via buc_die.
+# emits {path}:{lineno}: {rule} — {offending line} precision via buc_die_now.
 # Multi-stage `AS <name>` codas after token 2 are admissible. Empty
 # Dockerfile or one with no column-0 FROM line passes silently.
 rbfh_dockerfile_check() {
   zrbfh_sentinel
 
   local -r z_path="${1:-}"
-  test -n "${z_path}" || buc_die "rbfh_dockerfile_check: Dockerfile path required"
-  test -f "${z_path}" || buc_die "rbfh_dockerfile_check: Dockerfile not found: ${z_path}"
+  test -n "${z_path}" || buc_die_now "rbfh_dockerfile_check: Dockerfile path required"
+  test -f "${z_path}" || buc_die_now "rbfh_dockerfile_check: Dockerfile not found: ${z_path}"
 
   local z_line=""
   local z_lineno=0

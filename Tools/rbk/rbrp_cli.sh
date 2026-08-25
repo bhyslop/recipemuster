@@ -46,7 +46,7 @@ rbrp_render() {
 # Furnish and Main
 
 zrbrp_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
@@ -63,7 +63,7 @@ zrbrp_furnish() {
   zrbcc_kindle
   zrbgc_kindle
 
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
 
   zrbrp_kindle
   zrbrp_enforce

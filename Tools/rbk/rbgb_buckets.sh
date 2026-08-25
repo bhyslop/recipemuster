@@ -21,17 +21,17 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGB_SOURCED:-}" || buc_die "Module rbgb multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGB_SOURCED:-}" || buc_die_now "Module rbgb multiply sourced - check sourcing hierarchy"
 ZRBGB_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgb_*)
 
 zrbgb_kindle() {
-  test -z "${ZRBGB_KINDLED:-}" || buc_die "Module rbgb already kindled"
+  test -z "${ZRBGB_KINDLED:-}" || buc_die_now "Module rbgb already kindled"
 
-  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
-  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBDC_DEPOT_PROJECT_ID is empty"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die_now "RBDC_DEPOT_PROJECT_ID is not set"
+  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die_now "RBDC_DEPOT_PROJECT_ID is empty"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -61,7 +61,7 @@ zrbgb_kindle() {
 }
 
 zrbgb_sentinel() {
-  test "${ZRBGB_KINDLED:-}" = "1" || buc_die "Module rbgb not kindled - call zrbgb_kindle first"
+  test "${ZRBGB_KINDLED:-}" = "1" || buc_die_now "Module rbgb not kindled - call zrbgb_kindle first"
 }
 
 zrbgb_list_bucket_objects_capture() {
@@ -164,13 +164,13 @@ rbgb_bucket_create() {
   buc_doc_param "bucket_name" "Name of the bucket to create"
   buc_doc_shown || return 0
 
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
 
   buc_step "Creating Cloud Storage bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Create bucket request JSON'
   local z_bucket_req="${BURD_TEMP_DIR}/rbgb_bucket_create_req.json"
@@ -180,20 +180,20 @@ rbgb_bucket_create() {
   location: $location,
   storageClass: "STANDARD",
   lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
-}' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
+}' > "${z_bucket_req}" || buc_die_now "Failed to create bucket request JSON"
 
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
   rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                   "${ZRBGB_INFIX_CREATE}" "${z_bucket_req}"
-  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_CREATE}") || buc_die "Bad bucket creation HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
   z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_success "Bucket ${z_bucket_name} created";        return 0 ;;
-    409)     buc_die     "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
-    *)       buc_die     "Failed to create bucket: ${z_err}"                ;;
+    409)     buc_die_now     "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
+    *)       buc_die_now     "Failed to create bucket: ${z_err}"                ;;
   esac
 }
 
@@ -206,13 +206,13 @@ rbgb_bucket_get() {
   buc_doc_param "bucket_name" "Name of the bucket to retrieve"
   buc_doc_shown || return 0
 
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
 
   buc_step "Getting Cloud Storage bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Get bucket via REST API'
   rbuh_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${z_token}" "${ZRBGB_INFIX_GET}"
@@ -240,14 +240,14 @@ rbgb_bucket_set_iam() {
   buc_doc_param "policy_json" "IAM policy JSON (from file or string)"
   buc_doc_shown || return 0
 
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_policy_json}" || buc_die "Policy JSON required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_policy_json}" || buc_die_now "Policy JSON required"
 
   buc_step "Setting IAM policy on bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Set IAM policy'
   local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
@@ -279,15 +279,15 @@ rbgb_bucket_add_iam_role() {
   buc_doc_param "role" "Role to grant (e.g., roles/storage.objectViewer)"
   buc_doc_shown || return 0
 
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_member}" || buc_die "Member required"
-  test -n "${z_role}" || buc_die "Role required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_member}" || buc_die_now "Member required"
+  test -n "${z_role}" || buc_die_now "Role required"
 
   buc_step "Adding IAM role ${z_role} to ${z_member} on bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Use rbgi_add_bucket_iam_role'
   rbgi_add_bucket_iam_role "${z_token}" "${z_bucket_name}" "${z_member}" "${z_role}"
@@ -306,14 +306,14 @@ rbgb_bucket_set_lifecycle() {
   buc_doc_param "lifecycle_json" "Lifecycle policy JSON (from file or string)"
   buc_doc_shown || return 0
 
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_lifecycle_json}" || buc_die "Lifecycle JSON required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_lifecycle_json}" || buc_die_now "Lifecycle JSON required"
 
   buc_step "Setting lifecycle policy on bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Set lifecycle policy'
   local z_lifecycle_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
@@ -343,13 +343,13 @@ rbgb_bucket_delete() {
   buc_doc_param "force" "If 'true', empty bucket before deletion (optional, default: false)"
   buc_doc_shown || return 0
 
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
 
   buc_step "Deleting Cloud Storage bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   if test "${z_force}" = "true"; then
     buc_log_args 'Empty bucket before deletion'
@@ -387,10 +387,10 @@ rbgb_bucket_ensure() {
   buc_doc_param "location"    "Bucket location (e.g. a GCP region)"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die "Token required"
-  test -n "${z_project_id}"  || buc_die "Project id required"
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_location}"    || buc_die "Location required"
+  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${z_project_id}"  || buc_die_now "Project id required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_location}"    || buc_die_now "Location required"
 
   buc_step "Ensuring Cloud Storage bucket: ${z_bucket_name} (project ${z_project_id})"
 
@@ -402,20 +402,20 @@ rbgb_bucket_ensure() {
   location: $location,
   storageClass: "STANDARD",
   iamConfiguration: { uniformBucketLevelAccess: { enabled: true } }
-}' > "${z_req}" || buc_die "Failed to build bucket ensure request JSON"
+}' > "${z_req}" || buc_die_now "Failed to build bucket ensure request JSON"
 
   buc_log_args 'POST create; tolerate 409 as idempotent already-present (contrast rbgb_bucket_create, which is pristine 409-fatal)'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_project_id}"
   rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGB_INFIX_ENSURE}" "${z_req}"
 
   local z_code
-  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_ENSURE}") || buc_die "Bad bucket ensure HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_ENSURE}") || buc_die_now "Bad bucket ensure HTTP code"
   case "${z_code}" in
     200|201) buc_success "Bucket ${z_bucket_name} created";                          return 0 ;;
     409)     buc_info    "Bucket ${z_bucket_name} already present (idempotent)";      return 0 ;;
     *)       local z_err
              z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_ENSURE}" '.error.message') || z_err="HTTP ${z_code}"
-             buc_die "Failed to ensure bucket ${z_bucket_name}: ${z_err}" ;;
+             buc_die_now "Failed to ensure bucket ${z_bucket_name}: ${z_err}" ;;
   esac
 }
 
@@ -432,27 +432,27 @@ rbgb_managed_folder_ensure() {
   buc_doc_param "folder"      "Managed folder name, a slash-terminated prefix (e.g. 'depot-project-id/')"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die "Token required"
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_folder}"      || buc_die "Managed folder name required"
+  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_folder}"      || buc_die_now "Managed folder name required"
 
   buc_step "Ensuring managed folder: ${z_folder} in ${z_bucket_name}"
 
   local -r z_req="${BURD_TEMP_DIR}/rbgb_managed_folder_create_req.json"
   jq -n --arg name "${z_folder}" '{ name: $name }' > "${z_req}" \
-    || buc_die "Failed to build managed folder request JSON"
+    || buc_die_now "Failed to build managed folder request JSON"
 
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders"
   rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGB_INFIX_MF_CREATE}" "${z_req}"
 
   local z_code
-  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_MF_CREATE}") || buc_die "Bad managed folder create HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_MF_CREATE}") || buc_die_now "Bad managed folder create HTTP code"
   case "${z_code}" in
     200|201) buc_success "Managed folder ${z_folder} created";                      return 0 ;;
     409)     buc_info    "Managed folder ${z_folder} already present (idempotent)";  return 0 ;;
     *)       local z_err
              z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
-             buc_die "Failed to ensure managed folder ${z_folder}: ${z_err}" ;;
+             buc_die_now "Failed to ensure managed folder ${z_folder}: ${z_err}" ;;
   esac
 }
 
@@ -469,9 +469,9 @@ rbgb_managed_folder_purge() {
   buc_doc_param "folder"      "Managed folder name to purge (slash-terminated prefix)"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die "Token required"
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_folder}"      || buc_die "Managed folder name required"
+  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_folder}"      || buc_die_now "Managed folder name required"
 
   buc_step "Purging managed folder: ${z_folder} in ${z_bucket_name}"
 
@@ -500,7 +500,7 @@ rbgb_managed_folder_purge() {
 
   buc_log_args 'Delete the now-empty managed folder'
   local z_folder_enc
-  z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die "Failed to encode managed folder name"
+  z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die_now "Failed to encode managed folder name"
   rbuh_json "DELETE" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders/${z_folder_enc}" \
                             "${z_token}" "${ZRBGB_INFIX_MF_DELETE}"
 
@@ -574,11 +574,11 @@ rbgb_managed_folder_add_iam_role() {
   buc_doc_param "role"        "Role to grant (e.g. roles/storage.objectAdmin)"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die "Token required"
-  test -n "${z_bucket_name}" || buc_die "Bucket name required"
-  test -n "${z_folder}"      || buc_die "Managed folder required"
-  test -n "${z_member}"      || buc_die "Member required"
-  test -n "${z_role}"        || buc_die "Role required"
+  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
+  test -n "${z_folder}"      || buc_die_now "Managed folder required"
+  test -n "${z_member}"      || buc_die_now "Member required"
+  test -n "${z_role}"        || buc_die_now "Role required"
 
   buc_step "Adding managed-folder IAM role ${z_role} to ${z_member} on ${z_folder}"
 

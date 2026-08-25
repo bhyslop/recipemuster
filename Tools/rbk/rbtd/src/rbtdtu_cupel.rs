@@ -59,7 +59,7 @@ fn rbtdtu_pipe_opens_command_position() {
 
 #[test]
 fn rbtdtu_or_die_pattern() {
-    assert_eq!(cmds("mything arg || buc_die"), vec!["mything", "buc_die"]);
+    assert_eq!(cmds("mything arg || buc_die_now"), vec!["mything", "buc_die_now"]);
 }
 
 #[test]
@@ -162,9 +162,9 @@ fn rbtdtu_subshell_command_scanned() {
 
 #[test]
 fn rbtdtu_case_patterns_suppressed_bodies_scanned() {
-    // Patterns (200, *) are not commands; branch bodies (echo, buc_die) are.
-    let src = "case $x in\n  200) echo hi ;;\n  *) buc_die ;;\nesac";
-    assert_eq!(cmds(src), vec!["echo", "buc_die"]);
+    // Patterns (200, *) are not commands; branch bodies (echo, buc_die_now) are.
+    let src = "case $x in\n  200) echo hi ;;\n  *) buc_die_now ;;\nesac";
+    assert_eq!(cmds(src), vec!["echo", "buc_die_now"]);
 }
 
 #[test]
@@ -318,8 +318,8 @@ fn rbtdtu_classify_test_bench_allowance_scoped_to_kittest() {
 #[test]
 fn rbtdtu_classify_local_function_clear() {
     let mut locals = BTreeSet::new();
-    locals.insert("buc_die".to_string());
-    assert!(zrbtdru_classify("buc_die", &locals, zrbtdru_Domain::Kit).is_none());
+    locals.insert("buc_die_now".to_string());
+    assert!(zrbtdru_classify("buc_die_now", &locals, zrbtdru_Domain::Kit).is_none());
 }
 
 #[test]

@@ -21,20 +21,20 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBDC_SOURCED:-}" || buc_die "Module rbdc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBDC_SOURCED:-}" || buc_die_now "Module rbdc multiply sourced - check sourcing hierarchy"
 ZRBDC_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbdc_*)
 
 zrbdc_kindle() {
-  test -z "${ZRBDC_KINDLED:-}" || buc_die "Module rbdc already kindled"
+  test -z "${ZRBDC_KINDLED:-}" || buc_die_now "Module rbdc already kindled"
   zrbrr_sentinel
 
   # Ensure the payor secrets subdirectory exists — the sole durable secret is the
   # payor's RBRO refresh token (bare-named: a derived resource-name string).
   mkdir -p "${RBRR_SECRETS_DIR}/${RBCC_account_unhewn_payor}" \
-    || buc_die "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
+    || buc_die_now "Failed to create secrets directories under: ${RBRR_SECRETS_DIR}"
 
   # Derive the payor credential file path from RBRR_SECRETS_DIR
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
@@ -55,7 +55,7 @@ zrbdc_kindle() {
 }
 
 zrbdc_sentinel() {
-  test "${ZRBDC_KINDLED:-}" = "1" || buc_die "Module rbdc not kindled - call zrbdc_kindle first"
+  test "${ZRBDC_KINDLED:-}" = "1" || buc_die_now "Module rbdc not kindled - call zrbdc_kindle first"
 }
 
 # eof

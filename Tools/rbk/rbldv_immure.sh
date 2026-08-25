@@ -71,7 +71,7 @@ zrbld_immure_resolve_family() {
       z_selection="${RBGC_LODE_PODVM_NATIVE_SELECTION}"
       ;;
     *)
-      buc_die "Unknown podvm family '${zz_family}' (expected ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
+      buc_die_now "Unknown podvm family '${zz_family}' (expected ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
       ;;
   esac
 }
@@ -156,7 +156,7 @@ zrbld_immure_submit() {
       _RBGL_PODVM_SELECTION: $zjq_selection,
       _RBGL_PODVM_PRESERVED: $zjq_preserved
     }' > "${z_subs_file}" \
-    || buc_die "Failed to compose immure substitutions blob"
+    || buc_die_now "Failed to compose immure substitutions blob"
 
   zrbld_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
@@ -176,7 +176,7 @@ rbld_presage() {
   buc_doc_shown || return 0
 
   local -r z_brand="${BUZ_FOLIO:-}"
-  test -n "${z_brand}" || buc_die "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
+  test -n "${z_brand}" || buc_die_now "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
   local -r z_version="${1:-}"
 
   local z_kind="" z_quay_family="" z_selection=""
@@ -215,7 +215,7 @@ rbld_immure() {
   # existing touchmark. Refresh reuses the same stamp (no version bump possible);
   # the locked version is derived from any member's rblv_origin in the existing envelope.
   local -r z_brand="${BUZ_FOLIO:-}"
-  test -n "${z_brand}" || buc_die "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
+  test -n "${z_brand}" || buc_die_now "family argument required (${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE})"
 
   local z_mode="fresh"
   local z_version=""
@@ -224,12 +224,12 @@ rbld_immure() {
   if [ "${1:-}" = "--refresh" ]; then
     z_mode="refresh"
     local -r z_touchmark="${2:-}"
-    test -n "${z_touchmark}" || buc_die "touchmark required after --refresh (e.g. vw260610095327)"
+    test -n "${z_touchmark}" || buc_die_now "touchmark required after --refresh (e.g. vw260610095327)"
     z_stamp="${z_touchmark}"
     buc_info "Immure REFRESH mode: reusing existing Lode ${z_touchmark}"
   else
     z_version="${1:-}"
-    test -n "${z_version}" || buc_die "version argument required (e.g. 5.6), or use --refresh <touchmark> for refresh mode"
+    test -n "${z_version}" || buc_die_now "version argument required (e.g. 5.6), or use --refresh <touchmark> for refresh mode"
   fi
 
   local z_kind="" z_quay_family="" z_selection=""
@@ -249,7 +249,7 @@ rbld_immure() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Fresh mode: mint a new stamp and compute the preserved substitution (empty — no
   # prior envelope exists). Refresh mode: reuse the existing stamp and compute the
@@ -266,17 +266,17 @@ rbld_immure() {
     # present-set (enveloped + orphan members) to pass as _RBGL_PODVM_PRESERVED.
     buc_step "Computing present-set for refresh (reading existing :rbi_vouch envelope)"
     local -r z_vouch_dir="${ZRBLD_IMMURE_PREFIX}refresh_vouch"
-    rm -rf "${z_vouch_dir}" || buc_die "Failed to clear refresh vouch scratch dir"
+    rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear refresh vouch scratch dir"
     local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
     zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
-      || buc_die "No :${RBGC_LODE_TAG_VOUCH} at ${z_pkg} — touchmark not present or not yet vouched"
+      || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} at ${z_pkg} — touchmark not present or not yet vouched"
     local -r z_vouch_json="${z_vouch_dir}/vouch.json"
-    test -f "${z_vouch_json}" || buc_die "vouch.json missing in :${RBGC_LODE_TAG_VOUCH} artifact for ${z_stamp}"
+    test -f "${z_vouch_json}" || buc_die_now "vouch.json missing in :${RBGC_LODE_TAG_VOUCH} artifact for ${z_stamp}"
 
     # Derive the locked version from any member's rblv_origin (format "<family>:<version>").
     z_version=$(jq -r '(.rblv_members // [])[0].rblv_origin | split(":")[1] // empty' "${z_vouch_json}") \
-      || buc_die "Failed to derive version from existing envelope for ${z_stamp}"
-    test -n "${z_version}" || buc_die "Existing envelope carries no rblv_origin in rblv_members — cannot derive version"
+      || buc_die_now "Failed to derive version from existing envelope for ${z_stamp}"
+    test -n "${z_version}" || buc_die_now "Existing envelope carries no rblv_origin in rblv_members — cannot derive version"
     buc_info "Refresh locked to version: ${z_version} (from existing envelope)"
     buc_info "Refresh stamp (reused): ${z_stamp}"
 
@@ -339,13 +339,13 @@ rbld_immure() {
                   rblv_capture_build: null }
               end ]
       ' > "${z_preserved_file}" \
-      || buc_die "Failed to compute present-set for refresh of ${z_stamp}"
+      || buc_die_now "Failed to compute present-set for refresh of ${z_stamp}"
 
     z_preserved_members=$(jq -c '.' "${z_preserved_file}") \
-      || buc_die "Failed to compact preserved-member JSON"
+      || buc_die_now "Failed to compact preserved-member JSON"
     local z_pcount=""
     z_pcount=$(jq 'length' "${z_preserved_file}") \
-      || buc_die "Failed to count preserved members"
+      || buc_die_now "Failed to count preserved members"
     buc_info "Present-set computed: ${z_pcount} existing members to preserve/recover"
   fi
 

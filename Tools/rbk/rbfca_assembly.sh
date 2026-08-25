@@ -57,7 +57,7 @@ zrbfc_resolve_tool_images() {
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
   test -n "${z_reliquary}" \
-    || buc_die "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
+    || buc_die_now "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
 
   zrbfc_resolve_tool_images_from "${z_reliquary}"
 }
@@ -80,7 +80,7 @@ zrbfc_assemble_about_steps() {
     "rbgja04-assemble-push-about.sh|${z_rbfc_tool_docker}|bash|assemble-push-about"
   )
 
-  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize about steps JSON"
+  echo "[]" > "${z_output_file}" || buc_die_now "Failed to initialize about steps JSON"
 
   local z_adef=""
   local z_ascript=""
@@ -101,13 +101,13 @@ zrbfc_assemble_about_steps() {
     z_aescaped_file="${z_temp_prefix}${z_aid}_escaped.txt"
     z_asteps_file="${z_temp_prefix}${z_aid}_steps.json"
 
-    test -f "${z_ascript_path}" || buc_die "About step script not found: ${z_ascript_path}"
+    test -f "${z_ascript_path}" || buc_die_now "About step script not found: ${z_ascript_path}"
 
     buc_log_args "Reading script body for ${z_aid} (skip shebang)"
     zrbfc_write_script_body "${z_ascript_path}" "${z_abody_file}" \
-      || buc_die "Failed to read about step script: ${z_ascript_path}"
+      || buc_die_now "Failed to read about step script: ${z_ascript_path}"
     z_abody=$(<"${z_abody_file}")
-    test -n "${z_abody}" || buc_die "Empty about script body: ${z_ascript_path}"
+    test -n "${z_abody}" || buc_die_now "Empty about script body: ${z_ascript_path}"
 
     buc_log_args "Baking pinned image refs into script text"
     z_abody="${z_abody//\$\{ZRBF_TOOL_SYFT\}/${z_rbfc_tool_syft}}"
@@ -116,10 +116,10 @@ zrbfc_assemble_about_steps() {
       bash)    z_ashebang="#!/bin/bash" ;;
       sh)      z_ashebang="#!/bin/sh" ;;
       python3) z_ashebang="#!/usr/bin/env python3" ;;
-      *)       buc_die "Unknown entrypoint: ${z_aentrypoint}" ;;
+      *)       buc_die_now "Unknown entrypoint: ${z_aentrypoint}" ;;
     esac
     printf '%s\n%s' "${z_ashebang}" "${z_abody}" > "${z_aescaped_file}" \
-      || buc_die "Failed to write about script body for ${z_aid}"
+      || buc_die_now "Failed to write about script body for ${z_aid}"
 
     buc_log_args "Appending about step ${z_aid} to JSON array"
     jq \
@@ -128,9 +128,9 @@ zrbfc_assemble_about_steps() {
       --rawfile script "${z_aescaped_file}" \
       '. + [{name: $name, id: $id, script: $script}]' \
       "${z_output_file}" > "${z_asteps_file}" \
-      || buc_die "Failed to append about step ${z_aid} to JSON"
+      || buc_die_now "Failed to append about step ${z_aid} to JSON"
     mv "${z_asteps_file}" "${z_output_file}" \
-      || buc_die "Failed to update about steps JSON for ${z_aid}"
+      || buc_die_now "Failed to update about steps JSON for ${z_aid}"
   done
 }
 
@@ -151,7 +151,7 @@ zrbfc_assemble_vouch_steps() {
     "rbgjv03-assemble-push-vouch.sh|${z_rbfc_tool_docker}|bash|assemble-push-vouch"
   )
 
-  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize vouch steps JSON"
+  echo "[]" > "${z_output_file}" || buc_die_now "Failed to initialize vouch steps JSON"
 
   local z_vdef=""
   local z_vscript=""
@@ -172,24 +172,24 @@ zrbfc_assemble_vouch_steps() {
     z_vescaped_file="${z_temp_prefix}${z_vid}_escaped.txt"
     z_vsteps_file="${z_temp_prefix}${z_vid}_steps.json"
 
-    test -f "${z_vscript_path}" || buc_die "Vouch step script not found: ${z_vscript_path}"
+    test -f "${z_vscript_path}" || buc_die_now "Vouch step script not found: ${z_vscript_path}"
 
     buc_log_args "Reading script body for ${z_vid} (skip shebang)"
     zrbfc_write_script_body "${z_vscript_path}" "${z_vbody_file}" \
-      || buc_die "Failed to read vouch step script: ${z_vscript_path}"
+      || buc_die_now "Failed to read vouch step script: ${z_vscript_path}"
     zrbfc_expand_includes "${z_vbody_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
-      || buc_die "Failed to expand snippet includes in vouch step: ${z_vscript_path}"
+      || buc_die_now "Failed to expand snippet includes in vouch step: ${z_vscript_path}"
     z_vbody=$(<"${z_vbody_file}")
-    test -n "${z_vbody}" || buc_die "Empty vouch script body: ${z_vscript_path}"
+    test -n "${z_vbody}" || buc_die_now "Empty vouch script body: ${z_vscript_path}"
 
     case "${z_ventrypoint}" in
       bash)    z_vshebang="#!/bin/bash" ;;
       sh)      z_vshebang="#!/bin/sh" ;;
       python3) z_vshebang="#!/usr/bin/env python3" ;;
-      *)       buc_die "Unknown entrypoint: ${z_ventrypoint}" ;;
+      *)       buc_die_now "Unknown entrypoint: ${z_ventrypoint}" ;;
     esac
     printf '%s\n%s' "${z_vshebang}" "${z_vbody}" > "${z_vescaped_file}" \
-      || buc_die "Failed to write vouch script body for ${z_vid}"
+      || buc_die_now "Failed to write vouch script body for ${z_vid}"
 
     buc_log_args "Appending vouch step ${z_vid} to JSON array"
     jq \
@@ -198,9 +198,9 @@ zrbfc_assemble_vouch_steps() {
       --rawfile script "${z_vescaped_file}" \
       '. + [{name: $name, id: $id, script: $script}]' \
       "${z_output_file}" > "${z_vsteps_file}" \
-      || buc_die "Failed to append vouch step ${z_vid} to JSON"
+      || buc_die_now "Failed to append vouch step ${z_vid} to JSON"
     mv "${z_vsteps_file}" "${z_output_file}" \
-      || buc_die "Failed to update vouch steps JSON for ${z_vid}"
+      || buc_die_now "Failed to update vouch steps JSON for ${z_vid}"
   done
 }
 
@@ -221,28 +221,28 @@ zrbfc_assemble_preflight_step() {
   local -r z_pescaped_file="${z_temp_prefix}preflight_escaped.txt"
   local -r z_psteps_file="${z_temp_prefix}preflight_steps.json"
 
-  test -f "${z_pscript_path}" || buc_die "Preflight step script not found: ${z_pscript_path}"
+  test -f "${z_pscript_path}" || buc_die_now "Preflight step script not found: ${z_pscript_path}"
 
   buc_log_args "Reading preflight step script (skip shebang)"
   zrbfc_write_script_body "${z_pscript_path}" "${z_pbody_file}" \
-    || buc_die "Failed to read preflight step script: ${z_pscript_path}"
+    || buc_die_now "Failed to read preflight step script: ${z_pscript_path}"
   local z_pbody=""
   z_pbody=$(<"${z_pbody_file}")
-  test -n "${z_pbody}" || buc_die "Empty preflight script body"
+  test -n "${z_pbody}" || buc_die_now "Empty preflight script body"
 
   printf '#!/bin/sh\n%s' "${z_pbody}" > "${z_pescaped_file}" \
-    || buc_die "Failed to write escaped preflight script body"
+    || buc_die_now "Failed to write escaped preflight script body"
 
-  echo "[]" > "${z_output_file}" || buc_die "Failed to initialize preflight steps JSON"
+  echo "[]" > "${z_output_file}" || buc_die_now "Failed to initialize preflight steps JSON"
   jq \
     --arg name "${z_rbfc_tool_alpine}" \
     --arg id "reliquary-preflight" \
     --rawfile script "${z_pescaped_file}" \
     '. + [{name: $name, id: $id, script: $script}]' \
     "${z_output_file}" > "${z_psteps_file}" \
-    || buc_die "Failed to build preflight step JSON"
+    || buc_die_now "Failed to build preflight step JSON"
   mv "${z_psteps_file}" "${z_output_file}" \
-    || buc_die "Failed to finalize preflight step JSON"
+    || buc_die_now "Failed to finalize preflight step JSON"
 }
 
 # eof

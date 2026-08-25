@@ -40,14 +40,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBYC_SOURCED:-}" || buc_die "Module rbyc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBYC_SOURCED:-}" || buc_die_now "Module rbyc multiply sourced - check sourcing hierarchy"
 ZRBYC_SOURCED=1
 
 ######################################################################
 # Module kindle
 
 zrbyc_kindle() {
-  test -z "${ZRBYC_KINDLED:-}" || buc_die "Module rbyc already kindled"
+  test -z "${ZRBYC_KINDLED:-}" || buc_die_now "Module rbyc already kindled"
 
   zbuym_sentinel
 
@@ -179,7 +179,7 @@ zrbyc_kindle() {
 }
 
 zrbyc_sentinel() {
-  test "${ZRBYC_KINDLED:-}" = "1" || buc_die "Module rbyc not kindled - call zrbyc_kindle first"
+  test "${ZRBYC_KINDLED:-}" = "1" || buc_die_now "Module rbyc not kindled - call zrbyc_kindle first"
 }
 
 # eof

@@ -30,14 +30,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGFT_SOURCED:-}" || buc_die "Module rbgft multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGFT_SOURCED:-}" || buc_die_now "Module rbgft multiply sourced - check sourcing hierarchy"
 ZRBGFT_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgft_*)
 
 zrbgft_kindle() {
-  test -z "${ZRBGFT_KINDLED:-}" || buc_die "Module rbgft already kindled"
+  test -z "${ZRBGFT_KINDLED:-}" || buc_die_now "Module rbgft already kindled"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -66,7 +66,7 @@ zrbgft_kindle() {
 }
 
 zrbgft_sentinel() {
-  test "${ZRBGFT_KINDLED:-}" = "1" || buc_die "Module rbgft not kindled - call zrbgft_kindle first"
+  test "${ZRBGFT_KINDLED:-}" = "1" || buc_die_now "Module rbgft not kindled - call zrbgft_kindle first"
 }
 
 # Compose the muniment object name <depot>/<mantle>/<subject>; the raw subject
@@ -105,31 +105,31 @@ rbgft_engross() {
   local -r z_mantle="${4:-}"
   local -r z_subject="${5:-}"
 
-  test -n "${z_token}"    || buc_die "Token required"
-  test -n "${z_bucket}"   || buc_die "Bucket required"
-  test -n "${z_depot}"    || buc_die "Depot project id required"
-  test -n "${z_mantle}"   || buc_die "Mantle required"
-  test -n "${z_subject}"  || buc_die "Principal subject required"
+  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${z_bucket}"   || buc_die_now "Bucket required"
+  test -n "${z_depot}"    || buc_die_now "Depot project id required"
+  test -n "${z_mantle}"   || buc_die_now "Mantle required"
+  test -n "${z_subject}"  || buc_die_now "Principal subject required"
 
   buc_step "Engross muniment (${z_mantle}) for ${z_subject}"
 
   buc_log_args 'Build the authoritative muniment body — the key is only the index'
   jq -n --arg subject "${z_subject}" --arg mantle "${z_mantle}" \
     '{rbgft_subject: $subject, rbgft_mantle: $mantle}' > "${ZRBGFT_MUNIMENT_BODY}" \
-    || buc_die "Failed to build muniment JSON"
+    || buc_die_now "Failed to build muniment JSON"
 
   local z_objname
   z_objname=$(zrbgft_muniment_name_capture "${z_depot}" "${z_mantle}" "${z_subject}") \
-    || buc_die "Failed to compose muniment object name"
+    || buc_die_now "Failed to compose muniment object name"
   local z_name_enc
-  z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die "Failed to encode object name"
+  z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die_now "Failed to encode object name"
 
   buc_log_args 'Media upload with ifGenerationMatch=0 — create only if absent; concurrent creators race cleanly'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_UPLOAD}/b/${z_bucket}/o?uploadType=media&name=${z_name_enc}&ifGenerationMatch=0"
   rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_ENGROSS}" "${ZRBGFT_MUNIMENT_BODY}"
 
   local z_code
-  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die "Bad engross HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die_now "Bad engross HTTP code"
   case "${z_code}" in
     200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})"; echo "created" ;;
     412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})"; echo "present" ;;
@@ -152,25 +152,25 @@ rbgft_expunge() {
   local -r z_mantle="${4:-}"
   local -r z_subject="${5:-}"
 
-  test -n "${z_token}"    || buc_die "Token required"
-  test -n "${z_bucket}"   || buc_die "Bucket required"
-  test -n "${z_depot}"    || buc_die "Depot project id required"
-  test -n "${z_mantle}"   || buc_die "Mantle required"
-  test -n "${z_subject}"  || buc_die "Principal subject required"
+  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${z_bucket}"   || buc_die_now "Bucket required"
+  test -n "${z_depot}"    || buc_die_now "Depot project id required"
+  test -n "${z_mantle}"   || buc_die_now "Mantle required"
+  test -n "${z_subject}"  || buc_die_now "Principal subject required"
 
   buc_step "Expunge muniment (${z_mantle}) for ${z_subject}"
 
   local z_objname
   z_objname=$(zrbgft_muniment_name_capture "${z_depot}" "${z_mantle}" "${z_subject}") \
-    || buc_die "Failed to compose muniment object name"
+    || buc_die_now "Failed to compose muniment object name"
   local z_name_enc
-  z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die "Failed to encode object name"
+  z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die_now "Failed to encode object name"
 
   local -r z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}"
   rbuh_json "DELETE" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_EXPUNGE}"
 
   local z_code
-  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die "Bad expunge HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die_now "Bad expunge HTTP code"
   case "${z_code}" in
     204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})"; echo "deleted" ;;
     404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})"; echo "absent" ;;
@@ -202,7 +202,7 @@ zrbgft_list_fetch_emit() {
   local z_prefix_param=""
   if test -n "${z_prefix}"; then
     local z_prefix_enc
-    z_prefix_enc=$(rbuh_urlencode_capture "${z_prefix}") || buc_die "Failed to encode list prefix"
+    z_prefix_enc=$(rbuh_urlencode_capture "${z_prefix}") || buc_die_now "Failed to encode list prefix"
     z_prefix_param="prefix=${z_prefix_enc}"
   fi
 
@@ -214,7 +214,7 @@ zrbgft_list_fetch_emit() {
     local z_query="${z_prefix_param}"
     if test -n "${z_page_token}"; then
       local z_tok_enc
-      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die "Failed to encode pageToken"
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die_now "Failed to encode pageToken"
       test -z "${z_query}" || z_query="${z_query}&"
       z_query="${z_query}pageToken=${z_tok_enc}"
     fi
@@ -225,7 +225,7 @@ zrbgft_list_fetch_emit() {
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
 
     local z_list_code
-    z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die "Bad muniment list HTTP code"
+    z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad muniment list HTTP code"
     case "${z_list_code}" in
       200) : ;;
       *)   local z_list_err
@@ -235,18 +235,18 @@ zrbgft_list_fetch_emit() {
 
     local z_list_file="${ZRBUH_PREFIX}${z_list_infix_page}${ZRBUH_POSTFIX_JSON}"
     local z_names
-    z_names=$(jq -r '.items[]?.name // empty' "${z_list_file}") || buc_die "Failed to read muniment listing"
+    z_names=$(jq -r '.items[]?.name // empty' "${z_list_file}") || buc_die_now "Failed to read muniment listing"
 
     local z_name=""
     while IFS= read -r z_name; do
       test -n "${z_name}" || continue
       local z_name_enc
-      z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode muniment name"
+      z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode muniment name"
       rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
         "${z_token}" "${z_get_infix}"
 
       local z_get_code
-      z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die "Bad muniment fetch HTTP code"
+      z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "Bad muniment fetch HTTP code"
       case "${z_get_code}" in
         200) : ;;
         404) buc_info "Muniment ${z_name} vanished between list and fetch — skipped"; continue ;;
@@ -260,7 +260,7 @@ zrbgft_list_fetch_emit() {
         || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
     done <<< "${z_names}"
 
-    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die "Failed to read nextPageToken"
+    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die_now "Failed to read nextPageToken"
     test -n "${z_page_token}" || break
   done
 }
@@ -277,9 +277,9 @@ rbgft_peruse() {
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
 
-  test -n "${z_token}"  || buc_die "Token required"
-  test -n "${z_bucket}" || buc_die "Bucket required"
-  test -n "${z_depot}"  || buc_die "Depot project id required"
+  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${z_bucket}" || buc_die_now "Bucket required"
+  test -n "${z_depot}"  || buc_die_now "Depot project id required"
 
   buc_step "Peruse muniments for polity ${z_depot}"
 
@@ -297,8 +297,8 @@ rbgft_peruse_manor() {
   local -r z_token="${1:-}"
   local -r z_bucket="${2:-}"
 
-  test -n "${z_token}"  || buc_die "Token required"
-  test -n "${z_bucket}" || buc_die "Bucket required"
+  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${z_bucket}" || buc_die_now "Bucket required"
 
   buc_step "Peruse muniments manor-wide"
 
@@ -324,8 +324,8 @@ rbgft_escheat_survey() {
   local -r z_token="${1:-}"
   local -r z_bucket="${2:-}"
 
-  test -n "${z_token}"  || buc_die "Token required"
-  test -n "${z_bucket}" || buc_die "Bucket required"
+  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${z_bucket}" || buc_die_now "Bucket required"
 
   buc_step "Survey the terrier for escheat (classify every object)"
 
@@ -348,14 +348,14 @@ rbgft_escheat_survey() {
     z_page=$((z_page + 1))
     z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o"
     if test -n "${z_page_token}"; then
-      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die "Failed to encode pageToken"
+      z_tok_enc=$(rbuh_urlencode_capture "${z_page_token}") || buc_die_now "Failed to encode pageToken"
       z_url="${z_url}?pageToken=${z_tok_enc}"
     fi
 
     z_list_infix_page="${ZRBGFT_INFIX_ESCHEAT_LIST}${z_page}"
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
 
-    z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die "Bad escheat list HTTP code"
+    z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad escheat list HTTP code"
     case "${z_list_code}" in
       200) : ;;
       404) buc_reject "${BUBC_band_escheat}" "Escheat survey: terrier bucket ${z_bucket} absent — instaurate the manor first" ;;
@@ -365,9 +365,9 @@ rbgft_escheat_survey() {
 
     z_list_file="${ZRBUH_PREFIX}${z_list_infix_page}${ZRBUH_POSTFIX_JSON}"
     jq -r '.items[]?.name // empty' "${z_list_file}" >> "${z_names_file}" \
-      || buc_die "Failed to read escheat listing page ${z_page}"
+      || buc_die_now "Failed to read escheat listing page ${z_page}"
 
-    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die "Failed to read nextPageToken"
+    z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die_now "Failed to read nextPageToken"
     test -n "${z_page_token}" || break
   done
 
@@ -396,7 +396,7 @@ rbgft_escheat_survey() {
 
     case "${z_name}" in
       */*/*) : ;;
-      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
          continue ;;
     esac
     z_depot="${z_name%%/*}"
@@ -404,21 +404,21 @@ rbgft_escheat_survey() {
     z_mantle="${z_rest%%/*}"
     z_subject="${z_rest#*/}"
     if test -z "${z_depot}" || test -z "${z_mantle}" || test -z "${z_subject}"; then
-      printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
     case "${z_mantle}" in
       governor|director|retriever) : ;;
-      *) printf 'stray\tmantle\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      *) printf 'stray\tmantle\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
          continue ;;
     esac
 
-    z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode object name"
+    z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode object name"
     rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
       "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_GET}"
 
-    z_get_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_GET}") || buc_die "Bad escheat fetch HTTP code"
+    z_get_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_GET}") || buc_die_now "Bad escheat fetch HTTP code"
     case "${z_get_code}" in
       200) : ;;
       404) buc_info "Object ${z_name} vanished between list and fetch — skipped"; continue ;;
@@ -429,24 +429,24 @@ rbgft_escheat_survey() {
     z_get_file="${ZRBUH_PREFIX}${ZRBGFT_INFIX_ESCHEAT_GET}${ZRBUH_POSTFIX_JSON}"
     jq -r '[(.rbgft_mantle? // ""), (.rbgft_subject? // "")] | @tsv' \
       "${z_get_file}" > "${z_fields_file}" 2>"${z_jq_err_file}" \
-      || { printf 'stray\tbody-json\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"; continue; }
+      || { printf 'stray\tbody-json\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"; continue; }
 
     z_body_mantle=""
     z_body_subject=""
     IFS=$'\t' read -r z_body_mantle z_body_subject < "${z_fields_file}" \
-      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"; continue; }
+      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"; continue; }
 
     if test -z "${z_body_mantle}" || test -z "${z_body_subject}"; then
-      printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
     if test "${z_body_mantle}" != "${z_mantle}" || test "${z_body_subject}" != "${z_subject}"; then
-      printf 'stray\tmismatch\t%s\n' "${z_name}" || buc_die "Failed to emit survey line"
+      printf 'stray\tmismatch\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
-    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" || buc_die "Failed to emit survey line"
+    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" || buc_die_now "Failed to emit survey line"
   done
 }
 
@@ -463,20 +463,20 @@ rbgft_escheat_expunge_raw() {
   local -r z_bucket="${2:-}"
   local -r z_name="${3:-}"
 
-  test -n "${z_token}"  || buc_die "Token required"
-  test -n "${z_bucket}" || buc_die "Bucket required"
-  test -n "${z_name}"   || buc_die "Object name required"
+  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${z_bucket}" || buc_die_now "Bucket required"
+  test -n "${z_name}"   || buc_die_now "Object name required"
 
   buc_log_args "Escheat raw expunge: ${z_name}"
 
   local z_name_enc
-  z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die "Failed to encode object name"
+  z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode object name"
 
   rbuh_json "DELETE" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}" \
     "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}"
 
   local z_code
-  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die "Bad escheat expunge HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die_now "Bad escheat expunge HTTP code"
   case "${z_code}" in
     204) buc_info "Escheated ${z_name}"; echo "deleted" ;;
     404) buc_info "Object ${z_name} already absent (benign vanish)"; echo "absent" ;;

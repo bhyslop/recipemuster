@@ -133,6 +133,7 @@ pub const BUWGC_RS_VALIDATE: &str = "buw-rsv";
 pub const BUWGC_RS_RENDER: &str = "buw-rsr";
 pub const BUWGC_RE_VALIDATE: &str = "buw-rev";
 pub const BUWGC_RE_RENDER: &str = "buw-rer";
+pub const BUWGC_PARCEL_EMPLACE: &str = "buw-pe";
 pub const BUWGC_DELAY: &str = "buw-xd";
 pub const BUWGC_BAND_CHAIN: &str = "buw-xb";
 pub const BUWGC_SELF_TEST: &str = "buw-st";

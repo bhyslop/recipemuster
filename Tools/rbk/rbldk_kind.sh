@@ -28,7 +28,7 @@ set -euo pipefail
 # the Lode verbs, rbfl0_ledger for the yoke/feoff/seise kind gates), so it carries its
 # own guard (BCG "the single-guard rule, and its one exception"). rbld and rbfl are
 # never co-furnished, so the guard is the documented backstop, not a live fire.
-test -z "${ZRBLDK_SOURCED:-}" || buc_die "Module rbldk multiply sourced - check sourcing hierarchy"
+test -z "${ZRBLDK_SOURCED:-}" || buc_die_now "Module rbldk multiply sourced - check sourcing hierarchy"
 ZRBLDK_SOURCED=1
 
 ######################################################################
@@ -51,7 +51,7 @@ ZRBLDK_SOURCED=1
 # reliquary gates) — and augur (which accepts any known kind, inspecting every
 # Lode kind).
 #
-# _capture shape: stdout once or return 1; the caller guards with || buc_die.
+# _capture shape: stdout once or return 1; the caller guards with || buc_die_now.
 # Args: <touchmark>
 zrbld_decode_touchmark_kind_capture() {
   zrbfc_sentinel
