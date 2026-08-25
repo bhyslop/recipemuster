@@ -36,7 +36,7 @@ rbfl_jettison() {
   buc_doc_shown || return 0
 
   # Validate ref parameter
-  test -n "${z_locator}" || buc_die "Image ref required (package:tag or package@sha256:<hex>)"
+  test -n "${z_locator}" || buc_die_now "Image ref required (package:tag or package@sha256:<hex>)"
 
   # Parse the image ref into package path and manifest reference. GAR's two
   # deletable leaves are a tag (package:tag) and a version digest
@@ -47,16 +47,16 @@ rbfl_jettison() {
   case "${z_locator}" in
     *@*) z_pkg_path="${z_locator%@*}"; z_ref="${z_locator##*@}" ;;
     *:*) z_pkg_path="${z_locator%:*}"; z_ref="${z_locator##*:}" ;;
-    *)   buc_die "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
+    *)   buc_die_now "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
   esac
-  test -n "${z_pkg_path}" || buc_die "Package path is empty in image ref"
-  test -n "${z_ref}"      || buc_die "Reference (tag or digest) is empty in image ref"
+  test -n "${z_pkg_path}" || buc_die_now "Package path is empty in image ref"
+  test -n "${z_ref}"      || buc_die_now "Reference (tag or digest) is empty in image ref"
 
   buc_step "Authenticating as Director"
 
   # Get OAuth token using Director credentials
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die "Failed to get OAuth token"
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
 
   buc_require "Will jettison: ${z_locator}" "yes"
 
@@ -71,11 +71,11 @@ rbfl_jettison() {
                     "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
                     "${z_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
-    || buc_die "DELETE request failed — see ${z_stderr_file}"
+    || buc_die_now "DELETE request failed — see ${z_stderr_file}"
 
   local z_http_code
   z_http_code=$(<"${z_status_file}")
-  test -n "${z_http_code}" || buc_die "HTTP status code is empty"
+  test -n "${z_http_code}" || buc_die_now "HTTP status code is empty"
 
   # 202/204 = deleted; 404 = already gone. Idempotent delete is the house shape
   # (rbuh_poll_until_gone, the rbgjl06 convergence loop) — a cleanup-of-last-resort
@@ -84,7 +84,7 @@ rbfl_jettison() {
     local z_body="empty"
     if test -f "${z_response_file}"; then z_body=$(<"${z_response_file}"); fi
     buc_warn "Response body: ${z_body}"
-    buc_die "Jettison failed with HTTP ${z_http_code}"
+    buc_die_now "Jettison failed with HTTP ${z_http_code}"
   fi
 
   buc_success "Jettisoned or nonexistent: ${z_locator}"
@@ -100,11 +100,11 @@ rbfl_abjure() {
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530)"
   buc_doc_shown || return 0
 
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+  test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die "Failed to get OAuth token"
+  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
 
   # Enumerate packages under rbi_hm/<hallmark>/ via GAR REST API.
   # Each immediate child of the subtree is one ark (image, vouch, pouch,
@@ -130,10 +130,10 @@ rbfl_abjure() {
     | gsub("%2F"; "/")
     | select(startswith($subtree))
   ' "${z_resp_file}" > "${z_pkg_file}" \
-    || buc_die "Failed to extract package names for hallmark subtree"
+    || buc_die_now "Failed to extract package names for hallmark subtree"
 
   if ! test -s "${z_pkg_file}"; then
-    buc_die "No packages found under ${z_subtree} — hallmark not present in registry"
+    buc_die_now "No packages found under ${z_subtree} — hallmark not present in registry"
   fi
 
   local z_count=0
@@ -163,7 +163,7 @@ rbfl_abjure() {
     test -n "${z_pkg_line}" || continue
     z_packages+=("${z_pkg_line}")
   done < "${z_pkg_file}"
-  test "${#z_packages[@]}" -gt 0 || buc_die "No packages loaded for abjure of ${z_subtree}"
+  test "${#z_packages[@]}" -gt 0 || buc_die_now "No packages loaded for abjure of ${z_subtree}"
 
   buc_step "Dispatching cloud delete for ${z_count} package(s) under ${z_subtree}"
   zrbld_cloud_delete_dispatch "${z_token}" "Abjure" "${ZRBFL_DELETE_PREFIX}" "${z_packages[@]}"

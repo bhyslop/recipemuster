@@ -79,7 +79,7 @@ const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 // buv_report is a report path, not a buc_reject gate: its documented contract
 // is "returns non-zero if any failed", a bare 1 — so the one report-mixed
 // negative asserts this, not a band. Still precise enough to catch an off-band
-// harness breakage (a buc_die elsewhere also exits 1, but the report's own
+// harness breakage (a buc_die_now elsewhere also exits 1, but the report's own
 // failure is the last command and deterministic under set -e).
 const RBTDRF_REPORT_NONZERO: i32 = 1;
 
@@ -1159,7 +1159,7 @@ fn rbtdrf_rs_burd(dir: &Path) -> rbtdre_Verdict {
 /// non-zero and emit the rbw-dl pointer (operator discovery for candidate
 /// depot project IDs) rather than fail silent or opaque. BUW dispatch merges
 /// stderr→stdout via `2>&1` (bud_dispatch.sh:372), so the captured
-/// stdout carries the buc_warn/buc_info/buc_tabtarget/buc_die output
+/// stdout carries the buc_warn/buc_info/buc_tabtarget/buc_die_now output
 /// from rbgp_depot_unmake's no-arg branch (rbgp_payor.sh:937-942).
 ///
 /// Pure shell, no GCP traffic — refusal lands before authenticate.
@@ -1519,7 +1519,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 // RBCC_tweak_redon_cadence seam, picket tier.)
 
 /// Lapse-advisory fragment asserted on the tick's death. Mirror:
-/// rbfcb_host.sh `zrbfc_redon_tick` buc_die line — same literal.
+/// rbfcb_host.sh `zrbfc_redon_tick` buc_die_now line — same literal.
 const RBTDRF_RT_LAPSE_FRAGMENT: &str = "sitting lapsed mid-build";
 
 fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {

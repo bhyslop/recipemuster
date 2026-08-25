@@ -35,7 +35,7 @@ rbfl_yoke() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the reliquary touchmark express-or-chain: an express argument wins;
   # absent, fall back to the touchmark a conclave handed forward through the
@@ -58,7 +58,7 @@ rbfl_yoke() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Validating reliquary Lode: ${z_stamp}"
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
@@ -73,7 +73,7 @@ rbfl_yoke() {
   local -r z_present_file="${BURD_TEMP_DIR}/rbfl_yoke_present.txt"
 
   jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_present_file}" \
-    || buc_die "Failed to extract conclave Lode member tags"
+    || buc_die_now "Failed to extract conclave Lode member tags"
 
   local z_present=()
   local z_line=""
@@ -118,9 +118,9 @@ rbfl_yoke() {
 
   # Render the conclave-tabtarget hint from its colophon home (RBZ_CONCLAVE_RELIQUARY)
   # via the tt yawp — never a hardcoded tt/<colophon>.<frontispiece>.sh literal, which
-  # rots on rename. buc_die resolves the diastema-wrapped yelp through buyf_format_yawp.
+  # rots on rename. buc_die_now resolves the diastema-wrapped yelp through buym_format_yawp.
   buym_tt_yawp "${RBZ_CONCLAVE_RELIQUARY}"; local -r z_conclave_tt="${z_buym_yelp}"
-  test -z "${z_missing}" || buc_die "Reliquary Lode '${z_stamp}' incomplete in Depot — expected ${#z_expected[@]} tool member tags on ${z_pkg}; missing: ${z_missing}. Re-run ${z_conclave_tt} to capture a fresh reliquary Lode, or verify the touchmark spelling."
+  test -z "${z_missing}" || buc_die_now "Reliquary Lode '${z_stamp}' incomplete in Depot — expected ${#z_expected[@]} tool member tags on ${z_pkg}; missing: ${z_missing}. Re-run ${z_conclave_tt} to capture a fresh reliquary Lode, or verify the touchmark spelling."
   buc_info "Reliquary Lode valid — all ${#z_expected[@]} tool member tags present (${z_roster})"
 
   buc_step "Yoking ${z_stamp} into all vessels under ${RBRR_VESSEL_DIR}"
@@ -149,19 +149,19 @@ rbfl_yoke() {
 
     z_tmp_file="${BURD_TEMP_DIR}/rbfl_yoke_${z_sigil}_${RBCC_rbrv_file}.new"
     : > "${z_tmp_file}" \
-      || buc_die "Failed to create ${z_tmp_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
+      || buc_die_now "Failed to create ${z_tmp_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
 
     z_wrote=0
     for z_j in "${!z_rbrv_lines[@]}"; do
       case "${z_rbrv_lines[$z_j]}" in
         RBRV_RELIQUARY=*)
           printf 'RBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
-            || buc_die "Failed to write RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
+            || buc_die_now "Failed to write RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
           z_wrote=1
           ;;
         *)
           printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
-            || buc_die "Failed to write line for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
+            || buc_die_now "Failed to write line for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
           ;;
       esac
     done
@@ -169,18 +169,18 @@ rbfl_yoke() {
     case "${z_wrote}" in
       1) ;;
       *) printf '\n# Tool Image Reliquary\nRBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
-           || buc_die "Failed to append RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})" ;;
+           || buc_die_now "Failed to append RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})" ;;
     esac
 
     mv "${z_tmp_file}" "${z_rbrv_file}" \
-      || buc_die "Failed to finalize ${z_rbrv_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
+      || buc_die_now "Failed to finalize ${z_rbrv_file} (yoking ${z_sigil}; already wrote: ${z_written[*]:-(none)})"
 
     z_written+=("${z_sigil}")
     buc_log_args "Yoked ${z_sigil}"
   done
 
   test "${#z_written[@]}" -gt 0 \
-    || buc_die "No vessels found under ${RBRR_VESSEL_DIR} — nothing yoked"
+    || buc_die_now "No vessels found under ${RBRR_VESSEL_DIR} — nothing yoked"
 
   buc_success "Yoked ${#z_written[@]} vessel(s) to reliquary ${z_stamp}"
   buc_info "Vessels: ${z_written[*]}"

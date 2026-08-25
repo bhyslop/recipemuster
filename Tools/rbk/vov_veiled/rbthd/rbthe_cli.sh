@@ -41,9 +41,9 @@ zrbthe_cargo_build() {
   local z_manifest="${z_dir}/Cargo.toml"
   buc_step "Building hierophant"
   buc_log_args "Manifest: ${z_manifest}"
-  cargo build --manifest-path "${z_manifest}" || buc_die "cargo build failed"
+  cargo build --manifest-path "${z_manifest}" || buc_die_now "cargo build failed"
   ZRBTHE_BINARY="${z_dir}/target/debug/rbthd"
-  test -x "${ZRBTHE_BINARY}" || buc_die "Hierophant binary not found: ${ZRBTHE_BINARY}"
+  test -x "${ZRBTHE_BINARY}" || buc_die_now "Hierophant binary not found: ${ZRBTHE_BINARY}"
 }
 
 ######################################################################
@@ -110,7 +110,7 @@ rbthe_test() {
   local z_dir="${BASH_SOURCE[0]%/*}"
   local z_manifest="${z_dir}/Cargo.toml"
   buc_step "Testing hierophant"
-  cargo test --manifest-path "${z_manifest}" || buc_die "cargo test failed"
+  cargo test --manifest-path "${z_manifest}" || buc_die_now "cargo test failed"
   buc_success "Hierophant tests green"
 }
 

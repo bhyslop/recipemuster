@@ -41,9 +41,9 @@ rbrn_drive() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
-  test -n "${z_nameplate}" || buc_die "Nameplate required (param1)"
+  test -n "${z_nameplate}" || buc_die_now "Nameplate required (param1)"
 
   # Map the operator-facing field selector to the RBRN variable. A two-value
   # ashlar selector (bottle|sentry), never the raw variable name.
@@ -51,8 +51,8 @@ rbrn_drive() {
   case "${z_field}" in
     bottle) z_var_name="RBRN_BOTTLE_HALLMARK" ;;
     sentry) z_var_name="RBRN_SENTRY_HALLMARK" ;;
-    "")     buc_die "Field required (param2): 'bottle' or 'sentry'" ;;
-    *)      buc_die "Unknown field '${z_field}' — expected 'bottle' or 'sentry'" ;;
+    "")     buc_die_now "Field required (param2): 'bottle' or 'sentry'" ;;
+    *)      buc_die_now "Unknown field '${z_field}' — expected 'bottle' or 'sentry'" ;;
   esac
 
   # Resolve the target nameplate's rbrn.env by moniker WITHOUT loading it. The
@@ -60,7 +60,7 @@ rbrn_drive() {
   # min-length and reject a still-blank hallmark — the very state the drive fills.
   # Mirrors feoff, which never loads the vessel whose rbrv.env it rewrites.
   local -r z_rbrn_file="${RBCC_moorings_dir}/${z_nameplate}/${RBCC_rbrn_file}"
-  test -f "${z_rbrn_file}" || buc_die "Nameplate regime file not found: ${z_rbrn_file}"
+  test -f "${z_rbrn_file}" || buc_die_now "Nameplate regime file not found: ${z_rbrn_file}"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, the
   # value a build (kludge or ordain) handed forward through the depth-1 chain.
@@ -88,10 +88,10 @@ rbrn_drive() {
       printf '%s\n' "${z_line}"
     fi
   done < "${z_rbrn_file}" > "${z_tmp_file}" \
-    || buc_die "Failed to rewrite ${z_rbrn_file} for ${z_var_name}"
+    || buc_die_now "Failed to rewrite ${z_rbrn_file} for ${z_var_name}"
   test "${z_found}" = "true" \
-    || buc_die "Field ${z_var_name} not found in ${z_rbrn_file} — nameplate schema drift"
-  mv "${z_tmp_file}" "${z_rbrn_file}" || buc_die "Failed to finalize ${z_rbrn_file}"
+    || buc_die_now "Field ${z_var_name} not found in ${z_rbrn_file} — nameplate schema drift"
+  mv "${z_tmp_file}" "${z_rbrn_file}" || buc_die_now "Failed to finalize ${z_rbrn_file}"
 
   # Loud on success: the driven field, value, and source named prominently, so a
   # wrong drive shows at the moment of action rather than only in the git diff.

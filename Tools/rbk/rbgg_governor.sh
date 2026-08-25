@@ -27,7 +27,7 @@
 # - Pristine-state expectation: RBGG init/creation flows assume the project
 #   is pristine for the resources they manage. If a resource "already exists"
 #   (HTTP 409), that's treated as state drift or prior manual activity.
-# - Policy: All HTTP 409 Conflict responses are fatal (buc_die). We do not
+# - Policy: All HTTP 409 Conflict responses are fatal (buc_die_now). We do not
 #   treat 409 as idempotent success anywhere in RBGG.
 #   If you see a 409, resolve state drift first (destroy/reset), then rerun.
 # ----------------------------------------------------------------------
@@ -35,17 +35,17 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGG_SOURCED:-}" || buc_die "Module rbgg multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGG_SOURCED:-}" || buc_die_now "Module rbgg multiply sourced - check sourcing hierarchy"
 ZRBGG_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgg_*)
 
 zrbgg_kindle() {
-  test -z "${ZRBGG_KINDLED:-}" || buc_die "Module rbgg already kindled"
+  test -z "${ZRBGG_KINDLED:-}" || buc_die_now "Module rbgg already kindled"
 
-  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
-  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBDC_DEPOT_PROJECT_ID is empty"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die_now "RBDC_DEPOT_PROJECT_ID is not set"
+  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die_now "RBDC_DEPOT_PROJECT_ID is empty"
 
   buc_log_args 'Ensure dependencies are kindled first'
   zrbgc_sentinel
@@ -69,7 +69,7 @@ zrbgg_kindle() {
 }
 
 zrbgg_sentinel() {
-  test "${ZRBGG_KINDLED:-}" = "1" || buc_die "Module rbgg not kindled - call zrbgg_kindle first"
+  test "${ZRBGG_KINDLED:-}" = "1" || buc_die_now "Module rbgg not kindled - call zrbgg_kindle first"
 }
 
 ######################################################################
@@ -131,20 +131,20 @@ zrbgg_create_gcs_bucket() {
   location: $location,
   storageClass: "STANDARD",
   lifecycle: { rule: [ { action: { type: "Delete" }, condition: { age: 1 } } ] }
-}' > "${z_bucket_req}" || buc_die "Failed to create bucket request JSON"
+}' > "${z_bucket_req}" || buc_die_now "Failed to create bucket request JSON"
 
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
   rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                   "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
-  z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || buc_die "Bad bucket creation HTTP code"
+  z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
   z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_info "Bucket ${z_bucket_name} created";                    return 0 ;;
-    409)     buc_die  "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
-    *)       buc_die  "Failed to create bucket: ${z_err}"                             ;;
+    409)     buc_die_now  "Bucket ${z_bucket_name} already exists (pristine-state violation)" ;;
+    *)       buc_die_now  "Failed to create bucket: ${z_err}"                             ;;
   esac
 }
 
@@ -287,15 +287,15 @@ rbgg_destroy_project() {
   buc_warn "billing detachment, and project restoration capabilities."
   buc_warn "========================================================================"
 
-  buc_die "Function moved to Payor module - use rbgp_project_delete"
+  buc_die_now "Function moved to Payor module - use rbgp_project_delete"
 
   if [[ "${DEBUG_ONLY:-0}" != "1" ]]; then
-    buc_die "This dangerous operation requires DEBUG_ONLY=1 environment variable"
+    buc_die_now "This dangerous operation requires DEBUG_ONLY=1 environment variable"
   fi
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_step 'Triple confirmation required'
   buc_warn ""
@@ -320,7 +320,7 @@ rbgg_destroy_project() {
   rbuh_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
-  z_lien_count=$(rbuh_json_field_capture "${ZRBGG_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die "Failed to parse liens response"
+  z_lien_count=$(rbuh_json_field_capture "${ZRBGG_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die_now "Failed to parse liens response"
 
   if [[ "${z_lien_count}" -gt 0 ]]; then
     buc_step 'BLOCKED: Liens exist on project'
@@ -329,7 +329,7 @@ rbgg_destroy_project() {
     buc_code "  gcloud resource-manager liens list --project=${RBDC_DEPOT_PROJECT_ID}"
     buc_code "  gcloud resource-manager liens delete LIEN_NAME --project=${RBDC_DEPOT_PROJECT_ID}"
     buc_warn "Then re-run this command."
-    buc_die "Cannot proceed with active liens"
+    buc_die_now "Cannot proceed with active liens"
   fi
 
   buc_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
@@ -341,7 +341,7 @@ rbgg_destroy_project() {
   rbuh_require_ok "Get project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
+  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die_now "Failed to parse project state"
 
   if test "${z_lifecycle_state}" = "DELETE_REQUESTED"; then
     buc_success "Project successfully marked for deletion"
@@ -350,7 +350,7 @@ rbgg_destroy_project() {
     buc_code "To restore (if still possible): rbgg_restore_project"
     buc_step "WARNING: Project is now unusable but may remain visible in listings"
   else
-    buc_die "Unexpected project state after deletion: ${z_lifecycle_state}"
+    buc_die_now "Unexpected project state after deletion: ${z_lifecycle_state}"
   fi
 }
 
@@ -361,20 +361,20 @@ rbgg_restore_project() {
 
   buc_step 'Mint admin OAuth token'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_step 'Check current project state'
   rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   if ! rbuh_code_ok_predicate "${ZRBGG_INFIX_PROJECT_STATE}"; then
-    buc_die "Cannot access project - it may have been permanently deleted or never existed"
+    buc_die_now "Cannot access project - it may have been permanently deleted or never existed"
   fi
 
   local z_lifecycle_state
-  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse project state"
+  z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die_now "Failed to parse project state"
 
   if test "${z_lifecycle_state}" != "DELETE_REQUESTED"; then
-    buc_die "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
+    buc_die_now "Project state is ${z_lifecycle_state} - can only restore projects in DELETE_REQUESTED state"
   fi
 
   buc_step 'Confirm restoration'
@@ -390,19 +390,19 @@ rbgg_restore_project() {
     rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
     rbuh_require_ok "Get restored project state"               "${ZRBGG_INFIX_PROJECT_STATE}"
 
-    z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die "Failed to parse restored project state"
+    z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die_now "Failed to parse restored project state"
 
     if test "${z_lifecycle_state}" = "${RBGC_STATE_ACTIVE}"; then
       buc_success "Project successfully restored to ACTIVE state"
       buc_log_args "Project Status: ${z_lifecycle_state}"
       buc_log_args "Project is now usable again"
     else
-      buc_die "Restoration completed but project state is unexpected: ${z_lifecycle_state}"
+      buc_die_now "Restoration completed but project state is unexpected: ${z_lifecycle_state}"
     fi
   else
     local z_error_msg
     z_error_msg=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
-    buc_die "Project restoration failed: ${z_error_msg}"
+    buc_die_now "Project restoration failed: ${z_error_msg}"
   fi
 }
 

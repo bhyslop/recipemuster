@@ -31,10 +31,10 @@ rblm_zero() {
 
   local -r z_rbrr="${RBCC_rbrr_file}"
   local -r z_rbrd="${RBCC_rbrd_file}"
-  test -f "${z_rbrr}" || buc_die "RBRR file not found: ${z_rbrr}"
-  test -f "${z_rbrd}" || buc_die "RBRD file not found: ${z_rbrd}"
+  test -f "${z_rbrr}" || buc_die_now "RBRR file not found: ${z_rbrr}"
+  test -f "${z_rbrd}" || buc_die_now "RBRD file not found: ${z_rbrd}"
 
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
 
   # Tree-identity gate. Zero blanks the regime of whatever tree it runs in, so
   # the caller must NAME that tree and be right. Git attests the identity; the
@@ -43,14 +43,14 @@ rblm_zero() {
   # prompt.
   local -r z_claimed_tree="${BUZ_FOLIO:-}"
   test -n "${z_claimed_tree}" \
-    || buc_die "Marshal zero requires the intended tree's basename as its argument — it blanks the regime of the tree it runs in, so that tree must be named, not assumed"
+    || buc_die_now "Marshal zero requires the intended tree's basename as its argument — it blanks the regime of the tree it runs in, so that tree must be named, not assumed"
 
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_zero_toplevel.txt"
-  git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die "git rev-parse --show-toplevel failed — marshal zero must run inside a git repository"
+  git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — marshal zero must run inside a git repository"
   local z_toplevel=$(<"${z_toplevel_temp}")
   local -r z_actual_tree="${z_toplevel##*/}"
   test "${z_claimed_tree}" = "${z_actual_tree}" \
-    || buc_die "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
+    || buc_die_now "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
 
   # Pre-checks: working tree clean and HEAD pushed.
   # Marshal-zero auto-commits its mutations; both invariants must hold to keep
@@ -59,28 +59,28 @@ rblm_zero() {
   local -r z_upstream_temp="${BURD_TEMP_DIR}/rblm_zero_upstream.txt"
   local -r z_unpushed_temp="${BURD_TEMP_DIR}/rblm_zero_unpushed.txt"
 
-  git status --porcelain > "${z_status_temp}" || buc_die "git status failed"
-  test ! -s "${z_status_temp}" || buc_die "Working tree not clean — commit or discard before marshal-zero. See: ${z_status_temp}"
+  git status --porcelain > "${z_status_temp}" || buc_die_now "git status failed"
+  test ! -s "${z_status_temp}" || buc_die_now "Working tree not clean — commit or discard before marshal-zero. See: ${z_status_temp}"
 
   if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > "${z_upstream_temp}" 2>&1; then
-    buc_die "Current branch has no upstream — set tracking and push before marshal-zero. See: ${z_upstream_temp}"
+    buc_die_now "Current branch has no upstream — set tracking and push before marshal-zero. See: ${z_upstream_temp}"
   fi
 
-  git rev-list '@{u}..HEAD' > "${z_unpushed_temp}" || buc_die "git rev-list failed"
-  test ! -s "${z_unpushed_temp}" || buc_die "HEAD has unpushed commits — push before marshal-zero. See: ${z_unpushed_temp}"
+  git rev-list '@{u}..HEAD' > "${z_unpushed_temp}" || buc_die_now "git rev-list failed"
+  test ! -s "${z_unpushed_temp}" || buc_die_now "HEAD has unpushed commits — push before marshal-zero. See: ${z_unpushed_temp}"
 
   # Shellcheck gate: the codebase must be lint-clean before marshal-zero mints
   # the pristine baseline commit, so gauntlet entry-state cannot be shellcheck-
   # dirty by construction. Runs the release-tier shellcheck via the sibling
   # rbq_cli; any finding aborts here, before any mutation.
   local -r z_rbk_dir="${BASH_SOURCE[0]%/*}"
-  "${z_rbk_dir}/rbq_cli.sh" rbq_shellcheck || buc_die "Shellcheck findings present — fix before marshal-zero; the pristine baseline must be lint-clean"
+  "${z_rbk_dir}/rbq_cli.sh" rbq_shellcheck || buc_die_now "Shellcheck findings present — fix before marshal-zero; the pristine baseline must be lint-clean"
 
   # Colophon-completeness gate: every enrolled colophon (RBW + BUW) must have a
   # tabtarget on disk before marshal-zero mints the pristine baseline. rbw-MZ is
   # withheld from delivery, so this is the source-only completeness proof — a
   # stripped consumer never has this tabtarget and never runs it.
-  "${z_rbk_dir}/rbq_cli.sh" rbq_completeness || buc_die "Enrolled colophon without a tabtarget — the source tabtarget set must be complete before marshal-zero"
+  "${z_rbk_dir}/rbq_cli.sh" rbq_completeness || buc_die_now "Enrolled colophon without a tabtarget — the source tabtarget set must be complete before marshal-zero"
 
   # Discover secrets dir and vessel dir for pre-confirmation inventory
   local z_secrets_dir=""
@@ -224,25 +224,25 @@ rblm_zero() {
   # Auto-commit the in-tree mutations so post-zero state is captured as a single
   # commit.
   buc_step "Committing marshal-zero state"
-  git add "${z_rbrr}" || buc_die "Failed to stage RBRR file"
-  git add "${z_rbrd}" || buc_die "Failed to stage RBRD file"
+  git add "${z_rbrr}" || buc_die_now "Failed to stage RBRR file"
+  git add "${z_rbrd}" || buc_die_now "Failed to stage RBRD file"
 
   local z_stage=""
   for z_stage in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_stage}" || continue
-    git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
+    git add "${z_stage}" || buc_die_now "Failed to stage: ${z_stage}"
   done
   if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
     for z_stage in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
       test -f "${z_stage}" || continue
-      git add "${z_stage}" || buc_die "Failed to stage: ${z_stage}"
+      git add "${z_stage}" || buc_die_now "Failed to stage: ${z_stage}"
     done
   fi
 
   if git diff --cached --quiet; then
     buh_line "  No changes to commit — already in marshal-zero state"
   else
-    git commit -m "Marshal Zero — release qualification reset" || buc_die "Marshal-zero commit failed"
+    git commit -m "Marshal Zero — release qualification reset" || buc_die_now "Marshal-zero commit failed"
     buh_line "  Marshal-zero state committed"
   fi
   buh_e
@@ -263,10 +263,10 @@ rblm_lustrate() {
   # result, so anything already dirty would ride into that commit. Deliberately
   # WITHOUT marshal-zero's pushed-state gate: lustration runs immediately after
   # marshal zero, whose own auto-commit leaves HEAD unpushed by construction.
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
   local -r z_status_temp="${BURD_TEMP_DIR}/rblm_lustrate_status.txt"
-  git status --porcelain > "${z_status_temp}" || buc_die "git status failed"
-  test ! -s "${z_status_temp}" || buc_die "Working tree not clean — commit or discard before lustration. See: ${z_status_temp}"
+  git status --porcelain > "${z_status_temp}" || buc_die_now "git status failed"
+  test ! -s "${z_status_temp}" || buc_die_now "Working tree not clean — commit or discard before lustration. See: ${z_status_temp}"
 
   buh_section "Marshal Lustrate"
   buh_line "  Erases every site-scoped home named by the proscription"
@@ -286,12 +286,12 @@ rblm_lustrate() {
   buh_e
 
   buc_step "Committing lustrated state"
-  git add --update || buc_die "Failed to stage lustrated files"
+  git add --update || buc_die_now "Failed to stage lustrated files"
 
   if git diff --cached --quiet; then
     buh_line "  No changes to commit — already lustrated"
   else
-    git commit -m "Marshal Lustrate — site identity erased for release" || buc_die "Lustration commit failed"
+    git commit -m "Marshal Lustrate — site identity erased for release" || buc_die_now "Lustration commit failed"
     buh_line "  Lustrated state committed"
   fi
   buh_e
@@ -312,22 +312,22 @@ rblm_feign() {
   # main (which lustration just sterilized) and any candidate branch (which is
   # what gets pushed). The probe branch is a throwaway cut from the candidate and
   # named nothing in particular, so it is what remains.
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die "Failed to create temp directory"
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
   local -r z_branch_temp="${BURD_TEMP_DIR}/rblm_feign_branch.txt"
-  git rev-parse --abbrev-ref HEAD > "${z_branch_temp}" || buc_die "git rev-parse failed"
+  git rev-parse --abbrev-ref HEAD > "${z_branch_temp}" || buc_die_now "git rev-parse failed"
   local -r z_branch=$(<"${z_branch_temp}")
 
   case "${z_branch}" in
     main|candidate-*)
-      buc_die "Refusing to feign on '${z_branch}' — feigned values must never ride a branch that ships. Cut a throwaway probe branch from the candidate first."
+      buc_die_now "Refusing to feign on '${z_branch}' — feigned values must never ride a branch that ships. Cut a throwaway probe branch from the candidate first."
       ;;
   esac
 
   # Clean-tree gate. Feigning auto-commits, and the commit must carry the seed
   # alone — the probe branch exists to be the candidate plus exactly this.
   local -r z_status_temp="${BURD_TEMP_DIR}/rblm_feign_status.txt"
-  git status --porcelain > "${z_status_temp}" || buc_die "git status failed"
-  test ! -s "${z_status_temp}" || buc_die "Working tree not clean — commit or discard before feigning. See: ${z_status_temp}"
+  git status --porcelain > "${z_status_temp}" || buc_die_now "git status failed"
+  test ! -s "${z_status_temp}" || buc_die_now "Working tree not clean — commit or discard before feigning. See: ${z_status_temp}"
 
   buh_section "Marshal Feign"
   buh_line "  Branch: ${z_branch}"
@@ -348,12 +348,12 @@ rblm_feign() {
   buh_e
 
   buc_step "Committing feigned state"
-  git add --update || buc_die "Failed to stage feigned files"
+  git add --update || buc_die_now "Failed to stage feigned files"
 
   if git diff --cached --quiet; then
     buh_line "  No changes to commit — already feigned"
   else
-    git commit -m "Marshal Feign — false station for the consumer-seat probe (throwaway)" || buc_die "Feign commit failed"
+    git commit -m "Marshal Feign — false station for the consumer-seat probe (throwaway)" || buc_die_now "Feign commit failed"
     buh_line "  Feigned state committed"
   fi
   buh_e
@@ -381,8 +381,8 @@ zrblm_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die "Failed to source rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rblm_lustrate.sh"       || buc_die "Failed to source rblm_lustrate.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rblm_lustrate.sh"       || buc_die_now "Failed to source rblm_lustrate.sh"
 
   # Differential furnish: a withheld verb's module is sourced only for that verb.
   # Harbinger is a release-rig verb whose module is withheld from delivery, so a
@@ -395,14 +395,14 @@ zrblm_furnish() {
   # tt/rbw-M stem).
   case "${z_command}" in
     rblm_harbinger)
-      source "${z_rbk_kit_dir}/rblm_harbinger.sh" || buc_die "Failed to source rblm_harbinger.sh"
+      source "${z_rbk_kit_dir}/rblm_harbinger.sh" || buc_die_now "Failed to source rblm_harbinger.sh"
       ;;
   esac
 
-  source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die "Failed to source buym_yelp.sh"
-  source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die "Failed to source buh_handbook.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die "Failed to source buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die "Failed to source rbz_zipper.sh"
+  source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die_now "Failed to source buym_yelp.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die_now "Failed to source buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die_now "Failed to source rbz_zipper.sh"
   zbuz_kindle
   zrbz_kindle
 }

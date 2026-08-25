@@ -48,9 +48,9 @@ zrbv_furnish() {
   buv_file_exists "${RBV_RBRS_FILE}"
 
   # Source config files (CLI handles all sourcing)
-  source              "${RBV_RBRR_FILE}"   || buc_die "Failed to source RBRR config"
-  source              "${RBCC_rbrd_file}"  || buc_die "Failed to source RBRD config"
-  source              "${RBCC_rbrm_file}"  || buc_die "Failed to source RBRM config"
+  source              "${RBV_RBRR_FILE}"   || buc_die_now "Failed to source RBRR config"
+  source              "${RBCC_rbrd_file}"  || buc_die_now "Failed to source RBRD config"
+  source              "${RBCC_rbrm_file}"  || buc_die_now "Failed to source RBRM config"
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
@@ -59,7 +59,7 @@ zrbv_furnish() {
   zrbrm_enforce
   zrbdc_kindle
 
-  source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
+  source              "${RBV_RBRS_FILE}" || buc_die_now "Failed to source RBRS config"
   zrbrs_kindle
   zrbrs_enforce
 

@@ -51,7 +51,7 @@ zrbrn_fleet_survey() {
   for z_sv_i in "${!z_sv_files[@]}"; do
     test -f "${z_sv_files[$z_sv_i]}" || continue
     (
-      source "${z_sv_files[$z_sv_i]}" || buc_die "Failed to source: ${z_sv_files[$z_sv_i]}"
+      source "${z_sv_files[$z_sv_i]}" || buc_die_now "Failed to source: ${z_sv_files[$z_sv_i]}"
 
       local z_sentry_img="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_SENTRY_HALLMARK}"
       local z_bottle_img="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_IMAGE}:${RBRN_BOTTLE_HALLMARK}"
@@ -86,8 +86,8 @@ zrbrn_fleet_survey() {
         "${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}" \
         "${RBRN_ENCLAVE_SENTRY_IP}" "${RBRN_ENCLAVE_BOTTLE_IP}" \
         "${z_arm_sentry}${z_arm_bottle}" \
-        "${z_sentry_local}" "${z_bottle_local}" || buc_die "Failed to printf survey row"
-    ) || buc_die "Survey isolation failed for: ${z_sv_files[$z_sv_i]}"
+        "${z_sentry_local}" "${z_bottle_local}" || buc_die_now "Failed to printf survey row"
+    ) || buc_die_now "Survey isolation failed for: ${z_sv_files[$z_sv_i]}"
   done
   echo ""
 }
@@ -102,7 +102,7 @@ rbrn_validate() {
 
   if test -z "${BUZ_FOLIO:-}"; then
     rbrn_list
-    buc_die "Nameplate moniker required"
+    buc_die_now "Nameplate moniker required"
   fi
   buc_step "Validating RBRN nameplate regime"
   buv_report RBRN "Nameplate Regime"
@@ -116,7 +116,7 @@ rbrn_render() {
 
   if test -z "${BUZ_FOLIO:-}"; then
     rbrn_list
-    buc_die "Nameplate moniker required"
+    buc_die_now "Nameplate moniker required"
   fi
   local z_nameplate_file="${RBCC_moorings_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
   buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate" "${z_nameplate_file}"
@@ -148,7 +148,7 @@ rbrn_list() {
   buc_doc_shown || return 0
 
   local z_monikers
-  z_monikers=$(rbrn_list_capture) || buc_die "No nameplates found"
+  z_monikers=$(rbrn_list_capture) || buc_die_now "No nameplates found"
   buc_step "Available nameplates:"
   local z_moniker=""
   for z_moniker in ${z_monikers}; do
@@ -199,7 +199,7 @@ zrbrn_furnish() {
   zburd_enforce
   zbupr_kindle
   zrbcc_kindle
-  test "${z_rbk_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die "z_rbk_kit_dir mismatch: ${z_rbk_kit_dir} != ${RBCC_KIT_DIR}"
+  test "${z_rbk_kit_dir}" = "${RBCC_KIT_DIR}" || buc_die_now "z_rbk_kit_dir mismatch: ${z_rbk_kit_dir} != ${RBCC_KIT_DIR}"
 
   # Heavy kindles (survey/audit only)
   case "${z_command}" in
@@ -229,8 +229,8 @@ zrbrn_furnish() {
   # the drive fills; mirrors feoff, which never loads the vessel it rewrites).
   if test -n "${BUZ_FOLIO:-}" && test "${z_command}" != "rbrn_drive"; then
     local z_nameplate_file="${RBCC_moorings_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
-    test -f "${z_nameplate_file}" || buc_die "Nameplate not found: ${z_nameplate_file}"
-    source "${z_nameplate_file}" || buc_die "Failed to source nameplate: ${z_nameplate_file}"
+    test -f "${z_nameplate_file}" || buc_die_now "Nameplate not found: ${z_nameplate_file}"
+    source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle
     zrbrn_enforce
   fi

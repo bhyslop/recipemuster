@@ -21,7 +21,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFV_SOURCED:-}" || buc_die "Module rbfv multiply sourced - check sourcing hierarchy"
+test -z "${ZRBFV_SOURCED:-}" || buc_die_now "Module rbfv multiply sourced - check sourcing hierarchy"
 ZRBFV_SOURCED=1
 
 # Source shared Foundry Core module
@@ -31,7 +31,7 @@ source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 # Internal Functions (zrbfv_*)
 
 zrbfv_kindle() {
-  test -z "${ZRBFV_KINDLED:-}" || buc_die "Module rbfv already kindled"
+  test -z "${ZRBFV_KINDLED:-}" || buc_die_now "Module rbfv already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
@@ -50,7 +50,7 @@ zrbfv_kindle() {
 
 zrbfv_sentinel() {
   zrbfc_sentinel
-  test "${ZRBFV_KINDLED:-}" = "1" || buc_die "Module rbfv not kindled - call zrbfv_kindle first"
+  test "${ZRBFV_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv_kindle first"
 }
 
 ######################################################################
@@ -62,8 +62,8 @@ rbfv_vouch_gate() {
   local -r z_vessel="${1:-}"
   local -r z_hallmark="${2:-}"
 
-  test -n "${z_vessel}"       || buc_die "rbfv_vouch_gate: vessel required"
-  test -n "${z_hallmark}" || buc_die "rbfv_vouch_gate: hallmark required"
+  test -n "${z_vessel}"       || buc_die_now "rbfv_vouch_gate: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "rbfv_vouch_gate: hallmark required"
 
   # Vouch package = rbi_hm/<H>/vouch, tag = <H> (hallmark-as-tag).
   local -r z_vouch_tag="${z_hallmark}"
@@ -71,7 +71,7 @@ rbfv_vouch_gate() {
 
   local z_token
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "rbfv_vouch_gate: failed to get Director OAuth token"
+    || buc_die_now "rbfv_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
   local z_curl_status=0
@@ -85,11 +85,11 @@ rbfv_vouch_gate() {
     > "${ZRBFC_SCRATCH_FILE}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
+    || buc_die_now "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
   z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}")
 
   if test "${z_vouch_http_code}" != "200"; then
-    buc_die "Hallmark not vouched: ${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
+    buc_die_now "Hallmark not vouched: ${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"
   fi
 
   buc_info "Vouch verified: ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
@@ -115,14 +115,14 @@ rbfv_about() {
   # Resolve vessel argument (sigil or path) and load
   zrbfc_resolve_vessel "${1:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+  test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
   buc_step "Gating on image artifact existence"
@@ -143,12 +143,12 @@ rbfv_about() {
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
+    || buc_die_now "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
 
   local -r z_image_http_code=$(<"${z_image_gate_status}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image"
+  test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image"
   test "${z_image_http_code}" = "200" \
-    || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — image must exist before about"
+    || buc_die_now "Image artifact not found (HTTP ${z_image_http_code}) — image must exist before about"
 
   buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
@@ -169,10 +169,10 @@ rbfv_about() {
     || z_curl_status=$?
   # RBr_c17
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
+    || buc_die_now "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
   local -r z_about_http_code=$(<"${z_about_gate_status}")
-  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about"
+  test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about"
   if test "${z_about_http_code}" = "200"; then
     buc_warn "Re-about in progress: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark} already exists"
   fi
@@ -196,12 +196,12 @@ zrbfv_graft_metadata_submit() {
 
   # Load vessel (follows reload pattern used by rbfv_about/rbfv_vouch)
   zrbfc_load_vessel "${z_vessel_dir}"
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+  test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Constructing combined about+vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -227,12 +227,12 @@ zrbfv_graft_metadata_submit() {
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
+    || buc_die_now "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
 
   local -r z_image_http_code=$(<"${z_image_gate_status}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image"
+  test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image"
   test "${z_image_http_code}" = "200" \
-    || buc_die "Image artifact not found (HTTP ${z_image_http_code}) — graft push must complete before about+vouch"
+    || buc_die_now "Image artifact not found (HTTP ${z_image_http_code}) — graft push must complete before about+vouch"
 
   buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
@@ -279,12 +279,12 @@ zrbfv_graft_metadata_submit() {
     if test -n "${z_vi_anchor}"; then
       case "${z_vi_anchor}" in
         *:*) : ;;
-        *)   buc_die "Invalid ${z_vi_anchor_var} locator format (expected package-path:tag): ${z_vi_anchor}" ;;
+        *)   buc_die_now "Invalid ${z_vi_anchor_var} locator format (expected package-path:tag): ${z_vi_anchor}" ;;
       esac
       z_vi_pkg_path="${z_vi_anchor%:*}"
       z_vi_tag="${z_vi_anchor##*:}"
-      test -n "${z_vi_pkg_path}" || buc_die "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
-      test -n "${z_vi_tag}"      || buc_die "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      test -n "${z_vi_pkg_path}" || buc_die_now "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      test -n "${z_vi_tag}"      || buc_die_now "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
       z_vi_ref="${z_vi_gar_repo_base}/${z_vi_pkg_path}:${z_vi_tag}"
       z_vi_prov="anchored"
     else
@@ -309,7 +309,7 @@ zrbfv_graft_metadata_submit() {
   # === Combine: preflight + about steps + vouch steps ===
   local -r z_combined_steps="${ZRBFV_GRAFT_META_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_about_steps_file}" "${z_vouch_steps_file}" \
-    > "${z_combined_steps}" || buc_die "Failed to combine preflight, about, and vouch steps"
+    > "${z_combined_steps}" || buc_die_now "Failed to combine preflight, about, and vouch steps"
 
   # Compose Build resource JSON with both _RBGA_ and _RBGV_ substitutions
   buc_log_args "Composing combined about+vouch Build resource JSON"
@@ -398,7 +398,7 @@ zrbfv_graft_metadata_submit() {
       },
       timeout: $zjq_timeout
     }' > "${z_build_file}" \
-    || buc_die "Failed to compose combined about+vouch build JSON"
+    || buc_die_now "Failed to compose combined about+vouch build JSON"
 
   buc_log_args "Combined about+vouch build JSON: ${z_build_file}"
 
@@ -411,8 +411,8 @@ zrbfv_graft_metadata_submit() {
 
   local z_build_id=""
   z_build_id=$(rbuh_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
   local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Combined about+vouch build submitted: ${z_build_id}"
@@ -482,7 +482,7 @@ zrbfv_about_submit() {
       fi
       ;;
     *)
-      buc_die "Unknown vessel mode: ${z_vessel_mode}"
+      buc_die_now "Unknown vessel mode: ${z_vessel_mode}"
       ;;
   esac
 
@@ -547,7 +547,7 @@ zrbfv_about_submit() {
       },
       timeout: $zjq_timeout
     }' > "${z_about_build_file}" \
-    || buc_die "Failed to compose about build JSON"
+    || buc_die_now "Failed to compose about build JSON"
 
   buc_log_args "About build JSON: ${z_about_build_file}"
 
@@ -560,8 +560,8 @@ zrbfv_about_submit() {
 
   local z_build_id=""
   z_build_id=$(rbuh_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
   local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "About build submitted: ${z_build_id}"
@@ -586,17 +586,17 @@ rbfv_vouch() {
 
   if test -z "${z_vessel_dir}"; then
     local z_sigils
-    z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+    z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
     buc_step "Available vessels:"
     local z_sigil=""
     for z_sigil in ${z_sigils}; do
       buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
     done
-    buc_die "Vessel directory required"
+    buc_die_now "Vessel directory required"
   fi
 
   zrbfc_load_vessel "${z_vessel_dir}"
-  test -n "${z_hallmark}" || buc_die "Hallmark parameter required"
+  test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   # Resolve tool images from reliquary (vouch steps use tool images)
   zrbfc_resolve_tool_images
@@ -604,7 +604,7 @@ rbfv_vouch() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Gate: require about exists (about must complete before vouch)
   buc_step "Gating on about artifact existence"
@@ -626,12 +626,12 @@ rbfv_vouch() {
     || z_curl_status=$?
   # RBr_c17
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
+    || buc_die_now "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
   local -r z_about_http_code=$(<"${z_about_gate_status}")
-  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about"
+  test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about"
   test "${z_about_http_code}" = "200" \
-    || buc_die "About artifact not found (HTTP ${z_about_http_code}) — about must complete before vouch"
+    || buc_die_now "About artifact not found (HTTP ${z_about_http_code}) — about must complete before vouch"
 
   buc_info "About artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 
@@ -651,10 +651,10 @@ rbfv_vouch() {
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for vouch artifact (curl exit ${z_curl_status}) — see ${z_vouch_gate_stderr}"
+    || buc_die_now "HEAD request failed for vouch artifact (curl exit ${z_curl_status}) — see ${z_vouch_gate_stderr}"
 
   local -r z_vouch_http_code=$(<"${z_vouch_gate_status}")
-  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for vouch"
+  test -n "${z_vouch_http_code}" || buc_die_now "HTTP status code is empty for vouch"
   if test "${z_vouch_http_code}" = "200"; then
     buc_warn "Re-vouch in progress: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark} already exists"
   fi
@@ -690,7 +690,7 @@ zrbfv_vouch_submit() {
     rbnve_conjure) : ;;  # DSSE verification uses embedded keys, no extra substitutions
     rbnve_bind)    z_bind_source="${RBRV_BIND_IMAGE:-}" ;;
     rbnve_graft)   z_graft_source="${RBRV_GRAFT_IMAGE:-}" ;;
-    *)             buc_die "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
+    *)             buc_die_now "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
   esac
 
   # Resolve base image provenance (for vouch summary recording)
@@ -711,12 +711,12 @@ zrbfv_vouch_submit() {
     if test -n "${z_vi_anchor}"; then
       case "${z_vi_anchor}" in
         *:*) : ;;
-        *)   buc_die "Invalid ${z_vi_anchor_var} locator format (expected package-path:tag): ${z_vi_anchor}" ;;
+        *)   buc_die_now "Invalid ${z_vi_anchor_var} locator format (expected package-path:tag): ${z_vi_anchor}" ;;
       esac
       z_vi_pkg_path="${z_vi_anchor%:*}"
       z_vi_tag="${z_vi_anchor##*:}"
-      test -n "${z_vi_pkg_path}" || buc_die "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
-      test -n "${z_vi_tag}"      || buc_die "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      test -n "${z_vi_pkg_path}" || buc_die_now "Package path is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
+      test -n "${z_vi_tag}"      || buc_die_now "Tag is empty in ${z_vi_anchor_var}: ${z_vi_anchor}"
       z_vi_ref="${z_vi_gar_repo_base}/${z_vi_pkg_path}:${z_vi_tag}"
       z_vi_prov="anchored"
     else
@@ -788,7 +788,7 @@ zrbfv_vouch_submit() {
       },
       timeout: $zjq_timeout
     }' > "${z_vouch_build_file}" \
-    || buc_die "Failed to compose vouch build JSON"
+    || buc_die_now "Failed to compose vouch build JSON"
 
   buc_log_args "Vouch build JSON: ${z_vouch_build_file}"
 
@@ -801,8 +801,8 @@ zrbfv_vouch_submit() {
 
   local z_build_id=""
   z_build_id=$(rbuh_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id=""
-  test -n "${z_build_id}" || buc_die "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die "Failed to persist build ID"
+  test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
   local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Vouch build submitted: ${z_build_id}"
@@ -823,7 +823,7 @@ rbfv_batch_vouch() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
   zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
@@ -884,11 +884,11 @@ rbfv_batch_vouch() {
 
   # Forensic record of pending set.
   local -r z_pending_file="${BURD_TEMP_DIR}/rbfv_batch_pending.txt"
-  : > "${z_pending_file}" || buc_die "Failed to initialize ${z_pending_file}"
+  : > "${z_pending_file}" || buc_die_now "Failed to initialize ${z_pending_file}"
   local z_j=""
   for z_j in "${!z_pending[@]}"; do
     printf '%s\n' "${z_pending[$z_j]}" >> "${z_pending_file}" \
-      || buc_die "Failed to record pending hallmark ${z_pending[$z_j]}"
+      || buc_die_now "Failed to record pending hallmark ${z_pending[$z_j]}"
   done
 
   local -r z_total="${#z_pending[@]}"
@@ -904,7 +904,7 @@ rbfv_batch_vouch() {
 
   # Pass 2: for each pending hallmark, extract about ark, read vessel_name
   # from build_info.json, resolve vessel_dir, call rbfv_vouch. rbfv_vouch
-  # fails via buc_die on any vouch failure — batch terminates fail-fast at
+  # fails via buc_die_now on any vouch failure — batch terminates fail-fast at
   # the broken hallmark rather than masking problems behind a summary count.
   local z_vouched_n=0 z_idx=0 z_vessel=""
   local z_hallmark="" z_about_extract="" z_about_pkg=""
@@ -921,22 +921,22 @@ rbfv_batch_vouch() {
     z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
 
     zrbfc_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}" \
-      || buc_die "Failed to extract about ark for ${z_hallmark} (expected at ${z_about_pkg}:${z_hallmark})"
+      || buc_die_now "Failed to extract about ark for ${z_hallmark} (expected at ${z_about_pkg}:${z_hallmark})"
 
     z_build_info="${z_about_extract}/build_info.json"
     test -f "${z_build_info}" \
-      || buc_die "build_info.json missing in about ark for ${z_hallmark}"
+      || buc_die_now "build_info.json missing in about ark for ${z_hallmark}"
 
     z_vessel_scratch="${BURD_TEMP_DIR}/rbfv_batch_vessel.txt"
     jq -r '.vessel_name // empty' "${z_build_info}" > "${z_vessel_scratch}" \
-      || buc_die "Failed to read vessel_name from ${z_build_info}"
+      || buc_die_now "Failed to read vessel_name from ${z_build_info}"
     z_vessel=$(<"${z_vessel_scratch}")
     test -n "${z_vessel}" \
-      || buc_die "vessel_name empty in about ark for ${z_hallmark}"
+      || buc_die_now "vessel_name empty in about ark for ${z_hallmark}"
 
     z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
     test -d "${z_vessel_dir}" \
-      || buc_die "Vessel directory not found: ${z_vessel_dir} (from about build_info.vessel_name for ${z_hallmark})"
+      || buc_die_now "Vessel directory not found: ${z_vessel_dir} (from about build_info.vessel_name for ${z_hallmark})"
 
     buc_info "Vouching ${z_hallmark} (vessel: ${z_vessel})"
     rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"

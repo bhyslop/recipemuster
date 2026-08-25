@@ -108,7 +108,7 @@ zrbld_underpin_submit() {
       _RBGL_WSL_URL:      $zjq_wsl_url,
       _RBGL_WSL_KEY_FPR:  $zjq_wsl_key_fpr
     }' > "${z_subs_file}" \
-    || buc_die "Failed to compose underpin substitutions blob"
+    || buc_die_now "Failed to compose underpin substitutions blob"
 
   zrbld_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
@@ -137,8 +137,8 @@ rbld_underpin() {
   # path-convention template; the cloud step discovers and verifies the checksum.
   local -r z_release="${BUZ_FOLIO:-}"
   local -r z_point="${1:-}"
-  test -n "${z_release}" || buc_die "release argument required (e.g. 24.04)"
-  test -n "${z_point}"   || buc_die "point argument required (e.g. 4)"
+  test -n "${z_release}" || buc_die_now "release argument required (e.g. 24.04)"
+  test -n "${z_point}"   || buc_die_now "point argument required (e.g. 4)"
 
   local -r z_arch="${RBGC_LODE_WSL_ARCH_DEFAULT}"
   local -r z_fullver="${z_release}.${z_point}"
@@ -159,7 +159,7 @@ rbld_underpin() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.

@@ -24,7 +24,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBLD_SOURCED:-}" || buc_die "Module rbld multiply sourced - check sourcing hierarchy"
+test -z "${ZRBLD_SOURCED:-}" || buc_die_now "Module rbld multiply sourced - check sourcing hierarchy"
 ZRBLD_SOURCED=1
 
 # Source shared Foundry Core module
@@ -47,7 +47,7 @@ source "${BASH_SOURCE[0]%/*}/rbldv_immure.sh"
 # Internal Functions (zrbld_*)
 
 zrbld_kindle() {
-  test -z "${ZRBLD_KINDLED:-}" || buc_die "Module rbld already kindled"
+  test -z "${ZRBLD_KINDLED:-}" || buc_die_now "Module rbld already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
@@ -55,7 +55,7 @@ zrbld_kindle() {
   buc_log_args 'RBGJL ensconce step scripts (same Tools directory)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
   readonly ZRBLD_RBGJL_STEPS_DIR="${z_self_dir}/rbgjl"
-  test -d "${ZRBLD_RBGJL_STEPS_DIR}" || buc_die "RBGJL steps directory not found: ${ZRBLD_RBGJL_STEPS_DIR}"
+  test -d "${ZRBLD_RBGJL_STEPS_DIR}" || buc_die_now "RBGJL steps directory not found: ${ZRBLD_RBGJL_STEPS_DIR}"
 
   buc_log_args 'Define ensconce operation file prefix'
   readonly ZRBLD_ENSCONCE_PREFIX="${BURD_TEMP_DIR}/rbld_ensconce_"
@@ -99,7 +99,7 @@ zrbld_kindle() {
 
 zrbld_sentinel() {
   zrbfc_sentinel
-  test "${ZRBLD_KINDLED:-}" = "1" || buc_die "Module rbld not kindled - call zrbld_kindle first"
+  test "${ZRBLD_KINDLED:-}" = "1" || buc_die_now "Module rbld not kindled - call zrbld_kindle first"
 }
 
 # eof

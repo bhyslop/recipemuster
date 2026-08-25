@@ -42,7 +42,7 @@ rbfh_check() {
   buc_doc_shown || return 0
 
   local -r z_path="${BUZ_FOLIO:-}"
-  test -n "${z_path}" || buc_die "Dockerfile path required (free-form path argument)"
+  test -n "${z_path}" || buc_die_now "Dockerfile path required (free-form path argument)"
 
   buc_step "RBFH Check: ${z_path}"
   rbfh_dockerfile_check "${z_path}"
@@ -60,10 +60,10 @@ rbfh_check_vessel() {
   # Resolve vessel argument (sigil or path) — lists-and-dies on missing/invalid
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Source the vessel's rbrv.env to pick up RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE
-  source "${z_vessel_dir}/${RBCC_rbrv_file}" || buc_die "Failed to source vessel rbrv.env: ${z_vessel_dir}/${RBCC_rbrv_file}"
+  source "${z_vessel_dir}/${RBCC_rbrv_file}" || buc_die_now "Failed to source vessel rbrv.env: ${z_vessel_dir}/${RBCC_rbrv_file}"
 
   # Hygiene is a property of the FROM line; non-conjure vessels have no
   # local Dockerfile, so the contract is vacuously satisfied. Exit silently
@@ -74,7 +74,7 @@ rbfh_check_vessel() {
   fi
 
   test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
-    || buc_die "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' has no RBRV_CONJURE_DOCKERFILE"
+    || buc_die_now "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' has no RBRV_CONJURE_DOCKERFILE"
 
   buc_step "RBFH Check Vessel: ${RBRV_SIGIL:-${z_vessel_dir}} → ${RBRV_CONJURE_DOCKERFILE}"
   rbfh_dockerfile_check "${RBRV_CONJURE_DOCKERFILE}"

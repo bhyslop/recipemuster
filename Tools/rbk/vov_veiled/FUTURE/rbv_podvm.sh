@@ -28,7 +28,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBV_INCLUDED:-}" || buc_die "Module rbv multiply included - check sourcing hierarchy"
+test -z "${ZRBV_INCLUDED:-}" || buc_die_now "Module rbv multiply included - check sourcing hierarchy"
 ZRBV_INCLUDED=1
 
 ######################################################################
@@ -81,12 +81,12 @@ zrbv_kindle() {
 
 zrbv_sentinel() {
   # Guard that kindle ran before function execution
-  test "${ZRBV_KINDLED:-}" = "1" || buc_die "Module rbv not kindled - call zrbv_kindle first"
+  test "${ZRBV_KINDLED:-}" = "1" || buc_die_now "Module rbv not kindled - call zrbv_kindle first"
 }
 
 # Generate brand file content
 zrbv_generate_brand_file() {
-  test ! -f "${ZRBV_GENERATED_BRAND_FILE}" || buc_die 'Brand file already exists'
+  test ! -f "${ZRBV_GENERATED_BRAND_FILE}" || buc_die_now 'Brand file already exists'
 
   {
     echo "# Recipe Bottle VM Brand File"
@@ -114,7 +114,7 @@ zrbv_extract_natural_tag() {
     ;; esac
   done < "${z_init_output_file}" > "${ZRBV_NATURAL_TAG_FILE}"
 
-  test -s "${ZRBV_NATURAL_TAG_FILE}" || buc_die "Failed to extract natural tag from init output"
+  test -s "${ZRBV_NATURAL_TAG_FILE}" || buc_die_now "Failed to extract natural tag from init output"
 }
 
 # Compare two files and return error code if different
@@ -145,7 +145,7 @@ zrbv_remove_vm() {
     buc_info       "Stopping ${z_vm_name}..."
     podman machine stop     "${z_vm_name}" || buc_warn "Failed to stop ${z_vm_name} during _remove_vm"
     buc_info       "Removing ${z_vm_name}..."
-    podman machine rm -f    "${z_vm_name}" || buc_die "Failed to remove ${z_vm_name}"
+    podman machine rm -f    "${z_vm_name}" || buc_die_now "Failed to remove ${z_vm_name}"
   else
     buc_info             "VM ${z_vm_name} does not exist. Nothing to remove."
   fi
@@ -160,12 +160,12 @@ zrbv_ignite_bootstrap() {
   if podman machine inspect "${RBRM_IGNITE_MACHINE_NAME}" &>/dev/null; then
     buc_info "Stopping existing ignite machine (if running)..."
     podman machine stop "${RBRM_IGNITE_MACHINE_NAME}" 2>/dev/null \
-      || buc_die "Could not stop existing ignite VM cleanly"
+      || buc_die_now "Could not stop existing ignite VM cleanly"
   fi
 
   if test "${z_force_reinit}" = "true"; then
     buc_step "Removing existing ignite machine due to force_reinit..."
-    zrbv_remove_vm "${RBRM_IGNITE_MACHINE_NAME}" || buc_die "Removal failed."
+    zrbv_remove_vm "${RBRM_IGNITE_MACHINE_NAME}" || buc_die_now "Removal failed."
   fi
 
   if ! podman machine inspect "${RBRM_IGNITE_MACHINE_NAME}" &>/dev/null; then
@@ -173,26 +173,26 @@ zrbv_ignite_bootstrap() {
     podman machine init --log-level=debug      "${RBRM_IGNITE_MACHINE_NAME}" \
                                             2> "${ZRBV_IGNITE_INIT_STDERR}"  \
          | "${ZRBV_SCRIPT_DIR}/rbupmis_scrub.sh" "${ZRBV_IGNITE_INIT_STDOUT}"  \
-      || buc_die "Bad init."
+      || buc_die_now "Bad init."
 
     buc_step "Starting ignite machine..."
-    podman machine start "${RBRM_IGNITE_MACHINE_NAME}" || buc_die "Failed to start ignite machine"
+    podman machine start "${RBRM_IGNITE_MACHINE_NAME}" || buc_die_now "Failed to start ignite machine"
 
     buc_step "Installing crane..."
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --                        \
         "curl -sL ${RBRM_CRANE_TAR_GZ} | sudo tar -xz -C /usr/local/bin crane" \
-        || buc_die "crane fail"
+        || buc_die_now "crane fail"
 
     buc_step "Verify crane installation..."
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" -- \
-        "crane version" || buc_die "crane confirm fail."
+        "crane version" || buc_die_now "crane confirm fail."
 
     buc_step "Installing tools..."
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" -- \
-        "sudo dnf install -y jq" || buc_die "tools install fail"
+        "sudo dnf install -y jq" || buc_die_now "tools install fail"
   else
     buc_step "Restarting ignite machine..."
-    podman machine start "${RBRM_IGNITE_MACHINE_NAME}" || buc_die "Failed to restart ignite machine"
+    podman machine start "${RBRM_IGNITE_MACHINE_NAME}" || buc_die_now "Failed to restart ignite machine"
   fi
 
   buc_step "Ignite machine ready with crane installed"
@@ -210,14 +210,14 @@ zrbv_process_image_type() {
   buc_step "Retrieving manifest for ${z_family_name} image: ${z_fqin}"
   podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --        \
         "crane manifest ${z_fqin} | jq ." > "${z_manifest_file}" \
-      || buc_die "Failed to retrieve ${z_family_name} manifest"
+      || buc_die_now "Failed to retrieve ${z_family_name} manifest"
 
   buc_step "${z_family_name} Manifest:"
   cat "${z_manifest_file}"
 
   buc_step "Extract manifest entries for ${z_family_name}..."
   jq -r '.manifests[] | @base64' "${z_manifest_file}" > "${z_entries_file}" \
-    || buc_die "Failed to extract ${z_family_name} entries"
+    || buc_die_now "Failed to extract ${z_family_name} entries"
 
   buc_step "${z_family_name} family images:"
   local z_entry_num=0
@@ -282,11 +282,11 @@ rbv_nuke() {
   buc_step "Removing all podman machines..."
   for z_vm in $(podman machine list -q); do
     z_vm="${z_vm%\*}"  # Remove trailing asterisk indicating 'current vm'
-    zrbv_remove_vm "${z_vm}" || buc_die "Attempt to remove VM ${z_vm} failed."
+    zrbv_remove_vm "${z_vm}" || buc_die_now "Attempt to remove VM ${z_vm} failed."
   done
 
   buc_step "Deleting VM cache directory..."
-  rm -rf "${RBRS_PODMAN_ROOT_DIR}/machine"/* || buc_die "Failed to clear VM machine cache"
+  rm -rf "${RBRS_PODMAN_ROOT_DIR}/machine"/* || buc_die_now "Failed to clear VM machine cache"
 
   buc_success "Podman VM environment reset complete"
 }
@@ -308,13 +308,13 @@ rbv_mirror() {
 
   # Perform command
   buc_step "Prepare fresh ignite machine with crane and tools..."
-  zrbv_ignite_bootstrap false || buc_die "Failed to create temp machine"
+  zrbv_ignite_bootstrap false || buc_die_now "Failed to create temp machine"
 
   buc_step "Generate new identity for this build..."
-  date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_TS_FILE}" || buc_die "Failed to generate identity timestamp"
+  date +'%Y%m%d-%H%M%S' > "${ZRBV_IDENTITY_TS_FILE}" || buc_die_now "Failed to generate identity timestamp"
   local z_new_identity
   z_new_identity=$(<"${ZRBV_IDENTITY_TS_FILE}")
-  test -n "${z_new_identity}" || buc_die "Empty identity timestamp from ${ZRBV_IDENTITY_TS_FILE}"
+  test -n "${z_new_identity}" || buc_die_now "Empty identity timestamp from ${ZRBV_IDENTITY_TS_FILE}"
   buc_info "New identity: ${z_new_identity}"
 
   buc_step "Potential container image names for caching:"
@@ -347,14 +347,14 @@ rbv_mirror() {
     fi
   done
 
-  test -z "${z_missing_images}" || buc_die "Missing required disk images:${z_missing_images}"
+  test -z "${z_missing_images}" || buc_die_now "Missing required disk images:${z_missing_images}"
 
   buc_step "All needed disk images are available in upstream manifests"
 
   buc_step "Setting up VM temporary dir..."
   podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --              \
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
-    || buc_die "Failed to create VM temp directory"
+    || buc_die_now "Failed to create VM temp directory"
 
   buc_step "Building container images..."
   for z_needed_image in ${RBRM_MANIFEST_PLATFORMS}; do
@@ -367,16 +367,16 @@ rbv_mirror() {
 
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --                                       \
         "crane manifest ${z_source_fqin}@${z_digest} | jq -r '.layers[]'" > "${ZRBV_LAYERS_JSON}" \
-      || buc_die "Failed to extract layers for ${z_needed_image}"
+      || buc_die_now "Failed to extract layers for ${z_needed_image}"
 
     jq -r 'select(.annotations."org.opencontainers.image.title" // .mediaType | test("disk|raw|tar|qcow2|machine")) | .digest + ":" + .mediaType' \
            "${ZRBV_LAYERS_JSON}" > "${ZRBV_BLOB_INFO}" \
-      || buc_die "Failed to find disk blob for ${z_needed_image}"
+      || buc_die_now "Failed to find disk blob for ${z_needed_image}"
 
     local z_blob_info
     IFS= read -r z_blob_info < "${ZRBV_BLOB_INFO}" || true
 
-    test -n "${z_blob_info}" || buc_die "No disk blob found in manifest for ${z_needed_image}"
+    test -n "${z_blob_info}" || buc_die_now "No disk blob found in manifest for ${z_needed_image}"
 
     local z_blob_digest="${z_blob_info%:*}"
     local z_temp="${z_blob_info#*:}"
@@ -394,14 +394,14 @@ rbv_mirror() {
     local z_vm_blob_file="${ZRBV_VM_BLOB_PREFIX}${z_needed_image}.${z_extension}"
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --              \
         "crane blob ${z_source_fqin}@${z_blob_digest} > ${z_vm_blob_file}" \
-      || buc_die "Failed to download blob for ${z_needed_image}"
+      || buc_die_now "Failed to download blob for ${z_needed_image}"
 
     local z_dockerfile_name="Dockerfile.${z_needed_image}"
     local z_dockerfile_path="${ZRBV_VM_TEMP_DIR}/${z_dockerfile_name}"
 
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --             \
         "echo '${z_new_identity}' > ${ZRBV_VM_TEMP_DIR}/identity.txt" \
-      || buc_die "Failed to create identity file"
+      || buc_die_now "Failed to create identity file"
 
     {
         echo "FROM scratch"
@@ -409,13 +409,13 @@ rbv_mirror() {
         echo "COPY identity.txt /identity.txt"
     } | podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" -- \
         "cat > ${z_dockerfile_path}"                          \
-      || buc_die "Failed to create Dockerfile for ${z_needed_image}"
+      || buc_die_now "Failed to create Dockerfile for ${z_needed_image}"
 
     local z_local_tag="localhost/podvm-${z_needed_image}:${z_new_identity}"
 
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --                                  \
         "cd ${ZRBV_VM_TEMP_DIR} && podman build -f ${z_dockerfile_name} -t ${z_local_tag} ." \
-      || buc_die "Failed to build image for ${z_needed_image}"
+      || buc_die_now "Failed to build image for ${z_needed_image}"
 
   done
 
@@ -429,7 +429,7 @@ rbv_mirror() {
     buc_step "Tagging ${z_needed_image} as ${z_platform_tag}"
     podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --             \
         "podman push ${z_local_tag} docker://${z_platform_tag}"         \
-      || buc_die "Failed to push platform tag for ${z_needed_image}"
+      || buc_die_now "Failed to push platform tag for ${z_needed_image}"
   done
 
   buc_step "Update your RBRM configuration:"
@@ -455,24 +455,24 @@ rbv_fetch() {
 
   # Perform command
   buc_step "Validating platform configuration..."
-  test -n "${RBRS_VM_PLATFORM}" || buc_die "RBRS_VM_PLATFORM not set in station config"
+  test -n "${RBRS_VM_PLATFORM}" || buc_die_now "RBRS_VM_PLATFORM not set in station config"
 
   buc_step "Ensuring cache directory exists..."
-  mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || buc_die "Failed to create cache directory"
+  mkdir -p "${RBRS_VMIMAGE_CACHE_DIR}" || buc_die_now "Failed to create cache directory"
 
   buc_step "Starting ignite VM to access podman image cache..."
-  zrbv_ignite_bootstrap false || buc_die "Failed to start ignite machine"
+  zrbv_ignite_bootstrap false || buc_die_now "Failed to start ignite machine"
 
   local z_platform_tag="${ZRBV_VMIMAGE_TAG_PREFIX}${RBRM_CHOSEN_IDENTITY}-${RBRS_VM_PLATFORM}"
 
   buc_step "Pulling platform-specific container: ${z_platform_tag}"
   podman -c "${RBRM_IGNITE_MACHINE_NAME}" pull "${z_platform_tag}" \
-    || buc_die "Failed to pull platform container: ${z_platform_tag}"
+    || buc_die_now "Failed to pull platform container: ${z_platform_tag}"
 
   buc_step "Creating temporary container from platform image..."
   local z_temp_container_id="${RBV_TEMP_DIR}/platform_container_id.txt"
   podman -c "${RBRM_IGNITE_MACHINE_NAME}" create "${z_platform_tag}" > "${z_temp_container_id}" \
-    || buc_die "Failed to create temporary container"
+    || buc_die_now "Failed to create temporary container"
 
   local z_container_id
   z_container_id=$(<"${z_temp_container_id}")
@@ -480,19 +480,19 @@ rbv_fetch() {
   buc_step "Setting up VM temporary dir..."
   podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --              \
       "rm -rf ${ZRBV_VM_TEMP_DIR} && mkdir -p ${ZRBV_VM_TEMP_DIR}" \
-    || buc_die "Failed to create VM temp directory"
+    || buc_die_now "Failed to create VM temp directory"
 
   buc_step "Extracting disk image from container..."
   local z_vm_temp_disk="${ZRBV_VM_TEMP_DIR}/extracted_disk_image.tar"
   podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" --             \
       "podman cp ${z_container_id}:/disk-image.tar ${z_vm_temp_disk}" \
-    || buc_die "Failed to extract disk image from container"
+    || buc_die_now "Failed to extract disk image from container"
 
   local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRM_CHOSEN_IDENTITY}.tar"
   buc_step "Copying disk image to cache directory as -> ${z_cache_file}"
   podman machine ssh "${RBRM_IGNITE_MACHINE_NAME}" -- \
       "cat ${z_vm_temp_disk}" > "${z_cache_file}"         \
-    || buc_die "Failed to copy disk image to cache"
+    || buc_die_now "Failed to copy disk image to cache"
 
   buc_step "Cleaning up temporary container..."
   podman -c "${RBRM_IGNITE_MACHINE_NAME}" rm "${z_container_id}" \
@@ -522,45 +522,45 @@ rbv_init() {
   # Perform command
   buc_step "Checking if deploy VM exists..."
   local z_machine_list
-  z_machine_list=$(podman machine list) || buc_die "Failed to list podman machines"
+  z_machine_list=$(podman machine list) || buc_die_now "Failed to list podman machines"
   if [[ "${z_machine_list}" =~ ${RBRM_DEPLOY_MACHINE_NAME} ]]; then
-    buc_die "Deploy VM already exists. Remove it first with rbv_nuke or manually"
+    buc_die_now "Deploy VM already exists. Remove it first with rbv_nuke or manually"
   fi
 
   buc_step "Validating platform configuration..."
-  test -n "${RBRS_VM_PLATFORM}" || buc_die "RBRS_VM_PLATFORM not set in station config"
+  test -n "${RBRS_VM_PLATFORM}" || buc_die_now "RBRS_VM_PLATFORM not set in station config"
   case "${RBRM_MANIFEST_PLATFORMS}" in *"${RBRS_VM_PLATFORM}"*) ;; *)
-    buc_die "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRM_MANIFEST_PLATFORMS}" ;; esac
+    buc_die_now "Platform ${RBRS_VM_PLATFORM} not in manifest platforms: ${RBRM_MANIFEST_PLATFORMS}" ;; esac
 
   local z_cache_file="${RBRS_VMIMAGE_CACHE_DIR}/${RBRS_VM_PLATFORM}-${RBRM_CHOSEN_IDENTITY}.tar"
 
   buc_step "Checking for cached VM image..."
   test -f "${z_cache_file}" \
-    || buc_die "VM image not found in cache: ${z_cache_file}" \
+    || buc_die_now "VM image not found in cache: ${z_cache_file}" \
                "Run 'rbv_fetch' first to download the VM image"
 
   buc_step "Initializing machine from cached image..."
   podman machine init --rootful --image "${z_cache_file}" "${RBRM_DEPLOY_MACHINE_NAME}" \
                                           2> "${ZRBV_DEPLOY_INIT_STDERR}"             \
        | "${ZRBV_SCRIPT_DIR}/rbupmis_scrub.sh" "${ZRBV_DEPLOY_INIT_STDOUT}"             \
-    || buc_die "Failed to initialize VM"
+    || buc_die_now "Failed to initialize VM"
 
   buc_step "Starting VM to write brand file..."
-  podman machine start "${RBRM_DEPLOY_MACHINE_NAME}" || buc_die "Failed to start deploy VM"
+  podman machine start "${RBRM_DEPLOY_MACHINE_NAME}" || buc_die_now "Failed to start deploy VM"
 
   buc_step "Generating brand file content..."
   local z_brand_file="${RBV_TEMP_DIR}/brand.txt"
   zrbv_generate_brand_file "${z_brand_file}" \
-    || buc_die "Failed to generate brand file"
+    || buc_die_now "Failed to generate brand file"
 
   buc_step "Writing brand file to VM: ${ZRBV_EMPLACED_BRAND_FILE}"
   podman machine ssh "${RBRM_DEPLOY_MACHINE_NAME}" \
       "sudo tee ${ZRBV_EMPLACED_BRAND_FILE}" < "${z_brand_file}" > /dev/null \
-    || buc_die "Failed to write brand file to VM"
+    || buc_die_now "Failed to write brand file to VM"
 
   buc_step "Stopping VM..."
   podman machine stop "${RBRM_DEPLOY_MACHINE_NAME}" \
-    || buc_die "Failed to stop deploy VM"
+    || buc_die_now "Failed to stop deploy VM"
 
   buc_success "Deploy VM initialized with brand file"
 }

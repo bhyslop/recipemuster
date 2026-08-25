@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBRM_SOURCED:-}" || buc_die "Module rbrm multiply sourced - check sourcing hierarchy"
+test -z "${ZRBRM_SOURCED:-}" || buc_die_now "Module rbrm multiply sourced - check sourcing hierarchy"
 ZRBRM_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbrm_*)
 
 zrbrm_kindle() {
-  test -z "${ZRBRM_KINDLED:-}" || buc_die "Module rbrm already kindled"
+  test -z "${ZRBRM_KINDLED:-}" || buc_die_now "Module rbrm already kindled"
 
   buv_regime_enroll RBRM
 
@@ -53,7 +53,7 @@ zrbrm_kindle() {
 }
 
 zrbrm_sentinel() {
-  test "${ZRBRM_KINDLED:-}" = "1" || buc_die "Module rbrm not kindled - call zrbrm_kindle first"
+  test "${ZRBRM_KINDLED:-}" = "1" || buc_die_now "Module rbrm not kindled - call zrbrm_kindle first"
 }
 
 # Enforce all RBRM enrollment validations and custom format checks
@@ -65,11 +65,11 @@ zrbrm_enforce() {
   local z_platform=""
   for z_platform in ${RBRM_MANIFEST_PLATFORMS}; do
     [[ "${z_platform}" =~ ^[a-z0-9_]+$ ]] \
-      || buc_die "Invalid platform format in RBRM_MANIFEST_PLATFORMS: ${z_platform}"
+      || buc_die_now "Invalid platform format in RBRM_MANIFEST_PLATFORMS: ${z_platform}"
   done
 
   [[ "${RBRM_CHOSEN_PODMAN_VERSION}" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] \
-    || buc_die "Invalid RBRM_CHOSEN_PODMAN_VERSION format: ${RBRM_CHOSEN_PODMAN_VERSION} (expected N.N or N.N.N)"
+    || buc_die_now "Invalid RBRM_CHOSEN_PODMAN_VERSION format: ${RBRM_CHOSEN_PODMAN_VERSION} (expected N.N or N.N.N)"
 }
 
 # eof

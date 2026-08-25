@@ -38,7 +38,7 @@ set -euo pipefail
 # rbfl0_ledger for abjure), so it carries its own guard (BCG "the
 # single-guard rule, and its one exception"). rbld and rbfl are never
 # co-furnished, so the guard is the documented backstop, not a live fire.
-test -z "${ZRBLDD_SOURCED:-}" || buc_die "Module rbldd multiply sourced - check sourcing hierarchy"
+test -z "${ZRBLDD_SOURCED:-}" || buc_die_now "Module rbldd multiply sourced - check sourcing hierarchy"
 ZRBLDD_SOURCED=1
 
 ######################################################################
@@ -59,14 +59,14 @@ zrbld_cloud_delete_dispatch() {
   local -r z_token="${1:?Token required}";              shift
   local -r z_label="${1:?Label required}";              shift
   local -r z_temp_prefix="${1:?Temp prefix required}";  shift
-  test "$#" -ge 1 || buc_die "zrbld_cloud_delete_dispatch: at least one package required"
+  test "$#" -ge 1 || buc_die_now "zrbld_cloud_delete_dispatch: at least one package required"
   local -r z_packages="$*"
 
   buc_log_args "Deriving Director mantle service-account email for the delete build run-as identity"
   local -r z_director_sa="${RBCC_account_mantle_director}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
 
   local -r z_step_path="${BASH_SOURCE[0]%/*}/rbgjl/rbgjl06-package-delete.py"
-  test -f "${z_step_path}" || buc_die "Delete step script not found: ${z_step_path}"
+  test -f "${z_step_path}" || buc_die_now "Delete step script not found: ${z_step_path}"
 
   buc_log_args "Composing ${z_label} delete substitutions blob"
   local -r z_subs_file="${z_temp_prefix}delete_subs.json"
@@ -79,7 +79,7 @@ zrbld_cloud_delete_dispatch() {
       _RBGL_GAR_PACKAGE_BASE: $zjq_pkg_base,
       _RBGL_DELETE_PACKAGES:  $zjq_packages
     }' > "${z_subs_file}" \
-    || buc_die "Failed to compose ${z_label} delete substitutions blob"
+    || buc_die_now "Failed to compose ${z_label} delete substitutions blob"
 
   local -r z_recipe_row="${z_step_path}|${ZRBFC_DELETE_BUILDER}|package-delete|python3"
 

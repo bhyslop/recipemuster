@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBRN_SOURCED:-}" || buc_die "Module rbrn multiply sourced - check sourcing hierarchy"
+test -z "${ZRBRN_SOURCED:-}" || buc_die_now "Module rbrn multiply sourced - check sourcing hierarchy"
 ZRBRN_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbrn_*)
 
 zrbrn_kindle() {
-  test -z "${ZRBRN_KINDLED:-}" || buc_die "Module rbrn already kindled"
+  test -z "${ZRBRN_KINDLED:-}" || buc_die_now "Module rbrn already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -90,7 +90,7 @@ zrbrn_kindle() {
 }
 
 zrbrn_sentinel() {
-  test "${ZRBRN_KINDLED:-}" = "1" || buc_die "Module rbrn not kindled - call zrbrn_kindle first"
+  test "${ZRBRN_KINDLED:-}" = "1" || buc_die_now "Module rbrn not kindled - call zrbrn_kindle first"
 }
 
 # Enforce all RBRN enrollment validations and custom format checks
@@ -159,9 +159,9 @@ rbrn_require_armed() {
   local -r z_bottle_hallmark="${3:-}"
 
   rbrn_hallmark_armed_predicate "${z_sentry_hallmark}" \
-    || buc_die "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
   rbrn_hallmark_armed_predicate "${z_bottle_hallmark}" \
-    || buc_die "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
 }
 
 ######################################################################
@@ -205,7 +205,7 @@ rbrn_preflight() {
         source "$1" || exit 1
         echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}"
       ' _ "${z_nameplate_files[$z_nf_i]}"
-    ) || buc_die "Preflight isolation failed for: ${z_nameplate_files[$z_nf_i]}"
+    ) || buc_die_now "Preflight isolation failed for: ${z_nameplate_files[$z_nf_i]}"
     z_data_lines+=("${z_line}")
   done
 
@@ -230,7 +230,7 @@ rbrn_preflight() {
   local z_bottle=""
   for z_nf_i in "${!z_data_lines[@]}"; do
     IFS='|' read -r z_mon z_entry z_ws z_enc z_base z_mask z_sentry z_bottle <<< "${z_data_lines[$z_nf_i]}" \
-      || buc_die "Failed to parse nameplate data line"
+      || buc_die_now "Failed to parse nameplate data line"
     test -n "${z_mon}" || continue
 
     # Workstation and enclave port uniqueness (enabled entries only)
@@ -238,7 +238,7 @@ rbrn_preflight() {
       local z_i
       for z_i in "${!z_ws_port_keys[@]}"; do
         if test "${z_ws_port_keys[$z_i]}" = "${z_ws}"; then
-          buc_die "Port conflict: RBRN_ENTRY_PORT_WORKSTATION=${z_ws} claimed by both ${z_ws_port_vals[$z_i]} and ${z_mon}"
+          buc_die_now "Port conflict: RBRN_ENTRY_PORT_WORKSTATION=${z_ws} claimed by both ${z_ws_port_vals[$z_i]} and ${z_mon}"
         fi
       done
       z_ws_port_keys+=("${z_ws}")
@@ -248,7 +248,7 @@ rbrn_preflight() {
       local z_enc_key="${z_base}:${z_enc}"
       for z_i in "${!z_enc_port_keys[@]}"; do
         if test "${z_enc_port_keys[$z_i]}" = "${z_enc_key}"; then
-          buc_die "Port conflict: RBRN_ENTRY_PORT_ENCLAVE=${z_enc} on network ${z_base} claimed by both ${z_enc_port_vals[$z_i]} and ${z_mon}"
+          buc_die_now "Port conflict: RBRN_ENTRY_PORT_ENCLAVE=${z_enc} on network ${z_base} claimed by both ${z_enc_port_vals[$z_i]} and ${z_mon}"
         fi
       done
       z_enc_port_keys+=("${z_enc_key}")
@@ -259,7 +259,7 @@ rbrn_preflight() {
     local z_j
     for z_j in "${!z_ip_keys[@]}"; do
       if test "${z_ip_keys[$z_j]}" = "${z_sentry}"; then
-        buc_die "IP conflict: ${z_sentry} claimed by ${z_mon} (sentry) and ${z_ip_vals[$z_j]}"
+        buc_die_now "IP conflict: ${z_sentry} claimed by ${z_mon} (sentry) and ${z_ip_vals[$z_j]}"
       fi
     done
     z_ip_keys+=("${z_sentry}")
@@ -267,7 +267,7 @@ rbrn_preflight() {
 
     for z_j in "${!z_ip_keys[@]}"; do
       if test "${z_ip_keys[$z_j]}" = "${z_bottle}"; then
-        buc_die "IP conflict: ${z_bottle} claimed by ${z_mon} (bottle) and ${z_ip_vals[$z_j]}"
+        buc_die_now "IP conflict: ${z_bottle} claimed by ${z_mon} (bottle) and ${z_ip_vals[$z_j]}"
       fi
     done
     z_ip_keys+=("${z_bottle}")
@@ -283,7 +283,7 @@ rbrn_preflight() {
     local z_k
     for z_k in "${!z_net_starts[@]}"; do
       if [[ ${z_net_addr} -le ${z_net_ends[$z_k]} ]] && [[ ${z_net_starts[$z_k]} -le ${z_net_end} ]]; then
-        buc_die "Subnet overlap: ${z_base}/${z_mask} (${z_mon}) overlaps with network of ${z_net_owners[$z_k]}"
+        buc_die_now "Subnet overlap: ${z_base}/${z_mask} (${z_mon}) overlaps with network of ${z_net_owners[$z_k]}"
       fi
     done
     z_net_starts+=("${z_net_addr}")
