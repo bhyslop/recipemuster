@@ -676,13 +676,25 @@ fn zrbtdrn_prefix_of(name: &str) -> &str {
 const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 
 /// Check 1 — citation integrity: every mapping-declared quoin and every
-/// `{term}`/`RBr_xxx` citation anywhere in the corpus resolves to a real
-/// `[[anchor]]` definition site. `all_files` covers both `.adoc` and `.sh`
-/// content (a rivet may be cited from either); braced-citation and mapping
-/// scanning apply only to the `.adoc` corpus, since `{term}` and `:term:` are
-/// AsciiDoc syntax. `unanchored_exempt_paths` names sheaves whose pre-existing
-/// unanchored mapping entries are a recorded, out-of-scope drafting gap
-/// rather than a fresh violation.
+/// `{term}`/`RBr_xxx` citation in the JUDGED set resolves to a real
+/// `[[anchor]]` definition site somewhere in the ANCHOR set.
+///
+/// The two sets are distinct because definition and jurisdiction are distinct
+/// questions. `anchor_files` is where a definition may lawfully live: the whole
+/// spec corpus, every kit in it, since a sheaf borrowing a sibling kit's term
+/// by declaring the mapping locally is ordinary MCM practice and its anchor is
+/// then simply elsewhere. `judged_adoc` and `judged_all` are the sites this
+/// fixture rules on — RBK's own, its jurisdiction. Harvesting anchors only from
+/// the judged set would read every lawful cross-kit borrow as a dangling
+/// citation; judging every file the anchors were harvested from would drag
+/// other kits' documents before an RBK checker.
+///
+/// `judged_all` covers both `.adoc` and `.sh` content (a rivet may be cited
+/// from either); braced-citation and mapping scanning apply only to
+/// `judged_adoc`, since `{term}` and `:term:` are AsciiDoc syntax.
+/// `unanchored_exempt_paths` names sheaves whose pre-existing unanchored
+/// mapping entries are a recorded, out-of-scope drafting gap rather than a
+/// fresh violation.
 ///
 /// A `{term}` citation is judged only when `term`'s prefix is a *known quoin
 /// family* — at least one mapping-declared name carries that same prefix
@@ -692,13 +704,14 @@ const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 /// mechanical way to tell a real citation from that noise without parsing
 /// quote/code-span context.
 fn zrbtdrn_check_citations(
-    adoc_files: &[(&str, &str)],
-    all_files: &[(&str, &str)],
+    anchor_files: &[(&str, &str)],
+    judged_adoc: &[(&str, &str)],
+    judged_all: &[(&str, &str)],
     unanchored_exempt_paths: &[&str],
 ) -> Vec<zrbtdrn_OneHomeHit> {
     let mut anchors: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut mapping: std::collections::HashMap<String, String> = std::collections::HashMap::new();
-    for (_, content) in adoc_files {
+    for (_, content) in anchor_files {
         for line in content.lines() {
             if let Some(name) = zrbtdrn_parse_anchor(line) {
                 anchors.insert(name);
@@ -713,7 +726,7 @@ fn zrbtdrn_check_citations(
 
     let mut hits = Vec::new();
 
-    for (path, content) in adoc_files {
+    for (path, content) in judged_adoc {
         if unanchored_exempt_paths.contains(path) {
             continue;
         }
@@ -745,7 +758,7 @@ fn zrbtdrn_check_citations(
         }
     }
 
-    for (path, content) in all_files {
+    for (path, content) in judged_all {
         for (idx, line) in content.lines().enumerate() {
             if zrbtdrn_parse_anchor(line).is_some() {
                 continue;
@@ -926,11 +939,21 @@ const ZRBTDRN_FEODARY_REVISION: i64 = 1;
 /// follows from the door that stood the kraal up.
 const ZRBTDRN_CORPUS_ROAD_ROLES: &[&str] = &["vulgate", "lectern"];
 
-/// RBK's spec home on the corpus road. Scoped to `specs/rbk` (not the whole
-/// `specs/`) to hold the same RBK-only jurisdiction the scan roots keep. Also
-/// the rendering root's tail: a corpus file renders CORPUS-ROOT-relative, so
-/// `specs/rbk/RBS0-SpecTop.adoc` is its form whichever tree holds the corpus.
+/// RBK's spec home on the corpus road — the JUDGED set's root. Scoped to
+/// `specs/rbk` (not the whole `specs/`) to hold the same RBK-only jurisdiction
+/// the scan roots keep. Also the rendering root's tail: a corpus file renders
+/// CORPUS-ROOT-relative, so `specs/rbk/RBS0-SpecTop.adoc` is its form whichever
+/// tree holds the corpus.
 const ZRBTDRN_CORPUS_SPEC_SUBDIR: &str = "specs/rbk";
+
+/// The whole spec corpus on the corpus road — the ANCHOR set's root, every kit
+/// in it. Wider than the judged root above on purpose: a definition may
+/// lawfully live in a sibling kit's sheaf, and RBS0 borrowing CMK's
+/// `axw_wythe` by declaring the mapping locally is the standing case. Reading
+/// anchors only from RBK's own subtree reports that borrow as a dangling
+/// citation — a false positive that says the corpus is broken when it is the
+/// checker's horizon that is short.
+const ZRBTDRN_CORPUS_ANCHOR_SUBDIR: &str = "specs";
 
 /// One tree row of the kraal register: where it stands, and what it is for.
 struct zrbtdrn_FeodaryTree {
@@ -1224,9 +1247,12 @@ fn rbtdrn_onehome_residue_live(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Live case — the two corpus-BOUND checks: citation integrity and rivet-hoist
-/// placement. Locates the kraal's corpus road, reads `specs/rbk` off it for the
-/// `.adoc` anchor corpus, and joins the in-repo `.adoc` and `.sh` sets, since a
-/// rivet may be cited from either.
+/// placement. Locates the kraal's corpus road and reads `specs/` off it, every
+/// kit's sheaves joining the ANCHOR set while only `specs/rbk` joins the JUDGED
+/// set (`zrbtdrn_check_citations` carries why the two differ). The in-repo
+/// `.adoc` and `.sh` sets join both sides, since a rivet may be cited from
+/// either. Rivet-hoist rules the judged set alone — placement is a jurisdiction
+/// question, and a sibling kit's rivets are not RBK's to rule on.
 ///
 /// Three verdicts, and the discrimination among them is the whole point of this
 /// case standing alone. SKIP where no kraal register claims this repo, naming
@@ -1262,14 +1288,19 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
         }
         Ok(zrbtdrn_CorpusRoad::Found(p)) => p,
     };
-    let specs = road.join(ZRBTDRN_CORPUS_SPEC_SUBDIR);
+    let corpus_root = road.join(ZRBTDRN_CORPUS_ANCHOR_SUBDIR);
 
-    let (mut adoc_owned, sh_owned) = zrbtdrn_walk_repo_corpus(&root);
-    let in_repo_adoc = adoc_owned.len();
+    // The in-repo `.adoc` files are both anchor sources and judged sites; the
+    // corpus splits, every kit's sheaf anchoring and only RBK's judged.
+    let (mut judged_adoc_owned, sh_owned) = zrbtdrn_walk_repo_corpus(&root);
+    let mut anchor_owned: Vec<(String, String)> = judged_adoc_owned.clone();
+    let in_repo_adoc = anchor_owned.len();
+    let judged_prefix = format!("{}/", ZRBTDRN_CORPUS_SPEC_SUBDIR);
 
     let mut spec_files: Vec<PathBuf> = Vec::new();
-    zrbtdrn_walk(&specs, &mut spec_files);
+    zrbtdrn_walk(&corpus_root, &mut spec_files);
     spec_files.sort();
+    let mut judged_corpus_adoc = 0usize;
     for path in &spec_files {
         if path.extension().and_then(|e| e.to_str()) != Some("adoc") {
             continue;
@@ -1278,40 +1309,48 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
             Ok(c) => c,
             Err(_) => continue,
         };
-        adoc_owned.push((
-            crate::rbtdrx_platform::rbtdrx_repo_rel(&road, path),
-            content,
-        ));
+        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&road, path);
+        if rel.starts_with(&judged_prefix) {
+            judged_adoc_owned.push((rel.clone(), content.clone()));
+            judged_corpus_adoc += 1;
+        }
+        anchor_owned.push((rel, content));
     }
-    let corpus_adoc = adoc_owned.len() - in_repo_adoc;
-    if corpus_adoc == 0 {
+    let anchor_corpus_adoc = anchor_owned.len() - in_repo_adoc;
+    if judged_corpus_adoc == 0 {
         return rbtdre_Verdict::Fail(format!(
-            "corpus road stands at {} but {} yielded no .adoc anchor corpus — a half-broken \
+            "corpus road stands at {} but {} yielded no .adoc under {} — a half-broken \
              checkout, refusing to run the citation-integrity and rivet-hoist checks against \
-             an empty anchor set",
+             an empty judged set",
             road.display(),
-            specs.display()
+            corpus_root.display(),
+            ZRBTDRN_CORPUS_SPEC_SUBDIR
         ));
     }
 
-    let adoc_refs: Vec<(&str, &str)> = adoc_owned
+    let anchor_refs: Vec<(&str, &str)> = anchor_owned
         .iter()
         .map(|(p, c)| (p.as_str(), c.as_str()))
         .collect();
-    let mut all_owned: Vec<(String, String)> = adoc_owned.clone();
-    all_owned.extend(sh_owned.iter().cloned());
-    let all_refs: Vec<(&str, &str)> = all_owned
+    let judged_adoc_refs: Vec<(&str, &str)> = judged_adoc_owned
+        .iter()
+        .map(|(p, c)| (p.as_str(), c.as_str()))
+        .collect();
+    let mut judged_all_owned: Vec<(String, String)> = judged_adoc_owned.clone();
+    judged_all_owned.extend(sh_owned.iter().cloned());
+    let judged_all_refs: Vec<(&str, &str)> = judged_all_owned
         .iter()
         .map(|(p, c)| (p.as_str(), c.as_str()))
         .collect();
 
     let mut hits = zrbtdrn_check_citations(
-        &adoc_refs,
-        &all_refs,
+        &anchor_refs,
+        &judged_adoc_refs,
+        &judged_all_refs,
         ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS,
     );
     hits.extend(zrbtdrn_check_rivet_hoist(
-        &adoc_refs,
+        &judged_adoc_refs,
         ZRBTDRN_HOIST_WAIVERS,
         ZRBTDRN_CODEX_SHEAF,
         ZRBTDRN_HOIST_INDEX_SHEAVES,
@@ -1319,9 +1358,12 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
 
     let mut report = zrbtdrn_onehome_render(&hits);
     report.push_str(&format!(
-        "corpus road {} — {} anchor .adoc under {}, {} in-repo .adoc, {} shipped .sh\n",
+        "corpus road {} — {} anchor .adoc under {}, of which {} judged under {}; \
+         {} in-repo .adoc, {} shipped .sh\n",
         road.display(),
-        corpus_adoc,
+        anchor_corpus_adoc,
+        ZRBTDRN_CORPUS_ANCHOR_SUBDIR,
+        judged_corpus_adoc,
         ZRBTDRN_CORPUS_SPEC_SUBDIR,
         in_repo_adoc,
         sh_owned.len()
@@ -1370,7 +1412,7 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
     let all = vec![a, exempt];
     // Synthetic roster, not the live one: the exemption mechanism stays proven
     // whatever the live roster holds — including empty.
-    let hits = zrbtdrn_check_citations(&adoc, &all, &[exempt.0]);
+    let hits = zrbtdrn_check_citations(&adoc, &adoc, &all, &[exempt.0]);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
     let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
     let mut got = kinds.clone();
