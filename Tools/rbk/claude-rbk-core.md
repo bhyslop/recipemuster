@@ -72,7 +72,7 @@ Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered si
 - **RBYC** → `Tools/rbk/rbyc_common.sh` (Common vocabulary — linked term constants for handbook yelp fragments)
 - **RBQ**  → `Tools/rbk/rbq_qualify.sh` (Qualification orchestrator - tabtarget/colophon/nameplate health)
 - **RBTD** → `Tools/rbk/rbtd/` (Theurge — crucible test orchestrator)
-- **RBTW** → `Tools/rbk/rbtd/rbtw_workbench.sh` (Theurge workbench — build/test routing)
+- **RBTE** → `Tools/rbk/rbtd/rbte_cli.sh` (Theurge test engine CLI entry point)
 - **RBUH** → `Tools/rbk/rbuh_http.sh` (Utility HTTP — JSON REST, polling, shared temp-file machinery)
 
 ## Moorings Filesystem Family (`rbm*_`)

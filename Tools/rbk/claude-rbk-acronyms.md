@@ -58,5 +58,5 @@
 - **RBYC** → `Tools/rbk/rbyc_common.sh`
 - **RBQ** → `Tools/rbk/rbq_qualify.sh`
 - **RBTD** → `Tools/rbk/rbtd/`
-- **RBTW** → `Tools/rbk/rbtd/rbtw_workbench.sh`
+- **RBTE** → `Tools/rbk/rbtd/rbte_cli.sh`
 - **RBUH** → `Tools/rbk/rbuh_http.sh`
