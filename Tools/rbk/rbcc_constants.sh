@@ -147,8 +147,7 @@ RBCC_verb_yoke="yoke"
 # opinion RB-side and out of BUK. Each creed continues the gate's canonical
 # grievance ("… uncommitted changes — <creed>"), so it reads as the site's
 # reason for demanding a clean tree plus a commit-first directive. One creed per
-# rationale family (sites sharing a rationale share a creed); the former per-verb
-# gate labels retired with the malformed gate they announced. Consumed only by
+# rationale family (sites sharing a rationale share a creed). Consumed only by
 # bash gate sites (no theurge assertion), so none is projected to the Rust band —
 # the band itself (BUBC_band_clean_tree) is the theurge stream's assertion target.
 #   clean_build   — image builds that stamp HEAD into the image (conjure, mirror, kludge)
@@ -225,9 +224,7 @@ RBCC_container_sentry="sentry"
 # teaches). Returns nonzero without emitting when no foedus resolves — the
 # caller's `source "$(...)" || buc_die_now` surfaces it. The selector is only live
 # after rbrr.env is sourced, which every runtime consumer does before calling
-# this; a no-repo-regime context simply never calls it. This on-demand
-# resolution replaces the former source-time RBCC_rbrf_file constant — the
-# deferred federation family-of-named-instances rework.
+# this; a no-repo-regime context simply never calls it.
 rbcc_rbrf_file_capture() {
   local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
   test -n "${z_foedus}" || return 1

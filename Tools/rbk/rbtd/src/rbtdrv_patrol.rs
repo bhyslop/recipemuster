@@ -1672,7 +1672,7 @@ pub static RBTDRV_CASES_FOEDUS_REUSE: &[rbtdre_Case] = &[case!(rbtdrv_foedus_reu
 // brevet — rides, so governor is pinned as an always-held mantle.
 //
 // Terrier-band arc — the regime-poison analogue for HTTP, folded in as the negative
-// coverage that superseded the retired interim terrier-atomicity rbw-dT proof (whose
+// coverage for terrier atomicity (whose
 // positive round-trip is already exercised by the real brevet/unseat the admission
 // arc and freehold-establish drive). Drive the SAME real verbs under the rbuh
 // http-fault seam (RBTDGC_TWEAK_HTTP_FAULT), forcing each muniment sub-op's captured

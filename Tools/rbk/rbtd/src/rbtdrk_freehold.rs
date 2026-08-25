@@ -22,8 +22,7 @@
 // for the scheme: prefix bases, family stem, static SA identities, the env-file
 // install/rewrite helpers, the auto-increment moniker picker, and the case
 // precondition probes. The fixtures compose on top of it; none carries its own
-// copy. (The collapse of the former canonical/pristine two-scheme world: the
-// surviving cloud/runtime prefix VALUES are `canc`/`canr` and the family stem is
+// copy. (The cloud/runtime prefix VALUES are `canc`/`canr` and the family stem is
 // `canest3`, kept as opaque deployed strings so the live freehold keeps working
 // — the names here are freehold vocabulary, the values are vestigial.)
 //
