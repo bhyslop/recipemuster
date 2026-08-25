@@ -7,6 +7,7 @@
 - **BUE** → `Tools/buk/bue_exergue.sh`
 - **BUG** → `Tools/buk/bug_git.sh`
 - **BUH** → `Tools/buk/buh_handbook.sh`
+- **BUPE** → `Tools/buk/bupe_cli.sh`
 - **BUT** → `Tools/buk/but_test.sh`
 - **BUYM** → `Tools/buk/buym_yelp.sh`
 - **BUV** → `Tools/buk/buv_validation.sh`
