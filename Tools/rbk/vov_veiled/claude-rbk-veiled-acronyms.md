@@ -1,12 +1,12 @@
 ## File Acronym Mappings — RBK Veiled (`Tools/rbk/vov_veiled/`)
 
-- **CBG** → `jjqs_studbook/guides/rbk/CBG-CloudBuildGuide.md`
-- **JDG** → `jjqs_studbook/guides/rbk/JDG-JailerDialectGuide.md`
-- **PUCG** → `jjqs_studbook/guides/rbk/PUCG_PlantUmlCodingGuide.md`
-- **RBS0** → `jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`
-- **RBRN** → `jjqs_studbook/specs/rbk/RBRN-RegimeNameplate.adoc`
-- **RBHW0** → `rbk/vov_veiled/rbhw0_*.sh`
-- **RBDGP** → `rbk/vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}`
+- **CBG** → `guides/rbk/CBG-CloudBuildGuide.md`
+- **JDG** → `guides/rbk/JDG-JailerDialectGuide.md`
+- **PUCG** → `guides/rbk/PUCG_PlantUmlCodingGuide.md`
+- **RBS0** → `specs/rbk/RBS0-SpecTop.adoc`
+- **RBRN** → `specs/rbk/RBRN-RegimeNameplate.adoc`
+- **RBHW0** → `Tools/rbk/vov_veiled/rbhw0_*.sh`
+- **RBDGP** → `Tools/rbk/vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}`
 
 ## Carried BUK rows — a curated subset, and a shrinking bridge
 
@@ -32,6 +32,6 @@ file must not name, which the veiled-acronym reference lint reads. For the roste
 duty these tokens are recipemuster's, whatever kit owns them upstream: with no buk
 veiled index left in this tree, this file is the whole roster.
 
-- **BCG** → `jjqs_studbook/guides/buk/BCG-BashConsoleGuide.md`
-- **WSG** → `jjqs_studbook/guides/buk/WSG-WindowsScriptingGuide.md`
-- **BUS0** → `jjqs_studbook/specs/buk/BUS0-BashUtilitiesSpec.adoc`
+- **BCG** → `guides/buk/BCG-BashConsoleGuide.md`
+- **WSG** → `guides/buk/WSG-WindowsScriptingGuide.md`
+- **BUS0** → `specs/buk/BUS0-BashUtilitiesSpec.adoc`
