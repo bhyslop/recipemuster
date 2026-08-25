@@ -60,11 +60,11 @@ zrbfc_list_packages_capture() {
     | select(length == 2)
     | "\(.[0]) \(.[1])"
   ' "${z_resp_file}" > "${z_raw_file}" \
-    || buc_die "Failed to extract GAR package list"
+    || buc_die_now "Failed to extract GAR package list"
 
   local -r z_sorted_file="${BURD_TEMP_DIR}/rbfc_package_list_sorted.txt"
   sort "${z_raw_file}" > "${z_sorted_file}" \
-    || buc_die "Failed to sort GAR package list"
+    || buc_die_now "Failed to sort GAR package list"
 
   # Per-package tags.list filter: skip packages with zero live tags. RBr_w9k
   : > "${ZRBFC_PACKAGE_LIST_FILE}"
@@ -80,7 +80,7 @@ zrbfc_list_packages_capture() {
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
     rbuh_require_ok "List tags for ${z_pkg_name}" "${z_tag_infix}"
     z_tag_count=$(rbuh_json_field_capture "${z_tag_infix}" '(.tags // []) | length') \
-      || buc_die "Failed to count tags for ${z_pkg_name}"
+      || buc_die_now "Failed to count tags for ${z_pkg_name}"
     test "${z_tag_count}" -gt 0 || continue
     echo "${z_element} ${z_basename}" >> "${ZRBFC_PACKAGE_LIST_FILE}"
   done < "${z_sorted_file}"
@@ -120,10 +120,10 @@ zrbfc_list_anchors_capture() {
     | select(length == 1)
     | .[0]
   ' "${z_resp_file}" > "${z_raw_file}" \
-    || buc_die "Failed to extract GAR anchor package list"
+    || buc_die_now "Failed to extract GAR anchor package list"
 
   sort "${z_raw_file}" > "${ZRBFC_PACKAGE_LIST_FILE}" \
-    || buc_die "Failed to sort GAR anchor package list"
+    || buc_die_now "Failed to sort GAR anchor package list"
 }
 
 # Internal: extract files from a FROM-scratch artifact in GAR to a local directory.
@@ -131,7 +131,7 @@ zrbfc_list_anchors_capture() {
 # identical for architecture-independent artifacts like -about and -vouch).
 # Args: token package tag extract_dir
 # Returns: 0 if extraction succeeded, 1 if artifact not found in registry.
-# Infrastructure failures (curl, jq, tar) are fatal via buc_die.
+# Infrastructure failures (curl, jq, tar) are fatal via buc_die_now.
 zrbfc_gar_extract_artifact() {
   zrbfc_sentinel
 
@@ -159,7 +159,7 @@ zrbfc_gar_extract_artifact() {
     > "${z_head_status}" 2>"${z_head_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
+    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
 
   local -r z_http_code=$(<"${z_head_status}")
   test "${z_http_code}" = "200" || return 1
@@ -176,7 +176,7 @@ zrbfc_gar_extract_artifact() {
     > "${z_manifest}" 2>"${z_manifest_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
+    || buc_die_now "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
 
   # Resolve to a single-platform manifest
   local z_single_manifest="${z_manifest}"
@@ -190,9 +190,9 @@ zrbfc_gar_extract_artifact() {
       local -r z_digest_file="${z_prefix}platform_digest.txt"
       jq -r '.manifests[0].digest // empty' "${z_manifest}" \
         > "${z_digest_file}" 2>/dev/null \
-        || buc_die "Failed to extract platform digest from manifest list"
+        || buc_die_now "Failed to extract platform digest from manifest list"
       local -r z_platform_digest=$(<"${z_digest_file}")
-      test -n "${z_platform_digest}" || buc_die "Empty platform digest in manifest list"
+      test -n "${z_platform_digest}" || buc_die_now "Empty platform digest in manifest list"
 
       local -r z_plat_manifest="${z_prefix}plat_manifest.json"
       local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
@@ -205,7 +205,7 @@ zrbfc_gar_extract_artifact() {
         > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
         || z_curl_status=$?
       test "${z_curl_status}" -eq 0 \
-        || buc_die "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
+        || buc_die_now "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
       z_single_manifest="${z_plat_manifest}"
       ;;
   esac
@@ -218,11 +218,11 @@ zrbfc_gar_extract_artifact() {
   local -r z_layers_stderr="${z_prefix}layer_digests_stderr.txt"
   jq -r '.layers[].digest' "${z_single_manifest}" \
     > "${z_layers_file}" 2>"${z_layers_stderr}" \
-    || buc_die "Failed to extract layer digests from manifest — see ${z_layers_stderr}"
+    || buc_die_now "Failed to extract layer digests from manifest — see ${z_layers_stderr}"
   test -s "${z_layers_file}" \
-    || buc_die "No layer digests in manifest for ${z_package}:${z_tag}"
+    || buc_die_now "No layer digests in manifest for ${z_package}:${z_tag}"
 
-  mkdir -p "${z_extract_dir}" || buc_die "Failed to create extraction directory: ${z_extract_dir}"
+  mkdir -p "${z_extract_dir}" || buc_die_now "Failed to create extraction directory: ${z_extract_dir}"
 
   # Load-then-iterate: file fully consumed and closed before curl/tar run, so
   # no child process can silently consume the loop's remaining input.
@@ -252,11 +252,11 @@ zrbfc_gar_extract_artifact() {
       > "${z_blob_file}" 2>"${z_blob_stderr}" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
-      || buc_die "GET blob failed for ${z_package} layer ${z_layer_digest} (curl exit ${z_curl_status}) — see ${z_blob_stderr}"
+      || buc_die_now "GET blob failed for ${z_package} layer ${z_layer_digest} (curl exit ${z_curl_status}) — see ${z_blob_stderr}"
 
     z_tar_stderr="${z_prefix}tar_${z_layer_idx}_stderr.txt"
     tar -xzf "${z_blob_file}" -C "${z_extract_dir}" 2>"${z_tar_stderr}" \
-      || buc_die "Failed to extract layer ${z_layer_digest} for ${z_package}:${z_tag} — see ${z_tar_stderr}"
+      || buc_die_now "Failed to extract layer ${z_layer_digest} for ${z_package}:${z_tag} — see ${z_tar_stderr}"
   done
 
   return 0
@@ -270,7 +270,7 @@ zrbfc_gar_extract_artifact() {
 # Args: token package tag out_config_file
 # Returns: 0 and writes the config JSON to out_config_file; 1 if the image is not
 # found (HTTP 404 — graceful, e.g. a pre-resolved-base hallmark). Infrastructure
-# failures (curl, jq) are fatal via buc_die.
+# failures (curl, jq) are fatal via buc_die_now.
 zrbfc_image_config_fetch() {
   zrbfc_sentinel
 
@@ -298,7 +298,7 @@ zrbfc_image_config_fetch() {
     > "${z_head_status}" 2>"${z_head_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
+    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
   local -r z_http_code=$(<"${z_head_status}")
   test "${z_http_code}" = "200" || return 1
 
@@ -314,7 +314,7 @@ zrbfc_image_config_fetch() {
     > "${z_manifest}" 2>"${z_manifest_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
+    || buc_die_now "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
 
   # Resolve to a single-platform manifest. The attest per-platform tag is already
   # single-platform, but the defensive index-resolve keeps the helper general.
@@ -322,16 +322,16 @@ zrbfc_image_config_fetch() {
   local -r z_media_type_file="${z_prefix}media_type.txt"
   local -r z_media_type_stderr="${z_prefix}media_type_stderr.txt"
   jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>"${z_media_type_stderr}" \
-    || buc_die "Failed to read manifest mediaType for ${z_package}:${z_tag} — see ${z_media_type_stderr}"
+    || buc_die_now "Failed to read manifest mediaType for ${z_package}:${z_tag} — see ${z_media_type_stderr}"
   local -r z_media_type=$(<"${z_media_type_file}")
   case "${z_media_type}" in
     *manifest.list*|*image.index*)
       local -r z_digest_file="${z_prefix}platform_digest.txt"
       local -r z_digest_stderr="${z_prefix}platform_digest_stderr.txt"
       jq -r '.manifests[0].digest // empty' "${z_manifest}" > "${z_digest_file}" 2>"${z_digest_stderr}" \
-        || buc_die "Failed to extract platform digest from manifest list — see ${z_digest_stderr}"
+        || buc_die_now "Failed to extract platform digest from manifest list — see ${z_digest_stderr}"
       local -r z_platform_digest=$(<"${z_digest_file}")
-      test -n "${z_platform_digest}" || buc_die "Empty platform digest in manifest list"
+      test -n "${z_platform_digest}" || buc_die_now "Empty platform digest in manifest list"
       local -r z_plat_manifest="${z_prefix}plat_manifest.json"
       local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
       curl -sL \
@@ -343,7 +343,7 @@ zrbfc_image_config_fetch() {
         > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
         || z_curl_status=$?
       test "${z_curl_status}" -eq 0 \
-        || buc_die "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
+        || buc_die_now "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
       z_single_manifest="${z_plat_manifest}"
       ;;
   esac
@@ -352,9 +352,9 @@ zrbfc_image_config_fetch() {
   local -r z_config_digest_file="${z_prefix}config_digest.txt"
   local -r z_config_digest_stderr="${z_prefix}config_digest_stderr.txt"
   jq -r '.config.digest // empty' "${z_single_manifest}" > "${z_config_digest_file}" 2>"${z_config_digest_stderr}" \
-    || buc_die "Failed to extract config digest from manifest for ${z_package}:${z_tag} — see ${z_config_digest_stderr}"
+    || buc_die_now "Failed to extract config digest from manifest for ${z_package}:${z_tag} — see ${z_config_digest_stderr}"
   local -r z_config_digest=$(<"${z_config_digest_file}")
-  test -n "${z_config_digest}" || buc_die "No config digest in manifest for ${z_package}:${z_tag}"
+  test -n "${z_config_digest}" || buc_die_now "No config digest in manifest for ${z_package}:${z_tag}"
 
   local -r z_config_stderr="${z_prefix}config_stderr.txt"
   curl -sL \
@@ -365,7 +365,7 @@ zrbfc_image_config_fetch() {
     > "${z_out}" 2>"${z_config_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die "GET config blob failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_config_stderr}"
+    || buc_die_now "GET config blob failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_config_stderr}"
 
   return 0
 }
@@ -383,23 +383,23 @@ rbfc_vessel_for_hallmark_capture() {
 
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
-    || buc_die "Failed to get Retriever OAuth token"
+    || buc_die_now "Failed to get Retriever OAuth token"
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
   local -r z_scratch="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark"
-  rm -rf "${z_scratch}" || buc_die "Failed to clear scratch dir: ${z_scratch}"
+  rm -rf "${z_scratch}" || buc_die_now "Failed to clear scratch dir: ${z_scratch}"
 
   zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
     || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 
   test -f "${z_scratch}/vouch_summary.json" \
-    || buc_die "vouch_summary.json not found in vouch ark for ${z_hallmark}"
+    || buc_die_now "vouch_summary.json not found in vouch ark for ${z_hallmark}"
 
   local -r z_vessel_file="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark_value.txt"
   jq -r '.vessel // empty' "${z_scratch}/vouch_summary.json" > "${z_vessel_file}" \
-    || buc_die "Failed to read vessel from vouch_summary.json"
+    || buc_die_now "Failed to read vessel from vouch_summary.json"
   local -r z_vessel=$(<"${z_vessel_file}")
-  test -n "${z_vessel}" || buc_die "Vessel field empty in vouch_summary.json"
+  test -n "${z_vessel}" || buc_die_now "Vessel field empty in vouch_summary.json"
 
   printf '%s\n' "${z_vessel}"
 }

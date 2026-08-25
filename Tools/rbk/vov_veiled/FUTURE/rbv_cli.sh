@@ -25,10 +25,10 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 # CLI-specific environment function
 zrbv_furnish() {
   # Handle documentation mode
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "RBV_TEMP_DIR          " "Empty temporary directory"
-  buc_doc_env "RBV_RBRR_FILE         " "File containing the RBRR constants"
-  buc_doc_env "RBV_RBRS_FILE         " "File containing the RBRS constants"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "RBV_TEMP_DIR          " "Empty temporary directory"
+  buc_doc_env_row "RBV_RBRR_FILE         " "File containing the RBRR constants"
+  buc_doc_env_row "RBV_RBRS_FILE         " "File containing the RBRS constants"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
@@ -48,9 +48,9 @@ zrbv_furnish() {
   buv_file_exists "${RBV_RBRS_FILE}"
 
   # Source config files (CLI handles all sourcing)
-  source              "${RBV_RBRR_FILE}"   || buc_die "Failed to source RBRR config"
-  source              "${RBCC_rbrd_file}"  || buc_die "Failed to source RBRD config"
-  source              "${RBCC_rbrm_file}"  || buc_die "Failed to source RBRM config"
+  source              "${RBV_RBRR_FILE}"   || buc_die_now "Failed to source RBRR config"
+  source              "${RBCC_rbrd_file}"  || buc_die_now "Failed to source RBRD config"
+  source              "${RBCC_rbrm_file}"  || buc_die_now "Failed to source RBRM config"
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
@@ -59,7 +59,7 @@ zrbv_furnish() {
   zrbrm_enforce
   zrbdc_kindle
 
-  source              "${RBV_RBRS_FILE}" || buc_die "Failed to source RBRS config"
+  source              "${RBV_RBRS_FILE}" || buc_die_now "Failed to source RBRS config"
   zrbrs_kindle
   zrbrs_enforce
 

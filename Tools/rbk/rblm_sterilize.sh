@@ -103,15 +103,15 @@ source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbpc_constants.sh"
 # maintainer's, and the whole point of this process is that it cannot reach there.
 buc_step "Regenerating derived files"
 
-test -n "${BURD_TABTARGET_DIR:-}" || buc_die "BURD_TABTARGET_DIR not set - launch via tabtarget"
+test -n "${BURD_TABTARGET_DIR:-}" || buc_die_now "BURD_TABTARGET_DIR not set - launch via tabtarget"
 case "${BURD_TABTARGET_DIR}" in
-  /*) buc_die "BURD_TABTARGET_DIR is absolute (${BURD_TABTARGET_DIR}) — it would resolve outside the tree being sterilized" ;;
+  /*) buc_die_now "BURD_TABTARGET_DIR is absolute (${BURD_TABTARGET_DIR}) — it would resolve outside the tree being sterilized" ;;
 esac
 
 rbz_generate_context "${BURD_TABTARGET_DIR}" "${RBCC_tabtarget_context_file}" \
-  || buc_die "Failed to regenerate tabtarget context"
+  || buc_die_now "Failed to regenerate tabtarget context"
 rbz_generate_consts  "${RBCC_rbtdgc_consts_file}" \
-  || buc_die "Failed to regenerate colophon consts"
+  || buc_die_now "Failed to regenerate colophon consts"
 
 buc_success "Tree lustrated and derived files regenerated"
 

@@ -45,7 +45,7 @@ rba_novate_sitting() {
 
   buc_step "Novation — force-fresh sitting against the RBRF trust"
   rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -54,8 +54,8 @@ rba_novate_sitting() {
   rba_novate
 
   local z_token
-  z_token=$(zrba_sitting_read_capture) || buc_die "Sitting not readable after novation"
-  test -n "${z_token}" || buc_die "Sitting holds an empty federated token"
+  z_token=$(zrba_sitting_read_capture) || buc_die_now "Sitting not readable after novation"
+  test -n "${z_token}" || buc_die_now "Sitting holds an empty federated token"
   buc_success "Sitting novated — fresh full-window federated token obtained (${#z_token} chars)"
 }
 
@@ -73,14 +73,14 @@ rba_espy_sitting() {
 
   buc_step "Espy — sitting state against the RBRF trust"
   rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
   zrbrw_enforce
 
   local z_path
-  z_path=$(zrba_sitting_path_capture) || buc_die "Failed to resolve the sitting cache path"
+  z_path=$(zrba_sitting_path_capture) || buc_die_now "Failed to resolve the sitting cache path"
 
   # Verdict: absent (no cache), else live/lapsed by the skew-gated predicate.
   # Runway is reported raw (a lapsed sitting inside the skew window may still
@@ -90,7 +90,7 @@ rba_espy_sitting() {
   if test ! -f "${z_path}"; then
     z_verdict="absent"
   else
-    z_runway=$(zrba_sitting_runway_capture) || buc_die "Sitting cache present but unreadable: ${z_path}"
+    z_runway=$(zrba_sitting_runway_capture) || buc_die_now "Sitting cache present but unreadable: ${z_path}"
     if zrba_sitting_live_predicate; then
       z_verdict="live"
     else
@@ -102,7 +102,7 @@ rba_espy_sitting() {
   test -z "${z_runway}" || z_value="${z_value}
 runway=${z_runway}"
   buf_write_fact_multi "${RBRR_ACTIVE_FOEDUS}" "${RBCC_fact_ext_sitting}" "${z_value}" \
-    || buc_die "Failed to write the sitting fact"
+    || buc_die_now "Failed to write the sitting fact"
 
   if test "${z_verdict}" = "live"; then
     buc_success "Sitting LIVE — runway ${z_runway}s (~$(( z_runway / 3600 ))h$(( (z_runway % 3600) / 60 ))m remaining)"
@@ -115,8 +115,8 @@ runway=${z_runway}"
 # Furnish and Main
 
 zrba_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
@@ -137,7 +137,7 @@ zrba_furnish() {
   # RBRR is sourced for the RBRR_ACTIVE_FOEDUS selector alone (the trust
   # resolve in rbcc_source_active_rbrf); depot-agnostic, so no RBRR
   # enforcement — mirroring the avowal probe's furnish posture.
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
   zrbrr_kindle
   zrbcc_kindle
   zrbgc_kindle

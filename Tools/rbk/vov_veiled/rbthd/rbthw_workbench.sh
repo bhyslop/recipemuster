@@ -55,7 +55,7 @@ rbthw_main() {
   local z_command="${1:-}"
   shift || true
 
-  test -n "${z_command}" || buc_die "No command specified"
+  test -n "${z_command}" || buc_die_now "No command specified"
 
   rbthw_route "${z_command}" "$@"
 }

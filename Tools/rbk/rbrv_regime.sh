@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBRV_SOURCED:-}" || buc_die "Module rbrv multiply sourced - check sourcing hierarchy"
+test -z "${ZRBRV_SOURCED:-}" || buc_die_now "Module rbrv multiply sourced - check sourcing hierarchy"
 ZRBRV_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbrv_*)
 
 zrbrv_kindle() {
-  test -z "${ZRBRV_KINDLED:-}" || buc_die "Module rbrv already kindled"
+  test -z "${ZRBRV_KINDLED:-}" || buc_die_now "Module rbrv already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -86,7 +86,7 @@ zrbrv_kindle() {
 }
 
 zrbrv_sentinel() {
-  test "${ZRBRV_KINDLED:-}" = "1" || buc_die "Module rbrv not kindled - call zrbrv_kindle first"
+  test "${ZRBRV_KINDLED:-}" = "1" || buc_die_now "Module rbrv not kindled - call zrbrv_kindle first"
 }
 
 # Enforce all RBRV enrollment validations and custom format checks

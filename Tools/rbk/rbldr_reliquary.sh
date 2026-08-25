@@ -88,7 +88,7 @@ zrbld_conclave_submit() {
       _RBGL_ACQUIRED_BY:  $zjq_acquired_by,
       _RBGL_LODE_STAMP:   $zjq_stamp
     }' > "${z_subs_file}" \
-    || buc_die "Failed to compose conclave substitutions blob"
+    || buc_die_now "Failed to compose conclave substitutions blob"
 
   zrbld_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
@@ -112,7 +112,7 @@ rbld_conclave() {
   buc_step "Authenticating as Director"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.

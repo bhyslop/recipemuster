@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBRO_SOURCED:-}" || buc_die "Module rbro multiply sourced - check sourcing hierarchy"
+test -z "${ZRBRO_SOURCED:-}" || buc_die_now "Module rbro multiply sourced - check sourcing hierarchy"
 ZRBRO_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbro_*)
 
 zrbro_kindle() {
-  test -z "${ZRBRO_KINDLED:-}" || buc_die "Module rbro already kindled"
+  test -z "${ZRBRO_KINDLED:-}" || buc_die_now "Module rbro already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -50,7 +50,7 @@ zrbro_kindle() {
 }
 
 zrbro_sentinel() {
-  test "${ZRBRO_KINDLED:-}" = "1" || buc_die "Module rbro not kindled - call zrbro_kindle first"
+  test "${ZRBRO_KINDLED:-}" = "1" || buc_die_now "Module rbro not kindled - call zrbro_kindle first"
 }
 
 # Enforce all RBRO enrollment validations
@@ -67,11 +67,11 @@ zrbro_enforce() {
 rbro_load() {
   local z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
 
-  test -f "${z_rbro_file}" || buc_die "RBRO credentials missing (${z_rbro_file}) - run rbgp_install"
-  test -r "${z_rbro_file}" || buc_die "RBRO file not readable - check permissions"
+  test -f "${z_rbro_file}" || buc_die_now "RBRO credentials missing (${z_rbro_file}) - run rbgp_install"
+  test -r "${z_rbro_file}" || buc_die_now "RBRO file not readable - check permissions"
 
   # Source and validate
-  source "${z_rbro_file}" || buc_die "Failed to source RBRO credentials"
+  source "${z_rbro_file}" || buc_die_now "Failed to source RBRO credentials"
   zrbro_kindle
   zrbro_enforce
 }

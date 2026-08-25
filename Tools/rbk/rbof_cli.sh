@@ -23,9 +23,9 @@ set -euo pipefail
 source "${BURD_BUK_DIR}/buc_command.sh"
 
 zrbof_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BURD_OUTPUT_DIR       " "Bash Dispatch Utility provided output directory (fact files)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env_row "BURD_OUTPUT_DIR       " "Bash Dispatch Utility provided output directory (fact files)"
   buc_doc_env_done || return 0
 
   local -r z_command="${1:-}"
@@ -61,9 +61,9 @@ zrbof_furnish() {
       source "${z_rbk_kit_dir}/rbgi_iam.sh"
       source "${z_rbk_kit_dir}/rba_auth.sh"
       source "${z_rbk_kit_dir}/rbgp_payor.sh"
-      source "${RBCC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBCC_rbrr_file}"
-      source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
-      source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+      source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
+      source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
+      source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
 
       # RBDC derives the RBRO/RBRA credential paths from BOTH the repo regime
       # (secrets dir) and the depot regime (cloud prefix), so RBRD must be
@@ -87,7 +87,7 @@ zrbof_furnish() {
       : # the light core (rbcc + burd + rbof) is all instate needs
       ;;
     *)
-      buc_die "rbof: unknown command '${z_command}'"
+      buc_die_now "rbof: unknown command '${z_command}'"
       ;;
   esac
 }

@@ -36,7 +36,7 @@ zrbfc_plumb_core() {
   local -r z_mode="${2}"
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
@@ -49,7 +49,7 @@ zrbfc_plumb_core() {
   buc_step "Resolving vessel from vouch ark"
   local z_vessel=""
   z_vessel=$(rbfc_vessel_for_hallmark_capture "${z_hallmark}") \
-    || buc_die "Failed to resolve vessel for hallmark: ${z_hallmark}"
+    || buc_die_now "Failed to resolve vessel for hallmark: ${z_hallmark}"
   buc_info "Resolved hallmark to vessel: ${z_vessel}"
 
   rbfc_require_vessel_sigil "${z_vessel}"
@@ -61,10 +61,10 @@ zrbfc_plumb_core() {
   buc_step "Authenticating as Retriever"
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
-    || buc_die "Failed to get Retriever OAuth token"
+    || buc_die_now "Failed to get Retriever OAuth token"
 
   local -r z_extract="${BURD_TEMP_DIR}/plumb"
-  mkdir -p "${z_extract}" || buc_die "Failed to create extraction directory"
+  mkdir -p "${z_extract}" || buc_die_now "Failed to create extraction directory"
   local z_has_about=false
   local z_has_vouch=false
 
@@ -94,7 +94,7 @@ zrbfc_plumb_core() {
 
   # Require about ark for non-bind vessels
   if test "${z_has_about}" = "false"; then
-    buc_die "About ark not found in GAR: ${z_about_pkg}:${z_hallmark}"
+    buc_die_now "About ark not found in GAR: ${z_about_pkg}:${z_hallmark}"
   fi
 
   # Resolved-base labels (conjure only): read back from the first built
@@ -378,7 +378,7 @@ zrbfc_plumb_show_sections() {
       for z_rb_n in 1 2 3; do
         # (.config.Labels // {}) tolerates an image with no labels (null) in-jq, so
         # only a malformed config or a jq fault reaches the guard. buc_warn (not
-        # buc_die) is deliberate: plumb is a read-only trust-posture display, and a
+        # buc_die_now) is deliberate: plumb is a read-only trust-posture display, and a
         # single unreadable optional label must not abort a report already in flight.
         z_rb_stderr="${BURD_TEMP_DIR}/plumb_resolved_base_${z_rb_n}_stderr.txt"
         jq -r --arg k "${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n}" \

@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHR_INCLUDED:-}" || buc_die "Module rbgr multiply included - check sourcing hierarchy"
+test -z "${ZRBHR_INCLUDED:-}" || buc_die_now "Module rbgr multiply included - check sourcing hierarchy"
 ZRBHR_INCLUDED=1
 
 ######################################################################
@@ -15,12 +15,12 @@ ZRBHR_INCLUDED=1
 
 zrbhr_kindle() {
   # Check required environment
-  test -n "${BURD_TEMP_DIR:-}"             || buc_die "BURD_TEMP_DIR not set"
-  test -n "${BURD_NOW_STAMP:-}"            || buc_die "BURD_NOW_STAMP not set"
-  test -n "${RBRR_BUILD_ARCHITECTURES:-}" || buc_die "RBRR_BUILD_ARCHITECTURES not set"
-  test -n "${RBRR_HISTORY_DIR:-}"         || buc_die "RBRR_HISTORY_DIR not set"
-  test -n "${RBRR_REGISTRY_OWNER:-}"      || buc_die "RBRR_REGISTRY_OWNER not set"
-  test -n "${RBRR_REGISTRY_NAME:-}"       || buc_die "RBRR_REGISTRY_NAME not set"
+  test -n "${BURD_TEMP_DIR:-}"             || buc_die_now "BURD_TEMP_DIR not set"
+  test -n "${BURD_NOW_STAMP:-}"            || buc_die_now "BURD_NOW_STAMP not set"
+  test -n "${RBRR_BUILD_ARCHITECTURES:-}" || buc_die_now "RBRR_BUILD_ARCHITECTURES not set"
+  test -n "${RBRR_HISTORY_DIR:-}"         || buc_die_now "RBRR_HISTORY_DIR not set"
+  test -n "${RBRR_REGISTRY_OWNER:-}"      || buc_die_now "RBRR_REGISTRY_OWNER not set"
+  test -n "${RBRR_REGISTRY_NAME:-}"       || buc_die_now "RBRR_REGISTRY_NAME not set"
 
   # Module Variables (ZRBHR_*)
   ZRBHR_ALL_VERSIONS_FILE="${BURD_TEMP_DIR}/rbhr_all_versions.json"
@@ -33,7 +33,7 @@ zrbhr_kindle() {
 }
 
 zrbhr_sentinel() {
-  test "${ZRBHR_KINDLED:-}" = "1" || buc_die "Module rbgr not kindled - call zrbhr_kindle first"
+  test "${ZRBHR_KINDLED:-}" = "1" || buc_die_now "Module rbgr not kindled - call zrbhr_kindle first"
 }
 
 ######################################################################
@@ -54,9 +54,9 @@ rbhr_build_image() {
   zrbhr_sentinel
 
   # Validate parameters
-  test -n "${z_dockerfile}" || buc_die "Dockerfile path required"
-  test -f "${z_dockerfile}" || buc_die "Dockerfile not found: ${z_dockerfile}"
-  test -n "${z_build_label}" || buc_die "Build label required"
+  test -n "${z_dockerfile}" || buc_die_now "Dockerfile path required"
+  test -f "${z_dockerfile}" || buc_die_now "Dockerfile not found: ${z_dockerfile}"
+  test -n "${z_build_label}" || buc_die_now "Build label required"
 
   # Create FQIN using rbcr
   rbcr_make_fqin "${z_build_label}"
@@ -65,13 +65,13 @@ rbhr_build_image() {
 
   # Check if tag exists
   if rbcr_exists_predicate "${z_build_label}"; then
-    buc_die "Tag ${z_build_label} already exists"
+    buc_die_now "Tag ${z_build_label} already exists"
   fi
 
   # Create history directory
   local z_history_dir="${RBRR_HISTORY_DIR}/${z_build_label}"
-  mkdir -p "${z_history_dir}" || buc_die "Failed to create history directory"
-  cp "${z_dockerfile}" "${z_history_dir}/recipe.txt" || buc_die "Failed to copy Dockerfile"
+  mkdir -p "${z_history_dir}" || buc_die_now "Failed to create history directory"
+  cp "${z_dockerfile}" "${z_history_dir}/recipe.txt" || buc_die_now "Failed to copy Dockerfile"
   echo "${GITHUB_SHA:-unknown}" > "${z_history_dir}/commit.txt"
 
   # Build and push image
@@ -83,7 +83,7 @@ rbhr_build_image() {
     --provenance=true                        \
     --sbom=true                              \
     --file "${z_dockerfile}"                 \
-    . || buc_die "Docker build failed"
+    . || buc_die_now "Docker build failed"
 
   # Run Syft analysis
   buc_step "Running Syft analysis"
@@ -91,13 +91,13 @@ rbhr_build_image() {
   # Install Syft
   if ! { curl -sSfL https://github.com/anchore/syft/releases/download/v1.14.1/syft_1.14.1_linux_amd64.tar.gz -o syft.tar.gz \
     && tar -xzf syft.tar.gz syft && rm syft.tar.gz && sudo mv syft /usr/local/bin/; }; then
-    buc_die "Failed to install Syft"
+    buc_die_now "Failed to install Syft"
   fi
 
   # Pull and analyze
-  docker pull "${z_ghcr_path}" || buc_die "Failed to pull built image"
+  docker pull "${z_ghcr_path}" || buc_die_now "Failed to pull built image"
   syft "${z_ghcr_path}" -o json > "${z_history_dir}/syft_analysis.json" || \
-    buc_die "Syft analysis failed"
+    buc_die_now "Syft analysis failed"
 
   # Generate summary
   echo "Package analysis summary:" > "${z_history_dir}/package_summary.txt"
@@ -127,21 +127,21 @@ rbhr_record_history() {
   zrbhr_sentinel
 
   # Validate parameters
-  test -n "${z_build_label}" || buc_die "Build label required"
+  test -n "${z_build_label}" || buc_die_now "Build label required"
 
   # Commit history
   buc_step "Recording build history"
 
   git config --local user.email "github-actions[bot]@users.noreply.github.com" || \
-    buc_die "Failed to set git user email"
+    buc_die_now "Failed to set git user email"
   git config --local user.name "github-actions[bot]" || \
-    buc_die "Failed to set git user name"
+    buc_die_now "Failed to set git user name"
 
   local z_history_dir="${RBRR_HISTORY_DIR}/${z_build_label}"
-  git add "${z_history_dir}" || buc_die "Failed to stage history directory"
+  git add "${z_history_dir}" || buc_die_now "Failed to stage history directory"
   git commit -m "Add image build history for ${z_build_label}" || \
-    buc_die "Failed to commit image build history"
-  git push || buc_die "Failed to push changes"
+    buc_die_now "Failed to commit image build history"
+  git push || buc_die_now "Failed to push changes"
 }
 
 rbhr_delete_image() {
@@ -152,7 +152,7 @@ rbhr_delete_image() {
   zrbhr_sentinel
 
   # Validate parameters
-  test -n "${z_fqin}" || buc_die "FQIN required"
+  test -n "${z_fqin}" || buc_die_now "FQIN required"
 
   # Extract tag
   local z_tag="${z_fqin#*:}"
@@ -222,7 +222,7 @@ rbhr_clean_orphans() {
         -o "${ZRBHR_DELETE_RESULT_FILE}"            \
         "https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_orphan_id}" \
         > "${ZRBHR_HTTP_CODE_FILE}"                 \
-      || buc_die "Failed to delete orphan"
+      || buc_die_now "Failed to delete orphan"
 
     local z_http_code
     z_http_code=$(<"${ZRBHR_HTTP_CODE_FILE}")

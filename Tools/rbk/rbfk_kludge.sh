@@ -21,7 +21,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFK_SOURCED:-}" || buc_die "Module rbfk multiply sourced - check sourcing hierarchy"
+test -z "${ZRBFK_SOURCED:-}" || buc_die_now "Module rbfk multiply sourced - check sourcing hierarchy"
 ZRBFK_SOURCED=1
 
 # Source shared Foundry Core module (registry constants + vessel resolution helpers)
@@ -31,7 +31,7 @@ source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 # Internal Functions (zrbfk_*)
 
 zrbfk_kindle() {
-  test -z "${ZRBFK_KINDLED:-}" || buc_die "Module rbfk already kindled"
+  test -z "${ZRBFK_KINDLED:-}" || buc_die_now "Module rbfk already kindled"
 
   buc_log_args 'Kindle shared Foundry Core infrastructure'
   zrbfc_kindle
@@ -47,7 +47,7 @@ zrbfk_kindle() {
 
 zrbfk_sentinel() {
   zrbfc_sentinel
-  test "${ZRBFK_KINDLED:-}" = "1" || buc_die "Module rbfk not kindled - call zrbfk_kindle first"
+  test "${ZRBFK_KINDLED:-}" = "1" || buc_die_now "Module rbfk not kindled - call zrbfk_kindle first"
 }
 
 # Image-Presence Predicate
@@ -60,7 +60,7 @@ zrbfk_sentinel() {
 zrbfk_image_present_predicate() {
   zrbfk_sentinel
   local -r z_ref="${1:-}"
-  test -n "${z_ref}" || buc_die "zrbfk_image_present_predicate: image ref required"
+  test -n "${z_ref}" || buc_die_now "zrbfk_image_present_predicate: image ref required"
   z_rbfk_inspect_counter=$(( z_rbfk_inspect_counter + 1 ))
   docker image inspect "${z_ref}" \
     >/dev/null \
@@ -96,22 +96,22 @@ rbfk_kludge() {
   # Resolve vessel argument (sigil or path)
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
   local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Load vessel configuration
   zrbfc_load_vessel "${z_vessel_dir}"
 
   # Validate conjure mode (bind and graft don't have local Dockerfiles)
   test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" \
-    || buc_die "Kludge only supports conjure vessels (got: ${RBRV_VESSEL_MODE})"
+    || buc_die_now "Kludge only supports conjure vessels (got: ${RBRV_VESSEL_MODE})"
   test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
-    || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_DOCKERFILE"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_DOCKERFILE"
   test -n "${RBRV_CONJURE_BLDCONTEXT:-}" \
-    || buc_die "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_BLDCONTEXT"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' has no RBRV_CONJURE_BLDCONTEXT"
   test -f "${RBRV_CONJURE_DOCKERFILE}" \
-    || buc_die "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
+    || buc_die_now "Dockerfile not found: ${RBRV_CONJURE_DOCKERFILE}"
   test -d "${RBRV_CONJURE_BLDCONTEXT}" \
-    || buc_die "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
+    || buc_die_now "Build context not found: ${RBRV_CONJURE_BLDCONTEXT}"
 
   # Resolve base images — mirror conjure's anchor-aware resolution so an anchored
   # vessel built via kludge resolves the same GAR-anchored layers as conjure.
@@ -139,19 +139,19 @@ rbfk_kludge() {
     z_anchor="${!z_anchor_var:-}"
 
     if test -z "${z_origin}" && test -n "${z_anchor}"; then
-      buc_die "Malformed regime: ${z_anchor_var}=${z_anchor} set but ${z_origin_var} is empty"
+      buc_die_now "Malformed regime: ${z_anchor_var}=${z_anchor} set but ${z_origin_var} is empty"
     fi
     test -n "${z_origin}" || continue
 
     if test -n "${z_anchor}"; then
       case "${z_anchor}" in
         *:*) : ;;
-        *)   buc_die "Invalid ${z_anchor_var} locator format (expected package-path:tag): ${z_anchor}" ;;
+        *)   buc_die_now "Invalid ${z_anchor_var} locator format (expected package-path:tag): ${z_anchor}" ;;
       esac
       z_pkg_path="${z_anchor%:*}"
       z_tag="${z_anchor##*:}"
-      test -n "${z_pkg_path}" || buc_die "Package path is empty in ${z_anchor_var}: ${z_anchor}"
-      test -n "${z_tag}"      || buc_die "Tag is empty in ${z_anchor_var}: ${z_anchor}"
+      test -n "${z_pkg_path}" || buc_die_now "Package path is empty in ${z_anchor_var}: ${z_anchor}"
+      test -n "${z_tag}"      || buc_die_now "Tag is empty in ${z_anchor_var}: ${z_anchor}"
       z_slot_ref="${z_gar_repo_base}/${z_pkg_path}:${z_tag}"
       buc_info "Image slot ${z_slot} (anchored): ${z_slot_ref}"
       zrbfk_image_present_predicate "${z_slot_ref}" \
@@ -162,15 +162,15 @@ rbfk_kludge() {
       if ! zrbfk_image_present_predicate "${z_slot_ref}"; then
         buc_info "Origin image not cached — pulling from upstream: ${z_slot_ref}"
         docker pull "${z_slot_ref}" \
-          || buc_die "docker pull failed for origin slot ${z_slot}: ${z_slot_ref}"
+          || buc_die_now "docker pull failed for origin slot ${z_slot}: ${z_slot_ref}"
         zrbfk_image_present_predicate "${z_slot_ref}" \
-          || buc_die "Origin image still absent from local cache after pull: ${z_slot_ref}"
+          || buc_die_now "Origin image still absent from local cache after pull: ${z_slot_ref}"
       fi
     fi
 
     z_build_args+=("--build-arg" "RBF_IMAGE_${z_slot}=${z_slot_ref}")
   done
-  (( ${#z_build_args[@]} )) || buc_die "No RBRV_IMAGE_n_ORIGIN found in vessel config"
+  (( ${#z_build_args[@]} )) || buc_die_now "No RBRV_IMAGE_n_ORIGIN found in vessel config"
 
   if (( ${#z_anchored_misses[@]} )); then
     buc_warn "Kludge cannot proceed — anchored base image(s) not cached locally"
@@ -183,7 +183,7 @@ rbfk_kludge() {
       buc_tabtarget "${RBZ_WREST_IMAGE}" "${z_miss}"
     done
     buc_bare ""
-    buc_die "Local image cache incomplete — see remediation above"
+    buc_die_now "Local image cache incomplete — see remediation above"
   fi
 
   buc_step "Validating Dockerfile hygiene"
@@ -211,21 +211,21 @@ rbfk_kludge() {
   # a path is already relative or native, and off Cygwin).
   local z_norm_dockerfile=""
   z_norm_dockerfile=$(buc_native_path_capture "${RBRV_CONJURE_DOCKERFILE}") \
-    || buc_die "Cannot normalize conjure Dockerfile path for docker: ${RBRV_CONJURE_DOCKERFILE}"
+    || buc_die_now "Cannot normalize conjure Dockerfile path for docker: ${RBRV_CONJURE_DOCKERFILE}"
   local z_norm_context=""
   z_norm_context=$(buc_native_path_capture "${RBRV_CONJURE_BLDCONTEXT}") \
-    || buc_die "Cannot normalize conjure build-context path for docker: ${RBRV_CONJURE_BLDCONTEXT}"
+    || buc_die_now "Cannot normalize conjure build-context path for docker: ${RBRV_CONJURE_BLDCONTEXT}"
   docker build \
     "${z_build_args[@]}" \
     -f "${z_norm_dockerfile}" \
     -t "${z_image_ref}" \
     "${z_norm_context}" \
-    || buc_die "Local build failed for ${RBRV_SIGIL}"
+    || buc_die_now "Local build failed for ${RBRV_SIGIL}"
 
   # Create fake vouch tag (same image, aliased — satisfies rbob_charge vouch gate)
   buc_step "Creating vouch tag"
   docker tag "${z_image_ref}" "${z_vouch_ref}" \
-    || buc_die "Failed to create vouch tag"
+    || buc_die_now "Failed to create vouch tag"
 
   # Persist facts — mirror conjure/bind/graft so downstream consumers (theurge)
   # can build full refs uniformly regardless of mode.

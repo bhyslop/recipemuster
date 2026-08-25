@@ -21,17 +21,17 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGA_SOURCED:-}" || buc_die "Module rbga multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGA_SOURCED:-}" || buc_die_now "Module rbga multiply sourced - check sourcing hierarchy"
 ZRBGA_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbga_*)
 
 zrbga_kindle() {
-  test -z "${ZRBGA_KINDLED:-}" || buc_die "Module rbga already kindled"
+  test -z "${ZRBGA_KINDLED:-}" || buc_die_now "Module rbga already kindled"
 
-  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die "RBDC_DEPOT_PROJECT_ID is not set"
-  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die "RBDC_DEPOT_PROJECT_ID is empty"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die_now "RBDC_DEPOT_PROJECT_ID is not set"
+  test   "${#RBDC_DEPOT_PROJECT_ID}" -gt 0 || buc_die_now "RBDC_DEPOT_PROJECT_ID is empty"
 
   buc_log_args "Ensure dependencies are kindled first"
   zrbgc_sentinel
@@ -55,7 +55,7 @@ zrbga_kindle() {
 }
 
 zrbga_sentinel() {
-  test "${ZRBGA_KINDLED:-}" = "1" || buc_die "Module rbga not kindled - call zrbga_kindle first"
+  test "${ZRBGA_KINDLED:-}" = "1" || buc_die_now "Module rbga not kindled - call zrbga_kindle first"
 }
 
 ######################################################################
@@ -74,21 +74,21 @@ rbga_repo_create() {
   buc_doc_param "format" "Repository format (optional, defaults to DOCKER)"
   buc_doc_shown || return 0
 
-  test -n "${z_repo_name}" || buc_die "Repository name required"
-  test -n "${z_location}" || buc_die "Location required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
+  test -n "${z_location}" || buc_die_now "Location required"
 
   buc_step "Creating Artifact Registry repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_parent="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_create_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_parent}${RBGC_PATH_REPOSITORIES}?repositoryId=${z_repo_name}"
   local z_create_body="${BURD_TEMP_DIR}/rbga_create_repo_body.json"
 
-  jq -n --arg format "${z_format}" '{format: $format}' > "${z_create_body}" || buc_die "Failed to build create-repo body"
+  jq -n --arg format "${z_format}" '{format: $format}' > "${z_create_body}" || buc_die_now "Failed to build create-repo body"
 
   buc_step "Create ${z_format} format repository"
   rbge_lro_ok                                              \
@@ -117,14 +117,14 @@ rbga_repo_get() {
   buc_doc_param "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
   buc_doc_shown || return 0
 
-  test -n "${z_repo_name}" || buc_die "Repository name required"
-  test -n "${z_location}" || buc_die "Location required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
+  test -n "${z_location}" || buc_die_now "Location required"
 
   buc_step "Getting Artifact Registry repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
@@ -160,15 +160,15 @@ rbga_repo_set_iam() {
   buc_doc_param "policy_json" "IAM policy JSON (from file or string)"
   buc_doc_shown || return 0
 
-  test -n "${z_repo_name}" || buc_die "Repository name required"
-  test -n "${z_location}" || buc_die "Location required"
-  test -n "${z_policy_json}" || buc_die "Policy JSON required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
+  test -n "${z_location}" || buc_die_now "Location required"
+  test -n "${z_policy_json}" || buc_die_now "Policy JSON required"
 
   buc_step "Setting IAM policy on repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
@@ -202,16 +202,16 @@ rbga_repo_add_iam_role() {
   buc_doc_param "role" "Role to grant (e.g., roles/artifactregistry.reader)"
   buc_doc_shown || return 0
 
-  test -n "${z_repo_name}" || buc_die "Repository name required"
-  test -n "${z_location}" || buc_die "Location required"
-  test -n "${z_member}" || buc_die "Member required"
-  test -n "${z_role}" || buc_die "Role required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
+  test -n "${z_location}" || buc_die_now "Location required"
+  test -n "${z_member}" || buc_die_now "Member required"
+  test -n "${z_role}" || buc_die_now "Role required"
 
   buc_step "Adding IAM role ${z_role} to ${z_member} on repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   # Extract email from member if it's in serviceAccount:email format
   local z_account_email="${z_member}"
@@ -236,14 +236,14 @@ rbga_repo_delete() {
   buc_doc_param "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
   buc_doc_shown || return 0
 
-  test -n "${z_repo_name}" || buc_die "Repository name required"
-  test -n "${z_location}" || buc_die "Location required"
+  test -n "${z_repo_name}" || buc_die_now "Repository name required"
+  test -n "${z_location}" || buc_die_now "Location required"
 
   buc_step "Deleting Artifact Registry repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
   local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die "Failed to get admin token"
+  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   buc_log_args "Delete Artifact Registry repo '${z_repo_name}' in ${z_location}"
@@ -258,7 +258,7 @@ rbga_repo_delete() {
     *)
       local z_err
       z_err=$(rbuh_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
-      buc_die "Failed to delete repository: ${z_err}"
+      buc_die_now "Failed to delete repository: ${z_err}"
       ;;
   esac
 }

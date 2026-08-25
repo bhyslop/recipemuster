@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGD_SOURCED:-}" || buc_die "Module rbgd multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGD_SOURCED:-}" || buc_die_now "Module rbgd multiply sourced - check sourcing hierarchy"
 ZRBGD_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgd_*)
 
 zrbgd_kindle() {
-  test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
+  test -z "${ZRBGD_KINDLED:-}" || buc_die_now "Module rbgd already kindled"
 
   # Depot-specific Constants — derive from RBDC kindle constants.
   # RBDC_DEPOT_PROJECT_ID is itself derived from
@@ -91,7 +91,7 @@ zrbgd_kindle() {
 }
 
 zrbgd_sentinel() {
-  test "${ZRBGD_KINDLED:-}" = "1" || buc_die "Module rbgd not kindled - call zrbgd_kindle first"
+  test "${ZRBGD_KINDLED:-}" = "1" || buc_die_now "Module rbgd not kindled - call zrbgd_kindle first"
 }
 
 # eof

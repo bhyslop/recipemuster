@@ -30,7 +30,7 @@ ZRBTHZ_SOURCED=1
 # Colophon registry initialization
 
 zrbthz_kindle() {
-  test -z "${ZRBTHZ_KINDLED:-}" || buc_die "rbthz already kindled"
+  test -z "${ZRBTHZ_KINDLED:-}" || buc_die_now "rbthz already kindled"
 
   zbuz_sentinel
 
@@ -57,7 +57,7 @@ zrbthz_healthcheck() {
 # Internal sentinel
 
 zrbthz_sentinel() {
-  test "${ZRBTHZ_KINDLED:-}" = "1" || buc_die "Module rbthz not kindled - call zrbthz_kindle first"
+  test "${ZRBTHZ_KINDLED:-}" = "1" || buc_die_now "Module rbthz not kindled - call zrbthz_kindle first"
 }
 
 # eof

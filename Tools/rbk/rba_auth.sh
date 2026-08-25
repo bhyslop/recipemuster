@@ -21,14 +21,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBA_SOURCED:-}" || buc_die "Module rba multiply sourced - check sourcing hierarchy"
+test -z "${ZRBA_SOURCED:-}" || buc_die_now "Module rba multiply sourced - check sourcing hierarchy"
 ZRBA_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrba_*)
 
 zrba_kindle() {
-  test -z "${ZRBA_KINDLED:-}" || buc_die "Module rba already kindled"
+  test -z "${ZRBA_KINDLED:-}" || buc_die_now "Module rba already kindled"
 
   # Ensure dependency kindled first (rba mints tokens via rbgo)
   zrbgo_sentinel
@@ -124,7 +124,7 @@ zrba_kindle() {
 }
 
 zrba_sentinel() {
-  test "${ZRBA_KINDLED:-}" = "1" || buc_die "Module rba not kindled - call zrba_kindle first"
+  test "${ZRBA_KINDLED:-}" = "1" || buc_die_now "Module rba not kindled - call zrba_kindle first"
 }
 
 ######################################################################
@@ -139,13 +139,13 @@ zrba_sentinel() {
 #
 # Deliberately NOT a pure _capture: rba_avow is folded in so callers never
 # learn the avowal dance, so this accessor emits rba_avow's buc_step
-# progress — the device-flow prompt included — to stderr and may buc_die on a
+# progress — the device-flow prompt included — to stderr and may buc_die_now on a
 # failed avowal. The stdout contract
 # still holds — only the mantle token reaches stdout (avow writes stderr
 # only; the don emits the token straight to stdout) — and the reveille-tier
 # credless guard's in-band buc_reject still propagates: avow's exit
 # terminates the caller's command substitution with the credless band code,
-# which the caller's `|| buc_die` re-exits through the band membrane. The sitting
+# which the caller's `|| buc_die_now` re-exits through the band membrane. The sitting
 # cache rba_avow writes is a file, so it survives this command-substitution
 # subshell and the next caller takes the cache-hit path.
 rba_token_capture() {
@@ -159,7 +159,7 @@ rba_token_capture() {
   # canonical form — no bare-role alias is accepted (RBCC_mantle_* is the home).
   case "${z_identity}" in
     "${RBCC_mantle_governor}"|"${RBCC_mantle_director}"|"${RBCC_mantle_retriever}") ;;
-    *) buc_die "rba_token_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
+    *) buc_die_now "rba_token_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
   esac
 
   rba_avow
@@ -631,35 +631,35 @@ zrba_sitting_open() {
     rbnfe_interactive)
       buc_step "Opening a sitting via device-flow avowal"
       z_idtoken=$(zrba_leg1_idtoken_capture) \
-        || buc_die "Avowal failed at Leg 1 (device flow); see the transcript"
+        || buc_die_now "Avowal failed at Leg 1 (device flow); see the transcript"
       ;;
     rbnfe_programmatic)
       buc_step "Acquiring a sitting via the RFC 7523 programmatic grant"
       z_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
-        || buc_die "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
+        || buc_die_now "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
       ;;
     *)
-      buc_die "rba_avow: unknown RBRF_MECHANISM '${RBRF_MECHANISM}' (expected rbnfe_interactive | rbnfe_programmatic)"
+      buc_die_now "rba_avow: unknown RBRF_MECHANISM '${RBRF_MECHANISM}' (expected rbnfe_interactive | rbnfe_programmatic)"
       ;;
   esac
 
   local z_fed
-  z_fed=$(zrba_leg2_federated_capture "${z_idtoken}") || buc_die "Avowal failed at Leg 2 (STS exchange); see the transcript"
+  z_fed=$(zrba_leg2_federated_capture "${z_idtoken}") || buc_die_now "Avowal failed at Leg 2 (STS exchange); see the transcript"
 
   local -r z_federated="${z_fed%% *}"
   local -r z_expires_in="${z_fed##* }"
-  [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || buc_die "Leg 2 returned a non-numeric expiry: ${z_expires_in}"
+  [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || buc_die_now "Leg 2 returned a non-numeric expiry: ${z_expires_in}"
 
-  date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die "Failed to read the clock"
+  date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die_now "Failed to read the clock"
   local -r z_now=$(<"${ZRBA_FED_AVOW_NOW_FILE}")
-  test -n "${z_now}" || buc_die "Empty clock reading"
+  test -n "${z_now}" || buc_die_now "Empty clock reading"
   local -r z_expiry_epoch=$(( z_now + z_expires_in ))
 
   local z_subject
   z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject=""
 
   zrba_sitting_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
-    || buc_die "Avowal succeeded but caching the sitting failed"
+    || buc_die_now "Avowal succeeded but caching the sitting failed"
 
   buc_step "Sitting opened (federated token expires in ${z_expires_in}s)"
 }
@@ -680,7 +680,7 @@ rba_avow() {
 
   local -r z_required_runway="${1:-${ZRBA_SITTING_RUNWAY_FLOOR_SEC}}"
   [[ "${z_required_runway}" =~ ^[0-9]+$ ]] \
-    || buc_die "rba_avow: required runway must be a non-negative integer of seconds, got '${z_required_runway}'"
+    || buc_die_now "rba_avow: required runway must be a non-negative integer of seconds, got '${z_required_runway}'"
 
   # Credless guard — the reveille tier must never touch the IdP or the network.
   # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
@@ -691,7 +691,7 @@ rba_avow() {
   if zrba_sitting_live_predicate; then
     local z_runway
     z_runway=$(zrba_sitting_runway_capture) \
-      || buc_die "Live sitting became unreadable while gauging its runway"
+      || buc_die_now "Live sitting became unreadable while gauging its runway"
     test "${z_runway}" -ge "${z_required_runway}" \
       || buc_reject "${BUBC_band_runway}" "Sitting runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window sitting (rbw-aN), then re-run"
     buc_step "Sitting already live — reusing the cached federated token (runway ${z_runway}s)"
@@ -731,12 +731,12 @@ rba_novate() {
 # here by minting a mantle service-account access token from the cached federated
 # token via iamcredentials generateAccessToken. Emits the mantle token on stdout
 # once on success; failure returns 1, except the Leg-3 403 admission deficit,
-# which returns the distinguished BUBC_band_admission code — never buc_die,
+# which returns the distinguished BUBC_band_admission code — never buc_die_now,
 # never stderr (BCG capture contract); the consuming verb supplies the loud
-# buc_die (or a band-aware buc_reject) over the returned code, and the
+# buc_die_now (or a band-aware buc_reject) over the returned code, and the
 # forensic lines below carry the operator instruction it dies with
 # (matching rba_avow's "failed at Leg N; see the transcript" division of
-# labor). The unknown-identity guard buc_dies — a caller bug, not a runtime
+# labor). The unknown-identity guard dies via buc_die_now — a caller bug, not a runtime
 # condition — exactly as rba_token_capture does.
 #
 # Custody: the mantle token reaches only this function's stdout (jq straight to
@@ -769,7 +769,7 @@ rba_don_capture() {
     "${RBCC_mantle_governor}")  z_mantle_account="${RBCC_account_mantle_governor}"  ;;
     "${RBCC_mantle_director}")  z_mantle_account="${RBCC_account_mantle_director}"  ;;
     "${RBCC_mantle_retriever}") z_mantle_account="${RBCC_account_mantle_retriever}" ;;
-    *) buc_die "rba_don_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
+    *) buc_die_now "rba_don_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
   esac
 
   # The mantle SA lives in the depot project; the depot is also the quota project

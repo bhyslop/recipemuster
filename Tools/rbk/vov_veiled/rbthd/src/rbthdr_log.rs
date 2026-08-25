@@ -107,7 +107,7 @@ pub fn zrbthdr_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
 }
 
 /// Hard stop. Emits a located [FATAL] and exits 1 — the Rust form of the bash
-/// workers' buc_die, used for every RBSHE `{rbbc_fatal}`.
+/// workers' buc_die_now, used for every RBSHE `{rbbc_fatal}`.
 #[macro_export]
 macro_rules! rbthdr_fatal {
     ($($arg:tt)*) => {

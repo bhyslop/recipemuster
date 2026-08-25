@@ -55,7 +55,7 @@ rbro_render() {
 # Furnish and Main
 
 zrbro_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
@@ -74,8 +74,8 @@ zrbro_furnish() {
   zburd_enforce
   zrbcc_kindle
 
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce

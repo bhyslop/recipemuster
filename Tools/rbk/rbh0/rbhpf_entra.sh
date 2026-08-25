@@ -120,7 +120,7 @@ rbhp_federation_entra() {
   buh_e
   buh_section  "6. Author the Foedus Regime Values:"
   local z_entrada_rbrf
-  z_entrada_rbrf=$(rbcc_rbrf_file_capture rbef_entrada) || buc_die "Failed to resolve the rbef_entrada federation regime path"
+  z_entrada_rbrf=$(rbcc_rbrf_file_capture rbef_entrada) || buc_die_now "Failed to resolve the rbef_entrada federation regime path"
   buym_cmd_yawp "${z_entrada_rbrf}"; local -r z_cmd_rbrf_file="${z_buym_yelp}"
   buh_line     "   File: ${z_cmd_rbrf_file}"
   buh_line     "   (the standing interactive foedus; a new foedus takes its own rbef_ subdirectory)"
