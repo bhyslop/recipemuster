@@ -59,21 +59,21 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 ### Guides
 
-- **CBG**  → `jjqs_studbook/guides/rbk/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
-- **JDG**  → `jjqs_studbook/guides/rbk/JDG-JailerDialectGuide.md` (Jailer Dialect Guide — the zero-dependency in-vessel POSIX `sh` baked into vessel images and run inside the security envelope (`rbjs_sentry.sh` type specimen, `rbjp_pentacle.sh` sibling); foreign-environment sibling to BCG/CBG/WSG. v1 bless-and-name. Rule families JDo_ (observability contract: phase anchors, exit-code families, `|| exit N`) and JDp_ (parameter-transport Palisade). The type specimen's phase-label and FATAL-shape deviations are citable against JDo_101/JDo_103.)
-- **PUCG**  → `jjqs_studbook/guides/rbk/PUCG_PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUCr_. Founded on PUCr_101 (charset transport).)
+- **CBG**  → `guides/rbk/CBG-CloudBuildGuide.md` (Cloud Build Guide — step-body discipline for Google Cloud Build steps; polyglot bash/sh + python; foreign-environment sibling to BCG/RCG/WSG. Rule families CBi_/CBb_/CBp_/CBh_.)
+- **JDG**  → `guides/rbk/JDG-JailerDialectGuide.md` (Jailer Dialect Guide — the zero-dependency in-vessel POSIX `sh` baked into vessel images and run inside the security envelope (`rbjs_sentry.sh` type specimen, `rbjp_pentacle.sh` sibling); foreign-environment sibling to BCG/CBG/WSG. v1 bless-and-name. Rule families JDo_ (observability contract: phase anchors, exit-code families, `|| exit N`) and JDp_ (parameter-transport Palisade). The type specimen's phase-label and FATAL-shape deviations are citable against JDo_101/JDo_103.)
+- **PUCG**  → `guides/rbk/PUCG_PlantUmlCodingGuide.md` (PlantUml Coding Guide — diagram source + render discipline for the committed `.puml`/`.svg` pairs; foreign-environment sibling to CBG/WSG. Palisade conduct at the PlantUML render membrane; cited-rule family PUCr_. Founded on PUCr_101 (charset transport).)
 
 ### Specification
 
-- **RBS0** → `jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`
+- **RBS0** → `specs/rbk/RBS0-SpecTop.adoc`
 
-> **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `jjqs_studbook/specs/rbk/RBS*-*.adoc`.
+> **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`specs/rbk/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `specs/rbk/RBS*-*.adoc`.
 
-- **RBRN**  → `jjqs_studbook/specs/rbk/RBRN-RegimeNameplate.adoc`
+- **RBRN**  → `specs/rbk/RBRN-RegimeNameplate.adoc`
 
 ### Shelved code
 
-- **RBHW0** → `rbk/vov_veiled/rbhw0_*.sh` (Windows 0-prefix — VEILED: the windows handbook (`rbhw0_cli.sh`, `rbhw0_top.sh`, `rbhw0_windows.sh`, `rbhwht_handbook_top.sh`, `rbhwcd_docker_context_discipline.sh`, `rbhwdd_docker_desktop.sh`) was shelved off the surface into `rbk/vov_veiled/`. Inert; enrollments + tabtargets removed, not rewired for local execution. It is the `RBHW` **windows** group — the third `rbh*` group, alongside the delivered `RBHO` onboarding and `RBHP` payor.)
+- **RBHW0** → `Tools/rbk/vov_veiled/rbhw0_*.sh` (Windows 0-prefix — VEILED: the windows handbook (`rbhw0_cli.sh`, `rbhw0_top.sh`, `rbhw0_windows.sh`, `rbhwht_handbook_top.sh`, `rbhwcd_docker_context_discipline.sh`, `rbhwdd_docker_desktop.sh`) was shelved off the surface into `Tools/rbk/vov_veiled/`. Inert; enrollments + tabtargets removed, not rewired for local execution. It is the `RBHW` **windows** group — the third `rbh*` group, alongside the delivered `RBHO` onboarding and `RBHP` payor.)
 
 ### Carried BUK rows
 
@@ -85,10 +85,10 @@ citation census down — stands in full beside the rows in
 (resolution map, and this tree's per-kit roster for the veiled-acronym reference
 lint). Read it there before adding or dropping a row.
 
-- **BCG**  → `jjqs_studbook/guides/buk/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
-- **WSG**  → `jjqs_studbook/guides/buk/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
-- **BUS0** → `jjqs_studbook/specs/buk/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
+- **BCG**  → `guides/buk/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
+- **WSG**  → `guides/buk/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)
+- **BUS0** → `specs/buk/BUS0-BashUtilitiesSpec.adoc` (Bash Utilities Specification - tabtarget dispatch vocabulary)
 
 ### Veiled diagram
 
-- **RBDGP** → `rbk/vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}` (the provenance tale — a derived presentation of RBSYP's marker skeleton, veiled 2026-07-13 because its rendered title named its closed source in a shipped image, and because no README `<picture>` block ever consumed it. Frozen: it sits outside the `diagrams/*.puml` glob the pluml crucible case renders, so it is not re-rendered. Its intended re-gestation is chapbook-driven puml authoring; the delivered `rbdg*` set is the three federation diagrams.)
+- **RBDGP** → `Tools/rbk/vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}` (the provenance tale — a derived presentation of RBSYP's marker skeleton, veiled 2026-07-13 because its rendered title named its closed source in a shipped image, and because no README `<picture>` block ever consumed it. Frozen: it sits outside the `diagrams/*.puml` glob the pluml crucible case renders, so it is not re-rendered. Its intended re-gestation is chapbook-driven puml authoring; the delivered `rbdg*` set is the three federation diagrams.)
