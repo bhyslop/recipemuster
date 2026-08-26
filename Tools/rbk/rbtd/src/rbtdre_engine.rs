@@ -433,9 +433,9 @@ pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
 //     stands down; a shortfall gate is the opposite — the partial run IS the
 //     finding, and suppressing on a skip would exempt the very case this gate
 //     was cut for.
-//   * max_secs remains a DRIFT warning — never verdict-affecting. Max-time is
-//     Palisade weather (cloud queue, cold image pulls) and must not make the
-//     verdict host-dependent.
+//   * max_secs is the one DRIFT warning left, and never touches a verdict.
+//     Max-time is Palisade weather (cloud queue, cold image pulls) and must not
+//     make the verdict host-dependent.
 // Every violation prints declared-vs-observed so an adjustment is a one-line
 // edit at the declaration site.
 
