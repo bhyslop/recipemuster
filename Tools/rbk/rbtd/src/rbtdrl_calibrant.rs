@@ -18,7 +18,7 @@
 // verdicts that exercise the operator-facing surface of the theurge engine.
 // Internal framework-test plumbing; not end-user-facing.
 //
-// Seven fixtures registered through rbtdrm_manifest.rs and dispatched via
+// Eight fixtures registered through rbtdrm_manifest.rs and dispatched via
 // rbtdrc_crucible.rs:
 //
 //   calibrant-verdicts             Independent  4 cases  verdict-path coverage
@@ -28,12 +28,15 @@
 //   calibrant-coverage-aligned     Independent  1 case   declared+invoked census colophon
 //   calibrant-coverage-undeclared  Independent  1 case   invoked-but-undeclared -> positive-check FAIL
 //   calibrant-coverage-unused      Independent  1 case   declared-but-unused -> negative-check FAIL
+//   calibrant-tariff-drift         Independent  1 case   skip + unmeetable count -> shortfall FAIL
 //
-// The first four declare empty rbtdrm_required_colophons — their cases never
-// shell out to bash tabtargets, so the manifest-coupling check is vacuous.
-// The three coverage fixtures invoke (or deliberately don't invoke) the
-// synthetic RBTDGC_THEURGE_NIHIL colophon to exercise the census enforcement
-// itself; their manifest declarations are what differ between them.
+// The first four and calibrant-tariff-drift declare empty
+// rbtdrm_required_colophons — their cases never shell out to bash tabtargets,
+// so the manifest-coupling check is vacuous. The three coverage fixtures invoke
+// (or deliberately don't invoke) the synthetic RBTDGC_THEURGE_NIHIL colophon to
+// exercise the census enforcement itself; their manifest declarations are what
+// differ between them. calibrant-tariff-drift's needle is instead its TARIFF —
+// a declared invocation count no case can meet.
 //
 // The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
 // fixtures as child rbtd runs through the real tabtarget chain and asserts
@@ -55,7 +58,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED, RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
     RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
     RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
-    RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+    RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
 };
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
@@ -237,6 +240,32 @@ pub static RBTDRL_CASES_COVERAGE_UNDECLARED: &[rbtdre_Case] =
     &[case!(rbtdrl_coverage_undeclared_invokes)];
 pub static RBTDRL_CASES_COVERAGE_UNUSED: &[rbtdre_Case] = &[case!(rbtdrl_coverage_unused_no_invoke)];
 
+// ── calibrant-tariff-drift ──────────────────────────────────
+//
+// The needle for the tariff shortfall gate (rbtdre_engine.rs, Tariff section):
+// a fixture whose declared invocation count its cases cannot meet. Its single
+// case SKIPS, which is the whole point — a skip exits zero, so before the gate
+// existed this fixture was green while running none of its declared work, the
+// exact lying-gate shape the gate closes.
+//
+// The skip is also what pins the gate's ONE contestable clause. The engine's
+// census negative check stands down on a skipped case; this gate deliberately
+// does not, and a future tidy-up that made the two match by adding
+// `skipped == 0` would turn this fixture green — reddening the touchstone case
+// that watches it rather than silently deleting the ruling.
+//
+// Roster-only, like the coverage calibrants: a member of no suite, driven only
+// as a child of the touchstone surface fixture.
+
+/// Skip without invoking anything, against a declared count of one. Observed 0
+/// vs declared 1 is the drift; the Skip verdict is what would otherwise carry
+/// the fixture to a zero exit.
+fn rbtdrl_tariff_drift_skips_short(_dir: &Path) -> rbtdre_Verdict {
+    rbtdre_Verdict::Skip("calibrant declared-count shortfall, by construction".to_string())
+}
+
+pub static RBTDRL_CASES_TARIFF_DRIFT: &[rbtdre_Case] = &[case!(rbtdrl_tariff_drift_skips_short)];
+
 // ── Fixture statics ──────────────────────────────────────────
 
 pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
@@ -290,7 +319,12 @@ pub static RBTDRL_FIXTURE_COVERAGE_ALIGNED: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_COVERAGE_ALIGNED,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    // The one calibrant declaring a count it MEETS — its single case invokes
+    // nihil exactly once. Standing beside calibrant-tariff-drift it is the
+    // shortfall gate's positive control: same driver, same tabtarget chain, a
+    // met declaration staying green. Without a declaration here the pair would
+    // prove only that a fixture can fail, never that the gate discriminates.
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
 };
 const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_ALIGNED.cases.len() == 1);
 
@@ -315,3 +349,18 @@ pub static RBTDRL_FIXTURE_COVERAGE_UNUSED: rbtdre_Fixture = rbtdre_Fixture {
     tariff: rbtdre_Tariff::UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNUSED.cases.len() == 1);
+
+pub static RBTDRL_FIXTURE_TARIFF_DRIFT: rbtdre_Fixture = rbtdre_Fixture {
+    name: RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT,
+    disposition: rbtdre_Disposition::Independent,
+    setup: None,
+    teardown: None,
+    cases: RBTDRL_CASES_TARIFF_DRIFT,
+    credless: false,
+    // DELIBERATELY UNMEETABLE — do not "repair" by lowering this to 0. The one
+    // case invokes nothing, so the declaration is short by construction, and
+    // that mismatch is the whole fixture: its expected verdict is FAIL. Aligning
+    // the count would turn it green and silently delete the test.
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
+};
+const _: () = assert!(RBTDRL_FIXTURE_TARIFF_DRIFT.cases.len() == 1);

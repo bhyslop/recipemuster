@@ -87,6 +87,7 @@ use crate::rbtdrm_manifest::{
     RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
     RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
     RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
+    RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT,
     RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
     RBTDRM_FIXTURE_TOUCHSTONE,
 };
@@ -804,6 +805,50 @@ fn rbtdrj_coverage_unused_single_case_exempt(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
+// ── tariff shortfall ────────────────────────────────────────
+//
+// Black-box proof that the tariff shortfall gate (rbtdre_engine.rs, Tariff
+// section) reddens a fixture that ran short of its declared invocation count.
+// The pair is a discriminating control, not a single needle: the drift
+// calibrant fails, and calibrant-coverage-aligned — which declares a count of
+// one and invokes exactly once — stays green under the same driver, asserted by
+// the coverage-aligned case above.
+
+/// Declared a count no case can meet, and its one case SKIPS. Both halves are
+/// load-bearing: without the gate a skipped case exits zero, so this fixture is
+/// exactly the silent shortfall the gate exists to close, and its redness proves
+/// the gate stands on `failed == 0` alone rather than the census check's
+/// `failed == 0 && skipped == 0`.
+fn rbtdrj_tariff_drift_fails_naming_counts(dir: &Path) -> rbtdre_Verdict {
+    zrbtdrj_run(|| {
+        let label = "tariff-drift";
+        let child = zrbtdrj_child(
+            dir,
+            label,
+            RBTDGC_THEURGE_FIXTURE,
+            None,
+            &[RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT],
+            false,
+        )?;
+        zrbtdrj_expect_nonzero(&child, label)?;
+        // The skip is what would have carried it to a zero exit — assert it
+        // happened, so a needle that started failing its case instead (and so
+        // reddened for the wrong reason) cannot pass this case.
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_SKIPPED, "tariff-drift stdout")?;
+        zrbtdrj_expect_contains(&child.stdout, RBTDRE_WORD_FAILED, "tariff-drift stdout")?;
+        zrbtdrj_expect_contains(
+            &child.stdout,
+            "tariff count-drift — 0 invocations vs declared 1",
+            "tariff-drift stdout",
+        )?;
+        zrbtdrj_expect_contains(
+            &child.stdout,
+            "declared work did not run",
+            "tariff-drift stdout",
+        )
+    })
+}
+
 // ── stream-placement ────────────────────────────────────────
 
 /// Under BURD_NO_LOG the dispatch leaves the coordinator's streams unmerged,
@@ -910,6 +955,8 @@ pub static RBTDRJ_CASES_TOUCHSTONE: &[rbtdre_Case] = &[
     case!(rbtdrj_coverage_undeclared_fails_naming_colophon),
     case!(rbtdrj_coverage_unused_fails_naming_colophon),
     case!(rbtdrj_coverage_unused_single_case_exempt),
+    // tariff-shortfall
+    case!(rbtdrj_tariff_drift_fails_naming_counts),
     // stream-placement
     case!(rbtdrj_stream_placement_diags_on_stderr),
     // log-isolation
@@ -926,6 +973,6 @@ pub static RBTDRJ_FIXTURE_TOUCHSTONE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRJ_CASES_TOUCHSTONE,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(20) },
+    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(21) },
 };
-const _: () = assert!(RBTDRJ_FIXTURE_TOUCHSTONE.cases.len() == 20);
+const _: () = assert!(RBTDRJ_FIXTURE_TOUCHSTONE.cases.len() == 21);
