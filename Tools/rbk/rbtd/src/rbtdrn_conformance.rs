@@ -928,11 +928,13 @@ const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
 /// The kraal register's basename, at the outspan root.
 const ZRBTDRN_FEODARY_BASENAME: &str = "feodary.json";
 
-/// The register vintage this reader understands. The feodary is dispatch
-/// output whose reader refuses loud on any vintage it does not read — tolerant
-/// parsing is the mixed-vintage failure a per-kraal composition exists to end,
-/// so an unknown revision skips this repo's register rather than being
-/// half-understood.
+/// The revision value this reader's synthetic self-registers carry below.
+/// `jjfd_revision` is the ENGINE's own vintage discriminant against the seat
+/// it composed; this reader is the FOREIGN one `JJSVD-dispatch.adoc` "The
+/// feodary" rules on, and a foreign reader "reads the keys it needs, passes
+/// over the keys it does not, and does not gate on jjfd_revision" — so this
+/// constant is not a comparison target. Presence is still required: the same
+/// section states "a document that cannot say what it is is not a feodary".
 const ZRBTDRN_FEODARY_REVISION: i64 = 1;
 
 /// The roles a corpus road carries. A kraal holds at most one, and which one
@@ -1003,26 +1005,23 @@ fn zrbtdrn_json_int_field(text: &str, key: &str) -> Option<i64> {
     rest[..end].parse::<i64>().ok()
 }
 
-/// Parse the kraal register: its vintage gate first, then one row per object in
-/// `jjfd_trees`. Pure over the document text — the walk that FINDS the document
-/// is `zrbtdrn_locate_corpus_road`. `Err` is a register this reader must not act
+/// Parse the kraal register: `jjfd_revision`'s presence first, then one row
+/// per object in `jjfd_trees`. This reader is the FOREIGN reader
+/// `JJSVD-dispatch.adoc` "The feodary" rules on — it takes the keys it needs,
+/// passes over the rest, and does not gate on the revision's VALUE, only that
+/// the key stands (a document that cannot say what it is is not a feodary).
+/// Pure over the document text — the walk that FINDS the document is
+/// `zrbtdrn_locate_corpus_road`. `Err` is a register this reader must not act
 /// on; `Ok` with no rows is a well-formed register standing no trees.
 ///
 /// Deliberately not a general JSON parser: the subject is one dispatch-generated
 /// document of known shape, and a scanner over its two declared fields is what
 /// the checker can prove itself against (the self-test cases below). A row
-/// missing either field is a refusal rather than a skipped row — a register that
-/// half-parses is the tolerant reading the vintage gate exists to forbid.
+/// missing either field is a refusal rather than a skipped row — a register
+/// that half-parses is not one this reader may trust.
 fn zrbtdrn_parse_feodary(text: &str) -> Result<Vec<zrbtdrn_FeodaryTree>, String> {
-    match zrbtdrn_json_int_field(text, "jjfd_revision") {
-        Some(ZRBTDRN_FEODARY_REVISION) => {}
-        Some(other) => {
-            return Err(format!(
-                "declares revision {} — this reader reads revision {} only",
-                other, ZRBTDRN_FEODARY_REVISION
-            ))
-        }
-        None => return Err("declares no jjfd_revision".to_string()),
+    if zrbtdrn_json_int_field(text, "jjfd_revision").is_none() {
+        return Err("declares no jjfd_revision".to_string());
     }
     let needle = "\"jjfd_trees\"";
     let pos = match text.find(needle) {
@@ -1662,15 +1661,45 @@ fn rbtdrn_self_feodary_parse(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-/// Register parse, the refusing half — the vintage gate and the half-row bar,
-/// which are the two ways a tolerant reader would quietly resolve a corpus road
-/// it had no business trusting. A register of an unread vintage, one declaring
-/// no vintage at all, and one whose row carries a path but no role must each
-/// refuse; the sumpter row proves a NON-corpus role is not mistaken for one.
+/// Register parse, the refusing half — now that the revision's VALUE is no
+/// longer gated (this reader is the FOREIGN reader `JJSVD-dispatch.adoc` "The
+/// feodary" rules on), the case first proves the evolution rule holds: a
+/// register of a LATER vintage, carrying an unknown top-level key as well,
+/// parses to the same rows a well-formed register does — evolution is
+/// additive, and an addition must be invisible to a reader that does not want
+/// it. The half-row bar is the one way left that a tolerant reader would
+/// quietly resolve a corpus road it had no business trusting. A register
+/// declaring no vintage at all, and one whose row carries a path but no role,
+/// must each still refuse; the sumpter row proves a NON-corpus role is not
+/// mistaken for one.
 fn rbtdrn_self_feodary_refusals(_dir: &Path) -> rbtdre_Verdict {
-    let future = ZRBTDRN_SELF_FEODARY.replace("\"jjfd_revision\": 1", "\"jjfd_revision\": 2");
-    if zrbtdrn_parse_feodary(&future).is_ok() {
-        return rbtdre_Verdict::Fail("a register of an unread vintage parsed clean".to_string());
+    let evolved = ZRBTDRN_SELF_FEODARY.replace(
+        "\"jjfd_revision\": 1",
+        "\"jjfd_future_key\": true,\n  \"jjfd_revision\": 2",
+    );
+    let evolved_trees = match zrbtdrn_parse_feodary(&evolved) {
+        Ok(t) => t,
+        Err(e) => {
+            return rbtdre_Verdict::Fail(format!(
+                "a later-vintage register carrying an unknown key refused: {}",
+                e
+            ))
+        }
+    };
+    let base_trees = match zrbtdrn_parse_feodary(ZRBTDRN_SELF_FEODARY) {
+        Ok(t) => t,
+        Err(e) => return rbtdre_Verdict::Fail(format!("well-formed register refused: {}", e)),
+    };
+    if evolved_trees.len() != base_trees.len()
+        || evolved_trees
+            .iter()
+            .zip(base_trees.iter())
+            .any(|(a, b)| a.path != b.path || a.role != b.role)
+    {
+        return rbtdre_Verdict::Fail(
+            "a later-vintage register carrying an unknown key parsed to different rows"
+                .to_string(),
+        );
     }
     let vintageless = ZRBTDRN_SELF_FEODARY.replace("\"jjfd_revision\": 1,", "");
     if zrbtdrn_parse_feodary(&vintageless).is_ok() {
