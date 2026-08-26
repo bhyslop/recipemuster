@@ -39,6 +39,9 @@ zrbfk_kindle() {
   buc_log_args 'Define forensic temp prefix for docker image inspect stderr capture'
   readonly ZRBFK_INSPECT_STDERR_PREFIX="${BURD_TEMP_DIR}/rbfk_inspect_stderr_"
 
+  buc_log_args 'Define temp file for the HEAD short-sha read that mints the hallmark'
+  readonly ZRBFK_HEAD_SHA_FILE="${BURD_TEMP_DIR}/rbfk_head_short_sha.txt"
+
   buc_log_args 'Initialize mutable image-presence inspect counter'
   z_rbfk_inspect_counter=0
 
@@ -189,9 +192,18 @@ rbfk_kludge() {
   buc_step "Validating Dockerfile hygiene"
   rbfh_dockerfile_check "${RBRV_CONJURE_DOCKERFILE}"
 
-  # Timestamp for chronological sorting, git describe for commit provenance
-  # BURD_GIT_CONTEXT is exported by bud_dispatch; dirty-tree guard above ensures clean tree
-  local -r z_hallmark="${RBGC_HALLMARK_PREFIX_KLUDGE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${BURD_GIT_CONTEXT}"
+  # Timestamp for chronological sorting, short HEAD sha for commit provenance.
+  # The sha is read here rather than taken from BURD_GIT_CONTEXT, the dispatch's
+  # describe string: describe names the nearest reachable tag, so its text carries
+  # whatever characters a ref name happens to hold, while this hallmark goes on to
+  # stand as a path segment in an image reference where only lowercase is legal.
+  # The dirty-tree gate above makes the sha name the built tree exactly.
+  git rev-parse --short HEAD > "${ZRBFK_HEAD_SHA_FILE}" \
+    || buc_die_now "Failed to read short HEAD sha for kludge hallmark"
+  local -r z_short_sha=$(<"${ZRBFK_HEAD_SHA_FILE}")
+  test -n "${z_short_sha}" || buc_die_now "Empty short HEAD sha from ${ZRBFK_HEAD_SHA_FILE}"
+
+  local -r z_hallmark="${RBGC_HALLMARK_PREFIX_KLUDGE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${z_short_sha}"
 
   # Construct image refs matching compose/vouch-gate format (hallmark-as-tag),
   # rooted in the local kludge namespace — kludge output never carries the
