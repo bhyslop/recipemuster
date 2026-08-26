@@ -28,18 +28,18 @@ This applies to **all** crucible verification: new tests, bug fixes, refactors. 
 
 #### Full run (charge + all cases + quench in one command)
 
-1. Edit ifrit source (`rbev-vessels/common-ifrit-context/src/`) or theurge source (`Tools/rbk/rbtd/src/`)
-2. If ifrit changed: kludge-rebuild the bottle image
-   ```
-   tt/rbw-cKB.KludgeBottle.sh tadmor
-   ```
-   This builds a new container image and drives the kludge hallmark into the nameplate's `rbrn.env`.
-3. Git commit the hallmark change (kludge dirties `rbrn.env` — a clean working tree is required for charge, and the commit trail maintains audit integrity)
-4. Run the full tadmor fixture:
+1. Edit ifrit source (`rbmm_moorings/rbmv_vessels/common-ifrit-context/src/`) or theurge source (`Tools/rbk/rbtd/src/`)
+2. Run the full tadmor fixture:
    ```
    tt/rbw-tf.FixtureRun.sh tadmor
    ```
    This charges the crucible, runs all cases, and quenches — one command.
+3. If charge refuses with a stale kludge pin, rebuild the vessel it names and commit the pin, then re-run step 2:
+   ```
+   tt/rbw-cKB.KludgeBottle.sh tadmor
+   tt/rbw-cKS.KludgeSentry.sh tadmor
+   ```
+   Charge answers the did-anything-change question for you: it compares each pinned kludge hallmark against the vessel source and refuses when they have parted, naming the vessel and printing the producer tabtarget to run. Run the one it names — the refusal is per vessel — then commit the hallmark it drives into the nameplate's `rbrn.env`. The commit is required rather than tidy: kludge dirties `rbrn.env`, and charge demands a clean working tree.
 
 #### Single-case debugging (manual charge/quench lifecycle)
 

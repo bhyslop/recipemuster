@@ -290,6 +290,63 @@ zrbob_hallmark_is_kludge_predicate() {
   esac
 }
 
+# Refuse a charge whose pinned kludge image no longer matches its source.
+#
+# A kludge hallmark names the tree it was built from: its trailing field is the
+# short sha of HEAD at mint time, taken on a clean tree. So currency is one git
+# question — has the vessel source moved since that sha — and the sha is read
+# through the grammar rather than by splitting on a dash, so a mark of another
+# shape refuses instead of yielding a plausible fragment.
+#
+# SCOPE IS THE WHOLE VESSELS ROOT, not the named vessel's own directory, and
+# that width is deliberate. A vessel directory typically holds only rbrv.env;
+# the build context it declares is frequently a shared sibling under the root
+# (common-sentry-context, common-ifrit-context), so a per-vessel scope would
+# be blind to the very source it exists to watch. Root scope over-reports — an
+# unrelated vessel's edit reads every pin stale — and cannot under-report,
+# which is the direction that matters when the remedy is one kludge and the
+# alternative is silently charging a stale image.
+#
+# Refuses and never performs: kludge rewrites the nameplate's hallmark, and
+# charge requires a committed nameplate, so charge cannot remedy this itself.
+# Usage: zrbob_kludge_currency_gate <vessel> <hallmark> <producer_colophon>
+zrbob_kludge_currency_gate() {
+  local -r z_vessel="${1:-}"
+  local -r z_hallmark="${2:-}"
+  local -r z_colophon="${3:-}"
+
+  test -n "${z_vessel}"   || buc_die_now "zrbob_kludge_currency_gate: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbob_kludge_currency_gate: hallmark required"
+  test -n "${z_colophon}" || buc_die_now "zrbob_kludge_currency_gate: producer colophon required"
+
+  # Currency is a kludge question alone — the c/b/g modes name registry-pulled
+  # immutable releases, which no working tree can outrun.
+  zrbob_hallmark_is_kludge_predicate "${z_hallmark}" || return 0
+
+  local -r z_grammar="^${RBGC_HALLMARK_PREFIX_KLUDGE}[0-9]{12}-([0-9a-f]{7,})$"
+  [[ "${z_hallmark}" =~ ${z_grammar} ]] \
+    || buc_die_now "Kludge hallmark for vessel ${z_vessel} does not match the k-mode grammar: ${z_hallmark}"
+  local -r z_sha="${BASH_REMATCH[1]}"
+
+  # Resolve before diffing so an unreachable or ambiguous sha refuses in git's
+  # own words rather than surfacing as a diff failure.
+  local -r z_verify_file="${BURD_TEMP_DIR}/zrbob_currency_verify_${z_vessel}.txt"
+  git rev-parse --verify --quiet "${z_sha}^{commit}" > "${z_verify_file}" 2>&1 \
+    || buc_die_now "Kludge hallmark for vessel ${z_vessel} names an unresolvable commit ${z_sha} — see ${z_verify_file}"
+
+  git diff --quiet "${z_sha}" -- "${RBRR_VESSEL_DIR}" && return 0
+
+  buc_warn "Kludge image for vessel ${z_vessel} is stale: ${z_hallmark}"
+  buc_bare "  The pin was built from ${z_sha}; ${RBRR_VESSEL_DIR} has changed since."
+  buc_bare "  Charge refuses rather than rebuilding: kludge rewrites the nameplate's"
+  buc_bare "  hallmark, and charge requires a committed nameplate."
+  buc_bare ""
+  buc_bare "  Rebuild the vessel and commit the pin it drives, then recharge:"
+  buc_tabtarget "${z_colophon}" "${RBRN_MONIKER}"
+  buc_bare ""
+  buc_die_now "Stale kludge pin for vessel ${z_vessel}: ${z_hallmark}"
+}
+
 # Pull all three arks (image, about, vouch) for a hallmark to local runtime.
 # Used when charge detects a missing local artifact and needs to bootstrap.
 # Mirrors rbfr_summon's all-three-arks semantics; called inline rather than
@@ -526,6 +583,12 @@ rbob_charge() {
   # and the exec verbs stay legal on a vacant nameplate. The gate is homed in
   # the rbrn regime module (the hallmarks' own home); charge cites it.
   rbrn_require_armed "${RBRN_MONIKER}" "${RBRN_SENTRY_HALLMARK}" "${RBRN_BOTTLE_HALLMARK}"
+
+  # Currency gate: a pinned kludge image whose source has moved is stale, and
+  # stands ahead of the presence preflight below — a stale pin that happens to
+  # be present locally would otherwise charge silently.
+  zrbob_kludge_currency_gate "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${RBZ_CRUCIBLE_KLUDGE_SENTRY}"
+  zrbob_kludge_currency_gate "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}"
 
   # Preflight: ensure all hallmark arks exist locally. Vouch presence is the
   # hallmark-level signal — if vouch is missing, the full hallmark is treated
