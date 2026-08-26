@@ -163,7 +163,14 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
         ],
     },
-    // Bivouac — reveille + container-runtime crucible fixtures.
+    // Bivouac — reveille + container-runtime crucible fixtures. kludge-tadmor
+    // precedes the tadmor crucible for the reason siege pairs them: tadmor's
+    // hallmarks are k-prefixed (local kludge), so they resolve in the local
+    // kludge namespace and NOTHING can summon them — charge's preflight can only
+    // die. A committed k-pin is the residue of whichever station last kludged,
+    // so a suite that charges tadmor without a kludge producer ahead of it is
+    // runnable on that one station alone. The producer is local docker with no
+    // GCP dependency, so it sits inside this suite's charter.
     rbtdre_Suite {
         name: "bivouac",
         fixtures: &[
@@ -179,6 +186,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdru_cupel::RBTDRU_FIXTURE_CUPEL,
             &crate::rbtdrq_pyx::RBTDRQ_FIXTURE_PYX,
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_PLUML,
@@ -187,6 +195,8 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
         ],
     },
     // Echelon — reveille + every dependency-tiered fixture (picket ∪ bivouac).
+    // Carries bivouac's kludge-tadmor producer for the same reason, and must:
+    // rbtdtc_crucible asserts echelon == picket ∪ bivouac by name.
     rbtdre_Suite {
         name: "echelon",
         fixtures: &[
@@ -212,6 +222,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_POLITY_DENIAL,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_PARLEY,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_CHAINING_LIVERY,
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_PLUML,
