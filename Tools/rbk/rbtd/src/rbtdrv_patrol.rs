@@ -420,6 +420,21 @@ fn zrbtdrv_expect_vacant(
     }
 }
 
+/// Own-mint presence predicate for the post-ordain audit: robust to a foreign
+/// mint or foreign abjure landing in the vector between this fixture's own
+/// audits (a concurrent depot actor), since only this fixture's own hallmark
+/// is examined — never a whole-inventory comparison against a baseline.
+fn zrbtdrv_own_mint_present(audit: &[String], hallmark: &str) -> bool {
+    audit.iter().any(|h| h == hallmark)
+}
+
+/// Own-mint absence predicate for the final (post-abjure) audit — the mirror
+/// of the presence check above, same robustness to concurrent foreign
+/// mints/abjures in the vector.
+fn zrbtdrv_own_mint_absent(audit: &[String], hallmark: &str) -> bool {
+    !zrbtdrv_own_mint_present(audit, hallmark)
+}
+
 fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
@@ -487,13 +502,10 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("read post-ordain audit facts: {}", e)),
         };
-        let mut expected_after_ordain = baseline.clone();
-        expected_after_ordain.push(hallmark.clone());
-        expected_after_ordain.sort();
-        if after_ordain != expected_after_ordain {
+        if !zrbtdrv_own_mint_present(&after_ordain, &hallmark) {
             return rbtdre_Verdict::Fail(format!(
-                "post-ordain audit mismatch:\n  expected (baseline + new): {:?}\n  got: {:?}",
-                expected_after_ordain, after_ordain
+                "post-ordain audit missing own mint: hallmark {} not present\n  audit: {:?}",
+                hallmark, after_ordain
             ));
         }
 
@@ -568,7 +580,10 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             return v;
         }
 
-        // Step 7: final audit — registry restored to baseline.
+        // Step 7: final audit — own mint no longer present (own-mint absence,
+        // not whole-inventory equality against baseline: a concurrent depot
+        // actor's mint or abjure between the fixture's own audits must not
+        // red this fixture).
         let _ = std::fs::write(dir.join("07-audit-final.txt"), "auditing final");
         let final_audit = match rbtdri_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
@@ -580,10 +595,10 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
             Ok(v) => v,
             Err(e) => return rbtdre_Verdict::Fail(format!("read final audit facts: {}", e)),
         };
-        if final_state != baseline {
+        if !zrbtdrv_own_mint_absent(&final_state, &hallmark) {
             return rbtdre_Verdict::Fail(format!(
-                "final audit mismatch — abjure did not restore baseline:\n  baseline: {:?}\n  final: {:?}",
-                baseline, final_state
+                "final audit still contains own mint: hallmark {} present after abjure\n  audit: {:?}",
+                hallmark, final_state
             ));
         }
 
@@ -593,6 +608,60 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_hallmark_lifecycle)];
+
+#[cfg(test)]
+mod rbtdrv_tests {
+    use super::*;
+
+    fn strs(v: &[&str]) -> Vec<String> {
+        v.iter().map(|s| s.to_string()).collect()
+    }
+
+    #[test]
+    fn zrbtdrv_own_mint_present_survives_foreign_addition() {
+        // A foreign mint landed in the audit vector alongside this fixture's
+        // own hallmark — own-mint presence still reads green.
+        let audit = strs(&["c1-r1", "own-hallmark", "c2-r2"]);
+        assert!(zrbtdrv_own_mint_present(&audit, "own-hallmark"));
+    }
+
+    #[test]
+    fn zrbtdrv_own_mint_present_ignores_foreign_removal() {
+        // The baseline carried a hallmark a concurrent actor has since
+        // abjured; it is simply absent from the vector, and this fixture's
+        // own hallmark's presence is unaffected.
+        let audit = strs(&["own-hallmark", "c2-r2"]);
+        assert!(zrbtdrv_own_mint_present(&audit, "own-hallmark"));
+    }
+
+    #[test]
+    fn zrbtdrv_own_mint_present_reds_when_own_mint_missing_after_ordain() {
+        let audit = strs(&["c1-r1", "c2-r2"]);
+        assert!(!zrbtdrv_own_mint_present(&audit, "own-hallmark"));
+    }
+
+    #[test]
+    fn zrbtdrv_own_mint_absent_survives_foreign_addition() {
+        // A foreign mint landed between this fixture's abjure and its final
+        // audit — own-mint absence still reads green.
+        let audit = strs(&["c1-r1", "c2-r2"]);
+        assert!(zrbtdrv_own_mint_absent(&audit, "own-hallmark"));
+    }
+
+    #[test]
+    fn zrbtdrv_own_mint_absent_ignores_foreign_removal() {
+        // A concurrent actor's own hallmark disappeared from the vector too
+        // (its own abjure) — this fixture's own-mint absence is unaffected.
+        let audit = strs(&["c2-r2"]);
+        assert!(zrbtdrv_own_mint_absent(&audit, "own-hallmark"));
+    }
+
+    #[test]
+    fn zrbtdrv_own_mint_absent_reds_when_own_mint_still_present_after_abjure() {
+        let audit = strs(&["c1-r1", "own-hallmark"]);
+        assert!(!zrbtdrv_own_mint_absent(&audit, "own-hallmark"));
+    }
+}
 
 
 // ── Lode round-trip shared blocks ────────────────────────────
