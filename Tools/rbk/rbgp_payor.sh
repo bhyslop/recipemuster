@@ -3065,8 +3065,8 @@ zrbgp_principal_member_capture() {
 }
 
 # brevet core — token-agnostic admission composition shared by the donned-governor
-# verb and the payor founding/proof paths. Muniment before bindings (RBr_m4d);
-# every step idempotent.
+# verb and the payor-credentialed founding path. Muniment before bindings
+# (RBr_m4d); every step idempotent. Emits no success banner (RBr_c4f).
 zrbgp_brevet_core() {
   zrbgp_sentinel
 
@@ -3099,13 +3099,11 @@ zrbgp_brevet_core() {
   rbgi_add_project_iam_role "${z_token}" "Brevet serviceUsageConsumer for ${z_subject}" \
     "projects/${z_depot}" "${RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER}" \
     "${z_principal}" "polity_brevet_suc"
-
-  buc_success "Breveted ${z_subject} onto the ${z_mantle} mantle"
 }
 
 # unseat core — token-agnostic withdrawal of one mantle: muniment then the
 # tokenCreator binding only (RBr_m4d); the depot-scoped binding stays —
-# suspension, swept by attaint alone.
+# suspension, swept by attaint alone. Emits no success banner (RBr_c4f).
 zrbgp_unseat_core() {
   zrbgp_sentinel
 
@@ -3133,13 +3131,11 @@ zrbgp_unseat_core() {
   buc_log_args 'Remove tokenCreator on the mantle SA (depot-scoped binding stays: suspension)'
   rbgi_revoke_sa_principal_member "${z_token}" "${z_mantle_email}" "${z_principal}" \
     "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
-
-  buc_success "Unseated ${z_subject} from the ${z_mantle} mantle"
 }
 
 # attaint core — token-agnostic whole-person expulsion: unseat every mantle
 # (idempotent), sweep the depot-scoped binding, note the deregistration
-# (RBr_m4d).
+# (RBr_m4d). Emits no success banner (RBr_c4f).
 zrbgp_attaint_core() {
   zrbgp_sentinel
 
@@ -3167,7 +3163,6 @@ zrbgp_attaint_core() {
     "${z_principal}" "polity_attaint_suc"
 
   buc_info "Deregistered ${z_subject} from ${z_depot}; IdP-side identity removal is the IdP admin's"
-  buc_success "Attainted ${z_subject} from ${z_depot}"
 }
 
 # rbgp_gird <subject> — the payor seats the first governor of this depot,
@@ -3189,6 +3184,8 @@ rbgp_gird() {
   z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
 
   zrbgp_brevet_core "${z_token}" "governor" "${z_subject}"
+
+  buc_success "Girded ${z_subject} onto the governor mantle in ${RBDC_DEPOT_PROJECT_ID}"
 }
 
 # rbgp_brevet <subject> <mantle> — admit an avowed citizen onto a mantle in this
@@ -3215,6 +3212,8 @@ rbgp_brevet() {
     || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
+
+  buc_success "Breveted ${z_subject} onto the ${z_mantle} mantle in ${RBDC_DEPOT_PROJECT_ID}"
 }
 
 # rbgp_unseat <subject> <mantle> — remove a citizen from one mantle (suspension —
@@ -3239,6 +3238,8 @@ rbgp_unseat() {
     || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
+
+  buc_success "Unseated ${z_subject} from the ${z_mantle} mantle — still standing in ${RBDC_DEPOT_PROJECT_ID} (suspended, not erased)"
 }
 
 # rbgp_attaint <subject> — expel a citizen wholly from this depot (every mantle,
@@ -3260,6 +3261,8 @@ rbgp_attaint() {
     || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_attaint_core "${z_token}" "${z_subject}"
+
+  buc_success "Attainted ${z_subject} from ${RBDC_DEPOT_PROJECT_ID}"
 }
 
 # rbgp_rehearse — recount the manor-wide muniment roll (pure read, mutates
