@@ -292,12 +292,11 @@ zrbob_hallmark_is_kludge_predicate() {
 
 # Refuse a charge whose pinned kludge image no longer matches its source.
 #
-# A kludge hallmark names the tree it was built from: RBS0 {rbtga_hallmark},
-# the k mode, whose trailing field is the short sha of HEAD at mint time taken
-# on a clean tree. So currency is one git question — has the vessel source
-# moved since that sha — and the sha is read through the grammar rather than
-# by splitting on a dash, so a mark of another shape refuses instead of
-# yielding a plausible fragment.
+# A kludge hallmark names the tree it was built from: its trailing field is the
+# short sha of HEAD at mint time, taken on a clean tree. So currency is one git
+# question — has the vessel source moved since that sha — and the sha is read
+# through the grammar rather than by splitting on a dash, so a mark of another
+# shape refuses instead of yielding a plausible fragment.
 #
 # SCOPE IS THE WHOLE VESSELS ROOT, not the named vessel's own directory, and
 # that width is deliberate. A vessel directory typically holds only rbrv.env;
