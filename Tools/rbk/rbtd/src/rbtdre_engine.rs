@@ -416,15 +416,32 @@ pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
 //     fixture FAILURE. It stops the suite through the runner's existing
 //     break-on-failure (a too-fast fold into the case-failure count), never a
 //     second stopping mechanism.
-//   * max_secs and invocations are DRIFT warnings — never verdict-affecting.
-//     max-time is Palisade weather (cloud queue, cold image pulls) and must not
-//     make the verdict host-dependent; a count that drifted is a structural
-//     signal, printed for the operator, not a failure.
+//   * invocations is a SHORTFALL gate — a run that did not meet its declared
+//     count did not do the declared work, and a fixture that runs a fraction of
+//     its declared set while exiting green is a lying gate. So a count drift is
+//     a fixture FAILURE, folded into the case-failure count exactly as the
+//     vacuity floor is, with no second stopping mechanism.
+//     It fires ONLY when nothing else already failed the fixture. A red case
+//     plus fail-fast is already loud, so a second failure reason on an
+//     already-red fixture adds nothing — the same suppression the census
+//     negative check makes below, for the same reason. What this gate exists to
+//     close is the SILENT path: a fixture whose cases all pass or SKIP exits
+//     zero today however far short of its declaration it ran.
+//     The gate is `failed == 0` ALONE, and deliberately NOT the census check's
+//     `failed == 0 && skipped == 0`. The two want opposite things from a skip:
+//     an exhaustiveness demand over a partial run is vacuous, so the census
+//     stands down; a shortfall gate is the opposite — the partial run IS the
+//     finding, and suppressing on a skip would exempt the very case this gate
+//     was cut for.
+//   * max_secs is the one DRIFT warning left, and never touches a verdict.
+//     Max-time is Palisade weather (cloud queue, cold image pulls) and must not
+//     make the verdict host-dependent.
 // Every violation prints declared-vs-observed so an adjustment is a one-line
 // edit at the declaration site.
 
 /// A fixture's declared cost expectation. See the section header for the
-/// asymmetry between the vacuity floor (min) and the two drift warnings.
+/// asymmetry between the two failing bounds (the vacuity floor and the
+/// shortfall gate) and the one advisory (max-time).
 #[derive(Copy, Clone)]
 pub struct rbtdre_Tariff {
     pub min_secs: Option<u64>,
@@ -459,7 +476,10 @@ pub struct rbtdre_TariffReport {
     pub too_fast: bool,
     /// Observed wall-clock strictly above the declared max — a warning.
     pub too_slow: bool,
-    /// Observed invocation count != the declared count — a warning.
+    /// Observed invocation count != the declared count — a FAILURE, unless the
+    /// fixture already failed for another reason. This flag is the raw
+    /// observation; whether it is verdict-affecting on this run is the caller's
+    /// `failed == 0` gate (see the section header).
     pub count_drift: bool,
 }
 
@@ -510,11 +530,18 @@ pub fn rbtdre_tariff_declared(tariff: &rbtdre_Tariff) -> String {
 /// plus the declared bounds it was checked against (unchecked bounds shown as
 /// em-dash so the observed values still seed a future declaration). A too-fast
 /// observation additionally prints a FAILED line (the caller folds it into the
-/// failure count); too-slow and count-drift print advisory WARNING lines.
+/// failure count); too-slow prints an advisory WARNING line.
+///
+/// `drift_fails` is the caller's verdict on an observed count drift — true when
+/// nothing else failed the fixture, so the drift is what turns it red, false
+/// when it is suppressed behind an existing failure. The line says which,
+/// because a drift printed as advisory while it reddens the suite (or as FAILED
+/// while it did not) misreads the log at exactly the moment it matters.
 pub fn rbtdre_print_tariff(
     name: &str,
     tariff: &rbtdre_Tariff,
     report: &rbtdre_TariffReport,
+    drift_fails: bool,
     colors: &rbtdre_Colors,
 ) {
     crate::rbtdrg_info_now!(
@@ -537,9 +564,15 @@ pub fn rbtdre_print_tariff(
             rbtdre_fmt_secs(tariff.max_secs),
         );
     }
-    if report.count_drift {
+    if report.count_drift && drift_fails {
         crate::rbtdrg_info_now!(
-            "{}WARNING:{} {} tariff count-drift — {} invocations vs declared {} (advisory)",
+            "{}{}{} {} tariff count-drift — {} invocations vs declared {} (declared work did not run)",
+            colors.red, RBTDRE_WORD_FAILED, colors.reset, name, report.invocations,
+            rbtdre_fmt_count(tariff.invocations),
+        );
+    } else if report.count_drift {
+        crate::rbtdrg_info_now!(
+            "{}WARNING:{} {} tariff count-drift — {} invocations vs declared {} (suppressed — the fixture already failed)",
             colors.yellow, colors.reset, name, report.invocations,
             rbtdre_fmt_count(tariff.invocations),
         );
@@ -558,6 +591,12 @@ pub struct rbtdre_TariffRow {
 /// observed footprint beside its declaration, each row under the grep token so
 /// the whole census is greppable out of one suite log. A no-op when no rows were
 /// collected (single-fixture runs print only the per-fixture line above).
+///
+/// Flag case carries severity: the two failing bounds shout (TOO-FAST,
+/// COUNT-DRIFT), the advisory one does not (too-slow). The table is a census
+/// over the whole run, not a verdict — where a fixture both failed a case and
+/// drifted, the suppression is stated on that fixture's own line above, which
+/// is the verdict of record.
 pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
     if rows.is_empty() {
         return;
@@ -570,7 +609,7 @@ pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
         } else if report.too_slow {
             " too-slow"
         } else if report.count_drift {
-            " count-drift"
+            " COUNT-DRIFT"
         } else {
             ""
         };
@@ -906,18 +945,26 @@ pub fn rbtdre_run_fixture(
 
     // Tariff evaluation — the fixture is complete (setup + cases + teardown), so
     // wall-clock and tally are final. Evaluate against the declared tariff via
-    // the pure seam, print the per-fixture line, and fold a too-fast verdict
-    // into the case-failure count so the suite stops through the runner's
-    // EXISTING break-on-failure — no second stopping mechanism. A setup failure
-    // (Err run_result) already fails the fixture and is left untouched.
+    // the pure seam, then fold the two failing bounds into the case-failure
+    // count so the suite stops through the runner's EXISTING break-on-failure —
+    // no second stopping mechanism. A setup failure (Err run_result) already
+    // fails the fixture and is left untouched.
     let elapsed_secs = started.elapsed().as_secs();
     let invocations = crate::rbtdri_invocation::rbtdri_tariff_count();
     if let Ok(result) = run_result.as_mut() {
         result.elapsed_secs = elapsed_secs;
         result.invocations = invocations;
         let report = rbtdre_evaluate_tariff(&fixture.tariff, elapsed_secs, invocations);
-        rbtdre_print_tariff(fixture.name, &fixture.tariff, &report, colors);
         if report.too_fast {
+            result.failed += 1;
+        }
+
+        // The shortfall gate, read AFTER the too-fast fold so one fixture never
+        // books two tariff failures, and gated on failed alone — a skipped case
+        // is how a run goes silently short, so it must not stand the gate down.
+        let drift_fails = report.count_drift && result.failed == 0;
+        rbtdre_print_tariff(fixture.name, &fixture.tariff, &report, drift_fails, colors);
+        if drift_fails {
             result.failed += 1;
         }
 
