@@ -215,6 +215,12 @@ pub const RBTDRM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 pub const RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED: &str = "calibrant-coverage-aligned";
 pub const RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED: &str = "calibrant-coverage-undeclared";
 pub const RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED: &str = "calibrant-coverage-unused";
+// Calibrant tariff needle — proves the tariff shortfall gate (rbtdre_engine.rs)
+// reddens a fixture that ran short of its declared invocation count. Its single
+// case SKIPS and invokes nothing against a declared count of one, so the fixture
+// exits zero without the gate and FAILs with it. Roster-only, driven by the
+// touchstone surface fixture, never by any suite.
+pub const RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT: &str = "calibrant-tariff-drift";
 // Touchstone — the surface fixture: theurge certifying its own operator
 // surface. A reveille member whose cases spawn child rbtd runs through the
 // real tabtarget chain against the deliberately-failing calibrant fixtures,
@@ -352,7 +358,8 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTDRM_FIXTURE_CALIBRANT_VERDICTS
         | RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST
         | RBTDRM_FIXTURE_CALIBRANT_PROGRESSING
-        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL => Some(&[]),
+        | RBTDRM_FIXTURE_CALIBRANT_SENTINEL
+        | RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT => Some(&[]),
         // DELIBERATELY EMPTY — do not "repair" by adding RBTDGC_THEURGE_NIHIL.
         // The arm above is empty because those fixtures invoke nothing; this one
         // is empty though its case DOES invoke nihil, which is the whole point:

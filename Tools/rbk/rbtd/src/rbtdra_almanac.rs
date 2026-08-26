@@ -91,6 +91,7 @@ pub static RBTDRA_FIXTURES: &[&'static rbtdre_Fixture] = &[
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_COVERAGE_ALIGNED,
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_COVERAGE_UNDECLARED,
     &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_COVERAGE_UNUSED,
+    &crate::rbtdrl_calibrant::RBTDRL_FIXTURE_TARIFF_DRIFT,
     &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
 ];
 
