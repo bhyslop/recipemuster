@@ -7,8 +7,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHCR_INCLUDED:-}" || buc_die_now "Module rbcr multiply included - check sourcing hierarchy"
-ZRBHCR_INCLUDED=1
+test -z "${ZRBHCR_SOURCED:-}" || buc_die_now "Module rbcr multiply included - check sourcing hierarchy"
+ZRBHCR_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbhcr_*)
@@ -74,7 +74,7 @@ zrbhcr_kindle() {
   ZRBHCR_FQIN_FILE="${BURD_TEMP_DIR}/FQIN.txt"
 
   # File index counter
-  ZRBHCR_FILE_INDEX=0
+  z_rbhcr_file_index=0
 
   buc_step "Obtaining bearer token for registry API"
   local z_bearer_token
@@ -119,8 +119,8 @@ zrbhcr_curl_github_api() {
 }
 
 zrbhcr_get_next_index() {
-  ZRBHCR_FILE_INDEX=$((ZRBHCR_FILE_INDEX + 1))
-  printf "%03d" "${ZRBHCR_FILE_INDEX}"
+  z_rbhcr_file_index=$((z_rbhcr_file_index + 1))
+  printf "%03d" "${z_rbhcr_file_index}"
 }
 
 zrbhcr_process_single_manifest() {
@@ -373,7 +373,7 @@ rbhcr_delete() {
   # Get version ID for tag
   rbhcr_get_version_id "${z_tag}"
   local z_version_id
-  z_version_id=$(<"${ZRBHCR_VERSION_ID_FILE}")
+  z_version_id=$(<"${z_rbhcr_version_id_file}")
 
   # Delete via GitHub API
   local z_delete_url="https://api.github.com/user/packages/container/${RBRR_REGISTRY_NAME}/versions/${z_version_id}"
@@ -439,14 +439,14 @@ rbhcr_get_version_id() {
   test -n "${z_tag}" || buc_die_now "Tag parameter required"
 
   # Find version ID
-  ZRBHCR_VERSION_ID_FILE="${ZRBHCR_VERSION_PREFIX}id.txt"
+  z_rbhcr_version_id_file="${ZRBHCR_VERSION_PREFIX}id.txt"
 
   rbhcr_list_tags
 
   jq -r '.[] | select(.tag == "'"${z_tag}"'") | .version_id' \
-    "${ZRBHCR_IMAGE_RECORDS_FILE}" > "${ZRBHCR_VERSION_ID_FILE}"
+    "${ZRBHCR_IMAGE_RECORDS_FILE}" > "${z_rbhcr_version_id_file}"
 
-  test -s "${ZRBHCR_VERSION_ID_FILE}" || buc_die_now "Version ID not found for tag: ${z_tag}"
+  test -s "${z_rbhcr_version_id_file}" || buc_die_now "Version ID not found for tag: ${z_tag}"
 }
 
 # eof

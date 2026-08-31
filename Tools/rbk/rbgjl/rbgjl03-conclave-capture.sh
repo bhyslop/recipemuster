@@ -50,7 +50,16 @@ ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 MEMBERS=''
 MFIRST=true
 
-while IFS='|' read -r NAME UPSTREAM; do
+for SPEC in \
+  'gcloud|gcr.io/cloud-builders/gcloud:latest' \
+  'docker|gcr.io/cloud-builders/docker:latest' \
+  'alpine|docker.io/library/alpine:latest' \
+  'syft|docker.io/anchore/syft:latest' \
+  'binfmt|docker.io/tonistiigi/binfmt:latest' \
+  'gcrane|gcr.io/go-containerregistry/gcrane:debug' \
+; do
+  NAME="${SPEC%%|*}"
+  UPSTREAM="${SPEC#*|}"
   test -n "${NAME}" || continue
   MEMBER_TAG="${_RBGL_TAG_SPRUE}${NAME}"
   DEST="${PKG}:${MEMBER_TAG}"
@@ -87,14 +96,7 @@ while IFS='|' read -r NAME UPSTREAM; do
   MEMBERS="${MEMBERS}\"rblv_verification\":\"oci-digest\","
   MEMBERS="${MEMBERS}\"rblv_tags\":[\"${MEMBER_TAG}\"]"
   MEMBERS="${MEMBERS}}"
-done <<'MANIFEST'
-gcloud|gcr.io/cloud-builders/gcloud:latest
-docker|gcr.io/cloud-builders/docker:latest
-alpine|docker.io/library/alpine:latest
-syft|docker.io/anchore/syft:latest
-binfmt|docker.io/tonistiigi/binfmt:latest
-gcrane|gcr.io/go-containerregistry/gcrane:debug
-MANIFEST
+done
 
 # Author the batch provenance envelope (identical content lands in :rbi_vouch and
 # the host capture-file). rblv_members[] is the cardinality axis — N for the reliquary

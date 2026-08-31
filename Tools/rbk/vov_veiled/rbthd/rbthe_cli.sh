@@ -35,15 +35,15 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 # Build the crate and resolve its binary. The crate is standalone (its own
 # Cargo.toml, no workspace), built by manifest path. No codegen: essai reaches
 # its workers by tabtarget, needing no generated colophon constants.
-ZRBTHE_BINARY=""
+z_rbthe_binary=""
 zrbthe_cargo_build() {
   local z_dir="${BASH_SOURCE[0]%/*}"
   local z_manifest="${z_dir}/Cargo.toml"
   buc_step "Building hierophant"
   buc_log_args "Manifest: ${z_manifest}"
   cargo build --manifest-path "${z_manifest}" || buc_die_now "cargo build failed"
-  ZRBTHE_BINARY="${z_dir}/target/debug/rbthd"
-  test -x "${ZRBTHE_BINARY}" || buc_die_now "Hierophant binary not found: ${ZRBTHE_BINARY}"
+  z_rbthe_binary="${z_dir}/target/debug/rbthd"
+  test -x "${z_rbthe_binary}" || buc_die_now "Hierophant binary not found: ${z_rbthe_binary}"
 }
 
 ######################################################################
@@ -63,7 +63,7 @@ rbthe_essai() {
 
   zrbthe_cargo_build
   buc_step "Conducting essai"
-  "${ZRBTHE_BINARY}" essai
+  "${z_rbthe_binary}" essai
 }
 
 rbthe_docimasy() {
@@ -74,9 +74,9 @@ rbthe_docimasy() {
   zrbthe_cargo_build
   buc_step "Conducting docimasy"
   if [ -n "${BUZ_FOLIO:-}" ]; then
-    "${ZRBTHE_BINARY}" docimasy "${BUZ_FOLIO}"
+    "${z_rbthe_binary}" docimasy "${BUZ_FOLIO}"
   else
-    "${ZRBTHE_BINARY}" docimasy
+    "${z_rbthe_binary}" docimasy
   fi
 }
 
@@ -88,9 +88,9 @@ rbthe_ostend() {
   zrbthe_cargo_build
   buc_step "Conducting ostend"
   if [ -n "${BUZ_FOLIO:-}" ]; then
-    "${ZRBTHE_BINARY}" ostend "${BUZ_FOLIO}"
+    "${z_rbthe_binary}" ostend "${BUZ_FOLIO}"
   else
-    "${ZRBTHE_BINARY}" ostend
+    "${z_rbthe_binary}" ostend
   fi
 }
 
@@ -100,7 +100,7 @@ rbthe_harbinger() {
 
   zrbthe_cargo_build
   buc_step "Conducting harbinger"
-  "${ZRBTHE_BINARY}" harbinger
+  "${z_rbthe_binary}" harbinger
 }
 
 rbthe_test() {

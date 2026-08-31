@@ -28,8 +28,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBV_INCLUDED:-}" || buc_die_now "Module rbv multiply included - check sourcing hierarchy"
-ZRBV_INCLUDED=1
+test -z "${ZRBV_SOURCED:-}" || buc_die_now "Module rbv multiply included - check sourcing hierarchy"
+ZRBV_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbv_*)

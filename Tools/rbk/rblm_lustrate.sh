@@ -293,7 +293,7 @@ rblm_emit_homes() {
   zrblm_homes_capture
 
   local z_home=""
-  for z_home in "${ZRBLM_HOMES[@]}"; do
+  for z_home in "${z_rblm_homes[@]}"; do
     printf '%s\t%s\n' "${z_home%%|*}" "${z_home#*|}"
   done
 }
@@ -302,7 +302,7 @@ rblm_emit_homes() {
 # The transform
 
 # zrblm_homes_capture — resolve every regime file the tree carries, tagged with
-# the scope that governs it. Sets ZRBLM_HOMES to SCOPE|FILE rows.
+# the scope that governs it. Sets z_rblm_homes to SCOPE|FILE rows.
 #
 # The singleton regimes sit at their own paths; the multi-instance regimes are
 # globbed across every instance present. The foedera glob deliberately matches
@@ -316,7 +316,7 @@ rblm_emit_homes() {
 # The single home of the scope-to-file mapping: lustration writes through it, and
 # the damnatio fixture reads it back rather than reimplementing the globs.
 zrblm_homes_capture() {
-  ZRBLM_HOMES=(
+  z_rblm_homes=(
     "RBRR|${RBCC_rbrr_file}"
     "RBRD|${RBCC_rbrd_file}"
     "RBRP|${RBCC_rbrp_file}"
@@ -327,22 +327,22 @@ zrblm_homes_capture() {
 
   for z_instance in "${RBCC_foedera_dir}"/*/rbrf.env; do
     test -f "${z_instance}" || continue
-    ZRBLM_HOMES+=("RBRF|${z_instance}")
+    z_rblm_homes+=("RBRF|${z_instance}")
   done
 
   for z_instance in "${RBCC_moorings_dir}/${RBCC_vessels_subdir}"/*/"${RBCC_rbrv_file}"; do
     test -f "${z_instance}" || continue
-    ZRBLM_HOMES+=("RBRV|${z_instance}")
+    z_rblm_homes+=("RBRV|${z_instance}")
   done
 
   for z_instance in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_instance}" || continue
-    ZRBLM_HOMES+=("RBRN|${z_instance}")
+    z_rblm_homes+=("RBRN|${z_instance}")
   done
 }
 
 # zrblm_value_capture SCOPE VARNAME COLUMN — resolve the value one transform
-# writes into one field. Sets ZRBLM_VALUE and returns 0 when the field is
+# writes into one field. Sets z_rblm_value and returns 0 when the field is
 # site-scoped in SCOPE; returns 1 otherwise, leaving the caller to pass the line
 # through untouched.
 #
@@ -354,7 +354,7 @@ zrblm_value_capture() {
   local -r z_var="${2:-}"
   local -r z_column="${3:-}"
 
-  ZRBLM_VALUE=""
+  z_rblm_value=""
 
   local z_row=""
   local z_rest=""
@@ -379,8 +379,8 @@ zrblm_value_capture() {
     esac
 
     case "${z_column}" in
-      "${RBLM_column_sterile}") ZRBLM_VALUE="${z_sterile}"                 ;;
-      "${RBLM_column_feigned}") ZRBLM_VALUE="${z_feigned:-${z_sterile}}"   ;;
+      "${RBLM_column_sterile}") z_rblm_value="${z_sterile}"                 ;;
+      "${RBLM_column_feigned}") z_rblm_value="${z_feigned:-${z_sterile}}"   ;;
       *) buc_die_now "zrblm_value_capture: unknown column: ${z_column}"        ;;
     esac
     return 0
@@ -417,7 +417,7 @@ zrblm_scrub_regime() {
       [A-Z]*=*)
         z_var="${z_line%%=*}"
         if zrblm_value_capture "${z_scope}" "${z_var}" "${z_column}"; then
-          printf '%s\n' "${z_var}=${ZRBLM_VALUE}"
+          printf '%s\n' "${z_var}=${z_rblm_value}"
         else
           printf '%s\n' "${z_line}"
         fi
@@ -473,7 +473,7 @@ rblm_lustrate_apply() {
   zrblm_homes_capture
 
   local z_home=""
-  for z_home in "${ZRBLM_HOMES[@]}"; do
+  for z_home in "${z_rblm_homes[@]}"; do
     zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_sterile}"
   done
 
@@ -501,7 +501,7 @@ rblm_feign_apply() {
   zrblm_homes_capture
 
   local z_home=""
-  for z_home in "${ZRBLM_HOMES[@]}"; do
+  for z_home in "${z_rblm_homes[@]}"; do
     zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_feigned}"
   done
 }
