@@ -40,7 +40,7 @@
 //
 //   SHAPELESS identity — a workforce pool id, a GCP project id, an org number —
 //   is an opaque token no form distinguishes from any other. No sweep can find
-//   it. The proscription (Tools/rbk/rblm_lustrate.sh) declares every enrolled
+//   it. The proscription (Tools/rbk/rblm_proscription.sh) declares every enrolled
 //   field site-scoped or common, and the value case asserts each site-scoped one
 //   sterile. That is the net for the declared leak, and the completeness case is
 //   what keeps the declaration honest: it reads the LIVE enrollment rolls, so a
@@ -454,7 +454,7 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
         "set -euo pipefail\n\
          source '{buv}'\n\
          source '{rbk}/rbcc_constants.sh'\n\
-         source '{rbk}/rblm_lustrate.sh'\n\
+         source '{rbk}/rblm_proscription.sh'\n\
          source '{rbk}/rbrr_regime.sh'\n\
          source '{rbk}/rbrd_regime.sh'\n\
          source '{rbk}/rbrp_regime.sh'\n\
@@ -718,7 +718,7 @@ fn rbtdrq_proscription_complete(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// The proscription's one home — the file a completeness finding points at.
-pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_lustrate.sh";
+pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_proscription.sh";
 
 // ── Cases and fixture ───────────────────────────────────────
 

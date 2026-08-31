@@ -73,7 +73,7 @@ source "${BURD_BUK_DIR}/buwz_zipper.sh"
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbcc_constants.sh"
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbgc_constants.sh"
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbz_zipper.sh"
-source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rblm_lustrate.sh"
+source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rblm_proscription.sh"
 
 zbuz_kindle
 zrbz_kindle

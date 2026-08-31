@@ -16,7 +16,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM Lustrate - the proscription and the two transforms it drives.
+# RBLM Proscription - the site/common judgment and the two transforms it drives.
 #
 # The proscription names, for every enrolled regime field and every hardpoint
 # constant, whether the value is the SITE's (this station's cloud, this
