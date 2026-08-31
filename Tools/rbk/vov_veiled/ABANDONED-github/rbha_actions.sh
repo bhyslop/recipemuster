@@ -7,8 +7,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBHA_INCLUDED:-}" || buc_die_now "Module rbgA multiply included - check sourcing hierarchy"
-ZRBHA_INCLUDED=1
+test -z "${ZRBHA_SOURCED:-}" || buc_die_now "Module rbgA multiply included - check sourcing hierarchy"
+ZRBHA_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbha_*)

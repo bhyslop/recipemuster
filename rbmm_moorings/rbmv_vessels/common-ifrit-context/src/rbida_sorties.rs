@@ -163,7 +163,7 @@ fn as_uninit(buf: &mut [u8]) -> &mut [MaybeUninit<u8>] {
 }
 
 /// Build ICMP echo request packet with payload.
-fn build_icmp_echo(payload: &[u8], seq: u16) -> Vec<u8> {
+fn rbida_build_icmp_echo(payload: &[u8], seq: u16) -> Vec<u8> {
     let ident = std::process::id() as u16;
     let mut pkt = Vec::with_capacity(8 + payload.len());
     pkt.push(8); // type: echo request
@@ -191,7 +191,7 @@ fn send_icmp(dest: &str, payload: &[u8], seq: u16, timeout: Duration) -> Result<
         .set_read_timeout(Some(timeout))
         .map_err(|e| format!("timeout: {}", e))?;
 
-    let pkt = build_icmp_echo(payload, seq);
+    let pkt = rbida_build_icmp_echo(payload, seq);
     socket
         .send_to(&pkt, &sock_addr)
         .map_err(|e| format!("sendto: {}", e))?;
@@ -266,7 +266,7 @@ fn send_icmp_timestamp(dest: &str, timeout: Duration) -> Result<bool, String> {
 }
 
 /// Build an IPv4 header for raw IP_HDRINCL packets.
-fn build_ip_header(proto: u8, src: &str, dst: &str, payload_len: usize) -> Result<Vec<u8>, String> {
+fn rbida_build_ip_header(proto: u8, src: &str, dst: &str, payload_len: usize) -> Result<Vec<u8>, String> {
     let src_ip: Ipv4Addr = src.parse().map_err(|e| format!("bad src IP: {}", e))?;
     let dst_ip: Ipv4Addr = dst.parse().map_err(|e| format!("bad dst IP: {}", e))?;
     let total_len = 20u16 + payload_len as u16;
@@ -290,7 +290,7 @@ fn build_ip_header(proto: u8, src: &str, dst: &str, payload_len: usize) -> Resul
 }
 
 /// Build TCP SYN segment (20 bytes, no options).
-fn build_tcp_syn(src_port: u16, dst_port: u16) -> Vec<u8> {
+fn rbida_build_tcp_syn(src_port: u16, dst_port: u16) -> Vec<u8> {
     let seq_bytes = random_hex(8);
     let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
     let data_offset_flags: u16 = (5 << 12) | 0x002; // SYN
@@ -414,7 +414,7 @@ fn send_raw_proto(
 }
 
 /// Build an IP fragment with IP_HDRINCL.
-fn build_ip_fragment(
+fn rbida_build_ip_fragment(
     src: &str,
     dst: &str,
     proto: u8,
@@ -1076,8 +1076,8 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
         if src.is_empty() {
             continue;
         }
-        let tcp_syn = build_tcp_syn(*src_port, 53);
-        match build_ip_header(6, src, dst, tcp_syn.len()) {
+        let tcp_syn = rbida_build_tcp_syn(*src_port, 53);
+        match rbida_build_ip_header(6, src, dst, tcp_syn.len()) {
             Ok(ip_hdr) => {
                 let mut packet = ip_hdr;
                 packet.extend_from_slice(&tcp_syn);
@@ -1189,8 +1189,8 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
         return fail(format!("ERROR: set listener timeout: {}", e));
     }
 
-    let tcp_syn = build_tcp_syn(src_port, ws_port);
-    let ip_hdr = match build_ip_header(6, spoofed_src, &sentry_ip, tcp_syn.len()) {
+    let tcp_syn = rbida_build_tcp_syn(src_port, ws_port);
+    let ip_hdr = match rbida_build_ip_header(6, spoofed_src, &sentry_ip, tcp_syn.len()) {
         Ok(h) => h,
         Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
     };
@@ -1403,8 +1403,8 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
     };
 
     // Test 1: Tiny fragment — TCP SYN split across two fragments
-    let tcp_syn = build_tcp_syn(40001, forbidden_port);
-    let frag1 = match build_ip_fragment(
+    let tcp_syn = rbida_build_tcp_syn(40001, forbidden_port);
+    let frag1 = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1416,7 +1416,7 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         Ok(f) => f,
         Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
     };
-    let frag2 = match build_ip_fragment(
+    let frag2 = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1442,8 +1442,8 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Test 2: Out-of-order fragments — send fragment 2 before fragment 1
     let ident2 = ident_base.wrapping_add(1);
-    let tcp_syn2 = build_tcp_syn(40002, forbidden_port);
-    let frag2_first = match build_ip_fragment(
+    let tcp_syn2 = rbida_build_tcp_syn(40002, forbidden_port);
+    let frag2_first = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1455,7 +1455,7 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         Ok(f) => f,
         Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
     };
-    let frag1_second = match build_ip_fragment(
+    let frag1_second = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1481,13 +1481,13 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Test 3: Overlapping fragments
     let ident3 = ident_base.wrapping_add(2);
-    let benign_syn = build_tcp_syn(40003, 443); // benign port
+    let benign_syn = rbida_build_tcp_syn(40003, 443); // benign port
     let mut evil_ports = Vec::new();
     evil_ports.extend_from_slice(&40003u16.to_be_bytes());
     evil_ports.extend_from_slice(&forbidden_port.to_be_bytes());
     evil_ports.extend_from_slice(&benign_syn[4..]);
 
-    let frag_benign = match build_ip_fragment(
+    let frag_benign = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1499,7 +1499,7 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         Ok(f) => f,
         Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
     };
-    let frag_overlap = match build_ip_fragment(
+    let frag_overlap = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1525,8 +1525,8 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Test 4: Control — unfragmented SYN to forbidden should also be blocked
     let ident4 = ident_base.wrapping_add(3);
-    let tcp_syn4 = build_tcp_syn(40004, forbidden_port);
-    let whole = match build_ip_fragment(
+    let tcp_syn4 = rbida_build_tcp_syn(40004, forbidden_port);
+    let whole = match rbida_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1599,7 +1599,7 @@ pub fn sortie_direct_arp_poison(_extra_args: &[&str]) -> rbida_Verdict {
     let sentry_mac = get_sentry_mac(&sentry_ip);
 
     // Send gratuitous ARP claiming sentry's IP
-    let grat_frame = build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
+    let grat_frame = rbida_build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
     let grat_sent = send_raw_frame(&iface, &grat_frame);
 
     // Send targeted ARP reply if we know sentry MAC
@@ -1610,7 +1610,7 @@ pub fn sortie_direct_arp_poison(_extra_args: &[&str]) -> rbida_Verdict {
             let prefix: String = base.into_iter().rev().collect::<Vec<_>>().join(".");
             let fake_gw = format!("{}.1", prefix);
             let poison_frame =
-                build_arp_reply(&our_mac_bytes, &fake_gw, &sm_bytes, &sentry_ip);
+                rbida_build_arp_reply(&our_mac_bytes, &fake_gw, &sm_bytes, &sentry_ip);
             let _ = send_raw_frame(&iface, &poison_frame);
         }
     }
@@ -1632,7 +1632,7 @@ pub fn sortie_direct_arp_poison(_extra_args: &[&str]) -> rbida_Verdict {
 }
 
 /// Build gratuitous ARP: broadcast announcing claimed_ip is at our_mac.
-fn build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
+fn rbida_build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
     let broadcast = [0xFFu8; 6];
     let ip_bytes = claimed_ip
         .parse::<Ipv4Addr>()
@@ -1658,7 +1658,7 @@ fn build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
 }
 
 /// Build ARP reply: tell target that sender_ip is at sender_mac.
-fn build_arp_reply(
+fn rbida_build_arp_reply(
     sender_mac: &[u8; 6],
     sender_ip: &str,
     target_mac: &[u8; 6],
@@ -1947,7 +1947,7 @@ pub fn sortie_arp_send_gratuitous(_extra_args: &[&str]) -> rbida_Verdict {
         Err(e) => return fail(format!("ERROR: {}", e)),
     };
 
-    let frame = build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
+    let frame = rbida_build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
     if send_raw_frame(&iface, &frame) {
         pass(format!(
             "SENT gratuitous ARP claiming {} at {} on {}",
@@ -2263,7 +2263,7 @@ pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
     let fake_gw = format!("{}.1", prefix);
 
     // Send targeted ARP reply: tell sentry that gateway is at our MAC
-    let frame = build_arp_reply(&our_mac_bytes, &fake_gw, &sentry_mac_bytes, &sentry_ip);
+    let frame = rbida_build_arp_reply(&our_mac_bytes, &fake_gw, &sentry_mac_bytes, &sentry_ip);
     if send_raw_frame(&iface, &frame) {
         pass(format!(
             "SENT ARP reply to sentry ({}) claiming {} at {}",
@@ -2579,10 +2579,10 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
     // This attempts to disrupt the sentry's upstream DNS forwarding
     for src_port in [40000u16, 40001, 40002, 53, 1053, 5353] {
         // Build TCP RST segment
-        let rst_seg = build_tcp_rst(src_port, 53);
+        let rst_seg = rbida_build_tcp_rst(src_port, 53);
 
         // Build IP header with bottle as source, sentry as destination
-        let ip_hdr = match build_ip_header(6, &bottle_ip, &sentry_ip, rst_seg.len()) {
+        let ip_hdr = match rbida_build_ip_header(6, &bottle_ip, &sentry_ip, rst_seg.len()) {
             Ok(h) => h,
             Err(_) => continue,
         };
@@ -2598,8 +2598,8 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Also try RST to upstream DNS (8.8.8.8) as if spoofed from sentry
     for src_port in [53u16, 40000] {
-        let rst_seg = build_tcp_rst(src_port, 53);
-        let ip_hdr = match build_ip_header(6, &bottle_ip, "8.8.8.8", rst_seg.len()) {
+        let rst_seg = rbida_build_tcp_rst(src_port, 53);
+        let ip_hdr = match rbida_build_ip_header(6, &bottle_ip, "8.8.8.8", rst_seg.len()) {
             Ok(h) => h,
             Err(_) => continue,
         };
@@ -2624,7 +2624,7 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
 }
 
 /// Build TCP ACK segment (20 bytes, no options) — no prior SYN.
-fn build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
+fn rbida_build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
     let seq_bytes = random_hex(8);
     let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
     let ack_bytes = random_hex(8);
@@ -2643,7 +2643,7 @@ fn build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
 }
 
 /// Build TCP RST segment (20 bytes, no options).
-fn build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
+fn rbida_build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
     let seq_bytes = random_hex(8);
     let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
     let data_offset_flags: u16 = (5 << 12) | 0x004; // RST flag
@@ -3135,8 +3135,8 @@ pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
     // Build TCP ACK packet without prior SYN — a stateless mid-stream ACK to an
     // allowed host. A *sentry-forwarded* reply would mean the FORWARD
     // RELATED,ESTABLISHED rule admitted a reply to an unestablished flow.
-    let tcp_ack = build_tcp_ack(40080, 80);
-    let ip_hdr = match build_ip_header(6, &bottle_ip, &dst_ip, tcp_ack.len()) {
+    let tcp_ack = rbida_build_tcp_ack(40080, 80);
+    let ip_hdr = match rbida_build_ip_header(6, &bottle_ip, &dst_ip, tcp_ack.len()) {
         Ok(h) => h,
         Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
     };
@@ -3213,8 +3213,8 @@ pub fn sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbida_Verdict {
     // Same stateless mid-stream ACK as conntrack_spoofed_ack, but aimed at a
     // forbidden destination. A reply of ANY provenance proves the substrate
     // carried traffic for a destination the sentry never allowed.
-    let tcp_ack = build_tcp_ack(40081, 80);
-    let ip_hdr = match build_ip_header(6, &bottle_ip, dst_ip, tcp_ack.len()) {
+    let tcp_ack = rbida_build_tcp_ack(40081, 80);
+    let ip_hdr = match rbida_build_ip_header(6, &bottle_ip, dst_ip, tcp_ack.len()) {
         Ok(h) => h,
         Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
     };
@@ -3278,8 +3278,8 @@ pub fn sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbida_Verdic
     // Assemble an Ethernet+IPv4+TCP frame for a reply (dst -> bottle) with a chosen
     // L2 source, mirroring what the live socket would hand the parser.
     let make_reply = |l2_src_mac: &str| -> Vec<u8> {
-        let tcp = build_tcp_ack(80, 40080);
-        let ip = match build_ip_header(6, "192.0.2.1", "10.0.0.9", tcp.len()) {
+        let tcp = rbida_build_tcp_ack(80, 40080);
+        let ip = match rbida_build_ip_header(6, "192.0.2.1", "10.0.0.9", tcp.len()) {
             Ok(h) => h,
             Err(_) => Vec::new(),
         };
@@ -3336,8 +3336,8 @@ pub fn sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbida_Verdic
     // Case 4 — the outbound-learning branch: our own probe frame (bottle -> dst)
     // must be recognized as Outbound and teach the gateway MAC, not be mistaken
     // for a reply.
-    let tcp_out = build_tcp_ack(40080, 80);
-    let ip_out = match build_ip_header(6, "10.0.0.9", "192.0.2.1", tcp_out.len()) {
+    let tcp_out = rbida_build_tcp_ack(40080, 80);
+    let ip_out = match rbida_build_ip_header(6, "10.0.0.9", "192.0.2.1", tcp_out.len()) {
         Ok(h) => h,
         Err(e) => return fail(format!("ERROR: self-check could not build outbound frame: {}", e)),
     };

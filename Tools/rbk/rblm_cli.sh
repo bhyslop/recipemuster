@@ -270,7 +270,7 @@ rblm_lustrate() {
 
   buh_section "Marshal Lustrate"
   buh_line "  Erases every site-scoped home named by the proscription"
-  buh_line "  (Tools/rbk/rblm_lustrate.sh) — the payor and workforce regimes,"
+  buh_line "  (Tools/rbk/rblm_proscription.sh) — the payor and workforce regimes,"
   buh_line "  the federation regimes, the depot-scoped vessel and nameplate"
   buh_line "  fields, and the freehold subject in source."
   buh_e
@@ -333,7 +333,7 @@ rblm_feign() {
   buh_line "  Branch: ${z_branch}"
   buh_e
   buh_line "  Writes a shape-valid stand-in over every site-scoped field the"
-  buh_line "  proscription (Tools/rbk/rblm_lustrate.sh) carries a feigned value"
+  buh_line "  proscription (Tools/rbk/rblm_proscription.sh) carries a feigned value"
   buh_line "  for. A lustrated tree is correctly sterile and therefore cannot"
   buh_line "  validate; this invents a false station so the candidate can run the"
   buh_line "  consumer's own reveille from the consumer's own seat."
@@ -382,7 +382,7 @@ zrblm_furnish() {
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die_now "Failed to source rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rblm_lustrate.sh"       || buc_die_now "Failed to source rblm_lustrate.sh"
+  source "${z_rbk_kit_dir}/rblm_proscription.sh"       || buc_die_now "Failed to source rblm_proscription.sh"
 
   # Differential furnish: a withheld verb's module is sourced only for that verb.
   # Harbinger is a release-rig verb whose module is withheld from delivery, so a
