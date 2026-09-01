@@ -3209,7 +3209,7 @@ rbgp_brevet() {
   rba_avow
   local z_token
   z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
-    || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die_now "Failed to don the governor mantle — avow if the sederunt lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
 
@@ -3235,7 +3235,7 @@ rbgp_unseat() {
   rba_avow
   local z_token
   z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
-    || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die_now "Failed to don the governor mantle — avow if the sederunt lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
 
@@ -3258,7 +3258,7 @@ rbgp_attaint() {
   rba_avow
   local z_token
   z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
-    || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die_now "Failed to don the governor mantle — avow if the sederunt lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_attaint_core "${z_token}" "${z_subject}"
 
@@ -3276,7 +3276,7 @@ rbgp_rehearse() {
   rba_avow
   local z_token
   z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
-    || buc_die_now "Failed to don the governor mantle — avow if the sitting lapsed, or brevet this identity onto the governor mantle if admission is denied"
+    || buc_die_now "Failed to don the governor mantle — avow if the sederunt lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'
   local z_muniments

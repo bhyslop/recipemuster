@@ -50,14 +50,14 @@ zrba_kindle() {
   # no-human sibling of the device-code grant above.
   readonly ZRBA_JWT_BEARER_GRANT_TYPE="urn:ietf:params:oauth:grant-type:jwt-bearer"
 
-  # Sitting cache tuning: skew (treat the federated token as spent this many
+  # Sederunt cache tuning: skew (treat the federated token as spent this many
   # seconds before its stated expiry) and the device-flow poll ceiling (device
   # codes self-expire in ~15 min).
-  readonly ZRBA_SITTING_SKEW_SEC=60
+  readonly ZRBA_SEDERUNT_SKEW_SEC=60
   readonly ZRBA_DEVICE_POLL_MAX_SEC=900
 
   # Proactive runway floor — the blanket required-runway default (RBr_r3n).
-  readonly ZRBA_SITTING_RUNWAY_FLOOR_SEC=7200
+  readonly ZRBA_SEDERUNT_RUNWAY_FLOOR_SEC=7200
 
   # Programmatic (RFC 7523) assertion tuning: the self-supplied JWT's lifetime and
   # the grant scope. Each mint carries a fresh jti and a short exp — single-use.
@@ -65,7 +65,7 @@ zrba_kindle() {
   readonly ZRBA_PROG_ASSERTION_SCOPE="openid"
 
   # Per-invocation scratch for the leg curls — BURD_TEMP_DIR (process lifetime),
-  # never the sitting cache, which must outlive one invocation (see rba_avow).
+  # never the sederunt cache, which must outlive one invocation (see rba_avow).
   readonly ZRBA_FED_DEVICE_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_device.json"
   readonly ZRBA_FED_TOKEN_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_token.json"
   readonly ZRBA_FED_STS_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_sts.json"
@@ -84,10 +84,10 @@ zrba_kindle() {
   # never among them — jq emits each straight to its function's stdout. The only
   # token-bearing temp files are the STS and don curl responses above (the
   # federated and mantle tokens respectively): both are per-invocation
-  # BURD_TEMP_DIR scratch, never the persistent sitting cache, which holds the
+  # BURD_TEMP_DIR scratch, never the persistent sederunt cache, which holds the
   # federated token alone — the mantle token is never cached anywhere.
-  readonly ZRBA_FED_SITTING_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_sitting_expiry.txt"
-  readonly ZRBA_FED_SITTING_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_sitting_now.txt"
+  readonly ZRBA_FED_SEDERUNT_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_sederunt_expiry.txt"
+  readonly ZRBA_FED_SEDERUNT_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_sederunt_now.txt"
   readonly ZRBA_FED_AVOW_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_avow_now.txt"
   readonly ZRBA_FED_RUNWAY_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_runway_expiry.txt"
   readonly ZRBA_FED_RUNWAY_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_runway_now.txt"
@@ -106,7 +106,7 @@ zrba_kindle() {
   # secret, the asserter private key, is read only by openssl via its regime PATH
   # and never lands here, and the client secret is read only by curl via its file
   # reference. PROG_TOKEN_RESPONSE bears the minted id_token: like the STS and don
-  # responses it is per-invocation BURD_TEMP_DIR scratch, never the sitting cache,
+  # responses it is per-invocation BURD_TEMP_DIR scratch, never the sederunt cache,
   # and jq emits the id_token from it straight to stdout (never a shell var).
   readonly ZRBA_FED_PROG_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_prog_now.txt"
   readonly ZRBA_FED_PROG_HEADER_FILE="${BURD_TEMP_DIR}/rba_fed_prog_header.json"
@@ -131,7 +131,7 @@ zrba_sentinel() {
 # External / RBTOE Pattern Functions
 
 # The credential accessor — the single place credential material is resolved.
-# Keyed by identity (governor | director | retriever): ensures a live sitting
+# Keyed by identity (governor | director | retriever): ensures a live sederunt
 # (avowal) then dons the matching mantle SA, minting a short-lived mantle
 # access token. No call site outside this function touches credential material
 # (source-side grep-gated); the production callers and their bearer-blind
@@ -145,7 +145,7 @@ zrba_sentinel() {
 # only; the don emits the token straight to stdout) — and the reveille-tier
 # credless guard's in-band buc_reject still propagates: avow's exit
 # terminates the caller's command substitution with the credless band code,
-# which the caller's `|| buc_die_now` re-exits through the band membrane. The sitting
+# which the caller's `|| buc_die_now` re-exits through the band membrane. The sederunt
 # cache rba_avow writes is a file, so it survives this command-substitution
 # subshell and the next caller takes the cache-hit path.
 rba_token_capture() {
@@ -174,10 +174,10 @@ rba_token_capture() {
 # RFC 8628) or the programmatic RFC 7523 grant (a self-supplied JWT, no human).
 # Leg 2 exchanges that id_token at Google STS for a workforce federated
 # access token, mechanism-invariant; that federated token alone is cached,
-# per-sitting. The mantle token (Leg 3, the don) is a separate artifact, separately
-# scoped, and never cached — it is not built here. The persisted sitting cache is the
+# per-sederunt. The mantle token (Leg 3, the don) is a separate artifact, separately
+# scoped, and never cached — it is not built here. The persisted sederunt cache is the
 # clean producer/consumer seam between this path and the don, and its key is already
-# pool+provider, so an interactive and a programmatic foedus never cross sittings.
+# pool+provider, so an interactive and a programmatic foedus never cross sederunts.
 #
 # Federation config is read from two regimes under the one-pool Model: the manor
 # pool id from RBRW_* (rbrw_regime, manor-level) and the per-foedus provider from
@@ -185,16 +185,16 @@ rba_token_capture() {
 # transient-curl classifier. Callers kindle rbrw + rbrf + rbcc before invoking
 # rba_avow; the functions guard on their sentinels.
 
-# Resolve the per-session sitting cache path. Session-scoped — it spans tabtarget
+# Resolve the per-session sederunt cache path. Session-scoped — it spans tabtarget
 # processes within one operator session — tmpfs-preferred, keyed by the trust so
-# switching pools never crosses sittings. Dir 0700; the file is written 0600.
-zrba_sitting_path_capture() {
+# switching pools never crosses sederunts. Dir 0700; the file is written 0600.
+zrba_sederunt_path_capture() {
   zrba_sentinel
   zrbrw_sentinel
   zrbrf_sentinel
 
   local z_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
-  z_dir="${z_dir%/}/rbf-sitting"
+  z_dir="${z_dir%/}/rbf-sederunt"
   mkdir -p  "${z_dir}" || return 1
   chmod 700 "${z_dir}" || return 1
   printf '%s/%s.%s.json' "${z_dir}" "${RBRW_WORKFORCE_POOL_ID}" "${RBRF_PROVIDER_ID}"
@@ -202,22 +202,22 @@ zrba_sitting_path_capture() {
 
 # Echo the cached federated token if present and not within skew of expiry;
 # return 1 on any miss (absent, malformed, or expired).
-zrba_sitting_read_capture() {
+zrba_sederunt_read_capture() {
   zrba_sentinel
 
   local z_path
-  z_path=$(zrba_sitting_path_capture) || return 1
+  z_path=$(zrba_sederunt_path_capture) || return 1
   test -f "${z_path}" || return 1
 
   jq -r '.expiry_epoch // 0' "${z_path}" \
-     > "${ZRBA_FED_SITTING_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_expiry=$(<"${ZRBA_FED_SITTING_EXPIRY_FILE}")
+     > "${ZRBA_FED_SEDERUNT_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
+  local -r z_expiry=$(<"${ZRBA_FED_SEDERUNT_EXPIRY_FILE}")
   [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
 
-  date +%s > "${ZRBA_FED_SITTING_NOW_FILE}" || return 1
-  local -r z_now=$(<"${ZRBA_FED_SITTING_NOW_FILE}")
+  date +%s > "${ZRBA_FED_SEDERUNT_NOW_FILE}" || return 1
+  local -r z_now=$(<"${ZRBA_FED_SEDERUNT_NOW_FILE}")
   test -n "${z_now}" || return 1
-  test "${z_expiry}" -gt "$(( z_now + ZRBA_SITTING_SKEW_SEC ))" || return 1
+  test "${z_expiry}" -gt "$(( z_now + ZRBA_SEDERUNT_SKEW_SEC ))" || return 1
 
   # Federated token (secret): jq emits it straight to stdout, never through a
   # shell var or temp file. select(length > 0) yields no output and a non-zero jq
@@ -225,37 +225,37 @@ zrba_sitting_read_capture() {
   jq -er '.federated_token // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
-# Echo the cached sitting subject (the avowed oid) if present; return 1 on any
-# miss. Informational mirror of zrba_sitting_read_capture — the muniment-trail
+# Echo the cached sederunt subject (the avowed oid) if present; return 1 on any
+# miss. Informational mirror of zrba_sederunt_read_capture — the muniment-trail
 # subject (decoded best-effort at avowal, non-load-bearing), not a
 # credential, so no expiry gate: identity, not a token. select(length > 0) yields
 # a non-zero jq exit for an absent/empty subject — the capture miss.
-zrba_sitting_subject_capture() {
+zrba_sederunt_subject_capture() {
   zrba_sentinel
 
   local z_path
-  z_path=$(zrba_sitting_path_capture) || return 1
+  z_path=$(zrba_sederunt_path_capture) || return 1
   test -f "${z_path}" || return 1
 
   jq -er '.subject // empty | select(length > 0)' "${z_path}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"
 }
 
-# A live (unexpired) sitting is cached — status only, no output.
-zrba_sitting_live_predicate() {
+# A live (unexpired) sederunt is cached — status only, no output.
+zrba_sederunt_live_predicate() {
   zrba_sentinel
-  zrba_sitting_read_capture >/dev/null || return 1
+  zrba_sederunt_read_capture >/dev/null || return 1
   return 0
 }
 
-# Echo the cached sitting's remaining runway in whole seconds (stored expiry
+# Echo the cached sederunt's remaining runway in whole seconds (stored expiry
 # minus now, floored at 0); return 1 on any structural miss (absent cache,
-# malformed expiry, failed clock read). A lapsed sitting is runway 0, not a
+# malformed expiry, failed clock read). A lapsed sederunt is runway 0, not a
 # miss — liveness and sufficiency judgments belong to the callers.
-zrba_sitting_runway_capture() {
+zrba_sederunt_runway_capture() {
   zrba_sentinel
 
   local z_path
-  z_path=$(zrba_sitting_path_capture) || return 1
+  z_path=$(zrba_sederunt_path_capture) || return 1
   test -f "${z_path}" || return 1
 
   jq -r '.expiry_epoch // 0' "${z_path}" \
@@ -272,10 +272,10 @@ zrba_sitting_runway_capture() {
   printf '%s' "${z_runway}"
 }
 
-# Atomically write the sitting cache (federated token + expiry epoch + subject).
+# Atomically write the sederunt cache (federated token + expiry epoch + subject).
 # The dir is 0700 (owner-only traversal); chmod 600 + temp-then-rename keeps the
 # file owner-only and never partially visible under its stable name.
-zrba_sitting_write() {
+zrba_sederunt_write() {
   zrba_sentinel
 
   local -r z_token="${1:-}"
@@ -283,7 +283,7 @@ zrba_sitting_write() {
   local -r z_subject="${3:-}"
 
   local z_path
-  z_path=$(zrba_sitting_path_capture) || return 1
+  z_path=$(zrba_sederunt_path_capture) || return 1
   local -r z_tmp="${z_path}.tmp.$$"
 
   jq -n --arg t "${z_token}" --argjson e "${z_expiry_epoch}" --arg s "${z_subject}" \
@@ -385,7 +385,7 @@ zrba_leg1_idtoken_capture() {
   # threat.
   buym_href_yawp "${z_verification_uri}" "${z_verification_uri}"; local -r z_uri_yp="${z_buym_yelp}"
   buym_ui_yawp   "${z_user_code}";                                local -r z_code_yp="${z_buym_yelp}"
-  buc_step "Avowal — sign in to open your sitting:"
+  buc_step "Avowal — sign in to open your sederunt:"
   buc_step "    ${z_uri_yp}"
   buc_step "    code: ${z_code_yp}"
   zrba_user_code_clipboard "${z_user_code}"
@@ -609,7 +609,7 @@ zrba_leg2_federated_capture() {
     || { buc_log_args "STS exchange returned no access_token; see ${ZRBA_FED_STS_RESPONSE_FILE}"; return 1; }
 }
 
-# Open a fresh sitting: run Legs 1+2 and atomically cache the result. The
+# Open a fresh sederunt: run Legs 1+2 and atomically cache the result. The
 # mechanism-gated fresh path shared by rba_avow (on a cache miss) and
 # rba_novate (unconditionally). Leg 1 is gated on RBRF_MECHANISM: the
 # interactive arm is the device-flow avowal (a human signs in; the prompt rides
@@ -617,9 +617,9 @@ zrba_leg2_federated_capture() {
 # relay complete the same sign-in — no terminal gate, human presence enforced by
 # the IdP sign-in, and a truly unattended miss polls to the bounded device-code
 # expiry and dies loud); the programmatic arm is the RFC 7523 grant (no human,
-# no sitting to open — a self-supplied JWT). Leg 2 (STS) and the sitting
+# no sederunt to open — a self-supplied JWT). Leg 2 (STS) and the sederunt
 # cache are mechanism-invariant, so only the id_token's origin differs.
-zrba_sitting_open() {
+zrba_sederunt_open() {
   zrba_sentinel
   zrbrf_sentinel
   zrbcc_sentinel
@@ -629,12 +629,12 @@ zrba_sitting_open() {
   local z_idtoken
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
-      buc_step "Opening a sitting via device-flow avowal"
+      buc_step "Opening a sederunt via device-flow avowal"
       z_idtoken=$(zrba_leg1_idtoken_capture) \
         || buc_die_now "Avowal failed at Leg 1 (device flow); see the transcript"
       ;;
     rbnfe_programmatic)
-      buc_step "Acquiring a sitting via the RFC 7523 programmatic grant"
+      buc_step "Acquiring a sederunt via the RFC 7523 programmatic grant"
       z_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
         || buc_die_now "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
       ;;
@@ -658,17 +658,17 @@ zrba_sitting_open() {
   local z_subject
   z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject=""
 
-  zrba_sitting_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
-    || buc_die_now "Avowal succeeded but caching the sitting failed"
+  zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
+    || buc_die_now "Avowal succeeded but caching the sederunt failed"
 
-  buc_step "Sitting opened (federated token expires in ${z_expires_in}s)"
+  buc_step "Sederunt opened (federated token expires in ${z_expires_in}s)"
 }
 
-# rba_avow — the avowal accessor step. Ensures a live sitting with sufficient
+# rba_avow — the avowal accessor step. Ensures a live sederunt with sufficient
 # runway; its side effect is the per-session cache, and consumers read the
-# federated token with zrba_sitting_read_capture. Cache-hit → gate the
-# remaining runway, then reuse. Miss/expired → open a fresh sitting
-# (zrba_sitting_open). The suite-head seam stands: an automated run avows once
+# federated token with zrba_sederunt_read_capture. Cache-hit → gate the
+# remaining runway, then reuse. Miss/expired → open a fresh sederunt
+# (zrba_sederunt_open). The suite-head seam stands: an automated run avows once
 # at suite head; cases thereafter take the cache-hit path.
 #
 # Runway gate (RBr_r3n). Required runway: the optional first argument,
@@ -678,7 +678,7 @@ rba_avow() {
   zrbrf_sentinel
   zrbcc_sentinel
 
-  local -r z_required_runway="${1:-${ZRBA_SITTING_RUNWAY_FLOOR_SEC}}"
+  local -r z_required_runway="${1:-${ZRBA_SEDERUNT_RUNWAY_FLOOR_SEC}}"
   [[ "${z_required_runway}" =~ ^[0-9]+$ ]] \
     || buc_die_now "rba_avow: required runway must be a non-negative integer of seconds, got '${z_required_runway}'"
 
@@ -686,41 +686,41 @@ rba_avow() {
   # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
   # path honors the same invariant, under either mechanism arm.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: sederunt acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
-  if zrba_sitting_live_predicate; then
+  if zrba_sederunt_live_predicate; then
     local z_runway
-    z_runway=$(zrba_sitting_runway_capture) \
-      || buc_die_now "Live sitting became unreadable while gauging its runway"
+    z_runway=$(zrba_sederunt_runway_capture) \
+      || buc_die_now "Live sederunt became unreadable while gauging its runway"
     test "${z_runway}" -ge "${z_required_runway}" \
-      || buc_reject "${BUBC_band_runway}" "Sitting runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window sitting (rbw-aN), then re-run"
-    buc_step "Sitting already live — reusing the cached federated token (runway ${z_runway}s)"
+      || buc_reject "${BUBC_band_runway}" "Sederunt runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window sederunt (rbw-aN), then re-run"
+    buc_step "Sederunt already live — reusing the cached federated token (runway ${z_runway}s)"
     return 0
   fi
 
-  buc_step "No live sitting — opening a fresh one"
-  zrba_sitting_open
+  buc_step "No live sederunt — opening a fresh one"
+  zrba_sederunt_open
 }
 
 # rba_novate — the force-fresh renewal act: a deliberate
-# avowal that bypasses the sitting-reuse branch and atomically overwrites any
-# standing sitting with a freshly-opened, full-window one (novation:
-# extinguish-by-replacement, riding zrba_sitting_write's temp-then-rename).
-# The remedy the runway floor names when it turns a short sitting away.
+# avowal that bypasses the sederunt-reuse branch and atomically overwrites any
+# standing sederunt with a freshly-opened, full-window one (novation:
+# extinguish-by-replacement, riding zrba_sederunt_write's temp-then-rename).
+# The remedy the runway floor names when it turns a short sederunt away.
 # Renewal-only by decision: no release or clear verb exists anywhere — the
-# fresh sitting extinguishing the old is the entire mechanism.
+# fresh sederunt extinguishing the old is the entire mechanism.
 rba_novate() {
   zrba_sentinel
   zrbrf_sentinel
   zrbcc_sentinel
 
-  # Credless guard — novation is a sitting acquisition, so the reveille-tier
+  # Credless guard — novation is a sederunt acquisition, so the reveille-tier
   # invariant holds here exactly as at the rba_avow entry.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: sitting acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: sederunt acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
-  buc_step "Novating the sitting — opening a fresh one, extinguishing any preexisting sitting"
-  zrba_sitting_open
+  buc_step "Novating the sederunt — opening a fresh one, extinguishing any preexisting sederunt"
+  zrba_sederunt_open
 }
 
 ######################################################################
@@ -741,15 +741,15 @@ rba_novate() {
 #
 # Custody: the mantle token reaches only this function's stdout (jq straight to
 # stdout, never a shell var) and the per-invocation curl response (BURD_TEMP_DIR,
-# process lifetime, like the Leg-2 STS response) — never the persistent sitting
+# process lifetime, like the Leg-2 STS response) — never the persistent sederunt
 # cache. It carries exactly one mantle's authority and self-expires (1 h default
 # ceiling, spike V1); donning again re-mints. A long run re-dons mid-flight while
-# the sitting lives; the re-mint ceiling is the sitting itself — the
-# cached-federated-token read below returns 1 once the sitting lapses, carrying the
+# the sederunt lives; the re-mint ceiling is the sederunt itself — the
+# cached-federated-token read below returns 1 once the sederunt lapses, carrying the
 # avow instruction.
 #
 # The reveille-tier credless guard lives at the avowal entry (rba_avow): no
-# verb dons without a live sitting, and the sitting read below returns 1 when none
+# verb dons without a live sederunt, and the sederunt read below returns 1 when none
 # is cached, so a credless run never reaches the mint.
 rba_don_capture() {
   zrba_sentinel
@@ -781,11 +781,11 @@ rba_don_capture() {
   buc_log_args "Donning the ${z_identity} mantle: ${z_mantle_email}"
 
   # The bearer is the cached federated token. A miss (absent or within skew of
-  # expiry) is the re-mint ceiling — the sitting has lapsed; the forensic line
+  # expiry) is the re-mint ceiling — the sederunt has lapsed; the forensic line
   # carries the avow instruction and the caller fails loud on the return 1.
   local z_federated
-  z_federated=$(zrba_sitting_read_capture) || {
-    buc_log_args "Sitting lapsed — no live federated token is cached; avow to open a fresh sitting, then re-run (the mantle re-mint is capped by the sitting, not by the mantle token's own lifetime)"
+  z_federated=$(zrba_sederunt_read_capture) || {
+    buc_log_args "Sederunt lapsed — no live federated token is cached; avow to open a fresh sederunt, then re-run (the mantle re-mint is capped by the sederunt, not by the mantle token's own lifetime)"
     return 1
   }
 

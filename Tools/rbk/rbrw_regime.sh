@@ -40,7 +40,7 @@ zrbrw_kindle() {
   buv_group_enroll "Workforce Pool Identity"
   buv_string_enroll  RBRW_ORG_ID               6   32  "GCP organization numeric ID owning the manor's one workforce pool"
   buv_string_enroll  RBRW_WORKFORCE_POOL_ID    4   32  "The manor's one workforce identity pool ID — org-scoped, every foedus a provider beneath it"
-  buv_string_enroll  RBRW_SESSION_DURATION     2   10  "Workforce pool session duration — the sitting cap (e.g. 3600s), bounded 900s-43200s"
+  buv_string_enroll  RBRW_SESSION_DURATION     2   10  "Workforce pool session duration — the sederunt cap (e.g. 3600s), bounded 900s-43200s"
 
   # Guard against unexpected RBRW_ variables not in enrollment
   buv_scope_sentinel RBRW RBRW_

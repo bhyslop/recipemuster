@@ -32,14 +32,14 @@ ZRBFCB_SOURCED=1
 
 # zrbfc_redon_tick — one mid-flight re-don attempt, on the poll's cadence.
 # The don alone, never the avow-folding accessor,
-# so a lapsed sitting fails loud here instead of re-entering the interactive
+# so a lapsed sederunt fails loud here instead of re-entering the interactive
 # avowal mid-loop. Called in the process frame, never `$()`: it announces on
 # the progress stream and its deaths must exit the run. Result rides the
 # z_rbfc_redon_token result-global: the fresh mantle token when the re-don
-# lands, empty when the don failed transiently while the sitting is still
+# lands, empty when the don failed transiently while the sederunt is still
 # live (the caller keeps its prior token and retries next poll; the status
-# poll's consecutive-failure counter stays the backstop). A lapsed sitting
-# dies via buc_die_now with the open-a-sitting advisory; the don's admission deficit
+# poll's consecutive-failure counter stays the backstop). A lapsed sederunt
+# dies via buc_die_now with the open-a-sederunt advisory; the don's admission deficit
 # buc_rejects on its band. Sentinel-free by design — reads no ZRBFC kindle
 # state (callees guard their own kindles) — so the lapse branch stays
 # unit-testable without a live build.
@@ -62,12 +62,12 @@ zrbfc_redon_tick() {
   test "${z_don_rc}" -ne "${BUBC_band_admission}" \
     || buc_reject "${BUBC_band_admission}" "${z_label}: re-don denied mid-build — the director admission was revoked while the build ran; brevet the citizen back onto the mantle, then re-run"
 
-  if zrba_sitting_live_predicate; then
+  if zrba_sederunt_live_predicate; then
     buc_warn "${z_label}: mid-flight re-don failed transiently (${z_poll_tag}) — keeping the prior token; retrying next poll"
     return 0
   fi
 
-  buc_die_now "${z_label}: sitting lapsed mid-build — the mantle cannot be re-donned; open a sitting (rbw-aa or rbw-aN), then re-run"
+  buc_die_now "${z_label}: sederunt lapsed mid-build — the mantle cannot be re-donned; open a sederunt (rbw-aa or rbw-aN), then re-run"
 }
 
 zrbfc_wait_build_completion() {

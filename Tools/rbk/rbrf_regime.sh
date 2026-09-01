@@ -121,7 +121,7 @@ zrbrf_enforce() {
       [[ "${RBRF_IDP_TOKEN_ENDPOINT}" =~ ^https:// ]] \
         || buc_reject "${BUBC_band_regime}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
       # OIDC requires openid; the human-present premise forbids offline_access — a
-      # refresh token would let a run begin outside a live sitting.
+      # refresh token would let a run begin outside a live sederunt.
       case " ${RBRF_IDP_SCOPE} " in
         *" openid "*) ;;
         *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;

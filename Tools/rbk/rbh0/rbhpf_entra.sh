@@ -95,7 +95,7 @@ rbhp_federation_entra() {
   buym_ui_yawp "Save"; local -r z_ui_save_auth="${z_buym_yelp}"
   buh_line     "   3. Click ${z_ui_save_auth}"
   buh_line     "   This is the whole credential story: no client secret, no certificate, nothing"
-  buh_line     "   to leak — each sitting is opened by a live human sign-in and nothing else."
+  buh_line     "   to leak — each sederunt is opened by a live human sign-in and nothing else."
   buh_e
   buh_section  "4. Record the Identity Values:"
   buym_ui_yawp "Overview"; local -r z_ui_overview="${z_buym_yelp}"
@@ -139,7 +139,7 @@ rbhp_federation_entra() {
   buym_cmd_yawp "RBRF_IDP_SCOPE=\"openid profile email\""; local -r z_cmd_field_scope="${z_buym_yelp}"
   buh_line     "   ${z_cmd_field_scope}"
   buh_line     "      (must request openid; must NOT request offline_access — a refresh token"
-  buh_line     "      would let a run begin outside a live sitting, and the validator refuses it)"
+  buh_line     "      would let a run begin outside a live sederunt, and the validator refuses it)"
   buym_cmd_yawp "RBRF_ATTRIBUTE_MAPPING=\"google.subject=assertion.oid\""; local -r z_cmd_field_mapping="${z_buym_yelp}"
   buh_line     "   ${z_cmd_field_mapping}"
   buh_line     "      (oid is the Entra user's immutable object id — stable across rename and"

@@ -1508,10 +1508,10 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 // ── Redon-tick cases ────────────────────────────────────────
 //
 // Drives zrbfc_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
-// re-don — at its lapsed-sitting branch, deterministically and credless:
-// XDG_RUNTIME_DIR is pointed at an empty scratch dir so the sitting cache
-// resolves to nothing, the don's sitting read misses before any network
-// touch, and the tick must die with the open-a-sitting advisory. The furnish
+// re-don — at its lapsed-sederunt branch, deterministically and credless:
+// XDG_RUNTIME_DIR is pointed at an empty scratch dir so the sederunt cache
+// resolves to nothing, the don's sederunt read misses before any network
+// touch, and the tick must die with the open-a-sederunt advisory. The furnish
 // ceremony mirrors rba_cli's zrba_furnish plus the don's rbrd/rbdc arm —
 // committed regime files only; BURD_TEMP_DIR is supplied directly since no
 // dispatch runs here. (The positive — the tick firing on cadence in a real
@@ -1520,7 +1520,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 
 /// Lapse-advisory fragment asserted on the tick's death. Mirror:
 /// rbfcb_host.sh `zrbfc_redon_tick` buc_die_now line — same literal.
-const RBTDRF_RT_LAPSE_FRAGMENT: &str = "sitting lapsed mid-build";
+const RBTDRF_RT_LAPSE_FRAGMENT: &str = "sederunt lapsed mid-build";
 
 fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
@@ -1538,7 +1538,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
     let script = format!(
         "set -euo pipefail\n\
          export BURD_TEMP_DIR='{dir_p}'\n\
-         export XDG_RUNTIME_DIR='{dir_p}/rt-no-sitting'\n\
+         export XDG_RUNTIME_DIR='{dir_p}/rt-no-sederunt'\n\
          source '{buc_p}'\n\
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
@@ -1579,7 +1579,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
         Ok((code, stdout, stderr)) => {
             if code == 0 {
                 return rbtdre_Verdict::Fail(
-                    "rt-lapse-advisory: expected the tick to die on a lapsed sitting, got exit 0"
+                    "rt-lapse-advisory: expected the tick to die on a lapsed sederunt, got exit 0"
                         .to_string(),
                 );
             }

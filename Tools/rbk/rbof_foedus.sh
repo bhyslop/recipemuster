@@ -24,7 +24,7 @@
 #                      payor-credentialed, mutates nothing.
 #   instate (rbw-jI) — re-point the active-foedus selector RBRR_ACTIVE_FOEDUS in
 #                      rbrr.env via an atomic single-field rewrite. No clean-tree
-#                      gate, no commit, no Manor mutation, no sitting reset.
+#                      gate, no commit, no Manor mutation, no sederunt reset.
 #   canvass (rbw-jc) — enumerate every foedus the manor holds (providers.list
 #                      under the one workforce pool), emitting one fact file per
 #                      foedus and marking the regime-selected one. Read-only,
@@ -415,7 +415,7 @@ rbof_instate() {
   # assignment, pass the rest through unchanged, write a temp file then rename.
   # No other field is touched; no clean-tree gate (instate writes the very change
   # the operator is about to commit); not committed; no Manor mutation; no
-  # sitting reset (re-signing against the new foedus is avow's concern).
+  # sederunt reset (re-signing against the new foedus is avow's concern).
   local -r z_file="${RBCC_rbrr_file}"
   test -f "${z_file}" || buc_die_now "Repo regime file not found: ${z_file}"
 

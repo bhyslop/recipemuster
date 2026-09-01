@@ -20,7 +20,7 @@ Recipe Bottle uses domain-specific terminology throughout its CLI and documentat
 Key term categories in README.md:
 - **Architecture**: Foundry, Manor, Depot, Crucible, Vessel, Hallmark, Ark, Nameplate, Regime, Tabtarget
 - **Roles**: Payor, Governor, Director, Retriever — the last three are Mantles worn by federated Citizens
-- **Identity**: Citizen, Mantle, Foedus, Sitting, Terrier, Muniment
+- **Identity**: Citizen, Mantle, Foedus, Sederunt, Terrier, Muniment
 - **Containers**: Sentry, Pentacle, Bottle
 - **Foundry Operations** (appendix, grouped): Infrastructure, Identity and Admission, Supply Chain, Building, Chain Links, Verification, Distribution, Removal, Diagnostics
 - **Crucible Operations** (appendix): Charge, Quench, Rack, Hail, Scry
@@ -95,13 +95,13 @@ The supply chain has three layers: conclave captures the builder-tool Lode (the 
 
 ### How do I admit people, and how do I authenticate?
 
-Nobody holds a long-lived key. An operator is a **citizen** of a **foedus**; a role is a **mantle** the citizen is admitted to wear. Signing in opens a **sitting**, and each privileged call mints a short-lived token for one mantle.
+Nobody holds a long-lived key. An operator is a **citizen** of a **foedus**; a role is a **mantle** the citizen is admitted to wear. Signing in opens a **sederunt**, and each privileged call mints a short-lived token for one mantle.
 
 | Verb | What it does |
 |------|-------------|
-| **avow** | Open a sitting — federated sign-in (device flow) against the active foedus |
-| **novate** | Open a fresh full-window sitting, extinguishing any standing one |
-| **espy** | Report whether a sitting stands and how much runway is left (read-only, no network) |
+| **avow** | Open a sederunt — federated sign-in (device flow) against the active foedus |
+| **novate** | Open a fresh full-window sederunt, extinguishing any standing one |
+| **espy** | Report whether a sederunt stands and how much runway is left (read-only, no network) |
 | **don** | Mint a short-lived token for one mantle, for one call |
 | **gird** | Payor seats a depot's founding governor — the one admission outside governor wielding |
 | **brevet** | Governor admits a citizen onto a mantle in this depot |
@@ -116,9 +116,9 @@ Recipe Bottle uses a role-based security model. The payor stands apart; the othe
 | Role | Authentication | Purpose |
 |------|---------------|---------|
 | **Payor** | OAuth (browser flow) | Establishes the manor, funds depots, girds the first governor |
-| **Governor** | Federated sitting → governor mantle | Admits citizens to mantles within a depot; keeps the terrier |
-| **Director** | Federated sitting → director mantle | Submits builds, manages images, verifies provenance |
-| **Retriever** | Federated sitting → retriever mantle | Pulls images for local use |
+| **Governor** | Federated sederunt → governor mantle | Admits citizens to mantles within a depot; keeps the terrier |
+| **Director** | Federated sederunt → director mantle | Submits builds, manages images, verifies provenance |
+| **Retriever** | Federated sederunt → retriever mantle | Pulls images for local use |
 
 The payor is the only role requiring manual console work. Every other role signs in against the foedus and dons its mantle per call, so authority is short-lived by construction and each use is attributable to the human who wore it.
 
@@ -127,7 +127,7 @@ The payor is the only role requiring manual console work. Every other role signs
 **The payor OAuth credential is the system's sole standing secret.** There are no service-account keyfiles to protect, back up, or rotate — the mantle roles hold no durable credential at all.
 
 - **Payor OAuth** (`rbro.env`, under `RBRR_SECRETS_DIR`): client secret + refresh token. `600` permissions, only on the administrator's workstation, never committed.
-- **Mantle tokens**: minted per call from a live sitting and never written to disk as durable credentials. Lose your sitting and you re-avow; there is nothing to restore.
+- **Mantle tokens**: minted per call from a live sederunt and never written to disk as durable credentials. Lose your sederunt and you re-avow; there is nothing to restore.
 
 @Tools/buk/claude-buk-core.md
 @Tools/buk/claude-buk-acronyms.md
@@ -231,7 +231,7 @@ Project Root/
 
 - **Regime validation fails on startup**: Run the regime's render command to see current values, then validate to identify the specific error. Fix the `.env` file and retry.
 - **OAuth token expired**: re-run payor install with the saved client-secret JSON (`tt/rbw-gPI.PayorInstall.sh «RBRR_SECRETS_DIR»/client_secrets/client_secret_*.json`) — a dead token needs no new JSON.
-- **A verb refuses for want of authority**: check the sitting first — `tt/rbw-as.EspySitting.sh` reports whether one stands and how much runway is left; `tt/rbw-aN.NovateSitting.sh` opens a fresh one. If the sitting is healthy, you are not brevetted onto the mantle that verb wields: a governor must `brevet` you (`tt/rbw-pB.GovernorBrevetsCitizen.sh`). Confirm with `tt/rbw-pr.GovernorRehearsesTerrier.sh`, which shows who holds what.
+- **A verb refuses for want of authority**: check the sederunt first — `tt/rbw-as.EspySederunt.sh` reports whether one stands and how much runway is left; `tt/rbw-aN.NovateSederunt.sh` opens a fresh one. If the sederunt is healthy, you are not brevetted onto the mantle that verb wields: a governor must `brevet` you (`tt/rbw-pB.GovernorBrevetsCitizen.sh`). Confirm with `tt/rbw-pr.GovernorRehearsesTerrier.sh`, which shows who holds what.
 - **Federated sign-in fails outright**: descry the active foedus with `tt/rbw-jd.FoedusDescry.sh` — it reports the provider's health under the manor pool, or names the deficit.
 - **Tabtarget not found**: Run `tt/rbw-tq.QualifyFast.sh` to check tabtarget and colophon health.
 - **Build fails**: Check `tt/rbw-ft.RetrieverTalliesHallmarks.sh` for build status. Review logs in the GCP Console for the depot project.

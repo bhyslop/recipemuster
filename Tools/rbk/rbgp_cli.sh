@@ -110,7 +110,7 @@ zrbgp_furnish() {
   # The polity admission verbs
   # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
   # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +
-  # sitting machinery — the don's STS audience rides the provider) on top of the
+  # sederunt machinery — the don's STS audience rides the provider) on top of the
   # depot/repo regimes. Gird (the payor-wielded founding first-governor admission)
   # drives the shared core with the payor credential, not a don, and the
   # pool-scoped admission core reads no provider, so gird enforces RBRW

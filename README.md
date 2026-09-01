@@ -149,7 +149,7 @@ A specific build instance of a [Vessel](#Vessel), identified by timestamp.
 | [**Retriever**](#Retriever) | Federated sign-in → [Retriever](#Retriever) [Mantle](#Mantle) | Pulls images for local use |
 
 The [Payor](#Payor) stands apart — it authenticates with its own OAuth refresh token, the system's sole durable secret.
-Every other role is a [Mantle](#Mantle): a standing office a federated operator [Avows](#Avow) into to open a [Sitting](#Sitting), then [Dons](#Don) for the work at hand.
+Every other role is a [Mantle](#Mantle): a standing office a federated operator [Avows](#Avow) into to open a [Sederunt](#Sederunt), then [Dons](#Don) for the work at hand.
 **Zero service-account keys exist anywhere in the system.**
 
 This model **requires a GCP organization and an external OIDC identity provider** — the founding cost of corporate-acceptable identity, and the one prerequisite federation does not waive.
@@ -168,7 +168,7 @@ Before the first build can run, the [Depot](#Depot) needs its supply-chain infra
 #### Admission and Access
 
 A standing [Governor](#Governor) populates the [Depot](#Depot): it [Brevets](#Brevet) a [Citizen](#Citizen) onto a [Director](#Director) mantle for build work and onto a [Retriever](#Retriever) mantle for image pulls, and [Unseats](#Unseat) a mantle no longer needed — each admission recorded as a [Muniment](#Muniment) in the [Manor's](#Manor) [Terrier](#Terrier).
-At runtime the [Citizen](#Citizen) [Avows](#Avow) to open a [Sitting](#Sitting), then [Dons](#Don) whichever mantle the operation calls for.
+At runtime the [Citizen](#Citizen) [Avows](#Avow) to open a [Sederunt](#Sederunt), then [Dons](#Don) whichever mantle the operation calls for.
 
 #### Build and Retrieve
 
@@ -327,18 +327,18 @@ Each [Foedus](#Foedus) is configured in its own committed federation [Regime](#R
 Founded by [Affiance](#Affiance), dissolved by [Jilt](#Jilt).
 
 <a id="Avow"></a>**[Avow](#Avow)** — Sign in for a session.
-Avowing is a fresh federated authentication against the [Manor's](#Manor) identity provider — one device-flow click — that opens a [Sitting](#Sitting).
-It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Sitting](#Sitting) avows inline when run interactively, and fails loud when headless.
+Avowing is a fresh federated authentication against the [Manor's](#Manor) identity provider — one device-flow click — that opens a [Sederunt](#Sederunt).
+It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Sederunt](#Sederunt) avows inline when run interactively, and fails loud when headless.
 
-<a id="Sitting"></a>**[Sitting](#Sitting)** — The time-bounded session an [Avowal](#Avow) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
-No operation runs outside a live [Sitting](#Sitting); when one lapses the next token mint fails loud rather than reaching for a stored secret.
-Reuse of a standing [Sitting](#Sitting) is runway-gated — an operation refuses to start on a [Sitting](#Sitting) too near its lapse, and names [Novate](#Novate) as the remedy.
+<a id="Sederunt"></a>**[Sederunt](#Sederunt)** — The time-bounded session an [Avowal](#Avow) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
+No operation runs outside a live [Sederunt](#Sederunt); when one lapses the next token mint fails loud rather than reaching for a stored secret.
+Reuse of a standing [Sederunt](#Sederunt) is runway-gated — an operation refuses to start on a [Sederunt](#Sederunt) too near its lapse, and names [Novate](#Novate) as the remedy.
 
-<a id="Novate"></a>**[Novate](#Novate)** — Open a fresh, full-window [Sitting](#Sitting), extinguishing any standing one.
+<a id="Novate"></a>**[Novate](#Novate)** — Open a fresh, full-window [Sederunt](#Sederunt), extinguishing any standing one.
 The named remedy when the runway gate refuses a reuse; one device-flow click, like any [Avowal](#Avow).
 
-<a id="Espy"></a>**[Espy](#Espy)** — Report whether a [Sitting](#Sitting) is live and how much runway remains, from the local cache alone.
-Read-only: never opens a [Sitting](#Sitting), never prompts, touches no network.
+<a id="Espy"></a>**[Espy](#Espy)** — Report whether a [Sederunt](#Sederunt) is live and how much runway remains, from the local cache alone.
+Read-only: never opens a [Sederunt](#Sederunt), never prompts, touches no network.
 
 <a id="Don"></a>**[Don](#Don)** — Assume a [Mantle](#Mantle).
 Having [Avowed](#Avow), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
@@ -507,7 +507,7 @@ Confirms the three [Mantle](#Mantle) service accounts, their capability-sets, an
 <a id="Attribution"></a>**[Attribution](#Attribution)** — Print the [Depot's](#Depot) Data-Access attribution trail.
 Recent registry audit entries, each naming the acting [Mantle](#Mantle) service account and the human federate subject together on one line — the durable record that every act traces to a person.
 
-<a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse a [Sitting](#Sitting) and confirm the federated sign-in reaches Google.
+<a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse a [Sederunt](#Sederunt) and confirm the federated sign-in reaches Google.
 Runs the device-flow [Avowal](#Avow) and STS exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
 
 <a id="CheckMantleAccess"></a>**[Check Mantle Access](#CheckMantleAccess)** — Confirm a [Citizen](#Citizen) can reach Artifact Registry under a named [Mantle](#Mantle).

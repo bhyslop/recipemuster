@@ -52,9 +52,9 @@ pub const RBTDRM_FIXTURE_BATCH_VOUCH: &str = "batch-vouch";
 pub const RBTDRM_FIXTURE_ACCESS_PROBE: &str = "access-probe";
 // Credential-readiness — the standing-freehold readiness leader of the release
 // ladders: skirmish/dogfight/blockade run it ahead of any cloud spend, and
-// gauntlet re-verifies right after freehold-establish. Espy the sitting
+// gauntlet re-verifies right after freehold-establish. Espy the sederunt
 // (fail-fast advisory when absent), a promptless baseline avow (the runway
-// gate band-rejects a short sitting with the novate advisory), then don
+// gate band-rejects a short sederunt with the novate advisory), then don
 // director + retriever — the mantles the ladders' inner bodies wield. Restores
 // the up-front credential step the keyfile re-enrobe preamble provided before
 // the estate demolition; a deficit surfaces in seconds, never minutes into a
@@ -338,10 +338,10 @@ pub fn rbtdrm_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTDRM_FIXTURE_ACCESS_PROBE => Some(&[
             RBTDGC_CHECK_PAYOR,
             RBTDGC_CHECK_AVOWAL,
-            RBTDGC_ESPY_SITTING,
+            RBTDGC_ESPY_SEDERUNT,
         ]),
         RBTDRM_FIXTURE_CREDENTIAL_READINESS => Some(&[
-            RBTDGC_ESPY_SITTING,
+            RBTDGC_ESPY_SEDERUNT,
             RBTDGC_CHECK_AVOWAL,
             RBTDGC_CHECK_MANTLE,
         ]),

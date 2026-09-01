@@ -44,11 +44,11 @@ use crate::rbtdgc_consts::{
     RBTDGC_CANVASS_FOEDUS,
     RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
     RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
-    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_ESPY_SITTING, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FACT_EXT_SITTING, RBTDGC_FEOFF_BOLE,
+    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_ESPY_SEDERUNT, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FACT_EXT_SEDERUNT, RBTDGC_FEOFF_BOLE,
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
-    RBTDGC_NOVATE_SITTING,
+    RBTDGC_NOVATE_SEDERUNT,
     RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
     RBTDGC_TALLY_HALLMARKS,
@@ -1597,7 +1597,7 @@ pub static RBTDRV_CASES_FOEDUS_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_foedus
 
 /// The standing-freehold REUSE credential leg: descry the active foedus, reuse it
 /// cap-flat when healthy (affiance only on a check failure), re-point the selector
-/// (instate), then heal the credentials — avow the sitting, don each mantle. The
+/// (instate), then heal the credentials — avow the sederunt, don each mantle. The
 /// release ladders (skirmish/dogfight/blockade) assume this readiness step but no
 /// fixture established it; operator-invoked (human-present avow, live dons), a
 /// member of no suite, the payor gate fails loud (never a passenger).
@@ -1683,12 +1683,12 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         }
         let _ = std::fs::write(dir.join("04-instate.txt"), format!("instated {}", foedus));
 
-        // Credential heal — avow opens or reuses the sitting (one human click at
+        // Credential heal — avow opens or reuses the sederunt (one human click at
         // suite head); the mantle dons then ride the cached federated token.
         match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "avow exit {} — open a sitting with {} (one device-flow click), or launch \
+                "avow exit {} — open a sederunt with {} (one device-flow click), or launch \
                  from a terminal so the prompt can surface\n{}", r.exit_code, RBTDGC_CHECK_AVOWAL, r.stderr
             )),
             Err(e) => return rbtdre_Verdict::Fail(format!("avow invocation: {}", e)),
@@ -1869,7 +1869,7 @@ fn zrbtdrv_terrier_poison_drive(
 /// Filter a rehearse roll capture down to muniment rows alone — each is the exact
 /// "<depot>\t<mantle>\t<subject>" tab-separated shape rehearse emits
 /// (RBSPO depot-attributed emission, two tabs). Strips the invoked tabtarget's own
-/// stdout preamble (self-log paths, the sitting-reuse banner) carrying volatile
+/// stdout preamble (self-log paths, the sederunt-reuse banner) carrying volatile
 /// per-invocation content — a temp-dir invoke counter, a ticking runway-seconds
 /// countdown — that a raw full-capture comparison would misread as roll drift.
 fn zrbtdrv_roll_muniment_lines(roll: &str) -> Vec<&str> {
@@ -2770,20 +2770,20 @@ fn rbtdrv_oauth_payor(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrv_access_probe_role(ctx, RBTDGC_ACCOUNT_PAYOR, dir))
 }
 
-// ── Sitting-runway gate and novate round-trip ────────────────
+// ── Sederunt-runway gate and novate round-trip ────────────────
 
 /// Impossible runway demand — above the 12h workforce-session ceiling (43200s),
-/// so ANY live sitting's remaining runway falls short and the avow reuse gate
+/// so ANY live sederunt's remaining runway falls short and the avow reuse gate
 /// must reject. Keeps the negative deterministic without forging cache state:
 /// the demand rides rba_avow's parameterized required-runway seam (the designed
 /// per-operation channel), never a test-only back door.
 const RBTDRV_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
 
-/// The shared sitting-ready leader: espy the sitting read-only and fail fast
+/// The shared sederunt-ready leader: espy the sederunt read-only and fail fast
 /// when none is live — never prompts, never waits on a device window
 /// (operator ruling 260704: no interactive act may live inside a theurge
 /// fixture) — then a promptless baseline avow (reuse by construction: espy
-/// just proved a live sitting, so a short one band-rejects deterministically
+/// just proved a live sederunt, so a short one band-rejects deterministically
 /// at the runway gate with the novate advisory, never opening a device
 /// window). Consumed by the access-probe gate case (which adds the
 /// impossible-runway negative) and by the credential-readiness leader
@@ -2792,54 +2792,54 @@ const RBTDRV_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
 /// Stream note: the launcher's self-logging merges the spawned tabtarget's
 /// stderr into stdout (surveyed 260704 — captured stderr arrives empty), so
 /// the advisory is asserted against BOTH streams and forensics print both.
-fn zrbtdrv_sitting_ready_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), rbtdre_Verdict> {
+fn zrbtdrv_sederunt_ready_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), rbtdre_Verdict> {
     // Fail-fast: the read-only espy replaces the blind device-window poll the
-    // operator hit (260704) — a dead sitting is reported in seconds with the
-    // open-a-sitting instruction, never waited out to the device-code expiry.
-    let espy = match rbtdri_invoke_global(ctx, RBTDGC_ESPY_SITTING, &[], &[]) {
+    // operator hit (260704) — a dead sederunt is reported in seconds with the
+    // open-a-sederunt instruction, never waited out to the device-code expiry.
+    let espy = match rbtdri_invoke_global(ctx, RBTDGC_ESPY_SEDERUNT, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
-            "sitting espy exited {} — the probe reports verdicts and should never reject\nstdout:\n{}\nstderr:\n{}",
+            "sederunt espy exited {} — the probe reports verdicts and should never reject\nstdout:\n{}\nstderr:\n{}",
             r.exit_code, r.stdout, r.stderr
         ))),
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sitting espy invocation: {}", e))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sederunt espy invocation: {}", e))),
     };
     let _ = std::fs::write(dir.join("00-espy-stdout.txt"), &espy.stdout);
     let _ = std::fs::write(dir.join("00-espy-stderr.txt"), &espy.stderr);
 
-    let roots = match rbtdri_read_burv_facts_multi(&espy, RBTDGC_FACT_EXT_SITTING) {
+    let roots = match rbtdri_read_burv_facts_multi(&espy, RBTDGC_FACT_EXT_SEDERUNT) {
         Ok(r) => r,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("espy wrote no sitting fact: {}", e))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("espy wrote no sederunt fact: {}", e))),
     };
     let root = match roots.as_slice() {
         [one] => one.clone(),
         other => return Err(rbtdre_Verdict::Fail(format!(
             "expected exactly one {} fact from espy, got {:?}",
-            RBTDGC_FACT_EXT_SITTING, other
+            RBTDGC_FACT_EXT_SEDERUNT, other
         ))),
     };
-    let fact = match rbtdri_read_burv_fact(&espy, &format!("{}.{}", root, RBTDGC_FACT_EXT_SITTING)) {
+    let fact = match rbtdri_read_burv_fact(&espy, &format!("{}.{}", root, RBTDGC_FACT_EXT_SEDERUNT)) {
         Ok(f) => f,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sitting fact unreadable: {}", e))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sederunt fact unreadable: {}", e))),
     };
-    // The verdict token "live" is espy's (rba_espy_sitting / RBCC_fact_ext_sitting).
+    // The verdict token "live" is espy's (rba_espy_sederunt / RBCC_fact_ext_sederunt).
     if !fact.lines().any(|l| l.trim() == "verdict=live") {
         return Err(rbtdre_Verdict::Fail(format!(
-            "no live sitting ({}) — open one from a terminal with {} (one device-flow \
+            "no live sederunt ({}) — open one from a terminal with {} (one device-flow \
              sign-in) or {} (fresh full window), then re-run",
-            fact.replace('\n', ", "), RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SITTING
+            fact.replace('\n', ", "), RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT
         )));
     }
 
     // Baseline avow — promptless by construction: espy just proved a live
-    // sitting, so this rides the reuse path (a short sitting band-rejects
+    // sederunt, so this rides the reuse path (a short sederunt band-rejects
     // deterministically at the runway gate; it never opens a device window).
     match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
-            "baseline avow exit {} — open a sitting with {} (one device-flow click), \
-             or novate ({}) if the gate turned a short sitting away\nstdout:\n{}\nstderr:\n{}",
-            r.exit_code, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SITTING, r.stdout, r.stderr
+            "baseline avow exit {} — open a sederunt with {} (one device-flow click), \
+             or novate ({}) if the gate turned a short sederunt away\nstdout:\n{}\nstderr:\n{}",
+            r.exit_code, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT, r.stdout, r.stderr
         ))),
         Err(e) => return Err(rbtdre_Verdict::Fail(format!("baseline avow invocation: {}", e))),
     }
@@ -2847,12 +2847,12 @@ fn zrbtdrv_sitting_ready_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(),
     Ok(())
 }
 
-/// The deterministic gate arc: the shared sitting-ready leader, then demand
+/// The deterministic gate arc: the shared sederunt-ready leader, then demand
 /// an impossible runway and assert the EXACT runway band plus the novate
 /// advisory (the rejection must name the remedy's colophon). Never weakened
 /// to bare-nonzero, per band doctrine.
 fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), rbtdre_Verdict> {
-    zrbtdrv_sitting_ready_arc(ctx, dir)?;
+    zrbtdrv_sederunt_ready_arc(ctx, dir)?;
 
     let short = match rbtdri_invoke_global(
         ctx, RBTDGC_CHECK_AVOWAL, &[RBTDRV_RUNWAY_IMPOSSIBLE_SEC], &[],
@@ -2868,10 +2868,10 @@ fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), r
             RBTDRV_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTDGC_BAND_RUNWAY, short.stdout, short.stderr
         )));
     }
-    if !short.stdout.contains(RBTDGC_NOVATE_SITTING) && !short.stderr.contains(RBTDGC_NOVATE_SITTING) {
+    if !short.stdout.contains(RBTDGC_NOVATE_SEDERUNT) && !short.stderr.contains(RBTDGC_NOVATE_SEDERUNT) {
         return Err(rbtdre_Verdict::Fail(format!(
             "runway rejection carried no novate advisory — expected '{}' on either stream\nstdout:\n{}\nstderr:\n{}",
-            RBTDGC_NOVATE_SITTING, short.stdout, short.stderr
+            RBTDGC_NOVATE_SEDERUNT, short.stdout, short.stderr
         )));
     }
     Ok(())
@@ -2880,10 +2880,10 @@ fn zrbtdrv_runway_gate_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<(), r
 /// Picket-tier gate case: the deterministic negative alone. No novate step —
 /// novation always forces a fresh sign-in under the interactive mechanism, and
 /// theurge captures the streams the prompt rides, so NO interactive act may
-/// live inside a fixture (operator ruling 260704 — the retired sitting-novate
+/// live inside a fixture (operator ruling 260704 — the retired sederunt-novate
 /// fixture is the cautionary precedent). Novate's positive proof is the
 /// operator ceremony: rbw-aN from a terminal, then a promptless plain avow.
-fn rbtdrv_sitting_runway_gate(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrv_sederunt_runway_gate(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         if let Err(v) = zrbtdrv_runway_gate_arc(ctx, dir) {
             return v;
@@ -2895,23 +2895,23 @@ fn rbtdrv_sitting_runway_gate(dir: &Path) -> rbtdre_Verdict {
 
 pub static RBTDRV_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
     case!(rbtdrv_oauth_payor),
-    case!(rbtdrv_sitting_runway_gate),
+    case!(rbtdrv_sederunt_runway_gate),
 ];
 
 // ── Credential-readiness leader ──────────────────────────────
 
 /// The standing-freehold credential-readiness leader — the up-front step the
 /// release ladders lost with the keyfile re-enrobe preamble: the shared
-/// sitting-ready arc (espy fail-fast + promptless baseline avow through the
+/// sederunt-ready arc (espy fail-fast + promptless baseline avow through the
 /// runway gate), then don the two mantles the ladders' inner bodies wield —
 /// director (ordain/conjure) and retriever (summon/charge). Governor is
 /// deliberately not donned: no release-ladder body wields it, and its
 /// readiness is proven where it IS wielded (the polity fixtures). A deficit
-/// rejects in seconds with the remedy named — open a sitting (rbw-aa),
+/// rejects in seconds with the remedy named — open a sederunt (rbw-aa),
 /// novate a short one (rbw-aN), or seat the freehold (freehold-establish).
 fn rbtdrv_credential_readiness(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        if let Err(v) = zrbtdrv_sitting_ready_arc(ctx, dir) {
+        if let Err(v) = zrbtdrv_sederunt_ready_arc(ctx, dir) {
             return v;
         }
         for mantle in [RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_RETRIEVER] {
