@@ -181,7 +181,7 @@ RBCC_fact_ext_foedus="foedus"
 # <foedus>.sederunt carrying verdict= (live / lapsed / absent) and, when the
 # cache holds an expiry, runway= (whole seconds remaining) — for the theurge
 # gate arc to branch on before the may-prompt baseline avow.
-RBCC_fact_ext_sederunt="sederunt"
+readonly RBCC_fact_ext_sederunt="sederunt"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
 # Mechanism). The credless guard is the reveille-tier slot reservation: theurge
