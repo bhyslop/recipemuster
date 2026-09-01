@@ -66,8 +66,8 @@ rbgv_check_avowal() {
   # colophon), like the mantle operand on rbgv_check_mantle. Empty = the floor.
   local -r z_required_runway="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Check federated access — open or reuse a sederunt via device flow + STS (Legs 1+2) against the RBRF trust"
-  buc_doc_oparm "required_runway" "Seconds of sederunt runway the probe demands; omit for the kindled floor"
+  buc_doc_brief "Check federated access — open or reuse a ${RBCC_noun_sederunt} via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_oparm "required_runway" "Seconds of ${RBCC_noun_sederunt} runway the probe demands; omit for the kindled floor"
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
@@ -81,9 +81,9 @@ rbgv_check_avowal() {
   rba_avow "${z_required_runway}"
 
   local z_token
-  z_token=$(zrba_sederunt_read_capture) || buc_die_now "Sederunt not readable after avowal"
-  test -n "${z_token}" || buc_die_now "Sederunt holds an empty federated token"
-  buc_success "Federated sederunt live — federated token obtained (${#z_token} chars)"
+  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt^} not readable after avowal"
+  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt^} holds an empty federated token"
+  buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#z_token} chars)"
 }
 
 # Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
@@ -127,7 +127,7 @@ rbgv_check_mantle() {
   test -n "${RBPC_freehold_subject:-}" || buc_die_now "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
-  buc_step "Avow against the RBRF trust to open or reuse the sederunt"
+  buc_step "Avow against the RBRF trust to open or reuse the ${RBCC_noun_sederunt}"
   rbcc_source_active_rbrf
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
@@ -144,7 +144,7 @@ rbgv_check_mantle() {
   local z_cached_subject=""
   z_cached_subject=$(zrba_sederunt_subject_capture) || z_cached_subject=""
   if test -z "${z_cached_subject}"; then
-    buc_log_args "Avowed subject not decodable from the sederunt cache — skipping the freehold-identity confirmation (informational only)"
+    buc_log_args "Avowed subject not decodable from the ${RBCC_noun_sederunt} cache — skipping the freehold-identity confirmation (informational only)"
   elif test "${z_cached_subject}" = "${RBPC_freehold_subject}"; then
     buc_info "Avowed subject matches the freehold subject"
   else
@@ -166,7 +166,7 @@ rbgv_check_mantle() {
   if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
     buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
-    buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed sederunt or transport/HTTP failure)"
+    buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed ${RBCC_noun_sederunt} or transport/HTTP failure)"
   fi
   test -n "${z_mantle_token}" || buc_die_now "Don of the ${z_polity_mantle} mantle returned an empty token"
 

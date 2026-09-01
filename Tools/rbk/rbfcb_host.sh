@@ -67,7 +67,7 @@ zrbfc_redon_tick() {
     return 0
   fi
 
-  buc_die_now "${z_label}: sederunt lapsed mid-build — the mantle cannot be re-donned; open a sederunt (rbw-aa or rbw-aN), then re-run"
+  buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; open a ${RBCC_noun_sederunt} (rbw-aa or rbw-aN), then re-run"
 }
 
 zrbfc_wait_build_completion() {

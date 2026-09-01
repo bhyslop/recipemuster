@@ -170,6 +170,7 @@ pub const RBTDGC_VERB_INSCRIBE: &str = "inscribe";
 pub const RBTDGC_VERB_KLUDGE: &str = "kludge";
 pub const RBTDGC_VERB_ORDAIN: &str = "ordain";
 pub const RBTDGC_VERB_YOKE: &str = "yoke";
+pub const RBTDGC_NOUN_SEDERUNT: &str = "sederunt";
 pub const RBTDGC_CONTAINER_BOTTLE: &str = "bottle";
 pub const RBTDGC_CONTAINER_PENTACLE: &str = "pentacle";
 pub const RBTDGC_CONTAINER_SENTRY: &str = "sentry";

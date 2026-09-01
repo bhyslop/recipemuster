@@ -385,7 +385,7 @@ zrba_leg1_idtoken_capture() {
   # threat.
   buym_href_yawp "${z_verification_uri}" "${z_verification_uri}"; local -r z_uri_yp="${z_buym_yelp}"
   buym_ui_yawp   "${z_user_code}";                                local -r z_code_yp="${z_buym_yelp}"
-  buc_step "Avowal — sign in to open your sederunt:"
+  buc_step "Avowal — sign in to open your ${RBCC_noun_sederunt}:"
   buc_step "    ${z_uri_yp}"
   buc_step "    code: ${z_code_yp}"
   zrba_user_code_clipboard "${z_user_code}"
@@ -629,12 +629,12 @@ zrba_sederunt_open() {
   local z_idtoken
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
-      buc_step "Opening a sederunt via device-flow avowal"
+      buc_step "Opening a ${RBCC_noun_sederunt} via device-flow avowal"
       z_idtoken=$(zrba_leg1_idtoken_capture) \
         || buc_die_now "Avowal failed at Leg 1 (device flow); see the transcript"
       ;;
     rbnfe_programmatic)
-      buc_step "Acquiring a sederunt via the RFC 7523 programmatic grant"
+      buc_step "Acquiring a ${RBCC_noun_sederunt} via the RFC 7523 programmatic grant"
       z_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
         || buc_die_now "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
       ;;
@@ -659,9 +659,9 @@ zrba_sederunt_open() {
   z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject=""
 
   zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
-    || buc_die_now "Avowal succeeded but caching the sederunt failed"
+    || buc_die_now "Avowal succeeded but caching the ${RBCC_noun_sederunt} failed"
 
-  buc_step "Sederunt opened (federated token expires in ${z_expires_in}s)"
+  buc_step "${RBCC_noun_sederunt^} opened (federated token expires in ${z_expires_in}s)"
 }
 
 # rba_avow — the avowal accessor step. Ensures a live sederunt with sufficient
@@ -686,19 +686,19 @@ rba_avow() {
   # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
   # path honors the same invariant, under either mechanism arm.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: sederunt acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: ${RBCC_noun_sederunt} acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
   if zrba_sederunt_live_predicate; then
     local z_runway
     z_runway=$(zrba_sederunt_runway_capture) \
-      || buc_die_now "Live sederunt became unreadable while gauging its runway"
+      || buc_die_now "Live ${RBCC_noun_sederunt} became unreadable while gauging its runway"
     test "${z_runway}" -ge "${z_required_runway}" \
-      || buc_reject "${BUBC_band_runway}" "Sederunt runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window sederunt (rbw-aN), then re-run"
-    buc_step "Sederunt already live — reusing the cached federated token (runway ${z_runway}s)"
+      || buc_reject "${BUBC_band_runway}" "${RBCC_noun_sederunt^} runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window ${RBCC_noun_sederunt} (rbw-aN), then re-run"
+    buc_step "${RBCC_noun_sederunt^} already live — reusing the cached federated token (runway ${z_runway}s)"
     return 0
   fi
 
-  buc_step "No live sederunt — opening a fresh one"
+  buc_step "No live ${RBCC_noun_sederunt} — opening a fresh one"
   zrba_sederunt_open
 }
 
@@ -717,9 +717,9 @@ rba_novate() {
   # Credless guard — novation is a sederunt acquisition, so the reveille-tier
   # invariant holds here exactly as at the rba_avow entry.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: sederunt acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${BUBC_band_credless}" "Credless guard: ${RBCC_noun_sederunt} acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
-  buc_step "Novating the sederunt — opening a fresh one, extinguishing any preexisting sederunt"
+  buc_step "Novating the ${RBCC_noun_sederunt} — opening a fresh one, extinguishing any preexisting ${RBCC_noun_sederunt}"
   zrba_sederunt_open
 }
 
@@ -785,7 +785,7 @@ rba_don_capture() {
   # carries the avow instruction and the caller fails loud on the return 1.
   local z_federated
   z_federated=$(zrba_sederunt_read_capture) || {
-    buc_log_args "Sederunt lapsed — no live federated token is cached; avow to open a fresh sederunt, then re-run (the mantle re-mint is capped by the sederunt, not by the mantle token's own lifetime)"
+    buc_log_args "${RBCC_noun_sederunt^} lapsed — no live federated token is cached; avow to open a fresh ${RBCC_noun_sederunt}, then re-run (the mantle re-mint is capped by the ${RBCC_noun_sederunt}, not by the mantle token's own lifetime)"
     return 1
   }
 
