@@ -48,6 +48,7 @@ use crate::rbtdgc_consts::{
     RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
     RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
     RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
+    RBTDGC_NOUN_SEDERUNT,
     RBTDGC_NOVATE_SEDERUNT,
     RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
     RBTDGC_SUMMON_HALLMARK,
@@ -1688,8 +1689,8 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtdre_Verdict::Fail(format!(
-                "avow exit {} — open a sederunt with {} (one device-flow click), or launch \
-                 from a terminal so the prompt can surface\n{}", r.exit_code, RBTDGC_CHECK_AVOWAL, r.stderr
+                "avow exit {} — open a {} with {} (one device-flow click), or launch \
+                 from a terminal so the prompt can surface\n{}", r.exit_code, RBTDGC_NOUN_SEDERUNT, RBTDGC_CHECK_AVOWAL, r.stderr
             )),
             Err(e) => return rbtdre_Verdict::Fail(format!("avow invocation: {}", e)),
         }
@@ -2799,17 +2800,17 @@ fn zrbtdrv_sederunt_ready_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<()
     let espy = match rbtdri_invoke_global(ctx, RBTDGC_ESPY_SEDERUNT, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
-            "sederunt espy exited {} — the probe reports verdicts and should never reject\nstdout:\n{}\nstderr:\n{}",
-            r.exit_code, r.stdout, r.stderr
+            "{} espy exited {} — the probe reports verdicts and should never reject\nstdout:\n{}\nstderr:\n{}",
+            RBTDGC_NOUN_SEDERUNT, r.exit_code, r.stdout, r.stderr
         ))),
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sederunt espy invocation: {}", e))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("{} espy invocation: {}", RBTDGC_NOUN_SEDERUNT, e))),
     };
     let _ = std::fs::write(dir.join("00-espy-stdout.txt"), &espy.stdout);
     let _ = std::fs::write(dir.join("00-espy-stderr.txt"), &espy.stderr);
 
     let roots = match rbtdri_read_burv_facts_multi(&espy, RBTDGC_FACT_EXT_SEDERUNT) {
         Ok(r) => r,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("espy wrote no sederunt fact: {}", e))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("espy wrote no {} fact: {}", RBTDGC_NOUN_SEDERUNT, e))),
     };
     let root = match roots.as_slice() {
         [one] => one.clone(),
@@ -2820,14 +2821,14 @@ fn zrbtdrv_sederunt_ready_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<()
     };
     let fact = match rbtdri_read_burv_fact(&espy, &format!("{}.{}", root, RBTDGC_FACT_EXT_SEDERUNT)) {
         Ok(f) => f,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("sederunt fact unreadable: {}", e))),
+        Err(e) => return Err(rbtdre_Verdict::Fail(format!("{} fact unreadable: {}", RBTDGC_NOUN_SEDERUNT, e))),
     };
     // The verdict token "live" is espy's (rba_espy_sederunt / RBCC_fact_ext_sederunt).
     if !fact.lines().any(|l| l.trim() == "verdict=live") {
         return Err(rbtdre_Verdict::Fail(format!(
-            "no live sederunt ({}) — open one from a terminal with {} (one device-flow \
+            "no live {} ({}) — open one from a terminal with {} (one device-flow \
              sign-in) or {} (fresh full window), then re-run",
-            fact.replace('\n', ", "), RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT
+            RBTDGC_NOUN_SEDERUNT, fact.replace('\n', ", "), RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT
         )));
     }
 
@@ -2837,9 +2838,9 @@ fn zrbtdrv_sederunt_ready_arc(ctx: &mut rbtdri_Context, dir: &Path) -> Result<()
     match rbtdri_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtdre_Verdict::Fail(format!(
-            "baseline avow exit {} — open a sederunt with {} (one device-flow click), \
-             or novate ({}) if the gate turned a short sederunt away\nstdout:\n{}\nstderr:\n{}",
-            r.exit_code, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT, r.stdout, r.stderr
+            "baseline avow exit {} — open a {} with {} (one device-flow click), \
+             or novate ({}) if the gate turned a short {} away\nstdout:\n{}\nstderr:\n{}",
+            r.exit_code, RBTDGC_NOUN_SEDERUNT, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT, RBTDGC_NOUN_SEDERUNT, r.stdout, r.stderr
         ))),
         Err(e) => return Err(rbtdre_Verdict::Fail(format!("baseline avow invocation: {}", e))),
     }
