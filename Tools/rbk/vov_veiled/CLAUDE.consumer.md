@@ -71,8 +71,8 @@ The supply chain has three layers: conclave captures the builder-tool Lode (the 
 
 | Verb | What it does |
 |------|-------------|
-| **charge** | Start the crucible — bring up sentry, pentacle, and bottle containers |
-| **quench** | Stop the crucible — tear down all three containers |
+| **charge** | Start the crucible — bring up sentry, pentacle, and bottle containers; refuses over a live crucible charged from another working tree |
+| **quench** | Stop the crucible — tear down all three containers; a live crucible from another working tree is named and confirm-gated first |
 
 ### How do I inspect running containers?
 

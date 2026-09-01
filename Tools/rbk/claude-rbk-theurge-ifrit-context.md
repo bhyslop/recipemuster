@@ -179,4 +179,4 @@ console; they do not re-grow per module.
    ```
    tt/rbw-tf.FixtureRun.sh tadmor
    ```
-   Note: this charges and quenches internally — quench the manual crucible first if one is active (`tt/rbw-cQ.Quench.tadmor.sh`).
+   Note: this charges and quenches internally. A crucible you charged manually from this same tree is recycled automatically; one charged from a *different* working tree refuses the charge and names its owner — quench it from its own tree, or eyes-open from here (`BURE_CONFIRM=skip tt/rbw-cQ.Quench.tadmor.sh`, which prints the owner as it proceeds).

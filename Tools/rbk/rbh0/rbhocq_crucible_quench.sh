@@ -44,9 +44,14 @@ rbhocq_crucible_quench() {
   buh_line "reuses them instantly."
   buh_e
   buh_line "You don't need to ${RBYC_QUENCH} between iterations. ${RBYC_CHARGE} tears"
-  buh_line "down any prior state before starting, so repeating ${RBYC_CHARGE}"
+  buh_line "down your own prior state before starting, so repeating ${RBYC_CHARGE}"
   buh_line "picks up a fresh ${RBYC_CRUCIBLE}. ${RBYC_QUENCH} when you are done"
   buh_line "with the ${RBYC_CRUCIBLE} for the session."
+  buh_e
+  buh_line "Ownership guards both verbs: containers remember the working tree"
+  buh_line "that charged them. ${RBYC_CHARGE} refuses over a live ${RBYC_CRUCIBLE}"
+  buh_line "charged from a different tree, naming its owner; ${RBYC_QUENCH} names"
+  buh_line "the owner and asks before tearing such a ${RBYC_CRUCIBLE} down."
   buh_e
 }
 

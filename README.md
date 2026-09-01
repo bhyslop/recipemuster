@@ -530,6 +530,7 @@ Formal definitions for all [Crucible](#Crucible) operations.
 
 <a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Crucible's](#Crucible) containers.
 [Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
+Containers remember the working tree that [Charged](#Charge) them: [Charging](#Charge) refuses over another tree's live [Crucible](#Crucible), and [Quenching](#Quench) one names its owner and asks before proceeding.
 
 ### Interaction
 
