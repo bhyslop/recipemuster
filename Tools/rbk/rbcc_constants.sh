@@ -218,7 +218,7 @@ RBCC_container_sentry="sentry"
 # compose file carries the same key as a YAML literal; the two must agree).
 # The value is the charging working tree's root path, derived at kindle and
 # never declared. Read by the charge/quench provenance gates in rbob.
-RBCC_label_provenance="rbob.provenance"
+readonly RBCC_label_provenance="rbob.provenance"
 
 ######################################################################
 # Federation regime resolver (rbcc_rbrf_file_capture)

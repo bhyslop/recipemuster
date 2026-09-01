@@ -419,20 +419,22 @@ zrbob_vouch_gate_and_summon() {
 ######################################################################
 # Provenance Gate — own-and-stale versus foreign-and-live
 
-# Verdict for one container: may the caller destroy it? BCG predicate —
+# Verdict for one container: may the caller destroy it? Predicate —
 # returns 0 (destroyable) or 1 (a live foreign crucible holds it), no dying.
-# On 1, the owner path is left in ZRBOB_PROVENANCE_OWNER for the caller's
+# On 1, the owner path is left in zrbob_provenance_owner for the caller's
 # message. Destroyable: the container is not running (debris), carries no
 # provenance label (pre-label debris), carries our own label (self-recycle,
 # the standing kindness), or carries a label whose path no longer exists
 # (its owning tree is gone, so the claim died with it). Only a running
 # container labeled by a working tree that still stands is protected.
 zrbob_provenance_destroyable_predicate() {
+  zrbob_sentinel
+
   local -r z_container="$1"
   local -r z_inspect_file="${BURD_TEMP_DIR}/zrbob_provenance_inspect_$$.txt"
   local -r z_inspect_stderr="${BURD_TEMP_DIR}/zrbob_provenance_inspect_stderr_$$.txt"
 
-  ZRBOB_PROVENANCE_OWNER=""
+  zrbob_provenance_owner=""
 
   # A container that cannot be inspected (already gone) is trivially destroyable
   ${ZRBOB_RUNTIME} inspect "${z_container}" \
@@ -450,7 +452,7 @@ zrbob_provenance_destroyable_predicate() {
   test "${z_owner}" != "${ZRBOB_PROVENANCE}" || return 0
   test -d "${z_owner}"                    || return 0
 
-  ZRBOB_PROVENANCE_OWNER="${z_owner}"
+  zrbob_provenance_owner="${z_owner}"
   return 1
 }
 
@@ -461,14 +463,16 @@ zrbob_provenance_destroyable_predicate() {
 # printed), then the typed confirm gate decides — quench's stated purpose is
 # teardown, so it may widen to the whole nameplate, eyes open.
 zrbob_provenance_gate() {
+  zrbob_sentinel
+
   local -r z_creed="$1"
   local z_container=""
   local z_foreign_owner=""
 
   for z_container in "${ZRBOB_SENTRY}" "${ZRBOB_PENTACLE}" "${ZRBOB_BOTTLE}"; do
     if ! zrbob_provenance_destroyable_predicate "${z_container}"; then
-      z_foreign_owner="${ZRBOB_PROVENANCE_OWNER}"
-      buc_warn "Crucible '${RBRN_MONIKER}' is already charged and live, owned by: ${z_foreign_owner}"
+      z_foreign_owner="${zrbob_provenance_owner}"
+      buc_warn "Crucible '${RBRN_MONIKER}' is already up and live, owned by: ${z_foreign_owner}"
       break
     fi
   done
@@ -477,10 +481,10 @@ zrbob_provenance_gate() {
 
   case "${z_creed}" in
     charge)
-      buc_die_now "Refusing to charge over a live crucible owned by ${z_foreign_owner} — quench it from its own tree, or wait for its run to finish"
+      buc_die_now "Refusing to start over a live crucible owned by ${z_foreign_owner} — take it down from its own tree, or wait for its run to finish"
       ;;
     quench)
-      buc_require "Quench will tear down the live crucible owned by ${z_foreign_owner}." "${RBRN_MONIKER}"
+      buc_require "About to tear down the live crucible owned by ${z_foreign_owner}." "${RBRN_MONIKER}"
       ;;
     *) buc_die_now "Unknown provenance gate creed: ${z_creed}" ;;
   esac
@@ -573,7 +577,7 @@ zrbob_reclaim_subnet() {
       local z_reclaim_container=""
       for z_reclaim_container in ${z_containers[@]+"${z_containers[@]}"}; do
         zrbob_provenance_destroyable_predicate "${z_reclaim_container}" \
-          || buc_die_now "Subnet ${z_target_subnet} is held by a live crucible owned by ${ZRBOB_PROVENANCE_OWNER} — refusing to reclaim; quench it from its own tree, or wait for its run to finish"
+          || buc_die_now "Subnet ${z_target_subnet} is held by a live crucible owned by ${zrbob_provenance_owner} — refusing to reclaim; take it down from its own tree, or wait for its run to finish"
       done
 
       # Force-remove attached containers first (a mid-run-killed crucible may

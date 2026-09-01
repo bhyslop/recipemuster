@@ -49,8 +49,8 @@ rbhocq_crucible_quench() {
   buh_line "with the ${RBYC_CRUCIBLE} for the session."
   buh_e
   buh_line "Ownership guards both verbs: containers remember the working tree"
-  buh_line "that charged them. ${RBYC_CHARGE} refuses over a live ${RBYC_CRUCIBLE}"
-  buh_line "charged from a different tree, naming its owner; ${RBYC_QUENCH} names"
+  buh_line "they came from. ${RBYC_CHARGE} refuses over a live ${RBYC_CRUCIBLE}"
+  buh_line "from a different tree, naming its owner; ${RBYC_QUENCH} names"
   buh_line "the owner and asks before tearing such a ${RBYC_CRUCIBLE} down."
   buh_e
 }
