@@ -24,7 +24,7 @@
 #
 # Commands:
 #   check_payor        OAuth access probe for the payor credential
-#   check_avowal  Federated access probe — open or reuse a sitting (Legs 1+2)
+#   check_avowal  Federated access probe — open or reuse a sederunt (Legs 1+2)
 #   check_mantle       Don a mantle as the freehold subject (Leg 3)
 
 set -euo pipefail
@@ -52,12 +52,12 @@ rbgv_check_payor() {
 }
 
 # Federated access probe — triggers the accessor's avowal step (Legs 1+2):
-# cache-hit gates the sitting's remaining runway then reuses it; a miss with a
+# cache-hit gates the sederunt's remaining runway then reuses it; a miss with a
 # terminal runs the device flow + STS exchange and caches the federated token;
 # a headless miss fails loud. This is the cloud tabtarget that exercises
 # avowal — avowal itself owns no colophon. The optional argument rides
 # rba_avow's required-runway seam, so the probe can demand a specific runway
-# (and a live-but-short sitting rejects in the runway band, advising novate).
+# (and a live-but-short sederunt rejects in the runway band, advising novate).
 # Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
 rbgv_check_avowal() {
   zrbgv_sentinel
@@ -66,8 +66,8 @@ rbgv_check_avowal() {
   # colophon), like the mantle operand on rbgv_check_mantle. Empty = the floor.
   local -r z_required_runway="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
-  buc_doc_oparm "required_runway" "Seconds of sitting runway the probe demands; omit for the kindled floor"
+  buc_doc_brief "Check federated access — open or reuse a ${RBCC_noun_sederunt} via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_oparm "required_runway" "Seconds of ${RBCC_noun_sederunt} runway the probe demands; omit for the kindled floor"
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
@@ -81,14 +81,14 @@ rbgv_check_avowal() {
   rba_avow "${z_required_runway}"
 
   local z_token
-  z_token=$(zrba_sitting_read_capture) || buc_die_now "Sitting not readable after avowal"
-  test -n "${z_token}" || buc_die_now "Sitting holds an empty federated token"
-  buc_success "Federated sitting live — federated token obtained (${#z_token} chars)"
+  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt^} not readable after avowal"
+  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt^} holds an empty federated token"
+  buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#z_token} chars)"
 }
 
 # Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
 # subject (the operator's standing Entra oid, RBPC_freehold_subject), avow as
-# that identity to open or reuse a sitting, then don the named mantle (Leg 3).
+# that identity to open or reuse a sederunt, then don the named mantle (Leg 3).
 # Reports the minted mantle token, or surfaces the admission deficit the accessor
 # already characterized (the Leg-3 403: a citizen not brevetted onto the mantle,
 # or a missing depot serviceUsageConsumer — a standing state, not a propagation
@@ -127,7 +127,7 @@ rbgv_check_mantle() {
   test -n "${RBPC_freehold_subject:-}" || buc_die_now "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
-  buc_step "Avow against the RBRF trust to open or reuse the sitting"
+  buc_step "Avow against the RBRF trust to open or reuse the ${RBCC_noun_sederunt}"
   rbcc_source_active_rbrf
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
@@ -142,9 +142,9 @@ rbgv_check_mantle() {
   # warns — the rig is being exercised under a different identity — but does not
   # gate the don; an undecodable subject is skipped with a log note.
   local z_cached_subject=""
-  z_cached_subject=$(zrba_sitting_subject_capture) || z_cached_subject=""
+  z_cached_subject=$(zrba_sederunt_subject_capture) || z_cached_subject=""
   if test -z "${z_cached_subject}"; then
-    buc_log_args "Avowed subject not decodable from the sitting cache — skipping the freehold-identity confirmation (informational only)"
+    buc_log_args "Avowed subject not decodable from the ${RBCC_noun_sederunt} cache — skipping the freehold-identity confirmation (informational only)"
   elif test "${z_cached_subject}" = "${RBPC_freehold_subject}"; then
     buc_info "Avowed subject matches the freehold subject"
   else
@@ -153,11 +153,11 @@ rbgv_check_mantle() {
 
   buc_step "Don the ${z_polity_mantle} mantle (Leg 3)"
   # rba_don_capture emits the mantle token on success or returns a code having
-  # already logged the admission-deficit / lapsed-sitting forensic line; the
+  # already logged the admission-deficit / lapsed-sederunt forensic line; the
   # probe surfaces that as its verdict (the accessor owns the diagnosis). The
   # distinguished admission-band return (Leg-3 403) gets its own operator-facing
   # buc_reject carrying the brevet instruction; every other nonzero return
-  # (lapsed sitting, transport/HTTP failure) stays the existing imprecise
+  # (lapsed sederunt, transport/HTTP failure) stays the existing imprecise
   # buc_die_now. The token is held in a process-local var, never persisted, and
   # only its length is reported.
   local z_mantle_token
@@ -166,7 +166,7 @@ rbgv_check_mantle() {
   if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
     buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
-    buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
+    buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed ${RBCC_noun_sederunt} or transport/HTTP failure)"
   fi
   test -n "${z_mantle_token}" || buc_die_now "Don of the ${z_polity_mantle} mantle returned an empty token"
 

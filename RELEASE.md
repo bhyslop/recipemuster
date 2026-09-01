@@ -4,7 +4,7 @@ The release qualification ceremony for the project maintainer. The qualification
 The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
 [Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
-No service-account keyfiles are restored from backup: the depot's [Mantle](README.md#Mantle) service accounts ([Governor](README.md#Governor), [Director](README.md#Director), [Retriever](README.md#Retriever)) are seated by the qualification's own founding verbs and reached only through short-lived federated tokens — [Avow](README.md#Avow) opens a [Sitting](README.md#Sitting), then [Don](README.md#Don) mints a mantle token per call.
+No service-account keyfiles are restored from backup: the depot's [Mantle](README.md#Mantle) service accounts ([Governor](README.md#Governor), [Director](README.md#Director), [Retriever](README.md#Retriever)) are seated by the qualification's own founding verbs and reached only through short-lived federated tokens — [Avow](README.md#Avow) opens a [Sederunt](README.md#Sederunt), then [Don](README.md#Don) mints a mantle token per call.
 The entire access chain must be reproducible from the Payor OAuth alone, against a clean local state.
 
 **Failure mode contract.** Mid-qualification failure means start over from step 2, not patch-and-continue.
@@ -20,15 +20,15 @@ Patching forward is exactly the bug class this ceremony exists to catch — accu
 tt/rbw-ap.CheckPayorCredential.sh
 ```
 
-## 2. Open a fresh Sitting
+## 2. Open a fresh Sederunt
 
-- [Novate](README.md#Novate) the [Sitting](README.md#Sitting) — extinguish any standing one and open a fresh full-window sitting via the device-flow browser sign-in
-- The qualification's build verbs are runway-gated: the long captures demand two hours of remaining [Sitting](README.md#Sitting) window, so a day-old standing sitting passes the early rungs and then dies mid-ladder at the floor — a fresh window removes the class by construction
-- Success: the device-flow sign-in completes and the fresh sitting is reported (spot-check anytime with `tt/rbw-as.EspySitting.sh`)
+- [Novate](README.md#Novate) the [Sederunt](README.md#Sederunt) — extinguish any standing one and open a fresh full-window sederunt via the device-flow browser sign-in
+- The qualification's build verbs are runway-gated: the long captures demand two hours of remaining [Sederunt](README.md#Sederunt) window, so a day-old standing sederunt passes the early rungs and then dies mid-ladder at the floor — a fresh window removes the class by construction
+- Success: the device-flow sign-in completes and the fresh sederunt is reported (spot-check anytime with `tt/rbw-as.EspySederunt.sh`)
 - Failure: the avowal failed — re-run and complete the browser sign-in; if the trust itself is unhealthy, descry the active foedus with `tt/rbw-jd.FoedusDescry.sh`
 
 ```
-tt/rbw-aN.NovateSitting.sh
+tt/rbw-aN.NovateSederunt.sh
 ```
 
 ## 3. Marshal zero
@@ -73,7 +73,7 @@ The gate reads the actual blank fields — not a commit-message signature — an
 - enrollment-validation, then the marshal-zero attestation gate (the entry contract above)
 - `depot-lifecycle` — mint and tear down the ephemeral leasehold [Depot](README.md#Depot)
 - `freehold-establish` — stand up the durable freehold [Depot](README.md#Depot): the [Levy](README.md#Levy) seats the three [Mantle](README.md#Mantle) service accounts, the [Payor](README.md#Payor) [Girds](README.md#Gird) the freehold subject as first [Governor](README.md#Governor), who then [Brevets](README.md#Brevet) the subject onto the [Director](README.md#Director) and [Retriever](README.md#Retriever) mantles and [Dons](README.md#Don) each — the federation replacement for the retired keyfile-deploy sequence
-- credential-readiness — verify the [Sitting](README.md#Sitting) and the [Director](README.md#Director)/[Retriever](README.md#Retriever) [Dons](README.md#Don) before any build spends
+- credential-readiness — verify the [Sederunt](README.md#Sederunt) and the [Director](README.md#Director)/[Retriever](README.md#Retriever) [Dons](README.md#Don) before any build spends
 - onboarding-sequence, the regime / hygiene / foundry fixtures, cupel, conformance, the chaining-fact band, hallmark-lifecycle
 - the [Crucible](README.md#Crucible) suite (tadmor, moriah, srjcl, pluml)
 

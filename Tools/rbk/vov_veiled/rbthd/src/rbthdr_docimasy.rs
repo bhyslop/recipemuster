@@ -45,7 +45,7 @@ use crate::rbthdr_run;
 /// stripped consumer never has this tabtarget and never runs it"), never the
 /// severed, remote-less candidate clone.
 const RBTHDR_COL_PAYOR_CHECK: &str = "rbw-ap.";
-const RBTHDR_COL_NOVATE_SITTING: &str = "rbw-aN.";
+const RBTHDR_COL_NOVATE_SEDERUNT: &str = "rbw-aN.";
 const RBTHDR_COL_MARSHAL_ZERO: &str = "rbw-MZ.";
 pub(crate) const RBTHDR_COL_SUITE: &str = "rbw-ts.";
 const RBTHDR_SUITE_GAUNTLET: &str = "gauntlet";
@@ -168,10 +168,10 @@ fn zrbthdr_credential_preflight(top: &Path) {
     let check = zrbthdr_find_tt(&tt, RBTHDR_COL_PAYOR_CHECK, None);
     zrbthdr_require(rbthdr_run::stream(&check, &[], top, &[]), "payor credential check");
 
-    let novate = zrbthdr_find_tt(&tt, RBTHDR_COL_NOVATE_SITTING, None);
-    zrbthdr_require(rbthdr_run::stream(&novate, &[], top, &[]), "sitting novation");
+    let novate = zrbthdr_find_tt(&tt, RBTHDR_COL_NOVATE_SEDERUNT, None);
+    zrbthdr_require(rbthdr_run::stream(&novate, &[], top, &[]), "sederunt novation");
 
-    rbthdr_log::line("payor credential live, sitting fresh — the gauntlet's build verbs are runway-gated");
+    rbthdr_log::line("payor credential live, sederunt fresh — the gauntlet's build verbs are runway-gated");
 }
 
 // ── Step 5: run the gauntlet stage (skipped under rehearse) ─

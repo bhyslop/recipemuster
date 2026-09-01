@@ -10,15 +10,15 @@ The Folio column shows how each tabtarget receives it:
 - **param1**: Folio is passed as a command-line argument (e.g., `tt/rbw-cKB.KludgeBottle.sh tadmor`)
 - **—**: No folio needed — standalone command
 
-### Access — Credential access probes + sitting lifecycle (`rbw-a`)
+### Access — Credential access probes + sederunt lifecycle (`rbw-a`)
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-ap` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
-| `rbw-aa` | CheckFederatedAccess | param1 | Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust (optional arg: required runway seconds) |
+| `rbw-aa` | CheckFederatedAccess | param1 | Check federated access — open or reuse a sederunt via device flow + STS (Legs 1+2) against the RBRF trust (optional arg: required runway seconds) |
 | `rbw-am` | CheckMantleAccess | param1 | Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit |
-| `rbw-aN` | NovateSitting | — | Novate the sitting — open a fresh full-window sitting, extinguishing any standing one (the runway gate's named remedy) |
-| `rbw-as` | EspySitting | — | Espy the sitting — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network) |
+| `rbw-aN` | NovateSederunt | — | Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the runway gate's named remedy) |
+| `rbw-as` | EspySederunt | — | Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network) |
 
 ### Crucible — Container runtime (`rbw-c`)
 

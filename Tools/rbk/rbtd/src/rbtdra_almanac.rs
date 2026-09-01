@@ -247,7 +247,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrp_lifecycle::RBTDRP_FIXTURE_DEPOT_LIFECYCLE,
             &crate::rbtdrk_depot::RBTDRK_FIXTURE_FREEHOLD_ESTABLISH,
             // credential-readiness re-verifies the just-seated freehold
-            // credentials (sitting + director/retriever dons) before the build
+            // credentials (sederunt + director/retriever dons) before the build
             // bodies spend — and keeps the ladder containment law
             // (blockade ⊆ skirmish ⊆ gauntlet) whole now that the
             // standing-reuse ladders lead with it. It cannot lead HERE:
@@ -281,7 +281,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // builds the crucible images (local kludge + cloud ordain into the standing
     // depot) and the four crucibles charge+run. OPERATOR PRECONDITION: a freehold
     // depot already levied (install freehold prefixes and run rbw-dL by hand) AND
-    // federation credentials ready — a live sitting with the depot's mantles
+    // federation credentials ready — a live sederunt with the depot's mantles
     // donnable; the credential-readiness leader proves that precondition in
     // seconds (remedy advisory on deficit) before any cloud spend. Spends cloud
     // build/GAR but creates no GCP project per run.
@@ -319,7 +319,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // no unmake) but charges NO crucible: it proves only the cloud-build →
     // summon → run path yields a runnable artifact; the fixture stays
     // crucible-free. OPERATOR PRECONDITION: a freehold depot already levied AND
-    // federation credentials ready (a live sitting, the depot's mantles donnable),
+    // federation credentials ready (a live sederunt, the depot's mantles donnable),
     // exactly as skirmish assumes; the credential-readiness leader proves it up
     // front.
     rbtdre_Suite {
@@ -351,7 +351,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // moriah crucible charges (auto-summoning its already-ordained conjure
     // hallmarks), runs the security cases, quenches. No kludge predecessor —
     // conjure hallmarks come from GAR, not a local build. OPERATOR PRECONDITION:
-    // freehold depot levied, federation credentials ready (a live sitting, the
+    // freehold depot levied, federation credentials ready (a live sederunt, the
     // retriever mantle donnable), AND the moriah conjure hallmark already ordained
     // into its GAR; the credential-readiness leader proves the credential
     // precondition up front.
@@ -368,7 +368,7 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
     // genuine unseat→restore-brevet churn on the retriever mantle, then leaves the
     // freehold exactly as found. OPERATOR PRECONDITION: a freehold depot levied with
     // its standing terrier, the subject brevetted onto retriever, and federation
-    // credentials ready (a live sitting, the governor mantle donnable) — the parley
+    // credentials ready (a live sederunt, the governor mantle donnable) — the parley
     // fixture self-skips only on an unreachable payor credential.
     rbtdre_Suite {
         name: "parley",

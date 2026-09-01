@@ -142,6 +142,14 @@ RBCC_verb_kludge="kludge"
 RBCC_verb_ordain="ordain"
 RBCC_verb_yoke="yoke"
 
+# Governed-noun tinder — the canonical bash home for RBK governed nouns that
+# printed strings must spell. Members are bare noun tokens carrying one author
+# here, the noun counterpart of the operation-verb group above: a message cites
+# this declaration rather than spelling the word a second time, so a rename
+# moves one line instead of every string that prints it. Sentence-initial
+# positions take the capitalizing expansion, ${RBCC_noun_sederunt^}.
+readonly RBCC_noun_sederunt="sederunt"
+
 # Creed tinder — RB convictions supplied as the rationale (creed) parameter to
 # the kit-agnostic BUG clean-tree gate bug_require_clean_tree_creed, keeping the
 # opinion RB-side and out of BUK. Each creed continues the gate's canonical
@@ -177,11 +185,11 @@ RBCC_fact_ext_foedus_health="foedus-health"
 # when the Manor holds a provider the library does not know), carrying
 # provider=/state=/selected= lines; selected marks the RBRR_ACTIVE_FOEDUS foedus.
 RBCC_fact_ext_foedus="foedus"
-# Sitting espy verdict — the read-only probe (rba_espy_sitting) writes
-# <foedus>.sitting carrying verdict= (live / lapsed / absent) and, when the
+# Sederunt espy verdict — the read-only probe (rba_espy_sederunt) writes
+# <foedus>.sederunt carrying verdict= (live / lapsed / absent) and, when the
 # cache holds an expiry, runway= (whole seconds remaining) — for the theurge
 # gate arc to branch on before the may-prompt baseline avow.
-RBCC_fact_ext_sitting="sitting"
+readonly RBCC_fact_ext_sederunt="sederunt"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
 # Mechanism). The credless guard is the reveille-tier slot reservation: theurge
@@ -301,7 +309,7 @@ rbcc_emit_consts() {
     RBCC_foedera_subdir  \
     RBCC_fact_ext_foedus_health \
     RBCC_fact_ext_foedus \
-    RBCC_fact_ext_sitting \
+    RBCC_fact_ext_sederunt \
     RBCC_verb_defrock     \
     RBCC_verb_enrobe     \
     RBCC_verb_roster     \
@@ -311,6 +319,7 @@ rbcc_emit_consts() {
     RBCC_verb_kludge     \
     RBCC_verb_ordain     \
     RBCC_verb_yoke       \
+    RBCC_noun_sederunt   \
     RBCC_container_bottle    \
     RBCC_container_pentacle  \
     RBCC_container_sentry    \
