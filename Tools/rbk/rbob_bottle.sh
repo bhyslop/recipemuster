@@ -106,6 +106,15 @@ zrbob_kindle() {
   # under; every -p invocation and every container/network name derives from it.
   readonly ZRBOB_PROJECT="${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}"
 
+  # Provenance: the charging working tree's root path — derived, never
+  # declared. The launcher pins the working directory to the repo root, and
+  # pwd -P canonicalizes symlinks so equality comparisons are stable. Stamped
+  # onto every container as the RBCC_label_provenance label (via the compose
+  # env bridge below) and read back by the charge/quench provenance gates.
+  local z_provenance=""
+  z_provenance="$(pwd -P)" || buc_die_now "Cannot resolve working tree root for provenance"
+  readonly ZRBOB_PROVENANCE="${z_provenance}"
+
   # Container names (for connect and info commands)
   readonly ZRBOB_SENTRY="${ZRBOB_PROJECT}-${RBCC_container_sentry}"
   readonly ZRBOB_PENTACLE="${ZRBOB_PROJECT}-${RBCC_container_pentacle}"
@@ -160,8 +169,8 @@ zrbob_kindle() {
   # to compose without an env-file bridge. Write the two compose interpolates
   # into a temp file and feed it via --env-file.
   local z_images_env="${BURD_TEMP_DIR}/rbob_images_compose.env"
-  printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\n' \
-    "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" > "${z_images_env}" \
+  printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\nRBOB_CHARGE_PROVENANCE=%s\n' \
+    "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" "${ZRBOB_PROVENANCE}" > "${z_images_env}" \
     || buc_die_now "Failed to write image-ref compose env file: ${z_images_env}"
   readonly ZRBOB_ENV_IMAGES="${z_images_env}"
 
@@ -408,6 +417,80 @@ zrbob_vouch_gate_and_summon() {
 }
 
 ######################################################################
+# Provenance Gate — own-and-stale versus foreign-and-live
+
+# Verdict for one container: may the caller destroy it? Predicate —
+# returns 0 (destroyable) or 1 (a live foreign crucible holds it), no dying.
+# On 1, the owner path is left in zrbob_provenance_owner for the caller's
+# message. Destroyable: the container is not running (debris), carries no
+# provenance label (pre-label debris), carries our own label (self-recycle,
+# the standing kindness), or carries a label whose path no longer exists
+# (its owning tree is gone, so the claim died with it). Only a running
+# container labeled by a working tree that still stands is protected.
+zrbob_provenance_destroyable_predicate() {
+  zrbob_sentinel
+
+  local -r z_container="$1"
+  local -r z_inspect_file="${BURD_TEMP_DIR}/zrbob_provenance_inspect_$$.txt"
+  local -r z_inspect_stderr="${BURD_TEMP_DIR}/zrbob_provenance_inspect_stderr_$$.txt"
+
+  zrbob_provenance_owner=""
+
+  # A container that cannot be inspected (already gone) is trivially destroyable
+  ${ZRBOB_RUNTIME} inspect "${z_container}" \
+    --format '{{.State.Running}} {{index .Config.Labels "'"${RBCC_label_provenance}"'"}}' \
+    > "${z_inspect_file}" 2>"${z_inspect_stderr}" \
+    || return 0
+
+  local z_running=""
+  local z_owner=""
+  read -r z_running z_owner < "${z_inspect_file}" || return 0
+
+  test "${z_running}" = "true"            || return 0
+  test -n "${z_owner}"                    || return 0
+  test "${z_owner}" != "<no value>"       || return 0
+  test "${z_owner}" != "${ZRBOB_PROVENANCE}" || return 0
+  test -d "${z_owner}"                    || return 0
+
+  zrbob_provenance_owner="${z_owner}"
+  return 1
+}
+
+# Gate the destroyer doors on this nameplate's own three container names.
+# Creed "charge": a live foreign crucible refuses outright — destruction may
+# never be a side effect of starting one's own. Creed "quench": the owner is
+# disclosed loudly (even under BURE_CONFIRM=skip the disclosure has already
+# printed), then the typed confirm gate decides — quench's stated purpose is
+# teardown, so it may widen to the whole nameplate, eyes open.
+zrbob_provenance_gate() {
+  zrbob_sentinel
+
+  local -r z_creed="$1"
+  local z_container=""
+  local z_foreign_owner=""
+
+  for z_container in "${ZRBOB_SENTRY}" "${ZRBOB_PENTACLE}" "${ZRBOB_BOTTLE}"; do
+    if ! zrbob_provenance_destroyable_predicate "${z_container}"; then
+      z_foreign_owner="${zrbob_provenance_owner}"
+      buc_warn "Crucible '${RBRN_MONIKER}' is already up and live, owned by: ${z_foreign_owner}"
+      break
+    fi
+  done
+
+  test -n "${z_foreign_owner}" || return 0
+
+  case "${z_creed}" in
+    charge)
+      buc_die_now "Refusing to start over a live crucible owned by ${z_foreign_owner} — take it down from its own tree, or wait for its run to finish"
+      ;;
+    quench)
+      buc_require "About to tear down the live crucible owned by ${z_foreign_owner}." "${RBRN_MONIKER}"
+      ;;
+    *) buc_die_now "Unknown provenance gate creed: ${z_creed}" ;;
+  esac
+}
+
+######################################################################
 # Charge Invariant — Subnet-Keyed Reclaim
 
 # At most one crucible per nameplate per system. A crucible's subnet derives
@@ -486,6 +569,16 @@ zrbob_reclaim_subnet() {
         test -n "${z_cline}" || continue
         z_containers+=("${z_cline}")
       done < "${z_containers_file}"
+
+      # Provenance gate: reclaim frees the subnet from debris and from our own
+      # prior state, never from a live peer — a container running under a
+      # foreign label whose tree still stands is someone's work in flight,
+      # and destroying it may not be a side effect of starting ours.
+      local z_reclaim_container=""
+      for z_reclaim_container in ${z_containers[@]+"${z_containers[@]}"}; do
+        zrbob_provenance_destroyable_predicate "${z_reclaim_container}" \
+          || buc_die_now "Subnet ${z_target_subnet} is held by a live crucible owned by ${zrbob_provenance_owner} — refusing to reclaim; take it down from its own tree, or wait for its run to finish"
+      done
 
       # Force-remove attached containers first (a mid-run-killed crucible may
       # leave them running). Non-fatal: a container may already be exiting; the
@@ -626,6 +719,10 @@ rbob_charge() {
     zrbob_vouch_gate_and_summon "${RBRN_BOTTLE_VESSEL}" "${RBRN_BOTTLE_HALLMARK}" "${ZRBOB_BOTTLE_IMAGE}"
   fi
 
+  # Provenance gate: a live crucible owned by another working tree refuses
+  # the charge outright — starting ours may never destroy theirs en passant.
+  zrbob_provenance_gate charge
+
   # Tear down any prior state (tolerates missing project)
   buc_step "Cleaning up any prior state (quenching any preexisting can take a couple of minutes)"
   zrbob_compose --profile sessile down --remove-orphans 2>/dev/null || true
@@ -689,6 +786,12 @@ rbob_quench() {
   zrbob_sentinel
 
   buc_step "Stopping Crucible: ${RBRN_MONIKER}"
+
+  # Provenance gate: quench's stated purpose is teardown, so a live foreign
+  # crucible does not refuse it — but the owner is disclosed first (the line
+  # prints even when BURE_CONFIRM=skip bypasses the typed gate), so a kill
+  # always leaves a confession in the killer's log.
+  zrbob_provenance_gate quench
 
   zrbob_compose --profile sessile down --remove-orphans
 

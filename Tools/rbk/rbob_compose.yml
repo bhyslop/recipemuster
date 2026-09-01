@@ -29,6 +29,9 @@ services:
   sentry:
     image: ${RBOB_SENTRY_IMAGE}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
+    labels:
+      # Key literal must match RBCC_label_provenance; value rides the env bridge
+      rbob.provenance: ${RBOB_CHARGE_PROVENANCE}
     privileged: true
     networks:
       transit: {}
@@ -61,6 +64,8 @@ services:
   pentacle:
     image: ${RBOB_SENTRY_IMAGE}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-pentacle
+    labels:
+      rbob.provenance: ${RBOB_CHARGE_PROVENANCE}
     privileged: true
     networks:
       enclave:
@@ -81,6 +86,8 @@ services:
   bottle:
     image: ${RBOB_BOTTLE_IMAGE}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-bottle
+    labels:
+      rbob.provenance: ${RBOB_CHARGE_PROVENANCE}
     network_mode: "service:pentacle"
     security_opt:
       - label:disable
