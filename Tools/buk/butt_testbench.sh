@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,6 +49,7 @@ source "${BUTT_BUTS_DIR}/butclc_links.sh"
 source "${BUTT_BUTS_DIR}/butcym_yelp.sh"
 source "${BUTT_BUTS_DIR}/butcdc_color.sh"
 source "${BUTT_BUTS_DIR}/butcds_desuetude.sh"
+source "${BUTT_BUTS_DIR}/butcam_amanuensis.sh"
 
 buc_context "${0##*/}"
 zbuv_kindle
@@ -150,6 +152,15 @@ butt_kindle() {
   butr_case_enroll "stale-launcher" butcds_refusal_names_condition_and_remedy_tcase
   butr_case_enroll "stale-launcher" butcds_bash_command_not_found_is_gone_tcase
   butr_case_enroll "stale-launcher" butcds_sound_bootstrap_passes_tcase
+
+  # amanuensis-mode fixture (6 cases)
+  butr_fixture_enroll "amanuensis-mode" "" "zbutt_noop_baste"
+  butr_case_enroll "amanuensis-mode" butcam_exports_the_family_tcase
+  butr_case_enroll "amanuensis-mode" butcam_writes_no_member_tcase
+  butr_case_enroll "amanuensis-mode" butcam_logged_control_writes_all_tcase
+  butr_case_enroll "amanuensis-mode" butcam_burx_carries_hist_tcase
+  butr_case_enroll "amanuensis-mode" butcam_refuses_beside_no_log_tcase
+  butr_case_enroll "amanuensis-mode" butcam_refuses_beside_interactive_tcase
 }
 
 zbutt_noop_baste() {

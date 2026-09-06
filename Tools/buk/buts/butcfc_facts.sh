@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,7 +55,7 @@ zbutcfc_seed_previous() {
 }
 
 ######################################################################
-# Test cases — direct assertions inside zbute_tcase subshell
+# Test cases — direct assertions inside bute_tcase subshell
 
 butcfc_relay_forwards_tcase() {
   buto_trace "buf_relay: forwards a previous fact into current"

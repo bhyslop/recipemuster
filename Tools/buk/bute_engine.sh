@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ source "${ZBUTE_SCRIPT_DIR}/buto_operations.sh"
 # _tcase boundary — case isolation subshell
 
 # _tcase boundary runner: execute case function in isolation subshell
-zbute_tcase() {
+bute_tcase() {
   set -e
 
   local z_case_name="${1}"

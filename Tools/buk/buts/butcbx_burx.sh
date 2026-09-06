@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@
 set -euo pipefail
 
 ######################################################################
-# Test cases — direct assertions inside zbute_tcase subshell
+# Test cases — direct assertions inside bute_tcase subshell
 
 butcbx_burx_dual_write_tcase() {
   buto_trace "BURX: burx.env exists in both output and temp dirs (dual-write)"

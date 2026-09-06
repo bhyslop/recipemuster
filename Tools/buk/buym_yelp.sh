@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -215,10 +216,10 @@ buym_link_yawp() {
   z_buym_yelp="${ZBUYM_DIASTEMA_LINK_URL}${z_url}${ZBUYM_DIASTEMA_LINK_TEXT}${z_display}${ZBUYM_DIASTEMA_END}"
 }
 
-# zbuym_tt_path colophon [imprint];  matched path -> z_buym_tt_path (empty on no match)
+# buym_tt_path colophon [imprint];  matched path -> z_buym_tt_path (empty on no match)
 # The single colophon->tabtarget-filename glob for the kit.  Callers own the
 # no-match policy (placeholder vs die) by inspecting the empty result.
-zbuym_tt_path() {
+buym_tt_path() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
   local z_matches
@@ -234,7 +235,7 @@ zbuym_tt_path() {
 buym_tt_yawp() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
-  zbuym_tt_path "${z_colophon}" "${2:-}"
+  buym_tt_path "${z_colophon}" "${2:-}"
   local z_path="${z_buym_tt_path}"
   if test -z "${z_path}"; then
     test -n "${2:-}" && z_path="??${z_colophon}.${2}??" || z_path="??${z_colophon}??"

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -143,10 +144,10 @@ zbuto_invoke() {
   # itself nests another zbuto_invoke would collide on a $$-keyed name; the
   # counter increments across that same fork, so nested and sequential calls
   # alike always land on a fresh name. BUT_TEMP_DIR is the per-test-case
-  # scratch dir zbute_tcase exports before any case body runs.
-  ZBUTO_INVOKE_SEQ=$((${ZBUTO_INVOKE_SEQ:-0} + 1))
-  local -r z_tmp_stdout="${BUT_TEMP_DIR}/zbuto-invoke-${ZBUTO_INVOKE_SEQ}.stdout"
-  local -r z_tmp_stderr="${BUT_TEMP_DIR}/zbuto-invoke-${ZBUTO_INVOKE_SEQ}.stderr"
+  # scratch dir bute_tcase exports before any case body runs.
+  z_buto_invoke_seq=$((${z_buto_invoke_seq:-0} + 1))
+  local -r z_tmp_stdout="${BUT_TEMP_DIR}/zbuto-invoke-${z_buto_invoke_seq}.stdout"
+  local -r z_tmp_stderr="${BUT_TEMP_DIR}/zbuto-invoke-${z_buto_invoke_seq}.stderr"
 
   # BURV bridge setup if enabled
   local z_burv_output=""

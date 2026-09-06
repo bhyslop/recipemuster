@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -111,7 +112,7 @@ butd_run_fixture() {
     local z_ci
     for z_ci in "${!z_cases[@]}"; do
       test -n "${z_cases[$z_ci]}" || continue
-      zbute_tcase "${z_cases[$z_ci]}"
+      bute_tcase "${z_cases[$z_ci]}"
       z_case_count=$((z_case_count + 1))
     done
 
@@ -183,7 +184,7 @@ butd_run_one() {
     mkdir -p "${z_fixture_dir}"
 
     # Run the single case
-    zbute_tcase "${z_func}"
+    bute_tcase "${z_func}"
 
     echo "${ZBUTO_GREEN}Test passed: ${z_func}${ZBUTO_RESET}" >&2
   )

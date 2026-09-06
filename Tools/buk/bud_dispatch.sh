@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,6 +64,15 @@ zbud_check_string() {
 # Source configuration and setup environment
 zbud_setup() {
   zbud_show "Starting BDU setup"
+
+  # Three log modes, and this flag stands beside neither other one. No-log
+  # composes no names for a coordinator to write to, and interactive names the
+  # uncurated tee this mode removes; either pair states two answers to one
+  # question.
+  if test -n "${BURD_AMANUENSIS:-}"; then
+    test -z "${BURD_NO_LOG:-}"      || zbud_die "BURD_AMANUENSIS and BURD_NO_LOG are exclusive: no-log composes no log names to hand over"
+    test -z "${BURD_INTERACTIVE:-}" || zbud_die "BURD_AMANUENSIS and BURD_INTERACTIVE are exclusive: the uncurated tee is what this mode removes"
+  fi
 
   source            "${BURD_REGIME_FILE}"
 
@@ -233,9 +243,17 @@ zbud_process_args() {
     BURD_LOG_SAME="${BURS_LOG_DIR}/same-${z_tag}.${BURC_LOG_EXT}"
     BURD_LOG_HIST="${BURS_LOG_DIR}/hist-${z_tag}-${BURD_NOW_STAMP}.${BURC_LOG_EXT}"
     mkdir -p "${BURS_LOG_DIR}"
-    : > "${BURD_LOG_LAST}"
-    : > "${BURD_LOG_SAME}"
-    : > "${BURD_LOG_HIST}"
+    if test -n "${BURD_AMANUENSIS:-}"; then
+      # The names are the dispatch's and the writing is the coordinator's, so
+      # the three cross the exec boundary here and nowhere else. No file is
+      # created: an absent member after this dispatch says the coordinator
+      # wrote none, where an empty file this dispatch had touched would lie.
+      export BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST
+    else
+      : > "${BURD_LOG_LAST}"
+      : > "${BURD_LOG_SAME}"
+      : > "${BURD_LOG_HIST}"
+    fi
   fi
 
   # Store target and extra arguments
@@ -277,8 +295,39 @@ zbud_curate_same() {
 
 # Function to curate logs for the historical log file (with timestamps)
 zbud_curate_hist() {
-  while read -r z_line; do
-    printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "${z_line}"
+  # The trailing `|| test -n` guard matches zbud_curate_same's: a coordinator
+  # whose final line carries no newline still gets stamped. Under the retired
+  # per-line plumbing the dispatch's own read loop dropped that line before
+  # either curate function saw it, so all three logs lost it alike; a stream
+  # fed by tee delivers it, and without this guard hist alone would drop what
+  # the same and last logs now keep.
+  #
+  # The stamp itself is taken by printf where bash can convert one (4.2+), and
+  # by a forked date where it cannot. That fork is the single largest cost left
+  # in the curation of a chatty door, and the floor this kit builds to is bash
+  # 3.2, so both arms have to stand; the version verdict is reached once, ahead
+  # of the loop, and the two arms emit the same bytes.
+  #
+  # `IFS=` matches zbud_curate_same's read for a reason this log carries alone.
+  # Under the default IFS a read strips the leading and trailing whitespace off
+  # every line it takes, so a stamped line's content began at its first
+  # non-blank byte — and a table carved out of this log then differed, byte for
+  # byte, from the same table carved out of a capture that kept its indentation.
+  # Sessions compare saved tables across two positions of the record, and this
+  # log is the only re-read channel a tabtarget leaves them, so the timestamp
+  # prefix stands and the bytes after it are the coordinator's own.
+  local z_stamp_is_builtin=0
+  if test "${BASH_VERSINFO[0]}" -gt 4 || { test "${BASH_VERSINFO[0]}" -eq 4 && test "${BASH_VERSINFO[1]}" -ge 2; }; then
+    z_stamp_is_builtin=1
+  fi
+
+  local z_line
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if test "${z_stamp_is_builtin}" -eq 1; then
+      printf "[%(%Y-%m-%d %H:%M:%S)T] %s\n" -1 "${z_line}"
+    else
+      printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "${z_line}"
+    fi
   done
 }
 
@@ -378,19 +427,19 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
-  ZBUD_UNEXPECTED=()
+  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_AMANUENSIS BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
+  z_bud_unexpected=()
   local z_var
   for z_var in $(compgen -v BURD_); do
     case " ${z_known} " in
       *" ${z_var} "*) : ;;
-      *) ZBUD_UNEXPECTED+=("${z_var}") ;;
+      *) z_bud_unexpected+=("${z_var}") ;;
     esac
   done
 
   # Die on unexpected variables
-  if test ${#ZBUD_UNEXPECTED[@]} -gt 0; then
-    zbud_die "Unexpected BURD_ variables: ${ZBUD_UNEXPECTED[*]}"
+  if test ${#z_bud_unexpected[@]} -gt 0; then
+    zbud_die "Unexpected BURD_ variables: ${z_bud_unexpected[*]}"
   fi
 
   # Build complete invocation array (always has ≥2 elements, so always safe under set -u)
@@ -403,7 +452,12 @@ zbud_main() {
 
   # Log command to all log files (or suppress all output if BURD_NO_LOG)
   if test -z "${BURD_NO_LOG:-}"; then
-    if test -n "${BURD_INTERACTIVE:-}"; then
+    if test -n "${BURD_AMANUENSIS:-}"; then
+      # The invocation and git-context lines belong to whoever writes the
+      # record, and under this mode that is the coordinator (BUr_fbc). The
+      # dispatch announces the paths it composed and writes nothing into them.
+      echo "log files:   ${BURD_LOG_LAST} ${BURD_LOG_SAME} ${BURD_LOG_HIST}"
+    elif test -n "${BURD_INTERACTIVE:-}"; then
       echo "log (interactive): ${BURD_LOG_HIST}"
       echo "command: ${z_invocation[*]}" >> "${BURD_LOG_HIST}"
       echo "Git context: ${BURD_GIT_CONTEXT}"  >> "${BURD_LOG_HIST}"
@@ -422,49 +476,72 @@ zbud_main() {
 
   # Execute coordinator with logging
   set +e
-  zBURD_STATUS_FILE="${BURD_TEMP_DIR}/status-$$"
-  if test -n "${BURD_INTERACTIVE:-}" && test -z "${BURD_NO_LOG:-}"; then
-    # Interactive mode with logging: uncurated tee to historical log, preserves line buffering
-    "${z_invocation[@]}" 2>&1 | tee -a "${BURD_LOG_HIST}"
-    zBURD_EXIT_STATUS=${PIPESTATUS[0]}
-    echo "${zBURD_EXIT_STATUS}" > "${zBURD_STATUS_FILE}"
-    zbud_show "Coordinator status (interactive): ${zBURD_EXIT_STATUS}"
-  elif test -n "${BURD_NO_LOG:-}"; then
+  z_bud_status_file="${BURD_TEMP_DIR}/status-$$"
+  if test -n "${BURD_AMANUENSIS:-}" || test -n "${BURD_NO_LOG:-}"; then
+    # The two modes in which this dispatch tees nothing, for opposite reasons:
+    # no-log because there is no record, amanuensis because the record is the
+    # coordinator's to write. Both leave the child's streams untouched, so the
+    # arm is one. It stands first because the interactive test below no longer
+    # has to exclude no-log by hand.
     {
       "${z_invocation[@]}"
-      echo $? > "${zBURD_STATUS_FILE}"
-      zbud_show "Coordinator status: $(cat "${zBURD_STATUS_FILE}")"
+      echo $? > "${z_bud_status_file}"
+      zbud_show "Coordinator status: $(cat "${z_bud_status_file}")"
     }
+  elif test -n "${BURD_INTERACTIVE:-}"; then
+    # Interactive mode with logging: uncurated tee to historical log, preserves line buffering
+    "${z_invocation[@]}" 2>&1 | tee -a "${BURD_LOG_HIST}"
+    z_bud_exit_status=${PIPESTATUS[0]}
+    echo "${z_bud_exit_status}" > "${z_bud_status_file}"
+    zbud_show "Coordinator status (interactive): ${z_bud_exit_status}"
   else
+    # Non-interactive with logging. Each curated stream gets ONE long-lived
+    # filter reading a fifo, rather than a fork pair per output line: the
+    # curate functions were already stream-shaped, so what changes is who
+    # spawns whom and not what they do. A chatty door pays for its output once.
+    local -r z_same_fifo="${BURD_TEMP_DIR}/curate-same-$$"
+    local -r z_hist_fifo="${BURD_TEMP_DIR}/curate-hist-$$"
+    mkfifo "${z_same_fifo}" "${z_hist_fifo}" || zbud_die "Failed to create curation fifos under ${BURD_TEMP_DIR}"
+
+    zbud_curate_same < "${z_same_fifo}" >> "${BURD_LOG_SAME}" &
+    local -r z_same_pid=$!
+    zbud_curate_hist < "${z_hist_fifo}" >> "${BURD_LOG_HIST}" &
+    local -r z_hist_pid=$!
+
     {
       "${z_invocation[@]}" 2>&1
-      echo $? > "${zBURD_STATUS_FILE}"
-      zbud_show "Coordinator status: $(cat "${zBURD_STATUS_FILE}")"
-    } | while IFS= read -r z_line; do
-        printf '%s\n' "${z_line}" >> "${BURD_LOG_LAST}"
-        printf '%s\n' "${z_line}" | zbud_curate_same >> "${BURD_LOG_SAME}"
-        printf '%s\n' "${z_line}" | zbud_curate_hist >> "${BURD_LOG_HIST}"
-        printf '%s\n' "${z_line}"  # to stdout
-      done
+      echo $? > "${z_bud_status_file}"
+      zbud_show "Coordinator status: $(cat "${z_bud_status_file}")"
+    } | tee -a "${BURD_LOG_LAST}" "${z_same_fifo}" "${z_hist_fifo}"
+
+    # The checksum below reads the same log, so both filters must have drained
+    # their fifo and exited before it is taken. Waiting on the pids is what
+    # makes that ordering observable; the pipeline above returning says only
+    # that tee closed its ends.
+    wait "${z_same_pid}" "${z_hist_pid}"
+    rm -f "${z_same_fifo}" "${z_hist_fifo}"
   fi
 
-  zBURD_EXIT_STATUS=$(<"${zBURD_STATUS_FILE}")
-  rm                     "${zBURD_STATUS_FILE}"
+  z_bud_exit_status=$(<"${z_bud_status_file}")
+  rm                     "${z_bud_status_file}"
 
   # Write BURX completion state
-  zbud_write_burx_completion "${zBURD_EXIT_STATUS}"
+  zbud_write_burx_completion "${z_bud_exit_status}"
 
   set -e
 
-  # Generate checksum for the log files (only when enabled)
-  if test -z "${BURD_NO_LOG:-}"; then
+  # Generate checksum for the log files (only when this dispatch wrote them).
+  # Under the amanuensis mode the digest is the coordinator's, taken after the
+  # last byte of the same log is written, because only the writer knows when
+  # that is (BUr_yht).
+  if test -z "${BURD_NO_LOG:-}" && test -z "${BURD_AMANUENSIS:-}"; then
     zbud_generate_checksum "${BURD_LOG_SAME}" "${BURD_LOG_HIST}"
     zbud_show "Checksum generated"
   fi
 
-  zbud_show "BDU completed with status: ${zBURD_EXIT_STATUS}"
+  zbud_show "BDU completed with status: ${z_bud_exit_status}"
 
-  exit "${zBURD_EXIT_STATUS}"
+  exit "${z_bud_exit_status}"
 }
 
 # Direct execution only — sourcing (e.g. a test harness calling
