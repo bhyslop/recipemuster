@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -78,6 +79,8 @@ zburd_kindle() {
   buv_group_enroll "Caller Options"
   buv_string_enroll  BURD_NO_LOG                0   16  "Disable logging when set"
   buv_string_enroll  BURD_INTERACTIVE           0   16  "Interactive mode flag when set"
+  buv_string_enroll  BURD_AMANUENSIS            0   16  "Coordinator writes the log family itself when set: dispatch composes and exports the three names, creates no file and tees nothing"
+  buv_string_enroll  BURD_OUTRIDER              0   16  "Declares this tabtarget carriable onto a dispatched seat: the dispatcher reads the line off the stub, copies the door byte-identical, and the copy enters this tree through the seat's own trampoline. The dispatch itself does nothing with the value"
 
   buv_group_enroll "Log Paths"
   buv_string_enroll  BURD_LOG_LAST              0  256  "Path to last-run log file"

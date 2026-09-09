@@ -1,0 +1,14 @@
+# The repository's channel, answering for every crate that does not pin its own.
+#
+# Stated because it was otherwise left to whatever the station's store happened
+# to default to — a channel no file here named, and so one that could differ
+# between two clones. Six crates stand in this tree and none pinned itself.
+#
+# The immediate occasion was the consumed BUK kit: its crate arrived with the
+# brand-1065 parcel, and at BUK's home it is answered by that repository's own
+# root pin, which does not travel in a parcel. This pin closes the gap for THIS
+# consumer only. The structural repair is a pin inside the kit, authored at
+# BUK's home so it ships with every parcel; until that lands, any other consumer
+# of BUK meets the same wall.
+[toolchain]
+channel = "1.90.0"

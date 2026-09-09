@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,10 +72,6 @@ zbuwz_kindle() {
   z_mod="bux_cli.sh"
   buz_enroll BUWZ_DELAY      "buw-xd" "${z_mod}" "bux_delay"       ""  "Sleep 20 seconds (timing fixture)"
   buz_enroll BUWZ_BAND_CHAIN "buw-xb" "${z_mod}" "bux_band_chain"  ""  "Raise a band rejection beneath a die chain (self-test survival fixture)"
-
-  # Self-test (butt_testbench.sh)
-  z_mod="butt_testbench.sh"
-  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
 
   readonly ZBUWZ_KINDLED=1
 }

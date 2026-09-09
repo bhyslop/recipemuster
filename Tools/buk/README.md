@@ -364,7 +364,6 @@ Project Root/
 │   ├── buk/                           # BUK core utilities (graftable module)
 │   │   ├── bud_dispatch.sh # Dispatch system
 │   │   ├── buc_command.sh  # Command utilities
-│   │   ├── but_test.sh     # Test utilities
 │   │   ├── buv_validation.sh # Validation (type system)
 │   │   ├── buw_workbench.sh           # BUK workbench
 │   │   ├── burc_specification.md      # BURC spec
@@ -624,19 +623,6 @@ The log directory is specified by `BURS_LOG_DIR` in the station configuration.
 - Command execution helpers
 - Output formatting
 - Error handling patterns
-
----
-
-### BUT - Bash Utility Test
-
-**File**: `Tools/buk/but_test.sh`
-
-**Purpose**: Testing framework for bash scripts.
-
-**Key Functions**:
-- Test case definition
-- Assertion helpers
-- Test runner
 
 ---
 
