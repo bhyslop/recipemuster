@@ -73,10 +73,6 @@ zbuwz_kindle() {
   buz_enroll BUWZ_DELAY      "buw-xd" "${z_mod}" "bux_delay"       ""  "Sleep 20 seconds (timing fixture)"
   buz_enroll BUWZ_BAND_CHAIN "buw-xb" "${z_mod}" "bux_band_chain"  ""  "Raise a band rejection beneath a die chain (self-test survival fixture)"
 
-  # Self-test (butt_testbench.sh)
-  z_mod="butt_testbench.sh"
-  buz_enroll BUWZ_SELF_TEST "buw-st" "${z_mod}" "buw-st"  ""  "BUK self-test (kick-tires + bure-tweak)"
-
   readonly ZBUWZ_KINDLED=1
 }
 

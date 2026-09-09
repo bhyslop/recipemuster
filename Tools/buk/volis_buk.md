@@ -98,6 +98,8 @@ tail -80 ../logs-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt
 
 **There is no safe `tee | tail`, and no safe `> /dev/null`.** Do not reason "I'll just truncate the output for readability" — the truncation and the exit-code-eating are inseparable. Do not reason "I don't need this door's output" either: the verdict *is* the output, and a run you silenced is a run you cannot report. Truncate by reading the log file afterward.
 
+**In a dispatched session, run a kennel test door through the engine's tabtarget door — never by bash.** That door hands the child the session's own output roots and reads what the run measured the moment it returns; a door run by bash is a run the engine never sees, so what it measured is discarded rather than recorded. **Never batch such a run beside a bash-run tabtarget either** — the two then share one output slot, and the record the engine reads may be the one it did not launch.
+
 ## Test Execution Discipline
 
 Run test fixture tabtargets **sequentially, never in parallel**. Test fixtures share regime state and container/network namespaces — parallel execution causes resource conflicts and false failures.
@@ -124,6 +126,5 @@ Annotations for the acronym homes indexed in `Tools/buk/volip_buk.md` — the pe
 - **BUYM** → `Tools/buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
 - **BUV**  → `Tools/buk/buv_validation.sh` (validation utilities, buv_* functions)
 - **BUW**  → `Tools/buk/buw_workbench.sh` (workbench utilities, buw_* functions)
-- **BUTT** → `Tools/buk/butt_testbench.sh` (BUK test framework self-test — kick-tires + bure-tweak, 9 cases)
 - **BURC** → `Tools/buk/burc_cli.sh`, `Tools/buk/burc_regime.sh` (regime configuration)
 - **BURS** → `Tools/buk/burs_cli.sh`, `Tools/buk/burs_regime.sh` (regime station)

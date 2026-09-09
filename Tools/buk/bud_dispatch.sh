@@ -293,7 +293,11 @@ zbud_curate_same() {
   done
 }
 
-# Function to curate logs for the historical log file (with timestamps)
+# Function to curate the historical log file (with timestamps). Reads the
+# coordinator's raw stream on stdin; the caller opens fd 3 onto BURD_LOG_HIST,
+# so each line's stamped form is appended there directly while the line itself
+# passes through untouched on stdout — the one filter does both jobs the fifo
+# pair used to split across two processes.
 zbud_curate_hist() {
   # The trailing `|| test -n` guard matches zbud_curate_same's: a coordinator
   # whose final line carries no newline still gets stamped. Under the retired
@@ -324,10 +328,11 @@ zbud_curate_hist() {
   local z_line
   while IFS= read -r z_line || test -n "${z_line}"; do
     if test "${z_stamp_is_builtin}" -eq 1; then
-      printf "[%(%Y-%m-%d %H:%M:%S)T] %s\n" -1 "${z_line}"
+      printf "[%(%Y-%m-%d %H:%M:%S)T] %s\n" -1 "${z_line}" >&3
     else
-      printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "${z_line}"
+      printf "[%s] %s\n" "$(date +"%Y-%m-%d %H:%M:%S")" "${z_line}" >&3
     fi
+    printf '%s\n' "${z_line}"
   done
 }
 
@@ -427,7 +432,7 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_AMANUENSIS BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
+  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_AMANUENSIS BURD_OUTRIDER BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
   z_bud_unexpected=()
   local z_var
   for z_var in $(compgen -v BURD_); do
@@ -495,31 +500,26 @@ zbud_main() {
     echo "${z_bud_exit_status}" > "${z_bud_status_file}"
     zbud_show "Coordinator status (interactive): ${z_bud_exit_status}"
   else
-    # Non-interactive with logging. Each curated stream gets ONE long-lived
-    # filter reading a fifo, rather than a fork pair per output line: the
-    # curate functions were already stream-shaped, so what changes is who
-    # spawns whom and not what they do. A chatty door pays for its output once.
-    local -r z_same_fifo="${BURD_TEMP_DIR}/curate-same-$$"
-    local -r z_hist_fifo="${BURD_TEMP_DIR}/curate-hist-$$"
-    mkfifo "${z_same_fifo}" "${z_hist_fifo}" || zbud_die "Failed to create curation fifos under ${BURD_TEMP_DIR}"
-
-    zbud_curate_same < "${z_same_fifo}" >> "${BURD_LOG_SAME}" &
-    local -r z_same_pid=$!
-    zbud_curate_hist < "${z_hist_fifo}" >> "${BURD_LOG_HIST}" &
-    local -r z_hist_pid=$!
+    # Non-interactive with logging. tee replicates the raw stream to the last
+    # log and to a private per-invocation capture under BURD_TEMP_DIR, then
+    # hands the remainder to the one long-lived hist filter — it stamps each
+    # line onto fd 3 (opened here onto BURD_LOG_HIST) and passes the line
+    # through untouched on its own stdout, so the terminal stays live on the
+    # fd it always has. Both filters keep the "pay for a chatty door's output
+    # once" shape the fifo pair had; only the plumbing between them changes.
+    # The same log is derived from the private capture once the pipeline
+    # returns — sequentially, nothing to wait on — and never from the shared
+    # last log, which every tabtarget writing into BURS_LOG_DIR shares.
+    local -r z_raw_capture="${BURD_TEMP_DIR}/raw-capture-$$"
 
     {
       "${z_invocation[@]}" 2>&1
       echo $? > "${z_bud_status_file}"
       zbud_show "Coordinator status: $(cat "${z_bud_status_file}")"
-    } | tee -a "${BURD_LOG_LAST}" "${z_same_fifo}" "${z_hist_fifo}"
+    } | tee -a "${BURD_LOG_LAST}" "${z_raw_capture}" | zbud_curate_hist 3>>"${BURD_LOG_HIST}"
 
-    # The checksum below reads the same log, so both filters must have drained
-    # their fifo and exited before it is taken. Waiting on the pids is what
-    # makes that ordering observable; the pipeline above returning says only
-    # that tee closed its ends.
-    wait "${z_same_pid}" "${z_hist_pid}"
-    rm -f "${z_same_fifo}" "${z_hist_fifo}"
+    zbud_curate_same < "${z_raw_capture}" >> "${BURD_LOG_SAME}"
+    rm -f "${z_raw_capture}"
   fi
 
   z_bud_exit_status=$(<"${z_bud_status_file}")
