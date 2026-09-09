@@ -136,7 +136,6 @@ pub const BUWGC_RE_RENDER: &str = "buw-rer";
 pub const BUWGC_PARCEL_EMPLACE: &str = "buw-pe";
 pub const BUWGC_DELAY: &str = "buw-xd";
 pub const BUWGC_BAND_CHAIN: &str = "buw-xb";
-pub const BUWGC_SELF_TEST: &str = "buw-st";
 
 // RBCC constants (rbcc_constants.sh single-homed set)
 pub const RBTDGC_MOORINGS_DIR: &str = "rbmm_moorings";
