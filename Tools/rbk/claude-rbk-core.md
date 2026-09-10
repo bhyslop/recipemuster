@@ -1,6 +1,6 @@
 # RBK Core Context
 
-Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `claude-buk-core.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
+Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `volis_buk.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
 
 ## Acronym Notes
 
