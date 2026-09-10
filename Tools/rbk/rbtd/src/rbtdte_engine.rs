@@ -72,6 +72,35 @@ fn rbtdte_fail_fast_stops_after_first_failure() {
 }
 
 #[test]
+fn rbtdte_fail_fast_reports_unreached_cases() {
+    static CASES: &[rbtdre_Case] = &[
+        rbtdre_Case { name: "un-f1", func: rbtdte_fail },
+        rbtdre_Case { name: "un-p1", func: rbtdte_pass },
+        rbtdre_Case { name: "un-p2", func: rbtdte_pass },
+    ];
+
+    let tmp = rbtdth_make_scratch("unreached");
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, true, &tmp).unwrap();
+    assert_eq!(result.registered, 3);
+    assert_eq!(result.unreached, vec!["un-p1", "un-p2"]);
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
+fn rbtdte_full_reach_leaves_unreached_empty() {
+    static CASES: &[rbtdre_Case] = &[
+        rbtdre_Case { name: "full-p1", func: rbtdte_pass },
+        rbtdre_Case { name: "full-p2", func: rbtdte_pass },
+    ];
+
+    let tmp = rbtdth_make_scratch("fullreach");
+    let result = rbtdre_run_cases(CASES, &RBTDTE_COLORS, true, &tmp).unwrap();
+    assert_eq!(result.registered, 2);
+    assert!(result.unreached.is_empty());
+    let _ = std::fs::remove_dir_all(&tmp);
+}
+
+#[test]
 fn rbtdte_trace_files_written() {
     static CASES: &[rbtdre_Case] = &[
         rbtdre_Case {

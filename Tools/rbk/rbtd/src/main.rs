@@ -331,6 +331,15 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
         "Suite '{}': {} fixture(s) run, {} passed, {} failed, {} skipped",
         suite.name, ran, total_passed, total_failed, total_skipped
     );
+    let registered_fixtures = suite.fixtures.len();
+    if ran < registered_fixtures {
+        rbtd::rbtdrg_info_now!(
+            "{} reached of {} registered", ran, registered_fixtures
+        );
+        for fixture in &suite.fixtures[ran..] {
+            rbtd::rbtdrg_info_now!("UNREACHED: {}", fixture.name);
+        }
+    }
 
     if total_failed > 0 {
         ExitCode::FAILURE
