@@ -239,7 +239,7 @@ pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
         .join("\n");
     rbtdre_Verdict::Fail(format!(
         "marshal-zero attestation failed — {} violation(s):\n{}\n\n\
-         remedy: tt/rbw-MZ.MarshalZeroes.sh, then commit and rerun.",
+         remedy: tt/rbw-MZ.MarshalZeroes.sh, then notch (commit) and rerun.",
         violations.len(),
         body
     ))

@@ -109,7 +109,9 @@ setting regime fields — and commits each step so the next sees a clean tree.
 Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the
 "Fixture config-evolution console"), beside the read-side `rbtdre_tree_clean`.
 **When a fixture commits config, it goes through the console — never an ad-hoc
-`git add`/`git commit`.**
+`git add`/`git commit`.** `rbtdre_tree_clean` itself refuses every drive on a
+dirty tree — single-fixture, suite, and the marshal-zero attestation gate
+alike — and each refusal names the notch as the remedy.
 
 The console commits config in exactly three classes, each through its own
 scoped verb that derives its own paths from a class identifier and stages only
