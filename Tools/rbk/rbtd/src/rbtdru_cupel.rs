@@ -364,8 +364,7 @@ fn zrbtdru_run_python(dir: &Path) -> rbtdre_Verdict {
 // ── Cases and fixture ───────────────────────────────────────
 
 fn rbtdru_kit_bash(dir: &Path) -> rbtdre_Verdict {
-    let _ = zrbtdru_run_domain(dir, zrbtdru_Domain::Kit, ZRBTDRU_LABEL_KIT);
-    rbtdre_Verdict::Fail("PLANTED for rbtdte unreached falsification".to_string())
+    zrbtdru_run_domain(dir, zrbtdru_Domain::Kit, ZRBTDRU_LABEL_KIT)
 }
 
 fn rbtdru_gcb_bash(dir: &Path) -> rbtdre_Verdict {
