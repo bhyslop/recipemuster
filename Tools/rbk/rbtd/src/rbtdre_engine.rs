@@ -144,9 +144,15 @@ pub fn rbtdre_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), S
 
 /// Returns Ok(()) when the working tree rooted at `root` is clean
 /// (`git status --porcelain` empty); Err with a human diagnostic when the tree
-/// carries uncommitted changes or git itself fails. Shared by the pristine
-/// fixture's Class-A check and the suite run-start hygiene guard so both express
-/// "clean tree" through one implementation.
+/// carries uncommitted changes or git itself fails.
+///
+/// Guards **every** drive, not only the suite: the single-fixture run-start in
+/// `rbtd_run_fixture`, the suite run-start in `rbtd_run_suite` (both in
+/// `main.rs`), and the marshal-zero attestation's Class-A check
+/// (`rbtdrp_check_tree_clean` in `rbtdrp_attest.rs`) all delegate here. There is
+/// no unguarded path — an uncommitted engine change or a falsification plant
+/// refuses a single-fixture drive exactly as it would a suite start. Each call
+/// site's own refusal names the notch (commit) as the remedy.
 pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
     match std::process::Command::new("git")
         .args(["status", "--porcelain"])

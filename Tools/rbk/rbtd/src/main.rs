@@ -151,14 +151,15 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
         Err(e) => rbtd::rbtdrg_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
-    // Run-start hygiene guard (suite only). A suite run commits a sequence of
-    // hallmark/yoke changes; starting on a dirty tree would interleave the
-    // operator's uncommitted edits with those commits. Single-case mode is the
-    // crucible-debug loop and is intentionally left unguarded.
+    // Run-start hygiene guard — reaches every drive, not only the suite (see
+    // rbtdre_tree_clean's doc comment). A single-fixture run can commit config
+    // via the console (rbtdre_engine's commit verbs) or drive against an
+    // uncommitted engine change, so a dirty tree here refuses exactly as a
+    // suite start does.
     if let Err(msg) = rbtdre_tree_clean(&project_root) {
         rbtd::rbtdrg_fatal_now!(
-            "rbtd: refusing to start a suite run on a dirty working tree — \
-             commit or stash first.\n{}",
+            "rbtd: refusing to run on a dirty working tree — \
+             notch (commit) first, then drive.\n{}",
             msg
         );
     }
@@ -243,11 +244,12 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
 
     // Run-start hygiene guard, once per suite (under the bash loop it ran once
     // per fixture). A suite commits a sequence of hallmark/yoke changes; a dirty
-    // tree at the start would interleave the operator's uncommitted edits.
+    // tree at the start would interleave the operator's uncommitted edits. Reaches
+    // every drive, not only this one — see rbtdre_tree_clean's doc comment.
     if let Err(msg) = rbtdre_tree_clean(&project_root) {
         rbtd::rbtdrg_fatal_now!(
             "rbtd: refusing to start a suite run on a dirty working tree — \
-             commit or stash first.\n{}",
+             notch (commit) first, then drive.\n{}",
             msg
         );
     }
