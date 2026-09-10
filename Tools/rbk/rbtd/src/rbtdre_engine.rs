@@ -779,6 +779,7 @@ pub const RBTDRE_TRACE_FILE: &str = "trace.txt";
 pub const RBTDRE_WORD_PASSED: &str = "PASSED:";
 pub const RBTDRE_WORD_FAILED: &str = "FAILED:";
 pub const RBTDRE_WORD_SKIPPED: &str = "SKIPPED:";
+pub const RBTDRE_WORD_UNREACHED: &str = "UNREACHED:";
 
 /// Write verdict and detail to a trace file in the case temp directory.
 fn rbtdre_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtdre_Verdict) {
@@ -809,6 +810,13 @@ pub struct rbtdre_RunResult {
     /// Observed tabtarget-invocation count over the whole fixture, read from the
     /// invocation-layer tally. Zero on the case-only runners.
     pub invocations: u32,
+    /// Total cases the fixture declared, whether or not the run reached them
+    /// all. Equal to `passed + failed + skipped` unless fail-fast truncated
+    /// the case loop.
+    pub registered: usize,
+    /// Names of cases the fail-fast break left unrun, in declaration order.
+    /// Empty on any run that reached every registered case.
+    pub unreached: Vec<&'static str>,
 }
 
 /// Run all cases sequentially, dispatching each with per-case temp dir isolation.
@@ -821,8 +829,9 @@ pub fn rbtdre_run_cases(
     let mut passed = 0usize;
     let mut failed = 0usize;
     let mut skipped = 0usize;
+    let mut unreached: Vec<&'static str> = Vec::new();
 
-    for case in cases {
+    for (index, case) in cases.iter().enumerate() {
         let case_dir = root_temp.join(case.name);
         std::fs::create_dir_all(&case_dir).map_err(|e| {
             format!("rbtd: failed to create case dir '{}': {}", case.name, e)
@@ -847,6 +856,7 @@ pub fn rbtdre_run_cases(
                 crate::rbtdrg_info_now!("{}", msg);
                 failed += 1;
                 if fail_fast {
+                    unreached = cases[index + 1..].iter().map(|c| c.name).collect();
                     break;
                 }
             }
@@ -867,6 +877,8 @@ pub fn rbtdre_run_cases(
         temp_dir: root_temp.to_path_buf(),
         elapsed_secs: 0,
         invocations: 0,
+        registered: cases.len(),
+        unreached,
     })
 }
 
@@ -883,6 +895,18 @@ pub fn rbtdre_print_summary(result: &rbtdre_RunResult, colors: &rbtdre_Colors) {
         "{}{} passed, {} failed, {} skipped ({} total){}",
         color, result.passed, result.failed, result.skipped, total, end_color,
     );
+    if !result.unreached.is_empty() {
+        crate::rbtdrg_info_now!(
+            "{}{} reached of {} registered{}",
+            color, total, result.registered, end_color,
+        );
+        for name in &result.unreached {
+            crate::rbtdrg_info_now!(
+                "{}{}{} {}",
+                color, RBTDRE_WORD_UNREACHED, end_color, name
+            );
+        }
+    }
     crate::rbtdrg_info_now!("Trace dir: {}", result.temp_dir.display());
 }
 
@@ -1029,5 +1053,7 @@ pub fn rbtdre_run_single_case(
         temp_dir: root_temp.to_path_buf(),
         elapsed_secs: 0,
         invocations: 0,
+        registered: 1,
+        unreached: Vec::new(),
     })
 }
