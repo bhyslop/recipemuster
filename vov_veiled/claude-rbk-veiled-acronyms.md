@@ -1,12 +1,12 @@
-## File Acronym Mappings — RBK Veiled (`Tools/rbk/vov_veiled/`)
+## File Acronym Mappings — RBK Veiled (`vov_veiled/`)
 
 - **CBG** → `guides/rbk/CBG-CloudBuildGuide.md`
 - **JDG** → `guides/rbk/JDG-JailerDialectGuide.md`
 - **PUCG** → `guides/rbk/PUCG_PlantUmlCodingGuide.md`
 - **RBS0** → `specs/rbk/RBS0-SpecTop.adoc`
 - **RBRN** → `specs/rbk/RBRN-RegimeNameplate.adoc`
-- **RBHW0** → `Tools/rbk/vov_veiled/rbhw0_*.sh`
-- **RBDGP** → `Tools/rbk/vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}`
+- **RBHW0** → `vov_veiled/rbhw0_*.sh`
+- **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}`
 
 ## Carried BUK rows — a curated subset, and a shrinking bridge
 

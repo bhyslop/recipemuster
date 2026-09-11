@@ -262,14 +262,10 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 //     lines simple enough to scan instead of growing bash-quoting
 //     sophistication.
 
-/// Repo-relative path prefixes exempt from the curl containment scan: retired
-/// code deliberately left untouched, and the in-pool cloud-step trees whose
-/// curl discipline is CBG/JDG dialect (`-f` flags, `|| exit N`, no buc_die_now) —
-/// the band membrane does not exist there.
-const ZRBTDRN_CURL_EXEMPT_PREFIXES: &[&str] = &[
-    "Tools/rbk/vov_veiled/ABANDONED-github/",
-    "Tools/rbk/rbgj",
-];
+/// Repo-relative path prefixes exempt from the curl containment scan: the
+/// in-pool cloud-step trees whose curl discipline is CBG/JDG dialect (`-f`
+/// flags, `|| exit N`, no buc_die_now) — the band membrane does not exist there.
+const ZRBTDRN_CURL_EXEMPT_PREFIXES: &[&str] = &["Tools/rbk/rbgj"];
 
 /// The byte-exact terminator suffix every curl invocation must carry.
 const ZRBTDRN_CURL_CAPTURE: &str = "|| z_curl_status=$?";
@@ -869,9 +865,10 @@ fn zrbtdrn_check_rivet_hoist(
 }
 
 /// Check 3 — A8 source-residue: a shipped `.sh` file carries no spec-acronym
-/// token (`RBS0`, `RBSPB`, …) — only a bare `RBr_` rivet ID or nothing. Callers
-/// exclude any `vov_veiled/` path before calling — that tree is shelved/veiled,
-/// never shipped, so its residue rules are out of scope.
+/// token (`RBS0`, `RBSPB`, …) — only a bare `RBr_` rivet ID or nothing. The
+/// veiled tree reaches this check by no route: it stands at the repo root,
+/// outside every scan root, so its residue rules are out of scope without a
+/// caller having to exclude anything.
 fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit> {
     let mut hits = Vec::new();
     for (path, content) in sh_files {
@@ -1187,8 +1184,8 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
 
 /// Walk the one-home scan roots under `root`, returning the in-repo `.adoc`
 /// corpus and the shipped `.sh` corpus, each as (repo-relative path, content).
-/// `vov_veiled/` is excluded from the `.sh` side — shelved, never shipped, so
-/// its residue rules are out of scope.
+/// The veiled tree needs no exclusion here: it stands at the repo root, outside
+/// every scan root, so its residue rules are out of scope by construction.
 fn zrbtdrn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String, String)>) {
     let mut files: Vec<PathBuf> = Vec::new();
     for sub in ZRBTDRN_ONEHOME_SCAN_ROOTS {
@@ -1206,7 +1203,7 @@ fn zrbtdrn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String,
         let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(root, path);
         match path.extension().and_then(|e| e.to_str()) {
             Some("adoc") => adoc_owned.push((rel, content)),
-            Some("sh") if !rel.contains("/vov_veiled/") => sh_owned.push((rel, content)),
+            Some("sh") => sh_owned.push((rel, content)),
             _ => {}
         }
     }
@@ -1388,7 +1385,7 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
 /// synthetic corpus, none touching the live tree.
 fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
     let a = (
-        "Tools/rbk/vov_veiled/RBSAA-fake.adoc",
+        "vov_veiled/RBSAA-fake.adoc",
         ":rbk_present:                 <<rbk_present,Present>>\n\
          :rbk_present_s:               <<rbk_present,Presents>>\n\
          :rbk_absent:                  <<rbk_absent,Absent>>\n\
@@ -1404,7 +1401,7 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
          Also cites RBr_zzz which has no anchor.\n",
     );
     let exempt = (
-        "Tools/rbk/vov_veiled/RBSAB-fake-exempt.adoc",
+        "vov_veiled/RBSAB-fake-exempt.adoc",
         ":rbk_exempt:                  <<rbk_exempt,Exempt>>\n",
     );
     let adoc = vec![a, exempt];
@@ -1434,12 +1431,12 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
 /// codex itself clears no matter how many sheaves cite it; a rivet cited from
 /// a census/index sheaf clears regardless of home.
 fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
-    let home = ("Tools/rbk/vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
-    let sibling = ("Tools/rbk/vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
-    let waived_home = ("Tools/rbk/vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
-    let waived_citer = ("Tools/rbk/vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
+    let home = ("vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
+    let sibling = ("vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
+    let waived_home = ("vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
+    let waived_citer = ("vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
     let codex_home = (ZRBTDRN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
-    let codex_citer = ("Tools/rbk/vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
+    let codex_citer = ("vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
     let index_citer = (ZRBTDRN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
     let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer, index_citer];
 

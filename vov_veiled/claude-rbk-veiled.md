@@ -73,7 +73,7 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 ### Shelved code
 
-- **RBHW0** → `Tools/rbk/vov_veiled/rbhw0_*.sh` (Windows 0-prefix — VEILED: the windows handbook (`rbhw0_cli.sh`, `rbhw0_top.sh`, `rbhw0_windows.sh`, `rbhwht_handbook_top.sh`, `rbhwcd_docker_context_discipline.sh`, `rbhwdd_docker_desktop.sh`) was shelved off the surface into `Tools/rbk/vov_veiled/`. Inert; enrollments + tabtargets removed, not rewired for local execution. It is the `RBHW` **windows** group — the third `rbh*` group, alongside the delivered `RBHO` onboarding and `RBHP` payor.)
+- **RBHW0** → `vov_veiled/rbhw0_*.sh` (Windows 0-prefix — VEILED: the windows handbook (`rbhw0_cli.sh`, `rbhw0_top.sh`, `rbhw0_windows.sh`, `rbhwht_handbook_top.sh`, `rbhwcd_docker_context_discipline.sh`, `rbhwdd_docker_desktop.sh`) was shelved off the surface into `vov_veiled/`, which stands at the repository root beside the kits rather than inside one. Inert; enrollments + tabtargets removed, not rewired for local execution. It is the `RBHW` **windows** group — the third `rbh*` group, alongside the delivered `RBHO` onboarding and `RBHP` payor.)
 
 ### Carried BUK rows
 
@@ -91,4 +91,4 @@ lint). Read it there before adding or dropping a row.
 
 ### Veiled diagram
 
-- **RBDGP** → `Tools/rbk/vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}` (the provenance tale — a derived presentation of RBSYP's marker skeleton, veiled 2026-07-13 because its rendered title named its closed source in a shipped image, and because no README `<picture>` block ever consumed it. Frozen: it sits outside the `diagrams/*.puml` glob the pluml crucible case renders, so it is not re-rendered. Its intended re-gestation is chapbook-driven puml authoring; the delivered `rbdg*` set is the three federation diagrams.)
+- **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}` (the provenance tale — a derived presentation of RBSYP's marker skeleton, veiled 2026-07-13 because its rendered title named its closed source in a shipped image, and because no README `<picture>` block ever consumed it. Frozen: it sits outside the `diagrams/*.puml` glob the pluml crucible case renders, so it is not re-rendered. Its intended re-gestation is chapbook-driven puml authoring; the delivered `rbdg*` set is the three federation diagrams.)

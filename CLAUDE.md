@@ -56,7 +56,7 @@ release and install procedures themselves are specified in
 Each kit's acronym rows ride that kit's core context file, annotated with the
 per-row descriptions and family topology — RBK's in
 `Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/volis_buk.md`, and the
-veiled half's in `Tools/rbk/vov_veiled/claude-rbk-veiled.md`. Those cores load
+veiled half's in `vov_veiled/claude-rbk-veiled.md`. Those cores load
 below.
 
 Beside each core stands a bare index (`claude-{kit}-acronyms.md`) restating the
@@ -238,7 +238,7 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
 @Tools/rbk/claude-rbk-conduct.md
 
 <!-- rbm-only veiled guidance (never distributed). -->
-@Tools/rbk/vov_veiled/claude-rbk-veiled.md
+@vov_veiled/claude-rbk-veiled.md
 
 ## Pull doors
 
@@ -251,5 +251,5 @@ Named, not loaded — read when the work calls for one.
   testing: the iteration loop (kludge, charge, test, ordain), the architecture of
   the two Rust binaries, and how to add new security test cases.
 - `Tools/rbk/claude-rbk-acronyms.md`, `Tools/buk/volip_buk.md`,
-  `Tools/rbk/vov_veiled/claude-rbk-veiled-acronyms.md` — the bare acronym
+  `vov_veiled/claude-rbk-veiled-acronyms.md` — the bare acronym
   indexes, each a subset of its loaded core.

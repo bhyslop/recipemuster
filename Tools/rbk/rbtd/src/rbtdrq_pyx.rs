@@ -231,11 +231,16 @@ pub(crate) const ZRBTDRQ_LICENSE_PHRASES: &[&str] = &["Apache License", "Version
 // ── Secret-shape scan ───────────────────────────────────────
 
 /// Repo-relative roots walked for secret shapes — the trees that ship to a
-/// consumer. Each is existence-tolerant: `Study/` and `Memos/` are not here
-/// because they never ship, and `rbmm_moorings/` is here because the operator's
-/// regime and vessel context files are exactly where a credential would land by
-/// accident.
-pub(crate) const ZRBTDRQ_SECRET_ROOTS: &[&str] = &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings"];
+/// consumer, and `vov_veiled`, which does not. The veiled tree rides here on
+/// the operator's ruling: it reaches no consumer, but a credential committed
+/// there is still a credential in this repository's history, so this is the one
+/// hygiene walk that follows the tree out of the kit to the root. Each root is
+/// existence-tolerant, so a tree carrying no veiled half walks nothing. `Study/`
+/// and `Memos/` are absent because they never ship and carry no such ruling, and
+/// `rbmm_moorings/` is here because the operator's regime and vessel context
+/// files are exactly where a credential would land by accident.
+pub(crate) const ZRBTDRQ_SECRET_ROOTS: &[&str] =
+    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "vov_veiled"];
 
 /// Repo-relative single files added to the secret-scan corpus alongside the
 /// roots above — the consumer-facing documents at the repo root.
