@@ -90,9 +90,9 @@ fn zrbthdr_render(findings: &[zrbthdr_Finding]) -> Vec<String> {
 /// refuses to walk.
 const ZRBTHDR_VEIL_DIR: &str = "vov_veiled";
 
-/// Directories the census walk never descends: build output. The census
-/// deliberately DOES descend into the veiled trees — that is where the withheld
-/// documents it harvests live.
+/// Directories the census walk never descends: build output. Nothing else is
+/// refused — the census is rooted INSIDE the veiled tree, so every document it
+/// meets on the way down is withheld by construction.
 const ZRBTHDR_CENSUS_SKIP_DIRS: &[&str] = &["target"];
 
 /// Directories the veil file-scan never descends: build output, and the veiled
@@ -114,14 +114,18 @@ const ZRBTHDR_VEIL_ROOTS: &[&str] =
 /// root — a withheld path named in an ignore pattern would otherwise ride unseen.
 const ZRBTHDR_VEIL_FILES: &[&str] = &[
     "README.md",
-    "Tools/rbk/vov_veiled/CLAUDE.consumer.md",
+    "vov_veiled/CLAUDE.consumer.md",
     "LICENSE",
     ".gitignore",
     ".gitattributes",
 ];
 
-/// Repo-relative root under which veiled trees are hunted to build the census.
-const ZRBTHDR_VEIL_CENSUS_ROOT: &str = "Tools";
+/// Repo-relative root the census walks: the veiled tree itself, which stands at
+/// the repo root beside the kits. Rooting the walk here rather than above it is
+/// what lets the walk harvest unconditionally — a root above would have to hunt
+/// for the tree on the way down, and a root at the repo root would descend
+/// `.git` and the operator's own trees to do it.
+const ZRBTHDR_VEIL_CENSUS_ROOT: &str = ZRBTHDR_VEIL_DIR;
 
 /// Extensions of the withheld documents whose BASENAMES may not be named by a
 /// shipping file. Documents only: a withheld `.sh` is reachable in prose only by
@@ -136,13 +140,14 @@ const ZRBTHDR_VEIL_DOC_MARKS: &[&str] = &[".adoc", ".md"];
 
 /// Repo-relative SHIPPED paths exempt from the veil scan, each with the reason —
 /// the sanctioned residue (operator ruling): a shipped file may spell the
-/// veiled-dir literal only to keep a tree-walk out of the veiled tree, never to
-/// name a withheld document. Exact path, never a prefix. This table IS the
-/// growth-containment allowlist: the residue stays frozen at exactly these sites.
+/// veiled-dir literal only to AIM A TREE-WALK — to keep one out of the veiled
+/// tree, or to send one in — never to name a withheld document. Exact path,
+/// never a prefix. This table IS the growth-containment allowlist: the residue
+/// stays frozen at exactly these sites.
 const ZRBTHDR_VEIL_EXEMPT: &[(&str, &str)] = &[
     (
         "Tools/rbk/rbtd/src/rbtdrq_pyx.rs",
-        "its no-.adoc case's skip-dir list spells the veiled-dir literal it must not descend into",
+        "its no-.adoc case's skip-dir list spells the veiled-dir literal it must not descend into, and its secret-scan roots spell it again as a tree the scan must descend INTO",
     ),
     (
         "Tools/rbk/rbtd/src/rbtdrq_damnatio.rs",
@@ -215,9 +220,10 @@ fn zrbthdr_is_veil_doc(basename: &str) -> bool {
         .any(|ext| basename.ends_with(&format!(".{}", ext)))
 }
 
-/// Collect the basenames of every withheld document beneath `dir`, descending
-/// into a veiled tree whole once one is entered.
-fn zrbthdr_census_walk(dir: &Path, inside: bool, out: &mut BTreeSet<String>) {
+/// Collect the basenames of every withheld document beneath `dir`, which the
+/// caller roots inside the veiled tree — so every document met is withheld and
+/// the walk carries no in-or-out state of its own.
+fn zrbthdr_census_walk(dir: &Path, out: &mut BTreeSet<String>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return,
@@ -232,10 +238,10 @@ fn zrbthdr_census_walk(dir: &Path, inside: bool, out: &mut BTreeSet<String>) {
             if ZRBTHDR_CENSUS_SKIP_DIRS.contains(&name.as_str()) {
                 continue;
             }
-            zrbthdr_census_walk(&path, inside || name == ZRBTHDR_VEIL_DIR, out);
+            zrbthdr_census_walk(&path, out);
             continue;
         }
-        if inside && zrbthdr_is_veil_doc(&name) {
+        if zrbthdr_is_veil_doc(&name) {
             out.insert(name);
         }
     }
@@ -279,7 +285,7 @@ pub(crate) fn zrbthdr_veil_self_proof() -> Vec<zrbthdr_Finding> {
     let census: BTreeSet<String> = ["ZZQ-Example.adoc".to_string()].into_iter().collect();
 
     let positives: &[&str] = &[
-        "  - see Tools/rbk/vov_veiled/whatever.sh for the rule",
+        "  - see vov_veiled/whatever.sh for the rule",
         "# Contract: ZZQ-Example.adoc.",
         "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context acronym row)",
     ];
@@ -398,7 +404,7 @@ fn zrbthdr_veil_leak(root: &Path) -> Vec<zrbthdr_Finding> {
 
     let census_root = root.join(ZRBTHDR_VEIL_CENSUS_ROOT);
     let mut census = BTreeSet::new();
-    zrbthdr_census_walk(&census_root, false, &mut census);
+    zrbthdr_census_walk(&census_root, &mut census);
     if census.is_empty() {
         findings.push(zrbthdr_Finding {
             file: ZRBTHDR_VEIL_CENSUS_ROOT.to_string(),

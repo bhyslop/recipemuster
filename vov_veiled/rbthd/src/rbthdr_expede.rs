@@ -112,7 +112,7 @@ const RBTHDR_STERILIZE_PATH: &str = "Tools/rbk/rblm_sterilize.sh";
 /// file's committed bytes onto the candidate's root CLAUDE.md between
 /// materialization and the commit: the candidate must carry the consumer's
 /// context, never the maintainer's veiled-path-laden one.
-const RBTHDR_CONSUMER_CLAUDE_PATH: &str = "Tools/rbk/vov_veiled/CLAUDE.consumer.md";
+const RBTHDR_CONSUMER_CLAUDE_PATH: &str = "vov_veiled/CLAUDE.consumer.md";
 
 /// The candidate's root CLAUDE.md — the transposition's target, and a path
 /// the perambulation ships so the sweep expects it in the candidate graph.

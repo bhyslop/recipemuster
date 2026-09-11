@@ -70,7 +70,7 @@ fn zrbthdt_scan(probe: &str, census: &BTreeSet<String>) -> Vec<zrbthdr_Finding> 
 /// Lines that name a withheld thing — the veiled-dir token, or the census
 /// document's basename in a citation form. Each must produce at least one hit.
 const ZRBTHDT_SCAN_PLANTED: &[&str] = &[
-    "  - see Tools/rbk/vov_veiled/whatever.sh for the rule",
+    "  - see vov_veiled/whatever.sh for the rule",
     "# Contract: ZZQ-Example.adoc.",
     "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context row)",
 ];

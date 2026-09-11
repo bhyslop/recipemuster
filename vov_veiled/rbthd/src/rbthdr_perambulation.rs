@@ -75,18 +75,19 @@ use rbthdr_Disposition::{Ship, Withhold};
 /// The prose beside each group argues the judgments that need an argument, so
 /// the table itself stays a bare table.
 pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
-    // THE VEILED HALVES. Each kit's closed record, finer than the kit rows
-    // beneath them so the judgment holds even where the whole kit ships. A NEW
-    // kit's veiled half is deliberately not covered: it lands unjudged and
-    // reddens. That is correct — a kit's exposure is a ruling, never a default.
-    ("Tools/rbk/vov_veiled/", Withhold),
-    // THE DELIVERED KITS. RBK ships whole apart from its veiled half; BUK ships
-    // whole outright, having no veiled half in this tree — the kit's closed
-    // record homes at its primary home, and the few rows recipemuster still
-    // cites folded into RBK's veiled index. The shipped surface either way: the
-    // .sh surface, the shellcheck config, the READMEs, the agent-context
-    // markdown, the theurge crate, the in-pool python step bodies, the ifrit
-    // attack corpus.
+    // THE VEILED TREE. This repository's closed record, standing at the root
+    // beside the kits rather than inside one, so the withhold is a judgment in
+    // its own right and no delivered kit row's claim can reach it. A NEW kit's
+    // veiled half is deliberately not covered: it lands unjudged and reddens.
+    // That is correct — a kit's exposure is a ruling, never a default.
+    ("vov_veiled/", Withhold),
+    // THE DELIVERED KITS. RBK ships whole, its veiled half having left the kit
+    // for the root; BUK ships whole outright, having none in this tree — its
+    // closed record homes at its primary home, and the few rows recipemuster
+    // still cites folded into RBK's veiled index. The shipped surface either
+    // way: the .sh surface, the shellcheck config, the READMEs, the
+    // agent-context markdown, the theurge crate, the in-pool python step
+    // bodies, the ifrit attack corpus.
     ("Tools/buk/", Ship),
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash

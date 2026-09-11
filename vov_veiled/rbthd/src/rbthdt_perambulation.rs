@@ -124,12 +124,13 @@ fn rbthdt_totality() {
 /// structurally — a veiled spec, an operator study, the operator's own kit, a
 /// withheld tabtarget — against a delivered face that must pass untouched. The
 /// veiled-spec datum carries a SYNTHETIC basename: what it exercises is the
-/// longest-wins override — a veiled half inside a shipping kit — which is a
-/// property of the directory, not of any document sitting in it. The study
-/// datum pairs with the root README below: same basename, opposite verdict, so
-/// the directory grain is what is being read and not the filename.
+/// tree row at the root, which is a property of the directory and not of any
+/// document sitting in it. The fdkyclk proof script below is the longest-wins
+/// override in this list — a withheld file inside a shipping directory. The
+/// study datum pairs with the root README below: same basename, opposite
+/// verdict, so the directory grain is what is being read and not the filename.
 const ZRBTHDT_SWEEP_PLANTED: &[&str] = &[
-    "Tools/rbk/vov_veiled/planted-spec.adoc",
+    "vov_veiled/planted-spec.adoc",
     "Study/study-model-prompt-tuning/README.md",
     "Tools/vslk/vslw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
@@ -182,13 +183,18 @@ fn rbthdt_sweep_silent_on_clean_list() {
 
 // ── The matcher's own grains ────────────────────────────────
 
-/// Longest-wins across the three grains: the veiled half outranks its
+/// Longest-wins across the three grains: the withheld harbinger outranks its
 /// shipping kit, the marshal stem outranks the shipped tabtarget family, and
-/// an unjudged root is None — never a default in either direction.
+/// an unjudged root is None — never a default in either direction. The veiled
+/// tree probes the root tree row itself, which outranks nothing: standing
+/// outside every kit is exactly what the relocation bought.
 #[test]
 fn rbthdt_matcher_longest_wins() {
-    let veiled = judge("Tools/rbk/vov_veiled/anything.rs");
-    assert!(matches!(veiled, Some((rbthdr_Disposition::Withhold, _))), "veiled half must outrank the shipping kit");
+    let veiled = judge("vov_veiled/anything.rs");
+    assert!(matches!(veiled, Some((rbthdr_Disposition::Withhold, _))), "the veiled tree is withheld");
+
+    let harbinger = judge("Tools/rbk/rblm_harbinger.sh");
+    assert!(matches!(harbinger, Some((rbthdr_Disposition::Withhold, _))), "the harbinger must outrank the shipping kit");
 
     let shipped_code = judge("Tools/rbk/rba_auth.sh");
     assert!(matches!(shipped_code, Some((rbthdr_Disposition::Ship, _))), "the delivered kit ships");
