@@ -1385,7 +1385,7 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
 /// synthetic corpus, none touching the live tree.
 fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
     let a = (
-        "Tools/rbk/vov_veiled/RBSAA-fake.adoc",
+        "vov_veiled/RBSAA-fake.adoc",
         ":rbk_present:                 <<rbk_present,Present>>\n\
          :rbk_present_s:               <<rbk_present,Presents>>\n\
          :rbk_absent:                  <<rbk_absent,Absent>>\n\
@@ -1401,7 +1401,7 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
          Also cites RBr_zzz which has no anchor.\n",
     );
     let exempt = (
-        "Tools/rbk/vov_veiled/RBSAB-fake-exempt.adoc",
+        "vov_veiled/RBSAB-fake-exempt.adoc",
         ":rbk_exempt:                  <<rbk_exempt,Exempt>>\n",
     );
     let adoc = vec![a, exempt];
@@ -1431,12 +1431,12 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
 /// codex itself clears no matter how many sheaves cite it; a rivet cited from
 /// a census/index sheaf clears regardless of home.
 fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
-    let home = ("Tools/rbk/vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
-    let sibling = ("Tools/rbk/vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
-    let waived_home = ("Tools/rbk/vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
-    let waived_citer = ("Tools/rbk/vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
+    let home = ("vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
+    let sibling = ("vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
+    let waived_home = ("vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
+    let waived_citer = ("vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
     let codex_home = (ZRBTDRN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
-    let codex_citer = ("Tools/rbk/vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
+    let codex_citer = ("vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
     let index_citer = (ZRBTDRN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
     let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer, index_citer];
 
