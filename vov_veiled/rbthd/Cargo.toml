@@ -2,6 +2,7 @@
 name = "rbthd"
 version = "0.1.0"
 edition = "2021"
+license = "LicenseRef-Proprietary"
 description = "Hierophant — delivery-ceremony conductor for Recipe Bottle (veiled, withheld from delivery)"
 
 # No dependencies by construction. The hierophant sequences proven workers as

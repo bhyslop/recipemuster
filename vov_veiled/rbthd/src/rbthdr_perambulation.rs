@@ -1,16 +1,6 @@
 // Copyright 2026 Scale Invariant, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// All rights reserved.
+// SPDX-License-Identifier: LicenseRef-Proprietary
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
@@ -107,7 +97,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("Tools/cccr.env", Withhold),
     ("Tools/crgr.render.sh", Withhold),
     ("Tools/crgv.validate.sh", Withhold),
-    ("Tools/xxx_rbn.info.sh", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
     // family and the manor raze are the release rig itself; a consumer running
     // any of them holds the wrong end of the tool. The stem rows outrank the

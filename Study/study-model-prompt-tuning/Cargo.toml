@@ -2,6 +2,7 @@
 name = "smpt"
 version = "0.0.1"
 edition = "2021"
+license = "LicenseRef-Proprietary"
 description = "Study: Model Prompt Tuning - discover minimal effective prompts per model"
 
 [[bin]]
