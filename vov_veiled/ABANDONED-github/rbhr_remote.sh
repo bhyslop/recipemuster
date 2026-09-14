@@ -1,6 +1,7 @@
 #!/bin/bash
 # Copyright 2025 Scale Invariant, Inc.
-# Licensed under the Apache License, Version 2.0
+# All rights reserved.
+# SPDX-License-Identifier: LicenseRef-Proprietary
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 # Recipe Bottle GitHub Runner - Remote runner steps
 

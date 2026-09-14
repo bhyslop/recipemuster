@@ -147,8 +147,6 @@ network posture, not dependency tier:
 
 **Single case**: `tt/rbw-tc.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench). Omit case name to list all cases for the fixture; omit fixture to list all fixtures. Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
 
-**BUK self-test**: `tt/buw-st.BukSelfTest.sh` — exercises the BUK test framework and core modules: kick-tires, band-survival, bure-tweak, burx-exchange, fact-chaining, buh-link, dispatch-color, buym-yelp (8 fixtures, 58 cases)
-
 **Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
 
 <!-- Universal minting doctrine is CMK-homed, and CMK homes in ../jjqa_app: this
