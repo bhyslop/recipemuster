@@ -51,7 +51,7 @@
 
 #![deny(warnings)]
 
-use bkmk::bkmtu_lure::bkmtu_Lure;
+use bkk::bktu_lure::bktu_Lure;
 use buk::buas_seat::buas_source;
 
 /// How much the writer is given to write.
@@ -93,7 +93,7 @@ const BUJD_SAID: &str = "the-die-path-kept-its-tongue";
 
 #[test]
 fn bujd_the_die_path_speaks_with_no_transcript_standing() {
-    let lure = bkmtu_Lure::bkmtu_compose("substrate-die-path");
+    let lure = bktu_Lure::bktu_compose("substrate-die-path");
 
     // THE THREE CONDITIONS, ARMED IN THE COORDINATOR ITSELF rather than inherited.
     // The seat is entered through a real dispatch, which EXPORTS a transcript — so
@@ -106,7 +106,7 @@ fn bujd_the_die_path_speaks_with_no_transcript_standing() {
         payload.push_str(&format!(" {}-{}", BUJD_SAID, i));
     }
 
-    let tabtarget = lure.bkmtu_substrate_seat(&format!(
+    let tabtarget = lure.bktu_substrate_seat(&format!(
         "#!/bin/bash\n\
          set -euo pipefail\n\
          unset BURD_TRANSCRIPT\n\
@@ -122,7 +122,7 @@ fn bujd_the_die_path_speaks_with_no_transcript_standing() {
     let mut first = String::new();
 
     for trial in 0..BUJD_TRIALS {
-        let out = lure.bkmtu_dispatch(&tabtarget, &[]);
+        let out = lure.bktu_dispatch(&tabtarget, &[]);
 
         // THE DISPATCH MERGES THE COORDINATOR'S STREAMS into one record, which is
         // the substrate's own law rather than a fact about this hurdle, so the

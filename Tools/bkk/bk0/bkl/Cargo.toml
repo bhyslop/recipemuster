@@ -1,0 +1,35 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "bkl"
+version = "0.0.1"
+edition = "2021"
+description = "Literatim - the estate's regime reader, admitting the substrate's catena law letter for letter and refusing everything wider"
+license = "Apache-2.0"
+
+# A LIBRARY AND NOTHING ELSE. The reader answers a question and holds no posture
+# about what to do with the answer, so it has no door face and never will: a
+# consumer that wanted one would be asking this crate to decide something that is
+# its own to decide.
+[lib]
+name = "bkl"
+path = "src/lib.rs"
+
+# NO EXTERNAL CRATES, and the emptiness is a declaration. A regime file is read
+# with std alone; a TOML or a parser crate here would put a dependency closure
+# under the one thing in the estate whose whole promise is that it reads exactly
+# what bash reads and nothing wider.
+[dependencies]

@@ -35,7 +35,7 @@ studyw_build() {
   local z_study_dir="$1"
   local z_cargo_toml="${z_study_dir}/Cargo.toml"
 
-  test -f "${z_cargo_toml}" || buc_die "No Cargo.toml at ${z_cargo_toml}"
+  test -f "${z_cargo_toml}" || buc_die_now "No Cargo.toml at ${z_cargo_toml}"
 
   studyw_show "Building ${z_cargo_toml}"
   cargo build --manifest-path "${z_cargo_toml}" >&2
@@ -79,7 +79,7 @@ studyw_route() {
     #   ...
     #   ;;
 
-    *)  buc_die "Unknown study command: ${z_command}" ;;
+    *)  buc_die_now "Unknown study command: ${z_command}" ;;
   esac
 }
 
@@ -87,7 +87,7 @@ studyw_main() {
   local z_command="${1:-}"
   shift || true
 
-  test -n "${z_command}" || buc_die "No command specified"
+  test -n "${z_command}" || buc_die_now "No command specified"
 
   studyw_route "${z_command}" "$@"
 }

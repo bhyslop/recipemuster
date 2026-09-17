@@ -72,12 +72,23 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // That is correct — a kit's exposure is a ruling, never a default.
     ("vov_veiled/", Withhold),
     // THE DELIVERED KITS. RBK ships whole, its veiled half having left the kit
-    // for the root; BUK ships whole outright, having none in this tree — its
-    // closed record homes at its primary home, and the few rows recipemuster
-    // still cites folded into RBK's veiled index. The shipped surface either
-    // way: the .sh surface, the shellcheck config, the READMEs, the
-    // agent-context markdown, the theurge crate, the in-pool python step
+    // for the root; BUK and BKK ship whole outright, having none in this tree —
+    // their closed records home at their own primary home, and the few rows
+    // recipemuster still cites folded into RBK's veiled index. The shipped
+    // surface either way: the .sh surface, the shellcheck config, the READMEs,
+    // the agent-context markdown, the theurge crate, the in-pool python step
     // bodies, the ifrit attack corpus.
+    //
+    // BKK arrived with brand 1074 and is ruled here on its first crossing,
+    // since a kit's exposure is a ruling and never a default. It is consumed on
+    // BUK's own terms, from the same forge by the same road; and the judgment
+    // was in part already made, because a file shipping inside Tools/buk/ — the
+    // bun_suite collar — names Tools/bkk among its roots, the kennel crate as
+    // its tamed crate, and the repository root as its muzzle. Withholding the
+    // kennel would ship that collar pointing at what the recipient does not
+    // have, which is the dangling reference the launcher rule below refuses for
+    // the same reason.
+    ("Tools/bkk/", Ship),
     ("Tools/buk/", Ship),
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash
@@ -108,6 +119,7 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("tt/rbthw-", Withhold),
     ("tt/rbw-", Ship),
     ("tt/buw-", Ship),
+    ("tt/bkw-", Ship),
     ("tt/z-launcher.sh", Ship),
     ("tt/study-", Withhold),
     ("tt/vslk-", Withhold),
@@ -136,6 +148,7 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("rbmm_moorings/rbrw.env", Ship),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
+    ("rbmm_moorings/rbml_launchers/launcher.bkw_workbench.sh", Ship),
     ("rbmm_moorings/rbml_launchers/launcher.buw_workbench.sh", Ship),
     ("rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh", Ship),
     ("rbmm_moorings/rbml_launchers/", Withhold),
@@ -159,6 +172,13 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // needs it in hand; withheld, they build on whatever channel their station
     // happened to default to, which is the gap the file was written to close.
     ("rust-toolchain.toml", Ship),
+    // The muzzle at the root, on the pin's own argument. A collar names the
+    // directory whose lint governance it wears, and the delivered bun_suite
+    // collar names `.` — so a consumer linting what ships needs this file in
+    // hand, exactly as they need the channel above. A muzzle directory holding
+    // no lint list is refused as a muzzle nothing wears; the list is this
+    // repository's to state, and empty is a valid statement of it.
+    ("clippy.toml", Ship),
     // ROOT FILES THAT STAY BEHIND. RELEASE.md is the release-qualification
     // procedure, the rig's own runbook; the iml is IDE furniture; the gateway
     // proposal is an unsettled internal design note.

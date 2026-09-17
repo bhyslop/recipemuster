@@ -1,0 +1,87 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "bkk"
+version = "0.0.1"
+edition = "2021"
+description = "Bash Kennel Master - the launch discipline every build and test door in the estate passes through"
+license = "Apache-2.0"
+build = "build.rs"
+
+# The library face and the door face, from one crate. The door-level chokepoint
+# is this library driven from this binary, and the two postures they hold are
+# not the same: the door refuses an uncommitted repository and the library does
+# not, because a library consumer holds its own posture. A consumer stands that
+# reads cargo metadata in-process on exactly the dirty tree its own census is
+# driven against, before every notch, and must keep being able to.
+[lib]
+name = "bkk"
+path = "src/lib.rs"
+
+[[bin]]
+name = "bkx"
+path = "src/main.rs"
+
+# THE REGIME READER stands beside the kennel under this kit and is delivered in
+# the same parcel; the kennel links it and reimplements none of it, which is the
+# whole reason it was founded as a crate rather than as a module here.
+#
+# THE TWO EXTERNAL CRATES, AND WHY EACH IS ADMITTED. The safety reading of both,
+# under the package-safety heat's five founding questions, stands beside the
+# allow list in Tools/bkk/bk0/bki_suite/bkrr.env and is not restated here.
+#
+# THE FIRST. The frozen shape has the kennel
+# match a caller's selection patterns ITSELF, against the runner's own listing,
+# in the rust regex dialect TAKEN AS IS — no subset invented
+# (BKSNC-Kennelcraft.adoc "The selection pipeline"). A dialect taken as is
+# has one implementation, so the alternative to naming it here is a hand-rolled
+# matcher that would be a second dialect wearing the first one's name; that is
+# the failure the freeze's own ruling forecloses. The closure is the one the
+# estate already pins elsewhere, carried at those versions rather than resolved
+# afresh, so a station holding one crate holds the other.
+#
+# THE SECOND is toml, admitted for the python family's reader alone. The python
+# collar's validation reads a project's own three files, whose format is a
+# foreign authority's; the alternative to naming it here is a hand-rolled toml
+# reader, which is the same failure the first crate's reasoning names — a second
+# dialect wearing the first one's name — over a grammar with far more surface.
+# It is taken WITHOUT ITS DERIVE MACRO and parsed to a plain table, so no
+# procedural macro enters this kit's closure for the sake of naming four keys.
+#
+# Every direct dependency is named in this crate's collar in allow form
+# (BKSCL-Collar.adoc), these three included, and the lock beside this manifest
+# pins the whole closure.
+[dependencies]
+bkl = { path = "bkl" }
+regex = "1.12.2"
+toml = { version = "0.9.12", default-features = false, features = ["parse"] }
+
+# THE COMPOSING SURFACE, REACHABLE BY A SECOND SUITE AND BY NOTHING ELSE. The
+# lure surface is the only home a hurdle may reach the temp root, compose a
+# repository or spawn the kennel through (BKSLR-Lure.adoc "The Lure"), and the
+# substrate's own suite is now a second consumer of it. It stands as a module of
+# this library rather than as a crate of its own, so a consumer needs a way in
+# that a BINARY build cannot take.
+#
+# THE GATE IS WHAT KEEPS THE EXERGUE ELECTION TRUE. Tools/bkk/bk0/bkce_roots.txt
+# carves src/bkt* out of the elected roots on the ground that those modules
+# cannot change the built binary; an UNCONDITIONALLY published module would make
+# that false, which is why one was refused when the question first arose. Behind
+# this feature the ground holds: no binary build of this crate names the feature,
+# and a consumer that does reaches the surface from a dev-dependency, which cargo
+# compiles into a test target and never into a binary.
+[features]
+lure = []

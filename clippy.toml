@@ -1,0 +1,9 @@
+# The repository's muzzle directory — the lint governance a collar wears when it
+# names `.` as its muzzle.
+#
+# The kennel's delivered collar for the substrate's own suite names this root,
+# and a muzzle directory holding no lint list is refused as a muzzle nothing
+# wears. The list is this repository's to state, not the kit's; empty is a valid
+# answer, and is the one stated here until this tree has a method it wants
+# barred by name.
+disallowed-methods = []

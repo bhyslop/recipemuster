@@ -882,9 +882,9 @@ buv_render() {
   zbuv_sentinel
   zbupr_sentinel
   # buym's sentinel kindles it lazily, and the BUYC_* reads below expand before
-  # any callee's guard can run.  It stands HERE and not in zbuv_kindle: kindling
-  # buym at buv's kindle would freeze its color verdict at that instant, which
-  # silently defeats a later buym_unconditional.
+  # any callee's guard can run, so the kindle is forced here.  Where it stands
+  # no longer decides the color verdict: buym's configurators re-resolve the
+  # palette, so a later buym_unconditional reaches it whenever it is called.
   zbuym_sentinel
 
   local z_scope="${1:-}"

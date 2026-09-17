@@ -43,4 +43,4 @@ path = "src/lib.rs"
 # own lib holds is built on that surface, and a dev-dependency is out of scope
 # for lib code. Nothing ships either way: this crate builds no binary at all.
 [dependencies]
-bkmk = { path = "../bkmk", features = ["lure"] }
+bkk = { path = "../bkk/bk0", features = ["lure"] }

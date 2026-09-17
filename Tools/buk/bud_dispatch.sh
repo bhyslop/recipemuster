@@ -30,6 +30,13 @@
 set -euo pipefail
 shopt -s extglob
 
+# The surface forms of the governed words this dispatch speaks, so the lines
+# below expand a constant instead of spelling the word. The sourced file is
+# generated, declares readonly constants and calls nothing, and carries its own
+# inclusion guard - so it is safe here, where buc_command.sh is not yet loaded,
+# and a sibling sourcing the same file costs nothing.
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh"
+
 BURE_VERBOSE=${BURE_VERBOSE:-0}
 
 BURD_REGIME_FILE=${BURD_REGIME_FILE:-"__MISSING_BURD_REGIME_FILE__"}
@@ -79,6 +86,7 @@ zbud_setup() {
   # Apply BURV (Bash Utility Regime Verification) overrides if set
   BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
   BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
+  BURC_LOOSEBOX_ROOT_DIR="${BURV_LOOSEBOX_ROOT_DIR:-${BURC_LOOSEBOX_ROOT_DIR}}"
 
   zbud_check_string "${BURD_REGIME_FILE}" BURC_STATION_FILE        1 256
   zbud_check_string "${BURD_REGIME_FILE}" BURC_LOG_LAST            1 256
@@ -87,6 +95,7 @@ zbud_setup() {
   zbud_check_string "${BURD_REGIME_FILE}" BURC_TABTARGET_DELIMITER 1 8
   zbud_check_string "${BURD_REGIME_FILE}" BURC_TEMP_ROOT_DIR       1 256
   zbud_check_string "${BURD_REGIME_FILE}" BURC_OUTPUT_ROOT_DIR     1 256
+  zbud_check_string "${BURD_REGIME_FILE}" BURC_LOOSEBOX_ROOT_DIR   1 256
   zbud_check_string "${BURD_REGIME_FILE}" BURC_TOOLS_DIR           1 256
 
   # Dispatch-provided directory variables (survive exec boundary for CLIs)
@@ -138,10 +147,46 @@ zbud_setup() {
     *)  BURD_TEMP_DIR="${PWD}/${BURD_TEMP_DIR}" ;;
   esac
   mkdir -p                           "${BURD_TEMP_DIR}" || zbud_die "Failed to create temp directory: ${BURD_TEMP_DIR}"
+
+  # SETTLED THROUGH THE FILESYSTEM, not merely prefixed. A relative root may
+  # spell a parent segment (a station's own regime can state "../temp-buk",
+  # a directory beside the checkout rather than beneath it); the working
+  # directory prefix above leaves that segment standing literally, and a
+  # consumer that compares this announced path against a canonical answer —
+  # cargo's, or a nested shell's own re-derived cwd — never matches it.
+  # `cd -P` resolves both the parent segment and any symlink on the way;
+  # bash builtins only.
+  BURD_TEMP_DIR="$(cd -P "${BURD_TEMP_DIR}" && pwd -P)" || zbud_die "Failed to settle temp directory: ${BURD_TEMP_DIR}"
   zbud_show "Generated temporary dir: ${BURD_TEMP_DIR}"
 
   # Setup transcript file path
   BURD_TRANSCRIPT="${BURD_TEMP_DIR}/transcript.txt"
+
+  # The checkout's own loosebox, where its derived and rebuildable build
+  # products stand. IT IS KEYED ON THE CHECKOUT'S DIRNAME AND THAT IS THE WHOLE
+  # OF WHAT MAKES IT SAFE TO SHARE A ROOT: on a plain station the root sits
+  # beside the checkouts and several of them reach it, so a key that were
+  # anything less than the directory each stands in would hand one checkout's
+  # products to another. z-launcher normalizes cwd to the repo root, so PWD's
+  # own basename IS that dirname.
+  #
+  # THE KEY IS THE SAME UNDER A STILE, where the harness composes the root
+  # beneath a scratch container the billet's dirname already keys. The dirname
+  # then appears twice on the path — once as the container's key, once here.
+  # That is the ruling and not a defect to repair: this composition holds one
+  # rule for both seats, and a composition that dropped the key where it looked
+  # redundant would be a second rule to keep in step.
+  BURD_LOOSEBOX_DIR="${BURC_LOOSEBOX_ROOT_DIR}/${PWD##*/}"
+  case "${BURD_LOOSEBOX_DIR}" in
+    /*) ;;
+    *)  BURD_LOOSEBOX_DIR="${PWD}/${BURD_LOOSEBOX_DIR}" ;;
+  esac
+  mkdir -p                           "${BURD_LOOSEBOX_DIR}" || zbud_die "Failed to create ${BUBG_LOOSEBOX_ROOT_DIR_BASE}: ${BURD_LOOSEBOX_DIR}"
+
+  # SETTLED for the same reason the temp directory is settled above: a
+  # relative loosebox root may spell a parent segment too.
+  BURD_LOOSEBOX_DIR="$(cd -P "${BURD_LOOSEBOX_DIR}" && pwd -P)" || zbud_die "Failed to settle ${BUBG_LOOSEBOX_ROOT_DIR_BASE}: ${BURD_LOOSEBOX_DIR}"
+  zbud_show "The ${BUBG_LOOSEBOX_ROOT_DIR_BASE} is ready: ${BURD_LOOSEBOX_DIR}"
 
   # Setup output directories under the output root (both fixed locations).
   #   current/  = this dispatch's outputs (fresh each run).
@@ -177,6 +222,13 @@ zbud_setup() {
   fi
   mkdir -p "${BURD_OUTPUT_DIR}" || zbud_die "Failed to create output directory: ${BURD_OUTPUT_DIR}"
 
+  # SETTLED for the same reason the temp directory is settled above. The
+  # previous directory is not itself settled by a cd — it need not exist yet
+  # on a first-ever dispatch — but is instead rederived as the settled
+  # output directory's own sibling, which carries no parent segment either.
+  BURD_OUTPUT_DIR="$(cd -P "${BURD_OUTPUT_DIR}" && pwd -P)" || zbud_die "Failed to settle output directory: ${BURD_OUTPUT_DIR}"
+  BURD_PREVIOUS_DIR="${BURD_OUTPUT_DIR%/*}/previous"
+
   zbud_show "Output directory ready: ${BURD_OUTPUT_DIR} (previous: ${BURD_PREVIOUS_DIR})"
 
   # Get Git context
@@ -198,6 +250,7 @@ zbud_setup() {
 
   # Export for child processes
   export BURD_TEMP_DIR
+  export BURD_LOOSEBOX_DIR
   export BURD_OUTPUT_DIR
   export BURD_PREVIOUS_DIR
   export BURD_NOW_STAMP
@@ -432,7 +485,7 @@ zbud_main() {
   zbud_write_burx_initial
 
   # Detect unexpected BURD_ variables
-  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_AMANUENSIS BURD_OUTRIDER BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
+  local -r z_known="BURD_CONFIG_DIR BURD_MOORINGS_DIR BURD_REGIME_FILE BURD_NO_LOG BURD_INTERACTIVE BURD_AMANUENSIS BURD_OUTRIDER BURD_COORDINATOR_SCRIPT BURD_LAUNCHER BURD_STATION_FILE BURD_TERM_COLS BURD_NOW_STAMP BURD_NOW_EPOCH BURD_TEMP_DIR BURD_LOOSEBOX_DIR BURD_OUTPUT_DIR BURD_PREVIOUS_DIR BURD_TRANSCRIPT BURD_GIT_CONTEXT BURD_LOG_LAST BURD_LOG_SAME BURD_LOG_HIST BURD_COMMAND BURD_TARGET BURD_CLI_ARGS BURD_TOKEN_1 BURD_TOKEN_2 BURD_TOKEN_3 BURD_TOKEN_4 BURD_TOKEN_5 BURD_TOOLS_DIR BURD_BUK_DIR BURD_TABTARGET_DIR BURD_TACKROOM BURD_OSTYPE BURD_COLOR"
   z_bud_unexpected=()
   local z_var
   for z_var in $(compgen -v BURD_); do
@@ -475,6 +528,7 @@ zbud_main() {
     fi
     echo "transcript:  ${BURD_TRANSCRIPT}"
     echo "output dir:  ${BURD_OUTPUT_DIR}"
+    echo "${BUBG_LOOSEBOX_ROOT_DIR_BASE}:    ${BURD_LOOSEBOX_DIR}"
   fi
 
   zbud_show "Executing coordinator"

@@ -446,6 +446,7 @@ User invokes TabTarget:
    BURC_TOOLS_DIR=Tools
    BURC_TEMP_ROOT_DIR=../temp-buk
    BURC_OUTPUT_ROOT_DIR=../output-buk
+   BURC_LOOSEBOX_ROOT_DIR=../loosebox-buk
    BURC_LOG_LAST=last
    BURC_LOG_EXT=txt
    EOF
@@ -743,6 +744,7 @@ BURC and BURS are BUK's own Config Regimes, serving as both:
 | `BURC_TOOLS_DIR` | string | Directory containing tool scripts |
 | `BURC_TEMP_ROOT_DIR` | string | Parent directory for temp directories |
 | `BURC_OUTPUT_ROOT_DIR` | string | Parent directory for output directories |
+| `BURC_LOOSEBOX_ROOT_DIR` | string | Parent directory holding one checkout-keyed loosebox per checkout |
 | `BURC_LOG_LAST` | xname | Basename for "last run" log file |
 | `BURC_LOG_EXT` | xname | Extension for log files (without dot) |
 
@@ -754,6 +756,7 @@ BURC_TABTARGET_DELIMITER=.
 BURC_TOOLS_DIR=Tools
 BURC_TEMP_ROOT_DIR=../temp-buk
 BURC_OUTPUT_ROOT_DIR=../output-buk
+BURC_LOOSEBOX_ROOT_DIR=../loosebox-buk
 BURC_LOG_LAST=last
 BURC_LOG_EXT=txt
 ```

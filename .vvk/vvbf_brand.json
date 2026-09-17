@@ -1,8 +1,9 @@
 {
-  "vvbc_commit": "ca220a41853c6985b748f8311922ce7ce58f17b7",
-  "vvbd_date": "260908-1909",
-  "vvbf_brand": "1066",
+  "vvbc_commit": "0b5ab0e4b8dfbf1119e5b985a46335d6dde18c6f",
+  "vvbd_date": "260917-0528",
+  "vvbf_brand": "1074",
   "vvbk_kits": [
+    "bkk",
     "buk"
   ]
 }

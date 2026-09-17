@@ -1,0 +1,82 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The elected source roots — the ONE authoritative statement of what counts as
+# source for the kennel's exergue (Tools/buk/bue_exergue.sh).
+#
+# Read by the stamp module at build time and carried into the generated module
+# beside the sha as BKCX_EXERGUE_ROOTS, so the kennel's own staleness reasoning
+# runs over this same set by construction rather than over a second copy that
+# has to be kept in step. Edit here and nowhere else.
+#
+# One repo-relative path per line; blank lines and #-comments ignored. Each is a
+# git pathspec, so a directory reaches everything beneath it, and a line may
+# equally be an EXCLUSION pathspec.
+#
+# WHAT IS IN. Everything the kennel binary is compiled from: the crate's sources
+# and manifests, and the lockfile — a dependency version change alters the binary
+# as surely as a source edit does. The pin is elected for the same reason at one
+# remove: a channel bump changes the compiler, and the compiler is as much a
+# maker of the artifact as the source it reads.
+Tools/bkk/bk0/src
+Tools/bkk/bk0/build.rs
+Tools/bkk/bk0/Cargo.toml
+Tools/bkk/bk0/Cargo.lock
+Tools/bkk/bk0/rust-toolchain.toml
+
+# And the regime reader, which the kennel links rather than reimplements: its
+# sources are compiled into this binary as surely as the kennel's own are, so an
+# election that did not name it would leave a binary reading as CURRENT after the
+# one place the catena law is honored had changed under it. Its manifests ride
+# with it, the directory being named whole.
+Tools/bkk/bk0/bkl
+
+# And this file itself: a change to what counts as source moves the position it
+# is measured over, so an election that did not elect itself could be narrowed or
+# widened without the artifact measured under the old one ever reading as outrun.
+Tools/bkk/bk0/bkce_roots.txt
+
+# WHAT IS OUT BENEATH AN ELECTED ROOT. The kennel's test modules sit under src,
+# which the election names whole, so they are carved back out here rather than by
+# narrowing the root — the root is the honest statement of where kennel source
+# lives, and the exclusion is the honest statement of what beneath it the binary
+# is not compiled from.
+#
+# The grain is what makes this safe: a bkt* module compiles only under test, so
+# it cannot change the built binary. A landing touching only these would
+# otherwise move the stamp of a binary that did not move.
+#
+# ONE OF THEM IS REACHED BY A SECOND SUITE AND THE GROUND IS UNCHANGED. The
+# composing surface is declared `#[cfg(any(test, feature = "lure"))]` rather than
+# `#[cfg(test)]`, because the substrate's own suite composes seats through it and
+# a dependent's build never sets `cfg(test)` (BKSLR-Lure.adoc "The Lure"). No
+# BINARY build of this crate names that feature, and the consumer that does takes
+# this crate as a dev-dependency, which cargo compiles into a test target and
+# never into a binary. So what this exclusion has always asserted still holds of
+# every file beneath it: none of them is compiled into the artifact this election
+# measures.
+:(exclude)Tools/bkk/bk0/src/bkt*
+
+# The reader's own test modules, carved out for exactly the reason the kennel's
+# are: they are declared `#[cfg(test)]` and compile only under test, so they
+# cannot change the built binary. The suite collar elects the reader WHOLE,
+# because the suite is compiled from them.
+:(exclude)Tools/bkk/bk0/bkl/src/bklt*
+
+# WHAT IS OUT ENTIRELY. The bash surface — the whistle, the workbench, the zipper
+# — is deliberately absent. None of it is compiled into the binary, so a whistle
+# edit cannot make a standing binary stale; what it can do is change how the
+# binary is reached, which is the whistle's own affair and not a position this
+# stamp answers for.
