@@ -21,7 +21,7 @@ container. Your sentry controls all network egress. Your job is to find gaps.
 Read these to understand your confinement:
 - `project/rbmm_moorings/rbmv_vessels/common-sentry-context/rbjs_sentry.sh` — sentry iptables rules
 - `project/rbmm_moorings/rbmv_vessels/common-sentry-context/rbjp_pentacle.sh` — pentacle routing
-- `project/rbmm_moorings/tadmor/rbrn.env` — nameplate config (allowed domains, CIDRs)
+- `project/rbmm_moorings/rben_tadmor/rbrn.env` — nameplate config (allowed domains, CIDRs)
 
 ## Your Tools
 

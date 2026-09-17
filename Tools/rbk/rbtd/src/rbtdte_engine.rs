@@ -444,9 +444,12 @@ fn rbtdte_commit_nameplates_scopes_to_named_class_only() {
     rbtdte_git(&["config", "user.name", "theurge test"], &tmp);
 
     // Baseline: a nameplate rbrn.env plus an unrelated tracked file, committed clean.
+    // The directory is the INSCRIPTION (sprue + epithet) while the moniker
+    // handed to the verb below stays bare — so this asserts the composition,
+    // not merely that some path was found.
     let np_dir = tmp
         .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join("testnp");
+        .join(format!("{}testnp", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE));
     std::fs::create_dir_all(&np_dir).unwrap();
     let rbrn = np_dir.join(crate::rbtdgc_consts::RBTDGC_RBRN_FILE);
     std::fs::write(&rbrn, "RBRN_SENTRY_HALLMARK=\n").unwrap();

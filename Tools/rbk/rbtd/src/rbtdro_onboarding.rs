@@ -85,12 +85,12 @@ use crate::rbtdrm_manifest::{
 // ── Vessel directories ────────────────────────────────────────
 
 // Vessel dirs composed from the crate-canonical vessels dir (single source).
-const RBTDRO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-sentry-deb-tether");
-const RBTDRO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-ifrit-forge");
-const RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-ifrit-airgap");
-const RBTDRO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-plantuml");
-const RBTDRO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-bottle-anthropic-jupyter");
-const RBTDRO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-graft-demo");
+const RBTDRO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_sentry_deb_tether");
+const RBTDRO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_ifrit_forge");
+const RBTDRO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_ifrit_airgap");
+const RBTDRO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_plantuml");
+const RBTDRO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_anthropic_jupyter");
+const RBTDRO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_graft_demo");
 
 // ── Nameplate monikers ────────────────────────────────────────
 
@@ -622,7 +622,7 @@ fn zrbtdro_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
     rbtdre_Verdict::Pass
 }
 
-/// Ordain rbev-sentry-deb-tether (conjure mode). Case 1 yoked the reliquary
+/// Ordain rbev_sentry_deb_tether (conjure mode). Case 1 yoked the reliquary
 /// touchmark into the vessel. Propagates the resulting hallmark to all sentry-tether
 /// consumers (moriah, srjcl, pluml) via RBRN_SENTRY_HALLMARK.
 fn rbtdro_ordain_conjure_sentry(dir: &Path) -> rbtdre_Verdict {
@@ -760,7 +760,7 @@ fn zrbtdro_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &Path) -> r
     rbtdre_Verdict::Pass
 }
 
-/// Ordain rbev-bottle-anthropic-jupyter (conjure mode). Propagates the
+/// Ordain rbev_bottle_anthropic_jupyter (conjure mode). Propagates the
 /// resulting hallmark to srjcl via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_ordain_conjure_jupyter(dir: &Path) -> rbtdre_Verdict {
     if let Err(v) = rbtdro_assert_reliquary_touchmark() {
@@ -954,7 +954,7 @@ fn zrbtdro_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbt
 }
 
 /// Pin upstream PlantUML by digest. Bind mode reads RBRV_BIND_IMAGE from
-/// rbev-bottle-plantuml/rbrv.env and mirrors the digest into GAR via Cloud
+/// rbev_bottle_plantuml/rbrv.env and mirrors the digest into GAR via Cloud
 /// Build (gcrane from reliquary + about/vouch metadata). Propagates plantuml
 /// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
 fn rbtdro_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
@@ -1088,7 +1088,7 @@ fn zrbtdro_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rb
     rbtdre_Verdict::Pass
 }
 
-/// Ordain rbev-graft-demo from its committed RBRV_GRAFT_IMAGE — anointed by
+/// Ordain rbev_graft_demo from its committed RBRV_GRAFT_IMAGE — anointed by
 /// the ccyolo kludge case's chain, consumed here as any operator-set regime
 /// value, no injection. No consumers — graft-demo is terminal.
 fn rbtdro_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {

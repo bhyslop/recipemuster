@@ -119,7 +119,7 @@ rbrn_render() {
     rbrn_list
     buc_die_now "Nameplate moniker required"
   fi
-  local z_nameplate_file="${RBCC_moorings_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
+  local z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${BUZ_FOLIO}/${RBCC_rbrn_file}"
   buv_render RBRN "RBRN - Recipe Bottle Regime Nameplate" "${z_nameplate_file}"
 }
 
@@ -229,7 +229,7 @@ zrbrn_furnish() {
   # would reject a nameplate whose hallmark field is still blank — the very state
   # the drive fills; mirrors feoff, which never loads the vessel it rewrites).
   if test -n "${BUZ_FOLIO:-}" && test "${z_command}" != "rbrn_drive"; then
-    local z_nameplate_file="${RBCC_moorings_dir}/${BUZ_FOLIO}/${RBCC_rbrn_file}"
+    local z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${BUZ_FOLIO}/${RBCC_rbrn_file}"
     test -f "${z_nameplate_file}" || buc_die_now "Nameplate not found: ${z_nameplate_file}"
     source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle

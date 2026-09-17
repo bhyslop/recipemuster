@@ -19,7 +19,7 @@
 #
 # Recipe Bottle Handbook Onboarding - Director Graft Mode
 #
-# Teaches graft mode using rbev-graft-demo: push a locally-built
+# Teaches graft mode using rbev_graft_demo: push a locally-built
 # image to the Depot. The Director owns the entire build; SLSA
 # cannot vouch for this image. The Vouch verdict reads GRAFTED —
 # an explicit signal that provenance stops at the local machine.
@@ -39,7 +39,7 @@ rbho_director_graft() {
   buc_doc_brief "${RBHO_TRACK_GRAFT} — push locally-built image, inspect GRAFTED Vouch verdict"
   buc_doc_shown || return 0
 
-  local -r z_vessel="rbev-graft-demo"
+  local -r z_vessel="rbev_graft_demo"
   local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
   local -r z_local_tag="graft-busybox:local"
 

@@ -124,7 +124,7 @@ const ZRBTHDT_SWEEP_PLANTED: &[&str] = &[
     "Study/study-model-prompt-tuning/README.md",
     "Tools/vslk/vslw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
-    "rbmm_moorings/fdkyclk/fdkyclk-proof.sh",
+    "rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh",
 ];
 const ZRBTHDT_SWEEP_CLEAN: &[&str] = &[
     "README.md",
@@ -132,7 +132,7 @@ const ZRBTHDT_SWEEP_CLEAN: &[&str] = &[
     "Tools/rbk/rba_auth.sh",
     "Tools/buk/buc_command.sh",
     "tt/rbw-cC.Charge.tadmor.sh",
-    "rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem",
+    "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem",
 ];
 
 #[test]

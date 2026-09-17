@@ -714,9 +714,9 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
 | `        │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
 | `        │   └── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
-| `        ├── rbev-sentry-deb-tether/` | [Conjure](#Conjure) — [Sentry](#Sentry) (tethered, upstream pull) |
+| `        ├── rbev_sentry_deb_tether/` | [Conjure](#Conjure) — [Sentry](#Sentry) (tethered, upstream pull) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `        ├── rbev-bottle-ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
+| `        ├── rbev_bottle_ccyolo/` | [Conjure](#Conjure) — [ccyolo](#ccyolo) Claude Code sandbox |
 | `        │   ├── build-context/` | Dockerfile + entrypoint — Claude Code + SSH entry |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
 | `        ├── common-ifrit-context/` | Shared [Ifrit](#Ifrit) build context (tether + airgap variants) |
@@ -726,23 +726,23 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   └── src/` | [Ifrit](#Ifrit) attack-binary source |
 | `        ├── common-ifrit-forge-context/` | Build context for the [Ifrit](#Ifrit) forge — warms cargo cache + pre-stages apt deps |
 | `        │   └── Dockerfile` | Forge image; consumed by `Dockerfile.airgap` as its base |
-| `        ├── rbev-bottle-ifrit-tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |
+| `        ├── rbev_bottle_ifrit_tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `        ├── rbev-bottle-ifrit-airgap/` | [Conjure](#Conjure) ([Airgap](#Airgap)) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
+| `        ├── rbev_bottle_ifrit_airgap/` | [Conjure](#Conjure) ([Airgap](#Airgap)) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
-| `        ├── rbev-bottle-ifrit-forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for [Airgap](#Airgap) [Ifrit](#Ifrit) |
+| `        ├── rbev_bottle_ifrit_forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for [Airgap](#Airgap) [Ifrit](#Ifrit) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `        ├── rbev-bottle-plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
+| `        ├── rbev_bottle_plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
-| `        ├── rbev-bottle-kroki/` | [Bind](#Bind) — Kroki render server for [nineveh](#nineveh) |
+| `        ├── rbev_bottle_kroki/` | [Bind](#Bind) — Kroki render server for [nineveh](#nineveh) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
-| `        ├── rbev-bottle-fdkyclk/` | [Conjure](#Conjure) — Keycloak test IdP for [fdkyclk](#fdkyclk) |
+| `        ├── rbev_bottle_fdkyclk/` | [Conjure](#Conjure) — Keycloak test IdP for [fdkyclk](#fdkyclk) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
-| `        ├── rbev-bottle-anthropic-jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |
+| `        ├── rbev_bottle_anthropic_jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
-| `        ├── rbev-graft-demo/` | [Graft](#Graft) — teaching vessel for the graft onboarding track |
+| `        ├── rbev_graft_demo/` | [Graft](#Graft) — teaching vessel for the graft onboarding track |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Graft](#Graft) mode |
-| `        └── rbev-busybox/` | [Conjure](#Conjure) — small proof vessel for cheap build checks |
+| `        └── rbev_busybox/` | [Conjure](#Conjure) — small proof vessel for cheap build checks |
 
 ## Appendix: Specific Regimes
 

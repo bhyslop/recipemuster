@@ -39,7 +39,7 @@
 // auth and BEFORE the write loop, so the yoke negatives are creds-free and
 // write-free. anoint takes the strict load (it must, to read RBRV_VESSEL_MODE), so
 // unlike feoff it cannot use a temp vessel — it drives the one real graft vessel
-// (rbev-graft-demo) as its folio; its broken-chain reject precedes the rewrite, so
+// (rbev_graft_demo) as its folio; its broken-chain reject precedes the rewrite, so
 // that tracked rbrv.env stays write-free too. Nothing here mints a token — the
 // fixture is credless.
 //
@@ -115,7 +115,7 @@ const RBTDRH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:b
 // canonical RBRR_VESSEL_DIR location, so a temp-staged vessel cannot reach the
 // chain read. The reject precedes the rewrite, so driving the real vessel leaves
 // its rbrv.env untouched (the case asserts that byte-identity).
-const RBTDRH_GRAFT_VESSEL: &str = "rbev-graft-demo";
+const RBTDRH_GRAFT_VESSEL: &str = "rbev_graft_demo";
 
 // The drive's folio is a real tracked nameplate — the drive resolves the target
 // rbrn.env by MONIKER (never a path, unlike feoff's temp vessel), so it must drive

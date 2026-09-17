@@ -157,6 +157,7 @@ pub const RBTDGC_RBRN_FILE: &str = "rbrn.env";
 pub const RBTDGC_RBRO_FILE: &str = "rbro.env";
 pub const RBTDGC_RBRV_FILE: &str = "rbrv.env";
 pub const RBTDGC_FOEDERA_SUBDIR: &str = "rbmf_foedera";
+pub const RBTDGC_NAMEPLATE_SPRUE: &str = "rben_";
 pub const RBTDGC_FACT_EXT_FOEDUS_HEALTH: &str = "foedus-health";
 pub const RBTDGC_FACT_EXT_FOEDUS: &str = "foedus";
 pub const RBTDGC_FACT_EXT_SEDERUNT: &str = "sederunt";

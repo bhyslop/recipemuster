@@ -915,7 +915,11 @@ fn rbtdrf_rv_rbrn_all_nameplates(dir: &Path) -> rbtdre_Verdict {
         let path = entry.path();
         if path.is_dir() && path.join("rbrn.env").exists() {
             found = true;
-            let moniker = entry.file_name().to_string_lossy().to_string();
+            let inscription = entry.file_name().to_string_lossy().to_string();
+            let moniker = inscription
+                .strip_prefix(crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE)
+                .unwrap_or(&inscription)
+                .to_string();
             if let Err(e) = rbtdrf_run_tt(
                 &root, RBTDGC_VALIDATE_NAMEPLATE, &[&moniker], dir,
                 &format!("rbrn-{}-validate", moniker),
@@ -973,7 +977,11 @@ fn rbtdrf_rs_rbrn(dir: &Path) -> rbtdre_Verdict {
         let path = entry.path();
         if path.is_dir() && path.join("rbrn.env").exists() {
             found = true;
-            let moniker = entry.file_name().to_string_lossy().to_string();
+            let inscription = entry.file_name().to_string_lossy().to_string();
+            let moniker = inscription
+                .strip_prefix(crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE)
+                .unwrap_or(&inscription)
+                .to_string();
             if let Err(e) = rbtdrf_run_tt(
                 &root, RBTDGC_RENDER_NAMEPLATE, &[&moniker], dir,
                 &format!("rbrn-{}-render", moniker),
@@ -1488,7 +1496,7 @@ fn rbtdrf_np_cygdrive_transform(dir: &Path) -> rbtdre_Verdict {
 
 fn rbtdrf_np_relative_passthrough(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_np_run(dir, "np-relative-passthrough", "cygwin",
-        "rbmv_vessels/rbev-busybox", Some("rbmv_vessels/rbev-busybox"))
+        "rbmv_vessels/rbev_busybox", Some("rbmv_vessels/rbev_busybox"))
 }
 
 fn rbtdrf_np_native_passthrough(dir: &Path) -> rbtdre_Verdict {

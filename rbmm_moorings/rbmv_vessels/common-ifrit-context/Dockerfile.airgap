@@ -4,7 +4,7 @@
 # a warm cargo dependency cache. This build needs zero network access — only
 # the project's own rbid crate compiles.
 #
-# Build context: rbev-vessels/common-ifrit-context/ (shared with tether variant)
+# Build context: rbmv_vessels/common-ifrit-context/ (shared with tether variant)
 
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}
