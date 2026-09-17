@@ -47,7 +47,7 @@ vslw_load_burc() {
   # BURD_REGIME_FILE is the dispatch-resolved burc.env path (exported by bul_launcher).
   local z_burc_file="${BURD_REGIME_FILE}"
 
-  test -f "${z_burc_file}" || buc_die "BURC file not found: ${z_burc_file}"
+  test -f "${z_burc_file}" || buc_die_now "BURC file not found: ${z_burc_file}"
 
   vslw_show "Loading BURC from: ${z_burc_file}"
   source "${z_burc_file}"
@@ -66,7 +66,7 @@ vslw_route() {
 
   zburd_sentinel
 
-  test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die "VSLW_TEMPLATE_DIR not set - must be set by launcher"
+  test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die_now "VSLW_TEMPLATE_DIR not set - must be set by launcher"
 
   vslw_show "BUD environment verified"
 
@@ -84,25 +84,25 @@ vslw_route() {
       local z_dest_dir="${PWD}/${VSLW_DEST_DIR}"
 
       # Validate template directory exists
-      test -d "${z_template_dir}" || buc_die "Template directory not found: ${z_template_dir}"
+      test -d "${z_template_dir}" || buc_die_now "Template directory not found: ${z_template_dir}"
 
       # Step 1: Delete destination (fail if delete fails - catches held file handles)
       if [ -d "${z_dest_dir}" ]; then
         buc_step "Removing existing SlickEdit project directory"
         vslw_show "Deleting: ${z_dest_dir}"
-        rm -rf "${z_dest_dir}" || buc_die "Failed to delete ${z_dest_dir} - is SlickEdit still open?"
+        rm -rf "${z_dest_dir}" || buc_die_now "Failed to delete ${z_dest_dir} - is SlickEdit still open?"
 
         # Verify deletion succeeded
-        test ! -d "${z_dest_dir}" || buc_die "Directory still exists after delete: ${z_dest_dir}"
+        test ! -d "${z_dest_dir}" || buc_die_now "Directory still exists after delete: ${z_dest_dir}"
       fi
 
       # Step 2: Create fresh destination directory
       buc_step "Creating fresh SlickEdit project directory"
-      mkdir -p "${z_dest_dir}" || buc_die "Failed to create directory: ${z_dest_dir}"
+      mkdir -p "${z_dest_dir}" || buc_die_now "Failed to create directory: ${z_dest_dir}"
 
       # Step 3: Copy template files
       buc_step "Copying SlickEdit project templates"
-      cp "${z_template_dir}"/* "${z_dest_dir}/" || buc_die "Failed to copy templates"
+      cp "${z_template_dir}"/* "${z_dest_dir}/" || buc_die_now "Failed to copy templates"
 
       # Step 4: Substitute project directory placeholder in .vpj files
       buc_step "Substituting project directory placeholder"
@@ -110,7 +110,7 @@ vslw_route() {
       for z_vpj_file in "${z_dest_dir}"/*.vpj; do
         test -f "${z_vpj_file}" || continue
         sed -i '' "s/__VSLW_PROJECT_DIR__/${VSLW_PROJECT_BASE_NAME}/g" "${z_vpj_file}" \
-          || buc_die "Failed to substitute placeholder in ${z_vpj_file}"
+          || buc_die_now "Failed to substitute placeholder in ${z_vpj_file}"
       done
 
       # Report success
@@ -121,7 +121,7 @@ vslw_route() {
 
     # Unknown command
     *)
-      buc_die "Unknown command: ${z_command}\nAvailable commands:\n  vslk-i  Install Visual SlickEdit Local Kit"
+      buc_die_now "Unknown command: ${z_command}\nAvailable commands:\n  vslk-i  Install Visual SlickEdit Local Kit"
       ;;
   esac
 }
@@ -130,7 +130,7 @@ vslw_main() {
   local z_command="${1:-}"
   shift || true
 
-  test -n "${z_command}" || buc_die "No command specified"
+  test -n "${z_command}" || buc_die_now "No command specified"
 
   vslw_route "${z_command}" "$@"
 }
