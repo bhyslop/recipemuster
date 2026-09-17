@@ -15,4 +15,4 @@ services:
       - DISABLE_ERROR_REPORTING=1
       - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
     volumes:
-      - ../rbev-vessels/rbev-bottle-ccyolo/workspace:/home/${RBRV_USER}/workspace:rw
+      - ./rbmv_vessels/rbev_bottle_ccyolo/workspace:/home/${RBRV_USER}/workspace:rw

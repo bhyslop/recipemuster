@@ -151,7 +151,7 @@ zrbob_furnish() {
     done
     buc_die_now "Nameplate moniker required (pass as argument)"
   fi
-  local z_nameplate_file="${RBCC_moorings_dir}/${z_folio}/${RBCC_rbrn_file}"
+  local z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_folio}/${RBCC_rbrn_file}"
   test -f "${z_nameplate_file}" || buc_die_now "Nameplate not found: ${z_nameplate_file}"
   source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"
   zrbrn_kindle

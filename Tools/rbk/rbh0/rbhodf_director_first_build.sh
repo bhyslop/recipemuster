@@ -30,7 +30,7 @@ rbho_director_first_build() {
   buc_doc_brief "${RBHO_TRACK_FIRST_BUILD} — conclave, conjure, tour, summon, abjure"
   buc_doc_shown || return 0
 
-  local -r z_vessel="rbev-sentry-deb-tether"
+  local -r z_vessel="rbev_sentry_deb_tether"
 
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then

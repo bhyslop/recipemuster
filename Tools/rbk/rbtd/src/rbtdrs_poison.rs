@@ -79,8 +79,8 @@ const RBTDRS_VAR_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 // and known-good conjure vessels, all in-tree. Removing any fails the cases loud
 // (the verb cannot locate the regime), not silently.
 const RBTDRS_NAMEPLATE_TADMOR: &str = "tadmor";
-const RBTDRS_VESSEL_BUSYBOX: &str = "rbev-busybox";
-const RBTDRS_VESSEL_PLANTUML: &str = "rbev-bottle-plantuml";
+const RBTDRS_VESSEL_BUSYBOX: &str = "rbev_busybox";
+const RBTDRS_VESSEL_PLANTUML: &str = "rbev_bottle_plantuml";
 
 // ── Poison harness ──────────────────────────────────────────
 

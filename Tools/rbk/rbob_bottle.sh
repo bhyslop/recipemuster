@@ -129,19 +129,19 @@ zrbob_kindle() {
   readonly ZRBOB_COMPOSE_BASE="${RBCC_KIT_DIR}/rbob_compose.yml"
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die_now "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
 
-  readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBRN_MONIKER}/rbnnh_compose.yml"
+  readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_compose.yml"
   # Fragment is optional — existence checked at compose invocation time
 
-  readonly ZRBOB_POST_CHARGE_HOOK="${RBCC_moorings_dir}/${RBRN_MONIKER}/rbnnh_post_charge.sh"
+  readonly ZRBOB_POST_CHARGE_HOOK="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_post_charge.sh"
   # Hook is optional — existence + executable bit checked at charge tail
 
-  readonly ZRBOB_CHARGE_NOTE="${RBCC_moorings_dir}/${RBRN_MONIKER}/rbnnh_charge_note.txt"
+  readonly ZRBOB_CHARGE_NOTE="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_charge_note.txt"
   # Note is optional — existence checked at charge tail
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBCC_rbrr_file}"
   readonly ZRBOB_ENV_RBJE="${RBCC_KIT_DIR}/rbje_compose_probe.env"
-  readonly ZRBOB_ENV_RBRN="${RBCC_moorings_dir}/${RBRN_MONIKER}/${RBCC_rbrn_file}"
+  readonly ZRBOB_ENV_RBRN="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
   # Per-vessel image refs (computed once; used by compose via the env-file
   # bridge below, by charge preflight, and by auto-summon). A kludge hallmark

@@ -21,7 +21,7 @@
 #
 # Idempotent: tolerant of already-removed state, so it converges whether run
 # after a full proof, a partial one, or twice. Run from the repository root:
-#     bash rbmm_moorings/fdkyclk/fdkyclk-teardown.sh
+#     bash rbmm_moorings/rben_fdkyclk/fdkyclk-teardown.sh
 #
 # Federation-vocabulary mapping for the BCG conversion (gcloud here is throwaway
 # POC scaffolding; the durable transform is REST + the payor OAuth token, NO

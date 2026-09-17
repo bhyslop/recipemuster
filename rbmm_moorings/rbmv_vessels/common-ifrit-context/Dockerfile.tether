@@ -4,7 +4,7 @@
 # irrelevant, iteration speed matters). Layer-cached dependency compilation
 # means source-only changes rebuild just the ifrit crate.
 #
-# Build context: rbev-vessels/common-ifrit-context/ (shared between tether and
+# Build context: rbmv_vessels/common-ifrit-context/ (shared between tether and
 # airgap variants — companion Dockerfile.airgap builds FROM a pre-warmed forge
 # image to satisfy airgap egress discipline).
 

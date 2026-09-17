@@ -19,7 +19,7 @@
 #
 # Recipe Bottle Handbook Onboarding - Director Bind Mode
 #
-# Teaches bind mode using rbev-bottle-plantuml: pin an upstream image
+# Teaches bind mode using rbev_bottle_plantuml: pin an upstream image
 # by digest into GAR, no Dockerfile, no build context, no SLSA. The
 # pluml Crucible deliberately mixes a kludged Sentry with a bound
 # Bottle — two ordain modes cohabiting in one Crucible is the
@@ -37,9 +37,9 @@ rbho_director_bind() {
   buc_doc_shown || return 0
 
   local -r z_moniker="pluml"
-  local -r z_vessel="rbev-bottle-plantuml"
+  local -r z_vessel="rbev_bottle_plantuml"
   local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
-  local -r z_pluml_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_pluml_rbrn="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
 
 
   local z_has_depot=0

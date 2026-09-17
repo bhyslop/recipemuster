@@ -22,7 +22,7 @@
 #![allow(private_interfaces)]
 
 /// Vessels directory as a compile-time literal, for the `concat!` sites that
-/// compose `<vessels>/rbev-*` const paths (their leaf names are Rust-local, so
+/// compose `<vessels>/rbev_*` const paths (their leaf names are Rust-local, so
 /// nothing in bash composes them). `concat!` rejects a const *identifier* but
 /// eagerly expands a `macro_rules!` invocation, consuming the literal token it
 /// produces — the codebase's established zero-dependency idiom for compile-time

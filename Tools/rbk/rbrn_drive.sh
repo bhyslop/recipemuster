@@ -60,7 +60,7 @@ rbrn_drive() {
   # drive rewrites one line; loading the regime would enforce the field's
   # min-length and reject a still-blank hallmark — the very state the drive fills.
   # Mirrors feoff, which never loads the vessel whose rbrv.env it rewrites.
-  local -r z_rbrn_file="${RBCC_moorings_dir}/${z_nameplate}/${RBCC_rbrn_file}"
+  local -r z_rbrn_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_nameplate}/${RBCC_rbrn_file}"
   test -f "${z_rbrn_file}" || buc_die_now "Nameplate regime file not found: ${z_rbrn_file}"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, the

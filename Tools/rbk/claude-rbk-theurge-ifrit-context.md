@@ -7,7 +7,7 @@ Read this file when working on theurge (test orchestrator), ifrit (attack binary
 Two Rust binaries with completely different roles and build targets:
 
 - **Theurge** (`Tools/rbk/rbtd/`) — test orchestrator, runs on the **host** (macOS/Linux). Charges a crucible (sentry + pentacle + bottle containers), invokes attacks, observes results, produces verdicts. Built via `tt/rbw-tb.Build.sh`.
-- **Ifrit** (`rbev-vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev-bottle-ifrit-tether` (and the forthcoming airgap variant). Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
+- **Ifrit** (`rbmv_vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev_bottle_ifrit_tether` (and the forthcoming airgap variant). Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
 
 **Coordinated tests** are the distinctive capability: theurge simultaneously observes from outside (via sentry writ/fiat commands) while ifrit attacks from inside. Neither binary alone can do this.
 
@@ -66,11 +66,11 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 1. Ordain the vessel:
    ```
-   tt/rbw-fO.DirectorOrdainsHallmark.sh rbev-bottle-ifrit-tether
+   tt/rbw-fO.DirectorOrdainsHallmark.sh rbev_bottle_ifrit_tether
    ```
 2. Summon the ordained hallmark locally:
    ```
-   tt/rbw-fs.RetrieverSummonsHallmark.sh rbev-bottle-ifrit-tether <hallmark>
+   tt/rbw-fs.RetrieverSummonsHallmark.sh rbev_bottle_ifrit_tether <hallmark>
    ```
 3. Drive the ordained hallmark into the nameplate with `tt/rbw-nd.DriveNameplateHallmark.sh tadmor bottle <hallmark>` (or omit `<hallmark>` to chain-read it from the ordain you just ran), commit, and re-run the full fixture to verify.
 

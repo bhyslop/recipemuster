@@ -376,7 +376,7 @@ zrbfc_image_config_fetch() {
 # and emits the .vessel field. Single home for hallmark→vessel lookup; callers
 # that need vessel identity for operation prose or logging route through here.
 # Args: hallmark
-# Emits: vessel sigil (e.g., "rbev-busybox")
+# Emits: vessel sigil (e.g., "rbev_busybox")
 rbfc_vessel_for_hallmark_capture() {
   zrbfc_sentinel
 

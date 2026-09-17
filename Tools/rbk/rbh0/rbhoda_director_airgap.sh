@@ -37,12 +37,12 @@ rbho_director_airgap() {
 
   local -r z_moniker="moriah"
   local -r z_tether_moniker="tadmor"
-  local -r z_forge_vessel="rbev-bottle-ifrit-forge"
-  local -r z_airgap_vessel="rbev-bottle-ifrit-airgap"
-  local -r z_tether_vessel="rbev-bottle-ifrit-tether"
+  local -r z_forge_vessel="rbev_bottle_ifrit_forge"
+  local -r z_airgap_vessel="rbev_bottle_ifrit_airgap"
+  local -r z_tether_vessel="rbev_bottle_ifrit_tether"
   local -r z_airgap_rbrv="${RBRR_VESSEL_DIR}/${z_airgap_vessel}/${RBCC_rbrv_file}"
-  local -r z_moriah_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
-  local -r z_tether_rbrn="${RBCC_moorings_dir}/${z_tether_moniker}/${RBCC_rbrn_file}"
+  local -r z_moriah_rbrn="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_tether_rbrn="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_tether_moniker}/${RBCC_rbrn_file}"
 
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
@@ -190,7 +190,7 @@ rbho_director_airgap() {
   buh_line "Now bridge: the airgap ${RBYC_VESSEL} ${z_lk_airgap} declares"
   buh_line "${z_lk_forge} as its base:"
   buh_e
-  buh_code "   RBRV_IMAGE_1_ORIGIN=rbev-bottle-ifrit-forge"
+  buh_code "   RBRV_IMAGE_1_ORIGIN=rbev_bottle_ifrit_forge"
   buh_code "   RBRV_IMAGE_1_ANCHOR="
   buh_e
   buh_line "ORIGIN names the producer ${RBYC_VESSEL} (lineage); ANCHOR will hold"

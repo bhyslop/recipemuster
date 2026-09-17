@@ -34,9 +34,9 @@ rbho_first_crucible() {
   buc_doc_shown || return 0
 
   local -r z_moniker="ccyolo"
-  local -r z_sentry_vessel="rbev-sentry-deb-tether"
-  local -r z_bottle_vessel="rbev-bottle-ccyolo"
-  local -r z_nameplate_file="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_sentry_vessel="rbev_sentry_deb_tether"
+  local -r z_bottle_vessel="rbev_bottle_ccyolo"
+  local -r z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
   buym_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"

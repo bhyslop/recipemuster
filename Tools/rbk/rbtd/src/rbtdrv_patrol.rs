@@ -305,17 +305,17 @@ pub(crate) fn rbtdrv_docker_config_label(image_ref: &str, label_key: &str) -> Re
 //
 // Sequence:
 //   1. Audit hallmarks → capture baseline.
-//   2. Ordain rbev-busybox in conjure mode → capture new hallmark.
+//   2. Ordain rbev_busybox in conjure mode → capture new hallmark.
 //   3. Audit hallmarks → assert baseline ∪ {new_hallmark}.
 //   4. Rekon new_hallmark → assert all five basenames yes.
 //   5. Abjure new_hallmark.
 //   6. Rekon new_hallmark → assert all five basenames not yes.
 //   7. Audit hallmarks → assert == baseline (no collateral damage).
 //
-// rbev-busybox is the load-bearing vessel — small, fast, conjure-mode
+// rbev_busybox is the load-bearing vessel — small, fast, conjure-mode
 // (full ark inventory). Also referenced by rbtdrv_batch_vouch_lifecycle.
 
-pub(crate) const RBTDRV_BUSYBOX_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-busybox");
+pub(crate) const RBTDRV_BUSYBOX_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_busybox");
 
 /// All five ark basenames produced by a conjure-mode hallmark.
 const ZRBTDRV_ARK_BASENAMES_ALL: &[&str] = &[
@@ -395,7 +395,7 @@ const RBTDRV_REDON_ANNOUNCE: &str = "Re-donned the director mantle mid-flight";
 /// onto a busybox touchmark trips the collision guard's different-digest branch.
 /// Carries the same yoked reliquary as busybox, so host-side tool resolution
 /// succeeds and the failure lands cloud-side at the guard, not host-side.
-const RBTDRV_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev-sentry-deb-tether");
+const RBTDRV_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_sentry_deb_tether");
 
 /// Assert a read verb (summon/plumb/augur) exited the vacant band — the named
 /// hallmark or Lode is absent from the registry (buc_reject BUBC_band_vacant),

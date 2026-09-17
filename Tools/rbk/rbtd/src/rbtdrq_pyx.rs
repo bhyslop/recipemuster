@@ -270,7 +270,7 @@ pub(crate) const ZRBTDRQ_EXEMPT: &[(&str, &str)] = &[
     // over nothing but an ephemeral local container, and the realm cannot be
     // exercised without it. A real credential never belongs beside it.
     (
-        "rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem",
+        "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem",
         "caged asserter key for the local Keycloak test realm; no live authority",
     ),
 ];

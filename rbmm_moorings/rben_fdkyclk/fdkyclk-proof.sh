@@ -25,7 +25,7 @@
 # PROOF-STAGE ancestor of the deferred rbx_ establishment/accessor units — NOT
 # yet BCG-productized.
 #
-# Run from the repository root:  bash rbmm_moorings/fdkyclk/fdkyclk-proof.sh
+# Run from the repository root:  bash rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh
 # Prereqs: fdkyclk crucible charged (tt/rbw-cC.Charge.fdkyclk.sh); payor
 # credential installed (tt/rbw-gPI...); gcloud + jq + python3 on PATH.
 #
@@ -52,7 +52,7 @@ KC_CLIENT_SECRET=fdkyclk-test-secret
 # RFC 7523 asserting key (committed caged test scaffolding; its public half is baked into
 # the realm as publicKeySignatureVerifier). The realm links the federate user to the
 # asserter IdP, so an assertion carrying ASSERTER_SUB resolves to that user.
-ASSERTER_KEY=rbmm_moorings/fdkyclk/fdkyclk-asserter-key.pem
+ASSERTER_KEY=rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem
 ASSERTER_KID=fdkyclk-asserter-key-1
 ASSERTER_ISSUER=https://fdkyclk-asserter.test
 ASSERTER_SUB=fdkyclk-ext-subject-001

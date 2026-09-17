@@ -10,6 +10,6 @@
 services:
   bottle:
     volumes:
-      - ./srjcl/workspace:${RBRR_BOTTLE_WORKSPACE}:rw
+      - ./rben_srjcl/workspace:${RBRR_BOTTLE_WORKSPACE}:rw
     environment:
       - ANTHROPIC_API_KEY

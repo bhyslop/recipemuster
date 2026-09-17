@@ -131,7 +131,8 @@ rbrn_list_capture() {
   for z_i in "${!z_files[@]}"; do
     test -f "${z_files[$z_i]}" || continue
     local z_dir="${z_files[$z_i]%/*}"
-    local z_moniker="${z_dir##*/}"
+    local z_inscription="${z_dir##*/}"
+    local z_moniker="${z_inscription#"${RBCC_nameplate_sprue}"}"
     z_result="${z_result}${z_result:+ }${z_moniker}"
   done
   test -n "${z_result}" || return 1

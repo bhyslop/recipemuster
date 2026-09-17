@@ -263,7 +263,8 @@ fn rbtdre_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(
 }
 
 /// Commit the named nameplates' rbrn.env files and nothing else. Each moniker
-/// derives `<moorings>/<nameplate>/rbrn.env`.
+/// derives `<moorings>/<sprue><nameplate>/rbrn.env` — the moniker stays bare and
+/// the directory wears the inscription sprue.
 pub fn rbtdre_commit_nameplates(
     root: &Path,
     nameplates: &[&str],
@@ -273,8 +274,9 @@ pub fn rbtdre_commit_nameplates(
         .iter()
         .map(|np| {
             format!(
-                "{}/{}/{}",
+                "{}/{}{}/{}",
                 crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
+                crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE,
                 np,
                 crate::rbtdgc_consts::RBTDGC_RBRN_FILE
             )

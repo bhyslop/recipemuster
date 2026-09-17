@@ -45,6 +45,15 @@ RBCC_moorings_dir="rbmm_moorings"
 RBCC_launchers_subdir="rbml_launchers"
 RBCC_vessels_subdir="rbmv_vessels"
 RBCC_foedera_subdir="rbmf_foedera"
+# Nameplate inscription sprue — the family head every nameplate directory
+# stands under, carried with its separator so a call site composes
+# "${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${moniker}/". The foedera need no
+# such constant because RBRR_ACTIVE_FOEDUS names the whole sprued inscription,
+# but a nameplate's moniker is also its compose project, its container names and
+# its tabtarget imprint, so the moniker stays bare and the directory wears the
+# sprue. Every dirname-to-moniker derivation therefore strips this prefix, and
+# every moniker-to-path composition adds it.
+RBCC_nameplate_sprue="rben_"
 # Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
 # per standing foedus. The single home for "where the foedera live": the
 # library DIRECTORY is a distinct fact from any one foedus's rbrf.env, and the
@@ -308,6 +317,7 @@ rbcc_emit_consts() {
     RBCC_rbro_file       \
     RBCC_rbrv_file       \
     RBCC_foedera_subdir  \
+    RBCC_nameplate_sprue \
     RBCC_fact_ext_foedus_health \
     RBCC_fact_ext_foedus \
     RBCC_fact_ext_sederunt \

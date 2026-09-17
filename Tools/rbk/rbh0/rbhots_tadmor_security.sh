@@ -38,9 +38,9 @@ rbho_tadmor_security() {
   buc_doc_shown || return 0
 
   local -r z_moniker="tadmor"
-  local -r z_sentry_vessel="rbev-sentry-deb-tether"
-  local -r z_bottle_vessel="rbev-bottle-ifrit-tether"
-  local -r z_nameplate_file="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_sentry_vessel="rbev_sentry_deb_tether"
+  local -r z_bottle_vessel="rbev_bottle_ifrit_tether"
+  local -r z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
 
   local z_has_docker=0
   command -v docker >/dev/null 2>&1 && z_has_docker=1

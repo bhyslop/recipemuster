@@ -5,7 +5,7 @@
 # User SSHs in as "claude" (empty password, PAM-permissive),
 # then runs `claude` to authenticate via OAuth copy/paste flow.
 #
-# Build context: rbev-vessels/rbev-bottle-ccyolo/build-context/
+# Build context: rbmv_vessels/rbev_bottle_ccyolo/build-context/
 
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}
