@@ -48,13 +48,13 @@
 use std::path::Path;
 use std::path::PathBuf;
 
-use bkmk::bkmtu_lure::bkmtu_Lure;
+use bkk::bktu_lure::bktu_Lure;
 
 use crate::buas_seat::buas_source;
 
 /// A composed seat with one door, standing until the hurdle drops it.
 pub struct buah_Bench {
-    lure: bkmtu_Lure,
+    lure: bktu_Lure,
     tabtarget: PathBuf,
 }
 
@@ -82,8 +82,8 @@ impl buah_Bench {
     /// shell options for the whole body, which would make every other line of
     /// that body a weaker assertion than it reads as.
     pub fn buah_seat(name: &str, modules: &[&str], body: &str) -> buah_Bench {
-        let lure = bkmtu_Lure::bkmtu_compose(name);
-        let tabtarget = lure.bkmtu_substrate_seat(&format!(
+        let lure = bktu_Lure::bktu_compose(name);
+        let tabtarget = lure.bktu_substrate_seat(&format!(
             "#!/bin/bash\n\
              set -euo pipefail\n\
              {sources}{body}\n",
@@ -96,7 +96,7 @@ impl buah_Bench {
 
     /// Drive the seat's door and hand back what the shell said.
     pub fn buah_drive(&self, args: &[&str]) -> buah_Said {
-        let out = self.lure.bkmtu_dispatch(&self.tabtarget, args);
+        let out = self.lure.bktu_dispatch(&self.tabtarget, args);
 
         let mut text = String::from_utf8_lossy(&out.stdout).into_owned();
         text.push_str(&String::from_utf8_lossy(&out.stderr));
@@ -113,7 +113,7 @@ impl buah_Bench {
     /// this root, so the rust side chooses where the report lands rather than
     /// reconstructing a path the dispatch composed.
     pub fn buah_root(&self) -> &Path {
-        self.lure.bkmtu_root()
+        self.lure.bktu_root()
     }
 
     /// Read a file the coordinator wrote under the seat.

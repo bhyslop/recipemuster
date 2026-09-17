@@ -100,7 +100,7 @@ fn bujy_verdict(name: &str, env: &[&str]) -> buk::buah_hurdle::buah_Said {
          printf \"",
     );
     probe.push_str(BUJY_SAID);
-    probe.push_str("%s|%s\\n\" \"${z_mode}\" \"${ZBUYM_USE_HYPERLINKS}\"'\n");
+    probe.push_str("%s|%s\\n\" \"${z_mode}\" \"${z_buym_use_hyperlinks}\"'\n");
 
     buah_Bench::buah_seat(name, &[], &probe).buah_drive(&[])
 }

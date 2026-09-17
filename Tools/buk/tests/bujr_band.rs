@@ -22,7 +22,7 @@
 //! Five of the six ran their death inside `zbuto_invoke`'s isolation subshell and
 //! read the status back in the bench's own process — an observation taken from
 //! inside the process tree that dies, which is the posture the obedience sheaf
-//! disqualifies (BKMSOB-Obedience.adoc "Observation Posture"). Here each death is
+//! disqualifies (BKSOB-Obedience.adoc "Observation Posture"). Here each death is
 //! raised BARE at a coordinator's top level: nothing contains it, nothing on the
 //! left of `||` swallows the shell's own exit, and the number is read in this
 //! process, which the dispatch cannot reach.
