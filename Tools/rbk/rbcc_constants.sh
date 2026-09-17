@@ -53,7 +53,7 @@ RBCC_foedera_subdir="rbmf_foedera"
 # its tabtarget imprint, so the moniker stays bare and the directory wears the
 # sprue. Every dirname-to-moniker derivation therefore strips this prefix, and
 # every moniker-to-path composition adds it.
-RBCC_nameplate_sprue="rben_"
+readonly RBCC_nameplate_sprue="rben_"
 # Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
 # per standing foedus. The single home for "where the foedera live": the
 # library DIRECTORY is a distinct fact from any one foedus's rbrf.env, and the
