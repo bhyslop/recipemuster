@@ -113,7 +113,7 @@ zrbrv_enforce() {
 # List available vessel sigils as space-separated tokens
 # Prerequisite: RBRR kindled (needs RBRR_VESSEL_DIR)
 rbrv_list_capture() {
-  zrbrr_sentinel
+  zrbrv_sentinel
 
   local z_result=""
   local z_dirs=("${RBRR_VESSEL_DIR}"/*)
