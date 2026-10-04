@@ -205,6 +205,8 @@ zrbob_kindle() {
   z_host_gid=$(<"${z_gid_file}")
   export RBOB_HOST_UID="${z_host_uid}"
   export RBOB_HOST_GID="${z_host_gid}"
+  readonly RBOB_HOST_UID
+  readonly RBOB_HOST_GID
 
   # Load bottle vessel user for compose and SSH (optional — empty means image default)
   local z_bottle_rbrv="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}/${RBCC_rbrv_file}"
