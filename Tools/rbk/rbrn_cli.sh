@@ -234,6 +234,9 @@ zrbrn_furnish() {
     source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle
     zrbrn_enforce
+  elif test "${z_command}" != "rbrn_drive"; then
+    # No nameplate addressed: list, survey and audit still owe the module its kindle
+    zrbrn_kindle
   fi
 }
 
