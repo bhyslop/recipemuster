@@ -31,9 +31,9 @@ source "${BURD_BUK_DIR}/bupr_regime.sh"
 # Backward-compatible function aliases
 zrbcr_kindle()       { zbupr_kindle "$@"; }
 zrbcr_sentinel()     { zbupr_sentinel "$@"; }
-rbcr_section_begin() { zrbcr_sentinel; bupr_section_begin "$@"; }
-rbcr_section_end()   { zrbcr_sentinel; bupr_section_end "$@"; }
-rbcr_section_item()  { zrbcr_sentinel; bupr_section_item "$@"; }
-rbcr_item()          { zrbcr_sentinel; bupr_item "$@"; }
+rbcr_section_begin() { zrbcr_sentinel "$@"; bupr_section_begin "$@"; }
+rbcr_section_end()   { zrbcr_sentinel "$@"; bupr_section_end "$@"; }
+rbcr_section_item()  { zrbcr_sentinel "$@"; bupr_section_item "$@"; }
+rbcr_item()          { zrbcr_sentinel "$@"; bupr_item "$@"; }
 
 # eof
