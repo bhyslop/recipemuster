@@ -11,7 +11,7 @@ services:
     user: "${RBRV_USER}:${RBRV_USER}"
     working_dir: ${RBRR_BOTTLE_WORKSPACE}
     env_file:
-      - tadmor/rbrn.env
+      - rben_tadmor/rbrn.env
     environment:
       - DISABLE_TELEMETRY=1
       - DISABLE_ERROR_REPORTING=1
