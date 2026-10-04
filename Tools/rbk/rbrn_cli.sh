@@ -137,7 +137,7 @@ rbrn_audit() {
   buc_doc_shown || return 0
 
   zrbrn_fleet_survey
-  # After the survey: kindle locks the RBRN names the survey's subshells source
+  # After the survey: the kindle locks the nameplate names the survey's subshells source
   test "${ZRBRN_KINDLED:-}" = "1" || zrbrn_kindle
   rbrn_preflight
   buc_step "Cross-nameplate audit passed"
