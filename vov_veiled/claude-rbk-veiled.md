@@ -69,7 +69,7 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 > **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`specs/rbk/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `specs/rbk/RBS*-*.adoc`.
 
-- **RBRN**  → `specs/rbk/RBRN-RegimeNameplate.adoc`
+- **RBSRN**  → `specs/rbk/RBSRN-RegimeNameplate.adoc`
 
 ### Shelved code
 
@@ -91,4 +91,4 @@ lint). Read it there before adding or dropping a row.
 
 ### Veiled diagram
 
-- **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}` (the provenance tale — a derived presentation of RBSYP's marker skeleton, veiled 2026-07-13 because its rendered title named its closed source in a shipped image, and because no README `<picture>` block ever consumed it. Frozen: it sits outside the `diagrams/*.puml` glob the pluml crucible case renders, so it is not re-rendered. Its intended re-gestation is chapbook-driven puml authoring; the delivered `rbdg*` set is the three federation diagrams.)
+- **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale{.puml,-light.svg,-dark.svg}` (the provenance tale — a derived presentation of RBSYP's marker skeleton, veiled 2026-07-13 because its rendered title named its closed source in a shipped image, and because no README `<picture>` block ever consumed it. Frozen: it sits outside the `diagrams/*.puml` glob the pluml crucible case renders, so it is not re-rendered. Its intended re-gestation is chapbook-driven puml authoring; the delivered `rbdg*` set is the three federation diagrams.)

@@ -1730,11 +1730,7 @@ fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
         .project_root()
         .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(format!(
-            "{}{}",
-            crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE,
-            ctx.fixture()
-        ))
+        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.fixture()))
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
         .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
@@ -2340,8 +2336,10 @@ fn zrbtdrc_darken_svg(light: &str) -> String {
 
 /// Re-renders every `diagrams/*.puml` source under the project root through the
 /// pluml-crucible PlantUML server, asserting each response is a well-formed SVG,
-/// and writes two committed siblings per source: the light `{stem}.svg` straight
-/// from the server, and a `{stem}-dark.svg` recolored by `zrbtdrc_darken_svg`.
+/// and writes two committed siblings per source: the light `{stem}-light.svg`
+/// straight from the server, and a `{stem}-dark.svg` recolored by
+/// `zrbtdrc_darken_svg`. Each render wears a mark its source lacks, so no render
+/// shares its source's stem.
 /// README embeds the pair via `<picture>` so each diagram tracks the reader's
 /// color scheme. This is the one pluml case that writes tracked repo files; the
 /// diagram set lives in the glob alone (drop a new `rbdgX_*.puml` in `diagrams/`
@@ -2416,7 +2414,7 @@ fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
                     stem
                 ));
             }
-            let out = diagrams_dir.join(format!("{}.svg", stem));
+            let out = diagrams_dir.join(format!("{}-light.svg", stem));
             if let Err(e) = std::fs::write(&out, &svg) {
                 return rbtdre_Verdict::Fail(format!("write {}: {}", out.display(), e));
             }
