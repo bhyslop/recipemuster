@@ -1730,7 +1730,7 @@ fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
         .project_root()
         .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(ctx.fixture())
+        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.fixture()))
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
         .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
