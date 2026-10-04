@@ -6,7 +6,7 @@
 - **RBS0** → `specs/rbk/RBS0-SpecTop.adoc`
 - **RBSRN** → `specs/rbk/RBSRN-RegimeNameplate.adoc`
 - **RBHW0** → `vov_veiled/rbhw0_*.sh`
-- **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale.{puml,svg}`
+- **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale.puml`, `rbdgp_provenance-tale-light.svg`, `rbdgp_provenance-tale-dark.svg`
 
 ## Carried BUK rows — a curated subset, and a shrinking bridge
 
