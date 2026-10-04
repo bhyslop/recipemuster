@@ -54,28 +54,28 @@ set -euo pipefail
 # the move below: harbinger retires this directory aside — a rename to a timestamped
 # sibling, never a delete — so it may only ever name THIS one, never the maintainer
 # tree it sits beside, and even a wrong guard could not destroy data.
-RBLM_harbinger_dirname="rbm_coldwalk"
+readonly RBLM_harbinger_dirname="rbm_coldwalk"
 
 # The clone lives one level down, in its own subdirectory. The findings memo is a
 # sibling of it under the parent dir, so discarding the clone subdirectory leaves the
 # memo standing for the operator to review and commit.
-RBLM_harbinger_clone_subdir="recipebottle"
+readonly RBLM_harbinger_clone_subdir="recipebottle"
 
 # The promoted public repository — HTTPS, anonymous read. This is the exact face a
 # real stranger clones: the default branch of the public repo after promotion. Named
 # in full here because harbinger stays behind (withheld) and the walk must land on the
 # genuine public tree, not a maintainer remote alias.
-RBLM_harbinger_public_url="https://github.com/scaleinv/recipebottle.git"
+readonly RBLM_harbinger_public_url="https://github.com/scaleinv/recipebottle.git"
 
 # The pristine reference the walk diffs against. The clone's own default branch is left
 # untouched as the reference; the walker commits its kludges on a throwaway branch, so
 # a diff at the end shows exactly what the walk changed.
-RBLM_harbinger_walk_branch="coldwalk"
+readonly RBLM_harbinger_walk_branch="coldwalk"
 
 # The findings-memo basename slug. The full basename is dated at run time:
 # memo-<YYYYMMDD>-coldwalk-shakedown.md — the maintainer reviews it and commits it into
 # the studbook (jjqs_studbook/), affiliated to the pace.
-RBLM_harbinger_memo_slug="coldwalk-shakedown"
+readonly RBLM_harbinger_memo_slug="coldwalk-shakedown"
 
 ######################################################################
 # Command: harbinger - stand up the guarded cold-walk clone and hand off
