@@ -4,7 +4,7 @@
 - **JDG** → `guides/rbk/JDG-JailerDialectGuide.md`
 - **PUCG** → `guides/rbk/PUCG_PlantUmlCodingGuide.md`
 - **RBS0** → `specs/rbk/RBS0-SpecTop.adoc`
-- **RBRN** → `specs/rbk/RBRN-RegimeNameplate.adoc`
+- **RBSRN** → `specs/rbk/RBSRN-RegimeNameplate.adoc`
 - **RBHW0** → `vov_veiled/rbhw0_*.sh`
 - **RBDGP** → `vov_veiled/diagrams/rbdgp_provenance-tale.puml`, `rbdgp_provenance-tale-light.svg`, `rbdgp_provenance-tale-dark.svg`
 

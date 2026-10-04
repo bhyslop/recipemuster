@@ -69,7 +69,7 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 > **RBS\* sheaf entries are intentionally not listed here.** The Recipe Bottle spec sheaves (RBSAA…RBSYC — every operation and concept subdoc) load on demand, not always. Discipline: to reach any sheaf, read its SpecTop **RBS0** (`specs/rbk/RBS0-SpecTop.adoc`) FIRST — it is the required entry point and indexes them; the sheaves live beside it as `specs/rbk/RBS*-*.adoc`.
 
-- **RBRN**  → `specs/rbk/RBRN-RegimeNameplate.adoc`
+- **RBSRN**  → `specs/rbk/RBSRN-RegimeNameplate.adoc`
 
 ### Shelved code
 
