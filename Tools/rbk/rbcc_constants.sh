@@ -250,6 +250,8 @@ readonly RBCC_label_provenance="rbob.provenance"
 # after rbrr.env is sourced, which every runtime consumer does before calling
 # this; a no-repo-regime context simply never calls it.
 rbcc_rbrf_file_capture() {
+  zrbcc_sentinel
+
   local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
   test -n "${z_foedus}" || return 1
   printf '%s\n' "${RBCC_foedera_dir}/${z_foedus}/rbrf.env"
@@ -263,6 +265,8 @@ rbcc_rbrf_file_capture() {
 # fields in the caller's global scope exactly as an inline source would (bare
 # assignments in the sourced file, sourced within a function, remain global).
 rbcc_source_active_rbrf() {
+  zrbcc_sentinel
+
   local z_rbrf
   z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
   source "${z_rbrf}"               || buc_die_now "Failed to source the active foedus RBRF: ${z_rbrf}"
@@ -292,6 +296,8 @@ rbcc_source_active_rbrf() {
 # A third section projects BUBC string tinder (the regime-poison tweak name)
 # through the same transform via the string primitive.
 rbcc_emit_consts() {
+  zrbcc_sentinel
+
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
 
   local z_name=""

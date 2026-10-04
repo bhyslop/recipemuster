@@ -321,6 +321,8 @@ zrbob_hallmark_is_kludge_predicate() {
 # charge requires a committed nameplate, so charge cannot remedy this itself.
 # Usage: zrbob_kludge_currency_gate <vessel> <hallmark> <producer_colophon>
 zrbob_kludge_currency_gate() {
+  zrbob_sentinel
+
   local -r z_vessel="${1:-}"
   local -r z_hallmark="${2:-}"
   local -r z_colophon="${3:-}"
@@ -363,6 +365,8 @@ zrbob_kludge_currency_gate() {
 # as a tabtarget invocation because rbob is the sole caller and avoids the
 # launcher-dispatch round-trip.
 zrbob_summon_full_hallmark() {
+  zrbob_sentinel
+
   local z_hallmark="${1:-}"
 
   test -n "${z_hallmark}" || buc_die_now "zrbob_summon_full_hallmark: hallmark required"
@@ -394,6 +398,8 @@ zrbob_summon_full_hallmark() {
 # path where all arks are missing together.
 # Usage: zrbob_vouch_gate_and_summon <vessel> <hallmark> <image_ref>
 zrbob_vouch_gate_and_summon() {
+  zrbob_sentinel
+
   local z_vessel="${1:-}"
   local z_hallmark="${2:-}"
   local z_image_ref="${3:-}"
@@ -608,6 +614,8 @@ zrbob_reclaim_subnet() {
 # vocabulary is adding an arm here plus a line in the spec — not a format change.
 # BCG predicate: 0 if the name is a sanctioned charge-note placeholder.
 zrbob_note_vocab_ok() {
+  zrbob_sentinel
+
   case "${1}" in
     RBRN_ENTRY_PORT_WORKSTATION) return 0 ;;
     *) return 1 ;;

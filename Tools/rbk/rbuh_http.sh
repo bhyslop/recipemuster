@@ -71,6 +71,8 @@ zrbuh_sentinel() {
 # reference stays unguarded — a typo dies under set -u rather than silently
 # matching nothing.
 zrbuh_fault_apply() {
+  zrbuh_sentinel
+
   local -r z_infix="${1}"
   local -r z_code_file="${2}"
   test -n "${BURE_TWEAK_NAME:-}" || return 0

@@ -156,6 +156,8 @@ rbrn_hallmark_armed_predicate() {
 # legitimate transient (rbw-nd drives one field at a time) — each field is
 # gated independently, so the message names the vacant one.
 rbrn_require_armed() {
+  zrbrn_sentinel
+
   local -r z_moniker="${1:-}"
   local -r z_sentry_hallmark="${2:-}"
   local -r z_bottle_hallmark="${3:-}"
@@ -173,6 +175,8 @@ rbrn_require_armed() {
 
 # Convert dotted-quad IPv4 to integer for subnet arithmetic
 zrbrn_ip_to_int() {
+  zrbrn_sentinel
+
   local z_a z_b z_c z_d
   IFS='.' read -r z_a z_b z_c z_d <<< "$1"
   echo $(( (z_a << 24) + (z_b << 16) + (z_c << 8) + z_d ))
@@ -181,6 +185,8 @@ zrbrn_ip_to_int() {
 # Validate that an IP falls within a subnet (dies if not)
 # Usage: zrbrn_ip_in_subnet LABEL IP BASE MASK
 zrbrn_ip_in_subnet() {
+  zrbrn_sentinel
+
   local z_label="$1" z_ip="$2" z_base="$3" z_mask="$4"
   local z_ip_int=$(zrbrn_ip_to_int "${z_ip}")
   local z_base_int=$(zrbrn_ip_to_int "${z_base}")

@@ -328,6 +328,8 @@ zrba_idtoken_subject_capture() {
 # normalizer buc_clipboard_copy_predicate; its optional probe-and-skip tools
 # are inventoried per BCG Command Dependency Discipline.
 zrba_user_code_clipboard() {
+  zrba_sentinel
+
   local -r z_code="${1:?zrba_user_code_clipboard: user code required}"
 
   if buc_clipboard_copy_predicate "${z_code}"; then
