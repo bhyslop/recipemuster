@@ -534,7 +534,11 @@ fn rbtdrh_drive_broken_chain(dir: &Path) -> rbtdre_Verdict {
     let rbrn = match std::env::current_dir() {
         Ok(r) => r
             .join("rbmm_moorings")
-            .join(RBTDRH_DRIVE_NAMEPLATE)
+            .join(format!(
+                "{}{}",
+                crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE,
+                RBTDRH_DRIVE_NAMEPLATE
+            ))
             .join("rbrn.env"),
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
