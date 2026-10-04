@@ -55,19 +55,19 @@ ZRBLM_LUSTRATE_SOURCED=1
 
 # Site-scoped: the value names this station. Erased at lustration, asserted
 # sterile by the fixture.
-RBLM_disposition_site="site"
+readonly RBLM_disposition_site="site"
 
 # Common: the value is the same at every installation (a default, a mode word, a
 # port, an upstream image reference). Untouched, and asserted by nothing — but a
 # field must still be declared common to satisfy the completeness case.
-RBLM_disposition_common="common"
+readonly RBLM_disposition_common="common"
 
 # Off-tree: the field is enrolled, but its regime file lives outside the shipping
 # tree, so no delivered byte can carry it. The payor's OAuth secret and refresh
 # token are the case: they live in the operator's secrets directory, named by
 # RBRR_SECRETS_DIR, which is not in the repository at all. Declared rather than
 # omitted, so the completeness case still accounts for every enrolled field.
-RBLM_disposition_offtree="offtree"
+readonly RBLM_disposition_offtree="offtree"
 
 ######################################################################
 # The value columns
@@ -75,8 +75,8 @@ RBLM_disposition_offtree="offtree"
 # Which of a site row's two values a transform writes. Lustration writes the
 # sterile column, feigning the feigned column.
 
-RBLM_column_sterile="sterile"
-RBLM_column_feigned="feigned"
+readonly RBLM_column_sterile="sterile"
+readonly RBLM_column_feigned="feigned"
 
 ######################################################################
 # The proscription
@@ -118,14 +118,14 @@ RBLM_column_feigned="feigned"
 # the public home. Recorded as a delivery decision (2026-07-12): the public repo's
 # README blob, because blob rendering preserves the literal <a id> anchors the
 # handbook links resolve, while staging and candidate branches are transient.
-RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/main/README.md"
+readonly RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/main/README.md"
 
 # The freehold subject's sterile value. NOT a blank: rbpc_emit_consts projects
 # this constant into the generated Rust (RBTDGC_FREEHOLD_SUBJECT) through
 # buz_emit_const_str, which rejects an empty value — so a blank here dies at the
 # candidate's own const regeneration. A placeholder that is shape-free (no UUID
 # for the fixture's sweep to find) and obviously unset is the form that survives.
-RBLM_unset_subject="unset-freehold-subject"
+readonly RBLM_unset_subject="unset-freehold-subject"
 
 ZRBLM_PROSCRIPTION=(
   # ── RBRR — repo regime ──
