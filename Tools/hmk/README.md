@@ -302,7 +302,7 @@ Messages are received only through the trigger mechanism. Each machine processes
 
 ## Worked Example: Block-Level Receiver (BLR)
 
-![BLR State Machine](hmk-BLR-BlockLevelReceiver.webp)
+![BLR State Machine](hmk-BLR-BlockLevelReceiver-light.webp)
 
 This diagram demonstrates a block-level receiver with error handling and flow control.
 
