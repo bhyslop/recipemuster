@@ -137,6 +137,8 @@ rbrn_audit() {
   buc_doc_shown || return 0
 
   zrbrn_fleet_survey
+  # After the survey: kindle locks the RBRN names the survey's subshells source
+  test "${ZRBRN_KINDLED:-}" = "1" || zrbrn_kindle
   rbrn_preflight
   buc_step "Cross-nameplate audit passed"
 
@@ -148,6 +150,7 @@ rbrn_list() {
   buc_doc_brief "List available nameplate monikers"
   buc_doc_shown || return 0
 
+  test "${ZRBRN_KINDLED:-}" = "1" || zrbrn_kindle
   local z_monikers
   z_monikers=$(rbrn_list_capture) || buc_die_now "No nameplates found"
   buc_step "Available nameplates:"
@@ -234,9 +237,6 @@ zrbrn_furnish() {
     source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"
     zrbrn_kindle
     zrbrn_enforce
-  elif test "${z_command}" != "rbrn_drive"; then
-    # No nameplate addressed: list, survey and audit still owe the module its kindle
-    zrbrn_kindle
   fi
 }
 
