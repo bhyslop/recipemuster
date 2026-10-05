@@ -137,6 +137,8 @@ rbrn_audit() {
   buc_doc_shown || return 0
 
   zrbrn_fleet_survey
+  # After the survey: the kindle locks the nameplate names the survey's subshells source
+  test "${ZRBRN_KINDLED:-}" = "1" || zrbrn_kindle
   rbrn_preflight
   buc_step "Cross-nameplate audit passed"
 
@@ -148,6 +150,7 @@ rbrn_list() {
   buc_doc_brief "List available nameplate monikers"
   buc_doc_shown || return 0
 
+  test "${ZRBRN_KINDLED:-}" = "1" || zrbrn_kindle
   local z_monikers
   z_monikers=$(rbrn_list_capture) || buc_die_now "No nameplates found"
   buc_step "Available nameplates:"

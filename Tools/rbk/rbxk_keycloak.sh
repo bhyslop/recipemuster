@@ -56,11 +56,11 @@ ZRBXK_SOURCED=1
 # time). The facility's fixed identity: the crucible moniker, the foedus folio it
 # affiances, and the baked realm name (matches fdkyclk-realm.json). The poll
 # budget covers Keycloak boot plus --import-realm on a cold charge.
-RBXK_moniker="fdkyclk"
-RBXK_foedus="rbef_keycloak"
-RBXK_realm="fdkyclk"
-RBXK_poll_max_attempts="30"
-RBXK_poll_interval_sec="5"
+readonly RBXK_moniker="fdkyclk"
+readonly RBXK_foedus="rbef_keycloak"
+readonly RBXK_realm="fdkyclk"
+readonly RBXK_poll_max_attempts="30"
+readonly RBXK_poll_interval_sec="5"
 
 ######################################################################
 # Internal Functions (zrbxk_*)

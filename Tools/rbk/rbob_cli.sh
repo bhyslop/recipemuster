@@ -142,6 +142,7 @@ zrbob_furnish() {
 
   local z_folio="${BUZ_FOLIO:-}"
   if test -z "${z_folio}"; then
+    zrbrn_kindle
     local z_monikers
     z_monikers=$(rbrn_list_capture) || buc_die_now "No nameplates found"
     buc_step "Available nameplates:"

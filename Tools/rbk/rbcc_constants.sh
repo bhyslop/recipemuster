@@ -41,10 +41,10 @@ readonly RBCC_tabtarget_context_file="${RBCC_KIT_DIR}/claude-rbk-tabtarget-conte
 # Moorings-relative path values. Every consumer reads these names directly
 # (the transitional RBBC_* aliases were retired by the literal-sweep pace).
 # Source-time literals, no kindle dependency.
-RBCC_moorings_dir="rbmm_moorings"
-RBCC_launchers_subdir="rbml_launchers"
-RBCC_vessels_subdir="rbmv_vessels"
-RBCC_foedera_subdir="rbmf_foedera"
+readonly RBCC_moorings_dir="rbmm_moorings"
+readonly RBCC_launchers_subdir="rbml_launchers"
+readonly RBCC_vessels_subdir="rbmv_vessels"
+readonly RBCC_foedera_subdir="rbmf_foedera"
 # Nameplate inscription sprue — the family head every nameplate directory
 # stands under, carried with its separator so a call site composes
 # "${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${moniker}/". The foedera need no
@@ -60,16 +60,16 @@ readonly RBCC_nameplate_sprue="rben_"
 # enumeration sites (canvass, the foedus-identity validator) need it as such.
 # rbcc_rbrf_file_capture below composes the per-foedus file off this same root, so
 # the moorings/foedera join lives here once and nowhere else.
-RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
-RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
-RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
-RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
+readonly RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
+readonly RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
+readonly RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
+readonly RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
 # Workforce regime file — the manor's ONE workforce pool identity.
 # Manor-level (axrd_singleton, one per manor), so it sits flat at the moorings
 # root, a sibling of the rbmf_foedera library rather than a member of it — where
 # the per-foedus rbrf.env files live. Holds the pool coordinates (org, pool id,
 # session) the one-pool Model relocated out of the per-foedus federation regime.
-RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
+readonly RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # Federation regime file — resolved from the ACTIVE foedus's selector, NOT a
 # source-time constant. The foedera library (RBCC_foedera_subdir) holds one
 # rbef_ subdirectory per standing foedus; RBRR_ACTIVE_FOEDUS names the
@@ -79,17 +79,17 @@ RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # rbrf.env only after sourcing rbrr.env, so the selector is live at the call
 # site. No-repo-regime contexts never call the resolver, so nothing breaks
 # where RBRR_ACTIVE_FOEDUS is unset.
-RBCC_rbrd_basename="rbrd.env"
-RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
+readonly RBCC_rbrd_basename="rbrd.env"
+readonly RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
-RBCC_rbrn_file="rbrn.env"
-RBCC_rbro_file="rbro.env"
+readonly RBCC_rbrn_file="rbrn.env"
+readonly RBCC_rbro_file="rbro.env"
 # Vessel regime file — a bare basename, not a moorings-rooted path: the regime is
 # manifold (one per vessel), so each call site composes the vessel directory from
 # RBRR_VESSEL_DIR. Placement and contract are homed at the rbrv_regime quoin.
 # Sibling to the basename-style RBCC_rbrn_file / RBCC_rbro_file above.
-RBCC_rbrv_file="rbrv.env"
+readonly RBCC_rbrv_file="rbrv.env"
 
 # Account composition labels — bare fragments that compose GCP SA account-ids/
 # emails AND local secret-directory names. These stay bare: a derived
@@ -99,20 +99,20 @@ RBCC_rbrv_file="rbrv.env"
 # do not sprue (an underscore is forbidden in an SA-id, RFC1035) and do not
 # consolidate these into the sprued mantle class. rbcc_emit_consts strips the
 # unhewn_ segment on emit, so the projected RBTDGC_ACCOUNT_* names are unchanged.
-RBCC_account_unhewn_governor="governor"
-RBCC_account_unhewn_retriever="retriever"
-RBCC_account_unhewn_director="director"
-RBCC_account_unhewn_payor="payor"
-RBCC_account_unhewn_mason="mason"
+readonly RBCC_account_unhewn_governor="governor"
+readonly RBCC_account_unhewn_retriever="retriever"
+readonly RBCC_account_unhewn_director="director"
+readonly RBCC_account_unhewn_payor="payor"
+readonly RBCC_account_unhewn_mason="mason"
 
 # Mantle service-account names — the three impersonatable federation identities
 # (governor / director / retriever) established at depot levy. Hardcoded literals
 # for grep. The rbma- prefix is hyphenated because a GCP service-account id admits
 # only lowercase letters, digits, and hyphens (RFC1035) — the underscore sprue form
 # cannot appear in this field; grep rbma still finds all three.
-RBCC_account_mantle_governor="rbma-governor"
-RBCC_account_mantle_director="rbma-director"
-RBCC_account_mantle_retriever="rbma-retriever"
+readonly RBCC_account_mantle_governor="rbma-governor"
+readonly RBCC_account_mantle_director="rbma-director"
+readonly RBCC_account_mantle_retriever="rbma-retriever"
 
 # Mantle identity tokens — THE canonical name for "which mantle to don", carried
 # by every credential-mint surface (rba_token_capture / rba_don_capture, the
@@ -125,10 +125,10 @@ RBCC_account_mantle_retriever="rbma-retriever"
 # RBCC_account_mantle_* SA-name fragments above (which compose rbma-<role>@… SA
 # emails); the polity/terrier bare-mantle-name uses are a separate deferred
 # migration and intentionally keep the bare role word.
-RBCC_mantle_governor="rbpa_governor"
-RBCC_mantle_director="rbpa_director"
-RBCC_mantle_retriever="rbpa_retriever"
-RBCC_onboarding_nameplate="tadmor"
+readonly RBCC_mantle_governor="rbpa_governor"
+readonly RBCC_mantle_director="rbpa_director"
+readonly RBCC_mantle_retriever="rbpa_retriever"
+readonly RBCC_onboarding_nameplate="tadmor"
 
 # Operation-verb tinder — the canonical bash home for RBK operation verbs.
 # Members are bare verb tokens; the group carries one author here so it is
@@ -136,21 +136,21 @@ RBCC_onboarding_nameplate="tadmor"
 #
 #   SA-management (defrock/enrobe/roster) — composed into the fact-extension
 #   constants below; consumed by the governor/director account surface.
-RBCC_verb_defrock="defrock"
-RBCC_verb_enrobe="enrobe"
-RBCC_verb_roster="roster"
+readonly RBCC_verb_defrock="defrock"
+readonly RBCC_verb_enrobe="enrobe"
+readonly RBCC_verb_roster="roster"
 #
 #   Image/build lifecycle (anoint/drive/inscribe/kludge/ordain/yoke) — name the
 #   registry and build operations. Previously implicit in command-function
 #   names (rbndb_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
 #   here so the group has a single owner rather than being reconstructed by
 #   grep across rbfd_/rbfl_/rbfk_/rbob_/rbrn_.
-RBCC_verb_anoint="anoint"
-RBCC_verb_drive="drive"
-RBCC_verb_inscribe="inscribe"
-RBCC_verb_kludge="kludge"
-RBCC_verb_ordain="ordain"
-RBCC_verb_yoke="yoke"
+readonly RBCC_verb_anoint="anoint"
+readonly RBCC_verb_drive="drive"
+readonly RBCC_verb_inscribe="inscribe"
+readonly RBCC_verb_kludge="kludge"
+readonly RBCC_verb_ordain="ordain"
+readonly RBCC_verb_yoke="yoke"
 
 # Governed-noun tinder — the canonical bash home for RBK governed nouns that
 # printed strings must spell. Members are bare noun tokens carrying one author
@@ -172,29 +172,29 @@ readonly RBCC_noun_sederunt="sederunt"
 #   clean_capture — Lode captures whose provenance envelope must be committed code (ensconce, conclave, immure, underpin)
 #   clean_inscribe — the tripwire ships committed depot-regime bytes as the drift reference (inscribe)
 #   clean_affiance — the seated provider must answer to a committed name (affiance)
-RBCC_creed_clean_build="a container image built from an uncommitted tree cannot be traced to a commit; commit before building"
-RBCC_creed_clean_capture="a Lode's provenance envelope must be the product of committed code; commit before capturing"
-RBCC_creed_clean_inscribe="the tripwire ships the tracked depot-regime bytes as the depot's permanent drift reference, so the inscribed state must be committed; commit before inscribing"
-RBCC_creed_clean_affiance="the seated provider must answer to a committed name — its id, redirect-URI and STS audience are read from committed federation config; commit before affiancing"
+readonly RBCC_creed_clean_build="a container image built from an uncommitted tree cannot be traced to a commit; commit before building"
+readonly RBCC_creed_clean_capture="a Lode's provenance envelope must be the product of committed code; commit before capturing"
+readonly RBCC_creed_clean_inscribe="the tripwire ships the tracked depot-regime bytes as the depot's permanent drift reference, so the inscribed state must be committed; commit before inscribing"
+readonly RBCC_creed_clean_affiance="the seated provider must answer to a committed name — its id, redirect-URI and STS audience are read from committed federation config; commit before affiancing"
 
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
 # consumers walk fact files in BURD_OUTPUT_DIR / BURD_TEMP_DIR keyed on extension.
 # Roster extensions composed from earlier tinder (BCG tinder-on-tinder).
-RBCC_fact_ext_depot="depot"
-RBCC_fact_ext_depot_project="depot-project"
-RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retriever}"
-RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
-RBCC_fact_ext_audit_hallmark="audit-hallmark"
+readonly RBCC_fact_ext_depot="depot"
+readonly RBCC_fact_ext_depot_project="depot-project"
+readonly RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retriever}"
+readonly RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
+readonly RBCC_fact_ext_audit_hallmark="audit-hallmark"
 # Foedus descry health verdict — descry writes <foedus>.foedus-health carrying
 # one of healthy / provider-absent / coordinate-drift (provider-grain
 # verdicts) for the reuse-or-establish fixture to branch on (reuse iff healthy).
-RBCC_fact_ext_foedus_health="foedus-health"
+readonly RBCC_fact_ext_foedus_health="foedus-health"
 # Foedus canvass census — canvass writes one <foedus>.foedus per provider under
 # the manor pool (stem: the matched rbef_ library name, or the bare provider id
 # when the Manor holds a provider the library does not know), carrying
 # provider=/state=/selected= lines; selected marks the RBRR_ACTIVE_FOEDUS foedus.
-RBCC_fact_ext_foedus="foedus"
+readonly RBCC_fact_ext_foedus="foedus"
 # Sederunt espy verdict — the read-only probe (rba_espy_sederunt) writes
 # <foedus>.sederunt carrying verdict= (live / lapsed / absent) and, when the
 # cache holds an expiry, runway= (whole seconds remaining) — for the theurge
@@ -206,7 +206,7 @@ readonly RBCC_fact_ext_sederunt="sederunt"
 # sets it on every tabtarget a reveille-tier fixture spawns, and the Payor OAuth
 # token-mint membrane (zrbgp_authenticate_capture) rejects under it with
 # BUBC_band_credless — a passing reveille run can never use credentials.
-RBCC_tweak_credless_guard="buorb_credless_guard"
+readonly RBCC_tweak_credless_guard="buorb_credless_guard"
 
 # HTTP fault-injection seam — the regime-poison analogue for HTTP. Under this
 # tweak name, BURE_TWEAK_VALUE is "INFIX=CODE": rbuh's one membrane
@@ -214,13 +214,13 @@ RBCC_tweak_credless_guard="buorb_credless_guard"
 # named request infix, so a negative case can drive a caller's error path and
 # assert its band code (the terrier gates BUBC_band_engross/expunge/peruse are
 # the founding consumers).
-RBCC_tweak_http_fault="buorb_http_fault"
+readonly RBCC_tweak_http_fault="buorb_http_fault"
 
 # Mid-flight re-don cadence override. Under this tweak name, BURE_TWEAK_VALUE
 # is a positive poll count replacing ZRBFC_BUILD_POLL_REDON_CADENCE at the
 # build-completion poll's one membrane (zrbfc_wait_build_completion), so a
 # short real build exercises the re-don tick without an hour on the clock.
-RBCC_tweak_redon_cadence="buorb_redon_cadence"
+readonly RBCC_tweak_redon_cadence="buorb_redon_cadence"
 
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
@@ -228,9 +228,9 @@ RBCC_tweak_redon_cadence="buorb_redon_cadence"
 # RBCC_account_unhewn_* composition labels above (bare fragments for SA names +
 # secret dirs). None of these words are reused across families, keeping each token
 # monosemous.
-RBCC_container_bottle="bottle"
-RBCC_container_pentacle="pentacle"
-RBCC_container_sentry="sentry"
+readonly RBCC_container_bottle="bottle"
+readonly RBCC_container_pentacle="pentacle"
+readonly RBCC_container_sentry="sentry"
 
 # Provenance label key — stamped onto every crucible container at charge (the
 # compose file carries the same key as a YAML literal; the two must agree).

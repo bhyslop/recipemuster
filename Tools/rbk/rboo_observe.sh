@@ -76,9 +76,9 @@ zrboo_prefix() {
 
   local z_color="$1"
   local z_label="$2"
-  local line
-  while IFS= read -r line; do
-    echo "${z_color}${ZRBOO_BOLD}[${z_label}]${ZRBOO_RESET} ${line}"
+  local z_line
+  while IFS= read -r z_line; do
+    echo "${z_color}${ZRBOO_BOLD}[${z_label}]${ZRBOO_RESET} ${z_line}"
   done
 }
 

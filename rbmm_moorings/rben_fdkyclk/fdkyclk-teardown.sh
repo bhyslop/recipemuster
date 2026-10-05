@@ -55,12 +55,12 @@ payor_token() {
 
 # Remove an IAM binding, reporting cleanly whether it was present or already gone.
 attaint_binding() {
-  local label="$1"; shift
-  local out
-  out=$(gcloud "$@" --condition=None 2>&1) || true
-  if   printf '%s' "$out" | grep -qiE 'not found|does not have'; then echo "  ${label}: already removed"
-  elif printf '%s' "$out" | grep -qiE 'etag';                     then echo "  ${label}: removed"
-  else echo "  ${label}: $(printf '%s' "$out" | tail -1)"; fi
+  local z_label="$1"; shift
+  local z_out
+  z_out=$(gcloud "$@" --condition=None 2>&1) || true
+  if   printf '%s' "$z_out" | grep -qiE 'not found|does not have'; then echo "  ${z_label}: already removed"
+  elif printf '%s' "$z_out" | grep -qiE 'etag';                     then echo "  ${z_label}: removed"
+  else echo "  ${z_label}: $(printf '%s' "$z_out" | tail -1)"; fi
 }
 
 export CLOUDSDK_AUTH_ACCESS_TOKEN; CLOUDSDK_AUTH_ACCESS_TOKEN=$(payor_token)
