@@ -286,10 +286,10 @@ zrbgc_kindle() {
   readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers)
-  readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
-  readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
+  readonly RBF_FACT_HALLMARK="rbgc_fact_hallmark"
+  readonly RBF_FACT_GAR_ROOT="rbgc_fact_gar_root"
   readonly RBF_FACT_ARK_STEM="rbgc_fact_ark_stem"
-  readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
+  readonly RBF_FACT_ARK_YIELD="rbgc_fact_ark_yield"
 
   # Lode capture chaining fact (single-form, fixed filename). A capture is
   # capture-pure and writes no consumer config; it hands the captured touchmark to
@@ -299,7 +299,7 @@ zrbgc_kindle() {
   # Lode stamp (e.g. b260602120000); its kind-letter prefix decodes to the kind, so
   # no separate kind-brand fact rides the chain (RBGC_LODE_BRAND_* are display
   # labels / immure's family vocabulary, not a chaining fact).
-  readonly RBF_FACT_LODE_TOUCHMARK="rbf_fact_lode_touchmark"
+  readonly RBF_FACT_LODE_TOUCHMARK="rbgc_fact_lode_touchmark"
 
   # Payor fact-file filenames (governor identifying values)
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"

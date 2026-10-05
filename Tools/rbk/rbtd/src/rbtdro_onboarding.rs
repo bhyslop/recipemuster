@@ -146,7 +146,7 @@ const RBTDRO_FORGE_BASE_ANCHOR_VAR: &str = "RBRV_IMAGE_1_ANCHOR";
 
 /// Bole touchmark chaining fact ensconce writes to current/. Mirrors
 /// rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
-const RBTDRO_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
+const RBTDRO_FACT_LODE_TOUCHMARK: &str = "rbgc_fact_lode_touchmark";
 
 /// GAR Lode namespace root in an elected anchor locator. Mirrors
 /// rbgc_constants.sh RBGC_GAR_CATEGORY_LODES.

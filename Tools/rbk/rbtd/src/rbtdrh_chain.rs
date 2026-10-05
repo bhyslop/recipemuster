@@ -97,7 +97,7 @@ use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 // format. The values are deliberately fixed (no clock) so the cases are
 // deterministic — feoff/yoke decode the kind from the prefix and never resolve
 // the touchmark against GAR on the paths these cases exercise.
-const RBTDRH_FACT_TOUCHMARK: &str = "rbf_fact_lode_touchmark"; // RBF_FACT_LODE_TOUCHMARK
+const RBTDRH_FACT_TOUCHMARK: &str = "rbgc_fact_lode_touchmark"; // RBF_FACT_LODE_TOUCHMARK
 const RBTDRH_BOLE_TOUCHMARK: &str = "b260327172456"; // RBGC_LODE_KIND_BOLE "b"
 const RBTDRH_RELIQUARY_TOUCHMARK: &str = "r260327172456"; // RBGC_LODE_KIND_RELIQUARY "r"
 const RBTDRH_UNKNOWN_TOUCHMARK: &str = "zz260327172456"; // no RBGC_LODE_KIND_* prefix

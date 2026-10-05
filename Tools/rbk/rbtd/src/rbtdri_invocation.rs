@@ -690,8 +690,8 @@ pub fn rbtdri_read_burv_facts_multi(
 
 /// BURV fact file names written by ordain — single definition, matching
 /// rbgc_constants.sh values. Read by the ordain-capture helpers below.
-pub(crate) const RBTDRI_FACT_HALLMARK: &str = "rbf_fact_hallmark";
-pub(crate) const RBTDRI_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
+pub(crate) const RBTDRI_FACT_HALLMARK: &str = "rbgc_fact_hallmark";
+pub(crate) const RBTDRI_FACT_GAR_ROOT: &str = "rbgc_fact_gar_root";
 pub(crate) const RBTDRI_FACT_ARK_STEM: &str = "rbgc_fact_ark_stem";
 
 // ── Ordain capture + invoke-or-fail helpers ──────────────────

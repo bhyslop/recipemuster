@@ -335,7 +335,7 @@ const RBTDRV_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 /// captured Lode touchmark. The derived-pull base-anchor election reads it at
 /// conjure; the provenance envelope lives only in GAR (:rbi_vouch), never
 /// host-side. Mirrors rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
-const RBTDRV_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
+const RBTDRV_FACT_LODE_TOUCHMARK: &str = "rbgc_fact_lode_touchmark";
 
 /// Bole-Lode member tags asserted by augur. Mirror rbgc_constants.sh
 /// RBGC_LODE_TAG_BOLE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
