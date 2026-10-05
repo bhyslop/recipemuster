@@ -358,14 +358,14 @@ fn rbtdte_trace_file_skip_contains_reason() {
 
 #[test]
 fn rbtdte_case_output_files_survive_in_trace_dir() {
-    fn write_output(dir: &Path) -> rbtdre_Verdict {
+    fn zrbtdte_write_output(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("output.txt"), "custom output data\n");
         rbtdre_Verdict::Pass
     }
 
     static CASES: &[rbtdre_Case] = &[rbtdre_Case {
         name: "output-case",
-        func: write_output,
+        func: zrbtdte_write_output,
     }];
 
     let tmp = rbtdth_make_scratch("caseoutput");
@@ -491,12 +491,12 @@ fn rbtdte_commit_nameplates_scopes_to_named_class_only() {
 
 #[test]
 fn rbtdte_tariff_unchecked_never_flags() {
-    // UNCHECKED (all bounds None) must report all-clear no matter how extreme
+    // RBTDRE_UNCHECKED (all bounds None) must report all-clear no matter how extreme
     // the observation — this is what "undeclared fixtures run exactly as before"
     // rests on.
-    let r = rbtdre_evaluate_tariff(&rbtdre_Tariff::UNCHECKED, 0, 0);
+    let r = rbtdre_evaluate_tariff(&rbtdre_Tariff::RBTDRE_UNCHECKED, 0, 0);
     assert!(!r.too_fast && !r.too_slow && !r.count_drift);
-    let r = rbtdre_evaluate_tariff(&rbtdre_Tariff::UNCHECKED, 99_999, 9_999);
+    let r = rbtdre_evaluate_tariff(&rbtdre_Tariff::RBTDRE_UNCHECKED, 99_999, 9_999);
     assert!(!r.too_fast && !r.too_slow && !r.count_drift);
 }
 
@@ -573,7 +573,7 @@ fn zrbtdte_census_invoke_used(_dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-static ZRBTDTE_CENSUS_CASES: &[rbtdre_Case] = &[crate::case!(zrbtdte_census_invoke_used)];
+static ZRBTDTE_CENSUS_CASES: &[rbtdre_Case] = &[crate::rbtdre_case!(zrbtdte_census_invoke_used)];
 
 static ZRBTDTE_CENSUS_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
     name: "zrbtdte-census-fixture",
@@ -582,7 +582,7 @@ static ZRBTDTE_CENSUS_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: ZRBTDTE_CENSUS_CASES,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 /// Scratch project root with a tt/ script satisfying ZRBTDTE_CENSUS_COL_USED
@@ -698,7 +698,7 @@ fn rbtdte_run_fixture_permitted_colophon_invocation_not_refused() {
     let _ = std::fs::remove_dir_all(&tmp);
 }
 
-static ZRBTDTE_CENSUS_NOINVOKE_CASES: &[rbtdre_Case] = &[crate::case!(rbtdte_pass)];
+static ZRBTDTE_CENSUS_NOINVOKE_CASES: &[rbtdre_Case] = &[crate::rbtdre_case!(rbtdte_pass)];
 
 static ZRBTDTE_CENSUS_NOINVOKE_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
     name: "zrbtdte-census-noinvoke-fixture",
@@ -707,7 +707,7 @@ static ZRBTDTE_CENSUS_NOINVOKE_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: ZRBTDTE_CENSUS_NOINVOKE_CASES,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 #[test]
@@ -741,7 +741,7 @@ fn zrbtdte_census_skip(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Skip("credential unavailable".to_string())
 }
 
-static ZRBTDTE_CENSUS_SKIP_CASES: &[rbtdre_Case] = &[crate::case!(zrbtdte_census_skip)];
+static ZRBTDTE_CENSUS_SKIP_CASES: &[rbtdre_Case] = &[crate::rbtdre_case!(zrbtdte_census_skip)];
 
 static ZRBTDTE_CENSUS_SKIP_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
     name: "zrbtdte-census-skip-fixture",
@@ -750,7 +750,7 @@ static ZRBTDTE_CENSUS_SKIP_FIXTURE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: ZRBTDTE_CENSUS_SKIP_CASES,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 #[test]

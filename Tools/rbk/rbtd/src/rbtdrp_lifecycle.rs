@@ -36,7 +36,7 @@
 
 use std::path::Path;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{
@@ -159,7 +159,7 @@ fn rbtdrp_depot_stand_up(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdrp_depot_stand_up_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     if let Err(e) = rbtdrk_install_freehold_prefixes(&root) {
         return rbtdre_Verdict::Fail(format!("install freehold prefixes: {}", e));
@@ -270,7 +270,7 @@ fn rbtdrp_tripwire_recover(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdrp_tripwire_recover_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     if let Err(e) = rbtdre_commit_regime(
         &root,
@@ -369,7 +369,7 @@ fn zrbtdrp_depot_live_disqualify_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     let rbrd = root.join(RBTDGC_RBRD_FILE);
     let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {
@@ -484,12 +484,12 @@ fn zrbtdrp_depot_tear_down_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_
 // ── Case registry ────────────────────────────────────────────
 
 pub static RBTDRP_CASES_DEPOT_LIFECYCLE: &[rbtdre_Case] = &[
-    case!(rbtdrp_marshal_zero_attestation),
-    case!(rbtdrp_depot_stand_up),
-    case!(rbtdrp_tripwire_recover),
-    case!(rbtdrp_tripwire_confirm),
-    case!(rbtdrp_depot_live_disqualify),
-    case!(rbtdrp_depot_tear_down),
+    rbtdre_case!(rbtdrp_marshal_zero_attestation),
+    rbtdre_case!(rbtdrp_depot_stand_up),
+    rbtdre_case!(rbtdrp_tripwire_recover),
+    rbtdre_case!(rbtdrp_tripwire_confirm),
+    rbtdre_case!(rbtdrp_depot_live_disqualify),
+    rbtdre_case!(rbtdrp_depot_tear_down),
 ];
 
 pub static RBTDRP_FIXTURE_DEPOT_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -499,6 +499,6 @@ pub static RBTDRP_FIXTURE_DEPOT_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRP_CASES_DEPOT_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRP_FIXTURE_DEPOT_LIFECYCLE.cases.len() == 6);

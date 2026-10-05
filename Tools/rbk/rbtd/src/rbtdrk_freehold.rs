@@ -563,7 +563,7 @@ pub(crate) fn rbtdrk_unmake_preamble(
     dir: &Path,
     spec: &rbtdrk_UnmakeSpec,
 ) -> Result<rbtdrk_UnmakeOutcome, rbtdre_Verdict> {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
     let rbrd = root.join(RBTDGC_RBRD_FILE);
 
     let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {

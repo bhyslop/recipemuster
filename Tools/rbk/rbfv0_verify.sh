@@ -29,8 +29,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFV_SOURCED:-}" || buc_die_now "Module rbfv multiply sourced - check sourcing hierarchy"
-ZRBFV_SOURCED=1
+test -z "${ZRBFV0_SOURCED:-}" || buc_die_now "Module rbfv multiply sourced - check sourcing hierarchy"
+ZRBFV0_SOURCED=1
 
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
@@ -47,7 +47,7 @@ source "${BASH_SOURCE[0]%/*}/rbfvb_batch.sh"
 # Internal Functions (zrbfv_*)
 
 zrbfv_kindle() {
-  test -z "${ZRBFV_KINDLED:-}" || buc_die_now "Module rbfv already kindled"
+  test -z "${ZRBFV0_KINDLED:-}" || buc_die_now "Module rbfv already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
@@ -61,12 +61,12 @@ zrbfv_kindle() {
   buc_log_args 'Define graft metadata operation file prefix'
   readonly ZRBFV_GRAFT_META_PREFIX="${BURD_TEMP_DIR}/rbfv_graft_meta_"
 
-  readonly ZRBFV_KINDLED=1
+  readonly ZRBFV0_KINDLED=1
 }
 
 zrbfv_sentinel() {
   zrbfc_sentinel
-  test "${ZRBFV_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv_kindle first"
+  test "${ZRBFV0_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv_kindle first"
 }
 
 # eof

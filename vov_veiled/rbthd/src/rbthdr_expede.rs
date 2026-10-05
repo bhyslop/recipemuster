@@ -124,7 +124,7 @@ const RBTHDR_BUK_SUBDIR: &str = "Tools/buk";
 /// Fatal on any deficit; returns the candidate clone path only when every
 /// refusal is satisfied: one commit atop the public base on POSTULANT_LOCAL,
 /// no withheld path in the delta, zero remotes.
-pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
+pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
     if !target_dir.is_absolute() {
         crate::rbthdr_fatal!("target directory must be an absolute path: {}", target_dir.display());
     }
@@ -135,7 +135,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // Clean-tree gate. Every shipped byte is taken from the COMMITTED record,
     // so an uncommitted edit would be silently absent from the candidate —
     // the tree the operator is looking at would not be the tree that shipped.
-    let status = rbthdr_run::capture("git", &["status", "--porcelain"], top);
+    let status = rbthdr_run::rbthdr_capture("git", &["status", "--porcelain"], top);
     if status.code != 0 {
         crate::rbthdr_fatal!("git status failed:\n{}", status.stderr.trim());
     }
@@ -151,24 +151,24 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // forward: it means the project has not ruled on a file it tracks, and a
     // candidate cut in that state would silently ship it or silently drop it.
     // Red until judged, and the cut is where that bites.
-    if let Err(e) = rbthdr_perambulation::validate(rbthdr_perambulation::RBTHDR_ROWS) {
+    if let Err(e) = rbthdr_perambulation::rbthdr_validate(rbthdr_perambulation::RBTHDR_ROWS) {
         crate::rbthdr_fatal!("{}", e);
     }
     let tracked = zrbthdr_tracked(top);
-    let unjudged = rbthdr_perambulation::unjudged(&tracked);
+    let unjudged = rbthdr_perambulation::rbthdr_unjudged(&tracked);
     if !unjudged.is_empty() {
         for path in &unjudged {
-            rbthdr_log::line(&format!("unjudged: {}", path));
+            rbthdr_log::rbthdr_line(&format!("unjudged: {}", path));
         }
         crate::rbthdr_fatal!(
             "{} tracked path(s) the perambulation has not judged — rule them ship or withhold in the perambulation table",
             unjudged.len()
         );
     }
-    let dead = rbthdr_perambulation::dead_rows(&tracked);
+    let dead = rbthdr_perambulation::rbthdr_dead_rows(&tracked);
     if !dead.is_empty() {
         for (prefix, disposition) in &dead {
-            rbthdr_log::line(&format!("dead row: {}|{}", prefix, disposition));
+            rbthdr_log::rbthdr_line(&format!("dead row: {}|{}", prefix, disposition));
         }
         crate::rbthdr_fatal!(
             "{} perambulation row(s) judge no tracked path — stale or shadowed",
@@ -179,7 +179,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // The base. A candidate is one commit atop the real PUBLIC main, so the
     // base remote is not optional scenery — it is the thing being added to.
     // The cut only ever CLONES it; it is severed from the clone below.
-    let fetch = rbthdr_run::capture("git", &["remote", "get-url", RBTHDR_BASE_REMOTE], top);
+    let fetch = rbthdr_run::rbthdr_capture("git", &["remote", "get-url", RBTHDR_BASE_REMOTE], top);
     if fetch.code != 0 {
         crate::rbthdr_fatal!(
             "{} is not configured — the candidate is built by addition atop the real public repository, so a remote pointing at it is required (git remote add {} {}):\n{}",
@@ -202,7 +202,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
 
     // The base is read-only, asserted. A live push url to the public target
     // is refused before a single object is cloned.
-    let push = rbthdr_run::capture("git", &["remote", "get-url", "--push", RBTHDR_BASE_REMOTE], top);
+    let push = rbthdr_run::rbthdr_capture("git", &["remote", "get-url", "--push", RBTHDR_BASE_REMOTE], top);
     if push.code != 0 {
         crate::rbthdr_fatal!("cannot read {} push url:\n{}", RBTHDR_BASE_REMOTE, push.stderr.trim());
     }
@@ -213,7 +213,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         );
     }
 
-    let head = rbthdr_run::capture("git", &["rev-parse", "HEAD"], top);
+    let head = rbthdr_run::rbthdr_capture("git", &["rev-parse", "HEAD"], top);
     if head.code != 0 {
         crate::rbthdr_fatal!("git rev-parse HEAD failed:\n{}", head.stderr.trim());
     }
@@ -223,7 +223,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // before the cut begins — the transposition below reads its bytes, and a
     // missing template would surface only after the whole candidate was built.
     let template_ref = format!("{}:{}", head, RBTHDR_CONSUMER_CLAUDE_PATH);
-    let template_probe = rbthdr_run::capture("git", &["cat-file", "-e", &template_ref], top);
+    let template_probe = rbthdr_run::rbthdr_capture("git", &["cat-file", "-e", &template_ref], top);
     if template_probe.code != 0 {
         crate::rbthdr_fatal!(
             "the consumer CLAUDE.md template is absent from {}: {}\n{}",
@@ -231,36 +231,36 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         );
     }
 
-    let shipped = rbthdr_perambulation::shipped(&tracked);
+    let shipped = rbthdr_perambulation::rbthdr_shipped(&tracked);
     if shipped.is_empty() {
         crate::rbthdr_fatal!("the perambulation ships nothing — refusing to cut an empty candidate");
     }
 
     let clone_dir = target_dir.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
-    let clone = rbthdr_repo::as_str(&clone_dir);
+    let clone = rbthdr_repo::rbthdr_as_str(&clone_dir);
 
-    rbthdr_log::section("The cut — build the candidate by addition (RBSHE step 3)");
-    rbthdr_log::line(&format!("Source commit:        {}", head));
-    rbthdr_log::line(&format!("Public base remote:   {}", RBTHDR_BASE_REMOTE));
-    rbthdr_log::line(&format!("Public base URL:      {}", fetch_url));
-    rbthdr_log::line(&format!("Candidate clone:      {}", clone_dir.display()));
-    rbthdr_log::line(&format!("Candidate branch:     {}", RBTHDR_CANDIDATE_BRANCH));
-    rbthdr_log::blank();
-    rbthdr_log::line("The candidate is built by ADDITION in a clone of the real PUBLIC");
-    rbthdr_log::line("repository. No private object enters the object graph, because none");
-    rbthdr_log::line("is ever put there. Nothing is stripped.");
-    rbthdr_log::blank();
-    rbthdr_log::line(&format!("Every shipped path ({}) is materialized from the committed bytes,", shipped.len()));
-    rbthdr_log::line("judged by the perambulation's one matcher, then lustrated and");
-    rbthdr_log::line("regenerated by the clone's own copy of rblm_sterilize.sh. The root");
-    rbthdr_log::line("CLAUDE.md is transposed to the consumer template and byte-asserted.");
-    rbthdr_log::blank();
-    rbthdr_log::line("The clone receives NO station and NO secrets directory, and it is");
-    rbthdr_log::line("SEVERED from its origin: the finished candidate holds zero remotes,");
-    rbthdr_log::line("so the cut cannot push it anywhere. The reveal is a human step.");
-    rbthdr_log::blank();
+    rbthdr_log::rbthdr_section("The cut — build the candidate by addition (RBSHE step 3)");
+    rbthdr_log::rbthdr_line(&format!("Source commit:        {}", head));
+    rbthdr_log::rbthdr_line(&format!("Public base remote:   {}", RBTHDR_BASE_REMOTE));
+    rbthdr_log::rbthdr_line(&format!("Public base URL:      {}", fetch_url));
+    rbthdr_log::rbthdr_line(&format!("Candidate clone:      {}", clone_dir.display()));
+    rbthdr_log::rbthdr_line(&format!("Candidate branch:     {}", RBTHDR_CANDIDATE_BRANCH));
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line("The candidate is built by ADDITION in a clone of the real PUBLIC");
+    rbthdr_log::rbthdr_line("repository. No private object enters the object graph, because none");
+    rbthdr_log::rbthdr_line("is ever put there. Nothing is stripped.");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line(&format!("Every shipped path ({}) is materialized from the committed bytes,", shipped.len()));
+    rbthdr_log::rbthdr_line("judged by the perambulation's one matcher, then lustrated and");
+    rbthdr_log::rbthdr_line("regenerated by the clone's own copy of rblm_sterilize.sh. The root");
+    rbthdr_log::rbthdr_line("CLAUDE.md is transposed to the consumer template and byte-asserted.");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line("The clone receives NO station and NO secrets directory, and it is");
+    rbthdr_log::rbthdr_line("SEVERED from its origin: the finished candidate holds zero remotes,");
+    rbthdr_log::rbthdr_line("so the cut cannot push it anywhere. The reveal is a human step.");
+    rbthdr_log::rbthdr_blank();
 
-    rbthdr_log::step("Cloning the public base");
+    rbthdr_log::rbthdr_step("Cloning the public base");
     if let Err(e) = std::fs::create_dir(target_dir) {
         crate::rbthdr_fatal!("failed to create target directory {}: {}", target_dir.display(), e);
     }
@@ -268,7 +268,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     if let Err(e) = std::fs::create_dir(&scratch_dir) {
         crate::rbthdr_fatal!("failed to create scratch directory {}: {}", scratch_dir.display(), e);
     }
-    let code = rbthdr_run::stream("git", &["clone", &fetch_url, &clone], top, &[]);
+    let code = rbthdr_run::rbthdr_stream("git", &["clone", &fetch_url, &clone], top, &[]);
     if code != 0 {
         crate::rbthdr_fatal!("failed to clone the public base (git exited {})", code);
     }
@@ -280,23 +280,23 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // un-disclosed. Surfaced for the operator to acknowledge — loud, never
     // fatal, never silent. What this cut is answerable for is the DELTA it
     // adds, swept fatally below.
-    rbthdr_log::step("Surveying the public base (inventory)");
+    rbthdr_log::rbthdr_step("Surveying the public base (inventory)");
     let base_graph = zrbthdr_graph_paths(&clone_dir, &["--all"], "base");
-    let base_inventory = rbthdr_perambulation::sweep(&base_graph);
+    let base_inventory = rbthdr_perambulation::rbthdr_sweep(&base_graph);
     if base_inventory.is_empty() {
-        rbthdr_log::line("Base object graph clean: no withheld path in the public history");
+        rbthdr_log::rbthdr_line("Base object graph clean: no withheld path in the public history");
     } else {
-        rbthdr_log::blank();
-        rbthdr_log::warn(&format!(
+        rbthdr_log::rbthdr_blank();
+        rbthdr_log::rbthdr_warn(&format!(
             "BASE INVENTORY — {} withheld path(s) already in the public history.",
             base_inventory.len()
         ));
-        rbthdr_log::line("Already disclosed; cannot be un-disclosed by this cut. This is not");
-        rbthdr_log::line("a leak of THIS cut — acknowledge and proceed.");
+        rbthdr_log::rbthdr_line("Already disclosed; cannot be un-disclosed by this cut. This is not");
+        rbthdr_log::rbthdr_line("a leak of THIS cut — acknowledge and proceed.");
         for path in &base_inventory {
-            rbthdr_log::line(&format!("  {}", path));
+            rbthdr_log::rbthdr_line(&format!("  {}", path));
         }
-        rbthdr_log::blank();
+        rbthdr_log::rbthdr_blank();
     }
 
     // The public repository may carry no commit at all — an empty base is the
@@ -305,13 +305,13 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // commit, full stop. The base SHA is captured now, as a value, so the
     // delta range and the commit count below survive the branch surgery.
     let base_sha = {
-        let got = rbthdr_run::capture("git", &["-C", &clone, "rev-parse", "HEAD"], top);
+        let got = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "rev-parse", "HEAD"], top);
         if got.code == 0 {
             let sha = got.stdout.trim().to_string();
-            rbthdr_log::line(&format!("Public base commit:   {}", sha));
+            rbthdr_log::rbthdr_line(&format!("Public base commit:   {}", sha));
             Some(sha)
         } else {
-            rbthdr_log::line("Public base commit:   (none — the base is empty; this candidate is a root commit)");
+            rbthdr_log::rbthdr_line("Public base commit:   (none — the base is empty; this candidate is a root commit)");
             None
         }
     };
@@ -322,16 +322,16 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // never from the clone's remote, so the sever costs the build nothing.
     // Zero remotes is asserted again at the end, as the finished candidate's
     // standing property.
-    rbthdr_log::step("Severing the clone from its origin");
+    rbthdr_log::rbthdr_step("Severing the clone from its origin");
     zrbthdr_git_capture(&clone, &["remote", "remove", "origin"], top, "sever the clone's origin");
 
     // Open the candidate's own branch, and drop every other. The clone must
     // carry exactly ONE branch, named POSTULANT_LOCAL — so even a forbidden
     // fan-out push (--all) could name nothing but POSTULANT_LOCAL, never
     // main. On an empty base the unborn branch is simply renamed.
-    rbthdr_log::step(&format!("Opening the candidate branch {}", RBTHDR_CANDIDATE_BRANCH));
+    rbthdr_log::rbthdr_step(&format!("Opening the candidate branch {}", RBTHDR_CANDIDATE_BRANCH));
     zrbthdr_git_capture(&clone, &["checkout", "-b", RBTHDR_CANDIDATE_BRANCH], top, "open the candidate branch");
-    let heads = rbthdr_run::capture(
+    let heads = rbthdr_run::rbthdr_capture(
         "git",
         &["-C", &clone, "for-each-ref", "--format=%(refname:short)", "refs/heads/"],
         top,
@@ -351,8 +351,8 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // and this one withholds must LEAVE the tree; materializing on top of the
     // base would let it persist forever, unnoticed, because nothing would
     // ever name it again.
-    rbthdr_log::step("Clearing the base tree");
-    let base_files = rbthdr_run::capture("git", &["-C", &clone, "ls-files"], top);
+    rbthdr_log::rbthdr_step("Clearing the base tree");
+    let base_files = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "ls-files"], top);
     if base_files.code != 0 {
         crate::rbthdr_fatal!("git ls-files failed in the clone:\n{}", base_files.stderr.trim());
     }
@@ -375,18 +375,18 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // candidate that cannot run. The pathspec is handed as arguments — git
     // archive takes no pathspec file, and a shell relay would split any path
     // that carried a space.
-    rbthdr_log::step(&format!("Materializing the shipped paths from {}", head));
+    rbthdr_log::rbthdr_step(&format!("Materializing the shipped paths from {}", head));
     let archive_path = scratch_dir.join("rbthd_shipped.tar");
-    let archive = rbthdr_repo::as_str(&archive_path);
+    let archive = rbthdr_repo::rbthdr_as_str(&archive_path);
     let mut archive_args: Vec<&str> = vec!["archive", "--format=tar", "-o", &archive, &head, "--"];
     for path in &shipped {
         archive_args.push(path.as_str());
     }
-    let got = rbthdr_run::capture("git", &archive_args, top);
+    let got = rbthdr_run::rbthdr_capture("git", &archive_args, top);
     if got.code != 0 {
         crate::rbthdr_fatal!("failed to archive the shipped paths from {}:\n{}", head, got.stderr.trim());
     }
-    let got = rbthdr_run::capture("tar", &["-x", "-f", &archive, "-C", &clone], top);
+    let got = rbthdr_run::rbthdr_capture("tar", &["-x", "-f", &archive, "-C", &clone], top);
     if got.code != 0 {
         crate::rbthdr_fatal!("failed to materialize the shipped paths into the clone:\n{}", got.stderr.trim());
     }
@@ -398,7 +398,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // the inherited BURD_ state, and the script needs exactly three values —
     // a temp root (the cut's scratch), the BUK utility modules, and the
     // RELATIVE tabtarget dir it regenerates the context from.
-    rbthdr_log::step("Lustrating and regenerating in the clone");
+    rbthdr_log::rbthdr_step("Lustrating and regenerating in the clone");
     let sterilize = clone_dir.join(RBTHDR_STERILIZE_PATH);
     if !sterilize.is_file() {
         crate::rbthdr_fatal!(
@@ -406,10 +406,10 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
             RBTHDR_STERILIZE_PATH
         );
     }
-    let sterilize = rbthdr_repo::as_str(&sterilize);
-    let scratch = rbthdr_repo::as_str(&scratch_dir);
-    let buk_dir = rbthdr_repo::as_str(&top.join(RBTHDR_BUK_SUBDIR));
-    let code = rbthdr_run::stream(
+    let sterilize = rbthdr_repo::rbthdr_as_str(&sterilize);
+    let scratch = rbthdr_repo::rbthdr_as_str(&scratch_dir);
+    let buk_dir = rbthdr_repo::rbthdr_as_str(&top.join(RBTHDR_BUK_SUBDIR));
+    let code = rbthdr_run::rbthdr_stream(
         "bash",
         &[&sterilize],
         top,
@@ -429,8 +429,8 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // That copy is overwritten now, before the commit, so the maintainer's
     // CLAUDE.md never enters the candidate's object graph: the committed blob
     // is the consumer template's.
-    rbthdr_log::step(&format!("Transposing the consumer context onto {}", RBTHDR_CANDIDATE_CLAUDE_PATH));
-    let template = rbthdr_run::capture_bytes("git", &["show", &template_ref], top);
+    rbthdr_log::rbthdr_step(&format!("Transposing the consumer context onto {}", RBTHDR_CANDIDATE_CLAUDE_PATH));
+    let template = rbthdr_run::rbthdr_capture_bytes("git", &["show", &template_ref], top);
     if template.code != 0 {
         crate::rbthdr_fatal!("failed to read the consumer CLAUDE.md template:\n{}", template.stderr.trim());
     }
@@ -444,7 +444,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // the wrong context under a green battery. The template is re-read from
     // the object store and the target re-read from disk, so the assert
     // compares what was committed against what will be.
-    let expect = rbthdr_run::capture_bytes("git", &["show", &template_ref], top);
+    let expect = rbthdr_run::rbthdr_capture_bytes("git", &["show", &template_ref], top);
     if expect.code != 0 {
         crate::rbthdr_fatal!("failed to re-read the consumer CLAUDE.md template for assertion:\n{}", expect.stderr.trim());
     }
@@ -460,7 +460,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         );
     }
 
-    rbthdr_log::step("Committing the candidate");
+    rbthdr_log::rbthdr_step("Committing the candidate");
     zrbthdr_git_capture(&clone, &["add", "--all"], top, "stage the candidate");
     zrbthdr_git_capture(&clone, &["commit", "-m", RBTHDR_CANDIDATE_SUBJECT], top, "commit the candidate");
 
@@ -470,7 +470,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         Some(base) => format!("{}..HEAD", base),
         None => "HEAD".to_string(),
     };
-    let count = rbthdr_run::capture("git", &["-C", &clone, "rev-list", "--count", &range], top);
+    let count = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "rev-list", "--count", &range], top);
     if count.code != 0 {
         crate::rbthdr_fatal!("git rev-list failed in the clone:\n{}", count.stderr.trim());
     }
@@ -485,24 +485,24 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
     // base must carry no withheld path. This is the assertion the base
     // inventory is not: the base's already-disclosed history is tolerated,
     // but THIS cut adds nothing withheld, and a leak here is fatal.
-    rbthdr_log::step("Sweeping the candidate delta");
+    rbthdr_log::rbthdr_step("Sweeping the candidate delta");
     let delta_graph = zrbthdr_graph_paths(&clone_dir, &[range.as_str()], "candidate");
-    let leaks = rbthdr_perambulation::sweep(&delta_graph);
+    let leaks = rbthdr_perambulation::rbthdr_sweep(&delta_graph);
     if !leaks.is_empty() {
         for path in &leaks {
-            rbthdr_log::line(&format!("leak: {}", path));
+            rbthdr_log::rbthdr_line(&format!("leak: {}", path));
         }
         crate::rbthdr_fatal!("the candidate delta adds {} withheld path(s)", leaks.len());
     }
-    rbthdr_log::line("Candidate delta clean: this cut adds no withheld path");
+    rbthdr_log::rbthdr_line("Candidate delta clean: this cut adds no withheld path");
 
     // Zero remotes, asserted as the finished candidate's standing property.
     // The clone was severed above; this proves the sever held and nothing
     // re-wired a remote. With no remote, no command in the clone can reach
     // the public target: the reveal is human-hands-only by structural
     // incapacity, not by a rule anyone remembered.
-    rbthdr_log::step("Asserting the candidate holds zero remotes");
-    let remotes = rbthdr_run::capture("git", &["-C", &clone, "remote"], top);
+    rbthdr_log::rbthdr_step("Asserting the candidate holds zero remotes");
+    let remotes = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "remote"], top);
     if remotes.code != 0 {
         crate::rbthdr_fatal!("failed to read the clone's remotes:\n{}", remotes.stderr.trim());
     }
@@ -513,17 +513,17 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
         );
     }
 
-    rbthdr_log::blank();
-    rbthdr_log::line(&format!("Candidate:  {}", clone_dir.display()));
-    rbthdr_log::line(&format!("Branch:     {}", RBTHDR_CANDIDATE_BRANCH));
-    rbthdr_log::line(&format!(
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line(&format!("Candidate:  {}", clone_dir.display()));
+    rbthdr_log::rbthdr_line(&format!("Branch:     {}", RBTHDR_CANDIDATE_BRANCH));
+    rbthdr_log::rbthdr_line(&format!(
         "Base:       {}",
         base_sha.as_deref().unwrap_or("(root commit — the base was empty)")
     ));
-    rbthdr_log::line("Commits:    1");
-    rbthdr_log::line("Remotes:    0 (severed — the cut can reach nothing)");
-    rbthdr_log::blank();
-    rbthdr_log::success("Candidate expedited — one commit atop the public base, zero remotes, no withheld path in the delta");
+    rbthdr_log::rbthdr_line("Commits:    1");
+    rbthdr_log::rbthdr_line("Remotes:    0 (severed — the cut can reach nothing)");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_success("Candidate expedited — one commit atop the public base, zero remotes, no withheld path in the delta");
 
     clone_dir
 }
@@ -534,7 +534,7 @@ pub fn cut(top: &Path, target_dir: &Path) -> PathBuf {
 /// judged against what the repository actually carries at this commit; any
 /// other source of truth is a second copy waiting to drift.
 fn zrbthdr_tracked(top: &Path) -> Vec<String> {
-    let got = rbthdr_run::capture("git", &["ls-files"], top);
+    let got = rbthdr_run::rbthdr_capture("git", &["ls-files"], top);
     if got.code != 0 {
         crate::rbthdr_fatal!("git ls-files failed:\n{}", got.stderr.trim());
     }
@@ -557,10 +557,10 @@ fn zrbthdr_tracked(top: &Path) -> Vec<String> {
 /// candidate added — precisely the reading that would have caught the 292 MiB
 /// candidate, whose face was clean and whose history was not.
 fn zrbthdr_graph_paths(clone_dir: &Path, range: &[&str], label: &str) -> Vec<String> {
-    let clone = rbthdr_repo::as_str(clone_dir);
+    let clone = rbthdr_repo::rbthdr_as_str(clone_dir);
     let mut args: Vec<&str> = vec!["-C", &clone, "rev-list", "--objects"];
     args.extend_from_slice(range);
-    let got = rbthdr_run::capture("git", &args, clone_dir);
+    let got = rbthdr_run::rbthdr_capture("git", &args, clone_dir);
     if got.code != 0 {
         crate::rbthdr_fatal!(
             "failed to walk the object graph of {} ({}):\n{}",
@@ -579,7 +579,7 @@ fn zrbthdr_graph_paths(clone_dir: &Path, range: &[&str], label: &str) -> Vec<Str
 fn zrbthdr_git_capture(clone: &str, args: &[&str], top: &Path, act: &str) {
     let mut full = vec!["-C", clone];
     full.extend_from_slice(args);
-    let got = rbthdr_run::capture("git", &full, top);
+    let got = rbthdr_run::rbthdr_capture("git", &full, top);
     if got.code != 0 {
         crate::rbthdr_fatal!("failed to {} (git exited {}):\n{}", act, got.code, got.stderr.trim());
     }
@@ -590,8 +590,8 @@ fn zrbthdr_git_capture(clone: &str, args: &[&str], top: &Path, act: &str) {
 /// re-assertion of the ground (RBSHO step 2): a private GitHub repository
 /// 404s to an unauthenticated request, so anything else means the quarantine
 /// is public or misnamed. Fatal otherwise.
-pub fn assert_quarantine_private(top: &Path) {
-    let status = rbthdr_run::capture(
+pub fn rbthdr_assert_quarantine_private(top: &Path) {
+    let status = rbthdr_run::rbthdr_capture(
         "curl",
         &["-s", "-o", "/dev/null", "-w", "%{http_code}", RBTHDR_QUARANTINE_HTTPS],
         top,
@@ -605,7 +605,7 @@ pub fn assert_quarantine_private(top: &Path) {
             RBTHDR_QUARANTINE_HTTPS, status.stdout.trim(), RBTHDR_QUARANTINE_PRIVATE_STATUS
         );
     }
-    rbthdr_log::line("quarantine reads anonymous-404: private (or absent), never public");
+    rbthdr_log::rbthdr_line("quarantine reads anonymous-404: private (or absent), never public");
 }
 
 // ── The freshness matcher ───────────────────────────────────
@@ -626,21 +626,21 @@ pub fn assert_quarantine_private(top: &Path) {
 ///
 /// Fatal on drift, naming the standing remedy: the cycle returns to essai,
 /// never forward.
-pub fn assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
+pub fn rbthdr_assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
     let freshness_parent = parent.join(rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME);
-    rbthdr_repo::guard_disposable(&freshness_parent, rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME, top);
-    if !rbthdr_repo::retire_aside(&freshness_parent, top) {
-        rbthdr_log::line("no prior freshness scratch to retire");
+    rbthdr_repo::rbthdr_guard_disposable(&freshness_parent, rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME, top);
+    if !rbthdr_repo::rbthdr_retire_aside(&freshness_parent, top) {
+        rbthdr_log::rbthdr_line("no prior freshness scratch to retire");
     }
 
-    rbthdr_log::step("Scratch re-cutting the maintainer tree's shipped bytes to assert freshness");
-    let scratch_clone = cut(top, &freshness_parent);
+    rbthdr_log::rbthdr_step("Scratch re-cutting the maintainer tree's shipped bytes to assert freshness");
+    let scratch_clone = rbthdr_cut(top, &freshness_parent);
 
-    let standing_tree = rbthdr_repo::tree_hash(candidate_clone, top);
-    let scratch_tree = rbthdr_repo::tree_hash(&scratch_clone, top);
+    let standing_tree = rbthdr_repo::rbthdr_tree_hash(candidate_clone, top);
+    let scratch_tree = rbthdr_repo::rbthdr_tree_hash(&scratch_clone, top);
 
-    rbthdr_log::step("Disposing the freshness scratch");
-    rbthdr_repo::retire_aside(&freshness_parent, top);
+    rbthdr_log::rbthdr_step("Disposing the freshness scratch");
+    rbthdr_repo::rbthdr_retire_aside(&freshness_parent, top);
 
     if standing_tree != scratch_tree {
         crate::rbthdr_fatal!(
@@ -648,5 +648,5 @@ pub fn assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
             scratch_tree, standing_tree
         );
     }
-    rbthdr_log::line(&format!("candidate fresh: re-cut tree {} matches the standing candidate", standing_tree));
+    rbthdr_log::rbthdr_line(&format!("candidate fresh: re-cut tree {} matches the standing candidate", standing_tree));
 }

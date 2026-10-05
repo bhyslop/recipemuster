@@ -39,7 +39,7 @@ pub struct rbthdr_Cachet {
 
 /// Render a cachet to its on-disk key=value form. Pure — tested without git
 /// or the filesystem.
-pub fn render(cachet: &rbthdr_Cachet) -> String {
+pub fn rbthdr_render(cachet: &rbthdr_Cachet) -> String {
     format!(
         "{}={}\n{}={}\n{}={}\n{}={}\n",
         RBTHDR_CACHET_KEY_TREE, cachet.tree,
@@ -53,7 +53,7 @@ pub fn render(cachet: &rbthdr_Cachet) -> String {
 /// with synthetic content, including malformed input. Every field is
 /// required and non-empty: a partially-written cachet must refuse, never be
 /// read as a verdict for whichever fields happen to be present.
-pub fn parse(content: &str) -> Result<rbthdr_Cachet, String> {
+pub fn rbthdr_parse(content: &str) -> Result<rbthdr_Cachet, String> {
     let mut tree = None;
     let mut tip = None;
     let mut maintainer_head = None;
@@ -104,23 +104,23 @@ fn zrbthdr_path(candidate_parent: &Path) -> std::path::PathBuf {
 /// Grant a cachet beside the candidate: capture the candidate's tree hash and
 /// tip, the maintainer HEAD, and the stamp, and store it (RBSHD "Grant the
 /// cachet"). Fatal on any read or write failure.
-pub fn grant(candidate_parent: &Path, candidate_clone: &Path, top: &Path) {
+pub fn rbthdr_grant(candidate_parent: &Path, candidate_clone: &Path, top: &Path) {
     let cachet = rbthdr_Cachet {
-        tree: rbthdr_repo::tree_hash(candidate_clone, top),
-        tip: rbthdr_repo::commit_sha(candidate_clone, top),
-        maintainer_head: rbthdr_repo::commit_sha(top, top),
-        stamp: rbthdr_run::timestamp(top),
+        tree: rbthdr_repo::rbthdr_tree_hash(candidate_clone, top),
+        tip: rbthdr_repo::rbthdr_commit_sha(candidate_clone, top),
+        maintainer_head: rbthdr_repo::rbthdr_commit_sha(top, top),
+        stamp: rbthdr_run::rbthdr_timestamp(top),
     };
     let path = zrbthdr_path(candidate_parent);
-    std::fs::write(&path, render(&cachet))
+    std::fs::write(&path, rbthdr_render(&cachet))
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to write the cachet {}: {}", path.display(), e));
-    rbthdr_log::line(&format!("cachet granted: {} (tree {})", path.display(), cachet.tree));
+    rbthdr_log::rbthdr_line(&format!("cachet granted: {} (tree {})", path.display(), cachet.tree));
 }
 
 /// Require a standing cachet beside the candidate, its tree hash equal to the
 /// standing candidate's (RBSHO "Require the cachet"). Fatal on absence or
 /// mismatch, naming the remedy: conduct the docimasy.
-pub fn require(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> rbthdr_Cachet {
+pub fn rbthdr_require(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> rbthdr_Cachet {
     let path = zrbthdr_path(candidate_parent);
     let content = std::fs::read_to_string(&path).unwrap_or_else(|_| {
         crate::rbthdr_fatal!(
@@ -128,12 +128,12 @@ pub fn require(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> r
             path.display()
         )
     });
-    let cachet = parse(&content).unwrap_or_else(|e| crate::rbthdr_fatal!("cachet {} is malformed: {}", path.display(), e));
-    let standing_tree = rbthdr_repo::tree_hash(candidate_clone, top);
+    let cachet = rbthdr_parse(&content).unwrap_or_else(|e| crate::rbthdr_fatal!("cachet {} is malformed: {}", path.display(), e));
+    let standing_tree = rbthdr_repo::rbthdr_tree_hash(candidate_clone, top);
     if let Err(e) = zrbthdr_check(&cachet, &standing_tree) {
         crate::rbthdr_fatal!("{} — conduct the docimasy again (RBSHO)", e);
     }
-    rbthdr_log::line(&format!("cachet required and verified: {} (tree {})", path.display(), cachet.tree));
+    rbthdr_log::rbthdr_line(&format!("cachet required and verified: {} (tree {})", path.display(), cachet.tree));
     cachet
 }
 
@@ -141,14 +141,14 @@ pub fn require(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> r
 /// rehearse reading (RBSHO rehearse note: "tolerates an absent cachet with a
 /// loud warning and stops before the disclosure line"). A cachet that IS
 /// present but mismatched is still fatal — only absence is tolerated.
-pub fn require_rehearse(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> Option<rbthdr_Cachet> {
+pub fn rbthdr_require_rehearse(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> Option<rbthdr_Cachet> {
     let path = zrbthdr_path(candidate_parent);
     if !path.is_file() {
-        rbthdr_log::warn(&format!(
+        rbthdr_log::rbthdr_warn(&format!(
             "no cachet standing beside the candidate ({}) — rehearsal tolerates this and stops before the disclosure line",
             path.display()
         ));
         return None;
     }
-    Some(require(candidate_parent, candidate_clone, top))
+    Some(rbthdr_require(candidate_parent, candidate_clone, top))
 }

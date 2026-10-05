@@ -249,7 +249,7 @@ fn rbtdti_chain_next_reuses_prior_burv_root() {
     // A chained invoke reuses the prior invoke's root without advancing the
     // counter — the theurge-side condition that lets bud_dispatch promote the
     // prior invoke's current/ into this invoke's previous/.
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
     let chained = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
     assert_eq!(chained.burv_output, first.burv_output);
     assert_eq!(chained.burv_output, burv_output_root.join(rbtdri_invoke_dir_name(0)));
@@ -276,7 +276,7 @@ fn rbtdti_chain_next_without_prior_invoke_errs() {
 
     // chain_next with no prior invoke has nothing to chain from — it must error
     // loud rather than silently reuse a nonexistent root.
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
     let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
     assert!(result.is_err());
 
@@ -583,7 +583,7 @@ fn rbtdti_read_burv_fact_reads_value() {
     rbtdti_write_script(
         &tt,
         &format!("{}.Bark.testplate.sh", RBTDGC_CRUCIBLE_BARK),
-        "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbf_fact_hallmark\"\n",
+        "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbgc_fact_hallmark\"\n",
     );
 
     let burv_temp_root = tmp.join("burv-temp");
@@ -591,7 +591,7 @@ fn rbtdti_read_burv_fact_reads_value() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
-    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark").unwrap();
+    let fact = rbtdri_read_burv_fact(&result, "rbgc_fact_hallmark").unwrap();
     assert_eq!(fact, "c260305-r260305");
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -608,7 +608,7 @@ fn rbtdti_read_burv_fact_rejects_missing() {
     let mut ctx = rbtdri_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
 
-    let fact = rbtdri_read_burv_fact(&result, "rbf_fact_hallmark");
+    let fact = rbtdri_read_burv_fact(&result, "rbgc_fact_hallmark");
     assert!(fact.is_err());
 
     let _ = std::fs::remove_dir_all(&tmp);

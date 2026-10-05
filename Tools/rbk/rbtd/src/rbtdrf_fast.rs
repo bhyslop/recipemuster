@@ -24,7 +24,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command, rbtdri_bash_program};
 use crate::rbtdgc_consts::{
@@ -89,24 +89,24 @@ const RBTDRF_REPORT_NONZERO: i32 = 1;
 /// band code (buv_vet rejects with RBTDGC_BAND_ENROLL). Asserting the precise
 /// code, not bare nonzero, closes the wrong-reason hole: a harness breakage
 /// exits off-band and fails the case loud rather than passing as a "rejection".
-struct RbtdrfSub {
+struct zrbtdrf_Sub {
     label: &'static str,
     setup: &'static str,
     command: &'static str,
     expect_code: i32,
 }
 
-impl RbtdrfSub {
-    const fn ok(label: &'static str, setup: &'static str) -> Self {
+impl zrbtdrf_Sub {
+    const fn zrbtdrf_ok(label: &'static str, setup: &'static str) -> Self {
         Self { label, setup, command: "buv_vet \"TEST\"", expect_code: 0 }
     }
-    const fn fatal(label: &'static str, setup: &'static str) -> Self {
+    const fn zrbtdrf_fatal(label: &'static str, setup: &'static str) -> Self {
         Self { label, setup, command: "buv_vet \"TEST\"", expect_code: RBTDGC_BAND_ENROLL }
     }
-    const fn ok_cmd(label: &'static str, setup: &'static str, command: &'static str) -> Self {
+    const fn zrbtdrf_ok_cmd(label: &'static str, setup: &'static str, command: &'static str) -> Self {
         Self { label, setup, command, expect_code: 0 }
     }
-    const fn fatal_cmd(
+    const fn zrbtdrf_fatal_cmd(
         label: &'static str,
         setup: &'static str,
         command: &'static str,
@@ -145,7 +145,7 @@ pub(crate) fn rbtdrf_run_bash(
 fn rbtdrf_run_ev(
     dir: &Path,
     enrollment: &str,
-    subs: &[RbtdrfSub],
+    subs: &[zrbtdrf_Sub],
 ) -> rbtdre_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
@@ -252,7 +252,7 @@ fn rbtdrf_ev_string_valid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 1 20 \"Test name\"\n\
          buv_string_enroll TEST_DESC 3 50 \"Test description\"",
-        &[RbtdrfSub::ok("valid strings",
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid strings",
             "export TEST_NAME=\"hello\"\nexport TEST_DESC=\"a valid description\"")],
     )
 }
@@ -261,7 +261,7 @@ fn rbtdrf_ev_string_empty_optional(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_OPT 0 20 \"Optional field\"",
-        &[RbtdrfSub::ok("empty optional", "export TEST_OPT=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_ok("empty optional", "export TEST_OPT=\"\"")],
     )
 }
 
@@ -269,7 +269,7 @@ fn rbtdrf_ev_string_too_short(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 5 20 \"Test name\"",
-        &[RbtdrfSub::fatal("too short", "export TEST_NAME=\"ab\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("too short", "export TEST_NAME=\"ab\"")],
     )
 }
 
@@ -277,7 +277,7 @@ fn rbtdrf_ev_string_too_long(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 1 5 \"Test name\"",
-        &[RbtdrfSub::fatal("too long", "export TEST_NAME=\"toolongvalue\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("too long", "export TEST_NAME=\"toolongvalue\"")],
     )
 }
 
@@ -285,7 +285,7 @@ fn rbtdrf_ev_string_empty_required(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 1 20 \"Test name\"",
-        &[RbtdrfSub::fatal("empty required", "export TEST_NAME=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("empty required", "export TEST_NAME=\"\"")],
     )
 }
 
@@ -294,8 +294,8 @@ fn rbtdrf_ev_xname_valid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Xnames\"\n\
          buv_xname_enroll TEST_IDENT 2 12 \"Identifier\"",
         &[
-            RbtdrfSub::ok("standard xname", "export TEST_IDENT=\"myName\""),
-            RbtdrfSub::ok("underscore and hyphen", "export TEST_IDENT=\"my_var-1\""),
+            zrbtdrf_Sub::zrbtdrf_ok("standard xname", "export TEST_IDENT=\"myName\""),
+            zrbtdrf_Sub::zrbtdrf_ok("underscore and hyphen", "export TEST_IDENT=\"my_var-1\""),
         ],
     )
 }
@@ -305,10 +305,10 @@ fn rbtdrf_ev_xname_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Xnames\"\n\
          buv_xname_enroll TEST_IDENT 2 12 \"Identifier\"",
         &[
-            RbtdrfSub::fatal("starts with digit", "export TEST_IDENT=\"1bad\""),
-            RbtdrfSub::fatal("contains dot", "export TEST_IDENT=\"my.name\""),
-            RbtdrfSub::fatal("too short", "export TEST_IDENT=\"x\""),
-            RbtdrfSub::fatal("too long", "export TEST_IDENT=\"abcdefghijklm\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("starts with digit", "export TEST_IDENT=\"1bad\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("contains dot", "export TEST_IDENT=\"my.name\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("too short", "export TEST_IDENT=\"x\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("too long", "export TEST_IDENT=\"abcdefghijklm\""),
         ],
     )
 }
@@ -317,7 +317,7 @@ fn rbtdrf_ev_gname_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gnames\"\n\
          buv_gname_enroll TEST_PROJECT 3 20 \"Project ID\"",
-        &[RbtdrfSub::ok("valid gname", "export TEST_PROJECT=\"my-project-01\"")],
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid gname", "export TEST_PROJECT=\"my-project-01\"")],
     )
 }
 
@@ -326,9 +326,9 @@ fn rbtdrf_ev_gname_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gnames\"\n\
          buv_gname_enroll TEST_PROJECT 3 20 \"Project ID\"",
         &[
-            RbtdrfSub::fatal("uppercase", "export TEST_PROJECT=\"MyProject\""),
-            RbtdrfSub::fatal("ends with hyphen", "export TEST_PROJECT=\"my-project-\""),
-            RbtdrfSub::fatal("starts with digit", "export TEST_PROJECT=\"1project\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("uppercase", "export TEST_PROJECT=\"MyProject\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("ends with hyphen", "export TEST_PROJECT=\"my-project-\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("starts with digit", "export TEST_PROJECT=\"1project\""),
         ],
     )
 }
@@ -337,7 +337,7 @@ fn rbtdrf_ev_fqin_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"FQINs\"\n\
          buv_fqin_enroll TEST_IMAGE 5 100 \"Image reference\"",
-        &[RbtdrfSub::ok("valid fqin",
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid fqin",
             "export TEST_IMAGE=\"us-central1-docker.pkg.dev/my-proj/repo/image:latest\"")],
     )
 }
@@ -347,8 +347,8 @@ fn rbtdrf_ev_fqin_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"FQINs\"\n\
          buv_fqin_enroll TEST_IMAGE 5 100 \"Image reference\"",
         &[
-            RbtdrfSub::fatal("special char", "export TEST_IMAGE=\".invalid/path\""),
-            RbtdrfSub::fatal("empty", "export TEST_IMAGE=\"\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("special char", "export TEST_IMAGE=\".invalid/path\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_IMAGE=\"\""),
         ],
     )
 }
@@ -360,8 +360,8 @@ fn rbtdrf_ev_bool_valid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Booleans\"\n\
          buv_bool_enroll TEST_ENABLED \"Feature enabled\"",
         &[
-            RbtdrfSub::ok("value 1", "export TEST_ENABLED=\"1\""),
-            RbtdrfSub::ok("value 0", "export TEST_ENABLED=\"0\""),
+            zrbtdrf_Sub::zrbtdrf_ok("value 1", "export TEST_ENABLED=\"1\""),
+            zrbtdrf_Sub::zrbtdrf_ok("value 0", "export TEST_ENABLED=\"0\""),
         ],
     )
 }
@@ -371,9 +371,9 @@ fn rbtdrf_ev_bool_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Booleans\"\n\
          buv_bool_enroll TEST_ENABLED \"Feature enabled\"",
         &[
-            RbtdrfSub::fatal("string true", "export TEST_ENABLED=\"true\""),
-            RbtdrfSub::fatal("string yes", "export TEST_ENABLED=\"yes\""),
-            RbtdrfSub::fatal("number 2", "export TEST_ENABLED=\"2\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("string true", "export TEST_ENABLED=\"true\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("string yes", "export TEST_ENABLED=\"yes\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("number 2", "export TEST_ENABLED=\"2\""),
         ],
     )
 }
@@ -382,7 +382,7 @@ fn rbtdrf_ev_bool_empty(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Booleans\"\n\
          buv_bool_enroll TEST_ENABLED \"Feature enabled\"",
-        &[RbtdrfSub::fatal("empty", "export TEST_ENABLED=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_ENABLED=\"\"")],
     )
 }
 
@@ -391,8 +391,8 @@ fn rbtdrf_ev_enum_valid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Enums\"\n\
          buv_enum_enroll TEST_MODE \"Operating mode\" debug release test",
         &[
-            RbtdrfSub::ok("first choice", "export TEST_MODE=\"debug\""),
-            RbtdrfSub::ok("last choice", "export TEST_MODE=\"test\""),
+            zrbtdrf_Sub::zrbtdrf_ok("first choice", "export TEST_MODE=\"debug\""),
+            zrbtdrf_Sub::zrbtdrf_ok("last choice", "export TEST_MODE=\"test\""),
         ],
     )
 }
@@ -402,8 +402,8 @@ fn rbtdrf_ev_enum_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Enums\"\n\
          buv_enum_enroll TEST_MODE \"Operating mode\" debug release test",
         &[
-            RbtdrfSub::fatal("not a choice", "export TEST_MODE=\"production\""),
-            RbtdrfSub::fatal("case mismatch", "export TEST_MODE=\"Debug\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("not a choice", "export TEST_MODE=\"production\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("case mismatch", "export TEST_MODE=\"Debug\""),
         ],
     )
 }
@@ -412,7 +412,7 @@ fn rbtdrf_ev_enum_empty(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Enums\"\n\
          buv_enum_enroll TEST_MODE \"Operating mode\" debug release test",
-        &[RbtdrfSub::fatal("empty", "export TEST_MODE=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_MODE=\"\"")],
     )
 }
 
@@ -423,9 +423,9 @@ fn rbtdrf_ev_decimal_valid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
         &[
-            RbtdrfSub::ok("at minimum", "export TEST_COUNT=\"1\""),
-            RbtdrfSub::ok("at maximum", "export TEST_COUNT=\"100\""),
-            RbtdrfSub::ok("mid-range", "export TEST_COUNT=\"50\""),
+            zrbtdrf_Sub::zrbtdrf_ok("at minimum", "export TEST_COUNT=\"1\""),
+            zrbtdrf_Sub::zrbtdrf_ok("at maximum", "export TEST_COUNT=\"100\""),
+            zrbtdrf_Sub::zrbtdrf_ok("mid-range", "export TEST_COUNT=\"50\""),
         ],
     )
 }
@@ -434,7 +434,7 @@ fn rbtdrf_ev_decimal_below(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
-        &[RbtdrfSub::fatal("below minimum", "export TEST_COUNT=\"0\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("below minimum", "export TEST_COUNT=\"0\"")],
     )
 }
 
@@ -442,7 +442,7 @@ fn rbtdrf_ev_decimal_above(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
-        &[RbtdrfSub::fatal("above maximum", "export TEST_COUNT=\"101\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("above maximum", "export TEST_COUNT=\"101\"")],
     )
 }
 
@@ -450,7 +450,7 @@ fn rbtdrf_ev_decimal_empty(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
-        &[RbtdrfSub::fatal("empty", "export TEST_COUNT=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_COUNT=\"\"")],
     )
 }
 
@@ -458,7 +458,7 @@ fn rbtdrf_ev_ipv4_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_ipv4_enroll TEST_ADDR \"Server address\"",
-        &[RbtdrfSub::ok("valid address", "export TEST_ADDR=\"192.168.1.1\"")],
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid address", "export TEST_ADDR=\"192.168.1.1\"")],
     )
 }
 
@@ -467,8 +467,8 @@ fn rbtdrf_ev_ipv4_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_ipv4_enroll TEST_ADDR \"Server address\"",
         &[
-            RbtdrfSub::fatal("not dotted-quad", "export TEST_ADDR=\"not-an-ip\""),
-            RbtdrfSub::fatal("empty", "export TEST_ADDR=\"\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("not dotted-quad", "export TEST_ADDR=\"not-an-ip\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_ADDR=\"\""),
         ],
     )
 }
@@ -478,9 +478,9 @@ fn rbtdrf_ev_port_valid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_port_enroll TEST_PORT \"Service port\"",
         &[
-            RbtdrfSub::ok("common port", "export TEST_PORT=\"8080\""),
-            RbtdrfSub::ok("minimum port", "export TEST_PORT=\"1\""),
-            RbtdrfSub::ok("maximum port", "export TEST_PORT=\"65535\""),
+            zrbtdrf_Sub::zrbtdrf_ok("common port", "export TEST_PORT=\"8080\""),
+            zrbtdrf_Sub::zrbtdrf_ok("minimum port", "export TEST_PORT=\"1\""),
+            zrbtdrf_Sub::zrbtdrf_ok("maximum port", "export TEST_PORT=\"65535\""),
         ],
     )
 }
@@ -490,9 +490,9 @@ fn rbtdrf_ev_port_invalid(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_port_enroll TEST_PORT \"Service port\"",
         &[
-            RbtdrfSub::fatal("zero", "export TEST_PORT=\"0\""),
-            RbtdrfSub::fatal("above max", "export TEST_PORT=\"65536\""),
-            RbtdrfSub::fatal("empty", "export TEST_PORT=\"\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("zero", "export TEST_PORT=\"0\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("above max", "export TEST_PORT=\"65536\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_PORT=\"\""),
         ],
     )
 }
@@ -539,7 +539,7 @@ fn rbtdrf_ev_odref_no_digest(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        &[RbtdrfSub::fatal("tag only",
+        &[zrbtdrf_Sub::zrbtdrf_fatal("tag only",
             "export TEST_IMAGE=\"docker.io/library/alpine:latest\"")],
     )
 }
@@ -549,11 +549,11 @@ fn rbtdrf_ev_odref_malformed(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
         &[
-            RbtdrfSub::fatal("wrong algorithm",
+            zrbtdrf_Sub::zrbtdrf_fatal("wrong algorithm",
                 "export TEST_IMAGE=\"docker.io/library/alpine@md5:abcdef0123456789\""),
-            RbtdrfSub::fatal("short hex",
+            zrbtdrf_Sub::zrbtdrf_fatal("short hex",
                 "export TEST_IMAGE=\"docker.io/library/alpine@sha256:abcdef\""),
-            RbtdrfSub::fatal("uppercase hex",
+            zrbtdrf_Sub::zrbtdrf_fatal("uppercase hex",
                 "export TEST_IMAGE=\"docker.io/library/alpine@sha256:ABCDEF0123456789abcdef0123456789abcdef0123456789abcdef0123456789\""),
         ],
     )
@@ -563,7 +563,7 @@ fn rbtdrf_ev_odref_empty(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        &[RbtdrfSub::fatal("empty", "export TEST_IMAGE=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_fatal("empty", "export TEST_IMAGE=\"\"")],
     )
 }
 
@@ -573,7 +573,7 @@ fn rbtdrf_ev_list_string_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_string_enroll TEST_TAGS 2 10 \"Tags\"",
-        &[RbtdrfSub::ok("valid items", "export TEST_TAGS=\"foo bar baz\"")],
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid items", "export TEST_TAGS=\"foo bar baz\"")],
     )
 }
 
@@ -581,7 +581,7 @@ fn rbtdrf_ev_list_string_empty(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_string_enroll TEST_TAGS 2 10 \"Tags\"",
-        &[RbtdrfSub::ok("empty list", "export TEST_TAGS=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_ok("empty list", "export TEST_TAGS=\"\"")],
     )
 }
 
@@ -590,8 +590,8 @@ fn rbtdrf_ev_list_string_bad_item(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_string_enroll TEST_TAGS 3 10 \"Tags\"",
         &[
-            RbtdrfSub::fatal("item too short", "export TEST_TAGS=\"good ab okay\""),
-            RbtdrfSub::fatal("item too long", "export TEST_TAGS=\"good toolongvalue okay\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("item too short", "export TEST_TAGS=\"good ab okay\""),
+            zrbtdrf_Sub::zrbtdrf_fatal("item too long", "export TEST_TAGS=\"good toolongvalue okay\""),
         ],
     )
 }
@@ -600,7 +600,7 @@ fn rbtdrf_ev_list_ipv4_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_ipv4_enroll TEST_SERVERS \"Server addresses\"",
-        &[RbtdrfSub::ok("valid addresses",
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid addresses",
             "export TEST_SERVERS=\"192.168.1.1 10.0.0.1 172.16.0.1\"")],
     )
 }
@@ -609,7 +609,7 @@ fn rbtdrf_ev_list_ipv4_invalid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_ipv4_enroll TEST_SERVERS \"Server addresses\"",
-        &[RbtdrfSub::fatal("bad address",
+        &[zrbtdrf_Sub::zrbtdrf_fatal("bad address",
             "export TEST_SERVERS=\"192.168.1.1 not-an-ip 10.0.0.1\"")],
     )
 }
@@ -618,7 +618,7 @@ fn rbtdrf_ev_list_ipv4_empty(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_ipv4_enroll TEST_SERVERS \"Server addresses\"",
-        &[RbtdrfSub::ok("empty list", "export TEST_SERVERS=\"\"")],
+        &[zrbtdrf_Sub::zrbtdrf_ok("empty list", "export TEST_SERVERS=\"\"")],
     )
 }
 
@@ -626,7 +626,7 @@ fn rbtdrf_ev_list_gname_valid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_gname_enroll TEST_PROJECTS 3 20 \"Project IDs\"",
-        &[RbtdrfSub::ok("valid names",
+        &[zrbtdrf_Sub::zrbtdrf_ok("valid names",
             "export TEST_PROJECTS=\"my-project other-proj test-01\"")],
     )
 }
@@ -635,7 +635,7 @@ fn rbtdrf_ev_list_gname_invalid(dir: &Path) -> rbtdre_Verdict {
     rbtdrf_run_ev(dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_gname_enroll TEST_PROJECTS 3 20 \"Project IDs\"",
-        &[RbtdrfSub::fatal("uppercase in item",
+        &[zrbtdrf_Sub::zrbtdrf_fatal("uppercase in item",
             "export TEST_PROJECTS=\"my-project BadName test-01\"")],
     )
 }
@@ -648,7 +648,7 @@ fn rbtdrf_ev_gate_active_valid(dir: &Path) -> rbtdre_Verdict {
          buv_enum_enroll TEST_MODE \"Feature mode\" enabled disabled\n\
          buv_gate_enroll TEST_MODE enabled\n\
          buv_port_enroll TEST_PORT \"Feature port\"",
-        &[RbtdrfSub::ok("gate active valid",
+        &[zrbtdrf_Sub::zrbtdrf_ok("gate active valid",
             "export TEST_MODE=\"enabled\"\nexport TEST_PORT=\"8080\"")],
     )
 }
@@ -659,7 +659,7 @@ fn rbtdrf_ev_gate_active_invalid(dir: &Path) -> rbtdre_Verdict {
          buv_enum_enroll TEST_MODE \"Feature mode\" enabled disabled\n\
          buv_gate_enroll TEST_MODE enabled\n\
          buv_port_enroll TEST_PORT \"Feature port\"",
-        &[RbtdrfSub::fatal("gate active invalid",
+        &[zrbtdrf_Sub::zrbtdrf_fatal("gate active invalid",
             "export TEST_MODE=\"enabled\"\nexport TEST_PORT=\"0\"")],
     )
 }
@@ -670,7 +670,7 @@ fn rbtdrf_ev_gate_inactive(dir: &Path) -> rbtdre_Verdict {
          buv_enum_enroll TEST_MODE \"Feature mode\" enabled disabled\n\
          buv_gate_enroll TEST_MODE enabled\n\
          buv_port_enroll TEST_PORT \"Feature port\"",
-        &[RbtdrfSub::ok("gate inactive skips",
+        &[zrbtdrf_Sub::zrbtdrf_ok("gate inactive skips",
             "export TEST_MODE=\"disabled\"\nexport TEST_PORT=\"invalid-not-checked\"")],
     )
 }
@@ -689,11 +689,11 @@ fn rbtdrf_ev_gate_multi(dir: &Path) -> rbtdre_Verdict {
          buv_gate_enroll TEST_FEAT_B on\n\
          buv_string_enroll TEST_FEAT_B_LABEL 1 20 \"Feature B label\"",
         &[
-            RbtdrfSub::ok("A on, B off",
+            zrbtdrf_Sub::zrbtdrf_ok("A on, B off",
                 "export TEST_NAME=\"myservice\"\n\
                  export TEST_FEAT_A=\"on\"\nexport TEST_FEAT_A_PORT=\"9090\"\n\
                  export TEST_FEAT_B=\"off\"\nexport TEST_FEAT_B_LABEL=\"\""),
-            RbtdrfSub::ok("both on",
+            zrbtdrf_Sub::zrbtdrf_ok("both on",
                 "export TEST_NAME=\"myservice\"\n\
                  export TEST_FEAT_A=\"on\"\nexport TEST_FEAT_A_PORT=\"9090\"\n\
                  export TEST_FEAT_B=\"on\"\nexport TEST_FEAT_B_LABEL=\"hello\""),
@@ -709,7 +709,7 @@ fn rbtdrf_ev_enforce_all_pass(dir: &Path) -> rbtdre_Verdict {
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"\n\
          buv_decimal_enroll TEST_COUNT 1 10 \"Count\"",
-        &[RbtdrfSub::ok("all pass",
+        &[zrbtdrf_Sub::zrbtdrf_ok("all pass",
             "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"5\"")],
     )
 }
@@ -721,11 +721,11 @@ fn rbtdrf_ev_enforce_first_bad(dir: &Path) -> rbtdre_Verdict {
          buv_bool_enroll TEST_FLAG \"Flag\"\n\
          buv_decimal_enroll TEST_COUNT 1 10 \"Count\"",
         &[
-            RbtdrfSub::fatal("first var invalid",
+            zrbtdrf_Sub::zrbtdrf_fatal("first var invalid",
                 "export TEST_NAME=\"1\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"5\""),
-            RbtdrfSub::fatal("middle var invalid",
+            zrbtdrf_Sub::zrbtdrf_fatal("middle var invalid",
                 "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"maybe\"\nexport TEST_COUNT=\"5\""),
-            RbtdrfSub::fatal("last var invalid",
+            zrbtdrf_Sub::zrbtdrf_fatal("last var invalid",
                 "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"99\""),
         ],
     )
@@ -736,7 +736,7 @@ fn rbtdrf_ev_report_all_pass(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"",
-        &[RbtdrfSub::ok_cmd("all pass report",
+        &[zrbtdrf_Sub::zrbtdrf_ok_cmd("all pass report",
             "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"0\"",
             "buv_report \"TEST\" \"All-pass report\"")],
     )
@@ -747,7 +747,7 @@ fn rbtdrf_ev_report_mixed(dir: &Path) -> rbtdre_Verdict {
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"",
-        &[RbtdrfSub::fatal_cmd("mixed report",
+        &[zrbtdrf_Sub::zrbtdrf_fatal_cmd("mixed report",
             "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"bad\"",
             "buv_report \"TEST\" \"Mixed report\"", RBTDRF_REPORT_NONZERO)],
     )
@@ -759,7 +759,7 @@ fn rbtdrf_ev_report_gated(dir: &Path) -> rbtdre_Verdict {
          buv_enum_enroll TEST_MODE \"Mode\" on off\n\
          buv_gate_enroll TEST_MODE on\n\
          buv_port_enroll TEST_PORT \"Port\"",
-        &[RbtdrfSub::ok_cmd("gated report passes",
+        &[zrbtdrf_Sub::zrbtdrf_ok_cmd("gated report passes",
             "export TEST_MODE=\"off\"\nexport TEST_PORT=\"\"",
             "buv_report \"TEST\" \"Gated report\"")],
     )
@@ -1831,72 +1831,72 @@ fn rbtdrf_rc_reject_empty_keys_ref(dir: &Path) -> rbtdre_Verdict {
 // ── Case arrays ─────────────────────────────────────────────
 
 pub static RBTDRF_CASES_ENROLLMENT_VALIDATION: &[rbtdre_Case] = &[
-    case!(rbtdrf_ev_string_valid),
-    case!(rbtdrf_ev_string_empty_optional),
-    case!(rbtdrf_ev_string_too_short),
-    case!(rbtdrf_ev_string_too_long),
-    case!(rbtdrf_ev_string_empty_required),
-    case!(rbtdrf_ev_xname_valid),
-    case!(rbtdrf_ev_xname_invalid),
-    case!(rbtdrf_ev_gname_valid),
-    case!(rbtdrf_ev_gname_invalid),
-    case!(rbtdrf_ev_fqin_valid),
-    case!(rbtdrf_ev_fqin_invalid),
-    case!(rbtdrf_ev_bool_valid),
-    case!(rbtdrf_ev_bool_invalid),
-    case!(rbtdrf_ev_bool_empty),
-    case!(rbtdrf_ev_enum_valid),
-    case!(rbtdrf_ev_enum_invalid),
-    case!(rbtdrf_ev_enum_empty),
-    case!(rbtdrf_ev_decimal_valid),
-    case!(rbtdrf_ev_decimal_below),
-    case!(rbtdrf_ev_decimal_above),
-    case!(rbtdrf_ev_decimal_empty),
-    case!(rbtdrf_ev_ipv4_valid),
-    case!(rbtdrf_ev_ipv4_invalid),
-    case!(rbtdrf_ev_port_valid),
-    case!(rbtdrf_ev_port_invalid),
-    case!(rbtdrf_ev_odref_valid),
-    case!(rbtdrf_ev_odref_no_digest),
-    case!(rbtdrf_ev_odref_malformed),
-    case!(rbtdrf_ev_odref_empty),
-    case!(rbtdrf_ev_list_string_valid),
-    case!(rbtdrf_ev_list_string_empty),
-    case!(rbtdrf_ev_list_string_bad_item),
-    case!(rbtdrf_ev_list_ipv4_valid),
-    case!(rbtdrf_ev_list_ipv4_invalid),
-    case!(rbtdrf_ev_list_ipv4_empty),
-    case!(rbtdrf_ev_list_gname_valid),
-    case!(rbtdrf_ev_list_gname_invalid),
-    case!(rbtdrf_ev_gate_active_valid),
-    case!(rbtdrf_ev_gate_active_invalid),
-    case!(rbtdrf_ev_gate_inactive),
-    case!(rbtdrf_ev_gate_multi),
-    case!(rbtdrf_ev_enforce_all_pass),
-    case!(rbtdrf_ev_enforce_first_bad),
-    case!(rbtdrf_ev_report_all_pass),
-    case!(rbtdrf_ev_report_mixed),
-    case!(rbtdrf_ev_report_gated),
-    case!(rbtdrf_ev_multiscope),
+    rbtdre_case!(rbtdrf_ev_string_valid),
+    rbtdre_case!(rbtdrf_ev_string_empty_optional),
+    rbtdre_case!(rbtdrf_ev_string_too_short),
+    rbtdre_case!(rbtdrf_ev_string_too_long),
+    rbtdre_case!(rbtdrf_ev_string_empty_required),
+    rbtdre_case!(rbtdrf_ev_xname_valid),
+    rbtdre_case!(rbtdrf_ev_xname_invalid),
+    rbtdre_case!(rbtdrf_ev_gname_valid),
+    rbtdre_case!(rbtdrf_ev_gname_invalid),
+    rbtdre_case!(rbtdrf_ev_fqin_valid),
+    rbtdre_case!(rbtdrf_ev_fqin_invalid),
+    rbtdre_case!(rbtdrf_ev_bool_valid),
+    rbtdre_case!(rbtdrf_ev_bool_invalid),
+    rbtdre_case!(rbtdrf_ev_bool_empty),
+    rbtdre_case!(rbtdrf_ev_enum_valid),
+    rbtdre_case!(rbtdrf_ev_enum_invalid),
+    rbtdre_case!(rbtdrf_ev_enum_empty),
+    rbtdre_case!(rbtdrf_ev_decimal_valid),
+    rbtdre_case!(rbtdrf_ev_decimal_below),
+    rbtdre_case!(rbtdrf_ev_decimal_above),
+    rbtdre_case!(rbtdrf_ev_decimal_empty),
+    rbtdre_case!(rbtdrf_ev_ipv4_valid),
+    rbtdre_case!(rbtdrf_ev_ipv4_invalid),
+    rbtdre_case!(rbtdrf_ev_port_valid),
+    rbtdre_case!(rbtdrf_ev_port_invalid),
+    rbtdre_case!(rbtdrf_ev_odref_valid),
+    rbtdre_case!(rbtdrf_ev_odref_no_digest),
+    rbtdre_case!(rbtdrf_ev_odref_malformed),
+    rbtdre_case!(rbtdrf_ev_odref_empty),
+    rbtdre_case!(rbtdrf_ev_list_string_valid),
+    rbtdre_case!(rbtdrf_ev_list_string_empty),
+    rbtdre_case!(rbtdrf_ev_list_string_bad_item),
+    rbtdre_case!(rbtdrf_ev_list_ipv4_valid),
+    rbtdre_case!(rbtdrf_ev_list_ipv4_invalid),
+    rbtdre_case!(rbtdrf_ev_list_ipv4_empty),
+    rbtdre_case!(rbtdrf_ev_list_gname_valid),
+    rbtdre_case!(rbtdrf_ev_list_gname_invalid),
+    rbtdre_case!(rbtdrf_ev_gate_active_valid),
+    rbtdre_case!(rbtdrf_ev_gate_active_invalid),
+    rbtdre_case!(rbtdrf_ev_gate_inactive),
+    rbtdre_case!(rbtdrf_ev_gate_multi),
+    rbtdre_case!(rbtdrf_ev_enforce_all_pass),
+    rbtdre_case!(rbtdrf_ev_enforce_first_bad),
+    rbtdre_case!(rbtdrf_ev_report_all_pass),
+    rbtdre_case!(rbtdrf_ev_report_mixed),
+    rbtdre_case!(rbtdrf_ev_report_gated),
+    rbtdre_case!(rbtdrf_ev_multiscope),
 ];
 
 pub static RBTDRF_CASES_REGIME_VALIDATION: &[rbtdre_Case] = &[
-    case!(rbtdrf_rv_rbrr_repo),
-    case!(rbtdrf_rv_rbrv_all_vessels),
-    case!(rbtdrf_rv_rbrn_all_nameplates),
+    rbtdre_case!(rbtdrf_rv_rbrr_repo),
+    rbtdre_case!(rbtdrf_rv_rbrv_all_vessels),
+    rbtdre_case!(rbtdrf_rv_rbrn_all_nameplates),
 ];
 
 pub static RBTDRF_CASES_REGIME_SMOKE: &[rbtdre_Case] = &[
-    case!(rbtdrf_rs_burc),
-    case!(rbtdrf_rs_burs),
-    case!(rbtdrf_rs_rbrn),
-    case!(rbtdrf_rs_rbrr),
-    case!(rbtdrf_rs_rbrr_nonempty_prefix),
-    case!(rbtdrf_rs_rbrv),
-    case!(rbtdrf_rs_rbrp),
-    case!(rbtdrf_rs_burd),
-    case!(rbtdrf_rs_unmake_empty_arg_refusal),
-    case!(rbtdrf_rs_credless_guard_mint_refusal),
+    rbtdre_case!(rbtdrf_rs_burc),
+    rbtdre_case!(rbtdrf_rs_burs),
+    rbtdre_case!(rbtdrf_rs_rbrn),
+    rbtdre_case!(rbtdrf_rs_rbrr),
+    rbtdre_case!(rbtdrf_rs_rbrr_nonempty_prefix),
+    rbtdre_case!(rbtdrf_rs_rbrv),
+    rbtdre_case!(rbtdrf_rs_rbrp),
+    rbtdre_case!(rbtdrf_rs_burd),
+    rbtdre_case!(rbtdrf_rs_unmake_empty_arg_refusal),
+    rbtdre_case!(rbtdrf_rs_credless_guard_mint_refusal),
 ];
 
 // ── Fixture statics ──────────────────────────────────────────
@@ -1932,15 +1932,15 @@ pub static RBTDRF_FIXTURE_REGIME_SMOKE: rbtdre_Fixture = rbtdre_Fixture {
 };
 
 pub static RBTDRF_CASES_DOCKERFILE_HYGIENE: &[rbtdre_Case] = &[
-    case!(rbtdrf_dh_accept_parameterized),
-    case!(rbtdrf_dh_accept_scratch),
-    case!(rbtdrf_dh_accept_multistage_as),
-    case!(rbtdrf_dh_accept_empty),
-    case!(rbtdrf_dh_accept_comments_only),
-    case!(rbtdrf_dh_reject_hardcoded_literal),
-    case!(rbtdrf_dh_reject_tab_in_from),
-    case!(rbtdrf_dh_reject_trailing_backslash),
-    case!(rbtdrf_dh_all_vessels_pass),
+    rbtdre_case!(rbtdrf_dh_accept_parameterized),
+    rbtdre_case!(rbtdrf_dh_accept_scratch),
+    rbtdre_case!(rbtdrf_dh_accept_multistage_as),
+    rbtdre_case!(rbtdrf_dh_accept_empty),
+    rbtdre_case!(rbtdrf_dh_accept_comments_only),
+    rbtdre_case!(rbtdrf_dh_reject_hardcoded_literal),
+    rbtdre_case!(rbtdrf_dh_reject_tab_in_from),
+    rbtdre_case!(rbtdrf_dh_reject_trailing_backslash),
+    rbtdre_case!(rbtdrf_dh_all_vessels_pass),
 ];
 
 pub static RBTDRF_FIXTURE_DOCKERFILE_HYGIENE: rbtdre_Fixture = rbtdre_Fixture {
@@ -1954,12 +1954,12 @@ pub static RBTDRF_FIXTURE_DOCKERFILE_HYGIENE: rbtdre_Fixture = rbtdre_Fixture {
 };
 
 pub static RBTDRF_CASES_FOUNDRY_PATH: &[rbtdre_Case] = &[
-    case!(rbtdrf_np_cygdrive_transform),
-    case!(rbtdrf_np_relative_passthrough),
-    case!(rbtdrf_np_native_passthrough),
-    case!(rbtdrf_np_offcygwin_identity),
-    case!(rbtdrf_np_bare_absolute_unsurveyed),
-    case!(rbtdrf_rt_lapse_advisory),
+    rbtdre_case!(rbtdrf_np_cygdrive_transform),
+    rbtdre_case!(rbtdrf_np_relative_passthrough),
+    rbtdre_case!(rbtdrf_np_native_passthrough),
+    rbtdre_case!(rbtdrf_np_offcygwin_identity),
+    rbtdre_case!(rbtdrf_np_bare_absolute_unsurveyed),
+    rbtdre_case!(rbtdrf_rt_lapse_advisory),
 ];
 
 pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
@@ -1973,8 +1973,8 @@ pub static RBTDRF_FIXTURE_FOUNDRY_PATH: rbtdre_Fixture = rbtdre_Fixture {
 };
 
 pub static RBTDRF_CASES_CLIPBOARD: &[rbtdre_Case] = &[
-    case!(rbtdrf_cb_no_tool_decline),
-    case!(rbtdrf_cb_round_trip),
+    rbtdre_case!(rbtdrf_cb_no_tool_decline),
+    rbtdre_case!(rbtdrf_cb_round_trip),
 ];
 
 pub static RBTDRF_FIXTURE_CLIPBOARD: rbtdre_Fixture = rbtdre_Fixture {
@@ -1984,20 +1984,20 @@ pub static RBTDRF_FIXTURE_CLIPBOARD: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRF_CASES_CLIPBOARD,
     credless: true,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRF_CASES_RECIPE_VALIDATION: &[rbtdre_Case] = &[
-    case!(rbtdrf_rc_accept_all_covered),
-    case!(rbtdrf_rc_reject_missing_key),
-    case!(rbtdrf_rc_accept_comment_only),
-    case!(rbtdrf_rc_reject_substring),
-    case!(rbtdrf_rc_accept_substring_real),
-    case!(rbtdrf_rc_accept_no_refs),
-    case!(rbtdrf_rc_accept_multi_token),
-    case!(rbtdrf_rc_reject_multi_second),
-    case!(rbtdrf_rc_accept_empty_keys),
-    case!(rbtdrf_rc_reject_empty_keys_ref),
+    rbtdre_case!(rbtdrf_rc_accept_all_covered),
+    rbtdre_case!(rbtdrf_rc_reject_missing_key),
+    rbtdre_case!(rbtdrf_rc_accept_comment_only),
+    rbtdre_case!(rbtdrf_rc_reject_substring),
+    rbtdre_case!(rbtdrf_rc_accept_substring_real),
+    rbtdre_case!(rbtdrf_rc_accept_no_refs),
+    rbtdre_case!(rbtdrf_rc_accept_multi_token),
+    rbtdre_case!(rbtdrf_rc_reject_multi_second),
+    rbtdre_case!(rbtdrf_rc_accept_empty_keys),
+    rbtdre_case!(rbtdrf_rc_reject_empty_keys_ref),
 ];
 
 pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
@@ -2093,7 +2093,7 @@ fn rbtdrf_podvm_resolve(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRF_CASES_PODVM_RESOLVE: &[rbtdre_Case] = &[
-    case!(rbtdrf_podvm_resolve),
+    rbtdre_case!(rbtdrf_podvm_resolve),
 ];
 
 pub static RBTDRF_FIXTURE_PODVM_RESOLVE: rbtdre_Fixture = rbtdre_Fixture {

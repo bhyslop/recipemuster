@@ -9,7 +9,7 @@
 // tree-hash-mismatch refusal (RBSHD/RBSHO "the cachet module proven by crate
 // tests"). All three run on synthetic fields — no git, no filesystem.
 
-use crate::rbthdr_cachet::{parse, render, rbthdr_Cachet, zrbthdr_check};
+use crate::rbthdr_cachet::{rbthdr_parse, rbthdr_render, rbthdr_Cachet, zrbthdr_check};
 
 fn zrbthdt_cachet(tree: &str) -> rbthdr_Cachet {
     rbthdr_Cachet {
@@ -24,8 +24,8 @@ fn zrbthdt_cachet(tree: &str) -> rbthdr_Cachet {
 #[test]
 fn rbthdt_render_round_trips_through_parse() {
     let cachet = zrbthdt_cachet("treehash0000000000000000000000000000000");
-    let rendered = render(&cachet);
-    let parsed = parse(&rendered).expect("a freshly rendered cachet must parse");
+    let rendered = rbthdr_render(&cachet);
+    let parsed = rbthdr_parse(&rendered).expect("a freshly rendered cachet must parse");
     assert_eq!(parsed.tree, cachet.tree);
     assert_eq!(parsed.tip, cachet.tip);
     assert_eq!(parsed.maintainer_head, cachet.maintainer_head);
@@ -41,7 +41,7 @@ RBTHDR_CACHET_TIP=tipsha0000000000000000000000000000000000
 RBTHDR_CACHET_MAINTAINER_HEAD=headsha00000000000000000000000000000
 RBTHDR_CACHET_STAMP=20260718-101112
 ";
-    let cachet = parse(content).expect("a well-formed cachet must parse");
+    let cachet = rbthdr_parse(content).expect("a well-formed cachet must parse");
     assert_eq!(cachet.tree, "treehash0000000000000000000000000000000");
     assert_eq!(cachet.stamp, "20260718-101112");
 }
@@ -51,21 +51,21 @@ RBTHDR_CACHET_STAMP=20260718-101112
 /// verdict.
 #[test]
 fn rbthdt_parse_refuses_malformed_content() {
-    assert!(parse("").is_err(), "an empty cachet must refuse — every field is required");
+    assert!(rbthdr_parse("").is_err(), "an empty cachet must refuse — every field is required");
     assert!(
-        parse("RBTHDR_CACHET_TREE=abc\n").is_err(),
+        rbthdr_parse("RBTHDR_CACHET_TREE=abc\n").is_err(),
         "a cachet missing tip/maintainer_head/stamp must refuse"
     );
     assert!(
-        parse("RBTHDR_CACHET_TREE=abc\nnot-a-key-value-line\n").is_err(),
+        rbthdr_parse("RBTHDR_CACHET_TREE=abc\nnot-a-key-value-line\n").is_err(),
         "a line with no '=' must refuse"
     );
     assert!(
-        parse("RBTHDR_CACHET_UNKNOWN=abc\n").is_err(),
+        rbthdr_parse("RBTHDR_CACHET_UNKNOWN=abc\n").is_err(),
         "an unrecognized key must refuse, not be silently ignored"
     );
     assert!(
-        parse("RBTHDR_CACHET_TREE=\n").is_err(),
+        rbthdr_parse("RBTHDR_CACHET_TREE=\n").is_err(),
         "an empty value must refuse — a blank field is not a real verdict"
     );
 }

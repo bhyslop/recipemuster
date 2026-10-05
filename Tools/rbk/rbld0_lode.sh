@@ -25,8 +25,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBLD_SOURCED:-}" || buc_die_now "Module rbld multiply sourced - check sourcing hierarchy"
-ZRBLD_SOURCED=1
+test -z "${ZRBLD0_SOURCED:-}" || buc_die_now "Module rbld multiply sourced - check sourcing hierarchy"
+ZRBLD0_SOURCED=1
 
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
@@ -48,7 +48,7 @@ source "${BASH_SOURCE[0]%/*}/rbldv_immure.sh"
 # Internal Functions (zrbld_*)
 
 zrbld_kindle() {
-  test -z "${ZRBLD_KINDLED:-}" || buc_die_now "Module rbld already kindled"
+  test -z "${ZRBLD0_KINDLED:-}" || buc_die_now "Module rbld already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
   zrbfc_sentinel
@@ -95,12 +95,12 @@ zrbld_kindle() {
   buc_log_args 'Define banish operation file prefix'
   readonly ZRBLD_BANISH_PREFIX="${BURD_TEMP_DIR}/rbld_banish_"
 
-  readonly ZRBLD_KINDLED=1
+  readonly ZRBLD0_KINDLED=1
 }
 
 zrbld_sentinel() {
   zrbfc_sentinel
-  test "${ZRBLD_KINDLED:-}" = "1" || buc_die_now "Module rbld not kindled - call zrbld_kindle first"
+  test "${ZRBLD0_KINDLED:-}" = "1" || buc_die_now "Module rbld not kindled - call zrbld_kindle first"
 }
 
 # eof
