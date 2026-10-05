@@ -22,9 +22,6 @@
 #          from the metadata server (rbgjs token-fetch).
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP
 #
-# Note: this script runs inside a Cloud Build container, not under BCG module
-# discipline (CBG governs).
-#
 # Step 08 gcrane-cp'd each selected leaf into rbi_ld/<stamp> and confirmed the
 # MANIFEST digest is faithful. This step confirms the BLOB BYTES actually reside: a
 # GAR registry-v2 blob HEAD returns Content-Length; assert it equals the leaf

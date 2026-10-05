@@ -567,7 +567,7 @@ rbgi_add_sa_iam_role() {
 
 # Add an SA-scoped IAM role binding whose MEMBER is a federated workforce
 # principal (principal://…), not a service account. Distinct canonical path from
-# rbgi_add_sa_iam_role (BCG Interface Contamination: one canonical member form
+# rbgi_add_sa_iam_role (one canonical member form
 # per entry point — no serviceAccount: prefix is applied here, the member is
 # passed verbatim). The polity admission verb brevet uses this to grant a
 # avowed citizen tokenCreator on a mantle SA. The propagation/etag machinery
@@ -1155,7 +1155,7 @@ rbgi_grant_secret_iam() {
 # Revoke (member removal) — inverse of the add_*_iam_role trio.
 #
 # Three regular functions, not one: CRM / ArtifactRegistry / IAM are distinct
-# APIs with distinct getIamPolicy/setIamPolicy shapes (BCG load-bearing). They
+# APIs with distinct getIamPolicy/setIamPolicy shapes. They
 # share only the jq member-removal transform.
 #
 # Leaner than the add trio, but not class-free. The member being revoked is
@@ -1580,7 +1580,7 @@ rbgi_jq_add_member_to_role_capture() {
 
 # Remove a member from a role binding with version=3 enforcement — inverse of
 # rbgi_jq_add_member_to_role_capture. This is the one legitimate shared helper
-# (BCG load-bearing: pure JSON transform, no API, same failure class for every
+# (pure JSON transform, no API, same failure class for every
 # scope). jq subtraction drops all occurrences of the member, so an absent
 # member is a no-op (idempotent). A binding left with no members is pruned —
 # setIamPolicy rejects an empty members list; only the named role can empty out,

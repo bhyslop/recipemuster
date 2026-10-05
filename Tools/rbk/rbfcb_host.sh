@@ -88,7 +88,7 @@ zrbfc_wait_build_completion() {
   z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get GCB OAuth token"
 
   # Re-don cadence — kindled default, or the BURE test seam's override so a
-  # short real build exercises the tick (BUS0 Tweak Mechanism; a malformed
+  # short real build exercises the tick (a malformed
   # value dies loud, any other tweak occupying the slot rides inert).
   local z_redon_cadence="${ZRBFC_BUILD_POLL_REDON_CADENCE}"
   if test "${BURE_TWEAK_NAME:-}" = "${RBCC_tweak_redon_cadence}"; then

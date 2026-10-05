@@ -33,7 +33,7 @@
 //     Observed-tariff census — read-only report over the station's logs-buk
 //     history; no tree guard, no roots, no context.
 
-// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+// all emission via rbtdrg_*! — no direct println!/eprintln!
 
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]

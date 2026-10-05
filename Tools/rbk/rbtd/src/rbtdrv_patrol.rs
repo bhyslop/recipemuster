@@ -370,7 +370,7 @@ const RBTDRV_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
 
 /// Underpin version arguments — the wsl substrate release + point the fixture
 /// captures. Declarative version intent (no FQIN); the host assembles the cdimage
-/// URL and the cloud step discovers + GPG-verifies the checksum (RBSLU).
+/// URL and the cloud step discovers + GPG-verifies the checksum.
 const RBTDRV_WSL_RELEASE: &str = "24.04";
 const RBTDRV_WSL_POINT: &str = "4";
 
@@ -460,7 +460,7 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 2: ordain — under the re-don cadence tweak, so this fixture's
         // real short build also exercises the poll's mid-flight re-don
-        // (zrbfc_redon_tick; RBS0 rbsk_human_present) on every run, spending
+        // (zrbfc_redon_tick) on every run, spending
         // no second build on a separate case.
         let hallmark = match rbtdri_ordain_capture(
             ctx,
@@ -1057,7 +1057,7 @@ pub static RBTDRV_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
 // and feoffs a STAGED TEMP vessel resolved by path, touching no tracked config
 // and committing nothing (band-matrix discipline, rbtdrh_chain.rs the model).
 // feoff itself makes no GAR call — it composes the locator from the decoded
-// touchmark (RBSDF) — so the live ensconce is what makes the chained touchmark
+// touchmark — so the live ensconce is what makes the chained touchmark
 // real; the registry confirmation is conjure's at a later build, not feoff's.
 //
 // The touchmark is pinned to a fixed bole-shaped value via the ensconce-stamp
@@ -1389,8 +1389,8 @@ fn zrbtdrv_payor_gate(
 
 // Foedus-lifecycle fixture — federation IdP-trust round-trip against the live org.
 // The reliquary-lifecycle shape (single self-contained case, no charge/quench)
-// applied to the affiance→jilt create/destroy round-trip under the one-pool Model
-// (RBSMA/RBSMJ): probe the payor credential, affiance a fresh throwaway provider
+// applied to the affiance→jilt create/destroy round-trip under the one-pool Model:
+// probe the payor credential, affiance a fresh throwaway provider
 // under the manor's standing workforce pool, canvass the pool and prove the live
 // provider surfaces in the enumeration, jilt the provider to the soft-deleted
 // terminal, then re-jilt to prove the idempotent no-op. Codifies the manual proof
@@ -1406,7 +1406,7 @@ fn zrbtdrv_payor_gate(
 const RBTDRV_RBRF_PROVIDER_VAR: &str = "RBRF_PROVIDER_ID";
 
 /// Drive the affiance→canvass→jilt→re-jilt round-trip on `provider_id`, addressing
-/// foedus `foedus` (the folio affiance/jilt take, RBSMA/RBSMJ — its rbrf.env is the
+/// foedus `foedus` (the folio affiance/jilt take — its rbrf.env is the
 /// base config the poison overrides RBRF_PROVIDER_ID atop), asserting each terminal
 /// banner and that canvass enumerates the live provider. Split from the case so the
 /// case can run a best-effort cleanup jilt on any failure (the round-trip's own jilt
@@ -1544,7 +1544,7 @@ fn zrbtdrv_foedus_roundtrip(ctx: &mut rbtdri_Context, dir: &Path, foedus: &str, 
 
 fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
-        // The foedus folio affiance/jilt address (RBSMA/RBSMJ) — the committed
+        // The foedus folio affiance/jilt address — the committed
         // active selector, read rather than hardcoded (matches the reuse leg). Its
         // rbrf.env is the base provider config; the regime-poison seam overrides
         // only RBRF_PROVIDER_ID, so the round-trip seats a throwaway provider under
@@ -1626,8 +1626,8 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("00-foedus.txt"), &foedus);
 
-        // Descry the standing foedus — probe its provider-grain health (RBSFD:
-        // provider presence under the one manor pool). A clean probe exits 0 and
+        // Descry the standing foedus — probe its provider-grain health
+        // (provider presence under the one manor pool). A clean probe exits 0 and
         // reports its verdict via the foedus-health fact; only an unresolvable
         // name or broken read rejects (descry's own band).
         let descry = match rbtdri_invoke_global(ctx, RBTDGC_DESCRY_FOEDUS, &[foedus.as_str()], &[]) {
@@ -1870,7 +1870,7 @@ fn zrbtdrv_terrier_poison_drive(
 
 /// Filter a rehearse roll capture down to muniment rows alone — each is the exact
 /// "<depot>\t<mantle>\t<subject>" tab-separated shape rehearse emits
-/// (RBSPO depot-attributed emission, two tabs). Strips the invoked tabtarget's own
+/// (two tabs). Strips the invoked tabtarget's own
 /// stdout preamble (self-log paths, the sederunt-reuse banner) carrying volatile
 /// per-invocation content — a temp-dir invoke counter, a ticking runway-seconds
 /// countdown — that a raw full-capture comparison would misread as roll drift.
@@ -2112,7 +2112,7 @@ pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_po
 // governor-wielded folder-scoped IAM path is proof in itself, and a line in its roll
 // names the (retriever, subject) muniment across the create/withdraw/restore arc.
 // Every roll assertion is the exact (depot, mantle, subject) line for
-// the freehold's own depot (RBSPO depot-attributed emission): the manor roll
+// the freehold's own depot: the manor roll
 // spans every polity slice and identical records co-reside across them, so a
 // depot-blind roll cannot attribute an aliasing line at all.
 //
@@ -2130,8 +2130,8 @@ pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_po
 // (suite-passenger posture), like polity-denial.
 
 /// Rehearse the manor-wide muniment roll and return its stdout — one
-/// "<depot>\t<mantle>\t<subject>" line per muniment (RBSPO
-/// depot-attributed emission). rehearse dons the governor mantle internally, so
+/// "<depot>\t<mantle>\t<subject>" line per muniment.
+/// rehearse dons the governor mantle internally, so
 /// exit 0 IS the governor-wielded folder-scoped IAM-path proof; a non-zero fails
 /// the drive loud (never bare-nonzero-tolerant — a broken read or a refused don
 /// must surface, not read as an empty roll). `label` names the log.

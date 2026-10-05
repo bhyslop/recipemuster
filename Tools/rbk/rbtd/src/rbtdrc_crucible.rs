@@ -21,7 +21,7 @@
 // Thread-local context bridges the static case function signature with
 // the mutable invocation context needed for tabtarget calls.
 
-// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+// all emission via rbtdrg_*! — no direct println!/eprintln!
 
 use std::cell::RefCell;
 use std::io::Write;

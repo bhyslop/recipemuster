@@ -22,7 +22,7 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-# (Module state remains ZRBGC_* per BCG; external constants use RBGC_*)
+# (Module state remains ZRBGC_*; external constants use RBGC_*)
 test -z "${ZRBGC_SOURCED:-}" || buc_die_now "Module rbgc multiply sourced - check sourcing hierarchy"
 ZRBGC_SOURCED=1
 

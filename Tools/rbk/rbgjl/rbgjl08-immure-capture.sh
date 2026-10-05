@@ -30,7 +30,7 @@
 # ONE GAR package rbi_ld/<stamp> under its member tag, then confirms the copy is
 # digest-faithful (cheap manifest readback; the blob Content-Length residency guard
 # is rbgjl09). The split exists because parsing the structured upstream index belongs
-# in python (CBG CBp_ rules), which the gcrane:debug busybox shell cannot host —
+# in python, which the gcrane:debug busybox shell cannot host —
 # registry copy is gcrane's job, index parsing is python's.
 #
 # gcrane cp <family>@<leaf-digest> is get-or-error (the loud failure the recorded

@@ -36,8 +36,8 @@
 //
 // The resolved-base check reads the rbi_resolved_base_1 label off the summoned
 // image and fails loud if it diverges from the vessel's committed base — the
-// regression guard for the conjure resolved-base provenance feature (RBSAC /
-// RBr_b4e). It reuses this fixture's existing ordain rather than spending a
+// regression guard for the conjure resolved-base provenance feature
+// (RBr_b4e). It reuses this fixture's existing ordain rather than spending a
 // second cloud build on a separate case.
 
 use std::path::Path;

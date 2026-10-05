@@ -48,7 +48,7 @@
 // resolved graph on every platform at once, so the check becomes a pure
 // tree-invariant reading with no external tool at all.
 //
-// Checker proves itself (ACG move discipline; the rbtdrn_conformance precedent).
+// Checker proves itself (the rbtdrn_conformance precedent).
 // The secret-shape matcher is exercised against known in-memory positives and
 // negatives before its verdict on the live tree is trusted, and the license
 // allowlist is proved internally consistent — every vetted expression drawn from

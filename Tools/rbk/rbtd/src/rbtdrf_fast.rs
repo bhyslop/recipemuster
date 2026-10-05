@@ -65,7 +65,7 @@ use crate::rbtdrm_manifest::{
 use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 
 // Repo-root-relative kit paths. Test harnesses run with cwd = repo root, so
-// these are repo-root-relative. Hoisted per RCG Identity Rule so running-code
+// these are repo-root-relative. Hoisted so running-code
 // joins reference a named const rather than an inline magic string.
 pub(crate) const RBTDRF_RBK_ROOT: &str = "Tools/rbk";
 pub(crate) const RBTDRF_BUV_VALIDATION: &str = "Tools/buk/buv_validation.sh";
@@ -1219,7 +1219,7 @@ fn rbtdrf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-/// Credless-guard proof — the BUS0 suite-invariant case. A deliberate cloud
+/// Credless-guard proof — the suite-invariant case. A deliberate cloud
 /// verb (rbw-iJ, registry delete) invoked from a reveille-tier fixture must die
 /// at the token-mint chokepoint with the credless band code: the guard env
 /// arrives via `rbtdri_tabtarget_command` because this fixture is

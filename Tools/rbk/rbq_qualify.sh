@@ -46,7 +46,7 @@ zrbq_kindle() {
   readonly ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
   readonly ZRBQ_RBW_DIR="${RBCC_KIT_DIR}"
   # Match the bare BURD_LAUNCHER basename the tabtargets carry since the
-  # path-indirection migration (BCG "Tabtarget Path Indirection"): the line is
+  # path-indirection migration: the line is
   # `export BURD_LAUNCHER=launcher.rbw_workbench.sh`, a basename, not a path. A
   # moorings/launchers full-path predicate matches none of it — the count goes
   # to zero and the colophon net silently lifts.

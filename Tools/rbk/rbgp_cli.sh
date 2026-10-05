@@ -53,7 +53,7 @@ zrbgp_furnish() {
   # descry addresses its subject — never the active/pinned foedus, whose selector
   # (RBRR_ACTIVE_FOEDUS) is reserved for the credential accessor. Every other payor
   # verb reads the active foedus, resolved from RBRR_ACTIVE_FOEDUS. An unresolvable
-  # folio is an arg-validation precondition (imprecise buc_die_now, BCG carve-out).
+  # folio is an arg-validation precondition (imprecise buc_die_now).
   case "${z_command}" in
     rbgp_manor_affiance|rbgp_manor_jilt)
       local z_folio="${BUZ_FOLIO:-}"

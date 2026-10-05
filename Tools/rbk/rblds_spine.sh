@@ -45,8 +45,7 @@ set -euo pipefail
 
 # Multiple inclusion detection — this cluster is multiply-sourced (rbld0_lode for
 # the capture kinds, rbfl0_ledger for made-side abjure), so unlike the
-# single-entry guard-free clusters it carries its own guard (BCG "the single-guard
-# rule, and its one exception"). rbld and rbfl are never co-furnished, so the guard
+# single-entry guard-free clusters it carries its own guard. rbld and rbfl are never co-furnished, so the guard
 # never fires in practice; it is the documented backstop against a future co-furnish.
 test -z "${ZRBLDS_SOURCED:-}" || buc_die_now "Module rblds multiply sourced - check sourcing hierarchy"
 ZRBLDS_SOURCED=1
