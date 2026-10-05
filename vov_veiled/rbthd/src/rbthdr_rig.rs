@@ -31,7 +31,7 @@ use crate::rbthdr_run;
 /// The rig's parent-relative dirname, a fixed basename beside the maintainer
 /// repo. Shared by essai and harbinger — they never stand simultaneously, so one
 /// location, retire-aside disposing any prior.
-pub const RBTHDR_RIG_DIRNAME: &str = "rbm_coldwalk";
+pub const RBTHDR_RIG_DIRNAME: &str = "rbthdr_coldwalk";
 
 /// The clone lives one level down; the findings memo is a sibling of it under
 /// the rig dir, so discarding the clone leaves the memo standing.
