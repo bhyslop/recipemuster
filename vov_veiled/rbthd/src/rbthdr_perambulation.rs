@@ -104,10 +104,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("Tools/lmci/", Withhold),
     ("Tools/vslf-rbw/", Withhold),
     ("Tools/vslk/", Withhold),
-    // Residue of retired kits.
-    ("Tools/cccr.env", Withhold),
-    ("Tools/crgr.render.sh", Withhold),
-    ("Tools/crgv.validate.sh", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
     // family and the manor raze are the release rig itself; a consumer running
     // any of them holds the wrong end of the tool. The stem rows outrank the
