@@ -9,7 +9,7 @@
 services:
   bottle:
     env_file:
-      - ccyolo/rbrn.env
+      - rben_ccyolo/rbrn.env
     environment:
       - DISABLE_TELEMETRY=1
       - DISABLE_ERROR_REPORTING=1

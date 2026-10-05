@@ -54,6 +54,8 @@ zrbof_sentinel() {
 # separated, or "(none)". Pure — for embedding in a rejection message so a bad
 # or missing identity fails by listing the available ones.
 zrbof_list_foedera() {
+  zrbof_sentinel
+
   local z_avail=""
   local z_entry=""
   for z_entry in "${RBCC_foedera_dir}"/rbef_*/; do
@@ -74,6 +76,8 @@ zrbof_list_foedera() {
 # command substitution — so buc_reject's band-coded exit propagates to the
 # dispatch boundary.
 zrbof_require_foedus() {
+  zrbof_sentinel
+
   local -r z_foedus="${1:-}"
   local -r z_band="${2:-}"
   local -r z_avail="$(zrbof_list_foedera)"
@@ -100,6 +104,8 @@ zrbof_require_foedus() {
 # a descry subject may differ from the active one). Echoes the bare value or
 # returns 1; the caller guards with || buc_reject.
 zrbof_rbrf_field_capture() {
+  zrbof_sentinel
+
   local -r z_file="${1:-}"
   local -r z_var="${2:-}"
   local z_line=""

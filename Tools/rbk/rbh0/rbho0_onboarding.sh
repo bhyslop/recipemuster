@@ -61,6 +61,8 @@ zrbho_sentinel() {
 # for onboarding status; callers declare caller-scope variables locally.
 
 zrbho_po_status() {
+  zrbho_sentinel
+
   local -r z_flag="${1:-}"
   local -r z_text="${2:-}"
   if test "${z_flag}" = "1"; then
@@ -72,6 +74,8 @@ zrbho_po_status() {
 
 # Extract a KEY=VALUE from a file; stdout empty if missing.  No sourcing.
 zrbho_po_extract_capture() {
+  zrbho_sentinel
+
   local -r z_file="${1:-}"
   local -r z_key="${2:-}"
   test -n "${z_key}"  || return 1

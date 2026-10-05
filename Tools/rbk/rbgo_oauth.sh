@@ -59,6 +59,8 @@ zrbgo_sentinel() {
 # here, so it cannot be silently dropped on one path.
 
 rbgo_base64_decode_string_to_file() {
+  zrbgo_sentinel
+
   local -r z_b64="${1:-}"
   local -r z_output="${2:-}"
   test -n "${z_b64}"    || return 1
@@ -67,6 +69,8 @@ rbgo_base64_decode_string_to_file() {
 }
 
 rbgo_base64_decode_file_to_file() {
+  zrbgo_sentinel
+
   local -r z_input="${1:-}"
   local -r z_output="${2:-}"
   test -n "${z_input}"  || return 1
@@ -76,11 +80,15 @@ rbgo_base64_decode_file_to_file() {
 }
 
 rbgo_base64_encode_string_capture() {
+  zrbgo_sentinel
+
   local -r z_input="${1:-}"
   printf '%s' "${z_input}" | openssl enc -base64 -A
 }
 
 rbgo_base64_encode_file_capture() {
+  zrbgo_sentinel
+
   local -r z_file="${1:-}"
   test -f "${z_file}" || return 1
   openssl enc -base64 -A < "${z_file}"
@@ -88,6 +96,8 @@ rbgo_base64_encode_file_capture() {
 
 # Stateless — no sentinel; safe to call from any module regardless of kindle order.
 rbgo_curl_status_is_transient_predicate() {
+  zrbgo_sentinel
+
   case "${1:-}" in
     7|28|35|56) return 0 ;;
     *)          return 1 ;;
@@ -119,6 +129,8 @@ rbgo_curl_status_is_transient_predicate() {
 # the push completes without ever touching the Windows vault.
 # Args: token registry_host
 rbgo_docker_login() {
+  zrbgo_sentinel
+
   local -r z_token="${1:?rbgo_docker_login: token required}"
   local -r z_host="${2:?rbgo_docker_login: registry host required}"
 

@@ -111,6 +111,8 @@ zrbxk_sentinel() {
 # the RBRN_ kindle graph is not this module's, and one field is all we need).
 # Echoes the base URL or returns 1; the caller guards with || buc_die_now.
 zrbxk_kc_base_capture() {
+  zrbxk_sentinel
+
   local z_line=""
   local z_port=""
   while IFS= read -r z_line || test -n "${z_line}"; do
@@ -130,6 +132,8 @@ zrbxk_kc_base_capture() {
 # (rbw-mA.PayorAffiancesManor.sh). Echoes the path or returns 1 on zero/multiple/
 # non-executable matches (an unmatched glob stays literal and fails the -x test).
 zrbxk_resolve_tt_capture() {
+  zrbxk_sentinel
+
   local -r z_colophon="${1:-}"
   local -r z_moniker="${2:-}"
   local -a z_hits=()

@@ -122,6 +122,8 @@ zrbgi_sentinel() {
 #
 # Returns 0 (true) if response matches any tolerance pair, 1 otherwise.
 zrbgi_propagation_error_predicate() {
+  zrbgi_sentinel
+
   local -r z_infix="${1}"
   local -r z_code="${2}"
   shift 2

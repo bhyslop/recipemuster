@@ -72,6 +72,8 @@ zrboo_sentinel() {
 #   $1  ANSI color sequence (a ZRBOO_* constant)
 #   $2  leg label shown in brackets
 zrboo_prefix() {
+  zrboo_sentinel
+
   local z_color="$1"
   local z_label="$2"
   local z_line
