@@ -46,7 +46,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdgc_consts::{
     RBTDGC_THEURGE_CASE,
     RBTDGC_THEURGE_FIXTURE,
@@ -932,36 +932,36 @@ fn rbtdrj_log_override_isolates(dir: &Path) -> rbtdre_Verdict {
 
 pub static RBTDRJ_CASES_TOUCHSTONE: &[rbtdre_Case] = &[
     // verdict-propagation
-    case!(rbtdrj_verdict_pass_exits_zero),
-    case!(rbtdrj_verdict_skip_exits_zero),
-    case!(rbtdrj_verdict_fail_exits_nonzero),
-    case!(rbtdrj_verdict_keep_going_runs_all),
+    rbtdre_case!(rbtdrj_verdict_pass_exits_zero),
+    rbtdre_case!(rbtdrj_verdict_skip_exits_zero),
+    rbtdre_case!(rbtdrj_verdict_fail_exits_nonzero),
+    rbtdre_case!(rbtdrj_verdict_keep_going_runs_all),
     // fixture-fail-fast
-    case!(rbtdrj_failfast_default_halts_trailing),
-    case!(rbtdrj_failfast_keep_going_reaches_trailing),
+    rbtdre_case!(rbtdrj_failfast_default_halts_trailing),
+    rbtdre_case!(rbtdrj_failfast_keep_going_reaches_trailing),
     // disposition-policy
-    case!(rbtdrj_progressing_default_runs_fail_fast),
-    case!(rbtdrj_progressing_keep_going_refused),
+    rbtdre_case!(rbtdrj_progressing_default_runs_fail_fast),
+    rbtdre_case!(rbtdrj_progressing_keep_going_refused),
     // probe-diagnostics
-    case!(rbtdrj_probe_diagnostic_shape),
+    rbtdre_case!(rbtdrj_probe_diagnostic_shape),
     // suite-abort
-    case!(rbtdrj_suite_abort_halts_sentinel),
+    rbtdre_case!(rbtdrj_suite_abort_halts_sentinel),
     // cli-surface
-    case!(rbtdrj_cli_unknown_fixture_errors),
-    case!(rbtdrj_cli_missing_fixture_usage),
-    case!(rbtdrj_cli_case_listing),
-    case!(rbtdrj_cli_single_usage_lists_fixtures),
+    rbtdre_case!(rbtdrj_cli_unknown_fixture_errors),
+    rbtdre_case!(rbtdrj_cli_missing_fixture_usage),
+    rbtdre_case!(rbtdrj_cli_case_listing),
+    rbtdre_case!(rbtdrj_cli_single_usage_lists_fixtures),
     // coverage
-    case!(rbtdrj_coverage_aligned_exits_zero),
-    case!(rbtdrj_coverage_undeclared_fails_naming_colophon),
-    case!(rbtdrj_coverage_unused_fails_naming_colophon),
-    case!(rbtdrj_coverage_unused_single_case_exempt),
+    rbtdre_case!(rbtdrj_coverage_aligned_exits_zero),
+    rbtdre_case!(rbtdrj_coverage_undeclared_fails_naming_colophon),
+    rbtdre_case!(rbtdrj_coverage_unused_fails_naming_colophon),
+    rbtdre_case!(rbtdrj_coverage_unused_single_case_exempt),
     // tariff-shortfall
-    case!(rbtdrj_tariff_drift_fails_naming_counts),
+    rbtdre_case!(rbtdrj_tariff_drift_fails_naming_counts),
     // stream-placement
-    case!(rbtdrj_stream_placement_diags_on_stderr),
+    rbtdre_case!(rbtdrj_stream_placement_diags_on_stderr),
     // log-isolation
-    case!(rbtdrj_log_override_isolates),
+    rbtdre_case!(rbtdrj_log_override_isolates),
 ];
 
 /// credless: touchstone is a reveille member, so the guard rides every child

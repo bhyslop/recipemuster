@@ -27,8 +27,7 @@ ZRBCC_SOURCED=1
 
 # Kit directory — source-time self-location. rbcc lives at the RBK kit root,
 # so its own directory IS the kit dir. No launcher environment dependency;
-# available the instant this file is sourced (BCG kit-self-location pattern,
-# canon: rbtd/rbte_cli.sh).
+# available the instant this file is sourced (canon: rbtd/rbte_cli.sh).
 readonly RBCC_KIT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Generated zipper-derived artifacts — the theurge build materializes both
@@ -180,7 +179,7 @@ readonly RBCC_creed_clean_affiance="the seated provider must answer to a committ
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
 # consumers walk fact files in BURD_OUTPUT_DIR / BURD_TEMP_DIR keyed on extension.
-# Roster extensions composed from earlier tinder (BCG tinder-on-tinder).
+# Roster extensions composed from earlier tinder.
 readonly RBCC_fact_ext_depot="depot"
 readonly RBCC_fact_ext_depot_project="depot-project"
 readonly RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retriever}"
@@ -201,8 +200,7 @@ readonly RBCC_fact_ext_foedus="foedus"
 # gate arc to branch on before the may-prompt baseline avow.
 readonly RBCC_fact_ext_sederunt="sederunt"
 
-# Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
-# Mechanism). The credless guard is the reveille-tier slot reservation: theurge
+# Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue). The credless guard is the reveille-tier slot reservation: theurge
 # sets it on every tabtarget a reveille-tier fixture spawns, and the Payor OAuth
 # token-mint membrane (zrbgp_authenticate_capture) rejects under it with
 # BUBC_band_credless — a passing reveille run can never use credentials.

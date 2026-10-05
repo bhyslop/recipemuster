@@ -378,7 +378,7 @@ pub(crate) fn rbtdrk_invoke_logged(
 }
 
 /// Post-admission-grant invocation: `rbtdrk_invoke_logged`, re-invoked while
-/// the exit is exactly `RBTDGC_BAND_ADMISSION` under the RBSCIP propagation
+/// the exit is exactly `RBTDGC_BAND_ADMISSION` under the propagation
 /// budget (RBr_3f4). A fixture invocation issued immediately downstream of a
 /// fresh admission grant (gird, brevet) is a post-grant site: its first don
 /// can draw the Class-C 403 while the just-written binding propagates, and
@@ -563,7 +563,7 @@ pub(crate) fn rbtdrk_unmake_preamble(
     dir: &Path,
     spec: &rbtdrk_UnmakeSpec,
 ) -> Result<rbtdrk_UnmakeOutcome, rbtdre_Verdict> {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
     let rbrd = root.join(RBTDGC_RBRD_FILE);
 
     let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {

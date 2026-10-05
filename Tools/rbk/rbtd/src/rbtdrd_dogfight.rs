@@ -36,14 +36,14 @@
 //
 // The resolved-base check reads the rbi_resolved_base_1 label off the summoned
 // image and fails loud if it diverges from the vessel's committed base — the
-// regression guard for the conjure resolved-base provenance feature (RBSAC /
-// RBr_b4e). It reuses this fixture's existing ordain rather than spending a
+// regression guard for the conjure resolved-base provenance feature
+// (RBr_b4e). It reuses this fixture's existing ordain rather than spending a
 // second cloud build on a separate case.
 
 use std::path::Path;
 use std::process::Command;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdrv_patrol::{
     rbtdrv_docker_config_label, rbtdrv_docker_inspect, RBTDRV_ARK_BASENAME_IMAGE,
@@ -101,7 +101,7 @@ fn rbtdrd_vessel_field(
     vessel_dir: &str,
     key: &str,
 ) -> Result<String, String> {
-    let path = ctx.project_root().join(vessel_dir).join(RBTDGC_RBRV_FILE);
+    let path = ctx.rbtdri_project_root().join(vessel_dir).join(RBTDGC_RBRV_FILE);
     let body = std::fs::read_to_string(&path)
         .map_err(|e| format!("read {}: {}", path.display(), e))?;
     let prefix = format!("{}=", key);
@@ -121,7 +121,7 @@ fn rbtdrd_build_run_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
 fn zrbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
-    if !ctx.project_root().join(vessel_dir).is_dir() {
+    if !ctx.rbtdri_project_root().join(vessel_dir).is_dir() {
         return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
     }
 
@@ -247,7 +247,7 @@ fn zrbtdrd_build_run_lifecycle_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbt
 
 // ── Section registry ─────────────────────────────────────────
 
-pub static RBTDRD_CASES_DOGFIGHT: &[rbtdre_Case] = &[case!(rbtdrd_build_run_lifecycle)];
+pub static RBTDRD_CASES_DOGFIGHT: &[rbtdre_Case] = &[rbtdre_case!(rbtdrd_build_run_lifecycle)];
 
 pub static RBTDRD_FIXTURE_DOGFIGHT: rbtdre_Fixture = rbtdre_Fixture {
     name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_DOGFIGHT,

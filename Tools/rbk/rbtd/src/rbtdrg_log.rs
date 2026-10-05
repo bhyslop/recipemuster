@@ -15,7 +15,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRG — output module per RCG Output Discipline.
+// RBTDRG — output module.
 //
 // All theurge emissions route through these macros, written to stderr.
 // Stdout is reserved for future tabtarget-bypass needs.

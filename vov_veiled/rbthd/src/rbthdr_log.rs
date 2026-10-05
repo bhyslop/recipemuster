@@ -30,39 +30,39 @@ fn zrbthdr_emit(msg: &str) {
 }
 
 /// A section header — a blank line, the title, and a rule beneath it.
-pub fn section(title: &str) {
+pub fn rbthdr_section(title: &str) {
     zrbthdr_emit("");
     zrbthdr_emit(&format!("=== {} ===", title));
 }
 
 /// A step marker — the active act, as it begins.
-pub fn step(msg: &str) {
+pub fn rbthdr_step(msg: &str) {
     zrbthdr_emit(&format!(">> {}", msg));
 }
 
 /// One plain indented narration line.
-pub fn line(msg: &str) {
+pub fn rbthdr_line(msg: &str) {
     zrbthdr_emit(&format!("   {}", msg));
 }
 
 /// A blank narration line.
-pub fn blank() {
+pub fn rbthdr_blank() {
     zrbthdr_emit("");
 }
 
 /// A loud advisory the operator must see — a known gap, a caution.
-pub fn warn(msg: &str) {
+pub fn rbthdr_warn(msg: &str) {
     zrbthdr_emit(&format!("!! {}", msg));
 }
 
 /// A success line closing a phase.
-pub fn success(msg: &str) {
+pub fn rbthdr_success(msg: &str) {
     zrbthdr_emit(&format!("OK {}", msg));
 }
 
 /// A verbatim block — no per-line decoration. For the stranger prompt and other
 /// content whose exact bytes are handed onward.
-pub fn raw(block: &str) {
+pub fn rbthdr_raw(block: &str) {
     let mut stderr = std::io::stderr().lock();
     let _ = writeln!(stderr, "{}", block);
 }
@@ -72,8 +72,8 @@ pub fn raw(block: &str) {
 /// line, and fatals on anything but an affirmative — decline, empty input, or
 /// closed stdin are all a decline. Only the ostend and the docimasy's gauntlet
 /// stage prompt; every other worker's own confirmation gate is left to fire on
-/// its own inherited stdio (rbthdr_run::stream leaves it unmolested here).
-pub fn confirm(msg: &str) {
+/// its own inherited stdio (rbthdr_run::rbthdr_stream leaves it unmolested here).
+pub fn rbthdr_confirm(msg: &str) {
     zrbthdr_emit(&format!("?? {} [y/N] ", msg));
     let mut line = String::new();
     let read = std::io::stdin().read_line(&mut line);

@@ -286,7 +286,7 @@ rbof_canvass() {
   buc_info "=== FOEDUS CANVASS ==="
   printf "%-24s %-24s %-12s %s\n" "FOEDUS" "PROVIDER" "STATE" "SELECTED"
 
-  # Per-iteration synthesized locals (BCG exception 2 — declare outside, assign inside)
+  # Per-iteration synthesized locals (declare outside, assign inside)
   local z_page=1
   local z_page_token=""
   local z_url=""

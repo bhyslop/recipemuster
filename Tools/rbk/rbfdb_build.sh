@@ -22,7 +22,7 @@
 # submission — with the support that partitions to it alone: the quota
 # preflight, the builds.create JSON stitcher, and the pouch (build-context)
 # push. Reads the entry's ZRBFD_STITCH_PREFIX / ZRBFD_CONTEXT_PREFIX /
-# ZRBFD_RBGJB_STEPS_DIR kindle constants and the RBFD_hallmark_echo_step_id
+# ZRBFD_RBGJB_STEPS_DIR kindle constants and the RBFD0_hallmark_echo_step_id
 # tinder; the registry preflight it calls lives in rbfdp_preflight.sh.
 
 set -euo pipefail
@@ -221,7 +221,7 @@ zrbfd_stitch_build_json() {
   # Pipeline: resolve base digests → buildx --push → per-platform pullback → SLSA
   # provenance via images: field
   local z_step_defs=(
-    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|${RBFD_hallmark_echo_step_id}"
+    "rbgjb01-derive-tag-base.sh|${z_rbfc_tool_gcloud}|bash|${RBFD0_hallmark_echo_step_id}"
   )
   if test "${z_needs_binfmt}" = "true"; then
     z_step_defs+=("rbgjb02-qemu-binfmt.sh|${z_rbfc_tool_docker}|bash|qemu-binfmt")
@@ -704,13 +704,13 @@ rbfd_build() {
   # from .steps of the same response, never a baked-in position.
   buc_step "Verifying hallmark consistency"
 
-  jq -r --arg id "${RBFD_hallmark_echo_step_id}" \
+  jq -r --arg id "${RBFD0_hallmark_echo_step_id}" \
     '.steps | map(.id) | index($id) // empty' \
     "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
-    || buc_die_now "Failed to locate step ${RBFD_hallmark_echo_step_id} in build response"
+    || buc_die_now "Failed to locate step ${RBFD0_hallmark_echo_step_id} in build response"
   local -r z_step_index=$(<"${ZRBFC_SCRATCH_FILE}")
   test -n "${z_step_index}" \
-    || buc_die_now "Step ${RBFD_hallmark_echo_step_id} not found in build response steps"
+    || buc_die_now "Step ${RBFD0_hallmark_echo_step_id} not found in build response steps"
 
   jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die_now "Failed to extract buildStepOutputs[${z_step_index}] from build response"

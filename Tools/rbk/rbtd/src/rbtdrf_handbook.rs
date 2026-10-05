@@ -22,7 +22,7 @@
 
 use std::path::Path;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
 use crate::rbtdgc_consts::{
@@ -112,13 +112,13 @@ fn rbtdrf_hb_quota_build(dir: &Path) -> rbtdre_Verdict {
 // ── Case array ──────────────────────────────────────────────
 
 pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
-    case!(rbtdrf_hb_onboard_start_here),
-    case!(rbtdrf_hb_onboard_crash_course),
-    case!(rbtdrf_hb_onboard_first_crucible),
-    case!(rbtdrf_hb_onboard_dir_first_build),
-    case!(rbtdrf_hb_onboard_payor_hb),
-    case!(rbtdrf_hb_payor_establish),
-    case!(rbtdrf_hb_quota_build),
+    rbtdre_case!(rbtdrf_hb_onboard_start_here),
+    rbtdre_case!(rbtdrf_hb_onboard_crash_course),
+    rbtdre_case!(rbtdrf_hb_onboard_first_crucible),
+    rbtdre_case!(rbtdrf_hb_onboard_dir_first_build),
+    rbtdre_case!(rbtdrf_hb_onboard_payor_hb),
+    rbtdre_case!(rbtdrf_hb_payor_establish),
+    rbtdre_case!(rbtdrf_hb_quota_build),
 ];
 
 // ── Fixture static ───────────────────────────────────────────

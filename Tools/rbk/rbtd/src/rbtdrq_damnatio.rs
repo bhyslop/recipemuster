@@ -74,7 +74,7 @@ use std::collections::{
 };
 use std::path::Path;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
     rbtdre_Case,
@@ -724,9 +724,9 @@ pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_proscription.
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTDRQ_CASES_DAMNATIO: &[rbtdre_Case] = &[
-    case!(rbtdrq_identity_shapes),
-    case!(rbtdrq_proscribed_values),
-    case!(rbtdrq_proscription_complete),
+    rbtdre_case!(rbtdrq_identity_shapes),
+    rbtdre_case!(rbtdrq_proscribed_values),
+    rbtdre_case!(rbtdrq_proscription_complete),
 ];
 
 pub static RBTDRQ_FIXTURE_DAMNATIO: rbtdre_Fixture = rbtdre_Fixture {

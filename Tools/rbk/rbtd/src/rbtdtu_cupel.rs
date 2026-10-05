@@ -43,92 +43,92 @@ use super::rbtdru_python::{
 };
 
 /// Command-position tokens of `src`, as bare strings (line numbers dropped).
-fn cmds(src: &str) -> Vec<String> {
+fn zrbtdtu_cmds(src: &str) -> Vec<String> {
     zrbtdru_command_words(src).into_iter().map(|(_, w)| w).collect()
 }
 
 #[test]
 fn rbtdtu_simple_command() {
-    assert_eq!(cmds("grep foo"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("grep foo"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_pipe_opens_command_position() {
-    assert_eq!(cmds("cat x | grep y"), vec!["cat", "grep"]);
+    assert_eq!(zrbtdtu_cmds("cat x | grep y"), vec!["cat", "grep"]);
 }
 
 #[test]
 fn rbtdtu_or_die_pattern() {
-    assert_eq!(cmds("mything arg || buc_die_now"), vec!["mything", "buc_die_now"]);
+    assert_eq!(zrbtdtu_cmds("mything arg || buc_die_now"), vec!["mything", "buc_die_now"]);
 }
 
 #[test]
 fn rbtdtu_command_substitution_assignment() {
     // The assignment prefix preserves command position; the substituted
     // command is scanned at its own position.
-    assert_eq!(cmds("z_x=$(grep foo)"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("z_x=$(grep foo)"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_comment_ignored() {
-    assert!(cmds("# grep foo").is_empty());
+    assert!(zrbtdtu_cmds("# grep foo").is_empty());
 }
 
 #[test]
 fn rbtdtu_trailing_comment_ignored() {
-    assert_eq!(cmds("grep foo # not a command"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("grep foo # not a command"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_quoted_argument_not_a_command() {
-    assert_eq!(cmds("echo 'grep'"), vec!["echo"]);
+    assert_eq!(zrbtdtu_cmds("echo 'grep'"), vec!["echo"]);
 }
 
 #[test]
 fn rbtdtu_double_bracket_contents_skipped() {
-    assert_eq!(cmds("[[ -n $x ]] && grep y"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("[[ -n $x ]] && grep y"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_bare_assignment_is_not_a_command() {
-    assert!(cmds("FOO=bar").is_empty());
+    assert!(zrbtdtu_cmds("FOO=bar").is_empty());
 }
 
 #[test]
 fn rbtdtu_assignment_prefix_then_command() {
-    assert_eq!(cmds("FOO=bar grep x"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("FOO=bar grep x"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_if_then_fi_keywords() {
-    assert_eq!(cmds("if grep x; then mything; fi"), vec!["grep", "mything"]);
+    assert_eq!(zrbtdtu_cmds("if grep x; then mything; fi"), vec!["grep", "mything"]);
 }
 
 #[test]
 fn rbtdtu_heredoc_body_skipped() {
     let src = "cat <<EOF\ngrep evil\nEOF\nreal_cmd";
-    assert_eq!(cmds(src), vec!["cat", "real_cmd"]);
+    assert_eq!(zrbtdtu_cmds(src), vec!["cat", "real_cmd"]);
 }
 
 #[test]
 fn rbtdtu_here_string_is_not_heredoc() {
     // `<<<` is a single-line here-string redirection, not a here-doc; the
     // following line is normal source.
-    assert_eq!(cmds("grep x <<< \"$y\"\nmything"), vec!["grep", "mything"]);
+    assert_eq!(zrbtdtu_cmds("grep x <<< \"$y\"\nmything"), vec!["grep", "mything"]);
 }
 
 #[test]
 fn rbtdtu_arithmetic_not_scanned() {
     // `(( ... ))` and `$(( ... ))` are arithmetic, not command lists.
-    assert_eq!(cmds("(( i++ ))\nmything"), vec!["mything"]);
-    assert_eq!(cmds("z=$(( a + b ))\nmything"), vec!["mything"]);
+    assert_eq!(zrbtdtu_cmds("(( i++ ))\nmything"), vec!["mything"]);
+    assert_eq!(zrbtdtu_cmds("z=$(( a + b ))\nmything"), vec!["mything"]);
 }
 
 #[test]
 fn rbtdtu_nested_arithmetic_parens_balanced() {
     // Inner parens inside `$(( ... ))` must not terminate the arithmetic early.
     let src = "z=$(( (0xFFFFFFFF << (32 - m)) & 0xFFFFFFFF ))\nmything";
-    assert_eq!(cmds(src), vec!["mything"]);
+    assert_eq!(zrbtdtu_cmds(src), vec!["mything"]);
 }
 
 #[test]
@@ -136,13 +136,13 @@ fn rbtdtu_array_literal_elements_not_commands() {
     // `NAME=( ... )` is an array literal; its elements (including bare flags)
     // are data, not commands.
     let src = "OPTS=(-U -l -nn -vvv)\nmything";
-    assert_eq!(cmds(src), vec!["mything"]);
+    assert_eq!(zrbtdtu_cmds(src), vec!["mything"]);
 }
 
 #[test]
 fn rbtdtu_multiline_array_literal() {
     let src = "ARGS=(\n  -o IdentitiesOnly=yes\n  -o StrictHostKeyChecking=accept-new\n)\nmything";
-    assert_eq!(cmds(src), vec!["mything"]);
+    assert_eq!(zrbtdtu_cmds(src), vec!["mything"]);
 }
 
 #[test]
@@ -157,38 +157,38 @@ fn rbtdtu_line_numbers_tracked() {
 
 #[test]
 fn rbtdtu_subshell_command_scanned() {
-    assert_eq!(cmds("( grep x )"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("( grep x )"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_case_patterns_suppressed_bodies_scanned() {
     // Patterns (200, *) are not commands; branch bodies (echo, buc_die_now) are.
     let src = "case $x in\n  200) echo hi ;;\n  *) buc_die_now ;;\nesac";
-    assert_eq!(cmds(src), vec!["echo", "buc_die_now"]);
+    assert_eq!(zrbtdtu_cmds(src), vec!["echo", "buc_die_now"]);
 }
 
 #[test]
 fn rbtdtu_case_alternation_pattern_not_a_command() {
     // `a|b)` is pattern alternation — `b` must not be recorded as a command.
-    assert_eq!(cmds("case $x in a|b) grep y ;; esac"), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds("case $x in a|b) grep y ;; esac"), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_case_flag_pattern_suppressed() {
     // getopts-style flag patterns must not be flagged as commands.
-    assert_eq!(cmds("case $opt in -o) mything ;; esac"), vec!["mything"]);
+    assert_eq!(zrbtdtu_cmds("case $opt in -o) mything ;; esac"), vec!["mything"]);
 }
 
 #[test]
 fn rbtdtu_nested_case_scoped() {
     let src = "case $a in\n  x) case $b in y) grep z ;; esac ;;\nesac";
-    assert_eq!(cmds(src), vec!["grep"]);
+    assert_eq!(zrbtdtu_cmds(src), vec!["grep"]);
 }
 
 #[test]
 fn rbtdtu_command_after_esac() {
     // Both the branch body and the command following the case are scanned.
-    assert_eq!(cmds("case $a in x) mybody ;; esac\nmything"), vec!["mybody", "mything"]);
+    assert_eq!(zrbtdtu_cmds("case $a in x) mybody ;; esac\nmything"), vec!["mybody", "mything"]);
 }
 
 #[test]
@@ -328,7 +328,7 @@ fn rbtdtu_classify_path_command_uses_basename() {
 // ── Python step scan ────────────────────────────────────────
 
 /// Run the python scan over `src`, returning its findings.
-fn py_findings(src: &str) -> Vec<zrbtdru_Finding> {
+fn zrbtdtu_py_findings(src: &str) -> Vec<zrbtdru_Finding> {
     let mut findings = Vec::new();
     let mut inventory = BTreeSet::new();
     zrbtdru_py_scan(src, "step.py", &mut findings, &mut inventory);
@@ -378,13 +378,13 @@ fn rbtdtu_py_tokens_line_numbers_advance() {
 fn rbtdtu_py_scan_floor_imports_pass() {
     for root in ZRBTDRU_PY_IMPORT_ALLOWED {
         let src = format!("import {}\n", root);
-        assert!(py_findings(&src).is_empty(), "floor import flagged: {}", root);
+        assert!(zrbtdtu_py_findings(&src).is_empty(), "floor import flagged: {}", root);
     }
 }
 
 #[test]
 fn rbtdtu_py_scan_third_party_import_flagged() {
-    let findings = py_findings("import requests\n");
+    let findings = zrbtdtu_py_findings("import requests\n");
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].command, "requests");
     assert!(findings[0].detail.contains("unsanctioned import"));
@@ -392,39 +392,39 @@ fn rbtdtu_py_scan_third_party_import_flagged() {
 
 #[test]
 fn rbtdtu_py_scan_from_subprocess_flagged() {
-    let findings = py_findings("from subprocess import run\n");
+    let findings = zrbtdtu_py_findings("from subprocess import run\n");
     assert_eq!(findings.len(), 1);
     assert!(findings[0].detail.contains("argv[0]"));
 }
 
 #[test]
 fn rbtdtu_py_scan_dynamic_import_flagged() {
-    assert!(!py_findings("import importlib\n").is_empty());
-    assert!(!py_findings("mod = __import__(\"os\")\n").is_empty());
+    assert!(!zrbtdtu_py_findings("import importlib\n").is_empty());
+    assert!(!zrbtdtu_py_findings("mod = __import__(\"os\")\n").is_empty());
 }
 
 #[test]
 fn rbtdtu_py_scan_exec_eval_calls_flagged() {
-    assert_eq!(py_findings("exec(payload)\n").len(), 1);
-    assert_eq!(py_findings("eval(expr)\n").len(), 1);
+    assert_eq!(zrbtdtu_py_findings("exec(payload)\n").len(), 1);
+    assert_eq!(zrbtdtu_py_findings("eval(expr)\n").len(), 1);
 }
 
 #[test]
 fn rbtdtu_py_scan_exec_attribute_not_flagged() {
     // An attribute named exec is a different symbol from the builtin.
-    assert!(py_findings("conn.exec(query)\n").is_empty());
+    assert!(zrbtdtu_py_findings("conn.exec(query)\n").is_empty());
 }
 
 #[test]
 fn rbtdtu_py_scan_subprocess_allowed_target_passes() {
     let src = "import subprocess\nsubprocess.run([\"gcloud\", \"info\"], check=True)\n";
-    assert!(py_findings(src).is_empty());
+    assert!(zrbtdtu_py_findings(src).is_empty());
 }
 
 #[test]
 fn rbtdtu_py_scan_subprocess_unknown_target_flagged() {
     let src = "import subprocess\nsubprocess.run([\"pip\", \"install\", \"x\"])\n";
-    let findings = py_findings(src);
+    let findings = zrbtdtu_py_findings(src);
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].command, "pip");
     assert_eq!(findings[0].line, 2);
@@ -433,7 +433,7 @@ fn rbtdtu_py_scan_subprocess_unknown_target_flagged() {
 #[test]
 fn rbtdtu_py_scan_subprocess_multiline_list_scanned() {
     let src = "import subprocess\nresult = subprocess.run(\n    [\"pip\", \"install\"],\n    check=True,\n)\n";
-    let findings = py_findings(src);
+    let findings = zrbtdtu_py_findings(src);
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].command, "pip");
     assert_eq!(findings[0].line, 3);
@@ -444,12 +444,12 @@ fn rbtdtu_py_scan_subprocess_dynamic_argv0_skipped() {
     // A non-literal argv[0] cannot be statically named — skipped, like
     // dynamic tokens in the bash scan.
     let src = "import subprocess\nsubprocess.run([cmd, \"arg\"])\n";
-    assert!(py_findings(src).is_empty());
+    assert!(zrbtdtu_py_findings(src).is_empty());
 }
 
 #[test]
 fn rbtdtu_py_scan_string_mention_not_flagged() {
-    assert!(py_findings("msg = \"do not eval(this) or exec(that)\"\n").is_empty());
+    assert!(zrbtdtu_py_findings("msg = \"do not eval(this) or exec(that)\"\n").is_empty());
 }
 
 // eof

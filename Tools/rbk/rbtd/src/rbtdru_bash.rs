@@ -15,9 +15,8 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRU — cupel: BCG command-dependency static analysis over bash.
+// RBTDRU — cupel: command-dependency static analysis over bash.
 //
-// BCG (section "Command Dependency Discipline") is the single source of truth;
 // the allowlists this module classifies against live in rbtdru_cupel.
 //
 // Algorithm — two-pass, function-aware, with asymmetric scope. Pass 1 collects
@@ -30,7 +29,7 @@
 // command-position lexer suffices — no full shell parser.
 //
 // Two execution-environment domains, partitioned by path:
-//   - Kit-bash   — strict BCG. Eviction table enforced; unknown commands fail.
+//   - Kit-bash   — strict. Eviction table enforced; unknown commands fail.
 //   - GCB-bash   — Google Cloud Build job scripts under any Tools/rbk/rbgj*
 //                  directory. Looser: they run in the cloud-sdk image where the
 //                  evicted commands and gcloud are present, so evictions are not
@@ -626,7 +625,7 @@ pub(crate) fn zrbtdru_classify(
                     return Some(format!("evicted command — use {}", ev.replacement));
                 }
             }
-            Some("unknown command — not in POSIX floor or RBS0 declared dependencies".to_string())
+            Some("unknown command — not in POSIX floor or declared dependencies".to_string())
         }
         zrbtdru_Domain::Gcb => {
             // No declared-dep inheritance and no eviction free-pass: GCB-bash is

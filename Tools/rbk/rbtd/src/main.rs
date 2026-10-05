@@ -33,7 +33,7 @@
 //     Observed-tariff census — read-only report over the station's logs-buk
 //     history; no tree guard, no roots, no context.
 
-// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+// all emission via rbtdrg_*! — no direct println!/eprintln!
 
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
@@ -295,12 +295,12 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
         // start-of-dispatch current/->previous/ promotion then leaks the prior
         // fixture's chaining facts into a non-chained invoke's previous/.
         // Suite-monotonic numbering gives each invoke its own dir, closing that.
-        ctx.set_invoke_count(next_invoke_count);
+        ctx.rbtdri_set_invoke_count(next_invoke_count);
         rbtdrc_set_context(ctx);
 
         let run_result = rbtdre_run_fixture(fixture, &colors, &roots.trace_root, keep_going);
 
-        next_invoke_count = rbtdrc_take_context().invoke_count();
+        next_invoke_count = rbtdrc_take_context().rbtdri_invoke_count();
 
         match run_result {
             Ok(result) => {

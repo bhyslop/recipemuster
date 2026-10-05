@@ -52,7 +52,7 @@ zrboo_kindle() {
   ZRBOO_TCPDUMP_OPTS=(-U -l -nn -vvv -e)
   readonly ZRBOO_TCPDUMP_OPTS
 
-  # Scry interface-discovery captures land here (BCG temp-file capture pattern).
+  # Scry interface-discovery captures land here.
   readonly ZRBOO_SCRY_PREFIX="${BURD_TEMP_DIR}/rboo_scry_"
 
   # Bridge interface (only for podman, discovered at observe time)
@@ -105,7 +105,6 @@ rboo_observe() {
   # Discover sentry interface roles by IP inside the container — Docker does
   # not guarantee eth0/eth1 ordering (on the WSL native-docker host the two are
   # reversed), so resolve by role the way rbjs_sentry.sh does, never by name.
-  # BCG: external command output goes to temp files, never command substitution.
   local z_enclave_file="${ZRBOO_SCRY_PREFIX}enclave_addr.txt"
   local z_enclave_stderr="${ZRBOO_SCRY_PREFIX}enclave_stderr.txt"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
@@ -182,7 +181,6 @@ rboo_observe() {
   # Bridge capture: only for podman (requires podman machine ssh). Built as a
   # single ssh command string, so timeout/opts/filter are spliced in textually.
   if test "${RBRN_RUNTIME}" = "podman"; then
-    # BCG: capture network-inspect output to a temp file, never command substitution.
     local z_bridge_if_file="${ZRBOO_SCRY_PREFIX}bridge_if.txt"
     local z_bridge_if_stderr="${ZRBOO_SCRY_PREFIX}bridge_if_stderr.txt"
     "${ZRBOB_RUNTIME}" network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}' \

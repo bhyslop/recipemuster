@@ -17,7 +17,7 @@
 //
 // RBTDRN — conformance: the vocabulary-eviction static-analysis fixture.
 //
-// The standing home for evicted-term assertions (ACG "The named home"). When a
+// The standing home for evicted-term assertions. When a
 // concept is renamed, stray uses of the dead word hide in source and specs;
 // hand-grep is unreliable because a stem inside a kept identifier looks like a
 // violation and a stem in a tabtarget filename (a sprue) is easy to miss. This
@@ -30,7 +30,7 @@
 // population is deferred per-cluster, each term gaining its row behind its own
 // cutover, owned by the heat retiring it. What ships now is the proven mechanism.
 //
-// Checker proves itself (ACG move discipline, rule 2). The self-test cases run
+// Checker proves itself. The self-test cases run
 // the matcher against known in-memory inputs — one bare use that MUST be caught,
 // a kept identifier and an exempt path that MUST be respected, a filename sprue
 // that MUST be caught — so the verdict on the live tree is trustworthy. The
@@ -49,7 +49,7 @@ use std::path::{
     PathBuf,
 };
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
     rbtdre_Case,
@@ -90,7 +90,7 @@ pub(crate) struct zrbtdrn_EvictionRow {
 }
 
 /// The standing eviction table — the single place a retired term gains its
-/// assertion (ACG: add a row here, never improvise a grep). Empty until a heat
+/// assertion (add a row here, never improvise a grep). Empty until a heat
 /// retires a term behind its own cutover; each row engages the live corpus scan
 /// the moment it is added. The self-test cases prove the engine independent of
 /// this table, so the mechanism ships proven with zero production rows.
@@ -239,7 +239,7 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 
 // ── Curl containment scan ───────────────────────────────────
 //
-// The band placement doctrine (BCG "Precision Exit-Code Band", bubc_constants.sh
+// The band placement doctrine (bubc_constants.sh
 // placement comment) bars handing a curl exit status to the buc_die_now membrane:
 // curl 8.6.0+ mints exit codes 100/101 inside the band window, so a bare
 // `curl ... || buc_die_now` chain — or a bare curl whose failure propagates under
@@ -264,7 +264,7 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 //     sophistication.
 
 /// Repo-relative path prefixes exempt from the curl containment scan: the
-/// in-pool cloud-step trees whose curl discipline is CBG/JDG dialect (`-f`
+/// in-pool cloud-step trees whose curl discipline is its own dialect (`-f`
 /// flags, `|| exit N`, no buc_die_now) — the band membrane does not exist there.
 const ZRBTDRN_CURL_EXEMPT_PREFIXES: &[&str] = &["Tools/rbk/rbgj"];
 
@@ -534,7 +534,7 @@ fn rbtdrn_curl_containment(dir: &Path) -> rbtdre_Verdict {
 
 // ── One-home discipline backstop (citation integrity, rivet hoist, A8 residue)
 //
-// The mechanically-checkable slice of ACG's one-home discipline: a between-
+// The mechanically-checkable slice of the one-home discipline: a between-
 // audits guard, not a keystone. Paraphrase detection (the actual word cancer
 // the manual audits hunt) is irreducibly semantic and stays out of scope.
 // Three pure checks over an in-memory (rel_path, content) corpus — hermetic
@@ -560,9 +560,9 @@ fn zrbtdrn_onehome_render(hits: &[zrbtdrn_OneHomeHit]) -> String {
 /// True when `line`, after stripping a leading AsciiDoc list-bullet marker
 /// (`*`, `**`, …) if present, OPENS with an anchor `[[name]]` or
 /// `[[name,display]]` — the shared definition-site syntax for both quoins and
-/// rivets. Trailing content after the anchor is ignored (JJS0's
+/// rivets. Trailing content after the anchor is ignored (the
 /// `[[jjdpe_defined]] {jjdpe_defined}:: ...` same-line form); a bullet prefix
-/// is tolerated (JJS0's `* [[jjdgm_order]]` list-item form). Returns the bare
+/// is tolerated (the `* [[jjdgm_order]]` list-item form). Returns the bare
 /// name.
 fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
     let t = line.trim();
@@ -579,9 +579,9 @@ fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
 }
 
 /// True when `line` is a mapping-section attribute declaration
-/// `:name:  <<target,Display Text>>` — the MCM quoin-registration line.
+/// `:name:  <<target,Display Text>>` — the quoin-registration line.
 /// Returns `(name, target)`. A variant (`name` = `axo_entity_s`) points its
-/// `target` at the base quoin's anchor (`axo_entity`), never its own — MCM's
+/// `target` at the base quoin's anchor (`axo_entity`), never its own — the
 /// `_s`/`_p`/`_ed`/`_ing` suffix mechanism, so `name` and `target` differ by
 /// design and only `target` need resolve to an anchor.
 fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
@@ -636,7 +636,7 @@ fn zrbtdrn_parse_braced_citations(line: &str) -> Vec<String> {
 /// Every real `RBr_xxx` token on `line` — `RBr_` followed by the mint
 /// convention's exactly-3-char lowercase-alnum opaque tail (`RBr_a3f`,
 /// `RBr_m4d`, …). A bare `RBr_` with no tail is prose *describing* the naming
-/// convention itself (MCM/ACG doctrine text), never a real citation, so it is
+/// convention itself (doctrine text), never a real citation, so it is
 /// excluded by the length/shape requirement rather than by name.
 fn zrbtdrn_parse_rivet_tokens(line: &str) -> Vec<String> {
     zrbtdrn_tokens(line)
@@ -649,7 +649,7 @@ fn zrbtdrn_parse_rivet_tokens(line: &str) -> Vec<String> {
 }
 
 /// True when `token` has the shipped spec-acronym shape: `RBS` followed by one
-/// or more uppercase-letter/digit characters (`RBS0`, `RBSPB`, `RBSIJ`, …). A8
+/// or more uppercase-letter/digit characters. A8
 /// source-residue bars this shape from shipped `.sh` files — only a bare
 /// `RBr_` rivet ID or nothing may cite a spec from source.
 fn zrbtdrn_is_spec_acronym(token: &str) -> bool {
@@ -679,7 +679,7 @@ const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 /// The two sets are distinct because definition and jurisdiction are distinct
 /// questions. `anchor_files` is where a definition may lawfully live: the whole
 /// spec corpus, every kit in it, since a sheaf borrowing a sibling kit's term
-/// by declaring the mapping locally is ordinary MCM practice and its anchor is
+/// by declaring the mapping locally is ordinary practice and its anchor is
 /// then simply elsewhere. `judged_adoc` and `judged_all` are the sites this
 /// fixture rules on — RBK's own, its jurisdiction. Harvesting anchors only from
 /// the judged set would read every lawful cross-kit borrow as a dangling
@@ -780,12 +780,11 @@ fn zrbtdrn_check_citations(
 /// deferral — never an unexamined exemption. Each entry names its removal
 /// condition; delete the entry (and perform the hoist) once met.
 ///
-/// - `RBr_m4d`: hoist deferred while RBS0 remains under active spec-doctrine
-///   work. Remove this entry when RBr_m4d's definition prose moves from
-///   RBSPB-citizen_brevet.adoc to RBS0-SpecTop.adoc.
+/// - `RBr_m4d`: hoist deferred while the codex remains under active spec-doctrine
+///   work. Remove this entry when RBr_m4d's definition prose is hoisted.
 const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 
-/// The codex sheaf itself — RBS0, the hoist target MCM's rivet law names. A
+/// The codex sheaf itself — the hoist target. A
 /// rivet anchored here is definitionally already hoisted, so citing it from
 /// any other sheaf is the intended end-state, never a violation. Homed on the
 /// corpus road; the path form matches the corpus-root-relative rendering the
@@ -794,29 +793,29 @@ const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 const ZRBTDRN_CODEX_SHEAF: &str = "specs/rbk/RBS0-SpecTop.adoc";
 
 /// Sheaves whose role is a rivet *census/index* — pointing at where a rivet is
-/// homed ("Chapter: RBSCIP... the RBr_7a9 rivet is homed there"), never
-/// consuming its content as working vocabulary. MCM's hoist law guards
+/// homed, never
+/// consuming its content as working vocabulary. The hoist law guards
 /// against a sibling sheaf silently depending on another's interior; an index
 /// entry is the opposite — a directory pointer whose whole job is to name
 /// rivets without restating them. Hoisting on an index citation would drag
-/// every catalogued rivet into RBS0 and destroy the census function, so a
+/// every catalogued rivet into the codex and destroy the census function, so a
 /// sheaf named here is exempt as a *citer* (never as a definer).
 ///
 /// - `RBSWB-Watchbill.adoc`: the indeterminacy-membrane census (`//axvd_sheaf
 ///   axd_normative`; doctrine text: "the watchbill points at the chapters and
-///   never restates them"). Its citations of RBSCIP's `RBr_7a9`/`RBr_3f4`/
+///   never restates them"). Its citations of `RBr_7a9`/`RBr_3f4`/
 ///   `RBr_c81` are directory entries, not content consumption.
 ///
 /// Corpus-root-relative path form, matching the live wrapper's rendering (see
 /// `ZRBTDRN_CORPUS_SPEC_SUBDIR`).
 const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["specs/rbk/RBSWB-Watchbill.adoc"];
 
-/// Check 2 — rivet-hoist placement (MCM `mcm_rivet`: a rivet hoists to the
+/// Check 2 — rivet-hoist placement (a rivet hoists to the
 /// codex the moment a second sheaf cites it). A rivet anchored in one `.adoc`
 /// sheaf and cited by bare token from a *different* `.adoc` sheaf should have
 /// hoisted; `waivers` names the rivets whose deferral is recorded and
 /// conditioned rather than silently exempted. A rivet anchored in `codex`
-/// (RBS0) is exempt outright — that IS the hoisted state. A citation FROM a
+/// is exempt outright — that IS the hoisted state. A citation FROM a
 /// sheaf in `index_sheaves` never counts — the citer's whole role is to point
 /// at content homed elsewhere, not to consume it.
 fn zrbtdrn_check_rivet_hoist(
@@ -866,7 +865,7 @@ fn zrbtdrn_check_rivet_hoist(
 }
 
 /// Check 3 — A8 source-residue: a shipped `.sh` file carries no spec-acronym
-/// token (`RBS0`, `RBSPB`, …) — only a bare `RBr_` rivet ID or nothing. The
+/// token — only a bare `RBr_` rivet ID or nothing. The
 /// veiled tree reaches this check by no route: it stands at the repo root,
 /// outside every scan root, so its residue rules are out of scope without a
 /// caller having to exclude anything.
@@ -896,9 +895,8 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 /// against does not live here — it is homed on the kraal's corpus road
 /// (`zrbtdrn_locate_corpus_road`, below). RBK's tree
 /// is this fixture's jurisdiction and is clean against these checks; the other
-/// kits' foundational specs (CMK's MCM-MetaConceptModel.adoc, JJK's
-/// JJS0_JobJockeySpec.adoc) carry pre-existing one-home violations in bulk —
-/// genuine corpus debt, not a design flaw in the checks (verified: MCM's own
+/// kits' foundational specs carry pre-existing one-home violations in bulk —
+/// genuine corpus debt, not a design flaw in the checks (verified: the
 /// Linked Term law makes the anchor constitutive, so a dangling `<<target>>`
 /// really is broken). Closing that debt belongs to each kit, not to this
 /// fixture. The corpus reach below is likewise scoped to `specs/rbk` alone,
@@ -928,9 +926,7 @@ const ZRBTDRN_FEODARY_BASENAME: &str = "feodary.json";
 
 /// The revision value this reader's synthetic self-registers carry below.
 /// `jjfd_revision` is the ENGINE's own vintage discriminant against the seat
-/// it composed; this reader is the FOREIGN one `JJSVD-dispatch.adoc` "The
-/// feodary" rules on, and a foreign reader "reads the keys it needs, passes
-/// over the keys it does not, and does not gate on jjfd_revision" — so this
+/// it composed; this reader is the FOREIGN one and does not gate on jjfd_revision, so this
 /// constant is not a comparison target. Presence is still required: the same
 /// section states "a document that cannot say what it is is not a feodary".
 const ZRBTDRN_FEODARY_REVISION: i64 = 1;
@@ -942,13 +938,13 @@ const ZRBTDRN_CORPUS_ROAD_ROLES: &[&str] = &["vulgate", "lectern"];
 /// RBK's spec home on the corpus road — the JUDGED set's root. Scoped to
 /// `specs/rbk` (not the whole `specs/`) to hold the same RBK-only jurisdiction
 /// the scan roots keep. Also the rendering root's tail: a corpus file renders
-/// CORPUS-ROOT-relative, so `specs/rbk/RBS0-SpecTop.adoc` is its form whichever
+/// CORPUS-ROOT-relative whichever
 /// tree holds the corpus.
 const ZRBTDRN_CORPUS_SPEC_SUBDIR: &str = "specs/rbk";
 
 /// The whole spec corpus on the corpus road — the ANCHOR set's root, every kit
 /// in it. Wider than the judged root above on purpose: a definition may
-/// lawfully live in a sibling kit's sheaf, and RBS0 borrowing CMK's
+/// lawfully live in a sibling kit's sheaf, and a sheaf borrowing CMK's
 /// `axw_wythe` by declaring the mapping locally is the standing case. Reading
 /// anchors only from RBK's own subtree reports that borrow as a dangling
 /// citation — a false positive that says the corpus is broken when it is the
@@ -1004,8 +1000,7 @@ fn zrbtdrn_json_int_field(text: &str, key: &str) -> Option<i64> {
 }
 
 /// Parse the kraal register: `jjfd_revision`'s presence first, then one row
-/// per object in `jjfd_trees`. This reader is the FOREIGN reader
-/// `JJSVD-dispatch.adoc` "The feodary" rules on — it takes the keys it needs,
+/// per object in `jjfd_trees`. This reader is the FOREIGN reader — it takes the keys it needs,
 /// passes over the rest, and does not gate on the revision's VALUE, only that
 /// the key stands (a document that cannot say what it is is not a feodary).
 /// Pure over the document text — the walk that FINDS the document is
@@ -1258,7 +1253,7 @@ fn rbtdrn_onehome_residue_live(dir: &Path) -> rbtdre_Verdict {
 /// half-broken checkout is not a legitimate absence. PASS only when both checks
 /// actually ran.
 ///
-/// Corpus files render CORPUS-ROOT-relative (`specs/rbk/RBS0-SpecTop.adoc`), so
+/// Corpus files render CORPUS-ROOT-relative, so
 /// the rendered form is the same whichever tree holds the corpus and
 /// `ZRBTDRN_CODEX_SHEAF` names the sheaf once. In-repo files render
 /// repo-relative (`Tools/rbk/…`, `tt/…`); the two rendering roots share no
@@ -1478,7 +1473,7 @@ const ZRBTDRN_SELF_STEM: &str = "zzdeadstem";
 /// A sanctioned identifier that embeds ZRBTDRN_SELF_STEM by construction — the
 /// "stem inside a kept identifier" case. (The enum holds `&'static str`, so this
 /// coupling is a literal, not a derivation.)
-const ZRBTDRN_SELF_KEPT_ID: &str = "rb_zzdeadstem_kept";
+const ZRBTDRN_SELF_KEPT_ID: &str = "rbtdrn_zzdeadstem_kept";
 
 /// One corpus, both halves of the discrimination: a bare stem that MUST be
 /// caught and the same stem inside a kept identifier that MUST be respected.
@@ -1487,7 +1482,7 @@ fn rbtdrn_self_catch_and_keep_identifier(_dir: &Path) -> rbtdre_Verdict {
         kill_stem: ZRBTDRN_SELF_STEM,
         keep_contexts: &[zrbtdrn_KeepContext::Identifier(ZRBTDRN_SELF_KEPT_ID)],
     };
-    let content = "a bare zzdeadstem here\nlet x = rb_zzdeadstem_kept();\n";
+    let content = "a bare zzdeadstem here\nlet x = rbtdrn_zzdeadstem_kept();\n";
     let hits = zrbtdrn_match("Tools/rbk/probe_selftest.txt", content, &row);
 
     if hits.len() != 1 {
@@ -1660,8 +1655,7 @@ fn rbtdrn_self_feodary_parse(_dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Register parse, the refusing half — now that the revision's VALUE is no
-/// longer gated (this reader is the FOREIGN reader `JJSVD-dispatch.adoc` "The
-/// feodary" rules on), the case first proves the evolution rule holds: a
+/// longer gated, the case first proves the evolution rule holds: a
 /// register of a LATER vintage, carrying an unknown top-level key as well,
 /// parses to the same rows a well-formed register does — evolution is
 /// additive, and an addition must be invisible to a reader that does not want
@@ -1876,23 +1870,23 @@ fn rbtdrn_self_corpus_road_locator(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
-    case!(rbtdrn_self_catch_and_keep_identifier),
-    case!(rbtdrn_self_keep_path_prefix),
-    case!(rbtdrn_self_catch_sprue),
-    case!(rbtdrn_self_pure_corpse),
-    case!(rbtdrn_live_scan),
-    case!(rbtdrn_self_curl_canon_clears),
-    case!(rbtdrn_self_curl_catches_deviants),
-    case!(rbtdrn_self_curl_unscannable),
-    case!(rbtdrn_curl_containment),
-    case!(rbtdrn_self_citation_integrity),
-    case!(rbtdrn_self_rivet_hoist),
-    case!(rbtdrn_self_a8_residue),
-    case!(rbtdrn_self_feodary_parse),
-    case!(rbtdrn_self_feodary_refusals),
-    case!(rbtdrn_self_corpus_road_locator),
-    case!(rbtdrn_onehome_residue_live),
-    case!(rbtdrn_onehome_corpus_live),
+    rbtdre_case!(rbtdrn_self_catch_and_keep_identifier),
+    rbtdre_case!(rbtdrn_self_keep_path_prefix),
+    rbtdre_case!(rbtdrn_self_catch_sprue),
+    rbtdre_case!(rbtdrn_self_pure_corpse),
+    rbtdre_case!(rbtdrn_live_scan),
+    rbtdre_case!(rbtdrn_self_curl_canon_clears),
+    rbtdre_case!(rbtdrn_self_curl_catches_deviants),
+    rbtdre_case!(rbtdrn_self_curl_unscannable),
+    rbtdre_case!(rbtdrn_curl_containment),
+    rbtdre_case!(rbtdrn_self_citation_integrity),
+    rbtdre_case!(rbtdrn_self_rivet_hoist),
+    rbtdre_case!(rbtdrn_self_a8_residue),
+    rbtdre_case!(rbtdrn_self_feodary_parse),
+    rbtdre_case!(rbtdrn_self_feodary_refusals),
+    rbtdre_case!(rbtdrn_self_corpus_road_locator),
+    rbtdre_case!(rbtdrn_onehome_residue_live),
+    rbtdre_case!(rbtdrn_onehome_corpus_live),
 ];
 
 pub static RBTDRN_FIXTURE_CONFORMANCE: rbtdre_Fixture = rbtdre_Fixture {

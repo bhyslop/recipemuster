@@ -17,7 +17,7 @@
 //
 // RBTDRE — case execution engine for theurge
 
-// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+// all emission via rbtdrg_*! — no direct println!/eprintln!
 
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
@@ -416,7 +416,7 @@ pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
 // A fixture's tariff is its declared cost schedule: the wall-clock and
 // tabtarget-invocation footprint a healthy green is expected to carry. Each of
 // the three bounds is independently optional — None means "unchecked" for that
-// bound, and the all-None UNCHECKED default leaves a fixture entirely
+// bound, and the all-None RBTDRE_UNCHECKED default leaves a fixture entirely
 // unevaluated (it runs exactly as it did before tariffs existed).
 //
 // The three bounds are NOT symmetric in consequence:
@@ -462,7 +462,7 @@ impl rbtdre_Tariff {
     /// The undeclared default — every bound unchecked. A fixture carrying this
     /// is never tariff-evaluated: legitimately-variable fixtures (and any not
     /// yet seeded from observed greens) declare it and run exactly as before.
-    pub const UNCHECKED: rbtdre_Tariff = rbtdre_Tariff {
+    pub const RBTDRE_UNCHECKED: rbtdre_Tariff = rbtdre_Tariff {
         min_secs: None,
         max_secs: None,
         invocations: None,
@@ -494,7 +494,7 @@ pub struct rbtdre_TariffReport {
 
 /// The pure tariff-evaluation seam: declared tariff + observed footprint →
 /// report. No timing, no spawning, no console — every unchecked (None) bound
-/// yields its violation flag false, so an UNCHECKED tariff reports all-clear.
+/// yields its violation flag false, so an RBTDRE_UNCHECKED tariff reports all-clear.
 /// This is the unit-tested heart of the feature (deliberate violation of each
 /// kind asserts the corresponding flag).
 pub fn rbtdre_evaluate_tariff(
@@ -685,7 +685,7 @@ pub fn rbtdre_check_census(fixture_name: &str, colors: &rbtdre_Colors) -> bool {
 // ── Case and Fixture ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.
-/// The `name` field holds the raw stringified function name (from the `case!` macro).
+/// The `name` field holds the raw stringified function name (from the `rbtdre_case!` macro).
 pub struct rbtdre_Case {
     pub name: &'static str,
     pub func: fn(&Path) -> rbtdre_Verdict,
@@ -708,7 +708,7 @@ pub struct rbtdre_Fixture {
     pub setup: Option<fn() -> Result<(), String>>,
     pub teardown: Option<fn()>,
     pub cases: &'static [rbtdre_Case],
-    /// Reveille-tier credless guard (BUS0 tweak doctrine, slot-reservation rule).
+    /// Reveille-tier credless guard.
     /// When true, every tabtarget Command built while this fixture runs carries
     /// `BURE_TWEAK_NAME=<credless guard>`, and the token-mint membranes reject
     /// with the credless band code — the fixture cannot use credentials, by
@@ -717,7 +717,7 @@ pub struct rbtdre_Fixture {
     /// own (in the reveille tier the slot belongs to the guard).
     pub credless: bool,
     /// Declared cost expectation — the wall-clock and invocation footprint a
-    /// healthy green is checked against as the fixture completes. `UNCHECKED`
+    /// healthy green is checked against as the fixture completes. `RBTDRE_UNCHECKED`
     /// (the undeclared default) leaves the fixture entirely unevaluated. See
     /// `rbtdre_Tariff`.
     pub tariff: rbtdre_Tariff,
@@ -738,7 +738,7 @@ pub struct rbtdre_Suite {
 /// Case registration macro. Derives case name from function name via `stringify!`.
 /// Compiler enforces uniqueness — duplicate function names won't compile.
 #[macro_export]
-macro_rules! case {
+macro_rules! rbtdre_case {
     ($func:path) => {
         $crate::rbtdre_engine::rbtdre_Case {
             name: stringify!($func),

@@ -21,14 +21,14 @@
 // Thread-local context bridges the static case function signature with
 // the mutable invocation context needed for tabtarget calls.
 
-// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+// all emission via rbtdrg_*! — no direct println!/eprintln!
 
 use std::cell::RefCell;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdra_almanac::rbtdra_lookup_fixture;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
@@ -65,13 +65,13 @@ thread_local! {
 /// reaching here on every real path); an unmanifested fixture name arms no
 /// census (None disables both census directions).
 pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
-    let credless = rbtdra_lookup_fixture(ctx.fixture())
+    let credless = rbtdra_lookup_fixture(ctx.rbtdri_fixture())
         .map(|f| f.credless)
         .unwrap_or(false);
     crate::rbtdri_invocation::rbtdri_arm_credless(credless);
     crate::rbtdri_invocation::rbtdri_census_arm(
-        crate::rbtdrm_manifest::rbtdrm_required_colophons(ctx.fixture()),
-        crate::rbtdrm_manifest::rbtdrm_permitted_colophons(ctx.fixture()),
+        crate::rbtdrm_manifest::rbtdrm_required_colophons(ctx.rbtdri_fixture()),
+        crate::rbtdrm_manifest::rbtdrm_permitted_colophons(ctx.rbtdri_fixture()),
     );
     RBTDRC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
 }
@@ -135,7 +135,7 @@ pub fn rbtdrc_quench_crucible() {
 }
 
 fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
-    let fixture = ctx.fixture().to_string();
+    let fixture = ctx.rbtdri_fixture().to_string();
     crate::rbtdrg_info_now!("Charging crucible for nameplate '{}'...", fixture);
     match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_CHARGE, &[]) {
         Ok(r) if r.exit_code == 0 => {
@@ -172,7 +172,7 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
 }
 
 fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
-    let fixture = ctx.fixture().to_string();
+    let fixture = ctx.rbtdri_fixture().to_string();
     crate::rbtdrg_info_now!("Quenching crucible...");
     match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_QUENCH, &[]) {
         Ok(r) if r.exit_code == 0 => crate::rbtdrg_info_now!("Crucible quenched"),
@@ -1728,9 +1728,9 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
 /// fixtures (srjcl/pluml) call this.
 fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
     let env_path = ctx
-        .project_root()
+        .rbtdri_project_root()
         .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.fixture()))
+        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.rbtdri_fixture()))
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
         .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
@@ -2355,7 +2355,7 @@ fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
             Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!("http://localhost:{}/svg/uml", port);
-        let diagrams_dir = ctx.project_root().join("diagrams");
+        let diagrams_dir = ctx.rbtdri_project_root().join("diagrams");
 
         let entries = match std::fs::read_dir(&diagrams_dir) {
             Ok(e) => e,
@@ -2479,84 +2479,84 @@ pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
 
 
 pub static RBTDRC_CASES_SRJCL: &[rbtdre_Case] = &[
-    case!(rbtdrc_srjcl_jupyter_running),
-    case!(rbtdrc_srjcl_jupyter_connectivity),
-    case!(rbtdrc_srjcl_websocket_kernel),
+    rbtdre_case!(rbtdrc_srjcl_jupyter_running),
+    rbtdre_case!(rbtdrc_srjcl_jupyter_connectivity),
+    rbtdre_case!(rbtdrc_srjcl_websocket_kernel),
 ];
 
 pub static RBTDRC_CASES_PLUML: &[rbtdre_Case] = &[
-    case!(rbtdrc_pluml_text_rendering),
-    case!(rbtdrc_pluml_local_diagram),
-    case!(rbtdrc_pluml_http_headers),
-    case!(rbtdrc_pluml_invalid_hash),
-    case!(rbtdrc_pluml_malformed_diagram),
-    case!(rbtdrc_pluml_render_diagrams),
+    rbtdre_case!(rbtdrc_pluml_text_rendering),
+    rbtdre_case!(rbtdrc_pluml_local_diagram),
+    rbtdre_case!(rbtdrc_pluml_http_headers),
+    rbtdre_case!(rbtdrc_pluml_invalid_hash),
+    rbtdre_case!(rbtdrc_pluml_malformed_diagram),
+    rbtdre_case!(rbtdrc_pluml_render_diagrams),
 ];
 
 // Bottle/sentry security cases — shared by RBTDRC_FIXTURE_TADMOR and
 // RBTDRC_FIXTURE_MORIAH. The engine surfaces fixture identity in its own output.
 static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
-    case!(rbtdrc_pentacle_dnsmasq_responds),
-    case!(rbtdrc_pentacle_ping_sentry),
-    case!(rbtdrc_ifrit_dns_allowed),
-    case!(rbtdrc_ifrit_dns_allowed_example_org),
-    case!(rbtdrc_ifrit_dns_blocked),
-    case!(rbtdrc_ifrit_apt_blocked),
-    case!(rbtdrc_ifrit_dns_nonexistent),
-    case!(rbtdrc_ifrit_dns_tcp),
-    case!(rbtdrc_ifrit_dns_udp),
-    case!(rbtdrc_ifrit_dns_block_direct),
-    case!(rbtdrc_ifrit_dns_block_altport),
-    case!(rbtdrc_ifrit_dns_block_cloudflare),
-    case!(rbtdrc_ifrit_dns_block_quad9),
-    case!(rbtdrc_ifrit_dns_block_zonetransfer),
-    case!(rbtdrc_ifrit_dns_block_ipv6),
-    case!(rbtdrc_ifrit_dns_block_multicast),
-    case!(rbtdrc_ifrit_dns_block_spoofing),
-    case!(rbtdrc_ifrit_dns_block_tunneling),
-    case!(rbtdrc_sentry_iptables_loaded),
-    case!(rbtdrc_sentry_config_rp_filter),
-    case!(rbtdrc_sentry_config_prerouting_dnat),
-    case!(rbtdrc_sentry_config_postrouting_masquerade),
-    case!(rbtdrc_sentry_config_forward_estab_related),
-    case!(rbtdrc_dns_blocked_with_observation),
-    case!(rbtdrc_tcp443_allow_example),
-    case!(rbtdrc_tcp443_block_google),
-    case!(rbtdrc_icmp_first_hop),
-    case!(rbtdrc_icmp_second_hop_blocked),
-    case!(rbtdrc_udp_non_dns_blocked),
-    case!(rbtdrc_cidr_all_ports_allowed),
-    case!(rbtdrc_sortie_dns_exfil_subdomain),
-    case!(rbtdrc_sortie_meta_cloud_endpoint),
-    case!(rbtdrc_sortie_net_forbidden_cidr),
-    case!(rbtdrc_sortie_direct_sentry_probe),
-    case!(rbtdrc_sortie_icmp_exfil_payload),
-    case!(rbtdrc_sortie_net_ipv6_escape),
-    case!(rbtdrc_sortie_net_srcip_spoof),
-    case!(rbtdrc_sortie_net_srcip_spoof_external),
-    case!(rbtdrc_sortie_proto_smuggle_rawsock),
-    case!(rbtdrc_sortie_net_fragment_evasion),
-    case!(rbtdrc_sortie_direct_arp_poison),
-    case!(rbtdrc_sortie_ns_capability_escape),
-    case!(rbtdrc_sortie_dns_rebinding),
-    case!(rbtdrc_sortie_proc_sys_write),
-    case!(rbtdrc_sortie_http_end_to_end),
-    case!(rbtdrc_sortie_conntrack_spoofed_ack),
-    case!(rbtdrc_sortie_offpath_blocked_dest),
-    case!(rbtdrc_sortie_conntrack_pipeline_selfcheck),
-    case!(rbtdrc_sortie_sentry_udp_non_dns),
-    case!(rbtdrc_sortie_net_route_manipulation),
-    case!(rbtdrc_sortie_net_enclave_subnet_escape),
-    case!(rbtdrc_sortie_net_dnat_entry_reflection),
-    case!(rbtdrc_coordinated_arp_gratuitous),
-    case!(rbtdrc_coordinated_arp_gateway_poison),
-    case!(rbtdrc_coordinated_arp_table_stability),
-    case!(rbtdrc_coordinated_sentry_integrity),
-    case!(rbtdrc_coordinated_dns_cache_integrity),
-    case!(rbtdrc_coordinated_mac_flood_resilience),
-    case!(rbtdrc_coordinated_tcp_rst_hijack),
-    case!(rbtdrc_coordinated_sentry_egress_lockdown),
-    case!(rbtdrc_coordinated_dnsmasq_query_audit),
+    rbtdre_case!(rbtdrc_pentacle_dnsmasq_responds),
+    rbtdre_case!(rbtdrc_pentacle_ping_sentry),
+    rbtdre_case!(rbtdrc_ifrit_dns_allowed),
+    rbtdre_case!(rbtdrc_ifrit_dns_allowed_example_org),
+    rbtdre_case!(rbtdrc_ifrit_dns_blocked),
+    rbtdre_case!(rbtdrc_ifrit_apt_blocked),
+    rbtdre_case!(rbtdrc_ifrit_dns_nonexistent),
+    rbtdre_case!(rbtdrc_ifrit_dns_tcp),
+    rbtdre_case!(rbtdrc_ifrit_dns_udp),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_direct),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_altport),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_cloudflare),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_quad9),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_zonetransfer),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_ipv6),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_multicast),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_spoofing),
+    rbtdre_case!(rbtdrc_ifrit_dns_block_tunneling),
+    rbtdre_case!(rbtdrc_sentry_iptables_loaded),
+    rbtdre_case!(rbtdrc_sentry_config_rp_filter),
+    rbtdre_case!(rbtdrc_sentry_config_prerouting_dnat),
+    rbtdre_case!(rbtdrc_sentry_config_postrouting_masquerade),
+    rbtdre_case!(rbtdrc_sentry_config_forward_estab_related),
+    rbtdre_case!(rbtdrc_dns_blocked_with_observation),
+    rbtdre_case!(rbtdrc_tcp443_allow_example),
+    rbtdre_case!(rbtdrc_tcp443_block_google),
+    rbtdre_case!(rbtdrc_icmp_first_hop),
+    rbtdre_case!(rbtdrc_icmp_second_hop_blocked),
+    rbtdre_case!(rbtdrc_udp_non_dns_blocked),
+    rbtdre_case!(rbtdrc_cidr_all_ports_allowed),
+    rbtdre_case!(rbtdrc_sortie_dns_exfil_subdomain),
+    rbtdre_case!(rbtdrc_sortie_meta_cloud_endpoint),
+    rbtdre_case!(rbtdrc_sortie_net_forbidden_cidr),
+    rbtdre_case!(rbtdrc_sortie_direct_sentry_probe),
+    rbtdre_case!(rbtdrc_sortie_icmp_exfil_payload),
+    rbtdre_case!(rbtdrc_sortie_net_ipv6_escape),
+    rbtdre_case!(rbtdrc_sortie_net_srcip_spoof),
+    rbtdre_case!(rbtdrc_sortie_net_srcip_spoof_external),
+    rbtdre_case!(rbtdrc_sortie_proto_smuggle_rawsock),
+    rbtdre_case!(rbtdrc_sortie_net_fragment_evasion),
+    rbtdre_case!(rbtdrc_sortie_direct_arp_poison),
+    rbtdre_case!(rbtdrc_sortie_ns_capability_escape),
+    rbtdre_case!(rbtdrc_sortie_dns_rebinding),
+    rbtdre_case!(rbtdrc_sortie_proc_sys_write),
+    rbtdre_case!(rbtdrc_sortie_http_end_to_end),
+    rbtdre_case!(rbtdrc_sortie_conntrack_spoofed_ack),
+    rbtdre_case!(rbtdrc_sortie_offpath_blocked_dest),
+    rbtdre_case!(rbtdrc_sortie_conntrack_pipeline_selfcheck),
+    rbtdre_case!(rbtdrc_sortie_sentry_udp_non_dns),
+    rbtdre_case!(rbtdrc_sortie_net_route_manipulation),
+    rbtdre_case!(rbtdrc_sortie_net_enclave_subnet_escape),
+    rbtdre_case!(rbtdrc_sortie_net_dnat_entry_reflection),
+    rbtdre_case!(rbtdrc_coordinated_arp_gratuitous),
+    rbtdre_case!(rbtdrc_coordinated_arp_gateway_poison),
+    rbtdre_case!(rbtdrc_coordinated_arp_table_stability),
+    rbtdre_case!(rbtdrc_coordinated_sentry_integrity),
+    rbtdre_case!(rbtdrc_coordinated_dns_cache_integrity),
+    rbtdre_case!(rbtdrc_coordinated_mac_flood_resilience),
+    rbtdre_case!(rbtdrc_coordinated_tcp_rst_hijack),
+    rbtdre_case!(rbtdrc_coordinated_sentry_egress_lockdown),
+    rbtdre_case!(rbtdrc_coordinated_dnsmasq_query_audit),
 ];
 
 

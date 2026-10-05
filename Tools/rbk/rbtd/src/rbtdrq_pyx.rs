@@ -48,7 +48,7 @@
 // resolved graph on every platform at once, so the check becomes a pure
 // tree-invariant reading with no external tool at all.
 //
-// Checker proves itself (ACG move discipline; the rbtdrn_conformance precedent).
+// Checker proves itself (the rbtdrn_conformance precedent).
 // The secret-shape matcher is exercised against known in-memory positives and
 // negatives before its verdict on the live tree is trusted, and the license
 // allowlist is proved internally consistent — every vetted expression drawn from
@@ -61,7 +61,7 @@ use std::path::{
     PathBuf,
 };
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
     rbtdre_Case,
@@ -1003,11 +1003,11 @@ fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTDRQ_CASES_PYX: &[rbtdre_Case] = &[
-    case!(rbtdrq_crate_licenses),
-    case!(rbtdrq_license_file),
-    case!(rbtdrq_secret_shapes),
-    case!(rbtdrq_readme_anchors),
-    case!(rbtdrq_no_adoc),
+    rbtdre_case!(rbtdrq_crate_licenses),
+    rbtdre_case!(rbtdrq_license_file),
+    rbtdre_case!(rbtdrq_secret_shapes),
+    rbtdre_case!(rbtdrq_readme_anchors),
+    rbtdre_case!(rbtdrq_no_adoc),
 ];
 
 pub static RBTDRQ_FIXTURE_PYX: rbtdre_Fixture = rbtdre_Fixture {

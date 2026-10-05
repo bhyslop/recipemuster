@@ -27,7 +27,7 @@ set -euo pipefail
 
 # Multiple inclusion detection — this cluster is multiply-sourced (rbld0_lode for
 # the Lode verbs, rbfl0_ledger for the yoke/feoff/seise kind gates), so it carries its
-# own guard (BCG "the single-guard rule, and its one exception"). rbld and rbfl are
+# own guard. rbld and rbfl are
 # never co-furnished, so the guard is the documented backstop, not a live fire.
 test -z "${ZRBLDK_SOURCED:-}" || buc_die_now "Module rbldk multiply sourced - check sourcing hierarchy"
 ZRBLDK_SOURCED=1

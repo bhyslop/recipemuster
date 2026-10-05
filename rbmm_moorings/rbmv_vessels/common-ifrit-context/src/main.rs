@@ -33,13 +33,13 @@ fn main() -> ExitCode {
 
     match args.get(1).map(|s| s.as_str()) {
         Some("--list") => {
-            for selector in rbida_Attack::all_selectors() {
+            for selector in rbida_Attack::rbida_all_selectors() {
                 println!("{}", selector);
             }
             ExitCode::SUCCESS
         }
         Some(selector) => {
-            let attack = match rbida_Attack::from_selector(selector) {
+            let attack = match rbida_Attack::rbida_from_selector(selector) {
                 Some(a) => a,
                 None => {
                     eprintln!("rbid: unknown attack selector: {}", selector);

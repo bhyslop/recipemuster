@@ -28,19 +28,19 @@ const RBTHDR_HARBINGER_PUBLIC_URL: &str = "https://github.com/scaleinv/recipebot
 
 /// Conduct the harbinger command. Fatal (exit 1) on any deficit; ExitCode::SUCCESS
 /// only when a walk-ready rig stands against a clone of promoted public main.
-pub fn conduct() -> ExitCode {
-    rbthdr_log::section("Hierophant Harbinger — the stranger rig against promoted public main (RBSHH)");
-    rbthdr_log::line("Clone promoted public main, guard it, hand off the walk. Zero remote acts.");
+pub fn rbthdr_harbinger_conduct() -> ExitCode {
+    rbthdr_log::rbthdr_section("Hierophant Harbinger — the stranger rig against promoted public main (RBSHH)");
+    rbthdr_log::rbthdr_line("Clone promoted public main, guard it, hand off the walk. Zero remote acts.");
 
-    let top = rbthdr_repo::toplevel();
-    let parent = rbthdr_repo::parent(&top);
-    rbthdr_log::line(&format!("Maintainer tree: {}", top.display()));
+    let top = rbthdr_repo::rbthdr_toplevel();
+    let parent = rbthdr_repo::rbthdr_parent(&top);
+    rbthdr_log::rbthdr_line(&format!("Maintainer tree: {}", top.display()));
 
-    let rig = rbthdr_rig::stand_up(&parent, &top, RBTHDR_HARBINGER_PUBLIC_URL, &top);
-    rbthdr_rig::emit_handoff(&rig);
+    let rig = rbthdr_rig::rbthdr_stand_up(&parent, &top, RBTHDR_HARBINGER_PUBLIC_URL, &top);
+    rbthdr_rig::rbthdr_emit_handoff(&rig);
 
-    rbthdr_log::blank();
-    rbthdr_log::success("Harbinger rig stood up — guarded, disposable, push-incapable (RBSHH completion).");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_success("Harbinger rig stood up — guarded, disposable, push-incapable (RBSHH completion).");
 
     ExitCode::SUCCESS
 }

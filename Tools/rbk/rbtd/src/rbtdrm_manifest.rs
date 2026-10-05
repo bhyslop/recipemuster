@@ -123,7 +123,7 @@ pub const RBTDRM_FIXTURE_REGIME_POISON: &str = "regime-poison";
 pub const RBTDRM_FIXTURE_HANDBOOK_RENDER: &str = "handbook-render";
 pub const RBTDRM_FIXTURE_DOCKERFILE_HYGIENE: &str = "dockerfile-hygiene";
 // Conformance — vocabulary-eviction static analysis over Tools/ and tt/. No
-// external dependency; the standing home for evicted-term assertions (ACG).
+// external dependency; the standing home for evicted-term assertions.
 pub const RBTDRM_FIXTURE_CONFORMANCE: &str = "conformance";
 // Foundry-path — buc_native_path_capture Cygwin /cygdrive normalizer. No
 // external dependency; pure bash-function unit test sourced direct (no kindle).
@@ -158,7 +158,7 @@ pub const RBTDRM_FIXTURE_CHAINING_FACT_BAND: &str = "chaining-fact-band";
 // handle, and the case self-contains a banish-if-present baseline + best-effort
 // cleanup (no setup hook — that channel is the crucible-charge signal).
 pub const RBTDRM_FIXTURE_CHAINING_LIVERY: &str = "chaining-fact-livery";
-// Cupel — BCG command-dependency static analysis over all Tools/ bash. No
+// Cupel — command-dependency static analysis over all Tools/ bash. No
 // external dependency; partitions kit-bash (strict) from GCB-bash (looser).
 pub const RBTDRM_FIXTURE_CUPEL: &str = "cupel";
 // Pyx — release-hygiene tree-invariants: crate-license allowlist over the

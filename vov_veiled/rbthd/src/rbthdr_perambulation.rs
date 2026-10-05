@@ -198,7 +198,7 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
 ///
 /// Takes the rows as a parameter so the proofs can feed it malformed tables;
 /// the cut validates `RBTHDR_ROWS` through it before any judgment is trusted.
-pub fn validate(rows: &[(&str, rbthdr_Disposition)]) -> Result<(), String> {
+pub fn rbthdr_validate(rows: &[(&str, rbthdr_Disposition)]) -> Result<(), String> {
     for (i, (prefix, _)) in rows.iter().enumerate() {
         if prefix.is_empty() {
             return Err("perambulation row with an empty prefix — it would match every path".to_string());
@@ -219,7 +219,7 @@ pub fn validate(rows: &[(&str, rbthdr_Disposition)]) -> Result<(), String> {
 /// verdict and the winning row's index, or None when the path is UNJUDGED —
 /// the state the whole table exists to make loud. An unjudged path is never
 /// treated as either verdict; there is no default in either direction.
-pub fn judge(path: &str) -> Option<(rbthdr_Disposition, usize)> {
+pub fn rbthdr_judge(path: &str) -> Option<(rbthdr_Disposition, usize)> {
     let mut best: Option<(rbthdr_Disposition, usize, usize)> = None;
     for (i, (prefix, disposition)) in RBTHDR_ROWS.iter().enumerate() {
         if !path.starts_with(prefix) {
@@ -235,10 +235,10 @@ pub fn judge(path: &str) -> Option<(rbthdr_Disposition, usize)> {
 /// Every tracked path no row judges. Red until someone rules — a new file may
 /// not ship because nobody said not to, and it may not vanish because nobody
 /// said to keep it.
-pub fn unjudged(tracked: &[String]) -> Vec<String> {
+pub fn rbthdr_unjudged(tracked: &[String]) -> Vec<String> {
     tracked
         .iter()
-        .filter(|path| judge(path).is_none())
+        .filter(|path| rbthdr_judge(path).is_none())
         .cloned()
         .collect()
 }
@@ -247,10 +247,10 @@ pub fn unjudged(tracked: &[String]) -> Vec<String> {
 /// a STALE row judging a path that no longer exists, and a SHADOWED row
 /// outranked everywhere by a longer one, so its judgment never lands. Both
 /// mean the table is lying about the tree, and both go red.
-pub fn dead_rows(tracked: &[String]) -> Vec<(&'static str, rbthdr_Disposition)> {
+pub fn rbthdr_dead_rows(tracked: &[String]) -> Vec<(&'static str, rbthdr_Disposition)> {
     let mut won = vec![false; RBTHDR_ROWS.len()];
     for path in tracked {
-        if let Some((_, index)) = judge(path) {
+        if let Some((_, index)) = rbthdr_judge(path) {
             won[index] = true;
         }
     }
@@ -264,10 +264,10 @@ pub fn dead_rows(tracked: &[String]) -> Vec<(&'static str, rbthdr_Disposition)> 
 
 /// Every tracked path the perambulation ships — the cut's materialization
 /// list, in the caller's (git's) order.
-pub fn shipped(tracked: &[String]) -> Vec<String> {
+pub fn rbthdr_shipped(tracked: &[String]) -> Vec<String> {
     tracked
         .iter()
-        .filter(|path| matches!(judge(path), Some((rbthdr_Disposition::Ship, _))))
+        .filter(|path| matches!(rbthdr_judge(path), Some((rbthdr_Disposition::Ship, _))))
         .cloned()
         .collect()
 }
@@ -280,10 +280,10 @@ pub fn shipped(tracked: &[String]) -> Vec<String> {
 /// wherever it is reachable from the branch, at any depth. A path no row
 /// judges is skipped, not flagged: historical graphs legitimately carry paths
 /// the living tree no longer rules on.
-pub fn sweep(graph: &[String]) -> Vec<String> {
+pub fn rbthdr_sweep(graph: &[String]) -> Vec<String> {
     graph
         .iter()
-        .filter(|path| matches!(judge(path), Some((rbthdr_Disposition::Withhold, _))))
+        .filter(|path| matches!(rbthdr_judge(path), Some((rbthdr_Disposition::Withhold, _))))
         .cloned()
         .collect()
 }

@@ -373,11 +373,11 @@ pub(crate) fn zrbthdr_names_token(line: &str, token: &str) -> bool {
     false
 }
 
-// ── The pre-cut assay (maintainer tree) ─────────────────────
+// ── The pre-cut rbthdr_assay (maintainer tree) ─────────────────────
 
 /// Scan the maintainer tree pre-cut for both leak grains. Returns rendered
 /// findings, empty on a clean tree. `top` is the maintainer repo root.
-pub fn assay(top: &Path) -> Vec<String> {
+pub fn rbthdr_assay(top: &Path) -> Vec<String> {
     let mut findings = zrbthdr_veil_leak(top);
     findings.extend(zrbthdr_hostname_leak(top));
     zrbthdr_render(&findings)
@@ -494,7 +494,7 @@ fn zrbthdr_hostname_leak(root: &Path) -> Vec<zrbthdr_Finding> {
     findings
 }
 
-// ── The post-cut assay (candidate) ──────────────────────────
+// ── The post-cut rbthdr_assay (candidate) ──────────────────────────
 
 /// Re-homed from the theurge damnatio fixture's `veil_stripped` case: hunt the
 /// veil token in the candidate's transposed root CLAUDE.md, once no veiled tree
@@ -502,7 +502,7 @@ fn zrbthdr_hostname_leak(root: &Path) -> Vec<zrbthdr_Finding> {
 /// veiled-dir needle can fire. The path-grain "a withheld tree survived" half is
 /// NOT here — expede's object-graph delta sweep already catches any withheld
 /// path in the candidate graph. Returns rendered findings, empty when clean.
-pub fn assay_candidate(candidate_root: &Path) -> Vec<String> {
+pub fn rbthdr_assay_candidate(candidate_root: &Path) -> Vec<String> {
     let mut findings = zrbthdr_veil_self_proof();
     let empty_census = BTreeSet::new();
 

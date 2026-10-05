@@ -22,7 +22,7 @@
 // command floor: imports are bounded to a stdlib floor anchored on each import's
 // module root, dynamic-import surface is banned outright, and `subprocess`
 // argv[0] literals are classified against the same GCB tool floor as bash
-// command positions — one floor, two languages (CBG, CBp rules). Python
+// command positions — one floor, two languages. Python
 // elsewhere in the kits (e.g. in-bottle attack scripts) is not cloud-step
 // surface and stays out of scope.
 //

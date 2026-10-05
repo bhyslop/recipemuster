@@ -25,12 +25,12 @@ use std::process::Command;
 
 use crate::rbida_sorties;
 
-// ── Domain constants (RCG String Boundary Discipline) ──
+// ── Domain constants ──
 
 /// Test connectivity target — ICANN-owned, stable single /20 CIDR (192.0.32.0/20)
 pub const RBIDA_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
 
-// ── Selector constants (Single Definition Rule — RCG String Boundary Discipline) ──
+// ── Selector constants ──
 
 const RBIDA_SEL_DNS_ALLOWED_EXAMPLE: &str = "dns-allowed-example";
 const RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG: &str = "dns-allowed-example-org";
@@ -193,7 +193,7 @@ pub enum rbida_Attack {
     /// substrate sees them" premise; any reply of any provenance is a BREACH
     OffpathBlockedDest,
     /// Self-check of the conntrack provenance capture/classify pipeline — feeds
-    /// inspect_capture_frame synthetic frames and asserts correct classification.
+    /// rbida_inspect_capture_frame synthetic frames and asserts correct classification.
     /// Load-bearing control proving SECURE verdicts are not masking a dead detector.
     ConntrackPipelineSelfcheck,
     // ── Sentry self-protection ──
@@ -213,7 +213,7 @@ pub struct rbida_Verdict {
 
 impl rbida_Attack {
     /// Parse a kebab-case selector string into an attack variant.
-    pub fn from_selector(s: &str) -> Option<Self> {
+    pub fn rbida_from_selector(s: &str) -> Option<Self> {
         match s {
             RBIDA_SEL_DNS_ALLOWED_EXAMPLE => Some(Self::DnsAllowedExample),
             RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG => Some(Self::DnsAllowedExampleOrg),
@@ -268,8 +268,8 @@ impl rbida_Attack {
         }
     }
 
-    /// Kebab-case selector for this attack (inverse of from_selector).
-    pub fn selector(&self) -> &'static str {
+    /// Kebab-case selector for this attack (inverse of rbida_from_selector).
+    pub fn rbida_selector(&self) -> &'static str {
         match self {
             Self::DnsAllowedExample => RBIDA_SEL_DNS_ALLOWED_EXAMPLE,
             Self::DnsAllowedExampleOrg => RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG,
@@ -324,7 +324,7 @@ impl rbida_Attack {
     }
 
     /// All known attack selectors, in definition order.
-    pub fn all_selectors() -> &'static [&'static str] {
+    pub fn rbida_all_selectors() -> &'static [&'static str] {
         &[
             RBIDA_SEL_DNS_ALLOWED_EXAMPLE,
             RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG,
@@ -499,43 +499,43 @@ pub fn rbida_run(attack: &rbida_Attack, extra_args: &[&str]) -> rbida_Verdict {
         rbida_Attack::IcmpFirstHop => rbida_check_icmp_first_hop(),
         rbida_Attack::IcmpSecondHopBlocked => rbida_check_icmp_second_hop_blocked(),
         // Ported python sorties
-        rbida_Attack::DnsExfilSubdomain => rbida_sorties::sortie_dns_exfil_subdomain(extra_args),
-        rbida_Attack::MetaCloudEndpoint => rbida_sorties::sortie_meta_cloud_endpoint(extra_args),
-        rbida_Attack::NetForbiddenCidr => rbida_sorties::sortie_net_forbidden_cidr(extra_args),
-        rbida_Attack::DirectSentryProbe => rbida_sorties::sortie_direct_sentry_probe(extra_args),
-        rbida_Attack::IcmpExfilPayload => rbida_sorties::sortie_icmp_exfil_payload(extra_args),
-        rbida_Attack::NetIpv6Escape => rbida_sorties::sortie_net_ipv6_escape(extra_args),
-        rbida_Attack::NetSrcipSpoof => rbida_sorties::sortie_net_srcip_spoof(extra_args),
-        rbida_Attack::NetSrcipSpoofExternal => rbida_sorties::sortie_net_srcip_spoof_external(extra_args),
-        rbida_Attack::ProtoSmuggleRawsock => rbida_sorties::sortie_proto_smuggle_rawsock(extra_args),
-        rbida_Attack::NetFragmentEvasion => rbida_sorties::sortie_net_fragment_evasion(extra_args),
-        rbida_Attack::DirectArpPoison => rbida_sorties::sortie_direct_arp_poison(extra_args),
-        rbida_Attack::NsCapabilityEscape => rbida_sorties::sortie_ns_capability_escape(extra_args),
+        rbida_Attack::DnsExfilSubdomain => rbida_sorties::rbida_sortie_dns_exfil_subdomain(extra_args),
+        rbida_Attack::MetaCloudEndpoint => rbida_sorties::rbida_sortie_meta_cloud_endpoint(extra_args),
+        rbida_Attack::NetForbiddenCidr => rbida_sorties::rbida_sortie_net_forbidden_cidr(extra_args),
+        rbida_Attack::DirectSentryProbe => rbida_sorties::rbida_sortie_direct_sentry_probe(extra_args),
+        rbida_Attack::IcmpExfilPayload => rbida_sorties::rbida_sortie_icmp_exfil_payload(extra_args),
+        rbida_Attack::NetIpv6Escape => rbida_sorties::rbida_sortie_net_ipv6_escape(extra_args),
+        rbida_Attack::NetSrcipSpoof => rbida_sorties::rbida_sortie_net_srcip_spoof(extra_args),
+        rbida_Attack::NetSrcipSpoofExternal => rbida_sorties::rbida_sortie_net_srcip_spoof_external(extra_args),
+        rbida_Attack::ProtoSmuggleRawsock => rbida_sorties::rbida_sortie_proto_smuggle_rawsock(extra_args),
+        rbida_Attack::NetFragmentEvasion => rbida_sorties::rbida_sortie_net_fragment_evasion(extra_args),
+        rbida_Attack::DirectArpPoison => rbida_sorties::rbida_sortie_direct_arp_poison(extra_args),
+        rbida_Attack::NsCapabilityEscape => rbida_sorties::rbida_sortie_ns_capability_escape(extra_args),
         // Coordinated attack primitives — execute action, theurge judges outcome
-        rbida_Attack::ArpSendGratuitous => rbida_sorties::sortie_arp_send_gratuitous(extra_args),
-        rbida_Attack::ArpSendGatewayPoison => rbida_sorties::sortie_arp_send_gateway_poison(extra_args),
+        rbida_Attack::ArpSendGratuitous => rbida_sorties::rbida_sortie_arp_send_gratuitous(extra_args),
+        rbida_Attack::ArpSendGatewayPoison => rbida_sorties::rbida_sortie_arp_send_gateway_poison(extra_args),
         // Coordinated integrity primitives — execute action, theurge judges state
-        rbida_Attack::DnsForgeResponse => rbida_sorties::sortie_dns_forge_response(extra_args),
-        rbida_Attack::MacFloodBridge => rbida_sorties::sortie_mac_flood_bridge(extra_args),
+        rbida_Attack::DnsForgeResponse => rbida_sorties::rbida_sortie_dns_forge_response(extra_args),
+        rbida_Attack::MacFloodBridge => rbida_sorties::rbida_sortie_mac_flood_bridge(extra_args),
         // Novel unilateral attacks
-        rbida_Attack::NetRouteManipulation => rbida_sorties::sortie_net_route_manipulation(extra_args),
-        rbida_Attack::NetEnclaveSubnetEscape => rbida_sorties::sortie_net_enclave_subnet_escape(extra_args),
-        rbida_Attack::NetDnatEntryReflection => rbida_sorties::sortie_net_dnat_entry_reflection(extra_args),
+        rbida_Attack::NetRouteManipulation => rbida_sorties::rbida_sortie_net_route_manipulation(extra_args),
+        rbida_Attack::NetEnclaveSubnetEscape => rbida_sorties::rbida_sortie_net_enclave_subnet_escape(extra_args),
+        rbida_Attack::NetDnatEntryReflection => rbida_sorties::rbida_sortie_net_dnat_entry_reflection(extra_args),
         // Egress control verification
-        rbida_Attack::UdpNonDnsBlocked => rbida_sorties::sortie_udp_non_dns_blocked(extra_args),
-        rbida_Attack::CidrAllPortsAllowed => rbida_sorties::sortie_cidr_all_ports_allowed(extra_args),
+        rbida_Attack::UdpNonDnsBlocked => rbida_sorties::rbida_sortie_udp_non_dns_blocked(extra_args),
+        rbida_Attack::CidrAllPortsAllowed => rbida_sorties::rbida_sortie_cidr_all_ports_allowed(extra_args),
         // Advanced adversarial probes
-        rbida_Attack::DnsRebinding => rbida_sorties::sortie_dns_rebinding(extra_args),
-        rbida_Attack::ProcSysWrite => rbida_sorties::sortie_proc_sys_write(extra_args),
-        rbida_Attack::TcpRstHijack => rbida_sorties::sortie_tcp_rst_hijack(extra_args),
+        rbida_Attack::DnsRebinding => rbida_sorties::rbida_sortie_dns_rebinding(extra_args),
+        rbida_Attack::ProcSysWrite => rbida_sorties::rbida_sortie_proc_sys_write(extra_args),
+        rbida_Attack::TcpRstHijack => rbida_sorties::rbida_sortie_tcp_rst_hijack(extra_args),
         // Network path verification
-        rbida_Attack::HttpEndToEnd => rbida_sorties::sortie_http_end_to_end(extra_args),
-        rbida_Attack::ConntrackSpoofedAck => rbida_sorties::sortie_conntrack_spoofed_ack(extra_args),
-        rbida_Attack::OffpathBlockedDest => rbida_sorties::sortie_offpath_blocked_dest(extra_args),
+        rbida_Attack::HttpEndToEnd => rbida_sorties::rbida_sortie_http_end_to_end(extra_args),
+        rbida_Attack::ConntrackSpoofedAck => rbida_sorties::rbida_sortie_conntrack_spoofed_ack(extra_args),
+        rbida_Attack::OffpathBlockedDest => rbida_sorties::rbida_sortie_offpath_blocked_dest(extra_args),
         rbida_Attack::ConntrackPipelineSelfcheck => {
-            rbida_sorties::sortie_conntrack_pipeline_selfcheck(extra_args)
+            rbida_sorties::rbida_sortie_conntrack_pipeline_selfcheck(extra_args)
         }
-        rbida_Attack::SentryUdpNonDns => rbida_sorties::sortie_sentry_udp_non_dns(extra_args),
+        rbida_Attack::SentryUdpNonDns => rbida_sorties::rbida_sortie_sentry_udp_non_dns(extra_args),
     }
 }
 
