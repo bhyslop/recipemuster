@@ -38,7 +38,7 @@ const RBTHDR_MAIN_REF: &str = "refs/heads/main";
 /// disclosure line — no push shown, nothing irreversible touched. Fatal on
 /// any deficit; ExitCode::SUCCESS only when, outside rehearse, the
 /// disclosure and promotion both verified by remote read.
-pub fn rbthdr_conduct(rehearse: bool) -> ExitCode {
+pub fn rbthdr_ostend_conduct(rehearse: bool) -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Ostend — the reveal's irreversible showing (RBSHO)");
     if rehearse {
         rbthdr_log::rbthdr_line("REHEARSAL — reversible stages only: stops before the disclosure line.");

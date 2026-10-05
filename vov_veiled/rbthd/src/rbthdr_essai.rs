@@ -58,7 +58,7 @@ const RBTHDR_STATION_TINCTURE: &str = "cnd";
 
 /// Conduct one essai lap. Fatal (exit 1) on any deficit or red; ExitCode::SUCCESS
 /// only when a walk-ready rig stands beside a proven candidate.
-pub fn rbthdr_conduct() -> ExitCode {
+pub fn rbthdr_essai_conduct() -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Essai — the reversible repair lap (RBSHE)");
     rbthdr_log::rbthdr_line("Gate, cut, prove, rig — zero remote acts. A finding means re-cut.");
 

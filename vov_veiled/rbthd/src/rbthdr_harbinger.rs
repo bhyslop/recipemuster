@@ -28,7 +28,7 @@ const RBTHDR_HARBINGER_PUBLIC_URL: &str = "https://github.com/scaleinv/recipebot
 
 /// Conduct the harbinger command. Fatal (exit 1) on any deficit; ExitCode::SUCCESS
 /// only when a walk-ready rig stands against a clone of promoted public main.
-pub fn rbthdr_conduct() -> ExitCode {
+pub fn rbthdr_harbinger_conduct() -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Harbinger — the stranger rig against promoted public main (RBSHH)");
     rbthdr_log::rbthdr_line("Clone promoted public main, guard it, hand off the walk. Zero remote acts.");
 

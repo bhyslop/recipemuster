@@ -48,7 +48,7 @@ pub(crate) const RBTHDR_TT_SUBDIR: &str = "tt";
 /// credential preflight, the gauntlet, and the cachet grant. Fatal on any
 /// deficit; ExitCode::SUCCESS only when the standing candidate is previewed,
 /// and — outside rehearse — the gauntlet ran green and a cachet stands.
-pub fn rbthdr_conduct(rehearse: bool) -> ExitCode {
+pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Docimasy — the reveal's reversible proving act (RBSHD)");
     if rehearse {
         rbthdr_log::rbthdr_line("REHEARSAL — reversible stages only: no credential spend, no gauntlet, no cachet granted.");
