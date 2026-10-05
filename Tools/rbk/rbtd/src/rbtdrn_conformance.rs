@@ -49,7 +49,7 @@ use std::path::{
     PathBuf,
 };
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
     rbtdre_Case,
@@ -1478,7 +1478,7 @@ const ZRBTDRN_SELF_STEM: &str = "zzdeadstem";
 /// A sanctioned identifier that embeds ZRBTDRN_SELF_STEM by construction — the
 /// "stem inside a kept identifier" case. (The enum holds `&'static str`, so this
 /// coupling is a literal, not a derivation.)
-const ZRBTDRN_SELF_KEPT_ID: &str = "rb_zzdeadstem_kept";
+const ZRBTDRN_SELF_KEPT_ID: &str = "rbtdrn_zzdeadstem_kept";
 
 /// One corpus, both halves of the discrimination: a bare stem that MUST be
 /// caught and the same stem inside a kept identifier that MUST be respected.
@@ -1487,7 +1487,7 @@ fn rbtdrn_self_catch_and_keep_identifier(_dir: &Path) -> rbtdre_Verdict {
         kill_stem: ZRBTDRN_SELF_STEM,
         keep_contexts: &[zrbtdrn_KeepContext::Identifier(ZRBTDRN_SELF_KEPT_ID)],
     };
-    let content = "a bare zzdeadstem here\nlet x = rb_zzdeadstem_kept();\n";
+    let content = "a bare zzdeadstem here\nlet x = rbtdrn_zzdeadstem_kept();\n";
     let hits = zrbtdrn_match("Tools/rbk/probe_selftest.txt", content, &row);
 
     if hits.len() != 1 {
@@ -1876,23 +1876,23 @@ fn rbtdrn_self_corpus_road_locator(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
-    case!(rbtdrn_self_catch_and_keep_identifier),
-    case!(rbtdrn_self_keep_path_prefix),
-    case!(rbtdrn_self_catch_sprue),
-    case!(rbtdrn_self_pure_corpse),
-    case!(rbtdrn_live_scan),
-    case!(rbtdrn_self_curl_canon_clears),
-    case!(rbtdrn_self_curl_catches_deviants),
-    case!(rbtdrn_self_curl_unscannable),
-    case!(rbtdrn_curl_containment),
-    case!(rbtdrn_self_citation_integrity),
-    case!(rbtdrn_self_rivet_hoist),
-    case!(rbtdrn_self_a8_residue),
-    case!(rbtdrn_self_feodary_parse),
-    case!(rbtdrn_self_feodary_refusals),
-    case!(rbtdrn_self_corpus_road_locator),
-    case!(rbtdrn_onehome_residue_live),
-    case!(rbtdrn_onehome_corpus_live),
+    rbtdre_case!(rbtdrn_self_catch_and_keep_identifier),
+    rbtdre_case!(rbtdrn_self_keep_path_prefix),
+    rbtdre_case!(rbtdrn_self_catch_sprue),
+    rbtdre_case!(rbtdrn_self_pure_corpse),
+    rbtdre_case!(rbtdrn_live_scan),
+    rbtdre_case!(rbtdrn_self_curl_canon_clears),
+    rbtdre_case!(rbtdrn_self_curl_catches_deviants),
+    rbtdre_case!(rbtdrn_self_curl_unscannable),
+    rbtdre_case!(rbtdrn_curl_containment),
+    rbtdre_case!(rbtdrn_self_citation_integrity),
+    rbtdre_case!(rbtdrn_self_rivet_hoist),
+    rbtdre_case!(rbtdrn_self_a8_residue),
+    rbtdre_case!(rbtdrn_self_feodary_parse),
+    rbtdre_case!(rbtdrn_self_feodary_refusals),
+    rbtdre_case!(rbtdrn_self_corpus_road_locator),
+    rbtdre_case!(rbtdrn_onehome_residue_live),
+    rbtdre_case!(rbtdrn_onehome_corpus_live),
 ];
 
 pub static RBTDRN_FIXTURE_CONFORMANCE: rbtdre_Fixture = rbtdre_Fixture {

@@ -38,15 +38,15 @@ const RBTHDR_MAIN_REF: &str = "refs/heads/main";
 /// disclosure line — no push shown, nothing irreversible touched. Fatal on
 /// any deficit; ExitCode::SUCCESS only when, outside rehearse, the
 /// disclosure and promotion both verified by remote read.
-pub fn conduct(rehearse: bool) -> ExitCode {
-    rbthdr_log::section("Hierophant Ostend — the reveal's irreversible showing (RBSHO)");
+pub fn rbthdr_ostend_conduct(rehearse: bool) -> ExitCode {
+    rbthdr_log::rbthdr_section("Hierophant Ostend — the reveal's irreversible showing (RBSHO)");
     if rehearse {
-        rbthdr_log::line("REHEARSAL — reversible stages only: stops before the disclosure line.");
+        rbthdr_log::rbthdr_line("REHEARSAL — reversible stages only: stops before the disclosure line.");
     }
 
-    let top = rbthdr_repo::toplevel();
-    let parent = rbthdr_repo::parent(&top);
-    rbthdr_log::line(&format!("Maintainer tree: {}", top.display()));
+    let top = rbthdr_repo::rbthdr_toplevel();
+    let parent = rbthdr_repo::rbthdr_parent(&top);
+    rbthdr_log::rbthdr_line(&format!("Maintainer tree: {}", top.display()));
 
     let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
     let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
@@ -56,16 +56,16 @@ pub fn conduct(rehearse: bool) -> ExitCode {
             candidate_clone.display()
         );
     }
-    let candidate_tip = rbthdr_repo::commit_sha(&candidate_clone, &top);
-    rbthdr_log::line(&format!("Standing candidate: {} (tip {})", candidate_clone.display(), candidate_tip));
+    let candidate_tip = rbthdr_repo::rbthdr_commit_sha(&candidate_clone, &top);
+    rbthdr_log::rbthdr_line(&format!("Standing candidate: {} (tip {})", candidate_clone.display(), candidate_tip));
 
     zrbthdr_require_cachet(&candidate_parent, &candidate_clone, &top, rehearse);
     zrbthdr_reassert_ground(&top, &parent, &candidate_clone, &candidate_tip);
     zrbthdr_file_list_review(&top, &candidate_clone);
 
     if rehearse {
-        rbthdr_log::blank();
-        rbthdr_log::success("Ostend rehearsal complete — cachet checked, ground re-asserted, file list reviewed. Stopped before the disclosure line.");
+        rbthdr_log::rbthdr_blank();
+        rbthdr_log::rbthdr_success("Ostend rehearsal complete — cachet checked, ground re-asserted, file list reviewed. Stopped before the disclosure line.");
         return ExitCode::SUCCESS;
     }
 
@@ -73,31 +73,31 @@ pub fn conduct(rehearse: bool) -> ExitCode {
     zrbthdr_promotion(&top, &candidate_tip);
     zrbthdr_close();
 
-    rbthdr_log::success("Ostend complete — disclosed and promoted, every assert machine-performed, every push human-typed (RBSHO completion).");
+    rbthdr_log::rbthdr_success("Ostend complete — disclosed and promoted, every assert machine-performed, every push human-typed (RBSHO completion).");
     ExitCode::SUCCESS
 }
 
 // ── Step 1: require the cachet ──────────────────────────────
 
 fn zrbthdr_require_cachet(candidate_parent: &Path, candidate_clone: &Path, top: &Path, rehearse: bool) {
-    rbthdr_log::section("Require the cachet (RBSHO step 1)");
+    rbthdr_log::rbthdr_section("Require the cachet (RBSHO step 1)");
     if rehearse {
-        rbthdr_cachet::require_rehearse(candidate_parent, candidate_clone, top);
+        rbthdr_cachet::rbthdr_require_rehearse(candidate_parent, candidate_clone, top);
     } else {
-        rbthdr_cachet::require(candidate_parent, candidate_clone, top);
+        rbthdr_cachet::rbthdr_require(candidate_parent, candidate_clone, top);
     }
 }
 
 // ── Step 2: re-assert the ground ────────────────────────────
 
 fn zrbthdr_reassert_ground(top: &Path, parent: &Path, candidate_clone: &Path, candidate_tip: &str) {
-    rbthdr_log::section("Re-assert the ground (RBSHO step 2)");
+    rbthdr_log::rbthdr_section("Re-assert the ground (RBSHO step 2)");
 
-    rbthdr_expede::assert_quarantine_private(top);
+    rbthdr_expede::rbthdr_assert_quarantine_private(top);
 
     let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
-    let refs = rbthdr_repo::ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
     let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
     if !preview_stands {
         crate::rbthdr_fatal!(
@@ -105,46 +105,46 @@ fn zrbthdr_reassert_ground(top: &Path, parent: &Path, candidate_clone: &Path, ca
             branch, candidate_tip
         );
     }
-    rbthdr_log::line("preview stands: quarantine tip equals the candidate tip");
+    rbthdr_log::rbthdr_line("preview stands: quarantine tip equals the candidate tip");
 
-    rbthdr_expede::assert_fresh(top, parent, candidate_clone);
+    rbthdr_expede::rbthdr_assert_fresh(top, parent, candidate_clone);
 }
 
 // ── Step 3: file-list review — the operator's own eyes ──────
 
 fn zrbthdr_file_list_review(top: &Path, candidate_clone: &Path) {
-    rbthdr_log::section("File-list review — the operator's own eyes (RBSHO step 3)");
-    let clone = rbthdr_repo::as_str(candidate_clone);
-    let files = rbthdr_run::capture("git", &["-C", &clone, "ls-files"], top);
+    rbthdr_log::rbthdr_section("File-list review — the operator's own eyes (RBSHO step 3)");
+    let clone = rbthdr_repo::rbthdr_as_str(candidate_clone);
+    let files = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "ls-files"], top);
     if files.code != 0 {
         crate::rbthdr_fatal!("git ls-files failed in the candidate:\n{}", files.stderr.trim());
     }
-    rbthdr_log::raw(files.stdout.trim_end());
-    rbthdr_log::line("no machine judgment substitutes for the maintainer reading what they are about to publish");
-    rbthdr_log::confirm("reviewed the candidate's file list above?");
+    rbthdr_log::rbthdr_raw(files.stdout.trim_end());
+    rbthdr_log::rbthdr_line("no machine judgment substitutes for the maintainer reading what they are about to publish");
+    rbthdr_log::rbthdr_confirm("reviewed the candidate's file list above?");
 }
 
 // ── Step 4: the disclosure (irreversible) ───────────────────
 
 fn zrbthdr_disclosure(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
-    rbthdr_log::section("The disclosure (RBSHO step 4) — IRREVERSIBLE");
+    rbthdr_log::rbthdr_section("The disclosure (RBSHO step 4) — IRREVERSIBLE");
     let public_url = rbthdr_expede::RBTHDR_BASE_URL;
     let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
-    let before = rbthdr_repo::ls_remote(public_url, top);
+    let before = rbthdr_repo::rbthdr_ls_remote(public_url, top);
     let main_before = before.iter().find(|(_, name)| name == RBTHDR_MAIN_REF).map(|(sha, _)| sha.clone());
 
-    let clone = rbthdr_repo::as_str(candidate_clone);
-    rbthdr_log::blank();
-    rbthdr_log::warn("POINT OF NO RETURN — a public object store cannot be un-disclosed.");
-    rbthdr_log::line("Staging push line — type this yourself:");
-    rbthdr_log::blank();
-    rbthdr_log::raw(&format!("        git -C {} push {} {}:{}", clone, public_url, branch, branch));
-    rbthdr_log::blank();
-    rbthdr_log::confirm("pushed the staging push line above?");
+    let clone = rbthdr_repo::rbthdr_as_str(candidate_clone);
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_warn("POINT OF NO RETURN — a public object store cannot be un-disclosed.");
+    rbthdr_log::rbthdr_line("Staging push line — type this yourself:");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_raw(&format!("        git -C {} push {} {}:{}", clone, public_url, branch, branch));
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_confirm("pushed the staging push line above?");
 
-    let after = rbthdr_repo::ls_remote(public_url, top);
+    let after = rbthdr_repo::rbthdr_ls_remote(public_url, top);
     let main_after = after.iter().find(|(_, name)| name == RBTHDR_MAIN_REF).map(|(sha, _)| sha.clone());
     if main_before != main_after {
         crate::rbthdr_fatal!(
@@ -159,28 +159,28 @@ fn zrbthdr_disclosure(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
             branch, candidate_tip
         );
     }
-    rbthdr_log::line("disclosed: main untouched, POSTULANT_LOCAL stands at the candidate tip");
+    rbthdr_log::rbthdr_line("disclosed: main untouched, POSTULANT_LOCAL stands at the candidate tip");
 }
 
 // ── Step 5: promotion (discoverability) ─────────────────────
 
 fn zrbthdr_promotion(top: &Path, candidate_tip: &str) {
-    rbthdr_log::section("Promotion (RBSHO step 5)");
+    rbthdr_log::rbthdr_section("Promotion (RBSHO step 5)");
     let public_url = rbthdr_expede::RBTHDR_BASE_URL;
     let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
 
-    rbthdr_log::line("Promotion line — from a fresh clone or fetch of the public repository,");
-    rbthdr_log::line("never the candidate directory. Type this yourself:");
-    rbthdr_log::blank();
-    rbthdr_log::raw(&format!("        git push {} {}:main", public_url, branch));
-    rbthdr_log::blank();
-    rbthdr_log::confirm("promoted (fast-forwarded main to the walked staging branch) above?");
+    rbthdr_log::rbthdr_line("Promotion line — from a fresh clone or fetch of the public repository,");
+    rbthdr_log::rbthdr_line("never the candidate directory. Type this yourself:");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_raw(&format!("        git push {} {}:main", public_url, branch));
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_confirm("promoted (fast-forwarded main to the walked staging branch) above?");
 
-    let after = rbthdr_repo::ls_remote(public_url, top);
+    let after = rbthdr_repo::rbthdr_ls_remote(public_url, top);
     let main_sha = after.iter().find(|(_, name)| name == RBTHDR_MAIN_REF).map(|(sha, _)| sha.clone());
     match main_sha {
         Some(sha) if sha == candidate_tip => {
-            rbthdr_log::line("promoted: public main equals the candidate tip — the byte claim is checked, not assumed");
+            rbthdr_log::rbthdr_line("promoted: public main equals the candidate tip — the byte claim is checked, not assumed");
         }
         Some(sha) => crate::rbthdr_fatal!(
             "public main is {} after the reported promotion, not the candidate tip {} — a refused fast-forward means main moved since the cut: STOP, never --force, re-cut atop the moved base",
@@ -193,11 +193,11 @@ fn zrbthdr_promotion(top: &Path, candidate_tip: &str) {
 // ── Close ────────────────────────────────────────────────────
 
 fn zrbthdr_close() {
-    rbthdr_log::section("Close the reveal (RBSHO close)");
-    rbthdr_log::line("Hand-off: run the harbinger command for the confirmation coldwalk against promoted main.");
-    rbthdr_log::blank();
-    rbthdr_log::line("Ceremony-hygiene reminders — your own hands, once dispositioned:");
-    rbthdr_log::line("  - delete the public staging branch (POSTULANT_LOCAL) on the public repository");
-    rbthdr_log::line("  - delete the private quarantine repository");
-    rbthdr_log::line("  - discard the candidate directory");
+    rbthdr_log::rbthdr_section("Close the reveal (RBSHO close)");
+    rbthdr_log::rbthdr_line("Hand-off: run the harbinger command for the confirmation coldwalk against promoted main.");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line("Ceremony-hygiene reminders — your own hands, once dispositioned:");
+    rbthdr_log::rbthdr_line("  - delete the public staging branch (POSTULANT_LOCAL) on the public repository");
+    rbthdr_log::rbthdr_line("  - delete the private quarantine repository");
+    rbthdr_log::rbthdr_line("  - discard the candidate directory");
 }

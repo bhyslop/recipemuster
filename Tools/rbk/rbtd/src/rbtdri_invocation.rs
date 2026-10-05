@@ -123,11 +123,11 @@ impl rbtdri_Context {
         }
     }
 
-    pub fn fixture(&self) -> &str {
+    pub fn rbtdri_fixture(&self) -> &str {
         &self.fixture
     }
 
-    pub fn project_root(&self) -> &Path {
+    pub fn rbtdri_project_root(&self) -> &Path {
         &self.project_root
     }
 
@@ -150,14 +150,14 @@ impl rbtdri_Context {
     /// invokes that need it, leaving every other invoke's isolation intact.
     /// One-shot: consumed by the next invoke and cleared. Depth-1 only — bud
     /// keeps a single generation, so only the immediate predecessor is visible.
-    pub fn chain_next_invoke(&mut self) {
+    pub fn rbtdri_chain_next_invoke(&mut self) {
         self.chain_next = true;
     }
 
     /// Read the suite-monotonic BURV invoke counter. The suite loop reads it
     /// after each fixture and seeds the next Context, so per-invoke dir names
     /// stay unique across fixtures (see set_invoke_count).
-    pub fn invoke_count(&self) -> u32 {
+    pub fn rbtdri_invoke_count(&self) -> u32 {
         self.invoke_count
     }
 
@@ -166,7 +166,7 @@ impl rbtdri_Context {
     /// mutates the field directly; the bin crate must go through this setter
     /// because the field is pub(crate) and so not visible across the lib/bin
     /// boundary.
-    pub fn set_invoke_count(&mut self, count: u32) {
+    pub fn rbtdri_set_invoke_count(&mut self, count: u32) {
         self.invoke_count = count;
     }
 }
@@ -690,9 +690,9 @@ pub fn rbtdri_read_burv_facts_multi(
 
 /// BURV fact file names written by ordain — single definition, matching
 /// rbgc_constants.sh values. Read by the ordain-capture helpers below.
-pub(crate) const RBTDRI_FACT_HALLMARK: &str = "rbf_fact_hallmark";
-pub(crate) const RBTDRI_FACT_GAR_ROOT: &str = "rbf_fact_gar_root";
-pub(crate) const RBTDRI_FACT_ARK_STEM: &str = "rbf_fact_ark_stem";
+pub(crate) const RBTDRI_FACT_HALLMARK: &str = "rbgc_fact_hallmark";
+pub(crate) const RBTDRI_FACT_GAR_ROOT: &str = "rbgc_fact_gar_root";
+pub(crate) const RBTDRI_FACT_ARK_STEM: &str = "rbgc_fact_ark_stem";
 
 // ── Ordain capture + invoke-or-fail helpers ──────────────────
 

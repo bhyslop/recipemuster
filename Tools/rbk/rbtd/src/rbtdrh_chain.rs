@@ -60,7 +60,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdgc_consts::{
     RBTDGC_ANOINT_GRAFT,
     RBTDGC_AUGUR_LODE,
@@ -97,7 +97,7 @@ use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 // format. The values are deliberately fixed (no clock) so the cases are
 // deterministic — feoff/yoke decode the kind from the prefix and never resolve
 // the touchmark against GAR on the paths these cases exercise.
-const RBTDRH_FACT_TOUCHMARK: &str = "rbf_fact_lode_touchmark"; // RBF_FACT_LODE_TOUCHMARK
+const RBTDRH_FACT_TOUCHMARK: &str = "rbgc_fact_lode_touchmark"; // RBF_FACT_LODE_TOUCHMARK
 const RBTDRH_BOLE_TOUCHMARK: &str = "b260327172456"; // RBGC_LODE_KIND_BOLE "b"
 const RBTDRH_RELIQUARY_TOUCHMARK: &str = "r260327172456"; // RBGC_LODE_KIND_RELIQUARY "r"
 const RBTDRH_UNKNOWN_TOUCHMARK: &str = "zz260327172456"; // no RBGC_LODE_KIND_* prefix
@@ -920,25 +920,25 @@ fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
-    case!(rbtdrh_feoff_wrong_kind),
-    case!(rbtdrh_feoff_unknown_prefix),
-    case!(rbtdrh_feoff_broken_chain),
-    case!(rbtdrh_feoff_good),
-    case!(rbtdrh_feoff_precedence),
-    case!(rbtdrh_feoff_fact_intact),
-    case!(rbtdrh_yoke_wrong_kind),
-    case!(rbtdrh_yoke_unknown_prefix),
-    case!(rbtdrh_anoint_broken_chain),
-    case!(rbtdrh_drive_broken_chain),
-    case!(rbtdrh_summon_no_folio),
-    case!(rbtdrh_plumb_no_folio),
-    case!(rbtdrh_augur_no_folio),
-    case!(rbtdrh_augur_unknown_prefix),
-    case!(rbtdrh_rekon_no_folio),
-    case!(rbtdrh_multi_consumer),
-    case!(rbtdrh_retry_after_failure),
-    case!(rbtdrh_dies_at_non_chain_dispatch),
-    case!(rbtdrh_furnish_invariant),
+    rbtdre_case!(rbtdrh_feoff_wrong_kind),
+    rbtdre_case!(rbtdrh_feoff_unknown_prefix),
+    rbtdre_case!(rbtdrh_feoff_broken_chain),
+    rbtdre_case!(rbtdrh_feoff_good),
+    rbtdre_case!(rbtdrh_feoff_precedence),
+    rbtdre_case!(rbtdrh_feoff_fact_intact),
+    rbtdre_case!(rbtdrh_yoke_wrong_kind),
+    rbtdre_case!(rbtdrh_yoke_unknown_prefix),
+    rbtdre_case!(rbtdrh_anoint_broken_chain),
+    rbtdre_case!(rbtdrh_drive_broken_chain),
+    rbtdre_case!(rbtdrh_summon_no_folio),
+    rbtdre_case!(rbtdrh_plumb_no_folio),
+    rbtdre_case!(rbtdrh_augur_no_folio),
+    rbtdre_case!(rbtdrh_augur_unknown_prefix),
+    rbtdre_case!(rbtdrh_rekon_no_folio),
+    rbtdre_case!(rbtdrh_multi_consumer),
+    rbtdre_case!(rbtdrh_retry_after_failure),
+    rbtdre_case!(rbtdrh_dies_at_non_chain_dispatch),
+    rbtdre_case!(rbtdrh_furnish_invariant),
 ];
 
 pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {

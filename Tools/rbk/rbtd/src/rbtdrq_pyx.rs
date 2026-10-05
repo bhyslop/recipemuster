@@ -61,7 +61,7 @@ use std::path::{
     PathBuf,
 };
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
     rbtdre_Case,
@@ -1003,11 +1003,11 @@ fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTDRQ_CASES_PYX: &[rbtdre_Case] = &[
-    case!(rbtdrq_crate_licenses),
-    case!(rbtdrq_license_file),
-    case!(rbtdrq_secret_shapes),
-    case!(rbtdrq_readme_anchors),
-    case!(rbtdrq_no_adoc),
+    rbtdre_case!(rbtdrq_crate_licenses),
+    rbtdre_case!(rbtdrq_license_file),
+    rbtdre_case!(rbtdrq_secret_shapes),
+    rbtdre_case!(rbtdrq_readme_anchors),
+    rbtdre_case!(rbtdrq_no_adoc),
 ];
 
 pub static RBTDRQ_FIXTURE_PYX: rbtdre_Fixture = rbtdre_Fixture {

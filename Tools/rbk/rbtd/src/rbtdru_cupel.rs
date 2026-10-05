@@ -53,7 +53,7 @@ use std::path::{
     PathBuf,
 };
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdre_engine::{
     rbtdre_Tariff,
     rbtdre_Case,
@@ -377,9 +377,9 @@ fn rbtdru_gcb_python(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRU_CASES_CUPEL: &[rbtdre_Case] = &[
-    case!(rbtdru_kit_bash),
-    case!(rbtdru_gcb_bash),
-    case!(rbtdru_gcb_python),
+    rbtdre_case!(rbtdru_kit_bash),
+    rbtdre_case!(rbtdru_gcb_bash),
+    rbtdre_case!(rbtdru_gcb_python),
 ];
 
 pub static RBTDRU_FIXTURE_CUPEL: rbtdre_Fixture = rbtdre_Fixture {

@@ -54,7 +54,7 @@ set -euo pipefail
 # the move below: harbinger retires this directory aside — a rename to a timestamped
 # sibling, never a delete — so it may only ever name THIS one, never the maintainer
 # tree it sits beside, and even a wrong guard could not destroy data.
-readonly RBLM_harbinger_dirname="rbm_coldwalk"
+readonly RBLM_harbinger_dirname="rbthdr_coldwalk"
 
 # The clone lives one level down, in its own subdirectory. The findings memo is a
 # sibling of it under the parent dir, so discarding the clone subdirectory leaves the

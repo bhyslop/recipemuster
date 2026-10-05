@@ -20,7 +20,7 @@ use crate::rbthdr_run;
 /// runs the lap repeatedly at one conventional location and retires any prior
 /// aside, so the location is memorable and the disposal is safe. Expede builds
 /// the clone one level down, at {parent}/{RBTHDR_CANDIDATE_SUBDIR}.
-pub const RBTHDR_CANDIDATE_DIRNAME: &str = "rbm_candidate";
+pub const RBTHDR_CANDIDATE_DIRNAME: &str = "rbthdr_candidate";
 
 /// The clone subdir the cut creates beneath its target dir (rbthdr_expede
 /// builds there; the lap and the rig stage find what it built through this
@@ -39,15 +39,15 @@ pub const RBTHDR_LOGS_SUBDIR: &str = "logs-buk";
 /// maintainer repo distinct from RBTHDR_CANDIDATE_DIRNAME so the freshness
 /// check can never collide with, or dispose of, the standing candidate it is
 /// comparing against.
-pub const RBTHDR_FRESHNESS_DIRNAME: &str = "rbm_candidate_freshness";
+pub const RBTHDR_FRESHNESS_DIRNAME: &str = "rbthdr_candidate_freshness";
 
 /// The maintainer repository root, from git. Fatal if not in a repo, empty, or
 /// non-absolute — every derived path anchors on it, and the retire-aside guards
 /// compare against it.
-pub fn toplevel() -> PathBuf {
+pub fn rbthdr_toplevel() -> PathBuf {
     let cwd = std::env::current_dir()
         .unwrap_or_else(|e| crate::rbthdr_fatal!("cannot read working directory: {}", e));
-    let got = rbthdr_run::capture("git", &["rev-parse", "--show-toplevel"], &cwd);
+    let got = rbthdr_run::rbthdr_capture("git", &["rev-parse", "--show-toplevel"], &cwd);
     if got.code != 0 {
         crate::rbthdr_fatal!(
             "not inside a git repository — essai must run from the maintainer tree: {}",
@@ -68,7 +68,7 @@ pub fn toplevel() -> PathBuf {
 /// A path as an owned &str, fatal on non-UTF-8. Every path the lap handles is
 /// derived from git output or a repo-relative join, so non-UTF-8 is a real fault
 /// worth stopping on, not something to lossily paper over into a subprocess arg.
-pub fn as_str(p: &Path) -> String {
+pub fn rbthdr_as_str(p: &Path) -> String {
     p.to_str()
         .unwrap_or_else(|| crate::rbthdr_fatal!("path is not valid UTF-8: {}", p.display()))
         .to_string()
@@ -76,7 +76,7 @@ pub fn as_str(p: &Path) -> String {
 
 /// The parent directory the sibling artifacts land in. Fatal if the root has no
 /// parent.
-pub fn parent(top: &Path) -> PathBuf {
+pub fn rbthdr_parent(top: &Path) -> PathBuf {
     top.parent()
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| crate::rbthdr_fatal!("repository root has no parent: {}", top.display()))
@@ -87,7 +87,7 @@ pub fn parent(top: &Path) -> PathBuf {
 /// target is a no-op. The caller asserts the target's identity (fixed basename,
 /// not the repo root) before calling; this only refuses to clobber an existing
 /// retirement sibling. Returns whether anything was retired.
-pub fn retire_aside(dir: &Path, cwd: &Path) -> bool {
+pub fn rbthdr_retire_aside(dir: &Path, cwd: &Path) -> bool {
     if !dir.exists() {
         return false;
     }
@@ -95,7 +95,7 @@ pub fn retire_aside(dir: &Path, cwd: &Path) -> bool {
         .file_name()
         .and_then(|n| n.to_str())
         .unwrap_or_else(|| crate::rbthdr_fatal!("cannot read basename of {}", dir.display()));
-    let stamp = rbthdr_run::timestamp(cwd);
+    let stamp = rbthdr_run::rbthdr_timestamp(cwd);
     let retired = dir.with_file_name(format!("{}.retired-{}", base, stamp));
     if retired.exists() {
         crate::rbthdr_fatal!("retirement target already exists: {}", retired.display());
@@ -108,7 +108,7 @@ pub fn retire_aside(dir: &Path, cwd: &Path) -> bool {
             e
         )
     });
-    crate::rbthdr_log::line(&format!("retired prior aside: {}", retired.display()));
+    crate::rbthdr_log::rbthdr_line(&format!("retired prior aside: {}", retired.display()));
     true
 }
 
@@ -116,7 +116,7 @@ pub fn retire_aside(dir: &Path, cwd: &Path) -> bool {
 /// exactly the fixed name, and it is not the maintainer repo root. Mirrors the
 /// rig-move guard in rblm_harbinger.sh — the disposal is a rename, so even a
 /// wrong guard destroys nothing, but the guard makes a wrong move impossible.
-pub fn guard_disposable(dir: &Path, expected_basename: &str, top: &Path) {
+pub fn rbthdr_guard_disposable(dir: &Path, expected_basename: &str, top: &Path) {
     let base = dir.file_name().and_then(|n| n.to_str());
     if base != Some(expected_basename) {
         crate::rbthdr_fatal!(
@@ -137,9 +137,9 @@ pub fn guard_disposable(dir: &Path, expected_basename: &str, top: &Path) {
 /// the freshness matcher compares (RBS0 rbth_cachet, RBSHD/RBSHO). Fatal on
 /// any git failure or an empty result: a cachet or a freshness verdict keyed
 /// on an empty string would silently compare equal to nothing.
-pub fn tree_hash(dir: &Path, cwd: &Path) -> String {
-    let dir_str = as_str(dir);
-    let got = rbthdr_run::capture("git", &["-C", &dir_str, "rev-parse", "HEAD^{tree}"], cwd);
+pub fn rbthdr_tree_hash(dir: &Path, cwd: &Path) -> String {
+    let dir_str = rbthdr_as_str(dir);
+    let got = rbthdr_run::rbthdr_capture("git", &["-C", &dir_str, "rev-parse", "HEAD^{tree}"], cwd);
     if got.code != 0 {
         crate::rbthdr_fatal!("failed to read the tree hash of {}:\n{}", dir.display(), got.stderr.trim());
     }
@@ -152,9 +152,9 @@ pub fn tree_hash(dir: &Path, cwd: &Path) -> String {
 
 /// The commit SHA of `dir`'s HEAD (the tip). Fatal on any git failure or an
 /// empty result — the same load-bearing reasoning as `tree_hash`.
-pub fn commit_sha(dir: &Path, cwd: &Path) -> String {
-    let dir_str = as_str(dir);
-    let got = rbthdr_run::capture("git", &["-C", &dir_str, "rev-parse", "HEAD"], cwd);
+pub fn rbthdr_commit_sha(dir: &Path, cwd: &Path) -> String {
+    let dir_str = rbthdr_as_str(dir);
+    let got = rbthdr_run::rbthdr_capture("git", &["-C", &dir_str, "rev-parse", "HEAD"], cwd);
     if got.code != 0 {
         crate::rbthdr_fatal!("failed to read the commit SHA of {}:\n{}", dir.display(), got.stderr.trim());
     }
@@ -179,8 +179,8 @@ pub fn commit_sha(dir: &Path, cwd: &Path) -> String {
 /// already carry at the same SHA, and every caller here counts or matches
 /// real branch refs — counting it in would make "exactly one real branch"
 /// unreachable.
-pub fn ls_remote(url: &str, cwd: &Path) -> Vec<(String, String)> {
-    let got = rbthdr_run::capture("git", &["ls-remote", url], cwd);
+pub fn rbthdr_ls_remote(url: &str, cwd: &Path) -> Vec<(String, String)> {
+    let got = rbthdr_run::rbthdr_capture("git", &["ls-remote", url], cwd);
     if got.code != 0 {
         crate::rbthdr_fatal!("git ls-remote {} failed:\n{}", url, got.stderr.trim());
     }

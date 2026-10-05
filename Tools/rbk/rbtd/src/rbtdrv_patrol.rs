@@ -26,7 +26,7 @@
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
 use crate::rbtdri_invocation::{
@@ -69,7 +69,7 @@ pub static RBTDRV_FIXTURE_HALLMARK_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_HALLMARK_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -79,7 +79,7 @@ pub static RBTDRV_FIXTURE_LODE_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_LODE_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -89,7 +89,7 @@ pub static RBTDRV_FIXTURE_RELIQUARY_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_RELIQUARY_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -99,7 +99,7 @@ pub static RBTDRV_FIXTURE_WSL_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_WSL_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -109,7 +109,7 @@ pub static RBTDRV_FIXTURE_PODVM_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_PODVM_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_FOEDUS_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
@@ -119,7 +119,7 @@ pub static RBTDRV_FIXTURE_FOEDUS_LIFECYCLE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_FOEDUS_LIFECYCLE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_FOEDUS_REUSE: rbtdre_Fixture = rbtdre_Fixture {
@@ -129,7 +129,7 @@ pub static RBTDRV_FIXTURE_FOEDUS_REUSE: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_FOEDUS_REUSE,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
@@ -139,7 +139,7 @@ pub static RBTDRV_FIXTURE_BATCH_VOUCH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_BATCH_VOUCH,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_ACCESS_PROBE: rbtdre_Fixture = rbtdre_Fixture {
@@ -169,7 +169,7 @@ pub static RBTDRV_FIXTURE_POLITY_DENIAL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_POLITY_DENIAL,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 pub static RBTDRV_FIXTURE_PARLEY: rbtdre_Fixture = rbtdre_Fixture {
@@ -194,7 +194,7 @@ pub static RBTDRV_FIXTURE_CHAINING_LIVERY: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRV_CASES_CHAINING_LIVERY,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 
 // ── Hallmark / ark vocabulary and docker helpers ─────────────
@@ -335,7 +335,7 @@ const RBTDRV_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 /// captured Lode touchmark. The derived-pull base-anchor election reads it at
 /// conjure; the provenance envelope lives only in GAR (:rbi_vouch), never
 /// host-side. Mirrors rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
-const RBTDRV_FACT_LODE_TOUCHMARK: &str = "rbf_fact_lode_touchmark";
+const RBTDRV_FACT_LODE_TOUCHMARK: &str = "rbgc_fact_lode_touchmark";
 
 /// Bole-Lode member tags asserted by augur. Mirror rbgc_constants.sh
 /// RBGC_LODE_TAG_BOLE / RBGC_LODE_TAG_VOUCH / RBGC_LODE_TAG_DIGEST_PREFIX.
@@ -440,7 +440,7 @@ fn zrbtdrv_own_mint_absent(audit: &[String], hallmark: &str) -> bool {
 fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
-        if !ctx.project_root().join(vessel_dir).is_dir() {
+        if !ctx.rbtdri_project_root().join(vessel_dir).is_dir() {
             return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
         }
 
@@ -609,13 +609,13 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_hallmark_lifecycle)];
+pub static RBTDRV_CASES_HALLMARK_LIFECYCLE: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_hallmark_lifecycle)];
 
 #[cfg(test)]
 mod rbtdrv_tests {
     use super::*;
 
-    fn strs(v: &[&str]) -> Vec<String> {
+    fn zrbtdrv_strs(v: &[&str]) -> Vec<String> {
         v.iter().map(|s| s.to_string()).collect()
     }
 
@@ -623,7 +623,7 @@ mod rbtdrv_tests {
     fn zrbtdrv_own_mint_present_survives_foreign_addition() {
         // A foreign mint landed in the audit vector alongside this fixture's
         // own hallmark — own-mint presence still reads green.
-        let audit = strs(&["c1-r1", "own-hallmark", "c2-r2"]);
+        let audit = zrbtdrv_strs(&["c1-r1", "own-hallmark", "c2-r2"]);
         assert!(zrbtdrv_own_mint_present(&audit, "own-hallmark"));
     }
 
@@ -632,13 +632,13 @@ mod rbtdrv_tests {
         // The baseline carried a hallmark a concurrent actor has since
         // abjured; it is simply absent from the vector, and this fixture's
         // own hallmark's presence is unaffected.
-        let audit = strs(&["own-hallmark", "c2-r2"]);
+        let audit = zrbtdrv_strs(&["own-hallmark", "c2-r2"]);
         assert!(zrbtdrv_own_mint_present(&audit, "own-hallmark"));
     }
 
     #[test]
     fn zrbtdrv_own_mint_present_reds_when_own_mint_missing_after_ordain() {
-        let audit = strs(&["c1-r1", "c2-r2"]);
+        let audit = zrbtdrv_strs(&["c1-r1", "c2-r2"]);
         assert!(!zrbtdrv_own_mint_present(&audit, "own-hallmark"));
     }
 
@@ -646,7 +646,7 @@ mod rbtdrv_tests {
     fn zrbtdrv_own_mint_absent_survives_foreign_addition() {
         // A foreign mint landed between this fixture's abjure and its final
         // audit — own-mint absence still reads green.
-        let audit = strs(&["c1-r1", "c2-r2"]);
+        let audit = zrbtdrv_strs(&["c1-r1", "c2-r2"]);
         assert!(zrbtdrv_own_mint_absent(&audit, "own-hallmark"));
     }
 
@@ -654,13 +654,13 @@ mod rbtdrv_tests {
     fn zrbtdrv_own_mint_absent_ignores_foreign_removal() {
         // A concurrent actor's own hallmark disappeared from the vector too
         // (its own abjure) — this fixture's own-mint absence is unaffected.
-        let audit = strs(&["c2-r2"]);
+        let audit = zrbtdrv_strs(&["c2-r2"]);
         assert!(zrbtdrv_own_mint_absent(&audit, "own-hallmark"));
     }
 
     #[test]
     fn zrbtdrv_own_mint_absent_reds_when_own_mint_still_present_after_abjure() {
-        let audit = strs(&["c1-r1", "own-hallmark"]);
+        let audit = zrbtdrv_strs(&["c1-r1", "own-hallmark"]);
         assert!(!zrbtdrv_own_mint_absent(&audit, "own-hallmark"));
     }
 }
@@ -823,7 +823,7 @@ fn zrbtdrv_member_jettison_proof(
 fn rbtdrv_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
-        if !ctx.project_root().join(vessel_dir).is_dir() {
+        if !ctx.rbtdri_project_root().join(vessel_dir).is_dir() {
             return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
         }
 
@@ -885,7 +885,7 @@ fn rbtdrv_lode_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // fixture commits nothing.
         let head = match Command::new("git")
             .args(["rev-parse", "HEAD"])
-            .current_dir(ctx.project_root())
+            .current_dir(ctx.rbtdri_project_root())
             .output()
         {
             Ok(out) if out.status.success() => {
@@ -952,7 +952,7 @@ fn rbtdrv_lode_collision(dir: &Path) -> rbtdre_Verdict {
         let busybox_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
         let deb_dir = RBTDRV_DEB_VESSEL_DIR;
         for vd in &[busybox_dir, deb_dir] {
-            if !ctx.project_root().join(vd).is_dir() {
+            if !ctx.rbtdri_project_root().join(vd).is_dir() {
                 return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vd));
             }
         }
@@ -1036,8 +1036,8 @@ fn rbtdrv_lode_collision(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
-    case!(rbtdrv_lode_lifecycle),
-    case!(rbtdrv_lode_collision),
+    rbtdre_case!(rbtdrv_lode_lifecycle),
+    rbtdre_case!(rbtdrv_lode_collision),
 ];
 
 
@@ -1147,7 +1147,7 @@ fn rbtdrv_chaining_livery(dir: &Path) -> rbtdre_Verdict {
 /// holds the thread-local borrow — a nested rbtdrc_with_ctx would double-borrow).
 fn zrbtdrv_chaining_livery_body(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     let busybox_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
-    if !ctx.project_root().join(busybox_dir).is_dir() {
+    if !ctx.rbtdri_project_root().join(busybox_dir).is_dir() {
         return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", busybox_dir));
     }
 
@@ -1213,7 +1213,7 @@ fn zrbtdrv_chaining_livery_body(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_
     }
     let vessel_posix = crate::rbtdrx_platform::rbtdrx_native_to_posix(&vessel_dir);
 
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
     let _ = std::fs::write(dir.join("03-feoff.txt"), "feoffing temp vessel off chained touchmark");
     let feoff = match rbtdri_invoke_global(
         ctx,
@@ -1250,7 +1250,7 @@ fn zrbtdrv_chaining_livery_body(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_
     }
 }
 
-pub static RBTDRV_CASES_CHAINING_LIVERY: &[rbtdre_Case] = &[case!(rbtdrv_chaining_livery)];
+pub static RBTDRV_CASES_CHAINING_LIVERY: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_chaining_livery)];
 
 
 // Reliquary-lifecycle fixture — fetched-side cohort capture against live GAR.
@@ -1332,7 +1332,7 @@ fn rbtdrv_reliquary_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_RELIQUARY_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_reliquary_lifecycle)];
+pub static RBTDRV_CASES_RELIQUARY_LIFECYCLE: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_reliquary_lifecycle)];
 
 
 // Shared payor-credential probe-and-gate preamble for the four credentialed-service
@@ -1549,7 +1549,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
         // rbrf.env is the base provider config; the regime-poison seam overrides
         // only RBRF_PROVIDER_ID, so the round-trip seats a throwaway provider under
         // the manor's standing pool and never touches the real provider.
-        let root = ctx.project_root().to_path_buf();
+        let root = ctx.rbtdri_project_root().to_path_buf();
         let rbrr = root.join(RBTDGC_RBRR_FILE);
         let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
             Some(f) if !f.trim().is_empty() => f.trim().to_string(),
@@ -1587,7 +1587,7 @@ fn rbtdrv_foedus_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_FOEDUS_LIFECYCLE: &[rbtdre_Case] = &[case!(rbtdrv_foedus_lifecycle)];
+pub static RBTDRV_CASES_FOEDUS_LIFECYCLE: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_foedus_lifecycle)];
 
 
 // Foedus-reuse fixture — the standing-freehold REUSE credential leg. Unlike the
@@ -1615,7 +1615,7 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
         // The standing foedus the manor authenticates against — the committed
         // active selector, read rather than hardcoded so the leg follows the
         // regime (degenerate today: one standing foedus).
-        let root = ctx.project_root().to_path_buf();
+        let root = ctx.rbtdri_project_root().to_path_buf();
         let rbrr = root.join(RBTDGC_RBRR_FILE);
         let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
             Some(f) if !f.trim().is_empty() => f.trim().to_string(),
@@ -1719,7 +1719,7 @@ fn rbtdrv_foedus_reuse(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_FOEDUS_REUSE: &[rbtdre_Case] = &[case!(rbtdrv_foedus_reuse)];
+pub static RBTDRV_CASES_FOEDUS_REUSE: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_foedus_reuse)];
 
 
 // Polity-denial fixture — proves the polity verbs reject with the EXACT precision
@@ -1789,9 +1789,9 @@ fn zrbtdrv_mantle_denial_poll_until(
     label_prefix: &str,
     want: i32,
 ) -> Result<(), rbtdre_Verdict> {
-    const DEADLINE_SECS: u64 = 420;
-    const POLL_INTERVAL_SECS: u64 = 10;
-    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(DEADLINE_SECS);
+    const ZRBTDRV_DEADLINE_SECS: u64 = 420;
+    const ZRBTDRV_POLL_INTERVAL_SECS: u64 = 10;
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(ZRBTDRV_DEADLINE_SECS);
     let mut attempt = 0u32;
     loop {
         let label = format!("{}-{:02}", label_prefix, attempt);
@@ -1802,11 +1802,11 @@ fn zrbtdrv_mantle_denial_poll_until(
         if std::time::Instant::now() >= deadline {
             return Err(rbtdre_Verdict::Fail(format!(
                 "{}: don retriever did not reach exit {} within {}s — last exit {}",
-                label_prefix, want, DEADLINE_SECS, last
+                label_prefix, want, ZRBTDRV_DEADLINE_SECS, last
             )));
         }
         attempt += 1;
-        std::thread::sleep(std::time::Duration::from_secs(POLL_INTERVAL_SECS));
+        std::thread::sleep(std::time::Duration::from_secs(ZRBTDRV_POLL_INTERVAL_SECS));
     }
 }
 
@@ -2097,7 +2097,7 @@ fn rbtdrv_polity_denial(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[case!(rbtdrv_polity_denial)];
+pub static RBTDRV_CASES_POLITY_DENIAL: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_polity_denial)];
 
 
 // Parley fixture — the POSITIVE federation admission round-trip. The positive
@@ -2157,7 +2157,7 @@ fn zrbtdrv_rehearse_roll(
 /// the manor roll; the manor-wide roll alone cannot attribute a (mantle, subject)
 /// line to a depot once two polities hold the same pair.
 fn zrbtdrv_freehold_depot_capture(ctx: &rbtdri_Context) -> Result<String, rbtdre_Verdict> {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
     let rbrd = root.join(RBTDGC_RBRD_FILE);
     let moniker = match crate::rbtdrk_freehold::rbtdrk_read_env_value(
         &rbrd,
@@ -2309,7 +2309,7 @@ fn rbtdrv_parley(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_PARLEY: &[rbtdre_Case] = &[case!(rbtdrv_parley)];
+pub static RBTDRV_CASES_PARLEY: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_parley)];
 
 
 // The repo-regime field the vessel-less substrate captures elect their pinned
@@ -2438,7 +2438,7 @@ fn rbtdrv_wsl_unseised(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_WSL_LIFECYCLE: &[rbtdre_Case] =
-    &[case!(rbtdrv_wsl_lifecycle), case!(rbtdrv_wsl_unseised)];
+    &[rbtdre_case!(rbtdrv_wsl_lifecycle), rbtdre_case!(rbtdrv_wsl_unseised)];
 
 
 // Podvm-lifecycle fixture — fetched-side podvm disk-leaf capture against live GAR. Single
@@ -2631,7 +2631,7 @@ fn rbtdrv_podvm_unseised(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_PODVM_LIFECYCLE: &[rbtdre_Case] =
-    &[case!(rbtdrv_podvm_lifecycle), case!(rbtdrv_podvm_unseised)];
+    &[rbtdre_case!(rbtdrv_podvm_lifecycle), rbtdre_case!(rbtdrv_podvm_unseised)];
 
 
 // Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
@@ -2654,7 +2654,7 @@ fn rbtdrv_tally_health(stdout: &str, hallmark: &str) -> Option<String> {
 fn rbtdrv_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| {
         let vessel_dir = RBTDRV_BUSYBOX_VESSEL_DIR;
-        if !ctx.project_root().join(vessel_dir).is_dir() {
+        if !ctx.rbtdri_project_root().join(vessel_dir).is_dir() {
             return rbtdre_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
         }
 
@@ -2742,7 +2742,7 @@ fn rbtdrv_batch_vouch_lifecycle(dir: &Path) -> rbtdre_Verdict {
     })
 }
 
-pub static RBTDRV_CASES_BATCH_VOUCH: &[rbtdre_Case] = &[case!(rbtdrv_batch_vouch_lifecycle)];
+pub static RBTDRV_CASES_BATCH_VOUCH: &[rbtdre_Case] = &[rbtdre_case!(rbtdrv_batch_vouch_lifecycle)];
 
 // ── Access probe cases (bare fixture, imprint-scoped) ────────
 
@@ -2896,8 +2896,8 @@ fn rbtdrv_sederunt_runway_gate(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_ACCESS_PROBE: &[rbtdre_Case] = &[
-    case!(rbtdrv_oauth_payor),
-    case!(rbtdrv_sederunt_runway_gate),
+    rbtdre_case!(rbtdrv_oauth_payor),
+    rbtdre_case!(rbtdrv_sederunt_runway_gate),
 ];
 
 // ── Credential-readiness leader ──────────────────────────────
@@ -2934,4 +2934,4 @@ fn rbtdrv_credential_readiness(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRV_CASES_CREDENTIAL_READINESS: &[rbtdre_Case] =
-    &[case!(rbtdrv_credential_readiness)];
+    &[rbtdre_case!(rbtdrv_credential_readiness)];

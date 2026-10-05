@@ -25,13 +25,13 @@
 use std::process::Command;
 
 use crate::rbthdr_perambulation::{
-    dead_rows,
-    judge,
+    rbthdr_dead_rows,
+    rbthdr_judge,
     rbthdr_Disposition,
-    shipped,
-    sweep,
-    unjudged,
-    validate,
+    rbthdr_shipped,
+    rbthdr_sweep,
+    rbthdr_unjudged,
+    rbthdr_validate,
     RBTHDR_ROWS,
 };
 
@@ -77,11 +77,11 @@ fn zrbthdt_tracked() -> Vec<String> {
 /// it was made.
 #[test]
 fn rbthdt_totality() {
-    validate(RBTHDR_ROWS).expect("the perambulation table is malformed");
+    rbthdr_validate(RBTHDR_ROWS).expect("the perambulation table is malformed");
 
     let tracked = zrbthdt_tracked();
 
-    let unruled = unjudged(&tracked);
+    let unruled = rbthdr_unjudged(&tracked);
     assert!(
         unruled.is_empty(),
         "{} tracked path(s) unjudged — rule each ship or withhold in the perambulation table:\n{}",
@@ -89,7 +89,7 @@ fn rbthdt_totality() {
         unruled.join("\n")
     );
 
-    let dead = dead_rows(&tracked);
+    let dead = rbthdr_dead_rows(&tracked);
     let dead_lines: Vec<String> = dead
         .iter()
         .map(|(prefix, disposition)| format!("{}|{}", prefix, disposition))
@@ -103,7 +103,7 @@ fn rbthdt_totality() {
 
     // The judgment ships something and withholds something — a table that has
     // drifted into either extreme is lying about the tree.
-    let ship_count = shipped(&tracked).len();
+    let ship_count = rbthdr_shipped(&tracked).len();
     assert!(ship_count > 0, "the perambulation ships nothing");
     assert!(ship_count < tracked.len(), "the perambulation withholds nothing");
 }
@@ -142,7 +142,7 @@ fn rbthdt_sweep_catches_planted_leaks() {
         .chain(ZRBTHDT_SWEEP_CLEAN.iter())
         .map(|p| p.to_string())
         .collect();
-    let leaks = sweep(&dirty);
+    let leaks = rbthdr_sweep(&dirty);
 
     for planted in ZRBTHDT_SWEEP_PLANTED {
         assert!(
@@ -163,7 +163,7 @@ fn rbthdt_sweep_catches_planted_leaks() {
 #[test]
 fn rbthdt_sweep_silent_on_clean_list() {
     let clean: Vec<String> = ZRBTHDT_SWEEP_CLEAN.iter().map(|p| p.to_string()).collect();
-    let leaks = sweep(&clean);
+    let leaks = rbthdr_sweep(&clean);
     assert!(
         leaks.is_empty(),
         "the sweep reddened on a clean list: {}",
@@ -180,25 +180,25 @@ fn rbthdt_sweep_silent_on_clean_list() {
 /// outside every kit is exactly what the relocation bought.
 #[test]
 fn rbthdt_matcher_longest_wins() {
-    let veiled = judge("vov_veiled/anything.rs");
+    let veiled = rbthdr_judge("vov_veiled/anything.rs");
     assert!(matches!(veiled, Some((rbthdr_Disposition::Withhold, _))), "the veiled tree is withheld");
 
-    let harbinger = judge("Tools/rbk/rblm_harbinger.sh");
+    let harbinger = rbthdr_judge("Tools/rbk/rblm_harbinger.sh");
     assert!(matches!(harbinger, Some((rbthdr_Disposition::Withhold, _))), "the harbinger must outrank the shipping kit");
 
-    let shipped_code = judge("Tools/rbk/rba_auth.sh");
+    let shipped_code = rbthdr_judge("Tools/rbk/rba_auth.sh");
     assert!(matches!(shipped_code, Some((rbthdr_Disposition::Ship, _))), "the delivered kit ships");
 
-    let marshal_tt = judge("tt/rbw-MZ.MarshalZeroes.sh");
+    let marshal_tt = rbthdr_judge("tt/rbw-MZ.MarshalZeroes.sh");
     assert!(matches!(marshal_tt, Some((rbthdr_Disposition::Withhold, _))), "the marshal stem must outrank tt/rbw-");
 
-    let hierophant_tt = judge("tt/rbthw-e.Essai.sh");
+    let hierophant_tt = rbthdr_judge("tt/rbthw-e.Essai.sh");
     assert!(matches!(hierophant_tt, Some((rbthdr_Disposition::Withhold, _))), "the hierophant stem is withheld");
 
-    let shipped_tt = judge("tt/rbw-cC.Charge.tadmor.sh");
+    let shipped_tt = rbthdr_judge("tt/rbw-cC.Charge.tadmor.sh");
     assert!(matches!(shipped_tt, Some((rbthdr_Disposition::Ship, _))), "the shipped tabtarget family ships");
 
-    assert!(judge("no-such-root/file.txt").is_none(), "an unjudged path must be None, not a default");
+    assert!(rbthdr_judge("no-such-root/file.txt").is_none(), "an unjudged path must be None, not a default");
 }
 
 // ── The table's structural invariants ───────────────────────
@@ -210,12 +210,12 @@ fn rbthdt_matcher_longest_wins() {
 fn rbthdt_validate_refuses_malformed_tables() {
     use rbthdr_Disposition::{Ship, Withhold};
 
-    validate(&[]).expect("an empty table is structurally valid");
-    validate(&[("a/", Ship), ("b/", Withhold)]).expect("a well-formed table validates");
+    rbthdr_validate(&[]).expect("an empty table is structurally valid");
+    rbthdr_validate(&[("a/", Ship), ("b/", Withhold)]).expect("a well-formed table validates");
 
-    assert!(validate(&[("", Ship)]).is_err(), "an empty prefix must refuse");
+    assert!(rbthdr_validate(&[("", Ship)]).is_err(), "an empty prefix must refuse");
     assert!(
-        validate(&[("a/", Ship), ("a/", Withhold)]).is_err(),
+        rbthdr_validate(&[("a/", Ship), ("a/", Withhold)]).is_err(),
         "a duplicate prefix must refuse"
     );
 }

@@ -65,10 +65,10 @@ fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
     match args.get(1).map(|s| s.as_str()) {
-        Some(RBTHD_CMD_ESSAI) => rbthd::rbthdr_essai::conduct(),
-        Some(RBTHD_CMD_DOCIMASY) => rbthd::rbthdr_docimasy::conduct(zrbthd_rehearse(RBTHD_CMD_DOCIMASY, &args)),
-        Some(RBTHD_CMD_OSTEND) => rbthd::rbthdr_ostend::conduct(zrbthd_rehearse(RBTHD_CMD_OSTEND, &args)),
-        Some(RBTHD_CMD_HARBINGER) => rbthd::rbthdr_harbinger::conduct(),
+        Some(RBTHD_CMD_ESSAI) => rbthd::rbthdr_essai::rbthdr_essai_conduct(),
+        Some(RBTHD_CMD_DOCIMASY) => rbthd::rbthdr_docimasy::rbthdr_docimasy_conduct(zrbthd_rehearse(RBTHD_CMD_DOCIMASY, &args)),
+        Some(RBTHD_CMD_OSTEND) => rbthd::rbthdr_ostend::rbthdr_ostend_conduct(zrbthd_rehearse(RBTHD_CMD_OSTEND, &args)),
+        Some(RBTHD_CMD_HARBINGER) => rbthd::rbthdr_harbinger::rbthdr_harbinger_conduct(),
         Some(other) => rbthd::rbthdr_fatal!(
             "hierophant: unknown command '{}' — usage: rbthd {}|{} [{}]|{} [{}]|{}",
             other, RBTHD_CMD_ESSAI, RBTHD_CMD_DOCIMASY, RBTHD_ARG_REHEARSE, RBTHD_CMD_OSTEND, RBTHD_ARG_REHEARSE, RBTHD_CMD_HARBINGER
