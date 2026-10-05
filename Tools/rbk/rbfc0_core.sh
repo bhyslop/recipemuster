@@ -27,8 +27,8 @@
 set -euo pipefail
 
 # Multiple inclusion guard (silent skip - rbfc is sourced by multiple child modules)
-test -z "${ZRBFC_SOURCED:-}" || return 0
-ZRBFC_SOURCED=1
+test -z "${ZRBFC0_SOURCED:-}" || return 0
+ZRBFC0_SOURCED=1
 
 # Build-host primitives and the guard-free body clusters; sourced here so every
 # rbfc consumer reaches them unchanged.
@@ -42,7 +42,7 @@ source "${BASH_SOURCE[0]%/*}/rbfcp_plumb.sh"
 # Internal Functions (zrbfc_*)
 
 zrbfc_kindle() {
-  test -z "${ZRBFC_KINDLED:-}" || buc_die_now "Module rbfc already kindled"
+  test -z "${ZRBFC0_KINDLED:-}" || buc_die_now "Module rbfc already kindled"
 
   # Validate environment
   zburd_sentinel
@@ -167,11 +167,11 @@ zrbfc_kindle() {
   # and both kindle rbfc.
   readonly ZRBFC_DELETE_BUILDER="gcr.io/cloud-builders/gcloud@sha256:8da9de84573d9a2ab150fd10a1ed38fdb27065f8020bcfe1cb49f8456db42ced"
 
-  readonly ZRBFC_KINDLED=1
+  readonly ZRBFC0_KINDLED=1
 }
 
 zrbfc_sentinel() {
-  test "${ZRBFC_KINDLED:-}" = "1" || buc_die_now "Module rbfc not kindled - call zrbfc_kindle first"
+  test "${ZRBFC0_KINDLED:-}" = "1" || buc_die_now "Module rbfc not kindled - call zrbfc_kindle first"
 }
 
 # eof

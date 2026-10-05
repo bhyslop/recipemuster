@@ -21,11 +21,11 @@
 
 set -euo pipefail
 
-test -z "${ZRBHP_SOURCED:-}" || buc_die_now "Module rbhp multiply sourced - check sourcing hierarchy"
-ZRBHP_SOURCED=1
+test -z "${ZRBHP0_SOURCED:-}" || buc_die_now "Module rbhp multiply sourced - check sourcing hierarchy"
+ZRBHP0_SOURCED=1
 
 zrbhp_kindle() {
-  test -z "${ZRBHP_KINDLED:-}" || buc_die_now "Module rbhp already kindled"
+  test -z "${ZRBHP0_KINDLED:-}" || buc_die_now "Module rbhp already kindled"
 
   # Kernel discrimination for click-modifier display via the bash $OSTYPE
   # builtin (darwin* on macOS) — no external uname dependency.
@@ -37,11 +37,11 @@ zrbhp_kindle() {
   readonly ZRBHP_RBRP_FILE="${RBCC_rbrp_file}"
   readonly ZRBHP_RBRP_FILE_BASENAME="${ZRBHP_RBRP_FILE##*/}"
 
-  readonly ZRBHP_KINDLED=1
+  readonly ZRBHP0_KINDLED=1
 }
 
 zrbhp_sentinel() {
-  test "${ZRBHP_KINDLED:-}" = "1" || buc_die_now "Module rbhp not kindled - call zrbhp_kindle first"
+  test "${ZRBHP0_KINDLED:-}" = "1" || buc_die_now "Module rbhp not kindled - call zrbhp_kindle first"
 }
 
 zrbhp_enforce() {

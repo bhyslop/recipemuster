@@ -26,8 +26,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBFD_SOURCED:-}" || buc_die_now "Module rbfd multiply sourced - check sourcing hierarchy"
-ZRBFD_SOURCED=1
+test -z "${ZRBFD0_SOURCED:-}" || buc_die_now "Module rbfd multiply sourced - check sourcing hierarchy"
+ZRBFD0_SOURCED=1
 
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
@@ -38,7 +38,7 @@ source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh"
 # Tinder constants
 # Step id of the hallmark-echoing conjure step — single mint shared by the
 # step defs and the consistency assert, which locates its output slot by id
-readonly RBFD_hallmark_echo_step_id="derive-tag-base"
+readonly RBFD0_hallmark_echo_step_id="derive-tag-base"
 
 # Director body clusters, sourced once here at the single rbfd entry — all
 # guard-free: no cluster is sourced by a second entry.
@@ -52,7 +52,7 @@ source "${BASH_SOURCE[0]%/*}/rbfdo_ordain.sh"
 # Internal Functions (zrbfd_*)
 
 zrbfd_kindle() {
-  test -z "${ZRBFD_KINDLED:-}" || buc_die_now "Module rbfd already kindled"
+  test -z "${ZRBFD0_KINDLED:-}" || buc_die_now "Module rbfd already kindled"
 
   buc_log_args 'Kindle shared Foundry Core infrastructure'
   zrbfc_kindle
@@ -88,12 +88,12 @@ zrbfd_kindle() {
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
   zrbfv_kindle
 
-  readonly ZRBFD_KINDLED=1
+  readonly ZRBFD0_KINDLED=1
 }
 
 zrbfd_sentinel() {
   zrbfc_sentinel
-  test "${ZRBFD_KINDLED:-}" = "1" || buc_die_now "Module rbfd not kindled - call zrbfd_kindle first"
+  test "${ZRBFD0_KINDLED:-}" = "1" || buc_die_now "Module rbfd not kindled - call zrbfd_kindle first"
 }
 
 # eof
