@@ -42,11 +42,13 @@ zrbq_furnish() {
   source "${z_rbk_kit_dir}/rbrn_regime.sh"
   source "${z_rbk_kit_dir}/rbq_qualify.sh"
 
+  zbuv_kindle
   zbuz_kindle
   zrbz_kindle
   zbuwz_kindle
   zrbcc_kindle
   zrbgc_kindle
+  zrbrn_kindle
   zrbq_kindle
 }
 

@@ -37,25 +37,25 @@ crgr_render_group() {
 
 # Render a single value with label
 crgr_render_value() {
-    local varname=$1
-    local val=${!1}
-    printf "%-30s: %s\n" "$varname" "$val"
+    local z_varname=$1
+    local z_val=${!1}
+    printf "%-30s: %s\n" "$z_varname" "$z_val"
 }
 
 # Render boolean with enabled/disabled text
 crgr_render_boolean() {
-    local varname=$1
-    local val=${!1}
-    local status=$([ "$val" = "1" ] && echo "enabled" || echo "disabled")
-    printf "%-30s: %s\n" "$varname" "$status"
+    local z_varname=$1
+    local z_val=${!1}
+    local z_status=$([ "$z_val" = "1" ] && echo "enabled" || echo "disabled")
+    printf "%-30s: %s\n" "$z_varname" "$z_status"
 }
 
 # Render list with each item on new line
 crgr_render_list() {
-    local varname=$1
-    local val=${!1}
-    echo "$varname:"
-    for item in $val; do
+    local z_varname=$1
+    local z_val=${!1}
+    echo "$z_varname:"
+    for item in $z_val; do
         echo "    $item"
     done
 }

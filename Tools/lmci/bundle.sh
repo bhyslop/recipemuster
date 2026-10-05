@@ -63,66 +63,66 @@ fi
 
 # Get file content from filesystem or git
 get_content() {
-  local file="$1"
+  local z_file="$1"
   if [[ -n "$refspec" ]]; then
-    git show "$refspec:$file" 2>/dev/null
+    git show "$refspec:$z_file" 2>/dev/null
   else
-    cat "$file"
+    cat "$z_file"
   fi
 }
 
 # Return 0 if file is likely text, 1 otherwise
 is_text_file() {
-  local file="$1"
+  local z_file="$1"
   if command -v file >/dev/null 2>&1; then
-    local mtype
+    local z_mtype
     if [[ -n "$refspec" ]]; then
       # Git mode: pipe content through file
-      mtype=$(git show "$refspec:$file" 2>/dev/null | file -b --mime-type - 2>/dev/null)
+      z_mtype=$(git show "$refspec:$z_file" 2>/dev/null | file -b --mime-type - 2>/dev/null)
     else
       # Filesystem mode
-      mtype=$(file -b --mime-type "$file" 2>/dev/null)
+      z_mtype=$(file -b --mime-type "$z_file" 2>/dev/null)
     fi
-    case "$mtype" in
+    case "$z_mtype" in
       text/*|application/x-sh|application/x-shellscript) return 0 ;;
       *) return 1 ;;
     esac
   else
     # Fallback heuristic: look for null bytes
     if [[ -n "$refspec" ]]; then
-      ! git show "$refspec:$file" 2>/dev/null | head -c 512 | grep -q $'\x00'
+      ! git show "$refspec:$z_file" 2>/dev/null | head -c 512 | grep -q $'\x00'
     else
-      ! head -c 512 "$file" 2>/dev/null | grep -q $'\x00'
+      ! head -c 512 "$z_file" 2>/dev/null | grep -q $'\x00'
     fi
   fi
 }
 
 # Safely output text content, converting if needed
 output_file_content() {
-  local file="$1"
-  if ! is_text_file "$file"; then
+  local z_file="$1"
+  if ! is_text_file "$z_file"; then
     echo "[Binary content not shown]" >&2
     return
   fi
 
-  local enc
+  local z_enc
   if [[ -n "$refspec" ]]; then
     # Git mode: pipe content through file
-    enc=$(git show "$refspec:$file" 2>/dev/null | file -b --mime-encoding - 2>/dev/null)
+    z_enc=$(git show "$refspec:$z_file" 2>/dev/null | file -b --mime-encoding - 2>/dev/null)
   else
     # Filesystem mode
-    enc=$(file -b --mime-encoding "$file" 2>/dev/null)
+    z_enc=$(file -b --mime-encoding "$z_file" 2>/dev/null)
   fi
 
-  case "$enc" in
+  case "$z_enc" in
     utf-8|us-ascii)
-      get_content "$file"
+      get_content "$z_file"
       ;;
     utf-16*)
       if command -v iconv >/dev/null 2>&1; then
-        get_content "$file" | iconv -f "$enc" -t UTF-8 2>/dev/null || get_content "$file"
+        get_content "$z_file" | iconv -f "$z_enc" -t UTF-8 2>/dev/null || get_content "$z_file"
       else
-        get_content "$file"
+        get_content "$z_file"
       fi
       ;;
     iso-8859-*|windows-1252|unknown-8bit)

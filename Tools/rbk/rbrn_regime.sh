@@ -123,7 +123,7 @@ zrbrn_enforce() {
 # List available nameplate monikers as space-separated tokens
 # Prerequisite: RBCC sourced (needs RBCC_moorings_dir, RBCC_rbrn_file)
 rbrn_list_capture() {
-  zrbcc_sentinel
+  zrbrn_sentinel
 
   local z_result=""
   local z_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
@@ -193,7 +193,7 @@ zrbrn_ip_in_subnet() {
 # Cross-nameplate conflict validation (silent on success, dies on conflict)
 # Checks: port uniqueness, subnet non-overlap, enclave IP uniqueness
 rbrn_preflight() {
-  zrbcc_sentinel
+  zrbrn_sentinel
 
   # Collect structured data from all nameplates via isolation subshells
   local z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")

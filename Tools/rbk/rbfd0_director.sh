@@ -38,7 +38,7 @@ source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh"
 # Tinder constants
 # Step id of the hallmark-echoing conjure step — single mint shared by the
 # step defs and the consistency assert, which locates its output slot by id
-RBFD_hallmark_echo_step_id="derive-tag-base"
+readonly RBFD_hallmark_echo_step_id="derive-tag-base"
 
 # Director body clusters, sourced once here at the single rbfd entry — all
 # guard-free: no cluster is sourced by a second entry.

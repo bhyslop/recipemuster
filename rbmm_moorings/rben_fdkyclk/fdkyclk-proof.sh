@@ -81,14 +81,14 @@ b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
 
 # ---- payor access token (OAuth refresh-token exchange; never echoes secrets) ----
 payor_token() {
-  local cid csec rtok
-  cid=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")
-  csec=$(val RBRO_CLIENT_SECRET  "$RBRO")
-  rtok=$(val RBRO_REFRESH_TOKEN  "$RBRO")
+  local z_cid z_csec z_rtok
+  z_cid=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")
+  z_csec=$(val RBRO_CLIENT_SECRET  "$RBRO")
+  z_rtok=$(val RBRO_REFRESH_TOKEN  "$RBRO")
   curl -s https://oauth2.googleapis.com/token \
-    --data-urlencode "client_id=${cid}" \
-    --data-urlencode "client_secret=${csec}" \
-    --data-urlencode "refresh_token=${rtok}" \
+    --data-urlencode "client_id=${z_cid}" \
+    --data-urlencode "client_secret=${z_csec}" \
+    --data-urlencode "refresh_token=${z_rtok}" \
     --data-urlencode "grant_type=refresh_token" | jq -r '.access_token // empty'
 }
 
@@ -132,34 +132,34 @@ ensure_gcp_provider() {
 # Sign an assertion with the committed asserter key; Keycloak validates it against the
 # baked publicKeySignatureVerifier and resolves ASSERTER_SUB to the federated-linked user.
 mint_idtoken() {
-  local tokurl="$KC/realms/$REALM/protocol/openid-connect/token"
-  local iat exp jti header payload signing sig assertion
-  iat=$(date +%s); exp=$((iat + 300)); jti="jti-${iat}-$$"
-  header="{\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"$ASSERTER_KID\"}"
+  local z_tokurl="$KC/realms/$REALM/protocol/openid-connect/token"
+  local z_iat exp jti z_header z_payload z_signing z_sig z_assertion
+  z_iat=$(date +%s); exp=$((z_iat + 300)); jti="jti-${z_iat}-$$"
+  z_header="{\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"$ASSERTER_KID\"}"
   # aud must be the realm's FRONTEND issuer ($ISSUER, from frontendUrl), not the localhost
   # token endpoint — frontendUrl rewrites the issuer, so localhost fails "Invalid token audience".
-  payload="{\"iss\":\"$ASSERTER_ISSUER\",\"sub\":\"$ASSERTER_SUB\",\"aud\":\"$ISSUER\",\"iat\":$iat,\"exp\":$exp,\"jti\":\"$jti\"}"
-  signing="$(printf '%s' "$header" | b64url).$(printf '%s' "$payload" | b64url)"
-  sig=$(printf '%s' "$signing" | openssl dgst -sha256 -sign "$ASSERTER_KEY" -binary | b64url)
-  assertion="${signing}.${sig}"
-  curl -s "$tokurl" \
+  z_payload="{\"iss\":\"$ASSERTER_ISSUER\",\"sub\":\"$ASSERTER_SUB\",\"aud\":\"$ISSUER\",\"iat\":$z_iat,\"exp\":$exp,\"jti\":\"$jti\"}"
+  z_signing="$(printf '%s' "$z_header" | b64url).$(printf '%s' "$z_payload" | b64url)"
+  z_sig=$(printf '%s' "$z_signing" | openssl dgst -sha256 -sign "$ASSERTER_KEY" -binary | b64url)
+  z_assertion="${z_signing}.${z_sig}"
+  curl -s "$z_tokurl" \
     -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" \
     -d "client_id=$KC_CLIENT" -d "client_secret=$KC_CLIENT_SECRET" -d "scope=openid" \
-    --data-urlencode "assertion=$assertion" | jq -r '.id_token // empty'
+    --data-urlencode "assertion=$z_assertion" | jq -r '.id_token // empty'
 }
 
 # ---- STS exchange: Keycloak id_token -> Google federated token ----
 sts_exchange() {
-  local idtok="$1"
-  local aud="//iam.googleapis.com/locations/global/workforcePools/${GCP_POOL}/providers/${GCP_PROVIDER}"
+  local z_idtok="$1"
+  local z_aud="//iam.googleapis.com/locations/global/workforcePools/${GCP_POOL}/providers/${GCP_PROVIDER}"
   curl -s -X POST "https://sts.googleapis.com/v1/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
-    --data-urlencode "audience=${aud}" \
+    --data-urlencode "audience=${z_aud}" \
     --data-urlencode "scope=https://www.googleapis.com/auth/cloud-platform" \
     --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
     --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:id_token" \
-    --data-urlencode "subject_token=${idtok}"
+    --data-urlencode "subject_token=${z_idtok}"
 }
 
 decode_jwt() {
@@ -171,27 +171,27 @@ decode_sub() {
 
 # ---- Stage B: brevet (payor-direct), don, authorized AR call ----
 brevet() {
-  local principal="$1"
+  local z_principal="$1"
   export CLOUDSDK_AUTH_ACCESS_TOKEN; CLOUDSDK_AUTH_ACCESS_TOKEN=$(payor_token)
   gcloud iam service-accounts add-iam-policy-binding "$MANTLE_SA" --project="$DEPOT_PROJECT" \
-    --member="$principal" --role="roles/iam.serviceAccountTokenCreator" --condition=None >/dev/null \
+    --member="$z_principal" --role="roles/iam.serviceAccountTokenCreator" --condition=None >/dev/null \
     && echo "granted tokenCreator on $MANTLE_SA"
   gcloud projects add-iam-policy-binding "$DEPOT_PROJECT" \
-    --member="$principal" --role="roles/serviceusage.serviceUsageConsumer" --condition=None >/dev/null \
+    --member="$z_principal" --role="roles/serviceusage.serviceUsageConsumer" --condition=None >/dev/null \
     && echo "granted serviceUsageConsumer on $DEPOT_PROJECT"
 }
 
 don() {
-  local fed="$1" i tok
+  local z_fed="$1" i z_tok
   for i in 1 2 3 4 5 6 7 8; do
-    tok=$(curl -s -X POST \
+    z_tok=$(curl -s -X POST \
       "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${MANTLE_SA}:generateAccessToken" \
-      -H "Authorization: Bearer ${fed}" \
+      -H "Authorization: Bearer ${z_fed}" \
       -H "x-goog-user-project: ${DEPOT_PROJECT}" \
       -H "Content-Type: application/json" \
       --data '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
       | jq -r '.accessToken // empty')
-    [ -n "$tok" ] && { printf '%s' "$tok"; return 0; }
+    [ -n "$z_tok" ] && { printf '%s' "$z_tok"; return 0; }
     echo "don attempt $i: not yet (IAM propagation) — sleeping 10s" >&2
     sleep 10
   done
@@ -199,9 +199,9 @@ don() {
 }
 
 ar_call() {
-  local tok="$1"
-  local url="https://artifactregistry.googleapis.com/v1/projects/${DEPOT_PROJECT}/locations/${DEPOT_REGION}/repositories"
-  curl -s -H "Authorization: Bearer ${tok}" "$url" \
+  local z_tok="$1"
+  local z_url="https://artifactregistry.googleapis.com/v1/projects/${DEPOT_PROJECT}/locations/${DEPOT_REGION}/repositories"
+  curl -s -H "Authorization: Bearer ${z_tok}" "$z_url" \
     | jq 'if has("repositories") then {RESULT:"AUTHORIZED-AR-CALL-OK", repo_count:(.repositories|length), repos:[.repositories[].name]} else {RESULT:"FAILED", error:.error} end'
 }
 
@@ -210,9 +210,9 @@ main() {
   # via RFC 7523, no GCP and no admin-REST. The bare invocation runs the full chain.
   if [ "${1:-}" = "mint" ]; then
     say "LOCAL MINT CHECK — RFC 7523 against the baked realm (no GCP, no admin-REST)"
-    local idtok; idtok=$(mint_idtoken)
-    [ -n "$idtok" ] || { echo "FAILED to mint id_token via RFC 7523"; return 1; }
-    decode_jwt "$idtok"
+    local z_idtok; z_idtok=$(mint_idtoken)
+    [ -n "$z_idtok" ] || { echo "FAILED to mint id_token via RFC 7523"; return 1; }
+    decode_jwt "$z_idtok"
     echo "LOCAL_MINT_OK"
     return 0
   fi
@@ -224,30 +224,30 @@ main() {
   ensure_gcp_provider
 
   say "Stage A.3 — mint id_token via RFC 7523 JWT authorization grant"
-  local idtok; idtok=$(mint_idtoken)
-  [ -n "$idtok" ] || { echo "FAILED to mint id_token"; return 1; }
-  decode_jwt "$idtok"
+  local z_idtok; z_idtok=$(mint_idtoken)
+  [ -n "$z_idtok" ] || { echo "FAILED to mint id_token"; return 1; }
+  decode_jwt "$z_idtok"
 
   say "Stage A.5 — STS exchange (Keycloak id_token -> Google federated token)"
-  local sts fed
-  sts=$(sts_exchange "$idtok")
-  fed=$(echo "$sts" | jq -r '.access_token // empty')
-  [ -n "$fed" ] || { echo "STS FAILED:"; echo "$sts" | jq '{error,error_description}'; return 1; }
-  echo "{\"RESULT\":\"FEDERATED-TOKEN-OK\",\"fed_token_len\":${#fed}}"
+  local z_sts z_fed
+  z_sts=$(sts_exchange "$z_idtok")
+  z_fed=$(echo "$z_sts" | jq -r '.access_token // empty')
+  [ -n "$z_fed" ] || { echo "STS FAILED:"; echo "$z_sts" | jq '{error,error_description}'; return 1; }
+  echo "{\"RESULT\":\"FEDERATED-TOKEN-OK\",\"fed_token_len\":${#z_fed}}"
 
-  local sub principal
-  sub=$(decode_sub "$idtok")
-  principal="principal://iam.googleapis.com/locations/global/workforcePools/${GCP_POOL}/subject/${sub}"
+  local z_sub z_principal
+  z_sub=$(decode_sub "$z_idtok")
+  z_principal="principal://iam.googleapis.com/locations/global/workforcePools/${GCP_POOL}/subject/${z_sub}"
 
   say "Stage B.1 — brevet (payor-direct): grant the fdkyclk subject tokenCreator on the ${MANTLE} mantle + serviceUsageConsumer"
-  brevet "$principal"
+  brevet "$z_principal"
 
   say "Stage B.2 — don the ${MANTLE} mantle (generateAccessToken with the federated token)"
-  local mtok; mtok=$(don "$fed") || { echo "DON FAILED"; return 1; }
-  echo "mantle token len: ${#mtok}"
+  local z_mtok; z_mtok=$(don "$z_fed") || { echo "DON FAILED"; return 1; }
+  echo "mantle token len: ${#z_mtok}"
 
   say "Stage B.3 — authorized depot-API call (Artifact Registry repositories.list)"
-  ar_call "$mtok"
+  ar_call "$z_mtok"
 }
 
 main "$@"

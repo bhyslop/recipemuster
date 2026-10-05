@@ -37,7 +37,7 @@ ZRBPC_SOURCED=1
 # permanent subject into the new instance; the definition here does not move.
 # Recorded at the federation-legs spike. Deliberately segregated in this proving
 # module (test gestalt), NOT in RBCC.
-RBPC_freehold_subject="9657166c-8a2d-4f5d-bcd1-ef481ee31f3e"
+readonly RBPC_freehold_subject="9657166c-8a2d-4f5d-bcd1-ef481ee31f3e"
 
 ######################################################################
 # Rust const projection (rbpc set → RBTDGC_FREEHOLD_*)

@@ -29,7 +29,7 @@ ZRBGC_SOURCED=1
 # Tinder constants (pure string literals, no variable expansion — available at source time)
 # Depot project ID infix between RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER, consumed
 # by rbdc_derived.sh's RBDC_DEPOT_PROJECT_ID derivation.
-RBGC_depot_project_infix="d-"
+readonly RBGC_depot_project_infix="d-"
 
 ######################################################################
 # Internal Functions (zrbgc_*)
