@@ -175,6 +175,8 @@ rbrn_require_armed() {
 
 # Convert dotted-quad IPv4 to integer for subnet arithmetic
 zrbrn_ip_to_int() {
+  zrbrn_sentinel
+
   local z_a z_b z_c z_d
   IFS='.' read -r z_a z_b z_c z_d <<< "$1"
   echo $(( (z_a << 24) + (z_b << 16) + (z_c << 8) + z_d ))
