@@ -18,7 +18,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Keycloak orchestrator — the synthetic programmatic-federation
-# test facility's lifecycle, ONE coherent BCG module in the rbx family. Two
+# test facility's lifecycle, ONE coherent module in the rbx family. Two
 # toothings on the keycloak-facility bondstone:
 #
 #   setup    (rbw-qjK) — stand the facility up: gate a clean tree, charge the
@@ -87,8 +87,7 @@ zrbxk_kindle() {
   readonly ZRBXK_TEMPLATE="${ZRBXK_LIVE}.template"
 
   # The crucible nameplate regime — parsed (never sourced) for the host-side
-  # Keycloak port, so a port change in the nameplate propagates here (ACG:
-  # reference the home).
+  # Keycloak port, so a port change in the nameplate propagates here.
   readonly ZRBXK_NAMEPLATE_RBRN="${RBCC_moorings_dir}/${RBXK_moniker}/${RBCC_rbrn_file}"
 
   # JWKS bridge temp files (non-secret — public keys only).
@@ -217,7 +216,7 @@ zrbxk_fetch_jwks() {
     || buc_die_now "Failed to resolve Keycloak base URL from nameplate ${ZRBXK_NAMEPLATE_RBRN}"
   local -r z_certs_url="${z_base}/realms/${RBXK_realm}/protocol/openid-connect/certs"
 
-  # Body to a temp file, code captured separately (BCG: single external command,
+  # Body to a temp file, code captured separately (single external command,
   # failures visible in the temp file afterward).
   local z_curl_status=0
   curl -s -o "${ZRBXK_JWKS_RAW}" -w '%{http_code}' "${z_certs_url}" > "${ZRBXK_HTTP_CODE}" || z_curl_status=$?
@@ -261,7 +260,7 @@ zrbxk_render_live() {
   local -r z_grant_endpoint="${z_base}/realms/${RBXK_realm}/protocol/openid-connect/token"
 
   # Live regime = the committed template body (its trailing '# eof' dropped by the
-  # read loop — a bash builtin, per BCG command discipline) plus the two rendered
+  # read loop — a bash builtin) plus the two rendered
   # assignments, then a fresh '# eof'. Neither the JWKS (JSON) nor the endpoint URL
   # carries single quotes, so the single-quoted assignments are safe.
   local z_tline=""
@@ -292,11 +291,10 @@ rbxk_setup() {
   buc_doc_brief "Stand up the Keycloak programmatic test facility — charge the Crucible, render its ephemeral JWKS into the ignored live regime, and affiance rbef_keycloak"
   buc_doc_shown || return 0
 
-  # Clean-tree gate FIRST — the precision-band creed variant (BCG Precision
-  # Exit-Code Band). The orchestrator gates up-front precisely to honor affiance's
+  # Clean-tree gate FIRST — the precision-band creed variant. The orchestrator gates up-front precisely to honor affiance's
   # OWN clean-tree requirement BEFORE charging a crucible: affiance (which this
   # facility calls) refuses a dirty tree because the seated provider must answer to
-  # a committed name, so reuse its very creed (ACG: reference the home) rather than
+  # a committed name, so reuse its very creed rather than
   # mint a near-duplicate. Gating here fails fast, before charge, instead of after.
   bug_require_clean_tree_creed "${RBCC_creed_clean_affiance}"
 

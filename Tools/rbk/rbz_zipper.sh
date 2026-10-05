@@ -296,7 +296,7 @@ zrbz_kindle() {
   z_mod="rbq_cli.sh"
   buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
   buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_release"     ""        "Release qualify: + shellcheck, full test suite"
-  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_shellcheck"  ""        "Shellcheck only: BCG-configured static analysis, no test suite"
+  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_shellcheck"  ""        "Shellcheck only: static analysis, no test suite"
 
   readonly ZRBZ_KINDLED=1
 }

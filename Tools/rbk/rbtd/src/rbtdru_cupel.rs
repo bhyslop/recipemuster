@@ -15,7 +15,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTDRU — cupel: BCG command-dependency static-analysis fixture.
+// RBTDRU — cupel: command-dependency static-analysis fixture.
 //
 // A cupel is the assay vessel in which base metals are driven off and the
 // noble metal remains. This fixture drives off command-position tokens that
@@ -23,8 +23,8 @@
 // corpus whose external-command surface is exactly the declared dependency
 // floor.
 //
-// This module is the fixture frame: the BCG allowlists that are the single
-// source of truth (POSIX floor, RBS0 declared deps, the curated GCB
+// This module is the fixture frame: the allowlists
+// (POSIX floor, declared deps, the curated GCB
 // container-tool list, the python stdlib import floor, the eviction table),
 // the shared finding/result types, the corpus walk, the trace-file reporting,
 // and the case/fixture wiring. The per-language scanning lives in two sibling
@@ -35,8 +35,8 @@
 //                     dynamic-import ban, subprocess argv[0] tool floor).
 //
 // Corpus scope — only the release-relevant kit roots (Tools/buk, Tools/rbk) are
-// linted. These are the kits that ship in the recipe-bottle consumer release and
-// are authored under BCG; other kits under Tools/ are separate products never
+// linted. These are the kits that ship in the recipe-bottle consumer release;
+// other kits under Tools/ are separate products never
 // written to the discipline, and holding them to it would surface noise, not
 // defects. A kit adopts the discipline by being added to ZRBTDRU_KIT_ROOTS —
 // opt-in, never by default. Within the lint target, ABANDONED* and FUTURE*
@@ -71,7 +71,7 @@ use crate::rbtdru_python::zrbtdru_scan_python;
 pub(crate) const ZRBTDRU_TOOLS_SUBDIR: &str = "Tools";
 
 /// Release-relevant kit roots under Tools/, each walked recursively. Only these
-/// kits ship in the recipe-bottle consumer release and are authored under BCG,
+/// kits ship in the recipe-bottle consumer release,
 /// so only these are held to the discipline. Names are directory basenames under
 /// Tools/; adding one opts that kit into the lint deliberately.
 pub(crate) const ZRBTDRU_KIT_ROOTS: &[&str] = &["buk", "rbk"];
@@ -116,7 +116,6 @@ pub(crate) const ZRBTDRU_LABEL_KIT: &str = "kit";
 pub(crate) const ZRBTDRU_LABEL_GCB: &str = "gcb";
 pub(crate) const ZRBTDRU_LABEL_PY: &str = "py";
 
-// ── BCG allowlists (source of truth: BCG + RBS0 Dependency Inventory) ──
 
 /// POSIX Utility Allowlist — the irreducible external-command floor. No bash
 /// 3.2 builtin replacement; mandated by POSIX wherever bash runs.
@@ -125,13 +124,12 @@ pub(crate) const ZRBTDRU_POSIX_FLOOR: &[&str] = &[
     "sleep", "sort", "stty",
 ];
 
-/// Declared dependencies — the RBS0 Dependency Inventory (consumer + developer
-/// + specialized). A cost accepted by every consumer; each appears in RBS0 with
-/// its justification.
+/// Declared dependencies — (consumer + developer
+/// + specialized). A cost accepted by every consumer.
 pub(crate) const ZRBTDRU_DECLARED_DEPS: &[&str] = &[
     "bash", "cargo", "curl", "docker", "git", "jq", "openssl", "podman", "scp",
     "shellcheck", "ssh", "ssh-keygen", "stat", "tar", "tee", "timeout",
-    // Optional probe-and-skip clipboard tier (one RBS0 inventory row): probed
+    // Optional probe-and-skip clipboard tier (one inventory row): probed
     // by buc_clipboard_copy_predicate, never required on any host.
     "clip.exe", "pbcopy", "wl-copy", "xclip",
 ];
@@ -170,8 +168,7 @@ pub(crate) const ZRBTDRU_GCB_ALLOWED: &[&str] = &[
 
 /// Python stdlib import floor — the module roots a python cloud step may
 /// import, enumerated empirically as the union over Tools/rbk/rbgj*/*.py.
-/// This constant is the floor's authoritative home (CBG CBp_102 points here,
-/// never restates the list). Stdlib-only is the criterion: a third-party
+/// Stdlib-only is the criterion: a third-party
 /// import binds a step to the floating builder's unpinned pip set — the same
 /// drift class the bash allowlist exists to stop. `subprocess` is sanctioned
 /// only because its argv[0] literals are scanned against the GCB tool floor;
@@ -197,8 +194,8 @@ pub(crate) const ZRBTDRU_BUILTINS: &[&str] = &[
     "typeset", "ulimit", "umask", "unalias", "unset", "wait",
 ];
 
-/// One evicted command and the BCG-prescribed replacement reported in its
-/// stead. Verbatim from BCG's "Evicted Utilities" table.
+/// One evicted command and the prescribed replacement reported in its
+/// stead.
 pub(crate) struct zrbtdru_Eviction {
     pub(crate) command: &'static str,
     pub(crate) replacement: &'static str,
@@ -304,7 +301,7 @@ fn zrbtdru_render(findings: &[zrbtdru_Finding]) -> String {
 
 /// Persist a scan's findings and inventory traces into the case dir and turn
 /// the result into a verdict. `what` names the violation class in the fail
-/// message (e.g. "BCG command-discipline violation(s) in kit-bash").
+/// message (e.g. "command-discipline violation(s) in kit-bash").
 fn zrbtdru_report(dir: &Path, label: &str, scan: &zrbtdru_ScanResult, what: &str) -> rbtdre_Verdict {
     let findings = &scan.findings;
     let report = zrbtdru_render(findings);
@@ -338,7 +335,7 @@ fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre
         Ok(s) => s,
         Err(e) => return rbtdre_Verdict::Fail(e),
     };
-    let what = format!("BCG command-discipline violation(s) in {}-bash", label);
+    let what = format!("command-discipline violation(s) in {}-bash", label);
     zrbtdru_report(dir, label, &scan, &what)
 }
 

@@ -80,7 +80,7 @@ zrba_kindle() {
   readonly ZRBA_FED_DON_BODY_FILE="${BURD_TEMP_DIR}/rba_fed_don_body.json"
 
   # Non-secret scalar fields parsed out of the leg responses land in these temp
-  # files: BCG bars $() on external commands, so jq/date write a file and the
+  # files: jq/date write a file and the
   # value is read back with $(<file). The id, federated, and mantle tokens are
   # never among them — jq emits each straight to its function's stdout. The only
   # token-bearing temp files are the STS and don curl responses above (the
@@ -325,8 +325,7 @@ zrba_idtoken_subject_capture() {
 # never load-bearing — no tool found or a failed copy degrades to
 # display-only, and only a successful copy is announced (it replaces the
 # operator's prior clipboard contents). Mechanism is the BUK platform
-# normalizer buc_clipboard_copy_predicate; its optional probe-and-skip tools
-# are inventoried per BCG Command Dependency Discipline.
+# normalizer buc_clipboard_copy_predicate.
 zrba_user_code_clipboard() {
   zrba_sentinel
 
@@ -438,7 +437,7 @@ zrba_leg1_idtoken_capture() {
 }
 
 # base64url-encode a file's bytes (RFC 7515): standard base64 via openssl (the
-# declared dependency — base64/tr are evicted, BCG Command Dependency Discipline),
+# declared dependency — base64/tr are evicted),
 # then +/=->-_ stripped by bash parameter expansion. A non-secret transform over
 # public JWT parts. Args: $1 input file, $2 the raw-base64 scratch file (unique per
 # part, forensic). Echoes the b64url string or returns 1.
@@ -464,7 +463,7 @@ zrba_b64url_capture() {
 # consumes it in-process, never persisted. Reads its inputs solely from the
 # programmatic RBRF_ self-supply fields — it never learns "Keycloak".
 #
-# Custody (BCG two-keys): the asserter private key is read ONLY by openssl
+# Custody: the asserter private key is read ONLY by openssl
 # via its regime PATH and never enters a shell var; the client secret is read ONLY by
 # curl via its file reference (--data-urlencode name@file) and never enters a shell
 # var or the argument list; the minted id_token is emitted by jq straight to stdout,
@@ -484,7 +483,7 @@ zrba_leg1_programmatic_idtoken_capture() {
   test -f "${z_secret_file}" \
     || { buc_log_args "Client secret file absent: ${z_secret_file} (RBRF_CLIENT_SECRET_FILE)"; return 1; }
 
-  # Fresh assertion timestamps: BCG bars $() on external commands, so date writes a
+  # Fresh assertion timestamps: date writes a
   # file read back with the $(<file) builtin. exp = iat + TTL; a unique jti per mint
   # (one-time use — Keycloak disables reuse by default).
   date +%s > "${ZRBA_FED_PROG_NOW_FILE}" || return 1
@@ -735,7 +734,7 @@ rba_novate() {
 # token via iamcredentials generateAccessToken. Emits the mantle token on stdout
 # once on success; failure returns 1, except the Leg-3 403 admission deficit,
 # which returns the distinguished BUBC_band_admission code — never buc_die_now,
-# never stderr (BCG capture contract); the consuming verb supplies the loud
+# never stderr; the consuming verb supplies the loud
 # buc_die_now (or a band-aware buc_reject) over the returned code, and the
 # forensic lines below carry the operator instruction it dies with
 # (matching rba_avow's "failed at Leg N; see the transcript" division of

@@ -524,7 +524,7 @@ zrbob_reclaim_subnet() {
     > "${z_networks_file}" 2>"${z_networks_stderr}" \
     || buc_die_now "Failed to list Docker networks — see ${z_networks_stderr}"
 
-  # Load network names (load-then-iterate per BCG; names are captured before any
+  # Load network names (load-then-iterate; names are captured before any
   # reclaim, so removing networks mid-loop cannot disturb the iteration)
   local z_names=()
   local z_line=""
@@ -614,7 +614,7 @@ zrbob_reclaim_subnet() {
 # Closed placeholder vocabulary for the per-nameplate usage note. A token names
 # one of these exactly; anything else is a typo and is fatal. Widening the
 # vocabulary is adding an arm here plus a line in the spec — not a format change.
-# BCG predicate: 0 if the name is a sanctioned charge-note placeholder.
+# Predicate: 0 if the name is a sanctioned charge-note placeholder.
 zrbob_note_vocab_ok() {
   zrbob_sentinel
 
@@ -628,7 +628,7 @@ zrbob_note_vocab_ok() {
 # data — read, never sourced or executed. Placeholder tokens {{NAME}} resolve by
 # indirect expansion (${!NAME}) after NAME is validated against the closed
 # vocabulary; an unknown or malformed token is fatal, never emitted raw
-# (rbnnh_charge_note; BCG interface-contamination). Emission routes through BUC.
+# (rbnnh_charge_note). Emission routes through BUC.
 zrbob_render_charge_note() {
   zrbob_sentinel
 
@@ -768,7 +768,7 @@ rbob_charge() {
 }
 
 # Check whether the crucible is charged — sentry, pentacle, and bottle must each
-# be individually `running`. BCG predicate: returns 0 if charged, 1 if not.
+# be individually `running`. Predicate: returns 0 if charged, 1 if not.
 # Never dies, no output. Compose stderr captured to BURD_TEMP_DIR for operator
 # inspection on verify-active failures.
 rbob_charged_predicate() {

@@ -25,12 +25,12 @@ use std::process::Command;
 
 use crate::rbida_sorties;
 
-// ── Domain constants (RCG String Boundary Discipline) ──
+// ── Domain constants ──
 
 /// Test connectivity target — ICANN-owned, stable single /20 CIDR (192.0.32.0/20)
 pub const RBIDA_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
 
-// ── Selector constants (Single Definition Rule — RCG String Boundary Discipline) ──
+// ── Selector constants ──
 
 const RBIDA_SEL_DNS_ALLOWED_EXAMPLE: &str = "dns-allowed-example";
 const RBIDA_SEL_DNS_ALLOWED_EXAMPLE_ORG: &str = "dns-allowed-example-org";

@@ -41,7 +41,7 @@ pub const RBTDRI_BURV_OUTPUT_SUBDIR: &str = "current";
 /// confirmation prompts in non-interactive contexts (test fixtures, automation).
 pub const RBTDRI_BURE_CONFIRM_KEY: &str = "BURE_CONFIRM";
 
-/// BURE tweak-slot env var (BUS0 Tweak Mechanism) — the single test-seam
+/// BURE tweak-slot env var — the single test-seam
 /// channel every tabtarget inherits. The credless guard rides this slot for
 /// reveille-tier fixtures; case-supplied tweaks ride it everywhere else.
 pub const RBTDRI_BURE_TWEAK_NAME_KEY: &str = "BURE_TWEAK_NAME";
@@ -530,7 +530,7 @@ fn rbtdri_invoke_impl(
     std::fs::create_dir_all(&burv_temp)
         .map_err(|e| format!("rbtdri: failed to create BURV temp dir: {}", e))?;
 
-    // Tweak-slot conflict gate (BUS0): under the credless guard the single
+    // Tweak-slot conflict gate: under the credless guard the single
     // tweak slot belongs to the guard — a reveille-tier case supplying its own
     // tweak has self-identified as not belonging in reveille. Fail loud rather
     // than letting the case silently overwrite the guard.

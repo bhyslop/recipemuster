@@ -17,7 +17,7 @@
 //
 // RBTDRE — case execution engine for theurge
 
-// RCG output discipline: all emission via rbtdrg_*! — no direct println!/eprintln!
+// all emission via rbtdrg_*! — no direct println!/eprintln!
 
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
@@ -708,7 +708,7 @@ pub struct rbtdre_Fixture {
     pub setup: Option<fn() -> Result<(), String>>,
     pub teardown: Option<fn()>,
     pub cases: &'static [rbtdre_Case],
-    /// Reveille-tier credless guard (BUS0 tweak doctrine, slot-reservation rule).
+    /// Reveille-tier credless guard.
     /// When true, every tabtarget Command built while this fixture runs carries
     /// `BURE_TWEAK_NAME=<credless guard>`, and the token-mint membranes reject
     /// with the credless band code — the fixture cannot use credentials, by

@@ -21,9 +21,6 @@
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_TAG_VOUCH,
 #                _RBGL_GIT_COMMIT (spine-injected, never in a body's blob)
 #
-# Note: this script runs inside a Cloud Build container, not under BCG module
-# discipline (CBG governs).
-#
 # The capture step (rbgjl01 ensconce / rbgjl03 conclave / rbgjl04 underpin / rbgjl07
 # immure) staged one envelope per captured Lode at /workspace/lode_<stamp>_vouch.json
 # and listed the stamps in /workspace/lode_stamps.txt. Each envelope rides into the SAME package as

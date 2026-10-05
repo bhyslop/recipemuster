@@ -21,7 +21,7 @@
 #                _RBGV_HALLMARK, _RBGV_ARK_BASENAME_VOUCH
 #
 # Note: The Dockerfile heredoc below is intentional — this script runs inside
-# a Cloud Build container, not under BCG module discipline.
+# a Cloud Build container.
 #
 # Platforms are read from /workspace/vouch_platforms.txt (written by step 02).
 # Multi-platform via buildx. No TARGETARCH needed — vouch content (JSON files)

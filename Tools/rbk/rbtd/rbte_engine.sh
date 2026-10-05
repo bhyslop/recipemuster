@@ -19,7 +19,7 @@
 #
 # RBTE Engine - Theurge test engine implementation module
 #
-# BCG module providing kindle/sentinel/public functions for theurge
+# Module providing kindle/sentinel/public functions for theurge
 # Rust build, test, and orchestration commands.
 
 set -euo pipefail

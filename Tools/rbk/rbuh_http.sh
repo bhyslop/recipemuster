@@ -56,7 +56,7 @@ zrbuh_sentinel() {
   test "${ZRBUH_KINDLED:-}" = "1" || buc_die_now "Module rbuh not kindled - call zrbuh_kindle first"
 }
 
-# HTTP fault-injection seam (BUS0 Tweak Mechanism; buorb_ is RB's buo segment) —
+# HTTP fault-injection seam (buorb_ is RB's buo segment) —
 # the regime-poison analogue for HTTP. The seam is one membrane in rbuh_json,
 # the single JSON-REST path every Google call crosses, applied after the
 # transport succeeds and before the code file is registered for capture. Under
@@ -286,8 +286,8 @@ rbuh_json() {
 # Hardcoded headers: Authorization: Bearer ${token}, Accept: application/json.
 # When body_file is non-empty: adds Content-Type: application/json, sends @body_file.
 # Pass "-" as body_file to read body from stdin (curl @- convention).
-# This is the BCG-conformant primitive — caller supplies temp file paths so per-attempt
-# numbering (BCG §"In loops, use an auto-incrementing integer") is the caller's choice.
+# This is the primitive — caller supplies temp file paths so per-attempt
+# numbering is the caller's choice.
 rbuh_request() {
   zrbuh_sentinel
 

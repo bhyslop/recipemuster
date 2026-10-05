@@ -215,7 +215,7 @@ zrbgp_depot_state_emit() {
   # Anchor prefix string used inside loop for displayName stripping.
   local -r z_display_prefix="${RBGC_DEPOT_DISPLAY_PREFIX} "
 
-  # Per-iteration synthesized locals (BCG exception 2 — declare outside, assign inside)
+  # Per-iteration synthesized locals (declare outside, assign inside)
   local z_search_page=1
   local z_search_page_token=""
   local z_search_url=""
@@ -714,8 +714,7 @@ zrbgp_pool_probe_submit() {
 
   # Push script — pool-specific values baked in at host-side, so Cloud Build
   # sees a fully-resolved script with no substitutions. Heredocs inside this
-  # file are cloud-side bash (executed by the build worker); BCG host-side
-  # heredoc prohibition does not apply to content destined for cloud execution.
+  # file are cloud-side bash (executed by the build worker).
   local -r z_push_script_file="${BURD_TEMP_DIR}/rbgp_probe_${z_pool_variant}_push.sh"
   printf '%s\n' \
     '#!/bin/bash' \
@@ -1436,8 +1435,7 @@ rbgp_manor_jilt() {
   # (gone). Either is success — the verify tolerates whether the GET surfaces a
   # soft-deleted provider, mirroring the depot-unmake resource-state poll.
   buc_step 'Verify dissolution'
-  # Loop counter/accumulator + per-iteration synthesized locals (BCG Exceptions
-  # 1/2/4 — declare outside, assign inside)
+  # Loop counter/accumulator + per-iteration synthesized locals (declare outside, assign inside)
   local z_jilt_elapsed=0
   local z_jilt_dissolved=""
   local z_verify_infix=""
@@ -1709,7 +1707,7 @@ rbgp_manor_instaurate() {
   local z_org_enc=""
   z_org_enc=$(rbuh_urlencode_capture "${z_org}") || buc_die_now "Failed to URL-encode org parent"
 
-  # Per-iteration synthesized locals (BCG — declare outside, assign inside)
+  # Per-iteration synthesized locals (declare outside, assign inside)
   local z_page=1
   local z_page_token=""
   local z_url=""
@@ -2811,7 +2809,7 @@ rbgp_depot_list() {
   buc_info "=== DEPOT SUMMARY ==="
   printf "%-40s %s\n" "PROJECT_ID" "STATUS"
 
-  # Per-iteration synthesized locals (BCG exception 2)
+  # Per-iteration synthesized locals
   local z_fact_path=""
   local z_basename=""
   local z_moniker=""
@@ -3353,7 +3351,7 @@ rbgp_attribution_trail() {
 
   buc_step "Attribution trail — ${z_count} most-recent Data-Access entries (use hop carries the federate subject; mint hop carries none, by design)"
 
-  # Render to a temp file (BCG: external command output via temp file, never
+  # Render to a temp file (external command output via temp file, never
   # captured through $()), then emit each line through buc. Columns: timestamp,
   # service, method, acting principalEmail (the mantle SA), and the delegation
   # principalSubject. The rightmost column has three honest cases: the human

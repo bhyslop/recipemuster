@@ -34,7 +34,7 @@ zrbho_kindle() {
   zbuz_sentinel
   zrbz_sentinel
 
-  # BCG stderr-capture prefixes for docker probes — discriminator appended at use site.
+  # stderr-capture prefixes for docker probes — discriminator appended at use site.
   # BURD_TEMP_DIR is dispatcher-provided (rbho is thin furnish — does not kindle burd).
   readonly ZRBHO_DOCKER_IMAGES_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_images_"
   readonly ZRBHO_DOCKER_PS_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_ps_"
