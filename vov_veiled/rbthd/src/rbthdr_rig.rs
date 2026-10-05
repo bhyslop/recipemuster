@@ -116,28 +116,28 @@ pub struct rbthdr_Rig {
 /// or a public URL). Narrates each act. Returns the standing artifacts; the
 /// launch line and stranger prompt are emitted separately by `emit_handoff`, so
 /// a caller may interpose its own advisories (essai shows its fidelity gap first).
-pub fn stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rbthdr_Rig {
+pub fn rbthdr_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rbthdr_Rig {
     let rig_dir = parent.join(RBTHDR_RIG_DIRNAME);
     let clone_dir = rig_dir.join(RBTHDR_RIG_CLONE_SUBDIR);
 
     // Guard before anything moves: the rig dir is the fixed name and not the repo
     // root. The disposal is a rename, so a wrong guard destroys nothing — the
     // guard makes a wrong move impossible in the first place.
-    rbthdr_repo::guard_disposable(&rig_dir, RBTHDR_RIG_DIRNAME, top);
+    rbthdr_repo::rbthdr_guard_disposable(&rig_dir, RBTHDR_RIG_DIRNAME, top);
 
-    let walk_date = rbthdr_run::datestamp(cwd);
+    let walk_date = rbthdr_run::rbthdr_datestamp(cwd);
     let memo_path = rig_dir.join(format!("memo-{}-{}.md", walk_date, RBTHDR_RIG_MEMO_SLUG));
 
-    rbthdr_log::step(&format!("Retiring any existing rig aside: {}", rig_dir.display()));
-    if !rbthdr_repo::retire_aside(&rig_dir, cwd) {
-        rbthdr_log::line("no prior rig to retire");
+    rbthdr_log::rbthdr_step(&format!("Retiring any existing rig aside: {}", rig_dir.display()));
+    if !rbthdr_repo::rbthdr_retire_aside(&rig_dir, cwd) {
+        rbthdr_log::rbthdr_line("no prior rig to retire");
     }
     std::fs::create_dir_all(&rig_dir)
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to create the rig dir {}: {}", rig_dir.display(), e));
 
-    rbthdr_log::step(&format!("Cloning into the rig from {}", clone_source));
+    rbthdr_log::rbthdr_step(&format!("Cloning into the rig from {}", clone_source));
     let clone_dir_str = zrbthdr_path_str(&clone_dir);
-    let code = rbthdr_run::stream("git", &["clone", clone_source, &clone_dir_str], cwd, &[]);
+    let code = rbthdr_run::rbthdr_stream("git", &["clone", clone_source, &clone_dir_str], cwd, &[]);
     if code != 0 {
         crate::rbthdr_fatal!("failed to clone {} into {}", clone_source, clone_dir.display());
     }
@@ -153,10 +153,10 @@ pub fn stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rb
     // Sever the origin. From here the clone names no remote, so nothing it does
     // can reach any repository. Materialization is already complete, so the sever
     // costs the walk nothing.
-    rbthdr_log::step("Severing the clone from its origin");
+    rbthdr_log::rbthdr_step("Severing the clone from its origin");
     zrbthdr_git_c(&clone_dir, &["remote", "remove", "origin"], cwd, "sever the clone's origin");
 
-    rbthdr_log::step("Installing the pre-push refusal hook");
+    rbthdr_log::rbthdr_step("Installing the pre-push refusal hook");
     let hook = clone_dir.join(".git").join("hooks").join("pre-push");
     std::fs::write(&hook, RBTHDR_RIG_HOOK_BODY)
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to write the pre-push hook {}: {}", hook.display(), e));
@@ -169,7 +169,7 @@ pub fn stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rb
 
     // Cut the throwaway walk branch; the clone's own default branch stays the
     // pristine reference to diff the walk against.
-    rbthdr_log::step(&format!("Cutting the throwaway walk branch {}", RBTHDR_RIG_WALK_BRANCH));
+    rbthdr_log::rbthdr_step(&format!("Cutting the throwaway walk branch {}", RBTHDR_RIG_WALK_BRANCH));
     zrbthdr_git_c(&clone_dir, &["checkout", "-b", RBTHDR_RIG_WALK_BRANCH], cwd, "cut the walk branch");
 
     rbthdr_Rig { rig_dir, clone_dir, memo_path }
@@ -178,26 +178,26 @@ pub fn stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rb
 /// Emit the launch line and the stranger prompt — the shared handoff both essai
 /// and harbinger end on. The walk is the operator's own, launched by hand from
 /// the printed line; the rig launches nothing and pushes nothing.
-pub fn emit_handoff(rig: &rbthdr_Rig) {
+pub fn rbthdr_emit_handoff(rig: &rbthdr_Rig) {
     let clone = zrbthdr_path_str(&rig.clone_dir);
     let memo = zrbthdr_path_str(&rig.memo_path);
 
-    rbthdr_log::blank();
-    rbthdr_log::line("Rig ready. Two steps, by your hand:");
-    rbthdr_log::blank();
-    rbthdr_log::line("1. Launch a cold session in the clone (NEW terminal):");
-    rbthdr_log::blank();
-    rbthdr_log::raw(&format!("        (cd {} && claude --model sonnet --permission-mode auto)", clone));
-    rbthdr_log::blank();
-    rbthdr_log::line("2. Paste the stranger prompt below:");
-    rbthdr_log::blank();
-    rbthdr_log::raw(&RBTHDR_STRANGER_PROMPT.replace("__MEMO_PATH__", &memo));
-    rbthdr_log::blank();
-    rbthdr_log::line(&format!(
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line("Rig ready. Two steps, by your hand:");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line("1. Launch a cold session in the clone (NEW terminal):");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_raw(&format!("        (cd {} && claude --model sonnet --permission-mode auto)", clone));
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line("2. Paste the stranger prompt below:");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_raw(&RBTHDR_STRANGER_PROMPT.replace("__MEMO_PATH__", &memo));
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_line(&format!(
         "When the walk is done, review {} in the rig, commit it into",
         zrbthdr_basename(&rig.memo_path)
     ));
-    rbthdr_log::line("the studbook (jjqs_studbook/) affiliated to the pace, then discard the rig.");
+    rbthdr_log::rbthdr_line("the studbook (jjqs_studbook/) affiliated to the pace, then discard the rig.");
 }
 
 /// git -C <dir> <args>, fatal on non-zero with the act named.
@@ -205,15 +205,15 @@ fn zrbthdr_git_c(dir: &Path, args: &[&str], cwd: &Path, act: &str) {
     let dir_str = zrbthdr_path_str(dir);
     let mut full = vec!["-C", &dir_str];
     full.extend_from_slice(args);
-    let code = rbthdr_run::stream("git", &full, cwd, &[]);
+    let code = rbthdr_run::rbthdr_stream("git", &full, cwd, &[]);
     if code != 0 {
         crate::rbthdr_fatal!("failed to {} in {}", act, dir.display());
     }
 }
 
-/// A path as a &str — the shared UTF-8-or-fatal conversion (rbthdr_repo::as_str).
+/// A path as a &str — the shared UTF-8-or-fatal conversion (rbthdr_repo::rbthdr_as_str).
 fn zrbthdr_path_str(p: &Path) -> String {
-    rbthdr_repo::as_str(p)
+    rbthdr_repo::rbthdr_as_str(p)
 }
 
 fn zrbthdr_basename(p: &Path) -> String {

@@ -65,17 +65,17 @@ fn rbtdtl_assert_fail_with(verdict: &rbtdre_Verdict, needle: &str, label: &str) 
             needle,
             d
         ),
-        other => panic!("{}: expected Fail, got {:?}", label, fmt_other(other)),
+        other => panic!("{}: expected Fail, got {:?}", label, zrbtdtl_fmt_other(other)),
     }
 }
 
 fn rbtdtl_assert_skip(verdict: &rbtdre_Verdict, label: &str) {
     if !matches!(verdict, rbtdre_Verdict::Skip(_)) {
-        panic!("{}: expected Skip, got {:?}", label, fmt_other(verdict));
+        panic!("{}: expected Skip, got {:?}", label, zrbtdtl_fmt_other(verdict));
     }
 }
 
-fn fmt_other(v: &rbtdre_Verdict) -> &'static str {
+fn zrbtdtl_fmt_other(v: &rbtdre_Verdict) -> &'static str {
     match v {
         rbtdre_Verdict::Pass => "Pass",
         rbtdre_Verdict::Fail(_) => "Fail",

@@ -51,7 +51,7 @@ fn zrbthdr_command(program: &OsStr, args: &[&str], cwd: &Path) -> Command {
 /// Run a program, capturing its streams. A spawn failure (the program could not
 /// be launched at all) is fatal — the conductor cannot proceed without its
 /// tools. A non-zero exit is returned, not fatal: the caller judges the code.
-pub fn capture(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> rbthdr_Captured {
+pub fn rbthdr_capture(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> rbthdr_Captured {
     let program = program.as_ref();
     let out = zrbthdr_command(program, args, cwd)
         .stdin(Stdio::null())
@@ -68,7 +68,7 @@ pub fn capture(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> rbthdr_
 
 /// Run a program, capturing stdout as raw bytes. Same contract as `capture`:
 /// spawn failure fatal, non-zero exit returned for the caller to judge.
-pub fn capture_bytes(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> rbthdr_CapturedBytes {
+pub fn rbthdr_capture_bytes(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> rbthdr_CapturedBytes {
     let program = program.as_ref();
     let out = zrbthdr_command(program, args, cwd)
         .stdin(Stdio::null())
@@ -87,7 +87,7 @@ pub fn capture_bytes(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> r
 /// `env` adds explicit overrides applied AFTER the scrub — e.g. BURE_CONFIRM=skip
 /// for a prompted verb the ceremony drives headlessly. Returns the exit code;
 /// a spawn failure is fatal.
-pub fn stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env: &[(&str, &str)]) -> i32 {
+pub fn rbthdr_stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env: &[(&str, &str)]) -> i32 {
     let program = program.as_ref();
     let mut cmd = zrbthdr_command(program, args, cwd);
     for (key, _) in std::env::vars() {
@@ -111,7 +111,7 @@ pub fn stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env: &[(&st
 /// exactly (rblm_harbinger.sh). Fatal on empty — a stamp is load-bearing in the
 /// retire-aside and the memo path.
 fn zrbthdr_date(format: &str, cwd: &Path) -> String {
-    let got = capture("date", &[format], cwd);
+    let got = rbthdr_capture("date", &[format], cwd);
     if got.code != 0 {
         crate::rbthdr_fatal!("date {} failed: {}", format, got.stderr.trim());
     }
@@ -123,12 +123,12 @@ fn zrbthdr_date(format: &str, cwd: &Path) -> String {
 }
 
 /// YYYYMMDD — the findings-memo date.
-pub fn datestamp(cwd: &Path) -> String {
+pub fn rbthdr_datestamp(cwd: &Path) -> String {
     zrbthdr_date("+%Y%m%d", cwd)
 }
 
 /// YYYYMMDD-HHMMSS — the retire-aside stamp; second-grained so two runs in one
 /// day cannot collide.
-pub fn timestamp(cwd: &Path) -> String {
+pub fn rbthdr_timestamp(cwd: &Path) -> String {
     zrbthdr_date("+%Y%m%d-%H%M%S", cwd)
 }

@@ -60,7 +60,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdgc_consts::{
     RBTDGC_ANOINT_GRAFT,
     RBTDGC_AUGUR_LODE,
@@ -920,25 +920,25 @@ fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
-    case!(rbtdrh_feoff_wrong_kind),
-    case!(rbtdrh_feoff_unknown_prefix),
-    case!(rbtdrh_feoff_broken_chain),
-    case!(rbtdrh_feoff_good),
-    case!(rbtdrh_feoff_precedence),
-    case!(rbtdrh_feoff_fact_intact),
-    case!(rbtdrh_yoke_wrong_kind),
-    case!(rbtdrh_yoke_unknown_prefix),
-    case!(rbtdrh_anoint_broken_chain),
-    case!(rbtdrh_drive_broken_chain),
-    case!(rbtdrh_summon_no_folio),
-    case!(rbtdrh_plumb_no_folio),
-    case!(rbtdrh_augur_no_folio),
-    case!(rbtdrh_augur_unknown_prefix),
-    case!(rbtdrh_rekon_no_folio),
-    case!(rbtdrh_multi_consumer),
-    case!(rbtdrh_retry_after_failure),
-    case!(rbtdrh_dies_at_non_chain_dispatch),
-    case!(rbtdrh_furnish_invariant),
+    rbtdre_case!(rbtdrh_feoff_wrong_kind),
+    rbtdre_case!(rbtdrh_feoff_unknown_prefix),
+    rbtdre_case!(rbtdrh_feoff_broken_chain),
+    rbtdre_case!(rbtdrh_feoff_good),
+    rbtdre_case!(rbtdrh_feoff_precedence),
+    rbtdre_case!(rbtdrh_feoff_fact_intact),
+    rbtdre_case!(rbtdrh_yoke_wrong_kind),
+    rbtdre_case!(rbtdrh_yoke_unknown_prefix),
+    rbtdre_case!(rbtdrh_anoint_broken_chain),
+    rbtdre_case!(rbtdrh_drive_broken_chain),
+    rbtdre_case!(rbtdrh_summon_no_folio),
+    rbtdre_case!(rbtdrh_plumb_no_folio),
+    rbtdre_case!(rbtdrh_augur_no_folio),
+    rbtdre_case!(rbtdrh_augur_unknown_prefix),
+    rbtdre_case!(rbtdrh_rekon_no_folio),
+    rbtdre_case!(rbtdrh_multi_consumer),
+    rbtdre_case!(rbtdrh_retry_after_failure),
+    rbtdre_case!(rbtdrh_dies_at_non_chain_dispatch),
+    rbtdre_case!(rbtdrh_furnish_invariant),
 ];
 
 pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {

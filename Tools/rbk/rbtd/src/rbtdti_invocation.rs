@@ -249,7 +249,7 @@ fn rbtdti_chain_next_reuses_prior_burv_root() {
     // A chained invoke reuses the prior invoke's root without advancing the
     // counter — the theurge-side condition that lets bud_dispatch promote the
     // prior invoke's current/ into this invoke's previous/.
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
     let chained = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]).unwrap();
     assert_eq!(chained.burv_output, first.burv_output);
     assert_eq!(chained.burv_output, burv_output_root.join(rbtdri_invoke_dir_name(0)));
@@ -276,7 +276,7 @@ fn rbtdti_chain_next_without_prior_invoke_errs() {
 
     // chain_next with no prior invoke has nothing to chain from — it must error
     // loud rather than silently reuse a nonexistent root.
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
     let result = rbtdri_invoke(&mut ctx, RBTDGC_CRUCIBLE_BARK, &[]);
     assert!(result.is_err());
 

@@ -58,13 +58,13 @@ const RBTHDR_STATION_TINCTURE: &str = "cnd";
 
 /// Conduct one essai lap. Fatal (exit 1) on any deficit or red; ExitCode::SUCCESS
 /// only when a walk-ready rig stands beside a proven candidate.
-pub fn conduct() -> ExitCode {
-    rbthdr_log::section("Hierophant Essai — the reversible repair lap (RBSHE)");
-    rbthdr_log::line("Gate, cut, prove, rig — zero remote acts. A finding means re-cut.");
+pub fn rbthdr_conduct() -> ExitCode {
+    rbthdr_log::rbthdr_section("Hierophant Essai — the reversible repair lap (RBSHE)");
+    rbthdr_log::rbthdr_line("Gate, cut, prove, rig — zero remote acts. A finding means re-cut.");
 
-    let top = rbthdr_repo::toplevel();
-    let parent = rbthdr_repo::parent(&top);
-    rbthdr_log::line(&format!("Maintainer tree: {}", top.display()));
+    let top = rbthdr_repo::rbthdr_toplevel();
+    let parent = rbthdr_repo::rbthdr_parent(&top);
+    rbthdr_log::rbthdr_line(&format!("Maintainer tree: {}", top.display()));
 
     zrbthdr_gate(&top);
     zrbthdr_precut_assays(&top);
@@ -73,24 +73,24 @@ pub fn conduct() -> ExitCode {
 
     // Steps 5 & 6 — stand up the rig from the LOCAL candidate, show the fidelity
     // gap loud, hand off the walk, and state the two standing artifacts.
-    rbthdr_log::section("Stand up the coldwalk rig (RBSHE step 5)");
-    let clone_source = rbthdr_repo::as_str(&candidate_clone);
-    let rig = rbthdr_rig::stand_up(&parent, &top, &clone_source, &top);
+    rbthdr_log::rbthdr_section("Stand up the coldwalk rig (RBSHE step 5)");
+    let clone_source = rbthdr_repo::rbthdr_as_str(&candidate_clone);
+    let rig = rbthdr_rig::rbthdr_stand_up(&parent, &top, &clone_source, &top);
 
-    rbthdr_log::blank();
-    rbthdr_log::warn("KNOWN FIDELITY GAP — this rig is a LOCAL proxy:");
-    rbthdr_log::line("the HTTPS-clone-from-GitHub step and the public landing face are");
-    rbthdr_log::line("UNPROVEN in this mode. They are covered only by the final instruments");
-    rbthdr_log::line("against promoted public main (the harbinger command, a later ceremony).");
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_warn("KNOWN FIDELITY GAP — this rig is a LOCAL proxy:");
+    rbthdr_log::rbthdr_line("the HTTPS-clone-from-GitHub step and the public landing face are");
+    rbthdr_log::rbthdr_line("UNPROVEN in this mode. They are covered only by the final instruments");
+    rbthdr_log::rbthdr_line("against promoted public main (the harbinger command, a later ceremony).");
 
-    rbthdr_rig::emit_handoff(&rig);
+    rbthdr_rig::rbthdr_emit_handoff(&rig);
 
-    rbthdr_log::section("Two standing artifacts (RBSHE step 6)");
-    rbthdr_log::line(&format!("Pristine candidate (untouched by the walk): {}", candidate_clone.display()));
-    rbthdr_log::line(&format!("Disposable rig:                             {}", rig.rig_dir.display()));
-    rbthdr_log::blank();
-    rbthdr_log::success("Essai lap complete — a walk-ready rig stands beside a proven candidate.");
-    rbthdr_log::line("Dispose and re-cut, or hand the standing candidate to docimasy — the reveal's proving act (RBSHE completion).");
+    rbthdr_log::rbthdr_section("Two standing artifacts (RBSHE step 6)");
+    rbthdr_log::rbthdr_line(&format!("Pristine candidate (untouched by the walk): {}", candidate_clone.display()));
+    rbthdr_log::rbthdr_line(&format!("Disposable rig:                             {}", rig.rig_dir.display()));
+    rbthdr_log::rbthdr_blank();
+    rbthdr_log::rbthdr_success("Essai lap complete — a walk-ready rig stands beside a proven candidate.");
+    rbthdr_log::rbthdr_line("Dispose and re-cut, or hand the standing candidate to docimasy — the reveal's proving act (RBSHE completion).");
 
     ExitCode::SUCCESS
 }
@@ -98,12 +98,12 @@ pub fn conduct() -> ExitCode {
 // ── Step 1: gate the maintainer tree and the base ───────────
 
 fn zrbthdr_gate(top: &Path) {
-    rbthdr_log::section("Gate the maintainer tree and the base (RBSHE step 1)");
+    rbthdr_log::rbthdr_section("Gate the maintainer tree and the base (RBSHE step 1)");
 
     // Clean, fully-pushed working tree. The candidate is cut from COMMITTED
     // bytes, so an uncommitted edit would silently be absent; an unpushed commit
     // means the base the operator later reveals from is behind the tree cut.
-    let status = rbthdr_run::capture("git", &["status", "--porcelain"], top);
+    let status = rbthdr_run::rbthdr_capture("git", &["status", "--porcelain"], top);
     zrbthdr_require_source(status.code, "git status");
     if !status.stdout.trim().is_empty() {
         crate::rbthdr_fatal!(
@@ -112,7 +112,7 @@ fn zrbthdr_gate(top: &Path) {
         );
     }
 
-    let upstream = rbthdr_run::capture(
+    let upstream = rbthdr_run::rbthdr_capture(
         "git",
         &["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
         top,
@@ -123,7 +123,7 @@ fn zrbthdr_gate(top: &Path) {
             upstream.stderr.trim()
         );
     }
-    let unpushed = rbthdr_run::capture("git", &["rev-list", "--count", "@{u}..HEAD"], top);
+    let unpushed = rbthdr_run::rbthdr_capture("git", &["rev-list", "--count", "@{u}..HEAD"], top);
     zrbthdr_require_source(unpushed.code, "git rev-list");
     if unpushed.stdout.trim() != "0" {
         crate::rbthdr_fatal!(
@@ -131,7 +131,7 @@ fn zrbthdr_gate(top: &Path) {
             unpushed.stdout.trim()
         );
     }
-    rbthdr_log::line("working tree clean and fully pushed");
+    rbthdr_log::rbthdr_line("working tree clean and fully pushed");
 
     // The base — read-only by construction. The gate and the cut share the
     // crate's own constants (rbthdr_expede), so this preflight can never
@@ -139,14 +139,14 @@ fn zrbthdr_gate(top: &Path) {
     let base_remote = rbthdr_expede::RBTHDR_BASE_REMOTE;
     let push_sentinel = rbthdr_expede::RBTHDR_BASE_PUSH_DISABLED;
 
-    let fetch = rbthdr_run::capture("git", &["remote", "get-url", base_remote], top);
+    let fetch = rbthdr_run::rbthdr_capture("git", &["remote", "get-url", base_remote], top);
     if fetch.code != 0 {
         crate::rbthdr_fatal!(
             "base remote {} is not configured — the candidate is built by addition atop the real public repo, so a remote pointing at it is required:\n{}",
             base_remote, fetch.stderr.trim()
         );
     }
-    let push = rbthdr_run::capture("git", &["remote", "get-url", "--push", base_remote], top);
+    let push = rbthdr_run::rbthdr_capture("git", &["remote", "get-url", "--push", base_remote], top);
     if push.code != 0 {
         crate::rbthdr_fatal!("cannot read {} push url:\n{}", base_remote, push.stderr.trim());
     }
@@ -156,18 +156,18 @@ fn zrbthdr_gate(top: &Path) {
             base_remote, push.stdout.trim(), base_remote, push_sentinel
         );
     }
-    rbthdr_log::line(&format!("base {} configured, push side neutered", base_remote));
+    rbthdr_log::rbthdr_line(&format!("base {} configured, push side neutered", base_remote));
 }
 
 // ── Step 2: pre-cut assays, on the maintainer tree ──────────
 
 fn zrbthdr_precut_assays(top: &Path) {
-    rbthdr_log::section("Pre-cut assays on the maintainer tree (RBSHE step 2)");
+    rbthdr_log::rbthdr_section("Pre-cut assays on the maintainer tree (RBSHE step 2)");
     let tt = top.join(RBTHDR_TT_SUBDIR);
 
     // main must be green before it is worth cutting.
     let reveille = zrbthdr_find_tt(&tt, RBTHDR_COL_SUITE, Some(RBTHDR_SUITE_REVEILLE));
-    zrbthdr_require_source(rbthdr_run::stream(&reveille, &[], top, &[]), "reveille suite");
+    zrbthdr_require_source(rbthdr_run::rbthdr_stream(&reveille, &[], top, &[]), "reveille suite");
 
     // The veiled-tree assay, in-process (RBSHC "Worker, never authority": the
     // veil assay is one of the hierophant's own absorbed modules, beside the cut
@@ -175,30 +175,30 @@ fn zrbthdr_precut_assays(top: &Path) {
     // only here; in the candidate it is red by construction. The perambulation's
     // totality gate is likewise not a fixture: it is the cut's own first refusal,
     // in-process (step 3).
-    let leaks = rbthdr_loupe::assay(top);
+    let leaks = rbthdr_loupe::rbthdr_assay(top);
     if !leaks.is_empty() {
         for leak in &leaks {
-            rbthdr_log::line(&format!("veil leak: {}", leak));
+            rbthdr_log::rbthdr_line(&format!("veil leak: {}", leak));
         }
         crate::rbthdr_fatal!(
             "the veiled-tree assay found {} leak(s) — repair on the maintainer tree, then run essai again (RBSHE)",
             leaks.len()
         );
     }
-    rbthdr_log::line("maintainer tree green; the veiled-tree assay passes");
+    rbthdr_log::rbthdr_line("maintainer tree green; the veiled-tree assay passes");
 }
 
 // ── Step 3: cut the candidate — the absorbed cut, in-process ─
 
-/// Returns the candidate clone path ({parent}/rbm_candidate/candidate).
+/// Returns the candidate clone path ({parent}/rbthdr_candidate/candidate).
 fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
-    rbthdr_log::section("Cut the candidate (RBSHE step 3)");
+    rbthdr_log::rbthdr_section("Cut the candidate (RBSHE step 3)");
 
     let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
-    rbthdr_repo::guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME, top);
-    rbthdr_log::step(&format!("Disposing any prior candidate: {}", candidate_parent.display()));
-    if !rbthdr_repo::retire_aside(&candidate_parent, top) {
-        rbthdr_log::line("no prior candidate to retire");
+    rbthdr_repo::rbthdr_guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME, top);
+    rbthdr_log::rbthdr_step(&format!("Disposing any prior candidate: {}", candidate_parent.display()));
+    if !rbthdr_repo::rbthdr_retire_aside(&candidate_parent, top) {
+        rbthdr_log::rbthdr_line("no prior candidate to retire");
     }
 
     // The absorbed cut (RBSHC "The cut, and the single matcher"): builds by
@@ -207,17 +207,17 @@ fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
     // present, byte-assert, single-commit, delta sweep, zero remotes — all
     // judged in-process by the one matcher. Fatal on any deficit; a return
     // is the verdict.
-    rbthdr_log::step(&format!("Expediting the candidate into {}", candidate_parent.display()));
-    let candidate_clone = rbthdr_expede::cut(top, &candidate_parent);
+    rbthdr_log::rbthdr_step(&format!("Expediting the candidate into {}", candidate_parent.display()));
+    let candidate_clone = rbthdr_expede::rbthdr_cut(top, &candidate_parent);
 
-    rbthdr_log::line(&format!("candidate cut: {}", candidate_clone.display()));
+    rbthdr_log::rbthdr_line(&format!("candidate cut: {}", candidate_clone.display()));
     candidate_clone
 }
 
 // ── Step 4: prove the candidate (the battery, in order) ─────
 
 fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
-    rbthdr_log::section("Prove the candidate — the battery (RBSHE step 4)");
+    rbthdr_log::rbthdr_section("Prove the candidate — the battery (RBSHE step 4)");
     let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
     let tt = candidate_clone.join(RBTHDR_TT_SUBDIR);
 
@@ -227,25 +227,25 @@ fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
     // candidate's z-launcher normalizes cwd to the candidate root, so these assay
     // the candidate though essai never leaves the maintainer tree.
     let qualify = zrbthdr_find_tt(&tt, RBTHDR_COL_QUALIFY_FAST, None);
-    zrbthdr_require_candidate(rbthdr_run::stream(&qualify, &[], top, &[]), "candidate fast-qualify");
+    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&qualify, &[], top, &[]), "candidate fast-qualify");
 
     let fixture = zrbthdr_find_tt(&tt, RBTHDR_COL_FIXTURE, None);
-    zrbthdr_require_candidate(rbthdr_run::stream(&fixture, &[RBTHDR_FIX_CUPEL], top, &[]), "candidate cupel");
-    zrbthdr_require_candidate(rbthdr_run::stream(&fixture, &[RBTHDR_FIX_PYX], top, &[]), "candidate pyx");
+    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_CUPEL], top, &[]), "candidate cupel");
+    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_PYX], top, &[]), "candidate pyx");
     // Damnatio on POSTULANT_LOCAL, BEFORE any feigning — the proof of erasure.
     // It reddens on feigned fields by construction, which is what keeps a probe
     // branch from ever being mistaken for a candidate.
-    zrbthdr_require_candidate(rbthdr_run::stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "candidate damnatio");
+    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "candidate damnatio");
 
     // The candidate's transposed root CLAUDE.md must carry no veil needle —
     // re-homed in-process from the theurge damnatio fixture's veil_stripped case,
     // whose census-bearing scan could only run where the veiled trees still
     // stand. The path-grain half (a withheld tree survived the strip) is already
     // covered by expede's object-graph delta sweep at cut time.
-    let needles = rbthdr_loupe::assay_candidate(candidate_clone);
+    let needles = rbthdr_loupe::rbthdr_assay_candidate(candidate_clone);
     if !needles.is_empty() {
         for needle in &needles {
-            rbthdr_log::line(&format!("candidate veil needle: {}", needle));
+            rbthdr_log::rbthdr_line(&format!("candidate veil needle: {}", needle));
         }
         crate::rbthdr_fatal!(
             "the candidate's root CLAUDE.md carries {} veil needle(s) — abandon the candidate, repair on the maintainer tree, and re-cut (RBSHE)",
@@ -258,7 +258,7 @@ fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
 
 /// Step 4a — write the candidate's identity-free station and empty secrets dir.
 fn zrbthdr_write_station(candidate_parent: &Path) {
-    rbthdr_log::step("Writing the candidate's identity-free station");
+    rbthdr_log::rbthdr_step("Writing the candidate's identity-free station");
     let station_dir = candidate_parent.join(rbthdr_repo::RBTHDR_STATION_SUBDIR);
     let secrets_dir = station_dir.join(rbthdr_repo::RBTHDR_SECRETS_SUBDIR);
     let logs_dir = candidate_parent.join(rbthdr_repo::RBTHDR_LOGS_SUBDIR);
@@ -271,12 +271,12 @@ fn zrbthdr_write_station(candidate_parent: &Path) {
         "BURS_USER={}\nBURS_TINCTURE={}\nBURS_LOG_DIR={}\n",
         RBTHDR_STATION_USER,
         RBTHDR_STATION_TINCTURE,
-        rbthdr_repo::as_str(&logs_dir),
+        rbthdr_repo::rbthdr_as_str(&logs_dir),
     );
     let burs_path = station_dir.join(rbthdr_repo::RBTHDR_STATION_FILE);
     std::fs::write(&burs_path, burs)
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to write station {}: {}", burs_path.display(), e));
-    rbthdr_log::line(&format!("station written: {}", burs_path.display()));
+    rbthdr_log::rbthdr_line(&format!("station written: {}", burs_path.display()));
 }
 
 /// Step 4f — the consumer-seat probe: cut a throwaway probe branch, hand the
@@ -284,12 +284,12 @@ fn zrbthdr_write_station(candidate_parent: &Path) {
 /// candidate's reveille from the consumer's seat, then return to the sterile
 /// branch and drop the probe branch outright.
 fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
-    rbthdr_log::step("Consumer-seat probe: feign a station on a throwaway branch");
-    let clone = rbthdr_repo::as_str(candidate_clone);
+    rbthdr_log::rbthdr_step("Consumer-seat probe: feign a station on a throwaway branch");
+    let clone = rbthdr_repo::rbthdr_as_str(candidate_clone);
 
     // The sterile branch to return to (expede left the candidate on it). Captured,
     // not hardcoded — expede owns the branch name.
-    let head = rbthdr_run::capture("git", &["-C", &clone, "rev-parse", "--abbrev-ref", "HEAD"], top);
+    let head = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "rev-parse", "--abbrev-ref", "HEAD"], top);
     zrbthdr_require_candidate(head.code, "read candidate branch");
     let sterile_branch = head.stdout.trim().to_string();
 
@@ -309,7 +309,7 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     // own clean-tree gate demands it, and the probe commit must carry the seed
     // alone.
     let build = zrbthdr_find_tt(tt, RBTHDR_COL_BUILD, None);
-    zrbthdr_require_candidate(rbthdr_run::stream(&build, &[], top, &[]), "candidate build (probe)");
+    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&build, &[], top, &[]), "candidate build (probe)");
     zrbthdr_git_stream(&clone, &["add", "-A"], top, "stage the probe seed");
     zrbthdr_git_stream(&clone, &["commit", "-m", "probe: feign a station"], top, "commit the probe seed");
 
@@ -317,19 +317,19 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     // headlessly), then run the candidate's reveille from the consumer's seat.
     let feign = tt.join(RBTHDR_FEIGN_TT);
     zrbthdr_require_candidate(
-        rbthdr_run::stream(&feign, &[], top, &[("BURE_CONFIRM", "skip")]),
+        rbthdr_run::rbthdr_stream(&feign, &[], top, &[("BURE_CONFIRM", "skip")]),
         "candidate feign",
     );
     let reveille = zrbthdr_find_tt(tt, RBTHDR_COL_SUITE, Some(RBTHDR_SUITE_REVEILLE));
-    zrbthdr_require_candidate(rbthdr_run::stream(&reveille, &[], top, &[]), "candidate reveille (consumer seat)");
+    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&reveille, &[], top, &[]), "candidate reveille (consumer seat)");
 
     // Return to the sterile branch and drop the probe outright — it deliberately
     // holds withheld paths (the feigned station, the copied marshal tabtarget), so
     // dropping it leaves the clone carrying exactly one branch and zero remotes.
-    rbthdr_log::step("Returning to the sterile branch and dropping the probe");
+    rbthdr_log::rbthdr_step("Returning to the sterile branch and dropping the probe");
     zrbthdr_git_stream(&clone, &["checkout", &sterile_branch], top, "return to the sterile branch");
     zrbthdr_git_stream(&clone, &["branch", "-D", RBTHDR_PROBE_BRANCH], top, "drop the probe branch");
-    rbthdr_log::line(&format!("consumer-seat reveille green; candidate back on {}", sterile_branch));
+    rbthdr_log::rbthdr_line(&format!("consumer-seat reveille green; candidate back on {}", sterile_branch));
 }
 
 // ── Small shared helpers ────────────────────────────────────
@@ -338,7 +338,7 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
 fn zrbthdr_git_stream(clone: &str, args: &[&str], top: &Path, act: &str) {
     let mut full = vec!["-C", clone];
     full.extend_from_slice(args);
-    let code = rbthdr_run::stream("git", &full, top, &[]);
+    let code = rbthdr_run::rbthdr_stream("git", &full, top, &[]);
     if code != 0 {
         crate::rbthdr_fatal!("failed to {} (git exited {})", act, code);
     }

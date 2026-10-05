@@ -40,7 +40,7 @@
 
 use std::path::Path;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdgc_consts::{
     BUWGC_RC_VALIDATE,
     BUWGC_RS_VALIDATE,
@@ -399,36 +399,36 @@ fn rbtdrs_burs_bad_tincture(dir: &Path) -> rbtdre_Verdict {
 // ── Fixture ─────────────────────────────────────────────────
 
 pub static RBTDRS_CASES_REGIME_POISON: &[rbtdre_Case] = &[
-    case!(rbtdrs_rbrr_bad_timeout),
-    case!(rbtdrs_rbrr_unexpected_var),
-    case!(rbtdrs_rbrr_bad_vessel_dir),
-    case!(rbtdrs_rbrr_bad_secrets_dir),
-    case!(rbtdrs_rbrr_bad_runtime_prefix_uppercase),
-    case!(rbtdrs_rbrr_bad_runtime_prefix_no_trailing_hyphen),
-    case!(rbtdrs_rbrr_bad_runtime_prefix_too_long),
-    case!(rbtdrs_rbrr_bad_substrate_reliquary),
-    case!(rbtdrs_rbrd_missing_moniker),
-    case!(rbtdrs_rbrd_bad_moniker),
-    case!(rbtdrs_rbrd_bad_cloud_prefix_uppercase),
-    case!(rbtdrs_rbrd_bad_cloud_prefix_no_trailing_hyphen),
-    case!(rbtdrs_rbrd_bad_cloud_prefix_too_long),
-    case!(rbtdrs_rbrp_bad_payor_project),
-    case!(rbtdrs_burc_missing_station_file),
-    case!(rbtdrs_rbrn_missing_moniker),
-    case!(rbtdrs_rbrn_invalid_runtime),
-    case!(rbtdrs_rbrn_invalid_entry_mode),
-    case!(rbtdrs_rbrn_invalid_dns_mode),
-    case!(rbtdrs_rbrn_invalid_access_mode),
-    case!(rbtdrs_rbrn_bad_ip),
-    case!(rbtdrs_rbrn_unexpected_var),
-    case!(rbtdrs_rbrn_port_conflict),
-    case!(rbtdrs_rbrv_missing_sigil),
-    case!(rbtdrs_rbrv_unexpected_var),
-    case!(rbtdrs_rbrv_partial_conjure),
-    case!(rbtdrs_rbrv_no_bind_image),
-    case!(rbtdrs_rbrv_bind_image_tag_only),
-    case!(rbtdrs_rbro_missing_refresh_token),
-    case!(rbtdrs_burs_bad_tincture),
+    rbtdre_case!(rbtdrs_rbrr_bad_timeout),
+    rbtdre_case!(rbtdrs_rbrr_unexpected_var),
+    rbtdre_case!(rbtdrs_rbrr_bad_vessel_dir),
+    rbtdre_case!(rbtdrs_rbrr_bad_secrets_dir),
+    rbtdre_case!(rbtdrs_rbrr_bad_runtime_prefix_uppercase),
+    rbtdre_case!(rbtdrs_rbrr_bad_runtime_prefix_no_trailing_hyphen),
+    rbtdre_case!(rbtdrs_rbrr_bad_runtime_prefix_too_long),
+    rbtdre_case!(rbtdrs_rbrr_bad_substrate_reliquary),
+    rbtdre_case!(rbtdrs_rbrd_missing_moniker),
+    rbtdre_case!(rbtdrs_rbrd_bad_moniker),
+    rbtdre_case!(rbtdrs_rbrd_bad_cloud_prefix_uppercase),
+    rbtdre_case!(rbtdrs_rbrd_bad_cloud_prefix_no_trailing_hyphen),
+    rbtdre_case!(rbtdrs_rbrd_bad_cloud_prefix_too_long),
+    rbtdre_case!(rbtdrs_rbrp_bad_payor_project),
+    rbtdre_case!(rbtdrs_burc_missing_station_file),
+    rbtdre_case!(rbtdrs_rbrn_missing_moniker),
+    rbtdre_case!(rbtdrs_rbrn_invalid_runtime),
+    rbtdre_case!(rbtdrs_rbrn_invalid_entry_mode),
+    rbtdre_case!(rbtdrs_rbrn_invalid_dns_mode),
+    rbtdre_case!(rbtdrs_rbrn_invalid_access_mode),
+    rbtdre_case!(rbtdrs_rbrn_bad_ip),
+    rbtdre_case!(rbtdrs_rbrn_unexpected_var),
+    rbtdre_case!(rbtdrs_rbrn_port_conflict),
+    rbtdre_case!(rbtdrs_rbrv_missing_sigil),
+    rbtdre_case!(rbtdrs_rbrv_unexpected_var),
+    rbtdre_case!(rbtdrs_rbrv_partial_conjure),
+    rbtdre_case!(rbtdrs_rbrv_no_bind_image),
+    rbtdre_case!(rbtdrs_rbrv_bind_image_tag_only),
+    rbtdre_case!(rbtdrs_rbro_missing_refresh_token),
+    rbtdre_case!(rbtdrs_burs_bad_tincture),
 ];
 
 pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {
@@ -438,5 +438,5 @@ pub static RBTDRS_FIXTURE_REGIME_POISON: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRS_CASES_REGIME_POISON,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };

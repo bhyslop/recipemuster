@@ -288,7 +288,7 @@ zrbgc_kindle() {
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers)
   readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
   readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
-  readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"
+  readonly RBF_FACT_ARK_STEM="rbgc_fact_ark_stem"
   readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
 
   # Lode capture chaining fact (single-form, fixed filename). A capture is

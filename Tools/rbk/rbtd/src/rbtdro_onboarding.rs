@@ -34,7 +34,7 @@
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdrv_patrol::{
@@ -422,7 +422,7 @@ fn rbtdro_kludge_nameplate(
     dir: &Path,
     nameplate: &str,
 ) -> Result<(), rbtdre_Verdict> {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     rbtdri_invoke_or_fail(
         ctx,
@@ -480,7 +480,7 @@ fn zrbtdro_conclave_reliquary_impl(
     ctx: &mut rbtdri_Context,
     dir: &Path,
 ) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
     let result = match rbtdri_invoke_or_fail(
         ctx,
         "conclave",
@@ -550,7 +550,7 @@ fn rbtdro_kludge_tadmor_standalone(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRO_CASES_KLUDGE_TADMOR: &[rbtdre_Case] =
-    &[case!(rbtdro_kludge_tadmor_standalone)];
+    &[rbtdre_case!(rbtdro_kludge_tadmor_standalone)];
 
 pub static RBTDRO_FIXTURE_KLUDGE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
     name: RBTDRM_FIXTURE_KLUDGE_TADMOR,
@@ -573,7 +573,7 @@ fn rbtdro_kludge_ccyolo(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdro_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     if let Err(v) = rbtdro_kludge_nameplate(ctx, dir, RBTDRO_NAMEPLATE_CCYOLO) {
         return v;
@@ -586,7 +586,7 @@ fn zrbtdro_kludge_ccyolo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Ve
     // promotes the hallmark into anoint's previous/ — the operator's shared
     // ../output-buk depth-1 flow, restored for just this pair. The intervening
     // hallmark commit is not a dispatch, so the depth-1 invoke chain holds.
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
 
     // Anoint graft-demo off the bottle kludge that just ran: the anoint
     // dispatch reads the kludge's chained build facts (previous-dir baton)
@@ -633,7 +633,7 @@ fn rbtdro_ordain_conjure_sentry(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdro_ordain_conjure_sentry_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     let (hallmark, gar_root, ark_stem) = match rbtdri_ordain_capture_full(
         ctx,
@@ -770,7 +770,7 @@ fn rbtdro_ordain_conjure_jupyter(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdro_ordain_conjure_jupyter_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     let hallmark = match rbtdri_ordain_capture(
         ctx,
@@ -816,7 +816,7 @@ fn rbtdro_ordain_airgap_chain(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdro_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     let forge_sigil = RBTDRO_VESSEL_DIR_AIRGAP_FORGE
         .rsplit('/')
@@ -840,7 +840,7 @@ fn zrbtdro_ordain_airgap_chain_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbt
     // makes feoff reuse the ensconce's root, so bud promotes the touchmark into
     // feoff's previous/ — the operator's shared ../output-buk flow, restored for
     // just this pair. (Ordain below is NOT chained — conjure reads no fact.)
-    ctx.chain_next_invoke();
+    ctx.rbtdri_chain_next_invoke();
 
     // Feoff the forge vessel — the chain LINK extracted out of conjure reads the
     // touchmark the ensconce handed forward and writes RBRV_IMAGE_n_ANCHOR. The
@@ -965,7 +965,7 @@ fn rbtdro_ordain_bind_plantuml(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn zrbtdro_ordain_bind_plantuml_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     let hallmark = match rbtdri_ordain_capture(
         ctx,
@@ -1109,7 +1109,7 @@ fn rbtdro_ordain_graft_demo(dir: &Path) -> rbtdre_Verdict {
 fn zrbtdro_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
     // Read the anointed graft image from the committed vessel regime.
     let rbrv = ctx
-        .project_root()
+        .rbtdri_project_root()
         .join(RBTDRO_VESSEL_DIR_GRAFT)
         .join(RBTDGC_RBRV_FILE);
     let graft_image = match rbtdro_read_env_value(&rbrv, RBTDRO_FIELD_RBRV_GRAFT_IMAGE) {
@@ -1205,14 +1205,14 @@ fn zrbtdro_ordain_graft_demo_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdr
 // ── Case registry ────────────────────────────────────────────
 
 pub static RBTDRO_CASES_ONBOARDING_SEQUENCE: &[rbtdre_Case] = &[
-    case!(rbtdro_conclave_reliquary),
-    case!(rbtdro_kludge_tadmor_onboarding),
-    case!(rbtdro_kludge_ccyolo),
-    case!(rbtdro_ordain_conjure_sentry),
-    case!(rbtdro_ordain_conjure_jupyter),
-    case!(rbtdro_ordain_airgap_chain),
-    case!(rbtdro_ordain_bind_plantuml),
-    case!(rbtdro_ordain_graft_demo),
+    rbtdre_case!(rbtdro_conclave_reliquary),
+    rbtdre_case!(rbtdro_kludge_tadmor_onboarding),
+    rbtdre_case!(rbtdro_kludge_ccyolo),
+    rbtdre_case!(rbtdro_ordain_conjure_sentry),
+    rbtdre_case!(rbtdro_ordain_conjure_jupyter),
+    rbtdre_case!(rbtdro_ordain_airgap_chain),
+    rbtdre_case!(rbtdro_ordain_bind_plantuml),
+    rbtdre_case!(rbtdro_ordain_graft_demo),
 ];
 
 pub static RBTDRO_FIXTURE_ONBOARDING_SEQUENCE: rbtdre_Fixture = rbtdre_Fixture {

@@ -42,7 +42,7 @@
 
 use std::path::Path;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
 use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
@@ -114,7 +114,7 @@ fn rbtdrk_freehold_ensure(dir: &Path) -> rbtdre_Verdict {
 }
 
 fn rbtdrk_freehold_ensure_impl(ctx: &mut rbtdri_Context, dir: &Path) -> rbtdre_Verdict {
-    let root = ctx.project_root().to_path_buf();
+    let root = ctx.rbtdri_project_root().to_path_buf();
 
     if let Err(e) = rbtdrk_install_freehold_prefixes(&root) {
         return rbtdre_Verdict::Fail(format!("install freehold prefixes: {}", e));
@@ -455,12 +455,12 @@ fn rbtdrk_brevet_don_retriever(dir: &Path) -> rbtdre_Verdict {
 // ── Section registry ─────────────────────────────────────────
 
 pub static RBTDRK_CASES_FREEHOLD_ESTABLISH: &[rbtdre_Case] = &[
-    case!(rbtdrk_freehold_ensure),
-    case!(rbtdrk_avow),
-    case!(rbtdrk_gird_governor),
-    case!(rbtdrk_brevet_don_director),
-    case!(rbtdrk_brevet_don_retriever),
-    case!(rbtdrk_depot_recognosce),
+    rbtdre_case!(rbtdrk_freehold_ensure),
+    rbtdre_case!(rbtdrk_avow),
+    rbtdre_case!(rbtdrk_gird_governor),
+    rbtdre_case!(rbtdrk_brevet_don_director),
+    rbtdre_case!(rbtdrk_brevet_don_retriever),
+    rbtdre_case!(rbtdrk_depot_recognosce),
 ];
 
 pub static RBTDRK_FIXTURE_FREEHOLD_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
@@ -470,7 +470,7 @@ pub static RBTDRK_FIXTURE_FREEHOLD_ESTABLISH: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRK_CASES_FREEHOLD_ESTABLISH,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_ESTABLISH.cases.len() == 6);
 
@@ -480,7 +480,7 @@ const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_ESTABLISH.cases.len() == 6);
 // fixture that destroys the standing freehold; the depot-lifecycle's tear-down
 // only reaches the fresh leasehold it minted (pick_next's max + 1).
 pub static RBTDRK_CASES_FREEHOLD_CHURN: &[rbtdre_Case] = &[
-    case!(rbtdrk_depot_churn),
+    rbtdre_case!(rbtdrk_depot_churn),
 ];
 
 pub static RBTDRK_FIXTURE_FREEHOLD_CHURN: rbtdre_Fixture = rbtdre_Fixture {
@@ -490,6 +490,6 @@ pub static RBTDRK_FIXTURE_FREEHOLD_CHURN: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRK_CASES_FREEHOLD_CHURN,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRK_FIXTURE_FREEHOLD_CHURN.cases.len() == 1);

@@ -49,7 +49,7 @@
 
 use std::path::Path;
 
-use crate::case;
+use crate::rbtdre_case;
 use crate::rbtdgc_consts::RBTDGC_THEURGE_NIHIL;
 use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
 use crate::rbtdrc_crucible::rbtdrc_with_ctx;
@@ -104,10 +104,10 @@ fn rbtdrl_verdicts_pass_with_output(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRL_CASES_VERDICTS: &[rbtdre_Case] = &[
-    case!(rbtdrl_verdicts_pass),
-    case!(rbtdrl_verdicts_fail),
-    case!(rbtdrl_verdicts_skip),
-    case!(rbtdrl_verdicts_pass_with_output),
+    rbtdre_case!(rbtdrl_verdicts_pass),
+    rbtdre_case!(rbtdrl_verdicts_fail),
+    rbtdre_case!(rbtdrl_verdicts_skip),
+    rbtdre_case!(rbtdrl_verdicts_pass_with_output),
 ];
 
 // ── calibrant-fail-fast ─────────────────────────────────────
@@ -131,9 +131,9 @@ fn rbtdrl_failfast_not_reached(dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRL_CASES_FAIL_FAST: &[rbtdre_Case] = &[
-    case!(rbtdrl_failfast_pass),
-    case!(rbtdrl_failfast_fail),
-    case!(rbtdrl_failfast_not_reached),
+    rbtdre_case!(rbtdrl_failfast_pass),
+    rbtdre_case!(rbtdrl_failfast_fail),
+    rbtdre_case!(rbtdrl_failfast_not_reached),
 ];
 
 // ── calibrant-progressing ───────────────────────────────────
@@ -177,8 +177,8 @@ fn rbtdrl_progressing_probe_err(_dir: &Path) -> rbtdre_Verdict {
 }
 
 pub static RBTDRL_CASES_PROGRESSING: &[rbtdre_Case] = &[
-    case!(rbtdrl_progressing_probe_ok),
-    case!(rbtdrl_progressing_probe_err),
+    rbtdre_case!(rbtdrl_progressing_probe_ok),
+    rbtdre_case!(rbtdrl_progressing_probe_err),
 ];
 
 // ── calibrant-sentinel ──────────────────────────────────────
@@ -193,7 +193,7 @@ fn rbtdrl_sentinel_marks(dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-pub static RBTDRL_CASES_SENTINEL: &[rbtdre_Case] = &[case!(rbtdrl_sentinel_marks)];
+pub static RBTDRL_CASES_SENTINEL: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_sentinel_marks)];
 
 // ── calibrant-coverage-aligned / -undeclared / -unused ───────
 //
@@ -236,10 +236,10 @@ fn rbtdrl_coverage_unused_no_invoke(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Pass
 }
 
-pub static RBTDRL_CASES_COVERAGE_ALIGNED: &[rbtdre_Case] = &[case!(rbtdrl_coverage_aligned_invokes)];
+pub static RBTDRL_CASES_COVERAGE_ALIGNED: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_coverage_aligned_invokes)];
 pub static RBTDRL_CASES_COVERAGE_UNDECLARED: &[rbtdre_Case] =
-    &[case!(rbtdrl_coverage_undeclared_invokes)];
-pub static RBTDRL_CASES_COVERAGE_UNUSED: &[rbtdre_Case] = &[case!(rbtdrl_coverage_unused_no_invoke)];
+    &[rbtdre_case!(rbtdrl_coverage_undeclared_invokes)];
+pub static RBTDRL_CASES_COVERAGE_UNUSED: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_coverage_unused_no_invoke)];
 
 // ── calibrant-tariff-drift ──────────────────────────────────
 //
@@ -265,7 +265,7 @@ fn rbtdrl_tariff_drift_skips_short(_dir: &Path) -> rbtdre_Verdict {
     rbtdre_Verdict::Skip("calibrant declared-count shortfall, by construction".to_string())
 }
 
-pub static RBTDRL_CASES_TARIFF_DRIFT: &[rbtdre_Case] = &[case!(rbtdrl_tariff_drift_skips_short)];
+pub static RBTDRL_CASES_TARIFF_DRIFT: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_tariff_drift_skips_short)];
 
 // ── Fixture statics ──────────────────────────────────────────
 
@@ -276,7 +276,7 @@ pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_VERDICTS,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_VERDICTS.cases.len() == 4);
 
@@ -287,7 +287,7 @@ pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_FAIL_FAST,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_FAIL_FAST.cases.len() == 3);
 
@@ -298,7 +298,7 @@ pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_PROGRESSING,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_PROGRESSING.cases.len() == 2);
 
@@ -309,7 +309,7 @@ pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_SENTINEL,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_SENTINEL.cases.len() == 1);
 
@@ -336,7 +336,7 @@ pub static RBTDRL_FIXTURE_COVERAGE_UNDECLARED: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_COVERAGE_UNDECLARED,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNDECLARED.cases.len() == 1);
 
@@ -347,7 +347,7 @@ pub static RBTDRL_FIXTURE_COVERAGE_UNUSED: rbtdre_Fixture = rbtdre_Fixture {
     teardown: None,
     cases: RBTDRL_CASES_COVERAGE_UNUSED,
     credless: false,
-    tariff: rbtdre_Tariff::UNCHECKED,
+    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
 };
 const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNUSED.cases.len() == 1);
 
