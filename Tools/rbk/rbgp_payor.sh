@@ -109,8 +109,8 @@ zrbgp_refresh_capture() {
   buc_log_args "Exchanging refresh token for access token"
 
   # Request body rides a process substitution into curl - secrets never touch disk
-  local -a z_curl_args=(-sS -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json")
-  local -a z_body_args=(--arg refresh_token "${RBRO_REFRESH_TOKEN}" --arg client_id "${RBRP_OAUTH_CLIENT_ID}" --arg client_secret "${RBRO_CLIENT_SECRET}" --arg grant_type "refresh_token")
+  local -a z_curl_args=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json")
+  local -a z_body_args=("--arg" refresh_token "${RBRO_REFRESH_TOKEN}" --arg client_id "${RBRP_OAUTH_CLIENT_ID}" --arg client_secret "${RBRO_CLIENT_SECRET}" --arg grant_type "refresh_token")
   local z_body_filter='{refresh_token: $refresh_token, client_id: $client_id, client_secret: $client_secret, grant_type: $grant_type}'
   local z_curl_status=0
   local z_response
@@ -929,8 +929,8 @@ rbgp_install() {
   buc_log_args "Exchanging authorization code for tokens"
 
   # Request body rides a process substitution into curl - secrets never touch disk
-  local -a z_curl_args=(-sS -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json")
-  local -a z_body_args=(--arg code "${z_auth_code}" --arg client_id "${z_client_id}" --arg client_secret "${z_client_secret}" --arg redirect_uri "${z_redirect_uri}" --arg grant_type "authorization_code")
+  local -a z_curl_args=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json")
+  local -a z_body_args=("--arg" code "${z_auth_code}" --arg client_id "${z_client_id}" --arg client_secret "${z_client_secret}" --arg redirect_uri "${z_redirect_uri}" --arg grant_type "authorization_code")
   local z_body_filter='{code: $code, client_id: $client_id, client_secret: $client_secret, redirect_uri: $redirect_uri, grant_type: $grant_type}'
   local z_curl_status=0
   local z_response
