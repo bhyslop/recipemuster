@@ -166,8 +166,8 @@ pub fn rbthdr_commit_sha(dir: &Path, cwd: &Path) -> String {
 }
 
 /// List `url`'s refs as (sha, refname) pairs — the authenticated read the
-/// narthex and disclosure gates use (RBSHD "Gate the narthex" /
-/// "Preview"; RBSHO "Re-assert the ground" / "The disclosure" / "Promotion").
+/// narthex and kerygma gates use (RBSHD "Gate the narthex" /
+/// "Preview"; RBSHO "Re-assert the ground" / "The kerygma" / "Promotion").
 /// Fatal on a non-zero exit: the narthex is expected to already exist
 /// (RELEASE.md: "create it empty and private... before the cut"), so an
 /// unreachable remote is a real deficit, not the fresh-and-empty case — an

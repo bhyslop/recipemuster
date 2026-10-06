@@ -1,6 +1,6 @@
 # Release Procedure
 
-The release qualification ceremony for the project maintainer. The qualification ladder plus the local cut and private preview (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the public staging reveal (step 7) is the single irreversible disclosure; the greenfield walk (step 8) that gates promotion is a separate, multi-hour, operator-driven ceremony; and promotion with close-out (step 9) moves public `main`.
+The release qualification ceremony for the project maintainer. The qualification ladder plus the local cut and private preview (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the public staging reveal (step 7) is the single irreversible kerygma; the greenfield walk (step 8) that gates promotion is a separate, multi-hour, operator-driven ceremony; and promotion with close-out (step 9) moves public `main`.
 The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
 [Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
@@ -127,9 +127,9 @@ git -C «regulus» push git@github.com:scaleinv/recipebottle-staging.git POSTULA
 - Success: the narthex carries exactly the regulus, and it reads as a clean public face
 - Failure: resolve the remote-side reason and retry — the local regulus from step 5 remains valid
 
-**Do not proceed until you have inspected the preview and are ready for the irreversible public disclosure.**
+**Do not proceed until you have inspected the preview and are ready for the irreversible public kerygma.**
 
-## 7. Public staging reveal — the irreversible disclosure
+## 7. Public staging reveal — the irreversible kerygma
 
 > ⚠️ **This is the point of no return.** Pushing to the public repository discloses the bytes — a public object store cannot be un-disclosed. Everything before this was private and reversible; nothing after this un-happens. It is your own hand: explicit URL, explicit refspec, and it does **not** touch `main`.
 
@@ -146,7 +146,7 @@ git -C «regulus» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL
 
 ## 8. The greenfield manor walk — gates promotion
 
-The walk clones the **public staging branch** (step 7) as a total stranger and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. It gates **discoverability** (promotion), never disclosure — step 7 already disclosed the bytes publicly; the walk decides whether they become the default face.
+The walk clones the **public staging branch** (step 7) as a total stranger and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. It gates **discoverability** (promotion), never kerygma — step 7 already disclosed the bytes publicly; the walk decides whether they become the default face.
 
 Its own multi-hour, operator-driven ceremony — run it fresh, not tired. Record every divergence between the shipped docs and reality as a finding: a doc-only divergence census defaults to fast-follow disposition, while a delivered-bytes-bearing re-cut re-opens the full gate (fresh walk and gauntlet). Two finding classes are pre-waived: dead `main`-blob links (they go live only at promotion) and the stranger's bootstrap (cloning the staging branch rather than default `main`). Only once the walk is green with its census dispositioned does promotion proceed.
 
@@ -168,4 +168,4 @@ The single command in this whole document that touches public `main`, on the far
 - Delete the public **staging branch** (ceremony hygiene), then the **private narthex** repository and the **regulus directory** — the regulus directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
 - Record the release
 
-> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the narthex as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible disclosure at staging, promotion as discoverability). This procedure is that law's operator face.
+> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the narthex as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible kerygma at staging, promotion as discoverability). This procedure is that law's operator face.

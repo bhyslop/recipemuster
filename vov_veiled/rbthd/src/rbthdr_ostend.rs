@@ -5,9 +5,9 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTHDR — ostend: the reveal ceremony's irreversible showing (RBSHO). The
-// once-per-cycle disclosure of the standing dry regulus under a granted
+// once-per-cycle kerygma of the standing dry regulus under a granted
 // cachet: the re-asserted ground, the operator's own file-list eyes, the
-// disclosure, and promotion — every assert machine-performed, every push
+// kerygma, and promotion — every assert machine-performed, every push
 // typed by the operator. Never re-cuts: the dry regulus is bit-for-bit
 // what ships, and a terminal re-cut would break exactly that identity.
 //
@@ -17,7 +17,7 @@
 // push` to any real remote lives in this file.
 //
 // Rehearse tolerates an absent cachet with a loud warning and stops before
-// the disclosure line — the reversible stages proven, the irreversible ones
+// the kerygma line — the reversible stages proven, the irreversible ones
 // never touched.
 
 use std::path::Path;
@@ -29,19 +29,19 @@ use crate::rbthdr_log;
 use crate::rbthdr_repo;
 use crate::rbthdr_run;
 
-/// The disclosure and promotion target is the real public repository — the
+/// The kerygma and promotion target is the real public repository — the
 /// same endpoint the cut clones read-only (rbthdr_expede::RBTHDR_BASE_URL).
 const RBTHDR_MAIN_REF: &str = "refs/heads/main";
 
 /// Conduct the ostend. `rehearse` proves the reversible stages (cachet
 /// tolerant, re-assert the ground, the file-list review) and stops before the
-/// disclosure line — no push shown, nothing irreversible touched. Fatal on
+/// kerygma line — no push shown, nothing irreversible touched. Fatal on
 /// any deficit; ExitCode::SUCCESS only when, outside rehearse, the
-/// disclosure and promotion both verified by remote read.
+/// kerygma and promotion both verified by remote read.
 pub fn rbthdr_ostend_conduct(rehearse: bool) -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Ostend — the reveal's irreversible showing (RBSHO)");
     if rehearse {
-        rbthdr_log::rbthdr_line("REHEARSAL — reversible stages only: stops before the disclosure line.");
+        rbthdr_log::rbthdr_line("REHEARSAL — reversible stages only: stops before the kerygma line.");
     }
 
     let top = rbthdr_repo::rbthdr_toplevel();
@@ -65,7 +65,7 @@ pub fn rbthdr_ostend_conduct(rehearse: bool) -> ExitCode {
 
     if rehearse {
         rbthdr_log::rbthdr_blank();
-        rbthdr_log::rbthdr_success("Ostend rehearsal complete — cachet checked, ground re-asserted, file list reviewed. Stopped before the disclosure line.");
+        rbthdr_log::rbthdr_success("Ostend rehearsal complete — cachet checked, ground re-asserted, file list reviewed. Stopped before the kerygma line.");
         return ExitCode::SUCCESS;
     }
 
@@ -124,10 +124,10 @@ fn zrbthdr_file_list_review(top: &Path, regulus_clone: &Path) {
     rbthdr_log::rbthdr_confirm("reviewed the regulus's file list above?");
 }
 
-// ── Step 4: the disclosure (irreversible) ───────────────────
+// ── Step 4: the kerygma (irreversible) ───────────────────
 
 fn zrbthdr_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
-    rbthdr_log::rbthdr_section("The disclosure (RBSHO step 4) — IRREVERSIBLE");
+    rbthdr_log::rbthdr_section("The kerygma (RBSHO step 4) — IRREVERSIBLE");
     let public_url = rbthdr_expede::RBTHDR_BASE_URL;
     let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
@@ -148,7 +148,7 @@ fn zrbthdr_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
     let main_after = after.iter().find(|(_, name)| name == RBTHDR_MAIN_REF).map(|(sha, _)| sha.clone());
     if main_before != main_after {
         crate::rbthdr_fatal!(
-            "public main moved during the disclosure push ({:?} -> {:?}) — the staging push must never touch main",
+            "public main moved during the kerygma push ({:?} -> {:?}) — the staging push must never touch main",
             main_before, main_after
         );
     }

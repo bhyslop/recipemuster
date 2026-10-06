@@ -71,8 +71,8 @@ rbthe_docimasy() {
 }
 
 rbthe_ostend() {
-  buc_doc_brief "Ostend — the reveal's irreversible showing (re-asserted ground, file-list eyes, disclosure, promotion)"
-  buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the disclosure line"
+  buc_doc_brief "Ostend — the reveal's irreversible showing (re-asserted ground, file-list eyes, kerygma, promotion)"
+  buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the kerygma line"
   buc_doc_shown || return 0
 
   zrbthe_cargo_build

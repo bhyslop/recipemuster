@@ -139,13 +139,13 @@ pub fn rbthdr_require(regulus_parent: &Path, regulus_clone: &Path, top: &Path) -
 
 /// Require a standing cachet, TOLERATING absence with a loud warning — the
 /// rehearse reading (RBSHO rehearse note: "tolerates an absent cachet with a
-/// loud warning and stops before the disclosure line"). A cachet that IS
+/// loud warning and stops before the kerygma line"). A cachet that IS
 /// present but mismatched is still fatal — only absence is tolerated.
 pub fn rbthdr_require_rehearse(regulus_parent: &Path, regulus_clone: &Path, top: &Path) -> Option<rbthdr_Cachet> {
     let path = zrbthdr_path(regulus_parent);
     if !path.is_file() {
         rbthdr_log::rbthdr_warn(&format!(
-            "no cachet standing beside the regulus ({}) — rehearsal tolerates this and stops before the disclosure line",
+            "no cachet standing beside the regulus ({}) — rehearsal tolerates this and stops before the kerygma line",
             path.display()
         ));
         return None;
