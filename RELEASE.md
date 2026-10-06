@@ -111,7 +111,7 @@ tt/rbthw-e.Essai.sh
 - The lap proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
 - The candidate lands at `«sibling»/rbthdr_candidate/candidate`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «candidate» ls-files`
 - Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the candidate's file list
-- Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap retires the prior candidate aside itself). Patching a candidate is the same bug class this whole procedure exists to catch
+- Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap seposes the prior candidate itself — renames it to a timestamped sibling, never deleting it). Patching a candidate is the same bug class this whole procedure exists to catch
 
 ## 6. Preview in the private quarantine (reversible)
 

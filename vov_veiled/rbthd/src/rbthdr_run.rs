@@ -109,7 +109,7 @@ pub fn rbthdr_stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env:
 
 /// A `date`-formatted stamp, shelled to match the bash workers' own stamps
 /// exactly (rblm_harbinger.sh). Fatal on empty — a stamp is load-bearing in the
-/// retire-aside and the memo path.
+/// seposition and the memo path.
 fn zrbthdr_date(format: &str, cwd: &Path) -> String {
     let got = rbthdr_capture("date", &[format], cwd);
     if got.code != 0 {
@@ -127,7 +127,7 @@ pub fn rbthdr_datestamp(cwd: &Path) -> String {
     zrbthdr_date("+%Y%m%d", cwd)
 }
 
-/// YYYYMMDD-HHMMSS — the retire-aside stamp; second-grained so two runs in one
+/// YYYYMMDD-HHMMSS — the seposition stamp; second-grained so two runs in one
 /// day cannot collide.
 pub fn rbthdr_timestamp(cwd: &Path) -> String {
     zrbthdr_date("+%Y%m%d-%H%M%S", cwd)

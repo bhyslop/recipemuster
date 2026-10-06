@@ -51,7 +51,7 @@ set -euo pipefail
 # The rig's parent directory, a fixed basename beside the maintainer repository.
 # Derived from git (the repo's parent), never hand-typed, so the rig always lands next
 # to the tree it was launched from. The basename is a constant and is asserted before
-# the move below: harbinger retires this directory aside — a rename to a timestamped
+# the move below: harbinger seposes this directory — a rename to a timestamped
 # sibling, never a delete — so it may only ever name THIS one, never the maintainer
 # tree it sits beside, and even a wrong guard could not destroy data.
 readonly RBLM_harbinger_dirname="rbthdr_coldwalk"
@@ -81,7 +81,7 @@ readonly RBLM_harbinger_memo_slug="coldwalk-shakedown"
 # Command: harbinger - stand up the guarded cold-walk clone and hand off
 #
 # The verb is a pure local constructor. It disposes of any prior rig by RENAME —
-# retiring it to a timestamped sibling, never deleting — and reaches the public
+# seposing it to a timestamped sibling, never deleting — and reaches the public
 # repository only for an anonymous read. It ends by printing the operator's launch
 # line and the stranger prompt; the walk itself is the operator's, not harbinger's.
 rblm_harbinger() {
@@ -91,7 +91,7 @@ rblm_harbinger() {
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
 
   # Where we are. The rig lands beside this tree, so its identity is the anchor for
-  # every derived path below — and the guard that the retirement move can never hit it.
+  # every derived path below — and the guard that the seposition move can never hit it.
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_harbinger_toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
   local -r z_toplevel=$(<"${z_toplevel_temp}")
@@ -113,7 +113,7 @@ rblm_harbinger() {
   # the constant-named rig dir and never the maintainer tree it sits beside. Both are
   # asserted before anything moves: the basename must be the fixed name, and the target
   # must differ from this repository's own root. The disposal is a RENAME, not a delete
-  # — the prior rig is retired to a timestamped sibling, recoverable — so nothing here
+  # — the prior rig is seposed to a timestamped sibling, recoverable — so nothing here
   # can destroy data even if a guard were wrong.
   local -r z_target_base="${z_target_dir##*/}"
   test "${z_target_base}" = "${RBLM_harbinger_dirname}" \
@@ -132,17 +132,17 @@ rblm_harbinger() {
   test -n "${z_walkdate}" || buc_die_now "walk date resolved empty"
   local -r z_memo_path="${z_target_dir}/memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md"
 
-  # The retirement sibling for any prior rig — a second-grained stamp so two runs in
+  # The seposed sibling for any prior rig — a second-grained stamp so two runs in
   # one day cannot collide. An existing rig is renamed here, never deleted.
-  local -r z_retire_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_retire_stamp.txt"
-  date +%Y%m%d-%H%M%S > "${z_retire_stamp_temp}" || buc_die_now "date failed"
-  local -r z_retire_stamp=$(<"${z_retire_stamp_temp}")
-  test -n "${z_retire_stamp}" || buc_die_now "retirement timestamp resolved empty"
-  local -r z_retired_dir="${z_target_dir}.retired-${z_retire_stamp}"
+  local -r z_sepose_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_sepose_stamp.txt"
+  date +%Y%m%d-%H%M%S > "${z_sepose_stamp_temp}" || buc_die_now "date failed"
+  local -r z_sepose_stamp=$(<"${z_sepose_stamp_temp}")
+  test -n "${z_sepose_stamp}" || buc_die_now "seposition timestamp resolved empty"
+  local -r z_seposed_dir="${z_target_dir}.seposed-${z_sepose_stamp}"
 
   buh_section "Marshal Harbinger — cold-agent onboarding shakedown"
   buh_line "  Maintainer tree:   ${z_toplevel}"
-  buh_line "  Cold-walk rig:     ${z_target_dir}  (prior retired aside, fresh clone)"
+  buh_line "  Cold-walk rig:     ${z_target_dir}  (prior seposed, fresh clone)"
   buh_line "  Public clone:      ${z_clone_dir}"
   buh_line "  Public source:     ${RBLM_harbinger_public_url}"
   buh_line "  Walk branch:       ${RBLM_harbinger_walk_branch}  (default branch left pristine)"
@@ -157,18 +157,18 @@ rblm_harbinger() {
   buh_line "  end. Harbinger clones, guards, and hands off — it launches nothing and"
   buh_line "  pushes nothing."
   buh_e
-  buh_line "  Any prior rig is RETIRED to a timestamped sibling, never deleted; sweep"
-  buh_line "  old ${RBLM_harbinger_dirname}.retired-* dirs whenever you like."
+  buh_line "  Any prior rig is SEPOSED: renamed to a timestamped sibling, never deleted; sweep"
+  buh_line "  old ${RBLM_harbinger_dirname}.seposed-* dirs whenever you like."
   buh_e
-  buc_require "Retire any existing rig and stand up a fresh cold-walk clone at ${z_target_dir}?" "harbinger"
+  buc_require "Sepose any existing rig and stand up a fresh cold-walk clone at ${z_target_dir}?" "harbinger"
 
-  buc_step "Retiring any existing rig aside"
+  buc_step "Seposing any existing rig"
   if test -e "${z_target_dir}"; then
-    test ! -e "${z_retired_dir}" || buc_die_now "Retirement target already exists: ${z_retired_dir}"
-    mv "${z_target_dir}" "${z_retired_dir}" || buc_die_now "Failed to retire the existing rig: ${z_target_dir} -> ${z_retired_dir}"
-    buh_line "  Retired prior rig: ${z_retired_dir}"
+    test ! -e "${z_seposed_dir}" || buc_die_now "Seposition target already exists: ${z_seposed_dir}"
+    mv "${z_target_dir}" "${z_seposed_dir}" || buc_die_now "Failed to sepose the existing rig: ${z_target_dir} -> ${z_seposed_dir}"
+    buh_line "  Seposed prior rig: ${z_seposed_dir}"
   else
-    buh_line "  No prior rig to retire"
+    buh_line "  No prior rig to sepose"
   fi
   mkdir -p "${z_target_dir}" || buc_die_now "Failed to create the rig: ${z_target_dir}"
 

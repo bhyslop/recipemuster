@@ -8,8 +8,8 @@
 // requires (RBS0 rbth_cachet; RBSHD "Grant the cachet"; RBSHO "Require the
 // cachet"). A small crate module, not a worker: stored beside the candidate
 // (a sibling of the clone, in the candidate's parent directory — the same
-// location retire-aside already sweeps, so retiring a candidate aside
-// retires its cachet with it for free), keyed to the candidate's tree hash,
+// location seposition already sweeps, so seposing a candidate seposes
+// its cachet with it for free), keyed to the candidate's tree hash,
 // attesting the gauntlet ran green against exactly these bytes. A re-cut
 // candidate carries none; a rehearsal never grants one.
 

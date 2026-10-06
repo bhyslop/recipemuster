@@ -621,7 +621,7 @@ pub fn rbthdr_assert_quarantine_private(top: &Path) {
 /// scratch cut lands at a FIXED sibling location distinct from the standing
 /// candidate's own (RBTHDR_FRESHNESS_DIRNAME), so this can never collide with,
 /// or dispose of, the candidate it is comparing against; it is disposed by
-/// the same retire-aside rename discipline as every other sibling artifact,
+/// the same seposition rename discipline as every other sibling artifact,
 /// win or lose.
 ///
 /// Fatal on drift, naming the standing remedy: the cycle returns to essai,
@@ -630,7 +630,7 @@ pub fn rbthdr_assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
     let freshness_parent = parent.join(rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME);
     rbthdr_repo::rbthdr_guard_disposable(&freshness_parent, rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME, top);
     if !rbthdr_repo::rbthdr_sepose(&freshness_parent, top) {
-        rbthdr_log::rbthdr_line("no prior freshness scratch to retire");
+        rbthdr_log::rbthdr_line("no prior freshness scratch to sepose");
     }
 
     rbthdr_log::rbthdr_step("Scratch re-cutting the maintainer tree's shipped bytes to assert freshness");
