@@ -44,8 +44,9 @@ zrbfc_plumb_core() {
   # the depth-1 chain — so a no-arg plumb immediately after a build inspects the
   # just-built hallmark.
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
 
   buc_step "Resolving vessel from vouch ark"
   local z_vessel=""
@@ -182,7 +183,9 @@ zrbfc_plumb_show_sections() {
     local z_mode_raw
     jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
       || echo "rbnve_conjure" > "${ZRBFC_SCRATCH_FILE}"
-    z_mode_raw=$(<"${ZRBFC_SCRATCH_FILE}")
+    local z_mode_raw_status=0
+    z_mode_raw=$(<"${ZRBFC_SCRATCH_FILE}") || z_mode_raw_status=$?
+    test "${z_mode_raw_status}" -eq 0 || z_mode_raw=""
     z_vessel_mode="${z_mode_raw}"
   fi
 
@@ -386,7 +389,9 @@ zrbfc_plumb_show_sections() {
           '(.config.Labels // {})[$k] // empty' "${z_attest_config}" \
           > "${ZRBFC_SCRATCH_FILE}" 2>"${z_rb_stderr}" \
           || buc_warn "Could not read ${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n} from attest config — see ${z_rb_stderr}"
-        z_rb_val=$(<"${ZRBFC_SCRATCH_FILE}")
+        local z_rb_val_status=0
+        z_rb_val=$(<"${ZRBFC_SCRATCH_FILE}") || z_rb_val_status=$?
+        test "${z_rb_val_status}" -eq 0 || z_rb_val=""
         if test -n "${z_rb_val}"; then
           echo "  Resolved base ${z_rb_n} (signed): ${z_rb_val}"
           z_rb_any="true"
@@ -423,7 +428,9 @@ zrbfc_plumb_show_sections() {
     # Per-platform digests if present
     local z_bk_platforms=""
     jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
-    z_bk_platforms=$(<"${ZRBFC_SCRATCH_FILE}")
+    local z_bk_platforms_status=0
+    z_bk_platforms=$(<"${ZRBFC_SCRATCH_FILE}") || z_bk_platforms_status=$?
+    test "${z_bk_platforms_status}" -eq 0 || z_bk_platforms=""
     if test -n "${z_bk_platforms}"; then
       echo "  Per-platform digests:"
       local z_bk_plat=""
@@ -431,7 +438,9 @@ zrbfc_plumb_show_sections() {
       while IFS= read -r z_bk_plat; do
         jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
           > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
-        z_bk_pd=$(<"${ZRBFC_SCRATCH_FILE}")
+        local z_bk_pd_status=0
+        z_bk_pd=$(<"${ZRBFC_SCRATCH_FILE}") || z_bk_pd_status=$?
+        test "${z_bk_pd_status}" -eq 0 || z_bk_pd=""
         test -n "${z_bk_pd}" && echo "    ${z_bk_plat}: ${z_bk_pd}"
       done <<< "${z_bk_platforms}"
     fi
@@ -451,11 +460,15 @@ zrbfc_plumb_show_sections() {
       if test -f "${z_cache_before}"; then
         jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
           || echo "?" > "${ZRBFC_SCRATCH_FILE}"
-        z_before_count=$(<"${ZRBFC_SCRATCH_FILE}")
+        local z_before_count_status=0
+        z_before_count=$(<"${ZRBFC_SCRATCH_FILE}") || z_before_count_status=$?
+        test "${z_before_count_status}" -eq 0 || z_before_count=""
       fi
       jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
         || echo "?" > "${ZRBFC_SCRATCH_FILE}"
-      z_after_count=$(<"${ZRBFC_SCRATCH_FILE}")
+      local z_after_count_status=0
+      z_after_count=$(<"${ZRBFC_SCRATCH_FILE}") || z_after_count_status=$?
+      test "${z_after_count_status}" -eq 0 || z_after_count=""
       echo "  Images before: ${z_before_count}"
       echo "  Images after:  ${z_after_count}"
       if test -f "${z_cache_before}"; then
@@ -472,7 +485,9 @@ zrbfc_plumb_show_sections() {
             [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
           .[]
         ' "${z_cache_after}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
-        z_new_images=$(<"${ZRBFC_SCRATCH_FILE}")
+        local z_new_images_status=0
+        z_new_images=$(<"${ZRBFC_SCRATCH_FILE}") || z_new_images_status=$?
+        test "${z_new_images_status}" -eq 0 || z_new_images=""
         if test -n "${z_new_images}"; then
           local z_new_count=0
           local z_count_line=""
@@ -500,7 +515,9 @@ zrbfc_plumb_show_sections() {
     local z_pkg_count=""
     jq '.artifacts | length' "${z_sbom}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
       || echo "?" > "${ZRBFC_SCRATCH_FILE}"
-    z_pkg_count=$(<"${ZRBFC_SCRATCH_FILE}")
+    local z_pkg_count_status=0
+    z_pkg_count=$(<"${ZRBFC_SCRATCH_FILE}") || z_pkg_count_status=$?
+    test "${z_pkg_count_status}" -eq 0 || z_pkg_count=""
     echo "  Package count:  ${z_pkg_count}"
 
     echo "  Package types:"

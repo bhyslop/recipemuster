@@ -51,8 +51,12 @@ rbhoct_crucible_trunk() {
   local z_sentry_hallmark_present=0
   local z_bottle_hallmark_present=0
   if test "${z_nameplate_exists}" = "1"; then
-    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark=""
-    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark=""
+    local z_sentry_hallmark_status=0
+    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark_status=$?
+    test "${z_sentry_hallmark_status}" -eq 0 || z_sentry_hallmark=""
+    local z_bottle_hallmark_status=0
+    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark_status=$?
+    test "${z_bottle_hallmark_status}" -eq 0 || z_bottle_hallmark=""
     test -n "${z_sentry_hallmark}" && z_sentry_hallmark_present=1
     test -n "${z_bottle_hallmark}" && z_bottle_hallmark_present=1
   fi

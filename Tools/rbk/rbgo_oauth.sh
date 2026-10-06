@@ -138,6 +138,7 @@ rbgo_docker_login() {
   local z_stderr_file=""
   local z_rc=0
   local z_auth_b64=""
+  local z_stderr_text=""
 
   while :; do
     z_attempt=$((z_attempt + 1))
@@ -162,7 +163,8 @@ rbgo_docker_login() {
     # as done. credsStore is intentionally omitted so retrieval reads the file.
     # A real auth failure emits "unauthorized", never matches, and falls through
     # to the surveyed-transient / fail-fast handling below.
-    if [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
+    z_stderr_text=$(<"${z_stderr_file}") || buc_die_now "Failed to read: ${z_stderr_file}"
+    if [[ "${z_stderr_text}" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
       buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); writing the authenticated credential to the base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
       z_auth_b64=$(rbgo_base64_encode_string_capture "oauth2accesstoken:${z_token}") \
         || buc_die_now "Cannot base64-encode the docker credential for the file-store bend"
@@ -173,7 +175,7 @@ rbgo_docker_login() {
       return 0
     fi
 
-    [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
+    [[ "${z_stderr_text}" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
       || buc_die_now "Docker login to ${z_host} failed — see ${z_stderr_file}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \

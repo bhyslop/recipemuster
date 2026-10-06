@@ -62,7 +62,7 @@ rbfl_wrest() {
   local z_image_id
   docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
     || buc_die_now "Failed to get image ID"
-  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}")
+  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_SCRATCH_FILE}"
 
   echo ""
   echo "Image wrested: ${z_full_ref}"

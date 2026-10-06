@@ -110,9 +110,11 @@ zrbfc_load_vessel() {
   buc_log_args 'Validate vessel path matches expected pattern'
   local z_expected_vessel_dir="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}"
   local z_vessel_realpath=""
-  z_vessel_realpath=$(cd "${z_vessel_dir}" && pwd) || buc_die_now "Failed to resolve vessel directory path"
+  (cd "${z_vessel_dir}" && pwd) > "${ZRBFC_SCRATCH_FILE}" || buc_die_now "Failed to resolve vessel directory path"
+  z_vessel_realpath=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to resolve vessel directory path"
   local z_expected_realpath=""
-  z_expected_realpath=$(cd "${z_expected_vessel_dir}" && pwd) || buc_die_now "Failed to resolve expected vessel path"
+  (cd "${z_expected_vessel_dir}" && pwd) > "${ZRBFC_SCRATCH_FILE}" || buc_die_now "Failed to resolve expected vessel path"
+  z_expected_realpath=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to resolve expected vessel path"
   test "${z_vessel_realpath}" = "${z_expected_realpath}" || buc_die_now "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
 
   buc_log_args 'Store loaded vessel info for use by commands'

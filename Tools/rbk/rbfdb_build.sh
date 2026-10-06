@@ -59,7 +59,9 @@ zrbfd_quota_preflight() {
   rbuh_json "GET" "${z_url}" "${z_token}" "quota_preflight"
 
   local z_code=""
-  z_code=$(rbuh_code_capture "quota_preflight") || z_code=""
+  local z_code_status=0
+  z_code=$(rbuh_code_capture "quota_preflight") || z_code_status=$?
+  test "${z_code_status}" -eq 0 || z_code=""
   if test "${z_code}" != "200"; then
     buc_warn "Could not query build quota (HTTP ${z_code}) -- skipping preflight check"
     return 0
@@ -72,10 +74,13 @@ zrbfd_quota_preflight() {
 
   # Extract effective limit from region bucket, then fallback to first bucket
   local z_limit=""
-  z_limit=$(rbuh_json_field_capture "quota_region" '.effectiveLimit') || z_limit=""
+  local z_limit_status=0
+  z_limit=$(rbuh_json_field_capture "quota_region" '.effectiveLimit') || z_limit_status=$?
+  test "${z_limit_status}" -eq 0 || z_limit=""
   if test -z "${z_limit}"; then
-    z_limit=$(rbuh_json_field_capture "quota_preflight" \
-      '.consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit') || z_limit=""
+    z_limit_status=0
+    z_limit=$(rbuh_json_field_capture "quota_preflight" '.consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit') || z_limit_status=$?
+    test "${z_limit_status}" -eq 0 || z_limit=""
   fi
 
   if test -z "${z_limit}"; then
@@ -117,7 +122,8 @@ zrbfd_stitch_build_json() {
   test -s "${ZRBFC_GIT_INFO_FILE}"     || buc_die_now "Git info not captured — ensure git metadata is captured before stitch"
 
   buc_log_args 'Read vessel state for substitutions'
-  local -r z_sigil=$(<"${ZRBFC_VESSEL_SIGIL_FILE}")
+  local z_sigil
+  z_sigil=$(<"${ZRBFC_VESSEL_SIGIL_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_SIGIL_FILE}"
   test -n "${z_sigil}" || buc_die_now "Empty vessel sigil"
   local -r z_dockerfile_name="${RBRV_CONJURE_DOCKERFILE##*/}"
   local -r z_platforms="${RBRV_CONJURE_PLATFORMS// /,}"
@@ -189,9 +195,12 @@ zrbfd_stitch_build_json() {
   jq -r '.repo'   "${ZRBFC_GIT_INFO_FILE}" > "${z_stitch_git_repo_file}" \
     || buc_die_now "Failed to extract git repo from info file"
 
-  local -r z_git_commit=$(<"${z_stitch_git_commit_file}")
-  local -r z_git_branch=$(<"${z_stitch_git_branch_file}")
-  local -r z_git_repo=$(<"${z_stitch_git_repo_file}")
+  local z_git_commit
+  z_git_commit=$(<"${z_stitch_git_commit_file}") || buc_die_now "Failed to read: ${z_stitch_git_commit_file}"
+  local z_git_branch
+  z_git_branch=$(<"${z_stitch_git_branch_file}") || buc_die_now "Failed to read: ${z_stitch_git_branch_file}"
+  local z_git_repo
+  z_git_repo=$(<"${z_stitch_git_repo_file}") || buc_die_now "Failed to read: ${z_stitch_git_repo_file}"
 
   test -n "${z_git_commit}" || buc_die_now "Git commit is empty"
   test -n "${z_git_branch}" || buc_die_now "Git branch is empty"
@@ -285,7 +294,7 @@ zrbfd_stitch_build_json() {
 
     buc_log_args "Reading script body for ${z_id} (skip shebang, comments pass through)"
     zrbfc_write_script_body "${z_script_path}" "${z_body_file}" || buc_die_now "Failed to read step script: ${z_script_path}"
-    z_body=$(<"${z_body_file}")
+    z_body=$(<"${z_body_file}") || buc_die_now "Failed to read: ${z_body_file}"
     test -n "${z_body}" || buc_die_now "Empty script body: ${z_script_path}"
 
     buc_log_args "Baking pinned image refs and build strategy into script text"
@@ -351,7 +360,9 @@ zrbfd_stitch_build_json() {
   local z_stitch_dockerfile_content=""
   local -r z_stitch_df_max_bytes=4000
   if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
-    z_stitch_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
+    local z_stitch_dockerfile_content_status=0
+    z_stitch_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}") || z_stitch_dockerfile_content_status=$?
+    test "${z_stitch_dockerfile_content_status}" -eq 0 || z_stitch_dockerfile_content=""
     if test "${#z_stitch_dockerfile_content}" -gt "${z_stitch_df_max_bytes}"; then
       buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_stitch_dockerfile_content} bytes) — recipe.txt via -diags only"
       z_stitch_dockerfile_content=""
@@ -643,11 +654,11 @@ rbfd_build() {
   buc_step "Capturing git metadata"
   zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
   jq -n \
     --arg commit "${z_git_commit}" \
     --arg branch "${z_git_branch}" \
@@ -662,7 +673,8 @@ rbfd_build() {
   local -r z_realized_ts_file="${BURD_TEMP_DIR}/rbfd_realized_ts.txt"
   date -u +%y%m%d%H%M%S > "${z_realized_ts_file}" \
     || buc_die_now "Failed to generate realized timestamp"
-  local -r z_realized_ts=$(<"${z_realized_ts_file}")
+  local z_realized_ts
+  z_realized_ts=$(<"${z_realized_ts_file}") || buc_die_now "Failed to read: ${z_realized_ts_file}"
   test -n "${z_realized_ts}" || buc_die_now "Empty realized timestamp"
   local -r z_hallmark="${z_inscribe_ts}-r${z_realized_ts}"
   buc_info "Host-minted hallmark: ${z_hallmark}"
@@ -670,7 +682,7 @@ rbfd_build() {
   # Push build context (pouch) to GAR as FROM SCRATCH image
   zrbfd_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}" "${z_hallmark}"
   local z_context_tag=""
-  z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt")
+  z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt") || buc_die_now "Failed to read: ${ZRBFD_CONTEXT_PREFIX}tag.txt"
   test -n "${z_context_tag}" || buc_die_now "Empty context image tag after push"
 
   # Stitch build JSON — generates complete builds.create resource directly
@@ -688,7 +700,9 @@ rbfd_build() {
 
   # Extract build ID from Operation response
   local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "build_direct_create" '.metadata.build.id') || z_build_id=""
+  local z_build_id_status=0
+  z_build_id=$(rbuh_json_field_capture "build_direct_create" '.metadata.build.id') || z_build_id_status=$?
+  test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
@@ -708,13 +722,15 @@ rbfd_build() {
     '.steps | map(.id) | index($id) // empty' \
     "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die_now "Failed to locate step ${RBFD0_hallmark_echo_step_id} in build response"
-  local -r z_step_index=$(<"${ZRBFC_SCRATCH_FILE}")
+  local z_step_index
+  z_step_index=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_SCRATCH_FILE}"
   test -n "${z_step_index}" \
     || buc_die_now "Step ${RBFD0_hallmark_echo_step_id} not found in build response steps"
 
   jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_SCRATCH_FILE}" \
     || buc_die_now "Failed to extract buildStepOutputs[${z_step_index}] from build response"
-  local -r z_step_output=$(<"${ZRBFC_SCRATCH_FILE}")
+  local z_step_output
+  z_step_output=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_SCRATCH_FILE}"
   test -n "${z_step_output}" \
     || buc_die_now "Build echoed no hallmark (buildStepOutputs[${z_step_index}] empty) — cannot corroborate host-minted hallmark"
 
@@ -724,7 +740,8 @@ rbfd_build() {
     || buc_die_now "Failed to write step output for decoding"
   rbgo_base64_decode_file_to_file "${z_step_b64_file}" "${z_step_decoded_file}" \
     || buc_die_now "Failed to base64-decode build step output"
-  local -r z_found_hallmark=$(<"${z_step_decoded_file}")
+  local z_found_hallmark
+  z_found_hallmark=$(<"${z_step_decoded_file}") || buc_die_now "Failed to read: ${z_step_decoded_file}"
   test "${z_found_hallmark}" = "${z_hallmark}" \
     || buc_die_now "Hallmark mismatch: host minted '${z_hallmark}' but build returned '${z_found_hallmark}'"
   buc_info "Hallmark consistency verified: ${z_hallmark}"

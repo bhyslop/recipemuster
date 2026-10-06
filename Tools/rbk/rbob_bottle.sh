@@ -113,7 +113,7 @@ zrbob_kindle() {
   # onto every container as the RBCC_label_provenance label (via the compose
   # env bridge below) and read back by the charge/quench provenance gates.
   local z_provenance=""
-  z_provenance="$(pwd -P)" || buc_die_now "Cannot resolve working tree root for provenance"
+  z_provenance=$(pwd -P) || buc_die_now "Cannot resolve working tree root for provenance"
   readonly ZRBOB_PROVENANCE="${z_provenance}"
 
   # Container names (for connect and info commands)
@@ -200,9 +200,9 @@ zrbob_kindle() {
   id -u > "${z_uid_file}" || buc_die_now "Failed to determine host UID"
   id -g > "${z_gid_file}" || buc_die_now "Failed to determine host GID"
   local z_host_uid=""
-  z_host_uid=$(<"${z_uid_file}")
+  z_host_uid=$(<"${z_uid_file}") || buc_die_now "Failed to read: ${z_uid_file}"
   local z_host_gid=""
-  z_host_gid=$(<"${z_gid_file}")
+  z_host_gid=$(<"${z_gid_file}") || buc_die_now "Failed to read: ${z_gid_file}"
   export RBOB_HOST_UID="${z_host_uid}"
   export RBOB_HOST_GID="${z_host_gid}"
   readonly RBOB_HOST_UID
@@ -212,7 +212,11 @@ zrbob_kindle() {
   local z_bottle_rbrv="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}/${RBCC_rbrv_file}"
   local z_bottle_user=""
   if test -f "${z_bottle_rbrv}"; then
-    z_bottle_user=$(grep '^RBRV_USER=' "${z_bottle_rbrv}" | head -1 | cut -d= -f2) || true
+    local z_bottle_user_status=0
+    z_bottle_user=$(grep -m1 '^RBRV_USER=' "${z_bottle_rbrv}") || z_bottle_user_status=$?
+    test "${z_bottle_user_status}" -eq 0 || z_bottle_user=""
+    z_bottle_user="${z_bottle_user#*=}"
+    z_bottle_user="${z_bottle_user%%=*}"
   fi
   readonly ZRBOB_BOTTLE_USER="${z_bottle_user}"
   export RBRV_USER="${z_bottle_user}"
@@ -563,7 +567,9 @@ zrbob_reclaim_subnet() {
         > "${z_subnet_file}" 2>"${z_subnet_stderr}" \
         || continue
 
-      z_subnet=$(<"${z_subnet_file}")
+      local z_subnet_status=0
+      z_subnet=$(<"${z_subnet_file}") || z_subnet_status=$?
+      test "${z_subnet_status}" -eq 0 || continue
       test "${z_subnet}" = "${z_target_subnet}" || continue
 
       buc_warn "Subnet ${z_target_subnet} occupied by stale network '${z_name}' — reclaiming"
@@ -634,7 +640,10 @@ zrbob_render_charge_note() {
 
   test -f "${ZRBOB_CHARGE_NOTE}" || return 0
 
-  local z_content=$(<"${ZRBOB_CHARGE_NOTE}")
+  local z_content_status=0
+  local z_content
+  z_content=$(<"${ZRBOB_CHARGE_NOTE}") || z_content_status=$?
+  test "${z_content_status}" -eq 0 || return 0
   test -n "${z_content}" || return 0
 
   # Resolve each distinct {{NAME}} token: validate the name against the closed

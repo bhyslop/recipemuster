@@ -74,7 +74,8 @@ zrbfv_graft_metadata_submit() {
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
 
-  local -r z_image_http_code=$(<"${z_image_gate_status}")
+  local z_image_http_code
+  z_image_http_code=$(<"${z_image_gate_status}") || buc_die_now "Failed to read: ${z_image_gate_status}"
   test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image"
   test "${z_image_http_code}" = "200" \
     || buc_die_now "Image artifact not found (HTTP ${z_image_http_code}) — graft push must complete before about+vouch"
@@ -84,18 +85,18 @@ zrbfv_graft_metadata_submit() {
   # Git metadata (shared temp files, idempotent)
   zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
 
   # Graft-specific about substitution values
   local -r z_graft_source="${RBRV_GRAFT_IMAGE:-}"
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
   if test -n "${RBRV_GRAFT_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"; then
-    z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}")
+    z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"
     if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
       buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
       z_dockerfile_content=""
@@ -255,7 +256,9 @@ zrbfv_graft_metadata_submit() {
   rbuh_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id=""
+  local z_build_id_status=0
+  z_build_id=$(rbuh_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id_status=$?
+  test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 

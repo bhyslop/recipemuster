@@ -143,7 +143,9 @@ rbgv_check_mantle() {
   # warns — the rig is being exercised under a different identity — but does not
   # gate the don; an undecodable subject is skipped with a log note.
   local z_cached_subject=""
-  z_cached_subject=$(zrba_sederunt_subject_capture) || z_cached_subject=""
+  local z_cached_subject_status=0
+  z_cached_subject=$(zrba_sederunt_subject_capture) || z_cached_subject_status=$?
+  test "${z_cached_subject_status}" -eq 0 || z_cached_subject=""
   if test -z "${z_cached_subject}"; then
     buc_log_args "Avowed subject not decodable from the ${RBCC_noun_sederunt} cache — skipping the freehold-identity confirmation (informational only)"
   elif test "${z_cached_subject}" = "${RBPC_freehold_subject}"; then

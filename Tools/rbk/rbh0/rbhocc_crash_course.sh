@@ -33,7 +33,9 @@ rbho_crash_course() {
   local z_rbrd_project=""
   local z_rbrd_populated=0
   if test -f "${RBCC_rbrd_file}"; then
-    z_rbrd_project=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project=""
+    local z_rbrd_project_status=0
+    z_rbrd_project=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project_status=$?
+    test "${z_rbrd_project_status}" -eq 0 || z_rbrd_project=""
     test -n "${z_rbrd_project}" && z_rbrd_populated=1
   fi
 
@@ -41,7 +43,9 @@ rbho_crash_course() {
   local z_log_dir=""
   if test -n "${BURD_STATION_FILE:-}" && test -f "${BURD_STATION_FILE}"; then
     z_station_present=1
-    z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""
+    local z_log_dir_status=0
+    z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir_status=$?
+    test "${z_log_dir_status}" -eq 0 || z_log_dir=""
   fi
 
   buh_section "Recipe Bottle — Configure your Repo's Environment"

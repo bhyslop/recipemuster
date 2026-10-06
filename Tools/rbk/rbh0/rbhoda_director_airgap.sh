@@ -55,14 +55,18 @@ rbho_director_airgap() {
   local z_airgap_base_anchored=0
   if test -f "${z_airgap_rbrv}"; then
     local z_anchor=""
-    z_anchor=$(zrbho_po_extract_capture "${z_airgap_rbrv}" "RBRV_IMAGE_1_ANCHOR") || z_anchor=""
+    local z_anchor_status=0
+    z_anchor=$(zrbho_po_extract_capture "${z_airgap_rbrv}" "RBRV_IMAGE_1_ANCHOR") || z_anchor_status=$?
+    test "${z_anchor_status}" -eq 0 || z_anchor=""
     test -n "${z_anchor}" && z_airgap_base_anchored=1
   fi
 
   local z_airgap_ordained=0
   if test -f "${z_moriah_rbrn}"; then
     local z_moriah_hallmark=""
-    z_moriah_hallmark=$(zrbho_po_extract_capture "${z_moriah_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_moriah_hallmark=""
+    local z_moriah_hallmark_status=0
+    z_moriah_hallmark=$(zrbho_po_extract_capture "${z_moriah_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_moriah_hallmark_status=$?
+    test "${z_moriah_hallmark_status}" -eq 0 || z_moriah_hallmark=""
     case "${z_moriah_hallmark}" in
       ""|PENDING-*) ;;
       *) z_airgap_ordained=1 ;;
@@ -72,7 +76,9 @@ rbho_director_airgap() {
   local z_tether_ready=0
   local z_tether_hallmark=""
   if test -f "${z_tether_rbrn}"; then
-    z_tether_hallmark=$(zrbho_po_extract_capture "${z_tether_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_tether_hallmark=""
+    local z_tether_hallmark_status=0
+    z_tether_hallmark=$(zrbho_po_extract_capture "${z_tether_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_tether_hallmark_status=$?
+    test "${z_tether_hallmark_status}" -eq 0 || z_tether_hallmark=""
     case "${z_tether_hallmark}" in
       ""|PENDING-*) z_tether_hallmark="" ;;
       *) z_tether_ready=1 ;;

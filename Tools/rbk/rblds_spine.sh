@@ -88,7 +88,8 @@ zrbld_spine_validate() {
 
   # Keys as newline-bounded text for builtin whole-line membership tests. Empty
   # keys (a blob declaring no registers) is legitimate — no test -n.
-  local -r z_keys=$(<"${z_keys_file}")
+  local z_keys
+  z_keys=$(<"${z_keys_file}") || return 1
   local -r z_keys_blob=$'\n'"${z_keys}"$'\n'
 
   # Load the body, then iterate — the file is closed before the scan begins.
@@ -167,7 +168,8 @@ zrbld_spine_dispatch() {
   # construction. Recipes without the vouch step (the delete builds) carry the key
   # unread — ALLOW_LOOSE automaps it; the coverage check below is refs-need-keys only.
   zrbfc_ensure_git_metadata
-  local -r z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
+  local z_git_commit
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
   test -n "${z_git_commit}" || buc_die_now "Empty git commit from ${ZRBFC_GIT_COMMIT_FILE}"
   local -r z_subs_stamped_file="${z_temp_prefix}subs_stamped.json"
   jq --arg zjq_commit "${z_git_commit}" '. + {_RBGL_GIT_COMMIT: $zjq_commit}' \
@@ -211,7 +213,7 @@ zrbld_spine_dispatch() {
       || buc_die_now "Failed to read step script: ${z_script_path}"
     zrbfc_expand_includes "${z_body_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
       || buc_die_now "Failed to expand snippet includes in step: ${z_script_path}"
-    z_body=$(<"${z_body_file}")
+    z_body=$(<"${z_body_file}") || buc_die_now "Failed to read: ${z_body_file}"
     test -n "${z_body}" || buc_die_now "Empty step script body: ${z_script_path}"
 
     zrbld_spine_validate "${z_keys_file}" "${z_body_file}" \
@@ -341,11 +343,13 @@ zrbld_spine_extract_single() {
   local -r z_stamp_file="${z_prefix}stamp.txt"
   jq -r '.rbls_slot_1.rbls_stamp // empty' "${z_output_file}" > "${z_stamp_file}" \
     || buc_die_now "Failed to read stamp from ${z_label} output"
-  local -r z_stamp=$(<"${z_stamp_file}")
+  local z_stamp
+  z_stamp=$(<"${z_stamp_file}") || buc_die_now "Failed to read: ${z_stamp_file}"
   local -r z_keys_file="${z_prefix}output_keys.txt"
   jq -cr 'keys' "${z_output_file}" > "${z_keys_file}" \
     || buc_die_now "Failed to read keys from ${z_label} output"
-  local -r z_keys=$(<"${z_keys_file}")
+  local z_keys
+  z_keys=$(<"${z_keys_file}") || buc_die_now "Failed to read: ${z_keys_file}"
   test -n "${z_stamp}" || buc_die_now "${z_label} output carried no stamp in rbls_slot_1 (keys present: ${z_keys})"
 
   buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \

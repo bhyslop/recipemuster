@@ -96,10 +96,14 @@ rbge_lro_ok() {
   rbuh_require_ok "${z_label}" "${z_infix}"
 
   local z_done=""
-  z_done=$(rbuh_json_field_capture "${z_infix}" ".done") || z_done=""
+  local z_done_status=0
+  z_done=$(rbuh_json_field_capture "${z_infix}" ".done") || z_done_status=$?
+  test "${z_done_status}" -eq 0 || z_done=""
   test "${z_done}" = "true" && {
     local z_lro_error=""
-    z_lro_error=$(rbuh_json_field_capture "${z_infix}" '.error.message // empty') || z_lro_error=""
+    local z_lro_error_status=0
+    z_lro_error=$(rbuh_json_field_capture "${z_infix}" '.error.message // empty') || z_lro_error_status=$?
+    test "${z_lro_error_status}" -eq 0 || z_lro_error=""
     if test -n "${z_lro_error}"; then
       local z_lro_resp_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
       buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
@@ -111,7 +115,9 @@ rbge_lro_ok() {
 
   buc_log_args '2) Extract op name (or return if not an LRO)'
   local z_name
-  z_name=$(rbuh_json_field_capture "${z_infix}" "${z_name_jq}") || z_name=""
+  local z_name_status=0
+  z_name=$(rbuh_json_field_capture "${z_infix}" "${z_name_jq}") || z_name_status=$?
+  test "${z_name_status}" -eq 0 || z_name=""
   test -n "${z_name}" || {
     buc_log_args 'No LRO name present - treat as non-LRO success'
     return 0
@@ -143,13 +149,19 @@ rbge_lro_ok() {
     rbuh_json "GET" "${z_poll_url}" "${z_token}" "${z_poll_infix}"
 
     local z_code=""
-    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
+    local z_code_status=0
+    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code_status=$?
+    test "${z_code_status}" -eq 0 || z_code=""
     test "${z_code}" = "200" || buc_die_now "${z_label}: poll failed (HTTP ${z_code})"
 
-    z_done=$(rbuh_json_field_capture "${z_poll_infix}" ".done") || z_done=""
+    local z_done_status=0
+    z_done=$(rbuh_json_field_capture "${z_poll_infix}" ".done") || z_done_status=$?
+    test "${z_done_status}" -eq 0 || z_done=""
     test "${z_done}" = "true" && {
       local z_lro_error=""
-      z_lro_error=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message // empty') || z_lro_error=""
+      local z_lro_error_status=0
+      z_lro_error=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message // empty') || z_lro_error_status=$?
+      test "${z_lro_error_status}" -eq 0 || z_lro_error=""
       if test -n "${z_lro_error}"; then
         local z_lro_resp_file="${ZRBUH_PREFIX}${z_poll_infix}${ZRBUH_POSTFIX_JSON}"
         buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
@@ -201,7 +213,9 @@ rbge_api_enable() {
       400)
         # Check if already enabled
         local z_err
-        z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
+        local z_err_status=0
+        z_err=$(rbge_error_message_capture "${z_infix}") || z_err_status=$?
+        test "${z_err_status}" -eq 0 || z_err="Unknown error"
         if [[ "${z_err}" =~ already.enabled ]] || [[ "${z_err}" =~ "already enabled" ]]; then
           buc_log_args "API ${z_api_service} already enabled"
           return 0
@@ -211,7 +225,9 @@ rbge_api_enable() {
         ;;
       *)
         local z_err
-        z_err=$(rbge_error_message_capture "${z_infix}") || z_err="Unknown error"
+        local z_err_status=0
+        z_err=$(rbge_error_message_capture "${z_infix}") || z_err_status=$?
+        test "${z_err_status}" -eq 0 || z_err="Unknown error"
         buc_die_now "rbge_api_enable (HTTP ${z_code}): ${z_err}"
         ;;
     esac
@@ -219,11 +235,15 @@ rbge_api_enable() {
     # Await the enable LRO inline when one was returned (non-LRO response -> done)
     local z_final_infix="${z_infix}"
     local z_operation_name
-    z_operation_name=$(rbuh_json_field_capture "${z_infix}" ".name") || z_operation_name=""
+    local z_operation_name_status=0
+    z_operation_name=$(rbuh_json_field_capture "${z_infix}" ".name") || z_operation_name_status=$?
+    test "${z_operation_name_status}" -eq 0 || z_operation_name=""
 
     if test -n "${z_operation_name}"; then
       local z_done
-      z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
+      local z_done_status=0
+      z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done_status=$?
+      test "${z_done_status}" -eq 0 || z_done=""
 
       local z_elapsed=0
       while test "${z_done}" != "true"; do
@@ -235,15 +255,21 @@ rbge_api_enable() {
         rbuh_json "GET" "${z_poll_root}/${z_operation_name}" "${z_token}" "${z_final_infix}"
 
         local z_poll_code
-        z_poll_code=$(rbuh_code_capture "${z_final_infix}") || z_poll_code=""
+        local z_poll_code_status=0
+        z_poll_code=$(rbuh_code_capture "${z_final_infix}") || z_poll_code_status=$?
+        test "${z_poll_code_status}" -eq 0 || z_poll_code=""
         test "${z_poll_code}" = "200" || buc_die_now "API Enable ${z_api_service}: poll failed (HTTP ${z_poll_code})"
 
-        z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
+        local z_done_status=0
+        z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done_status=$?
+        test "${z_done_status}" -eq 0 || z_done=""
       done
     fi
 
     local z_lro_error
-    z_lro_error=$(rbuh_json_field_capture "${z_final_infix}" '.error.message // empty') || z_lro_error=""
+    local z_lro_error_status=0
+    z_lro_error=$(rbuh_json_field_capture "${z_final_infix}" '.error.message // empty') || z_lro_error_status=$?
+    test "${z_lro_error_status}" -eq 0 || z_lro_error=""
 
     test -n "${z_lro_error}" || break
 
@@ -251,7 +277,9 @@ rbge_api_enable() {
     buc_warn "API Enable ${z_api_service}: LRO completed with error — response saved: ${z_lro_resp_file}"
 
     local z_lro_code
-    z_lro_code=$(rbuh_json_field_capture "${z_final_infix}" '.error.code // empty') || z_lro_code=""
+    local z_lro_code_status=0
+    z_lro_code=$(rbuh_json_field_capture "${z_final_infix}" '.error.code // empty') || z_lro_code_status=$?
+    test "${z_lro_code_status}" -eq 0 || z_lro_code=""
 
     test "${z_lro_code}" = "13" || buc_die_now "API Enable ${z_api_service}: ${z_lro_error}"
     test "${z_attempt}" -lt "${RBGC_API_ENABLE_RETRY_ATTEMPTS}" || buc_die_now "API Enable ${z_api_service}: INTERNAL persisted through ${z_attempt} attempts: ${z_lro_error}"

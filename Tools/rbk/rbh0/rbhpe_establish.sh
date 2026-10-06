@@ -54,7 +54,9 @@ rbhp_establish() {
   buh_line     "   (You will discover RBRP_BILLING_ACCOUNT_ID later in step 5)"
   buh_e
   buh_line     "   First time setup? Set a timestamped project ID with:"
-  buh_code     "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}")/' ${ZRBHP_RBRP_FILE}"
+  local z_project_stamp
+  z_project_stamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die_now "Failed to compute project ID timestamp"
+  buh_code     "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-${z_project_stamp}/' ${ZRBHP_RBRP_FILE}"
   buh_e
   buh_section  "2. Check if Project Already Exists:"
   buh_line     "   Before creating a new project, verify the configured ID is not already in use:"

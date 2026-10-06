@@ -188,7 +188,9 @@ zrbxk_poll_ready() {
     curl -s -o /dev/null -w '%{http_code}' "${z_url}" > "${ZRBXK_HTTP_CODE}" || z_curl_status=$?
     z_code="000"
     if test "${z_curl_status}" -eq 0; then
-      z_code=$(<"${ZRBXK_HTTP_CODE}")
+      local z_code_status=0
+      z_code=$(<"${ZRBXK_HTTP_CODE}") || z_code_status=$?
+      test "${z_code_status}" -eq 0 || z_code="000"
     fi
     if test "${z_code}" = "200"; then
       buc_info "Keycloak realm ${RBXK_realm} ready (HTTP 200) after ${z_attempt} attempt(s)"
@@ -222,7 +224,7 @@ zrbxk_fetch_jwks() {
   curl -s -o "${ZRBXK_JWKS_RAW}" -w '%{http_code}' "${z_certs_url}" > "${ZRBXK_HTTP_CODE}" || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "Keycloak certs fetch failed (curl exit ${z_curl_status}) at ${z_certs_url}"
   local z_code="000"
-  z_code=$(<"${ZRBXK_HTTP_CODE}")
+  z_code=$(<"${ZRBXK_HTTP_CODE}") || buc_die_now "Failed to read: ${ZRBXK_HTTP_CODE}"
   test "${z_code}" = "200" || buc_die_now "Keycloak certs fetch returned HTTP ${z_code} at ${z_certs_url}"
 
   jq -c '{keys: [.keys[] | select(.use=="sig") | {kty, use, kid, alg, n, e}]}' \
@@ -248,7 +250,7 @@ zrbxk_render_live() {
   test -f "${ZRBXK_JWKS_STRIPPED}" || buc_die_now "Stripped JWKS absent — fetch must precede render: ${ZRBXK_JWKS_STRIPPED}"
 
   local z_jwks=""
-  z_jwks="$(<"${ZRBXK_JWKS_STRIPPED}")"    # bash builtin file read; compact one-line JWKS
+  z_jwks=$(<"${ZRBXK_JWKS_STRIPPED}") || buc_die_now "Failed to read: ${ZRBXK_JWKS_STRIPPED}"    # bash builtin file read; compact one-line JWKS
 
   # The reachable RFC 7523 grant POST target — the realm's token endpoint on the
   # local crucible, composed from the nameplate port (facility knowledge), never

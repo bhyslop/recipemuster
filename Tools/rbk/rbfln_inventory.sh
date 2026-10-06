@@ -152,7 +152,9 @@ rbfl_rekon_hallmark() {
   # the depth-1 chain — so a no-arg rekon immediately after a build inspects the
   # just-built hallmark.
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
 
   buc_step "Authenticating as Director"

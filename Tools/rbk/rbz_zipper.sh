@@ -363,7 +363,18 @@ rbz_generate_consts() {
   local -r z_tmp="${BURD_TEMP_DIR}/rbz_generate_consts.rs"
   rbz_emit_consts > "${z_tmp}" || buc_die_now "rbz_generate_consts: emit failed"
 
-  if test -f "${z_target}" && [[ "$(<"${z_tmp}")" == "$(<"${z_target}")" ]]; then
+  local z_tmp_content
+  z_tmp_content=$(<"${z_tmp}") || buc_die_now "rbz_generate_consts: failed to read ${z_tmp}"
+  local z_up_to_date=0
+  if test -f "${z_target}"; then
+    local z_target_content
+    z_target_content=$(<"${z_target}") || buc_die_now "rbz_generate_consts: failed to read ${z_target}"
+    if test "${z_tmp_content}" = "${z_target_content}"; then
+      z_up_to_date=1
+    fi
+  fi
+
+  if test "${z_up_to_date}" = "1"; then
     buc_log_args "Colophon consts already up to date: ${z_target}"
   else
     cp "${z_tmp}" "${z_target}" || buc_die_now "rbz_generate_consts: failed to write ${z_target}"
@@ -387,7 +398,18 @@ rbz_generate_context() {
   local -r z_tmp="${BURD_TEMP_DIR}/rbz_generate_context.md"
   buz_emit_context "rbz" "${z_tt_dir}" > "${z_tmp}" || buc_die_now "rbz_generate_context: emit failed"
 
-  if test -f "${z_target}" && [[ "$(<"${z_tmp}")" == "$(<"${z_target}")" ]]; then
+  local z_tmp_content
+  z_tmp_content=$(<"${z_tmp}") || buc_die_now "rbz_generate_context: failed to read ${z_tmp}"
+  local z_up_to_date=0
+  if test -f "${z_target}"; then
+    local z_target_content
+    z_target_content=$(<"${z_target}") || buc_die_now "rbz_generate_context: failed to read ${z_target}"
+    if test "${z_tmp_content}" = "${z_target_content}"; then
+      z_up_to_date=1
+    fi
+  fi
+
+  if test "${z_up_to_date}" = "1"; then
     buc_log_args "Tabtarget context already up to date: ${z_target}"
   else
     cp "${z_tmp}" "${z_target}" || buc_die_now "rbz_generate_context: failed to write ${z_target}"

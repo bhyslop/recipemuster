@@ -78,7 +78,7 @@ rbfd_graft() {
   docker image inspect --format '{{.Created}}' "${z_local_image}" > "${z_created_file}" \
     || buc_die_now "Failed to inspect image creation timestamp"
   local z_created=""
-  z_created=$(<"${z_created_file}")
+  z_created=$(<"${z_created_file}") || buc_die_now "Failed to read: ${z_created_file}"
   test -n "${z_created}" || buc_die_now "Empty creation timestamp from docker inspect"
   buc_info "Image created: ${z_created}"
 
@@ -108,7 +108,9 @@ rbfd_graft() {
   local -r z_push_ts_file="${ZRBFD_GRAFT_PREFIX}push_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_push_ts_file}" || buc_die_now "Failed to generate push timestamp"
   local z_push_ts
-  z_push_ts="r$(<"${z_push_ts_file}")"
+  local z_push_ts_raw
+  z_push_ts_raw=$(<"${z_push_ts_file}") || buc_die_now "Failed to read: ${z_push_ts_file}"
+  z_push_ts="r${z_push_ts_raw}"
   test -n "${z_push_ts}" || buc_die_now "Empty push timestamp from ${z_push_ts_file}"
   local -r z_hallmark="${z_graft_ts}-${z_push_ts}"
   local -r z_image_ref="${z_gar_base}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"

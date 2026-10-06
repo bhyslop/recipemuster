@@ -83,7 +83,9 @@ rbfd_mirror() {
   local -r z_build_ts_file="${ZRBFD_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die_now "Failed to generate build timestamp"
   local z_build_ts
-  z_build_ts="r$(<"${z_build_ts_file}")"
+  local z_build_ts_raw
+  z_build_ts_raw=$(<"${z_build_ts_file}") || buc_die_now "Failed to read: ${z_build_ts_file}"
+  z_build_ts="r${z_build_ts_raw}"
   test -n "${z_build_ts}" || buc_die_now "Empty build timestamp from ${z_build_ts_file}"
   local -r z_hallmark="${z_mirror_ts}-${z_build_ts}"
 
@@ -142,7 +144,7 @@ zrbfd_mirror_submit() {
   zrbfc_write_script_body "${z_mscript_path}" "${z_mbody_file}" \
     || buc_die_now "Failed to read mirror step script"
   local z_mbody
-  z_mbody=$(<"${z_mbody_file}")
+  z_mbody=$(<"${z_mbody_file}") || buc_die_now "Failed to read: ${z_mbody_file}"
   test -n "${z_mbody}" || buc_die_now "Empty mirror script body"
 
   printf '#!/busybox/sh\n%s' "${z_mbody}" > "${z_mescaped_file}" \
@@ -175,18 +177,20 @@ zrbfd_mirror_submit() {
   # Git metadata (shared temp files, idempotent)
   zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
 
   # Mode-specific substitution values for bind
   local -r z_bind_source="${RBRV_BIND_IMAGE:-}"
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
   if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
-    z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
+    local z_dockerfile_content_status=0
+    z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}") || z_dockerfile_content_status=$?
+    test "${z_dockerfile_content_status}" -eq 0 || z_dockerfile_content=""
     if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
       buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
       z_dockerfile_content=""
@@ -279,7 +283,9 @@ zrbfd_mirror_submit() {
   rbuh_require_ok "Mirror build submission" "mirror_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id=""
+  local z_build_id_status=0
+  z_build_id=$(rbuh_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id_status=$?
+  test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 

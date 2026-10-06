@@ -189,7 +189,9 @@ zrbfc_wait_build_completion() {
     jq -r '.error.code // empty' "${z_response_file}" > "${z_err_check_file}" 2>/dev/null
     if test -s "${z_err_check_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "HTTP error $(<"${z_err_check_file}") (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
+      local z_err_code
+      z_err_code=$(<"${z_err_check_file}") || buc_die_now "Failed to read: ${z_err_check_file}"
+      buc_warn "HTTP error ${z_err_code} (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
       test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
         && buc_die_now "HTTP errors after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
@@ -198,7 +200,7 @@ zrbfc_wait_build_completion() {
     z_consecutive_failures=0
 
     jq -r '.status' "${z_response_file}" > "${z_status_check_file}" || buc_die_now "Failed to extract status (poll ${z_polls})"
-    z_status=$(<"${z_status_check_file}")
+    z_status=$(<"${z_status_check_file}") || buc_die_now "Failed to read: ${z_status_check_file}"
     test -n "${z_status}" || buc_die_now "Status is empty (poll ${z_polls})"
 
     z_last_good_response="${z_response_file}"
@@ -227,9 +229,13 @@ zrbfc_wait_build_completion() {
   jq -r '.startTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_START_FILE}"
   jq -r '.finishTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_FINISH_FILE}"
   local z_start_time=""
-  z_start_time=$(<"${ZRBFC_BUILD_START_FILE}")
+  local z_start_time_status=0
+  z_start_time=$(<"${ZRBFC_BUILD_START_FILE}") || z_start_time_status=$?
+  test "${z_start_time_status}" -eq 0 || z_start_time=""
   local z_finish_time=""
-  z_finish_time=$(<"${ZRBFC_BUILD_FINISH_FILE}")
+  local z_finish_time_status=0
+  z_finish_time=$(<"${ZRBFC_BUILD_FINISH_FILE}") || z_finish_time_status=$?
+  test "${z_finish_time_status}" -eq 0 || z_finish_time=""
 
   if test -n "${z_start_time}" && test -n "${z_finish_time}"; then
     local z_start_clean="${z_start_time%%.*}"
@@ -237,13 +243,21 @@ zrbfc_wait_build_completion() {
     local z_finish_clean="${z_finish_time%%.*}"
     z_finish_clean="${z_finish_clean%%Z}"
     local z_start_epoch=""
-    z_start_epoch=$(date -d "${z_start_clean}Z" '+%s' 2>/dev/null) \
-      || z_start_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_start_clean}" '+%s' 2>/dev/null) \
-      || z_start_epoch=""
+    local z_start_epoch_status=0
+    z_start_epoch=$(date -d "${z_start_clean}Z" '+%s' 2>/dev/null) || z_start_epoch_status=$?
+    if test "${z_start_epoch_status}" -ne 0; then
+      z_start_epoch_status=0
+      z_start_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_start_clean}" '+%s' 2>/dev/null) || z_start_epoch_status=$?
+      test "${z_start_epoch_status}" -eq 0 || z_start_epoch=""
+    fi
     local z_finish_epoch=""
-    z_finish_epoch=$(date -d "${z_finish_clean}Z" '+%s' 2>/dev/null) \
-      || z_finish_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_finish_clean}" '+%s' 2>/dev/null) \
-      || z_finish_epoch=""
+    local z_finish_epoch_status=0
+    z_finish_epoch=$(date -d "${z_finish_clean}Z" '+%s' 2>/dev/null) || z_finish_epoch_status=$?
+    if test "${z_finish_epoch_status}" -ne 0; then
+      z_finish_epoch_status=0
+      z_finish_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_finish_clean}" '+%s' 2>/dev/null) || z_finish_epoch_status=$?
+      test "${z_finish_epoch_status}" -eq 0 || z_finish_epoch=""
+    fi
     if test -n "${z_start_epoch}" && test -n "${z_finish_epoch}"; then
       local -r z_duration=$((z_finish_epoch - z_start_epoch))
       local -r z_minutes=$((z_duration / 60))
@@ -287,7 +301,7 @@ zrbfc_ensure_git_metadata() {
     || buc_die_now "Failed to get git repo URL"
 
   local z_url=""
-  z_url=$(<"${z_url_file}")
+  z_url=$(<"${z_url_file}") || buc_die_now "Failed to read: ${z_url_file}"
   test -n "${z_url}" || buc_die_now "Empty git repo URL from ${z_url_file}"
   local z_repo="${z_url#*://*/}"
   z_repo="${z_repo%.git}"

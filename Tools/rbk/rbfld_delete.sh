@@ -75,7 +75,7 @@ rbfl_jettison() {
     || buc_die_now "DELETE request failed — see ${z_stderr_file}"
 
   local z_http_code
-  z_http_code=$(<"${z_status_file}")
+  z_http_code=$(<"${z_status_file}") || buc_die_now "Failed to read: ${z_status_file}"
   test -n "${z_http_code}" || buc_die_now "HTTP status code is empty"
 
   # 202/204 = deleted; 404 = already gone. Idempotent delete is the house shape
@@ -83,7 +83,9 @@ rbfl_jettison() {
   # verb must not die on already-gone, and the success message is the contract.
   if test "${z_http_code}" != "202" && test "${z_http_code}" != "204" && test "${z_http_code}" != "404"; then
     local z_body="empty"
-    if test -f "${z_response_file}"; then z_body=$(<"${z_response_file}"); fi
+    if test -f "${z_response_file}"; then
+      z_body=$(<"${z_response_file}") || buc_die_now "Failed to read: ${z_response_file}"
+    fi
     buc_warn "Response body: ${z_body}"
     buc_die_now "Jettison failed with HTTP ${z_http_code}"
   fi

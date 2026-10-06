@@ -84,7 +84,8 @@ rbfv_vouch() {
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
-  local -r z_about_http_code=$(<"${z_about_gate_status}")
+  local z_about_http_code
+  z_about_http_code=$(<"${z_about_gate_status}") || buc_die_now "Failed to read: ${z_about_gate_status}"
   test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about"
   test "${z_about_http_code}" = "200" \
     || buc_die_now "About artifact not found (HTTP ${z_about_http_code}) — about must complete before vouch"
@@ -109,7 +110,8 @@ rbfv_vouch() {
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for vouch artifact (curl exit ${z_curl_status}) — see ${z_vouch_gate_stderr}"
 
-  local -r z_vouch_http_code=$(<"${z_vouch_gate_status}")
+  local z_vouch_http_code
+  z_vouch_http_code=$(<"${z_vouch_gate_status}") || buc_die_now "Failed to read: ${z_vouch_gate_status}"
   test -n "${z_vouch_http_code}" || buc_die_now "HTTP status code is empty for vouch"
   if test "${z_vouch_http_code}" = "200"; then
     buc_warn "Re-vouch in progress: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark} already exists"
@@ -259,7 +261,9 @@ zrbfv_vouch_submit() {
   rbuh_require_ok "Vouch build submission" "vouch_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id=""
+  local z_build_id_status=0
+  z_build_id=$(rbuh_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id_status=$?
+  test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 

@@ -112,7 +112,7 @@ rbld_divine() {
         end
     ' "${z_resp_file}" > "${z_image_file}" \
       || buc_die_now "Failed to summarize Lode ${z_touch}"
-    z_image=$(<"${z_image_file}")
+    z_image=$(<"${z_image_file}") || buc_die_now "Failed to read: ${z_image_file}"
     test -n "${z_image}" || buc_die_now "Empty summary extraction for Lode ${z_touch}"
 
     printf "${z_row_fmt}" "${z_touch}" "${z_image}"
@@ -138,7 +138,9 @@ rbld_augur() {
   # back to the touchmark any capture handed forward through the depth-1 chain — so
   # a no-arg augur immediately after a capture inspects the just-captured Lode.
   local z_touchmark=""
-  z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
+  local z_touchmark_status=0
+  z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") || z_touchmark_status=$?
+  test "${z_touchmark_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
 
   # Assert a KNOWN Lode kind by decoding the touchmark's kind-letter prefix — the
@@ -147,7 +149,9 @@ rbld_augur() {
   # replaces augur's former regex shape-check, which proved well-formedness but never
   # that the prefix named a real kind (the decoder is the sole kind channel).
   local z_kind=""
-  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") \
+  local z_kind_status=0
+  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
+  test "${z_kind_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
   buc_step "Authenticating as Director"

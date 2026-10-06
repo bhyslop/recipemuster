@@ -101,7 +101,9 @@ zrbndb_docker_login() {
 
     test "${z_rc}" -ne 0 || break
 
-    [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
+    local z_stderr_content
+    z_stderr_content=$(<"${z_stderr_file}") || buc_die_now "Failed to read: ${z_stderr_file}"
+    [[ "${z_stderr_content}" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
       || buc_die_now "Docker login to ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
@@ -143,7 +145,11 @@ zrbndb_registry_read() {
 
     test "${z_rc}" -ne 0 || return 0
 
-    [[ "$(<"${z_stderr_file}")" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
+    local z_stderr_content_status=0
+    local z_stderr_content
+    z_stderr_content=$(<"${z_stderr_file}") || z_stderr_content_status=$?
+    test "${z_stderr_content_status}" -eq 0 || return "${z_rc}"
+    [[ "${z_stderr_content}" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
       || return "${z_rc}"
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
@@ -289,7 +295,8 @@ rbndb_check() {
       > "${z_create_stdout}" 2>"${z_create_stderr}" \
     || buc_die_now "docker create failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_create_stderr}"
 
-  local -r z_cid=$(<"${z_create_stdout}")
+  local z_cid
+  z_cid=$(<"${z_create_stdout}") || buc_die_now "Failed to read: ${z_create_stdout}"
   test -n "${z_cid}" || buc_die_now "docker create returned empty container ID — see ${z_create_stdout}"
 
   # docker cp's host-side dest must be Windows-native under Cygwin; the cp source
@@ -318,8 +325,10 @@ rbndb_check() {
     || buc_die_now "Failed to digest inscribed tripwire copy: ${z_inscribed_file}"
   openssl dgst -sha256 -r < "${RBCC_rbrd_file}" > "${z_local_digest_temp}" \
     || buc_die_now "Failed to digest local ${RBCC_rbrd_file}"
-  local -r z_inscribed_digest=$(<"${z_inscribed_digest_temp}")
-  local -r z_local_digest=$(<"${z_local_digest_temp}")
+  local z_inscribed_digest
+  z_inscribed_digest=$(<"${z_inscribed_digest_temp}") || buc_die_now "Failed to read: ${z_inscribed_digest_temp}"
+  local z_local_digest
+  z_local_digest=$(<"${z_local_digest_temp}") || buc_die_now "Failed to read: ${z_local_digest_temp}"
   test -n "${z_inscribed_digest}" || buc_die_now "Failed to read or empty: ${z_inscribed_digest_temp}"
   test -n "${z_local_digest}" || buc_die_now "Failed to read or empty: ${z_local_digest_temp}"
   if [[ "${z_inscribed_digest}" != "${z_local_digest}" ]]; then

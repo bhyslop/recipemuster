@@ -295,6 +295,9 @@ rbcc_emit_consts() {
   local z_name=""
   local z_stem=""
   local z_upper=""
+  local -r z_alpha_lower="abcdefghijklmnopqrstuvwxyz"
+  local -r z_alpha_upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  local z_alpha_index=0
   for z_name in \
     RBCC_moorings_dir    \
     RBCC_vessels_subdir  \
@@ -338,7 +341,12 @@ rbcc_emit_consts() {
   ; do
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"
-    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+    z_upper="${z_stem}"
+    z_alpha_index=0
+    while test "${z_alpha_index}" -lt "${#z_alpha_lower}"; do
+      z_upper="${z_upper//${z_alpha_lower:z_alpha_index:1}/${z_alpha_upper:z_alpha_index:1}}"
+      z_alpha_index=$((z_alpha_index + 1))
+    done
     buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -367,7 +375,12 @@ rbcc_emit_consts() {
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"
-    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+    z_upper="${z_stem}"
+    z_alpha_index=0
+    while test "${z_alpha_index}" -lt "${#z_alpha_lower}"; do
+      z_upper="${z_upper//${z_alpha_lower:z_alpha_index:1}/${z_alpha_upper:z_alpha_index:1}}"
+      z_alpha_index=$((z_alpha_index + 1))
+    done
     buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -376,7 +389,12 @@ rbcc_emit_consts() {
   printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
   z_name="BUBC_tweak_regime_poison"
   z_stem="${z_name#BUBC_}"
-  z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+  z_upper="${z_stem}"
+  z_alpha_index=0
+  while test "${z_alpha_index}" -lt "${#z_alpha_lower}"; do
+    z_upper="${z_upper//${z_alpha_lower:z_alpha_index:1}/${z_alpha_upper:z_alpha_index:1}}"
+    z_alpha_index=$((z_alpha_index + 1))
+  done
   buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
     || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
 }

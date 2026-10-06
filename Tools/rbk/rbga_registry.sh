@@ -135,7 +135,7 @@ rbga_repo_get() {
   rbuh_require_ok "Get repository" "${ZRBGA_INFIX_GET_REPO}" 404 "not found"
 
   local z_http_code
-  z_http_code=$(rbuh_code_capture "${ZRBGA_INFIX_GET_REPO}")
+  z_http_code=$(rbuh_code_capture "${ZRBGA_INFIX_GET_REPO}") || buc_die_now "Get repository: failed to read HTTP code"
   if test "${z_http_code}" = "404"; then
     buc_info "Repository not found: ${z_repo_name} in ${z_location}"
     return 1
@@ -143,7 +143,9 @@ rbga_repo_get() {
 
   buc_log_args 'Verify repository format'
   local z_format
-  z_format=$(rbuh_json_field_capture "${ZRBGA_INFIX_GET_REPO}" '.format') || z_format="UNKNOWN"
+  local z_format_status=0
+  z_format=$(rbuh_json_field_capture "${ZRBGA_INFIX_GET_REPO}" '.format') || z_format_status=$?
+  test "${z_format_status}" -eq 0 || z_format="UNKNOWN"
   buc_success "Repository found: ${z_repo_name} (format: ${z_format}) in ${z_location}"
   return 0
 }
@@ -252,13 +254,17 @@ rbga_repo_delete() {
   rbuh_json "DELETE"                                                           \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"    \
                             "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
-  z_delete_code=$(rbuh_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code="000"
+  local z_delete_code_status=0
+  z_delete_code=$(rbuh_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code_status=$?
+  test "${z_delete_code_status}" -eq 0 || z_delete_code="000"
   case "${z_delete_code}" in
     200|204) buc_success "Repository ${z_repo_name} deleted" ;;
     404)     buc_info "Repository ${z_repo_name} not found (already deleted)" ;;
     *)
       local z_err
-      z_err=$(rbuh_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err="Unknown error"
+      local z_err_status=0
+      z_err=$(rbuh_json_field_capture "${ZRBGA_INFIX_DELETE_REPO}" '.error.message') || z_err_status=$?
+      test "${z_err_status}" -eq 0 || z_err="Unknown error"
       buc_die_now "Failed to delete repository: ${z_err}"
       ;;
   esac

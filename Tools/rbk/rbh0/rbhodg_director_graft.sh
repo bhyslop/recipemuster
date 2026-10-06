@@ -55,14 +55,18 @@ rbho_director_graft() {
   local z_vessel_ready=0
   if test -f "${z_vessel_rbrv}"; then
     local z_mode=""
-    z_mode=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_VESSEL_MODE") || z_mode=""
+    local z_mode_status=0
+    z_mode=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_VESSEL_MODE") || z_mode_status=$?
+    test "${z_mode_status}" -eq 0 || z_mode=""
     test "${z_mode}" = "rbnve_graft" && z_vessel_ready=1
   fi
 
   local z_vessel_yoked=0
   if test -f "${z_vessel_rbrv}"; then
     local z_vessel_stamp=""
-    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp=""
+    local z_vessel_stamp_status=0
+    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp_status=$?
+    test "${z_vessel_stamp_status}" -eq 0 || z_vessel_stamp=""
     test -n "${z_vessel_stamp}" && z_vessel_yoked=1
   fi
 
@@ -71,8 +75,12 @@ rbho_director_graft() {
     local z_project_id=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
-      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
+      local z_project_id_status=0
+      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id_status=$?
+      test "${z_project_id_status}" -eq 0 || z_project_id=""
+      local z_region_status=0
+      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region_status=$?
+      test "${z_region_status}" -eq 0 || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
       local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"

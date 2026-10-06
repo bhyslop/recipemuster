@@ -207,7 +207,9 @@ zrbgv_payor_crm_probe_once() {
     *)
       local z_err=""
       if jq -e . "${ZRBGV_CRM_RESP_FILE}" >/dev/null 2>&1; then
-        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_CRM_RESP_FILE}" 2>/dev/null) || z_err="Unknown error"
+        local z_err_status=0
+        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_CRM_RESP_FILE}" 2>/dev/null) || z_err_status=$?
+        test "${z_err_status}" -eq 0 || z_err="Unknown error"
       else
         z_err="Non-JSON response (HTTP ${z_code})"
       fi
@@ -248,7 +250,7 @@ rbgv_payor_oauth_probe() {
 
     if test "${z_iter}" -lt "${z_count}" && test "${z_delay_ms}" -gt 0; then
       local z_sleep
-      z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}")
+      z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}") || buc_die_now "Failed to convert delay ${z_delay_ms}ms to sleep seconds"
       buc_log_args "Sleeping ${z_sleep}s (${z_delay_ms}ms) before next iteration"
       sleep "${z_sleep}"
     fi
