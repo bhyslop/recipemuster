@@ -5,7 +5,7 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTHDR — repository anchoring, the fixed conventional sibling locations, and
-// the dispose-by-rename discipline (RBSHE step 3, "retire-aside").
+// the dispose-by-rename discipline (RBSHE step 3, seposition).
 //
 // Every path the lap touches is derived from the maintainer repository root,
 // never hand-typed, so the artifacts always land beside the tree the lap was
@@ -17,8 +17,8 @@ use crate::rbthdr_run;
 
 /// The fixed candidate parent directory, a sibling of the maintainer repo. Not
 /// dated (unlike RELEASE.md's operator-hand `rbm_candidate_{date}_{try}`): essai
-/// runs the lap repeatedly at one conventional location and retires any prior
-/// aside, so the location is memorable and the disposal is safe. Expede builds
+/// runs the lap repeatedly at one conventional location and seposes any prior,
+/// so the location is memorable and the disposal is safe. Expede builds
 /// the clone one level down, at {parent}/{RBTHDR_CANDIDATE_SUBDIR}.
 pub const RBTHDR_CANDIDATE_DIRNAME: &str = "rbthdr_candidate";
 
@@ -42,7 +42,7 @@ pub const RBTHDR_LOGS_SUBDIR: &str = "logs-buk";
 pub const RBTHDR_FRESHNESS_DIRNAME: &str = "rbthdr_candidate_freshness";
 
 /// The maintainer repository root, from git. Fatal if not in a repo, empty, or
-/// non-absolute — every derived path anchors on it, and the retire-aside guards
+/// non-absolute — every derived path anchors on it, and the seposition guards
 /// compare against it.
 pub fn rbthdr_toplevel() -> PathBuf {
     let cwd = std::env::current_dir()
@@ -82,12 +82,12 @@ pub fn rbthdr_parent(top: &Path) -> PathBuf {
         .unwrap_or_else(|| crate::rbthdr_fatal!("repository root has no parent: {}", top.display()))
 }
 
-/// Dispose of a directory by RENAME to a timestamped sibling — never a delete
-/// (RBSHE step 3, the dispose-by-rename discipline the rig proves). Absent
-/// target is a no-op. The caller asserts the target's identity (fixed basename,
-/// not the repo root) before calling; this only refuses to clobber an existing
-/// retirement sibling. Returns whether anything was retired.
-pub fn rbthdr_retire_aside(dir: &Path, cwd: &Path) -> bool {
+/// Sepose a directory: dispose of it by RENAME to a timestamped sibling — never
+/// a delete (RBSHE step 3, the dispose-by-rename discipline the rig proves).
+/// Absent target is a no-op. The caller asserts the target's identity (fixed
+/// basename, not the repo root) before calling; this only refuses to clobber an
+/// existing seposed sibling. Returns whether anything was seposed.
+pub fn rbthdr_sepose(dir: &Path, cwd: &Path) -> bool {
     if !dir.exists() {
         return false;
     }
@@ -96,19 +96,19 @@ pub fn rbthdr_retire_aside(dir: &Path, cwd: &Path) -> bool {
         .and_then(|n| n.to_str())
         .unwrap_or_else(|| crate::rbthdr_fatal!("cannot read basename of {}", dir.display()));
     let stamp = rbthdr_run::rbthdr_timestamp(cwd);
-    let retired = dir.with_file_name(format!("{}.retired-{}", base, stamp));
-    if retired.exists() {
-        crate::rbthdr_fatal!("retirement target already exists: {}", retired.display());
+    let seposed = dir.with_file_name(format!("{}.seposed-{}", base, stamp));
+    if seposed.exists() {
+        crate::rbthdr_fatal!("seposition target already exists: {}", seposed.display());
     }
-    std::fs::rename(dir, &retired).unwrap_or_else(|e| {
+    std::fs::rename(dir, &seposed).unwrap_or_else(|e| {
         crate::rbthdr_fatal!(
-            "failed to retire {} -> {}: {}",
+            "failed to sepose {} -> {}: {}",
             dir.display(),
-            retired.display(),
+            seposed.display(),
             e
         )
     });
-    crate::rbthdr_log::rbthdr_line(&format!("retired prior aside: {}", retired.display()));
+    crate::rbthdr_log::rbthdr_line(&format!("seposed prior: {}", seposed.display()));
     true
 }
 

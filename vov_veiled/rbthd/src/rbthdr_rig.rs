@@ -30,7 +30,7 @@ use crate::rbthdr_run;
 
 /// The rig's parent-relative dirname, a fixed basename beside the maintainer
 /// repo. Shared by essai and harbinger — they never stand simultaneously, so one
-/// location, retire-aside disposing any prior.
+/// location, any prior seposed.
 pub const RBTHDR_RIG_DIRNAME: &str = "rbthdr_coldwalk";
 
 /// The clone lives one level down; the findings memo is a sibling of it under
@@ -128,9 +128,9 @@ pub fn rbthdr_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path
     let walk_date = rbthdr_run::rbthdr_datestamp(cwd);
     let memo_path = rig_dir.join(format!("memo-{}-{}.md", walk_date, RBTHDR_RIG_MEMO_SLUG));
 
-    rbthdr_log::rbthdr_step(&format!("Retiring any existing rig aside: {}", rig_dir.display()));
-    if !rbthdr_repo::rbthdr_retire_aside(&rig_dir, cwd) {
-        rbthdr_log::rbthdr_line("no prior rig to retire");
+    rbthdr_log::rbthdr_step(&format!("Seposing any existing rig: {}", rig_dir.display()));
+    if !rbthdr_repo::rbthdr_sepose(&rig_dir, cwd) {
+        rbthdr_log::rbthdr_line("no prior rig to sepose");
     }
     std::fs::create_dir_all(&rig_dir)
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to create the rig dir {}: {}", rig_dir.display(), e));

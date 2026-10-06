@@ -197,8 +197,8 @@ fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
     let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
     rbthdr_repo::rbthdr_guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME, top);
     rbthdr_log::rbthdr_step(&format!("Disposing any prior candidate: {}", candidate_parent.display()));
-    if !rbthdr_repo::rbthdr_retire_aside(&candidate_parent, top) {
-        rbthdr_log::rbthdr_line("no prior candidate to retire");
+    if !rbthdr_repo::rbthdr_sepose(&candidate_parent, top) {
+        rbthdr_log::rbthdr_line("no prior candidate to sepose");
     }
 
     // The absorbed cut (RBSHC "The cut, and the single matcher"): builds by
