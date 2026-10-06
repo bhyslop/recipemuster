@@ -99,6 +99,26 @@ zrbgp_sentinel() {
 ######################################################################
 # OAuth Authentication Functions (zrbgp_oauth_*)
 
+# Post a JSON body to the OAuth token endpoint and emit the response. The body
+# is built by jq from the filter and its --arg pairs and rides a process
+# substitution into curl, so no secret touches disk. Returns curl's exit status.
+zrbgp_oauth_token_post_capture() {
+  zrbgp_sentinel
+
+  local -r z_filter="${1:-}"
+  test -n "${z_filter}" || return 1
+  shift
+
+  local z_curl_status=0
+  curl -sS -X POST \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Content-Type: application/json" \
+    -d @<(jq -n "$@" "${z_filter}") \
+    "${RBGC_OAUTH_TOKEN_URL}" || z_curl_status=$?
+  return "${z_curl_status}"
+}
+
 zrbgp_refresh_capture() {
   zrbgp_sentinel
 
@@ -109,12 +129,11 @@ zrbgp_refresh_capture() {
   buc_log_args "Exchanging refresh token for access token"
 
   # Request body rides a process substitution into curl - secrets never touch disk
-  local -a z_curl_args=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json")
   local -a z_body_args=("--arg" refresh_token "${RBRO_REFRESH_TOKEN}" --arg client_id "${RBRP_OAUTH_CLIENT_ID}" --arg client_secret "${RBRO_CLIENT_SECRET}" --arg grant_type "refresh_token")
   local z_body_filter='{refresh_token: $refresh_token, client_id: $client_id, client_secret: $client_secret, grant_type: $grant_type}'
   local z_curl_status=0
   local z_response
-  z_response=$(curl "${z_curl_args[@]}" -d @<(jq -n "${z_body_args[@]}" "${z_body_filter}") "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
+  z_response=$(zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute OAuth refresh request (curl exit ${z_curl_status})"
 
   # Check for error in response. invalid_rapt is discriminated from the
@@ -929,12 +948,11 @@ rbgp_install() {
   buc_log_args "Exchanging authorization code for tokens"
 
   # Request body rides a process substitution into curl - secrets never touch disk
-  local -a z_curl_args=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json")
   local -a z_body_args=("--arg" code "${z_auth_code}" --arg client_id "${z_client_id}" --arg client_secret "${z_client_secret}" --arg redirect_uri "${z_redirect_uri}" --arg grant_type "authorization_code")
   local z_body_filter='{code: $code, client_id: $client_id, client_secret: $client_secret, redirect_uri: $redirect_uri, grant_type: $grant_type}'
   local z_curl_status=0
   local z_response
-  z_response=$(curl "${z_curl_args[@]}" -d @<(jq -n "${z_body_args[@]}" "${z_body_filter}") "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
+  z_response=$(zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute token exchange request (curl exit ${z_curl_status})"
 
   # Check for error in response
