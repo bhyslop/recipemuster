@@ -69,7 +69,7 @@ pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
     let regulus_tip = rbthdr_repo::rbthdr_commit_sha(&regulus_clone, &top);
     rbthdr_log::rbthdr_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip));
 
-    zrbthdr_gate_quarantine(&top, &regulus_tip);
+    zrbthdr_gate_narthex(&top, &regulus_tip);
     rbthdr_expede::rbthdr_assert_fresh(&top, &parent, &regulus_clone);
     zrbthdr_preview(&top, &regulus_clone, &regulus_tip);
 
@@ -94,12 +94,12 @@ pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
 
 // ── Step 1: gate the quarantine ─────────────────────────────
 
-fn zrbthdr_gate_quarantine(top: &Path, regulus_tip: &str) {
+fn zrbthdr_gate_narthex(top: &Path, regulus_tip: &str) {
     rbthdr_log::rbthdr_section("Gate the quarantine (RBSHD step 1)");
 
-    rbthdr_expede::rbthdr_assert_quarantine_private(top);
+    rbthdr_expede::rbthdr_assert_narthex_private(top);
 
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
     let branch_ref = format!("refs/heads/{}", rbthdr_expede::RBTHDR_REGULUS_BRANCH);
     let fresh = refs.is_empty()
         || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == regulus_tip);
@@ -123,7 +123,7 @@ fn zrbthdr_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
     let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
     let already = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if already {
         rbthdr_log::rbthdr_line("quarantine already previews this regulus tip — the preview line is not re-typed");
@@ -134,11 +134,11 @@ fn zrbthdr_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_line("Preview push line — type this yourself:");
     rbthdr_log::rbthdr_blank();
-    rbthdr_log::rbthdr_raw(&format!("        git -C {} push {} {}:{}", clone, rbthdr_expede::RBTHDR_QUARANTINE_URL, branch, branch));
+    rbthdr_log::rbthdr_raw(&format!("        git -C {} push {} {}:{}", clone, rbthdr_expede::RBTHDR_NARTHEX_URL, branch, branch));
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_confirm("pushed the preview line above?");
 
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
     let landed = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !landed {
         crate::rbthdr_fatal!(

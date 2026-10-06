@@ -93,11 +93,11 @@ fn zrbthdr_require_cachet(regulus_parent: &Path, regulus_clone: &Path, top: &Pat
 fn zrbthdr_reassert_ground(top: &Path, parent: &Path, regulus_clone: &Path, regulus_tip: &str) {
     rbthdr_log::rbthdr_section("Re-assert the ground (RBSHO step 2)");
 
-    rbthdr_expede::rbthdr_assert_quarantine_private(top);
+    rbthdr_expede::rbthdr_assert_narthex_private(top);
 
     let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
     let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !preview_stands {
         crate::rbthdr_fatal!(
