@@ -308,6 +308,8 @@ rbld_immure() {
     # verbatim (their true per-member times stand); orphan tags are recovered honestly.
     # SOURCE OF TRUTH = the GAR tags, never the envelope alone.
     local -r z_preserved_file="${ZRBLD_IMMURE_PREFIX}preserved.json"
+    local z_existing_members
+    z_existing_members=$(jq '.rblv_members // []' "${z_vouch_json}") || buc_die_now "Failed to read members from: ${z_vouch_json}"
     jq -n \
       --arg sprue "${RBGC_LODE_TAG_SPRUE}" \
       --arg vouch "${RBGC_LODE_TAG_VOUCH}" \
@@ -315,7 +317,7 @@ rbld_immure() {
       --arg version "${z_version}" \
       --slurpfile tags_resp "${z_resp_file}" \
       --slurpfile vers_resp "${z_versions_file}" \
-      --argjson existing_members "$(jq '.rblv_members // []' "${z_vouch_json}")" \
+      --argjson existing_members "${z_existing_members}" \
       '
         # sprued non-vouch tags, each carrying its digest (the tag -> version ref)
         ( [ $tags_resp[0].tags[]?

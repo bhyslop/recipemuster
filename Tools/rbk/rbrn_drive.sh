@@ -67,7 +67,9 @@ rbrn_drive() {
   # value a build (kludge or ordain) handed forward through the depth-1 chain.
   # No clean-tree gate here (RBr_a52).
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before drive"
   local z_source="chain"
   test -z "${z_express}" || z_source="express"

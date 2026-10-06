@@ -55,7 +55,13 @@ rbob_validate() {
   echo "Bottle:        ${ZRBOB_BOTTLE}"
   echo "Network:       ${ZRBOB_NETWORK}"
   echo "Compose base:  ${ZRBOB_COMPOSE_BASE}"
-  echo "Compose frag:  ${ZRBOB_COMPOSE_FRAGMENT} ($(test -f "${ZRBOB_COMPOSE_FRAGMENT}" && echo 'exists' || echo 'not found'))"
+  local z_fragment_presence
+  if test -f "${ZRBOB_COMPOSE_FRAGMENT}"; then
+    z_fragment_presence='exists'
+  else
+    z_fragment_presence='not found'
+  fi
+  echo "Compose frag:  ${ZRBOB_COMPOSE_FRAGMENT} (${z_fragment_presence})"
 }
 
 rbob_info() {

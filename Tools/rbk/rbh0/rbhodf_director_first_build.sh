@@ -45,8 +45,12 @@ rbho_director_first_build() {
     local z_project_id=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
-      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
+      local z_project_id_status=0
+      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id_status=$?
+      test "${z_project_id_status}" -eq 0 || z_project_id=""
+      local z_region_status=0
+      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region_status=$?
+      test "${z_region_status}" -eq 0 || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
       local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"

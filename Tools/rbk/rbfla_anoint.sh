@@ -42,7 +42,8 @@ rbfl_anoint() {
 
   # Resolve and load the vessel; anoint addresses graft-mode vessels only.
   zrbfc_resolve_vessel "${z_vessel}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
@@ -54,13 +55,19 @@ rbfl_anoint() {
   # previous dispatch must be a build (kludge or ordain).
   buc_step "Reading chained build facts"
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") \
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
   local z_gar_root=""
-  z_gar_root=$(buf_elect_fact_capture "" "${RBF_FACT_GAR_ROOT}") \
+  local z_gar_root_status=0
+  z_gar_root=$(buf_elect_fact_capture "" "${RBF_FACT_GAR_ROOT}") || z_gar_root_status=$?
+  test "${z_gar_root_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No gar_root fact from the previous dispatch"
   local z_ark_stem=""
-  z_ark_stem=$(buf_elect_fact_capture "" "${RBF_FACT_ARK_STEM}") \
+  local z_ark_stem_status=0
+  z_ark_stem=$(buf_elect_fact_capture "" "${RBF_FACT_ARK_STEM}") || z_ark_stem_status=$?
+  test "${z_ark_stem_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No ark_stem fact from the previous dispatch"
 
   local -r z_image_ref="${z_gar_root}/${z_ark_stem}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"

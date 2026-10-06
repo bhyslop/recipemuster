@@ -135,7 +135,9 @@ rbgft_engross() {
     200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})"; echo "created" ;;
     412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})"; echo "present" ;;
     *)       local z_err
-             z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ENGROSS}" '.error.message') || z_err="HTTP ${z_code}"
+             local z_err_status=0
+             z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ENGROSS}" '.error.message') || z_err_status=$?
+             test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
              buc_reject "${BUBC_band_engross}" "Failed to engross muniment (HTTP ${z_code}): ${z_err}" ;;
   esac
 }
@@ -176,7 +178,9 @@ rbgft_expunge() {
     204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})"; echo "deleted" ;;
     404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})"; echo "absent" ;;
     *)   local z_err
-         z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_EXPUNGE}" '.error.message') || z_err="HTTP ${z_code}"
+         local z_err_status=0
+         z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_EXPUNGE}" '.error.message') || z_err_status=$?
+         test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
          buc_reject "${BUBC_band_expunge}" "Failed to expunge muniment (HTTP ${z_code}): ${z_err}" ;;
   esac
 }
@@ -230,7 +234,9 @@ zrbgft_list_fetch_emit() {
     case "${z_list_code}" in
       200) : ;;
       *)   local z_list_err
-           z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err="HTTP ${z_list_code}"
+           local z_list_err_status=0
+           z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err_status=$?
+           test "${z_list_err_status}" -eq 0 || z_list_err="HTTP ${z_list_code}"
            buc_reject "${BUBC_band_peruse}" "Terrier read: failed to list muniments (HTTP ${z_list_code}): ${z_list_err}" ;;
     esac
 
@@ -252,7 +258,9 @@ zrbgft_list_fetch_emit() {
         200) : ;;
         404) buc_info "Muniment ${z_name} vanished between list and fetch — skipped"; continue ;;
         *)   local z_get_err
-             z_get_err=$(rbuh_json_field_capture "${z_get_infix}" '.error.message') || z_get_err="HTTP ${z_get_code}"
+             local z_get_err_status=0
+             z_get_err=$(rbuh_json_field_capture "${z_get_infix}" '.error.message') || z_get_err_status=$?
+             test "${z_get_err_status}" -eq 0 || z_get_err="HTTP ${z_get_code}"
              buc_reject "${BUBC_band_peruse}" "Terrier read: failed to fetch muniment ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
       esac
 
@@ -360,7 +368,10 @@ rbgft_escheat_survey() {
     case "${z_list_code}" in
       200) : ;;
       404) buc_reject "${BUBC_band_escheat}" "Escheat survey: terrier bucket ${z_bucket} absent — instaurate the manor first" ;;
-      *)   z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err="HTTP ${z_list_code}"
+      *)
+           local z_list_err_status=0
+           z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err_status=$?
+           test "${z_list_err_status}" -eq 0 || z_list_err="HTTP ${z_list_code}"
            buc_reject "${BUBC_band_escheat}" "Escheat survey: failed to list terrier objects (HTTP ${z_list_code}): ${z_list_err}" ;;
     esac
 
@@ -423,7 +434,10 @@ rbgft_escheat_survey() {
     case "${z_get_code}" in
       200) : ;;
       404) buc_info "Object ${z_name} vanished between list and fetch — skipped"; continue ;;
-      *)   z_get_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_GET}" '.error.message') || z_get_err="HTTP ${z_get_code}"
+      *)
+           local z_get_err_status=0
+           z_get_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_GET}" '.error.message') || z_get_err_status=$?
+           test "${z_get_err_status}" -eq 0 || z_get_err="HTTP ${z_get_code}"
            buc_reject "${BUBC_band_escheat}" "Escheat survey: failed to fetch object ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
     esac
 
@@ -482,7 +496,9 @@ rbgft_escheat_expunge_raw() {
     204) buc_info "Escheated ${z_name}"; echo "deleted" ;;
     404) buc_info "Object ${z_name} already absent (benign vanish)"; echo "absent" ;;
     *)   local z_err
-         z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}" '.error.message') || z_err="HTTP ${z_code}"
+         local z_err_status=0
+         z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}" '.error.message') || z_err_status=$?
+         test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
          buc_reject "${BUBC_band_escheat}" "Failed to escheat object ${z_name} (HTTP ${z_code}): ${z_err}" ;;
   esac
 }

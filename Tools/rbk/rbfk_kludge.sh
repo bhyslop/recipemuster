@@ -99,7 +99,8 @@ rbfk_kludge() {
 
   # Resolve vessel argument (sigil or path)
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Load vessel configuration
@@ -201,7 +202,8 @@ rbfk_kludge() {
   # The dirty-tree gate above makes the sha name the built tree exactly.
   git rev-parse --short HEAD > "${ZRBFK_HEAD_SHA_FILE}" \
     || buc_die_now "Failed to read short HEAD sha for kludge hallmark"
-  local -r z_short_sha=$(<"${ZRBFK_HEAD_SHA_FILE}")
+  local z_short_sha
+  z_short_sha=$(<"${ZRBFK_HEAD_SHA_FILE}") || buc_die_now "Failed to read: ${ZRBFK_HEAD_SHA_FILE}"
   test -n "${z_short_sha}" || buc_die_now "Empty short HEAD sha from ${ZRBFK_HEAD_SHA_FILE}"
 
   local -r z_hallmark="${RBGC_HALLMARK_PREFIX_KLUDGE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}-${z_short_sha}"

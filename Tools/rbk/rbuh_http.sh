@@ -357,10 +357,14 @@ rbuh_require_ok() {
   local -r z_response_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
 
   if jq -e . "${z_response_file}" >/dev/null 2>&1; then
-    z_err=$(rbuh_json_field_capture "${z_infix}" '.error.message') || z_err="Unknown error"
+    local z_err_status=0
+    z_err=$(rbuh_json_field_capture "${z_infix}" '.error.message') || z_err_status=$?
+    test "${z_err_status}" -eq 0 || z_err="Unknown error"
   else
-    local z_content=$(<"${z_response_file}")
-    test -n "${z_content}" || z_content=""
+    local z_content
+    local z_content_status=0
+    z_content=$(<"${z_response_file}") || z_content_status=$?
+    test "${z_content_status}" -eq 0 || z_content=""
     z_err="${z_content:0:200}"
     z_err="${z_err//$'\n'/ }"
     z_err="${z_err//$'\r'/ }"
@@ -385,7 +389,9 @@ rbuh_poll_until_ok() {
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
 
     local z_code
-    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
+    local z_code_status=0
+    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code_status=$?
+    test "${z_code_status}" -eq 0 || z_code=""
 
     if test "${z_code}" = "200"; then
       buc_log_args "${z_label} ready after ${z_elapsed} seconds"
@@ -424,7 +430,9 @@ rbuh_poll_until_gone() {
     rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
 
     local z_code
-    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
+    local z_code_status=0
+    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code_status=$?
+    test "${z_code_status}" -eq 0 || z_code=""
 
     if test "${z_code}" = "404"; then
       z_streak=$((z_streak + 1))

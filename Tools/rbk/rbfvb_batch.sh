@@ -144,7 +144,7 @@ rbfv_batch_vouch() {
     z_vessel_scratch="${BURD_TEMP_DIR}/rbfv_batch_vessel.txt"
     jq -r '.vessel_name // empty' "${z_build_info}" > "${z_vessel_scratch}" \
       || buc_die_now "Failed to read vessel_name from ${z_build_info}"
-    z_vessel=$(<"${z_vessel_scratch}")
+    z_vessel=$(<"${z_vessel_scratch}") || buc_die_now "Failed to read: ${z_vessel_scratch}"
     test -n "${z_vessel}" \
       || buc_die_now "vessel_name empty in about ark for ${z_hallmark}"
 

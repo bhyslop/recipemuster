@@ -143,7 +143,9 @@ zrbgi_propagation_error_predicate() {
     test -n "${z_tol_glob}" || return 0
 
     if test "${z_err_loaded}" = "0"; then
-      z_err_msg=$(rbge_error_message_capture "${z_infix}") || z_err_msg=""
+      local z_err_msg_status=0
+      z_err_msg=$(rbge_error_message_capture "${z_infix}") || z_err_msg_status=$?
+      test "${z_err_msg_status}" -eq 0 || z_err_msg=""
       z_err_loaded=1
     fi
 
@@ -373,8 +375,7 @@ rbgi_add_repo_iam_role() {
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die_now "Failed to update policy JSON"
 
     buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
@@ -509,8 +510,7 @@ rbgi_add_sa_iam_role() {
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
       || buc_die_now "Failed to update SA IAM policy"
 
     buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
@@ -652,8 +652,7 @@ rbgi_add_sa_principal_iam_role() {
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "${z_member_principal}" "${z_etag}") \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member_principal}" "${z_etag}") \
       || buc_die_now "Failed to update SA IAM policy"
 
     buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
@@ -745,7 +744,9 @@ rbgi_poll_sa_iam_binding() {
       "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" || true
 
     local z_code=""
-    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code=""
+    local z_code_status=0
+    z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code_status=$?
+    test "${z_code_status}" -eq 0 || z_code=""
 
     if test "${z_code}" = "200"; then
       local z_resp_file="${ZRBUH_PREFIX}${z_poll_infix}${ZRBUH_POSTFIX_JSON}"
@@ -755,7 +756,8 @@ rbgi_poll_sa_iam_binding() {
         '[.bindings[]? | select(.role == $role) | .members[]? | select(. == $member)] | length' \
         "${z_resp_file}" > "${z_hits_file}" 2>"${z_hits_stderr}" \
         || buc_die_now "Failed to inspect SA IAM policy for binding — see ${z_hits_stderr}"
-      local z_hits=$(<"${z_hits_file}")
+      local z_hits
+      z_hits=$(<"${z_hits_file}") || buc_die_now "Failed to read: ${z_hits_file}"
       test -n "${z_hits}" || buc_die_now "Empty binding count from SA IAM policy inspection"
       if test "${z_hits}" != "0"; then
         buc_log_args "Binding visible after ${z_elapsed}s"
@@ -837,8 +839,7 @@ rbgi_add_bucket_iam_role() {
 
     buc_log_args '2) Build new policy JSON (bindings unique; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die_now "Failed to update bucket IAM policy"
 
     buc_log_args '3) setIamPolicy (fatal on 412 — etag mismatch; Storage uses 412 not 409)'
@@ -969,8 +970,7 @@ rbgi_add_managed_folder_iam_role() {
 
     buc_log_args '2) Build new policy JSON (bindings unique; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
       || buc_die_now "Failed to update managed-folder IAM policy"
 
     buc_log_args '3) setIamPolicy (fatal on 412 — etag mismatch; Storage uses 412 not 409)'
@@ -1096,8 +1096,7 @@ rbgi_grant_secret_iam() {
 
     buc_log_args '2) Build new policy JSON (bindings unique; version=3; keep etag)'
     local z_updated_policy_json=""
-    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" \
-      "${z_role}" "${z_member}" "${z_etag}") \
+    z_updated_policy_json=$(rbgi_jq_add_member_to_role_capture "${z_get_infix}" "${z_role}" "${z_member}" "${z_etag}") \
       || buc_die_now "Failed to update secret IAM policy"
 
     buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
@@ -1302,8 +1301,7 @@ rbgi_revoke_repo_member() {
   test -n "${z_etag}" || buc_die_now "Empty repo etag"
 
   local z_updated_policy_json=""
-  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" \
-    "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" "${z_role}" "serviceAccount:${z_account_email}" "${z_etag}") \
     || buc_die_now "Failed to update policy JSON"
 
   local -r z_set_body="${BURD_TEMP_DIR}/rbgi_repo_revoke_set_policy_body.json"
@@ -1393,8 +1391,7 @@ rbgi_revoke_sa_member() {
   test -n "${z_etag}" || buc_die_now "Empty SA etag"
 
   local z_updated_policy_json=""
-  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" \
-    "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" "${z_role}" "serviceAccount:${z_member_email}" "${z_etag}") \
     || buc_die_now "Failed to update SA IAM policy"
 
   local -r z_set_body="${BURD_TEMP_DIR}/rbgi_sa_revoke_set_policy_body.json"
@@ -1487,8 +1484,7 @@ rbgi_revoke_sa_principal_member() {
   test -n "${z_etag}" || buc_die_now "Empty SA etag"
 
   local z_updated_policy_json=""
-  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" \
-    "${z_role}" "${z_member_principal}" "${z_etag}") \
+  z_updated_policy_json=$(rbgi_jq_remove_member_from_role_capture "${z_get_infix}" "${z_role}" "${z_member_principal}" "${z_etag}") \
     || buc_die_now "Failed to update SA IAM policy"
 
   local -r z_set_body="${BURD_TEMP_DIR}/rbgi_sa_prin_revoke_set_policy_body.json"
@@ -1557,9 +1553,7 @@ rbgi_jq_add_member_to_role_capture() {
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
 
-  local z_out=""
-  z_out=$(
-    jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
+  local z_jq_filter='
       # Enforce RBGU standard: version=3 for all IAM policies
       .version = 3 |
       .bindings = (.bindings // []) |
@@ -1571,8 +1565,9 @@ rbgi_jq_add_member_to_role_capture() {
       end
       # Set etag if provided (optimistic concurrency)
       | (if $etag != "" then .etag = $etag else . end)
-    ' "${z_policy_file}"
-  ) || return 1
+    '
+  local z_out=""
+  z_out=$(jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" "${z_jq_filter}" "${z_policy_file}") || return 1
 
   test -n "${z_out}" || return 1
   printf '%s\n' "${z_out}"
@@ -1603,9 +1598,7 @@ rbgi_jq_remove_member_from_role_capture() {
   test -n "${z_role}"        || return 1
   test -n "${z_member}"      || return 1
 
-  local z_out=""
-  z_out=$(
-    jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" '
+  local z_jq_filter='
       # Enforce RBGU standard: version=3 for all IAM policies
       .version = 3 |
       .bindings = (.bindings // []) |
@@ -1616,8 +1609,9 @@ rbgi_jq_remove_member_from_role_capture() {
                      | map(select((.members // []) | length > 0)) )
       # Set etag if provided (optimistic concurrency)
       | (if $etag != "" then .etag = $etag else . end)
-    ' "${z_policy_file}"
-  ) || return 1
+    '
+  local z_out=""
+  z_out=$(jq --arg role "${z_role}" --arg member "${z_member}" --arg etag "${z_etag_opt}" "${z_jq_filter}" "${z_policy_file}") || return 1
 
   test -n "${z_out}" || return 1
   printf '%s\n' "${z_out}"
@@ -1647,7 +1641,9 @@ rbgi_provision_service_agent() {
   rbuh_require_ok "Provision service agent ${z_api_service}" "${z_infix}"
 
   local z_done
-  z_done=$(rbuh_json_field_capture "${z_infix}" ".done") || z_done=""
+  local z_done_status=0
+  z_done=$(rbuh_json_field_capture "${z_infix}" ".done") || z_done_status=$?
+  test "${z_done_status}" -eq 0 || z_done=""
 
   local z_final_infix="${z_infix}"
   if test "${z_done}" != "true"; then
@@ -1664,10 +1660,14 @@ rbgi_provision_service_agent() {
       rbuh_json "GET" "${z_poll_url}" "${z_token}" "${z_final_infix}"
 
       local z_code
-      z_code=$(rbuh_code_capture "${z_final_infix}") || z_code=""
+      local z_code_status=0
+      z_code=$(rbuh_code_capture "${z_final_infix}") || z_code_status=$?
+      test "${z_code_status}" -eq 0 || z_code=""
       test "${z_code}" = "200" || buc_die_now "Provision ${z_api_service}: poll failed (HTTP ${z_code})"
 
-      z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done=""
+      local z_done_status=0
+      z_done=$(rbuh_json_field_capture "${z_final_infix}" ".done") || z_done_status=$?
+      test "${z_done_status}" -eq 0 || z_done=""
       test "${z_done}" != "true" || break
 
       test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
@@ -1677,7 +1677,9 @@ rbgi_provision_service_agent() {
   fi
 
   local z_email
-  z_email=$(rbuh_json_field_capture "${z_final_infix}" ".response.email") || z_email=""
+  local z_email_status=0
+  z_email=$(rbuh_json_field_capture "${z_final_infix}" ".response.email") || z_email_status=$?
+  test "${z_email_status}" -eq 0 || z_email=""
   test -n "${z_email}" || buc_die_now "Provision service agent ${z_api_service}: no email in response"
 
   buc_log_args "Service agent provisioned: ${z_email}"

@@ -48,7 +48,8 @@ rbfl_feoff() {
   # text directly — like the election it replaces, it never loads the vessel
   # (loading makes RBRV_* readonly, and feoff only touches one ANCHOR line).
   zrbfc_resolve_vessel "${z_vessel}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
   test -f "${z_rbrv_file}" || buc_die_now "Vessel regime file not found: ${z_rbrv_file}"
@@ -59,7 +60,9 @@ rbfl_feoff() {
   # fall back to the touchmark an ensconce handed forward through the depth-1
   # chain. No clean-tree gate here (RBr_a52).
   local z_touchmark=""
-  z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") \
+  local z_touchmark_status=0
+  z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") || z_touchmark_status=$?
+  test "${z_touchmark_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No bole touchmark — pass one (param2) or run a bole ensconce immediately before feoff"
   local z_source="chain"
   test -z "${z_express}" || z_source="express"
@@ -71,7 +74,9 @@ rbfl_feoff() {
   # than fail late. This prefix decode is the sole kind channel — the chain carries
   # no separate kind-brand fact.
   local z_kind=""
-  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") \
+  local z_kind_status=0
+  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
+  test "${z_kind_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix"
   test "${z_kind}" = "${RBGC_LODE_KIND_BOLE}" \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' is kind '${z_kind}', not a bole — feoff elects a base anchor, which only a bole capture carries"

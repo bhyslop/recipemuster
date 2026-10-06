@@ -75,7 +75,7 @@ zrbfc_list_packages_capture() {
     test -n "${z_element}" || continue
     z_pkg_name="${z_subtree}${z_element}/${z_basename}"
     z_pkg_encoded="${z_pkg_name//\//%2F}"
-    z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}")
+    z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}") || buc_die_now "Failed to format tag infix"
     z_tag_idx=$((z_tag_idx + 1))
     local z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
@@ -162,7 +162,8 @@ zrbfc_gar_extract_artifact() {
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
 
-  local -r z_http_code=$(<"${z_head_status}")
+  local z_http_code
+  z_http_code=$(<"${z_head_status}") || buc_die_now "Failed to read: ${z_head_status}"
   test "${z_http_code}" = "200" || return 1
 
   # GET manifest (may be manifest list/index or single-platform manifest)
@@ -183,7 +184,8 @@ zrbfc_gar_extract_artifact() {
   local z_single_manifest="${z_manifest}"
   local -r z_media_type_file="${z_prefix}media_type.txt"
   jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>/dev/null || true
-  local -r z_media_type=$(<"${z_media_type_file}")
+  local z_media_type
+  z_media_type=$(<"${z_media_type_file}") || buc_die_now "Failed to read: ${z_media_type_file}"
 
   case "${z_media_type}" in
     *manifest.list*|*image.index*)
@@ -192,7 +194,8 @@ zrbfc_gar_extract_artifact() {
       jq -r '.manifests[0].digest // empty' "${z_manifest}" \
         > "${z_digest_file}" 2>/dev/null \
         || buc_die_now "Failed to extract platform digest from manifest list"
-      local -r z_platform_digest=$(<"${z_digest_file}")
+      local z_platform_digest
+      z_platform_digest=$(<"${z_digest_file}") || buc_die_now "Failed to read: ${z_digest_file}"
       test -n "${z_platform_digest}" || buc_die_now "Empty platform digest in manifest list"
 
       local -r z_plat_manifest="${z_prefix}plat_manifest.json"
@@ -300,7 +303,8 @@ zrbfc_image_config_fetch() {
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
-  local -r z_http_code=$(<"${z_head_status}")
+  local z_http_code
+  z_http_code=$(<"${z_head_status}") || buc_die_now "Failed to read: ${z_head_status}"
   test "${z_http_code}" = "200" || return 1
 
   # GET manifest (may be index or single-platform)
@@ -324,14 +328,16 @@ zrbfc_image_config_fetch() {
   local -r z_media_type_stderr="${z_prefix}media_type_stderr.txt"
   jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>"${z_media_type_stderr}" \
     || buc_die_now "Failed to read manifest mediaType for ${z_package}:${z_tag} — see ${z_media_type_stderr}"
-  local -r z_media_type=$(<"${z_media_type_file}")
+  local z_media_type
+  z_media_type=$(<"${z_media_type_file}") || buc_die_now "Failed to read: ${z_media_type_file}"
   case "${z_media_type}" in
     *manifest.list*|*image.index*)
       local -r z_digest_file="${z_prefix}platform_digest.txt"
       local -r z_digest_stderr="${z_prefix}platform_digest_stderr.txt"
       jq -r '.manifests[0].digest // empty' "${z_manifest}" > "${z_digest_file}" 2>"${z_digest_stderr}" \
         || buc_die_now "Failed to extract platform digest from manifest list — see ${z_digest_stderr}"
-      local -r z_platform_digest=$(<"${z_digest_file}")
+      local z_platform_digest
+      z_platform_digest=$(<"${z_digest_file}") || buc_die_now "Failed to read: ${z_digest_file}"
       test -n "${z_platform_digest}" || buc_die_now "Empty platform digest in manifest list"
       local -r z_plat_manifest="${z_prefix}plat_manifest.json"
       local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
@@ -354,7 +360,8 @@ zrbfc_image_config_fetch() {
   local -r z_config_digest_stderr="${z_prefix}config_digest_stderr.txt"
   jq -r '.config.digest // empty' "${z_single_manifest}" > "${z_config_digest_file}" 2>"${z_config_digest_stderr}" \
     || buc_die_now "Failed to extract config digest from manifest for ${z_package}:${z_tag} — see ${z_config_digest_stderr}"
-  local -r z_config_digest=$(<"${z_config_digest_file}")
+  local z_config_digest
+  z_config_digest=$(<"${z_config_digest_file}") || buc_die_now "Failed to read: ${z_config_digest_file}"
   test -n "${z_config_digest}" || buc_die_now "No config digest in manifest for ${z_package}:${z_tag}"
 
   local -r z_config_stderr="${z_prefix}config_stderr.txt"
@@ -399,7 +406,8 @@ rbfc_vessel_for_hallmark_capture() {
   local -r z_vessel_file="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark_value.txt"
   jq -r '.vessel // empty' "${z_scratch}/vouch_summary.json" > "${z_vessel_file}" \
     || buc_die_now "Failed to read vessel from vouch_summary.json"
-  local -r z_vessel=$(<"${z_vessel_file}")
+  local z_vessel
+  z_vessel=$(<"${z_vessel_file}") || buc_die_now "Failed to read: ${z_vessel_file}"
   test -n "${z_vessel}" || buc_die_now "Vessel field empty in vouch_summary.json"
 
   printf '%s\n' "${z_vessel}"

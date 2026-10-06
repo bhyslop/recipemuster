@@ -60,7 +60,8 @@ rbfh_check_vessel() {
 
   # Resolve vessel argument (sigil or path) — lists-and-dies on missing/invalid
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Source the vessel's rbrv.env to pick up RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE

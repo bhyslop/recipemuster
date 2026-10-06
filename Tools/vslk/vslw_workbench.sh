@@ -114,8 +114,15 @@ vslw_route() {
       done
 
       # Report success
-      local z_file_count
-      z_file_count=$(find "${z_dest_dir}" -maxdepth 1 -mindepth 1 | wc -l | tr -d ' ')
+      local z_file_count=0
+      local z_entry
+      for z_entry in "${z_dest_dir}"/* "${z_dest_dir}"/.*; do
+        case "${z_entry##*/}" in
+          .|..) continue ;;
+        esac
+        test -e "${z_entry}" || test -L "${z_entry}" || continue
+        z_file_count=$((z_file_count + 1))
+      done
       buc_success "SlickEdit project created: ${z_dest_dir} (${z_file_count} files)"
       ;;
 

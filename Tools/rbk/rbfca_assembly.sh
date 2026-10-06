@@ -107,7 +107,7 @@ zrbfc_assemble_about_steps() {
     buc_log_args "Reading script body for ${z_aid} (skip shebang)"
     zrbfc_write_script_body "${z_ascript_path}" "${z_abody_file}" \
       || buc_die_now "Failed to read about step script: ${z_ascript_path}"
-    z_abody=$(<"${z_abody_file}")
+    z_abody=$(<"${z_abody_file}") || buc_die_now "Failed to read: ${z_abody_file}"
     test -n "${z_abody}" || buc_die_now "Empty about script body: ${z_ascript_path}"
 
     buc_log_args "Baking pinned image refs into script text"
@@ -180,7 +180,7 @@ zrbfc_assemble_vouch_steps() {
       || buc_die_now "Failed to read vouch step script: ${z_vscript_path}"
     zrbfc_expand_includes "${z_vbody_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
       || buc_die_now "Failed to expand snippet includes in vouch step: ${z_vscript_path}"
-    z_vbody=$(<"${z_vbody_file}")
+    z_vbody=$(<"${z_vbody_file}") || buc_die_now "Failed to read: ${z_vbody_file}"
     test -n "${z_vbody}" || buc_die_now "Empty vouch script body: ${z_vscript_path}"
 
     case "${z_ventrypoint}" in
@@ -228,7 +228,7 @@ zrbfc_assemble_preflight_step() {
   zrbfc_write_script_body "${z_pscript_path}" "${z_pbody_file}" \
     || buc_die_now "Failed to read preflight step script: ${z_pscript_path}"
   local z_pbody=""
-  z_pbody=$(<"${z_pbody_file}")
+  z_pbody=$(<"${z_pbody_file}") || buc_die_now "Failed to read: ${z_pbody_file}"
   test -n "${z_pbody}" || buc_die_now "Empty preflight script body"
 
   printf '#!/bin/sh\n%s' "${z_pbody}" > "${z_pescaped_file}" \

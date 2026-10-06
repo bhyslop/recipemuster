@@ -123,7 +123,9 @@ zrbgb_empty_gcs_bucket() {
 
   buc_log_args 'Get list of objects to delete'
   local z_objects
-  z_objects=$(zrbgb_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || {
+  local z_objects_status=0
+  z_objects=$(zrbgb_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || z_objects_status=$?
+  test "${z_objects_status}" -eq 0 || {
     buc_log_args 'No objects found or bucket not accessible'
     return 0
   }
@@ -139,13 +141,17 @@ zrbgb_empty_gcs_bucket() {
     buc_log_args "Deleting object: ${z_object}"
 
     local z_object_enc
-    z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc=""
+    local z_object_enc_status=0
+    z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc_status=$?
+    test "${z_object_enc_status}" -eq 0 || z_object_enc=""
     test -n "${z_object_enc}" || { buc_warn "Failed to encode object name: ${z_object}"; continue; }
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
     rbuh_json "DELETE" "${z_delete_url}" \
                               "${z_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
-    z_delete_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_delete_code=""
+    local z_delete_code_status=0
+    z_delete_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_delete_code_status=$?
+    test "${z_delete_code_status}" -eq 0 || z_delete_code=""
     case "${z_delete_code}" in
       204|404) buc_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       buc_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
@@ -189,7 +195,9 @@ rbgb_bucket_create() {
   rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                   "${ZRBGB_INFIX_CREATE}" "${z_bucket_req}"
   z_code=$(rbuh_code_capture "${ZRBGB_INFIX_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
-  z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+  local z_err_status=0
+  z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_CREATE}" '.error.message') || z_err_status=$?
+  test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_success "Bucket ${z_bucket_name} created";        return 0 ;;
@@ -220,7 +228,7 @@ rbgb_bucket_get() {
   rbuh_require_ok "Get bucket" "${ZRBGB_INFIX_GET}" 404 "not found"
 
   local z_http_code
-  z_http_code=$(rbuh_code_capture "${ZRBGB_INFIX_GET}")
+  z_http_code=$(rbuh_code_capture "${ZRBGB_INFIX_GET}") || buc_die_now "Get bucket: failed to read HTTP code"
   if test "${z_http_code}" = "404"; then
     buc_info "Bucket not found: ${z_bucket_name}"
     return 1
@@ -363,8 +371,12 @@ rbgb_bucket_delete() {
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
   rbuh_json "DELETE" "${z_delete_url}" \
                       "${z_token}" "${ZRBGB_INFIX_DELETE}"
-  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_DELETE}") || z_code=""
-  z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
+  local z_code_status=0
+  z_code=$(rbuh_code_capture "${ZRBGB_INFIX_DELETE}") || z_code_status=$?
+  test "${z_code_status}" -eq 0 || z_code=""
+  local z_err_status=0
+  z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_DELETE}" '.error.message') || z_err_status=$?
+  test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
   case "${z_code}" in
     204) buc_success "Bucket ${z_bucket_name} deleted";                           return 0 ;;
     404) buc_info    "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;
@@ -415,7 +427,9 @@ rbgb_bucket_ensure() {
     200|201) buc_success "Bucket ${z_bucket_name} created";                          return 0 ;;
     409)     buc_info    "Bucket ${z_bucket_name} already present (idempotent)";      return 0 ;;
     *)       local z_err
-             z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_ENSURE}" '.error.message') || z_err="HTTP ${z_code}"
+             local z_err_status=0
+             z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_ENSURE}" '.error.message') || z_err_status=$?
+             test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
              buc_die_now "Failed to ensure bucket ${z_bucket_name}: ${z_err}" ;;
   esac
 }
@@ -452,7 +466,9 @@ rbgb_managed_folder_ensure() {
     200|201) buc_success "Managed folder ${z_folder} created";                      return 0 ;;
     409)     buc_info    "Managed folder ${z_folder} already present (idempotent)";  return 0 ;;
     *)       local z_err
-             z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+             local z_err_status=0
+             z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_CREATE}" '.error.message') || z_err_status=$?
+             test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
              buc_die_now "Failed to ensure managed folder ${z_folder}: ${z_err}" ;;
   esac
 }
@@ -478,7 +494,9 @@ rbgb_managed_folder_purge() {
 
   buc_log_args 'A managed folder deletes only when empty — clear the objects under its prefix first'
   local z_objects
-  z_objects=$(zrbgb_list_bucket_objects_capture "${z_token}" "${z_bucket_name}" "${z_folder}") || z_objects=""
+  local z_objects_status=0
+  z_objects=$(zrbgb_list_bucket_objects_capture "${z_token}" "${z_bucket_name}" "${z_folder}") || z_objects_status=$?
+  test "${z_objects_status}" -eq 0 || z_objects=""
 
   if test -n "${z_objects}"; then
     local z_object=""
@@ -487,11 +505,15 @@ rbgb_managed_folder_purge() {
     while IFS= read -r z_object || test -n "${z_object}"; do
       test -n "${z_object}" || continue
       buc_log_args "Deleting object under folder: ${z_object}"
-      z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc=""
+      local z_object_enc_status=0
+      z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc_status=$?
+      test "${z_object_enc_status}" -eq 0 || z_object_enc=""
       test -n "${z_object_enc}" || { buc_warn "Failed to encode object name: ${z_object}"; continue; }
       rbuh_json "DELETE" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}" \
                                 "${z_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
-      z_obj_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_obj_code=""
+      local z_obj_code_status=0
+      z_obj_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_obj_code_status=$?
+      test "${z_obj_code_status}" -eq 0 || z_obj_code=""
       case "${z_obj_code}" in
         204|404) buc_log_args "Object ${z_object}: deleted or absent"                     ;;
         *)       buc_warn     "Object ${z_object}: delete failed (HTTP ${z_obj_code})"    ;;
@@ -506,12 +528,16 @@ rbgb_managed_folder_purge() {
                             "${z_token}" "${ZRBGB_INFIX_MF_DELETE}"
 
   local z_del_code
-  z_del_code=$(rbuh_code_capture "${ZRBGB_INFIX_MF_DELETE}") || z_del_code=""
+  local z_del_code_status=0
+  z_del_code=$(rbuh_code_capture "${ZRBGB_INFIX_MF_DELETE}") || z_del_code_status=$?
+  test "${z_del_code_status}" -eq 0 || z_del_code=""
   case "${z_del_code}" in
     204) buc_success "Managed folder ${z_folder} deleted";                        return 0 ;;
     404) buc_info    "Managed folder ${z_folder} not present (already gone)";     return 0 ;;
     *)   local z_err
-         z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_DELETE}" '.error.message') || z_err="HTTP ${z_del_code}"
+         local z_err_status=0
+         z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_DELETE}" '.error.message') || z_err_status=$?
+         test "${z_err_status}" -eq 0 || z_err="HTTP ${z_del_code}"
          buc_warn "Managed folder ${z_folder} delete failed: ${z_err}";          return 1 ;;
   esac
 }

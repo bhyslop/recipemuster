@@ -188,8 +188,10 @@ zrbrn_ip_in_subnet() {
   zrbrn_sentinel
 
   local z_label="$1" z_ip="$2" z_base="$3" z_mask="$4"
-  local z_ip_int=$(zrbrn_ip_to_int "${z_ip}")
-  local z_base_int=$(zrbrn_ip_to_int "${z_base}")
+  local z_ip_int
+  z_ip_int=$(zrbrn_ip_to_int "${z_ip}") || buc_die_now "Failed to convert IP to integer: ${z_ip}"
+  local z_base_int
+  z_base_int=$(zrbrn_ip_to_int "${z_base}") || buc_die_now "Failed to convert IP to integer: ${z_base}"
   local z_net_mask=$(( (0xFFFFFFFF << (32 - z_mask)) & 0xFFFFFFFF ))
   if [[ $(( z_ip_int & z_net_mask )) -ne $(( z_base_int & z_net_mask )) ]]; then
     buc_reject "${BUBC_band_regime}" "${z_label}=${z_ip} is not within subnet ${z_base}/${z_mask}"
@@ -204,16 +206,15 @@ rbrn_preflight() {
   # Collect structured data from all nameplates via isolation subshells
   local z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_data_lines=()
+  local -r z_isolation_program='
+        source "$1" || exit 1
+        echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}"
+      '
   local z_nf_i=""
   for z_nf_i in "${!z_nameplate_files[@]}"; do
     test -f "${z_nameplate_files[$z_nf_i]}" || continue
     local z_line
-    z_line=$(
-      bash -c '
-        source "$1" || exit 1
-        echo "${RBRN_MONIKER}|${RBRN_ENTRY_MODE}|${RBRN_ENTRY_PORT_WORKSTATION:-0}|${RBRN_ENTRY_PORT_ENCLAVE:-0}|${RBRN_ENCLAVE_BASE_IP}|${RBRN_ENCLAVE_NETMASK}|${RBRN_ENCLAVE_SENTRY_IP}|${RBRN_ENCLAVE_BOTTLE_IP}"
-      ' _ "${z_nameplate_files[$z_nf_i]}"
-    ) || buc_die_now "Preflight isolation failed for: ${z_nameplate_files[$z_nf_i]}"
+    z_line=$(bash -c "${z_isolation_program}" _ "${z_nameplate_files[$z_nf_i]}") || buc_die_now "Preflight isolation failed for: ${z_nameplate_files[$z_nf_i]}"
     z_data_lines+=("${z_line}")
   done
 
@@ -282,7 +283,8 @@ rbrn_preflight() {
     z_ip_vals+=("${z_mon}:bottle")
 
     # Subnet non-overlap
-    local z_net_int=$(zrbrn_ip_to_int "${z_base}")
+    local z_net_int
+    z_net_int=$(zrbrn_ip_to_int "${z_base}") || buc_die_now "Failed to convert IP to integer: ${z_base}"
     local z_net_mask_bits=$(( (0xFFFFFFFF << (32 - z_mask)) & 0xFFFFFFFF ))
     local z_net_addr=$(( z_net_int & z_net_mask_bits ))
     local z_net_size=$(( 1 << (32 - z_mask) ))

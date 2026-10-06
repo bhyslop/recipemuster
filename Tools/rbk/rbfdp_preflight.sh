@@ -84,7 +84,7 @@ zrbfd_preflight_reliquary() {
     test "${z_curl_status}" -eq 0 \
       || buc_die_now "HEAD request failed for reliquary tool: ${z_pkg}:${z_tag} (curl exit ${z_curl_status}) — see ${z_stderr_file}"
 
-    z_http_code=$(<"${z_status_file}")
+    z_http_code=$(<"${z_status_file}") || buc_die_now "Failed to read: ${z_status_file}"
     test -n "${z_http_code}" || buc_die_now "HTTP status code is empty for reliquary check: ${z_tool}"
 
     case "${z_http_code}" in
@@ -218,7 +218,7 @@ zrbfd_registry_preflight() {
     test "${z_curl_status}" -eq 0 \
       || buc_die_now "HEAD request failed for base image: ${z_anchor} (curl exit ${z_curl_status}) — see ${z_stderr_file}"
 
-    z_http_code=$(<"${z_status_file}")
+    z_http_code=$(<"${z_status_file}") || buc_die_now "Failed to read: ${z_status_file}"
     test -n "${z_http_code}" || buc_die_now "HTTP status code is empty for base image check"
 
     if test "${z_http_code}" = "404"; then

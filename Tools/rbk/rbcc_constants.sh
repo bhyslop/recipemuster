@@ -338,7 +338,7 @@ rbcc_emit_consts() {
   ; do
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"
-    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+    z_upper=$(tr '[:lower:]' '[:upper:]' <<<"${z_stem}") || buc_die_now "rbcc_emit_consts: upcase failed for ${z_name}"
     buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -367,7 +367,7 @@ rbcc_emit_consts() {
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"
-    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+    z_upper=$(tr '[:lower:]' '[:upper:]' <<<"${z_stem}") || buc_die_now "rbcc_emit_consts: upcase failed for ${z_name}"
     buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -376,7 +376,7 @@ rbcc_emit_consts() {
   printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
   z_name="BUBC_tweak_regime_poison"
   z_stem="${z_name#BUBC_}"
-  z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
+  z_upper=$(tr '[:lower:]' '[:upper:]' <<<"${z_stem}") || buc_die_now "rbcc_emit_consts: upcase failed for ${z_name}"
   buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
     || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
 }

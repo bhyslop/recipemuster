@@ -103,11 +103,15 @@ zrbgg_required_apis_missing_capture() {
     rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
 
     buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
-    z_code=$(rbuh_code_capture "${z_infix}") || z_code=""
+    local z_code_status=0
+    z_code=$(rbuh_code_capture "${z_infix}") || z_code_status=$?
+    test "${z_code_status}" -eq 0 || z_code=""
     test -n "${z_code}" || return 1
 
     if test "${z_code}" = "200"; then
-      z_state=$(rbuh_json_field_capture "${z_infix}" ".state") || z_state=""
+      local z_state_status=0
+      z_state=$(rbuh_json_field_capture "${z_infix}" ".state") || z_state_status=$?
+      test "${z_state_status}" -eq 0 || z_state=""
       test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
     else
       buc_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled'
@@ -140,7 +144,9 @@ zrbgg_create_gcs_bucket() {
   rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
                                   "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
-  z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err="HTTP ${z_code}"
+  local z_err_status=0
+  z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_CREATE}" '.error.message') || z_err_status=$?
+  test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
 
   case "${z_code}" in
     200|201) buc_info "Bucket ${z_bucket_name} created";                    return 0 ;;
@@ -180,7 +186,9 @@ zrbgg_list_bucket_objects_capture() {
     buc_log_args 'Print names from this page (if any)'
     buc_log_args 'Next page?'
     jq -r                '.items[]?.name // empty' "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"  || return 1
-    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token=""
+    local z_page_token_status=0
+    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token_status=$?
+    test "${z_page_token_status}" -eq 0 || z_page_token=""
 
     test -n "${z_page_token}" || break
     z_first=$((z_first + 1))
@@ -211,7 +219,9 @@ zrbgg_empty_gcs_bucket() {
 
   buc_log_args 'Get list of objects to delete'
   local z_objects
-  z_objects=$(zrbgg_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || {
+  local z_objects_status=0
+  z_objects=$(zrbgg_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || z_objects_status=$?
+  test "${z_objects_status}" -eq 0 || {
     buc_log_args 'No objects found or bucket not accessible'
     return 0
   }
@@ -227,13 +237,17 @@ zrbgg_empty_gcs_bucket() {
     buc_log_args "Deleting object: ${z_object}"
 
     local z_object_enc
-    z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc=""
+    local z_object_enc_status=0
+    z_object_enc=$(rbuh_urlencode_capture "${z_object}") || z_object_enc_status=$?
+    test "${z_object_enc_status}" -eq 0 || z_object_enc=""
     test -n "${z_object_enc}" || { buc_warn "Failed to encode object name: ${z_object}"; continue; }
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
     rbuh_json "DELETE" "${z_delete_url}" \
                               "${z_token}" "${ZRBGG_INFIX_OBJECT_DELETE}"
-    z_delete_code=$(rbuh_code_capture "${ZRBGG_INFIX_OBJECT_DELETE}") || z_delete_code=""
+    local z_delete_code_status=0
+    z_delete_code=$(rbuh_code_capture "${ZRBGG_INFIX_OBJECT_DELETE}") || z_delete_code_status=$?
+    test "${z_delete_code_status}" -eq 0 || z_delete_code=""
     case "${z_delete_code}" in
       204|404) buc_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       buc_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
@@ -256,8 +270,12 @@ zrbgg_delete_gcs_bucket_predicate() {
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
   rbuh_json "DELETE" "${z_delete_url}" \
                       "${z_token}" "${ZRBGG_INFIX_BUCKET_DELETE}"
-  z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_DELETE}") || z_code=""
-  z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_DELETE}" '.error.message') || z_err="HTTP ${z_code}"
+  local z_code_status=0
+  z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_DELETE}") || z_code_status=$?
+  test "${z_code_status}" -eq 0 || z_code=""
+  local z_err_status=0
+  z_err=$(rbuh_json_field_capture "${ZRBGG_INFIX_BUCKET_DELETE}" '.error.message') || z_err_status=$?
+  test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
   case "${z_code}" in
     204) buc_info "Bucket ${z_bucket_name} deleted";                           return 0 ;;
     404) buc_warn "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;
@@ -402,7 +420,9 @@ rbgg_restore_project() {
     fi
   else
     local z_error_msg
-    z_error_msg=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg="Failed to parse error"
+    local z_error_msg_status=0
+    z_error_msg=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_RESTORE}" '.error.message // "Unknown error"') || z_error_msg_status=$?
+    test "${z_error_msg_status}" -eq 0 || z_error_msg="Failed to parse error"
     buc_die_now "Project restoration failed: ${z_error_msg}"
   fi
 }

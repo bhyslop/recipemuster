@@ -163,7 +163,11 @@ rbq_context() {
     buc_die_now "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
-  if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
+  local z_fresh_content
+  z_fresh_content=$(<"${z_fresh}") || buc_die_now "Failed to read: ${z_fresh}"
+  local z_committed_content
+  z_committed_content=$(<"${z_committed}") || buc_die_now "Failed to read: ${z_committed}"
+  if test "${z_fresh_content}" != "${z_committed_content}"; then
     buc_die_now "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
@@ -184,7 +188,11 @@ rbq_rust_consts() {
     buc_die_now "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
-  if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
+  local z_fresh_content
+  z_fresh_content=$(<"${z_fresh}") || buc_die_now "Failed to read: ${z_fresh}"
+  local z_committed_content
+  z_committed_content=$(<"${z_committed}") || buc_die_now "Failed to read: ${z_committed}"
+  if test "${z_fresh_content}" != "${z_committed_content}"; then
     buc_die_now "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 

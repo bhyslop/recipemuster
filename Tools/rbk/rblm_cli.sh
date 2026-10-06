@@ -48,7 +48,8 @@ rblm_zero() {
 
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_zero_toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — marshal zero must run inside a git repository"
-  local z_toplevel=$(<"${z_toplevel_temp}")
+  local z_toplevel
+  z_toplevel=$(<"${z_toplevel_temp}") || buc_die_now "Failed to read: ${z_toplevel_temp}"
   local -r z_actual_tree="${z_toplevel##*/}"
   test "${z_claimed_tree}" = "${z_actual_tree}" \
     || buc_die_now "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
@@ -316,7 +317,8 @@ rblm_feign() {
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
   local -r z_branch_temp="${BURD_TEMP_DIR}/rblm_feign_branch.txt"
   git rev-parse --abbrev-ref HEAD > "${z_branch_temp}" || buc_die_now "git rev-parse failed"
-  local -r z_branch=$(<"${z_branch_temp}")
+  local z_branch
+  z_branch=$(<"${z_branch_temp}") || buc_die_now "Failed to read: ${z_branch_temp}"
 
   case "${z_branch}" in
     main|candidate-*)

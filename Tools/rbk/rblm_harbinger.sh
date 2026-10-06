@@ -94,7 +94,8 @@ rblm_harbinger() {
   # every derived path below — and the guard that the seposition move can never hit it.
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_harbinger_toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
-  local -r z_toplevel=$(<"${z_toplevel_temp}")
+  local z_toplevel
+  z_toplevel=$(<"${z_toplevel_temp}") || buc_die_now "Failed to read: ${z_toplevel_temp}"
   test -n "${z_toplevel}" || buc_die_now "git returned an empty repository root"
   case "${z_toplevel}" in
     /*) ;;
@@ -128,7 +129,8 @@ rblm_harbinger() {
   # maintainer reviews it and commits it into the studbook after the walk.
   local -r z_walkdate_temp="${BURD_TEMP_DIR}/rblm_harbinger_walkdate.txt"
   date +%Y%m%d > "${z_walkdate_temp}" || buc_die_now "date failed"
-  local -r z_walkdate=$(<"${z_walkdate_temp}")
+  local z_walkdate
+  z_walkdate=$(<"${z_walkdate_temp}") || buc_die_now "Failed to read: ${z_walkdate_temp}"
   test -n "${z_walkdate}" || buc_die_now "walk date resolved empty"
   local -r z_memo_path="${z_target_dir}/memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md"
 
@@ -136,7 +138,8 @@ rblm_harbinger() {
   # one day cannot collide. An existing rig is renamed here, never deleted.
   local -r z_sepose_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_sepose_stamp.txt"
   date +%Y%m%d-%H%M%S > "${z_sepose_stamp_temp}" || buc_die_now "date failed"
-  local -r z_sepose_stamp=$(<"${z_sepose_stamp_temp}")
+  local z_sepose_stamp
+  z_sepose_stamp=$(<"${z_sepose_stamp_temp}") || buc_die_now "Failed to read: ${z_sepose_stamp_temp}"
   test -n "${z_sepose_stamp}" || buc_die_now "seposition timestamp resolved empty"
   local -r z_seposed_dir="${z_target_dir}.seposed-${z_sepose_stamp}"
 

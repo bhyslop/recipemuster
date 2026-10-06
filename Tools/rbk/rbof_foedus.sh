@@ -80,7 +80,8 @@ zrbof_require_foedus() {
 
   local -r z_foedus="${1:-}"
   local -r z_band="${2:-}"
-  local -r z_avail="$(zrbof_list_foedera)"
+  local z_avail
+  z_avail=$(zrbof_list_foedera) || buc_die_now "Failed to list foedera"
 
   test -n "${z_foedus}" \
     || buc_reject "${z_band}" "Foedus identity required (param1). Available foedera: ${z_avail}"
@@ -93,8 +94,9 @@ zrbof_require_foedus() {
   # rbrf.env.template until the test facility renders its git-ignored live regime
   # (RBr_e4a), so the two tests name distinct states.
   local z_rbrf=""
-  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") \
-    || buc_reject "${z_band}" "Failed to resolve the regime path for foedus '${z_foedus}'"
+  local z_rbrf_status=0
+  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") || z_rbrf_status=$?
+  test "${z_rbrf_status}" -eq 0 || buc_reject "${z_band}" "Failed to resolve the regime path for foedus '${z_foedus}'"
   test -f "${z_rbrf}" \
     || buc_reject "${z_band}" "Foedus '${z_foedus}' has no rbrf.env. Available foedera: ${z_avail}"
 }
@@ -138,17 +140,21 @@ rbof_descry() {
   # The provider is the per-foedus discriminator and stays in the inspected
   # foedus's own rbrf.env.
   local z_rbrf=""
-  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") \
-    || buc_reject "${BUBC_band_descry}" "Failed to resolve the regime path for foedus '${z_foedus}'"
+  local z_rbrf_status=0
+  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") || z_rbrf_status=$?
+  test "${z_rbrf_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Failed to resolve the regime path for foedus '${z_foedus}'"
   local z_org=""
   local z_pool=""
   local z_provider=""
-  z_org=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_ORG_ID") \
-    || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_ORG_ID: ${RBCC_rbrw_file}"
-  z_pool=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_WORKFORCE_POOL_ID") \
-    || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
-  z_provider=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_PROVIDER_ID") \
-    || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_PROVIDER_ID: ${z_rbrf}"
+  local z_org_status=0
+  z_org=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_ORG_ID") || z_org_status=$?
+  test "${z_org_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_ORG_ID: ${RBCC_rbrw_file}"
+  local z_pool_status=0
+  z_pool=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_WORKFORCE_POOL_ID") || z_pool_status=$?
+  test "${z_pool_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
+  local z_provider_status=0
+  z_provider=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_PROVIDER_ID") || z_provider_status=$?
+  test "${z_provider_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_PROVIDER_ID: ${z_rbrf}"
 
   buc_step "Descry foedus ${z_foedus} — provider ${z_provider} under pool ${z_pool} (organizations/${z_org})"
 
@@ -173,15 +179,17 @@ rbof_descry() {
   buc_step "Confirm manor pool coordinates"
   rbuh_json "GET" "${z_pools_base}/${z_pool}" "${z_token}" "descry_pool_get"
   local z_pool_code=""
-  z_pool_code=$(rbuh_code_capture "descry_pool_get") \
-    || buc_reject "${BUBC_band_descry}" "No HTTP code from workforcePools.get for pool ${z_pool}"
+  local z_pool_code_status=0
+  z_pool_code=$(rbuh_code_capture "descry_pool_get") || z_pool_code_status=$?
+  test "${z_pool_code_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "No HTTP code from workforcePools.get for pool ${z_pool}"
 
   local z_pool_state=""
   local z_verdict=""
   case "${z_pool_code}" in
     200)
-      z_pool_state=$(rbuh_json_field_capture "descry_pool_get" ".state // \"${RBGC_STATE_UNSPECIFIED}\"") \
-        || z_pool_state="${RBGC_STATE_UNSPECIFIED}"
+      local z_pool_state_status=0
+      z_pool_state=$(rbuh_json_field_capture "descry_pool_get" ".state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_pool_state_status=$?
+      test "${z_pool_state_status}" -eq 0 || z_pool_state="${RBGC_STATE_UNSPECIFIED}"
       if test "${z_pool_state}" = "${RBGC_STATE_DELETED}"; then
         z_verdict="coordinate-drift"
       fi
@@ -202,8 +210,9 @@ rbof_descry() {
     buc_step "Read provider presence"
     rbuh_json "GET" "${z_pools_base}/${z_pool}/providers/${z_provider}" "${z_token}" "descry_provider_get"
     local z_provider_code=""
-    z_provider_code=$(rbuh_code_capture "descry_provider_get") \
-      || buc_reject "${BUBC_band_descry}" "No HTTP code from providers.get for provider ${z_provider}"
+    local z_provider_code_status=0
+    z_provider_code=$(rbuh_code_capture "descry_provider_get") || z_provider_code_status=$?
+    test "${z_provider_code_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "No HTTP code from providers.get for provider ${z_provider}"
     case "${z_provider_code}" in
       200) z_verdict="healthy" ;;
       404) z_verdict="provider-absent" ;;
@@ -263,9 +272,13 @@ rbof_canvass() {
     test -d "${z_entry}" || continue
     z_entry="${z_entry%/}"
     z_lib_name="${z_entry##*/}"
-    z_lib_rbrf=$(rbcc_rbrf_file_capture "${z_lib_name}") || continue
+    local z_lib_rbrf_status=0
+    z_lib_rbrf=$(rbcc_rbrf_file_capture "${z_lib_name}") || z_lib_rbrf_status=$?
+    test "${z_lib_rbrf_status}" -eq 0 || continue
     test -f "${z_lib_rbrf}" || continue
-    z_lib_pid=$(zrbof_rbrf_field_capture "${z_lib_rbrf}" "RBRF_PROVIDER_ID") || continue
+    local z_lib_pid_status=0
+    z_lib_pid=$(zrbof_rbrf_field_capture "${z_lib_rbrf}" "RBRF_PROVIDER_ID") || z_lib_pid_status=$?
+    test "${z_lib_pid_status}" -eq 0 || continue
     z_lib_foedus+=("${z_lib_name}")
     z_lib_provider+=("${z_lib_pid}")
   done
@@ -329,16 +342,19 @@ rbof_canvass() {
       *)   buc_die_now "Unexpected HTTP ${z_code} from providers.list under pool ${z_pool}" ;;
     esac
 
-    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePoolProviders // [] | length') \
-      || z_count=0
+    local z_count_status=0
+    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePoolProviders // [] | length') || z_count_status=$?
+    test "${z_count_status}" -eq 0 || z_count=0
 
     z_index=0
     while test "${z_index}" -lt "${z_count}"; do
-      z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePoolProviders[${z_index}].name") \
-        || { z_index=$((z_index + 1)); continue; }
+      local z_p_name_status=0
+      z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePoolProviders[${z_index}].name") || z_p_name_status=$?
+      test "${z_p_name_status}" -eq 0 || { z_index=$((z_index + 1)); continue; }
       z_p_id="${z_p_name##*/}"
-      z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePoolProviders[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") \
-        || z_p_state="${RBGC_STATE_UNSPECIFIED}"
+      local z_p_state_status=0
+      z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePoolProviders[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_p_state_status=$?
+      test "${z_p_state_status}" -eq 0 || z_p_state="${RBGC_STATE_UNSPECIFIED}"
 
       # Correlate the provider id against the library's configured ids.
       z_matched=""
@@ -372,8 +388,9 @@ rbof_canvass() {
       z_index=$((z_index + 1))
     done
 
-    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') \
-      || z_page_token=""
+    local z_page_token_status=0
+    z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken') || z_page_token_status=$?
+    test "${z_page_token_status}" -eq 0 || z_page_token=""
     test -n "${z_page_token}" || break
     z_page=$((z_page + 1))
   done

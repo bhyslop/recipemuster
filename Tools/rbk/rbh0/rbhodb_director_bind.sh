@@ -53,7 +53,9 @@ rbho_director_bind() {
   local z_sentry_ready=0
   if test -f "${z_pluml_rbrn}"; then
     local z_sentry_hallmark=""
-    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_pluml_rbrn}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark=""
+    local z_sentry_hallmark_status=0
+    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_pluml_rbrn}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark_status=$?
+    test "${z_sentry_hallmark_status}" -eq 0 || z_sentry_hallmark=""
     case "${z_sentry_hallmark}" in
       ""|PENDING-*) ;;
       *) z_sentry_ready=1 ;;
@@ -63,7 +65,9 @@ rbho_director_bind() {
   local z_bottle_bound=0
   if test -f "${z_pluml_rbrn}"; then
     local z_bottle_hallmark=""
-    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_pluml_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark=""
+    local z_bottle_hallmark_status=0
+    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_pluml_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark_status=$?
+    test "${z_bottle_hallmark_status}" -eq 0 || z_bottle_hallmark=""
     case "${z_bottle_hallmark}" in
       ""|PENDING-*) ;;
       *) z_bottle_bound=1 ;;
@@ -73,7 +77,9 @@ rbho_director_bind() {
   local z_vessel_yoked=0
   if test -f "${z_vessel_rbrv}"; then
     local z_vessel_stamp=""
-    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp=""
+    local z_vessel_stamp_status=0
+    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp_status=$?
+    test "${z_vessel_stamp_status}" -eq 0 || z_vessel_stamp=""
     test -n "${z_vessel_stamp}" && z_vessel_yoked=1
   fi
 

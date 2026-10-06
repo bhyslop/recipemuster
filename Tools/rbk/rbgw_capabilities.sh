@@ -174,7 +174,9 @@ rbgw_grant_director_capabilities() {
     z_gar_set_infix="director_gar_set_iam-${z_gar_prop_elapsed}s"
 
     rbuh_json "GET" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}"
-    z_gar_get_code=$(rbuh_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
+    local z_gar_get_code_status=0
+    z_gar_get_code=$(rbuh_code_capture "${z_gar_get_infix}") || z_gar_get_code_status=$?
+    test "${z_gar_get_code_status}" -eq 0 || z_gar_get_code=""
 
     # Propagation retry on GET — covers newly-empowered governor (403) and
     # newly-created Director SA member-visibility lag (400 patterns).
@@ -193,8 +195,7 @@ rbgw_grant_director_capabilities() {
 
     # Build complete expected policy: Director repoAdmin + Mason writer
     local z_gar_partial
-    z_gar_partial=$(rbgi_jq_add_member_to_role_capture "${z_gar_get_infix}" \
-      "roles/artifactregistry.repoAdmin" "serviceAccount:${z_member_email}" "") \
+    z_gar_partial=$(rbgi_jq_add_member_to_role_capture "${z_gar_get_infix}" "roles/artifactregistry.repoAdmin" "serviceAccount:${z_member_email}" "") \
       || buc_die_now "Failed to add Director repoAdmin to GAR IAM policy"
 
     local z_gar_intermediate="${BURD_TEMP_DIR}/rbuh_director_gar_complete_iam_u_resp.json"
@@ -202,8 +203,7 @@ rbgw_grant_director_capabilities() {
       || buc_die_now "Failed to write intermediate GAR IAM policy"
 
     local z_gar_complete
-    z_gar_complete=$(rbgi_jq_add_member_to_role_capture "director_gar_complete_iam" \
-      "roles/artifactregistry.writer" "serviceAccount:${RBGD_MASON_EMAIL}" "") \
+    z_gar_complete=$(rbgi_jq_add_member_to_role_capture "director_gar_complete_iam" "roles/artifactregistry.writer" "serviceAccount:${RBGD_MASON_EMAIL}" "") \
       || buc_die_now "Failed to add Mason writer to GAR IAM policy"
 
     local z_gar_set_body="${BURD_TEMP_DIR}/rbgg_gar_complete_policy_body.json"

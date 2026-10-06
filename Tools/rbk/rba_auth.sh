@@ -212,11 +212,13 @@ zrba_sederunt_read_capture() {
 
   jq -r '.expiry_epoch // 0' "${z_path}" \
      > "${ZRBA_FED_SEDERUNT_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_expiry=$(<"${ZRBA_FED_SEDERUNT_EXPIRY_FILE}")
+  local z_expiry
+  z_expiry=$(<"${ZRBA_FED_SEDERUNT_EXPIRY_FILE}") || return 1
   [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
 
   date +%s > "${ZRBA_FED_SEDERUNT_NOW_FILE}" || return 1
-  local -r z_now=$(<"${ZRBA_FED_SEDERUNT_NOW_FILE}")
+  local z_now
+  z_now=$(<"${ZRBA_FED_SEDERUNT_NOW_FILE}") || return 1
   test -n "${z_now}" || return 1
   test "${z_expiry}" -gt "$(( z_now + ZRBA_SEDERUNT_SKEW_SEC ))" || return 1
 
@@ -261,11 +263,13 @@ zrba_sederunt_runway_capture() {
 
   jq -r '.expiry_epoch // 0' "${z_path}" \
      > "${ZRBA_FED_RUNWAY_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_expiry=$(<"${ZRBA_FED_RUNWAY_EXPIRY_FILE}")
+  local z_expiry
+  z_expiry=$(<"${ZRBA_FED_RUNWAY_EXPIRY_FILE}") || return 1
   [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
 
   date +%s > "${ZRBA_FED_RUNWAY_NOW_FILE}" || return 1
-  local -r z_now=$(<"${ZRBA_FED_RUNWAY_NOW_FILE}")
+  local z_now
+  z_now=$(<"${ZRBA_FED_RUNWAY_NOW_FILE}") || return 1
   [[ "${z_now}" =~ ^[0-9]+$ ]] || return 1
 
   local z_runway=$(( z_expiry - z_now ))
@@ -363,16 +367,20 @@ zrba_leg1_idtoken_capture() {
 
   jq -r '.device_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
      > "${ZRBA_FED_DEVICE_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_device_code=$(<"${ZRBA_FED_DEVICE_CODE_FILE}")
+  local z_device_code
+  z_device_code=$(<"${ZRBA_FED_DEVICE_CODE_FILE}") || return 1
   jq -r '.user_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
      > "${ZRBA_FED_USER_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_user_code=$(<"${ZRBA_FED_USER_CODE_FILE}")
+  local z_user_code
+  z_user_code=$(<"${ZRBA_FED_USER_CODE_FILE}") || return 1
   jq -r '.verification_uri // .verification_url // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
      > "${ZRBA_FED_VERIFY_URI_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local -r z_verification_uri=$(<"${ZRBA_FED_VERIFY_URI_FILE}")
+  local z_verification_uri
+  z_verification_uri=$(<"${ZRBA_FED_VERIFY_URI_FILE}") || return 1
   jq -r '.interval // 5' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
      > "${ZRBA_FED_INTERVAL_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_interval=$(<"${ZRBA_FED_INTERVAL_FILE}")
+  local z_interval
+  z_interval=$(<"${ZRBA_FED_INTERVAL_FILE}") || return 1
   test -n "${z_device_code}"      || return 1
   test -n "${z_user_code}"        || return 1
   test -n "${z_verification_uri}" || return 1
@@ -424,7 +432,7 @@ zrba_leg1_idtoken_capture() {
 
     jq -r '.error // empty' "${ZRBA_FED_TOKEN_RESPONSE_FILE}" \
        > "${ZRBA_FED_POLL_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || : > "${ZRBA_FED_POLL_ERROR_FILE}"
-    z_err=$(<"${ZRBA_FED_POLL_ERROR_FILE}")
+    z_err=$(<"${ZRBA_FED_POLL_ERROR_FILE}") || return 1
     case "${z_err}" in
       authorization_pending) ;;
       slow_down)             z_interval=$(( z_interval + 5 )) ;;
@@ -448,7 +456,8 @@ zrba_b64url_capture() {
   local -r z_raw="${2:-}"
 
   openssl enc -base64 -A -in "${z_in}" > "${z_raw}" 2>"${ZRBA_FED_OPENSSL_STDERR_FILE}" || return 1
-  local z_b64=$(<"${z_raw}")
+  local z_b64
+  z_b64=$(<"${z_raw}") || return 1
   test -n "${z_b64}" || return 1
   z_b64="${z_b64//+/-}"
   z_b64="${z_b64//\//_}"
@@ -487,7 +496,8 @@ zrba_leg1_programmatic_idtoken_capture() {
   # file read back with the $(<file) builtin. exp = iat + TTL; a unique jti per mint
   # (one-time use — Keycloak disables reuse by default).
   date +%s > "${ZRBA_FED_PROG_NOW_FILE}" || return 1
-  local -r z_iat=$(<"${ZRBA_FED_PROG_NOW_FILE}")
+  local z_iat
+  z_iat=$(<"${ZRBA_FED_PROG_NOW_FILE}") || return 1
   [[ "${z_iat}" =~ ^[0-9]+$ ]] || return 1
   local -r z_exp=$(( z_iat + ZRBA_PROG_ASSERTION_TTL_SEC ))
   local -r z_jti="rba-${z_iat}-$$"
@@ -509,10 +519,14 @@ zrba_leg1_programmatic_idtoken_capture() {
 
   # base64url the header and payload (non-secret).
   local z_h64
-  z_h64=$(zrba_b64url_capture "${ZRBA_FED_PROG_HEADER_FILE}" "${ZRBA_FED_PROG_HEADER_B64_FILE}") \
+  local z_h64_status=0
+  z_h64=$(zrba_b64url_capture "${ZRBA_FED_PROG_HEADER_FILE}" "${ZRBA_FED_PROG_HEADER_B64_FILE}") || z_h64_status=$?
+  test "${z_h64_status}" -eq 0 \
     || { buc_log_args "Failed to base64url the assertion header; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
   local z_p64
-  z_p64=$(zrba_b64url_capture "${ZRBA_FED_PROG_PAYLOAD_FILE}" "${ZRBA_FED_PROG_PAYLOAD_B64_FILE}") \
+  local z_p64_status=0
+  z_p64=$(zrba_b64url_capture "${ZRBA_FED_PROG_PAYLOAD_FILE}" "${ZRBA_FED_PROG_PAYLOAD_B64_FILE}") || z_p64_status=$?
+  test "${z_p64_status}" -eq 0 \
     || { buc_log_args "Failed to base64url the assertion payload; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
 
   # Signing input = <b64url header>.<b64url payload>, to a file (the thing signed).
@@ -524,12 +538,16 @@ zrba_leg1_programmatic_idtoken_capture() {
      > "${ZRBA_FED_PROG_SIG_RAW_FILE}" 2>"${ZRBA_FED_OPENSSL_STDERR_FILE}" \
     || { buc_log_args "Assertion signing failed; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
   local z_sig
-  z_sig=$(zrba_b64url_capture "${ZRBA_FED_PROG_SIG_RAW_FILE}" "${ZRBA_FED_PROG_SIG_B64_FILE}") \
+  local z_sig_status=0
+  z_sig=$(zrba_b64url_capture "${ZRBA_FED_PROG_SIG_RAW_FILE}" "${ZRBA_FED_PROG_SIG_B64_FILE}") || z_sig_status=$?
+  test "${z_sig_status}" -eq 0 \
     || { buc_log_args "Failed to base64url the assertion signature; see ${ZRBA_FED_OPENSSL_STDERR_FILE}"; return 1; }
 
   # Assemble the assertion = signing_input.signature, to a file curl reads by
   # reference (keeps it off the argument list; single-use, short-lived).
-  printf '%s.%s' "$(<"${ZRBA_FED_PROG_SIGNING_FILE}")" "${z_sig}" \
+  local z_signing_input
+  z_signing_input=$(<"${ZRBA_FED_PROG_SIGNING_FILE}") || return 1
+  printf '%s.%s' "${z_signing_input}" "${z_sig}" \
      > "${ZRBA_FED_PROG_ASSERTION_FILE}" || return 1
 
   # POST the RFC 7523 grant. The client secret and the assertion both ride by FILE
@@ -558,7 +576,8 @@ zrba_leg1_programmatic_idtoken_capture() {
   test "${z_jq_status}" -eq 0 || {
     jq -r '.error // empty' "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" \
        > "${ZRBA_FED_PROG_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || : > "${ZRBA_FED_PROG_ERROR_FILE}"
-    local -r z_err=$(<"${ZRBA_FED_PROG_ERROR_FILE}")
+    local z_err
+    z_err=$(<"${ZRBA_FED_PROG_ERROR_FILE}") || return 1
     buc_log_args "RFC 7523 grant returned no id_token (error: ${z_err:-none}); see ${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}"
     return 1
   }
@@ -596,7 +615,8 @@ zrba_leg2_federated_capture() {
 
   jq -r '.expires_in // 0' "${ZRBA_FED_STS_RESPONSE_FILE}" \
      > "${ZRBA_FED_EXPIRES_IN_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_expires=$(<"${ZRBA_FED_EXPIRES_IN_FILE}")
+  local z_expires
+  z_expires=$(<"${ZRBA_FED_EXPIRES_IN_FILE}") || return 1
   [[ "${z_expires}" =~ ^[0-9]+$ ]] || z_expires=0
 
   # Federated access token (secret): jq emits "<token> <expires_in>" straight to
@@ -653,12 +673,15 @@ zrba_sederunt_open() {
   [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || buc_die_now "Leg 2 returned a non-numeric expiry: ${z_expires_in}"
 
   date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die_now "Failed to read the clock"
-  local -r z_now=$(<"${ZRBA_FED_AVOW_NOW_FILE}")
+  local z_now
+  z_now=$(<"${ZRBA_FED_AVOW_NOW_FILE}") || buc_die_now "Failed to read: ${ZRBA_FED_AVOW_NOW_FILE}"
   test -n "${z_now}" || buc_die_now "Empty clock reading"
   local -r z_expiry_epoch=$(( z_now + z_expires_in ))
 
   local z_subject
-  z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject=""
+  local z_subject_status=0
+  z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject_status=$?
+  test "${z_subject_status}" -eq 0 || z_subject=""
 
   zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
     || buc_die_now "Avowal succeeded but caching the ${RBCC_noun_sederunt} failed"
@@ -786,7 +809,9 @@ rba_don_capture() {
   # expiry) is the re-mint ceiling — the sederunt has lapsed; the forensic line
   # carries the avow instruction and the caller fails loud on the return 1.
   local z_federated
-  z_federated=$(zrba_sederunt_read_capture) || {
+  local z_federated_status=0
+  z_federated=$(zrba_sederunt_read_capture) || z_federated_status=$?
+  test "${z_federated_status}" -eq 0 || {
     buc_log_args "${RBCC_noun_sederunt^} lapsed — no live federated token is cached; avow to open a fresh ${RBCC_noun_sederunt}, then re-run (the mantle re-mint is capped by the ${RBCC_noun_sederunt}, not by the mantle token's own lifetime)"
     return 1
   }
@@ -816,14 +841,16 @@ rba_don_capture() {
     return 1
   }
 
-  local -r z_code=$(<"${ZRBA_FED_DON_CODE_FILE}")
+  local z_code
+  z_code=$(<"${ZRBA_FED_DON_CODE_FILE}") || return 1
   case "${z_code}" in
     200) ;;
     403)
       jq -r '.error.message // empty' "${ZRBA_FED_DON_RESPONSE_FILE}" \
          > "${ZRBA_FED_DON_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
          || : > "${ZRBA_FED_DON_ERROR_FILE}"
-      local -r z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}")
+      local z_errmsg
+      z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}") || return 1
       # Deliberately not retried here (RBr_7a9, RBr_b93).
       buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — either an admission deficit (brevet the avowed citizen onto the mantle: tokenCreator on the mantle SA + serviceUsageConsumer on the depot project) or, immediately after gird/brevet, a just-written grant still propagating (wait a minute and retry); not retried here"
       return "${BUBC_band_admission}" ;;

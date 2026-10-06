@@ -70,7 +70,9 @@ rbfr_summon() {
   # the depth-1 chain — so a no-arg summon immediately after a build pulls the
   # just-built hallmark.
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
 
   buc_step "Authenticating for retrieval"
@@ -101,7 +103,7 @@ rbfr_summon() {
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for image ark (curl exit ${z_curl_status})"
 
   local z_image_http_code
-  z_image_http_code=$(<"${z_image_status_file}")
+  z_image_http_code=$(<"${z_image_status_file}") || buc_die_now "Failed to read: ${z_image_status_file}"
   test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image ark"
 
   local z_image_exists=false
@@ -127,7 +129,7 @@ rbfr_summon() {
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for about ark (curl exit ${z_curl_status})"
 
   local z_about_http_code
-  z_about_http_code=$(<"${z_about_status_file}")
+  z_about_http_code=$(<"${z_about_status_file}") || buc_die_now "Failed to read: ${z_about_status_file}"
   test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about ark"
 
   local z_about_exists=false
@@ -153,7 +155,7 @@ rbfr_summon() {
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for vouch ark (curl exit ${z_curl_status})"
 
   local z_vouch_http_code
-  z_vouch_http_code=$(<"${z_vouch_status_file}")
+  z_vouch_http_code=$(<"${z_vouch_status_file}") || buc_die_now "Failed to read: ${z_vouch_status_file}"
   test -n "${z_vouch_http_code}" || buc_die_now "HTTP status code is empty for vouch ark"
 
   local z_vouch_exists=false

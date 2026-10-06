@@ -48,7 +48,8 @@ rbfv_about() {
 
   # Resolve vessel argument (sigil or path) and load
   zrbfc_resolve_vessel "${1:-}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
@@ -79,7 +80,8 @@ rbfv_about() {
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
 
-  local -r z_image_http_code=$(<"${z_image_gate_status}")
+  local z_image_http_code
+  z_image_http_code=$(<"${z_image_gate_status}") || buc_die_now "Failed to read: ${z_image_gate_status}"
   test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image"
   test "${z_image_http_code}" = "200" \
     || buc_die_now "Image artifact not found (HTTP ${z_image_http_code}) — image must exist before about"
@@ -105,7 +107,8 @@ rbfv_about() {
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for about artifact (curl exit ${z_curl_status}) — see ${z_about_gate_stderr}"
 
-  local -r z_about_http_code=$(<"${z_about_gate_status}")
+  local z_about_http_code
+  z_about_http_code=$(<"${z_about_gate_status}") || buc_die_now "Failed to read: ${z_about_gate_status}"
   test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about"
   if test "${z_about_http_code}" = "200"; then
     buc_warn "Re-about in progress: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark} already exists"
@@ -150,7 +153,7 @@ zrbfv_about_submit() {
       z_inscribe_ts="${z_hallmark%%-r*}"
       # Read Dockerfile content for recipe.txt
       if test -f "${RBRV_CONJURE_DOCKERFILE:-}"; then
-        z_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}")
+        z_dockerfile_content=$(<"${RBRV_CONJURE_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_CONJURE_DOCKERFILE}"
         if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
           buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
           z_dockerfile_content=""
@@ -160,7 +163,7 @@ zrbfv_about_submit() {
     rbnve_bind)
       z_bind_source="${RBRV_BIND_IMAGE:-}"
       if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
-        z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}")
+        z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_BIND_OPTIONAL_DOCKERFILE}"
         if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
           buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
           z_dockerfile_content=""
@@ -170,7 +173,7 @@ zrbfv_about_submit() {
     rbnve_graft)
       z_graft_source="${RBRV_GRAFT_IMAGE:-}"
       if test -n "${RBRV_GRAFT_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"; then
-        z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}")
+        z_dockerfile_content=$(<"${RBRV_GRAFT_OPTIONAL_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_GRAFT_OPTIONAL_DOCKERFILE}"
         if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
           buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
           z_dockerfile_content=""
@@ -185,11 +188,11 @@ zrbfv_about_submit() {
   # Git metadata (shared temp files, idempotent)
   zrbfc_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}")
+  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}")
+  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}")
+  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
 
   # Assemble about steps via shared helper
   local -r z_about_steps_accumulator="${ZRBFV_ABOUT_PREFIX}steps.json"
@@ -255,7 +258,9 @@ zrbfv_about_submit() {
   rbuh_require_ok "About build submission" "about_build_create"
 
   local z_build_id=""
-  z_build_id=$(rbuh_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id=""
+  local z_build_id_status=0
+  z_build_id=$(rbuh_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id_status=$?
+  test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
   echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 

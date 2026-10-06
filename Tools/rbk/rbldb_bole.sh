@@ -131,7 +131,7 @@ zrbld_ensconce_extract() {
     z_stamp_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_stamp.txt"
     jq -r ".${z_slot_key}.rbls_stamp // empty" "${z_output_file}" > "${z_stamp_file}" \
       || buc_die_now "Failed to read stamp for ${z_slot_key}"
-    z_stamp=$(<"${z_stamp_file}")
+    z_stamp=$(<"${z_stamp_file}") || buc_die_now "Failed to read: ${z_stamp_file}"
     test -n "${z_stamp}" || continue
 
     buf_write_fact_single "${RBF_FACT_LODE_TOUCHMARK}" "${z_stamp}" \
@@ -156,7 +156,8 @@ rbld_ensconce() {
 
   # Resolve vessel argument (sigil or path) and load.
   zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   zrbfc_load_vessel "${z_vessel_dir}"
 
