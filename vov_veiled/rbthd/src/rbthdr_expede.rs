@@ -629,7 +629,7 @@ pub fn rbthdr_assert_quarantine_private(top: &Path) {
 pub fn rbthdr_assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
     let freshness_parent = parent.join(rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME);
     rbthdr_repo::rbthdr_guard_disposable(&freshness_parent, rbthdr_repo::RBTHDR_FRESHNESS_DIRNAME, top);
-    if !rbthdr_repo::rbthdr_retire_aside(&freshness_parent, top) {
+    if !rbthdr_repo::rbthdr_sepose(&freshness_parent, top) {
         rbthdr_log::rbthdr_line("no prior freshness scratch to retire");
     }
 
@@ -640,7 +640,7 @@ pub fn rbthdr_assert_fresh(top: &Path, parent: &Path, candidate_clone: &Path) {
     let scratch_tree = rbthdr_repo::rbthdr_tree_hash(&scratch_clone, top);
 
     rbthdr_log::rbthdr_step("Disposing the freshness scratch");
-    rbthdr_repo::rbthdr_retire_aside(&freshness_parent, top);
+    rbthdr_repo::rbthdr_sepose(&freshness_parent, top);
 
     if standing_tree != scratch_tree {
         crate::rbthdr_fatal!(

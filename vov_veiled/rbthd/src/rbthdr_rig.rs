@@ -129,7 +129,7 @@ pub fn rbthdr_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path
     let memo_path = rig_dir.join(format!("memo-{}-{}.md", walk_date, RBTHDR_RIG_MEMO_SLUG));
 
     rbthdr_log::rbthdr_step(&format!("Retiring any existing rig aside: {}", rig_dir.display()));
-    if !rbthdr_repo::rbthdr_retire_aside(&rig_dir, cwd) {
+    if !rbthdr_repo::rbthdr_sepose(&rig_dir, cwd) {
         rbthdr_log::rbthdr_line("no prior rig to retire");
     }
     std::fs::create_dir_all(&rig_dir)

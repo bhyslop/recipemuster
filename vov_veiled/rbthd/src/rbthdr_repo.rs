@@ -87,7 +87,7 @@ pub fn rbthdr_parent(top: &Path) -> PathBuf {
 /// target is a no-op. The caller asserts the target's identity (fixed basename,
 /// not the repo root) before calling; this only refuses to clobber an existing
 /// retirement sibling. Returns whether anything was retired.
-pub fn rbthdr_retire_aside(dir: &Path, cwd: &Path) -> bool {
+pub fn rbthdr_sepose(dir: &Path, cwd: &Path) -> bool {
     if !dir.exists() {
         return false;
     }
