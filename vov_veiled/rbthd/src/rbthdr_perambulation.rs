@@ -101,7 +101,6 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // that share the repo but not the delivery. None is uniform by accident —
     // each is a tree the consumer has no seat for.
     ("Tools/hmk/", Withhold),
-    ("Tools/lmci/", Withhold),
     ("Tools/vslf-rbw/", Withhold),
     ("Tools/vslk/", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
