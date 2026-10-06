@@ -166,7 +166,6 @@ network posture, not dependency tier:
 | `crg` | Config Regime |
 | `wrs` | Ward Realm Substrate |
 | `hm` | HMK (Hard-state Machine Kit) |
-| `lmci` | LMCI (Language Model Console Integration) |
 | `vsl` | VSLK (Visual SlickEdit Local Kit) |
 
 For expanded prefix trees within each project, see **File Acronym Mappings** above.
