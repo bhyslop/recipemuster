@@ -1,6 +1,6 @@
 # Release Procedure
 
-The release qualification ceremony for the project maintainer. The qualification ladder plus the local cut and private preview (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the public staging reveal (step 7) is the single irreversible disclosure; the greenfield walk (step 8) that gates promotion is a separate, multi-hour, operator-driven ceremony; and promotion with close-out (step 9) moves public `main`.
+The release qualification ceremony for the project maintainer. The qualification ladder plus the local cut and private preview (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the public staging reveal (step 7) is the single irreversible kerygma; the greenfield walk (step 8) that gates promotion is a separate, multi-hour, operator-driven ceremony; and promotion with close-out (step 9) moves public `main`.
 The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
 
 [Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
@@ -86,19 +86,19 @@ Outcome:
 tt/rbw-ts.TestSuite.gauntlet.sh
 ```
 
-## 5. Cut and prove the candidate
+## 5. Cut and prove the regulus
 
 **Prerequisites — two repositories, two very different lifetimes.**
 
-- **The base — remote `ENGROSSMENT_UPSTREAM`, read-only.** The real, durable public repository (`git@github.com:scaleinv/recipebottle.git`); the cut clones it and cuts the candidate one commit atop its live `main`. Configure it once, and **neuter its push side** — the base is read-only, and a push-capable remote to the public target in the maintainer repo is the one catastrophe this ceremony forbids (a stray `git push ENGROSSMENT_UPSTREAM` would put your private tree on public `main`):
+- **The base — remote `ENGROSSMENT_UPSTREAM`, read-only.** The real, durable public repository (`git@github.com:scaleinv/recipebottle.git`); the cut clones it and cuts the regulus one commit atop its live `main`. Configure it once, and **neuter its push side** — the base is read-only, and a push-capable remote to the public target in the maintainer repo is the one catastrophe this ceremony forbids (a stray `git push ENGROSSMENT_UPSTREAM` would put your private tree on public `main`):
   ```
   git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
   git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
   ```
   The cut refuses to proceed unless the push side is neutered to exactly that sentinel. The ceremony never creates or destroys the base; the cut only ever *reads* it (fetch), then severs the clone's origin, so nothing it does can push there.
-- **The quarantine — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the candidate — the candidate holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the candidate is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
+- **The narthex — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the regulus — the regulus holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the regulus is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
 
-Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: the cut holds no remote, the base remote's push side is dead, and the candidate's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
+Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: the cut holds no remote, the base remote's push side is dead, and the regulus's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
 
 Run the cut — one essai lap:
 
@@ -106,47 +106,47 @@ Run the cut — one essai lap:
 tt/rbthw-e.Essai.sh
 ```
 
-- The hierophant's reversible repair lap (`RBSHE`): it gates the tree and the base, runs the pre-cut assays, cuts the candidate **in-process**, proves it with the candidate battery, and stands up a coldwalk rig beside it — zero remote acts
-- The cut is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the candidate by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes via the candidate's own copy, commits once), severs the clone's origin, and **pushes nothing**. The finished candidate is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
+- The hierophant's reversible repair lap (`RBSHE`): it gates the tree and the base, runs the pre-cut assays, cuts the regulus **in-process**, proves it with the regulus battery, and stands up a coldwalk rig beside it — zero remote acts
+- The cut is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the regulus by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes via the regulus's own copy, commits once), severs the clone's origin, and **pushes nothing**. The finished regulus is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
 - The lap proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
-- The candidate lands at `«sibling»/rbthdr_candidate/candidate`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «candidate» ls-files`
-- Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the candidate's file list
-- Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap seposes the prior candidate itself — renames it to a timestamped sibling, never deleting it). Patching a candidate is the same bug class this whole procedure exists to catch
+- The regulus lands at `«sibling»/rbthdr_regulus/regulus`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «regulus» ls-files`
+- Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the regulus's file list
+- Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap seposes the prior regulus itself — renames it to a timestamped sibling, never deleting it). Patching a regulus is the same bug class this whole procedure exists to catch
 
-## 6. Preview in the private quarantine (reversible)
+## 6. Preview in the private narthex (reversible)
 
-A git commit is **content-addressed**: the object you would stage publicly and the object you push here are the *same commit, bit for bit*. So this is a byte-faithful preview of the reveal — everything you inspect is exactly what step 7 will disclose — and it is **reversible**: delete the private quarantine and nothing escaped. Inspect it here, in private, before the irreversible public act.
+A git commit is **content-addressed**: the object you would stage publicly and the object you push here are the *same commit, bit for bit*. So this is a byte-faithful preview of the reveal — everything you inspect is exactly what step 7 will disclose — and it is **reversible**: delete the private narthex and nothing escaped. Inspect it here, in private, before the irreversible public act.
 
-Push by **explicit URL and explicit refspec** — the candidate has no remote to lean on, and the refspec is a branch, never `main`:
+Push by **explicit URL and explicit refspec** — the regulus has no remote to lean on, and the refspec is a branch, never `main`:
 
 ```
-git -C «candidate» push git@github.com:scaleinv/recipebottle-staging.git POSTULANT_LOCAL:POSTULANT_LOCAL
+git -C «regulus» push git@github.com:scaleinv/recipebottle-staging.git POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
 - Inspect the `POSTULANT_LOCAL` branch on GitHub: the file tree, the rendered README, the single commit
-- Success: the quarantine carries exactly the candidate, and it reads as a clean public face
-- Failure: resolve the remote-side reason and retry — the local candidate from step 5 remains valid
+- Success: the narthex carries exactly the regulus, and it reads as a clean public face
+- Failure: resolve the remote-side reason and retry — the local regulus from step 5 remains valid
 
-**Do not proceed until you have inspected the preview and are ready for the irreversible public disclosure.**
+**Do not proceed until you have inspected the preview and are ready for the irreversible public kerygma.**
 
-## 7. Public staging reveal — the irreversible disclosure
+## 7. Public staging reveal — the irreversible kerygma
 
 > ⚠️ **This is the point of no return.** Pushing to the public repository discloses the bytes — a public object store cannot be un-disclosed. Everything before this was private and reversible; nothing after this un-happens. It is your own hand: explicit URL, explicit refspec, and it does **not** touch `main`.
 
-Push the candidate to the **public** repository as an **unmerged branch** — the staging the greenfield walk will clone as a stranger. `main` is untouched:
+Push the regulus to the **public** repository as an **unmerged branch** — the staging the greenfield walk will clone as a stranger. `main` is untouched:
 
 ```
-git -C «candidate» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL:POSTULANT_LOCAL
+git -C «regulus» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
 - The refspec targets the `POSTULANT_LOCAL` branch, never `main`: staging discloses the bytes but changes nothing a visitor lands on
 - Verify `main` is untouched — `ls-remote` the public repo before and after this push; its `main` SHA must be identical, the only new ref being `POSTULANT_LOCAL` (the staging pace installs this mechanical before/after assert — it belongs here, at the push that must *not* move `main`, never at promotion, where `main` is meant to move)
-- Success: the candidate stands on the public repository as a public, anonymously-cloneable, unmerged branch
+- Success: the regulus stands on the public repository as a public, anonymously-cloneable, unmerged branch
 - Failure: resolve and retry — but the bytes are already disclosed; any re-cut from here re-opens the full gate
 
 ## 8. The greenfield manor walk — gates promotion
 
-The walk clones the **public staging branch** (step 7) as a total stranger and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. It gates **discoverability** (promotion), never disclosure — step 7 already disclosed the bytes publicly; the walk decides whether they become the default face.
+The walk clones the **public staging branch** (step 7) as a total stranger and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. It gates **discoverability** (promotion), never kerygma — step 7 already disclosed the bytes publicly; the walk decides whether they become the default face.
 
 Its own multi-hour, operator-driven ceremony — run it fresh, not tired. Record every divergence between the shipped docs and reality as a finding: a doc-only divergence census defaults to fast-follow disposition, while a delivered-bytes-bearing re-cut re-opens the full gate (fresh walk and gauntlet). Two finding classes are pre-waived: dead `main`-blob links (they go live only at promotion) and the stranger's bootstrap (cloning the staging branch rather than default `main`). Only once the walk is green with its census dispositioned does promotion proceed.
 
@@ -159,13 +159,13 @@ The single command in this whole document that touches public `main`, on the far
 - Confirm the repository's **Pages source**: the README render from `main` root is the intended Pages face. Promotion deletes the public repo's untracked `index.html` and `.nojekyll` from `main`; no landing page ships and none moves to a side branch
 - Close the public repository's **stale open PR**, if one stands
 
-**The promotion** — fast-forward-only, from the walked public staging branch to `main`, **performed from a fresh clone or fetch of the public repository, never the local candidate directory** (which is why the candidate directory is disposable once step 7 is tip-verified — promotion does not depend on it). Assert **tree-hash equality** (`main`'s tree after the move equals the walked candidate tip — the byte claim is checked, not assumed). A refused fast-forward means `main` moved since the cut: **stop**, never `--force`, re-cut atop the moved base. The one `POSTULANT_LOCAL:main` refspec lives here and nowhere else.
+**The promotion** — fast-forward-only, from the walked public staging branch to `main`, **performed from a fresh clone or fetch of the public repository, never the local regulus directory** (which is why the regulus directory is disposable once step 7 is tip-verified — promotion does not depend on it). Assert **tree-hash equality** (`main`'s tree after the move equals the walked regulus tip — the byte claim is checked, not assumed). A refused fast-forward means `main` moved since the cut: **stop**, never `--force`, re-cut atop the moved base. The one `POSTULANT_LOCAL:main` refspec lives here and nowhere else.
 
 **Then — prove the promoted face and close out:**
 
 - Liveness: the public README serves at its URL and every anchor resolves against the live page
 - Production spot-check (thin — the walk already proved the bytes): repo front page, the github.io render, a fresh default-branch clone taken a few minutes into the onboarding entry
-- Delete the public **staging branch** (ceremony hygiene), then the **private quarantine** repository and the **candidate directory** — the candidate directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
+- Delete the public **staging branch** (ceremony hygiene), then the **private narthex** repository and the **regulus directory** — the regulus directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
 - Record the release
 
-> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the quarantine as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible disclosure at staging, promotion as discoverability). This procedure is that law's operator face.
+> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the narthex as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible kerygma at staging, promotion as discoverability). This procedure is that law's operator face.

@@ -12,7 +12,7 @@
 //   TOTALITY  every tracked path is ruled ship or withhold, and every row
 //             rules on something. Not that the ruling is right — that is the
 //             operator's judgment, and no test can hold it — but that the
-//             ruling EXISTS, for every path, before a candidate is cut.
+//             ruling EXISTS, for every path, before a regulus is cut.
 //
 //   SWEEP     the object-graph sweep catches a planted withheld path and
 //             stays silent on a clean list. A sweep that cannot catch a
@@ -147,7 +147,7 @@ fn rbthdt_sweep_catches_planted_leaks() {
     for planted in ZRBTHDT_SWEEP_PLANTED {
         assert!(
             leaks.iter().any(|leak| leak == planted),
-            "the sweep did not catch planted withheld path {} — it would ride a candidate",
+            "the sweep did not catch planted withheld path {} — it would ride a regulus",
             planted
         );
     }

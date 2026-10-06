@@ -6,12 +6,12 @@
 //
 // RBTHDR — cachet: the durable verdict the docimasy grants and the ostend
 // requires (RBS0 rbth_cachet; RBSHD "Grant the cachet"; RBSHO "Require the
-// cachet"). A small crate module, not a worker: stored beside the candidate
-// (a sibling of the clone, in the candidate's parent directory — the same
-// location seposition already sweeps, so seposing a candidate seposes
-// its cachet with it for free), keyed to the candidate's tree hash,
+// cachet"). A small crate module, not a worker: stored beside the regulus
+// (a sibling of the clone, in the regulus's parent directory — the same
+// location seposition already sweeps, so seposing a regulus seposes
+// its cachet with it for free), keyed to the regulus's tree hash,
 // attesting the gauntlet ran green against exactly these bytes. A re-cut
-// candidate carries none; a rehearsal never grants one.
+// regulus carries none; a rehearsal never grants one.
 
 use std::path::Path;
 
@@ -19,7 +19,7 @@ use crate::rbthdr_log;
 use crate::rbthdr_repo;
 use crate::rbthdr_run;
 
-/// The cachet's fixed basename, a sibling of the candidate clone. Interior —
+/// The cachet's fixed basename, a sibling of the regulus clone. Interior —
 /// hearting, minted at this pace's mount under the crate's rbthdr_ pattern.
 const RBTHDR_CACHET_FILE: &str = "cachet.env";
 
@@ -28,7 +28,7 @@ const RBTHDR_CACHET_KEY_TIP: &str = "RBTHDR_CACHET_TIP";
 const RBTHDR_CACHET_KEY_MAINTAINER_HEAD: &str = "RBTHDR_CACHET_MAINTAINER_HEAD";
 const RBTHDR_CACHET_KEY_STAMP: &str = "RBTHDR_CACHET_STAMP";
 
-/// The granted fact: the candidate's tree hash and tip, the maintainer HEAD
+/// The granted fact: the regulus's tree hash and tip, the maintainer HEAD
 /// that cut it, and the stamp (RBSHD "Grant the cachet").
 pub struct rbthdr_Cachet {
     pub tree: String,
@@ -84,52 +84,52 @@ pub fn rbthdr_parse(content: &str) -> Result<rbthdr_Cachet, String> {
 }
 
 /// The tree-hash-mismatch refusal, pure: compare a recorded cachet's tree
-/// hash against the standing candidate's current one. `pub(crate)` so the
+/// hash against the standing regulus's current one. `pub(crate)` so the
 /// self-proofs (rbthdt_cachet) can call the real refusal logic directly,
 /// without git or the filesystem.
 pub(crate) fn zrbthdr_check(cachet: &rbthdr_Cachet, standing_tree: &str) -> Result<(), String> {
     if cachet.tree != standing_tree {
         return Err(format!(
-            "cachet tree {} does not match the standing candidate's tree {} — a re-cut candidate carries no cachet",
+            "cachet tree {} does not match the standing regulus's tree {} — a re-cut regulus carries no cachet",
             cachet.tree, standing_tree
         ));
     }
     Ok(())
 }
 
-fn zrbthdr_path(candidate_parent: &Path) -> std::path::PathBuf {
-    candidate_parent.join(RBTHDR_CACHET_FILE)
+fn zrbthdr_path(regulus_parent: &Path) -> std::path::PathBuf {
+    regulus_parent.join(RBTHDR_CACHET_FILE)
 }
 
-/// Grant a cachet beside the candidate: capture the candidate's tree hash and
+/// Grant a cachet beside the regulus: capture the regulus's tree hash and
 /// tip, the maintainer HEAD, and the stamp, and store it (RBSHD "Grant the
 /// cachet"). Fatal on any read or write failure.
-pub fn rbthdr_grant(candidate_parent: &Path, candidate_clone: &Path, top: &Path) {
+pub fn rbthdr_grant(regulus_parent: &Path, regulus_clone: &Path, top: &Path) {
     let cachet = rbthdr_Cachet {
-        tree: rbthdr_repo::rbthdr_tree_hash(candidate_clone, top),
-        tip: rbthdr_repo::rbthdr_commit_sha(candidate_clone, top),
+        tree: rbthdr_repo::rbthdr_tree_hash(regulus_clone, top),
+        tip: rbthdr_repo::rbthdr_commit_sha(regulus_clone, top),
         maintainer_head: rbthdr_repo::rbthdr_commit_sha(top, top),
         stamp: rbthdr_run::rbthdr_timestamp(top),
     };
-    let path = zrbthdr_path(candidate_parent);
+    let path = zrbthdr_path(regulus_parent);
     std::fs::write(&path, rbthdr_render(&cachet))
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to write the cachet {}: {}", path.display(), e));
     rbthdr_log::rbthdr_line(&format!("cachet granted: {} (tree {})", path.display(), cachet.tree));
 }
 
-/// Require a standing cachet beside the candidate, its tree hash equal to the
-/// standing candidate's (RBSHO "Require the cachet"). Fatal on absence or
+/// Require a standing cachet beside the regulus, its tree hash equal to the
+/// standing regulus's (RBSHO "Require the cachet"). Fatal on absence or
 /// mismatch, naming the remedy: conduct the docimasy.
-pub fn rbthdr_require(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> rbthdr_Cachet {
-    let path = zrbthdr_path(candidate_parent);
+pub fn rbthdr_require(regulus_parent: &Path, regulus_clone: &Path, top: &Path) -> rbthdr_Cachet {
+    let path = zrbthdr_path(regulus_parent);
     let content = std::fs::read_to_string(&path).unwrap_or_else(|_| {
         crate::rbthdr_fatal!(
-            "no cachet standing beside the candidate ({}) — conduct the docimasy first (RBSHO)",
+            "no cachet standing beside the regulus ({}) — conduct the docimasy first (RBSHO)",
             path.display()
         )
     });
     let cachet = rbthdr_parse(&content).unwrap_or_else(|e| crate::rbthdr_fatal!("cachet {} is malformed: {}", path.display(), e));
-    let standing_tree = rbthdr_repo::rbthdr_tree_hash(candidate_clone, top);
+    let standing_tree = rbthdr_repo::rbthdr_tree_hash(regulus_clone, top);
     if let Err(e) = zrbthdr_check(&cachet, &standing_tree) {
         crate::rbthdr_fatal!("{} — conduct the docimasy again (RBSHO)", e);
     }
@@ -139,16 +139,16 @@ pub fn rbthdr_require(candidate_parent: &Path, candidate_clone: &Path, top: &Pat
 
 /// Require a standing cachet, TOLERATING absence with a loud warning — the
 /// rehearse reading (RBSHO rehearse note: "tolerates an absent cachet with a
-/// loud warning and stops before the disclosure line"). A cachet that IS
+/// loud warning and stops before the kerygma line"). A cachet that IS
 /// present but mismatched is still fatal — only absence is tolerated.
-pub fn rbthdr_require_rehearse(candidate_parent: &Path, candidate_clone: &Path, top: &Path) -> Option<rbthdr_Cachet> {
-    let path = zrbthdr_path(candidate_parent);
+pub fn rbthdr_require_rehearse(regulus_parent: &Path, regulus_clone: &Path, top: &Path) -> Option<rbthdr_Cachet> {
+    let path = zrbthdr_path(regulus_parent);
     if !path.is_file() {
         rbthdr_log::rbthdr_warn(&format!(
-            "no cachet standing beside the candidate ({}) — rehearsal tolerates this and stops before the disclosure line",
+            "no cachet standing beside the regulus ({}) — rehearsal tolerates this and stops before the kerygma line",
             path.display()
         ));
         return None;
     }
-    Some(rbthdr_require(candidate_parent, candidate_clone, top))
+    Some(rbthdr_require(regulus_parent, regulus_clone, top))
 }

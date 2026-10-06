@@ -80,7 +80,7 @@ fn rbthdt_veil_scan_catches_planted_leaks() {
         let hits = zrbthdt_scan(planted, &census);
         assert!(
             !hits.is_empty(),
-            "the veil matcher missed a planted leak: {:?} — it would ride a candidate",
+            "the veil matcher missed a planted leak: {:?} — it would ride a regulus",
             planted
         );
     }

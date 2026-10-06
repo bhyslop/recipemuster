@@ -10,7 +10,7 @@
 // walk branch, and hands off the launch line and stranger prompt.
 //
 // ONE implementation, TWO callers, differing only in the clone source string:
-//   essai      — clones the LOCAL candidate (a fidelity-reduced local proxy).
+//   essai      — clones the LOCAL regulus (a fidelity-reduced local proxy).
 //   harbinger  — clones the PUBLIC promoted repo over HTTPS (a later pace).
 // `git clone` takes a local path and an https URL identically, so the source is
 // a bare string and there is no second code path. This module reads no shared
@@ -112,7 +112,7 @@ pub struct rbthdr_Rig {
     pub memo_path: PathBuf,
 }
 
-/// Stand up the guarded coldwalk rig from `clone_source` (a local candidate path
+/// Stand up the guarded coldwalk rig from `clone_source` (a local regulus path
 /// or a public URL). Narrates each act. Returns the standing artifacts; the
 /// launch line and stranger prompt are emitted separately by `emit_handoff`, so
 /// a caller may interpose its own advisories (essai shows its fidelity gap first).

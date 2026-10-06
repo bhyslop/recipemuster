@@ -13,7 +13,7 @@
 //   rbthd harbinger          — the stranger rig against promoted public main (RBSHH).
 //
 // docimasy and ostend take an optional trailing "rehearse" token, proving
-// their reversible stages against the real private quarantine without
+// their reversible stages against the real private narthex without
 // spending credential/gauntlet cost or crossing the irreversible line.
 //
 // Launched only via the withheld tabtargets (tt/rbthw-*); a direct invocation

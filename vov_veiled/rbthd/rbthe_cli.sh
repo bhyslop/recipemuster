@@ -57,7 +57,7 @@ rbthe_essai() {
 }
 
 rbthe_docimasy() {
-  buc_doc_brief "Docimasy — the reveal's reversible proving act (quarantine gate, freshness, preview, credential preflight, gauntlet; grants the cachet)"
+  buc_doc_brief "Docimasy — the reveal's reversible proving act (narthex gate, freshness, preview, credential preflight, gauntlet; grants the cachet)"
   buc_doc_oparm "rehearse" "Prove the reversible stages only: skip credential preflight, the gauntlet, and the cachet grant"
   buc_doc_shown || return 0
 
@@ -71,8 +71,8 @@ rbthe_docimasy() {
 }
 
 rbthe_ostend() {
-  buc_doc_brief "Ostend — the reveal's irreversible showing (re-asserted ground, file-list eyes, disclosure, promotion)"
-  buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the disclosure line"
+  buc_doc_brief "Ostend — the reveal's irreversible showing (re-asserted ground, file-list eyes, kerygma, promotion)"
+  buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the kerygma line"
   buc_doc_shown || return 0
 
   zrbthe_cargo_build

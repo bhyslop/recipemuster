@@ -71,7 +71,7 @@ fn rbthdt_parse_refuses_malformed_content() {
 }
 
 /// The tree-hash-mismatch refusal: a cachet whose recorded tree equals the
-/// standing candidate's is accepted; a re-cut candidate (drifted tree) is
+/// standing regulus's is accepted; a re-cut regulus (drifted tree) is
 /// refused, by name.
 #[test]
 fn rbthdt_tree_hash_mismatch_refuses() {
@@ -80,7 +80,7 @@ fn rbthdt_tree_hash_mismatch_refuses() {
     zrbthdr_check(&cachet, "granted-tree-hash").expect("a matching tree hash must be accepted");
 
     let err = zrbthdr_check(&cachet, "different-tree-hash-after-recut")
-        .expect_err("a drifted tree hash (a re-cut candidate) must be refused");
+        .expect_err("a drifted tree hash (a re-cut regulus) must be refused");
     assert!(err.contains("granted-tree-hash"), "the refusal must name the granted tree: {}", err);
     assert!(
         err.contains("different-tree-hash-after-recut"),

@@ -5,7 +5,7 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTHDR — docimasy: the reveal ceremony's reversible proving act (RBSHD).
-// Quarantine gates, freshness assert, the preview conduction, credential
+// Narthex gates, freshness assert, the preview conduction, credential
 // preflight, and the once-per-cycle gauntlet stage — granting the cachet on
 // green. Named for the Athenian civic examination of a candidate's
 // qualification before taking office.
@@ -16,7 +16,7 @@
 // module re-verifies by remote read after — no `git push` to any real remote
 // lives in this file.
 //
-// Rehearse proves the reversible stages against the real private quarantine:
+// Rehearse proves the reversible stages against the real private narthex:
 // it skips credential preflight and the gauntlet, and grants no cachet.
 
 use std::path::{Path, PathBuf};
@@ -33,7 +33,7 @@ use crate::rbthdr_run;
 /// and source-tree-only concerns (rbw-MZ's own gate demands an upstream and a
 /// pushed HEAD, and its own completeness gate is explicitly source-only: "a
 /// stripped consumer never has this tabtarget and never runs it"), never the
-/// severed, remote-less candidate clone.
+/// severed, remote-less regulus clone.
 const RBTHDR_COL_PAYOR_CHECK: &str = "rbw-ap.";
 const RBTHDR_COL_NOVATE_SEDERUNT: &str = "rbw-aN.";
 const RBTHDR_COL_MARSHAL_ZERO: &str = "rbw-MZ.";
@@ -43,10 +43,10 @@ const RBTHDR_SUITE_GAUNTLET: &str = "gauntlet";
 /// The `tt/` subdirectory holding tabtargets, relative to a repo root.
 pub(crate) const RBTHDR_TT_SUBDIR: &str = "tt";
 
-/// Conduct the docimasy. `rehearse` proves the reversible stages (quarantine
-/// gate, freshness, preview) against the real private quarantine, skipping
+/// Conduct the docimasy. `rehearse` proves the reversible stages (narthex
+/// gate, freshness, preview) against the real private narthex, skipping
 /// credential preflight, the gauntlet, and the cachet grant. Fatal on any
-/// deficit; ExitCode::SUCCESS only when the standing candidate is previewed,
+/// deficit; ExitCode::SUCCESS only when the standing regulus is previewed,
 /// and — outside rehearse — the gauntlet ran green and a cachet stands.
 pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Docimasy — the reveal's reversible proving act (RBSHD)");
@@ -58,24 +58,24 @@ pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
     let parent = rbthdr_repo::rbthdr_parent(&top);
     rbthdr_log::rbthdr_line(&format!("Maintainer tree: {}", top.display()));
 
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
-    let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
-    if !candidate_clone.is_dir() {
+    let regulus_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
+    let regulus_clone = regulus_parent.join(rbthdr_repo::RBTHDR_REGULUS_SUBDIR);
+    if !regulus_clone.is_dir() {
         crate::rbthdr_fatal!(
-            "no standing candidate at {} — run essai first (RBSHE)",
-            candidate_clone.display()
+            "no standing regulus at {} — run essai first (RBSHE)",
+            regulus_clone.display()
         );
     }
-    let candidate_tip = rbthdr_repo::rbthdr_commit_sha(&candidate_clone, &top);
-    rbthdr_log::rbthdr_line(&format!("Standing candidate: {} (tip {})", candidate_clone.display(), candidate_tip));
+    let regulus_tip = rbthdr_repo::rbthdr_commit_sha(&regulus_clone, &top);
+    rbthdr_log::rbthdr_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip));
 
-    zrbthdr_gate_quarantine(&top, &candidate_tip);
-    rbthdr_expede::rbthdr_assert_fresh(&top, &parent, &candidate_clone);
-    zrbthdr_preview(&top, &candidate_clone, &candidate_tip);
+    zrbthdr_gate_narthex(&top, &regulus_tip);
+    rbthdr_expede::rbthdr_assert_fresh(&top, &parent, &regulus_clone);
+    zrbthdr_preview(&top, &regulus_clone, &regulus_tip);
 
     if rehearse {
         rbthdr_log::rbthdr_blank();
-        rbthdr_log::rbthdr_success("Docimasy rehearsal complete — quarantine gated, freshness proven, preview stands. No cachet granted.");
+        rbthdr_log::rbthdr_success("Docimasy rehearsal complete — narthex gated, freshness proven, preview stands. No cachet granted.");
         return ExitCode::SUCCESS;
     }
 
@@ -83,70 +83,70 @@ pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
     zrbthdr_gauntlet_stage(&top);
 
     rbthdr_log::rbthdr_section("Grant the cachet (RBSHD grant step)");
-    rbthdr_cachet::rbthdr_grant(&candidate_parent, &candidate_clone, &top);
+    rbthdr_cachet::rbthdr_grant(&regulus_parent, &regulus_clone, &top);
 
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_line("Hand-off: the reveal's irreversible act is now admissible — run ostend.");
-    rbthdr_log::rbthdr_success("Docimasy complete — candidate previewed, gauntlet green, cachet granted (RBSHD completion).");
+    rbthdr_log::rbthdr_success("Docimasy complete — regulus previewed, gauntlet green, cachet granted (RBSHD completion).");
 
     ExitCode::SUCCESS
 }
 
-// ── Step 1: gate the quarantine ─────────────────────────────
+// ── Step 1: gate the narthex ─────────────────────────────
 
-fn zrbthdr_gate_quarantine(top: &Path, candidate_tip: &str) {
-    rbthdr_log::rbthdr_section("Gate the quarantine (RBSHD step 1)");
+fn zrbthdr_gate_narthex(top: &Path, regulus_tip: &str) {
+    rbthdr_log::rbthdr_section("Gate the narthex (RBSHD step 1)");
 
-    rbthdr_expede::rbthdr_assert_quarantine_private(top);
+    rbthdr_expede::rbthdr_assert_narthex_private(top);
 
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
-    let branch_ref = format!("refs/heads/{}", rbthdr_expede::RBTHDR_CANDIDATE_BRANCH);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
+    let branch_ref = format!("refs/heads/{}", rbthdr_expede::RBTHDR_REGULUS_BRANCH);
     let fresh = refs.is_empty()
-        || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == candidate_tip);
+        || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == regulus_tip);
     if !fresh {
         crate::rbthdr_fatal!(
-            "the quarantine is not fresh — it carries {} ref(s) other than this cut's own {}, an undispositioned prior cut the operator must dispose of:\n{}",
+            "the narthex is not fresh — it carries {} ref(s) other than this cut's own {}, an undispositioned prior cut the operator must dispose of:\n{}",
             refs.len(),
-            rbthdr_expede::RBTHDR_CANDIDATE_BRANCH,
+            rbthdr_expede::RBTHDR_REGULUS_BRANCH,
             refs.iter().map(|(sha, name)| format!("  {} {}", sha, name)).collect::<Vec<_>>().join("\n")
         );
     }
-    rbthdr_log::rbthdr_line("quarantine fresh: no refs, or exactly this cut's own preview");
+    rbthdr_log::rbthdr_line("narthex fresh: no refs, or exactly this cut's own preview");
 }
 
 // ── Step 2 is rbthdr_expede::rbthdr_assert_fresh, called directly by conduct ──
 
-// ── Step 3: preview into the quarantine (reversible) ────────
+// ── Step 3: preview into the narthex (reversible) ────────
 
-fn zrbthdr_preview(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
-    rbthdr_log::rbthdr_section("Preview into the quarantine (RBSHD step 3)");
-    let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
+fn zrbthdr_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
+    rbthdr_log::rbthdr_section("Preview into the narthex (RBSHD step 3)");
+    let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
-    let already = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
+    let already = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if already {
-        rbthdr_log::rbthdr_line("quarantine already previews this candidate tip — the preview line is not re-typed");
+        rbthdr_log::rbthdr_line("narthex already previews this regulus tip — the preview line is not re-typed");
         return;
     }
 
-    let clone = rbthdr_repo::rbthdr_as_str(candidate_clone);
+    let clone = rbthdr_repo::rbthdr_as_str(regulus_clone);
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_line("Preview push line — type this yourself:");
     rbthdr_log::rbthdr_blank();
-    rbthdr_log::rbthdr_raw(&format!("        git -C {} push {} {}:{}", clone, rbthdr_expede::RBTHDR_QUARANTINE_URL, branch, branch));
+    rbthdr_log::rbthdr_raw(&format!("        git -C {} push {} {}:{}", clone, rbthdr_expede::RBTHDR_NARTHEX_URL, branch, branch));
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_confirm("pushed the preview line above?");
 
-    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
-    let landed = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
+    let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_NARTHEX_URL, top);
+    let landed = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !landed {
         crate::rbthdr_fatal!(
-            "the quarantine's {} tip does not equal the candidate tip {} after the reported push — resolve and re-run docimasy",
-            branch, candidate_tip
+            "the narthex's {} tip does not equal the regulus tip {} after the reported push — resolve and re-run docimasy",
+            branch, regulus_tip
         );
     }
-    rbthdr_log::rbthdr_line("quarantine previews the candidate: tip verified by remote read");
+    rbthdr_log::rbthdr_line("narthex previews the regulus: tip verified by remote read");
 }
 
 // ── Step 4: credential preflight (skipped under rehearse) ───

@@ -9,7 +9,7 @@
 // A loupe is the jeweler's glass held to a coin still in the mint — the veiled
 // trees have not been cut away yet. The assay reads them: it harvests its census
 // from the withheld documents themselves, so it is meaningful only on the
-// maintainer tree, before the cut. In the candidate the veiled trees are gone,
+// maintainer tree, before the cut. In the regulus the veiled trees are gone,
 // the census is empty by construction, and an empty census is a finding outright.
 //
 // This module absorbs, in-process, the content-grain leak detection that used to
@@ -28,13 +28,13 @@
 //     hand-listed table, so a document veiled tomorrow is protected tomorrow;
 //     the hostname needles are curated by hand, for the reason given at
 //     `ZRBTHDR_HOST_CENSUS`.
-//   - `assay_candidate` runs POST-CUT on the candidate (RBSHE step 4), re-homed
+//   - `assay_regulus` runs POST-CUT on the regulus (RBSHE step 4), re-homed
 //     from the theurge damnatio fixture's `veil_stripped` case: it hunts the veil
-//     token in the candidate's transposed root CLAUDE.md — a leak the pre-cut
+//     token in the regulus's transposed root CLAUDE.md — a leak the pre-cut
 //     scan cannot catch, because its census is harvested where the veiled trees
 //     still stand. The OTHER half of `veil_stripped` — "a withheld tree survived
 //     the strip" — is not re-homed here: expede's object-graph delta sweep
-//     already catches any withheld PATH in the candidate graph at any history
+//     already catches any withheld PATH in the regulus graph at any history
 //     depth (RBSHC "The cut, and the single matcher"), so only the content-grain
 //     CLAUDE.md needle remains.
 //
@@ -98,8 +98,8 @@ const ZRBTHDR_VEIL_ROOTS: &[&str] =
 
 /// Repo-relative single files added to the veil corpus. The repo-root `CLAUDE.md`
 /// is deliberately ABSENT here — pre-cut it is the maintainer's own context and
-/// names withheld material on purpose; the candidate's transposed CLAUDE.md is
-/// covered by `assay_candidate` instead. `LICENSE`/`.gitignore`/`.gitattributes`
+/// names withheld material on purpose; the regulus's transposed CLAUDE.md is
+/// covered by `assay_regulus` instead. `LICENSE`/`.gitignore`/`.gitattributes`
 /// are named because they ship but sit at the repo root, outside every walked
 /// root — a withheld path named in an ignore pattern would otherwise ride unseen.
 const ZRBTHDR_VEIL_FILES: &[&str] = &[
@@ -149,7 +149,7 @@ const ZRBTHDR_VEIL_EXEMPT: &[(&str, &str)] = &[
     ),
     (
         "rbmm_moorings/rbml_launchers/launcher.rbthw_workbench.sh",
-        "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no candidate carries it",
+        "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no regulus carries it",
     ),
 ];
 
@@ -176,7 +176,7 @@ const ZRBTHDR_SIZE_CAP: u64 = 1_048_576;
 /// apparatus that has since retired out of this consumer tree, and node
 /// enrollment now happens only at the kit's primary home. A literal here is
 /// therefore as current as reality permits, and it is safe here for the reason
-/// this whole crate is: the hierophant is veiled and reaches no candidate.
+/// this whole crate is: the hierophant is veiled and reaches no regulus.
 ///
 /// A machine acquired later is protected only once its name is added — the one
 /// cost of the retired harvest, and the reason to add it at acquisition.
@@ -494,19 +494,19 @@ fn zrbthdr_hostname_leak(root: &Path) -> Vec<zrbthdr_Finding> {
     findings
 }
 
-// ── The post-cut rbthdr_assay (candidate) ──────────────────────────
+// ── The post-cut rbthdr_assay (regulus) ──────────────────────────
 
 /// Re-homed from the theurge damnatio fixture's `veil_stripped` case: hunt the
-/// veil token in the candidate's transposed root CLAUDE.md, once no veiled tree
+/// veil token in the regulus's transposed root CLAUDE.md, once no veiled tree
 /// stands to census from. The census is empty here by construction, so only the
 /// veiled-dir needle can fire. The path-grain "a withheld tree survived" half is
 /// NOT here — expede's object-graph delta sweep already catches any withheld
-/// path in the candidate graph. Returns rendered findings, empty when clean.
-pub fn rbthdr_assay_candidate(candidate_root: &Path) -> Vec<String> {
+/// path in the regulus graph. Returns rendered findings, empty when clean.
+pub fn rbthdr_assay_regulus(regulus_root: &Path) -> Vec<String> {
     let mut findings = zrbthdr_veil_self_proof();
     let empty_census = BTreeSet::new();
 
-    let claude = candidate_root.join("CLAUDE.md");
+    let claude = regulus_root.join("CLAUDE.md");
     if let Ok(bytes) = std::fs::read(&claude) {
         let text = String::from_utf8_lossy(&bytes);
         zrbthdr_veil_scan_text("CLAUDE.md", &text, &empty_census, &mut findings);
