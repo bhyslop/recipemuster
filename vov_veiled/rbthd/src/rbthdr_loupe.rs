@@ -502,7 +502,7 @@ fn zrbthdr_hostname_leak(root: &Path) -> Vec<zrbthdr_Finding> {
 /// veiled-dir needle can fire. The path-grain "a withheld tree survived" half is
 /// NOT here — expede's object-graph delta sweep already catches any withheld
 /// path in the candidate graph. Returns rendered findings, empty when clean.
-pub fn rbthdr_assay_candidate(candidate_root: &Path) -> Vec<String> {
+pub fn rbthdr_assay_regulus(candidate_root: &Path) -> Vec<String> {
     let mut findings = zrbthdr_veil_self_proof();
     let empty_census = BTreeSet::new();
 

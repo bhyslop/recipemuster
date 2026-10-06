@@ -48,8 +48,8 @@ pub fn rbthdr_ostend_conduct(rehearse: bool) -> ExitCode {
     let parent = rbthdr_repo::rbthdr_parent(&top);
     rbthdr_log::rbthdr_line(&format!("Maintainer tree: {}", top.display()));
 
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
-    let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
+    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
+    let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_REGULUS_SUBDIR);
     if !candidate_clone.is_dir() {
         crate::rbthdr_fatal!(
             "no standing candidate at {} — run essai first (RBSHE)",
@@ -95,7 +95,7 @@ fn zrbthdr_reassert_ground(top: &Path, parent: &Path, candidate_clone: &Path, ca
 
     rbthdr_expede::rbthdr_assert_quarantine_private(top);
 
-    let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
+    let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
     let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
     let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == candidate_tip);
@@ -129,7 +129,7 @@ fn zrbthdr_file_list_review(top: &Path, candidate_clone: &Path) {
 fn zrbthdr_disclosure(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
     rbthdr_log::rbthdr_section("The disclosure (RBSHO step 4) — IRREVERSIBLE");
     let public_url = rbthdr_expede::RBTHDR_BASE_URL;
-    let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
+    let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
     let before = rbthdr_repo::rbthdr_ls_remote(public_url, top);
@@ -167,7 +167,7 @@ fn zrbthdr_disclosure(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
 fn zrbthdr_promotion(top: &Path, candidate_tip: &str) {
     rbthdr_log::rbthdr_section("Promotion (RBSHO step 5)");
     let public_url = rbthdr_expede::RBTHDR_BASE_URL;
-    let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
+    let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
 
     rbthdr_log::rbthdr_line("Promotion line — from a fresh clone or fetch of the public repository,");
     rbthdr_log::rbthdr_line("never the candidate directory. Type this yourself:");

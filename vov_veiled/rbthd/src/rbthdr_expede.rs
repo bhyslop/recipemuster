@@ -87,11 +87,11 @@ const RBTHDR_QUARANTINE_PRIVATE_STATUS: &str = "404";
 /// only branch the finished clone carries; the preview and staging pushes
 /// both spell POSTULANT_LOCAL:POSTULANT_LOCAL, and only the far-side
 /// promotion spells POSTULANT_LOCAL:main — by hand, exactly once.
-pub const RBTHDR_CANDIDATE_BRANCH: &str = "POSTULANT_LOCAL";
+pub const RBTHDR_REGULUS_BRANCH: &str = "POSTULANT_LOCAL";
 
 /// The subject of the single commit the candidate carries. One commit, so one
 /// subject: it names the act, not the contents.
-const RBTHDR_CANDIDATE_SUBJECT: &str = "Recipe Bottle release candidate";
+const RBTHDR_REGULUS_SUBJECT: &str = "Recipe Bottle release candidate";
 
 /// The sterilize script, repo-relative. The cut runs THE CANDIDATE'S copy of
 /// this path, never the maintainer's — the perambulation is what guarantees
@@ -106,7 +106,7 @@ const RBTHDR_CONSUMER_CLAUDE_PATH: &str = "vov_veiled/CLAUDE.consumer.md";
 
 /// The candidate's root CLAUDE.md — the transposition's target, and a path
 /// the perambulation ships so the sweep expects it in the candidate graph.
-const RBTHDR_CANDIDATE_CLAUDE_PATH: &str = "CLAUDE.md";
+const RBTHDR_REGULUS_CLAUDE_PATH: &str = "CLAUDE.md";
 
 /// The scratch directory beneath the target dir — the archive tar and the
 /// sterilize subprocess's temp root land here, beside the clone and never
@@ -236,7 +236,7 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
         crate::rbthdr_fatal!("the perambulation ships nothing — refusing to cut an empty candidate");
     }
 
-    let clone_dir = target_dir.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
+    let clone_dir = target_dir.join(rbthdr_repo::RBTHDR_REGULUS_SUBDIR);
     let clone = rbthdr_repo::rbthdr_as_str(&clone_dir);
 
     rbthdr_log::rbthdr_section("The cut — build the candidate by addition (RBSHE step 3)");
@@ -244,7 +244,7 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
     rbthdr_log::rbthdr_line(&format!("Public base remote:   {}", RBTHDR_BASE_REMOTE));
     rbthdr_log::rbthdr_line(&format!("Public base URL:      {}", fetch_url));
     rbthdr_log::rbthdr_line(&format!("Candidate clone:      {}", clone_dir.display()));
-    rbthdr_log::rbthdr_line(&format!("Candidate branch:     {}", RBTHDR_CANDIDATE_BRANCH));
+    rbthdr_log::rbthdr_line(&format!("Candidate branch:     {}", RBTHDR_REGULUS_BRANCH));
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_line("The candidate is built by ADDITION in a clone of the real PUBLIC");
     rbthdr_log::rbthdr_line("repository. No private object enters the object graph, because none");
@@ -329,8 +329,8 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
     // carry exactly ONE branch, named POSTULANT_LOCAL — so even a forbidden
     // fan-out push (--all) could name nothing but POSTULANT_LOCAL, never
     // main. On an empty base the unborn branch is simply renamed.
-    rbthdr_log::rbthdr_step(&format!("Opening the candidate branch {}", RBTHDR_CANDIDATE_BRANCH));
-    zrbthdr_git_capture(&clone, &["checkout", "-b", RBTHDR_CANDIDATE_BRANCH], top, "open the candidate branch");
+    rbthdr_log::rbthdr_step(&format!("Opening the candidate branch {}", RBTHDR_REGULUS_BRANCH));
+    zrbthdr_git_capture(&clone, &["checkout", "-b", RBTHDR_REGULUS_BRANCH], top, "open the candidate branch");
     let heads = rbthdr_run::rbthdr_capture(
         "git",
         &["-C", &clone, "for-each-ref", "--format=%(refname:short)", "refs/heads/"],
@@ -341,7 +341,7 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
     }
     for head_ref in heads.stdout.lines() {
         let head_ref = head_ref.trim();
-        if head_ref.is_empty() || head_ref == RBTHDR_CANDIDATE_BRANCH {
+        if head_ref.is_empty() || head_ref == RBTHDR_REGULUS_BRANCH {
             continue;
         }
         zrbthdr_git_capture(&clone, &["branch", "-D", head_ref], top, "drop a base branch");
@@ -429,12 +429,12 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
     // That copy is overwritten now, before the commit, so the maintainer's
     // CLAUDE.md never enters the candidate's object graph: the committed blob
     // is the consumer template's.
-    rbthdr_log::rbthdr_step(&format!("Transposing the consumer context onto {}", RBTHDR_CANDIDATE_CLAUDE_PATH));
+    rbthdr_log::rbthdr_step(&format!("Transposing the consumer context onto {}", RBTHDR_REGULUS_CLAUDE_PATH));
     let template = rbthdr_run::rbthdr_capture_bytes("git", &["show", &template_ref], top);
     if template.code != 0 {
         crate::rbthdr_fatal!("failed to read the consumer CLAUDE.md template:\n{}", template.stderr.trim());
     }
-    let claude_target = clone_dir.join(RBTHDR_CANDIDATE_CLAUDE_PATH);
+    let claude_target = clone_dir.join(RBTHDR_REGULUS_CLAUDE_PATH);
     if let Err(e) = std::fs::write(&claude_target, &template.stdout) {
         crate::rbthdr_fatal!("failed to transpose the consumer CLAUDE.md template: {}", e);
     }
@@ -456,13 +456,13 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
     if written != expect.stdout {
         crate::rbthdr_fatal!(
             "transposition byte-mismatch: {} does not equal {}",
-            RBTHDR_CANDIDATE_CLAUDE_PATH, RBTHDR_CONSUMER_CLAUDE_PATH
+            RBTHDR_REGULUS_CLAUDE_PATH, RBTHDR_CONSUMER_CLAUDE_PATH
         );
     }
 
     rbthdr_log::rbthdr_step("Committing the candidate");
     zrbthdr_git_capture(&clone, &["add", "--all"], top, "stage the candidate");
-    zrbthdr_git_capture(&clone, &["commit", "-m", RBTHDR_CANDIDATE_SUBJECT], top, "commit the candidate");
+    zrbthdr_git_capture(&clone, &["commit", "-m", RBTHDR_REGULUS_SUBJECT], top, "commit the candidate");
 
     // One commit. Not a convention — the property that makes the candidate
     // mergeable by construction and provable by inspection.
@@ -515,7 +515,7 @@ pub fn rbthdr_cut(top: &Path, target_dir: &Path) -> PathBuf {
 
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_line(&format!("Candidate:  {}", clone_dir.display()));
-    rbthdr_log::rbthdr_line(&format!("Branch:     {}", RBTHDR_CANDIDATE_BRANCH));
+    rbthdr_log::rbthdr_line(&format!("Branch:     {}", RBTHDR_REGULUS_BRANCH));
     rbthdr_log::rbthdr_line(&format!(
         "Base:       {}",
         base_sha.as_deref().unwrap_or("(root commit — the base was empty)")

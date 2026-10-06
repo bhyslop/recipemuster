@@ -58,8 +58,8 @@ pub fn rbthdr_docimasy_conduct(rehearse: bool) -> ExitCode {
     let parent = rbthdr_repo::rbthdr_parent(&top);
     rbthdr_log::rbthdr_line(&format!("Maintainer tree: {}", top.display()));
 
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
-    let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_CANDIDATE_SUBDIR);
+    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
+    let candidate_clone = candidate_parent.join(rbthdr_repo::RBTHDR_REGULUS_SUBDIR);
     if !candidate_clone.is_dir() {
         crate::rbthdr_fatal!(
             "no standing candidate at {} — run essai first (RBSHE)",
@@ -100,14 +100,14 @@ fn zrbthdr_gate_quarantine(top: &Path, candidate_tip: &str) {
     rbthdr_expede::rbthdr_assert_quarantine_private(top);
 
     let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);
-    let branch_ref = format!("refs/heads/{}", rbthdr_expede::RBTHDR_CANDIDATE_BRANCH);
+    let branch_ref = format!("refs/heads/{}", rbthdr_expede::RBTHDR_REGULUS_BRANCH);
     let fresh = refs.is_empty()
         || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == candidate_tip);
     if !fresh {
         crate::rbthdr_fatal!(
             "the quarantine is not fresh — it carries {} ref(s) other than this cut's own {}, an undispositioned prior cut the operator must dispose of:\n{}",
             refs.len(),
-            rbthdr_expede::RBTHDR_CANDIDATE_BRANCH,
+            rbthdr_expede::RBTHDR_REGULUS_BRANCH,
             refs.iter().map(|(sha, name)| format!("  {} {}", sha, name)).collect::<Vec<_>>().join("\n")
         );
     }
@@ -120,7 +120,7 @@ fn zrbthdr_gate_quarantine(top: &Path, candidate_tip: &str) {
 
 fn zrbthdr_preview(top: &Path, candidate_clone: &Path, candidate_tip: &str) {
     rbthdr_log::rbthdr_section("Preview into the quarantine (RBSHD step 3)");
-    let branch = rbthdr_expede::RBTHDR_CANDIDATE_BRANCH;
+    let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
     let refs = rbthdr_repo::rbthdr_ls_remote(rbthdr_expede::RBTHDR_QUARANTINE_URL, top);

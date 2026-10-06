@@ -190,12 +190,12 @@ fn zrbthdr_precut_assays(top: &Path) {
 
 // ── Step 3: cut the candidate — the absorbed cut, in-process ─
 
-/// Returns the candidate clone path ({parent}/rbthdr_candidate/candidate).
+/// Returns the candidate clone path ({parent}/rbthdr_regulus/candidate).
 fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
     rbthdr_log::rbthdr_section("Cut the candidate (RBSHE step 3)");
 
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
-    rbthdr_repo::rbthdr_guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME, top);
+    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
+    rbthdr_repo::rbthdr_guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_REGULUS_DIRNAME, top);
     rbthdr_log::rbthdr_step(&format!("Disposing any prior candidate: {}", candidate_parent.display()));
     if !rbthdr_repo::rbthdr_sepose(&candidate_parent, top) {
         rbthdr_log::rbthdr_line("no prior candidate to sepose");
@@ -218,7 +218,7 @@ fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
 
 fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
     rbthdr_log::rbthdr_section("Prove the candidate — the battery (RBSHE step 4)");
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_CANDIDATE_DIRNAME);
+    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
     let tt = candidate_clone.join(RBTHDR_TT_SUBDIR);
 
     zrbthdr_write_station(&candidate_parent);
@@ -227,22 +227,22 @@ fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
     // candidate's z-launcher normalizes cwd to the candidate root, so these assay
     // the candidate though essai never leaves the maintainer tree.
     let qualify = zrbthdr_find_tt(&tt, RBTHDR_COL_QUALIFY_FAST, None);
-    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&qualify, &[], top, &[]), "candidate fast-qualify");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&qualify, &[], top, &[]), "candidate fast-qualify");
 
     let fixture = zrbthdr_find_tt(&tt, RBTHDR_COL_FIXTURE, None);
-    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_CUPEL], top, &[]), "candidate cupel");
-    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_PYX], top, &[]), "candidate pyx");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_CUPEL], top, &[]), "candidate cupel");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_PYX], top, &[]), "candidate pyx");
     // Damnatio on POSTULANT_LOCAL, BEFORE any feigning — the proof of erasure.
     // It reddens on feigned fields by construction, which is what keeps a probe
     // branch from ever being mistaken for a candidate.
-    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "candidate damnatio");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "candidate damnatio");
 
     // The candidate's transposed root CLAUDE.md must carry no veil needle —
     // re-homed in-process from the theurge damnatio fixture's veil_stripped case,
     // whose census-bearing scan could only run where the veiled trees still
     // stand. The path-grain half (a withheld tree survived the strip) is already
     // covered by expede's object-graph delta sweep at cut time.
-    let needles = rbthdr_loupe::rbthdr_assay_candidate(candidate_clone);
+    let needles = rbthdr_loupe::rbthdr_assay_regulus(candidate_clone);
     if !needles.is_empty() {
         for needle in &needles {
             rbthdr_log::rbthdr_line(&format!("candidate veil needle: {}", needle));
@@ -290,7 +290,7 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     // The sterile branch to return to (expede left the candidate on it). Captured,
     // not hardcoded — expede owns the branch name.
     let head = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "rev-parse", "--abbrev-ref", "HEAD"], top);
-    zrbthdr_require_candidate(head.code, "read candidate branch");
+    zrbthdr_require_regulus(head.code, "read candidate branch");
     let sterile_branch = head.stdout.trim().to_string();
 
     zrbthdr_git_stream(&clone, &["checkout", "-b", RBTHDR_PROBE_BRANCH], top, "cut the probe branch");
@@ -309,19 +309,19 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     // own clean-tree gate demands it, and the probe commit must carry the seed
     // alone.
     let build = zrbthdr_find_tt(tt, RBTHDR_COL_BUILD, None);
-    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&build, &[], top, &[]), "candidate build (probe)");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&build, &[], top, &[]), "candidate build (probe)");
     zrbthdr_git_stream(&clone, &["add", "-A"], top, "stage the probe seed");
     zrbthdr_git_stream(&clone, &["commit", "-m", "probe: feign a station"], top, "commit the probe seed");
 
     // Feign a visibly-false station (BURE_CONFIRM=skip — the ceremony drives it
     // headlessly), then run the candidate's reveille from the consumer's seat.
     let feign = tt.join(RBTHDR_FEIGN_TT);
-    zrbthdr_require_candidate(
+    zrbthdr_require_regulus(
         rbthdr_run::rbthdr_stream(&feign, &[], top, &[("BURE_CONFIRM", "skip")]),
         "candidate feign",
     );
     let reveille = zrbthdr_find_tt(tt, RBTHDR_COL_SUITE, Some(RBTHDR_SUITE_REVEILLE));
-    zrbthdr_require_candidate(rbthdr_run::rbthdr_stream(&reveille, &[], top, &[]), "candidate reveille (consumer seat)");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&reveille, &[], top, &[]), "candidate reveille (consumer seat)");
 
     // Return to the sterile branch and drop the probe outright — it deliberately
     // holds withheld paths (the feigned station, the copied marshal tabtarget), so
@@ -371,7 +371,7 @@ fn zrbthdr_require_source(code: i32, what: &str) {
 
 /// A red in the candidate battery: abandon the candidate, repair on the
 /// maintainer tree, re-cut. Never patch the candidate forward (RBSHE).
-fn zrbthdr_require_candidate(code: i32, what: &str) {
+fn zrbthdr_require_regulus(code: i32, what: &str) {
     if code != 0 {
         crate::rbthdr_fatal!(
             "{} failed (exit {}) — abandon the candidate, repair on the maintainer tree, and re-cut (RBSHE: a finding means re-cut, never patch forward)",

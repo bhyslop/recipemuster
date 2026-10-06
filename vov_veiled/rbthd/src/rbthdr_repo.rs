@@ -19,13 +19,13 @@ use crate::rbthdr_run;
 /// dated (unlike RELEASE.md's operator-hand `rbm_candidate_{date}_{try}`): essai
 /// runs the lap repeatedly at one conventional location and seposes any prior,
 /// so the location is memorable and the disposal is safe. Expede builds
-/// the clone one level down, at {parent}/{RBTHDR_CANDIDATE_SUBDIR}.
-pub const RBTHDR_CANDIDATE_DIRNAME: &str = "rbthdr_candidate";
+/// the clone one level down, at {parent}/{RBTHDR_REGULUS_SUBDIR}.
+pub const RBTHDR_REGULUS_DIRNAME: &str = "rbthdr_regulus";
 
 /// The clone subdir the cut creates beneath its target dir (rbthdr_expede
 /// builds there; the lap and the rig stage find what it built through this
 /// one name).
-pub const RBTHDR_CANDIDATE_SUBDIR: &str = "candidate";
+pub const RBTHDR_REGULUS_SUBDIR: &str = "candidate";
 
 /// The identity-free station tree the candidate gets, a sibling of the clone
 /// (RELEASE.md step 5 / rbk-expede): {parent}/station-files/{burs.env,secrets/}.
@@ -36,10 +36,10 @@ pub const RBTHDR_LOGS_SUBDIR: &str = "logs-buk";
 
 /// The fixed parent directory for the freshness matcher's scratch re-cut
 /// (RBSHD step 2 / RBSHO step 2, RBSHC single-matcher rule), a sibling of the
-/// maintainer repo distinct from RBTHDR_CANDIDATE_DIRNAME so the freshness
+/// maintainer repo distinct from RBTHDR_REGULUS_DIRNAME so the freshness
 /// check can never collide with, or dispose of, the standing candidate it is
 /// comparing against.
-pub const RBTHDR_FRESHNESS_DIRNAME: &str = "rbthdr_candidate_freshness";
+pub const RBTHDR_FRESHNESS_DIRNAME: &str = "rbthdr_regulus_freshness";
 
 /// The maintainer repository root, from git. Fatal if not in a repo, empty, or
 /// non-absolute — every derived path anchors on it, and the seposition guards
