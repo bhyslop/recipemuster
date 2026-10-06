@@ -40,12 +40,12 @@ use std::fmt;
 /// the bash table had to gate this at enrollment; the enum is the gate.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum rbthdr_Disposition {
-    /// The path is delivered: materialized into the candidate from committed
-    /// bytes, and expected in the candidate's object graph.
+    /// The path is delivered: materialized into the regulus from committed
+    /// bytes, and expected in the regulus's object graph.
     Ship,
     /// The path stays behind: never materialized, and — the assertion that
-    /// matters — never present in the candidate's object graph at all, at any
-    /// depth of its history. A withheld path found in a candidate is a leak.
+    /// matters — never present in the regulus's object graph at all, at any
+    /// depth of its history. A withheld path found in a regulus is a leak.
     Withhold,
 }
 
@@ -93,7 +93,7 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash
     // harbinger stands until the hierophant earns its retirement through real
-    // service; it is withheld from every candidate meanwhile. (Its former
+    // service; it is withheld from every regulus meanwhile. (Its former
     // siblings — the bash perambulation and expede — died with the cut
     // absorption: the crate you are reading is their one home now.)
     ("Tools/rbk/rblm_harbinger.sh", Withhold),
@@ -124,7 +124,7 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     // carve-out is why the table must be file-grain where the tree is not
     // uniform — its two proof-stage scripts carry the operator's org id, and a
     // directory-grain "all ship" is exactly what once carried them into every
-    // candidate. Its caged credentials, by contrast, DO ship: committed test
+    // regulus. Its caged credentials, by contrast, DO ship: committed test
     // scaffolding the realm expects by value (RBSFK "two-keys").
     ("rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh", Withhold),
     ("rbmm_moorings/rben_fdkyclk/fdkyclk-teardown.sh", Withhold),
@@ -267,10 +267,10 @@ pub fn rbthdr_shipped(tracked: &[String]) -> Vec<String> {
 }
 
 /// Judge a path list as an OBJECT GRAPH, not a tree: every judged-withheld
-/// path in it is a leak. This is the assertion the 2026-07-13 candidate had no
+/// path in it is a leak. This is the assertion the 2026-07-13 regulus had no
 /// version of — its TIP was clean while its HISTORY carried the whole
 /// pre-strip repository to the remote at 292 MiB. The cut feeds this the
-/// candidate's object graph (rev-list --objects), so a withheld path is caught
+/// regulus's object graph (rev-list --objects), so a withheld path is caught
 /// wherever it is reachable from the branch, at any depth. A path no row
 /// judges is skipped, not flagged: historical graphs legitimately carry paths
 /// the living tree no longer rules on.

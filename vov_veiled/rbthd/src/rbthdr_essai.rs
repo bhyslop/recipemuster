@@ -7,12 +7,12 @@
 // RBTHDR — essai: the reversible repair lap (RBSHE). The whole cycle end to end
 // — gate, assay, cut, prove, rig — run as many times as it takes, with ZERO
 // remote acts. Its product is a walk-ready rig standing beside a pristine
-// candidate that is bit-for-bit what a subsequent ostend would push.
+// regulus that is bit-for-bit what a subsequent ostend would push.
 //
 // Workers are sequenced as subprocesses, never re-implemented (RBSHC) — with
 // the cut as the one ruled exception: rbthdr_expede runs in-process (RBSHC
 // "The cut, and the single matcher"). The six steps below are RBSHE's six
-// `//axhos_step` blocks in order; the candidate battery is RELEASE.md step 5,
+// `//axhos_step` blocks in order; the regulus battery is RELEASE.md step 5,
 // which essai automates. A finding at any red means RE-CUT, never patch
 // forward — the accumulated-state bug class the ceremony exists to catch.
 
@@ -42,22 +42,22 @@ const RBTHDR_FIX_PYX: &str = "pyx";
 const RBTHDR_FIX_DAMNATIO: &str = "damnatio";
 
 /// The throwaway probe branch for the consumer-seat reveille. Named nothing the
-/// feign verb's own branch guard refuses (never main, never candidate-*).
+/// feign verb's own branch guard refuses (never main, never regulus-*).
 const RBTHDR_PROBE_BRANCH: &str = "probe";
 
-/// The marshal feign tabtarget the candidate must be handed: its verb ships
-/// (rblm_cli.sh), but its tabtarget is withheld from delivery, so the candidate
-/// carries the verb and no launcher for it. A copy of any candidate tabtarget
+/// The marshal feign tabtarget the regulus must be handed: its verb ships
+/// (rblm_cli.sh), but its tabtarget is withheld from delivery, so the regulus
+/// carries the verb and no launcher for it. A copy of any regulus tabtarget
 /// under this name dispatches to feign (the trampolines are byte-generic).
 const RBTHDR_FEIGN_TT: &str = "rbw-MF.MarshalFeigns.sh";
 
-/// The candidate's identity-free station (RELEASE.md step 5 / rbk-expede) — the
+/// The regulus's identity-free station (RELEASE.md step 5 / rbk-expede) — the
 /// consumer's first onboarding act reproduced, never a leak.
-const RBTHDR_STATION_USER: &str = "candidate";
+const RBTHDR_STATION_USER: &str = "regulus";
 const RBTHDR_STATION_TINCTURE: &str = "cnd";
 
 /// Conduct one essai lap. Fatal (exit 1) on any deficit or red; ExitCode::SUCCESS
-/// only when a walk-ready rig stands beside a proven candidate.
+/// only when a walk-ready rig stands beside a proven regulus.
 pub fn rbthdr_essai_conduct() -> ExitCode {
     rbthdr_log::rbthdr_section("Hierophant Essai — the reversible repair lap (RBSHE)");
     rbthdr_log::rbthdr_line("Gate, cut, prove, rig — zero remote acts. A finding means re-cut.");
@@ -68,13 +68,13 @@ pub fn rbthdr_essai_conduct() -> ExitCode {
 
     zrbthdr_gate(&top);
     zrbthdr_precut_assays(&top);
-    let candidate_clone = zrbthdr_cut(&top, &parent);
-    zrbthdr_prove(&parent, &candidate_clone, &top);
+    let regulus_clone = zrbthdr_cut(&top, &parent);
+    zrbthdr_prove(&parent, &regulus_clone, &top);
 
-    // Steps 5 & 6 — stand up the rig from the LOCAL candidate, show the fidelity
+    // Steps 5 & 6 — stand up the rig from the LOCAL regulus, show the fidelity
     // gap loud, hand off the walk, and state the two standing artifacts.
     rbthdr_log::rbthdr_section("Stand up the coldwalk rig (RBSHE step 5)");
-    let clone_source = rbthdr_repo::rbthdr_as_str(&candidate_clone);
+    let clone_source = rbthdr_repo::rbthdr_as_str(&regulus_clone);
     let rig = rbthdr_rig::rbthdr_stand_up(&parent, &top, &clone_source, &top);
 
     rbthdr_log::rbthdr_blank();
@@ -86,11 +86,11 @@ pub fn rbthdr_essai_conduct() -> ExitCode {
     rbthdr_rig::rbthdr_emit_handoff(&rig);
 
     rbthdr_log::rbthdr_section("Two standing artifacts (RBSHE step 6)");
-    rbthdr_log::rbthdr_line(&format!("Pristine candidate (untouched by the walk): {}", candidate_clone.display()));
+    rbthdr_log::rbthdr_line(&format!("Pristine regulus (untouched by the walk): {}", regulus_clone.display()));
     rbthdr_log::rbthdr_line(&format!("Disposable rig:                             {}", rig.rig_dir.display()));
     rbthdr_log::rbthdr_blank();
-    rbthdr_log::rbthdr_success("Essai lap complete — a walk-ready rig stands beside a proven candidate.");
-    rbthdr_log::rbthdr_line("Dispose and re-cut, or hand the standing candidate to docimasy — the reveal's proving act (RBSHE completion).");
+    rbthdr_log::rbthdr_success("Essai lap complete — a walk-ready rig stands beside a proven regulus.");
+    rbthdr_log::rbthdr_line("Dispose and re-cut, or hand the standing regulus to docimasy — the reveal's proving act (RBSHE completion).");
 
     ExitCode::SUCCESS
 }
@@ -100,14 +100,14 @@ pub fn rbthdr_essai_conduct() -> ExitCode {
 fn zrbthdr_gate(top: &Path) {
     rbthdr_log::rbthdr_section("Gate the maintainer tree and the base (RBSHE step 1)");
 
-    // Clean, fully-pushed working tree. The candidate is cut from COMMITTED
+    // Clean, fully-pushed working tree. The regulus is cut from COMMITTED
     // bytes, so an uncommitted edit would silently be absent; an unpushed commit
     // means the base the operator later reveals from is behind the tree cut.
     let status = rbthdr_run::rbthdr_capture("git", &["status", "--porcelain"], top);
     zrbthdr_require_source(status.code, "git status");
     if !status.stdout.trim().is_empty() {
         crate::rbthdr_fatal!(
-            "working tree not clean — commit before essai; the candidate is cut from committed bytes:\n{}",
+            "working tree not clean — commit before essai; the regulus is cut from committed bytes:\n{}",
             status.stdout.trim()
         );
     }
@@ -142,7 +142,7 @@ fn zrbthdr_gate(top: &Path) {
     let fetch = rbthdr_run::rbthdr_capture("git", &["remote", "get-url", base_remote], top);
     if fetch.code != 0 {
         crate::rbthdr_fatal!(
-            "base remote {} is not configured — the candidate is built by addition atop the real public repo, so a remote pointing at it is required:\n{}",
+            "base remote {} is not configured — the regulus is built by addition atop the real public repo, so a remote pointing at it is required:\n{}",
             base_remote, fetch.stderr.trim()
         );
     }
@@ -172,7 +172,7 @@ fn zrbthdr_precut_assays(top: &Path) {
     // The veiled-tree assay, in-process (RBSHC "Worker, never authority": the
     // veil assay is one of the hierophant's own absorbed modules, beside the cut
     // and the rig). It reads the veiled trees to harvest its census, meaningful
-    // only here; in the candidate it is red by construction. The perambulation's
+    // only here; in the regulus it is red by construction. The perambulation's
     // totality gate is likewise not a fixture: it is the cut's own first refusal,
     // in-process (step 3).
     let leaks = rbthdr_loupe::rbthdr_assay(top);
@@ -188,17 +188,17 @@ fn zrbthdr_precut_assays(top: &Path) {
     rbthdr_log::rbthdr_line("maintainer tree green; the veiled-tree assay passes");
 }
 
-// ── Step 3: cut the candidate — the absorbed cut, in-process ─
+// ── Step 3: cut the regulus — the absorbed cut, in-process ─
 
-/// Returns the candidate clone path ({parent}/rbthdr_regulus/candidate).
+/// Returns the regulus clone path ({parent}/rbthdr_regulus/regulus).
 fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
-    rbthdr_log::rbthdr_section("Cut the candidate (RBSHE step 3)");
+    rbthdr_log::rbthdr_section("Cut the regulus (RBSHE step 3)");
 
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
-    rbthdr_repo::rbthdr_guard_disposable(&candidate_parent, rbthdr_repo::RBTHDR_REGULUS_DIRNAME, top);
-    rbthdr_log::rbthdr_step(&format!("Disposing any prior candidate: {}", candidate_parent.display()));
-    if !rbthdr_repo::rbthdr_sepose(&candidate_parent, top) {
-        rbthdr_log::rbthdr_line("no prior candidate to sepose");
+    let regulus_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
+    rbthdr_repo::rbthdr_guard_disposable(&regulus_parent, rbthdr_repo::RBTHDR_REGULUS_DIRNAME, top);
+    rbthdr_log::rbthdr_step(&format!("Disposing any prior regulus: {}", regulus_parent.display()));
+    if !rbthdr_repo::rbthdr_sepose(&regulus_parent, top) {
+        rbthdr_log::rbthdr_line("no prior regulus to sepose");
     }
 
     // The absorbed cut (RBSHC "The cut, and the single matcher"): builds by
@@ -207,61 +207,61 @@ fn zrbthdr_cut(top: &Path, parent: &Path) -> PathBuf {
     // present, byte-assert, single-commit, delta sweep, zero remotes — all
     // judged in-process by the one matcher. Fatal on any deficit; a return
     // is the verdict.
-    rbthdr_log::rbthdr_step(&format!("Expediting the candidate into {}", candidate_parent.display()));
-    let candidate_clone = rbthdr_expede::rbthdr_cut(top, &candidate_parent);
+    rbthdr_log::rbthdr_step(&format!("Expediting the regulus into {}", regulus_parent.display()));
+    let regulus_clone = rbthdr_expede::rbthdr_cut(top, &regulus_parent);
 
-    rbthdr_log::rbthdr_line(&format!("candidate cut: {}", candidate_clone.display()));
-    candidate_clone
+    rbthdr_log::rbthdr_line(&format!("regulus cut: {}", regulus_clone.display()));
+    regulus_clone
 }
 
-// ── Step 4: prove the candidate (the battery, in order) ─────
+// ── Step 4: prove the regulus (the battery, in order) ─────
 
-fn zrbthdr_prove(parent: &Path, candidate_clone: &Path, top: &Path) {
-    rbthdr_log::rbthdr_section("Prove the candidate — the battery (RBSHE step 4)");
-    let candidate_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
-    let tt = candidate_clone.join(RBTHDR_TT_SUBDIR);
+fn zrbthdr_prove(parent: &Path, regulus_clone: &Path, top: &Path) {
+    rbthdr_log::rbthdr_section("Prove the regulus — the battery (RBSHE step 4)");
+    let regulus_parent = parent.join(rbthdr_repo::RBTHDR_REGULUS_DIRNAME);
+    let tt = regulus_clone.join(RBTHDR_TT_SUBDIR);
 
-    zrbthdr_write_station(&candidate_parent);
+    zrbthdr_write_station(&regulus_parent);
 
-    // The candidate's OWN tabtargets, on its sterile POSTULANT_LOCAL branch. The
-    // candidate's z-launcher normalizes cwd to the candidate root, so these assay
-    // the candidate though essai never leaves the maintainer tree.
+    // The regulus's OWN tabtargets, on its sterile POSTULANT_LOCAL branch. The
+    // regulus's z-launcher normalizes cwd to the regulus root, so these assay
+    // the regulus though essai never leaves the maintainer tree.
     let qualify = zrbthdr_find_tt(&tt, RBTHDR_COL_QUALIFY_FAST, None);
-    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&qualify, &[], top, &[]), "candidate fast-qualify");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&qualify, &[], top, &[]), "regulus fast-qualify");
 
     let fixture = zrbthdr_find_tt(&tt, RBTHDR_COL_FIXTURE, None);
-    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_CUPEL], top, &[]), "candidate cupel");
-    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_PYX], top, &[]), "candidate pyx");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_CUPEL], top, &[]), "regulus cupel");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_PYX], top, &[]), "regulus pyx");
     // Damnatio on POSTULANT_LOCAL, BEFORE any feigning — the proof of erasure.
     // It reddens on feigned fields by construction, which is what keeps a probe
-    // branch from ever being mistaken for a candidate.
-    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "candidate damnatio");
+    // branch from ever being mistaken for a regulus.
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&fixture, &[RBTHDR_FIX_DAMNATIO], top, &[]), "regulus damnatio");
 
-    // The candidate's transposed root CLAUDE.md must carry no veil needle —
+    // The regulus's transposed root CLAUDE.md must carry no veil needle —
     // re-homed in-process from the theurge damnatio fixture's veil_stripped case,
     // whose census-bearing scan could only run where the veiled trees still
     // stand. The path-grain half (a withheld tree survived the strip) is already
     // covered by expede's object-graph delta sweep at cut time.
-    let needles = rbthdr_loupe::rbthdr_assay_regulus(candidate_clone);
+    let needles = rbthdr_loupe::rbthdr_assay_regulus(regulus_clone);
     if !needles.is_empty() {
         for needle in &needles {
-            rbthdr_log::rbthdr_line(&format!("candidate veil needle: {}", needle));
+            rbthdr_log::rbthdr_line(&format!("regulus veil needle: {}", needle));
         }
         crate::rbthdr_fatal!(
-            "the candidate's root CLAUDE.md carries {} veil needle(s) — abandon the candidate, repair on the maintainer tree, and re-cut (RBSHE)",
+            "the regulus's root CLAUDE.md carries {} veil needle(s) — abandon the regulus, repair on the maintainer tree, and re-cut (RBSHE)",
             needles.len()
         );
     }
 
-    zrbthdr_feign_probe(candidate_clone, &tt, top);
+    zrbthdr_feign_probe(regulus_clone, &tt, top);
 }
 
-/// Step 4a — write the candidate's identity-free station and empty secrets dir.
-fn zrbthdr_write_station(candidate_parent: &Path) {
-    rbthdr_log::rbthdr_step("Writing the candidate's identity-free station");
-    let station_dir = candidate_parent.join(rbthdr_repo::RBTHDR_STATION_SUBDIR);
+/// Step 4a — write the regulus's identity-free station and empty secrets dir.
+fn zrbthdr_write_station(regulus_parent: &Path) {
+    rbthdr_log::rbthdr_step("Writing the regulus's identity-free station");
+    let station_dir = regulus_parent.join(rbthdr_repo::RBTHDR_STATION_SUBDIR);
     let secrets_dir = station_dir.join(rbthdr_repo::RBTHDR_SECRETS_SUBDIR);
-    let logs_dir = candidate_parent.join(rbthdr_repo::RBTHDR_LOGS_SUBDIR);
+    let logs_dir = regulus_parent.join(rbthdr_repo::RBTHDR_LOGS_SUBDIR);
 
     zrbthdr_mkdir(&station_dir);
     zrbthdr_mkdir(&secrets_dir);
@@ -280,23 +280,23 @@ fn zrbthdr_write_station(candidate_parent: &Path) {
 }
 
 /// Step 4f — the consumer-seat probe: cut a throwaway probe branch, hand the
-/// candidate its withheld feign tabtarget, feign a false station, run the
-/// candidate's reveille from the consumer's seat, then return to the sterile
+/// regulus its withheld feign tabtarget, feign a false station, run the
+/// regulus's reveille from the consumer's seat, then return to the sterile
 /// branch and drop the probe branch outright.
-fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
+fn zrbthdr_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
     rbthdr_log::rbthdr_step("Consumer-seat probe: feign a station on a throwaway branch");
-    let clone = rbthdr_repo::rbthdr_as_str(candidate_clone);
+    let clone = rbthdr_repo::rbthdr_as_str(regulus_clone);
 
-    // The sterile branch to return to (expede left the candidate on it). Captured,
+    // The sterile branch to return to (expede left the regulus on it). Captured,
     // not hardcoded — expede owns the branch name.
     let head = rbthdr_run::rbthdr_capture("git", &["-C", &clone, "rev-parse", "--abbrev-ref", "HEAD"], top);
-    zrbthdr_require_regulus(head.code, "read candidate branch");
+    zrbthdr_require_regulus(head.code, "read regulus branch");
     let sterile_branch = head.stdout.trim().to_string();
 
     zrbthdr_git_stream(&clone, &["checkout", "-b", RBTHDR_PROBE_BRANCH], top, "cut the probe branch");
 
-    // Hand the candidate its feign tabtarget: a byte-copy of an existing
-    // candidate tabtarget under the withheld colophon's name (the trampolines are
+    // Hand the regulus its feign tabtarget: a byte-copy of an existing
+    // regulus tabtarget under the withheld colophon's name (the trampolines are
     // byte-generic; the runtime `${0##*/}` resolves the rbw-MF colophon).
     let donor = zrbthdr_find_tt(tt, RBTHDR_COL_QUALIFY_FAST, None);
     let feign_tt = tt.join(RBTHDR_FEIGN_TT);
@@ -304,24 +304,24 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
         .unwrap_or_else(|e| crate::rbthdr_fatal!("failed to install the feign tabtarget {}: {}", feign_tt.display(), e));
     zrbthdr_chmod_exec(&feign_tt);
 
-    // Rebuild (regenerates the candidate's tabtarget context from the now-complete
+    // Rebuild (regenerates the regulus's tabtarget context from the now-complete
     // tt/ set), then commit the seed so the tree is clean before feign — feign's
     // own clean-tree gate demands it, and the probe commit must carry the seed
     // alone.
     let build = zrbthdr_find_tt(tt, RBTHDR_COL_BUILD, None);
-    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&build, &[], top, &[]), "candidate build (probe)");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&build, &[], top, &[]), "regulus build (probe)");
     zrbthdr_git_stream(&clone, &["add", "-A"], top, "stage the probe seed");
     zrbthdr_git_stream(&clone, &["commit", "-m", "probe: feign a station"], top, "commit the probe seed");
 
     // Feign a visibly-false station (BURE_CONFIRM=skip — the ceremony drives it
-    // headlessly), then run the candidate's reveille from the consumer's seat.
+    // headlessly), then run the regulus's reveille from the consumer's seat.
     let feign = tt.join(RBTHDR_FEIGN_TT);
     zrbthdr_require_regulus(
         rbthdr_run::rbthdr_stream(&feign, &[], top, &[("BURE_CONFIRM", "skip")]),
-        "candidate feign",
+        "regulus feign",
     );
     let reveille = zrbthdr_find_tt(tt, RBTHDR_COL_SUITE, Some(RBTHDR_SUITE_REVEILLE));
-    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&reveille, &[], top, &[]), "candidate reveille (consumer seat)");
+    zrbthdr_require_regulus(rbthdr_run::rbthdr_stream(&reveille, &[], top, &[]), "regulus reveille (consumer seat)");
 
     // Return to the sterile branch and drop the probe outright — it deliberately
     // holds withheld paths (the feigned station, the copied marshal tabtarget), so
@@ -329,7 +329,7 @@ fn zrbthdr_feign_probe(candidate_clone: &Path, tt: &Path, top: &Path) {
     rbthdr_log::rbthdr_step("Returning to the sterile branch and dropping the probe");
     zrbthdr_git_stream(&clone, &["checkout", &sterile_branch], top, "return to the sterile branch");
     zrbthdr_git_stream(&clone, &["branch", "-D", RBTHDR_PROBE_BRANCH], top, "drop the probe branch");
-    rbthdr_log::rbthdr_line(&format!("consumer-seat reveille green; candidate back on {}", sterile_branch));
+    rbthdr_log::rbthdr_line(&format!("consumer-seat reveille green; regulus back on {}", sterile_branch));
 }
 
 // ── Small shared helpers ────────────────────────────────────
@@ -369,12 +369,12 @@ fn zrbthdr_require_source(code: i32, what: &str) {
     }
 }
 
-/// A red in the candidate battery: abandon the candidate, repair on the
-/// maintainer tree, re-cut. Never patch the candidate forward (RBSHE).
+/// A red in the regulus battery: abandon the regulus, repair on the
+/// maintainer tree, re-cut. Never patch the regulus forward (RBSHE).
 fn zrbthdr_require_regulus(code: i32, what: &str) {
     if code != 0 {
         crate::rbthdr_fatal!(
-            "{} failed (exit {}) — abandon the candidate, repair on the maintainer tree, and re-cut (RBSHE: a finding means re-cut, never patch forward)",
+            "{} failed (exit {}) — abandon the regulus, repair on the maintainer tree, and re-cut (RBSHE: a finding means re-cut, never patch forward)",
             what, code
         );
     }

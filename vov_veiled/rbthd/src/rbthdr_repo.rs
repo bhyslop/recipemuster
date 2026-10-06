@@ -15,8 +15,8 @@ use std::path::{Path, PathBuf};
 
 use crate::rbthdr_run;
 
-/// The fixed candidate parent directory, a sibling of the maintainer repo. Not
-/// dated (unlike RELEASE.md's operator-hand `rbm_candidate_{date}_{try}`): essai
+/// The fixed regulus parent directory, a sibling of the maintainer repo. Not
+/// dated (unlike RELEASE.md's operator-hand `rbm_regulus_{date}_{try}`): essai
 /// runs the lap repeatedly at one conventional location and seposes any prior,
 /// so the location is memorable and the disposal is safe. Expede builds
 /// the clone one level down, at {parent}/{RBTHDR_REGULUS_SUBDIR}.
@@ -25,9 +25,9 @@ pub const RBTHDR_REGULUS_DIRNAME: &str = "rbthdr_regulus";
 /// The clone subdir the cut creates beneath its target dir (rbthdr_expede
 /// builds there; the lap and the rig stage find what it built through this
 /// one name).
-pub const RBTHDR_REGULUS_SUBDIR: &str = "candidate";
+pub const RBTHDR_REGULUS_SUBDIR: &str = "regulus";
 
-/// The identity-free station tree the candidate gets, a sibling of the clone
+/// The identity-free station tree the regulus gets, a sibling of the clone
 /// (RELEASE.md step 5 / rbk-expede): {parent}/station-files/{burs.env,secrets/}.
 pub const RBTHDR_STATION_SUBDIR: &str = "station-files";
 pub const RBTHDR_STATION_FILE: &str = "burs.env";
@@ -37,7 +37,7 @@ pub const RBTHDR_LOGS_SUBDIR: &str = "logs-buk";
 /// The fixed parent directory for the freshness matcher's scratch re-cut
 /// (RBSHD step 2 / RBSHO step 2, RBSHC single-matcher rule), a sibling of the
 /// maintainer repo distinct from RBTHDR_REGULUS_DIRNAME so the freshness
-/// check can never collide with, or dispose of, the standing candidate it is
+/// check can never collide with, or dispose of, the standing regulus it is
 /// comparing against.
 pub const RBTHDR_FRESHNESS_DIRNAME: &str = "rbthdr_regulus_freshness";
 
