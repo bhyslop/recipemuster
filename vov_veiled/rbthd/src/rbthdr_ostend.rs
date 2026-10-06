@@ -69,7 +69,7 @@ pub fn rbthdr_ostend_conduct(rehearse: bool) -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    zrbthdr_disclosure(&top, &regulus_clone, &regulus_tip);
+    zrbthdr_kerygma(&top, &regulus_clone, &regulus_tip);
     zrbthdr_promotion(&top, &regulus_tip);
     zrbthdr_close();
 
@@ -126,7 +126,7 @@ fn zrbthdr_file_list_review(top: &Path, regulus_clone: &Path) {
 
 // ── Step 4: the disclosure (irreversible) ───────────────────
 
-fn zrbthdr_disclosure(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
+fn zrbthdr_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
     rbthdr_log::rbthdr_section("The disclosure (RBSHO step 4) — IRREVERSIBLE");
     let public_url = rbthdr_expede::RBTHDR_BASE_URL;
     let branch = rbthdr_expede::RBTHDR_REGULUS_BRANCH;
