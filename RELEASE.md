@@ -96,7 +96,7 @@ tt/rbw-ts.TestSuite.gauntlet.sh
   git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
   ```
   The cut refuses to proceed unless the push side is neutered to exactly that sentinel. The ceremony never creates or destroys the base; the cut only ever *reads* it (fetch), then severs the clone's origin, so nothing it does can push there.
-- **The quarantine — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the regulus — the regulus holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the regulus is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
+- **The narthex — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the regulus — the regulus holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the regulus is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
 
 Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: the cut holds no remote, the base remote's push side is dead, and the regulus's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
 
@@ -113,9 +113,9 @@ tt/rbthw-e.Essai.sh
 - Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the regulus's file list
 - Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap seposes the prior regulus itself — renames it to a timestamped sibling, never deleting it). Patching a regulus is the same bug class this whole procedure exists to catch
 
-## 6. Preview in the private quarantine (reversible)
+## 6. Preview in the private narthex (reversible)
 
-A git commit is **content-addressed**: the object you would stage publicly and the object you push here are the *same commit, bit for bit*. So this is a byte-faithful preview of the reveal — everything you inspect is exactly what step 7 will disclose — and it is **reversible**: delete the private quarantine and nothing escaped. Inspect it here, in private, before the irreversible public act.
+A git commit is **content-addressed**: the object you would stage publicly and the object you push here are the *same commit, bit for bit*. So this is a byte-faithful preview of the reveal — everything you inspect is exactly what step 7 will disclose — and it is **reversible**: delete the private narthex and nothing escaped. Inspect it here, in private, before the irreversible public act.
 
 Push by **explicit URL and explicit refspec** — the regulus has no remote to lean on, and the refspec is a branch, never `main`:
 
@@ -124,7 +124,7 @@ git -C «regulus» push git@github.com:scaleinv/recipebottle-staging.git POSTULA
 ```
 
 - Inspect the `POSTULANT_LOCAL` branch on GitHub: the file tree, the rendered README, the single commit
-- Success: the quarantine carries exactly the regulus, and it reads as a clean public face
+- Success: the narthex carries exactly the regulus, and it reads as a clean public face
 - Failure: resolve the remote-side reason and retry — the local regulus from step 5 remains valid
 
 **Do not proceed until you have inspected the preview and are ready for the irreversible public disclosure.**
@@ -165,7 +165,7 @@ The single command in this whole document that touches public `main`, on the far
 
 - Liveness: the public README serves at its URL and every anchor resolves against the live page
 - Production spot-check (thin — the walk already proved the bytes): repo front page, the github.io render, a fresh default-branch clone taken a few minutes into the onboarding entry
-- Delete the public **staging branch** (ceremony hygiene), then the **private quarantine** repository and the **regulus directory** — the regulus directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
+- Delete the public **staging branch** (ceremony hygiene), then the **private narthex** repository and the **regulus directory** — the regulus directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
 - Record the release
 
-> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the quarantine as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible disclosure at staging, promotion as discoverability). This procedure is that law's operator face.
+> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the narthex as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible disclosure at staging, promotion as discoverability). This procedure is that law's operator face.

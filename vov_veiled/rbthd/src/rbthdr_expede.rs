@@ -63,13 +63,13 @@ pub const RBTHDR_BASE_PUSH_DISABLED: &str = "DISABLED-ENGROSSMENT_UPSTREAM-IS-RE
 /// unlocked door). The endpoint is a load-bearing fact, not a runtime input.
 pub const RBTHDR_BASE_URL: &str = "git@github.com:scaleinv/recipebottle.git";
 
-/// The ephemeral private quarantine (RBS0 rbth_narthex; RELEASE.md "The
-/// quarantine"): created empty and private by the operator's own hand before
+/// The ephemeral private narthex (RBS0 rbth_narthex; RELEASE.md "The
+/// narthex"): created empty and private by the operator's own hand before
 /// a cut, reached only by explicit URL — never a configured remote. Fixed and
 /// known, unlike the repository's ephemeral CONTENTS: only its existence is
 /// per-cycle. The single home for docimasy and ostend alike — both gate on
 /// the same repository, and a duplicated copy is exactly the drift a
-/// privacy/freshness gate must never carry (RBSHD "Gate the quarantine",
+/// privacy/freshness gate must never carry (RBSHD "Gate the narthex",
 /// RBSHO "Re-assert the ground").
 pub const RBTHDR_NARTHEX_URL: &str = "git@github.com:scaleinv/recipebottle-staging.git";
 
@@ -78,7 +78,7 @@ pub const RBTHDR_NARTHEX_URL: &str = "git@github.com:scaleinv/recipebottle-stagi
 /// or misnamed one does not.
 pub const RBTHDR_NARTHEX_HTTPS: &str = "https://github.com/scaleinv/recipebottle-staging";
 
-/// The expected HTTP status of an anonymous read of a private quarantine.
+/// The expected HTTP status of an anonymous read of a private narthex.
 const RBTHDR_NARTHEX_PRIVATE_STATUS: &str = "404";
 
 /// The regulus's local branch — and, reused by operator ruling (260715),
@@ -585,10 +585,10 @@ fn zrbthdr_git_capture(clone: &str, args: &[&str], top: &Path, act: &str) {
     }
 }
 
-/// Assert an anonymous read of the quarantine 404s — the single privacy gate
-/// shared by docimasy's own quarantine gate (RBSHD step 1a) and ostend's
+/// Assert an anonymous read of the narthex 404s — the single privacy gate
+/// shared by docimasy's own narthex gate (RBSHD step 1a) and ostend's
 /// re-assertion of the ground (RBSHO step 2): a private GitHub repository
-/// 404s to an unauthenticated request, so anything else means the quarantine
+/// 404s to an unauthenticated request, so anything else means the narthex
 /// is public or misnamed. Fatal otherwise.
 pub fn rbthdr_assert_narthex_private(top: &Path) {
     let status = rbthdr_run::rbthdr_capture(
@@ -597,15 +597,15 @@ pub fn rbthdr_assert_narthex_private(top: &Path) {
         top,
     );
     if status.code != 0 {
-        crate::rbthdr_fatal!("anonymous read of the quarantine failed to execute (curl exited {})", status.code);
+        crate::rbthdr_fatal!("anonymous read of the narthex failed to execute (curl exited {})", status.code);
     }
     if status.stdout.trim() != RBTHDR_NARTHEX_PRIVATE_STATUS {
         crate::rbthdr_fatal!(
-            "anonymous read of the quarantine ({}) returned HTTP {}, not {} — the quarantine is public or misnamed",
+            "anonymous read of the narthex ({}) returned HTTP {}, not {} — the narthex is public or misnamed",
             RBTHDR_NARTHEX_HTTPS, status.stdout.trim(), RBTHDR_NARTHEX_PRIVATE_STATUS
         );
     }
-    rbthdr_log::rbthdr_line("quarantine reads anonymous-404: private (or absent), never public");
+    rbthdr_log::rbthdr_line("narthex reads anonymous-404: private (or absent), never public");
 }
 
 // ── The freshness matcher ───────────────────────────────────

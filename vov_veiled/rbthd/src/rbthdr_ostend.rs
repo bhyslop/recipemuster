@@ -101,11 +101,11 @@ fn zrbthdr_reassert_ground(top: &Path, parent: &Path, regulus_clone: &Path, regu
     let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !preview_stands {
         crate::rbthdr_fatal!(
-            "the quarantine's {} tip does not equal the regulus tip {} — the preview does not stand; the cycle returns to essai, never forward",
+            "the narthex's {} tip does not equal the regulus tip {} — the preview does not stand; the cycle returns to essai, never forward",
             branch, regulus_tip
         );
     }
-    rbthdr_log::rbthdr_line("preview stands: quarantine tip equals the regulus tip");
+    rbthdr_log::rbthdr_line("preview stands: narthex tip equals the regulus tip");
 
     rbthdr_expede::rbthdr_assert_fresh(top, parent, regulus_clone);
 }
@@ -198,6 +198,6 @@ fn zrbthdr_close() {
     rbthdr_log::rbthdr_blank();
     rbthdr_log::rbthdr_line("Ceremony-hygiene reminders — your own hands, once dispositioned:");
     rbthdr_log::rbthdr_line("  - delete the public staging branch (POSTULANT_LOCAL) on the public repository");
-    rbthdr_log::rbthdr_line("  - delete the private quarantine repository");
+    rbthdr_log::rbthdr_line("  - delete the private narthex repository");
     rbthdr_log::rbthdr_line("  - discard the regulus directory");
 }
