@@ -54,6 +54,7 @@ zrbte_furnish() {
   zbuz_kindle
   zrbz_kindle
   zbuwz_kindle
+  zrbcc_kindle
   zrbgc_kindle
   zrbte_kindle
 }

@@ -156,8 +156,9 @@ readonly RBCC_verb_yoke="yoke"
 # here, the noun counterpart of the operation-verb group above: a message cites
 # this declaration rather than spelling the word a second time, so a rename
 # moves one line instead of every string that prints it. Sentence-initial
-# positions take the capitalizing expansion, ${RBCC_noun_sederunt^}.
+# positions cite the capitalized twin, RBCC_noun_sederunt_lettrine.
 readonly RBCC_noun_sederunt="sederunt"
+readonly RBCC_noun_sederunt_lettrine="Sederunt"
 
 # Creed tinder — RB convictions supplied as the rationale (creed) parameter to
 # the kit-agnostic BUG clean-tree gate bug_require_clean_tree_creed, keeping the
@@ -290,14 +291,13 @@ rbcc_source_active_rbrf() {
 # A third section projects BUBC string tinder (the regime-poison tweak name)
 # through the same transform via the string primitive.
 rbcc_emit_consts() {
+  zrbcc_sentinel
+
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
 
   local z_name=""
   local z_stem=""
   local z_upper=""
-  local -r z_alpha_lower="abcdefghijklmnopqrstuvwxyz"
-  local -r z_alpha_upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  local z_alpha_index=0
   for z_name in \
     RBCC_moorings_dir    \
     RBCC_vessels_subdir  \
@@ -341,12 +341,7 @@ rbcc_emit_consts() {
   ; do
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"
-    z_upper="${z_stem}"
-    z_alpha_index=0
-    while test "${z_alpha_index}" -lt "${#z_alpha_lower}"; do
-      z_upper="${z_upper//${z_alpha_lower:z_alpha_index:1}/${z_alpha_upper:z_alpha_index:1}}"
-      z_alpha_index=$((z_alpha_index + 1))
-    done
+    zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
     buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -375,12 +370,7 @@ rbcc_emit_consts() {
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"
-    z_upper="${z_stem}"
-    z_alpha_index=0
-    while test "${z_alpha_index}" -lt "${#z_alpha_lower}"; do
-      z_upper="${z_upper//${z_alpha_lower:z_alpha_index:1}/${z_alpha_upper:z_alpha_index:1}}"
-      z_alpha_index=$((z_alpha_index + 1))
-    done
+    zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
     buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -389,12 +379,7 @@ rbcc_emit_consts() {
   printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
   z_name="BUBC_tweak_regime_poison"
   z_stem="${z_name#BUBC_}"
-  z_upper="${z_stem}"
-  z_alpha_index=0
-  while test "${z_alpha_index}" -lt "${#z_alpha_lower}"; do
-    z_upper="${z_upper//${z_alpha_lower:z_alpha_index:1}/${z_alpha_upper:z_alpha_index:1}}"
-    z_alpha_index=$((z_alpha_index + 1))
-  done
+  zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
   buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
     || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
 }
@@ -409,11 +394,36 @@ zrbcc_kindle() {
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
   readonly RBCC_CURL_MAX_TIME_SEC=60
 
+  # Yawp group return slot (zrbcc_upper_yawp)
+  z_rbcc_upper=""
+
   readonly ZRBCC_KINDLED=1
 }
 
 zrbcc_sentinel() {
   test "${ZRBCC_KINDLED:-}" = "1" || buc_die_now "Module rbcc not kindled - call zrbcc_kindle first"
+}
+
+# zrbcc_upper_yawp text — the text with a–z mapped to A–Z, by position against
+# the two alphabets (bash 3.2 has no case mapping and the external mappers are evicted)
+# → z_upper="${z_rbcc_upper}"
+zrbcc_upper_yawp() {
+  zrbcc_sentinel
+  local -r z_in="${1:-}"
+  local -r z_from="abcdefghijklmnopqrstuvwxyz"
+  local -r z_onto="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  local z_out=""
+  local z_c=""
+  local z_head=""
+  local z_i=0
+  while test "${z_i}" -lt "${#z_in}"; do
+    z_c="${z_in:${z_i}:1}"
+    z_head="${z_from%%"${z_c}"*}"
+    test "${#z_head}" -eq "${#z_from}" || z_c="${z_onto:${#z_head}:1}"
+    z_out="${z_out}${z_c}"
+    z_i=$((z_i + 1))
+  done
+  z_rbcc_upper="${z_out}"
 }
 
 # eof

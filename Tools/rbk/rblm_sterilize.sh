@@ -79,6 +79,7 @@ source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rblm_proscription.sh"
 zbuz_kindle
 zrbz_kindle
 zbuwz_kindle
+zrbcc_kindle
 zrbgc_kindle
 
 buc_step "Lustrating ${ZRBLM_STERILIZE_ROOT}"
