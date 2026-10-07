@@ -2196,7 +2196,7 @@ rbgp_manor_escheat() {
   local z_sweep_objects=0
   local z_sweep_folders=0
   for z_i in "${!z_plan_lines[@]}"; do
-    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die_now "Malformed plan line"
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     case "${z_action}" in
       keep)  z_keep_count=$((z_keep_count + 1))
              buc_info "KEEP   ${z_kind} (${z_reason}): ${z_name}" || buc_die_now "Failed to print message" ;;
@@ -2222,14 +2222,14 @@ rbgp_manor_escheat() {
 
   buc_step 'Execute the sweep (objects, then dead polity folders)'
   for z_i in "${!z_plan_lines[@]}"; do
-    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die_now "Malformed plan line"
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     test "${z_action}" = "sweep" || continue
     test "${z_kind}" = "object"  || continue
     rbgft_escheat_expunge_raw "${z_token}" "${z_bucket}" "${z_name}" >/dev/null \
       || buc_die_now "Escheat: raw expunge failed for ${z_name}"
   done
   for z_i in "${!z_plan_lines[@]}"; do
-    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die_now "Malformed plan line"
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     test "${z_action}" = "sweep" || continue
     test "${z_kind}" = "folder"  || continue
     rbgb_managed_folder_purge "${z_token}" "${z_bucket}" "${z_name}" \
@@ -2257,7 +2257,7 @@ rbgp_manor_escheat() {
   local z_residual=0
   local z_standing=0
   for z_i in "${!z_replan_lines[@]}"; do
-    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_replan_lines[$z_i]}" || buc_die_now "Malformed replan line"
+    IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_replan_lines[${z_i}]}" || buc_die_now "Malformed replan line"
     if test "${z_action}" = "sweep"; then
       z_residual=$((z_residual + 1))
     fi

@@ -182,7 +182,7 @@ zrbrn_ip_int_capture() {
   zrbrn_sentinel
 
   local -r z_ip="${1:-}"
-  local -r z_octet_pattern='(0|[1-9][0-9]{0,2})'
+  local -r z_octet_pattern='(0|[123456789][0123456789]{0,2})'
   local -r z_ip_pattern="^${z_octet_pattern}[.]${z_octet_pattern}[.]${z_octet_pattern}[.]${z_octet_pattern}\$"
   [[ "${z_ip}" =~ ${z_ip_pattern} ]] || return 1
 
@@ -258,8 +258,8 @@ rbrn_preflight() {
   local z_net_ends=()
   local z_net_owners=()
 
-  local -r z_port_pattern='^[1-9][0-9]{0,4}$'
-  local -r z_mask_pattern='^[1-9][0-9]?$'
+  local -r z_port_pattern='^[123456789][0123456789]{0,4}$'
+  local -r z_mask_pattern='^[123456789][0123456789]?$'
 
   local z_file=""
   local z_mon=""
