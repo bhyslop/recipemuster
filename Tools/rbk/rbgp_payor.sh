@@ -467,7 +467,7 @@ zrbgp_liens_list() {
 
   buc_step "Found ${z_lien_count} lien(s):"
   # Non-fatal by grant: the count above is the listing's result and nothing
-  # reads these lines, so a lien whose record will not render (a null reason)
+  # reads these lines, so a lien whose record will not render (a field that is not a string)
   # costs only its display line, and the warning says the listing is partial.
   jq -r '.liens[]? | "  - " + .name + " (reason: " + .reason + ")"' \
     "${ZRBUH_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBUH_POSTFIX_JSON}" \
