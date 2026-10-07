@@ -66,7 +66,8 @@ zrbro_enforce() {
 # Load RBRO from RBDC_PAYOR_RBRO_FILE (kindle constant from RBRR_SECRETS_DIR)
 # Requires: RBRR kindled+enforced+locked (RBDC_PAYOR_RBRO_FILE is a lock-step constant)
 rbro_load() {
-  zrbro_sentinel
+  # This loader performs this module's kindle below, so it cannot open on
+  # its own sentinel — it is the one function here that runs unkindled.
 
   local z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
 
