@@ -48,9 +48,7 @@ zrbgp_kindle() {
 
   readonly ZRBGP_PREFIX="${BURD_TEMP_DIR}/rbgp_"
   readonly ZRBGP_EMPTY_JSON="${ZRBGP_PREFIX}empty.json"
-  printf '{}' > "${ZRBGP_EMPTY_JSON}"
-
-  readonly ZRBGP_SCRATCH_FILE="${BURD_TEMP_DIR}/rbgp_scratch.txt"
+  printf '{}' > "${ZRBGP_EMPTY_JSON}" || buc_die_now "Failed to write empty JSON: ${ZRBGP_EMPTY_JSON}"
 
   # Infix values for HTTP operations
   readonly ZRBGP_INFIX_LIST_LIENS="list_liens"
@@ -117,6 +115,26 @@ zrbgp_oauth_token_post_capture() {
     -d @<(jq -n "$@" "${z_filter}") \
     "${RBGC_OAUTH_TOKEN_URL}" || z_curl_status=$?
   return "${z_curl_status}"
+}
+
+# Emit one field of a downloaded OAuth client JSON, from its installed block
+# or its top level, or the empty string where neither carries it. The field may
+# be the client secret, so it travels in memory alone and never touches disk;
+# jq's stderr goes to the file the caller names.
+zrbgp_oauth_client_field_capture() {
+  zrbgp_sentinel
+
+  local -r z_json_file="${1:-}"
+  local -r z_field="${2:-}"
+  local -r z_stderr_file="${3:-}"
+  test -n "${z_json_file}"   || return 1
+  test -n "${z_field}"       || return 1
+  test -n "${z_stderr_file}" || return 1
+
+  local z_value
+  z_value=$(jq -r --arg field "${z_field}" '.installed[$field] // .[$field] // ""' "${z_json_file}" 2>"${z_stderr_file}") || return 1
+
+  echo "${z_value}"
 }
 
 zrbgp_refresh_capture() {
@@ -257,8 +275,8 @@ zrbgp_depot_state_emit() {
     fi
 
     z_search_infix="depot_state_search_${z_search_page}"
-    rbuh_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}"
-    rbuh_require_ok "CRM v3 projects:search" "${z_search_infix}"
+    rbuh_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}" || buc_die_now "HTTP GET request failed (${z_search_infix})"
+    rbuh_require_ok "CRM v3 projects:search" "${z_search_infix}" || buc_die_now "Response check failed: CRM v3 projects:search"
 
     local z_project_count_status=0
     z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') || z_project_count_status=$?
@@ -276,16 +294,19 @@ zrbgp_depot_state_emit() {
 
       # Strip the anchor prefix (including trailing space) to get the moniker.
       # displayName format: "${RBGC_DEPOT_DISPLAY_PREFIX} <moniker>"
-      if [[ "${z_display_name}" != "${z_display_prefix}"* ]]; then
-        buc_log_args "Skipping project — displayName does not match anchor: ${z_display_name}"
-        z_index=$((z_index + 1))
-        continue
-      fi
+      case "${z_display_name}" in
+        "${z_display_prefix}"*) ;;
+        *)
+          buc_log_args "Skipping project — displayName does not match anchor: ${z_display_name}" || buc_die_now "Failed to write transcript line"
+          z_index=$((z_index + 1))
+          continue
+          ;;
+      esac
       z_moniker="${z_display_name#"${z_display_prefix}"}"
 
       # Validate moniker is RBRR-canonical: ^[a-z][a-z0-9]*$
       if ! [[ "${z_moniker}" =~ ^[a-z][a-z0-9]*$ ]]; then
-        buc_log_args "Skipping project — moniker fails validation (${z_moniker}): ${z_display_name}"
+        buc_log_args "Skipping project — moniker fails validation (${z_moniker}): ${z_display_name}" || buc_die_now "Failed to write transcript line"
         z_index=$((z_index + 1))
         continue
       fi
@@ -294,7 +315,7 @@ zrbgp_depot_state_emit() {
       # GET against the strongly-consistent endpoint for authoritative state.
       z_get_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
       z_get_infix="depot_state_get_${z_project_id}"
-      rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+      rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}" || buc_die_now "HTTP GET request failed (${z_get_infix})"
       local z_get_code_status=0
       z_get_code=$(rbuh_code_capture "${z_get_infix}") || z_get_code_status=$?
       test "${z_get_code_status}" -eq 0 || z_get_code=""
@@ -310,7 +331,7 @@ zrbgp_depot_state_emit() {
           continue
           ;;
         *)
-          buc_log_args "Skipping project ${z_project_id} — GET returned ${z_get_code}"
+          buc_log_args "Skipping project ${z_project_id} — GET returned ${z_get_code}" || buc_die_now "Failed to write transcript line"
           z_index=$((z_index + 1))
           continue
           ;;
@@ -321,7 +342,7 @@ zrbgp_depot_state_emit() {
       elif test "${z_crm_state}" = "${RBGC_STATE_ACTIVE}"; then
         z_state="${RBGP_DEPOT_STATE_COMPLETE}"
       else
-        buc_log_args "Skipping project ${z_project_id} with unrecognized state: ${z_crm_state}"
+        buc_log_args "Skipping project ${z_project_id} with unrecognized state: ${z_crm_state}" || buc_die_now "Failed to write transcript line"
         z_index=$((z_index + 1))
         continue
       fi
@@ -333,8 +354,8 @@ zrbgp_depot_state_emit() {
         || buc_die_now "Failed to mkdir output cloud_prefix subdir: ${z_prefix_dir}"
       mkdir -p "${BURD_TEMP_DIR}/${z_prefix_dir}" \
         || buc_die_now "Failed to mkdir temp cloud_prefix subdir: ${z_prefix_dir}"
-      buf_write_fact_multi "${z_prefix_dir}/${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}"
-      buf_write_fact_multi "${z_prefix_dir}/${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}"
+      buf_write_fact_multi "${z_prefix_dir}/${z_moniker}" "${RBCC_fact_ext_depot}"         "${z_state}" || buc_die_now "Failed to write depot fact for ${z_moniker}"
+      buf_write_fact_multi "${z_prefix_dir}/${z_moniker}" "${RBCC_fact_ext_depot_project}" "${z_project_id}" || buc_die_now "Failed to write depot fact for ${z_moniker}"
 
       z_index=$((z_index + 1))
     done
@@ -445,8 +466,12 @@ zrbgp_liens_list() {
   fi
 
   buc_step "Found ${z_lien_count} lien(s):"
+  # Non-fatal by grant: the count above is the listing's result and nothing
+  # reads these lines, so a lien whose record will not render (a null reason)
+  # costs only its display line, and the warning says the listing is partial.
   jq -r '.liens[]? | "  - " + .name + " (reason: " + .reason + ")"' \
-    "${ZRBUH_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBUH_POSTFIX_JSON}" || true
+    "${ZRBUH_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBUH_POSTFIX_JSON}" \
+    || buc_warn "Lien listing incomplete — a lien record did not render; the count above stands"
 
   return 0
 }
@@ -499,9 +524,9 @@ zrbgp_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGP_INFIX_API_CHECK}_${z_service}"
 
-    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
+    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || return 1
 
-    buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
+    buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.' || return 1
     local z_code_status=0
     z_code=$(rbuh_code_capture "${z_infix}") || z_code_status=$?
     test "${z_code_status}" -eq 0 || z_code=""
@@ -513,7 +538,7 @@ zrbgp_required_apis_missing_capture() {
       test "${z_state_status}" -eq 0 || z_state=""
       test "${z_state}" = "ENABLED" || z_missing="${z_missing} ${z_service}"
     else
-      buc_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled'
+      buc_log_args 'Any non-200 (403/404/5xx/etc) => treat as NOT enabled' || return 1
       z_missing="${z_missing} ${z_service}"
     fi
   done
@@ -704,16 +729,16 @@ zrbgp_pool_build_submit_await() {
   local z_poll_infix=""
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
-    sleep "${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}"
+    sleep "${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}" || buc_die_now "Poll wait interrupted"
     z_polls=$((z_polls + 1))
     test "${z_polls}" -le "${ZRBGP_POOL_BUILD_POLL_CEILING}" \
       || buc_die_now "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
-    rbuh_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}"
+    rbuh_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}" || buc_die_now "HTTP GET request failed (${z_poll_infix})"
     local z_status_status=0
     z_status=$(rbuh_json_field_capture "${z_poll_infix}" '.status') || z_status_status=$?
     test "${z_status_status}" -eq 0 || z_status="UNKNOWN"
-    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})"
+    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" || buc_die_now "Failed to print message"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
 }
@@ -877,17 +902,16 @@ rbgp_install() {
   test -f "${z_oauth_json_file}" || buc_die_now "OAuth JSON file not found: ${z_oauth_json_file}"
 
   buc_step 'Parse OAuth client JSON'
-  local z_client_id="" z_client_secret="" z_project_id=""
-  jq -r '
-    (.installed.client_id // .client_id // ""),
-    (.installed.client_secret // .client_secret // ""),
-    (.installed.project_id // .project_id // "")
-  ' "${z_oauth_json_file}" > "${ZRBGP_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die_now "Failed to parse OAuth JSON file"
-  { read -r z_client_id
-    read -r z_client_secret
-    read -r z_project_id
-  } < "${ZRBGP_SCRATCH_FILE}"
+  local -r z_parse_stderr="${ZRBGP_PREFIX}install_parse_stderr.txt"
+  local z_client_id
+  z_client_id=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_id" "${z_parse_stderr}") \
+    || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
+  local z_client_secret
+  z_client_secret=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_secret" "${z_parse_stderr}") \
+    || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
+  local z_project_id
+  z_project_id=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "project_id" "${z_parse_stderr}") \
+    || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
   test -n "${z_client_id}" || buc_die_now "OAuth JSON file missing client_id field"
   test -n "${z_client_secret}" || buc_die_now "OAuth JSON file missing client_secret field"
   test -n "${z_project_id}" || buc_die_now "OAuth JSON file missing project_id field"
@@ -977,11 +1001,11 @@ rbgp_install() {
 
   buc_step 'Store OAuth credentials'
   (
-    umask 077
+    umask 077 || buc_die_now "Failed to set umask for the RBRO credentials file"
     {
-      echo "RBRO_CLIENT_SECRET=${z_client_secret}"
-      echo "RBRO_REFRESH_TOKEN=${z_refresh_token}"
-    } > "${z_rbro_file}"
+      echo "RBRO_CLIENT_SECRET=${z_client_secret}" || buc_die_now "Failed to write the client secret line"
+      echo "RBRO_REFRESH_TOKEN=${z_refresh_token}" || buc_die_now "Failed to write the refresh token line"
+    } > "${z_rbro_file}" || buc_die_now "Failed to open RBRO credentials file: ${z_rbro_file}"
   ) || buc_die_now "Failed to write RBRO credentials file"
   chmod 600 "${z_rbro_file}" || buc_die_now "Failed to set RBRO file permissions"
   
@@ -1465,11 +1489,11 @@ rbgp_manor_jilt() {
   local z_verify_code=""
   local z_verify_state=""
   while :; do
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Poll wait interrupted"
     z_jilt_elapsed=$((z_jilt_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
     z_verify_infix="jilt_provider_verify_${z_jilt_elapsed}s"
-    rbuh_json "GET" "${z_provider_url}" "${z_token}" "${z_verify_infix}"
+    rbuh_json "GET" "${z_provider_url}" "${z_token}" "${z_verify_infix}" || buc_die_now "HTTP GET request failed (${z_verify_infix})"
     local z_verify_code_status=0
     z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code_status=$?
     test "${z_verify_code_status}" -eq 0 || z_verify_code=""
@@ -1490,7 +1514,7 @@ rbgp_manor_jilt() {
 
     test "${z_jilt_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
       || buc_die_now "Jilt: provider ${z_provider_id} did not reach a dissolved state within ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_verify_code})"
-    buc_log_args "Provider still present at ${z_jilt_elapsed}s (HTTP ${z_verify_code}) — polling"
+    buc_log_args "Provider still present at ${z_jilt_elapsed}s (HTTP ${z_verify_code}) — polling" || buc_die_now "Failed to write transcript line"
   done
 
   buc_step 'Foedus jilted'
@@ -1573,11 +1597,11 @@ rbgp_manor_raze() {
   local z_raze_elapsed=0
   local z_raze_dissolved=""
   while :; do
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Poll wait interrupted"
     z_raze_elapsed=$((z_raze_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
     local z_verify_infix="raze_pool_verify_${z_raze_elapsed}s"
-    rbuh_json "GET" "${z_pool_url}" "${z_token}" "${z_verify_infix}"
+    rbuh_json "GET" "${z_pool_url}" "${z_token}" "${z_verify_infix}" || buc_die_now "HTTP GET request failed (${z_verify_infix})"
     local z_verify_code
     local z_verify_code_status=0
     z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code_status=$?
@@ -1600,7 +1624,7 @@ rbgp_manor_raze() {
 
     test "${z_raze_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
       || buc_die_now "Raze: pool ${z_pool_id} did not reach a dissolved state within ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_verify_code})"
-    buc_log_args "Pool still present at ${z_raze_elapsed}s (HTTP ${z_verify_code}) — polling"
+    buc_log_args "Pool still present at ${z_raze_elapsed}s (HTTP ${z_verify_code}) — polling" || buc_die_now "Failed to write transcript line"
   done
 
   buc_step 'Manor razed'
@@ -1775,7 +1799,7 @@ rbgp_manor_instaurate() {
     fi
 
     z_infix="instaurate_pools_list_${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}" || buc_die_now "HTTP GET request failed (${z_infix})"
     z_code=$(rbuh_code_capture "${z_infix}") \
       || buc_die_now "No HTTP code from workforcePools.list under ${z_org}"
     test "${z_code}" = "200" \
@@ -1985,7 +2009,7 @@ zrbgp_escheat_liveness() {
     }
 
     z_infix="escheat_liveness_${z_i}"
-    rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot}" "${z_token}" "${z_infix}" || buc_die_now "HTTP GET request failed (${z_infix})"
     z_code=$(rbuh_code_capture "${z_infix}") || buc_die_now "No HTTP code from projects.get for ${z_depot}"
     case "${z_code}" in
       200)
@@ -2175,15 +2199,15 @@ rbgp_manor_escheat() {
     IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[$z_i]}" || buc_die_now "Malformed plan line"
     case "${z_action}" in
       keep)  z_keep_count=$((z_keep_count + 1))
-             buc_info "KEEP   ${z_kind} (${z_reason}): ${z_name}" ;;
+             buc_info "KEEP   ${z_kind} (${z_reason}): ${z_name}" || buc_die_now "Failed to print message" ;;
       flag)  z_flag_count=$((z_flag_count + 1))
-             buc_warn "FLAG   ${z_kind} (${z_reason}): ${z_name} — kept, not provably dead" ;;
+             buc_warn "FLAG   ${z_kind} (${z_reason}): ${z_name} — kept, not provably dead" || buc_die_now "Failed to print message" ;;
       sweep) if test "${z_kind}" = "object"; then
                z_sweep_objects=$((z_sweep_objects + 1))
              else
                z_sweep_folders=$((z_sweep_folders + 1))
              fi
-             buc_info "SWEEP  ${z_kind} (${z_reason}): ${z_name}" ;;
+             buc_info "SWEEP  ${z_kind} (${z_reason}): ${z_name}" || buc_die_now "Failed to print message" ;;
       *)     buc_die_now "Unknown plan action: ${z_action}" ;;
     esac
   done
@@ -2352,7 +2376,7 @@ rbgp_depot_levy() {
   buc_step 'Enable depot project APIs'
   local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam serviceusage storage"
   for z_service in ${z_api_services}; do
-    rbge_api_enable "${z_service}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}"
+    rbge_api_enable "${z_service}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" || buc_die_now "Failed to enable ${z_service} on ${RBDC_DEPOT_PROJECT_ID}"
   done
 
   buc_step 'Create dual worker pools (tether + airgap)'
@@ -2663,12 +2687,15 @@ rbgp_depot_unmake() {
   local z_display_name
   z_display_name=$(rbuh_json_field_capture "depot_destroy_validate" '.displayName // ""') || buc_die_now "Failed to parse displayName"
   local -r z_display_prefix="${RBGC_DEPOT_DISPLAY_PREFIX} "
-  if [[ "${z_display_name}" != "${z_display_prefix}"* ]]; then
-    buc_warn "Project displayName does not match depot anchor: ${z_display_name}"
-    buc_info "Run the depot list to view candidate depots:"
-    buc_tabtarget "${RBZ_LIST_DEPOT}"
-    buc_die_now "Refusing to unmake non-depot project: ${z_project_id}"
-  fi
+  case "${z_display_name}" in
+    "${z_display_prefix}"*) ;;
+    *)
+      buc_warn "Project displayName does not match depot anchor: ${z_display_name}"
+      buc_info "Run the depot list to view candidate depots:"
+      buc_tabtarget "${RBZ_LIST_DEPOT}"
+      buc_die_now "Refusing to unmake non-depot project: ${z_project_id}"
+      ;;
+  esac
 
   # Derive moniker and pool stem from the validated displayName + project_id.
   # displayName format: "${RBGC_DEPOT_DISPLAY_PREFIX} <moniker>"
@@ -2701,8 +2728,8 @@ rbgp_depot_unmake() {
       z_unmake_sa_url="${z_unmake_sa_url}?pageToken=${z_unmake_sa_tok_enc}"
     fi
     z_unmake_sa_infix="depot_unmake_gov_list_${z_unmake_sa_page}"
-    rbuh_json "GET" "${z_unmake_sa_url}" "${z_token}" "${z_unmake_sa_infix}"
-    rbuh_require_ok "List service accounts (page ${z_unmake_sa_page})" "${z_unmake_sa_infix}"
+    rbuh_json "GET" "${z_unmake_sa_url}" "${z_token}" "${z_unmake_sa_infix}" || buc_die_now "HTTP GET request failed (${z_unmake_sa_infix})"
+    rbuh_require_ok "List service accounts (page ${z_unmake_sa_page})" "${z_unmake_sa_infix}" || buc_die_now "Response check failed: List service accounts (page ${z_unmake_sa_page})"
 
     z_unmake_sa_count=$(rbuh_json_field_capture "${z_unmake_sa_infix}" '.accounts // [] | length') \
       || buc_die_now "Failed to parse SA list"
@@ -2712,14 +2739,16 @@ rbgp_depot_unmake() {
       local z_unmake_sa_email_status=0
       z_unmake_sa_email=$(rbuh_json_field_capture "${z_unmake_sa_infix}" ".accounts[${z_unmake_sa_index}].email") || z_unmake_sa_email_status=$?
       test "${z_unmake_sa_email_status}" -eq 0 || { z_unmake_sa_index=$((z_unmake_sa_index + 1)); continue; }
-      if [[ "${z_unmake_sa_email}" == ${RBCC_account_unhewn_governor}-* ]]; then
-        buc_log_args "Deleting governor SA: ${z_unmake_sa_email}"
-        z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
-        rbuh_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}"
-        rbuh_require_ok "Delete governor SA ${z_unmake_sa_email}" "${z_unmake_gov_delete_infix}" \
-          404 "not found (already deleted)"
-        z_governor_sa_count=$((z_governor_sa_count + 1))
-      fi
+      case "${z_unmake_sa_email}" in
+        "${RBCC_account_unhewn_governor}"-*)
+          buc_log_args "Deleting governor SA: ${z_unmake_sa_email}" || buc_die_now "Failed to write transcript line"
+          z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
+          rbuh_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}" || buc_die_now "HTTP DELETE request failed (${z_unmake_gov_delete_infix})"
+          rbuh_require_ok "Delete governor SA ${z_unmake_sa_email}" "${z_unmake_gov_delete_infix}" \
+            404 "not found (already deleted)" || buc_die_now "Response check failed: Delete governor SA ${z_unmake_sa_email}"
+          z_governor_sa_count=$((z_governor_sa_count + 1))
+          ;;
+      esac
       z_unmake_sa_index=$((z_unmake_sa_index + 1))
     done
 
@@ -2747,10 +2776,10 @@ rbgp_depot_unmake() {
     
     for z_lien_name in ${z_lien_names}; do
       if test -n "${z_lien_name}"; then
-        buc_log_args "Removing lien: ${z_lien_name}"
+        buc_log_args "Removing lien: ${z_lien_name}" || buc_die_now "Failed to write transcript line"
         local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
-        rbuh_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete"
-        rbuh_require_ok "Delete lien" "depot_destroy_lien_delete"
+        rbuh_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete" || buc_die_now "HTTP DELETE request failed (depot_destroy_lien_delete)"
+        rbuh_require_ok "Delete lien" "depot_destroy_lien_delete" || buc_die_now "Response check failed: Delete lien"
       fi
     done
   fi
@@ -2769,6 +2798,9 @@ rbgp_depot_unmake() {
   if test "${z_billing_unlink_code}" = "200"; then
     buc_log_args "Billing account unlinked - quota released"
   else
+    # Non-fatal by grant: unlinking ahead of the deletion only releases the
+    # billing account's link quota at once; the deletion below proceeds either
+    # way, and the warning tells the operator the quota waits on the purge.
     buc_warn "Could not unlink billing (HTTP ${z_billing_unlink_code}) - proceeding with deletion anyway"
   fi
 
@@ -2781,6 +2813,9 @@ rbgp_depot_unmake() {
   local z_tether_del_code_status=0
   z_tether_del_code=$(rbuh_code_capture "depot_destroy_pool_tether") || z_tether_del_code_status=$?
   test "${z_tether_del_code_status}" -eq 0 || z_tether_del_code=""
+  # Non-fatal by grant (both pools): a worker pool is a resource of the project
+  # the deletion below removes, so a failed early cleanup leaves nothing that
+  # outlives the depot; the warning names the pool and its HTTP code.
   case "${z_tether_del_code}" in
     200|204|404) buc_log_args "Tether pool ${z_tether_del_id} cleanup: HTTP ${z_tether_del_code}" ;;
     *) buc_warn "Tether pool cleanup failed: HTTP ${z_tether_del_code} — proceeding" ;;
@@ -2822,10 +2857,10 @@ rbgp_depot_unmake() {
   local z_final_state
   
   while test "${z_attempt}" -le "${z_max_attempts}"; do
-    sleep 5
-    buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})"
+    sleep 5 || buc_die_now "Poll wait interrupted"
+    buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})" || buc_die_now "Failed to write transcript line"
     
-    rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check"
+    rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check" || buc_die_now "HTTP GET request failed (depot_destroy_state_check)"
 
     local z_state_check_code
     local z_state_check_code_status=0
@@ -2849,7 +2884,7 @@ rbgp_depot_unmake() {
   fi
 
   buc_step 'Update depot tracking'
-  zrbgp_depot_list_update || buc_log_args "Warning: Failed to update depot tracking after deletion"
+  zrbgp_depot_list_update || buc_die_now "Failed to update depot tracking after deletion"
 
   # Success
   buc_success "Depot ${z_project_id} successfully marked for deletion"
@@ -2905,7 +2940,7 @@ rbgp_depot_list() {
     z_project_id=$(<"${z_project_fact_path}") || buc_die_now "Failed to read: ${z_project_fact_path}"
     test -n "${z_project_id}" || buc_die_now "Empty project_id in fact file: ${z_project_fact_path}"
 
-    printf "%-40s %s\n" "${z_project_id}" "${z_state}"
+    printf "%-40s %s\n" "${z_project_id}" "${z_state}" || buc_die_now "Failed to print depot row for ${z_project_id}"
     z_total_count=$((z_total_count + 1))
     case "${z_state}" in
       "${RBGP_DEPOT_STATE_COMPLETE}")          z_complete_count=$((z_complete_count + 1)) ;;
@@ -3231,7 +3266,7 @@ zrbgp_attaint_core() {
   buc_log_args 'Unseat every mantle (idempotent — an unheld mantle is a no-op)'
   local z_mantle=""
   for z_mantle in governor director retriever; do
-    zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
+    zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}" || buc_die_now "Failed to unseat ${z_subject} from mantle ${z_mantle}"
   done
 
   buc_log_args 'Sweep the depot-scoped serviceUsageConsumer — attaint alone does this'
@@ -3460,9 +3495,15 @@ rbgp_attribution_trail() {
     || buc_die_now "Failed to render attribution entries"
 
   local z_line=""
+  local z_render_lines=()
   while IFS= read -r z_line || test -n "${z_line}"; do
-    buc_info "${z_line}"
+    z_render_lines+=("${z_line}")
   done < "${z_render_file}"
+
+  local z_render_i=""
+  for z_render_i in "${!z_render_lines[@]}"; do
+    buc_info "${z_render_lines[${z_render_i}]}" || buc_die_now "Failed to print attribution row"
+  done
 
   buc_success "Attribution trail rendered for ${z_depot}: find the freehold subject (${RBPC_freehold_subject:-<rbpc not sourced>}) in the rightmost column on artifactregistry rows — that is the human, by immutable IdP claim"
 }

@@ -55,9 +55,9 @@ rba_novate_sederunt() {
   rba_novate
 
   local z_token
-  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt^} not readable after novation"
-  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt^} holds an empty federated token"
-  buc_success "${RBCC_noun_sederunt^} novated — fresh full-window federated token obtained (${#z_token} chars)"
+  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
+  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
+  buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#z_token} chars)"
 }
 
 # Espy the sederunt — the read-only probe: report whether a
@@ -91,7 +91,7 @@ rba_espy_sederunt() {
   if test ! -f "${z_path}"; then
     z_verdict="absent"
   else
-    z_runway=$(zrba_sederunt_runway_capture) || buc_die_now "${RBCC_noun_sederunt^} cache present but unreadable: ${z_path}"
+    z_runway=$(zrba_sederunt_runway_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} cache present but unreadable: ${z_path}"
     if zrba_sederunt_live_predicate; then
       z_verdict="live"
     else
@@ -106,7 +106,7 @@ runway=${z_runway}"
     || buc_die_now "Failed to write the ${RBCC_noun_sederunt} fact"
 
   if test "${z_verdict}" = "live"; then
-    buc_success "${RBCC_noun_sederunt^} LIVE — runway ${z_runway}s (~$(( z_runway / 3600 ))h$(( (z_runway % 3600) / 60 ))m remaining)"
+    buc_success "${RBCC_noun_sederunt_lettrine} LIVE — runway ${z_runway}s (~$(( z_runway / 3600 ))h$(( (z_runway % 3600) / 60 ))m remaining)"
   else
     buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; open one with any federated command or rbw-aN (fresh full window)"
   fi

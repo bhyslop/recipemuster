@@ -82,8 +82,8 @@ rbgv_check_avowal() {
   rba_avow "${z_required_runway}"
 
   local z_token
-  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt^} not readable after avowal"
-  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt^} holds an empty federated token"
+  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after avowal"
+  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
   buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#z_token} chars)"
 }
 

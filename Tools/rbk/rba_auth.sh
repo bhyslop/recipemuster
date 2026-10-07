@@ -686,7 +686,7 @@ zrba_sederunt_open() {
   zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
     || buc_die_now "Avowal succeeded but caching the ${RBCC_noun_sederunt} failed"
 
-  buc_step "${RBCC_noun_sederunt^} opened (federated token expires in ${z_expires_in}s)"
+  buc_step "${RBCC_noun_sederunt_lettrine} opened (federated token expires in ${z_expires_in}s)"
 }
 
 # rba_avow — the avowal accessor step. Ensures a live sederunt with sufficient
@@ -718,8 +718,8 @@ rba_avow() {
     z_runway=$(zrba_sederunt_runway_capture) \
       || buc_die_now "Live ${RBCC_noun_sederunt} became unreadable while gauging its runway"
     test "${z_runway}" -ge "${z_required_runway}" \
-      || buc_reject "${BUBC_band_runway}" "${RBCC_noun_sederunt^} runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window ${RBCC_noun_sederunt} (rbw-aN), then re-run"
-    buc_step "${RBCC_noun_sederunt^} already live — reusing the cached federated token (runway ${z_runway}s)"
+      || buc_reject "${BUBC_band_runway}" "${RBCC_noun_sederunt_lettrine} runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window ${RBCC_noun_sederunt} (rbw-aN), then re-run"
+    buc_step "${RBCC_noun_sederunt_lettrine} already live — reusing the cached federated token (runway ${z_runway}s)"
     return 0
   fi
 
@@ -812,7 +812,7 @@ rba_don_capture() {
   local z_federated_status=0
   z_federated=$(zrba_sederunt_read_capture) || z_federated_status=$?
   test "${z_federated_status}" -eq 0 || {
-    buc_log_args "${RBCC_noun_sederunt^} lapsed — no live federated token is cached; avow to open a fresh ${RBCC_noun_sederunt}, then re-run (the mantle re-mint is capped by the ${RBCC_noun_sederunt}, not by the mantle token's own lifetime)"
+    buc_log_args "${RBCC_noun_sederunt_lettrine} lapsed — no live federated token is cached; avow to open a fresh ${RBCC_noun_sederunt}, then re-run (the mantle re-mint is capped by the ${RBCC_noun_sederunt}, not by the mantle token's own lifetime)"
     return 1
   }
 
