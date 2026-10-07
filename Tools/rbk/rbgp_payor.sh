@@ -3266,7 +3266,7 @@ zrbgp_attaint_core() {
   buc_log_args 'Unseat every mantle (idempotent — an unheld mantle is a no-op)'
   local z_mantle=""
   for z_mantle in governor director retriever; do
-    zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}" || buc_die_now "Failed to unseat ${z_subject} from mantle ${z_mantle}"
+    zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}" || buc_die_now "Mantle ${z_mantle} removal failed for ${z_subject}"
   done
 
   buc_log_args 'Sweep the depot-scoped serviceUsageConsumer — attaint alone does this'
