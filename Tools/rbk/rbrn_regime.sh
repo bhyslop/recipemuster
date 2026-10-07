@@ -144,6 +144,7 @@ rbrn_list_capture() {
 # and consumption (charge) refuses it. Pure on the passed value — no kindle
 # state — so the fleet-survey isolation subshell, which sources a nameplate raw
 # and unkindled, can call it too.
+# pure predicate: reads tinder and its arguments only
 rbrn_hallmark_armed_predicate() {
   test -n "${1:-}" || return 1
   return 0

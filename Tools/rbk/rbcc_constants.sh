@@ -291,6 +291,8 @@ rbcc_source_active_rbrf() {
 # A third section projects BUBC string tinder (the regime-poison tweak name)
 # through the same transform via the string primitive.
 rbcc_emit_consts() {
+  zrbcc_sentinel
+
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
 
   local z_name=""
@@ -339,7 +341,7 @@ rbcc_emit_consts() {
   ; do
     z_stem="${z_name#RBCC_}"
     z_stem="${z_stem/unhewn_/}"
-    z_upper=$(zrbcc_upcase_capture "${z_stem}") || buc_die_now "rbcc_emit_consts: upcase failed for ${z_name}"
+    zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
     buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -368,7 +370,7 @@ rbcc_emit_consts() {
     BUBC_band_selftest  \
   ; do
     z_stem="${z_name#BUBC_}"
-    z_upper=$(zrbcc_upcase_capture "${z_stem}") || buc_die_now "rbcc_emit_consts: upcase failed for ${z_name}"
+    zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
     buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
       || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
   done
@@ -377,7 +379,7 @@ rbcc_emit_consts() {
   printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
   z_name="BUBC_tweak_regime_poison"
   z_stem="${z_name#BUBC_}"
-  z_upper=$(zrbcc_upcase_capture "${z_stem}") || buc_die_now "rbcc_emit_consts: upcase failed for ${z_name}"
+  zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
   buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
     || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
 }
@@ -392,6 +394,9 @@ zrbcc_kindle() {
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
   readonly RBCC_CURL_MAX_TIME_SEC=60
 
+  # Yawp group return slot (zrbcc_upper_yawp)
+  z_rbcc_upper=""
+
   readonly ZRBCC_KINDLED=1
 }
 
@@ -399,22 +404,26 @@ zrbcc_sentinel() {
   test "${ZRBCC_KINDLED:-}" = "1" || buc_die_now "Module rbcc not kindled - call zrbcc_kindle first"
 }
 
-# Map a-z to A-Z in the argument and emit it. Builtins only: bash 3.2 has no
-# case-mapping expansion, and the external case mappers are evicted. The
-# replacement stays unquoted, since bash before 4.3 keeps quotes there.
-zrbcc_upcase_capture() {
+# zrbcc_upper_yawp text — the text with a–z mapped to A–Z, by position against
+# the two alphabets (bash 3.2 has no case mapping and the external mappers are evicted)
+# → z_upper="${z_rbcc_upper}"
+zrbcc_upper_yawp() {
   zrbcc_sentinel
-
-  local z_text="${1:-}"
-  local -r z_lower="abcdefghijklmnopqrstuvwxyz"
-  local -r z_upper="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  local z_index=0
-  while test "${z_index}" -lt "${#z_lower}"; do
-    z_text="${z_text//"${z_lower:z_index:1}"/${z_upper:z_index:1}}"
-    z_index=$((z_index + 1))
+  local -r z_in="${1:-}"
+  local -r z_from="abcdefghijklmnopqrstuvwxyz"
+  local -r z_onto="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  local z_out=""
+  local z_c=""
+  local z_head=""
+  local z_i=0
+  while test "${z_i}" -lt "${#z_in}"; do
+    z_c="${z_in:${z_i}:1}"
+    z_head="${z_from%%"${z_c}"*}"
+    test "${#z_head}" -eq "${#z_from}" || z_c="${z_onto:${#z_head}:1}"
+    z_out="${z_out}${z_c}"
+    z_i=$((z_i + 1))
   done
-
-  echo "${z_text}"
+  z_rbcc_upper="${z_out}"
 }
 
 # eof
