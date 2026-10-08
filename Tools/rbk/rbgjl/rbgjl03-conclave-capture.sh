@@ -76,6 +76,7 @@ RETRY_BACKOFF_SEC=20
 # is read from a file each attempt truncates (zrbgjl_digest_to), never captured
 # around zrbgjl_retry.
 zrbgjl_retry() {
+  test "$#" -ge 2 || { echo "FATAL: zrbgjl_retry needs a label and a command" >&2; exit 1; }
   z_label="$1"
   shift
   z_attempt=1
@@ -86,7 +87,7 @@ zrbgjl_retry() {
     test "${z_attempt}" -lt "${RETRY_ATTEMPTS}" || return "${z_rc}"
     z_wait=$((RETRY_BACKOFF_SEC * z_attempt))
     echo "${z_label}: attempt ${z_attempt}/${RETRY_ATTEMPTS} failed (exit ${z_rc}); retrying in ${z_wait}s" >&2
-    sleep "${z_wait}"
+    sleep "${z_wait}" || { echo "FATAL: ${z_label}: backoff sleep failed" >&2; exit 1; }
     z_attempt=$((z_attempt + 1))
   done
 }
