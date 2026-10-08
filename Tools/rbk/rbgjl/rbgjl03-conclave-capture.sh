@@ -59,6 +59,42 @@ echo "Lode package: ${PKG}"
 # Acquisition moment, attested once for the whole cohort.
 ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
+# Bounded retry around each member's registry calls. GAR's upload endpoint has been
+# seen answering every blob PATCH 503 for ~90s, outlasting gcrane's own internal
+# retry, then recovering: the same fresh large-layer upload succeeded in seconds on
+# the next build. Both wrapped calls are idempotent under retry (CBi_103) — a re-run
+# cp skips blobs already standing and re-tags the same digest, and digest only reads.
+# Three attempts with linear backoff keep a member's worst case near five minutes,
+# inside the host's capture-heavy poll ceiling. gcrane's --jobs is not lowered: it
+# bounds only a --recursive copy, never a single image's layer uploads.
+RETRY_ATTEMPTS=3
+RETRY_BACKOFF_SEC=20
+
+# retry LABEL CMD [ARG...] — run CMD, re-running a failure until RETRY_ATTEMPTS have
+# been spent; returns CMD's last exit status. CMD's stdout passes through from every
+# attempt, failed ones included, so a value CMD yields is read from a file each
+# attempt truncates (digest_to), never captured around retry.
+retry() {
+  R_LABEL="$1"
+  shift
+  R_ATTEMPT=1
+  while :; do
+    R_RC=0
+    "$@" || R_RC=$?
+    test "${R_RC}" -ne 0 || return 0
+    test "${R_ATTEMPT}" -lt "${RETRY_ATTEMPTS}" || return "${R_RC}"
+    R_WAIT=$((RETRY_BACKOFF_SEC * R_ATTEMPT))
+    echo "${R_LABEL}: attempt ${R_ATTEMPT}/${RETRY_ATTEMPTS} failed (exit ${R_RC}); retrying in ${R_WAIT}s" >&2
+    sleep "${R_WAIT}"
+    R_ATTEMPT=$((R_ATTEMPT + 1))
+  done
+}
+
+# digest_to REF FILE — one gcrane digest attempt, its stdout truncating FILE.
+digest_to() {
+  gcrane digest "$1" > "$2"
+}
+
 # Accumulate the envelope members[] as we capture (one element per tool). No jq
 # dependency — values are controlled (tool name, upstream ref, hex digest, SA
 # email, build id, ISO timestamp); none can carry a literal quote.
@@ -90,15 +126,18 @@ for SPEC in \
   # delete a child while its parent index exists (FAILED_PRECONDITION, "referenced by
   # parent manifests") and a single packages.delete removes nothing — banish then
   # needs multiple convergence rounds instead of one.
-  gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
-    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
+  retry "gcrane cp ${NAME}" gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
+    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
 
   # Record the upstream manifest-list digest for the envelope. gcrane digest (no
   # --platform) streams the tag's stored index digest (sha256:...) — the same canonical
   # value docker's RepoDigests reported, unchanged by the single-platform copy above, so
   # recorded digests stay identical to the pre-eviction docker path. CBb_101 applies.
-  DIGEST=$(gcrane digest "${UPSTREAM}") \
-    || { echo "FATAL: gcrane digest failed for ${UPSTREAM}" >&2; exit 1; }
+  DIGEST_FILE="/workspace/conclave_digest_${NAME}.txt"
+  retry "gcrane digest ${NAME}" digest_to "${UPSTREAM}" "${DIGEST_FILE}" \
+    || { echo "FATAL: gcrane digest failed for ${UPSTREAM} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
+  DIGEST=$(cat "${DIGEST_FILE}") \
+    || { echo "FATAL: cannot read ${DIGEST_FILE}" >&2; exit 1; }
   test -n "${DIGEST}" || { echo "FATAL: empty digest for ${UPSTREAM}" >&2; exit 1; }
 
   echo "${NAME} captured: ${DEST} (${DIGEST})"
