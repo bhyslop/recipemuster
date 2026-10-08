@@ -71,6 +71,137 @@ zrbfc_redon_tick() {
   buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; open a ${RBCC_noun_sederunt} (rbw-aa or rbw-aN), then re-run"
 }
 
+# zrbfc_failure_tail — best-effort view of why a build ended short of SUCCESS:
+# the failure detail and the steps that did not succeed, from the registered
+# status response, then the newest Cloud Logging entries of the build in time
+# order, each led by its step label (a step's own lines carry theirs already).
+# Build steps log CLOUD_LOGGING_ONLY, so this is the host's only view of a cloud
+# step's own words. Never dies and never touches the verdict: a read that fails,
+# is denied, or finds nothing yet ingested warns so and returns 0, leaving the
+# caller's status die to stand. Emits through buc, the stream the caller's die
+# rides. Reads ZRBFC_BUILD_STATUS_FILE, registered by the caller.
+zrbfc_failure_tail() {
+  local -r z_label="${1:?zrbfc_failure_tail: label required}"
+  local -r z_build_id="${2:?zrbfc_failure_tail: build id required}"
+  local -r z_token="${3:?zrbfc_failure_tail: token required}"
+
+  local -r z_page_size=40
+  local -r z_attempts=3
+  local -r z_prefix="${BURD_TEMP_DIR}/rbfc_failure_"
+  local -r z_detail_file="${z_prefix}detail.txt"
+  local -r z_detail_stderr="${z_prefix}detail_stderr.txt"
+  local -r z_body_file="${z_prefix}log_body.json"
+  local -r z_body_stderr="${z_prefix}log_body_stderr.txt"
+  local -r z_url="${RBGC_API_ROOT_LOGGING}${RBGC_LOGGING_V2}${RBGC_LOGGING_ENTRIES_LIST_SUFFIX}"
+  local -r z_log_name="projects/${RBGD_GCB_PROJECT_ID}/logs/cloudbuild"
+
+  local z_line=""
+  local z_lines=()
+  local z_i=0
+
+  local z_detail_status=0
+  jq -r '
+      (.failureInfo.detail // empty),
+      ( (.steps // []) | to_entries[]
+        | select(.value.status != "SUCCESS" and .value.status != "QUEUED" and .value.status != "STATUS_UNKNOWN")
+        | "step #\(.key) \(.value.id // .value.name // "?"): \(.value.status)" )
+    ' "${ZRBFC_BUILD_STATUS_FILE}" > "${z_detail_file}" 2>"${z_detail_stderr}" \
+    || z_detail_status=$?
+  if test "${z_detail_status}" -eq 0; then
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_lines+=("${z_line}")
+    done < "${z_detail_file}"
+    for z_i in "${!z_lines[@]}"; do
+      buc_warn "${z_label}: ${z_lines[${z_i}]}"
+    done
+  else
+    buc_warn "${z_label}: the build status carries no readable failure detail (see ${z_detail_stderr})"
+  fi
+
+  local z_body_status=0
+  jq -n                                                                                        \
+     --arg     proj   "projects/${RBGD_GCB_PROJECT_ID}"                                        \
+     --arg     filter "logName=\"${z_log_name}\" AND resource.type=\"build\" AND resource.labels.build_id=\"${z_build_id}\"" \
+     --argjson size   "${z_page_size}"                                                         \
+     '{resourceNames: [$proj], filter: $filter, orderBy: "timestamp desc", pageSize: $size}'   \
+     > "${z_body_file}" 2>"${z_body_stderr}" \
+    || z_body_status=$?
+  if test "${z_body_status}" -ne 0; then
+    buc_warn "${z_label}: could not compose the build log request (see ${z_body_stderr}) — no step log tail"
+    return 0
+  fi
+
+  local z_attempt=0
+  local z_resp_file=""
+  local z_code_file=""
+  local z_curl_stderr=""
+  local z_tail_file=""
+  local z_tail_stderr=""
+  local z_code=""
+  local z_code_status=0
+  local z_curl_status=0
+  local z_tail_status=0
+  while :; do
+    z_attempt=$((z_attempt + 1))
+    z_resp_file="${z_prefix}log_${z_attempt}.json"
+    z_code_file="${z_prefix}log_${z_attempt}_code.txt"
+    z_curl_stderr="${z_prefix}log_${z_attempt}_curl_stderr.txt"
+    z_tail_file="${z_prefix}log_${z_attempt}_tail.txt"
+    z_tail_stderr="${z_prefix}log_${z_attempt}_tail_stderr.txt"
+
+    z_curl_status=0
+    rbuh_request "POST" "${z_url}" "${z_token}" \
+                 "${z_resp_file}" "${z_code_file}" "${z_curl_stderr}" "${z_body_file}" \
+      || z_curl_status=$?
+    if test "${z_curl_status}" -ne 0; then
+      buc_warn "${z_label}: the build log read failed (curl exit ${z_curl_status}; see ${z_curl_stderr}) — no step log tail"
+      return 0
+    fi
+
+    z_code_status=0
+    z_code=$(<"${z_code_file}") || z_code_status=$?
+    test "${z_code_status}" -eq 0 || z_code=""
+    case "${z_code}" in
+      200) : ;;
+      403) buc_warn "${z_label}: the build log read was denied (HTTP 403) — the director cannot read Cloud Logging on ${RBGD_GCB_PROJECT_ID}; no step log tail"
+           return 0 ;;
+      *)   buc_warn "${z_label}: the build log read failed (HTTP ${z_code:-none}; see ${z_resp_file}) — no step log tail"
+           return 0 ;;
+    esac
+
+    z_tail_status=0
+    jq -r '
+        (.entries // []) | reverse | .[]
+        | (.labels.build_step // "") as $step
+        | (.textPayload // "") as $text
+        | if $step == "" or ($text | startswith($step)) then $text else "\($step): \($text)" end
+      ' "${z_resp_file}" > "${z_tail_file}" 2>"${z_tail_stderr}" \
+      || z_tail_status=$?
+    if test "${z_tail_status}" -ne 0; then
+      buc_warn "${z_label}: the build log response was unreadable (see ${z_resp_file} and ${z_tail_stderr}) — no step log tail"
+      return 0
+    fi
+
+    test ! -s "${z_tail_file}" || break
+
+    if test "${z_attempt}" -ge "${z_attempts}"; then
+      buc_warn "${z_label}: no build log entries ingested after ${z_attempts} reads — no step log tail"
+      return 0
+    fi
+    sleep "${ZRBFC_BUILD_POLL_INTERVAL_SEC}"
+  done
+
+  z_lines=()
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_tail_file}"
+
+  buc_info "${z_label}: build log tail — newest ${z_page_size} entries of build ${z_build_id}:"
+  for z_i in "${!z_lines[@]}"; do
+    buc_info "  ${z_lines[${z_i}]}"
+  done
+}
+
 zrbfc_wait_build_completion() {
   zrbfc_sentinel
 
@@ -223,7 +354,10 @@ zrbfc_wait_build_completion() {
   cp "${z_last_good_response}" "${ZRBFC_BUILD_STATUS_FILE}" \
     || buc_die_now "Failed to register winner response at ${ZRBFC_BUILD_STATUS_FILE}"
 
-  test "${z_status}" = "SUCCESS" || buc_die_now "${z_label}: Build failed with status: ${z_status}"
+  if test "${z_status}" != "SUCCESS"; then
+    zrbfc_failure_tail "${z_label}" "${z_build_id}" "${z_token}"
+    buc_die_now "${z_label}: Build failed with status: ${z_status}"
+  fi
 
   # Extract build wall-clock timing from terminal status response
   jq -r '.startTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_START_FILE}"

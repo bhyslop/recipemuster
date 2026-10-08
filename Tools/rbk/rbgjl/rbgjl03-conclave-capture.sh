@@ -59,6 +59,44 @@ echo "Lode package: ${PKG}"
 # Acquisition moment, attested once for the whole cohort.
 ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
+# Bounded retry around each member's registry calls. GAR's upload endpoint has been
+# seen answering every blob PATCH 503 for ~90s, outlasting gcrane's own internal
+# retry, then recovering: the same fresh large-layer upload succeeded in seconds on
+# the next build. Both wrapped calls are idempotent under retry (CBi_103) — a re-run
+# cp skips blobs already standing and re-tags the same digest, and digest only reads.
+# Three attempts with linear backoff keep a member's worst case near five minutes,
+# inside the host's capture-heavy poll ceiling. gcrane's --jobs is not lowered: it
+# bounds only a --recursive copy, never a single image's layer uploads.
+RETRY_ATTEMPTS=3
+RETRY_BACKOFF_SEC=20
+
+# zrbgjl_retry LABEL CMD [ARG...] — run CMD, re-running a failure until
+# RETRY_ATTEMPTS have been spent; returns CMD's last exit status. CMD's stdout
+# passes through from every attempt, failed ones included, so a value CMD yields
+# is read from a file each attempt truncates (zrbgjl_digest_to), never captured
+# around zrbgjl_retry.
+zrbgjl_retry() {
+  test "$#" -ge 2 || { echo "FATAL: zrbgjl_retry needs a label and a command" >&2; exit 1; }
+  z_label="$1"
+  shift
+  z_attempt=1
+  while :; do
+    z_rc=0
+    "$@" || z_rc=$?
+    test "${z_rc}" -ne 0 || return 0
+    test "${z_attempt}" -lt "${RETRY_ATTEMPTS}" || return "${z_rc}"
+    z_wait=$((RETRY_BACKOFF_SEC * z_attempt))
+    echo "${z_label}: attempt ${z_attempt}/${RETRY_ATTEMPTS} failed (exit ${z_rc}); retrying in ${z_wait}s" >&2
+    sleep "${z_wait}" || { echo "FATAL: ${z_label}: backoff sleep failed" >&2; exit 1; }
+    z_attempt=$((z_attempt + 1))
+  done
+}
+
+# zrbgjl_digest_to REF FILE — one gcrane digest attempt, its stdout truncating FILE.
+zrbgjl_digest_to() {
+  gcrane digest "$1" > "$2"
+}
+
 # Accumulate the envelope members[] as we capture (one element per tool). No jq
 # dependency — values are controlled (tool name, upstream ref, hex digest, SA
 # email, build id, ISO timestamp); none can carry a literal quote.
@@ -90,15 +128,18 @@ for SPEC in \
   # delete a child while its parent index exists (FAILED_PRECONDITION, "referenced by
   # parent manifests") and a single packages.delete removes nothing — banish then
   # needs multiple convergence rounds instead of one.
-  gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
-    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
+  zrbgjl_retry "gcrane cp ${NAME}" gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
+    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
 
   # Record the upstream manifest-list digest for the envelope. gcrane digest (no
   # --platform) streams the tag's stored index digest (sha256:...) — the same canonical
   # value docker's RepoDigests reported, unchanged by the single-platform copy above, so
   # recorded digests stay identical to the pre-eviction docker path. CBb_101 applies.
-  DIGEST=$(gcrane digest "${UPSTREAM}") \
-    || { echo "FATAL: gcrane digest failed for ${UPSTREAM}" >&2; exit 1; }
+  DIGEST_FILE="/workspace/conclave_digest_${NAME}.txt"
+  zrbgjl_retry "gcrane digest ${NAME}" zrbgjl_digest_to "${UPSTREAM}" "${DIGEST_FILE}" \
+    || { echo "FATAL: gcrane digest failed for ${UPSTREAM} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
+  DIGEST=$(cat "${DIGEST_FILE}") \
+    || { echo "FATAL: cannot read ${DIGEST_FILE}" >&2; exit 1; }
   test -n "${DIGEST}" || { echo "FATAL: empty digest for ${UPSTREAM}" >&2; exit 1; }
 
   echo "${NAME} captured: ${DEST} (${DIGEST})"
