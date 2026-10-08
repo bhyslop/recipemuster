@@ -70,28 +70,29 @@ ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 RETRY_ATTEMPTS=3
 RETRY_BACKOFF_SEC=20
 
-# retry LABEL CMD [ARG...] — run CMD, re-running a failure until RETRY_ATTEMPTS have
-# been spent; returns CMD's last exit status. CMD's stdout passes through from every
-# attempt, failed ones included, so a value CMD yields is read from a file each
-# attempt truncates (digest_to), never captured around retry.
-retry() {
-  R_LABEL="$1"
+# zrbgjl_retry LABEL CMD [ARG...] — run CMD, re-running a failure until
+# RETRY_ATTEMPTS have been spent; returns CMD's last exit status. CMD's stdout
+# passes through from every attempt, failed ones included, so a value CMD yields
+# is read from a file each attempt truncates (zrbgjl_digest_to), never captured
+# around zrbgjl_retry.
+zrbgjl_retry() {
+  z_label="$1"
   shift
-  R_ATTEMPT=1
+  z_attempt=1
   while :; do
-    R_RC=0
-    "$@" || R_RC=$?
-    test "${R_RC}" -ne 0 || return 0
-    test "${R_ATTEMPT}" -lt "${RETRY_ATTEMPTS}" || return "${R_RC}"
-    R_WAIT=$((RETRY_BACKOFF_SEC * R_ATTEMPT))
-    echo "${R_LABEL}: attempt ${R_ATTEMPT}/${RETRY_ATTEMPTS} failed (exit ${R_RC}); retrying in ${R_WAIT}s" >&2
-    sleep "${R_WAIT}"
-    R_ATTEMPT=$((R_ATTEMPT + 1))
+    z_rc=0
+    "$@" || z_rc=$?
+    test "${z_rc}" -ne 0 || return 0
+    test "${z_attempt}" -lt "${RETRY_ATTEMPTS}" || return "${z_rc}"
+    z_wait=$((RETRY_BACKOFF_SEC * z_attempt))
+    echo "${z_label}: attempt ${z_attempt}/${RETRY_ATTEMPTS} failed (exit ${z_rc}); retrying in ${z_wait}s" >&2
+    sleep "${z_wait}"
+    z_attempt=$((z_attempt + 1))
   done
 }
 
-# digest_to REF FILE — one gcrane digest attempt, its stdout truncating FILE.
-digest_to() {
+# zrbgjl_digest_to REF FILE — one gcrane digest attempt, its stdout truncating FILE.
+zrbgjl_digest_to() {
   gcrane digest "$1" > "$2"
 }
 
@@ -126,7 +127,7 @@ for SPEC in \
   # delete a child while its parent index exists (FAILED_PRECONDITION, "referenced by
   # parent manifests") and a single packages.delete removes nothing — banish then
   # needs multiple convergence rounds instead of one.
-  retry "gcrane cp ${NAME}" gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
+  zrbgjl_retry "gcrane cp ${NAME}" gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
     || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
 
   # Record the upstream manifest-list digest for the envelope. gcrane digest (no
@@ -134,7 +135,7 @@ for SPEC in \
   # value docker's RepoDigests reported, unchanged by the single-platform copy above, so
   # recorded digests stay identical to the pre-eviction docker path. CBb_101 applies.
   DIGEST_FILE="/workspace/conclave_digest_${NAME}.txt"
-  retry "gcrane digest ${NAME}" digest_to "${UPSTREAM}" "${DIGEST_FILE}" \
+  zrbgjl_retry "gcrane digest ${NAME}" zrbgjl_digest_to "${UPSTREAM}" "${DIGEST_FILE}" \
     || { echo "FATAL: gcrane digest failed for ${UPSTREAM} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
   DIGEST=$(cat "${DIGEST_FILE}") \
     || { echo "FATAL: cannot read ${DIGEST_FILE}" >&2; exit 1; }

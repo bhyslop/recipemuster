@@ -135,8 +135,7 @@ zrbfc_failure_tail() {
     test "${z_curl_rc}" -eq 0 \
       || { buc_warn "${z_label}: the build log read failed (curl rc=${z_curl_rc}; see ${z_stderr_file}) — no step log tail"; return 0; }
 
-    z_code=""
-    test ! -s "${z_code_file}" || z_code=$(<"${z_code_file}")
+    z_code=$(<"${z_code_file}") || z_code=""
     case "${z_code}" in
       200) : ;;
       403) buc_warn "${z_label}: the build log read was denied (HTTP 403) — the director cannot read Cloud Logging on ${RBGD_GCB_PROJECT_ID}; no step log tail"
