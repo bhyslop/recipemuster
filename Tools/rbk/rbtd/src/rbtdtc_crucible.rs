@@ -196,7 +196,7 @@ fn rbtdtc_kludge_producer_follows_vessel_commits() {
             };
             let Some(producer_at) = position(producer) else {
                 faults.push(format!(
-                    "suite '{}' charges '{}' without its kludge producer '{}'",
+                    "suite '{}' holds crucible '{}' without its pin producer '{}'",
                     suite.name, crucible, producer
                 ));
                 continue;
@@ -212,7 +212,7 @@ fn rbtdtc_kludge_producer_follows_vessel_commits() {
                     if committer_at > producer_at {
                         faults.push(format!(
                             "suite '{}' runs '{}' before '{}', which commits under \
-                             the vessels root and stales the pin '{}' charges",
+                             the vessels root and stales the pin crucible '{}' reads",
                             suite.name, producer, committer, crucible
                         ));
                     }
@@ -220,7 +220,7 @@ fn rbtdtc_kludge_producer_follows_vessel_commits() {
             }
         }
     }
-    assert!(faults.is_empty(), "kludge producer ordering:\n  {}", faults.join("\n  "));
+    assert!(faults.is_empty(), "pin producer ordering:\n  {}", faults.join("\n  "));
 }
 
 #[test]

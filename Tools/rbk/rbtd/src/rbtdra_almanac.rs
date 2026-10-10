@@ -269,6 +269,11 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
             &crate::rbtdrv_patrol::RBTDRV_FIXTURE_HALLMARK_LIFECYCLE,
+            // kludge-tadmor re-pins tadmor right before its charge, on
+            // bivouac's pattern: onboarding-sequence's own tadmor kludge is
+            // followed by its vessel commits, which the charge guard reads as
+            // staling that pin.
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
@@ -309,6 +314,9 @@ pub static RBTDRA_SUITES: &[rbtdre_Suite] = &[
             &crate::rbtdrn_conformance::RBTDRN_FIXTURE_CONFORMANCE,
             &crate::rbtdrh_chain::RBTDRH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtdrj_touchstone::RBTDRJ_FIXTURE_TOUCHSTONE,
+            // kludge-tadmor stands after onboarding-sequence's vessel commits,
+            // for the reason gauntlet carries it.
+            &crate::rbtdro_onboarding::RBTDRO_FIXTURE_KLUDGE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_TADMOR,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_MORIAH,
             &crate::rbtdrc_crucible::RBTDRC_FIXTURE_SRJCL,
