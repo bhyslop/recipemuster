@@ -39,6 +39,11 @@ use crate::rbtdra_almanac::{
     RBTDRA_SUITE_NAME_CALIBRANT,
     rbtdra_lookup_suite,
 };
+use crate::rbtdrm_manifest::{
+    RBTDRM_FIXTURE_KLUDGE_TADMOR,
+    RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
+    RBTDRM_FIXTURE_TADMOR,
+};
 
 // Canonical suite names. The production source of truth is the `name` literal on
 // each RBTDRA_SUITES entry; these test-side consts are the single spelling the
@@ -158,6 +163,64 @@ fn rbtdtc_ladder_containment() {
         skirmish.is_subset(&gauntlet),
         "skirmish must be a subset of gauntlet"
     );
+}
+
+/// Each kludge-pinned crucible paired with the fixture that produces its pin.
+/// The almanac's bivouac comment carries why a producer must precede the
+/// crucible at all: a k-prefixed hallmark resolves only in the local kludge
+/// namespace, so a committed pin is the residue of whichever station last
+/// kludged, and charge can only die on it.
+const ZRBTDTC_KLUDGE_PRODUCERS: &[(&str, &str)] =
+    &[(RBTDRM_FIXTURE_TADMOR, RBTDRM_FIXTURE_KLUDGE_TADMOR)];
+
+/// Fixtures that commit under the vessels root — every caller of the
+/// vessel-class commit verbs (rbtdre_commit_vessels, rbtdre_commit_vessels_all),
+/// all of which stand in rbtdro_onboarding. No fixture definition declares this,
+/// so the list is named here; a fixture gaining a vessel commit joins it.
+const ZRBTDTC_VESSEL_COMMITTERS: &[&str] = &[RBTDRM_FIXTURE_ONBOARDING_SEQUENCE];
+
+#[test]
+fn rbtdtc_kludge_producer_follows_vessel_commits() {
+    // The charge guard reads a kludge pin stale on any change under the vessels
+    // root since the pin's sha, so a producer that ran before a vessel commit
+    // leaves the crucible charging a pin the guard refuses. In every suite that
+    // charges a kludge-pinned crucible, its producer must stand ahead of the
+    // crucible and behind every fixture that commits under the vessels root.
+    let mut faults: Vec<String> = Vec::new();
+    for suite in RBTDRA_SUITES {
+        let order: Vec<&str> = suite.fixtures.iter().map(|f| f.name).collect();
+        let position = |name: &str| order.iter().position(|n| *n == name);
+        for (crucible, producer) in ZRBTDTC_KLUDGE_PRODUCERS {
+            let Some(crucible_at) = position(crucible) else {
+                continue;
+            };
+            let Some(producer_at) = position(producer) else {
+                faults.push(format!(
+                    "suite '{}' holds crucible '{}' without its pin producer '{}'",
+                    suite.name, crucible, producer
+                ));
+                continue;
+            };
+            if producer_at > crucible_at {
+                faults.push(format!(
+                    "suite '{}' runs '{}' after the crucible '{}' it produces for",
+                    suite.name, producer, crucible
+                ));
+            }
+            for committer in ZRBTDTC_VESSEL_COMMITTERS {
+                if let Some(committer_at) = position(committer) {
+                    if committer_at > producer_at {
+                        faults.push(format!(
+                            "suite '{}' runs '{}' before '{}', which commits under \
+                             the vessels root and stales the pin crucible '{}' reads",
+                            suite.name, producer, committer, crucible
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    assert!(faults.is_empty(), "pin producer ordering:\n  {}", faults.join("\n  "));
 }
 
 #[test]
