@@ -24,8 +24,8 @@ set -euo pipefail
 test -z "${ZRBHPO_SOURCED:-}" || return 0
 ZRBHPO_SOURCED=1
 
-rbhp_organization() {
-  zrbhp_sentinel
+rbhpo_organization() {
+  zrbhp0_sentinel
 
   buc_doc_brief "Display the GCP organization founding procedure yielding RBRW_ORG_ID"
   buc_doc_shown || return 0
@@ -49,7 +49,7 @@ rbhp_organization() {
   buym_cmd_yawp "something you might copy from here."; local -r z_cmd_key_copy="${z_buym_yelp}"
   buh_line     "   Cyan text is ${z_cmd_key_copy}"
   buym_href_yawp "https://example.com/" "EXAMPLE DOT COM"; local -r z_href_key_example="${z_buym_yelp}"
-  buh_line     "   Clickable links look like ${z_href_key_example} (often, ${ZRBHP_CLICK_MOD} + mouse click)"
+  buh_line     "   Clickable links look like ${z_href_key_example} (often, ${ZRBHP0_CLICK_MOD} + mouse click)"
   buym_cmd_yawp "«guillemets»"; local -r z_cmd_key_guillemet="${z_buym_yelp}"
   buh_line     "   Values in ${z_cmd_key_guillemet} are yours to substitute — never copy them literally"
   buh_e

@@ -24,8 +24,8 @@ set -euo pipefail
 test -z "${ZRBHPQ_SOURCED:-}" || return 0
 ZRBHPQ_SOURCED=1
 
-rbhp_quota_build() {
-  zrbhp_sentinel
+rbhpq_quota_build() {
+  zrbhp0_sentinel
 
   buc_doc_brief "Display the Cloud Build capacity review procedure to verify machine type and quota settings"
   buc_doc_shown || return 0
@@ -48,7 +48,7 @@ rbhp_quota_build() {
   buym_cmd_yawp "something you might copy from here."; local -r z_cmd_key_cyan="${z_buym_yelp}"
   buh_line     "   Cyan text is ${z_cmd_key_cyan}"
   buym_href_yawp "https://example.com/" "EXAMPLE DOT COM"; local -r z_href_key_example="${z_buym_yelp}"
-  buh_line     "   Clickable links look like ${z_href_key_example} (often, ${ZRBHP_CLICK_MOD} + mouse click)"
+  buh_line     "   Clickable links look like ${z_href_key_example} (often, ${ZRBHP0_CLICK_MOD} + mouse click)"
   buh_e
   buh_section  "1. Current Regime Configuration:"
   buym_cmd_yawp "${RBDC_DEPOT_PROJECT_ID}"; local -r z_cmd_regime_depot_project="${z_buym_yelp}"
