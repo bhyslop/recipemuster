@@ -25,7 +25,7 @@
 # The podvm kind rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the immure recipe (anon-quay index select + gcrane cp-by-digest
 # + blob-residency guard + vouch-push) and the substitutions blob — and composes them
-# through zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
+# through zrblds_spine_dispatch / zrblds_spine_extract_single. No build-submission or
 # step-composition machinery lives here.
 #
 # Shape: opaque-blob (like wsl/underpin) x multi-member (like reliquary/conclave). Each
@@ -50,15 +50,15 @@ set -euo pipefail
 # separate, deferred layer that reads this fact — not part of immure.
 
 ######################################################################
-# Internal Helpers (zrbld_*)
+# Internal Helpers (zrbldv_*)
 
 # Internal: resolve the family argument to its (kind-letter, quay-family, selection,
 # brand) tuple. The brand IS the operator-typed argument and the envelope kind field.
 # Both families are wired; podvm-wsl is fixture-proven recurring (picket tier), and
 # podvm-native carries full 8-leaf curation (see rbgc_constants podvm selection block).
 # Args: family   Sets: z_kind, z_quay_family, z_selection (caller-scoped locals)
-zrbld_immure_resolve_family() {
-  zrbld_sentinel
+zrbldv_immure_resolve_family() {
+  zrbld0_sentinel
   local -r zz_family="${1:?Family required}"
   case "${zz_family}" in
     "${RBGC_LODE_BRAND_PODVM_WSL}")
@@ -96,8 +96,8 @@ zrbld_immure_resolve_family() {
 #   preserved — compact JSON array of already-captured members (refresh add-only);
 #               "[]" for a fresh capture. Passed through as _RBGL_PODVM_PRESERVED so
 #               the select step splices them in without re-resolving upstream.
-zrbld_immure_submit() {
-  zrbld_sentinel
+zrbldv_immure_submit() {
+  zrbld0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_brand="${2:?Brand required}"
@@ -118,14 +118,14 @@ zrbld_immure_submit() {
   # (z_rbfc_tool_*). The gcrane builder reads public quay anonymously and pushes GAR
   # ambiently (google.Keychain -> Mason SA).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl07-immure-select.py|${z_rbfc_tool_gcloud}|immure-select|python3"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl08-immure-capture.sh|${z_rbfc_tool_gcrane}|immure-capture|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl09-immure-residency.sh|${z_rbfc_tool_docker}|immure-residency|bash"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl07-immure-select.py|${z_rbfc_tool_gcloud}|immure-select|python3"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl08-immure-capture.sh|${z_rbfc_tool_gcrane}|immure-capture|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl09-immure-residency.sh|${z_rbfc_tool_docker}|immure-residency|bash"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing immure substitutions blob"
-  local -r z_subs_file="${ZRBLD_IMMURE_PREFIX}subs.json"
+  local -r z_subs_file="${ZRBLD0_IMMURE_PREFIX}subs.json"
   jq -n \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
@@ -159,17 +159,17 @@ zrbld_immure_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose immure substitutions blob"
 
-  zrbld_spine_dispatch \
+  zrblds_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
-    "${z_subs_file}" "${ZRBLD_IMMURE_PREFIX}" \
+    "${z_subs_file}" "${ZRBLD0_IMMURE_PREFIX}" \
     "${z_recipe[@]}"
 }
 
 ######################################################################
-# External Functions (rbld_*)
+# External Functions (rbldv_*)
 
-rbld_presage() {
-  zrbld_sentinel
+rbldv_presage() {
+  zrbld0_sentinel
 
   buc_doc_brief "Presage an immure — show what it would capture for one quay family (read-only, no credential or network touch)"
   buc_doc_param "family"  "Quay family — ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE}"
@@ -181,7 +181,7 @@ rbld_presage() {
   local -r z_version="${1:-}"
 
   local z_kind="" z_quay_family="" z_selection=""
-  zrbld_immure_resolve_family "${z_brand}"
+  zrbldv_immure_resolve_family "${z_brand}"
   buc_info "Presage: immure ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
 
   local z_leaf=""
@@ -198,8 +198,8 @@ rbld_presage() {
   buc_success "Presage complete: immure ${z_brand} would capture ${z_count} leaves into ${RBGL_LODES_ROOT}/${z_kind}<stamp>"
 }
 
-rbld_immure() {
-  zrbld_sentinel
+rbldv_immure() {
+  zrbld0_sentinel
 
   buc_doc_brief "Wall in the selected podman-machine disk leaves of one quay family into a Lode (podvm kind, rbi_ld capture)"
   buc_doc_param "family"          "Quay family — ${RBGC_LODE_BRAND_PODVM_WSL} or ${RBGC_LODE_BRAND_PODVM_NATIVE}"
@@ -234,7 +234,7 @@ rbld_immure() {
   fi
 
   local z_kind="" z_quay_family="" z_selection=""
-  zrbld_immure_resolve_family "${z_brand}"
+  zrbldv_immure_resolve_family "${z_brand}"
   buc_info "Immure family resolved: ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
 
   # Resolve build tools from the repo-elected substrate reliquary. immure is
@@ -266,7 +266,7 @@ rbld_immure() {
     # Refresh: derive locked version from the existing envelope and compute the
     # present-set (enveloped + orphan members) to pass as _RBGL_PODVM_PRESERVED.
     buc_step "Computing present-set for refresh (reading existing :rbi_vouch envelope)"
-    local -r z_vouch_dir="${ZRBLD_IMMURE_PREFIX}refresh_vouch"
+    local -r z_vouch_dir="${ZRBLD0_IMMURE_PREFIX}refresh_vouch"
     rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear refresh vouch scratch dir"
     local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
     zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
@@ -307,7 +307,7 @@ rbld_immure() {
     # Build the preserved-member JSON array (the present-set). Enveloped members ride
     # verbatim (their true per-member times stand); orphan tags are recovered honestly.
     # SOURCE OF TRUTH = the GAR tags, never the envelope alone.
-    local -r z_preserved_file="${ZRBLD_IMMURE_PREFIX}preserved.json"
+    local -r z_preserved_file="${ZRBLD0_IMMURE_PREFIX}preserved.json"
     local z_existing_members
     z_existing_members=$(jq '.rblv_members // []' "${z_vouch_json}") || buc_die_now "Failed to read members from: ${z_vouch_json}"
     jq -n \
@@ -354,11 +354,11 @@ rbld_immure() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbld_immure_submit "${z_token}" "${z_brand}" "${z_quay_family}" "${z_version}" \
+  zrbldv_immure_submit "${z_token}" "${z_brand}" "${z_quay_family}" "${z_version}" \
     "${z_selection}" "${z_stamp}" "${z_preserved_members}"
   # Shared single-slot extract (rblds_): the select step (step 0) authors the
   # output; the capture, residency, and vouch-push steps write none.
-  zrbld_spine_extract_single "${ZRBLD_IMMURE_PREFIX}" "${z_brand}" "Immure"
+  zrblds_spine_extract_single "${ZRBLD0_IMMURE_PREFIX}" "${z_brand}" "Immure"
 
   buc_success "Immure (${z_mode}) complete: ${z_quay_family}:${z_version} -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }

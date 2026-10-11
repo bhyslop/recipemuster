@@ -135,7 +135,7 @@ pub const RBTDRM_FIXTURE_FOUNDRY_PATH: &str = "foundry-path";
 // shipped bash surface), with save/restore best-effort. Operator-invoked via
 // FixtureRun; the no-tool decline case is deterministic everywhere.
 pub const RBTDRM_FIXTURE_CLIPBOARD: &str = "clipboard";
-// Podvm-resolve — host-side zrbld_immure_resolve_family brand mapping. No GCP
+// Podvm-resolve — host-side zrbldv_immure_resolve_family brand mapping. No GCP
 // creds or container runtime required; invokes the presage colophon (rbw-lp),
 // the read-only dry-run verb that resolves a family and reports what immure
 // would capture, expecting exit 0 with a brand-mapping-line assertion.

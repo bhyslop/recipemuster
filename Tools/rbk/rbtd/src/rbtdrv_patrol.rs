@@ -331,7 +331,7 @@ const ZRBTDRV_ARK_BASENAMES_ALL: &[&str] = &[
 /// rbcc_constants.sh RBCC_fact_ext_audit_hallmark.
 const RBTDRV_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 
-/// Single-form chaining fact emitted host-side by `rbw-lE` (rbld_ensconce): the
+/// Single-form chaining fact emitted host-side by `rbw-lE` (rbldb_ensconce): the
 /// captured Lode touchmark. The derived-pull base-anchor election reads it at
 /// conjure; the provenance envelope lives only in GAR (:rbi_vouch), never
 /// host-side. Mirrors rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
@@ -374,7 +374,7 @@ const RBTDRV_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
 const RBTDRV_WSL_RELEASE: &str = "24.04";
 const RBTDRV_WSL_POINT: &str = "4";
 
-/// BURE_TWEAK signal recognized by rbld_ensconce (rbldb_bole.sh) to pin the Lode
+/// BURE_TWEAK signal recognized by rbldb_ensconce (rbldb_bole.sh) to pin the Lode
 /// stamp, driving two captures onto one touchmark so the cloud-side collision
 /// guard's idempotent/collision branches fire. Mirror: rbldb_bole.sh
 /// `z_ensconce_stamp_tweak_name` — same literal. Carries the buo tweak sprue,
@@ -1067,7 +1067,7 @@ pub static RBTDRV_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
 // establishing the absent-Lode baseline (load-bearing) and CLOSES by banishing
 // best-effort regardless of verdict, so a mid-case failure still cleans up and a
 // crash is recovered by the next run's opening reset. Both go through one
-// divine-then-banish helper, because banish dies on an absent Lode (rbld_banish:
+// divine-then-banish helper, because banish dies on an absent Lode (rbldl_banish:
 // "nothing to banish"). The reset lives in the case body, not a setup hook: the
 // single-case runner reserves a setup hook for crucible charge, and this fixture
 // charges no crucible.

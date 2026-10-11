@@ -75,7 +75,7 @@ rbfl_feoff() {
   # no separate kind-brand fact.
   local z_kind=""
   local z_kind_status=0
-  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
+  z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix"
   test "${z_kind}" = "${RBGC_LODE_KIND_BOLE}" \

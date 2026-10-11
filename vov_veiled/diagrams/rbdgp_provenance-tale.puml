@@ -18,9 +18,9 @@ end box
 
 == Movement I - The Reliquary Conclave ==
 
-DIR -> GCB : rbld_conclave
+DIR -> GCB : rbldr_conclave
 activate GCB
-MAS -> LODE : rbld_conclave (mint reliquary Lode, seal vouch)
+MAS -> LODE : rbldr_conclave (mint reliquary Lode, seal vouch)
 GCB --> DIR : **touchmark home** (rbf fact)
 deactivate GCB
 DIR -> VES : rbfl_yoke (RBRV_RELIQUARY, all vessels; commit)
@@ -48,9 +48,9 @@ note right : oracle reruns this arc for a bottle vessel\nwith only the drive tai
 
 == Movement IV - The Airgap Chain ==
 
-DIR -> GCB : rbld_ensconce (forge upstream base)
+DIR -> GCB : rbldb_ensconce (forge upstream base)
 activate GCB
-MAS -> LODE : rbld_ensconce (capture bytes, seal vouch)
+MAS -> LODE : rbldb_ensconce (capture bytes, seal vouch)
 GCB --> DIR : **bole touchmark home** (rbf fact)
 deactivate GCB
 DIR -> VES : rbfl_feoff (elect RBRV_IMAGE_n_ANCHOR; commit)

@@ -163,7 +163,7 @@ zrbfc0_kindle() {
   # The step's needs are frozen (python3 + urllib + json), so refresh the digest
   # deliberately as a reviewed one-line change (digest of
   # gcr.io/cloud-builders/gcloud:latest, resolved 2026-06-10). rbfc-level (not
-  # ZRBLD_) because the delete body rbldd_ runs in both the rbld and rbfl processes
+  # ZRBLD0_) because the delete body rbldd_ runs in both the rbld and rbfl processes
   # and both kindle rbfc.
   readonly ZRBFC0_DELETE_BUILDER="gcr.io/cloud-builders/gcloud@sha256:8da9de84573d9a2ab150fd10a1ed38fdb27065f8020bcfe1cb49f8456db42ced"
 

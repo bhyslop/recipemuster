@@ -33,7 +33,7 @@
 # environment, not identity. Built on the rbfcb_ build primitives
 # (write-script-body, wait-build-completion), which it calls rather than absorbs.
 #
-# Sentinel is zrbfc0_sentinel, not zrbld_sentinel: the spine binds nothing rbld
+# Sentinel is zrbfc0_sentinel, not zrbld0_sentinel: the spine binds nothing rbld
 # beyond its function prefix (it reads only rbfc/rbgd/rbrr/rbdc state, plus — in
 # the single-slot extract — the rbgc fact keys and the buf_ fact machinery, both
 # furnished by rbld0_cli and rbfl0_cli alike), so it is callable by any
@@ -51,7 +51,7 @@ test -z "${ZRBLDS_SOURCED:-}" || buc_die_now "Module rblds multiply sourced - ch
 ZRBLDS_SOURCED=1
 
 ######################################################################
-# Build-assembly spine (zrbld_spine_*)
+# Build-assembly spine (zrblds_spine_*)
 
 # Internal: dispatch-time substitution-coverage check. A capture step reads
 # automapped _RBGL_* substitution registers; a reference to a key the body's
@@ -79,7 +79,7 @@ ZRBLDS_SOURCED=1
 # that MUST_MATCH would otherwise have caught.
 #
 # Args: keys_file expanded_body_file
-zrbld_spine_validate() {
+zrblds_spine_validate() {
   local -r z_keys_file="${1:?Substitution keys file required}"
   local -r z_body_file="${2:?Expanded body file required}"
 
@@ -147,7 +147,7 @@ zrbld_spine_validate() {
 # environment knobs (TETHER pool, regime timeout) are spine-owned constants.
 #
 # Args: token sa_email label poll_ceiling subs_file temp_prefix recipe_row...
-zrbld_spine_dispatch() {
+zrblds_spine_dispatch() {
   zrbfc0_sentinel
 
   local -r z_token="${1:?Token required}";                  shift
@@ -156,7 +156,7 @@ zrbld_spine_dispatch() {
   local -r z_poll_ceiling="${1:?Poll ceiling required}";    shift
   local -r z_subs_file="${1:?Substitutions file required}"; shift
   local -r z_temp_prefix="${1:?Temp prefix required}";      shift
-  test "$#" -ge 1 || buc_die_now "zrbld_spine_dispatch: recipe requires at least one step row"
+  test "$#" -ge 1 || buc_die_now "zrblds_spine_dispatch: recipe requires at least one step row"
 
   test -s "${z_subs_file}" || buc_die_now "Substitutions file missing or empty: ${z_subs_file}"
 
@@ -178,7 +178,7 @@ zrbld_spine_dispatch() {
 
   # Read the substitutions blob's keys once for the dispatch-time coverage check;
   # the per-step scan rides the composition loop below, where each step body is
-  # already include-expanded (zrbld_spine_validate). A JSON object cannot carry
+  # already include-expanded (zrblds_spine_validate). A JSON object cannot carry
   # duplicate keys, so no dedup is needed.
   local -r z_keys_file="${z_temp_prefix}subs_keys.txt"
   jq -r 'keys[]' "${z_subs_stamped_file}" > "${z_keys_file}" \
@@ -216,7 +216,7 @@ zrbld_spine_dispatch() {
     z_body=$(<"${z_body_file}") || buc_die_now "Failed to read: ${z_body_file}"
     test -n "${z_body}" || buc_die_now "Empty step script body: ${z_script_path}"
 
-    zrbld_spine_validate "${z_keys_file}" "${z_body_file}" \
+    zrblds_spine_validate "${z_keys_file}" "${z_body_file}" \
       || buc_die_now "Recipe step '${z_id}' references a substitution register absent from the composition blob (see transcript)"
 
     case "${z_entrypoint}" in
@@ -292,7 +292,7 @@ zrbld_spine_dispatch() {
 # knowledge, not the spine's. Reads ZRBFC0_BUILD_STATUS_FILE (the terminal build
 # result registered by zrbfcb_wait_build_completion).
 # Args: step_index dest_file
-zrbld_spine_extract() {
+zrblds_spine_extract() {
   zrbfc0_sentinel
 
   local -r z_step_index="${1:?Step index required}"
@@ -322,10 +322,10 @@ zrbld_spine_extract() {
 # the rbls_ sprue sweep missed one of them and broke the picket suite same-day
 # (jjqs_studbook/retired/memos/memo-20260610-heat-BH-extract-keys-triplication.md).
 # Args: prefix brand label
-#   prefix — the kind's temp-file prefix (ZRBLD_*_PREFIX)
+#   prefix — the kind's temp-file prefix (ZRBLD0_*_PREFIX)
 #   brand  — kind name for the display label (RBGC_LODE_BRAND_* / immure's family)
 #   label  — display word for messages, matching the dispatch label (e.g. "Underpin")
-zrbld_spine_extract_single() {
+zrblds_spine_extract_single() {
   zrbfc0_sentinel
 
   local -r z_prefix="${1:?Prefix required}"
@@ -335,7 +335,7 @@ zrbld_spine_extract_single() {
   buc_step "Extracting capture results from build step outputs"
 
   local -r z_output_file="${z_prefix}output.json"
-  zrbld_spine_extract 0 "${z_output_file}"
+  zrblds_spine_extract 0 "${z_output_file}"
 
   buc_log_args "${z_label} output:"
   buc_log_pipe < "${z_output_file}"

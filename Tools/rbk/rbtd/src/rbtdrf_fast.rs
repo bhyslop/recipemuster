@@ -1722,7 +1722,7 @@ fn rbtdrf_cb_round_trip(dir: &Path) -> rbtdre_Verdict {
 
 // ── Recipe-validation cases ─────────────────────────────────
 //
-// Drives zrbld_spine_validate — the Lode capture-assembly spine's dispatch-time
+// Drives zrblds_spine_validate — the Lode capture-assembly spine's dispatch-time
 // substitution-coverage check — directly: write a substitution-keys file and an
 // already-include-expanded step body, source buv_validation + rblds_spine and
 // kindle buv so buc_log_args resolves, then assert the check accepts a fully
@@ -1756,7 +1756,7 @@ fn rbtdrf_rc_run(
          source '{}'\n\
          source '{}'\n\
          zbuv_kindle\n\
-         zrbld_spine_validate '{}' '{}'",
+         zrblds_spine_validate '{}' '{}'",
         rbtdrx_native_to_posix(&buv),
         rbtdrx_native_to_posix(&spine),
         rbtdrx_native_to_posix(&keys_file),
@@ -2012,7 +2012,7 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
 
 // ── Podvm-resolve cases ─────────────────────────────────────
 //
-// Asserts that zrbld_immure_resolve_family maps both podvm brands correctly.
+// Asserts that zrbldv_immure_resolve_family maps both podvm brands correctly.
 // Invokes the presage colophon (RBTDGC_PRESAGE_IMMURE) — the read-only dry-run
 // verb that resolves a family and reports what immure would capture. Presage
 // never loads credentials nor fires a build, so the reveille tier drives it

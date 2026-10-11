@@ -141,14 +141,14 @@ zrbz_kindle() {
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"
-  buz_enroll RBZ_ENSCONCE_BOLE          "rbw-lE"  "${z_mod}" "rbld_ensconce"      "param1"  "Ensconce an upstream base image into a Lode (capture)"
-  buz_enroll RBZ_CONCLAVE_RELIQUARY     "rbw-lC"  "${z_mod}" "rbld_conclave"      ""        "Conclave the build-tool cohort into one Lode (capture)"
-  buz_enroll RBZ_UNDERPIN_WSL           "rbw-lU"  "${z_mod}" "rbld_underpin"      "param1"  "Underpin a vendor WSL rootfs into a Lode (capture; args: release point)"
-  buz_enroll RBZ_IMMURE_PODVM           "rbw-lI"  "${z_mod}" "rbld_immure"        "param1"  "Immure podman-machine disk leaves of one quay family into a Lode (capture; args: family version)"
-  buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbld_divine"        ""        "Divine Lodes — enumerate every Lode by touchmark (read-only)"
-  buz_enroll RBZ_AUGUR_LODE             "rbw-la"  "${z_mod}" "rbld_augur"         "param1"  "Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only)"
-  buz_enroll RBZ_PRESAGE_IMMURE         "rbw-lp"  "${z_mod}" "rbld_presage"       "param1"  "Presage an immure — show what it would capture for one quay family (read-only; args: family [version])"
-  buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbld_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
+  buz_enroll RBZ_ENSCONCE_BOLE          "rbw-lE"  "${z_mod}" "rbldb_ensconce"      "param1"  "Ensconce an upstream base image into a Lode (capture)"
+  buz_enroll RBZ_CONCLAVE_RELIQUARY     "rbw-lC"  "${z_mod}" "rbldr_conclave"      ""        "Conclave the build-tool cohort into one Lode (capture)"
+  buz_enroll RBZ_UNDERPIN_WSL           "rbw-lU"  "${z_mod}" "rbldw_underpin"      "param1"  "Underpin a vendor WSL rootfs into a Lode (capture; args: release point)"
+  buz_enroll RBZ_IMMURE_PODVM           "rbw-lI"  "${z_mod}" "rbldv_immure"        "param1"  "Immure podman-machine disk leaves of one quay family into a Lode (capture; args: family version)"
+  buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbldl_divine"        ""        "Divine Lodes — enumerate every Lode by touchmark (read-only)"
+  buz_enroll RBZ_AUGUR_LODE             "rbw-la"  "${z_mod}" "rbldl_augur"         "param1"  "Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only)"
+  buz_enroll RBZ_PRESAGE_IMMURE         "rbw-lp"  "${z_mod}" "rbldv_presage"       "param1"  "Presage an immure — show what it would capture for one quay family (read-only; args: family [version])"
+  buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbldl_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
 
   # Guide — human-directed procedures (rbw-g)
   buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Guide — Human-directed procedures"
