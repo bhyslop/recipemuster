@@ -39,9 +39,9 @@ rbld_divine() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
-  zrbfc_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
+  zrbfcg_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No Lodes found under ${RBGL_LODES_ROOT}/"
     buc_success "Divine complete — 0 Lodes"
     return 0
@@ -67,7 +67,7 @@ rbld_divine() {
   while IFS= read -r z_touch || test -n "${z_touch}"; do
     test -n "${z_touch}" || continue
     z_touchmarks+=("${z_touch}")
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   local -r z_row_fmt="  %-15s %s\n"
   echo ""
@@ -96,7 +96,7 @@ rbld_divine() {
     # member). Per-Lode infix preserves each response for forensics.
     z_pkg="${RBGL_LODES_ROOT}/${z_touch}"
     z_pkg_encoded="${z_pkg//\//%2F}"
-    z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+    z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
     z_enum_infix="rbld_divine_enum_${z_idx}"
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_enum_infix}"
     rbuh_require_ok "List tags for Lode ${z_touch}" "${z_enum_infix}"
@@ -165,7 +165,7 @@ rbld_augur() {
   # Member tags — every tag on the Lode package. An empty package is the
   # "Lode not present" signal (matches divine's enumerate contract).
   buc_step "Fetching member tags for Lode ${z_pkg}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+  local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_tags_infix="rbld_augur_tags"
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
   # A banished or never-captured Lode answers 404 here — the user named a
@@ -206,7 +206,7 @@ rbld_augur() {
   buc_step "Decoding provenance envelope (:${RBGC_LODE_TAG_VOUCH})"
   local -r z_vouch_dir="${ZRBLD_AUGUR_PREFIX}vouch"
   rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear vouch scratch dir: ${z_vouch_dir}"
-  zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+  zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
     || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
   local -r z_vouch_json="${z_vouch_dir}/vouch.json"
   test -f "${z_vouch_json}" \
@@ -285,7 +285,7 @@ rbld_banish() {
 
   # Verify presence before delete so banish reports a clean not-found.
   buc_step "Verifying Lode present: ${z_pkg}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
+  local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
   local -r z_probe_infix="rbld_banish_probe"
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_probe_infix}"
   rbuh_require_ok "Probe Lode ${z_touchmark}" "${z_probe_infix}"

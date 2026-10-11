@@ -52,16 +52,16 @@ rbfh_check() {
 
 rbfh_check_vessel() {
   zrbfh_sentinel
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_doc_brief "Check a vessel's conjure Dockerfile against the FROM-line hygiene contract"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) — lists-and-dies on missing/invalid
-  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
+  zrbfcv_resolve_vessel "${BUZ_FOLIO:-}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Source the vessel's rbrv.env to pick up RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE
@@ -126,7 +126,7 @@ zrbfh_furnish() {
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
-  zrbfc_kindle
+  zrbfc0_kindle
   zrbfh_kindle
 
   zbuz_kindle

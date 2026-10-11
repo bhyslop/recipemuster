@@ -69,7 +69,7 @@ rbfl_jettison() {
   local z_stderr_file="${ZRBFL_DELETE_PREFIX}stderr.txt"
 
   rbuh_request "DELETE"                                                  \
-                    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
+                    "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
                     "${z_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
     || buc_die_now "DELETE request failed — see ${z_stderr_file}"
@@ -116,7 +116,7 @@ rbfl_abjure() {
   local -r z_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
   buc_step "Enumerating packages under ${z_subtree}"
 
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfl_abjure_list"
 
   rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"

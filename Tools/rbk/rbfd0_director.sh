@@ -55,7 +55,7 @@ zrbfd_kindle() {
   test -z "${ZRBFD0_KINDLED:-}" || buc_die_now "Module rbfd already kindled"
 
   buc_log_args 'Kindle shared Foundry Core infrastructure'
-  zrbfc_kindle
+  zrbfc0_kindle
 
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
   # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
@@ -92,7 +92,7 @@ zrbfd_kindle() {
 }
 
 zrbfd_sentinel() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
   test "${ZRBFD0_KINDLED:-}" = "1" || buc_die_now "Module rbfd not kindled - call zrbfd_kindle first"
 }
 

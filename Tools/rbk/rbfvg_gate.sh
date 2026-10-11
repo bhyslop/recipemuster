@@ -53,12 +53,12 @@ rbfv_vouch_gate() {
     -H "Authorization: Bearer ${z_token}" \
     -o /dev/null \
     -w "%{http_code}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
-    > "${ZRBFC_SCRATCH_FILE}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
+    > "${ZRBFC0_SCRATCH_FILE}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
-  z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_SCRATCH_FILE}"
+  z_vouch_http_code=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_SCRATCH_FILE}"
 
   if test "${z_vouch_http_code}" != "200"; then
     buc_die_now "Hallmark not vouched: ${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"

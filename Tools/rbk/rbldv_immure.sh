@@ -91,7 +91,7 @@ zrbld_immure_resolve_family() {
 # anti-hollow-mirror guard. podvm is vessel-less (no RBRV_RELIQUARY), so all three
 # builders resolve from the pinned repo-elected substrate-reliquary cohort
 # (z_rbfc_tool_*), never a floating bootstrap — bole's pattern (RBr_p7c). The caller
-# resolves the tools (zrbfc_resolve_tool_images_from) before this runs.
+# resolves the tools (zrbfca_resolve_tool_images_from) before this runs.
 # Args: token brand quay_family version selection stamp preserved
 #   preserved — compact JSON array of already-captured members (refresh add-only);
 #               "[]" for a fresh capture. Passed through as _RBGL_PODVM_PRESERVED so
@@ -160,7 +160,7 @@ zrbld_immure_submit() {
     || buc_die_now "Failed to compose immure substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD_IMMURE_PREFIX}" \
     "${z_recipe[@]}"
 }
@@ -245,7 +245,7 @@ rbld_immure() {
   local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
   test -n "${z_substrate_reliquary}" \
     || buc_reject "${BUBC_band_unseised}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an immure substrate capture"
-  zrbfc_resolve_tool_images_from "${z_substrate_reliquary}"
+  zrbfca_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"
   local z_token=""
@@ -269,7 +269,7 @@ rbld_immure() {
     local -r z_vouch_dir="${ZRBLD_IMMURE_PREFIX}refresh_vouch"
     rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear refresh vouch scratch dir"
     local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
-    zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+    zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
       || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} at ${z_pkg} — touchmark not present or not yet vouched"
     local -r z_vouch_json="${z_vouch_dir}/vouch.json"
     test -f "${z_vouch_json}" || buc_die_now "vouch.json missing in :${RBGC_LODE_TAG_VOUCH} artifact for ${z_stamp}"
@@ -287,7 +287,7 @@ rbld_immure() {
     # Architecture H: the full present-set is passed as ONE substitution to the select step.
     # Ceiling note: worst case 8 members ≈ 2.7 KB < 4000-byte substitution limit (CBh_103).
     # A future widening past ~11 members must fall to in-pool recovery instead.
-    local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/tags?pageSize=1000"
+    local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/tags?pageSize=1000"
     local -r z_tags_infix="rbld_immure_refresh_tags"
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
     rbuh_require_ok "List tags for ${z_stamp}" "${z_tags_infix}"
@@ -298,7 +298,7 @@ rbld_immure() {
     # own version reference and its rblv_acquired_at from that version's createTime.
     # Recorded grade attests a digest AT a time, so the time is load-bearing here, not
     # forensic decoration; rblv_capture_build stays null (the crashed build is gone).
-    local -r z_versions_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/versions?pageSize=1000"
+    local -r z_versions_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/versions?pageSize=1000"
     local -r z_versions_infix="rbld_immure_refresh_versions"
     rbuh_json "GET" "${z_versions_url}" "${z_token}" "${z_versions_infix}"
     rbuh_require_ok "List versions for ${z_stamp}" "${z_versions_infix}"

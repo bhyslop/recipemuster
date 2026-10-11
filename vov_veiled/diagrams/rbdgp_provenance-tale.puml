@@ -41,7 +41,7 @@ GCB --> DIR : **hallmark home** (build fact)
 deactivate GCB
 DIR -> HM : rbfv_batch_vouch (SLSA, mode-aware)
 RET -> HM : rbfr_summon (vouch-gated pull)
-RET -> HM : rbfc_plumb (full: SLSA, SBOM, Dockerfile)
+RET -> HM : rbfcp_plumb (full: SLSA, SBOM, Dockerfile)
 DIR -> HM : Image Rekon (canonical members present)
 DIR -> NPL : rbrn_drive (all consumers; commit)
 note right : oracle reruns this arc for a bottle vessel\nwith only the drive tail (jupyter case)
@@ -72,7 +72,7 @@ DIR -> GCB : rbfd_ordain (bind mode; mirror digest-pinned upstream)
 activate GCB
 GCB --> DIR : **bind hallmark home**
 deactivate GCB
-RET -> HM : rbfc_plumb (compact)
+RET -> HM : rbfcp_plumb (compact)
 DIR -> HM : rbfl_jettison (pouch, surgical)
 DIR -> HM : Image Rekon (pouch gone, image stands)
 DIR -> NPL : rbrn_drive (commit)

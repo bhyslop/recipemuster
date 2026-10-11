@@ -56,7 +56,7 @@ set -euo pipefail
 # builder. wsl is vessel-less — it carries no RBRV_RELIQUARY — but resolves the pinned
 # cohort from the repo-elected RBRR_SUBSTRATE_RELIQUARY, so every builder is a content-
 # pinned reliquary member, zero unpinned aspects (RBr_p7c), same as bole. The caller
-# resolves the tools (zrbfc_resolve_tool_images_from) before this runs. The heavy
+# resolves the tools (zrbfca_resolve_tool_images_from) before this runs. The heavy
 # capture poll ceiling gives headroom for the in-step apt-get(gnupg) + keyserver fetch
 # + gcrane append.
 # Args: token url stamp
@@ -112,7 +112,7 @@ zrbld_underpin_submit() {
     || buc_die_now "Failed to compose underpin substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD_UNDERPIN_PREFIX}" \
     "${z_recipe[@]}"
 }
@@ -155,7 +155,7 @@ rbld_underpin() {
   local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
   test -n "${z_substrate_reliquary}" \
     || buc_reject "${BUBC_band_unseised}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
-  zrbfc_resolve_tool_images_from "${z_substrate_reliquary}"
+  zrbfca_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"
   local z_token=""

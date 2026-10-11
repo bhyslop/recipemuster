@@ -82,7 +82,7 @@ zrbfl_furnish() {
   zrbuh_kindle
   zrbge_kindle
   zrba_kindle
-  zrbfc_kindle
+  zrbfc0_kindle
   zrbfl_kindle
   zrbndb_kindle
 

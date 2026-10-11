@@ -68,7 +68,7 @@ rbfl_yoke() {
   buc_step "Validating reliquary Lode: ${z_stamp}"
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
   local -r z_pkg_encoded="${z_pkg//\//%2F}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+  local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_list_infix="rbfl_yoke_list"
 
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_list_infix}"

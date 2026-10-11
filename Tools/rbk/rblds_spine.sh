@@ -33,7 +33,7 @@
 # environment, not identity. Built on the rbfcb_ build primitives
 # (write-script-body, wait-build-completion), which it calls rather than absorbs.
 #
-# Sentinel is zrbfc_sentinel, not zrbld_sentinel: the spine binds nothing rbld
+# Sentinel is zrbfc0_sentinel, not zrbld_sentinel: the spine binds nothing rbld
 # beyond its function prefix (it reads only rbfc/rbgd/rbrr/rbdc state, plus — in
 # the single-slot extract — the rbgc fact keys and the buf_ fact machinery, both
 # furnished by rbld0_cli and rbfl0_cli alike), so it is callable by any
@@ -148,7 +148,7 @@ zrbld_spine_validate() {
 #
 # Args: token sa_email label poll_ceiling subs_file temp_prefix recipe_row...
 zrbld_spine_dispatch() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   local -r z_token="${1:?Token required}";                  shift
   local -r z_sa_email="${1:?Service-account email required}"; shift
@@ -167,10 +167,10 @@ zrbld_spine_dispatch() {
   # bug_require_clean_tree_creed before composing, so HEAD names committed code by
   # construction. Recipes without the vouch step (the delete builds) carry the key
   # unread — ALLOW_LOOSE automaps it; the coverage check below is refs-need-keys only.
-  zrbfc_ensure_git_metadata
+  zrbfcb_ensure_git_metadata
   local z_git_commit
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
-  test -n "${z_git_commit}" || buc_die_now "Empty git commit from ${ZRBFC_GIT_COMMIT_FILE}"
+  z_git_commit=$(<"${ZRBFC0_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_COMMIT_FILE}"
+  test -n "${z_git_commit}" || buc_die_now "Empty git commit from ${ZRBFC0_GIT_COMMIT_FILE}"
   local -r z_subs_stamped_file="${z_temp_prefix}subs_stamped.json"
   jq --arg zjq_commit "${z_git_commit}" '. + {_RBGL_GIT_COMMIT: $zjq_commit}' \
     "${z_subs_file}" > "${z_subs_stamped_file}" \
@@ -209,9 +209,9 @@ zrbld_spine_dispatch() {
     z_escaped_file="${z_temp_prefix}${z_id}_escaped.txt"
     z_steps_built="${z_temp_prefix}${z_id}_steps.json"
 
-    zrbfc_write_script_body "${z_script_path}" "${z_body_file}" \
+    zrbfcb_write_script_body "${z_script_path}" "${z_body_file}" \
       || buc_die_now "Failed to read step script: ${z_script_path}"
-    zrbfc_expand_includes "${z_body_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
+    zrbfcb_expand_includes "${z_body_file}" "${ZRBFC0_RBGJS_SNIPPETS_DIR}" \
       || buc_die_now "Failed to expand snippet includes in step: ${z_script_path}"
     z_body=$(<"${z_body_file}") || buc_die_now "Failed to read: ${z_body_file}"
     test -n "${z_body}" || buc_die_now "Empty step script body: ${z_script_path}"
@@ -269,7 +269,7 @@ zrbld_spine_dispatch() {
   rbndb_check "${z_token}"
 
   buc_step "Submitting ${z_label} Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "lode_build_create" "${z_build_file}"
   rbuh_require_ok "${z_label} build submission" "lode_build_create"
 
@@ -277,29 +277,29 @@ zrbld_spine_dispatch() {
   z_build_id=$(rbuh_json_field_capture "lode_build_create" '.metadata.build.id') \
     || buc_die_now "Failed to capture build ID from builds.create response"
   test -n "${z_build_id}" || buc_die_now "Build ID empty in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "${z_label} Cloud Build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion "${z_poll_ceiling}" "${z_label}"
+  zrbfcb_wait_build_completion "${z_poll_ceiling}" "${z_label}"
 }
 
 # Internal: decode the base64 JSON payload a step wrote to its buildStepOutputs
 # slot into a destination file. The step index is the only generic parameter;
 # what the decoded JSON means (its member-envelope shape) is the body's
-# knowledge, not the spine's. Reads ZRBFC_BUILD_STATUS_FILE (the terminal build
-# result registered by zrbfc_wait_build_completion).
+# knowledge, not the spine's. Reads ZRBFC0_BUILD_STATUS_FILE (the terminal build
+# result registered by zrbfcb_wait_build_completion).
 # Args: step_index dest_file
 zrbld_spine_extract() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   local -r z_step_index="${1:?Step index required}"
   local -r z_dest_file="${2:?Destination file required}"
   local -r z_b64_file="${z_dest_file}.b64"
 
-  jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC_BUILD_STATUS_FILE}" \
+  jq -r ".results.buildStepOutputs[${z_step_index}] // empty" "${ZRBFC0_BUILD_STATUS_FILE}" \
     > "${z_b64_file}" || buc_die_now "Failed to extract buildStepOutputs[${z_step_index}] from build result"
   test -s "${z_b64_file}" || buc_die_now "No buildStepOutputs[${z_step_index}] in build result — step produced no output"
 
@@ -326,7 +326,7 @@ zrbld_spine_extract() {
 #   brand  — kind name for the display label (RBGC_LODE_BRAND_* / immure's family)
 #   label  — display word for messages, matching the dispatch label (e.g. "Underpin")
 zrbld_spine_extract_single() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   local -r z_prefix="${1:?Prefix required}"
   local -r z_brand="${2:?Brand required}"

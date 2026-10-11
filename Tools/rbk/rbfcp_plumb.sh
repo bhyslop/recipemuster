@@ -24,14 +24,14 @@
 set -euo pipefail
 
 ######################################################################
-# Plumb (zrbfc_* / rbfc_*)
+# Plumb (zrbfcp_* / rbfcp_*)
 
 # Internal: core plumb logic shared by full and compact modes.
 # Queries GAR directly via Registry API — no local docker required.
 # Authenticates as Retriever. Vessel is resolved from the hallmark's vouch ark.
 # Args: hallmark mode
-zrbfc_plumb_core() {
-  zrbfc_sentinel
+zrbfcp_plumb_core() {
+  zrbfc0_sentinel
 
   local -r z_express="${1:-}"
   local -r z_mode="${2}"
@@ -50,15 +50,15 @@ zrbfc_plumb_core() {
 
   buc_step "Resolving vessel from vouch ark"
   local z_vessel=""
-  z_vessel=$(rbfc_vessel_for_hallmark_capture "${z_hallmark}") \
+  z_vessel=$(rbfcg_vessel_for_hallmark_capture "${z_hallmark}") \
     || buc_die_now "Failed to resolve vessel for hallmark: ${z_hallmark}"
   buc_info "Resolved hallmark to vessel: ${z_vessel}"
 
-  rbfc_require_vessel_sigil "${z_vessel}"
+  rbfcv_require_vessel_sigil "${z_vessel}"
 
   # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
 
   buc_step "Authenticating as Retriever"
   local z_token=""
@@ -74,7 +74,7 @@ zrbfc_plumb_core() {
   buc_step "Fetching about ark from GAR"
   local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
   local -r z_about_dir="${BURD_TEMP_DIR}/plumb_about"
-  if zrbfc_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"; then
+  if zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"; then
     z_has_about=true
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
@@ -83,14 +83,14 @@ zrbfc_plumb_core() {
   buc_step "Fetching vouch ark from GAR"
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
   local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
-  if zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
+  if zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
     z_has_vouch=true
     cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
 
   # Bind vessels: fallback to static display if no about ark
   if test "${RBRV_VESSEL_MODE}" = "rbnve_bind" && test "${z_has_about}" = "false"; then
-    zrbfc_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
+    zrbfcp_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
     return 0
   fi
 
@@ -109,23 +109,23 @@ zrbfc_plumb_core() {
     z_attest_suffix="${z_attest_suffix//\//}"
     local -r z_attest_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}"
     local -r z_attest_tag="${z_hallmark}-${z_attest_suffix}"
-    zrbfc_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
+    zrbfcg_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
       "${z_extract}/attest_config.json" \
       || buc_info "Resolved-base labels not available (attest ${z_attest_tag} absent — pre-resolved-base build?)"
   fi
 
   # Display results
   if test "${z_mode}" = "compact"; then
-    zrbfc_plumb_show_compact "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
+    zrbfcp_plumb_show_compact "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
   else
-    zrbfc_plumb_show_full "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
+    zrbfcp_plumb_show_full "${z_vessel}" "${z_hallmark}" "${z_extract}" "${z_has_vouch}"
   fi
 }
 
 # Internal: display bind vessel info
 # Args: vessel hallmark mode
-zrbfc_plumb_show_bind() {
-  zrbfc_sentinel
+zrbfcp_plumb_show_bind() {
+  zrbfc0_sentinel
 
   local -r z_vessel="$1"
   local -r z_hallmark="$2"
@@ -166,8 +166,8 @@ zrbfc_plumb_show_bind() {
 # Internal: shared section rendering used by both compact and full modes
 # Args: extract_dir has_vouch
 # Outputs: vessel type, source, builder, SLSA, SBOM summary, vouch results
-zrbfc_plumb_show_sections() {
-  zrbfc_sentinel
+zrbfcp_plumb_show_sections() {
+  zrbfc0_sentinel
 
   local -r z_dir="$1"
   local -r z_has_vouch="$2"
@@ -181,10 +181,10 @@ zrbfc_plumb_show_sections() {
   local z_vessel_mode="rbnve_conjure"
   if test -f "${z_bi}"; then
     local z_mode_raw
-    jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-      || echo "rbnve_conjure" > "${ZRBFC_SCRATCH_FILE}"
+    jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
+      || echo "rbnve_conjure" > "${ZRBFC0_SCRATCH_FILE}"
     local z_mode_raw_status=0
-    z_mode_raw=$(<"${ZRBFC_SCRATCH_FILE}") || z_mode_raw_status=$?
+    z_mode_raw=$(<"${ZRBFC0_SCRATCH_FILE}") || z_mode_raw_status=$?
     test "${z_mode_raw_status}" -eq 0 || z_mode_raw=""
     z_vessel_mode="${z_mode_raw}"
   fi
@@ -203,7 +203,7 @@ zrbfc_plumb_show_sections() {
       (.git.repo // "?"),
       (.git.branch // "?"),
       (.git.commit // "?")
-    ' "${z_bi}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+    ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
     { read -r z_bi_moniker
       read -r z_bi_source_img
       read -r z_bi_mirror_ts
@@ -212,7 +212,7 @@ zrbfc_plumb_show_sections() {
       read -r z_bi_git_repo
       read -r z_bi_git_branch
       read -r z_bi_git_commit
-    } < "${ZRBFC_SCRATCH_FILE}"
+    } < "${ZRBFC0_SCRATCH_FILE}"
 
     echo ""
     echo "  -- Vessel Type -------------------------------------------------"
@@ -273,7 +273,7 @@ zrbfc_plumb_show_sections() {
       (.slsa.build_level // "?"),
       (.slsa.build_invocation_id // "?"),
       (.slsa.provenance_builder_id // "?")
-    ' "${z_bi}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+    ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
     { read -r z_platform
       read -r z_qemu
       read -r z_cj_moniker
@@ -287,7 +287,7 @@ zrbfc_plumb_show_sections() {
       read -r z_slsa_level
       read -r z_slsa_invocation
       read -r z_slsa_builder
-    } < "${ZRBFC_SCRATCH_FILE}"
+    } < "${ZRBFC0_SCRATCH_FILE}"
 
     echo ""
     echo "  -- Vessel Type -------------------------------------------------"
@@ -365,8 +365,8 @@ zrbfc_plumb_show_sections() {
     if test -f "${z_sbom}"; then
       local z_distro_name="" z_distro_ver=""
       jq -r '(.distro.name // empty), (.distro.version // empty)' "${z_sbom}" \
-        > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_distro_name; read -r z_distro_ver; } < "${ZRBFC_SCRATCH_FILE}"
+        > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
+      { read -r z_distro_name; read -r z_distro_ver; } < "${ZRBFC0_SCRATCH_FILE}"
       if test -n "${z_distro_name}"; then
         echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
       fi
@@ -387,10 +387,10 @@ zrbfc_plumb_show_sections() {
         z_rb_stderr="${BURD_TEMP_DIR}/plumb_resolved_base_${z_rb_n}_stderr.txt"
         jq -r --arg k "${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n}" \
           '(.config.Labels // {})[$k] // empty' "${z_attest_config}" \
-          > "${ZRBFC_SCRATCH_FILE}" 2>"${z_rb_stderr}" \
+          > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_rb_stderr}" \
           || buc_warn "Could not read ${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n} from attest config — see ${z_rb_stderr}"
         local z_rb_val_status=0
-        z_rb_val=$(<"${ZRBFC_SCRATCH_FILE}") || z_rb_val_status=$?
+        z_rb_val=$(<"${ZRBFC0_SCRATCH_FILE}") || z_rb_val_status=$?
         test "${z_rb_val_status}" -eq 0 || z_rb_val=""
         if test -n "${z_rb_val}"; then
           echo "  Resolved base ${z_rb_n} (signed): ${z_rb_val}"
@@ -415,21 +415,21 @@ zrbfc_plumb_show_sections() {
       (."containerimage.descriptor".mediaType // ""),
       (."buildx.build.ref" // ""),
       (."image.name" // "")
-    ' "${z_bkmeta}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+    ' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
     { read -r z_bk_digest
       read -r z_bk_mediatype
       read -r z_bk_ref
       read -r z_bk_imgname
-    } < "${ZRBFC_SCRATCH_FILE}"
+    } < "${ZRBFC0_SCRATCH_FILE}"
     test -n "${z_bk_digest}"    && echo "  Output digest:  ${z_bk_digest}"
     test -n "${z_bk_mediatype}" && echo "  Media type:     ${z_bk_mediatype}"
     test -n "${z_bk_ref}"       && echo "  Build ref:      ${z_bk_ref}"
     test -n "${z_bk_imgname}"   && echo "  Image name:     ${z_bk_imgname}"
     # Per-platform digests if present
     local z_bk_platforms=""
-    jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+    jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
     local z_bk_platforms_status=0
-    z_bk_platforms=$(<"${ZRBFC_SCRATCH_FILE}") || z_bk_platforms_status=$?
+    z_bk_platforms=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_platforms_status=$?
     test "${z_bk_platforms_status}" -eq 0 || z_bk_platforms=""
     if test -n "${z_bk_platforms}"; then
       echo "  Per-platform digests:"
@@ -437,9 +437,9 @@ zrbfc_plumb_show_sections() {
       local z_bk_pd=""
       while IFS= read -r z_bk_plat; do
         jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
-          > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+          > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
         local z_bk_pd_status=0
-        z_bk_pd=$(<"${ZRBFC_SCRATCH_FILE}") || z_bk_pd_status=$?
+        z_bk_pd=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_pd_status=$?
         test "${z_bk_pd_status}" -eq 0 || z_bk_pd=""
         test -n "${z_bk_pd}" && echo "    ${z_bk_plat}: ${z_bk_pd}"
       done <<< "${z_bk_platforms}"
@@ -458,16 +458,16 @@ zrbfc_plumb_show_sections() {
       local z_before_count="n/a"
       local z_after_count=""
       if test -f "${z_cache_before}"; then
-        jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-          || echo "?" > "${ZRBFC_SCRATCH_FILE}"
+        jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
+          || echo "?" > "${ZRBFC0_SCRATCH_FILE}"
         local z_before_count_status=0
-        z_before_count=$(<"${ZRBFC_SCRATCH_FILE}") || z_before_count_status=$?
+        z_before_count=$(<"${ZRBFC0_SCRATCH_FILE}") || z_before_count_status=$?
         test "${z_before_count_status}" -eq 0 || z_before_count=""
       fi
-      jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-        || echo "?" > "${ZRBFC_SCRATCH_FILE}"
+      jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
+        || echo "?" > "${ZRBFC0_SCRATCH_FILE}"
       local z_after_count_status=0
-      z_after_count=$(<"${ZRBFC_SCRATCH_FILE}") || z_after_count_status=$?
+      z_after_count=$(<"${ZRBFC0_SCRATCH_FILE}") || z_after_count_status=$?
       test "${z_after_count_status}" -eq 0 || z_after_count=""
       echo "  Images before: ${z_before_count}"
       echo "  Images after:  ${z_after_count}"
@@ -484,9 +484,9 @@ zrbfc_plumb_show_sections() {
             else .Repository end) as $short |
             [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
           .[]
-        ' "${z_cache_after}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+        ' "${z_cache_after}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
         local z_new_images_status=0
-        z_new_images=$(<"${ZRBFC_SCRATCH_FILE}") || z_new_images_status=$?
+        z_new_images=$(<"${ZRBFC0_SCRATCH_FILE}") || z_new_images_status=$?
         test "${z_new_images_status}" -eq 0 || z_new_images=""
         if test -n "${z_new_images}"; then
           local z_new_count=0
@@ -513,10 +513,10 @@ zrbfc_plumb_show_sections() {
   echo ""
   if test -f "${z_sbom}"; then
     local z_pkg_count=""
-    jq '.artifacts | length' "${z_sbom}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-      || echo "?" > "${ZRBFC_SCRATCH_FILE}"
+    jq '.artifacts | length' "${z_sbom}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
+      || echo "?" > "${ZRBFC0_SCRATCH_FILE}"
     local z_pkg_count_status=0
-    z_pkg_count=$(<"${ZRBFC_SCRATCH_FILE}") || z_pkg_count_status=$?
+    z_pkg_count=$(<"${ZRBFC0_SCRATCH_FILE}") || z_pkg_count_status=$?
     test "${z_pkg_count_status}" -eq 0 || z_pkg_count=""
     echo "  Package count:  ${z_pkg_count}"
 
@@ -552,7 +552,7 @@ zrbfc_plumb_show_sections() {
         (.verification.digest_match // "?"),
         (.verification.timestamp // "?"),
         (.verification.source_image // .verification.bind_source // "?")
-      ' "${z_vs}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+      ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
       { read -r z_vf_method
         read -r z_vf_result
         read -r z_vf_pin
@@ -560,7 +560,7 @@ zrbfc_plumb_show_sections() {
         read -r z_vf_match
         read -r z_vf_ts
         read -r z_vf_source
-      } < "${ZRBFC_SCRATCH_FILE}"
+      } < "${ZRBFC0_SCRATCH_FILE}"
       echo "  Method:      ${z_vf_method}"
       echo "  Verdict:     ${z_vf_result}"
       echo "  Pin digest:  ${z_vf_pin}"
@@ -580,11 +580,11 @@ zrbfc_plumb_show_sections() {
         (.verification.verdict // "?"),
         (.verification.graft_source // "?"),
         (.verification.method // "?")
-      ' "${z_vs}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
+      ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
       { read -r z_gf_verdict
         read -r z_gf_source
         read -r z_gf_method
-      } < "${ZRBFC_SCRATCH_FILE}"
+      } < "${ZRBFC0_SCRATCH_FILE}"
       echo "  Verdict:     ${z_gf_verdict}"
       echo "  Method:      ${z_gf_method}"
       echo "  Source:      ${z_gf_source}"
@@ -597,8 +597,8 @@ zrbfc_plumb_show_sections() {
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_verifier_url="" z_verifier_sha=""
       jq -r '(.verifier.url // "?"), (.verifier.sha256 // "?")' "${z_vs}" \
-        > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_verifier_url; read -r z_verifier_sha; } < "${ZRBFC_SCRATCH_FILE}"
+        > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
+      { read -r z_verifier_url; read -r z_verifier_sha; } < "${ZRBFC0_SCRATCH_FILE}"
       echo "  Verifier:"
       echo "    URL:    ${z_verifier_url}"
       echo "    SHA256: ${z_verifier_sha}"
@@ -614,8 +614,8 @@ zrbfc_plumb_show_sections() {
 
 # Internal: display compact vessel info (conjure or bind)
 # Args: vessel hallmark extract_dir has_vouch
-zrbfc_plumb_show_compact() {
-  zrbfc_sentinel
+zrbfcp_plumb_show_compact() {
+  zrbfc0_sentinel
 
   local -r z_vessel="$1"
   local -r z_hallmark="$2"
@@ -627,7 +627,7 @@ zrbfc_plumb_show_compact() {
   echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
   echo "================================================================"
 
-  zrbfc_plumb_show_sections "${z_dir}" "${z_has_vouch}"
+  zrbfcp_plumb_show_sections "${z_dir}" "${z_has_vouch}"
 
   echo ""
   echo "================================================================"
@@ -637,8 +637,8 @@ zrbfc_plumb_show_compact() {
 # Internal: display full vessel info (conjure or bind)
 # Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
 # Args: vessel hallmark extract_dir has_vouch
-zrbfc_plumb_show_full() {
-  zrbfc_sentinel
+zrbfcp_plumb_show_full() {
+  zrbfc0_sentinel
 
   local -r z_vessel="$1"
   local -r z_hallmark="$2"
@@ -652,7 +652,7 @@ zrbfc_plumb_show_full() {
   echo "  HALLMARK PLUMB (FULL): ${z_vessel} / ${z_hallmark}"
   echo "================================================================"
 
-  zrbfc_plumb_show_sections "${z_dir}" "${z_has_vouch}"
+  zrbfcp_plumb_show_sections "${z_dir}" "${z_has_vouch}"
 
   echo ""
   echo "  -- Package Inventory --------------------------------------------"
@@ -710,8 +710,8 @@ zrbfc_plumb_show_full() {
   echo ""
 }
 
-rbfc_plumb_full() {
-  zrbfc_sentinel
+rbfcp_plumb_full() {
+  zrbfc0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -719,11 +719,11 @@ rbfc_plumb_full() {
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530); optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_express}" "full"
+  zrbfcp_plumb_core "${z_express}" "full"
 }
 
-rbfc_plumb_compact() {
-  zrbfc_sentinel
+rbfcp_plumb_compact() {
+  zrbfc0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -731,7 +731,7 @@ rbfc_plumb_compact() {
   buc_doc_param "hallmark" "Full hallmark (e.g., c260305133650-r260305160530); optional — absent, falls back to the hallmark the prior build chained forward"
   buc_doc_shown || return 0
 
-  zrbfc_plumb_core "${z_express}" "compact"
+  zrbfcp_plumb_core "${z_express}" "compact"
 }
 
 # eof

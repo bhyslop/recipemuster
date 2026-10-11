@@ -1516,7 +1516,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 
 // ── Redon-tick cases ────────────────────────────────────────
 //
-// Drives zrbfc_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
+// Drives zrbfcb_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
 // re-don — at its lapsed-sederunt branch, deterministically and credless:
 // XDG_RUNTIME_DIR is pointed at an empty scratch dir so the sederunt cache
 // resolves to nothing, the don's sederunt read misses before any network
@@ -1528,7 +1528,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 // RBCC_tweak_redon_cadence seam, picket tier.)
 
 /// Lapse-advisory fragment asserted on the tick's death. Mirror:
-/// rbfcb_host.sh `zrbfc_redon_tick` buc_die_now line — same literal.
+/// rbfcb_host.sh `zrbfcb_redon_tick` buc_die_now line — same literal.
 const RBTDRF_RT_LAPSE_FRAGMENT: &str = "sederunt lapsed mid-build";
 
 fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
@@ -1580,7 +1580,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
          source \"${{RBCC_rbrw_file}}\"\n\
          zrbrf_kindle\n\
          zrbrw_kindle\n\
-         zrbfc_redon_tick 'LapseProbe' 'poll 1'\n",
+         zrbfcb_redon_tick 'LapseProbe' 'poll 1'\n",
         moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
 

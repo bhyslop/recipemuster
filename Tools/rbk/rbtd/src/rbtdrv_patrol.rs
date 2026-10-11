@@ -388,7 +388,7 @@ const RBTDRV_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
 const RBTDRV_REDON_CADENCE_POLLS: &str = "4";
 
 /// Re-don announcement fragment asserted in the ordain transcript. Mirror:
-/// rbfcb_host.sh `zrbfc_redon_tick` buc_info line — same literal.
+/// rbfcb_host.sh `zrbfcb_redon_tick` buc_info line — same literal.
 const RBTDRV_REDON_ANNOUNCE: &str = "Re-donned the director mantle mid-flight";
 
 /// Debian-base vessel — a DIFFERENT upstream base than busybox, so ensconcing it
@@ -460,7 +460,7 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 2: ordain — under the re-don cadence tweak, so this fixture's
         // real short build also exercises the poll's mid-flight re-don
-        // (zrbfc_redon_tick) on every run, spending
+        // (zrbfcb_redon_tick) on every run, spending
         // no second build on a separate case.
         let hallmark = match rbtdri_ordain_capture(
             ctx,

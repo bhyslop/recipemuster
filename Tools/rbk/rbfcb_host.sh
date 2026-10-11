@@ -21,7 +21,7 @@
 # git-metadata, write-script-body, native-path). Relocated verbatim from the
 # former rbfc_FoundryCore.sh monolith; sourced by the rbfc kindle-entry (rbfck_)
 # so every consumer reaches them unchanged, and sourced directly by the Rust
-# fast-path driver and the capture spine. Reads ZRBFC_* kindle constants at call
+# fast-path driver and the capture spine. Reads ZRBFC0_* kindle constants at call
 # time; write-script-body and native-path are kindle-independent and carry no
 # sentinel.
 
@@ -31,7 +31,7 @@ set -euo pipefail
 test -z "${ZRBFCB_SOURCED:-}" || return 0
 ZRBFCB_SOURCED=1
 
-# zrbfc_redon_tick — one mid-flight re-don attempt, on the poll's cadence.
+# zrbfcb_redon_tick — one mid-flight re-don attempt, on the poll's cadence.
 # The don alone, never the avow-folding accessor,
 # so a lapsed sederunt fails loud here instead of re-entering the interactive
 # avowal mid-loop. Called in the process frame, never `$()`: it announces on
@@ -44,9 +44,9 @@ ZRBFCB_SOURCED=1
 # buc_rejects on its band. Sentinel-free by design — reads no ZRBFC kindle
 # state (callees guard their own kindles) — so the lapse branch stays
 # unit-testable without a live build.
-zrbfc_redon_tick() {
-  local -r z_label="${1:?zrbfc_redon_tick: label required}"
-  local -r z_poll_tag="${2:?zrbfc_redon_tick: poll tag required}"
+zrbfcb_redon_tick() {
+  local -r z_label="${1:?zrbfcb_redon_tick: label required}"
+  local -r z_poll_tag="${2:?zrbfcb_redon_tick: poll tag required}"
 
   z_rbfc_redon_token=""
 
@@ -71,7 +71,7 @@ zrbfc_redon_tick() {
   buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; open a ${RBCC_noun_sederunt} (rbw-aa or rbw-aN), then re-run"
 }
 
-# zrbfc_failure_tail — best-effort view of why a build ended short of SUCCESS:
+# zrbfcb_failure_tail — best-effort view of why a build ended short of SUCCESS:
 # the failure detail and the steps that did not succeed, from the registered
 # status response, then the newest Cloud Logging entries of the build in time
 # order, each led by its step label (a step's own lines carry theirs already).
@@ -79,11 +79,11 @@ zrbfc_redon_tick() {
 # step's own words. Never dies and never touches the verdict: a read that fails,
 # is denied, or finds nothing yet ingested warns so and returns 0, leaving the
 # caller's status die to stand. Emits through buc, the stream the caller's die
-# rides. Reads ZRBFC_BUILD_STATUS_FILE, registered by the caller.
-zrbfc_failure_tail() {
-  local -r z_label="${1:?zrbfc_failure_tail: label required}"
-  local -r z_build_id="${2:?zrbfc_failure_tail: build id required}"
-  local -r z_token="${3:?zrbfc_failure_tail: token required}"
+# rides. Reads ZRBFC0_BUILD_STATUS_FILE, registered by the caller.
+zrbfcb_failure_tail() {
+  local -r z_label="${1:?zrbfcb_failure_tail: label required}"
+  local -r z_build_id="${2:?zrbfcb_failure_tail: build id required}"
+  local -r z_token="${3:?zrbfcb_failure_tail: token required}"
 
   local -r z_page_size=40
   local -r z_attempts=3
@@ -105,7 +105,7 @@ zrbfc_failure_tail() {
       ( (.steps // []) | to_entries[]
         | select(.value.status != "SUCCESS" and .value.status != "QUEUED" and .value.status != "STATUS_UNKNOWN")
         | "step #\(.key) \(.value.id // .value.name // "?"): \(.value.status)" )
-    ' "${ZRBFC_BUILD_STATUS_FILE}" > "${z_detail_file}" 2>"${z_detail_stderr}" \
+    ' "${ZRBFC0_BUILD_STATUS_FILE}" > "${z_detail_file}" 2>"${z_detail_stderr}" \
     || z_detail_status=$?
   if test "${z_detail_status}" -eq 0; then
     while IFS= read -r z_line || test -n "${z_line}"; do
@@ -188,7 +188,7 @@ zrbfc_failure_tail() {
       buc_warn "${z_label}: no build log entries ingested after ${z_attempts} reads — no step log tail"
       return 0
     fi
-    sleep "${ZRBFC_BUILD_POLL_INTERVAL_SEC}"
+    sleep "${ZRBFC0_BUILD_POLL_INTERVAL_SEC}"
   done
 
   z_lines=()
@@ -202,16 +202,16 @@ zrbfc_failure_tail() {
   done
 }
 
-zrbfc_wait_build_completion() {
-  zrbfc_sentinel
+zrbfcb_wait_build_completion() {
+  zrbfc0_sentinel
 
-  local z_max_polls="${1:?zrbfc_wait_build_completion: max_polls required}"
-  local z_label="${2:?zrbfc_wait_build_completion: label required}"
+  local z_max_polls="${1:?zrbfcb_wait_build_completion: max_polls required}"
+  local z_label="${2:?zrbfcb_wait_build_completion: label required}"
 
   buc_step "${z_label}: Waiting for build completion"
 
   local z_build_id=""
-  z_build_id=$(<"${ZRBFC_BUILD_ID_FILE}") || buc_die_now "No build ID found"
+  z_build_id=$(<"${ZRBFC0_BUILD_ID_FILE}") || buc_die_now "No build ID found"
   test -n "${z_build_id}" || buc_die_now "Build ID file empty"
 
   buc_log_args 'Get fresh token for polling'
@@ -221,7 +221,7 @@ zrbfc_wait_build_completion() {
   # Re-don cadence — kindled default, or the BURE test seam's override so a
   # short real build exercises the tick (a malformed
   # value dies loud, any other tweak occupying the slot rides inert).
-  local z_redon_cadence="${ZRBFC_BUILD_POLL_REDON_CADENCE}"
+  local z_redon_cadence="${ZRBFC0_BUILD_POLL_REDON_CADENCE}"
   if test "${BURE_TWEAK_NAME:-}" = "${RBCC_tweak_redon_cadence}"; then
     z_redon_cadence="${BURE_TWEAK_VALUE:-}"
     [[ "${z_redon_cadence}" =~ ^[1-9][0-9]*$ ]] \
@@ -249,7 +249,7 @@ zrbfc_wait_build_completion() {
 
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
-    sleep "${ZRBFC_BUILD_POLL_INTERVAL_SEC}"
+    sleep "${ZRBFC0_BUILD_POLL_INTERVAL_SEC}"
 
     z_polls=$((z_polls + 1))
 
@@ -259,10 +259,10 @@ zrbfc_wait_build_completion() {
       z_queue_polls=$((z_queue_polls + 1))
       z_phase="queue"
       z_phase_polls="${z_queue_polls}"
-      z_phase_ceiling="${ZRBFC_BUILD_POLL_CEILING_QUEUE}"
-      if test "${z_queue_polls}" -gt "${ZRBFC_BUILD_POLL_CEILING_QUEUE}"; then
+      z_phase_ceiling="${ZRBFC0_BUILD_POLL_CEILING_QUEUE}"
+      if test "${z_queue_polls}" -gt "${ZRBFC0_BUILD_POLL_CEILING_QUEUE}"; then
         buc_tabtarget "${RBZ_QUOTA_BUILD}"
-        buc_die_now "${z_label}: pool never took the build — still queued after ${ZRBFC_BUILD_POLL_CEILING_QUEUE} queue polls; the worker pool never started execution"
+        buc_die_now "${z_label}: pool never took the build — still queued after ${ZRBFC0_BUILD_POLL_CEILING_QUEUE} queue polls; the worker pool never started execution"
       fi
     else
       z_exec_polls=$((z_exec_polls + 1))
@@ -279,7 +279,7 @@ zrbfc_wait_build_completion() {
     # stays past the cadence so the next poll retries.
     z_polls_since_don=$((z_polls_since_don + 1))
     if test "${z_polls_since_don}" -ge "${z_redon_cadence}"; then
-      zrbfc_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}"
+      zrbfcb_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}"
       if test -n "${z_rbfc_redon_token}"; then
         z_token="${z_rbfc_redon_token}"
         z_rbfc_redon_token=""
@@ -287,33 +287,33 @@ zrbfc_wait_build_completion() {
       fi
     fi
 
-    z_response_file="${ZRBFC_POLL_RESPONSE_PREFIX}${z_polls}.json"
-    z_code_file="${ZRBFC_POLL_CODE_PREFIX}${z_polls}.txt"
-    z_stderr_file="${ZRBFC_POLL_STDERR_PREFIX}${z_polls}.txt"
-    z_err_check_file="${ZRBFC_POLL_ERR_CHECK_PREFIX}${z_polls}.txt"
-    z_status_check_file="${ZRBFC_POLL_STATUS_PREFIX}${z_polls}.txt"
+    z_response_file="${ZRBFC0_POLL_RESPONSE_PREFIX}${z_polls}.json"
+    z_code_file="${ZRBFC0_POLL_CODE_PREFIX}${z_polls}.txt"
+    z_stderr_file="${ZRBFC0_POLL_STDERR_PREFIX}${z_polls}.txt"
+    z_err_check_file="${ZRBFC0_POLL_ERR_CHECK_PREFIX}${z_polls}.txt"
+    z_status_check_file="${ZRBFC0_POLL_STATUS_PREFIX}${z_polls}.txt"
 
     buc_log_args "Fetch build status (poll ${z_polls}; ${z_phase} ${z_phase_polls}/${z_phase_ceiling})"
     z_curl_rc=0
-    rbuh_request "GET" "${ZRBFC_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
+    rbuh_request "GET" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
                       "${z_token}"                                          \
                       "${z_response_file}" "${z_code_file}" "${z_stderr_file}" \
       || z_curl_rc=$?
 
     if test "${z_curl_rc}" -ne 0; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_stderr_file}"
+      buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_stderr_file}"
       buc_log_pipe < "${z_stderr_file}"
-      test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
-        && buc_die_now "Failed to get build status after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
+      test "${z_consecutive_failures}" -ge "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
+        && buc_die_now "Failed to get build status after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
       continue
     fi
 
     if ! test -s "${z_response_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
-      buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
-      test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
-        && buc_die_now "Empty build status after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
+      buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
+      test "${z_consecutive_failures}" -ge "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
+        && buc_die_now "Empty build status after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
 
@@ -322,9 +322,9 @@ zrbfc_wait_build_completion() {
       z_consecutive_failures=$((z_consecutive_failures + 1))
       local z_err_code
       z_err_code=$(<"${z_err_check_file}") || buc_die_now "Failed to read: ${z_err_check_file}"
-      buc_warn "HTTP error ${z_err_code} (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
-      test "${z_consecutive_failures}" -ge "${ZRBFC_BUILD_POLL_RETRY_TOLERANCE}" \
-        && buc_die_now "HTTP errors after ${ZRBFC_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
+      buc_warn "HTTP error ${z_err_code} (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
+      test "${z_consecutive_failures}" -ge "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
+        && buc_die_now "HTTP errors after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
 
@@ -351,24 +351,24 @@ zrbfc_wait_build_completion() {
 
   test -n "${z_last_good_response}" \
     || buc_die_now "${z_label}: no successful poll observed"
-  cp "${z_last_good_response}" "${ZRBFC_BUILD_STATUS_FILE}" \
-    || buc_die_now "Failed to register winner response at ${ZRBFC_BUILD_STATUS_FILE}"
+  cp "${z_last_good_response}" "${ZRBFC0_BUILD_STATUS_FILE}" \
+    || buc_die_now "Failed to register winner response at ${ZRBFC0_BUILD_STATUS_FILE}"
 
   if test "${z_status}" != "SUCCESS"; then
-    zrbfc_failure_tail "${z_label}" "${z_build_id}" "${z_token}"
+    zrbfcb_failure_tail "${z_label}" "${z_build_id}" "${z_token}"
     buc_die_now "${z_label}: Build failed with status: ${z_status}"
   fi
 
   # Extract build wall-clock timing from terminal status response
-  jq -r '.startTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_START_FILE}"
-  jq -r '.finishTime // empty' "${ZRBFC_BUILD_STATUS_FILE}" > "${ZRBFC_BUILD_FINISH_FILE}"
+  jq -r '.startTime // empty' "${ZRBFC0_BUILD_STATUS_FILE}" > "${ZRBFC0_BUILD_START_FILE}"
+  jq -r '.finishTime // empty' "${ZRBFC0_BUILD_STATUS_FILE}" > "${ZRBFC0_BUILD_FINISH_FILE}"
   local z_start_time=""
   local z_start_time_status=0
-  z_start_time=$(<"${ZRBFC_BUILD_START_FILE}") || z_start_time_status=$?
+  z_start_time=$(<"${ZRBFC0_BUILD_START_FILE}") || z_start_time_status=$?
   test "${z_start_time_status}" -eq 0 || z_start_time=""
   local z_finish_time=""
   local z_finish_time_status=0
-  z_finish_time=$(<"${ZRBFC_BUILD_FINISH_FILE}") || z_finish_time_status=$?
+  z_finish_time=$(<"${ZRBFC0_BUILD_FINISH_FILE}") || z_finish_time_status=$?
   test "${z_finish_time_status}" -eq 0 || z_finish_time=""
 
   if test -n "${z_start_time}" && test -n "${z_finish_time}"; then
@@ -404,25 +404,25 @@ zrbfc_wait_build_completion() {
 }
 
 # Internal: capture git metadata to module temp files (idempotent)
-# No args — reads from git, writes to ZRBFC_GIT_*_FILE kindle constants
-zrbfc_ensure_git_metadata() {
-  zrbfc_sentinel
+# No args — reads from git, writes to ZRBFC0_GIT_*_FILE kindle constants
+zrbfcb_ensure_git_metadata() {
+  zrbfc0_sentinel
 
   # Idempotent — skip if already captured
-  test ! -s "${ZRBFC_GIT_COMMIT_FILE}" || return 0
+  test ! -s "${ZRBFC0_GIT_COMMIT_FILE}" || return 0
 
   buc_log_args "Capturing git metadata to temp files"
 
-  local -r z_remote_file="${ZRBFC_GIT_PREFIX}remote.txt"
-  local -r z_url_file="${ZRBFC_GIT_PREFIX}url.txt"
+  local -r z_remote_file="${ZRBFC0_GIT_PREFIX}remote.txt"
+  local -r z_url_file="${ZRBFC0_GIT_PREFIX}url.txt"
 
-  git rev-parse HEAD > "${ZRBFC_GIT_COMMIT_FILE}" \
+  git rev-parse HEAD > "${ZRBFC0_GIT_COMMIT_FILE}" \
     || buc_die_now "Failed to get git commit"
-  test -s "${ZRBFC_GIT_COMMIT_FILE}" || buc_die_now "Empty git commit file"
+  test -s "${ZRBFC0_GIT_COMMIT_FILE}" || buc_die_now "Empty git commit file"
 
-  git rev-parse --abbrev-ref HEAD > "${ZRBFC_GIT_BRANCH_FILE}" \
+  git rev-parse --abbrev-ref HEAD > "${ZRBFC0_GIT_BRANCH_FILE}" \
     || buc_die_now "Failed to get git branch"
-  test -s "${ZRBFC_GIT_BRANCH_FILE}" || buc_die_now "Empty git branch file"
+  test -s "${ZRBFC0_GIT_BRANCH_FILE}" || buc_die_now "Empty git branch file"
 
   git remote > "${z_remote_file}" \
     || buc_die_now "Failed to list git remotes"
@@ -439,14 +439,14 @@ zrbfc_ensure_git_metadata() {
   test -n "${z_url}" || buc_die_now "Empty git repo URL from ${z_url_file}"
   local z_repo="${z_url#*://*/}"
   z_repo="${z_repo%.git}"
-  echo "${z_repo}" > "${ZRBFC_GIT_REPO_FILE}" \
+  echo "${z_repo}" > "${ZRBFC0_GIT_REPO_FILE}" \
     || buc_die_now "Failed to write derived git repo"
 }
 
 # Internal: write a script's body (everything after the shebang line) to a file
 # using only builtins — the portable replacement for `tail -n +2 src > dst`.
 # Returns non-zero if the source is unreadable or the destination unwritable.
-zrbfc_write_script_body() {
+zrbfcb_write_script_body() {
   local -r z_src="$1"
   local -r z_dst="$2"
   local z_line
@@ -466,18 +466,18 @@ zrbfc_write_script_body() {
 # Internal: expand "#@rbgjs_include <name>" markers in a step body file IN PLACE.
 # Each marker line (any leading indentation tolerated) is replaced by the body of
 # <snippets_dir>/rbgjs-<name>.sh with its leading shebang stripped — the same
-# shebang-strip rule zrbfc_write_script_body applies. A body with no markers is
+# shebang-strip rule zrbfcb_write_script_body applies. A body with no markers is
 # rewritten unchanged (a no-op), so every assembler may call this for every step.
 # This is the host side of the shared cloud-step library (the "Composed-snippet
 # library"): a snippet reads shell vars the kind sets before the marker and is
 # blind to substitution names, which is what lets one snippet serve callers with
 # disjoint _RBGx_ substitution sets. Pure primitive — args only, no kindle state,
-# no sentinel — so it stays unit-testable alongside zrbfc_write_script_body.
+# no sentinel — so it stays unit-testable alongside zrbfcb_write_script_body.
 # Returns non-zero if the body is unreadable, the snippets dir is missing, a
 # marker names no snippet, or a named snippet file is absent (crash-fast: the
 # caller dies, no silent skip).
 # Args: body_file snippets_dir
-zrbfc_expand_includes() {
+zrbfcb_expand_includes() {
   local -r z_body_file="$1"
   local -r z_snippets_dir="$2"
   test -f "${z_body_file}"    || return 1

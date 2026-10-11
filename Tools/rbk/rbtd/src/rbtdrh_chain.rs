@@ -30,7 +30,7 @@
 // harness breakage exits with some other code and fails the case loud, where a
 // bare-nonzero assertion would pass on it.
 //
-// feoff resolves its vessel by PATH (zrbfc_resolve_vessel, never the strict
+// feoff resolves its vessel by PATH (zrbfcv_resolve_vessel, never the strict
 // load), so every feoff case runs against a vessel staged in the case temp dir —
 // no tracked rbrv.env is ever touched. The chained fact is seeded by writing it
 // into the BURV root's current/, which bud_dispatch promotes to previous/ at
@@ -111,7 +111,7 @@ const RBTDRH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:b
 
 // anoint's folio is the real tracked graft vessel — the sole graft-mode vessel in
 // the tree. Unlike feoff (which reads a temp vessel by path), anoint LOADS the
-// vessel through the strict zrbfc_load_vessel, which demands it sit at its
+// vessel through the strict zrbfcv_load_vessel, which demands it sit at its
 // canonical RBRR_VESSEL_DIR location, so a temp-staged vessel cannot reach the
 // chain read. The reject precedes the rewrite, so driving the real vessel leaves
 // its rbrv.env untouched (the case asserts that byte-identity).
@@ -228,7 +228,7 @@ fn rbtdrh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
 /// Drive the anoint tabtarget against the REAL tracked graft vessel (its mandatory
 /// folio) with an EMPTY BURV root. anoint is a durable-config LINK like feoff/yoke,
 /// but chain-only (no express), so a broken chain is its sole resolve failure. It
-/// LOADS the vessel (the strict zrbfc_load_vessel demands the canonical location),
+/// LOADS the vessel (the strict zrbfcv_load_vessel demands the canonical location),
 /// so the folio must be the real tracked vessel, not a temp stage. With no chained
 /// fact the resolve finds nothing and anoint rejects with the chaining band BEFORE
 /// the rbrv.env rewrite — the same reject-before-write shape that keeps the yoke

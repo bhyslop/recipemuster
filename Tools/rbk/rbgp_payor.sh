@@ -68,7 +68,7 @@ zrbgp_kindle() {
   # 120 polls × 5s = 10-minute ceiling, generous for cold-start worker
   # assignment and image pulls, well under Cloud Build's default
   # queueTtl=3600s. Foundry builds carry user payload and use the
-  # ZRBFC_BUILD_POLL_CEILING_* family kindled in rbfc.
+  # ZRBFC0_BUILD_POLL_CEILING_* family kindled in rbfc.
   readonly ZRBGP_POOL_BUILD_POLL_CEILING=120
   readonly ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC=5
 

@@ -19,7 +19,7 @@
 #
 # Recipe Bottle Lode - kind-decode cluster (sourced by both rbld0_lode and
 # rbfl0_ledger): the single home for decoding a Lode touchmark's kind from its
-# kind-letter prefix. Sentinel is zrbfc_sentinel, not zrbld_sentinel — like the
+# kind-letter prefix. Sentinel is zrbfc0_sentinel, not zrbld_sentinel — like the
 # spine and delete clusters, this hearting binds nothing rbld and must run in the
 # rbfl (Foundry Ledger) context where rbld is not kindled.
 
@@ -55,7 +55,7 @@ ZRBLDK_SOURCED=1
 # _capture shape: stdout once or return 1; the caller guards with || buc_die_now.
 # Args: <touchmark>
 zrbld_decode_touchmark_kind_capture() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   local -r z_touchmark="${1:-}"
   local -r z_prefix="${z_touchmark%%[0-9]*}"

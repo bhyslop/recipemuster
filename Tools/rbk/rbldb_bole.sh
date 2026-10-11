@@ -97,7 +97,7 @@ zrbld_ensconce_submit() {
     || buc_die_now "Failed to compose ensconce substitutions blob"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
     "${z_subs_file}" "${ZRBLD_ENSCONCE_PREFIX}" \
     "${z_recipe[@]}"
 }
@@ -155,11 +155,11 @@ rbld_ensconce() {
   bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
   # Resolve vessel argument (sigil or path) and load.
-  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
+  zrbfcv_resolve_vessel "${BUZ_FOLIO:-}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
 
   # Resolve the single base ORIGIN. Base-kind ensconce captures one base per
   # Lode per invocation; multi-base vessels are dispatched per base. Every real
@@ -193,7 +193,7 @@ rbld_ensconce() {
   # both steps ride the pinned reliquary gcrane (z_rbfc_tool_gcrane) (RBr_p7c). The
   # vessel supplies RBRV_RELIQUARY; gcrane auths GAR ambiently whether pulled from
   # gcr.io or our AR.
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   buc_step "Authenticating as Director"
   local z_token=""

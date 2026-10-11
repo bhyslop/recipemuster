@@ -51,11 +51,11 @@ rbfv_vouch() {
     buc_die_now "Vessel directory required"
   fi
 
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   # Resolve tool images from reliquary (vouch steps use tool images)
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   buc_step "Authenticating as Director"
   local z_token=""
@@ -74,10 +74,10 @@ rbfv_vouch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || z_curl_status=$?
   # RBr_c17
@@ -101,10 +101,10 @@ rbfv_vouch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_vouch_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" \
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -193,7 +193,7 @@ zrbfv_vouch_submit() {
 
   # Assemble vouch steps via shared helper
   local -r z_vouch_steps_accumulator="${ZRBFV_VOUCH_PREFIX}steps.json"
-  zrbfc_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBFV_VOUCH_PREFIX}"
+  zrbfca_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBFV_VOUCH_PREFIX}"
 
   buc_log_args "Composing vouch Build resource JSON"
   local -r z_vouch_build_file="${ZRBFV_VOUCH_PREFIX}build.json"
@@ -256,7 +256,7 @@ zrbfv_vouch_submit() {
   rbndb_check "${z_token}"
 
   buc_step "Submitting vouch Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "vouch_build_create" "${z_vouch_build_file}"
   rbuh_require_ok "Vouch build submission" "vouch_build_create"
 
@@ -265,13 +265,13 @@ zrbfv_vouch_submit() {
   z_build_id=$(rbuh_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id_status=$?
   test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_VOUCH}" "Vouch"
+  zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_VOUCH}" "Vouch"
 }
 
 # eof

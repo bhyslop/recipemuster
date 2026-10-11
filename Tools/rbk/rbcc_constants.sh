@@ -216,8 +216,8 @@ readonly RBCC_tweak_credless_guard="buorb_credless_guard"
 readonly RBCC_tweak_http_fault="buorb_http_fault"
 
 # Mid-flight re-don cadence override. Under this tweak name, BURE_TWEAK_VALUE
-# is a positive poll count replacing ZRBFC_BUILD_POLL_REDON_CADENCE at the
-# build-completion poll's one membrane (zrbfc_wait_build_completion), so a
+# is a positive poll count replacing ZRBFC0_BUILD_POLL_REDON_CADENCE at the
+# build-completion poll's one membrane (zrbfcb_wait_build_completion), so a
 # short real build exercises the re-don tick without an hour on the clock.
 readonly RBCC_tweak_redon_cadence="buorb_redon_cadence"
 

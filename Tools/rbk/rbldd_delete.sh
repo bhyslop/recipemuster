@@ -30,7 +30,7 @@
 # home would be circular: the spine sits above rbfc, which both delete callers
 # source). It is the cinch-blessed "narrow cross into made-side delete" — abjure
 # (rbfl) cross-sources this body and the spine; banish (rbld) sources them
-# natively. Sentinel is zrbfc_sentinel, not zrbld_sentinel, so the function runs
+# natively. Sentinel is zrbfc0_sentinel, not zrbld_sentinel, so the function runs
 # in either process (zrbld_kindle runs only in the rbld process).
 
 set -euo pipefail
@@ -54,7 +54,7 @@ ZRBLDD_SOURCED=1
 # temp prefix so files land in the caller's namespace.
 # Args: token label temp_prefix package...
 zrbld_cloud_delete_dispatch() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   local -r z_token="${1:?Token required}";              shift
   local -r z_label="${1:?Label required}";              shift
@@ -71,8 +71,8 @@ zrbld_cloud_delete_dispatch() {
   buc_log_args "Composing ${z_label} delete substitutions blob"
   local -r z_subs_file="${z_temp_prefix}delete_subs.json"
   jq -n \
-    --arg zjq_api_base "${ZRBFC_GAR_API_BASE}" \
-    --arg zjq_pkg_base "${ZRBFC_GAR_PACKAGE_BASE}" \
+    --arg zjq_api_base "${ZRBFC0_GAR_API_BASE}" \
+    --arg zjq_pkg_base "${ZRBFC0_GAR_PACKAGE_BASE}" \
     --arg zjq_packages "${z_packages}" \
     '{
       _RBGL_GAR_API_BASE:     $zjq_api_base,
@@ -81,10 +81,10 @@ zrbld_cloud_delete_dispatch() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose ${z_label} delete substitutions blob"
 
-  local -r z_recipe_row="${z_step_path}|${ZRBFC_DELETE_BUILDER}|package-delete|python3"
+  local -r z_recipe_row="${z_step_path}|${ZRBFC0_DELETE_BUILDER}|package-delete|python3"
 
   zrbld_spine_dispatch \
-    "${z_token}" "${z_director_sa}" "${z_label}" "${ZRBFC_BUILD_POLL_CEILING_DELETE}" \
+    "${z_token}" "${z_director_sa}" "${z_label}" "${ZRBFC0_BUILD_POLL_CEILING_DELETE}" \
     "${z_subs_file}" "${z_temp_prefix}" \
     "${z_recipe_row}"
 }

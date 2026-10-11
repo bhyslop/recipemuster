@@ -75,10 +75,10 @@ zrbfd_preflight_reliquary() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+      -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
+      "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
@@ -209,10 +209,10 @@ zrbfd_registry_preflight() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+      -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
+      "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \

@@ -50,7 +50,7 @@ zrbfv_kindle() {
   test -z "${ZRBFV0_KINDLED:-}" || buc_die_now "Module rbfv already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'Define vouch operation file prefix'
   readonly ZRBFV_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbfv_vouch_"
@@ -65,7 +65,7 @@ zrbfv_kindle() {
 }
 
 zrbfv_sentinel() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
   test "${ZRBFV0_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv_kindle first"
 }
 

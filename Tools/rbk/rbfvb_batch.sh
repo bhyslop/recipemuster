@@ -40,7 +40,7 @@ rbfv_batch_vouch() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
   # Load-then-iterate. A synthetic sentinel element appended to the array
   # lets the final hallmark flush through the same boundary branch as every
@@ -49,7 +49,7 @@ rbfv_batch_vouch() {
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     z_lines+=("${z_line}")
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
   # Pass 1: state machine identifies pending hallmarks (image+about present,
@@ -134,7 +134,7 @@ rbfv_batch_vouch() {
     z_about_extract="${BURD_TEMP_DIR}/rbfv_batch_about_${z_hallmark}"
     z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
 
-    zrbfc_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}" \
+    zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}" \
       || buc_die_now "Failed to extract about ark for ${z_hallmark} (expected at ${z_about_pkg}:${z_hallmark})"
 
     z_build_info="${z_about_extract}/build_info.json"

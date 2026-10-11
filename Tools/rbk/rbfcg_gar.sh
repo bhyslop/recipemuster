@@ -24,20 +24,20 @@
 set -euo pipefail
 
 ######################################################################
-# GAR REST (zrbfc_* / rbfc_*)
+# GAR REST (zrbfcg_* / rbfcg_*)
 
 # Internal: enumerate every <element>/<basename> pair under <subtree-root>/ via GAR REST.
-# Writes "<element> <basename>" pairs (one per line, sorted) to ZRBFC_PACKAGE_LIST_FILE.
+# Writes "<element> <basename>" pairs (one per line, sorted) to ZRBFC0_PACKAGE_LIST_FILE.
 # An empty file is a valid result (no elements).
 # Args: token, subtree_root (e.g., RBGL_HALLMARKS_ROOT)
 # Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
-zrbfc_list_packages_capture() {
-  zrbfc_sentinel
+zrbfcg_list_packages_capture() {
+  zrbfc0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_subtree_root="${2:?Subtree root required}"
 
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfc_list_packages"
   local -r z_subtree="${z_subtree_root}/"
 
@@ -68,7 +68,7 @@ zrbfc_list_packages_capture() {
     || buc_die_now "Failed to sort GAR package list"
 
   # Per-package tags.list filter: skip packages with zero live tags. RBr_w9k
-  : > "${ZRBFC_PACKAGE_LIST_FILE}"
+  : > "${ZRBFC0_PACKAGE_LIST_FILE}"
   local z_element z_basename z_pkg_name z_pkg_encoded z_tag_infix z_tag_count
   local -i z_tag_idx=0
   while IFS=' ' read -r z_element z_basename; do
@@ -77,29 +77,29 @@ zrbfc_list_packages_capture() {
     z_pkg_encoded="${z_pkg_name//\//%2F}"
     z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}") || buc_die_now "Failed to format tag infix"
     z_tag_idx=$((z_tag_idx + 1))
-    local z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
+    local z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
     rbuh_require_ok "List tags for ${z_pkg_name}" "${z_tag_infix}"
     z_tag_count=$(rbuh_json_field_capture "${z_tag_infix}" '(.tags // []) | length') \
       || buc_die_now "Failed to count tags for ${z_pkg_name}"
     test "${z_tag_count}" -gt 0 || continue
-    echo "${z_element} ${z_basename}" >> "${ZRBFC_PACKAGE_LIST_FILE}"
+    echo "${z_element} ${z_basename}" >> "${ZRBFC0_PACKAGE_LIST_FILE}"
   done < "${z_sorted_file}"
 }
 
 # Internal: enumerate every <anchor> directly under <subtree-root>/ via GAR REST.
 # For 1-deep categories (e.g., Lodes) where the package itself is
 # named <anchor> with no further basename. Writes "<anchor>" lines (one per
-# line, sorted) to ZRBFC_PACKAGE_LIST_FILE. An empty file is a valid result.
+# line, sorted) to ZRBFC0_PACKAGE_LIST_FILE. An empty file is a valid result.
 # Args: token, subtree_root (e.g., RBGL_LODES_ROOT)
 # Pagination: pageSize=1000 — deferred until evidence of >1000 packages.
-zrbfc_list_anchors_capture() {
-  zrbfc_sentinel
+zrbfcg_list_anchors_capture() {
+  zrbfc0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_subtree_root="${2:?Subtree root required}"
 
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfc_list_anchors"
   local -r z_subtree="${z_subtree_root}/"
 
@@ -123,7 +123,7 @@ zrbfc_list_anchors_capture() {
   ' "${z_resp_file}" > "${z_raw_file}" \
     || buc_die_now "Failed to extract GAR anchor package list"
 
-  sort "${z_raw_file}" > "${ZRBFC_PACKAGE_LIST_FILE}" \
+  sort "${z_raw_file}" > "${ZRBFC0_PACKAGE_LIST_FILE}" \
     || buc_die_now "Failed to sort GAR anchor package list"
 }
 
@@ -133,8 +133,8 @@ zrbfc_list_anchors_capture() {
 # Args: token package tag extract_dir
 # Returns: 0 if extraction succeeded, 1 if artifact not found in registry.
 # Infrastructure failures (curl, jq, tar) are fatal via buc_die_now.
-zrbfc_gar_extract_artifact() {
-  zrbfc_sentinel
+zrbfcg_gar_extract_artifact() {
+  zrbfc0_sentinel
 
   local -r z_token="$1"
   local -r z_package="$2"
@@ -153,10 +153,10 @@ zrbfc_gar_extract_artifact() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_head_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_head_status}" 2>"${z_head_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -173,8 +173,8 @@ zrbfc_gar_extract_artifact() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_manifest}" 2>"${z_manifest_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -205,7 +205,7 @@ zrbfc_gar_extract_artifact() {
         --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
         -H "Authorization: Bearer ${z_token}" \
         -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
-        "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
+        "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
         > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
         || z_curl_status=$?
       test "${z_curl_status}" -eq 0 \
@@ -252,7 +252,7 @@ zrbfc_gar_extract_artifact() {
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
+      "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
       > "${z_blob_file}" 2>"${z_blob_stderr}" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
@@ -275,8 +275,8 @@ zrbfc_gar_extract_artifact() {
 # Returns: 0 and writes the config JSON to out_config_file; 1 if the image is not
 # found (HTTP 404 — graceful, e.g. a pre-resolved-base hallmark). Infrastructure
 # failures (curl, jq) are fatal via buc_die_now.
-zrbfc_image_config_fetch() {
-  zrbfc_sentinel
+zrbfcg_image_config_fetch() {
+  zrbfc0_sentinel
 
   local -r z_token="$1"
   local -r z_package="$2"
@@ -295,10 +295,10 @@ zrbfc_image_config_fetch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_head_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_head_status}" 2>"${z_head_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -314,8 +314,8 @@ zrbfc_image_config_fetch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
     > "${z_manifest}" 2>"${z_manifest_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -346,7 +346,7 @@ zrbfc_image_config_fetch() {
         --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
         -H "Authorization: Bearer ${z_token}" \
         -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
-        "${ZRBFC_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
+        "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
         > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
         || z_curl_status=$?
       test "${z_curl_status}" -eq 0 \
@@ -369,7 +369,7 @@ zrbfc_image_config_fetch() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_package}/blobs/${z_config_digest}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/blobs/${z_config_digest}" \
     > "${z_out}" 2>"${z_config_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -384,8 +384,8 @@ zrbfc_image_config_fetch() {
 # that need vessel identity for operation prose or logging route through here.
 # Args: hallmark
 # Emits: vessel sigil (e.g., "rbev_busybox")
-rbfc_vessel_for_hallmark_capture() {
-  zrbfc_sentinel
+rbfcg_vessel_for_hallmark_capture() {
+  zrbfc0_sentinel
 
   local -r z_hallmark="${1:?Hallmark required}"
 
@@ -397,7 +397,7 @@ rbfc_vessel_for_hallmark_capture() {
   local -r z_scratch="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark"
   rm -rf "${z_scratch}" || buc_die_now "Failed to clear scratch dir: ${z_scratch}"
 
-  zrbfc_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
+  zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
     || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 
   test -f "${z_scratch}/vouch_summary.json" \

@@ -51,7 +51,7 @@ zrbld_kindle() {
   test -z "${ZRBLD0_KINDLED:-}" || buc_die_now "Module rbld already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'RBGJL ensconce step scripts (same Tools directory)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
@@ -99,7 +99,7 @@ zrbld_kindle() {
 }
 
 zrbld_sentinel() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
   test "${ZRBLD0_KINDLED:-}" = "1" || buc_die_now "Module rbld not kindled - call zrbld_kindle first"
 }
 

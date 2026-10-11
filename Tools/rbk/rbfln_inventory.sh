@@ -38,9 +38,9 @@ rbfl_tally() {
     || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Tally complete — 0 hallmarks"
     return 0
@@ -53,7 +53,7 @@ rbfl_tally() {
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     z_lines+=("${z_line}")
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
   echo ""
@@ -163,7 +163,7 @@ rbfl_rekon_hallmark() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
   local z_found=""
@@ -177,7 +177,7 @@ rbfl_rekon_hallmark() {
     if test "${z_h}" = "${z_hallmark}"; then
       z_found="${z_found}${z_found:+ }${z_b}"
     fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   test -n "${z_found}" || buc_die_now "Hallmark not found: ${z_hallmark}"
 
@@ -223,9 +223,9 @@ rbfl_audit_hallmarks() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Audit complete — 0 hallmarks"
     return 0
@@ -249,7 +249,7 @@ rbfl_audit_hallmarks() {
       z_count=$(( z_count + 1 ))
       z_prev="${z_h}"
     fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   echo ""
   buc_info "Total hallmarks: ${z_count}"
@@ -288,7 +288,7 @@ rbfl_list() {
   # One enumeration of every package (decoded names, slashes restored, sorted).
   buc_step "Enumerating GAR packages"
   local -r z_list_infix="rbfl_list_pkgs"
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
   rbuh_require_ok "List GAR packages" "${z_list_infix}"
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
@@ -368,7 +368,7 @@ zrbfl_list_leaf() {
 
   local -r z_tags_infix="rbfl_list_tags"
   rbuh_json "GET" \
-    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
+    "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
     "${z_token}" "${z_tags_infix}"
   rbuh_require_ok "List tags for ${z_pkg}" "${z_tags_infix}"
   local -r z_tags_file="${BURD_TEMP_DIR}/rbfl_leaf_tags.txt"
@@ -378,7 +378,7 @@ zrbfl_list_leaf() {
 
   local -r z_vers_infix="rbfl_list_vers"
   rbuh_json "GET" \
-    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
+    "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
     "${z_token}" "${z_vers_infix}"
   rbuh_require_ok "List versions for ${z_pkg}" "${z_vers_infix}"
   local -r z_vers_file="${BURD_TEMP_DIR}/rbfl_leaf_vers.txt"

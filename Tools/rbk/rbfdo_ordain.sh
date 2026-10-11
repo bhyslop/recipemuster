@@ -37,13 +37,13 @@ rbfd_ordain() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path)
-  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
+  zrbfcv_resolve_vessel "${BUZ_FOLIO:-}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Peek at vessel mode without sourcing (sourcing makes vars readonly,
-  # and the downstream function will source again via zrbfc_load_vessel)
+  # and the downstream function will source again via zrbfcv_load_vessel)
   local -r z_rbrv_file="${z_vessel_dir}/${RBCC_rbrv_file}"
   local z_mode=""
   local z_mode_line=""

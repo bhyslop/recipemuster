@@ -47,9 +47,9 @@ rbfl_feoff() {
   # Resolve the vessel directory (sigil or path). feoff rewrites the rbrv.env
   # text directly — like the election it replaces, it never loads the vessel
   # (loading makes RBRV_* readonly, and feoff only touches one ANCHOR line).
-  zrbfc_resolve_vessel "${z_vessel}"
+  zrbfcv_resolve_vessel "${z_vessel}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
   test -f "${z_rbrv_file}" || buc_die_now "Vessel regime file not found: ${z_rbrv_file}"

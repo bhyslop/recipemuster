@@ -52,7 +52,7 @@ rbfd_graft() {
   fi
 
   # Load and validate vessel
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
     || buc_die_now "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
@@ -60,7 +60,7 @@ rbfd_graft() {
     || buc_die_now "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}' — anoint the vessel from a build, or set the slot by hand"
 
   # Resolve tool images from reliquary (graft about+vouch steps use tool images)
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
@@ -133,7 +133,7 @@ rbfd_graft() {
   buc_info "Image pushed: ${z_image_ref}"
 
   # Persist to output directory for downstream consumption
-  echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
+  echo "${z_vessel_dir}" > "${ZRBFC0_OUTPUT_VESSEL_DIR}" \
     || buc_die_now "Failed to write vessel dir to output"
   buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
