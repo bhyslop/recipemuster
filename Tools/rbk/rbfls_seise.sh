@@ -27,10 +27,10 @@
 set -euo pipefail
 
 ######################################################################
-# Seise (rbfl_*)
+# Seise (rbfls_*)
 
-rbfl_seise() {
-  zrbfl_sentinel
+rbfls_seise() {
+  zrbfl0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 

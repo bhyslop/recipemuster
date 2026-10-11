@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Wrest (rbfl_*)
+# Wrest (rbflw_*)
 
-rbfl_wrest() {
-  zrbfl_sentinel
+rbflw_wrest() {
+  zrbfl0_sentinel
 
   local -r z_locator="${BUZ_FOLIO:-}"
 

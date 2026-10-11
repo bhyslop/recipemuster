@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Anoint (rbfl_*)
+# Anoint (rbfla_*)
 
-rbfl_anoint() {
-  zrbfl_sentinel
+rbfla_anoint() {
+  zrbfl0_sentinel
 
   local -r z_vessel="${BUZ_FOLIO:-}"
 

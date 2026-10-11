@@ -26,10 +26,10 @@
 set -euo pipefail
 
 ######################################################################
-# Feoff (rbfl_*)
+# Feoff (rbflf_*)
 
-rbfl_feoff() {
-  zrbfl_sentinel
+rbflf_feoff() {
+  zrbfl0_sentinel
 
   local -r z_vessel="${BUZ_FOLIO:-}"
   local -r z_express="${1:-}"

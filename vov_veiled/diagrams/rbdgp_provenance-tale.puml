@@ -23,7 +23,7 @@ activate GCB
 MAS -> LODE : rbldr_conclave (mint reliquary Lode, seal vouch)
 GCB --> DIR : **touchmark home** (rbf fact)
 deactivate GCB
-DIR -> VES : rbfl_yoke (RBRV_RELIQUARY, all vessels; commit)
+DIR -> VES : rbfly_yoke (RBRV_RELIQUARY, all vessels; commit)
 
 == Movement II - The Local Kludge ==
 
@@ -53,7 +53,7 @@ activate GCB
 MAS -> LODE : rbldb_ensconce (capture bytes, seal vouch)
 GCB --> DIR : **bole touchmark home** (rbf fact)
 deactivate GCB
-DIR -> VES : rbfl_feoff (elect RBRV_IMAGE_n_ANCHOR; commit)
+DIR -> VES : rbflf_feoff (elect RBRV_IMAGE_n_ANCHOR; commit)
 DIR -> GCB : rbfdo_ordain (forge, tethered; builds from Lode anchor)
 activate GCB
 GCB --> DIR : **forge hallmark home**
@@ -73,7 +73,7 @@ activate GCB
 GCB --> DIR : **bind hallmark home**
 deactivate GCB
 RET -> HM : rbfcp_plumb (compact)
-DIR -> HM : rbfl_jettison (pouch, surgical)
+DIR -> HM : rbfld_jettison (pouch, surgical)
 DIR -> HM : Image Rekon (pouch gone, image stands)
 DIR -> NPL : rbrn_drive (commit)
 
@@ -83,7 +83,7 @@ DIR -> GCB : rbfdg_graft (push anointed local image; verdict GRAFTED)
 activate GCB
 GCB --> DIR : **graft hallmark home**
 deactivate GCB
-DIR -> HM : rbfl_wrest (layer-digest round trip)
-DIR -> HM : rbfl_abjure (terminal hallmark dies)
+DIR -> HM : rbflw_wrest (layer-digest round trip)
+DIR -> HM : rbfld_abjure (terminal hallmark dies)
 
 @enduml

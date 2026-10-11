@@ -326,7 +326,7 @@ const ZRBTDRV_ARK_BASENAMES_ALL: &[&str] = &[
     RBTDRV_ARK_BASENAME_POUCH,
 ];
 
-/// Multi-fact extension emitted by `rbw-iah` (rbfl_audit_hallmarks): one
+/// Multi-fact extension emitted by `rbw-iah` (rbfln_audit_hallmarks): one
 /// `<hallmark>.audit-hallmark` file per discovered hallmark. Mirrors
 /// rbcc_constants.sh RBCC_fact_ext_audit_hallmark.
 const RBTDRV_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";

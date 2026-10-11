@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Inventory (rbfl_*)
+# Inventory (rbfln_*)
 
-rbfl_tally() {
-  zrbfl_sentinel
+rbfln_tally() {
+  zrbfl0_sentinel
 
   buc_doc_brief "Tally hallmarks with health status (vouched / pending / incomplete)"
   buc_doc_shown || return 0
@@ -135,8 +135,8 @@ rbfl_tally() {
   buc_success "Tally complete"
 }
 
-rbfl_rekon_hallmark() {
-  zrbfl_sentinel
+rbfln_rekon_hallmark() {
+  zrbfl0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -211,8 +211,8 @@ rbfl_rekon_hallmark() {
   buc_success "Rekon complete for ${z_hallmark}"
 }
 
-rbfl_audit_hallmarks() {
-  zrbfl_sentinel
+rbfln_audit_hallmarks() {
+  zrbfl0_sentinel
 
   buc_doc_brief "Audit hallmarks — list all hallmark identifiers in registry"
   buc_doc_shown || return 0
@@ -257,15 +257,15 @@ rbfl_audit_hallmarks() {
 }
 
 ######################################################################
-# Raw-path list (rbfl_*) — the type-blind maintenance backdoor (rbw-il)
+# Raw-path list (rbfln_*) — the type-blind maintenance backdoor (rbw-il)
 
 # Generic, envelope-independent enumeration of GAR by raw path, narrowing
 # iteratively: no path -> top namespaces; a prefix -> its children; a full
 # package -> its tags and versions. Makes no subtree or kind assumption — it
 # reads the whole registry and narrows in-process — so it tolerates half-
 # deleted debris, legacy artifacts, and any future namespace with no new verb.
-rbfl_list() {
-  zrbfl_sentinel
+rbfln_list() {
+  zrbfl0_sentinel
 
   local -r z_path="${BUZ_FOLIO:-}"
 
@@ -306,7 +306,7 @@ rbfl_list() {
     local z_pl=""
     while IFS= read -r z_pl || test -n "${z_pl}"; do
       if test "${z_pl}" = "${z_path}"; then
-        zrbfl_list_leaf "${z_token}" "${z_path}"
+        zrbfln_list_leaf "${z_token}" "${z_path}"
         return 0
       fi
     done < "${z_pkgs_file}"
@@ -355,10 +355,10 @@ rbfl_list() {
   buc_success "List complete"
 }
 
-# Leaf display for rbfl_list: a full package's tags and versions, each annotated
+# Leaf display for rbfln_list: a full package's tags and versions, each annotated
 # with the ref form that wrest/jettison consume (tag -> :tag, version -> @digest).
-zrbfl_list_leaf() {
-  zrbfl_sentinel
+zrbfln_list_leaf() {
+  zrbfl0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_pkg="${2:?Package path required}"

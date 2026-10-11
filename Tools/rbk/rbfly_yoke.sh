@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Yoke (rbfl_*)
+# Yoke (rbfly_*)
 
-rbfl_yoke() {
-  zrbfl_sentinel
+rbfly_yoke() {
+  zrbfl0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 

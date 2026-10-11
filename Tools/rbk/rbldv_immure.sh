@@ -241,7 +241,7 @@ rbldv_immure() {
   # vessel-less — it carries no RBRV_RELIQUARY — so it resolves the pinned cohort
   # from RBRR_SUBSTRATE_RELIQUARY instead (RBr_p7c: a capture consuming a sealed
   # reliquary carries zero unpinned aspects). An unseised election refuses here
-  # rather than silently floating on a mutable tag; seise one with rbfl_seise.
+  # rather than silently floating on a mutable tag; seise one with rbfls_seise.
   local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
   test -n "${z_substrate_reliquary}" \
     || buc_reject "${BUBC_band_unseised}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an immure substrate capture"
