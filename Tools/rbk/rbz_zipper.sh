@@ -181,7 +181,7 @@ zrbz_kindle() {
   buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfld_abjure"          "param1"  "Abjure a hallmark (delete artifacts from GAR)"
   buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfln_tally"           ""  "Tally hallmarks by health state"
   z_mod="rbfv0_cli.sh"
-  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfvb_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
   z_mod="rbfr_cli.sh"
   buz_enroll RBZ_SUMMON_HALLMARK        "rbw-fs"  "${z_mod}" "rbfr_summon"          "param1"  "Summon vouched hallmark image locally"
   z_mod="rbfc0_cli.sh"

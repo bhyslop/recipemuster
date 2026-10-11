@@ -18,18 +18,18 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - batch vouch body (guard-free cluster, sourced
-# by rbfv0_verify): rbfv_batch_vouch — the two-pass driver that rolls every
-# pending hallmark (image and about present, vouch absent) and calls rbfv_vouch
-# on each. Composes rbfv_vouch from rbfvv_vouch.sh and owns no support and no
+# by rbfv0_verify): rbfvb_batch_vouch — the two-pass driver that rolls every
+# pending hallmark (image and about present, vouch absent) and calls rbfvv_vouch
+# on each. Composes rbfvv_vouch from rbfvv_vouch.sh and owns no support and no
 # kindle constant of its own.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfv_*)
+# External Functions (rbfvb_*)
 
-rbfv_batch_vouch() {
-  zrbfv_sentinel
+rbfvb_batch_vouch() {
+  zrbfv0_sentinel
 
   buc_doc_brief "Vouch every pending hallmark (image+about present, vouch absent)"
   buc_doc_shown || return 0
@@ -54,7 +54,7 @@ rbfv_batch_vouch() {
 
   # Pass 1: state machine identifies pending hallmarks (image+about present,
   # vouch absent). Accumulate into an array rather than a file so the later
-  # processing loop can iterate in-memory (no FD held open across rbfv_vouch
+  # processing loop can iterate in-memory (no FD held open across rbfvv_vouch
   # calls, which issue curl/source and would silently consume loop stdin).
   local z_pending=()
   local z_prev_h=""
@@ -117,7 +117,7 @@ rbfv_batch_vouch() {
   buc_info "Found ${z_total} pending hallmark(s) to vouch"
 
   # Pass 2: for each pending hallmark, extract about ark, read vessel_name
-  # from build_info.json, resolve vessel_dir, call rbfv_vouch. rbfv_vouch
+  # from build_info.json, resolve vessel_dir, call rbfvv_vouch. rbfvv_vouch
   # fails via buc_die_now on any vouch failure — batch terminates fail-fast at
   # the broken hallmark rather than masking problems behind a summary count.
   local z_vouched_n=0 z_idx=0 z_vessel=""
@@ -153,7 +153,7 @@ rbfv_batch_vouch() {
       || buc_die_now "Vessel directory not found: ${z_vessel_dir} (from about build_info.vessel_name for ${z_hallmark})"
 
     buc_info "Vouching ${z_hallmark} (vessel: ${z_vessel})"
-    rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
+    rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
     z_vouched_n=$(( z_vouched_n + 1 ))
   done
 

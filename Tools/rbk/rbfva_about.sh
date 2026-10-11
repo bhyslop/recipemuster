@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - about body (guard-free cluster, sourced by
-# rbfv0_verify): rbfv_about — the standalone about-metadata operation — with
-# the support that partitions to it alone, zrbfv_about_submit, which composes
+# rbfv0_verify): rbfva_about — the standalone about-metadata operation — with
+# the support that partitions to it alone, zrbfva_about_submit, which composes
 # the about step set into a builds.create submission and waits it out. Reads
-# the entry's ZRBFV_ABOUT_PREFIX kindle constant; the combined about+vouch
+# the entry's ZRBFV0_ABOUT_PREFIX kindle constant; the combined about+vouch
 # submission graft mode takes instead lives in rbfvm_metadata.sh.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfv_*)
+# External Functions (rbfva_*)
 
-rbfv_about() {
-  zrbfv_sentinel
+rbfva_about() {
+  zrbfv0_sentinel
 
   # No dirty-tree guard — about constructs metadata for an image already in
   # GAR, not an image. The commit it stamps cannot be made to match the
@@ -62,9 +62,9 @@ rbfv_about() {
   # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
   buc_step "Gating on image artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
-  local -r z_image_gate_status="${ZRBFV_ABOUT_PREFIX}image_status.txt"
-  local -r z_image_gate_response="${ZRBFV_ABOUT_PREFIX}image_response.json"
-  local -r z_image_gate_stderr="${ZRBFV_ABOUT_PREFIX}image_stderr.txt"
+  local -r z_image_gate_status="${ZRBFV0_ABOUT_PREFIX}image_status.txt"
+  local -r z_image_gate_response="${ZRBFV0_ABOUT_PREFIX}image_response.json"
+  local -r z_image_gate_stderr="${ZRBFV0_ABOUT_PREFIX}image_stderr.txt"
 
   local z_curl_status=0
   curl --head -s \
@@ -89,9 +89,9 @@ rbfv_about() {
   buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Gate: warn if about already exists (re-about is idempotent overwrite)
-  local -r z_about_gate_status="${ZRBFV_ABOUT_PREFIX}about_status.txt"
-  local -r z_about_gate_response="${ZRBFV_ABOUT_PREFIX}about_response.json"
-  local -r z_about_gate_stderr="${ZRBFV_ABOUT_PREFIX}about_stderr.txt"
+  local -r z_about_gate_status="${ZRBFV0_ABOUT_PREFIX}about_status.txt"
+  local -r z_about_gate_response="${ZRBFV0_ABOUT_PREFIX}about_response.json"
+  local -r z_about_gate_stderr="${ZRBFV0_ABOUT_PREFIX}about_stderr.txt"
 
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
@@ -115,18 +115,18 @@ rbfv_about() {
   fi
 
   # Submit about Cloud Build
-  zrbfv_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
+  zrbfva_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
 
   buc_success "About complete: ${z_hallmark}"
   buc_info "About artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 }
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfva_*)
 
 # Internal: submit about Cloud Build job and wait for completion
-zrbfv_about_submit() {
-  zrbfv_sentinel
+zrbfva_about_submit() {
+  zrbfv0_sentinel
 
   local -r z_hallmark="$1"
   local -r z_token="$2"
@@ -195,11 +195,11 @@ zrbfv_about_submit() {
   z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
 
   # Assemble about steps via shared helper
-  local -r z_about_steps_accumulator="${ZRBFV_ABOUT_PREFIX}steps.json"
-  zrbfca_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBFV_ABOUT_PREFIX}"
+  local -r z_about_steps_accumulator="${ZRBFV0_ABOUT_PREFIX}steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBFV0_ABOUT_PREFIX}"
 
   buc_log_args "Composing about Build resource JSON"
-  local -r z_about_build_file="${ZRBFV_ABOUT_PREFIX}build.json"
+  local -r z_about_build_file="${ZRBFV0_ABOUT_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps    "${z_about_steps_accumulator}" \

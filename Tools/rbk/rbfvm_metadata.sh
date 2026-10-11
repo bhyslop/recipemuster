@@ -18,28 +18,28 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - graft metadata body (guard-free cluster,
-# sourced by rbfv0_verify): zrbfv_graft_metadata_submit — the combined
+# sourced by rbfv0_verify): zrbfvm_graft_metadata_submit — the combined
 # about+vouch Cloud Build submission graft mode takes, closing the orphan gap
 # a standalone about followed by a standalone vouch would leave. Nothing
 # inside rbfv calls it: its one caller is rbfd's ordain, reaching across the
-# module boundary. Reads the entry's ZRBFV_GRAFT_META_PREFIX kindle constant.
+# module boundary. Reads the entry's ZRBFV0_GRAFT_META_PREFIX kindle constant.
 
 set -euo pipefail
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfvm_*)
 
 # Internal: submit combined about+vouch Cloud Build job for graft mode.
 # Eliminates the orphan gap between standalone about and vouch by running
 # both step sets in a single GCB submission.
 # Args: vessel_dir hallmark
-zrbfv_graft_metadata_submit() {
-  zrbfv_sentinel
+zrbfvm_graft_metadata_submit() {
+  zrbfv0_sentinel
 
   local -r z_vessel_dir="$1"
   local -r z_hallmark="$2"
 
-  # Load vessel (follows reload pattern used by rbfv_about/rbfv_vouch)
+  # Load vessel (follows reload pattern used by rbfva_about/rbfvv_vouch)
   zrbfcv_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
@@ -56,9 +56,9 @@ zrbfv_graft_metadata_submit() {
   # Gate: require image exists (graft push must have completed)
   buc_step "Gating on image artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
-  local -r z_image_gate_status="${ZRBFV_GRAFT_META_PREFIX}image_status.txt"
-  local -r z_image_gate_response="${ZRBFV_GRAFT_META_PREFIX}image_response.json"
-  local -r z_image_gate_stderr="${ZRBFV_GRAFT_META_PREFIX}image_stderr.txt"
+  local -r z_image_gate_status="${ZRBFV0_GRAFT_META_PREFIX}image_status.txt"
+  local -r z_image_gate_response="${ZRBFV0_GRAFT_META_PREFIX}image_response.json"
+  local -r z_image_gate_stderr="${ZRBFV0_GRAFT_META_PREFIX}image_stderr.txt"
 
   local z_curl_status=0
   curl --head -s \
@@ -104,8 +104,8 @@ zrbfv_graft_metadata_submit() {
   fi
 
   # === Assemble about steps ===
-  local -r z_about_steps_file="${ZRBFV_GRAFT_META_PREFIX}about_steps.json"
-  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}about_"
+  local -r z_about_steps_file="${ZRBFV0_GRAFT_META_PREFIX}about_steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFV0_GRAFT_META_PREFIX}about_"
 
   # === Resolve base image provenance (for vouch summary) ===
   # ANCHOR carries a locator (package-path:tag); cloud prefix applied at use-site.
@@ -145,21 +145,21 @@ zrbfv_graft_metadata_submit() {
   done
 
   # === Assemble vouch steps ===
-  local -r z_vouch_steps_file="${ZRBFV_GRAFT_META_PREFIX}vouch_steps.json"
-  zrbfca_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}vouch_"
+  local -r z_vouch_steps_file="${ZRBFV0_GRAFT_META_PREFIX}vouch_steps.json"
+  zrbfca_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBFV0_GRAFT_META_PREFIX}vouch_"
 
   # === Step 0: in-pool reliquary preflight (defense-in-depth) ===
-  local -r z_preflight_step_file="${ZRBFV_GRAFT_META_PREFIX}preflight_step.json"
-  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFV_GRAFT_META_PREFIX}"
+  local -r z_preflight_step_file="${ZRBFV0_GRAFT_META_PREFIX}preflight_step.json"
+  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFV0_GRAFT_META_PREFIX}"
 
   # === Combine: preflight + about steps + vouch steps ===
-  local -r z_combined_steps="${ZRBFV_GRAFT_META_PREFIX}combined_steps.json"
+  local -r z_combined_steps="${ZRBFV0_GRAFT_META_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_about_steps_file}" "${z_vouch_steps_file}" \
     > "${z_combined_steps}" || buc_die_now "Failed to combine preflight, about, and vouch steps"
 
   # Compose Build resource JSON with both _RBGA_ and _RBGV_ substitutions
   buc_log_args "Composing combined about+vouch Build resource JSON"
-  local -r z_build_file="${ZRBFV_GRAFT_META_PREFIX}build.json"
+  local -r z_build_file="${ZRBFV0_GRAFT_META_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps       "${z_combined_steps}" \

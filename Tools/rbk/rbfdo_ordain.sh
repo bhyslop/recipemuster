@@ -75,14 +75,14 @@ rbfdo_ordain() {
   case "${z_mode}" in
     rbnve_conjure)
       buc_info "About produced by combined conjure job — proceeding to vouch"
-      rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
+      rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
     rbnve_graft)
-      zrbfv_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
+      zrbfvm_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
       ;;
     rbnve_bind)
       buc_info "About produced by combined bind job — proceeding to vouch"
-      rbfv_vouch "${z_vessel_dir}" "${z_hallmark}"
+      rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
     *)
       buc_die_now "Unknown vessel mode in chaining: ${z_mode}"

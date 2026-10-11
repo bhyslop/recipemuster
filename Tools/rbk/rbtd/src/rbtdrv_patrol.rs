@@ -2634,7 +2634,7 @@ pub static RBTDRV_CASES_PODVM_LIFECYCLE: &[rbtdre_Case] =
     &[rbtdre_case!(rbtdrv_podvm_lifecycle), rbtdre_case!(rbtdrv_podvm_unseised)];
 
 
-// Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
+// Batch-vouch fixture — exercises rbfvb_batch_vouch's two-pass pending→vouched
 // transition. Single self-contained lifecycle: ordain conjure, jettison the
 // vouch ark to plant a pending hallmark, tally to confirm pending, batch_vouch
 // to fill the gap, tally to confirm vouched, abjure.

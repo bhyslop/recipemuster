@@ -32,7 +32,7 @@ ZRBFD0_SOURCED=1
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 
-# Source Foundry Verify module (ordain cross-module calls: rbfv_vouch, zrbfv_graft_metadata_submit)
+# Source Foundry Verify module (ordain cross-module calls: rbfvv_vouch, zrbfvm_graft_metadata_submit)
 source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh"
 
 # Tinder constants
@@ -86,7 +86,7 @@ zrbfd0_kindle() {
   readonly ZRBFD0_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
 
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
-  zrbfv_kindle
+  zrbfv0_kindle
 
   readonly ZRBFD0_KINDLED=1
 }

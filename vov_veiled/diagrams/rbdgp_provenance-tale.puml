@@ -39,7 +39,7 @@ activate GCB
 MAS -> HM : rbfdb_build (ark set: image, about, vouch, attestation)
 GCB --> DIR : **hallmark home** (build fact)
 deactivate GCB
-DIR -> HM : rbfv_batch_vouch (SLSA, mode-aware)
+DIR -> HM : rbfvb_batch_vouch (SLSA, mode-aware)
 RET -> HM : rbfr_summon (vouch-gated pull)
 RET -> HM : rbfcp_plumb (full: SLSA, SBOM, Dockerfile)
 DIR -> HM : Image Rekon (canonical members present)

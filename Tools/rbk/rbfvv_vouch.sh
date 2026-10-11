@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - vouch body (guard-free cluster, sourced by
-# rbfv0_verify): rbfv_vouch — the mode-aware vouch operation — with the
-# support that partitions to it alone, zrbfv_vouch_submit, which composes the
+# rbfv0_verify): rbfvv_vouch — the mode-aware vouch operation — with the
+# support that partitions to it alone, zrbfvv_vouch_submit, which composes the
 # vouch step set into a builds.create submission and waits it out. Reads the
-# entry's ZRBFV_VOUCH_PREFIX kindle constant; the batch driver that calls
-# rbfv_vouch once per pending hallmark lives in rbfvb_batch.sh.
+# entry's ZRBFV0_VOUCH_PREFIX kindle constant; the batch driver that calls
+# rbfvv_vouch once per pending hallmark lives in rbfvb_batch.sh.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfv_*)
+# External Functions (rbfvv_*)
 
-rbfv_vouch() {
-  zrbfv_sentinel
+rbfvv_vouch() {
+  zrbfv0_sentinel
 
   local -r z_vessel_dir="${1:-}"
   local -r z_hallmark="${2:-}"
@@ -65,9 +65,9 @@ rbfv_vouch() {
   # Gate: require about exists (about must complete before vouch)
   buc_step "Gating on about artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
-  local -r z_about_gate_status="${ZRBFV_VOUCH_PREFIX}about_status.txt"
-  local -r z_about_gate_response="${ZRBFV_VOUCH_PREFIX}about_response.json"
-  local -r z_about_gate_stderr="${ZRBFV_VOUCH_PREFIX}about_stderr.txt"
+  local -r z_about_gate_status="${ZRBFV0_VOUCH_PREFIX}about_status.txt"
+  local -r z_about_gate_response="${ZRBFV0_VOUCH_PREFIX}about_response.json"
+  local -r z_about_gate_stderr="${ZRBFV0_VOUCH_PREFIX}about_stderr.txt"
 
   local z_curl_status=0
   curl --head -s \
@@ -93,9 +93,9 @@ rbfv_vouch() {
   buc_info "About artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 
   # Gate: warn if vouch already exists (re-vouch)
-  local -r z_vouch_gate_status="${ZRBFV_VOUCH_PREFIX}vouch_status.txt"
-  local -r z_vouch_gate_response="${ZRBFV_VOUCH_PREFIX}vouch_response.json"
-  local -r z_vouch_gate_stderr="${ZRBFV_VOUCH_PREFIX}vouch_stderr.txt"
+  local -r z_vouch_gate_status="${ZRBFV0_VOUCH_PREFIX}vouch_status.txt"
+  local -r z_vouch_gate_response="${ZRBFV0_VOUCH_PREFIX}vouch_response.json"
+  local -r z_vouch_gate_stderr="${ZRBFV0_VOUCH_PREFIX}vouch_stderr.txt"
 
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
@@ -118,22 +118,22 @@ rbfv_vouch() {
   fi
 
   # All modes use Cloud Build for vouch (mode-aware verification inside the build)
-  zrbfv_vouch_submit "${z_hallmark}" "${z_token}"
+  zrbfvv_vouch_submit "${z_hallmark}" "${z_token}"
 
   buc_success "Vouch complete: ${z_hallmark}"
   buc_info "Vouch artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 }
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfvv_*)
 
 # Internal: Submit vouch Cloud Build job (mode-aware verification)
 # All vessel modes use Cloud Build. The build scripts branch on _RBGV_VESSEL_MODE:
 #   conjure: DSSE envelope signature verification (Python 3 + openssl)
 #   bind: digest-pin comparison against upstream reference
 #   graft: GRAFTED stamp (no verification)
-zrbfv_vouch_submit() {
-  zrbfv_sentinel
+zrbfvv_vouch_submit() {
+  zrbfv0_sentinel
 
   local -r z_hallmark="$1"
   local -r z_token="$2"
@@ -192,11 +192,11 @@ zrbfv_vouch_submit() {
   done
 
   # Assemble vouch steps via shared helper
-  local -r z_vouch_steps_accumulator="${ZRBFV_VOUCH_PREFIX}steps.json"
-  zrbfca_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBFV_VOUCH_PREFIX}"
+  local -r z_vouch_steps_accumulator="${ZRBFV0_VOUCH_PREFIX}steps.json"
+  zrbfca_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBFV0_VOUCH_PREFIX}"
 
   buc_log_args "Composing vouch Build resource JSON"
-  local -r z_vouch_build_file="${ZRBFV_VOUCH_PREFIX}build.json"
+  local -r z_vouch_build_file="${ZRBFV0_VOUCH_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps    "${z_vouch_steps_accumulator}" \
