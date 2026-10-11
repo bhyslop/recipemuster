@@ -18,27 +18,27 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Director Build - conjure body (guard-free cluster,
-# sourced by rbfd0_director): rbfd_build — direct builds.create conjure
+# sourced by rbfd0_director): rbfdb_build — direct builds.create conjure
 # submission — with the support that partitions to it alone: the quota
 # preflight, the builds.create JSON stitcher, and the pouch (build-context)
-# push. Reads the entry's ZRBFD_STITCH_PREFIX / ZRBFD_CONTEXT_PREFIX /
-# ZRBFD_RBGJB_STEPS_DIR kindle constants and the RBFD0_hallmark_echo_step_id
+# push. Reads the entry's ZRBFD0_STITCH_PREFIX / ZRBFD0_CONTEXT_PREFIX /
+# ZRBFD0_RBGJB_STEPS_DIR kindle constants and the RBFD0_hallmark_echo_step_id
 # tinder; the registry preflight it calls lives in rbfdp_preflight.sh.
 
 set -euo pipefail
 
 ######################################################################
-# Internal Functions (zrbfd_*)
+# Internal Functions (zrbfdb_*)
 
 # Check concurrent build quota against regime requirements
 # Args: token mode
 #   mode: "gate" (die if insufficient) or "advisory" (warn if insufficient)
-zrbfd_quota_preflight() {
-  zrbfd_sentinel
+zrbfdb_quota_preflight() {
+  zrbfd0_sentinel
 
   local -r z_token="${1:-}"
 
-  test -n "${z_token}" || buc_die_now "zrbfd_quota_preflight: token required"
+  test -n "${z_token}" || buc_die_now "zrbfdb_quota_preflight: token required"
 
   # Extract vCPU count from machine type (last segment after final hyphen)
   local -r z_vcpus="${RBRD_GCB_MACHINE_TYPE##*-}"
@@ -108,8 +108,8 @@ zrbfd_quota_preflight() {
   fi
 }
 
-zrbfd_stitch_build_json() {
-  zrbfd_sentinel
+zrbfdb_stitch_build_json() {
+  zrbfd0_sentinel
 
   local -r z_output_path="${1:?Output path required}"
   local -r z_hallmark="${2:?Hallmark required}"
@@ -184,9 +184,9 @@ zrbfd_stitch_build_json() {
   buc_log_args "Vessel platforms: ${z_platform_count} (${z_platforms})"
 
   buc_log_args 'Extract git state for substitutions'
-  local -r z_stitch_git_commit_file="${ZRBFD_STITCH_PREFIX}git_commit.txt"
-  local -r z_stitch_git_branch_file="${ZRBFD_STITCH_PREFIX}git_branch.txt"
-  local -r z_stitch_git_repo_file="${ZRBFD_STITCH_PREFIX}git_repo.txt"
+  local -r z_stitch_git_commit_file="${ZRBFD0_STITCH_PREFIX}git_commit.txt"
+  local -r z_stitch_git_branch_file="${ZRBFD0_STITCH_PREFIX}git_branch.txt"
+  local -r z_stitch_git_repo_file="${ZRBFD0_STITCH_PREFIX}git_repo.txt"
 
   jq -r '.commit' "${ZRBFC0_GIT_INFO_FILE}" > "${z_stitch_git_commit_file}" \
     || buc_die_now "Failed to extract git commit from info file"
@@ -278,17 +278,17 @@ zrbfd_stitch_build_json() {
   local z_body_file=""
   local z_escaped_file=""
   local z_steps_file=""
-  local z_accumulator_file="${ZRBFD_STITCH_PREFIX}steps.json"
+  local z_accumulator_file="${ZRBFD0_STITCH_PREFIX}steps.json"
 
   buc_log_args "Initializing empty steps array"
   echo "[]" > "${z_accumulator_file}" || buc_die_now "Failed to initialize steps JSON"
 
   for z_def in "${z_step_defs[@]}"; do
     IFS='|' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
-    z_script_path="${ZRBFD_RBGJB_STEPS_DIR}/${z_script}"
-    z_body_file="${ZRBFD_STITCH_PREFIX}${z_id}_body.txt"
-    z_escaped_file="${ZRBFD_STITCH_PREFIX}${z_id}_escaped.txt"
-    z_steps_file="${ZRBFD_STITCH_PREFIX}${z_id}_steps.json"
+    z_script_path="${ZRBFD0_RBGJB_STEPS_DIR}/${z_script}"
+    z_body_file="${ZRBFD0_STITCH_PREFIX}${z_id}_body.txt"
+    z_escaped_file="${ZRBFD0_STITCH_PREFIX}${z_id}_escaped.txt"
+    z_steps_file="${ZRBFD0_STITCH_PREFIX}${z_id}_steps.json"
 
     test -f "${z_script_path}" || buc_die_now "Step script not found: ${z_script_path}"
 
@@ -329,19 +329,19 @@ zrbfd_stitch_build_json() {
   # at runtime as the built-in $BUILD_ID env var; rewritten below.
 
   buc_log_args "Assembling about steps for combined conjure"
-  local -r z_about_steps_file="${ZRBFD_STITCH_PREFIX}about_steps.json"
-  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFD_STITCH_PREFIX}about_"
+  local -r z_about_steps_file="${ZRBFD0_STITCH_PREFIX}about_steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFD0_STITCH_PREFIX}about_"
 
   # About steps run in vessel dir so .hallmark from rbgjb01 is accessible
   buc_log_args "Adding dir field to about steps for vessel directory ${z_sigil}"
-  local -r z_about_with_dir="${ZRBFD_STITCH_PREFIX}about_with_dir.json"
+  local -r z_about_with_dir="${ZRBFD0_STITCH_PREFIX}about_with_dir.json"
   jq --arg dir "${z_sigil}" '[.[] | . + {dir: $dir}]' \
     "${z_about_steps_file}" > "${z_about_with_dir}" \
     || buc_die_now "Failed to add dir to about steps"
 
   # Build ID: $BUILD_ID → GCB built-in available as env var
   buc_log_args "Post-processing about steps: build ID from env"
-  local -r z_about_processed="${ZRBFD_STITCH_PREFIX}about_processed.json"
+  local -r z_about_processed="${ZRBFD0_STITCH_PREFIX}about_processed.json"
   local z_about_content
   z_about_content=$(<"${z_about_with_dir}") \
     || buc_die_now "Failed to read about steps for post-processing"
@@ -350,7 +350,7 @@ zrbfd_stitch_build_json() {
     || buc_die_now "Failed to post-process about steps for conjure"
 
   buc_log_args "Combining image steps and about steps"
-  local -r z_combined_steps_file="${ZRBFD_STITCH_PREFIX}combined_steps.json"
+  local -r z_combined_steps_file="${ZRBFD0_STITCH_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1]' "${z_accumulator_file}" "${z_about_processed}" \
     > "${z_combined_steps_file}" || buc_die_now "Failed to combine image and about steps"
   z_accumulator_file="${z_combined_steps_file}"
@@ -372,11 +372,11 @@ zrbfd_stitch_build_json() {
   # Compose builds.create Build resource — all substitution values resolved
   # host-side; _RBGA_BUILD_ID alone rewrites to the GCB $BUILD_ID builtin.
   buc_log_args "Composing builds.create Build resource"
-  local -r z_build_file="${ZRBFD_STITCH_PREFIX}build.json"
+  local -r z_build_file="${ZRBFD0_STITCH_PREFIX}build.json"
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Context extraction step (first step — extracts build context from pouch in GAR)
-  local -r z_extract_step_file="${ZRBFD_STITCH_PREFIX}extract_step.json"
+  local -r z_extract_step_file="${ZRBFD0_STITCH_PREFIX}extract_step.json"
   jq -n \
     --arg name "${z_rbfc_tool_docker}" \
     --arg ctx_tag "${z_context_tag}" \
@@ -390,11 +390,11 @@ zrbfd_stitch_build_json() {
     || buc_die_now "Failed to compose context extraction step"
 
   # Step 0: in-pool reliquary preflight (defense-in-depth)
-  local -r z_preflight_step_file="${ZRBFD_STITCH_PREFIX}preflight_step.json"
-  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD_STITCH_PREFIX}"
+  local -r z_preflight_step_file="${ZRBFD0_STITCH_PREFIX}preflight_step.json"
+  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD0_STITCH_PREFIX}"
 
   # Combine: [preflight] + [extract-context] + image steps + about steps
-  local -r z_all_steps_file="${ZRBFD_STITCH_PREFIX}all_steps.json"
+  local -r z_all_steps_file="${ZRBFD0_STITCH_PREFIX}all_steps.json"
   jq -s '.[0] + .[1] + .[2]' \
     "${z_preflight_step_file}" \
     <(jq -s '.' "${z_extract_step_file}") \
@@ -404,7 +404,7 @@ zrbfd_stitch_build_json() {
   # images: field — one per-platform attest tag per platform for SLSA provenance via CB images: push
   # These are durable provenance-carrying tags on the single attest package
   # (rbi_hm/<H>/attest); deleted only by abjure.
-  local z_images_file="${ZRBFD_STITCH_PREFIX}images.json"
+  local z_images_file="${ZRBFD0_STITCH_PREFIX}images.json"
   local z_attest_pkg="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/attest"
   local z_remaining_suffixes="${z_platform_suffixes_csv}"
   local z_img_suffix=""
@@ -541,9 +541,9 @@ zrbfd_stitch_build_json() {
 # needs in /workspace during the build.
 #
 # Args: token  sigil  build_context_path  hallmark
-# Side-effect: writes context image tag to ${ZRBFD_CONTEXT_PREFIX}tag.txt
-zrbfd_push_build_context() {
-  zrbfd_sentinel
+# Side-effect: writes context image tag to ${ZRBFD0_CONTEXT_PREFIX}tag.txt
+zrbfdb_push_build_context() {
+  zrbfd0_sentinel
 
   local -r z_token="$1"
   local -r z_sigil="$2"
@@ -554,8 +554,8 @@ zrbfd_push_build_context() {
   test -n "${z_hallmark}" || buc_die_now "Hallmark required for pouch tag"
 
   local -r z_gar_host="${ZRBFC0_REGISTRY_HOST}"
-  local -r z_context_tag_file="${ZRBFD_CONTEXT_PREFIX}tag.txt"
-  local -r z_context_dockerfile="${ZRBFD_CONTEXT_PREFIX}Dockerfile"
+  local -r z_context_tag_file="${ZRBFD0_CONTEXT_PREFIX}tag.txt"
+  local -r z_context_dockerfile="${ZRBFD0_CONTEXT_PREFIX}Dockerfile"
 
   local -r z_context_tag="${z_gar_host}/${ZRBFC0_REGISTRY_PATH}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/pouch:${z_hallmark}"
 
@@ -592,10 +592,10 @@ zrbfd_push_build_context() {
 
 
 ######################################################################
-# External Functions (rbfd_*)
+# External Functions (rbfdb_*)
 
-rbfd_build() {
-  zrbfd_sentinel
+rbfdb_build() {
+  zrbfd0_sentinel
 
   local -r z_vessel_dir="${1:-}"
 
@@ -645,10 +645,10 @@ rbfd_build() {
     || buc_die_now "Failed to get Director OAuth token"
 
   # Quota preflight -- warn if insufficient capacity
-  zrbfd_quota_preflight "${z_token}"
+  zrbfdb_quota_preflight "${z_token}"
 
   # Registry preflight -- verify reliquary and base images exist before expensive operations
-  zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfdp_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # Capture git metadata (stitch needs ZRBFC0_GIT_INFO_FILE)
   buc_step "Capturing git metadata"
@@ -680,15 +680,15 @@ rbfd_build() {
   buc_info "Host-minted hallmark: ${z_hallmark}"
 
   # Push build context (pouch) to GAR as FROM SCRATCH image
-  zrbfd_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}" "${z_hallmark}"
+  zrbfdb_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}" "${z_hallmark}"
   local z_context_tag=""
-  z_context_tag=$(<"${ZRBFD_CONTEXT_PREFIX}tag.txt") || buc_die_now "Failed to read: ${ZRBFD_CONTEXT_PREFIX}tag.txt"
+  z_context_tag=$(<"${ZRBFD0_CONTEXT_PREFIX}tag.txt") || buc_die_now "Failed to read: ${ZRBFD0_CONTEXT_PREFIX}tag.txt"
   test -n "${z_context_tag}" || buc_die_now "Empty context image tag after push"
 
   # Stitch build JSON — generates complete builds.create resource directly
   buc_step "Stitching build JSON"
-  local -r z_build_file="${ZRBFD_CONTEXT_PREFIX}build.json"
-  zrbfd_stitch_build_json "${z_build_file}" "${z_hallmark}" "${z_context_tag}"
+  local -r z_build_file="${ZRBFD0_CONTEXT_PREFIX}build.json"
+  zrbfdb_stitch_build_json "${z_build_file}" "${z_hallmark}" "${z_context_tag}"
 
   rbndb_check "${z_token}"
 

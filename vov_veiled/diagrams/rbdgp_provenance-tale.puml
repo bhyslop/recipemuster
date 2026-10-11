@@ -34,9 +34,9 @@ note right : uncatalogued - surfaced gap:\nno operation quoin to cite
 
 == Movement III - Conjure on the Tether ==
 
-DIR -> GCB : rbfd_ordain (conjure mode)
+DIR -> GCB : rbfdo_ordain (conjure mode)
 activate GCB
-MAS -> HM : rbfd_build (ark set: image, about, vouch, attestation)
+MAS -> HM : rbfdb_build (ark set: image, about, vouch, attestation)
 GCB --> DIR : **hallmark home** (build fact)
 deactivate GCB
 DIR -> HM : rbfv_batch_vouch (SLSA, mode-aware)
@@ -54,13 +54,13 @@ MAS -> LODE : rbldb_ensconce (capture bytes, seal vouch)
 GCB --> DIR : **bole touchmark home** (rbf fact)
 deactivate GCB
 DIR -> VES : rbfl_feoff (elect RBRV_IMAGE_n_ANCHOR; commit)
-DIR -> GCB : rbfd_ordain (forge, tethered; builds from Lode anchor)
+DIR -> GCB : rbfdo_ordain (forge, tethered; builds from Lode anchor)
 activate GCB
 GCB --> DIR : **forge hallmark home**
 deactivate GCB
 DIR -> VES : hallmark base handoff (attended; commit)
 note right : no operator verb - surfaced gap:\ndirect write of hallmark locator
-DIR -> GCB : rbfd_ordain (airgap bottle; resolves inside GAR alone)
+DIR -> GCB : rbfdo_ordain (airgap bottle; resolves inside GAR alone)
 activate GCB
 GCB --> DIR : **airgap hallmark home**
 deactivate GCB
@@ -68,7 +68,7 @@ DIR -> NPL : rbrn_drive (commit)
 
 == Movement V - The Bind ==
 
-DIR -> GCB : rbfd_ordain (bind mode; mirror digest-pinned upstream)
+DIR -> GCB : rbfdo_ordain (bind mode; mirror digest-pinned upstream)
 activate GCB
 GCB --> DIR : **bind hallmark home**
 deactivate GCB
@@ -79,7 +79,7 @@ DIR -> NPL : rbrn_drive (commit)
 
 == Movement VI - The Graft ==
 
-DIR -> GCB : rbfd_graft (push anointed local image; verdict GRAFTED)
+DIR -> GCB : rbfdg_graft (push anointed local image; verdict GRAFTED)
 activate GCB
 GCB --> DIR : **graft hallmark home**
 deactivate GCB

@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Director Build - ordain body (guard-free cluster,
-# sourced by rbfd0_director): rbfd_ordain — the mode dispatcher over the
-# operation bodies (conjure -> rbfd_build, bind -> rbfd_mirror, graft ->
-# rbfd_graft), then the metadata pipeline (vouch or graft-metadata submit,
+# sourced by rbfd0_director): rbfdo_ordain — the mode dispatcher over the
+# operation bodies (conjure -> rbfdb_build, bind -> rbfdm_mirror, graft ->
+# rbfdg_graft), then the metadata pipeline (vouch or graft-metadata submit,
 # cross-module into rbfv) and the hallmark beckon. Owns no operation
 # machinery of its own.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfd_*)
+# External Functions (rbfdo_*)
 
-rbfd_ordain() {
-  zrbfd_sentinel
+rbfdo_ordain() {
+  zrbfd0_sentinel
 
   buc_doc_brief "Ordain a hallmark from a vessel (conjure, bind, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
@@ -55,12 +55,12 @@ rbfd_ordain() {
   z_mode="${z_mode:-rbnve_conjure}"
 
   # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
-  # inside rbfd_build, bind gates inside rbfd_mirror, graft is deliberately
+  # inside rbfdb_build, bind gates inside rbfdm_mirror, graft is deliberately
   # ungated (RBr_d71).
   case "${z_mode}" in
-    rbnve_conjure) rbfd_build "${z_vessel_dir}" ;;
-    rbnve_bind)    rbfd_mirror "${z_vessel_dir}" ;;
-    rbnve_graft)   rbfd_graft "${z_vessel_dir}" ;;
+    rbnve_conjure) rbfdb_build "${z_vessel_dir}" ;;
+    rbnve_bind)    rbfdm_mirror "${z_vessel_dir}" ;;
+    rbnve_graft)   rbfdg_graft "${z_vessel_dir}" ;;
     *)             buc_die_now "Unknown vessel mode: ${z_mode}" ;;
   esac
 

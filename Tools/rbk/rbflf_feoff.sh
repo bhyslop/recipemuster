@@ -20,7 +20,7 @@
 # Recipe Bottle Foundry Ledger - feoff cluster (guard-free, sourced by rbfl0_):
 # elect one conjure base anchor — resolve a bole Lode touchmark express-or-chain,
 # decode-and-gate its kind to bole, then rewrite RBRV_IMAGE_n_ANCHOR in one
-# vessel's rbrv.env. Extracted out of conjure (rbfd_build) so conjure reads no
+# vessel's rbrv.env. Extracted out of conjure (rbfdb_build) so conjure reads no
 # fact. Operator-committed, never self-committing (RBr_a52).
 
 set -euo pipefail
