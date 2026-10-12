@@ -20,16 +20,16 @@
 # Recipe Bottle Foundry Ledger - feoff cluster (guard-free, sourced by rbfl0_):
 # elect one conjure base anchor — resolve a bole Lode touchmark express-or-chain,
 # decode-and-gate its kind to bole, then rewrite RBRV_IMAGE_n_ANCHOR in one
-# vessel's rbrv.env. Extracted out of conjure (rbfd_build) so conjure reads no
+# vessel's rbrv.env. Extracted out of conjure (rbfdb_build) so conjure reads no
 # fact. Operator-committed, never self-committing (RBr_a52).
 
 set -euo pipefail
 
 ######################################################################
-# Feoff (rbfl_*)
+# Feoff (rbflf_*)
 
-rbfl_feoff() {
-  zrbfl_sentinel
+rbflf_feoff() {
+  zrbfl0_sentinel
 
   local -r z_vessel="${BUZ_FOLIO:-}"
   local -r z_express="${1:-}"
@@ -47,9 +47,9 @@ rbfl_feoff() {
   # Resolve the vessel directory (sigil or path). feoff rewrites the rbrv.env
   # text directly — like the election it replaces, it never loads the vessel
   # (loading makes RBRV_* readonly, and feoff only touches one ANCHOR line).
-  zrbfc_resolve_vessel "${z_vessel}"
+  zrbfcv_resolve_vessel "${z_vessel}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
   local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
   test -f "${z_rbrv_file}" || buc_die_now "Vessel regime file not found: ${z_rbrv_file}"
@@ -75,7 +75,7 @@ rbfl_feoff() {
   # no separate kind-brand fact.
   local z_kind=""
   local z_kind_status=0
-  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
+  z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix"
   test "${z_kind}" = "${RBGC_LODE_KIND_BOLE}" \

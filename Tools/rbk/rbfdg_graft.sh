@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Director Build - graft body (guard-free cluster,
-# sourced by rbfd0_director): rbfd_graft — a locally-built image tagged and
+# sourced by rbfd0_director): rbfdg_graft — a locally-built image tagged and
 # pushed into GAR under a hallmark minted from the image's own creation
 # timestamp. Host-side docker throughout, no Cloud Build submission. Reads
-# the entry's ZRBFD_GRAFT_PREFIX kindle constant; the registry preflight it
+# the entry's ZRBFD0_GRAFT_PREFIX kindle constant; the registry preflight it
 # calls lives in rbfdp_preflight.sh.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfd_*)
+# External Functions (rbfdg_*)
 
-rbfd_graft() {
-  zrbfd_sentinel
+rbfdg_graft() {
+  zrbfd0_sentinel
 
   local z_vessel_dir="${1:-}"
 
@@ -52,7 +52,7 @@ rbfd_graft() {
   fi
 
   # Load and validate vessel
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
     || buc_die_now "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
@@ -60,7 +60,7 @@ rbfd_graft() {
     || buc_die_now "RBRV_GRAFT_IMAGE not set for graft vessel '${RBRV_SIGIL}' — anoint the vessel from a build, or set the slot by hand"
 
   # Resolve tool images from reliquary (graft about+vouch steps use tool images)
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   local -r z_local_image="${RBRV_GRAFT_IMAGE}"
 
@@ -74,7 +74,7 @@ rbfd_graft() {
 
   # Extract image creation timestamp for hallmark T1
   buc_step "Reading image creation timestamp"
-  local -r z_created_file="${ZRBFD_GRAFT_PREFIX}created.txt"
+  local -r z_created_file="${ZRBFD0_GRAFT_PREFIX}created.txt"
   docker image inspect --format '{{.Created}}' "${z_local_image}" > "${z_created_file}" \
     || buc_die_now "Failed to inspect image creation timestamp"
   local z_created=""
@@ -98,14 +98,14 @@ rbfd_graft() {
     || buc_die_now "Failed to get Director OAuth token"
 
   # Registry preflight -- verify reliquary tool images exist (graft about+vouch use them)
-  zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfdp_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Generate push timestamp (T2) for hallmark
-  local -r z_push_ts_file="${ZRBFD_GRAFT_PREFIX}push_ts.txt"
+  local -r z_push_ts_file="${ZRBFD0_GRAFT_PREFIX}push_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_push_ts_file}" || buc_die_now "Failed to generate push timestamp"
   local z_push_ts
   local z_push_ts_raw
@@ -133,7 +133,7 @@ rbfd_graft() {
   buc_info "Image pushed: ${z_image_ref}"
 
   # Persist to output directory for downstream consumption
-  echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
+  echo "${z_vessel_dir}" > "${ZRBFC0_OUTPUT_VESSEL_DIR}" \
     || buc_die_now "Failed to write vessel dir to output"
   buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 

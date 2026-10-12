@@ -24,28 +24,28 @@ set -euo pipefail
 test -z "${ZRBHP0_SOURCED:-}" || buc_die_now "Module rbhp multiply sourced - check sourcing hierarchy"
 ZRBHP0_SOURCED=1
 
-zrbhp_kindle() {
+zrbhp0_kindle() {
   test -z "${ZRBHP0_KINDLED:-}" || buc_die_now "Module rbhp already kindled"
 
   # Kernel discrimination for click-modifier display via the bash $OSTYPE
   # builtin (darwin* on macOS) — no external uname dependency.
   case "${OSTYPE}" in
-    darwin*) readonly ZRBHP_CLICK_MOD="Cmd" ;;
-    *)       readonly ZRBHP_CLICK_MOD="Ctrl" ;;
+    darwin*) readonly ZRBHP0_CLICK_MOD="Cmd" ;;
+    *)       readonly ZRBHP0_CLICK_MOD="Ctrl" ;;
   esac
 
-  readonly ZRBHP_RBRP_FILE="${RBCC_rbrp_file}"
-  readonly ZRBHP_RBRP_FILE_BASENAME="${ZRBHP_RBRP_FILE##*/}"
+  readonly ZRBHP0_RBRP_FILE="${RBCC_rbrp_file}"
+  readonly ZRBHP0_RBRP_FILE_BASENAME="${ZRBHP0_RBRP_FILE##*/}"
 
   readonly ZRBHP0_KINDLED=1
 }
 
-zrbhp_sentinel() {
-  test "${ZRBHP0_KINDLED:-}" = "1" || buc_die_now "Module rbhp not kindled - call zrbhp_kindle first"
+zrbhp0_sentinel() {
+  test "${ZRBHP0_KINDLED:-}" = "1" || buc_die_now "Module rbhp not kindled - call zrbhp0_kindle first"
 }
 
-zrbhp_enforce() {
-  zrbhp_sentinel
+zrbhp0_enforce() {
+  zrbhp0_sentinel
   test -n "${RBDC_DEPOT_PROJECT_ID:-}"     || buc_die_now "RBDC_DEPOT_PROJECT_ID is not set"
   zrbgc_sentinel
 }

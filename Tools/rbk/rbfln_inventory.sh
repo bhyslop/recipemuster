@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Inventory (rbfl_*)
+# Inventory (rbfln_*)
 
-rbfl_tally() {
-  zrbfl_sentinel
+rbfln_tally() {
+  zrbfl0_sentinel
 
   buc_doc_brief "Tally hallmarks with health status (vouched / pending / incomplete)"
   buc_doc_shown || return 0
@@ -38,9 +38,9 @@ rbfl_tally() {
     || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Tally complete — 0 hallmarks"
     return 0
@@ -53,7 +53,7 @@ rbfl_tally() {
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     z_lines+=("${z_line}")
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
   echo ""
@@ -135,8 +135,8 @@ rbfl_tally() {
   buc_success "Tally complete"
 }
 
-rbfl_rekon_hallmark() {
-  zrbfl_sentinel
+rbfln_rekon_hallmark() {
+  zrbfl0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -163,7 +163,7 @@ rbfl_rekon_hallmark() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
   local z_found=""
@@ -177,7 +177,7 @@ rbfl_rekon_hallmark() {
     if test "${z_h}" = "${z_hallmark}"; then
       z_found="${z_found}${z_found:+ }${z_b}"
     fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   test -n "${z_found}" || buc_die_now "Hallmark not found: ${z_hallmark}"
 
@@ -211,8 +211,8 @@ rbfl_rekon_hallmark() {
   buc_success "Rekon complete for ${z_hallmark}"
 }
 
-rbfl_audit_hallmarks() {
-  zrbfl_sentinel
+rbfln_audit_hallmarks() {
+  zrbfl0_sentinel
 
   buc_doc_brief "Audit hallmarks — list all hallmark identifiers in registry"
   buc_doc_shown || return 0
@@ -223,9 +223,9 @@ rbfl_audit_hallmarks() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Audit complete — 0 hallmarks"
     return 0
@@ -249,7 +249,7 @@ rbfl_audit_hallmarks() {
       z_count=$(( z_count + 1 ))
       z_prev="${z_h}"
     fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   echo ""
   buc_info "Total hallmarks: ${z_count}"
@@ -257,15 +257,15 @@ rbfl_audit_hallmarks() {
 }
 
 ######################################################################
-# Raw-path list (rbfl_*) — the type-blind maintenance backdoor (rbw-il)
+# Raw-path list (rbfln_*) — the type-blind maintenance backdoor (rbw-il)
 
 # Generic, envelope-independent enumeration of GAR by raw path, narrowing
 # iteratively: no path -> top namespaces; a prefix -> its children; a full
 # package -> its tags and versions. Makes no subtree or kind assumption — it
 # reads the whole registry and narrows in-process — so it tolerates half-
 # deleted debris, legacy artifacts, and any future namespace with no new verb.
-rbfl_list() {
-  zrbfl_sentinel
+rbfln_list() {
+  zrbfl0_sentinel
 
   local -r z_path="${BUZ_FOLIO:-}"
 
@@ -288,7 +288,7 @@ rbfl_list() {
   # One enumeration of every package (decoded names, slashes restored, sorted).
   buc_step "Enumerating GAR packages"
   local -r z_list_infix="rbfl_list_pkgs"
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
   rbuh_require_ok "List GAR packages" "${z_list_infix}"
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
@@ -306,7 +306,7 @@ rbfl_list() {
     local z_pl=""
     while IFS= read -r z_pl || test -n "${z_pl}"; do
       if test "${z_pl}" = "${z_path}"; then
-        zrbfl_list_leaf "${z_token}" "${z_path}"
+        zrbfln_list_leaf "${z_token}" "${z_path}"
         return 0
       fi
     done < "${z_pkgs_file}"
@@ -355,10 +355,10 @@ rbfl_list() {
   buc_success "List complete"
 }
 
-# Leaf display for rbfl_list: a full package's tags and versions, each annotated
+# Leaf display for rbfln_list: a full package's tags and versions, each annotated
 # with the ref form that wrest/jettison consume (tag -> :tag, version -> @digest).
-zrbfl_list_leaf() {
-  zrbfl_sentinel
+zrbfln_list_leaf() {
+  zrbfl0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_pkg="${2:?Package path required}"
@@ -368,7 +368,7 @@ zrbfl_list_leaf() {
 
   local -r z_tags_infix="rbfl_list_tags"
   rbuh_json "GET" \
-    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
+    "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
     "${z_token}" "${z_tags_infix}"
   rbuh_require_ok "List tags for ${z_pkg}" "${z_tags_infix}"
   local -r z_tags_file="${BURD_TEMP_DIR}/rbfl_leaf_tags.txt"
@@ -378,7 +378,7 @@ zrbfl_list_leaf() {
 
   local -r z_vers_infix="rbfl_list_vers"
   rbuh_json "GET" \
-    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
+    "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
     "${z_token}" "${z_vers_infix}"
   rbuh_require_ok "List versions for ${z_pkg}" "${z_vers_infix}"
   local -r z_vers_file="${BURD_TEMP_DIR}/rbfl_leaf_vers.txt"

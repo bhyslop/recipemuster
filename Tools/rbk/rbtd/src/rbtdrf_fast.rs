@@ -1516,7 +1516,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 
 // ── Redon-tick cases ────────────────────────────────────────
 //
-// Drives zrbfc_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
+// Drives zrbfcb_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
 // re-don — at its lapsed-sederunt branch, deterministically and credless:
 // XDG_RUNTIME_DIR is pointed at an empty scratch dir so the sederunt cache
 // resolves to nothing, the don's sederunt read misses before any network
@@ -1528,7 +1528,7 @@ fn rbtdrf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtdre_Verdict {
 // RBCC_tweak_redon_cadence seam, picket tier.)
 
 /// Lapse-advisory fragment asserted on the tick's death. Mirror:
-/// rbfcb_host.sh `zrbfc_redon_tick` buc_die_now line — same literal.
+/// rbfcb_host.sh `zrbfcb_redon_tick` buc_die_now line — same literal.
 const RBTDRF_RT_LAPSE_FRAGMENT: &str = "sederunt lapsed mid-build";
 
 fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
@@ -1580,7 +1580,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
          source \"${{RBCC_rbrw_file}}\"\n\
          zrbrf_kindle\n\
          zrbrw_kindle\n\
-         zrbfc_redon_tick 'LapseProbe' 'poll 1'\n",
+         zrbfcb_redon_tick 'LapseProbe' 'poll 1'\n",
         moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
 
@@ -1722,7 +1722,7 @@ fn rbtdrf_cb_round_trip(dir: &Path) -> rbtdre_Verdict {
 
 // ── Recipe-validation cases ─────────────────────────────────
 //
-// Drives zrbld_spine_validate — the Lode capture-assembly spine's dispatch-time
+// Drives zrblds_spine_validate — the Lode capture-assembly spine's dispatch-time
 // substitution-coverage check — directly: write a substitution-keys file and an
 // already-include-expanded step body, source buv_validation + rblds_spine and
 // kindle buv so buc_log_args resolves, then assert the check accepts a fully
@@ -1756,7 +1756,7 @@ fn rbtdrf_rc_run(
          source '{}'\n\
          source '{}'\n\
          zbuv_kindle\n\
-         zrbld_spine_validate '{}' '{}'",
+         zrblds_spine_validate '{}' '{}'",
         rbtdrx_native_to_posix(&buv),
         rbtdrx_native_to_posix(&spine),
         rbtdrx_native_to_posix(&keys_file),
@@ -2012,7 +2012,7 @@ pub static RBTDRF_FIXTURE_RECIPE_VALIDATION: rbtdre_Fixture = rbtdre_Fixture {
 
 // ── Podvm-resolve cases ─────────────────────────────────────
 //
-// Asserts that zrbld_immure_resolve_family maps both podvm brands correctly.
+// Asserts that zrbldv_immure_resolve_family maps both podvm brands correctly.
 // Invokes the presage colophon (RBTDGC_PRESAGE_IMMURE) — the read-only dry-run
 // verb that resolves a family and reports what immure would capture. Presage
 // never loads credentials nor fires a build, so the reveille tier drives it

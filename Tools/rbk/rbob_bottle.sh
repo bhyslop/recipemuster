@@ -876,7 +876,7 @@ rbob_ifrit_sortie() {
 
 rbob_kludge_bottle() {
   zrbob_sentinel
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_doc_brief "Kludge Bottle vessel and drive hallmark into nameplate"
   buc_doc_shown || return 0
@@ -904,7 +904,7 @@ rbob_kludge_bottle() {
 
 rbob_kludge_sentry() {
   zrbob_sentinel
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_doc_brief "Kludge Sentry vessel and drive hallmark into nameplate"
   buc_doc_shown || return 0

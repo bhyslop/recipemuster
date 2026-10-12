@@ -20,10 +20,10 @@
 # Recipe Bottle Foundry Verify - kindle entry: the single rbfv
 # inclusion-guard and the whole kindle, sourcing the guard-free body clusters
 # (rbfvg_ vouch gate, rbfva_ about, rbfvm_ graft metadata, rbfvv_ vouch,
-# rbfvb_ batch vouch). The readonly ZRBFV_* constants the kindle sets are read
+# rbfvb_ batch vouch). The readonly ZRBFV0_* constants the kindle sets are read
 # globally by the clusters. Two entries source this file — rbfv0_cli, and
-# rbfd0_director for the cross-module calls ordain makes into rbfv_vouch and
-# zrbfv_graft_metadata_submit — so the guard stands here and nowhere else in
+# rbfd0_director for the cross-module calls ordain makes into rbfvv_vouch and
+# zrbfvm_graft_metadata_submit — so the guard stands here and nowhere else in
 # the family, and no cluster needs one.
 
 set -euo pipefail
@@ -44,29 +44,29 @@ source "${BASH_SOURCE[0]%/*}/rbfvv_vouch.sh"
 source "${BASH_SOURCE[0]%/*}/rbfvb_batch.sh"
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfv0_*)
 
-zrbfv_kindle() {
+zrbfv0_kindle() {
   test -z "${ZRBFV0_KINDLED:-}" || buc_die_now "Module rbfv already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'Define vouch operation file prefix'
-  readonly ZRBFV_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbfv_vouch_"
+  readonly ZRBFV0_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbfv_vouch_"
 
   buc_log_args 'Define about operation file prefix'
-  readonly ZRBFV_ABOUT_PREFIX="${BURD_TEMP_DIR}/rbfv_about_"
+  readonly ZRBFV0_ABOUT_PREFIX="${BURD_TEMP_DIR}/rbfv_about_"
 
   buc_log_args 'Define graft metadata operation file prefix'
-  readonly ZRBFV_GRAFT_META_PREFIX="${BURD_TEMP_DIR}/rbfv_graft_meta_"
+  readonly ZRBFV0_GRAFT_META_PREFIX="${BURD_TEMP_DIR}/rbfv_graft_meta_"
 
   readonly ZRBFV0_KINDLED=1
 }
 
-zrbfv_sentinel() {
-  zrbfc_sentinel
-  test "${ZRBFV0_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv_kindle first"
+zrbfv0_sentinel() {
+  zrbfc0_sentinel
+  test "${ZRBFV0_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv0_kindle first"
 }
 
 # eof

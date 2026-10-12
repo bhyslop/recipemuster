@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - about body (guard-free cluster, sourced by
-# rbfv0_verify): rbfv_about — the standalone about-metadata operation — with
-# the support that partitions to it alone, zrbfv_about_submit, which composes
+# rbfv0_verify): rbfva_about — the standalone about-metadata operation — with
+# the support that partitions to it alone, zrbfva_about_submit, which composes
 # the about step set into a builds.create submission and waits it out. Reads
-# the entry's ZRBFV_ABOUT_PREFIX kindle constant; the combined about+vouch
+# the entry's ZRBFV0_ABOUT_PREFIX kindle constant; the combined about+vouch
 # submission graft mode takes instead lives in rbfvm_metadata.sh.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfv_*)
+# External Functions (rbfva_*)
 
-rbfv_about() {
-  zrbfv_sentinel
+rbfva_about() {
+  zrbfv0_sentinel
 
   # No dirty-tree guard — about constructs metadata for an image already in
   # GAR, not an image. The commit it stamps cannot be made to match the
@@ -47,11 +47,11 @@ rbfv_about() {
   buc_doc_shown || return 0
 
   # Resolve vessel argument (sigil or path) and load
-  zrbfc_resolve_vessel "${1:-}"
+  zrbfcv_resolve_vessel "${1:-}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
@@ -62,19 +62,19 @@ rbfv_about() {
   # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
   buc_step "Gating on image artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
-  local -r z_image_gate_status="${ZRBFV_ABOUT_PREFIX}image_status.txt"
-  local -r z_image_gate_response="${ZRBFV_ABOUT_PREFIX}image_response.json"
-  local -r z_image_gate_stderr="${ZRBFV_ABOUT_PREFIX}image_stderr.txt"
+  local -r z_image_gate_status="${ZRBFV0_ABOUT_PREFIX}image_status.txt"
+  local -r z_image_gate_response="${ZRBFV0_ABOUT_PREFIX}image_response.json"
+  local -r z_image_gate_stderr="${ZRBFV0_ABOUT_PREFIX}image_stderr.txt"
 
   local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -89,18 +89,18 @@ rbfv_about() {
   buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Gate: warn if about already exists (re-about is idempotent overwrite)
-  local -r z_about_gate_status="${ZRBFV_ABOUT_PREFIX}about_status.txt"
-  local -r z_about_gate_response="${ZRBFV_ABOUT_PREFIX}about_response.json"
-  local -r z_about_gate_stderr="${ZRBFV_ABOUT_PREFIX}about_stderr.txt"
+  local -r z_about_gate_status="${ZRBFV0_ABOUT_PREFIX}about_status.txt"
+  local -r z_about_gate_response="${ZRBFV0_ABOUT_PREFIX}about_response.json"
+  local -r z_about_gate_stderr="${ZRBFV0_ABOUT_PREFIX}about_stderr.txt"
 
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || z_curl_status=$?
   # RBr_c17
@@ -115,18 +115,18 @@ rbfv_about() {
   fi
 
   # Submit about Cloud Build
-  zrbfv_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
+  zrbfva_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
 
   buc_success "About complete: ${z_hallmark}"
   buc_info "About artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 }
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfva_*)
 
 # Internal: submit about Cloud Build job and wait for completion
-zrbfv_about_submit() {
-  zrbfv_sentinel
+zrbfva_about_submit() {
+  zrbfv0_sentinel
 
   local -r z_hallmark="$1"
   local -r z_token="$2"
@@ -186,20 +186,20 @@ zrbfv_about_submit() {
   esac
 
   # Git metadata (shared temp files, idempotent)
-  zrbfc_ensure_git_metadata
+  zrbfcb_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
+  z_git_commit=$(<"${ZRBFC0_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
+  z_git_branch=$(<"${ZRBFC0_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
+  z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
 
   # Assemble about steps via shared helper
-  local -r z_about_steps_accumulator="${ZRBFV_ABOUT_PREFIX}steps.json"
-  zrbfc_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBFV_ABOUT_PREFIX}"
+  local -r z_about_steps_accumulator="${ZRBFV0_ABOUT_PREFIX}steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_accumulator}" "${ZRBFV0_ABOUT_PREFIX}"
 
   buc_log_args "Composing about Build resource JSON"
-  local -r z_about_build_file="${ZRBFV_ABOUT_PREFIX}build.json"
+  local -r z_about_build_file="${ZRBFV0_ABOUT_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps    "${z_about_steps_accumulator}" \
@@ -253,7 +253,7 @@ zrbfv_about_submit() {
   rbndb_check "${z_token}"
 
   buc_step "Submitting about Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "about_build_create" "${z_about_build_file}"
   rbuh_require_ok "About build submission" "about_build_create"
 
@@ -262,13 +262,13 @@ zrbfv_about_submit() {
   z_build_id=$(rbuh_json_field_capture "about_build_create" '.metadata.build.id') || z_build_id_status=$?
   test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "About build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ABOUT}" "About"
+  zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_ABOUT}" "About"
 }
 
 # eof

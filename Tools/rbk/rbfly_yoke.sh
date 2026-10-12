@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Yoke (rbfl_*)
+# Yoke (rbfly_*)
 
-rbfl_yoke() {
-  zrbfl_sentinel
+rbfly_yoke() {
+  zrbfl0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -54,7 +54,7 @@ rbfl_yoke() {
   # channel's own brand fact that the conjure election reads.
   local z_kind=""
   local z_kind_status=0
-  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_stamp}") || z_kind_status=$?
+  z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_stamp}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_stamp}' has no recognizable Lode kind prefix"
   test "${z_kind}" = "${RBGC_LODE_KIND_RELIQUARY}" \
@@ -68,7 +68,7 @@ rbfl_yoke() {
   buc_step "Validating reliquary Lode: ${z_stamp}"
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
   local -r z_pkg_encoded="${z_pkg//\//%2F}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+  local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_list_infix="rbfl_yoke_list"
 
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_list_infix}"

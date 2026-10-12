@@ -24,7 +24,7 @@
 set -euo pipefail
 
 ######################################################################
-# Step Assembly (zrbfc_*)
+# Step Assembly (zrbfca_*)
 
 # Internal: Resolve tool image references from a named reliquary-kind (conclave)
 # Lode touchmark. Sets module-level z_rbfc_tool_* mutable kindle state for
@@ -36,12 +36,12 @@ set -euo pipefail
 #
 # Args: touchmark — a reliquary Lode touchmark (already validated non-empty by
 #       the caller, which supplies the caller-specific empty-reject message).
-zrbfc_resolve_tool_images_from() {
-  zrbfc_sentinel
+zrbfca_resolve_tool_images_from() {
+  zrbfc0_sentinel
 
   local -r z_reliquary="${1:?Reliquary touchmark required}"
 
-  local -r z_lode_pkg="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${RBGL_LODES_ROOT}/${z_reliquary}"
+  local -r z_lode_pkg="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${RBGL_LODES_ROOT}/${z_reliquary}"
   z_rbfc_tool_gcloud="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_GCLOUD}"
   z_rbfc_tool_docker="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_DOCKER}"
   z_rbfc_tool_alpine="${z_lode_pkg}:${RBGC_LODE_TAG_SPRUE}${RBGC_RELIQUARY_TOOL_ALPINE}"
@@ -53,21 +53,21 @@ zrbfc_resolve_tool_images_from() {
 
 # Internal: Resolve tool images from the loaded vessel's RBRV_RELIQUARY (the
 # made side and bole). Must be called after vessel load.
-zrbfc_resolve_tool_images() {
-  zrbfc_sentinel
+zrbfca_resolve_tool_images() {
+  zrbfc0_sentinel
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
   test -n "${z_reliquary}" \
     || buc_die_now "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
 
-  zrbfc_resolve_tool_images_from "${z_reliquary}"
+  zrbfca_resolve_tool_images_from "${z_reliquary}"
 }
 
 # Internal: assemble about step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBFC_RBGJA_STEPS_DIR and z_rbfc_tool_* image refs from module state
-zrbfc_assemble_about_steps() {
-  zrbfc_sentinel
+# Reads ZRBFC0_RBGJA_STEPS_DIR and z_rbfc_tool_* image refs from module state
+zrbfca_assemble_about_steps() {
+  zrbfc0_sentinel
 
   local -r z_output_file="$1"
   local -r z_temp_prefix="$2"
@@ -97,7 +97,7 @@ zrbfc_assemble_about_steps() {
 
   for z_adef in "${z_about_step_defs[@]}"; do
     IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
-    z_ascript_path="${ZRBFC_RBGJA_STEPS_DIR}/${z_ascript}"
+    z_ascript_path="${ZRBFC0_RBGJA_STEPS_DIR}/${z_ascript}"
     z_abody_file="${z_temp_prefix}${z_aid}_body.txt"
     z_aescaped_file="${z_temp_prefix}${z_aid}_escaped.txt"
     z_asteps_file="${z_temp_prefix}${z_aid}_steps.json"
@@ -105,7 +105,7 @@ zrbfc_assemble_about_steps() {
     test -f "${z_ascript_path}" || buc_die_now "About step script not found: ${z_ascript_path}"
 
     buc_log_args "Reading script body for ${z_aid} (skip shebang)"
-    zrbfc_write_script_body "${z_ascript_path}" "${z_abody_file}" \
+    zrbfcb_write_script_body "${z_ascript_path}" "${z_abody_file}" \
       || buc_die_now "Failed to read about step script: ${z_ascript_path}"
     z_abody=$(<"${z_abody_file}") || buc_die_now "Failed to read: ${z_abody_file}"
     test -n "${z_abody}" || buc_die_now "Empty about script body: ${z_ascript_path}"
@@ -137,9 +137,9 @@ zrbfc_assemble_about_steps() {
 
 # Internal: assemble vouch step scripts into JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBFC_RBGJV_STEPS_DIR and z_rbfc_tool_* image refs from module state
-zrbfc_assemble_vouch_steps() {
-  zrbfc_sentinel
+# Reads ZRBFC0_RBGJV_STEPS_DIR and z_rbfc_tool_* image refs from module state
+zrbfca_assemble_vouch_steps() {
+  zrbfc0_sentinel
 
   local -r z_output_file="$1"
   local -r z_temp_prefix="$2"
@@ -168,7 +168,7 @@ zrbfc_assemble_vouch_steps() {
 
   for z_vdef in "${z_vouch_step_defs[@]}"; do
     IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
-    z_vscript_path="${ZRBFC_RBGJV_STEPS_DIR}/${z_vscript}"
+    z_vscript_path="${ZRBFC0_RBGJV_STEPS_DIR}/${z_vscript}"
     z_vbody_file="${z_temp_prefix}${z_vid}_body.txt"
     z_vescaped_file="${z_temp_prefix}${z_vid}_escaped.txt"
     z_vsteps_file="${z_temp_prefix}${z_vid}_steps.json"
@@ -176,9 +176,9 @@ zrbfc_assemble_vouch_steps() {
     test -f "${z_vscript_path}" || buc_die_now "Vouch step script not found: ${z_vscript_path}"
 
     buc_log_args "Reading script body for ${z_vid} (skip shebang)"
-    zrbfc_write_script_body "${z_vscript_path}" "${z_vbody_file}" \
+    zrbfcb_write_script_body "${z_vscript_path}" "${z_vbody_file}" \
       || buc_die_now "Failed to read vouch step script: ${z_vscript_path}"
-    zrbfc_expand_includes "${z_vbody_file}" "${ZRBFC_RBGJS_SNIPPETS_DIR}" \
+    zrbfcb_expand_includes "${z_vbody_file}" "${ZRBFC0_RBGJS_SNIPPETS_DIR}" \
       || buc_die_now "Failed to expand snippet includes in vouch step: ${z_vscript_path}"
     z_vbody=$(<"${z_vbody_file}") || buc_die_now "Failed to read: ${z_vbody_file}"
     test -n "${z_vbody}" || buc_die_now "Empty vouch script body: ${z_vscript_path}"
@@ -207,17 +207,17 @@ zrbfc_assemble_vouch_steps() {
 
 # Internal: assemble single-step preflight JSON array file
 # Args: output_file temp_prefix
-# Reads ZRBFC_RBGJR_STEPS_DIR and z_rbfc_tool_alpine from module state.
+# Reads ZRBFC0_RBGJR_STEPS_DIR and z_rbfc_tool_alpine from module state.
 # Single step prepends to every ordain-path Cloud Build job (conjure, bind,
 # graft) as defense-in-depth: validates reliquary GAR-presence from
 # the worker pool's vantage before expensive work runs.
-zrbfc_assemble_preflight_step() {
-  zrbfc_sentinel
+zrbfca_assemble_preflight_step() {
+  zrbfc0_sentinel
 
   local -r z_output_file="$1"
   local -r z_temp_prefix="$2"
 
-  local -r z_pscript_path="${ZRBFC_RBGJR_STEPS_DIR}/rbgjr01-reliquary-preflight.sh"
+  local -r z_pscript_path="${ZRBFC0_RBGJR_STEPS_DIR}/rbgjr01-reliquary-preflight.sh"
   local -r z_pbody_file="${z_temp_prefix}preflight_body.txt"
   local -r z_pescaped_file="${z_temp_prefix}preflight_escaped.txt"
   local -r z_psteps_file="${z_temp_prefix}preflight_steps.json"
@@ -225,7 +225,7 @@ zrbfc_assemble_preflight_step() {
   test -f "${z_pscript_path}" || buc_die_now "Preflight step script not found: ${z_pscript_path}"
 
   buc_log_args "Reading preflight step script (skip shebang)"
-  zrbfc_write_script_body "${z_pscript_path}" "${z_pbody_file}" \
+  zrbfcb_write_script_body "${z_pscript_path}" "${z_pbody_file}" \
     || buc_die_now "Failed to read preflight step script: ${z_pscript_path}"
   local z_pbody=""
   z_pbody=$(<"${z_pbody_file}") || buc_die_now "Failed to read: ${z_pbody_file}"

@@ -36,7 +36,7 @@ zrbfr_kindle() {
   test -z "${ZRBFR_KINDLED:-}" || buc_die_now "Module rbfr already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'Define retriever temp file prefix'
   readonly ZRBFR_TEMP_PREFIX="${BURD_TEMP_DIR}/rbfr_"
@@ -45,7 +45,7 @@ zrbfr_kindle() {
 }
 
 zrbfr_sentinel() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
   test "${ZRBFR_KINDLED:-}" = "1" || buc_die_now "Module rbfr not kindled - call zrbfr_kindle first"
 }
 
@@ -95,10 +95,10 @@ rbfr_summon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_image_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" \
     > "${z_image_status_file}" || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for image ark (curl exit ${z_curl_status})"
 
@@ -121,10 +121,10 @@ rbfr_summon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_about_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" \
     > "${z_about_status_file}" || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for about ark (curl exit ${z_curl_status})"
 
@@ -147,10 +147,10 @@ rbfr_summon() {
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
     -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}"     \
     -w "%{http_code}"                               \
     -o "${z_vouch_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" \
     > "${z_vouch_status_file}" || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for vouch ark (curl exit ${z_curl_status})"
 
@@ -179,13 +179,13 @@ rbfr_summon() {
   buc_step "Logging into container registry"
 
   # Docker login to GAR
-  rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
+  rbgo_docker_login "${z_token}" "${ZRBFC0_REGISTRY_HOST}"
 
   # Pull image ark if exists
   if test "${z_image_exists}" = "true"; then
     buc_step "Pulling image ark"
 
-    local z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_image_pkg}:${z_hallmark}"
+    local z_image_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_image_pkg}:${z_hallmark}"
     docker pull "${z_image_ref}" || buc_die_now "Failed to pull image ark"
     buc_info "Retrieved: ${z_image_ref}"
   fi
@@ -194,7 +194,7 @@ rbfr_summon() {
   if test "${z_about_exists}" = "true"; then
     buc_step "Pulling about ark"
 
-    local z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_about_pkg}:${z_hallmark}"
+    local z_about_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_about_pkg}:${z_hallmark}"
     docker pull "${z_about_ref}" || buc_die_now "Failed to pull about ark"
     buc_info "Retrieved: ${z_about_ref}"
   fi
@@ -203,7 +203,7 @@ rbfr_summon() {
   if test "${z_vouch_exists}" = "true"; then
     buc_step "Pulling vouch ark"
 
-    local z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vouch_pkg}:${z_hallmark}"
+    local z_vouch_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_vouch_pkg}:${z_hallmark}"
     docker pull "${z_vouch_ref}" || buc_die_now "Failed to pull vouch ark"
     buc_info "Retrieved: ${z_vouch_ref}"
   fi

@@ -18,24 +18,24 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - vouch gate body (guard-free cluster, sourced
-# by rbfv0_verify): rbfv_vouch_gate — the read-only admission check that HEADs
+# by rbfv0_verify): rbfvg_vouch_gate — the read-only admission check that HEADs
 # a hallmark's vouch package manifest in GAR and refuses an image that carries
 # none. Submits no Cloud Build and owns no support of its own; it reads no
-# ZRBFV_ kindle constant, taking its probe scratch file from Foundry Core.
+# ZRBFV0_ kindle constant, taking its probe scratch file from Foundry Core.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfv_*)
+# External Functions (rbfvg_*)
 
-rbfv_vouch_gate() {
-  zrbfv_sentinel
+rbfvg_vouch_gate() {
+  zrbfv0_sentinel
 
   local -r z_vessel="${1:-}"
   local -r z_hallmark="${2:-}"
 
-  test -n "${z_vessel}"       || buc_die_now "rbfv_vouch_gate: vessel required"
-  test -n "${z_hallmark}" || buc_die_now "rbfv_vouch_gate: hallmark required"
+  test -n "${z_vessel}"       || buc_die_now "rbfvg_vouch_gate: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "rbfvg_vouch_gate: hallmark required"
 
   # Vouch package = rbi_hm/<H>/vouch, tag = <H> (hallmark-as-tag).
   local -r z_vouch_tag="${z_hallmark}"
@@ -43,7 +43,7 @@ rbfv_vouch_gate() {
 
   local z_token
   z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die_now "rbfv_vouch_gate: failed to get Director OAuth token"
+    || buc_die_now "rbfvg_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
   local z_curl_status=0
@@ -53,12 +53,12 @@ rbfv_vouch_gate() {
     -H "Authorization: Bearer ${z_token}" \
     -o /dev/null \
     -w "%{http_code}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
-    > "${ZRBFC_SCRATCH_FILE}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
+    > "${ZRBFC0_SCRATCH_FILE}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die_now "rbfv_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
-  z_vouch_http_code=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_SCRATCH_FILE}"
+    || buc_die_now "rbfvg_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
+  z_vouch_http_code=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_SCRATCH_FILE}"
 
   if test "${z_vouch_http_code}" != "200"; then
     buc_die_now "Hallmark not vouched: ${z_hallmark} (HTTP ${z_vouch_http_code} — refusing to use unvouched image)"

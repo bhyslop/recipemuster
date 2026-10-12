@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Delete (rbfl_*)
+# Delete (rbfld_*)
 
-rbfl_jettison() {
-  zrbfl_sentinel
+rbfld_jettison() {
+  zrbfl0_sentinel
 
   local z_locator="${BUZ_FOLIO:-}"
 
@@ -64,12 +64,12 @@ rbfl_jettison() {
   buc_step "Jettisoning: ${z_locator}"
 
   # Jettison by tag reference
-  local z_status_file="${ZRBFL_DELETE_PREFIX}status.txt"
-  local z_response_file="${ZRBFL_DELETE_PREFIX}response.json"
-  local z_stderr_file="${ZRBFL_DELETE_PREFIX}stderr.txt"
+  local z_status_file="${ZRBFL0_DELETE_PREFIX}status.txt"
+  local z_response_file="${ZRBFL0_DELETE_PREFIX}response.json"
+  local z_stderr_file="${ZRBFL0_DELETE_PREFIX}stderr.txt"
 
   rbuh_request "DELETE"                                                  \
-                    "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
+                    "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
                     "${z_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
     || buc_die_now "DELETE request failed — see ${z_stderr_file}"
@@ -93,8 +93,8 @@ rbfl_jettison() {
   buc_success "Jettisoned or nonexistent: ${z_locator}"
 }
 
-rbfl_abjure() {
-  zrbfl_sentinel
+rbfld_abjure() {
+  zrbfl0_sentinel
 
   local z_hallmark="${BUZ_FOLIO:-}"
 
@@ -116,7 +116,7 @@ rbfl_abjure() {
   local -r z_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
   buc_step "Enumerating packages under ${z_subtree}"
 
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfl_abjure_list"
 
   rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
@@ -125,7 +125,7 @@ rbfl_abjure() {
   # GAR returns package names URL-encoded in the resource name (slashes as
   # %2F); decode and prefix-match to the hallmark subtree.
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
-  local -r z_pkg_file="${ZRBFL_DELETE_PREFIX}packages.txt"
+  local -r z_pkg_file="${ZRBFL0_DELETE_PREFIX}packages.txt"
 
   jq -r --arg subtree "${z_subtree}" '
     .packages[]?.name
@@ -169,7 +169,7 @@ rbfl_abjure() {
   test "${#z_packages[@]}" -gt 0 || buc_die_now "No packages loaded for abjure of ${z_subtree}"
 
   buc_step "Dispatching cloud delete for ${z_count} package(s) under ${z_subtree}"
-  zrbld_cloud_delete_dispatch "${z_token}" "Abjure" "${ZRBFL_DELETE_PREFIX}" "${z_packages[@]}"
+  zrbldd_cloud_delete_dispatch "${z_token}" "Abjure" "${ZRBFL0_DELETE_PREFIX}" "${z_packages[@]}"
 
   echo ""
   buc_success "Hallmark abjured: ${z_hallmark} (${z_count} packages)"

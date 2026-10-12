@@ -25,10 +25,10 @@
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbld_*)
+# External Functions (rbldl_*)
 
-rbld_divine() {
-  zrbld_sentinel
+rbldl_divine() {
+  zrbld0_sentinel
 
   buc_doc_brief "Divine Lodes — enumerate every Lode by touchmark (read-only)"
   buc_doc_shown || return 0
@@ -39,9 +39,9 @@ rbld_divine() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
-  zrbfc_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
+  zrbfcg_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No Lodes found under ${RBGL_LODES_ROOT}/"
     buc_success "Divine complete — 0 Lodes"
     return 0
@@ -67,7 +67,7 @@ rbld_divine() {
   while IFS= read -r z_touch || test -n "${z_touch}"; do
     test -n "${z_touch}" || continue
     z_touchmarks+=("${z_touch}")
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   local -r z_row_fmt="  %-15s %s\n"
   echo ""
@@ -96,13 +96,13 @@ rbld_divine() {
     # member). Per-Lode infix preserves each response for forensics.
     z_pkg="${RBGL_LODES_ROOT}/${z_touch}"
     z_pkg_encoded="${z_pkg//\//%2F}"
-    z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+    z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
     z_enum_infix="rbld_divine_enum_${z_idx}"
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_enum_infix}"
     rbuh_require_ok "List tags for Lode ${z_touch}" "${z_enum_infix}"
     z_resp_file="${ZRBUH_PREFIX}${z_enum_infix}${ZRBUH_POSTFIX_JSON}"
 
-    z_image_file="${ZRBLD_DIVINE_PREFIX}enum_${z_idx}_image.txt"
+    z_image_file="${ZRBLD0_DIVINE_PREFIX}enum_${z_idx}_image.txt"
     jq -r --arg dp "${RBGC_LODE_TAG_DIGEST_PREFIX}" --arg vouch "${RBGC_LODE_TAG_VOUCH}" '
       [.tags[]?.name | sub(".*/tags/"; "")] as $names
       | ([$names[] | select(startswith($dp)) | ltrimstr($dp)[0:10]][0]) as $sha10
@@ -122,8 +122,8 @@ rbld_divine() {
   buc_success "Divine complete"
 }
 
-rbld_augur() {
-  zrbld_sentinel
+rbldl_augur() {
+  zrbld0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -150,7 +150,7 @@ rbld_augur() {
   # that the prefix named a real kind (the decoder is the sole kind channel).
   local z_kind=""
   local z_kind_status=0
-  z_kind=$(zrbld_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
+  z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
@@ -165,7 +165,7 @@ rbld_augur() {
   # Member tags — every tag on the Lode package. An empty package is the
   # "Lode not present" signal (matches divine's enumerate contract).
   buc_step "Fetching member tags for Lode ${z_pkg}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
+  local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_tags_infix="rbld_augur_tags"
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
   # A banished or never-captured Lode answers 404 here — the user named a
@@ -180,7 +180,7 @@ rbld_augur() {
   rbuh_require_ok "List tags for Lode ${z_touchmark}" "${z_tags_infix}"
 
   local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
-  local -r z_tags_file="${ZRBLD_AUGUR_PREFIX}tags.txt"
+  local -r z_tags_file="${ZRBLD0_AUGUR_PREFIX}tags.txt"
   jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_tags_file}" \
     || buc_die_now "Failed to extract member tags for Lode ${z_touchmark}"
   test -s "${z_tags_file}" \
@@ -204,9 +204,9 @@ rbld_augur() {
   # acquisition facts and the honest trust-grade posture. The same gcrane-pushed
   # single-layer image rbgjl02 wrote (vouch.json at image root).
   buc_step "Decoding provenance envelope (:${RBGC_LODE_TAG_VOUCH})"
-  local -r z_vouch_dir="${ZRBLD_AUGUR_PREFIX}vouch"
+  local -r z_vouch_dir="${ZRBLD0_AUGUR_PREFIX}vouch"
   rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear vouch scratch dir: ${z_vouch_dir}"
-  zrbfc_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+  zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
     || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
   local -r z_vouch_json="${z_vouch_dir}/vouch.json"
   test -f "${z_vouch_json}" \
@@ -264,8 +264,8 @@ rbld_augur() {
   buc_success "Augur complete — Lode ${z_touchmark}"
 }
 
-rbld_banish() {
-  zrbld_sentinel
+rbldl_banish() {
+  zrbld0_sentinel
 
   local -r z_touchmark="${BUZ_FOLIO:-}"
 
@@ -285,7 +285,7 @@ rbld_banish() {
 
   # Verify presence before delete so banish reports a clean not-found.
   buc_step "Verifying Lode present: ${z_pkg}"
-  local -r z_tags_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
+  local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
   local -r z_probe_infix="rbld_banish_probe"
   rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_probe_infix}"
   rbuh_require_ok "Probe Lode ${z_touchmark}" "${z_probe_infix}"
@@ -303,7 +303,7 @@ rbld_banish() {
   # 404 is the only success signal) — the build's success IS the delete outcome,
   # closing the host trust-200 LRO gap; see rbgjl06.
   buc_step "Dispatching cloud delete for Lode package: ${z_pkg}"
-  zrbld_cloud_delete_dispatch "${z_token}" "Banish" "${ZRBLD_BANISH_PREFIX}" "${z_pkg}"
+  zrbldd_cloud_delete_dispatch "${z_token}" "Banish" "${ZRBLD0_BANISH_PREFIX}" "${z_pkg}"
 
   echo ""
   buc_success "Lode banished: ${z_touchmark}"

@@ -326,12 +326,12 @@ const ZRBTDRV_ARK_BASENAMES_ALL: &[&str] = &[
     RBTDRV_ARK_BASENAME_POUCH,
 ];
 
-/// Multi-fact extension emitted by `rbw-iah` (rbfl_audit_hallmarks): one
+/// Multi-fact extension emitted by `rbw-iah` (rbfln_audit_hallmarks): one
 /// `<hallmark>.audit-hallmark` file per discovered hallmark. Mirrors
 /// rbcc_constants.sh RBCC_fact_ext_audit_hallmark.
 const RBTDRV_FACT_EXT_AUDIT_HALLMARK: &str = "audit-hallmark";
 
-/// Single-form chaining fact emitted host-side by `rbw-lE` (rbld_ensconce): the
+/// Single-form chaining fact emitted host-side by `rbw-lE` (rbldb_ensconce): the
 /// captured Lode touchmark. The derived-pull base-anchor election reads it at
 /// conjure; the provenance envelope lives only in GAR (:rbi_vouch), never
 /// host-side. Mirrors rbgc_constants.sh RBF_FACT_LODE_TOUCHMARK.
@@ -374,7 +374,7 @@ const RBTDRV_LODE_TAG_ROOTFS: &str = "rbi_rootfs";
 const RBTDRV_WSL_RELEASE: &str = "24.04";
 const RBTDRV_WSL_POINT: &str = "4";
 
-/// BURE_TWEAK signal recognized by rbld_ensconce (rbldb_bole.sh) to pin the Lode
+/// BURE_TWEAK signal recognized by rbldb_ensconce (rbldb_bole.sh) to pin the Lode
 /// stamp, driving two captures onto one touchmark so the cloud-side collision
 /// guard's idempotent/collision branches fire. Mirror: rbldb_bole.sh
 /// `z_ensconce_stamp_tweak_name` — same literal. Carries the buo tweak sprue,
@@ -388,7 +388,7 @@ const RBTDRV_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
 const RBTDRV_REDON_CADENCE_POLLS: &str = "4";
 
 /// Re-don announcement fragment asserted in the ordain transcript. Mirror:
-/// rbfcb_host.sh `zrbfc_redon_tick` buc_info line — same literal.
+/// rbfcb_host.sh `zrbfcb_redon_tick` buc_info line — same literal.
 const RBTDRV_REDON_ANNOUNCE: &str = "Re-donned the director mantle mid-flight";
 
 /// Debian-base vessel — a DIFFERENT upstream base than busybox, so ensconcing it
@@ -460,7 +460,7 @@ fn rbtdrv_hallmark_lifecycle(dir: &Path) -> rbtdre_Verdict {
 
         // Step 2: ordain — under the re-don cadence tweak, so this fixture's
         // real short build also exercises the poll's mid-flight re-don
-        // (zrbfc_redon_tick) on every run, spending
+        // (zrbfcb_redon_tick) on every run, spending
         // no second build on a separate case.
         let hallmark = match rbtdri_ordain_capture(
             ctx,
@@ -1067,7 +1067,7 @@ pub static RBTDRV_CASES_LODE_LIFECYCLE: &[rbtdre_Case] = &[
 // establishing the absent-Lode baseline (load-bearing) and CLOSES by banishing
 // best-effort regardless of verdict, so a mid-case failure still cleans up and a
 // crash is recovered by the next run's opening reset. Both go through one
-// divine-then-banish helper, because banish dies on an absent Lode (rbld_banish:
+// divine-then-banish helper, because banish dies on an absent Lode (rbldl_banish:
 // "nothing to banish"). The reset lives in the case body, not a setup hook: the
 // single-case runner reserves a setup hook for crucible charge, and this fixture
 // charges no crucible.
@@ -2634,7 +2634,7 @@ pub static RBTDRV_CASES_PODVM_LIFECYCLE: &[rbtdre_Case] =
     &[rbtdre_case!(rbtdrv_podvm_lifecycle), rbtdre_case!(rbtdrv_podvm_unseised)];
 
 
-// Batch-vouch fixture — exercises rbfv_batch_vouch's two-pass pending→vouched
+// Batch-vouch fixture — exercises rbfvb_batch_vouch's two-pass pending→vouched
 // transition. Single self-contained lifecycle: ordain conjure, jettison the
 // vouch ark to plant a pending hallmark, tally to confirm pending, batch_vouch
 // to fill the gap, tally to confirm vouched, abjure.

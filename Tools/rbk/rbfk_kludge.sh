@@ -35,7 +35,7 @@ zrbfk_kindle() {
   test -z "${ZRBFK_KINDLED:-}" || buc_die_now "Module rbfk already kindled"
 
   buc_log_args 'Kindle shared Foundry Core infrastructure'
-  zrbfc_kindle
+  zrbfc0_kindle
 
   buc_log_args 'Define forensic temp prefix for docker image inspect stderr capture'
   readonly ZRBFK_INSPECT_STDERR_PREFIX="${BURD_TEMP_DIR}/rbfk_inspect_stderr_"
@@ -50,7 +50,7 @@ zrbfk_kindle() {
 }
 
 zrbfk_sentinel() {
-  zrbfc_sentinel
+  zrbfc0_sentinel
   test "${ZRBFK_KINDLED:-}" = "1" || buc_die_now "Module rbfk not kindled - call zrbfk_kindle first"
 }
 
@@ -98,13 +98,13 @@ rbfk_kludge() {
   bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
 
   # Resolve vessel argument (sigil or path)
-  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
+  zrbfcv_resolve_vessel "${BUZ_FOLIO:-}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
   # Load vessel configuration
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
 
   # Validate conjure mode (bind and graft don't have local Dockerfiles)
   test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" \

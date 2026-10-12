@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - vouch body (guard-free cluster, sourced by
-# rbfv0_verify): rbfv_vouch — the mode-aware vouch operation — with the
-# support that partitions to it alone, zrbfv_vouch_submit, which composes the
+# rbfv0_verify): rbfvv_vouch — the mode-aware vouch operation — with the
+# support that partitions to it alone, zrbfvv_vouch_submit, which composes the
 # vouch step set into a builds.create submission and waits it out. Reads the
-# entry's ZRBFV_VOUCH_PREFIX kindle constant; the batch driver that calls
-# rbfv_vouch once per pending hallmark lives in rbfvb_batch.sh.
+# entry's ZRBFV0_VOUCH_PREFIX kindle constant; the batch driver that calls
+# rbfvv_vouch once per pending hallmark lives in rbfvb_batch.sh.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfv_*)
+# External Functions (rbfvv_*)
 
-rbfv_vouch() {
-  zrbfv_sentinel
+rbfvv_vouch() {
+  zrbfv0_sentinel
 
   local -r z_vessel_dir="${1:-}"
   local -r z_hallmark="${2:-}"
@@ -51,11 +51,11 @@ rbfv_vouch() {
     buc_die_now "Vessel directory required"
   fi
 
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   # Resolve tool images from reliquary (vouch steps use tool images)
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   buc_step "Authenticating as Director"
   local z_token=""
@@ -65,19 +65,19 @@ rbfv_vouch() {
   # Gate: require about exists (about must complete before vouch)
   buc_step "Gating on about artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
-  local -r z_about_gate_status="${ZRBFV_VOUCH_PREFIX}about_status.txt"
-  local -r z_about_gate_response="${ZRBFV_VOUCH_PREFIX}about_response.json"
-  local -r z_about_gate_stderr="${ZRBFV_VOUCH_PREFIX}about_stderr.txt"
+  local -r z_about_gate_status="${ZRBFV0_VOUCH_PREFIX}about_status.txt"
+  local -r z_about_gate_response="${ZRBFV0_VOUCH_PREFIX}about_response.json"
+  local -r z_about_gate_stderr="${ZRBFV0_VOUCH_PREFIX}about_stderr.txt"
 
   local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_about_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
     > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
     || z_curl_status=$?
   # RBr_c17
@@ -93,18 +93,18 @@ rbfv_vouch() {
   buc_info "About artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
 
   # Gate: warn if vouch already exists (re-vouch)
-  local -r z_vouch_gate_status="${ZRBFV_VOUCH_PREFIX}vouch_status.txt"
-  local -r z_vouch_gate_response="${ZRBFV_VOUCH_PREFIX}vouch_response.json"
-  local -r z_vouch_gate_stderr="${ZRBFV_VOUCH_PREFIX}vouch_stderr.txt"
+  local -r z_vouch_gate_status="${ZRBFV0_VOUCH_PREFIX}vouch_status.txt"
+  local -r z_vouch_gate_response="${ZRBFV0_VOUCH_PREFIX}vouch_response.json"
+  local -r z_vouch_gate_stderr="${ZRBFV0_VOUCH_PREFIX}vouch_stderr.txt"
 
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_vouch_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" \
     > "${z_vouch_gate_status}" 2>"${z_vouch_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -118,22 +118,22 @@ rbfv_vouch() {
   fi
 
   # All modes use Cloud Build for vouch (mode-aware verification inside the build)
-  zrbfv_vouch_submit "${z_hallmark}" "${z_token}"
+  zrbfvv_vouch_submit "${z_hallmark}" "${z_token}"
 
   buc_success "Vouch complete: ${z_hallmark}"
   buc_info "Vouch artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
 }
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfvv_*)
 
 # Internal: Submit vouch Cloud Build job (mode-aware verification)
 # All vessel modes use Cloud Build. The build scripts branch on _RBGV_VESSEL_MODE:
 #   conjure: DSSE envelope signature verification (Python 3 + openssl)
 #   bind: digest-pin comparison against upstream reference
 #   graft: GRAFTED stamp (no verification)
-zrbfv_vouch_submit() {
-  zrbfv_sentinel
+zrbfvv_vouch_submit() {
+  zrbfv0_sentinel
 
   local -r z_hallmark="$1"
   local -r z_token="$2"
@@ -192,11 +192,11 @@ zrbfv_vouch_submit() {
   done
 
   # Assemble vouch steps via shared helper
-  local -r z_vouch_steps_accumulator="${ZRBFV_VOUCH_PREFIX}steps.json"
-  zrbfc_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBFV_VOUCH_PREFIX}"
+  local -r z_vouch_steps_accumulator="${ZRBFV0_VOUCH_PREFIX}steps.json"
+  zrbfca_assemble_vouch_steps "${z_vouch_steps_accumulator}" "${ZRBFV0_VOUCH_PREFIX}"
 
   buc_log_args "Composing vouch Build resource JSON"
-  local -r z_vouch_build_file="${ZRBFV_VOUCH_PREFIX}build.json"
+  local -r z_vouch_build_file="${ZRBFV0_VOUCH_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps    "${z_vouch_steps_accumulator}" \
@@ -256,7 +256,7 @@ zrbfv_vouch_submit() {
   rbndb_check "${z_token}"
 
   buc_step "Submitting vouch Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "vouch_build_create" "${z_vouch_build_file}"
   rbuh_require_ok "Vouch build submission" "vouch_build_create"
 
@@ -265,13 +265,13 @@ zrbfv_vouch_submit() {
   z_build_id=$(rbuh_json_field_capture "vouch_build_create" '.metadata.build.id') || z_build_id_status=$?
   test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_VOUCH}" "Vouch"
+  zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_VOUCH}" "Vouch"
 }
 
 # eof

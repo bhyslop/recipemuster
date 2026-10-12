@@ -23,7 +23,7 @@ set -euo pipefail
 source "${BURD_BUK_DIR}/buc_command.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh"
 
-zrbfd_furnish() {
+zrbfd0_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   buc_doc_env_row "BURD_NOW_STAMP        " "Bash Dispatch Utility provided string unique between invocations"
@@ -93,13 +93,13 @@ zrbfd_furnish() {
   zrbge_kindle
   zrba_kindle
   zrbfh_kindle
-  zrbfd_kindle
+  zrbfd0_kindle
   zrbndb_kindle
 
   zbuz_kindle
   zrbz_kindle
 }
 
-buc_execute rbfd_ "Recipe Bottle Foundry Director Build" zrbfd_furnish "$@"
+buc_execute rbfd "Recipe Bottle Foundry Director Build" zrbfd0_furnish "$@"
 
 # eof

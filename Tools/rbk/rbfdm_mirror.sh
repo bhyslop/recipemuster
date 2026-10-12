@@ -18,19 +18,19 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Director Build - mirror body (guard-free cluster,
-# sourced by rbfd0_director): rbfd_mirror — bind vessel image mirrored from
+# sourced by rbfd0_director): rbfdm_mirror — bind vessel image mirrored from
 # upstream into GAR via combined Cloud Build (gcrane cp + about) — and its
-# per-operation submit helper zrbfd_mirror_submit. Reads the entry's
-# ZRBFD_MIRROR_PREFIX and ZRBFD_RBGJM_STEPS_DIR kindle constants; the
+# per-operation submit helper zrbfdm_mirror_submit. Reads the entry's
+# ZRBFD0_MIRROR_PREFIX and ZRBFD0_RBGJM_STEPS_DIR kindle constants; the
 # registry preflight it calls lives in rbfdp_preflight.sh.
 
 set -euo pipefail
 
 ######################################################################
-# External Functions (rbfd_*)
+# External Functions (rbfdm_*)
 
-rbfd_mirror() {
-  zrbfd_sentinel
+rbfdm_mirror() {
+  zrbfd0_sentinel
 
   local z_vessel_dir="${1:-}"
 
@@ -52,14 +52,14 @@ rbfd_mirror() {
   fi
 
   # Load and validate vessel
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_bind" \
     || buc_die_now "Vessel '${RBRV_SIGIL}' is not a bind vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
   test -n "${RBRV_BIND_IMAGE:-}" \
     || buc_die_now "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
 
   # Resolve tool images from reliquary (mirror uses gcrane + about steps from reliquary)
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   # Dirty-tree guard — mirror stamps HEAD into the about metadata and composes
   # its cloud step bodies from the working tree; both must match a commit.
@@ -72,7 +72,7 @@ rbfd_mirror() {
     || buc_die_now "Failed to get Director OAuth token"
 
   # Registry preflight -- verify reliquary and base images exist before expensive operations
-  zrbfd_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfdp_registry_preflight "${z_token}" "${z_vessel_dir}"
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -80,7 +80,7 @@ rbfd_mirror() {
 
   # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
   local -r z_mirror_ts="${RBGC_HALLMARK_PREFIX_BIND}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
-  local -r z_build_ts_file="${ZRBFD_MIRROR_PREFIX}build_ts.txt"
+  local -r z_build_ts_file="${ZRBFD0_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die_now "Failed to generate build timestamp"
   local z_build_ts
   local z_build_ts_raw
@@ -91,8 +91,8 @@ rbfd_mirror() {
 
   buc_info "Hallmark: ${z_hallmark}"
 
-  # Persist to output directory for chaining by rbfd_ordain
-  echo "${z_vessel_dir}" > "${ZRBFC_OUTPUT_VESSEL_DIR}" \
+  # Persist to output directory for chaining by rbfdo_ordain
+  echo "${z_vessel_dir}" > "${ZRBFC0_OUTPUT_VESSEL_DIR}" \
     || buc_die_now "Failed to write vessel dir to output"
   buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
 
@@ -107,7 +107,7 @@ rbfd_mirror() {
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Submit combined Cloud Build (gcrane image copy + about steps)
-  zrbfd_mirror_submit "${z_hallmark}" "${z_token}"
+  zrbfdm_mirror_submit "${z_hallmark}" "${z_token}"
 
   # Summary
   echo ""
@@ -116,12 +116,12 @@ rbfd_mirror() {
 }
 
 ######################################################################
-# Internal Functions (zrbfd_*)
+# Internal Functions (zrbfdm_*)
 
 # Internal: submit combined mirror Cloud Build job (gcrane image copy + about steps)
 # Args: hallmark token
-zrbfd_mirror_submit() {
-  zrbfd_sentinel
+zrbfdm_mirror_submit() {
+  zrbfd0_sentinel
 
   local -r z_hallmark="$1"
   local -r z_token="$2"
@@ -132,16 +132,16 @@ zrbfd_mirror_submit() {
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Step 0: Mirror image via gcrane
-  local -r z_mscript_path="${ZRBFD_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
+  local -r z_mscript_path="${ZRBFD0_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
   test -f "${z_mscript_path}" || buc_die_now "Mirror step script not found: ${z_mscript_path}"
 
-  local -r z_mbody_file="${ZRBFD_MIRROR_PREFIX}mirror_body.txt"
-  local -r z_mescaped_file="${ZRBFD_MIRROR_PREFIX}mirror_escaped.txt"
-  local -r z_mirror_step_file="${ZRBFD_MIRROR_PREFIX}mirror_step.json"
-  local -r z_mirror_step_built="${ZRBFD_MIRROR_PREFIX}mirror_step_built.json"
+  local -r z_mbody_file="${ZRBFD0_MIRROR_PREFIX}mirror_body.txt"
+  local -r z_mescaped_file="${ZRBFD0_MIRROR_PREFIX}mirror_escaped.txt"
+  local -r z_mirror_step_file="${ZRBFD0_MIRROR_PREFIX}mirror_step.json"
+  local -r z_mirror_step_built="${ZRBFD0_MIRROR_PREFIX}mirror_step_built.json"
 
   buc_log_args "Reading mirror step script (skip shebang)"
-  zrbfc_write_script_body "${z_mscript_path}" "${z_mbody_file}" \
+  zrbfcb_write_script_body "${z_mscript_path}" "${z_mbody_file}" \
     || buc_die_now "Failed to read mirror step script"
   local z_mbody
   z_mbody=$(<"${z_mbody_file}") || buc_die_now "Failed to read: ${z_mbody_file}"
@@ -162,26 +162,26 @@ zrbfd_mirror_submit() {
     || buc_die_now "Failed to finalize mirror step JSON"
 
   # Steps 1-4: About (shared with standalone about pipeline)
-  local -r z_about_steps_file="${ZRBFD_MIRROR_PREFIX}about_steps.json"
-  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFD_MIRROR_PREFIX}about_"
+  local -r z_about_steps_file="${ZRBFD0_MIRROR_PREFIX}about_steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFD0_MIRROR_PREFIX}about_"
 
   # Step 0: in-pool reliquary preflight (defense-in-depth)
-  local -r z_preflight_step_file="${ZRBFD_MIRROR_PREFIX}preflight_step.json"
-  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD_MIRROR_PREFIX}"
+  local -r z_preflight_step_file="${ZRBFD0_MIRROR_PREFIX}preflight_step.json"
+  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD0_MIRROR_PREFIX}"
 
   # Combine: preflight step + mirror step + about steps
-  local -r z_combined_steps="${ZRBFD_MIRROR_PREFIX}combined_steps.json"
+  local -r z_combined_steps="${ZRBFD0_MIRROR_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_mirror_step_file}" "${z_about_steps_file}" \
     > "${z_combined_steps}" || buc_die_now "Failed to combine preflight, mirror, and about steps"
 
   # Git metadata (shared temp files, idempotent)
-  zrbfc_ensure_git_metadata
+  zrbfcb_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
+  z_git_commit=$(<"${ZRBFC0_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
+  z_git_branch=$(<"${ZRBFC0_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
+  z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
 
   # Mode-specific substitution values for bind
   local -r z_bind_source="${RBRV_BIND_IMAGE:-}"
@@ -207,7 +207,7 @@ zrbfd_mirror_submit() {
 
   # Compose Build resource JSON
   buc_log_args "Composing combined mirror Build resource JSON"
-  local -r z_mirror_build_file="${ZRBFD_MIRROR_PREFIX}build.json"
+  local -r z_mirror_build_file="${ZRBFD0_MIRROR_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps    "${z_combined_steps}" \
@@ -278,7 +278,7 @@ zrbfd_mirror_submit() {
   rbndb_check "${z_token}"
 
   buc_step "Submitting combined mirror Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "mirror_build_create" "${z_mirror_build_file}"
   rbuh_require_ok "Mirror build submission" "mirror_build_create"
 
@@ -287,13 +287,13 @@ zrbfd_mirror_submit() {
   z_build_id=$(rbuh_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id_status=$?
   test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Mirror build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_MIRROR}" "Mirror"
+  zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_MIRROR}" "Mirror"
 }
 
 # eof

@@ -24,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Wrest (rbfl_*)
+# Wrest (rbflw_*)
 
-rbfl_wrest() {
-  zrbfl_sentinel
+rbflw_wrest() {
+  zrbfl0_sentinel
 
   local -r z_locator="${BUZ_FOLIO:-}"
 
@@ -52,17 +52,17 @@ rbfl_wrest() {
     || buc_die_now "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
-  local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
+  local -r z_full_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_locator}"
 
-  rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
+  rbgo_docker_login "${z_token}" "${ZRBFC0_REGISTRY_HOST}"
 
   buc_step "Pulling image: ${z_full_ref}"
   docker pull "${z_full_ref}" || buc_die_now "Image pull failed"
 
   local z_image_id
-  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
+  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
     || buc_die_now "Failed to get image ID"
-  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_SCRATCH_FILE}"
+  z_image_id=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_SCRATCH_FILE}"
 
   echo ""
   echo "Image wrested: ${z_full_ref}"

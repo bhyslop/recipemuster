@@ -22,7 +22,7 @@
 # The bole rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the ensconce recipe (gcrane capture + vouch-push),
 # the substitutions blob, and the touchmark-fact extract — and composes them
-# through zrbld_spine_dispatch / zrbld_spine_extract. No build-submission or
+# through zrblds_spine_dispatch / zrblds_spine_extract. No build-submission or
 # step-composition machinery lives here.
 
 set -euo pipefail
@@ -35,7 +35,7 @@ set -euo pipefail
 # rbgjl02), never host-side.
 
 ######################################################################
-# Internal Helpers (zrbld_*)
+# Internal Helpers (zrbldb_*)
 
 # Internal: compose the ensconce capture recipe (gcrane capture + vouch-push) and
 # its substitutions blob, then ride the capture spine to submit and
@@ -43,8 +43,8 @@ set -euo pipefail
 # regime timeout); this body chooses only the recipe, the substitutions, and the
 # light capture poll ceiling (a single small image copy).
 # Args: token origin stamp
-zrbld_ensconce_submit() {
-  zrbld_sentinel
+zrbldb_ensconce_submit() {
+  zrbld0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_origin="${2:?Origin required}"
@@ -59,12 +59,12 @@ zrbld_ensconce_submit() {
   # bole is a sealed-reliquary consumer: BOTH steps ride the PINNED reliquary gcrane
   # (z_rbfc_tool_gcrane), never the floating bootstrap — zero unpinned aspects.
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl01-ensconce-capture.sh|${z_rbfc_tool_gcrane}|ensconce-capture|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl01-ensconce-capture.sh|${z_rbfc_tool_gcrane}|ensconce-capture|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing ensconce substitutions blob"
-  local -r z_subs_file="${ZRBLD_ENSCONCE_PREFIX}subs.json"
+  local -r z_subs_file="${ZRBLD0_ENSCONCE_PREFIX}subs.json"
   jq -n \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
@@ -96,9 +96,9 @@ zrbld_ensconce_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose ensconce substitutions blob"
 
-  zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
-    "${z_subs_file}" "${ZRBLD_ENSCONCE_PREFIX}" \
+  zrblds_spine_dispatch \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
+    "${z_subs_file}" "${ZRBLD0_ENSCONCE_PREFIX}" \
     "${z_recipe[@]}"
 }
 
@@ -111,13 +111,13 @@ zrbld_ensconce_submit() {
 # guard turns any second populated slot into a loud failure. The provenance
 # envelope is NOT read host-side: it lives only in GAR (rbgjl02 pushed it under
 # :rbi_vouch), so the host hands forward only the touchmark a consumer needs.
-zrbld_ensconce_extract() {
-  zrbld_sentinel
+zrbldb_ensconce_extract() {
+  zrbld0_sentinel
 
   buc_step "Extracting capture results from build step outputs"
 
-  local -r z_output_file="${ZRBLD_ENSCONCE_PREFIX}output.json"
-  zrbld_spine_extract 0 "${z_output_file}"
+  local -r z_output_file="${ZRBLD0_ENSCONCE_PREFIX}output.json"
+  zrblds_spine_extract 0 "${z_output_file}"
 
   buc_log_args "Ensconce output:"
   buc_log_pipe < "${z_output_file}"
@@ -128,7 +128,7 @@ zrbld_ensconce_extract() {
   local z_stamp=""
   for z_n in 1 2 3; do
     z_slot_key="rbls_slot_${z_n}"
-    z_stamp_file="${ZRBLD_ENSCONCE_PREFIX}${z_n}_stamp.txt"
+    z_stamp_file="${ZRBLD0_ENSCONCE_PREFIX}${z_n}_stamp.txt"
     jq -r ".${z_slot_key}.rbls_stamp // empty" "${z_output_file}" > "${z_stamp_file}" \
       || buc_die_now "Failed to read stamp for ${z_slot_key}"
     z_stamp=$(<"${z_stamp_file}") || buc_die_now "Failed to read: ${z_stamp_file}"
@@ -141,10 +141,10 @@ zrbld_ensconce_extract() {
 }
 
 ######################################################################
-# External Functions (rbld_*)
+# External Functions (rbldb_*)
 
-rbld_ensconce() {
-  zrbld_sentinel
+rbldb_ensconce() {
+  zrbld0_sentinel
 
   buc_doc_brief "Ensconce an upstream base image into a Lode (parallel rbi_ld capture)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory declaring the base ORIGIN"
@@ -155,11 +155,11 @@ rbld_ensconce() {
   bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
   # Resolve vessel argument (sigil or path) and load.
-  zrbfc_resolve_vessel "${BUZ_FOLIO:-}"
+  zrbfcv_resolve_vessel "${BUZ_FOLIO:-}"
   local z_vessel_dir
-  z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC_VESSEL_RESOLVED_DIR_FILE}"
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_load_vessel "${z_vessel_dir}"
 
   # Resolve the single base ORIGIN. Base-kind ensconce captures one base per
   # Lode per invocation; multi-base vessels are dispatched per base. Every real
@@ -193,7 +193,7 @@ rbld_ensconce() {
   # both steps ride the pinned reliquary gcrane (z_rbfc_tool_gcrane) (RBr_p7c). The
   # vessel supplies RBRV_RELIQUARY; gcrane auths GAR ambiently whether pulled from
   # gcr.io or our AR.
-  zrbfc_resolve_tool_images
+  zrbfca_resolve_tool_images
 
   buc_step "Authenticating as Director"
   local z_token=""
@@ -215,8 +215,8 @@ rbld_ensconce() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbld_ensconce_submit "${z_token}" "${z_origin}" "${z_stamp}"
-  zrbld_ensconce_extract
+  zrbldb_ensconce_submit "${z_token}" "${z_origin}" "${z_stamp}"
+  zrbldb_ensconce_extract
 
   buc_success "Ensconce complete: ${z_origin} -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }

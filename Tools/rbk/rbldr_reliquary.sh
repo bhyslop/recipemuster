@@ -22,12 +22,12 @@
 # The reliquary rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the conclave recipe (gcrane cohort capture + vouch-push)
 # and the substitutions blob — and composes them through
-# zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
+# zrblds_spine_dispatch / zrblds_spine_extract_single. No build-submission or
 # step-composition machinery lives here.
 #
 # Conclave captures the build-tool cohort:
 # one rbi_ld package holding N member tags (:rbi_<tool>) plus the :rbi_vouch envelope. Both
-# steps ride the floating gcrane builder (ZRBLD_GCRANE_BUILDER) (RBr_p7c).
+# steps ride the floating gcrane builder (ZRBLD0_GCRANE_BUILDER) (RBr_p7c).
 
 set -euo pipefail
 
@@ -39,7 +39,7 @@ set -euo pipefail
 # never host-side.
 
 ######################################################################
-# Internal Helpers (zrbld_*)
+# Internal Helpers (zrbldr_*)
 
 # Internal: compose the conclave capture recipe (gcrane cohort capture + vouch-push)
 # and its substitutions blob, then ride the capture spine to submit
@@ -47,8 +47,8 @@ set -euo pipefail
 # regime timeout); this body chooses only the recipe, the substitutions, and the
 # heavy capture poll ceiling (the cohort copy needs the larger budget).
 # Args: token stamp
-zrbld_conclave_submit() {
-  zrbld_sentinel
+zrbldr_conclave_submit() {
+  zrbld0_sentinel
 
   local -r z_token="${1:?Token required}"
   local -r z_stamp="${2:?Stamp required}"
@@ -62,12 +62,12 @@ zrbld_conclave_submit() {
   # gcrane:debug's only shell) — no reliquary bootstrap (conclave IS what captures
   # the reliquary tools; generation-tier, the one phase allowed unpinned).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl03-conclave-capture.sh|${ZRBLD_GCRANE_BUILDER}|conclave-capture|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl03-conclave-capture.sh|${ZRBLD0_GCRANE_BUILDER}|conclave-capture|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD0_GCRANE_BUILDER}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing conclave substitutions blob"
-  local -r z_subs_file="${ZRBLD_CONCLAVE_PREFIX}subs.json"
+  local -r z_subs_file="${ZRBLD0_CONCLAVE_PREFIX}subs.json"
   jq -n \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
@@ -91,17 +91,17 @@ zrbld_conclave_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose conclave substitutions blob"
 
-  zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
-    "${z_subs_file}" "${ZRBLD_CONCLAVE_PREFIX}" \
+  zrblds_spine_dispatch \
+    "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${z_subs_file}" "${ZRBLD0_CONCLAVE_PREFIX}" \
     "${z_recipe[@]}"
 }
 
 ######################################################################
-# External Functions (rbld_*)
+# External Functions (rbldr_*)
 
-rbld_conclave() {
-  zrbld_sentinel
+rbldr_conclave() {
+  zrbld0_sentinel
 
   buc_doc_brief "Convene the build-tool cohort into one Lode (reliquary kind, rbi_ld capture)"
   buc_doc_shown || return 0
@@ -121,10 +121,10 @@ rbld_conclave() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbld_conclave_submit "${z_token}" "${z_stamp}"
+  zrbldr_conclave_submit "${z_token}" "${z_stamp}"
   # Shared single-slot extract (rblds_): the capture step (step 0) authors the
   # output; the vouch-push step writes none.
-  zrbld_spine_extract_single "${ZRBLD_CONCLAVE_PREFIX}" "${RBGC_LODE_BRAND_RELIQUARY}" "Conclave"
+  zrblds_spine_extract_single "${ZRBLD0_CONCLAVE_PREFIX}" "${RBGC_LODE_BRAND_RELIQUARY}" "Conclave"
 
   buc_success "Conclave complete: build-tool cohort -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }

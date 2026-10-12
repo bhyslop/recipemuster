@@ -18,29 +18,29 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Verify - graft metadata body (guard-free cluster,
-# sourced by rbfv0_verify): zrbfv_graft_metadata_submit — the combined
+# sourced by rbfv0_verify): zrbfvm_graft_metadata_submit — the combined
 # about+vouch Cloud Build submission graft mode takes, closing the orphan gap
 # a standalone about followed by a standalone vouch would leave. Nothing
 # inside rbfv calls it: its one caller is rbfd's ordain, reaching across the
-# module boundary. Reads the entry's ZRBFV_GRAFT_META_PREFIX kindle constant.
+# module boundary. Reads the entry's ZRBFV0_GRAFT_META_PREFIX kindle constant.
 
 set -euo pipefail
 
 ######################################################################
-# Internal Functions (zrbfv_*)
+# Internal Functions (zrbfvm_*)
 
 # Internal: submit combined about+vouch Cloud Build job for graft mode.
 # Eliminates the orphan gap between standalone about and vouch by running
 # both step sets in a single GCB submission.
 # Args: vessel_dir hallmark
-zrbfv_graft_metadata_submit() {
-  zrbfv_sentinel
+zrbfvm_graft_metadata_submit() {
+  zrbfv0_sentinel
 
   local -r z_vessel_dir="$1"
   local -r z_hallmark="$2"
 
-  # Load vessel (follows reload pattern used by rbfv_about/rbfv_vouch)
-  zrbfc_load_vessel "${z_vessel_dir}"
+  # Load vessel (follows reload pattern used by rbfva_about/rbfvv_vouch)
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
@@ -56,19 +56,19 @@ zrbfv_graft_metadata_submit() {
   # Gate: require image exists (graft push must have completed)
   buc_step "Gating on image artifact existence"
   local -r z_hallmark_subtree="${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
-  local -r z_image_gate_status="${ZRBFV_GRAFT_META_PREFIX}image_status.txt"
-  local -r z_image_gate_response="${ZRBFV_GRAFT_META_PREFIX}image_response.json"
-  local -r z_image_gate_stderr="${ZRBFV_GRAFT_META_PREFIX}image_stderr.txt"
+  local -r z_image_gate_status="${ZRBFV0_GRAFT_META_PREFIX}image_status.txt"
+  local -r z_image_gate_response="${ZRBFV0_GRAFT_META_PREFIX}image_response.json"
+  local -r z_image_gate_stderr="${ZRBFV0_GRAFT_META_PREFIX}image_stderr.txt"
 
   local z_curl_status=0
   curl --head -s \
     --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
     --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
     -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
     -w "%{http_code}" \
     -o "${z_image_gate_response}" \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
     > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -83,13 +83,13 @@ zrbfv_graft_metadata_submit() {
   buc_info "Image artifact confirmed: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Git metadata (shared temp files, idempotent)
-  zrbfc_ensure_git_metadata
+  zrbfcb_ensure_git_metadata
   local z_git_commit=""
-  z_git_commit=$(<"${ZRBFC_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_COMMIT_FILE}"
+  z_git_commit=$(<"${ZRBFC0_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_COMMIT_FILE}"
   local z_git_branch=""
-  z_git_branch=$(<"${ZRBFC_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_BRANCH_FILE}"
+  z_git_branch=$(<"${ZRBFC0_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_BRANCH_FILE}"
   local z_git_repo=""
-  z_git_repo=$(<"${ZRBFC_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC_GIT_REPO_FILE}"
+  z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
 
   # Graft-specific about substitution values
   local -r z_graft_source="${RBRV_GRAFT_IMAGE:-}"
@@ -104,8 +104,8 @@ zrbfv_graft_metadata_submit() {
   fi
 
   # === Assemble about steps ===
-  local -r z_about_steps_file="${ZRBFV_GRAFT_META_PREFIX}about_steps.json"
-  zrbfc_assemble_about_steps "${z_about_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}about_"
+  local -r z_about_steps_file="${ZRBFV0_GRAFT_META_PREFIX}about_steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFV0_GRAFT_META_PREFIX}about_"
 
   # === Resolve base image provenance (for vouch summary) ===
   # ANCHOR carries a locator (package-path:tag); cloud prefix applied at use-site.
@@ -145,21 +145,21 @@ zrbfv_graft_metadata_submit() {
   done
 
   # === Assemble vouch steps ===
-  local -r z_vouch_steps_file="${ZRBFV_GRAFT_META_PREFIX}vouch_steps.json"
-  zrbfc_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBFV_GRAFT_META_PREFIX}vouch_"
+  local -r z_vouch_steps_file="${ZRBFV0_GRAFT_META_PREFIX}vouch_steps.json"
+  zrbfca_assemble_vouch_steps "${z_vouch_steps_file}" "${ZRBFV0_GRAFT_META_PREFIX}vouch_"
 
   # === Step 0: in-pool reliquary preflight (defense-in-depth) ===
-  local -r z_preflight_step_file="${ZRBFV_GRAFT_META_PREFIX}preflight_step.json"
-  zrbfc_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFV_GRAFT_META_PREFIX}"
+  local -r z_preflight_step_file="${ZRBFV0_GRAFT_META_PREFIX}preflight_step.json"
+  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFV0_GRAFT_META_PREFIX}"
 
   # === Combine: preflight + about steps + vouch steps ===
-  local -r z_combined_steps="${ZRBFV_GRAFT_META_PREFIX}combined_steps.json"
+  local -r z_combined_steps="${ZRBFV0_GRAFT_META_PREFIX}combined_steps.json"
   jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_about_steps_file}" "${z_vouch_steps_file}" \
     > "${z_combined_steps}" || buc_die_now "Failed to combine preflight, about, and vouch steps"
 
   # Compose Build resource JSON with both _RBGA_ and _RBGV_ substitutions
   buc_log_args "Composing combined about+vouch Build resource JSON"
-  local -r z_build_file="${ZRBFV_GRAFT_META_PREFIX}build.json"
+  local -r z_build_file="${ZRBFV0_GRAFT_META_PREFIX}build.json"
 
   jq -n \
     --slurpfile zjq_steps       "${z_combined_steps}" \
@@ -251,7 +251,7 @@ zrbfv_graft_metadata_submit() {
   rbndb_check "${z_token}"
 
   buc_step "Submitting combined about+vouch Cloud Build"
-  rbuh_json "POST" "${ZRBFC_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
     "graft_meta_build_create" "${z_build_file}"
   rbuh_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
 
@@ -260,13 +260,13 @@ zrbfv_graft_metadata_submit() {
   z_build_id=$(rbuh_json_field_capture "graft_meta_build_create" '.metadata.build.id') || z_build_id_status=$?
   test "${z_build_id_status}" -eq 0 || z_build_id=""
   test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
-  echo "${z_build_id}" > "${ZRBFC_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
 
-  local -r z_console_url="${ZRBFC_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Combined about+vouch build submitted: ${z_build_id}"
   buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
 
-  zrbfc_wait_build_completion "${ZRBFC_BUILD_POLL_CEILING_ABOUT_VOUCH}" "About+Vouch"
+  zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_ABOUT_VOUCH}" "About+Vouch"
 
   buc_success "About+Vouch complete: ${z_hallmark}"
   buc_info "About artifact: ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"

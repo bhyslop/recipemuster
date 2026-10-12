@@ -26,7 +26,7 @@ set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh"
 
-zrbhp_furnish() {
+zrbhp0_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env_row "BURD_OUTPUT_DIR       " "Directory for command outputs"
@@ -81,13 +81,13 @@ zrbhp_furnish() {
   zrbge_kindle
   zrba_kindle
   zrbgi_kindle
-  zrbhp_kindle
-  zrbhp_enforce
+  zrbhp0_kindle
+  zrbhp0_enforce
 
   zbuz_kindle
   zrbz_kindle
 }
 
-buc_execute rbhp_ "Payor Ceremonies" zrbhp_furnish "$@"
+buc_execute rbhp "Payor Ceremonies" zrbhp0_furnish "$@"
 
 # eof

@@ -20,25 +20,25 @@
 # Recipe Bottle Foundry Director Build - registry preflight body (guard-free
 # cluster, sourced by rbfd0_director): the host-side registry preflight chain,
 # the one support shared across operations — build, mirror and graft each call
-# zrbfd_registry_preflight after vessel load and authentication, and beneath it
-# zrbfd_preflight_reliquary verifies the reliquary tool cohort against GAR.
+# zrbfdp_registry_preflight after vessel load and authentication, and beneath it
+# zrbfdp_preflight_reliquary verifies the reliquary tool cohort against GAR.
 # Owns no build-submission or step-composition machinery; reads the entry's
-# ZRBFD_PREFLIGHT_PREFIX kindle constant for its probe files.
+# ZRBFD0_PREFLIGHT_PREFIX kindle constant for its probe files.
 
 set -euo pipefail
 
 ######################################################################
-# Internal Functions (zrbfd_*)
+# Internal Functions (zrbfdp_*)
 
 # Verify reliquary tool images exist in GAR.
 # Args: token vessel_dir
-zrbfd_preflight_reliquary() {
-  zrbfd_sentinel
+zrbfdp_preflight_reliquary() {
+  zrbfd0_sentinel
 
   local -r z_token="${1:-}"
   local -r z_vessel_dir="${2:-}"
-  test -n "${z_token}"      || buc_die_now "zrbfd_preflight_reliquary: token required"
-  test -n "${z_vessel_dir}" || buc_die_now "zrbfd_preflight_reliquary: vessel_dir required"
+  test -n "${z_token}"      || buc_die_now "zrbfdp_preflight_reliquary: token required"
+  test -n "${z_vessel_dir}" || buc_die_now "zrbfdp_preflight_reliquary: vessel_dir required"
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
   test -n "${z_reliquary}" || buc_die_now "RBRV_RELIQUARY required on every ordain-path vessel — yoke a reliquary touchmark via tt/${RBZ_YOKE_RELIQUARY}.sh before ordaining"
@@ -66,19 +66,19 @@ zrbfd_preflight_reliquary() {
   for z_tool in "${z_canonical_tools[@]}"; do
     z_pkg="${RBGL_LODES_ROOT}/${z_reliquary}"
     z_tag="${RBGC_LODE_TAG_SPRUE}${z_tool}"
-    z_status_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_status.txt"
-    z_response_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_response.txt"
-    z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}reliquary_${z_tool}_stderr.txt"
+    z_status_file="${ZRBFD0_PREFLIGHT_PREFIX}reliquary_${z_tool}_status.txt"
+    z_response_file="${ZRBFD0_PREFLIGHT_PREFIX}reliquary_${z_tool}_response.txt"
+    z_stderr_file="${ZRBFD0_PREFLIGHT_PREFIX}reliquary_${z_tool}_stderr.txt"
 
     local z_curl_status=0
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+      -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
+      "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
@@ -122,16 +122,16 @@ zrbfd_preflight_reliquary() {
 # Internal: the host-side registry preflight (reliquary layer, then base-image layer).
 # Must be called after vessel load (reads RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR)
 # and authentication (needs token for registry API).
-zrbfd_registry_preflight() {
-  zrbfd_sentinel
+zrbfdp_registry_preflight() {
+  zrbfd0_sentinel
 
   local -r z_token="${1:-}"
   local -r z_vessel_dir="${2:-}"
-  test -n "${z_token}"      || buc_die_now "zrbfd_registry_preflight: token required"
-  test -n "${z_vessel_dir}" || buc_die_now "zrbfd_registry_preflight: vessel_dir required"
+  test -n "${z_token}"      || buc_die_now "zrbfdp_registry_preflight: token required"
+  test -n "${z_vessel_dir}" || buc_die_now "zrbfdp_registry_preflight: vessel_dir required"
 
   # --- Layer 1: Reliquary tool images ---
-  zrbfd_preflight_reliquary "${z_token}" "${z_vessel_dir}"
+  zrbfdp_preflight_reliquary "${z_token}" "${z_vessel_dir}"
 
   # --- Layer 2: Base images — anchor check ---
 
@@ -200,19 +200,19 @@ zrbfd_registry_preflight() {
     test -n "${z_tag}"      || buc_die_now "Tag is empty in ${z_anchor_var}: ${z_anchor}"
 
     z_any_checked="true"
-    z_status_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_status.txt"
-    z_response_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_response.txt"
-    z_stderr_file="${ZRBFD_PREFLIGHT_PREFIX}base_${z_n}_stderr.txt"
+    z_status_file="${ZRBFD0_PREFLIGHT_PREFIX}base_${z_n}_status.txt"
+    z_response_file="${ZRBFD0_PREFLIGHT_PREFIX}base_${z_n}_response.txt"
+    z_stderr_file="${ZRBFD0_PREFLIGHT_PREFIX}base_${z_n}_stderr.txt"
 
     local z_curl_status=0
     curl --head -sS \
       --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
       --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
       -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}" \
+      -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
       -w "%{http_code}" \
       -o "${z_response_file}" \
-      "${ZRBFC_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
+      "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
       > "${z_status_file}" 2>"${z_stderr_file}" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \

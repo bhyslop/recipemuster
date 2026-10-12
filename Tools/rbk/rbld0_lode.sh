@@ -19,7 +19,7 @@
 #
 # Recipe Bottle Lode - kindle entry: the single rbld inclusion-guard and kindle,
 # sourcing the guard-free body clusters (rbldl_ lifecycle, rblds_ capture spine,
-# rbldb_ bole). The readonly ZRBLD_* constants the kindle sets are read globally
+# rbldb_ bole). The readonly ZRBLD0_* constants the kindle sets are read globally
 # by the clusters.
 
 set -euo pipefail
@@ -45,30 +45,30 @@ source "${BASH_SOURCE[0]%/*}/rbldw_underpin.sh"
 source "${BASH_SOURCE[0]%/*}/rbldv_immure.sh"
 
 ######################################################################
-# Internal Functions (zrbld_*)
+# Internal Functions (zrbld0_*)
 
-zrbld_kindle() {
+zrbld0_kindle() {
   test -z "${ZRBLD0_KINDLED:-}" || buc_die_now "Module rbld already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'RBGJL ensconce step scripts (same Tools directory)'
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  readonly ZRBLD_RBGJL_STEPS_DIR="${z_self_dir}/rbgjl"
-  test -d "${ZRBLD_RBGJL_STEPS_DIR}" || buc_die_now "RBGJL steps directory not found: ${ZRBLD_RBGJL_STEPS_DIR}"
+  readonly ZRBLD0_RBGJL_STEPS_DIR="${z_self_dir}/rbgjl"
+  test -d "${ZRBLD0_RBGJL_STEPS_DIR}" || buc_die_now "RBGJL steps directory not found: ${ZRBLD0_RBGJL_STEPS_DIR}"
 
   buc_log_args 'Define ensconce operation file prefix'
-  readonly ZRBLD_ENSCONCE_PREFIX="${BURD_TEMP_DIR}/rbld_ensconce_"
+  readonly ZRBLD0_ENSCONCE_PREFIX="${BURD_TEMP_DIR}/rbld_ensconce_"
 
   buc_log_args 'Define conclave operation file prefix'
-  readonly ZRBLD_CONCLAVE_PREFIX="${BURD_TEMP_DIR}/rbld_conclave_"
+  readonly ZRBLD0_CONCLAVE_PREFIX="${BURD_TEMP_DIR}/rbld_conclave_"
 
   buc_log_args 'Define underpin operation file prefix'
-  readonly ZRBLD_UNDERPIN_PREFIX="${BURD_TEMP_DIR}/rbld_underpin_"
+  readonly ZRBLD0_UNDERPIN_PREFIX="${BURD_TEMP_DIR}/rbld_underpin_"
 
   buc_log_args 'Define immure operation file prefix'
-  readonly ZRBLD_IMMURE_PREFIX="${BURD_TEMP_DIR}/rbld_immure_"
+  readonly ZRBLD0_IMMURE_PREFIX="${BURD_TEMP_DIR}/rbld_immure_"
 
   # gcrane builder — crane's Google-auth sibling (same cp/manifest/tag engine).
   # CONCLAVE-ONLY: conclave captures the reliquary tool cohort itself, so it cannot
@@ -84,23 +84,23 @@ zrbld_kindle() {
   # vessel-less substrate captures (underpin, immure) resolve pinned builders from a
   # reliquary; only conclave, which produces the reliquary, may not (RBr_p7c).
   buc_log_args 'Define Google-hosted gcrane builder image (conclave-only)'
-  readonly ZRBLD_GCRANE_BUILDER="gcr.io/go-containerregistry/gcrane:debug"
+  readonly ZRBLD0_GCRANE_BUILDER="gcr.io/go-containerregistry/gcrane:debug"
 
   buc_log_args 'Define divine operation file prefix'
-  readonly ZRBLD_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"
+  readonly ZRBLD0_DIVINE_PREFIX="${BURD_TEMP_DIR}/rbld_divine_"
 
   buc_log_args 'Define augur operation file prefix'
-  readonly ZRBLD_AUGUR_PREFIX="${BURD_TEMP_DIR}/rbld_augur_"
+  readonly ZRBLD0_AUGUR_PREFIX="${BURD_TEMP_DIR}/rbld_augur_"
 
   buc_log_args 'Define banish operation file prefix'
-  readonly ZRBLD_BANISH_PREFIX="${BURD_TEMP_DIR}/rbld_banish_"
+  readonly ZRBLD0_BANISH_PREFIX="${BURD_TEMP_DIR}/rbld_banish_"
 
   readonly ZRBLD0_KINDLED=1
 }
 
-zrbld_sentinel() {
-  zrbfc_sentinel
-  test "${ZRBLD0_KINDLED:-}" = "1" || buc_die_now "Module rbld not kindled - call zrbld_kindle first"
+zrbld0_sentinel() {
+  zrbfc0_sentinel
+  test "${ZRBLD0_KINDLED:-}" = "1" || buc_die_now "Module rbld not kindled - call zrbld0_kindle first"
 }
 
 # eof

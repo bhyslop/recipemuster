@@ -21,7 +21,7 @@
 # kindle/sentinel, sourcing the Foundry Core entry (rbfck_) and the guard-free body
 # clusters (rbfla_ anoint, rbfly_ yoke, rbflf_ feoff, rbfls_ seise, rbfld_ delete,
 # rbfln_ inventory, rbflw_ wrest).
-# The readonly ZRBFL_* constants the kindle sets are read globally.
+# The readonly ZRBFL0_* constants the kindle sets are read globally.
 
 set -euo pipefail
 
@@ -44,30 +44,30 @@ source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"
 # body, exactly as banish does (the cinch-blessed narrow cross into made-side
 # delete); yoke reaches the touchmark kind-decode for its reliquary kind gate.
 # All three carry their own inclusion guards, so this single-source-per-process
-# reach raises no double-source; they read only rbfc-level state (zrbfc_sentinel),
+# reach raises no double-source; they read only rbfc-level state (zrbfc0_sentinel),
 # which this process kindles.
 source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh"
 source "${BASH_SOURCE[0]%/*}/rblds_spine.sh"
 source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"
 
 ######################################################################
-# Internal Functions (zrbfl_*)
+# Internal Functions (zrbfl0_*)
 
-zrbfl_kindle() {
+zrbfl0_kindle() {
   test -z "${ZRBFL0_KINDLED:-}" || buc_die_now "Module rbfl already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'Define delete operation file prefix'
-  readonly ZRBFL_DELETE_PREFIX="${BURD_TEMP_DIR}/rbfl_delete_"
+  readonly ZRBFL0_DELETE_PREFIX="${BURD_TEMP_DIR}/rbfl_delete_"
 
   readonly ZRBFL0_KINDLED=1
 }
 
-zrbfl_sentinel() {
-  zrbfc_sentinel
-  test "${ZRBFL0_KINDLED:-}" = "1" || buc_die_now "Module rbfl not kindled - call zrbfl_kindle first"
+zrbfl0_sentinel() {
+  zrbfc0_sentinel
+  test "${ZRBFL0_KINDLED:-}" = "1" || buc_die_now "Module rbfl not kindled - call zrbfl0_kindle first"
 }
 
 # eof

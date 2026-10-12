@@ -24,8 +24,8 @@ set -euo pipefail
 test -z "${ZRBHPE_SOURCED:-}" || return 0
 ZRBHPE_SOURCED=1
 
-rbhp_establish() {
-  zrbhp_sentinel
+rbhpe_establish() {
+  zrbhp0_sentinel
 
   buc_doc_brief "Display the manual Payor Establishment procedure for OAuth authentication"
   buc_doc_shown || return 0
@@ -44,10 +44,10 @@ rbhp_establish() {
   buym_cmd_yawp "something you might copy from here."; local -r z_cmd_key_copy="${z_buym_yelp}"
   buh_line     "   Cyan text is ${z_cmd_key_copy}"
   buym_href_yawp "https://example.com/" "EXAMPLE DOT COM"; local -r z_href_key_example="${z_buym_yelp}"
-  buh_line     "   Clickable links look like ${z_href_key_example} (often, ${ZRBHP_CLICK_MOD} + mouse click)"
+  buh_line     "   Clickable links look like ${z_href_key_example} (often, ${ZRBHP0_CLICK_MOD} + mouse click)"
   buh_e
   buh_section  "1. Confirm Payor Regime:"
-  buym_cmd_yawp "${ZRBHP_RBRP_FILE}"; local -r z_cmd_rbrp_file="${z_buym_yelp}"
+  buym_cmd_yawp "${ZRBHP0_RBRP_FILE}"; local -r z_cmd_rbrp_file="${z_buym_yelp}"
   buh_line     "   File: ${z_cmd_rbrp_file}"
   buym_cmd_yawp "${RBRP_PAYOR_PROJECT_ID}"; local -r z_cmd_payor_project_id="${z_buym_yelp}"
   buh_line     "   RBRP_PAYOR_PROJECT_ID: ${z_cmd_payor_project_id}"
@@ -56,7 +56,7 @@ rbhp_establish() {
   buh_line     "   First time setup? Set a timestamped project ID with:"
   local z_project_stamp
   z_project_stamp=$(date "${RBGC_GLOBAL_TIMESTAMP_FORMAT}") || buc_die_now "Failed to compute project ID timestamp"
-  buh_code     "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-${z_project_stamp}/' ${ZRBHP_RBRP_FILE}"
+  buh_code     "   sed -i '' 's/^RBRP_PAYOR_PROJECT_ID=.*/RBRP_PAYOR_PROJECT_ID=${RBGC_GLOBAL_PREFIX}-${RBGC_GLOBAL_TYPE_PAYOR}-${z_project_stamp}/' ${ZRBHP0_RBRP_FILE}"
   buh_e
   buh_section  "2. Check if Project Already Exists:"
   buh_line     "   Before creating a new project, verify the configured ID is not already in use:"
@@ -66,7 +66,7 @@ rbhp_establish() {
   buh_line     "   2. Look for a project with ID ${z_ui_payor_project_id}"
   buh_line     "      - Hover over project IDs to verify the full ID matches your configured value"
   buym_cmd_yawp "find the project"; local -r z_cmd_find_project="${z_buym_yelp}"
-  buym_ui_yawp "${ZRBHP_RBRP_FILE_BASENAME}"; local -r z_ui_rbrp_file_basename="${z_buym_yelp}"
+  buym_ui_yawp "${ZRBHP0_RBRP_FILE_BASENAME}"; local -r z_ui_rbrp_file_basename="${z_buym_yelp}"
   buh_line     "   3. If you ${z_cmd_find_project} with matching ID, it already exists - edit ${z_ui_rbrp_file_basename}"
   buh_line     "      and re-run this procedure"
   buh_line     "   4. If you don't find it, proceed to step 3 to create it"
@@ -122,13 +122,13 @@ rbhp_establish() {
   buh_line     "          b. Copy chosen ${z_ui_account_id_chosen} value"
   buym_href_yawp "https://console.cloud.google.com/billing/projects" "Google Cloud Billing Projects"; local -r z_href_billing_projects="${z_buym_yelp}"
   buh_line     "   2. Go to: ${z_href_billing_projects}"
-  buym_ui_yawp "${ZRBHP_RBRP_FILE}"; local -r z_ui_rbrp_file_save="${z_buym_yelp}"
+  buym_ui_yawp "${ZRBHP0_RBRP_FILE}"; local -r z_ui_rbrp_file_save="${z_buym_yelp}"
   buh_line     "   3. Save the billing account ID to your ${z_ui_rbrp_file_save}"
   buym_cmd_yawp "RBRP_BILLING_ACCOUNT_ID="; local -r z_cmd_billing_account_id="${z_buym_yelp}"
   buym_ui_yawp "Value from Account ID column"; local -r z_ui_account_id_value="${z_buym_yelp}"
   buh_line     "      Record as: ${z_cmd_billing_account_id} # ${z_ui_account_id_value}"
   buh_line     "   4. Find project row with ID matching your payor project (not name) and get the Account ID value"
-  buym_ui_yawp "${ZRBHP_RBRP_FILE}"; local -r z_ui_rbrp_file_update="${z_buym_yelp}"
+  buym_ui_yawp "${ZRBHP0_RBRP_FILE}"; local -r z_ui_rbrp_file_update="${z_buym_yelp}"
   buh_line     "   5. Update ${z_ui_rbrp_file_update} and re-display this procedure."
   buh_e
   buh_section  "6. Configure OAuth Consent Screen:"

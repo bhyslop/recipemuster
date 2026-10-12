@@ -20,7 +20,7 @@
 # Recipe Bottle Foundry Director Build - kindle entry: the single rbfd
 # inclusion-guard, tinder and kindle, sourcing the guard-free body clusters
 # (rbfdp_ preflight, rbfdb_ build, rbfdm_ mirror, rbfdg_ graft, rbfdo_
-# ordain). The readonly ZRBFD_* constants the kindle sets are read globally
+# ordain). The readonly ZRBFD0_* constants the kindle sets are read globally
 # by the clusters.
 
 set -euo pipefail
@@ -32,7 +32,7 @@ ZRBFD0_SOURCED=1
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
 
-# Source Foundry Verify module (ordain cross-module calls: rbfv_vouch, zrbfv_graft_metadata_submit)
+# Source Foundry Verify module (ordain cross-module calls: rbfvv_vouch, zrbfvm_graft_metadata_submit)
 source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh"
 
 # Tinder constants
@@ -49,51 +49,51 @@ source "${BASH_SOURCE[0]%/*}/rbfdg_graft.sh"
 source "${BASH_SOURCE[0]%/*}/rbfdo_ordain.sh"
 
 ######################################################################
-# Internal Functions (zrbfd_*)
+# Internal Functions (zrbfd0_*)
 
-zrbfd_kindle() {
+zrbfd0_kindle() {
   test -z "${ZRBFD0_KINDLED:-}" || buc_die_now "Module rbfd already kindled"
 
   buc_log_args 'Kindle shared Foundry Core infrastructure'
-  zrbfc_kindle
+  zrbfc0_kindle
 
   buc_log_args 'RBGJ files in same Tools directory as this implementation'
   # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
   local z_self_dir="${BASH_SOURCE[0]%/*}"
-  readonly ZRBFD_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
-  test -d "${ZRBFD_RBGJB_STEPS_DIR}"   || buc_die_now "RBGJB steps directory not found: ${ZRBFD_RBGJB_STEPS_DIR}"
+  readonly ZRBFD0_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
+  test -d "${ZRBFD0_RBGJB_STEPS_DIR}"   || buc_die_now "RBGJB steps directory not found: ${ZRBFD0_RBGJB_STEPS_DIR}"
 
   # RBGJV and RBGJA step dirs now owned by rbfc0_core.sh (shared assembly helpers)
 
   buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
   # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
-  readonly ZRBFD_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
-  test -d "${ZRBFD_RBGJM_STEPS_DIR}"   || buc_die_now "RBGJM steps directory not found: ${ZRBFD_RBGJM_STEPS_DIR}"
+  readonly ZRBFD0_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
+  test -d "${ZRBFD0_RBGJM_STEPS_DIR}"   || buc_die_now "RBGJM steps directory not found: ${ZRBFD0_RBGJM_STEPS_DIR}"
 
   buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
-  readonly ZRBFD_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
+  readonly ZRBFD0_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
 
   buc_log_args 'Define mirror operation files'
-  readonly ZRBFD_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"
+  readonly ZRBFD0_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"
 
   buc_log_args 'Define graft operation files'
-  readonly ZRBFD_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbfd_graft_"
+  readonly ZRBFD0_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbfd_graft_"
 
   buc_log_args 'Define base-image registry preflight files'
-  readonly ZRBFD_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbfd_preflight_"
+  readonly ZRBFD0_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbfd_preflight_"
 
   buc_log_args 'Define context push operation files'
-  readonly ZRBFD_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
+  readonly ZRBFD0_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
 
   buc_log_args 'Kindle verify module (cross-module calls from ordain)'
-  zrbfv_kindle
+  zrbfv0_kindle
 
   readonly ZRBFD0_KINDLED=1
 }
 
-zrbfd_sentinel() {
-  zrbfc_sentinel
-  test "${ZRBFD0_KINDLED:-}" = "1" || buc_die_now "Module rbfd not kindled - call zrbfd_kindle first"
+zrbfd0_sentinel() {
+  zrbfc0_sentinel
+  test "${ZRBFD0_KINDLED:-}" = "1" || buc_die_now "Module rbfd not kindled - call zrbfd0_kindle first"
 }
 
 # eof
