@@ -107,13 +107,16 @@ zrbrv_furnish() {
   zrbrd_enforce
   zrbdc_kindle
 
-  # If BUZ_FOLIO is set, load and kindle the specified vessel
+  # If BUZ_FOLIO is set, load and kindle the specified vessel; with none, rbrv
+  # kindles with no vessel loaded so the listing's capture passes its sentinel
   if test -n "${BUZ_FOLIO:-}"; then
     local -r z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
     test -f "${z_vessel_file}" || buc_die_now "Vessel not found: ${z_vessel_file}"
     source "${z_vessel_file}"  || buc_die_now "Failed to source vessel: ${z_vessel_file}"
     zrbrv_kindle
     zrbrv_enforce
+  else
+    zrbrv_kindle
   fi
 }
 
