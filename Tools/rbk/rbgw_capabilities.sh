@@ -156,8 +156,8 @@ rbgw_grant_director_capabilities() {
   # caller-recently-empowered 403 from the resource-scope IAM cache (the
   # governor's roles/owner grant may not yet have reached the AR cache).
   local -ra z_gar_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_gar_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -184,7 +184,7 @@ rbgw_grant_director_capabilities() {
       test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
         || buc_die_now "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
       buc_log_args "GAR getIamPolicy returned ${z_gar_get_code} (propagation delay; attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
-      sleep "${z_gar_prop_delay}"
+      sleep "${z_gar_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
       z_gar_prop_delay=$((z_gar_prop_delay * 2))
       test "${z_gar_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_gar_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -219,7 +219,7 @@ rbgw_grant_director_capabilities() {
       test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
         || buc_die_now "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
       buc_log_args "GAR setIamPolicy returned ${z_gar_set_code} (propagation delay; attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
-      sleep "${z_gar_prop_delay}"
+      sleep "${z_gar_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
       z_gar_prop_delay=$((z_gar_prop_delay * 2))
       test "${z_gar_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_gar_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}

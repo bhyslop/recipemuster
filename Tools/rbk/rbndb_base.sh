@@ -110,7 +110,7 @@ zrbndb_docker_login() {
       || buc_die_now "Docker login to ${ZRBNDB_REGISTRY_HOST} failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
 
     buc_warn "Docker login transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
-    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}" || buc_die_now "Sleep failed before docker login retry"
   done
 }
 
@@ -132,7 +132,7 @@ zrbndb_registry_read() {
 
   local -r z_stdout_file="${1}"
   local -r z_stderr_file="${2}"
-  shift 2
+  shift 2 || buc_die_now "zrbndb_registry_read: stdout file, stderr file and command required"
 
   local z_attempt=0
   local z_rc=0
@@ -156,7 +156,7 @@ zrbndb_registry_read() {
       || buc_die_now "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
 
     buc_warn "Registry read transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
-    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}" || buc_die_now "Sleep failed before registry read retry"
   done
 }
 
@@ -331,7 +331,7 @@ rbndb_check() {
   z_local_digest=$(<"${z_local_digest_temp}") || buc_die_now "Failed to read: ${z_local_digest_temp}"
   test -n "${z_inscribed_digest}" || buc_die_now "Failed to read or empty: ${z_inscribed_digest_temp}"
   test -n "${z_local_digest}" || buc_die_now "Failed to read or empty: ${z_local_digest_temp}"
-  if [[ "${z_inscribed_digest}" != "${z_local_digest}" ]]; then
+  if test "${z_inscribed_digest}" != "${z_local_digest}"; then
     buc_warn "RBRD drift detected"
     buc_info "Local ${RBCC_rbrd_file} differs from the depot-inscribed copy (sha256 mismatch)."
     buc_info "Inscribed copy: ${z_inscribed_file}"

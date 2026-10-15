@@ -42,7 +42,7 @@ zrbgb_kindle() {
 
   readonly ZRBGB_PREFIX="${BURD_TEMP_DIR}/rbgb_"
   readonly ZRBGB_EMPTY_JSON="${ZRBGB_PREFIX}empty.json"
-  printf '{}' > "${ZRBGB_EMPTY_JSON}"
+  printf '{}' > "${ZRBGB_EMPTY_JSON}" || buc_die_now "Failed to write ${ZRBGB_EMPTY_JSON}"
 
   # Infix values for HTTP operations
   readonly ZRBGB_INFIX_CREATE="bucket_create"
@@ -133,10 +133,18 @@ zrbgb_empty_gcs_bucket() {
   test -n "${z_objects}" || { buc_log_args 'Bucket is empty'; return 0; }
 
   buc_log_args 'Delete each object'
+  local z_object_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_object_lines+=("${z_line}")
+  done <<< "${z_objects}"
+
+  local z_i=0
   local z_object=""
   local z_delete_url=""
   local z_delete_code=""
-  while IFS= read -r z_object; do
+  for z_i in "${!z_object_lines[@]}"; do
+    z_object="${z_object_lines[${z_i}]}"
     test -n "${z_object}" || continue
     buc_log_args "Deleting object: ${z_object}"
 
@@ -156,7 +164,7 @@ zrbgb_empty_gcs_bucket() {
       204|404) buc_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       buc_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
     esac
-  done <<< "${z_objects}"
+  done
 }
 
 ######################################################################
@@ -229,13 +237,9 @@ rbgb_bucket_get() {
 
   local z_http_code
   z_http_code=$(rbuh_code_capture "${ZRBGB_INFIX_GET}") || buc_die_now "Get bucket: failed to read HTTP code"
-  if test "${z_http_code}" = "404"; then
-    buc_info "Bucket not found: ${z_bucket_name}"
-    return 1
-  fi
+  test "${z_http_code}" != "404" || buc_die_now "Bucket not found: ${z_bucket_name}"
 
   buc_success "Bucket found: ${z_bucket_name}"
-  return 0
 }
 
 rbgb_bucket_set_iam() {
@@ -263,9 +267,9 @@ rbgb_bucket_set_iam() {
   local z_policy_file="${BURD_TEMP_DIR}/rbgb_bucket_set_iam.json"
 
   if test -f "${z_policy_json}"; then
-    cp "${z_policy_json}" "${z_policy_file}"
+    cp "${z_policy_json}" "${z_policy_file}" || buc_die_now "Failed to copy policy file ${z_policy_json}"
   else
-    printf '%s\n' "${z_policy_json}" > "${z_policy_file}"
+    printf '%s\n' "${z_policy_json}" > "${z_policy_file}" || buc_die_now "Failed to write ${z_policy_file}"
   fi
 
   rbuh_json "PUT" "${z_iam_url}" "${z_token}" \
@@ -329,9 +333,11 @@ rbgb_bucket_set_lifecycle() {
   local z_lifecycle_file="${BURD_TEMP_DIR}/rbgb_bucket_set_lifecycle.json"
 
   if test -f "${z_lifecycle_json}"; then
-    jq -n --slurpfile lifecycle "${z_lifecycle_json}" '{ lifecycle: $lifecycle[0] }' > "${z_lifecycle_file}"
+    jq -n --slurpfile lifecycle "${z_lifecycle_json}" '{ lifecycle: $lifecycle[0] }' > "${z_lifecycle_file}" \
+      || buc_die_now "Failed to build lifecycle body from ${z_lifecycle_json}"
   else
-    jq -n --argjson lifecycle "${z_lifecycle_json}" '{ lifecycle: $lifecycle }' > "${z_lifecycle_file}"
+    jq -n --argjson lifecycle "${z_lifecycle_json}" '{ lifecycle: $lifecycle }' > "${z_lifecycle_file}" \
+      || buc_die_now "Failed to build lifecycle body"
   fi
 
   rbuh_json "PATCH" "${z_lifecycle_url}" "${z_token}" \
@@ -349,7 +355,7 @@ rbgb_bucket_delete() {
 
   buc_doc_brief "Delete a Cloud Storage bucket"
   buc_doc_param "bucket_name" "Name of the bucket to delete"
-  buc_doc_param "force" "If 'true', empty bucket before deletion (optional, default: false)"
+  buc_doc_oparm "force" "If 'true', empty bucket before deletion (optional, default: false)"
   buc_doc_shown || return 0
 
   test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
@@ -378,10 +384,10 @@ rbgb_bucket_delete() {
   z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_DELETE}" '.error.message') || z_err_status=$?
   test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
   case "${z_code}" in
-    204) buc_success "Bucket ${z_bucket_name} deleted";                           return 0 ;;
-    404) buc_info    "Bucket ${z_bucket_name} not found (already deleted)";       return 0 ;;
-    409) buc_warn "Bucket ${z_bucket_name} not empty or has retention policy"; return 1 ;;
-    *)   buc_warn "Bucket ${z_bucket_name} failed delete";                     return 1 ;;
+    204) buc_success "Bucket ${z_bucket_name} deleted"                                    ;;
+    404) buc_info    "Bucket ${z_bucket_name} not found (already deleted)"                ;;
+    409) buc_die_now "Bucket ${z_bucket_name} not empty or has retention policy: ${z_err}" ;;
+    *)   buc_die_now "Bucket ${z_bucket_name} failed delete: ${z_err}"                    ;;
   esac
 }
 
@@ -499,10 +505,18 @@ rbgb_managed_folder_purge() {
   test "${z_objects_status}" -eq 0 || z_objects=""
 
   if test -n "${z_objects}"; then
+    local z_object_lines=()
+    local z_line=""
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_object_lines+=("${z_line}")
+    done <<< "${z_objects}"
+
+    local z_i=0
     local z_object=""
     local z_object_enc=""
     local z_obj_code=""
-    while IFS= read -r z_object || test -n "${z_object}"; do
+    for z_i in "${!z_object_lines[@]}"; do
+      z_object="${z_object_lines[${z_i}]}"
       test -n "${z_object}" || continue
       buc_log_args "Deleting object under folder: ${z_object}"
       local z_object_enc_status=0
@@ -518,7 +532,7 @@ rbgb_managed_folder_purge() {
         204|404) buc_log_args "Object ${z_object}: deleted or absent"                     ;;
         *)       buc_warn     "Object ${z_object}: delete failed (HTTP ${z_obj_code})"    ;;
       esac
-    done <<< "${z_objects}"
+    done
   fi
 
   buc_log_args 'Delete the now-empty managed folder'

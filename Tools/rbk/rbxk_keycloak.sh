@@ -197,7 +197,7 @@ zrbxk_poll_ready() {
       return 0
     fi
     buc_log_args "Attempt ${z_attempt}/${RBXK_poll_max_attempts}: HTTP ${z_code} — sleeping ${RBXK_poll_interval_sec}s"
-    sleep "${RBXK_poll_interval_sec}"
+    sleep "${RBXK_poll_interval_sec}" || buc_die_now "Sleep failed between Keycloak readiness polls"
     z_attempt=$((z_attempt + 1))
   done
 
@@ -269,16 +269,16 @@ zrbxk_render_live() {
   {
     while IFS= read -r z_tline || test -n "${z_tline}"; do
       if test "${z_tline}" = "# eof"; then continue; fi
-      printf '%s\n' "${z_tline}"
+      printf '%s\n' "${z_tline}" || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
     done < "${ZRBXK_TEMPLATE}"
-    printf '\n'
-    printf '# Ephemeral public JWKS (the twiddle) — orchestrator-rendered per charge; committed nowhere.\n'
-    printf "RBRF_IDP_JWKS_JSON='%s'\n" "${z_jwks}"
-    printf '\n'
-    printf '# Reachable RFC 7523 grant endpoint (the loopback POST target) — orchestrator-rendered\n'
-    printf '# per charge from the nameplate port; never from realm contents.\n'
-    printf "RBRF_GRANT_ENDPOINT='%s'\n" "${z_grant_endpoint}"
-    printf '\n# eof\n'
+    printf '\n' || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf '# Ephemeral public JWKS (the twiddle) — orchestrator-rendered per charge; committed nowhere.\n' || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf "RBRF_IDP_JWKS_JSON='%s'\n" "${z_jwks}" || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf '\n' || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf '# Reachable RFC 7523 grant endpoint (the loopback POST target) — orchestrator-rendered\n' || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf '# per charge from the nameplate port; never from realm contents.\n' || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf "RBRF_GRANT_ENDPOINT='%s'\n" "${z_grant_endpoint}" || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
+    printf '\n# eof\n' || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
   } > "${ZRBXK_LIVE}" || buc_die_now "Failed to render live regime: ${ZRBXK_LIVE}"
 
   buc_info "Rendered ${ZRBXK_LIVE} (git-ignored) with a fresh JWKS and grant endpoint ${z_grant_endpoint}"

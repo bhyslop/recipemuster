@@ -155,12 +155,12 @@ rba_token_capture() {
 
   local -r z_identity="${1:-}"
 
-  # Validate up front so a typo'd identity dies before an interactive avowal.
+  # Validate up front so a typo'd identity refuses before an interactive avowal.
   # The identity is the pallium-sprued mantle token (rbpa_governor, …), THE
   # canonical form — no bare-role alias is accepted (RBCC_mantle_* is the home).
   case "${z_identity}" in
     "${RBCC_mantle_governor}"|"${RBCC_mantle_director}"|"${RBCC_mantle_retriever}") ;;
-    *) buc_die_now "rba_token_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
+    *) buc_log_args "rba_token_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})"; return 1 ;;
   esac
 
   rba_avow
@@ -214,13 +214,13 @@ zrba_sederunt_read_capture() {
      > "${ZRBA_FED_SEDERUNT_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
   local z_expiry
   z_expiry=$(<"${ZRBA_FED_SEDERUNT_EXPIRY_FILE}") || return 1
-  [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
+  case "${z_expiry}" in ''|*[!0123456789]*) return 1 ;; esac
 
   date +%s > "${ZRBA_FED_SEDERUNT_NOW_FILE}" || return 1
   local z_now
   z_now=$(<"${ZRBA_FED_SEDERUNT_NOW_FILE}") || return 1
-  test -n "${z_now}" || return 1
-  test "${z_expiry}" -gt "$(( z_now + ZRBA_SEDERUNT_SKEW_SEC ))" || return 1
+  case "${z_now}" in ''|*[!0123456789]*) return 1 ;; esac
+  test "${z_expiry}" -gt "$(( 10#${z_now} + ZRBA_SEDERUNT_SKEW_SEC ))" || return 1
 
   # Federated token (secret): jq emits it straight to stdout, never through a
   # shell var or temp file. select(length > 0) yields no output and a non-zero jq
@@ -265,14 +265,14 @@ zrba_sederunt_runway_capture() {
      > "${ZRBA_FED_RUNWAY_EXPIRY_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
   local z_expiry
   z_expiry=$(<"${ZRBA_FED_RUNWAY_EXPIRY_FILE}") || return 1
-  [[ "${z_expiry}" =~ ^[0-9]+$ ]] || return 1
+  case "${z_expiry}" in ''|*[!0123456789]*) return 1 ;; esac
 
   date +%s > "${ZRBA_FED_RUNWAY_NOW_FILE}" || return 1
   local z_now
   z_now=$(<"${ZRBA_FED_RUNWAY_NOW_FILE}") || return 1
-  [[ "${z_now}" =~ ^[0-9]+$ ]] || return 1
+  case "${z_now}" in ''|*[!0123456789]*) return 1 ;; esac
 
-  local z_runway=$(( z_expiry - z_now ))
+  local z_runway=$(( 10#${z_expiry} - 10#${z_now} ))
   test "${z_runway}" -ge 0 || z_runway=0
   printf '%s' "${z_runway}"
 }
@@ -288,14 +288,15 @@ zrba_sederunt_write() {
   local -r z_subject="${3:-}"
 
   local z_path
-  z_path=$(zrba_sederunt_path_capture) || return 1
-  local -r z_tmp="${z_path}.tmp.$$"
+  z_path=$(zrba_sederunt_path_capture) || buc_die_now "Failed to resolve the ${RBCC_noun_sederunt} cache path"
+  local -r z_tmp="${z_path}.tmp.${$}"
 
   jq -n --arg t "${z_token}" --argjson e "${z_expiry_epoch}" --arg s "${z_subject}" \
      '{federated_token: $t, expiry_epoch: $e, subject: $s}' \
-     > "${z_tmp}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  chmod 600 "${z_tmp}" || return 1
-  mv -f "${z_tmp}" "${z_path}" || return 1
+     > "${z_tmp}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
+    || buc_die_now "Failed to compose the ${RBCC_noun_sederunt} cache — see ${ZRBA_FED_JQ_STDERR_FILE}"
+  chmod 600 "${z_tmp}" || buc_die_now "Failed to restrict the ${RBCC_noun_sederunt} cache: ${z_tmp}"
+  mv -f "${z_tmp}" "${z_path}" || buc_die_now "Failed to place the ${RBCC_noun_sederunt} cache: ${z_path}"
 }
 
 # Best-effort: decode the federated subject (oid, else sub) from the IdP id_token
@@ -384,7 +385,7 @@ zrba_leg1_idtoken_capture() {
   test -n "${z_device_code}"      || return 1
   test -n "${z_user_code}"        || return 1
   test -n "${z_verification_uri}" || return 1
-  [[ "${z_interval}" =~ ^[0-9]+$ ]] || z_interval=5
+  case "${z_interval}" in ''|*[!0123456789]*) z_interval=5 ;; esac
 
   # Surface the prompt as a yawp on the shared progress stream — console, log,
   # and any watching relay alike — so a headless-but-human-reachable caller can
@@ -405,7 +406,7 @@ zrba_leg1_idtoken_capture() {
   local z_err=""
   while test "${z_elapsed}" -lt "${ZRBA_DEVICE_POLL_MAX_SEC}"; do
     sleep "${z_interval}" || return 1
-    z_elapsed=$(( z_elapsed + z_interval ))
+    z_elapsed=$(( z_elapsed + 10#${z_interval} ))
 
     z_curl_status=0
     curl -sS -X POST "${RBRF_IDP_TOKEN_ENDPOINT}"            \
@@ -435,7 +436,7 @@ zrba_leg1_idtoken_capture() {
     z_err=$(<"${ZRBA_FED_POLL_ERROR_FILE}") || return 1
     case "${z_err}" in
       authorization_pending) ;;
-      slow_down)             z_interval=$(( z_interval + 5 )) ;;
+      slow_down)             z_interval=$(( 10#${z_interval} + 5 )) ;;
       *)                     buc_log_args "Device-flow authorization failed: ${z_err:-no id_token in response}"; return 1 ;;
     esac
   done
@@ -498,9 +499,9 @@ zrba_leg1_programmatic_idtoken_capture() {
   date +%s > "${ZRBA_FED_PROG_NOW_FILE}" || return 1
   local z_iat
   z_iat=$(<"${ZRBA_FED_PROG_NOW_FILE}") || return 1
-  [[ "${z_iat}" =~ ^[0-9]+$ ]] || return 1
-  local -r z_exp=$(( z_iat + ZRBA_PROG_ASSERTION_TTL_SEC ))
-  local -r z_jti="rba-${z_iat}-$$"
+  case "${z_iat}" in ''|*[!0123456789]*) return 1 ;; esac
+  local -r z_exp=$(( 10#${z_iat} + ZRBA_PROG_ASSERTION_TTL_SEC ))
+  local -r z_jti="rba-${z_iat}-${$}"
 
   # Compose the non-secret JWT header and payload as JSON via jq (safe quoting of the
   # regime-sourced values). aud = RBRF_IDP_ISSUER — the assertion aud is cinched to
@@ -670,21 +671,20 @@ zrba_sederunt_open() {
 
   local -r z_federated="${z_fed%% *}"
   local -r z_expires_in="${z_fed##* }"
-  [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || buc_die_now "Leg 2 returned a non-numeric expiry: ${z_expires_in}"
+  case "${z_expires_in}" in ''|*[!0123456789]*) buc_die_now "Leg 2 returned a non-numeric expiry: ${z_expires_in}" ;; esac
 
   date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die_now "Failed to read the clock"
   local z_now
   z_now=$(<"${ZRBA_FED_AVOW_NOW_FILE}") || buc_die_now "Failed to read: ${ZRBA_FED_AVOW_NOW_FILE}"
-  test -n "${z_now}" || buc_die_now "Empty clock reading"
-  local -r z_expiry_epoch=$(( z_now + z_expires_in ))
+  case "${z_now}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_now}" ;; esac
+  local -r z_expiry_epoch=$(( 10#${z_now} + 10#${z_expires_in} ))
 
   local z_subject
   local z_subject_status=0
   z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject_status=$?
   test "${z_subject_status}" -eq 0 || z_subject=""
 
-  zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}" \
-    || buc_die_now "Avowal succeeded but caching the ${RBCC_noun_sederunt} failed"
+  zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}"
 
   buc_step "${RBCC_noun_sederunt_lettrine} opened (federated token expires in ${z_expires_in}s)"
 }
@@ -761,8 +761,8 @@ rba_novate() {
 # buc_die_now (or a band-aware buc_reject) over the returned code, and the
 # forensic lines below carry the operator instruction it dies with
 # (matching rba_avow's "failed at Leg N; see the transcript" division of
-# labor). The unknown-identity guard dies via buc_die_now — a caller bug, not a runtime
-# condition — exactly as rba_token_capture does.
+# labor). The unknown-identity guard returns 1 behind a forensic line — a caller
+# bug, not a runtime condition — exactly as rba_token_capture does.
 #
 # Custody: the mantle token reaches only this function's stdout (jq straight to
 # stdout, never a shell var) and the per-invocation curl response (BURD_TEMP_DIR,
@@ -794,7 +794,7 @@ rba_don_capture() {
     "${RBCC_mantle_governor}")  z_mantle_account="${RBCC_account_mantle_governor}"  ;;
     "${RBCC_mantle_director}")  z_mantle_account="${RBCC_account_mantle_director}"  ;;
     "${RBCC_mantle_retriever}") z_mantle_account="${RBCC_account_mantle_retriever}" ;;
-    *) buc_die_now "rba_don_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})" ;;
+    *) buc_log_args "rba_don_capture: unknown mantle token '${z_identity}' (expected ${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever})"; return 1 ;;
   esac
 
   # The mantle SA lives in the depot project; the depot is also the quota project
@@ -883,7 +883,7 @@ rba_rbro_load() {
 
   # Source regime module if not already loaded
   if test -z "${ZRBRO_SOURCED:-}"; then
-    source "${BASH_SOURCE[0]%/*}/rbro_regime.sh"
+    source "${BASH_SOURCE[0]%/*}/rbro_regime.sh" || buc_die_now "Failed to source rbro_regime.sh"
   fi
 
   # Delegate to regime's canonical load
