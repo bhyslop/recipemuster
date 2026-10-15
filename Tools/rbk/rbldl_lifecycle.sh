@@ -210,8 +210,12 @@ rbldl_augur() {
   buc_step "Decoding provenance envelope (:${RBGC_LODE_TAG_VOUCH})"
   local -r z_vouch_dir="${ZRBLD0_AUGUR_PREFIX}vouch"
   rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear vouch scratch dir: ${z_vouch_dir}"
-  zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+  local z_vouch_code
+  z_vouch_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}") \
+    || buc_die_now "Failed to check for the :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg}"
+  test "${z_vouch_code}" = "200" \
     || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
+  zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}"
   local -r z_vouch_json="${z_vouch_dir}/vouch.json"
   test -f "${z_vouch_json}" \
     || buc_die_now "Envelope artifact present but vouch.json missing for ${z_touchmark}"

@@ -141,12 +141,49 @@ zrbfcg_list_anchors_capture() {
     || return 1
 }
 
+# Internal: the HTTP code a manifest HEAD answers for package:tag in GAR — 200
+# when the artifact stands. Callers that branch on presence ask this first; a
+# transport failure refuses with return 1 rather than reading as absence.
+# Args: token package tag
+# Emits: the HTTP code
+zrbfcg_manifest_code_capture() {
+  zrbfc0_sentinel
+
+  local -r z_token="${1:-}"
+  local -r z_package="${2:-}"
+  local -r z_tag="${3:-}"
+  test -n "${z_token}"   || return 1
+  test -n "${z_package}" || return 1
+  test -n "${z_tag}"     || return 1
+
+  local -r z_safe_pkg="${z_package//\//_}"
+  local -r z_head_status="${ZRBFC0_GAR_HEAD_PREFIX}${z_safe_pkg}_${z_tag}_status.txt"
+  local -r z_head_response="${ZRBFC0_GAR_HEAD_PREFIX}${z_safe_pkg}_${z_tag}_response.txt"
+  local -r z_head_stderr="${ZRBFC0_GAR_HEAD_PREFIX}${z_safe_pkg}_${z_tag}_stderr.txt"
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_head_response}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    > "${z_head_status}" 2>"${z_head_stderr}" \
+    || return 1
+
+  local z_http_code
+  z_http_code=$(<"${z_head_status}") || return 1
+  test -n "${z_http_code}" || return 1
+
+  printf '%s\n' "${z_http_code}" || return 1
+}
+
 # Internal: extract files from a FROM-scratch artifact in GAR to a local directory.
 # Handles multi-platform manifest lists by picking the first platform (content is
 # identical for architecture-independent artifacts like -about and -vouch).
 # Args: token package tag extract_dir
-# Returns: 0 if extraction succeeded, 1 if artifact not found in registry.
-# Infrastructure failures (curl, jq, tar) are fatal via buc_die_now.
+# Dies when the artifact is absent or on any infrastructure failure (curl, jq,
+# tar); a caller that branches on presence asks zrbfcg_manifest_code_capture first.
 zrbfcg_gar_extract_artifact() {
   zrbfc0_sentinel
 
@@ -163,26 +200,12 @@ zrbfcg_gar_extract_artifact() {
   local -r z_prefix="${BURD_TEMP_DIR}/gar_${z_safe_pkg}_${z_tag}_"
 
   # HEAD check — does the artifact exist?
-  local -r z_head_status="${z_prefix}head_status.txt"
-  local -r z_head_response="${z_prefix}head_response.txt"
-  local -r z_head_stderr="${z_prefix}head_stderr.txt"
-  local z_curl_status=0
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_head_response}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
-    > "${z_head_status}" 2>"${z_head_stderr}" \
-    || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 \
-    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
-
   local z_http_code
-  z_http_code=$(<"${z_head_status}") || buc_die_now "Failed to read: ${z_head_status}"
-  test "${z_http_code}" = "200" || return 1
+  z_http_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_package}" "${z_tag}") \
+    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} — see ${ZRBFC0_GAR_HEAD_PREFIX}${z_safe_pkg}_${z_tag}_stderr.txt"
+  test "${z_http_code}" = "200" \
+    || buc_die_now "Not found in GAR: ${z_package}:${z_tag} (HTTP ${z_http_code})"
+  local z_curl_status=0
 
   # GET manifest (may be manifest list/index or single-platform manifest)
   local -r z_manifest="${z_prefix}manifest.json"
@@ -293,9 +316,9 @@ zrbfcg_gar_extract_artifact() {
 # Resolves a multi-platform index to its first platform; image labels are identical
 # across platforms (RBr_b4e), so any platform's config carries them.
 # Args: token package tag out_config_file
-# Returns: 0 and writes the config JSON to out_config_file; 1 if the image is not
-# found (HTTP 404 — graceful, e.g. a pre-resolved-base hallmark). Infrastructure
-# failures (curl, jq) are fatal via buc_die_now.
+# Writes the config JSON to out_config_file. Dies when the image is absent or on
+# any infrastructure failure (curl, jq); a caller for whom absence is graceful
+# (e.g. a pre-resolved-base hallmark) asks zrbfcg_manifest_code_capture first.
 zrbfcg_image_config_fetch() {
   zrbfc0_sentinel
 
@@ -312,25 +335,12 @@ zrbfcg_image_config_fetch() {
   local -r z_prefix="${BURD_TEMP_DIR}/cfg_${z_safe_pkg}_${z_tag}_"
 
   # HEAD check — does the image exist?
-  local -r z_head_status="${z_prefix}head_status.txt"
-  local -r z_head_response="${z_prefix}head_response.txt"
-  local -r z_head_stderr="${z_prefix}head_stderr.txt"
-  local z_curl_status=0
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_head_response}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
-    > "${z_head_status}" 2>"${z_head_stderr}" \
-    || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 \
-    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_head_stderr}"
   local z_http_code
-  z_http_code=$(<"${z_head_status}") || buc_die_now "Failed to read: ${z_head_status}"
-  test "${z_http_code}" = "200" || return 1
+  z_http_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_package}" "${z_tag}") \
+    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} — see ${ZRBFC0_GAR_HEAD_PREFIX}${z_safe_pkg}_${z_tag}_stderr.txt"
+  test "${z_http_code}" = "200" \
+    || buc_die_now "Not found in GAR: ${z_package}:${z_tag} (HTTP ${z_http_code})"
+  local z_curl_status=0
 
   # GET manifest (may be index or single-platform)
   local -r z_manifest="${z_prefix}manifest.json"
@@ -422,8 +432,7 @@ rbfcg_vessel_for_hallmark_capture() {
   local -r z_scratch="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark"
   rm -rf "${z_scratch}" || return 1
 
-  zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
-    || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
+  zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}"
 
   test -f "${z_scratch}/vouch_summary.json" \
     || return 1

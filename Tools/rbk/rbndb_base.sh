@@ -120,19 +120,24 @@ zrbndb_docker_login() {
 # internal retry covers only layer downloads;
 # the initial resolve leg (token fetch + manifest HEAD) is one-shot, so a
 # single daemon->registry timeout otherwise kills the command. Absorbs
-# ONLY the surveyed signature, warning each bend. A non-matching failure
-# returns rc to the caller's own error path untouched. An exhausted budget
-# dies HERE naming the transient — falling through to the caller would
+# ONLY the surveyed signature, warning each bend. A non-matching failure's
+# status is written to status_file for the caller's own error path, untouched,
+# and the function returns; the caller reads the file and branches. An exhausted
+# budget dies HERE naming the transient — falling through to the caller would
 # misdiagnose a network timeout as the caller's condition (rbndb_check's
 # absent-tripwire path prescribes standalone re-inscription; that must
 # never fire on a timeout).
-# Args: stdout_file stderr_file command...
+# Args: status_file stdout_file stderr_file command...
 zrbndb_registry_read() {
   zrbndb_sentinel
 
-  local -r z_stdout_file="${1}"
-  local -r z_stderr_file="${2}"
-  shift 2 || buc_die_now "zrbndb_registry_read: stdout file, stderr file and command required"
+  local -r z_status_file="${1:-}"
+  local -r z_stdout_file="${2:-}"
+  local -r z_stderr_file="${3:-}"
+  test -n "${z_status_file}" || buc_die_now "zrbndb_registry_read: status_file required"
+  test -n "${z_stdout_file}" || buc_die_now "zrbndb_registry_read: stdout_file required"
+  test -n "${z_stderr_file}" || buc_die_now "zrbndb_registry_read: stderr_file required"
+  shift 3 || buc_die_now "zrbndb_registry_read: status file, stdout file, stderr file and command required"
 
   local z_attempt=0
   local z_rc=0
@@ -143,14 +148,22 @@ zrbndb_registry_read() {
     z_rc=0
     "$@" > "${z_stdout_file}" 2>"${z_stderr_file}" || z_rc=$?
 
-    test "${z_rc}" -ne 0 || return 0
+    if test "${z_rc}" -eq 0; then
+      printf '%s\n' "${z_rc}" > "${z_status_file}" || buc_die_now "Failed to write: ${z_status_file}"
+      return 0
+    fi
 
     local z_stderr_content_status=0
     local z_stderr_content
     z_stderr_content=$(<"${z_stderr_file}") || z_stderr_content_status=$?
-    test "${z_stderr_content_status}" -eq 0 || return "${z_rc}"
-    [[ "${z_stderr_content}" == *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]] \
-      || return "${z_rc}"
+    if test "${z_stderr_content_status}" -ne 0; then
+      printf '%s\n' "${z_rc}" > "${z_status_file}" || buc_die_now "Failed to write: ${z_status_file}"
+      return 0
+    fi
+    if [[ "${z_stderr_content}" != *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]]; then
+      printf '%s\n' "${z_rc}" > "${z_status_file}" || buc_die_now "Failed to write: ${z_status_file}"
+      return 0
+    fi
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
       || buc_die_now "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
@@ -264,8 +277,12 @@ rbndb_check() {
   zrbndb_docker_login "${z_token}" "${z_login_stderr}"
 
   buc_log_args "Existence check via docker manifest inspect"
-  zrbndb_registry_read /dev/null "${z_manifest_stderr}" \
-      docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" \
+  local -r z_manifest_status_file="${ZRBNDB_CHECK_PREFIX}manifest_status.txt"
+  zrbndb_registry_read "${z_manifest_status_file}" /dev/null "${z_manifest_stderr}" \
+      docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}"
+  local z_manifest_rc
+  z_manifest_rc=$(<"${z_manifest_status_file}") || buc_die_now "Failed to read: ${z_manifest_status_file}"
+  test "${z_manifest_rc}" = "0" \
     || {
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
@@ -282,9 +299,13 @@ rbndb_check() {
   # inscribed single-platform (see rbndb_inscribe), so a host-default pull would
   # fail on any host whose native arch differs from RBGC_BUILD_RUNNER_PLATFORM.
   buc_log_args "Pull tripwire image"
-  zrbndb_registry_read "${z_pull_stdout}" "${z_pull_stderr}" \
-      docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}" \
-    || buc_die_now "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_pull_stderr}"
+  local -r z_pull_status_file="${ZRBNDB_CHECK_PREFIX}pull_status.txt"
+  zrbndb_registry_read "${z_pull_status_file}" "${z_pull_stdout}" "${z_pull_stderr}" \
+      docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}"
+  local z_pull_rc
+  z_pull_rc=$(<"${z_pull_status_file}") || buc_die_now "Failed to read: ${z_pull_status_file}"
+  test "${z_pull_rc}" = "0" \
+    || buc_die_now "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} (status ${z_pull_rc}) — see ${z_pull_stderr}"
 
   buc_log_args "Create temp container to extract /${RBCC_rbrd_basename}"
   # The tripwire is FROM-scratch (no CMD/ENTRYPOINT); the Linux daemon rejects

@@ -273,8 +273,12 @@ rbldv_immure() {
     local -r z_vouch_dir="${ZRBLD0_IMMURE_PREFIX}refresh_vouch"
     rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear refresh vouch scratch dir"
     local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
-    zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+    local z_vouch_code
+    z_vouch_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}") \
+      || buc_die_now "Failed to check for :${RBGC_LODE_TAG_VOUCH} at ${z_pkg}"
+    test "${z_vouch_code}" = "200" \
       || buc_die_now "No :${RBGC_LODE_TAG_VOUCH} at ${z_pkg} — touchmark not present or not yet vouched"
+    zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}"
     local -r z_vouch_json="${z_vouch_dir}/vouch.json"
     test -f "${z_vouch_json}" || buc_die_now "vouch.json missing in :${RBGC_LODE_TAG_VOUCH} artifact for ${z_stamp}"
 

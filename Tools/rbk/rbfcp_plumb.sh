@@ -49,6 +49,18 @@ zrbfcp_plumb_core() {
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
   test "${z_hallmark_status}" -eq 0 || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
 
+  buc_step "Authenticating as Retriever"
+  local z_token=""
+  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
+    || buc_die_now "Failed to get Retriever OAuth token"
+
+  local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
+  local z_vouch_code
+  z_vouch_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_vouch_pkg}" "${z_hallmark}") \
+    || buc_die_now "Failed to check for the vouch ark of hallmark: ${z_hallmark}"
+  test "${z_vouch_code}" = "200" \
+    || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
+
   buc_step "Resolving vessel from vouch ark"
   local z_vessel=""
   z_vessel=$(rbfcg_vessel_for_hallmark_capture "${z_hallmark}") \
@@ -61,11 +73,6 @@ zrbfcp_plumb_core() {
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   zrbfcv_load_vessel "${z_vessel_dir}"
 
-  buc_step "Authenticating as Retriever"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
-    || buc_die_now "Failed to get Retriever OAuth token"
-
   local -r z_extract="${ZRBFC0_PLUMB_PREFIX}"
   mkdir -p "${z_extract}" || buc_die_now "Failed to create extraction directory"
   local z_has_about=false
@@ -75,16 +82,20 @@ zrbfcp_plumb_core() {
   buc_step "Fetching about ark from GAR"
   local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
   local -r z_about_dir="${ZRBFC0_PLUMB_PREFIX}_about"
-  if zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"; then
+  local z_about_code
+  z_about_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_about_pkg}" "${z_hallmark}") \
+    || buc_die_now "Failed to check for the about ark of hallmark: ${z_hallmark}"
+  if test "${z_about_code}" = "200"; then
+    zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"
     z_has_about=true
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
 
   # Fetch vouch ark for content (vessel resolution already extracted it once above)
   buc_step "Fetching vouch ark from GAR"
-  local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
   local -r z_vouch_dir="${ZRBFC0_PLUMB_PREFIX}_vouch"
-  if zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
+  if test "${z_vouch_code}" = "200"; then
+    zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"
     z_has_vouch=true
     cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
   fi
@@ -110,9 +121,15 @@ zrbfcp_plumb_core() {
     z_attest_suffix="${z_attest_suffix//\//}"
     local -r z_attest_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}"
     local -r z_attest_tag="${z_hallmark}-${z_attest_suffix}"
-    zrbfcg_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
-      "${z_extract}/attest_config.json" \
-      || buc_info "Resolved-base labels not available (attest ${z_attest_tag} absent — pre-resolved-base build?)"
+    local z_attest_code
+    z_attest_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_attest_pkg}" "${z_attest_tag}") \
+      || buc_die_now "Failed to check for the attest image: ${z_attest_pkg}:${z_attest_tag}"
+    if test "${z_attest_code}" = "200"; then
+      zrbfcg_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
+        "${z_extract}/attest_config.json"
+    else
+      buc_info "Resolved-base labels not available (attest ${z_attest_tag} absent — pre-resolved-base build?)"
+    fi
   fi
 
   # Display results
