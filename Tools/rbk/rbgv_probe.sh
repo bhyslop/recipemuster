@@ -44,6 +44,7 @@ zrbgv_kindle() {
   readonly ZRBGV_CRM_RESP_FILE="${BURD_TEMP_DIR}/rbgv_crm_resp.json"
   readonly ZRBGV_CRM_CODE_FILE="${BURD_TEMP_DIR}/rbgv_crm_code.txt"
   readonly ZRBGV_CRM_STDERR_FILE="${BURD_TEMP_DIR}/rbgv_crm_stderr.txt"
+  readonly ZRBGV_CRM_JQ_PREFIX="${BURD_TEMP_DIR}/rbgv_crm_jq_"
 
   # Transient-5xx retry policy: 3 attempts with initial 2s backoff doubling each retry (worst-case +6s)
   readonly ZRBGV_HTTP_RETRY_ATTEMPTS=3
@@ -60,13 +61,14 @@ zrbgv_sentinel() {
 zrbgv_ms_to_sleep_capture() {
   zrbgv_sentinel
 
-  local z_ms="${1}"
+  local -r z_ms="${1:-}"
 
   buc_log_args "Converting ${z_ms}ms to sleep duration"
+  case "${z_ms}" in ''|*[!0123456789]*) return 1 ;; esac
 
   # Compute whole seconds and remainder milliseconds using integer arithmetic
-  local z_sec=$(( z_ms / 1000 ))
-  local z_rem=$(( z_ms % 1000 ))
+  local z_sec=$(( 10#${z_ms} / 1000 ))
+  local z_rem=$(( 10#${z_ms} % 1000 ))
 
   # Format as decimal with three fractional digits (sleep accepts e.g. 1.500)
   printf '%d.%03d' "${z_sec}" "${z_rem}"
@@ -112,7 +114,7 @@ zrbgv_http_get_with_5xx_retry() {
       500|502|503|504)
         if test "${z_attempt}" -lt "${ZRBGV_HTTP_RETRY_ATTEMPTS}"; then
           buc_step "${z_label}: transient HTTP ${z_code}, retrying in ${z_delay}s (attempt ${z_attempt}/${ZRBGV_HTTP_RETRY_ATTEMPTS})"
-          sleep "${z_delay}"
+          sleep "${z_delay}" || buc_die_now "${z_label}: sleep failed before retry"
           z_delay=$(( z_delay * 2 ))
           z_attempt=$(( z_attempt + 1 ))
         else
@@ -137,10 +139,10 @@ zrbgv_mantle_ar_call_capture() {
   zrbgv_sentinel
 
   local -r z_token="${1}"
-  test -n "${z_token}" || buc_die_now "zrbgv_mantle_ar_call_capture: mantle token required"
+  test -n "${z_token}" || { buc_log_args "zrbgv_mantle_ar_call_capture: mantle token required"; return 1; }
 
-  test -n "${RBDC_DEPOT_PROJECT_ID:-}" || buc_die_now "RBDC_DEPOT_PROJECT_ID is not set"
-  test -n "${RBRD_GCP_REGION:-}"       || buc_die_now "RBRD_GCP_REGION is not set"
+  test -n "${RBDC_DEPOT_PROJECT_ID:-}" || { buc_log_args "RBDC_DEPOT_PROJECT_ID is not set"; return 1; }
+  test -n "${RBRD_GCP_REGION:-}"       || { buc_log_args "RBRD_GCP_REGION is not set"; return 1; }
 
   local -r z_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRD_GCP_REGION}${RBGC_PATH_REPOSITORIES}"
 
@@ -153,9 +155,11 @@ zrbgv_mantle_ar_call_capture() {
     "${ZRBGV_AR_CODE_FILE}"            \
     "${ZRBGV_AR_STDERR_FILE}"
 
+  local z_code_status=0
   local z_code
-  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || buc_die_now "Failed to read mantle AR HTTP code file"
-  test -n "${z_code}"                || buc_die_now "Empty HTTP code from mantle AR curl"
+  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || z_code_status=$?
+  test "${z_code_status}" -eq 0 || { buc_log_args "Failed to read mantle AR HTTP code file"; return 1; }
+  test -n "${z_code}"                || { buc_log_args "Empty HTTP code from mantle AR curl"; return 1; }
 
   printf '%s\n' "${z_code}"
 }
@@ -206,9 +210,9 @@ zrbgv_payor_crm_probe_once() {
       ;;
     *)
       local z_err=""
-      if jq -e . "${ZRBGV_CRM_RESP_FILE}" >/dev/null 2>&1; then
+      if jq -e . "${ZRBGV_CRM_RESP_FILE}" >"${ZRBGV_CRM_JQ_PREFIX}${z_iteration}_parse.json" 2>"${ZRBGV_CRM_JQ_PREFIX}${z_iteration}_parse_stderr.txt"; then
         local z_err_status=0
-        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_CRM_RESP_FILE}" 2>/dev/null) || z_err_status=$?
+        z_err=$(jq -r '.error.message // "Unknown error"' "${ZRBGV_CRM_RESP_FILE}" 2>"${ZRBGV_CRM_JQ_PREFIX}${z_iteration}_message_stderr.txt") || z_err_status=$?
         test "${z_err_status}" -eq 0 || z_err="Unknown error"
       else
         z_err="Non-JSON response (HTTP ${z_code})"
@@ -230,15 +234,16 @@ zrbgv_payor_crm_probe_once() {
 rbgv_payor_oauth_probe() {
   zrbgv_sentinel
 
-  local z_count="${1:-1}"
-  local z_delay_ms="${2:-0}"
+  local z_count="${1:-}"
+  local z_delay_ms="${2:-}"
 
   buc_doc_brief "Probe Payor OAuth access against Cloud Resource Manager (CRM) projects.get"
-  buc_doc_param "count"    "Number of iterations (default: 1)"
-  buc_doc_param "delay_ms" "Milliseconds to sleep between iterations (default: 0)"
+  buc_doc_param "count"    "Number of iterations"
+  buc_doc_param "delay_ms" "Milliseconds to sleep between iterations"
   buc_doc_shown || return 0
 
-  test -n "${z_count}" || buc_die_now "count parameter required"
+  test -n "${z_count}"    || buc_die_now "count parameter required"
+  test -n "${z_delay_ms}" || buc_die_now "delay_ms parameter required"
 
   buc_step "Payor OAuth access probe: count=${z_count} delay_ms=${z_delay_ms}"
 
@@ -252,7 +257,7 @@ rbgv_payor_oauth_probe() {
       local z_sleep
       z_sleep=$(zrbgv_ms_to_sleep_capture "${z_delay_ms}") || buc_die_now "Failed to convert delay ${z_delay_ms}ms to sleep seconds"
       buc_log_args "Sleeping ${z_sleep}s (${z_delay_ms}ms) before next iteration"
-      sleep "${z_sleep}"
+      sleep "${z_sleep}" || buc_die_now "Sleep failed between probe iterations"
     fi
 
     z_iter=$(( z_iter + 1 ))

@@ -29,20 +29,20 @@ test -z "${ZRBLD0_SOURCED:-}" || buc_die_now "Module rbld multiply sourced - che
 ZRBLD0_SOURCED=1
 
 # Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
 
 # Lode body clusters, sourced once here at the single rbld entry. Most are
 # guard-free; rblds_ (build-assembly spine) and rbldd_ (cloud delete) are
 # multiply-sourced — rbfl0_ledger cross-sources them for made-side abjure
 # — so they carry their own inclusion guards.
-source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh"
-source "${BASH_SOURCE[0]%/*}/rbldl_lifecycle.sh"
-source "${BASH_SOURCE[0]%/*}/rblds_spine.sh"
-source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"
-source "${BASH_SOURCE[0]%/*}/rbldb_bole.sh"
-source "${BASH_SOURCE[0]%/*}/rbldr_reliquary.sh"
-source "${BASH_SOURCE[0]%/*}/rbldw_underpin.sh"
-source "${BASH_SOURCE[0]%/*}/rbldv_immure.sh"
+source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh" || buc_die_now "Failed to source rbldk_kind.sh"
+source "${BASH_SOURCE[0]%/*}/rbldl_lifecycle.sh" || buc_die_now "Failed to source rbldl_lifecycle.sh"
+source "${BASH_SOURCE[0]%/*}/rblds_spine.sh" || buc_die_now "Failed to source rblds_spine.sh"
+source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh" || buc_die_now "Failed to source rbldd_delete.sh"
+source "${BASH_SOURCE[0]%/*}/rbldb_bole.sh" || buc_die_now "Failed to source rbldb_bole.sh"
+source "${BASH_SOURCE[0]%/*}/rbldr_reliquary.sh" || buc_die_now "Failed to source rbldr_reliquary.sh"
+source "${BASH_SOURCE[0]%/*}/rbldw_underpin.sh" || buc_die_now "Failed to source rbldw_underpin.sh"
+source "${BASH_SOURCE[0]%/*}/rbldv_immure.sh" || buc_die_now "Failed to source rbldv_immure.sh"
 
 ######################################################################
 # Internal Functions (zrbld0_*)

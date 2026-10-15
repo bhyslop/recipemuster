@@ -26,9 +26,6 @@ set -euo pipefail
 test -z "${ZRBFR_SOURCED:-}" || buc_die_now "Module rbfr multiply sourced - check sourcing hierarchy"
 ZRBFR_SOURCED=1
 
-# Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
-
 ######################################################################
 # Internal Functions (zrbfr_*)
 
@@ -209,16 +206,16 @@ rbfr_summon() {
   fi
 
   # Display results
-  echo ""
+  echo "" || buc_die_now
   buc_success "Hallmark summoned: ${z_hallmark}"
   if test "${z_image_exists}" = "true"; then
-    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE} retrieved"
+    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE} retrieved" || buc_die_now
   fi
   if test "${z_about_exists}" = "true"; then
-    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT} retrieved"
+    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT} retrieved" || buc_die_now
   fi
   if test "${z_vouch_exists}" = "true"; then
-    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH} retrieved"
+    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH} retrieved" || buc_die_now
   fi
 }
 

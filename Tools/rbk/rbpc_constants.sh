@@ -51,7 +51,8 @@ readonly RBPC_freehold_subject="9657166c-8a2d-4f5d-bcd1-ef481ee31f3e"
 # and no drift. Bash stays mixed-case; the generated Rust is SCREAMING per Rust
 # convention, that casing the sole transform.
 rbpc_emit_consts() {
-  printf '%s\n' "// RBPC freehold test constants (rbpc_constants.sh)"
+  printf '%s\n' "// RBPC freehold test constants (rbpc_constants.sh)" \
+    || buc_die_now "rbpc_emit_consts: failed to write the header"
 
   # A single freehold subject this heat (multi-subject is deferred to the
   # federation-evolution heat), so this emits the one const directly — no loop and

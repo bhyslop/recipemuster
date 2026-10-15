@@ -47,7 +47,7 @@ rbho_director_airgap() {
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
@@ -58,7 +58,7 @@ rbho_director_airgap() {
     local z_anchor_status=0
     z_anchor=$(zrbho_po_extract_capture "${z_airgap_rbrv}" "RBRV_IMAGE_1_ANCHOR") || z_anchor_status=$?
     test "${z_anchor_status}" -eq 0 || z_anchor=""
-    test -n "${z_anchor}" && z_airgap_base_anchored=1
+    test -z "${z_anchor}" || z_airgap_base_anchored=1
   fi
 
   local z_airgap_ordained=0

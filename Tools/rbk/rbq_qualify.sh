@@ -23,8 +23,6 @@ set -euo pipefail
 
 ZRBQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-source "${BURD_BUK_DIR}/buq_qualify.sh"
-
 # Multiple inclusion detection
 test -z "${ZRBQ_SOURCED:-}" || buc_die_now "Module rbq multiply sourced - check sourcing hierarchy"
 ZRBQ_SOURCED=1
@@ -102,11 +100,11 @@ rbq_colophons() {
     local z_found=0
     local z_i=0
     for z_i in "${!z_buz_colophon_roll[@]}"; do
-      test "${z_buz_colophon_roll[$z_i]}" = "${z_colophon}" || continue
+      test "${z_buz_colophon_roll[${z_i}]}" = "${z_colophon}" || continue
       z_found=1
 
       # Verify module file exists
-      local z_module="${z_buz_module_roll[$z_i]}"
+      local z_module="${z_buz_module_roll[${z_i}]}"
       test -f "${ZRBQ_RBW_DIR}/${z_module}" || {
         z_fail_files+=("${z_basename}")
         z_fail_reasons+=("module not found: ${z_module}")
@@ -125,7 +123,7 @@ rbq_colophons() {
   if (( ${#z_fail_files[@]} )); then
     local z_j=0
     for z_j in "${!z_fail_files[@]}"; do
-      buc_warn "${z_fail_files[$z_j]}: ${z_fail_reasons[$z_j]}"
+      buc_warn "${z_fail_files[${z_j}]}: ${z_fail_reasons[${z_j}]}"
     done
     buc_die_now "Colophon qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
   fi
@@ -261,7 +259,10 @@ rbq_release() {
   rbq_shellcheck
 
   buc_step "Running echelon test suite"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.echelon.sh"
+  local z_echelon_status=0
+  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.echelon.sh" || z_echelon_status=$?
+  test "${z_echelon_status}" -eq 0 \
+    || buc_die_now "Echelon test suite failed (status ${z_echelon_status})"
 
   buc_step "Release qualification passed"
 }

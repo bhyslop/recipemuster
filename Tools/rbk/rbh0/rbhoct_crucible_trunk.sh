@@ -44,7 +44,7 @@ rbhoct_crucible_trunk() {
   buym_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
 
   local z_nameplate_exists=0
-  test -f "${z_nameplate_file}" && z_nameplate_exists=1
+  test ! -f "${z_nameplate_file}" || z_nameplate_exists=1
 
   local z_sentry_hallmark=""
   local z_bottle_hallmark=""
@@ -57,8 +57,8 @@ rbhoct_crucible_trunk() {
     local z_bottle_hallmark_status=0
     z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark_status=$?
     test "${z_bottle_hallmark_status}" -eq 0 || z_bottle_hallmark=""
-    test -n "${z_sentry_hallmark}" && z_sentry_hallmark_present=1
-    test -n "${z_bottle_hallmark}" && z_bottle_hallmark_present=1
+    test -z "${z_sentry_hallmark}" || z_sentry_hallmark_present=1
+    test -z "${z_bottle_hallmark}" || z_bottle_hallmark_present=1
   fi
 
   local z_sentry_image_exists=0
@@ -70,8 +70,8 @@ rbhoct_crucible_trunk() {
        > "${z_ct_images_out}" 2>"${z_ct_images_err}"; then
     while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in
-        *"${z_sentry_vessel}:k"[0-9]*) z_sentry_image_exists=1 ;;
-        *"${z_bottle_vessel}:k"[0-9]*) z_bottle_image_exists=1 ;;
+        *"${z_sentry_vessel}:k"[0123456789]*) z_sentry_image_exists=1 ;;
+        *"${z_bottle_vessel}:k"[0123456789]*) z_bottle_image_exists=1 ;;
       esac
     done < "${z_ct_images_out}"
   fi

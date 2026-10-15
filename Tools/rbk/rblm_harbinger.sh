@@ -45,6 +45,9 @@
 
 set -euo pipefail
 
+test -z "${ZRBLM_HARBINGER_SOURCED:-}" || buc_die_now "Module rblm_harbinger multiply sourced - check sourcing hierarchy"
+ZRBLM_HARBINGER_SOURCED=1
+
 ######################################################################
 # Harbinger constants
 
@@ -271,7 +274,7 @@ rblm_harbinger() {
     'Begin by reading the README, then find the onboarding entry point and take the first' \
     'beat.' \
     '----------------------------------------------------------------------' \
-    >&2
+    >&2 || buc_die_now "Failed to emit the stranger prompt"
 
   buh_e
   buh_line "  When the walk is done, review ${z_memo_path##*/} in the rig, commit it into"

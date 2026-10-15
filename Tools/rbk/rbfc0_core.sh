@@ -32,11 +32,11 @@ ZRBFC0_SOURCED=1
 
 # Build-host primitives and the guard-free body clusters; sourced here so every
 # rbfc consumer reaches them unchanged.
-source "${BASH_SOURCE[0]%/*}/rbfcb_host.sh"
-source "${BASH_SOURCE[0]%/*}/rbfcv_resolve.sh"
-source "${BASH_SOURCE[0]%/*}/rbfca_assembly.sh"
-source "${BASH_SOURCE[0]%/*}/rbfcg_gar.sh"
-source "${BASH_SOURCE[0]%/*}/rbfcp_plumb.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcb_host.sh" || buc_die_now "Failed to source rbfcb_host.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcv_resolve.sh" || buc_die_now "Failed to source rbfcv_resolve.sh"
+source "${BASH_SOURCE[0]%/*}/rbfca_assembly.sh" || buc_die_now "Failed to source rbfca_assembly.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcg_gar.sh" || buc_die_now "Failed to source rbfcg_gar.sh"
+source "${BASH_SOURCE[0]%/*}/rbfcp_plumb.sh" || buc_die_now "Failed to source rbfcp_plumb.sh"
 
 ######################################################################
 # Internal Functions (zrbfc0_*)
@@ -100,6 +100,7 @@ zrbfc0_kindle() {
 
   buc_log_args 'Scratch file for sequential temp-file patterns'
   readonly ZRBFC0_SCRATCH_FILE="${BURD_TEMP_DIR}/rbfc_scratch.txt"
+  readonly ZRBFC0_PLUMB_PREFIX="${BURD_TEMP_DIR}/plumb"
 
   buc_log_args 'GAR package enumeration output (zrbfcg_list_packages_capture)'
   readonly ZRBFC0_PACKAGE_LIST_FILE="${BURD_TEMP_DIR}/rbfc_package_list.txt"

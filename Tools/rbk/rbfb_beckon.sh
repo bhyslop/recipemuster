@@ -26,6 +26,9 @@
 
 set -euo pipefail
 
+test -z "${ZRBFB_SOURCED:-}" || buc_die_now "Module rbfb multiply sourced - check sourcing hierarchy"
+ZRBFB_SOURCED=1
+
 ######################################################################
 # Beckon (rbfb_*)
 

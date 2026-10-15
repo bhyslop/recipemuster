@@ -40,10 +40,12 @@ rbfcv_require_vessel_sigil() {
 
   local z_sigils=""
   z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+  local z_sigil_roll=()
+  read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
-  local z_s=""
-  for z_s in ${z_sigils}; do
-    buc_bare "        ${z_s}"
+  local z_i=0
+  for z_i in "${!z_sigil_roll[@]}"; do
+    buc_bare "        ${z_sigil_roll[${z_i}]}"
   done
   if test -z "${z_sigil}"; then
     buc_die_now "Vessel parameter required"
@@ -74,10 +76,12 @@ zrbfcv_resolve_vessel() {
   # Resolution failed — list available vessels and die
   local z_sigils=""
   z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+  local z_sigil_roll=()
+  read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
-  local z_sigil=""
-  for z_sigil in ${z_sigils}; do
-    buc_bare "        ${z_sigil}"
+  local z_i=0
+  for z_i in "${!z_sigil_roll[@]}"; do
+    buc_bare "        ${z_sigil_roll[${z_i}]}"
   done
   if test -z "${z_arg}"; then
     buc_die_now "Vessel argument required (sigil or path)"
@@ -88,7 +92,8 @@ zrbfcv_resolve_vessel() {
 zrbfcv_load_vessel() {
   zrbfc0_sentinel
 
-  local z_vessel_dir="$1"
+  local z_vessel_dir="${1:-}"
+  test -n "${z_vessel_dir}" || buc_die_now "zrbfcv_load_vessel: vessel_dir required"
 
   buc_log_args 'Validate vessel directory exists'
   test -d "${z_vessel_dir}" || buc_die_now "Vessel directory not found: ${z_vessel_dir}"
@@ -110,10 +115,16 @@ zrbfcv_load_vessel() {
   buc_log_args 'Validate vessel path matches expected pattern'
   local z_expected_vessel_dir="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}"
   local z_vessel_realpath=""
-  (cd "${z_vessel_dir}" && pwd) > "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to resolve vessel directory path"
+  (
+    cd "${z_vessel_dir}" || buc_die_now "Failed to enter vessel directory: ${z_vessel_dir}"
+    pwd || buc_die_now "Failed to print vessel directory path"
+  ) > "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to resolve vessel directory path"
   z_vessel_realpath=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to resolve vessel directory path"
   local z_expected_realpath=""
-  (cd "${z_expected_vessel_dir}" && pwd) > "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to resolve expected vessel path"
+  (
+    cd "${z_expected_vessel_dir}" || buc_die_now "Failed to enter expected vessel directory: ${z_expected_vessel_dir}"
+    pwd || buc_die_now "Failed to print expected vessel directory path"
+  ) > "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to resolve expected vessel path"
   z_expected_realpath=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to resolve expected vessel path"
   test "${z_vessel_realpath}" = "${z_expected_realpath}" || buc_die_now "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
 

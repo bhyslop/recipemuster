@@ -171,7 +171,7 @@ rbfld_abjure() {
   buc_step "Dispatching cloud delete for ${z_count} package(s) under ${z_subtree}"
   zrbldd_cloud_delete_dispatch "${z_token}" "Abjure" "${ZRBFL0_DELETE_PREFIX}" "${z_packages[@]}"
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "Hallmark abjured: ${z_hallmark} (${z_count} packages)"
 }
 

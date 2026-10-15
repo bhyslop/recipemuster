@@ -44,7 +44,9 @@ rbho_first_crucible() {
   local -r z_test_domain="www.internic.net"
 
   local z_has_docker=0
-  command -v docker >/dev/null 2>&1 && z_has_docker=1
+  if command -v docker >/dev/null; then
+    z_has_docker=1
+  fi
 
   buh_section "Start a ${RBYC_CRUCIBLE} Using Local Builds"
   buh_e

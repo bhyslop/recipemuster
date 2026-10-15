@@ -43,10 +43,12 @@ rbfdg_graft() {
   if test -z "${z_vessel_dir}"; then
     local z_sigils
     z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+    local z_sigil_roll=()
+    read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
     buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    local z_i=0
+    for z_i in "${!z_sigil_roll[@]}"; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil_roll[${z_i}]}"
     done
     buc_die_now "Vessel directory required"
   fi
@@ -68,8 +70,13 @@ rbfdg_graft() {
 
   # Verify local image exists
   buc_step "Verifying local image exists"
-  docker image inspect "${z_local_image}" > /dev/null 2>&1 \
-    || buc_die_now "Local image not found: ${z_local_image} — build the image before grafting"
+  local -r z_inspect_file="${ZRBFD0_GRAFT_PREFIX}inspect.json"
+  local -r z_inspect_stderr="${ZRBFD0_GRAFT_PREFIX}inspect_stderr.txt"
+  local z_inspect_status=0
+  docker image inspect "${z_local_image}" > "${z_inspect_file}" 2>"${z_inspect_stderr}" \
+    || z_inspect_status=$?
+  test "${z_inspect_status}" -eq 0 \
+    || buc_die_now "Local image not found: ${z_local_image} — build the image locally first (status ${z_inspect_status}; see ${z_inspect_stderr})"
   buc_info "Local image confirmed: ${z_local_image}"
 
   # Extract image creation timestamp for hallmark T1
@@ -148,11 +155,11 @@ rbfdg_graft() {
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Summary
-  echo ""
+  echo "" || buc_die_now "Failed to print the summary"
   buc_success "Graft complete: ${RBRV_SIGIL}"
-  echo "  Hallmark: ${z_hallmark}"
-  echo "  Source:  ${z_local_image}"
-  echo "  Image:   ${z_image_ref}"
+  echo "  Hallmark: ${z_hallmark}" || buc_die_now "Failed to print the summary"
+  echo "  Source:  ${z_local_image}" || buc_die_now "Failed to print the summary"
+  echo "  Image:   ${z_image_ref}" || buc_die_now "Failed to print the summary"
 }
 
 # eof

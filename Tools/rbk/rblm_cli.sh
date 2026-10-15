@@ -21,7 +21,7 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
 
 # Command: zero - Zero regime to blank template for release
 
@@ -148,36 +148,41 @@ rblm_zero() {
 
   local -r z_tmp="${z_rbrr}.tmp"
   local z_line=""
-  while IFS= read -r z_line; do
+  local z_out=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
       # Pre-selected defaults
-      RBRR_DNS_SERVER=*)                    printf '%s\n' "RBRR_DNS_SERVER=8.8.8.8"                     ;;
-      RBRR_GCB_TIMEOUT=*)                   printf '%s\n' "RBRR_GCB_TIMEOUT=2700s"                      ;;
-      RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     printf '%s\n' "RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
-      RBRR_VESSEL_DIR=*)                    printf '%s\n' "RBRR_VESSEL_DIR=${RBCC_moorings_dir}/${RBCC_vessels_subdir}" ;;
-      RBRR_SECRETS_DIR=*)                   printf '%s\n' "RBRR_SECRETS_DIR=../station-files/secrets"   ;;
+      RBRR_DNS_SERVER=*)                    z_out="RBRR_DNS_SERVER=8.8.8.8"                     ;;
+      RBRR_GCB_TIMEOUT=*)                   z_out="RBRR_GCB_TIMEOUT=2700s"                      ;;
+      RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     z_out="RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
+      RBRR_VESSEL_DIR=*)                    z_out="RBRR_VESSEL_DIR=${RBCC_moorings_dir}/${RBCC_vessels_subdir}" ;;
+      RBRR_SECRETS_DIR=*)                   z_out="RBRR_SECRETS_DIR=../station-files/secrets"   ;;
       # Site-specific fields blanked
-      RBRR_RUNTIME_PREFIX=*)                printf '%s\n' "RBRR_RUNTIME_PREFIX="                        ;;
-      RBRR_SUBSTRATE_RELIQUARY=*)           printf '%s\n' "RBRR_SUBSTRATE_RELIQUARY="                   ;;
+      RBRR_RUNTIME_PREFIX=*)                z_out="RBRR_RUNTIME_PREFIX="                        ;;
+      RBRR_SUBSTRATE_RELIQUARY=*)           z_out="RBRR_SUBSTRATE_RELIQUARY="                   ;;
       # Everything else passes through (comments, shebang, blanks)
-      *)                                    printf '%s\n' "${z_line}"                                   ;;
+      *)                                    z_out="${z_line}"                                   ;;
     esac
-  done < "${z_rbrr}" > "${z_tmp}" && mv "${z_tmp}" "${z_rbrr}"
+    printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_tmp}"
+  done < "${z_rbrr}" > "${z_tmp}" || buc_die_now "Failed to zero: ${z_rbrr}"
+  mv "${z_tmp}" "${z_rbrr}" || buc_die_now "Failed to replace: ${z_rbrr}"
 
   # Apply equivalent transform to rbrd.env.
   local -r z_rbrd_tmp="${z_rbrd}.tmp"
-  while IFS= read -r z_line; do
+  while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
       # Pre-selected defaults
-      RBRD_GCP_REGION=*)                    printf '%s\n' "RBRD_GCP_REGION=us-central1"                 ;;
-      RBRD_GCB_MACHINE_TYPE=*)              printf '%s\n' "RBRD_GCB_MACHINE_TYPE=e2-standard-2"         ;;
+      RBRD_GCP_REGION=*)                    z_out="RBRD_GCP_REGION=us-central1"                 ;;
+      RBRD_GCB_MACHINE_TYPE=*)              z_out="RBRD_GCB_MACHINE_TYPE=e2-standard-2"         ;;
       # Site-specific fields blanked
-      RBRD_CLOUD_PREFIX=*)                  printf '%s\n' "RBRD_CLOUD_PREFIX="                          ;;
-      RBRD_DEPOT_MONIKER=*)                 printf '%s\n' "RBRD_DEPOT_MONIKER="                         ;;
+      RBRD_CLOUD_PREFIX=*)                  z_out="RBRD_CLOUD_PREFIX="                          ;;
+      RBRD_DEPOT_MONIKER=*)                 z_out="RBRD_DEPOT_MONIKER="                         ;;
       # Everything else passes through (comments, shebang, blanks)
-      *)                                    printf '%s\n' "${z_line}"                                   ;;
+      *)                                    z_out="${z_line}"                                   ;;
     esac
-  done < "${z_rbrd}" > "${z_rbrd_tmp}" && mv "${z_rbrd_tmp}" "${z_rbrd}"
+    printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_rbrd_tmp}"
+  done < "${z_rbrd}" > "${z_rbrd_tmp}" || buc_die_now "Failed to zero: ${z_rbrd}"
+  mv "${z_rbrd_tmp}" "${z_rbrd}" || buc_die_now "Failed to replace: ${z_rbrd}"
 
   # Blank hallmark values in all vessel nameplates.
   # Hallmarks reference images built against the prior depot — they
@@ -188,13 +193,15 @@ rblm_zero() {
   for z_np in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_np}" || continue
     z_np_tmp="${z_np}.tmp"
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in
-        RBRN_SENTRY_HALLMARK=*)  printf '%s\n' "RBRN_SENTRY_HALLMARK=" ;;
-        RBRN_BOTTLE_HALLMARK=*)  printf '%s\n' "RBRN_BOTTLE_HALLMARK=" ;;
-        *)                           printf '%s\n' "${z_line}"                  ;;
+        RBRN_SENTRY_HALLMARK=*)  z_out="RBRN_SENTRY_HALLMARK=" ;;
+        RBRN_BOTTLE_HALLMARK=*)  z_out="RBRN_BOTTLE_HALLMARK=" ;;
+        *)                       z_out="${z_line}"             ;;
       esac
-    done < "${z_np}" > "${z_np_tmp}" && mv "${z_np_tmp}" "${z_np}"
+      printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_np_tmp}"
+    done < "${z_np}" > "${z_np_tmp}" || buc_die_now "Failed to blank hallmarks: ${z_np}"
+    mv "${z_np_tmp}" "${z_np}" || buc_die_now "Failed to replace: ${z_np}"
     buh_line "  Blanked hallmarks: ${z_np}"
   done
 
@@ -208,13 +215,15 @@ rblm_zero() {
     for z_vr in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
       test -f "${z_vr}" || continue
       z_vr_tmp="${z_vr}.tmp"
-      while IFS= read -r z_line; do
+      while IFS= read -r z_line || test -n "${z_line}"; do
         case "${z_line}" in
-          RBRV_RELIQUARY=*)       printf '%s\n' "RBRV_RELIQUARY="       ;;
-          RBRV_IMAGE_*_ANCHOR=*)  printf '%s\n' "${z_line%%=*}="        ;;
-          *)                      printf '%s\n' "${z_line}"             ;;
+          RBRV_RELIQUARY=*)       z_out="RBRV_RELIQUARY="  ;;
+          RBRV_IMAGE_*_ANCHOR=*)  z_out="${z_line%%=*}="   ;;
+          *)                      z_out="${z_line}"        ;;
         esac
-      done < "${z_vr}" > "${z_vr_tmp}" && mv "${z_vr_tmp}" "${z_vr}"
+        printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_vr_tmp}"
+      done < "${z_vr}" > "${z_vr_tmp}" || buc_die_now "Failed to blank depot-scoped fields: ${z_vr}"
+      mv "${z_vr_tmp}" "${z_vr}" || buc_die_now "Failed to replace: ${z_vr}"
       buh_line "  Blanked depot-scoped fields: ${z_vr}"
     done
   fi

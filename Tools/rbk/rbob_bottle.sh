@@ -41,29 +41,32 @@ ZRBOB_SOURCED=1
 # by compose (e.g., RBRN_DESCRIPTION) are exempt.
 zrbob_validate_compose_env() {
   # Explicit list of compose-consumed field names (the nameplate↔compose contract)
-  local z_compose_fields="
-    RBRN_MONIKER
-    RBRN_RUNTIME
-    RBRN_SENTRY_VESSEL
-    RBRN_BOTTLE_VESSEL
-    RBRN_SENTRY_HALLMARK
-    RBRN_BOTTLE_HALLMARK
-    RBRN_ENTRY_MODE
-    RBRN_ENTRY_PORT_WORKSTATION
-    RBRN_ENTRY_PORT_ENCLAVE
-    RBRN_ENCLAVE_BASE_IP
-    RBRN_ENCLAVE_NETMASK
-    RBRN_ENCLAVE_SENTRY_IP
-    RBRN_ENCLAVE_BOTTLE_IP
-    RBRN_UPLINK_PORT_MIN
-    RBRN_UPLINK_DNS_MODE
-    RBRN_UPLINK_ACCESS_MODE
-    RBRN_UPLINK_ALLOWED_CIDRS
-    RBRN_UPLINK_ALLOWED_DOMAINS
-  "
+  local z_compose_fields=(
+    "RBRN_MONIKER"
+    "RBRN_RUNTIME"
+    "RBRN_SENTRY_VESSEL"
+    "RBRN_BOTTLE_VESSEL"
+    "RBRN_SENTRY_HALLMARK"
+    "RBRN_BOTTLE_HALLMARK"
+    "RBRN_ENTRY_MODE"
+    "RBRN_ENTRY_PORT_WORKSTATION"
+    "RBRN_ENTRY_PORT_ENCLAVE"
+    "RBRN_ENCLAVE_BASE_IP"
+    "RBRN_ENCLAVE_NETMASK"
+    "RBRN_ENCLAVE_SENTRY_IP"
+    "RBRN_ENCLAVE_BOTTLE_IP"
+    "RBRN_UPLINK_PORT_MIN"
+    "RBRN_UPLINK_DNS_MODE"
+    "RBRN_UPLINK_ACCESS_MODE"
+    "RBRN_UPLINK_ALLOWED_CIDRS"
+    "RBRN_UPLINK_ALLOWED_DOMAINS"
+  )
 
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   local z_field=""
-  for z_field in ${z_compose_fields}; do
+  for z_field in "${z_compose_fields[@]}"; do
+    [[ "${z_field}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_field}"
     local z_value="${!z_field:-}"
     # Check for quotes (compose does not strip them)
     case "${z_value}" in
@@ -195,14 +198,10 @@ zrbob_kindle() {
 
   # Host UID/GID for bind-mount ownership alignment.
   # The person running charge IS the host identity — no configuration needed.
-  local z_uid_file="${BURD_TEMP_DIR}/rbob_host_uid"
-  local z_gid_file="${BURD_TEMP_DIR}/rbob_host_gid"
-  id -u > "${z_uid_file}" || buc_die_now "Failed to determine host UID"
-  id -g > "${z_gid_file}" || buc_die_now "Failed to determine host GID"
-  local z_host_uid=""
-  z_host_uid=$(<"${z_uid_file}") || buc_die_now "Failed to read: ${z_uid_file}"
-  local z_host_gid=""
-  z_host_gid=$(<"${z_gid_file}") || buc_die_now "Failed to read: ${z_gid_file}"
+  local -r z_host_uid="${EUID}"
+  local -r z_host_gid="${GROUPS[0]}"
+  test -n "${z_host_uid}" || buc_die_now "Failed to determine host UID"
+  test -n "${z_host_gid}" || buc_die_now "Failed to determine host GID"
   export RBOB_HOST_UID="${z_host_uid}"
   export RBOB_HOST_GID="${z_host_gid}"
   readonly RBOB_HOST_UID
@@ -212,9 +211,15 @@ zrbob_kindle() {
   local z_bottle_rbrv="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}/${RBCC_rbrv_file}"
   local z_bottle_user=""
   if test -f "${z_bottle_rbrv}"; then
-    local z_bottle_user_status=0
-    z_bottle_user=$(grep -m1 '^RBRV_USER=' "${z_bottle_rbrv}") || z_bottle_user_status=$?
-    test "${z_bottle_user_status}" -eq 0 || z_bottle_user=""
+    local z_rbrv_line=""
+    while IFS= read -r z_rbrv_line || test -n "${z_rbrv_line}"; do
+      case "${z_rbrv_line}" in
+        RBRV_USER=*)
+          z_bottle_user="${z_rbrv_line}"
+          break
+          ;;
+      esac
+    done < "${z_bottle_rbrv}"
     z_bottle_user="${z_bottle_user#*=}"
     z_bottle_user="${z_bottle_user%%=*}"
   fi
@@ -290,7 +295,10 @@ zrbob_compose() {
   z_args+=("$@")
 
   buc_log_args "${ZRBOB_RUNTIME} ${z_args[*]}"
-  "${ZRBOB_RUNTIME}" "${z_args[@]}"
+  local z_compose_status=0
+  "${ZRBOB_RUNTIME}" "${z_args[@]}" || z_compose_status=$?
+  test "${z_compose_status}" -eq 0 \
+    || buc_die_now "${ZRBOB_RUNTIME} compose $* failed (status ${z_compose_status})"
 }
 
 ######################################################################
@@ -352,7 +360,12 @@ zrbob_kludge_currency_gate() {
   git rev-parse --verify --quiet "${z_sha}^{commit}" > "${z_verify_file}" 2>&1 \
     || buc_die_now "Kludge hallmark for vessel ${z_vessel} names an unresolvable commit ${z_sha} — see ${z_verify_file}"
 
-  git diff --quiet "${z_sha}" -- "${RBRR_VESSEL_DIR}" && return 0
+  local -r z_diff_stderr="${BURD_TEMP_DIR}/zrbob_currency_diff_${z_vessel}_stderr.txt"
+  local z_diff_status=0
+  git diff --quiet "${z_sha}" -- "${RBRR_VESSEL_DIR}" 2>"${z_diff_stderr}" || z_diff_status=$?
+  test "${z_diff_status}" -ne 0 || return 0
+  test "${z_diff_status}" -eq 1 \
+    || buc_die_now "Currency diff for vessel ${z_vessel} against ${z_sha} failed (status ${z_diff_status}) — see ${z_diff_stderr}"
 
   buc_warn "Kludge image for vessel ${z_vessel} is stale: ${z_hallmark}"
   buc_bare "  The pin was built from ${z_sha}; ${RBRR_VESSEL_DIR} has changed since."
@@ -391,9 +404,18 @@ zrbob_summon_full_hallmark() {
 
   rbgo_docker_login "${z_token}" "${z_registry_host}"
 
-  docker pull "${z_image_ref}" || buc_die_now "Failed to pull image ark: ${z_image_ref}"
-  docker pull "${z_about_ref}" || buc_die_now "Failed to pull about ark: ${z_about_ref}"
-  docker pull "${z_vouch_ref}" || buc_die_now "Failed to pull vouch ark: ${z_vouch_ref}"
+  local z_pull_image_status=0
+  docker pull "${z_image_ref}" || z_pull_image_status=$?
+  test "${z_pull_image_status}" -eq 0 \
+    || buc_die_now "Failed to pull image ark: ${z_image_ref} (status ${z_pull_image_status})"
+  local z_pull_about_status=0
+  docker pull "${z_about_ref}" || z_pull_about_status=$?
+  test "${z_pull_about_status}" -eq 0 \
+    || buc_die_now "Failed to pull about ark: ${z_about_ref} (status ${z_pull_about_status})"
+  local z_pull_vouch_status=0
+  docker pull "${z_vouch_ref}" || z_pull_vouch_status=$?
+  test "${z_pull_vouch_status}" -eq 0 \
+    || buc_die_now "Failed to pull vouch ark: ${z_vouch_ref} (status ${z_pull_vouch_status})"
 
   buc_info "Auto-summoned: ${z_hallmark}"
 }
@@ -424,7 +446,10 @@ zrbob_vouch_gate_and_summon() {
 
   rbgo_docker_login "${z_token}" "${z_registry_host}"
 
-  docker pull "${z_image_ref}" || buc_die_now "Failed to pull image: ${z_image_ref}"
+  local z_pull_status=0
+  docker pull "${z_image_ref}" || z_pull_status=$?
+  test "${z_pull_status}" -eq 0 \
+    || buc_die_now "Failed to pull image: ${z_image_ref} (status ${z_pull_status})"
 
   buc_info "Auto-summoned: ${z_image_ref}"
 }
@@ -443,14 +468,15 @@ zrbob_vouch_gate_and_summon() {
 zrbob_provenance_destroyable_predicate() {
   zrbob_sentinel
 
-  local -r z_container="$1"
-  local -r z_inspect_file="${BURD_TEMP_DIR}/zrbob_provenance_inspect_$$.txt"
-  local -r z_inspect_stderr="${BURD_TEMP_DIR}/zrbob_provenance_inspect_stderr_$$.txt"
+  local -r z_container="${1:-}"
+  test -n "${z_container}" || return 1
+  local -r z_inspect_file="${BURD_TEMP_DIR}/zrbob_provenance_inspect_${z_container}.txt"
+  local -r z_inspect_stderr="${BURD_TEMP_DIR}/zrbob_provenance_inspect_stderr_${z_container}.txt"
 
   zrbob_provenance_owner=""
 
   # A container that cannot be inspected (already gone) is trivially destroyable
-  ${ZRBOB_RUNTIME} inspect "${z_container}" \
+  "${ZRBOB_RUNTIME}" inspect "${z_container}" \
     --format '{{.State.Running}} {{index .Config.Labels "'"${RBCC_label_provenance}"'"}}' \
     > "${z_inspect_file}" 2>"${z_inspect_stderr}" \
     || return 0
@@ -478,7 +504,8 @@ zrbob_provenance_destroyable_predicate() {
 zrbob_provenance_gate() {
   zrbob_sentinel
 
-  local -r z_creed="$1"
+  local -r z_creed="${1:-}"
+  test -n "${z_creed}" || buc_die_now "zrbob_provenance_gate: creed required"
   local z_container=""
   local z_foreign_owner=""
 
@@ -524,9 +551,12 @@ zrbob_reclaim_subnet() {
   local -r z_crm_prefix="${BURD_TEMP_DIR}/zrbob_reclaim_crm_"
   local -r z_nrm_prefix="${BURD_TEMP_DIR}/zrbob_reclaim_nrm_"
 
-  ${ZRBOB_RUNTIME} network ls --format '{{.Name}}' \
+  local z_networks_status=0
+  "${ZRBOB_RUNTIME}" network ls --format '{{.Name}}' \
     > "${z_networks_file}" 2>"${z_networks_stderr}" \
-    || buc_die_now "Failed to list Docker networks — see ${z_networks_stderr}"
+    || z_networks_status=$?
+  test "${z_networks_status}" -eq 0 \
+    || buc_die_now "Failed to list Docker networks (status ${z_networks_status}) — see ${z_networks_stderr}"
 
   # Load network names (load-then-iterate; names are captured before any
   # reclaim, so removing networks mid-loop cannot disturb the iteration)
@@ -562,7 +592,7 @@ zrbob_reclaim_subnet() {
 
       # A network in the list may vanish or lack IPAM config between ls and
       # inspect; tolerate by skipping (stderr preserved for forensics)
-      ${ZRBOB_RUNTIME} network inspect "${z_name}" \
+      "${ZRBOB_RUNTIME}" network inspect "${z_name}" \
         --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' \
         > "${z_subnet_file}" 2>"${z_subnet_stderr}" \
         || continue
@@ -574,9 +604,12 @@ zrbob_reclaim_subnet() {
 
       buc_warn "Subnet ${z_target_subnet} occupied by stale network '${z_name}' — reclaiming"
 
-      ${ZRBOB_RUNTIME} ps -aq --filter "network=${z_name}" \
+      local z_ps_status=0
+      "${ZRBOB_RUNTIME}" ps -aq --filter "network=${z_name}" \
         > "${z_containers_file}" 2>"${z_containers_stderr}" \
-        || buc_die_now "Failed to list containers on '${z_name}' — see ${z_containers_stderr}"
+        || z_ps_status=$?
+      test "${z_ps_status}" -eq 0 \
+        || buc_die_now "Failed to list containers on '${z_name}' (status ${z_ps_status}) — see ${z_containers_stderr}"
 
       local z_containers=()
       local z_cline=""
@@ -600,14 +633,18 @@ zrbob_reclaim_subnet() {
       # network rm below is the real gate — if removal truly failed there, that
       # rm fails and dies.
       if (( ${#z_containers[@]} )); then
-        ${ZRBOB_RUNTIME} rm -f "${z_containers[@]}" \
+        # Non-fatal by grant: the network rm beneath it is the gate, as the comment above says
+        "${ZRBOB_RUNTIME}" rm -f "${z_containers[@]}" \
           > "${z_crm_file}" 2>&1 \
           || buc_warn "Some containers on '${z_name}' resisted removal — see ${z_crm_file}"
       fi
 
-      ${ZRBOB_RUNTIME} network rm "${z_name}" \
+      local z_nrm_status=0
+      "${ZRBOB_RUNTIME}" network rm "${z_name}" \
         > "${z_nrm_file}" 2>&1 \
-        || buc_die_now "Failed to reclaim subnet ${z_target_subnet}: could not remove network '${z_name}' — see ${z_nrm_file}"
+        || z_nrm_status=$?
+      test "${z_nrm_status}" -eq 0 \
+        || buc_die_now "Failed to reclaim subnet ${z_target_subnet}: could not remove network '${z_name}' (status ${z_nrm_status}) — see ${z_nrm_file}"
 
       buc_info "Reclaimed subnet ${z_target_subnet} from '${z_name}'"
     done
@@ -620,13 +657,13 @@ zrbob_reclaim_subnet() {
 # Closed placeholder vocabulary for the per-nameplate usage note. A token names
 # one of these exactly; anything else is a typo and is fatal. Widening the
 # vocabulary is adding an arm here plus a line in the spec — not a format change.
-# Predicate: 0 if the name is a sanctioned charge-note placeholder.
+# Dies unless the name is a sanctioned charge-note placeholder.
 zrbob_note_vocab_ok() {
   zrbob_sentinel
 
   case "${1}" in
-    RBRN_ENTRY_PORT_WORKSTATION) return 0 ;;
-    *) return 1 ;;
+    RBRN_ENTRY_PORT_WORKSTATION) ;;
+    *) buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: unknown placeholder {{${1}}} — not in the closed vocabulary" ;;
   esac
 }
 
@@ -650,13 +687,18 @@ zrbob_render_charge_note() {
   # vocabulary, then globally substitute its indirect-expanded value. Every
   # vocabulary member is a required, kindle-exported field, so the value is
   # always set; a mis-curated vocabulary trips set -u loudly at expansion.
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   local z_name=""
   local z_value=""
   while [[ "${z_content}" =~ \{\{([A-Za-z_][A-Za-z0-9_]*)\}\} ]]; do
     z_name="${BASH_REMATCH[1]}"
-    zrbob_note_vocab_ok "${z_name}" \
-      || buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: unknown placeholder {{${z_name}}} — not in the closed vocabulary"
+    zrbob_note_vocab_ok "${z_name}"
+    [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_name}"
     z_value="${!z_name}"
+    case "${z_value}" in
+      *[\&\\]*) buc_die_now "Note ${ZRBOB_CHARGE_NOTE}: value of {{${z_name}}} carries '&' or a backslash" ;;
+    esac
     z_content="${z_content//"{{${z_name}}}"/${z_value}}"
   done
 
@@ -667,10 +709,15 @@ zrbob_render_charge_note() {
   esac
 
   buc_step "Nameplate usage note (${RBRN_MONIKER}):"
+  local z_note_lines=()
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
-    buc_info "${z_line}"
+    z_note_lines+=("${z_line}")
   done <<< "${z_content}"
+  local z_i=0
+  for z_i in "${!z_note_lines[@]}"; do
+    buc_info "${z_note_lines[${z_i}]}"
+  done
 }
 
 ######################################################################
@@ -683,9 +730,11 @@ rbob_charge() {
 
   buc_step "Starting Crucible: ${RBRN_MONIKER}"
 
+  local -r z_charge_prefix="${BURD_TEMP_DIR}/zrbob_charge_"
+
   # Gate: nameplate must have no uncommitted changes
-  if ! git diff --quiet -- "${ZRBOB_ENV_RBRN}" 2>/dev/null; then
-    buc_die_now "Nameplate has uncommitted changes: ${ZRBOB_ENV_RBRN} — commit before charging"
+  if ! git diff --quiet -- "${ZRBOB_ENV_RBRN}" 2>"${z_charge_prefix}nameplate_diff_stderr.txt"; then
+    buc_die_now "Nameplate has uncommitted changes: ${ZRBOB_ENV_RBRN} — commit before charging (see ${z_charge_prefix}nameplate_diff_stderr.txt)"
   fi
 
   # Cross-nameplate validation (silent on success, dies on conflict)
@@ -707,7 +756,7 @@ rbob_charge() {
   # hallmark-level signal — if vouch is missing, the full hallmark is treated
   # as not-yet-summoned and all three arks are pulled together. Image-only
   # auto-summon below is defense-in-depth for partial-state cases.
-  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_VOUCH}" >/dev/null 2>&1; then
+  if ! "${ZRBOB_RUNTIME}" image inspect "${ZRBOB_SENTRY_VOUCH}" > "${z_charge_prefix}inspect_sentry_vouch.txt" 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_SENTRY_HALLMARK}"; then
       buc_die_now "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
     fi
@@ -715,7 +764,7 @@ rbob_charge() {
     zrbob_summon_full_hallmark "${RBRN_SENTRY_HALLMARK}"
   fi
 
-  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_VOUCH}" >/dev/null 2>&1; then
+  if ! "${ZRBOB_RUNTIME}" image inspect "${ZRBOB_BOTTLE_VOUCH}" > "${z_charge_prefix}inspect_bottle_vouch.txt" 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_BOTTLE_HALLMARK}"; then
       buc_die_now "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
     fi
@@ -723,7 +772,7 @@ rbob_charge() {
     zrbob_summon_full_hallmark "${RBRN_BOTTLE_HALLMARK}"
   fi
 
-  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_SENTRY_IMAGE}" >/dev/null 2>&1; then
+  if ! "${ZRBOB_RUNTIME}" image inspect "${ZRBOB_SENTRY_IMAGE}" > "${z_charge_prefix}inspect_sentry_image.txt" 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_SENTRY_HALLMARK}"; then
       buc_die_now "Kludge Sentry hallmark not built locally: ${RBRN_SENTRY_HALLMARK}"
     fi
@@ -731,7 +780,7 @@ rbob_charge() {
     zrbob_vouch_gate_and_summon "${RBRN_SENTRY_VESSEL}" "${RBRN_SENTRY_HALLMARK}" "${ZRBOB_SENTRY_IMAGE}"
   fi
 
-  if ! ${ZRBOB_RUNTIME} image inspect "${ZRBOB_BOTTLE_IMAGE}" >/dev/null 2>&1; then
+  if ! "${ZRBOB_RUNTIME}" image inspect "${ZRBOB_BOTTLE_IMAGE}" > "${z_charge_prefix}inspect_bottle_image.txt" 2>&1; then
     if zrbob_hallmark_is_kludge_predicate "${RBRN_BOTTLE_HALLMARK}"; then
       buc_die_now "Kludge Bottle hallmark not built locally: ${RBRN_BOTTLE_HALLMARK}"
     fi
@@ -745,7 +794,9 @@ rbob_charge() {
 
   # Tear down any prior state (tolerates missing project)
   buc_step "Cleaning up any prior state (quenching any preexisting can take a couple of minutes)"
-  zrbob_compose --profile sessile down --remove-orphans 2>/dev/null || true
+  # Non-fatal by grant: nothing may be up to take down
+  ( zrbob_compose --profile sessile down --remove-orphans ) 2>"${z_charge_prefix}down_stderr.txt" \
+    || buc_warn "No prior state taken down — see ${z_charge_prefix}down_stderr.txt"
 
   # Charge invariant: at most one crucible per nameplate per system. A
   # crucible's subnet derives from the nameplate, not the prefix, so freeing
@@ -763,12 +814,16 @@ rbob_charge() {
 
   if test "${RBRN_BOTTLE_READINESS_DELAY_SEC}" -gt 0; then
     buc_step "Waiting ${RBRN_BOTTLE_READINESS_DELAY_SEC}s for Bottle service readiness"
-    sleep "${RBRN_BOTTLE_READINESS_DELAY_SEC}"
+    sleep "${RBRN_BOTTLE_READINESS_DELAY_SEC}" \
+      || buc_die_now "Failed to wait for Bottle service readiness"
   fi
 
   if test -x "${ZRBOB_POST_CHARGE_HOOK}"; then
     buc_step "Running post-charge hook: ${ZRBOB_POST_CHARGE_HOOK}"
-    "${ZRBOB_POST_CHARGE_HOOK}" || buc_die_now "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK}"
+    local z_hook_status=0
+    "${ZRBOB_POST_CHARGE_HOOK}" || z_hook_status=$?
+    test "${z_hook_status}" -eq 0 \
+      || buc_die_now "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK} (status ${z_hook_status})"
   fi
 
   # Usage note surfaces last — after the hook, so a hook precondition failure
@@ -822,7 +877,8 @@ rbob_quench() {
 rbob_hail() {
   zrbob_sentinel
   buc_step "Hailing Sentry: ${ZRBOB_SENTRY}"
-  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_SENTRY}" /bin/bash
+  exec "${ZRBOB_RUNTIME}" exec -it "${ZRBOB_SENTRY}" /bin/bash \
+    || buc_die_now "Failed to exec ${ZRBOB_RUNTIME} into ${ZRBOB_SENTRY}"
 }
 
 # SSH into bottle — proper terminal session via sentry DNAT
@@ -832,43 +888,51 @@ rbob_ssh() {
   buc_step "SSH to Bottle via port ${RBRN_ENTRY_PORT_WORKSTATION} as ${z_ssh_user}"
   exec ssh -t -p "${RBRN_ENTRY_PORT_WORKSTATION}" \
     -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-    "${z_ssh_user}@localhost"
+    "${z_ssh_user}@localhost" \
+    || buc_die_now "Failed to exec ssh to Bottle"
 }
 
 # Rack bottle — compel the demon to reveal state (interactive shell)
 rbob_rack() {
   zrbob_sentinel
   buc_step "Racking Bottle: ${ZRBOB_BOTTLE}"
-  exec ${ZRBOB_RUNTIME} exec -it "${ZRBOB_BOTTLE}" /bin/bash
+  exec "${ZRBOB_RUNTIME}" exec -it "${ZRBOB_BOTTLE}" /bin/bash \
+    || buc_die_now "Failed to exec ${ZRBOB_RUNTIME} into ${ZRBOB_BOTTLE}"
 }
 
 # Writ sentry — non-interactive command execution in sentry
 rbob_writ() {
   zrbob_sentinel
   buc_step "Writ to Sentry: ${ZRBOB_SENTRY}"
-  exec ${ZRBOB_RUNTIME} exec "${ZRBOB_SENTRY}" "$@"
+  exec "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" "$@" \
+    || buc_die_now "Failed to exec ${ZRBOB_RUNTIME} into ${ZRBOB_SENTRY}"
 }
 
 # Fiat pentacle — non-interactive command execution in pentacle
 rbob_fiat() {
   zrbob_sentinel
   buc_step "Fiat to Pentacle: ${ZRBOB_PENTACLE}"
-  exec ${ZRBOB_RUNTIME} exec "${ZRBOB_PENTACLE}" "$@"
+  exec "${ZRBOB_RUNTIME}" exec "${ZRBOB_PENTACLE}" "$@" \
+    || buc_die_now "Failed to exec ${ZRBOB_RUNTIME} into ${ZRBOB_PENTACLE}"
 }
 
 # Bark bottle — non-interactive command execution in bottle
 rbob_bark() {
   zrbob_sentinel
   buc_step "Bark to Bottle: ${ZRBOB_BOTTLE}"
-  exec ${ZRBOB_RUNTIME} exec "${ZRBOB_BOTTLE}" "$@"
+  exec "${ZRBOB_RUNTIME}" exec "${ZRBOB_BOTTLE}" "$@" \
+    || buc_die_now "Failed to exec ${ZRBOB_RUNTIME} into ${ZRBOB_BOTTLE}"
 }
 
 # Run ifrit sortie adjutant inside bottle (security test dispatch)
 rbob_ifrit_sortie() {
   zrbob_sentinel
   buc_step "Running ifrit sortie adjutant in Bottle: ${ZRBOB_BOTTLE}"
-  ${ZRBOB_RUNTIME} exec -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" \
-    python3 rbtia_adjutant.py "$@"
+  local z_sortie_status=0
+  "${ZRBOB_RUNTIME}" exec -w "${RBRR_BOTTLE_WORKSPACE}" "${ZRBOB_BOTTLE}" \
+    python3 rbtia_adjutant.py "$@" \
+    || z_sortie_status=$?
+  return "${z_sortie_status}"
 }
 
 ######################################################################

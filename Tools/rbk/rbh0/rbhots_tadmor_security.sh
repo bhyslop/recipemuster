@@ -43,7 +43,9 @@ rbho_tadmor_security() {
   local -r z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
 
   local z_has_docker=0
-  command -v docker >/dev/null 2>&1 && z_has_docker=1
+  if command -v docker >/dev/null; then
+    z_has_docker=1
+  fi
 
   buh_section "Verify ${RBYC_CRUCIBLE} Containment Under Attack"
   buh_e

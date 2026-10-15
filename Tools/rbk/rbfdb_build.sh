@@ -43,7 +43,7 @@ zrbfdb_quota_preflight() {
   # Extract vCPU count from machine type (last segment after final hyphen)
   local -r z_vcpus="${RBRD_GCB_MACHINE_TYPE##*-}"
   case "${z_vcpus}" in
-    ""|0|*[!0-9]*)
+    ""|0|*[!0123456789]*)
       buc_warn "Cannot parse vCPU count from RBRD_GCB_MACHINE_TYPE='${RBRD_GCB_MACHINE_TYPE}' -- skipping quota preflight"
       return 0
       ;;
@@ -68,15 +68,18 @@ zrbfdb_quota_preflight() {
   fi
 
   # Filter quota response to region-specific bucket via intermediate file
+  local z_region_status=0
   rbuh_jq_file_to_file_ok "quota_preflight" "quota_region" \
     "[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRD_GCP_REGION}\")] | .[0] // {}" \
-    || true
+    || z_region_status=$?
 
   # Extract effective limit from region bucket, then fallback to first bucket
   local z_limit=""
   local z_limit_status=0
-  z_limit=$(rbuh_json_field_capture "quota_region" '.effectiveLimit') || z_limit_status=$?
-  test "${z_limit_status}" -eq 0 || z_limit=""
+  if test "${z_region_status}" -eq 0; then
+    z_limit=$(rbuh_json_field_capture "quota_region" '.effectiveLimit') || z_limit_status=$?
+    test "${z_limit_status}" -eq 0 || z_limit=""
+  fi
   if test -z "${z_limit}"; then
     z_limit_status=0
     z_limit=$(rbuh_json_field_capture "quota_preflight" '.consumerQuotaLimits[0].quotaBuckets[0].effectiveLimit') || z_limit_status=$?
@@ -95,7 +98,9 @@ zrbfdb_quota_preflight() {
   fi
 
   # Compute max concurrent builds
-  local -r z_max_concurrent=$((z_limit / z_vcpus))
+  case "${z_limit}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_limit}" ;; esac
+  case "${z_vcpus}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_vcpus}" ;; esac
+  local -r z_max_concurrent=$((10#${z_limit} / 10#${z_vcpus}))
 
   buc_log_args "Quota ${z_limit} vCPUs, machine ${z_vcpus} vCPUs, max concurrent ${z_max_concurrent}, required ${RBRR_GCB_MIN_CONCURRENT_BUILDS}"
 
@@ -140,9 +145,14 @@ zrbfdb_stitch_build_json() {
   local z_ri_n="" z_ri_origin_var="" z_ri_anchor_var="" z_ri_origin="" z_ri_anchor=""
   local z_ri_pkg_path=""
   local z_ri_tag=""
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   for z_ri_n in 1 2 3; do
     z_ri_origin_var="RBRV_IMAGE_${z_ri_n}_ORIGIN"
     z_ri_anchor_var="RBRV_IMAGE_${z_ri_n}_ANCHOR"
+    [[ "${z_ri_origin_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_ri_origin_var}"
+    [[ "${z_ri_anchor_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_ri_anchor_var}"
     z_ri_origin="${!z_ri_origin_var:-}"
     z_ri_anchor="${!z_ri_anchor_var:-}"
     test -n "${z_ri_origin}" || continue
@@ -280,11 +290,15 @@ zrbfdb_stitch_build_json() {
   local z_steps_file=""
   local z_accumulator_file="${ZRBFD0_STITCH_PREFIX}steps.json"
 
+  case "${z_rbfc_tool_binfmt}" in *[\&\\]*) buc_die_now "Binfmt tool image ref carries & or backslash: ${z_rbfc_tool_binfmt}" ;; esac
+  case "${z_build_strategy}" in *[\&\\]*) buc_die_now "Build strategy carries & or backslash: ${z_build_strategy}" ;; esac
+
   buc_log_args "Initializing empty steps array"
   echo "[]" > "${z_accumulator_file}" || buc_die_now "Failed to initialize steps JSON"
 
   for z_def in "${z_step_defs[@]}"; do
-    IFS='|' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}"
+    IFS='|' read -r z_script z_builder z_entrypoint z_id <<< "${z_def}" \
+      || buc_die_now "Failed to parse step definition: ${z_def}"
     z_script_path="${ZRBFD0_RBGJB_STEPS_DIR}/${z_script}"
     z_body_file="${ZRBFD0_STITCH_PREFIX}${z_id}_body.txt"
     z_escaped_file="${ZRBFD0_STITCH_PREFIX}${z_id}_escaped.txt"
@@ -395,9 +409,12 @@ zrbfdb_stitch_build_json() {
 
   # Combine: [preflight] + [extract-context] + image steps + about steps
   local -r z_all_steps_file="${ZRBFD0_STITCH_PREFIX}all_steps.json"
+  local -r z_extract_steps_file="${ZRBFD0_STITCH_PREFIX}extract_steps.json"
+  jq -s '.' "${z_extract_step_file}" > "${z_extract_steps_file}" \
+    || buc_die_now "Failed to enclose the context extraction step as an array"
   jq -s '.[0] + .[1] + .[2]' \
     "${z_preflight_step_file}" \
-    <(jq -s '.' "${z_extract_step_file}") \
+    "${z_extract_steps_file}" \
     "${z_accumulator_file}" \
     > "${z_all_steps_file}" || buc_die_now "Failed to combine preflight, context extraction, and image+about steps"
 
@@ -545,10 +562,13 @@ zrbfdb_stitch_build_json() {
 zrbfdb_push_build_context() {
   zrbfd0_sentinel
 
-  local -r z_token="$1"
-  local -r z_sigil="$2"
-  local -r z_bldctx="$3"
-  local -r z_hallmark="$4"
+  local -r z_token="${1:-}"
+  local -r z_sigil="${2:-}"
+  local -r z_bldctx="${3:-}"
+  local -r z_hallmark="${4:-}"
+  test -n "${z_token}" || buc_die_now "zrbfdb_push_build_context: token required"
+  test -n "${z_sigil}" || buc_die_now "zrbfdb_push_build_context: sigil required"
+  test -n "${z_bldctx}" || buc_die_now "zrbfdb_push_build_context: bldctx required"
 
   test -d "${z_bldctx}" || buc_die_now "Build context directory not found: ${z_bldctx}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark required for pouch tag"
@@ -608,10 +628,12 @@ rbfdb_build() {
   if test -z "${z_vessel_dir}"; then
     local z_sigils
     z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+    local z_sigil_roll=()
+    read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
     buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    local z_i=0
+    for z_i in "${!z_sigil_roll[@]}"; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil_roll[${z_i}]}"
     done
     buc_die_now "Vessel directory required"
   fi
@@ -762,7 +784,11 @@ rbfdb_build() {
   local z_plat=""
   local z_plat_suffix=""
   local z_yield_ref=""
-  for z_plat in ${RBRV_CONJURE_PLATFORMS//,/ }; do
+  local z_plat_roll=()
+  read -r -a z_plat_roll <<< "${RBRV_CONJURE_PLATFORMS//,/ }" || buc_die_now "Failed to split RBRV_CONJURE_PLATFORMS"
+  local z_p=0
+  for z_p in "${!z_plat_roll[@]}"; do
+    z_plat="${z_plat_roll[${z_p}]}"
     z_plat_suffix="${z_plat#linux/}"
     z_plat_suffix="${z_plat_suffix//\//}"
     z_yield_ref="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}:${z_hallmark}-${z_plat_suffix}"

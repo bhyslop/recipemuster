@@ -60,10 +60,11 @@ zrbgi_kindle() {
   # Module prefix for temp files
   readonly ZRBGI_PREFIX="${BURD_TEMP_DIR}/rbgi_"
   readonly ZRBGI_EMPTY_JSON="${ZRBGI_PREFIX}empty.json"
-  printf '{}' > "${ZRBGI_EMPTY_JSON}"
+  printf '{}' > "${ZRBGI_EMPTY_JSON}" || buc_die_now "Failed to write ${ZRBGI_EMPTY_JSON}"
 
   readonly ZRBGI_VERSION3_BODY="${ZRBGI_PREFIX}version3_body.json"
-  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${ZRBGI_VERSION3_BODY}"
+  printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${ZRBGI_VERSION3_BODY}" \
+    || buc_die_now "Failed to write ${ZRBGI_VERSION3_BODY}"
 
   # Infix values for IAM operations
   readonly ZRBGI_INFIX_ROLE="role"
@@ -106,14 +107,16 @@ zrbgi_sentinel() {
 }
 
 # Classify an HTTP response against a caller-supplied tolerance list.
-# Each tolerance is a (code, body-glob) pair passed as two positional args
-# after the infix and code. An empty body-glob matches any response body
-# for that code — short-circuits without loading the error message.
+# Each tolerance is a (code, body-regex) pair passed as two positional args
+# after the infix and code. The body-regex is an extended regular expression
+# matched unanchored against the response's error message. An empty
+# body-regex matches any response body for that code — short-circuits
+# without loading the error message.
 #
 # Three propagation classes are encoded as tolerance pairs:
-#   (400, "*does not exist*") — forward member-visibility lag
-#   (400, "*is not deleted*") — backward member-visibility lag
-#   (403, "")                 — caller-recently-empowered (resource-scope cache lag)
+#   (400, "does not exist") — forward member-visibility lag
+#   (400, "is not deleted") — backward member-visibility lag
+#   (403, "")               — caller-recently-empowered (resource-scope cache lag)
 #
 # Project-scope sites declare only the two 400 patterns; resource-scope sites
 # (AR repo, SA, bucket, secret) add the 403 pair. Time-bound on 403 is the
@@ -124,23 +127,25 @@ zrbgi_sentinel() {
 zrbgi_propagation_error_predicate() {
   zrbgi_sentinel
 
-  local -r z_infix="${1}"
-  local -r z_code="${2}"
-  shift 2
+  local -r z_infix="${1:-}"
+  local -r z_code="${2:-}"
+  test -n "${z_infix}" || return 1
+  test -n "${z_code}" || return 1
+  shift 2 || return 1
 
   local z_err_msg=""
   local z_err_loaded=0
   local z_tol_code=""
-  local z_tol_glob=""
+  local z_tol_re=""
 
   while test "$#" -ge 2; do
-    z_tol_code="${1}"
-    z_tol_glob="${2}"
-    shift 2
+    z_tol_code="${1:-}"
+    z_tol_re="${2:-}"
+    shift 2 || return 1
 
     test "${z_code}" = "${z_tol_code}" || continue
 
-    test -n "${z_tol_glob}" || return 0
+    test -n "${z_tol_re}" || return 0
 
     if test "${z_err_loaded}" = "0"; then
       local z_err_msg_status=0
@@ -149,9 +154,9 @@ zrbgi_propagation_error_predicate() {
       z_err_loaded=1
     fi
 
-    case "${z_err_msg}" in
-      ${z_tol_glob}) return 0 ;;
-    esac
+    if [[ "${z_err_msg}" =~ ${z_tol_re} ]]; then
+      return 0
+    fi
   done
 
   return 1
@@ -190,8 +195,8 @@ rbgi_add_project_iam_role() {
   # member-visibility (400 patterns). Class C (403 resource-scope cache lag)
   # does not apply at project scope.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
   local z_prop_elapsed=0
@@ -206,7 +211,8 @@ rbgi_add_project_iam_role() {
     buc_log_args "GET_POLICY_URL_DEBUG z_resource:${z_resource} z_get_url:${z_get_url}"
     local z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_get_body.json"
     local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
-    printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}"
+    printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}" \
+      || buc_die_now "Failed to write ${z_get_body}"
     rbuh_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
 
     local z_get_code=""
@@ -218,7 +224,7 @@ rbgi_add_project_iam_role() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "${z_label}: propagation timeout after ${z_prop_elapsed}s waiting for member visibility"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -241,7 +247,8 @@ rbgi_add_project_iam_role() {
       || buc_die_now "Failed to compose policy JSON"
 
     local z_set_body="${ZRBGI_PREFIX}${z_parent_infix}_set_body.json"
-    printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}"
+    printf '{"policy":%s}\n' "${z_new_policy_json}" > "${z_set_body}" \
+      || buc_die_now "Failed to write ${z_set_body}"
 
     buc_log_args '3) setIamPolicy (fatal on 409 — etag mismatch)'
     local z_set_elapsed=0
@@ -268,7 +275,7 @@ rbgi_add_project_iam_role() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "${z_label}: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -279,7 +286,7 @@ rbgi_add_project_iam_role() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "${z_label}: propagation timeout after ${z_prop_elapsed}s waiting for member visibility"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -329,8 +336,8 @@ rbgi_add_repo_iam_role() {
   # Propagation retry — AR repo is resource-scope: member-visibility 400s
   # plus caller-recently-empowered 403 from the resource-scope IAM cache.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -356,7 +363,7 @@ rbgi_add_repo_iam_role() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "Repo IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -407,7 +414,7 @@ rbgi_add_repo_iam_role() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "Repo IAM: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -418,7 +425,7 @@ rbgi_add_repo_iam_role() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "Repo IAM: propagation timeout after ${z_prop_elapsed}s"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -463,8 +470,8 @@ rbgi_add_sa_iam_role() {
   # Propagation retry — SA is resource-scope: member-visibility 400s plus
   # caller-recently-empowered 403 from the resource-scope IAM cache.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -491,7 +498,7 @@ rbgi_add_sa_iam_role() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "SA IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -543,7 +550,7 @@ rbgi_add_sa_iam_role() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "SA IAM: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -554,7 +561,7 @@ rbgi_add_sa_iam_role() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "SA IAM: propagation timeout after ${z_prop_elapsed}s"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -607,8 +614,8 @@ rbgi_add_sa_principal_iam_role() {
   # Propagation retry — SA is resource-scope: member-visibility 400s plus
   # caller-recently-empowered 403 from the resource-scope IAM cache.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -634,7 +641,7 @@ rbgi_add_sa_principal_iam_role() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "SA IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -684,7 +691,7 @@ rbgi_add_sa_principal_iam_role() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "SA IAM: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -693,7 +700,7 @@ rbgi_add_sa_principal_iam_role() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "SA IAM: propagation timeout after ${z_prop_elapsed}s"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -740,8 +747,10 @@ rbgi_poll_sa_iam_binding() {
   local z_elapsed=0
   while :; do
     local z_poll_infix="${ZRBGI_INFIX_SA_BINDING_POLL}-${z_elapsed}s"
+    # Non-fatal by grant: one failed read inside the poll is retried, and the loop's deadline is the gate
     rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
-      "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" || true
+      "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" \
+      || buc_warn "IAM read-back poll read failed at ${z_elapsed}s — retrying"
 
     local z_code=""
     local z_code_status=0
@@ -770,7 +779,7 @@ rbgi_poll_sa_iam_binding() {
 
     test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
       || buc_die_now "Binding ${z_role} for ${z_member} on ${z_target_sa_email} not visible after ${RBGC_MAX_CONSISTENCY_SEC}s"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 }
@@ -793,8 +802,8 @@ rbgi_add_bucket_iam_role() {
   # Propagation retry — bucket is resource-scope: member-visibility 400s plus
   # caller-recently-empowered 403 from the resource-scope IAM cache.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -820,7 +829,7 @@ rbgi_add_bucket_iam_role() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "Bucket IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -872,7 +881,7 @@ rbgi_add_bucket_iam_role() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "Bucket IAM: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -883,7 +892,7 @@ rbgi_add_bucket_iam_role() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "Bucket IAM: propagation timeout after ${z_prop_elapsed}s"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -924,8 +933,8 @@ rbgi_add_managed_folder_iam_role() {
   # Propagation retry — managed folder is resource-scope (same shape as bucket):
   # member-visibility 400s plus caller-recently-empowered 403 from the cache.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -951,7 +960,7 @@ rbgi_add_managed_folder_iam_role() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "Managed-folder IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1003,7 +1012,7 @@ rbgi_add_managed_folder_iam_role() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "Managed-folder IAM: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -1014,7 +1023,7 @@ rbgi_add_managed_folder_iam_role() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "Managed-folder IAM: propagation timeout after ${z_prop_elapsed}s"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1050,8 +1059,8 @@ rbgi_grant_secret_iam() {
   # Propagation retry — secret is resource-scope: member-visibility 400s plus
   # caller-recently-empowered 403 from the resource-scope IAM cache.
   local -ra z_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -1077,7 +1086,7 @@ rbgi_grant_secret_iam() {
       test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
         || buc_die_now "Secret IAM: propagation timeout after ${z_prop_elapsed}s"
       buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1128,7 +1137,7 @@ rbgi_grant_secret_iam() {
       esac
 
       test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "Secret IAM: timeout setting policy"
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
     done
 
@@ -1139,7 +1148,7 @@ rbgi_grant_secret_iam() {
     test "${z_prop_elapsed}" -lt "${z_prop_deadline}" \
       || buc_die_now "Secret IAM: propagation timeout after ${z_prop_elapsed}s"
     buc_log_args "Retry ${z_prop_attempt} at ${z_prop_elapsed}s (next delay ${z_prop_delay}s)"
-    sleep "${z_prop_delay}"
+    sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
     z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
     z_prop_delay=$((z_prop_delay * 2))
     test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1232,7 +1241,7 @@ rbgi_revoke_project_member() {
     esac
 
     test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "${z_label}: timeout setting policy"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
     z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 
@@ -1285,7 +1294,7 @@ rbgi_revoke_repo_member() {
       test "${z_prop_elapsed}" -lt "${RBGC_PROPAGATION_DEADLINE_SEC}" \
         || buc_die_now "Repo IAM: governor empowerment propagation timeout after ${z_prop_elapsed}s (last HTTP ${z_get_code})"
       buc_log_args "Repo getIamPolicy ${z_get_code} (caller-empowerment propagating); retry at ${z_prop_elapsed}s"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1325,7 +1334,7 @@ rbgi_revoke_repo_member() {
     esac
 
     test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "Repo IAM: timeout setting policy"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
     z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 
@@ -1375,7 +1384,7 @@ rbgi_revoke_sa_member() {
       test "${z_prop_elapsed}" -lt "${RBGC_PROPAGATION_DEADLINE_SEC}" \
         || buc_die_now "SA IAM: governor empowerment propagation timeout after ${z_prop_elapsed}s (last HTTP ${z_get_code})"
       buc_log_args "SA getIamPolicy ${z_get_code} (caller-empowerment propagating); retry at ${z_prop_elapsed}s"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1415,7 +1424,7 @@ rbgi_revoke_sa_member() {
     esac
 
     test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "SA IAM: timeout setting policy"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
     z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 
@@ -1468,7 +1477,7 @@ rbgi_revoke_sa_principal_member() {
       test "${z_prop_elapsed}" -lt "${RBGC_PROPAGATION_DEADLINE_SEC}" \
         || buc_die_now "SA IAM: governor empowerment propagation timeout after ${z_prop_elapsed}s (last HTTP ${z_get_code})"
       buc_log_args "SA getIamPolicy ${z_get_code} (caller-empowerment propagating); retry at ${z_prop_elapsed}s"
-      sleep "${z_prop_delay}"
+      sleep "${z_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_prop_elapsed=$((z_prop_elapsed + z_prop_delay))
       z_prop_delay=$((z_prop_delay * 2))
       test "${z_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -1508,7 +1517,7 @@ rbgi_revoke_sa_principal_member() {
     esac
 
     test "${z_set_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "SA IAM: timeout setting policy"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
     z_set_elapsed=$((z_set_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 
@@ -1624,9 +1633,9 @@ rbgi_jq_remove_member_from_role_capture() {
 rbgi_provision_service_agent() {
   zrbgi_sentinel
 
-  local -r z_api_service="${1}"
-  local -r z_project_id="${2}"
-  local -r z_token="${3}"
+  local -r z_api_service="${1:-}"
+  local -r z_project_id="${2:-}"
+  local -r z_token="${3:-}"
 
   test -n "${z_api_service}" || buc_die_now "rbgi_provision_service_agent: API service name required"
   test -n "${z_project_id}" || buc_die_now "rbgi_provision_service_agent: project ID required"
@@ -1653,7 +1662,7 @@ rbgi_provision_service_agent() {
 
     local z_elapsed=0
     while :; do
-      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+      sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "Sleep failed during consistency wait"
       z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
       z_final_infix="${z_infix}-poll-${z_elapsed}s"
@@ -1670,8 +1679,8 @@ rbgi_provision_service_agent() {
       test "${z_done_status}" -eq 0 || z_done=""
       test "${z_done}" != "true" || break
 
-      test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
-        && buc_die_now "Provision ${z_api_service}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+      test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
+        || buc_die_now "Provision ${z_api_service}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
       buc_log_args "Provision ${z_api_service}: still running at ${z_elapsed}s..."
     done
   fi
@@ -1683,7 +1692,7 @@ rbgi_provision_service_agent() {
   test -n "${z_email}" || buc_die_now "Provision service agent ${z_api_service}: no email in response"
 
   buc_log_args "Service agent provisioned: ${z_email}"
-  printf '%s' "${z_email}"
+  printf '%s' "${z_email}" || buc_die_now "Failed to print the service agent email"
 }
 
 # eof

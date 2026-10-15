@@ -47,7 +47,7 @@ rbho_director_graft() {
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
@@ -58,7 +58,7 @@ rbho_director_graft() {
     local z_mode_status=0
     z_mode=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_VESSEL_MODE") || z_mode_status=$?
     test "${z_mode_status}" -eq 0 || z_mode=""
-    test "${z_mode}" = "rbnve_graft" && z_vessel_ready=1
+    test "${z_mode}" != "rbnve_graft" || z_vessel_ready=1
   fi
 
   local z_vessel_yoked=0
@@ -67,11 +67,11 @@ rbho_director_graft() {
     local z_vessel_stamp_status=0
     z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp_status=$?
     test "${z_vessel_stamp_status}" -eq 0 || z_vessel_stamp=""
-    test -n "${z_vessel_stamp}" && z_vessel_yoked=1
+    test -z "${z_vessel_stamp}" || z_vessel_yoked=1
   fi
 
   local z_grafted_installed=0
-  if command -v docker >/dev/null 2>&1; then
+  if command -v docker >/dev/null; then
     local z_project_id=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
@@ -91,7 +91,7 @@ rbho_director_graft() {
         local z_line=""
         while IFS= read -r z_line || test -n "${z_line}"; do
           case "${z_line}" in
-            "${z_gar_prefix}"*"${z_vessel}:g"[0-9]*) z_grafted_installed=1; break ;;
+            "${z_gar_prefix}"*"${z_vessel}:g"[0123456789]*) z_grafted_installed=1; break ;;
           esac
         done < "${z_df_out}"
       fi

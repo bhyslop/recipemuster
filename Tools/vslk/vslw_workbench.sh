@@ -25,10 +25,10 @@ set -euo pipefail
 VSLW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
@@ -50,7 +50,7 @@ vslw_load_burc() {
   test -f "${z_burc_file}" || buc_die_now "BURC file not found: ${z_burc_file}"
 
   vslw_show "Loading BURC from: ${z_burc_file}"
-  source "${z_burc_file}"
+  source "${z_burc_file}" || buc_die_now "Failed to source BURC file: ${z_burc_file}"
 }
 
 # SlickEdit destination configuration
@@ -59,8 +59,8 @@ VSLW_DEST_DIR="../_vs/${VSLW_PROJECT_BASE_NAME}"
 
 # Simple routing function
 vslw_route() {
-  local z_command="$1"
-  shift
+  local z_command="${1:-}"
+  shift || buc_die_now "vslw_route: command required"
 
   vslw_show "Routing command: ${z_command} with args: $*"
 
@@ -87,7 +87,7 @@ vslw_route() {
       test -d "${z_template_dir}" || buc_die_now "Template directory not found: ${z_template_dir}"
 
       # Step 1: Delete destination (fail if delete fails - catches held file handles)
-      if [ -d "${z_dest_dir}" ]; then
+      if test -d "${z_dest_dir}"; then
         buc_step "Removing existing SlickEdit project directory"
         vslw_show "Deleting: ${z_dest_dir}"
         rm -rf "${z_dest_dir}" || buc_die_now "Failed to delete ${z_dest_dir} - is SlickEdit still open?"
@@ -106,11 +106,30 @@ vslw_route() {
 
       # Step 4: Substitute project directory placeholder in .vpj files
       buc_step "Substituting project directory placeholder"
-      local z_vpj_file
+      case "${VSLW_PROJECT_BASE_NAME}" in
+        *[\&\\]*) buc_die_now "Project directory name carries '&' or a backslash: ${VSLW_PROJECT_BASE_NAME}" ;;
+      esac
+      local z_vpj_index=0
+      local z_vpj_file=""
+      local z_vpj_tmp=""
+      local z_vpj_line=""
+      local z_vpj_lines=()
+      local z_i=0
       for z_vpj_file in "${z_dest_dir}"/*.vpj; do
         test -f "${z_vpj_file}" || continue
-        sed -i '' "s/__VSLW_PROJECT_DIR__/${VSLW_PROJECT_BASE_NAME}/g" "${z_vpj_file}" \
-          || buc_die_now "Failed to substitute placeholder in ${z_vpj_file}"
+        z_vpj_tmp="${BURD_TEMP_DIR}/vslw_vpj_${z_vpj_index}.vpj"
+        z_vpj_index=$((z_vpj_index + 1))
+        z_vpj_lines=()
+        while IFS= read -r z_vpj_line || test -n "${z_vpj_line}"; do
+          z_vpj_lines+=("${z_vpj_line}")
+        done < "${z_vpj_file}"
+        for z_i in "${!z_vpj_lines[@]}"; do
+          printf '%s\n' "${z_vpj_lines[${z_i}]//__VSLW_PROJECT_DIR__/${VSLW_PROJECT_BASE_NAME}}" \
+            || buc_die_now "Failed to substitute placeholder in ${z_vpj_file}"
+        done > "${z_vpj_tmp}" \
+          || buc_die_now "Failed to write substituted ${z_vpj_file} to ${z_vpj_tmp}"
+        mv "${z_vpj_tmp}" "${z_vpj_file}" \
+          || buc_die_now "Failed to replace ${z_vpj_file}"
       done
 
       # Report success
@@ -135,7 +154,7 @@ vslw_route() {
 
 vslw_main() {
   local z_command="${1:-}"
-  shift || true
+  test "$#" -eq 0 || shift
 
   test -n "${z_command}" || buc_die_now "No command specified"
 

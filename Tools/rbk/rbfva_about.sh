@@ -128,8 +128,10 @@ rbfva_about() {
 zrbfva_about_submit() {
   zrbfv0_sentinel
 
-  local -r z_hallmark="$1"
-  local -r z_token="$2"
+  local -r z_hallmark="${1:-}"
+  local -r z_token="${2:-}"
+  test -n "${z_hallmark}" || buc_die_now "zrbfva_about_submit: hallmark required"
+  test -n "${z_token}" || buc_die_now "zrbfva_about_submit: token required"
   local -r z_conjure_build_id="${3:-}"
 
   buc_step "Constructing about Cloud Build resource"

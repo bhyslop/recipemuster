@@ -27,8 +27,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 ######################################################################
 # CLI Commands
@@ -45,8 +45,6 @@ rba_novate_sederunt() {
   buc_doc_shown || return 0
 
   buc_step "Novation — force-fresh ${RBCC_noun_sederunt} against the RBRF trust"
-  rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -73,8 +71,6 @@ rba_espy_sederunt() {
   buc_doc_shown || return 0
 
   buc_step "Espy — ${RBCC_noun_sederunt} state against the RBRF trust"
-  rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -92,6 +88,7 @@ rba_espy_sederunt() {
     z_verdict="absent"
   else
     z_runway=$(zrba_sederunt_runway_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} cache present but unreadable: ${z_path}"
+    case "${z_runway}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_runway}" ;; esac
     if zrba_sederunt_live_predicate; then
       z_verdict="live"
     else
@@ -106,7 +103,7 @@ runway=${z_runway}"
     || buc_die_now "Failed to write the ${RBCC_noun_sederunt} fact"
 
   if test "${z_verdict}" = "live"; then
-    buc_success "${RBCC_noun_sederunt_lettrine} LIVE — runway ${z_runway}s (~$(( z_runway / 3600 ))h$(( (z_runway % 3600) / 60 ))m remaining)"
+    buc_success "${RBCC_noun_sederunt_lettrine} LIVE — runway ${z_runway}s (~$(( 10#${z_runway} / 3600 ))h$(( (10#${z_runway} % 3600) / 60 ))m remaining)"
   else
     buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; open one with any federated command or rbw-aN (fresh full window)"
   fi
@@ -121,16 +118,16 @@ zrba_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
-  source "${z_rbk}/rbrr_regime.sh"
-  source "${z_rbk}/rbrf_regime.sh"
-  source "${z_rbk}/rbrw_regime.sh"
-  source "${z_rbk}/rbcc_constants.sh"
-  source "${z_rbk}/rbgc_constants.sh"
-  source "${z_rbk}/rbgo_oauth.sh"
-  source "${z_rbk}/rba_auth.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -139,6 +136,8 @@ zrba_furnish() {
   # resolve in rbcc_source_active_rbrf); depot-agnostic, so no RBRR
   # enforcement — mirroring the avowal probe's furnish posture.
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  rbcc_source_active_rbrf
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrr_kindle
   zrbcc_kindle
   zrbgc_kindle

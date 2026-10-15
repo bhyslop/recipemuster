@@ -58,16 +58,19 @@ zrbldk_decode_touchmark_kind_capture() {
   zrbfc0_sentinel
 
   local -r z_touchmark="${1:-}"
-  local -r z_prefix="${z_touchmark%%[0-9]*}"
+  local -r z_prefix="${z_touchmark%%[0123456789]*}"
 
+  local z_kind=""
   case "${z_prefix}" in
-    "${RBGC_LODE_KIND_BOLE}")         printf '%s' "${RBGC_LODE_KIND_BOLE}";         return 0 ;;
-    "${RBGC_LODE_KIND_RELIQUARY}")    printf '%s' "${RBGC_LODE_KIND_RELIQUARY}";    return 0 ;;
-    "${RBGC_LODE_KIND_WSL}")          printf '%s' "${RBGC_LODE_KIND_WSL}";          return 0 ;;
-    "${RBGC_LODE_KIND_PODVM_WSL}")    printf '%s' "${RBGC_LODE_KIND_PODVM_WSL}";    return 0 ;;
-    "${RBGC_LODE_KIND_PODVM_NATIVE}") printf '%s' "${RBGC_LODE_KIND_PODVM_NATIVE}"; return 0 ;;
+    "${RBGC_LODE_KIND_BOLE}")         z_kind="${RBGC_LODE_KIND_BOLE}" ;;
+    "${RBGC_LODE_KIND_RELIQUARY}")    z_kind="${RBGC_LODE_KIND_RELIQUARY}" ;;
+    "${RBGC_LODE_KIND_WSL}")          z_kind="${RBGC_LODE_KIND_WSL}" ;;
+    "${RBGC_LODE_KIND_PODVM_WSL}")    z_kind="${RBGC_LODE_KIND_PODVM_WSL}" ;;
+    "${RBGC_LODE_KIND_PODVM_NATIVE}") z_kind="${RBGC_LODE_KIND_PODVM_NATIVE}" ;;
+    *) return 1 ;;
   esac
-  return 1
+
+  printf '%s' "${z_kind}" || return 1
 }
 
 # eof

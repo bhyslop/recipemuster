@@ -27,6 +27,9 @@
 
 set -euo pipefail
 
+test -z "${ZRBRN_DRIVE_SOURCED:-}" || buc_die_now "Module rbrn_drive multiply sourced - check sourcing hierarchy"
+ZRBRN_DRIVE_SOURCED=1
+
 ######################################################################
 # Drive (rbrn_*)
 
@@ -85,10 +88,11 @@ rbrn_drive() {
   local z_line=""
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
-    if [[ "${z_line}" == ${z_var_name}=* ]]; then
-      printf '%s\n' "${z_var_name}=${z_hallmark}"; z_found=true
+    if [[ "${z_line}" == "${z_var_name}"=* ]]; then
+      printf '%s\n' "${z_var_name}=${z_hallmark}" || buc_die_now "Failed to write ${z_tmp_file}"
+      z_found=true
     else
-      printf '%s\n' "${z_line}"
+      printf '%s\n' "${z_line}" || buc_die_now "Failed to write ${z_tmp_file}"
     fi
   done < "${z_rbrn_file}" > "${z_tmp_file}" \
     || buc_die_now "Failed to rewrite ${z_rbrn_file} for ${z_var_name}"

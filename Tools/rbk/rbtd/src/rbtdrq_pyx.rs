@@ -347,8 +347,8 @@ pub(crate) const ZRBTDRQ_ANCHOR_SOURCE: &str = "Tools/rbk/rbyc_common.sh";
 /// anchors.
 pub(crate) const ZRBTDRQ_ANCHOR_TARGET: &str = "README.md";
 
-/// The call whose third argument names an anchor in the target document.
-pub(crate) const ZRBTDRQ_ANCHOR_CALL: &str = "zrbyc_yk";
+/// The call whose second argument names an anchor in the target document.
+pub(crate) const ZRBTDRQ_ANCHOR_CALL: &str = "buym_link_yawp";
 
 /// How an anchor is declared in the target document. The consumer-facing README
 /// carries explicit `<a id="…">` anchors rather than relying on a renderer's
@@ -736,8 +736,8 @@ fn rbtdrq_secret_shapes(dir: &Path) -> rbtdre_Verdict {
 // ── Case: README anchors ────────────────────────────────────
 
 /// Extract the anchor named by each linked-term declaration in the yelp source:
-/// the third whitespace-separated argument of a `zrbyc_yk` call, stripped of its
-/// surrounding quotes.
+/// the second whitespace-separated argument of a `buym_link_yawp` call, stripped
+/// of the statement-ending semicolon and its surrounding quotes.
 pub(crate) fn zrbtdrq_declared_anchors(source: &str) -> BTreeSet<String> {
     let mut anchors = BTreeSet::new();
     for line in source.lines() {
@@ -746,10 +746,10 @@ pub(crate) fn zrbtdrq_declared_anchors(source: &str) -> BTreeSet<String> {
             continue;
         }
         let fields: Vec<&str> = trimmed.split_whitespace().collect();
-        if fields.len() < 4 {
+        if fields.len() < 3 {
             continue;
         }
-        let anchor = fields[3].trim_matches('"');
+        let anchor = fields[2].trim_end_matches(';').trim_matches('"');
         if !anchor.is_empty() {
             anchors.insert(anchor.to_string());
         }

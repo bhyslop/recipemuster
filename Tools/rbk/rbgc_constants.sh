@@ -395,8 +395,10 @@ zrbgc_sentinel() {
 rbgc_emit_consts() {
   zrbgc_sentinel
 
-  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked)"
+  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked)" \
+    || buc_die_now "rbgc_emit_consts: failed to write the header"
 
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   local z_name=""
   local z_stem=""
   for z_name in \
@@ -404,6 +406,8 @@ rbgc_emit_consts() {
     RBGC_PROPAGATION_MAX_DELAY_SEC     \
     RBGC_PROPAGATION_DEADLINE_SEC      \
   ; do
+    [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_name}"
     z_stem="${z_name#RBGC_}"
     buz_emit_const_i32 "RBTDGC_${z_stem}" "${!z_name}" \
       || buc_die_now "rbgc_emit_consts: emit failed for ${z_name}"
