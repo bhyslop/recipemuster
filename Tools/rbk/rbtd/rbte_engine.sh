@@ -45,10 +45,8 @@ zrbte_kindle() {
   # THE KENNEL BINARY IS DRIVEN, never a nested kennel tabtarget: a second
   # dispatch inside this one mints a second temp generation and a second log,
   # and the theurge's own touchstone reads one dispatch per invoke. The gate the
-  # whistle would have run is the kennel's own published bash, read below.
-  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh" || buc_die_now "Failed to source bkcp_position.sh"
-  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcb_tackroom.sh" || buc_die_now "Failed to source bkcb_tackroom.sh"
-  zbkcb_kindle
+  # whistle would have run is the kennel's own published bash, which the CLI's
+  # furnish sources and kindles.
   readonly ZRBTE_REPO_ROOT="${PWD}"
   readonly ZRBTE_KENNEL_CRATE="${ZRBTE_REPO_ROOT}/${BURD_TOOLS_DIR}/bkk/bk0"
   readonly ZRBTE_KENNEL="${ZRBTE_KENNEL_CRATE}/target/release/bkx"

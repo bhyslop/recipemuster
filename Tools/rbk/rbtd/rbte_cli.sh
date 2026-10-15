@@ -36,6 +36,8 @@ zrbte_furnish() {
   buc_doc_env_row "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided; codegen input)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Temp directory (dispatch-provided; codegen scratch)"
   buc_doc_env_row "BURD_STATION_FILE     " "Station regime file (launcher-provided; dowse log-dir source)"
+  buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided; the kennel's home)"
+  buc_doc_env_row "BURD_TACKROOM         " "The station's shared toolchain and registry store (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local -r z_command="${1:-}"
@@ -49,9 +51,12 @@ zrbte_furnish() {
   source "${z_cli_dir}/../rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
   source "${z_cli_dir}/../rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
   source "${z_cli_dir}/../rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh" || buc_die_now "Failed to source bkcp_position.sh"
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcb_tackroom.sh" || buc_die_now "Failed to source bkcb_tackroom.sh"
   source "${z_cli_dir}/rbte_engine.sh" || buc_die_now "Failed to source rbte_engine.sh"
 
   zbuv_kindle
+  zbkcb_kindle
   zburd_kindle
   zbuz_kindle
   zrbz_kindle

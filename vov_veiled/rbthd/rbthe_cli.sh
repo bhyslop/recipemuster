@@ -45,7 +45,7 @@ zrbthe_kennel_or_die() {
   bkcp_door_law_or_die "${z_repo}"
 
   test -x "${z_rbthe_kennel}" || buc_die_now \
-    "No kennel stands at ${z_rbthe_kennel}, and every cargo invocation of the hierophant passes through it. The converge, run deliberately: ${z_whistle[0]}"
+    "No kennel stands at ${z_rbthe_kennel}, and every cargo invocation of this crate passes through it. The converge, run deliberately: ${z_whistle[0]}"
 
   local z_seat=""
   z_seat=$(bkcp_position_capture "${z_repo}" "${z_election}") \
