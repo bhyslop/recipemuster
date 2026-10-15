@@ -1,0 +1,36 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "bkp"
+version = "0.0.1"
+edition = "2021"
+description = "Pastern - the estate's floor crate: std-only, one safe surface per module, beneath every jj-sired crate"
+license = "Apache-2.0"
+
+# A LIBRARY AND NOTHING ELSE. The floor answers questions and holds no posture
+# about what to do with the answers, so it has no door face and never will: a
+# consumer that wanted one would be asking this crate to decide something that is
+# its own to decide.
+[lib]
+name = "bkp"
+path = "src/lib.rs"
+
+# NO EXTERNAL CRATES, and the emptiness is a declaration. Every jj-sired crate
+# links this one, so whatever it depends on stands beneath all of them; std alone
+# keeps that closure empty. The regime reader holds the sharpest form of the same
+# promise: a TOML or a parser crate under it would put a dependency closure under
+# the one thing in the estate that reads exactly what bash reads and nothing wider.
+[dependencies]

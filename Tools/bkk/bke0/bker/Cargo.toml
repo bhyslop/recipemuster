@@ -1,0 +1,45 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# THE HELLO EXEMPLAR — the smallest rust crate the kennel carries from its
+# first lock to a green suite, and the one whose app collar shows a binary.
+#
+# Read it beside its two collars, bkern_app and bkern_suite, in the kit's brood.
+# What the kennel owns is stated to cargo on every invocation and appears nowhere
+# here. No pin stands beside this manifest: the pin at the repository root
+# answers for it, as it answers for every crate that does not state its own.
+#
+# THE BUILD SCRIPT BESIDE IT, found by cargo by its name, compiles in the
+# position the kennel's converge states, which the app prints when the kennel
+# asks it --exergue. It is the one obligation a reader app owes the launch, and
+# it needs no generated file.
+
+[package]
+name = "bker"
+version = "0.0.1"
+edition = "2021"
+description = "The kennel's rust hello exemplar: one binary and its suite, std alone"
+license = "Apache-2.0"
+
+# THE BINARY THE APP COLLAR NAMES. Its name is the collar's BKRR_TARGET and its
+# BKRR_BYNAME, stated here rather than left to cargo's discovery so the name the
+# collar repeats stands in the manifest too.
+[[bin]]
+name = "bker"
+path = "src/main.rs"
+
+# NO DEPENDENCIES, so both collars' tamed lists stand empty and the lock pins
+# this crate alone.
+[dependencies]

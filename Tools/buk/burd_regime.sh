@@ -31,7 +31,7 @@ ZBURD_SOURCED=1
 # The surface forms of the governed words this module speaks, so an enrollment
 # description below expands a constant instead of spelling the word. The sourced
 # file carries its own inclusion guard, so a sibling sourcing it costs nothing.
-source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh"
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
 
 ######################################################################
 # Internal Functions (zburd_*)
@@ -65,7 +65,7 @@ zburd_kindle() {
   buv_string_enroll  BURD_NOW_STAMP             1   64  "Timestamp string computed at dispatch time"
   buv_string_enroll  BURD_NOW_EPOCH             1   16  "UTC epoch seconds from same date invocation as BURD_NOW_STAMP"
   buv_string_enroll  BURD_TEMP_DIR              1  256  "Temporary directory for this invocation"
-  buv_string_enroll  BURD_LOOSEBOX_DIR          1  256  "This checkout's ${BUBG_LOOSEBOX_ROOT_DIR_BASE}, keyed on its dirname beneath the ${BUBG_LOOSEBOX_ROOT_DIR_BASE} root"
+  buv_string_enroll  BURD_LOOSEBOX_DIR          1  256  "This checkout's ${BUBG_LOOSEBOX_BASE}, keyed on its dirname beneath the ${BUBG_LOOSEBOX_BASE} root"
   buv_string_enroll  BURD_OUTPUT_DIR            1  256  "Output directory for this invocation (current/)"
   buv_string_enroll  BURD_PREVIOUS_DIR          1  256  "Prior dispatch's output directory (previous/), promoted from current/ at dispatch start"
   buv_string_enroll  BURD_TRANSCRIPT            1  256  "Path to transcript file for this invocation"
@@ -86,7 +86,6 @@ zburd_kindle() {
   buv_string_enroll  BURD_NO_LOG                0   16  "Disable logging when set"
   buv_string_enroll  BURD_INTERACTIVE           0   16  "Interactive mode flag when set"
   buv_string_enroll  BURD_AMANUENSIS            0   16  "Coordinator writes the log family itself when set: dispatch composes and exports the three names, creates no file and tees nothing"
-  buv_string_enroll  BURD_OUTRIDER              0   16  "Declares this tabtarget carriable onto a dispatched seat: the dispatcher reads the line off the stub, copies the door byte-identical, and the copy enters this tree through the seat's own trampoline. The dispatch itself does nothing with the value"
 
   buv_group_enroll "Log Paths"
   buv_string_enroll  BURD_LOG_LAST              0  256  "Path to last-run log file"

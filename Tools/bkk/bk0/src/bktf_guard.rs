@@ -22,6 +22,7 @@
 
 use crate::bkcf_guard;
 use crate::bkcf_guard::BKCF_REMEDY;
+use crate::bkcf_guard::BKCF_REPOINT;
 use crate::bktu_lure::bktu_Lure;
 
 #[test]
@@ -86,6 +87,77 @@ fn bktf_the_grievance_names_the_remedy_and_every_entry() {
     );
     assert!(said.contains("one.txt"), "the grievance lists what it found: {}", said);
     assert!(said.contains("two.txt"), "the grievance lists what it found: {}", said);
+}
+
+#[test]
+fn bktf_a_dangling_include_refuses_naming_file_line_and_remedy() {
+    let lure = bktu_Lure::bktu_compose("guard-lyam-dangling");
+    lure.bktu_write("CLAUDE.md", "# context\n\n@Tools/kit/gone.md\n");
+    lure.bktu_commit("bank a CLAUDE.md whose include names nothing");
+
+    let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
+    let said = lyam.bkcf_grievance(lure.bktu_root());
+
+    assert!(!lyam.bkcf_clean(), "an include naming nothing is dangling: {:?}", lyam);
+    assert!(said.contains("CLAUDE.md:3: @Tools/kit/gone.md"), "file, line and path: {}", said);
+    assert!(said.contains(BKCF_REPOINT), "the grievance names the remedy ({}): {}", BKCF_REPOINT, said);
+}
+
+#[test]
+fn bktf_includes_that_all_resolve_read_clean() {
+    let lure = bktu_Lure::bktu_compose("guard-lyam-resolved");
+    lure.bktu_write("Tools/kit/held.md", "held\n");
+    lure.bktu_write("CLAUDE.md", "@Tools/kit/held.md\n");
+    // A NESTED CLAUDE.md RESOLVES FROM ITS OWN DIRECTORY, so the same file is
+    // reached here by a path that would dangle if joined onto the root.
+    lure.bktu_write("Tools/kit/CLAUDE.md", "  @held.md  \n@../kit/./held.md\n");
+    lure.bktu_commit("bank includes that all resolve");
+
+    let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
+
+    assert!(lyam.bkcf_clean(), "every include names a tracked file: {:?}", lyam);
+    assert!(lyam.skipped.is_empty(), "nothing here leaves the tree: {:?}", lyam);
+}
+
+#[test]
+fn bktf_an_include_reaching_outside_the_tree_is_skipped_not_judged() {
+    let lure = bktu_Lure::bktu_compose("guard-lyam-outside");
+    lure.bktu_write(
+        "CLAUDE.md",
+        "@../peer/context/gone.md\n@~/.claude/gone.md\n@/nowhere/gone.md\n",
+    );
+    lure.bktu_commit("bank includes the tree cannot answer for");
+
+    let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
+
+    assert!(lyam.bkcf_clean(), "an include outside the tree is not judged: {:?}", lyam);
+    assert_eq!(lyam.skipped.len(), 3, "each is named as skipped: {:?}", lyam);
+}
+
+#[test]
+fn bktf_a_dangling_path_inside_a_fence_is_no_include() {
+    let lure = bktu_Lure::bktu_compose("guard-lyam-fenced");
+    lure.bktu_write("CLAUDE.md", "The form:\n\n```\n@Tools/kit/example.md\n```\n\n~~~\n@also/example.md\n~~~\n");
+    lure.bktu_commit("bank a CLAUDE.md showing the include form");
+
+    let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
+
+    assert!(lyam.bkcf_clean(), "a fenced path is an example, never an include: {:?}", lyam);
+}
+
+#[test]
+fn bktf_an_ignored_file_on_disk_still_dangles() {
+    let lure = bktu_Lure::bktu_compose("guard-lyam-ignored");
+    lure.bktu_write(".gitignore", "local.md\n");
+    lure.bktu_write("CLAUDE.md", "@local.md\n");
+    lure.bktu_commit("bank an include of a file no clone carries");
+    lure.bktu_write("local.md", "on this disk alone\n");
+
+    let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
+
+    // THE CASE THE SALUTATION WAS. The file stands on the author's disk, so a
+    // reading of the disk would pass it; every fresh clone lacks it.
+    assert!(!lyam.bkcf_clean(), "an ignored file answers no include: {:?}", lyam);
 }
 
 #[test]

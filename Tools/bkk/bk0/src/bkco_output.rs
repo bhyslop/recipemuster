@@ -21,9 +21,8 @@
 //! discipline's own grounds:
 //!
 //! The door consumes its tenants' streams and renders the voice itself, so every
-//! test door in the estate sounds the same whatever ran underneath
-//! (BKSNC-Kennelcraft.adoc "Bounded output"). That is only possible while
-//! the door's own voice has exactly one throat.
+//! test door in the estate sounds the same whatever ran underneath. That is
+//! only possible while the door's own voice has exactly one throat.
 //!
 //! And the verbosity dial is the substrate's, `BURE_VERBOSE`, read once here
 //! rather than at each call site. A dial read in many places is a dial that
@@ -34,6 +33,7 @@
 //! condition worth announcing on a run that still succeeds wears `warn`.
 
 use std::io::Write;
+use std::path::Path;
 
 /// The substrate's verbosity dial, read from the environment the dispatch
 /// exported. Absent reads as quiet, which is the flavor a door takes by default.
@@ -41,9 +41,8 @@ pub const BKCO_VERBOSE_VAR: &str = "BURE_VERBOSE";
 
 /// Where the substrate's dial stands for this run.
 ///
-/// THE DIAL HAS THREE POSITIONS AND NOT TWO, which is the frozen shape's own
-/// reading of it (BKSNC-Kennelcraft.adoc "Invocation shape"): at 0 the quiet
-/// flavor, at 1 the verbose flavor, and ABOVE THAT the kennel's own diagnostics
+/// THE DIAL HAS THREE POSITIONS AND NOT TWO: at 0 the quiet flavor, at 1 the
+/// verbose flavor, and ABOVE THAT the kennel's own diagnostics
 /// — the invocation it composed, the election it computed. Read as a boolean the
 /// middle position collapses into the top one, and an operator asking for
 /// per-case reporting is handed the kennel's interior as well.
@@ -111,11 +110,10 @@ pub fn bkco_answer(line: &str) {
 /// and the flush, and what it must not share is the answer's promise that
 /// stdout carries only machine-read text.
 ///
-/// EVERY MARK FLUSHES, which is the liveness cinch's whole mechanism
-/// (BKSNC-Kennelcraft.adoc "Bounded output"). A heartbeat sitting in a block
-/// buffer is a heartbeat nobody feels: stdout to a pipe is block-buffered by
-/// default, which is exactly the case the mark exists for, so the flush is not
-/// belt-and-braces but the thing itself.
+/// EVERY MARK FLUSHES, which is the liveness cinch's whole mechanism. A
+/// heartbeat sitting in a block buffer is a heartbeat nobody feels: stdout to a
+/// pipe is block-buffered by default, which is exactly the case the mark exists
+/// for, so the flush is not belt-and-braces but the thing itself.
 pub fn bkco_voice(line: &str) {
     let mut out = std::io::stdout();
     let _ = writeln!(out, "{}", line);
@@ -223,5 +221,176 @@ macro_rules! bkco_fatal_now {
 /// The exit a fatal takes. Distinct from cargo's own 101 so a caller reading the
 /// exit alone can tell the kennel's refusal from a compile that died under it.
 pub const BKCO_EXIT_FATAL: i32 = 70;
+
+// ============================================================================
+// The door roster, and a colophon resolved to the tabtarget that ACTUALLY
+// STANDS.
+//
+// Every refusal that sends a reader to a door names that door, and the naming
+// is where such texts rot: a colophon is the durable half of a tabtarget's name
+// and the frontispiece is prose that may be reworded, so a filename remembered
+// from the day the refusal was written outlives its truth silently.
+//
+// THE ROSTER HOMES HERE AND NOT IN THE BINARY, which is the whole reason this
+// section stands in the output module rather than beside the door arms. The
+// arms live in a binary no library module can see, so a refusal composed in a
+// library module had to spell its door's word again — and three such spellings
+// of one word stood before this. What every one of those sites was doing was
+// composing an operator-facing LINE, which is what this module is for.
+// ============================================================================
+
+/// The word each door answers to: the tabtarget's frontispiece, the binary's
+/// subcommand, and the word spoken in the conduct text, which are one word at
+/// three seats.
+pub const BKCO_VERB_MUSH: &str = "mush";
+pub const BKCO_VERB_DERBY: &str = "derby";
+pub const BKCO_VERB_FUTURITY: &str = crate::bkg_breviary::BKG_FUTURITY_BASE;
+pub const BKCO_VERB_LINEUP: &str = "lineup";
+pub const BKCO_VERB_TATTOO: &str = "tattoo";
+pub const BKCO_VERB_HEEL: &str = "heel";
+pub const BKCO_VERB_MUZZLE: &str = "muzzle";
+pub const BKCO_VERB_GANGLINE: &str = "gangline";
+pub const BKCO_VERB_SCOOP: &str = "scoop";
+pub const BKCO_VERB_DELOUSE: &str = "delouse";
+pub const BKCO_VERB_WHISTLE: &str = "whistle";
+pub const BKCO_VERB_KENNELMAN: &str = "kennelman";
+
+/// The colophon each door's tabtarget wears — the durable half of its filename,
+/// which a rename of the frontispiece leaves standing.
+///
+/// THE WHISTLE AND THE KENNELMAN ARE HERE AND ARE NO DOORS OF THE REGISTER.
+/// They stand in `tt/` and a refusal may have to send a reader to either — the
+/// whistle in particular is what a cold seat runs first — so the roster carries
+/// what the lookup must be able to resolve rather than what the binary
+/// dispatches.
+pub const BKCO_COLOPHON_MUSH: &str = "bkw-m";
+pub const BKCO_COLOPHON_DERBY: &str = "bkw-d";
+pub const BKCO_COLOPHON_FUTURITY: &str = "bkw-f";
+pub const BKCO_COLOPHON_LINEUP: &str = "bkw-l";
+pub const BKCO_COLOPHON_TATTOO: &str = "bkw-t";
+pub const BKCO_COLOPHON_HEEL: &str = "bkw-h";
+pub const BKCO_COLOPHON_MUZZLE: &str = "bkw-z";
+pub const BKCO_COLOPHON_GANGLINE: &str = "bkw-g";
+pub const BKCO_COLOPHON_SCOOP: &str = "bkw-s";
+pub const BKCO_COLOPHON_DELOUSE: &str = "bkw-n";
+pub const BKCO_COLOPHON_WHISTLE: &str = "bkw-w";
+pub const BKCO_COLOPHON_KENNELMAN: &str = "bkw-k";
+
+/// Verb beside colophon, which is the one pairing this kit does read
+/// positionally — and reads because a refusal naming a verb must hand its
+/// reader the file that performs it. The collar's strike and exergue lists are
+/// the opposite case and are documented as such at `bkcr_strike`.
+const ZBKCO_DOORS: &[(&str, &str)] = &[
+    (BKCO_VERB_MUSH, BKCO_COLOPHON_MUSH),
+    (BKCO_VERB_DERBY, BKCO_COLOPHON_DERBY),
+    (BKCO_VERB_FUTURITY, BKCO_COLOPHON_FUTURITY),
+    (BKCO_VERB_LINEUP, BKCO_COLOPHON_LINEUP),
+    (BKCO_VERB_TATTOO, BKCO_COLOPHON_TATTOO),
+    (BKCO_VERB_HEEL, BKCO_COLOPHON_HEEL),
+    (BKCO_VERB_MUZZLE, BKCO_COLOPHON_MUZZLE),
+    (BKCO_VERB_GANGLINE, BKCO_COLOPHON_GANGLINE),
+    (BKCO_VERB_SCOOP, BKCO_COLOPHON_SCOOP),
+    (BKCO_VERB_DELOUSE, BKCO_COLOPHON_DELOUSE),
+    (BKCO_VERB_WHISTLE, BKCO_COLOPHON_WHISTLE),
+    (BKCO_VERB_KENNELMAN, BKCO_COLOPHON_KENNELMAN),
+];
+
+/// The tabtarget directory the substrate's dispatch exports to every door.
+pub const BKCO_TABTARGET_DIR_VAR: &str = "BURD_TABTARGET_DIR";
+
+/// How a tabtarget is reached from a repository root, which is what an operator
+/// types and never the absolute path the dispatch exported.
+pub const BKCO_TABTARGET_REACH: &str = "tt";
+
+/// The live tabtarget filename for a colophon under a NAMED directory, or
+/// `None` where none resolves.
+///
+/// THE PURE HALF, AND IT IS PURE SO IT CAN BE HURDLED. The composition below
+/// reads the directory out of the process's environment, which a hurdle could
+/// only pose by WRITING that environment — and a written environment is shared
+/// by every hurdle the harness is running in parallel, so a hurdle posing a
+/// directory would be deciding its neighbours' answers. The kibble root
+/// is split at exactly this seam and for exactly this reason
+/// (`bkcq_feedroom_at`).
+///
+/// `None` ON ANY DOUBT: an unreadable directory, no matching entry, or TWO
+/// matching entries, which is an ambiguity no caller may resolve on the
+/// reader's behalf. A guess would send a reader to a path that does not exist,
+/// which is worse than saying less.
+///
+/// The prefix comparison is Rust's and so is case-SENSITIVE, which is what lets
+/// two colophons parted only by case resolve to different doors on a filesystem
+/// that would fold them: the distinction lives in the listing's bytes, never in
+/// a path this function asks the filesystem to open.
+pub fn bkco_tabtarget_in(directory: &Path, colophon: &str) -> Option<String> {
+    let prefix = format!("{}.", colophon);
+    let mut found: Option<String> = None;
+
+    for entry in std::fs::read_dir(directory).ok()? {
+        let name = entry.ok()?.file_name().to_str()?.to_string();
+        if name.starts_with(&prefix) && name.ends_with(".sh") {
+            if found.is_some() {
+                return None;
+            }
+            found = Some(name);
+        }
+    }
+
+    found
+}
+
+/// A door's tabtarget as a reader would type it: the one that stands, or the
+/// colophon's own glob where none resolves.
+///
+/// The degraded form is `<colophon>.*.sh` rather than a sentence, and it is
+/// chosen to stay ACTIONABLE at the same seat: it is what the reader types
+/// after `ls`, it names the durable half exactly, and it admits the
+/// frontispiece is unknown instead of inventing one.
+///
+/// THE ONE LINE THAT CONSULTS THE ENVIRONMENT, and it consults it nowhere else.
+pub fn bkco_door(colophon: &str) -> String {
+    let resolved = std::env::var(BKCO_TABTARGET_DIR_VAR)
+        .ok()
+        .filter(|dir| !dir.trim().is_empty())
+        .and_then(|dir| bkco_tabtarget_in(Path::new(&dir), colophon));
+
+    format!(
+        "{}/{}",
+        BKCO_TABTARGET_REACH,
+        resolved.unwrap_or_else(|| format!("{}.*.sh", colophon))
+    )
+}
+
+/// The colophon a door's verb wears, or `None` where the verb is no door of
+/// this kennel.
+pub fn bkco_colophon(verb: &str) -> Option<&'static str> {
+    ZBKCO_DOORS
+        .iter()
+        .find(|(word, _)| *word == verb)
+        .map(|(_, colophon)| *colophon)
+}
+
+/// What a refusal hands its reader: the door's own word, and beside it the
+/// tabtarget that performs it, with the imprint the act takes.
+///
+/// THE VERB STAYS IN THE SENTENCE beside the resolved file rather than being
+/// replaced by it. The word is what the conduct text and the sheaves call the
+/// act, so a reader who knows the kennel reads the verb and a reader who does
+/// not reads the file — and neither is handed a name the other cannot use.
+///
+/// A VERB NO ROSTER CARRIES RENDERS AS ITSELF, never as a panic: this composes
+/// operator-facing text, and a refusal that died while explaining a refusal
+/// would lose the condition it was called to report.
+pub fn bkco_call(verb: &str, imprint: Option<&str>) -> String {
+    let door = match bkco_colophon(verb) {
+        Some(colophon) => bkco_door(colophon),
+        None => return verb.to_string(),
+    };
+
+    match imprint {
+        Some(imprint) => format!("{} — {} {}", verb, door, imprint),
+        None => format!("{} — {}", verb, door),
+    }
+}
 
 // eof

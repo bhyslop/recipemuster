@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! *heel* — the converge (BKSNC-Kennelcraft.adoc "The doors").
+//! *heel* — the converge.
 //!
 //! THE ONE DOOR THAT CONVERGES, AND NOTHING ELSE DOES. Every other door reports
 //! and refuses: the launch seam meeting an outrun binary names this act and
@@ -50,8 +50,9 @@
 
 use std::ffi::{OsStr, OsString};
 use std::path::{Path, PathBuf};
+use bkp::bkprs_scrivener::bkprs_program_copy;
 
-use crate::bkca_whereabouts::bkca_Geography;
+use crate::bkce_election::bkce_Geography;
 use crate::bkce_election;
 use crate::bkcl_leash;
 use crate::bkcr_resolve::bkcr_Collar;
@@ -72,9 +73,8 @@ const ZBKCH_VERB_BUILD: &str = "build";
 /// The flags the collar's declared shape is spelled with, the same pair the
 /// launch seam spells for a suite and for the same reason: the profile and the
 /// features are the collar's declared build shape and never a per-invocation
-/// choice (BKSCL-Collar.adoc "Declared Build Shapes"). A converge that built at
-/// some other shape than the one the collar declares would install an artifact
-/// no election could account for.
+/// choice. A converge that built at some other shape than the one the collar
+/// declares would install an artifact no election could account for.
 const ZBKCH_PROFILE_FLAG: &str = "--profile";
 const ZBKCH_FEATURES_FLAG: &str = "--features";
 
@@ -90,8 +90,7 @@ pub const BKCH_TARGET_DIR_VAR: &str = "CARGO_TARGET_DIR";
 /// The environment variable a door holding the collar states to the crate it is
 /// compiling — the converge, the suite launch and the listing alike — carrying
 /// the position walked over THAT COLLAR'S declared roots. The envelope rules the
-/// shape once (BKSNC-Kennelcraft.adoc "Currency by git position"), and each
-/// door states it where it drives the leash.
+/// shape once, and each door states it where it drives the leash.
 ///
 /// THE DOOR'S CONTRACT WITH THE CRATE, and the reason it is its own name: a
 /// build compiles the converged crate AND every crate it links, each with its own
@@ -106,7 +105,7 @@ pub const BKCH_TARGET_DIR_VAR: &str = "CARGO_TARGET_DIR";
 /// A crate that wants the reading declares a build script reading this name; a
 /// crate that does not is unaffected, an unread variable costing the child
 /// nothing.
-pub const BKCH_COLLAR_POSITION_VAR: &str = "BKK_COLLAR_POSITION";
+pub const BKCH_COLLAR_POSITION_VAR: &str = "BKCH_COLLAR_POSITION";
 
 /// The three profiles cargo maps onto a directory named for something else, and
 /// the directories they land in. Every other profile — `release`, which names
@@ -222,7 +221,7 @@ pub fn bkch_struck(repository: &Path, collar: &bkcr_Collar) -> PathBuf {
 /// and the election is the whole reason this act exists.
 pub fn bkch_compose(
     repository: &Path,
-    geography: &bkca_Geography,
+    geography: &bkce_Geography,
     collar: &bkcr_Collar,
 ) -> Result<bkch_Converge, String> {
     if !collar.bkcr_app() {
@@ -257,15 +256,15 @@ pub fn bkch_compose(
     // and the sentence below is what keeps the join honest when they part.
     let residence = bkce_election::bkce_residence(repository, collar);
 
-    if let Some(delivered) = geography.bkca_delivered() {
+    if let Some(delivered) = geography.bkce_delivered() {
         if zbkch_within(&residence, delivered) {
             return Err(format!(
                 "the collar '{}' would install at {}, which stands inside the delivered root at \
                  {} — a seat's build never lands on a delivered tree, whatever any position says. \
-                 The delivered root is the borrow candidate every dispatched seat reads and a \
+                 The delivered root is the borrow candidate every linked worktree reads and a \
                  binary written there is written into every one of their elections at once; this \
-                 seat converges its OWN residence in the tree it entered, and the whereabouts \
-                 that named this root is where the two are told apart",
+                 seat converges its OWN residence in the tree it entered, and a work tree standing \
+                 inside its own main worktree is where the two stop being told apart",
                 collar.name,
                 residence.display(),
                 delivered.display()
@@ -347,6 +346,7 @@ fn zbkch_resolved(path: &Path) -> PathBuf {
 /// reported.
 pub fn bkch_build(
     repository: &Path,
+    weaned: &Path,
     collar: &bkcr_Collar,
     converge: &bkch_Converge,
 ) -> Result<bkcl_leash::bkcl_Run, String> {
@@ -359,6 +359,7 @@ pub fn bkch_build(
 
     bkcl_leash::bkcl_drive(
         repository,
+        weaned,
         &converge.manifest,
         &converge.verb,
         &converge.rest,
@@ -403,7 +404,7 @@ pub fn bkch_install(converge: &bkch_Converge) -> Result<bool, String> {
         })?;
     }
 
-    std::fs::copy(&converge.struck, &converge.residence).map_err(|err| {
+    bkprs_program_copy(&converge.struck, &converge.residence).map_err(|err| {
         format!(
             "could not install {} at {}: {}",
             converge.struck.display(),
@@ -415,10 +416,9 @@ pub fn bkch_install(converge: &bkch_Converge) -> Result<bool, String> {
     Ok(true)
 }
 
-/// The station tools this door spawns, each named at
-/// BKSNC-Kennelcraft.adoc "What stands outside the kennel" and none of them
-/// a kibble: a station tool is the ground the kennel stands on rather than an
-/// artifact it answers for. Absent, each refuses by naming itself.
+/// The station tools this door spawns, none of them a kibble: a station tool
+/// is the ground the kennel stands on rather than an artifact it answers for.
+/// Absent, each refuses by naming itself.
 const ZBKCH_CURL: &str = "curl";
 const ZBKCH_TAR: &str = "tar";
 const ZBKCH_OPENSSL: &str = "openssl";
@@ -438,7 +438,7 @@ const ZBKCH_OPENSSL: &str = "openssl";
 /// spelling away from its home and would move under a remint whatever it meant.
 /// So the directory is named for what holding it grants, which is also what the
 /// guard below is called.
-const ZBKCH_HELD: &str = "bkch-kibble.held";
+pub const BKCH_HELD: &str = "bkch-kibble.held";
 const ZBKCH_LOCK_WAIT: u64 = 300;
 
 /// Cargo's own verb for building a binary out of an unpacked crate, and the
@@ -447,9 +447,9 @@ const ZBKCH_LOCK_WAIT: u64 = 300;
 /// `--no-default-features` IS THE REGIME'S LAW AND NOT A KIBBLE'S CHOICE, which
 /// is why it is spelled here rather than declared per instance. A kibble's
 /// build has its self-update feature off so that one seal pins the whole
-/// closure (BKSBL-Kibble.adoc "Source"); a program that can update itself is a
-/// program whose version stops being the one the pin declares, which is the
-/// entire failure the regime exists to close. What a kibble declares is the
+/// closure; a program that can update itself is a program whose version stops
+/// being the one the pin declares, which is the entire failure the regime
+/// exists to close. What a kibble declares is the
 /// features it wants BACK, in `BKRK_FEATURES`.
 const ZBKCH_NO_DEFAULTS: &str = "--no-default-features";
 const ZBKCH_RELEASE: &str = "--release";
@@ -483,12 +483,11 @@ pub enum bkch_Kibbled {
 /// prebuilt one fetches a sealed vendor bordereau, reads out of it the archive
 /// this station's host triple is served by, and proves that archive against the
 /// digest the document states. What they share is everything after: the same
-/// lock, the same scratch directory, the same rename onto the same residence
-/// (BKSBL-Kibble.adoc "Two Kinds").
+/// lock, the same scratch directory, the same rename onto the same residence.
 ///
 /// THE ONE DOOR THAT WRITES THE TACKROOM, and everything about the act is shaped
-/// by that (BKSBL-Kibble.adoc "Where a Kibble Stands"). Every other door tests
-/// the residence path and refuses naming this one.
+/// by that. Every other door tests the residence path and refuses naming this
+/// one.
 ///
 /// THE SEAL IS PROVEN BEFORE ANYTHING IS UNPACKED, which is the whole order of
 /// the act rather than a step in it. An archive whose digest does not answer is
@@ -508,18 +507,24 @@ pub enum bkch_Kibbled {
 /// call is the one that has nothing to do, and making it queue behind another
 /// clone's download would price the common case at the rare one's cost. The
 /// test is repeated inside the lock, where it is the one that decides.
+///
+/// THE ROOT IS HANDED IN, read once at the door's face. Every residence and the
+/// lock stand beneath it, so a converge over a root one hurdle poses shares
+/// neither with the station's store nor with any other hurdle's.
 pub fn bkch_kibble(
     repository: &Path,
+    weaned: &Path,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
+    feedroom: &crate::bkcq_kibble::bkcq_Feedroom,
 ) -> Result<bkch_Kibbled, String> {
-    let residence = kibble.bkcq_residence()?;
+    let residence = kibble.bkcq_residence(feedroom);
 
     if residence.is_file() {
         return Ok(bkch_Kibbled::Current);
     }
 
-    let held = zbkch_lock(&residence)?;
-    let landed = zbkch_kibble_held(repository, kibble, &residence);
+    let held = zbkch_lock(feedroom)?;
+    let landed = zbkch_kibble_held(repository, weaned, kibble, &residence);
     held.zbkch_release();
 
     landed
@@ -528,6 +533,7 @@ pub fn bkch_kibble(
 /// The converge proper, performed with the lock held.
 fn zbkch_kibble_held(
     repository: &Path,
+    weaned: &Path,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     residence: &Path,
 ) -> Result<bkch_Kibbled, String> {
@@ -554,7 +560,7 @@ fn zbkch_kibble_held(
     // kinds, which is what makes a prebuilt residence indistinguishable from a
     // built one once it stands.
     let (struck, from) = if kibble.bkcq_source() {
-        zbkch_kibble_source(repository, kibble, &work)?
+        zbkch_kibble_source(repository, weaned, kibble, &work)?
     } else {
         zbkch_kibble_prebuilt(repository, kibble, &work)?
     };
@@ -579,6 +585,7 @@ fn zbkch_kibble_held(
 /// the kibble's own seal, unpack it, and build it through the leash.
 fn zbkch_kibble_source(
     repository: &Path,
+    weaned: &Path,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     work: &Path,
 ) -> Result<(PathBuf, String), String> {
@@ -596,7 +603,7 @@ fn zbkch_kibble_source(
     zbkch_unpack(&archive, work)?;
 
     let unpacked = work.join(kibble.bkcq_unpacked());
-    let struck = zbkch_kibble_build(repository, kibble, &unpacked)?;
+    let struck = zbkch_kibble_build(repository, weaned, kibble, &unpacked)?;
 
     Ok((struck, from))
 }
@@ -609,8 +616,7 @@ fn zbkch_kibble_source(
 /// THE SEAL IS OVER THE DOCUMENT AND THE DOCUMENT ANSWERS FOR THE ARCHIVES,
 /// which is what lets one declared digest pin a release the kennel has no
 /// platform table for. The kennel maintains one hash per version; the table is
-/// the vendor's, and it is sealed rather than kept true by hand
-/// (BKSBL-Kibble.adoc "Prebuilt").
+/// the vendor's, and it is sealed rather than kept true by hand.
 ///
 /// THE TRIPLE IS JOINED AND NEVER COMPARED. What rustc declared is looked up in
 /// the bordereau as opaque text: a host the document does not carry refuses by
@@ -619,7 +625,7 @@ fn zbkch_kibble_source(
 ///
 /// NOTHING IS BUILT ON THIS ROAD, and the whole reason the kind exists is that
 /// building would fail: uv asks a rustc above the estate's pin and cmake for the
-/// TLS library it links (BKSBL-Kibble.adoc "What sorts them").
+/// TLS library it links.
 fn zbkch_kibble_prebuilt(
     repository: &Path,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
@@ -647,15 +653,15 @@ fn zbkch_kibble_prebuilt(
     // THE FORMAT IS REFUSED BY NAME AND BEFORE THE FETCH. uv publishes a zip for
     // every windows triple and a gzipped tar everywhere else, so this is not a
     // hypothetical shape — it is the one archive a station on the wrong host
-    // would actually be handed. MVP unpacks a gzipped tar and nothing else
-    // (BKSBL-Kibble.adoc "Prebuilt"), and a refusal naming the format tells its
-    // reader what would have to be built, where a failure inside tar would not.
+    // would actually be handed. MVP unpacks a gzipped tar and nothing else, and
+    // a refusal naming the format tells its reader what would have to be built,
+    // where a failure inside tar would not.
     if !name.ends_with(ZBKCH_TARBALL) {
         return Err(format!(
             "the bordereau serves {} for the host triple {} and the kennel unpacks {} alone at \
              MVP, so NOTHING was fetched. The format is the vendor's own election per triple and \
              not a thing this kibble can restate; what is missing is an unpacker, and the \
-             declaration is sound (BKSBL-Kibble.adoc \"Prebuilt\")",
+             declaration is sound",
             name, triple, ZBKCH_TARBALL
         ));
     }
@@ -862,10 +868,8 @@ fn zbkch_fetch(from: &str, to: &Path) -> Result<(), String> {
 
 /// Prove one archive against the seal its kibble declares.
 ///
-/// HASHED BY OPENSSL IN THE STDIN FORM, which is the form
-/// `specs/bkk/BKSPY-Python.adoc` carries for this estate and is
-/// cited rather than re-elected: the file is fed on stdin so the answer carries
-/// the digest alone and never a filename whose spelling would differ by
+/// HASHED BY OPENSSL IN THE STDIN FORM: the file is fed on stdin so the answer
+/// carries the digest alone and never a filename whose spelling would differ by
 /// platform.
 fn zbkch_sealed(
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
@@ -995,6 +999,7 @@ fn zbkch_unpack(archive: &Path, into: &Path) -> Result<(), String> {
 /// happens to sit may answer that question.
 fn zbkch_kibble_build(
     _repository: &Path,
+    weaned: &Path,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     unpacked: &Path,
 ) -> Result<PathBuf, String> {
@@ -1030,7 +1035,7 @@ fn zbkch_kibble_build(
         ));
     }
 
-    let run = bkcl_leash::bkcl_drive(unpacked, &manifest, ZBKCH_VERB_BUILD, &rest, &[])?;
+    let run = bkcl_leash::bkcl_drive(unpacked, weaned, &manifest, ZBKCH_VERB_BUILD, &rest, &[])?;
 
     if !run.bkcl_landed() {
         return Err(format!(
@@ -1072,27 +1077,22 @@ impl bkch_Held {
     }
 }
 
-/// Take the tackroom lock, or die naming the stale directory to remove.
+/// Take the kibble root's lock, or die naming the stale directory to remove.
 ///
 /// THE WAIT AND ITS SENTENCE ARE THE FENCE'S, cited rather than redesigned
 /// (`Tools/vok/vot_toolchain.sh`): a caller that timed out without naming the
 /// directory would leave its reader to find a lock they cannot see.
-fn zbkch_lock(residence: &Path) -> Result<bkch_Held, String> {
-    let quarter = residence
-        .parent()
-        .and_then(|home| home.parent())
-        .and_then(|named| named.parent())
-        .ok_or_else(|| {
-            format!(
-                "the residence {} does not stand under a kennel quarter of the tackroom",
-                residence.display()
-            )
-        })?;
+///
+/// COMPOSED FROM THE ROOT AND NEVER RE-DERIVED FROM A RESIDENCE, so the lock a
+/// converge waits behind is the one its own root holds. The root is made here
+/// where it does not stand, which is how a posed root comes to exist at all.
+fn zbkch_lock(feedroom: &crate::bkcq_kibble::bkcq_Feedroom) -> Result<bkch_Held, String> {
+    let quarter = feedroom.bkcq_root();
 
     std::fs::create_dir_all(quarter)
         .map_err(|err| format!("could not make {}: {}", quarter.display(), err))?;
 
-    let at = quarter.join(ZBKCH_HELD);
+    let at = quarter.join(BKCH_HELD);
 
     let mut waited = 0;
     loop {
@@ -1116,6 +1116,80 @@ fn zbkch_lock(residence: &Path) -> Result<bkch_Held, String> {
         std::thread::sleep(std::time::Duration::from_secs(1));
         waited += 1;
     }
+}
+
+/// The file a heel holds for the length of its converge, beneath the checkout's
+/// loosebox.
+///
+/// NAMED FOR WHAT HOLDING IT GRANTS, on the tackroom lock's own ground: a
+/// declared value spells no governed word.
+pub const BKCH_HEEL_HELD: &str = "bkch-heel.held";
+
+/// The checkout's yard, held by one heel at a time.
+///
+/// TWO HEELS IN ONE CHECKOUT SHARE WHAT NO TOOLCHAIN GUARDS. Cargo locks its own
+/// build directory and its package cache, and uv says it is safe to run many of
+/// its commands at once, even against one environment — but the day's sweep
+/// ahead of a rust converge empties every yard in the tree, and the install
+/// after it copies onto the residence in place. Those are the kennel's own
+/// writes, so the kennel orders them: a heel holds this for its whole converge,
+/// and a second heel in the same checkout waits. Heels in different checkouts
+/// share only the tackroom, which the toolchains' own locks and the kibble lock
+/// already answer for, so they never meet here.
+///
+/// THE OPERATING SYSTEM'S FILE LOCK AND NOT A DIRECTORY, unlike the tackroom
+/// lock above, because the door that takes this one ends by exiting the
+/// process from a dozen places, a fatal among them, and no guard's drop runs
+/// there. The system releases a file lock when its holder's handle closes, which
+/// every exit does, an interrupted one included, so a yard is never left held by
+/// a heel that is gone and there is no stale lock to name or to time out on. The
+/// file itself stays; it is the lock on it that is held.
+pub struct bkch_Yard {
+    zbkch_file: std::fs::File,
+}
+
+impl bkch_Yard {
+    /// Give the yard back before the process ends.
+    pub fn bkch_release(self) {
+        let _ = self.zbkch_file.unlock();
+    }
+}
+
+/// Take the checkout's yard, saying one line through `waiting` if another heel
+/// holds it, and hold it until the guard is released or the process ends.
+///
+/// TRIED FIRST AND WAITED FOR SECOND, so the line is said exactly when there is
+/// a wait and never otherwise: the ordinary heel finds the yard free and says
+/// nothing more than it said before this lock stood. The line names the file,
+/// so a reader who sees a wait they did not expect can see what is held.
+///
+/// THE LOOSEBOX IS HANDED IN, read at the door's face, so a hurdle poses its own
+/// and shares the yard with no other hurdle's.
+pub fn bkch_yard(
+    loosebox: &Path,
+    waiting: impl FnOnce(&Path),
+) -> Result<bkch_Yard, String> {
+    let at = loosebox.join(BKCH_HEEL_HELD);
+
+    let file = std::fs::OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .write(true)
+        .open(&at)
+        .map_err(|err| format!("could not open the heel's yard at {}: {}", at.display(), err))?;
+
+    match file.try_lock() {
+        Ok(()) => return Ok(bkch_Yard { zbkch_file: file }),
+        Err(std::fs::TryLockError::WouldBlock) => waiting(&at),
+        Err(std::fs::TryLockError::Error(err)) => {
+            return Err(format!("could not take the heel's yard at {}: {}", at.display(), err))
+        }
+    }
+
+    file.lock()
+        .map_err(|err| format!("could not take the heel's yard at {}: {}", at.display(), err))?;
+
+    Ok(bkch_Yard { zbkch_file: file })
 }
 
 // eof
@@ -1163,11 +1237,12 @@ pub struct bkch_Environed {
 /// uv owns — and would make an absent loosebox look like a converge that worked.
 pub fn bkch_python(
     repository: &Path,
+    weaned: &Path,
     collar: &crate::bkcx_python::bkcx_Collar,
 ) -> Result<bkch_Environed, String> {
     let seat = crate::bkcx_python::bkcx_seat(collar)?;
 
-    bkch_python_at(repository, collar, &seat)
+    bkch_python_at(repository, weaned, collar, &seat)
 }
 
 /// The converge performed against a NAMED seat.
@@ -1181,6 +1256,7 @@ pub fn bkch_python(
 /// it was handed.
 pub fn bkch_python_at(
     repository: &Path,
+    weaned: &Path,
     collar: &crate::bkcx_python::bkcx_Collar,
     seat: &crate::bkcx_python::bkcx_Seat,
 ) -> Result<bkch_Environed, String> {
@@ -1190,6 +1266,7 @@ pub fn bkch_python_at(
     let installing = crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Fetching);
     let install = bkcl_leash::bkcl_uv(
         repository,
+        weaned,
         repository,
         [
             OsStr::new(ZBKCH_UV_PYTHON),
@@ -1210,9 +1287,44 @@ pub fn bkch_python_at(
         ));
     }
 
-    let syncing = crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Reaching);
+    // A PROJECT AWAITING ITS FIRST LOCK TAKES THE INSTALL AND STOPS THERE. The
+    // lock-authoring door resolves against an interpreter and may not fetch one,
+    // so on a cold store this step is what makes a first lock authorable at all;
+    // the sync is never attempted, a converge settling what a lock says and
+    // there being none.
+    if !project.join(crate::bkcx_python::BKCX_LOCK_FILE).is_file() {
+        return Err(format!(
+            "the interpreter the project pins ({}) stands installed, and the project at {} carries \
+             no {}, so nothing was synced — author its first lock, notch it, and converge again: {}",
+            pinned,
+            collar.bkcx_project().display(),
+            crate::bkcx_python::BKCX_LOCK_FILE,
+            crate::bkco_output::bkco_call(crate::bkco_output::BKCO_VERB_GANGLINE, Some(&collar.name)), //
+        ));
+    }
+
+    // THE DECLARATION BEFORE THE SYNC. uv's real sync creates the environment
+    // and only then refuses a station outside the lock's supported
+    // environments, leaving it standing hollow; the sealed check refuses with
+    // nothing created. It is read here, behind the install it needs an
+    // interpreter from.
+    if let Some(unhitched) = crate::bkcx_python::bkcx_unhitched_at(repository, weaned, collar, seat)? {
+        return Err(unhitched.bkcx_refusal(collar));
+    }
+
+    // THE BAR IS PER PACKAGE AND READ OFF THE LOCK: every package the lock
+    // carries but the project's own is named to uv as one it may not build, so
+    // a dependency with no wheel this station can install refuses rather than
+    // being built from its source (BKr_hpt), while the project's own build —
+    // the one build the converge performs — still lands.
+    let barred = crate::bkcx_python::bkcx_lock_packages(&project)?;
+
+    let mut syncing = crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Reaching);
+    syncing.push(crate::bkcx_python::bkcx_barred(&barred));
+
     let sync = bkcl_leash::bkcl_uv(
         repository,
+        weaned,
         &project,
         [
             OsStr::new(ZBKCH_UV_SYNC),
@@ -1228,12 +1340,16 @@ pub fn bkch_python_at(
             "the project at {} did not sync, so {} stands as it did. A lock that no longer answers \
              its manifest refuses here rather than being re-derived: the one door entitled to \
              author a lock is the lock-authoring door, and this one converges what that door \
-             settled ({})",
+             settled. And a dependency with no wheel this station can install refuses here \
+             rather than being built from its source — a {} package is refused, never built \
+             (BKr_hpt), uv's own account above naming it ({})",
             collar.bkcx_project().display(),
             seat.environment.display(),
+            crate::bkg_breviary::BKG_CRUDE_BASE,
             sync.spelling
         ));
     }
+
 
     Ok(bkch_Environed {
         environment: seat.environment.clone(),
@@ -1263,13 +1379,11 @@ fn zbkch_borne_env<'a>(stated: &'a [(&'static str, std::ffi::OsString)]) -> Vec<
 /// constants rather than literals at the call. The lock-authoring door takes a
 /// negative flag where a reader would expect a valued one — `--no-python-downloads`
 /// and not a `--python-downloads <value>` pair — so uv's flag surface is not
-/// uniform enough to spell from memory at a call site
-/// (BKSPY-Python.adoc "The Configuration Bench").
+/// uniform enough to spell from memory at a call site.
 ///
 /// The spelling is the tool's own, declared as a xenonym spelling line under
-/// that authority's carrier (BKSCL-Collar.adoc "The Toolchain Authorities"),
-/// which is where the ruling lives now; VOr_9ww honours the carrier and stands
-/// the value down.
+/// that authority's carrier, which is where the ruling lives now; VOr_9ww
+/// honours the carrier and stands the value down.
 const ZBKCH_UV_PYTHON: &str = "python";
 const ZBKCH_UV_INSTALL: &str = "install";
 const ZBKCH_UV_NO_BIN: &str = "--no-bin";

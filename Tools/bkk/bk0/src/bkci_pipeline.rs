@@ -14,8 +14,7 @@
 // limitations under the License.
 
 //! The selection pipeline: ask the runner to name every hurdle, match the
-//! caller's patterns HERE, and hand the runner exactly the names that matched
-//! (BKSNC-Kennelcraft.adoc "The selection pipeline").
+//! caller's patterns HERE, and hand the runner exactly the names that matched.
 //!
 //! WHY THE MATCHING IS THE KENNEL'S AND NOT THE RUNNER'S. Each runner has a
 //! filter grammar of its own — cargo's harness matches substrings, nextest
@@ -92,9 +91,8 @@ const ZBKCI_VERB_NEXTEST: &str = bkcm_mush::BKCM_VERB_NEXTEST;
 
 /// The two listing words, one each from two runners that answer the same
 /// question in different words. Each spelling is its own tool's, declared as a
-/// xenonym spelling line under that authority's carrier
-/// (BKSCL-Collar.adoc "The Toolchain Authorities") — nextest's verb and the
-/// harness's flag under separate authorities, never merged.
+/// xenonym spelling line under that authority's carrier — nextest's verb and
+/// the harness's flag under separate authorities, never merged.
 const ZBKCI_NEXTEST_LIST: &str = "list";
 const ZBKCI_HARNESS_LIST: &str = "--list";
 
@@ -121,8 +119,15 @@ pub fn bkci_listing(
     match collar.bkcr_field("BKRR_RUNNER") {
         bkcm_mush::BKCM_RUNNER_CARGO => {
             // The listing flag belongs to the test binary and never to cargo, so
-            // it rides past the separator.
-            let mut rest = launch.rest.clone();
+            // it rides past the separator. The run's run-through flag is the
+            // run's alone and does not cross (`bkcm_mush::BKCM_NO_FAIL_FAST_FLAG`).
+            let no_fail_fast_flag = OsString::from(bkcm_mush::BKCM_NO_FAIL_FAST_FLAG);
+            let mut rest: Vec<OsString> = launch
+                .rest
+                .iter()
+                .filter(|argument| **argument != no_fail_fast_flag)
+                .cloned()
+                .collect();
             rest.push(OsString::from(bkcl_leash::BKCL_SEPARATOR));
             rest.push(OsString::from(ZBKCI_HARNESS_LIST));
             Ok(bkci_Listing { manifest: launch.manifest, verb: ZBKCI_VERB_TEST.to_string(), rest })
@@ -139,14 +144,18 @@ pub fn bkci_listing(
             // (`bkcm_mush::BKCM_NO_TESTS_FLAG`) rather than a second literal,
             // so a respelling there cannot leave a stale filter here that
             // silently stops dropping anything.
+            //
+            // THE RUN-THROUGH FLAG DOES NOT CROSS EITHER, and is dropped the same
+            // way (`bkcm_mush::BKCM_NO_FAIL_FAST_FLAG`): a listing runs no case.
             let no_tests_flag = OsString::from(bkcm_mush::BKCM_NO_TESTS_FLAG);
+            let no_fail_fast_flag = OsString::from(bkcm_mush::BKCM_NO_FAIL_FAST_FLAG);
             let mut rest: Vec<OsString> = vec![OsString::from(ZBKCI_NEXTEST_LIST)];
             rest.extend(
                 launch
                     .rest
                     .iter()
                     .skip(1)
-                    .filter(|argument| **argument != no_tests_flag)
+                    .filter(|argument| **argument != no_tests_flag && **argument != no_fail_fast_flag)
                     .cloned(),
             );
             Ok(bkci_Listing { manifest: launch.manifest, verb: ZBKCI_VERB_NEXTEST.to_string(), rest })
@@ -166,6 +175,7 @@ pub fn bkci_listing(
 /// a parse over the output of a refused invocation would report an empty suite.
 pub fn bkci_recite(
     repository: &std::path::Path,
+    weaned: &std::path::Path,
     collar: &bkcr_Collar,
     listing: &bkci_Listing,
 ) -> Result<Vec<String>, String> {
@@ -173,13 +183,13 @@ pub fn bkci_recite(
     // does at the run and at the converge: a runner asked to name its hurdles
     // builds the suite first, and a tenant's build script reading the position
     // dies at the listing exactly as it dies at the launch. One reading, stated
-    // by every door holding the collar (BKSNC-Kennelcraft.adoc "Currency by
-    // git position"); the walk and its placement are the run's, at
-    // `bkcm_mush::bkcm_run`, and not restated here.
+    // by every door holding the collar; the walk and its placement are the
+    // run's, at `bkcm_mush::bkcm_run`, and not restated here.
     let seat = crate::bkce_election::bkce_seat(repository, collar.bkcr_field("BKRR_ROOTS"))?;
 
     let recall = bkcl_leash::bkcl_recall(
         repository,
+        weaned,
         &listing.manifest,
         &listing.verb,
         &listing.rest,

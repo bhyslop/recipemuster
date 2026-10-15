@@ -22,8 +22,7 @@
 # The kennel's own suite is a suite collar like any crate's, and one day the
 # kennel will launch it. But A KENNEL THAT IS BROKEN CANNOT LAUNCH THE HURDLES
 # THAT WOULD SAY SO, which is the whole reason this door exists: it runs them by
-# hand, through the toolchain fence directly, with no kennel door in its path
-# (BKSLR-Lure.adoc "The Kennelman").
+# hand, through the toolchain fence directly, with no kennel door in its path.
 #
 # It is the founding pace's test door and it STAYS after the founding. That is
 # not a transitional note — it is permanently how the kennel is proven when the
@@ -37,7 +36,7 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBKCK_SOURCED:-}" || return 0
+test -z "${ZBKCK_SOURCED:-}" || buc_die_now "Module bkck multiply sourced - check sourcing hierarchy"
 ZBKCK_SOURCED=1
 
 zbkck_kindle() {
@@ -53,16 +52,15 @@ zbkck_kindle() {
   readonly ZBKCK_CRATE_DIR="${ZBKCK_KIT_DIR}/bk0"
   readonly ZBKCK_MANIFEST="${ZBKCK_CRATE_DIR}/Cargo.toml"
 
-  # The regime reader, a crate of its own standing beside the kennel
-  # (BKSNC-Kennelcraft.adoc "The Rust Backend"). Its hurdles run under this
-  # door and not under the kennel's, for the same reason the kennel's own do: a
-  # reader whose only proof ran through its first consumer could not be the crate
-  # the estate's other readers converge onto.
+  # The floor crate, standing beside the kennel and carrying the regime reader.
+  # Its hurdles run under this door and not under the kennel's, for the same
+  # reason the kennel's own do: a floor whose only proof ran through its first
+  # consumer could not be the crate the estate's other crates stand on.
   #
   # IT STATES NO PIN OF ITS OWN, and that is the leash's law rather than an
   # omission - the nearest pin at or above a crate's directory answers for it, so
   # the kit's own pin governs both crates and a bump moves them together.
-  readonly ZBKCK_READER_MANIFEST="${ZBKCK_CRATE_DIR}/bkl/Cargo.toml"
+  readonly ZBKCK_READER_MANIFEST="${ZBKCK_CRATE_DIR}/bkp/Cargo.toml"
 
   # The substrate's own suite, which runs under this door for the same reason the
   # two above do, carried one step further. A broken kennel cannot launch the
@@ -75,12 +73,11 @@ zbkck_kindle() {
   readonly ZBKCK_PIN_FILE="${ZBKCK_CRATE_DIR}/rust-toolchain.toml"
 
   # The composing surface, and the name of the declaration standing in it. The
-  # kennelman verifies the required toolchains before it runs a hurdle
-  # (BKSLR-Lure.adoc "The Kennelman"), and it READS that requirement rather than
-  # restating it: a second list here would be free to drift from the one the
-  # suite asserts against, and the drift would present as a station this door
-  # cleared and the hurdles then failed - which is the reading this check exists
-  # to move earlier.
+  # kennelman verifies the required toolchains before it runs a hurdle, and it
+  # READS that requirement rather than restating it: a second list here would be
+  # free to drift from the one the suite asserts against, and the drift would
+  # present as a station this door cleared and the hurdles then failed - which
+  # is the reading this check exists to move earlier.
   readonly ZBKCK_SURFACE="${ZBKCK_CRATE_DIR}/src/bktu_lure.rs"
   readonly ZBKCK_TOOLCHAINS_CONST="BKTU_REQUIRED_TOOLCHAINS"
 
@@ -101,11 +98,33 @@ zbkck_kindle() {
 # reading one, which is indistinguishable on the console from a station that
 # holds everything.
 zbkck_required_toolchains_capture() {
-  local z_declaration=""
-  z_declaration=$(grep -m1 "^pub const ${ZBKCK_TOOLCHAINS_CONST}" "${ZBKCK_SURFACE}") || return 1
+  test -f "${ZBKCK_SURFACE}" || return 1
 
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${ZBKCK_SURFACE}"
+
+  # The first line that opens the declaration, matched from the line's start.
+  local z_declaration=""
+  local z_i
+  for z_i in "${!z_lines[@]}"; do
+    case "${z_lines[${z_i}]}" in
+      "pub const ${ZBKCK_TOOLCHAINS_CONST}"*) z_declaration="${z_lines[${z_i}]}"; break ;;
+    esac
+  done
+  test -n "${z_declaration}" || return 1
+
+  # Each quoted literal on the declaration line, in order, walked off its front.
+  local -r z_quoted_pattern='"([^"]*)"(.*)'
+  local -r z_newline=$'\n'
+  local z_rest="${z_declaration}"
   local z_channels=""
-  z_channels=$(grep -o '"[^"]*"' <<< "${z_declaration}" | tr -d '"') || return 1
+  while [[ "${z_rest}" =~ ${z_quoted_pattern} ]]; do
+    z_channels="${z_channels:+${z_channels}${z_newline}}${BASH_REMATCH[1]}"
+    z_rest="${BASH_REMATCH[2]}"
+  done
 
   test -n "${z_channels}" || return 1
 
@@ -121,26 +140,35 @@ zbkck_required_toolchains_capture() {
 # demonstrate the property at all.
 #
 # IT REFUSES AND DOES NOT FETCH, which is the envelope's routine-download
-# election carried through (BKSNC-Kennelcraft.adoc "Settling Register"). The
-# converge is named so the refusal is a remedy rather than a report.
+# election carried through. The converge is named so the refusal is a remedy
+# rather than a report.
 zbkck_toolchain_fence_or_die() {
   local z_required=""
   z_required=$(zbkck_required_toolchains_capture) \
     || buc_die_now "Could not read ${ZBKCK_TOOLCHAINS_CONST} from ${ZBKCK_SURFACE} - the kennelman reads the hurdles' own declaration rather than holding a list of its own, and an unread requirement would clear every station without asking one"
 
   local z_held=""
+  local z_held_status=0
   z_held=$(rustup toolchain list) \
-    || buc_die_now "Could not ask rustup what the tackroom at ${RUSTUP_HOME:-<unset>} holds"
+    || z_held_status=$?
+  test "${z_held_status}" -eq 0 \
+    || buc_die_now "Could not ask rustup what the tackroom at ${RUSTUP_HOME:-<unset>} holds (exit ${z_held_status})"
+
+  # A channel name carries no whitespace, so the one-per-line requirement splits
+  # on one line; each is matched against rustup's listing as a fixed substring.
+  local -r z_newline=$'\n'
+  local z_channels=()
+  read -r -a z_channels <<< "${z_required//"${z_newline}"/ }" \
+    || buc_die_now "Could not split the required toolchains read from ${ZBKCK_SURFACE}"
 
   local z_missing=""
-  local z_channel=""
-  while IFS= read -r z_channel; do
-    test -n "${z_channel}" || continue
-    if grep -qF -- "${z_channel}" <<< "${z_held}"; then
-      continue
-    fi
-    z_missing="${z_missing:+${z_missing} }${z_channel}"
-  done <<< "${z_required}"
+  local z_c
+  for z_c in "${!z_channels[@]}"; do
+    case "${z_held}" in
+      *"${z_channels[${z_c}]}"*) continue ;;
+    esac
+    z_missing="${z_missing:+${z_missing} }${z_channels[${z_c}]}"
+  done
 
   test -z "${z_missing}" \
     || buc_die_now "The station is missing the toolchain(s) the kennel's hurdles require: ${z_missing} - the converge is RUSTUP_HOME=${RUSTUP_HOME:-<tackroom>/rustup} rustup toolchain install <channel> --profile minimal"
@@ -161,18 +189,21 @@ zbkck_toolchain_fence_or_die() {
 # the behavior the kennel's own selection pipeline exists to correct and which
 # this door, standing outside the kennel, deliberately does not correct.
 zbkck_hurdles_or_die() {
-  local z_manifest="$1"
-  local z_whose="$2"
-  local z_channel="$3"
-  local z_filter="${4:-}"
+  local -r z_manifest="${1}"
+  local -r z_whose="${2}"
+  local -r z_channel="${3}"
+  local -r z_filter="${4:-}"
 
+  local z_cargo_status=0
   if test -n "${z_filter}"; then
     cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked -- "${z_filter}" \
-      || buc_die_now "${z_whose} hurdles did not all clear"
+      || z_cargo_status=$?
   else
     cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked \
-      || buc_die_now "${z_whose} hurdles did not all clear"
+      || z_cargo_status=$?
   fi
+  test "${z_cargo_status}" -eq 0 \
+    || buc_die_now "${z_whose} hurdles did not all clear (exit ${z_cargo_status})"
 }
 
 ######################################################################

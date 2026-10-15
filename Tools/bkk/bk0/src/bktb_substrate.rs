@@ -23,10 +23,9 @@
 //! behaviour is the next pace's, and it builds on this.
 //!
 //! OBSERVED FROM OUTSIDE THE SHELL. The exit code and both streams are read in
-//! this process, which no part of the dispatch can reach — the posture law
-//! (BKSOB-Obedience.adoc "Observation Posture"), whose whole point is that a
-//! harness sharing a failure domain with the thing under test reports silence as
-//! success.
+//! this process, which no part of the dispatch can reach — the posture law,
+//! whose whole point is that a harness sharing a failure domain with the thing
+//! under test reports silence as success.
 //!
 //! THE EXIT CODE IS A DISTINCTIVE ONE, and deliberately not zero. A door that
 //! exited zero whatever its coordinator did would clear a success assertion, so
@@ -37,8 +36,8 @@ use std::path::PathBuf;
 
 use crate::bktu_lure::bktu_Lure;
 use crate::bktu_lure::BKTU_COLOPHON;
-use crate::bkg_breviary::bkg_burc_loosebox_root_dir_base;
-use crate::bkg_breviary::BKG_BURC_LOOSEBOX_ROOT_DIR_BASE;
+use crate::bkg_breviary::bkg_bus_loosebox_base;
+use crate::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
 
 /// What the seat's coordinator writes to stdout, ahead of the colophon it was
 /// handed.
@@ -62,7 +61,7 @@ const BKTB_TRANSCRIPT: &str = "transcript:";
 
 /// The line the dispatch announces this checkout's loosebox on.
 const BKTB_LOOSEBOX: &str = concat!(
-    bkg_burc_loosebox_root_dir_base!(),
+    bkg_bus_loosebox_base!(),
     ":", //
 );
 
@@ -71,7 +70,7 @@ const BKTB_OUTPUT: &str = "output dir:";
 
 /// The loosebox root the composed seat's own regime file declares, relative to
 /// the seat's root exactly as its temp and output roots are.
-const BKTB_LOOSEBOX_ROOT: &str = BKG_BURC_LOOSEBOX_ROOT_DIR_BASE;
+const BKTB_LOOSEBOX_ROOT: &str = BKG_BUS_LOOSEBOX_BASE;
 
 #[test]
 fn bktb_the_substrate_dispatches_in_a_composed_seat() {
@@ -196,7 +195,7 @@ fn bktb_the_substrate_composes_a_loosebox_keyed_on_the_seat() {
         announced,
         root.join(BKTB_LOOSEBOX_ROOT).join(key),
         "the {} stands beneath the declared root under the seat's own dirname: {}",
-        BKG_BURC_LOOSEBOX_ROOT_DIR_BASE,
+        BKG_BUS_LOOSEBOX_BASE,
         said, //
     );
 
@@ -206,7 +205,7 @@ fn bktb_the_substrate_composes_a_loosebox_keyed_on_the_seat() {
     assert!(
         announced.is_dir(),
         "the dispatch makes the {} it announces: {}",
-        BKG_BURC_LOOSEBOX_ROOT_DIR_BASE,
+        BKG_BUS_LOOSEBOX_BASE,
         announced.display(), //
     );
 }
@@ -240,11 +239,11 @@ fn zbktb_posed_parent_regime(lure: &bktu_Lure) -> String {
         .replace(
             &format!(
                 "BURC_LOOSEBOX_ROOT_DIR={}\n",
-                BKG_BURC_LOOSEBOX_ROOT_DIR_BASE
+                BKG_BUS_LOOSEBOX_BASE
             ),
             &format!(
                 "BURC_LOOSEBOX_ROOT_DIR=../{}-lure-parent\n",
-                BKG_BURC_LOOSEBOX_ROOT_DIR_BASE
+                BKG_BUS_LOOSEBOX_BASE
             ),
         );
 

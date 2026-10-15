@@ -1,0 +1,61 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# THE HELLO EXEMPLAR — the smallest python project the kennel carries from its
+# first lock to a green suite, and the one whose app collar shows an entry
+# point.
+#
+# Read it beside its two collars, bkepn_app and bkepn_suite, in the kit's brood.
+# What the kennel owns is stated to uv on every invocation and appears nowhere
+# here: this file carries only what is the project's own.
+
+[project]
+name = "bkep"
+version = "0.0.1"
+
+# NARROWED TO THE PIN'S MINOR. A universal lock records every wheel each
+# platform and each interpreter the range admits could install, so an open range
+# carries wheels no station of this project will ever take.
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+# THE ENTRY POINT THE APP COLLAR NAMES. Its key is the collar's BKRP_BYNAME, and
+# declaring one is what obliges the project to be built rather than merely
+# resolved: a script is installed only from a built project.
+[project.scripts]
+bkep = "bkep0.bkepa_hello:bkepa_main"
+
+# The suite's runner, in the group uv installs by default, so the environment
+# the converge sites can run it.
+[dependency-groups]
+dev = ["pytest"]
+
+# UV'S OWN BACKEND, in the range the pinned uv carries built in. A uv inside
+# that range builds the project with its own copy and fetches no backend at all.
+[build-system]
+requires = ["uv_build>=0.11.0,<0.12.0"]
+build-backend = "uv_build"
+
+# THE PACKAGE IS THE FAMILY'S ADDRESS, standing at the project root.
+[tool.uv.build-backend]
+module-name = "bkep0"
+module-root = ""
+
+# THE RUNNER IS CONFIGURED TO THE HOUSE NAMES, rather than the names bent to its
+# default test_ shape.
+[tool.pytest.ini_options]
+testpaths = ["bkep0"]
+python_files = ["bkept_*.py"]
+python_functions = ["bkept_*"]

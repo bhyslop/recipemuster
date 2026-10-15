@@ -21,9 +21,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
-source "${BURD_BUK_DIR}/bubc_constants.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
@@ -33,7 +32,7 @@ bux_delay() {
   buc_doc_shown || return 0
 
   buc_step "Delay: sleeping 20 seconds"
-  sleep 20
+  sleep 20 || buc_die_now "sleep failed"
   buc_step "Delay: complete"
 }
 
@@ -54,6 +53,8 @@ bux_band_chain() {
 zbux_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
+
+  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
 }
 
 buc_execute bux_ "BUK Test Fixtures" zbux_furnish "$@"

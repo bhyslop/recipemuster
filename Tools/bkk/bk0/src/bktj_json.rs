@@ -28,7 +28,7 @@ fn bktj_a_cargo_shaped_answer_reads_back() {
     let answer = bkcj_read(
         r#"{"version":1,"packages":[
              {"name":"bkk","source":null,"manifest_path":"/x/Tools/bkk/bk0/Cargo.toml",
-              "dependencies":[{"name":"bkl","kind":null}]},
+              "dependencies":[{"name":"bkp","kind":null}]},
              {"name":"serde","source":"registry+https://example.invalid",
               "manifest_path":"/reg/serde/Cargo.toml","dependencies":[]}]}"#,
     )
@@ -53,7 +53,7 @@ fn bktj_a_cargo_shaped_answer_reads_back() {
             .bkcj_field("name")
             .unwrap()
             .bkcj_string(),
-        Some("bkl")
+        Some("bkp")
     );
 
     assert!(

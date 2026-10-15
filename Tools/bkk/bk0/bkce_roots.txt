@@ -41,7 +41,7 @@ Tools/bkk/bk0/rust-toolchain.toml
 # election that did not name it would leave a binary reading as CURRENT after the
 # one place the catena law is honored had changed under it. Its manifests ride
 # with it, the directory being named whole.
-Tools/bkk/bk0/bkl
+Tools/bkk/bk0/bkp
 
 # And this file itself: a change to what counts as source moves the position it
 # is measured over, so an election that did not elect itself could be narrowed or
@@ -73,7 +73,7 @@ Tools/bkk/bk0/bkce_roots.txt
 # are: they are declared `#[cfg(test)]` and compile only under test, so they
 # cannot change the built binary. The suite collar elects the reader WHOLE,
 # because the suite is compiled from them.
-:(exclude)Tools/bkk/bk0/bkl/src/bklt*
+:(exclude)Tools/bkk/bk0/bkp/src/bkpt*
 
 # WHAT IS OUT ENTIRELY. The bash surface — the whistle, the workbench, the zipper
 # — is deliberately absent. None of it is compiled into the binary, so a whistle

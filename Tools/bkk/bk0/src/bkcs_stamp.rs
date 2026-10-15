@@ -18,8 +18,7 @@
 //! This is the answer to a question only the artifact can be asked. An mtime
 //! comparison answers "should I rebuild before I exec", which is a launcher's
 //! question about a file it is about to run; a running process asking whether it
-//! is still current can only carry the answer with it
-//! (BKSNC-Kennelcraft.adoc "Currency by git position").
+//! is still current can only carry the answer with it.
 //!
 //! ONE POSITION, NOT TWO, AND IT IS THE SEAT'S. A seat-built binary has exactly
 //! one consumer — the whistle that built it — asking exactly one question: is
@@ -31,7 +30,7 @@
 //! carries, struck at release for a reader that holds a record of landings rather
 //! than the repository; it arrives when such a reader exists, and none does at
 //! MVP, the kit being delivered as source. The seat side of the comparison
-//! BKSNC "The Binary Election" describes is what this carries.
+//! is what this carries.
 //!
 //! THE POSITION IS WALKED OVER THE ELECTION, never bare HEAD. What stales an
 //! artifact is a change to what it is made from, which is what the election

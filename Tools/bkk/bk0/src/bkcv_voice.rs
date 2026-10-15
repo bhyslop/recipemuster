@@ -13,8 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //! The voice — the tenant's streams consumed live and rendered as the door's
-//! own: the heartbeat, one line per failing case, and the verdict
-//! (BKSNC-Kennelcraft.adoc "Bounded output").
+//! own: the heartbeat, one line per failing case, and the verdict.
 //!
 //! TWO DESTINATIONS, AND THE DIAL MOVES ONLY ONE. What goes onto the console is
 //! the voice: a liveness mark while the run proceeds, a bounded line per
@@ -37,8 +36,7 @@
 //! changes between versions, and the standard harness prints one summary PER
 //! TEST BINARY — so a door reading a summary for its verdict would report the
 //! last binary's opinion of the whole suite. The exit code is the verdict
-//! because the kennel owns the invocation and no pipe stands in the way
-//! (BKSNC-Kennelcraft.adoc "Exit codes that never lie").
+//! because the kennel owns the invocation and no pipe stands in the way.
 
 use crate::bkco_output;
 use std::io::Write;
@@ -67,8 +65,24 @@ const ZBKCV_EPHEMERAL: &str = "BURD_EPHEMERAL_DIR";
 /// The marker whose line the normalized member drops whole.
 const ZBKCV_VOLATILE: &str = "VOLATILE";
 
+/// The substrate's declaration that the coordinator writes its own record —
+/// the mode a kennel tabtarget declares. NEVER READ: the kennel never consults
+/// it, the three composed names being the mode's own evidence. It stands as the
+/// census's seat for the spelling the substrate's log family law faces, and
+/// the allow rides it alone
+/// so a genuinely dead constant anywhere else still bars the build.
+#[allow(dead_code)]
+const ZBKCV_AMANUENSIS: &str = "BURD_AMANUENSIS";
+
 /// The digest line that closes the historical member.
 const ZBKCV_CHECKSUM_LEAD: &str = "Same log checksum: ";
+
+/// Whether this process has already opened the log family once.
+///
+/// PROCESS-WIDE AND NOT PER DOOR, for the reason the open states: what must
+/// happen once is the TRUNCATION of a family the dispatch composed for the
+/// whole invocation, and only the process knows whether that has happened yet.
+static ZBKCV_OPENED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
 /// How often the voice marks that it is alive, absent anything to say.
 pub const BKCV_CADENCE: std::time::Duration = std::time::Duration::from_secs(10);
@@ -199,7 +213,7 @@ fn zbkcv_nextest_case(line: &str) -> Option<bkcv_Case> {
 /// case's full name, an ellipsis, and an outcome word:
 ///
 /// ```text
-/// test bujw_the_whistle_refuses_an_uncommitted_seat_and_names_the_remedy ... ok
+/// test butw_the_whistle_refuses_an_uncommitted_seat_and_names_the_remedy ... ok
 /// ```
 ///
 /// THE SUMMARY LINE WEARS THE SAME FIRST WORD and must not be read as a case:
@@ -629,6 +643,10 @@ impl bkcv_Record {
         let hist = std::env::var(BKCV_LOG_HIST_VAR).ok().filter(|path| !path.trim().is_empty());
 
         let (last, same, hist) = match (last, same, hist) {
+            // NO NAMES AT ALL IS NO RECORD, inside a dispatch or outside one.
+            // The mode is a tabtarget's declaration and no caller's: a child
+            // launched bare — a release's derby, a hurdle's spawn — keeps no
+            // record, and its caller reads its passing result and its voice.
             (None, None, None) => return Ok(None),
             (Some(last), Some(same), Some(hist)) => (last, same, hist),
             (last, same, hist) => {
@@ -652,23 +670,62 @@ impl bkcv_Record {
             }
         };
 
+        // THE FIRST OPEN OF A PROCESS TRUNCATES AND EVERY LATER ONE APPENDS,
+        // which is what makes a MULTI-COURSE door's record whole. The three
+        // names are the dispatch's, composed once for the whole invocation, so
+        // a door opening a record per course was re-truncating the one file
+        // family at every course and leaving the run's record holding whichever
+        // course happened to be last. A derby across ten courses banked one of
+        // them, and the nine it threw away were the nine a reader would be
+        // looking for.
+        //
+        // A SINGLE-COURSE DOOR IS UNCHANGED BY THIS, which is why the latch is
+        // per PROCESS rather than per door: its one open is the first open, so
+        // it truncates exactly as before. What the latch parts is not two kinds
+        // of door but the first open from the rest, and no door has to declare
+        // which it is.
+        let reopening = ZBKCV_OPENED.swap(true, std::sync::atomic::Ordering::SeqCst);
+
+        bkcv_Record::zbkcv_at(
+            &last,
+            &same,
+            &hist,
+            std::env::var(BKCV_TEMP_DIR_VAR).ok().filter(|dir| !dir.trim().is_empty()),
+            reopening,
+            invocation,
+        )
+        .map(Some)
+    }
+
+    /// Open the family at the three paths given, truncating unless reopening.
+    ///
+    /// THE OPEN ABOVE READS THE ENVIRONMENT AND THIS DOES NOT, which is what
+    /// lets a hurdle stand a record without writing a process-wide variable
+    /// every other hurdle thread would read.
+    pub(crate) fn zbkcv_at(
+        last: &str,
+        same: &str,
+        hist: &str,
+        ephemeral: Option<String>,
+        reopening: bool,
+        invocation: &str,
+    ) -> Result<bkcv_Record, String> {
         let open = |path: &str| -> Result<std::fs::File, String> {
             std::fs::OpenOptions::new()
                 .create(true)
                 .write(true)
-                .truncate(true)
+                .truncate(!reopening)
+                .append(reopening)
                 .open(path)
                 .map_err(|err| format!("could not open the log member {}: {}", path, err))
         };
 
         let mut record = bkcv_Record {
-            last: open(&last)?,
-            same: open(&same)?,
-            hist: open(&hist)?,
-            same_path: std::path::PathBuf::from(&same),
-            ephemeral: std::env::var(BKCV_TEMP_DIR_VAR)
-                .ok()
-                .filter(|dir| !dir.trim().is_empty()),
+            last: open(last)?,
+            same: open(same)?,
+            hist: open(hist)?,
+            same_path: std::path::PathBuf::from(same),
+            ephemeral,
             offset: zbkcv_offset(),
         };
 
@@ -686,7 +743,7 @@ impl bkcv_Record {
         let context = std::env::var(BKCV_GIT_CONTEXT_VAR).unwrap_or_else(|_| "git-unavailable".to_string());
         record.zbkcv_hist_only(&format!("Git context: {}", context))?;
 
-        Ok(Some(record))
+        Ok(record)
     }
 
     /// The historical member's path, for the failure lines that send a reader to
@@ -875,17 +932,27 @@ pub struct bkcv_Voice {
 impl bkcv_Voice {
     /// Open the voice for one launch, writing the invocation into the record.
     pub fn bkcv_open(tongue: &str, invocation: &str) -> Result<bkcv_Voice, String> {
-        Ok(bkcv_Voice {
+        Ok(bkcv_Voice::zbkcv_with(
+            tongue,
+            bkcv_Record::bkcv_open(invocation)?,
+            bkcv_Record::bkcv_hist_path(),
+        ))
+    }
+
+    /// The voice over a record already opened, and the path a failure line
+    /// sends its reader to.
+    pub(crate) fn zbkcv_with(tongue: &str, record: Option<bkcv_Record>, hist: Option<String>) -> bkcv_Voice {
+        bkcv_Voice {
             tongue: tongue.to_string(),
-            record: bkcv_Record::bkcv_open(invocation)?,
-            hist: bkcv_Record::bkcv_hist_path(),
+            record,
+            hist,
             verbose: bkco_output::bkco_verbose(),
             tally: bkcv_Tally::default(),
             counted: std::collections::BTreeSet::new(),
             began: std::time::Instant::now(),
             spoke: std::time::Instant::now(),
             cadence: BKCV_CADENCE,
-        })
+        }
     }
 
     /// Write one of the door's own marks into the record, saying nothing on the
@@ -997,41 +1064,29 @@ impl bkcv_Voice {
         self.spoke = std::time::Instant::now();
     }
 
-    /// Close the voice: the verdict onto the console, the record's digest onto
-    /// the historical member.
+    /// Close the record over a run the leash could not attend, answering the
+    /// refusal for the door to report.
     ///
-    /// THE VERDICT IS THE EXIT CODE'S AND THE COUNTS ARE THE KENNEL'S. The
-    /// exit code decides green or red, because the kennel owns the invocation
-    /// and no pipe stands in the way; the counts are what this door itself saw
-    /// reported, never a summary read back off the child.
-    pub fn bkcv_close(mut self, code: Option<i32>) -> Result<bkcv_Tally, String> {
-        let landed = code == Some(0);
-
-        let verdict = format!(
-            "{}: {} ran, {} passed, {} failed",
-            if landed { "green" } else { "RED" },
-            self.tally.ran,
-            self.tally.passed,
-            self.tally.failed.len()
-        );
-
-        // THE COUNTS AND THE EXIT CODE CAN DISAGREE, AND THE DOOR SAYS SO RATHER
-        // THAN CHOOSING. A red exit with no failing case recognized is a
-        // compile that died, a harness that refused, or a membrane that has
-        // fallen behind its runner — three different things, none of which the
-        // kennel may quietly render as a green suite. The path is what parts
-        // them, and a reader is sent to it.
-        let verdict = if !landed && self.tally.failed.is_empty() {
-            match self.hist.as_deref() {
-                Some(path) => format!(
-                    "{} — the runner refused or died before reporting a case; the depth is at {}",
-                    verdict, path
-                ),
-                None => format!("{} — the runner refused or died before reporting a case", verdict),
+    /// THE RECORD IS CLOSED EVEN HERE. What the child said before the leash
+    /// lost it is already written, and a family left open carries no digest and
+    /// no line saying why it stops. The console is the door's, which reports the
+    /// refusal itself.
+    pub fn bkcv_abandon(mut self, refusal: String) -> String {
+        if let Some(mut record) = self.record.take() {
+            let closed = record
+                .bkcv_write(&format!("RED: the run could not be attended: {}", refusal))
+                .and_then(|()| record.bkcv_close());
+            if let Err(err) = closed {
+                return format!("{}; the record could not be closed: {}", refusal, err);
             }
-        } else {
-            verdict
-        };
+        }
+        refusal
+    }
+
+    /// Close the voice: the verdict onto the console, the record's digest onto
+    /// the historical member. The verdict's own law stands at `zbkcv_verdict`.
+    pub fn bkcv_close(mut self, run: &crate::bkcl_leash::bkcl_Run) -> Result<bkcv_Tally, String> {
+        let verdict = zbkcv_verdict(&self.tally, run.code, run.cut.as_deref(), self.hist.as_deref());
 
         bkco_output::bkco_voice(&verdict);
 
@@ -1043,6 +1098,71 @@ impl bkcv_Voice {
         }
 
         Ok(self.tally)
+    }
+}
+
+/// How a run ended short of finishing, in the words a red line carries, or
+/// `None` for a runner that finished — green, or red with its failing cases
+/// reported.
+///
+/// A RUN THAT DID NOT FINISH CARRIES NO COUNT AS ITS OWN. What the kennel heard
+/// before the end is said as heard, and never as how many passed: forty cases
+/// heard passing ahead of a runner that died are forty cases nobody knows the
+/// rest of, and a line reading forty passed reads as a suite that did.
+///
+/// THE EXIT IS NAMED, because it is the one fact that parts a compile that
+/// refused from a process that ended itself inside its hold, and a reader
+/// without it digs a log to learn which. A red exit with no failing case
+/// recognized may still be a membrane fallen behind its runner; the depth the
+/// verdict sends its reader to is what settles that.
+pub fn bkcv_unfinished(code: Option<i32>, cut: Option<&str>, tally: &bkcv_Tally) -> Option<String> {
+    if let Some(cut) = cut {
+        return Some(format!(
+            "the stream was cut before the runner finished ({}), {} case(s) heard ahead of the cut",
+            cut, tally.ran
+        ));
+    }
+
+    match code {
+        None => Some(format!(
+            "a signal took the runner, which left no exit code, {} case(s) heard before it ended",
+            tally.ran
+        )),
+        Some(code) if code != 0 && tally.failed.is_empty() => Some(format!(
+            "the runner ended on exit {} without reporting a failing case — it refused or died — {} \
+             case(s) heard before it ended",
+            code, tally.ran
+        )),
+        Some(_) => None,
+    }
+}
+
+/// The verdict line a launch closes on, over what the kennel counted and how the
+/// child ended.
+///
+/// THE VERDICT IS THE EXIT CODE'S AND THE COUNTS ARE THE KENNEL'S. The exit
+/// code decides green or red, because the kennel owns the invocation and no
+/// pipe stands in the way; the counts are what this door itself saw reported,
+/// never a summary read back off the child. A CUT STREAM IS RED OVER A CLEAN
+/// EXIT, since the counts it would print were taken over half a run.
+pub(crate) fn zbkcv_verdict(
+    tally: &bkcv_Tally,
+    code: Option<i32>,
+    cut: Option<&str>,
+    hist: Option<&str>,
+) -> String {
+    match bkcv_unfinished(code, cut, tally) {
+        Some(clause) => match hist {
+            Some(path) => format!("RED: {}; the depth is at {}", clause, path),
+            None => format!("RED: {}", clause),
+        },
+        None => format!(
+            "{}: {} ran, {} passed, {} failed",
+            if code == Some(0) { "green" } else { "RED" },
+            tally.ran,
+            tally.passed,
+            tally.failed.len()
+        ),
     }
 }
 
