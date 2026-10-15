@@ -40,6 +40,7 @@ zrbq_furnish() {
   source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
   source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
   source "${z_rbk_kit_dir}/rbrn_regime.sh" || buc_die_now "Failed to source rbrn_regime.sh"
   source "${z_rbk_kit_dir}/rbq_qualify.sh" || buc_die_now "Failed to source rbq_qualify.sh"
 

@@ -450,9 +450,13 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
     let buv = crate::rbtdrx_platform::rbtdrx_native_to_posix(&root.join(RBTDRF_BUV_VALIDATION));
     let rbk = crate::rbtdrx_platform::rbtdrx_native_to_posix(&root.join(RBTDRF_RBK_ROOT));
     let moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR;
+    // The rbrf and rbrn kindles name their temp paths off BURD_TEMP_DIR, which
+    // no dispatch supplies here, so the case's own scratch directory stands in.
+    let dir_p = crate::rbtdrx_platform::rbtdrx_native_to_posix(dir);
 
     let script = format!(
         "set -euo pipefail\n\
+         export BURD_TEMP_DIR='{dir_p}'\n\
          source '{buv}'\n\
          source '{rbk}/rbcc_constants.sh'\n\
          source '{rbk}/rblm_proscription.sh'\n\
@@ -489,6 +493,7 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
          rblm_emit_homes\n\
          echo '{mark_hardpoints}'\n\
          rblm_emit_hardpoints\n",
+        dir_p = dir_p,
         buv = buv,
         rbk = rbk,
         moorings = moorings,

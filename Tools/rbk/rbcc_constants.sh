@@ -28,13 +28,13 @@ ZRBCC_SOURCED=1
 # Kit directory — source-time self-location. rbcc lives at the RBK kit root,
 # so its own directory IS the kit dir. No launcher environment dependency;
 # available the instant this file is sourced (canon: rbtd/rbte_cli.sh).
-readonly RBCC_KIT_DIR="${BASH_SOURCE[0]%/*}"
+readonly RBCC_kit_dir="${BASH_SOURCE[0]%/*}"
 
 # Generated zipper-derived artifacts — the theurge build materializes both
 # (write-on-change), rbq's gates verify them. Absolute, composed from the
 # readonly kit dir (source-time, no kindle dependency).
-readonly RBCC_rbtdgc_consts_file="${RBCC_KIT_DIR}/rbtd/src/rbtdgc_consts.rs"
-readonly RBCC_tabtarget_context_file="${RBCC_KIT_DIR}/claude-rbk-tabtarget-context.md"
+readonly RBCC_rbtdgc_consts_file="${RBCC_kit_dir}/rbtd/src/rbtdgc_consts.rs"
+readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/claude-rbk-tabtarget-context.md"
 
 # ── Moorings inventory constants ──────────────────────────────────────────
 # Moorings-relative path values. Every consumer reads these names directly
@@ -57,7 +57,7 @@ readonly RBCC_nameplate_sprue="rben_"
 # per standing foedus. The single home for "where the foedera live": the
 # library DIRECTORY is a distinct fact from any one foedus's rbrf.env, and the
 # enumeration sites (canvass, the foedus-identity validator) need it as such.
-# rbcc_rbrf_file_capture below composes the per-foedus file off this same root, so
+# rbcc_rbrf_file_flint_capture below composes the per-foedus file off this same root, so
 # the moorings/foedera join lives here once and nowhere else.
 readonly RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
 readonly RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
@@ -74,7 +74,7 @@ readonly RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # rbef_ subdirectory per standing foedus; RBRR_ACTIVE_FOEDUS names the
 # active one. That selector is only populated once rbrr.env is sourced during
 # furnish — AFTER this module — so the path cannot be constant-folded here.
-# rbcc_rbrf_file_capture (below) composes it post-rbrr; every consumer sources
+# rbcc_rbrf_file_flint_capture (below) composes it post-rbrr; every consumer sources
 # rbrf.env only after sourcing rbrr.env, so the selector is live at the call
 # site. No-repo-regime contexts never call the resolver, so nothing breaks
 # where RBRR_ACTIVE_FOEDUS is unset.
@@ -238,33 +238,37 @@ readonly RBCC_container_sentry="sentry"
 readonly RBCC_label_provenance="rbob.provenance"
 
 ######################################################################
-# Federation regime resolver (rbcc_rbrf_file_capture)
+# Federation regime resolver (rbcc_rbrf_file_flint_capture)
 
-# rbcc_rbrf_file_capture — echo the path to a foedus's rbrf.env in the moorings
-# foedera library. With no argument it resolves the ACTIVE foedus from the
-# RBRR_ACTIVE_FOEDUS selector (the runtime accessor path); a foedus name may be
-# passed explicitly (the Entra guide names the interactive rbef_entrada it
-# teaches). Returns nonzero without emitting when no foedus resolves — the
-# caller's `source "$(...)" || buc_die_now` surfaces it. The selector is only live
-# after rbrr.env is sourced, which every runtime consumer does before calling
-# this; a no-repo-regime context simply never calls it.
-rbcc_rbrf_file_capture() {
-  local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
+# rbcc_rbrf_file_flint_capture foedus — echo the path to that foedus's rbrf.env
+# in the moorings foedera library. A runtime caller passes the
+# RBRR_ACTIVE_FOEDUS selector, live once rbrr.env is sourced; a caller that
+# names its foedus passes the name (the Entra guide names the interactive
+# rbef_entrada it teaches). Returns nonzero without emitting when the name is
+# empty, for the caller's guard to surface.
+rbcc_rbrf_file_flint_capture() {
+  local -r z_foedus="${1:-}"
   test -n "${z_foedus}" || return 1
   printf '%s\n' "${RBCC_foedera_dir}/${z_foedus}/rbrf.env"
 }
 
-# rbcc_source_active_rbrf — resolve the ACTIVE foedus's rbrf.env from the
-# selector and source it, dying loud on an unset selector or an unreadable
-# file. The single home for what every runtime consumer did as the former
-# `source "${RBCC_rbrf_file}"`: a furnish sources it after sourcing rbrr.env,
-# so RBRR_ACTIVE_FOEDUS is live at the call. Sourcing here lands the RBRF_*
-# fields in the caller's global scope exactly as an inline source would (bare
-# assignments in the sourced file, sourced within a function, remain global).
-rbcc_source_active_rbrf() {
+# rbcc_source_active_rbrf_flint foedus — resolve the active foedus's rbrf.env
+# and source it, dying loud on an empty selector or an unreadable file. The
+# single home for what every runtime consumer did as the former
+# `source "${RBCC_rbrf_file}"`: a furnish calls it after sourcing rbrr.env,
+# passing RBRR_ACTIVE_FOEDUS. Sourcing here lands the RBRF_* fields in the
+# caller's global scope exactly as an inline source would (bare assignments in
+# the sourced file, sourced within a function, remain global).
+rbcc_source_active_rbrf_flint() {
+  local -r z_foedus="${1:-}"
+
+  buc_doc_brief "Source the active foedus's federation regime file"
+  buc_doc_param "foedus" "The active foedus, as RBRR_ACTIVE_FOEDUS names it"
+  buc_doc_shown || return 0
+
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
-  source "${z_rbrf}"               || buc_die_now "Failed to source the active foedus RBRF: ${z_rbrf}"
+  z_rbrf=$(rbcc_rbrf_file_flint_capture "${z_foedus}") || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  source "${z_rbrf}" || buc_die_now "Failed to source the active foedus RBRF: ${z_rbrf}"
 }
 
 ######################################################################
@@ -293,11 +297,13 @@ rbcc_source_active_rbrf() {
 rbcc_emit_consts() {
   zrbcc_sentinel
 
-  printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
+  buc_doc_brief "Emit the RBCC co-maintained constants and the BUBC band as Rust consts on stdout"
+  buc_doc_shown || return 0
+
+  printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)" \
+    || buc_die_now "rbcc_emit_consts: failed to write the RBCC section header"
 
   local z_name=""
-  local z_stem=""
-  local z_upper=""
   for z_name in \
     RBCC_moorings_dir    \
     RBCC_vessels_subdir  \
@@ -339,15 +345,13 @@ rbcc_emit_consts() {
     RBCC_tweak_http_fault \
     RBCC_tweak_redon_cadence \
   ; do
-    z_stem="${z_name#RBCC_}"
-    z_stem="${z_stem/unhewn_/}"
-    zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
-    buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
-      || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
+    zrbcc_emit_const str RBCC_ "${z_name}"
   done
 
-  printf '%s\n' ""
-  printf '%s\n' "// BUBC precision exit-code band (bubc_constants.sh) — numeric"
+  printf '%s\n' "" \
+    || buc_die_now "rbcc_emit_consts: failed to write the section break"
+  printf '%s\n' "// BUBC precision exit-code band (bubc_constants.sh) — numeric" \
+    || buc_die_now "rbcc_emit_consts: failed to write the BUBC band header"
   for z_name in \
     BUBC_band_base      \
     BUBC_band_width     \
@@ -369,19 +373,14 @@ rbcc_emit_consts() {
     BUBC_band_unseised  \
     BUBC_band_selftest  \
   ; do
-    z_stem="${z_name#BUBC_}"
-    zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
-    buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
-      || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
+    zrbcc_emit_const i32 BUBC_ "${z_name}"
   done
 
-  printf '%s\n' ""
-  printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
-  z_name="BUBC_tweak_regime_poison"
-  z_stem="${z_name#BUBC_}"
-  zrbcc_upper_yawp "${z_stem}"; z_upper="${z_rbcc_upper}"
-  buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
-    || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}"
+  printf '%s\n' "" \
+    || buc_die_now "rbcc_emit_consts: failed to write the section break"
+  printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string" \
+    || buc_die_now "rbcc_emit_consts: failed to write the BUBC tweak header"
+  zrbcc_emit_const str BUBC_ BUBC_tweak_regime_poison
 }
 
 ######################################################################
@@ -404,9 +403,37 @@ zrbcc_sentinel() {
   test "${ZRBCC_KINDLED:-}" = "1" || buc_die_now "Module rbcc not kindled - call zrbcc_kindle first"
 }
 
+# zrbcc_emit_const kind prefix name — one RBTDGC_ const line for one
+# co-maintained name: the prefix and the unhewn_ bare-marker infix stripped, the
+# stem uppercased, the named variable's value carried verbatim through the str or
+# i32 primitive.
+zrbcc_emit_const() {
+  zrbcc_sentinel
+
+  local -r z_kind="${1:-}"
+  local -r z_prefix="${2:-}"
+  local -r z_name="${3:-}"
+  test -n "${z_prefix}" || buc_die_now "rbcc_emit_consts: a name prefix is required"
+
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
+  [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+    || buc_die_now "rbcc_emit_consts: invalid variable name: ${z_name}"
+
+  local z_stem="${z_name#"${z_prefix}"}"
+  z_stem="${z_stem/unhewn_/}"
+  zrbcc_upper_yawp "${z_stem}"; local -r z_upper="${z_rbcc_upper}"
+  case "${z_kind}" in
+    str) buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
+           || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}" ;;
+    i32) buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
+           || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}" ;;
+    *)   buc_die_now "rbcc_emit_consts: unknown const kind '${z_kind}' for ${z_name}" ;;
+  esac
+}
+
 # zrbcc_upper_yawp text — the text with a–z mapped to A–Z, by position against
 # the two alphabets (bash 3.2 has no case mapping and the external mappers are evicted)
-# → z_upper="${z_rbcc_upper}"
+# → local -r z_upper="${z_rbcc_upper}"
 zrbcc_upper_yawp() {
   zrbcc_sentinel
   local -r z_in="${1:-}"

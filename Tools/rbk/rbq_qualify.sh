@@ -42,7 +42,7 @@ zrbq_kindle() {
 
   readonly ZRBQ_TT_DIR="${BURC_TABTARGET_DIR}"
   readonly ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
-  readonly ZRBQ_RBW_DIR="${RBCC_KIT_DIR}"
+  readonly ZRBQ_RBW_DIR="${RBCC_kit_dir}"
   # Match the bare BURD_LAUNCHER basename the tabtargets carry since the
   # path-indirection migration: the line is
   # `export BURD_LAUNCHER=launcher.rbw_workbench.sh`, a basename, not a path. A

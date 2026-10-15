@@ -42,7 +42,7 @@ rbfdm_mirror() {
   # No-arg: list available vessels
   if test -z "${z_vessel_dir}"; then
     local z_sigils
-    z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+    z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
     local z_sigil_roll=()
     read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
     buc_step "Available vessels:"

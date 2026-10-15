@@ -39,7 +39,7 @@ rbfcv_require_vessel_sigil() {
   fi
 
   local z_sigils=""
-  z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+  z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
   local z_sigil_roll=()
   read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
@@ -75,7 +75,7 @@ zrbfcv_resolve_vessel() {
 
   # Resolution failed — list available vessels and die
   local z_sigils=""
-  z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+  z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
   local z_sigil_roll=()
   read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"

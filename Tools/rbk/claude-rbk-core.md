@@ -90,6 +90,6 @@ RBK-owned directory namespace for the consumer-config moorings tree (`rbmm_moori
 - **`rbmn_`** → moorings nodes — remote BURN node profiles
 - **`rbmu_`** → moorings users — remote BURP user profiles
 - **`rbmv_`** → moorings vessels — vessel build contexts
-- **`rbmf_`** → moorings foedera — the foedus library: one `rbef_`-sprued subdirectory per standing foedus (`rbmf_foedera/rbef_entrada/rbrf.env`), the active one selected by `RBRR_ACTIVE_FOEDUS`. The federation regime is stored once here, no copied active file; the accessor resolves the active foedus's `rbrf.env` from the `RBRR_ACTIVE_FOEDUS` selector via `rbcc_rbrf_file_capture`.
+- **`rbmf_`** → moorings foedera — the foedus library: one `rbef_`-sprued subdirectory per standing foedus (`rbmf_foedera/rbef_entrada/rbrf.env`), the active one selected by `RBRR_ACTIVE_FOEDUS`. The federation regime is stored once here, no copied active file; the accessor resolves the active foedus's `rbrf.env` from the `RBRR_ACTIVE_FOEDUS` selector via `rbcc_rbrf_file_flint_capture`.
 
 Tabtargets dispatch through `tt/z-launcher.sh`, naming their launcher in the `BURD_LAUNCHER` config line as a bare `launcher.<id>_workbench.sh` basename that the trampoline resolves directly under `rbml_launchers/`. This entry is the directory allocation record only.

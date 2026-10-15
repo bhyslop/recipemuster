@@ -128,8 +128,8 @@ zrbob_kindle() {
   readonly ZRBOB_NETWORK="${ZRBOB_PROJECT}_enclave"
 
   # Base compose file and the compose-quoting probe are kit machinery, not
-  # consumer config — they live with the kit (RBCC_KIT_DIR), not in moorings.
-  readonly ZRBOB_COMPOSE_BASE="${RBCC_KIT_DIR}/rbob_compose.yml"
+  # consumer config — they live with the kit (RBCC_kit_dir), not in moorings.
+  readonly ZRBOB_COMPOSE_BASE="${RBCC_kit_dir}/rbob_compose.yml"
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die_now "Base compose file not found: ${ZRBOB_COMPOSE_BASE}"
 
   readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_compose.yml"
@@ -143,7 +143,7 @@ zrbob_kindle() {
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBCC_rbrr_file}"
-  readonly ZRBOB_ENV_RBJE="${RBCC_KIT_DIR}/rbje_compose_probe.env"
+  readonly ZRBOB_ENV_RBJE="${RBCC_kit_dir}/rbje_compose_probe.env"
   readonly ZRBOB_ENV_RBRN="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
   # Per-vessel image refs (computed once; used by compose via the env-file

@@ -69,7 +69,10 @@ rbro_load() {
   # This loader performs this module's kindle below, so it cannot open on
   # its own sentinel — it is the one function here that runs unkindled.
 
-  local z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
+  buc_doc_brief "Load, kindle and enforce the payor's RBRO OAuth credentials"
+  buc_doc_shown || return 0
+
+  local -r z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
 
   test -f "${z_rbro_file}" || buc_die_now "RBRO credentials missing (${z_rbro_file}) - run rbgp_install"
   test -r "${z_rbro_file}" || buc_die_now "RBRO file not readable - check permissions"
