@@ -73,8 +73,10 @@ zrbuh_sentinel() {
 zrbuh_fault_apply() {
   zrbuh_sentinel
 
-  local -r z_infix="${1}"
-  local -r z_code_file="${2}"
+  local -r z_infix="${1:-}"
+  local -r z_code_file="${2:-}"
+  test -n "${z_infix}"     || buc_die_now "http fault: infix required"
+  test -n "${z_code_file}" || buc_die_now "http fault: code file required"
   test -n "${BURE_TWEAK_NAME:-}" || return 0
   test "${BURE_TWEAK_NAME}" = "${RBCC_tweak_http_fault}" || return 0
 
@@ -104,7 +106,7 @@ rbuh_json_valid_predicate() {
   local -r z_json_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
   test -f "${z_json_file}" || return 1
 
-  jq -e . "${z_json_file}" >/dev/null 2>&1
+  jq -e . "${z_json_file}" >/dev/null 2>"${ZRBUH_PREFIX}${z_infix}_valid_stderr.txt" || return 1
 }
 
 # Boolean: true (0) when the captured HTTP code for an infix is a 2xx success
@@ -128,19 +130,19 @@ rbuh_code_ok_predicate() {
 
 rbuh_urlencode_capture() {
   zrbuh_sentinel
-  local z_s="${1:-}"
+  local -r z_s="${1:-}"
   local z_out=""
   local z_i=0
-  local z_c
-  local z_hex
+  local z_c=""
+  local z_hex=""
 
   buc_log_args "Percent encoding -> ${z_s}"
 
-  while test ${z_i} -lt ${#z_s}; do
-    z_c="${z_s:z_i:1}"
+  while test "${z_i}" -lt "${#z_s}"; do
+    z_c="${z_s:${z_i}:1}"
     case "${z_c}" in
-      [A-Za-z0-9._~-]) z_out="${z_out}${z_c}" ;;
-      *) printf -v z_hex '%%%02X' "'${z_c}"; z_out="${z_out}${z_hex}" ;;
+      [ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._~-]) z_out="${z_out}${z_c}" ;;
+      *) printf -v z_hex '%%%02X' "'${z_c}" || return 1; z_out="${z_out}${z_hex}" ;;
     esac
     z_i=$((z_i + 1))
   done
@@ -152,8 +154,10 @@ rbuh_urlencode_capture() {
 
 rbuh_json_field_capture() {
   zrbuh_sentinel
-  local -r z_infix="${1}"
-  local -r z_jq="${2}"
+  local -r z_infix="${1:-}"
+  local -r z_jq="${2:-}"
+  test -n "${z_infix}" || return 1
+  test -n "${z_jq}"    || return 1
   local -r z_json_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
   local z_result
   z_result=$(jq -r "${z_jq}" "${z_json_file}")          || return 1
@@ -163,7 +167,8 @@ rbuh_json_field_capture() {
 
 rbuh_code_capture() {
   zrbuh_sentinel
-  local -r z_infix="${1}"
+  local -r z_infix="${1:-}"
+  test -n "${z_infix}" || return 1
   local -r z_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_CODE}"
   local z_code
   z_code=$(<"${z_file}") || return 1
@@ -177,6 +182,12 @@ rbuh_jq_file_to_file_ok() {
   local -r z_source_infix="${1:-}"
   local -r z_target_infix="${2:-}"
   local -r z_jq_filter="${3:-}"
+
+  buc_doc_brief "Apply a jq filter to one infix's JSON response, writing the result under another infix"
+  buc_doc_param "source_infix" "Infix whose registered JSON response is read"
+  buc_doc_param "target_infix" "Infix the filtered JSON is written under"
+  buc_doc_param "jq_filter"    "jq filter to apply"
+  buc_doc_shown || return 0
 
   test -n "${z_source_infix}" || return 1
   test -n "${z_target_infix}" || return 1
@@ -201,24 +212,41 @@ rbuh_jq_file_to_file_ok() {
 rbuh_json() {
   zrbuh_sentinel
 
-  local -r z_method="${1}"
-  local -r z_url="${2}"
-  local -r z_token="${3}"
-  local -r z_infix="${4}"
+  local -r z_method="${1:-}"
+  local -r z_url="${2:-}"
+  local -r z_token="${3:-}"
+  local -r z_infix="${4:-}"
   local -r z_body_file="${5:-}"
+
+  buc_doc_brief "Send one JSON REST request, retrying transient curl failures, and register its response under the infix"
+  buc_doc_param "method"    "HTTP method"
+  buc_doc_param "url"       "Request URL"
+  buc_doc_param "token"     "OAuth bearer token"
+  buc_doc_param "infix"     "Temp-file infix the response and code register under"
+  buc_doc_oparm "body_file" "Request body file, or - to read the body from stdin"
+  buc_doc_shown || return 0
+
+  test -n "${z_method}" || buc_die_now "rbuh_json: method required"
+  test -n "${z_url}"    || buc_die_now "rbuh_json: url required"
+  test -n "${z_token}"  || buc_die_now "rbuh_json: token required"
+  test -n "${z_infix}"  || buc_die_now "rbuh_json: infix required"
 
   local z_curl_status=0
   local z_attempt=0
+  local z_infix_u=""
+  local z_resp_file=""
+  local z_code_file=""
+  local z_code_errs=""
 
   while :; do
     z_curl_status=0
     z_attempt=$((z_attempt + 1))
 
-    # Each attempt writes to uniquely-suffixed files; callers use z_infix_u
+    # Each attempt writes to uniquely-suffixed files; the last is registered under the bare infix below
     z_infix_u="${z_infix}_${z_attempt}"
-    local z_resp_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_JSON}"
-    local z_code_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}"
-    local z_code_errs="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}.stderr"
+    z_resp_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_JSON}"
+    z_code_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}"
+    z_code_errs="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}.stderr"
 
     if test -n "${z_body_file}"; then
       curl                                              \
@@ -264,14 +292,16 @@ rbuh_json() {
       || buc_die_now "HTTP request failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (curl exit ${z_curl_status})"
 
     buc_log_args "Transient curl error (exit ${z_curl_status}), retry ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
-    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}" || buc_die_now "Failed to pause before curl retry ${z_attempt}"
   done
 
   zrbuh_fault_apply "${z_infix}" "${z_code_file}"
 
   # Register successful attempt under bare infix for capture functions
-  cp "${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_JSON}" "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
-  cp "${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}" "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_CODE}"
+  cp "${z_resp_file}" "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}" \
+    || buc_die_now "Failed to register response ${z_resp_file} under infix ${z_infix}"
+  cp "${z_code_file}" "${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_CODE}" \
+    || buc_die_now "Failed to register code ${z_code_file} under infix ${z_infix}"
 
   local z_code
   z_code=$(<"${z_code_file}") || buc_die_now "Failed to read code file"
@@ -291,13 +321,30 @@ rbuh_json() {
 rbuh_request() {
   zrbuh_sentinel
 
-  local -r z_method="${1}"
-  local -r z_url="${2}"
-  local -r z_token="${3}"
-  local -r z_resp_file="${4}"
-  local -r z_code_file="${5}"
-  local -r z_stderr_file="${6}"
+  local -r z_method="${1:-}"
+  local -r z_url="${2:-}"
+  local -r z_token="${3:-}"
+  local -r z_resp_file="${4:-}"
+  local -r z_code_file="${5:-}"
+  local -r z_stderr_file="${6:-}"
   local -r z_body_file="${7:-}"
+
+  buc_doc_brief "Send one HTTP request through curl and return curl's own status for the caller to classify"
+  buc_doc_param "method"      "HTTP method"
+  buc_doc_param "url"         "Request URL"
+  buc_doc_param "token"       "OAuth bearer token"
+  buc_doc_param "resp_file"   "File the response body is written to"
+  buc_doc_param "code_file"   "File the HTTP code is written to"
+  buc_doc_param "stderr_file" "File curl's stderr is written to"
+  buc_doc_oparm "body_file"   "Request body file, or - to read the body from stdin"
+  buc_doc_shown || return 0
+
+  test -n "${z_method}"      || buc_die_now "rbuh_request: method required"
+  test -n "${z_url}"         || buc_die_now "rbuh_request: url required"
+  test -n "${z_token}"       || buc_die_now "rbuh_request: token required"
+  test -n "${z_resp_file}"   || buc_die_now "rbuh_request: resp_file required"
+  test -n "${z_code_file}"   || buc_die_now "rbuh_request: code_file required"
+  test -n "${z_stderr_file}" || buc_die_now "rbuh_request: stderr_file required"
 
   local z_curl_status=0
   if test -n "${z_body_file}"; then
@@ -335,10 +382,20 @@ rbuh_request() {
 
 rbuh_require_ok() {
   zrbuh_sentinel
-  local -r z_ctx="$1"
-  local -r z_infix="$2"
+  local -r z_ctx="${1:-}"
+  local -r z_infix="${2:-}"
   local -r z_warn_code="${3:-}"
   local -r z_warn_message="${4:-already exists}"
+
+  buc_doc_brief "Die naming the API error unless the infix's HTTP code is a 2xx success or the tolerated warn code"
+  buc_doc_param "ctx"          "Context the die and warn messages open with"
+  buc_doc_param "infix"        "Infix whose registered response is judged"
+  buc_doc_oparm "warn_code"    "An HTTP code accepted with a warning instead of a die"
+  buc_doc_oparm "warn_message" "The warning for the warn code, by default 'already exists'"
+  buc_doc_shown || return 0
+
+  test -n "${z_ctx}"   || buc_die_now "rbuh_require_ok: ctx required"
+  test -n "${z_infix}" || buc_die_now "rbuh_require_ok: infix required"
 
   local z_code
   z_code=$(rbuh_code_capture "${z_infix}") \
@@ -356,13 +413,13 @@ rbuh_require_ok() {
   local z_err=""
   local -r z_response_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
 
-  if jq -e . "${z_response_file}" >/dev/null 2>&1; then
+  if rbuh_json_valid_predicate "${z_infix}"; then
     local z_err_status=0
     z_err=$(rbuh_json_field_capture "${z_infix}" '.error.message') || z_err_status=$?
     test "${z_err_status}" -eq 0 || z_err="Unknown error"
   else
-    local z_content
     local z_content_status=0
+    local z_content
     z_content=$(<"${z_response_file}") || z_content_status=$?
     test "${z_content_status}" -eq 0 || z_content=""
     z_err="${z_content:0:200}"
@@ -378,18 +435,31 @@ rbuh_require_ok() {
 rbuh_poll_until_ok() {
   zrbuh_sentinel
 
-  local -r z_label="${1}"
-  local -r z_url="${2}"
-  local -r z_token="${3}"
-  local -r z_infix="${4}"
+  local -r z_label="${1:-}"
+  local -r z_url="${2:-}"
+  local -r z_token="${3:-}"
+  local -r z_infix="${4:-}"
+
+  buc_doc_brief "Poll a GET endpoint until it answers HTTP 200, dying at the consistency timeout"
+  buc_doc_param "label" "What is awaited, for the log and the die message"
+  buc_doc_param "url"   "Endpoint polled with GET"
+  buc_doc_param "token" "OAuth bearer token"
+  buc_doc_param "infix" "Temp-file infix each poll's elapsed seconds extend"
+  buc_doc_shown || return 0
+
+  test -n "${z_label}" || buc_die_now "rbuh_poll_until_ok: label required"
+  test -n "${z_url}"   || buc_die_now "rbuh_poll_until_ok: url required"
+  test -n "${z_token}" || buc_die_now "rbuh_poll_until_ok: token required"
+  test -n "${z_infix}" || buc_die_now "rbuh_poll_until_ok: infix required"
 
   local z_elapsed=0
+  local z_poll_infix=""
   while :; do
-    local z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
+    z_poll_infix="${z_infix}-${z_elapsed}s"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}"
 
-    local z_code
     local z_code_status=0
+    local z_code
     z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code_status=$?
     test "${z_code_status}" -eq 0 || z_code=""
 
@@ -398,9 +468,9 @@ rbuh_poll_until_ok() {
       return 0
     fi
 
-    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" && buc_die_now "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
+    test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
     buc_log_args "${z_label} not ready (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "${z_label}: failed to pause between polls"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 }
@@ -418,19 +488,32 @@ rbuh_poll_until_ok() {
 rbuh_poll_until_gone() {
   zrbuh_sentinel
 
-  local -r z_label="${1}"
-  local -r z_url="${2}"
-  local -r z_token="${3}"
-  local -r z_infix="${4}"
+  local -r z_label="${1:-}"
+  local -r z_url="${2:-}"
+  local -r z_token="${3:-}"
+  local -r z_infix="${4:-}"
+
+  buc_doc_brief "Poll a GET endpoint until it answers HTTP 404 the confirming streak of times in a row, dying at the consistency timeout"
+  buc_doc_param "label" "What is awaited, for the log and the die message"
+  buc_doc_param "url"   "Endpoint polled with GET"
+  buc_doc_param "token" "OAuth bearer token"
+  buc_doc_param "infix" "Temp-file infix each poll's elapsed seconds extend"
+  buc_doc_shown || return 0
+
+  test -n "${z_label}" || buc_die_now "rbuh_poll_until_gone: label required"
+  test -n "${z_url}"   || buc_die_now "rbuh_poll_until_gone: url required"
+  test -n "${z_token}" || buc_die_now "rbuh_poll_until_gone: token required"
+  test -n "${z_infix}" || buc_die_now "rbuh_poll_until_gone: infix required"
 
   local z_elapsed=0
   local z_streak=0
+  local z_poll_infix=""
   while :; do
-    local z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}" || true
+    z_poll_infix="${z_infix}-${z_elapsed}s"
+    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}"
 
-    local z_code
     local z_code_status=0
+    local z_code
     z_code=$(rbuh_code_capture "${z_poll_infix}") || z_code_status=$?
     test "${z_code_status}" -eq 0 || z_code=""
 
@@ -448,9 +531,9 @@ rbuh_poll_until_gone() {
       buc_log_args "${z_label} still present (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
     fi
 
-    test "${z_elapsed}" -ge "${RBGC_MAX_CONSISTENCY_SEC}" \
-      && buc_die_now "${z_label}: not durably gone after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_code}, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK})"
-    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}"
+    test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
+      || buc_die_now "${z_label}: not durably gone after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_code}, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK})"
+    sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "${z_label}: failed to pause between polls"
     z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 }
