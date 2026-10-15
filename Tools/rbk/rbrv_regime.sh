@@ -110,13 +110,14 @@ zrbrv_enforce() {
 ######################################################################
 # Public Functions (rbrv_*)
 
-# List available vessel sigils as space-separated tokens
-# Prerequisite: RBRR kindled (needs RBRR_VESSEL_DIR)
-rbrv_list_capture() {
-  zrbrv_sentinel
+# rbrv_list_flint_capture vessel_dir — the vessel sigils standing in the
+# vessel directory (a caller passes RBRR_VESSEL_DIR), as space-separated tokens
+rbrv_list_flint_capture() {
+  local -r z_vessel_dir="${1:-}"
+  test -n "${z_vessel_dir}" || return 1
 
   local z_result=""
-  local -r z_dirs=("${RBRR_VESSEL_DIR}"/*)
+  local -r z_dirs=("${z_vessel_dir}"/*)
   local z_i=""
   local z_d=""
   local z_s=""

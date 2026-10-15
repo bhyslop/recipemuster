@@ -61,7 +61,7 @@ rbrv_list() {
   buc_doc_shown || return 0
 
   local z_sigils
-  z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+  z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
   local z_sigil_roll=()
   read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
@@ -107,16 +107,13 @@ zrbrv_furnish() {
   zrbrd_enforce
   zrbdc_kindle
 
-  # If BUZ_FOLIO is set, load and kindle the specified vessel; with none, rbrv
-  # kindles with no vessel loaded so the listing's capture passes its sentinel
+  # If BUZ_FOLIO is set, load and kindle the specified vessel
   if test -n "${BUZ_FOLIO:-}"; then
     local -r z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
     test -f "${z_vessel_file}" || buc_die_now "Vessel not found: ${z_vessel_file}"
     source "${z_vessel_file}"  || buc_die_now "Failed to source vessel: ${z_vessel_file}"
     zrbrv_kindle
     zrbrv_enforce
-  else
-    zrbrv_kindle
   fi
 }
 
