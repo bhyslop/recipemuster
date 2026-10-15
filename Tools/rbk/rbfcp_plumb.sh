@@ -88,7 +88,9 @@ zrbfcp_plumb_core() {
   if test "${z_about_code}" = "200"; then
     zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"
     z_has_about=true
-    cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
+    # Non-fatal by grant: the ark may hold no files, and the plumb display shows what it finds
+    cp "${z_about_dir}"/* "${z_extract}/" 2>"${ZRBFC0_PLUMB_PREFIX}_about_cp_stderr.txt" \
+      || buc_warn "Copied nothing from ${z_about_dir} — see ${ZRBFC0_PLUMB_PREFIX}_about_cp_stderr.txt"
   fi
 
   # Fetch vouch ark for content (vessel resolution already extracted it once above)
@@ -97,7 +99,9 @@ zrbfcp_plumb_core() {
   if test "${z_vouch_code}" = "200"; then
     zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"
     z_has_vouch=true
-    cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
+    # Non-fatal by grant: the ark may hold no files, and the plumb display shows what it finds
+    cp "${z_vouch_dir}"/* "${z_extract}/" 2>"${ZRBFC0_PLUMB_PREFIX}_vouch_cp_stderr.txt" \
+      || buc_warn "Copied nothing from ${z_vouch_dir} — see ${ZRBFC0_PLUMB_PREFIX}_vouch_cp_stderr.txt"
   fi
 
   # Bind vessels: fallback to static display if no about ark
@@ -425,6 +429,7 @@ zrbfcp_plumb_show_sections() {
         # buc_die_now) is deliberate: plumb is a read-only trust-posture display, and a
         # single unreadable optional label must not abort a report already in flight.
         z_rb_stderr="${ZRBFC0_PLUMB_PREFIX}_resolved_base_${z_rb_n}_stderr.txt"
+        # Non-fatal by grant: the label is optional attest metadata, and the display reports its absence
         jq -r --arg k "${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n}" \
           '(.config.Labels // {})[$k] // empty' "${z_attest_config}" \
           > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_rb_stderr}" \
@@ -477,7 +482,9 @@ zrbfcp_plumb_show_sections() {
     fi
     # Per-platform digests if present
     local z_bk_platforms=""
-    jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
+    # Non-fatal by grant: per-platform keys are present only on multi-platform builds
+    jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${ZRBFC0_PLUMB_PREFIX}_bk_platforms_stderr.txt" \
+      || buc_warn "No per-platform keys read from ${z_bkmeta} — see ${ZRBFC0_PLUMB_PREFIX}_bk_platforms_stderr.txt"
     local z_bk_platforms_status=0
     z_bk_platforms=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_platforms_status=$?
     test "${z_bk_platforms_status}" -eq 0 || z_bk_platforms=""
@@ -485,9 +492,13 @@ zrbfcp_plumb_show_sections() {
       echo "  Per-platform digests:" || buc_die_now
       local z_bk_plat=""
       local z_bk_pd=""
+      local z_bk_pd_n=0
       while IFS= read -r z_bk_plat || test -n "${z_bk_plat}"; do
+        z_bk_pd_n=$((z_bk_pd_n + 1))
+        # Non-fatal by grant: per-platform digests are present only on multi-platform builds
         jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
-          > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
+          > "${ZRBFC0_SCRATCH_FILE}" 2>"${ZRBFC0_PLUMB_PREFIX}_bk_digest_${z_bk_pd_n}_stderr.txt" \
+          || buc_warn "No digest read for ${z_bk_plat} — see ${ZRBFC0_PLUMB_PREFIX}_bk_digest_${z_bk_pd_n}_stderr.txt"
         local z_bk_pd_status=0
         z_bk_pd=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_pd_status=$?
         test "${z_bk_pd_status}" -eq 0 || z_bk_pd=""
@@ -529,6 +540,7 @@ zrbfcp_plumb_show_sections() {
       echo "  Images after:  ${z_after_count}" || buc_die_now
       if test -f "${z_cache_before}"; then
         local z_new_images=""
+        # Non-fatal by grant: a display of what the daemon gained, nothing depends on it
         jq -r --slurpfile before "${z_cache_before}" '
           ($before[0].host_daemon_images // [] | map(.ID) | unique) as $before_ids |
           [(.host_daemon_images // [])[] |
@@ -540,7 +552,8 @@ zrbfcp_plumb_show_sections() {
             else .Repository end) as $short |
             [$short, .Tag, .Size, .ID[7:19]] | @tsv) |
           .[]
-        ' "${z_cache_after}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
+        ' "${z_cache_after}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${ZRBFC0_PLUMB_PREFIX}_new_images_stderr.txt" \
+          || buc_warn "New-images listing unreadable — see ${ZRBFC0_PLUMB_PREFIX}_new_images_stderr.txt"
         local z_new_images_status=0
         z_new_images=$(<"${ZRBFC0_SCRATCH_FILE}") || z_new_images_status=$?
         test "${z_new_images_status}" -eq 0 || z_new_images=""

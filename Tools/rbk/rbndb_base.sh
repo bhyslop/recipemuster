@@ -329,11 +329,13 @@ rbndb_check() {
 
   docker cp "${z_cid}:/${RBCC_rbrd_basename}" "${z_inscribed_native}" 2>"${z_cp_stderr}" \
     || {
+      # Non-fatal by grant: cleanup on a path that is already dying
       docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
         || buc_warn "Failed to remove temp container ${z_cid} — see ${z_rm_stderr}"
       buc_die_now "docker cp failed extracting /${RBCC_rbrd_basename} from tripwire image — see ${z_cp_stderr}"
     }
 
+  # Non-fatal by grant: a stray container harms nothing once the extraction succeeded
   docker rm "${z_cid}" > /dev/null 2>"${z_rm_stderr}" \
     || buc_warn "Failed to remove temp container ${z_cid} — see ${z_rm_stderr}"
 

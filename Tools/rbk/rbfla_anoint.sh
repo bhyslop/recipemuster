@@ -77,6 +77,7 @@ rbfla_anoint() {
   # Graft pushes from the local docker cache; a cloud-built hallmark is not
   # local, so flag the gap now rather than letting graft refuse later.
   local -r z_inspect_stderr="${ZRBFL0_INSPECT_PREFIX}anoint_stderr.txt"
+  # Non-fatal by grant: graft is the gate and this inspect only forewarns
   docker image inspect "${z_image_ref}" > "${ZRBFL0_INSPECT_PREFIX}anoint_stdout.json" 2>"${z_inspect_stderr}" \
     || buc_warn "Image not in the local docker cache — graft will refuse until it is present locally — see ${z_inspect_stderr}"
 

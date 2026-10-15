@@ -747,8 +747,10 @@ rbgi_poll_sa_iam_binding() {
   local z_elapsed=0
   while :; do
     local z_poll_infix="${ZRBGI_INFIX_SA_BINDING_POLL}-${z_elapsed}s"
+    # Non-fatal by grant: one failed read inside the poll is retried, and the loop's deadline is the gate
     rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
-      "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" || true
+      "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" \
+      || buc_warn "IAM read-back poll read failed at ${z_elapsed}s — retrying"
 
     local z_code=""
     local z_code_status=0

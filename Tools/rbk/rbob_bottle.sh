@@ -633,6 +633,7 @@ zrbob_reclaim_subnet() {
       # network rm below is the real gate — if removal truly failed there, that
       # rm fails and dies.
       if (( ${#z_containers[@]} )); then
+        # Non-fatal by grant: the network rm beneath it is the gate, as the comment above says
         "${ZRBOB_RUNTIME}" rm -f "${z_containers[@]}" \
           > "${z_crm_file}" 2>&1 \
           || buc_warn "Some containers on '${z_name}' resisted removal — see ${z_crm_file}"
@@ -793,7 +794,9 @@ rbob_charge() {
 
   # Tear down any prior state (tolerates missing project)
   buc_step "Cleaning up any prior state (quenching any preexisting can take a couple of minutes)"
-  ( zrbob_compose --profile sessile down --remove-orphans ) 2>"${z_charge_prefix}down_stderr.txt" || true
+  # Non-fatal by grant: nothing may be up to take down
+  ( zrbob_compose --profile sessile down --remove-orphans ) 2>"${z_charge_prefix}down_stderr.txt" \
+    || buc_warn "No prior state taken down — see ${z_charge_prefix}down_stderr.txt"
 
   # Charge invariant: at most one crucible per nameplate per system. A
   # crucible's subnet derives from the nameplate, not the prefix, so freeing
