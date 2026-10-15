@@ -141,26 +141,37 @@ zrbfcg_list_anchors_capture() {
     || return 1
 }
 
-# Internal: the HTTP code a manifest HEAD answers for package:tag in GAR — 200
-# when the artifact stands. Callers that branch on presence ask this first; a
-# transport failure refuses with return 1 rather than reading as absence.
-# Args: token package tag
-# Emits: the HTTP code
-zrbfcg_manifest_code_capture() {
+# Internal: write the HTTP code a manifest HEAD answers for package:tag in GAR to
+# out_file — 200 when the artifact stands. Callers that branch on presence read
+# the file and test it; a transport failure dies here rather than reading as
+# absence.
+# Args: token package tag out_file
+zrbfcg_manifest_code_fetch() {
   zrbfc0_sentinel
 
   local -r z_token="${1:-}"
   local -r z_package="${2:-}"
   local -r z_tag="${3:-}"
-  test -n "${z_token}"   || return 1
-  test -n "${z_package}" || return 1
-  test -n "${z_tag}"     || return 1
+  local -r z_out="${4:-}"
+  test -n "${z_token}"   || buc_die_now "zrbfcg_manifest_code_fetch: token required"
+  test -n "${z_package}" || buc_die_now "zrbfcg_manifest_code_fetch: package required"
+  test -n "${z_tag}"     || buc_die_now "zrbfcg_manifest_code_fetch: tag required"
+  test -n "${z_out}"     || buc_die_now "zrbfcg_manifest_code_fetch: out required"
 
-  local z_http_code
-  z_http_code=$(curl --head -s --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Authorization: Bearer ${z_token}" -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" -w "%{http_code}" -o /dev/null "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}") || return 1
-  test -n "${z_http_code}" || return 1
-
-  printf '%s\n' "${z_http_code}" || return 1
+  local -r z_response="${z_out}_response.txt"
+  local -r z_stderr="${z_out}_stderr.txt"
+  local z_curl_status=0
+  curl --head -s \
+    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
+    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
+    -H "Authorization: Bearer ${z_token}" \
+    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
+    -w "%{http_code}" \
+    -o "${z_response}" \
+    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
+    > "${z_out}" 2>"${z_stderr}" || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_stderr}"
 }
 
 # Internal: extract files from a FROM-scratch artifact in GAR to a local directory.
@@ -168,7 +179,7 @@ zrbfcg_manifest_code_capture() {
 # identical for architecture-independent artifacts like -about and -vouch).
 # Args: token package tag extract_dir [absent_message]
 # Dies when the artifact is absent (with absent_message where the caller gives one) or on any infrastructure failure (curl, jq,
-# tar); a caller that branches on presence asks zrbfcg_manifest_code_capture first.
+# tar); a caller that branches on presence asks zrbfcg_manifest_code_fetch first.
 zrbfcg_gar_extract_artifact() {
   zrbfc0_sentinel
 
@@ -187,8 +198,8 @@ zrbfcg_gar_extract_artifact() {
 
   # HEAD check — does the artifact exist?
   local z_http_code
-  z_http_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_package}" "${z_tag}") \
-    || buc_die_now "HEAD request failed for ${z_package}:${z_tag}"
+  zrbfcg_manifest_code_fetch "${z_token}" "${z_package}" "${z_tag}" "${z_prefix}head_code.txt"
+  z_http_code=$(<"${z_prefix}head_code.txt") || buc_die_now "Failed to read: ${z_prefix}head_code.txt"
   if test "${z_http_code}" != "200"; then
     test -z "${z_absent_message}" || buc_die_now "${z_absent_message}"
     buc_die_now "Not found in GAR: ${z_package}:${z_tag} (HTTP ${z_http_code})"
@@ -306,7 +317,7 @@ zrbfcg_gar_extract_artifact() {
 # Args: token package tag out_config_file
 # Writes the config JSON to out_config_file. Dies when the image is absent or on
 # any infrastructure failure (curl, jq); a caller for whom absence is graceful
-# (e.g. a pre-resolved-base hallmark) asks zrbfcg_manifest_code_capture first.
+# (e.g. a pre-resolved-base hallmark) asks zrbfcg_manifest_code_fetch first.
 zrbfcg_image_config_fetch() {
   zrbfc0_sentinel
 
@@ -324,8 +335,8 @@ zrbfcg_image_config_fetch() {
 
   # HEAD check — does the image exist?
   local z_http_code
-  z_http_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_package}" "${z_tag}") \
-    || buc_die_now "HEAD request failed for ${z_package}:${z_tag}"
+  zrbfcg_manifest_code_fetch "${z_token}" "${z_package}" "${z_tag}" "${z_prefix}head_code.txt"
+  z_http_code=$(<"${z_prefix}head_code.txt") || buc_die_now "Failed to read: ${z_prefix}head_code.txt"
   test "${z_http_code}" = "200" \
     || buc_die_now "Not found in GAR: ${z_package}:${z_tag} (HTTP ${z_http_code})"
   local z_curl_status=0

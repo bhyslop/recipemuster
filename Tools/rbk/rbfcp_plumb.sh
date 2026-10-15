@@ -55,9 +55,9 @@ zrbfcp_plumb_core() {
     || buc_die_now "Failed to get Retriever OAuth token"
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
+  zrbfcg_manifest_code_fetch "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt"
   local z_vouch_code
-  z_vouch_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_vouch_pkg}" "${z_hallmark}") \
-    || buc_die_now "Failed to read the registry presence of hallmark: ${z_hallmark}"
+  z_vouch_code=$(<"${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt"
   test "${z_vouch_code}" = "200" \
     || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 
@@ -82,9 +82,9 @@ zrbfcp_plumb_core() {
   buc_step "Fetching about ark from GAR"
   local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
   local -r z_about_dir="${ZRBFC0_PLUMB_PREFIX}_about"
+  zrbfcg_manifest_code_fetch "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt"
   local z_about_code
-  z_about_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_about_pkg}" "${z_hallmark}") \
-    || buc_die_now "Failed to check for the about ark of hallmark: ${z_hallmark}"
+  z_about_code=$(<"${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt"
   if test "${z_about_code}" = "200"; then
     zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"
     z_has_about=true
@@ -121,9 +121,9 @@ zrbfcp_plumb_core() {
     z_attest_suffix="${z_attest_suffix//\//}"
     local -r z_attest_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}"
     local -r z_attest_tag="${z_hallmark}-${z_attest_suffix}"
+    zrbfcg_manifest_code_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" "${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt"
     local z_attest_code
-    z_attest_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_attest_pkg}" "${z_attest_tag}") \
-      || buc_die_now "Failed to check for the attest image: ${z_attest_pkg}:${z_attest_tag}"
+    z_attest_code=$(<"${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt"
     if test "${z_attest_code}" = "200"; then
       zrbfcg_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
         "${z_extract}/attest_config.json"
