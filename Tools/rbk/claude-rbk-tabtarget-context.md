@@ -6,8 +6,9 @@
 **Folio** is the runtime target value passed to a command (nameplate moniker, role name, etc.).
 The Folio column shows how each tabtarget receives it:
 
-- **imprint**: Folio is baked into the filename — one tabtarget per target (e.g., `tt/rbw-cC.Charge.tadmor.sh`)
+- **imprint**: Folio is carried in the filename — one tabtarget per target (e.g., `tt/rbw-cC.Charge.tadmor.sh`)
 - **param1**: Folio is passed as a command-line argument (e.g., `tt/rbw-cKB.KludgeBottle.sh tadmor`)
+- **buz_passthrough**: No folio — every argument reaches the command as typed
 - **—**: No folio needed — standalone command
 
 ### Access — Credential access probes + sederunt lifecycle (`rbw-a`)

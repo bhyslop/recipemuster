@@ -36,6 +36,7 @@ zrbhp0_furnish() {
   local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
   source "${BURD_BUK_DIR}/burd_regime.sh"                  || buc_die_now "Failed to source burd_regime.sh"
+  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"               || buc_die_now "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buym_yelp.sh"                    || buc_die_now "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"                 || buc_die_now "Failed to source buh_handbook.sh"
