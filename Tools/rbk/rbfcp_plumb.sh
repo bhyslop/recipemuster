@@ -57,7 +57,7 @@ zrbfcp_plumb_core() {
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
   local z_vouch_code
   z_vouch_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_vouch_pkg}" "${z_hallmark}") \
-    || buc_die_now "Failed to check for the vouch ark of hallmark: ${z_hallmark}"
+    || buc_die_now "Failed to read the registry presence of hallmark: ${z_hallmark}"
   test "${z_vouch_code}" = "200" \
     || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 

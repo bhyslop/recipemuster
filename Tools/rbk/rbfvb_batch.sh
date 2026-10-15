@@ -136,12 +136,8 @@ rbfvb_batch_vouch() {
     z_about_extract="${BURD_TEMP_DIR}/rbfv_batch_about_${z_hallmark}"
     z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
 
-    local z_about_code
-    z_about_code=$(zrbfcg_manifest_code_capture "${z_token}" "${z_about_pkg}" "${z_hallmark}") \
-      || buc_die_now "Failed to check for the about ark of ${z_hallmark}"
-    test "${z_about_code}" = "200" \
-      || buc_die_now "Failed to extract about ark for ${z_hallmark} (expected at ${z_about_pkg}:${z_hallmark})"
-    zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}"
+    zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}" \
+      "Failed to extract about ark for ${z_hallmark} (expected at ${z_about_pkg}:${z_hallmark})"
 
     z_build_info="${z_about_extract}/build_info.json"
     test -f "${z_build_info}" \

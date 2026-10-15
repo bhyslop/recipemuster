@@ -101,7 +101,6 @@ zrbfc0_kindle() {
   buc_log_args 'Scratch file for sequential temp-file patterns'
   readonly ZRBFC0_SCRATCH_FILE="${BURD_TEMP_DIR}/rbfc_scratch.txt"
   readonly ZRBFC0_PLUMB_PREFIX="${BURD_TEMP_DIR}/plumb"
-  readonly ZRBFC0_GAR_HEAD_PREFIX="${BURD_TEMP_DIR}/rbfc_gar_head_"
 
   buc_log_args 'GAR package enumeration output (zrbfcg_list_packages_capture)'
   readonly ZRBFC0_PACKAGE_LIST_FILE="${BURD_TEMP_DIR}/rbfc_package_list.txt"
