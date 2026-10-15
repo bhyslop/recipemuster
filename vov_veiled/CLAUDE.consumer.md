@@ -129,8 +129,8 @@ The payor is the only role requiring manual console work. Every other role signs
 - **Payor OAuth** (`rbro.env`, under `RBRR_SECRETS_DIR`): client secret + refresh token. `600` permissions, only on the administrator's workstation, never committed.
 - **Mantle tokens**: minted per call from a live sederunt and never written to disk as durable credentials. Lose your sederunt and you re-avow; there is nothing to restore.
 
-@Tools/buk/volis_buk.md
-@Tools/buk/volip_buk.md
+@Tools/buk/buai0/buais_buk.md
+@Tools/buk/buai0/buaip_buk.md
 
 @Tools/rbk/claude-rbk-core.md
 @Tools/rbk/claude-rbk-acronyms.md

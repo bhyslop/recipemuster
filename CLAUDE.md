@@ -41,7 +41,7 @@ nothing catching it.
 
 A buk file is therefore fixed in `../jjqa_app` and arrives here by parcel. That
 is the only path in — including a buk file's own carried prose, so a correction
-owed to `Tools/buk/volis_buk.md` is made at the BUK home and rides the
+owed to `Tools/buk/buai0/buais_buk.md` is made at the BUK home and rides the
 next parcel.
 
 Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in
@@ -55,7 +55,7 @@ release and install procedures themselves are specified in
 
 Each kit's acronym rows ride that kit's core context file, annotated with the
 per-row descriptions and family topology — RBK's in
-`Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/volis_buk.md`, and the
+`Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/buai0/buais_buk.md`, and the
 veiled half's in `vov_veiled/claude-rbk-veiled.md`. Those cores load
 below.
 
@@ -228,7 +228,7 @@ Concept home: BCG **Zeroes Theory** — the built form, where each axis carries 
         section happened to precede it. -->
 
 <!-- Distributable kit guidance. -->
-@Tools/buk/volis_buk.md
+@Tools/buk/buai0/buais_buk.md
 
 @Tools/rbk/claude-rbk-core.md
 
@@ -247,6 +247,6 @@ Named, not loaded — read when the work calls for one.
 - `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — theurge/ifrit crucible
   testing: the iteration loop (kludge, charge, test, ordain), the architecture of
   the two Rust binaries, and how to add new security test cases.
-- `Tools/rbk/claude-rbk-acronyms.md`, `Tools/buk/volip_buk.md`,
+- `Tools/rbk/claude-rbk-acronyms.md`, `Tools/buk/buai0/buaip_buk.md`,
   `vov_veiled/claude-rbk-veiled-acronyms.md` — the bare acronym
   indexes, each a subset of its loaded core.
