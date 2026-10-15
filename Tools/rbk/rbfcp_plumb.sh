@@ -490,22 +490,27 @@ zrbfcp_plumb_show_sections() {
     test "${z_bk_platforms_status}" -eq 0 || z_bk_platforms=""
     if test -n "${z_bk_platforms}"; then
       echo "  Per-platform digests:" || buc_die_now
+      local z_bk_plat_roll=()
+      local z_bk_plat_line=""
+      while IFS= read -r z_bk_plat_line || test -n "${z_bk_plat_line}"; do
+        z_bk_plat_roll+=("${z_bk_plat_line}")
+      done <<< "${z_bk_platforms}"
       local z_bk_plat=""
       local z_bk_pd=""
-      local z_bk_pd_n=0
-      while IFS= read -r z_bk_plat || test -n "${z_bk_plat}"; do
-        z_bk_pd_n=$((z_bk_pd_n + 1))
+      local z_bk_pd_i=0
+      for z_bk_pd_i in "${!z_bk_plat_roll[@]}"; do
+        z_bk_plat="${z_bk_plat_roll[${z_bk_pd_i}]}"
         # Non-fatal by grant: per-platform digests are present only on multi-platform builds
         jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
-          > "${ZRBFC0_SCRATCH_FILE}" 2>"${ZRBFC0_PLUMB_PREFIX}_bk_digest_${z_bk_pd_n}_stderr.txt" \
-          || buc_warn "No digest read for ${z_bk_plat} — see ${ZRBFC0_PLUMB_PREFIX}_bk_digest_${z_bk_pd_n}_stderr.txt"
+          > "${ZRBFC0_SCRATCH_FILE}" 2>"${ZRBFC0_PLUMB_PREFIX}_bk_digest_${z_bk_pd_i}_stderr.txt" \
+          || buc_warn "No digest read for ${z_bk_plat} — see ${ZRBFC0_PLUMB_PREFIX}_bk_digest_${z_bk_pd_i}_stderr.txt"
         local z_bk_pd_status=0
         z_bk_pd=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_pd_status=$?
         test "${z_bk_pd_status}" -eq 0 || z_bk_pd=""
         if test -n "${z_bk_pd}"; then
           echo "    ${z_bk_plat}: ${z_bk_pd}" || buc_die_now
         fi
-      done <<< "${z_bk_platforms}"
+      done
     fi
   fi
 
