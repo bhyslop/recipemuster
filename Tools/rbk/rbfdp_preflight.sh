@@ -150,9 +150,14 @@ zrbfdp_registry_preflight() {
   local z_stderr_file=""
   local z_http_code=""
 
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   for z_n in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
     z_anchor_var="RBRV_IMAGE_${z_n}_ANCHOR"
+    [[ "${z_origin_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_origin_var}"
+    [[ "${z_anchor_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_anchor_var}"
     z_origin="${!z_origin_var:-}"
     z_anchor="${!z_anchor_var:-}"
 

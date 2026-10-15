@@ -61,30 +61,44 @@ zrbfcg_list_packages_capture() {
     | select(length == 2)
     | "\(.[0]) \(.[1])"
   ' "${z_resp_file}" > "${z_raw_file}" \
-    || buc_die_now "Failed to extract GAR package list"
+    || return 1
 
   local -r z_sorted_file="${BURD_TEMP_DIR}/rbfc_package_list_sorted.txt"
   sort "${z_raw_file}" > "${z_sorted_file}" \
-    || buc_die_now "Failed to sort GAR package list"
+    || return 1
 
   # Per-package tags.list filter: skip packages with zero live tags. RBr_w9k
-  : > "${ZRBFC0_PACKAGE_LIST_FILE}"
-  local z_element z_basename z_pkg_name z_pkg_encoded z_tag_infix z_tag_count
-  local -i z_tag_idx=0
-  while IFS=' ' read -r z_element z_basename; do
+  : > "${ZRBFC0_PACKAGE_LIST_FILE}" || return 1
+  local z_pair_lines=()
+  local z_pair_line=""
+  while IFS= read -r z_pair_line || test -n "${z_pair_line}"; do
+    z_pair_lines+=("${z_pair_line}")
+  done < "${z_sorted_file}"
+
+  local z_element=""
+  local z_basename=""
+  local z_pkg_name=""
+  local z_pkg_encoded=""
+  local z_tag_infix=""
+  local z_tag_count=""
+  local z_tags_url=""
+  local z_tag_idx=0
+  local z_i=0
+  for z_i in "${!z_pair_lines[@]}"; do
+    IFS=' ' read -r z_element z_basename <<< "${z_pair_lines[${z_i}]}" || return 1
     test -n "${z_element}" || continue
     z_pkg_name="${z_subtree}${z_element}/${z_basename}"
     z_pkg_encoded="${z_pkg_name//\//%2F}"
-    z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}") || buc_die_now "Failed to format tag infix"
+    z_tag_infix=$(printf 'rbfc_tags_%04d' "${z_tag_idx}") || return 1
     z_tag_idx=$((z_tag_idx + 1))
-    local z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
+    z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
     rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tag_infix}"
     rbuh_require_ok "List tags for ${z_pkg_name}" "${z_tag_infix}"
     z_tag_count=$(rbuh_json_field_capture "${z_tag_infix}" '(.tags // []) | length') \
-      || buc_die_now "Failed to count tags for ${z_pkg_name}"
+      || return 1
     test "${z_tag_count}" -gt 0 || continue
-    echo "${z_element} ${z_basename}" >> "${ZRBFC0_PACKAGE_LIST_FILE}"
-  done < "${z_sorted_file}"
+    echo "${z_element} ${z_basename}" >> "${ZRBFC0_PACKAGE_LIST_FILE}" || return 1
+  done
 }
 
 # Internal: enumerate every <anchor> directly under <subtree-root>/ via GAR REST.
@@ -121,10 +135,10 @@ zrbfcg_list_anchors_capture() {
     | select(length == 1)
     | .[0]
   ' "${z_resp_file}" > "${z_raw_file}" \
-    || buc_die_now "Failed to extract GAR anchor package list"
+    || return 1
 
   sort "${z_raw_file}" > "${ZRBFC0_PACKAGE_LIST_FILE}" \
-    || buc_die_now "Failed to sort GAR anchor package list"
+    || return 1
 }
 
 # Internal: extract files from a FROM-scratch artifact in GAR to a local directory.
@@ -136,10 +150,10 @@ zrbfcg_list_anchors_capture() {
 zrbfcg_gar_extract_artifact() {
   zrbfc0_sentinel
 
-  local -r z_token="$1"
-  local -r z_package="$2"
-  local -r z_tag="$3"
-  local -r z_extract_dir="$4"
+  local -r z_token="${1}"
+  local -r z_package="${2}"
+  local -r z_tag="${3}"
+  local -r z_extract_dir="${4}"
 
   local -r z_safe_pkg="${z_package//\//_}"
   local -r z_prefix="${BURD_TEMP_DIR}/gar_${z_safe_pkg}_${z_tag}_"
@@ -183,7 +197,9 @@ zrbfcg_gar_extract_artifact() {
   # Resolve to a single-platform manifest
   local z_single_manifest="${z_manifest}"
   local -r z_media_type_file="${z_prefix}media_type.txt"
-  jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>/dev/null || true
+  local -r z_media_type_stderr="${z_prefix}media_type_stderr.txt"
+  jq -r '.mediaType // empty' "${z_manifest}" > "${z_media_type_file}" 2>"${z_media_type_stderr}" \
+    || buc_die_now "Failed to read manifest mediaType for ${z_package}:${z_tag} — see ${z_media_type_stderr}"
   local z_media_type
   z_media_type=$(<"${z_media_type_file}") || buc_die_now "Failed to read: ${z_media_type_file}"
 
@@ -191,9 +207,10 @@ zrbfcg_gar_extract_artifact() {
     *manifest.list*|*image.index*)
       # Multi-platform manifest list — pick first platform's manifest
       local -r z_digest_file="${z_prefix}platform_digest.txt"
+      local -r z_digest_stderr="${z_prefix}platform_digest_stderr.txt"
       jq -r '.manifests[0].digest // empty' "${z_manifest}" \
-        > "${z_digest_file}" 2>/dev/null \
-        || buc_die_now "Failed to extract platform digest from manifest list"
+        > "${z_digest_file}" 2>"${z_digest_stderr}" \
+        || buc_die_now "Failed to extract platform digest from manifest list — see ${z_digest_stderr}"
       local z_platform_digest
       z_platform_digest=$(<"${z_digest_file}") || buc_die_now "Failed to read: ${z_digest_file}"
       test -n "${z_platform_digest}" || buc_die_now "Empty platform digest in manifest list"
@@ -244,7 +261,7 @@ zrbfcg_gar_extract_artifact() {
   local z_tar_stderr=""
   local z_layer_idx=0
   for z_layer_idx in "${!z_layer_digests[@]}"; do
-    z_layer_digest="${z_layer_digests[$z_layer_idx]}"
+    z_layer_digest="${z_layer_digests[${z_layer_idx}]}"
     test -n "${z_layer_digest}" || continue
     z_blob_file="${z_prefix}blob_${z_layer_idx}.tar.gz"
     z_blob_stderr="${z_prefix}blob_${z_layer_idx}_stderr.txt"
@@ -278,10 +295,10 @@ zrbfcg_gar_extract_artifact() {
 zrbfcg_image_config_fetch() {
   zrbfc0_sentinel
 
-  local -r z_token="$1"
-  local -r z_package="$2"
-  local -r z_tag="$3"
-  local -r z_out="$4"
+  local -r z_token="${1}"
+  local -r z_package="${2}"
+  local -r z_tag="${3}"
+  local -r z_out="${4}"
 
   local -r z_safe_pkg="${z_package//\//_}"
   local -r z_prefix="${BURD_TEMP_DIR}/cfg_${z_safe_pkg}_${z_tag}_"
@@ -391,26 +408,26 @@ rbfcg_vessel_for_hallmark_capture() {
 
   local z_token=""
   z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
-    || buc_die_now "Failed to get Retriever OAuth token"
+    || return 1
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
   local -r z_scratch="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark"
-  rm -rf "${z_scratch}" || buc_die_now "Failed to clear scratch dir: ${z_scratch}"
+  rm -rf "${z_scratch}" || return 1
 
   zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_scratch}" \
     || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 
   test -f "${z_scratch}/vouch_summary.json" \
-    || buc_die_now "vouch_summary.json not found in vouch ark for ${z_hallmark}"
+    || return 1
 
   local -r z_vessel_file="${BURD_TEMP_DIR}/rbfc_vessel_for_hallmark_value.txt"
   jq -r '.vessel // empty' "${z_scratch}/vouch_summary.json" > "${z_vessel_file}" \
-    || buc_die_now "Failed to read vessel from vouch_summary.json"
+    || return 1
   local z_vessel
-  z_vessel=$(<"${z_vessel_file}") || buc_die_now "Failed to read: ${z_vessel_file}"
-  test -n "${z_vessel}" || buc_die_now "Vessel field empty in vouch_summary.json"
+  z_vessel=$(<"${z_vessel_file}") || return 1
+  test -n "${z_vessel}" || return 1
 
-  printf '%s\n' "${z_vessel}"
+  printf '%s\n' "${z_vessel}" || return 1
 }
 
 # eof

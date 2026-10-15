@@ -65,7 +65,7 @@ zrbfcp_plumb_core() {
   z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
     || buc_die_now "Failed to get Retriever OAuth token"
 
-  local -r z_extract="${BURD_TEMP_DIR}/plumb"
+  local -r z_extract="${ZRBFC0_PLUMB_PREFIX}"
   mkdir -p "${z_extract}" || buc_die_now "Failed to create extraction directory"
   local z_has_about=false
   local z_has_vouch=false
@@ -73,7 +73,7 @@ zrbfcp_plumb_core() {
   # Fetch about ark from GAR (tag = hallmark)
   buc_step "Fetching about ark from GAR"
   local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
-  local -r z_about_dir="${BURD_TEMP_DIR}/plumb_about"
+  local -r z_about_dir="${ZRBFC0_PLUMB_PREFIX}_about"
   if zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"; then
     z_has_about=true
     cp "${z_about_dir}"/* "${z_extract}/" 2>/dev/null || true
@@ -82,7 +82,7 @@ zrbfcp_plumb_core() {
   # Fetch vouch ark for content (vessel resolution already extracted it once above)
   buc_step "Fetching vouch ark from GAR"
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
-  local -r z_vouch_dir="${BURD_TEMP_DIR}/plumb_vouch"
+  local -r z_vouch_dir="${ZRBFC0_PLUMB_PREFIX}_vouch"
   if zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"; then
     z_has_vouch=true
     cp "${z_vouch_dir}"/* "${z_extract}/" 2>/dev/null || true
@@ -185,7 +185,7 @@ zrbfcp_plumb_show_sections() {
   local z_vessel_mode="rbnve_conjure"
   if test -f "${z_bi}"; then
     local z_mode_raw
-    local -r z_mode_stderr="${BURD_TEMP_DIR}/plumb_mode_stderr.txt"
+    local -r z_mode_stderr="${ZRBFC0_PLUMB_PREFIX}_mode_stderr.txt"
     jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_mode_stderr}" \
       || echo "rbnve_conjure" > "${ZRBFC0_SCRATCH_FILE}" \
       || buc_die_now "Failed to write fallback vessel mode to ${ZRBFC0_SCRATCH_FILE}"
@@ -200,7 +200,7 @@ zrbfcp_plumb_show_sections() {
     # Batch extract bind fields from build_info.json
     local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_hallmark=""
     local z_bi_image_uri="" z_bi_git_repo="" z_bi_git_branch="" z_bi_git_commit=""
-    local -r z_bi_stderr="${BURD_TEMP_DIR}/plumb_bind_fields_stderr.txt"
+    local -r z_bi_stderr="${ZRBFC0_PLUMB_PREFIX}_bind_fields_stderr.txt"
     jq -r '
       (.moniker // "?"),
       (.source.image_ref // "?"),
@@ -267,7 +267,7 @@ zrbfcp_plumb_show_sections() {
     local z_cj_git_repo="" z_cj_git_branch="" z_cj_git_commit=""
     local z_cj_build_id="" z_cj_build_ts="" z_cj_inscribe_ts="" z_cj_image_uri=""
     local z_slsa_level="" z_slsa_invocation="" z_slsa_builder=""
-    local -r z_cj_stderr="${BURD_TEMP_DIR}/plumb_conjure_fields_stderr.txt"
+    local -r z_cj_stderr="${ZRBFC0_PLUMB_PREFIX}_conjure_fields_stderr.txt"
     jq -r '
       (.platform // "unknown"),
       (.qemu_used // "false"),
@@ -335,7 +335,7 @@ zrbfcp_plumb_show_sections() {
     echo "  Invocation ID:  ${z_slsa_invocation}" || buc_die_now
     echo "  Builder ID:     ${z_slsa_builder}" || buc_die_now
     echo "  Predicate types:" || buc_die_now
-    local -r z_pt_stderr="${BURD_TEMP_DIR}/plumb_predicate_types_stderr.txt"
+    local -r z_pt_stderr="${ZRBFC0_PLUMB_PREFIX}_predicate_types_stderr.txt"
     jq -r '.slsa.provenance_predicate_types[]?' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_pt_stderr}" \
       || buc_die_now "Failed to extract SLSA predicate types from ${z_bi} — see ${z_pt_stderr}"
     local z_pt=""
@@ -378,7 +378,7 @@ zrbfcp_plumb_show_sections() {
     fi
     if test -f "${z_sbom}"; then
       local z_distro_name="" z_distro_ver=""
-      local -r z_distro_stderr="${BURD_TEMP_DIR}/plumb_distro_stderr.txt"
+      local -r z_distro_stderr="${ZRBFC0_PLUMB_PREFIX}_distro_stderr.txt"
       jq -r '(.distro.name // empty), (.distro.version // empty)' "${z_sbom}" \
         > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_distro_stderr}" \
         || buc_die_now "Failed to extract distro from ${z_sbom} — see ${z_distro_stderr}"
@@ -402,7 +402,7 @@ zrbfcp_plumb_show_sections() {
         # only a malformed config or a jq fault reaches the guard. buc_warn (not
         # buc_die_now) is deliberate: plumb is a read-only trust-posture display, and a
         # single unreadable optional label must not abort a report already in flight.
-        z_rb_stderr="${BURD_TEMP_DIR}/plumb_resolved_base_${z_rb_n}_stderr.txt"
+        z_rb_stderr="${ZRBFC0_PLUMB_PREFIX}_resolved_base_${z_rb_n}_stderr.txt"
         jq -r --arg k "${RBGC_IMAGE_LABEL_RESOLVED_BASE}_${z_rb_n}" \
           '(.config.Labels // {})[$k] // empty' "${z_attest_config}" \
           > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_rb_stderr}" \
@@ -428,7 +428,7 @@ zrbfcp_plumb_show_sections() {
     echo "  The container image manifest produced by this buildx invocation." || buc_die_now
     echo "" || buc_die_now
     local z_bk_digest="" z_bk_mediatype="" z_bk_ref="" z_bk_imgname=""
-    local -r z_bk_stderr="${BURD_TEMP_DIR}/plumb_buildkit_stderr.txt"
+    local -r z_bk_stderr="${ZRBFC0_PLUMB_PREFIX}_buildkit_stderr.txt"
     jq -r '
       (."containerimage.digest" // ""),
       (."containerimage.descriptor".mediaType // ""),
@@ -487,8 +487,8 @@ zrbfcp_plumb_show_sections() {
       echo "" || buc_die_now
       local z_before_count="n/a"
       local z_after_count=""
-      local -r z_before_stderr="${BURD_TEMP_DIR}/plumb_cache_before_stderr.txt"
-      local -r z_after_stderr="${BURD_TEMP_DIR}/plumb_cache_after_stderr.txt"
+      local -r z_before_stderr="${ZRBFC0_PLUMB_PREFIX}_cache_before_stderr.txt"
+      local -r z_after_stderr="${ZRBFC0_PLUMB_PREFIX}_cache_after_stderr.txt"
       if test -f "${z_cache_before}"; then
         jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_before_stderr}" \
           || echo "?" > "${ZRBFC0_SCRATCH_FILE}" \
@@ -553,7 +553,7 @@ zrbfcp_plumb_show_sections() {
   echo "" || buc_die_now
   if test -f "${z_sbom}"; then
     local z_pkg_count=""
-    local -r z_pkg_count_stderr="${BURD_TEMP_DIR}/plumb_pkg_count_stderr.txt"
+    local -r z_pkg_count_stderr="${ZRBFC0_PLUMB_PREFIX}_pkg_count_stderr.txt"
     jq '.artifacts | length' "${z_sbom}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_pkg_count_stderr}" \
       || echo "?" > "${ZRBFC0_SCRATCH_FILE}" \
       || buc_die_now "Failed to write fallback package count to ${ZRBFC0_SCRATCH_FILE}"
@@ -563,7 +563,7 @@ zrbfcp_plumb_show_sections() {
     echo "  Package count:  ${z_pkg_count}" || buc_die_now
 
     echo "  Package types:" || buc_die_now
-    local -r z_pkg_types_stderr="${BURD_TEMP_DIR}/plumb_pkg_types_stderr.txt"
+    local -r z_pkg_types_stderr="${ZRBFC0_PLUMB_PREFIX}_pkg_types_stderr.txt"
     jq -r '
       [.artifacts[]?.type // empty] | group_by(.) |
       map({type: .[0], count: length}) |
@@ -589,7 +589,7 @@ zrbfcp_plumb_show_sections() {
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_vf_method="" z_vf_result="" z_vf_pin="" z_vf_gar=""
       local z_vf_match="" z_vf_ts="" z_vf_source=""
-      local -r z_vf_stderr="${BURD_TEMP_DIR}/plumb_bind_vouch_stderr.txt"
+      local -r z_vf_stderr="${ZRBFC0_PLUMB_PREFIX}_bind_vouch_stderr.txt"
       jq -r '
         (.verification.method // "?"),
         (.verification.result // .verification.verdict // "?"),
@@ -623,7 +623,7 @@ zrbfcp_plumb_show_sections() {
     echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_gf_verdict="" z_gf_source="" z_gf_method=""
-      local -r z_gf_stderr="${BURD_TEMP_DIR}/plumb_graft_vouch_stderr.txt"
+      local -r z_gf_stderr="${ZRBFC0_PLUMB_PREFIX}_graft_vouch_stderr.txt"
       jq -r '
         (.verification.verdict // "?"),
         (.verification.graft_source // "?"),
@@ -645,7 +645,7 @@ zrbfcp_plumb_show_sections() {
     echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_verifier_url="" z_verifier_sha=""
-      local -r z_verifier_stderr="${BURD_TEMP_DIR}/plumb_verifier_stderr.txt"
+      local -r z_verifier_stderr="${ZRBFC0_PLUMB_PREFIX}_verifier_stderr.txt"
       jq -r '(.verifier.url // "?"), (.verifier.sha256 // "?")' "${z_vs}" \
         > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_verifier_stderr}" \
         || buc_die_now "Failed to extract verifier from ${z_vs} — see ${z_verifier_stderr}"
@@ -657,7 +657,7 @@ zrbfcp_plumb_show_sections() {
       echo "    SHA256: ${z_verifier_sha}" || buc_die_now
       echo "" || buc_die_now
       echo "  Per-platform verdicts:" || buc_die_now
-      local -r z_verdicts_stderr="${BURD_TEMP_DIR}/plumb_verdicts_stderr.txt"
+      local -r z_verdicts_stderr="${ZRBFC0_PLUMB_PREFIX}_verdicts_stderr.txt"
       jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>"${z_verdicts_stderr}" \
         || echo "    (unable to parse)" \
         || buc_die_now
@@ -716,9 +716,9 @@ zrbfcp_plumb_show_full() {
   if test -f "${z_sbom}"; then
     printf "    %-12s %-36s %s\n" "TYPE" "NAME" "VERSION" || buc_die_now
     printf "    %-12s %-36s %s\n" "----" "----" "-------" || buc_die_now
-    local -r z_inv_stderr="${BURD_TEMP_DIR}/plumb_inventory_stderr.txt"
-    local -r z_inv_sorted="${BURD_TEMP_DIR}/plumb_inventory_sorted.txt"
-    local -r z_inv_sort_stderr="${BURD_TEMP_DIR}/plumb_inventory_sort_stderr.txt"
+    local -r z_inv_stderr="${ZRBFC0_PLUMB_PREFIX}_inventory_stderr.txt"
+    local -r z_inv_sorted="${ZRBFC0_PLUMB_PREFIX}_inventory_sorted.txt"
+    local -r z_inv_sort_stderr="${ZRBFC0_PLUMB_PREFIX}_inventory_sort_stderr.txt"
     jq -r '
       .artifacts[]? |
       [.type // "?", .name // "?", .version // "?"] |
@@ -744,9 +744,9 @@ zrbfcp_plumb_show_full() {
   if test -f "${z_sbom}"; then
     printf "    %-36s %-20s %s\n" "NAME" "LICENSE" "PURL" || buc_die_now
     printf "    %-36s %-20s %s\n" "----" "-------" "----" || buc_die_now
-    local -r z_lic_stderr="${BURD_TEMP_DIR}/plumb_licensing_stderr.txt"
-    local -r z_lic_sorted="${BURD_TEMP_DIR}/plumb_licensing_sorted.txt"
-    local -r z_lic_sort_stderr="${BURD_TEMP_DIR}/plumb_licensing_sort_stderr.txt"
+    local -r z_lic_stderr="${ZRBFC0_PLUMB_PREFIX}_licensing_stderr.txt"
+    local -r z_lic_sorted="${ZRBFC0_PLUMB_PREFIX}_licensing_sorted.txt"
+    local -r z_lic_sort_stderr="${ZRBFC0_PLUMB_PREFIX}_licensing_sort_stderr.txt"
     jq -r '
       .artifacts[]? |
       [

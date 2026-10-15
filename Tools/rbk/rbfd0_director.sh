@@ -30,10 +30,10 @@ test -z "${ZRBFD0_SOURCED:-}" || buc_die_now "Module rbfd multiply sourced - che
 ZRBFD0_SOURCED=1
 
 # Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
 
 # Source Foundry Verify module (ordain cross-module calls: rbfvv_vouch, zrbfvm_graft_metadata_submit)
-source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh"
+source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh" || buc_die_now "Failed to source rbfv0_verify.sh"
 
 # Tinder constants
 # Step id of the hallmark-echoing conjure step — single mint shared by the
@@ -42,11 +42,11 @@ readonly RBFD0_hallmark_echo_step_id="derive-tag-base"
 
 # Director body clusters, sourced once here at the single rbfd entry — all
 # guard-free: no cluster is sourced by a second entry.
-source "${BASH_SOURCE[0]%/*}/rbfdp_preflight.sh"
-source "${BASH_SOURCE[0]%/*}/rbfdb_build.sh"
-source "${BASH_SOURCE[0]%/*}/rbfdm_mirror.sh"
-source "${BASH_SOURCE[0]%/*}/rbfdg_graft.sh"
-source "${BASH_SOURCE[0]%/*}/rbfdo_ordain.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdp_preflight.sh" || buc_die_now "Failed to source rbfdp_preflight.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdb_build.sh" || buc_die_now "Failed to source rbfdb_build.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdm_mirror.sh" || buc_die_now "Failed to source rbfdm_mirror.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdg_graft.sh" || buc_die_now "Failed to source rbfdg_graft.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdo_ordain.sh" || buc_die_now "Failed to source rbfdo_ordain.sh"
 
 ######################################################################
 # Internal Functions (zrbfd0_*)

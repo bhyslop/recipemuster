@@ -69,8 +69,8 @@ zrbfca_resolve_tool_images() {
 zrbfca_assemble_about_steps() {
   zrbfc0_sentinel
 
-  local -r z_output_file="$1"
-  local -r z_temp_prefix="$2"
+  local -r z_output_file="${1}"
+  local -r z_temp_prefix="${2}"
 
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
@@ -80,6 +80,8 @@ zrbfca_assemble_about_steps() {
     "rbgja03-build-info-per-platform.py|${z_rbfc_tool_gcloud}|python3|build-info-per-platform"
     "rbgja04-assemble-push-about.sh|${z_rbfc_tool_docker}|bash|assemble-push-about"
   )
+
+  case "${z_rbfc_tool_syft}" in *[\&\\]*) buc_die_now "Syft tool image ref carries & or backslash: ${z_rbfc_tool_syft}" ;; esac
 
   echo "[]" > "${z_output_file}" || buc_die_now "Failed to initialize about steps JSON"
 
@@ -96,7 +98,8 @@ zrbfca_assemble_about_steps() {
   local z_ashebang=""
 
   for z_adef in "${z_about_step_defs[@]}"; do
-    IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}"
+    IFS='|' read -r z_ascript z_abuilder z_aentrypoint z_aid <<< "${z_adef}" \
+      || buc_die_now "Failed to parse about step definition: ${z_adef}"
     z_ascript_path="${ZRBFC0_RBGJA_STEPS_DIR}/${z_ascript}"
     z_abody_file="${z_temp_prefix}${z_aid}_body.txt"
     z_aescaped_file="${z_temp_prefix}${z_aid}_escaped.txt"
@@ -141,8 +144,8 @@ zrbfca_assemble_about_steps() {
 zrbfca_assemble_vouch_steps() {
   zrbfc0_sentinel
 
-  local -r z_output_file="$1"
-  local -r z_temp_prefix="$2"
+  local -r z_output_file="${1}"
+  local -r z_temp_prefix="${2}"
 
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
@@ -167,7 +170,8 @@ zrbfca_assemble_vouch_steps() {
   local z_vshebang=""
 
   for z_vdef in "${z_vouch_step_defs[@]}"; do
-    IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}"
+    IFS='|' read -r z_vscript z_vbuilder z_ventrypoint z_vid <<< "${z_vdef}" \
+      || buc_die_now "Failed to parse vouch step definition: ${z_vdef}"
     z_vscript_path="${ZRBFC0_RBGJV_STEPS_DIR}/${z_vscript}"
     z_vbody_file="${z_temp_prefix}${z_vid}_body.txt"
     z_vescaped_file="${z_temp_prefix}${z_vid}_escaped.txt"
@@ -214,8 +218,8 @@ zrbfca_assemble_vouch_steps() {
 zrbfca_assemble_preflight_step() {
   zrbfc0_sentinel
 
-  local -r z_output_file="$1"
-  local -r z_temp_prefix="$2"
+  local -r z_output_file="${1}"
+  local -r z_temp_prefix="${2}"
 
   local -r z_pscript_path="${ZRBFC0_RBGJR_STEPS_DIR}/rbgjr01-reliquary-preflight.sh"
   local -r z_pbody_file="${z_temp_prefix}preflight_body.txt"

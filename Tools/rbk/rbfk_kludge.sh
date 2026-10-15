@@ -25,9 +25,6 @@ set -euo pipefail
 test -z "${ZRBFK_SOURCED:-}" || buc_die_now "Module rbfk multiply sourced - check sourcing hierarchy"
 ZRBFK_SOURCED=1
 
-# Source shared Foundry Core module (registry constants + vessel resolution helpers)
-source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
-
 ######################################################################
 # Internal Functions (zrbfk_*)
 
@@ -57,18 +54,20 @@ zrbfk_sentinel() {
 # Image-Presence Predicate
 #
 # Wraps `docker image inspect` so stderr lands in a counter-discriminated
-# forensic temp file rather than the terminal. Returns docker's exit
-# status; callers consume via `if zrbfk_image_present_predicate ...` or
-# `... || ...`. The forensic files persist in BURD_TEMP_DIR for the
-# command's lifetime, available for post-mortem inspection.
+# forensic temp file rather than the terminal. Returns 0 when the image
+# is present and 1 otherwise; callers consume via
+# `if zrbfk_image_present_predicate ...` or `... || ...`. The forensic
+# files persist in BURD_TEMP_DIR for the command's lifetime, available for
+# post-mortem inspection.
 zrbfk_image_present_predicate() {
   zrbfk_sentinel
   local -r z_ref="${1:-}"
-  test -n "${z_ref}" || buc_die_now "zrbfk_image_present_predicate: image ref required"
+  test -n "${z_ref}" || return 1
   z_rbfk_inspect_counter=$(( z_rbfk_inspect_counter + 1 ))
   docker image inspect "${z_ref}" \
     >/dev/null \
-    2>"${ZRBFK_INSPECT_STDERR_PREFIX}${z_rbfk_inspect_counter}"
+    2>"${ZRBFK_INSPECT_STDERR_PREFIX}${z_rbfk_inspect_counter}" \
+    || return 1
 }
 
 ######################################################################
@@ -137,9 +136,14 @@ rbfk_kludge() {
   local z_tag=""
   local z_miss=""
   local z_anchored_misses=()
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   for z_slot in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_slot}_ORIGIN"
     z_anchor_var="RBRV_IMAGE_${z_slot}_ANCHOR"
+    [[ "${z_origin_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_origin_var}"
+    [[ "${z_anchor_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_anchor_var}"
     z_origin="${!z_origin_var:-}"
     z_anchor="${!z_anchor_var:-}"
 

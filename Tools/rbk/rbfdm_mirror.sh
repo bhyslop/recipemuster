@@ -43,10 +43,12 @@ rbfdm_mirror() {
   if test -z "${z_vessel_dir}"; then
     local z_sigils
     z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+    local z_sigil_roll=()
+    read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
     buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    local z_i=0
+    for z_i in "${!z_sigil_roll[@]}"; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil_roll[${z_i}]}"
     done
     buc_die_now "Vessel directory required"
   fi
@@ -110,9 +112,9 @@ rbfdm_mirror() {
   zrbfdm_mirror_submit "${z_hallmark}" "${z_token}"
 
   # Summary
-  echo ""
+  echo "" || buc_die_now "Failed to print mirror summary"
   buc_success "Mirror complete: ${RBRV_SIGIL}"
-  echo "  Hallmark: ${z_hallmark}"
+  echo "  Hallmark: ${z_hallmark}" || buc_die_now "Failed to print mirror summary"
 }
 
 ######################################################################
@@ -123,8 +125,8 @@ rbfdm_mirror() {
 zrbfdm_mirror_submit() {
   zrbfd0_sentinel
 
-  local -r z_hallmark="$1"
-  local -r z_token="$2"
+  local -r z_hallmark="${1}"
+  local -r z_token="${2}"
 
   buc_step "Constructing combined mirror Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"

@@ -188,7 +188,7 @@ zrbfcb_failure_tail() {
       buc_warn "${z_label}: no build log entries ingested after ${z_attempts} reads — no step log tail"
       return 0
     fi
-    sleep "${ZRBFC0_BUILD_POLL_INTERVAL_SEC}"
+    sleep "${ZRBFC0_BUILD_POLL_INTERVAL_SEC}" || buc_die_now "${z_label}: sleep failed between build log reads"
   done
 
   z_lines=()
@@ -243,13 +243,14 @@ zrbfcb_wait_build_completion() {
   local z_code_file=""
   local z_stderr_file=""
   local z_err_check_file=""
+  local z_err_check_stderr_file=""
   local z_status_check_file=""
   local z_last_good_response=""
   local z_curl_rc=0
 
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break;; esac
-    sleep "${ZRBFC0_BUILD_POLL_INTERVAL_SEC}"
+    sleep "${ZRBFC0_BUILD_POLL_INTERVAL_SEC}" || buc_die_now "${z_label}: sleep failed between status polls"
 
     z_polls=$((z_polls + 1))
 
@@ -304,27 +305,29 @@ zrbfcb_wait_build_completion() {
       z_consecutive_failures=$((z_consecutive_failures + 1))
       buc_warn "Curl failed (rc=${z_curl_rc}; ${z_consecutive_failures}/${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_stderr_file}"
       buc_log_pipe < "${z_stderr_file}"
-      test "${z_consecutive_failures}" -ge "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
-        && buc_die_now "Failed to get build status after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
+      test "${z_consecutive_failures}" -lt "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
+        || buc_die_now "Failed to get build status after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures (last rc=${z_curl_rc}; see ${z_stderr_file})"
       continue
     fi
 
     if ! test -s "${z_response_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
       buc_warn "Empty response (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
-      test "${z_consecutive_failures}" -ge "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
-        && buc_die_now "Empty build status after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
+      test "${z_consecutive_failures}" -lt "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
+        || buc_die_now "Empty build status after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
 
-    jq -r '.error.code // empty' "${z_response_file}" > "${z_err_check_file}" 2>/dev/null
+    z_err_check_stderr_file="${ZRBFC0_POLL_ERR_CHECK_PREFIX}${z_polls}_stderr.txt"
+    jq -r '.error.code // empty' "${z_response_file}" > "${z_err_check_file}" 2>"${z_err_check_stderr_file}" \
+      || buc_die_now "Failed to read error code from build status (poll ${z_polls}) — see ${z_err_check_stderr_file}"
     if test -s "${z_err_check_file}"; then
       z_consecutive_failures=$((z_consecutive_failures + 1))
       local z_err_code
       z_err_code=$(<"${z_err_check_file}") || buc_die_now "Failed to read: ${z_err_check_file}"
       buc_warn "HTTP error ${z_err_code} (poll ${z_polls}; ${z_consecutive_failures}/${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive) — see ${z_response_file}"
-      test "${z_consecutive_failures}" -ge "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
-        && buc_die_now "HTTP errors after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
+      test "${z_consecutive_failures}" -lt "${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE}" \
+        || buc_die_now "HTTP errors after ${ZRBFC0_BUILD_POLL_RETRY_TOLERANCE} consecutive failures"
       continue
     fi
 
@@ -360,8 +363,10 @@ zrbfcb_wait_build_completion() {
   fi
 
   # Extract build wall-clock timing from terminal status response
-  jq -r '.startTime // empty' "${ZRBFC0_BUILD_STATUS_FILE}" > "${ZRBFC0_BUILD_START_FILE}"
-  jq -r '.finishTime // empty' "${ZRBFC0_BUILD_STATUS_FILE}" > "${ZRBFC0_BUILD_FINISH_FILE}"
+  jq -r '.startTime // empty' "${ZRBFC0_BUILD_STATUS_FILE}" > "${ZRBFC0_BUILD_START_FILE}" \
+    || buc_die_now "Failed to extract build start time from ${ZRBFC0_BUILD_STATUS_FILE}"
+  jq -r '.finishTime // empty' "${ZRBFC0_BUILD_STATUS_FILE}" > "${ZRBFC0_BUILD_FINISH_FILE}" \
+    || buc_die_now "Failed to extract build finish time from ${ZRBFC0_BUILD_STATUS_FILE}"
   local z_start_time=""
   local z_start_time_status=0
   z_start_time=$(<"${ZRBFC0_BUILD_START_FILE}") || z_start_time_status=$?
@@ -378,22 +383,24 @@ zrbfcb_wait_build_completion() {
     z_finish_clean="${z_finish_clean%%Z}"
     local z_start_epoch=""
     local z_start_epoch_status=0
-    z_start_epoch=$(date -d "${z_start_clean}Z" '+%s' 2>/dev/null) || z_start_epoch_status=$?
+    z_start_epoch=$(date -d "${z_start_clean}Z" '+%s' 2>"${ZRBFC0_POLL_STDERR_PREFIX}start_date_gnu.txt") || z_start_epoch_status=$?
     if test "${z_start_epoch_status}" -ne 0; then
       z_start_epoch_status=0
-      z_start_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_start_clean}" '+%s' 2>/dev/null) || z_start_epoch_status=$?
+      z_start_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_start_clean}" '+%s' 2>"${ZRBFC0_POLL_STDERR_PREFIX}start_date_bsd.txt") || z_start_epoch_status=$?
       test "${z_start_epoch_status}" -eq 0 || z_start_epoch=""
     fi
     local z_finish_epoch=""
     local z_finish_epoch_status=0
-    z_finish_epoch=$(date -d "${z_finish_clean}Z" '+%s' 2>/dev/null) || z_finish_epoch_status=$?
+    z_finish_epoch=$(date -d "${z_finish_clean}Z" '+%s' 2>"${ZRBFC0_POLL_STDERR_PREFIX}finish_date_gnu.txt") || z_finish_epoch_status=$?
     if test "${z_finish_epoch_status}" -ne 0; then
       z_finish_epoch_status=0
-      z_finish_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_finish_clean}" '+%s' 2>/dev/null) || z_finish_epoch_status=$?
+      z_finish_epoch=$(date -j -f '%Y-%m-%dT%H:%M:%S' "${z_finish_clean}" '+%s' 2>"${ZRBFC0_POLL_STDERR_PREFIX}finish_date_bsd.txt") || z_finish_epoch_status=$?
       test "${z_finish_epoch_status}" -eq 0 || z_finish_epoch=""
     fi
     if test -n "${z_start_epoch}" && test -n "${z_finish_epoch}"; then
-      local -r z_duration=$((z_finish_epoch - z_start_epoch))
+      case "${z_start_epoch}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_start_epoch}" ;; esac
+      case "${z_finish_epoch}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_finish_epoch}" ;; esac
+      local -r z_duration=$((10#${z_finish_epoch} - 10#${z_start_epoch}))
       local -r z_minutes=$((z_duration / 60))
       local -r z_seconds=$((z_duration % 60))
       buc_info "${z_label}: Wall clock ${z_minutes}m ${z_seconds}s"
@@ -445,20 +452,20 @@ zrbfcb_ensure_git_metadata() {
 
 # Internal: write a script's body (everything after the shebang line) to a file
 # using only builtins — the portable replacement for `tail -n +2 src > dst`.
-# Returns non-zero if the source is unreadable or the destination unwritable.
+# Dies if the source is unreadable or the destination unwritable.
 zrbfcb_write_script_body() {
-  local -r z_src="$1"
-  local -r z_dst="$2"
+  local -r z_src="${1}"
+  local -r z_dst="${2}"
   local z_line
   local z_seen_shebang=""
-  test -r "${z_src}" || return 1
-  : > "${z_dst}"     || return 1
-  while IFS= read -r z_line || [ -n "${z_line}" ]; do
-    if [ -z "${z_seen_shebang}" ]; then
+  test -r "${z_src}" || buc_die_now "Script not readable: ${z_src}"
+  : > "${z_dst}"     || buc_die_now "Failed to truncate script body file: ${z_dst}"
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if test -z "${z_seen_shebang}"; then
       z_seen_shebang=1
       continue
     fi
-    printf '%s\n' "${z_line}" >> "${z_dst}"
+    printf '%s\n' "${z_line}" >> "${z_dst}" || buc_die_now "Failed to write script body: ${z_dst}"
   done < "${z_src}"
   return 0
 }
@@ -473,18 +480,17 @@ zrbfcb_write_script_body() {
 # blind to substitution names, which is what lets one snippet serve callers with
 # disjoint _RBGx_ substitution sets. Pure primitive — args only, no kindle state,
 # no sentinel — so it stays unit-testable alongside zrbfcb_write_script_body.
-# Returns non-zero if the body is unreadable, the snippets dir is missing, a
-# marker names no snippet, or a named snippet file is absent (crash-fast: the
-# caller dies, no silent skip).
+# Dies if the body is unreadable, the snippets dir is missing, a marker names
+# no snippet, or a named snippet file is absent (crash-fast, no silent skip).
 # Args: body_file snippets_dir
 zrbfcb_expand_includes() {
-  local -r z_body_file="$1"
-  local -r z_snippets_dir="$2"
-  test -f "${z_body_file}"    || return 1
-  test -d "${z_snippets_dir}" || return 1
+  local -r z_body_file="${1}"
+  local -r z_snippets_dir="${2}"
+  test -f "${z_body_file}"    || buc_die_now "Step body file not found: ${z_body_file}"
+  test -d "${z_snippets_dir}" || buc_die_now "Snippets directory not found: ${z_snippets_dir}"
 
   local -r z_tmp="${z_body_file}.expanded"
-  : > "${z_tmp}" || return 1
+  : > "${z_tmp}" || buc_die_now "Failed to truncate expansion file: ${z_tmp}"
 
   local z_line=""
   local z_trimmed=""
@@ -492,31 +498,31 @@ zrbfcb_expand_includes() {
   local z_snippet=""
   local z_sline=""
   local z_seen_shebang=""
-  while IFS= read -r z_line || [ -n "${z_line}" ]; do
+  while IFS= read -r z_line || test -n "${z_line}"; do
     z_trimmed="${z_line#"${z_line%%[![:space:]]*}"}"
     case "${z_trimmed}" in
       '#@rbgjs_include '*)
         z_name="${z_trimmed#'#@rbgjs_include '}"
         z_name="${z_name%%[[:space:]]*}"
-        test -n "${z_name}" || return 1
+        test -n "${z_name}" || buc_die_now "Include marker names no snippet in ${z_body_file}: ${z_line}"
         z_snippet="${z_snippets_dir}/rbgjs-${z_name}.sh"
-        test -f "${z_snippet}" || return 1
+        test -f "${z_snippet}" || buc_die_now "Snippet not found: ${z_snippet}"
         z_seen_shebang=""
-        while IFS= read -r z_sline || [ -n "${z_sline}" ]; do
-          if [ -z "${z_seen_shebang}" ]; then
+        while IFS= read -r z_sline || test -n "${z_sline}"; do
+          if test -z "${z_seen_shebang}"; then
             z_seen_shebang=1
             case "${z_sline}" in '#!'*) continue ;; esac
           fi
-          printf '%s\n' "${z_sline}" >> "${z_tmp}"
+          printf '%s\n' "${z_sline}" >> "${z_tmp}" || buc_die_now "Failed to write expansion file: ${z_tmp}"
         done < "${z_snippet}"
         ;;
       *)
-        printf '%s\n' "${z_line}" >> "${z_tmp}"
+        printf '%s\n' "${z_line}" >> "${z_tmp}" || buc_die_now "Failed to write expansion file: ${z_tmp}"
         ;;
     esac
   done < "${z_body_file}"
 
-  mv "${z_tmp}" "${z_body_file}" || return 1
+  mv "${z_tmp}" "${z_body_file}" || buc_die_now "Failed to replace step body with expansion: ${z_body_file}"
   return 0
 }
 
