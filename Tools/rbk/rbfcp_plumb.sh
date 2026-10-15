@@ -34,7 +34,8 @@ zrbfcp_plumb_core() {
   zrbfc0_sentinel
 
   local -r z_express="${1:-}"
-  local -r z_mode="${2}"
+  local -r z_mode="${2:-}"
+  test -n "${z_mode}" || buc_die_now "zrbfcp_plumb_core: mode required"
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
   buf_relay || buc_die_now "Failed to relay chained facts"
@@ -127,9 +128,12 @@ zrbfcp_plumb_core() {
 zrbfcp_plumb_show_bind() {
   zrbfc0_sentinel
 
-  local -r z_vessel="${1}"
-  local -r z_hallmark="${2}"
-  local -r z_mode="${3}"
+  local -r z_vessel="${1:-}"
+  local -r z_hallmark="${2:-}"
+  local -r z_mode="${3:-}"
+  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_bind: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_bind: hallmark required"
+  test -n "${z_mode}" || buc_die_now "zrbfcp_plumb_show_bind: mode required"
 
   if test "${z_mode}" = "compact"; then
     echo "" || buc_die_now
@@ -173,8 +177,9 @@ zrbfcp_plumb_show_bind() {
 zrbfcp_plumb_show_sections() {
   zrbfc0_sentinel
 
-  local -r z_dir="${1}"
-  local -r z_has_vouch="${2}"
+  local -r z_dir="${1:-}"
+  local -r z_has_vouch="${2:-}"
+  test -n "${z_dir}" || buc_die_now "zrbfcp_plumb_show_sections: dir required"
 
   local -r z_bi="${z_dir}/build_info.json"
   local -r z_sbom="${z_dir}/sbom.json"
@@ -262,7 +267,7 @@ zrbfcp_plumb_show_sections() {
 
   elif test -f "${z_bi}"; then
     # ── Conjure vessel sections ───────────────────────────────────────
-    # Batch extract conjure fields from build_info.json
+    # Batch extract build-info fields from build_info.json
     local z_platform="" z_qemu="" z_cj_moniker=""
     local z_cj_git_repo="" z_cj_git_branch="" z_cj_git_commit=""
     local z_cj_build_id="" z_cj_build_ts="" z_cj_inscribe_ts="" z_cj_image_uri=""
@@ -283,20 +288,20 @@ zrbfcp_plumb_show_sections() {
       (.slsa.build_invocation_id // "?"),
       (.slsa.provenance_builder_id // "?")
     ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_cj_stderr}" \
-      || buc_die_now "Failed to extract conjure fields from ${z_bi} — see ${z_cj_stderr}"
-    { read -r z_platform         || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_qemu             || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_moniker       || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_git_repo      || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_git_branch    || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_git_commit    || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_build_id      || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_build_ts      || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_inscribe_ts   || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_cj_image_uri     || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_slsa_level       || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_slsa_invocation  || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_slsa_builder     || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      || buc_die_now "Failed to extract build-info fields from ${z_bi} — see ${z_cj_stderr}"
+    { read -r z_platform         || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_qemu             || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_moniker       || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_git_repo      || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_git_branch    || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_git_commit    || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_build_id      || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_build_ts      || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_inscribe_ts   || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_image_uri     || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_slsa_level       || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_slsa_invocation  || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_slsa_builder     || buc_die_now "Failed to read build-info fields from ${ZRBFC0_SCRATCH_FILE}"
     } < "${ZRBFC0_SCRATCH_FILE}"
 
     echo "" || buc_die_now
@@ -629,10 +634,10 @@ zrbfcp_plumb_show_sections() {
         (.verification.graft_source // "?"),
         (.verification.method // "?")
       ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_gf_stderr}" \
-        || buc_die_now "Failed to extract graft verification from ${z_vs} — see ${z_gf_stderr}"
-      { read -r z_gf_verdict  || buc_die_now "Failed to read graft verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_gf_source   || buc_die_now "Failed to read graft verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_gf_method   || buc_die_now "Failed to read graft verification from ${ZRBFC0_SCRATCH_FILE}"
+        || buc_die_now "Failed to extract verification fields from ${z_vs} — see ${z_gf_stderr}"
+      { read -r z_gf_verdict  || buc_die_now "Failed to read verification fields from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_gf_source   || buc_die_now "Failed to read verification fields from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_gf_method   || buc_die_now "Failed to read verification fields from ${ZRBFC0_SCRATCH_FILE}"
       } < "${ZRBFC0_SCRATCH_FILE}"
       echo "  Verdict:     ${z_gf_verdict}" || buc_die_now
       echo "  Method:      ${z_gf_method}" || buc_die_now
@@ -672,10 +677,13 @@ zrbfcp_plumb_show_sections() {
 zrbfcp_plumb_show_compact() {
   zrbfc0_sentinel
 
-  local -r z_vessel="${1}"
-  local -r z_hallmark="${2}"
-  local -r z_dir="${3}"
-  local -r z_has_vouch="${4}"
+  local -r z_vessel="${1:-}"
+  local -r z_hallmark="${2:-}"
+  local -r z_dir="${3:-}"
+  local -r z_has_vouch="${4:-}"
+  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_compact: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_compact: hallmark required"
+  test -n "${z_dir}" || buc_die_now "zrbfcp_plumb_show_compact: dir required"
 
   echo "" || buc_die_now
   echo "================================================================" || buc_die_now
@@ -695,10 +703,13 @@ zrbfcp_plumb_show_compact() {
 zrbfcp_plumb_show_full() {
   zrbfc0_sentinel
 
-  local -r z_vessel="${1}"
-  local -r z_hallmark="${2}"
-  local -r z_dir="${3}"
-  local -r z_has_vouch="${4}"
+  local -r z_vessel="${1:-}"
+  local -r z_hallmark="${2:-}"
+  local -r z_dir="${3:-}"
+  local -r z_has_vouch="${4:-}"
+  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_full: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_full: hallmark required"
+  test -n "${z_dir}" || buc_die_now "zrbfcp_plumb_show_full: dir required"
 
   local -r z_sbom="${z_dir}/sbom.json"
 

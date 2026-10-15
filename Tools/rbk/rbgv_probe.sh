@@ -61,7 +61,7 @@ zrbgv_sentinel() {
 zrbgv_ms_to_sleep_capture() {
   zrbgv_sentinel
 
-  local z_ms="${1}"
+  local -r z_ms="${1:-}"
 
   buc_log_args "Converting ${z_ms}ms to sleep duration"
   case "${z_ms}" in ''|*[!0123456789]*) return 1 ;; esac
@@ -155,8 +155,10 @@ zrbgv_mantle_ar_call_capture() {
     "${ZRBGV_AR_CODE_FILE}"            \
     "${ZRBGV_AR_STDERR_FILE}"
 
+  local z_code_status=0
   local z_code
-  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || { buc_log_args "Failed to read mantle AR HTTP code file"; return 1; }
+  z_code=$(<"${ZRBGV_AR_CODE_FILE}") || z_code_status=$?
+  test "${z_code_status}" -eq 0 || { buc_log_args "Failed to read mantle AR HTTP code file"; return 1; }
   test -n "${z_code}"                || { buc_log_args "Empty HTTP code from mantle AR curl"; return 1; }
 
   printf '%s\n' "${z_code}"

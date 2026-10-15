@@ -125,8 +125,10 @@ rbfdm_mirror() {
 zrbfdm_mirror_submit() {
   zrbfd0_sentinel
 
-  local -r z_hallmark="${1}"
-  local -r z_token="${2}"
+  local -r z_hallmark="${1:-}"
+  local -r z_token="${2:-}"
+  test -n "${z_hallmark}" || buc_die_now "zrbfdm_mirror_submit: hallmark required"
+  test -n "${z_token}" || buc_die_now "zrbfdm_mirror_submit: token required"
 
   buc_step "Constructing combined mirror Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"

@@ -298,7 +298,7 @@ zrbob_compose() {
   local z_compose_status=0
   "${ZRBOB_RUNTIME}" "${z_args[@]}" || z_compose_status=$?
   test "${z_compose_status}" -eq 0 \
-    || buc_die_now "${ZRBOB_RUNTIME} compose ${*} failed (status ${z_compose_status})"
+    || buc_die_now "${ZRBOB_RUNTIME} compose $* failed (status ${z_compose_status})"
 }
 
 ######################################################################
@@ -365,7 +365,7 @@ zrbob_kludge_currency_gate() {
   git diff --quiet "${z_sha}" -- "${RBRR_VESSEL_DIR}" 2>"${z_diff_stderr}" || z_diff_status=$?
   test "${z_diff_status}" -ne 0 || return 0
   test "${z_diff_status}" -eq 1 \
-    || buc_die_now "Kludge currency diff for vessel ${z_vessel} against ${z_sha} failed (status ${z_diff_status}) — see ${z_diff_stderr}"
+    || buc_die_now "Currency diff for vessel ${z_vessel} against ${z_sha} failed (status ${z_diff_status}) — see ${z_diff_stderr}"
 
   buc_warn "Kludge image for vessel ${z_vessel} is stale: ${z_hallmark}"
   buc_bare "  The pin was built from ${z_sha}; ${RBRR_VESSEL_DIR} has changed since."
@@ -468,7 +468,8 @@ zrbob_vouch_gate_and_summon() {
 zrbob_provenance_destroyable_predicate() {
   zrbob_sentinel
 
-  local -r z_container="${1}"
+  local -r z_container="${1:-}"
+  test -n "${z_container}" || return 1
   local -r z_inspect_file="${BURD_TEMP_DIR}/zrbob_provenance_inspect_${z_container}.txt"
   local -r z_inspect_stderr="${BURD_TEMP_DIR}/zrbob_provenance_inspect_stderr_${z_container}.txt"
 
@@ -503,7 +504,8 @@ zrbob_provenance_destroyable_predicate() {
 zrbob_provenance_gate() {
   zrbob_sentinel
 
-  local -r z_creed="${1}"
+  local -r z_creed="${1:-}"
+  test -n "${z_creed}" || buc_die_now "zrbob_provenance_gate: creed required"
   local z_container=""
   local z_foreign_owner=""
 
@@ -694,7 +696,7 @@ zrbob_render_charge_note() {
       || buc_die_now "Invalid variable name: ${z_name}"
     z_value="${!z_name}"
     case "${z_value}" in
-      *[\&\\]*) buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: value of {{${z_name}}} carries '&' or a backslash" ;;
+      *[\&\\]*) buc_die_now "Note ${ZRBOB_CHARGE_NOTE}: value of {{${z_name}}} carries '&' or a backslash" ;;
     esac
     z_content="${z_content//"{{${z_name}}}"/${z_value}}"
   done

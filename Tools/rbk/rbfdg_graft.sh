@@ -76,7 +76,7 @@ rbfdg_graft() {
   docker image inspect "${z_local_image}" > "${z_inspect_file}" 2>"${z_inspect_stderr}" \
     || z_inspect_status=$?
   test "${z_inspect_status}" -eq 0 \
-    || buc_die_now "Local image not found: ${z_local_image} — build the image before grafting (status ${z_inspect_status}; see ${z_inspect_stderr})"
+    || buc_die_now "Local image not found: ${z_local_image} — build the image locally first (status ${z_inspect_status}; see ${z_inspect_stderr})"
   buc_info "Local image confirmed: ${z_local_image}"
 
   # Extract image creation timestamp for hallmark T1
@@ -155,11 +155,11 @@ rbfdg_graft() {
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Summary
-  echo "" || buc_die_now "Failed to print graft summary"
+  echo "" || buc_die_now "Failed to print the summary"
   buc_success "Graft complete: ${RBRV_SIGIL}"
-  echo "  Hallmark: ${z_hallmark}" || buc_die_now "Failed to print graft summary"
-  echo "  Source:  ${z_local_image}" || buc_die_now "Failed to print graft summary"
-  echo "  Image:   ${z_image_ref}" || buc_die_now "Failed to print graft summary"
+  echo "  Hallmark: ${z_hallmark}" || buc_die_now "Failed to print the summary"
+  echo "  Source:  ${z_local_image}" || buc_die_now "Failed to print the summary"
+  echo "  Image:   ${z_image_ref}" || buc_die_now "Failed to print the summary"
 }
 
 # eof

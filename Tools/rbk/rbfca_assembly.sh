@@ -69,8 +69,10 @@ zrbfca_resolve_tool_images() {
 zrbfca_assemble_about_steps() {
   zrbfc0_sentinel
 
-  local -r z_output_file="${1}"
-  local -r z_temp_prefix="${2}"
+  local -r z_output_file="${1:-}"
+  local -r z_temp_prefix="${2:-}"
+  test -n "${z_output_file}" || buc_die_now "zrbfca_assemble_about_steps: output_file required"
+  test -n "${z_temp_prefix}" || buc_die_now "zrbfca_assemble_about_steps: temp_prefix required"
 
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
@@ -144,8 +146,10 @@ zrbfca_assemble_about_steps() {
 zrbfca_assemble_vouch_steps() {
   zrbfc0_sentinel
 
-  local -r z_output_file="${1}"
-  local -r z_temp_prefix="${2}"
+  local -r z_output_file="${1:-}"
+  local -r z_temp_prefix="${2:-}"
+  test -n "${z_output_file}" || buc_die_now "zrbfca_assemble_vouch_steps: output_file required"
+  test -n "${z_temp_prefix}" || buc_die_now "zrbfca_assemble_vouch_steps: temp_prefix required"
 
   # Step definitions: script|builder|entrypoint|id
   # Delimiter is | because image refs contain colons (sha256 digests)
@@ -218,8 +222,10 @@ zrbfca_assemble_vouch_steps() {
 zrbfca_assemble_preflight_step() {
   zrbfc0_sentinel
 
-  local -r z_output_file="${1}"
-  local -r z_temp_prefix="${2}"
+  local -r z_output_file="${1:-}"
+  local -r z_temp_prefix="${2:-}"
+  test -n "${z_output_file}" || buc_die_now "zrbfca_assemble_preflight_step: output_file required"
+  test -n "${z_temp_prefix}" || buc_die_now "zrbfca_assemble_preflight_step: temp_prefix required"
 
   local -r z_pscript_path="${ZRBFC0_RBGJR_STEPS_DIR}/rbgjr01-reliquary-preflight.sh"
   local -r z_pbody_file="${z_temp_prefix}preflight_body.txt"

@@ -53,7 +53,7 @@ rbw_show() {
 # Routing
 
 rbw_route() {
-  local z_command="${1}"
+  local z_command="${1:-}"
   shift || buc_die_now "rbw_route: command required"
 
   rbw_show "Routing command: ${z_command} with args: $*"

@@ -36,8 +36,9 @@ set -euo pipefail
 zrbfvm_graft_metadata_submit() {
   zrbfv0_sentinel
 
-  local -r z_vessel_dir="${1}"
-  local -r z_hallmark="${2}"
+  local -r z_vessel_dir="${1:-}"
+  local -r z_hallmark="${2:-}"
+  test -n "${z_vessel_dir}" || buc_die_now "zrbfvm_graft_metadata_submit: vessel_dir required"
 
   # Load vessel (follows reload pattern used by rbfva_about/rbfvv_vouch)
   zrbfcv_load_vessel "${z_vessel_dir}"

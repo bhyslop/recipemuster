@@ -59,7 +59,7 @@ VSLW_DEST_DIR="../_vs/${VSLW_PROJECT_BASE_NAME}"
 
 # Simple routing function
 vslw_route() {
-  local z_command="${1}"
+  local z_command="${1:-}"
   shift || buc_die_now "vslw_route: command required"
 
   vslw_show "Routing command: ${z_command} with args: $*"

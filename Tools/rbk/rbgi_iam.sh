@@ -127,8 +127,10 @@ zrbgi_sentinel() {
 zrbgi_propagation_error_predicate() {
   zrbgi_sentinel
 
-  local -r z_infix="${1}"
-  local -r z_code="${2}"
+  local -r z_infix="${1:-}"
+  local -r z_code="${2:-}"
+  test -n "${z_infix}" || return 1
+  test -n "${z_code}" || return 1
   shift 2 || return 1
 
   local z_err_msg=""
@@ -137,8 +139,8 @@ zrbgi_propagation_error_predicate() {
   local z_tol_re=""
 
   while test "$#" -ge 2; do
-    z_tol_code="${1}"
-    z_tol_re="${2}"
+    z_tol_code="${1:-}"
+    z_tol_re="${2:-}"
     shift 2 || return 1
 
     test "${z_code}" = "${z_tol_code}" || continue
@@ -1629,9 +1631,9 @@ rbgi_jq_remove_member_from_role_capture() {
 rbgi_provision_service_agent() {
   zrbgi_sentinel
 
-  local -r z_api_service="${1}"
-  local -r z_project_id="${2}"
-  local -r z_token="${3}"
+  local -r z_api_service="${1:-}"
+  local -r z_project_id="${2:-}"
+  local -r z_token="${3:-}"
 
   test -n "${z_api_service}" || buc_die_now "rbgi_provision_service_agent: API service name required"
   test -n "${z_project_id}" || buc_die_now "rbgi_provision_service_agent: project ID required"

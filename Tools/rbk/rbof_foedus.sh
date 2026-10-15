@@ -296,7 +296,7 @@ rbof_canvass() {
   buc_info ""
   buc_info "=== FOEDUS CANVASS ==="
   printf "%-24s %-24s %-12s %s\n" "FOEDUS" "PROVIDER" "STATE" "SELECTED" \
-    || buc_die_now "Failed to print the canvass header"
+    || buc_die_now "Failed to print the foedus table header"
 
   # Per-iteration synthesized locals (declare outside, assign inside)
   local z_page=1
@@ -381,7 +381,7 @@ rbof_canvass() {
       buf_write_fact_multi "${z_stem}" "${RBCC_fact_ext_foedus}" "${z_fact_value}"
 
       printf "%-24s %-24s %-12s %s\n" "${z_matched:--}" "${z_p_id}" "${z_p_state}" "${z_selected}" \
-        || buc_die_now "Failed to print the canvass row for ${z_p_id}"
+        || buc_die_now "Failed to print the foedus table row for ${z_p_id}"
       z_total=$((z_total + 1))
       test -z "${z_matched}" || z_matched_count=$((z_matched_count + 1))
 

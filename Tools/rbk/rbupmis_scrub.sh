@@ -40,7 +40,7 @@
 
 set -euo pipefail
 
-outfile="${1}"
+outfile="${1:-}"
 
 # Ensure output file is empty
 : > "${outfile}"

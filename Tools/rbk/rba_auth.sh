@@ -385,7 +385,7 @@ zrba_leg1_idtoken_capture() {
   test -n "${z_device_code}"      || return 1
   test -n "${z_user_code}"        || return 1
   test -n "${z_verification_uri}" || return 1
-  case "${z_interval}" in ''|*[!0123456789]*) z_interval=5 ;; esac
+  case "${z_interval}" in ''|*[!0123456789]*) buc_log_args "Device-flow interval is not a decimal number: ${z_interval}"; return 1 ;; esac
 
   # Surface the prompt as a yawp on the shared progress stream — console, log,
   # and any watching relay alike — so a headless-but-human-reachable caller can

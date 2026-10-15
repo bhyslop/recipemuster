@@ -137,8 +137,10 @@ rbfvv_vouch() {
 zrbfvv_vouch_submit() {
   zrbfv0_sentinel
 
-  local -r z_hallmark="${1}"
-  local -r z_token="${2}"
+  local -r z_hallmark="${1:-}"
+  local -r z_token="${2:-}"
+  test -n "${z_hallmark}" || buc_die_now "zrbfvv_vouch_submit: hallmark required"
+  test -n "${z_token}" || buc_die_now "zrbfvv_vouch_submit: token required"
 
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"

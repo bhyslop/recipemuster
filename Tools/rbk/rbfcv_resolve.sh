@@ -92,7 +92,8 @@ zrbfcv_resolve_vessel() {
 zrbfcv_load_vessel() {
   zrbfc0_sentinel
 
-  local z_vessel_dir="${1}"
+  local z_vessel_dir="${1:-}"
+  test -n "${z_vessel_dir}" || buc_die_now "zrbfcv_load_vessel: vessel_dir required"
 
   buc_log_args 'Validate vessel directory exists'
   test -d "${z_vessel_dir}" || buc_die_now "Vessel directory not found: ${z_vessel_dir}"

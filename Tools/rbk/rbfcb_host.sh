@@ -454,8 +454,10 @@ zrbfcb_ensure_git_metadata() {
 # using only builtins — the portable replacement for `tail -n +2 src > dst`.
 # Dies if the source is unreadable or the destination unwritable.
 zrbfcb_write_script_body() {
-  local -r z_src="${1}"
-  local -r z_dst="${2}"
+  local -r z_src="${1:-}"
+  local -r z_dst="${2:-}"
+  test -n "${z_src}" || buc_die_now "zrbfcb_write_script_body: src required"
+  test -n "${z_dst}" || buc_die_now "zrbfcb_write_script_body: dst required"
   local z_line
   local z_seen_shebang=""
   test -r "${z_src}" || buc_die_now "Script not readable: ${z_src}"
@@ -484,8 +486,10 @@ zrbfcb_write_script_body() {
 # no snippet, or a named snippet file is absent (crash-fast, no silent skip).
 # Args: body_file snippets_dir
 zrbfcb_expand_includes() {
-  local -r z_body_file="${1}"
-  local -r z_snippets_dir="${2}"
+  local -r z_body_file="${1:-}"
+  local -r z_snippets_dir="${2:-}"
+  test -n "${z_body_file}" || buc_die_now "zrbfcb_expand_includes: body_file required"
+  test -n "${z_snippets_dir}" || buc_die_now "zrbfcb_expand_includes: snippets_dir required"
   test -f "${z_body_file}"    || buc_die_now "Step body file not found: ${z_body_file}"
   test -d "${z_snippets_dir}" || buc_die_now "Snippets directory not found: ${z_snippets_dir}"
 

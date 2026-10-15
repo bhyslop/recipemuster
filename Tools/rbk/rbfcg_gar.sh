@@ -150,10 +150,14 @@ zrbfcg_list_anchors_capture() {
 zrbfcg_gar_extract_artifact() {
   zrbfc0_sentinel
 
-  local -r z_token="${1}"
-  local -r z_package="${2}"
-  local -r z_tag="${3}"
-  local -r z_extract_dir="${4}"
+  local -r z_token="${1:-}"
+  local -r z_package="${2:-}"
+  local -r z_tag="${3:-}"
+  local -r z_extract_dir="${4:-}"
+  test -n "${z_token}" || buc_die_now "zrbfcg_gar_extract_artifact: token required"
+  test -n "${z_package}" || buc_die_now "zrbfcg_gar_extract_artifact: package required"
+  test -n "${z_tag}" || buc_die_now "zrbfcg_gar_extract_artifact: tag required"
+  test -n "${z_extract_dir}" || buc_die_now "zrbfcg_gar_extract_artifact: extract_dir required"
 
   local -r z_safe_pkg="${z_package//\//_}"
   local -r z_prefix="${BURD_TEMP_DIR}/gar_${z_safe_pkg}_${z_tag}_"
@@ -295,10 +299,14 @@ zrbfcg_gar_extract_artifact() {
 zrbfcg_image_config_fetch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1}"
-  local -r z_package="${2}"
-  local -r z_tag="${3}"
-  local -r z_out="${4}"
+  local -r z_token="${1:-}"
+  local -r z_package="${2:-}"
+  local -r z_tag="${3:-}"
+  local -r z_out="${4:-}"
+  test -n "${z_token}" || buc_die_now "zrbfcg_image_config_fetch: token required"
+  test -n "${z_package}" || buc_die_now "zrbfcg_image_config_fetch: package required"
+  test -n "${z_tag}" || buc_die_now "zrbfcg_image_config_fetch: tag required"
+  test -n "${z_out}" || buc_die_now "zrbfcg_image_config_fetch: out required"
 
   local -r z_safe_pkg="${z_package//\//_}"
   local -r z_prefix="${BURD_TEMP_DIR}/cfg_${z_safe_pkg}_${z_tag}_"

@@ -411,7 +411,7 @@ zrbfdb_stitch_build_json() {
   local -r z_all_steps_file="${ZRBFD0_STITCH_PREFIX}all_steps.json"
   local -r z_extract_steps_file="${ZRBFD0_STITCH_PREFIX}extract_steps.json"
   jq -s '.' "${z_extract_step_file}" > "${z_extract_steps_file}" \
-    || buc_die_now "Failed to wrap context extraction step as an array"
+    || buc_die_now "Failed to enclose the context extraction step as an array"
   jq -s '.[0] + .[1] + .[2]' \
     "${z_preflight_step_file}" \
     "${z_extract_steps_file}" \
@@ -562,10 +562,13 @@ zrbfdb_stitch_build_json() {
 zrbfdb_push_build_context() {
   zrbfd0_sentinel
 
-  local -r z_token="${1}"
-  local -r z_sigil="${2}"
-  local -r z_bldctx="${3}"
-  local -r z_hallmark="${4}"
+  local -r z_token="${1:-}"
+  local -r z_sigil="${2:-}"
+  local -r z_bldctx="${3:-}"
+  local -r z_hallmark="${4:-}"
+  test -n "${z_token}" || buc_die_now "zrbfdb_push_build_context: token required"
+  test -n "${z_sigil}" || buc_die_now "zrbfdb_push_build_context: sigil required"
+  test -n "${z_bldctx}" || buc_die_now "zrbfdb_push_build_context: bldctx required"
 
   test -d "${z_bldctx}" || buc_die_now "Build context directory not found: ${z_bldctx}"
   test -n "${z_hallmark}" || buc_die_now "Hallmark required for pouch tag"
