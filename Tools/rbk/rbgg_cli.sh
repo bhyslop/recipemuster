@@ -49,7 +49,7 @@ zrbgg_furnish() {
   source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
-  rbcc_source_active_rbrf
+  rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source ${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgg_governor.sh" || buc_die_now "Failed to source rbgg_governor.sh"
   source "${z_rbk_kit_dir}/rbgw_capabilities.sh" || buc_die_now "Failed to source rbgw_capabilities.sh"

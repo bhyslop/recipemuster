@@ -81,7 +81,7 @@ zrbxk_kindle() {
   # setup renders the git-IGNORED live file the folio-addressed verbs source
   # (RBr_e4a).
   local z_live=""
-  z_live=$(rbcc_rbrf_file_capture "${RBXK_foedus}") \
+  z_live=$(rbcc_rbrf_file_flint_capture "${RBXK_foedus}") \
     || buc_die_now "Failed to resolve the ${RBXK_foedus} federation regime path"
   readonly ZRBXK_LIVE="${z_live}"
   readonly ZRBXK_TEMPLATE="${ZRBXK_LIVE}.template"

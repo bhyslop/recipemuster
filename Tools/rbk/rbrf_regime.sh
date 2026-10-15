@@ -31,6 +31,11 @@ ZRBRF_SOURCED=1
 zrbrf_kindle() {
   test -z "${ZRBRF_KINDLED:-}" || buc_die_now "Module rbrf already kindled"
 
+  buv_dir_exists "${BURD_TEMP_DIR}"
+
+  # The enforce's checks that call a tool leave that tool's stderr here
+  readonly ZRBRF_ENFORCE_PREFIX="${BURD_TEMP_DIR}/rbrf_enforce_"
+
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
@@ -135,8 +140,9 @@ zrbrf_enforce() {
       # The uploaded snapshot must parse as a JWKS with at least one key; the
       # strict RSA-member strip (kty/kid/use/alg/n/e) is the orchestrator's job
       # before it writes this value, so affiance uploads it verbatim.
-      printf '%s' "${RBRF_IDP_JWKS_JSON}" | jq -e '(.keys | type) == "array" and (.keys | length) > 0' >/dev/null 2>&1 \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON}"
+      local -r z_jwks_stderr="${ZRBRF_ENFORCE_PREFIX}jwks_stderr.txt"
+      jq -e '(.keys | type) == "array" and (.keys | length) > 0' <<<"${RBRF_IDP_JWKS_JSON}" >/dev/null 2>"${z_jwks_stderr}" \
+        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON} — see ${z_jwks_stderr}"
 
       # The reachable grant endpoint: https, or a loopback http:// (the
       # loopback-http escape from the https gate) — cleartext tolerated ONLY for

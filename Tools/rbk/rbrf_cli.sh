@@ -21,8 +21,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
@@ -33,7 +33,7 @@ rbrf_validate() {
   buc_doc_shown || return 0
 
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  z_rbrf=$(rbcc_rbrf_file_flint_capture "${RBRR_ACTIVE_FOEDUS:-}") || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
   buc_step "Validating RBRF federation regime file: ${z_rbrf}"
   buv_report RBRF "Federation Regime"
   buc_step "RBRF federation regime valid"
@@ -45,7 +45,7 @@ rbrf_render() {
   buc_doc_shown || return 0
 
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  z_rbrf=$(rbcc_rbrf_file_flint_capture "${RBRR_ACTIVE_FOEDUS:-}") || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
   buv_render RBRF "RBRF - Recipe Bottle Regime Federation" "${z_rbrf}"
 }
 
@@ -56,20 +56,20 @@ zrbrf_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
+  local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
 
-  source "${BURD_BUK_DIR}/bug_git.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrf_regime.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
   # The federation regime file is the ACTIVE foedus's rbrf.env, resolved from
   # RBRR_ACTIVE_FOEDUS — so this validator sources the repo regime first for the
   # selector, then the active rbrf. It reads the selector only; it does not
   # enforce RBRR (federation-scoped, like rbgv's depot-agnostic probes).
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
-  rbcc_source_active_rbrf
+  rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
 
   zbuv_kindle
   zburd_kindle

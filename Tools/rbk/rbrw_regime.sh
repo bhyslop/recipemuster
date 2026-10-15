@@ -75,7 +75,9 @@ zrbrw_enforce() {
   # Session duration: NNNs form, bounded 900s (15 min) to 43200s (12 hours).
   [[ "${RBRW_SESSION_DURATION}" =~ ^[0-9]+s$ ]] \
     || buc_reject "${BUBC_band_regime}" "Invalid RBRW_SESSION_DURATION: ${RBRW_SESSION_DURATION} (expected NNNs, e.g. 3600s)"
-  (( 10#${RBRW_SESSION_DURATION%s} >= 900 && 10#${RBRW_SESSION_DURATION%s} <= 43200 )) \
+  local -r z_duration_sec="${RBRW_SESSION_DURATION%s}"
+  case "${z_duration_sec}" in ''|*[!0123456789]*) buc_die_now "RBRW_SESSION_DURATION carries no decimal seconds: ${RBRW_SESSION_DURATION}" ;; esac
+  (( 10#${z_duration_sec} >= 900 && 10#${z_duration_sec} <= 43200 )) \
     || buc_reject "${BUBC_band_regime}" "RBRW_SESSION_DURATION out of bounds: ${RBRW_SESSION_DURATION} (must be 900s-43200s)"
 }
 

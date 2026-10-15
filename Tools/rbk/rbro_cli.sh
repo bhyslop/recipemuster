@@ -21,8 +21,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
@@ -45,9 +45,10 @@ rbro_render() {
   buc_doc_brief "Display diagnostic view of RBRO OAuth regime configuration"
   buc_doc_shown || return 0
 
-  echo ""
-  zbuc_tint BUYC_BRIGHT_WHITE "RBRO - Recipe Bottle OAuth Regime"; echo "${z_buym_format}"
-  echo ""
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "RBRO - Recipe Bottle OAuth Regime"; local -r z_title="${z_buym_format}"
+  echo "" || buc_die_now "Failed to echo render lead line"
+  echo "${z_title}" || buc_die_now "Failed to echo render title"
+  echo "" || buc_die_now "Failed to echo render title break"
   buc_step "  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
   buc_step "  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
 }
@@ -59,16 +60,16 @@ zrbro_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${z_rbk_kit_dir}/rbro_regime.sh"
+  local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk_kit_dir}/rbro_regime.sh" || buc_die_now "Failed to source rbro_regime.sh"
 
   zbuv_kindle
   zburd_kindle

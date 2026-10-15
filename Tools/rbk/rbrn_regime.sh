@@ -31,6 +31,11 @@ ZRBRN_SOURCED=1
 zrbrn_kindle() {
   test -z "${ZRBRN_KINDLED:-}" || buc_die_now "Module rbrn already kindled"
 
+  buv_dir_exists "${BURD_TEMP_DIR}"
+
+  # The drive's rewrite of a nameplate's rbrn.env lands here before it moves into place
+  readonly ZRBRN_DRIVE_PREFIX="${BURD_TEMP_DIR}/rbrn_drive_"
+
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
@@ -126,36 +131,35 @@ rbrn_list_capture() {
   zrbrn_sentinel
 
   local z_result=""
-  local z_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
+  local -r z_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_i=""
+  local z_dir=""
+  local z_inscription=""
+  local z_moniker=""
   for z_i in "${!z_files[@]}"; do
-    test -f "${z_files[$z_i]}" || continue
-    local z_dir="${z_files[$z_i]%/*}"
-    local z_inscription="${z_dir##*/}"
-    local z_moniker="${z_inscription#"${RBCC_nameplate_sprue}"}"
+    test -f "${z_files[${z_i}]}" || continue
+    z_dir="${z_files[${z_i}]%/*}"
+    z_inscription="${z_dir##*/}"
+    z_moniker="${z_inscription#"${RBCC_nameplate_sprue}"}"
     z_result="${z_result}${z_result:+ }${z_moniker}"
   done
   test -n "${z_result}" || return 1
   echo "${z_result}"
 }
 
-# Armament predicate — a hallmark is "armed" when non-empty. Vacant (empty) is
-# the legal marshal-zero cold state, not a defect: the fleet survey reports it
-# and consumption (charge) refuses it. Pure on the passed value — no kindle
-# state — so the fleet-survey isolation subshell, which sources a nameplate raw
-# and unkindled, can call it too.
-# pure predicate: reads tinder and its arguments only
-rbrn_hallmark_armed_predicate() {
+# Armament — a hallmark is "armed" when non-empty. Vacant (empty) is the legal
+# marshal-zero cold state, not a defect: the fleet survey reports it and
+# consumption (charge) refuses it.
+rbrn_hallmark_armed_flint_predicate() {
   test -n "${1:-}" || return 1
   return 0
 }
 
 # Armament gate — the homed consumption refusal a charge cites in place of its
-# own inline checks. Pure on its args (moniker + both hallmark values), so it
-# needs no kindled rbrn state. Vacancy is a legal shape; this is the single
-# point where an unarmed nameplate is refused at consumption. Half-armed is a
-# legitimate transient (rbw-nd drives one field at a time) — each field is
-# gated independently, so the message names the vacant one.
+# own inline checks. Vacancy is a legal shape; this is the single point where an
+# unarmed nameplate is refused at consumption. Half-armed is a legitimate
+# transient (rbw-nd drives one field at a time) — each field is gated
+# independently, so the message names the vacant one.
 rbrn_require_armed() {
   zrbrn_sentinel
 
@@ -163,9 +167,15 @@ rbrn_require_armed() {
   local -r z_sentry_hallmark="${2:-}"
   local -r z_bottle_hallmark="${3:-}"
 
-  rbrn_hallmark_armed_predicate "${z_sentry_hallmark}" \
+  buc_doc_brief "Refuse a nameplate whose Sentry or Bottle hallmark is vacant"
+  buc_doc_param "moniker" "The nameplate moniker the refusal names"
+  buc_doc_param "sentry_hallmark" "The nameplate's RBRN_SENTRY_HALLMARK value"
+  buc_doc_param "bottle_hallmark" "The nameplate's RBRN_BOTTLE_HALLMARK value"
+  buc_doc_shown || return 0
+
+  rbrn_hallmark_armed_flint_predicate "${z_sentry_hallmark}" \
     || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
-  rbrn_hallmark_armed_predicate "${z_bottle_hallmark}" \
+  rbrn_hallmark_armed_flint_predicate "${z_bottle_hallmark}" \
     || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
 }
 
@@ -190,6 +200,10 @@ zrbrn_ip_int_capture() {
   local -r z_b="${BASH_REMATCH[2]}"
   local -r z_c="${BASH_REMATCH[3]}"
   local -r z_d="${BASH_REMATCH[4]}"
+  case "${z_a}" in ''|*[!0123456789]*) return 1 ;; esac
+  case "${z_b}" in ''|*[!0123456789]*) return 1 ;; esac
+  case "${z_c}" in ''|*[!0123456789]*) return 1 ;; esac
+  case "${z_d}" in ''|*[!0123456789]*) return 1 ;; esac
   test "$(( 10#${z_a} ))" -le 255 || return 1
   test "$(( 10#${z_b} ))" -le 255 || return 1
   test "$(( 10#${z_c} ))" -le 255 || return 1
@@ -207,21 +221,24 @@ zrbrn_ip_in_subnet() {
   local -r z_ip="${2:-}"
   local -r z_base="${3:-}"
   local -r z_mask="${4:-}"
+  case "${z_mask}" in ''|*[!0123456789]*) buc_die_now "Subnet mask ${z_mask} for ${z_label} is not a decimal number" ;; esac
 
-  local z_ip_int
   local z_ip_status=0
+  local z_ip_int
   z_ip_int=$(zrbrn_ip_int_capture "${z_ip}") || z_ip_status=$?
   test "${z_ip_status}" -eq 0 \
     || buc_reject "${BUBC_band_regime}" "${z_label}=${z_ip} is not a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
+  case "${z_ip_int}" in ''|*[!0123456789]*) buc_die_now "Address ${z_ip} for ${z_label} did not convert to a decimal integer: ${z_ip_int}" ;; esac
 
-  local z_base_int
   local z_base_status=0
+  local z_base_int
   z_base_int=$(zrbrn_ip_int_capture "${z_base}") || z_base_status=$?
   test "${z_base_status}" -eq 0 \
     || buc_reject "${BUBC_band_regime}" "Subnet base ${z_base} for ${z_label} is not a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
+  case "${z_base_int}" in ''|*[!0123456789]*) buc_die_now "Subnet base ${z_base} for ${z_label} did not convert to a decimal integer: ${z_base_int}" ;; esac
 
   local -r z_net_mask=$(( (0xFFFFFFFF << (32 - 10#${z_mask})) & 0xFFFFFFFF ))
-  test "$(( z_ip_int & z_net_mask ))" -eq "$(( z_base_int & z_net_mask ))" \
+  test "$(( 10#${z_ip_int} & z_net_mask ))" -eq "$(( 10#${z_base_int} & z_net_mask ))" \
     || buc_reject "${BUBC_band_regime}" "${z_label}=${z_ip} is not within subnet ${z_base}/${z_mask}"
 }
 
@@ -230,8 +247,11 @@ zrbrn_ip_in_subnet() {
 rbrn_preflight() {
   zrbrn_sentinel
 
+  buc_doc_brief "Refuse a nameplate set with a port conflict, an enclave IP conflict or overlapping subnets"
+  buc_doc_shown || return 0
+
   # Collect structured data from all nameplates via isolation subshells
-  local z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
+  local -r z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
   local z_data_lines=()
   local z_data_files=()
   local -r z_isolation_program='
@@ -302,15 +322,18 @@ rbrn_preflight() {
     if test "${z_entry}" = "rbnne_enabled"; then
       [[ "${z_ws}" =~ ${z_port_pattern} ]] \
         || buc_die_now "Nameplate ${z_mon} has RBRN_ENTRY_PORT_WORKSTATION '${z_ws}' — expected a port 1-65535"
+      case "${z_ws}" in ''|*[!0123456789]*) buc_die_now "Nameplate ${z_mon} has RBRN_ENTRY_PORT_WORKSTATION '${z_ws}' — expected a port 1-65535" ;; esac
       test "$(( 10#${z_ws} ))" -le 65535 \
         || buc_die_now "Nameplate ${z_mon} has RBRN_ENTRY_PORT_WORKSTATION '${z_ws}' — expected a port 1-65535"
       [[ "${z_enc}" =~ ${z_port_pattern} ]] \
         || buc_die_now "Nameplate ${z_mon} has RBRN_ENTRY_PORT_ENCLAVE '${z_enc}' — expected a port 1-65535"
+      case "${z_enc}" in ''|*[!0123456789]*) buc_die_now "Nameplate ${z_mon} has RBRN_ENTRY_PORT_ENCLAVE '${z_enc}' — expected a port 1-65535" ;; esac
       test "$(( 10#${z_enc} ))" -le 65535 \
         || buc_die_now "Nameplate ${z_mon} has RBRN_ENTRY_PORT_ENCLAVE '${z_enc}' — expected a port 1-65535"
     fi
     [[ "${z_mask}" =~ ${z_mask_pattern} ]] \
       || buc_die_now "Nameplate ${z_mon} has RBRN_ENCLAVE_NETMASK '${z_mask}' — expected 8-30"
+    case "${z_mask}" in ''|*[!0123456789]*) buc_die_now "Nameplate ${z_mon} has RBRN_ENCLAVE_NETMASK '${z_mask}' — expected 8-30" ;; esac
     test "$(( 10#${z_mask} ))" -ge 8 \
       || buc_die_now "Nameplate ${z_mon} has RBRN_ENCLAVE_NETMASK '${z_mask}' — expected 8-30"
     test "$(( 10#${z_mask} ))" -le 30 \
@@ -319,6 +342,7 @@ rbrn_preflight() {
     z_net_int=$(zrbrn_ip_int_capture "${z_base}") || z_ip_status=$?
     test "${z_ip_status}" -eq 0 \
       || buc_die_now "Nameplate ${z_mon} has RBRN_ENCLAVE_BASE_IP '${z_base}' — expected a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
+    case "${z_net_int}" in ''|*[!0123456789]*) buc_die_now "Nameplate ${z_mon} RBRN_ENCLAVE_BASE_IP '${z_base}' did not convert to a decimal integer: ${z_net_int}" ;; esac
     z_ip_status=0
     z_sentry_int=$(zrbrn_ip_int_capture "${z_sentry}") || z_ip_status=$?
     test "${z_ip_status}" -eq 0 \
@@ -369,7 +393,7 @@ rbrn_preflight() {
 
     # Subnet non-overlap
     z_net_mask_bits=$(( (0xFFFFFFFF << (32 - 10#${z_mask})) & 0xFFFFFFFF ))
-    z_net_addr=$(( z_net_int & z_net_mask_bits ))
+    z_net_addr=$(( 10#${z_net_int} & z_net_mask_bits ))
     z_net_size=$(( 1 << (32 - 10#${z_mask}) ))
     z_net_end=$(( z_net_addr + z_net_size - 1 ))
 
@@ -383,6 +407,91 @@ rbrn_preflight() {
     z_net_owners+=("${z_mon}")
 
   done
+}
+
+######################################################################
+# Drive (rbrn_drive)
+#
+# Resolve a hallmark express-or-chain and write it into one target nameplate's
+# RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK line. The durable-config LINK for
+# the nameplate/hallmark chain — sibling of feoff/anoint/yoke on the rbch_enchase
+# surface, but writing the rbrn_regime family rather than rbrv_regime. Called by
+# rbrn_cli (the cloud operator verb) and by rbob (the local kludge composes it).
+# Operator-committed, never self-committing.
+
+rbrn_drive() {
+  zrbrn_sentinel
+
+  local -r z_nameplate="${BUZ_FOLIO:-}"
+  local -r z_field="${1:-}"
+  local -r z_express="${2:-}"
+
+  buc_doc_brief "Drive a freshly-built hallmark into a nameplate — resolve the hallmark express-or-chain and rewrite RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK in the nameplate's rbrn.env"
+  buc_doc_param "nameplate" "Target nameplate moniker"
+  buc_doc_param "field"     "Which hallmark to drive: 'bottle' or 'sentry'"
+  buc_doc_param "hallmark"  "Hallmark tag (e.g., k260327172456); optional — absent, falls back to the hallmark a build handed forward through the depth-1 chain"
+  buc_doc_shown || return 0
+
+  # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
+  buf_relay || buc_die_now "Failed to relay chained facts"
+
+  test -n "${z_nameplate}" || buc_die_now "Nameplate required (param1)"
+
+  # Map the operator-facing field selector to the RBRN variable. A two-value
+  # ashlar selector (bottle|sentry), never the raw variable name.
+  local z_var_name=""
+  case "${z_field}" in
+    bottle) z_var_name="RBRN_BOTTLE_HALLMARK" ;;
+    sentry) z_var_name="RBRN_SENTRY_HALLMARK" ;;
+    "")     buc_die_now "Field required (param2): 'bottle' or 'sentry'" ;;
+    *)      buc_die_now "Unknown field '${z_field}' — expected 'bottle' or 'sentry'" ;;
+  esac
+
+  # Resolve the target nameplate's rbrn.env by moniker WITHOUT loading it. The
+  # drive rewrites one line; loading the regime would enforce the field's
+  # min-length and reject a still-blank hallmark — the very state the drive fills.
+  # Mirrors feoff, which never loads the vessel whose rbrv.env it rewrites.
+  local -r z_rbrn_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_nameplate}/${RBCC_rbrn_file}"
+  test -f "${z_rbrn_file}" || buc_die_now "Nameplate regime file not found: ${z_rbrn_file}"
+
+  # Resolve the hallmark express-or-chain: an express argument wins; absent, the
+  # value a build (kludge or ordain) handed forward through the depth-1 chain.
+  # No clean-tree gate here (RBr_a52).
+  local z_hallmark=""
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
+    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before drive"
+  local z_source="chain"
+  test -z "${z_express}" || z_source="express"
+
+  buc_step "Driving ${z_var_name} into ${z_nameplate} (source ${z_source})"
+
+  # Replace-or-die the chosen field's line. RBRN_{BOTTLE,SENTRY}_HALLMARK is a
+  # required enrolled field always present in a well-formed nameplate — a missing
+  # line is schema drift, a hard die (the find-or-err schema-drift catch), never a
+  # silent append (contrast anoint, whose RBRV_GRAFT_IMAGE may legitimately be
+  # absent and is appended).
+  local -r z_tmp_file="${ZRBRN_DRIVE_PREFIX}${z_nameplate}_${RBCC_rbrn_file}.new"
+  local z_line=""
+  local z_found=false
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if [[ "${z_line}" == "${z_var_name}"=* ]]; then
+      printf '%s\n' "${z_var_name}=${z_hallmark}" || buc_die_now "Failed to write ${z_tmp_file}"
+      z_found=true
+    else
+      printf '%s\n' "${z_line}" || buc_die_now "Failed to write ${z_tmp_file}"
+    fi
+  done < "${z_rbrn_file}" > "${z_tmp_file}" \
+    || buc_die_now "Failed to rewrite ${z_rbrn_file} for ${z_var_name}"
+  test "${z_found}" = "true" \
+    || buc_die_now "Field ${z_var_name} not found in ${z_rbrn_file} — nameplate schema drift"
+  mv "${z_tmp_file}" "${z_rbrn_file}" || buc_die_now "Failed to finalize ${z_rbrn_file}"
+
+  # Loud on success: the driven field, value, and source named prominently, so a
+  # wrong drive shows at the moment of action rather than only in the git diff.
+  buc_success "Drove ${z_nameplate}: ${z_var_name}=${z_hallmark} (source: ${z_source})"
+  buc_info "Commit the rbrn.env change with your usual git workflow."
 }
 
 # eof

@@ -89,7 +89,7 @@ zrbof_require_foedus() {
   # (RBr_e4a), so the two tests name distinct states.
   local z_rbrf=""
   local z_rbrf_status=0
-  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") || z_rbrf_status=$?
+  z_rbrf=$(rbcc_rbrf_file_flint_capture "${z_foedus}") || z_rbrf_status=$?
   test "${z_rbrf_status}" -eq 0 || buc_reject "${z_band}" "Failed to resolve the regime path for foedus '${z_foedus}'"
   test -f "${z_rbrf}" \
     || buc_reject "${z_band}" "Foedus '${z_foedus}' has no rbrf.env. Available foedera: ${z_avail}"
@@ -139,7 +139,7 @@ rbof_descry() {
   # foedus's own rbrf.env.
   local z_rbrf=""
   local z_rbrf_status=0
-  z_rbrf=$(rbcc_rbrf_file_capture "${z_foedus}") || z_rbrf_status=$?
+  z_rbrf=$(rbcc_rbrf_file_flint_capture "${z_foedus}") || z_rbrf_status=$?
   test "${z_rbrf_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Failed to resolve the regime path for foedus '${z_foedus}'"
   local z_org=""
   local z_pool=""
@@ -248,7 +248,7 @@ rbof_canvass() {
   local -r z_active="${RBRR_ACTIVE_FOEDUS:-}"
   test -n "${z_active}" || buc_die_now "RBRR_ACTIVE_FOEDUS is empty — the repo regime selects no active foedus"
   local z_active_rbrf=""
-  z_active_rbrf=$(rbcc_rbrf_file_capture "${z_active}") \
+  z_active_rbrf=$(rbcc_rbrf_file_flint_capture "${z_active}") \
     || buc_die_now "Failed to resolve the regime path for the active foedus '${z_active}'"
   test -f "${z_active_rbrf}" || buc_die_now "Active foedus '${z_active}' has no rbrf.env in the foedera library: ${z_active_rbrf}"
 
@@ -271,7 +271,7 @@ rbof_canvass() {
     z_entry="${z_entry%/}"
     z_lib_name="${z_entry##*/}"
     local z_lib_rbrf_status=0
-    z_lib_rbrf=$(rbcc_rbrf_file_capture "${z_lib_name}") || z_lib_rbrf_status=$?
+    z_lib_rbrf=$(rbcc_rbrf_file_flint_capture "${z_lib_name}") || z_lib_rbrf_status=$?
     test "${z_lib_rbrf_status}" -eq 0 || continue
     test -f "${z_lib_rbrf}" || continue
     local z_lib_pid_status=0

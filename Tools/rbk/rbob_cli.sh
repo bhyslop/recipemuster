@@ -124,7 +124,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
-  rbcc_source_active_rbrf
+  rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source ${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
   source "${z_rbk_kit_dir}/rbgl_layout.sh" || buc_die_now "Failed to source rbgl_layout.sh"
@@ -132,7 +132,6 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
   source "${z_rbk_kit_dir}/rbob_bottle.sh" || buc_die_now "Failed to source rbob_bottle.sh"
-  source "${z_rbk_kit_dir}/rbrn_drive.sh" || buc_die_now "Failed to source rbrn_drive.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
   source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
   source "${z_rbk_kit_dir}/rbfh_hygiene.sh" || buc_die_now "Failed to source rbfh_hygiene.sh"

@@ -1576,7 +1576,7 @@ fn rbtdrf_rt_lapse_advisory(dir: &Path) -> rbtdre_Verdict {
          zrbdc_kindle\n\
          zrbgo_kindle\n\
          zrba_kindle\n\
-         rbcc_source_active_rbrf\n\
+         rbcc_source_active_rbrf_flint \"${{RBRR_ACTIVE_FOEDUS:-}}\"\n\
          source \"${{RBCC_rbrw_file}}\"\n\
          zrbrf_kindle\n\
          zrbrw_kindle\n\

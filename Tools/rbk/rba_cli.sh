@@ -133,10 +133,10 @@ zrba_furnish() {
   zburd_kindle
 
   # RBRR is sourced for the RBRR_ACTIVE_FOEDUS selector alone (the trust
-  # resolve in rbcc_source_active_rbrf); depot-agnostic, so no RBRR
+  # resolve in rbcc_source_active_rbrf_flint); depot-agnostic, so no RBRR
   # enforcement — mirroring the avowal probe's furnish posture.
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
-  rbcc_source_active_rbrf
+  rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrr_kindle
   zrbcc_kindle

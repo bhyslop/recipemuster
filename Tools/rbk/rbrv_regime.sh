@@ -101,7 +101,7 @@ zrbrv_enforce() {
   # source passes the mirror but fails the vouch deep in the cloud build. Reject
   # it here at config time.
   if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
-    local z_bind_digest_re='@sha256:[0-9a-f]{64}$'
+    local -r z_bind_digest_re='@sha256:[0-9a-f]{64}$'
     [[ "${RBRV_BIND_IMAGE}" =~ ${z_bind_digest_re} ]] \
       || buc_reject "${BUBC_band_regime}" "RBRV_BIND_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_BIND_IMAGE}'"
   fi
@@ -116,13 +116,15 @@ rbrv_list_capture() {
   zrbrv_sentinel
 
   local z_result=""
-  local z_dirs=("${RBRR_VESSEL_DIR}"/*)
+  local -r z_dirs=("${RBRR_VESSEL_DIR}"/*)
   local z_i=""
+  local z_d=""
+  local z_s=""
   for z_i in "${!z_dirs[@]}"; do
-    local z_d="${z_dirs[$z_i]}"
+    z_d="${z_dirs[${z_i}]}"
     test -d "${z_d}" || continue
     test -f "${z_d}/${RBCC_rbrv_file}" || continue
-    local z_s="${z_d%/}"
+    z_s="${z_d%/}"
     z_result="${z_result}${z_result:+ }${z_s##*/}"
   done
   test -n "${z_result}" || return 1

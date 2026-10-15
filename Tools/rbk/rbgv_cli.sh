@@ -233,7 +233,7 @@ zrbgv_furnish() {
   source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   case "${z_command}" in
     rbgv_check_avowal|rbgv_check_mantle)
-      rbcc_source_active_rbrf
+      rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
       source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
       ;;
   esac
