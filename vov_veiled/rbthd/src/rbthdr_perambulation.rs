@@ -141,6 +141,12 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("rbmm_moorings/rbrp.env", Ship),
     ("rbmm_moorings/rbrr.env", Ship),
     ("rbmm_moorings/rbrw.env", Ship),
+    // THE WEANED COLLARS ship with the crates they declare, on the launchers'
+    // reason: a delivered build door converges through its collar, so a
+    // withheld collar would leave that door pointing at nothing. The
+    // hierophant's are withheld at stem grain, as the crate they declare is.
+    ("rbmm_moorings/bkd_weaned/rbthdn_", Withhold),
+    ("rbmm_moorings/bkd_weaned/", Ship),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
     ("rbmm_moorings/rbml_launchers/launcher.bkw_workbench.sh", Ship),

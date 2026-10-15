@@ -22,16 +22,31 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 ######################################################################
 # Build helper
 
-# Build the crate and resolve its binary. The crate is standalone (its own
-# Cargo.toml, no workspace), built by manifest path. No codegen: essai reaches
-# its workers by tabtarget, needing no generated colophon constants.
+# The hierophant's two collars (rbmm_moorings/bkd_weaned/). Every cargo
+# invocation is the kennel's, through the door each collar is handed to: the
+# app converged by the heel, the suite launched by the mush. No codegen: essai
+# reaches its workers by tabtarget, needing no generated colophon constants.
+readonly ZRBTHE_APP_COLLAR="rbthdn_app"
+readonly ZRBTHE_SUITE_COLLAR="rbthdn_suite"
+
+# A kennel door, resolved by COLOPHON rather than by whole filename: the
+# frontispiece is a label the kit may re-word.
+z_rbthe_door=""
+zrbthe_door() {
+  local -r z_colophon="$1"
+  local z_found=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
+  test -x "${z_found[0]}" || buc_die_now "No kennel door stands at ${BURD_TABTARGET_DIR}/${z_colophon}.*"
+  z_rbthe_door="${z_found[0]}"
+}
+
+# Converge the app collar through the kennel's heel, and resolve the binary at
+# the residence the collar declares.
 z_rbthe_binary=""
-zrbthe_cargo_build() {
+zrbthe_heel() {
   local z_dir="${BASH_SOURCE[0]%/*}"
-  local z_manifest="${z_dir}/Cargo.toml"
+  zrbthe_door "bkw-h"
   buc_step "Building hierophant"
-  buc_log_args "Manifest: ${z_manifest}"
-  cargo build --manifest-path "${z_manifest}" || buc_die_now "cargo build failed"
+  "${z_rbthe_door}" "${ZRBTHE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTHE_APP_COLLAR} failed"
   z_rbthe_binary="${z_dir}/target/debug/rbthd"
   test -x "${z_rbthe_binary}" || buc_die_now "Hierophant binary not found: ${z_rbthe_binary}"
 }
@@ -43,7 +58,7 @@ rbthe_build() {
   buc_doc_brief "Build the hierophant crate"
   buc_doc_shown || return 0
 
-  zrbthe_cargo_build
+  zrbthe_heel
   buc_success "Hierophant built"
 }
 
@@ -51,7 +66,7 @@ rbthe_essai() {
   buc_doc_brief "Essai — the reversible repair lap (gate, cut, prove, rig; zero remote acts)"
   buc_doc_shown || return 0
 
-  zrbthe_cargo_build
+  zrbthe_heel
   buc_step "Conducting essai"
   "${z_rbthe_binary}" essai
 }
@@ -61,7 +76,7 @@ rbthe_docimasy() {
   buc_doc_oparm "rehearse" "Prove the reversible stages only: skip credential preflight, the gauntlet, and the cachet grant"
   buc_doc_shown || return 0
 
-  zrbthe_cargo_build
+  zrbthe_heel
   buc_step "Conducting docimasy"
   if [ -n "${BUZ_FOLIO:-}" ]; then
     "${z_rbthe_binary}" docimasy "${BUZ_FOLIO}"
@@ -75,7 +90,7 @@ rbthe_ostend() {
   buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the kerygma line"
   buc_doc_shown || return 0
 
-  zrbthe_cargo_build
+  zrbthe_heel
   buc_step "Conducting ostend"
   if [ -n "${BUZ_FOLIO:-}" ]; then
     "${z_rbthe_binary}" ostend "${BUZ_FOLIO}"
@@ -88,7 +103,7 @@ rbthe_harbinger() {
   buc_doc_brief "Harbinger — the stranger rig against promoted public main (zero remote acts)"
   buc_doc_shown || return 0
 
-  zrbthe_cargo_build
+  zrbthe_heel
   buc_step "Conducting harbinger"
   "${z_rbthe_binary}" harbinger
 }
@@ -97,10 +112,9 @@ rbthe_test() {
   buc_doc_brief "Run the hierophant crate tests — the cut's self-proofs (totality, planted-leak sweep)"
   buc_doc_shown || return 0
 
-  local z_dir="${BASH_SOURCE[0]%/*}"
-  local z_manifest="${z_dir}/Cargo.toml"
+  zrbthe_door "bkw-m"
   buc_step "Testing hierophant"
-  cargo test --manifest-path "${z_manifest}" || buc_die_now "cargo test failed"
+  "${z_rbthe_door}" "${ZRBTHE_SUITE_COLLAR}" || buc_die_now "The kennel's mush of ${ZRBTHE_SUITE_COLLAR} failed"
   buc_success "Hierophant tests green"
 }
 

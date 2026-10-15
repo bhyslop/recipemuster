@@ -36,34 +36,22 @@ zrbte_kindle() {
 
   local z_dir="${BASH_SOURCE[0]%/*}"
 
-  readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
+  # The theurge's two collars (rbmm_moorings/bkd_weaned/). Every cargo
+  # invocation is the kennel's, through the door each collar is handed to: the
+  # app converged by the heel, the suite launched by the mush.
+  readonly ZRBTE_APP_COLLAR="rbtdn_app"
+  readonly ZRBTE_SUITE_COLLAR="rbtdn_suite"
 
-  # Windows-native cargo (the x86_64-pc-windows-gnu toolchain) cannot open a
-  # Cygwin /cygdrive-style path argument — it reads it as a literal Windows path
-  # and reports "does not exist". Under Cygwin, hand cargo a Windows-form path
-  # (drive-letter root, forward slashes — which Windows accepts). Pure parameter
-  # expansion, no subshell and no external cygpath, mirroring RBTDRX's /cygdrive
-  # fast path on the Rust side. Same path-argument boundary as the
-  # Windows shellcheck.exe, distinct from the .sh process-launch boundary
-  # RBTDRX/rbtdri handle Rust-side. Identity off Cygwin; fails fast on an
-  # unsurveyed shape.
-  # Retire when theurge builds as a true Cygwin binary.
-  if test "${OSTYPE:-}" = "cygwin"; then
-    case "${RBTE_MANIFEST}" in
-      /cygdrive/?/*)
-        local -r z_drive_rest="${RBTE_MANIFEST#/cygdrive/}"
-        local -r z_drive="${z_drive_rest%%/*}"
-        local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
-        readonly RBTE_MANIFEST_ARG="${z_drive}:/${z_drive_tail}"
-        ;;
-      *)
-        buc_die_now "rbte: cannot translate manifest path for Windows cargo (expected /cygdrive/X/...): ${RBTE_MANIFEST}"
-        ;;
-    esac
-  else
-    readonly RBTE_MANIFEST_ARG="${RBTE_MANIFEST}"
-  fi
+  # The kennel's doors, resolved by COLOPHON rather than by whole filename: the
+  # frontispiece is a label the kit may re-word.
+  local z_heel=("${BURD_TABTARGET_DIR}/bkw-h."*)
+  test -x "${z_heel[0]}" || buc_die_now "rbte: no kennel heel door stands at ${BURD_TABTARGET_DIR}/bkw-h.*"
+  readonly ZRBTE_HEEL_DOOR="${z_heel[0]}"
+  local z_mush=("${BURD_TABTARGET_DIR}/bkw-m."*)
+  test -x "${z_mush[0]}" || buc_die_now "rbte: no kennel mush door stands at ${BURD_TABTARGET_DIR}/bkw-m.*"
+  readonly ZRBTE_MUSH_DOOR="${z_mush[0]}"
 
+  # Where the heel installs the binary: the app collar's residence and byname.
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
@@ -95,14 +83,14 @@ zrbte_codegen() {
     || buc_die_now "Failed to generate colophon consts"
 }
 
+# The strike, then the kennel's converge of the app collar. A strike that moved
+# a committed file leaves the tree dirty, and the heel refuses it by the door law.
 zrbte_build_binary() {
   zrbte_sentinel
 
   zrbte_codegen
   buc_step "Building theurge"
-  local z_cargo_status=0
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || z_cargo_status=$?
-  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo build failed (status ${z_cargo_status})"
+  "${ZRBTE_HEEL_DOOR}" "${ZRBTE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTE_APP_COLLAR} failed"
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -112,24 +100,22 @@ zrbte_build_binary() {
 rbte_build() {
   zrbte_sentinel
 
-  zrbte_codegen
-  buc_step "Building theurge"
-  buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  local z_cargo_status=0
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || z_cargo_status=$?
-  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo build failed (status ${z_cargo_status})"
+  test "$#" -eq 0 || buc_die_now "The theurge build takes no argument; its shape is the collar ${ZRBTE_APP_COLLAR}'s"
+
+  zrbte_build_binary
   buc_success "Theurge built"
 }
 
+# The strike, then the kennel's mush over the suite collar; any argument is the
+# kennel's selection pattern, handed through untouched.
 rbte_test() {
   zrbte_sentinel
 
   zrbte_codegen
   buc_step "Testing theurge"
-  buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  local z_cargo_status=0
-  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || z_cargo_status=$?
-  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo test failed (status ${z_cargo_status})"
+  local z_mush_status=0
+  "${ZRBTE_MUSH_DOOR}" "${ZRBTE_SUITE_COLLAR}" "$@" || z_mush_status=$?
+  test "${z_mush_status}" -eq 0 || buc_die_now "The kennel's mush of ${ZRBTE_SUITE_COLLAR} failed (status ${z_mush_status})"
   buc_success "All theurge tests passed"
 }
 
