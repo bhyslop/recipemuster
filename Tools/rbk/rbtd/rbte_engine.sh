@@ -42,14 +42,23 @@ zrbte_kindle() {
   readonly ZRBTE_APP_COLLAR="rbtdn_app"
   readonly ZRBTE_SUITE_COLLAR="rbtdn_suite"
 
-  # The kennel's doors, resolved by COLOPHON rather than by whole filename: the
-  # frontispiece is a label the kit may re-word.
-  local -r z_heel=("${BURD_TABTARGET_DIR}/bkw-h."*)
-  test -x "${z_heel[0]}" || buc_die_now "rbte: no kennel heel door stands at ${BURD_TABTARGET_DIR}/bkw-h.*"
-  readonly ZRBTE_HEEL_DOOR="${z_heel[0]}"
-  local -r z_mush=("${BURD_TABTARGET_DIR}/bkw-m."*)
-  test -x "${z_mush[0]}" || buc_die_now "rbte: no kennel mush door stands at ${BURD_TABTARGET_DIR}/bkw-m.*"
-  readonly ZRBTE_MUSH_DOOR="${z_mush[0]}"
+  # THE KENNEL BINARY IS DRIVEN, never a nested kennel tabtarget: a second
+  # dispatch inside this one mints a second temp generation and a second log,
+  # and the theurge's own touchstone reads one dispatch per invoke. The gate the
+  # whistle would have run is the kennel's own published bash, read below.
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh" || buc_die_now "Failed to source bkcp_position.sh"
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcb_tackroom.sh" || buc_die_now "Failed to source bkcb_tackroom.sh"
+  zbkcb_kindle
+  readonly ZRBTE_REPO_ROOT="${PWD}"
+  readonly ZRBTE_KENNEL_CRATE="${ZRBTE_REPO_ROOT}/${BURD_TOOLS_DIR}/bkk/bk0"
+  readonly ZRBTE_KENNEL="${ZRBTE_KENNEL_CRATE}/target/release/bkx"
+  readonly ZRBTE_KENNEL_ELECTION="${ZRBTE_KENNEL_CRATE}/bkce_roots.txt"
+
+  # The whistle, named by every refusal below and run by none, resolved by
+  # COLOPHON rather than by whole filename: the frontispiece is a label the kit
+  # may re-word.
+  local -r z_whistle=("${BURD_TABTARGET_DIR}/bkw-w."*)
+  readonly ZRBTE_WHISTLE="${z_whistle[0]}"
 
   # Where the heel installs the binary: the app collar's residence and byname.
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
@@ -83,14 +92,41 @@ zrbte_codegen() {
     || buc_die_now "Failed to generate colophon consts"
 }
 
+# The kennel stands and is current, or refuse naming the whistle. REPORT AND
+# REFUSE, NEVER CONVERGE: the whistle is the one door that rebuilds the kennel.
+# The door law stands first, since a kennel refusing a dirty tree states no seat
+# and would read as outrun.
+zrbte_kennel_or_die() {
+  zrbte_sentinel
+
+  bkcp_door_law_or_die "${ZRBTE_REPO_ROOT}"
+
+  test -x "${ZRBTE_KENNEL}" || buc_die_now \
+    "No kennel stands at ${ZRBTE_KENNEL}, and every cargo invocation of the theurge passes through it. The converge, run deliberately: ${ZRBTE_WHISTLE}"
+
+  local z_seat=""
+  z_seat=$(bkcp_position_capture "${ZRBTE_REPO_ROOT}" "${ZRBTE_KENNEL_ELECTION}") \
+    || buc_die_now "Could not read the seat's position over ${ZRBTE_KENNEL_ELECTION}"
+
+  local z_standing=""
+  z_standing=$(bkcp_standing_seat_capture "${ZRBTE_KENNEL}") \
+    || buc_die_now "Could not ask the kennel at ${ZRBTE_KENNEL} where it was struck"
+
+  test "${z_standing}" = "${z_seat}" || buc_die_now \
+    "The seat has outrun the kennel: the binary at ${ZRBTE_KENNEL} stands at ${z_standing:-no position it could state}, the seat at ${z_seat}. The converge, run deliberately: ${ZRBTE_WHISTLE}"
+
+  bkcb_ensure
+}
+
 # The strike, then the kennel's converge of the app collar. A strike that moved
-# a committed file leaves the tree dirty, and the heel refuses it by the door law.
+# a committed file leaves the tree dirty, and the gate refuses it by the door law.
 zrbte_build_binary() {
   zrbte_sentinel
 
   zrbte_codegen
+  zrbte_kennel_or_die
   buc_step "Building theurge"
-  "${ZRBTE_HEEL_DOOR}" "${ZRBTE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTE_APP_COLLAR} failed"
+  "${ZRBTE_KENNEL}" heel "${ZRBTE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTE_APP_COLLAR} failed"
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -112,9 +148,10 @@ rbte_test() {
   zrbte_sentinel
 
   zrbte_codegen
+  zrbte_kennel_or_die
   buc_step "Testing theurge"
   local z_mush_status=0
-  "${ZRBTE_MUSH_DOOR}" "${ZRBTE_SUITE_COLLAR}" "$@" || z_mush_status=$?
+  "${ZRBTE_KENNEL}" mush "${ZRBTE_SUITE_COLLAR}" "$@" || z_mush_status=$?
   test "${z_mush_status}" -eq 0 || buc_die_now "The kennel's mush of ${ZRBTE_SUITE_COLLAR} failed (status ${z_mush_status})"
   buc_success "All theurge tests passed"
 }

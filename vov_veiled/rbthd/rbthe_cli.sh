@@ -29,24 +29,46 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 readonly ZRBTHE_APP_COLLAR="rbthdn_app"
 readonly ZRBTHE_SUITE_COLLAR="rbthdn_suite"
 
-# A kennel door, resolved by COLOPHON rather than by whole filename: the
-# frontispiece is a label the kit may re-word.
-z_rbthe_door=""
-zrbthe_door() {
-  local -r z_colophon="$1"
-  local -r z_found=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
-  test -x "${z_found[0]}" || buc_die_now "No kennel door stands at ${BURD_TABTARGET_DIR}/${z_colophon}.*"
-  z_rbthe_door="${z_found[0]}"
+# The kennel stands and is current, or refuse naming the whistle. THE KENNEL
+# BINARY IS DRIVEN, never a nested kennel tabtarget, so this dispatch stays the
+# one dispatch; REPORT AND REFUSE, NEVER CONVERGE, the whistle being the one door
+# that rebuilds the kennel. The door law stands first, since a kennel refusing a
+# dirty tree states no seat and would read as outrun.
+z_rbthe_kennel=""
+zrbthe_kennel_or_die() {
+  local -r z_repo="${PWD}"
+  local -r z_crate="${z_repo}/${BURD_TOOLS_DIR}/bkk/bk0"
+  local -r z_election="${z_crate}/bkce_roots.txt"
+  local -r z_whistle=("${BURD_TABTARGET_DIR}/bkw-w."*)
+  z_rbthe_kennel="${z_crate}/target/release/bkx"
+
+  bkcp_door_law_or_die "${z_repo}"
+
+  test -x "${z_rbthe_kennel}" || buc_die_now \
+    "No kennel stands at ${z_rbthe_kennel}, and every cargo invocation of the hierophant passes through it. The converge, run deliberately: ${z_whistle[0]}"
+
+  local z_seat=""
+  z_seat=$(bkcp_position_capture "${z_repo}" "${z_election}") \
+    || buc_die_now "Could not read the seat's position over ${z_election}"
+
+  local z_standing=""
+  z_standing=$(bkcp_standing_seat_capture "${z_rbthe_kennel}") \
+    || buc_die_now "Could not ask the kennel at ${z_rbthe_kennel} where it was struck"
+
+  test "${z_standing}" = "${z_seat}" || buc_die_now \
+    "The seat has outrun the kennel: the binary at ${z_rbthe_kennel} stands at ${z_standing:-no position it could state}, the seat at ${z_seat}. The converge, run deliberately: ${z_whistle[0]}"
+
+  bkcb_ensure
 }
 
 # Converge the app collar through the kennel's heel, and resolve the binary at
 # the residence the collar declares.
 z_rbthe_binary=""
 zrbthe_heel() {
-  local z_dir="${BASH_SOURCE[0]%/*}"
-  zrbthe_door "bkw-h"
+  local -r z_dir="${BASH_SOURCE[0]%/*}"
+  zrbthe_kennel_or_die
   buc_step "Building hierophant"
-  "${z_rbthe_door}" "${ZRBTHE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTHE_APP_COLLAR} failed"
+  "${z_rbthe_kennel}" heel "${ZRBTHE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTHE_APP_COLLAR} failed"
   z_rbthe_binary="${z_dir}/target/debug/rbthd"
   test -x "${z_rbthe_binary}" || buc_die_now "Hierophant binary not found: ${z_rbthe_binary}"
 }
@@ -112,9 +134,9 @@ rbthe_test() {
   buc_doc_brief "Run the hierophant crate tests — the cut's self-proofs (totality, planted-leak sweep)"
   buc_doc_shown || return 0
 
-  zrbthe_door "bkw-m"
+  zrbthe_kennel_or_die
   buc_step "Testing hierophant"
-  "${z_rbthe_door}" "${ZRBTHE_SUITE_COLLAR}" || buc_die_now "The kennel's mush of ${ZRBTHE_SUITE_COLLAR} failed"
+  "${z_rbthe_kennel}" mush "${ZRBTHE_SUITE_COLLAR}" || buc_die_now "The kennel's mush of ${ZRBTHE_SUITE_COLLAR} failed"
   buc_success "Hierophant tests green"
 }
 
@@ -124,7 +146,13 @@ rbthe_test() {
 zrbthe_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Temp directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided; the kennel's home)"
+  buc_doc_env_row "BURD_TACKROOM         " "The station's shared toolchain and registry store (dispatch-provided)"
   buc_doc_env_done || return 0
+
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh"
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcb_tackroom.sh"
+  zbkcb_kindle
 }
 
 buc_execute rbthe_ "Hierophant ceremony conductor" zrbthe_furnish "$@"
