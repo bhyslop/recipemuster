@@ -44,10 +44,10 @@ zrbte_kindle() {
 
   # The kennel's doors, resolved by COLOPHON rather than by whole filename: the
   # frontispiece is a label the kit may re-word.
-  local z_heel=("${BURD_TABTARGET_DIR}/bkw-h."*)
+  local -r z_heel=("${BURD_TABTARGET_DIR}/bkw-h."*)
   test -x "${z_heel[0]}" || buc_die_now "rbte: no kennel heel door stands at ${BURD_TABTARGET_DIR}/bkw-h.*"
   readonly ZRBTE_HEEL_DOOR="${z_heel[0]}"
-  local z_mush=("${BURD_TABTARGET_DIR}/bkw-m."*)
+  local -r z_mush=("${BURD_TABTARGET_DIR}/bkw-m."*)
   test -x "${z_mush[0]}" || buc_die_now "rbte: no kennel mush door stands at ${BURD_TABTARGET_DIR}/bkw-m.*"
   readonly ZRBTE_MUSH_DOOR="${z_mush[0]}"
 

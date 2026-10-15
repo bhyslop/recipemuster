@@ -34,7 +34,7 @@ readonly ZRBTHE_SUITE_COLLAR="rbthdn_suite"
 z_rbthe_door=""
 zrbthe_door() {
   local -r z_colophon="$1"
-  local z_found=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
+  local -r z_found=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
   test -x "${z_found[0]}" || buc_die_now "No kennel door stands at ${BURD_TABTARGET_DIR}/${z_colophon}.*"
   z_rbthe_door="${z_found[0]}"
 }
