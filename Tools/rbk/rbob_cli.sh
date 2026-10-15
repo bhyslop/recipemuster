@@ -23,8 +23,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # CLI Commands
@@ -48,20 +48,20 @@ rbob_validate() {
   test -f "${ZRBOB_COMPOSE_BASE}" || buc_die_now "Compose base not found: ${ZRBOB_COMPOSE_BASE}"
 
   buc_step "RBOB configuration valid"
-  echo "Moniker:       ${RBRN_MONIKER}"
-  echo "Runtime:       ${ZRBOB_RUNTIME}"
-  echo "Sentry:        ${ZRBOB_SENTRY}"
-  echo "Pentacle:        ${ZRBOB_PENTACLE}"
-  echo "Bottle:        ${ZRBOB_BOTTLE}"
-  echo "Network:       ${ZRBOB_NETWORK}"
-  echo "Compose base:  ${ZRBOB_COMPOSE_BASE}"
+  echo "Moniker:       ${RBRN_MONIKER}" || buc_die_now "Failed to write configuration line"
+  echo "Runtime:       ${ZRBOB_RUNTIME}" || buc_die_now "Failed to write configuration line"
+  echo "Sentry:        ${ZRBOB_SENTRY}" || buc_die_now "Failed to write configuration line"
+  echo "Pentacle:        ${ZRBOB_PENTACLE}" || buc_die_now "Failed to write configuration line"
+  echo "Bottle:        ${ZRBOB_BOTTLE}" || buc_die_now "Failed to write configuration line"
+  echo "Network:       ${ZRBOB_NETWORK}" || buc_die_now "Failed to write configuration line"
+  echo "Compose base:  ${ZRBOB_COMPOSE_BASE}" || buc_die_now "Failed to write configuration line"
   local z_fragment_presence
   if test -f "${ZRBOB_COMPOSE_FRAGMENT}"; then
     z_fragment_presence='exists'
   else
     z_fragment_presence='not found'
   fi
-  echo "Compose frag:  ${ZRBOB_COMPOSE_FRAGMENT} (${z_fragment_presence})"
+  echo "Compose frag:  ${ZRBOB_COMPOSE_FRAGMENT} (${z_fragment_presence})" || buc_die_now "Failed to write configuration line"
 }
 
 rbob_info() {
@@ -71,13 +71,13 @@ rbob_info() {
   buc_doc_shown || return 0
 
   buc_step "RBOB Info: ${RBRN_MONIKER}"
-  echo "Runtime:   ${ZRBOB_RUNTIME}"
-  echo "Sentry:    ${ZRBOB_SENTRY}"
-  echo "Pentacle:    ${ZRBOB_PENTACLE}"
-  echo "Bottle:    ${ZRBOB_BOTTLE}"
-  echo "Network:   ${ZRBOB_NETWORK}"
-  echo "Sentry IP: ${RBRN_ENCLAVE_SENTRY_IP}"
-  echo "Bottle IP: ${RBRN_ENCLAVE_BOTTLE_IP}"
+  echo "Runtime:   ${ZRBOB_RUNTIME}" || buc_die_now "Failed to write configuration line"
+  echo "Sentry:    ${ZRBOB_SENTRY}" || buc_die_now "Failed to write configuration line"
+  echo "Pentacle:    ${ZRBOB_PENTACLE}" || buc_die_now "Failed to write configuration line"
+  echo "Bottle:    ${ZRBOB_BOTTLE}" || buc_die_now "Failed to write configuration line"
+  echo "Network:   ${ZRBOB_NETWORK}" || buc_die_now "Failed to write configuration line"
+  echo "Sentry IP: ${RBRN_ENCLAVE_SENTRY_IP}" || buc_die_now "Failed to write configuration line"
+  echo "Bottle IP: ${RBRN_ENCLAVE_BOTTLE_IP}" || buc_die_now "Failed to write configuration line"
 }
 
 rbob_scry() {
@@ -99,7 +99,7 @@ rbob_charged() {
   buc_doc_brief "Check whether the Crucible is charged (compose project has running containers)"
   buc_doc_shown || return 0
 
-  rbob_charged_predicate
+  rbob_charged_predicate || return 1
 }
 
 ######################################################################
@@ -113,34 +113,35 @@ zrbob_furnish() {
   local z_command="${1:-}"
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk_kit_dir}/rbrn_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbrf_regime.sh"
-  source "${z_rbk_kit_dir}/rbrw_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrn_regime.sh" || buc_die_now "Failed to source rbrn_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk_kit_dir}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
   rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgl_layout.sh"
-  source "${z_rbk_kit_dir}/rbgd_depot.sh"
-  source "${z_rbk_kit_dir}/rbgo_oauth.sh"
-  source "${z_rbk_kit_dir}/rba_auth.sh"
-  source "${z_rbk_kit_dir}/rbob_bottle.sh"
-  source "${z_rbk_kit_dir}/rbrn_drive.sh"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
-  source "${BURD_BUK_DIR}/bug_git.sh"
-  source "${z_rbk_kit_dir}/rbfh_hygiene.sh"
-  source "${z_rbk_kit_dir}/rbfk_kludge.sh"
-  source "${z_rbk_kit_dir}/rbfb_beckon.sh"
-  source "${z_rbk_kit_dir}/rboo_observe.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source ${RBCC_rbrw_file}"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgl_layout.sh" || buc_die_now "Failed to source rbgl_layout.sh"
+  source "${z_rbk_kit_dir}/rbgd_depot.sh" || buc_die_now "Failed to source rbgd_depot.sh"
+  source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+  source "${z_rbk_kit_dir}/rbob_bottle.sh" || buc_die_now "Failed to source rbob_bottle.sh"
+  source "${z_rbk_kit_dir}/rbrn_drive.sh" || buc_die_now "Failed to source rbrn_drive.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
+  source "${z_rbk_kit_dir}/rbfh_hygiene.sh" || buc_die_now "Failed to source rbfh_hygiene.sh"
+  source "${z_rbk_kit_dir}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
+  source "${z_rbk_kit_dir}/rbfk_kludge.sh" || buc_die_now "Failed to source rbfk_kludge.sh"
+  source "${z_rbk_kit_dir}/rbfb_beckon.sh" || buc_die_now "Failed to source rbfb_beckon.sh"
+  source "${z_rbk_kit_dir}/rboo_observe.sh" || buc_die_now "Failed to source rboo_observe.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -152,9 +153,11 @@ zrbob_furnish() {
     local z_monikers
     z_monikers=$(rbrn_list_capture) || buc_die_now "No nameplates found"
     buc_step "Available nameplates:"
-    local z_moniker=""
-    for z_moniker in ${z_monikers}; do
-      buc_bare "        ${z_moniker}"
+    local z_moniker_list=()
+    read -r -a z_moniker_list <<< "${z_monikers}" || buc_die_now "Failed to split nameplate list"
+    local z_i=0
+    for z_i in "${!z_moniker_list[@]}"; do
+      buc_bare "        ${z_moniker_list[${z_i}]}"
     done
     buc_die_now "Nameplate moniker required (pass as argument)"
   fi

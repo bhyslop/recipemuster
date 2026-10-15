@@ -74,11 +74,12 @@ zrboo_sentinel() {
 zrboo_prefix() {
   zrboo_sentinel
 
-  local z_color="$1"
-  local z_label="$2"
-  local z_line
-  while IFS= read -r z_line; do
-    echo "${z_color}${ZRBOO_BOLD}[${z_label}]${ZRBOO_RESET} ${z_line}"
+  local z_color="${1}"
+  local z_label="${2}"
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    echo "${z_color}${ZRBOO_BOLD}[${z_label}]${ZRBOO_RESET} ${z_line}" \
+      || buc_die_now "scry: failed to emit a ${z_label} capture line"
   done
 }
 
@@ -116,7 +117,9 @@ rboo_observe() {
   local z_if_idx=""
   local z_if_rest=""
   local z_sentry_enclave_if=""
-  read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" || true
+  read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" \
+    || test -n "${z_sentry_enclave_if}" \
+    || buc_die_now "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
   test -n "${z_sentry_enclave_if}" \
     || buc_die_now "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
 
@@ -186,7 +189,9 @@ rboo_observe() {
     "${ZRBOB_RUNTIME}" network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}' \
       > "${z_bridge_if_file}" 2>"${z_bridge_if_stderr}" \
       || buc_die_now "scry: cannot inspect network ${ZRBOB_NETWORK} — see ${z_bridge_if_stderr}"
-    read -r z_rboo_bridge_interface < "${z_bridge_if_file}" || true
+    read -r z_rboo_bridge_interface < "${z_bridge_if_file}" \
+      || test -n "${z_rboo_bridge_interface}" \
+      || buc_die_now "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
     test -n "${z_rboo_bridge_interface}" \
       || buc_die_now "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
     buc_info "Starting bridge capture (${z_rboo_bridge_interface}) via podman machine ssh"

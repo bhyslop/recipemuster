@@ -40,20 +40,20 @@
 
 set -euo pipefail
 
-outfile="$1"
+outfile="${1}"
 
 # Ensure output file is empty
-: > "$outfile"
+: > "${outfile}"
 
-while IFS= read -r line || [[ -n "$line" ]]; do
+while IFS= read -r line || test -n "${line}"; do
   # Strip nulls from line
   clean_line="${line//$'\x00'/}"
 
   # Skip lines matching...
-  [[ "$clean_line" != "Looking up Podman Machine image at"* ]] || continue
-  [[ "$clean_line" != *"podman machine start"*              ]] || continue
+  [[ "${clean_line}" != "Looking up Podman Machine image at"* ]] || continue
+  [[ "${clean_line}" != *"podman machine start"*              ]] || continue
 
-  echo "$clean_line" >> "$outfile"
+  echo "${clean_line}" >> "${outfile}" || exit 1
 done
 
 # eof

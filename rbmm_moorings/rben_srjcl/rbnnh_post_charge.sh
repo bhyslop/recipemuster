@@ -25,13 +25,13 @@
 # Self-contained by contract: no BUK/RBK utility-module dependencies. Inherits
 # RBRN_*/RBRR_* environment from the charge process.
 
-set -eu
+set -euo pipefail
 
 readonly z_yellow=$'\033[33m'
 readonly z_bold=$'\033[1m'
 readonly z_reset=$'\033[0m'
 
 if test -z "${ANTHROPIC_API_KEY:-}"; then
-  printf '%sWARNING:%s ANTHROPIC_API_KEY is not set in your shell — Anthropic API calls in the notebook will fail.\n' "${z_yellow}" "${z_reset}"
-  printf '  Remediation: %sexport ANTHROPIC_API_KEY=sk-...%s in your shell, then re-charge srjcl to pick it up.\n' "${z_bold}" "${z_reset}"
+  printf '%sWARNING:%s ANTHROPIC_API_KEY is not set in your shell — Anthropic API calls in the notebook will fail.\n' "${z_yellow}" "${z_reset}" || exit 1
+  printf '  Remediation: %sexport ANTHROPIC_API_KEY=sk-...%s in your shell, then re-charge srjcl to pick it up.\n' "${z_bold}" "${z_reset}" || exit 1
 fi
