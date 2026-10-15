@@ -36,7 +36,7 @@ rbho_crash_course() {
     local z_rbrd_project_status=0
     z_rbrd_project=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project_status=$?
     test "${z_rbrd_project_status}" -eq 0 || z_rbrd_project=""
-    test -n "${z_rbrd_project}" && z_rbrd_populated=1
+    test -z "${z_rbrd_project}" || z_rbrd_populated=1
   fi
 
   local z_station_present=0

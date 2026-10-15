@@ -81,10 +81,13 @@ zrbho_po_extract_capture() {
   test -n "${z_key}"  || return 1
   test -f "${z_file}" || return 1
   local z_line=""
-  while IFS= read -r z_line; do
-    case "${z_line}" in "${z_key}="*) echo "${z_line#"${z_key}="}"; return 0 ;; esac
-  done < "${z_file}"
-  return 1
+  local z_value=""
+  local z_found=0
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    case "${z_line}" in "${z_key}="*) z_value="${z_line#"${z_key}="}"; z_found=1; break ;; esac
+  done < "${z_file}" || return 1
+  test "${z_found}" = "1" || return 1
+  echo "${z_value}" || return 1
 }
 
 # eof

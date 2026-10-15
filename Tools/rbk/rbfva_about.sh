@@ -128,8 +128,8 @@ rbfva_about() {
 zrbfva_about_submit() {
   zrbfv0_sentinel
 
-  local -r z_hallmark="$1"
-  local -r z_token="$2"
+  local -r z_hallmark="${1}"
+  local -r z_token="${2}"
   local -r z_conjure_build_id="${3:-}"
 
   buc_step "Constructing about Cloud Build resource"

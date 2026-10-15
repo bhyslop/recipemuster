@@ -39,7 +39,9 @@ rbldl_divine() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
-  zrbfcg_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}") \
+    || buc_die_now "Failed to enumerate Lodes under ${RBGL_LODES_ROOT}/"
 
   if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No Lodes found under ${RBGL_LODES_ROOT}/"
@@ -51,13 +53,13 @@ rbldl_divine() {
   # A touchmark's leading letter is its kind (b260602075327 -> bole); the
   # reader decodes the prefix from this key. One entry per implemented kind.
   local -r z_kind_fmt="    %-3s %-13s %s\n"
-  echo ""
-  printf "  Kinds (touchmark prefix):\n"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"         "bole"         "upstream OCI image, consumed as a FROM line"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}"    "reliquary"    "date-cohort of build-tool images"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"          "wsl"          "vendor-published rootfs tarball, opaque-blob member"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_PODVM_WSL}"    "podvm-wsl"    "podman machine-os-wsl disk leaves, opaque-blob cohort"
-  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_PODVM_NATIVE}" "podvm-native" "podman machine-os disk leaves, opaque-blob cohort"
+  echo "" || buc_die_now
+  printf "  Kinds (touchmark prefix):\n" || buc_die_now
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_BOLE}"         "bole"         "upstream OCI image, consumed as a FROM line" || buc_die_now
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_RELIQUARY}"    "reliquary"    "date-cohort of build-tool images" || buc_die_now
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_WSL}"          "wsl"          "vendor-published rootfs tarball, opaque-blob member" || buc_die_now
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_PODVM_WSL}"    "podvm-wsl"    "podman machine-os-wsl disk leaves, opaque-blob cohort" || buc_die_now
+  printf "${z_kind_fmt}" "${RBGC_LODE_KIND_PODVM_NATIVE}" "podvm-native" "podman machine-os disk leaves, opaque-blob cohort" || buc_die_now
 
   # Load the touchmark list fully before iterating: the per-Lode tags fetch
   # spawns curl (via rbuh), and a child touching stdin would consume the
@@ -70,9 +72,9 @@ rbldl_divine() {
   done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   local -r z_row_fmt="  %-15s %s\n"
-  echo ""
-  printf "${z_row_fmt}" "TOUCHMARK" "IMAGE"
-  printf "${z_row_fmt}" "---------------" "--------------------------------------"
+  echo "" || buc_die_now
+  printf "${z_row_fmt}" "TOUCHMARK" "IMAGE" || buc_die_now
+  printf "${z_row_fmt}" "---------------" "--------------------------------------" || buc_die_now
 
   local z_idx=0
   local z_pkg=""
@@ -83,7 +85,7 @@ rbldl_divine() {
   local z_image_file=""
   local z_image=""
   for z_idx in "${!z_touchmarks[@]}"; do
-    z_touch="${z_touchmarks[$z_idx]}"
+    z_touch="${z_touchmarks[${z_idx}]}"
 
     # One tags-list per Lode. The IMAGE column adapts to the Lode's member
     # scheme (the touchmark prefix names the kind; see the legend above). A
@@ -115,9 +117,9 @@ rbldl_divine() {
     z_image=$(<"${z_image_file}") || buc_die_now "Failed to read: ${z_image_file}"
     test -n "${z_image}" || buc_die_now "Empty summary extraction for Lode ${z_touch}"
 
-    printf "${z_row_fmt}" "${z_touch}" "${z_image}"
+    printf "${z_row_fmt}" "${z_touch}" "${z_image}" || buc_die_now
   done
-  echo ""
+  echo "" || buc_die_now
   buc_info "Total Lodes: ${#z_touchmarks[@]}"
   buc_success "Divine complete"
 }
@@ -193,11 +195,13 @@ rbldl_augur() {
     z_tags+=("${z_tag}")
   done < "${z_tags_file}"
 
-  echo ""
-  printf "  Member tags (%s):\n" "${#z_tags[@]}"
-  for z_tag in "${z_tags[@]}"; do
-    printf "    %s\n" "${z_tag}"
-  done
+  echo "" || buc_die_now
+  printf "  Member tags (%s):\n" "${#z_tags[@]}" || buc_die_now
+  if (( ${#z_tags[@]} )); then
+    for z_tag in "${z_tags[@]}"; do
+      printf "    %s\n" "${z_tag}" || buc_die_now
+    done
+  fi
 
   # Provenance envelope — extract the :rbi_vouch FROM-scratch artifact and read
   # its vouch.json layer. This is the inspect depth divine never carried: the
@@ -218,8 +222,8 @@ rbldl_augur() {
   z_trust=$(jq -r '.rblv_trust_grade // "(absent)"' "${z_vouch_json}") \
     || buc_die_now "Failed to read rblv_trust_grade from envelope for ${z_touchmark}"
 
-  echo ""
-  printf "  Provenance envelope (:%s):\n" "${RBGC_LODE_TAG_VOUCH}"
+  echo "" || buc_die_now
+  printf "  Provenance envelope (:%s):\n" "${RBGC_LODE_TAG_VOUCH}" || buc_die_now
   jq -r '
     "    Kind:          \(.rblv_kind // "(absent)")",
     "    Lode:          \(.rblv_lode // "(absent)")",
@@ -242,25 +246,25 @@ rbldl_augur() {
     || buc_die_now "Failed to render provenance envelope for ${z_touchmark}"
 
   # Honest trust posture — never over-claim what the upstream permits (the Pale).
-  echo ""
+  echo "" || buc_die_now
   case "${z_trust}" in
     "${RBGC_LODE_TRUST_VERIFIED}")
-      printf "  Trust posture: %s\n" "${z_trust}"
-      printf "    Bytes remain re-checkable against the published upstream — an OCI\n"
-      printf "    content-address on a durable registry, or a vendor-published checksum.\n"
+      printf "  Trust posture: %s\n" "${z_trust}" || buc_die_now
+      printf "    Bytes remain re-checkable against the published upstream — an OCI\n" || buc_die_now
+      printf "    content-address on a durable registry, or a vendor-published checksum.\n" || buc_die_now
       ;;
     "${RBGC_LODE_TRUST_RECORDED}")
-      printf "  Trust posture: %s\n" "${z_trust}"
-      printf "    RB attests only the digest observed at capture: the upstream offers no\n"
-      printf "    durable re-checkable reference, so the claim never implies the bytes\n"
-      printf "    remain verifiable against a vanished source.\n"
+      printf "  Trust posture: %s\n" "${z_trust}" || buc_die_now
+      printf "    RB attests only the digest observed at capture: the upstream offers no\n" || buc_die_now
+      printf "    durable re-checkable reference, so the claim never implies the bytes\n" || buc_die_now
+      printf "    remain verifiable against a vanished source.\n" || buc_die_now
       ;;
     *)
-      printf "  Trust posture: %s (unrecognized grade — displayed verbatim)\n" "${z_trust}"
+      printf "  Trust posture: %s (unrecognized grade — displayed verbatim)\n" "${z_trust}" || buc_die_now
       ;;
   esac
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "Augur complete — Lode ${z_touchmark}"
 }
 
@@ -305,7 +309,7 @@ rbldl_banish() {
   buc_step "Dispatching cloud delete for Lode package: ${z_pkg}"
   zrbldd_cloud_delete_dispatch "${z_token}" "Banish" "${ZRBLD0_BANISH_PREFIX}" "${z_pkg}"
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "Lode banished: ${z_touchmark}"
 }
 

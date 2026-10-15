@@ -127,40 +127,44 @@ zrbfcp_plumb_core() {
 zrbfcp_plumb_show_bind() {
   zrbfc0_sentinel
 
-  local -r z_vessel="$1"
-  local -r z_hallmark="$2"
-  local -r z_mode="$3"
+  local -r z_vessel="${1}"
+  local -r z_hallmark="${2}"
+  local -r z_mode="${3}"
 
   if test "${z_mode}" = "compact"; then
-    echo ""
-    echo "=== ${z_vessel} / ${z_hallmark} ==="
-    echo "  Type: bind | Trust: digest-pin only"
-    test -n "${RBRV_BIND_IMAGE:-}" && echo "  Source: ${RBRV_BIND_IMAGE}"
-    echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)"
-    echo ""
+    echo "" || buc_die_now
+    echo "=== ${z_vessel} / ${z_hallmark} ===" || buc_die_now
+    echo "  Type: bind | Trust: digest-pin only" || buc_die_now
+    if test -n "${RBRV_BIND_IMAGE:-}"; then
+      echo "  Source: ${RBRV_BIND_IMAGE}" || buc_die_now
+    fi
+    echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)" || buc_die_now
+    echo "" || buc_die_now
     return 0
   fi
 
-  echo ""
-  echo "================================================================"
-  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
-  echo "================================================================"
-  echo ""
-  echo "  Vessel type:  BIND (external image pinned by digest)"
-  echo "  Trust model:  Digest-pin only"
-  echo ""
-  test -n "${RBRV_BIND_IMAGE:-}" && echo "  Bind source:  ${RBRV_BIND_IMAGE}"
-  echo ""
-  echo "  TRUST BOUNDARY"
-  echo "  This is a bind vessel. The image was not built by Google Cloud"
-  echo "  Build. No SLSA provenance, no SBOM, and no build transcript"
-  echo "  exist because GCB did not produce this image."
-  echo ""
-  echo "  Trust is based solely on digest pinning of a known-good"
-  echo "  external image from its source registry."
-  echo ""
-  echo "================================================================"
-  echo ""
+  echo "" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "" || buc_die_now
+  echo "  Vessel type:  BIND (external image pinned by digest)" || buc_die_now
+  echo "  Trust model:  Digest-pin only" || buc_die_now
+  echo "" || buc_die_now
+  if test -n "${RBRV_BIND_IMAGE:-}"; then
+    echo "  Bind source:  ${RBRV_BIND_IMAGE}" || buc_die_now
+  fi
+  echo "" || buc_die_now
+  echo "  TRUST BOUNDARY" || buc_die_now
+  echo "  This is a bind vessel. The image was not built by Google Cloud" || buc_die_now
+  echo "  Build. No SLSA provenance, no SBOM, and no build transcript" || buc_die_now
+  echo "  exist because GCB did not produce this image." || buc_die_now
+  echo "" || buc_die_now
+  echo "  Trust is based solely on digest pinning of a known-good" || buc_die_now
+  echo "  external image from its source registry." || buc_die_now
+  echo "" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "" || buc_die_now
 }
 
 # Internal: shared section rendering used by both compact and full modes
@@ -169,8 +173,8 @@ zrbfcp_plumb_show_bind() {
 zrbfcp_plumb_show_sections() {
   zrbfc0_sentinel
 
-  local -r z_dir="$1"
-  local -r z_has_vouch="$2"
+  local -r z_dir="${1}"
+  local -r z_has_vouch="${2}"
 
   local -r z_bi="${z_dir}/build_info.json"
   local -r z_sbom="${z_dir}/sbom.json"
@@ -181,8 +185,10 @@ zrbfcp_plumb_show_sections() {
   local z_vessel_mode="rbnve_conjure"
   if test -f "${z_bi}"; then
     local z_mode_raw
-    jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
-      || echo "rbnve_conjure" > "${ZRBFC0_SCRATCH_FILE}"
+    local -r z_mode_stderr="${BURD_TEMP_DIR}/plumb_mode_stderr.txt"
+    jq -r '.mode // "rbnve_conjure"' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_mode_stderr}" \
+      || echo "rbnve_conjure" > "${ZRBFC0_SCRATCH_FILE}" \
+      || buc_die_now "Failed to write fallback vessel mode to ${ZRBFC0_SCRATCH_FILE}"
     local z_mode_raw_status=0
     z_mode_raw=$(<"${ZRBFC0_SCRATCH_FILE}") || z_mode_raw_status=$?
     test "${z_mode_raw_status}" -eq 0 || z_mode_raw=""
@@ -194,6 +200,7 @@ zrbfcp_plumb_show_sections() {
     # Batch extract bind fields from build_info.json
     local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_hallmark=""
     local z_bi_image_uri="" z_bi_git_repo="" z_bi_git_branch="" z_bi_git_commit=""
+    local -r z_bi_stderr="${BURD_TEMP_DIR}/plumb_bind_fields_stderr.txt"
     jq -r '
       (.moniker // "?"),
       (.source.image_ref // "?"),
@@ -203,54 +210,55 @@ zrbfcp_plumb_show_sections() {
       (.git.repo // "?"),
       (.git.branch // "?"),
       (.git.commit // "?")
-    ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-    { read -r z_bi_moniker
-      read -r z_bi_source_img
-      read -r z_bi_mirror_ts
-      read -r z_bi_hallmark
-      read -r z_bi_image_uri
-      read -r z_bi_git_repo
-      read -r z_bi_git_branch
-      read -r z_bi_git_commit
+    ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_bi_stderr}" \
+      || buc_die_now "Failed to extract bind fields from ${z_bi} — see ${z_bi_stderr}"
+    { read -r z_bi_moniker     || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_source_img  || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_mirror_ts   || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_hallmark    || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_image_uri   || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_repo    || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_branch  || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_commit  || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
     } < "${ZRBFC0_SCRATCH_FILE}"
 
-    echo ""
-    echo "  -- Vessel Type -------------------------------------------------"
-    echo "  How this image was produced."
-    echo ""
-    echo "  Mode:           bind (upstream image mirrored to GAR)"
-    echo "  Moniker:        ${z_bi_moniker}"
+    echo "" || buc_die_now
+    echo "  -- Vessel Type -------------------------------------------------" || buc_die_now
+    echo "  How this image was produced." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Mode:           bind (upstream image mirrored to GAR)" || buc_die_now
+    echo "  Moniker:        ${z_bi_moniker}" || buc_die_now
 
-    echo ""
-    echo "  -- Upstream Source -----------------------------------------------"
-    echo "  The digest-pinned upstream image that was mirrored."
-    echo ""
-    echo "  Source image:   ${z_bi_source_img}"
-    echo "  Trust model:    digest-pin (image identity is the digest itself)"
+    echo "" || buc_die_now
+    echo "  -- Upstream Source -----------------------------------------------" || buc_die_now
+    echo "  The digest-pinned upstream image that was mirrored." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Source image:   ${z_bi_source_img}" || buc_die_now
+    echo "  Trust model:    digest-pin (image identity is the digest itself)" || buc_die_now
 
-    echo ""
-    echo "  -- Mirror -------------------------------------------------------"
-    echo "  When the image was mirrored from upstream into GAR."
-    echo ""
-    echo "  Mirror time:    ${z_bi_mirror_ts}"
-    echo "  Hallmark:   ${z_bi_hallmark}"
-    echo "  Image URI:      ${z_bi_image_uri}"
+    echo "" || buc_die_now
+    echo "  -- Mirror -------------------------------------------------------" || buc_die_now
+    echo "  When the image was mirrored from upstream into GAR." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Mirror time:    ${z_bi_mirror_ts}" || buc_die_now
+    echo "  Hallmark:   ${z_bi_hallmark}" || buc_die_now
+    echo "  Image URI:      ${z_bi_image_uri}" || buc_die_now
 
-    echo ""
-    echo "  -- Git Context --------------------------------------------------"
-    echo "  The repository state when the mirror operation was performed."
-    echo ""
-    echo "  Repository:     ${z_bi_git_repo}"
-    echo "  Branch:         ${z_bi_git_branch}"
-    echo "  Commit:         ${z_bi_git_commit}"
+    echo "" || buc_die_now
+    echo "  -- Git Context --------------------------------------------------" || buc_die_now
+    echo "  The repository state when the mirror operation was performed." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Repository:     ${z_bi_git_repo}" || buc_die_now
+    echo "  Branch:         ${z_bi_git_branch}" || buc_die_now
+    echo "  Commit:         ${z_bi_git_commit}" || buc_die_now
 
-    echo ""
-    echo "  -- Trust --------------------------------------------------------"
-    echo "  Bind vessels are NOT built by Cloud Build. Trust comes from the"
-    echo "  digest pin in rbrv.env — the image is exactly the bytes specified."
-    echo ""
-    echo "  SLSA provenance:  not applicable (no build step)"
-    echo "  Verification:     image digest matches the pin in the vessel definition"
+    echo "" || buc_die_now
+    echo "  -- Trust --------------------------------------------------------" || buc_die_now
+    echo "  Bind vessels are NOT built by Cloud Build. Trust comes from the" || buc_die_now
+    echo "  digest pin in rbrv.env — the image is exactly the bytes specified." || buc_die_now
+    echo "" || buc_die_now
+    echo "  SLSA provenance:  not applicable (no build step)" || buc_die_now
+    echo "  Verification:     image digest matches the pin in the vessel definition" || buc_die_now
 
   elif test -f "${z_bi}"; then
     # ── Conjure vessel sections ───────────────────────────────────────
@@ -259,6 +267,7 @@ zrbfcp_plumb_show_sections() {
     local z_cj_git_repo="" z_cj_git_branch="" z_cj_git_commit=""
     local z_cj_build_id="" z_cj_build_ts="" z_cj_inscribe_ts="" z_cj_image_uri=""
     local z_slsa_level="" z_slsa_invocation="" z_slsa_builder=""
+    local -r z_cj_stderr="${BURD_TEMP_DIR}/plumb_conjure_fields_stderr.txt"
     jq -r '
       (.platform // "unknown"),
       (.qemu_used // "false"),
@@ -273,102 +282,111 @@ zrbfcp_plumb_show_sections() {
       (.slsa.build_level // "?"),
       (.slsa.build_invocation_id // "?"),
       (.slsa.provenance_builder_id // "?")
-    ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-    { read -r z_platform
-      read -r z_qemu
-      read -r z_cj_moniker
-      read -r z_cj_git_repo
-      read -r z_cj_git_branch
-      read -r z_cj_git_commit
-      read -r z_cj_build_id
-      read -r z_cj_build_ts
-      read -r z_cj_inscribe_ts
-      read -r z_cj_image_uri
-      read -r z_slsa_level
-      read -r z_slsa_invocation
-      read -r z_slsa_builder
+    ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_cj_stderr}" \
+      || buc_die_now "Failed to extract conjure fields from ${z_bi} — see ${z_cj_stderr}"
+    { read -r z_platform         || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_qemu             || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_moniker       || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_git_repo      || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_git_branch    || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_git_commit    || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_build_id      || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_build_ts      || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_inscribe_ts   || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_cj_image_uri     || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_slsa_level       || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_slsa_invocation  || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_slsa_builder     || buc_die_now "Failed to read conjure fields from ${ZRBFC0_SCRATCH_FILE}"
     } < "${ZRBFC0_SCRATCH_FILE}"
 
-    echo ""
-    echo "  -- Vessel Type -------------------------------------------------"
-    echo "  How this image was produced and for which CPU architecture."
-    echo ""
-    echo "  Mode:           conjure (built by Google Cloud Build)"
+    echo "" || buc_die_now
+    echo "  -- Vessel Type -------------------------------------------------" || buc_die_now
+    echo "  How this image was produced and for which CPU architecture." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Mode:           conjure (built by Google Cloud Build)" || buc_die_now
     local z_strategy="native"
     if test "${z_qemu}" = "true"; then z_strategy="emulated (QEMU)"; fi
-    echo "  Platform:       ${z_platform} (host-platform view)"
-    echo "  Build strategy: ${z_strategy}"
-    echo "  Moniker:        ${z_cj_moniker}"
+    echo "  Platform:       ${z_platform} (host-platform view)" || buc_die_now
+    echo "  Build strategy: ${z_strategy}" || buc_die_now
+    echo "  Moniker:        ${z_cj_moniker}" || buc_die_now
 
-    echo ""
-    echo "  -- Source -------------------------------------------------------"
-    echo "  The git repository, branch, and commit that produced this build."
-    echo ""
-    echo "  Repository:     ${z_cj_git_repo}"
-    echo "  Branch:         ${z_cj_git_branch}"
-    echo "  Commit:         ${z_cj_git_commit}"
+    echo "" || buc_die_now
+    echo "  -- Source -------------------------------------------------------" || buc_die_now
+    echo "  The git repository, branch, and commit that produced this build." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Repository:     ${z_cj_git_repo}" || buc_die_now
+    echo "  Branch:         ${z_cj_git_branch}" || buc_die_now
+    echo "  Commit:         ${z_cj_git_commit}" || buc_die_now
 
-    echo ""
-    echo "  -- Builder ------------------------------------------------------"
-    echo "  The Cloud Build job that executed this build, with timestamps."
-    echo ""
-    echo "  Build ID:       ${z_cj_build_id}"
-    echo "  Build time:     ${z_cj_build_ts}"
-    echo "  Inscribe time:  ${z_cj_inscribe_ts}"
-    echo "  Image URI:      ${z_cj_image_uri}"
+    echo "" || buc_die_now
+    echo "  -- Builder ------------------------------------------------------" || buc_die_now
+    echo "  The Cloud Build job that executed this build, with timestamps." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Build ID:       ${z_cj_build_id}" || buc_die_now
+    echo "  Build time:     ${z_cj_build_ts}" || buc_die_now
+    echo "  Inscribe time:  ${z_cj_inscribe_ts}" || buc_die_now
+    echo "  Image URI:      ${z_cj_image_uri}" || buc_die_now
 
-    echo ""
-    echo "  -- SLSA Provenance ----------------------------------------------"
-    echo "  Cryptographic proof linking this exact image digest to its build."
-    echo ""
-    echo "  Build level:    ${z_slsa_level}"
-    echo "  Invocation ID:  ${z_slsa_invocation}"
-    echo "  Builder ID:     ${z_slsa_builder}"
-    echo "  Predicate types:"
-    jq -r '.slsa.provenance_predicate_types[]?' "${z_bi}" 2>/dev/null | while IFS= read -r z_pt; do
-      echo "                    ${z_pt}"
-    done
+    echo "" || buc_die_now
+    echo "  -- SLSA Provenance ----------------------------------------------" || buc_die_now
+    echo "  Cryptographic proof linking this exact image digest to its build." || buc_die_now
+    echo "" || buc_die_now
+    echo "  Build level:    ${z_slsa_level}" || buc_die_now
+    echo "  Invocation ID:  ${z_slsa_invocation}" || buc_die_now
+    echo "  Builder ID:     ${z_slsa_builder}" || buc_die_now
+    echo "  Predicate types:" || buc_die_now
+    local -r z_pt_stderr="${BURD_TEMP_DIR}/plumb_predicate_types_stderr.txt"
+    jq -r '.slsa.provenance_predicate_types[]?' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_pt_stderr}" \
+      || buc_die_now "Failed to extract SLSA predicate types from ${z_bi} — see ${z_pt_stderr}"
+    local z_pt=""
+    while IFS= read -r z_pt || test -n "${z_pt}"; do
+      echo "                    ${z_pt}" || buc_die_now
+    done < "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to read SLSA predicate types from ${ZRBFC0_SCRATCH_FILE}"
 
-    echo ""
-    echo "  SLSA Build L${z_slsa_level} attests:"
-    echo "    + This digest was produced by this Cloud Build invocation"
-    echo "    + From this source repo and commit"
-    echo "    + On Google's hosted builder (tamper-resistant environment)"
-    echo ""
-    echo "  SLSA Build L${z_slsa_level} does NOT attest:"
-    echo "    - Base image security or supply chain"
-    echo "    - Package integrity within the image"
-    echo "    - Absence of vulnerabilities"
-    echo "    - Correctness or security of the Dockerfile"
+    echo "" || buc_die_now
+    echo "  SLSA Build L${z_slsa_level} attests:" || buc_die_now
+    echo "    + This digest was produced by this Cloud Build invocation" || buc_die_now
+    echo "    + From this source repo and commit" || buc_die_now
+    echo "    + On Google's hosted builder (tamper-resistant environment)" || buc_die_now
+    echo "" || buc_die_now
+    echo "  SLSA Build L${z_slsa_level} does NOT attest:" || buc_die_now
+    echo "    - Base image security or supply chain" || buc_die_now
+    echo "    - Package integrity within the image" || buc_die_now
+    echo "    - Absence of vulnerabilities" || buc_die_now
+    echo "    - Correctness or security of the Dockerfile" || buc_die_now
   else
-    echo ""
-    echo "  build_info.json not found in -about artifact"
+    echo "" || buc_die_now
+    echo "  build_info.json not found in -about artifact" || buc_die_now
   fi
 
   # Base image section — conjure only (bind has no Dockerfile)
   if test "${z_vessel_mode}" != "rbnve_bind"; then
-    echo ""
-    echo "  -- Base Image ---------------------------------------------------"
-    echo "  The upstream image this build started FROM and the OS syft detected."
-    echo ""
+    echo "" || buc_die_now
+    echo "  -- Base Image ---------------------------------------------------" || buc_die_now
+    echo "  The upstream image this build started FROM and the OS syft detected." || buc_die_now
+    echo "" || buc_die_now
     local -r z_recipe="${z_dir}/recipe.txt"
     if test -f "${z_recipe}"; then
       local z_from_line=""
-      local z_recipe_line
-      while IFS= read -r z_recipe_line; do
+      local z_recipe_line=""
+      while IFS= read -r z_recipe_line || test -n "${z_recipe_line}"; do
         case "${z_recipe_line}" in [Ff][Rr][Oo][Mm]\ *) z_from_line="${z_recipe_line}"; break ;; esac
-      done < "${z_recipe}" 2>/dev/null
+      done < "${z_recipe}" || buc_die_now "Failed to read recipe ${z_recipe}"
       if test -n "${z_from_line}"; then
-        echo "  Dockerfile FROM: ${z_from_line#FROM }"
+        echo "  Dockerfile FROM: ${z_from_line#FROM }" || buc_die_now
       fi
     fi
     if test -f "${z_sbom}"; then
       local z_distro_name="" z_distro_ver=""
+      local -r z_distro_stderr="${BURD_TEMP_DIR}/plumb_distro_stderr.txt"
       jq -r '(.distro.name // empty), (.distro.version // empty)' "${z_sbom}" \
-        > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_distro_name; read -r z_distro_ver; } < "${ZRBFC0_SCRATCH_FILE}"
+        > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_distro_stderr}" \
+        || buc_die_now "Failed to extract distro from ${z_sbom} — see ${z_distro_stderr}"
+      { read -r z_distro_name || buc_die_now "Failed to read distro name from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_distro_ver  || buc_die_now "Failed to read distro version from ${ZRBFC0_SCRATCH_FILE}"
+      } < "${ZRBFC0_SCRATCH_FILE}"
       if test -n "${z_distro_name}"; then
-        echo "  Detected distro: ${z_distro_name} ${z_distro_ver}"
+        echo "  Detected distro: ${z_distro_name} ${z_distro_ver}" || buc_die_now
       fi
     fi
 
@@ -393,38 +411,48 @@ zrbfcp_plumb_show_sections() {
         z_rb_val=$(<"${ZRBFC0_SCRATCH_FILE}") || z_rb_val_status=$?
         test "${z_rb_val_status}" -eq 0 || z_rb_val=""
         if test -n "${z_rb_val}"; then
-          echo "  Resolved base ${z_rb_n} (signed): ${z_rb_val}"
+          echo "  Resolved base ${z_rb_n} (signed): ${z_rb_val}" || buc_die_now
           z_rb_any="true"
         fi
       done
       if test "${z_rb_any}" = "false"; then
-        echo "  Resolved base:   (no rbi_resolved_base_n labels — pre-resolved-base build)"
+        echo "  Resolved base:   (no rbi_resolved_base_n labels — pre-resolved-base build)" || buc_die_now
       fi
     fi
   fi
 
   # Build output — conjure only (bind has no buildx step)
   if test "${z_vessel_mode}" != "rbnve_bind" && test -f "${z_bkmeta}"; then
-    echo ""
-    echo "  -- Build Output -------------------------------------------------"
-    echo "  The container image manifest produced by this buildx invocation."
-    echo ""
+    echo "" || buc_die_now
+    echo "  -- Build Output -------------------------------------------------" || buc_die_now
+    echo "  The container image manifest produced by this buildx invocation." || buc_die_now
+    echo "" || buc_die_now
     local z_bk_digest="" z_bk_mediatype="" z_bk_ref="" z_bk_imgname=""
+    local -r z_bk_stderr="${BURD_TEMP_DIR}/plumb_buildkit_stderr.txt"
     jq -r '
       (."containerimage.digest" // ""),
       (."containerimage.descriptor".mediaType // ""),
       (."buildx.build.ref" // ""),
       (."image.name" // "")
-    ' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-    { read -r z_bk_digest
-      read -r z_bk_mediatype
-      read -r z_bk_ref
-      read -r z_bk_imgname
+    ' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_bk_stderr}" \
+      || buc_die_now "Failed to extract buildkit metadata from ${z_bkmeta} — see ${z_bk_stderr}"
+    { read -r z_bk_digest     || buc_die_now "Failed to read buildkit metadata from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bk_mediatype  || buc_die_now "Failed to read buildkit metadata from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bk_ref        || buc_die_now "Failed to read buildkit metadata from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bk_imgname    || buc_die_now "Failed to read buildkit metadata from ${ZRBFC0_SCRATCH_FILE}"
     } < "${ZRBFC0_SCRATCH_FILE}"
-    test -n "${z_bk_digest}"    && echo "  Output digest:  ${z_bk_digest}"
-    test -n "${z_bk_mediatype}" && echo "  Media type:     ${z_bk_mediatype}"
-    test -n "${z_bk_ref}"       && echo "  Build ref:      ${z_bk_ref}"
-    test -n "${z_bk_imgname}"   && echo "  Image name:     ${z_bk_imgname}"
+    if test -n "${z_bk_digest}"; then
+      echo "  Output digest:  ${z_bk_digest}" || buc_die_now
+    fi
+    if test -n "${z_bk_mediatype}"; then
+      echo "  Media type:     ${z_bk_mediatype}" || buc_die_now
+    fi
+    if test -n "${z_bk_ref}"; then
+      echo "  Build ref:      ${z_bk_ref}" || buc_die_now
+    fi
+    if test -n "${z_bk_imgname}"; then
+      echo "  Image name:     ${z_bk_imgname}" || buc_die_now
+    fi
     # Per-platform digests if present
     local z_bk_platforms=""
     jq -r 'keys[] | select(contains("/"))' "${z_bkmeta}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
@@ -432,16 +460,18 @@ zrbfcp_plumb_show_sections() {
     z_bk_platforms=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_platforms_status=$?
     test "${z_bk_platforms_status}" -eq 0 || z_bk_platforms=""
     if test -n "${z_bk_platforms}"; then
-      echo "  Per-platform digests:"
+      echo "  Per-platform digests:" || buc_die_now
       local z_bk_plat=""
       local z_bk_pd=""
-      while IFS= read -r z_bk_plat; do
+      while IFS= read -r z_bk_plat || test -n "${z_bk_plat}"; do
         jq -r --arg p "${z_bk_plat}" '.[$p]["containerimage.digest"] // empty' "${z_bkmeta}" \
           > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
         local z_bk_pd_status=0
         z_bk_pd=$(<"${ZRBFC0_SCRATCH_FILE}") || z_bk_pd_status=$?
         test "${z_bk_pd_status}" -eq 0 || z_bk_pd=""
-        test -n "${z_bk_pd}" && echo "    ${z_bk_plat}: ${z_bk_pd}"
+        if test -n "${z_bk_pd}"; then
+          echo "    ${z_bk_plat}: ${z_bk_pd}" || buc_die_now
+        fi
       done <<< "${z_bk_platforms}"
     fi
   fi
@@ -451,26 +481,30 @@ zrbfcp_plumb_show_sections() {
     local -r z_cache_before="${z_dir}/cache_before.json"
     local -r z_cache_after="${z_dir}/cache_after.json"
     if test -f "${z_cache_after}"; then
-      echo ""
-      echo "  -- Build Cache Delta --------------------------------------------"
-      echo "  Images on the Cloud Build worker after vs before this build."
-      echo ""
+      echo "" || buc_die_now
+      echo "  -- Build Cache Delta --------------------------------------------" || buc_die_now
+      echo "  Images on the Cloud Build worker after vs before this build." || buc_die_now
+      echo "" || buc_die_now
       local z_before_count="n/a"
       local z_after_count=""
+      local -r z_before_stderr="${BURD_TEMP_DIR}/plumb_cache_before_stderr.txt"
+      local -r z_after_stderr="${BURD_TEMP_DIR}/plumb_cache_after_stderr.txt"
       if test -f "${z_cache_before}"; then
-        jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
-          || echo "?" > "${ZRBFC0_SCRATCH_FILE}"
+        jq '.host_daemon_images | length' "${z_cache_before}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_before_stderr}" \
+          || echo "?" > "${ZRBFC0_SCRATCH_FILE}" \
+          || buc_die_now "Failed to write fallback image count to ${ZRBFC0_SCRATCH_FILE}"
         local z_before_count_status=0
         z_before_count=$(<"${ZRBFC0_SCRATCH_FILE}") || z_before_count_status=$?
         test "${z_before_count_status}" -eq 0 || z_before_count=""
       fi
-      jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
-        || echo "?" > "${ZRBFC0_SCRATCH_FILE}"
+      jq '.host_daemon_images | length' "${z_cache_after}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_after_stderr}" \
+        || echo "?" > "${ZRBFC0_SCRATCH_FILE}" \
+        || buc_die_now "Failed to write fallback image count to ${ZRBFC0_SCRATCH_FILE}"
       local z_after_count_status=0
       z_after_count=$(<"${ZRBFC0_SCRATCH_FILE}") || z_after_count_status=$?
       test "${z_after_count_status}" -eq 0 || z_after_count=""
-      echo "  Images before: ${z_before_count}"
-      echo "  Images after:  ${z_after_count}"
+      echo "  Images before: ${z_before_count}" || buc_die_now
+      echo "  Images after:  ${z_after_count}" || buc_die_now
       if test -f "${z_cache_before}"; then
         local z_new_images=""
         jq -r --slurpfile before "${z_cache_before}" '
@@ -491,59 +525,71 @@ zrbfcp_plumb_show_sections() {
         if test -n "${z_new_images}"; then
           local z_new_count=0
           local z_count_line=""
-          while IFS= read -r z_count_line; do
+          while IFS= read -r z_count_line || test -n "${z_count_line}"; do
             z_new_count=$((z_new_count + 1))
           done <<< "${z_new_images}"
-          echo ""
-          echo "  New images (${z_new_count} unique):"
-          printf '%s\n' "${z_new_images}" | while IFS=$'\t' read -r z_repo z_tag z_size z_id; do
-            echo "    ${z_id}  ${z_repo}:${z_tag}  ${z_size}"
-          done
+          echo "" || buc_die_now
+          echo "  New images (${z_new_count} unique):" || buc_die_now
+          printf '%s\n' "${z_new_images}" > "${ZRBFC0_SCRATCH_FILE}" \
+            || buc_die_now "Failed to write new images to ${ZRBFC0_SCRATCH_FILE}"
+          local z_repo=""
+          local z_tag=""
+          local z_size=""
+          local z_id=""
+          while IFS=$'\t' read -r z_repo z_tag z_size z_id || test -n "${z_repo}"; do
+            echo "    ${z_id}  ${z_repo}:${z_tag}  ${z_size}" || buc_die_now
+          done < "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to read new images from ${ZRBFC0_SCRATCH_FILE}"
         else
-          echo "  No new images (cache unchanged)"
+          echo "  No new images (cache unchanged)" || buc_die_now
         fi
       fi
     fi
   fi
 
   # SBOM — present for both bind and conjure (if syft was available)
-  echo ""
-  echo "  -- SBOM Summary (syft) ------------------------------------------"
-  echo "  Software bill of materials: every package syft found installed."
-  echo ""
+  echo "" || buc_die_now
+  echo "  -- SBOM Summary (syft) ------------------------------------------" || buc_die_now
+  echo "  Software bill of materials: every package syft found installed." || buc_die_now
+  echo "" || buc_die_now
   if test -f "${z_sbom}"; then
     local z_pkg_count=""
-    jq '.artifacts | length' "${z_sbom}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
-      || echo "?" > "${ZRBFC0_SCRATCH_FILE}"
+    local -r z_pkg_count_stderr="${BURD_TEMP_DIR}/plumb_pkg_count_stderr.txt"
+    jq '.artifacts | length' "${z_sbom}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_pkg_count_stderr}" \
+      || echo "?" > "${ZRBFC0_SCRATCH_FILE}" \
+      || buc_die_now "Failed to write fallback package count to ${ZRBFC0_SCRATCH_FILE}"
     local z_pkg_count_status=0
     z_pkg_count=$(<"${ZRBFC0_SCRATCH_FILE}") || z_pkg_count_status=$?
     test "${z_pkg_count_status}" -eq 0 || z_pkg_count=""
-    echo "  Package count:  ${z_pkg_count}"
+    echo "  Package count:  ${z_pkg_count}" || buc_die_now
 
-    echo "  Package types:"
+    echo "  Package types:" || buc_die_now
+    local -r z_pkg_types_stderr="${BURD_TEMP_DIR}/plumb_pkg_types_stderr.txt"
     jq -r '
       [.artifacts[]?.type // empty] | group_by(.) |
       map({type: .[0], count: length}) |
       sort_by(-.count)[] |
       "    \(.count)\t\(.type)"
-    ' "${z_sbom}" 2>/dev/null || echo "    (unable to parse)"
+    ' "${z_sbom}" 2>"${z_pkg_types_stderr}" \
+      || echo "    (unable to parse)" \
+      || buc_die_now
 
-    echo ""
-    echo "  Syft inventories installed packages. This is not a security"
-    echo "  assessment, vulnerability scan, or license audit."
+    echo "" || buc_die_now
+    echo "  Syft inventories installed packages. This is not a security" || buc_die_now
+    echo "  assessment, vulnerability scan, or license audit." || buc_die_now
   else
-    echo "  sbom.json not found in -about artifact"
+    echo "  sbom.json not found in -about artifact" || buc_die_now
   fi
 
   # Vouch — branched by vessel mode
-  echo ""
-  echo "  -- Vouch Results ------------------------------------------------"
+  echo "" || buc_die_now
+  echo "  -- Vouch Results ------------------------------------------------" || buc_die_now
   if test "${z_vessel_mode}" = "rbnve_bind"; then
-    echo "  Bind verification: was the mirrored image verified against its digest pin?"
-    echo ""
+    echo "  Bind verification: was the mirrored image verified against its digest pin?" || buc_die_now
+    echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_vf_method="" z_vf_result="" z_vf_pin="" z_vf_gar=""
       local z_vf_match="" z_vf_ts="" z_vf_source=""
+      local -r z_vf_stderr="${BURD_TEMP_DIR}/plumb_bind_vouch_stderr.txt"
       jq -r '
         (.verification.method // "?"),
         (.verification.result // .verification.verdict // "?"),
@@ -552,62 +598,71 @@ zrbfcp_plumb_show_sections() {
         (.verification.digest_match // "?"),
         (.verification.timestamp // "?"),
         (.verification.source_image // .verification.bind_source // "?")
-      ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_vf_method
-        read -r z_vf_result
-        read -r z_vf_pin
-        read -r z_vf_gar
-        read -r z_vf_match
-        read -r z_vf_ts
-        read -r z_vf_source
+      ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_vf_stderr}" \
+        || buc_die_now "Failed to extract bind verification from ${z_vs} — see ${z_vf_stderr}"
+      { read -r z_vf_method  || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_result  || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_pin     || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_gar     || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_match   || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_ts      || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_source  || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
       } < "${ZRBFC0_SCRATCH_FILE}"
-      echo "  Method:      ${z_vf_method}"
-      echo "  Verdict:     ${z_vf_result}"
-      echo "  Pin digest:  ${z_vf_pin}"
-      echo "  GAR digest:  ${z_vf_gar}"
-      echo "  Match:       ${z_vf_match}"
-      echo "  Timestamp:   ${z_vf_ts}"
-      echo "  Source:      ${z_vf_source}"
+      echo "  Method:      ${z_vf_method}" || buc_die_now
+      echo "  Verdict:     ${z_vf_result}" || buc_die_now
+      echo "  Pin digest:  ${z_vf_pin}" || buc_die_now
+      echo "  GAR digest:  ${z_vf_gar}" || buc_die_now
+      echo "  Match:       ${z_vf_match}" || buc_die_now
+      echo "  Timestamp:   ${z_vf_ts}" || buc_die_now
+      echo "  Source:      ${z_vf_source}" || buc_die_now
     else
-      echo "  Vouch artifact not found in GAR"
+      echo "  Vouch artifact not found in GAR" || buc_die_now
     fi
   elif test "${z_vessel_mode}" = "rbnve_graft"; then
-    echo "  Graft acknowledgment: no provenance chain — GRAFTED verdict"
-    echo ""
+    echo "  Graft acknowledgment: no provenance chain — GRAFTED verdict" || buc_die_now
+    echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_gf_verdict="" z_gf_source="" z_gf_method=""
+      local -r z_gf_stderr="${BURD_TEMP_DIR}/plumb_graft_vouch_stderr.txt"
       jq -r '
         (.verification.verdict // "?"),
         (.verification.graft_source // "?"),
         (.verification.method // "?")
-      ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_gf_verdict
-        read -r z_gf_source
-        read -r z_gf_method
+      ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_gf_stderr}" \
+        || buc_die_now "Failed to extract graft verification from ${z_vs} — see ${z_gf_stderr}"
+      { read -r z_gf_verdict  || buc_die_now "Failed to read graft verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_gf_source   || buc_die_now "Failed to read graft verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_gf_method   || buc_die_now "Failed to read graft verification from ${ZRBFC0_SCRATCH_FILE}"
       } < "${ZRBFC0_SCRATCH_FILE}"
-      echo "  Verdict:     ${z_gf_verdict}"
-      echo "  Method:      ${z_gf_method}"
-      echo "  Source:      ${z_gf_source}"
+      echo "  Verdict:     ${z_gf_verdict}" || buc_die_now
+      echo "  Method:      ${z_gf_method}" || buc_die_now
+      echo "  Source:      ${z_gf_source}" || buc_die_now
     else
-      echo "  Vouch artifact not found in GAR"
+      echo "  Vouch artifact not found in GAR" || buc_die_now
     fi
   else
-    echo "  Independent SLSA verification: did this image pass provenance checks?"
-    echo ""
+    echo "  Independent SLSA verification: did this image pass provenance checks?" || buc_die_now
+    echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_verifier_url="" z_verifier_sha=""
+      local -r z_verifier_stderr="${BURD_TEMP_DIR}/plumb_verifier_stderr.txt"
       jq -r '(.verifier.url // "?"), (.verifier.sha256 // "?")' "${z_vs}" \
-        > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null || true
-      { read -r z_verifier_url; read -r z_verifier_sha; } < "${ZRBFC0_SCRATCH_FILE}"
-      echo "  Verifier:"
-      echo "    URL:    ${z_verifier_url}"
-      echo "    SHA256: ${z_verifier_sha}"
-      echo ""
-      echo "  Per-platform verdicts:"
-      jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>/dev/null \
-        || echo "    (unable to parse)"
+        > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_verifier_stderr}" \
+        || buc_die_now "Failed to extract verifier from ${z_vs} — see ${z_verifier_stderr}"
+      { read -r z_verifier_url  || buc_die_now "Failed to read verifier from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_verifier_sha  || buc_die_now "Failed to read verifier from ${ZRBFC0_SCRATCH_FILE}"
+      } < "${ZRBFC0_SCRATCH_FILE}"
+      echo "  Verifier:" || buc_die_now
+      echo "    URL:    ${z_verifier_url}" || buc_die_now
+      echo "    SHA256: ${z_verifier_sha}" || buc_die_now
+      echo "" || buc_die_now
+      echo "  Per-platform verdicts:" || buc_die_now
+      local -r z_verdicts_stderr="${BURD_TEMP_DIR}/plumb_verdicts_stderr.txt"
+      jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>"${z_verdicts_stderr}" \
+        || echo "    (unable to parse)" \
+        || buc_die_now
     else
-      echo "  Vouch artifact not found in GAR"
+      echo "  Vouch artifact not found in GAR" || buc_die_now
     fi
   fi
 }
@@ -617,21 +672,21 @@ zrbfcp_plumb_show_sections() {
 zrbfcp_plumb_show_compact() {
   zrbfc0_sentinel
 
-  local -r z_vessel="$1"
-  local -r z_hallmark="$2"
-  local -r z_dir="$3"
-  local -r z_has_vouch="$4"
+  local -r z_vessel="${1}"
+  local -r z_hallmark="${2}"
+  local -r z_dir="${3}"
+  local -r z_has_vouch="${4}"
 
-  echo ""
-  echo "================================================================"
-  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}"
-  echo "================================================================"
+  echo "" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}" || buc_die_now
+  echo "================================================================" || buc_die_now
 
   zrbfcp_plumb_show_sections "${z_dir}" "${z_has_vouch}"
 
-  echo ""
-  echo "================================================================"
-  echo ""
+  echo "" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "" || buc_die_now
 }
 
 # Internal: display full vessel info (conjure or bind)
@@ -640,45 +695,58 @@ zrbfcp_plumb_show_compact() {
 zrbfcp_plumb_show_full() {
   zrbfc0_sentinel
 
-  local -r z_vessel="$1"
-  local -r z_hallmark="$2"
-  local -r z_dir="$3"
-  local -r z_has_vouch="$4"
+  local -r z_vessel="${1}"
+  local -r z_hallmark="${2}"
+  local -r z_dir="${3}"
+  local -r z_has_vouch="${4}"
 
   local -r z_sbom="${z_dir}/sbom.json"
 
-  echo ""
-  echo "================================================================"
-  echo "  HALLMARK PLUMB (FULL): ${z_vessel} / ${z_hallmark}"
-  echo "================================================================"
+  echo "" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "  HALLMARK PLUMB (FULL): ${z_vessel} / ${z_hallmark}" || buc_die_now
+  echo "================================================================" || buc_die_now
 
   zrbfcp_plumb_show_sections "${z_dir}" "${z_has_vouch}"
 
-  echo ""
-  echo "  -- Package Inventory --------------------------------------------"
-  echo "  Every package syft detected, sorted by ecosystem type."
-  echo ""
+  echo "" || buc_die_now
+  echo "  -- Package Inventory --------------------------------------------" || buc_die_now
+  echo "  Every package syft detected, sorted by ecosystem type." || buc_die_now
+  echo "" || buc_die_now
   if test -f "${z_sbom}"; then
-    printf "    %-12s %-36s %s\n" "TYPE" "NAME" "VERSION"
-    printf "    %-12s %-36s %s\n" "----" "----" "-------"
+    printf "    %-12s %-36s %s\n" "TYPE" "NAME" "VERSION" || buc_die_now
+    printf "    %-12s %-36s %s\n" "----" "----" "-------" || buc_die_now
+    local -r z_inv_stderr="${BURD_TEMP_DIR}/plumb_inventory_stderr.txt"
+    local -r z_inv_sorted="${BURD_TEMP_DIR}/plumb_inventory_sorted.txt"
+    local -r z_inv_sort_stderr="${BURD_TEMP_DIR}/plumb_inventory_sort_stderr.txt"
     jq -r '
       .artifacts[]? |
       [.type // "?", .name // "?", .version // "?"] |
       @tsv
-    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_type z_name z_ver; do
-      printf "    %-12s %-36s %s\n" "${z_type}" "${z_name}" "${z_ver}"
-    done
+    ' "${z_sbom}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_inv_stderr}" \
+      || buc_die_now "Failed to extract package inventory from ${z_sbom} — see ${z_inv_stderr}"
+    sort "${ZRBFC0_SCRATCH_FILE}" > "${z_inv_sorted}" 2>"${z_inv_sort_stderr}" \
+      || buc_die_now "Failed to sort package inventory — see ${z_inv_sort_stderr}"
+    local z_type=""
+    local z_name=""
+    local z_ver=""
+    while IFS=$'\t' read -r z_type z_name z_ver || test -n "${z_type}"; do
+      printf "    %-12s %-36s %s\n" "${z_type}" "${z_name}" "${z_ver}" || buc_die_now
+    done < "${z_inv_sorted}" || buc_die_now "Failed to read package inventory from ${z_inv_sorted}"
   else
-    echo "    sbom.json not found in -about artifact"
+    echo "    sbom.json not found in -about artifact" || buc_die_now
   fi
 
-  echo ""
-  echo "  -- Package Licensing & Identity ---------------------------------"
-  echo "  License and Package URL for each package (for compliance review)."
-  echo ""
+  echo "" || buc_die_now
+  echo "  -- Package Licensing & Identity ---------------------------------" || buc_die_now
+  echo "  License and Package URL for each package (for compliance review)." || buc_die_now
+  echo "" || buc_die_now
   if test -f "${z_sbom}"; then
-    printf "    %-36s %-20s %s\n" "NAME" "LICENSE" "PURL"
-    printf "    %-36s %-20s %s\n" "----" "-------" "----"
+    printf "    %-36s %-20s %s\n" "NAME" "LICENSE" "PURL" || buc_die_now
+    printf "    %-36s %-20s %s\n" "----" "-------" "----" || buc_die_now
+    local -r z_lic_stderr="${BURD_TEMP_DIR}/plumb_licensing_stderr.txt"
+    local -r z_lic_sorted="${BURD_TEMP_DIR}/plumb_licensing_sorted.txt"
+    local -r z_lic_sort_stderr="${BURD_TEMP_DIR}/plumb_licensing_sort_stderr.txt"
     jq -r '
       .artifacts[]? |
       [
@@ -687,27 +755,35 @@ zrbfcp_plumb_show_full() {
         (.purl // "-")
       ] |
       @tsv
-    ' "${z_sbom}" 2>/dev/null | sort | while IFS=$'\t' read -r z_name z_lic z_purl; do
-      printf "    %-36s %-20s %s\n" "${z_name}" "${z_lic}" "${z_purl}"
-    done
+    ' "${z_sbom}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_lic_stderr}" \
+      || buc_die_now "Failed to extract package licensing from ${z_sbom} — see ${z_lic_stderr}"
+    sort "${ZRBFC0_SCRATCH_FILE}" > "${z_lic_sorted}" 2>"${z_lic_sort_stderr}" \
+      || buc_die_now "Failed to sort package licensing — see ${z_lic_sort_stderr}"
+    local z_lic_name=""
+    local z_lic=""
+    local z_purl=""
+    while IFS=$'\t' read -r z_lic_name z_lic z_purl || test -n "${z_lic_name}"; do
+      printf "    %-36s %-20s %s\n" "${z_lic_name}" "${z_lic}" "${z_purl}" || buc_die_now
+    done < "${z_lic_sorted}" || buc_die_now "Failed to read package licensing from ${z_lic_sorted}"
   else
-    echo "    sbom.json not found in -about artifact"
+    echo "    sbom.json not found in -about artifact" || buc_die_now
   fi
 
   local -r z_recipe="${z_dir}/recipe.txt"
   if test -f "${z_recipe}"; then
-    echo ""
-    echo "  -- Recipe (Dockerfile) ------------------------------------------"
-    echo "  The exact Dockerfile used to build this image."
-    echo ""
-    while IFS= read -r z_line; do
-      echo "    ${z_line}"
-    done < "${z_recipe}"
+    echo "" || buc_die_now
+    echo "  -- Recipe (Dockerfile) ------------------------------------------" || buc_die_now
+    echo "  The exact Dockerfile used to build this image." || buc_die_now
+    echo "" || buc_die_now
+    local z_line=""
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      echo "    ${z_line}" || buc_die_now
+    done < "${z_recipe}" || buc_die_now "Failed to read recipe ${z_recipe}"
   fi
 
-  echo ""
-  echo "================================================================"
-  echo ""
+  echo "" || buc_die_now
+  echo "================================================================" || buc_die_now
+  echo "" || buc_die_now
 }
 
 rbfcp_plumb_full() {

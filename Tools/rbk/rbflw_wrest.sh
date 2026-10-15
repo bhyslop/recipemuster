@@ -60,13 +60,14 @@ rbflw_wrest() {
   docker pull "${z_full_ref}" || buc_die_now "Image pull failed"
 
   local z_image_id
-  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC0_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die_now "Failed to get image ID"
+  local -r z_inspect_stderr="${ZRBFL0_INSPECT_PREFIX}wrest_stderr.txt"
+  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_inspect_stderr}" \
+    || buc_die_now "Failed to get image ID — see ${z_inspect_stderr}"
   z_image_id=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_SCRATCH_FILE}"
 
-  echo ""
-  echo "Image wrested: ${z_full_ref}"
-  echo "Local image ID: ${z_image_id}"
+  echo "" || buc_die_now
+  echo "Image wrested: ${z_full_ref}" || buc_die_now
+  echo "Local image ID: ${z_image_id}" || buc_die_now
 
   buc_success "Image wrest complete"
 }

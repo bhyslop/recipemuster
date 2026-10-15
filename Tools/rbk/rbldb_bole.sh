@@ -169,8 +169,11 @@ rbldb_ensconce() {
   local z_n=""
   local z_origin_var=""
   local z_slot_origin=""
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   for z_n in 1 2 3; do
     z_origin_var="RBRV_IMAGE_${z_n}_ORIGIN"
+    [[ "${z_origin_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_origin_var}"
     z_slot_origin="${!z_origin_var:-}"
     test -n "${z_slot_origin}" || continue
     z_origin="${z_slot_origin}"

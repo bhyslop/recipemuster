@@ -40,7 +40,9 @@ rbfvb_batch_vouch() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   # Load-then-iterate. A synthetic sentinel element appended to the array
   # lets the final hallmark flush through the same boundary branch as every
@@ -62,7 +64,7 @@ rbfvb_batch_vouch() {
   local z_i="" z_h="" z_b=""
 
   for z_i in "${!z_lines[@]}"; do
-    z_line="${z_lines[$z_i]}"
+    z_line="${z_lines[${z_i}]}"
     test -n "${z_line}" || continue
 
     z_h="${z_line%% *}"
@@ -101,8 +103,8 @@ rbfvb_batch_vouch() {
   : > "${z_pending_file}" || buc_die_now "Failed to initialize ${z_pending_file}"
   local z_j=""
   for z_j in "${!z_pending[@]}"; do
-    printf '%s\n' "${z_pending[$z_j]}" >> "${z_pending_file}" \
-      || buc_die_now "Failed to record pending hallmark ${z_pending[$z_j]}"
+    printf '%s\n' "${z_pending[${z_j}]}" >> "${z_pending_file}" \
+      || buc_die_now "Failed to record pending hallmark ${z_pending[${z_j}]}"
   done
 
   local -r z_total="${#z_pending[@]}"
@@ -125,7 +127,7 @@ rbfvb_batch_vouch() {
   local z_build_info="" z_vessel_scratch="" z_vessel_dir=""
 
   for z_j in "${!z_pending[@]}"; do
-    z_hallmark="${z_pending[$z_j]}"
+    z_hallmark="${z_pending[${z_j}]}"
     test -n "${z_hallmark}" || continue
     z_idx=$(( z_idx + 1 ))
 
@@ -157,7 +159,7 @@ rbfvb_batch_vouch() {
     z_vouched_n=$(( z_vouched_n + 1 ))
   done
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "Batch vouch complete — ${z_vouched_n}/${z_total} hallmark(s) vouched"
 }
 

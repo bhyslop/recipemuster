@@ -43,10 +43,12 @@ rbfvv_vouch() {
   if test -z "${z_vessel_dir}"; then
     local z_sigils
     z_sigils=$(rbrv_list_capture) || buc_die_now "No vessels found"
+    local z_sigil_roll=()
+    read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
     buc_step "Available vessels:"
-    local z_sigil=""
-    for z_sigil in ${z_sigils}; do
-      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil}"
+    local z_i=0
+    for z_i in "${!z_sigil_roll[@]}"; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil_roll[${z_i}]}"
     done
     buc_die_now "Vessel directory required"
   fi
@@ -135,8 +137,8 @@ rbfvv_vouch() {
 zrbfvv_vouch_submit() {
   zrbfv0_sentinel
 
-  local -r z_hallmark="$1"
-  local -r z_token="$2"
+  local -r z_hallmark="${1}"
+  local -r z_token="${2}"
 
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -162,9 +164,14 @@ zrbfvv_vouch_submit() {
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
   local z_vi_pkg_path=""
   local z_vi_tag=""
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   for z_vi_n in 1 2 3; do
     z_vi_origin_var="RBRV_IMAGE_${z_vi_n}_ORIGIN"
     z_vi_anchor_var="RBRV_IMAGE_${z_vi_n}_ANCHOR"
+    [[ "${z_vi_origin_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_vi_origin_var}"
+    [[ "${z_vi_anchor_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_vi_anchor_var}"
     z_vi_origin="${!z_vi_origin_var:-}"
     z_vi_anchor="${!z_vi_anchor_var:-}"
     test -n "${z_vi_origin}" || continue

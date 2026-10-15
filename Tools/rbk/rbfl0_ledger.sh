@@ -30,14 +30,14 @@ test -z "${ZRBFL0_SOURCED:-}" || buc_die_now "Module rbfl multiply sourced - che
 ZRBFL0_SOURCED=1
 
 # Source shared Foundry Core entry and the guard-free body clusters
-source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
-source "${BASH_SOURCE[0]%/*}/rbfla_anoint.sh"
-source "${BASH_SOURCE[0]%/*}/rbfly_yoke.sh"
-source "${BASH_SOURCE[0]%/*}/rbflf_feoff.sh"
-source "${BASH_SOURCE[0]%/*}/rbfls_seise.sh"
-source "${BASH_SOURCE[0]%/*}/rbfld_delete.sh"
-source "${BASH_SOURCE[0]%/*}/rbfln_inventory.sh"
-source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
+source "${BASH_SOURCE[0]%/*}/rbfla_anoint.sh" || buc_die_now "Failed to source rbfla_anoint.sh"
+source "${BASH_SOURCE[0]%/*}/rbfly_yoke.sh" || buc_die_now "Failed to source rbfly_yoke.sh"
+source "${BASH_SOURCE[0]%/*}/rbflf_feoff.sh" || buc_die_now "Failed to source rbflf_feoff.sh"
+source "${BASH_SOURCE[0]%/*}/rbfls_seise.sh" || buc_die_now "Failed to source rbfls_seise.sh"
+source "${BASH_SOURCE[0]%/*}/rbfld_delete.sh" || buc_die_now "Failed to source rbfld_delete.sh"
+source "${BASH_SOURCE[0]%/*}/rbfln_inventory.sh" || buc_die_now "Failed to source rbfln_inventory.sh"
+source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh" || buc_die_now "Failed to source rbflw_wrest.sh"
 
 # Cross-source from the rbld (Lode) family: abjure dispatches its GAR package
 # delete cloud-side through the build-assembly spine and the shared cloud-delete
@@ -46,9 +46,9 @@ source "${BASH_SOURCE[0]%/*}/rbflw_wrest.sh"
 # All three carry their own inclusion guards, so this single-source-per-process
 # reach raises no double-source; they read only rbfc-level state (zrbfc0_sentinel),
 # which this process kindles.
-source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh"
-source "${BASH_SOURCE[0]%/*}/rblds_spine.sh"
-source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh"
+source "${BASH_SOURCE[0]%/*}/rbldk_kind.sh" || buc_die_now "Failed to source rbldk_kind.sh"
+source "${BASH_SOURCE[0]%/*}/rblds_spine.sh" || buc_die_now "Failed to source rblds_spine.sh"
+source "${BASH_SOURCE[0]%/*}/rbldd_delete.sh" || buc_die_now "Failed to source rbldd_delete.sh"
 
 ######################################################################
 # Internal Functions (zrbfl0_*)
@@ -61,6 +61,7 @@ zrbfl0_kindle() {
 
   buc_log_args 'Define delete operation file prefix'
   readonly ZRBFL0_DELETE_PREFIX="${BURD_TEMP_DIR}/rbfl_delete_"
+  readonly ZRBFL0_INSPECT_PREFIX="${BURD_TEMP_DIR}/rbfl_inspect_"
 
   readonly ZRBFL0_KINDLED=1
 }

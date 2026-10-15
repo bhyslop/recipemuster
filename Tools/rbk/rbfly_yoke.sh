@@ -105,7 +105,7 @@ rbfly_yoke() {
     local z_found=0
     local z_i=""
     for z_i in "${!z_present[@]}"; do
-      test "${z_present[$z_i]}" = "${z_tool}" || continue
+      test "${z_present[${z_i}]}" = "${z_tool}" || continue
       z_found=1
       break
     done
@@ -158,14 +158,14 @@ rbfly_yoke() {
 
     z_wrote=0
     for z_j in "${!z_rbrv_lines[@]}"; do
-      case "${z_rbrv_lines[$z_j]}" in
+      case "${z_rbrv_lines[${z_j}]}" in
         RBRV_RELIQUARY=*)
           printf 'RBRV_RELIQUARY=%s\n' "${z_stamp}" >> "${z_tmp_file}" \
             || buc_die_now "Failed to write RBRV_RELIQUARY for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
           z_wrote=1
           ;;
         *)
-          printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
+          printf '%s\n' "${z_rbrv_lines[${z_j}]}" >> "${z_tmp_file}" \
             || buc_die_now "Failed to write line for ${z_sigil} (already wrote: ${z_written[*]:-(none)})"
           ;;
       esac

@@ -184,9 +184,13 @@ rbldv_presage() {
   zrbldv_immure_resolve_family "${z_brand}"
   buc_info "Presage: immure ${z_brand} -> ${z_quay_family} (kind ${z_kind}), leaves: ${z_selection}"
 
+  local z_leaf_roll=()
+  read -r -a z_leaf_roll <<< "${z_selection}" || buc_die_now "Failed to split the leaf selection"
   local z_leaf=""
   local z_count=0
-  for z_leaf in ${z_selection}; do
+  local z_i=0
+  for z_i in "${!z_leaf_roll[@]}"; do
+    z_leaf="${z_leaf_roll[${z_i}]}"
     z_count=$((z_count + 1))
     if test -n "${z_version}"; then
       buc_info "  would capture: ${z_quay_family}:${z_version} leaf ${z_leaf}"
@@ -222,7 +226,7 @@ rbldv_immure() {
   local z_version=""
   local z_stamp=""
 
-  if [ "${1:-}" = "--refresh" ]; then
+  if test "${1:-}" = "--refresh"; then
     z_mode="refresh"
     local -r z_touchmark="${2:-}"
     test -n "${z_touchmark}" || buc_die_now "touchmark required after --refresh (e.g. vw260610095327)"
@@ -256,7 +260,7 @@ rbldv_immure() {
   # prior envelope exists). Refresh mode: reuse the existing stamp and compute the
   # present-set from the existing GAR envelope + member tags.
   local z_preserved_members="[]"
-  if [ "${z_mode}" = "fresh" ]; then
+  if test "${z_mode}" = "fresh"; then
     # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
     # the stamp so the touchmark is known before the build for the capture-file.
     # podvm kind-letters are two characters (vw/vn).

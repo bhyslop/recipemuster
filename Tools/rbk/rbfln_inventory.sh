@@ -38,7 +38,9 @@ rbfln_tally() {
     || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
@@ -56,9 +58,9 @@ rbfln_tally() {
   done < "${ZRBFC0_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
-  echo ""
-  printf "  %-30s  %-11s  %s\n" "HALLMARK" "HEALTH" "BASENAMES"
-  printf "  %-30s  %-11s  %s\n" "------------------------------" "-----------" "---------"
+  echo "" || buc_die_now
+  printf "  %-30s  %-11s  %s\n" "HALLMARK" "HEALTH" "BASENAMES" || buc_die_now
+  printf "  %-30s  %-11s  %s\n" "------------------------------" "-----------" "---------" || buc_die_now
 
   # State machine over <hallmark> <basename> pairs (file was sorted by the
   # capture helper). Vessel is no longer encoded in the GAR path —
@@ -69,7 +71,7 @@ rbfln_tally() {
   local z_i="" z_h="" z_b="" z_health=""
 
   for z_i in "${!z_lines[@]}"; do
-    z_line="${z_lines[$z_i]}"
+    z_line="${z_lines[${z_i}]}"
     test -n "${z_line}" || continue
 
     z_h="${z_line%% *}"
@@ -92,7 +94,7 @@ rbfln_tally() {
           z_health="incomplete"
           z_incomplete_n=$(( z_incomplete_n + 1 ))
         fi
-        printf "  %-30s  %-11s  %s\n" "${z_prev_h}" "${z_health}" "${z_prev_bns}"
+        printf "  %-30s  %-11s  %s\n" "${z_prev_h}" "${z_health}" "${z_prev_bns}" || buc_die_now
         z_count=$(( z_count + 1 ))
       fi
 
@@ -115,7 +117,7 @@ rbfln_tally() {
     esac
   done
 
-  echo ""
+  echo "" || buc_die_now
   buc_info "Total hallmarks: ${z_count}  (vouched: ${z_vouched_n}, pending: ${z_pending_n}, incomplete: ${z_incomplete_n})"
 
   case "${z_pending_n}" in
@@ -163,7 +165,9 @@ rbfln_rekon_hallmark() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
-  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
   local z_found=""
@@ -181,9 +185,9 @@ rbfln_rekon_hallmark() {
 
   test -n "${z_found}" || buc_die_now "Hallmark not found: ${z_hallmark}"
 
-  echo ""
-  printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH"
-  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------"
+  echo "" || buc_die_now
+  printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH" || buc_die_now
+  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------" || buc_die_now
 
   local z_canon=""
   local z_mark=""
@@ -204,10 +208,10 @@ rbfln_rekon_hallmark() {
     else
       z_path="(absent)"
     fi
-    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}"
+    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}" || buc_die_now
   done
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "Rekon complete for ${z_hallmark}"
 }
 
@@ -223,7 +227,9 @@ rbfln_audit_hallmarks() {
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
@@ -231,27 +237,34 @@ rbfln_audit_hallmarks() {
     return 0
   fi
 
-  echo ""
-  printf "  %s\n" "HALLMARK"
-  printf "  %s\n" "------------------------------"
+  echo "" || buc_die_now
+  printf "  %s\n" "HALLMARK" || buc_die_now
+  printf "  %s\n" "------------------------------" || buc_die_now
+
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   local z_count=0
   local z_prev=""
-  local z_line=""
   local z_h=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
+  local z_i=0
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[${z_i}]}"
     test -n "${z_line}" || continue
     z_h="${z_line%% *}"
     test -n "${z_h}" || continue
     if test "${z_h}" != "${z_prev}"; then
-      printf "  %s\n" "${z_h}"
+      printf "  %s\n" "${z_h}" || buc_die_now
       buf_write_fact_multi "${z_h}" "${RBCC_fact_ext_audit_hallmark}" "${z_h}"
       z_count=$(( z_count + 1 ))
       z_prev="${z_h}"
     fi
-  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
+  done
 
-  echo ""
+  echo "" || buc_die_now
   buc_info "Total hallmarks: ${z_count}"
   buc_success "Audit complete"
 }
@@ -303,13 +316,18 @@ rbfln_list() {
 
   # Leaf grain: the path names a package exactly -> list its tags and versions.
   if test -n "${z_path}"; then
+    local z_pls=()
     local z_pl=""
     while IFS= read -r z_pl || test -n "${z_pl}"; do
-      if test "${z_pl}" = "${z_path}"; then
+      z_pls+=("${z_pl}")
+    done < "${z_pkgs_file}"
+    local z_pi=0
+    for z_pi in "${!z_pls[@]}"; do
+      if test "${z_pls[${z_pi}]}" = "${z_path}"; then
         zrbfln_list_leaf "${z_token}" "${z_path}"
         return 0
       fi
-    done < "${z_pkgs_file}"
+    done
   fi
 
   # Branch grain: emit the distinct next path-segment beneath the prefix
@@ -334,24 +352,24 @@ rbfln_list() {
     buc_die_now "No path or package matches: ${z_path}"
   fi
 
-  echo ""
+  echo "" || buc_die_now
   if test -z "${z_path}"; then
-    printf "  %s\n" "TOP NAMESPACES"
+    printf "  %s\n" "TOP NAMESPACES" || buc_die_now
   else
-    printf "  CHILDREN OF  %s\n" "${z_path}"
+    printf "  CHILDREN OF  %s\n" "${z_path}" || buc_die_now
   fi
-  printf "  %s\n" "------------------------------"
+  printf "  %s\n" "------------------------------" || buc_die_now
   local z_seg=""
   while IFS= read -r z_seg || test -n "${z_seg}"; do
     test -n "${z_seg}" || continue
     if test -z "${z_path}"; then
-      printf "  %s\n" "${z_seg}"
+      printf "  %s\n" "${z_seg}" || buc_die_now
     else
-      printf "  %s/%s\n" "${z_path}" "${z_seg}"
+      printf "  %s/%s\n" "${z_path}" "${z_seg}" || buc_die_now
     fi
   done < "${z_kids_file}"
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "List complete"
 }
 
@@ -386,35 +404,35 @@ zrbfln_list_leaf() {
     "${ZRBUH_PREFIX}${z_vers_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_vers_file}" \
     || buc_die_now "Failed to extract versions for ${z_pkg}"
 
-  echo ""
-  printf "  PACKAGE  %s\n" "${z_pkg}"
-  echo ""
-  printf "  %s\n" "TAGS  (act:  rbw-iw ${z_pkg}:<tag>   rbw-iJ ${z_pkg}:<tag>)"
-  printf "  %s\n" "------------------------------"
+  echo "" || buc_die_now
+  printf "  PACKAGE  %s\n" "${z_pkg}" || buc_die_now
+  echo "" || buc_die_now
+  printf "  %s\n" "TAGS  (act:  rbw-iw ${z_pkg}:<tag>   rbw-iJ ${z_pkg}:<tag>)" || buc_die_now
+  printf "  %s\n" "------------------------------" || buc_die_now
   if test -s "${z_tags_file}"; then
     local z_tag=""
     while IFS= read -r z_tag || test -n "${z_tag}"; do
       test -n "${z_tag}" || continue
-      printf "    %s\n" "${z_tag}"
+      printf "    %s\n" "${z_tag}" || buc_die_now
     done < "${z_tags_file}"
   else
-    printf "    (none)\n"
+    printf "    (none)\n" || buc_die_now
   fi
 
-  echo ""
-  printf "  %s\n" "VERSIONS  (act:  rbw-iJ ${z_pkg}@<version>)"
-  printf "  %s\n" "------------------------------"
+  echo "" || buc_die_now
+  printf "  %s\n" "VERSIONS  (act:  rbw-iJ ${z_pkg}@<version>)" || buc_die_now
+  printf "  %s\n" "------------------------------" || buc_die_now
   if test -s "${z_vers_file}"; then
     local z_ver=""
     while IFS= read -r z_ver || test -n "${z_ver}"; do
       test -n "${z_ver}" || continue
-      printf "    %s\n" "${z_ver}"
+      printf "    %s\n" "${z_ver}" || buc_die_now
     done < "${z_vers_file}"
   else
-    printf "    (none)\n"
+    printf "    (none)\n" || buc_die_now
   fi
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "List complete — ${z_pkg}"
 }
 

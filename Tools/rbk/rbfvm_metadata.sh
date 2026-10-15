@@ -36,8 +36,8 @@ set -euo pipefail
 zrbfvm_graft_metadata_submit() {
   zrbfv0_sentinel
 
-  local -r z_vessel_dir="$1"
-  local -r z_hallmark="$2"
+  local -r z_vessel_dir="${1}"
+  local -r z_hallmark="${2}"
 
   # Load vessel (follows reload pattern used by rbfva_about/rbfvv_vouch)
   zrbfcv_load_vessel "${z_vessel_dir}"
@@ -115,9 +115,14 @@ zrbfvm_graft_metadata_submit() {
   local z_vi_n="" z_vi_origin_var="" z_vi_anchor_var="" z_vi_origin="" z_vi_anchor=""
   local z_vi_pkg_path=""
   local z_vi_tag=""
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   for z_vi_n in 1 2 3; do
     z_vi_origin_var="RBRV_IMAGE_${z_vi_n}_ORIGIN"
     z_vi_anchor_var="RBRV_IMAGE_${z_vi_n}_ANCHOR"
+    [[ "${z_vi_origin_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_vi_origin_var}"
+    [[ "${z_vi_anchor_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_vi_anchor_var}"
     z_vi_origin="${!z_vi_origin_var:-}"
     z_vi_anchor="${!z_vi_anchor_var:-}"
     test -n "${z_vi_origin}" || continue
