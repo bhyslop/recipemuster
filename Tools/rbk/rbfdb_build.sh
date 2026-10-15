@@ -67,15 +67,11 @@ zrbfdb_quota_preflight() {
     return 0
   fi
 
-  # Filter quota response to region-specific bucket via intermediate file
-  rbuh_jq_file_to_file_ok "quota_preflight" "quota_region" \
-    "[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRD_GCP_REGION}\")] | .[0] // {}" \
-    || true
-
   # Extract effective limit from region bucket, then fallback to first bucket
+  local -r z_region_limit_jq="[.consumerQuotaLimits[0].quotaBuckets[] | select(.dimensions.region == \"${RBRD_GCP_REGION}\")] | .[0].effectiveLimit"
   local z_limit=""
   local z_limit_status=0
-  z_limit=$(rbuh_json_field_capture "quota_region" '.effectiveLimit') || z_limit_status=$?
+  z_limit=$(rbuh_json_field_capture "quota_preflight" "${z_region_limit_jq}") || z_limit_status=$?
   test "${z_limit_status}" -eq 0 || z_limit=""
   if test -z "${z_limit}"; then
     z_limit_status=0

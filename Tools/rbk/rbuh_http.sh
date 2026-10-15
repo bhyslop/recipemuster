@@ -176,32 +176,6 @@ rbuh_code_capture() {
   echo "${z_code}"
 }
 
-# Apply jq filter to file, writing result to same or different file
-rbuh_jq_file_to_file_ok() {
-  zrbuh_sentinel
-  local -r z_source_infix="${1:-}"
-  local -r z_target_infix="${2:-}"
-  local -r z_jq_filter="${3:-}"
-
-  buc_doc_brief "Apply a jq filter to one infix's JSON response, writing the result under another infix"
-  buc_doc_param "source_infix" "Infix whose registered JSON response is read"
-  buc_doc_param "target_infix" "Infix the filtered JSON is written under"
-  buc_doc_param "jq_filter"    "jq filter to apply"
-  buc_doc_shown || return 0
-
-  test -n "${z_source_infix}" || return 1
-  test -n "${z_target_infix}" || return 1
-  test -n "${z_jq_filter}"    || return 1
-
-  local -r z_source_file="${ZRBUH_PREFIX}${z_source_infix}${ZRBUH_POSTFIX_JSON}"
-  local -r z_target_file="${ZRBUH_PREFIX}${z_target_infix}${ZRBUH_POSTFIX_JSON}"
-
-  test -f "${z_source_file}" || return 1
-
-  jq "${z_jq_filter}" "${z_source_file}" > "${z_target_file}" || return 1
-  test -f "${z_target_file}" || return 1
-}
-
 ######################################################################
 # External Functions (rbuh_*)
 
