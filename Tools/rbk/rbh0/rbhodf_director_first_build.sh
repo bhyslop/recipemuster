@@ -35,13 +35,13 @@ rbho_director_first_build() {
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
 
   local z_conjure_summoned=0
-  if command -v docker >/dev/null 2>&1; then
+  if command -v docker >/dev/null; then
     local z_project_id=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
@@ -61,7 +61,7 @@ rbho_director_first_build() {
         local z_line=""
         while IFS= read -r z_line || test -n "${z_line}"; do
           case "${z_line}" in
-            "${z_gar_prefix}"*"${z_vessel}:c"[0-9]*) z_conjure_summoned=1; break ;;
+            "${z_gar_prefix}"*"${z_vessel}:c"[0123456789]*) z_conjure_summoned=1; break ;;
           esac
         done < "${z_df_out}"
       fi

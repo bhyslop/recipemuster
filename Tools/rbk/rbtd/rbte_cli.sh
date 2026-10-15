@@ -25,8 +25,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Furnish and Main
@@ -38,16 +38,18 @@ zrbte_furnish() {
   buc_doc_env_row "BURD_STATION_FILE     " "Station regime file (launcher-provided; dowse log-dir source)"
   buc_doc_env_done || return 0
 
+  local -r z_command="${1:-}"
+
   local z_cli_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${BURD_BUK_DIR}/buwz_zipper.sh"
-  source "${z_cli_dir}/../rbcc_constants.sh"
-  source "${z_cli_dir}/../rbpc_constants.sh"
-  source "${z_cli_dir}/../rbgc_constants.sh"
-  source "${z_cli_dir}/../rbz_zipper.sh"
-  source "${z_cli_dir}/rbte_engine.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+  source "${BURD_BUK_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
+  source "${z_cli_dir}/../rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_cli_dir}/../rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
+  source "${z_cli_dir}/../rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_cli_dir}/../rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
+  source "${z_cli_dir}/rbte_engine.sh" || buc_die_now "Failed to source rbte_engine.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -57,6 +59,15 @@ zrbte_furnish() {
   zrbcc_kindle
   zrbgc_kindle
   zrbte_kindle
+
+  # The dowse census reads the station's log dir (BURS_LOG_DIR), which dispatch
+  # does not export to children; it comes from the launcher-exported station file.
+  case "${z_command}" in
+    rbte_dowse)
+      test -n "${BURD_STATION_FILE:-}" || buc_die_now "BURD_STATION_FILE not set - launch via tabtarget"
+      source "${BURD_STATION_FILE}" || buc_die_now "Failed to source station file: ${BURD_STATION_FILE}"
+      ;;
+  esac
 }
 
 buc_execute rbte_ "Theurge test engine" zrbte_furnish "$@"

@@ -42,7 +42,7 @@ zrbga_kindle() {
 
   readonly ZRBGA_PREFIX="${BURD_TEMP_DIR}/rbga_"
   readonly ZRBGA_EMPTY_JSON="${ZRBGA_PREFIX}empty.json"
-  printf '{}' > "${ZRBGA_EMPTY_JSON}"
+  printf '{}' > "${ZRBGA_EMPTY_JSON}" || buc_die_now "Failed to write ${ZRBGA_EMPTY_JSON}"
 
   # Infix values for HTTP operations
   readonly ZRBGA_INFIX_CREATE_REPO="create_repo"
@@ -71,8 +71,8 @@ rbga_repo_create() {
 
   buc_doc_brief "Create an Artifact Registry repository"
   buc_doc_param "repo_name" "Name of the repository to create"
-  buc_doc_param "location" "Location for the repository (optional, defaults to RBGC_GAR_LOCATION)"
-  buc_doc_param "format" "Repository format (optional, defaults to DOCKER)"
+  buc_doc_oparm "location" "Location for the repository (optional, defaults to RBGC_GAR_LOCATION)"
+  buc_doc_oparm "format" "Repository format (optional, defaults to DOCKER)"
   buc_doc_shown || return 0
 
   test -n "${z_repo_name}" || buc_die_now "Repository name required"
@@ -115,7 +115,7 @@ rbga_repo_get() {
 
   buc_doc_brief "Get Artifact Registry repository details"
   buc_doc_param "repo_name" "Name of the repository to retrieve"
-  buc_doc_param "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
+  buc_doc_oparm "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
   buc_doc_shown || return 0
 
   test -n "${z_repo_name}" || buc_die_now "Repository name required"
@@ -136,10 +136,7 @@ rbga_repo_get() {
 
   local z_http_code
   z_http_code=$(rbuh_code_capture "${ZRBGA_INFIX_GET_REPO}") || buc_die_now "Get repository: failed to read HTTP code"
-  if test "${z_http_code}" = "404"; then
-    buc_info "Repository not found: ${z_repo_name} in ${z_location}"
-    return 1
-  fi
+  test "${z_http_code}" != "404" || buc_die_now "Repository not found: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Verify repository format'
   local z_format
@@ -147,7 +144,6 @@ rbga_repo_get() {
   z_format=$(rbuh_json_field_capture "${ZRBGA_INFIX_GET_REPO}" '.format') || z_format_status=$?
   test "${z_format_status}" -eq 0 || z_format="UNKNOWN"
   buc_success "Repository found: ${z_repo_name} (format: ${z_format}) in ${z_location}"
-  return 0
 }
 
 rbga_repo_set_iam() {
@@ -159,7 +155,7 @@ rbga_repo_set_iam() {
 
   buc_doc_brief "Set IAM policy on an Artifact Registry repository"
   buc_doc_param "repo_name" "Name of the repository"
-  buc_doc_param "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
+  buc_doc_oparm "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
   buc_doc_param "policy_json" "IAM policy JSON (from file or string)"
   buc_doc_shown || return 0
 
@@ -178,9 +174,11 @@ rbga_repo_set_iam() {
   local z_policy_file="${BURD_TEMP_DIR}/rbga_repo_set_iam.json"
 
   if test -f "${z_policy_json}"; then
-    jq -n --slurpfile policy "${z_policy_json}" '{ policy: $policy[0] }' > "${z_policy_file}"
+    jq -n --slurpfile policy "${z_policy_json}" '{ policy: $policy[0] }' > "${z_policy_file}" \
+      || buc_die_now "Failed to build set-IAM body from ${z_policy_json}"
   else
-    jq -n --argjson policy "${z_policy_json}" '{ policy: $policy }' > "${z_policy_file}"
+    jq -n --argjson policy "${z_policy_json}" '{ policy: $policy }' > "${z_policy_file}" \
+      || buc_die_now "Failed to build set-IAM body"
   fi
 
   rbuh_json "POST" "${z_set_url}" "${z_token}" \
@@ -200,7 +198,7 @@ rbga_repo_add_iam_role() {
 
   buc_doc_brief "Add IAM role to a member on an Artifact Registry repository"
   buc_doc_param "repo_name" "Name of the repository"
-  buc_doc_param "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
+  buc_doc_oparm "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
   buc_doc_param "member" "Member to grant role to (serviceAccount:email or user:email)"
   buc_doc_param "role" "Role to grant (e.g., roles/artifactregistry.reader)"
   buc_doc_shown || return 0
@@ -236,7 +234,7 @@ rbga_repo_delete() {
 
   buc_doc_brief "Delete an Artifact Registry repository"
   buc_doc_param "repo_name" "Name of the repository to delete"
-  buc_doc_param "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
+  buc_doc_oparm "location" "Location of the repository (optional, defaults to RBGC_GAR_LOCATION)"
   buc_doc_shown || return 0
 
   test -n "${z_repo_name}" || buc_die_now "Repository name required"

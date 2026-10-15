@@ -45,7 +45,7 @@ rbho_director_bind() {
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
@@ -80,7 +80,7 @@ rbho_director_bind() {
     local z_vessel_stamp_status=0
     z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp_status=$?
     test "${z_vessel_stamp_status}" -eq 0 || z_vessel_stamp=""
-    test -n "${z_vessel_stamp}" && z_vessel_yoked=1
+    test -z "${z_vessel_stamp}" || z_vessel_yoked=1
   fi
 
   buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_vessel}";   local -r z_lk_vessel="${z_buym_yelp}"

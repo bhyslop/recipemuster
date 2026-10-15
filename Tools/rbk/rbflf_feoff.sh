@@ -112,14 +112,15 @@ rbflf_feoff() {
   local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_feoff_${z_sigil}_${RBCC_rbrv_file}.new"
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
-    if [[ "${z_line}" == ${z_anchor_var}=* ]]; then
-      printf '%s\n' "${z_anchor_line}"; z_found=true
+    if [[ "${z_line}" == "${z_anchor_var}"=* ]]; then
+      printf '%s\n' "${z_anchor_line}" || buc_die_now "Failed to write ${z_anchor_var}"
+      z_found=true
     else
-      printf '%s\n' "${z_line}"
+      printf '%s\n' "${z_line}" || buc_die_now "Failed to copy a line of ${z_rbrv_file}"
     fi
   done < "${z_rbrv_file}" > "${z_tmp_file}" \
     || buc_die_now "Failed to rewrite ${z_rbrv_file} for ${z_anchor_var}"
-  if [[ "${z_found}" != "true" ]]; then
+  if test "${z_found}" != "true"; then
     printf '%s\n' "${z_anchor_line}" >> "${z_tmp_file}" || buc_die_now "Failed to append ${z_anchor_var}"
   fi
   mv "${z_tmp_file}" "${z_rbrv_file}" || buc_die_now "Failed to finalize ${z_rbrv_file}"

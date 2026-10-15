@@ -87,7 +87,8 @@ rbfh_dockerfile_check() {
     esac
 
     # Rule 2: second whitespace-delimited token must be approved
-    read -r z_pre z_token2 z_post <<<"${z_line}"
+    read -r z_pre z_token2 z_post <<<"${z_line}" \
+      || buc_die_now "${z_path}:${z_lineno}: Failed to split FROM line — ${z_line}"
     case "${z_token2}" in
       '${RBF_IMAGE_1}'|'${RBF_IMAGE_2}'|'${RBF_IMAGE_3}'|'scratch') : ;;
       *) buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM image token must be \${RBF_IMAGE_1..3} or scratch — ${z_line}" ;;

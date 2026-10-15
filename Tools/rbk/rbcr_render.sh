@@ -24,9 +24,12 @@
 
 set -euo pipefail
 
+test -z "${ZRBCR_SOURCED:-}" || buc_die_now "Module rbcr multiply sourced - check sourcing hierarchy"
+ZRBCR_SOURCED=1
+
 # Source the actual module from BUK
 ZRBCR_WRAPPER_DIR="${BASH_SOURCE[0]%/*}"
-source "${BURD_BUK_DIR}/bupr_regime.sh"
+source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
 
 # Backward-compatible function aliases
 zrbcr_kindle()       { zbupr_kindle "$@"; }

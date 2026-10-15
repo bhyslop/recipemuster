@@ -100,7 +100,9 @@ zrbte_build_binary() {
 
   zrbte_codegen
   buc_step "Building theurge"
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || buc_die_now "cargo build failed"
+  local z_cargo_status=0
+  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || z_cargo_status=$?
+  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo build failed (status ${z_cargo_status})"
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -113,7 +115,9 @@ rbte_build() {
   zrbte_codegen
   buc_step "Building theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die_now "cargo build failed"
+  local z_cargo_status=0
+  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || z_cargo_status=$?
+  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo build failed (status ${z_cargo_status})"
   buc_success "Theurge built"
 }
 
@@ -123,7 +127,9 @@ rbte_test() {
   zrbte_codegen
   buc_step "Testing theurge"
   buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die_now "cargo test failed"
+  local z_cargo_status=0
+  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || z_cargo_status=$?
+  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo test failed (status ${z_cargo_status})"
   buc_success "All theurge tests passed"
 }
 
@@ -138,7 +144,9 @@ rbte_run() {
   # Extra CLI args (e.g. --keep-going) pass straight through to the binary,
   # which owns flag parsing and the disposition policy gate.
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${z_fixture}" "$@"
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" "${z_fixture}" "$@" || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_suite() {
@@ -153,7 +161,9 @@ rbte_suite() {
   # the binary's `suite` mode, which resolves and runs its fixtures. Extra CLI
   # args (e.g. --keep-going) pass through with it.
   buc_step "Running theurge suite '${z_suite}'"
-  "${ZRBTE_BINARY}" suite "${z_suite}" "$@"
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" suite "${z_suite}" "$@" || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_single() {
@@ -163,7 +173,9 @@ rbte_single() {
 
   local z_fixture="${BUZ_FOLIO:-}"
   local z_case="${1:-}"
-  "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"} || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_dowse() {
@@ -172,15 +184,14 @@ rbte_dowse() {
   zrbte_build_binary
 
   # Read-only census over the station's self-logs. The log dir is a station
-  # regime value (BURS_LOG_DIR); dispatch does not export it to children, so
-  # reach it by sourcing the launcher-exported station file — the burs_cli
-  # pattern.
-  test -n "${BURD_STATION_FILE:-}" || buc_die_now "BURD_STATION_FILE not set - launch via tabtarget"
-  source "${BURD_STATION_FILE}" || buc_die_now "Failed to source station file: ${BURD_STATION_FILE}"
-  test -n "${BURS_LOG_DIR:-}" || buc_die_now "BURS_LOG_DIR not set in ${BURD_STATION_FILE}"
+  # regime value (BURS_LOG_DIR), sourced from the launcher-exported station file
+  # by the furnish for this command — the burs_cli pattern.
+  test -n "${BURS_LOG_DIR:-}" || buc_die_now "BURS_LOG_DIR not set in ${BURD_STATION_FILE:-}"
 
   buc_step "Dowsing observed tariff history"
-  "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}"
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}" || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_nihil() {

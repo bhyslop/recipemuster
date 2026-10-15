@@ -30,8 +30,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 ######################################################################
 # CLI Commands
@@ -45,7 +45,6 @@ rbgv_check_payor() {
   local -r z_iterations=5
   local -r z_delay_ms=1500
   buc_step "Payor OAuth access probe"
-  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
   rbgv_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
@@ -72,8 +71,6 @@ rbgv_check_avowal() {
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
-  rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -95,7 +92,7 @@ rbgv_check_avowal() {
 # or a missing depot serviceUsageConsumer — a standing state, not a propagation
 # race). Depot-coupled, unlike the depot-agnostic avowal probe: the don
 # derives the depot project (RBDC_DEPOT_PROJECT_ID), so furnish enforces RBRR/RBRD
-# for this command; the RBRF trust is sourced here as avowal does.
+# for this command; furnish sources the RBRF trust for it as for avowal.
 rbgv_check_mantle() {
   zrbgv_sentinel
 
@@ -129,8 +126,6 @@ rbgv_check_mantle() {
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
   buc_step "Avow against the RBRF trust to open or reuse the ${RBCC_noun_sederunt}"
-  rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
@@ -208,24 +203,24 @@ zrbgv_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk}/rbrr_regime.sh"
-  source "${z_rbk}/rbrd_regime.sh"
-  source "${z_rbk}/rbrp_regime.sh"
-  source "${z_rbk}/rbrf_regime.sh"
-  source "${z_rbk}/rbrw_regime.sh"
-  source "${z_rbk}/rbcc_constants.sh"
-  source "${z_rbk}/rbpc_constants.sh"
-  source "${z_rbk}/rbgc_constants.sh"
-  source "${z_rbk}/rbdc_derived.sh"
-  source "${z_rbk}/rbgo_oauth.sh"
-  source "${z_rbk}/rbuh_http.sh"
-  source "${z_rbk}/rbge_rest.sh"
-  source "${z_rbk}/rba_auth.sh"
-  source "${z_rbk}/rbgi_iam.sh"
-  source "${z_rbk}/rbgp_payor.sh"
-  source "${z_rbk}/rbgv_probe.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
+  source "${z_rbk}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk}/rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
+  source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
+  source "${z_rbk}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
+  source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+  source "${z_rbk}/rbgi_iam.sh" || buc_die_now "Failed to source rbgi_iam.sh"
+  source "${z_rbk}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
+  source "${z_rbk}/rbgv_probe.sh" || buc_die_now "Failed to source rbgv_probe.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -236,6 +231,12 @@ zrbgv_furnish() {
   # RBRP_PAYOR_PROJECT_ID; rbrp's kindle+enforce stay per-probe (rbgv_check_payor),
   # since the payor probe enforces RBRP while the depot probes enforce RBRR/RBRD.
   source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
+  case "${z_command}" in
+    rbgv_check_avowal|rbgv_check_mantle)
+      rbcc_source_active_rbrf
+      source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
+      ;;
+  esac
   zrbrr_kindle
   zrbrd_kindle
 

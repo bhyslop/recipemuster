@@ -37,6 +37,9 @@
 
 set -euo pipefail
 
+test -z "${ZRBOF_SOURCED:-}" || buc_die_now "Module rbof multiply sourced - check sourcing hierarchy"
+ZRBOF_SOURCED=1
+
 ######################################################################
 # Internal (zrbof_*)
 
@@ -50,26 +53,6 @@ zrbof_sentinel() {
   test "${ZRBOF_KINDLED:-}" = "1" || buc_die_now "Module rbof not kindled - call zrbof_kindle first"
 }
 
-# Echo the discovered foedus identities (rbef_ subdirectory names), space-
-# separated, or "(none)". Pure — for embedding in a rejection message so a bad
-# or missing identity fails by listing the available ones.
-zrbof_list_foedera() {
-  zrbof_sentinel
-
-  local z_avail=""
-  local z_entry=""
-  for z_entry in "${RBCC_foedera_dir}"/rbef_*/; do
-    test -d "${z_entry}" || continue
-    z_entry="${z_entry%/}"
-    z_avail="${z_avail} ${z_entry##*/}"
-  done
-  if test -n "${z_avail}"; then
-    printf '%s\n' "${z_avail# }"
-  else
-    printf '%s\n' "(none)"
-  fi
-}
-
 # Validate that a foedus identity resolves to a library subdirectory holding an
 # rbrf.env, rejecting in the GIVEN band (each verb owns its own precision band)
 # and listing the discovered foedera. Runs in the caller's process — NEVER a
@@ -80,8 +63,19 @@ zrbof_require_foedus() {
 
   local -r z_foedus="${1:-}"
   local -r z_band="${2:-}"
-  local z_avail
-  z_avail=$(zrbof_list_foedera) || buc_die_now "Failed to list foedera"
+
+  # The discovered foedus identities (rbef_ subdirectory names), space-separated,
+  # or "(none)" — embedded in each rejection so a bad or missing identity fails by
+  # listing the available ones.
+  local z_avail=""
+  local z_entry=""
+  for z_entry in "${RBCC_foedera_dir}"/rbef_*/; do
+    test -d "${z_entry}" || continue
+    z_entry="${z_entry%/}"
+    z_avail="${z_avail} ${z_entry##*/}"
+  done
+  z_avail="${z_avail# }"
+  test -n "${z_avail}" || z_avail="(none)"
 
   test -n "${z_foedus}" \
     || buc_reject "${z_band}" "Foedus identity required (param1). Available foedera: ${z_avail}"
@@ -111,13 +105,17 @@ zrbof_rbrf_field_capture() {
   local -r z_file="${1:-}"
   local -r z_var="${2:-}"
   local z_line=""
+  local z_value=""
+  local z_found=0
   while IFS= read -r z_line || test -n "${z_line}"; do
-    if [[ "${z_line}" == ${z_var}=* ]]; then
-      printf '%s' "${z_line#*=}"
-      return 0
+    if [[ "${z_line}" == "${z_var}"=* ]]; then
+      z_value="${z_line#*=}"
+      z_found=1
+      break
     fi
-  done < "${z_file}"
-  return 1
+  done < "${z_file}" || return 1
+  test "${z_found}" = "1" || return 1
+  printf '%s' "${z_value}" || return 1
 }
 
 ######################################################################
@@ -297,7 +295,8 @@ rbof_canvass() {
 
   buc_info ""
   buc_info "=== FOEDUS CANVASS ==="
-  printf "%-24s %-24s %-12s %s\n" "FOEDUS" "PROVIDER" "STATE" "SELECTED"
+  printf "%-24s %-24s %-12s %s\n" "FOEDUS" "PROVIDER" "STATE" "SELECTED" \
+    || buc_die_now "Failed to print the foedus table header"
 
   # Per-iteration synthesized locals (declare outside, assign inside)
   local z_page=1
@@ -381,7 +380,8 @@ rbof_canvass() {
       z_fact_value="provider=${z_p_id}${z_nl}state=${z_p_state}${z_nl}selected=${z_selected}"
       buf_write_fact_multi "${z_stem}" "${RBCC_fact_ext_foedus}" "${z_fact_value}"
 
-      printf "%-24s %-24s %-12s %s\n" "${z_matched:--}" "${z_p_id}" "${z_p_state}" "${z_selected}"
+      printf "%-24s %-24s %-12s %s\n" "${z_matched:--}" "${z_p_id}" "${z_p_state}" "${z_selected}" \
+        || buc_die_now "Failed to print the foedus table row for ${z_p_id}"
       z_total=$((z_total + 1))
       test -z "${z_matched}" || z_matched_count=$((z_matched_count + 1))
 
@@ -449,10 +449,11 @@ rbof_instate() {
   local z_line=""
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
-    if [[ "${z_line}" == ${z_var}=* ]]; then
-      printf '%s\n' "${z_line_new}"; z_found=true
+    if [[ "${z_line}" == "${z_var}"=* ]]; then
+      printf '%s\n' "${z_line_new}" || buc_die_now "Failed to write ${z_tmp}"
+      z_found=true
     else
-      printf '%s\n' "${z_line}"
+      printf '%s\n' "${z_line}" || buc_die_now "Failed to write ${z_tmp}"
     fi
   done < "${z_file}" > "${z_tmp}" \
     || buc_die_now "Failed to rewrite ${z_file} for ${z_var}"

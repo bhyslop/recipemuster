@@ -20,8 +20,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 zrbld0_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
@@ -30,31 +30,31 @@ zrbld0_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
-  source "${BURD_BUK_DIR}/bug_git.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgl_layout.sh"
-  source "${z_rbk_kit_dir}/rbgd_depot.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbrf_regime.sh"
-  source "${z_rbk_kit_dir}/rbrw_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgl_layout.sh" || buc_die_now "Failed to source rbgl_layout.sh"
+  source "${z_rbk_kit_dir}/rbgd_depot.sh" || buc_die_now "Failed to source rbgd_depot.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk_kit_dir}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
   rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}"
-  source "${z_rbk_kit_dir}/rbgo_oauth.sh"
-  source "${z_rbk_kit_dir}/rbuh_http.sh"
-  source "${z_rbk_kit_dir}/rbge_rest.sh"
-  source "${z_rbk_kit_dir}/rba_auth.sh"
-  source "${z_rbk_kit_dir}/rbld0_lode.sh"
-  source "${z_rbk_kit_dir}/rbndb_base.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
+  source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
+  source "${z_rbk_kit_dir}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
+  source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+  source "${z_rbk_kit_dir}/rbld0_lode.sh" || buc_die_now "Failed to source rbld0_lode.sh"
+  source "${z_rbk_kit_dir}/rbndb_base.sh" || buc_die_now "Failed to source rbndb_base.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
   zbuv_kindle
 
@@ -73,7 +73,7 @@ zrbld0_furnish() {
   zrbrw_enforce
   zrbdc_kindle
 
-  source "${z_rbk_kit_dir}/rbrv_regime.sh"
+  source "${z_rbk_kit_dir}/rbrv_regime.sh" || buc_die_now "Failed to source rbrv_regime.sh"
 
   buc_log_args 'Kindle modules in dependency order'
   zrbgc_kindle

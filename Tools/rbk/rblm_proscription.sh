@@ -261,8 +261,10 @@ rblm_emit_proscription() {
   local z_var=""
   local z_disposition=""
   local z_sterile=""
+  local z_i=0
 
-  for z_row in "${ZRBLM_PROSCRIPTION[@]}"; do
+  for z_i in "${!ZRBLM_PROSCRIPTION[@]}"; do
+    z_row="${ZRBLM_PROSCRIPTION[${z_i}]}"
     z_scope="${z_row%%|*}"
     z_rest="${z_row#*|}"
     z_var="${z_rest%%|*}"
@@ -270,7 +272,8 @@ rblm_emit_proscription() {
     z_disposition="${z_rest%%|*}"
     z_rest="${z_rest#*|}"
     z_sterile="${z_rest%%|*}"
-    printf '%s\t%s\t%s\t%s\n' "${z_scope}" "${z_var}" "${z_disposition}" "${z_sterile}"
+    printf '%s\t%s\t%s\t%s\n' "${z_scope}" "${z_var}" "${z_disposition}" "${z_sterile}" \
+      || buc_die_now "Failed to emit proscription row: ${z_var}"
   done
 }
 
@@ -280,22 +283,33 @@ rblm_emit_hardpoints() {
   local z_path=""
   local z_var=""
   local z_sterile=""
+  local z_i=0
 
-  for z_row in "${ZRBLM_HARDPOINTS[@]}"; do
+  for z_i in "${!ZRBLM_HARDPOINTS[@]}"; do
+    z_row="${ZRBLM_HARDPOINTS[${z_i}]}"
     z_path="${z_row%%|*}"
     z_rest="${z_row#*|}"
     z_var="${z_rest%%|*}"
     z_sterile="${z_rest#*|}"
-    printf '%s\t%s\t%s\n' "${z_path}" "${z_var}" "${z_sterile}"
+    printf '%s\t%s\t%s\n' "${z_path}" "${z_var}" "${z_sterile}" \
+      || buc_die_now "Failed to emit hardpoint row: ${z_var}"
   done
 }
 
 rblm_emit_homes() {
-  zrblm_homes_capture
+  local z_homes
+  z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
 
+  local z_rest="${z_homes}"
   local z_home=""
-  for z_home in "${z_rblm_homes[@]}"; do
-    printf '%s\t%s\n' "${z_home%%|*}" "${z_home#*|}"
+  while test -n "${z_rest}"; do
+    z_home="${z_rest%%$'\n'*}"
+    case "${z_rest}" in
+      *$'\n'*) z_rest="${z_rest#*$'\n'}" ;;
+      *)       z_rest=""                 ;;
+    esac
+    printf '%s\t%s\n' "${z_home%%|*}" "${z_home#*|}" \
+      || buc_die_now "Failed to emit home row: ${z_home}"
   done
 }
 
@@ -303,7 +317,7 @@ rblm_emit_homes() {
 # The transform
 
 # zrblm_homes_capture — resolve every regime file the tree carries, tagged with
-# the scope that governs it. Sets z_rblm_homes to SCOPE|FILE rows.
+# the scope that governs it. Prints SCOPE|FILE rows, one per line.
 #
 # The singleton regimes sit at their own paths; the multi-instance regimes are
 # globbed across every instance present. The foedera glob deliberately matches
@@ -317,7 +331,7 @@ rblm_emit_homes() {
 # The single home of the scope-to-file mapping: lustration writes through it, and
 # the damnatio fixture reads it back rather than reimplementing the globs.
 zrblm_homes_capture() {
-  z_rblm_homes=(
+  local z_homes=(
     "RBRR|${RBCC_rbrr_file}"
     "RBRD|${RBCC_rbrd_file}"
     "RBRP|${RBCC_rbrp_file}"
@@ -328,24 +342,26 @@ zrblm_homes_capture() {
 
   for z_instance in "${RBCC_foedera_dir}"/*/rbrf.env; do
     test -f "${z_instance}" || continue
-    z_rblm_homes+=("RBRF|${z_instance}")
+    z_homes+=("RBRF|${z_instance}")
   done
 
   for z_instance in "${RBCC_moorings_dir}/${RBCC_vessels_subdir}"/*/"${RBCC_rbrv_file}"; do
     test -f "${z_instance}" || continue
-    z_rblm_homes+=("RBRV|${z_instance}")
+    z_homes+=("RBRV|${z_instance}")
   done
 
   for z_instance in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
     test -f "${z_instance}" || continue
-    z_rblm_homes+=("RBRN|${z_instance}")
+    z_homes+=("RBRN|${z_instance}")
   done
+
+  printf '%s\n' "${z_homes[@]}" || return 1
 }
 
 # zrblm_value_capture SCOPE VARNAME COLUMN — resolve the value one transform
-# writes into one field. Sets z_rblm_value and returns 0 when the field is
+# writes into one field. Prints the value and returns 0 when the field is
 # site-scoped in SCOPE; returns 1 otherwise, leaving the caller to pass the line
-# through untouched.
+# through untouched. COLUMN is the caller's to validate.
 #
 # A feigned column that is absent or empty resolves to the STERILE value, not to a
 # blank: most site fields validate blank and want no stand-in, and the one field
@@ -355,16 +371,18 @@ zrblm_value_capture() {
   local -r z_var="${2:-}"
   local -r z_column="${3:-}"
 
-  z_rblm_value=""
-
   local z_row=""
   local z_rest=""
   local z_row_var=""
   local z_row_disposition=""
   local z_sterile=""
   local z_feigned=""
+  local z_value=""
+  local z_found=0
+  local z_i=0
 
-  for z_row in "${ZRBLM_PROSCRIPTION[@]}"; do
+  for z_i in "${!ZRBLM_PROSCRIPTION[@]}"; do
+    z_row="${ZRBLM_PROSCRIPTION[${z_i}]}"
     test "${z_row%%|*}" = "${z_scope}" || continue
     z_rest="${z_row#*|}"
     z_row_var="${z_rest%%|*}"
@@ -380,14 +398,16 @@ zrblm_value_capture() {
     esac
 
     case "${z_column}" in
-      "${RBLM_column_sterile}") z_rblm_value="${z_sterile}"                 ;;
-      "${RBLM_column_feigned}") z_rblm_value="${z_feigned:-${z_sterile}}"   ;;
-      *) buc_die_now "zrblm_value_capture: unknown column: ${z_column}"        ;;
+      "${RBLM_column_sterile}") z_value="${z_sterile}"                 ;;
+      "${RBLM_column_feigned}") z_value="${z_feigned:-${z_sterile}}"   ;;
+      *) return 1                                                      ;;
     esac
-    return 0
+    z_found=1
+    break
   done
 
-  return 1
+  test "${z_found}" = "1" || return 1
+  printf '%s' "${z_value}" || return 1
 }
 
 # zrblm_scrub_regime FILE SCOPE COLUMN — rewrite every site-scoped field in one
@@ -401,11 +421,23 @@ zrblm_scrub_regime() {
   test -n "${z_file}"   || buc_die_now "zrblm_scrub_regime: file required"
   test -n "${z_scope}"  || buc_die_now "zrblm_scrub_regime: scope required"
   test -n "${z_column}" || buc_die_now "zrblm_scrub_regime: column required"
+  case "${z_column}" in
+    "${RBLM_column_sterile}"|"${RBLM_column_feigned}") ;;
+    *) buc_die_now "zrblm_scrub_regime: unknown column: ${z_column}" ;;
+  esac
   test -f "${z_file}"   || return 0
 
   local -r z_tmp="${z_file}.tmp"
   local z_line=""
   local z_var=""
+  local z_value=""
+  local z_site_status=0
+  local z_lines=()
+  local z_i=0
+
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_file}" || buc_die_now "Failed to read: ${z_file}"
 
   # Seed the temp file from the original so it inherits the original's mode, then
   # truncate it by redirection: a bare `> tmp` on a fresh path would take the
@@ -413,21 +445,24 @@ zrblm_scrub_regime() {
   # file's permission bits alongside its content.
   cp -p "${z_file}" "${z_tmp}" || buc_die_now "Failed to seed temp file for: ${z_file}"
 
-  while IFS= read -r z_line || test -n "${z_line}"; do
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[${z_i}]}"
     case "${z_line}" in
-      [A-Z]*=*)
+      [ABCDEFGHIJKLMNOPQRSTUVWXYZ]*=*)
         z_var="${z_line%%=*}"
-        if zrblm_value_capture "${z_scope}" "${z_var}" "${z_column}"; then
-          printf '%s\n' "${z_var}=${z_rblm_value}"
+        z_site_status=0
+        z_value=$(zrblm_value_capture "${z_scope}" "${z_var}" "${z_column}") || z_site_status=$?
+        if test "${z_site_status}" -eq 0; then
+          printf '%s\n' "${z_var}=${z_value}" || buc_die_now "Failed to write: ${z_tmp}"
         else
-          printf '%s\n' "${z_line}"
+          printf '%s\n' "${z_line}" || buc_die_now "Failed to write: ${z_tmp}"
         fi
         ;;
       *)
-        printf '%s\n' "${z_line}"
+        printf '%s\n' "${z_line}" || buc_die_now "Failed to write: ${z_tmp}"
         ;;
     esac
-  done < "${z_file}" > "${z_tmp}" || buc_die_now "Failed to scrub: ${z_file}"
+  done > "${z_tmp}" || buc_die_now "Failed to scrub: ${z_file}"
 
   mv "${z_tmp}" "${z_file}" || buc_die_now "Failed to replace: ${z_file}"
   buh_line "  Rewrote (${z_column}): ${z_file}"
@@ -453,11 +488,11 @@ zrblm_scrub_hardpoint() {
   while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
       "${z_var}="*)
-        printf '%s\n' "${z_var}=\"${z_sterile}\""
+        printf '%s\n' "${z_var}=\"${z_sterile}\"" || buc_die_now "Failed to write: ${z_tmp}"
         z_found=1
         ;;
       *)
-        printf '%s\n' "${z_line}"
+        printf '%s\n' "${z_line}" || buc_die_now "Failed to write: ${z_tmp}"
         ;;
     esac
   done < "${z_file}" > "${z_tmp}" || buc_die_now "Failed to scrub hardpoint: ${z_file}"
@@ -471,19 +506,27 @@ zrblm_scrub_hardpoint() {
 # rblm_lustrate_apply — write every site-scoped home to its sterile value, across
 # every regime instance the tree carries and every hardpoint constant.
 rblm_lustrate_apply() {
-  zrblm_homes_capture
+  local z_homes
+  z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
 
+  local z_rest="${z_homes}"
   local z_home=""
-  for z_home in "${z_rblm_homes[@]}"; do
+  while test -n "${z_rest}"; do
+    z_home="${z_rest%%$'\n'*}"
+    case "${z_rest}" in
+      *$'\n'*) z_rest="${z_rest#*$'\n'}" ;;
+      *)       z_rest=""                 ;;
+    esac
     zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_sterile}"
   done
 
   local z_row=""
-  local z_rest=""
   local z_path=""
   local z_var=""
+  local z_i=0
 
-  for z_row in "${ZRBLM_HARDPOINTS[@]}"; do
+  for z_i in "${!ZRBLM_HARDPOINTS[@]}"; do
+    z_row="${ZRBLM_HARDPOINTS[${z_i}]}"
     z_path="${z_row%%|*}"
     z_rest="${z_row#*|}"
     z_var="${z_rest%%|*}"
@@ -499,10 +542,17 @@ rblm_lustrate_apply() {
 # fixture reads it — a station that never reaches a cloud needs no subject to be
 # it.
 rblm_feign_apply() {
-  zrblm_homes_capture
+  local z_homes
+  z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
 
+  local z_rest="${z_homes}"
   local z_home=""
-  for z_home in "${z_rblm_homes[@]}"; do
+  while test -n "${z_rest}"; do
+    z_home="${z_rest%%$'\n'*}"
+    case "${z_rest}" in
+      *$'\n'*) z_rest="${z_rest#*$'\n'}" ;;
+      *)       z_rest=""                 ;;
+    esac
     zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_feigned}"
   done
 }

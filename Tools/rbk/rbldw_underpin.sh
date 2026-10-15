@@ -144,7 +144,8 @@ rbldw_underpin() {
   local -r z_arch="${RBGC_LODE_WSL_ARCH_DEFAULT}"
   local -r z_fullver="${z_release}.${z_point}"
   local z_url=""
-  printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}"
+  printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}" \
+    || buc_die_now "Failed to render the WSL rootfs URL from RBGC_LODE_WSL_URL_TEMPLATE"
   buc_info "Underpin source: ${z_url}"
 
   # Resolve build tools from the repo-elected substrate reliquary. underpin is

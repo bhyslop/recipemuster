@@ -29,8 +29,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 ######################################################################
 # CLI Commands
@@ -64,23 +64,26 @@ rbfh_check_vessel() {
   z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
   test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
 
-  # Source the vessel's rbrv.env to pick up RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE
-  source "${z_vessel_dir}/${RBCC_rbrv_file}" || buc_die_now "Failed to source vessel rbrv.env: ${z_vessel_dir}/${RBCC_rbrv_file}"
+  # The vessel's rbrv.env supplies RBRV_VESSEL_MODE and RBRV_CONJURE_DOCKERFILE,
+  # contained so the vessel's fields do not outlive the check.
+  local -r z_rbrv_file="${z_vessel_dir}/${RBCC_rbrv_file}"
+  (
+    source "${z_rbrv_file}" || buc_die_now "Failed to source vessel rbrv.env: ${z_rbrv_file}"
 
-  # Hygiene is a property of the FROM line; non-conjure vessels have no
-  # local Dockerfile, so the contract is vacuously satisfied. Exit silently
-  # so callers iterating the whole fleet need not pre-filter by mode.
-  if test "${RBRV_VESSEL_MODE:-}" != "rbnve_conjure"; then
-    buc_info "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' is mode '${RBRV_VESSEL_MODE:-<unset>}' — no Dockerfile to check"
-    return 0
-  fi
+    # Hygiene is a property of the FROM line; non-conjure vessels have no
+    # local Dockerfile, so the contract is vacuously satisfied. Exit silently
+    # so callers iterating the whole fleet need not pre-filter by mode.
+    if test "${RBRV_VESSEL_MODE:-}" != "rbnve_conjure"; then
+      buc_info "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' is mode '${RBRV_VESSEL_MODE:-<unset>}' — no Dockerfile to check"
+    else
+      test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
+        || buc_die_now "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' has no RBRV_CONJURE_DOCKERFILE"
 
-  test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
-    || buc_die_now "Vessel '${RBRV_SIGIL:-${z_vessel_dir}}' has no RBRV_CONJURE_DOCKERFILE"
-
-  buc_step "RBFH Check Vessel: ${RBRV_SIGIL:-${z_vessel_dir}} → ${RBRV_CONJURE_DOCKERFILE}"
-  rbfh_dockerfile_check "${RBRV_CONJURE_DOCKERFILE}"
-  buc_success "Vessel Dockerfile passes hygiene contract: ${RBRV_CONJURE_DOCKERFILE}"
+      buc_step "RBFH Check Vessel: ${RBRV_SIGIL:-${z_vessel_dir}} → ${RBRV_CONJURE_DOCKERFILE}"
+      rbfh_dockerfile_check "${RBRV_CONJURE_DOCKERFILE}"
+      buc_success "Vessel Dockerfile passes hygiene contract: ${RBRV_CONJURE_DOCKERFILE}"
+    fi
+  ) || buc_die_now "Vessel hygiene check failed: ${z_rbrv_file}"
 }
 
 ######################################################################
@@ -93,24 +96,24 @@ zrbfh_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgl_layout.sh"
-  source "${z_rbk_kit_dir}/rbgd_depot.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbrv_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}"
-  source "${z_rbk_kit_dir}/rbgo_oauth.sh"
-  source "${z_rbk_kit_dir}/rbfc0_core.sh"
-  source "${z_rbk_kit_dir}/rbfh_hygiene.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgl_layout.sh" || buc_die_now "Failed to source rbgl_layout.sh"
+  source "${z_rbk_kit_dir}/rbgd_depot.sh" || buc_die_now "Failed to source rbgd_depot.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrv_regime.sh" || buc_die_now "Failed to source rbrv_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
+  source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
+  source "${z_rbk_kit_dir}/rbfh_hygiene.sh" || buc_die_now "Failed to source rbfh_hygiene.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
   zbuv_kindle
   zburd_kindle

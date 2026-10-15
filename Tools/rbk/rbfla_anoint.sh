@@ -76,8 +76,10 @@ rbfla_anoint() {
 
   # Graft pushes from the local docker cache; a cloud-built hallmark is not
   # local, so flag the gap now rather than letting graft refuse later.
-  docker image inspect "${z_image_ref}" > /dev/null 2>&1 \
-    || buc_warn "Image not in the local docker cache — graft will refuse until it is present locally"
+  local -r z_inspect_stderr="${ZRBFL0_INSPECT_PREFIX}anoint_stderr.txt"
+  # Non-fatal by grant: graft is the gate and this inspect only forewarns
+  docker image inspect "${z_image_ref}" > "${ZRBFL0_INSPECT_PREFIX}anoint_stdout.json" 2>"${z_inspect_stderr}" \
+    || buc_warn "Image not in the local docker cache — graft will refuse until it is present locally — see ${z_inspect_stderr}"
 
   buc_step "Anointing ${RBRV_SIGIL}"
 
@@ -96,14 +98,14 @@ rbfla_anoint() {
   local z_wrote=0
   local z_j=""
   for z_j in "${!z_rbrv_lines[@]}"; do
-    case "${z_rbrv_lines[$z_j]}" in
+    case "${z_rbrv_lines[${z_j}]}" in
       RBRV_GRAFT_IMAGE=*)
         printf 'RBRV_GRAFT_IMAGE=%s\n' "${z_image_ref}" >> "${z_tmp_file}" \
           || buc_die_now "Failed to write RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}"
         z_wrote=1
         ;;
       *)
-        printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
+        printf '%s\n' "${z_rbrv_lines[${z_j}]}" >> "${z_tmp_file}" \
           || buc_die_now "Failed to write line for ${RBRV_SIGIL}"
         ;;
     esac

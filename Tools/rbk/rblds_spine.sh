@@ -60,10 +60,10 @@ ZRBLDS_SOURCED=1
 # (unlike the /workspace handoff, which the steps test -f for themselves) nor cheap
 # to surface (it costs the whole cook). The _RBGL_* references in a step body ARE
 # its substitution requires — no separate declaration to drift from the code — so
-# this scans the include-expanded body for them on non-comment lines and returns 1
-# at the first reference absent from the blob's keys, logging the offending
-# register. Sentinel-free return-1 primitive, like the rbfcb_ build primitives the
-# dispatch loop already rides; the caller buc_die_now's with the step identity.
+# this scans the include-expanded body for them on non-comment lines and rejects
+# with the recipe band at the first reference absent from the blob's keys, naming
+# the offending register and the step body file (which carries the step id).
+# Sentinel-free, like the rbfcb_ build primitives the dispatch loop already rides.
 #
 # Coverage is flat by design ("Substitution-coverage check"): substitutions
 # automap into every step, so there is no cross-step ordering; the /workspace
@@ -83,13 +83,13 @@ zrblds_spine_validate() {
   local -r z_keys_file="${1:?Substitution keys file required}"
   local -r z_body_file="${2:?Expanded body file required}"
 
-  test -f "${z_keys_file}" || return 1
-  test -f "${z_body_file}" || return 1
+  test -f "${z_keys_file}" || buc_die_now "Substitution keys file not found: ${z_keys_file}"
+  test -f "${z_body_file}" || buc_die_now "Expanded step body file not found: ${z_body_file}"
 
   # Keys as newline-bounded text for builtin whole-line membership tests. Empty
   # keys (a blob declaring no registers) is legitimate — no test -n.
   local z_keys
-  z_keys=$(<"${z_keys_file}") || return 1
+  z_keys=$(<"${z_keys_file}") || buc_die_now "Failed to read: ${z_keys_file}"
   local -r z_keys_blob=$'\n'"${z_keys}"$'\n'
 
   # Load the body, then iterate — the file is closed before the scan begins.
@@ -103,7 +103,7 @@ zrblds_spine_validate() {
   local z_rest=""
   local z_ref=""
   for z_i in "${!z_lines[@]}"; do
-    z_line="${z_lines[$z_i]}"
+    z_line="${z_lines[${z_i}]}"
 
     # Full-line comments only — a _RBGL_ token in a leading-# comment is
     # documentation, not a read; a trailing inline mention stays conservative.
@@ -116,7 +116,9 @@ zrblds_spine_validate() {
       z_ref="${BASH_REMATCH[0]}"
       case "${z_keys_blob}" in
         *$'\n'"${z_ref}"$'\n'*) ;;
-        *) buc_log_args "Uncovered substitution register: ${z_ref}"; return "${BUBC_band_recipe}" ;;
+        *) buc_log_args "Uncovered substitution register: ${z_ref}"
+           buc_reject "${BUBC_band_recipe}" "Step body ${z_body_file} references substitution register ${z_ref}, absent from the composition blob ${z_keys_file}"
+           ;;
       esac
       z_rest="${z_rest#*"${z_ref}"}"
     done
@@ -150,12 +152,12 @@ zrblds_spine_validate() {
 zrblds_spine_dispatch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1:?Token required}";                  shift
-  local -r z_sa_email="${1:?Service-account email required}"; shift
-  local -r z_label="${1:?Label required}";                  shift
-  local -r z_poll_ceiling="${1:?Poll ceiling required}";    shift
-  local -r z_subs_file="${1:?Substitutions file required}"; shift
-  local -r z_temp_prefix="${1:?Temp prefix required}";      shift
+  local -r z_token="${1:?Token required}";                  shift || buc_die_now
+  local -r z_sa_email="${1:?Service-account email required}"; shift || buc_die_now
+  local -r z_label="${1:?Label required}";                  shift || buc_die_now
+  local -r z_poll_ceiling="${1:?Poll ceiling required}";    shift || buc_die_now
+  local -r z_subs_file="${1:?Substitutions file required}"; shift || buc_die_now
+  local -r z_temp_prefix="${1:?Temp prefix required}";      shift || buc_die_now
   test "$#" -ge 1 || buc_die_now "zrblds_spine_dispatch: recipe requires at least one step row"
 
   test -s "${z_subs_file}" || buc_die_now "Substitutions file missing or empty: ${z_subs_file}"
@@ -199,7 +201,8 @@ zrblds_spine_dispatch() {
   local z_body=""
   local z_shebang=""
   for z_row in "$@"; do
-    IFS='|' read -r z_script_path z_builder z_id z_entrypoint <<<"${z_row}"
+    IFS='|' read -r z_script_path z_builder z_id z_entrypoint <<<"${z_row}" \
+      || buc_die_now "Failed to split recipe row: ${z_row}"
     test -n "${z_script_path}" || buc_die_now "Recipe row missing script_path: ${z_row}"
     test -n "${z_builder}"     || buc_die_now "Recipe row missing builder_image: ${z_row}"
     test -n "${z_id}"          || buc_die_now "Recipe row missing id: ${z_row}"
@@ -216,8 +219,7 @@ zrblds_spine_dispatch() {
     z_body=$(<"${z_body_file}") || buc_die_now "Failed to read: ${z_body_file}"
     test -n "${z_body}" || buc_die_now "Empty step script body: ${z_script_path}"
 
-    zrblds_spine_validate "${z_keys_file}" "${z_body_file}" \
-      || buc_die_now "Recipe step '${z_id}' references a substitution register absent from the composition blob (see transcript)"
+    zrblds_spine_validate "${z_keys_file}" "${z_body_file}"
 
     case "${z_entrypoint}" in
       bash)    z_shebang="#!/bin/bash" ;;

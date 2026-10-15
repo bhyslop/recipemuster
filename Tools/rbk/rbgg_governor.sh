@@ -80,7 +80,7 @@ zrbgg_required_apis_missing_capture() {
   zrbgg_sentinel
 
   local z_token="${1:-}"
-  test -n "${z_token}" || { echo ""; return 1; }
+  test -n "${z_token}" || return 1
 
   local z_missing=""
   local z_api=""
@@ -100,7 +100,7 @@ zrbgg_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGG_INFIX_API_CHECK}_${z_service}"
 
-    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || true
+    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || return 1
 
     buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
     local z_code_status=0
@@ -229,10 +229,18 @@ zrbgg_empty_gcs_bucket() {
   test -n "${z_objects}" || { buc_log_args 'Bucket is empty'; return 0; }
 
   buc_log_args 'Delete each object'
+  local z_object_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_object_lines+=("${z_line}")
+  done <<< "${z_objects}"
+
+  local z_i=0
   local z_object=""
   local z_delete_url=""
   local z_delete_code=""
-  while IFS= read -r z_object; do
+  for z_i in "${!z_object_lines[@]}"; do
+    z_object="${z_object_lines[${z_i}]}"
     test -n "${z_object}" || continue
     buc_log_args "Deleting object: ${z_object}"
 
@@ -252,7 +260,7 @@ zrbgg_empty_gcs_bucket() {
       204|404) buc_log_args "Object ${z_object}: deleted or not found"                     ;;
       *)       buc_warn     "Object ${z_object}: Failed to delete (HTTP ${z_delete_code})" ;;
     esac
-  done <<< "${z_objects}"
+  done
 }
 
 zrbgg_delete_gcs_bucket_predicate() {
@@ -308,7 +316,7 @@ rbgg_destroy_project() {
 
   buc_die_now "Function moved to Payor module - use rbgp_project_delete"
 
-  if [[ "${DEBUG_ONLY:-0}" != "1" ]]; then
+  if test "${DEBUG_ONLY:-0}" != "1"; then
     buc_die_now "This dangerous operation requires DEBUG_ONLY=1 environment variable"
   fi
 
@@ -341,7 +349,7 @@ rbgg_destroy_project() {
   local z_lien_count
   z_lien_count=$(rbuh_json_field_capture "${ZRBGG_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die_now "Failed to parse liens response"
 
-  if [[ "${z_lien_count}" -gt 0 ]]; then
+  if test "${z_lien_count}" -gt 0; then
     buc_step 'BLOCKED: Liens exist on project'
     buc_warn "Project has ${z_lien_count} lien(s) that prevent deletion"
     buc_warn "You must remove all liens first:"

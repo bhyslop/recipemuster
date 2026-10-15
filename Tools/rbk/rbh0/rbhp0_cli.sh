@@ -24,7 +24,7 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
 
 zrbhp0_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"

@@ -74,13 +74,14 @@ rbfls_seise() {
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
     if [[ "${z_line}" == RBRR_SUBSTRATE_RELIQUARY=* ]]; then
-      printf 'RBRR_SUBSTRATE_RELIQUARY=%s\n' "${z_touchmark}"; z_found=true
+      printf 'RBRR_SUBSTRATE_RELIQUARY=%s\n' "${z_touchmark}" || buc_die_now "Failed to write RBRR_SUBSTRATE_RELIQUARY"
+      z_found=true
     else
-      printf '%s\n' "${z_line}"
+      printf '%s\n' "${z_line}" || buc_die_now "Failed to copy a line of ${RBCC_rbrr_file}"
     fi
   done < "${RBCC_rbrr_file}" > "${z_tmp_file}" \
     || buc_die_now "Failed to rewrite ${RBCC_rbrr_file} for RBRR_SUBSTRATE_RELIQUARY"
-  if [[ "${z_found}" != "true" ]]; then
+  if test "${z_found}" != "true"; then
     printf 'RBRR_SUBSTRATE_RELIQUARY=%s\n' "${z_touchmark}" >> "${z_tmp_file}" \
       || buc_die_now "Failed to append RBRR_SUBSTRATE_RELIQUARY"
   fi

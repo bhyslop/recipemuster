@@ -56,9 +56,9 @@ ZRBLDD_SOURCED=1
 zrbldd_cloud_delete_dispatch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1:?Token required}";              shift
-  local -r z_label="${1:?Label required}";              shift
-  local -r z_temp_prefix="${1:?Temp prefix required}";  shift
+  local -r z_token="${1:?Token required}";              shift || buc_die_now
+  local -r z_label="${1:?Label required}";              shift || buc_die_now
+  local -r z_temp_prefix="${1:?Temp prefix required}";  shift || buc_die_now
   test "$#" -ge 1 || buc_die_now "zrbldd_cloud_delete_dispatch: at least one package required"
   local -r z_packages="$*"
 
