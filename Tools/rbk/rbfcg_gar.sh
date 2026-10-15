@@ -197,8 +197,8 @@ zrbfcg_gar_extract_artifact() {
   local -r z_prefix="${BURD_TEMP_DIR}/gar_${z_safe_pkg}_${z_tag}_"
 
   # HEAD check — does the artifact exist?
-  local z_http_code
   zrbfcg_manifest_code_fetch "${z_token}" "${z_package}" "${z_tag}" "${z_prefix}head_code.txt"
+  local z_http_code
   z_http_code=$(<"${z_prefix}head_code.txt") || buc_die_now "Failed to read: ${z_prefix}head_code.txt"
   if test "${z_http_code}" != "200"; then
     test -z "${z_absent_message}" || buc_die_now "${z_absent_message}"
@@ -334,8 +334,8 @@ zrbfcg_image_config_fetch() {
   local -r z_prefix="${BURD_TEMP_DIR}/cfg_${z_safe_pkg}_${z_tag}_"
 
   # HEAD check — does the image exist?
-  local z_http_code
   zrbfcg_manifest_code_fetch "${z_token}" "${z_package}" "${z_tag}" "${z_prefix}head_code.txt"
+  local z_http_code
   z_http_code=$(<"${z_prefix}head_code.txt") || buc_die_now "Failed to read: ${z_prefix}head_code.txt"
   test "${z_http_code}" = "200" \
     || buc_die_now "Not found in GAR: ${z_package}:${z_tag} (HTTP ${z_http_code})"
