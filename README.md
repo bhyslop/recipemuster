@@ -708,7 +708,7 @@ The annotated tree below maps its files to the concepts defined above.
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Kroki, no-egress allowlist |
 | `    ├── fdkyclk/` | [Nameplate](#Nameplate) — [fdkyclk](#fdkyclk) Keycloak test IdP |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Keycloak, no-egress, workstation entry |
-| `    ├── rbml_launchers/` | Launcher scripts (environment gates) — `launcher.*.sh` |
+| `    ├── buml_launchers/` | Launcher scripts (environment gates) — `launcher.*.sh` |
 | `    └── rbmv_vessels/` | [Vessel](#Vessel) definitions |
 | `        ├── common-sentry-context/` | Shared [Sentry](#Sentry)/[Pentacle](#Pentacle) build context |
 | `        │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |

@@ -205,7 +205,7 @@ Project Root/
 │   ├── rbrw.env             # RBRW — Workforce regime (the manor's identity pool)
 │   ├── rbmf_foedera/        # RBRF — Foedus library (one rbrf.env per standing foedus)
 │   ├── {moniker}/rbrn.env   # RBRN — Nameplate regimes (per crucible)
-│   ├── rbml_launchers/      # Launcher scripts (environment gates)
+│   ├── buml_launchers/      # Launcher scripts (environment gates)
 │   └── rbmv_vessels/        # Vessel definitions (rbrv.env + optional Dockerfile per vessel)
 ├── tt/                      # TabTargets (ls this to see all commands)
 └── Tools/
