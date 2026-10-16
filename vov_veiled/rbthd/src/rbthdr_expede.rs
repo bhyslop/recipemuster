@@ -63,7 +63,7 @@ pub const RBTHDR_BASE_PUSH_DISABLED: &str = "DISABLED-ENGROSSMENT_UPSTREAM-IS-RE
 /// unlocked door). The endpoint is a load-bearing fact, not a runtime input.
 pub const RBTHDR_BASE_URL: &str = "git@github.com:scaleinv/recipebottle.git";
 
-/// The ephemeral private narthex (RBS0 rbth_narthex; RELEASE.md "The
+/// The ephemeral private narthex (RBS0 rbshc_narthex; RELEASE.md "The
 /// narthex"): created empty and private by the operator's own hand before
 /// a cut, reached only by explicit URL — never a configured remote. Fixed and
 /// known, unlike the repository's ephemeral CONTENTS: only its existence is

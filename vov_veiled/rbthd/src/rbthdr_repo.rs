@@ -134,7 +134,7 @@ pub fn rbthdr_guard_disposable(dir: &Path, expected_basename: &str, top: &Path) 
 }
 
 /// The tree hash of `dir`'s HEAD — the byte-identity a cachet is keyed on and
-/// the freshness matcher compares (RBS0 rbth_cachet, RBSHD/RBSHO). Fatal on
+/// the freshness matcher compares (RBS0 rbshc_cachet, RBSHD/RBSHO). Fatal on
 /// any git failure or an empty result: a cachet or a freshness verdict keyed
 /// on an empty string would silently compare equal to nothing.
 pub fn rbthdr_tree_hash(dir: &Path, cwd: &Path) -> String {
