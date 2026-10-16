@@ -34,8 +34,8 @@ ZRBFB_SOURCED=1
 
 # Announce the consumers of the hallmark fact just written (ordain or kludge).
 #
-# The roster is exactly the RBF_FACT_HALLMARK chain consumers: the rbch_palpate readers (summon, plumb, rekon)
-# and the rbch_enchase writers that resolve THIS fact (anoint, drive). It MUST
+# The roster is exactly the RBF_FACT_HALLMARK chain consumers: the rbsbc_palpate readers (summon, plumb, rekon)
+# and the rbsbc_enchase writers that resolve THIS fact (anoint, drive). It MUST
 # agree with that enumeration — a consumer added there without a line here (or
 # vice versa) is the drift this single home exists to prevent.
 #
@@ -51,13 +51,13 @@ rbfb_hallmark() {
   buc_bare ""
   buc_bare "  This hallmark feeds:"
 
-  # rbch_palpate readers of RBF_FACT_HALLMARK — folio IS the hallmark, fill it
+  # rbsbc_palpate readers of RBF_FACT_HALLMARK — folio IS the hallmark, fill it
   buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${z_hallmark}"
   buc_tabtarget "${RBZ_PLUMB_COMPACT}"   "${z_hallmark}"
   buc_tabtarget "${RBZ_PLUMB_FULL}"      "${z_hallmark}"
   buc_tabtarget "${RBZ_REKON_HALLMARK}"  "${z_hallmark}"
 
-  # rbch_enchase writers of RBF_FACT_HALLMARK — folio is a different target,
+  # rbsbc_enchase writers of RBF_FACT_HALLMARK — folio is a different target,
   # so show a placeholder (anoint reads the hallmark with an empty express;
   # drive's folio is the nameplate to receive it)
   buc_tabtarget "${RBZ_ANOINT_GRAFT}"    "<graft-vessel>"

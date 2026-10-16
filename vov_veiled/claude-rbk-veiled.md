@@ -38,7 +38,7 @@ prefix map can name the module without naming its contract.
 | Module | Contract |
 |--------|----------|
 | `rba_auth.sh` (sederunt lifecycle: novate, espy) | RBS0 `rbsfd_novate`, `rbsfd_espy` |
-| `rbfb_beckon.sh` (per-fact signpost) | RBS0 `rbch_beckon`, Chaining-Fact Roles |
+| `rbfb_beckon.sh` (per-fact signpost) | RBS0 `rbsbc_beckon`, Chaining-Fact Roles |
 | `rbflf_feoff.sh` (vessel feoff) | RBSDF |
 | `rbfls_seise.sh` (substrate-reliquary seise) | RBSDE |
 | `rbgft_terrier.sh` (muniment access) | RBSTR |
