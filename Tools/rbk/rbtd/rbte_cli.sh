@@ -56,7 +56,6 @@ zrbte_furnish() {
   source "${z_cli_dir}/rbte_engine.sh" || buc_die_now "Failed to source rbte_engine.sh"
 
   zbuv_kindle
-  zbkcb_kindle
   zburd_kindle
   zbuz_kindle
   zrbz_kindle
@@ -73,6 +72,25 @@ zrbte_furnish() {
       source "${BURD_STATION_FILE}" || buc_die_now "Failed to source station file: ${BURD_STATION_FILE}"
       ;;
   esac
+
+  # The no-log dispatch sources no station file and hands the tackroom across
+  # empty, while every theurge build converges through the kennel, which needs it.
+  # So an empty tackroom is taken from the launcher-exported station file and
+  # absolutized as dispatch absolutizes it. A COPY of dispatch's derivation, owed
+  # retirement: it retires when dispatch provides the tackroom on the no-log path
+  # at BUK's home and that parcel lands here.
+  if test -z "${BURD_TACKROOM:-}"; then
+    test -n "${BURD_STATION_FILE:-}" || buc_die_now "BURD_STATION_FILE not set - launch via tabtarget"
+    source "${BURD_STATION_FILE}" || buc_die_now "Failed to source station file: ${BURD_STATION_FILE}"
+    BURD_TACKROOM="${BURS_TACKROOM:-}"
+    case "${BURD_TACKROOM}" in
+      ""|/*) ;;
+      *)     BURD_TACKROOM="${PWD}/${BURD_TACKROOM}" ;;
+    esac
+    export BURD_TACKROOM
+  fi
+
+  zbkcb_kindle
 }
 
 buc_execute rbte_ "Theurge test engine" zrbte_furnish "$@"
