@@ -16,17 +16,16 @@
 //! A reader for cargo's own machine-readable answers.
 //!
 //! WHY THE KENNEL CARRIES ONE AT ALL. `cargo metadata` is the currency oracle
-//! this estate elected — nothing here reimplements what cargo knows
-//! (BKSNC-Kennelcraft.adoc "The Rust Backend") — and it answers in JSON. The
-//! kennel declares zero external crates and its collar says so as data, so the
-//! serialization crate a richer consumer reaches for is not available here and
-//! adding one would put a dependency closure under the door whose whole job is
-//! to police dependency closures.
+//! this estate elected — nothing here reimplements what cargo knows — and it
+//! answers in JSON. The kennel declares zero external crates and its collar
+//! says so as data, so the serialization crate a richer consumer reaches for
+//! is not available here and adding one would put a dependency closure under
+//! the door whose whole job is to police dependency closures.
 //!
 //! IT IS A READER AND NEVER A WRITER. Nothing in the kennel emits JSON: the
 //! proclamation's transport is env-shaped text, and a JSON transport arrives as
-//! a verb of its own when a consumer stands for one (BKSCL-Collar.adoc "The
-//! Common Proclamation"). A writer here would be built for nobody.
+//! a verb of its own when a consumer stands for one. A writer here would be
+//! built for nobody.
 //!
 //! THE FOREIGN SCHEMA KEEPS ITS FOREIGN NAMES. The type below spells JSON's own
 //! six kinds, quoted rather than minted, for the same reason the leash spells

@@ -45,10 +45,10 @@ const ZBKTV_NEXTEST_FAIL: &str =
 const ZBKTV_NEXTEST_SUMMARY: &str = "     Summary [   0.029s] 24 tests run: 24 passed, 0 skipped";
 
 /// A green harness case line, verbatim from the capture.
-const ZBKTV_HARNESS_PASS: &str = "test bujd_the_die_path_speaks_with_no_transcript_standing ... ok";
+const ZBKTV_HARNESS_PASS: &str = "test butd_the_die_path_speaks_with_no_transcript_standing ... ok";
 
 /// The same shape reporting a failure.
-const ZBKTV_HARNESS_FAIL: &str = "test bujw_a_bumped_pin_reaches_the_compiler_that_answers ... FAILED";
+const ZBKTV_HARNESS_FAIL: &str = "test butw_a_bumped_pin_reaches_the_compiler_that_answers ... FAILED";
 
 /// The harness summary, which wears the SAME FIRST WORD as a case line and is
 /// the whole reason that reader parts them by the separator.
@@ -87,7 +87,7 @@ fn bktv_the_harness_reader_parts_a_case_from_the_summary_by_the_separator() {
         .expect("recognized tongue")
         .expect("an ok line reports a case");
     assert!(passed.passed);
-    assert_eq!(passed.name, "bujd_the_die_path_speaks_with_no_transcript_standing");
+    assert_eq!(passed.name, "butd_the_die_path_speaks_with_no_transcript_standing");
 
     let failed = bkcv_case(BKCV_TONGUE_HARNESS, ZBKTV_HARNESS_FAIL)
         .expect("recognized tongue")
@@ -228,6 +228,107 @@ fn bktv_the_digest_answers_the_standards_own_vectors() {
         "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
         "the two-block vector, which is what exercises the message schedule past the first block"
     );
+}
+
+/// A tally of forty cases heard passing and none failing, the count the 261004
+/// close saw printed over a runner that never finished.
+fn zbktv_forty_passed() -> super::bkcv_voice::bkcv_Tally {
+    super::bkcv_voice::bkcv_Tally {
+        ran: 40,
+        passed: 40,
+        failed: Vec::new(),
+    }
+}
+
+/// Whether a verdict prints a passing count in the shape a finished run's does.
+fn zbktv_counts_a_pass(verdict: &str) -> bool {
+    verdict.contains(" ran, ") && verdict.contains(" passed")
+}
+
+#[test]
+fn bktv_a_runner_that_died_is_named_with_its_exit_and_no_pass_is_counted() {
+    use super::bkcv_voice::zbkcv_verdict;
+
+    let tally = zbktv_forty_passed();
+
+    let died = zbkcv_verdict(&tally, Some(101), None, Some("/seat/hist.txt"));
+    assert!(died.starts_with("RED"), "a runner that died is red: {}", died);
+    assert!(died.contains("exit 101"), "the verdict names the exit: {}", died);
+    assert!(!zbktv_counts_a_pass(&died), "no pass is counted over a runner that did not finish: {}", died);
+    assert!(died.contains("/seat/hist.txt"), "the verdict sends its reader to the depth: {}", died);
+
+    let taken = zbkcv_verdict(&tally, None, None, None);
+    assert!(taken.starts_with("RED"), "a runner a signal took is red: {}", taken);
+    assert!(taken.contains("signal"), "the verdict says a signal took it: {}", taken);
+    assert!(!zbktv_counts_a_pass(&taken), "no pass is counted over it: {}", taken);
+
+    // THE CONTROL: the same forty over a runner that finished green are counted,
+    // so the absence above is the shape's and not the counts having gone silent.
+    assert_eq!(
+        zbkcv_verdict(&tally, Some(0), None, None),
+        "green: 40 ran, 40 passed, 0 failed",
+        "a finished runner's counts are printed"
+    );
+}
+
+#[test]
+fn bktv_a_stream_cut_short_says_so_and_counts_no_pass() {
+    use super::bkcv_voice::zbkcv_verdict;
+
+    // THE CHILD EXITED CLEANLY, and the verdict is still red: what it said past
+    // the cut reached neither the counts nor the record, so a green here would
+    // rest on a run nobody heard whole.
+    let cut = zbkcv_verdict(&zbktv_forty_passed(), Some(0), Some("planted break"), Some("/seat/hist.txt"));
+    assert!(cut.starts_with("RED"), "a cut stream is red: {}", cut);
+    assert!(cut.contains("cut") && cut.contains("planted break"), "the verdict says the stream was cut and why: {}", cut);
+    assert!(!zbktv_counts_a_pass(&cut), "no pass is counted over a cut stream: {}", cut);
+}
+
+#[test]
+fn bktv_the_record_holds_the_verdict_of_a_run_that_did_not_finish() {
+    use super::bkcl_leash::{bkcl_Heard, bkcl_Run};
+    use super::bkcv_voice::{bkcv_Record, bkcv_Voice};
+
+    let lure = super::bktu_lure::bktu_Lure::bktu_compose("voice-unfinished");
+
+    for (shape, code, cut) in [("died", Some(101), None), ("cut", Some(0), Some("planted break".to_string()))] {
+        let seat = lure.bktu_temp().join(shape);
+        std::fs::create_dir_all(&seat).expect("the hurdle composes the log seat");
+        let member = |leaf: &str| seat.join(leaf).to_string_lossy().into_owned();
+        let hist = member("hist.txt");
+
+        let record = bkcv_Record::zbkcv_at(&member("last.txt"), &member("same.txt"), &hist, None, false, "bkx quoggle")
+            .expect("the family opens");
+        let mut voice = bkcv_Voice::zbkcv_with(BKCV_TONGUE_HARNESS, Some(record), Some(hist.clone()));
+
+        // THE FIRST HALF OF A STREAM: the passing cases, and nothing after them.
+        for index in 0..40 {
+            voice
+                .bkcv_heed(bkcl_Heard::Said(format!("test bktv_alive_{:02} ... ok", index)))
+                .expect("the record takes the line");
+        }
+
+        let run = bkcl_Run {
+            spelling: "cargo test".to_string(),
+            code,
+            cut,
+        };
+        let tally = voice.bkcv_close(&run).expect("the voice closes");
+        assert_eq!(tally.ran, 40, "the kennel's own count is kept for the caller: {}", shape);
+
+        let written = std::fs::read_to_string(&hist).expect("the historical member stands");
+        let verdict = written
+            .lines()
+            .find(|line| line.contains("RED"))
+            .unwrap_or_else(|| panic!("the record carries no red verdict for the {} shape:\n{}", shape, written));
+        assert!(!zbktv_counts_a_pass(verdict), "the record counts no pass over the {} shape: {}", shape, verdict);
+        assert!(
+            written.lines().any(|line| line.starts_with("Same log checksum: ")),
+            "the record is closed with its digest for the {} shape:\n{}",
+            shape,
+            written
+        );
+    }
 }
 
 // eof

@@ -1,9 +1,10 @@
 {
-  "vvbc_commit": "0b5ab0e4b8dfbf1119e5b985a46335d6dde18c6f",
-  "vvbd_date": "260917-0528",
-  "vvbf_brand": "1074",
+  "vvbc_commit": "19e230ad367a4507ade0fee77ff4d21812dc4fc3",
+  "vvbd_date": "261015-2154",
+  "vvbf_brand": "1085",
   "vvbk_kits": [
     "bkk",
     "buk"
-  ]
+  ],
+  "vvbt_target": "rbm_alpha_recipemuster"
 }

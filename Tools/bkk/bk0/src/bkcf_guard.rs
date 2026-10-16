@@ -13,8 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The door law's reading: whether the repository a collar stands in carries
-//! anything uncommitted (BKSCL-Collar.adoc "Door Law").
+//! The door law's readings: whether the repository a collar stands in carries
+//! anything uncommitted, and whether a tracked `CLAUDE.md` in it carries an
+//! include naming nothing.
 //!
 //! THIS MODULE READS AND NEVER REFUSES, and the split is the cinch rather than a
 //! shape that happened. The refusal belongs to the DOOR: a door builds nothing,
@@ -129,6 +130,187 @@ pub fn bkcf_standing(repository: &Path) -> Result<bkcf_Standing, String> {
             .map(str::to_string)
             .collect(),
     })
+}
+
+/// The basename a tracked file must wear for its includes to be read.
+const ZBKCF_CLAUDE: &str = "CLAUDE.md";
+
+/// The act a dangling include needs, cited by the grievance and by every hurdle
+/// asserting it rather than respelled at each.
+pub const BKCF_REPOINT: &str = "repoint";
+
+/// One include line of a tracked `CLAUDE.md`: where it stands, and the path as
+/// written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct bkcf_Include {
+    /// The `CLAUDE.md` carrying the line, repo-relative.
+    pub file: String,
+    /// The line's number, counted from one as an editor counts.
+    pub line: usize,
+    /// The path the line names, exactly as written after its `@`.
+    pub path: String,
+}
+
+/// The includes of a repository's tracked `CLAUDE.md` files, read under the lyam
+/// premise.
+///
+/// THE TWO ARMS ARE NEVER MERGED. A dangling include is a defect in the tree;
+/// a skipped one is outside what the tree can prove about itself, so the reading
+/// names it and passes no judgment on it. An include that resolves appears in
+/// neither — there is nothing to say about it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct bkcf_Lyam {
+    /// Every in-tree include naming no tracked file, in listing order.
+    pub dangling: Vec<bkcf_Include>,
+    /// Every include written home-relative or absolute, or leaving the
+    /// repository — read and not judged.
+    pub skipped: Vec<bkcf_Include>,
+}
+
+impl bkcf_Lyam {
+    /// Whether every include read inside the tree names a tracked file.
+    pub fn bkcf_clean(&self) -> bool {
+        self.dangling.is_empty()
+    }
+
+    /// The refusal a door owes when this reading is not clean: the bounded count,
+    /// the remedy, each dangling include on its own line as file, line and path,
+    /// and then every include the reading skipped, so a reader who expected one of
+    /// those to be judged sees why it was not.
+    pub fn bkcf_grievance(&self, repository: &Path) -> String {
+        let mut said = format!(
+            "the repository at {} carries {} CLAUDE.md include(s) naming no tracked file, and every \
+             kennel door refuses one so that no session loads a tree's context short of what it \
+             declares — {} or remove each and drive again",
+            repository.display(),
+            self.dangling.len(),
+            BKCF_REPOINT, //
+        );
+        for include in &self.dangling {
+            said.push_str(&format!("\n  {}:{}: @{}", include.file, include.line, include.path));
+        }
+        for include in &self.skipped {
+            said.push_str(&format!(
+                "\n  skipped, outside the repository: {}:{}: @{}",
+                include.file, include.line, include.path
+            ));
+        }
+        said
+    }
+}
+
+/// Does this line open or close a fenced block?
+///
+/// THE DISPATCH COMPOSITION'S OWN TEST, copied in shape rather than shared: the
+/// kennel ships to trees that carry no engine and cannot depend on one. A path
+/// inside a fence is an example of the include form, never an include, and both
+/// readers must agree on that or a tree passes one and fails the other.
+fn zbkcf_is_fence(line: &str) -> bool {
+    let t = line.trim_start();
+    t.starts_with("```") || t.starts_with("~~~")
+}
+
+/// The path an include line names, or `None` for any other line — a line whose
+/// whole trimmed content is `@` followed by one whitespace-free path.
+///
+/// THE ESTATE'S CONVENTION AND NOTHING WIDER. The harness reads a wider grammar
+/// (an import mid-line, a second hop); that grammar is surveyed in the premise
+/// and deliberately not implemented here, so an include written that way is
+/// unread rather than half-read.
+fn zbkcf_include_of(line: &str) -> Option<&str> {
+    let rest = line.trim().strip_prefix('@')?;
+    if rest.is_empty() || rest.contains(char::is_whitespace) {
+        return None;
+    }
+    Some(rest)
+}
+
+/// Join an include's path onto the directory its `CLAUDE.md` stands in, LEXICALLY,
+/// giving the repo-relative path it names — or `None` where it leaves the
+/// repository or is written from a root the repository does not hold.
+///
+/// NEVER CANONICALIZED: the path may name nothing, which is the very case being
+/// read, and canonicalizing a missing path is an error rather than an answer.
+fn zbkcf_resolve(directory: &str, path: &str) -> Option<String> {
+    if path.starts_with('~') || path.starts_with('/') {
+        return None;
+    }
+    let mut parts: Vec<&str> = directory.split('/').filter(|p| !p.is_empty()).collect();
+    for part in path.split('/') {
+        match part {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?;
+            }
+            _ => parts.push(part),
+        }
+    }
+    Some(parts.join("/"))
+}
+
+/// Read the includes of every tracked `CLAUDE.md` in a repository.
+///
+/// ONE GIT SPAWN, and it answers both questions: the tracked listing names the
+/// `CLAUDE.md` files to read and is the set an include must land in. Resolution
+/// is by what the repository tracks, never what the disk holds, because a file
+/// an ignore rule hides stands on the author's disk and in no clone.
+///
+/// The repository is its own root here, as it is for every reading in this
+/// module: a door is driven from the root of the tree it entered.
+pub fn bkcf_lyam(repository: &Path) -> Result<bkcf_Lyam, String> {
+    let out = Command::new("git")
+        .arg("-C")
+        .arg(repository)
+        .arg("ls-files")
+        .arg("-z")
+        .output()
+        .map_err(|err| format!("could not run git in {}: {}", repository.display(), err))?;
+
+    if !out.status.success() {
+        let said = String::from_utf8_lossy(&out.stderr);
+        return Err(format!(
+            "could not list the tracked files of {}: {}",
+            repository.display(),
+            said.trim()
+        ));
+    }
+
+    let text = String::from_utf8(out.stdout)
+        .map_err(|err| format!("git ls-files emitted no readable text: {}", err))?;
+    let tracked: std::collections::BTreeSet<&str> =
+        text.split('\0').filter(|path| !path.is_empty()).collect();
+
+    let mut reading = bkcf_Lyam { dangling: Vec::new(), skipped: Vec::new() };
+
+    for file in tracked.iter().filter(|path| path.rsplit('/').next() == Some(ZBKCF_CLAUDE)) {
+        let body = std::fs::read_to_string(repository.join(file))
+            .map_err(|err| format!("could not read {} in {}: {}", file, repository.display(), err))?;
+        let directory = file.rsplit_once('/').map(|(dir, _)| dir).unwrap_or("");
+
+        let mut fenced = false;
+        for (index, line) in body.lines().enumerate() {
+            if zbkcf_is_fence(line) {
+                fenced = !fenced;
+                continue;
+            }
+            if fenced {
+                continue;
+            }
+            let Some(path) = zbkcf_include_of(line) else { continue };
+            let include = bkcf_Include {
+                file: file.to_string(),
+                line: index + 1,
+                path: path.to_string(),
+            };
+            match zbkcf_resolve(directory, path) {
+                None => reading.skipped.push(include),
+                Some(named) if tracked.contains(named.as_str()) => {}
+                Some(_) => reading.dangling.push(include),
+            }
+        }
+    }
+
+    Ok(reading)
 }
 
 /// Read an election — the elected source roots, one repo-relative pathspec per

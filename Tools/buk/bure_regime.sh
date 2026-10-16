@@ -95,7 +95,7 @@ zbure_enforce() {
   # test/fixture/suite, by design; a suite may reserve the slot for a standing guard.
   if test -n "${BURE_TWEAK_NAME}"; then
     case "${BURE_TWEAK_NAME}" in
-      buo[a-z]*_*) : ;;
+      buo[abcdefghijklmnopqrstuvwxyz]*_*) : ;;
       *) buc_die_now "BURE_TWEAK_NAME must carry the buo sprue (buo<segment>_<name>), got '${BURE_TWEAK_NAME}'" ;;
     esac
   fi

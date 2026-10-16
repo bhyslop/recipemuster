@@ -13,20 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The composing surface for a lure (BKSLR-Lure.adoc "The Lure").
+//! The composing surface for a lure.
 //!
 //! A lure is a seat composed for one hurdle: a git repository under the
 //! dispatch's temp root, carrying a commit, a pin, and whatever else the hurdle
 //! asks for. The kennel is driven over it exactly as over a real seat.
 //!
-//! A LURE IS COMPOSED, NEVER COMMITTED. The kennel's doors walk the tree, so a
-//! fixture crate standing in the repository would be a real collar to every one
-//! of them, and excluding it would be a second concept no sheaf holds.
+//! A LURE IS COMPOSED, NEVER COMMITTED to the tree its hurdles run in. A lure is
+//! a repository of its own — its own door law, its own geography, its own
+//! moorings and weaned set — and a fixture standing in the host tree would be
+//! host ground every one of those readings takes.
 //!
 //! THIS IS THE ONLY HOME. A hurdle that reaches the temp root, composes a
 //! repository, or spawns the kennel reaches it here — never through a bare
 //! `std::env` or a `git` of its own. The founding surface is deliberately small:
 //! it composes and it cleans up, and it grows as hurdles ask it to.
+//!
+//! A PROGRAM IS WRITTEN BY A CHILD, NEVER BY THIS PROCESS. Hurdles run as
+//! threads of one process, and every spawn below forks it, so every file a
+//! hurdle means to run is written or copied by Pastern's program writers
+//! (`bkp::bkprs_scrivener`), whose module states the race and why a child closes
+//! it. The kennel's muzzle bars the calls that arm or copy a file in-process,
+//! and `bktu_write` refuses a file already armed.
 //!
 //! TWO SHAPES ARE COMPOSED HERE. The bare lure above is one. The other is a
 //! substrate seat laid down inside it: the trampoline, moorings, station file,
@@ -34,6 +42,7 @@
 //! can be driven through its own door rather than sourced bare. A hurdle asking
 //! for one gets it from here for the same reason it gets a lure from here.
 
+use bkp::bkprs_scrivener::bkprs_program_write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
 
@@ -42,6 +51,18 @@ use std::process::{Command, Output};
 /// no ambient temp directory, so the kennel's hurdles are always launched
 /// through the substrate.
 pub const BKTU_TEMP_ROOT_VAR: &str = "BURD_TEMP_DIR";
+
+/// The substrate's declaration that a run keeps NO record, stated on every
+/// spawn below.
+///
+/// A HURDLE-SPAWNED KENNEL KEEPS NO RECORD, and saying so is honest rather
+/// than a softening. The spawn hands the child this lure's temp root, which is
+/// the station fact it genuinely stands on, and composes no log family, so the
+/// child keeps no record whatever else it is told. The declaration stands
+/// because the harness stands in for a tabtarget, and a tabtarget is what
+/// declares a log mode: this is the substrate's own word that the run asked
+/// for none.
+pub const BKTU_NO_LOG_VAR: &str = "BURD_NO_LOG";
 
 /// The dispatch's output directory, which a drive is handed a lure-local one of
 /// rather than inheriting the session's.
@@ -54,9 +75,14 @@ pub const BKTU_OUTPUT_DIR_VAR: &str = "BURD_OUTPUT_DIR";
 /// keeps its own.
 pub const BKTU_LOOSEBOX_DIR_VAR: &str = "BURD_LOOSEBOX_DIR";
 
-/// The dispatch's config directory — where the kennel reads its geography, and
-/// therefore the one variable that can make a hurdle's verdict a function of
-/// which tabtarget drove the suite.
+/// The dispatch's config directory, which a bare kennel spawn does not inherit
+/// and is handed this lure's own in its place.
+///
+/// THE KENNEL READS ITS WEANED SET THERE, so a child that inherited the
+/// driver's config directory would run the driver's declarations over the
+/// lure's tree without any hurdle noticing. The strip keeps the driver's out and
+/// the spawn states the lure's moorings, committed inside the lure's own
+/// repository the way every consumer keeps its moorings.
 pub const BKTU_CONFIG_DIR_VAR: &str = "BURD_CONFIG_DIR";
 
 /// What a BARE KENNEL SPAWN does not inherit: the two channels that would make a
@@ -67,7 +93,36 @@ pub const BKTU_CONFIG_DIR_VAR: &str = "BURD_CONFIG_DIR";
 /// toolchain fence every cargo invocation is required to inherit — so a
 /// prefix-wide sweep here would sever it. A bare spawn establishes nothing of
 /// its own and is handed what it needs instead.
-const ZBKTU_SPAWN_STRIPPED: &[&str] = &[BKTU_CONFIG_DIR_VAR, ZBKTU_FOLIO_FAMILY];
+/// THE LOG FAMILY IS STRIPPED TOO, and it is the sharpest member of the roster
+/// rather than a tidying. Those three names are ABSOLUTE PATHS INTO THE
+/// DRIVER'S OWN RECORD, so a child kennel inheriting them opens the very files
+/// the run executing this hurdle is writing — truncating them at its open, then
+/// filling them with its own lure's stream. The driver's record then holds
+/// whichever child spoke last, which is exactly what was found in the field:
+/// the whole suite's record standing at seventy-eight lines of one hurdle's
+/// python output. Unlike the config directory, this is not a verdict the
+/// stripping protects but the EVIDENCE, and nothing in the outer run notices it
+/// go.
+///
+/// THE POSED KIBBLE ROOT IS STRIPPED AS WELL, and that is what makes a drive over
+/// the lure itself a STATION drive: a root the driver happened to carry would
+/// otherwise reach a child that was never handed one. A posed root reaches a
+/// child by one road only, the haynet's own drive, which states it.
+const ZBKTU_SPAWN_STRIPPED: &[&str] = &[
+    BKTU_CONFIG_DIR_VAR,
+    ZBKTU_FOLIO_FAMILY,
+    ZBKTU_LOG_FAMILY,
+    BKTU_FEEDROOM_VAR,
+];
+
+/// The kennel's own variable carrying a posed kibble root — its constant read
+/// from the other side, asserted equal by a hurdle rather than merely intended
+/// to agree.
+pub const BKTU_FEEDROOM_VAR: &str = "BKCQ_FEEDROOM";
+
+/// The three members the amanuensis mode composes, reached by their shared
+/// stem so the roster cannot come to carry two of three.
+const ZBKTU_LOG_FAMILY: &str = "BURD_LOG_";
 
 /// What a COMPOSED SEAT does not inherit, which is every channel the substrate
 /// speaks across an exec.
@@ -77,7 +132,14 @@ const ZBKTU_SPAWN_STRIPPED: &[&str] = &[BKTU_CONFIG_DIR_VAR, ZBKTU_FOLIO_FAMILY]
 /// value the outer dispatch set that survived into it would make the hurdle's
 /// verdict a function of the driver. `BURE_` passes untouched, being the
 /// substrate's operator-ambient channel by design.
-const ZBKTU_SEAT_STRIPPED: &[&str] = &["BURC_", "BURD_", "BURS_", "BURV_", ZBKTU_FOLIO_FAMILY];
+const ZBKTU_SEAT_STRIPPED: &[&str] = &[
+    "BURC_",
+    "BURD_",
+    "BURS_",
+    "BURV_",
+    ZBKTU_FOLIO_FAMILY,
+    BKTU_FEEDROOM_VAR,
+];
 
 /// The zipper's folio channel, stripped from every spawn beside the config
 /// directory.
@@ -105,7 +167,7 @@ pub const BKTU_NOW_VAR: &str = "BURD_NOW_STAMP";
 pub const BKTU_NOW: &str = "20260101-000000-0-0";
 
 /// The toolchains the kennel's own hurdles require: the estate's pin and one
-/// other (BKSLR-Lure.adoc "The Required Toolchains").
+/// other.
 ///
 /// THIS IS A HURDLE'S DEMAND, NEVER THE KENNEL'S. At runtime the kennel binds
 /// whatever pin a collar's repository names and asks nothing of the station
@@ -120,7 +182,20 @@ pub const BKTU_REQUIRED_TOOLCHAINS: &[&str] = &["1.90.0", "1.89.0"];
 /// `.buk` is a moorings name the estate already admits (`tt/z-launcher.sh` names
 /// it beside `rbmm_moorings` as one of the shapes a consumer may keep), so a
 /// composed seat spells an established name here rather than minting one.
+///
+/// EVERY LURE CARRIES ONE, not only a substrate seat: the kennel reads the
+/// declarations a repository runs from its moorings' weaned set, so a lure
+/// posing a declaration poses it there, committed.
 const ZBKTU_MOORINGS: &str = ".buk";
+
+/// The weaned set's name under the moorings — the kennel's own constant read
+/// from the other side, asserted equal by a hurdle rather than merely intended
+/// to agree.
+const ZBKTU_WEANED: &str = "bkd_weaned";
+
+/// A kit's brood name under its tools directory, read from the other side on
+/// the same terms.
+const ZBKTU_BROOD: &str = "bkd_brood";
 
 /// The seat's own door: the tabtarget a hurdle dispatches through, and the only
 /// way into the seat. The colophon is the lure's own word, so nothing in a
@@ -140,12 +215,6 @@ const ZBKTU_NEXTEST_KIBBLE: &str = "bki_nextest";
 /// The estate's own uv kibble, read from the other side exactly as the nextest
 /// one above is.
 const ZBKTU_UV_KIBBLE: &str = "bki_uv";
-
-/// The station's shared tool store, and the kennel's own quarter of it — the
-/// two facts a hurdle needs to name a residence the door will compose.
-/// Both are the kennel's own constants read from the other side.
-const ZBKTU_TACKROOM_VAR: &str = "BURD_TACKROOM";
-const ZBKTU_QUARTER: &str = "bkk";
 
 /// The colophon `ZBKTU_TABTARGET` carries, which the dispatch splits out and
 /// hands the coordinator as its first argument. Named here because a hurdle
@@ -179,18 +248,17 @@ pub struct bktu_Lure {
     /// The hurdle's own name for this lure.
     ///
     /// KEPT SO THAT EVERY SEAT COMPOSED BESIDE THE LURE IS THIS HURDLE'S. The
-    /// repository, the output pair and the temp root were already keyed on it;
-    /// the served registry and the tackroom were keyed on a CONSTANT instead,
-    /// which made two hurdles composing a kibble share both directories — and
-    /// the harness runs them in parallel, so one removed and re-tarred the
-    /// archive the other was midway through converging. Driven, and it presented
-    /// as a tar that could not open a file the seal had just read.
+    /// repository, the output pair, the temp root and the served registry are
+    /// keyed on it: a registry keyed on a CONSTANT is one two hurdles composing a
+    /// kibble share, and the harness runs them in parallel, so one removes and
+    /// re-tars the archive the other is midway through converging — which
+    /// presents as a tar that cannot open a file the seal has just read. Where a
+    /// kibble lands is not keyed here at all: that is the haynet's root.
     name: String,
     root: PathBuf,
     output: PathBuf,
     temp: PathBuf,
     loosebox: PathBuf,
-    moorings: PathBuf,
 }
 
 impl bktu_Lure {
@@ -200,13 +268,7 @@ impl bktu_Lure {
     /// The name is the hurdle's, so a directory left behind by a panicking test
     /// says which hurdle made it.
     pub fn bktu_compose(name: &str) -> bktu_Lure {
-        let declared = std::env::var(BKTU_TEMP_ROOT_VAR).unwrap_or_else(|_| {
-            panic!(
-                "{} is unset. The kennel's hurdles stand under the dispatch's temp root and \
-                 reach for no ambient temp directory; drive the suite through its own door",
-                BKTU_TEMP_ROOT_VAR
-            )
-        });
+        let declared = zbktu_declared_temp();
 
         let root = Path::new(&declared).join(format!("bktu-lure-{}", name));
         let _ = std::fs::remove_dir_all(&root);
@@ -230,33 +292,7 @@ impl bktu_Lure {
         // at the root. A lure handing the root itself would put every lure's
         // memory in the directory of the run executing them, where they would
         // read each other's and race.
-        let seat = Path::new(&declared).join(format!("bktu-seat-{}", name));
-        let output = seat.join("out");
-        let temp = seat.join("temp");
-        // SPELLED, NOT CITED, and the position is why: this file is compiled a
-        // second time as a module of the integration-test crate by `#[path]`,
-        // where the kennel's breviary is another crate's and unreachable by
-        // `crate::`, and the lure imports nothing of the kennel by design. A
-        // literal standing outside the declaring crate is the printed-string
-        // rule's third position, owed nothing until the twins are published.
-        let loosebox = seat.join("loosebox");
-
-        // A SEAT HAS A CONFIG DIRECTORY TOO, and it stands OUTSIDE the
-        // repository with the other two — which is the shape being proven and
-        // not a convenience. A dispatched seat's moorings stands in the outspan,
-        // apart from the work billet the trampoline enters, so a lure whose
-        // moorings sat inside its own repository would be proving a geometry
-        // nothing uses; it would also be untracked ground inside a tree every
-        // door law reading walks, so the first hurdle to write a whereabouts
-        // into it would refuse its own drive.
-        let moorings = Path::new(&declared).join(format!("bktu-buk-{}", name));
-
-        for seat in [&output, &temp, &loosebox, &moorings] {
-            let _ = std::fs::remove_dir_all(seat);
-            std::fs::create_dir_all(seat).unwrap_or_else(|err| {
-                panic!("could not compose a lure's seat at {}: {}", seat.display(), err)
-            });
-        }
+        let (output, temp, loosebox) = zbktu_seat(&declared, name);
 
         let lure = bktu_Lure {
             name: name.to_string(),
@@ -264,7 +300,6 @@ impl bktu_Lure {
             output,
             temp,
             loosebox,
-            moorings,
         };
 
         lure.bktu_write("rust-toolchain.toml", "[toolchain]\nchannel = \"1.90.0\"\n");
@@ -277,11 +312,115 @@ impl bktu_Lure {
         lure
     }
 
+    /// Stand a LINKED WORKTREE of this lure and hand it back as a lure of its own
+    /// — the shape a linked worktree takes, this lure being its main worktree and
+    /// therefore its delivered root.
+    ///
+    /// A REAL WORKTREE AND NEVER A POSED ONE. The kennel derives its geography by
+    /// asking git from inside the tree a door entered, so the only honest way to
+    /// put a door in a linked worktree is to stand the tree git will answer about:
+    /// a hurdle that composed some other stand-in would be proving the stand-in.
+    ///
+    /// IT STANDS OUTSIDE THIS LURE'S TREE, beside it under the temp root, the way
+    /// a work billet stands beside its sire's standing clone: a worktree inside
+    /// the main worktree would be untracked ground in the delivered root, and a
+    /// hurdle wanting that misplacement stands it with `bktu_billet_at`.
+    ///
+    /// DETACHED, because a branch per hurdle would be a name one hurdle could
+    /// hold against another's, and nothing a hurdle proves turns on a branch.
+    #[allow(dead_code)]
+    pub fn bktu_billet(&self, name: &str) -> bktu_Lure {
+        let declared = zbktu_declared_temp();
+        self.bktu_billet_at(name, &Path::new(&declared).join(format!("bktu-billet-{}", name)))
+    }
+
+    /// Stand a linked worktree of this lure at a path the hurdle names.
+    ///
+    /// THE MISPLACED SHAPE IS THIS METHOD'S REASON: a worktree added inside its
+    /// own main worktree is a real thing git permits, and the one geography a
+    /// converge must refuse to write through, so a hurdle proving that refusal
+    /// needs to stand one exactly there.
+    #[allow(dead_code)]
+    pub fn bktu_billet_at(&self, name: &str, root: &Path) -> bktu_Lure {
+        let declared = zbktu_declared_temp();
+        let _ = std::fs::remove_dir_all(root);
+        let spelled = root.display().to_string();
+        self.bktu_git(&["worktree", "prune"]);
+        self.bktu_git(&["worktree", "add", "--quiet", "--detach", &spelled]);
+        let (output, temp, loosebox) = zbktu_seat(&declared, &format!("billet-{}", name));
+
+        bktu_Lure {
+            name: name.to_string(),
+            root: root.to_path_buf(),
+            output,
+            temp,
+            loosebox,
+        }
+    }
+
+    /// Stand a linked worktree added from a BARE clone of this lure — the one
+    /// geography git answers without naming a main worktree, which the kennel
+    /// refuses rather than reading as self.
+    ///
+    /// THE BARE CLONE STANDS INSIDE THE BILLET'S OWN SEAT, so the seat's removal
+    /// takes it and no second path needs remembering; it is spelled with the
+    /// `.git` suffix a bare repository conventionally wears, which is exactly the
+    /// spelling that must not be mistaken for a main worktree's own directory.
+    #[allow(dead_code)]
+    pub fn bktu_billet_of_bare(&self, name: &str) -> bktu_Lure {
+        let declared = zbktu_declared_temp();
+        let root = Path::new(&declared).join(format!("bktu-billet-{}", name));
+        let _ = std::fs::remove_dir_all(&root);
+        let (output, temp, loosebox) = zbktu_seat(&declared, &format!("billet-{}", name));
+        let bare = loosebox.join("lure.git");
+
+        zbktu_git_in(
+            Path::new(&declared),
+            &["clone", "--quiet", "--bare", &self.root.display().to_string(), &bare.display().to_string()],
+        );
+        zbktu_git_in(&bare, &["worktree", "add", "--quiet", "--detach", &root.display().to_string()]);
+
+        bktu_Lure {
+            name: name.to_string(),
+            root,
+            output,
+            temp,
+            loosebox,
+        }
+    }
+
     /// Where the lure stands.
     pub fn bktu_root(&self) -> &Path {
         &self.root
     }
 
+    /// This lure's moorings — the config directory every drive over it is
+    /// handed.
+    #[allow(dead_code)]
+    pub fn bktu_moorings(&self) -> PathBuf {
+        self.root.join(ZBKTU_MOORINGS)
+    }
+
+    /// This lure's weaned set — the declarations a drive over it runs, and the
+    /// set an in-process reading is handed.
+    #[allow(dead_code)]
+    pub fn bktu_weaned(&self) -> PathBuf {
+        self.bktu_moorings().join(ZBKTU_WEANED)
+    }
+
+    /// A lure-relative path inside the weaned set, for a hurdle posing a
+    /// declaration of its own: `instance/family` in, the path to write out.
+    #[allow(dead_code)]
+    pub fn bktu_weaned_at(&self, held: &str) -> String {
+        format!("{}/{}/{}", ZBKTU_MOORINGS, ZBKTU_WEANED, held)
+    }
+
+    /// A lure-relative path inside one kit's brood, for a hurdle posing the
+    /// declaration a weaned copy is proven against.
+    #[allow(dead_code)]
+    pub fn bktu_brood_at(&self, kit: &str, held: &str) -> String {
+        format!("Tools/{}/{}/{}", kit, ZBKTU_BROOD, held)
+    }
     /// Where a drive over this lure banks a fact file: the seat's output
     /// directory, and the durable twin beside it.
     ///
@@ -308,20 +447,6 @@ impl bktu_Lure {
     #[allow(dead_code)]
     pub fn bktu_loosebox(&self) -> &Path {
         &self.loosebox
-    }
-
-    /// This lure's own moorings — the config directory every drive over it is
-    /// handed, and where a hurdle plants a whereabouts to pose a dispatched
-    /// seat.
-    ///
-    /// IT STANDS OUTSIDE THE REPOSITORY, which is what a dispatched seat's
-    /// moorings does: the seat is an ephemeral directory apart from the trees it
-    /// works, and the trampoline enters the work tree from it. A hurdle planting
-    /// a geography here is therefore composing the real shape rather than a
-    /// stand-in for it.
-    #[allow(dead_code)]
-    pub fn bktu_moorings(&self) -> &Path {
-        &self.moorings
     }
 
     /// Run the kennel as a child over this lure and hand back what it said.
@@ -386,8 +511,28 @@ impl bktu_Lure {
     /// the only honest way to compose one is to hand the child a station that
     /// holds them differently — never by reaching into the kennel and telling it
     /// something untrue about the one it is standing on.
+    ///
+    /// A POSED KIBBLE ROOT IS NEVER STATED HERE. It reaches a child through the
+    /// haynet's own drive and no other, so a hurdle stating one by hand would be
+    /// opening the road the two seat types exist to close.
     #[allow(dead_code)]
     pub fn bktu_drive_stating(
+        &self,
+        kennel: &Path,
+        args: &[&str],
+        stated: &[(&str, &std::ffi::OsStr)],
+    ) -> Output {
+        assert!(
+            stated.iter().all(|(name, _)| *name != BKTU_FEEDROOM_VAR),
+            "{} is stated by a haynet's drive alone, never by hand",
+            BKTU_FEEDROOM_VAR
+        );
+
+        self.zbktu_spawn(kennel, args, stated)
+    }
+
+    /// The one spawn, beneath both seats' roads.
+    fn zbktu_spawn(
         &self,
         kennel: &Path,
         args: &[&str],
@@ -399,8 +544,8 @@ impl bktu_Lure {
         // THE STRIP COMES FIRST AND IT IS NARROW ON PURPOSE. What a spawn must
         // not inherit is the two channels that would make this hurdle's verdict
         // a function of which tabtarget drove the suite: the CONFIG DIRECTORY,
-        // which is where the kennel reads its geography, and the FOLIO, which is
-        // a caller's own argument. Everything else the dispatch exports is a
+        // which is the driver's seat and never the lure's, and the FOLIO, which
+        // is a caller's own argument. Everything else the dispatch exports is a
         // fact about the STATION the child genuinely stands on — the tackroom
         // above all, which is the toolchain fence every cargo invocation is
         // required to inherit — and a prefix-wide sweep here would sever it. The
@@ -409,11 +554,14 @@ impl bktu_Lure {
         // nothing, so it is handed what it needs instead.
         zbktu_strip(&mut child, ZBKTU_SPAWN_STRIPPED);
 
+        child.env(BKTU_CONFIG_DIR_VAR, self.bktu_moorings());
         child.env(BKTU_OUTPUT_DIR_VAR, &self.output);
         child.env(BKTU_TEMP_ROOT_VAR, &self.temp);
+        // STATED AHEAD OF THE CALLER'S OWN, so a hurdle proving what the voice
+        // does with a composed log family may still state one over it.
+        child.env(BKTU_NO_LOG_VAR, "1");
         child.env(BKTU_LOOSEBOX_DIR_VAR, &self.loosebox);
         child.env(BKTU_NOW_VAR, BKTU_NOW);
-        child.env(BKTU_CONFIG_DIR_VAR, &self.moorings);
 
         for (name, value) in stated {
             child.env(name, value);
@@ -445,7 +593,7 @@ impl bktu_Lure {
     pub fn bktu_shimmed(&self, name: &str, version: &str) -> std::ffi::OsString {
         let ahead = self.zbktu_bin(name);
 
-        zbktu_door(
+        zbktu_armed(
             &ahead.join(ZBKTU_NEXTEST),
             &format!("#!/bin/sh\necho \"cargo-nextest {} (planted by a hurdle)\"\n", version),
         );
@@ -489,7 +637,7 @@ impl bktu_Lure {
                 )
             });
 
-            zbktu_door(
+            zbktu_armed(
                 &only.join(program),
                 &format!("#!/bin/sh\nexec {} \"$@\"\n", found.display()),
             );
@@ -548,7 +696,7 @@ impl bktu_Lure {
     /// two drift until the assertion passed over a console that had gone quiet
     /// about something else entirely.
     #[allow(dead_code)]
-    pub const BKTU_CASE: &'static str = "bktu_the_seat_carries_one_case";
+    pub const BKTU_CASE: &'static str = "lure_the_crate_carries_one_case";
 
     /// Lay a launchable down in this lure: one trivial crate, and a suite collar
     /// over it under each admitted runner.
@@ -615,7 +763,7 @@ impl bktu_Lure {
             (Self::BKTU_COLLAR_CARGO, "bknre_cargo", "bknre_harness"),
         ] {
             self.bktu_write(
-                &format!("{}/bkrr.env", collar),
+                &format!("{}/{}/{}/bkrr.env", ZBKTU_MOORINGS, ZBKTU_WEANED, collar),
                 &format!(
                     "BKRR_COLLAR=\"{}\"\n\
                      BKRR_KIND=\"bknre_suite\"\n\
@@ -678,7 +826,7 @@ impl bktu_Lure {
         };
 
         self.bktu_write(
-            &format!("{}/bkrr.env", collar),
+            &format!("{}/{}/{}/bkrr.env", ZBKTU_MOORINGS, ZBKTU_WEANED, collar),
             &format!(
                 "\
 BKRR_COLLAR=\"{}\"
@@ -741,10 +889,16 @@ BKRR_TONGUE=\"bknre_harness\"
 
         self.bktu_write(&seat("pyproject.toml"), &manifest);
 
+        // THE PLACEHOLDER LOCK CARRIES THE PROJECT'S OWN ENTRY, as every lock uv
+        // writes does, because the partition reading is read against it: a lock
+        // with no entry for the project is a finding, and the conforming project
+        // this composer stands for carries none.
         if !bent.lockless {
             self.bktu_write(
                 &seat("uv.lock"),
-                "version = 1\nrequires-python = \">=3.12\"\n",
+                "version = 1\nrevision = 3\nrequires-python = \">=3.12\"\n\n\
+                 [[package]]\nname = \"lure\"\nversion = \"0.0.1\"\nsource = { virtual = \".\" }\n\n\
+                 [package.metadata]\n",
             );
         }
 
@@ -757,7 +911,7 @@ BKRR_TONGUE=\"bknre_harness\"
         };
 
         self.bktu_write(
-            &format!("{}/bkrp.env", collar),
+            &format!("{}/{}/{}/bkrp.env", ZBKTU_MOORINGS, ZBKTU_WEANED, collar),
             &format!(
                 "\
 BKRP_COLLAR=\"{}\"
@@ -765,16 +919,180 @@ BKRP_KIND=\"bknre_suite\"
 BKRP_MANIFEST=\"{}\"
 BKRP_ROOTS=\"{}\"
 BKRP_SPEND=\"bknre_reader\"
+BKRP_BAKED_PACKAGES=\"{}\"
+BKRP_CRUDE_PACKAGES=\"bknre_baked\"
 BKRP_TARGET=\"bknre_manifest\"
 BKRP_RUNNER=\"bknre_pytest\"
 BKRP_TONGUE=\"bknre_pytest\"
 ",
                 collar,
                 seat("pyproject.toml"),
-                roots
+                roots,
+                bent.baked
             ),
         );
     }
+
+    /// Lay a local simple index under this lure's seat, serving the files given
+    /// for one package, and hand back the URL a manifest declares it by.
+    ///
+    /// UNDER THE SEAT AND NEVER IN THE TREE: the index is a hurdle's fixture, and
+    /// a fixture inside the repository would be untracked ground the door law
+    /// refuses. A SIMPLE INDEX AND NEVER A FLAT ONE, because over a flat index uv
+    /// enforces no declared environment for a package carrying an sdist, so a
+    /// hurdle served from one proves nothing about coverage. No hash fragment
+    /// rides a link: uv locks and installs from an index without them, benched.
+    #[allow(dead_code)]
+    pub fn bktu_simple_index(&self, package: &str, files: &[(String, Vec<u8>)]) -> String {
+        let index = self.temp.join("index");
+        let served = index.join("files");
+        let listing = index.join("simple").join(package);
+
+        for dir in [&served, &listing] {
+            std::fs::create_dir_all(dir)
+                .unwrap_or_else(|err| panic!("could not lay an index at {}: {}", dir.display(), err));
+        }
+
+        let mut rows = String::new();
+        for (name, bytes) in files {
+            std::fs::write(served.join(name), bytes)
+                .unwrap_or_else(|err| panic!("could not serve {} from the index: {}", name, err));
+            rows.push_str(&format!("<a href=\"../../files/{0}\">{0}</a><br/>\n", name));
+        }
+
+        std::fs::write(
+            listing.join("index.html"),
+            format!("<!DOCTYPE html><html><body>\n{}</body></html>\n", rows),
+        )
+        .unwrap_or_else(|err| panic!("could not write the index's listing for {}: {}", package, err));
+
+        format!("file://{}", index.join("simple").display())
+    }
+}
+
+/// Compose a wheel: a real zip archive of stored entries carrying one module and
+/// its metadata, tagged as the hurdle says.
+///
+/// A REAL ARCHIVE BECAUSE UV OPENS IT AT THE LOCK. A placeholder served as a
+/// wheel refuses as an invalid package format before any environment is read
+/// (benched), so a hurdle proving a coverage refusal must serve a wheel uv can
+/// read metadata out of; the sdist beside it may be a placeholder, the bar
+/// keeping uv from opening it. The record carries no digests, which uv tolerates
+/// at the lock; no hurdle installs what this composes.
+#[allow(dead_code)]
+pub fn bktu_wheel(name: &str, version: &str, tag: &str) -> (String, Vec<u8>) {
+    let dist = format!("{}-{}.dist-info", name, version);
+
+    let mut entries: Vec<(String, Vec<u8>)> = vec![
+        (
+            format!("{}/__init__.py", name),
+            format!("BKTU_SERVED = \"{} {}\"\n", name, version).into_bytes(),
+        ),
+        (
+            format!("{}/METADATA", dist),
+            format!("Metadata-Version: 2.1\nName: {}\nVersion: {}\n", name, version).into_bytes(),
+        ),
+        (
+            format!("{}/WHEEL", dist),
+            format!(
+                "Wheel-Version: 1.0\nGenerator: bktu\nRoot-Is-Purelib: true\nTag: {}\n",
+                tag
+            )
+            .into_bytes(),
+        ),
+    ];
+
+    let mut record = String::new();
+    for (path, _) in &entries {
+        record.push_str(&format!("{},,\n", path));
+    }
+    record.push_str(&format!("{}/RECORD,,\n", dist));
+    entries.push((format!("{}/RECORD", dist), record.into_bytes()));
+
+    (format!("{}-{}-{}.whl", name, version, tag), zbktu_zip(&entries))
+}
+
+/// A zip archive of stored entries: local headers, the central directory, and
+/// its end record, as the format's specification lays them.
+fn zbktu_zip(entries: &[(String, Vec<u8>)]) -> Vec<u8> {
+    let mut out: Vec<u8> = Vec::new();
+    let mut central: Vec<u8> = Vec::new();
+
+    for (path, data) in entries {
+        let offset = out.len() as u32;
+        let crc = zbktu_crc32(data);
+        let name = path.as_bytes();
+        let size = data.len() as u32;
+
+        out.extend_from_slice(&0x0403_4b50u32.to_le_bytes());
+        out.extend_from_slice(&20u16.to_le_bytes());
+        out.extend_from_slice(&0u16.to_le_bytes());
+        out.extend_from_slice(&0u16.to_le_bytes());
+        out.extend_from_slice(&0u16.to_le_bytes());
+        out.extend_from_slice(&0x21u16.to_le_bytes());
+        out.extend_from_slice(&crc.to_le_bytes());
+        out.extend_from_slice(&size.to_le_bytes());
+        out.extend_from_slice(&size.to_le_bytes());
+        out.extend_from_slice(&(name.len() as u16).to_le_bytes());
+        out.extend_from_slice(&0u16.to_le_bytes());
+        out.extend_from_slice(name);
+        out.extend_from_slice(data);
+
+        central.extend_from_slice(&0x0201_4b50u32.to_le_bytes());
+        central.extend_from_slice(&20u16.to_le_bytes());
+        central.extend_from_slice(&20u16.to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0x21u16.to_le_bytes());
+        central.extend_from_slice(&crc.to_le_bytes());
+        central.extend_from_slice(&size.to_le_bytes());
+        central.extend_from_slice(&size.to_le_bytes());
+        central.extend_from_slice(&(name.len() as u16).to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0u16.to_le_bytes());
+        central.extend_from_slice(&0u32.to_le_bytes());
+        central.extend_from_slice(&offset.to_le_bytes());
+        central.extend_from_slice(name);
+    }
+
+    let start = out.len() as u32;
+    let size = central.len() as u32;
+    out.extend_from_slice(&central);
+
+    out.extend_from_slice(&0x0605_4b50u32.to_le_bytes());
+    out.extend_from_slice(&0u16.to_le_bytes());
+    out.extend_from_slice(&0u16.to_le_bytes());
+    out.extend_from_slice(&(entries.len() as u16).to_le_bytes());
+    out.extend_from_slice(&(entries.len() as u16).to_le_bytes());
+    out.extend_from_slice(&size.to_le_bytes());
+    out.extend_from_slice(&start.to_le_bytes());
+    out.extend_from_slice(&0u16.to_le_bytes());
+
+    out
+}
+
+/// The zip format's own checksum over one entry.
+fn zbktu_crc32(data: &[u8]) -> u32 {
+    let mut crc: u32 = 0xFFFF_FFFF;
+
+    for byte in data {
+        crc ^= u32::from(*byte);
+        for _ in 0..8 {
+            crc = if crc & 1 == 1 {
+                (crc >> 1) ^ 0xEDB8_8320
+            } else {
+                crc >> 1
+            };
+        }
+    }
+
+    !crc
+}
+
+impl bktu_Lure {
 
     /// Lay a substrate seat down in this lure: a tree the substrate can be
     /// dispatched in, and hand back the tabtarget that enters it.
@@ -800,7 +1118,7 @@ BKRP_TONGUE=\"bknre_pytest\"
         // The seat's own trampoline. It is the SOLE FILE THAT KNOWS THIS SEAT'S
         // moorings directory name, which is why a composed seat carries one of
         // its own rather than borrowing the estate's.
-        self.bktu_write(
+        self.zbktu_program(
             "tt/z-launcher.sh",
             &format!(
                 "#!/bin/bash\n\
@@ -867,7 +1185,7 @@ BKRP_TONGUE=\"bknre_pytest\"
         // consumer-owned and stands in the moorings beside the regime files, so
         // the stub reaches it through the config directory the trampoline just
         // exported rather than through `BURC_TOOLS_DIR`, which names the kit.
-        self.bktu_write(
+        self.zbktu_program(
             &format!("{}/launchers/launcher.lure_workbench.sh", ZBKTU_MOORINGS),
             &format!(
                 "#!/bin/bash\n\
@@ -880,13 +1198,13 @@ BKRP_TONGUE=\"bknre_pytest\"
 
         // The coordinator: the seat's own formulary, and the hurdle's to write.
         // The dispatch hands it the colophon as its first argument.
-        self.bktu_write(
+        self.zbktu_program(
             &format!("{}/lure_workbench.sh", ZBKTU_MOORINGS),
             coordinator,
         );
 
         // The door.
-        self.bktu_write(
+        self.zbktu_program(
             ZBKTU_TABTARGET,
             "#!/bin/bash\n\
              export BURD_LAUNCHER=launcher.lure_workbench.sh\n\
@@ -897,16 +1215,6 @@ BKRP_TONGUE=\"bknre_pytest\"
         // commit exactly as a consumer tree keeps them out of its own.
         self.bktu_write(".gitignore", "logs/\noutput/\ntemp/\n");
 
-        let doors = [
-            "tt/z-launcher.sh".to_string(),
-            format!("{}/launchers/launcher.lure_workbench.sh", ZBKTU_MOORINGS),
-            format!("{}/lure_workbench.sh", ZBKTU_MOORINGS),
-            ZBKTU_TABTARGET.to_string(),
-        ];
-        for door in doors {
-            zbktu_chmod(&self.root.join(door));
-        }
-
         self.bktu_commit("lay down the substrate seat");
 
         self.root.join(ZBKTU_TABTARGET)
@@ -916,8 +1224,7 @@ BKRP_TONGUE=\"bknre_pytest\"
     ///
     /// OBSERVED FROM OUTSIDE THE SHELL. The child's exit code and both its streams
     /// are read here, in a process the dispatch cannot reach, which is the posture
-    /// a harness asserting on a bash process is required to hold
-    /// (BKSOB-Obedience.adoc "Observation Posture").
+    /// a harness asserting on a bash process is required to hold.
     ///
     /// THE SEAT ESTABLISHES ITS OWN REGIMES. This process is itself running under
     /// a dispatch, so it carries that dispatch's `BURC_` and `BURD_` values and
@@ -967,23 +1274,8 @@ BKRP_TONGUE=\"bknre_pytest\"
     #[allow(dead_code)]
     pub const BKTU_KIBBLE_VERSION: &'static str = "0.1.0";
 
-    /// What this lure's composed kibble is called.
-    ///
-    /// PER-HURDLE, AND THAT IS WHAT KEEPS THE SHARED STORE HONEST. A converge
-    /// hurdle lands a binary in the STATION'S OWN tackroom — it can do nothing
-    /// else, since a composed store holds no toolchain and the fence refuses one
-    /// that is not the store `CARGO_HOME` resolves into — so the residence a
-    /// hurdle writes stands beside every other hurdle's. Keyed on the lure, two
-    /// hurdles that both compose a kibble own different residences; keyed on a
-    /// constant, one hurdle's converge would land at exactly the path another
-    /// asserts is empty.
-    #[allow(dead_code)]
-    pub fn bktu_kibble_name(&self) -> String {
-        format!("kibble-{}", self.name)
-    }
-
-    /// Lay a kibble down over an archive this lure SERVES ITSELF, and answer the
-    /// tackroom a drive over it must be told.
+    /// Lay a kibble down over an archive this lure SERVES ITSELF, named as the
+    /// caller names it, and commit it.
     ///
     /// THE ARCHIVE IS LOCAL, AND THAT IS WHAT MAKES THE FETCH ARM HURDLE-ABLE.
     /// A kibble declares the base its archive stands under and the door joins
@@ -1002,13 +1294,15 @@ BKRP_TONGUE=\"bknre_pytest\"
     /// the refusal declares a wrong one — the archive being byte-identical in
     /// both cases, so what the two drives differ in is the declaration alone.
     /// The true digest is answered by `bktu_kibble_seal` below.
-    #[allow(dead_code)]
-    pub fn bktu_kibble_seat(&self, seal: &str) -> PathBuf {
+    ///
+    /// REACHED THROUGH A HAYNET AND NO OTHER WAY (`bktu_Haynet::bktu_kibble_seat`),
+    /// so a kibble this lure invents converges beneath a root its hurdle owns and
+    /// never in the station's store.
+    fn zbktu_kibble_lay(&self, named: &str, seal: &str) {
         let served = self.zbktu_served();
-        let named = self.bktu_kibble_name();
 
         self.bktu_write(
-            &format!("{}/bkrk.env", named),
+            &format!("{}/{}/{}/bkrk.env", ZBKTU_MOORINGS, ZBKTU_WEANED, named),
             &format!(
                 "BKRK_KIBBLE=\"{}\"\n\
                  BKRK_KIND=\"bknre_source\"\n\
@@ -1031,27 +1325,6 @@ BKRP_TONGUE=\"bknre_pytest\"
         );
 
         self.bktu_commit("lay a kibble down");
-
-        // THE STATION'S OWN TACKROOM, NEVER A COMPOSED ONE. A converge builds
-        // what it fetched, and every build passes the leash, which refuses a
-        // store the two cargo homes do not resolve into — so a hurdle handing
-        // the door some other tackroom would be proving the FENCE and never
-        // reaching a seal. What the hurdle owns instead is its own residence
-        // under that store, named for the lure, which it clears to pose a cold
-        // one. Nothing else in the store is touched.
-        let tackroom = PathBuf::from(std::env::var(ZBKTU_TACKROOM_VAR).unwrap_or_else(|_| {
-            panic!(
-                "{} is unset. A kibble stands in the station's shared tackroom and a hurdle over \
-                 one reaches the same store the door will; drive the suite through its own door",
-                ZBKTU_TACKROOM_VAR
-            )
-        }));
-
-        let _ = std::fs::remove_dir_all(
-            tackroom.join(ZBKTU_QUARTER).join(&named),
-        );
-
-        tackroom
     }
 
     /// Lay THE ESTATE'S OWN nextest kibble down inside this lure, copied rather
@@ -1065,16 +1338,16 @@ BKRP_TONGUE=\"bknre_pytest\"
     /// resolves the same declaration a drive over the estate does, and the
     /// residence it composes is the one heel already wrote.
     ///
-    /// THE DRIVE MUST THEREFORE BE TOLD THE SESSION'S OWN TACKROOM, which is
-    /// where that residence stands. A hurdle stating a composed one instead
-    /// would find it cold and would be measuring a converge rather than a
-    /// launch.
+    /// THE DRIVE MUST THEREFORE REACH THE STATION'S OWN STORE, which is where
+    /// that residence stands — a drive over a station seat, the posed root
+    /// stripped. A hurdle reaching some other root instead would find it cold
+    /// and would be measuring a converge rather than a launch.
     #[allow(dead_code)]
-    pub fn bktu_nextest_seat(&self) {
+    fn zbktu_nextest_seat(&self) {
         let declared = self.zbktu_nextest_declaration();
 
         self.bktu_write(
-            &format!("{}/bkrk.env", ZBKTU_NEXTEST_KIBBLE),
+            &format!("{}/{}/{}/bkrk.env", ZBKTU_MOORINGS, ZBKTU_WEANED, ZBKTU_NEXTEST_KIBBLE),
             &declared,
         );
         self.bktu_commit("lay the estate's own nextest kibble down");
@@ -1096,7 +1369,7 @@ BKRP_TONGUE=\"bknre_pytest\"
     /// stands ahead of the fetch, so a drive over this seat refuses before
     /// anything is downloaded.
     #[allow(dead_code)]
-    pub fn bktu_nextest_seat_unplaced(&self, version: &str) {
+    fn zbktu_nextest_seat_unplaced(&self, version: &str) {
         let declared = self.zbktu_nextest_declaration();
         let standing = zbktu_declared(&declared, "BKRK_VERSION");
 
@@ -1107,7 +1380,7 @@ BKRP_TONGUE=\"bknre_pytest\"
         );
 
         self.bktu_write(
-            &format!("{}/bkrk.env", ZBKTU_NEXTEST_KIBBLE),
+            &format!("{}/{}/{}/bkrk.env", ZBKTU_MOORINGS, ZBKTU_WEANED, ZBKTU_NEXTEST_KIBBLE),
             &declared.replace(
                 &format!("BKRK_VERSION=\"{}\"", standing),
                 &format!("BKRK_VERSION=\"{}\"", version),
@@ -1137,9 +1410,9 @@ BKRP_TONGUE=\"bknre_pytest\"
     /// proves: they prove what the READER does with a declaration and touch no
     /// station, so a real version would be a second home bought for nothing.
     #[allow(dead_code)]
-    pub fn bktu_uv_seat(&self) {
+    fn zbktu_uv_seat(&self) {
         self.bktu_write(
-            &format!("{}/bkrk.env", ZBKTU_UV_KIBBLE),
+            &format!("{}/{}/{}/bkrk.env", ZBKTU_MOORINGS, ZBKTU_WEANED, ZBKTU_UV_KIBBLE),
             &self.zbktu_declaration(ZBKTU_UV_KIBBLE),
         );
     }
@@ -1159,7 +1432,7 @@ BKRP_TONGUE=\"bknre_pytest\"
     /// stands ahead of the fetch, so a drive over this seat refuses before
     /// anything is downloaded.
     #[allow(dead_code)]
-    pub fn bktu_uv_seat_unplaced(&self, version: &str) {
+    fn zbktu_uv_seat_unplaced(&self, version: &str) {
         let declared = self.zbktu_declaration(ZBKTU_UV_KIBBLE);
         let standing = zbktu_declared(&declared, "BKRK_VERSION");
 
@@ -1170,7 +1443,7 @@ BKRP_TONGUE=\"bknre_pytest\"
         );
 
         self.bktu_write(
-            &format!("{}/bkrk.env", ZBKTU_UV_KIBBLE),
+            &format!("{}/{}/{}/bkrk.env", ZBKTU_MOORINGS, ZBKTU_WEANED, ZBKTU_UV_KIBBLE),
             &declared.replace(
                 &format!("BKRK_VERSION=\"{}\"", standing),
                 &format!("BKRK_VERSION=\"{}\"", version),
@@ -1187,6 +1460,8 @@ BKRP_TONGUE=\"bknre_pytest\"
     /// nobody was editing.
     fn zbktu_declaration(&self, kibble: &str) -> String {
         let standing = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join(ZBKTU_BROOD)
             .join(kibble)
             .join("bkrk.env");
 
@@ -1340,48 +1615,26 @@ BKRP_TONGUE=\"bknre_pytest\"
             ))
     }
 
-    /// Where a kibble converged over this lure lands its binary, composed the
-    /// way the door composes it so a hurdle asserts against the same path.
-    #[allow(dead_code)]
-    pub fn bktu_kibble_residence(&self, tackroom: &Path) -> PathBuf {
-        tackroom
-            .join(ZBKTU_QUARTER)
-            .join(self.bktu_kibble_name())
-            .join(Self::BKTU_KIBBLE_VERSION)
-            .join(Self::BKTU_KIBBLE_PROGRAM)
-    }
-
-    /// Write a file into this lure's MOORINGS, creating the directories above it,
-    /// and hand back where it stands.
-    ///
-    /// THE MOORINGS IS NOT THE REPOSITORY, which is the whole reason this is a
-    /// second method rather than a path a caller joins for itself: a whereabouts
-    /// written into the tree would be untracked ground inside a repository every
-    /// door law reading walks, and the hurdle that planted it would refuse its own
-    /// drive. It is also the shape being proven — a dispatched seat's config
-    /// directory stands apart from the tree its trampoline enters.
-    #[allow(dead_code)]
-    pub fn bktu_moor(&self, relative: &str, content: &str) -> PathBuf {
-        let path = self.moorings.join(relative);
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent).unwrap_or_else(|err| {
-                panic!("could not compose {}: {}", parent.display(), err)
-            });
-        }
-        std::fs::write(&path, content)
-            .unwrap_or_else(|err| panic!("could not write {}: {}", path.display(), err));
-        path
-    }
-
     /// Write a file into the lure, creating the directories above it.
+    ///
+    /// AN ORDINARY FILE ONLY. This process holds the file open while it writes,
+    /// so a program written here could meet the race Pastern's program writers
+    /// exist to close; a path already standing armed refuses rather than being
+    /// rewritten in place, its mode surviving the write.
     pub fn bktu_write(&self, relative: &str, content: &str) {
         let path = self.root.join(relative);
+        zbktu_unarmed(&path);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
                 .unwrap_or_else(|err| panic!("could not make {}: {}", parent.display(), err));
         }
         std::fs::write(&path, content)
             .unwrap_or_else(|err| panic!("could not write {}: {}", path.display(), err));
+    }
+
+    /// Write a program into the lure and arm it, the write taken by a child.
+    fn zbktu_program(&self, relative: &str, body: &str) {
+        zbktu_armed(&self.root.join(relative), body);
     }
 
     /// Stage everything standing and commit it.
@@ -1408,6 +1661,181 @@ BKRP_TONGUE=\"bknre_pytest\"
                 String::from_utf8_lossy(&out.stderr).trim()
             );
         }
+    }
+
+    /// This lure's posed seat: a kibble root the hurdle owns, beneath the
+    /// lure's own temp directory.
+    #[allow(dead_code)]
+    pub fn bktu_haynet(&self) -> bktu_Haynet {
+        bktu_Haynet {
+            root: self.temp.join(ZBKTU_HAYNET),
+        }
+    }
+
+    /// This lure's station seat, which carries no root.
+    #[allow(dead_code)]
+    pub fn bktu_stationed(&self) -> bktu_Stationed {
+        bktu_Stationed { _unposed: () }
+    }
+}
+
+/// Where a lure's haynet stands beneath its temp directory.
+const ZBKTU_HAYNET: &str = "haynet";
+
+/// A POSED SEAT: a kibble root one hurdle owns, beneath its own dispatch temp
+/// directory, and the only seat a fake kibble is composed on.
+///
+/// THE ROOT IS CARRIED AND NEVER SHARED. Every converge over this seat is handed
+/// it — in process as the argument, on a bare kennel spawn as the kennel's own
+/// variable stated on the child — so two hurdles holding one kibble name own two
+/// residences, and no hurdle's converge can land where another's asserts.
+///
+/// THE ROOT IS NEVER PRE-CREATED. The converge's lock makes it, so a refusal
+/// hurdle finding the root standing after its drive has proven the root was
+/// read — which is the one thing a seat a door ignored cannot fake.
+///
+/// NO CONVERSION LEADS FROM IT TO A STATION SEAT, nor from one to it: a hurdle
+/// holds the seat its store is, and the type is that decision.
+pub struct bktu_Haynet {
+    root: PathBuf,
+}
+
+impl bktu_Haynet {
+    /// The root this seat carries.
+    #[allow(dead_code)]
+    pub fn bktu_root(&self) -> &Path {
+        &self.root
+    }
+
+    /// Lay a kibble down in the lure over the archive the lure serves, named as
+    /// the caller names it and declaring the seal the caller hands it.
+    ///
+    /// ON THIS SEAT ALONE, because a fake kibble converged anywhere but a root
+    /// its hurdle owns would land in the station's shared store. The name is the
+    /// caller's and keys nothing: the residence is keyed on this seat.
+    #[allow(dead_code)]
+    pub fn bktu_kibble_seat(&self, lure: &bktu_Lure, kibble: &str, seal: &str) {
+        lure.zbktu_kibble_lay(kibble, seal);
+    }
+
+    /// Where a kibble of the lure's served program, converged over this seat,
+    /// lands its binary — composed the way the door composes it, so a hurdle
+    /// asserts against the same path.
+    #[allow(dead_code)]
+    pub fn bktu_kibble_residence(&self, kibble: &str) -> PathBuf {
+        self.root
+            .join(kibble)
+            .join(bktu_Lure::BKTU_KIBBLE_VERSION)
+            .join(bktu_Lure::BKTU_KIBBLE_PROGRAM)
+    }
+
+    /// Run the kennel as a child over a lure with this seat's root stated, and
+    /// hand back what it said.
+    #[allow(dead_code)]
+    pub fn bktu_drive_door(&self, lure: &bktu_Lure, kennel: &Path, door: &[&str]) -> Output {
+        lure.zbktu_spawn(kennel, door, &[(BKTU_FEEDROOM_VAR, self.root.as_os_str())])
+    }
+}
+
+/// A STATION SEAT: it carries no root, and a hurdle holding one reaches the
+/// station's real residences through the kennel's own reader and no other way.
+///
+/// THE ESTATE'S OWN KIBBLES ARE LAID THROUGH IT, because what a lure copies of
+/// them is the declaration the station's residences answer to: a hurdle reaching
+/// the residence heel already wrote is reading the station, and saying so in the
+/// type is what keeps a reader of the hurdle from mistaking it for one that owns
+/// its store. A drive over the lure itself is a drive over this seat, the posed
+/// root being stripped from every such spawn.
+///
+/// IT NEVER WRITES THE STATION'S STORE, and nothing on it composes a kibble the
+/// lure invents: that is a haynet's alone.
+pub struct bktu_Stationed {
+    _unposed: (),
+}
+
+impl bktu_Stationed {
+    /// Lay the estate's own nextest kibble down in a lure.
+    #[allow(dead_code)]
+    pub fn bktu_nextest_seat(&self, lure: &bktu_Lure) {
+        lure.zbktu_nextest_seat();
+    }
+
+    /// Lay the estate's own nextest kibble down in a lure WITH ITS VERSION
+    /// MOVED, so its residence is one nothing has ever placed.
+    #[allow(dead_code)]
+    pub fn bktu_nextest_seat_unplaced(&self, lure: &bktu_Lure, version: &str) {
+        lure.zbktu_nextest_seat_unplaced(version);
+    }
+
+    /// Lay the estate's own uv kibble down in a lure.
+    #[allow(dead_code)]
+    pub fn bktu_uv_seat(&self, lure: &bktu_Lure) {
+        lure.zbktu_uv_seat();
+    }
+
+    /// Lay the estate's own uv kibble down in a lure WITH ITS VERSION MOVED, so
+    /// its residence is one nothing has ever placed.
+    #[allow(dead_code)]
+    pub fn bktu_uv_seat_unplaced(&self, lure: &bktu_Lure, version: &str) {
+        lure.zbktu_uv_seat_unplaced(version);
+    }
+}
+
+/// The per-seat directories a lure is handed: the output pair and the loosebox,
+/// beneath one lure-local seat under the dispatch's temp root.
+///
+/// ONE COMPOSITION FOR BOTH LURE SHAPES, a composed repository and a linked
+/// worktree of one, so a billet is handed exactly the directories a lure is and
+/// the two cannot come to differ in what a drive over them inherits.
+fn zbktu_seat(declared: &str, name: &str) -> (PathBuf, PathBuf, PathBuf) {
+    let seat = Path::new(declared).join(format!("bktu-seat-{}", name));
+    let output = seat.join("out");
+    let temp = seat.join("temp");
+    // SPELLED, NOT CITED, and the position is why: this file is compiled a
+    // second time as a module of the integration-test crate by `#[path]`,
+    // where the kennel's breviary is another crate's and unreachable by
+    // `crate::`, and the lure imports nothing of the kennel by design. A
+    // literal standing outside the declaring crate is the printed-string
+    // rule's third position, owed nothing until the twins are published.
+    let loosebox = seat.join("loosebox");
+
+    for dir in [&output, &temp, &loosebox] {
+        let _ = std::fs::remove_dir_all(dir);
+        std::fs::create_dir_all(dir).unwrap_or_else(|err| {
+            panic!("could not compose a lure's seat at {}: {}", dir.display(), err)
+        });
+    }
+
+    (output, temp, loosebox)
+}
+
+/// The dispatch's temp root, refusing where it is unset.
+fn zbktu_declared_temp() -> String {
+    std::env::var(BKTU_TEMP_ROOT_VAR).unwrap_or_else(|_| {
+        panic!(
+            "{} is unset. The kennel's hurdles stand under the dispatch's temp root and \
+             reach for no ambient temp directory; drive the suite through its own door",
+            BKTU_TEMP_ROOT_VAR
+        )
+    })
+}
+
+/// Run git in a directory that is not a lure's own root, dying on a refusal.
+fn zbktu_git_in(at: &Path, args: &[&str]) {
+    let out = Command::new("git")
+    .arg("-C")
+    .arg(at)
+    .args(args)
+    .output()
+    .unwrap_or_else(|err| panic!("could not run git {:?}: {}", args, err));
+
+    if !out.status.success() {
+    panic!(
+        "git {:?} refused at {}: {}",
+        args,
+        at.display(),
+        String::from_utf8_lossy(&out.stderr).trim()
+    );
     }
 }
 
@@ -1462,28 +1890,6 @@ fn zbktu_substrate() -> PathBuf {
     substrate
 }
 
-/// Arm a composed door with the executable bit.
-///
-/// The trampoline, the launcher stub, the coordinator and the tabtarget are all
-/// EXEC'd rather than sourced, so a seat whose doors are not armed refuses deep
-/// inside the dispatch with a message about the wrong thing.
-#[cfg(unix)]
-fn zbktu_chmod(path: &Path) {
-    use std::os::unix::fs::PermissionsExt;
-
-    let mut mode = std::fs::metadata(path)
-        .unwrap_or_else(|err| panic!("could not read {}: {}", path.display(), err))
-        .permissions();
-    mode.set_mode(0o755);
-    std::fs::set_permissions(path, mode)
-        .unwrap_or_else(|err| panic!("could not arm {}: {}", path.display(), err));
-}
-
-/// Where the platform carries no executable bit, a door is reached by its shebang
-/// and nothing is owed here.
-#[cfg(not(unix))]
-fn zbktu_chmod(_path: &Path) {}
-
 /// One field's value out of a regime file's text.
 ///
 /// A HURDLE'S OWN NARROW READING, deliberately not the reader crate's. What this
@@ -1508,6 +1914,7 @@ fn zbktu_declared(text: &str, field: &str) -> String {
 /// tracked ground the door law reads, and the seats composed beside the lure —
 /// its served registry, its tackroom — must never be.
 fn zbktu_put(path: &Path, body: &str) {
+    zbktu_unarmed(path);
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)
             .unwrap_or_else(|err| panic!("could not make {}: {}", parent.display(), err));
@@ -1516,11 +1923,28 @@ fn zbktu_put(path: &Path, body: &str) {
         .unwrap_or_else(|err| panic!("could not compose {}: {}", path.display(), err));
 }
 
-/// Write a composed program and arm it.
-fn zbktu_door(path: &Path, body: &str) {
-    std::fs::write(path, body)
-        .unwrap_or_else(|err| panic!("could not compose {}: {}", path.display(), err));
-    zbktu_chmod(path);
+/// Write a hurdle's program at `path` and arm it, refusing the hurdle if the
+/// writer fails.
+fn zbktu_armed(path: &Path, body: &str) {
+    bkprs_program_write(path, body).unwrap_or_else(|err| panic!("{}", err));
+}
+
+/// Refuse an in-process write over a file already standing armed.
+///
+/// The muzzle bars the calls that arm a file, but rewriting one that is already
+/// armed keeps its mode and calls nothing barred; this closes that road at the
+/// lure's own writers.
+fn zbktu_unarmed(path: &Path) {
+    use std::os::unix::fs::PermissionsExt;
+
+    if let Ok(standing) = std::fs::metadata(path) {
+        assert!(
+            standing.permissions().mode() & 0o111 == 0,
+            "{} stands armed, so it is a program and not an ordinary file: rewrite it with \
+             bkprs_program_write, which writes in a child",
+            path.display()
+        );
+    }
 }
 
 /// Where one program stands on THIS station's own path.
@@ -1540,12 +1964,6 @@ fn zbktu_resolved(program: &str) -> Option<PathBuf> {
 impl Drop for bktu_Lure {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.root);
-
-        // THE MOORINGS STANDS APART FROM THE SEAT and is taken by name. It is
-        // composed beside the pair rather than beneath it, so the seat's own
-        // removal below does not reach it, and a lure that left one behind would
-        // strew the dispatch's temp root with config directories nothing reads.
-        let _ = std::fs::remove_dir_all(&self.moorings);
 
         // THE SEAT GOES WHOLE, which takes the output directory and the temp
         // directory with it and whatever a door left standing at the root
@@ -1577,6 +1995,9 @@ pub struct bktu_Bent {
     pub uv: String,
     /// Whether the lock file is withheld.
     pub lockless: bool,
+    /// What the collar's baked list carries — the direct dependencies the
+    /// bent manifest declares, as the lock spells them, whitespace-separated.
+    pub baked: String,
 }
 
 impl Default for bktu_Bent {
@@ -1586,8 +2007,10 @@ impl Default for bktu_Bent {
             requires: ">=3.12".to_string(),
             uv: String::new(),
             lockless: false,
+            baked: String::new(),
         }
     }
 }
+
 
 // eof

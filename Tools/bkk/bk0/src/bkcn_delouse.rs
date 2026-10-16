@@ -38,10 +38,9 @@
 //! written first would claim a day whose work never finished, and the next
 //! door would believe it.
 //!
-//! NOTHING IT WRITES STANDS IN THE TRACKED TREE (BKSNC-Kennelcraft.adoc
-//! "Currency"). This is a door's own working memory rather than a measurement
-//! of a tree, so it stands in the seat's own scratch and is read by this door
-//! alone.
+//! NOTHING IT WRITES STANDS IN THE TRACKED TREE. This is a door's own working
+//! memory rather than a measurement of a tree, so it stands in the seat's own
+//! scratch and is read by this door alone.
 
 use std::path::Path;
 

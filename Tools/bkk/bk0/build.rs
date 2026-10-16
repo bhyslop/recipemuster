@@ -85,12 +85,12 @@ mod bkcf_guard;
 // Moving them inward is therefore the repair, not a dodge around the reading.
 fn main() {
     /// The kennel's own pin file, beside this script.
-    const ZBKK_PIN_FILE: &str = "rust-toolchain.toml";
+    const ZBKB_PIN_FILE: &str = "rust-toolchain.toml";
 
     /// The election, beside this script: the one authoritative statement of what
     /// counts as source for this binary. Named here and never restated - the
     /// crate's own reader parses the same file.
-    const ZBKK_ELECTION_FILE: &str = "bkce_roots.txt";
+    const ZBKB_ELECTION_FILE: &str = "bkce_roots.txt";
 
     /// Where the repository this build stands in begins.
     ///
@@ -98,7 +98,7 @@ fn main() {
     /// directory as its working directory, while the election's pathspecs are
     /// repository-relative, so a script that walked upward by a fixed count would
     /// be pinned to one layout of the tree it happens to sit in.
-    fn zbkk_repository() -> PathBuf {
+    fn zbkb_repository() -> PathBuf {
         let out = Command::new("git")
             .arg("rev-parse")
             .arg("--show-toplevel")
@@ -132,7 +132,7 @@ fn main() {
     /// A path git names but that does not yet exist is watched anyway: cargo
     /// treats an absent watched path as a reason to re-run, which is the right
     /// answer for a ref file that appears on the next commit.
-    fn zbkk_watch_git_path(relative: &str) {
+    fn zbkb_watch_git_path(relative: &str) {
         let Ok(out) = Command::new("git").arg("rev-parse").arg("--git-path").arg(relative).output()
         else {
             return;
@@ -154,7 +154,7 @@ fn main() {
     /// reads the answer rather than re-deriving it: a pin stated at the
     /// invocation and a compiler that actually ran are two different facts, and
     /// asking anything but cargo's own choice would collapse them.
-    fn zbkk_compiler_version() -> String {
+    fn zbkb_compiler_version() -> String {
         let rustc = std::env::var("RUSTC").unwrap_or_else(|_| "rustc".to_string());
 
         let out = Command::new(&rustc)
@@ -182,7 +182,7 @@ fn main() {
     /// Parsed here rather than taken from a dependency: the file is two lines of
     /// TOML, and a manifest-parsing crate in the kennel's closure would be a
     /// permitted-dependency question asked for nothing.
-    fn zbkk_pin_channel(pin_file: &str) -> String {
+    fn zbkb_pin_channel(pin_file: &str) -> String {
         let path = Path::new(pin_file);
 
         let text = std::fs::read_to_string(path)
@@ -208,8 +208,8 @@ fn main() {
         )
     }
 
-    println!("cargo:rerun-if-changed={}", ZBKK_PIN_FILE);
-    println!("cargo:rerun-if-changed={}", ZBKK_ELECTION_FILE);
+    println!("cargo:rerun-if-changed={}", ZBKB_PIN_FILE);
+    println!("cargo:rerun-if-changed={}", ZBKB_ELECTION_FILE);
 
     // WHAT MOVES THE POSITION IS A COMMIT, so what cargo must watch is where git
     // records one. Watching the elected roots themselves would be the wrong
@@ -217,10 +217,10 @@ fn main() {
     // binary at a position the tree no longer stands at, and a commit that
     // changed nothing on disk - a rebase, a branch move - would not restamp it at
     // all.
-    zbkk_watch_git_path("HEAD");
-    zbkk_watch_git_path("logs/HEAD");
+    zbkb_watch_git_path("HEAD");
+    zbkb_watch_git_path("logs/HEAD");
 
-    let repository = zbkk_repository();
+    let repository = zbkb_repository();
 
     // THE DOOR LAW, HELD BEFORE THE POSITION IS WALKED. A dirty tree's position
     // is a true answer to the wrong question: it names the commit this build
@@ -236,7 +236,7 @@ fn main() {
         Err(said) => panic!("this build could not survey the repository it stands in: {}", said),
     }
 
-    let election = bkcf_guard::bkcf_election(Path::new(ZBKK_ELECTION_FILE))
+    let election = bkcf_guard::bkcf_election(Path::new(ZBKB_ELECTION_FILE))
         .unwrap_or_else(|said| panic!("this build could not read its own election: {}", said));
 
     let seat = bkcf_guard::bkcf_seat_position(&repository, &election).unwrap_or_else(|said| {
@@ -244,8 +244,8 @@ fn main() {
     });
 
     println!("cargo:rustc-env=BKCS_SEAT={}", seat.trim());
-    println!("cargo:rustc-env=BKCS_COMPILER={}", zbkk_compiler_version());
-    println!("cargo:rustc-env=BKCS_PIN={}", zbkk_pin_channel(ZBKK_PIN_FILE));
+    println!("cargo:rustc-env=BKCS_COMPILER={}", zbkb_compiler_version());
+    println!("cargo:rustc-env=BKCS_PIN={}", zbkb_pin_channel(ZBKB_PIN_FILE));
 }
 
 // eof

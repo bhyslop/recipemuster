@@ -22,11 +22,11 @@
 # No kindle dependency — available immediately upon sourcing.
 
 # Guard against multiple inclusion
-test -z "${ZBUBC_SOURCED:-}" || return 0
+test -z "${ZBUBC_SOURCED:-}" || buc_die_now "Module bubc multiply sourced - check sourcing hierarchy"
 ZBUBC_SOURCED=1
 
 # Source-time literal constants.
-readonly BUBC_launchers_subdir="rbml_launchers"
+readonly BUBC_launchers_subdir="buml_launchers"
 readonly BUBC_rbmn_nodes_subdir="rbmn_nodes"
 readonly BUBC_rbmu_users_subdir="rbmu_users"
 
@@ -169,7 +169,20 @@ readonly BUBC_band_variorum=118  # census-delta rejection (this work introduces 
 # validated because the validator is absent. It shares no spawn path with any
 # gate above, standing ahead of all of them by construction.
 readonly BUBC_band_desuetude=119 # stale-bootstrap rejection (moorings launcher stub predating the bootstrap contract; regenerate through buut_launcher)
-# Free codes: 120-122, allocated upward from 120.
+# The metage gate: a composed arm of the kraal's CLAUDE.md stands over the
+# composed-size ceiling. One gate, fired after every figure is printed. Distinct
+# from every gate above: it is the only door that measures a composition, and
+# it chains with no other gate along any spawn path.
+readonly BUBC_band_metage=120    # composed-size rejection (a composed arm stands over the ceiling)
+# The linked-worktree gate: bug_require_main_checkout_creed refuses an operation
+# entered from a linked worktree, where a shared resource the operation
+# allocates would collide with a sibling worktree's. One gate, kit-agnostic; the
+# caller's creed rides the message, never the band. Distinct from the clean-tree
+# (108) and branch-synchrony (117) gates rather than an alternative of them: a
+# release crosses all three along one spawn path, and each condition stands
+# independent of the others.
+readonly BUBC_band_worktree=121  # linked-worktree gate rejection (operation entered from a linked worktree rather than the main checkout)
+# Free code: 122, allocated upward from 122.
 # Self-test probe pins the band top, proving full-width propagation:
 readonly BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fixture)
 
@@ -183,9 +196,9 @@ readonly BUBC_band_selftest=123  # BUK self-test deliberate rejection (buw-xb fi
 readonly BUBC_tweak_regime_poison="buost_regime_poison"
 
 # Windows registry preconditions for unattended power-on posture.
-# Operator-handbook step (BUSJHW Windows: Host Availability) sets these;
-# bujb_invigilate_windows reads them. Single source of truth so the path
-# the handbook tells the operator to set is the path invigilate queries.
+# An operator-handbook step sets these; the jurisdiction's invigilate step
+# reads them. Single source of truth so the path the handbook tells the
+# operator to set is the path invigilate queries.
 # PowerShell-canonical form (HKLM:\ prefix, mixed case — registry is
 # case-insensitive at the OS level so display case is purely cosmetic).
 readonly BUBC_windows_passwordless_path='HKLM:\Software\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device'

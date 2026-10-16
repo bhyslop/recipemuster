@@ -41,12 +41,12 @@ use super::bkcy_sweep::{
     bkcy_classed, bkcy_remove, bkcy_shelters, bkcy_sight, bkcy_sight_python, bkcy_Sighting,
 };
 use super::bktu_lure::{bktu_Bent, bktu_Lure};
-use super::bkg_breviary::BKG_BURC_LOOSEBOX_ROOT_DIR_BASE;
+use super::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
 
 /// Sight one of a lure's collars.
 fn zbkty_sight(lure: &bktu_Lure, collar: &str) -> bkcy_Sighting {
     let resolved =
-        bkcr_resolve(lure.bktu_root(), collar).expect("the lure's collar should resolve");
+        bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), collar).expect("the lure's collar should resolve");
 
     assert!(
         resolved.findings.is_empty(),
@@ -54,7 +54,7 @@ fn zbkty_sight(lure: &bktu_Lure, collar: &str) -> bkcy_Sighting {
         resolved.findings
     );
 
-    bkcy_sight(lure.bktu_root(), None, &resolved.collar).expect("cargo should be reachable")
+    bkcy_sight(lure.bktu_root(), &lure.bktu_weaned(), None, &resolved.collar).expect("cargo should be reachable")
 }
 
 /// THE DIRECTORY IS CARGO'S OWN ANSWER, and the sighting lands within the lure.
@@ -189,7 +189,7 @@ fn bkty_a_posed_kennel_directory_survives_the_sweep() {
     );
 
     // THE DELOUSE LOOP'S OWN JUDGMENT: spare a sheltering directory and remove
-    // its neighbour, exactly as `zbkk_deloused` does over every sighting.
+    // its neighbour, exactly as `zbkm_deloused` does over every sighting.
     if !bkcy_shelters(&kennel_directory, &executable) {
         bkcy_remove("suite-lure", &kennel).expect("a non-sheltering directory is removable");
     }
@@ -220,7 +220,7 @@ fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
     let lure = bktu_Lure::bktu_compose("sweep-loosebox");
     let root = lure.bktu_root();
 
-    let loosebox = root.join(BKG_BURC_LOOSEBOX_ROOT_DIR_BASE);
+    let loosebox = root.join(BKG_BUS_LOOSEBOX_BASE);
     let tackroom = root.join("tackroom");
 
     // Both stand OUTSIDE the repository the collar would be judged against, so
@@ -238,14 +238,14 @@ fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
         bkcy_classed(&repository, Some(&loosebox), &in_loosebox, in_loosebox.clone()),
         bkcy_Sighting::Loosebox(in_loosebox.clone()),
         "a path under the posed {} is one the sweep may delete",
-        BKG_BURC_LOOSEBOX_ROOT_DIR_BASE, //
+        BKG_BUS_LOOSEBOX_BASE, //
     );
 
     assert_eq!(
         bkcy_classed(&repository, Some(&loosebox), &in_tackroom, in_tackroom.clone()),
         bkcy_Sighting::Beyond(in_tackroom.clone()),
         "the tackroom stands beneath no {} and stays refused",
-        BKG_BURC_LOOSEBOX_ROOT_DIR_BASE, //
+        BKG_BUS_LOOSEBOX_BASE, //
     );
 
     // AND THE REFUSAL BITES. A class that reported `Beyond` and removed anyway
@@ -263,7 +263,7 @@ fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
         bkcy_classed(&repository, Some(&loosebox), &loosebox, loosebox.clone()),
         bkcy_Sighting::Beyond(loosebox.clone()),
         "the {} root itself is never the directory to remove",
-        BKG_BURC_LOOSEBOX_ROOT_DIR_BASE, //
+        BKG_BUS_LOOSEBOX_BASE, //
     );
 }
 
@@ -290,7 +290,7 @@ fn zbkty_python(named: &str) -> (bktu_Lure, bkcx_Seat, PathBuf) {
         &bktu_Bent::default(),
     );
 
-    let collar = bkcx_resolve(lure.bktu_root(), ZBKTY_PYTHON_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTY_PYTHON_COLLAR)
         .expect("the seated python collar resolves")
         .collar;
 
@@ -355,7 +355,7 @@ fn bkty_a_python_environment_under_the_loosebox_is_sighted_and_removed() {
 fn bkty_a_python_environment_in_the_tackroom_is_beyond_and_untouched() {
     let (lure, _seat, tackroom) = zbkty_python("sweep-python-tackroom");
 
-    let collar = bkcx_resolve(lure.bktu_root(), ZBKTY_PYTHON_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTY_PYTHON_COLLAR)
         .expect("the seated python collar resolves")
         .collar;
 

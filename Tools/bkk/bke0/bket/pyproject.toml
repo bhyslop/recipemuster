@@ -1,0 +1,44 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# THE TORCH EXEMPLAR — a suite-only python project over torch from PyPI alone,
+# which the kennel carries from its first lock to a green suite.
+#
+# Read it beside its collar, bketn_suite, in the kit's brood. NO INDEX AND NO
+# PLATFORM WORD STAND HERE: PyPI's torch is one name whose wheels differ by
+# platform, and the universal lock records each platform's own, so each station
+# installs the build its platform's wheel carries. Which device that build finds
+# is torch's question, reported by the suite and never asserted.
+
+[project]
+name = "bket"
+version = "0.0.1"
+
+# NARROWED TO THE PIN'S MINOR, which matters most here: torch ships a wheel per
+# interpreter minor per platform, and an open range would lock every one.
+requires-python = ">=3.12,<3.13"
+
+# NUMPY BECAUSE TORCH WARNS WITHOUT IT. torch imports NumPy optionally and warns
+# at import when it is absent, and the kennel makes every warning a failure, so
+# the repair is the dependency rather than a filter over the warning.
+dependencies = ["numpy", "torch"]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["bket0"]
+python_files = ["bkett_*.py"]
+python_functions = ["bkett_*"]

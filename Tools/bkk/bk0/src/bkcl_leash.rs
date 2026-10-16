@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The leash: the one chokepoint every cargo invocation the kennel issues passes
-//! through (BKSNC-Kennelcraft.adoc "Two registers").
+//! The leash: the one chokepoint every cargo invocation the kennel issues
+//! passes through.
 //!
 //! Three disciplines, applied here and nowhere else, each closing a finding the
 //! rust-build memo's survey left standing:
@@ -43,10 +43,9 @@
 //! THE FENCE IS STOOD ON, NEVER REBUILT. `Tools/bkk/bk0/bkcb_tackroom.sh` reads the
 //! station's declaration and exports the two homes; the leash INHERITS that
 //! redirect and verifies it held. Neither provisions, because provisioning is a
-//! converge and a routine invocation may not download (BKSNC-Kennelcraft.adoc
-//! "Open Elections", the python ruling carried). A second implementation of the
-//! fence would be a second thing to keep in step, and the one this stands on
-//! carries the station-file refusal a reader needs.
+//! converge and a routine invocation may not download. A second implementation
+//! of the fence would be a second thing to keep in step, and the one this stands
+//! on carries the station-file refusal a reader needs.
 
 use crate::bkcf_guard;
 use std::ffi::OsStr;
@@ -69,9 +68,8 @@ pub const BKCL_PIN_FILE: &str = "rust-toolchain.toml";
 /// re-resolution.
 ///
 /// The spelling is the tool's own, declared as a xenonym spelling line under
-/// that authority's carrier (BKSCL-Collar.adoc "The Toolchain Authorities"),
-/// which is where the ruling lives now; VOr_9ww honours the carrier and stands
-/// the value down.
+/// that authority's carrier, which is where the ruling lives now; VOr_9ww
+/// honours the carrier and stands the value down.
 pub const BKCL_LOCKED_FLAG: &str = "--locked";
 
 /// The flag that names the crate an invocation is about, so cargo discovers none
@@ -89,10 +87,10 @@ pub const BKCL_MANIFEST_FLAG: &str = "--manifest-path";
 /// RESIDENCE AND NEVER FOUND. Cargo resolves a plugin by looking in
 /// `CARGO_HOME/bin` and then along the station's path, and either road answers
 /// with whatever happens to be installed — which is exactly the trust a kibble
-/// exists to remove (BKSBL-Kibble.adoc "Where a Kibble Stands"). So a verb in
-/// this table is not handed to cargo at all: the composition below spawns the
-/// kibble's own binary at an absolute path, and the plugin takes its subcommand
-/// as its first argument the same way cargo hands it one.
+/// exists to remove. So a verb in this table is not handed to cargo at all: the
+/// composition below spawns the kibble's own binary at an absolute path, and the
+/// plugin takes its subcommand as its first argument the same way cargo hands it
+/// one.
 ///
 /// A VERSION CONSTANT ONCE STOOD HERE and is retired into the declaration. The
 /// kennel's claim about a station used to be a number in this file, checked by
@@ -103,8 +101,7 @@ pub const BKCL_MANIFEST_FLAG: &str = "--manifest-path";
 /// than a program's self-report.
 ///
 /// NOTHING HERE DOWNLOADS, which is the posture the channel check below keeps
-/// and for the same reason (BKSNC-Kennelcraft.adoc "Open Elections", the
-/// routine-download ruling). An absent residence refuses and names *heel*.
+/// and for the same reason. An absent residence refuses and names *heel*.
 const ZBKCL_KIBBLED: &[(&str, &str)] = &[(
     crate::bkcm_mush::BKCM_VERB_NEXTEST,
     crate::bkcq_kibble::BKCQ_NEXTEST,
@@ -119,7 +116,7 @@ const ZBKCL_KIBBLED: &[(&str, &str)] = &[(
 /// walked, the variable exported — and a door that did not know it was owed
 /// simply could not build such a crate at all. The engine was that door, and the
 /// course record's roster stood spelled twice because of it.
-pub const BKCL_SEAT_VAR: &str = "BKK_SEAT_POSITION";
+pub const BKCL_SEAT_VAR: &str = "BKCL_SEAT_POSITION";
 
 /// Where the kennel's own election stands, repo-relative — the one home of a
 /// path five bash doors and one rust door each used to compose.
@@ -162,10 +159,10 @@ pub const BKCL_GIT_FLOOR: &str = "1.8.5";
 /// The version floor rustup must clear, read from `rustup --version`.
 ///
 /// SET AT THIS LANDING TO THE VERSION THIS STATION REPORTS, and lowered only
-/// deliberately. Rustup is the toolchain's trust root rather than ground
-/// (BKSNC-Kennelcraft.adoc "What stands outside the kennel"): it fetches
-/// and verifies the compiler the whole discipline stands on, so what verifies
-/// the toolchain is itself a fact the kennel judges rather than takes on faith.
+/// deliberately. Rustup is the toolchain's trust root rather than ground: it
+/// fetches and verifies the compiler the whole discipline stands on, so what
+/// verifies the toolchain is itself a fact the kennel judges rather than takes
+/// on faith.
 pub const BKCL_RUSTUP_FLOOR: &str = "1.29.1";
 
 /// The separator past which arguments stop belonging to cargo and start
@@ -182,12 +179,20 @@ pub struct bkcl_Run {
     pub spelling: String,
     /// The child's exit code, or `None` where a signal took it.
     pub code: Option<i32>,
+    /// What broke an attended stream's read before the child closed it, or
+    /// `None` where every stream was read to its end or none was read at all.
+    ///
+    /// A CUT IS THE KENNEL'S OWN FACT, never the child's. The child may have
+    /// gone on to exit cleanly, but what it said past the cut reached neither
+    /// the counts nor the record, so a run carrying one is a run nobody heard
+    /// whole.
+    pub cut: Option<String>,
 }
 
 impl bkcl_Run {
-    /// Whether the invocation succeeded.
+    /// Whether the invocation succeeded: a clean exit over streams heard whole.
     pub fn bkcl_landed(&self) -> bool {
-        self.code == Some(0)
+        self.code == Some(0) && self.cut.is_none()
     }
 }
 
@@ -329,7 +334,7 @@ pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
 /// text: the kennel holds no platform table, tests no operating system, and
 /// reads no architecture out of the string. What it knows is that rustc said
 /// this, and that the vendor either published an archive under that spelling or
-/// did not (BKSBL-Kibble.adoc "Prebuilt").
+/// did not.
 ///
 /// THROUGH THE PIN LIKE EVERY OTHER TOOLCHAIN QUESTION. The channel is read
 /// from the pin governing the given directory and stated as rustc's own leading
@@ -411,9 +416,8 @@ const ZBKCL_HOST_LABEL: &str = "host: ";
 /// VERIFY IN PATH, CONVERGE ON DEMAND. Told to run under a channel it does not
 /// hold, rustup fetches one — quietly, and on a slow link for long enough that
 /// the build reads as hung. That is a download nobody asked for, which the
-/// standing ruling forbids of a routine invocation (BKSNC-Kennelcraft.adoc
-/// "Open Elections"). So the store is asked first and the refusal carries the one
-/// command that supplies what is missing.
+/// standing ruling forbids of a routine invocation. So the store is asked first
+/// and the refusal carries the one command that supplies what is missing.
 ///
 /// THE STORE ASKED IS THE TACKROOM'S, because the fence stands proven before this
 /// runs and the redirect it verified is what rustup reads. A listing taken
@@ -543,6 +547,7 @@ pub fn bkcl_fenced() -> Result<PathBuf, String> {
 /// and arguments in `rest`, and neither road passes the discipline.
 pub fn bkcl_drive<I, S>(
     repository: &Path,
+    weaned: &Path,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -552,7 +557,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_composed(repository, manifest, verb, rest, stated, true)?;
+    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, true)?;
 
     let status = command
         .status()
@@ -561,6 +566,7 @@ where
     Ok(bkcl_Run {
         spelling,
         code: status.code(),
+        cut: None,
     })
 }
 
@@ -589,6 +595,7 @@ where
 /// at the driven face.
 pub fn bkcl_recall<I, S>(
     repository: &Path,
+    weaned: &Path,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -598,7 +605,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_composed(repository, manifest, verb, rest, stated, true)?;
+    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, true)?;
 
     let out = command
         .output()
@@ -608,6 +615,7 @@ where
         run: bkcl_Run {
             spelling,
             code: out.status.code(),
+            cut: None,
         },
         said: out.stdout,
         grievance: String::from_utf8_lossy(&out.stderr).into_owned(),
@@ -657,6 +665,7 @@ pub enum bkcl_Heard {
 /// returns `Ok` for a cargo that exited nonzero.
 pub fn bkcl_attend<I, S, F>(
     repository: &Path,
+    weaned: &Path,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -669,7 +678,7 @@ where
     S: AsRef<OsStr>,
     F: FnMut(bkcl_Heard),
 {
-    let (mut command, spelling) = zbkcl_composed(repository, manifest, verb, rest, stated, true)?;
+    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, true)?;
 
     command.stdin(Stdio::null());
     command.stdout(Stdio::piped());
@@ -713,9 +722,7 @@ where
         }
     }
 
-    for porter in porters {
-        let _ = porter.join();
-    }
+    let cut = zbkcl_joined(porters);
 
     let status = child
         .wait()
@@ -724,6 +731,7 @@ where
     Ok(bkcl_Run {
         spelling,
         code: status.code(),
+        cut,
     })
 }
 
@@ -748,16 +756,24 @@ enum zbkcl_Stream {
 /// that case explicitly, and a reader here that dropped it would make the
 /// kennel's record differ from a logged dispatch's in exactly one line — the
 /// last, which is the one a reader looks at first.
-fn zbkcl_porter(stream: zbkcl_Stream, post: std::sync::mpsc::Sender<String>) {
-    use std::io::BufRead;
+fn zbkcl_porter(stream: zbkcl_Stream, post: std::sync::mpsc::Sender<String>) -> Option<String> {
+    match stream {
+        zbkcl_Stream::Out(out) => zbkcl_carried(std::io::BufReader::new(out), post),
+        zbkcl_Stream::Err(err) => zbkcl_carried(std::io::BufReader::new(err), post),
+    }
+}
 
-    let reader: Box<dyn BufRead> = match stream {
-        zbkcl_Stream::Out(out) => Box::new(std::io::BufReader::new(out)),
-        zbkcl_Stream::Err(err) => Box::new(std::io::BufReader::new(err)),
-    };
-
+/// The porter's read loop over any reader, answering what cut the stream short
+/// or `None` where it was read to its end.
+///
+/// OVER A READER RATHER THAN A PIPE so the cut can be planted: a pipe that fails
+/// mid-read cannot be composed on demand, and a reader that fails after its
+/// first lines can.
+pub(crate) fn zbkcl_carried<R: std::io::BufRead>(
+    mut reader: R,
+    post: std::sync::mpsc::Sender<String>,
+) -> Option<String> {
     let mut carried = Vec::new();
-    let mut reader = reader;
     loop {
         carried.clear();
         match reader.read_until(b'\n', &mut carried) {
@@ -773,9 +789,31 @@ fn zbkcl_porter(stream: zbkcl_Stream, post: std::sync::mpsc::Sender<String>) {
                     break;
                 }
             }
-            Err(_) => break,
+            // A READ THAT FAILS IS A CUT AND IS ANSWERED AS ONE. Ending here as
+            // if the stream had closed would hand the voice half a run with
+            // nothing to say it was half.
+            Err(err) => return Some(err.to_string()),
         }
     }
+
+    None
+}
+
+/// Join the porters, answering the first cut any of them met.
+///
+/// A PORTER THAT PANICKED CUT ITS STREAM as surely as one whose read failed:
+/// whatever the child said after it went unheard either way.
+fn zbkcl_joined(porters: Vec<std::thread::JoinHandle<Option<String>>>) -> Option<String> {
+    let mut cut = None;
+    for porter in porters {
+        let met = porter
+            .join()
+            .unwrap_or_else(|_| Some("the reader of one stream panicked".to_string()));
+        if cut.is_none() {
+            cut = met;
+        }
+    }
+    cut
 }
 
 /// Compose and run a cargo invocation with THE LOCK FLAG LIFTED, handing the
@@ -804,6 +842,7 @@ fn zbkcl_porter(stream: zbkcl_Stream, post: std::sync::mpsc::Sender<String>) {
 /// discovered. What lifts is one flag, for one act, at one door.
 pub fn bkcl_gangline<I, S>(
     repository: &Path,
+    weaned: &Path,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -813,7 +852,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_composed(repository, manifest, verb, rest, stated, false)?;
+    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, false)?;
 
     let status = command
         .status()
@@ -822,6 +861,7 @@ where
     Ok(bkcl_Run {
         spelling,
         code: status.code(),
+        cut: None,
     })
 }
 
@@ -860,12 +900,11 @@ where
 /// the index declarations inside it, and drops them without refusing anything —
 /// a project pinning a private index resolves from the public one under a green
 /// exit. The kennel's control is the stated environment, which beats both the
-/// project's own table and any `uv.toml` discovered above it
-/// (BKSPY-Python.adoc "The Configuration Bench"). A reader reaching for that
-/// flag here is reaching for the road the bench disqualified, so the reaching is
-/// answered at the site.
+/// project's own table and any `uv.toml` discovered above it. A reader reaching
+/// for that flag here is answered at the site.
 pub fn bkcl_uv<I, S>(
     repository: &Path,
+    weaned: &Path,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -874,7 +913,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_uv_composed(repository, at, rest, stated)?;
+    let (mut command, spelling) = zbkcl_uv_composed(repository, weaned, at, rest, stated)?;
 
     let status = command
         .status()
@@ -883,6 +922,7 @@ where
     Ok(bkcl_Run {
         spelling,
         code: status.code(),
+        cut: None,
     })
 }
 
@@ -901,6 +941,7 @@ where
 /// nonzero, the refusal being about reaching uv at all.
 pub fn bkcl_uv_recall<I, S>(
     repository: &Path,
+    weaned: &Path,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -909,7 +950,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_uv_composed(repository, at, rest, stated)?;
+    let (mut command, spelling) = zbkcl_uv_composed(repository, weaned, at, rest, stated)?;
 
     let out = command
         .output()
@@ -919,6 +960,7 @@ where
         run: bkcl_Run {
             spelling,
             code: out.status.code(),
+            cut: None,
         },
         said: out.stdout,
         grievance: String::from_utf8_lossy(&out.stderr).into_owned(),
@@ -939,6 +981,7 @@ where
 /// to pick a stream would be picking which half of the run it heard.
 pub fn bkcl_uv_attend<I, S, F>(
     repository: &Path,
+    weaned: &Path,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -950,7 +993,7 @@ where
     S: AsRef<OsStr>,
     F: FnMut(bkcl_Heard),
 {
-    let (mut command, spelling) = zbkcl_uv_composed(repository, at, rest, stated)?;
+    let (mut command, spelling) = zbkcl_uv_composed(repository, weaned, at, rest, stated)?;
 
     command.stdout(Stdio::piped());
     command.stderr(Stdio::piped());
@@ -982,9 +1025,7 @@ where
         }
     }
 
-    for porter in porters {
-        let _ = porter.join();
-    }
+    let cut = zbkcl_joined(porters);
 
     let status = child
         .wait()
@@ -993,6 +1034,7 @@ where
     Ok(bkcl_Run {
         spelling,
         code: status.code(),
+        cut,
     })
 }
 
@@ -1004,6 +1046,7 @@ where
 /// which is exactly the reach the chokepoint exists to deny.
 fn zbkcl_uv_composed<I, S>(
     repository: &Path,
+    weaned: &Path,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -1014,7 +1057,7 @@ where
 {
     bkcl_fenced()?;
 
-    let residence = zbkcl_placed(repository, crate::bkcx_python::BKCX_UV)?;
+    let residence = zbkcl_placed(repository, weaned, crate::bkcx_python::BKCX_UV)?;
 
     let mut command = Command::new(&residence);
     command.current_dir(at);
@@ -1067,6 +1110,7 @@ where
 /// spelled one, so a test filter never swallows the lock.
 fn zbkcl_composed<I, S>(
     repository: &Path,
+    weaned: &Path,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -1105,7 +1149,7 @@ where
     // cargo's own, spawned as cargo with the channel stated as its leading
     // argument. The two roads differ in HOW the one channel is said and in
     // nothing else.
-    let (mut command, mut spelling) = match bkcl_kibbled(repository, verb)? {
+    let (mut command, mut spelling) = match bkcl_kibbled(repository, weaned, verb)? {
         Some(residence) => {
             let mut command = Command::new(&residence);
             command.arg(verb);
@@ -1187,8 +1231,7 @@ where
     // The muzzle is the standing consumer. The linter reads its lint list from a
     // directory named by an environment variable and by no flag at all, and the
     // muzzle STATES that directory rather than letting the linter search for
-    // one, so that one lint list governs crates sharing no root
-    // (BKSMZ-Muzzle.adoc "The muzzle survives the workspace election").
+    // one, so that one lint list governs crates sharing no root.
     for (name, value) in stated {
         command.env(name, value);
     }
@@ -1462,12 +1505,12 @@ pub fn bkcl_rustup_held() -> Result<(), String> {
 ///
 /// A VERB OUTSIDE THE TABLE ANSWERS `None` WITHOUT TOUCHING THE FILESYSTEM,
 /// which is what keeps every ordinary cargo invocation free of this reading.
-pub fn bkcl_kibbled(repository: &Path, verb: &str) -> Result<Option<PathBuf>, String> {
+pub fn bkcl_kibbled(repository: &Path, weaned: &Path, verb: &str) -> Result<Option<PathBuf>, String> {
     let Some((_, named)) = ZBKCL_KIBBLED.iter().find(|(served, _)| *served == verb) else {
         return Ok(None);
     };
 
-    zbkcl_placed(repository, named).map(Some)
+    zbkcl_placed(repository, weaned, named).map(Some)
 }
 
 /// The residence a NAMED kibble stands at, proven placed.
@@ -1479,8 +1522,8 @@ pub fn bkcl_kibbled(repository: &Path, verb: &str) -> Result<Option<PathBuf>, St
 /// — and both owe the identical refusals, which are the kibble's own sentences
 /// rather than either caller's. A second copy of this would be a second place
 /// for the placement check to be forgotten.
-fn zbkcl_placed(repository: &Path, named: &str) -> Result<PathBuf, String> {
-    let resolved = crate::bkcq_kibble::bkcq_resolve(repository, named)?;
+fn zbkcl_placed(repository: &Path, weaned: &Path, named: &str) -> Result<PathBuf, String> {
+    let resolved = crate::bkcq_kibble::bkcq_resolve(repository, weaned, named)?;
 
     if !resolved.findings.is_empty() {
         let mut said = format!(
@@ -1496,10 +1539,11 @@ fn zbkcl_placed(repository: &Path, named: &str) -> Result<PathBuf, String> {
         return Err(said);
     }
 
-    let residence = resolved.kibble.bkcq_residence()?;
+    let feedroom = crate::bkcq_kibble::bkcq_feedroom()?;
+    let residence = resolved.kibble.bkcq_residence(&feedroom);
 
     if !residence.is_file() {
-        return Err(resolved.kibble.bkcq_absent()?);
+        return Err(resolved.kibble.bkcq_absent(&feedroom));
     }
 
     Ok(residence)

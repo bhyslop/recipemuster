@@ -158,8 +158,9 @@ bue_strike() {
   # module is likeliest to meet in the field (a build run from a copied tree, an
   # extracted tarball), and "no such directory" would send its reader hunting a
   # typo that is not there.
-  git -C "${z_repo}" rev-parse --git-dir > /dev/null 2>&1 \
-    || buc_die_now "bue_strike: ${z_repo} is no git repository, so no source position can be read - a decorated build never ships an unstamped binary"
+  local -r z_gitdir_stderr="${BURD_TEMP_DIR}/bue_gitdir_stderr.txt"
+  git -C "${z_repo}" rev-parse --git-dir > /dev/null 2> "${z_gitdir_stderr}" \
+    || buc_die_now "bue_strike: ${z_repo} is no git repository, so no source position can be read - a decorated build never ships an unstamped binary (see ${z_gitdir_stderr})"
 
   test -f "${z_roots}" || buc_die_now "bue_strike: elected roots file not found: ${z_roots}"
 
@@ -252,9 +253,14 @@ pub const ${z_const}_ANCESTRY: &[&str] = &[
   # the digest is taken over the WHOLE composed body, so it carries exactly the
   # reach a content comparison had. Both readings come off standard input, so
   # both name the same source in the digest line and the trailing name cannot
-  # make two identical bodies read as different.
+  # make two identical bodies read as different. The composed body is written
+  # to a temp file rather than fed through a here-string, whose trailing newline
+  # would digest bytes the written exergue does not carry.
+  local -r z_body_file="${BURD_TEMP_DIR}/bue_body_${z_const}.txt"
+  printf '%s' "${z_body}" > "${z_body_file}" \
+    || buc_die_now "bue_strike: could not write the composed exergue body to ${z_body_file}"
   local z_want=""
-  z_want=$(printf '%s' "${z_body}" | openssl dgst -sha256 -r) \
+  z_want=$(openssl dgst -sha256 -r < "${z_body_file}") \
     || buc_die_now "bue_strike: could not digest the composed exergue body"
   z_want="${z_want%% *}"
 
@@ -283,9 +289,9 @@ pub const ${z_const}_ANCESTRY: &[&str] = &[
   # exact path and would show a leftover as untracked.
   local -r z_tmp="${z_out}.striking"
   printf '%s' "${z_body}" > "${z_tmp}" \
-    || { rm -f "${z_tmp}"; buc_die_now "bue_strike: could not write ${z_tmp}"; }
+    || { rm -f "${z_tmp}" || buc_die_now "bue_strike: could not write ${z_tmp}, nor remove it"; buc_die_now "bue_strike: could not write ${z_tmp}"; }
   mv -f "${z_tmp}" "${z_out}" \
-    || { rm -f "${z_tmp}"; buc_die_now "bue_strike: could not install ${z_out}"; }
+    || { rm -f "${z_tmp}" || buc_die_now "bue_strike: could not install ${z_out}, nor remove ${z_tmp}"; buc_die_now "bue_strike: could not install ${z_out}"; }
 
   buc_log_args "Exergue: ${z_sha} (struck)"
 }

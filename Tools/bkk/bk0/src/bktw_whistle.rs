@@ -97,6 +97,11 @@ fn zbktw_sources(line: &str) -> bool {
 /// rule is about. A line naming no kit directory at all reaches nothing this rule
 /// governs.
 fn zbktw_reaches(line: &str) -> Option<String> {
+    // THE PATH ENDS WHERE THE GUARD BEGINS. Every source line carries its own
+    // guard, and the guard's words — an exit code, a die message — name no kit
+    // directory, so only what stands ahead of the first `||` is read.
+    let line = line.split("||").next().unwrap_or("");
+
     for token in line.split(['/', '"', '\'', '{', '}', ' ']) {
         if token.is_empty() {
             continue;
@@ -119,6 +124,20 @@ fn zbktw_reaches(line: &str) -> Option<String> {
         }
     }
     said
+}
+
+#[test]
+fn bktw_the_reading_stops_at_the_guard() {
+    assert_eq!(
+        zbktw_reaches(r#"source "${BURD_BUK_DIR}/buc_command.sh" || exit 1"#),
+        None,
+        "a guarded line inside the substrate reaches nothing"
+    );
+    assert_eq!(
+        zbktw_reaches(r#"  source "${BURD_TOOLS_DIR}/zzfrob/zzfrob_x.sh" || exit 1"#),
+        Some("zzfrob".to_string()),
+        "a guarded line leaving the kit still names the directory it reaches"
+    );
 }
 
 #[test]

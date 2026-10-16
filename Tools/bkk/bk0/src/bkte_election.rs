@@ -25,13 +25,16 @@
 use super::bkce_election::{
     bkce_carried, bkce_concord, bkce_elect, bkce_residence, bkce_seat, bkce_weigh,
     BKCE_ELECTED_BORROW, BKCE_ELECTED_OWN, BKCE_ELECTED_PINNED, BKCE_EXERGUE_FLAG,
-    BKCE_SPEND_WRITER,
+    BKCE_SEAT_FAR, BKCE_SPEND_WRITER,
 };
-use super::bkca_whereabouts::bkca_Geography;
+use super::bkce_election::{
+    bkce_geography, bkce_Geography, BKCE_GEOGRAPHY_DISPATCHED, BKCE_GEOGRAPHY_SELF,
+};
+use super::bkch_heel::BKCH_COLLAR_POSITION_VAR;
 use super::bkcr_resolve::bkcr_Collar;
 use super::bktu_lure::bktu_Lure;
-use bkl::bklrc_catena::bklrc_admit;
-use std::os::unix::fs::PermissionsExt;
+use bkp::bkprc_catena::bkprc_admit;
+use bkp::bkprs_scrivener::bkprs_program_write;
 use std::path::{Path, PathBuf};
 
 /// The spend class that does not pin. Spelled here because every arm below needs
@@ -117,7 +120,7 @@ fn bkte_a_binary_that_states_no_position_stands_in_no_concord() {
     lure.bktu_write("src/one.rs", "// elected\n");
     lure.bktu_commit("plant an elected root");
 
-    let mute = bkce_concord(lure.bktu_root(), None, "src");
+    let mute = bkce_concord(lure.bktu_root(), None, BKCE_SEAT_FAR, "src");
     assert!(!mute.identical, "a binary that states no position is not borrowable");
     assert!(
         mute.plaint.contains("would not say what it was struck from"),
@@ -125,7 +128,7 @@ fn bkte_a_binary_that_states_no_position_stands_in_no_concord() {
         mute.plaint
     );
 
-    let unresolvable = bkce_concord(lure.bktu_root(), Some(ZBKTE_ELSEWHERE), "src");
+    let unresolvable = bkce_concord(lure.bktu_root(), Some(ZBKTE_ELSEWHERE), BKCE_SEAT_FAR, "src");
     assert!(!unresolvable.identical, "a position this tree cannot look up is no comparison");
     assert!(
         unresolvable.plaint.contains("names no commit in this repository"),
@@ -134,7 +137,7 @@ fn bkte_a_binary_that_states_no_position_stands_in_no_concord() {
     );
 
     let standing = zbkte_head(&lure);
-    let control = bkce_concord(lure.bktu_root(), Some(&standing), "src");
+    let control = bkce_concord(lure.bktu_root(), Some(&standing), BKCE_SEAT_FAR, "src");
     assert!(
         control.identical && control.plaint.is_empty(),
         "the control: the same lure stands in concord with its own HEAD, so the refusals above \
@@ -242,65 +245,35 @@ fn bkte_an_empty_election_refuses_rather_than_answering() {
 /// contract is a property of being compiled, and a composed answerer is what lets
 /// a hurdle drive a stamp-and-walk no real binary in this estate carries.
 ///
-/// THE PLANT PROVES ITSELF SPAWNABLE BEFORE IT IS HANDED BACK, and that is not
-/// belt-and-braces — it is the only way this hurdle can tell its two failures
-/// apart. `bkce_carried` is fail-closed by design: an artifact it cannot spawn
-/// reaches the election as the same empty answer a mute one does, which is right
-/// for a reading whose question is whether the tree is established. Under a
-/// parallel runner a script written, made executable and exec'd within the same
-/// instant meets `ETXTBSY` — another thread's fork having inherited a write
-/// handle to the very inode — and the hurdle would then assert on an empty
-/// answer and report the READING as broken when what failed was the plant. So
-/// the spawn is taken here, where an error is an error.
+/// THE PLANT IS WRITTEN BY A CHILD, which is what lets the fail-closed reading
+/// be trusted here. `bkce_carried` reaches an artifact it cannot spawn as the
+/// same empty answer a mute one gives, so a plant this process wrote itself —
+/// which a sibling thread's fork could still hold open for writing when the
+/// election execs it — would read as a broken READING when what failed was the
+/// plant. The lure's program writer leaves no such handle anywhere
+/// (`bktu_lure.rs` "A PROGRAM IS WRITTEN BY A CHILD").
 fn zbkte_plant(lure: &bktu_Lure, name: &str, answer: &str) -> std::path::PathBuf {
-    let relative = format!("residence/{}", name);
+    bkte_plant_at(lure, &format!("residence/{}", name), answer)
+}
 
-    lure.bktu_write(
-        &relative,
-        &format!(
+/// Plant the same answerer at a path the caller spells whole.
+///
+/// THE PREFLIGHT'S HURDLES POSE AN OUTRUN RESIDENCE THIS WAY, at the residence
+/// THEIR collar joins, which is why the path is a parameter here while the
+/// name-only face above stays for this file's own arms. One plant serves both
+/// files, so what a posed residence answers is composed in one place.
+pub(crate) fn bkte_plant_at(lure: &bktu_Lure, relative: &str, answer: &str) -> std::path::PathBuf {
+    let planted = lure.bktu_root().join(relative);
+    bkprs_program_write(
+        &planted,
+        format!(
             "#!/bin/sh\ntest \"$1\" = \"{}\" || exit 64\ncat <<'ANSWER'\n{}\nANSWER\n",
             BKCE_EXERGUE_FLAG, answer
         ),
-    );
-
-    let planted = lure.bktu_root().join(&relative);
-    std::fs::set_permissions(&planted, std::fs::Permissions::from_mode(0o755))
-        .unwrap_or_else(|err| panic!("could not make {} executable: {}", planted.display(), err));
-
-    zbkte_spawnable(&planted);
+    )
+    .unwrap_or_else(|err| panic!("{}", err));
 
     planted
-}
-
-/// How many times a plant is offered to the kernel before the hurdle calls it
-/// unspawnable, and how long it waits between offers.
-///
-/// A BOUND AND NOT A LOOP. The condition this waits out is another thread
-/// closing a handle, which happens on its own in microseconds or does not happen
-/// at all; a wait without a bound would turn a real defect into a hung suite.
-const ZBKTE_OFFERS: usize = 50;
-const ZBKTE_PAUSE: std::time::Duration = std::time::Duration::from_millis(20);
-
-/// Prove the planted answerer actually runs, waiting out the write handle a
-/// neighbouring fork may still hold on it.
-fn zbkte_spawnable(planted: &Path) {
-    let mut last = String::new();
-
-    for _ in 0..ZBKTE_OFFERS {
-        match std::process::Command::new(planted).arg(BKCE_EXERGUE_FLAG).output() {
-            Ok(_) => return,
-            Err(err) => {
-                last = err.to_string();
-                std::thread::sleep(ZBKTE_PAUSE);
-            }
-        }
-    }
-
-    panic!(
-        "the planted answerer at {} never became spawnable: {} — the hurdle's own plant failed,          which the election's fail-closed reading would otherwise have reported as a binary that          states no position",
-        planted.display(),
-        last
-    );
 }
 
 /// An app collar whose BYNAME DIFFERS FROM ITS TARGET, which is the whole case
@@ -334,7 +307,7 @@ fn bkte_the_residence_joins_the_byname_rather_than_the_target() {
     let collar = bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bklrc_admit(ZBKTE_RENAMED, "composed").expect("the collar stands inside the subset"),
+        regime: bkprc_admit(ZBKTE_RENAMED, "composed").expect("the collar stands inside the subset"),
     };
 
     let stood = bkce_residence(Path::new("/seat"), &collar);
@@ -402,7 +375,7 @@ BKRR_BYNAME=\"answerer\"
     bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bklrc_admit(&text, "composed").expect("the collar stands inside the subset"),
+        regime: bkprc_admit(&text, "composed").expect("the collar stands inside the subset"),
     }
 }
 
@@ -430,7 +403,7 @@ fn bkte_a_seat_forked_behind_a_moved_trunk_elects_its_own_build() {
     zbkte_plant(&lure, "answerer", &struck);
 
     let verdict =
-        bkce_elect(lure.bktu_root(), &bkca_Geography::Undispatched, &zbkte_app_collar("src")).expect("the election answers");
+        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src")).expect("the election answers");
 
     assert_eq!(
         verdict.elected, BKCE_ELECTED_OWN,
@@ -481,7 +454,7 @@ fn bkte_a_seat_that_merged_the_moved_trunk_borrows() {
     zbkte_plant(&lure, "answerer", &struck);
 
     assert_eq!(
-        bkce_elect(lure.bktu_root(), &bkca_Geography::Undispatched, &zbkte_app_collar("src"))
+        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src"))
             .expect("the election answers")
             .elected,
         BKCE_ELECTED_BORROW,
@@ -506,7 +479,7 @@ fn bkte_a_local_commit_under_the_roots_elects_its_own_build() {
     zbkte_plant(&lure, "answerer", &struck);
 
     let verdict =
-        bkce_elect(lure.bktu_root(), &bkca_Geography::Undispatched, &zbkte_app_collar("src")).expect("the election answers");
+        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src")).expect("the election answers");
 
     assert_eq!(
         verdict.elected, BKCE_ELECTED_OWN,
@@ -541,7 +514,7 @@ fn bkte_a_commit_under_an_excluded_path_borrows() {
     zbkte_plant(&lure, "answerer", &struck);
 
     assert_eq!(
-        bkce_elect(lure.bktu_root(), &bkca_Geography::Undispatched, &zbkte_app_collar("src :(exclude)src/bkt*"))
+        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src :(exclude)src/bkt*"))
             .expect("the election answers")
             .elected,
         BKCE_ELECTED_BORROW,
@@ -549,7 +522,7 @@ fn bkte_a_commit_under_an_excluded_path_borrows() {
     );
 
     assert_eq!(
-        bkce_elect(lure.bktu_root(), &bkca_Geography::Undispatched, &zbkte_app_collar("src"))
+        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src"))
             .expect("the election answers")
             .elected,
         BKCE_ELECTED_OWN,
@@ -562,9 +535,9 @@ fn bkte_a_commit_under_an_excluded_path_borrows() {
 /// the POSTURE rather than the word.
 ///
 /// This is the arm the dispatch layer added, and it is the one place the elected
-/// word and the run/refuse posture come apart: a dispatched seat whose delivered
+/// word and the run/refuse posture come apart: a linked worktree whose delivered
 /// binary is outrun and whose OWN build is current elects its own build AND runs
-/// it, where an undispatched seat reaching the same word is refused. The `None`
+/// it, where a main worktree reaching the same word is refused. The `None`
 /// arm is what keeps the undispatched case exactly what it was — there is no
 /// second residence to ask, so the question was never put.
 #[test]
@@ -572,7 +545,7 @@ fn bkte_the_own_residence_decides_the_posture_and_never_the_word() {
     assert_eq!(
         bkce_weigh(ZBKTE_READER, false, Some(true)),
         (BKCE_ELECTED_OWN, true),
-        "a dispatched seat holding a current own build runs it rather than being sent to make one \
+        "a linked worktree holding a current own build runs it rather than being sent to make one \
          it already has"
     );
 
@@ -607,7 +580,7 @@ fn bkte_the_own_residence_decides_the_posture_and_never_the_word() {
     );
 }
 
-/// A DISPATCHED SEAT TAKES THE RESIDENCE JOIN TWICE, over two roots, and an
+/// A LINKED WORKTREE TAKES THE RESIDENCE JOIN TWICE, over two roots, and an
 /// undispatched one takes it once.
 ///
 /// THE COLLAR'S COORDINATES ARE THE SAME COORDINATES EITHER WAY. What dispatch
@@ -630,7 +603,7 @@ fn bkte_a_dispatched_seat_joins_two_residences_and_a_self_one_joins_one() {
 
     let dispatched = bkce_elect(
         lure.bktu_root(),
-        &bkca_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
         &collar,
     )
     .expect("the election answers");
@@ -653,16 +626,16 @@ fn bkte_a_dispatched_seat_joins_two_residences_and_a_self_one_joins_one() {
     // THE CONTROL IS THE SAME COLLAR UNDER SELF-GEOGRAPHY, where the two roots
     // are one tree: without it, a verdict that always carried two paths would
     // clear the assertions above whether or not the geography decided anything.
-    let self_read = bkce_elect(lure.bktu_root(), &bkca_Geography::Undispatched, &collar)
+    let self_read = bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &collar)
         .expect("the election answers");
 
     assert_eq!(
         self_read.residence, self_read.own,
-        "the control: an undispatched seat has one residence under two names"
+        "the control: a main worktree has one residence under two names"
     );
 }
 
-/// A DISPATCHED SEAT BORROWS THE DELIVERED BINARY WHEN THE TREES MATCH, and the
+/// A LINKED WORKTREE BORROWS THE DELIVERED BINARY WHEN THE TREES MATCH, and the
 /// binary it runs is the DELIVERED one.
 ///
 /// THE PATH IS ASSERTED AND NOT ONLY THE WORD, because the word alone cannot say
@@ -684,7 +657,7 @@ fn bkte_a_dispatched_seat_borrows_the_delivered_binary_when_the_trees_match() {
 
     let verdict = bkce_elect(
         lure.bktu_root(),
-        &bkca_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
         &zbkte_app_collar("src"),
     )
     .expect("the election answers");
@@ -705,8 +678,8 @@ fn bkte_a_dispatched_seat_borrows_the_delivered_binary_when_the_trees_match() {
     );
 }
 
-/// A DISPATCHED SEAT RUNS ITS OWN BUILD WHERE THE DELIVERED ONE IS OUTRUN. This
-/// is the arm the pace added, and without it a dispatched seat that had already
+/// A LINKED WORKTREE RUNS ITS OWN BUILD WHERE THE DELIVERED ONE IS OUTRUN. This
+/// is the arm the pace added, and without it a linked worktree that had already
 /// built its own work would be sent to build it again on every launch — an
 /// own-build verdict under dispatch could never run at all.
 #[test]
@@ -724,13 +697,13 @@ fn bkte_a_dispatched_seat_runs_a_current_own_build() {
 
     // THE DELIVERED BINARY IS REAL AND SIMPLY BEHIND: it states a position this
     // repository resolves, so the refusal it earns is a parted tree rather than
-    // an unreadable stamp, which is the shape a live dispatched seat meets.
+    // an unreadable stamp, which is the shape a live linked worktree meets.
     zbkte_plant(&delivered, "answerer", &behind);
     zbkte_plant(&lure, "answerer", &struck);
 
     let verdict = bkce_elect(
         lure.bktu_root(),
-        &bkca_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
         &zbkte_app_collar("src"),
     )
     .expect("the election answers");
@@ -750,7 +723,7 @@ fn bkte_a_dispatched_seat_runs_a_current_own_build() {
         "the binary that runs is the seat's OWN and never the delivered one"
     );
 
-    // THE CONTROL IS THE SAME DISPATCHED SEAT WITH ITS OWN RESIDENCE OUTRUN TOO,
+    // THE CONTROL IS THE SAME LINKED WORKTREE WITH ITS OWN RESIDENCE OUTRUN TOO,
     // which is what says the own reading was CONSULTED rather than the arm being
     // unconditional. Without it, a rule that ran whenever the geography was
     // dispatched would clear every assertion above.
@@ -758,14 +731,14 @@ fn bkte_a_dispatched_seat_runs_a_current_own_build() {
 
     let outrun = bkce_elect(
         lure.bktu_root(),
-        &bkca_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
         &zbkte_app_collar("src"),
     )
     .expect("the election answers");
 
     assert!(
         !outrun.bkce_runs(),
-        "the control: the same dispatched seat whose own build is outrun too is refused, so the \
+        "the control: the same linked worktree whose own build is outrun too is refused, so the \
          run above is the own residence's currency and not the geography alone"
     );
 }
@@ -787,12 +760,12 @@ fn bkte_a_dispatched_seat_holding_neither_refuses_naming_both() {
     lure.bktu_commit("the seat moves an elected root");
 
     // THE DELIVERED ONE IS BEHIND AND THE SEAT'S OWN IS SIMPLY NOT THERE, which
-    // is the shape a freshly dispatched seat stands in before its first converge.
+    // is the shape a freshly added linked worktree stands in before its first converge.
     zbkte_plant(&delivered, "answerer", &behind);
 
     let verdict = bkce_elect(
         lure.bktu_root(),
-        &bkca_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
         &zbkte_app_collar("src"),
     )
     .expect("the election answers");
@@ -830,16 +803,210 @@ fn bkte_a_dispatched_seat_holding_neither_refuses_naming_both() {
     // would clear the assertions above without the second reading ever happening.
     let self_read = bkce_elect(
         lure.bktu_root(),
-        &bkca_Geography::Undispatched,
+        &bkce_Geography::Undispatched,
         &zbkte_app_collar("src"),
     )
     .expect("the election answers");
 
     assert!(
         self_read.own_plaint.is_none(),
-        "the control: an undispatched seat put no second question, so its refusal says nothing \
+        "the control: a main worktree put no second question, so its refusal says nothing \
          about a second residence: {:?}",
         self_read.own_plaint
+    );
+}
+
+/// A MUTE BINARY WHERE THE CONVERGE WRITES REFUSES NAMING THE CONTRACT, never the
+/// converge as its cure. A crate that gives the exergue flag no answer rebuilds
+/// into a binary that gives none, so a refusal sending its reader to the converge
+/// alone sends them round a loop. Both geographies are driven, since the binary
+/// the converge writes is read off a different residence in each.
+///
+/// THE CONTROL IS AN EMPTY RESIDENCE OVER THE SAME SEAT, which the converge does
+/// cure and which keeps naming it as the act — so the arm is the binary's silence
+/// and not every refusal reworded.
+#[test]
+fn bkte_a_mute_binary_where_the_converge_writes_names_the_contract() {
+    let lure = bktu_Lure::bktu_compose("election-mute-own");
+    let delivered = bktu_Lure::bktu_compose("election-mute-own-delivered");
+    lure.bktu_write("src/one.rs", "// elected\n");
+    lure.bktu_commit("plant an elected root");
+    let collar = zbkte_app_collar("src");
+
+    let empty = bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &collar)
+        .expect("the election answers");
+    let unsaid = empty.bkce_grievance("app-lure", "heel");
+    assert!(
+        !empty.bkce_runs() && !empty.mute,
+        "the control: nothing stands at the residence, so nothing is mute"
+    );
+    assert!(
+        !unsaid.contains(BKCE_EXERGUE_FLAG) && unsaid.contains("the converge, run deliberately: heel"),
+        "the control names the converge as the act and no contract: {}",
+        unsaid
+    );
+
+    zbkte_plant(&lure, "answerer", "hello from a crate that never learned the flag");
+
+    for (geography, which) in [
+        (bkce_Geography::Undispatched, "a main worktree"),
+        (
+            bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+            "a linked worktree whose delivered residence is empty",
+        ),
+    ] {
+        let verdict = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+        let said = verdict.bkce_grievance("app-lure", "heel");
+
+        assert!(!verdict.bkce_runs(), "{}: a binary that cannot say may not run", which);
+        assert!(verdict.mute, "{}: the binary the converge writes stands mute", which);
+        assert!(
+            said.contains(BKCE_EXERGUE_FLAG) && said.contains(BKCH_COLLAR_POSITION_VAR),
+            "{}: the refusal names the contract the crate owes: {}",
+            which,
+            said
+        );
+        assert!(
+            said.contains("once the crate answers") && !said.contains("the converge, run deliberately"),
+            "{}: the converge follows the crate's remedy and is not offered as the cure: {}",
+            which,
+            said
+        );
+    }
+}
+
+/// A lure's root as git names it: resolved, since git answers a directory by its
+/// real path and a temp root may be reached through a symlink.
+fn zbkte_real(path: &Path) -> PathBuf {
+    std::fs::canonicalize(path)
+        .unwrap_or_else(|err| panic!("could not resolve {}: {}", path.display(), err))
+}
+
+/// A MAIN WORKTREE IS SELF AND ITS LINKED WORKTREE IS DISPATCHED, the delivered
+/// root being that main worktree.
+///
+/// GEOGRAPHY IS DERIVED FROM A REAL TREE, NEVER POSED. The worktree is stood by
+/// git's own worktree add, the same act that stands every work billet inside its
+/// sire's standing clone, so the reading here is the reading a dispatched door
+/// takes and not a stand-in for it.
+///
+/// THE CONTROL IS THE MAIN WORKTREE ITSELF, asked the same question: a reader
+/// that answered dispatched for everything would clear the first assertion, and
+/// only the tree it borrows from reading as self says the two answers are the
+/// geography and not a constant.
+#[test]
+fn bkte_a_linked_worktree_derives_its_main_checkout_as_the_delivered_root() {
+    let main = bktu_Lure::bktu_compose("geography-derived");
+    let billet = main.bktu_billet("geography-derived");
+
+    assert_eq!(
+        bkce_geography(billet.bktu_root()).expect("a linked worktree derives"),
+        bkce_Geography::Dispatched(zbkte_real(main.bktu_root())),
+        "a linked worktree's delivered root is its main worktree"
+    );
+
+    assert_eq!(
+        bkce_geography(main.bktu_root()).expect("a main worktree derives"),
+        bkce_Geography::Undispatched,
+        "the control: the main worktree it was added from is self-geography"
+    );
+}
+
+/// A PLAIN CLONE IS SELF, like a main worktree, and is the geography every
+/// consumer's cold clone stands in: no worktree, one residence, nothing stated.
+#[test]
+fn bkte_a_plain_clone_is_self_geography() {
+    let lure = bktu_Lure::bktu_compose("geography-plain");
+
+    assert_eq!(
+        bkce_geography(lure.bktu_root()).expect("a plain repository derives"),
+        bkce_Geography::Undispatched,
+        "a repository with no worktrees works the tree it entered"
+    );
+}
+
+/// THE STATED FORM IS WHAT THE PROCLAMATION AND THE ELECTION LINE BOTH SPELL, so
+/// it is asserted here rather than at either seat: a catena whose first element
+/// is the word and whose second is the root, read off a derived geography.
+#[test]
+fn bkte_a_derived_geography_states_its_word_and_root() {
+    let main = bktu_Lure::bktu_compose("geography-stated");
+    let billet = main.bktu_billet("geography-stated");
+
+    let read = bkce_geography(billet.bktu_root()).expect("a linked worktree derives");
+
+    assert_eq!(
+        read.bkce_stated(),
+        format!("{} {}", BKCE_GEOGRAPHY_DISPATCHED, zbkte_real(main.bktu_root()).display()),
+        "a dispatched geography states its word and its root as one catena"
+    );
+
+    assert_eq!(
+        bkce_Geography::Undispatched.bkce_stated(),
+        BKCE_GEOGRAPHY_SELF,
+        "the control: self-geography states one element and names no root, so the two forms are \
+         told apart by a consumer reading the first element"
+    );
+}
+
+/// A WORKTREE ADDED FROM A BARE REPOSITORY REFUSES, naming the common directory
+/// git answered, and never reads as self.
+///
+/// IT IS THE ONE ANSWER GIT GIVES THAT NAMES NO MAIN WORKTREE, and a bare
+/// repository holds no work tree for a built binary to stand in, so there is no
+/// delivered root to borrow from and none may be invented — the parent of a bare
+/// repository is an unrelated directory that merely happens to hold it.
+#[test]
+fn bkte_a_worktree_of_a_bare_repository_refuses() {
+    let main = bktu_Lure::bktu_compose("geography-bare");
+    let billet = main.bktu_billet_of_bare("geography-bare");
+
+    let said = bkce_geography(billet.bktu_root())
+        .expect_err("a worktree of a bare repository names no delivered root");
+
+    assert!(
+        said.contains("lure.git"),
+        "the refusal names the common directory git answered: {}",
+        said
+    );
+
+    // THE CONTROL IS A WORKTREE OF THE SAME CONTENT ADDED FROM A MAIN WORKTREE,
+    // so the refusal above is the bareness and not the worktree.
+    let control = main.bktu_billet("geography-bare-control");
+
+    assert!(
+        bkce_geography(control.bktu_root()).is_ok(),
+        "the control: a worktree added from a main worktree derives"
+    );
+}
+
+/// A LINKED WORKTREE WHOSE MAIN WORKTREE IS GONE REFUSES, naming the tree, and
+/// never falls back to self.
+///
+/// THE FALLBACK IS WHAT THIS FORBIDS. A reader that read past a missing main
+/// checkout would turn it into a quiet own build: the seat would look ordinary,
+/// and the delivered root it was added from would never be consulted by anybody.
+#[test]
+fn bkte_a_worktree_whose_main_checkout_is_gone_refuses() {
+    let main = bktu_Lure::bktu_compose("geography-orphan");
+    let billet = main.bktu_billet("geography-orphan");
+
+    // THE CONTROL COMES FIRST, over the same worktree while its main worktree
+    // stands: the refusal below is then the removal and not the worktree.
+    assert!(
+        bkce_geography(billet.bktu_root()).is_ok(),
+        "the control: the worktree derives while its main worktree stands"
+    );
+
+    std::fs::remove_dir_all(main.bktu_root()).expect("the main worktree comes away");
+
+    let said = bkce_geography(billet.bktu_root())
+        .expect_err("a worktree whose main worktree is gone derives nothing");
+
+    assert!(
+        said.contains(&billet.bktu_root().display().to_string()),
+        "the refusal names the tree whose geography could not be derived: {}",
+        said
     );
 }
 

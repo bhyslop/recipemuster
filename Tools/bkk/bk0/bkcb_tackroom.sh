@@ -23,23 +23,22 @@
 # THE KIT SHIPS AND ITS BOOTSTRAP MUST RUN WHERE IT LANDS. What stood here was a
 # source line into another kit's toolchain module, and no parcel carries that
 # kit: on a receiving station the whistle died at the source line, ahead of every
-# refusal it was written to give (BKSNC-Kennelcraft.adoc "The form of each
-# launcher"). So the binding the bootstrap actually needs is stated here, under
-# this kit's own head, and this file names nothing outside the kit and the
-# substrate.
+# refusal it was written to give. So the binding the bootstrap actually needs is
+# stated here, under this kit's own head, and this file names nothing outside the
+# kit and the substrate.
 #
 # THREE ACTS AND NO FOURTH. Read the station's declaration, refuse one that names
 # the station user's own homes, export the two homes under it. That is the whole
 # of the fence the leash stands on.
 #
-# IT PROVISIONS NOTHING, and that is an election rather than an omission
-# (BKSNC-Kennelcraft.adoc "Open Elections"): a routine invocation verifies
-# and refuses, and never surprises the operator with a download. A station whose
-# tackroom lacks the pinned channel is told so by name, with the deliberate
-# converge spelled out for it to run. What the estate's own trees additionally do
-# — fetch a channel on first use, under a directory lock — is theirs and stays
-# theirs; a kit that provisioned on a receiving station would be reaching for the
-# network from a bootstrap the operator ran to build one binary.
+# IT PROVISIONS NOTHING, and that is an election rather than an omission: a
+# routine invocation verifies and refuses, and never surprises the operator with
+# a download. A station whose tackroom lacks the pinned channel is told so by
+# name, with the deliberate converge spelled out for it to run. What the estate's
+# own trees additionally do — fetch a channel on first use, under a directory
+# lock — is theirs and stays theirs; a kit that provisioned on a receiving station
+# would be reaching for the network from a bootstrap the operator ran to build
+# one binary.
 #
 # THE GUARD IS LEXICAL AND RUNS BEFORE ANYTHING IS CREATED. What it catches is a
 # declaration that would build the store in the operator's personal rustup or
@@ -49,7 +48,7 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBKCB_SOURCED:-}" || return 0
+test -z "${ZBKCB_SOURCED:-}" || buc_die_now "Module bkcb multiply sourced - check sourcing hierarchy"
 ZBKCB_SOURCED=1
 
 zbkcb_kindle() {
@@ -78,7 +77,7 @@ zbkcb_sentinel() {
 # user's home is touched.
 zbkcb_admissible_or_die() {
   zbkcb_sentinel
-  local z_declared="$1"
+  local -r z_declared="${1}"
 
   local z_home_dir="${HOME:-}"
   test -n "${z_home_dir}" || return 0
@@ -123,11 +122,14 @@ bkcb_ensure() {
 # Args: <channel>
 bkcb_channel_present_or_die() {
   zbkcb_sentinel
-  local z_channel="$1"
+  local -r z_channel="${1}"
 
   local z_installed=""
+  local z_list_status=0
   z_installed=$(RUSTUP_HOME="${BKCB_RUSTUP_HOME}" rustup toolchain list) \
-    || buc_die_now "Could not list the tackroom's toolchains under ${BKCB_RUSTUP_HOME}"
+    || z_list_status=$?
+  test "${z_list_status}" -eq 0 \
+    || buc_die_now "Could not list the tackroom's toolchains under ${BKCB_RUSTUP_HOME} (exit ${z_list_status})"
 
   case "${z_installed}" in
     *"${z_channel}"*) return 0 ;;

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! Bash Kennel Master — the library face.
+//! Bash Kennel — the library face.
 //!
 //! The kennel is a library and a binary, and every door-level chokepoint is this
 //! library driven from that binary. The split is load-bearing rather than
@@ -23,11 +23,11 @@
 //! posture — one such consumer reads cargo metadata in-process on exactly the
 //! dirty tree its own census is driven against, before every commit.
 //!
-//! The regime reader stands beside this crate as `bkl` and is linked rather
-//! than reimplemented: every collar this crate reads is read through it, and the
+//! The regime reader stands in the floor crate beside this one, `bkp`, and is
+//! linked rather than reimplemented: every collar this crate reads is read through it, and the
 //! catena law is honored in exactly one place in rust.
 //!
-//! Two consumers stand already. A census tool's manifest corroboration read is
+//! Two consumers stand already. A name census's manifest corroboration read is
 //! one, and it reaches cargo here — the stopgap membrane that stood ahead of
 //! this crate named this library as its removal condition and is struck. The
 //! collar validate door's closure read is the other, and it arrives with the
@@ -51,8 +51,8 @@
 // every refit, and a line each of them EDITS is not. Every blank carries a doc
 // line saying what will fill it and nothing else, and its word is a guess its
 // own pace may change.
-pub mod bkca_whereabouts;
 pub mod bkcc_record;
+pub mod bkcd_preflight;
 pub mod bkce_election;
 pub mod bkcf_guard;
 pub mod bkcg_gangline;
@@ -85,11 +85,11 @@ pub mod bkg_breviary;
 // a pace will fill is opened here so no two paces author a line beside each
 // other.
 #[cfg(test)]
-mod bkta_whereabouts;
-#[cfg(test)]
 mod bktb_substrate;
 #[cfg(test)]
 mod bktc_record;
+#[cfg(test)]
+mod bktd_preflight;
 #[cfg(test)]
 mod bkte_election;
 #[cfg(test)]
@@ -129,9 +129,9 @@ mod bktz_muzzle;
 
 // THE COMPOSING SURFACE, AND THE ONE MODULE HERE THAT A CONSUMER MAY REACH. It
 // is the only home for reaching the temp root, composing a repository or
-// spawning the kennel (BKSLR-Lure.adoc "The Lure"), and the substrate's own
-// suite composes seats through it, so the surface has to cross a crate boundary
-// that `cfg(test)` alone cannot: a dependent's build never sets it.
+// spawning the kennel, and the substrate's own suite composes seats through it,
+// so the surface has to cross a crate boundary that `cfg(test)` alone cannot: a
+// dependent's build never sets it.
 //
 // THE FEATURE IS WHAT KEEPS IT OUT OF THE BINARY. No binary build of this crate
 // names it, and a consumer that does takes this crate as a dev-dependency, which

@@ -17,7 +17,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BKW Workbench - Routes Bash Kennel Master commands via the zipper registry
+# BKW Workbench - Routes Bash Kennel commands via the zipper registry
 #
 # Every command dispatches through buz_exec_lookup; see bkz_zipper.sh for the
 # colophon mapping. There is no pre-registry passthrough arm here and there is
@@ -29,12 +29,13 @@ set -euo pipefail
 
 BKW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
-source "${BURD_BUK_DIR}/buz_zipper.sh"
-source "${BKW_SCRIPT_DIR}/bkz_zipper.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
+source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
+source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+source "${BKW_SCRIPT_DIR}/bkz_zipper.sh" || buc_die_now "Failed to source bkz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
@@ -46,18 +47,19 @@ zbuz_kindle
 zbkz_kindle
 
 bkw_route() {
-  local z_command="$1"
-  shift
+  local -r z_command="${1:-}"
+  test "$#" -eq 0 || shift
 
   zburd_sentinel
-  zbkz_healthcheck
 
+  # No roster sweep at dispatch: a tree routes whatever tabtargets stand, and the
+  # source tree proves its roster complete by test (buz_healthcheck's own comment).
   buz_exec_lookup "${z_command}" "${BKW_SCRIPT_DIR}" "$@"
 }
 
 bkw_main() {
-  local z_command="${1:-}"
-  shift || true
+  local -r z_command="${1:-}"
+  test "$#" -eq 0 || shift
 
   test -n "${z_command}" || buc_die_now "No command specified"
 

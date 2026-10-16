@@ -20,11 +20,11 @@
 //! collar, and spending a composed repository on it would prove nothing the
 //! resolver's own hurdles do not already prove.
 
-use super::bkca_whereabouts::bkca_Geography;
+use super::bkce_election::bkce_Geography;
 use super::bkcr_resolve::bkcr_Collar;
 use super::bkce_election::{BKCE_ELECTED_BORROW, BKCE_ELECTED_OWN};
 use super::bkct_tattoo::{bkct_proclamation, BKCT_LANGUAGE_RUST};
-use bkl::bklrc_catena::bklrc_admit;
+use bkp::bkprc_catena::bkprc_admit;
 use std::path::PathBuf;
 
 /// A suite collar in hand.
@@ -70,7 +70,7 @@ fn zbktt_collar(name: &str, text: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: name.to_string(),
         instance: PathBuf::from(name),
-        regime: bklrc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
     }
 }
 
@@ -81,7 +81,7 @@ fn zbktt_collar(name: &str, text: &str) -> bkcr_Collar {
 #[test]
 fn bktt_the_proclamation_names_no_family_field() {
     for (name, text) in [("suite-lure", ZBKTT_SUITE), ("app-lure", ZBKTT_APP)] {
-        let said = bkct_proclamation(&zbktt_collar(name, text), BKCE_ELECTED_OWN, &bkca_Geography::Undispatched);
+        let said = bkct_proclamation(&zbktt_collar(name, text), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
 
         assert!(
             !said.contains("BKRR_"),
@@ -97,7 +97,7 @@ fn bktt_the_proclamation_names_no_family_field() {
 /// INSIDE the proclamation rather than as a different shape.
 #[test]
 fn bktt_the_proclaimed_core_stands() {
-    let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkca_Geography::Undispatched);
+    let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
 
     for owed in [
         "BKRC_COLLAR=\"suite-lure\"",
@@ -122,12 +122,12 @@ fn bktt_the_proclaimed_core_stands() {
 /// other's.
 #[test]
 fn bktt_each_kind_proclaims_its_own_coordinates() {
-    let suite = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkca_Geography::Undispatched);
+    let suite = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
     assert!(suite.contains("BKRC_RUNNER=\"bknre_cargo\""), "it reads:\n{}", suite);
     assert!(suite.contains("BKRC_TONGUE=\"bknre_harness\""), "it reads:\n{}", suite);
     assert!(!suite.contains("BKRC_RESIDENCE"), "it reads:\n{}", suite);
 
-    let app = bkct_proclamation(&zbktt_collar("app-lure", ZBKTT_APP), BKCE_ELECTED_OWN, &bkca_Geography::Undispatched);
+    let app = bkct_proclamation(&zbktt_collar("app-lure", ZBKTT_APP), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
     assert!(
         app.contains("BKRC_RESIDENCE=\"Tools/lure/target/release\""),
         "it reads:\n{}",
@@ -149,7 +149,7 @@ fn bktt_each_kind_proclaims_its_own_coordinates() {
 #[test]
 fn bktt_the_election_slot_carries_what_the_door_ruled() {
     for elected in [BKCE_ELECTED_OWN, BKCE_ELECTED_BORROW] {
-        let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), elected, &bkca_Geography::Undispatched);
+        let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), elected, &bkce_Geography::Undispatched);
 
         assert!(
             said.contains(&format!("BKRC_ELECTION=\"{}\"", elected)),
@@ -167,20 +167,20 @@ fn bktt_the_election_slot_carries_what_the_door_ruled() {
 /// that went in.
 #[test]
 fn bktt_the_answer_reads_back_through_the_reader() {
-    let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkca_Geography::Undispatched);
+    let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
 
-    let read = bklrc_admit(&said, "the proclamation")
+    let read = bkprc_admit(&said, "the proclamation")
         .expect("the proclamation stands inside the catena law it was rendered to");
 
-    assert_eq!(read.bklrc_scalar("BKRC_COLLAR"), Some("suite-lure"));
+    assert_eq!(read.bkprc_scalar("BKRC_COLLAR"), Some("suite-lure"));
     assert_eq!(
-        read.bklrc_catena("BKRC_ROOTS").unwrap(),
+        read.bkprc_catena("BKRC_ROOTS").unwrap(),
         vec!["Tools/lure/src", "Tools/lure/Cargo.toml"],
         "a multi-element field is rendered one element per line and reads back as its elements"
     );
-    assert_eq!(read.bklrc_catena("BKRC_FEATURES"), Some(Vec::new()));
+    assert_eq!(read.bkprc_catena("BKRC_FEATURES"), Some(Vec::new()));
     assert_eq!(
-        read.bklrc_scalar("BKRC_ELECTION"),
+        read.bkprc_scalar("BKRC_ELECTION"),
         Some(BKCE_ELECTED_OWN)
     );
 }

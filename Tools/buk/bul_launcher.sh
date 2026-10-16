@@ -18,14 +18,15 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # BUL Launcher - Shared launcher logic for BUK workbenches.
-# Sourced by individual launcher stubs in rbmm_moorings/rbml_launchers/
+# Sourced by individual launcher stubs in rbmm_moorings/buml_launchers/
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 #
 # NOTE: This is bootstrap infrastructure, not a full module.
 # No kindle/sentinel pattern - this runs before other modules are loaded.
 
-# Guard against multiple inclusion
-test -z "${ZBUL_LAUNCHER_SOURCED:-}" || return 0
+# Guard against multiple inclusion — dies through printf and exit, since
+# buc_command.sh is not loaded yet
+test -z "${ZBUL_LAUNCHER_SOURCED:-}" || { printf '%s\n' "Module bul multiply sourced - check sourcing hierarchy" >&2 || exit 1; exit 1; }
 ZBUL_LAUNCHER_SOURCED=1
 
 # Establish project root. z-launcher.sh (the universal trampoline that exec's
@@ -35,12 +36,12 @@ ZBUL_LAUNCHER_SOURCED=1
 ZBUL_PROJECT_ROOT="${PWD}"
 
 # Config directory is supplied by the project-intimate trampoline (z-launcher),
-# the SOLE file that knows this project's moorings/config dir name. The shared
-# kit no longer hardcodes the name — it consumes the exported absolute path, so
+# the one file the shared kit learns this project's moorings/config dir name
+# from. The shared kit no longer hardcodes the name — it consumes the exported absolute path, so
 # one kit serves every consumer (.buk, rbmm_moorings, …). The basename is
 # derived below as BURD_MOORINGS_DIR for operator-facing display.
 test -n "${BURD_CONFIG_DIR:-}" || {
-  echo "bul_launcher: BURD_CONFIG_DIR unset — dispatch must run through z-launcher" >&2
+  echo "bul_launcher: BURD_CONFIG_DIR unset — dispatch must run through z-launcher" >&2 || exit 1
   exit 1
 }
 export BURD_CONFIG_DIR
@@ -152,18 +153,23 @@ fi
 # Helper function to delegate to BURD
 # Usage: bul_launch "path/to/workbench.sh" "$@"
 bul_launch() {
-  local z_coordinator="$1"
-  shift
+  local z_coordinator="${1}"
+  test "$#" -eq 0 || shift
 
   # Detect terminal width via /dev/tty (survives exec chain and dispatch pipes)
   # Subshell probe: /dev/tty may exist but not be openable (CI, sandbox)
+  # stty prints "rows cols"; a failed read keeps the default, its status read
+  # where the read is taken.
   BURD_TERM_COLS=80
   if (exec </dev/tty) 2>/dev/null; then
-    read -r _ BURD_TERM_COLS < <(stty size </dev/tty 2>/dev/null)
+    local z_tty_size=""
+    local z_tty_status=0
+    z_tty_size=$(stty size </dev/tty) || z_tty_status=$?
+    test "${z_tty_status}" -ne 0 || BURD_TERM_COLS="${z_tty_size#* }"
     test -n "${BURD_TERM_COLS}" || BURD_TERM_COLS=80
   fi
   export BURD_TERM_COLS
 
   export BURD_COORDINATOR_SCRIPT="${z_coordinator}"
-  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}"
+  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${1##*/}" "${@:2}" || buc_die_now "exec failed"
 }

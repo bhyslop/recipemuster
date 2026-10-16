@@ -21,11 +21,12 @@
 //! here is everything answerable without one.
 
 use crate::bkcq_kibble::{
-    bkcq_findings, bkcq_Kibble, BKCQ_FAMILY, BKCQ_FIELDS_BOTH, BKCQ_FIELDS_PREBUILT,
-    BKCQ_FIELDS_SOURCE, BKCQ_KIND_PREBUILT, BKCQ_KIND_SOURCE,
+    bkcq_feedroom_at, bkcq_findings, bkcq_Kibble, BKCQ_FAMILY, BKCQ_FEEDROOM_VAR,
+    BKCQ_FIELDS_BOTH, BKCQ_FIELDS_PREBUILT, BKCQ_FIELDS_SOURCE, BKCQ_KIND_PREBUILT,
+    BKCQ_KIND_SOURCE,
 };
-use crate::bkcl_leash;
-use bkl::bklrc_catena::bklrc_admit;
+use std::path::Path;
+use bkp::bkprc_catena::bkprc_admit;
 
 /// A kibble composed from text, so a hurdle poses a declaration without a tree.
 ///
@@ -36,7 +37,7 @@ fn zbktq_posed(name: &str, text: &str) -> bkcq_Kibble {
     bkcq_Kibble {
         name: name.to_string(),
         instance: std::path::PathBuf::from("Tools/bkk").join(name),
-        regime: bklrc_admit(text, "a posed kibble").expect("the posed text admits"),
+        regime: bkprc_admit(text, "a posed kibble").expect("the posed text admits"),
     }
 }
 
@@ -193,10 +194,11 @@ fn bktq_the_residence_carries_the_version_in_its_path() {
     // process's environment would decide the answers of every hurdle the harness
     // is running beside this one, which is not hypothetical — it was driven, and
     // it reddened an election hurdle three files away.
-    let store = std::path::Path::new("/posed/tackroom");
+    let store = bkcq_feedroom_at(None, None, Some(Path::new("/posed/tackroom")))
+        .expect("a declared tackroom composes a kibble root");
     let kibble = zbktq_posed("bki_nextest", &zbktq_whole("bki_nextest"));
 
-    let residence = kibble.bkcq_residence_at(store);
+    let residence = kibble.bkcq_residence(&store);
     let said = residence.display().to_string();
 
     assert!(said.starts_with("/posed/tackroom"), "{}", said);
@@ -211,11 +213,11 @@ fn bktq_the_residence_carries_the_version_in_its_path() {
         &zbktq_whole("bki_nextest").replace(ZBKTQ_VERSION, ZBKTQ_BUMPED),
     );
 
-    assert_ne!(residence, bumped.bkcq_residence_at(store));
+    assert_ne!(residence, bumped.bkcq_residence(&store));
 }
 
 #[test]
-fn bktq_an_absent_tackroom_refuses_naming_the_station_variable() {
+fn bktq_an_absent_tackroom_refuses_naming_the_fence() {
     // NEVER A FALLBACK TO A PERSONAL TOOL HOME. The standing breach this regime
     // ends is nextest found in the station user's own cargo home, so a residence
     // composed without a tackroom would reinstate exactly that.
@@ -223,16 +225,50 @@ fn bktq_an_absent_tackroom_refuses_naming_the_station_variable() {
     // THE SENTENCE IS ASSERTED WHERE IT IS COMPOSED, rather than by removing the
     // variable and driving the reading: the removal is what would race the
     // suite, and the composed refusal is the thing a station actually meets.
-    let kibble = zbktq_posed("bki_nextest", &zbktq_whole("bki_nextest"));
-    let refusal = kibble.bkcq_unstationed();
+    let refusal = bkcq_feedroom_at(None, None, None)
+        .expect_err("no tackroom and no posed root compose no kibble root");
 
-    assert!(
-        refusal.contains(bkcl_leash::BKCL_TACKROOM_VAR),
-        "{}",
-        refusal
-    );
     assert!(refusal.contains("personal tool home"), "{}", refusal);
-    assert!(refusal.contains("bki_nextest"), "{}", refusal);
+    assert!(refusal.contains("bkcb_tackroom.sh"), "{}", refusal);
+}
+
+#[test]
+fn bktq_a_posed_root_stands_beneath_the_dispatch_temp_or_is_refused() {
+    let temp = Path::new("/posed/dispatch");
+    let tackroom = Path::new("/posed/tackroom");
+
+    // THE CONTROL: a root beneath the dispatch's temp directory is admitted and
+    // is the root itself, with no quarter joined beneath it.
+    let admitted = bkcq_feedroom_at(Some(&temp.join("haynet")), Some(temp), Some(tackroom))
+        .expect("a root beneath the dispatch temp directory is admitted");
+    let kibble = zbktq_posed("bki_nextest", &zbktq_whole("bki_nextest"));
+    let residence = kibble.bkcq_residence(&admitted);
+    assert!(
+        residence.starts_with(temp.join("haynet").join("bki_nextest")),
+        "{}",
+        residence.display()
+    );
+
+    // A ROOT ANYWHERE ELSE IS REFUSED, the tackroom itself above all: a root
+    // naming the station's store would be the shared store under a second name.
+    for elsewhere in [
+        tackroom.to_path_buf(),
+        tackroom.join("kennel"),
+        Path::new("/posed/elsewhere").to_path_buf(),
+        temp.to_path_buf(),
+        temp.join("..").join("tackroom"),
+        Path::new("posed/dispatch/haynet").to_path_buf(),
+    ] {
+        let refusal = bkcq_feedroom_at(Some(&elsewhere), Some(temp), Some(tackroom))
+            .expect_err("a root outside the dispatch temp directory is refused");
+        assert!(refusal.contains(BKCQ_FEEDROOM_VAR), "{}", refusal);
+        assert!(refusal.contains("/posed/dispatch"), "{}", refusal);
+    }
+
+    // AND WITH NO DISPATCH TEMP DIRECTORY THERE IS NOTHING TO ADMIT IT BENEATH.
+    let refusal = bkcq_feedroom_at(Some(&temp.join("haynet")), None, Some(tackroom))
+        .expect_err("a posed root with no dispatch temp directory is refused");
+    assert!(refusal.contains(BKCQ_FEEDROOM_VAR), "{}", refusal);
 }
 
 #[test]
