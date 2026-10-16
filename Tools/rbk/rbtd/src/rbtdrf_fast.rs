@@ -77,6 +77,18 @@ const RBTDRF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
 
+/// Source lines for the bash kit modules a snippet needs ahead of buv, in the
+/// order every CLI sources them: buc first (the other guards die through
+/// buc_die_now), buym before buc's emitters run, bubc before buv (whose vet
+/// expands BUBC_band_enroll unguarded). No module chains another, so each
+/// snippet states the chain itself. Ends with a newline.
+fn rbtdrf_tinder_sources(root: &Path) -> String {
+    [RBTDRF_BUC_COMMAND, RBTDRF_BUYM_YELP, RBTDRF_BUBC_CONSTANTS, RBTDRF_BUV_VALIDATION]
+        .iter()
+        .map(|p| format!("source '{}'\n", rbtdrx_native_to_posix(&root.join(p))))
+        .collect()
+}
+
 // buv_report is a report path, not a buc_reject gate: its documented contract
 // is "returns non-zero if any failed", a bare 1 — so the one report-mixed
 // negative asserts this, not a band. Still precise enough to catch an off-band
@@ -151,12 +163,12 @@ fn rbtdrf_run_ev(
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let tinder = rbtdrf_tinder_sources(&root);
 
     for (i, sub) in subs.iter().enumerate() {
         let script = format!(
-            "set -euo pipefail\nsource '{}'\nzbuv_kindle\nzbuv_reset_enrollment\n{}\n{}\n{}",
-            rbtdrx_native_to_posix(&buv),
+            "set -euo pipefail\n{}zbuv_kindle\nzbuv_reset_enrollment\n{}\n{}\n{}",
+            tinder,
             enrollment,
             sub.setup,
             sub.command,
@@ -507,12 +519,11 @@ fn rbtdrf_ev_odref_valid(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let enrollment = format!(
-        "set -euo pipefail\nsource '{}'\nzbuv_kindle\nzbuv_reset_enrollment\n\
+        "set -euo pipefail\n{}zbuv_kindle\nzbuv_reset_enrollment\n\
          buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        rbtdrx_native_to_posix(&buv),
+        rbtdrf_tinder_sources(&root),
     );
     let d = RBTDRF_VALID_DIGEST;
 
@@ -770,17 +781,15 @@ fn rbtdrf_ev_multiscope(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
-
     // Two-scope enrollment: ALPHA and BETA
     let enrollment = format!(
-        "set -euo pipefail\nsource '{}'\nzbuv_kindle\nzbuv_reset_enrollment\n\
+        "set -euo pipefail\n{}zbuv_kindle\nzbuv_reset_enrollment\n\
          buv_regime_enroll \"ALPHA\"\nbuv_group_enroll \"Alpha Vars\"\n\
          buv_bool_enroll TEST_ALPHA_FLAG \"Alpha flag\"\n\
          buv_regime_enroll \"BETA\"\nbuv_group_enroll \"Beta Vars\"\n\
          buv_bool_enroll TEST_BETA_FLAG \"Beta flag\"\n\
          export TEST_ALPHA_FLAG=\"1\"\nexport TEST_BETA_FLAG=\"bad\"\n",
-        rbtdrx_native_to_posix(&buv),
+        rbtdrf_tinder_sources(&root),
     );
 
     // Sub 1: vet ALPHA passes (BETA is bad but not in scope)
@@ -839,13 +848,12 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
     };
 
     // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let rbk = root.join(RBTDRF_RBK_ROOT);
-    let buv_p = rbtdrx_native_to_posix(&buv);
+    let tinder = rbtdrf_tinder_sources(&root);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
         "set -euo pipefail\n\
-         source '{}'\n\
+         {}\
          source '{}/rbcc_constants.sh'\n\
          source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
@@ -856,7 +864,7 @@ fn rbtdrf_rv_rbrv_all_vessels(dir: &Path) -> rbtdre_Verdict {
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
-        buv_p,
+        tinder,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
@@ -1012,14 +1020,13 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
         Ok(r) => r,
         Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let rbk = root.join(RBTDRF_RBK_ROOT);
 
-    let buv_p = rbtdrx_native_to_posix(&buv);
+    let tinder = rbtdrf_tinder_sources(&root);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
         "set -euo pipefail\n\
-         source '{}'\n\
+         {}\
          source '{}/rbcc_constants.sh'\n\
          source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
@@ -1033,7 +1040,7 @@ fn rbtdrf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtdre_Verdict {
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbgl_kindle\n\
          echo \"hallmarks_root=${{RBGL_HALLMARKS_ROOT}}\"\n\
          echo \"runtime_prefix=${{{runtime_var}}}\"",
-        buv_p,
+        tinder,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         cloud_var = RBTDRF_VAR_RBRD_CLOUD_PREFIX,
         runtime_var = RBTDRF_VAR_RBRR_RUNTIME_PREFIX,
@@ -1077,14 +1084,13 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
     };
 
     // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let rbk = root.join(RBTDRF_RBK_ROOT);
 
-    let buv_p = rbtdrx_native_to_posix(&buv);
+    let tinder = rbtdrf_tinder_sources(&root);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
     let script = format!(
         "set -euo pipefail\n\
-         source '{}'\n\
+         {}\
          source '{}/rbcc_constants.sh'\n\
          source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
@@ -1095,7 +1101,7 @@ fn rbtdrf_rs_rbrv(dir: &Path) -> rbtdre_Verdict {
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
-        buv_p,
+        tinder,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
@@ -1350,13 +1356,12 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
 
     // Resolve RBRR_VESSEL_DIR via one-shot bash (kindle ceremony unavoidable
     // for derived-path resolution).
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
     let rbk = root.join(RBTDRF_RBK_ROOT);
-    let buv_p = rbtdrx_native_to_posix(&buv);
+    let tinder = rbtdrf_tinder_sources(&root);
     let rbk_p = rbtdrx_native_to_posix(&rbk);
     let resolve_script = format!(
         "set -euo pipefail\n\
-         source '{}'\n\
+         {}\
          source '{}/rbcc_constants.sh'\n\
          source '{}/rbgc_constants.sh'\n\
          source '{}/rbrr_regime.sh'\n\
@@ -1367,7 +1372,7 @@ fn rbtdrf_dh_all_vessels_pass(dir: &Path) -> rbtdre_Verdict {
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
-        buv_p,
+        tinder,
         rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
         moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
     );
@@ -1724,8 +1729,8 @@ fn rbtdrf_cb_round_trip(dir: &Path) -> rbtdre_Verdict {
 //
 // Drives zrblds_spine_validate — the Lode capture-assembly spine's dispatch-time
 // substitution-coverage check — directly: write a substitution-keys file and an
-// already-include-expanded step body, source buv_validation + rblds_spine and
-// kindle buv so buc_log_args resolves, then assert the check accepts a fully
+// already-include-expanded step body, source the kit tinder (buc, buym, bubc,
+// buv) then rblds_spine and kindle buv, then assert the check accepts a fully
 // covered body and returns non-zero at the first _RBGL_* reference absent from
 // the keys. The check is sentinel-free and reads only its two file arguments, so
 // this stays a dependency-free unit test — no rbld kindle, no regime, no creds.
@@ -1749,15 +1754,15 @@ fn rbtdrf_rc_run(
     if let Err(e) = std::fs::write(&body_file, body) {
         return rbtdre_Verdict::Fail(format!("{}: write body failed: {}", label, e));
     }
-    let buv = root.join(RBTDRF_BUV_VALIDATION);
+    let tinder = rbtdrf_tinder_sources(&root);
     let spine = root.join(RBTDRF_RBLDS_SPINE);
     let script = format!(
         "set -euo pipefail\n\
-         source '{}'\n\
+         {}\
          source '{}'\n\
          zbuv_kindle\n\
          zrblds_spine_validate '{}' '{}'",
-        rbtdrx_native_to_posix(&buv),
+        tinder,
         rbtdrx_native_to_posix(&spine),
         rbtdrx_native_to_posix(&keys_file),
         rbtdrx_native_to_posix(&body_file),
