@@ -36,34 +36,29 @@ zrbte_kindle() {
 
   local z_dir="${BASH_SOURCE[0]%/*}"
 
-  readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
+  # The theurge's two collars (rbmm_moorings/bkd_weaned/). Every cargo
+  # invocation is the kennel's, through the door each collar is handed to: the
+  # app converged by the heel, the suite launched by the mush.
+  readonly ZRBTE_APP_COLLAR="rbtdn_app"
+  readonly ZRBTE_SUITE_COLLAR="rbtdn_suite"
 
-  # Windows-native cargo (the x86_64-pc-windows-gnu toolchain) cannot open a
-  # Cygwin /cygdrive-style path argument — it reads it as a literal Windows path
-  # and reports "does not exist". Under Cygwin, hand cargo a Windows-form path
-  # (drive-letter root, forward slashes — which Windows accepts). Pure parameter
-  # expansion, no subshell and no external cygpath, mirroring RBTDRX's /cygdrive
-  # fast path on the Rust side. Same path-argument boundary as the
-  # Windows shellcheck.exe, distinct from the .sh process-launch boundary
-  # RBTDRX/rbtdri handle Rust-side. Identity off Cygwin; fails fast on an
-  # unsurveyed shape.
-  # Retire when theurge builds as a true Cygwin binary.
-  if test "${OSTYPE:-}" = "cygwin"; then
-    case "${RBTE_MANIFEST}" in
-      /cygdrive/?/*)
-        local -r z_drive_rest="${RBTE_MANIFEST#/cygdrive/}"
-        local -r z_drive="${z_drive_rest%%/*}"
-        local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
-        readonly RBTE_MANIFEST_ARG="${z_drive}:/${z_drive_tail}"
-        ;;
-      *)
-        buc_die_now "rbte: cannot translate manifest path for Windows cargo (expected /cygdrive/X/...): ${RBTE_MANIFEST}"
-        ;;
-    esac
-  else
-    readonly RBTE_MANIFEST_ARG="${RBTE_MANIFEST}"
-  fi
+  # THE KENNEL BINARY IS DRIVEN, never a nested kennel tabtarget: a second
+  # dispatch inside this one mints a second temp generation and a second log,
+  # and the theurge's own touchstone reads one dispatch per invoke. The gate the
+  # whistle would have run is the kennel's own published bash, which the CLI's
+  # furnish sources and kindles.
+  readonly ZRBTE_REPO_ROOT="${PWD}"
+  readonly ZRBTE_KENNEL_CRATE="${ZRBTE_REPO_ROOT}/${BURD_TOOLS_DIR}/bkk/bk0"
+  readonly ZRBTE_KENNEL="${ZRBTE_KENNEL_CRATE}/target/release/bkx"
+  readonly ZRBTE_KENNEL_ELECTION="${ZRBTE_KENNEL_CRATE}/bkce_roots.txt"
 
+  # The whistle, named by every refusal below and run by none, resolved by
+  # COLOPHON rather than by whole filename: the frontispiece is a label the kit
+  # may re-word.
+  local -r z_whistle=("${BURD_TABTARGET_DIR}/bkw-w."*)
+  readonly ZRBTE_WHISTLE="${z_whistle[0]}"
+
+  # Where the heel installs the binary: the app collar's residence and byname.
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
@@ -95,14 +90,41 @@ zrbte_codegen() {
     || buc_die_now "Failed to generate colophon consts"
 }
 
+# The kennel stands and is current, or refuse naming the whistle. REPORT AND
+# REFUSE, NEVER CONVERGE: the whistle is the one door that rebuilds the kennel.
+# The door law stands first, since a kennel refusing a dirty tree states no seat
+# and would read as outrun.
+zrbte_kennel_or_die() {
+  zrbte_sentinel
+
+  bkcp_door_law_or_die "${ZRBTE_REPO_ROOT}"
+
+  test -x "${ZRBTE_KENNEL}" || buc_die_now \
+    "No kennel stands at ${ZRBTE_KENNEL}, and every cargo invocation of the theurge passes through it. The converge, run deliberately: ${ZRBTE_WHISTLE}"
+
+  local z_seat=""
+  z_seat=$(bkcp_position_capture "${ZRBTE_REPO_ROOT}" "${ZRBTE_KENNEL_ELECTION}") \
+    || buc_die_now "Could not read the seat's position over ${ZRBTE_KENNEL_ELECTION}"
+
+  local z_standing=""
+  z_standing=$(bkcp_standing_seat_capture "${ZRBTE_KENNEL}") \
+    || buc_die_now "Could not ask the kennel at ${ZRBTE_KENNEL} where it was struck"
+
+  test "${z_standing}" = "${z_seat}" || buc_die_now \
+    "The seat has outrun the kennel: the binary at ${ZRBTE_KENNEL} stands at ${z_standing:-no position it could state}, the seat at ${z_seat}. The converge, run deliberately: ${ZRBTE_WHISTLE}"
+
+  bkcb_ensure
+}
+
+# The codegen, then the kennel's converge of the app collar. A codegen that moved
+# a committed file leaves the tree dirty, and the gate refuses it by the door law.
 zrbte_build_binary() {
   zrbte_sentinel
 
   zrbte_codegen
+  zrbte_kennel_or_die
   buc_step "Building theurge"
-  local z_cargo_status=0
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || z_cargo_status=$?
-  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo build failed (status ${z_cargo_status})"
+  "${ZRBTE_KENNEL}" heel "${ZRBTE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTE_APP_COLLAR} failed"
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -112,24 +134,23 @@ zrbte_build_binary() {
 rbte_build() {
   zrbte_sentinel
 
-  zrbte_codegen
-  buc_step "Building theurge"
-  buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  local z_cargo_status=0
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || z_cargo_status=$?
-  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo build failed (status ${z_cargo_status})"
+  test "$#" -eq 0 || buc_die_now "The theurge build takes no argument; its shape is the collar ${ZRBTE_APP_COLLAR}'s"
+
+  zrbte_build_binary
   buc_success "Theurge built"
 }
 
+# The codegen, then the kennel's mush over the suite collar; any argument is the
+# kennel's selection pattern, handed through untouched.
 rbte_test() {
   zrbte_sentinel
 
   zrbte_codegen
+  zrbte_kennel_or_die
   buc_step "Testing theurge"
-  buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  local z_cargo_status=0
-  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || z_cargo_status=$?
-  test "${z_cargo_status}" -eq 0 || buc_die_now "cargo test failed (status ${z_cargo_status})"
+  local z_mush_status=0
+  "${ZRBTE_KENNEL}" mush "${ZRBTE_SUITE_COLLAR}" "$@" || z_mush_status=$?
+  test "${z_mush_status}" -eq 0 || buc_die_now "The kennel's mush of ${ZRBTE_SUITE_COLLAR} failed (status ${z_mush_status})"
   buc_success "All theurge tests passed"
 }
 

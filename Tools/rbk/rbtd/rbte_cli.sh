@@ -36,6 +36,8 @@ zrbte_furnish() {
   buc_doc_env_row "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided; codegen input)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Temp directory (dispatch-provided; codegen scratch)"
   buc_doc_env_row "BURD_STATION_FILE     " "Station regime file (launcher-provided; dowse log-dir source)"
+  buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided; the kennel's home)"
+  buc_doc_env_row "BURD_TACKROOM         " "The station's shared toolchain and registry store (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local -r z_command="${1:-}"
@@ -50,7 +52,27 @@ zrbte_furnish() {
   source "${z_cli_dir}/../rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
   source "${z_cli_dir}/../rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
   source "${z_cli_dir}/../rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh" || buc_die_now "Failed to source bkcp_position.sh"
+  source "${BURD_TOOLS_DIR}/bkk/bk0/bkcb_tackroom.sh" || buc_die_now "Failed to source bkcb_tackroom.sh"
   source "${z_cli_dir}/rbte_engine.sh" || buc_die_now "Failed to source rbte_engine.sh"
+
+  # The no-log dispatch sources no station file and hands the tackroom across
+  # empty, while every theurge build converges through the kennel, which needs it.
+  # So an empty tackroom is taken from the launcher-exported station file and
+  # absolutized as dispatch absolutizes it. A COPY of dispatch's derivation, owed
+  # retirement: it retires when dispatch provides the tackroom on the no-log path
+  # at BUK's home and that parcel lands here. It stands ahead of the burd
+  # kindle, which locks every BURD_ variable against mutation.
+  if test -z "${BURD_TACKROOM:-}"; then
+    test -n "${BURD_STATION_FILE:-}" || buc_die_now "BURD_STATION_FILE not set - launch via tabtarget"
+    source "${BURD_STATION_FILE}" || buc_die_now "Failed to source station file: ${BURD_STATION_FILE}"
+    BURD_TACKROOM="${BURS_TACKROOM:-}"
+    case "${BURD_TACKROOM}" in
+      ""|/*) ;;
+      *)     BURD_TACKROOM="${PWD}/${BURD_TACKROOM}" ;;
+    esac
+    export BURD_TACKROOM
+  fi
 
   zbuv_kindle
   zburd_kindle
@@ -59,6 +81,7 @@ zrbte_furnish() {
   zbuwz_kindle
   zrbcc_kindle
   zrbgc_kindle
+  zbkcb_kindle
   zrbte_kindle
 
   # The dowse census reads the station's log dir (BURS_LOG_DIR), which dispatch

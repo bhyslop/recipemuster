@@ -61,10 +61,34 @@ fn zrbthd_rehearse(command: &str, args: &[String]) -> bool {
     }
 }
 
+/// The flag the kennel's election asks a standing binary before it launches or
+/// borrows one. Its home is `BKCE_EXERGUE_FLAG` in the kennel's election
+/// (`Tools/bkk/bk0/src/bkce_election.rs`); spelled here because this crate links
+/// no kennel.
+const RBTHD_FLAG_EXERGUE: &str = "--exergue";
+
+/// Answer the kennel's `--exergue` with the position this binary was struck
+/// from: what the kennel's converge stated to the build script, which handed it
+/// to this compile.
+///
+/// THE ONE STDOUT LINE THE HIEROPHANT WRITES, and it stands here rather than in
+/// RBTHDR for the reason RBTHDR gives for leaving stdout clear: this is the
+/// machine-read channel, the kennel reading the answer's position-shaped lines
+/// from stdout, so the answer is the bare position and nothing else.
+fn zrbthd_answer_exergue() -> ExitCode {
+    use std::io::Write;
+    let mut stdout = std::io::stdout().lock();
+    match writeln!(stdout, "{}", env!("BKCH_COLLAR_POSITION")) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(_) => ExitCode::FAILURE,
+    }
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
     match args.get(1).map(|s| s.as_str()) {
+        Some(RBTHD_FLAG_EXERGUE) => zrbthd_answer_exergue(),
         Some(RBTHD_CMD_ESSAI) => rbthd::rbthdr_essai::rbthdr_essai_conduct(),
         Some(RBTHD_CMD_DOCIMASY) => rbthd::rbthdr_docimasy::rbthdr_docimasy_conduct(zrbthd_rehearse(RBTHD_CMD_DOCIMASY, &args)),
         Some(RBTHD_CMD_OSTEND) => rbthd::rbthdr_ostend::rbthdr_ostend_conduct(zrbthd_rehearse(RBTHD_CMD_OSTEND, &args)),
