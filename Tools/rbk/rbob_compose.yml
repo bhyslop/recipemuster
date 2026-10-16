@@ -98,6 +98,7 @@ services:
       - RBOB_HOST_UID
       - RBOB_HOST_GID
       - RBRV_USER
+      - RBJE_PROBE
     depends_on:
       pentacle:
         condition: service_healthy

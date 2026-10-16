@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Copyright 2026 Scale Invariant, Inc.
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -14,18 +14,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
+echo "RBJ: Beginning sandbox entrypoint"
 
-# Align container user UID/GID with host when bind-mounting workspace.
-# RBOB_HOST_UID/GID arrive via compose environment from rbob_bottle.sh.
-# Vessels without bind mounts simply don't set these — the block is skipped.
-if [ -n "${RBOB_HOST_UID:-}" ] && [ -n "${RBRV_USER:-}" ]; then
-  usermod  -o -u "${RBOB_HOST_UID}" "${RBRV_USER}"
-  groupmod -o -g "${RBOB_HOST_GID}" "${RBRV_USER}"
+set -e
+test "${RBJ_VERBOSE:-0}" -ge 1 && set -x
+
+echo "RBJp0: Validate compose env-file quoting"
+: "${RBJE_PROBE:?}"
+z_probe_count=0
+z_probe_first=""
+z_probe_second=""
+for z_word in ${RBJE_PROBE}; do
+  z_probe_count=$((z_probe_count + 1))
+  if test "${z_probe_count}" -eq 1; then z_probe_first="${z_word}";  fi
+  if test "${z_probe_count}" -eq 2; then z_probe_second="${z_word}"; fi
+done
+test "${z_probe_count}" -eq 2      || { echo "FATAL: RBJE_PROBE token count ${z_probe_count}, expected 2 — value: '${RBJE_PROBE:-}'"; exit 1; }
+test "${z_probe_first}" = "alpha"  || { echo "FATAL: RBJE_PROBE first token not 'alpha' — value: '${RBJE_PROBE:-}'"; exit 1; }
+test "${z_probe_second}" = "bravo" || { echo "FATAL: RBJE_PROBE second token not 'bravo' — value: '${RBJE_PROBE:-}'"; exit 1; }
+echo "RBJp0: Compose env-file quoting validated — RBJE_PROBE = '${RBJE_PROBE}'"
+
+echo "RBJp1: Aligning container user with host"
+if test -n "${RBOB_HOST_UID:-}" && test -n "${RBRV_USER:-}"; then
+  echo "RBJp1: ${RBRV_USER} to UID ${RBOB_HOST_UID}, GID ${RBOB_HOST_GID:-}"
+  usermod  -o -u "${RBOB_HOST_UID}" "${RBRV_USER}" || exit 10
+  groupmod -o -g "${RBOB_HOST_GID}" "${RBRV_USER}" || exit 11
+else
+  echo "RBJp1: No host UID or user forwarded, alignment skipped"
 fi
 
-CLAUDE_HOME=$(getent passwd claude | cut -d: -f6)
-chown -R claude:claude "${CLAUDE_HOME}"
+echo "RBJp2: Claiming the claude home"
+z_claude_home=$(getent passwd claude | cut -d: -f6)
+test -n "${z_claude_home}" || { echo "FATAL: No home directory found for user claude"; exit 20; }
+echo "RBJp2: Claude home = ${z_claude_home}"
+chown -R claude:claude "${z_claude_home}" || exit 21
 
-# Start SSH daemon in foreground (container lifecycle tied to sshd)
+echo "RBJp3: Sandbox entrypoint complete, handing off to sshd"
 exec /usr/sbin/sshd -D
