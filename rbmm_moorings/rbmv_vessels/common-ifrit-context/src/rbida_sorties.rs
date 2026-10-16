@@ -3182,7 +3182,7 @@ pub fn rbida_sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict
 /// targets in net_forbidden_cidr / udp_non_dns_blocked / net_srcip_spoof).
 const RBIDA_OFFPATH_BLOCKED_DEST: &str = "8.8.8.8";
 
-/// Empirical backstop for the rbsq_wdd_offpath_reply quirk's keystone clause.
+/// Empirical backstop for the rbsiq_wdd_offpath_reply quirk's keystone clause.
 ///
 /// conntrack_spoofed_ack classifies an off-path lone-ACK reply as a benign
 /// substrate quirk — but only on the untested premise that the substrate ever
@@ -3231,7 +3231,7 @@ pub fn rbida_sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbida_Verdict 
         Ok(rbida_AckProvenance::OffPath { src_mac }) => rbida_fail(format!(
             "BREACH: lone ACK to blocked {}:80 drew an OFF-PATH reply (L2 src {}, not the sentry \
              gateway) — the substrate answered for a destination the sentry never approved. This \
-             voids the rbsq_wdd_offpath_reply benign classification: a real path-in, not a quirk.",
+             voids the rbsiq_wdd_offpath_reply benign classification: a real path-in, not a quirk.",
             dst_ip, src_mac
         )),
         Ok(rbida_AckProvenance::SentryMediated { src_mac }) => rbida_fail(format!(

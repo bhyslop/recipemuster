@@ -189,7 +189,7 @@ pub enum rbida_Attack {
     /// Spoofed ACK without prior SYN — conntrack RELATED,ESTABLISHED should drop it
     ConntrackSpoofedAck,
     /// Lone ACK to a blocked destination — negative control proving the
-    /// rbsq_wdd_offpath_reply quirk's "blocked dests are dropped before the
+    /// rbsiq_wdd_offpath_reply quirk's "blocked dests are dropped before the
     /// substrate sees them" premise; any reply of any provenance is a BREACH
     OffpathBlockedDest,
     /// Self-check of the conntrack provenance capture/classify pipeline — feeds
