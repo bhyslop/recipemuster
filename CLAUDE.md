@@ -184,16 +184,6 @@ Every tolerance, alias, fallback, or alternative path multiplies the enumerated 
 
 Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline. Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
 
-## Salutation
-
-<!-- The wake-up greeting (never distributed; hand-maintained outside the
-     managed block). The file is gitignored and billet-local, materialized at
-     billet preparation by the saddle and tier-matched from the studbook; if
-     the include dangles, run a fresh saddle. The partnership rules of
-     engagement it used to lead into are CMK-homed and CMK homes in ../jjqa_app,
-     so they are not loaded here. -->
-@.claude/claude-salutation.md
-
 ## Kit context
 
 <!-- THE GATHER MANIFEST, and the curation record for it. Every `@` line below
