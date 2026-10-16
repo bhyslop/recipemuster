@@ -12,12 +12,13 @@
 // reversible proving act), ostend (the reveal's irreversible showing), and
 // harbinger (the stranger rig). This crate is withheld from delivery by
 // directory construction; it may therefore cite the closed spec
-// (RBSHE/RBSHC/RBSHD/RBSHO/RBSHH, rbth_ quoins) directly, which shipped
+// (RBSHE/RBSHC/RBSHD/RBSHO/RBSHH, rbshc_ quoins) directly, which shipped
 // source may never do.
 
 #![allow(non_camel_case_types)]
 #![deny(warnings)]
 
+pub mod rbthdg_breviary;
 pub mod rbthdr_log;
 pub mod rbthdr_run;
 pub mod rbthdr_repo;
