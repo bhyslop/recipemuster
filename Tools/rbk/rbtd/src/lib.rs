@@ -38,6 +38,7 @@ macro_rules! rbtd_vessels_dir {
     };
 }
 
+pub mod rbtdgb_breviary;
 pub mod rbtdgc_consts;
 pub mod rbtdra_almanac;
 pub mod rbtdrb_probe;

@@ -35,7 +35,7 @@
 # mapper, RFC 7523 asserting trust, federated-linked user, and frontendUrl are all
 # declarative DATA, so configure_realm is gone (no runtime admin-REST). The token is
 # minted via the RFC 7523 JWT Authorization Grant, signed with the committed test
-# asserter key (fdkyclk-asserter-key.pem). Contract: RBSFK / rbtf_realm.
+# asserter key (fdkyclk-asserter-key.pem). Contract: RBSFK / rbsfd_realm.
 #
 # Stage B brevet is payor-DIRECT, not via rbgp_brevet: the real admission verbs
 # assume the single manor pool (spike-office-test), so admitting a subject in the

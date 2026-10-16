@@ -414,7 +414,7 @@ rbrn_preflight() {
 #
 # Resolve a hallmark express-or-chain and write it into one target nameplate's
 # RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK line. The durable-config LINK for
-# the nameplate/hallmark chain — sibling of feoff/anoint/yoke on the rbch_enchase
+# the nameplate/hallmark chain — sibling of feoff/anoint/yoke on the rbsbc_enchase
 # surface, but writing the rbrn_regime family rather than rbrv_regime. Called by
 # rbrn_cli (the cloud operator verb) and by rbob (the local kludge composes it).
 # Operator-committed, never self-committing.

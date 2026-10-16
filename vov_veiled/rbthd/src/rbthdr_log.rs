@@ -67,7 +67,7 @@ pub fn rbthdr_raw(block: &str) {
     let _ = writeln!(stderr, "{}", block);
 }
 
-/// Interactive confirmation ({rbbc_prompt}, RBS0 "Human Bash Ceremony Control
+/// Interactive confirmation ({rbskb_prompt}, RBS0 "Human Bash Ceremony Control
 /// Voicings"): shows `msg`, blocks on the hierophant's own stdin for a y/N
 /// line, and fatals on anything but an affirmative — decline, empty input, or
 /// closed stdin are all a decline. Only the ostend and the docimasy's gauntlet
@@ -97,7 +97,7 @@ pub fn zrbthdr_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
 }
 
 /// Hard stop. Emits a located [FATAL] and exits 1 — the Rust form of the bash
-/// workers' buc_die_now, used for every RBSHE `{rbbc_fatal}`.
+/// workers' buc_die_now, used for every RBSHE `{rbskb_fatal}`.
 #[macro_export]
 macro_rules! rbthdr_fatal {
     ($($arg:tt)*) => {
