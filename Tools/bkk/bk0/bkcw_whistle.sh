@@ -23,7 +23,7 @@
 # itself: something outside the binary has to exist before the binary does. It
 # binds the toolchain once, minimally, and grows nothing else. Every other door
 # of this kit is a rust interior; this is the bootstrap the founding cinch
-# carved out (BKSNC-Kennelcraft.adoc "The form of each launcher").
+# carved out.
 #
 # ONE TABTARGET PER DOOR, AND THE DOOR WORD IS NEVER TYPED (operator, 260905).
 # What stood here was a single tabtarget taking the door word as its argument,
@@ -59,7 +59,7 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBKCW_SOURCED:-}" || return 0
+test -z "${ZBKCW_SOURCED:-}" || buc_die_now "Module bkcw multiply sourced - check sourcing hierarchy"
 ZBKCW_SOURCED=1
 
 zbkcw_kindle() {
@@ -114,8 +114,11 @@ zbkcw_converge() {
 
   bkcb_channel_present_or_die "${z_channel}"
 
+  local z_cargo_status=0
   cargo "+${z_channel}" build --release --manifest-path "${ZBKCW_MANIFEST}" --locked \
-    || buc_die_now "The kennel did not build"
+    || z_cargo_status=$?
+  test "${z_cargo_status}" -eq 0 \
+    || buc_die_now "The kennel did not build (exit ${z_cargo_status})"
 
   test -x "${ZBKCW_BINARY}" \
     || buc_die_now "The build reported success but no binary stands at ${ZBKCW_BINARY}"
@@ -137,18 +140,19 @@ zbkcw_converge() {
 # No door of this file knows whether it is one of those, which is the point -
 # the grammar is stated once, in the kennel, and never a second time here.
 zbkcw_door() {
-  local z_word="$1"
-  shift
+  local -r z_word="${1}"
+  test "$#" -eq 0 || shift
 
   zbkcw_converge
 
-  exec "${ZBKCW_BINARY}" "${z_word}" ${BUZ_FOLIO:+"${BUZ_FOLIO}"} "$@"
+  exec "${ZBKCW_BINARY}" "${z_word}" ${BUZ_FOLIO:+"${BUZ_FOLIO}"} "$@" \
+    || buc_die_now "Could not exec the kennel at ${ZBKCW_BINARY}"
 }
 
 ######################################################################
 # External
 #
-# NINE FUNCTIONS, ONE SHAPE. Each names its door's word and hands everything
+# ELEVEN FUNCTIONS, ONE SHAPE. Each names its door's word and hands everything
 # else to zbkcw_door; what differs between them is the word and the help text.
 # That is the whole of what the one-tabtarget-per-door ruling asks the bash to
 # hold, and the reason it can hold so little: the grammar of each door is the
@@ -181,7 +185,8 @@ bkcw_kennel() {
 
   zbkcw_converge
 
-  exec "${ZBKCW_BINARY}"
+  exec "${ZBKCW_BINARY}" \
+    || buc_die_now "Could not exec the kennel at ${ZBKCW_BINARY}"
 }
 
 # mush - the launch seam.
@@ -199,6 +204,15 @@ bkcw_derby() {
   buc_doc_shown || return 0
 
   zbkcw_door derby "$@"
+}
+
+# futurity - the derby's set, narrowed by patterns.
+bkcw_futurity() {
+  buc_doc_brief "Run the hurdles the patterns name across every suite collar the walk finds, naming each course not launched"
+  buc_doc_param "pattern" "one or more selection patterns, matched once over every course's listing"
+  buc_doc_shown || return 0
+
+  zbkcw_door futurity "$@"
 }
 
 # lineup - the no-run listing.
@@ -251,6 +265,14 @@ bkcw_scoop() {
   buc_doc_shown || return 0
 
   zbkcw_door scoop "$@"
+}
+
+# delouse - the day's sweep, taken ahead of a build.
+bkcw_delouse() {
+  buc_doc_brief "Take the day's sweep of every collar's build directory if no sweep has landed today - recorded once a day, a no-op after"
+  buc_doc_shown || return 0
+
+  zbkcw_door delouse "$@"
 }
 
 # eof

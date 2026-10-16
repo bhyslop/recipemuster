@@ -60,8 +60,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Tinder constants

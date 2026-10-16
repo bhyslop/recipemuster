@@ -28,7 +28,7 @@
 //! harvest.
 
 use crate::bkcc_record::*;
-use crate::bkg_breviary::bkg_burc_loosebox_root_dir_base;
+use crate::bkg_breviary::bkg_bus_loosebox_base;
 
 /// A whole green course, as the doors compose one.
 fn zbktc_whole() -> bkcc_Course {
@@ -236,7 +236,7 @@ fn bktc_an_absent_loosebox_refuses_naming_the_variable() {
     for said in ["", "   "] {
         let err = bkcc_looseboxed(said).expect_err(concat!(
             "an absent ",
-            bkg_burc_loosebox_root_dir_base!(),
+            bkg_bus_loosebox_base!(),
             " refuses", //
         ));
 

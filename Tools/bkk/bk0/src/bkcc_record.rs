@@ -43,7 +43,7 @@
 
 use std::path::{Path, PathBuf};
 
-use bkl::bklrc_catena;
+use bkp::bkprc_catena;
 
 /// The dispatch's output directory — the latest-command copy, cleared on the
 /// next dispatch, and the one the engine reads the moment a door returns.
@@ -204,9 +204,9 @@ impl bkcc_Course {
 /// disposition, and a reader that tolerated an extra field would be admitting a
 /// record whose writer meant something this one does not know.
 pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
-    let regime = bklrc_catena::bklrc_admit(source, whence)?;
+    let regime = bkprc_catena::bkprc_admit(source, whence)?;
 
-    for key in regime.bklrc_keys() {
+    for key in regime.bkprc_keys() {
         if !bkcc_roster().contains(&key) {
             return Err(format!(
                 "{} declares '{}', which no field of the course record's roster names — the \
@@ -352,11 +352,11 @@ pub fn bkcc_roster() -> [&'static str; 7] {
 
 /// A field the roster demands, refused by name where it does not stand.
 fn zbkcc_demand<'a>(
-    regime: &'a bklrc_catena::bklrc_Regime,
+    regime: &'a bkprc_catena::bkprc_Regime,
     key: &str,
     whence: &str,
 ) -> Result<&'a str, String> {
-    regime.bklrc_scalar(key).ok_or_else(|| {
+    regime.bkprc_scalar(key).ok_or_else(|| {
         format!(
             "{} carries no {} — every field of the course record's roster is required and never \
              vacant, a reader deriving a value from an absence being unable to tell a declaration \
@@ -368,7 +368,7 @@ fn zbkcc_demand<'a>(
 
 /// A field the roster types as a count.
 fn zbkcc_counted(
-    regime: &bklrc_catena::bklrc_Regime,
+    regime: &bkprc_catena::bkprc_Regime,
     key: &str,
     whence: &str,
 ) -> Result<usize, String> {

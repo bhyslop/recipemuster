@@ -161,6 +161,7 @@ fn bktl_a_channel_the_tackroom_lacks_refuses_rather_than_downloading() {
     // happily go and get it, over minutes, saying almost nothing.
     let refusal = bkcl_leash::bkcl_drive(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         &lure.bktu_root().join("Cargo.toml"),
         "metadata",
         Vec::<String>::new(),
@@ -196,6 +197,7 @@ fn bktl_a_recalled_run_hands_back_the_childs_own_words() {
 
     let recall = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         &lure.bktu_root().join("Cargo.toml"),
         "metadata",
         ["--no-deps", "--format-version", "1", "--offline"],
@@ -257,6 +259,7 @@ fn bktl_a_recalled_run_stands_on_the_same_discipline_as_a_driven_one() {
     // would drift the moment one of them was edited.
     let refusal = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         &lure.bktu_root().join("Cargo.toml"),
         "metadata",
         Vec::<String>::new(),
@@ -424,8 +427,8 @@ fn zbktl_seat_crate(lure: &bktu_Lure) {
     lure.bktu_write(
         "build.rs",
         "fn main() {\n\
-         \x20   println!(\"cargo:rerun-if-env-changed=BKK_SEAT_POSITION\");\n\
-         \x20   let said = std::env::var(\"BKK_SEAT_POSITION\")\n\
+         \x20   println!(\"cargo:rerun-if-env-changed=BKCL_SEAT_POSITION\");\n\
+         \x20   let said = std::env::var(\"BKCL_SEAT_POSITION\")\n\
          \x20       .unwrap_or_else(|_| \"unset\".to_string());\n\
          \x20   std::fs::write(\"seat-said.txt\", said)\n\
          \x20       .expect(\"the build script writes what it was handed\");\n\
@@ -465,6 +468,7 @@ fn bktl_a_tree_holding_the_kennels_election_is_handed_the_position() {
 
     let run = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         &lure.bktu_root().join("Cargo.toml"),
         "build",
         ["--offline"],
@@ -511,6 +515,7 @@ fn bktl_a_tree_holding_no_election_is_handed_no_position() {
 
     let run = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         &lure.bktu_root().join("Cargo.toml"),
         "build",
         ["--offline"],
@@ -528,6 +533,44 @@ fn bktl_a_tree_holding_no_election_is_handed_no_position() {
         zbktl_seat_said(&lure),
         "unset",
         "the child of a kennel-less tree carries no position, inherited or otherwise"
+    );
+}
+
+/// A reader that yields its lines and then FAILS rather than ending, the shape a
+/// pipe broken mid-read presents.
+struct zbktl_Breaking {
+    lines: std::io::Cursor<Vec<u8>>,
+}
+
+impl std::io::Read for zbktl_Breaking {
+    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+        match self.lines.read(buf)? {
+            0 => Err(std::io::Error::other("planted break")),
+            read => Ok(read),
+        }
+    }
+}
+
+#[test]
+fn bktl_a_stream_whose_read_breaks_is_answered_as_cut() {
+    let (post, arrivals) = std::sync::mpsc::channel::<String>();
+    let breaking = zbktl_Breaking {
+        lines: std::io::Cursor::new(b"test one ... ok\ntest two ... ok\n".to_vec()),
+    };
+
+    let cut = bkcl_leash::zbkcl_carried(std::io::BufReader::new(breaking), post);
+    let carried: Vec<String> = arrivals.iter().collect();
+
+    assert_eq!(carried, vec!["test one ... ok", "test two ... ok"], "the lines ahead of the break are carried");
+    let cut = cut.expect("a read that broke is answered as a cut");
+    assert!(cut.contains("planted break"), "the cut names what broke the read: {}", cut);
+
+    // THE CONTROL: a stream read to its end is no cut.
+    let (post, _arrivals) = std::sync::mpsc::channel::<String>();
+    assert_eq!(
+        bkcl_leash::zbkcl_carried(std::io::Cursor::new(b"test one ... ok\n".to_vec()), post),
+        None,
+        "a stream read to its end is no cut"
     );
 }
 

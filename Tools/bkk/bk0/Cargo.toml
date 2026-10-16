@@ -17,7 +17,7 @@
 name = "bkk"
 version = "0.0.1"
 edition = "2021"
-description = "Bash Kennel Master - the launch discipline every build and test door in the estate passes through"
+description = "Bash Kennel - the launch discipline every build and test door in the estate passes through"
 license = "Apache-2.0"
 build = "build.rs"
 
@@ -41,7 +41,7 @@ path = "src/main.rs"
 #
 # THE TWO EXTERNAL CRATES, AND WHY EACH IS ADMITTED. The safety reading of both,
 # under the package-safety heat's five founding questions, stands beside the
-# allow list in Tools/bkk/bk0/bki_suite/bkrr.env and is not restated here.
+# allow list in Tools/bkk/bkd_brood/bki_suite/bkrr.env and is not restated here.
 #
 # THE FIRST. The frozen shape has the kennel
 # match a caller's selection patterns ITSELF, against the runner's own listing,
@@ -65,7 +65,7 @@ path = "src/main.rs"
 # (BKSCL-Collar.adoc), these three included, and the lock beside this manifest
 # pins the whole closure.
 [dependencies]
-bkl = { path = "bkl" }
+bkp = { path = "bkp" }
 regex = "1.12.2"
 toml = { version = "0.9.12", default-features = false, features = ["parse"] }
 

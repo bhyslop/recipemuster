@@ -62,12 +62,11 @@
 #[allow(dead_code, non_camel_case_types)]
 mod bktu_lure;
 
-use bkk::bkca_whereabouts::{
-    BKCA_DELIVERED_DIR, BKCA_FILE, BKCA_GEOGRAPHY_DISPATCHED, BKCA_GEOGRAPHY_SELF,
-};
+use bkk::bkce_election::{BKCE_GEOGRAPHY_DISPATCHED, BKCE_GEOGRAPHY_SELF};
 use bkk::bkcc_record;
 use bkk::bkcf_guard;
 use bkk::bkcf_guard::BKCF_REMEDY;
+use bkk::bkcf_guard::BKCF_REPOINT;
 use bkk::bkcl_leash;
 use bkk::bkco_output;
 use bkk::bkcq_kibble;
@@ -130,10 +129,10 @@ const ZBKTD_SCOOP: &str = "scoop";
 /// what the door removes is cargo's own answer and a hurdle that composed the
 /// path would prove nothing about that answer.
 fn zbktd_warm(lure: &bktu_Lure, collar: &str) -> std::path::PathBuf {
-    let resolved = bkcr_resolve(lure.bktu_root(), collar).expect("the collar should resolve");
+    let resolved = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), collar).expect("the collar should resolve");
 
     let sighted =
-        bkcy_sight(lure.bktu_root(), None, &resolved.collar).expect("cargo should be reachable");
+        bkcy_sight(lure.bktu_root(), &lure.bktu_weaned(), None, &resolved.collar).expect("cargo should be reachable");
 
     let directory = match sighted {
         bkcy_Sighting::Within(directory) => directory,
@@ -169,6 +168,45 @@ fn bktd_the_door_refuses_a_dirty_lure_and_names_the_notch() {
         said.contains(BKTD_STRAY),
         "the refusal names the file it found: {}",
         said
+    );
+}
+
+#[test]
+fn bktd_the_door_refuses_a_dangling_include_and_names_it() {
+    let lure = bktu_Lure::bktu_compose("drive-door-dangling");
+    lure.bktu_write("CLAUDE.md", "# context\n\n@Tools/kit/held.md\n");
+    lure.bktu_commit("bank a CLAUDE.md whose include names nothing yet");
+
+    let out = lure.bktu_drive(zbktd_kennel());
+
+    assert!(!out.status.success(), "the door refuses a dangling include: {}", out.status);
+    let said = String::from_utf8_lossy(&out.stderr);
+    assert!(
+        said.contains("CLAUDE.md:3: @Tools/kit/held.md"),
+        "the refusal names file, line and path: {}",
+        said
+    );
+    assert!(
+        said.contains(BKCF_REPOINT),
+        "the refusal names the remedy ({}): {}",
+        BKCF_REPOINT,
+        said, //
+    );
+
+    // THE CONTROL, over the same lure: the file the include names now stands, and
+    // the door that refused above stands over it. A binary refusing any CLAUDE.md
+    // at all would clear the assertions above; this is what says the refusal is
+    // about the dangling.
+    lure.bktu_write("Tools/kit/held.md", "held\n");
+    lure.bktu_commit("stand the file the include names");
+
+    let out = lure.bktu_drive(zbktd_kennel());
+
+    assert!(
+        out.status.success(),
+        "an include naming a tracked file passes: {} {}",
+        out.status,
+        String::from_utf8_lossy(&out.stderr)
     );
 }
 
@@ -271,7 +309,7 @@ fn zbktd_app(lure: &bktu_Lure) {
     lure.bktu_write(".gitignore", "target/\nTools/bin/\n");
     zbktd_crate(lure, "Tools/lure", "lure", "src/main.rs", "fn main() {}\n");
     lure.bktu_write(
-        "app-lure/bkrr.env",
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
         "\
 BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
@@ -304,7 +342,7 @@ fn bktd_heel_installs_at_the_collars_residence() {
     lure.bktu_write("clippy.toml", BKTD_CLIPPY);
     zbktd_crate(&lure, "Tools/lure", "lure", "src/main.rs", "fn main() {}\n");
     lure.bktu_write(
-        "app-lure/bkrr.env",
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
         "\
 BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
@@ -386,7 +424,7 @@ fn bktd_marked() {
 /// beside the crate so the walk's sorted order is the directory order.
 fn zbktd_suite_collar(lure: &bktu_Lure, dir: &str, name: &str) {
     lure.bktu_write(
-        &format!("{}/{}/bkrr.env", dir, name),
+        &lure.bktu_weaned_at(&format!("{}/bkrr.env", name)),
         &format!(
             "\
 BKRR_COLLAR=\"{name}\"
@@ -408,7 +446,7 @@ BKRR_TONGUE=\"bknre_harness\"
     );
 }
 
-/// Two suite crates, the first red and the second marking the disk if it runs.
+/// Two suite crates, the first of them red and the second marking the disk if it runs.
 /// The walk sorts by instance path, so `alfa` is course one and `bravo` course
 /// two whatever order they were written in.
 fn zbktd_two_courses(lure: &bktu_Lure) {
@@ -421,40 +459,194 @@ fn zbktd_two_courses(lure: &bktu_Lure) {
     zbktd_suite_collar(lure, "Tools/bravo", "suite-bravo");
 }
 
-/// THE DERBY STOPS AT THE FIRST RED COURSE (operator, 260905), and the stopping
-/// is proven from the disk rather than from the console: the second course's
-/// hurdle writes a mark when it runs, and the mark's absence is what says its
-/// runner was never spawned. The verdict is read too — a door that stopped for
-/// some other reason and said nothing about the courses left would be a
-/// different behavior passing this assertion.
+/// A suite crate whose one hurdle WRITES ITS MARK AND THEN FAILS, so a course
+/// standing behind a red one can be proven both reached and red.
+const BKTD_MARKED_RED: &str = "\
 #[test]
-fn bktd_derby_stops_at_the_first_red_course() {
-    let lure = bktu_Lure::bktu_compose("derby-stops");
-    zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses, the first of them red");
+fn bktd_marked_red() {
+    std::fs::write(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/ran.txt\"), \"ran\")
+        .expect(\"the mark is writable\");
+    panic!(\"this course is red by construction, after marking\");
+}
+";
+
+/// Two suite crates, BOTH red, the second marking the disk when it runs. The
+/// shared two-course fixture keeps its second course green, which the record
+/// and futurity hurdles lean on, so the two-red walk is composed apart.
+fn zbktd_two_red_courses(lure: &bktu_Lure) {
+    lure.bktu_write("clippy.toml", BKTD_CLIPPY);
+
+    zbktd_crate(lure, "Tools/alfa", "alfa", "src/lib.rs", BKTD_RED);
+    zbktd_suite_collar(lure, "Tools/alfa", "suite-alfa");
+
+    zbktd_crate(lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED_RED);
+    zbktd_suite_collar(lure, "Tools/bravo", "suite-bravo");
+}
+
+/// The exit the derby and the futurity take when the walk ran through and a
+/// course went red or was refused by the muzzle. Spelled here because the
+/// constant is the binary's own and this hurdle stands outside it, as the
+/// record exit is.
+const ZBKTD_EXIT_FALLERS: i32 = 89;
+
+/// The set verdict's line naming the red courses, read off a drive's console.
+fn zbktd_red_line(said: &str) -> Option<&str> {
+    said.lines().find(|line| line.contains("course(s) went red:"))
+}
+
+/// THE DERBY RUNS THROUGH EVERY RED COURSE (operator, 260929), and the run is
+/// proven from the disk rather than from the console: the second course writes
+/// its mark before it fails, so the mark says its runner was spawned behind the
+/// red one ahead of it. The set verdict names both, and the exit is the walk's
+/// own rather than either course's.
+#[test]
+fn bktd_derby_runs_through_both_red_courses() {
+    let lure = bktu_Lure::bktu_compose("derby-through");
+    zbktd_two_red_courses(&lure);
+    lure.bktu_commit("compose two courses, both of them red");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_said(&out);
 
-    assert!(!out.status.success(), "a red course reddens the derby: {}", out.status);
-    assert!(
-        said.contains("suite-alfa"),
-        "the verdict names the course that failed: {}",
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_EXIT_FALLERS),
+        "the walk exits with its own code: {}",
         said
     );
     assert!(
-        said.contains("suite-bravo"),
-        "and names the course that did not run: {}",
+        mark.exists(),
+        "the second course ran behind the red one ahead of it, which is what its written mark says: {}\n{}",
+        mark.display(),
         said
     );
+    let red = zbktd_red_line(&said).unwrap_or_else(|| panic!("no set verdict names the reds: {}", said));
     assert!(
-        !mark.exists(),
-        "the second course's runner was never spawned, which is what its unwritten mark says: {}",
-        mark.display()
+        red.contains("suite-alfa") && red.contains("suite-bravo"),
+        "the set verdict names both red courses: {}",
+        red
     );
 }
+
+/// A COURSE THE MUZZLE REFUSES IS STEPPED PAST, named apart from the red ones,
+/// and the course behind it still runs. The refused course lints against a list
+/// of its own that bars a call its crate makes.
+#[test]
+fn bktd_derby_steps_past_a_muzzle_refused_course() {
+    let lure = bktu_Lure::bktu_compose("derby-muzzled");
+    lure.bktu_write("clippy.toml", BKTD_CLIPPY);
+
+    zbktd_crate(&lure, "Tools/alfa", "alfa", "src/lib.rs", BKTD_BARRED);
+    lure.bktu_write("Tools/alfa/clippy.toml", ZBKTD_BARRING_LIST);
+    zbktd_suite_collar(&lure, "Tools/alfa", "suite-alfa");
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-alfa/bkrr.env"),
+        &std::fs::read_to_string(lure.bktu_root().join(lure.bktu_weaned_at("suite-alfa/bkrr.env")))
+            .expect("the collar just written is readable")
+            .replace("BKRR_MUZZLE=\".\"", "BKRR_MUZZLE=\"Tools/alfa\""),
+    );
+
+    zbktd_crate(&lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED_RED);
+    zbktd_suite_collar(&lure, "Tools/bravo", "suite-bravo");
+    lure.bktu_commit("compose a muzzle-refused course ahead of a red one");
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = zbktd_said(&out);
+
+    assert_eq!(out.status.code(), Some(ZBKTD_EXIT_FALLERS), "the walk exits with its own code: {}", said);
+    assert!(mark.exists(), "the course behind the refused one ran: {}\n{}", mark.display(), said);
+    assert!(
+        said.lines()
+            .any(|line| line.contains("refused by the muzzle before any hurdle ran:") && line.contains("suite-alfa")),
+        "the set verdict names the refused course apart from the red ones: {}",
+        said
+    );
+    let red = zbktd_red_line(&said).unwrap_or_else(|| panic!("no set verdict names the reds: {}", said));
+    assert!(
+        red.contains("suite-bravo") && !red.contains("suite-alfa"),
+        "and the red line names the course that ran red alone: {}",
+        red
+    );
+}
+
+/// A suite crate calling the one method the barring list below refuses.
+const BKTD_BARRED: &str = "\
+#[test]
+fn bktd_barred() {
+    let held: Vec<u8> = Vec::new();
+    assert!(held.is_empty());
+}
+";
+
+/// A lint list barring the call the crate above makes.
+const ZBKTD_BARRING_LIST: &str = "disallowed-methods = [\"std::vec::Vec::new\"]\n";
+
+/// THE FUTURITY RUNS THROUGH EVERY LAUNCHED RED COURSE, as the derby does: a
+/// pattern matching a hurdle in each course launches both, and both are named.
+#[test]
+fn bktd_futurity_runs_through_both_red_courses() {
+    let lure = bktu_Lure::bktu_compose("narrowed-through");
+    zbktd_two_red_courses(&lure);
+    lure.bktu_commit("compose two courses, both of them red");
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_FUTURITY, "bktd_red", "bktd_marked_red"]);
+    let said = zbktd_said(&out);
+
+    assert_eq!(out.status.code(), Some(ZBKTD_EXIT_FALLERS), "the walk exits with its own code: {}", said);
+    assert!(mark.exists(), "the second launched course ran: {}\n{}", mark.display(), said);
+    let red = zbktd_red_line(&said).unwrap_or_else(|| panic!("no set verdict names the reds: {}", said));
+    assert!(
+        red.contains("suite-alfa") && red.contains("suite-bravo"),
+        "the set verdict names both red courses: {}",
+        red
+    );
+}
+
+/// A RED COURSE REPORTS EVERY RED CASE (operator, 260929). A suite holding two
+/// failing cases, driven through mush, names both.
+///
+/// WHAT THIS PROVES AND WHAT IT CANNOT. Cargo's harness runs every case of one
+/// test binary whatever it is asked, so this reading would hold without the
+/// kennel's run-through demand; the demand itself is proven where it is spelled
+/// (`bktm_the_run_through_demand_rides_both_runs_and_neither_listing`). This is
+/// the whole-door reading: both failures reach the console, each on its own
+/// bounded line.
+#[test]
+fn bktd_a_red_course_reports_every_red_case() {
+    let lure = bktu_Lure::bktu_compose("every-red-case");
+    zbktd_empty_course(&lure, "Tools/twice", "suite-twice", "bknre_cargo", "bknre_harness");
+    lure.bktu_write("Tools/twice/src/lib.rs", BKTD_TWICE_RED);
+    lure.bktu_commit("compose a suite holding two failing cases");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR, "suite-twice"]);
+    let said = zbktd_said(&out);
+
+    assert!(!out.status.success(), "the course is red: {}", said);
+    assert!(
+        said.contains("bktd_first_red") && said.contains("bktd_second_red"),
+        "both failing cases are reported: {}",
+        said
+    );
+}
+
+/// A suite crate holding two failing cases.
+const BKTD_TWICE_RED: &str = "\
+#[test]
+fn bktd_first_red() {
+    panic!(\"one red case\");
+}
+
+#[test]
+fn bktd_second_red() {
+    panic!(\"the other red case\");
+}
+";
 
 /// A COLLAR THAT DOES NOT CONFORM REFUSES THE WHOLE WALK BEFORE ANY COURSE RUNS,
 /// naming it. The mark's absence carries the "before any course runs" half —
@@ -469,7 +661,7 @@ fn bktd_derby_refuses_a_planted_invalid_collar_before_running() {
     // none names no command for the kennel to spawn, which is the finding class a
     // door most needs to refuse before acting rather than after.
     lure.bktu_write(
-        "Tools/alfa/suite-alfa/bkrr.env",
+        &lure.bktu_weaned_at("suite-alfa/bkrr.env"),
         "\
 BKRR_COLLAR=\"suite-alfa\"
 BKRR_KIND=\"bknre_suite\"
@@ -506,6 +698,169 @@ BKRR_TONGUE=\"bknre_harness\"
     );
 }
 
+/// The door the narrowed walk is driven through, and the exit its pipeline takes
+/// when a pattern set matches nothing — spelled here because the constant is
+/// the binary's own and the contract names it.
+const BKTD_DOOR_FUTURITY: &str = bkk::bkg_breviary::BKG_FUTURITY_BASE;
+const BKTD_EXIT_EMPTY_MATCH: i32 = 75;
+
+/// A PATTERN NAMING A HURDLE IN ONE COURSE RUNS THAT COURSE ALONE, and the
+/// verdict names the other as not launched. The two-course fixture makes the
+/// proof sharp: the course left idle is the RED one, so a futurity that launched
+/// it would go red, and the green course's mark on the disk says its runner was
+/// the one spawned.
+#[test]
+fn bktd_futurity_runs_only_the_course_holding_the_match() {
+    let lure = bktu_Lure::bktu_compose("narrowed-one");
+    zbktd_two_courses(&lure);
+    lure.bktu_commit("compose two courses, the first of them red");
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_FUTURITY, "bktd_marked"]);
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+
+    assert!(out.status.success(), "the matched course is green: {}\n{}", out.status, said);
+    assert!(mark.exists(), "the matched course's runner was spawned: {}", mark.display());
+    assert!(
+        said.contains("not launched") && said.contains("suite-alfa"),
+        "the verdict names the course the patterns left idle: {}",
+        said
+    );
+}
+
+/// A PATTERN SET MATCHING NOTHING ACROSS THE UNION REFUSES UNDER THE PIPELINE'S
+/// OWN EXIT, and no runner is spawned — the unwritten mark says so from the disk.
+#[test]
+fn bktd_futurity_matching_nothing_refuses_and_spawns_no_runner() {
+    let lure = bktu_Lure::bktu_compose("narrowed-none");
+    zbktd_two_courses(&lure);
+    lure.bktu_commit("compose two courses");
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_FUTURITY, "bktd_nowhere_in_the_yard"]);
+
+    assert_eq!(
+        out.status.code(),
+        Some(BKTD_EXIT_EMPTY_MATCH),
+        "an empty union refuses under the pipeline's exit: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(!mark.exists(), "no runner was spawned: {}", mark.display());
+}
+
+/// How many passing cases the dying suite reports before its runner dies — the
+/// count the 261004 close saw printed as passed over a runner that never
+/// finished.
+const ZBKTD_ALIVE: usize = 40;
+
+/// A suite whose library cases all pass and whose integration case ENDS ITS
+/// PROCESS inside its hold, the shape a bin test calling `process::exit` takes.
+///
+/// TWO TEST BINARIES ORDER THE DEATH, which one binary could not. Cargo runs the
+/// library's cases first and the integration binary after, so every passing
+/// line is printed before the runner dies; in one binary the cases race on
+/// threads and the death could land before any of them spoke.
+fn zbktd_dying_course(lure: &bktu_Lure) {
+    lure.bktu_write("clippy.toml", BKTD_CLIPPY);
+
+    let alive: String = (0..ZBKTD_ALIVE)
+        .map(|index| format!("#[test]\nfn bktd_alive_{:02}() {{}}\n\n", index))
+        .collect();
+    zbktd_crate(lure, "Tools/dying", "dying", "src/lib.rs", &alive);
+    lure.bktu_write(
+        "Tools/dying/tests/dies.rs",
+        "#[test]\nfn bktd_dies() {\n    std::process::exit(3);\n}\n",
+    );
+    zbktd_suite_collar(lure, "Tools/dying", "suite-dying");
+}
+
+/// A RUNNER THAT DIES INSIDE ITS HOLD IS NAMED AS ONE, ITS EXIT WITH IT, AND NO
+/// PASS IS COUNTED OVER IT. Forty cases reported passing and then the runner
+/// ended without a word about the rest; the 261004 close saw that rendered as
+/// forty ran and forty passed with a trailing guess, the exit nowhere.
+///
+/// THE RECORD IS READ BACK AS WELL AS THE CONSOLE, because a red whose only
+/// account is a console the caller may have clipped can be read only by
+/// running it again.
+#[test]
+fn bktd_futurity_names_a_runner_that_died_after_passing() {
+    let lure = bktu_Lure::bktu_compose("dying-runner");
+    zbktd_dying_course(&lure);
+    lure.bktu_commit("compose a suite whose runner dies after its passing cases");
+
+    let family = zbktd_log_family(&lure);
+    let stated: Vec<(&str, &OsStr)> = family
+        .iter()
+        .map(|(name, path)| (*name, path.as_os_str()))
+        .collect();
+
+    let out = lure.bktu_drive_stating(
+        zbktd_kennel(),
+        &[BKTD_DOOR_FUTURITY, "bktd_alive", "bktd_dies"],
+        &stated,
+    );
+    let said = zbktd_said(&out);
+
+    assert_eq!(out.status.code(), Some(ZBKTD_EXIT_FALLERS), "the walk exits with its own code: {}", said);
+
+    let verdict = said
+        .lines()
+        .find(|line| line.starts_with("RED"))
+        .unwrap_or_else(|| panic!("no verdict line: {}", said));
+    assert!(
+        zbktd_names_an_exit(verdict),
+        "the verdict names the exit the runner died with: {}",
+        verdict
+    );
+
+    let course = said
+        .lines()
+        .find(|line| line.contains("course suite-dying is red"))
+        .unwrap_or_else(|| panic!("no line names the red course: {}", said));
+    assert!(zbktd_names_an_exit(course), "the course's red line names the exit: {}", course);
+
+    assert!(
+        !said.lines().any(|line| line.contains(" ran, ") && line.contains(" passed")),
+        "no passing count is printed over a runner that did not finish: {}",
+        said
+    );
+
+    let hist = &family[2].1;
+    let record = std::fs::read_to_string(hist).unwrap_or_else(|err| panic!("the record stands at {}: {}", hist.display(), err));
+    assert!(record.contains(verdict), "the record carries the verdict: {}\n{}", verdict, record);
+}
+
+/// Whether a line names an exit code: the word and a number after it.
+fn zbktd_names_an_exit(line: &str) -> bool {
+    line.split("exit ")
+        .skip(1)
+        .any(|after| after.chars().next().is_some_and(|first| first.is_ascii_digit()))
+}
+
+/// A FUTURITY WITH NOTHING TO NARROW REFUSES and names the derby, spawning
+/// nothing: the set unnarrowed is the derby's.
+#[test]
+fn bktd_futurity_bare_refuses_naming_the_derby() {
+    let lure = bktu_Lure::bktu_compose("narrowed-bare");
+    zbktd_two_courses(&lure);
+    lure.bktu_commit("compose two courses");
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_FUTURITY]);
+    let said = String::from_utf8_lossy(&out.stderr);
+
+    assert!(!out.status.success(), "the bare door refuses: {}", out.status);
+    assert!(said.contains(BKTD_DOOR_DERBY), "the refusal names the derby: {}", said);
+    assert!(!mark.exists(), "nothing ran: {}", mark.display());
+}
+
 /// A suite crate carrying no test at all — the crate compiles and declares
 /// nothing for a runner to run.
 const BKTD_EMPTY: &str = "pub fn stands() -> u32 { 1 }\n";
@@ -515,7 +870,7 @@ fn zbktd_empty_course(lure: &bktu_Lure, dir: &str, name: &str, runner: &str, ton
     lure.bktu_write("clippy.toml", BKTD_CLIPPY);
     zbktd_crate(lure, dir, name.trim_start_matches("suite-"), "src/lib.rs", BKTD_EMPTY);
     lure.bktu_write(
-        &format!("{}/{}/bkrr.env", dir, name),
+        &lure.bktu_weaned_at(&format!("{}/bkrr.env", name)),
         &format!(
             "\
 BKRR_COLLAR=\"{name}\"
@@ -600,8 +955,9 @@ fn bktd_a_suite_with_no_tests_is_red_under_cargo() {
 #[test]
 fn bktd_a_nextest_on_the_path_is_never_spawned_and_the_launch_names_the_residence() {
     let lure = bktu_Lure::bktu_compose("drive-nextest-shimmed");
+    let station = lure.bktu_stationed();
     lure.bktu_collar_seat();
-    lure.bktu_nextest_seat();
+    station.bktu_nextest_seat(&lure);
 
     let path = lure.bktu_shimmed("nextest-shimmed", BKTD_STRANGE);
 
@@ -624,7 +980,7 @@ fn bktd_a_nextest_on_the_path_is_never_spawned_and_the_launch_names_the_residenc
     // THE ABSOLUTE PATH IS THE PROOF. A launch that had reached the shim, or
     // cargo's own plugin resolution, would name neither the tackroom nor the
     // declared version.
-    let residence = zbktd_nextest_residence();
+    let residence = zbktd_nextest_residence(&station);
     assert!(
         said.contains(&residence),
         "the launch does not name the residence {}: {}",
@@ -653,8 +1009,9 @@ fn bktd_a_nextest_on_the_path_is_never_spawned_and_the_launch_names_the_residenc
 #[test]
 fn bktd_a_narrowed_path_still_runs_the_nextest_collar_through_the_residence() {
     let lure = bktu_Lure::bktu_compose("drive-nextest-absent");
+    let station = lure.bktu_stationed();
     lure.bktu_collar_seat();
-    lure.bktu_nextest_seat();
+    station.bktu_nextest_seat(&lure);
 
     let path = lure.bktu_nextestless("nextest-absent", BKTD_CARRIED);
     let stated: &[(&str, &OsStr)] = &[("PATH", path.as_os_str())];
@@ -676,7 +1033,7 @@ fn bktd_a_narrowed_path_still_runs_the_nextest_collar_through_the_residence() {
         said
     );
 
-    let residence = zbktd_nextest_residence();
+    let residence = zbktd_nextest_residence(&station);
     assert!(
         said.contains(&residence),
         "the launch does not name the residence {}: {}",
@@ -713,7 +1070,7 @@ fn bktd_a_narrowed_path_still_runs_the_nextest_collar_through_the_residence() {
 fn bktd_an_unplaced_kibble_refuses_a_nextest_collar_and_names_heel() {
     let lure = bktu_Lure::bktu_compose("drive-nextest-unplaced");
     lure.bktu_collar_seat();
-    lure.bktu_nextest_seat_unplaced(BKTD_UNPLACED);
+    lure.bktu_stationed().bktu_nextest_seat_unplaced(&lure, BKTD_UNPLACED);
 
     let refused = lure.bktu_drive_door(
         zbktd_kennel(),
@@ -760,17 +1117,23 @@ fn bktd_an_unplaced_kibble_refuses_a_nextest_collar_and_names_heel() {
 /// door composes it so a hurdle asserts against the same path.
 ///
 /// READ FROM THE DECLARATION rather than spelled, so a bumped version moves this
-/// reading with it.
-fn zbktd_nextest_residence() -> String {
-    let tackroom = std::env::var(bkcl_leash::BKCL_TACKROOM_VAR)
-        .expect("the suite is driven through a door that states the tackroom");
+/// reading with it, and BENEATH THE ROOT THE KENNEL'S OWN READER ANSWERS, so the
+/// station's store is reached the way a door reaches it and never spelled here.
+/// The station seat is what a hurdle holds to ask.
+fn zbktd_nextest_residence(_station: &bktu_lure::bktu_Stationed) -> String {
+    let feedroom = bkcq_kibble::bkcq_feedroom()
+        .unwrap_or_else(|err| panic!("the suite is driven through a door that states the store: {}", err));
 
-    let standing = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("bki_nextest")
-        .join("bkrk.env");
+    // THE KIT'S OWN BROOD, read as the set: the declaration the estate weans is
+    // this one byte for byte, and a hurdle reading the host's moorings instead
+    // would be reading the run executing it.
+    let kit = Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("Tools/bkk");
+    let brood = kit.join("bkd_brood");
+    let standing = brood.join("bki_nextest").join("bkrk.env");
 
     let resolved = bkcq_kibble::bkcq_resolve(
-        Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("Tools/"),
+        kit,
+        &brood,
         "bki_nextest",
     )
     .unwrap_or_else(|err| panic!("could not resolve the estate's own kibble ({}): {}", standing.display(), err));
@@ -781,13 +1144,7 @@ fn zbktd_nextest_residence() -> String {
         resolved.findings
     );
 
-    Path::new(&tackroom)
-        .join("bkk")
-        .join("bki_nextest")
-        .join(resolved.kibble.bkcq_field("BKRK_VERSION"))
-        .join(resolved.kibble.bkcq_field("BKRK_BYNAME"))
-        .display()
-        .to_string()
+    resolved.kibble.bkcq_residence(&feedroom).display().to_string()
 }
 
 /// The gangline door refuses an uncommitted repository BEFORE it touches the
@@ -829,7 +1186,7 @@ fn bktd_gangline_refuses_a_dirty_lure_before_it_touches_the_lock() {
          [[package]]\nname = \"lure\"\nversion = \"0.0.1\"\n",
     );
     lure.bktu_write(
-        "suite-lure/bkrr.env",
+        &lure.bktu_weaned_at("suite-lure/bkrr.env"),
         "BKRR_COLLAR=\"suite-lure\"\nBKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"Cargo.toml\"\nBKRR_TARGET=\"bknre_manifest\"\n\
          BKRR_ROOTS=\"src\"\nBKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
@@ -919,7 +1276,7 @@ fn bktd_scoop_refuses_a_planted_invalid_collar_before_deleting() {
     // conformance finding rather than a malformed file: the walk finds it, the
     // resolver reads it, and the validation refuses it.
     lure.bktu_write(
-        "suite-planted/bkrr.env",
+        &lure.bktu_weaned_at("suite-planted/bkrr.env"),
         "BKRR_COLLAR=\"suite-planted\"\nBKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"nowhere/Cargo.toml\"\nBKRR_TARGET=\"bknre_manifest\"\n\
          BKRR_ROOTS=\"nowhere\"\nBKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
@@ -1173,20 +1530,33 @@ const ZBKTD_HEEL: &str = "heel";
 const ZBKTD_EXIT_KIBBLE: i32 = 85;
 
 #[test]
-fn bktd_heel_over_a_cold_tackroom_fetches_proves_builds_and_places() {
+fn bktd_heel_over_a_cold_haynet_fetches_proves_builds_and_places() {
     // THE WHOLE CONVERGE, END TO END, over an archive the lure serves itself: no
     // registry is reached and no network is touched, so what this measures is
     // the door rather than crates.io's uptime.
     let lure = bktu_Lure::bktu_compose("drive-kibble-cold");
-    let tackroom = lure.bktu_kibble_seat(&lure.bktu_kibble_seal());
-    let residence = lure.bktu_kibble_residence(&tackroom);
+    let haynet = lure.bktu_haynet();
+    haynet.bktu_kibble_seat(&lure, ZBKTD_HEEL_KIBBLE, &lure.bktu_kibble_seal());
+    let residence = haynet.bktu_kibble_residence(ZBKTD_HEEL_KIBBLE);
 
     // THE COLD STATE IS ASSERTED RATHER THAN ASSUMED. Without this the hurdle
     // below could pass over a residence some earlier drive had left standing,
     // and would then be proving nothing about a fetch.
     assert!(!residence.is_file(), "{}", residence.display());
 
-    let out = zbktd_kibbling(&lure);
+    let out = haynet.bktu_drive_door(&lure, zbktd_kennel(), &[ZBKTD_HEEL, ZBKTD_HEEL_KIBBLE]);
+
+    // THE CONSOLE NAMES THE PLACEMENT BENEATH THE POSED ROOT, in the door's own
+    // words: a converge that placed anywhere else read the station and never
+    // the root this drive stated.
+    let said = String::from_utf8_lossy(&out.stderr).into_owned()
+        + &String::from_utf8_lossy(&out.stdout);
+    assert!(
+        said.contains(&format!("placed at {}", residence.display())),
+        "the first drive does not name a placement at {}: {}",
+        residence.display(),
+        said
+    );
 
     assert!(
         out.status.success(),
@@ -1212,19 +1582,29 @@ fn bktd_heel_over_a_cold_tackroom_fetches_proves_builds_and_places() {
     );
 
     // DRIVEN AGAIN IT REPORTS CURRENT AND FETCHES NOTHING. The discriminator is
-    // the console rather than the residence, which stands either way.
-    let again = zbktd_kibbling(&lure);
+    // the console rather than the residence, which stands either way, and it is
+    // read in the door's own words for each arm.
+    let again = haynet.bktu_drive_door(&lure, zbktd_kennel(), &[ZBKTD_HEEL, ZBKTD_HEEL_KIBBLE]);
     assert!(again.status.success());
 
     let said = String::from_utf8_lossy(&again.stderr).into_owned()
         + &String::from_utf8_lossy(&again.stdout);
-    assert!(said.contains("current at"), "{}", said);
     assert!(
-        !said.contains("seal proven"),
-        "a current drive said it converged: {}",
+        said.contains(&format!("current at {}", residence.display())),
+        "the second drive does not name the current residence {}: {}",
+        residence.display(),
+        said
+    );
+    assert!(
+        !said.contains("placed at"),
+        "a current drive said it placed: {}",
         said
     );
 }
+
+/// The kibble name the haynet drives pose, which keys nothing: the residence is
+/// keyed on the seat.
+const ZBKTD_HEEL_KIBBLE: &str = "kibble-haynet";
 
 #[test]
 fn bktd_a_kibble_carrying_a_wrong_seal_refuses_naming_both_digests_and_places_nothing() {
@@ -1235,10 +1615,11 @@ fn bktd_a_kibble_carrying_a_wrong_seal_refuses_naming_both_digests_and_places_no
     let honest = lure.bktu_kibble_seal();
     let wrong = zbktd_altered(&honest);
 
-    let tackroom = lure.bktu_kibble_seat(&wrong);
-    let residence = lure.bktu_kibble_residence(&tackroom);
+    let haynet = lure.bktu_haynet();
+    haynet.bktu_kibble_seat(&lure, ZBKTD_HEEL_KIBBLE, &wrong);
+    let residence = haynet.bktu_kibble_residence(ZBKTD_HEEL_KIBBLE);
 
-    let out = zbktd_kibbling(&lure);
+    let out = haynet.bktu_drive_door(&lure, zbktd_kennel(), &[ZBKTD_HEEL, ZBKTD_HEEL_KIBBLE]);
 
     assert_eq!(
         out.status.code(),
@@ -1258,21 +1639,14 @@ fn bktd_a_kibble_carrying_a_wrong_seal_refuses_naming_both_digests_and_places_no
         "a refused seal left {} standing",
         residence.display()
     );
-}
 
-/// Drive *heel* over the lure's own kibble.
-///
-/// THE STATION IS THE SESSION'S OWN, inherited rather than stated. A converge
-/// builds what it fetched and every build passes the leash's fence, which
-/// refuses a tackroom the two cargo homes do not resolve into — so a hurdle
-/// handing the door a composed store would be proving the fence and never
-/// reaching a seal. What the composing surface poses instead is a COLD
-/// RESIDENCE under the real store, named for this lure and cleared before the
-/// drive.
-fn zbktd_kibbling(lure: &bktu_Lure) -> std::process::Output {
-    let named = lure.bktu_kibble_name();
-
-    lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_HEEL, &named])
+    // THE ROOT STANDS, which the seat never made: the converge's lock made it,
+    // so the child read the root this drive stated.
+    assert!(
+        haynet.bktu_root().is_dir(),
+        "the haynet's root does not stand at {}, so the child never read it",
+        haynet.bktu_root().display()
+    );
 }
 
 /// One hex digit of a digest changed, so the seal is WRONG rather than
@@ -1346,6 +1720,140 @@ fn bktd_the_converge_delouses_a_yard_with_no_day() {
             .trim(),
         ZBKTD_DAY,
         "the day recorded is the day the drive stated"
+    );
+}
+
+/// The cargo verb a forge build door hands the launch seam, spelled once so the
+/// drive below reads as the door's own call rather than a composed one.
+const ZBKTD_BUILD: &str = "build";
+
+/// Lay an app collar whose residence stands INSIDE its own build directory, the
+/// shape the matricula's app collar wears, and hand back where the binary will
+/// stand once built.
+///
+/// THE BINARY ANSWERS ITS EXERGUE FROM A FILE THE ELECTION DOES NOT WALK. The
+/// stamp stands beside the crate rather than under its elected roots, so the
+/// position it carries can be the one the roots were committed at: a stamp
+/// inside the roots would move the very position it states.
+fn zbktd_yard_app(lure: &bktu_Lure) -> std::path::PathBuf {
+    lure.bktu_write("clippy.toml", BKTD_CLIPPY);
+    zbktd_crate(
+        lure,
+        "Tools/yard",
+        "yard",
+        "src/main.rs",
+        "fn main() {\n    if std::env::args().nth(1).as_deref() == Some(\"--exergue\") {\n        print!(\"{}\", include_str!(\"../stamp.txt\"));\n    }\n}\n",
+    );
+    lure.bktu_write(
+        &lure.bktu_weaned_at("app-yard/bkrr.env"),
+        "\
+BKRR_COLLAR=\"app-yard\"
+BKRR_KIND=\"bknre_app\"
+BKRR_MANIFEST=\"Tools/yard/Cargo.toml\"
+BKRR_TARGET=\"yard\"
+BKRR_ROOTS=\"Tools/yard/src Tools/yard/Cargo.toml Tools/yard/Cargo.lock\"
+BKRR_FEATURES=\"\"
+BKRR_PROFILE=\"release\"
+BKRR_SPEND=\"bknre_reader\"
+BKRR_TAMED_CRATES=\"\"
+BKRR_FERAL_CRATES=\"bknre_tamed\"
+BKRR_MUZZLE=\".\"
+BKRR_EXERGUE=\"bknre_unstruck\"
+BKRR_RESIDENCE=\"Tools/yard/target/release\"
+BKRR_BYNAME=\"yard\"
+",
+    );
+
+    lure.bktu_root().join("Tools/yard/target/release/yard")
+}
+
+/// A BUILD DOOR THAT DELOUSES FIRST LEAVES THE DERBY WHAT IT BUILT. The forge's
+/// build doors build through the launch seam, which never sweeps, into a yard
+/// the day's first derby would otherwise sweep — and an app collar resident
+/// inside that yard then meets the derby's preflight as the swept shape, after
+/// every build the caller ran.
+///
+/// THE DRIVES ARE THE FORGE DOOR'S OWN ORDER: the sweep-taking arm, then the
+/// launch seam's build, then the derby. The yard is warm with a stale directory
+/// beforehand, so the arm has something to take, and the day stands unrecorded,
+/// so the arm is the day's first kennel act.
+///
+/// THE CONTROL IS THE COURSE'S MARK. A derby that refused at its preflight runs
+/// no course, so the mark standing is what says the walk went past the
+/// preflight rather than merely exiting green over nothing.
+#[test]
+fn bktd_a_build_door_that_delouses_first_leaves_the_derby_its_artifact() {
+    let lure = bktu_Lure::bktu_compose("delouse-build-door");
+    let residence = zbktd_yard_app(&lure);
+
+    zbktd_crate(&lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED);
+    zbktd_suite_collar(&lure, "Tools/bravo", "suite-bravo");
+    lure.bktu_write(".gitignore", "target/\nTools/bravo/ran.txt\n");
+    lure.bktu_commit("an app collar resident inside its own yard, beside one green course");
+
+    // THE STAMP STATES THE POSITION THE ROOTS WERE COMMITTED AT, and is
+    // committed after them so the tree stays clean for the door law.
+    let struck = zbktd_head(&lure);
+    lure.bktu_write("Tools/yard/stamp.txt", &format!("{}\n", struck));
+    lure.bktu_commit("the stamp the yard's binary answers its exergue with");
+
+    let stale = zbktd_warm(&lure, "app-yard");
+    let day = zbktd_day(&lure);
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    assert!(stale.is_dir(), "the yard must be warm before the sweep");
+    assert!(!day.exists(), "no day may stand before the first drive");
+
+    let swept = lure.bktu_drive_door(zbktd_kennel(), &[bkco_output::BKCO_VERB_DELOUSE]);
+    let built = lure.bktu_drive_door(
+        zbktd_kennel(),
+        &[ZBKTD_BUILD, "--release", "--manifest-path", "Tools/yard/Cargo.toml"],
+    );
+    let built_said = String::from_utf8_lossy(&built.stderr).into_owned();
+
+    assert!(
+        built.status.success(),
+        "the launch seam's build lands: {} {}",
+        built.status,
+        built_said
+    );
+    assert!(
+        residence.is_file(),
+        "the build seats the binary at the residence inside its yard: {}",
+        residence.display()
+    );
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = String::from_utf8_lossy(&out.stderr);
+
+    assert!(
+        !said.contains("nothing stands at"),
+        "the derby's preflight found the artifact the build seated: {}",
+        said
+    );
+    assert!(
+        out.status.success(),
+        "the derby runs green over the built residence: {} {}",
+        out.status,
+        said
+    );
+    assert!(
+        mark.exists(),
+        "and its course ran, leaving the mark at {}",
+        mark.display()
+    );
+    assert!(
+        swept.status.success(),
+        "the sweep-taking arm lands: {} {}",
+        swept.status,
+        String::from_utf8_lossy(&swept.stderr)
+    );
+    assert_eq!(
+        std::fs::read_to_string(&day)
+            .expect("the arm should record the day it swept for")
+            .trim(),
+        ZBKTD_DAY,
+        "the arm records the day, so the derby after it sweeps nothing"
     );
 }
 
@@ -1433,7 +1941,8 @@ fn bktd_the_delouse_spares_the_yard_its_own_binary_stands_in() {
     let standing = sheltering.join("release");
     std::fs::create_dir_all(&standing).expect("the hurdle composes the residence it poses");
     let posed = standing.join("bkx");
-    std::fs::copy(zbktd_kennel(), &posed).expect("the kennel copies into the lure");
+    bkp::bkprs_scrivener::bkprs_program_copy(&zbktd_kennel(), &posed)
+        .unwrap_or_else(|err| panic!("{}", err));
 
     assert!(
         sheltering.is_dir() && neighbour.is_dir(),
@@ -1519,7 +2028,7 @@ fn bktd_the_delouse_refuses_a_planted_invalid_collar_before_deleting() {
     let yard = zbktd_warm(&lure, "suite-one");
 
     lure.bktu_write(
-        "suite-planted/bkrr.env",
+        &lure.bktu_weaned_at("suite-planted/bkrr.env"),
         "BKRR_COLLAR=\"suite-planted\"\nBKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"nowhere/Cargo.toml\"\nBKRR_TARGET=\"bknre_manifest\"\n\
          BKRR_ROOTS=\"nowhere\"\nBKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
@@ -1598,9 +2107,9 @@ fn bktd_the_walk_delouses_before_its_courses() {
     );
     let said = String::from_utf8_lossy(&out.stderr);
 
-    // The walk stops at the first red course, which this fixture composes
-    // deliberately; what the hurdle asks is whether the sweep happened AHEAD of
-    // it, and the recorded day is what says so.
+    // The walk carries a red course, which this fixture composes deliberately;
+    // what the hurdle asks is whether the sweep happened AHEAD of the courses,
+    // and the recorded day is what says so.
     assert!(
         said.contains(ZBKTD_DAY),
         "the walk should report the day it swept for: {}",
@@ -1623,10 +2132,17 @@ fn bktd_the_walk_delouses_before_its_courses() {
 /// would make a failing drive ambiguous between the two.
 const ZBKTD_DOOR_TATTOO: &str = "tattoo";
 
-/// The exit the whereabouts reader takes when a dispatched geography does not
-/// read, spelled here so an assertion reads against a number rather than a
-/// count of doors.
-const ZBKTD_EXIT_WHEREABOUTS: i32 = 82;
+/// The exit a door takes when the repository's geography does not derive,
+/// spelled here so an assertion reads against a number rather than a count of
+/// doors.
+const ZBKTD_EXIT_GEOGRAPHY: i32 = 82;
+
+/// A lure's root as git and the kennel name it: resolved, since git answers a
+/// directory by its real path and a temp root may be reached through a symlink.
+fn zbktd_real(path: &std::path::Path) -> std::path::PathBuf {
+    std::fs::canonicalize(path)
+        .unwrap_or_else(|err| panic!("could not resolve {}: {}", path.display(), err))
+}
 
 /// Lay the app collar the dispatched arm is driven over, and hand back the
 /// committed position it stands at.
@@ -1640,7 +2156,7 @@ fn zbktd_geography_lure(lure: &bktu_Lure) -> String {
     lure.bktu_write("clippy.toml", BKTD_CLIPPY);
     zbktd_crate(lure, "Tools/lure", "lure", "src/main.rs", "fn main() {}\n");
     lure.bktu_write(
-        "app-lure/bkrr.env",
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
         "\
 BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
@@ -1692,21 +2208,16 @@ fn zbktd_head(lure: &bktu_Lure) -> String {
 /// the door spawned is to have them say so themselves — an exit code alone
 /// cannot, both being the same program.
 fn zbktd_answerer(lure: &bktu_Lure, marker: &str, answer: &str) -> std::path::PathBuf {
-    use std::os::unix::fs::PermissionsExt;
+    let planted = lure.bktu_root().join("Tools/bin/lurex");
 
-    let relative = "Tools/bin/lurex";
-
-    lure.bktu_write(
-        relative,
-        &format!(
+    bkp::bkprs_scrivener::bkprs_program_write(
+        &planted,
+        format!(
             "#!/bin/sh\ntest \"$1\" = \"--exergue\" || {{ echo \"{}\"; exit 0; }}\ncat              <<'ANSWER'\n{}\nANSWER\n",
             marker, answer
         ),
-    );
-
-    let planted = lure.bktu_root().join(relative);
-    std::fs::set_permissions(&planted, std::fs::Permissions::from_mode(0o755))
-        .unwrap_or_else(|err| panic!("could not make {} executable: {}", planted.display(), err));
+    )
+    .unwrap_or_else(|err| panic!("{}", err));
 
     planted
 }
@@ -1715,23 +2226,27 @@ fn zbktd_answerer(lure: &bktu_Lure, marker: &str, answer: &str) -> std::path::Pa
 const ZBKTD_SAYS_DELIVERED: &str = "the delivered binary answered";
 const ZBKTD_SAYS_OWN: &str = "the seat's own binary answered";
 
-/// A DISPATCHED SEAT WITH A CURRENT OWN BUILD RUNS ITS OWN, AND THE DOOR SPAWNS
+/// A LINKED WORKTREE WITH A CURRENT OWN BUILD RUNS ITS OWN, AND THE DOOR SPAWNS
 /// THAT FILE. This is the arm that could never run at all before the second
-/// residence: an own-build verdict was a refusal, so a dispatched seat that had
+/// residence: an own-build verdict was a refusal, so a linked worktree that had
 /// already converged its own work was sent to converge it again on every launch.
 ///
 /// WHICH FILE RAN IS A DOOR FACT AND NOT A LOGIC ONE. The library hurdles prove
 /// which way the election went; only a spawned drive can show that the door then
 /// executed the binary the election named, and both residences are the same
 /// program under two paths, so the two say which they are themselves.
+///
+/// THE SEAT IS A REAL LINKED WORKTREE of the lure that plays the delivered root,
+/// so what the door derives is what a work billet derives.
 #[test]
 fn bktd_a_dispatched_seat_spawns_its_own_current_build() {
-    let lure = bktu_Lure::bktu_compose("geography-own-runs");
-    let delivered = bktu_Lure::bktu_compose("geography-own-runs-delivered");
+    let delivered = bktu_Lure::bktu_compose("geography-own-runs");
 
-    let behind = zbktd_geography_lure(&lure);
+    let behind = zbktd_geography_lure(&delivered);
 
     zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &behind);
+
+    let lure = delivered.bktu_billet("geography-own-runs");
 
     lure.bktu_write("Tools/lure/src/main.rs", "fn main() { /* the seat moves on */ }\n");
     lure.bktu_commit("the seat moves an elected root past the delivered binary");
@@ -1743,15 +2258,6 @@ fn bktd_a_dispatched_seat_spawns_its_own_current_build() {
     let struck = zbktd_head(&lure);
     zbktd_answerer(&lure, ZBKTD_SAYS_OWN, &struck);
     lure.bktu_commit("the seat's own converge");
-
-    lure.bktu_moor(
-        BKCA_FILE,
-        &format!(
-            "{}=\"{}\"\n",
-            BKCA_DELIVERED_DIR,
-            delivered.bktu_root().display()
-        ),
-    );
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stdout);
@@ -1782,38 +2288,111 @@ fn bktd_a_dispatched_seat_spawns_its_own_current_build() {
     );
 }
 
-/// THE DISPATCHED ARM, DRIVEN. A whereabouts standing in the seat's own config
-/// directory — OUTSIDE the repository, where no door law reading walks — names a
-/// second lure as the delivered root, and the election reads the binary standing
-/// there rather than anything in the tree the door entered.
-///
-/// THIS IS THE ONE READING THE LIBRARY HURDLES CANNOT TAKE. They hand the
-/// geography in as a value; only a spawned drive can say that the value arrives
-/// at all — that the door face reads the substrate's config directory, finds the
-/// file, and threads what it read as far as the proclamation.
-#[test]
-fn bktd_a_dispatched_seat_reads_its_whereabouts_and_names_the_delivered_root() {
-    let lure = bktu_Lure::bktu_compose("geography-dispatched");
-    let delivered = bktu_Lure::bktu_compose("geography-dispatched-delivered");
+/// The exit the derby takes when a precondition its declarations state does not
+/// hold, spelled here so an assertion reads against a number rather than a
+/// door's word.
+const ZBKTD_EXIT_PREFLIGHT: i32 = 87;
 
+/// THE DERBY REFUSES AN OUTRUN APP RESIDENCE AHEAD OF ITS WALK, and the refusal
+/// says the residence STANDS. The library hurdles prove the preflight's reading;
+/// only a spawned drive can show that the door holds the election behind the
+/// sweep and ahead of every course, and exits on its own code rather than a
+/// course's.
+///
+/// THE CONTROL IS THE SAME LURE ONE COMMIT EARLIER: the answerer states the
+/// seat's position, the derby is green and the course leaves its mark. Then the
+/// seat moves an elected root, and the mark's absence on the second drive is
+/// what says no course ran — an assertion on the console alone could only show
+/// the door did not MENTION one.
+#[test]
+fn bktd_the_derby_refuses_an_outrun_app_residence_ahead_of_its_walk() {
+    let lure = bktu_Lure::bktu_compose("derby-outrun");
     let struck = zbktd_geography_lure(&lure);
+    zbktd_answerer(&lure, ZBKTD_SAYS_OWN, &struck);
+
+    zbktd_crate(&lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED);
+    zbktd_suite_collar(&lure, "Tools/bravo", "suite-bravo");
+    // THE MARK IS IGNORED, as a build directory is, so that the control's green
+    // run leaves a tree the door law still admits for the drive that follows.
+    lure.bktu_write(".gitignore", "target/\nTools/bravo/ran.txt\n");
+    lure.bktu_commit("a current answerer beside one green course");
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = String::from_utf8_lossy(&out.stderr);
+
+    assert!(
+        out.status.success(),
+        "the control: a derby over a current residence is green: {} {}",
+        out.status,
+        said
+    );
+    assert!(
+        mark.exists(),
+        "and its course ran, leaving the mark at {}",
+        mark.display()
+    );
+    std::fs::remove_file(&mark).expect("the mark clears between drives");
+
+    lure.bktu_write("Tools/lure/src/main.rs", "fn main() { /* the seat moves on */ }\n");
+    lure.bktu_commit("the seat moves an elected root past the standing binary");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = String::from_utf8_lossy(&out.stderr);
+
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_EXIT_PREFLIGHT),
+        "the derby refuses on the preflight's own exit: {} {}",
+        out.status,
+        said
+    );
+    assert!(
+        said.contains("stands at") && said.contains("Tools/bin/lurex"),
+        "the refusal says the residence stands, and where: {}",
+        said
+    );
+    assert!(
+        !said.contains("nothing stands at"),
+        "and never reads it as the swept shape: {}",
+        said
+    );
+    assert!(
+        said.contains(bkco_output::BKCO_VERB_HEEL),
+        "a collar declaring no strike door is handed the converge: {}",
+        said
+    );
+    assert!(
+        !mark.exists(),
+        "no course ran: the mark stands unwritten at {}",
+        mark.display()
+    );
+}
+
+/// THE DISPATCHED ARM, DRIVEN. The door enters a linked worktree, derives its
+/// main worktree as the delivered root, and the election reads the binary
+/// standing there rather than anything in the tree the door entered.
+///
+/// THIS IS THE ONE READING THE LIBRARY HURDLES CANNOT TAKE. They derive a
+/// geography and hand it in as a value; only a spawned drive can say that the
+/// door face takes the reading at all — from inside the tree its child stands
+/// in — and threads what it read as far as the proclamation.
+#[test]
+fn bktd_a_linked_worktree_derives_and_names_its_delivered_root() {
+    let delivered = bktu_Lure::bktu_compose("geography-dispatched");
+
+    let struck = zbktd_geography_lure(&delivered);
 
     // THE DELIVERED CANDIDATE IS CURRENT AND THE SEAT'S OWN IS ABSENT, which is
-    // the shape a freshly dispatched seat stands in: nothing has been converged
+    // the shape a freshly added linked worktree stands in: nothing has been converged
     // in the work tree yet and the delivered root is what answers.
     let candidate = zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &struck);
+    let lure = delivered.bktu_billet("geography-dispatched");
+
     assert!(
         !lure.bktu_root().join("Tools/bin/lurex").exists(),
         "nothing stands at the seat's own residence, so a borrow cannot be the seat reading itself"
-    );
-
-    lure.bktu_moor(
-        BKCA_FILE,
-        &format!(
-            "{}=\"{}\"\n",
-            BKCA_DELIVERED_DIR,
-            delivered.bktu_root().display()
-        ),
     );
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
@@ -1822,7 +2401,7 @@ fn bktd_a_dispatched_seat_reads_its_whereabouts_and_names_the_delivered_root() {
 
     assert!(
         out.status.success(),
-        "the door reads a sound whereabouts and proclaims: {} {} {}",
+        "the door derives a linked worktree's geography and proclaims: {} {} {}",
         out.status,
         said,
         aside
@@ -1830,10 +2409,10 @@ fn bktd_a_dispatched_seat_reads_its_whereabouts_and_names_the_delivered_root() {
     assert!(
         said.contains(&format!(
             "BKRC_GEOGRAPHY=\"{} \\\n  {}\"",
-            BKCA_GEOGRAPHY_DISPATCHED,
-            delivered.bktu_root().display()
+            BKCE_GEOGRAPHY_DISPATCHED,
+            zbktd_real(delivered.bktu_root()).display()
         )),
-        "the proclamation carries the geography as a catena naming the delivered root:\n{}",
+        "the proclamation carries the geography as a catena naming the main worktree:\n{}",
         said
     );
     assert!(
@@ -1844,39 +2423,42 @@ fn bktd_a_dispatched_seat_reads_its_whereabouts_and_names_the_delivered_root() {
     );
 }
 
-/// THE CONTROL: THE SAME DRIVE WITH NO WHEREABOUTS STANDING. An ordinary
-/// repository's moorings carries no such file, so the simple case stays
+/// THE CONTROL: THE SAME REPOSITORY DRIVEN FROM ITS MAIN WORKTREE. A main
+/// checkout is its own delivered root, so the simple case stays
 /// configuration-free — and without this control the hurdle above could be
 /// cleared by a door that proclaimed a dispatched geography whatever it read.
+///
+/// THE WORKTREE STANDS AND IS SIMPLY NOT ENTERED, which is what makes this a
+/// control rather than a different lure: everything the arm above had stands
+/// here, and what the two drives differ in is which tree the door entered.
 #[test]
-fn bktd_a_seat_with_no_whereabouts_runs_self_geography() {
-    let lure = bktu_Lure::bktu_compose("geography-absent");
-    let delivered = bktu_Lure::bktu_compose("geography-absent-delivered");
+fn bktd_a_main_checkout_runs_self_geography() {
+    let lure = bktu_Lure::bktu_compose("geography-self");
 
     let struck = zbktd_geography_lure(&lure);
 
-    // THE DELIVERED ROOT IS STOOD UP AND SIMPLY NEVER NAMED, which is what makes
-    // this a control rather than a different lure: everything the arm above had
-    // stands here except the file, so what the two drives differ in is the read.
-    zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &struck);
+    // THE ANSWERER STANDS IN THE WORKTREE AND NOT IN THE MAIN WORKTREE, since it
+    // is untracked ground and the main worktree is the tree this door law reads.
+    let billet = lure.bktu_billet("geography-self");
+    zbktd_answerer(&billet, ZBKTD_SAYS_DELIVERED, &struck);
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stdout);
 
     assert!(
         out.status.success(),
-        "an absent whereabouts is no fault: {} {}",
+        "a main worktree is no fault: {} {}",
         out.status,
         String::from_utf8_lossy(&out.stderr)
     );
     assert!(
-        said.contains(&format!("BKRC_GEOGRAPHY=\"{}\"", BKCA_GEOGRAPHY_SELF)),
+        said.contains(&format!("BKRC_GEOGRAPHY=\"{}\"", BKCE_GEOGRAPHY_SELF)),
         "the proclamation says the seat works the tree it entered:\n{}",
         said
     );
     assert!(
-        !said.contains(&delivered.bktu_root().display().to_string()),
-        "and names no delivered root, the file that would have named one not standing:\n{}",
+        !said.contains(&billet.bktu_root().display().to_string()),
+        "and names no other tree, a main worktree borrowing from none:\n{}",
         said
     );
     assert!(
@@ -1887,46 +2469,35 @@ fn bktd_a_seat_with_no_whereabouts_runs_self_geography() {
     );
 }
 
-/// A WHEREABOUTS THAT DOES NOT READ REFUSES AT ITS OWN EXIT, and never falls back
-/// to self-geography.
+/// A GEOGRAPHY THAT DOES NOT DERIVE REFUSES AT ITS OWN EXIT, and never falls
+/// back to self-geography.
 ///
-/// THE FALLBACK IS WHAT THIS FORBIDS. A door that read past a malformed file
-/// would turn every provisioning fault into a quiet own build: the seat would
-/// look ordinary, every election would refuse or rebuild, and the delivered root
-/// the stile stood up would never be consulted by anybody.
+/// THE FALLBACK IS WHAT THIS FORBIDS. A door that read past a worktree naming no
+/// main worktree would turn it into a quiet own build: the seat would look
+/// ordinary, every election would refuse or rebuild, and no delivered root would
+/// ever be consulted by anybody. A worktree added from a bare repository is the
+/// shape posed, being the one such answer git gives while the tree itself still
+/// reads clean to the door law standing ahead of the geography.
 #[test]
-fn bktd_a_whereabouts_that_does_not_read_refuses_at_its_own_exit() {
-    let lure = bktu_Lure::bktu_compose("geography-malformed");
-    let delivered = bktu_Lure::bktu_compose("geography-malformed-delivered");
+fn bktd_a_geography_that_does_not_derive_refuses_at_its_own_exit() {
+    let delivered = bktu_Lure::bktu_compose("geography-underived");
 
-    let struck = zbktd_geography_lure(&lure);
-    zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &struck);
+    zbktd_geography_lure(&delivered);
 
-    lure.bktu_moor(
-        BKCA_FILE,
-        &format!(
-            "BKRW_DELIVERD_DIR=\"{}\"\n",
-            delivered.bktu_root().display()
-        ),
-    );
+    let lure = delivered.bktu_billet_of_bare("geography-underived");
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stderr);
 
     assert_eq!(
         out.status.code(),
-        Some(ZBKTD_EXIT_WHEREABOUTS),
-        "a geography that does not read takes the reader's own exit: {}",
+        Some(ZBKTD_EXIT_GEOGRAPHY),
+        "a geography that does not derive takes its own exit: {}",
         said
     );
     assert!(
-        said.contains(BKCA_FILE),
-        "the refusal names the file to go and repair: {}",
-        said
-    );
-    assert!(
-        said.contains("BKRW_DELIVERD_DIR"),
-        "and the field that stands outside the roster: {}",
+        said.contains("lure.git"),
+        "the refusal names the common directory git answered: {}",
         said
     );
     assert!(
@@ -1934,22 +2505,15 @@ fn bktd_a_whereabouts_that_does_not_read_refuses_at_its_own_exit() {
         "and nothing was proclaimed: a door that refused its geography answered no question"
     );
 
-    // THE CONTROL IS THE SAME DRIVE WITH THE FIELD SPELLED RIGHT, so the exit
-    // above is the misspelling and not the presence of a file at all.
-    lure.bktu_moor(
-        BKCA_FILE,
-        &format!(
-            "{}=\"{}\"\n",
-            BKCA_DELIVERED_DIR,
-            delivered.bktu_root().display()
-        ),
-    );
+    // THE CONTROL IS THE SAME CONTENT IN A WORKTREE OF THE MAIN WORKTREE, so the
+    // exit above is the bare repository and not the worktree.
+    let control = delivered.bktu_billet("geography-underived-control");
 
-    let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
+    let out = control.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
 
     assert!(
         out.status.success(),
-        "the control: one letter of the field name decides it: {}",
+        "the control: a worktree added from a main worktree derives: {}",
         String::from_utf8_lossy(&out.stderr)
     );
 }
@@ -1958,17 +2522,17 @@ fn bktd_a_whereabouts_that_does_not_read_refuses_at_its_own_exit() {
 /// whistle and the driver gates read a bare drive as a POSITION and treat any
 /// non-zero exit as no position at all (`Tools/bkk/bk0/bkcp_position.sh`), so a
 /// geography refusal reaching that report would counterfeit staleness — a
-/// provisioning fault presenting as a stale binary, which is a different repair
+/// geography fault presenting as a stale binary, which is a different repair
 /// aimed at a different tree.
 #[test]
 fn bktd_the_bare_self_report_never_reads_a_geography() {
-    let lure = bktu_Lure::bktu_compose("geography-bare");
+    let delivered = bktu_Lure::bktu_compose("geography-bare-report");
 
-    zbktd_geography_lure(&lure);
+    zbktd_geography_lure(&delivered);
 
-    // THE WORST WHEREABOUTS THERE IS: it would refuse at every door that reads
-    // one. If the bare report read it, this drive would exit 82.
-    lure.bktu_moor(BKCA_FILE, "BKRW_NOTHING_LIKE_IT=\"..\"\n");
+    // THE WORST GEOGRAPHY THERE IS: it refuses at every door that derives one. If
+    // the bare report derived it, this drive would exit 82.
+    let lure = delivered.bktu_billet_of_bare("geography-bare-report");
 
     let out = lure.bktu_drive(zbktd_kennel());
 
@@ -1979,15 +2543,15 @@ fn bktd_the_bare_self_report_never_reads_a_geography() {
         String::from_utf8_lossy(&out.stderr)
     );
 
-    // THE CONTROL IS A DOOR THAT DOES READ ONE, over the identical file: without
+    // THE CONTROL IS A DOOR THAT DOES DERIVE ONE, over the identical tree: without
     // it, a bare report that had simply stopped failing for some other reason
     // would clear the assertion above.
     let refused = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
 
     assert_eq!(
         refused.status.code(),
-        Some(ZBKTD_EXIT_WHEREABOUTS),
-        "the control: a door that consumes a delivered root refuses on the same file the bare \
+        Some(ZBKTD_EXIT_GEOGRAPHY),
+        "the control: a door that consumes a delivered root refuses on the same tree the bare \
          report walked past: {}",
         String::from_utf8_lossy(&refused.stderr)
     );
@@ -1997,7 +2561,7 @@ fn bktd_the_bare_self_report_never_reads_a_geography() {
 /// answer, spelled here so an assertion reads against a number.
 const ZBKTD_EXIT_OUTRUN: i32 = 73;
 
-/// THE DOOR-SIDE REFUSAL OF AN OUTRUN DISPATCHED SEAT: it names BOTH residences
+/// THE DOOR-SIDE REFUSAL OF AN OUTRUN LINKED WORKTREE: it names BOTH residences
 /// and the converge, and takes the outrun exit.
 ///
 /// THE LIBRARY HURDLES PROVE WHICH WAY THE ELECTION WENT; THIS PROVES WHAT A
@@ -2008,26 +2572,18 @@ const ZBKTD_EXIT_OUTRUN: i32 = 73;
 /// one the contract names.
 #[test]
 fn bktd_a_dispatched_seat_refused_by_both_names_both_and_the_converge() {
-    let lure = bktu_Lure::bktu_compose("geography-refused");
-    let delivered = bktu_Lure::bktu_compose("geography-refused-delivered");
+    let delivered = bktu_Lure::bktu_compose("geography-refused");
 
-    let behind = zbktd_geography_lure(&lure);
+    let behind = zbktd_geography_lure(&delivered);
 
     // THE DELIVERED CANDIDATE IS REAL AND BEHIND, and the seat's own residence
-    // holds nothing at all: the shape a dispatched seat stands in after its own
+    // holds nothing at all: the shape a linked worktree stands in after its own
     // work has moved and before it has converged.
     zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &behind);
+
+    let lure = delivered.bktu_billet("geography-refused");
     lure.bktu_write("Tools/lure/src/main.rs", "fn main() { /* the seat moves on */ }\n");
     lure.bktu_commit("the seat moves an elected root past the delivered binary");
-
-    lure.bktu_moor(
-        BKCA_FILE,
-        &format!(
-            "{}=\"{}\"\n",
-            BKCA_DELIVERED_DIR,
-            delivered.bktu_root().display()
-        ),
-    );
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stderr);
@@ -2039,12 +2595,12 @@ fn bktd_a_dispatched_seat_refused_by_both_names_both_and_the_converge() {
         said
     );
     assert!(
-        said.contains(&delivered.bktu_root().join("Tools/bin/lurex").display().to_string()),
+        said.contains(&zbktd_real(delivered.bktu_root()).join("Tools/bin/lurex").display().to_string()),
         "the refusal names the delivered binary it could not borrow: {}",
         said
     );
     assert!(
-        said.contains(&lure.bktu_root().join("Tools/bin/lurex").display().to_string()),
+        said.contains(&zbktd_real(lure.bktu_root()).join("Tools/bin/lurex").display().to_string()),
         "and the seat's own residence, which is the tree a converge writes: {}",
         said
     );
@@ -2057,25 +2613,24 @@ fn bktd_a_dispatched_seat_refused_by_both_names_both_and_the_converge() {
 
 /// HEEL REFUSES A TARGET INSIDE THE DELIVERED ROOT, AT THE DOOR. A billet's build
 /// never lands on a delivered tree: the delivered root is the borrow candidate
-/// EVERY dispatched seat reads, so a binary written there is written into all of
+/// EVERY linked worktree reads, so a binary written there is written into all of
 /// their elections at once.
 ///
-/// THE MISPROVISION IS THE ORDINARY ONE. A whereabouts naming a root that stands
-/// above the tree the trampoline entered is what a stile gets wrong, and it is
-/// spelled here as the work tree itself — the shortest true version of that
-/// mistake.
+/// THE MISPLACEMENT IS A REAL ONE. Git permits a worktree added inside its own
+/// main worktree, and that is the one geography in which a seat's own residence
+/// stands inside the delivered root — so the worktree is stood exactly there.
 #[test]
 fn bktd_heel_refuses_a_residence_inside_the_delivered_root() {
-    let lure = bktu_Lure::bktu_compose("geography-heel-refuses");
+    let delivered = bktu_Lure::bktu_compose("geography-heel-refuses");
 
-    zbktd_geography_lure(&lure);
+    zbktd_geography_lure(&delivered);
 
-    let residence = lure.bktu_root().join("Tools/bin/lurex");
-
-    lure.bktu_moor(
-        BKCA_FILE,
-        &format!("{}=\"{}\"\n", BKCA_DELIVERED_DIR, lure.bktu_root().display()),
+    let lure = delivered.bktu_billet_at(
+        "geography-heel-refuses",
+        &delivered.bktu_root().join("misplaced-billet"),
     );
+
+    let residence = zbktd_real(lure.bktu_root()).join("Tools/bin/lurex");
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_HEEL, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stderr);
@@ -2091,7 +2646,7 @@ fn bktd_heel_refuses_a_residence_inside_the_delivered_root() {
         said
     );
     assert!(
-        said.contains(&lure.bktu_root().display().to_string()),
+        said.contains(&zbktd_real(delivered.bktu_root()).display().to_string()),
         "and the delivered root that contains it: {}",
         said
     );
@@ -2102,22 +2657,21 @@ fn bktd_heel_refuses_a_residence_inside_the_delivered_root() {
         residence.display()
     );
 
-    // THE CONTROL IS THE SAME DRIVE WITH THE WHEREABOUTS GONE, which must
-    // converge and install: without it, a heel that had simply stopped working
-    // would clear every assertion above.
-    std::fs::remove_file(lure.bktu_moorings().join(BKCA_FILE))
-        .expect("the whereabouts stands and comes away");
+    // THE CONTROL IS A WORKTREE OF THE SAME CHECKOUT STANDING BESIDE IT, which
+    // must converge and install: without it, a heel that had simply stopped
+    // working would clear every assertion above.
+    let beside = delivered.bktu_billet("geography-heel-beside");
 
-    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_HEEL, "app-lure"]);
+    let out = beside.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_HEEL, "app-lure"]);
 
     assert!(
         out.status.success(),
-        "the control: the same seat with no delivered root converges: {}",
+        "the control: a worktree standing apart from its main worktree converges: {}",
         String::from_utf8_lossy(&out.stderr)
     );
     assert!(
-        residence.is_file(),
-        "and the binary stands at the work tree's own residence, where the refusal above left \
+        beside.bktu_root().join("Tools/bin/lurex").is_file(),
+        "and the binary stands at the worktree's own residence, where the refusal above left \
          nothing"
     );
 }
@@ -2153,7 +2707,7 @@ fn zbktd_exergue_crate(lure: &bktu_Lure, collar: &str, kind_lines: &str) {
     lure.bktu_write("Tools/lure/src/lib.rs", BKTD_ABSENT_MODULE);
     lure.bktu_write("Tools/lure/src/main.rs", "fn main() {}\n");
     lure.bktu_write(
-        &format!("{}/bkrr.env", collar),
+        &lure.bktu_weaned_at(&format!("{}/bkrr.env", collar)),
         &format!(
             "\
 BKRR_COLLAR=\"{}\"
@@ -2364,7 +2918,7 @@ const ZBKTD_GREEN_VERDICT: &str = "green: ";
 fn zbktd_voice_seat(name: &str) -> bktu_Lure {
     let lure = bktu_Lure::bktu_compose(name);
     lure.bktu_collar_seat();
-    lure.bktu_nextest_seat();
+    lure.bktu_stationed().bktu_nextest_seat(&lure);
     lure
 }
 
@@ -2521,7 +3075,7 @@ fn bktd_the_dial_renders_a_line_per_case_and_unset_renders_none() {
 /// A case the seat's crate can be made to fail, replacing the green one the
 /// composing surface lays down. It asserts a falsehood on purpose, exactly as
 /// the surface's own case asserts a tautology on purpose.
-const ZBKTD_FAILING_CASE: &str = "zbktd_the_planted_case_fails";
+const ZBKTD_FAILING_CASE: &str = "lure_the_planted_case_fails";
 
 /// The three members a logging dispatch composes, stood up under the lure's own
 /// temp root so a hurdle can read back what the kennel wrote.
@@ -2882,7 +3436,7 @@ const BKTD_LURE_MANIFEST: &str = "Tools/lure/Cargo.toml";
 /// prove two things at once and be able to say which one failed for neither.
 fn zbktd_arrears_collar(lure: &bktu_Lure, name: &str, dir: &str, roots: &str, crates: &str) {
     lure.bktu_write(
-        &format!("{}/bkrr.env", name),
+        &lure.bktu_weaned_at(&format!("{}/bkrr.env", name)),
         &format!(
             "\
 BKRR_COLLAR=\"{name}\"
@@ -3131,16 +3685,34 @@ const ZBKTD_PY_COLLAR: &str = "suite-lure";
 
 /// Compose a python lure, converge it, and hand back what a drive needs.
 ///
-/// THE MIRRORED KIBBLE IS THE ESTATE'S OWN BYTES, on the converge hurdle's
-/// ground: a drive SPAWNS uv, so the declaration must compose the residence the
-/// station actually holds, and a fabricated version could not. Copying keeps one
-/// home for the pin, which a bump reaches without anyone remembering these
-/// hurdles exist.
+/// THE MIRRORED KIBBLE IS THE ESTATE'S OWN BYTES, laid through a station seat on
+/// the converge hurdle's ground: a drive SPAWNS uv, so the declaration must
+/// compose the residence the station actually holds, and a fabricated version
+/// could not. Copying keeps one home for the pin, which a bump reaches without
+/// anyone remembering these hurdles exist.
 ///
 /// EVERY SETUP STEP IS ASSERTED LANDED. A step that failed quietly would leave a
 /// drive proving something about an environment that was never built, while
 /// reading as a statement about the launch.
-fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_Lure {
+fn zbktd_pythoned(named: &str, manifest: &str, baked: &str, files: &[(&str, &str)]) -> bktu_Lure {
+    let lure = zbktd_python_authored(named, manifest, baked, files);
+
+    let (collar, seat) = zbktd_python_seat(&lure);
+
+    bkk::bkch_heel::bkch_python_at(lure.bktu_root(), &lure.bktu_weaned(), &collar, &seat)
+        .unwrap_or_else(|err| panic!("the lure would not converge: {}", err));
+
+    // THE LURE IS COMMITTED AFTER THE CONVERGE because the door refuses an
+    // uncommitted repository — and the converge writes outside the source tree by
+    // ruling, so there is nothing of it to commit.
+    lure.bktu_commit("the converged python lure");
+
+    lure
+}
+
+/// Compose a python lure and author its lock, converging NOTHING: the hurdle
+/// that holds it decides what stands where the environment would.
+fn zbktd_python_authored(named: &str, manifest: &str, baked: &str, files: &[(&str, &str)]) -> bktu_Lure {
     let lure = bktu_Lure::bktu_compose(named);
 
     lure.bktu_project(
@@ -3150,6 +3722,7 @@ fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_L
             pin: ZBKTD_PYTHON_PIN.to_string(),
             requires: ">=3.12".to_string(),
             lockless: true,
+            baked: baked.to_string(),
             ..Default::default()
         },
     );
@@ -3160,13 +3733,17 @@ fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_L
         lure.bktu_write(at, said);
     }
 
-    let declared = Path::new(env!("CARGO_MANIFEST_DIR")).join("bki_uv").join("bkrk.env");
-    let said = std::fs::read_to_string(&declared).unwrap_or_else(|err| {
-        panic!("the estate's own uv kibble could not be read at {}: {}", declared.display(), err)
-    });
-    lure.bktu_write("bki_uv/bkrk.env", &said);
+    lure.bktu_stationed().bktu_uv_seat(&lure);
 
-    let collar = bkk::bkcx_python::bkcx_resolve(lure.bktu_root(), ZBKTD_PY_COLLAR)
+    zbktd_python_lock(&lure);
+
+    lure
+}
+
+/// The lure's python collar, and the seat a drive over the lure reads its
+/// environment at.
+fn zbktd_python_seat(lure: &bktu_Lure) -> (bkk::bkcx_python::bkcx_Collar, bkk::bkcx_python::bkcx_Seat) {
+    let collar = bkk::bkcx_python::bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTD_PY_COLLAR)
         .expect("the seated python collar resolves")
         .collar;
 
@@ -3174,6 +3751,14 @@ fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_L
         .expect("the suite runs through a door that states the tackroom");
 
     let seat = bkk::bkcx_python::bkcx_seat_at(lure.bktu_loosebox(), &tackroom, &collar);
+
+    (collar, seat)
+}
+
+/// Install the pinned interpreter and author the lock over the lure's project as
+/// its manifest stands now.
+fn zbktd_python_lock(lure: &bktu_Lure) {
+    let (collar, seat) = zbktd_python_seat(lure);
     let project = lure.bktu_root().join(collar.bkcx_project());
 
     // THE INTERPRETER BEFORE THE LOCK, which is the routine-download ruling's own
@@ -3186,6 +3771,7 @@ fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_L
     );
     let installed = bkcl_leash::bkcl_uv(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         lure.bktu_root(),
         [
             OsStr::new("python"),
@@ -3208,6 +3794,7 @@ fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_L
     );
     let authored = bkcl_leash::bkcl_uv(
         lure.bktu_root(),
+        &lure.bktu_weaned(),
         &project,
         [
             OsStr::new("lock"),
@@ -3222,16 +3809,6 @@ fn zbktd_pythoned(named: &str, manifest: &str, files: &[(&str, &str)]) -> bktu_L
         "the lock was not authored, so there is nothing to converge: {}",
         authored.spelling
     );
-
-    bkk::bkch_heel::bkch_python_at(lure.bktu_root(), &collar, &seat)
-        .unwrap_or_else(|err| panic!("the lure would not converge: {}", err));
-
-    // THE LURE IS COMMITTED AFTER THE CONVERGE because the door refuses an
-    // uncommitted repository — and the converge writes outside the source tree by
-    // ruling, so there is nothing of it to commit.
-    lure.bktu_commit("the converged python lure");
-
-    lure
 }
 
 /// A project declaring pytest alone, and the cases the drives narrow over.
@@ -3242,6 +3819,9 @@ version = \"0.0.1\"
 requires-python = \">=3.12\"
 dependencies = [\"pytest\"]
 ";
+
+/// What the suite manifest's collar names baked: pytest, as the lock spells it.
+const ZBKTD_PY_SUITE_BAKED: &str = "pytest";
 
 const ZBKTD_PY_CASES: &[(&str, &str)] = &[
     (
@@ -3256,7 +3836,7 @@ const ZBKTD_PY_CASES: &[(&str, &str)] = &[
 
 #[test]
 fn bktd_mush_over_a_python_suite_runs_the_matching_node_ids_and_names_the_narrowing() {
-    let lure = zbktd_pythoned("drive-python-suite", ZBKTD_PY_SUITE, ZBKTD_PY_CASES);
+    let lure = zbktd_pythoned("drive-python-suite", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
 
     let out = lure.bktu_drive_door(
         zbktd_kennel(),
@@ -3336,7 +3916,7 @@ fn bktd_mush_over_a_python_suite_runs_the_matching_node_ids_and_names_the_narrow
 
 #[test]
 fn bktd_mush_over_a_python_suite_refuses_a_pattern_matching_nothing_before_it_spawns() {
-    let lure = zbktd_pythoned("drive-python-empty", ZBKTD_PY_SUITE, ZBKTD_PY_CASES);
+    let lure = zbktd_pythoned("drive-python-empty", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
 
     let out = lure.bktu_drive_door(
         zbktd_kennel(),
@@ -3367,7 +3947,7 @@ fn bktd_mush_over_a_python_suite_refuses_a_pattern_matching_nothing_before_it_sp
 
 #[test]
 fn bktd_lineup_over_a_python_collar_lists_its_node_ids_and_runs_nothing() {
-    let lure = zbktd_pythoned("drive-python-lineup", ZBKTD_PY_SUITE, ZBKTD_PY_CASES);
+    let lure = zbktd_pythoned("drive-python-lineup", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &["lineup", ZBKTD_PY_COLLAR]);
 
@@ -3393,7 +3973,7 @@ fn bktd_lineup_over_a_python_collar_lists_its_node_ids_and_runs_nothing() {
 
 #[test]
 fn bktd_mush_over_a_python_suite_refuses_a_pattern_matching_nothing_naming_lineup() {
-    let lure = zbktd_pythoned("drive-python-empty-names-lineup", ZBKTD_PY_SUITE, ZBKTD_PY_CASES);
+    let lure = zbktd_pythoned("drive-python-empty-names-lineup", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
 
     let out = lure.bktu_drive_door(
         zbktd_kennel(),
@@ -3433,6 +4013,7 @@ fn bktd_mush_over_a_python_suite_collecting_no_case_refuses_at_the_hollow_gate()
     let standing = zbktd_pythoned(
         "drive-python-hollow-control",
         ZBKTD_PY_SUITE,
+        ZBKTD_PY_SUITE_BAKED,
         &[("project/tests/test_solo.py", "def test_only():\n    assert True\n")],
     );
 
@@ -3461,6 +4042,7 @@ fn bktd_mush_over_a_python_suite_collecting_no_case_refuses_at_the_hollow_gate()
     let barren = zbktd_pythoned(
         "drive-python-hollow",
         ZBKTD_PY_SUITE,
+        ZBKTD_PY_SUITE_BAKED,
         &[("project/tests/test_barren.py", "# no case stands in this file\n")],
     );
 
@@ -3482,13 +4064,16 @@ fn bktd_mush_over_a_python_suite_collecting_no_case_refuses_at_the_hollow_gate()
     );
 }
 
-#[test]
-fn bktd_mush_over_a_python_app_runs_its_entry_point_and_passes_its_exit_through() {
-    // THE ENTRY POINT IS THE PROJECT'S OWN SCRIPT, which means the project must
-    // be BUILT and installed rather than merely resolved — a virtual project
-    // declaring no build system installs nothing and would leave the venv with no
-    // script to run. The backend is declared for that reason and for no other.
-    let manifest = "\
+/// The app hurdles' project: one entry point under a build backend.
+///
+/// THE ENTRY POINT IS THE PROJECT'S OWN SCRIPT, which means the project must be
+/// BUILT and installed rather than merely resolved — a virtual project declaring
+/// no build system installs nothing and would leave the venv with no script to
+/// run. The backend is declared for that reason and for no other, and it is
+/// uv's own: the project's build is the one build the converge performs under
+/// the per-package bar, its requirements standing in no lock, so the backend the
+/// pinned uv carries built in is the one the validation admits.
+const ZBKTD_PY_APP_MANIFEST: &str = "\
 [project]
 name = \"lure\"
 version = \"0.0.1\"
@@ -3498,39 +4083,49 @@ requires-python = \">=3.12\"
 lure-app = \"lure_app:main\"
 
 [build-system]
-requires = [\"hatchling\"]
-build-backend = \"hatchling.build\"
+requires = [\"uv_build>=0.11.0,<0.12.0\"]
+build-backend = \"uv_build\"
 
-[tool.hatch.build.targets.wheel]
-packages = [\"src/lure_app\"]
+[tool.uv.build-backend]
+module-name = \"lure_app\"
+module-root = \"src\"
 ";
 
-    // A PLANTED NONZERO EXIT, which is the whole of what this hurdle proves. An
-    // app's exit is the TENANT'S and the door translates none of it, so a value
-    // nobody could mistake for the kennel's own is what shows the exit crossed
-    // the door untouched.
-    let lure = zbktd_pythoned(
-        "drive-python-app",
-        manifest,
-        &[(
-            "project/src/lure_app/__init__.py",
-            "import sys\n\n\ndef main():\n    print(\"the lure app ran\", *sys.argv[1:])\n    return 17\n",
-        )],
-    );
+/// The app's one module: it prints what it was handed and exits with a value
+/// nobody could mistake for the kennel's own.
+const ZBKTD_PY_APP_FILES: &[(&str, &str)] = &[(
+    "project/src/lure_app/__init__.py",
+    "import sys\n\n\ndef main():\n    print(\"the lure app ran\", *sys.argv[1:])\n    return 17\n",
+)];
 
-    // The collar is the suite shape the composer lays down; the app kind and its
-    // byname are what this hurdle needs, so the declaration is restated whole.
-    lure.bktu_write(
-        "suite-lure/bkrp.env",
+/// The app collar over the composed project, answering to the byname given.
+fn zbktd_py_app_collar(byname: &str) -> String {
+    format!(
         "\
 BKRP_COLLAR=\"suite-lure\"
 BKRP_KIND=\"bknre_app\"
 BKRP_MANIFEST=\"project/pyproject.toml\"
 BKRP_ROOTS=\"project/pyproject.toml\"
 BKRP_SPEND=\"bknre_reader\"
-BKRP_BYNAME=\"lure-app\"
+BKRP_BAKED_PACKAGES=\"\"
+BKRP_CRUDE_PACKAGES=\"bknre_baked\"
+BKRP_BYNAME=\"{}\"
 ",
-    );
+        byname, //
+    )
+}
+
+#[test]
+fn bktd_mush_over_a_python_app_runs_its_entry_point_and_passes_its_exit_through() {
+    // A PLANTED NONZERO EXIT, which is the whole of what this hurdle proves. An
+    // app's exit is the TENANT'S and the door translates none of it, so a value
+    // nobody could mistake for the kennel's own is what shows the exit crossed
+    // the door untouched.
+    let lure = zbktd_pythoned("drive-python-app", ZBKTD_PY_APP_MANIFEST, "", ZBKTD_PY_APP_FILES);
+
+    // The collar is the suite shape the composer lays down; the app kind and its
+    // byname are what this hurdle needs, so the declaration is restated whole.
+    lure.bktu_write(&lure.bktu_weaned_at("suite-lure/bkrp.env"), &zbktd_py_app_collar("lure-app"));
     lure.bktu_commit("the app collar over the converged lure");
 
     let out = lure.bktu_drive_door(
@@ -3557,6 +4152,578 @@ BKRP_BYNAME=\"lure-app\"
     assert!(
         said.contains("the lure app ran carried verbatim"),
         "the entry point did not run with its arguments passed through: {}",
+        said
+    );
+
+    // AND IT WROTE NO BYTECODE BESIDE ITS SOURCES. The converge installs the
+    // project editable, so the app imports its modules from the source tree; the
+    // bytecode it compiles lands under the loosebox or the tree is written by a
+    // launch, which is the breach the bytecode root exists to close.
+    let beside = lure.bktu_root().join("project/src/lure_app/__pycache__");
+    assert!(
+        !beside.exists(),
+        "the app wrote bytecode beside its sources at {}",
+        beside.display()
+    );
+}
+
+/// A byname the project never declared: the name an app collar's entry point
+/// answers to, standing in no `[project.scripts]` table.
+const ZBKTD_PY_APP_UNDECLARED: &str = "lure-app-undeclared";
+
+/// An app collar naming an entry point its project never declared refuses at the
+/// launch, naming the entry point it looked for.
+///
+/// THE PROJECT IS THE APP HURDLE'S OWN, CONVERGED AND WHOLE, so the one thing
+/// wrong is the name the collar says its entry point answers to.
+#[test]
+fn bktd_mush_over_a_python_app_naming_an_undeclared_entry_point_refuses() {
+    let lure = zbktd_pythoned("drive-python-app-undeclared", ZBKTD_PY_APP_MANIFEST, "", ZBKTD_PY_APP_FILES);
+
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-lure/bkrp.env"),
+        &zbktd_py_app_collar(ZBKTD_PY_APP_UNDECLARED),
+    );
+    lure.bktu_commit("an app collar naming a script its project never declared");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[bkco_output::BKCO_VERB_MUSH, ZBKTD_PY_COLLAR]);
+
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr), //
+    );
+
+    assert!(
+        !out.status.success(),
+        "an entry point the project never declared launched: {}",
+        said
+    );
+
+    assert!(
+        said.contains(ZBKTD_PY_APP_UNDECLARED),
+        "the refusal does not name the entry point it looked for: {}",
+        said
+    );
+}
+
+// The first python lock — through the doors
+//
+// The library hurdles prove each act. These prove the door faces: tattoo reaches
+// its python arm, and the two doors whose acts repair an absent lock read past
+// that finding while every other finding still bars.
+
+/// The exit a door takes when a collar carries a finding, and the exit heel takes
+/// when a converge refuses — spelled here because the constants are the binary's
+/// own and this hurdle stands outside it.
+const ZBKTD_EXIT_FINDINGS: i32 = 72;
+const ZBKTD_EXIT_HEEL: i32 = 77;
+
+/// Compose a lure whose python project awaits its first lock, and commit it.
+///
+/// NOTHING IS INSTALLED OR AUTHORED HERE, so the whole first-lock order is the
+/// hurdle's own to drive through the doors.
+fn zbktd_lockless(named: &str) -> bktu_Lure {
+    let lure = bktu_Lure::bktu_compose(named);
+
+    lure.bktu_project(
+        "project",
+        ZBKTD_PY_COLLAR,
+        &bktu_lure::bktu_Bent {
+            pin: ZBKTD_PYTHON_PIN.to_string(),
+            requires: ">=3.12".to_string(),
+            lockless: true,
+            ..Default::default()
+        },
+    );
+
+    lure.bktu_stationed().bktu_uv_seat(&lure);
+
+    lure.bktu_commit("a python project awaiting its first lock");
+
+    lure
+}
+
+/// Tattoo over a python collar proclaims it in the common vocabulary, the
+/// language its family's and the election the seat's own.
+#[test]
+fn bktd_tattoo_over_a_python_collar_proclaims_it() {
+    let lure = bktu_Lure::bktu_compose("drive-python-tattoo");
+
+    lure.bktu_project("project", ZBKTD_PY_COLLAR, &bktu_lure::bktu_Bent::default());
+    lure.bktu_commit("a python collar to proclaim");
+
+    let out = lure.bktu_drive_door(
+        zbktd_kennel(),
+        &[bkco_output::BKCO_VERB_TATTOO, ZBKTD_PY_COLLAR],
+    );
+
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr), //
+    );
+
+    assert!(out.status.success(), "the python proclamation did not land: {}", said);
+
+    assert!(
+        said.contains(&format!(
+            "BKRC_LANGUAGE=\"{}\"",
+            bkk::bkct_tattoo::BKCT_LANGUAGE_PYTHON, //
+        )),
+        "the proclamation named no python language value: {}",
+        said
+    );
+
+    assert!(
+        said.contains(&format!(
+            "BKRC_ELECTION=\"{}\"",
+            bkk::bkce_election::BKCE_ELECTED_OWN, //
+        )),
+        "the proclamation did not elect the seat's own environment: {}",
+        said
+    );
+}
+
+/// A project's first lock taken through the doors, in the order a cold store
+/// imposes and the notch the door law demands between them.
+///
+/// TATTOO OPENS IT AS THE CONTROL: a door whose act is not the repair refuses the
+/// absent lock and names the door that is.
+#[test]
+fn bktd_a_first_python_lock_runs_heel_then_gangline_then_heel() {
+    let lure = zbktd_lockless("drive-python-first-lock");
+    let lock = lure.bktu_root().join("project").join(bkk::bkcx_python::BKCX_LOCK_FILE);
+
+    let drive = |door: &str| {
+        let out = lure.bktu_drive_door(zbktd_kennel(), &[door, ZBKTD_PY_COLLAR]);
+        let said = format!(
+            "{}{}",
+            String::from_utf8_lossy(&out.stdout),
+            String::from_utf8_lossy(&out.stderr), //
+        );
+        (out.status.code(), said)
+    };
+
+    let (code, said) = drive(bkco_output::BKCO_VERB_TATTOO);
+    assert_eq!(
+        code,
+        Some(ZBKTD_EXIT_FINDINGS),
+        "the control: a lockless project's proclamation refuses on the lock: {}",
+        said
+    );
+    assert!(
+        said.contains(bkco_output::BKCO_VERB_GANGLINE),
+        "the refusal did not name the door that writes a first lock: {}",
+        said
+    );
+
+    let (code, said) = drive(bkco_output::BKCO_VERB_HEEL);
+    assert_eq!(
+        code,
+        Some(ZBKTD_EXIT_HEEL),
+        "the converge over a lockless project did not stop after its install: {}",
+        said
+    );
+    assert!(
+        said.contains(bkco_output::BKCO_VERB_GANGLINE) && !lock.exists(),
+        "the converge did not name the door that writes a first lock, or wrote one itself: {}",
+        said
+    );
+
+    let (code, said) = drive(bkco_output::BKCO_VERB_GANGLINE);
+    assert_eq!(code, Some(0), "the first lock was not written: {}", said);
+    assert!(lock.is_file(), "no lock stands at {} after the door wrote one", lock.display());
+
+    lure.bktu_commit("the first lock");
+
+    let (code, said) = drive(bkco_output::BKCO_VERB_HEEL);
+    assert_eq!(code, Some(0), "the converge refused the committed first lock: {}", said);
+
+    let (code, said) = drive(bkco_output::BKCO_VERB_TATTOO);
+    assert_eq!(code, Some(0), "the proclamation still refuses once the lock stands: {}", said);
+}
+
+/// A quiet case and a case that raises a warning, the second's word one that
+/// matches no governed word.
+const ZBKTD_PY_WARNS: &[(&str, &str)] = &[
+    (
+        "project/tests/test_quiet.py",
+        "def test_quiet():\n    assert True\n",
+    ),
+    (
+        "project/tests/test_loud.py",
+        "import warnings\n\n\ndef test_loud():\n    warnings.warn(\"a planted caution\")\n",
+    ),
+];
+
+/// A case that raises a warning fails its course: the kennel makes every warning
+/// an error, where pytest's own default prints it in a summary and passes.
+///
+/// THE QUIET CASE BESIDE IT IS THE CONTROL, passing in the same run, so what went
+/// red is the warning and nothing else about the course.
+#[test]
+fn bktd_mush_over_a_python_suite_fails_the_case_that_warns() {
+    let lure = zbktd_pythoned("drive-python-warns", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_WARNS);
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[bkco_output::BKCO_VERB_MUSH, ZBKTD_PY_COLLAR]);
+
+    let said = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr), //
+    );
+
+    assert!(
+        !out.status.success(),
+        "a course whose case warned landed green: {}",
+        said
+    );
+
+    assert!(
+        said.contains("2 ran, 1 passed, 1 failed") && said.contains("test_loud"),
+        "the verdict does not name the warning case as the one that failed: {}",
+        said
+    );
+}
+
+// The python walk — real tier
+//
+// The derby and the futurity over a yard holding a python course beside a rust
+// one, on the python launch's own seating: these converge against the station's
+// real tackroom because what they prove is the walk reaching a venv that stands.
+
+/// Lay a rust suite course beside the lure's python one and commit both: the
+/// crate whose one hurdle writes its mark and passes, so the disk says whether
+/// its runner was spawned.
+fn zbktd_rust_beside(lure: &bktu_Lure) {
+    lure.bktu_write("clippy.toml", BKTD_CLIPPY);
+
+    zbktd_crate(lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED);
+    zbktd_suite_collar(lure, "Tools/bravo", "suite-bravo");
+
+    lure.bktu_commit("a rust course beside the python one");
+}
+
+/// Both streams of a drive, read as one console.
+fn zbktd_heard(out: &std::process::Output) -> String {
+    format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr), //
+    )
+}
+
+/// Whether a preflight report names the converge over the lure's python collar
+/// as the act supplying an absence.
+///
+/// THE LINE IS READ BY ITS VERB AND ITS IMPRINT, and never by the tabtarget
+/// between them: which file the door resolves to is the dispatch's to say, and a
+/// lure's spawn is not this run's dispatch.
+fn zbktd_supplied_by_heel(said: &str) -> bool {
+    said.lines().any(|line| {
+        line.trim_start().starts_with("supplied by:")
+            && line.contains(bkco_output::BKCO_VERB_HEEL)
+            && line.trim_end().ends_with(ZBKTD_PY_COLLAR)
+    })
+}
+
+/// THE DERBY RACES A PYTHON COURSE BESIDE A RUST ONE: both courses run, each
+/// answers in the kennel's own verdict, and the python course banks its record
+/// as every derby course does — whole, and carrying its wall time.
+///
+/// THE RUST COURSE'S MARK IS THE PROOF IT RAN, and the python course's count is
+/// the proof it ran: three cases is the whole project, which only a spawned
+/// pytest could have counted.
+#[test]
+fn bktd_the_derby_races_a_python_course_beside_a_rust_one() {
+    let lure = zbktd_pythoned("derby-python-beside-rust", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    zbktd_rust_beside(&lure);
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = zbktd_heard(&out);
+
+    assert!(out.status.success(), "the derby over both families did not land: {}", said);
+    assert!(
+        said.contains("the derby is green across 2 course(s)"),
+        "the derby did not count both courses: {}",
+        said
+    );
+    assert!(mark.exists(), "the rust course's runner was never spawned: {}", mark.display());
+    assert!(
+        said.contains("green: 3 ran, 3 passed, 0 failed"),
+        "the python course did not run its whole project: {}",
+        said
+    );
+
+    let leaf = format!("{}.{}", ZBKTD_PY_COLLAR, bkcc_record::BKCC_EXTENSION);
+    let banked = lure.bktu_output().join(&leaf);
+    let record = std::fs::read_to_string(&banked)
+        .unwrap_or_else(|err| panic!("no record stands for the python course at {}: {}", banked.display(), err));
+    let read = bkcc_record::bkcc_admit(&record, &leaf)
+        .unwrap_or_else(|err| panic!("the python course's record admits: {}", err));
+
+    assert_eq!(read.driven, 3, "the record does not carry the three cases: {}", record);
+    assert!(read.narrowing.is_none(), "nothing narrowed the course: {}", record);
+    assert!(read.wall.is_some(), "a whole course carries its wall time: {}", record);
+}
+
+/// A PATTERN NAMING CASES IN THE PYTHON COURSE RUNS THAT COURSE ALONE, and the
+/// verdict names the rust course as not launched. The rust course's unwritten
+/// mark says from the disk that its runner was never spawned, and the python
+/// course's count says the narrowing reached pytest as exact node ids.
+#[test]
+fn bktd_the_futurity_narrows_over_a_python_course() {
+    let lure = zbktd_pythoned("futurity-python", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    zbktd_rust_beside(&lure);
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_FUTURITY, "test_alpha"]);
+    let said = zbktd_heard(&out);
+
+    assert!(out.status.success(), "the narrowed walk did not land: {}", said);
+    assert!(
+        said.contains("green: 2 ran, 2 passed, 0 failed"),
+        "the python course did not run the two matched cases alone: {}",
+        said
+    );
+    assert!(
+        said.contains("not launched") && said.contains("suite-bravo"),
+        "the verdict does not name the course the patterns left idle: {}",
+        said
+    );
+    assert!(!mark.exists(), "the idle rust course's runner was spawned: {}", mark.display());
+}
+
+/// AN UNCONVERGED PYTHON COLLAR IS REFUSED AT THE PREFLIGHT, naming the converge,
+/// and no course runs. The lock stands and the interpreter is installed, so the
+/// one thing missing is the environment.
+///
+/// THE CONTROL IS THE SAME LURE AFTER THE NAMED ACT: the converge driven through
+/// its own door, and the same derby then green — so what refused was the absent
+/// environment, and the act the refusal named is the one that supplies it.
+#[test]
+fn bktd_the_derby_refuses_an_unconverged_python_collar_naming_the_converge() {
+    let lure = zbktd_python_authored("derby-python-unconverged", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    lure.bktu_commit("a python project locked and never converged");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = zbktd_heard(&out);
+
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_EXIT_PREFLIGHT),
+        "an unconverged python collar did not refuse at the preflight: {}",
+        said
+    );
+    assert!(
+        said.contains(&format!("the environment of the python collar '{}'", ZBKTD_PY_COLLAR))
+            && said.contains("nothing stands at"),
+        "the refusal does not name the absent environment: {}",
+        said
+    );
+    assert!(
+        zbktd_supplied_by_heel(&said),
+        "the refusal does not name the converge over the python collar: {}",
+        said
+    );
+    assert!(!said.contains("green:"), "a course ran behind a refused preflight: {}", said);
+
+    let heeled = lure.bktu_drive_door(zbktd_kennel(), &[bkco_output::BKCO_VERB_HEEL, ZBKTD_PY_COLLAR]);
+    assert!(
+        heeled.status.success(),
+        "the converge the refusal named did not land: {}",
+        zbktd_heard(&heeled)
+    );
+
+    let again = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = zbktd_heard(&again);
+
+    assert!(again.status.success(), "the derby after the converge did not land: {}", said);
+    assert!(
+        said.contains("green: 3 ran, 3 passed, 0 failed"),
+        "the python course did not run once its environment stood: {}",
+        said
+    );
+}
+
+/// The lure's manifest with its one dependency dropped, so a lock re-derived
+/// over it no longer names what the environment holds.
+const ZBKTD_PY_BARE: &str = "\
+[project]
+name = \"lure\"
+version = \"0.0.1\"
+requires-python = \">=3.12\"
+dependencies = []
+";
+
+/// AN ENVIRONMENT THE LOCK HAS MOVED PAST IS REFUSED AT THE PREFLIGHT, naming the
+/// converge. The lock answers its manifest, so the reading that refuses is the
+/// environment's against the lock — the one the launch's own `uv run` would have
+/// answered by quietly syncing.
+///
+/// THE CONTROL OPENS IT: the same lure's derby, green over the converged
+/// environment, so the preflight is proven to read the environment and pass it.
+/// The lock then moves past it by a dependency dropped and the lock re-derived,
+/// which needs no index.
+#[test]
+fn bktd_the_derby_refuses_a_python_environment_behind_its_lock() {
+    let lure = zbktd_pythoned("derby-python-behind", ZBKTD_PY_SUITE, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+
+    let control = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    assert!(
+        control.status.success(),
+        "the control: the derby over a converged environment did not land: {}",
+        zbktd_heard(&control)
+    );
+
+    lure.bktu_write("project/pyproject.toml", ZBKTD_PY_BARE);
+    zbktd_python_lock(&lure);
+
+    // THE COLLAR FOLLOWS THE MANIFEST: with pytest dropped, the baked list names
+    // nothing, or the partition reading would bar the preflight ahead of the
+    // environment reading this hurdle is about.
+    let collar = lure.bktu_root().join(lure.bktu_weaned_at("suite-lure/bkrp.env"));
+    let said = std::fs::read_to_string(&collar).expect("the composed collar reads");
+    std::fs::write(&collar, said.replace("BKRP_BAKED_PACKAGES=\"pytest\"", "BKRP_BAKED_PACKAGES=\"\""))
+        .expect("the bent collar writes");
+
+    lure.bktu_commit("the lock moved past the environment");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = zbktd_heard(&out);
+
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_EXIT_PREFLIGHT),
+        "an environment behind its lock did not refuse at the preflight: {}",
+        said
+    );
+    assert!(
+        said.contains("does not answer the lock"),
+        "the refusal does not say the environment is behind its lock: {}",
+        said
+    );
+    assert!(
+        zbktd_supplied_by_heel(&said),
+        "the refusal does not name the converge over the python collar: {}",
+        said
+    );
+    assert!(!said.contains("green:"), "a course ran behind a refused preflight: {}", said);
+}
+
+// The unhitched course — real tier
+//
+// A python project declaring, in uv's own key, an environment no station
+// satisfies: locked, never converged, and unhitched on every station, so each
+// door's reading is proven here with no platform named.
+
+/// The suite manifest declaring an environment no station satisfies.
+const ZBKTD_PY_UNHITCHED: &str = "\
+[project]
+name = \"lure\"
+version = \"0.0.1\"
+requires-python = \">=3.12\"
+dependencies = [\"pytest\"]
+
+[tool.uv]
+environments = [\"sys_platform == 'nowhere'\"]
+";
+
+/// THE DERBY NAMES AN UNHITCHED COURSE AND STAYS GREEN. The python course's
+/// environment stands nowhere, and no converge could stand one, so the
+/// preflight reads the declaration ahead of the environment and the walk
+/// launches nothing of it, writing no record and moving no exit; the rust
+/// course beside it runs, its mark the proof.
+#[test]
+fn bktd_the_derby_names_an_unhitched_python_course_and_stays_green() {
+    let lure = zbktd_python_authored("derby-python-unhitched", ZBKTD_PY_UNHITCHED, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    zbktd_rust_beside(&lure);
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_DERBY]);
+    let said = zbktd_heard(&out);
+
+    assert!(out.status.success(), "the derby beside a course declared out of this station did not land: {}", said);
+    assert!(
+        said.contains("the derby is green across 1 course(s)"),
+        "the derby did not count the one course it ran: {}",
+        said
+    );
+    assert!(
+        said.contains(bkk::bkg_breviary::BKG_UNHITCHED_BASE) && said.contains(ZBKTD_PY_COLLAR) && said.contains("nowhere"),
+        "the set verdict does not name the declared-out course in its project's words: {}",
+        said
+    );
+    assert!(mark.exists(), "the rust course's runner was never spawned: {}", mark.display());
+
+    let leaf = format!("{}.{}", ZBKTD_PY_COLLAR, bkcc_record::BKCC_EXTENSION);
+    let banked = lure.bktu_output().join(&leaf);
+    assert!(!banked.exists(), "a declared-out course wrote a record at {}", banked.display());
+}
+
+/// THE FUTURITY NAMES AN UNHITCHED COURSE BESIDE THE IDLE ONES. The patterns
+/// match the rust course's hurdle, and the python course is never listed — its
+/// runner could not stand — and is named apart from the courses the patterns
+/// left idle.
+#[test]
+fn bktd_the_futurity_names_an_unhitched_python_course() {
+    let lure = zbktd_python_authored("futurity-python-unhitched", ZBKTD_PY_UNHITCHED, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    zbktd_rust_beside(&lure);
+
+    let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_FUTURITY, "bktd_marked"]);
+    let said = zbktd_heard(&out);
+
+    assert!(out.status.success(), "the narrowed walk beside a declared-out course did not land: {}", said);
+    assert!(
+        said.contains(bkk::bkg_breviary::BKG_UNHITCHED_BASE) && said.contains(ZBKTD_PY_COLLAR) && said.contains("nowhere"),
+        "the verdict does not name the declared-out course in its project's words: {}",
+        said
+    );
+    assert!(mark.exists(), "the matched rust course's runner was never spawned: {}", mark.display());
+}
+
+/// MUSH REFUSES AN UNHITCHED COLLAR NAMING ITS DECLARATION, and never the
+/// converge, which cannot supply what a project declared away.
+#[test]
+fn bktd_mush_refuses_an_unhitched_python_collar_naming_the_declaration() {
+    let lure = zbktd_python_authored("mush-python-unhitched", ZBKTD_PY_UNHITCHED, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    lure.bktu_commit("a python project declared for no station");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[bkco_output::BKCO_VERB_MUSH, ZBKTD_PY_COLLAR]);
+    let said = zbktd_heard(&out);
+
+    assert!(!out.status.success(), "mush launched a collar declared out of this station: {}", said);
+    assert!(
+        said.contains(bkk::bkg_breviary::BKG_UNHITCHED_BASE) && said.contains("nowhere"),
+        "the refusal does not name the declaration: {}",
+        said
+    );
+    assert!(!zbktd_supplied_by_heel(&said), "the refusal names the converge: {}", said);
+    assert!(!said.contains("green:"), "a case ran behind the refusal: {}", said);
+}
+
+/// TATTOO READS AN UNHITCHED COLLAR AS A VERDICT AND NO FINDING: the collar
+/// conforms, the door exits clean, and the declaration is said beside it.
+#[test]
+fn bktd_tattoo_reads_an_unhitched_python_collar_as_a_verdict_and_no_finding() {
+    let lure = zbktd_python_authored("tattoo-python-unhitched", ZBKTD_PY_UNHITCHED, ZBKTD_PY_SUITE_BAKED, ZBKTD_PY_CASES);
+    lure.bktu_commit("a python project declared for no station");
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[bkco_output::BKCO_VERB_TATTOO, ZBKTD_PY_COLLAR]);
+    let said = zbktd_heard(&out);
+
+    assert!(out.status.success(), "tattoo refused a collar declared out of this station: {}", said);
+    assert!(said.contains("conforms"), "the collar's clean verdict is not said: {}", said);
+    assert!(
+        said.contains(bkk::bkg_breviary::BKG_UNHITCHED_BASE) && said.contains("nowhere"),
+        "the declaration is not said beside the verdict: {}",
         said
     );
 }

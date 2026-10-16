@@ -143,10 +143,10 @@ pub const RBTHDR_ROWS: &[(&str, rbthdr_Disposition)] = &[
     ("rbmm_moorings/rbrw.env", Ship),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
-    ("rbmm_moorings/rbml_launchers/launcher.bkw_workbench.sh", Ship),
-    ("rbmm_moorings/rbml_launchers/launcher.buw_workbench.sh", Ship),
-    ("rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh", Ship),
-    ("rbmm_moorings/rbml_launchers/", Withhold),
+    ("rbmm_moorings/buml_launchers/launcher.bkw_workbench.sh", Ship),
+    ("rbmm_moorings/buml_launchers/launcher.buw_workbench.sh", Ship),
+    ("rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh", Ship),
+    ("rbmm_moorings/buml_launchers/", Withhold),
     // The operator's own trees.
     ("Study/", Withhold),
     (".claude/", Withhold),

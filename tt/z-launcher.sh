@@ -43,7 +43,7 @@ test -n "${BURD_LAUNCHER:-}" || { echo "z-launcher: BURD_LAUNCHER unset" >&2; ex
 z_moorings_dir="rbmm_moorings"
 
 # Resolve the launcher basename directly under the co-located launcher dir.
-z_launcher="${z_dir}/../${z_moorings_dir}/rbml_launchers/${BURD_LAUNCHER}"
+z_launcher="${z_dir}/../${z_moorings_dir}/buml_launchers/${BURD_LAUNCHER}"
 
 # Fail loud on a mistyped launcher rather than dispatching silently to nothing.
 test -f "${z_launcher}" || {

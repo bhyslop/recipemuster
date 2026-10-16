@@ -35,6 +35,7 @@ zrbof_furnish() {
 
   # Light core — sufficient for instate (a pure rbrr.env single-field rewrite)
   # and the foedus-resolution shared by both verbs.
+  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"

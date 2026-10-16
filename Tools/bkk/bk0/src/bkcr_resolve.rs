@@ -16,34 +16,61 @@
 //! The resolver — the one road to a collar, and the validation every door gets
 //! for free by taking it.
 //!
-//! NO DOOR VALIDATES AS ITS OWN ACT (BKSNC-Kennelcraft.adoc "Validation is
-//! implicit"). A door asks for a collar by name and is handed the collar with
-//! every conformance finding against it already gathered; what the door decides
-//! is what to do about them, never whether to look. That is what makes "never
-//! operate on an invalid collar" a property of the shape rather than a rule each
-//! door has to remember, and it is why a door reaching a `bkrr.env` around this
-//! module would be a defect however carefully it read one.
+//! NO DOOR VALIDATES AS ITS OWN ACT. A door asks for a collar by name and is
+//! handed the collar with every conformance finding against it already
+//! gathered; what the door decides is what to do about them, never whether to
+//! look. That is what makes "never operate on an invalid collar" a property of
+//! the shape rather than a rule each door has to remember, and it is why a door
+//! reaching a `bkrr.env` around this module would be a defect however carefully
+//! it read one.
 //!
 //! EVERY FINDING IS REPORTED BEFORE ANYTHING REFUSES. A first-finding exit hands
 //! its reader one repair at a time and a fresh drive between each, which is the
-//! shape the substrate's own validate door was built to avoid
-//! (`specs/buk/BUSTLV-NodeRegimeValidate.adoc`); this module gathers and the door
-//! prints. The one thing that stops the gathering is a name that does not
-//! resolve to exactly one collar, because there is then no collar to gather
-//! findings against.
+//! shape the substrate's own validate door was built to avoid; this module
+//! gathers and the door prints. What stops the gathering is a name the weaned
+//! set does not hold, or a weaned copy that is not its kit's declaration,
+//! because there is then no collar to gather findings against.
+//!
+//! DISCOVERY READS THE WEANED SET AND NOTHING ELSE. A kit ships its
+//! declarations in its brood; a repository runs what it copied into its
+//! moorings' weaned set; a file standing anywhere else in the tree is no
+//! declaration to any door.
 
 use crate::bkcj_json::{bkcj_read, bkcj_Value};
 use crate::bkcl_leash;
-use bkl::bklrc_catena::{bklrc_read, bklrc_Regime};
+use bkp::bkprc_catena::{bkprc_read, bkprc_Regime};
 use std::path::{Path, PathBuf};
 
 /// The rust family's file. Its parent directory is the instance and that
-/// directory's name is the collar name (BKSCL-Collar.adoc "Container and
-/// Discovery").
+/// directory's name is the collar name.
 pub const BKCR_FAMILY: &str = "bkrr.env";
 
+/// Every family file an instance directory may hold, one of them and one only.
+pub const BKCR_FAMILIES: &[&str] = &[
+    BKCR_FAMILY,
+    crate::bkcx_python::BKCX_FAMILY,
+    crate::bkcq_kibble::BKCQ_FAMILY,
+];
+
+/// The directory under a repository's moorings holding the declarations that
+/// repository runs — the weaned set, and the only place discovery reads.
+pub const BKCR_WEANED: &str = "bkd_weaned";
+
+/// The directory under a kit holding the declarations that kit ships — its
+/// brood, which a repository copies from and never runs.
+pub const BKCR_BROOD: &str = "bkd_brood";
+
+/// The tools directory every kit stands under, which the brood wildcard is
+/// resolved beneath. A literal and never the substrate's variable, which a lure
+/// states absolute into its host tree.
+pub const BKCR_TOOLS: &str = "Tools";
+
+/// The dispatch's config directory — the moorings — which the weaned set stands
+/// under.
+pub const BKCR_CONFIG_DIR_VAR: &str = "BURD_CONFIG_DIR";
+
 /// The linter's own file, which a declared muzzle directory must hold. Foreign
-/// schema, foreign name (BKSMZ-Muzzle.adoc).
+/// schema, foreign name.
 pub const BKCR_MUZZLE_FILE: &str = "clippy.toml";
 
 /// The fields every collar declares, whatever its kind.
@@ -69,7 +96,7 @@ pub const BKCR_UNSTRUCK: &str = "bknre_unstruck";
 
 /// What `BKRR_FERAL_CRATES` carries where nothing in the closure is feral —
 /// which at MVP is every collar, the field admitting this value alone and
-/// refusing every crate named beside it (BKSCL-Collar.adoc BKr_4n2).
+/// refusing every crate named beside it (BKr_4n2).
 pub const BKCR_TAMED: &str = "bknre_tamed";
 
 /// The fields an app declares and a suite does not.
@@ -97,14 +124,6 @@ const ZBKCR_ENUMS: &[(&str, &[&str])] = &[
     ("BKRR_RUNNER", &["bknre_cargo", "bknre_nextest"]),
     ("BKRR_TONGUE", &["bknre_harness", "bknre_nextest"]),
 ];
-
-/// Directories the walk never descends.
-///
-/// `.git` and a build directory hold no collar and cost the whole walk's time,
-/// so they are stepped over by name. The list is short and stated rather than
-/// guessed at: a walk that skipped by heuristic could step over a real collar
-/// and answer that a name does not resolve.
-const ZBKCR_UNWALKED: &[&str] = &[".git", "target"];
 
 /// The schema version this module's reading is written against, asked for by
 /// number rather than accepted as whatever the installed cargo defaults to.
@@ -145,14 +164,14 @@ pub struct bkcr_Collar {
     /// The instance directory, repo-relative.
     pub instance: PathBuf,
     /// Everything the family file declared.
-    pub regime: bklrc_Regime,
+    pub regime: bkprc_Regime,
 }
 
 impl bkcr_Collar {
     /// One field's value, or the empty string where the field is absent. The
     /// absence is a finding of its own, so a reader here is never guessing.
     pub fn bkcr_field(&self, key: &str) -> &str {
-        self.regime.bklrc_scalar(key).unwrap_or("")
+        self.regime.bkprc_scalar(key).unwrap_or("")
     }
 
     /// Whether this collar declares an app.
@@ -178,7 +197,7 @@ impl bkcr_Collar {
     /// behaves as it did before this field existed rather than inventing a
     /// meaning the collar never declared.
     pub fn bkcr_exergue(&self) -> Vec<&str> {
-        match self.regime.bklrc_catena("BKRR_EXERGUE") {
+        match self.regime.bkprc_catena("BKRR_EXERGUE") {
             None => Vec::new(),
             Some(declared) => declared
                 .into_iter()
@@ -197,7 +216,7 @@ impl bkcr_Collar {
     /// have bought nothing a refusal renders and would have made the collar's
     /// two lists silently order-dependent.
     pub fn bkcr_strike(&self) -> Vec<&str> {
-        match self.regime.bklrc_catena("BKRR_STRIKE") {
+        match self.regime.bkprc_catena("BKRR_STRIKE") {
             None => Vec::new(),
             Some(declared) => declared
                 .into_iter()
@@ -262,107 +281,262 @@ pub struct bkcr_Resolved {
     pub findings: Vec<String>,
 }
 
-/// Every instance directory the walk finds, repo-relative and sorted.
+/// Every rust instance the weaned set holds, repo-relative where the set stands
+/// inside the repository, and sorted.
 ///
-/// Sorted so that two drives over one tree report in one order — a walk whose
-/// answer depended on the filesystem's own ordering would make a duplicate-name
-/// refusal name its two paths differently on different stations.
-pub fn bkcr_walk(repository: &Path) -> Result<Vec<PathBuf>, String> {
-    bkcr_walk_family(repository, BKCR_FAMILY)
+/// Sorted so that two drives over one tree report in one order — a listing
+/// whose answer depended on the filesystem's own ordering would make a refusal
+/// name its instances differently on different stations.
+pub fn bkcr_walk(repository: &Path, weaned: &Path) -> Result<Vec<PathBuf>, String> {
+    bkcr_weaned_family(repository, weaned, BKCR_FAMILY)
 }
 
-/// Every instance directory of ONE NAMED FAMILY the walk finds, repo-relative
-/// and sorted.
+/// Every instance of ONE NAMED FAMILY the weaned set holds, repo-relative where
+/// the set stands inside the repository, and sorted.
 ///
-/// PUBLISHED SO A SECOND FAMILY NEEDS NO SECOND WALK. The kibble family
-/// (`bkcq_kibble`) is read from the same tree by the same rules, and a walk of
-/// its own would be a second thing to keep in step — the unwalked list among
-/// them, so that one tree could come to hold two answers about what stands in
-/// it. What parts a family from another here is the file its instance carries
-/// and nothing else, which is exactly what this parameter is.
-pub fn bkcr_walk_family(repository: &Path, family: &str) -> Result<Vec<PathBuf>, String> {
+/// ONE READING FOR EVERY FAMILY. The kibble family (`bkcq_kibble`) and the
+/// python family (`bkcx_python`) are read from the same set by the same rules,
+/// and a reading of their own would be a second thing to keep in step. What
+/// parts a family from another here is the file its instance carries and
+/// nothing else, which is exactly what this parameter is.
+///
+/// AN INSTANCE HOLDING OTHER THAN ONE FAMILY FILE REFUSES the whole reading,
+/// whichever family was asked for: a name stands once across the set whatever
+/// its family, and an instance carrying two family files is one name claimed
+/// by two families.
+///
+/// A WEANED SET THAT DOES NOT STAND HOLDS NOTHING, which is not a fallback to
+/// anything: a repository that weaned nothing gives a derby nothing to run, and
+/// the derby refuses that as it always has.
+pub fn bkcr_weaned_family(
+    repository: &Path,
+    weaned: &Path,
+    family: &str,
+) -> Result<Vec<PathBuf>, String> {
     let mut found: Vec<PathBuf> = Vec::new();
-    zbkcr_descend(repository, Path::new(""), family, &mut found)?;
+
+    for (instance, held) in zbkcr_instances(weaned)? {
+        if held == family {
+            found.push(zbkcr_within(repository, &instance));
+        }
+    }
+
     found.sort();
     Ok(found)
 }
 
-/// One level of the walk.
-fn zbkcr_descend(
-    repository: &Path,
-    relative: &Path,
-    family: &str,
-    found: &mut Vec<PathBuf>,
-) -> Result<(), String> {
-    let here = repository.join(relative);
-
-    let listing = std::fs::read_dir(&here)
-        .map_err(|err| format!("could not walk {}: {}", here.display(), err))?;
-
-    for entry in listing {
-        let entry = entry.map_err(|err| format!("could not walk {}: {}", here.display(), err))?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        let kind = entry
-            .file_type()
-            .map_err(|err| format!("could not read {}: {}", entry.path().display(), err))?;
-
-        if kind.is_dir() {
-            if ZBKCR_UNWALKED.contains(&name.as_str()) {
-                continue;
-            }
-            zbkcr_descend(repository, &relative.join(&name), family, found)?;
-            continue;
-        }
-
-        if name == family {
-            found.push(relative.to_path_buf());
-        }
-    }
-
-    Ok(())
+/// The weaned set under a config directory — the moorings every dispatched
+/// process holds.
+pub fn bkcr_weaned(config: &Path) -> PathBuf {
+    config.join(BKCR_WEANED)
 }
 
-/// Resolve a collar by name, and gather every finding against it.
+/// The weaned set this process's dispatch names, read from the environment.
 ///
-/// A NAME FOUND TWICE REFUSES HERE rather than reporting a finding, and the
-/// difference is not bookkeeping: a finding is something said ABOUT a collar,
-/// and a name standing at two instances names no collar to say it about. The
-/// refusal carries both paths, because the repair is to rename one of them and a
-/// reader told only that the name is doubled has been handed a search.
-pub fn bkcr_resolve(repository: &Path, name: &str) -> Result<bkcr_Resolved, String> {
-    let instances = bkcr_walk(repository)?;
+/// THE ONE ENVIRONMENT READ, TAKEN AT A PROCESS'S EDGE AND NEVER BENEATH IT.
+/// Every reading of the set takes it as a value, so a hurdle composing a lure
+/// hands its own set in rather than inheriting the real moorings of the run
+/// executing it — the same split the kibble root keeps (`bkcq_feedroom_at`). A
+/// caller below a door face that reached for this would be the second road.
+///
+/// ABSENT IS A REFUSAL, never a fallback: the dispatch's launcher refuses to run
+/// without this variable, so a process lacking it was not launched through a
+/// tabtarget, and there is no other moorings to read.
+pub fn bkcr_weaned_dispatched() -> Result<PathBuf, String> {
+    match std::env::var_os(BKCR_CONFIG_DIR_VAR) {
+        Some(config) if !config.is_empty() => Ok(bkcr_weaned(Path::new(&config))),
+        _ => Err(format!(
+            "{} is not set, so no weaned set can be read — the kennel reads the declarations a \
+             repository runs from its moorings, which the dispatch names; run it through a tabtarget",
+            BKCR_CONFIG_DIR_VAR
+        )),
+    }
+}
 
-    let matched: Vec<&PathBuf> = instances
-        .iter()
-        .filter(|instance| zbkcr_named(instance) == name)
-        .collect();
+/// Prove the whole weaned set conforms, before any door reads a declaration.
+///
+/// FAIL-FAST AND WHOLE-SET. Every instance is proven to hold one family file
+/// and to equal its brood, and the first that does not refuses; a drift is
+/// never batched into a report, because a difference between a copy and its
+/// kit's declaration is a change to be taken consciously rather than one of
+/// several findings to be read past. Answers how many instances stand.
+pub fn bkcr_weaned_audit(repository: &Path, weaned: &Path) -> Result<usize, String> {
+    let instances = zbkcr_instances(weaned)?;
 
-    if matched.is_empty() {
-        return Err(format!(
-            "no collar named '{}' stands in {} — the walk found {} collar(s): {}",
-            name,
-            repository.display(),
-            instances.len(),
-            zbkcr_listed(&instances)
-        ));
+    for (instance, family) in &instances {
+        bkcr_drift(repository, instance, family)?;
     }
 
-    if matched.len() > 1 {
+    Ok(instances.len())
+}
+
+/// Prove one weaned instance equals the brood that carries its name, if any.
+///
+/// THE BROOD IS FOUND BY ONE WILDCARD, `Tools/*/bkd_brood/<name>/`, resolved
+/// under the repository the door entered and never from a variable: the lure
+/// states the tools directory absolute into the host tree, so a reading taken
+/// from it would compare a composed repository's copy against the host's own
+/// kits.
+///
+/// NO BROOD MEANS THE INSTANCE IS THIS REPOSITORY'S OWN, and nothing is
+/// compared. TWO BROODS REFUSE, because a name two kits both declare names no
+/// declaration a copy could be proven against. ONE BROOD AND DIFFERENT REFUSES,
+/// naming both files and the copy that repairs it — and "different" includes a
+/// brood holding the name under another family, which is the same fact.
+pub fn bkcr_drift(repository: &Path, instance: &Path, family: &str) -> Result<(), String> {
+    let name = zbkcr_named(instance);
+    let broods = zbkcr_broods(repository, &name)?;
+
+    if broods.len() > 1 {
         let mut said = format!(
-            "the name '{}' stands at {} instances, so it names no collar — rename all but one, \
-             a collar's name being its identity (BKSCL-Collar.adoc \"The Identity Law\")",
+            "the name '{}' is declared by {} kits' broods, so a weaned copy of it can be proven \
+             against none — one name stands once across every kit:",
             name,
-            matched.len()
+            broods.len()
         );
-        for instance in &matched {
+        for brood in &broods {
             said.push_str("\n  ");
-            said.push_str(&instance.join(BKCR_FAMILY).display().to_string());
+            said.push_str(&zbkcr_within(repository, brood).display().to_string());
         }
         return Err(said);
     }
 
-    let instance = matched[0].clone();
-    let regime = bklrc_read(&repository.join(&instance).join(BKCR_FAMILY))?;
+    let Some(brood) = broods.first() else {
+        return Ok(());
+    };
+
+    let copy = instance.join(family);
+    let declared = brood.join(family);
+
+    let equal = match (std::fs::read(&copy), std::fs::read(&declared)) {
+        (Ok(held), Ok(kit)) => held == kit,
+        (Err(err), _) => {
+            return Err(format!("could not read {}: {}", copy.display(), err));
+        }
+        (Ok(_), Err(_)) => false,
+    };
+
+    if equal {
+        return Ok(());
+    }
+
+    let copy_shown = zbkcr_within(repository, &copy);
+    let declared_shown = zbkcr_within(repository, &declared);
+
+    Err(format!(
+        "the weaned copy {} differs from its brood {} — activation is copying, never authoring, so \
+         a copy may not drift from the kit that declares it. Take the kit's declaration: cp {} {} \
+         — or, where the kit's declaration is what is wrong, repair it in the kit",
+        copy_shown.display(),
+        declared_shown.display(),
+        declared_shown.display(),
+        copy_shown.display(),
+    ))
+}
+
+/// Every instance the weaned set holds, with the one family file each carries.
+fn zbkcr_instances(weaned: &Path) -> Result<Vec<(PathBuf, &'static str)>, String> {
+    let listing = match std::fs::read_dir(weaned) {
+        Ok(listing) => listing,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(err) => return Err(format!("could not read {}: {}", weaned.display(), err)),
+    };
+
+    let mut instances: Vec<(PathBuf, &'static str)> = Vec::new();
+
+    for entry in listing {
+        let entry = entry.map_err(|err| format!("could not read {}: {}", weaned.display(), err))?;
+        let instance = entry.path();
+
+        if !instance.is_dir() {
+            return Err(format!(
+                "{} stands in the weaned set and is no instance directory — the set holds one \
+                 directory per declaration and nothing else",
+                instance.display()
+            ));
+        }
+
+        let held: Vec<&'static str> = BKCR_FAMILIES
+            .iter()
+            .copied()
+            .filter(|family| instance.join(family).is_file())
+            .collect();
+
+        if held.len() != 1 {
+            return Err(format!(
+                "the weaned instance {} holds {} family file(s) where it must hold one — one of {}",
+                instance.display(),
+                held.len(),
+                BKCR_FAMILIES.join(", ")
+            ));
+        }
+
+        instances.push((instance, held[0]));
+    }
+
+    instances.sort();
+    Ok(instances)
+}
+
+/// Every brood instance carrying one name, found under the repository's own
+/// tools directory.
+fn zbkcr_broods(repository: &Path, name: &str) -> Result<Vec<PathBuf>, String> {
+    let tools = repository.join(BKCR_TOOLS);
+
+    let listing = match std::fs::read_dir(&tools) {
+        Ok(listing) => listing,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(err) => return Err(format!("could not read {}: {}", tools.display(), err)),
+    };
+
+    let mut broods: Vec<PathBuf> = Vec::new();
+
+    for entry in listing {
+        let entry = entry.map_err(|err| format!("could not read {}: {}", tools.display(), err))?;
+        let candidate = entry.path().join(BKCR_BROOD).join(name);
+        if candidate.is_dir() {
+            broods.push(candidate);
+        }
+    }
+
+    broods.sort();
+    Ok(broods)
+}
+
+/// A path shown relative to the repository where it stands inside it, and as it
+/// is where it does not.
+fn zbkcr_within(repository: &Path, path: &Path) -> PathBuf {
+    path.strip_prefix(repository)
+        .map(Path::to_path_buf)
+        .unwrap_or_else(|_| path.to_path_buf())
+}
+
+/// Resolve a collar by name, and gather every finding against it.
+///
+/// THE INSTANCE IS PROVEN AGAINST ITS BROOD BEFORE ANYTHING ELSE IS READ, so a
+/// drifted copy refuses rather than being validated: the findings of a copy that
+/// is not the kit's declaration would be findings about a declaration nobody
+/// made.
+pub fn bkcr_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcr_Resolved, String> {
+    let instances = bkcr_walk(repository, weaned)?;
+
+    let Some(instance) = instances
+        .iter()
+        .find(|instance| zbkcr_named(instance) == name)
+        .cloned()
+    else {
+        return Err(format!(
+            "no collar named '{}' stands in the weaned set {} — it holds {} collar(s): {}",
+            name,
+            zbkcr_within(repository, weaned).display(),
+            instances.len(),
+            zbkcr_listed(&instances)
+        ));
+    };
+
+    bkcr_drift(repository, &repository.join(&instance), BKCR_FAMILY)?;
+
+    let regime = bkprc_read(&repository.join(&instance).join(BKCR_FAMILY))?;
 
     let collar = bkcr_Collar {
         name: name.to_string(),
@@ -370,19 +544,19 @@ pub fn bkcr_resolve(repository: &Path, name: &str) -> Result<bkcr_Resolved, Stri
         regime,
     };
 
-    let findings = zbkcr_findings(repository, &collar);
+    let findings = zbkcr_findings(repository, weaned, &collar);
 
     Ok(bkcr_Resolved { collar, findings })
 }
 
 /// Every conformance finding against one collar, gathered whole.
-fn zbkcr_findings(repository: &Path, collar: &bkcr_Collar) -> Vec<String> {
+fn zbkcr_findings(repository: &Path, weaned: &Path, collar: &bkcr_Collar) -> Vec<String> {
     let mut findings: Vec<String> = Vec::new();
 
     zbkcr_declared(collar, &mut findings);
     zbkcr_identity(collar, &mut findings);
     zbkcr_muzzle(repository, collar, &mut findings);
-    zbkcr_cargo(repository, collar, &mut findings);
+    zbkcr_cargo(repository, weaned, collar, &mut findings);
 
     findings
 }
@@ -403,7 +577,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     };
 
     for field in BKCR_FIELDS_BOTH.iter().chain(owed.iter()) {
-        if !collar.regime.bklrc_holds(field) {
+        if !collar.regime.bkprc_holds(field) {
             findings.push(format!(
                 "{} is not declared — every collar declares it, and a door reading a meaning out \
                  of an absence cannot tell a declaration from an omission",
@@ -413,7 +587,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     }
 
     for field in foreign {
-        if collar.regime.bklrc_holds(field) {
+        if collar.regime.bkprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the other kind — this collar declares {} = {}",
                 field, "BKRR_KIND", kind
@@ -422,7 +596,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     }
 
     for (field, admitted) in ZBKCR_ENUMS {
-        let Some(held) = collar.regime.bklrc_scalar(field) else {
+        let Some(held) = collar.regime.bkprc_scalar(field) else {
             continue;
         };
         if !admitted.contains(&held) {
@@ -437,7 +611,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
 
     zbkcr_exergue(collar, findings);
 
-    if collar.regime.bklrc_holds("BKRR_MUZZLE") && collar.bkcr_field("BKRR_MUZZLE").is_empty() {
+    if collar.regime.bkprc_holds("BKRR_MUZZLE") && collar.bkcr_field("BKRR_MUZZLE").is_empty() {
         findings.push(
             "BKRR_MUZZLE stands vacant — it is required and never vacant, the consuming tree's \
              own root being the ordinary value"
@@ -456,7 +630,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
 /// authoring slip — a strike left standing under a collar whose generated file
 /// has since moved into the tree.
 fn zbkcr_exergue(collar: &bkcr_Collar, findings: &mut Vec<String>) {
-    if !collar.regime.bklrc_holds("BKRR_EXERGUE") {
+    if !collar.regime.bkprc_holds("BKRR_EXERGUE") {
         return;
     }
 
@@ -482,8 +656,7 @@ fn zbkcr_exergue(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     }
 }
 
-/// The identity law: the instance directory's name and the declared name are one
-/// (BKSCL-Collar.adoc "The Identity Law").
+/// The identity law: the instance directory's name and the declared name are one.
 fn zbkcr_identity(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     let declared = collar.bkcr_field("BKRR_COLLAR");
 
@@ -529,8 +702,7 @@ fn zbkcr_muzzle(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Stri
 /// CARGO IS THE ORACLE AND NOTHING HERE RECOMPUTES IT. What each manifest
 /// declares is read back from cargo's own account of it; a reader that parsed
 /// manifests itself would be a second resolver, and the whole election of this
-/// backend is that nothing reimplements what cargo knows
-/// (BKSNC-Kennelcraft.adoc "The Rust Backend").
+/// backend is that nothing reimplements what cargo knows.
 ///
 /// IT GOES THROUGH THE LEASH, never a bare command, so the pin is stated, the
 /// lock is enforced and the fence is proven for this reading exactly as for a
@@ -542,14 +714,13 @@ fn zbkcr_muzzle(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Stri
 /// never fetched — a platform-gated dependency is the standing case, resolved
 /// into the lock on every platform and downloaded on none but its own. Asking
 /// for it ONLINE is worse: a routine invocation verifies and never downloads,
-/// and tattoo is as routine as an invocation gets (BKSNC-Kennelcraft.adoc
-/// "Open Elections"). So each LOCAL manifest is asked about on its own, with no
-/// closure resolved at any step, and the local edges are followed from one
-/// answer to the next. Every registry package is thereby out of the question by
-/// construction, which is also the honest scope: what the elected roots must
-/// reach is the source compiled from OUR trees, and a registry crate is pinned
-/// by the lock rather than elected by a collar.
-fn zbkcr_cargo(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<String>) {
+/// and tattoo is as routine as an invocation gets. So each LOCAL manifest is
+/// asked about on its own, with no closure resolved at any step, and the local
+/// edges are followed from one answer to the next. Every registry package is
+/// thereby out of the question by construction, which is also the honest scope:
+/// what the elected roots must reach is the source compiled from OUR trees, and
+/// a registry crate is pinned by the lock rather than elected by a collar.
+fn zbkcr_cargo(repository: &Path, weaned: &Path, collar: &bkcr_Collar, findings: &mut Vec<String>) {
     let declared = collar.bkcr_field("BKRR_MANIFEST");
 
     if declared.is_empty() {
@@ -566,7 +737,7 @@ fn zbkcr_cargo(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Strin
         return;
     }
 
-    let account = match zbkcr_account(repository, &manifest) {
+    let account = match zbkcr_account(repository, weaned, &manifest) {
         Ok(account) => account,
         Err(err) => {
             findings.push(err);
@@ -580,7 +751,7 @@ fn zbkcr_cargo(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Strin
 
     zbkcr_crates(collar, &account, tested, findings);
 
-    match bkcr_closure(repository, &manifest, tested) {
+    match bkcr_closure(repository, weaned, &manifest, tested) {
         Ok(closure) => zbkcr_roots(collar, &closure, findings),
         Err(err) => findings.push(err),
     }
@@ -618,8 +789,8 @@ fn zbkcr_kind(dependency: &bkcj_Value) -> &str {
 /// It is a fact about the ANSWER rather than about a package, which is why it is
 /// read from the account's own root: the field stands beside `packages` and not
 /// inside one, and a workspace answers one build directory for every member.
-pub fn bkcr_target_directory(repository: &Path, manifest: &Path) -> Result<PathBuf, String> {
-    let answer = zbkcr_answer(repository, manifest)?;
+pub fn bkcr_target_directory(repository: &Path, weaned: &Path, manifest: &Path) -> Result<PathBuf, String> {
+    let answer = zbkcr_answer(repository, weaned, manifest)?;
 
     answer
         .bkcj_field("target_directory")
@@ -638,8 +809,8 @@ pub fn bkcr_target_directory(repository: &Path, manifest: &Path) -> Result<PathB
 /// The package asked for is the one whose manifest path is the one asked about,
 /// matched after both are settled: a manifest naming a workspace answers for its
 /// members too, and the answer must be about the crate the collar declares.
-fn zbkcr_account(repository: &Path, manifest: &Path) -> Result<bkcj_Value, String> {
-    let answer = zbkcr_answer(repository, manifest)?;
+fn zbkcr_account(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkcj_Value, String> {
+    let answer = zbkcr_answer(repository, weaned, manifest)?;
 
     let packages = answer
         .bkcj_field("packages")
@@ -679,9 +850,10 @@ fn zbkcr_account(repository: &Path, manifest: &Path) -> Result<bkcj_Value, Strin
 /// and homing it here is what keeps a second caller from asking a
 /// differently-shaped question — the flags above say as much, and a second
 /// composition of them would make that sentence false.
-fn zbkcr_answer(repository: &Path, manifest: &Path) -> Result<bkcj_Value, String> {
+fn zbkcr_answer(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkcj_Value, String> {
     let recalled = bkcl_leash::bkcl_recall(
         repository,
+        weaned,
         manifest,
         ZBKCR_METADATA,
         [ZBKCR_NO_DEPS, ZBKCR_FORMAT_FLAG, ZBKCR_FORMAT, ZBKCR_OFFLINE],
@@ -751,7 +923,7 @@ fn zbkcr_answer(repository: &Path, manifest: &Path) -> Result<bkcj_Value, String
 /// from the answer: no root of this collar's could elect it, and the leash
 /// already refuses to build a crate that stands outside the tree it is bounded
 /// by.
-pub fn bkcr_closure(repository: &Path, manifest: &Path, tested: bool) -> Result<Vec<String>, String> {
+pub fn bkcr_closure(repository: &Path, weaned: &Path, manifest: &Path, tested: bool) -> Result<Vec<String>, String> {
     let mut walked: Vec<PathBuf> = Vec::new();
     let mut owed: Vec<(PathBuf, bool)> = vec![(manifest.to_path_buf(), true)];
     let mut local: Vec<String> = Vec::new();
@@ -763,7 +935,7 @@ pub fn bkcr_closure(repository: &Path, manifest: &Path, tested: bool) -> Result<
         }
         walked.push(settled);
 
-        let account = zbkcr_account(repository, &next)?;
+        let account = zbkcr_account(repository, weaned, &next)?;
 
         if let Some(directory) = zbkcr_relative(repository, next.parent()) {
             if !local.contains(&directory) {
@@ -811,7 +983,7 @@ pub fn bkcr_closure(repository: &Path, manifest: &Path, tested: bool) -> Result<
 /// manifests rather than the crate directory whole, so that a landing touching
 /// only its test modules moves no position.
 fn zbkcr_roots(collar: &bkcr_Collar, closure: &[String], findings: &mut Vec<String>) {
-    let Some(roots) = collar.regime.bklrc_catena("BKRR_ROOTS") else {
+    let Some(roots) = collar.regime.bkprc_catena("BKRR_ROOTS") else {
         return;
     };
 
@@ -836,7 +1008,7 @@ fn zbkcr_roots(collar: &bkcr_Collar, closure: &[String], findings: &mut Vec<Stri
 }
 
 /// Every direct dependency the manifest declares is named in exactly one of the
-/// collar's two crate lists (BKSCL-Collar.adoc "The tamed and the feral").
+/// collar's two crate lists.
 ///
 /// LOCAL AND EXTERNAL ALIKE. The field's job is that nothing links in unnoticed,
 /// and a sibling crate in this repository is as much a link as a registry crate
@@ -856,13 +1028,13 @@ fn zbkcr_crates(
     tested: bool,
     findings: &mut Vec<String>,
 ) {
-    let Some(tamed) = collar.regime.bklrc_catena("BKRR_TAMED_CRATES") else {
+    let Some(tamed) = collar.regime.bkprc_catena("BKRR_TAMED_CRATES") else {
         return;
     };
 
     // The none-sprue is not a crate name, so it leaves the reading here and the
     // union below is over crates alone.
-    let feral: Vec<&str> = match collar.regime.bklrc_catena("BKRR_FERAL_CRATES") {
+    let feral: Vec<&str> = match collar.regime.bkprc_catena("BKRR_FERAL_CRATES") {
         None => Vec::new(),
         Some(declared) => declared
             .into_iter()

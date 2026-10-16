@@ -19,7 +19,7 @@
 #
 # BUUT - Tabtarget and Launcher creation utilities
 #
-# Functions for creating tabtargets (tt/*.sh) and launchers (rbmm_moorings/rbml_launchers/launcher.*.sh)
+# Functions for creating tabtargets (tt/*.sh) and launchers (rbmm_moorings/buml_launchers/launcher.*.sh)
 # as part of the BUK dispatch system.
 
 set -euo pipefail
@@ -40,9 +40,6 @@ zbuut_kindle() {
   # Validate BURC environment (needed for paths)
   test -n "${BURC_TABTARGET_DIR:-}" || buc_die_now "BURC_TABTARGET_DIR is unset"
   test -n "${BURC_TOOLS_DIR:-}" || buc_die_now "BURC_TOOLS_DIR is unset"
-
-  # Moorings-layout names (launcher subdir) for launcher list/create.
-  source "${BURC_TOOLS_DIR}/buk/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
 
   readonly ZBUUT_KINDLED=1
 }
@@ -76,15 +73,15 @@ zbuut_write_tabtarget() {
   # reads it from the environment and resolves it directly under the moorings
   # launcher dir. The exec line carries no launcher token and is byte-identical
   # in every tabtarget.
-  echo '#!/bin/bash' > "${z_tabtarget_file}"
-  echo "export BURD_LAUNCHER=${z_launcher_path##*/}" >> "${z_tabtarget_file}"
+  echo '#!/bin/bash' > "${z_tabtarget_file}" || buc_die_now
+  echo "export BURD_LAUNCHER=${z_launcher_path##*/}" >> "${z_tabtarget_file}" || buc_die_now
 
   # Add flag lines if provided
   if test -n "${z_flag_lines}"; then
-    echo "${z_flag_lines}" >> "${z_tabtarget_file}"
+    echo "${z_flag_lines}" >> "${z_tabtarget_file}" || buc_die_now
   fi
 
-  echo "exec \"\${BASH_SOURCE[0]%/*}/z-launcher.sh\" \"\${0##*/}\" \"\${@}\"" >> "${z_tabtarget_file}"
+  echo "exec \"\${BASH_SOURCE[0]%/*}/z-launcher.sh\" \"\${0##*/}\" \"\${@}\"" >> "${z_tabtarget_file}" || buc_die_now
 
   chmod +x "${z_tabtarget_file}" || buc_die_now "Failed to make tabtarget executable: ${z_tabtarget_file}"
 }
@@ -95,9 +92,9 @@ zbuut_create_tabtargets() {
   zbuut_sentinel
 
   local z_flag_lines="${1:-}"
-  shift || true
+  test "$#" -eq 0 || shift
   local z_launcher_path="${1:-}"
-  shift || true
+  test "$#" -eq 0 || shift
 
   test -n "${z_launcher_path}" || buc_die_now "launcher_path required"
   test "$#" -gt 0 || buc_die_now "at least one tabtarget_name required"
@@ -112,6 +109,7 @@ zbuut_create_tabtargets() {
     local z_tabtarget_file="${PWD}/${BURC_TABTARGET_DIR}/${z_tabtarget_name}.sh"
 
     # Warn if overwriting
+    # Non-fatal by grant: repo owner determines warning safe here
     test ! -f "${z_tabtarget_file}" || buc_warn "overwriting existing tabtarget: ${z_tabtarget_file}"
 
     zbuut_write_tabtarget "${z_launcher_path}" "${z_tabtarget_file}" "${z_flag_lines}"
@@ -143,7 +141,7 @@ buut_list_launchers() {
   local z_launcher
   for z_launcher in "${z_launcher_dir}/launcher."*.sh; do
     test -f "${z_launcher}" || continue
-    echo "${z_launcher}"
+    echo "${z_launcher}" || buc_die_now
     z_found=1
   done
   test "${z_found}" = "1" || echo "  (none found)"
@@ -154,7 +152,7 @@ buut_tabtarget_batch_logging() {
   local z_launcher_path="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Create batch+logging tabtarget(s) (default mode)"
-  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh)"
+  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., rbw-ri.RegimeInfo)"
   buc_doc_shown || return 0
 
@@ -170,7 +168,7 @@ buut_tabtarget_batch_nolog() {
   local z_launcher_path="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Create batch+nolog tabtarget(s) (BURD_NO_LOG=1)"
-  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh)"
+  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., rbw-ri.RegimeInfo)"
   buc_doc_shown || return 0
 
@@ -181,12 +179,33 @@ buut_tabtarget_batch_nolog() {
   zbuut_create_tabtargets 'export BURD_NO_LOG=1' "${z_launcher_path}" "$@"
 }
 
+# Create batch+amanuensis tabtargets (BURD_AMANUENSIS=1)
+#
+# For a door whose command writes its own record: under this flag the dispatch
+# composes the three log names and creates no file. The flag line follows the
+# launcher line, as every form's does, which is the shape the structural
+# qualification in buq_qualify.sh holds every tabtarget to.
+buut_tabtarget_batch_amanuensis() {
+  local z_launcher_path="${BUZ_FOLIO:-}"
+
+  buc_doc_brief "Create batch tabtarget(s) whose command writes its own record (BURD_AMANUENSIS=1)"
+  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/buml_launchers/launcher.bkw_workbench.sh)"
+  buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., bkw-m.Mush)"
+  buc_doc_shown || return 0
+
+  zbuut_sentinel
+  test -n "${z_launcher_path}" || buc_usage_die
+
+  buc_step "Creating batch tabtarget(s) whose command writes its own record"
+  zbuut_create_tabtargets 'export BURD_AMANUENSIS=1' "${z_launcher_path}" "$@"
+}
+
 # Create interactive+logging tabtargets (BURD_INTERACTIVE=1)
 buut_tabtarget_interactive_logging() {
   local z_launcher_path="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Create interactive+logging tabtarget(s) (BURD_INTERACTIVE=1)"
-  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/rbml_launchers/launcher.cccw_workbench.sh)"
+  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/buml_launchers/launcher.cccw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., ccck-s.ConnectShell)"
   buc_doc_shown || return 0
 
@@ -202,7 +221,7 @@ buut_tabtarget_interactive_nolog() {
   local z_launcher_path="${BUZ_FOLIO:-}"
 
   buc_doc_brief "Create interactive+nolog tabtarget(s) (BURD_INTERACTIVE=1, BURD_NO_LOG=1)"
-  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/rbml_launchers/launcher.rbw_workbench.sh)"
+  buc_doc_param "launcher_path" "Path to launcher (e.g., rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh)"
   buc_doc_param "tabtarget_name" "One or more tabtarget names (e.g., rbw-PI.PayorInstall)"
   buc_doc_shown || return 0
 
@@ -220,7 +239,7 @@ buut_launcher() {
   local z_workbench_path="${BUZ_FOLIO:-}"
   local z_launcher_name="${1:-}"
 
-  buc_doc_brief "Create a launcher stub in rbmm_moorings/rbml_launchers/"
+  buc_doc_brief "Create a launcher stub in rbmm_moorings/buml_launchers/"
   buc_doc_param "workbench_path" "Path to workbench script (e.g., Tools/myw/myw_workbench.sh)"
   buc_doc_param "launcher_name" "Launcher name without prefix/suffix (e.g., myw_workbench)"
   buc_doc_shown || return 0
@@ -240,6 +259,7 @@ buut_launcher() {
   local z_launcher_file="${z_launcher_dir}/launcher.${z_launcher_name}.sh"
 
   # Warn if overwriting
+  # Non-fatal by grant: repo owner determines warning safe here
   test ! -f "${z_launcher_file}" || buc_warn "overwriting existing launcher: ${z_launcher_file}"
 
   buc_step "Creating launcher: ${z_launcher_file}"
@@ -255,10 +275,10 @@ buut_launcher() {
   # exec'ing the stub, so the bul_launcher source path is repo-root-relative —
   # no directory-depth counting, immune to where the launcher dir sits.
   {
-    echo '#!/bin/bash'
-    echo "# Launcher stub - delegates to ${z_description} workbench"
-    echo 'source "Tools/buk/bul_launcher.sh"'
-    echo "bul_launch \"\${BURC_TOOLS_DIR}/${z_workbench_path#Tools/}\" \"\$@\""
+    echo '#!/bin/bash' || buc_die_now
+    echo "# Launcher stub - delegates to ${z_description} workbench" || buc_die_now
+    echo 'source "Tools/buk/bul_launcher.sh"' || buc_die_now
+    echo "bul_launch \"\${BURC_TOOLS_DIR}/${z_workbench_path#Tools/}\" \"\$@\"" || buc_die_now
   } > "${z_launcher_file}"
 
   chmod +x "${z_launcher_file}" || buc_die_now "Failed to make launcher executable: ${z_launcher_file}"

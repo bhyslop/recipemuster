@@ -39,7 +39,7 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBUH_SOURCED:-}" || return 0
+test -z "${ZBUH_SOURCED:-}" || buc_die_now "Module buh multiply sourced - check sourcing hierarchy"
 ZBUH_SOURCED=1
 
 ######################################################################
@@ -84,8 +84,13 @@ zbuh_sentinel() {
 ######################################################################
 # Public: Section headers and numbered steps
 
-buh_section() { zbuh_sentinel; z_buh_body_indent=""; buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; printf '%s\n' "${z_buym_format}" >&2; }
-buh_e()       { zbuh_sentinel; echo "" >&2; }
+buh_section() {
+  zbuh_sentinel
+  z_buh_body_indent=""
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_formatted}" >&2 || buc_die_now
+}
+buh_e()       { zbuh_sentinel; echo "" >&2 || buc_die_now; }
 
 buh_step_style() {
   zbuh_sentinel
@@ -98,16 +103,16 @@ buh_step1() {
   z_buh_step1_n=$((z_buh_step1_n + 1))
   z_buh_step2_n=0
   z_buh_body_indent="   "
-  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
-  printf '%s\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${z_buym_format}" >&2
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}${z_buh_step_separator}${z_formatted}" >&2 || buc_die_now
 }
 
 buh_step2() {
   zbuh_sentinel
   z_buh_step2_n=$((z_buh_step2_n + 1))
   z_buh_body_indent="      "
-  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"
-  printf '%s\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${z_buym_format}" >&2
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "   ${ZBUH_S}${z_buh_step_prefix}${z_buh_step1_n}.${z_buh_step2_n}${z_buh_step_separator}${z_formatted}" >&2 || buc_die_now
 }
 
 ######################################################################
@@ -129,11 +134,11 @@ buh_link() {
   if test -n "${BURD_NO_HYPERLINKS:-}"; then
     # Fallback: styled text with URL in angle brackets
     printf '%s%s%s%s%s <%s>%s\n' \
-      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUH_R}" "${z_url}" "${z_suffix}" >&2
+      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUH_R}" "${z_url}" "${z_suffix}" >&2 || buc_die_now
   else
     # OSC-8 hyperlink with styling
     printf '%s%s%s\033]8;;%s\033\\%s\033]8;;\033\\%s%s\n' \
-      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUH_R}" "${z_suffix}" >&2
+      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUH_R}" "${z_suffix}" >&2 || buc_die_now
   fi
 }
 
@@ -145,8 +150,7 @@ buh_link() {
 
 buh_tt() {
   zbuh_sentinel
-  buym_tt_yawp "${2:-}" "${3:-}" "${4:-}"
-  local -r z_tt="${z_buym_yelp}"
+  buym_tt_yawp "${2:-}" "${3:-}" "${4:-}"; local -r z_tt="${z_buym_yelp}"
   buh_line "${1:-}${z_tt}"
 }
 
@@ -162,8 +166,8 @@ buh_tt() {
 
 buh_line() {
   zbuh_sentinel
-  buym_format_yawp "${BUYC_RESET}" "${1:-}"
-  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  buym_format_yawp "${BUYC_RESET}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_buh_body_indent}${z_formatted}" >&2 || buc_die_now
 }
 
 ######################################################################
@@ -180,20 +184,20 @@ buh_line() {
 
 buh_code() {
   zbuh_sentinel
-  buym_format_yawp "${BUYC_CYAN}" "${1:-}"
-  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  buym_format_yawp "${BUYC_CYAN}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_buh_body_indent}${z_formatted}" >&2 || buc_die_now
 }
 
 buh_warn() {
   zbuh_sentinel
-  buym_format_yawp "${BUYC_BRIGHT_YELLOW}" "${1:-}"
-  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  buym_format_yawp "${BUYC_BRIGHT_YELLOW}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_buh_body_indent}${z_formatted}" >&2 || buc_die_now
 }
 
 buh_error() {
   zbuh_sentinel
-  buym_format_yawp "${BUYC_BRIGHT_RED}" "${1:-}"
-  printf '%s\n' "${z_buh_body_indent}${z_buym_format}" >&2
+  buym_format_yawp "${BUYC_BRIGHT_RED}" "${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_buh_body_indent}${z_formatted}" >&2 || buc_die_now
 }
 
 ######################################################################
@@ -224,10 +228,10 @@ buh_ternary() {
 # Displays prompt and reads user input, returns via stdout
 buh_prompt_plain() {
   zbuh_sentinel
-  printf '%s\n' "${1:-}" >&2
+  printf '%s\n' "${1:-}" >&2 || buc_die_now
   local z_input
-  read -r z_input
-  printf '%s' "${z_input}"
+  read -r z_input || buc_die_now "Failed to read input"
+  printf '%s' "${z_input}" || buc_die_now
 }
 
 # buh_prompt_secret "prompt text"
@@ -235,24 +239,26 @@ buh_prompt_plain() {
 # Emits a trailing newline to stderr so subsequent output starts on a fresh line.
 buh_prompt_secret() {
   zbuh_sentinel
-  printf '%s\n' "${1:-}" >&2
+  printf '%s\n' "${1:-}" >&2 || buc_die_now
   local z_input
-  read -rs z_input
-  printf '\n' >&2
-  printf '%s' "${z_input}"
+  read -rs z_input || buc_die_now "Failed to read input"
+  printf '\n' >&2 || buc_die_now
+  printf '%s' "${z_input}" || buc_die_now
 }
 
 # buh_prompt_required "prompt text" "error message"
 # Like buh_prompt_plain but dies if input is empty
 buh_prompt_required() {
   zbuh_sentinel
-  local z_input
-  z_input=$(buh_prompt_plain "${1:-}")
-  if test -z "${z_input}"; then
-    printf '%s\n' "${z_buh_body_indent}${ZBUH_E}ERROR:${ZBUH_R} ${2:-Input required}" >&2
-    return 1
-  fi
-  printf '%s' "${z_input}"
+  printf '%s\n' "${1:-}" >&2 || buc_die_now
+  # read answers 1 at an end of input: a final line lacking its newline still
+  # answers, and one carrying nothing is refused below as an empty answer.
+  local z_input=""
+  local z_read_status=0
+  read -r z_input || z_read_status=$?
+  test "${z_read_status}" -eq 0 || buc_log_args "buh_prompt_required: input ended without a newline (read status ${z_read_status})"
+  test -n "${z_input}" || buc_die_now "${2:-Input required}"
+  printf '%s' "${z_input}" || buc_die_now
 }
 
 ######################################################################
@@ -260,11 +266,11 @@ buh_prompt_required() {
 
 buh_critical() {
   zbuh_sentinel
-  printf '\n' >&2
-  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
-  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}" >&2
-  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2
-  printf '\n' >&2
+  printf '\n' >&2 || buc_die_now
+  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2 || buc_die_now
+  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}" >&2 || buc_die_now
+  printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2 || buc_die_now
+  printf '\n' >&2 || buc_die_now
 }
 
 # eof

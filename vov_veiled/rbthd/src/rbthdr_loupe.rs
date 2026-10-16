@@ -148,7 +148,7 @@ const ZRBTHDR_VEIL_EXEMPT: &[(&str, &str)] = &[
         "its curl-scan exemption table addresses a withheld tree by path; dead in the stripped tree, where that tree is gone",
     ),
     (
-        "rbmm_moorings/rbml_launchers/launcher.rbthw_workbench.sh",
+        "rbmm_moorings/buml_launchers/launcher.rbthw_workbench.sh",
         "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no regulus carries it",
     ),
 ];

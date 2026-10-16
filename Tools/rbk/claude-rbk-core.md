@@ -1,6 +1,6 @@
 # RBK Core Context
 
-Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `volis_buk.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
+Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered sibling that mirrors `buais_buk.md`. It carries the per-row descriptions and the moorings-tree topology the acronym index itself does not hold.
 
 ## Acronym Notes
 
@@ -86,10 +86,9 @@ Prose peer to `claude-rbk-acronyms.md` (the RBK prefix map) — the delivered si
 RBK-owned directory namespace for the consumer-config moorings tree (`rbmm_moorings/`) — distinct from the `Tools/rbk/` code files above. Branches of the `rbm` prefix (terminal-exclusivity: `rbm` HAS children, never names a thing):
 
 - **`rbmm_`** → moorings umbrella — the directory itself (`rbmm_moorings/`)
-- **`rbml_`** → moorings launchers — shared directory holding every kit's `launcher.{wb}_workbench.sh`
 - **`rbmn_`** → moorings nodes — remote BURN node profiles
 - **`rbmu_`** → moorings users — remote BURP user profiles
 - **`rbmv_`** → moorings vessels — vessel build contexts
 - **`rbmf_`** → moorings foedera — the foedus library: one `rbef_`-sprued subdirectory per standing foedus (`rbmf_foedera/rbef_entrada/rbrf.env`), the active one selected by `RBRR_ACTIVE_FOEDUS`. The federation regime is stored once here, no copied active file; the accessor resolves the active foedus's `rbrf.env` from the `RBRR_ACTIVE_FOEDUS` selector via `rbcc_rbrf_file_flint_capture`.
 
-Tabtargets dispatch through `tt/z-launcher.sh`, naming their launcher in the `BURD_LAUNCHER` config line as a bare `launcher.<id>_workbench.sh` basename that the trampoline resolves directly under `rbml_launchers/`. This entry is the directory allocation record only.
+Tabtargets dispatch through `tt/z-launcher.sh`, naming their launcher in the `BURD_LAUNCHER` config line as a bare `launcher.<id>_workbench.sh` basename that the trampoline resolves directly under `rbmm_moorings/buml_launchers/`. That directory is BUK's name, not a branch of `rbm`: the kit owns the launchers subdirectory (`BUBC_launchers_subdir`) and reads it under every consumer's moorings, so the former `rbml_` branch is retired. This entry is the directory allocation record only.

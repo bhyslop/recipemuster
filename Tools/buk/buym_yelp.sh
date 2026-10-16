@@ -53,7 +53,7 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBUYM_SOURCED:-}" || return 0
+test -z "${ZBUYM_SOURCED:-}" || buc_die_now "Module buym multiply sourced - check sourcing hierarchy"
 ZBUYM_SOURCED=1
 
 ######################################################################
@@ -239,7 +239,10 @@ buym_tt_path() {
   else
     z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
   fi
-  test -e "${z_matches[0]}" && z_buym_tt_path="${z_matches[0]}" || z_buym_tt_path=""
+  z_buym_tt_path=""
+  if test -e "${z_matches[0]}"; then
+    z_buym_tt_path="${z_matches[0]}"
+  fi
 }
 
 # buym_tt_yawp colophon [imprint] [args];  local -r z_tt="${z_buym_yelp}"
@@ -249,7 +252,11 @@ buym_tt_yawp() {
   buym_tt_path "${z_colophon}" "${2:-}"
   local z_path="${z_buym_tt_path}"
   if test -z "${z_path}"; then
-    test -n "${2:-}" && z_path="??${z_colophon}.${2}??" || z_path="??${z_colophon}??"
+    if test -n "${2:-}"; then
+      z_path="??${z_colophon}.${2}??"
+    else
+      z_path="??${z_colophon}??"
+    fi
   fi
   z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
 }
@@ -318,7 +325,7 @@ buym_format_yawp() {
     else
       z_href_replacement="${z_href_text}"
     fi
-    z_str="${z_str/${z_href_full}/${z_href_replacement}}"
+    z_str="${z_str%%"${z_href_full}"*}${z_href_replacement}${z_str#*"${z_href_full}"}"
   done
 
   # Process LINK markers
@@ -335,17 +342,34 @@ buym_format_yawp() {
     else
       z_link_replacement="${z_link_text}"
     fi
-    z_str="${z_str/${z_link_full}/${z_link_replacement}}"
+    z_str="${z_str%%"${z_link_full}"*}${z_link_replacement}${z_str#*"${z_link_full}"}"
   done
 
   # --- Resolve simple markers ---
-  z_str="${z_str//${ZBUYM_DIASTEMA_CMD}/${BUYC_CYAN}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_UI}/${BUYC_MAGENTA}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_TT}/${BUYC_CYAN}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_PASS}/${BUYC_GREEN}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_WARN}/${BUYC_ORANGE}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_FAIL}/${BUYC_BRIGHT_RED}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_END}/${z_ambient}}"
+  # Each marker is swapped by splitting the string on it, never by a
+  # substitution operator, whose replacement half reads & and \ on bash 5.2
+  # and keeps written quotes on bash 3.2.
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_CMD}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_CMD}"*}${BUYC_CYAN}${z_str#*"${ZBUYM_DIASTEMA_CMD}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_UI}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_UI}"*}${BUYC_MAGENTA}${z_str#*"${ZBUYM_DIASTEMA_UI}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_TT}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_TT}"*}${BUYC_CYAN}${z_str#*"${ZBUYM_DIASTEMA_TT}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_PASS}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_PASS}"*}${BUYC_GREEN}${z_str#*"${ZBUYM_DIASTEMA_PASS}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_WARN}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_WARN}"*}${BUYC_ORANGE}${z_str#*"${ZBUYM_DIASTEMA_WARN}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_FAIL}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_FAIL}"*}${BUYC_BRIGHT_RED}${z_str#*"${ZBUYM_DIASTEMA_FAIL}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_END}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_END}"*}${z_ambient}${z_str#*"${ZBUYM_DIASTEMA_END}"}"
+  done
 
   z_buym_format="${z_ambient}${z_str}${BUYC_RESET}"
 }
@@ -380,7 +404,7 @@ buym_strip_yawp() {
     local z_href_url="${BASH_REMATCH[1]}"
     local z_href_text="${BASH_REMATCH[2]}"
     local z_href_full="${BASH_REMATCH[0]}"
-    z_str="${z_str/${z_href_full}/${z_href_text} <${z_href_url}>}"
+    z_str="${z_str%%"${z_href_full}"*}${z_href_text} <${z_href_url}>${z_str#*"${z_href_full}"}"
   done
 
   local z_link_pattern="${ZBUYM_DIASTEMA_LINK_URL}([^${ZBUYM_DIASTEMA_LINK_TEXT}]*)${ZBUYM_DIASTEMA_LINK_TEXT}([^${ZBUYM_DIASTEMA_END}]*)${ZBUYM_DIASTEMA_END}"
@@ -388,17 +412,17 @@ buym_strip_yawp() {
     local z_link_url="${BASH_REMATCH[1]}"
     local z_link_text="${BASH_REMATCH[2]}"
     local z_link_full="${BASH_REMATCH[0]}"
-    z_str="${z_str/${z_link_full}/${z_link_text} <${z_link_url}>}"
+    z_str="${z_str%%"${z_link_full}"*}${z_link_text} <${z_link_url}>${z_str#*"${z_link_full}"}"
   done
 
   # --- Strip simple markers and ambient-restore markers to nothing ---
-  z_str="${z_str//${ZBUYM_DIASTEMA_CMD}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_UI}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_TT}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_PASS}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_WARN}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_FAIL}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_END}/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_CMD}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_UI}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_TT}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_PASS}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_WARN}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_FAIL}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_END}"/}"
 
   z_buym_format="${z_str}"
 }

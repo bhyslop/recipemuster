@@ -19,10 +19,9 @@
 //! module holds is the drive: the linter reached through the leash, and the
 //! muzzle's own findings told apart from every other.
 //!
-//! NOTHING IS BANKED HERE, AND THE ABSENCE IS THE DESIGN (BKSMZ-Muzzle.adoc
-//! "Currency"). A muzzle's verdict is a statement about the moment it ran, and
-//! what carries that moment forward is the course that ran behind it — never a
-//! file this module writes. A record in the tracked tree would also make this
+//! NOTHING IS BANKED HERE, AND THE ABSENCE IS THE DESIGN. A muzzle's verdict is
+//! a statement about the moment it ran, and what carries that moment forward is
+//! the course that ran behind it — never a file this module writes. A record in the tracked tree would also make this
 //! door the one door whose own output trips the door law it stands behind.
 //!
 //! THE LINT LIST IS STATED, NEVER SEARCHED FOR. The linter's own upward search
@@ -130,7 +129,7 @@ pub enum bkcz_Verdict {
 /// the hand roster this door replaces: a crate enters the muzzle by wearing a
 /// collar that names a lint list, and leaves it by naming a different one. No
 /// roster stands anywhere for a crate to be silently absent from.
-pub fn bkcz_lint(repository: &Path, collar: &bkcr_Collar) -> Result<bkcz_Verdict, String> {
+pub fn bkcz_lint(repository: &Path, weaned: &Path, collar: &bkcr_Collar) -> Result<bkcz_Verdict, String> {
     // AHEAD OF EVERYTHING, because this is the road the defect was found on: the
     // sweep reached a crate whose exergue no door had struck yet, and the lint
     // run died on E0583 — which this door then reported as a build failure and
@@ -159,7 +158,7 @@ pub fn bkcz_lint(repository: &Path, collar: &bkcr_Collar) -> Result<bkcz_Verdict
     }
 
     let recalled =
-        bkcl_leash::bkcl_recall(repository, &manifest, ZBKCZ_VERB, asked, &stated)?;
+        bkcl_leash::bkcl_recall(repository, weaned, &manifest, ZBKCZ_VERB, asked, &stated)?;
 
     // THE LINTER SPEAKS ON STDERR, and its stdout is machine-readable. Both are
     // read here because a compile failure and a muzzle finding can arrive on

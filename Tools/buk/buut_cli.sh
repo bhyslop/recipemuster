@@ -21,8 +21,8 @@
 
 set -euo pipefail
 
-source "${BASH_SOURCE[0]%/*}/buc_command.sh"
-source "${BASH_SOURCE[0]%/*}/buym_yelp.sh"
+source "${BASH_SOURCE[0]%/*}/buc_command.sh" || exit 1
+source "${BASH_SOURCE[0]%/*}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 zbuut_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
@@ -31,9 +31,11 @@ zbuut_furnish() {
   buc_doc_env_row "BURC_TOOLS_DIR        " "Directory for tools"
   buc_doc_env_done || return 0
 
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/buut_tabtarget.sh"
+  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  # Moorings-layout names (launcher subdir) the tabtarget module's launcher list/create reads
+  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
+  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+  source "${BURD_BUK_DIR}/buut_tabtarget.sh" || buc_die_now "Failed to source buut_tabtarget.sh"
 
   zbuv_kindle
   zburd_kindle
