@@ -36,7 +36,7 @@
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
 
-pub mod buah_hurdle;
-pub mod buas_seat;
+pub mod buth_hurdle;
+pub mod buts_seat;
 
 // eof

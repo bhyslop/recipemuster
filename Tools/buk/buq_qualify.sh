@@ -21,14 +21,11 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBUQ_SOURCED:-}" || return 0
+test -z "${ZBUQ_SOURCED:-}" || buc_die_now "Module buq multiply sourced - check sourcing hierarchy"
 ZBUQ_SOURCED=1
 
-# Source the console utility library + moorings-layout names (launcher subdir)
-ZBUQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
-source "${ZBUQ_SCRIPT_DIR}/buc_command.sh"
-source "${ZBUQ_SCRIPT_DIR}/buym_yelp.sh"
-source "${ZBUQ_SCRIPT_DIR}/bubc_constants.sh"
+# The moorings-layout names (launcher subdir), the console library and the yelp
+# module are the furnish's to load
 
 # Pinned shellcheck version. The shellcheck gate hard-fails if the running
 # binary differs, locking every station to one version. The pin is exact, not a
@@ -51,10 +48,39 @@ buq_tabtargets() {
   test -n "${z_tt_dir}"       || buc_die_now "buq_tabtargets: tabtarget directory required"
   test -n "${z_project_root}" || buc_die_now "buq_tabtargets: project root required"
   test -d "${z_tt_dir}"       || buc_die_now "buq_tabtargets: directory not found: ${z_tt_dir}"
-  shift 2
+  test "$#" -lt 2 || shift 2
 
   # Remaining arguments are glob patterns for exempt tabtargets
   local z_exemptions=("$@")
+
+  # Each exemption glob becomes one anchored regular expression, matched below
+  # through a single unquoted expansion: a variable standing unquoted in a case
+  # pattern is never admitted, and a pattern a caller hands in cannot be spelled
+  # at the site. '*' and '?' keep their glob sense, '.'
+  # matches itself, and any other character a regular expression reads as an
+  # operator is refused rather than guessed at.
+  local z_exempt_regexes=()
+  local z_glob=""
+  local z_regex=""
+  local z_char=""
+  local z_ci=0
+  for z_glob in "${z_exemptions[@]+"${z_exemptions[@]}"}"; do
+    z_regex="^"
+    z_ci=0
+    while test "${z_ci}" -lt "${#z_glob}"; do
+      z_char="${z_glob:${z_ci}:1}"
+      case "${z_char}" in
+        '*') z_regex+=".*" ;;
+        '?') z_regex+="." ;;
+        '.') z_regex+="[.]" ;;
+        '['|']'|'^'|'$'|'+'|'('|')'|'{'|'}'|'|'|'\')
+          buc_die_now "buq_tabtargets: exemption pattern '${z_glob}' carries '${z_char}', which the exemption match does not translate" ;;
+        *) z_regex+="${z_char}" ;;
+      esac
+      z_ci=$((z_ci + 1))
+    done
+    z_exempt_regexes+=("${z_regex}\$")
+  done
 
   buc_step "Qualifying tabtarget structure in ${z_tt_dir}"
 
@@ -84,11 +110,9 @@ buq_tabtargets() {
 
     # Check exemption patterns
     local z_is_exempt=0
-    local z_exempt_pattern=""
-    for z_exempt_pattern in "${z_exemptions[@]+"${z_exemptions[@]}"}"; do
-      case "${z_basename}" in
-        ${z_exempt_pattern}) z_is_exempt=1; break ;;
-      esac
+    local z_exempt_regex=""
+    for z_exempt_regex in "${z_exempt_regexes[@]+"${z_exempt_regexes[@]}"}"; do
+      if [[ "${z_basename}" =~ ${z_exempt_regex} ]]; then z_is_exempt=1; break; fi
     done
     if test "${z_is_exempt}" = "1"; then
       z_exempt_count=$((z_exempt_count + 1))
@@ -141,11 +165,11 @@ buq_tabtargets() {
     local z_i=2
     local z_last_idx=$((z_num_lines - 1))
     while test "${z_i}" -lt "${z_last_idx}"; do
-      case "${z_lines[$z_i]}" in
+      case "${z_lines[${z_i}]}" in
         'export BURD_'*'='*) ;;
         *)
           z_fail_files+=("${z_basename}")
-          z_fail_reasons+=("line $((z_i + 1)): expected 'export BURD_*=*', got '${z_lines[$z_i]}'")
+          z_fail_reasons+=("line $((z_i + 1)): expected 'export BURD_*=*', got '${z_lines[${z_i}]}'")
           z_middle_ok=0
           break
           ;;
@@ -155,9 +179,9 @@ buq_tabtargets() {
     test "${z_middle_ok}" = "1" || continue
 
     # Last line: the byte-identical constant exec through the z-launcher trampoline.
-    test "${z_lines[$z_last_idx]}" = "${z_prescribed_exec}" || {
+    test "${z_lines[${z_last_idx}]}" = "${z_prescribed_exec}" || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("last line: expected '${z_prescribed_exec}', got '${z_lines[$z_last_idx]}'")
+      z_fail_reasons+=("last line: expected '${z_prescribed_exec}', got '${z_lines[${z_last_idx}]}'")
       continue
     }
   done
@@ -170,7 +194,7 @@ buq_tabtargets() {
   if (( ${#z_fail_files[@]} )); then
     local z_j=0
     for z_j in "${!z_fail_files[@]}"; do
-      buc_warn "${z_fail_files[$z_j]}: ${z_fail_reasons[$z_j]}" || buc_die_now "Failed to warn"
+      buc_warn "${z_fail_files[${z_j}]}: ${z_fail_reasons[${z_j}]}" || buc_die_now "Failed to warn"
     done
     buc_die_now "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
   fi
@@ -204,23 +228,51 @@ buq_shellcheck() {
   test -f "${z_rcfile}"    || buc_die_now "Shellcheck rcfile not found: ${z_rcfile}"
   test -d "${z_tools_dir}" || buc_die_now "Tools directory not found: ${z_tools_dir}"
 
-  command -v shellcheck >/dev/null 2>&1 || buc_die_now "shellcheck not found — install from https://www.shellcheck.net"
+  command -v shellcheck >/dev/null || buc_die_now "shellcheck not found — install from https://www.shellcheck.net"
 
   # Hard version pin — fail instantly if this station's shellcheck is not the
   # pinned version, before any check runs. Prevents silent cross-station
   # divergence (e.g. a pre-0.10.0 binary that rejects --rcfile). Keep stations
   # in lockstep; bump BUQ_SHELLCHECK_VERSION only after upgrading all of them.
+  # The report is kept beside the result file, the one scratch place every
+  # caller of this function names.
+  local -r z_sc_report_file="${z_result_file}.version"
+  local -r z_sc_report_stderr="${z_result_file}.version_stderr"
+  shellcheck --version > "${z_sc_report_file}" 2> "${z_sc_report_stderr}" \
+    || buc_die_now "shellcheck --version failed, so the pinned version ${BUQ_SHELLCHECK_VERSION} cannot be confirmed - see ${z_sc_report_stderr}"
+  local z_sc_lines=()
+  local z_sc_line=""
+  while IFS= read -r z_sc_line || test -n "${z_sc_line}"; do
+    z_sc_lines+=("${z_sc_line}")
+  done < "${z_sc_report_file}"
   local z_sc_version=""
-  z_sc_version="$(shellcheck --version | awk '/^version:/ {print $2}')"
+  local z_sc_i
+  for z_sc_i in "${!z_sc_lines[@]}"; do
+    case "${z_sc_lines[${z_sc_i}]}" in
+      version:*)
+        z_sc_version="${z_sc_lines[${z_sc_i}]#version:}"
+        z_sc_version="${z_sc_version// /}"
+        break
+        ;;
+    esac
+  done
   test "${z_sc_version}" = "${BUQ_SHELLCHECK_VERSION}" || buc_die_now \
     "shellcheck version mismatch: found '${z_sc_version}', require '${BUQ_SHELLCHECK_VERSION}'. Install the pinned version ahead of the system binary on PATH — static release: https://github.com/koalaman/shellcheck/releases/tag/v${BUQ_SHELLCHECK_VERSION}"
 
-  # Collect .sh files (load-then-iterate)
+  # Collect .sh files (load-then-iterate), each step writing a file under its
+  # own guard beside the result file, so neither the listing's nor the sort's
+  # failure is lost.
+  local -r z_found_file="${z_result_file}.found"
+  local -r z_sorted_file="${z_result_file}.sorted"
+  find "${z_tools_dir}" -name '*.sh' -type f > "${z_found_file}" \
+    || buc_die_now "buq_shellcheck: cannot list the shell files under ${z_tools_dir}"
+  sort "${z_found_file}" > "${z_sorted_file}" \
+    || buc_die_now "buq_shellcheck: cannot sort the listing ${z_found_file}"
   local z_files=()
   local z_file=""
   while IFS= read -r z_file || test -n "${z_file}"; do
     z_files+=("${z_file}")
-  done < <(find "${z_tools_dir}" -name '*.sh' -type f | sort)
+  done < "${z_sorted_file}"
 
   local -r z_tree_count=${#z_files[@]}
 
@@ -236,7 +288,7 @@ buq_shellcheck() {
   local -r z_file_count=${#z_files[@]}
   buc_log_args "Found ${z_tree_count} shell files under ${z_tools_dir}; ${#z_extra_files[@]} explicit extra files"
 
-  test "${z_file_count}" -gt 0 || buc_die_now "No .sh files found under ${z_tools_dir}"
+  test "${#z_files[@]}" -gt 0 || buc_die_now "No .sh files found under ${z_tools_dir}"
 
   # Run shellcheck — capture output to temp file for forensics
   local z_status=0
@@ -257,10 +309,15 @@ buq_shellcheck() {
   done < "${z_result_file}"
   buc_log_args "Shellcheck findings: ${z_finding_count} (see ${z_result_file})"
 
+  local z_result_lines=()
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
-    buc_warn "${z_line}"
+    z_result_lines+=("${z_line}")
   done < "${z_result_file}"
+  local z_ri
+  for z_ri in "${!z_result_lines[@]}"; do
+    buc_warn "${z_result_lines[${z_ri}]}"
+  done
 
   buc_die_now "Shellcheck qualification failed: ${z_finding_count} findings across ${z_file_count} files"
 }

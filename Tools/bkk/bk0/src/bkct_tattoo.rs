@@ -14,21 +14,20 @@
 // limitations under the License.
 
 //! *tattoo* — the read-only examination of one collar, and the resolver's
-//! read-only face (BKSNC-Kennelcraft.adoc "The doors").
+//! read-only face.
 //!
 //! It changes nothing on disk and it is the door a reader reaches for to ask
 //! what a collar says and whether it conforms. Everything it knows it learns
 //! from the resolver, which is what makes "never operate on an invalid collar"
 //! true of this door without this door holding a rule about it.
 //!
-//! THE PROCLAMATION IS TENANT-BLIND (BKSCL-Collar.adoc "The Common
-//! Proclamation"). What a collar says to the rest of the system wears `BKRC_*`
-//! whatever family declared it, with the language carried as a FIELD INSIDE the
-//! proclamation rather than as a different shape — which is the charter's own
-//! sentence made mechanical, and the seam a python or typescript tenant will
-//! surface through without this door learning anything new. No `BKRR_*` name
-//! reaches the answer: a consumer that read the rust family's own spelling here
-//! would be coupled to the tenant the proclamation exists to hide.
+//! THE PROCLAMATION IS TENANT-BLIND. What a collar says to the rest of the system
+//! wears `BKRC_*` whatever family declared it, with the language carried as a
+//! FIELD INSIDE the proclamation rather than as a different shape — which is the
+//! charter's own sentence made mechanical, and the seam a python or typescript
+//! tenant will surface through without this door learning anything new. No
+//! `BKRR_*` name reaches the answer: a consumer that read the rust family's own
+//! spelling here would be coupled to the tenant the proclamation exists to hide.
 //!
 //! ITS TRANSPORT IS ENV-SHAPED TEXT, settled at the command-surface freeze: a
 //! person reads it and bash sources it, and a JSON transport arrives as a verb of
@@ -36,7 +35,7 @@
 //! substrate's own authored layout, so the answer round-trips through the very
 //! reader that produced it.
 
-use crate::bkca_whereabouts::bkca_Geography;
+use crate::bkce_election::bkce_Geography;
 use crate::bkcx_python::bkcx_Collar;
 use crate::bkcr_resolve::{bkcr_Collar, BKCR_KIND_APP, BKCR_KIND_SUITE};
 
@@ -124,15 +123,15 @@ const ZBKCT_PROCLAIMED_PYTHON_SUITE: &[(&str, &str)] = &[
 /// of an ABSENCE cannot tell a declaration from an omission.
 ///
 /// THE GEOGRAPHY IS HANDED IN FOR THE SAME REASON THE ELECTION IS. It is a
-/// reading of a config directory the door face took, and a render that took one
-/// itself would touch an environment — which is the one thing this side of the
-/// crate does not do. It is proclaimed because the same binary in the same tree
+/// reading of the repository the door face took once, and a render that took
+/// one itself would be a second reading of a fact the door already holds. It is
+/// proclaimed because the same binary in the same tree
 /// is reached by more than one road and only the transcript can say which
 /// answered.
 pub fn bkct_proclamation(
     collar: &bkcr_Collar,
     elected: &str,
-    geography: &bkca_Geography,
+    geography: &bkce_Geography,
 ) -> String {
     let owned = match collar.bkcr_field("BKRR_KIND") {
         BKCR_KIND_APP => ZBKCT_PROCLAIMED_APP,
@@ -160,7 +159,7 @@ pub fn bkct_proclamation(
 pub fn bkct_proclamation_python(
     collar: &bkcx_Collar,
     elected: &str,
-    geography: &bkca_Geography,
+    geography: &bkce_Geography,
 ) -> String {
     let owned = match collar.bkcx_field("BKRP_KIND") {
         BKCR_KIND_APP => ZBKCT_PROCLAIMED_PYTHON_APP,
@@ -191,7 +190,7 @@ fn zbkct_rendered<'a, F: Fn(&str) -> &'a str>(
     owned: &[(&str, &str)],
     language: &str,
     elected: &str,
-    geography: &bkca_Geography,
+    geography: &bkce_Geography,
 ) -> String {
     let mut said = String::new();
 
@@ -209,7 +208,7 @@ fn zbkct_rendered<'a, F: Fn(&str) -> &'a str>(
     }
 
     said.push_str(&zbkct_stated("BKRC_ELECTION", elected));
-    said.push_str(&zbkct_stated("BKRC_GEOGRAPHY", &geography.bkca_stated()));
+    said.push_str(&zbkct_stated("BKRC_GEOGRAPHY", &geography.bkce_stated()));
 
     said
 }

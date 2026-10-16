@@ -21,9 +21,10 @@
 //! own hurdles do not. The drive that actually spawns a runner is the suite's own
 //! green, which the kennel's door proves over the committed roster.
 
+use super::bkci_pipeline::bkci_listing;
 use super::bkcm_mush::{bkcm_suite, BKCM_RUNNER_CARGO, BKCM_RUNNER_NEXTEST};
 use super::bkcr_resolve::bkcr_Collar;
-use bkl::bklrc_catena::bklrc_admit;
+use bkp::bkprc_catena::bkprc_admit;
 use std::path::{Path, PathBuf};
 
 /// Cargo's own build-profile flag, spelled here INDEPENDENTLY of the module
@@ -103,7 +104,7 @@ fn zbktm_collar(text: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: "suite-lure".to_string(),
         instance: PathBuf::from("suite-lure"),
-        regime: bklrc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
     }
 }
 
@@ -266,6 +267,35 @@ fn bktm_the_empty_suite_demand_is_spelled_where_a_runner_can_hear_it() {
         "and spells nothing at a runner that carries no such flag, rather than a word cargo          would refuse: {}",
         cargo.bkcm_spelling()
     );
+}
+
+/// THE RUN-THROUGH DEMAND IS SPELLED ON BOTH RUNNERS' RUNS AND ON NEITHER
+/// LISTING (operator, 260929). A red course reports every red case, and both
+/// runners stop early by their own default, so the kennel asks for the run
+/// through rather than inheriting a stop. A listing runs no case, and nextest's
+/// list subcommand is no place for a run flag.
+///
+/// THE RUN AND THE LISTING ARE ASSERTED TOGETHER, so a repair that dropped the
+/// flag everywhere to quiet the listing could not pass on the listing alone.
+#[test]
+fn bktm_the_run_through_demand_rides_both_runs_and_neither_listing() {
+    for text in [ZBKTM_NEXTEST, ZBKTM_CARGO] {
+        let collar = zbktm_collar(text);
+
+        let run = bkcm_suite(Path::new(ZBKTM_SEAT), &collar).expect("composes");
+        assert!(
+            run.bkcm_spelling().contains("--no-fail-fast"),
+            "the kennel asks every runner to run through its red cases: {}",
+            run.bkcm_spelling()
+        );
+
+        let listing = bkci_listing(Path::new(ZBKTM_SEAT), &collar).expect("composes a listing");
+        assert!(
+            listing.rest.iter().all(|argument| argument.to_string_lossy() != "--no-fail-fast"),
+            "a listing runs no case, and the run's run-through flag does not cross into it: {:?}",
+            listing.rest
+        );
+    }
 }
 
 /// THE MANIFEST IS JOINED FROM THE REPOSITORY ROOT and rides beside the verb

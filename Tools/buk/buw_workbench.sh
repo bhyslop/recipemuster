@@ -27,12 +27,13 @@ set -euo pipefail
 BUW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${BUW_SCRIPT_DIR}/buc_command.sh"
-source "${BUW_SCRIPT_DIR}/buym_yelp.sh"
-source "${BUW_SCRIPT_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
-source "${BUW_SCRIPT_DIR}/buz_zipper.sh"
-source "${BUW_SCRIPT_DIR}/buwz_zipper.sh"
+source "${BUW_SCRIPT_DIR}/buc_command.sh" || exit 1
+source "${BUW_SCRIPT_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
+source "${BUW_SCRIPT_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
+source "${BUW_SCRIPT_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+source "${BUW_SCRIPT_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+source "${BUW_SCRIPT_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
@@ -52,8 +53,8 @@ buw_show() {
 # Routing
 
 buw_route() {
-  local z_command="$1"
-  shift
+  local z_command="${1}"
+  test "$#" -eq 0 || shift
 
   buw_show "Routing command: ${z_command} with args: $*"
 
@@ -66,7 +67,7 @@ buw_route() {
 
 buw_main() {
   local z_command="${1:-}"
-  shift || true
+  test "$#" -eq 0 || shift
 
   test -n "${z_command}" || buc_die_now "No command specified"
 

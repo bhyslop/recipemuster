@@ -41,7 +41,7 @@ readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/claude-rbk-tabtarget-conte
 # (the transitional RBBC_* aliases were retired by the literal-sweep pace).
 # Source-time literals, no kindle dependency.
 readonly RBCC_moorings_dir="rbmm_moorings"
-readonly RBCC_launchers_subdir="rbml_launchers"
+readonly RBCC_launchers_subdir="buml_launchers"
 readonly RBCC_vessels_subdir="rbmv_vessels"
 readonly RBCC_foedera_subdir="rbmf_foedera"
 # Nameplate inscription sprue — the family head every nameplate directory

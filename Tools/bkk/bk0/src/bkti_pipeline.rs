@@ -26,7 +26,7 @@
 use super::bkci_pipeline::*;
 use super::bkcm_mush;
 use super::bkcr_resolve::bkcr_Collar;
-use bkl::bklrc_catena::bklrc_admit;
+use bkp::bkprc_catena::bkprc_admit;
 use std::path::{Path, PathBuf};
 
 /// The harness's listing, as captured over `suite-bkmk` — several hurdles, a
@@ -236,7 +236,7 @@ fn zbkti_collar(text: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: "suite-lure".to_string(),
         instance: PathBuf::from("suite-lure"),
-        regime: bklrc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
     }
 }
 

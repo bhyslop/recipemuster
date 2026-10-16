@@ -84,6 +84,7 @@ pub enum bkcg_Verdict {
 /// had one is exactly the case this door is for, and its arrival is a move.
 pub fn bkcg_gangline(
     repository: &Path,
+    weaned: &Path,
     collar: &bkcr_Collar,
 ) -> Result<bkcg_Verdict, String> {
     let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
@@ -105,6 +106,7 @@ pub fn bkcg_gangline(
 
     let run = bkcl_leash::bkcl_gangline(
         repository,
+        weaned,
         &manifest,
         ZBKCG_VERB,
         Vec::<&str>::new(),
@@ -196,6 +198,7 @@ pub struct bkcg_Arrear {
 /// coverage behind it.
 pub fn bkcg_arrears(
     repository: &Path,
+    weaned: &Path,
     written: &bkcr_Collar,
     roster: &[bkcr_Collar],
 ) -> Result<(usize, Vec<bkcg_Arrear>), String> {
@@ -227,7 +230,7 @@ pub fn bkcg_arrears(
             continue;
         }
 
-        let closure = bkcr_closure(repository, &repository.join(&manifest), true)?;
+        let closure = bkcr_closure(repository, weaned, &repository.join(&manifest), true)?;
 
         let reaches = closure
             .iter()
@@ -240,7 +243,7 @@ pub fn bkcg_arrears(
 
         probed += 1;
 
-        if zbkcg_answers(repository, &repository.join(&manifest))? {
+        if zbkcg_answers(repository, weaned, &repository.join(&manifest))? {
             continue;
         }
 
@@ -283,9 +286,10 @@ fn zbkcg_manifests(roster: &[bkcr_Collar]) -> Vec<(String, Vec<String>)> {
 /// face would hand cargo this process's streams, and the verb asked here answers
 /// with a whole metadata document — a page of JSON per collar on the operator's
 /// console, saying nothing the verdict reads.
-fn zbkcg_answers(repository: &Path, manifest: &Path) -> Result<bool, String> {
+fn zbkcg_answers(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bool, String> {
     let recalled = bkcl_leash::bkcl_recall(
         repository,
+        weaned,
         manifest,
         ZBKCG_PROBE,
         [ZBKCG_FORMAT_FLAG, ZBKCG_FORMAT],
@@ -304,11 +308,25 @@ fn zbkcg_settled(path: &Path) -> Option<PathBuf> {
 /// authored over.
 ///
 /// The spelling is the tool's own, declared as a xenonym spelling line under
-/// that authority's carrier (BKSCL-Collar.adoc "The Toolchain Authorities"),
-/// which is where the ruling lives now; VOr_9ww honours the carrier and stands
-/// the value down.
+/// that authority's carrier, which is where the ruling lives now; VOr_9ww
+/// honours the carrier and stands the value down.
 const ZBKCG_UV_VERB: &str = "lock";
 const ZBKCG_UV_PROJECT: &str = "--project";
+
+/// uv's flag dropping a standing lock's versions as preferences, so the
+/// resolution runs fresh.
+///
+/// THE FRESH RESOLUTION IS WHAT MAKES THE BAR A PROOF. Over a lock that still
+/// answers its manifest uv resolves nothing and writes nothing, and the bar
+/// lives in the resolver — so a lock written outside this door, or before the
+/// bar stood, passed it untouched (benched: a plain-written lock whose declared
+/// environment no wheel covers re-locked green under the bar, and refused only
+/// under this flag or once the manifest moved). Resolving fresh at every drive
+/// re-proves what is committed, makes an unmoved verdict mean a fresh
+/// derivation agrees with the committed lock byte for byte, and is what the
+/// rust arm's `generate-lockfile` already does. Its cost is the operator's
+/// ruling: every drive takes the newest version each range admits.
+const ZBKCG_UV_UPGRADE: &str = "--upgrade";
 
 /// The lock a python project's re-derivation writes, beside its manifest.
 const ZBKCG_UV_LOCK_FILE: &str = "uv.lock";
@@ -320,19 +338,26 @@ const ZBKCG_UV_LOCK_FILE: &str = "uv.lock";
 /// lock that already answers its manifest is a no-op it exits 0 on — so cargo's
 /// exit and uv's are equally silent about whether anything changed.
 ///
-/// THE POSTURE IS REACHING AND NOT FETCHING. Authoring a lock resolves against
-/// an index and against an interpreter; it may reach the first and may not fetch
-/// the second, which is the posture the python module's own roster assigns this
-/// door and the routine-download ruling behind it. The interpreter it resolves
-/// against is therefore one the converge already installed, and the guard above
-/// says so before uv is spawned rather than leaving uv's account of a cold store
-/// to reach the operator's terminal alone.
+/// THE POSTURE IS AUTHORING: REACHING, AND BARRED. Authoring a lock resolves
+/// against an index and against an interpreter; it may reach the first and may
+/// not fetch the second, which is the routine-download ruling, and it may build
+/// nothing, which is the tamed-build premise read at the lock: every dependency
+/// resolves to a wheel for every environment the project declares, or uv refuses
+/// naming the package and the environment (BKr_hpt). The interpreter it resolves
+/// against is one the converge already installed, and the guard above says so
+/// before uv is spawned rather than leaving uv's account of a cold store to reach
+/// the operator's terminal alone.
+///
+/// IT RESOLVES FRESH AT EVERY DRIVE, the standing lock's versions dropped as
+/// preferences (`ZBKCG_UV_UPGRADE`), so the bar is proven over what is committed
+/// and not only over what the manifest forced uv to re-resolve.
 ///
 /// IT WRITES A LOCK AND NEVER COMMITS ONE, exactly as the rust arm does: the
 /// file is left dirty for the operator's notch, and the diff is read before it
 /// is banked.
 pub fn bkcg_python(
     repository: &Path,
+    weaned: &Path,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
 ) -> Result<bkcg_Verdict, String> {
@@ -343,14 +368,16 @@ pub fn bkcg_python(
 
     let before = std::fs::read(&lock).ok();
 
-    let stated = crate::bkcx_python::bkcx_stated(seat, bkcx_Posture::Reaching);
+    let stated = crate::bkcx_python::bkcx_stated(seat, bkcx_Posture::Authoring);
     let borne = crate::bkcx_python::bkcx_borne(&stated);
 
     let run = bkcl_leash::bkcl_uv(
         repository,
+        weaned,
         &project,
         [
             std::ffi::OsStr::new(ZBKCG_UV_VERB),
+            std::ffi::OsStr::new(ZBKCG_UV_UPGRADE),
             std::ffi::OsStr::new(ZBKCG_UV_PROJECT),
             project.as_os_str(),
         ],
@@ -359,10 +386,14 @@ pub fn bkcg_python(
 
     if !run.bkcl_landed() {
         return Err(format!(
-            "uv could not re-derive the lock of the python collar '{}' — the invocation was: {}",
+            "uv could not re-derive the lock of the python collar '{}' — the resolution runs \
+             fresh under the build bar, so a dependency with no wheel for an environment the \
+             project declares, or none anywhere, refuses here in uv's own account above rather \
+             than at the converge of the station that lacks it (BKr_hpt). The invocation was: {}",
             collar.name, run.spelling
         ));
     }
+
 
     let after = std::fs::read(&lock).map_err(|err| {
         format!(

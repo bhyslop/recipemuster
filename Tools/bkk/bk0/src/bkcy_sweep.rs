@@ -84,11 +84,12 @@ pub struct bkcy_Swept {
 /// against the repository the collar stands in.
 pub fn bkcy_sight(
     repository: &Path,
+    weaned: &Path,
     loosebox: Option<&Path>,
     collar: &bkcr_Collar,
 ) -> Result<bkcy_Sighting, String> {
     let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
-    let directory = bkcr_target_directory(repository, &manifest)?;
+    let directory = bkcr_target_directory(repository, weaned, &manifest)?;
 
     let root = zbkcy_rooted(repository)?;
 

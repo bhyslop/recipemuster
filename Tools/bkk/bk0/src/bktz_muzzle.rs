@@ -89,7 +89,7 @@ fn zbktz_kennel(name: &str, muzzle_at: &str, body: &str) -> bktu_Lure {
     };
     lure.bktu_write(&seat, ZBKTZ_LIST);
 
-    lure.bktu_write("suite-lure/bkrr.env", &zbktz_collar(muzzle_at));
+    lure.bktu_write(&lure.bktu_weaned_at("suite-lure/bkrr.env"), &zbktz_collar(muzzle_at));
     lure.bktu_commit("stand the muzzle up");
 
     lure
@@ -97,7 +97,7 @@ fn zbktz_kennel(name: &str, muzzle_at: &str, body: &str) -> bktu_Lure {
 
 /// Lint the lure's one collar.
 fn zbktz_lint(lure: &bktu_Lure) -> bkcz_Verdict {
-    let resolved = bkcr_resolve(lure.bktu_root(), "suite-lure")
+    let resolved = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
         .expect("the lure's collar should resolve");
 
     assert!(
@@ -106,7 +106,7 @@ fn zbktz_lint(lure: &bktu_Lure) -> bkcz_Verdict {
         resolved.findings
     );
 
-    bkcz_lint(lure.bktu_root(), &resolved.collar).expect("the linter should be reachable")
+    bkcz_lint(lure.bktu_root(), &lure.bktu_weaned(), &resolved.collar).expect("the linter should be reachable")
 }
 
 /// A crate calling nothing the list bars lints clean.

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! *mush* — the launch seam (BKSNC-Kennelcraft.adoc "The doors").
+//! *mush* — the launch seam.
 //!
 //! One door launches a launchable named by its collar. What it launches is the
 //! collar's kind: an app runs the binary the election names, a suite runs under
@@ -41,6 +41,7 @@
 use crate::bkcl_leash;
 use crate::bkcv_voice;
 use crate::bkcr_resolve::bkcr_Collar;
+use crate::bkcx_python;
 use std::ffi::{OsStr, OsString};
 use std::path::PathBuf;
 
@@ -70,8 +71,7 @@ const ZBKCM_NEXTEST_RUN: &str = "run";
 /// dialect's cost bands are calibrated against a build shape and the wall-clock
 /// floor is verdict-affecting, so a caller-spelled profile would make the
 /// vacuity gate dishonest; wanting a fast shape and a thorough shape of one
-/// suite is two collars with two calibrations
-/// (BKSCL-Collar.adoc "Declared Build Shapes").
+/// suite is two collars with two calibrations.
 ///
 /// THE PROFILE'S FLAG IS THE RUNNER'S, AND THE TWO RUNNERS SPELL IT
 /// DIFFERENTLY. `BKRR_PROFILE` names a CARGO BUILD profile at every collar,
@@ -111,6 +111,17 @@ const ZBKCM_TEST_FLAG: &str = "--test";
 /// name rather than a second literal — a respelling here cannot then leave a
 /// stale filter there that silently stops dropping anything.
 pub const BKCM_NO_TESTS_FLAG: &str = "--no-tests=fail";
+
+/// A RED CASE DOES NOT HIDE THE REST OF ITS SUITE, STATED RATHER THAN INHERITED
+/// (operator, 260929). Nextest cancels the run after its first failed case by
+/// default, and cargo's own harness stops at the first test binary that fails;
+/// both spell the demand to run through the same way. A red course reports every
+/// red case, so nothing is left for a session to reach a raw runner to see.
+///
+/// THE RUN'S AND NEVER THE LISTING'S, on the same ground as `BKCM_NO_TESTS_FLAG`
+/// above: a listing runs no case, and the listing arm drops this flag by this
+/// same name for both runners rather than by a second literal.
+pub const BKCM_NO_FAIL_FAST_FLAG: &str = "--no-fail-fast";
 
 /// What `BKRR_TARGET` carries where the suite is a whole manifest's tests
 /// rather than one named target.
@@ -175,7 +186,7 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
     let (verb, mut rest, profile_flag) = match runner {
         BKCM_RUNNER_CARGO => (
             ZBKCM_VERB_TEST.to_string(),
-            Vec::new(),
+            vec![OsString::from(BKCM_NO_FAIL_FAST_FLAG)],
             ZBKCM_PROFILE_FLAG_CARGO,
         ),
         BKCM_RUNNER_NEXTEST => (
@@ -183,6 +194,7 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
             vec![
                 OsString::from(ZBKCM_NEXTEST_RUN),
                 OsString::from(BKCM_NO_TESTS_FLAG),
+                OsString::from(BKCM_NO_FAIL_FAST_FLAG),
             ],
             ZBKCM_PROFILE_FLAG_NEXTEST,
         ),
@@ -231,10 +243,10 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
 ///
 /// THE ATTENDED FACE, WHICH IS WHY EVERY TEST DOOR IN THE ESTATE SOUNDS THE SAME.
 /// The tenant's streams are consumed live and the console is the kennel's own —
-/// a heartbeat, a bounded line per failure, a verdict — whatever ran underneath
-/// (BKSNC-Kennelcraft.adoc "Bounded output"). The driven face this once took
-/// could not do it: a child holding this process's streams renders itself, and
-/// two runners rendering themselves is the unevenness the voice exists to end.
+/// a heartbeat, a bounded line per failure, a verdict — whatever ran underneath.
+/// The driven face this once took could not do it: a child holding this
+/// process's streams renders itself, and two runners rendering themselves is
+/// the unevenness the voice exists to end.
 ///
 /// THE TALLY RIDES BACK BESIDE THE EXIT because they answer different questions
 /// and the caller needs both. The exit is the verdict; the tally is what the
@@ -248,6 +260,7 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
 /// of the run it cleared, in the order the two actually happened.
 pub fn bkcm_run(
     repository: &std::path::Path,
+    weaned: &std::path::Path,
     collar: &bkcr_Collar,
     launch: &bkcm_Launch,
     tongue: &str,
@@ -256,11 +269,11 @@ pub fn bkcm_run(
     // THE COLLAR'S POSITION RIDES ACROSS THE EXEC BOUNDARY here exactly as it
     // does at the converge (`bkch_heel::bkch_build`), and for the envelope's
     // own reason: the door that holds the collar walks it and states it, and the
-    // crate's build script compiles it in (BKSNC-Kennelcraft.adoc "Currency
-    // by git position"). A suite is compiled from source by the runner, so a
-    // tenant declaring a build script that reads the position dies under this
-    // door unless this door states it — which is how one tenant's suite stood
-    // red under every kennel road while green under its own launcher.
+    // crate's build script compiles it in. A suite is compiled from source by
+    // the runner, so a tenant declaring a build script that reads the position
+    // dies under this door unless this door states it — which is how one
+    // tenant's suite stood red under every kennel road while green under its
+    // own launcher.
     //
     // WALKED AHEAD OF THE RECORD, so a refusal here leaves no half-written
     // family behind it: the walk asks git and can refuse, and a voice opened
@@ -292,8 +305,9 @@ pub fn bkcm_run(
     // mid-stream is worth a diagnostic rather than an abandonment; the refusal is
     // held and surfaced at the close, where the run still exists to be reported.
     let mut grievance: Option<String> = None;
-    let run = bkcl_leash::bkcl_attend(
+    let attended = bkcl_leash::bkcl_attend(
         repository,
+        weaned,
         &launch.manifest,
         &launch.verb,
         &launch.rest,
@@ -306,9 +320,13 @@ pub fn bkcm_run(
                 }
             }
         },
-    )?;
+    );
+    let run = match attended {
+        Ok(run) => run,
+        Err(err) => return Err(voice.bkcv_abandon(err)),
+    };
 
-    let tally = voice.bkcv_close(run.code)?;
+    let tally = voice.bkcv_close(&run)?;
 
     if let Some(err) = grievance {
         return Err(err);
@@ -321,10 +339,9 @@ pub fn bkcm_run(
 /// voice from its stream and writing the record as it goes.
 ///
 /// THE SAME POSTURE AS THE CARGO RUN BESIDE IT, and deliberately so: every test
-/// door in the estate sounds the same, whatever ran underneath
-/// (BKSNC-Kennelcraft.adoc "Bounded output"). What parts the two is the
-/// leash face they reach — uv answers to none of the cargo composition's
-/// discipline — and nothing else. The preamble, the tally, and the refusal that
+/// door in the estate sounds the same, whatever ran underneath. What parts the
+/// two is the leash face they reach — uv answers to none of the cargo
+/// composition's discipline — and nothing else. The preamble, the tally, and the refusal that
 /// is held rather than abandoned are all the cargo run's own reasoning, stated
 /// there and not restated here.
 ///
@@ -336,6 +353,7 @@ pub fn bkcm_run(
 /// of this one could not open its own family and keep what it wrote.
 pub fn bkcm_python(
     repository: &std::path::Path,
+    weaned: &std::path::Path,
     at: &std::path::Path,
     spelled: &[OsString],
     stated: &[(&str, &std::ffi::OsStr)],
@@ -358,8 +376,9 @@ pub fn bkcm_python(
     ))?;
 
     let mut grievance: Option<String> = None;
-    let run = bkcl_leash::bkcl_uv_attend(
+    let attended = bkcl_leash::bkcl_uv_attend(
         repository,
+        weaned,
         at,
         spelled,
         stated,
@@ -371,15 +390,51 @@ pub fn bkcm_python(
                 }
             }
         },
-    )?;
+    );
+    let run = match attended {
+        Ok(run) => run,
+        Err(err) => return Err(voice.bkcv_abandon(err)),
+    };
 
-    let tally = voice.bkcv_close(run.code)?;
+    let tally = voice.bkcv_close(&run)?;
 
     if let Some(err) = grievance {
         return Err(err);
     }
 
     Ok((run, tally))
+}
+
+/// Compose a PYTHON suite collar's run and run it: uv's verb over the project,
+/// pytest with the kennel's flags, and whatever selection the kennel matched,
+/// under the sealed posture.
+///
+/// ONE COMPOSITION FOR EVERY DOOR THAT RUNS A PYTHON COURSE, on the cargo half's
+/// own ground: a course run under the derby and the same course run under mush
+/// are the same invocation, and a walk composing its own would be a second place
+/// for the collar's declared shape to be read. The verify is not taken here — it
+/// is each door's to take ahead of its act, the launch door at the course and the
+/// walks at their preflight.
+pub fn bkcm_python_suite(
+    repository: &std::path::Path,
+    weaned: &std::path::Path,
+    collar: &bkcx_python::bkcx_Collar,
+    seat: &bkcx_python::bkcx_Seat,
+    selection: &[OsString],
+) -> Result<(bkcl_leash::bkcl_Run, bkcv_voice::bkcv_Tally), String> {
+    let at = bkcx_python::bkcx_at(repository, collar);
+    let spelled = bkcx_python::bkcx_run_call(&at, selection);
+    let stated = bkcx_python::bkcx_stated(seat, bkcx_python::bkcx_Posture::Sealed);
+
+    bkcm_python(
+        repository,
+        weaned,
+        &at,
+        &spelled,
+        &bkcx_python::bkcx_borne(&stated),
+        collar.bkcx_field("BKRP_TONGUE"),
+        &[],
+    )
 }
 
 // eof

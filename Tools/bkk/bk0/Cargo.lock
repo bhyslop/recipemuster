@@ -15,13 +15,13 @@ dependencies = [
 name = "bkk"
 version = "0.0.1"
 dependencies = [
- "bkl",
+ "bkp",
  "regex",
  "toml",
 ]
 
 [[package]]
-name = "bkl"
+name = "bkp"
 version = "0.0.1"
 
 [[package]]

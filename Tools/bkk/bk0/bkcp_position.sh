@@ -43,11 +43,11 @@
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBKCP_SOURCED:-}" || return 0
+test -z "${ZBKCP_SOURCED:-}" || buc_die_now "Module bkcp multiply sourced - check sourcing hierarchy"
 ZBKCP_SOURCED=1
 
-# The door law (BKSCL-Collar.adoc "Door Law"): every kennel door refuses a
-# repository carrying uncommitted work, so that each record maps to a position.
+# The door law: every kennel door refuses a repository carrying uncommitted
+# work, so that each record maps to a position.
 #
 # CLEANLINESS IS THE WHOLE REPOSITORY'S, untracked files included. Elected roots
 # decide currency, a different question; they do not narrow this reading, because
@@ -56,7 +56,7 @@ ZBKCP_SOURCED=1
 #
 # Args: <repository>
 bkcp_door_law_or_die() {
-  local z_repo="$1"
+  local -r z_repo="${1}"
 
   local z_standing=""
   z_standing=$(git -C "${z_repo}" status --porcelain) \
@@ -64,12 +64,18 @@ bkcp_door_law_or_die() {
 
   test -n "${z_standing}" || return 0
 
-  buc_warn "The repository carries uncommitted work:"
+  local z_lines=()
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     test -n "${z_line}" || continue
-    buc_warn "  ${z_line}"
+    z_lines+=("${z_line}")
   done <<< "${z_standing}"
+
+  buc_warn "The repository carries uncommitted work:"
+  local z_i=0
+  for z_i in "${!z_lines[@]}"; do
+    buc_warn "  ${z_lines[${z_i}]}"
+  done
 
   # GIT'S OWN WORD, not the estate's, and the crate's own guard already reasons
   # it out (src/bkcf_guard.rs): the kennel ships as source and is read by
@@ -91,18 +97,19 @@ bkcp_door_law_or_die() {
 #
 # Args: <pin_file>
 bkcp_pin_capture() {
-  local z_pin_file="$1"
+  local -r z_pin_file="${1}"
 
+  local z_channel=""
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     if [[ "${z_line}" =~ ^channel[[:space:]]*=[[:space:]]*\"([^\"]+)\" ]]; then
-      test -n "${BASH_REMATCH[1]}" || return 1
-      echo "${BASH_REMATCH[1]}"
-      return 0
+      z_channel="${BASH_REMATCH[1]}"
+      break
     fi
   done < "${z_pin_file}"
 
-  return 1
+  test -n "${z_channel}" || return 1
+  echo "${z_channel}" || return 1
 }
 
 # What a standing binary says it was built at, or nothing where it cannot say.
@@ -110,8 +117,7 @@ bkcp_pin_capture() {
 # THE ARTIFACT IS ASKED, never inferred from a timestamp. An mtime comparison
 # answers a question about a file; this asks the binary itself, which is the only
 # reading that stays true once the artifact has been copied, emplaced, or handed
-# to a long-running process (BKSNC-Kennelcraft.adoc "Currency by git
-# position").
+# to a long-running process.
 #
 # Homed here rather than in the whistle because the whistle is not its only
 # reader: every door that DRIVES the kennel owes the same currency question the
@@ -127,19 +133,23 @@ bkcp_pin_capture() {
 #
 # Args: <binary>
 bkcp_standing_seat_capture() {
-  local z_binary="$1"
+  local -r z_binary="${1}"
 
   test -x "${z_binary}" || return 0
 
   local z_report=""
   z_report=$("${z_binary}" 2>&1) || return 0
 
+  local z_seat=""
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     case "${z_line}" in
-      *"] seat "*) echo "${z_line##* }"; return 0 ;;
+      *"] seat "*) z_seat="${z_line##* }"; break ;;
     esac
   done <<< "${z_report}"
+
+  test -n "${z_seat}" || return 0
+  echo "${z_seat}" || return 1
 }
 
 # The seat's position: its newest first-parent commit touching an elected root.
@@ -151,17 +161,17 @@ bkcp_standing_seat_capture() {
 #
 # THE SEAT'S OWN LINE, never the trunk counterpart. Tools/buk/bue_exergue.sh
 # walks landings so a reader holding a record rather than the repository can
-# resolve its answer - the DELIVERED reading (BKSNC-Kennelcraft.adoc "The
-# Binary Election"). A commit made at a billet never enters that walk, so a
-# seat-built binary carrying it would sit still while its own source moved.
+# resolve its answer - the DELIVERED reading. A commit made at a billet never
+# enters that walk, so a seat-built binary carrying it would sit still while
+# its own source moved.
 #
 # The election's grammar is git's own - a directory reaches everything beneath
 # it, an exclusion pathspec carves back out - so nothing here interprets a line.
 #
 # Args: <repository> <election_file>
 bkcp_position_capture() {
-  local z_repo="$1"
-  local z_election="$2"
+  local -r z_repo="${1}"
+  local -r z_election="${2}"
 
   local -a z_roots=()
   local z_line=""
@@ -173,17 +183,21 @@ bkcp_position_capture() {
     z_roots+=("${z_line}")
   done < "${z_election}"
 
-  test "${#z_roots[@]}" -gt 0 \
-    || buc_die_now "The election at ${z_election} names no root - an empty election would measure the position over nothing"
+  if test "${#z_roots[@]}" -eq 0; then
+    buc_log_args "The election at ${z_election} names no root - an empty election would measure the position over nothing"
+    return 1
+  fi
 
   local z_position=""
   z_position=$(git -C "${z_repo}" log -n 1 --first-parent --format=%H HEAD -- "${z_roots[@]}") \
-    || buc_die_now "Could not walk the seat's own line over the election in ${z_election}"
+    || return 1
 
-  test -n "${z_position}" \
-    || buc_die_now "No commit on this seat's line touches any elected root - the election in ${z_election} names nothing this tree has ever carried"
+  if test -z "${z_position}"; then
+    buc_log_args "No commit on this seat's line touches any elected root - the election in ${z_election} names nothing this tree has ever carried"
+    return 1
+  fi
 
-  echo "${z_position}"
+  echo "${z_position}" || return 1
 }
 
 # eof

@@ -40,24 +40,24 @@ set -euo pipefail
 # The guard detects; it never repairs. Writing the moorings layer here would
 # be the kit reaching across the very custody line it stands to police.
 if test -z "${ZBUV_SOURCED:-}"; then
-  source "${BASH_SOURCE[0]%/*}/bubc_constants.sh"
-  {
-    echo "burc_regime: STALE LAUNCHER STUB - the bootstrap contract is unmet."
-    echo
-    echo "  This project's moorings launcher reached the BUK kit without loading"
-    echo "  the validation module, so no kit code can run. The stub predates the"
-    echo "  current launcher contract. It is consumer-owned: no kit install"
-    echo "  replaces it, and it will not heal on its own."
-    echo
-    echo "  Remedy - restore the canonical four-line stub, the shape buut_launcher"
-    echo "  emits (tt/buw-tt-cl.CreateLauncher.sh). Where every stub is stale,"
-    echo "  repair one by hand first: the emitter dispatches through a stub too."
-    echo
-    echo '    #!/bin/bash'
-    echo '    # Launcher stub - delegates to <name> workbench'
-    echo '    source "Tools/buk/bul_launcher.sh"'
-    echo '    bul_launch "${BURC_TOOLS_DIR}/<kit>/<name>_workbench.sh" "$@"'
-  } >&2
+  source "${BASH_SOURCE[0]%/*}/bubc_constants.sh" || exit 1
+  printf '%s\n' \
+    "burc_regime: STALE LAUNCHER STUB - the bootstrap contract is unmet." \
+    "" \
+    "  This project's moorings launcher reached the BUK kit without loading" \
+    "  the validation module, so no kit code can run. The stub predates the" \
+    "  current launcher contract. It is consumer-owned: no kit install" \
+    "  replaces it, and it will not heal on its own." \
+    "" \
+    "  Remedy - restore the canonical four-line stub, the shape buut_launcher" \
+    "  emits (tt/buw-tt-cl.CreateLauncher.sh). Where every stub is stale," \
+    "  repair one by hand first: the emitter dispatches through a stub too." \
+    "" \
+    '    #!/bin/bash' \
+    '    # Launcher stub - delegates to <name> workbench' \
+    '    source "Tools/buk/bul_launcher.sh"' \
+    '    bul_launch "${BURC_TOOLS_DIR}/<kit>/<name>_workbench.sh" "$@"' \
+    >&2 || exit 1
   exit "${BUBC_band_desuetude}"
 fi
 
@@ -68,7 +68,7 @@ ZBURC_SOURCED=1
 # The surface forms of the governed words this module speaks, so an enrollment
 # description below expands a constant instead of spelling the word. The sourced
 # file carries its own inclusion guard, so a sibling sourcing it costs nothing.
-source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh"
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
 
 ######################################################################
 # Internal Functions (zburc_*)
@@ -100,7 +100,7 @@ zburc_kindle() {
   buv_group_enroll "Build Output"
   buv_string_enroll  BURC_TEMP_ROOT_DIR         1  512  "Parent dir for per-dispatch scratch subdirs (temp-<stamp>)"
   buv_string_enroll  BURC_OUTPUT_ROOT_DIR       1  512  "Parent dir containing 'current/', cleared and recreated each dispatch"
-  buv_string_enroll  BURC_LOOSEBOX_ROOT_DIR     1  512  "Parent dir holding one checkout-keyed ${BUBG_LOOSEBOX_ROOT_DIR_BASE} per checkout, for derived rebuildable build products"
+  buv_string_enroll  BURC_LOOSEBOX_ROOT_DIR     1  512  "Parent dir holding one checkout-keyed ${BUBG_LOOSEBOX_BASE} per checkout, for derived rebuildable build products"
 
   buv_group_enroll "Logging"
   buv_xname_enroll   BURC_LOG_LAST              1   64  "Filename stem for last-run log"

@@ -95,7 +95,7 @@ fn zbkti_lure(name: &str) -> bktu_Lure {
     // listing AND then the run it narrows cannot live with.
     lure.bktu_write(".gitignore", "target/\n");
     lure.bktu_write(
-        "suite-lure/bkrr.env",
+        &lure.bktu_weaned_at("suite-lure/bkrr.env"),
         "BKRR_COLLAR=\"suite-lure\"\n\
          BKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"Cargo.toml\"\n\
@@ -264,7 +264,7 @@ fn bkti_the_bare_drive_is_the_whole_suite_and_asks_for_no_listing() {
         said
     );
     assert!(
-        said.contains("runs its suite: test --profile test"),
+        said.contains("runs its suite: test --no-fail-fast --profile test"),
         "the bare drive's verdict line stands unchanged: {}",
         said
     );

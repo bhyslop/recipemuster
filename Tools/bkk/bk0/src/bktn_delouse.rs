@@ -33,7 +33,7 @@ use std::path::Path;
 use super::bkcc_record::bkcc_looseboxed;
 use super::bkcn_delouse::{bkcn_read, bkcn_write, BKCN_DAY_FILE};
 use super::bktu_lure::bktu_Lure;
-use super::bkg_breviary::{bkg_burc_loosebox_root_dir_base, BKG_BURC_LOOSEBOX_ROOT_DIR_BASE};
+use super::bkg_breviary::{bkg_bus_loosebox_base, BKG_BUS_LOOSEBOX_BASE};
 
 /// A seat of this hurdle's own to keep a record in.
 ///
@@ -175,14 +175,14 @@ fn bktn_the_day_stands_in_the_posed_loosebox_and_never_in_a_parent() {
     let loosebox = seat.join("loosebox-posed");
     std::fs::create_dir_all(&loosebox).expect(concat!(
         "the hurdle composes the ",
-        bkg_burc_loosebox_root_dir_base!(),
+        bkg_bus_loosebox_base!(),
         " it poses", //
     ));
 
     let answered = bkcc_looseboxed(&loosebox.display().to_string())
         .expect(concat!(
             "a ",
-            bkg_burc_loosebox_root_dir_base!(),
+            bkg_bus_loosebox_base!(),
             " that stands is answered", //
         ));
 
@@ -190,12 +190,12 @@ fn bktn_the_day_stands_in_the_posed_loosebox_and_never_in_a_parent() {
         answered,
         loosebox,
         "the reading answers the posed {} whole",
-        BKG_BURC_LOOSEBOX_ROOT_DIR_BASE, //
+        BKG_BUS_LOOSEBOX_BASE, //
     );
 
     bkcn_write(&answered, "20260906").expect(concat!(
         "the ",
-        bkg_burc_loosebox_root_dir_base!(),
+        bkg_bus_loosebox_base!(),
         " should take a record", //
     ));
 
