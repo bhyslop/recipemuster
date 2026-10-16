@@ -68,10 +68,34 @@ use rbtd::rbtdrw_dowse::rbtdrw_dowse;
 use rbtd::rbtdgc_consts::RBTDGC_CRUCIBLE_ACTIVE;
 use rbtd::rbtdrx_platform::rbtdrx_path_from_env;
 
+/// The flag the kennel's election asks a standing binary before it launches or
+/// borrows one. Its home is `BKCE_EXERGUE_FLAG` in the kennel's election
+/// (`Tools/bkk/bk0/src/bkce_election.rs`); spelled here because this crate links
+/// no kennel.
+const RBTD_FLAG_EXERGUE: &str = "--exergue";
+
+/// Answer the kennel's `--exergue` with the position this binary was struck
+/// from: what the kennel's converge stated to the build script, which handed it
+/// to this compile.
+///
+/// THE ONE STDOUT LINE THE THEURGE WRITES, and it stands here rather than in
+/// RBTDRG for the reason RBTDRG gives for leaving stdout clear: this is the
+/// machine-read channel, the kennel reading the answer's position-shaped lines
+/// from stdout, so the answer is the bare position and nothing else.
+fn rbtd_answer_exergue() -> ExitCode {
+    use std::io::Write;
+    let mut stdout = std::io::stdout().lock();
+    match writeln!(stdout, "{}", env!("BKCH_COLLAR_POSITION")) {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(_) => ExitCode::FAILURE,
+    }
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
 
     match args.get(1).map(|s| s.as_str()) {
+        Some(RBTD_FLAG_EXERGUE) => rbtd_answer_exergue(),
         Some("single") => rbtd_run_single(&args[2..]),
         Some("suite") => rbtd_run_suite(&args[2..]),
         Some("dowse") => rbtd_run_dowse(&args[2..]),

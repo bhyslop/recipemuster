@@ -116,7 +116,7 @@ zrbte_kennel_or_die() {
   bkcb_ensure
 }
 
-# The strike, then the kennel's converge of the app collar. A strike that moved
+# The codegen, then the kennel's converge of the app collar. A codegen that moved
 # a committed file leaves the tree dirty, and the gate refuses it by the door law.
 zrbte_build_binary() {
   zrbte_sentinel
@@ -140,7 +140,7 @@ rbte_build() {
   buc_success "Theurge built"
 }
 
-# The strike, then the kennel's mush over the suite collar; any argument is the
+# The codegen, then the kennel's mush over the suite collar; any argument is the
 # kennel's selection pattern, handed through untouched.
 rbte_test() {
   zrbte_sentinel
