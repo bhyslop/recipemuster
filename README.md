@@ -1,8 +1,11 @@
 # <a id="RecipeBottle"></a>Recipe Bottle
 
-Containers give you control over what runs. Getting that control to hold at the *edges* — [knowing where an image actually came from](#ControlledContainerBuilds), and [constraining what it can reach once it runs](#RestrictingAccess) — is normally a standing job for a platform team.
+Containers give you control over what runs.
+Getting that control to hold at the *edges* — [knowing where an image actually came from](#ControlledContainerBuilds), and [constraining what it can reach once it runs](#RestrictingAccess) — is normally a standing job for a platform team.
 
-[Recipe Bottle](#RecipeBottle) collapses that cost. It's a set of bash scripts with a deliberately tiny dependency surface: running it needs only `bash 3.2`, `curl`, `openssl`, `jq`, and a handful of standard tools — no Python runtime, no language package manager, no `gcloud` CLI — so there is nothing language-specific to install and almost nothing of its own to audit, patch, or trust. A small team can stand up a hardened build pipeline and a sandboxed runtime without one; after initial setup, every cloud API call is `openssl` + `curl`.
+[Recipe Bottle](#RecipeBottle) collapses that cost.
+It's a set of bash scripts with a deliberately tiny dependency surface: running it needs only `bash 3.2`, `curl`, `openssl`, `jq`, and a handful of standard tools — no Python runtime, no language package manager, no `gcloud` CLI — so there is nothing language-specific to install and almost nothing of its own to audit, patch, or trust.
+A small team can stand up a hardened build pipeline and a sandboxed runtime without one; after initial setup, every cloud API call is `openssl` + `curl`.
 
 It extends a container's control to its two edges:
 
@@ -21,7 +24,9 @@ The two compose, but neither requires the other.
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
-**Host platform scope.** [Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker. Windows host support works and is exercised in testing, but is not yet part of the release-qualification baseline — treat it as supported-experimental for now.
+**Host platform scope.**
+[Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker.
+Windows host support works and is exercised in testing, but is not yet part of the release-qualification baseline — treat it as supported-experimental for now.
 
 **Project page**: https://scaleinv.github.io/recipebottle
 
@@ -41,7 +46,8 @@ The two compose, but neither requires the other.
 Windows host support works — [Recipe Bottle](#RecipeBottle) runs on Windows via Docker Desktop — but is not yet part of the release-qualification baseline; treat it as supported-experimental pending a green Windows test pass.
 Podman support is architecturally accommodated by the spec but deferred — see [Podman Support](#PodmanSupport).
 
-One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression and adversarial test suites — including the [Theurge](#Theurge) orchestrator — are written in Rust. Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs a Rust toolchain; running Recipe Bottle does not.
+One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression and adversarial test suites — including the [Theurge](#Theurge) orchestrator — are written in Rust.
+Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs a Rust toolchain; running Recipe Bottle does not.
 
 <a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), [Payor](#Payor) identity ([RBRP](#RBRP)), the [Manor's](#Manor) workforce-pool record ([RBRW](#RBRW)), and per-[Foedus](#Foedus) federation trust ([RBRF](#RBRF)).
@@ -254,14 +260,18 @@ The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) 
 The [srjcl](#srjcl) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Jupyter [Bottle](#Bottle) under an academic-domain network allowlist — a working service rather than an attack [Vessel](#Vessel), showing the [Crucible](#Crucible) run useful software with its egress fenced to a curated set of domains.
 
 <a id="pluml"></a>**[pluml](#pluml)** — PlantUML diagram server that needs no outbound network.
-The [pluml](#pluml) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode PlantUML [Bottle](#Bottle) — an upstream image pinned by digest — under a no-egress allowlist: the renderer needs no internet, so the [Crucible](#Crucible) grants it none. It exercises the [Bind](#Bind) supply-chain path and the most restrictive network posture.
+The [pluml](#pluml) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode PlantUML [Bottle](#Bottle) — an upstream image pinned by digest — under a no-egress allowlist: the renderer needs no internet, so the [Crucible](#Crucible) grants it none.
+It exercises the [Bind](#Bind) supply-chain path and the most restrictive network posture.
 
 <a id="nineveh"></a>**[nineveh](#nineveh)** — Kroki diagram render server (Graphviz, PlantUML, D2) that needs no outbound network.
 The [nineveh](#nineveh) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode Kroki [Bottle](#Bottle) under the same no-egress posture as [pluml](#pluml), with workstation entry published to the render port — a second working service proving the pattern generalizes.
 
 <a id="fdkyclk"></a>**[fdkyclk](#fdkyclk)** — Keycloak synthetic-federation test identity provider.
-The [fdkyclk](#fdkyclk) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Keycloak [Bottle](#Bottle) that mints programmatic OIDC tokens — the self-contained IdP the federation test-bed [Charges](#Charge) to prove federated sign-in end to end without a corporate identity tenant. No outbound network; workstation entry only.
-**Caution — synthetic test IdP, not a security boundary.** Its asserter signing key and client secret are committed in this repository *by design*, so the federation-admission path can be proven deterministically with no human and no corporate tenant. That makes fdkyclk safe only as an isolated local test-bed: never trust its issuer from a production federation, reuse its committed key/secret/realm in a real setup, or drop its `fdkyclk-test-` subject namespacing — anyone holding this repository can forge its assertions, so any production trust that admits them is trivially bypassable.
+The [fdkyclk](#fdkyclk) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Keycloak [Bottle](#Bottle) that mints programmatic OIDC tokens — the self-contained IdP the federation test-bed [Charges](#Charge) to prove federated sign-in end to end without a corporate identity tenant.
+No outbound network; workstation entry only.
+**Caution — synthetic test IdP, not a security boundary.**
+Its asserter signing key and client secret are committed in this repository *by design*, so the federation-admission path can be proven deterministically with no human and no corporate tenant.
+That makes fdkyclk safe only as an isolated local test-bed: never trust its issuer from a production federation, reuse its committed key/secret/realm in a real setup, or drop its `fdkyclk-test-` subject namespacing — anyone holding this repository can forge its assertions, so any production trust that admits them is trivially bypassable.
 
 ## <a id="ReleaseProcedure"></a>Release Procedure
 
@@ -270,19 +280,26 @@ See [RELEASE.md](RELEASE.md) for the full procedure.
 
 ## <a id="HowThisIsNormallyDone"></a>Appendix: How This Is Normally Done
 
-The two controls [Recipe Bottle](#RecipeBottle) provides are not novel — they are what a platform team normally assembles from dedicated infrastructure. This appendix names that conventional stack, so the comparison stays honest and the trade-off stays legible.
+The two controls [Recipe Bottle](#RecipeBottle) provides are not novel — they are what a platform team normally assembles from dedicated infrastructure.
+This appendix names that conventional stack, so the comparison stays honest and the trade-off stays legible.
 
 ### <a id="ControlledContainerBuilds"></a>Controlled container builds
 
-Knowing where an image came from — and proving it — is the domain of software supply-chain security. The stabilized toolchain pairs build provenance ([SLSA](https://slsa.dev)) with cryptographic signing ([Sigstore](https://www.sigstore.dev)/cosign), a [software bill of materials](#SBOM) ([Syft](https://github.com/anchore/syft)), vulnerability scanning, and deploy-time admission control ([Kyverno](https://kyverno.io), OPA Gatekeeper) that rejects unsigned or unattested images.
+Knowing where an image came from — and proving it — is the domain of software supply-chain security.
+The stabilized toolchain pairs build provenance ([SLSA](https://slsa.dev)) with cryptographic signing ([Sigstore](https://www.sigstore.dev)/cosign), a [software bill of materials](#SBOM) ([Syft](https://github.com/anchore/syft)), vulnerability scanning, and deploy-time admission control ([Kyverno](https://kyverno.io), OPA Gatekeeper) that rejects unsigned or unattested images.
 Reaching SLSA Build Level 2 with this stack is a matter of weeks; the [Foundry](#Foundry) reaches **Level 3** with none of it resident on the workstation.
 
 ### <a id="RestrictingAccess"></a>Restricting access
 
-Constraining what a workload can reach on the internet is the domain of network egress control. At the corporate-network tier this is a [secure web gateway](https://www.paloaltonetworks.com/cyberpedia/what-is-secure-web-gateway), increasingly bundled into [SASE](https://www.checkpoint.com/cyber-hub/network-security/what-is-secure-access-service-edge-sase/) alongside a CASB and firewall. At the container tier it is [Kubernetes NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), usually upgraded to [Cilium](https://cilium.io/use-cases/egress-gateway/) or Calico for DNS-aware, deny-by-default egress.
+Constraining what a workload can reach on the internet is the domain of network egress control.
+At the corporate-network tier this is a [secure web gateway](https://www.paloaltonetworks.com/cyberpedia/what-is-secure-web-gateway), increasingly bundled into [SASE](https://www.checkpoint.com/cyber-hub/network-security/what-is-secure-access-service-edge-sase/) alongside a CASB and firewall.
+At the container tier it is [Kubernetes NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), usually upgraded to [Cilium](https://cilium.io/use-cases/egress-gateway/) or Calico for DNS-aware, deny-by-default egress.
 That "deny-by-default, allow only where needed" posture is exactly the [Sentry](#Sentry) model.
 
-**Honest scope.** These are multi-tenant corporate systems, centrally administered and kept alive by a standing team. [Recipe Bottle](#RecipeBottle) puts the same two controls in reach of a small team or a solo developer; it is not a fleet-scale replacement for a secure web gateway or a service mesh, and does not try to be. The value is the control, at a cost a small team can carry.
+**Honest scope.**
+These are multi-tenant corporate systems, centrally administered and kept alive by a standing team.
+[Recipe Bottle](#RecipeBottle) puts the same two controls in reach of a small team or a solo developer; it is not a fleet-scale replacement for a secure web gateway or a service mesh, and does not try to be.
+The value is the control, at a cost a small team can carry.
 
 ## Appendix: Foundry Operations
 
@@ -313,7 +330,8 @@ This is a [Payor](#Payor) operation and is irreversible.
 
 ### Identity and Admission
 
-Operators reach a [Depot](#Depot) by federated sign-in, not by credential files. The terms below name the standing roles, the per-session access acts, and the admission verbs that grant and withdraw them.
+Operators reach a [Depot](#Depot) by federated sign-in, not by credential files.
+The terms below name the standing roles, the per-session access acts, and the admission verbs that grant and withdraw them.
 
 <a id="Mantle"></a>**[Mantle](#Mantle)** — A standing administrative office — [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) — realized as a Google service account whose resource authority is granted once at [Levy](#Levy) and frozen there.
 A [Citizen](#Citizen) [Dons](#Don) one mantle at a time, and the mantle worn is that token's entire blast radius.
@@ -649,9 +667,18 @@ We depend on Google Cloud and expect to keep depending on it — and building at
 
 ## <a id="DisappearingUpstream"></a>Appendix: Registry Churn and Disappearing Upstream Images
 
-The [Foundry](#Foundry) builds on images pulled from upstream registries. Most are durable — an image pinned by digest stays fetchable, and a published checksum lets you re-verify the bytes later. Some are not. The sharpest case we have hit is Quay's `quay.io/podman/machine-os` family, the disk images a `podman machine` boots: Quay churns them rapidly — new images every few hours, retention measured in days — so a reference that resolved this morning can be gone by tomorrow. For Quay's own use that is fine, and we grant it; for anyone who needs a *reproducible* build it is a trap. The indefensible part is not the churn but what comes with it: no durable reference. Quay retains no digest you can pin and publishes no checksum to verify against later, so a pinned build does not fail loudly when its base ages out — it breaks asynchronously, downstream, on someone else's clock. That is not hypothetical; it is the failure that motivated this work.
+The [Foundry](#Foundry) builds on images pulled from upstream registries.
+Most are durable — an image pinned by digest stays fetchable, and a published checksum lets you re-verify the bytes later.
+Some are not.
+The sharpest case we have hit is Quay's `quay.io/podman/machine-os` family, the disk images a `podman machine` boots: Quay churns them rapidly — new images every few hours, retention measured in days — so a reference that resolved this morning can be gone by tomorrow.
+For Quay's own use that is fine, and we grant it; for anyone who needs a *reproducible* build it is a trap.
+The indefensible part is not the churn but what comes with it: no durable reference.
+Quay retains no digest you can pin and publishes no checksum to verify against later, so a pinned build does not fail loudly when its base ages out — it breaks asynchronously, downstream, on someone else's clock.
+That is not hypothetical; it is the failure that motivated this work.
 
-The response is the **[Lode](#Lode)** — a project-owned copy captured once into the [Depot's](#Depot) own registry, so the bytes a build depends on cannot be pulled out from under it. Recipe Bottle grades its confidence honestly rather than uniformly: where the upstream is durable a [Lode](#Lode) is *verified-against-published*, its bytes still re-checkable against the source; where it is not — as with the podman machine-os images — the [Lode](#Lode) carries the weaker but honest grade *recorded-at-acquisition*, attesting the exact digest captured and claiming nothing beyond it, because the upstream permits nothing beyond it. A registry that ships images with no durable reference has decided reproducibility is not its concern; holding our own copy, and grading our confidence in it honestly, is the only sound way to build on an upstream that will not hold still.
+The response is the **[Lode](#Lode)** — a project-owned copy captured once into the [Depot's](#Depot) own registry, so the bytes a build depends on cannot be pulled out from under it.
+Recipe Bottle grades its confidence honestly rather than uniformly: where the upstream is durable a [Lode](#Lode) is *verified-against-published*, its bytes still re-checkable against the source; where it is not — as with the podman machine-os images — the [Lode](#Lode) carries the weaker but honest grade *recorded-at-acquisition*, attesting the exact digest captured and claiming nothing beyond it, because the upstream permits nothing beyond it.
+A registry that ships images with no durable reference has decided reproducibility is not its concern; holding our own copy, and grading our confidence in it honestly, is the only sound way to build on an upstream that will not hold still.
 
 ## <a id="Roadmap"></a>Appendix: Roadmap
 
