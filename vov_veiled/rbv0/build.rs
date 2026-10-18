@@ -29,7 +29,7 @@ fn main() {
         _ => panic!(
             "{} is unset, so this build cannot state the position it was taken at. \
              The hierophant is built through the kennel's doors, which state it: \
-             tt/rbthw-b.Build.sh for the app, tt/rbthw-t.Test.sh for the suite",
+             tt/rbvw-b.Build.sh for the app, tt/rbvw-t.Test.sh for the suite",
             ZRBTHD_SEAT_VAR, //
         ),
     };

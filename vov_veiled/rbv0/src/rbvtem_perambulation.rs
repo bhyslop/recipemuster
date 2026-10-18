@@ -192,7 +192,7 @@ fn rbvtem_matcher_longest_wins() {
     let marshal_tt = rbvcem_judge("tt/rbw-MZ.MarshalZeroes.sh");
     assert!(matches!(marshal_tt, Some((rbvcem_Disposition::Withhold, _))), "the marshal stem must outrank tt/rbw-");
 
-    let hierophant_tt = rbvcem_judge("tt/rbthw-e.Essai.sh");
+    let hierophant_tt = rbvcem_judge("tt/rbvw-e.Essai.sh");
     assert!(matches!(hierophant_tt, Some((rbvcem_Disposition::Withhold, _))), "the hierophant stem is withheld");
 
     let shipped_tt = rbvcem_judge("tt/rbw-cC.Charge.tadmor.sh");

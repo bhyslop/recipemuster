@@ -108,10 +108,10 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // any of them holds the wrong end of the tool. The stem rows outrank the
     // family rows by length, so a marshal tabtarget minted tomorrow is
     // withheld without a new row, and the hierophant's own dispatch stem
-    // tt/rbthw- rides the same logic.
+    // tt/rbvw- rides the same logic.
     ("tt/rbw-M", Withhold),
     ("tt/rbw-mR.", Withhold),
-    ("tt/rbthw-", Withhold),
+    ("tt/rbvw-", Withhold),
     ("tt/rbw-", Ship),
     ("tt/buw-", Ship),
     ("tt/bkw-", Ship),

@@ -16,7 +16,7 @@
 // their reversible stages against the real private narthex without
 // spending credential/gauntlet cost or crossing the irreversible line.
 //
-// Launched only via the withheld tabtargets (tt/rbthw-*); a direct invocation
+// Launched only via the withheld tabtargets (tt/rbvw-*); a direct invocation
 // still resolves the working repository from cwd, which the launcher normalizes
 // to the maintainer repo root.
 
@@ -99,7 +99,7 @@ fn main() -> ExitCode {
         ),
         None => rbv::rbvcel_fatal!(
             "hierophant: no command — usage: rbv {}|{} [{}]|{} [{}]|{}\n\
-             launch via the withheld tabtargets: tt/rbthw-e.Essai.sh, tt/rbthw-d.Docimasy.sh, tt/rbthw-o.Ostend.sh, tt/rbthw-h.Harbinger.sh",
+             launch via the withheld tabtargets: tt/rbvw-e.Essai.sh, tt/rbvw-d.Docimasy.sh, tt/rbvw-o.Ostend.sh, tt/rbvw-h.Harbinger.sh",
             CMD_ESSAI, CMD_DOCIMASY, ARG_REHEARSE, CMD_OSTEND, ARG_REHEARSE, CMD_HARBINGER
         ),
     }
