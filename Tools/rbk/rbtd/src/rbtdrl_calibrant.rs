@@ -19,8 +19,8 @@
 // verdicts that exercise the operator-facing surface of the theurge engine.
 // Internal framework-test plumbing; not end-user-facing.
 //
-// Eight fixtures registered through rbtcem_manifest.rs and dispatched via
-// rbtccc_crucible.rs:
+// Eight fixtures registered through rbtdrm_manifest.rs and dispatched via
+// rbtdrc_crucible.rs:
 //
 //   calibrant-verdicts             Independent  4 cases  verdict-path coverage
 //   calibrant-fail-fast            Independent  3 cases  fail-fast halts subsequent cases
@@ -39,7 +39,7 @@
 // differ between them. calibrant-tariff-drift's needle is instead its TARIFF —
 // a declared invocation count no case can meet.
 //
-// The touchstone surface fixture (rbtcct_touchstone.rs) consumes these
+// The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
 // fixtures as child rbtd runs through the real tabtarget chain and asserts
 // engine-output contracts (exit codes, diagnostic format, fail-fast
 // semantics, disposition × keep-going policy gate, census diagnostics).
@@ -243,7 +243,7 @@ pub static RBTCHL_CASES_COVERAGE_UNUSED: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_
 
 // ── calibrant-tariff-drift ──────────────────────────────────
 //
-// The needle for the tariff shortfall gate (rbtcee_engine.rs, Tariff section):
+// The needle for the tariff shortfall gate (rbtdre_engine.rs, Tariff section):
 // a fixture whose declared invocation count its cases cannot meet. Its single
 // case SKIPS, which is the whole point — a skip exits zero, so before the gate
 // existed this fixture was green while running none of its declared work, the

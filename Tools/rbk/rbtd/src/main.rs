@@ -206,7 +206,7 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
         None => rbt::rbtcel_fatal_now!(
             "rbtd: fixture '{}' has no registered Fixture — \
              no Fixture static is bound. \
-             Update rbtcea_lookup_fixture in rbtccc_crucible.rs.",
+             Update rbtcea_lookup_fixture in rbtdrc_crucible.rs.",
             fixture
         ),
     };

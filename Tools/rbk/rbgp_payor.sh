@@ -3144,7 +3144,7 @@ rbgp_depot_recognosce() {
 # launcher family. Each dons the governor mantle (rba_avow then rba_don_capture
 # governor); the token-agnostic *_core helpers let gird — the one remaining
 # payor-credentialed path (the interim proof retired, superseded by the
-# terrier-band coverage in Tools/rbk/rbtd/src/rbtcgp_patrol.rs) — drive the
+# terrier-band coverage in Tools/rbk/rbtd/src/rbtdrv_patrol.rs) — drive the
 # same composition. Muniment mutations precede IAM mutations in every core
 # (RBr_m4d).
 #

@@ -81,7 +81,7 @@ pub(crate) const ZRBTCHX_LOCKFILE: &str = "Tools/rbk/rbtd/Cargo.lock";
 /// The root package named by ZRBTCHX_LOCKFILE — this project's own crate, which
 /// declares no `license` field and is covered by the repo-root LICENSE. Skipped
 /// when the lock's package set is checked against the vendored allowlist.
-pub(crate) const ZRBTCHX_ROOT_CRATE: &str = "rbtd";
+pub(crate) const ZRBTCHX_ROOT_CRATE: &str = "rbt";
 
 /// SPDX expressions vetted as acceptable for a dependency of an Apache-2.0
 /// release. Every expression admits at least one permissive license under which
@@ -249,7 +249,7 @@ pub(crate) const ZRBTCHX_SECRET_FILES: &[&str] = &["README.md", "RELEASE.md"];
 
 /// This module's own source. Named as a constant because it is both an exempt
 /// path below and the file a table-consistency finding points at.
-pub(crate) const ZRBTCHX_SELF_EXEMPT: &str = "Tools/rbk/rbtd/src/rbtchx_pyx.rs";
+pub(crate) const ZRBTCHX_SELF_EXEMPT: &str = "Tools/rbk/rbtd/src/rbtdrq_pyx.rs";
 
 /// Repo-relative paths exempt from the secret-shape scan, each with the reason
 /// it is exempt. An exemption is an OPERATOR ACT, not a maintenance chore: every

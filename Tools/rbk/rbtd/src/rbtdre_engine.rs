@@ -150,7 +150,7 @@ pub fn rbtcee_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), S
 /// Guards **every** drive, not only the suite: the single-fixture run-start in
 /// `rbtd_run_fixture`, the suite run-start in `rbtd_run_suite` (both in
 /// `main.rs`), and the marshal-zero attestation's Class-A check
-/// (`rbtcga_check_tree_clean` in `rbtcga_attest.rs`) all delegate here. There is
+/// (`rbtcga_check_tree_clean` in `rbtdrp_attest.rs`) all delegate here. There is
 /// no unguarded path — an uncommitted engine change or a falsification plant
 /// refuses a single-fixture drive exactly as it would a suite start. Each call
 /// site's own refusal names the notch (commit) as the remedy.

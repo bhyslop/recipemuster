@@ -360,7 +360,7 @@ fn zrbtchd_identity_self_proof() -> Vec<zrbtchx_Finding> {
 /// This module's own source — the file a self-proof finding points at. It is NOT
 /// an exemption: this source is swept like any other, and it survives the sweep
 /// because it spells no identity, only shapes.
-pub(crate) const RBTCHD_DAMNATIO_SELF: &str = "Tools/rbk/rbtd/src/rbtchd_damnatio.rs";
+pub(crate) const RBTCHD_DAMNATIO_SELF: &str = "Tools/rbk/rbtd/src/rbtdrq_damnatio.rs";
 
 // ── Case: identity shapes ───────────────────────────────────
 

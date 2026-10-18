@@ -1042,7 +1042,7 @@ pub static RBTCGP_CASES_LODE_LIFECYCLE: &[rbtcee_Case] = &[
 
 
 // Chaining-fact livery fixture — the cloud sibling of the local chaining-fact
-// band matrix (rbtcgh_chain.rs). That matrix proves the chain LINKS' rejection
+// band matrix (rbtdrh_chain.rs). That matrix proves the chain LINKS' rejection
 // bands by hand-SEEDING a synthetic touchmark into previous/; it can only
 // simulate the producer. This fixture proves the GENUINE producer->consumer
 // succession end-to-end: a real bole ensconce captures a base into live GAR and
@@ -1055,7 +1055,7 @@ pub static RBTCGP_CASES_LODE_LIFECYCLE: &[rbtcee_Case] = &[
 // Distinct from onboarding-sequence's tracked-vessel ensconce->feoff (the same
 // chain against a committed forge vessel, gauntlet-tier): this rides PICKET tier
 // and feoffs a STAGED TEMP vessel resolved by path, touching no tracked config
-// and committing nothing (band-matrix discipline, rbtcgh_chain.rs the model).
+// and committing nothing (band-matrix discipline, rbtdrh_chain.rs the model).
 // feoff itself makes no GAR call — it composes the locator from the decoded
 // touchmark — so the live ensconce is what makes the chained touchmark
 // real; the registry confirmation is conjure's at a later build, not feoff's.
@@ -1074,7 +1074,7 @@ pub static RBTCGP_CASES_LODE_LIFECYCLE: &[rbtcee_Case] = &[
 
 /// Fixed bole touchmark this fixture pins via the ensconce-stamp tweak. The shape
 /// is the band matrix's synthetic bole-seed shape — RBGC_LODE_KIND_BOLE 'b' + a
-/// 12-digit YYMMDDHHMMSS stamp (cf. rbtcgh_chain.rs RBTCGH_BOLE_TOUCHMARK) — but
+/// 12-digit YYMMDDHHMMSS stamp (cf. rbtdrh_chain.rs RBTCGH_BOLE_TOUCHMARK) — but
 /// a deterministic value rather than a clock mint, so setup has a stable handle
 /// and the elected anchor is predictable. ensconce takes BURE_TWEAK_VALUE
 /// verbatim as the stamp (rbldb_bole.sh), so this becomes the captured Lode's
@@ -1177,7 +1177,7 @@ fn zrbtcgp_chaining_livery_body(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_
 
     // The real touchmark must be the pinned value (ensconce honored the stamp
     // and round-tripped it through the fact) AND carry the band matrix's
-    // synthetic bole-seed shape: 'b' + 12 digits (cf. rbtcgh_chain.rs
+    // synthetic bole-seed shape: 'b' + 12 digits (cf. rbtdrh_chain.rs
     // RBTCGH_BOLE_TOUCHMARK) — the proof that synthetic seed is faithful to
     // what a live ensconce emits and a live feoff consumes.
     if touchmark != RBTCGP_LIVERY_TOUCHMARK {

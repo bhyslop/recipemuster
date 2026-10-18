@@ -763,7 +763,7 @@ fn rbtccc_sortie_net_srcip_spoof(dir: &Path) -> rbtcee_Verdict {
 // left open by per-IP RETURN exclusion + rp_filter=2 loose. Empirically
 // passes on macOS Docker Desktop 28.x because Docker's bridge enforces
 // source-IP at egress below iptables — see sortie_net_srcip_spoof_external
-// in rbtics_sorties.rs for the empirical-finding note.
+// in rbida_sorties.rs for the empirical-finding note.
 fn rbtccc_sortie_net_srcip_spoof_external(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-srcip-spoof-external", dir))
 }

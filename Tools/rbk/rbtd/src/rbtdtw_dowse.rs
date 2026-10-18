@@ -26,7 +26,7 @@ use super::rbtccd_dowse::{
 
 #[test]
 fn rbttcd_parses_bare_per_fixture_line() {
-    let line = "[INFO] [src/rbtcee_engine.rs:498] tariff regime-smoke: elapsed=7s invocations=47 [declared min=2s max=60s invocations=47]";
+    let line = "[INFO] [src/rbtdre_engine.rs:498] tariff regime-smoke: elapsed=7s invocations=47 [declared min=2s max=60s invocations=47]";
     assert_eq!(
         rbtccd_parse_tariff_line(line),
         Some(rbtccd_Observation {
@@ -41,7 +41,7 @@ fn rbttcd_parses_bare_per_fixture_line() {
 fn rbttcd_parses_hist_curated_line() {
     // Non-interactive dispatch prepends the wall-clock stamp; the parse keys
     // on the tariff token, never on column position.
-    let line = "[2026-07-09 21:21:30] [INFO] [src/rbtcee_engine.rs:498] tariff podvm-resolve: elapsed=0s invocations=2 [declared min=— max=— invocations=2]";
+    let line = "[2026-07-09 21:21:30] [INFO] [src/rbtdre_engine.rs:498] tariff podvm-resolve: elapsed=0s invocations=2 [declared min=— max=— invocations=2]";
     assert_eq!(
         rbtccd_parse_tariff_line(line),
         Some(rbtccd_Observation {
@@ -55,13 +55,13 @@ fn rbttcd_parses_hist_curated_line() {
 #[test]
 fn rbttcd_rejects_drift_table_row() {
     // Table rows carry no colon after the name — the double-count guard.
-    let line = "[INFO] [src/rbtcee_engine.rs:555] tariff  regime-smoke                 elapsed=   7s inv= 47  decl[min=2s max=60s inv=47]";
+    let line = "[INFO] [src/rbtdre_engine.rs:555] tariff  regime-smoke                 elapsed=   7s inv= 47  decl[min=2s max=60s inv=47]";
     assert_eq!(rbtccd_parse_tariff_line(line), None);
 }
 
 #[test]
 fn rbttcd_rejects_drift_table_header() {
-    let line = "[INFO] [src/rbtcee_engine.rs:543] tariff drift table (observed vs declared):";
+    let line = "[INFO] [src/rbtdre_engine.rs:543] tariff drift table (observed vs declared):";
     assert_eq!(rbtccd_parse_tariff_line(line), None);
 }
 

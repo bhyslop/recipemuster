@@ -38,7 +38,7 @@
 //! identically on a station that could not run bash.
 //!
 //! WHERE THE TOKENIZER LIVES. The command-position lexer below is a copy of
-//! recipemuster's `rbtchb_bash::zrbtchb_command_words`, and it is a copy under a
+//! recipemuster's `rbtdru_bash::zrbtdru_command_words`, and it is a copy under a
 //! stated removal condition rather than a fork: the estate wants one tokenizer,
 //! and the single home would be a crate both trees depend on — a change in
 //! recipemuster's tree, which the pace that wrote this file could not make.
@@ -131,7 +131,7 @@ const BUTP_SH_EXT: &str = "sh";
 // ── The lexer ───────────────────────────────────────────────
 //
 // A copy under the removal condition stated at this file's head. Its contract is
-// stated by recipemuster's unit tests in rbtthc_cupel.rs, line by line.
+// stated by recipemuster's unit tests in rbtdtu_cupel.rs, line by line.
 //
 // SOUNDNESS RESTS ON THE CORPUS BEING SHELLCHECK-CLEAN, which the substrate is,
 // so a command-position lexer suffices and no full shell parser is owed. Two

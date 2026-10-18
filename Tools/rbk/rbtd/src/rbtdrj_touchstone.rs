@@ -808,7 +808,7 @@ fn rbtcct_coverage_unused_single_case_exempt(dir: &Path) -> rbtcee_Verdict {
 
 // ── tariff shortfall ────────────────────────────────────────
 //
-// Black-box proof that the tariff shortfall gate (rbtcee_engine.rs, Tariff
+// Black-box proof that the tariff shortfall gate (rbtdre_engine.rs, Tariff
 // section) reddens a fixture that ran short of its declared invocation count.
 // The pair is a discriminating control, not a single needle: the drift
 // calibrant fails, and calibrant-coverage-aligned — which declares a count of

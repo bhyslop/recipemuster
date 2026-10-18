@@ -62,7 +62,7 @@ zrbte_kindle() {
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbt"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
-  # rbtccc_crucible.rs), not bash. Suite names survive here only as tabtarget
+  # rbtdrc_crucible.rs), not bash. Suite names survive here only as tabtarget
   # imprints passed straight through to the binary's `suite` mode.
 
   readonly ZRBTE_KINDLED=1

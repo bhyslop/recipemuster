@@ -216,7 +216,7 @@ pub const RBTCEM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 pub const RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED: &str = "calibrant-coverage-aligned";
 pub const RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED: &str = "calibrant-coverage-undeclared";
 pub const RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED: &str = "calibrant-coverage-unused";
-// Calibrant tariff needle — proves the tariff shortfall gate (rbtcee_engine.rs)
+// Calibrant tariff needle — proves the tariff shortfall gate (rbtdre_engine.rs)
 // reddens a fixture that ran short of its declared invocation count. Its single
 // case SKIPS and invokes nothing against a declared count of one, so the fixture
 // exits zero without the gate and FAILs with it. Roster-only, driven by the

@@ -212,7 +212,7 @@ rbldb_ensconce() {
   # time-based mint is seconds-grained, so two CLI ensconces never share a
   # touchmark and the cloud guard's idempotent/collision branches never fire
   # without a pin. The name carries the buo sprue (BURE enforces the shape).
-  # Mirror: rbtccc_crucible.rs RBTDRC_ENSCONCE_STAMP_TWEAK_NAME — same literal.
+  # Mirror: rbtdrc_crucible.rs RBTDRC_ENSCONCE_STAMP_TWEAK_NAME — same literal.
   local -r z_ensconce_stamp_tweak_name="buorb_ensconce_stamp"
   test "${BURE_TWEAK_NAME:-}" != "${z_ensconce_stamp_tweak_name}" || z_stamp="${BURE_TWEAK_VALUE}"
 
