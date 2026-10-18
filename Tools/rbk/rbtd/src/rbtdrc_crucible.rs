@@ -46,7 +46,7 @@ use crate::rbtdgc_consts::{
 // ── Thread-local invocation context ──────────────────────────
 
 /// Ifrit binary name inside the bottle container.
-const RBTDRC_IFRIT_BINARY: &str = "rbid";
+const RBTDRC_IFRIT_BINARY: &str = "rbti";
 
 /// Test connectivity target — ICANN-owned, stable single /20 CIDR (192.0.32.0/20)
 const RBTDRC_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
@@ -763,7 +763,7 @@ fn rbtdrc_sortie_net_srcip_spoof(dir: &Path) -> rbtdre_Verdict {
 // left open by per-IP RETURN exclusion + rp_filter=2 loose. Empirically
 // passes on macOS Docker Desktop 28.x because Docker's bridge enforces
 // source-IP at egress below iptables — see sortie_net_srcip_spoof_external
-// in rbida_sorties.rs for the empirical-finding note.
+// in rbtics_sorties.rs for the empirical-finding note.
 fn rbtdrc_sortie_net_srcip_spoof_external(dir: &Path) -> rbtdre_Verdict {
     rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof-external", dir))
 }

@@ -154,7 +154,7 @@ console; they do not re-grow per module.
 
 **New ifrit attack** (simple probe, single command):
 1. Add constant, enum variant, `from_selector`/`selector`/`all_selectors` entries in `rbida_attacks.rs`
-2. Add dispatch arm in `rbida_run()`
+2. Add dispatch arm in `rbtica_run()`
 3. Add theurge case function calling `rbtdrc_invoke_ifrit(ctx, "selector-name", dir)`
 4. Register in `RBTDRC_CASES_SECURITY` (or the relevant fixture's case array)
 

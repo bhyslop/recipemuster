@@ -30,7 +30,7 @@ WORKDIR /build
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo 'fn main() {}' > src/main.rs && \
     cargo build --release && \
-    rm -rf src target/release/deps/rbid-* target/release/.fingerprint/rbid-*
+    rm -rf src target/release/deps/rbti-* target/release/.fingerprint/rbti-*
 
 # Real source build
 COPY src/ src/
@@ -39,8 +39,8 @@ RUN cargo build --release
 # Install binary to standard location with CAP_NET_RAW file capability.
 # Container cap_add only populates the bounding set; non-root ifrit user
 # needs file capabilities to get NET_RAW in effective set for raw sockets.
-RUN cp target/release/rbid /usr/local/bin/rbid && \
-    setcap cap_net_raw+ep /usr/local/bin/rbid
+RUN cp target/release/rbti /usr/local/bin/rbti && \
+    setcap cap_net_raw+ep /usr/local/bin/rbti
 
 # Create unprivileged ifrit user
 RUN useradd -m -s /bin/bash ifrit
