@@ -74,20 +74,20 @@ use std::collections::{
 };
 use std::path::Path;
 
-use crate::rbtdre_case;
-use crate::rbtdre_engine::{
-    rbtdre_Tariff,
-    rbtdre_Case,
-    rbtdre_Disposition,
-    rbtdre_Fixture,
-    rbtdre_Verdict,
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Tariff,
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Verdict,
 };
 use crate::rbtdrf_fast::{
     rbtdrf_run_bash,
     RBTDRF_BUV_VALIDATION,
     RBTDRF_RBK_ROOT,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_DAMNATIO;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_DAMNATIO;
 use crate::rbtdrq_pyx::{
     zrbtdrq_report,
     zrbtdrq_root,
@@ -367,10 +367,10 @@ pub(crate) const RBTDRQ_DAMNATIO_SELF: &str = "Tools/rbk/rbtd/src/rbtdrq_damnati
 /// No shipping file may carry a shaped site identity. The matcher proves itself
 /// first, and a matcher failure is a finding exactly as a tree failure is — so a
 /// blunted checker can never report a clean tree.
-fn rbtdrq_identity_shapes(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_identity_shapes(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
     let mut findings = zrbtdrq_identity_self_proof();
@@ -391,7 +391,7 @@ fn rbtdrq_identity_shapes(dir: &Path) -> rbtdre_Verdict {
     }
 
     for path in files {
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, &path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(&root, &path);
         inventory.insert(rel.clone());
         let bytes = match std::fs::read(&path) {
             Ok(b) => b,
@@ -447,12 +447,12 @@ struct zrbtdrq_Reach {
 /// from the lustration module — the same table the transform writes from, so the
 /// judgment the fixture enforces and the judgment the verb applies cannot drift.
 fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
-    let buv = crate::rbtdrx_platform::rbtdrx_native_to_posix(&root.join(RBTDRF_BUV_VALIDATION));
-    let rbk = crate::rbtdrx_platform::rbtdrx_native_to_posix(&root.join(RBTDRF_RBK_ROOT));
+    let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTDRF_BUV_VALIDATION));
+    let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTDRF_RBK_ROOT));
     let moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR;
     // The rbrf and rbrn kindles name their temp paths off BURD_TEMP_DIR, which
     // no dispatch supplies here, so the case's own scratch directory stands in.
-    let dir_p = crate::rbtdrx_platform::rbtdrx_native_to_posix(dir);
+    let dir_p = crate::rbtcep_platform::rbtcep_native_to_posix(dir);
 
     let script = format!(
         "set -euo pipefail\n\
@@ -590,14 +590,14 @@ fn zrbtdrq_field_value(path: &Path, var: &str) -> Option<String> {
 /// has no shape: a workforce pool id, a project id, an org number are opaque
 /// tokens no sweep can recognize, and this case is the only thing standing between
 /// them and the upstream.
-fn rbtdrq_proscribed_values(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     let reach = match zrbtdrq_reach(&root, dir) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
     let mut findings = Vec::new();
@@ -667,14 +667,14 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtdre_Verdict {
 /// The enrolled set is the LIVE roll, never a hand list and never a grep of the
 /// regime sources — which is why this case caught three nameplate fields the
 /// author's own reading of those sources had missed.
-fn rbtdrq_proscription_complete(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_proscription_complete(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     let reach = match zrbtdrq_reach(&root, dir) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
     let mut findings = Vec::new();
@@ -728,18 +728,18 @@ pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_proscription.
 
 // ── Cases and fixture ───────────────────────────────────────
 
-pub static RBTDRQ_CASES_DAMNATIO: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrq_identity_shapes),
-    rbtdre_case!(rbtdrq_proscribed_values),
-    rbtdre_case!(rbtdrq_proscription_complete),
+pub static RBTDRQ_CASES_DAMNATIO: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtdrq_identity_shapes),
+    rbtcee_case!(rbtdrq_proscribed_values),
+    rbtcee_case!(rbtdrq_proscription_complete),
 ];
 
-pub static RBTDRQ_FIXTURE_DAMNATIO: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_DAMNATIO,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTDRQ_FIXTURE_DAMNATIO: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_DAMNATIO,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
     cases: RBTDRQ_CASES_DAMNATIO,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

@@ -38,19 +38,19 @@ use std::time::{
     Instant,
 };
 
-use crate::rbtdre_engine::{
-    rbtdre_commit_regime,
-    rbtdre_RegimeFile,
-    rbtdre_Verdict,
+use crate::rbtcee_engine::{
+    rbtcee_commit_regime,
+    rbtcee_RegimeFile,
+    rbtcee_Verdict,
 };
-use crate::rbtdrx_platform::rbtdrx_path_from_env;
-use crate::rbtdri_invocation::{
-    RBTDRI_BURE_CONFIRM_KEY,
-    RBTDRI_BURE_CONFIRM_SKIP,
-    RBTDRI_BURV_OUTPUT_SUBDIR,
-    rbtdri_Context,
-    rbtdri_InvokeResult,
-    rbtdri_invoke_global,
+use crate::rbtcep_platform::rbtcep_path_from_env;
+use crate::rbtcei_invocation::{
+    RBTCEI_BURE_CONFIRM_KEY,
+    RBTCEI_BURE_CONFIRM_SKIP,
+    RBTCEI_BURV_OUTPUT_SUBDIR,
+    rbtcei_Context,
+    rbtcei_InvokeResult,
+    rbtcei_invoke_global,
 };
 use crate::rbtdgc_consts::{
     RBTDGC_BAND_ADMISSION,
@@ -114,7 +114,7 @@ const RBTDRK_ENV_STATION_FILE: &str = "BURD_STATION_FILE";
 /// BURS validation upstream (zburs_enforce) guarantees the value is 1-3 chars
 /// of lowercase alphanumeric starting with a letter.
 pub(crate) fn rbtdrk_burs_tincture() -> Result<String, String> {
-    let path = rbtdrx_path_from_env(RBTDRK_ENV_STATION_FILE)?;
+    let path = rbtcep_path_from_env(RBTDRK_ENV_STATION_FILE)?;
     rbtdrk_read_env_value(&path, "BURS_TINCTURE")
         .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
 }
@@ -228,9 +228,9 @@ pub(crate) fn rbtdrk_install_freehold_prefixes(root: &Path) -> Result<(), String
         "freehold fixture: install freehold prefixes ({}/{})",
         cloud_target, runtime_target
     );
-    rbtdre_commit_regime(
+    rbtcee_commit_regime(
         root,
-        &[rbtdre_RegimeFile::Rbrr, rbtdre_RegimeFile::Rbrd],
+        &[rbtcee_RegimeFile::Rbrr, rbtcee_RegimeFile::Rbrd],
         &commit_msg,
     )
 }
@@ -247,7 +247,7 @@ pub(crate) fn rbtdrk_install_depot_moniker(root: &Path, moniker: &str) -> Result
         "freehold fixture: set {}={}",
         RBTDRK_FIELD_RBRD_DEPOT_MONIKER, moniker
     );
-    rbtdre_commit_regime(root, &[rbtdre_RegimeFile::Rbrd], &commit_msg)
+    rbtcee_commit_regime(root, &[rbtcee_RegimeFile::Rbrd], &commit_msg)
 }
 
 /// Compose depot project_id from kindled regime values: <CLOUD>d-<moniker>.
@@ -270,17 +270,17 @@ pub(crate) fn rbtdrk_cloud_prefix_subdir(root: &Path) -> Result<String, String> 
 }
 
 /// Parent directory of the depot fact files a `rbgp_depot_list` invocation
-/// emits: `<burv_output>/<RBTDRI_BURV_OUTPUT_SUBDIR>/<prefix_dir>`. The
+/// emits: `<burv_output>/<RBTCEI_BURV_OUTPUT_SUBDIR>/<prefix_dir>`. The
 /// cloud_prefix subdir (`rbtdrk_cloud_prefix_subdir`) is what keeps same-moniker
 /// depots under different cloud_prefixes from colliding. `pick_next_moniker`
 /// `read_dir`s this directory; `rbtdrk_depot_fact_path` joins one leaf onto it.
 pub(crate) fn rbtdrk_depot_fact_dir(
-    list_result: &rbtdri_InvokeResult,
+    list_result: &rbtcei_InvokeResult,
     prefix_dir: &str,
 ) -> PathBuf {
     list_result
         .burv_output
-        .join(RBTDRI_BURV_OUTPUT_SUBDIR)
+        .join(RBTCEI_BURV_OUTPUT_SUBDIR)
         .join(prefix_dir)
 }
 
@@ -288,10 +288,10 @@ pub(crate) fn rbtdrk_depot_fact_dir(
 /// (`RBTDRK_FACT_EXT_DEPOT`) or the project-id fact
 /// (`RBTDRK_FACT_EXT_DEPOT_PROJECT`). Built on `rbtdrk_depot_fact_dir` so the
 /// layout lives in one place. These facts sit one dir deeper than
-/// `rbtdri_read_burv_fact`'s prefix-less layout, so this prefixed builder is a
+/// `rbtcei_read_burv_fact`'s prefix-less layout, so this prefixed builder is a
 /// genuine analogue, not a re-duplication.
 pub(crate) fn rbtdrk_depot_fact_path(
-    list_result: &rbtdri_InvokeResult,
+    list_result: &rbtcei_InvokeResult,
     prefix_dir: &str,
     moniker: &str,
     ext: &str,
@@ -316,7 +316,7 @@ pub(crate) fn rbtdrk_depot_fact_path(
 /// check — stale state means picking a colliding moniker. Do not reuse a
 /// `list_result` across cases or pass an operator-cached value.
 pub(crate) fn rbtdrk_pick_next_moniker(
-    list_result: &rbtdri_InvokeResult,
+    list_result: &rbtcei_InvokeResult,
     root: &Path,
     family_stem: &str,
 ) -> Result<String, String> {
@@ -359,19 +359,19 @@ pub(crate) fn rbtdrk_pick_next_moniker(
     Ok(format!("{}{}", family_stem, next))
 }
 
-/// Wrapper invocation: call `rbtdri_invoke_global` and tee stdout/stderr to
+/// Wrapper invocation: call `rbtcei_invoke_global` and tee stdout/stderr to
 /// `dir/<label>-stdout.txt` / `dir/<label>-stderr.txt` for diagnostic review.
 /// Returns `Ok(InvokeResult)` regardless of exit code; callers decide what
 /// counts as failure.
 pub(crate) fn rbtdrk_invoke_logged(
-    ctx: &mut rbtdri_Context,
+    ctx: &mut rbtcei_Context,
     colophon: &str,
     args: &[&str],
     extra_env: &[(&str, &str)],
     dir: &Path,
     label: &str,
-) -> Result<rbtdri_InvokeResult, String> {
-    let result = rbtdri_invoke_global(ctx, colophon, args, extra_env)?;
+) -> Result<rbtcei_InvokeResult, String> {
+    let result = rbtcei_invoke_global(ctx, colophon, args, extra_env)?;
     let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
     Ok(result)
@@ -388,12 +388,12 @@ pub(crate) fn rbtdrk_invoke_logged(
 /// verbs. Any other exit returns immediately; an exhausted budget returns
 /// the final 109 result, so a real admission denial still fails the case.
 pub(crate) fn rbtdrk_invoke_admission_settled(
-    ctx: &mut rbtdri_Context,
+    ctx: &mut rbtcei_Context,
     colophon: &str,
     args: &[&str],
     dir: &Path,
     label: &str,
-) -> Result<rbtdri_InvokeResult, String> {
+) -> Result<rbtcei_InvokeResult, String> {
     let deadline = Duration::from_secs(RBTDGC_PROPAGATION_DEADLINE_SEC as u64);
     let max_delay = Duration::from_secs(RBTDGC_PROPAGATION_MAX_DELAY_SEC as u64);
     let mut delay = Duration::from_secs(RBTDGC_PROPAGATION_INITIAL_DELAY_SEC as u64);
@@ -408,7 +408,7 @@ pub(crate) fn rbtdrk_invoke_admission_settled(
             return Ok(result);
         }
         bend += 1;
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}: admission-band exit {} with a fresh grant upstream — propagation bend {} (RBr_3f4); retrying in {}s",
             label,
             RBTDGC_BAND_ADMISSION,
@@ -422,7 +422,7 @@ pub(crate) fn rbtdrk_invoke_admission_settled(
 
 // ── Probes ───────────────────────────────────────────────────
 
-/// Probes are pure `fn() -> Result<(), String>` per the rbtdrb_Probe shape and
+/// Probes are pure `fn() -> Result<(), String>` per the rbtccp_Probe shape and
 /// have no context, so they read the project root from current_dir() — theurge
 /// always launches from the project root.
 fn rbtdrk_probe_root() -> Result<PathBuf, String> {
@@ -480,17 +480,17 @@ pub(crate) fn rbtdrk_probe_freehold_moniker() -> Result<(), String> {
 /// shared spine.
 pub(crate) fn rbtdrk_crosscheck_project_id(
     root: &Path,
-    fact_list: &rbtdri_InvokeResult,
+    fact_list: &rbtcei_InvokeResult,
     prefix_dir: &str,
     moniker: &str,
     dir: &Path,
-) -> Option<rbtdre_Verdict> {
+) -> Option<rbtcee_Verdict> {
     let fact_path =
         rbtdrk_depot_fact_path(fact_list, prefix_dir, moniker, RBTDRK_FACT_EXT_DEPOT_PROJECT);
     let fact_project_id = match std::fs::read_to_string(&fact_path) {
         Ok(s) => s.trim().to_string(),
         Err(e) => {
-            return Some(rbtdre_Verdict::Fail(format!(
+            return Some(rbtcee_Verdict::Fail(format!(
                 "read depot-project fact '{}': {}",
                 fact_path.display(),
                 e
@@ -498,7 +498,7 @@ pub(crate) fn rbtdrk_crosscheck_project_id(
         }
     };
     if fact_project_id.is_empty() {
-        return Some(rbtdre_Verdict::Fail(format!(
+        return Some(rbtcee_Verdict::Fail(format!(
             "depot-project fact is empty: {}",
             fact_path.display()
         )));
@@ -507,10 +507,10 @@ pub(crate) fn rbtdrk_crosscheck_project_id(
 
     let composed = match rbtdrk_compose_project_id(root, moniker) {
         Ok(p) => p,
-        Err(e) => return Some(rbtdre_Verdict::Fail(format!("compose project_id: {}", e))),
+        Err(e) => return Some(rbtcee_Verdict::Fail(format!("compose project_id: {}", e))),
     };
     if composed != fact_project_id {
-        return Some(rbtdre_Verdict::Fail(format!(
+        return Some(rbtcee_Verdict::Fail(format!(
             "project_id mismatch: RBDC compose='{}' vs depot-list fact='{}' \
              (RBDC kindle derivation diverged from payor creation)",
             composed, fact_project_id
@@ -559,26 +559,26 @@ pub(crate) struct rbtdrk_UnmakeOutcome {
 /// express churn's "complement of {COMPLETE}", and a wrong fold here would
 /// silently lose the create→destroy-proof coverage tear-down's allowlist carries.
 pub(crate) fn rbtdrk_unmake_preamble(
-    ctx: &mut rbtdri_Context,
+    ctx: &mut rbtcei_Context,
     dir: &Path,
     spec: &rbtdrk_UnmakeSpec,
-) -> Result<rbtdrk_UnmakeOutcome, rbtdre_Verdict> {
-    let root = ctx.rbtdri_project_root().to_path_buf();
+) -> Result<rbtdrk_UnmakeOutcome, rbtcee_Verdict> {
+    let root = ctx.rbtcei_project_root().to_path_buf();
     let rbrd = root.join(RBTDGC_RBRD_FILE);
 
     let moniker = match rbtdrk_read_env_value(&rbrd, RBTDRK_FIELD_RBRD_DEPOT_MONIKER) {
         Some(m) if !m.is_empty() => m,
-        _ => return Err(rbtdre_Verdict::Fail(spec.blank_moniker_msg.to_string())),
+        _ => return Err(rbtcee_Verdict::Fail(spec.blank_moniker_msg.to_string())),
     };
 
     let project_id = match rbtdrk_compose_project_id(&root, &moniker) {
         Ok(p) => p,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("compose project_id: {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("compose project_id: {}", e))),
     };
     let _ = std::fs::write(dir.join(spec.project_id_filename), &project_id);
 
     if let Err(e) = rbtdrk_install_depot_moniker(&root, spec.placeholder_moniker) {
-        return Err(rbtdre_Verdict::Fail(format!(
+        return Err(rbtcee_Verdict::Fail(format!(
             "rotate moniker before unmake: {}",
             e
         )));
@@ -588,15 +588,15 @@ pub(crate) fn rbtdrk_unmake_preamble(
         ctx,
         RBTDGC_UNMAKE_DEPOT,
         &[&project_id],
-        &[(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)],
+        &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
         dir,
         spec.unmake_label,
     ) {
         Ok(r) => r,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("depot unmake: {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("depot unmake: {}", e))),
     };
     if unmake.exit_code != 0 {
-        return Err(rbtdre_Verdict::Fail(format!(
+        return Err(rbtcee_Verdict::Fail(format!(
             "depot unmake exit {}\n{}",
             unmake.exit_code, unmake.stderr
         )));
@@ -605,17 +605,17 @@ pub(crate) fn rbtdrk_unmake_preamble(
     let list_after = match rbtdrk_invoke_logged(ctx, RBTDGC_LIST_DEPOT, &[], &[], dir, "list-after") {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => {
-            return Err(rbtdre_Verdict::Fail(format!(
+            return Err(rbtcee_Verdict::Fail(format!(
                 "depot list (after unmake) exit {}\n{}",
                 r.exit_code, r.stderr
             )))
         }
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("depot list (after unmake): {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("depot list (after unmake): {}", e))),
     };
 
     let prefix_dir = match rbtdrk_cloud_prefix_subdir(&root) {
         Ok(p) => p,
-        Err(e) => return Err(rbtdre_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e))),
     };
     let state_fact = rbtdrk_depot_fact_path(&list_after, &prefix_dir, &moniker, RBTDRK_FACT_EXT_DEPOT);
 

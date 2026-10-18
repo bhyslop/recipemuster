@@ -28,15 +28,15 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-use crate::rbtdre_case;
-use crate::rbtdra_almanac::rbtdra_lookup_fixture;
-use crate::rbtdre_engine::{
-    rbtdre_Tariff,
-    rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Verdict,
+use crate::rbtcee_case;
+use crate::rbtcea_almanac::rbtcea_lookup_fixture;
+use crate::rbtcee_engine::{
+    rbtcee_Tariff,
+    rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Verdict,
 };
-use crate::rbtdri_invocation::{
-    rbtdri_Context, rbtdri_invoke, rbtdri_invoke_env, rbtdri_invoke_global,
-    rbtdri_parse_ifrit_verdict,
+use crate::rbtcei_invocation::{
+    rbtcei_Context, rbtcei_invoke, rbtcei_invoke_env, rbtcei_invoke_global,
+    rbtcei_parse_ifrit_verdict,
 };
 use crate::rbtdgc_consts::{
     RBTDGC_CRUCIBLE_ACTIVE, RBTDGC_CRUCIBLE_BARK,
@@ -46,13 +46,13 @@ use crate::rbtdgc_consts::{
 // ── Thread-local invocation context ──────────────────────────
 
 /// Ifrit binary name inside the bottle container.
-const RBTDRC_IFRIT_BINARY: &str = "rbti";
+const RBTCCC_IFRIT_BINARY: &str = "rbti";
 
 /// Test connectivity target — ICANN-owned, stable single /20 CIDR (192.0.32.0/20)
-const RBTDRC_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
+const RBTCCC_CONNECTIVITY_DOMAIN: &str = "www.internic.net";
 
 thread_local! {
-    static RBTDRC_CTX: RefCell<Option<rbtdri_Context>> = RefCell::new(None);
+    static RBTCCC_CTX: RefCell<Option<rbtcei_Context>> = RefCell::new(None);
 }
 
 /// Store invocation context for case functions. Called before run_sections.
@@ -64,36 +64,36 @@ thread_local! {
 /// credless guard (the runner has already fataled on lookup failure before
 /// reaching here on every real path); an unmanifested fixture name arms no
 /// census (None disables both census directions).
-pub fn rbtdrc_set_context(ctx: rbtdri_Context) {
-    let credless = rbtdra_lookup_fixture(ctx.rbtdri_fixture())
+pub fn rbtccc_set_context(ctx: rbtcei_Context) {
+    let credless = rbtcea_lookup_fixture(ctx.rbtcei_fixture())
         .map(|f| f.credless)
         .unwrap_or(false);
-    crate::rbtdri_invocation::rbtdri_arm_credless(credless);
-    crate::rbtdri_invocation::rbtdri_census_arm(
-        crate::rbtdrm_manifest::rbtdrm_required_colophons(ctx.rbtdri_fixture()),
-        crate::rbtdrm_manifest::rbtdrm_permitted_colophons(ctx.rbtdri_fixture()),
+    crate::rbtcei_invocation::rbtcei_arm_credless(credless);
+    crate::rbtcei_invocation::rbtcei_census_arm(
+        crate::rbtcem_manifest::rbtcem_required_colophons(ctx.rbtcei_fixture()),
+        crate::rbtcem_manifest::rbtcem_permitted_colophons(ctx.rbtcei_fixture()),
     );
-    RBTDRC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
+    RBTCCC_CTX.with(|c| *c.borrow_mut() = Some(ctx));
 }
 
 /// Retrieve invocation context after cases complete. Called for quench.
 /// Disarms the credless guard and the colophon census — the fixture's run is
 /// over.
-pub fn rbtdrc_take_context() -> rbtdri_Context {
-    crate::rbtdri_invocation::rbtdri_arm_credless(false);
-    crate::rbtdri_invocation::rbtdri_census_arm(None, &[]);
-    RBTDRC_CTX.with(|c| {
+pub fn rbtccc_take_context() -> rbtcei_Context {
+    crate::rbtcei_invocation::rbtcei_arm_credless(false);
+    crate::rbtcei_invocation::rbtcei_census_arm(None, &[]);
+    RBTCCC_CTX.with(|c| {
         c.borrow_mut()
             .take()
-            .expect("rbtdrc: no context — was rbtdrc_set_context called?")
+            .expect("rbtdrc: no context — was rbtccc_set_context called?")
     })
 }
 
-pub(crate) fn rbtdrc_with_ctx<F>(f: F) -> rbtdre_Verdict
+pub(crate) fn rbtccc_with_ctx<F>(f: F) -> rbtcee_Verdict
 where
-    F: FnOnce(&mut rbtdri_Context) -> rbtdre_Verdict,
+    F: FnOnce(&mut rbtcei_Context) -> rbtcee_Verdict,
 {
-    RBTDRC_CTX.with(|c| {
+    RBTCCC_CTX.with(|c| {
         let mut opt = c.borrow_mut();
         let ctx = opt
             .as_mut()
@@ -110,36 +110,36 @@ where
 ///
 /// Service-readiness waits are folded into the charge tabtarget itself,
 /// driven by the per-nameplate `RBRN_BOTTLE_READINESS_DELAY_SEC` fact.
-pub fn rbtdrc_charge_crucible() -> Result<(), String> {
-    RBTDRC_CTX.with(|c| {
+pub fn rbtccc_charge_crucible() -> Result<(), String> {
+    RBTCCC_CTX.with(|c| {
         let mut opt = c.borrow_mut();
         let ctx = opt
             .as_mut()
             .ok_or_else(|| "rbtdrc: no invocation context for charge".to_string())?;
-        zrbtdrc_charge_impl(ctx)
+        zrbtccc_charge_impl(ctx)
     })
 }
 
 /// Teardown hook for crucible fixtures: quench → inverse CrucibleActive
 /// assertion. Reads ctx from thread-local. Best-effort — surfaces failures as
 /// stderr warnings rather than errors; teardown always completes.
-pub fn rbtdrc_quench_crucible() {
-    RBTDRC_CTX.with(|c| {
+pub fn rbtccc_quench_crucible() {
+    RBTCCC_CTX.with(|c| {
         let mut opt = c.borrow_mut();
         if let Some(ctx) = opt.as_mut() {
-            zrbtdrc_quench_impl(ctx);
+            zrbtccc_quench_impl(ctx);
         } else {
-            crate::rbtdrg_error_now!("rbtdrc: no invocation context for quench — skipped");
+            crate::rbtcel_error_now!("rbtdrc: no invocation context for quench — skipped");
         }
     });
 }
 
-fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
-    let fixture = ctx.rbtdri_fixture().to_string();
-    crate::rbtdrg_info_now!("Charging crucible for nameplate '{}'...", fixture);
-    match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_CHARGE, &[]) {
+fn zrbtccc_charge_impl(ctx: &mut rbtcei_Context) -> Result<(), String> {
+    let fixture = ctx.rbtcei_fixture().to_string();
+    crate::rbtcel_info_now!("Charging crucible for nameplate '{}'...", fixture);
+    match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_CHARGE, &[]) {
         Ok(r) if r.exit_code == 0 => {
-            crate::rbtdrg_info_now!("Crucible charged");
+            crate::rbtcel_info_now!("Crucible charged");
         }
         Ok(r) => {
             return Err(format!("Charge failed (exit {})\n{}", r.exit_code, r.stderr));
@@ -149,10 +149,10 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
         }
     }
 
-    crate::rbtdrg_info_now!("Verifying crucible is active after charge...");
-    match rbtdri_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+    crate::rbtcel_info_now!("Verifying crucible is active after charge...");
+    match rbtcei_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code == 0 => {
-            crate::rbtdrg_info_now!("Crucible active confirmed");
+            crate::rbtcel_info_now!("Crucible active confirmed");
         }
         Ok(r) => {
             return Err(format!(
@@ -171,28 +171,28 @@ fn zrbtdrc_charge_impl(ctx: &mut rbtdri_Context) -> Result<(), String> {
     Ok(())
 }
 
-fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
-    let fixture = ctx.rbtdri_fixture().to_string();
-    crate::rbtdrg_info_now!("Quenching crucible...");
-    match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_QUENCH, &[]) {
-        Ok(r) if r.exit_code == 0 => crate::rbtdrg_info_now!("Crucible quenched"),
-        Ok(r) => crate::rbtdrg_error_now!("quench exited {}", r.exit_code),
-        Err(e) => crate::rbtdrg_error_now!("quench invocation failed: {}", e),
+fn zrbtccc_quench_impl(ctx: &mut rbtcei_Context) {
+    let fixture = ctx.rbtcei_fixture().to_string();
+    crate::rbtcel_info_now!("Quenching crucible...");
+    match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_QUENCH, &[]) {
+        Ok(r) if r.exit_code == 0 => crate::rbtcel_info_now!("Crucible quenched"),
+        Ok(r) => crate::rbtcel_error_now!("quench exited {}", r.exit_code),
+        Err(e) => crate::rbtcel_error_now!("quench invocation failed: {}", e),
     }
 
-    crate::rbtdrg_info_now!("Verifying crucible is inactive after quench...");
-    match rbtdri_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+    crate::rbtcel_info_now!("Verifying crucible is inactive after quench...");
+    match rbtcei_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code != 0 => {
-            crate::rbtdrg_info_now!("Crucible inactive confirmed");
+            crate::rbtcel_info_now!("Crucible inactive confirmed");
         }
         Ok(r) => {
-            crate::rbtdrg_error_now!(
+            crate::rbtcel_error_now!(
                 "crucible still active after quench (exit {})",
                 r.exit_code
             );
         }
         Err(e) => {
-            crate::rbtdrg_error_now!(
+            crate::rbtcel_error_now!(
                 "CrucibleActive invocation failed after quench: {}",
                 e
             );
@@ -203,36 +203,36 @@ fn zrbtdrc_quench_impl(ctx: &mut rbtdri_Context) {
 // ── Helpers ──────────────────────────────────────────────────
 
 /// Invoke ifrit inside the bottle via bark, saving stdout/stderr to case dir.
-fn rbtdrc_invoke_ifrit(
-    ctx: &mut rbtdri_Context,
+fn rbtccc_invoke_ifrit(
+    ctx: &mut rbtcei_Context,
     attack: &str,
     dir: &Path,
-) -> rbtdre_Verdict {
-    let result = match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &[RBTDRC_IFRIT_BINARY, attack]) {
+) -> rbtcee_Verdict {
+    let result = match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &[RBTCCC_IFRIT_BINARY, attack]) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation error: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation error: {}", e)),
     };
     let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
     let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
-    rbtdri_parse_ifrit_verdict(&result.stdout, result.exit_code)
+    rbtcei_parse_ifrit_verdict(&result.stdout, result.exit_code)
 }
 
 /// Invoke ifrit inside the bottle via bark with extra arguments.
-fn rbtdrc_invoke_ifrit_with_args(
-    ctx: &mut rbtdri_Context,
+fn rbtccc_invoke_ifrit_with_args(
+    ctx: &mut rbtcei_Context,
     attack: &str,
     extra_args: &[&str],
     dir: &Path,
-) -> rbtdre_Verdict {
-    let mut bark_args = vec![RBTDRC_IFRIT_BINARY, attack];
+) -> rbtcee_Verdict {
+    let mut bark_args = vec![RBTCCC_IFRIT_BINARY, attack];
     bark_args.extend_from_slice(extra_args);
-    let result = match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &bark_args) {
+    let result = match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &bark_args) {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation error: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation error: {}", e)),
     };
     let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
     let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
-    rbtdri_parse_ifrit_verdict(&result.stdout, result.exit_code)
+    rbtcei_parse_ifrit_verdict(&result.stdout, result.exit_code)
 }
 
 /// Execute a command in the sentry via writ, returning captured stdout.
@@ -245,8 +245,8 @@ fn rbtdrc_invoke_ifrit_with_args(
 /// plain ssh pipe). theurge keeps its own per-invocation stdout/stderr capture,
 /// so dropping the redundant logs-buk transcript for these probe writs costs
 /// no diagnostics.
-fn rbtdrc_writ(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtdri_invoke_env(ctx, RBTDGC_CRUCIBLE_WRIT, args, &[("BURD_NO_LOG", "1")])?;
+fn rbtccc_writ(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String> {
+    let result = rbtcei_invoke_env(ctx, RBTDGC_CRUCIBLE_WRIT, args, &[("BURD_NO_LOG", "1")])?;
     if result.exit_code != 0 {
         return Err(format!(
             "writ exit {}\nstdout: {}\nstderr: {}",
@@ -257,8 +257,8 @@ fn rbtdrc_writ(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String
 }
 
 /// Execute a command in the pentacle via fiat, returning the invocation result.
-fn rbtdrc_fiat(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_FIAT, args)?;
+fn rbtccc_fiat(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String> {
+    let result = rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_FIAT, args)?;
     if result.exit_code != 0 {
         return Err(format!(
             "fiat exit {}\nstdout: {}\nstderr: {}",
@@ -271,13 +271,13 @@ fn rbtdrc_fiat(ctx: &mut rbtdri_Context, args: &[&str]) -> Result<String, String
 /// Discover the sentry's enclave IP by reading /etc/resolv.conf from the pentacle via fiat.
 /// The pentacle uses the sentry as its DNS server, so resolv.conf nameserver = sentry enclave IP.
 /// (Sentry's own resolv.conf points to upstream DNS like 8.8.8.8 — wrong for enclave ops.)
-fn rbtdrc_discover_sentry_ip(ctx: &mut rbtdri_Context) -> Result<String, String> {
-    let output = rbtdrc_fiat(ctx, &["cat", "/etc/resolv.conf"])?;
+fn rbtccc_discover_sentry_ip(ctx: &mut rbtcei_Context) -> Result<String, String> {
+    let output = rbtccc_fiat(ctx, &["cat", "/etc/resolv.conf"])?;
     for line in output.lines() {
         let trimmed = line.trim();
         if let Some(rest) = trimmed.strip_prefix("nameserver") {
             let ip = rest.trim();
-            if !ip.is_empty() && rbtdrc_looks_like_ip(ip) {
+            if !ip.is_empty() && rbtccc_looks_like_ip(ip) {
                 return Ok(ip.to_string());
             }
         }
@@ -290,13 +290,13 @@ fn rbtdrc_discover_sentry_ip(ctx: &mut rbtdri_Context) -> Result<String, String>
 
 /// Resolve a hostname via writ (running dig +short on the sentry).
 /// Returns the first line that looks like an IP address (filters BUK log headers).
-fn rbtdrc_resolve_via_writ(ctx: &mut rbtdri_Context, hostname: &str) -> Result<String, String> {
-    let output = rbtdrc_writ(ctx, &["dig", "+short", hostname])?;
+fn rbtccc_resolve_via_writ(ctx: &mut rbtcei_Context, hostname: &str) -> Result<String, String> {
+    let output = rbtccc_writ(ctx, &["dig", "+short", hostname])?;
     let ip = output
         .lines()
         .find(|line| {
             let t = line.trim();
-            !t.is_empty() && rbtdrc_looks_like_ip(t)
+            !t.is_empty() && rbtccc_looks_like_ip(t)
         })
         .map(|line| line.trim().to_string())
         .ok_or_else(|| format!("dig +short {} returned no IP:\n{}", hostname, output))?;
@@ -305,13 +305,13 @@ fn rbtdrc_resolve_via_writ(ctx: &mut rbtdri_Context, hostname: &str) -> Result<S
 
 /// Quick check: does this string look like an IPv4 address (digits and dots only)?
 /// Not a full validator — just enough to reject BUK log headers and DNS comments.
-fn rbtdrc_looks_like_ip(s: &str) -> bool {
+fn rbtccc_looks_like_ip(s: &str) -> bool {
     !s.is_empty() && s.chars().all(|c| c.is_ascii_digit() || c == '.')
 }
 
 /// Extract iptables rule lines from writ output, filtering BUK log headers.
 /// Rules start with -P (policy), -N (new chain), or -A (append).
-fn rbtdrc_extract_iptables_rules(output: &str) -> String {
+fn rbtccc_extract_iptables_rules(output: &str) -> String {
     output
         .lines()
         .filter(|l| {
@@ -325,8 +325,8 @@ fn rbtdrc_extract_iptables_rules(output: &str) -> String {
 /// Read a named environment variable from sentry's process environment via writ.
 /// writ runs under BURD_NO_LOG, so its stdout is the clean command output —
 /// the first non-empty line is the value, with no header/ANSI stripping needed.
-fn rbtdrc_read_sentry_env(ctx: &mut rbtdri_Context, var: &str) -> Result<String, String> {
-    let output = rbtdrc_writ(ctx, &["printenv", var])?;
+fn rbtccc_read_sentry_env(ctx: &mut rbtcei_Context, var: &str) -> Result<String, String> {
+    let output = rbtccc_writ(ctx, &["printenv", var])?;
     output
         .lines()
         .map(|l| l.trim())
@@ -337,138 +337,138 @@ fn rbtdrc_read_sentry_env(ctx: &mut rbtdri_Context, var: &str) -> Result<String,
 
 // ── Basic infra cases (fiat) ──────────────────────────────────
 
-fn rbtdrc_pentacle_dnsmasq_responds(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+fn rbtccc_pentacle_dnsmasq_responds(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
-        let output = match rbtdrc_fiat(
+        let output = match rbtccc_fiat(
             ctx,
-            &["dig", "+short", &format!("@{}", sentry_ip), RBTDRC_CONNECTIVITY_DOMAIN],
+            &["dig", "+short", &format!("@{}", sentry_ip), RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("fiat dig error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("fiat dig error: {}", e)),
         };
         let _ = std::fs::write(dir.join("fiat-stdout.txt"), &output);
 
         if output.trim().is_empty() {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "dnsmasq on sentry {} returned empty response for {}",
-                sentry_ip, RBTDRC_CONNECTIVITY_DOMAIN
+                sentry_ip, RBTCCC_CONNECTIVITY_DOMAIN
             ));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_pentacle_ping_sentry(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+fn rbtccc_pentacle_ping_sentry(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
-        let output = match rbtdrc_fiat(ctx, &["ping", &sentry_ip, "-c", "2"]) {
+        let output = match rbtccc_fiat(ctx, &["ping", &sentry_ip, "-c", "2"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("fiat ping error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("fiat ping error: {}", e)),
         };
         let _ = std::fs::write(dir.join("fiat-stdout.txt"), &output);
 
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 // ── Ifrit attack cases (bark-only, inside observation) ───────
 
-fn rbtdrc_ifrit_dns_allowed(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-allowed-example", dir))
+fn rbtccc_ifrit_dns_allowed(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-allowed-example", dir))
 }
 
-fn rbtdrc_ifrit_dns_allowed_example_org(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-allowed-example-org", dir))
+fn rbtccc_ifrit_dns_allowed_example_org(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-allowed-example-org", dir))
 }
 
-fn rbtdrc_ifrit_dns_blocked(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-blocked-google", dir))
+fn rbtccc_ifrit_dns_blocked(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-blocked-google", dir))
 }
 
-fn rbtdrc_ifrit_apt_blocked(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "apt-get-blocked", dir))
+fn rbtccc_ifrit_apt_blocked(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "apt-get-blocked", dir))
 }
 
-fn rbtdrc_ifrit_dns_nonexistent(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-nonexistent", dir))
+fn rbtccc_ifrit_dns_nonexistent(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-nonexistent", dir))
 }
 
-fn rbtdrc_ifrit_dns_tcp(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-tcp", dir))
+fn rbtccc_ifrit_dns_tcp(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-tcp", dir))
 }
 
-fn rbtdrc_ifrit_dns_udp(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-udp", dir))
+fn rbtccc_ifrit_dns_udp(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-udp", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_direct(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-direct", dir))
+fn rbtccc_ifrit_dns_block_direct(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-direct", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_altport(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-altport", dir))
+fn rbtccc_ifrit_dns_block_altport(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-altport", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_cloudflare(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-cloudflare", dir))
+fn rbtccc_ifrit_dns_block_cloudflare(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-cloudflare", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_quad9(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-quad9", dir))
+fn rbtccc_ifrit_dns_block_quad9(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-quad9", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_zonetransfer(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-zonetransfer", dir))
+fn rbtccc_ifrit_dns_block_zonetransfer(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-zonetransfer", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_ipv6(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-ipv6", dir))
+fn rbtccc_ifrit_dns_block_ipv6(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-ipv6", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_multicast(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-multicast", dir))
+fn rbtccc_ifrit_dns_block_multicast(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-multicast", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_spoofing(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-spoofing", dir))
+fn rbtccc_ifrit_dns_block_spoofing(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-spoofing", dir))
 }
 
-fn rbtdrc_ifrit_dns_block_tunneling(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-block-tunneling", dir))
+fn rbtccc_ifrit_dns_block_tunneling(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-block-tunneling", dir))
 }
 
 // ── Observation cases (writ + bark, inside/outside) ──────────
 
-fn rbtdrc_sentry_iptables_loaded(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let output = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
+fn rbtccc_sentry_iptables_loaded(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let output = match rbtccc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e)),
         };
         let _ = std::fs::write(dir.join("iptables-rules.txt"), &output);
 
         if output.trim().is_empty() {
-            return rbtdre_Verdict::Fail("iptables -S returned empty output".to_string());
+            return rbtcee_Verdict::Fail("iptables -S returned empty output".to_string());
         }
         // Expect at least one policy line (-P) and one append rule (-A)
         if !output.contains("-P") || !output.contains("-A") {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "iptables rules incomplete (missing -P or -A):\n{}",
                 output
             ));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
@@ -477,15 +477,15 @@ fn rbtdrc_sentry_iptables_loaded(dir: &Path) -> rbtdre_Verdict {
 // against sentry's runtime state — fail loudly if a future change strips a
 // defensive clause the architecture depends on.
 
-fn rbtdrc_sentry_config_rp_filter(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let entry_mode = match rbtdrc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
+fn rbtccc_sentry_config_rp_filter(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let entry_mode = match rbtccc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
             Ok(m) => m,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
         };
-        let output = match rbtdrc_writ(ctx, &["cat", "/proc/sys/net/ipv4/conf/all/rp_filter"]) {
+        let output = match rbtccc_writ(ctx, &["cat", "/proc/sys/net/ipv4/conf/all/rp_filter"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e)),
         };
         let _ = std::fs::write(dir.join("rp_filter.txt"), &output);
 
@@ -500,32 +500,32 @@ fn rbtdrc_sentry_config_rp_filter(dir: &Path) -> rbtdre_Verdict {
             "rbnne_enabled" => "2",
             "rbnne_disabled" => "1",
             other => {
-                return rbtdre_Verdict::Fail(format!("unexpected RBRN_ENTRY_MODE '{}'", other));
+                return rbtcee_Verdict::Fail(format!("unexpected RBRN_ENTRY_MODE '{}'", other));
             }
         };
 
         if value != expected {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "rp_filter = {} (expected {} for entry-mode {})",
                 value, expected, entry_mode
             ));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_sentry_config_prerouting_dnat(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let entry_mode = match rbtdrc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
+fn rbtccc_sentry_config_prerouting_dnat(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let entry_mode = match rbtccc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
             Ok(m) => m,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
         };
         if entry_mode != "rbnne_enabled" {
-            return rbtdre_Verdict::Skip(format!("entry-mode={}", entry_mode));
+            return rbtcee_Verdict::Skip(format!("entry-mode={}", entry_mode));
         }
-        let output = match rbtdrc_writ(ctx, &["iptables", "-t", "nat", "-S", "PREROUTING"]) {
+        let output = match rbtccc_writ(ctx, &["iptables", "-t", "nat", "-S", "PREROUTING"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e)),
         };
         let _ = std::fs::write(dir.join("prerouting.txt"), &output);
 
@@ -548,38 +548,38 @@ fn rbtdrc_sentry_config_prerouting_dnat(dir: &Path) -> rbtdre_Verdict {
             .collect();
 
         if return_positions.len() != 2 {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "PREROUTING RETURN rule count = {} (expected 2)",
                 return_positions.len()
             ));
         }
         if dnat_positions.is_empty() {
-            return rbtdre_Verdict::Fail("PREROUTING DNAT rule absent".to_string());
+            return rbtcee_Verdict::Fail("PREROUTING DNAT rule absent".to_string());
         }
         let max_return = *return_positions.iter().max().unwrap();
         let min_dnat = *dnat_positions.iter().min().unwrap();
         if max_return >= min_dnat {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "PREROUTING RETURN at position {} not before DNAT at position {}",
                 max_return, min_dnat
             ));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_sentry_config_postrouting_masquerade(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let entry_mode = match rbtdrc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
+fn rbtccc_sentry_config_postrouting_masquerade(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let entry_mode = match rbtccc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
             Ok(m) => m,
-            Err(e) => return rbtdre_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e)),
         };
         if entry_mode != "rbnne_enabled" {
-            return rbtdre_Verdict::Skip(format!("entry-mode={}", entry_mode));
+            return rbtcee_Verdict::Skip(format!("entry-mode={}", entry_mode));
         }
-        let output = match rbtdrc_writ(ctx, &["iptables", "-t", "nat", "-S", "POSTROUTING"]) {
+        let output = match rbtccc_writ(ctx, &["iptables", "-t", "nat", "-S", "POSTROUTING"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e)),
         };
         let _ = std::fs::write(dir.join("postrouting.txt"), &output);
 
@@ -590,19 +590,19 @@ fn rbtdrc_sentry_config_postrouting_masquerade(dir: &Path) -> rbtdre_Verdict {
             .any(|l| l.contains("-j MASQUERADE") && l.contains("-p tcp") && l.contains("--dport"));
 
         if !entry_masq {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "POSTROUTING entry-port MASQUERADE rule absent".to_string(),
             );
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_sentry_config_forward_estab_related(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let output = match rbtdrc_writ(ctx, &["iptables", "-S", "FORWARD"]) {
+fn rbtccc_sentry_config_forward_estab_related(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let output = match rbtccc_writ(ctx, &["iptables", "-S", "FORWARD"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e)),
         };
         let _ = std::fs::write(dir.join("forward.txt"), &output);
 
@@ -621,7 +621,7 @@ fn rbtdrc_sentry_config_forward_estab_related(dir: &Path) -> rbtdre_Verdict {
         let estab_pos = match estab_pos {
             Some(p) => p,
             None => {
-                return rbtdre_Verdict::Fail(
+                return rbtcee_Verdict::Fail(
                     "FORWARD ESTABLISHED,RELATED ACCEPT rule absent".to_string(),
                 );
             }
@@ -629,41 +629,41 @@ fn rbtdrc_sentry_config_forward_estab_related(dir: &Path) -> rbtdre_Verdict {
         let jump_pos = match jump_pos {
             Some(p) => p,
             None => {
-                return rbtdre_Verdict::Fail("FORWARD -j RBM-FORWARD jump absent".to_string());
+                return rbtcee_Verdict::Fail("FORWARD -j RBM-FORWARD jump absent".to_string());
             }
         };
 
         if estab_pos >= jump_pos {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "FORWARD ESTABLISHED,RELATED at position {} not before RBM-FORWARD jump at position {}",
                 estab_pos, jump_pos
             ));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_dns_blocked_with_observation(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_dns_blocked_with_observation(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Before: capture iptables state from sentry
-        let before = match rbtdrc_writ(ctx, &["iptables", "-L", "-v", "-n", "-x"]) {
+        let before = match rbtccc_writ(ctx, &["iptables", "-L", "-v", "-n", "-x"]) {
             Ok(o) => {
                 let _ = std::fs::write(dir.join("iptables-before.txt"), &o);
                 o
             }
-            Err(e) => return rbtdre_Verdict::Fail(format!("before-capture: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("before-capture: {}", e)),
         };
 
         // Attack: invoke ifrit dns-blocked-google inside bottle
-        let ifrit_verdict = rbtdrc_invoke_ifrit(ctx, "dns-blocked-google", dir);
+        let ifrit_verdict = rbtccc_invoke_ifrit(ctx, "dns-blocked-google", dir);
 
         // After: capture iptables state from sentry
-        let after = match rbtdrc_writ(ctx, &["iptables", "-L", "-v", "-n", "-x"]) {
+        let after = match rbtccc_writ(ctx, &["iptables", "-L", "-v", "-n", "-x"]) {
             Ok(o) => {
                 let _ = std::fs::write(dir.join("iptables-after.txt"), &o);
                 o
             }
-            Err(e) => return rbtdre_Verdict::Fail(format!("after-capture: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("after-capture: {}", e)),
         };
 
         // Log observation: did sentry state change during the attack?
@@ -675,9 +675,9 @@ fn rbtdrc_dns_blocked_with_observation(dir: &Path) -> rbtdre_Verdict {
         let observation = format!(
             "Ifrit verdict: {}\nIptables delta: {}\n",
             match &ifrit_verdict {
-                rbtdre_Verdict::Pass => "PASS",
-                rbtdre_Verdict::Fail(_) => "FAIL",
-                rbtdre_Verdict::Skip(_) => "SKIP",
+                rbtcee_Verdict::Pass => "PASS",
+                rbtcee_Verdict::Fail(_) => "FAIL",
+                rbtcee_Verdict::Skip(_) => "SKIP",
             },
             delta,
         );
@@ -690,73 +690,73 @@ fn rbtdrc_dns_blocked_with_observation(dir: &Path) -> rbtdre_Verdict {
 
 // ── Correlated cases (writ resolves IP, bark tests) ──────────
 
-fn rbtdrc_tcp443_allow_example(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let ip = match rbtdrc_resolve_via_writ(ctx, RBTDRC_CONNECTIVITY_DOMAIN) {
+fn rbtccc_tcp443_allow_example(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let ip = match rbtccc_resolve_via_writ(ctx, RBTCCC_CONNECTIVITY_DOMAIN) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ resolve {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ resolve {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e)),
         };
         let _ = std::fs::write(dir.join("resolved-ip.txt"), &ip);
-        rbtdrc_invoke_ifrit_with_args(ctx, "tcp443-connect", &[&ip], dir)
+        rbtccc_invoke_ifrit_with_args(ctx, "tcp443-connect", &[&ip], dir)
     })
 }
 
-fn rbtdrc_tcp443_block_google(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let ip = match rbtdrc_resolve_via_writ(ctx, "google.com") {
+fn rbtccc_tcp443_block_google(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let ip = match rbtccc_resolve_via_writ(ctx, "google.com") {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("writ resolve google.com: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("writ resolve google.com: {}", e)),
         };
         let _ = std::fs::write(dir.join("resolved-ip.txt"), &ip);
-        rbtdrc_invoke_ifrit_with_args(ctx, "tcp443-block", &[&ip], dir)
+        rbtccc_invoke_ifrit_with_args(ctx, "tcp443-block", &[&ip], dir)
     })
 }
 
-fn rbtdrc_icmp_first_hop(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "icmp-first-hop", dir))
+fn rbtccc_icmp_first_hop(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "icmp-first-hop", dir))
 }
 
-fn rbtdrc_icmp_second_hop_blocked(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "icmp-second-hop-blocked", dir))
+fn rbtccc_icmp_second_hop_blocked(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "icmp-second-hop-blocked", dir))
 }
 
-fn rbtdrc_udp_non_dns_blocked(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "udp-non-dns-blocked", dir))
+fn rbtccc_udp_non_dns_blocked(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "udp-non-dns-blocked", dir))
 }
 
-fn rbtdrc_cidr_all_ports_allowed(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "cidr-all-ports-allowed", dir))
+fn rbtccc_cidr_all_ports_allowed(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "cidr-all-ports-allowed", dir))
 }
 
 // ── Ported sortie cases (bark-only) ──────────────────────────
 
-fn rbtdrc_sortie_dns_exfil_subdomain(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-exfil-subdomain", dir))
+fn rbtccc_sortie_dns_exfil_subdomain(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-exfil-subdomain", dir))
 }
 
-fn rbtdrc_sortie_meta_cloud_endpoint(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "meta-cloud-endpoint", dir))
+fn rbtccc_sortie_meta_cloud_endpoint(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "meta-cloud-endpoint", dir))
 }
 
-fn rbtdrc_sortie_net_forbidden_cidr(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-forbidden-cidr", dir))
+fn rbtccc_sortie_net_forbidden_cidr(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-forbidden-cidr", dir))
 }
 
 // Attacks rivet RBr_3d3.
-fn rbtdrc_sortie_direct_sentry_probe(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "direct-sentry-probe", dir))
+fn rbtccc_sortie_direct_sentry_probe(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "direct-sentry-probe", dir))
 }
 
-fn rbtdrc_sortie_icmp_exfil_payload(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "icmp-exfil-payload", dir))
+fn rbtccc_sortie_icmp_exfil_payload(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "icmp-exfil-payload", dir))
 }
 
-fn rbtdrc_sortie_net_ipv6_escape(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-ipv6-escape", dir))
+fn rbtccc_sortie_net_ipv6_escape(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-ipv6-escape", dir))
 }
 
-fn rbtdrc_sortie_net_srcip_spoof(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof", dir))
+fn rbtccc_sortie_net_srcip_spoof(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-srcip-spoof", dir))
 }
 
 // Regression backstop for the residual spoof-as-arbitrary-external case
@@ -764,79 +764,79 @@ fn rbtdrc_sortie_net_srcip_spoof(dir: &Path) -> rbtdre_Verdict {
 // passes on macOS Docker Desktop 28.x because Docker's bridge enforces
 // source-IP at egress below iptables — see sortie_net_srcip_spoof_external
 // in rbtics_sorties.rs for the empirical-finding note.
-fn rbtdrc_sortie_net_srcip_spoof_external(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-srcip-spoof-external", dir))
+fn rbtccc_sortie_net_srcip_spoof_external(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-srcip-spoof-external", dir))
 }
 
-fn rbtdrc_sortie_proto_smuggle_rawsock(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "proto-smuggle-rawsock", dir))
+fn rbtccc_sortie_proto_smuggle_rawsock(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "proto-smuggle-rawsock", dir))
 }
 
-fn rbtdrc_sortie_net_fragment_evasion(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-fragment-evasion", dir))
+fn rbtccc_sortie_net_fragment_evasion(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-fragment-evasion", dir))
 }
 
-fn rbtdrc_sortie_direct_arp_poison(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "direct-arp-poison", dir))
+fn rbtccc_sortie_direct_arp_poison(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "direct-arp-poison", dir))
 }
 
-fn rbtdrc_sortie_ns_capability_escape(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "ns-capability-escape", dir))
+fn rbtccc_sortie_ns_capability_escape(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "ns-capability-escape", dir))
 }
 
 // ── Novel unilateral attack cases (bark-only) ────────────────
 
-fn rbtdrc_sortie_net_route_manipulation(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-route-manipulation", dir))
+fn rbtccc_sortie_net_route_manipulation(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-route-manipulation", dir))
 }
 
-fn rbtdrc_sortie_net_enclave_subnet_escape(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-enclave-subnet-escape", dir))
+fn rbtccc_sortie_net_enclave_subnet_escape(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-enclave-subnet-escape", dir))
 }
 
 // Attacks rivet RBr_3d3.
-fn rbtdrc_sortie_net_dnat_entry_reflection(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "net-dnat-entry-reflection", dir))
+fn rbtccc_sortie_net_dnat_entry_reflection(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "net-dnat-entry-reflection", dir))
 }
 
 // ── Advanced adversarial probe cases ──────────────────────────
 
-fn rbtdrc_sortie_dns_rebinding(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "dns-rebinding", dir))
+fn rbtccc_sortie_dns_rebinding(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "dns-rebinding", dir))
 }
 
-fn rbtdrc_sortie_proc_sys_write(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "proc-sys-write", dir))
+fn rbtccc_sortie_proc_sys_write(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "proc-sys-write", dir))
 }
 
-fn rbtdrc_sortie_http_end_to_end(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "http-end-to-end", dir))
+fn rbtccc_sortie_http_end_to_end(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "http-end-to-end", dir))
 }
 
-fn rbtdrc_sortie_conntrack_spoofed_ack(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "conntrack-spoofed-ack", dir))
+fn rbtccc_sortie_conntrack_spoofed_ack(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "conntrack-spoofed-ack", dir))
 }
 
-fn rbtdrc_sortie_offpath_blocked_dest(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "offpath-blocked-dest", dir))
+fn rbtccc_sortie_offpath_blocked_dest(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "offpath-blocked-dest", dir))
 }
 
-fn rbtdrc_sortie_conntrack_pipeline_selfcheck(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "conntrack-pipeline-selfcheck", dir))
+fn rbtccc_sortie_conntrack_pipeline_selfcheck(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "conntrack-pipeline-selfcheck", dir))
 }
 
-fn rbtdrc_sortie_sentry_udp_non_dns(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| rbtdrc_invoke_ifrit(ctx, "sentry-udp-non-dns", dir))
+fn rbtccc_sortie_sentry_udp_non_dns(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| rbtccc_invoke_ifrit(ctx, "sentry-udp-non-dns", dir))
 }
 
 // ── Sentry self-protection coordinated cases ─────────────────
 
 /// Coordinated: attempt outbound connections from sentry itself to non-allowed destinations.
 /// The sentry's OUTPUT DROP policy should block these — verifies sentry can't be used as a pivot.
-fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Negative: attempt TCP to 1.1.1.1:443 from sentry via bash /dev/tcp
-        let tcp1_result = rbtdri_invoke(
+        let tcp1_result = rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_WRIT,
             &["timeout", "2", "bash", "-c", "echo > /dev/tcp/1.1.1.1/443"],
@@ -853,14 +853,14 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
             }
         };
         if !tcp1_blocked {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "BREACH: sentry TCP to 1.1.1.1:443 succeeded — OUTPUT chain not blocking egress"
                     .to_string(),
             );
         }
 
         // Negative: attempt TCP to 140.82.121.4:443 (GitHub) from sentry
-        let tcp2_result = rbtdri_invoke(
+        let tcp2_result = rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_WRIT,
             &[
@@ -883,7 +883,7 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
             }
         };
         if !tcp2_blocked {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "BREACH: sentry TCP to 140.82.121.4:443 succeeded — OUTPUT chain not blocking egress"
                     .to_string(),
             );
@@ -891,14 +891,14 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
 
         // Positive control: dig @8.8.8.8 connectivity domain from sentry must succeed
         // (proves dnsmasq's egress path works — specific OUTPUT ACCEPT for DNS)
-        let dig_result = match rbtdrc_writ(
+        let dig_result = match rbtccc_writ(
             ctx,
-            &["dig", "+short", "@8.8.8.8", RBTDRC_CONNECTIVITY_DOMAIN],
+            &["dig", "+short", "@8.8.8.8", RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
-                    "positive control failed: dig @8.8.8.8 {} from sentry: {}", RBTDRC_CONNECTIVITY_DOMAIN,
+                return rbtcee_Verdict::Fail(format!(
+                    "positive control failed: dig @8.8.8.8 {} from sentry: {}", RBTCCC_CONNECTIVITY_DOMAIN,
                     e
                 ))
             }
@@ -907,10 +907,10 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
 
         let has_ip = dig_result
             .lines()
-            .any(|l| rbtdrc_looks_like_ip(l.trim()));
+            .any(|l| rbtccc_looks_like_ip(l.trim()));
         if !has_ip {
-            return rbtdre_Verdict::Fail(format!(
-                "positive control: dig @8.8.8.8 {} returned no IP:\n{}", RBTDRC_CONNECTIVITY_DOMAIN,
+            return rbtcee_Verdict::Fail(format!(
+                "positive control: dig @8.8.8.8 {} returned no IP:\n{}", RBTCCC_CONNECTIVITY_DOMAIN,
                 dig_result
             ));
         }
@@ -919,34 +919,34 @@ fn rbtdrc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtdre_Verdict {
             dir.join("observation.txt"),
             "Sentry egress lockdown verified: TCP to 1.1.1.1:443 blocked, TCP to 140.82.121.4:443 blocked, DNS egress works",
         );
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 /// Coordinated: invoke ifrit DNS queries (allowed + blocked), then read dnsmasq log
 /// to verify both queries appear. Proves audit trail is intact.
-fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Invoke ifrit dns-allowed-example via bark
-        let allowed_result = match rbtdri_invoke(
+        let allowed_result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "dns-allowed-example"],
+            &[RBTCCC_IFRIT_BINARY, "dns-allowed-example"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark dns-allowed-example: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark dns-allowed-example: {}", e)),
         };
         let _ = std::fs::write(dir.join("allowed-stdout.txt"), &allowed_result.stdout);
         let _ = std::fs::write(dir.join("allowed-stderr.txt"), &allowed_result.stderr);
 
         // Invoke ifrit dns-blocked-google via bark
-        let blocked_result = match rbtdri_invoke(
+        let blocked_result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "dns-blocked-google"],
+            &[RBTCCC_IFRIT_BINARY, "dns-blocked-google"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark dns-blocked-google: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark dns-blocked-google: {}", e)),
         };
         let _ = std::fs::write(dir.join("blocked-stdout.txt"), &blocked_result.stdout);
         let _ = std::fs::write(dir.join("blocked-stderr.txt"), &blocked_result.stderr);
@@ -955,10 +955,10 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Read dnsmasq log from sentry via writ
-        let log_output = match rbtdrc_writ(ctx, &["cat", "/var/log/dnsmasq.log"]) {
+        let log_output = match rbtccc_writ(ctx, &["cat", "/var/log/dnsmasq.log"]) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "cannot read dnsmasq log: {}",
                     e
                 ))
@@ -972,10 +972,10 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
         // Verify connectivity domain query appears in log
         let has_example = log_content
             .lines()
-            .any(|l| l.contains(RBTDRC_CONNECTIVITY_DOMAIN));
+            .any(|l| l.contains(RBTCCC_CONNECTIVITY_DOMAIN));
         if !has_example {
-            return rbtdre_Verdict::Fail(
-                format!("dnsmasq log missing {} query — audit trail incomplete", RBTDRC_CONNECTIVITY_DOMAIN),
+            return rbtcee_Verdict::Fail(
+                format!("dnsmasq log missing {} query — audit trail incomplete", RBTCCC_CONNECTIVITY_DOMAIN),
             );
         }
 
@@ -984,59 +984,59 @@ fn rbtdrc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtdre_Verdict {
             .lines()
             .any(|l| l.contains("google.com"));
         if !has_google {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "dnsmasq log missing google.com query — blocked queries not audited".to_string(),
             );
         }
 
         let _ = std::fs::write(
             dir.join("observation.txt"),
-            format!("dnsmasq audit verified: both allowed ({}) and blocked (google.com) queries logged", RBTDRC_CONNECTIVITY_DOMAIN),
+            format!("dnsmasq audit verified: both allowed ({}) and blocked (google.com) queries logged", RBTCCC_CONNECTIVITY_DOMAIN),
         );
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 /// Coordinated: ifrit sends TCP RST packets at sentry DNS, theurge verifies DNS still works.
-fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
         let dig_server = format!("@{}", sentry_ip);
 
         // Pre-snapshot: verify DNS works on sentry before attack
-        let pre_resolve = match rbtdrc_writ(
+        let pre_resolve = match rbtccc_writ(
             ctx,
-            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
+            &["dig", "+short", &dig_server, RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e)),
         };
         let _ = std::fs::write(dir.join("pre-resolve.txt"), &pre_resolve);
 
         let pre_ip = pre_resolve
             .lines()
-            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .find(|l| rbtccc_looks_like_ip(l.trim()))
             .unwrap_or("")
             .trim()
             .to_string();
         if pre_ip.is_empty() {
-            return rbtdre_Verdict::Fail(
-                format!("pre-snapshot: {} did not resolve — DNS not working before attack", RBTDRC_CONNECTIVITY_DOMAIN),
+            return rbtcee_Verdict::Fail(
+                format!("pre-snapshot: {} did not resolve — DNS not working before attack", RBTCCC_CONNECTIVITY_DOMAIN),
             );
         }
 
         // Attack: invoke tcp-rst-hijack from bottle
-        let result = match rbtdri_invoke(
+        let result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "tcp-rst-hijack"],
+            &[RBTCCC_IFRIT_BINARY, "tcp-rst-hijack"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1045,30 +1045,30 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot: verify DNS still works on sentry after attack
-        let post_resolve = match rbtdrc_writ(
+        let post_resolve = match rbtccc_writ(
             ctx,
-            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
+            &["dig", "+short", &dig_server, RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("post dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e)),
         };
         let _ = std::fs::write(dir.join("post-resolve.txt"), &post_resolve);
 
         let post_ip = post_resolve
             .lines()
-            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .find(|l| rbtccc_looks_like_ip(l.trim()))
             .unwrap_or("")
             .trim()
             .to_string();
 
         if post_ip.is_empty() {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "BREACH: DNS stopped resolving after TCP RST attack — sentry DNS connection disrupted".to_string(),
             );
         }
 
         if pre_ip != post_ip {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "BREACH: DNS resolution changed after RST attack: {} → {}",
                 pre_ip, post_ip
             ));
@@ -1078,11 +1078,11 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
             dir.join("observation.txt"),
             format!(
                 "TCP RST hijack defense verified:\n  {}: {} → {} (stable)\n  ifrit exit: {}\n  ifrit output: {}\n",
-                RBTDRC_CONNECTIVITY_DOMAIN,
+                RBTCCC_CONNECTIVITY_DOMAIN,
                 pre_ip, post_ip, result.exit_code, result.stdout.trim()
             ),
         );
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
@@ -1090,7 +1090,7 @@ fn rbtdrc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtdre_Verdict {
 
 /// Parse `ip neigh show` output into (IP, MAC) pairs.
 /// Format: "10.242.0.3 dev eth1 lladdr 02:42:0a:f2:00:03 REACHABLE"
-fn rbtdrc_parse_arp_table(output: &str) -> Vec<(String, String)> {
+fn rbtccc_parse_arp_table(output: &str) -> Vec<(String, String)> {
     let mut entries = Vec::new();
     for line in output.lines() {
         let parts: Vec<&str> = line.split_whitespace().collect();
@@ -1105,7 +1105,7 @@ fn rbtdrc_parse_arp_table(output: &str) -> Vec<(String, String)> {
 }
 
 /// Find the MAC associated with a given IP in parsed ARP entries.
-fn rbtdrc_arp_mac_for_ip<'a>(entries: &'a [(String, String)], ip: &str) -> Option<&'a str> {
+fn rbtccc_arp_mac_for_ip<'a>(entries: &'a [(String, String)], ip: &str) -> Option<&'a str> {
     entries
         .iter()
         .find(|(entry_ip, _)| entry_ip == ip)
@@ -1114,30 +1114,30 @@ fn rbtdrc_arp_mac_for_ip<'a>(entries: &'a [(String, String)], ip: &str) -> Optio
 
 /// Coordinated ARP test: ifrit sends gratuitous ARP claiming sentry's IP,
 /// theurge verifies sentry's ARP table was not corrupted.
-fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Discover sentry IP
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
         // Pre-snapshot: sentry ARP table
-        let pre_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+        let pre_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
 
         // Execute attack via bark
-        let result = match rbtdri_invoke(
+        let result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "arp-send-gratuitous"],
+            &[RBTCCC_IFRIT_BINARY, "arp-send-gratuitous"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1148,22 +1148,22 @@ fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
                 dir.join("observation.txt"),
                 "SECURE: ifrit could not send L2 frames (AF_PACKET blocked)",
             );
-            return rbtdre_Verdict::Pass;
+            return rbtcee_Verdict::Pass;
         }
 
         // Brief delay for ARP to propagate
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot: sentry ARP table
-        let post_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+        let post_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot: {}", e)),
         };
         let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
 
         // Parse both snapshots
-        let pre_entries = rbtdrc_parse_arp_table(&pre_arp);
-        let post_entries = rbtdrc_parse_arp_table(&post_arp);
+        let pre_entries = rbtccc_parse_arp_table(&pre_arp);
+        let post_entries = rbtccc_parse_arp_table(&post_arp);
 
         // Check: did the sentry's ARP entry for bottle IP change MAC?
         // Get bottle IP from the pre-snapshot (it should be there as a neighbor)
@@ -1175,17 +1175,17 @@ fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
 
         // Check that no ARP entry now maps sentry's own IP to a different MAC
         // (gratuitous ARP claimed sentry IP at bottle MAC)
-        if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, &sentry_ip) {
-            if let Some(pre_mac) = rbtdrc_arp_mac_for_ip(&pre_entries, &sentry_ip) {
+        if let Some(post_mac) = rbtccc_arp_mac_for_ip(&post_entries, &sentry_ip) {
+            if let Some(pre_mac) = rbtccc_arp_mac_for_ip(&pre_entries, &sentry_ip) {
                 if pre_mac != post_mac {
-                    return rbtdre_Verdict::Fail(format!(
+                    return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for own IP {} changed MAC: {} → {}",
                         sentry_ip, pre_mac, post_mac
                     ));
                 }
             } else {
                 // New entry appeared for sentry's own IP — suspicious
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "BREACH: new ARP entry appeared for sentry IP {} with MAC {}",
                     sentry_ip, post_mac
                 ));
@@ -1194,9 +1194,9 @@ fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
 
         // Also check that no pre-existing entries had their MAC changed
         for (ip, pre_mac) in &pre_entries {
-            if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, ip) {
+            if let Some(post_mac) = rbtccc_arp_mac_for_ip(&post_entries, ip) {
                 if pre_mac != post_mac {
-                    return rbtdre_Verdict::Fail(format!(
+                    return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for {} changed MAC: {} → {}",
                         ip, pre_mac, post_mac
                     ));
@@ -1204,18 +1204,18 @@ fn rbtdrc_coordinated_arp_gratuitous(dir: &Path) -> rbtdre_Verdict {
             }
         }
 
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 /// Coordinated ARP test: ifrit sends targeted ARP reply claiming gateway IP
 /// is at bottle MAC, theurge verifies sentry's routing/ARP was not corrupted.
-fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Discover sentry IP
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
@@ -1232,28 +1232,28 @@ fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("gateway-ip.txt"), &gateway_ip);
 
         // Pre-snapshot
-        let pre_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+        let pre_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
-        let pre_entries = rbtdrc_parse_arp_table(&pre_arp);
+        let pre_entries = rbtccc_parse_arp_table(&pre_arp);
 
         // Record gateway's pre-attack MAC (if it has an ARP entry)
-        let pre_gw_mac = rbtdrc_arp_mac_for_ip(&pre_entries, &gateway_ip).map(|s| s.to_string());
+        let pre_gw_mac = rbtccc_arp_mac_for_ip(&pre_entries, &gateway_ip).map(|s| s.to_string());
         let _ = std::fs::write(
             dir.join("pre-gw-mac.txt"),
             pre_gw_mac.as_deref().unwrap_or("(none)"),
         );
 
         // Execute attack via bark
-        let result = match rbtdri_invoke(
+        let result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "arp-send-gateway-poison"],
+            &[RBTCCC_IFRIT_BINARY, "arp-send-gateway-poison"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1263,20 +1263,20 @@ fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
                 dir.join("observation.txt"),
                 "SECURE: ifrit could not send L2 frames (AF_PACKET blocked)",
             );
-            return rbtdre_Verdict::Pass;
+            return rbtcee_Verdict::Pass;
         }
 
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot
-        let post_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+        let post_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot: {}", e)),
         };
         let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
-        let post_entries = rbtdrc_parse_arp_table(&post_arp);
+        let post_entries = rbtccc_parse_arp_table(&post_arp);
 
-        let post_gw_mac = rbtdrc_arp_mac_for_ip(&post_entries, &gateway_ip).map(|s| s.to_string());
+        let post_gw_mac = rbtccc_arp_mac_for_ip(&post_entries, &gateway_ip).map(|s| s.to_string());
 
         let observation = format!(
             "Gateway IP: {}\nPre gateway MAC: {:?}\nPost gateway MAC: {:?}\n",
@@ -1287,7 +1287,7 @@ fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
         // Check: did gateway MAC change?
         match (&pre_gw_mac, &post_gw_mac) {
             (Some(pre), Some(post)) if pre != post => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "BREACH: sentry ARP for gateway {} changed MAC: {} → {}",
                     gateway_ip, pre, post
                 ));
@@ -1308,9 +1308,9 @@ fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
 
         // Verify no pre-existing entries had their MAC changed
         for (ip, pre_mac) in &pre_entries {
-            if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, ip) {
+            if let Some(post_mac) = rbtccc_arp_mac_for_ip(&post_entries, ip) {
                 if pre_mac != post_mac {
-                    return rbtdre_Verdict::Fail(format!(
+                    return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for {} changed MAC: {} → {}",
                         ip, pre_mac, post_mac
                     ));
@@ -1318,30 +1318,30 @@ fn rbtdrc_coordinated_arp_gateway_poison(dir: &Path) -> rbtdre_Verdict {
             }
         }
 
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 /// Coordinated ARP test: run the full DirectArpPoison sortie from inside bottle,
 /// then verify from outside that the sentry's ARP table remained stable.
-fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_arp_table_stability(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Pre-snapshot
-        let pre_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+        let pre_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
-        let pre_entries = rbtdrc_parse_arp_table(&pre_arp);
+        let pre_entries = rbtccc_parse_arp_table(&pre_arp);
 
         // Run the full ARP sortie (gratuitous + targeted + cache check)
-        let result = match rbtdri_invoke(
+        let result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "direct-arp-poison"],
+            &[RBTCCC_IFRIT_BINARY, "direct-arp-poison"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1353,12 +1353,12 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot
-        let post_arp = match rbtdrc_writ(ctx, &["ip", "neigh", "show"]) {
+        let post_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot: {}", e)),
         };
         let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
-        let post_entries = rbtdrc_parse_arp_table(&post_arp);
+        let post_entries = rbtccc_parse_arp_table(&post_arp);
 
         let observation = format!(
             "Ifrit verdict (informational): {}\nPre entries: {:?}\nPost entries: {:?}\n",
@@ -1370,9 +1370,9 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
 
         // Verify: no pre-existing MAC associations changed
         for (ip, pre_mac) in &pre_entries {
-            if let Some(post_mac) = rbtdrc_arp_mac_for_ip(&post_entries, ip) {
+            if let Some(post_mac) = rbtccc_arp_mac_for_ip(&post_entries, ip) {
                 if pre_mac != post_mac {
-                    return rbtdre_Verdict::Fail(format!(
+                    return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for {} changed MAC: {} → {} after full ARP sortie",
                         ip, pre_mac, post_mac
                     ));
@@ -1380,7 +1380,7 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
             }
         }
 
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
@@ -1388,29 +1388,29 @@ fn rbtdrc_coordinated_arp_table_stability(dir: &Path) -> rbtdre_Verdict {
 
 /// Coordinated integrity test: run a battery of existing attacks, then verify
 /// sentry's critical processes, iptables rules, and network interfaces are unchanged.
-fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Pre-snapshot: verify dnsmasq is running (procps provides pidof)
-        let pre_procs = match rbtdrc_writ(ctx, &["pidof", "dnsmasq"]) {
+        let pre_procs = match rbtccc_writ(ctx, &["pidof", "dnsmasq"]) {
             Ok(o) => o,
             Err(_) => {
-                return rbtdre_Verdict::Fail(
+                return rbtcee_Verdict::Fail(
                     "pre-snapshot: dnsmasq not running before attacks".to_string(),
                 )
             }
         };
         let _ = std::fs::write(dir.join("pre-procs.txt"), &pre_procs);
 
-        let pre_iptables = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
+        let pre_iptables = match rbtccc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot iptables: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot iptables: {}", e)),
         };
-        let pre_iptables_rules = rbtdrc_extract_iptables_rules(&pre_iptables);
+        let pre_iptables_rules = rbtccc_extract_iptables_rules(&pre_iptables);
         let _ = std::fs::write(dir.join("pre-iptables.txt"), &pre_iptables);
 
-        let pre_links = match rbtdrc_writ(ctx, &["ip", "link", "show"]) {
+        let pre_links = match rbtccc_writ(ctx, &["ip", "link", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre-snapshot ip link: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot ip link: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-links.txt"), &pre_links);
 
@@ -1421,10 +1421,10 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
             "proto-smuggle-rawsock",
         ];
         for (i, attack) in attacks.iter().enumerate() {
-            let result = rbtdri_invoke(
+            let result = rbtcei_invoke(
                 ctx,
                 RBTDGC_CRUCIBLE_BARK,
-                &[RBTDRC_IFRIT_BINARY, attack],
+                &[RBTCCC_IFRIT_BINARY, attack],
             );
             if let Ok(r) = &result {
                 let _ = std::fs::write(
@@ -1442,26 +1442,26 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot: verify dnsmasq still running
-        let post_procs = match rbtdrc_writ(ctx, &["pidof", "dnsmasq"]) {
+        let post_procs = match rbtccc_writ(ctx, &["pidof", "dnsmasq"]) {
             Ok(o) => o,
             Err(_) => {
-                return rbtdre_Verdict::Fail(
+                return rbtcee_Verdict::Fail(
                     "BREACH: dnsmasq process not found after attack battery".to_string(),
                 )
             }
         };
         let _ = std::fs::write(dir.join("post-procs.txt"), &post_procs);
 
-        let post_iptables = match rbtdrc_writ(ctx, &["iptables", "-S"]) {
+        let post_iptables = match rbtccc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot iptables: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot iptables: {}", e)),
         };
-        let post_iptables_rules = rbtdrc_extract_iptables_rules(&post_iptables);
+        let post_iptables_rules = rbtccc_extract_iptables_rules(&post_iptables);
         let _ = std::fs::write(dir.join("post-iptables.txt"), &post_iptables);
 
-        let post_links = match rbtdrc_writ(ctx, &["ip", "link", "show"]) {
+        let post_links = match rbtccc_writ(ctx, &["ip", "link", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("post-snapshot ip link: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot ip link: {}", e)),
         };
         let _ = std::fs::write(dir.join("post-links.txt"), &post_links);
 
@@ -1474,7 +1474,7 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
                     pre_iptables_rules, post_iptables_rules
                 ),
             );
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "BREACH: iptables rules changed after attack battery".to_string(),
             );
         }
@@ -1485,7 +1485,7 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
                 dir.join("links-diff.txt"),
                 format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_links, post_links),
             );
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "BREACH: network interfaces changed after attack battery".to_string(),
             );
         }
@@ -1497,36 +1497,36 @@ fn rbtdrc_coordinated_sentry_integrity(dir: &Path) -> rbtdre_Verdict {
                 attacks.len()
             ),
         );
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 /// Coordinated integrity test: ifrit sends forged DNS responses claiming google.com → 1.2.3.4,
 /// theurge verifies frozen DNS records on sentry's dnsmasq are unchanged.
-fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         // Discover sentry enclave IP to query its dnsmasq directly
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
         let dig_server = format!("@{}", sentry_ip);
 
         // Pre-snapshot: query connectivity domain via sentry's dnsmasq (allowed, should resolve)
-        let pre_example = match rbtdrc_writ(
+        let pre_example = match rbtccc_writ(
             ctx,
-            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
+            &["dig", "+short", &dig_server, RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!("pre dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e))
+                return rbtcee_Verdict::Fail(format!("pre dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e))
             }
         };
         let _ = std::fs::write(dir.join("pre-example.txt"), &pre_example);
 
         // Pre-snapshot: query google.com via sentry's dnsmasq (blocked)
-        let pre_google_result = rbtdri_invoke(
+        let pre_google_result = rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_WRIT,
             &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
@@ -1538,13 +1538,13 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("pre-google.txt"), &pre_google);
 
         // Attack: invoke dns-forge-response from bottle
-        let result = match rbtdri_invoke(
+        let result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "dns-forge-response"],
+            &[RBTCCC_IFRIT_BINARY, "dns-forge-response"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1552,19 +1552,19 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post-snapshot: query connectivity domain again
-        let post_example = match rbtdrc_writ(
+        let post_example = match rbtccc_writ(
             ctx,
-            &["dig", "+short", &dig_server, RBTDRC_CONNECTIVITY_DOMAIN],
+            &["dig", "+short", &dig_server, RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!("post dig {}: {}", RBTDRC_CONNECTIVITY_DOMAIN, e))
+                return rbtcee_Verdict::Fail(format!("post dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e))
             }
         };
         let _ = std::fs::write(dir.join("post-example.txt"), &post_example);
 
         // Post-snapshot: query google.com again
-        let post_google_result = rbtdri_invoke(
+        let post_google_result = rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_WRIT,
             &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
@@ -1578,30 +1578,30 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
         // Verify: connectivity domain resolution unchanged
         let pre_example_ip = pre_example
             .lines()
-            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .find(|l| rbtccc_looks_like_ip(l.trim()))
             .unwrap_or("")
             .trim();
         let post_example_ip = post_example
             .lines()
-            .find(|l| rbtdrc_looks_like_ip(l.trim()))
+            .find(|l| rbtccc_looks_like_ip(l.trim()))
             .unwrap_or("")
             .trim();
 
         if pre_example_ip.is_empty() {
-            return rbtdre_Verdict::Fail(
-                format!("pre-snapshot: {} did not resolve (expected frozen record)", RBTDRC_CONNECTIVITY_DOMAIN),
+            return rbtcee_Verdict::Fail(
+                format!("pre-snapshot: {} did not resolve (expected frozen record)", RBTCCC_CONNECTIVITY_DOMAIN),
             );
         }
         if pre_example_ip != post_example_ip {
-            return rbtdre_Verdict::Fail(format!(
-                "BREACH: {} resolution changed: {} → {}", RBTDRC_CONNECTIVITY_DOMAIN,
+            return rbtcee_Verdict::Fail(format!(
+                "BREACH: {} resolution changed: {} → {}", RBTCCC_CONNECTIVITY_DOMAIN,
                 pre_example_ip, post_example_ip
             ));
         }
 
         // Verify: google.com still not resolvable (forged response ignored)
         if post_google.lines().any(|l| l.trim() == "1.2.3.4") {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "BREACH: google.com now resolves to 1.2.3.4 — DNS cache was poisoned".to_string(),
             );
         }
@@ -1610,45 +1610,45 @@ fn rbtdrc_coordinated_dns_cache_integrity(dir: &Path) -> rbtdre_Verdict {
             dir.join("observation.txt"),
             format!(
                 "DNS cache integrity verified:\n  {}: {} → {} (stable)\n  google.com: forged 1.2.3.4 response ignored\n  ifrit exit: {}\n",
-                RBTDRC_CONNECTIVITY_DOMAIN,
+                RBTCCC_CONNECTIVITY_DOMAIN,
                 pre_example_ip, post_example_ip, result.exit_code
             ),
         );
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
 /// Coordinated integrity test: ifrit floods bridge with random MAC frames,
 /// theurge verifies sentry↔bottle connectivity survives.
-fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let sentry_ip = match rbtdrc_discover_sentry_ip(ctx) {
+fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtdre_Verdict::Fail(format!("sentry IP discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e)),
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
         // Pre: verify connectivity in all three directions
-        let pre_writ = match rbtdrc_writ(ctx, &["echo", "pre-connectivity-check"]) {
+        let pre_writ = match rbtccc_writ(ctx, &["echo", "pre-connectivity-check"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre writ check: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre writ check: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-writ.txt"), &pre_writ);
 
-        let pre_fiat = match rbtdrc_fiat(ctx, &["echo", "pre-connectivity-check"]) {
+        let pre_fiat = match rbtccc_fiat(ctx, &["echo", "pre-connectivity-check"]) {
             Ok(o) => o,
-            Err(e) => return rbtdre_Verdict::Fail(format!("pre fiat check: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("pre fiat check: {}", e)),
         };
         let _ = std::fs::write(dir.join("pre-fiat.txt"), &pre_fiat);
 
         // Attack: invoke mac-flood-bridge from bottle
-        let result = match rbtdri_invoke(
+        let result = match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
-            &[RBTDRC_IFRIT_BINARY, "mac-flood-bridge"],
+            &[RBTCCC_IFRIT_BINARY, "mac-flood-bridge"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("bark invocation: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e)),
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1659,16 +1659,16 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
                 dir.join("observation.txt"),
                 "SECURE: ifrit could not send L2 frames (AF_PACKET blocked)",
             );
-            return rbtdre_Verdict::Pass;
+            return rbtcee_Verdict::Pass;
         }
 
         std::thread::sleep(std::time::Duration::from_millis(500));
 
         // Post: verify connectivity survived the flood
-        let post_writ = match rbtdrc_writ(ctx, &["echo", "post-connectivity-check"]) {
+        let post_writ = match rbtccc_writ(ctx, &["echo", "post-connectivity-check"]) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "BREACH: writ failed post-MAC-flood: {}",
                     e
                 ))
@@ -1676,10 +1676,10 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
         };
         let _ = std::fs::write(dir.join("post-writ.txt"), &post_writ);
 
-        let post_fiat = match rbtdrc_fiat(ctx, &["echo", "post-connectivity-check"]) {
+        let post_fiat = match rbtccc_fiat(ctx, &["echo", "post-connectivity-check"]) {
             Ok(o) => o,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "BREACH: fiat failed post-MAC-flood: {}",
                     e
                 ))
@@ -1688,7 +1688,7 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
         let _ = std::fs::write(dir.join("post-fiat.txt"), &post_fiat);
 
         // Post: bark still works (sentry→bottle direction)
-        match rbtdri_invoke(
+        match rbtcei_invoke(
             ctx,
             RBTDGC_CRUCIBLE_BARK,
             &["echo", "post-connectivity-check"],
@@ -1697,13 +1697,13 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
                 let _ = std::fs::write(dir.join("post-bark.txt"), &r.stdout);
             }
             Ok(r) => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "BREACH: bark failed post-MAC-flood (exit {}): {}",
                     r.exit_code, r.stderr
                 ))
             }
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "BREACH: bark invocation failed post-MAC-flood: {}",
                     e
                 ))
@@ -1717,7 +1717,7 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
                 result.exit_code
             ),
         );
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
@@ -1726,11 +1726,11 @@ fn rbtdrc_coordinated_mac_flood_resilience(dir: &Path) -> rbtdre_Verdict {
 /// Read RBRN_ENTRY_PORT_WORKSTATION from the nameplate's rbrn.env file.
 /// Caller's fixture name must equal a valid nameplate moniker — only crucible
 /// fixtures (srjcl/pluml) call this.
-fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
+fn rbtccc_read_nameplate_port(ctx: &rbtcei_Context) -> Result<u16, String> {
     let env_path = ctx
-        .rbtdri_project_root()
+        .rbtcei_project_root()
         .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.rbtdri_fixture()))
+        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.rbtcei_fixture()))
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
         .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
@@ -1749,7 +1749,7 @@ fn rbtdrc_read_nameplate_port(ctx: &rbtdri_Context) -> Result<u16, String> {
 }
 
 /// Simple curl GET, returns (body, exit_code).
-fn rbtdrc_curl_get(url: &str) -> Result<(String, i32), String> {
+fn rbtccc_curl_get(url: &str) -> Result<(String, i32), String> {
     let output = Command::new("curl")
         .args(["-s", "--connect-timeout", "5", "--max-time", "10", url])
         .output()
@@ -1760,7 +1760,7 @@ fn rbtdrc_curl_get(url: &str) -> Result<(String, i32), String> {
 }
 
 /// Curl GET returning HTTP status code only.
-fn rbtdrc_curl_status(url: &str, headers: &[(&str, &str)]) -> Result<String, String> {
+fn rbtccc_curl_status(url: &str, headers: &[(&str, &str)]) -> Result<String, String> {
     let mut cmd = Command::new("curl");
     cmd.args([
         "-s",
@@ -1784,7 +1784,7 @@ fn rbtdrc_curl_status(url: &str, headers: &[(&str, &str)]) -> Result<String, Str
 }
 
 /// Curl POST with body from stdin, returns response body.
-fn rbtdrc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
+fn rbtccc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
     let mut child = Command::new("curl")
         .args(["-s", "--data-binary", "@-", url])
         .stdin(Stdio::piped())
@@ -1806,37 +1806,37 @@ fn rbtdrc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
 
 // ── SRJCL Jupyter cases (host-side probes) ───────────────────
 
-fn rbtdrc_srjcl_jupyter_running(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
+fn rbtccc_srjcl_jupyter_running(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
         let result =
-            match rbtdri_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &["ps", "aux"]) {
+            match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &["ps", "aux"]) {
                 Ok(r) => r,
-                Err(e) => return rbtdre_Verdict::Fail(format!("bark ps aux: {}", e)),
+                Err(e) => return rbtcee_Verdict::Fail(format!("bark ps aux: {}", e)),
             };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
 
         if result.exit_code != 0 {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "ps aux exited {}\n{}",
                 result.exit_code, result.stderr
             ));
         }
         if !result.stdout.contains("jupyter") {
-            return rbtdre_Verdict::Fail("jupyter not running in bottle".to_string());
+            return rbtcee_Verdict::Fail("jupyter not running in bottle".to_string());
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_srjcl_jupyter_connectivity(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_srjcl_jupyter_connectivity(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!("http://localhost:{}/lab", port);
-        let status = match rbtdrc_curl_status(
+        let status = match rbtccc_curl_status(
             &url,
             &[
                 ("User-Agent", "Mozilla/5.0"),
@@ -1844,60 +1844,60 @@ fn rbtdrc_srjcl_jupyter_connectivity(dir: &Path) -> rbtdre_Verdict {
             ],
         ) {
             Ok(s) => s,
-            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e)),
         };
         let _ = std::fs::write(dir.join("http-status.txt"), &status);
 
         if status != "200" {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "expected HTTP 200 from Jupyter, got: {}",
                 status
             ));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_srjcl_websocket_kernel(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_srjcl_websocket_kernel(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let base = format!("http://localhost:{}", port);
 
         // Step 1: GET /lab to obtain XSRF cookie
-        let xsrf = match rbtdrc_curl_get_cookie(&base, "/lab", "_xsrf") {
+        let xsrf = match rbtccc_curl_get_cookie(&base, "/lab", "_xsrf") {
             Ok(v) => v,
-            Err(e) => return rbtdre_Verdict::Fail(format!("XSRF fetch: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("XSRF fetch: {}", e)),
         };
         let _ = std::fs::write(dir.join("xsrf-token.txt"), &xsrf);
 
         // Step 2: POST /api/sessions to create a kernel
         let session_body = r#"{"kernel":{"name":"python3"},"name":"test.ipynb","path":"test.ipynb","type":"notebook"}"#;
-        let session_json = match rbtdrc_curl_post_json(
+        let session_json = match rbtccc_curl_post_json(
             &format!("{}/api/sessions", base),
             session_body,
             &xsrf,
         ) {
             Ok(j) => j,
-            Err(e) => return rbtdre_Verdict::Fail(format!("session create: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("session create: {}", e)),
         };
         let _ = std::fs::write(dir.join("session-response.json"), &session_json);
 
-        let kernel_id = match rbtdrc_extract_json_string(&session_json, "kernel", "id") {
+        let kernel_id = match rbtccc_extract_json_string(&session_json, "kernel", "id") {
             Some(id) => id,
             None => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "no kernel.id in session response: {}",
                     session_json
                 ))
             }
         };
-        let session_id = match rbtdrc_extract_json_string_top(&session_json, "id") {
+        let session_id = match rbtccc_extract_json_string_top(&session_json, "id") {
             Some(id) => id,
             None => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "no id in session response: {}",
                     session_json
                 ))
@@ -1909,10 +1909,10 @@ fn rbtdrc_srjcl_websocket_kernel(dir: &Path) -> rbtdre_Verdict {
             "ws://localhost:{}/api/kernels/{}/channels",
             port, kernel_id
         );
-        let ws_result = rbtdrc_websocket_kernel_execute(&ws_url, &xsrf, dir);
+        let ws_result = rbtccc_websocket_kernel_execute(&ws_url, &xsrf, dir);
 
         // Step 4: Clean up session (best-effort)
-        let _ = rbtdrc_curl_delete(
+        let _ = rbtccc_curl_delete(
             &format!("{}/api/sessions/{}", base, session_id),
             &xsrf,
         );
@@ -1922,7 +1922,7 @@ fn rbtdrc_srjcl_websocket_kernel(dir: &Path) -> rbtdre_Verdict {
 }
 
 /// Curl GET returning a specific Set-Cookie value.
-fn rbtdrc_curl_get_cookie(base: &str, path: &str, cookie_name: &str) -> Result<String, String> {
+fn rbtccc_curl_get_cookie(base: &str, path: &str, cookie_name: &str) -> Result<String, String> {
     let url = format!("{}{}", base, path);
     let output = Command::new("curl")
         .args([
@@ -1952,7 +1952,7 @@ fn rbtdrc_curl_get_cookie(base: &str, path: &str, cookie_name: &str) -> Result<S
 }
 
 /// Curl POST with JSON body and XSRF token, returns response body.
-fn rbtdrc_curl_post_json(url: &str, body: &str, xsrf: &str) -> Result<String, String> {
+fn rbtccc_curl_post_json(url: &str, body: &str, xsrf: &str) -> Result<String, String> {
     let mut child = Command::new("curl")
         .args([
             "-s",
@@ -1993,7 +1993,7 @@ fn rbtdrc_curl_post_json(url: &str, body: &str, xsrf: &str) -> Result<String, St
 }
 
 /// Curl DELETE with XSRF token (best-effort cleanup).
-fn rbtdrc_curl_delete(url: &str, xsrf: &str) -> Result<(), String> {
+fn rbtccc_curl_delete(url: &str, xsrf: &str) -> Result<(), String> {
     Command::new("curl")
         .args([
             "-s",
@@ -2012,25 +2012,25 @@ fn rbtdrc_curl_delete(url: &str, xsrf: &str) -> Result<(), String> {
 }
 
 /// Minimal JSON string extraction: obj.key.subkey (no serde dependency).
-fn rbtdrc_extract_json_string(json: &str, key: &str, subkey: &str) -> Option<String> {
+fn rbtccc_extract_json_string(json: &str, key: &str, subkey: &str) -> Option<String> {
     let needle = format!("\"{}\"", key);
     let pos = json.find(&needle)?;
     let rest = &json[pos + needle.len()..];
     let sub_needle = format!("\"{}\"", subkey);
     let sub_pos = rest.find(&sub_needle)?;
     let after = &rest[sub_pos + sub_needle.len()..];
-    rbtdrc_extract_quoted_value(after)
+    rbtccc_extract_quoted_value(after)
 }
 
 /// Minimal JSON string extraction: obj.key (top-level).
-fn rbtdrc_extract_json_string_top(json: &str, key: &str) -> Option<String> {
+fn rbtccc_extract_json_string_top(json: &str, key: &str) -> Option<String> {
     let needle = format!("\"{}\"", key);
     let pos = json.find(&needle)?;
     let after = &json[pos + needle.len()..];
-    rbtdrc_extract_quoted_value(after)
+    rbtccc_extract_quoted_value(after)
 }
 
-fn rbtdrc_extract_quoted_value(s: &str) -> Option<String> {
+fn rbtccc_extract_quoted_value(s: &str) -> Option<String> {
     // skip whitespace and colon, find opening quote
     let trimmed = s.trim_start();
     let rest = trimmed.strip_prefix(':')?;
@@ -2041,11 +2041,11 @@ fn rbtdrc_extract_quoted_value(s: &str) -> Option<String> {
 }
 
 /// Connect via WebSocket, execute a trivial Python expression, verify result.
-fn rbtdrc_websocket_kernel_execute(
+fn rbtccc_websocket_kernel_execute(
     ws_url: &str,
     xsrf: &str,
     dir: &Path,
-) -> rbtdre_Verdict {
+) -> rbtcee_Verdict {
     use tungstenite::client::connect_with_config;
     use tungstenite::http::Request;
     use tungstenite::Message;
@@ -2069,12 +2069,12 @@ fn rbtdrc_websocket_kernel_execute(
         .body(())
     {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("WS request build: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("WS request build: {}", e)),
     };
 
     let (mut ws, _response) = match connect_with_config(request, None, 3) {
         Ok(pair) => pair,
-        Err(e) => return rbtdre_Verdict::Fail(format!("WS connect: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("WS connect: {}", e)),
     };
 
     // Send kernel_info_request to trigger readiness
@@ -2085,7 +2085,7 @@ fn rbtdrc_websocket_kernel_execute(
         msg_id_info, session_id
     );
     if let Err(e) = ws.send(Message::Text(kernel_info_req)) {
-        return rbtdre_Verdict::Fail(format!("WS send kernel_info: {}", e));
+        return rbtcee_Verdict::Fail(format!("WS send kernel_info: {}", e));
     }
 
     // Wait for kernel idle after kernel_info_request
@@ -2094,7 +2094,7 @@ fn rbtdrc_websocket_kernel_execute(
     while std::time::Instant::now() < deadline {
         let msg = match ws.read() {
             Ok(m) => m,
-            Err(e) => return rbtdre_Verdict::Fail(format!("WS read (ready): {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("WS read (ready): {}", e)),
         };
         if let Message::Text(ref text) = msg {
             let _ = std::fs::write(dir.join("ws-ready-trace.txt"),
@@ -2110,7 +2110,7 @@ fn rbtdrc_websocket_kernel_execute(
     }
     if !kernel_ready {
         let _ = ws.close(None);
-        return rbtdre_Verdict::Fail("timeout waiting for kernel ready".to_string());
+        return rbtcee_Verdict::Fail("timeout waiting for kernel ready".to_string());
     }
 
     // Send execute_request: print("Hello from theurge")
@@ -2120,7 +2120,7 @@ fn rbtdrc_websocket_kernel_execute(
         msg_id_exec, session_id
     );
     if let Err(e) = ws.send(Message::Text(execute_req)) {
-        return rbtdre_Verdict::Fail(format!("WS send execute: {}", e));
+        return rbtcee_Verdict::Fail(format!("WS send execute: {}", e));
     }
 
     // Read messages until we see the stream output or execution goes idle
@@ -2133,7 +2133,7 @@ fn rbtdrc_websocket_kernel_execute(
             Ok(m) => m,
             Err(e) => {
                 let _ = std::fs::write(dir.join("ws-exec-trace.txt"), &trace);
-                return rbtdre_Verdict::Fail(format!("WS read (exec): {}", e));
+                return rbtcee_Verdict::Fail(format!("WS read (exec): {}", e));
             }
         };
         if let Message::Text(ref text) = msg {
@@ -2163,85 +2163,85 @@ fn rbtdrc_websocket_kernel_execute(
     let _ = ws.close(None);
 
     if !saw_output {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "kernel executed but no stream output with expected text (idle={})",
             execution_idle
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── PLUML PlantUML cases (host-side HTTP probes) ─────────────
 
 /// Known PlantUML diagram hash for Alice/Bob conversation.
-const RBTDRC_PLUML_KNOWN_HASH: &str =
+const RBTCCC_PLUML_KNOWN_HASH: &str =
     "SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40";
 
-fn rbtdrc_pluml_text_rendering(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_pluml_text_rendering(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!(
             "http://localhost:{}/txt/{}",
-            port, RBTDRC_PLUML_KNOWN_HASH
+            port, RBTCCC_PLUML_KNOWN_HASH
         );
-        let (body, _) = match rbtdrc_curl_get(&url) {
+        let (body, _) = match rbtccc_curl_get(&url) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e)),
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
         for expected in &["Bob", "Alice", "hello there", "boo"] {
             if !body.contains(expected) {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "expected '{}' in response:\n{}",
                     expected, body
                 ));
             }
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_pluml_local_diagram(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_pluml_local_diagram(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!("http://localhost:{}/txt/uml", port);
         let diagram = "@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml";
-        let body = match rbtdrc_curl_post_stdin(&url, diagram) {
+        let body = match rbtccc_curl_post_stdin(&url, diagram) {
             Ok(b) => b,
-            Err(e) => return rbtdre_Verdict::Fail(format!("curl POST error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("curl POST error: {}", e)),
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
         for expected in &["Bob", "Alice", "hello there", "boo"] {
             if !body.contains(expected) {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "expected '{}' in response:\n{}",
                     expected, body
                 ));
             }
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_pluml_http_headers(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_pluml_http_headers(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!(
             "http://localhost:{}/txt/{}",
-            port, RBTDRC_PLUML_KNOWN_HASH
+            port, RBTCCC_PLUML_KNOWN_HASH
         );
-        let status = match rbtdrc_curl_status(
+        let status = match rbtccc_curl_status(
             &url,
             &[
                 ("User-Agent", "Mozilla/5.0"),
@@ -2249,58 +2249,58 @@ fn rbtdrc_pluml_http_headers(dir: &Path) -> rbtdre_Verdict {
             ],
         ) {
             Ok(s) => s,
-            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e)),
         };
         let _ = std::fs::write(dir.join("http-status.txt"), &status);
 
         if status != "200" {
-            return rbtdre_Verdict::Fail(format!("expected HTTP 200, got: {}", status));
+            return rbtcee_Verdict::Fail(format!("expected HTTP 200, got: {}", status));
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_pluml_invalid_hash(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_pluml_invalid_hash(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!("http://localhost:{}/txt/invalid_hash", port);
-        let (body, _) = match rbtdrc_curl_get(&url) {
+        let (body, _) = match rbtccc_curl_get(&url) {
             Ok(r) => r,
-            Err(e) => return rbtdre_Verdict::Fail(format!("curl error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e)),
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
         if body.contains("Bob") {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "expected no 'Bob' in invalid hash response".to_string(),
             );
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
-fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_pluml_malformed_diagram(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!("http://localhost:{}/txt/uml", port);
-        let body = match rbtdrc_curl_post_stdin(&url, "invalid uml content") {
+        let body = match rbtccc_curl_post_stdin(&url, "invalid uml content") {
             Ok(b) => b,
-            Err(e) => return rbtdre_Verdict::Fail(format!("curl POST error: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("curl POST error: {}", e)),
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
         if body.contains("Bob") {
-            return rbtdre_Verdict::Fail(
+            return rbtcee_Verdict::Fail(
                 "expected no 'Bob' in malformed diagram response".to_string(),
             );
         }
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
@@ -2315,10 +2315,10 @@ fn rbtdrc_pluml_malformed_diagram(dir: &Path) -> rbtdre_Verdict {
 /// a characterized membrane, not a silent catch-all: a future custom-skinned
 /// diagram would need its colors added to the palette here rather than be
 /// recolored by guesswork.
-fn zrbtdrc_darken_svg(light: &str) -> String {
+fn zrbtccc_darken_svg(light: &str) -> String {
     // Surveyed PlantUML default-skin palette: (light_hex, dark_hex). No entry is
     // a substring of another, so replacement order among them is immaterial.
-    const RBTDRC_DARK_PALETTE: &[(&str, &str)] = &[
+    const RBTCCC_DARK_PALETTE: &[(&str, &str)] = &[
         ("#000000", "#E6E6E6"), // text + arrow ink
         ("#181818", "#9DA5B4"), // lifelines, borders, dashes
         ("#E2E2F0", "#3B3B54"), // participant box fill
@@ -2328,7 +2328,7 @@ fn zrbtdrc_darken_svg(light: &str) -> String {
     // Drop the opaque page background first (specific substring, before any
     // general hex mapping touches the same bytes).
     let mut out = light.replace("background:#FFFFFF;", "background:transparent;");
-    for (light_hex, dark_hex) in RBTDRC_DARK_PALETTE {
+    for (light_hex, dark_hex) in RBTCCC_DARK_PALETTE {
         out = out.replace(light_hex, dark_hex);
     }
     out
@@ -2338,7 +2338,7 @@ fn zrbtdrc_darken_svg(light: &str) -> String {
 /// pluml-crucible PlantUML server, asserting each response is a well-formed SVG,
 /// and writes two committed siblings per source: the light `{stem}-light.svg`
 /// straight from the server, and a `{stem}-dark.svg` recolored by
-/// `zrbtdrc_darken_svg`. Each render wears a mark its source lacks, so no render
+/// `zrbtccc_darken_svg`. Each render wears a mark its source lacks, so no render
 /// shares its source's stem.
 /// README embeds the pair via `<picture>` so each diagram tracks the reader's
 /// color scheme. This is the one pluml case that writes tracked repo files; the
@@ -2348,19 +2348,19 @@ fn zrbtdrc_darken_svg(light: &str) -> String {
 /// loud when the diagrams dir is missing or empty, or when a render returns a
 /// non-SVG (the server emits a valid <svg> even for diagram syntax errors, so the
 /// "Syntax Error" payload is rejected explicitly).
-fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| {
-        let port = match rbtdrc_read_nameplate_port(ctx) {
+fn rbtccc_pluml_render_diagrams(dir: &Path) -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| {
+        let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtdre_Verdict::Fail(format!("port discovery: {}", e)),
+            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e)),
         };
         let url = format!("http://localhost:{}/svg/uml", port);
-        let diagrams_dir = ctx.rbtdri_project_root().join("diagrams");
+        let diagrams_dir = ctx.rbtcei_project_root().join("diagrams");
 
         let entries = match std::fs::read_dir(&diagrams_dir) {
             Ok(e) => e,
             Err(e) => {
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "cannot read diagrams dir {}: {}",
                     diagrams_dir.display(),
                     e
@@ -2375,7 +2375,7 @@ fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
         sources.sort();
 
         if sources.is_empty() {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "no .puml sources under {}",
                 diagrams_dir.display()
             ));
@@ -2391,42 +2391,42 @@ fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
             let body = match std::fs::read_to_string(src) {
                 Ok(b) => b,
                 Err(e) => {
-                    return rbtdre_Verdict::Fail(format!("read {}: {}", src.display(), e))
+                    return rbtcee_Verdict::Fail(format!("read {}: {}", src.display(), e))
                 }
             };
-            let svg = match rbtdrc_curl_post_stdin(&url, &body) {
+            let svg = match rbtccc_curl_post_stdin(&url, &body) {
                 Ok(s) => s,
                 Err(e) => {
-                    return rbtdre_Verdict::Fail(format!("render {}: curl POST: {}", stem, e))
+                    return rbtcee_Verdict::Fail(format!("render {}: curl POST: {}", stem, e))
                 }
             };
             if !svg.contains("<svg") || !svg.contains("</svg>") {
                 let _ = std::fs::write(dir.join(format!("{}-bad.txt", stem)), &svg);
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "{}: response is not a well-formed SVG",
                     stem
                 ));
             }
             if svg.contains("Syntax Error") {
                 let _ = std::fs::write(dir.join(format!("{}-bad.svg", stem)), &svg);
-                return rbtdre_Verdict::Fail(format!(
+                return rbtcee_Verdict::Fail(format!(
                     "{}: PlantUML reported a syntax error",
                     stem
                 ));
             }
             let out = diagrams_dir.join(format!("{}-light.svg", stem));
             if let Err(e) = std::fs::write(&out, &svg) {
-                return rbtdre_Verdict::Fail(format!("write {}: {}", out.display(), e));
+                return rbtcee_Verdict::Fail(format!("write {}: {}", out.display(), e));
             }
             let dark_out = diagrams_dir.join(format!("{}-dark.svg", stem));
-            if let Err(e) = std::fs::write(&dark_out, zrbtdrc_darken_svg(&svg)) {
-                return rbtdre_Verdict::Fail(format!("write {}: {}", dark_out.display(), e));
+            if let Err(e) = std::fs::write(&dark_out, zrbtccc_darken_svg(&svg)) {
+                return rbtcee_Verdict::Fail(format!("write {}: {}", dark_out.display(), e));
             }
             rendered.push(stem);
         }
 
         let _ = std::fs::write(dir.join("rendered.txt"), rendered.join("\n"));
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     })
 }
 
@@ -2434,135 +2434,135 @@ fn rbtdrc_pluml_render_diagrams(dir: &Path) -> rbtdre_Verdict {
 
 // ── Crucible fixtures (charge/quench lifecycle) ──────────────
 
-pub static RBTDRC_FIXTURE_TADMOR: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_TADMOR,
-    disposition: rbtdre_Disposition::Independent,
-    setup: Some(rbtdrc_charge_crucible),
-    teardown: Some(rbtdrc_quench_crucible),
-    cases: RBTDRC_CASES_SECURITY,
+pub static RBTCCC_FIXTURE_TADMOR: rbtcee_Fixture = rbtcee_Fixture {
+    name: crate::rbtcem_manifest::RBTCEM_FIXTURE_TADMOR,
+    disposition: rbtcee_Disposition::Independent,
+    setup: Some(rbtccc_charge_crucible),
+    teardown: Some(rbtccc_quench_crucible),
+    cases: RBTCCC_CASES_SECURITY,
     credless: false,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
 };
 
 // Moriah is the airgap-bottle nameplate; runtime semantics are identical
-// to tadmor so the fixture shares RBTDRC_CASES_SECURITY. The distinction
+// to tadmor so the fixture shares RBTCCC_CASES_SECURITY. The distinction
 // is provenance (cloud-built airgap vs local kludge), not behavior.
-pub static RBTDRC_FIXTURE_MORIAH: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_MORIAH,
-    disposition: rbtdre_Disposition::Independent,
-    setup: Some(rbtdrc_charge_crucible),
-    teardown: Some(rbtdrc_quench_crucible),
-    cases: RBTDRC_CASES_SECURITY,
+pub static RBTCCC_FIXTURE_MORIAH: rbtcee_Fixture = rbtcee_Fixture {
+    name: crate::rbtcem_manifest::RBTCEM_FIXTURE_MORIAH,
+    disposition: rbtcee_Disposition::Independent,
+    setup: Some(rbtccc_charge_crucible),
+    teardown: Some(rbtccc_quench_crucible),
+    cases: RBTCCC_CASES_SECURITY,
     credless: false,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
 };
 
-pub static RBTDRC_FIXTURE_SRJCL: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_SRJCL,
-    disposition: rbtdre_Disposition::Independent,
-    setup: Some(rbtdrc_charge_crucible),
-    teardown: Some(rbtdrc_quench_crucible),
-    cases: RBTDRC_CASES_SRJCL,
+pub static RBTCCC_FIXTURE_SRJCL: rbtcee_Fixture = rbtcee_Fixture {
+    name: crate::rbtcem_manifest::RBTCEM_FIXTURE_SRJCL,
+    disposition: rbtcee_Disposition::Independent,
+    setup: Some(rbtccc_charge_crucible),
+    teardown: Some(rbtccc_quench_crucible),
+    cases: RBTCCC_CASES_SRJCL,
     credless: false,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
 };
 
-pub static RBTDRC_FIXTURE_PLUML: rbtdre_Fixture = rbtdre_Fixture {
-    name: crate::rbtdrm_manifest::RBTDRM_FIXTURE_PLUML,
-    disposition: rbtdre_Disposition::Independent,
-    setup: Some(rbtdrc_charge_crucible),
-    teardown: Some(rbtdrc_quench_crucible),
-    cases: RBTDRC_CASES_PLUML,
+pub static RBTCCC_FIXTURE_PLUML: rbtcee_Fixture = rbtcee_Fixture {
+    name: crate::rbtcem_manifest::RBTCEM_FIXTURE_PLUML,
+    disposition: rbtcee_Disposition::Independent,
+    setup: Some(rbtccc_charge_crucible),
+    teardown: Some(rbtccc_quench_crucible),
+    cases: RBTCCC_CASES_PLUML,
     credless: false,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
 };
 
 
-pub static RBTDRC_CASES_SRJCL: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrc_srjcl_jupyter_running),
-    rbtdre_case!(rbtdrc_srjcl_jupyter_connectivity),
-    rbtdre_case!(rbtdrc_srjcl_websocket_kernel),
+pub static RBTCCC_CASES_SRJCL: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtccc_srjcl_jupyter_running),
+    rbtcee_case!(rbtccc_srjcl_jupyter_connectivity),
+    rbtcee_case!(rbtccc_srjcl_websocket_kernel),
 ];
 
-pub static RBTDRC_CASES_PLUML: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrc_pluml_text_rendering),
-    rbtdre_case!(rbtdrc_pluml_local_diagram),
-    rbtdre_case!(rbtdrc_pluml_http_headers),
-    rbtdre_case!(rbtdrc_pluml_invalid_hash),
-    rbtdre_case!(rbtdrc_pluml_malformed_diagram),
-    rbtdre_case!(rbtdrc_pluml_render_diagrams),
+pub static RBTCCC_CASES_PLUML: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtccc_pluml_text_rendering),
+    rbtcee_case!(rbtccc_pluml_local_diagram),
+    rbtcee_case!(rbtccc_pluml_http_headers),
+    rbtcee_case!(rbtccc_pluml_invalid_hash),
+    rbtcee_case!(rbtccc_pluml_malformed_diagram),
+    rbtcee_case!(rbtccc_pluml_render_diagrams),
 ];
 
-// Bottle/sentry security cases — shared by RBTDRC_FIXTURE_TADMOR and
-// RBTDRC_FIXTURE_MORIAH. The engine surfaces fixture identity in its own output.
-static RBTDRC_CASES_SECURITY: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrc_pentacle_dnsmasq_responds),
-    rbtdre_case!(rbtdrc_pentacle_ping_sentry),
-    rbtdre_case!(rbtdrc_ifrit_dns_allowed),
-    rbtdre_case!(rbtdrc_ifrit_dns_allowed_example_org),
-    rbtdre_case!(rbtdrc_ifrit_dns_blocked),
-    rbtdre_case!(rbtdrc_ifrit_apt_blocked),
-    rbtdre_case!(rbtdrc_ifrit_dns_nonexistent),
-    rbtdre_case!(rbtdrc_ifrit_dns_tcp),
-    rbtdre_case!(rbtdrc_ifrit_dns_udp),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_direct),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_altport),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_cloudflare),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_quad9),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_zonetransfer),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_ipv6),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_multicast),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_spoofing),
-    rbtdre_case!(rbtdrc_ifrit_dns_block_tunneling),
-    rbtdre_case!(rbtdrc_sentry_iptables_loaded),
-    rbtdre_case!(rbtdrc_sentry_config_rp_filter),
-    rbtdre_case!(rbtdrc_sentry_config_prerouting_dnat),
-    rbtdre_case!(rbtdrc_sentry_config_postrouting_masquerade),
-    rbtdre_case!(rbtdrc_sentry_config_forward_estab_related),
-    rbtdre_case!(rbtdrc_dns_blocked_with_observation),
-    rbtdre_case!(rbtdrc_tcp443_allow_example),
-    rbtdre_case!(rbtdrc_tcp443_block_google),
-    rbtdre_case!(rbtdrc_icmp_first_hop),
-    rbtdre_case!(rbtdrc_icmp_second_hop_blocked),
-    rbtdre_case!(rbtdrc_udp_non_dns_blocked),
-    rbtdre_case!(rbtdrc_cidr_all_ports_allowed),
-    rbtdre_case!(rbtdrc_sortie_dns_exfil_subdomain),
-    rbtdre_case!(rbtdrc_sortie_meta_cloud_endpoint),
-    rbtdre_case!(rbtdrc_sortie_net_forbidden_cidr),
-    rbtdre_case!(rbtdrc_sortie_direct_sentry_probe),
-    rbtdre_case!(rbtdrc_sortie_icmp_exfil_payload),
-    rbtdre_case!(rbtdrc_sortie_net_ipv6_escape),
-    rbtdre_case!(rbtdrc_sortie_net_srcip_spoof),
-    rbtdre_case!(rbtdrc_sortie_net_srcip_spoof_external),
-    rbtdre_case!(rbtdrc_sortie_proto_smuggle_rawsock),
-    rbtdre_case!(rbtdrc_sortie_net_fragment_evasion),
-    rbtdre_case!(rbtdrc_sortie_direct_arp_poison),
-    rbtdre_case!(rbtdrc_sortie_ns_capability_escape),
-    rbtdre_case!(rbtdrc_sortie_dns_rebinding),
-    rbtdre_case!(rbtdrc_sortie_proc_sys_write),
-    rbtdre_case!(rbtdrc_sortie_http_end_to_end),
-    rbtdre_case!(rbtdrc_sortie_conntrack_spoofed_ack),
-    rbtdre_case!(rbtdrc_sortie_offpath_blocked_dest),
-    rbtdre_case!(rbtdrc_sortie_conntrack_pipeline_selfcheck),
-    rbtdre_case!(rbtdrc_sortie_sentry_udp_non_dns),
-    rbtdre_case!(rbtdrc_sortie_net_route_manipulation),
-    rbtdre_case!(rbtdrc_sortie_net_enclave_subnet_escape),
-    rbtdre_case!(rbtdrc_sortie_net_dnat_entry_reflection),
-    rbtdre_case!(rbtdrc_coordinated_arp_gratuitous),
-    rbtdre_case!(rbtdrc_coordinated_arp_gateway_poison),
-    rbtdre_case!(rbtdrc_coordinated_arp_table_stability),
-    rbtdre_case!(rbtdrc_coordinated_sentry_integrity),
-    rbtdre_case!(rbtdrc_coordinated_dns_cache_integrity),
-    rbtdre_case!(rbtdrc_coordinated_mac_flood_resilience),
-    rbtdre_case!(rbtdrc_coordinated_tcp_rst_hijack),
-    rbtdre_case!(rbtdrc_coordinated_sentry_egress_lockdown),
-    rbtdre_case!(rbtdrc_coordinated_dnsmasq_query_audit),
+// Bottle/sentry security cases — shared by RBTCCC_FIXTURE_TADMOR and
+// RBTCCC_FIXTURE_MORIAH. The engine surfaces fixture identity in its own output.
+static RBTCCC_CASES_SECURITY: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtccc_pentacle_dnsmasq_responds),
+    rbtcee_case!(rbtccc_pentacle_ping_sentry),
+    rbtcee_case!(rbtccc_ifrit_dns_allowed),
+    rbtcee_case!(rbtccc_ifrit_dns_allowed_example_org),
+    rbtcee_case!(rbtccc_ifrit_dns_blocked),
+    rbtcee_case!(rbtccc_ifrit_apt_blocked),
+    rbtcee_case!(rbtccc_ifrit_dns_nonexistent),
+    rbtcee_case!(rbtccc_ifrit_dns_tcp),
+    rbtcee_case!(rbtccc_ifrit_dns_udp),
+    rbtcee_case!(rbtccc_ifrit_dns_block_direct),
+    rbtcee_case!(rbtccc_ifrit_dns_block_altport),
+    rbtcee_case!(rbtccc_ifrit_dns_block_cloudflare),
+    rbtcee_case!(rbtccc_ifrit_dns_block_quad9),
+    rbtcee_case!(rbtccc_ifrit_dns_block_zonetransfer),
+    rbtcee_case!(rbtccc_ifrit_dns_block_ipv6),
+    rbtcee_case!(rbtccc_ifrit_dns_block_multicast),
+    rbtcee_case!(rbtccc_ifrit_dns_block_spoofing),
+    rbtcee_case!(rbtccc_ifrit_dns_block_tunneling),
+    rbtcee_case!(rbtccc_sentry_iptables_loaded),
+    rbtcee_case!(rbtccc_sentry_config_rp_filter),
+    rbtcee_case!(rbtccc_sentry_config_prerouting_dnat),
+    rbtcee_case!(rbtccc_sentry_config_postrouting_masquerade),
+    rbtcee_case!(rbtccc_sentry_config_forward_estab_related),
+    rbtcee_case!(rbtccc_dns_blocked_with_observation),
+    rbtcee_case!(rbtccc_tcp443_allow_example),
+    rbtcee_case!(rbtccc_tcp443_block_google),
+    rbtcee_case!(rbtccc_icmp_first_hop),
+    rbtcee_case!(rbtccc_icmp_second_hop_blocked),
+    rbtcee_case!(rbtccc_udp_non_dns_blocked),
+    rbtcee_case!(rbtccc_cidr_all_ports_allowed),
+    rbtcee_case!(rbtccc_sortie_dns_exfil_subdomain),
+    rbtcee_case!(rbtccc_sortie_meta_cloud_endpoint),
+    rbtcee_case!(rbtccc_sortie_net_forbidden_cidr),
+    rbtcee_case!(rbtccc_sortie_direct_sentry_probe),
+    rbtcee_case!(rbtccc_sortie_icmp_exfil_payload),
+    rbtcee_case!(rbtccc_sortie_net_ipv6_escape),
+    rbtcee_case!(rbtccc_sortie_net_srcip_spoof),
+    rbtcee_case!(rbtccc_sortie_net_srcip_spoof_external),
+    rbtcee_case!(rbtccc_sortie_proto_smuggle_rawsock),
+    rbtcee_case!(rbtccc_sortie_net_fragment_evasion),
+    rbtcee_case!(rbtccc_sortie_direct_arp_poison),
+    rbtcee_case!(rbtccc_sortie_ns_capability_escape),
+    rbtcee_case!(rbtccc_sortie_dns_rebinding),
+    rbtcee_case!(rbtccc_sortie_proc_sys_write),
+    rbtcee_case!(rbtccc_sortie_http_end_to_end),
+    rbtcee_case!(rbtccc_sortie_conntrack_spoofed_ack),
+    rbtcee_case!(rbtccc_sortie_offpath_blocked_dest),
+    rbtcee_case!(rbtccc_sortie_conntrack_pipeline_selfcheck),
+    rbtcee_case!(rbtccc_sortie_sentry_udp_non_dns),
+    rbtcee_case!(rbtccc_sortie_net_route_manipulation),
+    rbtcee_case!(rbtccc_sortie_net_enclave_subnet_escape),
+    rbtcee_case!(rbtccc_sortie_net_dnat_entry_reflection),
+    rbtcee_case!(rbtccc_coordinated_arp_gratuitous),
+    rbtcee_case!(rbtccc_coordinated_arp_gateway_poison),
+    rbtcee_case!(rbtccc_coordinated_arp_table_stability),
+    rbtcee_case!(rbtccc_coordinated_sentry_integrity),
+    rbtcee_case!(rbtccc_coordinated_dns_cache_integrity),
+    rbtcee_case!(rbtccc_coordinated_mac_flood_resilience),
+    rbtcee_case!(rbtccc_coordinated_tcp_rst_hijack),
+    rbtcee_case!(rbtccc_coordinated_sentry_egress_lockdown),
+    rbtcee_case!(rbtccc_coordinated_dnsmasq_query_audit),
 ];
 
 
 // ── Crucible-free unit tests ─────────────────────────────────
 //
-// zrbtdrc_darken_svg is a pure function of the rendered bytes, so its
+// zrbtccc_darken_svg is a pure function of the rendered bytes, so its
 // correctness is proven here without charging a crucible — distinct from the
 // crucible case, which proves the PlantUML server renders well-formed SVG.
 
@@ -2571,14 +2571,14 @@ mod rbtdrc_tests {
     use super::*;
 
     #[test]
-    fn zrbtdrc_darken_svg_maps_the_surveyed_palette() {
+    fn zrbtccc_darken_svg_maps_the_surveyed_palette() {
         let light = concat!(
             r##"<svg style="width:10px;height:10px;background:#FFFFFF;">"##,
             r##"<text fill="#000000">x</text>"##,
             r##"<line style="stroke:#181818;"/>"##,
             r##"<rect fill="#E2E2F0"/><rect fill="#FEFFDD"/><rect fill="#EEEEEE"/></svg>"##,
         );
-        let dark = zrbtdrc_darken_svg(light);
+        let dark = zrbtccc_darken_svg(light);
 
         // Page background dropped to transparent.
         assert!(dark.contains("background:transparent;"));
@@ -2595,10 +2595,10 @@ mod rbtdrc_tests {
     }
 
     #[test]
-    fn zrbtdrc_darken_svg_passes_unsurveyed_colors_through() {
+    fn zrbtccc_darken_svg_passes_unsurveyed_colors_through() {
         // A color outside the surveyed palette is left untouched — the membrane
         // is characterized, not a guess-everything recolor.
         let light = r##"<rect fill="#AB12CD"/>"##;
-        assert_eq!(zrbtdrc_darken_svg(light), light);
+        assert_eq!(zrbtccc_darken_svg(light), light);
     }
 }

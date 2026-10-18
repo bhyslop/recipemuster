@@ -144,7 +144,7 @@ const ZRBTHDR_VEIL_EXEMPT: &[(&str, &str)] = &[
         "its identity sweep's skip-dir list spells the veiled-dir literal it must not descend into",
     ),
     (
-        "Tools/rbk/rbtd/src/rbtdrn_conformance.rs",
+        "Tools/rbk/rbtd/src/rbtchn_conformance.rs",
         "its curl-scan exemption table addresses a withheld tree by path; dead in the stripped tree, where that tree is gone",
     ),
     (

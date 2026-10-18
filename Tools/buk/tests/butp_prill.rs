@@ -131,7 +131,7 @@ const BUTP_SH_EXT: &str = "sh";
 // ── The lexer ───────────────────────────────────────────────
 //
 // A copy under the removal condition stated at this file's head. Its contract is
-// stated by recipemuster's unit tests in rbtdtu_cupel.rs, line by line.
+// stated by recipemuster's unit tests in rbtthc_cupel.rs, line by line.
 //
 // SOUNDNESS RESTS ON THE CORPUS BEING SHELLCHECK-CLEAN, which the substrate is,
 // so a command-position lexer suffices and no full shell parser is owed. Two

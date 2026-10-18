@@ -20,7 +20,7 @@
 // Receives an attack selector argument, executes one attack, prints a verdict
 // line to stdout, and exits 0 (PASS/SECURE) or nonzero (FAIL).
 //
-// Wire protocol (consumed by theurge's rbtdri_parse_ifrit_verdict):
+// Wire protocol (consumed by theurge's rbtcei_parse_ifrit_verdict):
 //   stdout: "IFRIT_VERDICT: PASS [detail]" or "IFRIT_VERDICT: FAIL <detail>"
 //   exit:   0 for pass, 1 for fail
 

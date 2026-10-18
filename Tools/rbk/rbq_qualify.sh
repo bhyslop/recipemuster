@@ -269,7 +269,7 @@ rbq_release() {
 
 # Pristine/skirmish/tadmor qualification collapsed into rbw-ts suite imprints
 # (gauntlet/skirmish/siege) — see the suite registry RBTDRC_SUITES in
-# rbtdrc_crucible.rs. The siege suite preserves the deliberate two-fixture
+# rbtccc_crucible.rs. The siege suite preserves the deliberate two-fixture
 # (kludge-tadmor, tadmor) sequence; its rationale lives on that registry entry.
 
 # eof

@@ -27,7 +27,7 @@
 /// eagerly expands a `macro_rules!` invocation, consuming the literal token it
 /// produces — the codebase's established zero-dependency idiom for compile-time
 /// path composition. This literal is the one mooring/vessel path NOT taken from
-/// the generated `RBTDGC_*` consts; `rbtdtm_vessels_dir_matches_generated` pins
+/// the generated `RBTDGC_*` consts; `rbttem_vessels_dir_matches_generated` pins
 /// it to `RBTDGC_MOORINGS_DIR`/`RBTDGC_VESSELS_SUBDIR` so any drift from the
 /// bash source of truth is a test failure. Runtime `Path::join` sites that take
 /// a value (not a literal) use `RBTDGC_MOORINGS_DIR` directly.
@@ -40,56 +40,85 @@ macro_rules! rbtd_vessels_dir {
 
 pub mod rbtdgb_breviary;
 pub mod rbtdgc_consts;
-pub mod rbtdra_almanac;
-pub mod rbtdrb_probe;
-pub mod rbtdrc_crucible;
-pub mod rbtdrd_dogfight;
-pub mod rbtdre_engine;
+#[path = "rbtdra_almanac.rs"]
+pub mod rbtcea_almanac;
+#[path = "rbtdrb_probe.rs"]
+pub mod rbtccp_probe;
+#[path = "rbtdrc_crucible.rs"]
+pub mod rbtccc_crucible;
+#[path = "rbtdrd_dogfight.rs"]
+pub mod rbtcgd_dogfight;
+#[path = "rbtdre_engine.rs"]
+pub mod rbtcee_engine;
 pub mod rbtdrf_fast;
 pub mod rbtdrf_handbook;
-pub mod rbtdrg_log;
-pub mod rbtdrh_chain;
-pub mod rbtdri_invocation;
-pub mod rbtdrj_touchstone;
+#[path = "rbtdrg_log.rs"]
+pub mod rbtcel_log;
+#[path = "rbtdrh_chain.rs"]
+pub mod rbtcgh_chain;
+#[path = "rbtdri_invocation.rs"]
+pub mod rbtcei_invocation;
+#[path = "rbtdrj_touchstone.rs"]
+pub mod rbtcct_touchstone;
 pub mod rbtdrk_depot;
 pub mod rbtdrk_freehold;
-pub mod rbtdrl_calibrant;
-pub mod rbtdrm_manifest;
-pub mod rbtdrn_conformance;
-pub mod rbtdro_onboarding;
+#[path = "rbtdrl_calibrant.rs"]
+pub mod rbtchl_calibrant;
+#[path = "rbtdrm_manifest.rs"]
+pub mod rbtcem_manifest;
+#[path = "rbtdrn_conformance.rs"]
+pub mod rbtchn_conformance;
+#[path = "rbtdro_onboarding.rs"]
+pub mod rbtcgo_onboarding;
 pub mod rbtdrp_attest;
 pub mod rbtdrp_lifecycle;
 pub mod rbtdrq_damnatio;
 pub mod rbtdrq_pyx;
-pub mod rbtdrs_poison;
+#[path = "rbtdrs_poison.rs"]
+pub mod rbtchs_poison;
 pub mod rbtdru_bash;
 pub mod rbtdru_cupel;
 pub mod rbtdru_python;
-pub mod rbtdrv_patrol;
-pub mod rbtdrw_dowse;
-pub mod rbtdrx_platform;
+#[path = "rbtdrv_patrol.rs"]
+pub mod rbtcgp_patrol;
+#[path = "rbtdrw_dowse.rs"]
+pub mod rbtccd_dowse;
+#[path = "rbtdrx_platform.rs"]
+pub mod rbtcep_platform;
 
 #[cfg(test)]
-mod rbtdth_helpers;
+#[path = "rbtdth_helpers.rs"]
+mod rbtteh_helpers;
 #[cfg(test)]
-mod rbtdtb_probe;
+#[path = "rbtdtb_probe.rs"]
+mod rbttcp_probe;
 #[cfg(test)]
-mod rbtdtc_crucible;
+#[path = "rbtdtc_crucible.rs"]
+mod rbttcc_crucible;
 #[cfg(test)]
-mod rbtdte_engine;
+#[path = "rbtdte_engine.rs"]
+mod rbttee_engine;
 #[cfg(test)]
-mod rbtdti_invocation;
+#[path = "rbtdti_invocation.rs"]
+mod rbttei_invocation;
 #[cfg(test)]
-mod rbtdtk_freehold;
+#[path = "rbtdtk_freehold.rs"]
+mod rbttgf_freehold;
 #[cfg(test)]
-mod rbtdtl_calibrant;
+#[path = "rbtdtl_calibrant.rs"]
+mod rbtthl_calibrant;
 #[cfg(test)]
-mod rbtdtm_manifest;
+#[path = "rbtdtm_manifest.rs"]
+mod rbttem_manifest;
 #[cfg(test)]
-mod rbtdto_onboarding;
+#[path = "rbtdto_onboarding.rs"]
+mod rbttgo_onboarding;
 #[cfg(test)]
-mod rbtdtu_cupel;
+#[path = "rbtdtu_cupel.rs"]
+mod rbtthc_cupel;
 #[cfg(test)]
-mod rbtdtw_dowse;
+#[path = "rbtdtw_dowse.rs"]
+mod rbttcd_dowse;
 #[cfg(test)]
-mod rbtdtx_platform;
+#[path = "rbtdtx_platform.rs"]
+mod rbttep_platform;

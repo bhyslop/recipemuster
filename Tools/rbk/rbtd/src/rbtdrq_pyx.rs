@@ -48,7 +48,7 @@
 // resolved graph on every platform at once, so the check becomes a pure
 // tree-invariant reading with no external tool at all.
 //
-// Checker proves itself (the rbtdrn_conformance precedent).
+// Checker proves itself (the rbtchn_conformance precedent).
 // The secret-shape matcher is exercised against known in-memory positives and
 // negatives before its verdict on the live tree is trusted, and the license
 // allowlist is proved internally consistent — every vetted expression drawn from
@@ -61,15 +61,15 @@ use std::path::{
     PathBuf,
 };
 
-use crate::rbtdre_case;
-use crate::rbtdre_engine::{
-    rbtdre_Tariff,
-    rbtdre_Case,
-    rbtdre_Disposition,
-    rbtdre_Fixture,
-    rbtdre_Verdict,
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Tariff,
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Verdict,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_PYX;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_PYX;
 
 // ── Crate-license allowlist ─────────────────────────────────
 
@@ -403,7 +403,7 @@ pub(crate) fn zrbtdrq_report(
     findings: &[zrbtdrq_Finding],
     inventory: &BTreeSet<String>,
     what: &str,
-) -> rbtdre_Verdict {
+) -> rbtcee_Verdict {
     let report = zrbtdrq_render(findings);
     let findings_name = format!("{}{}{}", ZRBTDRQ_TRACE_PREFIX, label, ZRBTDRQ_FINDINGS_SUFFIX);
     let _ = std::fs::write(dir.join(findings_name), &report);
@@ -417,9 +417,9 @@ pub(crate) fn zrbtdrq_report(
     let _ = std::fs::write(dir.join(inventory_name), &inventory_report);
 
     if findings.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
+        rbtcee_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
     }
 }
 
@@ -460,16 +460,16 @@ pub(crate) fn zrbtdrq_lock_crates(lock: &str) -> BTreeSet<String> {
 /// vetted expression must be drawn from the approved set. The first assertion
 /// gates what enters the release; the second proves the table itself was not
 /// widened by a typo.
-fn rbtdrq_crate_licenses(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_crate_licenses(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     let lock_path = root.join(ZRBTDRQ_LOCKFILE);
     let lock = match std::fs::read_to_string(&lock_path) {
         Ok(s) => s,
         Err(e) => {
-            return rbtdre_Verdict::Fail(format!("cannot read {}: {}", ZRBTDRQ_LOCKFILE, e));
+            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", ZRBTDRQ_LOCKFILE, e));
         }
     };
 
@@ -513,10 +513,10 @@ fn rbtdrq_crate_licenses(dir: &Path) -> rbtdre_Verdict {
 
 /// The distribution must carry its own terms at the root, and those terms must
 /// be the ones the source headers claim.
-fn rbtdrq_license_file(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_license_file(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     let path = root.join(ZRBTDRQ_LICENSE_FILE);
 
@@ -687,10 +687,10 @@ fn zrbtdrq_matcher_self_proof() -> Vec<zrbtdrq_Finding> {
 /// No shipping file may carry a credential shape. The matcher proves itself
 /// first; a matcher failure and a tree failure are both findings, so a broken
 /// checker can never report a clean tree.
-fn rbtdrq_secret_shapes(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_secret_shapes(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
     let mut findings = zrbtdrq_matcher_self_proof();
@@ -717,7 +717,7 @@ fn rbtdrq_secret_shapes(dir: &Path) -> rbtdre_Verdict {
     }
 
     for path in files {
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, &path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(&root, &path);
         if ZRBTDRQ_EXEMPT.iter().any(|(path, _)| *path == rel) {
             continue;
         }
@@ -809,22 +809,22 @@ pub(crate) fn zrbtdrq_referenced_anchors(target: &str) -> BTreeSet<String> {
 /// extracted by matching literals in the source files, and the failure mode of
 /// an extractor is to match nothing — which without this guard reports a clean
 /// tree with a checker that has quietly stopped checking.
-fn rbtdrq_readme_anchors(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_readme_anchors(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
     let source = match std::fs::read_to_string(root.join(ZRBTDRQ_ANCHOR_SOURCE)) {
         Ok(s) => s,
         Err(e) => {
-            return rbtdre_Verdict::Fail(format!("cannot read {}: {}", ZRBTDRQ_ANCHOR_SOURCE, e));
+            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", ZRBTDRQ_ANCHOR_SOURCE, e));
         }
     };
     let target = match std::fs::read_to_string(root.join(ZRBTDRQ_ANCHOR_TARGET)) {
         Ok(s) => s,
         Err(e) => {
-            return rbtdre_Verdict::Fail(format!("cannot read {}: {}", ZRBTDRQ_ANCHOR_TARGET, e));
+            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", ZRBTDRQ_ANCHOR_TARGET, e));
         }
     };
 
@@ -963,10 +963,10 @@ fn zrbtdrq_adoc_self_proof() -> Vec<zrbtdrq_Finding> {
 /// default. Existence-tolerant roots and the skip list are what let one case hold
 /// on both the maintainer tree and the delivered tree — the maintainer's own
 /// `.adoc` corpus lives under a skipped directory this walk never enters.
-fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
+fn rbtdrq_no_adoc(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtdrq_root() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
     let mut findings = zrbtdrq_adoc_self_proof();
@@ -985,7 +985,7 @@ fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
     }
 
     for path in files {
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, &path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(&root, &path);
         if !zrbtdrq_is_shipped_adoc(&rel) {
             continue;
         }
@@ -1002,20 +1002,20 @@ fn rbtdrq_no_adoc(dir: &Path) -> rbtdre_Verdict {
 
 // ── Cases and fixture ───────────────────────────────────────
 
-pub static RBTDRQ_CASES_PYX: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrq_crate_licenses),
-    rbtdre_case!(rbtdrq_license_file),
-    rbtdre_case!(rbtdrq_secret_shapes),
-    rbtdre_case!(rbtdrq_readme_anchors),
-    rbtdre_case!(rbtdrq_no_adoc),
+pub static RBTDRQ_CASES_PYX: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtdrq_crate_licenses),
+    rbtcee_case!(rbtdrq_license_file),
+    rbtcee_case!(rbtdrq_secret_shapes),
+    rbtcee_case!(rbtdrq_readme_anchors),
+    rbtcee_case!(rbtdrq_no_adoc),
 ];
 
-pub static RBTDRQ_FIXTURE_PYX: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_PYX,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTDRQ_FIXTURE_PYX: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_PYX,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
     cases: RBTDRQ_CASES_PYX,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

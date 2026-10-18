@@ -18,7 +18,7 @@
 // RBTDTC — suite-composition oracle: the theurge wrapper(inner) membership matrix
 //
 // A runnable suite is, in the theurge model, one inner-body set run under one
-// wrapper. That product is spelled by hand in RBTDRA_SUITES — the literal,
+// wrapper. That product is spelled by hand in RBTCEA_SUITES — the literal,
 // compile-checked membership lists ARE the source of truth and stay literal.
 // This module is the independent regression oracle proving those literal lists
 // remain expressible as wrapper(inner) compositions: it classifies every suite
@@ -34,37 +34,37 @@
 
 use std::collections::BTreeSet;
 
-use crate::rbtdra_almanac::{
-    RBTDRA_SUITES,
-    RBTDRA_SUITE_NAME_CALIBRANT,
-    rbtdra_lookup_suite,
+use crate::rbtcea_almanac::{
+    RBTCEA_SUITES,
+    RBTCEA_SUITE_NAME_CALIBRANT,
+    rbtcea_lookup_suite,
 };
-use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_KLUDGE_TADMOR,
-    RBTDRM_FIXTURE_ONBOARDING_SEQUENCE,
-    RBTDRM_FIXTURE_TADMOR,
+use crate::rbtcem_manifest::{
+    RBTCEM_FIXTURE_KLUDGE_TADMOR,
+    RBTCEM_FIXTURE_ONBOARDING_SEQUENCE,
+    RBTCEM_FIXTURE_TADMOR,
 };
 
 // Canonical suite names. The production source of truth is the `name` literal on
-// each RBTDRA_SUITES entry; these test-side consts are the single spelling the
+// each RBTCEA_SUITES entry; these test-side consts are the single spelling the
 // oracle shares across its model table and law assertions (a renamed suite makes
 // the lookup panic loudly rather than silently skipping a law).
-const ZRBTDTC_REVEILLE: &str = "reveille";
-const ZRBTDTC_PICKET: &str = "picket";
-const ZRBTDTC_BIVOUAC: &str = "bivouac";
-const ZRBTDTC_ECHELON: &str = "echelon";
-const ZRBTDTC_GAUNTLET: &str = "gauntlet";
-const ZRBTDTC_SKIRMISH: &str = "skirmish";
-const ZRBTDTC_DOGFIGHT: &str = "dogfight";
-const ZRBTDTC_SIEGE: &str = "siege";
-const ZRBTDTC_BLOCKADE: &str = "blockade";
-const ZRBTDTC_PARLEY: &str = "parley";
+const ZRBTTCC_REVEILLE: &str = "reveille";
+const ZRBTTCC_PICKET: &str = "picket";
+const ZRBTTCC_BIVOUAC: &str = "bivouac";
+const ZRBTTCC_ECHELON: &str = "echelon";
+const ZRBTTCC_GAUNTLET: &str = "gauntlet";
+const ZRBTTCC_SKIRMISH: &str = "skirmish";
+const ZRBTTCC_DOGFIGHT: &str = "dogfight";
+const ZRBTTCC_SIEGE: &str = "siege";
+const ZRBTTCC_BLOCKADE: &str = "blockade";
+const ZRBTTCC_PARLEY: &str = "parley";
 
 /// First-class wrapper classification — the theurge cosmology's two wrappers,
 /// plus the two non-product suite shapes. A suite runs its inner bodies under
 /// exactly one of these.
 #[derive(Clone, Copy, PartialEq, Eq)]
-enum rbtdtc_Wrapper {
+enum rbttcc_Wrapper {
     /// Substrate-independent — no freehold (reveille; also the calibrant
     /// abort-subject suite, whose deliberately-failing inner bodies touch no
     /// substrate at all).
@@ -78,28 +78,28 @@ enum rbtdtc_Wrapper {
 }
 
 /// The wrapper(inner) model: every suite paired with the wrapper it runs under.
-/// The exhaustiveness test pins this against RBTDRA_SUITES, so a new suite cannot
+/// The exhaustiveness test pins this against RBTCEA_SUITES, so a new suite cannot
 /// enter the registry without being classified under a wrapper here.
-const ZRBTDTC_MODEL: &[(&str, rbtdtc_Wrapper)] = &[
-    (ZRBTDTC_REVEILLE, rbtdtc_Wrapper::Base),
-    (ZRBTDTC_PICKET, rbtdtc_Wrapper::Reuse),
-    (ZRBTDTC_BIVOUAC, rbtdtc_Wrapper::Reuse),
-    (ZRBTDTC_ECHELON, rbtdtc_Wrapper::Reuse),
-    (ZRBTDTC_GAUNTLET, rbtdtc_Wrapper::Lifecycle),
-    (ZRBTDTC_SKIRMISH, rbtdtc_Wrapper::Reuse),
-    (ZRBTDTC_DOGFIGHT, rbtdtc_Wrapper::Reuse),
-    (ZRBTDTC_SIEGE, rbtdtc_Wrapper::Local),
-    (ZRBTDTC_BLOCKADE, rbtdtc_Wrapper::Reuse),
-    (ZRBTDTC_PARLEY, rbtdtc_Wrapper::Reuse),
-    (RBTDRA_SUITE_NAME_CALIBRANT, rbtdtc_Wrapper::Base),
+const ZRBTTCC_MODEL: &[(&str, rbttcc_Wrapper)] = &[
+    (ZRBTTCC_REVEILLE, rbttcc_Wrapper::Base),
+    (ZRBTTCC_PICKET, rbttcc_Wrapper::Reuse),
+    (ZRBTTCC_BIVOUAC, rbttcc_Wrapper::Reuse),
+    (ZRBTTCC_ECHELON, rbttcc_Wrapper::Reuse),
+    (ZRBTTCC_GAUNTLET, rbttcc_Wrapper::Lifecycle),
+    (ZRBTTCC_SKIRMISH, rbttcc_Wrapper::Reuse),
+    (ZRBTTCC_DOGFIGHT, rbttcc_Wrapper::Reuse),
+    (ZRBTTCC_SIEGE, rbttcc_Wrapper::Local),
+    (ZRBTTCC_BLOCKADE, rbttcc_Wrapper::Reuse),
+    (ZRBTTCC_PARLEY, rbttcc_Wrapper::Reuse),
+    (RBTCEA_SUITE_NAME_CALIBRANT, rbttcc_Wrapper::Base),
 ];
 
 /// Resolve a suite's membership as a set of fixture names, read live from
-/// RBTDRA_SUITES. Panics if the suite is not registered — a stale suite name in
+/// RBTCEA_SUITES. Panics if the suite is not registered — a stale suite name in
 /// the model is a loud failure, not a silent skip.
-fn zrbtdtc_members(suite: &str) -> BTreeSet<&'static str> {
-    rbtdra_lookup_suite(suite)
-        .unwrap_or_else(|| panic!("suite '{}' not registered in RBTDRA_SUITES", suite))
+fn zrbttcc_members(suite: &str) -> BTreeSet<&'static str> {
+    rbtcea_lookup_suite(suite)
+        .unwrap_or_else(|| panic!("suite '{}' not registered in RBTCEA_SUITES", suite))
         .fixtures
         .iter()
         .map(|f| f.name)
@@ -107,54 +107,54 @@ fn zrbtdtc_members(suite: &str) -> BTreeSet<&'static str> {
 }
 
 #[test]
-fn rbtdtc_model_classifies_every_suite() {
+fn rbttcc_model_classifies_every_suite() {
     // Every registered suite carries exactly one wrapper classification, and
     // every classified name is a registered suite — the model covers reality,
     // neither missing a suite nor naming a phantom.
-    let registered: BTreeSet<&str> = RBTDRA_SUITES.iter().map(|s| s.name).collect();
-    let modeled: BTreeSet<&str> = ZRBTDTC_MODEL.iter().map(|(n, _)| *n).collect();
+    let registered: BTreeSet<&str> = RBTCEA_SUITES.iter().map(|s| s.name).collect();
+    let modeled: BTreeSet<&str> = ZRBTTCC_MODEL.iter().map(|(n, _)| *n).collect();
     assert_eq!(
         registered, modeled,
-        "wrapper model and RBTDRA_SUITES disagree on the suite set"
+        "wrapper model and RBTCEA_SUITES disagree on the suite set"
     );
     assert_eq!(
-        ZRBTDTC_MODEL.len(),
+        ZRBTTCC_MODEL.len(),
         modeled.len(),
         "a suite is classified more than once in the wrapper model"
     );
 }
 
 #[test]
-fn rbtdtc_reuse_product_completeness() {
+fn rbttcc_reuse_product_completeness() {
     // complete (echelon) = service (picket) ∪ crucible (bivouac): the REUSE
     // product law. The union of the two facet suites reconstructs the complete
     // suite exactly — neither facet contributes a member the union omits, and
     // the complete suite adds nothing beyond the two facets.
-    let picket = zrbtdtc_members(ZRBTDTC_PICKET);
-    let bivouac = zrbtdtc_members(ZRBTDTC_BIVOUAC);
-    let echelon = zrbtdtc_members(ZRBTDTC_ECHELON);
+    let picket = zrbttcc_members(ZRBTTCC_PICKET);
+    let bivouac = zrbttcc_members(ZRBTTCC_BIVOUAC);
+    let echelon = zrbttcc_members(ZRBTTCC_ECHELON);
     let union: BTreeSet<&str> = picket.union(&bivouac).copied().collect();
     assert_eq!(union, echelon, "echelon must equal picket ∪ bivouac");
 }
 
 #[test]
-fn rbtdtc_reuse_tier_containment() {
-    let picket = zrbtdtc_members(ZRBTDTC_PICKET);
-    let bivouac = zrbtdtc_members(ZRBTDTC_BIVOUAC);
-    let echelon = zrbtdtc_members(ZRBTDTC_ECHELON);
+fn rbttcc_reuse_tier_containment() {
+    let picket = zrbttcc_members(ZRBTTCC_PICKET);
+    let bivouac = zrbttcc_members(ZRBTTCC_BIVOUAC);
+    let echelon = zrbttcc_members(ZRBTTCC_ECHELON);
     assert!(picket.is_subset(&echelon), "picket must be a subset of echelon");
     assert!(bivouac.is_subset(&echelon), "bivouac must be a subset of echelon");
 }
 
 #[test]
-fn rbtdtc_ladder_containment() {
+fn rbttcc_ladder_containment() {
     // blockade ⊆ skirmish ⊆ gauntlet — the standing/lifecycle ladder. Each rung
     // adds wrapper machinery or inner bodies over the one below and never drops a
     // member: the airgap probe rides inside the standing-reuse mini-ladder, which
     // rides inside the lifecycle release ladder.
-    let blockade = zrbtdtc_members(ZRBTDTC_BLOCKADE);
-    let skirmish = zrbtdtc_members(ZRBTDTC_SKIRMISH);
-    let gauntlet = zrbtdtc_members(ZRBTDTC_GAUNTLET);
+    let blockade = zrbttcc_members(ZRBTTCC_BLOCKADE);
+    let skirmish = zrbttcc_members(ZRBTTCC_SKIRMISH);
+    let gauntlet = zrbttcc_members(ZRBTTCC_GAUNTLET);
     assert!(
         blockade.is_subset(&skirmish),
         "blockade must be a subset of skirmish"
@@ -170,27 +170,27 @@ fn rbtdtc_ladder_containment() {
 /// crucible at all: a k-prefixed hallmark resolves only in the local kludge
 /// namespace, so a committed pin is the residue of whichever station last
 /// kludged, and charge can only die on it.
-const ZRBTDTC_KLUDGE_PRODUCERS: &[(&str, &str)] =
-    &[(RBTDRM_FIXTURE_TADMOR, RBTDRM_FIXTURE_KLUDGE_TADMOR)];
+const ZRBTTCC_KLUDGE_PRODUCERS: &[(&str, &str)] =
+    &[(RBTCEM_FIXTURE_TADMOR, RBTCEM_FIXTURE_KLUDGE_TADMOR)];
 
 /// Fixtures that commit under the vessels root — every caller of the
-/// vessel-class commit verbs (rbtdre_commit_vessels, rbtdre_commit_vessels_all),
-/// all of which stand in rbtdro_onboarding. No fixture definition declares this,
+/// vessel-class commit verbs (rbtcee_commit_vessels, rbtcee_commit_vessels_all),
+/// all of which stand in rbtcgo_onboarding. No fixture definition declares this,
 /// so the list is named here; a fixture gaining a vessel commit joins it.
-const ZRBTDTC_VESSEL_COMMITTERS: &[&str] = &[RBTDRM_FIXTURE_ONBOARDING_SEQUENCE];
+const ZRBTTCC_VESSEL_COMMITTERS: &[&str] = &[RBTCEM_FIXTURE_ONBOARDING_SEQUENCE];
 
 #[test]
-fn rbtdtc_kludge_producer_follows_vessel_commits() {
+fn rbttcc_kludge_producer_follows_vessel_commits() {
     // The charge guard reads a kludge pin stale on any change under the vessels
     // root since the pin's sha, so a producer that ran before a vessel commit
     // leaves the crucible charging a pin the guard refuses. In every suite that
     // charges a kludge-pinned crucible, its producer must stand ahead of the
     // crucible and behind every fixture that commits under the vessels root.
     let mut faults: Vec<String> = Vec::new();
-    for suite in RBTDRA_SUITES {
+    for suite in RBTCEA_SUITES {
         let order: Vec<&str> = suite.fixtures.iter().map(|f| f.name).collect();
         let position = |name: &str| order.iter().position(|n| *n == name);
-        for (crucible, producer) in ZRBTDTC_KLUDGE_PRODUCERS {
+        for (crucible, producer) in ZRBTTCC_KLUDGE_PRODUCERS {
             let Some(crucible_at) = position(crucible) else {
                 continue;
             };
@@ -207,7 +207,7 @@ fn rbtdtc_kludge_producer_follows_vessel_commits() {
                     suite.name, producer, crucible
                 ));
             }
-            for committer in ZRBTDTC_VESSEL_COMMITTERS {
+            for committer in ZRBTTCC_VESSEL_COMMITTERS {
                 if let Some(committer_at) = position(committer) {
                     if committer_at > producer_at {
                         faults.push(format!(
@@ -224,20 +224,20 @@ fn rbtdtc_kludge_producer_follows_vessel_commits() {
 }
 
 #[test]
-fn rbtdtc_lifecycle_builds_on_reuse() {
+fn rbttcc_lifecycle_builds_on_reuse() {
     // Each Lifecycle suite (create→destroy) is a superset of at least one Reuse
     // suite: the release ladder stands the same inner bodies up under a
     // create→destroy wrapper that the standing-reuse suites run against an
     // already-standing freehold. Reads the wrapper classification — the model's
     // load-bearing claim about how the two wrappers relate.
-    let reuse: Vec<BTreeSet<&str>> = ZRBTDTC_MODEL
+    let reuse: Vec<BTreeSet<&str>> = ZRBTTCC_MODEL
         .iter()
-        .filter(|(_, w)| *w == rbtdtc_Wrapper::Reuse)
-        .map(|(n, _)| zrbtdtc_members(n))
+        .filter(|(_, w)| *w == rbttcc_Wrapper::Reuse)
+        .map(|(n, _)| zrbttcc_members(n))
         .collect();
-    for (name, wrapper) in ZRBTDTC_MODEL {
-        if *wrapper == rbtdtc_Wrapper::Lifecycle {
-            let members = zrbtdtc_members(name);
+    for (name, wrapper) in ZRBTTCC_MODEL {
+        if *wrapper == rbttcc_Wrapper::Lifecycle {
+            let members = zrbttcc_members(name);
             assert!(
                 reuse.iter().any(|r| r.is_subset(&members)),
                 "lifecycle suite '{}' must be a superset of some reuse suite",

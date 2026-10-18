@@ -33,7 +33,7 @@ use std::time::{Duration, Instant};
 /// waits out a multi-minute cloud build whose per-poll status is captured (and
 /// thus silenced) by the tabtarget invocation in rbtdri. Without a heartbeat
 /// the console shows nothing between a case's start and its terminal verdict.
-const RBTDRE_HEARTBEAT_INTERVAL_SECS: u64 = 30;
+const RBTCEE_HEARTBEAT_INTERVAL_SECS: u64 = 30;
 
 /// Run a case's function, emitting a periodic `running <case> (Ns elapsed)`
 /// heartbeat to the console while it blocks.
@@ -43,11 +43,11 @@ const RBTDRE_HEARTBEAT_INTERVAL_SECS: u64 = 30;
 /// A background thread emits the heartbeat and exits the instant the case
 /// returns — the dropped sender disconnects the channel, so short cases incur no
 /// added latency and only genuinely long waits ever tick.
-fn rbtdre_run_with_heartbeat(case: &rbtdre_Case, case_dir: &Path) -> rbtdre_Verdict {
+fn rbtcee_run_with_heartbeat(case: &rbtcee_Case, case_dir: &Path) -> rbtcee_Verdict {
     let (tx, rx) = mpsc::channel::<()>();
     let name = case.name;
     let start = Instant::now();
-    let interval = Duration::from_secs(RBTDRE_HEARTBEAT_INTERVAL_SECS);
+    let interval = Duration::from_secs(RBTCEE_HEARTBEAT_INTERVAL_SECS);
 
     let handle = std::thread::spawn(move || loop {
         match rx.recv_timeout(interval) {
@@ -55,7 +55,7 @@ fn rbtdre_run_with_heartbeat(case: &rbtdre_Case, case_dir: &Path) -> rbtdre_Verd
             Ok(_) | Err(mpsc::RecvTimeoutError::Disconnected) => return,
             // Interval elapsed with the case still running — emit progress.
             Err(mpsc::RecvTimeoutError::Timeout) => {
-                crate::rbtdrg_info_now!("running {} ({}s elapsed)", name, start.elapsed().as_secs());
+                crate::rbtcel_info_now!("running {} ({}s elapsed)", name, start.elapsed().as_secs());
             }
         }
     });
@@ -69,7 +69,7 @@ fn rbtdre_run_with_heartbeat(case: &rbtdre_Case, case_dir: &Path) -> rbtdre_Verd
 // ── Verdict ────────────────────────────────────────────────────
 
 /// Verdict from a single test case execution.
-pub enum rbtdre_Verdict {
+pub enum rbtcee_Verdict {
     Pass,
     Fail(String),
     Skip(String),
@@ -86,7 +86,7 @@ pub enum rbtdre_Verdict {
 /// Engine refuses keep-going mode (a failed case leaves a broken precondition for
 /// the next case, so continuing is incoherent). Fail-fast is forced.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum rbtdre_Disposition {
+pub enum rbtcee_Disposition {
     Independent,
     StateProgressing,
 }
@@ -97,42 +97,42 @@ pub enum rbtdre_Disposition {
 ///
 /// Centralizes the keep-going / fail-fast policy at the engine boundary so all
 /// callers funnel through one place.
-pub fn rbtdre_resolve_fail_fast(
-    disposition: rbtdre_Disposition,
+pub fn rbtcee_resolve_fail_fast(
+    disposition: rbtcee_Disposition,
     keep_going_requested: bool,
 ) -> Result<bool, String> {
     match (disposition, keep_going_requested) {
-        (rbtdre_Disposition::StateProgressing, true) => Err(
+        (rbtcee_Disposition::StateProgressing, true) => Err(
             "rbtd: keep-going mode refused for StateProgressing fixture — \
              a failed case leaves a broken precondition for the next case, \
              so continuing is incoherent. Run individual cases via the \
              SingleCase tabtarget if you want to survey."
                 .to_string(),
         ),
-        (rbtdre_Disposition::StateProgressing, false) => Ok(true),
-        (rbtdre_Disposition::Independent, keep_going) => Ok(!keep_going),
+        (rbtcee_Disposition::StateProgressing, false) => Ok(true),
+        (rbtcee_Disposition::Independent, keep_going) => Ok(!keep_going),
     }
 }
 
 /// The one flag the fixture/suite runners accept — requests keep-going mode,
-/// resolved against the fixture's disposition by `rbtdre_resolve_fail_fast`.
-pub const RBTDRE_FLAG_KEEP_GOING: &str = "--keep-going";
+/// resolved against the fixture's disposition by `rbtcee_resolve_fail_fast`.
+pub const RBTCEE_FLAG_KEEP_GOING: &str = "--keep-going";
 
 /// Split raw runner CLI args into positionals and the keep-going flag.
 /// Position-independent, so `rbtd <fixture> --keep-going` and
 /// `rbtd --keep-going <fixture>` read identically. Any other `--`-prefixed
 /// token is rejected loud — a typo'd flag must never silently read as a
 /// fixture or suite name.
-pub fn rbtdre_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), String> {
+pub fn rbtcee_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), String> {
     let mut positionals = Vec::new();
     let mut keep_going = false;
     for arg in args {
-        if arg == RBTDRE_FLAG_KEEP_GOING {
+        if arg == RBTCEE_FLAG_KEEP_GOING {
             keep_going = true;
         } else if arg.starts_with("--") {
             return Err(format!(
                 "unknown flag '{}' (known: {})",
-                arg, RBTDRE_FLAG_KEEP_GOING
+                arg, RBTCEE_FLAG_KEEP_GOING
             ));
         } else {
             positionals.push(arg.clone());
@@ -154,7 +154,7 @@ pub fn rbtdre_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), S
 /// no unguarded path — an uncommitted engine change or a falsification plant
 /// refuses a single-fixture drive exactly as it would a suite start. Each call
 /// site's own refusal names the notch (commit) as the remedy.
-pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
+pub fn rbtcee_tree_clean(root: &Path) -> Result<(), String> {
     match std::process::Command::new("git")
         .args(["status", "--porcelain"])
         .current_dir(root)
@@ -187,7 +187,7 @@ pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
 // commit the tracked config it tests. A fixture forward-evolves config in
 // exactly three classes — vessel (rbrv.env), nameplate (rbrn.env), and regime
 // (rbrd.env / rbrr.env) — and commits each through its own scoped verb here.
-// `rbtdre_tree_clean` above is the read-side member of this console; these are
+// `rbtcee_tree_clean` above is the read-side member of this console; these are
 // the write side.
 //
 // The load-bearing property is scope: every commit verb DERIVES its own paths
@@ -195,7 +195,7 @@ pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
 // tag) and stages only those. No verb accepts a free-form file list, so a
 // fixture is structurally incapable of sweeping a surprise edit — another
 // officium's work, an operator's half-finished change — into its commit. The
-// only entry that touches an arbitrary path list, `rbtdre_commit_paths`, is
+// only entry that touches an arbitrary path list, `rbtcee_commit_paths`, is
 // private to this module; external callers reach it solely through the
 // class-typed verbs. Doctrine: claude-rbk-theurge-ifrit-context.md.
 
@@ -208,7 +208,7 @@ pub fn rbtdre_tree_clean(root: &Path) -> Result<(), String> {
 /// empty `paths` is itself a no-op — guarding it is essential, since a bare
 /// `git status --porcelain --` with no pathspec would survey the WHOLE tree
 /// and defeat the scoping.
-fn rbtdre_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(), String> {
+fn rbtcee_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(), String> {
     if paths.is_empty() {
         return Ok(());
     }
@@ -265,7 +265,7 @@ fn rbtdre_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(
 /// Commit the named nameplates' rbrn.env files and nothing else. Each moniker
 /// derives `<moorings>/<sprue><nameplate>/rbrn.env` — the moniker stays bare and
 /// the directory wears the inscription sprue.
-pub fn rbtdre_commit_nameplates(
+pub fn rbtcee_commit_nameplates(
     root: &Path,
     nameplates: &[&str],
     message: &str,
@@ -282,12 +282,12 @@ pub fn rbtdre_commit_nameplates(
             )
         })
         .collect();
-    rbtdre_commit_paths(root, &paths, message)
+    rbtcee_commit_paths(root, &paths, message)
 }
 
 /// Commit the named vessels' rbrv.env files and nothing else. Each vessel dir
 /// (a moorings-relative path) derives `<vessel_dir>/rbrv.env`.
-pub fn rbtdre_commit_vessels(
+pub fn rbtcee_commit_vessels(
     root: &Path,
     vessel_dirs: &[&str],
     message: &str,
@@ -296,14 +296,14 @@ pub fn rbtdre_commit_vessels(
         .iter()
         .map(|dir| format!("{}/{}", dir, crate::rbtdgc_consts::RBTDGC_RBRV_FILE))
         .collect();
-    rbtdre_commit_paths(root, &paths, message)
+    rbtcee_commit_paths(root, &paths, message)
 }
 
 /// Commit EVERY vessel's rbrv.env — the set a wildcard yoke rewrites. Still
 /// vessel-scoped: the enumeration walks only the vessels dir and only collects
 /// rbrv.env leaves, so nothing outside the vessel class can ride along. Paths
 /// are sorted for stable commit staging.
-pub fn rbtdre_commit_vessels_all(root: &Path, message: &str) -> Result<(), String> {
+pub fn rbtcee_commit_vessels_all(root: &Path, message: &str) -> Result<(), String> {
     let vessels_rel = crate::rbtd_vessels_dir!();
     let vessels_abs = root.join(vessels_rel);
     let mut paths: Vec<String> = Vec::new();
@@ -325,43 +325,43 @@ pub fn rbtdre_commit_vessels_all(root: &Path, message: &str) -> Result<(), Strin
         }
     }
     paths.sort();
-    rbtdre_commit_paths(root, &paths, message)
+    rbtcee_commit_paths(root, &paths, message)
 }
 
 /// The regime files a fixture forward-evolves in place — the marshal-zero
 /// family of tracked depot/runtime config.
-pub enum rbtdre_RegimeFile {
+pub enum rbtcee_RegimeFile {
     Rbrd,
     Rbrr,
 }
 
 /// Commit the named regime files and nothing else. The closed enum is what
 /// keeps the regime class scoped — there is no free-form path to widen it.
-pub fn rbtdre_commit_regime(
+pub fn rbtcee_commit_regime(
     root: &Path,
-    files: &[rbtdre_RegimeFile],
+    files: &[rbtcee_RegimeFile],
     message: &str,
 ) -> Result<(), String> {
     let paths: Vec<String> = files
         .iter()
         .map(|f| {
             match f {
-                rbtdre_RegimeFile::Rbrd => crate::rbtdgc_consts::RBTDGC_RBRD_FILE,
-                rbtdre_RegimeFile::Rbrr => crate::rbtdgc_consts::RBTDGC_RBRR_FILE,
+                rbtcee_RegimeFile::Rbrd => crate::rbtdgc_consts::RBTDGC_RBRD_FILE,
+                rbtcee_RegimeFile::Rbrr => crate::rbtdgc_consts::RBTDGC_RBRR_FILE,
             }
             .to_string()
         })
         .collect();
-    rbtdre_commit_paths(root, &paths, message)
+    rbtcee_commit_paths(root, &paths, message)
 }
 
 /// Set a named `FIELD=value` line in an in-place tracked config file, preserving
 /// every other line, via atomic rename. **Fails loud if the field is absent** —
 /// the find-or-err is the schema-drift catch: a renamed or removed field stops
 /// the run instead of silently writing nothing. The generalized form of the
-/// vessel-env write embryo (rbtdro_write_vessel_env), and the shared core of the
+/// vessel-env write embryo (rbtcgo_write_vessel_env), and the shared core of the
 /// config-zero seam below.
-pub fn rbtdre_config_set_field(file: &Path, field: &str, value: &str) -> Result<(), String> {
+pub fn rbtcee_config_set_field(file: &Path, field: &str, value: &str) -> Result<(), String> {
     let f = std::fs::File::open(file).map_err(|e| format!("open {}: {}", file.display(), e))?;
     let lines: Vec<String> = BufReader::new(f)
         .lines()
@@ -407,8 +407,8 @@ pub fn rbtdre_config_set_field(file: &Path, field: &str, value: &str) -> Result<
 /// stale-value false-green: a silently-skipped write then leaves an obviously
 /// empty value, not a passing stale one. The inherited fail-on-absent doubles
 /// as a schema-drift catch. One validated seam, never a per-field function farm.
-pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
-    rbtdre_config_set_field(file, field, "")
+pub fn rbtcee_config_zero(file: &Path, field: &str) -> Result<(), String> {
+    rbtcee_config_set_field(file, field, "")
 }
 
 // ── Tariff (declared cost expectation) ─────────────────────────
@@ -416,7 +416,7 @@ pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
 // A fixture's tariff is its declared cost schedule: the wall-clock and
 // tabtarget-invocation footprint a healthy green is expected to carry. Each of
 // the three bounds is independently optional — None means "unchecked" for that
-// bound, and the all-None RBTDRE_UNCHECKED default leaves a fixture entirely
+// bound, and the all-None RBTCEE_UNCHECKED default leaves a fixture entirely
 // unevaluated (it runs exactly as it did before tariffs existed).
 //
 // The three bounds are NOT symmetric in consequence:
@@ -452,17 +452,17 @@ pub fn rbtdre_config_zero(file: &Path, field: &str) -> Result<(), String> {
 /// asymmetry between the two failing bounds (the vacuity floor and the
 /// shortfall gate) and the one advisory (max-time).
 #[derive(Copy, Clone)]
-pub struct rbtdre_Tariff {
+pub struct rbtcee_Tariff {
     pub min_secs: Option<u64>,
     pub max_secs: Option<u64>,
     pub invocations: Option<u32>,
 }
 
-impl rbtdre_Tariff {
+impl rbtcee_Tariff {
     /// The undeclared default — every bound unchecked. A fixture carrying this
     /// is never tariff-evaluated: legitimately-variable fixtures (and any not
     /// yet seeded from observed greens) declare it and run exactly as before.
-    pub const RBTDRE_UNCHECKED: rbtdre_Tariff = rbtdre_Tariff {
+    pub const RBTCEE_UNCHECKED: rbtcee_Tariff = rbtcee_Tariff {
         min_secs: None,
         max_secs: None,
         invocations: None,
@@ -472,13 +472,13 @@ impl rbtdre_Tariff {
 /// Grep token leading every tariff line (per-fixture and suite-end table) — one
 /// stable handle so the logs-buk history greps into a drift census. Minted
 /// grep-clean repo-wide.
-pub const RBTDRE_TARIFF_TOKEN: &str = "tariff";
+pub const RBTCEE_TARIFF_TOKEN: &str = "tariff";
 
 /// Outcome of evaluating a fixture's observed footprint against its declared
-/// tariff. Produced by the pure `rbtdre_evaluate_tariff` seam from (declared,
+/// tariff. Produced by the pure `rbtcee_evaluate_tariff` seam from (declared,
 /// observed) alone — no I/O — so the three violation kinds are unit-testable
 /// without spawning a single subprocess.
-pub struct rbtdre_TariffReport {
+pub struct rbtcee_TariffReport {
     pub elapsed_secs: u64,
     pub invocations: u32,
     /// Observed wall-clock strictly below the declared min — a FAILURE.
@@ -494,15 +494,15 @@ pub struct rbtdre_TariffReport {
 
 /// The pure tariff-evaluation seam: declared tariff + observed footprint →
 /// report. No timing, no spawning, no console — every unchecked (None) bound
-/// yields its violation flag false, so an RBTDRE_UNCHECKED tariff reports all-clear.
+/// yields its violation flag false, so an RBTCEE_UNCHECKED tariff reports all-clear.
 /// This is the unit-tested heart of the feature (deliberate violation of each
 /// kind asserts the corresponding flag).
-pub fn rbtdre_evaluate_tariff(
-    tariff: &rbtdre_Tariff,
+pub fn rbtcee_evaluate_tariff(
+    tariff: &rbtcee_Tariff,
     elapsed_secs: u64,
     invocations: u32,
-) -> rbtdre_TariffReport {
-    rbtdre_TariffReport {
+) -> rbtcee_TariffReport {
+    rbtcee_TariffReport {
         elapsed_secs,
         invocations,
         too_fast: tariff.min_secs.is_some_and(|m| elapsed_secs < m),
@@ -513,25 +513,25 @@ pub fn rbtdre_evaluate_tariff(
 
 /// Render one optional wall-clock bound for display — a declared value as
 /// `Ns`, an unchecked bound as an em-dash.
-fn rbtdre_fmt_secs(o: Option<u64>) -> String {
+fn rbtcee_fmt_secs(o: Option<u64>) -> String {
     o.map_or_else(|| "—".to_string(), |v| format!("{}s", v))
 }
 
 /// Render one optional count bound for display — a declared value, or an
 /// em-dash when unchecked.
-fn rbtdre_fmt_count(o: Option<u32>) -> String {
+fn rbtcee_fmt_count(o: Option<u32>) -> String {
     o.map_or_else(|| "—".to_string(), |v| v.to_string())
 }
 
 /// Compact one-line rendering of a declared tariff — unchecked bounds as
 /// em-dash. Used by the no-arg fixture/case listing so declared costs surface
 /// and a planned run sums to an ETA.
-pub fn rbtdre_tariff_declared(tariff: &rbtdre_Tariff) -> String {
+pub fn rbtcee_tariff_declared(tariff: &rbtcee_Tariff) -> String {
     format!(
         "min={} max={} inv={}",
-        rbtdre_fmt_secs(tariff.min_secs),
-        rbtdre_fmt_secs(tariff.max_secs),
-        rbtdre_fmt_count(tariff.invocations),
+        rbtcee_fmt_secs(tariff.min_secs),
+        rbtcee_fmt_secs(tariff.max_secs),
+        rbtcee_fmt_count(tariff.invocations),
     )
 }
 
@@ -546,52 +546,52 @@ pub fn rbtdre_tariff_declared(tariff: &rbtdre_Tariff) -> String {
 /// when it is suppressed behind an existing failure. The line says which,
 /// because a drift printed as advisory while it reddens the suite (or as FAILED
 /// while it did not) misreads the log at exactly the moment it matters.
-pub fn rbtdre_print_tariff(
+pub fn rbtcee_print_tariff(
     name: &str,
-    tariff: &rbtdre_Tariff,
-    report: &rbtdre_TariffReport,
+    tariff: &rbtcee_Tariff,
+    report: &rbtcee_TariffReport,
     drift_fails: bool,
-    colors: &rbtdre_Colors,
+    colors: &rbtcee_Colors,
 ) {
-    crate::rbtdrg_info_now!(
+    crate::rbtcel_info_now!(
         "{} {}: elapsed={}s invocations={} [declared min={} max={} invocations={}]",
-        RBTDRE_TARIFF_TOKEN, name, report.elapsed_secs, report.invocations,
-        rbtdre_fmt_secs(tariff.min_secs), rbtdre_fmt_secs(tariff.max_secs),
-        rbtdre_fmt_count(tariff.invocations),
+        RBTCEE_TARIFF_TOKEN, name, report.elapsed_secs, report.invocations,
+        rbtcee_fmt_secs(tariff.min_secs), rbtcee_fmt_secs(tariff.max_secs),
+        rbtcee_fmt_count(tariff.invocations),
     );
     if report.too_fast {
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}{}{} {} tariff too-fast — elapsed {}s below declared min {} (vacuous green)",
-            colors.red, RBTDRE_WORD_FAILED, colors.reset, name, report.elapsed_secs,
-            rbtdre_fmt_secs(tariff.min_secs),
+            colors.red, RBTCEE_WORD_FAILED, colors.reset, name, report.elapsed_secs,
+            rbtcee_fmt_secs(tariff.min_secs),
         );
     }
     if report.too_slow {
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}WARNING:{} {} tariff too-slow — elapsed {}s above declared max {} (advisory)",
             colors.yellow, colors.reset, name, report.elapsed_secs,
-            rbtdre_fmt_secs(tariff.max_secs),
+            rbtcee_fmt_secs(tariff.max_secs),
         );
     }
     if report.count_drift && drift_fails {
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}{}{} {} tariff count-drift — {} invocations vs declared {} (declared work did not run)",
-            colors.red, RBTDRE_WORD_FAILED, colors.reset, name, report.invocations,
-            rbtdre_fmt_count(tariff.invocations),
+            colors.red, RBTCEE_WORD_FAILED, colors.reset, name, report.invocations,
+            rbtcee_fmt_count(tariff.invocations),
         );
     } else if report.count_drift {
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}WARNING:{} {} tariff count-drift — {} invocations vs declared {} (suppressed — the fixture already failed)",
             colors.yellow, colors.reset, name, report.invocations,
-            rbtdre_fmt_count(tariff.invocations),
+            rbtcee_fmt_count(tariff.invocations),
         );
     }
 }
 
 /// One collected row of the suite-end tariff drift table.
-pub struct rbtdre_TariffRow {
+pub struct rbtcee_TariffRow {
     pub name: String,
-    pub tariff: rbtdre_Tariff,
+    pub tariff: rbtcee_Tariff,
     pub elapsed_secs: u64,
     pub invocations: u32,
 }
@@ -606,13 +606,13 @@ pub struct rbtdre_TariffRow {
 /// over the whole run, not a verdict — where a fixture both failed a case and
 /// drifted, the suppression is stated on that fixture's own line above, which
 /// is the verdict of record.
-pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
+pub fn rbtcee_print_tariff_table(rows: &[rbtcee_TariffRow]) {
     if rows.is_empty() {
         return;
     }
-    crate::rbtdrg_info_now!("{} drift table (observed vs declared):", RBTDRE_TARIFF_TOKEN);
+    crate::rbtcel_info_now!("{} drift table (observed vs declared):", RBTCEE_TARIFF_TOKEN);
     for r in rows {
-        let report = rbtdre_evaluate_tariff(&r.tariff, r.elapsed_secs, r.invocations);
+        let report = rbtcee_evaluate_tariff(&r.tariff, r.elapsed_secs, r.invocations);
         let flag = if report.too_fast {
             " TOO-FAST"
         } else if report.too_slow {
@@ -622,11 +622,11 @@ pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
         } else {
             ""
         };
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}  {:<28} elapsed={:>4}s inv={:>3}  decl[min={} max={} inv={}]{}",
-            RBTDRE_TARIFF_TOKEN, r.name, r.elapsed_secs, r.invocations,
-            rbtdre_fmt_secs(r.tariff.min_secs), rbtdre_fmt_secs(r.tariff.max_secs),
-            rbtdre_fmt_count(r.tariff.invocations), flag,
+            RBTCEE_TARIFF_TOKEN, r.name, r.elapsed_secs, r.invocations,
+            rbtcee_fmt_secs(r.tariff.min_secs), rbtcee_fmt_secs(r.tariff.max_secs),
+            rbtcee_fmt_count(r.tariff.invocations), flag,
         );
     }
 }
@@ -634,14 +634,14 @@ pub fn rbtdre_print_tariff_table(rows: &[rbtdre_TariffRow]) {
 // ── Colophon census (negative direction) ────────────────────────
 //
 // The positive direction (an invoked colophon absent from the fixture's
-// declared list) refuses at the invoke chokepoint (rbtdri_invoke_impl) — a
+// declared list) refuses at the invoke chokepoint (rbtcei_invoke_impl) — a
 // refused invocation already surfaces as a case Fail, same as any other
 // invocation error. Only the negative direction (a declared colophon never
 // invoked) needs this separate check: it can only be known once the fixture
 // is complete.
 
-/// Grep token leading every census line — parallel to RBTDRE_TARIFF_TOKEN.
-pub const RBTDRE_CENSUS_TOKEN: &str = "census";
+/// Grep token leading every census line — parallel to RBTCEE_TARIFF_TOKEN.
+pub const RBTCEE_CENSUS_TOKEN: &str = "census";
 
 /// Evaluate the declared/used colophon census for a just-completed fixture run
 /// and print a per-colophon usage report under the grep token. Reads the
@@ -652,30 +652,30 @@ pub const RBTDRE_CENSUS_TOKEN: &str = "census";
 /// as advisory lines only — an unused permitted colophon never affects the
 /// verdict, since it is conditional-by-design and may legitimately go
 /// unreached on a healthy run.
-pub fn rbtdre_check_census(fixture_name: &str, colors: &rbtdre_Colors) -> bool {
-    let declared = match crate::rbtdri_invocation::rbtdri_census_declared() {
+pub fn rbtcee_check_census(fixture_name: &str, colors: &rbtcee_Colors) -> bool {
+    let declared = match crate::rbtcei_invocation::rbtcei_census_declared() {
         Some(d) => d,
         None => return true,
     };
-    let used = crate::rbtdri_invocation::rbtdri_census_used();
+    let used = crate::rbtcei_invocation::rbtcei_census_used();
     let mut all_used = true;
     for colophon in declared {
         if used.contains(*colophon) {
-            crate::rbtdrg_info_now!(
-                "{} {}: colophon '{}' used", RBTDRE_CENSUS_TOKEN, fixture_name, colophon
+            crate::rbtcel_info_now!(
+                "{} {}: colophon '{}' used", RBTCEE_CENSUS_TOKEN, fixture_name, colophon
             );
         } else {
-            crate::rbtdrg_info_now!(
+            crate::rbtcel_info_now!(
                 "{}{}{} {} census — colophon '{}' declared but never invoked",
-                colors.red, RBTDRE_WORD_FAILED, colors.reset, fixture_name, colophon
+                colors.red, RBTCEE_WORD_FAILED, colors.reset, fixture_name, colophon
             );
             all_used = false;
         }
     }
-    for colophon in crate::rbtdri_invocation::rbtdri_census_permitted() {
+    for colophon in crate::rbtcei_invocation::rbtcei_census_permitted() {
         if used.contains(*colophon) {
-            crate::rbtdrg_info_now!(
-                "{} {}: colophon '{}' used (permitted)", RBTDRE_CENSUS_TOKEN, fixture_name, colophon
+            crate::rbtcel_info_now!(
+                "{} {}: colophon '{}' used (permitted)", RBTCEE_CENSUS_TOKEN, fixture_name, colophon
             );
         }
     }
@@ -685,10 +685,10 @@ pub fn rbtdre_check_census(fixture_name: &str, colors: &rbtdre_Colors) -> bool {
 // ── Case and Fixture ───────────────────────────────────────────
 
 /// A named test case with a function that receives its isolated temp directory.
-/// The `name` field holds the raw stringified function name (from the `rbtdre_case!` macro).
-pub struct rbtdre_Case {
+/// The `name` field holds the raw stringified function name (from the `rbtcee_case!` macro).
+pub struct rbtcee_Case {
     pub name: &'static str,
-    pub func: fn(&Path) -> rbtdre_Verdict,
+    pub func: fn(&Path) -> rbtcee_Verdict,
 }
 
 /// A complete fixture definition — name, disposition, optional setup/teardown
@@ -701,13 +701,13 @@ pub struct rbtdre_Case {
 /// setup outcome. Errors are surfaced as warnings — teardown is best-effort.
 ///
 /// Both hooks access invocation context via the thread-local established by
-/// `rbtdrc_set_context` before `rbtdre_run_fixture` is called.
-pub struct rbtdre_Fixture {
+/// `rbtccc_set_context` before `rbtcee_run_fixture` is called.
+pub struct rbtcee_Fixture {
     pub name: &'static str,
-    pub disposition: rbtdre_Disposition,
+    pub disposition: rbtcee_Disposition,
     pub setup: Option<fn() -> Result<(), String>>,
     pub teardown: Option<fn()>,
-    pub cases: &'static [rbtdre_Case],
+    pub cases: &'static [rbtcee_Case],
     /// Reveille-tier credless guard.
     /// When true, every tabtarget Command built while this fixture runs carries
     /// `BURE_TWEAK_NAME=<credless guard>`, and the token-mint membranes reject
@@ -717,30 +717,30 @@ pub struct rbtdre_Fixture {
     /// own (in the reveille tier the slot belongs to the guard).
     pub credless: bool,
     /// Declared cost expectation — the wall-clock and invocation footprint a
-    /// healthy green is checked against as the fixture completes. `RBTDRE_UNCHECKED`
+    /// healthy green is checked against as the fixture completes. `RBTCEE_UNCHECKED`
     /// (the undeclared default) leaves the fixture entirely unevaluated. See
-    /// `rbtdre_Tariff`.
-    pub tariff: rbtdre_Tariff,
+    /// `rbtcee_Tariff`.
+    pub tariff: rbtcee_Tariff,
 }
 
 /// A named suite — an ordered set of fixtures run as one sequential batch.
 ///
 /// Suite composition lives here, in theurge, not in bash: the `rbw-ts.TestSuite.*`
 /// tabtargets pass only their imprint (the suite name) and theurge resolves the
-/// membership. Members are `&'static rbtdre_Fixture` references to the registered
+/// membership. Members are `&'static rbtcee_Fixture` references to the registered
 /// fixture statics, so a mistyped member is a compile error — not a name string
 /// mirrored across the bash/Rust boundary that fails at runtime.
-pub struct rbtdre_Suite {
+pub struct rbtcee_Suite {
     pub name: &'static str,
-    pub fixtures: &'static [&'static rbtdre_Fixture],
+    pub fixtures: &'static [&'static rbtcee_Fixture],
 }
 
 /// Case registration macro. Derives case name from function name via `stringify!`.
 /// Compiler enforces uniqueness — duplicate function names won't compile.
 #[macro_export]
-macro_rules! rbtdre_case {
+macro_rules! rbtcee_case {
     ($func:path) => {
-        $crate::rbtdre_engine::rbtdre_Case {
+        $crate::rbtcee_engine::rbtcee_Case {
             name: stringify!($func),
             func: $func,
         }
@@ -750,7 +750,7 @@ macro_rules! rbtdre_case {
 // ── Colors ─────────────────────────────────────────────────────
 
 /// Terminal color codes, empty strings when color is disabled.
-pub struct rbtdre_Colors {
+pub struct rbtcee_Colors {
     pub green: &'static str,
     pub red: &'static str,
     pub yellow: &'static str,
@@ -758,15 +758,15 @@ pub struct rbtdre_Colors {
 }
 
 /// Detect terminal color support from TERM environment variable.
-pub fn rbtdre_detect_colors() -> rbtdre_Colors {
+pub fn rbtcee_detect_colors() -> rbtcee_Colors {
     match std::env::var("TERM") {
-        Ok(term) if !term.is_empty() && term != "dumb" => rbtdre_Colors {
+        Ok(term) if !term.is_empty() && term != "dumb" => rbtcee_Colors {
             green: "\x1b[1;32m",
             red: "\x1b[1;31m",
             yellow: "\x1b[1;33m",
             reset: "\x1b[0m",
         },
-        _ => rbtdre_Colors {
+        _ => rbtcee_Colors {
             green: "",
             red: "",
             yellow: "",
@@ -780,40 +780,40 @@ pub fn rbtdre_detect_colors() -> rbtdre_Colors {
 /// Per-case verdict trace filename, written into every case's temp dir.
 /// Public so the touchstone surface fixture asserts child trace files against
 /// the same name the engine writes.
-pub const RBTDRE_TRACE_FILE: &str = "trace.txt";
+pub const RBTCEE_TRACE_FILE: &str = "trace.txt";
 
 /// Verdict words as emitted on the operator stream and written into trace
 /// files — single definitions consumed by the case runners here and asserted
 /// against child output by the touchstone surface fixture.
-pub const RBTDRE_WORD_PASSED: &str = "PASSED:";
-pub const RBTDRE_WORD_FAILED: &str = "FAILED:";
-pub const RBTDRE_WORD_SKIPPED: &str = "SKIPPED:";
-pub const RBTDRE_WORD_UNREACHED: &str = "UNREACHED:";
+pub const RBTCEE_WORD_PASSED: &str = "PASSED:";
+pub const RBTCEE_WORD_FAILED: &str = "FAILED:";
+pub const RBTCEE_WORD_SKIPPED: &str = "SKIPPED:";
+pub const RBTCEE_WORD_UNREACHED: &str = "UNREACHED:";
 
 /// Write verdict and detail to a trace file in the case temp directory.
-fn rbtdre_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtdre_Verdict) {
+fn rbtcee_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtcee_Verdict) {
     let content = match verdict {
-        rbtdre_Verdict::Pass => format!("{} {}\n", RBTDRE_WORD_PASSED, display_name),
-        rbtdre_Verdict::Fail(detail) => {
-            format!("{} {}\n\n{}\n", RBTDRE_WORD_FAILED, display_name, detail)
+        rbtcee_Verdict::Pass => format!("{} {}\n", RBTCEE_WORD_PASSED, display_name),
+        rbtcee_Verdict::Fail(detail) => {
+            format!("{} {}\n\n{}\n", RBTCEE_WORD_FAILED, display_name, detail)
         }
-        rbtdre_Verdict::Skip(reason) => {
-            format!("{} {}\n\nReason: {}\n", RBTDRE_WORD_SKIPPED, display_name, reason)
+        rbtcee_Verdict::Skip(reason) => {
+            format!("{} {}\n\nReason: {}\n", RBTCEE_WORD_SKIPPED, display_name, reason)
         }
     };
-    let _ = std::fs::write(case_dir.join(RBTDRE_TRACE_FILE), content);
+    let _ = std::fs::write(case_dir.join(RBTCEE_TRACE_FILE), content);
 }
 
 // ── Dispatch ───────────────────────────────────────────────────
 
 /// Aggregate results from running a fixture's cases.
-pub struct rbtdre_RunResult {
+pub struct rbtcee_RunResult {
     pub passed: usize,
     pub failed: usize,
     pub skipped: usize,
     pub temp_dir: PathBuf,
     /// Observed whole-fixture wall-clock (setup + cases + teardown), in seconds.
-    /// Populated by `rbtdre_run_fixture`; zero on the case-only runners, which
+    /// Populated by `rbtcee_run_fixture`; zero on the case-only runners, which
     /// have no fixture footprint to measure.
     pub elapsed_secs: u64,
     /// Observed tabtarget-invocation count over the whole fixture, read from the
@@ -829,12 +829,12 @@ pub struct rbtdre_RunResult {
 }
 
 /// Run all cases sequentially, dispatching each with per-case temp dir isolation.
-pub fn rbtdre_run_cases(
-    cases: &[rbtdre_Case],
-    colors: &rbtdre_Colors,
+pub fn rbtcee_run_cases(
+    cases: &[rbtcee_Case],
+    colors: &rbtcee_Colors,
     fail_fast: bool,
     root_temp: &Path,
-) -> Result<rbtdre_RunResult, String> {
+) -> Result<rbtcee_RunResult, String> {
     let mut passed = 0usize;
     let mut failed = 0usize;
     let mut skipped = 0usize;
@@ -846,40 +846,40 @@ pub fn rbtdre_run_cases(
             format!("rbtd: failed to create case dir '{}': {}", case.name, e)
         })?;
 
-        let verdict = rbtdre_run_with_heartbeat(case, &case_dir);
-        rbtdre_write_trace(&case_dir, case.name, &verdict);
+        let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
+        rbtcee_write_trace(&case_dir, case.name, &verdict);
 
         match &verdict {
-            rbtdre_Verdict::Pass => {
-                crate::rbtdrg_info_now!(
+            rbtcee_Verdict::Pass => {
+                crate::rbtcel_info_now!(
                     "{}{}{} {}",
-                    colors.green, RBTDRE_WORD_PASSED, colors.reset, case.name
+                    colors.green, RBTCEE_WORD_PASSED, colors.reset, case.name
                 );
                 passed += 1;
             }
-            rbtdre_Verdict::Fail(msg) => {
-                crate::rbtdrg_info_now!(
+            rbtcee_Verdict::Fail(msg) => {
+                crate::rbtcel_info_now!(
                     "{}{}{} {}",
-                    colors.red, RBTDRE_WORD_FAILED, colors.reset, case.name
+                    colors.red, RBTCEE_WORD_FAILED, colors.reset, case.name
                 );
-                crate::rbtdrg_info_now!("{}", msg);
+                crate::rbtcel_info_now!("{}", msg);
                 failed += 1;
                 if fail_fast {
                     unreached = cases[index + 1..].iter().map(|c| c.name).collect();
                     break;
                 }
             }
-            rbtdre_Verdict::Skip(_) => {
-                crate::rbtdrg_info_now!(
+            rbtcee_Verdict::Skip(_) => {
+                crate::rbtcel_info_now!(
                     "{}{}{} {}",
-                    colors.yellow, RBTDRE_WORD_SKIPPED, colors.reset, case.name
+                    colors.yellow, RBTCEE_WORD_SKIPPED, colors.reset, case.name
                 );
                 skipped += 1;
             }
         }
     }
 
-    Ok(rbtdre_RunResult {
+    Ok(rbtcee_RunResult {
         passed,
         failed,
         skipped,
@@ -892,7 +892,7 @@ pub fn rbtdre_run_cases(
 }
 
 /// Print colored summary line and trace directory location.
-pub fn rbtdre_print_summary(result: &rbtdre_RunResult, colors: &rbtdre_Colors) {
+pub fn rbtcee_print_summary(result: &rbtcee_RunResult, colors: &rbtcee_Colors) {
     let total = result.passed + result.failed + result.skipped;
     let (color, end_color) = if result.failed > 0 {
         (colors.red, colors.reset)
@@ -900,66 +900,66 @@ pub fn rbtdre_print_summary(result: &rbtdre_RunResult, colors: &rbtdre_Colors) {
         (colors.green, colors.reset)
     };
 
-    crate::rbtdrg_info_now!(
+    crate::rbtcel_info_now!(
         "{}{} passed, {} failed, {} skipped ({} total){}",
         color, result.passed, result.failed, result.skipped, total, end_color,
     );
     if !result.unreached.is_empty() {
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "{}{} reached of {} registered{}",
             color, total, result.registered, end_color,
         );
         for name in &result.unreached {
-            crate::rbtdrg_info_now!(
+            crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                color, RBTDRE_WORD_UNREACHED, end_color, name
+                color, RBTCEE_WORD_UNREACHED, end_color, name
             );
         }
     }
-    crate::rbtdrg_info_now!("Trace dir: {}", result.temp_dir.display());
+    crate::rbtcel_info_now!("Trace dir: {}", result.temp_dir.display());
 }
 
 // ── Single-case operations ───────────────────────────────────
 
 /// Find a case by name in a flat case array.
-pub fn rbtdre_find_case<'a>(
-    cases: &'a [rbtdre_Case],
+pub fn rbtcee_find_case<'a>(
+    cases: &'a [rbtcee_Case],
     target: &str,
-) -> Option<&'a rbtdre_Case> {
+) -> Option<&'a rbtcee_Case> {
     cases.iter().find(|c| c.name == target)
 }
 
 /// List all cases by name.
-pub fn rbtdre_list_cases(cases: &[rbtdre_Case]) {
+pub fn rbtcee_list_cases(cases: &[rbtcee_Case]) {
     for case in cases {
-        crate::rbtdrg_info_now!("  {}", case.name);
+        crate::rbtcel_info_now!("  {}", case.name);
     }
 }
 
 /// Run a fixture: setup hook → cases → teardown hook (finally-shaped).
 ///
 /// Expects the invocation context to already be installed in the thread-local
-/// (via `rbtdrc_set_context`); setup/teardown access ctx via that channel.
+/// (via `rbtccc_set_context`); setup/teardown access ctx via that channel.
 ///
 /// Setup failure short-circuits cases but still invokes teardown. Teardown
 /// errors are surfaced as warnings via stderr; the function never panics on
 /// teardown failure.
-pub fn rbtdre_run_fixture(
-    fixture: &'static rbtdre_Fixture,
-    colors: &rbtdre_Colors,
+pub fn rbtcee_run_fixture(
+    fixture: &'static rbtcee_Fixture,
+    colors: &rbtcee_Colors,
     root_temp: &Path,
     keep_going: bool,
-) -> Result<rbtdre_RunResult, String> {
+) -> Result<rbtcee_RunResult, String> {
     // Policy resolution precedes setup: a StateProgressing fixture refuses
     // keep-going before any charge or case work begins, so the refusal leaves
     // no partial state behind.
-    let fail_fast = rbtdre_resolve_fail_fast(fixture.disposition, keep_going)?;
+    let fail_fast = rbtcee_resolve_fail_fast(fixture.disposition, keep_going)?;
 
     // Reset the invocation tally and start the wall-clock BEFORE setup, so the
     // tariff footprint spans setup/teardown (charge/quench) as well as the
     // cases — the whole fixture, not just its case bodies. The tally is a
     // thread-local and the cases run on this thread, so the count is coherent.
-    crate::rbtdri_invocation::rbtdri_tariff_reset();
+    crate::rbtcei_invocation::rbtcei_tariff_reset();
     let started = Instant::now();
 
     let setup_result = match fixture.setup {
@@ -968,7 +968,7 @@ pub fn rbtdre_run_fixture(
     };
 
     let mut run_result = match setup_result {
-        Ok(()) => rbtdre_run_cases(fixture.cases, colors, fail_fast, root_temp),
+        Ok(()) => rbtcee_run_cases(fixture.cases, colors, fail_fast, root_temp),
         Err(msg) => Err(format!("rbtd: fixture '{}' setup failed: {}", fixture.name, msg)),
     };
 
@@ -983,11 +983,11 @@ pub fn rbtdre_run_fixture(
     // no second stopping mechanism. A setup failure (Err run_result) already
     // fails the fixture and is left untouched.
     let elapsed_secs = started.elapsed().as_secs();
-    let invocations = crate::rbtdri_invocation::rbtdri_tariff_count();
+    let invocations = crate::rbtcei_invocation::rbtcei_tariff_count();
     if let Ok(result) = run_result.as_mut() {
         result.elapsed_secs = elapsed_secs;
         result.invocations = invocations;
-        let report = rbtdre_evaluate_tariff(&fixture.tariff, elapsed_secs, invocations);
+        let report = rbtcee_evaluate_tariff(&fixture.tariff, elapsed_secs, invocations);
         if report.too_fast {
             result.failed += 1;
         }
@@ -996,7 +996,7 @@ pub fn rbtdre_run_fixture(
         // books two tariff failures, and gated on failed alone — a skipped case
         // is how a run goes silently short, so it must not stand the gate down.
         let drift_fails = report.count_drift && result.failed == 0;
-        rbtdre_print_tariff(fixture.name, &fixture.tariff, &report, drift_fails, colors);
+        rbtcee_print_tariff(fixture.name, &fixture.tariff, &report, drift_fails, colors);
         if drift_fails {
             result.failed += 1;
         }
@@ -1009,7 +1009,7 @@ pub fn rbtdre_run_fixture(
         // (polity-denial, parley on a credential-less machine) must not
         // census-fail over the colophons its skipped cases would have invoked.
         if result.failed == 0 && result.skipped == 0
-            && !rbtdre_check_census(fixture.name, colors)
+            && !rbtcee_check_census(fixture.name, colors)
         {
             result.failed += 1;
         }
@@ -1019,43 +1019,43 @@ pub fn rbtdre_run_fixture(
 }
 
 /// Run a single case without charge/quench lifecycle.
-pub fn rbtdre_run_single_case(
-    case: &rbtdre_Case,
-    colors: &rbtdre_Colors,
+pub fn rbtcee_run_single_case(
+    case: &rbtcee_Case,
+    colors: &rbtcee_Colors,
     root_temp: &Path,
-) -> Result<rbtdre_RunResult, String> {
+) -> Result<rbtcee_RunResult, String> {
     let case_dir = root_temp.join(case.name);
     std::fs::create_dir_all(&case_dir)
         .map_err(|e| format!("rbtd: failed to create case dir '{}': {}", case.name, e))?;
 
-    let verdict = rbtdre_run_with_heartbeat(case, &case_dir);
-    rbtdre_write_trace(&case_dir, case.name, &verdict);
+    let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
+    rbtcee_write_trace(&case_dir, case.name, &verdict);
 
     let (passed, failed, skipped) = match &verdict {
-        rbtdre_Verdict::Pass => {
-            crate::rbtdrg_info_now!(
+        rbtcee_Verdict::Pass => {
+            crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                colors.green, RBTDRE_WORD_PASSED, colors.reset, case.name
+                colors.green, RBTCEE_WORD_PASSED, colors.reset, case.name
             );
             (1, 0, 0)
         }
-        rbtdre_Verdict::Fail(_) => {
-            crate::rbtdrg_info_now!(
+        rbtcee_Verdict::Fail(_) => {
+            crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                colors.red, RBTDRE_WORD_FAILED, colors.reset, case.name
+                colors.red, RBTCEE_WORD_FAILED, colors.reset, case.name
             );
             (0, 1, 0)
         }
-        rbtdre_Verdict::Skip(_) => {
-            crate::rbtdrg_info_now!(
+        rbtcee_Verdict::Skip(_) => {
+            crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                colors.yellow, RBTDRE_WORD_SKIPPED, colors.reset, case.name
+                colors.yellow, RBTCEE_WORD_SKIPPED, colors.reset, case.name
             );
             (0, 0, 1)
         }
     };
 
-    Ok(rbtdre_RunResult {
+    Ok(rbtcee_RunResult {
         passed,
         failed,
         skipped,

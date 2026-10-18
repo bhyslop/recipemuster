@@ -24,10 +24,10 @@
 // verification at the case level, so the engine does not need to track
 // case history to support safe a-la-carte single-case rerun.
 
-use crate::rbtdre_engine::rbtdre_Verdict;
+use crate::rbtcee_engine::rbtcee_Verdict;
 
 /// A precondition probe attached to a StateProgressing case.
-pub struct rbtdrb_Probe {
+pub struct rbtccp_Probe {
     /// Human-readable label for the precondition (e.g., "depot levied").
     pub name: &'static str,
     /// Check fn. Returns Ok(()) when the precondition holds; Err carries a
@@ -43,10 +43,10 @@ pub struct rbtdrb_Probe {
 /// On Ok(()) the precondition holds and the case body should proceed. On
 /// Err(verdict) the case should return the verdict immediately — the verdict
 /// names the unmet precondition and the remediation step.
-pub fn rbtdrb_assert(probe: &rbtdrb_Probe) -> Result<(), rbtdre_Verdict> {
+pub fn rbtccp_assert(probe: &rbtccp_Probe) -> Result<(), rbtcee_Verdict> {
     match (probe.check)() {
         Ok(()) => Ok(()),
-        Err(observed) => Err(rbtdre_Verdict::Fail(format!(
+        Err(observed) => Err(rbtcee_Verdict::Fail(format!(
             "precondition '{}' not met: {}\nremediation: {}",
             probe.name, observed, probe.remediation
         ))),

@@ -19,8 +19,8 @@
 // verdicts that exercise the operator-facing surface of the theurge engine.
 // Internal framework-test plumbing; not end-user-facing.
 //
-// Eight fixtures registered through rbtdrm_manifest.rs and dispatched via
-// rbtdrc_crucible.rs:
+// Eight fixtures registered through rbtcem_manifest.rs and dispatched via
+// rbtccc_crucible.rs:
 //
 //   calibrant-verdicts             Independent  4 cases  verdict-path coverage
 //   calibrant-fail-fast            Independent  3 cases  fail-fast halts subsequent cases
@@ -32,14 +32,14 @@
 //   calibrant-tariff-drift         Independent  1 case   skip + unmeetable count -> shortfall FAIL
 //
 // The first four and calibrant-tariff-drift declare empty
-// rbtdrm_required_colophons — their cases never shell out to bash tabtargets,
+// rbtcem_required_colophons — their cases never shell out to bash tabtargets,
 // so the manifest-coupling check is vacuous. The three coverage fixtures invoke
 // (or deliberately don't invoke) the synthetic RBTDGC_THEURGE_NIHIL colophon to
 // exercise the census enforcement itself; their manifest declarations are what
 // differ between them. calibrant-tariff-drift's needle is instead its TARIFF —
 // a declared invocation count no case can meet.
 //
-// The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
+// The touchstone surface fixture (rbtcct_touchstone.rs) consumes these
 // fixtures as child rbtd runs through the real tabtarget chain and asserts
 // engine-output contracts (exit codes, diagnostic format, fail-fast
 // semantics, disposition × keep-going policy gate, census diagnostics).
@@ -49,17 +49,17 @@
 
 use std::path::Path;
 
-use crate::rbtdre_case;
+use crate::rbtcee_case;
 use crate::rbtdgc_consts::RBTDGC_THEURGE_NIHIL;
-use crate::rbtdrb_probe::{rbtdrb_assert, rbtdrb_Probe};
-use crate::rbtdrc_crucible::rbtdrc_with_ctx;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
-use crate::rbtdri_invocation::rbtdri_invoke_global;
-use crate::rbtdrm_manifest::{
-    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED, RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
-    RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
-    RBTDRM_FIXTURE_CALIBRANT_PROGRESSING, RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
-    RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT, RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
+use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe};
+use crate::rbtccc_crucible::rbtccc_with_ctx;
+use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
+use crate::rbtcei_invocation::rbtcei_invoke_global;
+use crate::rbtcem_manifest::{
+    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED, RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST,
+    RBTCEM_FIXTURE_CALIBRANT_PROGRESSING, RBTCEM_FIXTURE_CALIBRANT_SENTINEL,
+    RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT, RBTCEM_FIXTURE_CALIBRANT_VERDICTS,
 };
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
@@ -67,118 +67,118 @@ use crate::rbtdrm_manifest::{
 /// it set for the child rbtd invocation. I/O failure during sentinel write
 /// fails the case visibly — silent failure would hide bugs in the engine's
 /// case-dir contract.
-pub(crate) const RBTDRL_SENTINEL_FILE: &str = "ran.sentinel";
+pub(crate) const RBTCHL_SENTINEL_FILE: &str = "ran.sentinel";
 
 /// Case-written output filename. Distinct from the engine's auto-written
 /// trace.txt so the touchstone fixture can verify both the engine's per-case
 /// trace contract and the case's own write contract.
-pub(crate) const RBTDRL_OUTPUT_FILE: &str = "output.txt";
+pub(crate) const RBTCHL_OUTPUT_FILE: &str = "output.txt";
 
-fn rbtdrl_write_sentinel(dir: &Path) -> Result<(), rbtdre_Verdict> {
-    std::fs::write(dir.join(RBTDRL_SENTINEL_FILE), "")
-        .map_err(|e| rbtdre_Verdict::Fail(format!("sentinel write failed: {}", e)))
+fn rbtchl_write_sentinel(dir: &Path) -> Result<(), rbtcee_Verdict> {
+    std::fs::write(dir.join(RBTCHL_SENTINEL_FILE), "")
+        .map_err(|e| rbtcee_Verdict::Fail(format!("sentinel write failed: {}", e)))
 }
 
 // ── calibrant-verdicts ──────────────────────────────────────
 
-fn rbtdrl_verdicts_pass(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Pass
+fn rbtchl_verdicts_pass(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Pass
 }
 
-fn rbtdrl_verdicts_fail(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Fail("calibrant deterministic fail verdict".to_string())
+fn rbtchl_verdicts_fail(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Fail("calibrant deterministic fail verdict".to_string())
 }
 
-fn rbtdrl_verdicts_skip(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Skip("calibrant deterministic skip verdict".to_string())
+fn rbtchl_verdicts_skip(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Skip("calibrant deterministic skip verdict".to_string())
 }
 
-fn rbtdrl_verdicts_pass_with_output(dir: &Path) -> rbtdre_Verdict {
+fn rbtchl_verdicts_pass_with_output(dir: &Path) -> rbtcee_Verdict {
     if let Err(e) = std::fs::write(
-        dir.join(RBTDRL_OUTPUT_FILE),
+        dir.join(RBTCHL_OUTPUT_FILE),
         "calibrant case-written output\n",
     ) {
-        return rbtdre_Verdict::Fail(format!("output write failed: {}", e));
+        return rbtcee_Verdict::Fail(format!("output write failed: {}", e));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
-pub static RBTDRL_CASES_VERDICTS: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrl_verdicts_pass),
-    rbtdre_case!(rbtdrl_verdicts_fail),
-    rbtdre_case!(rbtdrl_verdicts_skip),
-    rbtdre_case!(rbtdrl_verdicts_pass_with_output),
+pub static RBTCHL_CASES_VERDICTS: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtchl_verdicts_pass),
+    rbtcee_case!(rbtchl_verdicts_fail),
+    rbtcee_case!(rbtchl_verdicts_skip),
+    rbtcee_case!(rbtchl_verdicts_pass_with_output),
 ];
 
 // ── calibrant-fail-fast ─────────────────────────────────────
 
-fn rbtdrl_failfast_pass(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Pass
+fn rbtchl_failfast_pass(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Pass
 }
 
-fn rbtdrl_failfast_fail(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Fail("calibrant fail-fast fail trigger".to_string())
+fn rbtchl_failfast_fail(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Fail("calibrant fail-fast fail trigger".to_string())
 }
 
 /// Trailing case after the deterministic fail. Under default fail-fast it
 /// never runs and its sentinel must be absent; under keep-going it runs and
 /// writes the sentinel.
-fn rbtdrl_failfast_not_reached(dir: &Path) -> rbtdre_Verdict {
-    if let Err(v) = rbtdrl_write_sentinel(dir) {
+fn rbtchl_failfast_not_reached(dir: &Path) -> rbtcee_Verdict {
+    if let Err(v) = rbtchl_write_sentinel(dir) {
         return v;
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
-pub static RBTDRL_CASES_FAIL_FAST: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrl_failfast_pass),
-    rbtdre_case!(rbtdrl_failfast_fail),
-    rbtdre_case!(rbtdrl_failfast_not_reached),
+pub static RBTCHL_CASES_FAIL_FAST: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtchl_failfast_pass),
+    rbtcee_case!(rbtchl_failfast_fail),
+    rbtcee_case!(rbtchl_failfast_not_reached),
 ];
 
 // ── calibrant-progressing ───────────────────────────────────
 
 /// Probe-Ok mechanism: deterministic Ok return. No env-var or file coupling
 /// — a single fixture run exercises the case-body-runs-after-Probe-Ok path.
-fn rbtdrl_probe_ok() -> Result<(), String> {
+fn rbtchl_probe_ok() -> Result<(), String> {
     Ok(())
 }
 
 /// Probe-Err mechanism: deterministic Err return. Case body never runs, so a
 /// single fixture run exercises the Fail-via-Probe-Err path. Required by the
-/// touchstone fixture to verify rbtdrb_assert's "precondition '%s' not met:" +
+/// touchstone fixture to verify rbtccp_assert's "precondition '%s' not met:" +
 /// "remediation:" diagnostic format.
-fn rbtdrl_probe_err() -> Result<(), String> {
+fn rbtchl_probe_err() -> Result<(), String> {
     Err("calibrant deterministic probe failure".to_string())
 }
 
-fn rbtdrl_progressing_probe_ok(_dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
+fn rbtchl_progressing_probe_ok(_dir: &Path) -> rbtcee_Verdict {
+    let probe = rbtccp_Probe {
         name: "calibrant deterministic ok",
-        check: rbtdrl_probe_ok,
+        check: rbtchl_probe_ok,
         remediation: "n/a — deterministic probe always Ok",
     };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtccp_assert(&probe) {
         return v;
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
-fn rbtdrl_progressing_probe_err(_dir: &Path) -> rbtdre_Verdict {
-    let probe = rbtdrb_Probe {
+fn rbtchl_progressing_probe_err(_dir: &Path) -> rbtcee_Verdict {
+    let probe = rbtccp_Probe {
         name: "calibrant deterministic err",
-        check: rbtdrl_probe_err,
+        check: rbtchl_probe_err,
         remediation: "n/a — deterministic probe always Err for engine surface verification",
     };
-    if let Err(v) = rbtdrb_assert(&probe) {
+    if let Err(v) = rbtccp_assert(&probe) {
         return v;
     }
-    rbtdre_Verdict::Fail("calibrant probe-err case body executed unexpectedly".to_string())
+    rbtcee_Verdict::Fail("calibrant probe-err case body executed unexpectedly".to_string())
 }
 
-pub static RBTDRL_CASES_PROGRESSING: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrl_progressing_probe_ok),
-    rbtdre_case!(rbtdrl_progressing_probe_err),
+pub static RBTCHL_CASES_PROGRESSING: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtchl_progressing_probe_ok),
+    rbtcee_case!(rbtchl_progressing_probe_err),
 ];
 
 // ── calibrant-sentinel ──────────────────────────────────────
@@ -186,64 +186,64 @@ pub static RBTDRL_CASES_PROGRESSING: &[rbtdre_Case] = &[
 /// Single-case Independent fixture used as a suite-level fail-fast pivot:
 /// place this fixture after a failing fixture in the calibrant suite and
 /// assert the sentinel is absent.
-fn rbtdrl_sentinel_marks(dir: &Path) -> rbtdre_Verdict {
-    if let Err(v) = rbtdrl_write_sentinel(dir) {
+fn rbtchl_sentinel_marks(dir: &Path) -> rbtcee_Verdict {
+    if let Err(v) = rbtchl_write_sentinel(dir) {
         return v;
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
-pub static RBTDRL_CASES_SENTINEL: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_sentinel_marks)];
+pub static RBTCHL_CASES_SENTINEL: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_sentinel_marks)];
 
 // ── calibrant-coverage-aligned / -undeclared / -unused ───────
 //
 // Three single-case Independent fixtures proving the RBTDRI colophon census
 // enforcement lands its diagnostics against the synthetic RBTDGC_THEURGE_NIHIL
 // colophon — zero cloud/filesystem side effects. Manifest declaration
-// (rbtdrm_required_colophons) is the only difference between the three; the
+// (rbtcem_required_colophons) is the only difference between the three; the
 // touchstone surface fixture spawns each as a child rbtd run and asserts the
 // resulting exit code and diagnostic text (coverage section of its case
 // catalog). Roster-only: a member of no suite.
 
 /// Invoke the nihil tabtarget through the real invocation chokepoint
-/// (rbtdri_invoke_global). Shared body for the aligned and undeclared cases —
+/// (rbtcei_invoke_global). Shared body for the aligned and undeclared cases —
 /// their fixtures' manifest declarations are what differ.
-fn zrbtdrl_invoke_nihil() -> rbtdre_Verdict {
-    rbtdrc_with_ctx(|ctx| match rbtdri_invoke_global(ctx, RBTDGC_THEURGE_NIHIL, &[], &[]) {
-        Ok(result) if result.exit_code == 0 => rbtdre_Verdict::Pass,
-        Ok(result) => rbtdre_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code)),
-        Err(e) => rbtdre_Verdict::Fail(e),
+fn zrbtchl_invoke_nihil() -> rbtcee_Verdict {
+    rbtccc_with_ctx(|ctx| match rbtcei_invoke_global(ctx, RBTDGC_THEURGE_NIHIL, &[], &[]) {
+        Ok(result) if result.exit_code == 0 => rbtcee_Verdict::Pass,
+        Ok(result) => rbtcee_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code)),
+        Err(e) => rbtcee_Verdict::Fail(e),
     })
 }
 
 /// Declared and invoked: the census positive check has nothing to refuse, and
 /// the negative check finds the declared colophon in the used-set — Pass.
-fn rbtdrl_coverage_aligned_invokes(_dir: &Path) -> rbtdre_Verdict {
-    zrbtdrl_invoke_nihil()
+fn rbtchl_coverage_aligned_invokes(_dir: &Path) -> rbtcee_Verdict {
+    zrbtchl_invoke_nihil()
 }
 
 /// Invoked but never declared (this fixture's manifest entry is `Some(&[])`):
-/// the census positive check in rbtdri_invoke_impl refuses the invoke before
+/// the census positive check in rbtcei_invoke_impl refuses the invoke before
 /// the tabtarget ever launches, failing the fixture.
-fn rbtdrl_coverage_undeclared_invokes(_dir: &Path) -> rbtdre_Verdict {
-    zrbtdrl_invoke_nihil()
+fn rbtchl_coverage_undeclared_invokes(_dir: &Path) -> rbtcee_Verdict {
+    zrbtchl_invoke_nihil()
 }
 
 /// Declared but never invoked: this case passes clean, and the engine's
 /// negative census check fails the fixture afterward for the unused
 /// declaration.
-fn rbtdrl_coverage_unused_no_invoke(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Pass
+fn rbtchl_coverage_unused_no_invoke(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Pass
 }
 
-pub static RBTDRL_CASES_COVERAGE_ALIGNED: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_coverage_aligned_invokes)];
-pub static RBTDRL_CASES_COVERAGE_UNDECLARED: &[rbtdre_Case] =
-    &[rbtdre_case!(rbtdrl_coverage_undeclared_invokes)];
-pub static RBTDRL_CASES_COVERAGE_UNUSED: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_coverage_unused_no_invoke)];
+pub static RBTCHL_CASES_COVERAGE_ALIGNED: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_coverage_aligned_invokes)];
+pub static RBTCHL_CASES_COVERAGE_UNDECLARED: &[rbtcee_Case] =
+    &[rbtcee_case!(rbtchl_coverage_undeclared_invokes)];
+pub static RBTCHL_CASES_COVERAGE_UNUSED: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_coverage_unused_no_invoke)];
 
 // ── calibrant-tariff-drift ──────────────────────────────────
 //
-// The needle for the tariff shortfall gate (rbtdre_engine.rs, Tariff section):
+// The needle for the tariff shortfall gate (rbtcee_engine.rs, Tariff section):
 // a fixture whose declared invocation count its cases cannot meet. Its single
 // case SKIPS, which is the whole point — a skip exits zero, so before the gate
 // existed this fixture was green while running none of its declared work, the
@@ -261,107 +261,107 @@ pub static RBTDRL_CASES_COVERAGE_UNUSED: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_
 /// Skip without invoking anything, against a declared count of one. Observed 0
 /// vs declared 1 is the drift; the Skip verdict is what would otherwise carry
 /// the fixture to a zero exit.
-fn rbtdrl_tariff_drift_skips_short(_dir: &Path) -> rbtdre_Verdict {
-    rbtdre_Verdict::Skip("calibrant declared-count shortfall, by construction".to_string())
+fn rbtchl_tariff_drift_skips_short(_dir: &Path) -> rbtcee_Verdict {
+    rbtcee_Verdict::Skip("calibrant declared-count shortfall, by construction".to_string())
 }
 
-pub static RBTDRL_CASES_TARIFF_DRIFT: &[rbtdre_Case] = &[rbtdre_case!(rbtdrl_tariff_drift_skips_short)];
+pub static RBTCHL_CASES_TARIFF_DRIFT: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_tariff_drift_skips_short)];
 
 // ── Fixture statics ──────────────────────────────────────────
 
-pub static RBTDRL_FIXTURE_VERDICTS: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_VERDICTS,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_VERDICTS: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_VERDICTS,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_VERDICTS,
+    cases: RBTCHL_CASES_VERDICTS,
     credless: false,
-    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
+    tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };
-const _: () = assert!(RBTDRL_FIXTURE_VERDICTS.cases.len() == 4);
+const _: () = assert!(RBTCHL_FIXTURE_VERDICTS.cases.len() == 4);
 
-pub static RBTDRL_FIXTURE_FAIL_FAST: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_FAIL_FAST,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_FAIL_FAST: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_FAIL_FAST,
+    cases: RBTCHL_CASES_FAIL_FAST,
     credless: false,
-    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
+    tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };
-const _: () = assert!(RBTDRL_FIXTURE_FAIL_FAST.cases.len() == 3);
+const _: () = assert!(RBTCHL_FIXTURE_FAIL_FAST.cases.len() == 3);
 
-pub static RBTDRL_FIXTURE_PROGRESSING: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_PROGRESSING,
-    disposition: rbtdre_Disposition::StateProgressing,
+pub static RBTCHL_FIXTURE_PROGRESSING: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_PROGRESSING,
+    disposition: rbtcee_Disposition::StateProgressing,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_PROGRESSING,
+    cases: RBTCHL_CASES_PROGRESSING,
     credless: false,
-    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
+    tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };
-const _: () = assert!(RBTDRL_FIXTURE_PROGRESSING.cases.len() == 2);
+const _: () = assert!(RBTCHL_FIXTURE_PROGRESSING.cases.len() == 2);
 
-pub static RBTDRL_FIXTURE_SENTINEL: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_SENTINEL,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_SENTINEL: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_SENTINEL,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_SENTINEL,
+    cases: RBTCHL_CASES_SENTINEL,
     credless: false,
-    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
+    tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };
-const _: () = assert!(RBTDRL_FIXTURE_SENTINEL.cases.len() == 1);
+const _: () = assert!(RBTCHL_FIXTURE_SENTINEL.cases.len() == 1);
 
-pub static RBTDRL_FIXTURE_COVERAGE_ALIGNED: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_COVERAGE_ALIGNED: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_COVERAGE_ALIGNED,
+    cases: RBTCHL_CASES_COVERAGE_ALIGNED,
     credless: false,
     // The one calibrant declaring a count it MEETS — its single case invokes
     // nihil exactly once. Standing beside calibrant-tariff-drift it is the
     // shortfall gate's positive control: same driver, same tabtarget chain, a
     // met declaration staying green. Without a declaration here the pair would
     // prove only that a fixture can fail, never that the gate discriminates.
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
 };
-const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_ALIGNED.cases.len() == 1);
+const _: () = assert!(RBTCHL_FIXTURE_COVERAGE_ALIGNED.cases.len() == 1);
 
-pub static RBTDRL_FIXTURE_COVERAGE_UNDECLARED: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_COVERAGE_UNDECLARED: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_COVERAGE_UNDECLARED,
+    cases: RBTCHL_CASES_COVERAGE_UNDECLARED,
     credless: false,
-    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
+    tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };
-const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNDECLARED.cases.len() == 1);
+const _: () = assert!(RBTCHL_FIXTURE_COVERAGE_UNDECLARED.cases.len() == 1);
 
-pub static RBTDRL_FIXTURE_COVERAGE_UNUSED: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_COVERAGE_UNUSED: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_COVERAGE_UNUSED,
+    cases: RBTCHL_CASES_COVERAGE_UNUSED,
     credless: false,
-    tariff: rbtdre_Tariff::RBTDRE_UNCHECKED,
+    tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };
-const _: () = assert!(RBTDRL_FIXTURE_COVERAGE_UNUSED.cases.len() == 1);
+const _: () = assert!(RBTCHL_FIXTURE_COVERAGE_UNUSED.cases.len() == 1);
 
-pub static RBTDRL_FIXTURE_TARIFF_DRIFT: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CALIBRANT_TARIFF_DRIFT,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHL_FIXTURE_TARIFF_DRIFT: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRL_CASES_TARIFF_DRIFT,
+    cases: RBTCHL_CASES_TARIFF_DRIFT,
     credless: false,
     // DELIBERATELY UNMEETABLE — do not "repair" by lowering this to 0. The one
     // case invokes nothing, so the declaration is short by construction, and
     // that mismatch is the whole fixture: its expected verdict is FAIL. Aligning
     // the count would turn it green and silently delete the test.
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
 };
-const _: () = assert!(RBTDRL_FIXTURE_TARIFF_DRIFT.cases.len() == 1);
+const _: () = assert!(RBTCHL_FIXTURE_TARIFF_DRIFT.cases.len() == 1);

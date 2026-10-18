@@ -53,15 +53,15 @@ use std::path::{
     PathBuf,
 };
 
-use crate::rbtdre_case;
-use crate::rbtdre_engine::{
-    rbtdre_Tariff,
-    rbtdre_Case,
-    rbtdre_Disposition,
-    rbtdre_Fixture,
-    rbtdre_Verdict,
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Tariff,
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Verdict,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CUPEL;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_CUPEL;
 use crate::rbtdru_bash::zrbtdru_scan_domain;
 use crate::rbtdru_python::zrbtdru_scan_python;
 
@@ -302,7 +302,7 @@ fn zrbtdru_render(findings: &[zrbtdru_Finding]) -> String {
 /// Persist a scan's findings and inventory traces into the case dir and turn
 /// the result into a verdict. `what` names the violation class in the fail
 /// message (e.g. "command-discipline violation(s) in kit-bash").
-fn zrbtdru_report(dir: &Path, label: &str, scan: &zrbtdru_ScanResult, what: &str) -> rbtdre_Verdict {
+fn zrbtdru_report(dir: &Path, label: &str, scan: &zrbtdru_ScanResult, what: &str) -> rbtcee_Verdict {
     let findings = &scan.findings;
     let report = zrbtdru_render(findings);
     let findings_name = format!("{}{}{}", ZRBTDRU_TRACE_PREFIX, label, ZRBTDRU_FINDINGS_SUFFIX);
@@ -317,23 +317,23 @@ fn zrbtdru_report(dir: &Path, label: &str, scan: &zrbtdru_ScanResult, what: &str
     let _ = std::fs::write(dir.join(inventory_name), &inventory_report);
 
     if findings.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
+        rbtcee_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
     }
 }
 
 /// Drive one bash domain's scan, persist its traces, and fail the verdict
 /// when any violation remains.
-fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre_Verdict {
+fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let tools = root.join(ZRBTDRU_TOOLS_SUBDIR);
     let scan = match zrbtdru_scan_domain(&tools, domain) {
         Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     let what = format!("command-discipline violation(s) in {}-bash", label);
     zrbtdru_report(dir, label, &scan, &what)
@@ -341,15 +341,15 @@ fn zrbtdru_run_domain(dir: &Path, domain: zrbtdru_Domain, label: &str) -> rbtdre
 
 /// Drive the python cloud-step scan, persist its traces, and fail the verdict
 /// when any violation remains.
-fn zrbtdru_run_python(dir: &Path) -> rbtdre_Verdict {
+fn zrbtdru_run_python(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let tools = root.join(ZRBTDRU_TOOLS_SUBDIR);
     let scan = match zrbtdru_scan_python(&tools) {
         Ok(s) => s,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     zrbtdru_report(
         dir,
@@ -361,30 +361,30 @@ fn zrbtdru_run_python(dir: &Path) -> rbtdre_Verdict {
 
 // ── Cases and fixture ───────────────────────────────────────
 
-fn rbtdru_kit_bash(dir: &Path) -> rbtdre_Verdict {
+fn rbtdru_kit_bash(dir: &Path) -> rbtcee_Verdict {
     zrbtdru_run_domain(dir, zrbtdru_Domain::Kit, ZRBTDRU_LABEL_KIT)
 }
 
-fn rbtdru_gcb_bash(dir: &Path) -> rbtdre_Verdict {
+fn rbtdru_gcb_bash(dir: &Path) -> rbtcee_Verdict {
     zrbtdru_run_domain(dir, zrbtdru_Domain::Gcb, ZRBTDRU_LABEL_GCB)
 }
 
-fn rbtdru_gcb_python(dir: &Path) -> rbtdre_Verdict {
+fn rbtdru_gcb_python(dir: &Path) -> rbtcee_Verdict {
     zrbtdru_run_python(dir)
 }
 
-pub static RBTDRU_CASES_CUPEL: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdru_kit_bash),
-    rbtdre_case!(rbtdru_gcb_bash),
-    rbtdre_case!(rbtdru_gcb_python),
+pub static RBTDRU_CASES_CUPEL: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtdru_kit_bash),
+    rbtcee_case!(rbtdru_gcb_bash),
+    rbtcee_case!(rbtdru_gcb_python),
 ];
 
-pub static RBTDRU_FIXTURE_CUPEL: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CUPEL,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTDRU_FIXTURE_CUPEL: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CUPEL,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
     cases: RBTDRU_CASES_CUPEL,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

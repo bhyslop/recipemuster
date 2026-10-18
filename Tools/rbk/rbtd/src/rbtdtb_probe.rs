@@ -17,36 +17,36 @@
 //
 // RBTDTB — tests for precondition-probe helper
 
-use super::rbtdrb_probe::*;
-use super::rbtdre_engine::rbtdre_Verdict;
+use super::rbtccp_probe::*;
+use super::rbtcee_engine::rbtcee_Verdict;
 
-fn rbtdtb_check_ok() -> Result<(), String> {
+fn rbttcp_check_ok() -> Result<(), String> {
     Ok(())
 }
 
-fn rbtdtb_check_err() -> Result<(), String> {
+fn rbttcp_check_err() -> Result<(), String> {
     Err("observed state X".to_string())
 }
 
 #[test]
-fn rbtdtb_assert_returns_ok_when_precondition_holds() {
-    let probe = rbtdrb_Probe {
+fn rbttcp_assert_returns_ok_when_precondition_holds() {
+    let probe = rbtccp_Probe {
         name: "test-precondition",
-        check: rbtdtb_check_ok,
+        check: rbttcp_check_ok,
         remediation: "no action needed",
     };
-    assert!(rbtdrb_assert(&probe).is_ok());
+    assert!(rbtccp_assert(&probe).is_ok());
 }
 
 #[test]
-fn rbtdtb_assert_returns_fail_verdict_when_precondition_unmet() {
-    let probe = rbtdrb_Probe {
+fn rbttcp_assert_returns_fail_verdict_when_precondition_unmet() {
+    let probe = rbtccp_Probe {
         name: "depot-levied",
-        check: rbtdtb_check_err,
+        check: rbttcp_check_err,
         remediation: "run rbtdrp_depot_stand_up first",
     };
-    match rbtdrb_assert(&probe) {
-        Err(rbtdre_Verdict::Fail(detail)) => {
+    match rbtccp_assert(&probe) {
+        Err(rbtcee_Verdict::Fail(detail)) => {
             assert!(detail.contains("depot-levied"));
             assert!(detail.contains("observed state X"));
             assert!(detail.contains("run rbtdrp_depot_stand_up first"));

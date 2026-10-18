@@ -27,7 +27,7 @@
 
 use std::path::Path;
 
-use crate::rbtdre_engine::{rbtdre_tree_clean, rbtdre_Verdict};
+use crate::rbtcee_engine::{rbtcee_tree_clean, rbtcee_Verdict};
 use crate::rbtdgc_consts::{
     RBTDGC_MOORINGS_DIR, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE,
 };
@@ -64,7 +64,7 @@ const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE
 /// the shared engine check so the run-start guard and this fixture gate stay in
 /// lockstep.
 fn rbtdrp_check_tree_clean(root: &Path, violations: &mut Vec<String>) {
-    if let Err(msg) = rbtdre_tree_clean(root) {
+    if let Err(msg) = rbtcee_tree_clean(root) {
         violations.push(msg);
     }
 }
@@ -204,19 +204,19 @@ fn rbtdrp_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
 /// Case 1 — marshal-zero attestation. Aggregates all four violation classes
 /// into a single diagnostic. A passing run is the proof that `rbw-MZ` was
 /// just executed and committed.
-pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
+pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot resolve project root: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot resolve project root: {}", e)),
     };
 
     let rbrr = root.join(RBTDGC_RBRR_FILE);
     if !rbrr.exists() {
-        return rbtdre_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display()));
+        return rbtcee_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display()));
     }
     let rbrd = root.join(RBTDGC_RBRD_FILE);
     if !rbrd.exists() {
-        return rbtdre_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
+        return rbtcee_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
     }
 
     let vessel_dir = rbtdrk_read_env_value(&rbrr, "RBRR_VESSEL_DIR").unwrap_or_default();
@@ -230,7 +230,7 @@ pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
     rbtdrp_check_vessel_depot_fields(&root, &vessel_dir, &mut violations);
 
     if violations.is_empty() {
-        return rbtdre_Verdict::Pass;
+        return rbtcee_Verdict::Pass;
     }
 
     let body = violations
@@ -238,7 +238,7 @@ pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtdre_Verdict {
         .map(|v| format!("  - {}", v))
         .collect::<Vec<_>>()
         .join("\n");
-    rbtdre_Verdict::Fail(format!(
+    rbtcee_Verdict::Fail(format!(
         "marshal-zero attestation failed — {} violation(s):\n{}\n\n\
          remedy: tt/rbw-MZ.MarshalZeroes.sh, then notch (commit) and rerun.",
         violations.len(),

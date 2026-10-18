@@ -704,7 +704,7 @@ pub(crate) fn zrbtdru_scan_domain(tools: &Path, domain: zrbtdru_Domain) -> Resul
         };
         let src = std::fs::read_to_string(path)
             .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(root, path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(root, path);
         for (line, command) in zrbtdru_command_words(&src) {
             if zrbtdru_is_external(&command, &locals) {
                 let base = command.rsplit('/').next().unwrap_or(&command);
