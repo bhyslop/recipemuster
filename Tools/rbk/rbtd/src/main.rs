@@ -42,11 +42,11 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use rbtd::rbtcea_almanac::{
+use rbt::rbtcea_almanac::{
     rbtcea_lookup_fixture, rbtcea_lookup_suite, RBTCEA_FIXTURES, RBTCEA_SUITES,
 };
-use rbtd::rbtccc_crucible::{rbtccc_set_context, rbtccc_take_context};
-use rbtd::rbtcee_engine::{
+use rbt::rbtccc_crucible::{rbtccc_set_context, rbtccc_take_context};
+use rbt::rbtcee_engine::{
     RBTCEE_FLAG_KEEP_GOING,
     rbtcee_TariffRow,
     rbtcee_detect_colors,
@@ -60,13 +60,13 @@ use rbtd::rbtcee_engine::{
     rbtcee_tariff_declared,
     rbtcee_tree_clean,
 };
-use rbtd::rbtcei_invocation::{
+use rbt::rbtcei_invocation::{
     rbtcei_Context, rbtcei_invoke_global,
     RBTCEI_BURD_TEMP_DIR_KEY,
 };
-use rbtd::rbtccd_dowse::rbtccd_dowse;
-use rbtd::rbtdgc_consts::RBTDGC_CRUCIBLE_ACTIVE;
-use rbtd::rbtcep_platform::rbtcep_path_from_env;
+use rbt::rbtccd_dowse::rbtccd_dowse;
+use rbt::rbtgec_consts::RBTGEC_CRUCIBLE_ACTIVE;
+use rbt::rbtcep_platform::rbtcep_path_from_env;
 
 /// The flag the kennel's election asks a standing binary before it launches or
 /// borrows one. Its home is `BKCE_EXERGUE_FLAG` in the kennel's election
@@ -108,14 +108,14 @@ fn main() -> ExitCode {
 fn rbtd_run_dowse(args: &[String]) -> ExitCode {
     let log_dir = match args.first() {
         Some(d) => PathBuf::from(d),
-        None => rbtd::rbtcel_fatal_now!(
+        None => rbt::rbtcel_fatal_now!(
             "rbtd dowse: usage: rbtd dowse <log-dir>\n\
              launch via tabtarget: tt/rbw-td.TariffDowse.sh"
         ),
     };
     match rbtccd_dowse(&log_dir) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(msg) => rbtd::rbtcel_fatal_now!("rbtd: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbtd: {}", msg),
     }
 }
 
@@ -154,18 +154,18 @@ fn rbtd_allocate_roots() -> Result<rbtd_Roots, String> {
 fn rbtd_run_fixture(args: &[String]) -> ExitCode {
     let (positionals, keep_going) = match rbtcee_parse_keep_going(args) {
         Ok(v) => v,
-        Err(msg) => rbtd::rbtcel_fatal_now!("rbtd: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbtd: {}", msg),
     };
     let fixture = match positionals.first() {
         Some(n) => n,
-        None => rbtd::rbtcel_fatal_now!(
+        None => rbt::rbtcel_fatal_now!(
             "rbtd: usage: rbtd <fixture> [{}]\n\
              theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)",
             RBTCEE_FLAG_KEEP_GOING
         ),
     };
     if positionals.len() > 1 {
-        rbtd::rbtcel_fatal_now!(
+        rbt::rbtcel_fatal_now!(
             "rbtd: unexpected argument '{}' — usage: rbtd <fixture> [{}]",
             positionals[1], RBTCEE_FLAG_KEEP_GOING
         );
@@ -173,7 +173,7 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => rbtd::rbtcel_fatal_now!("rbtd: cannot determine working directory: {}", e),
+        Err(e) => rbt::rbtcel_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
     // Run-start hygiene guard — reaches every drive, not only the suite (see
@@ -182,7 +182,7 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
     // uncommitted engine change, so a dirty tree here refuses exactly as a
     // suite start does.
     if let Err(msg) = rbtcee_tree_clean(&project_root) {
-        rbtd::rbtcel_fatal_now!(
+        rbt::rbtcel_fatal_now!(
             "rbtd: refusing to run on a dirty working tree — \
              notch (commit) first, then drive.\n{}",
             msg
@@ -191,7 +191,7 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
 
     let roots = match rbtd_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => rbtd::rbtcel_fatal_now!("{}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg),
     };
 
     let ctx = rbtcei_Context::new(
@@ -203,7 +203,7 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
 
     let fixture_def = match rbtcea_lookup_fixture(fixture) {
         Some(f) => f,
-        None => rbtd::rbtcel_fatal_now!(
+        None => rbt::rbtcel_fatal_now!(
             "rbtd: fixture '{}' has no registered Fixture — \
              no Fixture static is bound. \
              Update rbtcea_lookup_fixture in rbtccc_crucible.rs.",
@@ -220,13 +220,13 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
 
     let result = match run_result {
         Ok(r) => r,
-        Err(msg) => rbtd::rbtcel_fatal_now!("rbtd: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbtd: {}", msg),
     };
 
     rbtcee_print_summary(&result, &colors);
 
     if result.failed > 0 {
-        rbtd::rbtcel_error_now!("rbtd: {} case(s) failed", result.failed);
+        rbt::rbtcel_error_now!("rbtd: {} case(s) failed", result.failed);
         ExitCode::FAILURE
     } else {
         ExitCode::SUCCESS
@@ -238,25 +238,25 @@ fn rbtd_run_fixture(args: &[String]) -> ExitCode {
 fn rbtd_run_suite(args: &[String]) -> ExitCode {
     let (positionals, keep_going) = match rbtcee_parse_keep_going(args) {
         Ok(v) => v,
-        Err(msg) => rbtd::rbtcel_fatal_now!("rbtd suite: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbtd suite: {}", msg),
     };
     let suite = match positionals.first() {
         Some(name) => match rbtcea_lookup_suite(name) {
             Some(s) => s,
             None => {
-                rbtd::rbtcel_error_now!("rbtd suite: unknown suite '{}'", name);
+                rbt::rbtcel_error_now!("rbtd suite: unknown suite '{}'", name);
                 rbtd_list_suites();
                 return ExitCode::FAILURE;
             }
         },
         None => {
-            rbtd::rbtcel_error_now!("rbtd suite: no suite argument");
+            rbt::rbtcel_error_now!("rbtd suite: no suite argument");
             rbtd_list_suites();
             return ExitCode::FAILURE;
         }
     };
     if positionals.len() > 1 {
-        rbtd::rbtcel_fatal_now!(
+        rbt::rbtcel_fatal_now!(
             "rbtd suite: unexpected argument '{}' — usage: rbtd suite <suite> [{}]",
             positionals[1], RBTCEE_FLAG_KEEP_GOING
         );
@@ -264,7 +264,7 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => rbtd::rbtcel_fatal_now!("rbtd: cannot determine working directory: {}", e),
+        Err(e) => rbt::rbtcel_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
     // Run-start hygiene guard, once per suite (under the bash loop it ran once
@@ -272,7 +272,7 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
     // tree at the start would interleave the operator's uncommitted edits. Reaches
     // every drive, not only this one — see rbtcee_tree_clean's doc comment.
     if let Err(msg) = rbtcee_tree_clean(&project_root) {
-        rbtd::rbtcel_fatal_now!(
+        rbt::rbtcel_fatal_now!(
             "rbtd: refusing to start a suite run on a dirty working tree — \
              notch (commit) first, then drive.\n{}",
             msg
@@ -284,7 +284,7 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
     // same BURD_TEMP_DIR and thus the same trace root.
     let roots = match rbtd_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => rbtd::rbtcel_fatal_now!("{}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg),
     };
 
     let colors = rbtcee_detect_colors();
@@ -344,7 +344,7 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
                 }
             }
             Err(msg) => {
-                rbtd::rbtcel_error_now!("rbtd: fixture '{}': {}", fixture.name, msg);
+                rbt::rbtcel_error_now!("rbtd: fixture '{}': {}", fixture.name, msg);
                 total_failed += 1;
                 ran += 1;
                 break;
@@ -354,17 +354,17 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
 
     rbtcee_print_tariff_table(&tariff_rows);
 
-    rbtd::rbtcel_info_now!(
+    rbt::rbtcel_info_now!(
         "Suite '{}': {} fixture(s) run, {} passed, {} failed, {} skipped",
         suite.name, ran, total_passed, total_failed, total_skipped
     );
     let registered_fixtures = suite.fixtures.len();
     if ran < registered_fixtures {
-        rbtd::rbtcel_info_now!(
+        rbt::rbtcel_info_now!(
             "{} reached of {} registered", ran, registered_fixtures
         );
         for fixture in &suite.fixtures[ran..] {
-            rbtd::rbtcel_info_now!("UNREACHED: {}", fixture.name);
+            rbt::rbtcel_info_now!("UNREACHED: {}", fixture.name);
         }
     }
 
@@ -376,9 +376,9 @@ fn rbtd_run_suite(args: &[String]) -> ExitCode {
 }
 
 fn rbtd_list_suites() {
-    rbtd::rbtcel_info_now!("available suites:");
+    rbt::rbtcel_info_now!("available suites:");
     for s in RBTCEA_SUITES {
-        rbtd::rbtcel_info_now!("  {}", s.name);
+        rbt::rbtcel_info_now!("  {}", s.name);
     }
 }
 
@@ -388,7 +388,7 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     let fixture = match args.first() {
         Some(f) => f,
         None => {
-            rbtd::rbtcel_error_now!(
+            rbt::rbtcel_error_now!(
                 "rbtd single: usage: rbtd single <fixture> [case]\n\
                  omit case to list all cases for the fixture"
             );
@@ -398,7 +398,7 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     };
 
     if !RBTCEA_FIXTURES.iter().any(|f| f.name == *fixture) {
-        rbtd::rbtcel_error_now!("rbtd single: unknown fixture '{}'", fixture);
+        rbt::rbtcel_error_now!("rbtd single: unknown fixture '{}'", fixture);
         rbtd_list_fixtures();
         return ExitCode::FAILURE;
     }
@@ -406,12 +406,12 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     // Set up execution context early — needed for charge check and case execution
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => rbtd::rbtcel_fatal_now!("rbtd: cannot determine working directory: {}", e),
+        Err(e) => rbt::rbtcel_fatal_now!("rbtd: cannot determine working directory: {}", e),
     };
 
     let roots = match rbtd_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => rbtd::rbtcel_fatal_now!("{}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg),
     };
 
     // Context is required for every case execution path (rbtccc_with_ctx).
@@ -429,7 +429,7 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
 
     let fixture_def = match rbtcea_lookup_fixture(fixture) {
         Some(f) => f,
-        None => rbtd::rbtcel_fatal_now!(
+        None => rbt::rbtcel_fatal_now!(
             "rbtd single: fixture '{}' has no registered Fixture",
             fixture
         ),
@@ -438,12 +438,12 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     if fixture_def.setup.is_some() {
         match rbtcei_invoke_global(
             &mut ctx,
-            RBTDGC_CRUCIBLE_ACTIVE,
+            RBTGEC_CRUCIBLE_ACTIVE,
             &[fixture],
             &[],
         ) {
             Ok(r) if r.exit_code == 0 => {}
-            _ => rbtd::rbtcel_fatal_now!(
+            _ => rbt::rbtcel_fatal_now!(
                 "rbtd single: crucible not charged for '{}'\n\
                  charge first: tt/rbw-cC.Charge.{}.sh",
                 fixture, fixture
@@ -458,7 +458,7 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     // No case argument — list all cases
     let case_name = match args.get(1) {
         None => {
-            rbtd::rbtcel_info_now!(
+            rbt::rbtcel_info_now!(
                 "fixture '{}' declared tariff: [{}]",
                 fixture, rbtcee_tariff_declared(&fixture_def.tariff)
             );
@@ -472,7 +472,7 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     let case = match rbtcee_find_case(cases, case_name) {
         Some(c) => c,
         None => {
-            rbtd::rbtcel_error_now!(
+            rbt::rbtcel_error_now!(
                 "rbtd single: case '{}' not found in fixture '{}'",
                 case_name, fixture
             );
@@ -484,7 +484,7 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
     let colors = rbtcee_detect_colors();
     let result = match rbtcee_run_single_case(case, &colors, &roots.trace_root) {
         Ok(r) => r,
-        Err(msg) => rbtd::rbtcel_fatal_now!("rbtd: case execution error: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbtd: case execution error: {}", msg),
     };
 
     rbtcee_print_summary(&result, &colors);
@@ -497,18 +497,18 @@ fn rbtd_run_single(args: &[String]) -> ExitCode {
 }
 
 fn rbtd_list_fixtures() {
-    rbtd::rbtcel_info_now!("available fixtures:");
+    rbt::rbtcel_info_now!("available fixtures:");
     let mut eta_min = 0u64;
     let mut eta_max = 0u64;
     for f in RBTCEA_FIXTURES {
-        rbtd::rbtcel_info_now!("  {:<28} [{}]", f.name, rbtcee_tariff_declared(&f.tariff));
+        rbt::rbtcel_info_now!("  {:<28} [{}]", f.name, rbtcee_tariff_declared(&f.tariff));
         eta_min += f.tariff.min_secs.unwrap_or(0);
         eta_max += f.tariff.max_secs.unwrap_or(0);
     }
     // Declared-cost ETA envelope: the sum of declared min/max wall-clock across
     // the roster. Undeclared bounds contribute zero, so this is a lower bound on
     // the envelope, not a promise — it grows as declarations are seeded.
-    rbtd::rbtcel_info_now!(
+    rbt::rbtcel_info_now!(
         "declared-cost ETA envelope (sum of declared bounds): min {}s, max {}s",
         eta_min, eta_max
     );

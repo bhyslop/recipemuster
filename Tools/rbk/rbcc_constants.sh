@@ -97,7 +97,7 @@ readonly RBCC_rbrv_file="rbrv.env"
 # infix records that bareness IN THE NAME — an unhewn stone is used undressed:
 # do not sprue (an underscore is forbidden in an SA-id, RFC1035) and do not
 # consolidate these into the sprued mantle class. rbcc_emit_consts strips the
-# unhewn_ segment on emit, so the projected RBTDGC_ACCOUNT_* names are unchanged.
+# unhewn_ segment on emit, so the projected RBTGEC_ACCOUNT_* names are unchanged.
 readonly RBCC_account_unhewn_governor="governor"
 readonly RBCC_account_unhewn_retriever="retriever"
 readonly RBCC_account_unhewn_director="director"
@@ -272,19 +272,19 @@ rbcc_source_active_rbrf_flint() {
 }
 
 ######################################################################
-# Rust const projection (rbcc single-homed set → RBTDGC_)
+# Rust const projection (rbcc single-homed set → RBTGEC_)
 
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
 # string consts to stdout, one `pub const` line per name/value pair via the
 # shared buz_emit_const_str primitive (BUK must be kindled). The single-homed set:
 # moorings/vessels dirs, account labels, mantle identity tokens, .env filenames,
 # operation verbs, and container roles. Each Rust const is
-# RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
+# RBTGEC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
 # carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
-# Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention. Two mechanical
+# Rust is SCREAMING (RBTGEC_MOORINGS_DIR) per Rust convention. Two mechanical
 # name transforms — no per-entry mapping, no drift: the RBCC_ prefix strip +
 # uppercase (universal), and a strip of the unhewn_ bare-marker infix so the
-# RBCC_account_unhewn_* family projects to RBTDGC_ACCOUNT_* (the marker records
+# RBCC_account_unhewn_* family projects to RBTGEC_ACCOUNT_* (the marker records
 # "stay bare" in the bash name without leaking into the Rust mirror). rbtd's
 # lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
@@ -403,7 +403,7 @@ zrbcc_sentinel() {
   test "${ZRBCC_KINDLED:-}" = "1" || buc_die_now "Module rbcc not kindled - call zrbcc_kindle first"
 }
 
-# zrbcc_emit_const kind prefix name — one RBTDGC_ const line for one
+# zrbcc_emit_const kind prefix name — one RBTGEC_ const line for one
 # co-maintained name: the prefix and the unhewn_ bare-marker infix stripped, the
 # stem uppercased, the named variable's value carried verbatim through the str or
 # i32 primitive.
@@ -423,9 +423,9 @@ zrbcc_emit_const() {
   z_stem="${z_stem/unhewn_/}"
   zrbcc_upper_yawp "${z_stem}"; local -r z_upper="${z_rbcc_upper}"
   case "${z_kind}" in
-    str) buz_emit_const_str "RBTDGC_${z_upper}" "${!z_name}" \
+    str) buz_emit_const_str "RBTGEC_${z_upper}" "${!z_name}" \
            || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}" ;;
-    i32) buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
+    i32) buz_emit_const_i32 "RBTGEC_${z_upper}" "${!z_name}" \
            || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}" ;;
     *)   buc_die_now "rbcc_emit_consts: unknown const kind '${z_kind}' for ${z_name}" ;;
   esac

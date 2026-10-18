@@ -43,13 +43,13 @@ fn rbttcp_assert_returns_fail_verdict_when_precondition_unmet() {
     let probe = rbtccp_Probe {
         name: "depot-levied",
         check: rbttcp_check_err,
-        remediation: "run rbtdrp_depot_stand_up first",
+        remediation: "run rbtcgl_depot_stand_up first",
     };
     match rbtccp_assert(&probe) {
         Err(rbtcee_Verdict::Fail(detail)) => {
             assert!(detail.contains("depot-levied"));
             assert!(detail.contains("observed state X"));
-            assert!(detail.contains("run rbtdrp_depot_stand_up first"));
+            assert!(detail.contains("run rbtcgl_depot_stand_up first"));
         }
         Err(_) => panic!("expected Fail verdict, got non-Fail"),
         Ok(()) => panic!("expected Err, got Ok"),

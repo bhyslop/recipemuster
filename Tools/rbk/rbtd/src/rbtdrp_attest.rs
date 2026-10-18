@@ -20,7 +20,7 @@
 // The entry gate for the gauntlet suite. It asserts that the working tree was
 // just zeroed by `rbw-MZ` (rblm_zero): four violation classes are checked and
 // ALL surfaced in one aggregated diagnostic. Failure short-circuits the rest of
-// the depot-lifecycle arc (rbtdrp_lifecycle) via the per-fixture fail_fast switch.
+// the depot-lifecycle arc (rbtcgl_lifecycle) via the per-fixture fail_fast switch.
 //
 // Carved out of the lifecycle arc as its own responsibility: attesting a clean
 // blank-slate regime is independent of standing a depot up and tearing it down.
@@ -28,51 +28,51 @@
 use std::path::Path;
 
 use crate::rbtcee_engine::{rbtcee_tree_clean, rbtcee_Verdict};
-use crate::rbtdgc_consts::{
-    RBTDGC_MOORINGS_DIR, RBTDGC_RBRD_FILE, RBTDGC_RBRN_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE,
+use crate::rbtgec_consts::{
+    RBTGEC_MOORINGS_DIR, RBTGEC_RBRD_FILE, RBTGEC_RBRN_FILE, RBTGEC_RBRR_FILE, RBTGEC_RBRV_FILE,
 };
-use crate::rbtdrk_freehold::{
-    rbtdrk_read_env_value, rbtdrk_resolve, RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
-    RBTDRK_FIELD_RBRD_DEPOT_MONIKER, RBTDRK_FIELD_RBRR_RUNTIME_PREFIX,
-    RBTDRK_FIELD_RBRR_SUBSTRATE_RELIQUARY,
+use crate::rbtcgf_freehold::{
+    rbtcgf_read_env_value, rbtcgf_resolve, RBTCGF_FIELD_RBRD_CLOUD_PREFIX,
+    RBTCGF_FIELD_RBRD_DEPOT_MONIKER, RBTCGF_FIELD_RBRR_RUNTIME_PREFIX,
+    RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY,
 };
 
 /// Site-specific RBRR fields rblm_zero blanks: the runtime prefix and the
 /// substrate reliquary (elected during onboarding after a conclave, like the
 /// per-vessel RBRV_RELIQUARY). Depot identity (CLOUD_PREFIX, DEPOT_MONIKER)
 /// moved to RBRD.
-const RBTDRP_RBRR_BLANK_FIELDS: &[&str] = &[
-    RBTDRK_FIELD_RBRR_RUNTIME_PREFIX,
-    RBTDRK_FIELD_RBRR_SUBSTRATE_RELIQUARY,
+const RBTCGA_RBRR_BLANK_FIELDS: &[&str] = &[
+    RBTCGF_FIELD_RBRR_RUNTIME_PREFIX,
+    RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY,
 ];
 
 /// Site-specific RBRD fields rblm_zero blanks. Both define the depot-bound
 /// site identity (project ID, GAR repo, and pool stem derive from
 /// CLOUD_PREFIX + DEPOT_MONIKER at kindle); an empty value is the post-
 /// marshal-zero invariant.
-const RBTDRP_RBRD_BLANK_FIELDS: &[&str] = &[
-    RBTDRK_FIELD_RBRD_CLOUD_PREFIX,
-    RBTDRK_FIELD_RBRD_DEPOT_MONIKER,
+const RBTCGA_RBRD_BLANK_FIELDS: &[&str] = &[
+    RBTCGF_FIELD_RBRD_CLOUD_PREFIX,
+    RBTCGF_FIELD_RBRD_DEPOT_MONIKER,
 ];
 
 /// Nameplate hallmark fields rblm_zero blanks.
-const RBTDRP_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
+const RBTCGA_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
 
 // ── Violation-class checks ───────────────────────────────────
 
 /// Class A — working tree clean (`git status --porcelain` empty). Delegates to
 /// the shared engine check so the run-start guard and this fixture gate stay in
 /// lockstep.
-fn rbtdrp_check_tree_clean(root: &Path, violations: &mut Vec<String>) {
+fn rbtcga_check_tree_clean(root: &Path, violations: &mut Vec<String>) {
     if let Err(msg) = rbtcee_tree_clean(root) {
         violations.push(msg);
     }
 }
 
 /// Class B — site-specific RBRR/RBRD fields are blank.
-fn rbtdrp_check_rbrr_fields(rbrr: &Path, violations: &mut Vec<String>) {
-    for field in RBTDRP_RBRR_BLANK_FIELDS {
-        if let Some(value) = rbtdrk_read_env_value(rbrr, field) {
+fn rbtcga_check_rbrr_fields(rbrr: &Path, violations: &mut Vec<String>) {
+    for field in RBTCGA_RBRR_BLANK_FIELDS {
+        if let Some(value) = rbtcgf_read_env_value(rbrr, field) {
             if !value.is_empty() {
                 violations.push(format!(
                     "RBRR field non-blank: {}={} (in {})",
@@ -85,9 +85,9 @@ fn rbtdrp_check_rbrr_fields(rbrr: &Path, violations: &mut Vec<String>) {
     }
 }
 
-fn rbtdrp_check_rbrd_fields(rbrd: &Path, violations: &mut Vec<String>) {
-    for field in RBTDRP_RBRD_BLANK_FIELDS {
-        if let Some(value) = rbtdrk_read_env_value(rbrd, field) {
+fn rbtcga_check_rbrd_fields(rbrd: &Path, violations: &mut Vec<String>) {
+    for field in RBTCGA_RBRD_BLANK_FIELDS {
+        if let Some(value) = rbtcgf_read_env_value(rbrd, field) {
             if !value.is_empty() {
                 violations.push(format!(
                     "RBRD field non-blank: {}={} (in {})",
@@ -102,8 +102,8 @@ fn rbtdrp_check_rbrd_fields(rbrd: &Path, violations: &mut Vec<String>) {
 
 /// Class C — every nameplate's RBRN_SENTRY_HALLMARK and RBRN_BOTTLE_HALLMARK
 /// is blank.
-fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
-    let dot_dir = root.join(RBTDGC_MOORINGS_DIR);
+fn rbtcga_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
+    let dot_dir = root.join(RBTGEC_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&dot_dir) {
         Ok(e) => e,
         Err(e) => {
@@ -116,12 +116,12 @@ fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
         if !np_dir.is_dir() {
             continue;
         }
-        let rbrn = np_dir.join(RBTDGC_RBRN_FILE);
+        let rbrn = np_dir.join(RBTGEC_RBRN_FILE);
         if !rbrn.exists() {
             continue;
         }
-        for field in RBTDRP_RBRN_BLANK_FIELDS {
-            if let Some(value) = rbtdrk_read_env_value(&rbrn, field) {
+        for field in RBTCGA_RBRN_BLANK_FIELDS {
+            if let Some(value) = rbtcgf_read_env_value(&rbrn, field) {
                 if !value.is_empty() {
                     violations.push(format!(
                         "nameplate hallmark non-blank: {}={} (in {})",
@@ -137,7 +137,7 @@ fn rbtdrp_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
 
 /// Class D — every vessel rbrv.env has RBRV_RELIQUARY blank and every
 /// RBRV_IMAGE_*_ANCHOR field blank.
-fn rbtdrp_check_vessel_depot_fields(
+fn rbtcga_check_vessel_depot_fields(
     root: &Path,
     vessel_dir: &str,
     violations: &mut Vec<String>,
@@ -146,7 +146,7 @@ fn rbtdrp_check_vessel_depot_fields(
         violations.push("RBRR_VESSEL_DIR is blank — cannot scan vessels".to_string());
         return;
     }
-    let vroot = rbtdrk_resolve(root, vessel_dir);
+    let vroot = rbtcgf_resolve(root, vessel_dir);
     let entries = match std::fs::read_dir(&vroot) {
         Ok(e) => e,
         Err(e) => {
@@ -159,17 +159,17 @@ fn rbtdrp_check_vessel_depot_fields(
         if !v_dir.is_dir() {
             continue;
         }
-        let rbrv = v_dir.join(RBTDGC_RBRV_FILE);
+        let rbrv = v_dir.join(RBTGEC_RBRV_FILE);
         if !rbrv.exists() {
             continue;
         }
-        rbtdrp_scan_rbrv_file(&rbrv, violations);
+        rbtcga_scan_rbrv_file(&rbrv, violations);
     }
 }
 
 /// Scan a single rbrv.env for non-blank RBRV_RELIQUARY and RBRV_IMAGE_*_ANCHOR
 /// fields.
-fn rbtdrp_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
+fn rbtcga_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
     let content = match std::fs::read_to_string(rbrv) {
         Ok(c) => c,
         Err(e) => {
@@ -204,30 +204,30 @@ fn rbtdrp_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
 /// Case 1 — marshal-zero attestation. Aggregates all four violation classes
 /// into a single diagnostic. A passing run is the proof that `rbw-MZ` was
 /// just executed and committed.
-pub(crate) fn rbtdrp_marshal_zero_attestation(_dir: &Path) -> rbtcee_Verdict {
+pub(crate) fn rbtcga_marshal_zero_attestation(_dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(format!("cannot resolve project root: {}", e)),
     };
 
-    let rbrr = root.join(RBTDGC_RBRR_FILE);
+    let rbrr = root.join(RBTGEC_RBRR_FILE);
     if !rbrr.exists() {
         return rbtcee_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display()));
     }
-    let rbrd = root.join(RBTDGC_RBRD_FILE);
+    let rbrd = root.join(RBTGEC_RBRD_FILE);
     if !rbrd.exists() {
         return rbtcee_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
     }
 
-    let vessel_dir = rbtdrk_read_env_value(&rbrr, "RBRR_VESSEL_DIR").unwrap_or_default();
+    let vessel_dir = rbtcgf_read_env_value(&rbrr, "RBRR_VESSEL_DIR").unwrap_or_default();
 
     let mut violations: Vec<String> = Vec::new();
 
-    rbtdrp_check_tree_clean(&root, &mut violations);
-    rbtdrp_check_rbrr_fields(&rbrr, &mut violations);
-    rbtdrp_check_rbrd_fields(&rbrd, &mut violations);
-    rbtdrp_check_nameplate_hallmarks(&root, &mut violations);
-    rbtdrp_check_vessel_depot_fields(&root, &vessel_dir, &mut violations);
+    rbtcga_check_tree_clean(&root, &mut violations);
+    rbtcga_check_rbrr_fields(&rbrr, &mut violations);
+    rbtcga_check_rbrd_fields(&rbrd, &mut violations);
+    rbtcga_check_nameplate_hallmarks(&root, &mut violations);
+    rbtcga_check_vessel_depot_fields(&root, &vessel_dir, &mut violations);
 
     if violations.is_empty() {
         return rbtcee_Verdict::Pass;

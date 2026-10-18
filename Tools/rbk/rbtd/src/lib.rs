@@ -27,10 +27,10 @@
 /// eagerly expands a `macro_rules!` invocation, consuming the literal token it
 /// produces — the codebase's established zero-dependency idiom for compile-time
 /// path composition. This literal is the one mooring/vessel path NOT taken from
-/// the generated `RBTDGC_*` consts; `rbttem_vessels_dir_matches_generated` pins
-/// it to `RBTDGC_MOORINGS_DIR`/`RBTDGC_VESSELS_SUBDIR` so any drift from the
+/// the generated `RBTGEC_*` consts; `rbttem_vessels_dir_matches_generated` pins
+/// it to `RBTGEC_MOORINGS_DIR`/`RBTGEC_VESSELS_SUBDIR` so any drift from the
 /// bash source of truth is a test failure. Runtime `Path::join` sites that take
-/// a value (not a literal) use `RBTDGC_MOORINGS_DIR` directly.
+/// a value (not a literal) use `RBTGEC_MOORINGS_DIR` directly.
 #[macro_export]
 macro_rules! rbtd_vessels_dir {
     () => {
@@ -38,8 +38,10 @@ macro_rules! rbtd_vessels_dir {
     };
 }
 
-pub mod rbtdgb_breviary;
-pub mod rbtdgc_consts;
+#[path = "rbtdgb_breviary.rs"]
+pub mod rbtgeb_breviary;
+#[path = "rbtdgc_consts.rs"]
+pub mod rbtgec_consts;
 #[path = "rbtdra_almanac.rs"]
 pub mod rbtcea_almanac;
 #[path = "rbtdrb_probe.rs"]
@@ -50,8 +52,10 @@ pub mod rbtccc_crucible;
 pub mod rbtcgd_dogfight;
 #[path = "rbtdre_engine.rs"]
 pub mod rbtcee_engine;
-pub mod rbtdrf_fast;
-pub mod rbtdrf_handbook;
+#[path = "rbtdrf_fast.rs"]
+pub mod rbtchf_fast;
+#[path = "rbtdrf_handbook.rs"]
+pub mod rbtchh_handbook;
 #[path = "rbtdrg_log.rs"]
 pub mod rbtcel_log;
 #[path = "rbtdrh_chain.rs"]
@@ -60,8 +64,10 @@ pub mod rbtcgh_chain;
 pub mod rbtcei_invocation;
 #[path = "rbtdrj_touchstone.rs"]
 pub mod rbtcct_touchstone;
-pub mod rbtdrk_depot;
-pub mod rbtdrk_freehold;
+#[path = "rbtdrk_depot.rs"]
+pub mod rbtcgk_depot;
+#[path = "rbtdrk_freehold.rs"]
+pub mod rbtcgf_freehold;
 #[path = "rbtdrl_calibrant.rs"]
 pub mod rbtchl_calibrant;
 #[path = "rbtdrm_manifest.rs"]
@@ -70,15 +76,22 @@ pub mod rbtcem_manifest;
 pub mod rbtchn_conformance;
 #[path = "rbtdro_onboarding.rs"]
 pub mod rbtcgo_onboarding;
-pub mod rbtdrp_attest;
-pub mod rbtdrp_lifecycle;
-pub mod rbtdrq_damnatio;
-pub mod rbtdrq_pyx;
+#[path = "rbtdrp_attest.rs"]
+pub mod rbtcga_attest;
+#[path = "rbtdrp_lifecycle.rs"]
+pub mod rbtcgl_lifecycle;
+#[path = "rbtdrq_damnatio.rs"]
+pub mod rbtchd_damnatio;
+#[path = "rbtdrq_pyx.rs"]
+pub mod rbtchx_pyx;
 #[path = "rbtdrs_poison.rs"]
 pub mod rbtchs_poison;
-pub mod rbtdru_bash;
-pub mod rbtdru_cupel;
-pub mod rbtdru_python;
+#[path = "rbtdru_bash.rs"]
+pub mod rbtchb_bash;
+#[path = "rbtdru_cupel.rs"]
+pub mod rbtchc_cupel;
+#[path = "rbtdru_python.rs"]
+pub mod rbtchy_python;
 #[path = "rbtdrv_patrol.rs"]
 pub mod rbtcgp_patrol;
 #[path = "rbtdrw_dowse.rs"]

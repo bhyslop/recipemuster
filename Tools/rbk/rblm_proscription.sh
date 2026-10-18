@@ -121,7 +121,7 @@ readonly RBLM_column_feigned="feigned"
 readonly RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/main/README.md"
 
 # The freehold subject's sterile value. NOT a blank: rbpc_emit_consts projects
-# this constant into the generated Rust (RBTDGC_FREEHOLD_SUBJECT) through
+# this constant into the generated Rust (RBTGEC_FREEHOLD_SUBJECT) through
 # buz_emit_const_str, which rejects an empty value — so a blank here dies at the
 # candidate's own const regeneration. A placeholder that is shape-free (no UUID
 # for the fixture's sweep to find) and obviously unset is the form that survives.

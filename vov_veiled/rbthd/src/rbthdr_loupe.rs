@@ -136,11 +136,11 @@ const ZRBTHDR_VEIL_DOC_MARKS: &[&str] = &[".adoc", ".md"];
 /// stays frozen at exactly these sites.
 const ZRBTHDR_VEIL_EXEMPT: &[(&str, &str)] = &[
     (
-        "Tools/rbk/rbtd/src/rbtdrq_pyx.rs",
+        "Tools/rbk/rbtd/src/rbtchx_pyx.rs",
         "its no-.adoc case's skip-dir list spells the veiled-dir literal it must not descend into, and its secret-scan roots spell it again as a tree the scan must descend INTO",
     ),
     (
-        "Tools/rbk/rbtd/src/rbtdrq_damnatio.rs",
+        "Tools/rbk/rbtd/src/rbtchd_damnatio.rs",
         "its identity sweep's skip-dir list spells the veiled-dir literal it must not descend into",
     ),
     (

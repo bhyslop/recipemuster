@@ -54,7 +54,7 @@ use crate::rbtcei_invocation::{
     rbtcei_gar_ref_fact, rbtcei_invoke_or_fail, rbtcei_ordain_capture_full, rbtcei_Context,
     RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdgc_consts::{RBTDGC_ABJURE_HALLMARK, RBTDGC_RBRV_FILE, RBTDGC_SUMMON_HALLMARK};
+use crate::rbtgec_consts::{RBTGEC_ABJURE_HALLMARK, RBTGEC_RBRV_FILE, RBTGEC_SUMMON_HALLMARK};
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
 /// podman is deferred to the Director-governed runtime-regime decision that
@@ -101,7 +101,7 @@ fn rbtcgd_vessel_field(
     vessel_dir: &str,
     key: &str,
 ) -> Result<String, String> {
-    let path = ctx.rbtcei_project_root().join(vessel_dir).join(RBTDGC_RBRV_FILE);
+    let path = ctx.rbtcei_project_root().join(vessel_dir).join(RBTGEC_RBRV_FILE);
     let body = std::fs::read_to_string(&path)
         .map_err(|e| format!("read {}: {}", path.display(), e))?;
     let prefix = format!("{}=", key);
@@ -146,7 +146,7 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
         ctx,
         "summon",
         &hallmark,
-        RBTDGC_SUMMON_HALLMARK,
+        RBTGEC_SUMMON_HALLMARK,
         &[&hallmark],
         &[],
         dir,
@@ -232,7 +232,7 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
         ctx,
         "abjure",
         &hallmark,
-        RBTDGC_ABJURE_HALLMARK,
+        RBTGEC_ABJURE_HALLMARK,
         &[&hallmark],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
         dir,

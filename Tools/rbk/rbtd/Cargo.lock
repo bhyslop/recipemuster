@@ -508,7 +508,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rbtd"
+name = "rbt"
 version = "0.1.0"
 dependencies = [
  "arboard",

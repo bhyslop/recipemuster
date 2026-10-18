@@ -38,9 +38,9 @@ use crate::rbtcei_invocation::{
     rbtcei_Context, rbtcei_invoke, rbtcei_invoke_env, rbtcei_invoke_global,
     rbtcei_parse_ifrit_verdict,
 };
-use crate::rbtdgc_consts::{
-    RBTDGC_CRUCIBLE_ACTIVE, RBTDGC_CRUCIBLE_BARK,
-    RBTDGC_CRUCIBLE_CHARGE, RBTDGC_CRUCIBLE_FIAT, RBTDGC_CRUCIBLE_QUENCH, RBTDGC_CRUCIBLE_WRIT,
+use crate::rbtgec_consts::{
+    RBTGEC_CRUCIBLE_ACTIVE, RBTGEC_CRUCIBLE_BARK,
+    RBTGEC_CRUCIBLE_CHARGE, RBTGEC_CRUCIBLE_FIAT, RBTGEC_CRUCIBLE_QUENCH, RBTGEC_CRUCIBLE_WRIT,
 };
 
 // ── Thread-local invocation context ──────────────────────────
@@ -137,7 +137,7 @@ pub fn rbtccc_quench_crucible() {
 fn zrbtccc_charge_impl(ctx: &mut rbtcei_Context) -> Result<(), String> {
     let fixture = ctx.rbtcei_fixture().to_string();
     crate::rbtcel_info_now!("Charging crucible for nameplate '{}'...", fixture);
-    match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_CHARGE, &[]) {
+    match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_CHARGE, &[]) {
         Ok(r) if r.exit_code == 0 => {
             crate::rbtcel_info_now!("Crucible charged");
         }
@@ -150,7 +150,7 @@ fn zrbtccc_charge_impl(ctx: &mut rbtcei_Context) -> Result<(), String> {
     }
 
     crate::rbtcel_info_now!("Verifying crucible is active after charge...");
-    match rbtcei_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+    match rbtcei_invoke_global(ctx, RBTGEC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code == 0 => {
             crate::rbtcel_info_now!("Crucible active confirmed");
         }
@@ -174,14 +174,14 @@ fn zrbtccc_charge_impl(ctx: &mut rbtcei_Context) -> Result<(), String> {
 fn zrbtccc_quench_impl(ctx: &mut rbtcei_Context) {
     let fixture = ctx.rbtcei_fixture().to_string();
     crate::rbtcel_info_now!("Quenching crucible...");
-    match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_QUENCH, &[]) {
+    match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_QUENCH, &[]) {
         Ok(r) if r.exit_code == 0 => crate::rbtcel_info_now!("Crucible quenched"),
         Ok(r) => crate::rbtcel_error_now!("quench exited {}", r.exit_code),
         Err(e) => crate::rbtcel_error_now!("quench invocation failed: {}", e),
     }
 
     crate::rbtcel_info_now!("Verifying crucible is inactive after quench...");
-    match rbtcei_invoke_global(ctx, RBTDGC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
+    match rbtcei_invoke_global(ctx, RBTGEC_CRUCIBLE_ACTIVE, &[&fixture], &[]) {
         Ok(r) if r.exit_code != 0 => {
             crate::rbtcel_info_now!("Crucible inactive confirmed");
         }
@@ -208,7 +208,7 @@ fn rbtccc_invoke_ifrit(
     attack: &str,
     dir: &Path,
 ) -> rbtcee_Verdict {
-    let result = match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &[RBTCCC_IFRIT_BINARY, attack]) {
+    let result = match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &[RBTCCC_IFRIT_BINARY, attack]) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation error: {}", e)),
     };
@@ -226,7 +226,7 @@ fn rbtccc_invoke_ifrit_with_args(
 ) -> rbtcee_Verdict {
     let mut bark_args = vec![RBTCCC_IFRIT_BINARY, attack];
     bark_args.extend_from_slice(extra_args);
-    let result = match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &bark_args) {
+    let result = match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &bark_args) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation error: {}", e)),
     };
@@ -246,7 +246,7 @@ fn rbtccc_invoke_ifrit_with_args(
 /// so dropping the redundant logs-buk transcript for these probe writs costs
 /// no diagnostics.
 fn rbtccc_writ(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtcei_invoke_env(ctx, RBTDGC_CRUCIBLE_WRIT, args, &[("BURD_NO_LOG", "1")])?;
+    let result = rbtcei_invoke_env(ctx, RBTGEC_CRUCIBLE_WRIT, args, &[("BURD_NO_LOG", "1")])?;
     if result.exit_code != 0 {
         return Err(format!(
             "writ exit {}\nstdout: {}\nstderr: {}",
@@ -258,7 +258,7 @@ fn rbtccc_writ(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String
 
 /// Execute a command in the pentacle via fiat, returning the invocation result.
 fn rbtccc_fiat(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_FIAT, args)?;
+    let result = rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_FIAT, args)?;
     if result.exit_code != 0 {
         return Err(format!(
             "fiat exit {}\nstdout: {}\nstderr: {}",
@@ -838,7 +838,7 @@ fn rbtccc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtcee_Verdict {
         // Negative: attempt TCP to 1.1.1.1:443 from sentry via bash /dev/tcp
         let tcp1_result = rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_WRIT,
+            RBTGEC_CRUCIBLE_WRIT,
             &["timeout", "2", "bash", "-c", "echo > /dev/tcp/1.1.1.1/443"],
         );
         let tcp1_blocked = match &tcp1_result {
@@ -862,7 +862,7 @@ fn rbtccc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtcee_Verdict {
         // Negative: attempt TCP to 140.82.121.4:443 (GitHub) from sentry
         let tcp2_result = rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_WRIT,
+            RBTGEC_CRUCIBLE_WRIT,
             &[
                 "timeout",
                 "2",
@@ -930,7 +930,7 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
         // Invoke ifrit dns-allowed-example via bark
         let allowed_result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "dns-allowed-example"],
         ) {
             Ok(r) => r,
@@ -942,7 +942,7 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
         // Invoke ifrit dns-blocked-google via bark
         let blocked_result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "dns-blocked-google"],
         ) {
             Ok(r) => r,
@@ -1032,7 +1032,7 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
         // Attack: invoke tcp-rst-hijack from bottle
         let result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "tcp-rst-hijack"],
         ) {
             Ok(r) => r,
@@ -1133,7 +1133,7 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
         // Execute attack via bark
         let result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "arp-send-gratuitous"],
         ) {
             Ok(r) => r,
@@ -1249,7 +1249,7 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
         // Execute attack via bark
         let result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "arp-send-gateway-poison"],
         ) {
             Ok(r) => r,
@@ -1337,7 +1337,7 @@ fn rbtccc_coordinated_arp_table_stability(dir: &Path) -> rbtcee_Verdict {
         // Run the full ARP sortie (gratuitous + targeted + cache check)
         let result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "direct-arp-poison"],
         ) {
             Ok(r) => r,
@@ -1423,7 +1423,7 @@ fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
         for (i, attack) in attacks.iter().enumerate() {
             let result = rbtcei_invoke(
                 ctx,
-                RBTDGC_CRUCIBLE_BARK,
+                RBTGEC_CRUCIBLE_BARK,
                 &[RBTCCC_IFRIT_BINARY, attack],
             );
             if let Ok(r) = &result {
@@ -1528,7 +1528,7 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         // Pre-snapshot: query google.com via sentry's dnsmasq (blocked)
         let pre_google_result = rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_WRIT,
+            RBTGEC_CRUCIBLE_WRIT,
             &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
         );
         let pre_google = match &pre_google_result {
@@ -1540,7 +1540,7 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         // Attack: invoke dns-forge-response from bottle
         let result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "dns-forge-response"],
         ) {
             Ok(r) => r,
@@ -1566,7 +1566,7 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         // Post-snapshot: query google.com again
         let post_google_result = rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_WRIT,
+            RBTGEC_CRUCIBLE_WRIT,
             &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
         );
         let post_google = match &post_google_result {
@@ -1644,7 +1644,7 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
         // Attack: invoke mac-flood-bridge from bottle
         let result = match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &[RBTCCC_IFRIT_BINARY, "mac-flood-bridge"],
         ) {
             Ok(r) => r,
@@ -1690,7 +1690,7 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
         // Post: bark still works (sentry→bottle direction)
         match rbtcei_invoke(
             ctx,
-            RBTDGC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_BARK,
             &["echo", "post-connectivity-check"],
         ) {
             Ok(r) if r.exit_code == 0 => {
@@ -1729,8 +1729,8 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
 fn rbtccc_read_nameplate_port(ctx: &rbtcei_Context) -> Result<u16, String> {
     let env_path = ctx
         .rbtcei_project_root()
-        .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(format!("{}{}", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE, ctx.rbtcei_fixture()))
+        .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
+        .join(format!("{}{}", crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE, ctx.rbtcei_fixture()))
         .join("rbrn.env");
     let content = std::fs::read_to_string(&env_path)
         .map_err(|e| format!("cannot read {}: {}", env_path.display(), e))?;
@@ -1809,7 +1809,7 @@ fn rbtccc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
 fn rbtccc_srjcl_jupyter_running(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let result =
-            match rbtcei_invoke(ctx, RBTDGC_CRUCIBLE_BARK, &["ps", "aux"]) {
+            match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &["ps", "aux"]) {
                 Ok(r) => r,
                 Err(e) => return rbtcee_Verdict::Fail(format!("bark ps aux: {}", e)),
             };

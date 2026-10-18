@@ -53,29 +53,29 @@ use crate::rbtcei_invocation::{
     rbtcei_ordain_capture_full, rbtcei_read_burv_fact, rbtcei_Context, RBTCEI_BURE_CONFIRM_KEY,
     RBTCEI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK,
-    RBTDGC_ANOINT_GRAFT,
-    RBTDGC_CONTAINER_BOTTLE,
-    RBTDGC_CONTAINER_SENTRY,
-    RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
-    RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
-    RBTDGC_DRIVE_HALLMARK,
-    RBTDGC_ENSCONCE_BOLE,
-    RBTDGC_CONCLAVE_RELIQUARY,
-    RBTDGC_FEOFF_BOLE,
-    RBTDGC_JETTISON_HALLMARK_IMAGE,
-    RBTDGC_PLUMB_COMPACT,
-    RBTDGC_PLUMB_FULL,
-    RBTDGC_RBRV_FILE,
-    RBTDGC_REKON_HALLMARK,
-    RBTDGC_SUMMON_HALLMARK,
-    RBTDGC_VERB_ANOINT,
-    RBTDGC_VERB_DRIVE,
-    RBTDGC_VERB_KLUDGE,
-    RBTDGC_VERB_YOKE,
-    RBTDGC_WREST_HALLMARK_IMAGE,
-    RBTDGC_YOKE_RELIQUARY,
+use crate::rbtgec_consts::{
+    RBTGEC_ABJURE_HALLMARK,
+    RBTGEC_ANOINT_GRAFT,
+    RBTGEC_CONTAINER_BOTTLE,
+    RBTGEC_CONTAINER_SENTRY,
+    RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
+    RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
+    RBTGEC_DRIVE_HALLMARK,
+    RBTGEC_ENSCONCE_BOLE,
+    RBTGEC_CONCLAVE_RELIQUARY,
+    RBTGEC_FEOFF_BOLE,
+    RBTGEC_JETTISON_HALLMARK_IMAGE,
+    RBTGEC_PLUMB_COMPACT,
+    RBTGEC_PLUMB_FULL,
+    RBTGEC_RBRV_FILE,
+    RBTGEC_REKON_HALLMARK,
+    RBTGEC_SUMMON_HALLMARK,
+    RBTGEC_VERB_ANOINT,
+    RBTGEC_VERB_DRIVE,
+    RBTGEC_VERB_KLUDGE,
+    RBTGEC_VERB_YOKE,
+    RBTGEC_WREST_HALLMARK_IMAGE,
+    RBTGEC_YOKE_RELIQUARY,
 };
 use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_KLUDGE_TADMOR,
@@ -212,7 +212,7 @@ fn rbtcgo_probe_reliquary_touchmark() -> Result<(), String> {
     let root = rbtcgo_probe_root()?;
     let rbrv = root
         .join(RBTCGO_WITNESS_VESSEL_DIR)
-        .join(RBTDGC_RBRV_FILE);
+        .join(RBTGEC_RBRV_FILE);
     let value = rbtcgo_read_env_value(&rbrv, RBTCGO_FIELD_RBRV_RELIQUARY).ok_or_else(|| {
         format!(
             "{} missing from {}",
@@ -251,7 +251,7 @@ fn rbtcgo_probe_graft_anointed() -> Result<(), String> {
     let root = rbtcgo_probe_root()?;
     let rbrv = root
         .join(RBTCGO_VESSEL_DIR_GRAFT)
-        .join(RBTDGC_RBRV_FILE);
+        .join(RBTGEC_RBRV_FILE);
     let value = rbtcgo_read_env_value(&rbrv, RBTCGO_FIELD_RBRV_GRAFT_IMAGE).ok_or_else(|| {
         format!(
             "{} missing from {}",
@@ -284,9 +284,9 @@ fn rbtcgo_yoke(
 ) -> Result<(), rbtcee_Verdict> {
     rbtcei_invoke_or_fail(
         ctx,
-        RBTDGC_VERB_YOKE,
+        RBTGEC_VERB_YOKE,
         "",
-        RBTDGC_YOKE_RELIQUARY,
+        RBTGEC_YOKE_RELIQUARY,
         &[touchmark],
         &[],
         dir,
@@ -309,7 +309,7 @@ fn rbtcgo_ensconce(
         ctx,
         "ensconce",
         vessel_sigil,
-        RBTDGC_ENSCONCE_BOLE,
+        RBTGEC_ENSCONCE_BOLE,
         &[vessel_sigil],
         &[],
         dir,
@@ -341,7 +341,7 @@ fn rbtcgo_feoff(
         ctx,
         "feoff",
         vessel_sigil,
-        RBTDGC_FEOFF_BOLE,
+        RBTGEC_FEOFF_BOLE,
         &[vessel_sigil],
         &[],
         dir,
@@ -360,7 +360,7 @@ fn rbtcgo_write_vessel_env(
     var_name: &str,
     value: &str,
 ) -> Result<(), String> {
-    let rbrv_path = root.join(vessel_dir).join(RBTDGC_RBRV_FILE);
+    let rbrv_path = root.join(vessel_dir).join(RBTGEC_RBRV_FILE);
     rbtcee_config_set_field(&rbrv_path, var_name, value)
 }
 
@@ -372,7 +372,7 @@ fn rbtcgo_read_vessel_env(
     vessel_dir: &str,
     var_name: &str,
 ) -> Result<String, String> {
-    let rbrv_path = root.join(vessel_dir).join(RBTDGC_RBRV_FILE);
+    let rbrv_path = root.join(vessel_dir).join(RBTGEC_RBRV_FILE);
     let file = std::fs::File::open(&rbrv_path)
         .map_err(|e| format!("open rbrv.env for {}: {}", vessel_dir, e))?;
     let prefix = format!("{}=", var_name);
@@ -401,13 +401,13 @@ fn rbtcgo_drive_nameplate(
 ) -> Result<(), rbtcee_Verdict> {
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTDGC_VERB_DRIVE, field),
+        &format!("{} {}", RBTGEC_VERB_DRIVE, field),
         nameplate,
-        RBTDGC_DRIVE_HALLMARK,
+        RBTGEC_DRIVE_HALLMARK,
         &[nameplate, field, hallmark],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTDGC_VERB_DRIVE, field, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_DRIVE, field, nameplate),
     )?;
     Ok(())
 }
@@ -426,13 +426,13 @@ fn rbtcgo_kludge_nameplate(
 
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_SENTRY),
+        &format!("{} {}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_SENTRY),
         nameplate,
-        RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
+        RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
         &[nameplate],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_SENTRY, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_SENTRY, nameplate),
     )?;
 
     // Commit sentry hallmark before bottle kludge — kludge asserts clean tree.
@@ -441,20 +441,20 @@ fn rbtcgo_kludge_nameplate(
         &[nameplate],
         &format!(
             "{}-{}: {} hallmark",
-            RBTDGC_VERB_KLUDGE, nameplate, RBTDGC_CONTAINER_SENTRY
+            RBTGEC_VERB_KLUDGE, nameplate, RBTGEC_CONTAINER_SENTRY
         ),
     )
     .map_err(rbtcee_Verdict::Fail)?;
 
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_BOTTLE),
+        &format!("{} {}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_BOTTLE),
         nameplate,
-        RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
+        RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
         &[nameplate],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTDGC_VERB_KLUDGE, RBTDGC_CONTAINER_BOTTLE, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_BOTTLE, nameplate),
     )?;
 
     rbtcee_commit_nameplates(
@@ -462,7 +462,7 @@ fn rbtcgo_kludge_nameplate(
         &[nameplate],
         &format!(
             "{}-{}: {} hallmark",
-            RBTDGC_VERB_KLUDGE, nameplate, RBTDGC_CONTAINER_BOTTLE
+            RBTGEC_VERB_KLUDGE, nameplate, RBTGEC_CONTAINER_BOTTLE
         ),
     )
     .map_err(rbtcee_Verdict::Fail)?;
@@ -485,7 +485,7 @@ fn zrbtcgo_conclave_reliquary_impl(
         ctx,
         "conclave",
         "",
-        RBTDGC_CONCLAVE_RELIQUARY,
+        RBTGEC_CONCLAVE_RELIQUARY,
         &[],
         &[],
         dir,
@@ -503,7 +503,7 @@ fn zrbtcgo_conclave_reliquary_impl(
 
     // Wildcard-yoke: single invocation writes RBRV_RELIQUARY into every
     // vessel under ${RBRR_VESSEL_DIR}.
-    if let Err(v) = rbtcgo_yoke(ctx, dir, &touchmark, RBTDGC_VERB_YOKE) {
+    if let Err(v) = rbtcgo_yoke(ctx, dir, &touchmark, RBTGEC_VERB_YOKE) {
         return v;
     }
 
@@ -514,7 +514,7 @@ fn zrbtcgo_conclave_reliquary_impl(
         &root,
         &format!(
             "conclave-reliquary: {} touchmark across all vessels",
-            RBTDGC_VERB_YOKE
+            RBTGEC_VERB_YOKE
         ),
     ) {
         return rbtcee_Verdict::Fail(e);
@@ -595,9 +595,9 @@ fn zrbtcgo_kludge_ccyolo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Ve
     // chain. The ordain-graft case consumes the committed value.
     if let Err(v) = rbtcei_invoke_or_fail(
         ctx,
-        RBTDGC_VERB_ANOINT,
+        RBTGEC_VERB_ANOINT,
         RBTCGO_VESSEL_DIR_GRAFT,
-        RBTDGC_ANOINT_GRAFT,
+        RBTGEC_ANOINT_GRAFT,
         &[RBTCGO_VESSEL_DIR_GRAFT],
         &[],
         dir,
@@ -613,7 +613,7 @@ fn zrbtcgo_kludge_ccyolo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Ve
         &[RBTCGO_VESSEL_DIR_GRAFT],
         &format!(
             "{}: graft-demo image from ccyolo {}",
-            RBTDGC_VERB_ANOINT, RBTDGC_VERB_KLUDGE
+            RBTGEC_VERB_ANOINT, RBTGEC_VERB_KLUDGE
         ),
     ) {
         return rbtcee_Verdict::Fail(e);
@@ -658,7 +658,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         ctx,
         "wrest",
         &wrest_locator,
-        RBTDGC_WREST_HALLMARK_IMAGE,
+        RBTGEC_WREST_HALLMARK_IMAGE,
         &[&wrest_locator],
         &[],
         dir,
@@ -675,7 +675,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         ctx,
         "summon",
         &hallmark,
-        RBTDGC_SUMMON_HALLMARK,
+        RBTGEC_SUMMON_HALLMARK,
         &[&hallmark],
         &[],
         dir,
@@ -696,7 +696,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         ctx,
         "plumb_full",
         &hallmark,
-        RBTDGC_PLUMB_FULL,
+        RBTGEC_PLUMB_FULL,
         &[&hallmark],
         &[],
         dir,
@@ -718,7 +718,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         ctx,
         "rekon",
         &hallmark,
-        RBTDGC_REKON_HALLMARK,
+        RBTGEC_REKON_HALLMARK,
         &[&hallmark],
         &[],
         dir,
@@ -743,7 +743,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
 
     for nameplate in RBTCGO_CONSUMERS_SENTRY_TETHER {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_SENTRY, &hallmark)
+            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_SENTRY, &hallmark)
         {
             return v;
         }
@@ -785,7 +785,7 @@ fn zrbtcgo_ordain_conjure_jupyter_impl(ctx: &mut rbtcei_Context, dir: &Path) -> 
 
     for nameplate in RBTCGO_CONSUMERS_JUPYTER_BOTTLE {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_BOTTLE, &hallmark)
+            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &hallmark)
         {
             return v;
         }
@@ -936,7 +936,7 @@ fn zrbtcgo_ordain_airgap_chain_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
 
     for nameplate in RBTCGO_CONSUMERS_AIRGAP_BOTTLE {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_BOTTLE, &airgap_hallmark)
+            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &airgap_hallmark)
         {
             return v;
         }
@@ -991,7 +991,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
         ctx,
         "wrest",
         &wrest_locator,
-        RBTDGC_WREST_HALLMARK_IMAGE,
+        RBTGEC_WREST_HALLMARK_IMAGE,
         &[&wrest_locator],
         &[],
         dir,
@@ -1004,7 +1004,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
         ctx,
         "plumb_compact",
         &hallmark,
-        RBTDGC_PLUMB_COMPACT,
+        RBTGEC_PLUMB_COMPACT,
         &[&hallmark],
         &[],
         dir,
@@ -1034,7 +1034,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
         ctx,
         "jettison",
         &jettison_locator,
-        RBTDGC_JETTISON_HALLMARK_IMAGE,
+        RBTGEC_JETTISON_HALLMARK_IMAGE,
         &[&jettison_locator],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
         dir,
@@ -1047,7 +1047,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
         ctx,
         "rekon",
         &hallmark,
-        RBTDGC_REKON_HALLMARK,
+        RBTGEC_REKON_HALLMARK,
         &[&hallmark],
         &[],
         dir,
@@ -1071,7 +1071,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
 
     for nameplate in RBTCGO_CONSUMERS_PLANTUML_BOTTLE {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTDGC_CONTAINER_BOTTLE, &hallmark)
+            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &hallmark)
         {
             return v;
         }
@@ -1111,7 +1111,7 @@ fn zrbtcgo_ordain_graft_demo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtce
     let rbrv = ctx
         .rbtcei_project_root()
         .join(RBTCGO_VESSEL_DIR_GRAFT)
-        .join(RBTDGC_RBRV_FILE);
+        .join(RBTGEC_RBRV_FILE);
     let graft_image = match rbtcgo_read_env_value(&rbrv, RBTCGO_FIELD_RBRV_GRAFT_IMAGE) {
         Some(v) if !v.trim().is_empty() => v,
         _ => {
@@ -1160,7 +1160,7 @@ fn zrbtcgo_ordain_graft_demo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtce
         ctx,
         "wrest",
         &wrest_locator,
-        RBTDGC_WREST_HALLMARK_IMAGE,
+        RBTGEC_WREST_HALLMARK_IMAGE,
         &[&wrest_locator],
         &[],
         dir,
@@ -1190,7 +1190,7 @@ fn zrbtcgo_ordain_graft_demo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtce
         ctx,
         "abjure",
         &hallmark,
-        RBTDGC_ABJURE_HALLMARK,
+        RBTGEC_ABJURE_HALLMARK,
         &[&hallmark],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
         dir,

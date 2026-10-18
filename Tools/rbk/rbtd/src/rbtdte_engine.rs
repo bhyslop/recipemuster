@@ -394,7 +394,7 @@ fn rbttee_git(args: &[&str], root: &Path) -> std::process::Output {
 #[test]
 fn rbttee_config_set_field_replaces_value_preserving_other_lines() {
     let tmp = rbtteh_make_scratch("setfield");
-    let file = tmp.join(crate::rbtdgc_consts::RBTDGC_RBRV_FILE);
+    let file = tmp.join(crate::rbtgec_consts::RBTGEC_RBRV_FILE);
     std::fs::write(&file, "KEEP_BEFORE=1\nRBRV_ANCHOR=old\nKEEP_AFTER=2\n").unwrap();
 
     rbtcee_config_set_field(&file, "RBRV_ANCHOR", "new").unwrap();
@@ -448,10 +448,10 @@ fn rbttee_commit_nameplates_scopes_to_named_class_only() {
     // handed to the verb below stays bare — so this asserts the composition,
     // not merely that some path was found.
     let np_dir = tmp
-        .join(crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR)
-        .join(format!("{}testnp", crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE));
+        .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
+        .join(format!("{}testnp", crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE));
     std::fs::create_dir_all(&np_dir).unwrap();
-    let rbrn = np_dir.join(crate::rbtdgc_consts::RBTDGC_RBRN_FILE);
+    let rbrn = np_dir.join(crate::rbtgec_consts::RBTGEC_RBRN_FILE);
     std::fs::write(&rbrn, "RBRN_SENTRY_HALLMARK=\n").unwrap();
     let surprise = tmp.join("surprise.txt");
     std::fs::write(&surprise, "baseline\n").unwrap();

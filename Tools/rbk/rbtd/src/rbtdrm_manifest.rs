@@ -18,15 +18,15 @@
 // RBTDRM — colophon manifest verification for theurge
 
 // Colophon names are projected from the zipper registry into the generated
-// RBTDGC_* consts (rbtdgc_consts.rs). This module consumes them for the
+// RBTGEC_* consts (rbtdgc_consts.rs). This module consumes them for the
 // per-fixture required-colophon manifest and the role→probe mapping. Colophon
 // existence is enforced by compilation (this map references the generated
 // consts directly) plus the build-time diff gate (rbq regenerates and diffs
 // the consts against the zipper).
-use crate::rbtdgc_consts::*;
+use crate::rbtgec_consts::*;
 
 // Credential roles are projected from rbcc_constants.sh into the generated
-// RBTDGC_ACCOUNT_* consts (rbtdgc_consts.rs) — consumed here and across the access
+// RBTGEC_ACCOUNT_* consts (rbtdgc_consts.rs) — consumed here and across the access
 // probe surface.
 
 /// Map a credential role to its access-probe colophon. Returns None for
@@ -36,7 +36,7 @@ use crate::rbtdgc_consts::*;
 /// mantle don under freehold-establish, not this map).
 pub fn rbtcem_credential_check_colophon(role: &str) -> Option<&'static str> {
     match role {
-        RBTDGC_ACCOUNT_PAYOR => Some(RBTDGC_CHECK_PAYOR),
+        RBTGEC_ACCOUNT_PAYOR => Some(RBTGEC_CHECK_PAYOR),
         _ => None,
     }
 }
@@ -90,7 +90,7 @@ pub const RBTCEM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
 pub const RBTCEM_FIXTURE_FOEDUS_REUSE: &str = "foedus-reuse";
 // Polity-denial fixture — proves the polity verbs reject with the exact precision
 // band across their failure surface. Admission arc: a governor-wielded verb's don is
-// refused when the citizen is not brevetted onto the mantle (RBTDGC_BAND_ADMISSION) —
+// refused when the citizen is not brevetted onto the mantle (RBTGEC_BAND_ADMISSION) —
 // don retriever (baseline) -> unseat retriever -> poll the don to the admission band
 // -> isolation (held mantles still reach AR) -> brevet back -> poll positive (restore).
 // Terrier-band arc (the regime-poison analogue for HTTP, folded in to supersede the
@@ -208,7 +208,7 @@ pub const RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
 pub const RBTCEM_FIXTURE_CALIBRANT_PROGRESSING: &str = "calibrant-progressing";
 pub const RBTCEM_FIXTURE_CALIBRANT_SENTINEL: &str = "calibrant-sentinel";
 // Calibrant coverage fixtures — prove the colophon census enforcement lands
-// its diagnostics against the synthetic RBTDGC_THEURGE_NIHIL colophon:
+// its diagnostics against the synthetic RBTGEC_THEURGE_NIHIL colophon:
 // aligned declares+invokes (Pass), undeclared invokes without declaring
 // (fixture FAILs via the positive check), unused declares without invoking
 // (fixture FAILs via the negative check). Roster-only, driven by the
@@ -230,11 +230,11 @@ pub const RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT: &str = "calibrant-tariff-drift"
 // fixtures stay out of every dependency-tier and release suite.
 pub const RBTCEM_FIXTURE_TOUCHSTONE: &str = "touchstone";
 
-// Operation verbs and container roles are generated as RBTDGC_VERB_* and
-// RBTDGC_CONTAINER_* (rbtdgc_consts.rs) from their canonical bash home in
+// Operation verbs and container roles are generated as RBTGEC_VERB_* and
+// RBTGEC_CONTAINER_* (rbtdgc_consts.rs) from their canonical bash home in
 // rbcc_constants.sh; consumers source those directly. Compound operations like
-// "kludge sentry" are composed at the call site from RBTDGC_VERB_KLUDGE and the
-// relevant RBTDGC_CONTAINER_* constant.
+// "kludge sentry" are composed at the call site from RBTGEC_VERB_KLUDGE and the
+// relevant RBTGEC_CONTAINER_* constant.
 
 /// Per-fixture required colophons. Returns None for unknown fixtures.
 pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str]> {
@@ -243,108 +243,108 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // which execs into sentry (writ) and pentacle (fiat) and drives the
         // ifrit from the bottle (bark).
         RBTCEM_FIXTURE_TADMOR | RBTCEM_FIXTURE_MORIAH => Some(&[
-            RBTDGC_CRUCIBLE_CHARGE,
-            RBTDGC_CRUCIBLE_QUENCH,
-            RBTDGC_CRUCIBLE_WRIT,
-            RBTDGC_CRUCIBLE_FIAT,
-            RBTDGC_CRUCIBLE_BARK,
-            RBTDGC_CRUCIBLE_ACTIVE,
+            RBTGEC_CRUCIBLE_CHARGE,
+            RBTGEC_CRUCIBLE_QUENCH,
+            RBTGEC_CRUCIBLE_WRIT,
+            RBTGEC_CRUCIBLE_FIAT,
+            RBTGEC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_ACTIVE,
         ]),
         // srjcl reaches the bottle to probe jupyter, but never execs into
         // sentry or pentacle.
         RBTCEM_FIXTURE_SRJCL => Some(&[
-            RBTDGC_CRUCIBLE_CHARGE,
-            RBTDGC_CRUCIBLE_QUENCH,
-            RBTDGC_CRUCIBLE_BARK,
-            RBTDGC_CRUCIBLE_ACTIVE,
+            RBTGEC_CRUCIBLE_CHARGE,
+            RBTGEC_CRUCIBLE_QUENCH,
+            RBTGEC_CRUCIBLE_BARK,
+            RBTGEC_CRUCIBLE_ACTIVE,
         ]),
         // pluml drives the rendering server over host-side HTTP alone; charge
         // and quench (with their active assertions) are its whole colophon
         // surface.
         RBTCEM_FIXTURE_PLUML => Some(&[
-            RBTDGC_CRUCIBLE_CHARGE,
-            RBTDGC_CRUCIBLE_QUENCH,
-            RBTDGC_CRUCIBLE_ACTIVE,
+            RBTGEC_CRUCIBLE_CHARGE,
+            RBTGEC_CRUCIBLE_QUENCH,
+            RBTGEC_CRUCIBLE_ACTIVE,
         ]),
         RBTCEM_FIXTURE_HALLMARK_LIFECYCLE => Some(&[
-            RBTDGC_ORDAIN_HALLMARK,
-            RBTDGC_ABJURE_HALLMARK,
-            RBTDGC_REKON_HALLMARK,
-            RBTDGC_AUDIT_HALLMARKS,
-            RBTDGC_SUMMON_HALLMARK,
-            RBTDGC_PLUMB_FULL,
+            RBTGEC_ORDAIN_HALLMARK,
+            RBTGEC_ABJURE_HALLMARK,
+            RBTGEC_REKON_HALLMARK,
+            RBTGEC_AUDIT_HALLMARKS,
+            RBTGEC_SUMMON_HALLMARK,
+            RBTGEC_PLUMB_FULL,
         ]),
         RBTCEM_FIXTURE_LODE_LIFECYCLE => Some(&[
-            RBTDGC_ENSCONCE_BOLE,
-            RBTDGC_DIVINE_LODES,
-            RBTDGC_AUGUR_LODE,
-            RBTDGC_BANISH_LODE,
+            RBTGEC_ENSCONCE_BOLE,
+            RBTGEC_DIVINE_LODES,
+            RBTGEC_AUGUR_LODE,
+            RBTGEC_BANISH_LODE,
         ]),
         RBTCEM_FIXTURE_RELIQUARY_LIFECYCLE => Some(&[
-            RBTDGC_CONCLAVE_RELIQUARY,
-            RBTDGC_DIVINE_LODES,
-            RBTDGC_AUGUR_LODE,
-            RBTDGC_LIST_IMAGES,
-            RBTDGC_JETTISON_IMAGE,
-            RBTDGC_BANISH_LODE,
+            RBTGEC_CONCLAVE_RELIQUARY,
+            RBTGEC_DIVINE_LODES,
+            RBTGEC_AUGUR_LODE,
+            RBTGEC_LIST_IMAGES,
+            RBTGEC_JETTISON_IMAGE,
+            RBTGEC_BANISH_LODE,
         ]),
         RBTCEM_FIXTURE_WSL_LIFECYCLE => Some(&[
-            RBTDGC_UNDERPIN_WSL,
-            RBTDGC_DIVINE_LODES,
-            RBTDGC_AUGUR_LODE,
-            RBTDGC_BANISH_LODE,
+            RBTGEC_UNDERPIN_WSL,
+            RBTGEC_DIVINE_LODES,
+            RBTGEC_AUGUR_LODE,
+            RBTGEC_BANISH_LODE,
         ]),
         RBTCEM_FIXTURE_PODVM_LIFECYCLE => Some(&[
-            RBTDGC_IMMURE_PODVM,
-            RBTDGC_DIVINE_LODES,
-            RBTDGC_AUGUR_LODE,
-            RBTDGC_LIST_IMAGES,
-            RBTDGC_JETTISON_IMAGE,
-            RBTDGC_BANISH_LODE,
+            RBTGEC_IMMURE_PODVM,
+            RBTGEC_DIVINE_LODES,
+            RBTGEC_AUGUR_LODE,
+            RBTGEC_LIST_IMAGES,
+            RBTGEC_JETTISON_IMAGE,
+            RBTGEC_BANISH_LODE,
         ]),
         RBTCEM_FIXTURE_FOEDUS_LIFECYCLE => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_AFFIANCE_MANOR,
-            RBTDGC_CANVASS_FOEDUS,
-            RBTDGC_JILT_MANOR,
+            RBTGEC_CHECK_PAYOR,
+            RBTGEC_AFFIANCE_MANOR,
+            RBTGEC_CANVASS_FOEDUS,
+            RBTGEC_JILT_MANOR,
         ]),
         RBTCEM_FIXTURE_FOEDUS_REUSE => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_DESCRY_FOEDUS,
-            RBTDGC_INSTATE_FOEDUS,
-            RBTDGC_CHECK_AVOWAL,
-            RBTDGC_CHECK_MANTLE,
+            RBTGEC_CHECK_PAYOR,
+            RBTGEC_DESCRY_FOEDUS,
+            RBTGEC_INSTATE_FOEDUS,
+            RBTGEC_CHECK_AVOWAL,
+            RBTGEC_CHECK_MANTLE,
         ]),
         RBTCEM_FIXTURE_POLITY_DENIAL => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_CHECK_MANTLE,
-            RBTDGC_UNSEAT_POLITY,
-            RBTDGC_BREVET_POLITY,
-            RBTDGC_REHEARSE_POLITY,
+            RBTGEC_CHECK_PAYOR,
+            RBTGEC_CHECK_MANTLE,
+            RBTGEC_UNSEAT_POLITY,
+            RBTGEC_BREVET_POLITY,
+            RBTGEC_REHEARSE_POLITY,
         ]),
         RBTCEM_FIXTURE_PARLEY => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_CHECK_MANTLE,
-            RBTDGC_UNSEAT_POLITY,
-            RBTDGC_BREVET_POLITY,
-            RBTDGC_REHEARSE_POLITY,
+            RBTGEC_CHECK_PAYOR,
+            RBTGEC_CHECK_MANTLE,
+            RBTGEC_UNSEAT_POLITY,
+            RBTGEC_BREVET_POLITY,
+            RBTGEC_REHEARSE_POLITY,
         ]),
         RBTCEM_FIXTURE_BATCH_VOUCH => Some(&[
-            RBTDGC_ORDAIN_HALLMARK,
-            RBTDGC_ABJURE_HALLMARK,
-            RBTDGC_JETTISON_HALLMARK_IMAGE,
-            RBTDGC_VOUCH_HALLMARKS,
-            RBTDGC_TALLY_HALLMARKS,
+            RBTGEC_ORDAIN_HALLMARK,
+            RBTGEC_ABJURE_HALLMARK,
+            RBTGEC_JETTISON_HALLMARK_IMAGE,
+            RBTGEC_VOUCH_HALLMARKS,
+            RBTGEC_TALLY_HALLMARKS,
         ]),
         RBTCEM_FIXTURE_ACCESS_PROBE => Some(&[
-            RBTDGC_CHECK_PAYOR,
-            RBTDGC_CHECK_AVOWAL,
-            RBTDGC_ESPY_SEDERUNT,
+            RBTGEC_CHECK_PAYOR,
+            RBTGEC_CHECK_AVOWAL,
+            RBTGEC_ESPY_SEDERUNT,
         ]),
         RBTCEM_FIXTURE_CREDENTIAL_READINESS => Some(&[
-            RBTDGC_ESPY_SEDERUNT,
-            RBTDGC_CHECK_AVOWAL,
-            RBTDGC_CHECK_MANTLE,
+            RBTGEC_ESPY_SEDERUNT,
+            RBTGEC_CHECK_AVOWAL,
+            RBTGEC_CHECK_MANTLE,
         ]),
         RBTCEM_FIXTURE_ENROLLMENT_VALIDATION
         | RBTCEM_FIXTURE_RECIPE_VALIDATION
@@ -361,7 +361,7 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         | RBTCEM_FIXTURE_CALIBRANT_PROGRESSING
         | RBTCEM_FIXTURE_CALIBRANT_SENTINEL
         | RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT => Some(&[]),
-        // DELIBERATELY EMPTY — do not "repair" by adding RBTDGC_THEURGE_NIHIL.
+        // DELIBERATELY EMPTY — do not "repair" by adding RBTGEC_THEURGE_NIHIL.
         // The arm above is empty because those fixtures invoke nothing; this one
         // is empty though its case DOES invoke nihil, which is the whole point:
         // the mismatch is what trips the positive census check, and the
@@ -369,102 +369,102 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // turn the fixture green and silently delete the test.
         RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED => Some(&[]),
         RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED | RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED => {
-            Some(&[RBTDGC_THEURGE_NIHIL])
+            Some(&[RBTGEC_THEURGE_NIHIL])
         }
         RBTCEM_FIXTURE_PODVM_RESOLVE => Some(&[
-            RBTDGC_PRESAGE_IMMURE,
+            RBTGEC_PRESAGE_IMMURE,
         ]),
         // touchstone drives the theurge's own runner tabtargets — its children
         // are rbtd invocations of the fixture, suite, and single-case runners.
         RBTCEM_FIXTURE_TOUCHSTONE => Some(&[
-            RBTDGC_THEURGE_FIXTURE,
-            RBTDGC_THEURGE_SUITE,
-            RBTDGC_THEURGE_CASE,
+            RBTGEC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_SUITE,
+            RBTGEC_THEURGE_CASE,
         ]),
         RBTCEM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
-            RBTDGC_HYGIENE_CHECK_DOCKERFILE,
-            RBTDGC_HYGIENE_CHECK_VESSEL,
+            RBTGEC_HYGIENE_CHECK_DOCKERFILE,
+            RBTGEC_HYGIENE_CHECK_VESSEL,
         ]),
         RBTCEM_FIXTURE_DEPOT_LIFECYCLE => Some(&[
-            RBTDGC_LEVY_DEPOT,
-            RBTDGC_LIST_DEPOT,
-            RBTDGC_INCUSE_DEPOT,
-            RBTDGC_COLLATE_DEPOT,
-            RBTDGC_UNMAKE_DEPOT,
+            RBTGEC_LEVY_DEPOT,
+            RBTGEC_LIST_DEPOT,
+            RBTGEC_INCUSE_DEPOT,
+            RBTGEC_COLLATE_DEPOT,
+            RBTGEC_UNMAKE_DEPOT,
         ]),
         RBTCEM_FIXTURE_FREEHOLD_ESTABLISH => Some(&[
-            RBTDGC_LIST_DEPOT,
-            RBTDGC_RECOGNOSCE_DEPOT,
-            RBTDGC_CHECK_AVOWAL,
-            RBTDGC_GIRD_POLITY,
-            RBTDGC_BREVET_POLITY,
-            RBTDGC_CHECK_MANTLE,
+            RBTGEC_LIST_DEPOT,
+            RBTGEC_RECOGNOSCE_DEPOT,
+            RBTGEC_CHECK_AVOWAL,
+            RBTGEC_GIRD_POLITY,
+            RBTGEC_BREVET_POLITY,
+            RBTGEC_CHECK_MANTLE,
         ]),
         RBTCEM_FIXTURE_FREEHOLD_CHURN => Some(&[
-            RBTDGC_UNMAKE_DEPOT,
-            RBTDGC_LIST_DEPOT,
+            RBTGEC_UNMAKE_DEPOT,
+            RBTGEC_LIST_DEPOT,
         ]),
         // kludge-tadmor builds both vessels locally; only the two kludge
         // colophons are exercised (no charge/credential colophons here).
         RBTCEM_FIXTURE_KLUDGE_TADMOR => Some(&[
-            RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
-            RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
+            RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
+            RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
         ]),
         // dogfight ordains/summons/abjures a single conjure-mode hallmark; the
         // bare container-runtime run is shelled directly, not via a colophon.
         RBTCEM_FIXTURE_DOGFIGHT => Some(&[
-            RBTDGC_ORDAIN_HALLMARK,
-            RBTDGC_SUMMON_HALLMARK,
-            RBTDGC_ABJURE_HALLMARK,
+            RBTGEC_ORDAIN_HALLMARK,
+            RBTGEC_SUMMON_HALLMARK,
+            RBTGEC_ABJURE_HALLMARK,
         ]),
         RBTCEM_FIXTURE_ONBOARDING_SEQUENCE => Some(&[
-            RBTDGC_CONCLAVE_RELIQUARY,
-            RBTDGC_YOKE_RELIQUARY,
-            RBTDGC_ENSCONCE_BOLE,
-            RBTDGC_FEOFF_BOLE,
-            RBTDGC_ORDAIN_HALLMARK,
-            RBTDGC_ANOINT_GRAFT,
-            RBTDGC_DRIVE_HALLMARK,
-            RBTDGC_CRUCIBLE_KLUDGE_SENTRY,
-            RBTDGC_CRUCIBLE_KLUDGE_BOTTLE,
-            RBTDGC_WREST_HALLMARK_IMAGE,
-            RBTDGC_SUMMON_HALLMARK,
-            RBTDGC_PLUMB_FULL,
-            RBTDGC_PLUMB_COMPACT,
-            RBTDGC_REKON_HALLMARK,
-            RBTDGC_JETTISON_HALLMARK_IMAGE,
-            RBTDGC_ABJURE_HALLMARK,
+            RBTGEC_CONCLAVE_RELIQUARY,
+            RBTGEC_YOKE_RELIQUARY,
+            RBTGEC_ENSCONCE_BOLE,
+            RBTGEC_FEOFF_BOLE,
+            RBTGEC_ORDAIN_HALLMARK,
+            RBTGEC_ANOINT_GRAFT,
+            RBTGEC_DRIVE_HALLMARK,
+            RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
+            RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
+            RBTGEC_WREST_HALLMARK_IMAGE,
+            RBTGEC_SUMMON_HALLMARK,
+            RBTGEC_PLUMB_FULL,
+            RBTGEC_PLUMB_COMPACT,
+            RBTGEC_REKON_HALLMARK,
+            RBTGEC_JETTISON_HALLMARK_IMAGE,
+            RBTGEC_ABJURE_HALLMARK,
         ]),
         RBTCEM_FIXTURE_HANDBOOK_RENDER => Some(&[
-            RBTDGC_ONBOARD_START_HERE,
-            RBTDGC_ONBOARD_CRASH_COURSE,
-            RBTDGC_ONBOARD_FIRST_CRUCIBLE,
-            RBTDGC_ONBOARD_DIR_FIRST_BUILD,
-            RBTDGC_ONBOARD_PAYOR_HB,
-            RBTDGC_PAYOR_ESTABLISH,
-            RBTDGC_QUOTA_BUILD,
+            RBTGEC_ONBOARD_START_HERE,
+            RBTGEC_ONBOARD_CRASH_COURSE,
+            RBTGEC_ONBOARD_FIRST_CRUCIBLE,
+            RBTGEC_ONBOARD_DIR_FIRST_BUILD,
+            RBTGEC_ONBOARD_PAYOR_HB,
+            RBTGEC_PAYOR_ESTABLISH,
+            RBTGEC_QUOTA_BUILD,
         ]),
         // Chaining-fact-band drives every band case through a per-verb funnel
         // (feoff/yoke/anoint/nameplate) or the shared readside funnel
         // (summon/plumb/augur/rekon); each of the 8 colophons below fires
         // unconditionally in at least one case, so none are permitted-only.
         RBTCEM_FIXTURE_CHAINING_FACT_BAND => Some(&[
-            RBTDGC_FEOFF_BOLE,
-            RBTDGC_YOKE_RELIQUARY,
-            RBTDGC_ANOINT_GRAFT,
-            RBTDGC_DRIVE_HALLMARK,
-            RBTDGC_SUMMON_HALLMARK,
-            RBTDGC_PLUMB_FULL,
-            RBTDGC_AUGUR_LODE,
-            RBTDGC_REKON_HALLMARK,
+            RBTGEC_FEOFF_BOLE,
+            RBTGEC_YOKE_RELIQUARY,
+            RBTGEC_ANOINT_GRAFT,
+            RBTGEC_DRIVE_HALLMARK,
+            RBTGEC_SUMMON_HALLMARK,
+            RBTGEC_PLUMB_FULL,
+            RBTGEC_AUGUR_LODE,
+            RBTGEC_REKON_HALLMARK,
         ]),
         // Chaining-fact-livery's producer->consumer arc (ensconce -> feoff)
         // and the reset's divine both fire every run; banish is the
         // banish-if-present cleanup, declared permitted below.
         RBTCEM_FIXTURE_CHAINING_LIVERY => Some(&[
-            RBTDGC_DIVINE_LODES,
-            RBTDGC_ENSCONCE_BOLE,
-            RBTDGC_FEOFF_BOLE,
+            RBTGEC_DIVINE_LODES,
+            RBTGEC_ENSCONCE_BOLE,
+            RBTGEC_FEOFF_BOLE,
         ]),
         // Every regime-poison case launches its validate colophon, so all eight
         // are required — the operator-local pair (oauth, station tincture)
@@ -475,13 +475,13 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // absent the case skips, and a skipped case suppresses the negative
         // check outright — so requiring them cannot false-fail there either.
         RBTCEM_FIXTURE_REGIME_POISON => Some(&[
-            RBTDGC_VALIDATE_REPO,
-            RBTDGC_VALIDATE_DEPOT,
-            RBTDGC_VALIDATE_PAYOR,
+            RBTGEC_VALIDATE_REPO,
+            RBTGEC_VALIDATE_DEPOT,
+            RBTGEC_VALIDATE_PAYOR,
             BUWGC_RC_VALIDATE,
-            RBTDGC_VALIDATE_NAMEPLATE,
-            RBTDGC_VALIDATE_VESSEL,
-            RBTDGC_VALIDATE_OAUTH,
+            RBTGEC_VALIDATE_NAMEPLATE,
+            RBTGEC_VALIDATE_VESSEL,
+            RBTGEC_VALIDATE_OAUTH,
             BUWGC_RS_VALIDATE,
         ]),
         _ => None,
@@ -499,13 +499,13 @@ pub fn rbtcem_permitted_colophons(fixture: &str) -> &'static [&'static str] {
     match fixture {
         // Affiance fires only on a descry deficit — the healthy reuse path
         // never reaches it, so it cannot be required.
-        RBTCEM_FIXTURE_FOEDUS_REUSE => &[RBTDGC_AFFIANCE_MANOR],
+        RBTCEM_FIXTURE_FOEDUS_REUSE => &[RBTGEC_AFFIANCE_MANOR],
         // Levy fires only when the standing freehold is absent — the healthy
         // reuse path never reaches it, so it cannot be required.
-        RBTCEM_FIXTURE_FREEHOLD_ESTABLISH => &[RBTDGC_LEVY_DEPOT],
+        RBTCEM_FIXTURE_FREEHOLD_ESTABLISH => &[RBTGEC_LEVY_DEPOT],
         // Banish fires only when the reset's divine finds the pinned
         // touchmark already present — the steady-state pass never reaches it.
-        RBTCEM_FIXTURE_CHAINING_LIVERY => &[RBTDGC_BANISH_LODE],
+        RBTCEM_FIXTURE_CHAINING_LIVERY => &[RBTGEC_BANISH_LODE],
         _ => &[],
     }
 }

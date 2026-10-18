@@ -47,11 +47,11 @@
 use std::path::{Path, PathBuf};
 
 use crate::rbtcee_case;
-use crate::rbtdgc_consts::{
-    RBTDGC_THEURGE_CASE,
-    RBTDGC_THEURGE_FIXTURE,
-    RBTDGC_THEURGE_NIHIL,
-    RBTDGC_THEURGE_SUITE,
+use crate::rbtgec_consts::{
+    RBTGEC_THEURGE_CASE,
+    RBTGEC_THEURGE_FIXTURE,
+    RBTGEC_THEURGE_NIHIL,
+    RBTGEC_THEURGE_SUITE,
 };
 use crate::rbtcea_almanac::RBTCEA_SUITE_NAME_CALIBRANT;
 use crate::rbtccc_crucible::rbtccc_with_ctx;
@@ -331,7 +331,7 @@ fn rbtcct_verdict_pass_exits_zero(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_CASE,
+            RBTGEC_THEURGE_CASE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS, pass_case],
             false,
@@ -354,7 +354,7 @@ fn rbtcct_verdict_skip_exits_zero(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_CASE,
+            RBTGEC_THEURGE_CASE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS, skip_case],
             false,
@@ -379,7 +379,7 @@ fn rbtcct_verdict_fail_exits_nonzero(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS],
             false,
@@ -415,7 +415,7 @@ fn rbtcct_verdict_keep_going_runs_all(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS, RBTCEE_FLAG_KEEP_GOING],
             false,
@@ -457,7 +457,7 @@ fn rbtcct_failfast_default_halts_trailing(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST],
             false,
@@ -484,7 +484,7 @@ fn rbtcct_failfast_keep_going_reaches_trailing(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST, RBTCEE_FLAG_KEEP_GOING],
             false,
@@ -514,7 +514,7 @@ fn rbtcct_progressing_default_runs_fail_fast(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_PROGRESSING],
             false,
@@ -536,7 +536,7 @@ fn rbtcct_progressing_keep_going_refused(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_PROGRESSING, RBTCEE_FLAG_KEEP_GOING],
             false,
@@ -572,7 +572,7 @@ fn rbtcct_probe_diagnostic_shape(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_PROGRESSING],
             false,
@@ -600,7 +600,7 @@ fn rbtcct_suite_abort_halts_sentinel(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_SUITE,
+            RBTGEC_THEURGE_SUITE,
             Some(RBTCEA_SUITE_NAME_CALIBRANT),
             &[],
             false,
@@ -633,7 +633,7 @@ fn rbtcct_cli_unknown_fixture_errors(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &["touchstone-nonesuch"],
             false,
@@ -648,7 +648,7 @@ fn rbtcct_cli_unknown_fixture_errors(dir: &Path) -> rbtcee_Verdict {
 fn rbtcct_cli_missing_fixture_usage(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "cli-no-folio";
-        let child = zrbtcct_child(dir, label, RBTDGC_THEURGE_FIXTURE, None, &[], false)?;
+        let child = zrbtcct_child(dir, label, RBTGEC_THEURGE_FIXTURE, None, &[], false)?;
         zrbtcct_expect_nonzero(&child, label)?;
         zrbtcct_expect_contains(&child.stdout, "No fixture", "cli-no-folio stdout")
     })
@@ -662,7 +662,7 @@ fn rbtcct_cli_case_listing(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_CASE,
+            RBTGEC_THEURGE_CASE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS],
             false,
@@ -681,7 +681,7 @@ fn rbtcct_cli_case_listing(dir: &Path) -> rbtcee_Verdict {
 fn rbtcct_cli_single_usage_lists_fixtures(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "cli-single-usage";
-        let child = zrbtcct_child(dir, label, RBTDGC_THEURGE_CASE, None, &[], false)?;
+        let child = zrbtcct_child(dir, label, RBTGEC_THEURGE_CASE, None, &[], false)?;
         zrbtcct_expect_nonzero(&child, label)?;
         zrbtcct_expect_contains(&child.stdout, "usage: rbtd single", "cli-single-usage stdout")?;
         zrbtcct_expect_contains(&child.stdout, "available fixtures:", "cli-single-usage stdout")
@@ -705,7 +705,7 @@ fn rbtcct_coverage_aligned_exits_zero(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED],
             false,
@@ -714,7 +714,7 @@ fn rbtcct_coverage_aligned_exits_zero(dir: &Path) -> rbtcee_Verdict {
         zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_PASSED, "coverage-aligned stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
-            &format!("colophon '{}' used", RBTDGC_THEURGE_NIHIL),
+            &format!("colophon '{}' used", RBTGEC_THEURGE_NIHIL),
             "coverage-aligned stdout",
         )
     })
@@ -729,7 +729,7 @@ fn rbtcct_coverage_undeclared_fails_naming_colophon(dir: &Path) -> rbtcee_Verdic
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED],
             false,
@@ -741,7 +741,7 @@ fn rbtcct_coverage_undeclared_fails_naming_colophon(dir: &Path) -> rbtcee_Verdic
             &child.stdout,
             &format!(
                 "invoked colophon '{}' which is not declared in its required-colophons census",
-                RBTDGC_THEURGE_NIHIL
+                RBTGEC_THEURGE_NIHIL
             ),
             "coverage-undeclared stdout",
         )
@@ -757,7 +757,7 @@ fn rbtcct_coverage_unused_fails_naming_colophon(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED],
             false,
@@ -769,7 +769,7 @@ fn rbtcct_coverage_unused_fails_naming_colophon(dir: &Path) -> rbtcee_Verdict {
             &child.stdout,
             &format!(
                 "census — colophon '{}' declared but never invoked",
-                RBTDGC_THEURGE_NIHIL
+                RBTGEC_THEURGE_NIHIL
             ),
             "coverage-unused stdout",
         )
@@ -786,7 +786,7 @@ fn rbtcct_coverage_unused_single_case_exempt(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_CASE,
+            RBTGEC_THEURGE_CASE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, case_name],
             false,
@@ -826,7 +826,7 @@ fn rbtcct_tariff_drift_fails_naming_counts(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT],
             false,
@@ -862,7 +862,7 @@ fn rbtcct_stream_placement_diags_on_stderr(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_FIXTURE,
+            RBTGEC_THEURGE_FIXTURE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS],
             true,
@@ -890,7 +890,7 @@ fn rbtcct_log_override_isolates(dir: &Path) -> rbtcee_Verdict {
         let child = zrbtcct_child(
             dir,
             label,
-            RBTDGC_THEURGE_CASE,
+            RBTGEC_THEURGE_CASE,
             None,
             &[RBTCEM_FIXTURE_CALIBRANT_VERDICTS, pass_case],
             false,

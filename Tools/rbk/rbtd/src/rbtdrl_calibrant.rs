@@ -34,7 +34,7 @@
 // The first four and calibrant-tariff-drift declare empty
 // rbtcem_required_colophons — their cases never shell out to bash tabtargets,
 // so the manifest-coupling check is vacuous. The three coverage fixtures invoke
-// (or deliberately don't invoke) the synthetic RBTDGC_THEURGE_NIHIL colophon to
+// (or deliberately don't invoke) the synthetic RBTGEC_THEURGE_NIHIL colophon to
 // exercise the census enforcement itself; their manifest declarations are what
 // differ between them. calibrant-tariff-drift's needle is instead its TARIFF —
 // a declared invocation count no case can meet.
@@ -50,7 +50,7 @@
 use std::path::Path;
 
 use crate::rbtcee_case;
-use crate::rbtdgc_consts::RBTDGC_THEURGE_NIHIL;
+use crate::rbtgec_consts::RBTGEC_THEURGE_NIHIL;
 use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe};
 use crate::rbtccc_crucible::rbtccc_with_ctx;
 use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
@@ -198,7 +198,7 @@ pub static RBTCHL_CASES_SENTINEL: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_sentine
 // ── calibrant-coverage-aligned / -undeclared / -unused ───────
 //
 // Three single-case Independent fixtures proving the RBTDRI colophon census
-// enforcement lands its diagnostics against the synthetic RBTDGC_THEURGE_NIHIL
+// enforcement lands its diagnostics against the synthetic RBTGEC_THEURGE_NIHIL
 // colophon — zero cloud/filesystem side effects. Manifest declaration
 // (rbtcem_required_colophons) is the only difference between the three; the
 // touchstone surface fixture spawns each as a child rbtd run and asserts the
@@ -209,7 +209,7 @@ pub static RBTCHL_CASES_SENTINEL: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_sentine
 /// (rbtcei_invoke_global). Shared body for the aligned and undeclared cases —
 /// their fixtures' manifest declarations are what differ.
 fn zrbtchl_invoke_nihil() -> rbtcee_Verdict {
-    rbtccc_with_ctx(|ctx| match rbtcei_invoke_global(ctx, RBTDGC_THEURGE_NIHIL, &[], &[]) {
+    rbtccc_with_ctx(|ctx| match rbtcei_invoke_global(ctx, RBTGEC_THEURGE_NIHIL, &[], &[]) {
         Ok(result) if result.exit_code == 0 => rbtcee_Verdict::Pass,
         Ok(result) => rbtcee_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code)),
         Err(e) => rbtcee_Verdict::Fail(e),

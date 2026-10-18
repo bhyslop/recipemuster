@@ -150,7 +150,7 @@ pub fn rbtcee_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), S
 /// Guards **every** drive, not only the suite: the single-fixture run-start in
 /// `rbtd_run_fixture`, the suite run-start in `rbtd_run_suite` (both in
 /// `main.rs`), and the marshal-zero attestation's Class-A check
-/// (`rbtdrp_check_tree_clean` in `rbtdrp_attest.rs`) all delegate here. There is
+/// (`rbtcga_check_tree_clean` in `rbtcga_attest.rs`) all delegate here. There is
 /// no unguarded path — an uncommitted engine change or a falsification plant
 /// refuses a single-fixture drive exactly as it would a suite start. Each call
 /// site's own refusal names the notch (commit) as the remedy.
@@ -275,10 +275,10 @@ pub fn rbtcee_commit_nameplates(
         .map(|np| {
             format!(
                 "{}/{}{}/{}",
-                crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR,
-                crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE,
+                crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+                crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE,
                 np,
-                crate::rbtdgc_consts::RBTDGC_RBRN_FILE
+                crate::rbtgec_consts::RBTGEC_RBRN_FILE
             )
         })
         .collect();
@@ -294,7 +294,7 @@ pub fn rbtcee_commit_vessels(
 ) -> Result<(), String> {
     let paths: Vec<String> = vessel_dirs
         .iter()
-        .map(|dir| format!("{}/{}", dir, crate::rbtdgc_consts::RBTDGC_RBRV_FILE))
+        .map(|dir| format!("{}/{}", dir, crate::rbtgec_consts::RBTGEC_RBRV_FILE))
         .collect();
     rbtcee_commit_paths(root, &paths, message)
 }
@@ -317,7 +317,7 @@ pub fn rbtcee_commit_vessels_all(root: &Path, message: &str) -> Result<(), Strin
                 "{}/{}/{}",
                 vessels_rel,
                 name.to_string_lossy(),
-                crate::rbtdgc_consts::RBTDGC_RBRV_FILE
+                crate::rbtgec_consts::RBTGEC_RBRV_FILE
             );
             if root.join(&rbrv_rel).is_file() {
                 paths.push(rbrv_rel);
@@ -346,8 +346,8 @@ pub fn rbtcee_commit_regime(
         .iter()
         .map(|f| {
             match f {
-                rbtcee_RegimeFile::Rbrd => crate::rbtdgc_consts::RBTDGC_RBRD_FILE,
-                rbtcee_RegimeFile::Rbrr => crate::rbtdgc_consts::RBTDGC_RBRR_FILE,
+                rbtcee_RegimeFile::Rbrd => crate::rbtgec_consts::RBTGEC_RBRD_FILE,
+                rbtcee_RegimeFile::Rbrr => crate::rbtgec_consts::RBTGEC_RBRR_FILE,
             }
             .to_string()
         })

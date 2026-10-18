@@ -29,7 +29,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::OnceLock;
 
-use crate::rbtdgc_consts::{RBTDGC_ORDAIN_HALLMARK, RBTDGC_VERB_ORDAIN};
+use crate::rbtgec_consts::{RBTGEC_ORDAIN_HALLMARK, RBTGEC_VERB_ORDAIN};
 use crate::rbtcee_engine::rbtcee_Verdict;
 use crate::rbtcep_platform::{rbtcep_is_cygwin, rbtcep_native_to_posix, rbtcep_posix_to_native};
 
@@ -470,7 +470,7 @@ pub fn rbtcei_tabtarget_command(tabtarget: &Path) -> Command {
     if rbtcei_credless_armed() {
         cmd.env(
             RBTCEI_BURE_TWEAK_NAME_KEY,
-            crate::rbtdgc_consts::RBTDGC_TWEAK_CREDLESS_GUARD,
+            crate::rbtgec_consts::RBTGEC_TWEAK_CREDLESS_GUARD,
         );
     }
     cmd
@@ -754,9 +754,9 @@ pub(crate) fn rbtcei_ordain_capture(
 ) -> Result<String, rbtcee_Verdict> {
     let result = rbtcei_invoke_or_fail(
         ctx,
-        RBTDGC_VERB_ORDAIN,
+        RBTGEC_VERB_ORDAIN,
         vessel_dir,
-        RBTDGC_ORDAIN_HALLMARK,
+        RBTGEC_ORDAIN_HALLMARK,
         &[vessel_dir],
         extra_env,
         dir,
@@ -765,7 +765,7 @@ pub(crate) fn rbtcei_ordain_capture(
     let hallmark = rbtcei_read_burv_fact(&result, RBTCEI_FACT_HALLMARK).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
-            RBTDGC_VERB_ORDAIN, vessel_dir, e
+            RBTGEC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);
@@ -783,9 +783,9 @@ pub(crate) fn rbtcei_ordain_capture_full(
 ) -> Result<(String, String, String), rbtcee_Verdict> {
     let result = rbtcei_invoke_or_fail(
         ctx,
-        RBTDGC_VERB_ORDAIN,
+        RBTGEC_VERB_ORDAIN,
         vessel_dir,
-        RBTDGC_ORDAIN_HALLMARK,
+        RBTGEC_ORDAIN_HALLMARK,
         &[vessel_dir],
         extra_env,
         dir,
@@ -794,19 +794,19 @@ pub(crate) fn rbtcei_ordain_capture_full(
     let hallmark = rbtcei_read_burv_fact(&result, RBTCEI_FACT_HALLMARK).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
-            RBTDGC_VERB_ORDAIN, vessel_dir, e
+            RBTGEC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let gar_root = rbtcei_read_burv_fact(&result, RBTCEI_FACT_GAR_ROOT).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read gar_root fact after {} {}: {}",
-            RBTDGC_VERB_ORDAIN, vessel_dir, e
+            RBTGEC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let ark_stem = rbtcei_read_burv_fact(&result, RBTCEI_FACT_ARK_STEM).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read ark_stem fact after {} {}: {}",
-            RBTDGC_VERB_ORDAIN, vessel_dir, e
+            RBTGEC_VERB_ORDAIN, vessel_dir, e
         ))
     })?;
     let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label)), &hallmark);

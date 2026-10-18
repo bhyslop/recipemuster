@@ -26,7 +26,7 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdgc_consts::RBTDGC_THEURGE_NIHIL;
+use crate::rbtgec_consts::RBTGEC_THEURGE_NIHIL;
 use crate::rbtcea_almanac::rbtcea_lookup_fixture;
 use crate::rbtcee_engine::{rbtcee_find_case, rbtcee_Disposition, rbtcee_Verdict};
 use crate::rbtchl_calibrant::{RBTCHL_OUTPUT_FILE, RBTCHL_SENTINEL_FILE};
@@ -272,7 +272,7 @@ fn rbtthl_coverage_aligned_declares_and_registers_nihil() {
         .expect("coverage-aligned must carry a manifest entry");
     assert_eq!(
         req,
-        &[RBTDGC_THEURGE_NIHIL],
+        &[RBTGEC_THEURGE_NIHIL],
         "coverage-aligned must declare exactly the nihil colophon"
     );
 }
@@ -302,7 +302,7 @@ fn rbtthl_coverage_unused_declares_and_registers_nihil() {
         .expect("coverage-unused must carry a manifest entry");
     assert_eq!(
         req,
-        &[RBTDGC_THEURGE_NIHIL],
+        &[RBTGEC_THEURGE_NIHIL],
         "coverage-unused must declare exactly the nihil colophon"
     );
 }

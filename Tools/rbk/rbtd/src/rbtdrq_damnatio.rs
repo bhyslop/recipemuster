@@ -82,17 +82,17 @@ use crate::rbtcee_engine::{
     rbtcee_Fixture,
     rbtcee_Verdict,
 };
-use crate::rbtdrf_fast::{
-    rbtdrf_run_bash,
-    RBTDRF_BUV_VALIDATION,
-    RBTDRF_RBK_ROOT,
+use crate::rbtchf_fast::{
+    rbtchf_run_bash,
+    RBTCHF_BUV_VALIDATION,
+    RBTCHF_RBK_ROOT,
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_DAMNATIO;
-use crate::rbtdrq_pyx::{
-    zrbtdrq_report,
-    zrbtdrq_root,
-    zrbtdrq_walk,
-    zrbtdrq_Finding,
+use crate::rbtchx_pyx::{
+    zrbtchx_report,
+    zrbtchx_root,
+    zrbtchx_walk,
+    zrbtchx_Finding,
 };
 
 // ── The swept corpus ────────────────────────────────────────
@@ -102,7 +102,7 @@ use crate::rbtdrq_pyx::{
 /// source text: a project id baked into a committed `.svg` is read by someone who
 /// greps nothing. Each root is existence-tolerant, so the same case holds on the
 /// maintainer's tree and on the stripped candidate.
-pub(crate) const ZRBTDRQ_IDENTITY_ROOTS: &[&str] =
+pub(crate) const ZRBTCHD_IDENTITY_ROOTS: &[&str] =
     &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
 
 /// The delivered tree's root context document, hunted for site-shaped identity by
@@ -110,45 +110,45 @@ pub(crate) const ZRBTDRQ_IDENTITY_ROOTS: &[&str] =
 /// context; in the candidate it is the consumer template's bytes, transposed onto
 /// it by expede between materialization and the commit and byte-asserted — never
 /// a copy this ceremony performs.
-pub(crate) const ZRBTDRQ_ROOT_CLAUDE: &str = "CLAUDE.md";
+pub(crate) const ZRBTCHD_ROOT_CLAUDE: &str = "CLAUDE.md";
 
 /// Repo-relative single files added to the sweep — the consumer-facing documents
 /// at the repo root. Scanning the root path covers whichever tree we are standing
 /// in.
-pub(crate) const ZRBTDRQ_IDENTITY_FILES: &[&str] = &["README.md", ZRBTDRQ_ROOT_CLAUDE];
+pub(crate) const ZRBTCHD_IDENTITY_FILES: &[&str] = &["README.md", ZRBTCHD_ROOT_CLAUDE];
 
 /// Directories the identity sweep never descends: build output, and `vov_veiled`
 /// — a maintainer-only tree that never reaches a consumer, so skipping it changes
 /// nothing on the delivered tree and only spares the maintainer's own run from a
 /// design document that names the project on purpose.
-pub(crate) const ZRBTDRQ_IDENTITY_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
+pub(crate) const ZRBTCHD_IDENTITY_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
 
 // ── The needles ─────────────────────────────────────────────
 
-pub(crate) const ZRBTDRQ_DETAIL_UUID: &str = "UUID bound as a value — a federated tenant, client or subject identity";
-pub(crate) const ZRBTDRQ_DETAIL_BILLING: &str = "GCP billing-account id";
-pub(crate) const ZRBTDRQ_DETAIL_OAUTH: &str = "Google OAuth client id";
+pub(crate) const ZRBTCHD_DETAIL_UUID: &str = "UUID bound as a value — a federated tenant, client or subject identity";
+pub(crate) const ZRBTCHD_DETAIL_BILLING: &str = "GCP billing-account id";
+pub(crate) const ZRBTCHD_DETAIL_OAUTH: &str = "Google OAuth client id";
 
 /// The suffix every Google OAuth client id ends with. Present in this source as a
 /// structural marker, not as anyone's identity.
-pub(crate) const ZRBTDRQ_OAUTH_SUFFIX: &str = ".apps.googleusercontent.com";
+pub(crate) const ZRBTCHD_OAUTH_SUFFIX: &str = ".apps.googleusercontent.com";
 
 /// The JSON key whose value is a document-internal entity id rather than a
 /// principal: what nbformat mints per notebook cell, and Keycloak per realm
 /// entity. A UUID bound to THIS key, and only this key, is bookkeeping.
-pub(crate) const ZRBTDRQ_JSON_ID_KEY: &str = "\"id\"";
+pub(crate) const ZRBTCHD_JSON_ID_KEY: &str = "\"id\"";
 
 /// Group lengths of a UUID: 8-4-4-4-12 hexadecimal, hyphen-separated.
-pub(crate) const ZRBTDRQ_UUID_GROUPS: &[usize] = &[8, 4, 4, 4, 12];
+pub(crate) const ZRBTCHD_UUID_GROUPS: &[usize] = &[8, 4, 4, 4, 12];
 
 /// Group lengths of a GCP billing-account id: three six-character groups of
 /// uppercase hexadecimal.
-pub(crate) const ZRBTDRQ_BILLING_GROUPS: &[usize] = &[6, 6, 6];
+pub(crate) const ZRBTCHD_BILLING_GROUPS: &[usize] = &[6, 6, 6];
 
 /// True when the byte may sit inside a hyphenated identifier — the class whose
 /// presence on either side of a candidate means we are looking at a fragment of
 /// something longer, not the token itself.
-fn zrbtdrq_is_token_byte(byte: u8) -> bool {
+fn zrbtchd_is_token_byte(byte: u8) -> bool {
     byte.is_ascii_alphanumeric() || byte == b'-' || byte == b'_'
 }
 
@@ -156,11 +156,11 @@ fn zrbtdrq_is_token_byte(byte: u8) -> bool {
 /// it on either side. This is what keeps a shape from matching a window inside a
 /// longer run: a log basename's `…-20260709-212119-1862763-…` holds six-digit
 /// groups, but every candidate window has a digit or a hyphen against it.
-fn zrbtdrq_stands_alone(bytes: &[u8], start: usize, end: usize) -> bool {
-    if start > 0 && zrbtdrq_is_token_byte(bytes[start - 1]) {
+fn zrbtchd_stands_alone(bytes: &[u8], start: usize, end: usize) -> bool {
+    if start > 0 && zrbtchd_is_token_byte(bytes[start - 1]) {
         return false;
     }
-    if end < bytes.len() && zrbtdrq_is_token_byte(bytes[end]) {
+    if end < bytes.len() && zrbtchd_is_token_byte(bytes[end]) {
         return false;
     }
     true
@@ -170,7 +170,7 @@ fn zrbtdrq_stands_alone(bytes: &[u8], start: usize, end: usize) -> bool {
 /// offset of the whole run, or None. `admits` decides the class per group, so one
 /// walker serves both the UUID (any-case hex) and the billing account (uppercase
 /// hex).
-fn zrbtdrq_groups_at(
+fn zrbtchd_groups_at(
     bytes: &[u8],
     start: usize,
     groups: &[usize],
@@ -197,11 +197,11 @@ fn zrbtdrq_groups_at(
     Some(cursor)
 }
 
-fn zrbtdrq_admits_hex(byte: u8) -> bool {
+fn zrbtchd_admits_hex(byte: u8) -> bool {
     byte.is_ascii_hexdigit()
 }
 
-fn zrbtdrq_admits_upper_hex(byte: u8) -> bool {
+fn zrbtchd_admits_upper_hex(byte: u8) -> bool {
     byte.is_ascii_digit() || (b'A'..=b'F').contains(&byte)
 }
 
@@ -210,7 +210,7 @@ fn zrbtdrq_admits_upper_hex(byte: u8) -> bool {
 /// whitespace around them, then demands the key be exactly `"id"`: a
 /// `"client_id"` or a `"tenant_id"` ends with different bytes and is NOT passed
 /// over.
-fn zrbtdrq_bound_as_json_id(prefix: &str) -> bool {
+fn zrbtchd_bound_as_json_id(prefix: &str) -> bool {
     let head = prefix.trim_end();
     let head = match head.strip_suffix('"') {
         Some(rest) => rest,
@@ -221,7 +221,7 @@ fn zrbtdrq_bound_as_json_id(prefix: &str) -> bool {
         Some(rest) => rest,
         None => return false,
     };
-    head.trim_end().ends_with(ZRBTDRQ_JSON_ID_KEY)
+    head.trim_end().ends_with(ZRBTCHD_JSON_ID_KEY)
 }
 
 /// True when the token running back from `at` is a Google OAuth client id's
@@ -229,10 +229,10 @@ fn zrbtdrq_bound_as_json_id(prefix: &str) -> bool {
 /// suffix is not enough — the payor regime's own validator names it, and a
 /// handbook example names it inside a filename; neither carries the prefix that
 /// makes a client id.
-fn zrbtdrq_oauth_prefixed(line: &str, at: usize) -> bool {
+fn zrbtchd_oauth_prefixed(line: &str, at: usize) -> bool {
     let bytes = line.as_bytes();
     let mut start = at;
-    while start > 0 && zrbtdrq_is_token_byte(bytes[start - 1]) {
+    while start > 0 && zrbtchd_is_token_byte(bytes[start - 1]) {
         start -= 1;
     }
     let token = &line[start..at];
@@ -248,53 +248,53 @@ fn zrbtdrq_oauth_prefixed(line: &str, at: usize) -> bool {
 }
 
 /// Scan one file's text for every identity needle, appending findings.
-pub(crate) fn zrbtdrq_identity_scan_text(
+pub(crate) fn zrbtchd_identity_scan_text(
     rel: &str,
     text: &str,
-    findings: &mut Vec<zrbtdrq_Finding>,
+    findings: &mut Vec<zrbtchx_Finding>,
 ) {
     for (index, line) in text.lines().enumerate() {
         let bytes = line.as_bytes();
 
         for start in 0..bytes.len() {
             if let Some(end) =
-                zrbtdrq_groups_at(bytes, start, ZRBTDRQ_UUID_GROUPS, zrbtdrq_admits_hex)
+                zrbtchd_groups_at(bytes, start, ZRBTCHD_UUID_GROUPS, zrbtchd_admits_hex)
             {
-                if zrbtdrq_stands_alone(bytes, start, end)
-                    && !zrbtdrq_bound_as_json_id(&line[..start])
+                if zrbtchd_stands_alone(bytes, start, end)
+                    && !zrbtchd_bound_as_json_id(&line[..start])
                 {
-                    findings.push(zrbtdrq_Finding {
+                    findings.push(zrbtchx_Finding {
                         file: rel.to_string(),
                         line: index + 1,
-                        detail: ZRBTDRQ_DETAIL_UUID.to_string(),
+                        detail: ZRBTCHD_DETAIL_UUID.to_string(),
                     });
                 }
             }
 
             if let Some(end) =
-                zrbtdrq_groups_at(bytes, start, ZRBTDRQ_BILLING_GROUPS, zrbtdrq_admits_upper_hex)
+                zrbtchd_groups_at(bytes, start, ZRBTCHD_BILLING_GROUPS, zrbtchd_admits_upper_hex)
             {
-                if zrbtdrq_stands_alone(bytes, start, end) {
-                    findings.push(zrbtdrq_Finding {
+                if zrbtchd_stands_alone(bytes, start, end) {
+                    findings.push(zrbtchx_Finding {
                         file: rel.to_string(),
                         line: index + 1,
-                        detail: ZRBTDRQ_DETAIL_BILLING.to_string(),
+                        detail: ZRBTCHD_DETAIL_BILLING.to_string(),
                     });
                 }
             }
         }
 
         let mut cursor = 0;
-        while let Some(at) = line[cursor..].find(ZRBTDRQ_OAUTH_SUFFIX) {
+        while let Some(at) = line[cursor..].find(ZRBTCHD_OAUTH_SUFFIX) {
             let absolute = cursor + at;
-            if zrbtdrq_oauth_prefixed(line, absolute) {
-                findings.push(zrbtdrq_Finding {
+            if zrbtchd_oauth_prefixed(line, absolute) {
+                findings.push(zrbtchx_Finding {
                     file: rel.to_string(),
                     line: index + 1,
-                    detail: ZRBTDRQ_DETAIL_OAUTH.to_string(),
+                    detail: ZRBTCHD_DETAIL_OAUTH.to_string(),
                 });
             }
-            cursor = absolute + ZRBTDRQ_OAUTH_SUFFIX.len();
+            cursor = absolute + ZRBTCHD_OAUTH_SUFFIX.len();
         }
     }
 }
@@ -305,7 +305,7 @@ pub(crate) fn zrbtdrq_identity_scan_text(
 /// source. Each negative is one of the three real collisions the tree contains:
 /// they are the reason the needles have the edges they have, and if a needle is
 /// ever blunted back, its collision reappears here first.
-fn zrbtdrq_identity_self_proof() -> Vec<zrbtdrq_Finding> {
+fn zrbtchd_identity_self_proof() -> Vec<zrbtchx_Finding> {
     let mut findings = Vec::new();
 
     let uuid = format!("{}-{}-{}-{}-{}", "0f1e2d3c", "4b5a", "6978", "8796", "a5b4c3d2e1f0");
@@ -313,15 +313,15 @@ fn zrbtdrq_identity_self_proof() -> Vec<zrbtdrq_Finding> {
     let in_url = format!("https://login.example/{}/v2.0", uuid);
     let quoted = format!("pub const SOME_SUBJECT: &str = \"{}\";", uuid);
     let billing = format!("SOME_BILLING_ACCOUNT_ID={}-{}-{}", "0A1B2C", "3D4E5F", "6789AB");
-    let oauth = format!("SOME_OAUTH_CLIENT_ID={}-{}{}", "123456789012", "abcdefghijklm", ZRBTDRQ_OAUTH_SUFFIX);
+    let oauth = format!("SOME_OAUTH_CLIENT_ID={}-{}{}", "123456789012", "abcdefghijklm", ZRBTCHD_OAUTH_SUFFIX);
 
     let positives: &[&str] = &[&assigned, &in_url, &quoted, &billing, &oauth];
     for probe in positives {
         let mut hits = Vec::new();
-        zrbtdrq_identity_scan_text("self-proof", probe, &mut hits);
+        zrbtchd_identity_scan_text("self-proof", probe, &mut hits);
         if hits.is_empty() {
-            findings.push(zrbtdrq_Finding {
-                file: RBTDRQ_DAMNATIO_SELF.to_string(),
+            findings.push(zrbtchx_Finding {
+                file: RBTCHD_DAMNATIO_SELF.to_string(),
                 line: 0,
                 detail: format!("matcher missed a known identity shape: {:?}", probe),
             });
@@ -344,10 +344,10 @@ fn zrbtdrq_identity_self_proof() -> Vec<zrbtdrq_Finding> {
     ];
     for probe in negatives {
         let mut hits = Vec::new();
-        zrbtdrq_identity_scan_text("self-proof", probe, &mut hits);
+        zrbtchd_identity_scan_text("self-proof", probe, &mut hits);
         if !hits.is_empty() {
-            findings.push(zrbtdrq_Finding {
-                file: RBTDRQ_DAMNATIO_SELF.to_string(),
+            findings.push(zrbtchx_Finding {
+                file: RBTCHD_DAMNATIO_SELF.to_string(),
                 line: 0,
                 detail: format!("matcher fired on a benign line: {:?}", probe),
             });
@@ -360,30 +360,30 @@ fn zrbtdrq_identity_self_proof() -> Vec<zrbtdrq_Finding> {
 /// This module's own source — the file a self-proof finding points at. It is NOT
 /// an exemption: this source is swept like any other, and it survives the sweep
 /// because it spells no identity, only shapes.
-pub(crate) const RBTDRQ_DAMNATIO_SELF: &str = "Tools/rbk/rbtd/src/rbtdrq_damnatio.rs";
+pub(crate) const RBTCHD_DAMNATIO_SELF: &str = "Tools/rbk/rbtd/src/rbtchd_damnatio.rs";
 
 // ── Case: identity shapes ───────────────────────────────────
 
 /// No shipping file may carry a shaped site identity. The matcher proves itself
 /// first, and a matcher failure is a finding exactly as a tree failure is — so a
 /// blunted checker can never report a clean tree.
-fn rbtdrq_identity_shapes(dir: &Path) -> rbtcee_Verdict {
-    let root = match zrbtdrq_root() {
+fn rbtchd_identity_shapes(dir: &Path) -> rbtcee_Verdict {
+    let root = match zrbtchx_root() {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
-    let mut findings = zrbtdrq_identity_self_proof();
+    let mut findings = zrbtchd_identity_self_proof();
     let mut inventory = BTreeSet::new();
 
     let mut files = Vec::new();
-    for sub in ZRBTDRQ_IDENTITY_ROOTS {
+    for sub in ZRBTCHD_IDENTITY_ROOTS {
         let path = root.join(sub);
         if path.is_dir() {
-            zrbtdrq_walk(&path, ZRBTDRQ_IDENTITY_SKIP_DIRS, &mut files);
+            zrbtchx_walk(&path, ZRBTCHD_IDENTITY_SKIP_DIRS, &mut files);
         }
     }
-    for sub in ZRBTDRQ_IDENTITY_FILES {
+    for sub in ZRBTCHD_IDENTITY_FILES {
         let path = root.join(sub);
         if path.is_file() {
             files.push(path);
@@ -398,37 +398,37 @@ fn rbtdrq_identity_shapes(dir: &Path) -> rbtcee_Verdict {
             Err(_) => continue,
         };
         let text = String::from_utf8_lossy(&bytes);
-        zrbtdrq_identity_scan_text(&rel, &text, &mut findings);
+        zrbtchd_identity_scan_text(&rel, &text, &mut findings);
     }
 
-    zrbtdrq_report(dir, "identity", &findings, &inventory, "site-identity violation(s)")
+    zrbtchx_report(dir, "identity", &findings, &inventory, "site-identity violation(s)")
 }
 
 // ── The proscription, read from its one home ────────────────
 
 /// One judged field: the regime that enrolls it, and what the delivered tree must
 /// hold.
-struct zrbtdrq_Judgment {
+struct zrbtchd_Judgment {
     scope: String,
     var: String,
     disposition: String,
     sterile: String,
 }
 
-pub(crate) const ZRBTDRQ_DISPOSITION_SITE: &str = "site";
+pub(crate) const ZRBTCHD_DISPOSITION_SITE: &str = "site";
 
 /// Section markers in the bash reach's output.
-const ZRBTDRQ_MARK_ROLLS: &str = "##ROLLS";
-const ZRBTDRQ_MARK_PROSCRIPTION: &str = "##PROSCRIPTION";
-const ZRBTDRQ_MARK_HOMES: &str = "##HOMES";
-const ZRBTDRQ_MARK_HARDPOINTS: &str = "##HARDPOINTS";
+const ZRBTCHD_MARK_ROLLS: &str = "##ROLLS";
+const ZRBTCHD_MARK_PROSCRIPTION: &str = "##PROSCRIPTION";
+const ZRBTCHD_MARK_HOMES: &str = "##HOMES";
+const ZRBTCHD_MARK_HARDPOINTS: &str = "##HARDPOINTS";
 
 /// What the bash reach hands back: the live enrollment rolls, the proscription
 /// that judges them, the regime files those judgments apply to, and the hardpoint
 /// constants no roll can reach.
-struct zrbtdrq_Reach {
+struct zrbtchd_Reach {
     rolls: Vec<(String, String)>,
-    proscription: Vec<zrbtdrq_Judgment>,
+    proscription: Vec<zrbtchd_Judgment>,
     homes: Vec<(String, String)>,
     hardpoints: Vec<(String, String, String)>,
 }
@@ -446,10 +446,10 @@ struct zrbtdrq_Reach {
 /// The proscription, the scope-to-file mapping and the hardpoints are read back
 /// from the lustration module — the same table the transform writes from, so the
 /// judgment the fixture enforces and the judgment the verb applies cannot drift.
-fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
-    let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTDRF_BUV_VALIDATION));
-    let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTDRF_RBK_ROOT));
-    let moorings = crate::rbtdgc_consts::RBTDGC_MOORINGS_DIR;
+fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
+    let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_BUV_VALIDATION));
+    let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_RBK_ROOT));
+    let moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR;
     // The rbrf and rbrn kindles name their temp paths off BURD_TEMP_DIR, which
     // no dispatch supplies here, so the case's own scratch directory stands in.
     let dir_p = crate::rbtcep_platform::rbtcep_native_to_posix(dir);
@@ -497,13 +497,13 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
         buv = buv,
         rbk = rbk,
         moorings = moorings,
-        mark_rolls = ZRBTDRQ_MARK_ROLLS,
-        mark_proscription = ZRBTDRQ_MARK_PROSCRIPTION,
-        mark_homes = ZRBTDRQ_MARK_HOMES,
-        mark_hardpoints = ZRBTDRQ_MARK_HARDPOINTS,
+        mark_rolls = ZRBTCHD_MARK_ROLLS,
+        mark_proscription = ZRBTCHD_MARK_PROSCRIPTION,
+        mark_homes = ZRBTCHD_MARK_HOMES,
+        mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS,
     );
 
-    let stdout = match rbtdrf_run_bash(root, &script, dir, "damnatio-reach")? {
+    let stdout = match rbtchf_run_bash(root, &script, dir, "damnatio-reach")? {
         (0, stdout, _) => stdout,
         (code, _, stderr) => {
             return Err(format!("regime reach failed (exit {}): {}", code, stderr.trim()));
@@ -511,15 +511,15 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
     };
 
     let mut reach =
-        zrbtdrq_Reach { rolls: Vec::new(), proscription: Vec::new(), homes: Vec::new(), hardpoints: Vec::new() };
+        zrbtchd_Reach { rolls: Vec::new(), proscription: Vec::new(), homes: Vec::new(), hardpoints: Vec::new() };
     let mut section = "";
 
     for line in stdout.lines() {
         match line {
-            ZRBTDRQ_MARK_ROLLS
-            | ZRBTDRQ_MARK_PROSCRIPTION
-            | ZRBTDRQ_MARK_HOMES
-            | ZRBTDRQ_MARK_HARDPOINTS => {
+            ZRBTCHD_MARK_ROLLS
+            | ZRBTCHD_MARK_PROSCRIPTION
+            | ZRBTCHD_MARK_HOMES
+            | ZRBTCHD_MARK_HARDPOINTS => {
                 section = line;
                 continue;
             }
@@ -530,21 +530,21 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
         }
         let fields: Vec<&str> = line.split('\t').collect();
         match section {
-            ZRBTDRQ_MARK_ROLLS if fields.len() >= 2 => {
+            ZRBTCHD_MARK_ROLLS if fields.len() >= 2 => {
                 reach.rolls.push((fields[0].to_string(), fields[1].to_string()));
             }
-            ZRBTDRQ_MARK_PROSCRIPTION if fields.len() >= 3 => {
-                reach.proscription.push(zrbtdrq_Judgment {
+            ZRBTCHD_MARK_PROSCRIPTION if fields.len() >= 3 => {
+                reach.proscription.push(zrbtchd_Judgment {
                     scope: fields[0].to_string(),
                     var: fields[1].to_string(),
                     disposition: fields[2].to_string(),
                     sterile: fields.get(3).unwrap_or(&"").to_string(),
                 });
             }
-            ZRBTDRQ_MARK_HOMES if fields.len() >= 2 => {
+            ZRBTCHD_MARK_HOMES if fields.len() >= 2 => {
                 reach.homes.push((fields[0].to_string(), fields[1].to_string()));
             }
-            ZRBTDRQ_MARK_HARDPOINTS if fields.len() >= 3 => {
+            ZRBTCHD_MARK_HARDPOINTS if fields.len() >= 3 => {
                 reach.hardpoints.push((
                     fields[0].to_string(),
                     fields[1].to_string(),
@@ -569,7 +569,7 @@ fn zrbtdrq_reach(root: &Path, dir: &Path) -> Result<zrbtdrq_Reach, String> {
 /// a bind vessel carries no graft image, a conjure vessel no bind image. The
 /// value is returned with surrounding quotes peeled, which is how both the regime
 /// files and the hardpoint sources spell it.
-fn zrbtdrq_field_value(path: &Path, var: &str) -> Option<String> {
+fn zrbtchd_field_value(path: &Path, var: &str) -> Option<String> {
     let text = std::fs::read_to_string(path).ok()?;
     let prefix = format!("{}=", var);
     for line in text.lines() {
@@ -590,12 +590,12 @@ fn zrbtdrq_field_value(path: &Path, var: &str) -> Option<String> {
 /// has no shape: a workforce pool id, a project id, an org number are opaque
 /// tokens no sweep can recognize, and this case is the only thing standing between
 /// them and the upstream.
-fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
-    let root = match zrbtdrq_root() {
+fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
+    let root = match zrbtchx_root() {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let reach = match zrbtdrq_reach(&root, dir) {
+    let reach = match zrbtchd_reach(&root, dir) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -604,7 +604,7 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     let mut inventory = BTreeSet::new();
 
     for judgment in &reach.proscription {
-        if judgment.disposition != ZRBTDRQ_DISPOSITION_SITE {
+        if judgment.disposition != ZRBTCHD_DISPOSITION_SITE {
             continue;
         }
         for (scope, home) in &reach.homes {
@@ -612,13 +612,13 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
                 continue;
             }
             let path = root.join(home);
-            let held = match zrbtdrq_field_value(&path, &judgment.var) {
+            let held = match zrbtchd_field_value(&path, &judgment.var) {
                 Some(v) => v,
                 None => continue,
             };
             inventory.insert(format!("{}\t{}\t{:?}", home, judgment.var, held));
             if held != judgment.sterile {
-                findings.push(zrbtdrq_Finding {
+                findings.push(zrbtchx_Finding {
                     file: home.clone(),
                     line: 0,
                     detail: format!(
@@ -631,10 +631,10 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     }
 
     for (path, var, sterile) in &reach.hardpoints {
-        let held = match zrbtdrq_field_value(&root.join(path), var) {
+        let held = match zrbtchd_field_value(&root.join(path), var) {
             Some(v) => v,
             None => {
-                findings.push(zrbtdrq_Finding {
+                findings.push(zrbtchx_Finding {
                     file: path.clone(),
                     line: 0,
                     detail: format!("hardpoint {} is absent — the proscription names a home that moved", var),
@@ -644,7 +644,7 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
         };
         inventory.insert(format!("{}\t{}\t{:?}", path, var, held));
         if held != *sterile {
-            findings.push(zrbtdrq_Finding {
+            findings.push(zrbtchx_Finding {
                 file: path.clone(),
                 line: 0,
                 detail: format!("hardpoint {} still holds site identity", var),
@@ -652,7 +652,7 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
         }
     }
 
-    zrbtdrq_report(dir, "proscribed", &findings, &inventory, "unsterilized site value(s)")
+    zrbtchx_report(dir, "proscribed", &findings, &inventory, "unsterilized site value(s)")
 }
 
 // ── Case: proscription completeness ─────────────────────────
@@ -667,12 +667,12 @@ fn rbtdrq_proscribed_values(dir: &Path) -> rbtcee_Verdict {
 /// The enrolled set is the LIVE roll, never a hand list and never a grep of the
 /// regime sources — which is why this case caught three nameplate fields the
 /// author's own reading of those sources had missed.
-fn rbtdrq_proscription_complete(dir: &Path) -> rbtcee_Verdict {
-    let root = match zrbtdrq_root() {
+fn rbtchd_proscription_complete(dir: &Path) -> rbtcee_Verdict {
+    let root = match zrbtchx_root() {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let reach = match zrbtdrq_reach(&root, dir) {
+    let reach = match zrbtchd_reach(&root, dir) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -684,8 +684,8 @@ fn rbtdrq_proscription_complete(dir: &Path) -> rbtcee_Verdict {
     for judgment in &reach.proscription {
         let key = (judgment.scope.clone(), judgment.var.clone());
         if judged.insert(key, judgment.disposition.clone()).is_some() {
-            findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_PROSCRIPTION_HOME.to_string(),
+            findings.push(zrbtchx_Finding {
+                file: ZRBTCHD_PROSCRIPTION_HOME.to_string(),
                 line: 0,
                 detail: format!("{} is judged twice", judgment.var),
             });
@@ -699,8 +699,8 @@ fn rbtdrq_proscription_complete(dir: &Path) -> rbtcee_Verdict {
             Some(disposition) => {
                 inventory.insert(format!("{}\t{}\t{}", scope, var, disposition));
             }
-            None => findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_PROSCRIPTION_HOME.to_string(),
+            None => findings.push(zrbtchx_Finding {
+                file: ZRBTCHD_PROSCRIPTION_HOME.to_string(),
                 line: 0,
                 detail: format!(
                     "{} is enrolled in {} but unjudged — declare it site-scoped or common",
@@ -712,34 +712,34 @@ fn rbtdrq_proscription_complete(dir: &Path) -> rbtcee_Verdict {
 
     for (scope, var) in judged.keys() {
         if !enrolled.contains(&(scope.clone(), var.clone())) {
-            findings.push(zrbtdrq_Finding {
-                file: ZRBTDRQ_PROSCRIPTION_HOME.to_string(),
+            findings.push(zrbtchx_Finding {
+                file: ZRBTCHD_PROSCRIPTION_HOME.to_string(),
                 line: 0,
                 detail: format!("{} is judged but no longer enrolled in {}", var, scope),
             });
         }
     }
 
-    zrbtdrq_report(dir, "completeness", &findings, &inventory, "unjudged or stale field(s)")
+    zrbtchx_report(dir, "completeness", &findings, &inventory, "unjudged or stale field(s)")
 }
 
 /// The proscription's one home — the file a completeness finding points at.
-pub(crate) const ZRBTDRQ_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_proscription.sh";
+pub(crate) const ZRBTCHD_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_proscription.sh";
 
 // ── Cases and fixture ───────────────────────────────────────
 
-pub static RBTDRQ_CASES_DAMNATIO: &[rbtcee_Case] = &[
-    rbtcee_case!(rbtdrq_identity_shapes),
-    rbtcee_case!(rbtdrq_proscribed_values),
-    rbtcee_case!(rbtdrq_proscription_complete),
+pub static RBTCHD_CASES_DAMNATIO: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtchd_identity_shapes),
+    rbtcee_case!(rbtchd_proscribed_values),
+    rbtcee_case!(rbtchd_proscription_complete),
 ];
 
-pub static RBTDRQ_FIXTURE_DAMNATIO: rbtcee_Fixture = rbtcee_Fixture {
+pub static RBTCHD_FIXTURE_DAMNATIO: rbtcee_Fixture = rbtcee_Fixture {
     name: RBTCEM_FIXTURE_DAMNATIO,
     disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRQ_CASES_DAMNATIO,
+    cases: RBTCHD_CASES_DAMNATIO,
     credless: true,
     tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

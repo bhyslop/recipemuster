@@ -26,7 +26,7 @@
 // destructive write. The band fires only at the RBK consumer (buc_reject in
 // feoff/yoke); the BUK footing resolver returns a bare 1, so the band can only
 // be asserted here, against the real verbs. Each negative case asserts the
-// SPECIFIC band (RBTDGC_BAND_CHAIN) — like the regime-poison precedent, a
+// SPECIFIC band (RBTGEC_BAND_CHAIN) — like the regime-poison precedent, a
 // harness breakage exits with some other code and fails the case loud, where a
 // bare-nonzero assertion would pass on it.
 //
@@ -61,19 +61,19 @@
 use std::path::{Path, PathBuf};
 
 use crate::rbtcee_case;
-use crate::rbtdgc_consts::{
-    RBTDGC_ANOINT_GRAFT,
-    RBTDGC_AUGUR_LODE,
-    RBTDGC_BAND_CHAIN,
-    RBTDGC_CONTAINER_BOTTLE,
-    RBTDGC_DRIVE_HALLMARK,
-    RBTDGC_FEOFF_BOLE,
-    RBTDGC_PLUMB_FULL,
-    RBTDGC_RBRV_FILE,
-    RBTDGC_REKON_HALLMARK,
-    RBTDGC_SUMMON_HALLMARK,
-    RBTDGC_THEURGE_NIHIL,
-    RBTDGC_YOKE_RELIQUARY,
+use crate::rbtgec_consts::{
+    RBTGEC_ANOINT_GRAFT,
+    RBTGEC_AUGUR_LODE,
+    RBTGEC_BAND_CHAIN,
+    RBTGEC_CONTAINER_BOTTLE,
+    RBTGEC_DRIVE_HALLMARK,
+    RBTGEC_FEOFF_BOLE,
+    RBTGEC_PLUMB_FULL,
+    RBTGEC_RBRV_FILE,
+    RBTGEC_REKON_HALLMARK,
+    RBTGEC_SUMMON_HALLMARK,
+    RBTGEC_THEURGE_NIHIL,
+    RBTGEC_YOKE_RELIQUARY,
 };
 use crate::rbtcee_engine::{
     rbtcee_Tariff,
@@ -142,10 +142,10 @@ fn rbtcgh_drive_feoff_shared(
     label: &str,
 ) -> Result<(i32, PathBuf), String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtcei_find_tabtarget_global(&root, RBTDGC_FEOFF_BOLE)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_FEOFF_BOLE)?;
 
     let vessel_dir = dir.join(vessel_name);
-    let rbrv = vessel_dir.join(RBTDGC_RBRV_FILE);
+    let rbrv = vessel_dir.join(RBTGEC_RBRV_FILE);
     if stage_vessel {
         std::fs::create_dir_all(&vessel_dir).map_err(|e| format!("stage vessel dir: {}", e))?;
         std::fs::write(&rbrv, RBTCGH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e))?;
@@ -203,7 +203,7 @@ fn rbtcgh_drive_feoff(
 /// so a negative express never reaches credentials or the tracked vessel tree.
 fn rbtcgh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtcei_find_tabtarget_global(&root, RBTDGC_YOKE_RELIQUARY)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_YOKE_RELIQUARY)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
@@ -237,7 +237,7 @@ fn rbtcgh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
 /// exit code.
 fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtcei_find_tabtarget_global(&root, RBTDGC_ANOINT_GRAFT)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_ANOINT_GRAFT)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
@@ -270,7 +270,7 @@ fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
 /// Credless, no cloud — the reject fires before any token mint. Returns the exit code.
 fn rbtcgh_drive_nameplate(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtcei_find_tabtarget_global(&root, RBTDGC_DRIVE_HALLMARK)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_DRIVE_HALLMARK)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
@@ -334,12 +334,12 @@ fn rbtcgh_drive_readside(
 /// Assert an exit code equals the chain-rejection band, with the artifact dir
 /// named for triage on mismatch.
 fn rbtcgh_expect_band(code: i32, label: &str, dir: &Path) -> rbtcee_Verdict {
-    if code == RBTDGC_BAND_CHAIN {
+    if code == RBTGEC_BAND_CHAIN {
         rbtcee_Verdict::Pass
     } else {
         rbtcee_Verdict::Fail(format!(
             "{}: exited {} — expected chain-rejection band {} (artifacts in {})",
-            label, code, RBTDGC_BAND_CHAIN, dir.display()
+            label, code, RBTGEC_BAND_CHAIN, dir.display()
         ))
     }
 }
@@ -437,10 +437,10 @@ fn rbtcgh_feoff_fact_intact(dir: &Path) -> rbtcee_Verdict {
             Ok(t) => t,
             Err(e) => return rbtcee_Verdict::Fail(e),
         };
-    if code != RBTDGC_BAND_CHAIN {
+    if code != RBTGEC_BAND_CHAIN {
         return rbtcee_Verdict::Fail(format!(
             "feoff wrong-kind chain exited {} — expected band {} (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
     let rbrv_after = std::fs::read_to_string(&rbrv).unwrap_or_default();
@@ -493,7 +493,7 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
             .join("rbmm_moorings")
             .join("rbmv_vessels")
             .join(RBTCGH_GRAFT_VESSEL)
-            .join(RBTDGC_RBRV_FILE),
+            .join(RBTGEC_RBRV_FILE),
         Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let before = std::fs::read_to_string(&rbrv).unwrap_or_default();
@@ -502,10 +502,10 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    if code != RBTDGC_BAND_CHAIN {
+    if code != RBTGEC_BAND_CHAIN {
         return rbtcee_Verdict::Fail(format!(
             "anoint broken chain (empty BURV root) exited {} — expected band {} (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
 
@@ -536,7 +536,7 @@ fn rbtcgh_drive_broken_chain(dir: &Path) -> rbtcee_Verdict {
             .join("rbmm_moorings")
             .join(format!(
                 "{}{}",
-                crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE,
+                crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE,
                 RBTCGH_DRIVE_NAMEPLATE
             ))
             .join("rbrn.env"),
@@ -544,14 +544,14 @@ fn rbtcgh_drive_broken_chain(dir: &Path) -> rbtcee_Verdict {
     };
     let before = std::fs::read_to_string(&rbrn).unwrap_or_default();
 
-    let code = match rbtcgh_drive_nameplate(dir, RBTCGH_DRIVE_NAMEPLATE, RBTDGC_CONTAINER_BOTTLE) {
+    let code = match rbtcgh_drive_nameplate(dir, RBTCGH_DRIVE_NAMEPLATE, RBTGEC_CONTAINER_BOTTLE) {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    if code != RBTDGC_BAND_CHAIN {
+    if code != RBTGEC_BAND_CHAIN {
         return rbtcee_Verdict::Fail(format!(
             "drive broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
 
@@ -577,21 +577,21 @@ fn rbtcgh_drive_broken_chain(dir: &Path) -> rbtcee_Verdict {
 // net for that.
 
 fn rbtcgh_summon_no_folio(dir: &Path) -> rbtcee_Verdict {
-    match rbtcgh_drive_readside(dir, RBTDGC_SUMMON_HALLMARK, "summon", None) {
+    match rbtcgh_drive_readside(dir, RBTGEC_SUMMON_HALLMARK, "summon", None) {
         Ok(code) => rbtcgh_expect_band(code, "summon no-folio (broken chain)", dir),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
 fn rbtcgh_plumb_no_folio(dir: &Path) -> rbtcee_Verdict {
-    match rbtcgh_drive_readside(dir, RBTDGC_PLUMB_FULL, "plumb", None) {
+    match rbtcgh_drive_readside(dir, RBTGEC_PLUMB_FULL, "plumb", None) {
         Ok(code) => rbtcgh_expect_band(code, "plumb no-folio (broken chain)", dir),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
 fn rbtcgh_augur_no_folio(dir: &Path) -> rbtcee_Verdict {
-    match rbtcgh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur", None) {
+    match rbtcgh_drive_readside(dir, RBTGEC_AUGUR_LODE, "augur", None) {
         Ok(code) => rbtcgh_expect_band(code, "augur no-folio (broken chain)", dir),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
@@ -600,14 +600,14 @@ fn rbtcgh_augur_no_folio(dir: &Path) -> rbtcee_Verdict {
 fn rbtcgh_augur_unknown_prefix(dir: &Path) -> rbtcee_Verdict {
     // An express touchmark with no recognizable kind prefix — augur accepts any KNOWN
     // kind, so its decode gate rejects the unknown one with the chaining band, before auth.
-    match rbtcgh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur-badkind", Some(RBTCGH_UNKNOWN_TOUCHMARK)) {
+    match rbtcgh_drive_readside(dir, RBTGEC_AUGUR_LODE, "augur-badkind", Some(RBTCGH_UNKNOWN_TOUCHMARK)) {
         Ok(code) => rbtcgh_expect_band(code, "augur unknown-prefix express", dir),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
 fn rbtcgh_rekon_no_folio(dir: &Path) -> rbtcee_Verdict {
-    match rbtcgh_drive_readside(dir, RBTDGC_REKON_HALLMARK, "rekon", None) {
+    match rbtcgh_drive_readside(dir, RBTGEC_REKON_HALLMARK, "rekon", None) {
         Ok(code) => rbtcgh_expect_band(code, "rekon no-folio (broken chain)", dir),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
@@ -626,7 +626,7 @@ fn rbtcgh_rekon_no_folio(dir: &Path) -> rbtcee_Verdict {
 /// relays nothing, so a live fact dies at its promotion horizon.
 fn rbtcgh_drive_nihil(dir: &Path) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtcei_find_tabtarget_global(&root, RBTDGC_THEURGE_NIHIL)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_THEURGE_NIHIL)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
@@ -761,11 +761,11 @@ fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
             Ok(t) => t,
             Err(e) => return rbtcee_Verdict::Fail(e),
         };
-    if code != RBTDGC_BAND_CHAIN {
+    if code != RBTGEC_BAND_CHAIN {
         return rbtcee_Verdict::Fail(format!(
             "feoff after an intervening non-chain dispatch exited {} — expected chain-rejection \
              band {}: the fact must die at the first non-chain dispatch (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
     // The reject left the staged vessel untouched — no stale value was elected.

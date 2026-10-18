@@ -59,7 +59,7 @@ zrbte_kindle() {
   readonly ZRBTE_WHISTLE="${z_whistle[0]}"
 
   # Where the heel installs the binary: the app collar's residence and byname.
-  readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
+  readonly ZRBTE_BINARY="${z_dir}/target/debug/rbt"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
   # rbtccc_crucible.rs), not bash. Suite names survive here only as tabtarget

@@ -38,7 +38,7 @@
 //! identically on a station that could not run bash.
 //!
 //! WHERE THE TOKENIZER LIVES. The command-position lexer below is a copy of
-//! recipemuster's `rbtdru_bash::zrbtdru_command_words`, and it is a copy under a
+//! recipemuster's `rbtchb_bash::zrbtchb_command_words`, and it is a copy under a
 //! stated removal condition rather than a fork: the estate wants one tokenizer,
 //! and the single home would be a crate both trees depend on — a change in
 //! recipemuster's tree, which the pace that wrote this file could not make.

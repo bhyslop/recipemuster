@@ -36,27 +36,27 @@ use crate::rbtcei_invocation::{
     RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP,
     RBTCEI_BURE_TWEAK_NAME_KEY, RBTCEI_BURE_TWEAK_VALUE_KEY,
 };
-use crate::rbtdgc_consts::{
-    RBTDGC_ABJURE_HALLMARK, RBTDGC_ACCOUNT_PAYOR,
-    RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_AFFIANCE_MANOR, RBTDGC_AUDIT_HALLMARKS,
-    RBTDGC_AUGUR_LODE, RBTDGC_BAND_ADMISSION, RBTDGC_BAND_ENGROSS, RBTDGC_BAND_EXPUNGE,
-    RBTDGC_BAND_PERUSE, RBTDGC_BAND_RUNWAY, RBTDGC_BAND_UNSEISED, RBTDGC_BAND_VACANT, RBTDGC_BANISH_LODE,
-    RBTDGC_BREVET_POLITY,
-    RBTDGC_CANVASS_FOEDUS,
-    RBTDGC_CHECK_AVOWAL, RBTDGC_CHECK_MANTLE,
-    RBTDGC_CHECK_PAYOR, RBTDGC_CONCLAVE_RELIQUARY, RBTDGC_DESCRY_FOEDUS,
-    RBTDGC_DIVINE_LODES, RBTDGC_ENSCONCE_BOLE, RBTDGC_ESPY_SEDERUNT, RBTDGC_FACT_EXT_FOEDUS, RBTDGC_FACT_EXT_FOEDUS_HEALTH, RBTDGC_FACT_EXT_SEDERUNT, RBTDGC_FEOFF_BOLE,
-    RBTDGC_FREEHOLD_SUBJECT, RBTDGC_IMMURE_PODVM, RBTDGC_INSTATE_FOEDUS,
-    RBTDGC_JETTISON_HALLMARK_IMAGE, RBTDGC_JETTISON_IMAGE, RBTDGC_JILT_MANOR, RBTDGC_LIST_IMAGES,
-    RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_RETRIEVER,
-    RBTDGC_NOUN_SEDERUNT,
-    RBTDGC_NOVATE_SEDERUNT,
-    RBTDGC_PLUMB_FULL, RBTDGC_RBRD_FILE, RBTDGC_RBRR_FILE, RBTDGC_RBRV_FILE, RBTDGC_REHEARSE_POLITY, RBTDGC_REKON_HALLMARK,
-    RBTDGC_SUMMON_HALLMARK,
-    RBTDGC_TALLY_HALLMARKS,
-    RBTDGC_TWEAK_HTTP_FAULT,
-    RBTDGC_TWEAK_REGIME_POISON, RBTDGC_TWEAK_REDON_CADENCE, RBTDGC_UNDERPIN_WSL,
-    RBTDGC_UNSEAT_POLITY, RBTDGC_VOUCH_HALLMARKS,
+use crate::rbtgec_consts::{
+    RBTGEC_ABJURE_HALLMARK, RBTGEC_ACCOUNT_PAYOR,
+    RBTGEC_ACCOUNT_RETRIEVER, RBTGEC_AFFIANCE_MANOR, RBTGEC_AUDIT_HALLMARKS,
+    RBTGEC_AUGUR_LODE, RBTGEC_BAND_ADMISSION, RBTGEC_BAND_ENGROSS, RBTGEC_BAND_EXPUNGE,
+    RBTGEC_BAND_PERUSE, RBTGEC_BAND_RUNWAY, RBTGEC_BAND_UNSEISED, RBTGEC_BAND_VACANT, RBTGEC_BANISH_LODE,
+    RBTGEC_BREVET_POLITY,
+    RBTGEC_CANVASS_FOEDUS,
+    RBTGEC_CHECK_AVOWAL, RBTGEC_CHECK_MANTLE,
+    RBTGEC_CHECK_PAYOR, RBTGEC_CONCLAVE_RELIQUARY, RBTGEC_DESCRY_FOEDUS,
+    RBTGEC_DIVINE_LODES, RBTGEC_ENSCONCE_BOLE, RBTGEC_ESPY_SEDERUNT, RBTGEC_FACT_EXT_FOEDUS, RBTGEC_FACT_EXT_FOEDUS_HEALTH, RBTGEC_FACT_EXT_SEDERUNT, RBTGEC_FEOFF_BOLE,
+    RBTGEC_FREEHOLD_SUBJECT, RBTGEC_IMMURE_PODVM, RBTGEC_INSTATE_FOEDUS,
+    RBTGEC_JETTISON_HALLMARK_IMAGE, RBTGEC_JETTISON_IMAGE, RBTGEC_JILT_MANOR, RBTGEC_LIST_IMAGES,
+    RBTGEC_MANTLE_DIRECTOR, RBTGEC_MANTLE_GOVERNOR, RBTGEC_MANTLE_RETRIEVER,
+    RBTGEC_NOUN_SEDERUNT,
+    RBTGEC_NOVATE_SEDERUNT,
+    RBTGEC_PLUMB_FULL, RBTGEC_RBRD_FILE, RBTGEC_RBRR_FILE, RBTGEC_RBRV_FILE, RBTGEC_REHEARSE_POLITY, RBTGEC_REKON_HALLMARK,
+    RBTGEC_SUMMON_HALLMARK,
+    RBTGEC_TALLY_HALLMARKS,
+    RBTGEC_TWEAK_HTTP_FAULT,
+    RBTGEC_TWEAK_REGIME_POISON, RBTGEC_TWEAK_REDON_CADENCE, RBTGEC_UNDERPIN_WSL,
+    RBTGEC_UNSEAT_POLITY, RBTGEC_VOUCH_HALLMARKS,
 };
 use crate::rbtcem_manifest::rbtcem_credential_check_colophon;
 
@@ -382,7 +382,7 @@ const RBTCGP_WSL_POINT: &str = "4";
 const RBTCGP_ENSCONCE_STAMP_TWEAK_NAME: &str = "buorb_ensconce_stamp";
 
 /// Re-don cadence tweak value for the hallmark-lifecycle ordain: polls between
-/// mid-flight re-dons (RBTDGC_TWEAK_REDON_CADENCE seam). 4 polls × 5 s = 20 s
+/// mid-flight re-dons (RBTGEC_TWEAK_REDON_CADENCE seam). 4 polls × 5 s = 20 s
 /// — small enough that even the fastest real build crosses at least one tick,
 /// large enough to keep the extra generateAccessToken traffic modest.
 const RBTCGP_REDON_CADENCE_POLLS: &str = "4";
@@ -412,12 +412,12 @@ fn zrbtcgp_expect_vacant(
     stamp: &str,
 ) -> Option<rbtcee_Verdict> {
     let _ = std::fs::write(dir.join(stamp), &result.stderr);
-    if result.exit_code == RBTDGC_BAND_VACANT {
+    if result.exit_code == RBTGEC_BAND_VACANT {
         None
     } else {
         Some(rbtcee_Verdict::Fail(format!(
             "{}: expected vacant band {} (named artifact absent from registry), got exit {}\nstderr:\n{}",
-            label, RBTDGC_BAND_VACANT, result.exit_code, result.stderr
+            label, RBTGEC_BAND_VACANT, result.exit_code, result.stderr
         )))
     }
 }
@@ -446,7 +446,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Step 1: baseline audit.
         let _ = std::fs::write(dir.join("01-audit-baseline.txt"), "auditing baseline");
-        let baseline_audit = match rbtcei_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
+        let baseline_audit = match rbtcei_invoke_global(ctx, RBTGEC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("baseline audit failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("baseline audit invocation: {}", e)),
@@ -467,7 +467,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
             dir,
             vessel_dir,
             &[
-                (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REDON_CADENCE),
+                (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REDON_CADENCE),
                 (RBTCEI_BURE_TWEAK_VALUE_KEY, RBTCGP_REDON_CADENCE_POLLS),
             ],
             "02-ordain",
@@ -494,7 +494,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Step 3: audit shows new hallmark added.
         let _ = std::fs::write(dir.join("03-audit-after-ordain.txt"), "auditing after ordain");
-        let after_ordain_audit = match rbtcei_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
+        let after_ordain_audit = match rbtcei_invoke_global(ctx, RBTGEC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("post-ordain audit failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("post-ordain audit invocation: {}", e)),
@@ -513,7 +513,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Step 4: rekon shows all five ark basenames present.
         let _ = std::fs::write(dir.join("04-rekon-after-ordain.txt"), "rekoning after ordain");
-        let rekon_after_ordain = match rbtcei_invoke_global(ctx, RBTDGC_REKON_HALLMARK, &[&hallmark], &[]) {
+        let rekon_after_ordain = match rbtcei_invoke_global(ctx, RBTGEC_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("post-ordain rekon failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("post-ordain rekon invocation: {}", e)),
@@ -533,7 +533,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
             ctx,
             "abjure",
             &hallmark,
-            RBTDGC_ABJURE_HALLMARK,
+            RBTGEC_ABJURE_HALLMARK,
             &[&hallmark],
             &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
             dir,
@@ -547,7 +547,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // normative). Stdout captured for diagnostic value only; never read
         // for assertions.
         let _ = std::fs::write(dir.join("06-rekon-after-abjure.txt"), "rekoning after abjure");
-        match rbtcei_invoke_global(ctx, RBTDGC_REKON_HALLMARK, &[&hallmark], &[]) {
+        match rbtcei_invoke_global(ctx, RBTGEC_REKON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) if r.exit_code != 0 => {
                 let _ = std::fs::write(dir.join("06-rekon-after-abjure-stdout.txt"), &r.stdout);
             }
@@ -567,14 +567,14 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // sole-caller vessel-resolve (no vouch ark), whose band the outer
         // buc_die_now propagates unchanged through the band membrane. Both are
         // read-only, so they leave the restored-baseline invariant untouched.
-        let summon = match rbtcei_invoke_global(ctx, RBTDGC_SUMMON_HALLMARK, &[&hallmark], &[]) {
+        let summon = match rbtcei_invoke_global(ctx, RBTGEC_SUMMON_HALLMARK, &[&hallmark], &[]) {
             Ok(r) => r,
             Err(e) => return rbtcee_Verdict::Fail(format!("post-abjure summon invocation: {}", e)),
         };
         if let Some(v) = zrbtcgp_expect_vacant(&summon, "post-abjure summon", dir, "06b-summon-vacant.txt") {
             return v;
         }
-        let plumb = match rbtcei_invoke_global(ctx, RBTDGC_PLUMB_FULL, &[&hallmark], &[]) {
+        let plumb = match rbtcei_invoke_global(ctx, RBTGEC_PLUMB_FULL, &[&hallmark], &[]) {
             Ok(r) => r,
             Err(e) => return rbtcee_Verdict::Fail(format!("post-abjure plumb invocation: {}", e)),
         };
@@ -587,7 +587,7 @@ fn rbtcgp_hallmark_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // actor's mint or abjure between the fixture's own audits must not
         // red this fixture).
         let _ = std::fs::write(dir.join("07-audit-final.txt"), "auditing final");
-        let final_audit = match rbtcei_invoke_global(ctx, RBTDGC_AUDIT_HALLMARKS, &[], &[]) {
+        let final_audit = match rbtcei_invoke_global(ctx, RBTGEC_AUDIT_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("final audit failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("final audit invocation: {}", e)),
@@ -701,7 +701,7 @@ fn zrbtcgp_divine_contains(
     touchmark: &str,
     verb_label: &str,
 ) -> Result<String, rbtcee_Verdict> {
-    let after = match rbtcei_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+    let after = match rbtcei_invoke_global(ctx, RBTGEC_DIVINE_LODES, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Err(rbtcee_Verdict::Fail(format!("post-{} divine failed (exit {})\n{}", verb_label, r.exit_code, r.stderr))),
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("post-{} divine invocation: {}", verb_label, e))),
@@ -727,7 +727,7 @@ fn zrbtcgp_banish_and_verify_gone(
     let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
     match rbtcei_invoke_global(
         ctx,
-        RBTDGC_BANISH_LODE,
+        RBTGEC_BANISH_LODE,
         &[touchmark],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
     ) {
@@ -735,7 +735,7 @@ fn zrbtcgp_banish_and_verify_gone(
         Ok(r) => return Some(rbtcee_Verdict::Fail(format!("banish failed (exit {})\n{}", r.exit_code, r.stderr))),
         Err(e) => return Some(rbtcee_Verdict::Fail(format!("banish invocation: {}", e))),
     }
-    let final_divine = match rbtcei_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+    let final_divine = match rbtcei_invoke_global(ctx, RBTGEC_DIVINE_LODES, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Some(rbtcee_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr))),
         Err(e) => return Some(rbtcee_Verdict::Fail(format!("final divine invocation: {}", e))),
@@ -765,7 +765,7 @@ fn zrbtcgp_member_jettison_proof(
     let lode_path = format!("{}/{}", RBTCGP_LODES_ROOT, touchmark);
     let member_ref = format!("{}:{}", lode_path, victim_tag);
 
-    let pre_list = match rbtcei_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+    let pre_list = match rbtcei_invoke_global(ctx, RBTGEC_LIST_IMAGES, &[&lode_path], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Some(rbtcee_Verdict::Fail(format!("pre-jettison list failed (exit {})\n{}", r.exit_code, r.stderr))),
         Err(e) => return Some(rbtcee_Verdict::Fail(format!("pre-jettison list invocation: {}", e))),
@@ -783,7 +783,7 @@ fn zrbtcgp_member_jettison_proof(
     let _ = std::fs::write(dir.join("04c-jettison-member.txt"), &member_ref);
     match rbtcei_invoke_global(
         ctx,
-        RBTDGC_JETTISON_IMAGE,
+        RBTGEC_JETTISON_IMAGE,
         &[&member_ref],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
     ) {
@@ -792,7 +792,7 @@ fn zrbtcgp_member_jettison_proof(
         Err(e) => return Some(rbtcee_Verdict::Fail(format!("member jettison invocation: {}", e))),
     }
 
-    let post_list = match rbtcei_invoke_global(ctx, RBTDGC_LIST_IMAGES, &[&lode_path], &[]) {
+    let post_list = match rbtcei_invoke_global(ctx, RBTGEC_LIST_IMAGES, &[&lode_path], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Some(rbtcee_Verdict::Fail(format!("post-jettison list failed (exit {})\n{}", r.exit_code, r.stderr))),
         Err(e) => return Some(rbtcee_Verdict::Fail(format!("post-jettison list invocation: {}", e))),
@@ -829,7 +829,7 @@ fn rbtcgp_lode_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Step 1: ensconce the busybox base into a fresh Lode.
         let _ = std::fs::write(dir.join("01-ensconce.txt"), "ensconcing busybox base");
-        let ensconce = match rbtcei_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[vessel_dir], &[]) {
+        let ensconce = match rbtcei_invoke_global(ctx, RBTGEC_ENSCONCE_BOLE, &[vessel_dir], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("ensconce invocation: {}", e)),
@@ -853,7 +853,7 @@ fn rbtcgp_lode_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // asserts the envelope's own fields surfaced — the trust grade and a
         // member's verification — proving augur read vouch.json, not merely
         // enumerated tags.
-        let augur = match rbtcei_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+        let augur = match rbtcei_invoke_global(ctx, RBTGEC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("augur invocation: {}", e)),
@@ -915,7 +915,7 @@ fn rbtcgp_lode_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // Step 5: the banished Lode is now vacant — augur must reject with the
         // vacant band (its empty-tags "Lode not present" signal), never a bare
         // death.
-        let augur_gone = match rbtcei_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+        let augur_gone = match rbtcei_invoke_global(ctx, RBTGEC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) => r,
             Err(e) => return rbtcee_Verdict::Fail(format!("post-banish augur invocation: {}", e)),
         };
@@ -959,7 +959,7 @@ fn rbtcgp_lode_collision(dir: &Path) -> rbtcee_Verdict {
 
         // Step 1: ensconce busybox naturally; read back the minted touchmark S.
         let _ = std::fs::write(dir.join("01-ensconce-fresh.txt"), "ensconcing busybox (fresh, natural mint)");
-        let fresh = match rbtcei_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[busybox_dir], &[]) {
+        let fresh = match rbtcei_invoke_global(ctx, RBTGEC_ENSCONCE_BOLE, &[busybox_dir], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("fresh ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("fresh ensconce invocation: {}", e)),
@@ -979,7 +979,7 @@ fn rbtcgp_lode_collision(dir: &Path) -> rbtcee_Verdict {
         // Step 2 (positive control): ensconce busybox pinned to S — identical
         // digest under the same touchmark — guard's idempotent branch — must PASS.
         let _ = std::fs::write(dir.join("03-ensconce-idempotent.txt"), "ensconcing busybox pinned to S (identical digest)");
-        let idem = match rbtcei_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[busybox_dir], pin) {
+        let idem = match rbtcei_invoke_global(ctx, RBTGEC_ENSCONCE_BOLE, &[busybox_dir], pin) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!(
                 "idempotent ensconce (same base, same touchmark) should pass but failed (exit {})\n{}",
@@ -991,7 +991,7 @@ fn rbtcgp_lode_collision(dir: &Path) -> rbtcee_Verdict {
         // Step 3: ensconce debian pinned to S — different digest under the same
         // touchmark — guard's collision branch — host exit must be non-zero.
         let _ = std::fs::write(dir.join("04-ensconce-collision.txt"), "ensconcing debian pinned to S (different digest -> collision)");
-        let collision = match rbtcei_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[deb_dir], pin) {
+        let collision = match rbtcei_invoke_global(ctx, RBTGEC_ENSCONCE_BOLE, &[deb_dir], pin) {
             Ok(r) => r,
             Err(e) => return rbtcee_Verdict::Fail(format!("collision ensconce invocation: {}", e)),
         };
@@ -1008,7 +1008,7 @@ fn rbtcgp_lode_collision(dir: &Path) -> rbtcee_Verdict {
         let _ = std::fs::write(dir.join("05-banish.txt"), "banishing");
         match rbtcei_invoke_global(
             ctx,
-            RBTDGC_BANISH_LODE,
+            RBTGEC_BANISH_LODE,
             &[&touchmark],
             &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
         ) {
@@ -1018,7 +1018,7 @@ fn rbtcgp_lode_collision(dir: &Path) -> rbtcee_Verdict {
         }
 
         // Step 5: divine enumerate no longer shows S — registry restored.
-        let final_divine = match rbtcei_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+        let final_divine = match rbtcei_invoke_global(ctx, RBTGEC_DIVINE_LODES, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("final divine failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("final divine invocation: {}", e)),
@@ -1093,7 +1093,7 @@ const RBTCGP_LIVERY_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/d
 /// the pinned touchmark is live. Shared by setup (load-bearing baseline) and
 /// teardown (best-effort cleanup).
 fn zrbtcgp_chaining_livery_reset(ctx: &mut rbtcei_Context) -> Result<(), String> {
-    let divine = rbtcei_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[])
+    let divine = rbtcei_invoke_global(ctx, RBTGEC_DIVINE_LODES, &[], &[])
         .map_err(|e| format!("livery reset divine invocation: {}", e))?;
     if divine.exit_code != 0 {
         return Err(format!(
@@ -1107,7 +1107,7 @@ fn zrbtcgp_chaining_livery_reset(ctx: &mut rbtcei_Context) -> Result<(), String>
     }
     match rbtcei_invoke_global(
         ctx,
-        RBTDGC_BANISH_LODE,
+        RBTGEC_BANISH_LODE,
         &[RBTCGP_LIVERY_TOUCHMARK],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
     ) {
@@ -1159,7 +1159,7 @@ fn zrbtcgp_chaining_livery_body(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_
         (RBTCEI_BURE_TWEAK_NAME_KEY, RBTCGP_ENSCONCE_STAMP_TWEAK_NAME),
         (RBTCEI_BURE_TWEAK_VALUE_KEY, RBTCGP_LIVERY_TOUCHMARK),
     ];
-    let ensconce = match rbtcei_invoke_global(ctx, RBTDGC_ENSCONCE_BOLE, &[busybox_dir], pin) {
+    let ensconce = match rbtcei_invoke_global(ctx, RBTGEC_ENSCONCE_BOLE, &[busybox_dir], pin) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return rbtcee_Verdict::Fail(format!("ensconce failed (exit {})\n{}", r.exit_code, r.stderr)),
         Err(e) => return rbtcee_Verdict::Fail(format!("ensconce invocation: {}", e)),
@@ -1207,7 +1207,7 @@ fn zrbtcgp_chaining_livery_body(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_
     if let Err(e) = std::fs::create_dir_all(&vessel_dir) {
         return rbtcee_Verdict::Fail(format!("stage vessel dir: {}", e));
     }
-    let rbrv = vessel_dir.join(RBTDGC_RBRV_FILE);
+    let rbrv = vessel_dir.join(RBTGEC_RBRV_FILE);
     if let Err(e) = std::fs::write(&rbrv, RBTCGP_LIVERY_VESSEL_RBRV) {
         return rbtcee_Verdict::Fail(format!("stage rbrv.env: {}", e));
     }
@@ -1217,7 +1217,7 @@ fn zrbtcgp_chaining_livery_body(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_
     let _ = std::fs::write(dir.join("03-feoff.txt"), "feoffing temp vessel off chained touchmark");
     let feoff = match rbtcei_invoke_global(
         ctx,
-        RBTDGC_FEOFF_BOLE,
+        RBTGEC_FEOFF_BOLE,
         &[vessel_posix.as_str()],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
     ) {
@@ -1268,7 +1268,7 @@ fn rbtcgp_reliquary_lifecycle(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         // Step 1: conclave the build-tool cohort into a fresh Lode.
         let _ = std::fs::write(dir.join("01-conclave.txt"), "conclaving build-tool cohort");
-        let conclave = match rbtcei_invoke_global(ctx, RBTDGC_CONCLAVE_RELIQUARY, &[], &[]) {
+        let conclave = match rbtcei_invoke_global(ctx, RBTGEC_CONCLAVE_RELIQUARY, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("conclave failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("conclave invocation: {}", e)),
@@ -1289,7 +1289,7 @@ fn rbtcgp_reliquary_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // Step 3: augur inspects the cohort Lode — member tags AND the decoded
         // :rbi_vouch envelope. The trust-grade assertion proves augur decodes the
         // N-member (cardinality-N) envelope, not just the bole singleton's.
-        let augur = match rbtcei_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+        let augur = match rbtcei_invoke_global(ctx, RBTGEC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("augur invocation: {}", e)),
@@ -1360,7 +1360,7 @@ fn zrbtcgp_payor_gate(
     policy: zrbtcgp_PayorGatePolicy,
 ) -> Option<rbtcee_Verdict> {
     let _ = std::fs::write(dir.join("01-payor-probe.txt"), "probing payor credential");
-    match rbtcei_invoke_global(ctx, RBTDGC_CHECK_PAYOR, &[], &[]) {
+    match rbtcei_invoke_global(ctx, RBTGEC_CHECK_PAYOR, &[], &[]) {
         Ok(r) if r.exit_code == 0 => None,
         Ok(r) => Some(match policy {
             zrbtcgp_PayorGatePolicy::Skip => rbtcee_Verdict::Skip(format!(
@@ -1428,8 +1428,8 @@ fn zrbtcgp_foedus_roundtrip(ctx: &mut rbtcei_Context, dir: &Path, foedus: &str, 
     let poison = format!("{}={}", RBTCGP_RBRF_PROVIDER_VAR, provider_id);
 
     // Step 1: affiance a fresh provider under the standing pool; assert the create banners.
-    let affiance = match rbtcei_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[foedus], &[
-        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+    let affiance = match rbtcei_invoke_global(ctx, RBTGEC_AFFIANCE_MANOR, &[foedus], &[
+        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON),
         (RBTCEI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
     ]) {
         Ok(r) if r.exit_code == 0 => r,
@@ -1461,7 +1461,7 @@ fn zrbtcgp_foedus_roundtrip(ctx: &mut rbtcei_Context, dir: &Path, foedus: &str, 
     // library foedus, so its fact stem is the bare provider id. Canvass needs no
     // poison — it reads the pool from the Manor directly. Proves canvass reads a
     // real, live foedus from the org, not a fixture-local stub.
-    let canvass = match rbtcei_invoke_global(ctx, RBTDGC_CANVASS_FOEDUS, &[], &[]) {
+    let canvass = match rbtcei_invoke_global(ctx, RBTGEC_CANVASS_FOEDUS, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return rbtcee_Verdict::Fail(format!("canvass failed (exit {})\n{}", r.exit_code, r.stderr)),
         Err(e) => return rbtcee_Verdict::Fail(format!("canvass invocation: {}", e)),
@@ -1472,20 +1472,20 @@ fn zrbtcgp_foedus_roundtrip(ctx: &mut rbtcei_Context, dir: &Path, foedus: &str, 
     );
     // The throwaway provider's per-foedus fact file (stem = bare provider id, since
     // the throwaway is not in the rbef_ library) must be among canvass's emissions.
-    let stems = match rbtcei_read_burv_facts_multi(&canvass, RBTDGC_FACT_EXT_FOEDUS) {
+    let stems = match rbtcei_read_burv_facts_multi(&canvass, RBTGEC_FACT_EXT_FOEDUS) {
         Ok(s) => s,
         Err(e) => return rbtcee_Verdict::Fail(format!(
-            "canvass wrote no {} facts: {}", RBTDGC_FACT_EXT_FOEDUS, e
+            "canvass wrote no {} facts: {}", RBTGEC_FACT_EXT_FOEDUS, e
         )),
     };
     if !stems.iter().any(|s| s == provider_id) {
         return rbtcee_Verdict::Fail(format!(
             "canvass did not enumerate the live throwaway provider '{}' — {} fact stems: {:?}",
-            provider_id, RBTDGC_FACT_EXT_FOEDUS, stems
+            provider_id, RBTGEC_FACT_EXT_FOEDUS, stems
         ));
     }
     // The fact's provider= line must name the throwaway provider.
-    let fact_name = format!("{}.{}", provider_id, RBTDGC_FACT_EXT_FOEDUS);
+    let fact_name = format!("{}.{}", provider_id, RBTGEC_FACT_EXT_FOEDUS);
     let fact_body = match rbtcei_read_burv_fact(&canvass, &fact_name) {
         Ok(s) => s,
         Err(e) => return rbtcee_Verdict::Fail(format!("canvass fact {} unreadable: {}", fact_name, e)),
@@ -1499,8 +1499,8 @@ fn zrbtcgp_foedus_roundtrip(ctx: &mut rbtcei_Context, dir: &Path, foedus: &str, 
     }
 
     // Step 3: jilt the provider — live dissolution to the DELETED (soft-delete) terminal.
-    let jilt = match rbtcei_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus], &[
-        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+    let jilt = match rbtcei_invoke_global(ctx, RBTGEC_JILT_MANOR, &[foedus], &[
+        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON),
         (RBTCEI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
         (RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP),
     ]) {
@@ -1520,8 +1520,8 @@ fn zrbtcgp_foedus_roundtrip(ctx: &mut rbtcei_Context, dir: &Path, foedus: &str, 
 
     // Step 4: re-jilt the soft-deleted provider — the idempotent no-op. Either no-op
     // branch (already-soft-deleted or absent) names the provider and tags "(no-op)".
-    let rejilt = match rbtcei_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus], &[
-        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+    let rejilt = match rbtcei_invoke_global(ctx, RBTGEC_JILT_MANOR, &[foedus], &[
+        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON),
         (RBTCEI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
         (RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP),
     ]) {
@@ -1550,8 +1550,8 @@ fn rbtcgp_foedus_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // only RBRF_PROVIDER_ID, so the round-trip seats a throwaway provider under
         // the manor's standing pool and never touches the real provider.
         let root = ctx.rbtcei_project_root().to_path_buf();
-        let rbrr = root.join(RBTDGC_RBRR_FILE);
-        let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
+        let rbrr = root.join(RBTGEC_RBRR_FILE);
+        let foedus = match crate::rbtcgf_freehold::rbtcgf_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
             Some(f) if !f.trim().is_empty() => f.trim().to_string(),
             _ => return rbtcee_Verdict::Fail(format!(
                 "RBRR_ACTIVE_FOEDUS blank or absent in {} — no foedus to affiance",
@@ -1577,8 +1577,8 @@ fn rbtcgp_foedus_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // soft-deletes any leak. Result ignored — the round-trip verdict stands.
         if matches!(verdict, rbtcee_Verdict::Fail(_)) {
             let poison = format!("{}={}", RBTCGP_RBRF_PROVIDER_VAR, provider_id);
-            let _ = rbtcei_invoke_global(ctx, RBTDGC_JILT_MANOR, &[foedus.as_str()], &[
-                (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+            let _ = rbtcei_invoke_global(ctx, RBTGEC_JILT_MANOR, &[foedus.as_str()], &[
+                (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON),
                 (RBTCEI_BURE_TWEAK_VALUE_KEY, poison.as_str()),
                 (RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP),
             ]);
@@ -1616,8 +1616,8 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
         // active selector, read rather than hardcoded so the leg follows the
         // regime (degenerate today: one standing foedus).
         let root = ctx.rbtcei_project_root().to_path_buf();
-        let rbrr = root.join(RBTDGC_RBRR_FILE);
-        let foedus = match crate::rbtdrk_freehold::rbtdrk_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
+        let rbrr = root.join(RBTGEC_RBRR_FILE);
+        let foedus = match crate::rbtcgf_freehold::rbtcgf_read_env_value(&rbrr, "RBRR_ACTIVE_FOEDUS") {
             Some(f) if !f.trim().is_empty() => f.trim().to_string(),
             _ => return rbtcee_Verdict::Fail(format!(
                 "RBRR_ACTIVE_FOEDUS blank or absent in {} — no standing foedus to reuse",
@@ -1630,7 +1630,7 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
         // (provider presence under the one manor pool). A clean probe exits 0 and
         // reports its verdict via the foedus-health fact; only an unresolvable
         // name or broken read rejects (descry's own band).
-        let descry = match rbtcei_invoke_global(ctx, RBTDGC_DESCRY_FOEDUS, &[foedus.as_str()], &[]) {
+        let descry = match rbtcei_invoke_global(ctx, RBTGEC_DESCRY_FOEDUS, &[foedus.as_str()], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!(
                 "descry {} errored (exit {}) — could not determine foedus health\n{}",
@@ -1642,7 +1642,7 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
             dir.join("02-descry.txt"),
             format!("{}\n{}", descry.stdout, descry.stderr),
         );
-        let fact_name = format!("{}.{}", foedus, RBTDGC_FACT_EXT_FOEDUS_HEALTH);
+        let fact_name = format!("{}.{}", foedus, RBTGEC_FACT_EXT_FOEDUS_HEALTH);
         let health = match rbtcei_read_burv_fact(&descry, &fact_name) {
             Ok(s) => s.trim().to_string(),
             Err(e) => {
@@ -1664,7 +1664,7 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
                 dir.join("03-decision.txt"),
                 format!("affiance {} (descry verdict '{}')", foedus, health),
             );
-            match rbtcei_invoke_global(ctx, RBTDGC_AFFIANCE_MANOR, &[foedus.as_str()], &[]) {
+            match rbtcei_invoke_global(ctx, RBTGEC_AFFIANCE_MANOR, &[foedus.as_str()], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtcee_Verdict::Fail(format!(
                     "affiance (on descry deficit '{}') exit {}\n{}",
@@ -1676,7 +1676,7 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
 
         // Instate — re-point the active-foedus selector at the standing foedus.
         // Idempotent on the already-active one (rewrite to the same value, no diff).
-        match rbtcei_invoke_global(ctx, RBTDGC_INSTATE_FOEDUS, &[foedus.as_str()], &[]) {
+        match rbtcei_invoke_global(ctx, RBTGEC_INSTATE_FOEDUS, &[foedus.as_str()], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtcee_Verdict::Fail(format!(
                 "instate {} exit {}\n{}", foedus, r.exit_code, r.stderr
@@ -1687,11 +1687,11 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
 
         // Credential heal — avow opens or reuses the sederunt (one human click at
         // suite head); the mantle dons then ride the cached federated token.
-        match rbtcei_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
+        match rbtcei_invoke_global(ctx, RBTGEC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtcee_Verdict::Fail(format!(
                 "avow exit {} — open a {} with {} (one device-flow click), or launch \
-                 from a terminal so the prompt can surface\n{}", r.exit_code, RBTDGC_NOUN_SEDERUNT, RBTDGC_CHECK_AVOWAL, r.stderr
+                 from a terminal so the prompt can surface\n{}", r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_CHECK_AVOWAL, r.stderr
             )),
             Err(e) => return rbtcee_Verdict::Fail(format!("avow invocation: {}", e)),
         }
@@ -1702,8 +1702,8 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
         // release ladders previously made in prose). The durable admission (gird/
         // brevet) is freehold-establish's; a don failure here means the freehold is
         // not seated for the subject — run freehold-establish first.
-        for mantle in [RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_RETRIEVER] {
-            match rbtcei_invoke_global(ctx, RBTDGC_CHECK_MANTLE, &[mantle], &[]) {
+        for mantle in [RBTGEC_MANTLE_GOVERNOR, RBTGEC_MANTLE_DIRECTOR, RBTGEC_MANTLE_RETRIEVER] {
+            match rbtcei_invoke_global(ctx, RBTGEC_CHECK_MANTLE, &[mantle], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtcee_Verdict::Fail(format!(
                     "don {} exit {} — mantle credential not healed (is the freehold seated for the \
@@ -1727,7 +1727,7 @@ pub static RBTCGP_CASES_FOEDUS_REUSE: &[rbtcee_Case] = &[rbtcee_case!(rbtcgp_foe
 // governor-wielded verb's don is refused, and the three terrier bands when a
 // muniment sub-op meets an unexpected HTTP code. One credentialed setup, two arcs.
 //
-// Admission arc — proves BUBC_band_admission / RBTDGC_BAND_ADMISSION is the actual
+// Admission arc — proves BUBC_band_admission / RBTGEC_BAND_ADMISSION is the actual
 // exit code a governor-wielded polity verb's don (rbw-am) returns when the wielding
 // citizen is NOT brevetted onto the target mantle, AND that admission is per-mantle
 // (the leave-one-out isolation matrix). Don retriever (positive baseline) -> unseat
@@ -1746,7 +1746,7 @@ pub static RBTCGP_CASES_FOEDUS_REUSE: &[rbtcee_Case] = &[rbtcee_case!(rbtcgp_foe
 // coverage for terrier atomicity (whose
 // positive round-trip is already exercised by the real brevet/unseat the admission
 // arc and freehold-establish drive). Drive the SAME real verbs under the rbuh
-// http-fault seam (RBTDGC_TWEAK_HTTP_FAULT), forcing each muniment sub-op's captured
+// http-fault seam (RBTGEC_TWEAK_HTTP_FAULT), forcing each muniment sub-op's captured
 // code so rbgft rejects: brevet's engross -> engross band, unseat's expunge ->
 // expunge band, rehearse's manor-wide list -> the single peruse band. On a SYNTHETIC
 // subject, never the freehold subject — the seam overwrites the captured code only
@@ -1767,8 +1767,8 @@ fn zrbtcgp_mantle_don_status(
     mantle_token: &str,
     label: &str,
 ) -> Result<i32, rbtcee_Verdict> {
-    match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-        ctx, RBTDGC_CHECK_MANTLE, &[mantle_token], &[], dir, label,
+    match crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+        ctx, RBTGEC_CHECK_MANTLE, &[mantle_token], &[], dir, label,
     ) {
         Ok(r) => Ok(r.exit_code),
         Err(e) => Err(rbtcee_Verdict::Fail(format!(
@@ -1795,7 +1795,7 @@ fn zrbtcgp_mantle_denial_poll_until(
     let mut attempt = 0u32;
     loop {
         let label = format!("{}-{:02}", label_prefix, attempt);
-        let last = zrbtcgp_mantle_don_status(ctx, dir, RBTDGC_MANTLE_RETRIEVER, &label)?;
+        let last = zrbtcgp_mantle_don_status(ctx, dir, RBTGEC_MANTLE_RETRIEVER, &label)?;
         if last == want {
             return Ok(());
         }
@@ -1828,10 +1828,10 @@ const RBTCGP_TERRIER_FAULT_PERUSE: &str = "terrier_peruse_manor_list1=500";
 /// re-run brevet drive granted it), so a poison drive leaves no muniment behind.
 /// Exit ignored: cleanup.
 fn zrbtcgp_terrier_poison_sweep(ctx: &mut rbtcei_Context, dir: &Path, label: &str) {
-    let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
+    let _ = crate::rbtcgf_freehold::rbtcgf_invoke_logged(
         ctx,
-        RBTDGC_UNSEAT_POLITY,
-        &[RBTCGP_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+        RBTGEC_UNSEAT_POLITY,
+        &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
         &[],
         dir,
         label,
@@ -1852,10 +1852,10 @@ fn zrbtcgp_terrier_poison_drive(
     label: &str,
 ) -> Result<(), rbtcee_Verdict> {
     let env = [
-        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_HTTP_FAULT),
+        (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_HTTP_FAULT),
         (RBTCEI_BURE_TWEAK_VALUE_KEY, fault_spec),
     ];
-    let result = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(ctx, colophon, args, &env, dir, label) {
+    let result = match crate::rbtcgf_freehold::rbtcgf_invoke_logged(ctx, colophon, args, &env, dir, label) {
         Ok(r) => r,
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("{}: {} invocation: {}", label, colophon, e))),
     };
@@ -1896,7 +1896,7 @@ fn zrbtcgp_terrier_idempotent_rerun_drive(
 ) -> Result<(), rbtcee_Verdict> {
     let roll_before = zrbtcgp_rehearse_roll(ctx, dir, &format!("{}-roll-before", label))?;
 
-    let result = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(ctx, colophon, args, &[], dir, label) {
+    let result = match crate::rbtcgf_freehold::rbtcgf_invoke_logged(ctx, colophon, args, &[], dir, label) {
         Ok(r) => r,
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("{}: {} invocation: {}", label, colophon, e))),
     };
@@ -1929,7 +1929,7 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // Step 1: positive baseline — the freehold subject is presumed already
         // brevetted onto retriever (freehold-establish's job), so the don must
         // succeed before this fixture touches anything.
-        match zrbtcgp_mantle_don_status(ctx, dir, RBTDGC_MANTLE_RETRIEVER, "01-don-baseline") {
+        match zrbtcgp_mantle_don_status(ctx, dir, RBTGEC_MANTLE_RETRIEVER, "01-don-baseline") {
             Ok(0) => {}
             Ok(status) => return rbtcee_Verdict::Fail(format!(
                 "baseline don retriever exit {} (expected 0) — the freehold subject must be \
@@ -1940,8 +1940,8 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         }
 
         // Step 2: unseat retriever — withdraw the mantle binding.
-        let unseat = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-            ctx, RBTDGC_UNSEAT_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+        let unseat = match crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+            ctx, RBTGEC_UNSEAT_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
             "02-unseat",
         ) {
             Ok(r) => r,
@@ -1956,12 +1956,12 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // Step 3: poll the don until it exits the EXACT admission band — never
         // weaken to bare-nonzero; the whole point of this fixture is proving
         // the specific code, not merely "it failed".
-        if let Err(v) = zrbtcgp_mantle_denial_poll_until(ctx, dir, "03-poll-denied", RBTDGC_BAND_ADMISSION) {
+        if let Err(v) = zrbtcgp_mantle_denial_poll_until(ctx, dir, "03-poll-denied", RBTGEC_BAND_ADMISSION) {
             // Best-effort restore before surfacing the failure, so a mid-run
             // failure doesn't leave the freehold subject unseated for the next
             // picket run.
-            let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-                ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+            let _ = crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+                ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
                 "05-restore-brevet-on-failure",
             );
             return v;
@@ -1976,21 +1976,21 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // unseat bled across mantles (or the freehold is not fully seated). Restore
         // retriever on any breach so it does not leave the subject unseated for the
         // next picket run.
-        for held in [RBTDGC_MANTLE_GOVERNOR, RBTDGC_MANTLE_DIRECTOR] {
+        for held in [RBTGEC_MANTLE_GOVERNOR, RBTGEC_MANTLE_DIRECTOR] {
             let label = format!("03b-isolation-don-{}", held);
             let status = match zrbtcgp_mantle_don_status(ctx, dir, held, &label) {
                 Ok(s) => s,
                 Err(v) => {
-                    let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-                        ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                    let _ = crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+                        ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
                         "03b-restore-brevet-on-isolation-error",
                     );
                     return v;
                 }
             };
             if status != 0 {
-                let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-                    ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                let _ = crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+                    ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
                     "03b-restore-brevet-on-isolation-breach",
                 );
                 return rbtcee_Verdict::Fail(format!(
@@ -2003,8 +2003,8 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         }
 
         // Step 4: brevet retriever back — the mirror admission.
-        let brevet = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-            ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+        let brevet = match crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+            ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
             "04-brevet-restore",
         ) {
             Ok(r) => r,
@@ -2033,9 +2033,9 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // engross band — brevet's first act is the muniment engross; the fault forces
         // the create's captured code, rejecting before any IAM binding runs.
         if let Err(v) = zrbtcgp_terrier_poison_drive(
-            ctx, dir, RBTDGC_BREVET_POLITY,
-            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
-            RBTCGP_TERRIER_FAULT_ENGROSS, RBTDGC_BAND_ENGROSS, "07-brevet-engross-poison",
+            ctx, dir, RBTGEC_BREVET_POLITY,
+            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
+            RBTCGP_TERRIER_FAULT_ENGROSS, RBTGEC_BAND_ENGROSS, "07-brevet-engross-poison",
         ) {
             zrbtcgp_terrier_poison_sweep(ctx, dir, "07-sweep-on-fail");
             return v;
@@ -2046,8 +2046,8 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // brevet re-run must meet GCS's real 412 precondition and take the "present" arm
         // (rbgft_terrier.sh rbgft_engross): exit 0, manor roll unchanged.
         if let Err(v) = zrbtcgp_terrier_idempotent_rerun_drive(
-            ctx, dir, RBTDGC_BREVET_POLITY,
-            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+            ctx, dir, RBTGEC_BREVET_POLITY,
+            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
             "07b-brevet-reengross-present",
         ) {
             zrbtcgp_terrier_poison_sweep(ctx, dir, "07b-sweep-on-fail");
@@ -2058,9 +2058,9 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // the delete's captured code. The real DELETE also strikes the muniment the
         // engross drive created.
         if let Err(v) = zrbtcgp_terrier_poison_drive(
-            ctx, dir, RBTDGC_UNSEAT_POLITY,
-            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
-            RBTCGP_TERRIER_FAULT_EXPUNGE, RBTDGC_BAND_EXPUNGE, "08-unseat-expunge-poison",
+            ctx, dir, RBTGEC_UNSEAT_POLITY,
+            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
+            RBTCGP_TERRIER_FAULT_EXPUNGE, RBTGEC_BAND_EXPUNGE, "08-unseat-expunge-poison",
         ) {
             zrbtcgp_terrier_poison_sweep(ctx, dir, "08-sweep-on-fail");
             return v;
@@ -2071,8 +2071,8 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // and take the "absent" arm (rbgft_terrier.sh rbgft_expunge): exit 0, manor roll
         // unchanged. The mirror idempotency claim on the withdrawal side.
         if let Err(v) = zrbtcgp_terrier_idempotent_rerun_drive(
-            ctx, dir, RBTDGC_UNSEAT_POLITY,
-            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER],
+            ctx, dir, RBTGEC_UNSEAT_POLITY,
+            &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
             "08b-unseat-reexpunge-absent",
         ) {
             zrbtcgp_terrier_poison_sweep(ctx, dir, "08b-sweep-on-fail");
@@ -2083,8 +2083,8 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // the muniment listing. One read gate: list/fetch/missing-fields deficits all
         // reject in this single band. Read-only, so no state to sweep.
         if let Err(v) = zrbtcgp_terrier_poison_drive(
-            ctx, dir, RBTDGC_REHEARSE_POLITY, &[],
-            RBTCGP_TERRIER_FAULT_PERUSE, RBTDGC_BAND_PERUSE, "09-rehearse-peruse-poison",
+            ctx, dir, RBTGEC_REHEARSE_POLITY, &[],
+            RBTCGP_TERRIER_FAULT_PERUSE, RBTGEC_BAND_PERUSE, "09-rehearse-peruse-poison",
         ) {
             return v;
         }
@@ -2140,8 +2140,8 @@ fn zrbtcgp_rehearse_roll(
     dir: &Path,
     label: &str,
 ) -> Result<String, rbtcee_Verdict> {
-    match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-        ctx, RBTDGC_REHEARSE_POLITY, &[], &[], dir, label,
+    match crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+        ctx, RBTGEC_REHEARSE_POLITY, &[], &[], dir, label,
     ) {
         Ok(r) if r.exit_code == 0 => Ok(r.stdout),
         Ok(r) => Err(rbtcee_Verdict::Fail(format!(
@@ -2158,10 +2158,10 @@ fn zrbtcgp_rehearse_roll(
 /// line to a depot once two polities hold the same pair.
 fn zrbtcgp_freehold_depot_capture(ctx: &rbtcei_Context) -> Result<String, rbtcee_Verdict> {
     let root = ctx.rbtcei_project_root().to_path_buf();
-    let rbrd = root.join(RBTDGC_RBRD_FILE);
-    let moniker = match crate::rbtdrk_freehold::rbtdrk_read_env_value(
+    let rbrd = root.join(RBTGEC_RBRD_FILE);
+    let moniker = match crate::rbtcgf_freehold::rbtcgf_read_env_value(
         &rbrd,
-        crate::rbtdrk_freehold::RBTDRK_FIELD_RBRD_DEPOT_MONIKER,
+        crate::rbtcgf_freehold::RBTCGF_FIELD_RBRD_DEPOT_MONIKER,
     ) {
         Some(m) if !m.is_empty() => m,
         _ => {
@@ -2172,14 +2172,14 @@ fn zrbtcgp_freehold_depot_capture(ctx: &rbtcei_Context) -> Result<String, rbtcee
             )))
         }
     };
-    crate::rbtdrk_freehold::rbtdrk_compose_project_id(&root, &moniker)
+    crate::rbtcgf_freehold::rbtcgf_compose_project_id(&root, &moniker)
         .map_err(|e| rbtcee_Verdict::Fail(format!("compose freehold depot project id: {}", e)))
 }
 
 /// True when the manor roll holds the freehold subject's retriever muniment in the
 /// freehold's own depot — the exact
 /// "<depot>\t<mantle>\t<subject>" line rehearse emits
-/// (RBTDGC_ACCOUNT_RETRIEVER is the mantle name brevet stores in rbgft_mantle;
+/// (RBTGEC_ACCOUNT_RETRIEVER is the mantle name brevet stores in rbgft_mantle;
 /// the tab join mirrors the terrier proof's line). Exact-line, never substring,
 /// and depot-attributed: an identical record under another polity's slice (an
 /// orphan of an unmade depot, say, since freehold churn never sweeps the
@@ -2187,7 +2187,7 @@ fn zrbtcgp_freehold_depot_capture(ctx: &rbtcei_Context) -> Result<String, rbtcee
 fn zrbtcgp_roll_holds_retriever(roll: &str, depot: &str) -> bool {
     let line = format!(
         "{}\t{}\t{}",
-        depot, RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT
+        depot, RBTGEC_ACCOUNT_RETRIEVER, RBTGEC_FREEHOLD_SUBJECT
     );
     roll.lines().any(|l| l == line)
 }
@@ -2222,14 +2222,14 @@ fn rbtcgp_parley(dir: &Path) -> rbtcee_Verdict {
                  depot {} (mantle {}, subject {}) — the subject must be \
                  brevetted onto retriever in this depot before this fixture runs (run \
                  freehold-establish first)\nroll:\n{}",
-                depot, RBTDGC_ACCOUNT_RETRIEVER, RBTDGC_FREEHOLD_SUBJECT, baseline
+                depot, RBTGEC_ACCOUNT_RETRIEVER, RBTGEC_FREEHOLD_SUBJECT, baseline
             ));
         }
 
         // Step 2: unseat retriever — withdraw the muniment (its expunge is immediate
         // in the strongly-consistent terrier, so the vanish below needs no poll).
-        let unseat = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-            ctx, RBTDGC_UNSEAT_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+        let unseat = match crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+            ctx, RBTGEC_UNSEAT_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
             "03-unseat",
         ) {
             Ok(r) => r,
@@ -2248,16 +2248,16 @@ fn rbtcgp_parley(dir: &Path) -> rbtcee_Verdict {
         let after_unseat = match zrbtcgp_rehearse_roll(ctx, dir, "04-rehearse-unseated") {
             Ok(r) => r,
             Err(v) => {
-                let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-                    ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+                let _ = crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+                    ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
                     "04-restore-brevet-on-failure",
                 );
                 return v;
             }
         };
         if zrbtcgp_roll_holds_retriever(&after_unseat, &depot) {
-            let _ = crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-                ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+            let _ = crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+                ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
                 "04-restore-brevet-on-breach",
             );
             return rbtcee_Verdict::Fail(format!(
@@ -2268,8 +2268,8 @@ fn rbtcgp_parley(dir: &Path) -> rbtcee_Verdict {
         }
 
         // Step 4: restore-brevet retriever — a genuinely fresh engross (unseat-first).
-        let brevet = match crate::rbtdrk_freehold::rbtdrk_invoke_logged(
-            ctx, RBTDGC_BREVET_POLITY, &[RBTDGC_FREEHOLD_SUBJECT, RBTDGC_ACCOUNT_RETRIEVER], &[], dir,
+        let brevet = match crate::rbtcgf_freehold::rbtcgf_invoke_logged(
+            ctx, RBTGEC_BREVET_POLITY, &[RBTGEC_FREEHOLD_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER], &[], dir,
             "05-brevet-restore",
         ) {
             Ok(r) => r,
@@ -2339,7 +2339,7 @@ fn zrbtcgp_assert_unseised(
         colophon,
         args,
         &[
-            (RBTCEI_BURE_TWEAK_NAME_KEY, RBTDGC_TWEAK_REGIME_POISON),
+            (RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON),
             (RBTCEI_BURE_TWEAK_VALUE_KEY, &poison),
         ],
     ) {
@@ -2348,10 +2348,10 @@ fn zrbtcgp_assert_unseised(
     };
     let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
-    if result.exit_code != RBTDGC_BAND_UNSEISED {
+    if result.exit_code != RBTGEC_BAND_UNSEISED {
         return rbtcee_Verdict::Fail(format!(
             "{}: {} under empty RBRR_SUBSTRATE_RELIQUARY exited {} — expected band_unseised {}\nstdout:\n{}\n\nstderr:\n{}",
-            label, colophon, result.exit_code, RBTDGC_BAND_UNSEISED, result.stdout, result.stderr
+            label, colophon, result.exit_code, RBTGEC_BAND_UNSEISED, result.stdout, result.stderr
         ));
     }
     rbtcee_Verdict::Pass
@@ -2374,7 +2374,7 @@ fn rbtcgp_wsl_lifecycle(dir: &Path) -> rbtcee_Verdict {
         let _ = std::fs::write(dir.join("01-underpin.txt"), "underpinning wsl rootfs");
         let underpin = match rbtcei_invoke_global(
             ctx,
-            RBTDGC_UNDERPIN_WSL,
+            RBTGEC_UNDERPIN_WSL,
             &[RBTCGP_WSL_RELEASE, RBTCGP_WSL_POINT],
             &[],
         ) {
@@ -2397,7 +2397,7 @@ fn rbtcgp_wsl_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Step 3: augur inspects the rootfs Lode — member tags AND the decoded
         // :rbi_vouch envelope (the rootfs singleton).
-        let augur = match rbtcei_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+        let augur = match rbtcei_invoke_global(ctx, RBTGEC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("augur invocation: {}", e)),
@@ -2430,7 +2430,7 @@ fn rbtcgp_wsl_unseised(dir: &Path) -> rbtcee_Verdict {
         zrbtcgp_assert_unseised(
             ctx,
             dir,
-            RBTDGC_UNDERPIN_WSL,
+            RBTGEC_UNDERPIN_WSL,
             &[RBTCGP_WSL_RELEASE, RBTCGP_WSL_POINT],
             "wsl-unseised",
         )
@@ -2480,7 +2480,7 @@ fn rbtcgp_podvm_lifecycle(dir: &Path) -> rbtcee_Verdict {
         let _ = std::fs::write(dir.join("01-immure.txt"), "immuring podvm-wsl disk leaves");
         let immure = match rbtcei_invoke_global(
             ctx,
-            RBTDGC_IMMURE_PODVM,
+            RBTGEC_IMMURE_PODVM,
             &[RBTCGP_PODVM_FAMILY, RBTCGP_PODVM_VERSION],
             &[],
         ) {
@@ -2520,7 +2520,7 @@ fn rbtcgp_podvm_lifecycle(dir: &Path) -> rbtcee_Verdict {
         let _ = std::fs::write(dir.join("03b-refresh.txt"), "refreshing podvm-wsl Lode (all-preserved)");
         match rbtcei_invoke_global(
             ctx,
-            RBTDGC_IMMURE_PODVM,
+            RBTGEC_IMMURE_PODVM,
             &[RBTCGP_PODVM_FAMILY, "--refresh", &touchmark],
             &[],
         ) {
@@ -2530,7 +2530,7 @@ fn rbtcgp_podvm_lifecycle(dir: &Path) -> rbtcee_Verdict {
         }
         // Post-refresh divine: the SAME touchmark, still a 2-member cohort — refresh
         // reused the Lode and preserved both originals (no new Lode, no membership drift).
-        let after_refresh = match rbtcei_invoke_global(ctx, RBTDGC_DIVINE_LODES, &[], &[]) {
+        let after_refresh = match rbtcei_invoke_global(ctx, RBTGEC_DIVINE_LODES, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("post-refresh divine failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("post-refresh divine invocation: {}", e)),
@@ -2555,7 +2555,7 @@ fn rbtcgp_podvm_lifecycle(dir: &Path) -> rbtcee_Verdict {
         // recorded-at-acquisition envelope (distinct from the verified grade the bole
         // and reliquary kinds carry); the posture-fragment assertion proves the honest-
         // posture prose block was rendered (struct proof, not digest assertion).
-        let augur = match rbtcei_invoke_global(ctx, RBTDGC_AUGUR_LODE, &[&touchmark], &[]) {
+        let augur = match rbtcei_invoke_global(ctx, RBTGEC_AUGUR_LODE, &[&touchmark], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("augur failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("augur invocation: {}", e)),
@@ -2623,7 +2623,7 @@ fn rbtcgp_podvm_unseised(dir: &Path) -> rbtcee_Verdict {
         zrbtcgp_assert_unseised(
             ctx,
             dir,
-            RBTDGC_IMMURE_PODVM,
+            RBTGEC_IMMURE_PODVM,
             &[RBTCGP_PODVM_FAMILY, RBTCGP_PODVM_VERSION],
             "podvm-unseised",
         )
@@ -2670,7 +2670,7 @@ fn rbtcgp_batch_vouch_lifecycle(dir: &Path) -> rbtcee_Verdict {
             RBTCGP_ARK_BASENAME_VOUCH,
             &hallmark,
         );
-        match rbtcei_invoke_global(ctx, RBTDGC_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)]) {
+        match rbtcei_invoke_global(ctx, RBTGEC_JETTISON_HALLMARK_IMAGE, &[&jettison_locator], &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtcee_Verdict::Fail(format!("plant jettison failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("plant jettison invocation: {}", e)),
@@ -2678,7 +2678,7 @@ fn rbtcgp_batch_vouch_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Tally — expect pending classification on our hallmark.
         let _ = std::fs::write(dir.join("03-tally-pending.txt"), "tallying for pending");
-        let tally_pending = match rbtcei_invoke_global(ctx, RBTDGC_TALLY_HALLMARKS, &[], &[]) {
+        let tally_pending = match rbtcei_invoke_global(ctx, RBTGEC_TALLY_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("tally (pending) failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("tally (pending) invocation: {}", e)),
@@ -2698,7 +2698,7 @@ fn rbtcgp_batch_vouch_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Batch vouch — should detect the pending hallmark and re-create vouch.
         let _ = std::fs::write(dir.join("04-batch-vouch.txt"), "running batch vouch");
-        match rbtcei_invoke_global(ctx, RBTDGC_VOUCH_HALLMARKS, &[], &[]) {
+        match rbtcei_invoke_global(ctx, RBTGEC_VOUCH_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtcee_Verdict::Fail(format!("batch_vouch failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("batch_vouch invocation: {}", e)),
@@ -2706,7 +2706,7 @@ fn rbtcgp_batch_vouch_lifecycle(dir: &Path) -> rbtcee_Verdict {
 
         // Tally — expect vouched after batch_vouch.
         let _ = std::fs::write(dir.join("05-tally-vouched.txt"), "tallying for vouched");
-        let tally_vouched = match rbtcei_invoke_global(ctx, RBTDGC_TALLY_HALLMARKS, &[], &[]) {
+        let tally_vouched = match rbtcei_invoke_global(ctx, RBTGEC_TALLY_HALLMARKS, &[], &[]) {
             Ok(r) if r.exit_code == 0 => r,
             Ok(r) => return rbtcee_Verdict::Fail(format!("tally (vouched) failed (exit {})\n{}", r.exit_code, r.stderr)),
             Err(e) => return rbtcee_Verdict::Fail(format!("tally (vouched) invocation: {}", e)),
@@ -2728,7 +2728,7 @@ fn rbtcgp_batch_vouch_lifecycle(dir: &Path) -> rbtcee_Verdict {
             ctx,
             "abjure",
             &hallmark,
-            RBTDGC_ABJURE_HALLMARK,
+            RBTGEC_ABJURE_HALLMARK,
             &[&hallmark],
             &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
             dir,
@@ -2769,7 +2769,7 @@ fn rbtcgp_access_probe_role(ctx: &mut rbtcei_Context, role: &str, dir: &Path) ->
 }
 
 fn rbtcgp_oauth_payor(dir: &Path) -> rbtcee_Verdict {
-    rbtccc_with_ctx(|ctx| rbtcgp_access_probe_role(ctx, RBTDGC_ACCOUNT_PAYOR, dir))
+    rbtccc_with_ctx(|ctx| rbtcgp_access_probe_role(ctx, RBTGEC_ACCOUNT_PAYOR, dir))
 }
 
 // ── Sederunt-runway gate and novate round-trip ────────────────
@@ -2798,50 +2798,50 @@ fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<()
     // Fail-fast: the read-only espy replaces the blind device-window poll the
     // operator hit (260704) — a dead sederunt is reported in seconds with the
     // open-a-sederunt instruction, never waited out to the device-code expiry.
-    let espy = match rbtcei_invoke_global(ctx, RBTDGC_ESPY_SEDERUNT, &[], &[]) {
+    let espy = match rbtcei_invoke_global(ctx, RBTGEC_ESPY_SEDERUNT, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Err(rbtcee_Verdict::Fail(format!(
             "{} espy exited {} — the probe reports verdicts and should never reject\nstdout:\n{}\nstderr:\n{}",
-            RBTDGC_NOUN_SEDERUNT, r.exit_code, r.stdout, r.stderr
+            RBTGEC_NOUN_SEDERUNT, r.exit_code, r.stdout, r.stderr
         ))),
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("{} espy invocation: {}", RBTDGC_NOUN_SEDERUNT, e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("{} espy invocation: {}", RBTGEC_NOUN_SEDERUNT, e))),
     };
     let _ = std::fs::write(dir.join("00-espy-stdout.txt"), &espy.stdout);
     let _ = std::fs::write(dir.join("00-espy-stderr.txt"), &espy.stderr);
 
-    let roots = match rbtcei_read_burv_facts_multi(&espy, RBTDGC_FACT_EXT_SEDERUNT) {
+    let roots = match rbtcei_read_burv_facts_multi(&espy, RBTGEC_FACT_EXT_SEDERUNT) {
         Ok(r) => r,
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("espy wrote no {} fact: {}", RBTDGC_NOUN_SEDERUNT, e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("espy wrote no {} fact: {}", RBTGEC_NOUN_SEDERUNT, e))),
     };
     let root = match roots.as_slice() {
         [one] => one.clone(),
         other => return Err(rbtcee_Verdict::Fail(format!(
             "expected exactly one {} fact from espy, got {:?}",
-            RBTDGC_FACT_EXT_SEDERUNT, other
+            RBTGEC_FACT_EXT_SEDERUNT, other
         ))),
     };
-    let fact = match rbtcei_read_burv_fact(&espy, &format!("{}.{}", root, RBTDGC_FACT_EXT_SEDERUNT)) {
+    let fact = match rbtcei_read_burv_fact(&espy, &format!("{}.{}", root, RBTGEC_FACT_EXT_SEDERUNT)) {
         Ok(f) => f,
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("{} fact unreadable: {}", RBTDGC_NOUN_SEDERUNT, e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("{} fact unreadable: {}", RBTGEC_NOUN_SEDERUNT, e))),
     };
     // The verdict token "live" is espy's (rba_espy_sederunt / RBCC_fact_ext_sederunt).
     if !fact.lines().any(|l| l.trim() == "verdict=live") {
         return Err(rbtcee_Verdict::Fail(format!(
             "no live {} ({}) — open one from a terminal with {} (one device-flow \
              sign-in) or {} (fresh full window), then re-run",
-            RBTDGC_NOUN_SEDERUNT, fact.replace('\n', ", "), RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT
+            RBTGEC_NOUN_SEDERUNT, fact.replace('\n', ", "), RBTGEC_CHECK_AVOWAL, RBTGEC_NOVATE_SEDERUNT
         )));
     }
 
     // Baseline avow — promptless by construction: espy just proved a live
     // sederunt, so this rides the reuse path (a short sederunt band-rejects
     // deterministically at the runway gate; it never opens a device window).
-    match rbtcei_invoke_global(ctx, RBTDGC_CHECK_AVOWAL, &[], &[]) {
+    match rbtcei_invoke_global(ctx, RBTGEC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtcee_Verdict::Fail(format!(
             "baseline avow exit {} — open a {} with {} (one device-flow click), \
              or novate ({}) if the gate turned a short {} away\nstdout:\n{}\nstderr:\n{}",
-            r.exit_code, RBTDGC_NOUN_SEDERUNT, RBTDGC_CHECK_AVOWAL, RBTDGC_NOVATE_SEDERUNT, RBTDGC_NOUN_SEDERUNT, r.stdout, r.stderr
+            r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_CHECK_AVOWAL, RBTGEC_NOVATE_SEDERUNT, RBTGEC_NOUN_SEDERUNT, r.stdout, r.stderr
         ))),
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("baseline avow invocation: {}", e))),
     }
@@ -2857,23 +2857,23 @@ fn zrbtcgp_runway_gate_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<(), r
     zrbtcgp_sederunt_ready_arc(ctx, dir)?;
 
     let short = match rbtcei_invoke_global(
-        ctx, RBTDGC_CHECK_AVOWAL, &[RBTCGP_RUNWAY_IMPOSSIBLE_SEC], &[],
+        ctx, RBTGEC_CHECK_AVOWAL, &[RBTCGP_RUNWAY_IMPOSSIBLE_SEC], &[],
     ) {
         Ok(r) => r,
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("runway-demand invocation: {}", e))),
     };
     let _ = std::fs::write(dir.join("02-runway-demand-stdout.txt"), &short.stdout);
     let _ = std::fs::write(dir.join("02-runway-demand-stderr.txt"), &short.stderr);
-    if short.exit_code != RBTDGC_BAND_RUNWAY {
+    if short.exit_code != RBTGEC_BAND_RUNWAY {
         return Err(rbtcee_Verdict::Fail(format!(
             "avow under impossible runway demand {}s exited {} — expected runway band {}\nstdout:\n{}\nstderr:\n{}",
-            RBTCGP_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTDGC_BAND_RUNWAY, short.stdout, short.stderr
+            RBTCGP_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTGEC_BAND_RUNWAY, short.stdout, short.stderr
         )));
     }
-    if !short.stdout.contains(RBTDGC_NOVATE_SEDERUNT) && !short.stderr.contains(RBTDGC_NOVATE_SEDERUNT) {
+    if !short.stdout.contains(RBTGEC_NOVATE_SEDERUNT) && !short.stderr.contains(RBTGEC_NOVATE_SEDERUNT) {
         return Err(rbtcee_Verdict::Fail(format!(
             "runway rejection carried no novate advisory — expected '{}' on either stream\nstdout:\n{}\nstderr:\n{}",
-            RBTDGC_NOVATE_SEDERUNT, short.stdout, short.stderr
+            RBTGEC_NOVATE_SEDERUNT, short.stdout, short.stderr
         )));
     }
     Ok(())
@@ -2916,8 +2916,8 @@ fn rbtcgp_credential_readiness(dir: &Path) -> rbtcee_Verdict {
         if let Err(v) = zrbtcgp_sederunt_ready_arc(ctx, dir) {
             return v;
         }
-        for mantle in [RBTDGC_MANTLE_DIRECTOR, RBTDGC_MANTLE_RETRIEVER] {
-            match rbtcei_invoke_global(ctx, RBTDGC_CHECK_MANTLE, &[mantle], &[]) {
+        for mantle in [RBTGEC_MANTLE_DIRECTOR, RBTGEC_MANTLE_RETRIEVER] {
+            match rbtcei_invoke_global(ctx, RBTGEC_CHECK_MANTLE, &[mantle], &[]) {
                 Ok(r) if r.exit_code == 0 => {}
                 Ok(r) => return rbtcee_Verdict::Fail(format!(
                     "don {} exit {} — mantle not donnable for the freehold subject \
