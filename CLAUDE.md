@@ -45,7 +45,7 @@ owed to `Tools/buk/buai0/buais_buk.md` is made at the BUK home and rides the
 next parcel.
 
 Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in
-`rbmm_moorings/burc.env` — today, `buk` alone. Every other directory under
+`rbmm_moorings/burc.env` — today, `bkk` and `buk`. Every other directory under
 `Tools/` is this repo's own and is edited in the billet in the ordinary way. The
 release and install procedures themselves are specified in
 `jjqs_studbook/specs/vok/VOSO-distribution.adoc` (`vosor_release`,
