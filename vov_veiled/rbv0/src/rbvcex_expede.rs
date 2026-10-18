@@ -111,7 +111,7 @@ const RBVCEX_REGULUS_CLAUDE_PATH: &str = "CLAUDE.md";
 /// The scratch directory beneath the target dir — the archive tar and the
 /// sterilize subprocess's temp root land here, beside the clone and never
 /// inside it, so `git add --all` in the clone can never stage them.
-const RBVCEX_SCRATCH_SUBDIR: &str = "rbv_scratch";
+const RBVCEX_SCRATCH_SUBDIR: &str = "scratch";
 
 /// The BUK module subtree, relative to a repo root — handed to the sterilize
 /// subprocess as its BURD_BUK_DIR (utility modules only; every
@@ -376,7 +376,7 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
     // archive takes no pathspec file, and a shell relay would split any path
     // that carried a space.
     rbvcel_log::rbvcel_step(&format!("Materializing the shipped paths from {}", head));
-    let archive_path = scratch_dir.join("rbv_shipped.tar");
+    let archive_path = scratch_dir.join("shipped.tar");
     let archive = rbvcep_repo::rbvcep_as_str(&archive_path);
     let mut archive_args: Vec<&str> = vec!["archive", "--format=tar", "-o", &archive, &head, "--"];
     for path in &shipped {

@@ -20,23 +20,23 @@ fn main() {
     /// it is spelled here because a build script links nothing. Cargo is told to
     /// watch it, so a commit touching the collar's roots rebuilds the binary
     /// rather than leaving it claiming a position it no longer holds.
-    const ZRBTHD_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
+    const Z_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
 
-    println!("cargo:rerun-if-env-changed={}", ZRBTHD_SEAT_VAR);
+    println!("cargo:rerun-if-env-changed={}", Z_SEAT_VAR);
 
-    let seat = match std::env::var(ZRBTHD_SEAT_VAR) {
+    let seat = match std::env::var(Z_SEAT_VAR) {
         Ok(value) if !value.trim().is_empty() => value,
         _ => panic!(
             "{} is unset, so this build cannot state the position it was taken at. \
              The hierophant is built through the kennel's doors, which state it: \
              tt/rbvw-b.Build.sh for the app, tt/rbvw-t.Test.sh for the suite",
-            ZRBTHD_SEAT_VAR, //
+            Z_SEAT_VAR, //
         ),
     };
 
     // RE-EMITTED UNDER THE NAME IT ARRIVED UNDER, so `env!` reads what cargo set
     // for this compile and never whatever the ambient environment held.
-    println!("cargo:rustc-env={}={}", ZRBTHD_SEAT_VAR, seat.trim());
+    println!("cargo:rustc-env={}={}", Z_SEAT_VAR, seat.trim());
 }
 
 // eof
