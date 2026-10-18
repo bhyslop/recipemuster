@@ -26,7 +26,7 @@
 // boundary awareness, flagging the stem as a bare token while sparing it inside a
 // kept identifier or under an exempt path.
 //
-// Engine, not word list. The eviction table (ZRBTDRN_EVICTION_ROWS) ships EMPTY:
+// Engine, not word list. The eviction table (ZRBTCHN_EVICTION_ROWS) ships EMPTY:
 // population is deferred per-cluster, each term gaining its row behind its own
 // cutover, owned by the heat retiring it. What ships now is the proven mechanism.
 //
@@ -49,27 +49,27 @@ use std::path::{
     PathBuf,
 };
 
-use crate::rbtdre_case;
-use crate::rbtdre_engine::{
-    rbtdre_Tariff,
-    rbtdre_Case,
-    rbtdre_Disposition,
-    rbtdre_Fixture,
-    rbtdre_Verdict,
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Tariff,
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Verdict,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CONFORMANCE;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_CONFORMANCE;
 
 // ── Scan corpus ─────────────────────────────────────────────
 
 /// Repo-relative roots scanned for evicted vocabulary. Tools/ holds the kit
 /// source and specs; tt/ holds the tabtarget sprues. Historical record (Memos/,
 /// retired heats) lies outside these roots and is spared by construction.
-pub(crate) const ZRBTDRN_SCAN_ROOTS: &[&str] = &["Tools", "tt"];
+pub(crate) const ZRBTCHN_SCAN_ROOTS: &[&str] = &["Tools", "tt"];
 
 // ── Eviction row and keep-context ───────────────────────────
 
 /// One way an evicted stem is permitted to survive a scan.
-pub(crate) enum zrbtdrn_KeepContext {
+pub(crate) enum zrbtchn_KeepContext {
     /// The stem may appear inside this exact identifier token — the carrying
     /// `[A-Za-z0-9_]` run equals this string. This is the boundary distinction:
     /// a bare kill-stem is flagged while the same stem inside a sanctioned
@@ -84,9 +84,9 @@ pub(crate) enum zrbtdrn_KeepContext {
 /// empty `keep_contexts` is a *pure corpse* — the stem must appear nowhere in the
 /// scanned corpus. One engine serves both: a pure corpse is just a row with no
 /// keep-contexts, never a separate grep-for-simple path.
-pub(crate) struct zrbtdrn_EvictionRow {
+pub(crate) struct zrbtchn_EvictionRow {
     pub(crate) kill_stem: &'static str,
-    pub(crate) keep_contexts: &'static [zrbtdrn_KeepContext],
+    pub(crate) keep_contexts: &'static [zrbtchn_KeepContext],
 }
 
 /// The standing eviction table — the single place a retired term gains its
@@ -94,11 +94,11 @@ pub(crate) struct zrbtdrn_EvictionRow {
 /// retires a term behind its own cutover; each row engages the live corpus scan
 /// the moment it is added. The self-test cases prove the engine independent of
 /// this table, so the mechanism ships proven with zero production rows.
-pub(crate) const ZRBTDRN_EVICTION_ROWS: &[zrbtdrn_EvictionRow] = &[];
+pub(crate) const ZRBTCHN_EVICTION_ROWS: &[zrbtchn_EvictionRow] = &[];
 
 /// One surviving occurrence of an evicted stem: where it is and the identifier
 /// token that carries it.
-pub(crate) struct zrbtdrn_Hit {
+pub(crate) struct zrbtchn_Hit {
     pub(crate) path: String,
     pub(crate) line: usize,
     pub(crate) token: String,
@@ -110,7 +110,7 @@ pub(crate) struct zrbtdrn_Hit {
 /// Split `text` into maximal identifier tokens — runs of `[A-Za-z0-9_]`. This is
 /// the identifier-boundary awareness: a stem is judged by the whole token that
 /// carries it, not by raw character adjacency.
-fn zrbtdrn_tokens(text: &str) -> Vec<String> {
+fn zrbtchn_tokens(text: &str) -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
     let mut cur = String::new();
     for c in text.chars() {
@@ -129,25 +129,25 @@ fn zrbtdrn_tokens(text: &str) -> Vec<String> {
 /// Record every occurrence of `row.kill_stem` in `text` whose carrying token is
 /// not cleared by an `Identifier` keep-context. `line` is the 1-based content
 /// line, or 0 for the file's basename (sprue position).
-fn zrbtdrn_scan_text(
+fn zrbtchn_scan_text(
     rel_path: &str,
     line: usize,
     text: &str,
-    row: &zrbtdrn_EvictionRow,
-    hits: &mut Vec<zrbtdrn_Hit>,
+    row: &zrbtchn_EvictionRow,
+    hits: &mut Vec<zrbtchn_Hit>,
 ) {
-    for token in zrbtdrn_tokens(text) {
+    for token in zrbtchn_tokens(text) {
         if !token.contains(row.kill_stem) {
             continue;
         }
         let cleared = row.keep_contexts.iter().any(|keep| match keep {
-            zrbtdrn_KeepContext::Identifier(id) => token.as_str() == *id,
-            zrbtdrn_KeepContext::PathPrefix(_) => false,
+            zrbtchn_KeepContext::Identifier(id) => token.as_str() == *id,
+            zrbtchn_KeepContext::PathPrefix(_) => false,
         });
         if cleared {
             continue;
         }
-        hits.push(zrbtdrn_Hit {
+        hits.push(zrbtchn_Hit {
             path: rel_path.to_string(),
             line,
             token: token.clone(),
@@ -161,11 +161,11 @@ fn zrbtdrn_scan_text(
 /// exempts the whole file; an `Identifier` keep clears occurrences whose carrying
 /// token matches. The basename is scanned as line 0 so an evicted stem in a
 /// tabtarget filename (a sprue) is caught alongside one in the contents.
-fn zrbtdrn_match(rel_path: &str, content: &str, row: &zrbtdrn_EvictionRow) -> Vec<zrbtdrn_Hit> {
-    let mut hits: Vec<zrbtdrn_Hit> = Vec::new();
+fn zrbtchn_match(rel_path: &str, content: &str, row: &zrbtchn_EvictionRow) -> Vec<zrbtchn_Hit> {
+    let mut hits: Vec<zrbtchn_Hit> = Vec::new();
 
     for keep in row.keep_contexts {
-        if let zrbtdrn_KeepContext::PathPrefix(prefix) = keep {
+        if let zrbtchn_KeepContext::PathPrefix(prefix) = keep {
             if rel_path.starts_with(prefix) {
                 return hits;
             }
@@ -173,10 +173,10 @@ fn zrbtdrn_match(rel_path: &str, content: &str, row: &zrbtdrn_EvictionRow) -> Ve
     }
 
     let basename = rel_path.rsplit('/').next().unwrap_or(rel_path);
-    zrbtdrn_scan_text(rel_path, 0, basename, row, &mut hits);
+    zrbtchn_scan_text(rel_path, 0, basename, row, &mut hits);
 
     for (idx, line) in content.lines().enumerate() {
-        zrbtdrn_scan_text(rel_path, idx + 1, line, row, &mut hits);
+        zrbtchn_scan_text(rel_path, idx + 1, line, row, &mut hits);
     }
 
     hits
@@ -185,7 +185,7 @@ fn zrbtdrn_match(rel_path: &str, content: &str, row: &zrbtdrn_EvictionRow) -> Ve
 // ── Live-tree walk ──────────────────────────────────────────
 
 /// Recursively collect every file under `dir` into `out`.
-fn zrbtdrn_walk(dir: &Path, out: &mut Vec<PathBuf>) {
+fn zrbtchn_walk(dir: &Path, out: &mut Vec<PathBuf>) {
     let entries = match std::fs::read_dir(dir) {
         Ok(e) => e,
         Err(_) => return,
@@ -193,7 +193,7 @@ fn zrbtdrn_walk(dir: &Path, out: &mut Vec<PathBuf>) {
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            zrbtdrn_walk(&path, out);
+            zrbtchn_walk(&path, out);
         } else {
             out.push(path);
         }
@@ -203,33 +203,33 @@ fn zrbtdrn_walk(dir: &Path, out: &mut Vec<PathBuf>) {
 /// Walk the scan roots under `root` and return every surviving occurrence of any
 /// eviction row's kill-stem. Returns empty immediately when no rows are declared
 /// — the standing engine costs nothing until a term is retired into it.
-fn zrbtdrn_scan(root: &Path, rows: &[zrbtdrn_EvictionRow]) -> Result<Vec<zrbtdrn_Hit>, String> {
+fn zrbtchn_scan(root: &Path, rows: &[zrbtchn_EvictionRow]) -> Result<Vec<zrbtchn_Hit>, String> {
     if rows.is_empty() {
         return Ok(Vec::new());
     }
     let mut files: Vec<PathBuf> = Vec::new();
-    for sub in ZRBTDRN_SCAN_ROOTS {
-        zrbtdrn_walk(&root.join(sub), &mut files);
+    for sub in ZRBTCHN_SCAN_ROOTS {
+        zrbtchn_walk(&root.join(sub), &mut files);
     }
     files.sort();
 
-    let mut hits: Vec<zrbtdrn_Hit> = Vec::new();
+    let mut hits: Vec<zrbtchn_Hit> = Vec::new();
     for path in &files {
         // Non-UTF8 / unreadable files (binaries) hold no vocabulary — skip.
         let content = match std::fs::read_to_string(path) {
             Ok(c) => c,
             Err(_) => continue,
         };
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(root, path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(root, path);
         for row in rows {
-            hits.extend(zrbtdrn_match(&rel, &content, row));
+            hits.extend(zrbtchn_match(&rel, &content, row));
         }
     }
     Ok(hits)
 }
 
 /// Render hits as a stable one-per-line report.
-fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
+fn zrbtchn_render(hits: &[zrbtchn_Hit]) -> String {
     let mut report = String::new();
     for h in hits {
         report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.token, h.line_text.trim()));
@@ -252,7 +252,7 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 //     `|| z_curl_status=$?` — the forced variable name is the point: the scan
 //     verifies the classify step mechanically, no interpretation required;
 //   - the captured z_curl_status must reappear within
-//     ZRBTDRN_CURL_TEST_WINDOW lines of the terminator (the classify/test;
+//     ZRBTCHN_CURL_TEST_WINDOW lines of the terminator (the classify/test;
 //     reappearance is checked on RAW lines because the var rides inside the
 //     quoted test operand `"${z_curl_status}"`);
 //   - a curl token anywhere else on a line is a misplaced-curl violation —
@@ -266,18 +266,18 @@ fn zrbtdrn_render(hits: &[zrbtdrn_Hit]) -> String {
 /// Repo-relative path prefixes exempt from the curl containment scan: the
 /// in-pool cloud-step trees whose curl discipline is its own dialect (`-f`
 /// flags, `|| exit N`, no buc_die_now) — the band membrane does not exist there.
-const ZRBTDRN_CURL_EXEMPT_PREFIXES: &[&str] = &["Tools/rbk/rbgj"];
+const ZRBTCHN_CURL_EXEMPT_PREFIXES: &[&str] = &["Tools/rbk/rbgj"];
 
 /// The byte-exact terminator suffix every curl invocation must carry.
-const ZRBTDRN_CURL_CAPTURE: &str = "|| z_curl_status=$?";
+const ZRBTCHN_CURL_CAPTURE: &str = "|| z_curl_status=$?";
 
 /// Lines after the terminator within which the captured z_curl_status must
 /// reappear. Corpus maximum is rbuh_http's dual-variant if/else, whose first
 /// branch's capture sits 21 lines from the shared test.
-const ZRBTDRN_CURL_TEST_WINDOW: usize = 24;
+const ZRBTCHN_CURL_TEST_WINDOW: usize = 24;
 
 /// One curl containment violation: where and which rule.
-struct zrbtdrn_CurlHit {
+struct zrbtchn_CurlHit {
     path: String,
     line: usize,
     kind: &'static str,
@@ -290,7 +290,7 @@ struct zrbtdrn_CurlHit {
 /// semantics). An unpaired opening quote keeps the remainder verbatim and
 /// reports it — the caller errors when an unscannable line carries a curl
 /// token, rather than this parser growing multi-line string awareness.
-fn zrbtdrn_strip_quoted(line: &str) -> (String, bool) {
+fn zrbtchn_strip_quoted(line: &str) -> (String, bool) {
     let chars: Vec<char> = line.chars().collect();
     let mut out = String::new();
     let mut i = 0;
@@ -327,7 +327,7 @@ fn zrbtdrn_strip_quoted(line: &str) -> (String, bool) {
 }
 
 /// True when the stripped line's first token is a curl invocation.
-fn zrbtdrn_curl_leads(stripped: &str) -> bool {
+fn zrbtchn_curl_leads(stripped: &str) -> bool {
     let t = stripped.trim_start();
     match t.strip_prefix("curl") {
         Some(rest) => rest.is_empty() || rest.starts_with(' ') || rest.starts_with('\t'),
@@ -336,8 +336,8 @@ fn zrbtdrn_curl_leads(stripped: &str) -> bool {
 }
 
 /// True when the stripped text carries a bare `curl` token.
-fn zrbtdrn_curl_token(stripped: &str) -> bool {
-    zrbtdrn_tokens(stripped).iter().any(|t| t == "curl")
+fn zrbtchn_curl_token(stripped: &str) -> bool {
+    zrbtchn_tokens(stripped).iter().any(|t| t == "curl")
 }
 
 /// Scan one shell file's contents for curl containment violations. A state
@@ -346,10 +346,10 @@ fn zrbtdrn_curl_token(stripped: &str) -> bool {
 /// with the canonical capture, followed by a z_curl_status reappearance within
 /// the window; any other line carrying a curl token is misplaced (carve-out:
 /// `command -v curl`) or unscannable (unpaired quote).
-fn zrbtdrn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtdrn_CurlHit> {
+fn zrbtchn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtchn_CurlHit> {
     let lines: Vec<&str> = content.lines().collect();
-    let mut hits: Vec<zrbtdrn_CurlHit> = Vec::new();
-    let hit = |line: usize, kind: &'static str, text: &str| zrbtdrn_CurlHit {
+    let mut hits: Vec<zrbtchn_CurlHit> = Vec::new();
+    let hit = |line: usize, kind: &'static str, text: &str| zrbtchn_CurlHit {
         path: rel_path.to_string(),
         line,
         kind,
@@ -362,8 +362,8 @@ fn zrbtdrn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtdrn_CurlHit> {
             i += 1;
             continue;
         }
-        let (stripped, unpaired) = zrbtdrn_strip_quoted(raw);
-        if !zrbtdrn_curl_token(&stripped) {
+        let (stripped, unpaired) = zrbtchn_strip_quoted(raw);
+        if !zrbtchn_curl_token(&stripped) {
             i += 1;
             continue;
         }
@@ -372,7 +372,7 @@ fn zrbtdrn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtdrn_CurlHit> {
             i += 1;
             continue;
         }
-        if !zrbtdrn_curl_leads(&stripped) {
+        if !zrbtchn_curl_leads(&stripped) {
             if !stripped.contains("command -v curl") {
                 hits.push(hit(i + 1, "misplaced", raw));
             }
@@ -388,16 +388,16 @@ fn zrbtdrn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtdrn_CurlHit> {
             hits.push(hit(i + 1, "uncaptured", raw));
             break;
         }
-        let (term_stripped, term_unpaired) = zrbtdrn_strip_quoted(lines[t]);
+        let (term_stripped, term_unpaired) = zrbtchn_strip_quoted(lines[t]);
         if term_unpaired {
             hits.push(hit(t + 1, "unscannable", lines[t]));
-        } else if !term_stripped.trim_end().ends_with(ZRBTDRN_CURL_CAPTURE) {
+        } else if !term_stripped.trim_end().ends_with(ZRBTCHN_CURL_CAPTURE) {
             hits.push(hit(t + 1, "uncaptured", lines[t]));
         } else {
-            let window_end = lines.len().min(t + 1 + ZRBTDRN_CURL_TEST_WINDOW);
+            let window_end = lines.len().min(t + 1 + ZRBTCHN_CURL_TEST_WINDOW);
             let tested = lines[(t + 1)..window_end]
                 .iter()
-                .any(|l| zrbtdrn_tokens(l).iter().any(|tok| tok == "z_curl_status"));
+                .any(|l| zrbtchn_tokens(l).iter().any(|tok| tok == "z_curl_status"));
             if !tested {
                 hits.push(hit(t + 1, "untested", lines[t]));
             }
@@ -408,7 +408,7 @@ fn zrbtdrn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtdrn_CurlHit> {
 }
 
 /// Render curl hits as a stable one-per-line report.
-fn zrbtdrn_curl_render(hits: &[zrbtdrn_CurlHit]) -> String {
+fn zrbtchn_curl_render(hits: &[zrbtchn_CurlHit]) -> String {
     let mut report = String::new();
     for h in hits {
         report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.kind, h.text));
@@ -420,7 +420,7 @@ fn zrbtdrn_curl_render(hits: &[zrbtdrn_CurlHit]) -> String {
 /// byte-exact capture, test within the window — plus the sanctioned
 /// non-leading shapes (the `command -v curl` probe, quoted message text,
 /// comment lines).
-fn rbtdrn_self_curl_canon_clears(_dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_self_curl_canon_clears(_dir: &Path) -> rbtcee_Verdict {
     let content = concat!(
         "z_curl_status=0\n",
         "curl -sS --max-time 5 \\\n",
@@ -431,14 +431,14 @@ fn rbtdrn_self_curl_canon_clears(_dir: &Path) -> rbtdre_Verdict {
         "# a bare curl ... || buc_die_now chain in a comment is ignored\n",
         "buc_log_args \"retrying (curl exit ${z_curl_status})\"\n",
     );
-    let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", content);
+    let hits = zrbtchn_curl_match("Tools/rbk/probe.sh", content);
     if hits.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "canonical form flagged — {} false positive(s):\n{}",
             hits.len(),
-            zrbtdrn_curl_render(&hits)
+            zrbtchn_curl_render(&hits)
         ))
     }
 }
@@ -446,8 +446,8 @@ fn rbtdrn_self_curl_canon_clears(_dir: &Path) -> rbtdre_Verdict {
 /// Each deviant shape is caught with its kind: the bare buc_die_now chain, the
 /// capture-free invocation, the non-leading invocations (capture-assignment
 /// and pipe), and the captured-but-never-tested window miss.
-fn rbtdrn_self_curl_catches_deviants(_dir: &Path) -> rbtdre_Verdict {
-    let filler = "buc_log_args unrelated\n".repeat(ZRBTDRN_CURL_TEST_WINDOW);
+fn rbtchn_self_curl_catches_deviants(_dir: &Path) -> rbtcee_Verdict {
+    let filler = "buc_log_args unrelated\n".repeat(ZRBTCHN_CURL_TEST_WINDOW);
     let content = format!(
         concat!(
             "curl -s \\\n",
@@ -460,71 +460,71 @@ fn rbtdrn_self_curl_catches_deviants(_dir: &Path) -> rbtdre_Verdict {
         ),
         filler
     );
-    let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", &content);
+    let hits = zrbtchn_curl_match("Tools/rbk/probe.sh", &content);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
     let expected = ["uncaptured", "uncaptured", "misplaced", "misplaced", "untested"];
     if kinds != expected {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "deviant shapes misjudged — expected kinds {:?}, got:\n{}",
             expected,
-            zrbtdrn_curl_render(&hits)
+            zrbtchn_curl_render(&hits)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// A line the paired strip cannot resolve, carrying a curl token, is itself a
 /// violation — the scan demands scannable lines rather than parsing abstruse
 /// quoting.
-fn rbtdrn_self_curl_unscannable(_dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_self_curl_unscannable(_dir: &Path) -> rbtcee_Verdict {
     let content = "z_json=' | curl -s -d @- \"${z_url}\"\n";
-    let hits = zrbtdrn_curl_match("Tools/rbk/probe.sh", content);
+    let hits = zrbtchn_curl_match("Tools/rbk/probe.sh", content);
     if hits.len() != 1 || hits[0].kind != "unscannable" {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "expected exactly 1 unscannable hit, got {}:\n{}",
             hits.len(),
-            zrbtdrn_curl_render(&hits)
+            zrbtchn_curl_render(&hits)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// Live-tree curl containment scan: every .sh file under the scan roots (minus
 /// the exempt prefixes) must hold only canonical-form curl invocations.
-fn rbtdrn_curl_containment(dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_curl_containment(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let mut files: Vec<PathBuf> = Vec::new();
-    for sub in ZRBTDRN_SCAN_ROOTS {
-        zrbtdrn_walk(&root.join(sub), &mut files);
+    for sub in ZRBTCHN_SCAN_ROOTS {
+        zrbtchn_walk(&root.join(sub), &mut files);
     }
     files.sort();
 
-    let mut hits: Vec<zrbtdrn_CurlHit> = Vec::new();
+    let mut hits: Vec<zrbtchn_CurlHit> = Vec::new();
     for path in &files {
         if path.extension().and_then(|e| e.to_str()) != Some("sh") {
             continue;
         }
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&root, path);
-        if ZRBTDRN_CURL_EXEMPT_PREFIXES.iter().any(|p| rel.starts_with(p)) {
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(&root, path);
+        if ZRBTCHN_CURL_EXEMPT_PREFIXES.iter().any(|p| rel.starts_with(p)) {
             continue;
         }
         let content = match std::fs::read_to_string(path) {
             Ok(c) => c,
             Err(_) => continue,
         };
-        hits.extend(zrbtdrn_curl_match(&rel, &content));
+        hits.extend(zrbtchn_curl_match(&rel, &content));
     }
 
-    let report = zrbtdrn_curl_render(&hits);
+    let report = zrbtchn_curl_render(&hits);
     let _ = std::fs::write(dir.join("conformance-curl.txt"), &report);
 
     if hits.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "{} curl containment violation(s) in the live tree:\n{}",
             hits.len(),
             report
@@ -542,14 +542,14 @@ fn rbtdrn_curl_containment(dir: &Path) -> rbtdre_Verdict {
 // wrapper per check.
 
 /// One one-home-discipline finding: where, what kind, and the detail prose.
-struct zrbtdrn_OneHomeHit {
+struct zrbtchn_OneHomeHit {
     path: String,
     line: usize,
     kind: &'static str,
     detail: String,
 }
 
-fn zrbtdrn_onehome_render(hits: &[zrbtdrn_OneHomeHit]) -> String {
+fn zrbtchn_onehome_render(hits: &[zrbtchn_OneHomeHit]) -> String {
     let mut report = String::new();
     for h in hits {
         report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.kind, h.detail));
@@ -564,7 +564,7 @@ fn zrbtdrn_onehome_render(hits: &[zrbtdrn_OneHomeHit]) -> String {
 /// `[[jjdpe_defined]] {jjdpe_defined}:: ...` same-line form); a bullet prefix
 /// is tolerated (the `* [[jjdgm_order]]` list-item form). Returns the bare
 /// name.
-fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
+fn zrbtchn_parse_anchor(line: &str) -> Option<String> {
     let t = line.trim();
     let t = t.trim_start_matches('*').trim_start();
     let rest = t.strip_prefix("[[")?;
@@ -584,7 +584,7 @@ fn zrbtdrn_parse_anchor(line: &str) -> Option<String> {
 /// `target` at the base quoin's anchor (`axo_entity`), never its own — the
 /// `_s`/`_p`/`_ed`/`_ing` suffix mechanism, so `name` and `target` differ by
 /// design and only `target` need resolve to an anchor.
-fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
+fn zrbtchn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
     let t = line.trim_start();
     let rest = t.strip_prefix(':')?;
     let colon = rest.find(':')?;
@@ -609,7 +609,7 @@ fn zrbtdrn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
 /// snake_case identifier carrying an underscore — the project-quoin shape,
 /// distinguishing a real linked-term citation from AsciiDoc's own built-in
 /// attributes (`{basebackend}`, `{docdir}`, …), which never carry one.
-fn zrbtdrn_parse_braced_citations(line: &str) -> Vec<String> {
+fn zrbtchn_parse_braced_citations(line: &str) -> Vec<String> {
     let mut out = Vec::new();
     let chars: Vec<char> = line.chars().collect();
     let mut i = 0;
@@ -638,8 +638,8 @@ fn zrbtdrn_parse_braced_citations(line: &str) -> Vec<String> {
 /// `RBr_m4d`, …). A bare `RBr_` with no tail is prose *describing* the naming
 /// convention itself (doctrine text), never a real citation, so it is
 /// excluded by the length/shape requirement rather than by name.
-fn zrbtdrn_parse_rivet_tokens(line: &str) -> Vec<String> {
-    zrbtdrn_tokens(line)
+fn zrbtchn_parse_rivet_tokens(line: &str) -> Vec<String> {
+    zrbtchn_tokens(line)
         .into_iter()
         .filter(|t| match t.strip_prefix("RBr_") {
             Some(tail) => tail.len() == 3 && tail.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()),
@@ -652,7 +652,7 @@ fn zrbtdrn_parse_rivet_tokens(line: &str) -> Vec<String> {
 /// or more uppercase-letter/digit characters. A8
 /// source-residue bars this shape from shipped `.sh` files — only a bare
 /// `RBr_` rivet ID or nothing may cite a spec from source.
-fn zrbtdrn_is_spec_acronym(token: &str) -> bool {
+fn zrbtchn_is_spec_acronym(token: &str) -> bool {
     match token.strip_prefix("RBS") {
         Some(rest) => !rest.is_empty() && rest.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit()),
         None => false,
@@ -662,7 +662,7 @@ fn zrbtdrn_is_spec_acronym(token: &str) -> bool {
 /// The prefix segment of a snake_case identifier — everything before the
 /// first underscore. Used to recognize a *known quoin family*: a prefix
 /// carried by at least one mapping-declared name in the corpus.
-fn zrbtdrn_prefix_of(name: &str) -> &str {
+fn zrbtchn_prefix_of(name: &str) -> &str {
     name.split('_').next().unwrap_or(name)
 }
 
@@ -670,7 +670,7 @@ fn zrbtdrn_prefix_of(name: &str) -> &str {
 /// defining prose — a foreign-kit drafting gap, outside this fixture's
 /// jurisdiction to close. Each entry names its removal condition; delete the
 /// entry once met. Empty: no sheaf in this estate's corpus holds such a gap.
-const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
+const ZRBTCHN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 
 /// Check 1 — citation integrity: every mapping-declared quoin and every
 /// `{term}`/`RBr_xxx` citation in the JUDGED set resolves to a real
@@ -700,26 +700,26 @@ const ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS: &[&str] = &[];
 /// example error strings); restricting to established families is the
 /// mechanical way to tell a real citation from that noise without parsing
 /// quote/code-span context.
-fn zrbtdrn_check_citations(
+fn zrbtchn_check_citations(
     anchor_files: &[(&str, &str)],
     judged_adoc: &[(&str, &str)],
     judged_all: &[(&str, &str)],
     unanchored_exempt_paths: &[&str],
-) -> Vec<zrbtdrn_OneHomeHit> {
+) -> Vec<zrbtchn_OneHomeHit> {
     let mut anchors: std::collections::HashSet<String> = std::collections::HashSet::new();
     let mut mapping: std::collections::HashMap<String, String> = std::collections::HashMap::new();
     for (_, content) in anchor_files {
         for line in content.lines() {
-            if let Some(name) = zrbtdrn_parse_anchor(line) {
+            if let Some(name) = zrbtchn_parse_anchor(line) {
                 anchors.insert(name);
             }
-            if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
+            if let Some((name, target)) = zrbtchn_parse_quoin_mapping(line) {
                 mapping.insert(name, target);
             }
         }
     }
     let known_families: std::collections::HashSet<&str> =
-        mapping.keys().map(|name| zrbtdrn_prefix_of(name)).collect();
+        mapping.keys().map(|name| zrbtchn_prefix_of(name)).collect();
 
     let mut hits = Vec::new();
 
@@ -728,9 +728,9 @@ fn zrbtdrn_check_citations(
             continue;
         }
         for (idx, line) in content.lines().enumerate() {
-            if let Some((name, target)) = zrbtdrn_parse_quoin_mapping(line) {
+            if let Some((name, target)) = zrbtchn_parse_quoin_mapping(line) {
                 if !anchors.contains(&target) {
-                    hits.push(zrbtdrn_OneHomeHit {
+                    hits.push(zrbtchn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "unanchored-quoin",
@@ -738,13 +738,13 @@ fn zrbtdrn_check_citations(
                     });
                 }
             }
-            for term in zrbtdrn_parse_braced_citations(line) {
-                if !known_families.contains(zrbtdrn_prefix_of(&term)) {
+            for term in zrbtchn_parse_braced_citations(line) {
+                if !known_families.contains(zrbtchn_prefix_of(&term)) {
                     continue;
                 }
                 let resolves = mapping.get(&term).map_or(false, |target| anchors.contains(target));
                 if !resolves {
-                    hits.push(zrbtdrn_OneHomeHit {
+                    hits.push(zrbtchn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "broken-quoin-citation",
@@ -757,12 +757,12 @@ fn zrbtdrn_check_citations(
 
     for (path, content) in judged_all {
         for (idx, line) in content.lines().enumerate() {
-            if zrbtdrn_parse_anchor(line).is_some() {
+            if zrbtchn_parse_anchor(line).is_some() {
                 continue;
             }
-            for id in zrbtdrn_parse_rivet_tokens(line) {
+            for id in zrbtchn_parse_rivet_tokens(line) {
                 if !anchors.contains(&id) {
-                    hits.push(zrbtdrn_OneHomeHit {
+                    hits.push(zrbtchn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "broken-rivet-citation",
@@ -782,15 +782,15 @@ fn zrbtdrn_check_citations(
 ///
 /// - `RBr_m4d`: hoist deferred while the codex remains under active spec-doctrine
 ///   work. Remove this entry when RBr_m4d's definition prose is hoisted.
-const ZRBTDRN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
+const ZRBTCHN_HOIST_WAIVERS: &[&str] = &["RBr_m4d"];
 
 /// The codex sheaf itself — the hoist target. A
 /// rivet anchored here is definitionally already hoisted, so citing it from
 /// any other sheaf is the intended end-state, never a violation. Homed on the
 /// corpus road; the path form matches the corpus-root-relative rendering the
-/// live wrapper produces (see `ZRBTDRN_CORPUS_SPEC_SUBDIR`), so it names the
+/// live wrapper produces (see `ZRBTCHN_CORPUS_SPEC_SUBDIR`), so it names the
 /// sheaf once whichever tree the corpus stands in.
-const ZRBTDRN_CODEX_SHEAF: &str = "specs/rbk/RBS0-SpecTop.adoc";
+const ZRBTCHN_CODEX_SHEAF: &str = "specs/rbk/RBS0-SpecTop.adoc";
 
 /// Sheaves whose role is a rivet *census/index* — pointing at where a rivet is
 /// homed, never
@@ -807,8 +807,8 @@ const ZRBTDRN_CODEX_SHEAF: &str = "specs/rbk/RBS0-SpecTop.adoc";
 ///   `RBr_c81` are directory entries, not content consumption.
 ///
 /// Corpus-root-relative path form, matching the live wrapper's rendering (see
-/// `ZRBTDRN_CORPUS_SPEC_SUBDIR`).
-const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["specs/rbk/RBSWB-Watchbill.adoc"];
+/// `ZRBTCHN_CORPUS_SPEC_SUBDIR`).
+const ZRBTCHN_HOIST_INDEX_SHEAVES: &[&str] = &["specs/rbk/RBSWB-Watchbill.adoc"];
 
 /// Check 2 — rivet-hoist placement (a rivet hoists to the
 /// codex the moment a second sheaf cites it). A rivet anchored in one `.adoc`
@@ -818,16 +818,16 @@ const ZRBTDRN_HOIST_INDEX_SHEAVES: &[&str] = &["specs/rbk/RBSWB-Watchbill.adoc"]
 /// is exempt outright — that IS the hoisted state. A citation FROM a
 /// sheaf in `index_sheaves` never counts — the citer's whole role is to point
 /// at content homed elsewhere, not to consume it.
-fn zrbtdrn_check_rivet_hoist(
+fn zrbtchn_check_rivet_hoist(
     adoc_files: &[(&str, &str)],
     waivers: &[&str],
     codex: &str,
     index_sheaves: &[&str],
-) -> Vec<zrbtdrn_OneHomeHit> {
+) -> Vec<zrbtchn_OneHomeHit> {
     let mut def_sheaf: std::collections::HashMap<String, &str> = std::collections::HashMap::new();
     for (path, content) in adoc_files {
         for line in content.lines() {
-            if let Some(name) = zrbtdrn_parse_anchor(line) {
+            if let Some(name) = zrbtchn_parse_anchor(line) {
                 if name.starts_with("RBr_") {
                     def_sheaf.entry(name).or_insert(path);
                 }
@@ -841,16 +841,16 @@ fn zrbtdrn_check_rivet_hoist(
             continue;
         }
         for (idx, line) in content.lines().enumerate() {
-            if zrbtdrn_parse_anchor(line).is_some() {
+            if zrbtchn_parse_anchor(line).is_some() {
                 continue;
             }
-            for id in zrbtdrn_parse_rivet_tokens(line) {
+            for id in zrbtchn_parse_rivet_tokens(line) {
                 if waivers.contains(&id.as_str()) {
                     continue;
                 }
                 if let Some(&home) = def_sheaf.get(&id) {
                     if home != *path && home != codex {
-                        hits.push(zrbtdrn_OneHomeHit {
+                        hits.push(zrbtchn_OneHomeHit {
                             path: path.to_string(),
                             line: idx + 1,
                             kind: "unhoisted-rivet",
@@ -869,13 +869,13 @@ fn zrbtdrn_check_rivet_hoist(
 /// veiled tree reaches this check by no route: it stands at the repo root,
 /// outside every scan root, so its residue rules are out of scope without a
 /// caller having to exclude anything.
-fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit> {
+fn zrbtchn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtchn_OneHomeHit> {
     let mut hits = Vec::new();
     for (path, content) in sh_files {
         for (idx, line) in content.lines().enumerate() {
-            for token in zrbtdrn_tokens(line) {
-                if zrbtdrn_is_spec_acronym(&token) {
-                    hits.push(zrbtdrn_OneHomeHit {
+            for token in zrbtchn_tokens(line) {
+                if zrbtchn_is_spec_acronym(&token) {
+                    hits.push(zrbtchn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "a8-spec-acronym-residue",
@@ -889,11 +889,11 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 }
 
 /// Scan roots for the one-home checks — narrower than
-/// `ZRBTDRN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
+/// `ZRBTCHN_SCAN_ROOTS`: RBK's own kit tree plus the shared tabtarget
 /// sprues, not the whole `Tools/` corpus. These roots cover the shipped `.sh`
 /// residue side; the `.adoc` anchor corpus the `RBr_` citations resolve
 /// against does not live here — it is homed on the kraal's corpus road
-/// (`zrbtdrn_locate_corpus_road`, below). RBK's tree
+/// (`zrbtchn_locate_corpus_road`, below). RBK's tree
 /// is this fixture's jurisdiction and is clean against these checks; the other
 /// kits' foundational specs carry pre-existing one-home violations in bulk —
 /// genuine corpus debt, not a design flaw in the checks (verified: the
@@ -901,7 +901,7 @@ fn zrbtdrn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtdrn_OneHomeHit
 /// really is broken). Closing that debt belongs to each kit, not to this
 /// fixture. The corpus reach below is likewise scoped to `specs/rbk` alone,
 /// for the same jurisdiction reason.
-const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
+const ZRBTCHN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
 
 // ── The corpus road ────────────────────────────────────────────
 //
@@ -922,25 +922,25 @@ const ZRBTDRN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt"];
 // it misleads is a session trusting the green.
 
 /// The kraal register's basename, at the outspan root.
-const ZRBTDRN_FEODARY_BASENAME: &str = "feodary.json";
+const ZRBTCHN_FEODARY_BASENAME: &str = "feodary.json";
 
 /// The revision value this reader's synthetic self-registers carry below.
 /// `jjfd_revision` is the ENGINE's own vintage discriminant against the seat
 /// it composed; this reader is the FOREIGN one and does not gate on jjfd_revision, so this
 /// constant is not a comparison target. Presence is still required: the same
 /// section states "a document that cannot say what it is is not a feodary".
-const ZRBTDRN_FEODARY_REVISION: i64 = 1;
+const ZRBTCHN_FEODARY_REVISION: i64 = 1;
 
 /// The roles a corpus road carries. A kraal holds at most one, and which one
 /// follows from the door that stood the kraal up.
-const ZRBTDRN_CORPUS_ROAD_ROLES: &[&str] = &["vulgate", "lectern"];
+const ZRBTCHN_CORPUS_ROAD_ROLES: &[&str] = &["vulgate", "lectern"];
 
 /// RBK's spec home on the corpus road — the JUDGED set's root. Scoped to
 /// `specs/rbk` (not the whole `specs/`) to hold the same RBK-only jurisdiction
 /// the scan roots keep. Also the rendering root's tail: a corpus file renders
 /// CORPUS-ROOT-relative whichever
 /// tree holds the corpus.
-const ZRBTDRN_CORPUS_SPEC_SUBDIR: &str = "specs/rbk";
+const ZRBTCHN_CORPUS_SPEC_SUBDIR: &str = "specs/rbk";
 
 /// The whole spec corpus on the corpus road — the ANCHOR set's root, every kit
 /// in it. Wider than the judged root above on purpose: a definition may
@@ -949,10 +949,10 @@ const ZRBTDRN_CORPUS_SPEC_SUBDIR: &str = "specs/rbk";
 /// anchors only from RBK's own subtree reports that borrow as a dangling
 /// citation — a false positive that says the corpus is broken when it is the
 /// checker's horizon that is short.
-const ZRBTDRN_CORPUS_ANCHOR_SUBDIR: &str = "specs";
+const ZRBTCHN_CORPUS_ANCHOR_SUBDIR: &str = "specs";
 
 /// One tree row of the kraal register: where it stands, and what it is for.
-struct zrbtdrn_FeodaryTree {
+struct zrbtchn_FeodaryTree {
     path: String,
     role: String,
 }
@@ -960,7 +960,7 @@ struct zrbtdrn_FeodaryTree {
 /// What the locator found. `Found` carries the corpus road's ROOT (not its
 /// spec subdirectory) because that root is also the rendering root — every
 /// corpus path is rendered relative to it.
-enum zrbtdrn_CorpusRoad {
+enum zrbtchn_CorpusRoad {
     Found(PathBuf),
     Absent(String),
 }
@@ -968,7 +968,7 @@ enum zrbtdrn_CorpusRoad {
 /// Read the string value that follows `"key":` in `text`, unescaping the two
 /// escapes a filesystem path can carry (`\\` and `\"`). None when the key is
 /// absent or its value is not a string.
-fn zrbtdrn_json_string_field(text: &str, key: &str) -> Option<String> {
+fn zrbtchn_json_string_field(text: &str, key: &str) -> Option<String> {
     let needle = format!("\"{}\"", key);
     let pos = text.find(&needle)?;
     let rest = text[pos + needle.len()..].trim_start();
@@ -988,7 +988,7 @@ fn zrbtdrn_json_string_field(text: &str, key: &str) -> Option<String> {
 
 /// Read the integer value that follows `"key":` in `text`. None when the key
 /// is absent or its value is not a bare integer.
-fn zrbtdrn_json_int_field(text: &str, key: &str) -> Option<i64> {
+fn zrbtchn_json_int_field(text: &str, key: &str) -> Option<i64> {
     let needle = format!("\"{}\"", key);
     let pos = text.find(&needle)?;
     let rest = text[pos + needle.len()..].trim_start();
@@ -1004,7 +1004,7 @@ fn zrbtdrn_json_int_field(text: &str, key: &str) -> Option<i64> {
 /// passes over the rest, and does not gate on the revision's VALUE, only that
 /// the key stands (a document that cannot say what it is is not a feodary).
 /// Pure over the document text — the walk that FINDS the document is
-/// `zrbtdrn_locate_corpus_road`. `Err` is a register this reader must not act
+/// `zrbtchn_locate_corpus_road`. `Err` is a register this reader must not act
 /// on; `Ok` with no rows is a well-formed register standing no trees.
 ///
 /// Deliberately not a general JSON parser: the subject is one dispatch-generated
@@ -1012,8 +1012,8 @@ fn zrbtdrn_json_int_field(text: &str, key: &str) -> Option<i64> {
 /// the checker can prove itself against (the self-test cases below). A row
 /// missing either field is a refusal rather than a skipped row — a register
 /// that half-parses is not one this reader may trust.
-fn zrbtdrn_parse_feodary(text: &str) -> Result<Vec<zrbtdrn_FeodaryTree>, String> {
-    if zrbtdrn_json_int_field(text, "jjfd_revision").is_none() {
+fn zrbtchn_parse_feodary(text: &str) -> Result<Vec<zrbtchn_FeodaryTree>, String> {
+    if zrbtchn_json_int_field(text, "jjfd_revision").is_none() {
         return Err("declares no jjfd_revision".to_string());
     }
     let needle = "\"jjfd_trees\"";
@@ -1046,10 +1046,10 @@ fn zrbtdrn_parse_feodary(text: &str) -> Result<Vec<zrbtdrn_FeodaryTree>, String>
                 if depth == 0 {
                     let chunk = &body[start..i];
                     match (
-                        zrbtdrn_json_string_field(chunk, "jjfd_path"),
-                        zrbtdrn_json_string_field(chunk, "jjfd_role"),
+                        zrbtchn_json_string_field(chunk, "jjfd_path"),
+                        zrbtchn_json_string_field(chunk, "jjfd_role"),
                     ) {
-                        (Some(path), Some(role)) => trees.push(zrbtdrn_FeodaryTree { path, role }),
+                        (Some(path), Some(role)) => trees.push(zrbtchn_FeodaryTree { path, role }),
                         _ => {
                             return Err(
                                 "carries a tree row without both jjfd_path and jjfd_role"
@@ -1069,7 +1069,7 @@ fn zrbtdrn_parse_feodary(text: &str) -> Result<Vec<zrbtdrn_FeodaryTree>, String>
 /// Canonical form for path comparison, falling back to the path as given when
 /// it does not resolve — a register naming a tree that no longer stands must
 /// compare unequal rather than abort the walk.
-fn zrbtdrn_real_path(p: &Path) -> PathBuf {
+fn zrbtchn_real_path(p: &Path) -> PathBuf {
     std::fs::canonicalize(p).unwrap_or_else(|_| p.to_path_buf())
 }
 
@@ -1087,12 +1087,12 @@ fn zrbtdrn_real_path(p: &Path) -> PathBuf {
 /// SKIPS. `Err` — a register claims it and is then unusable: no corpus road
 /// named, or a road that does not stand. That is a broken kraal, and failing
 /// loud is the point of the whole repair.
-fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String> {
-    let me = zrbtdrn_real_path(root);
+fn zrbtchn_locate_corpus_road(root: &Path) -> Result<zrbtchn_CorpusRoad, String> {
+    let me = zrbtchn_real_path(root);
     let parent = match root.parent() {
         Some(p) => p,
         None => {
-            return Ok(zrbtdrn_CorpusRoad::Absent(
+            return Ok(zrbtchn_CorpusRoad::Absent(
                 "work-repo root has no parent, so no kraal register can stand beside it"
                     .to_string(),
             ))
@@ -1102,7 +1102,7 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
     let mut registers: Vec<PathBuf> = Vec::new();
     if let Ok(entries) = std::fs::read_dir(parent) {
         for entry in entries.flatten() {
-            let register = entry.path().join(ZRBTDRN_FEODARY_BASENAME);
+            let register = entry.path().join(ZRBTCHN_FEODARY_BASENAME);
             if register.is_file() {
                 registers.push(register);
             }
@@ -1119,7 +1119,7 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
                 continue;
             }
         };
-        let trees = match zrbtdrn_parse_feodary(&text) {
+        let trees = match zrbtchn_parse_feodary(&text) {
             Ok(t) => t,
             Err(e) => {
                 unreadable.push(format!("{} ({})", register.display(), e));
@@ -1128,7 +1128,7 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
         };
         if !trees
             .iter()
-            .any(|t| zrbtdrn_real_path(Path::new(&t.path)) == me)
+            .any(|t| zrbtchn_real_path(Path::new(&t.path)) == me)
         {
             continue;
         }
@@ -1138,7 +1138,7 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
         // absence would restore exactly the silence this repair removed.
         let road = match trees
             .iter()
-            .find(|t| ZRBTDRN_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
+            .find(|t| ZRBTCHN_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
         {
             Some(t) => t,
             None => {
@@ -1146,12 +1146,12 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
                     "{} claims this repo but names no corpus road (looked for role {}) — \
                      a kraal without one cannot answer the citation-integrity or rivet-hoist check",
                     register.display(),
-                    ZRBTDRN_CORPUS_ROAD_ROLES.join(" or ")
+                    ZRBTCHN_CORPUS_ROAD_ROLES.join(" or ")
                 ))
             }
         };
         let road_root = PathBuf::from(&road.path);
-        let specs = road_root.join(ZRBTDRN_CORPUS_SPEC_SUBDIR);
+        let specs = road_root.join(ZRBTCHN_CORPUS_SPEC_SUBDIR);
         if !specs.is_dir() {
             return Err(format!(
                 "{} names the corpus road at {} (role {}), but {} does not stand",
@@ -1161,12 +1161,12 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
                 specs.display()
             ));
         }
-        return Ok(zrbtdrn_CorpusRoad::Found(road_root));
+        return Ok(zrbtchn_CorpusRoad::Found(road_root));
     }
 
     let mut reason = format!(
         "no kraal register ({}) beside {} claims this repo, so the session holds no corpus road",
-        ZRBTDRN_FEODARY_BASENAME,
+        ZRBTCHN_FEODARY_BASENAME,
         me.display()
     );
     if !unreadable.is_empty() {
@@ -1175,17 +1175,17 @@ fn zrbtdrn_locate_corpus_road(root: &Path) -> Result<zrbtdrn_CorpusRoad, String>
             unreadable.join(", ")
         ));
     }
-    Ok(zrbtdrn_CorpusRoad::Absent(reason))
+    Ok(zrbtchn_CorpusRoad::Absent(reason))
 }
 
 /// Walk the one-home scan roots under `root`, returning the in-repo `.adoc`
 /// corpus and the shipped `.sh` corpus, each as (repo-relative path, content).
 /// The veiled tree needs no exclusion here: it stands at the repo root, outside
 /// every scan root, so its residue rules are out of scope by construction.
-fn zrbtdrn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String, String)>) {
+fn zrbtchn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String, String)>) {
     let mut files: Vec<PathBuf> = Vec::new();
-    for sub in ZRBTDRN_ONEHOME_SCAN_ROOTS {
-        zrbtdrn_walk(&root.join(sub), &mut files);
+    for sub in ZRBTCHN_ONEHOME_SCAN_ROOTS {
+        zrbtchn_walk(&root.join(sub), &mut files);
     }
     files.sort();
 
@@ -1196,7 +1196,7 @@ fn zrbtdrn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String,
             Ok(c) => c,
             Err(_) => continue,
         };
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(root, path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(root, path);
         match path.extension().and_then(|e| e.to_str()) {
             Some("adoc") => adoc_owned.push((rel, content)),
             Some("sh") => sh_owned.push((rel, content)),
@@ -1211,26 +1211,26 @@ fn zrbtdrn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String,
 /// nothing outside the work tree, so it runs identically in a kraal and out of
 /// one; standing apart from its corpus-bound sibling is what lets that sibling
 /// skip without this check's verdict being spent to carry the pair.
-fn rbtdrn_onehome_residue_live(dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_onehome_residue_live(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let (_, sh_owned) = zrbtdrn_walk_repo_corpus(&root);
+    let (_, sh_owned) = zrbtchn_walk_repo_corpus(&root);
     let sh_refs: Vec<(&str, &str)> = sh_owned
         .iter()
         .map(|(p, c)| (p.as_str(), c.as_str()))
         .collect();
 
-    let hits = zrbtdrn_check_a8_residue(&sh_refs);
-    let mut report = zrbtdrn_onehome_render(&hits);
+    let hits = zrbtchn_check_a8_residue(&sh_refs);
+    let mut report = zrbtchn_onehome_render(&hits);
     report.push_str(&format!("scanned {} shipped .sh file(s)\n", sh_owned.len()));
     let _ = std::fs::write(dir.join("conformance-onehome-residue.txt"), &report);
 
     if hits.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "{} A8 source-residue violation(s) in the live tree:\n{}",
             hits.len(),
             report
@@ -1241,7 +1241,7 @@ fn rbtdrn_onehome_residue_live(dir: &Path) -> rbtdre_Verdict {
 /// Live case — the two corpus-BOUND checks: citation integrity and rivet-hoist
 /// placement. Locates the kraal's corpus road and reads `specs/` off it, every
 /// kit's sheaves joining the ANCHOR set while only `specs/rbk` joins the JUDGED
-/// set (`zrbtdrn_check_citations` carries why the two differ). The in-repo
+/// set (`zrbtchn_check_citations` carries why the two differ). The in-repo
 /// `.adoc` and `.sh` sets join both sides, since a rivet may be cited from
 /// either. Rivet-hoist rules the judged set alone — placement is a jurisdiction
 /// question, and a sibling kit's rivets are not RBK's to rule on.
@@ -1255,18 +1255,18 @@ fn rbtdrn_onehome_residue_live(dir: &Path) -> rbtdre_Verdict {
 ///
 /// Corpus files render CORPUS-ROOT-relative, so
 /// the rendered form is the same whichever tree holds the corpus and
-/// `ZRBTDRN_CODEX_SHEAF` names the sheaf once. In-repo files render
+/// `ZRBTCHN_CODEX_SHEAF` names the sheaf once. In-repo files render
 /// repo-relative (`Tools/rbk/…`, `tt/…`); the two rendering roots share no
 /// leading segment, so one path namespace serves both without collision.
-fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_onehome_corpus_live(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
 
-    let road = match zrbtdrn_locate_corpus_road(&root) {
-        Err(e) => return rbtdre_Verdict::Fail(e),
-        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
+    let road = match zrbtchn_locate_corpus_road(&root) {
+        Err(e) => return rbtcee_Verdict::Fail(e),
+        Ok(zrbtchn_CorpusRoad::Absent(reason)) => {
             let note = format!(
                 "skipped the citation-integrity and rivet-hoist checks (both need the spec \
                  corpus): {}",
@@ -1276,21 +1276,21 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
                 dir.join("conformance-onehome-corpus.txt"),
                 format!("{}\n", note),
             );
-            return rbtdre_Verdict::Skip(note);
+            return rbtcee_Verdict::Skip(note);
         }
-        Ok(zrbtdrn_CorpusRoad::Found(p)) => p,
+        Ok(zrbtchn_CorpusRoad::Found(p)) => p,
     };
-    let corpus_root = road.join(ZRBTDRN_CORPUS_ANCHOR_SUBDIR);
+    let corpus_root = road.join(ZRBTCHN_CORPUS_ANCHOR_SUBDIR);
 
     // The in-repo `.adoc` files are both anchor sources and judged sites; the
     // corpus splits, every kit's sheaf anchoring and only RBK's judged.
-    let (mut judged_adoc_owned, sh_owned) = zrbtdrn_walk_repo_corpus(&root);
+    let (mut judged_adoc_owned, sh_owned) = zrbtchn_walk_repo_corpus(&root);
     let mut anchor_owned: Vec<(String, String)> = judged_adoc_owned.clone();
     let in_repo_adoc = anchor_owned.len();
-    let judged_prefix = format!("{}/", ZRBTDRN_CORPUS_SPEC_SUBDIR);
+    let judged_prefix = format!("{}/", ZRBTCHN_CORPUS_SPEC_SUBDIR);
 
     let mut spec_files: Vec<PathBuf> = Vec::new();
-    zrbtdrn_walk(&corpus_root, &mut spec_files);
+    zrbtchn_walk(&corpus_root, &mut spec_files);
     spec_files.sort();
     let mut judged_corpus_adoc = 0usize;
     for path in &spec_files {
@@ -1301,7 +1301,7 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
             Ok(c) => c,
             Err(_) => continue,
         };
-        let rel = crate::rbtdrx_platform::rbtdrx_repo_rel(&road, path);
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(&road, path);
         if rel.starts_with(&judged_prefix) {
             judged_adoc_owned.push((rel.clone(), content.clone()));
             judged_corpus_adoc += 1;
@@ -1310,13 +1310,13 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
     }
     let anchor_corpus_adoc = anchor_owned.len() - in_repo_adoc;
     if judged_corpus_adoc == 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "corpus road stands at {} but {} yielded no .adoc under {} — a half-broken \
              checkout, refusing to run the citation-integrity and rivet-hoist checks against \
              an empty judged set",
             road.display(),
             corpus_root.display(),
-            ZRBTDRN_CORPUS_SPEC_SUBDIR
+            ZRBTCHN_CORPUS_SPEC_SUBDIR
         ));
     }
 
@@ -1335,37 +1335,37 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
         .map(|(p, c)| (p.as_str(), c.as_str()))
         .collect();
 
-    let mut hits = zrbtdrn_check_citations(
+    let mut hits = zrbtchn_check_citations(
         &anchor_refs,
         &judged_adoc_refs,
         &judged_all_refs,
-        ZRBTDRN_UNANCHORED_QUOIN_EXEMPT_PATHS,
+        ZRBTCHN_UNANCHORED_QUOIN_EXEMPT_PATHS,
     );
-    hits.extend(zrbtdrn_check_rivet_hoist(
+    hits.extend(zrbtchn_check_rivet_hoist(
         &judged_adoc_refs,
-        ZRBTDRN_HOIST_WAIVERS,
-        ZRBTDRN_CODEX_SHEAF,
-        ZRBTDRN_HOIST_INDEX_SHEAVES,
+        ZRBTCHN_HOIST_WAIVERS,
+        ZRBTCHN_CODEX_SHEAF,
+        ZRBTCHN_HOIST_INDEX_SHEAVES,
     ));
 
-    let mut report = zrbtdrn_onehome_render(&hits);
+    let mut report = zrbtchn_onehome_render(&hits);
     report.push_str(&format!(
         "corpus road {} — {} anchor .adoc under {}, of which {} judged under {}; \
          {} in-repo .adoc, {} shipped .sh\n",
         road.display(),
         anchor_corpus_adoc,
-        ZRBTDRN_CORPUS_ANCHOR_SUBDIR,
+        ZRBTCHN_CORPUS_ANCHOR_SUBDIR,
         judged_corpus_adoc,
-        ZRBTDRN_CORPUS_SPEC_SUBDIR,
+        ZRBTCHN_CORPUS_SPEC_SUBDIR,
         in_repo_adoc,
         sh_owned.len()
     ));
     let _ = std::fs::write(dir.join("conformance-onehome-corpus.txt"), &report);
 
     if hits.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "{} one-home discipline violation(s) in the live tree:\n{}",
             hits.len(),
             report
@@ -1379,7 +1379,7 @@ fn rbtdrn_onehome_corpus_live(dir: &Path) -> rbtdre_Verdict {
 /// citation to a real anchor (clears), a `{term}` citation to nothing
 /// (broken), and a bare `RBr_xxx` citation to nothing (broken) — all in one
 /// synthetic corpus, none touching the live tree.
-fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_self_citation_integrity(_dir: &Path) -> rbtcee_Verdict {
     let a = (
         "vov_veiled/RBSAA-fake.adoc",
         ":rbk_present:                 <<rbk_present,Present>>\n\
@@ -1404,21 +1404,21 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
     let all = vec![a, exempt];
     // Synthetic roster, not the live one: the exemption mechanism stays proven
     // whatever the live roster holds — including empty.
-    let hits = zrbtdrn_check_citations(&adoc, &adoc, &all, &[exempt.0]);
+    let hits = zrbtchn_check_citations(&adoc, &adoc, &all, &[exempt.0]);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
     let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
     let mut got = kinds.clone();
     got.sort();
     expected.sort();
     if got != expected {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "expected kinds {:?}, got {:?}:\n{}",
             expected,
             kinds,
-            zrbtdrn_onehome_render(&hits)
+            zrbtchn_onehome_render(&hits)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// Rivet-hoist placement: a rivet cited from its own defining sheaf clears; the
@@ -1426,41 +1426,41 @@ fn rbtdrn_self_citation_integrity(_dir: &Path) -> rbtdre_Verdict {
 /// cross-sheaf clears despite the waiver being live; a rivet anchored in the
 /// codex itself clears no matter how many sheaves cite it; a rivet cited from
 /// a census/index sheaf clears regardless of home.
-fn rbtdrn_self_rivet_hoist(_dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_self_rivet_hoist(_dir: &Path) -> rbtcee_Verdict {
     let home = ("vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
     let sibling = ("vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
     let waived_home = ("vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
     let waived_citer = ("vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
-    let codex_home = (ZRBTDRN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
+    let codex_home = (ZRBTCHN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
     let codex_citer = ("vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
-    let index_citer = (ZRBTDRN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
+    let index_citer = (ZRBTCHN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
     let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer, index_citer];
 
-    let hits = zrbtdrn_check_rivet_hoist(&adoc, ZRBTDRN_HOIST_WAIVERS, ZRBTDRN_CODEX_SHEAF, ZRBTDRN_HOIST_INDEX_SHEAVES);
+    let hits = zrbtchn_check_rivet_hoist(&adoc, ZRBTCHN_HOIST_WAIVERS, ZRBTCHN_CODEX_SHEAF, ZRBTCHN_HOIST_INDEX_SHEAVES);
     if hits.len() != 1 || hits[0].kind != "unhoisted-rivet" || !hits[0].detail.contains("RBr_a11") {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "expected exactly 1 unhoisted-rivet hit for RBr_a11 (RBr_m4d waived), got:\n{}",
-            zrbtdrn_onehome_render(&hits)
+            zrbtchn_onehome_render(&hits)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// A8 source-residue: a bare `RBr_` residue clears; a spec-acronym citation
 /// (`RBSAA`) is flagged.
-fn rbtdrn_self_a8_residue(_dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_self_a8_residue(_dir: &Path) -> rbtcee_Verdict {
     let sh = vec![(
         "Tools/rbk/probe.sh",
         "# clean residue cites RBr_a11 only\nz_x=1\n# violation cites RBSAA directly\n",
     )];
-    let hits = zrbtdrn_check_a8_residue(&sh);
+    let hits = zrbtchn_check_a8_residue(&sh);
     if hits.len() != 1 || hits[0].kind != "a8-spec-acronym-residue" || hits[0].line != 3 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "expected exactly 1 a8-spec-acronym-residue hit at line 3, got:\n{}",
-            zrbtdrn_onehome_render(&hits)
+            zrbtchn_onehome_render(&hits)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── Self-test cases — the checker proves itself ─────────────
@@ -1468,128 +1468,128 @@ fn rbtdrn_self_a8_residue(_dir: &Path) -> rbtdre_Verdict {
 /// A synthetic stem that appears in no real source — the self-tests run the
 /// matcher against in-memory corpora only, never the live tree, so the proof is
 /// hermetic and plants nothing in the repo.
-const ZRBTDRN_SELF_STEM: &str = "zzdeadstem";
+const ZRBTCHN_SELF_STEM: &str = "zzdeadstem";
 
-/// A sanctioned identifier that embeds ZRBTDRN_SELF_STEM by construction — the
+/// A sanctioned identifier that embeds ZRBTCHN_SELF_STEM by construction — the
 /// "stem inside a kept identifier" case. (The enum holds `&'static str`, so this
 /// coupling is a literal, not a derivation.)
-const ZRBTDRN_SELF_KEPT_ID: &str = "rbtdrn_zzdeadstem_kept";
+const ZRBTCHN_SELF_KEPT_ID: &str = "rbtchn_zzdeadstem_kept";
 
 /// One corpus, both halves of the discrimination: a bare stem that MUST be
 /// caught and the same stem inside a kept identifier that MUST be respected.
-fn rbtdrn_self_catch_and_keep_identifier(_dir: &Path) -> rbtdre_Verdict {
-    let row = zrbtdrn_EvictionRow {
-        kill_stem: ZRBTDRN_SELF_STEM,
-        keep_contexts: &[zrbtdrn_KeepContext::Identifier(ZRBTDRN_SELF_KEPT_ID)],
+fn rbtchn_self_catch_and_keep_identifier(_dir: &Path) -> rbtcee_Verdict {
+    let row = zrbtchn_EvictionRow {
+        kill_stem: ZRBTCHN_SELF_STEM,
+        keep_contexts: &[zrbtchn_KeepContext::Identifier(ZRBTCHN_SELF_KEPT_ID)],
     };
-    let content = "a bare zzdeadstem here\nlet x = rbtdrn_zzdeadstem_kept();\n";
-    let hits = zrbtdrn_match("Tools/rbk/probe_selftest.txt", content, &row);
+    let content = "a bare zzdeadstem here\nlet x = rbtchn_zzdeadstem_kept();\n";
+    let hits = zrbtchn_match("Tools/rbk/probe_selftest.txt", content, &row);
 
     if hits.len() != 1 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "expected exactly 1 hit (the bare stem; the kept identifier respected), got {}:\n{}",
             hits.len(),
-            zrbtdrn_render(&hits)
+            zrbtchn_render(&hits)
         ));
     }
     let h = &hits[0];
-    if h.line != 1 || h.token != ZRBTDRN_SELF_STEM {
-        return rbtdre_Verdict::Fail(format!(
+    if h.line != 1 || h.token != ZRBTCHN_SELF_STEM {
+        return rbtcee_Verdict::Fail(format!(
             "hit shape wrong: line {} token '{}' (expected line 1 token '{}')",
-            h.line, h.token, ZRBTDRN_SELF_STEM
+            h.line, h.token, ZRBTCHN_SELF_STEM
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// A path-prefix keep exempts the whole file — the stem may stay under an
 /// in-flight / vendored path a cutover deliberately leaves untouched.
-fn rbtdrn_self_keep_path_prefix(_dir: &Path) -> rbtdre_Verdict {
-    let row = zrbtdrn_EvictionRow {
-        kill_stem: ZRBTDRN_SELF_STEM,
-        keep_contexts: &[zrbtdrn_KeepContext::PathPrefix("Tools/rbk/vendor/legacy/")],
+fn rbtchn_self_keep_path_prefix(_dir: &Path) -> rbtcee_Verdict {
+    let row = zrbtchn_EvictionRow {
+        kill_stem: ZRBTCHN_SELF_STEM,
+        keep_contexts: &[zrbtchn_KeepContext::PathPrefix("Tools/rbk/vendor/legacy/")],
     };
     let content = "zzdeadstem all over\nanother zzdeadstem line\n";
-    let hits = zrbtdrn_match("Tools/rbk/vendor/legacy/old.adoc", content, &row);
+    let hits = zrbtchn_match("Tools/rbk/vendor/legacy/old.adoc", content, &row);
 
     if hits.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "path-prefix keep not respected — {} hit(s) under an exempt path:\n{}",
             hits.len(),
-            zrbtdrn_render(&hits)
+            zrbtchn_render(&hits)
         ))
     }
 }
 
 /// A stem in a tabtarget filename (a sprue) MUST be caught — boundary awareness
 /// reaches the basename, not just the contents.
-fn rbtdrn_self_catch_sprue(_dir: &Path) -> rbtdre_Verdict {
-    let row = zrbtdrn_EvictionRow {
-        kill_stem: ZRBTDRN_SELF_STEM,
+fn rbtchn_self_catch_sprue(_dir: &Path) -> rbtcee_Verdict {
+    let row = zrbtchn_EvictionRow {
+        kill_stem: ZRBTCHN_SELF_STEM,
         keep_contexts: &[],
     };
-    let hits = zrbtdrn_match("tt/rbw-zzdeadstem.Run.sh", "", &row);
+    let hits = zrbtchn_match("tt/rbw-zzdeadstem.Run.sh", "", &row);
 
-    if hits.len() != 1 || hits[0].line != 0 || hits[0].token != ZRBTDRN_SELF_STEM {
-        return rbtdre_Verdict::Fail(format!(
+    if hits.len() != 1 || hits[0].line != 0 || hits[0].token != ZRBTCHN_SELF_STEM {
+        return rbtcee_Verdict::Fail(format!(
             "expected exactly 1 sprue hit at line 0 token '{}', got {}:\n{}",
-            ZRBTDRN_SELF_STEM,
+            ZRBTCHN_SELF_STEM,
             hits.len(),
-            zrbtdrn_render(&hits)
+            zrbtchn_render(&hits)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// A pure corpse (empty keep_contexts) flags a bare use, and the engine reports
 /// nothing where the stem is absent — no false positives.
-fn rbtdrn_self_pure_corpse(_dir: &Path) -> rbtdre_Verdict {
-    let row = zrbtdrn_EvictionRow {
-        kill_stem: ZRBTDRN_SELF_STEM,
+fn rbtchn_self_pure_corpse(_dir: &Path) -> rbtcee_Verdict {
+    let row = zrbtchn_EvictionRow {
+        kill_stem: ZRBTCHN_SELF_STEM,
         keep_contexts: &[],
     };
 
-    let present = zrbtdrn_match("Tools/rbk/x.md", "x zzdeadstem y\n", &row);
+    let present = zrbtchn_match("Tools/rbk/x.md", "x zzdeadstem y\n", &row);
     if present.len() != 1 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "pure corpse: expected 1 hit on a bare use, got {}:\n{}",
             present.len(),
-            zrbtdrn_render(&present)
+            zrbtchn_render(&present)
         ));
     }
 
-    let absent = zrbtdrn_match("Tools/rbk/x.md", "no dead vocabulary on this line\n", &row);
+    let absent = zrbtchn_match("Tools/rbk/x.md", "no dead vocabulary on this line\n", &row);
     if !absent.is_empty() {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "pure corpse: expected 0 hits where the stem is absent, got {}:\n{}",
             absent.len(),
-            zrbtdrn_render(&absent)
+            zrbtchn_render(&absent)
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// Live-tree scan against the standing eviction table. With zero production rows
 /// this passes by construction; the instant a row is added it engages the walker
 /// over Tools/ and tt/ and fails on any surviving occurrence.
-fn rbtdrn_live_scan(dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_live_scan(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
-    let hits = match zrbtdrn_scan(&root, ZRBTDRN_EVICTION_ROWS) {
+    let hits = match zrbtchn_scan(&root, ZRBTCHN_EVICTION_ROWS) {
         Ok(h) => h,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let report = zrbtdrn_render(&hits);
+    let report = zrbtchn_render(&hits);
     let _ = std::fs::write(dir.join("conformance-evictions.txt"), &report);
 
     if hits.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "{} evicted-term survival(s) in the live tree:\n{}",
             hits.len(),
             report
@@ -1603,7 +1603,7 @@ fn rbtdrn_live_scan(dir: &Path) -> rbtdre_Verdict {
 /// road among them, keys in the composed order. Held here rather than read off
 /// a live outspan so the parse proves itself hermetically, exactly as the
 /// checkers above do.
-const ZRBTDRN_SELF_FEODARY: &str = r#"{
+const ZRBTCHN_SELF_FEODARY: &str = r#"{
   "jjfd_revision": 1,
   "jjfd_trees": [
     {
@@ -1627,31 +1627,31 @@ const ZRBTDRN_SELF_FEODARY: &str = r#"{
 /// Register parse, the reading half: every tree row is recovered with its path
 /// and role, in document order, and the corpus road is found by role rather
 /// than by position — the row order is the stile's, not this reader's contract.
-fn rbtdrn_self_feodary_parse(_dir: &Path) -> rbtdre_Verdict {
-    let trees = match zrbtdrn_parse_feodary(ZRBTDRN_SELF_FEODARY) {
+fn rbtchn_self_feodary_parse(_dir: &Path) -> rbtcee_Verdict {
+    let trees = match zrbtchn_parse_feodary(ZRBTCHN_SELF_FEODARY) {
         Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(format!("well-formed register refused: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("well-formed register refused: {}", e)),
     };
     if trees.len() != 3 {
-        return rbtdre_Verdict::Fail(format!("expected 3 tree rows, parsed {}", trees.len()));
+        return rbtcee_Verdict::Fail(format!("expected 3 tree rows, parsed {}", trees.len()));
     }
     if trees[0].path != "/infield/kraal_billet_rb" || trees[0].role != "billet" {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "first row parsed as {} / {}",
             trees[0].path, trees[0].role
         ));
     }
     let road = match trees
         .iter()
-        .find(|t| ZRBTDRN_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
+        .find(|t| ZRBTCHN_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
     {
         Some(t) => t,
-        None => return rbtdre_Verdict::Fail("corpus road not found by role".to_string()),
+        None => return rbtcee_Verdict::Fail("corpus road not found by role".to_string()),
     };
     if road.path != "/infield/kraal_billet_vulgate" {
-        return rbtdre_Verdict::Fail(format!("corpus road parsed as {}", road.path));
+        return rbtcee_Verdict::Fail(format!("corpus road parsed as {}", road.path));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 /// Register parse, the refusing half — now that the revision's VALUE is no
@@ -1664,23 +1664,23 @@ fn rbtdrn_self_feodary_parse(_dir: &Path) -> rbtdre_Verdict {
 /// declaring no vintage at all, and one whose row carries a path but no role,
 /// must each still refuse; the sumpter row proves a NON-corpus role is not
 /// mistaken for one.
-fn rbtdrn_self_feodary_refusals(_dir: &Path) -> rbtdre_Verdict {
-    let evolved = ZRBTDRN_SELF_FEODARY.replace(
+fn rbtchn_self_feodary_refusals(_dir: &Path) -> rbtcee_Verdict {
+    let evolved = ZRBTCHN_SELF_FEODARY.replace(
         "\"jjfd_revision\": 1",
         "\"jjfd_future_key\": true,\n  \"jjfd_revision\": 2",
     );
-    let evolved_trees = match zrbtdrn_parse_feodary(&evolved) {
+    let evolved_trees = match zrbtchn_parse_feodary(&evolved) {
         Ok(t) => t,
         Err(e) => {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "a later-vintage register carrying an unknown key refused: {}",
                 e
             ))
         }
     };
-    let base_trees = match zrbtdrn_parse_feodary(ZRBTDRN_SELF_FEODARY) {
+    let base_trees = match zrbtchn_parse_feodary(ZRBTCHN_SELF_FEODARY) {
         Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(format!("well-formed register refused: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("well-formed register refused: {}", e)),
     };
     if evolved_trees.len() != base_trees.len()
         || evolved_trees
@@ -1688,53 +1688,53 @@ fn rbtdrn_self_feodary_refusals(_dir: &Path) -> rbtdre_Verdict {
             .zip(base_trees.iter())
             .any(|(a, b)| a.path != b.path || a.role != b.role)
     {
-        return rbtdre_Verdict::Fail(
+        return rbtcee_Verdict::Fail(
             "a later-vintage register carrying an unknown key parsed to different rows"
                 .to_string(),
         );
     }
-    let vintageless = ZRBTDRN_SELF_FEODARY.replace("\"jjfd_revision\": 1,", "");
-    if zrbtdrn_parse_feodary(&vintageless).is_ok() {
-        return rbtdre_Verdict::Fail("a register declaring no vintage parsed clean".to_string());
+    let vintageless = ZRBTCHN_SELF_FEODARY.replace("\"jjfd_revision\": 1,", "");
+    if zrbtchn_parse_feodary(&vintageless).is_ok() {
+        return rbtcee_Verdict::Fail("a register declaring no vintage parsed clean".to_string());
     }
-    let half_row = ZRBTDRN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_kind\": \"vulgate\"");
-    if zrbtdrn_parse_feodary(&half_row).is_ok() {
-        return rbtdre_Verdict::Fail("a register with a roleless tree row parsed clean".to_string());
+    let half_row = ZRBTCHN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_kind\": \"vulgate\"");
+    if zrbtchn_parse_feodary(&half_row).is_ok() {
+        return rbtcee_Verdict::Fail("a register with a roleless tree row parsed clean".to_string());
     }
-    let roadless = ZRBTDRN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_role\": \"sumpter\"");
-    let trees = match zrbtdrn_parse_feodary(&roadless) {
+    let roadless = ZRBTCHN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_role\": \"sumpter\"");
+    let trees = match zrbtchn_parse_feodary(&roadless) {
         Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(format!("roadless register refused at parse: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("roadless register refused at parse: {}", e)),
     };
     if trees
         .iter()
-        .any(|t| ZRBTDRN_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
+        .any(|t| ZRBTCHN_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
     {
-        return rbtdre_Verdict::Fail("a sumpter row was taken for a corpus road".to_string());
+        return rbtcee_Verdict::Fail("a sumpter row was taken for a corpus road".to_string());
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 /// Compose a synthetic kraal under `base`: a billet, and — where `register` is
 /// given — an outspan holding it. Returns the billet root, which is what the
 /// locator is asked about.
-fn zrbtdrn_self_kraal(base: &Path, name: &str, register: Option<&str>) -> std::io::Result<PathBuf> {
+fn zrbtchn_self_kraal(base: &Path, name: &str, register: Option<&str>) -> std::io::Result<PathBuf> {
     let kraal = base.join(name);
     let billet = kraal.join("billet");
     std::fs::create_dir_all(&billet)?;
     if let Some(body) = register {
         let outspan = kraal.join("outspan");
         std::fs::create_dir_all(&outspan)?;
-        std::fs::write(outspan.join(ZRBTDRN_FEODARY_BASENAME), body)?;
+        std::fs::write(outspan.join(ZRBTCHN_FEODARY_BASENAME), body)?;
     }
     Ok(billet)
 }
 
 /// A register claiming `billet`, carrying `extra` rows verbatim after it.
-fn zrbtdrn_self_register(billet: &Path, extra: &str) -> String {
+fn zrbtchn_self_register(billet: &Path, extra: &str) -> String {
     format!(
         "{{\n  \"jjfd_revision\": {},\n  \"jjfd_trees\": [\n    \
          {{ \"jjfd_path\": \"{}\", \"jjfd_role\": \"billet\", \"jjfd_sire\": \"rb\" }}{}\n  ]\n}}\n",
-        ZRBTDRN_FEODARY_REVISION,
+        ZRBTCHN_FEODARY_REVISION,
         billet.display(),
         extra
     )
@@ -1749,95 +1749,95 @@ fn zrbtdrn_self_register(billet: &Path, extra: &str) -> String {
 /// finds anything; driving it against a kraal that genuinely has no register,
 /// and against one whose register belongs to somebody else, is what separates
 /// "correctly found nothing" from "looked in the wrong place".
-fn rbtdrn_self_corpus_road_locator(dir: &Path) -> rbtdre_Verdict {
+fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
     let base = match std::fs::canonicalize(dir) {
         Ok(b) => b,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot canonicalize case dir: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot canonicalize case dir: {}", e)),
     };
     let base = base.join("locator");
 
     // No register anywhere beside the billet: a station outside any kraal.
-    let bare = match zrbtdrn_self_kraal(&base, "bare", None) {
+    let bare = match zrbtchn_self_kraal(&base, "bare", None) {
         Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose bare kraal: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose bare kraal: {}", e)),
     };
-    match zrbtdrn_locate_corpus_road(&bare) {
-        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
-            if !reason.contains(ZRBTDRN_FEODARY_BASENAME) {
-                return rbtdre_Verdict::Fail(format!(
+    match zrbtchn_locate_corpus_road(&bare) {
+        Ok(zrbtchn_CorpusRoad::Absent(reason)) => {
+            if !reason.contains(ZRBTCHN_FEODARY_BASENAME) {
+                return rbtcee_Verdict::Fail(format!(
                     "registerless station skipped without naming what it looked for: {}",
                     reason
                 ));
             }
         }
-        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
-            return rbtdre_Verdict::Fail(format!("registerless station resolved a road at {}", p.display()))
+        Ok(zrbtchn_CorpusRoad::Found(p)) => {
+            return rbtcee_Verdict::Fail(format!("registerless station resolved a road at {}", p.display()))
         }
-        Err(e) => return rbtdre_Verdict::Fail(format!("registerless station failed: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("registerless station failed: {}", e)),
     }
 
     // A register stands beside the billet but claims a different tree — another
     // kraal's business, and taking its corpus road would be the silent wrong
     // answer this locator exists to refuse.
-    let foreign_body = zrbtdrn_self_register(
+    let foreign_body = zrbtchn_self_register(
         Path::new("/nowhere/that/stands"),
         ",\n    { \"jjfd_path\": \"/nowhere/that/stands/vulgate\", \"jjfd_role\": \"vulgate\" }",
     );
-    let foreign = match zrbtdrn_self_kraal(&base, "foreign", Some(&foreign_body)) {
+    let foreign = match zrbtchn_self_kraal(&base, "foreign", Some(&foreign_body)) {
         Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose foreign kraal: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose foreign kraal: {}", e)),
     };
-    match zrbtdrn_locate_corpus_road(&foreign) {
-        Ok(zrbtdrn_CorpusRoad::Absent(_)) => {}
-        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
-            return rbtdre_Verdict::Fail(format!(
+    match zrbtchn_locate_corpus_road(&foreign) {
+        Ok(zrbtchn_CorpusRoad::Absent(_)) => {}
+        Ok(zrbtchn_CorpusRoad::Found(p)) => {
+            return rbtcee_Verdict::Fail(format!(
                 "a register claiming another tree yielded a road at {}",
                 p.display()
             ))
         }
-        Err(e) => return rbtdre_Verdict::Fail(format!("foreign register failed loud: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("foreign register failed loud: {}", e)),
     }
 
     // A register that claims this billet and names no corpus road: a broken
     // kraal, loud rather than absent.
-    let roadless = match zrbtdrn_self_kraal(&base, "roadless", Some("")) {
+    let roadless = match zrbtchn_self_kraal(&base, "roadless", Some("")) {
         Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose roadless kraal: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose roadless kraal: {}", e)),
     };
-    let roadless_body = zrbtdrn_self_register(
+    let roadless_body = zrbtchn_self_register(
         &roadless,
         ",\n    { \"jjfd_path\": \"/some/sumpter\", \"jjfd_role\": \"sumpter\" }",
     );
     if let Err(e) = std::fs::write(
-        roadless.parent().unwrap().join("outspan").join(ZRBTDRN_FEODARY_BASENAME),
+        roadless.parent().unwrap().join("outspan").join(ZRBTCHN_FEODARY_BASENAME),
         &roadless_body,
     ) {
-        return rbtdre_Verdict::Fail(format!("cannot write roadless register: {}", e));
+        return rbtcee_Verdict::Fail(format!("cannot write roadless register: {}", e));
     }
-    match zrbtdrn_locate_corpus_road(&roadless) {
+    match zrbtchn_locate_corpus_road(&roadless) {
         Err(_) => {}
-        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
-            return rbtdre_Verdict::Fail(format!(
+        Ok(zrbtchn_CorpusRoad::Absent(reason)) => {
+            return rbtcee_Verdict::Fail(format!(
                 "a claiming register naming no corpus road skipped instead of failing: {}",
                 reason
             ))
         }
-        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
-            return rbtdre_Verdict::Fail(format!("roadless register yielded a road at {}", p.display()))
+        Ok(zrbtchn_CorpusRoad::Found(p)) => {
+            return rbtcee_Verdict::Fail(format!("roadless register yielded a road at {}", p.display()))
         }
     }
 
     // A register that claims this billet and names a road whose spec home
     // stands: the found case, and the road root is what comes back.
-    let good = match zrbtdrn_self_kraal(&base, "good", Some("")) {
+    let good = match zrbtchn_self_kraal(&base, "good", Some("")) {
         Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot compose good kraal: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose good kraal: {}", e)),
     };
     let road = good.parent().unwrap().join("vulgate");
-    if let Err(e) = std::fs::create_dir_all(road.join(ZRBTDRN_CORPUS_SPEC_SUBDIR)) {
-        return rbtdre_Verdict::Fail(format!("cannot compose corpus road: {}", e));
+    if let Err(e) = std::fs::create_dir_all(road.join(ZRBTCHN_CORPUS_SPEC_SUBDIR)) {
+        return rbtcee_Verdict::Fail(format!("cannot compose corpus road: {}", e));
     }
-    let good_body = zrbtdrn_self_register(
+    let good_body = zrbtchn_self_register(
         &good,
         &format!(
             ",\n    {{ \"jjfd_path\": \"{}\", \"jjfd_role\": \"vulgate\" }}",
@@ -1845,56 +1845,56 @@ fn rbtdrn_self_corpus_road_locator(dir: &Path) -> rbtdre_Verdict {
         ),
     );
     if let Err(e) = std::fs::write(
-        good.parent().unwrap().join("outspan").join(ZRBTDRN_FEODARY_BASENAME),
+        good.parent().unwrap().join("outspan").join(ZRBTCHN_FEODARY_BASENAME),
         &good_body,
     ) {
-        return rbtdre_Verdict::Fail(format!("cannot write good register: {}", e));
+        return rbtcee_Verdict::Fail(format!("cannot write good register: {}", e));
     }
-    match zrbtdrn_locate_corpus_road(&good) {
-        Ok(zrbtdrn_CorpusRoad::Found(p)) => {
-            if zrbtdrn_real_path(&p) != zrbtdrn_real_path(&road) {
-                return rbtdre_Verdict::Fail(format!(
+    match zrbtchn_locate_corpus_road(&good) {
+        Ok(zrbtchn_CorpusRoad::Found(p)) => {
+            if zrbtchn_real_path(&p) != zrbtchn_real_path(&road) {
+                return rbtcee_Verdict::Fail(format!(
                     "located {} where the register named {}",
                     p.display(),
                     road.display()
                 ));
             }
         }
-        Ok(zrbtdrn_CorpusRoad::Absent(reason)) => {
-            return rbtdre_Verdict::Fail(format!("a standing corpus road skipped: {}", reason))
+        Ok(zrbtchn_CorpusRoad::Absent(reason)) => {
+            return rbtcee_Verdict::Fail(format!("a standing corpus road skipped: {}", reason))
         }
-        Err(e) => return rbtdre_Verdict::Fail(format!("a standing corpus road failed: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("a standing corpus road failed: {}", e)),
     }
 
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
-pub static RBTDRN_CASES_CONFORMANCE: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrn_self_catch_and_keep_identifier),
-    rbtdre_case!(rbtdrn_self_keep_path_prefix),
-    rbtdre_case!(rbtdrn_self_catch_sprue),
-    rbtdre_case!(rbtdrn_self_pure_corpse),
-    rbtdre_case!(rbtdrn_live_scan),
-    rbtdre_case!(rbtdrn_self_curl_canon_clears),
-    rbtdre_case!(rbtdrn_self_curl_catches_deviants),
-    rbtdre_case!(rbtdrn_self_curl_unscannable),
-    rbtdre_case!(rbtdrn_curl_containment),
-    rbtdre_case!(rbtdrn_self_citation_integrity),
-    rbtdre_case!(rbtdrn_self_rivet_hoist),
-    rbtdre_case!(rbtdrn_self_a8_residue),
-    rbtdre_case!(rbtdrn_self_feodary_parse),
-    rbtdre_case!(rbtdrn_self_feodary_refusals),
-    rbtdre_case!(rbtdrn_self_corpus_road_locator),
-    rbtdre_case!(rbtdrn_onehome_residue_live),
-    rbtdre_case!(rbtdrn_onehome_corpus_live),
+pub static RBTCHN_CASES_CONFORMANCE: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtchn_self_catch_and_keep_identifier),
+    rbtcee_case!(rbtchn_self_keep_path_prefix),
+    rbtcee_case!(rbtchn_self_catch_sprue),
+    rbtcee_case!(rbtchn_self_pure_corpse),
+    rbtcee_case!(rbtchn_live_scan),
+    rbtcee_case!(rbtchn_self_curl_canon_clears),
+    rbtcee_case!(rbtchn_self_curl_catches_deviants),
+    rbtcee_case!(rbtchn_self_curl_unscannable),
+    rbtcee_case!(rbtchn_curl_containment),
+    rbtcee_case!(rbtchn_self_citation_integrity),
+    rbtcee_case!(rbtchn_self_rivet_hoist),
+    rbtcee_case!(rbtchn_self_a8_residue),
+    rbtcee_case!(rbtchn_self_feodary_parse),
+    rbtcee_case!(rbtchn_self_feodary_refusals),
+    rbtcee_case!(rbtchn_self_corpus_road_locator),
+    rbtcee_case!(rbtchn_onehome_residue_live),
+    rbtcee_case!(rbtchn_onehome_corpus_live),
 ];
 
-pub static RBTDRN_FIXTURE_CONFORMANCE: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CONFORMANCE,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHN_FIXTURE_CONFORMANCE: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CONFORMANCE,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRN_CASES_CONFORMANCE,
+    cases: RBTCHN_CASES_CONFORMANCE,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
 };

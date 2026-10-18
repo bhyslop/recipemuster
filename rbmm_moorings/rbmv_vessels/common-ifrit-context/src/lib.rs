@@ -20,5 +20,7 @@
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
 
-pub mod rbida_attacks;
-pub mod rbida_sorties;
+#[path = "rbida_attacks.rs"]
+pub mod rbtica_attacks;
+#[path = "rbida_sorties.rs"]
+pub mod rbtics_sorties;

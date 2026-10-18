@@ -103,13 +103,13 @@ Exactly **one** command in this document touches public `main` — the promotion
 Run the cut — one essai lap:
 
 ```
-tt/rbthw-e.Essai.sh
+tt/rbvw-e.Essai.sh
 ```
 
 - The hierophant's reversible repair lap (`RBSHE`): it gates the tree and the base, runs the pre-cut assays, cuts the regulus **in-process**, proves it with the regulus battery, and stands up a coldwalk rig beside it — zero remote acts
 - The cut is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the regulus by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes via the regulus's own copy, commits once), severs the clone's origin, and **pushes nothing**. The finished regulus is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
 - The lap proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
-- The regulus lands at `«sibling»/rbthdr_regulus/regulus`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «regulus» ls-files`
+- The regulus lands at `«sibling»/rbvcep_regulus/regulus`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «regulus» ls-files`
 - Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the regulus's file list
 - Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap seposes the prior regulus itself — renames it to a timestamped sibling, never deleting it). Patching a regulus is the same bug class this whole procedure exists to catch
 

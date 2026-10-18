@@ -34,10 +34,10 @@ zrbz_kindle() {
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
-  # Open the RB tome: this zipper's run projects to RBTDGC_ consts (RBZ_ stem)
+  # Open the RB tome: this zipper's run projects to RBTGEC_ consts (RBZ_ stem)
   # and to the "rbz" context scope. Must precede the first enroll so the run
   # begins at the roll's current head.
-  buz_tome_seat "rbz" "RBTDGC_" "RBZ_"
+  buz_tome_seat "rbz" "RBTGEC_" "RBZ_"
 
   # Access — credential access probes + the sederunt lifecycle (rbw-a): payor
   # OAuth, federated avowal, mantle don, and the sederunt-lifecycle operator
@@ -302,7 +302,7 @@ zrbz_kindle() {
 }
 
 ######################################################################
-# Rust const projection (colophons → RBTDGC_)
+# Rust const projection (colophons → RBTGEC_)
 
 # The tomes rbtdgc_consts.rs is DEFINED OVER. Not a description of what some
 # caller happened to kindle — the artifact's own roster, and the reason it is a
@@ -324,7 +324,7 @@ ZRBZ_CONSTS_TOME_ROLL=("rbz" "buwz")
 # (rbz_generate_consts), rbq's freshness gate, and the release sterilizer, so no
 # two of them can ever diverge. Four sections under one banner: the colophon block
 # (buz_emit_colophon_consts walks each rostered tome under its own add/strip
-# prefixes — RB's RBTDGC_ run and the BUK zipper's BUWGC_ run), the rbcc
+# prefixes — RB's RBTGEC_ run and the BUK zipper's BUWGC_ run), the rbcc
 # single-homed set, the rbpc freehold test-rig set, and the rbgc propagation
 # budget. rbcc_emit_consts is reachable here because every caller sources rbcc
 # alongside rbz; rbpc_emit_consts and rbgc_emit_consts by the same arrangement.

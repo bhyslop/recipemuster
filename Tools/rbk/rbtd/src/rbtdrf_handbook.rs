@@ -22,37 +22,37 @@
 
 use std::path::Path;
 
-use crate::rbtdre_case;
-use crate::rbtdre_engine::{rbtdre_Case, rbtdre_Disposition, rbtdre_Fixture, rbtdre_Tariff, rbtdre_Verdict};
-use crate::rbtdri_invocation::{rbtdri_find_tabtarget_global, rbtdri_tabtarget_command};
-use crate::rbtdgc_consts::{
-    RBTDGC_ONBOARD_CRASH_COURSE, RBTDGC_ONBOARD_DIR_FIRST_BUILD,
-    RBTDGC_ONBOARD_FIRST_CRUCIBLE,
-    RBTDGC_ONBOARD_PAYOR_HB, RBTDGC_ONBOARD_START_HERE,
-    RBTDGC_PAYOR_ESTABLISH,
-    RBTDGC_QUOTA_BUILD,
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
+use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtcei_tabtarget_command};
+use crate::rbtgec_consts::{
+    RBTGEC_ONBOARD_CRASH_COURSE, RBTGEC_ONBOARD_DIR_FIRST_BUILD,
+    RBTGEC_ONBOARD_FIRST_CRUCIBLE,
+    RBTGEC_ONBOARD_PAYOR_HB, RBTGEC_ONBOARD_START_HERE,
+    RBTGEC_PAYOR_ESTABLISH,
+    RBTGEC_QUOTA_BUILD,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_HANDBOOK_RENDER;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_HANDBOOK_RENDER;
 
 // ── Helper ───────────────────────────────────────────────────
 
 /// Invoke a handbook tabtarget with no arguments and return Pass iff exit 0.
 /// Writes stdout/stderr traces to the per-case directory for diagnostic review.
-fn rbtdrf_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtdre_Verdict {
+fn rbtchh_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
 
-    let tt = match rbtdri_find_tabtarget_global(&root, colophon) {
+    let tt = match rbtcei_find_tabtarget_global(&root, colophon) {
         Ok(p) => p,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
-    let output = match rbtdri_tabtarget_command(&tt).current_dir(&root).output() {
+    let output = match rbtcei_tabtarget_command(&tt).current_dir(&root).output() {
         Ok(o) => o,
         Err(e) => {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "{}: failed to run {}: {}",
                 label,
                 tt.display(),
@@ -66,7 +66,7 @@ fn rbtdrf_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtdre_Verdict {
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
 
     if code != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "{}: {} exited {} — {}",
             label,
             colophon,
@@ -74,61 +74,61 @@ fn rbtdrf_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtdre_Verdict {
             String::from_utf8_lossy(&output.stderr),
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── Onboarding cases (8) ────────────────────────────────────
 
-fn rbtdrf_hb_onboard_start_here(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_START_HERE, "onboard-start-here")
+fn rbtchh_hb_onboard_start_here(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_ONBOARD_START_HERE, "onboard-start-here")
 }
 
-fn rbtdrf_hb_onboard_crash_course(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_CRASH_COURSE, "onboard-crash-course")
+fn rbtchh_hb_onboard_crash_course(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_ONBOARD_CRASH_COURSE, "onboard-crash-course")
 }
 
-fn rbtdrf_hb_onboard_first_crucible(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_FIRST_CRUCIBLE, "onboard-first-crucible")
+fn rbtchh_hb_onboard_first_crucible(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_ONBOARD_FIRST_CRUCIBLE, "onboard-first-crucible")
 }
 
-fn rbtdrf_hb_onboard_dir_first_build(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_DIR_FIRST_BUILD, "onboard-dir-first-build")
+fn rbtchh_hb_onboard_dir_first_build(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_ONBOARD_DIR_FIRST_BUILD, "onboard-dir-first-build")
 }
 
-fn rbtdrf_hb_onboard_payor_hb(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_ONBOARD_PAYOR_HB, "onboard-payor-hb")
+fn rbtchh_hb_onboard_payor_hb(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_ONBOARD_PAYOR_HB, "onboard-payor-hb")
 }
 
 // ── Payor cases (2) ─────────────────────────────────────────
 
-fn rbtdrf_hb_payor_establish(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_PAYOR_ESTABLISH, "payor-establish")
+fn rbtchh_hb_payor_establish(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_PAYOR_ESTABLISH, "payor-establish")
 }
 
-fn rbtdrf_hb_quota_build(dir: &Path) -> rbtdre_Verdict {
-    rbtdrf_hb_render(dir, RBTDGC_QUOTA_BUILD, "quota-build")
+fn rbtchh_hb_quota_build(dir: &Path) -> rbtcee_Verdict {
+    rbtchh_hb_render(dir, RBTGEC_QUOTA_BUILD, "quota-build")
 }
 
 // ── Case array ──────────────────────────────────────────────
 
-pub static RBTDRF_CASES_HANDBOOK_RENDER: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrf_hb_onboard_start_here),
-    rbtdre_case!(rbtdrf_hb_onboard_crash_course),
-    rbtdre_case!(rbtdrf_hb_onboard_first_crucible),
-    rbtdre_case!(rbtdrf_hb_onboard_dir_first_build),
-    rbtdre_case!(rbtdrf_hb_onboard_payor_hb),
-    rbtdre_case!(rbtdrf_hb_payor_establish),
-    rbtdre_case!(rbtdrf_hb_quota_build),
+pub static RBTCHH_CASES_HANDBOOK_RENDER: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtchh_hb_onboard_start_here),
+    rbtcee_case!(rbtchh_hb_onboard_crash_course),
+    rbtcee_case!(rbtchh_hb_onboard_first_crucible),
+    rbtcee_case!(rbtchh_hb_onboard_dir_first_build),
+    rbtcee_case!(rbtchh_hb_onboard_payor_hb),
+    rbtcee_case!(rbtchh_hb_payor_establish),
+    rbtcee_case!(rbtchh_hb_quota_build),
 ];
 
 // ── Fixture static ───────────────────────────────────────────
 
-pub static RBTDRF_FIXTURE_HANDBOOK_RENDER: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_HANDBOOK_RENDER,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCHH_FIXTURE_HANDBOOK_RENDER: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_HANDBOOK_RENDER,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRF_CASES_HANDBOOK_RENDER,
+    cases: RBTCHH_CASES_HANDBOOK_RENDER,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: None, invocations: Some(7) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(7) },
 };

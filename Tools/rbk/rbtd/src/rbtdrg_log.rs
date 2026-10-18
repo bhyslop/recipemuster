@@ -27,36 +27,36 @@
 
 use std::io::Write;
 
-pub const RBTDRG_LEVEL_TRACE: &str = "[TRACE]";
-pub const RBTDRG_LEVEL_INFO:  &str = "[INFO]";
-pub const RBTDRG_LEVEL_ERROR: &str = "[ERROR]";
-pub const RBTDRG_LEVEL_FATAL: &str = "[FATAL]";
+pub const RBTCEL_LEVEL_TRACE: &str = "[TRACE]";
+pub const RBTCEL_LEVEL_INFO:  &str = "[INFO]";
+pub const RBTCEL_LEVEL_ERROR: &str = "[ERROR]";
+pub const RBTCEL_LEVEL_FATAL: &str = "[FATAL]";
 
-fn zrbtdrg_format(level: &str, file: &str, line: u32, msg: &str) -> String {
+fn zrbtcel_format(level: &str, file: &str, line: u32, msg: &str) -> String {
     format!("{} [{}:{}] {}", level, file, line, msg)
 }
 
 #[doc(hidden)]
-pub fn zrbtdrg_emit(level: &str, file: &str, line: u32, msg: &str) {
+pub fn zrbtcel_emit(level: &str, file: &str, line: u32, msg: &str) {
     let mut stderr = std::io::stderr().lock();
-    let _ = writeln!(stderr, "{}", zrbtdrg_format(level, file, line, msg));
+    let _ = writeln!(stderr, "{}", zrbtcel_format(level, file, line, msg));
 }
 
 #[doc(hidden)]
-pub fn zrbtdrg_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
+pub fn zrbtcel_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
     {
         let mut stderr = std::io::stderr().lock();
-        let _ = writeln!(stderr, "{}", zrbtdrg_format(RBTDRG_LEVEL_FATAL, file, line, msg));
+        let _ = writeln!(stderr, "{}", zrbtcel_format(RBTCEL_LEVEL_FATAL, file, line, msg));
         let _ = stderr.flush();
     }
     std::process::exit(1);
 }
 
 #[macro_export]
-macro_rules! rbtdrg_trace_now {
+macro_rules! rbtcel_trace_now {
     ($($arg:tt)*) => {
-        $crate::rbtdrg_log::zrbtdrg_emit(
-            $crate::rbtdrg_log::RBTDRG_LEVEL_TRACE,
+        $crate::rbtcel_log::zrbtcel_emit(
+            $crate::rbtcel_log::RBTCEL_LEVEL_TRACE,
             file!(), line!(),
             &format!($($arg)*),
         )
@@ -64,10 +64,10 @@ macro_rules! rbtdrg_trace_now {
 }
 
 #[macro_export]
-macro_rules! rbtdrg_info_now {
+macro_rules! rbtcel_info_now {
     ($($arg:tt)*) => {
-        $crate::rbtdrg_log::zrbtdrg_emit(
-            $crate::rbtdrg_log::RBTDRG_LEVEL_INFO,
+        $crate::rbtcel_log::zrbtcel_emit(
+            $crate::rbtcel_log::RBTCEL_LEVEL_INFO,
             file!(), line!(),
             &format!($($arg)*),
         )
@@ -75,10 +75,10 @@ macro_rules! rbtdrg_info_now {
 }
 
 #[macro_export]
-macro_rules! rbtdrg_error_now {
+macro_rules! rbtcel_error_now {
     ($($arg:tt)*) => {
-        $crate::rbtdrg_log::zrbtdrg_emit(
-            $crate::rbtdrg_log::RBTDRG_LEVEL_ERROR,
+        $crate::rbtcel_log::zrbtcel_emit(
+            $crate::rbtcel_log::RBTCEL_LEVEL_ERROR,
             file!(), line!(),
             &format!($($arg)*),
         )
@@ -86,9 +86,9 @@ macro_rules! rbtdrg_error_now {
 }
 
 #[macro_export]
-macro_rules! rbtdrg_fatal_now {
+macro_rules! rbtcel_fatal_now {
     ($($arg:tt)*) => {
-        $crate::rbtdrg_log::zrbtdrg_emit_fatal(
+        $crate::rbtcel_log::zrbtcel_emit_fatal(
             file!(), line!(),
             &format!($($arg)*),
         )

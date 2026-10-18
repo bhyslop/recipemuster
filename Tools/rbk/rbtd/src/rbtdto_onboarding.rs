@@ -15,45 +15,45 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// Tests for rbtdro_onboarding — gauntlet onboarding-sequence fixture.
+// Tests for rbtcgo_onboarding — gauntlet onboarding-sequence fixture.
 
-use crate::rbtdra_almanac::rbtdra_lookup_fixture;
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_ONBOARDING_SEQUENCE;
+use crate::rbtcea_almanac::rbtcea_lookup_fixture;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_ONBOARDING_SEQUENCE;
 
 /// Case order is load-bearing for StateProgressing — conclave must precede
 /// all reliquary-consuming cases (kludge, conjure, srjcl, airgap, bind).
 #[test]
-fn rbtdto_conclave_precedes_reliquary_consumers() {
-    let fix = rbtdra_lookup_fixture(RBTDRM_FIXTURE_ONBOARDING_SEQUENCE)
+fn rbttgo_conclave_precedes_reliquary_consumers() {
+    let fix = rbtcea_lookup_fixture(RBTCEM_FIXTURE_ONBOARDING_SEQUENCE)
         .expect("onboarding-sequence is registered");
     let names: Vec<&str> = fix.cases.iter().map(|c| c.name).collect();
     let conclave_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_conclave_reliquary"))
+        .position(|n| n.contains("rbtcgo_conclave_reliquary"))
         .expect("conclave case present");
     let kludge_tadmor_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_kludge_tadmor_onboarding"))
+        .position(|n| n.contains("rbtcgo_kludge_tadmor_onboarding"))
         .expect("kludge-tadmor case present");
     let kludge_ccyolo_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_kludge_ccyolo"))
+        .position(|n| n.contains("rbtcgo_kludge_ccyolo"))
         .expect("kludge-ccyolo case present");
     let conjure_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_ordain_conjure_sentry"))
+        .position(|n| n.contains("rbtcgo_ordain_conjure_sentry"))
         .expect("ordain-conjure case present");
     let srjcl_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_ordain_conjure_jupyter"))
+        .position(|n| n.contains("rbtcgo_ordain_conjure_jupyter"))
         .expect("conjure-srjcl case present");
     let airgap_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_ordain_airgap_chain"))
+        .position(|n| n.contains("rbtcgo_ordain_airgap_chain"))
         .expect("airgap case present");
     let bind_idx = names
         .iter()
-        .position(|n| n.contains("rbtdro_ordain_bind_plantuml"))
+        .position(|n| n.contains("rbtcgo_ordain_bind_plantuml"))
         .expect("ordain-bind case present");
     assert!(conclave_idx < kludge_tadmor_idx);
     assert!(conclave_idx < kludge_ccyolo_idx);

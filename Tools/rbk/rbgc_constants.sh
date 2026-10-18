@@ -409,7 +409,7 @@ rbgc_emit_consts() {
     [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
       || buc_die_now "Invalid variable name: ${z_name}"
     z_stem="${z_name#RBGC_}"
-    buz_emit_const_i32 "RBTDGC_${z_stem}" "${!z_name}" \
+    buz_emit_const_i32 "RBTGEC_${z_stem}" "${!z_name}" \
       || buc_die_now "rbgc_emit_consts: emit failed for ${z_name}"
   done
 }

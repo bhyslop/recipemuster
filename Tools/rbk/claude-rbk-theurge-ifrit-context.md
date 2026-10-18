@@ -78,7 +78,7 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 ### Test Cases
 
-Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTDRC_CASES_SECURITY` in `rbtdrc_crucible.rs`). The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle. Runtime semantics are identical.
+Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTCCC_CASES_SECURITY` in `rbtdrc_crucible.rs`). The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle. Runtime semantics are identical.
 
 Cases group by purpose in source order (no formal section structure):
 
@@ -93,12 +93,12 @@ Cases group by purpose in source order (no formal section structure):
 
 ### Reveille-Tier Cases: Credless by Construction
 
-The reveille suite's fixtures carry `credless: true` on their `rbtdre_Fixture` static. While such a fixture runs, every tabtarget Command theurge builds (via `rbtdri_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTDGC_TWEAK_CREDLESS_GUARD`), and both token-mint membranes (`rba_avow`, `zrbgp_authenticate_capture`) reject under it with the credless band code (`BUBC_band_credless` / `RBTDGC_BAND_CREDLESS`) before touching any credential. The guard rides the fixture, not the suite — a reveille fixture hosted in picket/echelon is still guarded.
+The reveille suite's fixtures carry `credless: true` on their `rbtcee_Fixture` static. While such a fixture runs, every tabtarget Command theurge builds (via `rbtcei_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTGEC_TWEAK_CREDLESS_GUARD`), and both token-mint membranes (`rba_avow`, `zrbgp_authenticate_capture`) reject under it with the credless band code (`BUBC_band_credless` / `RBTGEC_BAND_CREDLESS`) before touching any credential. The guard rides the fixture, not the suite — a reveille fixture hosted in picket/echelon is still guarded.
 
 Rules for authoring a reveille-tier case:
 
-- **A reveille case may invoke any tabtarget freely** — if its chain reaches a token mint, the run dies with the credless band code instead of spending money or mutating the depot. The proof case is `rbtdrf_rs_credless_guard_mint_refusal` (regime-smoke).
-- **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the reveille tier (one tweak at a time, and the suite reserves the slot); `rbtdri_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in reveille — home it in a higher tier.
+- **A reveille case may invoke any tabtarget freely** — if its chain reaches a token mint, the run dies with the credless band code instead of spending money or mutating the depot. The proof case is `rbtchf_rs_credless_guard_mint_refusal` (regime-smoke).
+- **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the reveille tier (one tweak at a time, and the suite reserves the slot); `rbtcei_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in reveille — home it in a higher tier.
 - **A new reveille fixture must set `credless: true`** and join the reveille suite list in `rbtdrc_crucible.rs`; fixtures in higher tiers set `credless: false`.
 
 ### Fixture Config-Evolution Console
@@ -107,9 +107,9 @@ A fixture that walks an onboarding or freehold track *evolves* the tracked
 config it tests — driving hallmarks into nameplates, electing vessel anchors,
 setting regime fields — and commits each step so the next sees a clean tree.
 Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the
-"Fixture config-evolution console"), beside the read-side `rbtdre_tree_clean`.
+"Fixture config-evolution console"), beside the read-side `rbtcee_tree_clean`.
 **When a fixture commits config, it goes through the console — never an ad-hoc
-`git add`/`git commit`.** `rbtdre_tree_clean` itself refuses every drive on a
+`git add`/`git commit`.** `rbtcee_tree_clean` itself refuses every drive on a
 dirty tree — single-fixture, suite, and the marshal-zero attestation gate
 alike — and each refusal names the notch as the remedy.
 
@@ -119,33 +119,33 @@ those:
 
 | Class | Identifier | Verb | Stages |
 |-------|-----------|------|--------|
-| nameplate | nameplate moniker(s) | `rbtdre_commit_nameplates` | `<moorings>/<np>/rbrn.env` |
-| vessel | vessel dir(s) | `rbtdre_commit_vessels` / `rbtdre_commit_vessels_all` | `<vessel_dir>/rbrv.env` |
-| regime | `rbtdre_RegimeFile` tag(s) | `rbtdre_commit_regime` | `<moorings>/rbrd.env` / `<moorings>/rbrr.env` |
+| nameplate | nameplate moniker(s) | `rbtcee_commit_nameplates` | `<moorings>/<np>/rbrn.env` |
+| vessel | vessel dir(s) | `rbtcee_commit_vessels` / `rbtcee_commit_vessels_all` | `<vessel_dir>/rbrv.env` |
+| regime | `rbtcee_RegimeFile` tag(s) | `rbtcee_commit_regime` | `<moorings>/rbrd.env` / `<moorings>/rbrr.env` |
 
 The load-bearing property is **no free-form file list**. The only entry that
-takes an arbitrary path set, `rbtdre_commit_paths`, is private to the engine
+takes an arbitrary path set, `rbtcee_commit_paths`, is private to the engine
 module; every public verb is class-typed. So a fixture is *structurally
 incapable* of sweeping a surprise edit — another officium's work, an operator's
 half-finished change — into its commit (the wrap-sweeps-everything hazard). A
 scoped `git status --porcelain -- <derived-paths>` runs first; if nothing in the
 class changed, the commit is a clean no-op, not an error.
 
-**Config-zero** (`rbtdre_config_zero`) is the console's reset seam, for the
+**Config-zero** (`rbtcee_config_zero`) is the console's reset seam, for the
 marshal-zero family of in-place TRACKED config. Zeroing a field before an
 in-place write defeats the stale-value false-green — a silently-skipped write
 then leaves an obviously-empty value, not a passing stale one — and its
 fail-on-absent doubles as a schema-drift catch: a renamed field stops the run
 instead of writing nothing. It shares one validated core
-(`rbtdre_config_set_field`) with the vessel-env write; it is **one seam, never a
+(`rbtcee_config_set_field`) with the vessel-env write; it is **one seam, never a
 per-field function farm**. Temp-vessel cases that construct known bytes need no
 zero call.
 
 **Dispersed sibling (not yet in the console).** The same validated
-field-rewrite still lives in `rbtdrk_replace_env_fields` (the regime multi-field
-rewrite). It is a migration candidate — fold it onto `rbtdre_config_set_field`
+field-rewrite still lives in `rbtcgf_replace_env_fields` (the regime multi-field
+rewrite). It is a migration candidate — fold it onto `rbtcee_config_set_field`
 when next in that code — left in place only to keep the console's introduction
-scoped. (The former `rbtdro_drive_hallmark` nameplate-hallmark rewrite is gone:
+scoped. (The former `rbtcgo_drive_hallmark` nameplate-hallmark rewrite is gone:
 onboarding now invokes the real `rbw-nd` drive tabtarget, so that write lives in
 one bash home, `rbrn_drive`.) New fixture state-mutation helpers land in the
 console; they do not re-grow per module.
@@ -154,15 +154,15 @@ console; they do not re-grow per module.
 
 **New ifrit attack** (simple probe, single command):
 1. Add constant, enum variant, `from_selector`/`selector`/`all_selectors` entries in `rbida_attacks.rs`
-2. Add dispatch arm in `rbida_run()`
-3. Add theurge case function calling `rbtdrc_invoke_ifrit(ctx, "selector-name", dir)`
-4. Register in `RBTDRC_CASES_SECURITY` (or the relevant fixture's case array)
+2. Add dispatch arm in `rbtica_run()`
+3. Add theurge case function calling `rbtccc_invoke_ifrit(ctx, "selector-name", dir)`
+4. Register in `RBTCCC_CASES_SECURITY` (or the relevant fixture's case array)
 
 **New ifrit sortie** (complex multi-step attack):
 1. Add `pub fn sortie_name()` in `rbida_sorties.rs`
 2. Add constant, enum variant, and dispatch in `rbida_attacks.rs` (same as above)
 3. Add theurge case — sorties may need coordinated observation (writ/fiat before/after)
-4. Register in `RBTDRC_CASES_SECURITY` (or the relevant fixture's case array)
+4. Register in `RBTCCC_CASES_SECURITY` (or the relevant fixture's case array)
 
 **Crucible verification workflow** (applies to all new tests and changes):
 
@@ -175,7 +175,7 @@ console; they do not re-grow per module.
    ```
 3. Verify each new/changed case individually against the live crucible:
    ```
-   tt/rbw-tc.FixtureCase.sh tadmor rbtdrc_sortie_new_case_name
+   tt/rbw-tc.FixtureCase.sh tadmor rbtccc_sortie_new_case_name
    ```
 4. Only after all targeted cases pass, run the full fixture for regression:
    ```

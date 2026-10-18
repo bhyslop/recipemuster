@@ -114,7 +114,7 @@ Always use the tabtarget, never raw cargo commands.
 
 ### Test Execution
 
-**Test suites** group fixtures by dependency **stratum** (reveille/picket/bivouac; echelon = their union). The cosmology — the wrapper(inner) model, the three strata, and the freehold/leasehold substrate — is spec-homed in `RBSTC-theurge_cosmology.adoc`. Suite membership is owned by the hand-written `RBTDRA_SUITES` literal registry (`Tools/rbk/rbtd/src/rbtdra_almanac.rs`), the authoritative source; the table below summarizes strata, never member lists (which drift). Run the broadest applicable suite:
+**Test suites** group fixtures by dependency **stratum** (reveille/picket/bivouac; echelon = their union). The cosmology — the wrapper(inner) model, the three strata, and the freehold/leasehold substrate — is spec-homed in `RBSTC-theurge_cosmology.adoc`. Suite membership is owned by the hand-written `RBTCEA_SUITES` literal registry (`Tools/rbk/rbtd/src/rbtdra_almanac.rs`), the authoritative source; the table below summarizes strata, never member lists (which drift). Run the broadest applicable suite:
 
 | Suite | Tabtarget | Dependencies | Stratum |
 |-------|-----------|-------------|---------|

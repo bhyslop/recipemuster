@@ -30,4 +30,4 @@ WORKDIR /build
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo 'fn main() {}' > src/main.rs && \
     cargo build --release && \
-    rm -rf src target/release/deps/rbid-* target/release/.fingerprint/rbid-*
+    rm -rf src target/release/deps/rbti-* target/release/.fingerprint/rbti-*

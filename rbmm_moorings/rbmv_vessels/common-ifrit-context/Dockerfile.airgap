@@ -2,14 +2,14 @@
 #
 # Builds FROM the enshrined forge image which pre-stages all apt packages and
 # a warm cargo dependency cache. This build needs zero network access — only
-# the project's own rbid crate compiles.
+# the project's own rbti crate compiles.
 #
 # Build context: rbmv_vessels/common-ifrit-context/ (shared with tether variant)
 
 ARG RBF_IMAGE_1
 FROM ${RBF_IMAGE_1}
 
-# Real source build (dependency cache warm from forge — only rbid compiles)
+# Real source build (dependency cache warm from forge — only rbti compiles)
 WORKDIR /build
 COPY src/ src/
 COPY Cargo.toml Cargo.lock ./
@@ -18,8 +18,8 @@ RUN cargo build --release
 # Install binary to standard location with CAP_NET_RAW file capability.
 # Container cap_add only populates the bounding set; non-root ifrit user
 # needs file capabilities to get NET_RAW in effective set for raw sockets.
-RUN cp target/release/rbid /usr/local/bin/rbid && \
-    setcap cap_net_raw+ep /usr/local/bin/rbid
+RUN cp target/release/rbti /usr/local/bin/rbti && \
+    setcap cap_net_raw+ep /usr/local/bin/rbti
 
 # Create unprivileged ifrit user
 RUN useradd -m -s /bin/bash ifrit

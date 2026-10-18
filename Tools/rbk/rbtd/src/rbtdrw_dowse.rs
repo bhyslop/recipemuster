@@ -19,7 +19,7 @@
 //
 // Read-only report verb, never a fixture: fixtures assert, and suite verdicts
 // stay functions of the tree — host log history informs the operator only.
-// Dowse parses the per-fixture tariff lines rbtdre_print_tariff emits into the
+// Dowse parses the per-fixture tariff lines rbtcee_print_tariff emits into the
 // BUK self-logs and prints observed cost history per suite and per fixture,
 // the observed complement to the declared-cost ETA listing.
 //
@@ -35,11 +35,11 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use crate::rbtdre_engine::RBTDRE_TARIFF_TOKEN;
+use crate::rbtcee_engine::RBTCEE_TARIFF_TOKEN;
 
 /// One observed fixture footprint parsed from a per-fixture tariff line.
 #[derive(Debug, PartialEq)]
-pub struct rbtdrw_Observation {
+pub struct rbtccd_Observation {
     pub fixture: String,
     pub elapsed_secs: u64,
     pub invocations: u32,
@@ -49,7 +49,7 @@ pub struct rbtdrw_Observation {
 /// single-fixture run whose log name carries no fixture (the tariff lines
 /// inside identify it).
 #[derive(Debug, PartialEq)]
-pub enum rbtdrw_LogKind {
+pub enum rbtccd_LogKind {
     Suite(String),
     FixtureRun,
 }
@@ -57,10 +57,10 @@ pub enum rbtdrw_LogKind {
 /// Parse one self-log line as a per-fixture tariff line. None for every other
 /// line shape, including the drift-table header/rows and the advisory lines
 /// (see the module header for why those must not match).
-pub fn rbtdrw_parse_tariff_line(line: &str) -> Option<rbtdrw_Observation> {
+pub fn rbtccd_parse_tariff_line(line: &str) -> Option<rbtccd_Observation> {
     let mut toks = line
         .split_whitespace()
-        .skip_while(|t| *t != RBTDRE_TARIFF_TOKEN)
+        .skip_while(|t| *t != RBTCEE_TARIFF_TOKEN)
         .skip(1);
     let fixture = toks.next()?.strip_suffix(':')?;
     if fixture.is_empty() {
@@ -77,7 +77,7 @@ pub fn rbtdrw_parse_tariff_line(line: &str) -> Option<rbtdrw_Observation> {
         .strip_prefix("invocations=")?
         .parse()
         .ok()?;
-    Some(rbtdrw_Observation {
+    Some(rbtccd_Observation {
         fixture: fixture.to_string(),
         elapsed_secs,
         invocations,
@@ -90,7 +90,7 @@ pub fn rbtdrw_parse_tariff_line(line: &str) -> Option<rbtdrw_Observation> {
 /// shape is `hist-<tag>-<YYYYMMDD>-<HHMMSS>-<pid>-<n>.txt` where the tag is
 /// BUK's `<colophon>-<token3>`: `rbw-ts-<suite>` for suite runs, `rbw-tf-sh`
 /// for fixture runs (param1-channel folios never reach the filename).
-pub fn rbtdrw_parse_log_name(name: &str) -> Option<(rbtdrw_LogKind, String)> {
+pub fn rbtccd_parse_log_name(name: &str) -> Option<(rbtccd_LogKind, String)> {
     let stem = name.strip_prefix("hist-")?.strip_suffix(".txt")?;
     let segs: Vec<&str> = stem.split('-').collect();
     let all_digits = |s: &str| !s.is_empty() && s.chars().all(|c| c.is_ascii_digit());
@@ -104,9 +104,9 @@ pub fn rbtdrw_parse_log_name(name: &str) -> Option<(rbtdrw_LogKind, String)> {
     let tag = segs[..i].join("-");
     let stamp = format!("{}-{}", segs[i], time);
     let kind = if let Some(suite) = tag.strip_prefix("rbw-ts-") {
-        rbtdrw_LogKind::Suite(suite.to_string())
+        rbtccd_LogKind::Suite(suite.to_string())
     } else if tag == "rbw-tf-sh" {
-        rbtdrw_LogKind::FixtureRun
+        rbtccd_LogKind::FixtureRun
     } else {
         return None;
     };
@@ -117,7 +117,7 @@ pub fn rbtdrw_parse_log_name(name: &str) -> Option<(rbtdrw_LogKind, String)> {
 /// each run with its fixture count and summed elapsed; per fixture, an
 /// elapsed min/max/last summary then every observation with its source. All
 /// history, no truncation — this is a census, and its own output self-logs.
-pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
+pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
     let entries = std::fs::read_dir(log_dir)
         .map_err(|e| format!("dowse: cannot read log dir '{}': {}", log_dir.display(), e))?;
 
@@ -131,7 +131,7 @@ pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
     for entry in entries {
         let entry = entry.map_err(|e| format!("dowse: cannot walk '{}': {}", log_dir.display(), e))?;
         let name = entry.file_name();
-        let Some((kind, stamp)) = rbtdrw_parse_log_name(&name.to_string_lossy()) else {
+        let Some((kind, stamp)) = rbtccd_parse_log_name(&name.to_string_lossy()) else {
             continue;
         };
         scanned += 1;
@@ -139,17 +139,17 @@ pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
         let bytes = std::fs::read(entry.path())
             .map_err(|e| format!("dowse: cannot read '{}': {}", entry.path().display(), e))?;
         let content = String::from_utf8_lossy(&bytes);
-        let obs: Vec<rbtdrw_Observation> =
-            content.lines().filter_map(rbtdrw_parse_tariff_line).collect();
+        let obs: Vec<rbtccd_Observation> =
+            content.lines().filter_map(rbtccd_parse_tariff_line).collect();
         if obs.is_empty() {
             continue;
         }
         carrying += 1;
         let label = match &kind {
-            rbtdrw_LogKind::Suite(s) => format!("suite {}", s),
-            rbtdrw_LogKind::FixtureRun => "fixture-run".to_string(),
+            rbtccd_LogKind::Suite(s) => format!("suite {}", s),
+            rbtccd_LogKind::FixtureRun => "fixture-run".to_string(),
         };
-        if let rbtdrw_LogKind::Suite(s) = &kind {
+        if let rbtccd_LogKind::Suite(s) = &kind {
             suites.entry(s.clone()).or_default().push((
                 stamp.clone(),
                 obs.len(),
@@ -164,14 +164,14 @@ pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
         }
     }
 
-    crate::rbtdrg_info_now!(
+    crate::rbtcel_info_now!(
         "dowse: {} theurge log(s) under '{}', {} carrying tariff observations",
         scanned,
         log_dir.display(),
         carrying
     );
     if carrying == 0 {
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "dowse: no observations yet — suite and fixture runs write them on every green"
         );
         return Ok(());
@@ -179,9 +179,9 @@ pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
 
     for (suite, mut runs) in suites {
         runs.sort();
-        crate::rbtdrg_info_now!("dowse suite {} — {} run(s):", suite, runs.len());
+        crate::rbtcel_info_now!("dowse suite {} — {} run(s):", suite, runs.len());
         for (stamp, count, sum) in runs {
-            crate::rbtdrg_info_now!(
+            crate::rbtcel_info_now!(
                 "dowse   {}  fixtures={:>2}  elapsed-sum={:>4}s",
                 stamp, count, sum
             );
@@ -193,7 +193,7 @@ pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
         let min = obs.iter().map(|o| o.1).min().unwrap_or(0);
         let max = obs.iter().map(|o| o.1).max().unwrap_or(0);
         let last = obs.last().map(|o| o.1).unwrap_or(0);
-        crate::rbtdrg_info_now!(
+        crate::rbtcel_info_now!(
             "dowse fixture {} — {} observation(s), elapsed min={}s max={}s last={}s:",
             fixture,
             obs.len(),
@@ -202,7 +202,7 @@ pub fn rbtdrw_dowse(log_dir: &Path) -> Result<(), String> {
             last
         );
         for (stamp, elapsed, inv, label) in obs {
-            crate::rbtdrg_info_now!(
+            crate::rbtcel_info_now!(
                 "dowse   {}  elapsed={:>4}s  inv={:>3}  [{}]",
                 stamp, elapsed, inv, label
             );

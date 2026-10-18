@@ -37,17 +37,17 @@ use std::path::{
     PathBuf,
 };
 
-use crate::rbtdru_cupel::{
-    zrbtdru_is_gcb,
-    zrbtdru_walk_ext,
-    zrbtdru_Finding,
-    zrbtdru_ScanResult,
-    ZRBTDRU_GCB_ALLOWED,
-    ZRBTDRU_KIT_ROOTS,
-    ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES,
-    ZRBTDRU_POSIX_FLOOR,
-    ZRBTDRU_PY_EXT,
-    ZRBTDRU_PY_IMPORT_ALLOWED,
+use crate::rbtchc_cupel::{
+    zrbtchc_is_gcb,
+    zrbtchc_walk_ext,
+    zrbtchc_Finding,
+    zrbtchc_ScanResult,
+    ZRBTCHC_GCB_ALLOWED,
+    ZRBTCHC_KIT_ROOTS,
+    ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
+    ZRBTCHC_POSIX_FLOOR,
+    ZRBTCHC_PY_EXT,
+    ZRBTCHC_PY_IMPORT_ALLOWED,
 };
 
 /// One lexical token of a python step body. The scanner needs identifiers
@@ -55,7 +55,7 @@ use crate::rbtdru_cupel::{
 /// string literals (subprocess argv[0]), and the punctuation that joins them;
 /// everything else — comments, whitespace — is dropped at lex time.
 #[derive(Clone, Debug, PartialEq)]
-pub(crate) enum zrbtdru_PyToken {
+pub(crate) enum zrbtchy_PyToken {
     Ident(String),
     Str(String),
     Punct(char),
@@ -66,9 +66,9 @@ pub(crate) enum zrbtdru_PyToken {
 /// `#` comments. Scanner-grade, not a parser — soundness rests on the step
 /// files being valid python, exactly as the bash lexer rests on the corpus
 /// being shellcheck-clean.
-pub(crate) fn zrbtdru_py_tokens(src: &str) -> Vec<(usize, zrbtdru_PyToken)> {
+pub(crate) fn zrbtchy_py_tokens(src: &str) -> Vec<(usize, zrbtchy_PyToken)> {
     let chars: Vec<char> = src.chars().collect();
-    let mut out: Vec<(usize, zrbtdru_PyToken)> = Vec::new();
+    let mut out: Vec<(usize, zrbtchy_PyToken)> = Vec::new();
     let mut i = 0;
     let mut line = 1;
     while i < chars.len() {
@@ -135,7 +135,7 @@ pub(crate) fn zrbtdru_py_tokens(src: &str) -> Vec<(usize, zrbtdru_PyToken)> {
                     i += 1;
                 }
             }
-            out.push((start_line, zrbtdru_PyToken::Str(content)));
+            out.push((start_line, zrbtchy_PyToken::Str(content)));
             continue;
         }
         if c.is_ascii_alphabetic() || c == '_' {
@@ -144,11 +144,11 @@ pub(crate) fn zrbtdru_py_tokens(src: &str) -> Vec<(usize, zrbtdru_PyToken)> {
                 ident.push(chars[i]);
                 i += 1;
             }
-            out.push((line, zrbtdru_PyToken::Ident(ident)));
+            out.push((line, zrbtchy_PyToken::Ident(ident)));
             continue;
         }
         if !c.is_whitespace() {
-            out.push((line, zrbtdru_PyToken::Punct(c)));
+            out.push((line, zrbtchy_PyToken::Punct(c)));
         }
         i += 1;
     }
@@ -158,7 +158,7 @@ pub(crate) fn zrbtdru_py_tokens(src: &str) -> Vec<(usize, zrbtdru_PyToken)> {
 /// Module roots named by a python import line: `import a.b, c` yields
 /// ["a", "c"]; `from x.y import z` yields ["x"]. Non-import lines yield
 /// nothing.
-pub(crate) fn zrbtdru_py_import_roots(line: &str) -> Vec<String> {
+pub(crate) fn zrbtchy_py_import_roots(line: &str) -> Vec<String> {
     let trimmed = line.trim_start();
     if let Some(rest) = trimmed.strip_prefix("from ") {
         let root: String = rest
@@ -204,17 +204,17 @@ pub(crate) fn zrbtdru_py_import_roots(line: &str) -> Vec<String> {
 /// aliased module (`import subprocess as sp`) hides the attribute chain, and
 /// code assembled in strings is invisible. The corpus is reviewed source; the
 /// scan is the drift tripwire, not a sandbox.
-pub(crate) fn zrbtdru_py_scan(
+pub(crate) fn zrbtchy_py_scan(
     src: &str,
     rel: &str,
-    findings: &mut Vec<zrbtdru_Finding>,
+    findings: &mut Vec<zrbtchc_Finding>,
     inventory: &mut BTreeSet<String>,
 ) {
     for (idx, line) in src.lines().enumerate() {
-        for root in zrbtdru_py_import_roots(line) {
+        for root in zrbtchy_py_import_roots(line) {
             inventory.insert(root.clone());
-            if !ZRBTDRU_PY_IMPORT_ALLOWED.contains(&root.as_str()) {
-                findings.push(zrbtdru_Finding {
+            if !ZRBTCHC_PY_IMPORT_ALLOWED.contains(&root.as_str()) {
+                findings.push(zrbtchc_Finding {
                     file: rel.to_string(),
                     line: idx + 1,
                     command: root,
@@ -224,7 +224,7 @@ pub(crate) fn zrbtdru_py_scan(
             }
         }
         if line.trim_start().starts_with("from subprocess ") {
-            findings.push(zrbtdru_Finding {
+            findings.push(zrbtchc_Finding {
                 file: rel.to_string(),
                 line: idx + 1,
                 command: "subprocess".to_string(),
@@ -234,15 +234,15 @@ pub(crate) fn zrbtdru_py_scan(
         }
     }
 
-    let tokens = zrbtdru_py_tokens(src);
+    let tokens = zrbtchy_py_tokens(src);
     for (i, (line, tok)) in tokens.iter().enumerate() {
         let ident = match tok {
-            zrbtdru_PyToken::Ident(s) => s.as_str(),
+            zrbtchy_PyToken::Ident(s) => s.as_str(),
             _ => continue,
         };
-        let after_dot = i > 0 && tokens[i - 1].1 == zrbtdru_PyToken::Punct('.');
+        let after_dot = i > 0 && tokens[i - 1].1 == zrbtchy_PyToken::Punct('.');
         if ident == "importlib" || ident == "__import__" {
-            findings.push(zrbtdru_Finding {
+            findings.push(zrbtchc_Finding {
                 file: rel.to_string(),
                 line: *line,
                 command: ident.to_string(),
@@ -251,9 +251,9 @@ pub(crate) fn zrbtdru_py_scan(
             continue;
         }
         if (ident == "exec" || ident == "eval") && !after_dot {
-            let called = matches!(tokens.get(i + 1), Some((_, zrbtdru_PyToken::Punct('('))));
+            let called = matches!(tokens.get(i + 1), Some((_, zrbtchy_PyToken::Punct('('))));
             if called {
-                findings.push(zrbtdru_Finding {
+                findings.push(zrbtchc_Finding {
                     file: rel.to_string(),
                     line: *line,
                     command: ident.to_string(),
@@ -263,19 +263,19 @@ pub(crate) fn zrbtdru_py_scan(
             continue;
         }
         if ident == "subprocess" && !after_dot {
-            let shape_ok = matches!(tokens.get(i + 1), Some((_, zrbtdru_PyToken::Punct('.'))))
-                && matches!(tokens.get(i + 2), Some((_, zrbtdru_PyToken::Ident(_))))
-                && matches!(tokens.get(i + 3), Some((_, zrbtdru_PyToken::Punct('('))))
-                && matches!(tokens.get(i + 4), Some((_, zrbtdru_PyToken::Punct('['))));
+            let shape_ok = matches!(tokens.get(i + 1), Some((_, zrbtchy_PyToken::Punct('.'))))
+                && matches!(tokens.get(i + 2), Some((_, zrbtchy_PyToken::Ident(_))))
+                && matches!(tokens.get(i + 3), Some((_, zrbtchy_PyToken::Punct('('))))
+                && matches!(tokens.get(i + 4), Some((_, zrbtchy_PyToken::Punct('['))));
             if !shape_ok {
                 continue;
             }
-            if let Some((arg_line, zrbtdru_PyToken::Str(argv0))) = tokens.get(i + 5) {
+            if let Some((arg_line, zrbtchy_PyToken::Str(argv0))) = tokens.get(i + 5) {
                 inventory.insert(argv0.clone());
-                if !ZRBTDRU_POSIX_FLOOR.contains(&argv0.as_str())
-                    && !ZRBTDRU_GCB_ALLOWED.contains(&argv0.as_str())
+                if !ZRBTCHC_POSIX_FLOOR.contains(&argv0.as_str())
+                    && !ZRBTCHC_GCB_ALLOWED.contains(&argv0.as_str())
                 {
-                    findings.push(zrbtdru_Finding {
+                    findings.push(zrbtchc_Finding {
                         file: rel.to_string(),
                         line: *arg_line,
                         command: argv0.clone(),
@@ -293,24 +293,24 @@ pub(crate) fn zrbtdru_py_scan(
 /// directory in the release kit roots — and scan each body. Python elsewhere
 /// in the kits (e.g. in-bottle attack scripts) is not cloud-step surface and
 /// stays out of scope.
-pub(crate) fn zrbtdru_scan_python(tools: &Path) -> Result<zrbtdru_ScanResult, String> {
+pub(crate) fn zrbtchy_scan_python(tools: &Path) -> Result<zrbtchc_ScanResult, String> {
     let mut files: Vec<PathBuf> = Vec::new();
-    for kit in ZRBTDRU_KIT_ROOTS {
-        zrbtdru_walk_ext(&tools.join(kit), ZRBTDRU_PY_EXT, ZRBTDRU_LINT_EXCLUDED_DIR_PREFIXES, &mut files);
+    for kit in ZRBTCHC_KIT_ROOTS {
+        zrbtchc_walk_ext(&tools.join(kit), ZRBTCHC_PY_EXT, ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES, &mut files);
     }
     files.sort();
 
     let root = tools.parent().unwrap_or(tools);
-    let mut findings: Vec<zrbtdru_Finding> = Vec::new();
+    let mut findings: Vec<zrbtchc_Finding> = Vec::new();
     let mut inventory: BTreeSet<String> = BTreeSet::new();
     for path in &files {
-        if !zrbtdru_is_gcb(path) {
+        if !zrbtchc_is_gcb(path) {
             continue;
         }
         let src = std::fs::read_to_string(path)
             .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
         let rel = path.strip_prefix(root).unwrap_or(path).display().to_string();
-        zrbtdru_py_scan(&src, &rel, &mut findings, &mut inventory);
+        zrbtchy_py_scan(&src, &rel, &mut findings, &mut inventory);
     }
-    Ok(zrbtdru_ScanResult { findings, inventory })
+    Ok(zrbtchc_ScanResult { findings, inventory })
 }

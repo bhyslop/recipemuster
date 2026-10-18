@@ -26,7 +26,7 @@
 // destructive write. The band fires only at the RBK consumer (buc_reject in
 // feoff/yoke); the BUK footing resolver returns a bare 1, so the band can only
 // be asserted here, against the real verbs. Each negative case asserts the
-// SPECIFIC band (RBTDGC_BAND_CHAIN) — like the regime-poison precedent, a
+// SPECIFIC band (RBTGEC_BAND_CHAIN) — like the regime-poison precedent, a
 // harness breakage exits with some other code and fails the case loud, where a
 // bare-nonzero assertion would pass on it.
 //
@@ -60,36 +60,36 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::rbtdre_case;
-use crate::rbtdgc_consts::{
-    RBTDGC_ANOINT_GRAFT,
-    RBTDGC_AUGUR_LODE,
-    RBTDGC_BAND_CHAIN,
-    RBTDGC_CONTAINER_BOTTLE,
-    RBTDGC_DRIVE_HALLMARK,
-    RBTDGC_FEOFF_BOLE,
-    RBTDGC_PLUMB_FULL,
-    RBTDGC_RBRV_FILE,
-    RBTDGC_REKON_HALLMARK,
-    RBTDGC_SUMMON_HALLMARK,
-    RBTDGC_THEURGE_NIHIL,
-    RBTDGC_YOKE_RELIQUARY,
+use crate::rbtcee_case;
+use crate::rbtgec_consts::{
+    RBTGEC_ANOINT_GRAFT,
+    RBTGEC_AUGUR_LODE,
+    RBTGEC_BAND_CHAIN,
+    RBTGEC_CONTAINER_BOTTLE,
+    RBTGEC_DRIVE_HALLMARK,
+    RBTGEC_FEOFF_BOLE,
+    RBTGEC_PLUMB_FULL,
+    RBTGEC_RBRV_FILE,
+    RBTGEC_REKON_HALLMARK,
+    RBTGEC_SUMMON_HALLMARK,
+    RBTGEC_THEURGE_NIHIL,
+    RBTGEC_YOKE_RELIQUARY,
 };
-use crate::rbtdre_engine::{
-    rbtdre_Tariff,
-    rbtdre_Case,
-    rbtdre_Disposition,
-    rbtdre_Fixture,
-    rbtdre_Verdict,
+use crate::rbtcee_engine::{
+    rbtcee_Tariff,
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Verdict,
 };
-use crate::rbtdri_invocation::{
-    rbtdri_find_tabtarget_global,
-    rbtdri_tabtarget_command,
-    RBTDRI_BURE_CONFIRM_KEY,
-    RBTDRI_BURE_CONFIRM_SKIP,
+use crate::rbtcei_invocation::{
+    rbtcei_find_tabtarget_global,
+    rbtcei_tabtarget_command,
+    RBTCEI_BURE_CONFIRM_KEY,
+    RBTCEI_BURE_CONFIRM_SKIP,
 };
-use crate::rbtdrm_manifest::RBTDRM_FIXTURE_CHAINING_FACT_BAND;
-use crate::rbtdrx_platform::rbtdrx_native_to_posix;
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_CHAINING_FACT_BAND;
+use crate::rbtcep_platform::rbtcep_native_to_posix;
 
 // Lode touchmark literals — mirror rbgc_constants.sh (RBGC_LODE_KIND_*,
 // RBF_FACT_LODE_TOUCHMARK, RBGC_LODE_TAG_BOLE). A touchmark is
@@ -97,17 +97,17 @@ use crate::rbtdrx_platform::rbtdrx_native_to_posix;
 // format. The values are deliberately fixed (no clock) so the cases are
 // deterministic — feoff/yoke decode the kind from the prefix and never resolve
 // the touchmark against GAR on the paths these cases exercise.
-const RBTDRH_FACT_TOUCHMARK: &str = "rbgc_fact_lode_touchmark"; // RBF_FACT_LODE_TOUCHMARK
-const RBTDRH_BOLE_TOUCHMARK: &str = "b260327172456"; // RBGC_LODE_KIND_BOLE "b"
-const RBTDRH_RELIQUARY_TOUCHMARK: &str = "r260327172456"; // RBGC_LODE_KIND_RELIQUARY "r"
-const RBTDRH_UNKNOWN_TOUCHMARK: &str = "zz260327172456"; // no RBGC_LODE_KIND_* prefix
-const RBTDRH_TAG_BOLE: &str = "rbi_bole"; // RBGC_LODE_TAG_BOLE
+const RBTCGH_FACT_TOUCHMARK: &str = "rbgc_fact_lode_touchmark"; // RBF_FACT_LODE_TOUCHMARK
+const RBTCGH_BOLE_TOUCHMARK: &str = "b260327172456"; // RBGC_LODE_KIND_BOLE "b"
+const RBTCGH_RELIQUARY_TOUCHMARK: &str = "r260327172456"; // RBGC_LODE_KIND_RELIQUARY "r"
+const RBTCGH_UNKNOWN_TOUCHMARK: &str = "zz260327172456"; // no RBGC_LODE_KIND_* prefix
+const RBTCGH_TAG_BOLE: &str = "rbi_bole"; // RBGC_LODE_TAG_BOLE
 
 // The staged vessel's rbrv.env — one populated RBRV_IMAGE_1_ORIGIN slot, which
 // is all feoff needs to locate the slot whose ANCHOR it elects. Shared between
 // the stager and the fact-intact assertion so byte-identity is checked against
 // the exact bytes written.
-const RBTDRH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:bookworm\n";
+const RBTCGH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:bookworm\n";
 
 // anoint's folio is the real tracked graft vessel — the sole graft-mode vessel in
 // the tree. Unlike feoff (which reads a temp vessel by path), anoint LOADS the
@@ -115,13 +115,13 @@ const RBTDRH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:b
 // canonical RBRR_VESSEL_DIR location, so a temp-staged vessel cannot reach the
 // chain read. The reject precedes the rewrite, so driving the real vessel leaves
 // its rbrv.env untouched (the case asserts that byte-identity).
-const RBTDRH_GRAFT_VESSEL: &str = "rbev_graft_demo";
+const RBTCGH_GRAFT_VESSEL: &str = "rbev_graft_demo";
 
 // The drive's folio is a real tracked nameplate — the drive resolves the target
 // rbrn.env by MONIKER (never a path, unlike feoff's temp vessel), so it must drive
 // a real nameplate under rbmm_moorings. The reject precedes the rewrite, so the
 // drive leaves its rbrn.env byte-identical (the case asserts that identity).
-const RBTDRH_DRIVE_NAMEPLATE: &str = "tadmor";
+const RBTCGH_DRIVE_NAMEPLATE: &str = "tadmor";
 
 // ── Harness ─────────────────────────────────────────────────
 
@@ -133,7 +133,7 @@ const RBTDRH_DRIVE_NAMEPLATE: &str = "tadmor";
 /// previous/), then drives the feoff tabtarget. Returns (exit_code, rbrv.env
 /// path). The vessel and BURV roots live under the case temp dir, so feoff's
 /// rbrv.env rewrite never reaches tracked config.
-fn rbtdrh_drive_feoff_shared(
+fn rbtcgh_drive_feoff_shared(
     dir: &Path,
     vessel_name: &str,
     stage_vessel: bool,
@@ -142,13 +142,13 @@ fn rbtdrh_drive_feoff_shared(
     label: &str,
 ) -> Result<(i32, PathBuf), String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_FEOFF_BOLE)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_FEOFF_BOLE)?;
 
     let vessel_dir = dir.join(vessel_name);
-    let rbrv = vessel_dir.join(RBTDGC_RBRV_FILE);
+    let rbrv = vessel_dir.join(RBTGEC_RBRV_FILE);
     if stage_vessel {
         std::fs::create_dir_all(&vessel_dir).map_err(|e| format!("stage vessel dir: {}", e))?;
-        std::fs::write(&rbrv, RBTDRH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e))?;
+        std::fs::write(&rbrv, RBTCGH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e))?;
     }
 
     let burv = dir.join("burv");
@@ -159,7 +159,7 @@ fn rbtdrh_drive_feoff_shared(
             // Seed current/; bud's start-of-dispatch promotion moves it to previous/.
             let current = burv.join("current");
             std::fs::create_dir_all(&current).map_err(|e| format!("mkdir burv current: {}", e))?;
-            std::fs::write(current.join(RBTDRH_FACT_TOUCHMARK), format!("{}\n", touchmark))
+            std::fs::write(current.join(RBTCGH_FACT_TOUCHMARK), format!("{}\n", touchmark))
                 .map_err(|e| format!("seed chain fact: {}", e))?;
         }
         None => {
@@ -167,14 +167,14 @@ fn rbtdrh_drive_feoff_shared(
         }
     }
 
-    let mut cmd = rbtdri_tabtarget_command(&tt);
-    cmd.arg(rbtdrx_native_to_posix(&vessel_dir));
+    let mut cmd = rbtcei_tabtarget_command(&tt);
+    cmd.arg(rbtcep_native_to_posix(&vessel_dir));
     if let Some(e) = express {
         cmd.arg(e);
     }
-    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
-        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
-        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp))
+        .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
     let output = cmd
@@ -188,33 +188,33 @@ fn rbtdrh_drive_feoff_shared(
 /// Single-dispatch feoff drive — the original harness shape the negative and
 /// precedence cases use. Returns (exit_code, staged rbrv.env path, promoted
 /// previous/ fact path).
-fn rbtdrh_drive_feoff(
+fn rbtcgh_drive_feoff(
     dir: &Path,
     seed_chain: Option<&str>,
     express: Option<&str>,
 ) -> Result<(i32, PathBuf, PathBuf), String> {
-    let (code, rbrv) = rbtdrh_drive_feoff_shared(dir, "vessel", true, seed_chain, express, "feoff")?;
-    let prev_fact = dir.join("burv").join("previous").join(RBTDRH_FACT_TOUCHMARK);
+    let (code, rbrv) = rbtcgh_drive_feoff_shared(dir, "vessel", true, seed_chain, express, "feoff")?;
+    let prev_fact = dir.join("burv").join("previous").join(RBTCGH_FACT_TOUCHMARK);
     Ok((code, rbrv, prev_fact))
 }
 
 /// Drive the yoke tabtarget with an express touchmark (yoke's folio). Returns
 /// the exit code. yoke's kind gate rejects before auth and the fan-out write,
 /// so a negative express never reaches credentials or the tracked vessel tree.
-fn rbtdrh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
+fn rbtcgh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_YOKE_RELIQUARY)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_YOKE_RELIQUARY)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
     std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
     std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
 
-    let mut cmd = rbtdri_tabtarget_command(&tt);
+    let mut cmd = rbtcei_tabtarget_command(&tt);
     cmd.arg(express)
-        .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
-        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
-        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+        .env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp))
+        .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
     let output = cmd
@@ -235,20 +235,20 @@ fn rbtdrh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
 /// negatives write-free, so the tracked rbrv.env is never mutated (asserted by the
 /// case). Credless, no cloud — the reject fires before any token mint. Returns the
 /// exit code.
-fn rbtdrh_drive_anoint(dir: &Path) -> Result<i32, String> {
+fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_ANOINT_GRAFT)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_ANOINT_GRAFT)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
     std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
     std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
 
-    let mut cmd = rbtdri_tabtarget_command(&tt);
-    cmd.arg(RBTDRH_GRAFT_VESSEL)
-        .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
-        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
-        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+    let mut cmd = rbtcei_tabtarget_command(&tt);
+    cmd.arg(RBTCGH_GRAFT_VESSEL)
+        .env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp))
+        .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
     let output = cmd
@@ -268,21 +268,21 @@ fn rbtdrh_drive_anoint(dir: &Path) -> Result<i32, String> {
 /// rbrn.env is never mutated (asserted by the case). The nameplate is addressed by
 /// moniker and NOT loaded, so a still-blank hallmark field never blocks the run.
 /// Credless, no cloud — the reject fires before any token mint. Returns the exit code.
-fn rbtdrh_drive_nameplate(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
+fn rbtcgh_drive_nameplate(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_DRIVE_HALLMARK)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_DRIVE_HALLMARK)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
     std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
     std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
 
-    let mut cmd = rbtdri_tabtarget_command(&tt);
+    let mut cmd = rbtcei_tabtarget_command(&tt);
     cmd.arg(nameplate)
         .arg(field)
-        .env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
-        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
-        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+        .env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp))
+        .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
     let output = cmd
@@ -300,27 +300,27 @@ fn rbtdrh_drive_nameplate(dir: &Path, nameplate: &str, field: &str) -> Result<i3
 /// needs no cloud. This asserts the resolve-logic rejection, NOT the furnish wiring:
 /// a furnish gap exits the same band, so the static furnish case covers that.
 /// `label` names the artifact files. Returns the exit code.
-fn rbtdrh_drive_readside(
+fn rbtcgh_drive_readside(
     dir: &Path,
     colophon: &str,
     label: &str,
     express: Option<&str>,
 ) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtdri_find_tabtarget_global(&root, colophon)?;
+    let tt = rbtcei_find_tabtarget_global(&root, colophon)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
     std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
     std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
 
-    let mut cmd = rbtdri_tabtarget_command(&tt);
+    let mut cmd = rbtcei_tabtarget_command(&tt);
     if let Some(e) = express {
         cmd.arg(e);
     }
-    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
-        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
-        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp))
+        .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
     let output = cmd
@@ -333,99 +333,99 @@ fn rbtdrh_drive_readside(
 
 /// Assert an exit code equals the chain-rejection band, with the artifact dir
 /// named for triage on mismatch.
-fn rbtdrh_expect_band(code: i32, label: &str, dir: &Path) -> rbtdre_Verdict {
-    if code == RBTDGC_BAND_CHAIN {
-        rbtdre_Verdict::Pass
+fn rbtcgh_expect_band(code: i32, label: &str, dir: &Path) -> rbtcee_Verdict {
+    if code == RBTGEC_BAND_CHAIN {
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "{}: exited {} — expected chain-rejection band {} (artifacts in {})",
-            label, code, RBTDGC_BAND_CHAIN, dir.display()
+            label, code, RBTGEC_BAND_CHAIN, dir.display()
         ))
     }
 }
 
 // ── feoff cases ─────────────────────────────────────────────
 
-fn rbtdrh_feoff_wrong_kind(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_feoff_wrong_kind(dir: &Path) -> rbtcee_Verdict {
     // An express reliquary touchmark decodes fine but is the wrong kind — feoff
     // elects a base anchor, which only a bole carries.
-    match rbtdrh_drive_feoff(dir, None, Some(RBTDRH_RELIQUARY_TOUCHMARK)) {
-        Ok((code, _, _)) => rbtdrh_expect_band(code, "feoff wrong-kind (reliquary express)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+    match rbtcgh_drive_feoff(dir, None, Some(RBTCGH_RELIQUARY_TOUCHMARK)) {
+        Ok((code, _, _)) => rbtcgh_expect_band(code, "feoff wrong-kind (reliquary express)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_feoff_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_feoff_unknown_prefix(dir: &Path) -> rbtcee_Verdict {
     // A touchmark with no recognizable Lode kind prefix — the decoder rejects.
-    match rbtdrh_drive_feoff(dir, None, Some(RBTDRH_UNKNOWN_TOUCHMARK)) {
-        Ok((code, _, _)) => rbtdrh_expect_band(code, "feoff unknown-prefix express", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+    match rbtcgh_drive_feoff(dir, None, Some(RBTCGH_UNKNOWN_TOUCHMARK)) {
+        Ok((code, _, _)) => rbtcgh_expect_band(code, "feoff unknown-prefix express", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_feoff_broken_chain(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_feoff_broken_chain(dir: &Path) -> rbtcee_Verdict {
     // No express and an empty previous/ — the express-or-chain resolve finds
     // nothing: a broken chain.
-    match rbtdrh_drive_feoff(dir, None, None) {
-        Ok((code, _, _)) => rbtdrh_expect_band(code, "feoff broken chain (no express, empty previous/)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+    match rbtcgh_drive_feoff(dir, None, None) {
+        Ok((code, _, _)) => rbtcgh_expect_band(code, "feoff broken chain (no express, empty previous/)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_feoff_good(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_feoff_good(dir: &Path) -> rbtcee_Verdict {
     // An express bole touchmark elects the base anchor: exit 0, and the staged
     // rbrv.env carries the elected ANCHOR line bearing that touchmark.
-    let (code, rbrv, _) = match rbtdrh_drive_feoff(dir, None, Some(RBTDRH_BOLE_TOUCHMARK)) {
+    let (code, rbrv, _) = match rbtcgh_drive_feoff(dir, None, Some(RBTCGH_BOLE_TOUCHMARK)) {
         Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     if code != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "feoff good (bole express) exited {} — expected 0 (artifacts in {})",
             code, dir.display()
         ));
     }
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
-    let expected_locator = format!("{}:{}", RBTDRH_BOLE_TOUCHMARK, RBTDRH_TAG_BOLE);
+    let expected_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE);
     if content.contains("RBRV_IMAGE_1_ANCHOR=") && content.contains(&expected_locator) {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "feoff good wrote no ANCHOR bearing '{}'; rbrv.env:\n{}",
             expected_locator, content
         ))
     }
 }
 
-fn rbtdrh_feoff_precedence(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_feoff_precedence(dir: &Path) -> rbtcee_Verdict {
     // Express bole AND a seeded reliquary chain fact present: express must win
     // (the chain is relayed but never read), so the election succeeds with the
     // bole and the reliquary touchmark never appears in the rewritten rbrv.env.
     let (code, rbrv, _) =
-        match rbtdrh_drive_feoff(dir, Some(RBTDRH_RELIQUARY_TOUCHMARK), Some(RBTDRH_BOLE_TOUCHMARK)) {
+        match rbtcgh_drive_feoff(dir, Some(RBTCGH_RELIQUARY_TOUCHMARK), Some(RBTCGH_BOLE_TOUCHMARK)) {
             Ok(t) => t,
-            Err(e) => return rbtdre_Verdict::Fail(e),
+            Err(e) => return rbtcee_Verdict::Fail(e),
         };
     if code != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "feoff precedence (bole express over reliquary chain) exited {} — expected 0 \
              (a chain-read would have rejected wrong-kind; artifacts in {})",
             code, dir.display()
         ));
     }
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
-    let bole_locator = format!("{}:{}", RBTDRH_BOLE_TOUCHMARK, RBTDRH_TAG_BOLE);
-    if content.contains(&bole_locator) && !content.contains(RBTDRH_RELIQUARY_TOUCHMARK) {
-        rbtdre_Verdict::Pass
+    let bole_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE);
+    if content.contains(&bole_locator) && !content.contains(RBTCGH_RELIQUARY_TOUCHMARK) {
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "feoff precedence did not elect the express bole over the chained reliquary; rbrv.env:\n{}",
             content
         ))
     }
 }
 
-fn rbtdrh_feoff_fact_intact(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_feoff_fact_intact(dir: &Path) -> rbtcee_Verdict {
     // The operator's worry, defended: a GOOD (valid) reliquary touchmark sits in
     // previous/ as the chained fact — good, but the wrong kind for feoff. With no
     // express, feoff reads it, the bole gate rejects it with the band, and must
@@ -433,50 +433,50 @@ fn rbtdrh_feoff_fact_intact(dir: &Path) -> rbtdre_Verdict {
     // survive byte-identical. Rejection precedes any destructive write; the relay
     // copies the baton forward but never mutates its previous/ source (RBr_3e7).
     let (code, rbrv, prev_fact) =
-        match rbtdrh_drive_feoff(dir, Some(RBTDRH_RELIQUARY_TOUCHMARK), None) {
+        match rbtcgh_drive_feoff(dir, Some(RBTCGH_RELIQUARY_TOUCHMARK), None) {
             Ok(t) => t,
-            Err(e) => return rbtdre_Verdict::Fail(e),
+            Err(e) => return rbtcee_Verdict::Fail(e),
         };
-    if code != RBTDGC_BAND_CHAIN {
-        return rbtdre_Verdict::Fail(format!(
+    if code != RBTGEC_BAND_CHAIN {
+        return rbtcee_Verdict::Fail(format!(
             "feoff wrong-kind chain exited {} — expected band {} (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
     let rbrv_after = std::fs::read_to_string(&rbrv).unwrap_or_default();
-    if rbrv_after != RBTDRH_VESSEL_RBRV {
-        return rbtdre_Verdict::Fail(format!(
+    if rbrv_after != RBTCGH_VESSEL_RBRV {
+        return rbtcee_Verdict::Fail(format!(
             "rbrv.env was mutated under a band reject (rejection must precede any write):\n{}",
             rbrv_after
         ));
     }
-    let seeded = format!("{}\n", RBTDRH_RELIQUARY_TOUCHMARK);
+    let seeded = format!("{}\n", RBTCGH_RELIQUARY_TOUCHMARK);
     let fact_after = std::fs::read_to_string(&prev_fact).unwrap_or_default();
     if fact_after != seeded {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "the seeded previous/ fact was mutated under a band reject (the relay \
              copies, never mutates its previous/ source): {:?}",
             fact_after
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── yoke cases ──────────────────────────────────────────────
 
-fn rbtdrh_yoke_wrong_kind(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_yoke_wrong_kind(dir: &Path) -> rbtcee_Verdict {
     // An express bole touchmark decodes fine but is the wrong kind — yoke
     // requires a reliquary. Rejects before auth and the fan-out write.
-    match rbtdrh_drive_yoke(dir, RBTDRH_BOLE_TOUCHMARK) {
-        Ok(code) => rbtdrh_expect_band(code, "yoke wrong-kind (bole express)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+    match rbtcgh_drive_yoke(dir, RBTCGH_BOLE_TOUCHMARK) {
+        Ok(code) => rbtcgh_expect_band(code, "yoke wrong-kind (bole express)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_yoke_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
-    match rbtdrh_drive_yoke(dir, RBTDRH_UNKNOWN_TOUCHMARK) {
-        Ok(code) => rbtdrh_expect_band(code, "yoke unknown-prefix express", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+fn rbtcgh_yoke_unknown_prefix(dir: &Path) -> rbtcee_Verdict {
+    match rbtcgh_drive_yoke(dir, RBTCGH_UNKNOWN_TOUCHMARK) {
+        Ok(code) => rbtcgh_expect_band(code, "yoke unknown-prefix express", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
@@ -487,25 +487,25 @@ fn rbtdrh_yoke_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
 // root, anoint loads the vessel, then the first fact read fails and rejects with
 // the band BEFORE the rewrite, so the tracked rbrv.env must survive byte-identical.
 
-fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
     let rbrv = match std::env::current_dir() {
         Ok(r) => r
             .join("rbmm_moorings")
             .join("rbmv_vessels")
-            .join(RBTDRH_GRAFT_VESSEL)
-            .join(RBTDGC_RBRV_FILE),
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+            .join(RBTCGH_GRAFT_VESSEL)
+            .join(RBTGEC_RBRV_FILE),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let before = std::fs::read_to_string(&rbrv).unwrap_or_default();
 
-    let code = match rbtdrh_drive_anoint(dir) {
+    let code = match rbtcgh_drive_anoint(dir) {
         Ok(c) => c,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    if code != RBTDGC_BAND_CHAIN {
-        return rbtdre_Verdict::Fail(format!(
+    if code != RBTGEC_BAND_CHAIN {
+        return rbtcee_Verdict::Fail(format!(
             "anoint broken chain (empty BURV root) exited {} — expected band {} (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
 
@@ -513,13 +513,13 @@ fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
     // real tracked vessel write-free. Prove the rbrv.env is byte-identical after.
     let after = std::fs::read_to_string(&rbrv).unwrap_or_default();
     if after != before {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "the tracked graft vessel rbrv.env was mutated under a band reject \
              (rejection must precede any write); after:\n{}",
             after
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── drive case ──────────────────────────────────────────────
@@ -530,28 +530,28 @@ fn rbtdrh_anoint_broken_chain(dir: &Path) -> rbtdre_Verdict {
 // express and an empty BURV root the chain read fails and drive rejects with the band
 // BEFORE the rbrn.env rewrite, so the tracked nameplate stays byte-identical.
 
-fn rbtdrh_drive_broken_chain(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_drive_broken_chain(dir: &Path) -> rbtcee_Verdict {
     let rbrn = match std::env::current_dir() {
         Ok(r) => r
             .join("rbmm_moorings")
             .join(format!(
                 "{}{}",
-                crate::rbtdgc_consts::RBTDGC_NAMEPLATE_SPRUE,
-                RBTDRH_DRIVE_NAMEPLATE
+                crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE,
+                RBTCGH_DRIVE_NAMEPLATE
             ))
             .join("rbrn.env"),
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let before = std::fs::read_to_string(&rbrn).unwrap_or_default();
 
-    let code = match rbtdrh_drive_nameplate(dir, RBTDRH_DRIVE_NAMEPLATE, RBTDGC_CONTAINER_BOTTLE) {
+    let code = match rbtcgh_drive_nameplate(dir, RBTCGH_DRIVE_NAMEPLATE, RBTGEC_CONTAINER_BOTTLE) {
         Ok(c) => c,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    if code != RBTDGC_BAND_CHAIN {
-        return rbtdre_Verdict::Fail(format!(
+    if code != RBTGEC_BAND_CHAIN {
+        return rbtcee_Verdict::Fail(format!(
             "drive broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
 
@@ -559,13 +559,13 @@ fn rbtdrh_drive_broken_chain(dir: &Path) -> rbtdre_Verdict {
     // real tracked nameplate write-free. Prove the rbrn.env is byte-identical after.
     let after = std::fs::read_to_string(&rbrn).unwrap_or_default();
     if after != before {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "the tracked nameplate rbrn.env was mutated under a band reject \
              (rejection must precede any write); after:\n{}",
             after
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── read-side consumer cases ────────────────────────────────
@@ -576,40 +576,40 @@ fn rbtdrh_drive_broken_chain(dir: &Path) -> rbtdre_Verdict {
 // furnish gap exits the same band 105, so the static furnish case (not these) is the
 // net for that.
 
-fn rbtdrh_summon_no_folio(dir: &Path) -> rbtdre_Verdict {
-    match rbtdrh_drive_readside(dir, RBTDGC_SUMMON_HALLMARK, "summon", None) {
-        Ok(code) => rbtdrh_expect_band(code, "summon no-folio (broken chain)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+fn rbtcgh_summon_no_folio(dir: &Path) -> rbtcee_Verdict {
+    match rbtcgh_drive_readside(dir, RBTGEC_SUMMON_HALLMARK, "summon", None) {
+        Ok(code) => rbtcgh_expect_band(code, "summon no-folio (broken chain)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_plumb_no_folio(dir: &Path) -> rbtdre_Verdict {
-    match rbtdrh_drive_readside(dir, RBTDGC_PLUMB_FULL, "plumb", None) {
-        Ok(code) => rbtdrh_expect_band(code, "plumb no-folio (broken chain)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+fn rbtcgh_plumb_no_folio(dir: &Path) -> rbtcee_Verdict {
+    match rbtcgh_drive_readside(dir, RBTGEC_PLUMB_FULL, "plumb", None) {
+        Ok(code) => rbtcgh_expect_band(code, "plumb no-folio (broken chain)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_augur_no_folio(dir: &Path) -> rbtdre_Verdict {
-    match rbtdrh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur", None) {
-        Ok(code) => rbtdrh_expect_band(code, "augur no-folio (broken chain)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+fn rbtcgh_augur_no_folio(dir: &Path) -> rbtcee_Verdict {
+    match rbtcgh_drive_readside(dir, RBTGEC_AUGUR_LODE, "augur", None) {
+        Ok(code) => rbtcgh_expect_band(code, "augur no-folio (broken chain)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_augur_unknown_prefix(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_augur_unknown_prefix(dir: &Path) -> rbtcee_Verdict {
     // An express touchmark with no recognizable kind prefix — augur accepts any KNOWN
     // kind, so its decode gate rejects the unknown one with the chaining band, before auth.
-    match rbtdrh_drive_readside(dir, RBTDGC_AUGUR_LODE, "augur-badkind", Some(RBTDRH_UNKNOWN_TOUCHMARK)) {
-        Ok(code) => rbtdrh_expect_band(code, "augur unknown-prefix express", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+    match rbtcgh_drive_readside(dir, RBTGEC_AUGUR_LODE, "augur-badkind", Some(RBTCGH_UNKNOWN_TOUCHMARK)) {
+        Ok(code) => rbtcgh_expect_band(code, "augur unknown-prefix express", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
-fn rbtdrh_rekon_no_folio(dir: &Path) -> rbtdre_Verdict {
-    match rbtdrh_drive_readside(dir, RBTDGC_REKON_HALLMARK, "rekon", None) {
-        Ok(code) => rbtdrh_expect_band(code, "rekon no-folio (broken chain)", dir),
-        Err(e) => rbtdre_Verdict::Fail(e),
+fn rbtcgh_rekon_no_folio(dir: &Path) -> rbtcee_Verdict {
+    match rbtcgh_drive_readside(dir, RBTGEC_REKON_HALLMARK, "rekon", None) {
+        Ok(code) => rbtcgh_expect_band(code, "rekon no-folio (broken chain)", dir),
+        Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
 
@@ -624,19 +624,19 @@ fn rbtdrh_rekon_no_folio(dir: &Path) -> rbtdre_Verdict {
 /// Dispatch the nihil calibrant tabtarget (rbw-tn) against the case-shared BURV
 /// root under `dir` — a real non-chain dispatch: it promotes like any other but
 /// relays nothing, so a live fact dies at its promotion horizon.
-fn rbtdrh_drive_nihil(dir: &Path) -> Result<i32, String> {
+fn rbtcgh_drive_nihil(dir: &Path) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtdri_find_tabtarget_global(&root, RBTDGC_THEURGE_NIHIL)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_THEURGE_NIHIL)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
     std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e))?;
     std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e))?;
 
-    let mut cmd = rbtdri_tabtarget_command(&tt);
-    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtdrx_native_to_posix(&burv))
-        .env("BURV_TEMP_ROOT_DIR", rbtdrx_native_to_posix(&burv_temp))
-        .env(RBTDRI_BURE_CONFIRM_KEY, RBTDRI_BURE_CONFIRM_SKIP)
+    let mut cmd = rbtcei_tabtarget_command(&tt);
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp))
+        .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
     let output = cmd
@@ -647,88 +647,88 @@ fn rbtdrh_drive_nihil(dir: &Path) -> Result<i32, String> {
     Ok(output.status.code().unwrap_or(-1))
 }
 
-fn rbtdrh_multi_consumer(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_multi_consumer(dir: &Path) -> rbtcee_Verdict {
     // One seeded bole fact, two consumers in successive dispatches: feoff A
     // relays then elects; feoff B's dispatch-start promotion finds A's relayed
     // baton, so B's chain read still elects the same touchmark.
-    let (code_a, rbrv_a) = match rbtdrh_drive_feoff_shared(
-        dir, "vessel-a", true, Some(RBTDRH_BOLE_TOUCHMARK), None, "feoff-a",
+    let (code_a, rbrv_a) = match rbtcgh_drive_feoff_shared(
+        dir, "vessel-a", true, Some(RBTCGH_BOLE_TOUCHMARK), None, "feoff-a",
     ) {
         Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     if code_a != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "first consumer (feoff A, chained bole) exited {} — expected 0 (artifacts in {})",
             code_a, dir.display()
         ));
     }
     let (code_b, rbrv_b) =
-        match rbtdrh_drive_feoff_shared(dir, "vessel-b", true, None, None, "feoff-b") {
+        match rbtcgh_drive_feoff_shared(dir, "vessel-b", true, None, None, "feoff-b") {
             Ok(t) => t,
-            Err(e) => return rbtdre_Verdict::Fail(e),
+            Err(e) => return rbtcee_Verdict::Fail(e),
         };
     if code_b != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "second consumer (feoff B, relay-carried bole) exited {} — expected 0: \
              the first consumer's relay must keep the fact alive (artifacts in {})",
             code_b, dir.display()
         ));
     }
-    let expected_locator = format!("{}:{}", RBTDRH_BOLE_TOUCHMARK, RBTDRH_TAG_BOLE);
+    let expected_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE);
     for (name, rbrv) in [("A", &rbrv_a), ("B", &rbrv_b)] {
         let content = std::fs::read_to_string(rbrv).unwrap_or_default();
         if !content.contains(&expected_locator) {
-            return rbtdre_Verdict::Fail(format!(
+            return rbtcee_Verdict::Fail(format!(
                 "vessel {} rbrv.env lacks the elected anchor '{}':\n{}",
                 name, expected_locator, content
             ));
         }
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
-fn rbtdrh_retry_after_failure(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_retry_after_failure(dir: &Path) -> rbtcee_Verdict {
     // Fail-after-forward: consumer 1 relays at the top of the verb, then dies on
     // a missing vessel — a failure unrelated to the chain. Its retry (dispatch 2)
     // still finds the baton, because the relay preceded the failure point.
-    let (code_fail, _) = match rbtdrh_drive_feoff_shared(
-        dir, "vessel-missing", false, Some(RBTDRH_BOLE_TOUCHMARK), None, "feoff-fail",
+    let (code_fail, _) = match rbtcgh_drive_feoff_shared(
+        dir, "vessel-missing", false, Some(RBTCGH_BOLE_TOUCHMARK), None, "feoff-fail",
     ) {
         Ok(t) => t,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     if code_fail == 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "feoff against a missing vessel exited 0 — expected a failure (artifacts in {})",
             dir.display()
         ));
     }
     let (code_retry, rbrv) =
-        match rbtdrh_drive_feoff_shared(dir, "vessel-retry", true, None, None, "feoff-retry") {
+        match rbtcgh_drive_feoff_shared(dir, "vessel-retry", true, None, None, "feoff-retry") {
             Ok(t) => t,
-            Err(e) => return rbtdre_Verdict::Fail(e),
+            Err(e) => return rbtcee_Verdict::Fail(e),
         };
     if code_retry != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "retry after a failed consumer exited {} — expected 0: the failed consumer's \
              relay must have passed the baton to its own retry (artifacts in {})",
             code_retry, dir.display()
         ));
     }
-    let expected_locator = format!("{}:{}", RBTDRH_BOLE_TOUCHMARK, RBTDRH_TAG_BOLE);
+    let expected_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE);
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
     if content.contains(&expected_locator) {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "retry elected no anchor bearing '{}'; rbrv.env:\n{}",
             expected_locator, content
         ))
     }
 }
 
-fn rbtdrh_dies_at_non_chain_dispatch(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
     // The staleness bound's kill side: a live bole fact, then a NON-chain dispatch
     // (nihil — promotes but never relays), then a chain consumer. The consumer's
     // dispatch-start promotion finds only nihil's relay-less current/, so the
@@ -736,47 +736,47 @@ fn rbtdrh_dies_at_non_chain_dispatch(dir: &Path) -> rbtdre_Verdict {
     // non-chain dispatch, exactly the behavioral staleness bound (RBr_3e7).
     let seed_dir = dir.join("burv").join("current");
     if let Err(e) = std::fs::create_dir_all(&seed_dir) {
-        return rbtdre_Verdict::Fail(format!("mkdir burv current: {}", e));
+        return rbtcee_Verdict::Fail(format!("mkdir burv current: {}", e));
     }
     if let Err(e) = std::fs::write(
-        seed_dir.join(RBTDRH_FACT_TOUCHMARK),
-        format!("{}\n", RBTDRH_BOLE_TOUCHMARK),
+        seed_dir.join(RBTCGH_FACT_TOUCHMARK),
+        format!("{}\n", RBTCGH_BOLE_TOUCHMARK),
     ) {
-        return rbtdre_Verdict::Fail(format!("seed chain fact: {}", e));
+        return rbtcee_Verdict::Fail(format!("seed chain fact: {}", e));
     }
 
-    let code_nihil = match rbtdrh_drive_nihil(dir) {
+    let code_nihil = match rbtcgh_drive_nihil(dir) {
         Ok(c) => c,
-        Err(e) => return rbtdre_Verdict::Fail(e),
+        Err(e) => return rbtcee_Verdict::Fail(e),
     };
     if code_nihil != 0 {
-        return rbtdre_Verdict::Fail(format!(
+        return rbtcee_Verdict::Fail(format!(
             "nihil dispatch exited {} — expected 0 (artifacts in {})",
             code_nihil, dir.display()
         ));
     }
 
     let (code, rbrv) =
-        match rbtdrh_drive_feoff_shared(dir, "vessel-stale", true, None, None, "feoff-stale") {
+        match rbtcgh_drive_feoff_shared(dir, "vessel-stale", true, None, None, "feoff-stale") {
             Ok(t) => t,
-            Err(e) => return rbtdre_Verdict::Fail(e),
+            Err(e) => return rbtcee_Verdict::Fail(e),
         };
-    if code != RBTDGC_BAND_CHAIN {
-        return rbtdre_Verdict::Fail(format!(
+    if code != RBTGEC_BAND_CHAIN {
+        return rbtcee_Verdict::Fail(format!(
             "feoff after an intervening non-chain dispatch exited {} — expected chain-rejection \
              band {}: the fact must die at the first non-chain dispatch (artifacts in {})",
-            code, RBTDGC_BAND_CHAIN, dir.display()
+            code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
     // The reject left the staged vessel untouched — no stale value was elected.
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
-    if content != RBTDRH_VESSEL_RBRV {
-        return rbtdre_Verdict::Fail(format!(
+    if content != RBTCGH_VESSEL_RBRV {
+        return rbtcee_Verdict::Fail(format!(
             "rbrv.env was mutated under the staleness reject:\n{}",
             content
         ));
     }
-    rbtdre_Verdict::Pass
+    rbtcee_Verdict::Pass
 }
 
 // ── furnish invariant (static) ──────────────────────────────
@@ -791,14 +791,14 @@ fn rbtdrh_dies_at_non_chain_dispatch(dir: &Path) -> rbtdre_Verdict {
 // followed transitively: the 0-trick CLIs reach their caller modules through a
 // gestalt entry, not a direct source.
 
-const RBTDRH_FACT_CALLERS: &[&str] = &["buf_elect_fact_capture", "buf_read_fact_capture", "buf_relay"];
-const RBTDRH_FACT_MODULE: &str = "buf_fact.sh";
+const RBTCGH_FACT_CALLERS: &[&str] = &["buf_elect_fact_capture", "buf_read_fact_capture", "buf_relay"];
+const RBTCGH_FACT_MODULE: &str = "buf_fact.sh";
 
 /// Resolve a `source "..."` line to a repo path under Tools/rbk or Tools/buk, or
 /// None when the prefix is a runtime variable not statically resolvable (e.g.
 /// ${RBCC_rbrr_file} — a regime env file, never a fact caller). The three resolved
 /// prefixes are the only ones a kit module uses to source sibling code.
-fn rbtdrh_resolve_source(line: &str, rbk: &Path, buk: &Path) -> Option<PathBuf> {
+fn rbtcgh_resolve_source(line: &str, rbk: &Path, buk: &Path) -> Option<PathBuf> {
     let q = line.find('"')?;
     let rest = &line[q + 1..];
     let end = rest.find('"')?;
@@ -818,7 +818,7 @@ fn rbtdrh_resolve_source(line: &str, rbk: &Path, buk: &Path) -> Option<PathBuf> 
 
 /// Transitive source closure of `start`, following only statically-resolvable
 /// source lines. Returns every file reached, including `start`.
-fn rbtdrh_source_closure(start: &Path, rbk: &Path, buk: &Path) -> Vec<PathBuf> {
+fn rbtcgh_source_closure(start: &Path, rbk: &Path, buk: &Path) -> Vec<PathBuf> {
     let mut seen: Vec<PathBuf> = Vec::new();
     let mut queue: Vec<PathBuf> = vec![start.to_path_buf()];
     while let Some(f) = queue.pop() {
@@ -834,7 +834,7 @@ fn rbtdrh_source_closure(start: &Path, rbk: &Path, buk: &Path) -> Vec<PathBuf> {
             if !line.trim_start().starts_with("source ") {
                 continue;
             }
-            if let Some(target) = rbtdrh_resolve_source(line, rbk, buk) {
+            if let Some(target) = rbtcgh_resolve_source(line, rbk, buk) {
                 queue.push(target);
             }
         }
@@ -845,17 +845,17 @@ fn rbtdrh_source_closure(start: &Path, rbk: &Path, buk: &Path) -> Vec<PathBuf> {
 /// Static furnish invariant: every dispatching CLI whose source closure reaches a
 /// buf_* fact caller must also source buf_fact. A miss is the furnish gap — the
 /// helper undefined at runtime, the verb dying command-not-found at the resolve.
-fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
+fn rbtcgh_furnish_invariant(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let rbk = root.join("Tools").join("rbk");
     let buk = root.join("Tools").join("buk");
 
     let entries = match std::fs::read_dir(&rbk) {
         Ok(e) => e,
-        Err(e) => return rbtdre_Verdict::Fail(format!("cannot read {}: {}", rbk.display(), e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot read {}: {}", rbk.display(), e)),
     };
     let mut clis: Vec<PathBuf> = entries
         .flatten()
@@ -872,17 +872,17 @@ fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
     let mut violations: Vec<String> = Vec::new();
     let mut covered = 0usize;
     for cli in &clis {
-        let closure = rbtdrh_source_closure(cli, &rbk, &buk);
+        let closure = rbtcgh_source_closure(cli, &rbk, &buk);
         let mut calls_fact = false;
         let mut has_furnish = false;
         for f in &closure {
             let base = f.file_name().and_then(|n| n.to_str()).unwrap_or("");
-            if base == RBTDRH_FACT_MODULE {
+            if base == RBTCGH_FACT_MODULE {
                 has_furnish = true; // buf_fact's own definitions are not "calls"
                 continue;
             }
             let content = std::fs::read_to_string(f).unwrap_or_default();
-            if RBTDRH_FACT_CALLERS.iter().any(|c| content.contains(c)) {
+            if RBTCGH_FACT_CALLERS.iter().any(|c| content.contains(c)) {
                 calls_fact = true;
             }
         }
@@ -893,7 +893,7 @@ fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
             } else {
                 violations.push(format!(
                     "{} reaches a buf_* fact caller but its source closure omits {}",
-                    name, RBTDRH_FACT_MODULE
+                    name, RBTCGH_FACT_MODULE
                 ));
             }
         }
@@ -908,45 +908,45 @@ fn rbtdrh_furnish_invariant(dir: &Path) -> rbtdre_Verdict {
     );
 
     if violations.is_empty() {
-        rbtdre_Verdict::Pass
+        rbtcee_Verdict::Pass
     } else {
-        rbtdre_Verdict::Fail(format!(
+        rbtcee_Verdict::Fail(format!(
             "{} furnish gap(s) — a CLI reaches a buf_* fact caller without sourcing {}:\n{}",
-            violations.len(), RBTDRH_FACT_MODULE, violations.join("\n")
+            violations.len(), RBTCGH_FACT_MODULE, violations.join("\n")
         ))
     }
 }
 
 // ── Fixture ─────────────────────────────────────────────────
 
-pub static RBTDRH_CASES_CHAINING_FACT_BAND: &[rbtdre_Case] = &[
-    rbtdre_case!(rbtdrh_feoff_wrong_kind),
-    rbtdre_case!(rbtdrh_feoff_unknown_prefix),
-    rbtdre_case!(rbtdrh_feoff_broken_chain),
-    rbtdre_case!(rbtdrh_feoff_good),
-    rbtdre_case!(rbtdrh_feoff_precedence),
-    rbtdre_case!(rbtdrh_feoff_fact_intact),
-    rbtdre_case!(rbtdrh_yoke_wrong_kind),
-    rbtdre_case!(rbtdrh_yoke_unknown_prefix),
-    rbtdre_case!(rbtdrh_anoint_broken_chain),
-    rbtdre_case!(rbtdrh_drive_broken_chain),
-    rbtdre_case!(rbtdrh_summon_no_folio),
-    rbtdre_case!(rbtdrh_plumb_no_folio),
-    rbtdre_case!(rbtdrh_augur_no_folio),
-    rbtdre_case!(rbtdrh_augur_unknown_prefix),
-    rbtdre_case!(rbtdrh_rekon_no_folio),
-    rbtdre_case!(rbtdrh_multi_consumer),
-    rbtdre_case!(rbtdrh_retry_after_failure),
-    rbtdre_case!(rbtdrh_dies_at_non_chain_dispatch),
-    rbtdre_case!(rbtdrh_furnish_invariant),
+pub static RBTCGH_CASES_CHAINING_FACT_BAND: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtcgh_feoff_wrong_kind),
+    rbtcee_case!(rbtcgh_feoff_unknown_prefix),
+    rbtcee_case!(rbtcgh_feoff_broken_chain),
+    rbtcee_case!(rbtcgh_feoff_good),
+    rbtcee_case!(rbtcgh_feoff_precedence),
+    rbtcee_case!(rbtcgh_feoff_fact_intact),
+    rbtcee_case!(rbtcgh_yoke_wrong_kind),
+    rbtcee_case!(rbtcgh_yoke_unknown_prefix),
+    rbtcee_case!(rbtcgh_anoint_broken_chain),
+    rbtcee_case!(rbtcgh_drive_broken_chain),
+    rbtcee_case!(rbtcgh_summon_no_folio),
+    rbtcee_case!(rbtcgh_plumb_no_folio),
+    rbtcee_case!(rbtcgh_augur_no_folio),
+    rbtcee_case!(rbtcgh_augur_unknown_prefix),
+    rbtcee_case!(rbtcgh_rekon_no_folio),
+    rbtcee_case!(rbtcgh_multi_consumer),
+    rbtcee_case!(rbtcgh_retry_after_failure),
+    rbtcee_case!(rbtcgh_dies_at_non_chain_dispatch),
+    rbtcee_case!(rbtcgh_furnish_invariant),
 ];
 
-pub static RBTDRH_FIXTURE_CHAINING_FACT_BAND: rbtdre_Fixture = rbtdre_Fixture {
-    name: RBTDRM_FIXTURE_CHAINING_FACT_BAND,
-    disposition: rbtdre_Disposition::Independent,
+pub static RBTCGH_FIXTURE_CHAINING_FACT_BAND: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTCEM_FIXTURE_CHAINING_FACT_BAND,
+    disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRH_CASES_CHAINING_FACT_BAND,
+    cases: RBTCGH_CASES_CHAINING_FACT_BAND,
     credless: true,
-    tariff: rbtdre_Tariff { min_secs: None, max_secs: Some(25), invocations: Some(21) },
+    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(25), invocations: Some(21) },
 };

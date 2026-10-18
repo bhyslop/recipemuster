@@ -24,19 +24,19 @@
 
 use std::path::PathBuf;
 
-use crate::rbtdri_invocation::RBTDRI_BURD_TEMP_DIR_KEY;
-use crate::rbtdrx_platform::rbtdrx_posix_to_native;
+use crate::rbtcei_invocation::RBTCEI_BURD_TEMP_DIR_KEY;
+use crate::rbtcep_platform::rbtcep_posix_to_native;
 
 /// Return the scratch root for test tempdirs. Panics if BURD_TEMP_DIR is
 /// unset — tests must be launched via the BUK tabtarget so artifacts land
 /// under temp-buk and survive reboot.
-pub(crate) fn rbtdth_scratch_root() -> PathBuf {
-    match std::env::var(RBTDRI_BURD_TEMP_DIR_KEY) {
-        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v)
-            .unwrap_or_else(|e| panic!("rbtdth: cannot nativize {}: {}", RBTDRI_BURD_TEMP_DIR_KEY, e)),
+pub(crate) fn rbtteh_scratch_root() -> PathBuf {
+    match std::env::var(RBTCEI_BURD_TEMP_DIR_KEY) {
+        Ok(v) if !v.is_empty() => rbtcep_posix_to_native(&v)
+            .unwrap_or_else(|e| panic!("rbtdth: cannot nativize {}: {}", RBTCEI_BURD_TEMP_DIR_KEY, e)),
         _ => panic!(
             "rbtdth: {} is not set — run tests via `tt/rbw-tt.Test.sh`",
-            RBTDRI_BURD_TEMP_DIR_KEY
+            RBTCEI_BURD_TEMP_DIR_KEY
         ),
     }
 }
@@ -45,13 +45,13 @@ pub(crate) fn rbtdth_scratch_root() -> PathBuf {
 /// name carries the label plus pid and nanos so concurrent and repeat runs
 /// never collide; any stale dir of the same name is precleaned first. Panics
 /// on a create failure — a test that cannot stage scratch must fail loud.
-pub(crate) fn rbtdth_make_scratch(label: &str) -> PathBuf {
+pub(crate) fn rbtteh_make_scratch(label: &str) -> PathBuf {
     let pid = std::process::id();
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    let dir = rbtdth_scratch_root().join(format!("rbtd-test-{}-{}-{}", label, pid, nanos));
+    let dir = rbtteh_scratch_root().join(format!("rbtd-test-{}-{}-{}", label, pid, nanos));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("rbtdth: create scratch dir");
     dir

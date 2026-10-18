@@ -33,7 +33,7 @@ Two committed files are **regenerated from the zipper registry** (`rbz_zipper.sh
 `tt/rbw-tb.Build.sh`, and the build step inside `tt/rbw-ts.*`. Change the
 **zipper**, then build; never hand-edit these:
 
-- `Tools/rbk/rbtd/src/rbtdgc_consts.rs` — theurge colophon constants (`RBTDGC_*`).
+- `Tools/rbk/rbtd/src/rbtdgc_consts.rs` — theurge colophon constants (`RBTGEC_*`).
 - `Tools/rbk/claude-rbk-tabtarget-context.md` — the tabtarget Command Reference.
 
 Both carry a "Do not edit — regenerate via the build" header. **If they show as
