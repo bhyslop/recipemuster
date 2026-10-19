@@ -78,11 +78,6 @@ use crate::rbtcem_manifest::RBTCEM_FIXTURE_PYX;
 /// are stripped from the candidate, so their graphs are not release surface.
 pub(crate) const ZRBTCHX_LOCKFILE: &str = "Tools/rbk/rbtd/Cargo.lock";
 
-/// The root package named by ZRBTCHX_LOCKFILE — this project's own crate, which
-/// declares no `license` field and is covered by the repo-root LICENSE. Skipped
-/// when the lock's package set is checked against the vendored allowlist.
-pub(crate) const ZRBTCHX_ROOT_CRATE: &str = "rbt";
-
 /// SPDX expressions vetted as acceptable for a dependency of an Apache-2.0
 /// release. Every expression admits at least one permissive license under which
 /// the dependency may be taken; none is copyleft, and none imposes a term the
@@ -113,10 +108,14 @@ pub(crate) const ZRBTCHX_ALLOWED_LICENSES: &[&str] = &[
     "Zlib OR Apache-2.0 OR MIT",
 ];
 
-/// Every crate the lockfile may name, with the SPDX expression vetted for it.
-/// The lock's package set must be a subset of these names: a crate absent here
-/// has never been license-vetted, and the case fails until an operator vets it
-/// and adds the row.
+/// Every crate the lockfile draws from a registry (or any other source), with
+/// the SPDX expression vetted for it. The lock's sourced package set must be a subset of these
+/// names: a crate absent here has never been license-vetted, and the case fails
+/// until an operator vets it and adds the row. A crate the lock resolves with no
+/// source is a path dependency — this project's own root crate among them — and
+/// takes no row: a path dependency is first-party by construction in this
+/// estate, because the parcel is the one road a path crate arrives by and
+/// nothing is vendored.
 ///
 /// Keyed by crate NAME, not name+version. A version bump does not redden the
 /// fixture; only a NEW dependency does. The residual risk this accepts is
@@ -130,7 +129,6 @@ pub(crate) const ZRBTCHX_CRATE_LICENSES: &[(&str, &str)] = &[
     ("arboard", "MIT OR Apache-2.0"),
     ("autocfg", "Apache-2.0 OR MIT"),
     ("bitflags", "MIT OR Apache-2.0"),
-    ("bkp", "Apache-2.0"),
     ("block-buffer", "MIT OR Apache-2.0"),
     ("bytemuck", "Zlib OR Apache-2.0 OR MIT"),
     ("byteorder", "Unlicense OR MIT"),
@@ -432,33 +430,44 @@ pub(crate) fn zrbtchx_root() -> Result<PathBuf, String> {
 
 // ── Case: crate licenses ────────────────────────────────────
 
-/// Extract the package names declared in a Cargo.lock body. Each `[[package]]`
-/// table opens with its `name = "…"` key, so the names are read positionally
-/// without a TOML parser: the first `name` line after each table header.
-pub(crate) fn zrbtchx_lock_crates(lock: &str) -> BTreeSet<String> {
+/// Extract the names of the packages a Cargo.lock body draws from a source.
+/// Each `[[package]]` table opens with its `name = "…"` key, and the lock marks a
+/// package fetched from a registry (or any remote) with a `source = "…"` key and
+/// a path dependency with none, so both are read positionally without a TOML
+/// parser and a package with no source line is left out.
+pub(crate) fn zrbtchx_lock_sourced_crates(lock: &str) -> BTreeSet<String> {
     let mut crates = BTreeSet::new();
-    let mut in_package = false;
+    let mut current: Option<String> = None;
+    let mut sourced = false;
     for line in lock.lines() {
         let trimmed = line.trim();
         if trimmed == "[[package]]" {
-            in_package = true;
-            continue;
-        }
-        if !in_package {
-            continue;
-        }
-        if let Some(rest) = trimmed.strip_prefix("name = \"") {
-            if let Some(name) = rest.strip_suffix('"') {
-                crates.insert(name.to_string());
+            if let (Some(name), true) = (current.take(), sourced) {
+                crates.insert(name);
             }
-            in_package = false;
+            sourced = false;
+            continue;
         }
+        if current.is_none() {
+            if let Some(rest) = trimmed.strip_prefix("name = \"") {
+                if let Some(name) = rest.strip_suffix('"') {
+                    current = Some(name.to_string());
+                }
+            }
+            continue;
+        }
+        if trimmed.starts_with("source = \"") {
+            sourced = true;
+        }
+    }
+    if let (Some(name), true) = (current, sourced) {
+        crates.insert(name);
     }
     crates
 }
 
-/// The lockfile's crate set must be covered by the vetted allowlist, and every
-/// vetted expression must be drawn from the approved set. The first assertion
+/// The lockfile's sourced crate set must be covered by the vetted allowlist, and
+/// every vetted expression must be drawn from the approved set. The first assertion
 /// gates what enters the release; the second proves the table itself was not
 /// widened by a typo.
 fn rbtchx_crate_licenses(dir: &Path) -> rbtcee_Verdict {
@@ -491,10 +500,7 @@ fn rbtchx_crate_licenses(dir: &Path) -> rbtcee_Verdict {
         }
     }
 
-    for name in zrbtchx_lock_crates(&lock) {
-        if name == ZRBTCHX_ROOT_CRATE {
-            continue;
-        }
+    for name in zrbtchx_lock_sourced_crates(&lock) {
         if !ZRBTCHX_CRATE_LICENSES.iter().any(|(vetted, _)| *vetted == name) {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHX_LOCKFILE.to_string(),
