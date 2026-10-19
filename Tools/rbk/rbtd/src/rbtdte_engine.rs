@@ -19,6 +19,8 @@
 
 use std::path::Path;
 
+use bkp::bkprs_scrivener::bkprs_program_write;
+
 use super::rbtcee_engine::*;
 use super::rbtteh_helpers::rbtteh_make_scratch;
 
@@ -592,12 +594,7 @@ fn zrbttee_census_scratch(label: &str) -> std::path::PathBuf {
     let tt = tmp.join("tt");
     std::fs::create_dir_all(&tt).unwrap();
     let script = tt.join(format!("{}.Foo.sh", ZRBTTEE_CENSUS_COL_USED));
-    std::fs::write(&script, "#!/bin/bash\nexit 0\n").unwrap();
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o755)).unwrap();
-    }
+    bkprs_program_write(&script, "#!/bin/bash\nexit 0\n").unwrap();
     tmp
 }
 

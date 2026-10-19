@@ -19,6 +19,8 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
+use bkp::bkprs_scrivener::bkprs_program_copy;
+
 use crate::rbvccd_docimasy::{zrbvccd_find_tt, RBVCCD_COL_SUITE, RBVCCD_TT_SUBDIR};
 use crate::rbvcex_expede;
 use crate::rbvcel_log;
@@ -300,9 +302,8 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
     // byte-generic; the runtime `${0##*/}` resolves the rbw-MF colophon).
     let donor = zrbvccd_find_tt(tt, RBVCCE_COL_QUALIFY_FAST, None);
     let feign_tt = tt.join(RBVCCE_FEIGN_TT);
-    std::fs::copy(&donor, &feign_tt)
+    bkprs_program_copy(&donor, &feign_tt)
         .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to install the feign tabtarget {}: {}", feign_tt.display(), e));
-    zrbvcce_chmod_exec(&feign_tt);
 
     // Rebuild (regenerates the regulus's tabtarget context from the now-complete
     // tt/ set), then commit the seed so the tree is clean before feign — feign's
@@ -347,16 +348,6 @@ fn zrbvcce_git_stream(clone: &str, args: &[&str], top: &Path, act: &str) {
 fn zrbvcce_mkdir(dir: &Path) {
     std::fs::create_dir_all(dir)
         .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to create {}: {}", dir.display(), e));
-}
-
-fn zrbvcce_chmod_exec(path: &Path) {
-    use std::os::unix::fs::PermissionsExt;
-    let mut perms = std::fs::metadata(path)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to stat {}: {}", path.display(), e))
-        .permissions();
-    perms.set_mode(0o755);
-    std::fs::set_permissions(path, perms)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to make {} executable: {}", path.display(), e));
 }
 
 /// A red in the gate or a pre-cut assay: the fault is on the maintainer tree.

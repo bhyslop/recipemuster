@@ -19,6 +19,8 @@
 
 use std::path::PathBuf;
 
+use bkp::bkprs_scrivener::bkprs_program_write;
+
 use super::rbtcee_engine::rbtcee_Verdict;
 use super::rbtcei_invocation::*;
 use super::rbtgec_consts::{RBTGEC_CRUCIBLE_BARK, RBTGEC_CRUCIBLE_CHARGE, RBTGEC_CRUCIBLE_WRIT, RBTGEC_ORDAIN_HALLMARK, RBTGEC_TWEAK_CREDLESS_GUARD};
@@ -33,12 +35,7 @@ fn rbttei_make_tt_dir(root: &PathBuf) -> PathBuf {
 
 fn rbttei_write_script(tt_dir: &PathBuf, name: &str, body: &str) {
     let path = tt_dir.join(name);
-    std::fs::write(&path, format!("#!/bin/bash\n{}", body)).unwrap();
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
-    }
+    bkprs_program_write(&path, format!("#!/bin/bash\n{}", body)).unwrap();
 }
 
 // ── Tabtarget discovery ──────────────────────────────────────

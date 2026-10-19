@@ -1,9 +1,24 @@
 # The repository's muzzle directory — the lint governance a collar wears when it
 # names `.` as its muzzle.
 #
-# The kennel's delivered collar for the substrate's own suite names this root,
-# and a muzzle directory holding no lint list is refused as a muzzle nothing
-# wears. The list is this repository's to state, not the kit's; empty is a valid
-# answer, and is the one stated here until this tree has a method it wants
-# barred by name.
-disallowed-methods = []
+# This file is foreign schema: the keys are clippy's, not the estate's. The list
+# is this repository's to state, not the kit's, and it governs every crate whose
+# collar names this root.
+#
+# THE RULING. The calls that make or carry a runnable file are barred, because
+# the surface that replaces them is the floor crate's: Pastern's program
+# writers (bkp::bkprs_scrivener), which put the write in a child so no thread
+# of the running process ever holds a runnable file open for writing. A sibling
+# thread's fork inherits every write handle the process holds, and a file still
+# open for writing anywhere refuses its exec with ETXTBSY.
+#
+# Every entry states the sentence its author should read: name the surface to
+# adopt, never the rule that refused.
+
+disallowed-methods = [
+  { path = "std::fs::copy", reason = "a copy carries its source's executable bit, and a sibling thread's fork can inherit the copy's write handle so the copy refuses its exec with ETXTBSY. Use bkp::bkprs_scrivener: bkprs_copy carries whether the source is a program, bkprs_program_copy arms the copy, and each copies a program in a child." },
+  { path = "std::fs::set_permissions", reason = "arming a file this process wrote means a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::fs::File::set_permissions", reason = "arming a file this process holds open is the ETXTBSY race itself: a sibling thread's fork inherits the handle. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::os::unix::fs::PermissionsExt::set_mode", reason = "an executable mode marks a file this process means to run, and a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::os::unix::fs::OpenOptionsExt::mode", reason = "opening a file with a mode creates it already armed while this process holds it open for writing, which a sibling thread's fork inherits, so its exec refuses with ETXTBSY. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+]

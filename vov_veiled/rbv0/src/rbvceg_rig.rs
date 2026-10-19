@@ -21,8 +21,9 @@
 // the public repository; the guard is therefore structural, not a rule to
 // remember — the clone names no remote, and even a re-added one dies at the hook.
 
-use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
+
+use bkp::bkprs_scrivener::bkprs_program_write;
 
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
@@ -158,14 +159,8 @@ pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path
 
     rbvcel_log::rbvcel_step("Installing the pre-push refusal hook");
     let hook = clone_dir.join(".git").join("hooks").join("pre-push");
-    std::fs::write(&hook, RBVCEG_RIG_HOOK_BODY)
+    bkprs_program_write(&hook, RBVCEG_RIG_HOOK_BODY)
         .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the pre-push hook {}: {}", hook.display(), e));
-    let mut perms = std::fs::metadata(&hook)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to stat the pre-push hook: {}", e))
-        .permissions();
-    perms.set_mode(0o755);
-    std::fs::set_permissions(&hook, perms)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to make the pre-push hook executable: {}", e));
 
     // Cut the throwaway walk branch; the clone's own default branch stays the
     // pristine reference to diff the walk against.
