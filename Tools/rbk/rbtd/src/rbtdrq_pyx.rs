@@ -435,7 +435,7 @@ pub(crate) fn zrbtchx_root() -> Result<PathBuf, String> {
 /// package fetched from a registry (or any remote) with a `source = "…"` key and
 /// a path dependency with none, so both are read positionally without a TOML
 /// parser and a package with no source line is left out.
-pub(crate) fn zrbtchx_lock_sourced_crates(lock: &str) -> BTreeSet<String> {
+pub(crate) fn zrbtchx_lock_crates(lock: &str) -> BTreeSet<String> {
     let mut crates = BTreeSet::new();
     let mut current: Option<String> = None;
     let mut sourced = false;
@@ -500,7 +500,7 @@ fn rbtchx_crate_licenses(dir: &Path) -> rbtcee_Verdict {
         }
     }
 
-    for name in zrbtchx_lock_sourced_crates(&lock) {
+    for name in zrbtchx_lock_crates(&lock) {
         if !ZRBTCHX_CRATE_LICENSES.iter().any(|(vetted, _)| *vetted == name) {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHX_LOCKFILE.to_string(),
