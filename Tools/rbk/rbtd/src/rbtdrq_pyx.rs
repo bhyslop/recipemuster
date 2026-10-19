@@ -130,6 +130,7 @@ pub(crate) const ZRBTCHX_CRATE_LICENSES: &[(&str, &str)] = &[
     ("arboard", "MIT OR Apache-2.0"),
     ("autocfg", "Apache-2.0 OR MIT"),
     ("bitflags", "MIT OR Apache-2.0"),
+    ("bkp", "Apache-2.0"),
     ("block-buffer", "MIT OR Apache-2.0"),
     ("bytemuck", "Zlib OR Apache-2.0 OR MIT"),
     ("byteorder", "Unlicense OR MIT"),
