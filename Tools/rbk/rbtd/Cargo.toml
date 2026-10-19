@@ -11,3 +11,9 @@ tungstenite = "0.24"
 # deliberately test-binary-only: no clipboard-read primitive exists on the
 # shipped bash surface (operator ruling 260704).
 arboard = "3"
+
+# The floor crate's program writers, for the test cases that write a script and
+# run it from a threaded runner — a write left to this process races every
+# sibling's fork into ETXTBSY. Test-only: no shipped path writes a program.
+[dev-dependencies]
+bkp = { path = "../../bkk/bk0/bkp" }
