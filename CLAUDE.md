@@ -68,7 +68,7 @@ rosters, and for a reader who wants the bare table.
 ## Retired Memos
 
 A memo whose work is fully dispositioned (every concern resolved into a pace, an
-itch/RBSHR entry, or an explicit decline) moves to `jjqs_studbook/retired/memos/`
+RBSHR entry, or an explicit decline) moves to `jjqs_studbook/retired/memos/`
 with its basename unchanged. A memo path under `jjqs_studbook/` that no longer
 resolves has retired — look for the same basename under
 `jjqs_studbook/retired/memos/`. Retired memos are historical record: read them
