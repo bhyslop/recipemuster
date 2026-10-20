@@ -315,7 +315,7 @@ pub(crate) fn rbtcgp_docker_config_label(image_ref: &str, label_key: &str) -> Re
 // rbev_busybox is the load-bearing vessel — small, fast, conjure-mode
 // (full ark inventory). Also referenced by rbtcgp_batch_vouch_lifecycle.
 
-pub(crate) const RBTCGP_BUSYBOX_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_busybox");
+pub(crate) const RBTCGP_BUSYBOX_VESSEL_DIR: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_busybox");
 
 /// All five ark basenames produced by a conjure-mode hallmark.
 const ZRBTCGP_ARK_BASENAMES_ALL: &[&str] = &[
@@ -395,7 +395,7 @@ const RBTCGP_REDON_ANNOUNCE: &str = "Re-donned the director mantle mid-flight";
 /// onto a busybox touchmark trips the collision guard's different-digest branch.
 /// Carries the same yoked reliquary as busybox, so host-side tool resolution
 /// succeeds and the failure lands cloud-side at the guard, not host-side.
-const RBTCGP_DEB_VESSEL_DIR: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_sentry_deb_tether");
+const RBTCGP_DEB_VESSEL_DIR: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_sentry_deb_tether");
 
 /// Assert a read verb (summon/plumb/augur) exited the vacant band — the named
 /// hallmark or Lode is absent from the registry (buc_reject BUBC_band_vacant),

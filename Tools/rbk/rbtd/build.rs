@@ -23,31 +23,31 @@
 //! fall back on: a binary answering the kennel's question with text that means
 //! nothing would be believed. The pattern is the kennel's hello exemplar's.
 
-// EVERY DECLARATION STANDS INSIDE `main`: a file cargo names carries no prefix
-// of its own.
+// EVERY DECLARATION STANDS INSIDE `main` AND WEARS THE CRATE'S `b` CELL: a file
+// cargo names carries no prefix of its own.
 fn main() {
     /// The variable the kennel's converge states into the build. Its home is the
     /// converge, `BKCH_COLLAR_POSITION_VAR` in `Tools/bkk/bk0/src/bkch_heel.rs`;
     /// it is spelled here because a build script links nothing. Cargo is told to
     /// watch it, so a commit touching the collar's roots rebuilds the binary
     /// rather than leaving it claiming a position it no longer holds.
-    const ZRBTD_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
+    const ZRBTB_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
 
-    println!("cargo:rerun-if-env-changed={}", ZRBTD_SEAT_VAR);
+    println!("cargo:rerun-if-env-changed={}", ZRBTB_SEAT_VAR);
 
-    let seat = match std::env::var(ZRBTD_SEAT_VAR) {
+    let seat = match std::env::var(ZRBTB_SEAT_VAR) {
         Ok(value) if !value.trim().is_empty() => value,
         _ => panic!(
             "{} is unset, so this build cannot state the position it was taken at. \
              The theurge is built through the kennel's doors, which state it: \
              tt/rbw-tb.Build.sh for the app, tt/rbw-tt.Test.sh for the suite",
-            ZRBTD_SEAT_VAR, //
+            ZRBTB_SEAT_VAR, //
         ),
     };
 
     // RE-EMITTED UNDER THE NAME IT ARRIVED UNDER, so `env!` reads what cargo set
     // for this compile and never whatever the ambient environment held.
-    println!("cargo:rustc-env={}={}", ZRBTD_SEAT_VAR, seat.trim());
+    println!("cargo:rustc-env={}={}", ZRBTB_SEAT_VAR, seat.trim());
 }
 
 // eof
