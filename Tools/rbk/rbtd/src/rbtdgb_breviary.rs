@@ -13,9 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Generated file - do not hand-edit; the next render run overwrites it.
+// Co-maintained with its sibling in the other dialect, Tools/rbk/rbcg_breviary.sh - do not hand-edit.
 // The human-presentation surface forms of the governed words homed in RBK.
 // A string that spells one of these words in its own bytes has left the home.
+// Beside them, the colophons and exit codes attached at definitions, each named for the definition it is attached at.
+// Held in usufruct, values other kits attach that this crate cites: busx_regime, busx_enroll, busx_clean.
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
 
@@ -2728,5 +2730,224 @@ pub const RBTGEB_SORTIE_NOMINALIZATION_VERSAL: &str = rbtgeb_sortie_nominalizati
 macro_rules! rbtgeb_sortie_nominalization_lettrine { () => { "Sortie" }; }
 pub(crate) use rbtgeb_sortie_nominalization_lettrine;
 pub const RBTGEB_SORTIE_NOMINALIZATION_LETTRINE: &str = rbtgeb_sortie_nominalization_lettrine!();
+macro_rules! rbtgeb_charge_pediment { () => { "rbw-cC" }; }
+pub(crate) use rbtgeb_charge_pediment;
+pub const RBTGEB_CHARGE_PEDIMENT: &str = rbtgeb_charge_pediment!();
+macro_rules! rbtgeb_hail_pediment { () => { "rbw-ch" }; }
+pub(crate) use rbtgeb_hail_pediment;
+pub const RBTGEB_HAIL_PEDIMENT: &str = rbtgeb_hail_pediment!();
+macro_rules! rbtgeb_quench_pediment { () => { "rbw-cQ" }; }
+pub(crate) use rbtgeb_quench_pediment;
+pub const RBTGEB_QUENCH_PEDIMENT: &str = rbtgeb_quench_pediment!();
+macro_rules! rbtgeb_rack_pediment { () => { "rbw-cr" }; }
+pub(crate) use rbtgeb_rack_pediment;
+pub const RBTGEB_RACK_PEDIMENT: &str = rbtgeb_rack_pediment!();
+macro_rules! rbtgeb_scry_pediment { () => { "rbw-cs" }; }
+pub(crate) use rbtgeb_scry_pediment;
+pub const RBTGEB_SCRY_PEDIMENT: &str = rbtgeb_scry_pediment!();
+macro_rules! rbtgeb_engross_dentil { () => { 111 }; }
+pub(crate) use rbtgeb_engross_dentil;
+pub const RBTGEB_ENGROSS_DENTIL: i32 = rbtgeb_engross_dentil!();
+macro_rules! rbtgeb_expunge_dentil { () => { 112 }; }
+pub(crate) use rbtgeb_expunge_dentil;
+pub const RBTGEB_EXPUNGE_DENTIL: i32 = rbtgeb_expunge_dentil!();
+macro_rules! rbtgeb_peruse_dentil { () => { 113 }; }
+pub(crate) use rbtgeb_peruse_dentil;
+pub const RBTGEB_PERUSE_DENTIL: i32 = rbtgeb_peruse_dentil!();
+macro_rules! rbtgeb_dockerfile_hygiene_dentil { () => { 103 }; }
+pub(crate) use rbtgeb_dockerfile_hygiene_dentil;
+pub const RBTGEB_DOCKERFILE_HYGIENE_DENTIL: i32 = rbtgeb_dockerfile_hygiene_dentil!();
+macro_rules! rbtgeb_access_federated_probe_pediment { () => { "rbw-aa" }; }
+pub(crate) use rbtgeb_access_federated_probe_pediment;
+pub const RBTGEB_ACCESS_FEDERATED_PROBE_PEDIMENT: &str = rbtgeb_access_federated_probe_pediment!();
+macro_rules! rbtgeb_access_mantle_probe_pediment { () => { "rbw-am" }; }
+pub(crate) use rbtgeb_access_mantle_probe_pediment;
+pub const RBTGEB_ACCESS_MANTLE_PROBE_PEDIMENT: &str = rbtgeb_access_mantle_probe_pediment!();
+macro_rules! rbtgeb_access_oauth_probe_pediment { () => { "rbw-ap" }; }
+pub(crate) use rbtgeb_access_oauth_probe_pediment;
+pub const RBTGEB_ACCESS_OAUTH_PROBE_PEDIMENT: &str = rbtgeb_access_oauth_probe_pediment!();
+macro_rules! rbtgeb_ark_abjure_pediment { () => { "rbw-fA" }; }
+pub(crate) use rbtgeb_ark_abjure_pediment;
+pub const RBTGEB_ARK_ABJURE_PEDIMENT: &str = rbtgeb_ark_abjure_pediment!();
+macro_rules! rbtgeb_ark_kludge_pediment { () => { "rbw-fk" }; }
+pub(crate) use rbtgeb_ark_kludge_pediment;
+pub const RBTGEB_ARK_KLUDGE_PEDIMENT: &str = rbtgeb_ark_kludge_pediment!();
+macro_rules! rbtgeb_ark_ordain_pediment { () => { "rbw-fO" }; }
+pub(crate) use rbtgeb_ark_ordain_pediment;
+pub const RBTGEB_ARK_ORDAIN_PEDIMENT: &str = rbtgeb_ark_ordain_pediment!();
+macro_rules! rbtgeb_ark_plumb_compact_pediment { () => { "rbw-fpc" }; }
+pub(crate) use rbtgeb_ark_plumb_compact_pediment;
+pub const RBTGEB_ARK_PLUMB_COMPACT_PEDIMENT: &str = rbtgeb_ark_plumb_compact_pediment!();
+macro_rules! rbtgeb_ark_plumb_full_pediment { () => { "rbw-fpf" }; }
+pub(crate) use rbtgeb_ark_plumb_full_pediment;
+pub const RBTGEB_ARK_PLUMB_FULL_PEDIMENT: &str = rbtgeb_ark_plumb_full_pediment!();
+macro_rules! rbtgeb_ark_summon_pediment { () => { "rbw-fs" }; }
+pub(crate) use rbtgeb_ark_summon_pediment;
+pub const RBTGEB_ARK_SUMMON_PEDIMENT: &str = rbtgeb_ark_summon_pediment!();
+macro_rules! rbtgeb_citizen_attaint_pediment { () => { "rbw-pA" }; }
+pub(crate) use rbtgeb_citizen_attaint_pediment;
+pub const RBTGEB_CITIZEN_ATTAINT_PEDIMENT: &str = rbtgeb_citizen_attaint_pediment!();
+macro_rules! rbtgeb_citizen_brevet_pediment { () => { "rbw-pB" }; }
+pub(crate) use rbtgeb_citizen_brevet_pediment;
+pub const RBTGEB_CITIZEN_BREVET_PEDIMENT: &str = rbtgeb_citizen_brevet_pediment!();
+macro_rules! rbtgeb_citizen_unseat_pediment { () => { "rbw-pU" }; }
+pub(crate) use rbtgeb_citizen_unseat_pediment;
+pub const RBTGEB_CITIZEN_UNSEAT_PEDIMENT: &str = rbtgeb_citizen_unseat_pediment!();
+macro_rules! rbtgeb_depot_levy_pediment { () => { "rbw-dL" }; }
+pub(crate) use rbtgeb_depot_levy_pediment;
+pub const RBTGEB_DEPOT_LEVY_PEDIMENT: &str = rbtgeb_depot_levy_pediment!();
+macro_rules! rbtgeb_depot_list_pediment { () => { "rbw-dl" }; }
+pub(crate) use rbtgeb_depot_list_pediment;
+pub const RBTGEB_DEPOT_LIST_PEDIMENT: &str = rbtgeb_depot_list_pediment!();
+macro_rules! rbtgeb_depot_recognosce_pediment { () => { "rbw-dr" }; }
+pub(crate) use rbtgeb_depot_recognosce_pediment;
+pub const RBTGEB_DEPOT_RECOGNOSCE_PEDIMENT: &str = rbtgeb_depot_recognosce_pediment!();
+macro_rules! rbtgeb_depot_unmake_pediment { () => { "rbw-dU" }; }
+pub(crate) use rbtgeb_depot_unmake_pediment;
+pub const RBTGEB_DEPOT_UNMAKE_PEDIMENT: &str = rbtgeb_depot_unmake_pediment!();
+macro_rules! rbtgeb_director_anoint_pediment { () => { "rbw-rva" }; }
+pub(crate) use rbtgeb_director_anoint_pediment;
+pub const RBTGEB_DIRECTOR_ANOINT_PEDIMENT: &str = rbtgeb_director_anoint_pediment!();
+macro_rules! rbtgeb_director_feoff_pediment { () => { "rbw-rvf" }; }
+pub(crate) use rbtgeb_director_feoff_pediment;
+pub const RBTGEB_DIRECTOR_FEOFF_PEDIMENT: &str = rbtgeb_director_feoff_pediment!();
+macro_rules! rbtgeb_director_seise_pediment { () => { "rbw-rrs" }; }
+pub(crate) use rbtgeb_director_seise_pediment;
+pub const RBTGEB_DIRECTOR_SEISE_PEDIMENT: &str = rbtgeb_director_seise_pediment!();
+macro_rules! rbtgeb_director_vouch_pediment { () => { "rbw-fV" }; }
+pub(crate) use rbtgeb_director_vouch_pediment;
+pub const RBTGEB_DIRECTOR_VOUCH_PEDIMENT: &str = rbtgeb_director_vouch_pediment!();
+macro_rules! rbtgeb_director_yoke_pediment { () => { "rbw-rvy" }; }
+pub(crate) use rbtgeb_director_yoke_pediment;
+pub const RBTGEB_DIRECTOR_YOKE_PEDIMENT: &str = rbtgeb_director_yoke_pediment!();
+macro_rules! rbtgeb_foedus_canvass_pediment { () => { "rbw-jc" }; }
+pub(crate) use rbtgeb_foedus_canvass_pediment;
+pub const RBTGEB_FOEDUS_CANVASS_PEDIMENT: &str = rbtgeb_foedus_canvass_pediment!();
+macro_rules! rbtgeb_foedus_descry_pediment { () => { "rbw-jd" }; }
+pub(crate) use rbtgeb_foedus_descry_pediment;
+pub const RBTGEB_FOEDUS_DESCRY_PEDIMENT: &str = rbtgeb_foedus_descry_pediment!();
+macro_rules! rbtgeb_foedus_descry_dentil { () => { 106 }; }
+pub(crate) use rbtgeb_foedus_descry_dentil;
+pub const RBTGEB_FOEDUS_DESCRY_DENTIL: i32 = rbtgeb_foedus_descry_dentil!();
+macro_rules! rbtgeb_foedus_instate_pediment { () => { "rbw-jI" }; }
+pub(crate) use rbtgeb_foedus_instate_pediment;
+pub const RBTGEB_FOEDUS_INSTATE_PEDIMENT: &str = rbtgeb_foedus_instate_pediment!();
+macro_rules! rbtgeb_foedus_instate_dentil { () => { 107 }; }
+pub(crate) use rbtgeb_foedus_instate_dentil;
+pub const RBTGEB_FOEDUS_INSTATE_DENTIL: i32 = rbtgeb_foedus_instate_dentil!();
+macro_rules! rbtgeb_governor_gird_pediment { () => { "rbw-mG" }; }
+pub(crate) use rbtgeb_governor_gird_pediment;
+pub const RBTGEB_GOVERNOR_GIRD_PEDIMENT: &str = rbtgeb_governor_gird_pediment!();
+macro_rules! rbtgeb_hallmark_tally_pediment { () => { "rbw-ft" }; }
+pub(crate) use rbtgeb_hallmark_tally_pediment;
+pub const RBTGEB_HALLMARK_TALLY_PEDIMENT: &str = rbtgeb_hallmark_tally_pediment!();
+macro_rules! rbtgeb_image_audit_pediment { () => { "rbw-iah" }; }
+pub(crate) use rbtgeb_image_audit_pediment;
+pub const RBTGEB_IMAGE_AUDIT_PEDIMENT: &str = rbtgeb_image_audit_pediment!();
+macro_rules! rbtgeb_image_delete_hallmark_pediment { () => { "rbw-iJh" }; }
+pub(crate) use rbtgeb_image_delete_hallmark_pediment;
+pub const RBTGEB_IMAGE_DELETE_HALLMARK_PEDIMENT: &str = rbtgeb_image_delete_hallmark_pediment!();
+macro_rules! rbtgeb_image_delete_locator_pediment { () => { "rbw-iJ" }; }
+pub(crate) use rbtgeb_image_delete_locator_pediment;
+pub const RBTGEB_IMAGE_DELETE_LOCATOR_PEDIMENT: &str = rbtgeb_image_delete_locator_pediment!();
+macro_rules! rbtgeb_image_rekon_pediment { () => { "rbw-irh" }; }
+pub(crate) use rbtgeb_image_rekon_pediment;
+pub const RBTGEB_IMAGE_REKON_PEDIMENT: &str = rbtgeb_image_rekon_pediment!();
+macro_rules! rbtgeb_image_retrieve_hallmark_pediment { () => { "rbw-iwh" }; }
+pub(crate) use rbtgeb_image_retrieve_hallmark_pediment;
+pub const RBTGEB_IMAGE_RETRIEVE_HALLMARK_PEDIMENT: &str = rbtgeb_image_retrieve_hallmark_pediment!();
+macro_rules! rbtgeb_image_retrieve_locator_pediment { () => { "rbw-iw" }; }
+pub(crate) use rbtgeb_image_retrieve_locator_pediment;
+pub const RBTGEB_IMAGE_RETRIEVE_LOCATOR_PEDIMENT: &str = rbtgeb_image_retrieve_locator_pediment!();
+macro_rules! rbtgeb_lode_augur_pediment { () => { "rbw-la" }; }
+pub(crate) use rbtgeb_lode_augur_pediment;
+pub const RBTGEB_LODE_AUGUR_PEDIMENT: &str = rbtgeb_lode_augur_pediment!();
+macro_rules! rbtgeb_lode_banish_pediment { () => { "rbw-lB" }; }
+pub(crate) use rbtgeb_lode_banish_pediment;
+pub const RBTGEB_LODE_BANISH_PEDIMENT: &str = rbtgeb_lode_banish_pediment!();
+macro_rules! rbtgeb_lode_conclave_pediment { () => { "rbw-lC" }; }
+pub(crate) use rbtgeb_lode_conclave_pediment;
+pub const RBTGEB_LODE_CONCLAVE_PEDIMENT: &str = rbtgeb_lode_conclave_pediment!();
+macro_rules! rbtgeb_lode_divine_pediment { () => { "rbw-ld" }; }
+pub(crate) use rbtgeb_lode_divine_pediment;
+pub const RBTGEB_LODE_DIVINE_PEDIMENT: &str = rbtgeb_lode_divine_pediment!();
+macro_rules! rbtgeb_lode_ensconce_pediment { () => { "rbw-lE" }; }
+pub(crate) use rbtgeb_lode_ensconce_pediment;
+pub const RBTGEB_LODE_ENSCONCE_PEDIMENT: &str = rbtgeb_lode_ensconce_pediment!();
+macro_rules! rbtgeb_lode_immure_pediment { () => { "rbw-lI" }; }
+pub(crate) use rbtgeb_lode_immure_pediment;
+pub const RBTGEB_LODE_IMMURE_PEDIMENT: &str = rbtgeb_lode_immure_pediment!();
+macro_rules! rbtgeb_lode_underpin_pediment { () => { "rbw-lU" }; }
+pub(crate) use rbtgeb_lode_underpin_pediment;
+pub const RBTGEB_LODE_UNDERPIN_PEDIMENT: &str = rbtgeb_lode_underpin_pediment!();
+macro_rules! rbtgeb_manor_affiance_pediment { () => { "rbw-mA" }; }
+pub(crate) use rbtgeb_manor_affiance_pediment;
+pub const RBTGEB_MANOR_AFFIANCE_PEDIMENT: &str = rbtgeb_manor_affiance_pediment!();
+macro_rules! rbtgeb_manor_escheat_pediment { () => { "rbw-mE" }; }
+pub(crate) use rbtgeb_manor_escheat_pediment;
+pub const RBTGEB_MANOR_ESCHEAT_PEDIMENT: &str = rbtgeb_manor_escheat_pediment!();
+macro_rules! rbtgeb_manor_escheat_dentil { () => { 114 }; }
+pub(crate) use rbtgeb_manor_escheat_dentil;
+pub const RBTGEB_MANOR_ESCHEAT_DENTIL: i32 = rbtgeb_manor_escheat_dentil!();
+macro_rules! rbtgeb_manor_instaurate_pediment { () => { "rbw-mI" }; }
+pub(crate) use rbtgeb_manor_instaurate_pediment;
+pub const RBTGEB_MANOR_INSTAURATE_PEDIMENT: &str = rbtgeb_manor_instaurate_pediment!();
+macro_rules! rbtgeb_manor_jilt_pediment { () => { "rbw-mJ" }; }
+pub(crate) use rbtgeb_manor_jilt_pediment;
+pub const RBTGEB_MANOR_JILT_PEDIMENT: &str = rbtgeb_manor_jilt_pediment!();
+macro_rules! rbtgeb_manor_raze_pediment { () => { "rbw-mR" }; }
+pub(crate) use rbtgeb_manor_raze_pediment;
+pub const RBTGEB_MANOR_RAZE_PEDIMENT: &str = rbtgeb_manor_raze_pediment!();
+macro_rules! rbtgeb_nameplate_drive_pediment { () => { "rbw-nd" }; }
+pub(crate) use rbtgeb_nameplate_drive_pediment;
+pub const RBTGEB_NAMEPLATE_DRIVE_PEDIMENT: &str = rbtgeb_nameplate_drive_pediment!();
+macro_rules! rbtgeb_payor_establish_pediment { () => { "rbw-gPE" }; }
+pub(crate) use rbtgeb_payor_establish_pediment;
+pub const RBTGEB_PAYOR_ESTABLISH_PEDIMENT: &str = rbtgeb_payor_establish_pediment!();
+macro_rules! rbtgeb_payor_install_pediment { () => { "rbw-gPI" }; }
+pub(crate) use rbtgeb_payor_install_pediment;
+pub const RBTGEB_PAYOR_INSTALL_PEDIMENT: &str = rbtgeb_payor_install_pediment!();
+macro_rules! rbtgeb_quota_build_pediment { () => { "rbw-gPQ" }; }
+pub(crate) use rbtgeb_quota_build_pediment;
+pub const RBTGEB_QUOTA_BUILD_PEDIMENT: &str = rbtgeb_quota_build_pediment!();
+macro_rules! rbtgeb_sederunt_espy_pediment { () => { "rbw-as" }; }
+pub(crate) use rbtgeb_sederunt_espy_pediment;
+pub const RBTGEB_SEDERUNT_ESPY_PEDIMENT: &str = rbtgeb_sederunt_espy_pediment!();
+macro_rules! rbtgeb_sederunt_novate_pediment { () => { "rbw-aN" }; }
+pub(crate) use rbtgeb_sederunt_novate_pediment;
+pub const RBTGEB_SEDERUNT_NOVATE_PEDIMENT: &str = rbtgeb_sederunt_novate_pediment!();
+macro_rules! rbtgeb_terrier_rehearse_pediment { () => { "rbw-pr" }; }
+pub(crate) use rbtgeb_terrier_rehearse_pediment;
+pub const RBTGEB_TERRIER_REHEARSE_PEDIMENT: &str = rbtgeb_terrier_rehearse_pediment!();
+macro_rules! rbtgeb_admission_dentil { () => { 109 }; }
+pub(crate) use rbtgeb_admission_dentil;
+pub const RBTGEB_ADMISSION_DENTIL: i32 = rbtgeb_admission_dentil!();
+macro_rules! rbtgeb_chain_dentil { () => { 105 }; }
+pub(crate) use rbtgeb_chain_dentil;
+pub const RBTGEB_CHAIN_DENTIL: i32 = rbtgeb_chain_dentil!();
+macro_rules! rbtgeb_credless_dentil { () => { 104 }; }
+pub(crate) use rbtgeb_credless_dentil;
+pub const RBTGEB_CREDLESS_DENTIL: i32 = rbtgeb_credless_dentil!();
+macro_rules! rbtgeb_recipe_dentil { () => { 102 }; }
+pub(crate) use rbtgeb_recipe_dentil;
+pub const RBTGEB_RECIPE_DENTIL: i32 = rbtgeb_recipe_dentil!();
+macro_rules! rbtgeb_runway_dentil { () => { 115 }; }
+pub(crate) use rbtgeb_runway_dentil;
+pub const RBTGEB_RUNWAY_DENTIL: i32 = rbtgeb_runway_dentil!();
+macro_rules! rbtgeb_unseised_dentil { () => { 116 }; }
+pub(crate) use rbtgeb_unseised_dentil;
+pub const RBTGEB_UNSEISED_DENTIL: i32 = rbtgeb_unseised_dentil!();
+macro_rules! rbtgeb_vacant_dentil { () => { 110 }; }
+pub(crate) use rbtgeb_vacant_dentil;
+pub const RBTGEB_VACANT_DENTIL: i32 = rbtgeb_vacant_dentil!();
+macro_rules! rbtgeb_busx_regime_dentil { () => { 100 }; }
+pub(crate) use rbtgeb_busx_regime_dentil;
+pub const RBTGEB_BUSX_REGIME_DENTIL: i32 = rbtgeb_busx_regime_dentil!();
+macro_rules! rbtgeb_busx_enroll_dentil { () => { 101 }; }
+pub(crate) use rbtgeb_busx_enroll_dentil;
+pub const RBTGEB_BUSX_ENROLL_DENTIL: i32 = rbtgeb_busx_enroll_dentil!();
+macro_rules! rbtgeb_busx_clean_dentil { () => { 108 }; }
+pub(crate) use rbtgeb_busx_clean_dentil;
+pub const RBTGEB_BUSX_CLEAN_DENTIL: i32 = rbtgeb_busx_clean_dentil!();
 
 // eof
