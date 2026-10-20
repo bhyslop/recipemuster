@@ -26,8 +26,8 @@ source "${BURD_BUK_DIR}/buym_yelp.sh"
 # invocation is the kennel's, through the door each collar is handed to: the
 # app converged by the heel, the suite launched by the mush. No codegen: essai
 # reaches its workers by tabtarget, needing no generated colophon constants.
-readonly ZRBVE_APP_COLLAR="rbthdn_app"
-readonly ZRBVE_SUITE_COLLAR="rbthdn_suite"
+readonly ZRBVE_APP_COLLAR="rbvn_app"
+readonly ZRBVE_SUITE_COLLAR="rbvn_suite"
 
 # The kennel stands and is current, or refuse naming the whistle. THE KENNEL
 # BINARY IS DRIVEN, never a nested kennel tabtarget, so this dispatch stays the

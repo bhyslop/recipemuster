@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHD Hierophant — the veiled delivery-ceremony conductor. Library root.
+// RBV Hierophant — the veiled delivery-ceremony conductor. Library root.
 //
 // The hierophant conducts the delivery ceremony as the theurge conducts the
 // tests (RBSHC). It owns four commands split on the one load-bearing seam,

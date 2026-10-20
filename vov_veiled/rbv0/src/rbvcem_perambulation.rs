@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — perambulation: the ship/withhold judgment over every tracked path.
+// RBVCEM — perambulation: the ship/withhold judgment over every tracked path.
 //
 // Named for the manorial walking of the bounds: the periodic act that fixes,
 // stretch by stretch, what lies within the estate and what lies without. A
@@ -145,7 +145,7 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // reason: a delivered build door converges through its collar, so a
     // withheld collar would leave that door pointing at nothing. The
     // hierophant's are withheld at stem grain, as the crate they declare is.
-    ("rbmm_moorings/bkd_weaned/rbthdn_", Withhold),
+    ("rbmm_moorings/bkd_weaned/rbvn_", Withhold),
     ("rbmm_moorings/bkd_weaned/", Ship),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.

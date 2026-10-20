@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — cachet: the durable verdict the docimasy grants and the ostend
+// RBVCET — cachet: the durable verdict the docimasy grants and the ostend
 // requires (RBS0 rbshc_cachet; RBSHD "Grant the cachet"; RBSHO "Require the
 // cachet"). A small crate module, not a worker: stored beside the regulus
 // (a sibling of the clone, in the regulus's parent directory — the same

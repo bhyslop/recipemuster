@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDT — the cachet's self-proofs: grant (render round-trips through
+// RBVTET — the cachet's self-proofs: grant (render round-trips through
 // parse), accept (a matching tree hash reads as good), and the
 // tree-hash-mismatch refusal (RBSHD/RBSHO "the cachet module proven by crate
 // tests"). All three run on synthetic fields — no git, no filesystem.
@@ -61,7 +61,7 @@ fn rbvtet_parse_refuses_malformed_content() {
         "a line with no '=' must refuse"
     );
     assert!(
-        rbvcet_parse("RBTHDR_CACHET_UNKNOWN=abc\n").is_err(),
+        rbvcet_parse("unknown=abc\n").is_err(),
         "an unrecognized key must refuse, not be silently ignored"
     );
     assert!(

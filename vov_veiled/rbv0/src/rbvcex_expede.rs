@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — expede: the cut. Build the delivery regulus by ADDITION into a
+// RBVCEX — expede: the cut. Build the delivery regulus by ADDITION into a
 // clone of the public repository (RBSHC "The cut, and the single matcher";
 // RBSHE step 3). Absorbed into the hierophant by the 260718 re-ruling —
 // essai runs this in-process, judging every path through the one matcher

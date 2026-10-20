@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHD Hierophant — binary entry point.
+// RBVM Hierophant — binary entry point.
 //
 // Subcommands, one per ceremony (RBSHC "The command seam"):
 //   rbv essai              — the reversible repair lap (RBSHE).
@@ -72,7 +72,7 @@ const RBVM_FLAG_EXERGUE: &str = "--exergue";
 /// to this compile.
 ///
 /// THE ONE STDOUT LINE THE HIEROPHANT WRITES, and it stands here rather than in
-/// RBTHDR for the reason RBTHDR gives for leaving stdout clear: this is the
+/// RBVCEL for the reason RBVCEL gives for leaving stdout clear: this is the
 /// machine-read channel, the kennel reading the answer's position-shaped lines
 /// from stdout, so the answer is the bare position and nothing else.
 fn zrbvm_answer_exergue() -> ExitCode {

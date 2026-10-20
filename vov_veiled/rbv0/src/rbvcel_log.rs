@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — the hierophant's emission module (RCG Output Discipline).
+// RBVCEL — the hierophant's emission module (RCG Output Discipline).
 //
 // All output routes through here — no direct println!/eprintln! elsewhere in
 // the crate. Two registers, because the hierophant serves two readers:

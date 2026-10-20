@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — harbinger: the standalone stranger rig against promoted public main
+// RBVCCH — harbinger: the standalone stranger rig against promoted public main
 // (RBSHH). Stands up the guarded coldwalk rig from the anonymous HTTPS clone of
 // the promoted public repository — the exact face a real stranger lands on —
 // and hands off the launch line and stranger prompt. No gate: unlike essai,

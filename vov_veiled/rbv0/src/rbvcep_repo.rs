@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — repository anchoring, the fixed conventional sibling locations, and
+// RBVCEP — repository anchoring, the fixed conventional sibling locations, and
 // the dispose-by-rename discipline (RBSHE step 3, seposition).
 //
 // Every path the lap touches is derived from the maintainer repository root,
