@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDT — the veil assay's self-proofs, ported from the retired theurge loupe
+// RBVTEU — the veil assay's self-proofs, ported from the retired theurge loupe
 // fixture when the content-grain leak detection was absorbed into the hierophant.
 // They, not a green lap, are what prove the matcher.
 //

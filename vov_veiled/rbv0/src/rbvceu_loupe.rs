@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — loupe: the absorbed veil assay.
+// RBVCEU — loupe: the absorbed veil assay.
 //
 // A loupe is the jeweler's glass held to a coin still in the mint — the veiled
 // trees have not been cut away yet. The assay reads them: it harvests its census

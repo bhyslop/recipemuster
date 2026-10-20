@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — the coldwalk rig: the one truly absorbed module (RBSHC "Worker,
+// RBVCEG — the coldwalk rig: the one truly absorbed module (RBSHC "Worker,
 // never authority"). It clones a tree, guards it so nothing the walk does can
 // reach any remote (severed origin + a pre-push refusal hook), cuts a throwaway
 // walk branch, and hands off the launch line and stranger prompt.

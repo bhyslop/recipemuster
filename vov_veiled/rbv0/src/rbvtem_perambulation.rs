@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDT — the perambulation's self-proofs, ported from the retired theurge
+// RBVTEM — the perambulation's self-proofs, ported from the retired theurge
 // fixture when the cut was absorbed (the 260718 re-ruling). They, not a green
 // lap, are what prove the sweep — the 292-MiB catch: clean tip, leaking
 // history.

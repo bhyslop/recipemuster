@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — ostend: the reveal ceremony's irreversible showing (RBSHO). The
+// RBVCCO — ostend: the reveal ceremony's irreversible showing (RBSHO). The
 // once-per-cycle kerygma of the standing dry regulus under a granted
 // cachet: the re-asserted ground, the operator's own file-list eyes, the
 // kerygma, and promotion — every assert machine-performed, every push
