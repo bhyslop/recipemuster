@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — docimasy: the reveal ceremony's reversible proving act (RBSHD).
+// RBVCCD — docimasy: the reveal ceremony's reversible proving act (RBSHD).
 // Narthex gates, freshness assert, the preview conduction, credential
 // preflight, and the once-per-cycle gauntlet stage — granting the cachet on
 // green. Named for the Athenian civic examination of a candidate's

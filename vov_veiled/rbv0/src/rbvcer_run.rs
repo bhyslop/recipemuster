@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — the subprocess layer. The hierophant sequences proven workers
+// RBVCER — the subprocess layer. The hierophant sequences proven workers
 // (RBSHC "Worker, never authority"); this is how it reaches them.
 //
 // Two modes, because the callers want two things:

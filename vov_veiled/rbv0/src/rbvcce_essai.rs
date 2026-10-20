@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBTHDR — essai: the reversible repair lap (RBSHE). The whole cycle end to end
+// RBVCCE — essai: the reversible repair lap (RBSHE). The whole cycle end to end
 // — gate, assay, cut, prove, rig — run as many times as it takes, with ZERO
 // remote acts. Its product is a walk-ready rig standing beside a pristine
 // regulus that is bit-for-bit what a subsequent ostend would push.
