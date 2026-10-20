@@ -17,7 +17,7 @@
 //
 // RBTDRJ — touchstone: theurge certifying its own operator surface.
 //
-// A green, credless reveille member whose cases spawn child rbtd runs through
+// A green, credless reveille member whose cases spawn child rbt runs through
 // the real tabtarget chain (tabtarget → launcher → workbench → rbte_engine →
 // binary) against the deliberately-failing calibrant fixtures, asserting the
 // child's exit code, its diagnostic shape on the operator-visible stream, and
@@ -26,7 +26,7 @@
 // are streaked on this touchstone and compared against known verdicts.
 //
 // Assertion surfaces: BUK dispatch folds the coordinator's stderr into stdout
-// (2>&1 through its logging loop), so a child rbtd's diagnostics — which the
+// (2>&1 through its logging loop), so a child rbt's diagnostics — which the
 // RBTDRG discipline routes entirely to stderr — arrive on the PARENT'S
 // captured stdout; captured stderr carries only pre-coordinator chain
 // failures. Cases therefore assert on captured stdout, except the one
@@ -97,14 +97,14 @@ use crate::rbtcep_platform::rbtcep_native_to_posix;
 /// Child dispatch's trace-tree subdir under its BURD_TEMP_DIR — pinned to the
 /// literal in rbtm_allocate_roots (main.rs). A layout change there fails
 /// these assertions loudly rather than letting them pass vacuously.
-const ZRBTCCT_CHILD_TRACE_SUBDIR: &str = "rbtd";
+const ZRBTCCT_CHILD_TRACE_SUBDIR: &str = "trace";
 
 // ── Child runner ─────────────────────────────────────────────
 
 /// One observed child run: the captured streams and exit code, plus the two
 /// roots the parent handed the child — the BURV temp root (under which the
 /// child's dispatch minted its temp-<stamp>/ generation, holding the child
-/// rbtd trace tree) and the BURV_LOG_DIR override (None for a BURD_NO_LOG
+/// rbt trace tree) and the BURV_LOG_DIR override (None for a BURD_NO_LOG
 /// child, which writes no logs at all).
 struct zrbtcct_Child {
     exit_code: i32,
@@ -290,8 +290,8 @@ fn zrbtcct_child_temp_gen(
     }
 }
 
-/// One case's directory in the child rbtd's trace tree:
-/// temp-<stamp>/rbtd/<case fn name>/.
+/// One case's directory in the child rbt's trace tree:
+/// temp-<stamp>/trace/<case fn name>/.
 fn zrbtcct_child_case_dir(
     child: &zrbtcct_Child,
     label: &str,
@@ -683,7 +683,7 @@ fn rbtcct_cli_single_usage_lists_fixtures(dir: &Path) -> rbtcee_Verdict {
         let label = "cli-single-usage";
         let child = zrbtcct_child(dir, label, RBTGEC_THEURGE_CASE, None, &[], false)?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, "usage: rbtd single", "cli-single-usage stdout")?;
+        zrbtcct_expect_contains(&child.stdout, "usage: rbt single", "cli-single-usage stdout")?;
         zrbtcct_expect_contains(&child.stdout, "available fixtures:", "cli-single-usage stdout")
     })
 }
@@ -853,7 +853,7 @@ fn rbtcct_tariff_drift_fails_naming_counts(dir: &Path) -> rbtcee_Verdict {
 // ── stream-placement ────────────────────────────────────────
 
 /// Under BURD_NO_LOG the dispatch leaves the coordinator's streams unmerged,
-/// so this is where the placement contract itself is provable: rbtd's
+/// so this is where the placement contract itself is provable: rbt's
 /// diagnostics land on stderr, not stdout. Every other case reads the folded
 /// stdout the logged chain produces.
 fn rbtcct_stream_placement_diags_on_stderr(dir: &Path) -> rbtcee_Verdict {

@@ -122,7 +122,7 @@ pub fn rbtcee_resolve_fail_fast(
 ) -> Result<bool, String> {
     match (disposition, keep_going_requested) {
         (rbtcee_Disposition::StateProgressing, true) => Err(
-            "rbtd: keep-going mode refused for StateProgressing fixture — \
+            "rbt: keep-going mode refused for StateProgressing fixture — \
              a failed case leaves a broken precondition for the next case, \
              so continuing is incoherent. Run individual cases via the \
              SingleCase tabtarget if you want to survey."
@@ -138,8 +138,8 @@ pub fn rbtcee_resolve_fail_fast(
 pub const RBTCEE_FLAG_KEEP_GOING: &str = "--keep-going";
 
 /// Split raw runner CLI args into positionals and the keep-going flag.
-/// Position-independent, so `rbtd <fixture> --keep-going` and
-/// `rbtd --keep-going <fixture>` read identically. Any other `--`-prefixed
+/// Position-independent, so `rbt <fixture> --keep-going` and
+/// `rbt --keep-going <fixture>` read identically. Any other `--`-prefixed
 /// token is rejected loud — a typo'd flag must never silently read as a
 /// fixture or suite name.
 pub fn rbtcee_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), String> {
@@ -862,7 +862,7 @@ pub fn rbtcee_run_cases(
     for (index, case) in cases.iter().enumerate() {
         let case_dir = root_temp.join(case.name);
         std::fs::create_dir_all(&case_dir).map_err(|e| {
-            format!("rbtd: failed to create case dir '{}': {}", case.name, e)
+            format!("rbt: failed to create case dir '{}': {}", case.name, e)
         })?;
 
         let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
@@ -988,7 +988,7 @@ pub fn rbtcee_run_fixture(
 
     let mut run_result = match setup_result {
         Ok(()) => rbtcee_run_cases(fixture.cases, colors, fail_fast, root_temp),
-        Err(msg) => Err(format!("rbtd: fixture '{}' setup failed: {}", fixture.name, msg)),
+        Err(msg) => Err(format!("rbt: fixture '{}' setup failed: {}", fixture.name, msg)),
     };
 
     if let Some(f) = fixture.teardown {
@@ -1045,7 +1045,7 @@ pub fn rbtcee_run_single_case(
 ) -> Result<rbtcee_RunResult, String> {
     let case_dir = root_temp.join(case.name);
     std::fs::create_dir_all(&case_dir)
-        .map_err(|e| format!("rbtd: failed to create case dir '{}': {}", case.name, e))?;
+        .map_err(|e| format!("rbt: failed to create case dir '{}': {}", case.name, e))?;
 
     let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
     rbtcee_write_trace(&case_dir, case.name, &verdict);

@@ -51,7 +51,7 @@ pub(crate) fn rbtteh_make_scratch(label: &str) -> PathBuf {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    let dir = rbtteh_scratch_root().join(format!("rbtd-test-{}-{}-{}", label, pid, nanos));
+    let dir = rbtteh_scratch_root().join(format!("scratch-{}-{}-{}", label, pid, nanos));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("rbtdth: create scratch dir");
     dir

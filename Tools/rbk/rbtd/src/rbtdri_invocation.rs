@@ -553,7 +553,7 @@ fn rbtcei_invoke_impl(
 
     // A child tabtarget launch must not inherit the parent's dispatch mode. A
     // saddled interactive session exports BURD_NO_LOG (so its own TUI escapes
-    // the log tee) and may export BURD_INTERACTIVE; a child rbtd that inherits
+    // the log tee) and may export BURD_INTERACTIVE; a child rbt that inherits
     // either takes the wrong bud_dispatch branch — the no-log branch never
     // folds the child's stderr into stdout, and the interactive branch reroutes
     // it through the tee — so a black-box surface fixture reading the child's

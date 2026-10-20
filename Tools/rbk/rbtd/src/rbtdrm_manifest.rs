@@ -201,7 +201,7 @@ pub const RBTCEM_FIXTURE_KLUDGE_TADMOR: &str = "kludge-tadmor";
 // container-runtime command proving executability, then abjures.
 pub const RBTCEM_FIXTURE_DOGFIGHT: &str = "dogfight";
 // Calibrant fixtures — synthetic deterministic-verdict fixtures, the test
-// subjects the touchstone surface fixture spawns as child rbtd runs. Internal
+// subjects the touchstone surface fixture spawns as child rbt runs. Internal
 // framework-test plumbing.
 pub const RBTCEM_FIXTURE_CALIBRANT_VERDICTS: &str = "calibrant-verdicts";
 pub const RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST: &str = "calibrant-fail-fast";
@@ -223,7 +223,7 @@ pub const RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED: &str = "calibrant-coverage-u
 // touchstone surface fixture, never by any suite.
 pub const RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT: &str = "calibrant-tariff-drift";
 // Touchstone — the surface fixture: theurge certifying its own operator
-// surface. A reveille member whose cases spawn child rbtd runs through the
+// surface. A reveille member whose cases spawn child rbt runs through the
 // real tabtarget chain against the deliberately-failing calibrant fixtures,
 // asserting the child's exit code, diagnostic shape on the operator-visible
 // stream, and sentinel/trace files. The watcher passes; the watched calibrant
@@ -375,7 +375,7 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTGEC_PRESAGE_IMMURE,
         ]),
         // touchstone drives the theurge's own runner tabtargets — its children
-        // are rbtd invocations of the fixture, suite, and single-case runners.
+        // are rbt invocations of the fixture, suite, and single-case runners.
         RBTCEM_FIXTURE_TOUCHSTONE => Some(&[
             RBTGEC_THEURGE_FIXTURE,
             RBTGEC_THEURGE_SUITE,
