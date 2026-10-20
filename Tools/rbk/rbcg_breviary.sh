@@ -15,9 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Generated file - do not hand-edit; the next render run overwrites it.
+# Co-maintained with its sibling in the other dialect, Tools/rbk/rbtd/src/rbtdgb_breviary.rs - do not hand-edit.
 # The human-presentation surface forms of the governed words homed in RBK.
 # A string that spells one of these words in its own bytes has left the home.
+# Beside them, the colophons and exit codes attached at definitions, each named for the definition it is attached at.
 
 test -z "${ZRBCG_SOURCED:-}" || return 0
 ZRBCG_SOURCED=1
@@ -925,5 +926,19 @@ readonly RBCG_SORTIE_POSSESSIVE_LETTRINE="Sortie's"
 readonly RBCG_SORTIE_NOMINALIZATION="sortie"
 readonly RBCG_SORTIE_NOMINALIZATION_VERSAL="SORTIE"
 readonly RBCG_SORTIE_NOMINALIZATION_LETTRINE="Sortie"
+readonly RBCG_ENGROSS_DENTIL=111
+readonly RBCG_EXPUNGE_DENTIL=112
+readonly RBCG_PERUSE_DENTIL=113
+readonly RBCG_DOCKERFILE_HYGIENE_DENTIL=103
+readonly RBCG_FOEDUS_DESCRY_DENTIL=106
+readonly RBCG_FOEDUS_INSTATE_DENTIL=107
+readonly RBCG_MANOR_ESCHEAT_DENTIL=114
+readonly RBCG_ADMISSION_DENTIL=109
+readonly RBCG_CHAIN_DENTIL=105
+readonly RBCG_CREDLESS_DENTIL=104
+readonly RBCG_RECIPE_DENTIL=102
+readonly RBCG_RUNWAY_DENTIL=115
+readonly RBCG_UNSEISED_DENTIL=116
+readonly RBCG_VACANT_DENTIL=110
 
 # eof

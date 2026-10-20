@@ -13,9 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Generated file - do not hand-edit; the next render run overwrites it.
+// Co-maintained with its sibling in the other dialect, Tools/rbk/rbcg_breviary.sh - do not hand-edit.
 // The human-presentation surface forms of the governed words homed in RBK.
 // A string that spells one of these words in its own bytes has left the home.
+// Beside them, the colophons and exit codes attached at definitions, each named for the definition it is attached at.
+// Held in usufruct, values other kits attach that this crate cites: busx_regime, busx_enroll, busx_clean.
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
 
@@ -2728,5 +2730,56 @@ pub const RBTGEB_SORTIE_NOMINALIZATION_VERSAL: &str = rbtgeb_sortie_nominalizati
 macro_rules! rbtgeb_sortie_nominalization_lettrine { () => { "Sortie" }; }
 pub(crate) use rbtgeb_sortie_nominalization_lettrine;
 pub const RBTGEB_SORTIE_NOMINALIZATION_LETTRINE: &str = rbtgeb_sortie_nominalization_lettrine!();
+macro_rules! rbtgeb_engross_dentil { () => { 111 }; }
+pub(crate) use rbtgeb_engross_dentil;
+pub const RBTGEB_ENGROSS_DENTIL: i32 = rbtgeb_engross_dentil!();
+macro_rules! rbtgeb_expunge_dentil { () => { 112 }; }
+pub(crate) use rbtgeb_expunge_dentil;
+pub const RBTGEB_EXPUNGE_DENTIL: i32 = rbtgeb_expunge_dentil!();
+macro_rules! rbtgeb_peruse_dentil { () => { 113 }; }
+pub(crate) use rbtgeb_peruse_dentil;
+pub const RBTGEB_PERUSE_DENTIL: i32 = rbtgeb_peruse_dentil!();
+macro_rules! rbtgeb_dockerfile_hygiene_dentil { () => { 103 }; }
+pub(crate) use rbtgeb_dockerfile_hygiene_dentil;
+pub const RBTGEB_DOCKERFILE_HYGIENE_DENTIL: i32 = rbtgeb_dockerfile_hygiene_dentil!();
+macro_rules! rbtgeb_foedus_descry_dentil { () => { 106 }; }
+pub(crate) use rbtgeb_foedus_descry_dentil;
+pub const RBTGEB_FOEDUS_DESCRY_DENTIL: i32 = rbtgeb_foedus_descry_dentil!();
+macro_rules! rbtgeb_foedus_instate_dentil { () => { 107 }; }
+pub(crate) use rbtgeb_foedus_instate_dentil;
+pub const RBTGEB_FOEDUS_INSTATE_DENTIL: i32 = rbtgeb_foedus_instate_dentil!();
+macro_rules! rbtgeb_manor_escheat_dentil { () => { 114 }; }
+pub(crate) use rbtgeb_manor_escheat_dentil;
+pub const RBTGEB_MANOR_ESCHEAT_DENTIL: i32 = rbtgeb_manor_escheat_dentil!();
+macro_rules! rbtgeb_admission_dentil { () => { 109 }; }
+pub(crate) use rbtgeb_admission_dentil;
+pub const RBTGEB_ADMISSION_DENTIL: i32 = rbtgeb_admission_dentil!();
+macro_rules! rbtgeb_chain_dentil { () => { 105 }; }
+pub(crate) use rbtgeb_chain_dentil;
+pub const RBTGEB_CHAIN_DENTIL: i32 = rbtgeb_chain_dentil!();
+macro_rules! rbtgeb_credless_dentil { () => { 104 }; }
+pub(crate) use rbtgeb_credless_dentil;
+pub const RBTGEB_CREDLESS_DENTIL: i32 = rbtgeb_credless_dentil!();
+macro_rules! rbtgeb_recipe_dentil { () => { 102 }; }
+pub(crate) use rbtgeb_recipe_dentil;
+pub const RBTGEB_RECIPE_DENTIL: i32 = rbtgeb_recipe_dentil!();
+macro_rules! rbtgeb_runway_dentil { () => { 115 }; }
+pub(crate) use rbtgeb_runway_dentil;
+pub const RBTGEB_RUNWAY_DENTIL: i32 = rbtgeb_runway_dentil!();
+macro_rules! rbtgeb_unseised_dentil { () => { 116 }; }
+pub(crate) use rbtgeb_unseised_dentil;
+pub const RBTGEB_UNSEISED_DENTIL: i32 = rbtgeb_unseised_dentil!();
+macro_rules! rbtgeb_vacant_dentil { () => { 110 }; }
+pub(crate) use rbtgeb_vacant_dentil;
+pub const RBTGEB_VACANT_DENTIL: i32 = rbtgeb_vacant_dentil!();
+macro_rules! rbtgeb_busx_regime_dentil { () => { 100 }; }
+pub(crate) use rbtgeb_busx_regime_dentil;
+pub const RBTGEB_BUSX_REGIME_DENTIL: i32 = rbtgeb_busx_regime_dentil!();
+macro_rules! rbtgeb_busx_enroll_dentil { () => { 101 }; }
+pub(crate) use rbtgeb_busx_enroll_dentil;
+pub const RBTGEB_BUSX_ENROLL_DENTIL: i32 = rbtgeb_busx_enroll_dentil!();
+macro_rules! rbtgeb_busx_clean_dentil { () => { 108 }; }
+pub(crate) use rbtgeb_busx_clean_dentil;
+pub const RBTGEB_BUSX_CLEAN_DENTIL: i32 = rbtgeb_busx_clean_dentil!();
 
 // eof
