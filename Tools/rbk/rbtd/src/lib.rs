@@ -21,23 +21,6 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
-/// Vessels directory as a compile-time literal, for the `concat!` sites that
-/// compose `<vessels>/rbev_*` const paths (their leaf names are Rust-local, so
-/// nothing in bash composes them). `concat!` rejects a const *identifier* but
-/// eagerly expands a `macro_rules!` invocation, consuming the literal token it
-/// produces — the codebase's established zero-dependency idiom for compile-time
-/// path composition. This literal is the one mooring/vessel path NOT taken from
-/// the generated `RBTGEC_*` consts; `rbttem_vessels_dir_matches_generated` pins
-/// it to `RBTGEC_MOORINGS_DIR`/`RBTGEC_VESSELS_SUBDIR` so any drift from the
-/// bash source of truth is a test failure. Runtime `Path::join` sites that take
-/// a value (not a literal) use `RBTGEC_MOORINGS_DIR` directly.
-#[macro_export]
-macro_rules! rbtd_vessels_dir {
-    () => {
-        "rbmm_moorings/rbmv_vessels"
-    };
-}
-
 #[path = "rbtdgb_breviary.rs"]
 pub mod rbtgeb_breviary;
 #[path = "rbtdgc_consts.rs"]

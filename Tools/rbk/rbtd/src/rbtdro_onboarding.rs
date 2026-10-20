@@ -85,12 +85,12 @@ use crate::rbtcem_manifest::{
 // ── Vessel directories ────────────────────────────────────────
 
 // Vessel dirs composed from the crate-canonical vessels dir (single source).
-const RBTCGO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_sentry_deb_tether");
-const RBTCGO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_ifrit_forge");
-const RBTCGO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_ifrit_airgap");
-const RBTCGO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_plantuml");
-const RBTCGO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_bottle_anthropic_jupyter");
-const RBTCGO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtd_vessels_dir!(), "/rbev_graft_demo");
+const RBTCGO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_sentry_deb_tether");
+const RBTCGO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_ifrit_forge");
+const RBTCGO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_ifrit_airgap");
+const RBTCGO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_plantuml");
+const RBTCGO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_anthropic_jupyter");
+const RBTCGO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_graft_demo");
 
 // ── Nameplate monikers ────────────────────────────────────────
 

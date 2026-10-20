@@ -25,6 +25,25 @@ use std::path::PathBuf;
 use std::sync::mpsc;
 use std::time::{Duration, Instant};
 
+// ── Vessels directory ──────────────────────────────────────────
+
+/// Vessels directory as a compile-time literal, for the `concat!` sites that
+/// compose `<vessels>/rbev_*` const paths (their leaf names are Rust-local, so
+/// nothing in bash composes them). `concat!` rejects a const *identifier* but
+/// eagerly expands a `macro_rules!` invocation, consuming the literal token it
+/// produces — the codebase's established zero-dependency idiom for compile-time
+/// path composition. This literal is the one mooring/vessel path NOT taken from
+/// the generated `RBTGEC_*` consts; `rbttem_vessels_dir_matches_generated` pins
+/// it to `RBTGEC_MOORINGS_DIR`/`RBTGEC_VESSELS_SUBDIR` so any drift from the
+/// bash source of truth is a test failure. Runtime `Path::join` sites that take
+/// a value (not a literal) use `RBTGEC_MOORINGS_DIR` directly.
+#[macro_export]
+macro_rules! rbtcee_vessels_dir {
+    () => {
+        "rbmm_moorings/rbmv_vessels"
+    };
+}
+
 // ── Heartbeat ──────────────────────────────────────────────────
 
 /// Interval between progress heartbeats for a blocking case.
@@ -148,7 +167,7 @@ pub fn rbtcee_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), S
 /// carries uncommitted changes or git itself fails.
 ///
 /// Guards **every** drive, not only the suite: the single-fixture run-start in
-/// `rbtd_run_fixture`, the suite run-start in `rbtd_run_suite` (both in
+/// `rbtm_run_fixture`, the suite run-start in `rbtm_run_suite` (both in
 /// `main.rs`), and the marshal-zero attestation's Class-A check
 /// (`rbtcga_check_tree_clean` in `rbtdrp_attest.rs`) all delegate here. There is
 /// no unguarded path — an uncommitted engine change or a falsification plant
@@ -304,7 +323,7 @@ pub fn rbtcee_commit_vessels(
 /// rbrv.env leaves, so nothing outside the vessel class can ride along. Paths
 /// are sorted for stable commit staging.
 pub fn rbtcee_commit_vessels_all(root: &Path, message: &str) -> Result<(), String> {
-    let vessels_rel = crate::rbtd_vessels_dir!();
+    let vessels_rel = crate::rbtcee_vessels_dir!();
     let vessels_abs = root.join(vessels_rel);
     let mut paths: Vec<String> = Vec::new();
     let entries = std::fs::read_dir(&vessels_abs)

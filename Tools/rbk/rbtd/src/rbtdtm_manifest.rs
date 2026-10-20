@@ -21,15 +21,15 @@ use super::rbtgec_consts::*;
 use crate::rbtcea_almanac::RBTCEA_FIXTURES;
 use crate::rbtcem_manifest::{rbtcem_permitted_colophons, rbtcem_required_colophons};
 
-/// Pin the one surviving compile-time path literal (the `rbtd_vessels_dir!`
-/// macro in lib.rs) to the generated source of truth. The macro must equal
+/// Pin the one surviving compile-time path literal (the `rbtcee_vessels_dir!`
+/// macro in the engine module) to the generated source of truth. The macro must equal
 /// `<RBTGEC_MOORINGS_DIR>/<RBTGEC_VESSELS_SUBDIR>`; if rbcc_constants.sh changes
 /// either, codegen updates the consts and this test fails until the macro
 /// literal is corrected — drift caught at test time, no new dependency.
 #[test]
 fn rbttem_vessels_dir_matches_generated() {
     assert_eq!(
-        crate::rbtd_vessels_dir!(),
+        crate::rbtcee_vessels_dir!(),
         format!("{}/{}", RBTGEC_MOORINGS_DIR, RBTGEC_VESSELS_SUBDIR)
     );
 }
