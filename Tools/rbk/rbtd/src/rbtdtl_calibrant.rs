@@ -235,7 +235,7 @@ fn rbtthl_progressing_probe_err_fails_with_diagnostic() {
 // rbtccc_crucible::rbtccc_with_ctx). Unlike the case bodies above — pure
 // functions the engine can run standalone — these need a real fixture run
 // (installed context, armed census) to execute meaningfully; that exercise is
-// the touchstone surface fixture's job (child rbtd runs, exit-code/stderr
+// the touchstone surface fixture's job (child rbt runs, exit-code/stderr
 // assertions). These tests pin the registration ground truth only: each
 // fixture is registered, Independent, single-case, with the manifest
 // declaration the coverage story depends on.

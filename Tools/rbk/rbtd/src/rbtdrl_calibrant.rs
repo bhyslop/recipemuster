@@ -40,7 +40,7 @@
 // a declared invocation count no case can meet.
 //
 // The touchstone surface fixture (rbtdrj_touchstone.rs) consumes these
-// fixtures as child rbtd runs through the real tabtarget chain and asserts
+// fixtures as child rbt runs through the real tabtarget chain and asserts
 // engine-output contracts (exit codes, diagnostic format, fail-fast
 // semantics, disposition × keep-going policy gate, census diagnostics).
 // calibrant-fail-fast and calibrant-sentinel additionally compose the
@@ -64,7 +64,7 @@ use crate::rbtcem_manifest::{
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
 /// touchstone fixture asserts presence/absence under the BURV_TEMP_ROOT_DIR
-/// it set for the child rbtd invocation. I/O failure during sentinel write
+/// it set for the child rbt invocation. I/O failure during sentinel write
 /// fails the case visibly — silent failure would hide bugs in the engine's
 /// case-dir contract.
 pub(crate) const RBTCHL_SENTINEL_FILE: &str = "ran.sentinel";
@@ -201,7 +201,7 @@ pub static RBTCHL_CASES_SENTINEL: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_sentine
 // enforcement lands its diagnostics against the synthetic RBTGEC_THEURGE_NIHIL
 // colophon — zero cloud/filesystem side effects. Manifest declaration
 // (rbtcem_required_colophons) is the only difference between the three; the
-// touchstone surface fixture spawns each as a child rbtd run and asserts the
+// touchstone surface fixture spawns each as a child rbt run and asserts the
 // resulting exit code and diagnostic text (coverage section of its case
 // catalog). Roster-only: a member of no suite.
 

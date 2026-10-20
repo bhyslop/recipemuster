@@ -23,7 +23,7 @@
 //   - Intake (POSIX → native): env vars and arguments arrive as
 //     `/cygdrive/c/...` or bare `/home/...` from Cygwin bash; Rust's PathBuf
 //     joins them with backslashes on a Windows target, producing mixed
-//     `/cygdrive/c/...\rbtd` paths Windows resolves unpredictably.
+//     `/cygdrive/c/...\trace` paths Windows resolves unpredictably.
 //   - Outflow (native → POSIX): PathBuf::display() emits native form
 //     (`C:\foo\bar`); embedded in a bash script or env var consumed by
 //     Cygwin bash, the consumer sees an unparseable path.

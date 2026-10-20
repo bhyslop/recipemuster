@@ -169,7 +169,7 @@ zrbob_furnish() {
   # Differential enforce: nameplate-keyed kludge commands write
   # RBRN_*_HALLMARK, so zrbrn_enforce would self-veto on marshal-zero
   # state where those fields are blank by design (rblm zeroes them;
-  # rbtcgl_lifecycle treats them as RBTCGA_RBRN_BLANK_FIELDS). Strict
+  # rbtcga_attest treats them as RBTCGA_RBRN_BLANK_FIELDS). Strict
   # validation lives in rbw-rnv (rbrn_cli.sh). Mirrors the yoke/RBRV
   # split (rbfl_cli vs rbrv_cli).
   case "${z_command}" in

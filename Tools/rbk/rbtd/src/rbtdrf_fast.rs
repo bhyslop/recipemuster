@@ -1638,7 +1638,7 @@ fn rbtchf_cb_no_tool_decline(dir: &Path) -> rbtcee_Verdict {
     // result-global empty, and must not die on the way.
     let script = format!(
         "set -euo pipefail\nsource '{}'\nPATH=''\n\
-         buc_clipboard_copy_predicate 'rbtd-clip-probe' && exit 1\n\
+         buc_clipboard_copy_predicate 'clip-sample' && exit 1\n\
          test -z \"${{z_buc_clipboard_tool:-}}\" || exit 2\nexit 0",
         rbtcep_native_to_posix(&buc),
     );
@@ -1673,7 +1673,7 @@ fn rbtchf_cb_round_trip(dir: &Path) -> rbtcee_Verdict {
     // non-text (an image cannot be saved through the text API).
     let prior = clipboard.get_text().ok();
 
-    let sentinel = format!("rbtd-clip-{}", std::process::id());
+    let sentinel = format!("clip-{}", std::process::id());
 
     let root = match std::env::current_dir() {
         Ok(r) => r,
