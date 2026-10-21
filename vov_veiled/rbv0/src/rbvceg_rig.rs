@@ -32,7 +32,9 @@ use crate::rbvcer_run;
 /// The rig's parent-relative dirname, a fixed basename beside the maintainer
 /// repo. Shared by essai and harbinger — they never stand simultaneously, so one
 /// location, any prior seposed.
-pub const RBVCEG_RIG_DIRNAME: &str = "rbvceg_coldwalk";
+/// A conserved spelling, declared in the cosmology's cadaster, and the same
+/// directory the bash harbinger stands its rig in.
+pub const RBVCEG_RIG_DIRNAME: &str = "rbthdr_coldwalk";
 
 /// The clone lives one level down; the findings memo is a sibling of it under
 /// the rig dir, so discarding the clone leaves the memo standing.
