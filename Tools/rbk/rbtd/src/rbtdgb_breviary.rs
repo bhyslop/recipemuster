@@ -17,7 +17,7 @@
 // The human-presentation surface forms of the governed words homed in RBK.
 // A string that spells one of these words in its own bytes has left the home.
 // Beside them, the colophons and exit codes attached at definitions, each named for the definition it is attached at.
-// Held in usufruct, values other kits attach that this crate cites: busx_regime, busx_enroll, busx_clean.
+// Held in this file, values other kits attach that the code beside it cites: busx_regime, busx_enroll, busx_clean.
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
 
