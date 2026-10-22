@@ -98,8 +98,11 @@ zrbgp_sentinel() {
 # OAuth Authentication Functions (zrbgp_oauth_*)
 
 # Post a JSON body to the OAuth token endpoint and emit the response. The body
-# is built by jq from the filter and its --arg pairs and rides a process
-# substitution into curl, so no secret touches disk. Returns curl's exit status.
+# is built by jq from the filter and its non-secret --arg pairs; the filter
+# reads each secret from jq's environment (env.zSECRET_«name»), where the
+# caller's command-prefix assignment places it. The body rides the secret pipe
+# into curl's stdin, so no secret touches disk or an argument. Returns curl's
+# exit status.
 zrbgp_oauth_token_post_capture() {
   zrbgp_sentinel
 
@@ -107,14 +110,16 @@ zrbgp_oauth_token_post_capture() {
   test -n "${z_filter}" || return 1
   shift
 
+  local zSECRET_body
+  zSECRET_body=$(jq -n "$@" "${z_filter}") || return 1
+
+  local -ra z_curl_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json" -d @-)
   local z_curl_status=0
-  curl -sS -X POST \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Content-Type: application/json" \
-    -d @<(jq -n "$@" "${z_filter}") \
-    "${RBGC_OAUTH_TOKEN_URL}" || z_curl_status=$?
-  return "${z_curl_status}"
+  local zSECRET_response
+  zSECRET_response=$(printf '%s' "${zSECRET_body}" | curl "${z_curl_options[@]}" "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || return "${z_curl_status}"
+
+  echo "${zSECRET_response}"
 }
 
 # Emit one field of a downloaded OAuth client JSON, from its installed block
@@ -142,39 +147,21 @@ zrbgp_refresh_capture() {
 
   # RBRO credentials already loaded and validated by caller (rba_rbro_load)
   zrbro_sentinel
-  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die_now "RBRP_OAUTH_CLIENT_ID not set in environment"
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || return 1
 
   buc_log_args "Exchanging refresh token for access token"
 
-  # Request body rides a process substitution into curl - secrets never touch disk
-  local -a z_body_args=("--arg" refresh_token "${RBRO_REFRESH_TOKEN}" --arg client_id "${RBRP_OAUTH_CLIENT_ID}" --arg client_secret "${RBRO_CLIENT_SECRET}" --arg grant_type "refresh_token")
-  local z_body_filter='{refresh_token: $refresh_token, client_id: $client_id, client_secret: $client_secret, grant_type: $grant_type}'
+  # Emits the token endpoint's whole response, an error response included, for
+  # the caller to read; returns curl's exit status where the request failed.
+  # The two secrets ride jq's environment and the client id its arguments.
+  local -ra z_body_args=("--arg" client_id "${RBRP_OAUTH_CLIENT_ID}")
+  local -r z_body_filter='{refresh_token: env.zSECRET_refresh_token, client_id: $client_id, client_secret: env.zSECRET_client_secret, grant_type: "refresh_token"}'
   local z_curl_status=0
-  local z_response
-  z_response=$(zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute OAuth refresh request (curl exit ${z_curl_status})"
+  local zSECRET_response
+  zSECRET_response=$(zSECRET_refresh_token="${RBRO_REFRESH_TOKEN}" zSECRET_client_secret="${RBRO_CLIENT_SECRET}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || return "${z_curl_status}"
 
-  # Check for error in response. invalid_rapt is discriminated from the
-  # generic expired-or-invalid die: the token is healthy but the organization's
-  # sign-in policy has lapsed the session, and the remedy is a re-install with
-  # the SAME saved client JSON — no rotation, no console act.
-  local z_error
-  z_error=$(jq -r '.error // empty' <<<"${z_response}") || buc_die_now "Failed to parse OAuth refresh response"
-  if test -n "${z_error}"; then
-    local z_error_subtype
-    z_error_subtype=$(jq -r '.error_subtype // empty' <<<"${z_response}") || buc_die_now "Failed to parse OAuth refresh response"
-    local z_error_desc
-    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}") || buc_die_now "Failed to parse OAuth refresh response"
-    test "${z_error_subtype}" != "invalid_rapt" \
-      || buc_die_now "Payor sign-in session lapsed under your organization's sign-in policy - re-run the Install tabtarget with the saved client-secret JSON: ${z_error_desc}"
-    buc_die_now "OAuth credentials expired or invalid - reinstall payor credentials: ${z_error_desc}"
-  fi
-
-  local z_access_token
-  z_access_token=$(jq -r '.access_token // empty' <<<"${z_response}") || buc_die_now "Failed to parse OAuth refresh response"
-  test -n "${z_access_token}" || buc_die_now "OAuth response missing access_token"
-
-  echo "${z_access_token}"
+  echo "${zSECRET_response}"
 }
 
 # RBTOE: Payor OAuth Authentication Pattern
@@ -200,13 +187,33 @@ zrbgp_authenticate_capture() {
   test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die_now "RBRP_OAUTH_CLIENT_ID not set in environment"
   
   # Exchange refresh token for access token
-  local z_access_token
-  z_access_token=$(zrbgp_refresh_capture) || buc_die_now "Failed to exchange OAuth refresh token"
-  
-  test -n "${z_access_token}" || buc_die_now "Empty access token from OAuth exchange"
-  
+  local z_curl_status=0
+  local zSECRET_response
+  zSECRET_response=$(zrbgp_refresh_capture) || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute OAuth refresh request (curl exit ${z_curl_status})"
+
+  # Check for error in response. invalid_rapt is discriminated from the
+  # generic expired-or-invalid die: the token is healthy but the organization's
+  # sign-in policy has lapsed the session, and the remedy is a re-install with
+  # the SAME saved client JSON — no rotation, no console act.
+  local z_error
+  z_error=$(printf '%s' "${zSECRET_response}" | jq -r '.error // empty') || buc_die_now "Failed to parse OAuth refresh response"
+  if test -n "${z_error}"; then
+    local z_error_subtype
+    z_error_subtype=$(printf '%s' "${zSECRET_response}" | jq -r '.error_subtype // empty') || buc_die_now "Failed to parse OAuth refresh response"
+    local z_error_desc
+    z_error_desc=$(printf '%s' "${zSECRET_response}" | jq -r '.error_description // .error // "Unknown error"') || buc_die_now "Failed to parse OAuth refresh response"
+    test "${z_error_subtype}" != "invalid_rapt" \
+      || buc_die_now "Payor sign-in session lapsed under your organization's sign-in policy - re-run the Install tabtarget with the saved client-secret JSON: ${z_error_desc}"
+    buc_die_now "OAuth credentials expired or invalid - reinstall payor credentials: ${z_error_desc}"
+  fi
+
+  local zSECRET_access_token
+  zSECRET_access_token=$(printf '%s' "${zSECRET_response}" | jq -r '.access_token // empty') || buc_die_now "Failed to parse OAuth refresh response"
+  test -n "${zSECRET_access_token}" || buc_die_now "OAuth response missing access_token"
+
   buc_log_args "Payor OAuth authentication successful"
-  echo "${z_access_token}"
+  echo "${zSECRET_access_token}"
 }
 
 # Probe per-installation depot states and emit per-moniker fact files.
@@ -906,14 +913,14 @@ rbgp_install() {
   local z_client_id
   z_client_id=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_id" "${z_parse_stderr}") \
     || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
-  local z_client_secret
-  z_client_secret=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_secret" "${z_parse_stderr}") \
+  local zSECRET_client_secret
+  zSECRET_client_secret=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_secret" "${z_parse_stderr}") \
     || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
   local z_project_id
   z_project_id=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "project_id" "${z_parse_stderr}") \
     || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
   test -n "${z_client_id}" || buc_die_now "OAuth JSON file missing client_id field"
-  test -n "${z_client_secret}" || buc_die_now "OAuth JSON file missing client_secret field"
+  test -n "${zSECRET_client_secret}" || buc_die_now "OAuth JSON file missing client_secret field"
   test -n "${z_project_id}" || buc_die_now "OAuth JSON file missing project_id field"
 
   buc_step 'Check existing credentials'
@@ -922,7 +929,7 @@ rbgp_install() {
     buc_log_args "Existing RBRO credentials will be replaced"
   fi
 
-  local z_refresh_token=""
+  local zSECRET_refresh_token=""
   buc_step 'OAuth authorization flow'
   # Loopback redirect — Google's documented OOB successor for desktop/CLI
   # (OOB is blocked for production apps, and an Internal app is production
@@ -954,45 +961,43 @@ rbgp_install() {
   buh_line "  5. The browser then shows 'This site can't be reached / localhost refused to connect'"
   buh_line "     - that page IS the success landing: the authorization code rides its address-bar URL"
   buh_e
-  local z_auth_paste
-  z_auth_paste=$(buh_prompt_secret "Copy the full URL from the address bar and paste here: ") || buc_die_now "Failed to read authorization redirect URL"
-  test -n "${z_auth_paste}" || buc_die_now "Authorization redirect URL is required"
+  local zSECRET_paste
+  zSECRET_paste=$(buh_prompt_secret "Copy the full URL from the address bar and paste here: ") || buc_die_now "Failed to read authorization redirect URL"
+  test -n "${zSECRET_paste}" || buc_die_now "Authorization redirect URL is required"
 
-  # Accept the full redirect URL or a bare code: strip through 'code=', drop
-  # trailing query params, then percent-decode (the code's slash arrives %2F).
-  local z_auth_code="${z_auth_paste}"
-  case "${z_auth_code}" in
-    *code=*) z_auth_code="${z_auth_code#*code=}" ;;
-  esac
-  z_auth_code="${z_auth_code%%&*}"
-  z_auth_code="${z_auth_code%%#*}"
-  z_auth_code=$(printf '%b' "${z_auth_code//\%/\\x}") || buc_die_now "Failed to percent-decode authorization code"
-  test -n "${z_auth_code}" || buc_die_now "Could not extract an authorization code from the pasted value"
+  # Accept the full redirect URL or a bare code: strip through 'code=' (a bare
+  # code carries none and stands unchanged), drop trailing query params, then
+  # decode the code's slash, which arrives as %2F.
+  local zSECRET_code="${zSECRET_paste#*code=}"
+  zSECRET_code="${zSECRET_code%%&*}"
+  zSECRET_code="${zSECRET_code%%#*}"
+  zSECRET_code="${zSECRET_code//%2[Ff]//}"
+  test -n "${zSECRET_code}" || buc_die_now "Could not extract an authorization code from the pasted value"
 
   buc_log_args "Exchanging authorization code for tokens"
 
-  # Request body rides a process substitution into curl - secrets never touch disk
-  local -a z_body_args=("--arg" code "${z_auth_code}" --arg client_id "${z_client_id}" --arg client_secret "${z_client_secret}" --arg redirect_uri "${z_redirect_uri}" --arg grant_type "authorization_code")
-  local z_body_filter='{code: $code, client_id: $client_id, client_secret: $client_secret, redirect_uri: $redirect_uri, grant_type: $grant_type}'
+  # The two secrets ride jq's environment and the rest its arguments
+  local -ra z_body_args=("--arg" client_id "${z_client_id}" --arg redirect_uri "${z_redirect_uri}")
+  local -r z_body_filter='{code: env.zSECRET_code, client_id: $client_id, client_secret: env.zSECRET_client_secret, redirect_uri: $redirect_uri, grant_type: "authorization_code"}'
   local z_curl_status=0
-  local z_response
-  z_response=$(zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
+  local zSECRET_response
+  zSECRET_response=$(zSECRET_code="${zSECRET_code}" zSECRET_client_secret="${zSECRET_client_secret}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute token exchange request (curl exit ${z_curl_status})"
 
   # Check for error in response
   local z_error
-  z_error=$(jq -r '.error // empty' <<<"${z_response}") || buc_die_now "Failed to parse OAuth token exchange response"
+  z_error=$(printf '%s' "${zSECRET_response}" | jq -r '.error // empty') || buc_die_now "Failed to parse OAuth token exchange response"
   if test -n "${z_error}"; then
     local z_error_desc
-    z_error_desc=$(jq -r '.error_description // .error // "Unknown error"' <<<"${z_response}") || buc_die_now "Failed to parse OAuth token exchange response"
+    z_error_desc=$(printf '%s' "${zSECRET_response}" | jq -r '.error_description // .error // "Unknown error"') || buc_die_now "Failed to parse OAuth token exchange response"
     buc_info "OAuth token exchange failed (Google reported: ${z_error} - ${z_error_desc})"
     buc_info "Authorization codes are single-use and expire within minutes."
     buc_info "Re-run this command, then copy the full code and paste it promptly."
     buc_die_now "OAuth token exchange failed: ${z_error_desc}"
   fi
 
-  z_refresh_token=$(jq -r '.refresh_token // empty' <<<"${z_response}") || buc_die_now "Failed to parse OAuth token exchange response"
-  test -n "${z_refresh_token}" || buc_die_now "OAuth response missing refresh_token field"
+  zSECRET_refresh_token=$(printf '%s' "${zSECRET_response}" | jq -r '.refresh_token // empty') || buc_die_now "Failed to parse OAuth token exchange response"
+  test -n "${zSECRET_refresh_token}" || buc_die_now "OAuth response missing refresh_token field"
 
   buc_step 'Create credentials directory'
   local -r z_rbro_dir="${z_rbro_file%/*}"
@@ -1000,12 +1005,15 @@ rbgp_install() {
   chmod 700 "${z_rbro_dir}" || buc_die_now "Failed to set credentials directory permissions"
 
   buc_step 'Store OAuth credentials'
+  # Each value stands in its line as a bare token, which sourcing reads back
+  # unchanged only where the value carries no byte outside this alphabet.
+  local -r zSECRET_rbro_values="${zSECRET_client_secret}${zSECRET_refresh_token}"
+  local -r zSECRET_residue="${zSECRET_rbro_values//[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._\/+=-]/}"
+  test -z "${zSECRET_residue}" || buc_die_now "OAuth client secret or refresh token carries a character the RBRO file cannot hold as a bare value"
+  local -r zSECRET_rbro_lines="RBRO_CLIENT_SECRET=${zSECRET_client_secret}"$'\n'"RBRO_REFRESH_TOKEN=${zSECRET_refresh_token}"$'\n'
   (
     umask 077 || buc_die_now "Failed to set umask for the RBRO credentials file"
-    {
-      echo "RBRO_CLIENT_SECRET=${z_client_secret}" || buc_die_now "Failed to write the client secret line"
-      echo "RBRO_REFRESH_TOKEN=${z_refresh_token}" || buc_die_now "Failed to write the refresh token line"
-    } > "${z_rbro_file}" || buc_die_now "Failed to open RBRO credentials file: ${z_rbro_file}"
+    printf '%s' "${zSECRET_rbro_lines}" > "${z_rbro_file}" || buc_die_now "Failed to write RBRO credentials file: ${z_rbro_file}"
   ) || buc_die_now "Failed to write RBRO credentials file"
   chmod 600 "${z_rbro_file}" || buc_die_now "Failed to set RBRO file permissions"
   
