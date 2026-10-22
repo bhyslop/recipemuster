@@ -113,13 +113,7 @@ zrbgp_oauth_token_post_capture() {
   local zSECRET_body
   zSECRET_body=$(jq -n "$@" "${z_filter}") || return 1
 
-  local -ra z_curl_options=(
-    -sS -X POST
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"
-    -H "Content-Type: application/json"
-    -d @-
-  )
+  local -ra z_curl_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json" -d @-)
   local z_curl_status=0
   local zSECRET_response
   zSECRET_response=$(printf '%s' "${zSECRET_body}" | curl "${z_curl_options[@]}" "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
@@ -160,7 +154,7 @@ zrbgp_refresh_capture() {
   # Emits the token endpoint's whole response, an error response included, for
   # the caller to read; returns curl's exit status where the request failed.
   # The two secrets ride jq's environment and the client id its arguments.
-  local -ra z_body_args=(--arg client_id "${RBRP_OAUTH_CLIENT_ID}")
+  local -ra z_body_args=("--arg" client_id "${RBRP_OAUTH_CLIENT_ID}")
   local -r z_body_filter='{refresh_token: env.zSECRET_refresh_token, client_id: $client_id, client_secret: env.zSECRET_client_secret, grant_type: "refresh_token"}'
   local z_curl_status=0
   local zSECRET_response
@@ -983,7 +977,7 @@ rbgp_install() {
   buc_log_args "Exchanging authorization code for tokens"
 
   # The two secrets ride jq's environment and the rest its arguments
-  local -ra z_body_args=(--arg client_id "${z_client_id}" --arg redirect_uri "${z_redirect_uri}")
+  local -ra z_body_args=("--arg" client_id "${z_client_id}" --arg redirect_uri "${z_redirect_uri}")
   local -r z_body_filter='{code: env.zSECRET_code, client_id: $client_id, client_secret: env.zSECRET_client_secret, redirect_uri: $redirect_uri, grant_type: "authorization_code"}'
   local z_curl_status=0
   local zSECRET_response
