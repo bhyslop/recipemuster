@@ -192,7 +192,7 @@ fn zrbvcce_precut_assays(top: &Path) {
 
 // ── Step 3: cut the regulus — the absorbed cut, in-process ─
 
-/// Returns the regulus clone path ({parent}/rbvcep_regulus/regulus).
+/// Returns the regulus clone path ({parent}/rbthdr_regulus/regulus).
 fn zrbvcce_cut(top: &Path, parent: &Path) -> PathBuf {
     rbvcel_log::rbvcel_section("Cut the regulus (RBSHE step 3)");
 

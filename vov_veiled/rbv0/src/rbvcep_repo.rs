@@ -20,7 +20,9 @@ use crate::rbvcer_run;
 /// runs the lap repeatedly at one conventional location and seposes any prior,
 /// so the location is memorable and the disposal is safe. Expede builds
 /// the clone one level down, at {parent}/{RBVCEP_REGULUS_SUBDIR}.
-pub const RBVCEP_REGULUS_DIRNAME: &str = "rbvcep_regulus";
+/// A conserved spelling, declared in the cosmology's cadaster: a later run
+/// finds an earlier run's location by these exact characters.
+pub const RBVCEP_REGULUS_DIRNAME: &str = "rbthdr_regulus";
 
 /// The clone subdir the cut creates beneath its target dir (rbvcex_expede
 /// builds there; the lap and the rig stage find what it built through this
@@ -39,7 +41,8 @@ pub const RBVCEP_LOGS_SUBDIR: &str = "logs-buk";
 /// maintainer repo distinct from RBVCEP_REGULUS_DIRNAME so the freshness
 /// check can never collide with, or dispose of, the standing regulus it is
 /// comparing against.
-pub const RBVCEP_FRESHNESS_DIRNAME: &str = "rbvcep_regulus_freshness";
+/// A conserved spelling, declared in the cosmology's cadaster.
+pub const RBVCEP_FRESHNESS_DIRNAME: &str = "rbthdr_regulus_freshness";
 
 /// The maintainer repository root, from git. Fatal if not in a repo, empty, or
 /// non-absolute — every derived path anchors on it, and the seposition guards
