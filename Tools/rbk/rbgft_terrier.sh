@@ -244,8 +244,15 @@ zrbgft_list_fetch_emit() {
     local z_names
     z_names=$(jq -r '.items[]?.name // empty' "${z_list_file}") || buc_die_now "Failed to read muniment listing"
 
+    local z_name_lines=()
     local z_name=""
-    while IFS= read -r z_name; do
+    while IFS= read -r z_name || test -n "${z_name}"; do
+      z_name_lines+=("${z_name}")
+    done <<< "${z_names}"
+
+    local z_name_i=0
+    for z_name_i in "${!z_name_lines[@]}"; do
+      z_name="${z_name_lines[${z_name_i}]}"
       test -n "${z_name}" || continue
       local z_name_enc
       z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode muniment name"
@@ -267,7 +274,7 @@ zrbgft_list_fetch_emit() {
       local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
       jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
         || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
-    done <<< "${z_names}"
+    done
 
     z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die_now "Failed to read nextPageToken"
     test -n "${z_page_token}" || break

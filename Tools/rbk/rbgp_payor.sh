@@ -2388,9 +2388,10 @@ rbgp_depot_levy() {
   test -n "${z_project_number}" || buc_die_now "Project number is empty"
 
   buc_step 'Enable depot project APIs'
-  local -r z_api_services="artifactregistry cloudbuild cloudresourcemanager containeranalysis iam serviceusage storage"
-  for z_service in ${z_api_services}; do
-    rbge_api_enable "${z_service}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" || buc_die_now "Failed to enable ${z_service} on ${RBDC_DEPOT_PROJECT_ID}"
+  local -ra z_api_services=("artifactregistry" "cloudbuild" "cloudresourcemanager" "containeranalysis" "iam" "serviceusage" "storage")
+  local z_api_i=0
+  for z_api_i in "${!z_api_services[@]}"; do
+    rbge_api_enable "${z_api_services[${z_api_i}]}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" || buc_die_now "Failed to enable ${z_api_services[${z_api_i}]} on ${RBDC_DEPOT_PROJECT_ID}"
   done
 
   buc_step 'Create dual worker pools (tether + airgap)'
@@ -2787,8 +2788,13 @@ rbgp_depot_unmake() {
     local z_lien_names
     z_lien_names=$(rbuh_json_field_capture "depot_destroy_liens_list" '.liens[].name') || buc_die_now "Failed to extract lien names"
     z_lien_names="${z_lien_names//$'\n'/ }"
-    
-    for z_lien_name in ${z_lien_names}; do
+    local z_lien_list=()
+    read -r -a z_lien_list <<< "${z_lien_names}" || buc_die_now "Failed to split the lien names"
+
+    local z_lien_i=0
+    local z_lien_name=""
+    for z_lien_i in "${!z_lien_list[@]}"; do
+      z_lien_name="${z_lien_list[${z_lien_i}]}"
       if test -n "${z_lien_name}"; then
         buc_log_args "Removing lien: ${z_lien_name}" || buc_die_now "Failed to write transcript line"
         local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
