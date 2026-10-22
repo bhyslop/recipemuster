@@ -2169,8 +2169,8 @@ rbgp_manor_escheat() {
 
   buc_step 'List the polity managed folders'
   local -r z_folders_file="${ZRBGP_PREFIX}escheat_folders_plan.txt"
-  local z_folders
   local z_folders_status=0
+  local z_folders
   z_folders=$(rbgb_managed_folders_capture "${z_token}" "${z_bucket}") || z_folders_status=$?
   test "${z_folders_status}" -eq 0 \
     || buc_reject "${BUBC_band_escheat}" "Escheat: failed to list managed folders in ${z_bucket}"
@@ -2251,8 +2251,8 @@ rbgp_manor_escheat() {
   rbgft_escheat_survey "${z_token}" "${z_bucket}" > "${z_survey_verify_file}" \
     || buc_die_now "Escheat verify survey failed"
   local -r z_folders_verify_file="${ZRBGP_PREFIX}escheat_folders_verify.txt"
-  local z_folders_verify
   local z_folders_verify_status=0
+  local z_folders_verify
   z_folders_verify=$(rbgb_managed_folders_capture "${z_token}" "${z_bucket}") || z_folders_verify_status=$?
   test "${z_folders_verify_status}" -eq 0 \
     || buc_reject "${BUBC_band_escheat}" "Escheat verify: failed to re-list managed folders in ${z_bucket}"
