@@ -132,8 +132,8 @@ rbgft_engross() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die_now "Bad engross HTTP code"
   case "${z_code}" in
-    200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})"; echo "created" ;;
-    412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})"; echo "present" ;;
+    200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})"; echo "created" || buc_die_now "Failed to emit the outcome" ;;
+    412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})"; echo "present" || buc_die_now "Failed to emit the outcome" ;;
     *)       local z_err
              local z_err_status=0
              z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ENGROSS}" '.error.message') || z_err_status=$?
@@ -175,8 +175,8 @@ rbgft_expunge() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die_now "Bad expunge HTTP code"
   case "${z_code}" in
-    204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})"; echo "deleted" ;;
-    404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})"; echo "absent" ;;
+    204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})"; echo "deleted" || buc_die_now "Failed to emit the outcome" ;;
+    404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})"; echo "absent" || buc_die_now "Failed to emit the outcome" ;;
     *)   local z_err
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_EXPUNGE}" '.error.message') || z_err_status=$?
@@ -404,7 +404,7 @@ rbgft_escheat_survey() {
   local z_body_mantle=""
   local z_body_subject=""
   for z_i in "${!z_names[@]}"; do
-    z_name="${z_names[$z_i]}"
+    z_name="${z_names[${z_i}]}"
 
     case "${z_name}" in
       */*/*) : ;;
@@ -493,8 +493,8 @@ rbgft_escheat_expunge_raw() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die_now "Bad escheat expunge HTTP code"
   case "${z_code}" in
-    204) buc_info "Escheated ${z_name}"; echo "deleted" ;;
-    404) buc_info "Object ${z_name} already absent (benign vanish)"; echo "absent" ;;
+    204) buc_info "Escheated ${z_name}"; echo "deleted" || buc_die_now "Failed to emit the outcome" ;;
+    404) buc_info "Object ${z_name} already absent (benign vanish)"; echo "absent" || buc_die_now "Failed to emit the outcome" ;;
     *)   local z_err
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}" '.error.message') || z_err_status=$?

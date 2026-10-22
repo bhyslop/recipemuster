@@ -108,7 +108,7 @@ zrbgp_oauth_token_post_capture() {
 
   local -r z_filter="${1:-}"
   test -n "${z_filter}" || return 1
-  shift
+  shift || return 1
 
   local zSECRET_body
   zSECRET_body=$(jq -n "$@" "${z_filter}") || return 1
@@ -473,9 +473,7 @@ zrbgp_liens_list() {
   fi
 
   buc_step "Found ${z_lien_count} lien(s):"
-  # Non-fatal by grant: the count above is the listing's result and nothing
-  # reads these lines, so a lien whose record will not render (a field that is not a string)
-  # costs only its display line, and the warning says the listing is partial.
+  # Non-fatal by grant: the count above is the listing's result and nothing reads these lines, so a lien whose record will not render (a field that is not a string) costs only its display line, and the warning says the listing is partial.
   jq -r '.liens[]? | "  - " + .name + " (reason: " + .reason + ")"' \
     "${ZRBUH_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBUH_POSTFIX_JSON}" \
     || buc_warn "Lien listing incomplete — a lien record did not render; the count above stands"
@@ -511,7 +509,7 @@ zrbgp_required_apis_missing_capture() {
   zrbgp_sentinel
 
   local -r z_token="${1:-}"
-  test -n "${z_token}" || { echo ""; return 1; }
+  test -n "${z_token}" || return 1
 
   local z_missing=""
   local z_api=""
@@ -1682,11 +1680,11 @@ rbgp_manor_instaurate() {
   # with it off entirely fails loud on the first call (new projects ship it on; one
   # manual Console enable recovers, and the finisher re-runs cleanly).
   buc_step 'Ensure payor-project APIs enabled'
-  local -r z_payor_api_services="serviceusage cloudresourcemanager cloudbilling iam iamcredentials storage artifactregistry cloudbuild iap"
-  local z_api_service=""
-  for z_api_service in ${z_payor_api_services}; do
-    rbge_api_enable "${z_api_service}" "${RBRP_PAYOR_PROJECT_ID}" "${z_token}" \
-      || buc_die_now "Failed to enable payor-project API: ${z_api_service}"
+  local -ra z_payor_api_services=("serviceusage" "cloudresourcemanager" "cloudbilling" "iam" "iamcredentials" "storage" "artifactregistry" "cloudbuild" "iap")
+  local z_api_i=0
+  for z_api_i in "${!z_payor_api_services[@]}"; do
+    rbge_api_enable "${z_payor_api_services[${z_api_i}]}" "${RBRP_PAYOR_PROJECT_ID}" "${z_token}" \
+      || buc_die_now "Failed to enable payor-project API: ${z_payor_api_services[${z_api_i}]}"
   done
 
   # === Gate the consent-screen audience (Internal-only manor law) ===
@@ -1740,8 +1738,9 @@ rbgp_manor_instaurate() {
   if test "${z_billing_live}" = "${z_billing_want}"; then
     buc_log_args "Billing already linked: ${z_billing_want}"
   else
-    test -z "${z_billing_live}" \
-      || buc_warn "Reconciling payor billing from ${z_billing_live} to ${z_billing_want} (RBRP is the committed record)"
+    if test -n "${z_billing_live}"; then
+      buc_warn "Reconciling payor billing from ${z_billing_live} to ${z_billing_want} (RBRP is the committed record)"
+    fi
     local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_instaurate_billing.json"
     jq -n --arg billingAccountName "${z_billing_want}" '{billingAccountName: $billingAccountName}' \
       > "${z_billing_body}" || buc_die_now "Failed to build billing link body"
@@ -1968,7 +1967,7 @@ zrbgp_escheat_depots() {
   local z_i=0
   local z_cand=""
   for z_i in "${!z_candidates[@]}"; do
-    z_cand="${z_candidates[$z_i]}"
+    z_cand="${z_candidates[${z_i}]}"
     test -n "${z_cand}" || continue
     case "${z_seen}" in
       *"|${z_cand}|"*) continue ;;
@@ -2009,7 +2008,7 @@ zrbgp_escheat_liveness() {
   local z_state=""
   local z_display=""
   for z_i in "${!z_depots[@]}"; do
-    z_depot="${z_depots[$z_i]}"
+    z_depot="${z_depots[${z_i}]}"
 
     [[ "${z_depot}" =~ ^[a-z][a-z0-9-]*$ ]] || {
       printf '%s\tdead\tinvalid-id\n' "${z_depot}" || buc_die_now "Failed to emit liveness line"
@@ -2090,7 +2089,7 @@ zrbgp_escheat_plan() {
   local z_found_verdict=""
   local z_found_detail=""
   for z_i in "${!z_survey_lines[@]}"; do
-    IFS=$'\t' read -r z_verdict z_detail z_name <<<"${z_survey_lines[$z_i]}" || buc_die_now "Malformed survey line"
+    IFS=$'\t' read -r z_verdict z_detail z_name <<<"${z_survey_lines[${z_i}]}" || buc_die_now "Malformed survey line"
     if test "${z_verdict}" = "stray"; then
       printf 'sweep\tobject\tstray-%s\t%s\n' "${z_detail}" "${z_name}" || buc_die_now "Failed to emit plan line"
       continue
@@ -2099,9 +2098,9 @@ zrbgp_escheat_plan() {
     z_found_verdict=""
     z_found_detail=""
     for z_j in "${!z_lv_depots[@]}"; do
-      test "${z_lv_depots[$z_j]}" = "${z_detail}" || continue
-      z_found_verdict="${z_lv_verdicts[$z_j]}"
-      z_found_detail="${z_lv_details[$z_j]}"
+      test "${z_lv_depots[${z_j}]}" = "${z_detail}" || continue
+      z_found_verdict="${z_lv_verdicts[${z_j}]}"
+      z_found_detail="${z_lv_details[${z_j}]}"
       break
     done
     test -n "${z_found_verdict}" || buc_die_now "No liveness verdict for depot ${z_detail} — a liveness verdict is never guessed"
@@ -2122,14 +2121,14 @@ zrbgp_escheat_plan() {
 
   local z_folder=""
   for z_i in "${!z_folders[@]}"; do
-    z_folder="${z_folders[$z_i]}"
+    z_folder="${z_folders[${z_i}]}"
     z_depot="${z_folder%/}"
     z_found_verdict=""
     z_found_detail=""
     for z_j in "${!z_lv_depots[@]}"; do
-      test "${z_lv_depots[$z_j]}" = "${z_depot}" || continue
-      z_found_verdict="${z_lv_verdicts[$z_j]}"
-      z_found_detail="${z_lv_details[$z_j]}"
+      test "${z_lv_depots[${z_j}]}" = "${z_depot}" || continue
+      z_found_verdict="${z_lv_verdicts[${z_j}]}"
+      z_found_detail="${z_lv_details[${z_j}]}"
       break
     done
     test -n "${z_found_verdict}" || buc_die_now "No liveness verdict for folder depot ${z_depot}"
@@ -2170,8 +2169,10 @@ rbgp_manor_escheat() {
 
   buc_step 'List the polity managed folders'
   local -r z_folders_file="${ZRBGP_PREFIX}escheat_folders_plan.txt"
-  rbgb_managed_folders_capture "${z_token}" "${z_bucket}" > "${z_folders_file}" \
+  local z_folders
+  z_folders=$(rbgb_managed_folders_capture "${z_token}" "${z_bucket}") \
     || buc_reject "${BUBC_band_escheat}" "Escheat: failed to list managed folders in ${z_bucket}"
+  printf '%s\n' "${z_folders}" > "${z_folders_file}" || buc_die_now "Failed to write: ${z_folders_file}"
 
   local -r z_depots_file="${ZRBGP_PREFIX}escheat_depots.txt"
   zrbgp_escheat_depots "${z_survey_file}" "${z_folders_file}" > "${z_depots_file}" \
@@ -2240,8 +2241,7 @@ rbgp_manor_escheat() {
     IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     test "${z_action}" = "sweep" || continue
     test "${z_kind}" = "folder"  || continue
-    rbgb_managed_folder_purge "${z_token}" "${z_bucket}" "${z_name}" \
-      || buc_reject "${BUBC_band_escheat}" "Escheat: failed to purge dead polity folder ${z_name}"
+    rbgb_managed_folder_purge "${z_token}" "${z_bucket}" "${z_name}"
   done
 
   buc_step 'Verify the sweep (re-survey; the re-plan must hold no strike)'
@@ -2249,8 +2249,10 @@ rbgp_manor_escheat() {
   rbgft_escheat_survey "${z_token}" "${z_bucket}" > "${z_survey_verify_file}" \
     || buc_die_now "Escheat verify survey failed"
   local -r z_folders_verify_file="${ZRBGP_PREFIX}escheat_folders_verify.txt"
-  rbgb_managed_folders_capture "${z_token}" "${z_bucket}" > "${z_folders_verify_file}" \
+  local z_folders_verify
+  z_folders_verify=$(rbgb_managed_folders_capture "${z_token}" "${z_bucket}") \
     || buc_reject "${BUBC_band_escheat}" "Escheat verify: failed to re-list managed folders in ${z_bucket}"
+  printf '%s\n' "${z_folders_verify}" > "${z_folders_verify_file}" || buc_die_now "Failed to write: ${z_folders_verify_file}"
 
   local -r z_replan_file="${ZRBGP_PREFIX}escheat_replan.txt"
   zrbgp_escheat_plan "${z_survey_verify_file}" "${z_folders_verify_file}" "${z_liveness_file}" > "${z_replan_file}" \
@@ -2922,7 +2924,7 @@ rbgp_depot_list() {
 
   buc_info ""
   buc_info "=== DEPOT SUMMARY ==="
-  printf "%-40s %s\n" "PROJECT_ID" "STATUS"
+  printf "%-40s %s\n" "PROJECT_ID" "STATUS" || buc_die_now "Failed to print the depot summary header"
 
   # Per-iteration synthesized locals
   local z_fact_path=""
@@ -3399,14 +3401,15 @@ rbgp_rehearse() {
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'
+  local -r z_muniments_file="${ZRBGP_PREFIX}rehearse_muniments.txt"
+  rbgft_peruse_manor "${z_token}" "${RBGP_TERRIER_BUCKET}" > "${z_muniments_file}"
   local z_muniments
-  z_muniments=$(rbgft_peruse_manor "${z_token}" "${RBGP_TERRIER_BUCKET}") \
-    || buc_die_now "Failed to rehearse the manor terrier"
+  z_muniments=$(<"${z_muniments_file}") || buc_die_now "Failed to read: ${z_muniments_file}"
 
   if test -z "${z_muniments}"; then
     buc_info "No muniments — the manor terrier holds no standing citizens"
   else
-    printf '%s\n' "${z_muniments}"
+    printf '%s\n' "${z_muniments}" || buc_die_now "Failed to print the muniment roll"
   fi
 }
 
