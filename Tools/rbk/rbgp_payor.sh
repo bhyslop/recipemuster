@@ -1016,11 +1016,11 @@ rbgp_install() {
   local -r zSECRET_rbro_values="${zSECRET_client_secret}${zSECRET_refresh_token}"
   local -r zSECRET_residue="${zSECRET_rbro_values//[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._\/+=-]/}"
   test -z "${zSECRET_residue}" || buc_die_now "OAuth client secret or refresh token carries a character the RBRO file cannot hold as a bare value"
-  local -r zSECRET_rbro_lines="RBRO_CLIENT_SECRET=${zSECRET_client_secret}"$'\n'"RBRO_REFRESH_TOKEN=${zSECRET_refresh_token}"
+  local -r zSECRET_rbro_lines="RBRO_CLIENT_SECRET=${zSECRET_client_secret}"$'\n'"RBRO_REFRESH_TOKEN=${zSECRET_refresh_token}"$'\n'
   local z_rbro_stdout=""
   (
     umask 077 || buc_die_now "Failed to set umask for the RBRO credentials file"
-    z_rbro_stdout=$(printf '%s' "${zSECRET_rbro_lines}" | jq -Rr . > "${z_rbro_file}") || buc_die_now "Failed to write RBRO credentials file: ${z_rbro_file}"
+    z_rbro_stdout=$(printf '%s' "${zSECRET_rbro_lines}" | cp /dev/stdin "${z_rbro_file}") || buc_die_now "Failed to write RBRO credentials file: ${z_rbro_file}"
   ) || buc_die_now "Failed to write RBRO credentials file"
   chmod 600 "${z_rbro_file}" || buc_die_now "Failed to set RBRO file permissions"
   
