@@ -469,8 +469,9 @@ zrblm_scrub_regime() {
 }
 
 # zrblm_scrub_hardpoint PATH VARNAME STERILE — rewrite one source constant.
-# The assignment may be quoted or bare; the sterile value is written quoted,
-# which every hardpoint home accepts.
+# A hardpoint is tinder, and every tinder assignment carries readonly, so its
+# line opens 'readonly VARNAME=' and is found by that opening, never by a line
+# opening on the bare name. It is written back sealed, the sterile value quoted.
 zrblm_scrub_hardpoint() {
   local -r z_file="${1:-}"
   local -r z_var="${2:-}"
@@ -482,20 +483,27 @@ zrblm_scrub_hardpoint() {
   local -r z_tmp="${z_file}.tmp"
   local z_line=""
   local z_found=0
+  local z_lines=()
+  local z_i=0
+
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_file}" || buc_die_now "Failed to read: ${z_file}"
 
   cp -p "${z_file}" "${z_tmp}" || buc_die_now "Failed to seed temp file for: ${z_file}"
 
-  while IFS= read -r z_line || test -n "${z_line}"; do
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[${z_i}]}"
     case "${z_line}" in
-      "${z_var}="*)
-        printf '%s\n' "${z_var}=\"${z_sterile}\"" || buc_die_now "Failed to write: ${z_tmp}"
+      "readonly ${z_var}="*)
+        printf '%s\n' "readonly ${z_var}=\"${z_sterile}\"" || buc_die_now "Failed to write: ${z_tmp}"
         z_found=1
         ;;
       *)
         printf '%s\n' "${z_line}" || buc_die_now "Failed to write: ${z_tmp}"
         ;;
     esac
-  done < "${z_file}" > "${z_tmp}" || buc_die_now "Failed to scrub hardpoint: ${z_file}"
+  done > "${z_tmp}" || buc_die_now "Failed to scrub hardpoint: ${z_file}"
 
   test "${z_found}" = "1" || buc_die_now "Hardpoint ${z_var} not found in ${z_file} — the proscription names a home that moved"
 
