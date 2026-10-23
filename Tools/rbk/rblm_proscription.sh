@@ -142,12 +142,27 @@ readonly RBLM_unset_subject="unset-freehold-subject"
 # here, and in the Rust the build generates from here — which is why the ceremony
 # regenerates the derived files AFTER lustration, and why the fixture's shape
 # sweep reads the generated Rust as an ordinary shipping file.
+#
+# The homes
+#
+# Every regime file the tree carries, tagged with the scope that governs it: the
+# single home of the scope-to-file mapping, which lustration and feigning write
+# through and the damnatio fixture reads back rather than reimplementing the
+# globs. The singleton regimes sit at their own paths; the multi-instance
+# regimes are globbed across every instance present when the module kindles.
+# The foedera glob deliberately matches the live rbrf.env files only —
+# rbef_keycloak's committed rbrf.env.template describes the caged Keycloak
+# realm, which is synthetic at every installation and ships as authored.
+#
+# RBRO has no home: its file lives under RBRR_SECRETS_DIR, outside the
+# repository, which is what its offtree disposition records.
 zrblm_kindle() {
   test -z "${ZRBLM_KINDLED:-}" || buc_die_now "Module rblm_proscription already kindled"
 
   local -r z_site="${RBLM_disposition_site}"
   local -r z_common="${RBLM_disposition_common}"
   local -r z_offtree="${RBLM_disposition_offtree}"
+  local z_instance=""
 
   z_rblm_scope_roll=()
   z_rblm_var_roll=()
@@ -260,6 +275,29 @@ zrblm_kindle() {
 
   zrblm_hardpoint_enroll "Tools/rbk/rbpc_constants.sh" RBPC_freehold_subject "${RBLM_unset_subject}"
 
+  z_rblm_home_scope_roll=()
+  z_rblm_home_file_roll=()
+
+  zrblm_home_enroll RBRR "${RBCC_rbrr_file}"
+  zrblm_home_enroll RBRD "${RBCC_rbrd_file}"
+  zrblm_home_enroll RBRP "${RBCC_rbrp_file}"
+  zrblm_home_enroll RBRW "${RBCC_rbrw_file}"
+
+  for z_instance in "${RBCC_foedera_dir}"/*/rbrf.env; do
+    test -f "${z_instance}" || continue
+    zrblm_home_enroll RBRF "${z_instance}"
+  done
+
+  for z_instance in "${RBCC_moorings_dir}/${RBCC_vessels_subdir}"/*/"${RBCC_rbrv_file}"; do
+    test -f "${z_instance}" || continue
+    zrblm_home_enroll RBRV "${z_instance}"
+  done
+
+  for z_instance in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
+    test -f "${z_instance}" || continue
+    zrblm_home_enroll RBRN "${z_instance}"
+  done
+
   readonly ZRBLM_KINDLED=1
 }
 
@@ -343,12 +381,41 @@ zrblm_hardpoint_enroll() {
   z_rblm_hardpoint_sterile_roll+=("${z_sterile}")
 }
 
+# zrblm_home_enroll SCOPE FILE — enroll one regime file under the scope that
+# governs it. The scope must be one the proscription judges, and the path
+# carries no tab or newline, since the homes emitter writes it tab-separated,
+# one row per line.
+zrblm_home_enroll() {
+  local -r z_scope="${1:-}"
+  local -r z_file="${2:-}"
+
+  test "$#" -eq 2 || buc_die_now "Home: a scope and a file required"
+  test -n "${z_file}" || buc_die_now "Home: empty file for scope ${z_scope}"
+  case "${z_file}" in
+    *$'\t'*|*$'\n'*) buc_die_now "Home: ${z_scope} file carries a tab or a newline: ${z_file}" ;;
+  esac
+
+  local z_judged=0
+  local z_i=0
+  for z_i in "${!z_rblm_scope_roll[@]}"; do
+    test "${z_rblm_scope_roll[${z_i}]}" != "${z_scope}" || z_judged=1
+  done
+  test "${z_judged}" = "1" || buc_die_now "Home: scope '${z_scope}' carries no proscription row"
+
+  for z_i in "${!z_rblm_home_file_roll[@]}"; do
+    test "${z_rblm_home_file_roll[${z_i}]}" != "${z_file}" || buc_die_now "Home: ${z_file} enrolled twice"
+  done
+
+  z_rblm_home_scope_roll+=("${z_scope}")
+  z_rblm_home_file_roll+=("${z_file}")
+}
+
 ######################################################################
 # Emitters — the fixture's reach
 #
 # Tab-separated, one row per line, no decoration. The damnatio fixture sources
-# this module and calls these, so the proscription it judges against is the same
-# table lustration writes from.
+# this module, kindles it and calls these, so the proscription it judges against
+# is the same table lustration writes from.
 
 # Four columns, not five: the fixture judges the DELIVERED tree, which no feigned
 # value ever reaches. The feigned column is the ceremony's alone, so it does not
@@ -383,68 +450,17 @@ rblm_emit_hardpoints() {
 rblm_emit_homes() {
   zrblm_sentinel
 
-  local z_homes
-  z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
-
-  local z_rest="${z_homes}"
-  local z_home=""
-  while test -n "${z_rest}"; do
-    z_home="${z_rest%%$'\n'*}"
-    case "${z_rest}" in
-      *$'\n'*) z_rest="${z_rest#*$'\n'}" ;;
-      *)       z_rest=""                 ;;
-    esac
-    printf '%s\t%s\n' "${z_home%%|*}" "${z_home#*|}" \
-      || buc_die_now "Failed to emit home row: ${z_home}"
+  local z_i=0
+  for z_i in "${!z_rblm_home_file_roll[@]}"; do
+    printf '%s\t%s\n' \
+      "${z_rblm_home_scope_roll[${z_i}]}" \
+      "${z_rblm_home_file_roll[${z_i}]}" \
+      || buc_die_now "Failed to emit home row: ${z_rblm_home_file_roll[${z_i}]}"
   done
 }
 
 ######################################################################
 # The transform
-
-# zrblm_homes_capture — resolve every regime file the tree carries, tagged with
-# the scope that governs it. Prints SCOPE|FILE rows, one per line.
-#
-# The singleton regimes sit at their own paths; the multi-instance regimes are
-# globbed across every instance present. The foedera glob deliberately matches
-# the live rbrf.env files only — rbef_keycloak's committed rbrf.env.template
-# describes the caged Keycloak realm, which is synthetic at every installation
-# and ships as authored.
-#
-# RBRO has no row: its file lives under RBRR_SECRETS_DIR, outside the repository,
-# which is what its offtree disposition records.
-#
-# The single home of the scope-to-file mapping: lustration writes through it, and
-# the damnatio fixture reads it back rather than reimplementing the globs.
-zrblm_homes_capture() {
-  zrblm_sentinel
-
-  local z_homes=(
-    "RBRR|${RBCC_rbrr_file}"
-    "RBRD|${RBCC_rbrd_file}"
-    "RBRP|${RBCC_rbrp_file}"
-    "RBRW|${RBCC_rbrw_file}"
-  )
-
-  local z_instance=""
-
-  for z_instance in "${RBCC_foedera_dir}"/*/rbrf.env; do
-    test -f "${z_instance}" || continue
-    z_homes+=("RBRF|${z_instance}")
-  done
-
-  for z_instance in "${RBCC_moorings_dir}/${RBCC_vessels_subdir}"/*/"${RBCC_rbrv_file}"; do
-    test -f "${z_instance}" || continue
-    z_homes+=("RBRV|${z_instance}")
-  done
-
-  for z_instance in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
-    test -f "${z_instance}" || continue
-    z_homes+=("RBRN|${z_instance}")
-  done
-
-  printf '%s\n' "${z_homes[@]}" || return 1
-}
 
 # zrblm_value_recite SCOPE VARNAME COLUMN — recite the value one transform
 # writes into one field. Prints the value and returns 0 when the field is
@@ -586,21 +602,14 @@ zrblm_scrub_hardpoint() {
 rblm_lustrate_apply() {
   zrblm_sentinel
 
-  local z_homes
-  z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
-
-  local z_rest="${z_homes}"
-  local z_home=""
-  while test -n "${z_rest}"; do
-    z_home="${z_rest%%$'\n'*}"
-    case "${z_rest}" in
-      *$'\n'*) z_rest="${z_rest#*$'\n'}" ;;
-      *)       z_rest=""                 ;;
-    esac
-    zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_sterile}"
+  local z_i=0
+  for z_i in "${!z_rblm_home_file_roll[@]}"; do
+    zrblm_scrub_regime \
+      "${z_rblm_home_file_roll[${z_i}]}" \
+      "${z_rblm_home_scope_roll[${z_i}]}" \
+      "${RBLM_column_sterile}"
   done
 
-  local z_i=0
   for z_i in "${!z_rblm_hardpoint_var_roll[@]}"; do
     zrblm_scrub_hardpoint \
       "${z_rblm_hardpoint_path_roll[${z_i}]}" \
@@ -619,18 +628,12 @@ rblm_lustrate_apply() {
 rblm_feign_apply() {
   zrblm_sentinel
 
-  local z_homes
-  z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
-
-  local z_rest="${z_homes}"
-  local z_home=""
-  while test -n "${z_rest}"; do
-    z_home="${z_rest%%$'\n'*}"
-    case "${z_rest}" in
-      *$'\n'*) z_rest="${z_rest#*$'\n'}" ;;
-      *)       z_rest=""                 ;;
-    esac
-    zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_feigned}"
+  local z_i=0
+  for z_i in "${!z_rblm_home_file_roll[@]}"; do
+    zrblm_scrub_regime \
+      "${z_rblm_home_file_roll[${z_i}]}" \
+      "${z_rblm_home_scope_roll[${z_i}]}" \
+      "${RBLM_column_feigned}"
   done
 }
 
