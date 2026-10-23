@@ -123,6 +123,9 @@ zrbrn_enforce() {
 
 # List available nameplate monikers as space-separated tokens
 # Prerequisite: RBCC sourced (needs RBCC_moorings_dir, RBCC_rbrn_file)
+# Each moniker is held to RBRN_MONIKER's word alphabet before it is joined — a
+# letter, then letters, digits, underscore and hyphen — so the callers' split on
+# whitespace reads back exactly the monikers listed; one that is not refuses.
 rbrn_list_capture() {
   zrbrn_sentinel
 
@@ -137,6 +140,11 @@ rbrn_list_capture() {
     z_dir="${z_files[${z_i}]%/*}"
     z_inscription="${z_dir##*/}"
     z_moniker="${z_inscription#"${RBCC_nameplate_sprue}"}"
+    case "${z_moniker}" in
+      ''|[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]*|*[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-]*)
+        return 1
+        ;;
+    esac
     z_result="${z_result}${z_result:+ }${z_moniker}"
   done
   test -n "${z_result}" || return 1
