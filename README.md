@@ -15,24 +15,17 @@ It extends a container's control to its two edges:
 The two compose, but neither requires the other.
 
 > [!IMPORTANT]
-> **Early-stage project — security review welcome in both domains**
->
-> The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the [SLSA](#Provenance) attestation chain, [build isolation](#BuildIsolation), and digest-pinned toolchains — has not yet had broad independent review.
->
+> **Early-stage project — security review welcome in both domains.** The [Foundry's](#Foundry) egress-locked Cloud Build configuration — including the [SLSA](#Provenance) attestation chain, [build isolation](#BuildIsolation), and digest-pinned toolchains — has not yet had broad independent review.
 > The [Crucible](#Crucible) runtime containment — a multi-container apparatus where the workload runs unprivileged in a network namespace it does not control — has also not had broad review, particularly the network isolation rules, privileged namespace setup, and egress enforcement.
->
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
-**Host platform scope.**
-[Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker.
+**Host platform scope.** [Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker.
 Windows host support works and is exercised in testing, but is not yet part of the release-qualification baseline — treat it as supported-experimental for now.
 
-**Project page**: https://scaleinv.github.io/recipebottle
+**Project page**: [scaleinv.github.io/recipebottle](https://scaleinv.github.io/recipebottle)
 
-<p align="center">
-  <img src="diagrams/rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720" />
-</p>
+<p align="center"><img src="diagrams/rbm-abstract-drawio.svg" alt="Recipe Bottle architecture diagram" width="720"></p>
 
 ## Environment
 
@@ -49,23 +42,25 @@ Podman support is architecturally accommodated by the spec but deferred — see 
 One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression and adversarial test suites — including the [Theurge](#Theurge) orchestrator — are written in Rust.
 Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs a Rust toolchain; running Recipe Bottle does not.
 
-<a id="Regime"></a>All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
-Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), [Payor](#Payor) identity ([RBRP](#RBRP)), the [Manor's](#Manor) workforce-pool record ([RBRW](#RBRW)), and per-[Foedus](#Foedus) federation trust ([RBRF](#RBRF)).
+### Regimes and Tabtargets
+
+All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
+Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), [Payor](#Payor) identity ([RBRP](#RBRP)), the [Manor's](#Manor) workforce-pool record ([RBRW](#RBRW)), and [per-Foedus](#Foedus) federation trust ([RBRF](#RBRF)).
 Others live on the filesystem outside revision control: [Payor](#Payor) OAuth credentials ([RBRO](#RBRO)) and developer workstation paths ([BURS](#BURS)).
 
-<a id="Tabtarget"></a>Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
+Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
 The critical property: tab completion finds the command you want.
 Type `tt/rbw-<TAB>` and the shell narrows to all [Recipe Bottle](#RecipeBottle) operations; type `tt/rbw-f<TAB>` to see just the [Foundry](#Foundry) build and [Hallmark](#Hallmark) commands.
-Each [Tabtarget](#Tabtarget) is named `{prefix}.{label}.sh` — the prefix routes to the right module, the label tells you what it does.
+Each [Tabtarget](#Tabtarget) is named `{colophon}.{frontispiece}[.{imprint}].sh` — the colophon routes to the right module, the frontispiece tells you what it does, and an optional imprint names the target it acts on.
 
-<a id="Log"></a>Every state-changing [Tabtarget](#Tabtarget) writes three [Log](#Log) files to the directory named by `BURS_LOG_DIR` in your [BURS](#BURS) station file: a stable-name file (always the same path — easy for tooling to locate and evaluate the most recent run), a per-command file (same command name across runs — tools like SlickEdit sense diffs between executions), and a timestamped historical file (permanent record).
-Disk space is cheap; [Log](#Log) unconditionally so the diagnostic evidence is always there when something fails.
+<a id="Log"></a>A [Tabtarget](#Tabtarget) that logs writes three [Log](#Log) files to the directory named by `BURS_LOG_DIR` in your [BURS](#BURS) station file: a stable-name file overwritten by every dispatch, a per-command file overwritten by the next run of the same command (tools like SlickEdit sense diffs between executions), and a timestamped historical file that is never overwritten, the one to read.
+Disk space is cheap, so commands log by default and the diagnostic evidence is there when something fails; a command handling secrets, or one that runs before a station file stands, does not.
 Handbooks don't [Log](#Log) — teaching output is ephemeral.
 
 <a id="Transcript"></a>A [Transcript](#Transcript) is a single file capturing key decision points and state transitions within a [Tabtarget's](#Tabtarget) execution.
 Where [Logs](#Log) preserve full terminal output, a [Transcript](#Transcript) records the structured progress of sophisticated orchestration commands — the first thing to read when debugging a multi-step failure.
 
-<a id="Output"></a>The [Output](#Output) directory is a fixed-path staging area cleared and recreated before each [Tabtarget](#Tabtarget) runs.
+<a id="Output"></a>The [Output](#Output) directory is a fixed-path staging area for each [Tabtarget](#Tabtarget) run: at the start of a dispatch the previous run's outputs move aside into a sibling `previous/` directory, so one prior run's artifacts survive.
 Commands that produce artifacts write them here.
 Concurrent bash sessions share this path, so parallel commands can overwrite each other's [Output](#Output).
 
@@ -75,84 +70,84 @@ To begin, run the onboarding walkthrough:
 tt/rbw-o.ONBOARDING.sh
 ```
 
-## <a id="Foundry"></a>Foundry
+## Foundry
 
-[Recipe Bottle's](#RecipeBottle) remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
-The [Foundry](#Foundry) manages [Depot](#Depot) access, [Vessels](#Vessel) choreography, [Hallmark](#Hallmark) tracking, and build definitions.
-Three [Vessel](#Vessel) modes determine how images enter the [Depot](#Depot): [Conjure](#Conjure) ([egress-locked](#BuildIsolation) build from source with [SLSA provenance](#Provenance)), [Bind](#Bind) (digest-pinned upstream mirror), and [Graft](#Graft) (local push).
+<a id="Foundry"></a>**Foundry**
+
+Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
+The [Foundry](#Foundry) encompasses [RB Depots](#Depot), [Vessels](#Vessel), and [Hallmark](#Hallmark) tracking.
+Three vessel modes determine how images enter the [Depot](#Depot): conjure (egress-locked build from source with SLSA provenance), bind (digest-pinned upstream mirror), and graft (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
 
-The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with [SLSA](#Provenance) attestation, software bills of material, reproducible multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
-Builds run in an [egress-locked](#BuildIsolation) configuration, drawing from upstream base images mirrored into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
+The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with [SLSA](#Provenance) attestation, software bills of material, multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
+Builds can run [egress-locked](#BuildIsolation), and every build draws its base images from copies captured into a project-owned [Depot](#Depot) registry — a fixed, self-contained supply chain independent of third-party registry availability.
 
-### <a id="Depot"></a>Depot
+### Depot
 
-The facility where container images are built and stored — has its own GCP project with an artifact registry and a storage bucket, funded under the [Manor's](#Manor) billing account.
+The facility where container images are built and stored — has its own GCP project with an artifact registry and two build worker pools, funded under the [Manor's](#Manor) billing account.
 The [Payor](#Payor) [Levies](#Levy) a [Depot](#Depot), and the [Governor](#Governor) administers access to it.
 Each [Depot](#Depot) operates as an independent supply-chain boundary with its own credentials, builds, and registry.
 
 Each [Depot](#Depot) supports two build egress profiles:
 
-- <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build. [Tethered](#Tethered) builds pull base images from upstream registries at build time — simpler to set up, but dependent on upstream availability.
+- <a id="Tethered"></a>**[Tethered](#Tethered)** — Build egress mode allowing public internet access during Cloud Build, for build steps that fetch what they need from the internet. [Tethered](#Tethered) builds still take their base images from [Lodes](#Lode) in the [Depot's](#Depot) registry — simpler to write for, but dependent on the internet at build time.
 - <a id="Airgap"></a>**[Airgap](#Airgap)** — Build egress mode with no public internet access during Cloud Build.
-[Airgap](#Airgap) builds draw all dependencies from [Lodes](#Lode) in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability.
-Requires [Capturing](#Capture) base images before the first build.
-See [Build Isolation](#BuildIsolation) for the security rationale behind these profiles.
+  [Airgap](#Airgap) builds draw everything from [Lodes](#Lode) in the [Depot's](#Depot) registry — fully self-contained, independent of upstream availability.
+  See [Build Isolation](#BuildIsolation) for the security rationale behind these profiles.
 
-### <a id="Manor"></a>Manor
+### Manor
 
-The [Payor's](#Payor) administrative seat — holds the billing account, OAuth client, and operator identity.
+The [Payor's](#Payor) administrative seat — holds the billing account and the OAuth client.
 [Depot](#Depot) projects are created and funded under the [Manor's](#Manor) authority.
 The [Manor](#Manor) has its own GCP project, distinct from any [Depot](#Depot) project.
 From the [Manor](#Manor) the [Payor](#Payor) [Instaurates](#Instaurate) the identity substrate — the one organization-level workforce pool that every [Depot's](#Depot) federated sign-in trusts — and [Affiances](#Affiance) each external identity provider as a [Foedus](#Foedus) beneath it; the [Manor](#Manor) also homes the [Terrier](#Terrier) that records which [Citizens](#Citizen) hold which [Mantles](#Mantle).
 
-### <a id="Payor"></a>Payor
+### Payor
 
 [Establishes](#Establish) a [Manor](#Manor) and funds [Depot](#Depot) projects through it; authenticates via OAuth.
 The [Payor](#Payor) is the only role requiring manual Google Cloud Console interaction — [Establishing](#Establish) the [Manor](#Manor), configuring OAuth, and [Installing](#Install) credentials via browser flow.
 All other roles are [Mantles](#Mantle) worn by federated [Citizens](#Citizen): the [Payor](#Payor) founds the identity trust they sign in against and [Girds](#Gird) the first [Governor](#Governor).
 
-### <a id="Governor"></a>Governor
+### Governor
 
 Administers a [Depot](#Depot): admits operators and manages access.
 The [Governor](#Governor) is a [Mantle](#Mantle) — a federated [Citizen](#Citizen) wears it, [Girded](#Gird) by the [Payor](#Payor) as the [Depot's](#Depot) founding act or [Brevetted](#Brevet) by a standing governor thereafter.
-The [Governor](#Governor) [Brevets](#Brevet) [Citizens](#Citizen) onto [Director](#Director) and [Retriever](#Retriever) [Mantles](#Mantle), [Unseats](#Unseat) a [Mantle](#Mantle) no longer needed, [Attaints](#Attaint) a [Citizen](#Citizen) entirely, and [Rehearses](#Rehearse) the [Terrier](#Terrier) roster.
+The [Governor](#Governor) [Brevets](#Brevet) [Citizens](#Citizen) onto [Governor](#Governor), [Director](#Director) and [Retriever](#Retriever) [Mantles](#Mantle), [Unseats](#Unseat) a [Mantle](#Mantle) no longer needed, [Attaints](#Attaint) a [Citizen](#Citizen) entirely, and [Rehearses](#Rehearse) the [Terrier](#Terrier) roster.
 
-### <a id="Director"></a>Director
+### Director
 
 Builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot).
 Each [Director](#Director) credential is scoped to one [Depot](#Depot).
-The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a [Hallmark](#Hallmark), [Tally](#Tally) registry health, [Rekon](#Rekon) raw tags, [Vouch](#Vouch) [provenance](#Provenance), [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
+The [Director](#Director) manages the image lifecycle: [Ordain](#Ordain) a [Hallmark](#Hallmark), [Vouch](#Vouch) the [provenance](#Provenance) of any still pending, [Rekon](#Rekon) a [Hallmark's](#Hallmark) registry presence, [Wrest](#Wrest) a specific image directly, [Abjure](#Abjure) superseded artifacts, and [Jettison](#Jettison) individual tags.
 
-### <a id="Retriever"></a>Retriever
+### Retriever
 
 Pulls and runs [Vessel](#Vessel) images from a [Depot](#Depot).
 This is the most constrained role — read-only access to the [Depot](#Depot) registry.
-The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use, [Plumbs](#Plumb) their [provenance](#Provenance), or [Wrests](#Wrest) a specific image directly.
+The [Retriever](#Retriever) [Summons](#Summon) images for local use, [Tallies](#Tally) [Hallmarks](#Hallmark) by health, and [Plumbs](#Plumb) their [provenance](#Provenance).
 
-### <a id="Vessel"></a>Vessel
+### Vessel
 
 A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)).
 Each [Vessel](#Vessel) is a directory under `rbmm_moorings/rbmv_vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile.
-Any [Vessel](#Vessel) can also be [Kludged](#Kludge) — built locally for development, without involving the [Depot](#Depot) — which is an operation rather than a fourth mode.
+A [Conjure](#Conjure) [Vessel](#Vessel) can also be [Kludged](#Kludge) — built locally for development, its base images fetched beforehand — which is an operation rather than a fourth mode.
 
-### <a id="Hallmark"></a>Hallmark
+### Hallmark
 
-A specific build instance of a [Vessel](#Vessel), identified by timestamp.
-[Hallmarks](#Hallmark) are the unit of [provenance](#Provenance) tracking — each one records when and how the image was produced.
-<a id="Ark"></a>Each [Hallmark](#Hallmark) stands in the [Depot](#Depot) registry as a set of tagged artifacts — its [Arks](#Ark) — led by the container image (`-image`), the [software bill of materials](#SBOM) ([`-about`](#About)), and the cryptographic attestation ([`-vouch`](#Vouch)); [Rekon](#Rekon) shows a [Hallmark's](#Hallmark) full [Ark](#Ark) census.
+A specific build instance of a [Vessel](#Vessel), identified by its build mode and build time.
+Each [Hallmark](#Hallmark) stands in the [Depot](#Depot) registry as a set of artifacts — its [Ark](#Ark) — led by the container image (`image`), the [software bill of materials](#SBOM) ([`about`](#About)), and the provenance verification record ([`vouch`](#Vouch)); [Rekon](#Rekon) shows a [Hallmark's](#Hallmark) full [Ark](#Ark) census.
 [Hallmark](#Hallmark) values are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files to pin a [Nameplate](#Nameplate) to specific image versions.
 
 ### Foundry Lifecycle
 
-[Recipe Bottle](#RecipeBottle) uses a role-based security model with four roles, each building on the previous:
+[Recipe Bottle](#RecipeBottle) uses a role-based security model with four operator roles:
 
 | Role | Authenticates via | Purpose |
-|------|-------------------|---------|
-| [**Payor**](#Payor) | OAuth (browser flow) | Creates/funds GCP infrastructure, founds the [Manor](#Manor), [Girds](#Gird) the first [Governor](#Governor) |
-| [**Governor**](#Governor) | Federated sign-in → [Governor](#Governor) [Mantle](#Mantle) | Admits [Citizens](#Citizen) to [Director](#Director) and [Retriever](#Retriever) mantles within a [Depot](#Depot) |
-| [**Director**](#Director) | Federated sign-in → [Director](#Director) [Mantle](#Mantle) | Submits builds, manages images, verifies [provenance](#Provenance) |
-| [**Retriever**](#Retriever) | Federated sign-in → [Retriever](#Retriever) [Mantle](#Mantle) | Pulls images for local use |
+| --- | --- | --- |
+| **[Payor](#Payor)** | OAuth (browser flow) | Creates and funds GCP infrastructure, founds the [Manor](#Manor), [Girds](#Gird) the first [Governor](#Governor) |
+| **[Governor](#Governor)** | Federated sign-in → [Governor](#Governor) [Mantle](#Mantle) | Admits [Citizens](#Citizen) to the mantles of a [Depot](#Depot) |
+| **[Director](#Director)** | Federated sign-in → [Director](#Director) [Mantle](#Mantle) | Submits builds, manages images, verifies [provenance](#Provenance) |
+| **[Retriever](#Retriever)** | Federated sign-in → [Retriever](#Retriever) [Mantle](#Mantle) | Pulls images for local use |
 
 The [Payor](#Payor) stands apart — it authenticates with its own OAuth refresh token, the system's sole durable secret.
 Every other role is a [Mantle](#Mantle): a standing office a federated operator [Avows](#Avow) into to open a [Sederunt](#Sederunt), then [Dons](#Don) for the work at hand.
@@ -179,104 +174,120 @@ At runtime the [Citizen](#Citizen) [Avows](#Avow) to open a [Sederunt](#Sederunt
 #### Build and Retrieve
 
 The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds.
-After builds complete, the [Director](#Director) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status and [Vouches](#Vouch) their [provenance](#Provenance).
-[Hallmark](#Hallmark) values from the [Tally](#Tally) are recorded into [Nameplate](#Nameplate) [Regime](#Regime) files, completing the chain from build to runtime.
+Each [Ordain](#Ordain) chains its own metadata and [Vouch](#Vouch) stages, and the [Director](#Director) can [Vouch](#Vouch) any [Hallmark](#Hallmark) still pending in one batch; the [Retriever](#Retriever) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status.
 
-The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images locally for use.
+Build results become durable by being written into committed [Regime](#Regime) lines: each chain-link verb — [Yoke](#Yoke), [Feoff](#Feoff), [Anoint](#Anoint), [Drive](#Drive) — resolves a fresh build fact into the configuration lines it owns, which the operator then commits.
+The chain is what lets every later build and every [Charge](#Charge) draw on a pinned, reviewable record instead of a floating reference, a [Hallmark](#Hallmark) being [Driven](#Drive) into its [Nameplate's](#Nameplate) [Regime](#Regime) file to complete the chain from build to runtime.
+
+The [Retriever](#Retriever) [Summons](#Summon) a [Hallmark's](#Hallmark) images locally for use.
 
 [Recipe Bottle](#RecipeBottle) builds container images on Google Cloud Build (GCB) and stores them in Google Artifact Registry (GAR):
 
-- Isolated build environments using Google-curated Cloud Build builder images
+- Isolated build environments on Cloud Build, every builder tool image drawn from a captured [Reliquary](#Reliquary)
 - Multi-architecture support via `docker buildx` with binfmt emulation
 - [SLSA provenance](#Provenance) attestation and verification
 - [Software Bills of Material (SBOM)](#SBOM) for every build
-- Full build transcripts captured as auxiliary metadata artifacts
+- Build metadata — the [SBOM](#SBOM), the build info and the build recipe — kept in an [About](#About) artifact beside the image
 - Upstream base images [Captured](#Capture) into the [Depot's](#Depot) registry as [Lodes](#Lode), so builds do not depend on third-party registry availability at build time
 - `gcloud` never runs on the workstation — REST calls via `curl` and `jq` drive all remote operations, and the Google-supplied `gcloud` binary is confined to Cloud Build step containers on the server side
 
 Each build's source context is packaged as a [Pouch](#Pouch) — the security boundary between workstation and build infrastructure.
 
-## <a id="Crucible"></a>Crucible
+## Crucible
 
 The distinctive case [Recipe Bottle](#RecipeBottle) addresses is *running untrusted code*: third-party tooling, experimental packages, binaries with uncertain [provenance](#Provenance).
 Containers excel at packaging known applications, but running unvetted code poses security risks that ordinary container deployment does not solve.
 [Recipe Bottle](#RecipeBottle) assembles a [Crucible](#Crucible) — three cooperating containers where a [Sentry](#Sentry) enforces network policy — without requiring modifications to existing container images.
 The [Bottle](#Bottle) container runs unmodified, in a network namespace prepared by a privileged [Pentacle](#Pentacle), with all egress flowing through the [Sentry](#Sentry) gateway.
 
-The [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad running together as one unit defined by a [Nameplate](#Nameplate).
+The [Sentry](#Sentry), [Pentacle](#Pentacle) and [Bottle](#Bottle) run together as one unit defined by a [Nameplate](#Nameplate).
 The [Crucible](#Crucible) is the local safety orchestration — the apparatus that makes running untrusted code practical.
 [Charging](#Charge) starts all three containers; [Quenching](#Quench) stops and cleans them up.
 
-### <a id="Nameplate"></a>Nameplate
+### Nameplate
 
-Per-[Crucible](#Crucible) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable unit.
+[Per-Crucible](#Crucible) configuration tying a [Sentry](#Sentry) and [Bottle](#Bottle) together into a runnable unit.
 The [Nameplate](#Nameplate) moniker (e.g. `tadmor`) identifies the unit across all operations.
 Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmark](#Hallmark) pins, and the network policy that the [Sentry](#Sentry) enforces.
 
 ### Containers
 
-- <a id="Sentry"></a>**[Sentry](#Sentry)** — Security container enforcing network policies via `iptables` and `dnsmasq`.
-The [Sentry](#Sentry) applies two layers of egress policy: DNS-level filtering (only allowed domain names resolve) and IP-level filtering (only allowed CIDR ranges pass).
-A compromised [Bottle](#Bottle) cannot bypass either layer — the [Sentry](#Sentry) is the sole gateway between the [Bottle](#Bottle) and the outside network.
-- <a id="Pentacle"></a>**[Pentacle](#Pentacle)** — Privileged container establishing the network namespace shared with the [Bottle](#Bottle).
-The [Pentacle](#Pentacle) runs briefly with elevated privileges to create the network topology, then remains as the namespace anchor.
-Security policies are enforced from the first packet because the [Sentry](#Sentry)'s rules are already live when the [Pentacle](#Pentacle) prepares the namespace the [Bottle](#Bottle) will share.
-- <a id="Bottle"></a>**[Bottle](#Bottle)** — Your workload container, running unmodified in a controlled network environment.
-The [Bottle](#Bottle) has no direct network access — all traffic routes through the [Sentry](#Sentry) gateway in a namespace prepared by the [Pentacle](#Pentacle).
-Any existing container image can run as a [Bottle](#Bottle) without modification.
+- **[Sentry](#Sentry)** — Security container enforcing network policies via `iptables` and `dnsmasq`.
+  The [Sentry](#Sentry) applies two layers of egress policy: DNS-level filtering (only allowed domain names resolve) and IP-level filtering (only allowed CIDR ranges pass).
+  A compromised [Bottle](#Bottle) cannot bypass either layer — the [Sentry](#Sentry) is the sole gateway between the [Bottle](#Bottle) and the outside network.
+- **[Pentacle](#Pentacle)** — Privileged container establishing the network namespace shared with the [Bottle](#Bottle).
+  The [Pentacle](#Pentacle) runs privileged to create the network topology and remains as the namespace anchor.
+  Security policies are enforced from the first packet because the [Sentry's](#Sentry) rules are already live when the [Pentacle](#Pentacle) prepares the namespace the [Bottle](#Bottle) will share.
+- **[Bottle](#Bottle)** — Your workload container, running unmodified in a controlled network environment.
+  The [Bottle](#Bottle) has no direct network access — all traffic routes through the [Sentry](#Sentry) gateway in a namespace prepared by the [Pentacle](#Pentacle).
+  Any existing container image can run as a [Bottle](#Bottle) without modification.
 
-### <a id="Enclave"></a>Enclave
+### Enclave
 
 The isolated network connecting a [Bottle](#Bottle) to its [Sentry](#Sentry) — the [Bottle's](#Bottle) only path to the outside world.
 All [Bottle](#Bottle) traffic routes through the [Enclave](#Enclave) to the [Sentry](#Sentry) gateway; the [Bottle](#Bottle) has no interface on any other network.
-<a id="Transit"></a>The [Sentry](#Sentry) alone also stands on the [Transit](#Transit) network — the uplink that reaches the workstation and the world beyond — so the [Sentry](#Sentry) is the only container straddling both networks, and everything that leaves the [Enclave](#Enclave) crosses its policy.
+The [Sentry](#Sentry) alone also stands on the [Transit](#Transit) network — the uplink that reaches the workstation and the world beyond — so the [Sentry](#Sentry) is the only container straddling both networks, and everything that leaves the [Enclave](#Enclave) crosses its policy.
 
 ### Crucible Lifecycle
 
-[Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate) to start the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) together — the [Bottle](#Bottle) is ready for interactive use immediately.
+[Charge](#Charge) the [Crucible](#Crucible) for a [Nameplate](#Nameplate) to start the [Sentry](#Sentry), [Pentacle](#Pentacle), and [Bottle](#Bottle) together — once the [Charge](#Charge) returns, the [Bottle](#Bottle) is ready for interactive use.
 [Rack](#Rack) the [Bottle](#Bottle) to shell in, [Hail](#Hail) the [Sentry](#Sentry) to inspect the gateway, or [Scry](#Scry) the network to observe traffic across [Crucible](#Crucible) containers.
 When finished, [Quench](#Quench) the [Crucible](#Crucible) to stop and clean up all three containers.
-To inspect an image's supply chain, [Plumb](#Plumb) its [provenance](#Provenance) — the full view shows the [SBOM](#SBOM), build info, and Dockerfile; the compact view summarizes the attestation chain.
+To inspect an image's supply chain, [Plumb](#Plumb) its [provenance](#Provenance) — the full view shows the [SBOM](#SBOM), build info, and Dockerfile; the compact view summarizes its trust posture.
 
 ### Reference Nameplates
 
 Shipped [Nameplates](#Nameplate) demonstrating different [Crucible](#Crucible) configurations.
 Each pairs a [Sentry](#Sentry) with a [Bottle](#Bottle) [Vessel](#Vessel) and defines the network policy for that deployment target.
 
-<a id="ccyolo"></a>**[ccyolo](#ccyolo)** — Claude Code sandbox for network-contained AI development.
-The [ccyolo](#ccyolo) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a Claude Code [Bottle](#Bottle) under an Anthropic-only network allowlist — SSH entry from the workstation, OAuth authentication via copy/paste, everything else blocked.
-[Kludge](#Kludge)-only development target: no cloud account, no [Manor](#Manor) or [Depot](#Depot) — fully self-contained on the developer's workstation.
-The onboarding handbook's first hands-on track teaches the full [Crucible](#Crucible) lifecycle using [ccyolo](#ccyolo).
+<a id="ccyolo"></a>**ccyolo**
 
-<a id="tadmor"></a>**[tadmor](#tadmor)** — Adversarial security testing [Nameplate](#Nameplate) for daily iteration.
-The [tadmor](#tadmor) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under a restrictive network allowlist, consuming [Kludged](#Kludge) [Hallmarks](#Hallmark) for fast author-test-iterate cycles.
-The [Theurge](#Theurge) test orchestrator [Charges](#Charge) [tadmor](#tadmor) and dispatches curated escape attempts to validate that the [Sentry's](#Sentry) containment holds under adversarial conditions.
+The Claude Code sandbox [Nameplate](#Nameplate), for network-contained AI development.
+It pairs the [Sentry](#Sentry) with a Claude Code [Bottle](#Bottle) under an allowlist admitting Anthropic's service: SSH entry from the workstation, OAuth sign-in by copy and paste, everything else blocked.
+Its images are built locally and never in the cloud, so it needs no cloud account, [Manor](#Manor) or [Depot](#Depot), and the onboarding's first hands-on track teaches the [Crucible](#Crucible) lifecycle with it.
 
-<a id="moriah"></a>**[moriah](#moriah)** — Adversarial security testing [Nameplate](#Nameplate) for the airgap supply chain.
-The [moriah](#moriah) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive network allowlist as [tadmor](#tadmor), consuming [Hallmarks](#Hallmark) [Ordained](#Ordain) end-to-end on the [Airgap](#Airgap) pool.
-The [Theurge](#Theurge) runs the same escape attempts against [moriah](#moriah) as against [tadmor](#tadmor) — the cloud-built variant validating that containment holds identically when the supply chain produces the inputs.
+<a id="tadmor"></a>**tadmor**
 
-<a id="srjcl"></a>**[srjcl](#srjcl)** — Jupyter notebook server for network-contained analysis.
-The [srjcl](#srjcl) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Jupyter [Bottle](#Bottle) under an academic-domain network allowlist — a working service rather than an attack [Vessel](#Vessel), showing the [Crucible](#Crucible) run useful software with its egress fenced to a curated set of domains.
+The adversarial testing [Nameplate](#Nameplate) for daily iteration.
+It pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under a restrictive allowlist, consuming locally built [Hallmarks](#Hallmark) for fast author-test-iterate cycles.
+The [Theurge](#Theurge) [Charges](#Charge) it and dispatches curated escape attempts, validating that the containment holds under adversarial conditions.
 
-<a id="pluml"></a>**[pluml](#pluml)** — PlantUML diagram server that needs no outbound network.
-The [pluml](#pluml) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode PlantUML [Bottle](#Bottle) — an upstream image pinned by digest — under a no-egress allowlist: the renderer needs no internet, so the [Crucible](#Crucible) grants it none.
-It exercises the [Bind](#Bind) supply-chain path and the most restrictive network posture.
+<a id="moriah"></a>**moriah**
 
-<a id="nineveh"></a>**[nineveh](#nineveh)** — Kroki diagram render server (Graphviz, PlantUML, D2) that needs no outbound network.
-The [nineveh](#nineveh) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Bind](#Bind)-mode Kroki [Bottle](#Bottle) under the same no-egress posture as [pluml](#pluml), with workstation entry published to the render port — a second working service proving the pattern generalizes.
+The adversarial testing [Nameplate](#Nameplate) for the airgap supply chain.
+It pairs the [Sentry](#Sentry) with the [Ifrit](#Ifrit) attack [Vessel](#Vessel) under the same restrictive allowlist as [tadmor](#tadmor), its [Bottle](#Bottle) built end to end on the airgap pool.
+The [Theurge](#Theurge) runs the same escape attempts against it as against [tadmor](#tadmor), validating that containment holds identically when the supply chain produces the inputs.
 
-<a id="fdkyclk"></a>**[fdkyclk](#fdkyclk)** — Keycloak synthetic-federation test identity provider.
-The [fdkyclk](#fdkyclk) [Nameplate](#Nameplate) pairs the [Sentry](#Sentry) with a [Conjure](#Conjure)-mode Keycloak [Bottle](#Bottle) that mints programmatic OIDC tokens — the self-contained IdP the federation test-bed [Charges](#Charge) to prove federated sign-in end to end without a corporate identity tenant.
-No outbound network; workstation entry only.
-**Caution — synthetic test IdP, not a security boundary.**
-Its asserter signing key and client secret are committed in this repository *by design*, so the federation-admission path can be proven deterministically with no human and no corporate tenant.
-That makes fdkyclk safe only as an isolated local test-bed: never trust its issuer from a production federation, reuse its committed key/secret/realm in a real setup, or drop its `fdkyclk-test-` subject namespacing — anyone holding this repository can forge its assertions, so any production trust that admits them is trivially bypassable.
+<a id="srjcl"></a>**srjcl**
+
+A Jupyter notebook server for network-contained analysis.
+It pairs the [Sentry](#Sentry) with a conjure-mode Jupyter [Bottle](#Bottle) under an allowlist admitting Anthropic's API, a working service rather than an attack [Vessel](#Vessel), showing the [Crucible](#Crucible) running useful software with its egress fenced to a curated destination.
+
+<a id="pluml"></a>**pluml**
+
+A PlantUML diagram server that needs no outbound network.
+It pairs the [Sentry](#Sentry) with a bind-mode PlantUML [Bottle](#Bottle), an upstream image pinned by digest, its egress disabled: the renderer needs no internet, so the [Crucible](#Crucible) grants it none.
+It exercises the bind supply-chain path and the most restrictive network posture.
+
+<a id="nineveh"></a>**nineveh**
+
+A Kroki diagram render server, for Graphviz, PlantUML and D2, that needs no outbound network.
+It pairs the [Sentry](#Sentry) with a bind-mode Kroki [Bottle](#Bottle) under the same disabled egress as [pluml](#pluml), with workstation entry published to the render port, a second working service showing the pattern generalizes.
+
+<a id="fdkyclk"></a>**fdkyclk**
+
+The Keycloak synthetic-federation test identity provider.
+It pairs the [Sentry](#Sentry) with a conjure-mode Keycloak [Bottle](#Bottle) that mints programmatic OIDC tokens, the self-contained identity provider the federation test-bed [Charges](#Charge) to prove federated sign-in end to end without a corporate identity tenant.
+It has no outbound network, and its entry is from the workstation only.
+
+It is a synthetic test identity provider and no security boundary.
+Its asserter signing key and client secret are committed in the repository by design, so the federation-admission path is proven deterministically with no human and no corporate tenant.
+It is safe only as an isolated local test-bed: no production federation may trust its issuer, reuse its committed key, secret or realm, or drop its `fdkyclk-test-` subject namespacing, since anyone holding the repository can forge its assertions.
 
 ## <a id="ReleaseProcedure"></a>Release Procedure
 
-The project maintainer release qualification ceremony — five operator steps, roughly one hour wall-clock, with cloud cost on the order of two GCP projects per run.
-See [RELEASE.md](RELEASE.md) for the full procedure.
+The project maintainer's release qualification ceremony, in nine operator steps: the qualification ladder, the local cut and the private preview run roughly an hour, with cloud cost on the order of two GCP projects per run, and the greenfield walk that gates promotion is a separate, multi-hour ceremony.
+See `RELEASE.md` for the full procedure.
 
 ## <a id="HowThisIsNormallyDone"></a>Appendix: How This Is Normally Done
 
@@ -296,284 +307,23 @@ At the corporate-network tier this is a [secure web gateway](https://www.paloalt
 At the container tier it is [Kubernetes NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), usually upgraded to [Cilium](https://cilium.io/use-cases/egress-gateway/) or Calico for DNS-aware, deny-by-default egress.
 That "deny-by-default, allow only where needed" posture is exactly the [Sentry](#Sentry) model.
 
-**Honest scope.**
-These are multi-tenant corporate systems, centrally administered and kept alive by a standing team.
+**Honest scope.** These are multi-tenant corporate systems, centrally administered and kept alive by a standing team.
 [Recipe Bottle](#RecipeBottle) puts the same two controls in reach of a small team or a solo developer; it is not a fleet-scale replacement for a secure web gateway or a service mesh, and does not try to be.
 The value is the control, at a cost a small team can carry.
-
-## Appendix: Foundry Operations
-
-Formal definitions for all [Foundry](#Foundry) operations, organized by lifecycle phase.
-
-### Infrastructure
-
-<a id="Establish"></a>**[Establish](#Establish)** — Guided setup of a new [Manor](#Manor) — creates the [Manor's](#Manor) GCP project and configures the OAuth consent screen through the Google Cloud Console.
-[Establishing](#Establish) walks the [Payor](#Payor) through project creation, API enablement, and consent screen configuration — the manual prerequisites before any automated operations can run.
-
-<a id="Install"></a>**[Install](#Install)** — Ingest OAuth client credentials from a downloaded JSON key file.
-[Installing](#Install) triggers a browser authorization flow and stores the resulting refresh token locally with restrictive permissions (`600`).
-The stored token has no scheduled expiry — it dies only by explicit revocation, six months of disuse, Google's per-client live-token cap, or the organization's sign-in policy — and the recovery for every death is re-[Installing](#Install) with the same JSON file.
-
-<a id="Instaurate"></a>**[Instaurate](#Instaurate)** — Found the [Manor's](#Manor) scriptable identity substrate: the one organization-level workforce pool (ensured by list-and-match against its committed [RBRW](#RBRW) record), the [Terrier](#Terrier) bucket, and the per-[Depot](#Depot) record folders.
-A [Payor](#Payor) operation — ensure-exists, idempotent, never destructive — run after [Establish](#Establish) and [Install](#Install), before any [Affiance](#Affiance).
-
-<a id="Levy"></a>**[Levy](#Levy)** — Provision a new [Depot's](#Depot) GCP infrastructure.
-[Levying](#Levy) creates the GCP project, artifact registry, storage bucket, and build configuration, raises the three [Mantle](#Mantle) service accounts with their resource authority granted and frozen, and enables the registry's Data-Access audit trail at birth.
-This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
-
-<a id="Unmake"></a>**[Unmake](#Unmake)** — Permanently destroy a [Depot's](#Depot) GCP infrastructure — project, artifact registry, storage bucket, and all contents.
-[Unmaking](#Unmake) is the reverse of [Levying](#Levy).
-This is a [Payor](#Payor) operation and is irreversible.
-
-<a id="Quota"></a>**[Quota](#Quota)** — Review Cloud Build capacity and usage.
-[Quota](#Quota) displays the current build minute allocation, consumption, and any throttling in effect for the [Depot's](#Depot) GCP project.
-
-### Identity and Admission
-
-Operators reach a [Depot](#Depot) by federated sign-in, not by credential files.
-The terms below name the standing roles, the per-session access acts, and the admission verbs that grant and withdraw them.
-
-<a id="Mantle"></a>**[Mantle](#Mantle)** — A standing administrative office — [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) — realized as a Google service account whose resource authority is granted once at [Levy](#Levy) and frozen there.
-A [Citizen](#Citizen) [Dons](#Don) one mantle at a time, and the mantle worn is that token's entire blast radius.
-A mantle is worn, never issued as a file — there is no key to leak.
-
-<a id="Citizen"></a>**[Citizen](#Citizen)** — A federated operator within a [Depot](#Depot): a principal asserted by the [Manor's](#Manor) identity provider, never a per-user Google account.
-The [Citizen](#Citizen) is the grantable subject — the same identity is grantable in every [Depot](#Depot) under the [Manor](#Manor).
-
-<a id="Foedus"></a>**[Foedus](#Foedus)** — One standing trust between the [Manor](#Manor) and an identity provider: a provider seated under the [Manor's](#Manor) one workforce pool, with the attribute mapping that names trusted principals.
-Each [Foedus](#Foedus) is configured in its own committed federation [Regime](#Regime) file ([RBRF](#RBRF)) in the foedera library, and the repository selects the active one; several foedera can stand under the same pool at once.
-Founded by [Affiance](#Affiance), dissolved by [Jilt](#Jilt).
-
-<a id="Avow"></a>**[Avow](#Avow)** — Sign in for a session.
-Avowing is a fresh federated authentication against the [Manor's](#Manor) identity provider — one device-flow click — that opens a [Sederunt](#Sederunt).
-It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Sederunt](#Sederunt) avows inline when run interactively, and fails loud when headless.
-
-<a id="Sederunt"></a>**[Sederunt](#Sederunt)** — The time-bounded session an [Avowal](#Avow) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
-No operation runs outside a live [Sederunt](#Sederunt); when one lapses the next token mint fails loud rather than reaching for a stored secret.
-Reuse of a standing [Sederunt](#Sederunt) is runway-gated — an operation refuses to start on a [Sederunt](#Sederunt) too near its lapse, and names [Novate](#Novate) as the remedy.
-
-<a id="Novate"></a>**[Novate](#Novate)** — Open a fresh, full-window [Sederunt](#Sederunt), extinguishing any standing one.
-The named remedy when the runway gate refuses a reuse; one device-flow click, like any [Avowal](#Avow).
-
-<a id="Espy"></a>**[Espy](#Espy)** — Report whether a [Sederunt](#Sederunt) is live and how much runway remains, from the local cache alone.
-Read-only: never opens a [Sederunt](#Sederunt), never prompts, touches no network.
-
-<a id="Don"></a>**[Don](#Don)** — Assume a [Mantle](#Mantle).
-Having [Avowed](#Avow), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
-[Check Mantle Access](#CheckMantleAccess) reports whether a given mantle reaches Artifact Registry, or surfaces the access deficit.
-
-<a id="Affiance"></a>**[Affiance](#Affiance)** — Betroth the [Manor](#Manor) to an external identity provider — seat a [Foedus](#Foedus): a provider with its attribute mapping under the [Manor's](#Manor) standing workforce pool.
-A [Payor](#Payor) ceremony with founding gravity, run once per [Foedus](#Foedus); the pool it hangs under must already stand ([Instaurate](#Instaurate)), and it is the trust every federated sign-in through that provider depends on.
-
-<a id="Jilt"></a>**[Jilt](#Jilt)** — The inverse of [Affiance](#Affiance): dissolve one [Foedus](#Foedus) — delete its provider while the shared workforce pool stands — ending federated access for every [Citizen](#Citizen) asserted through that trust.
-A [Payor](#Payor) ceremony, founding-rare and deliberately confirmed; [Depots](#Depot) drawing on other foedera are untouched, [Mantle](#Mantle) service accounts and their bindings are left in place, and admission records in the [Terrier](#Terrier) are never erased by [Jilt](#Jilt) churn.
-Tearing down the pool itself is a manor-teardown act, deliberately not [Jilt](#Jilt).
-
-<a id="Escheat"></a>**[Escheat](#Escheat)** — Sweep the [Manor's](#Manor) [Terrier](#Terrier) of dead records — orphaned polity slices whose [Depot](#Depot) was [Unmade](#Unmake), and dead-schema strays that no longer parse as [Muniments](#Muniment).
-A [Payor](#Payor) manor-hygiene operation: it plans the strike, confirms before deleting, and is an idempotent no-op when the [Terrier](#Terrier) is already clean — the mutating counterpart to the read-only [Rehearse](#Rehearse).
-
-<a id="Gird"></a>**[Gird](#Gird)** — Seat the first [Governor](#Governor) of a freshly [Levied](#Levy) [Depot](#Depot).
-A fresh depot has [Mantle](#Mantle) service accounts but no admitted [Citizen](#Citizen), so no governor yet exists to admit one; girding is the [Payor's](#Payor) single founding admission, the one made outside governor wielding.
-Thereafter ordinary governor-wielded [Brevets](#Brevet) take over.
-
-<a id="Brevet"></a>**[Brevet](#Brevet)** — Admit a [Citizen](#Citizen) onto a [Mantle](#Mantle) in a [Depot](#Depot).
-The everyday admission act, wielded by a [Governor](#Governor): it records the grant as a [Muniment](#Muniment), then ensures the cloud binding that lets the principal [Don](#Don) that mantle.
-No credential file is created, and re-running a brevet is safe (idempotent).
-
-<a id="Unseat"></a>**[Unseat](#Unseat)** — Withdraw one [Mantle](#Mantle) from a [Citizen](#Citizen).
-A [Governor](#Governor) operation that removes the don binding but leaves the [Citizen's](#Citizen) standing in the [Depot](#Depot) intact — a [Citizen](#Citizen) unseated of every mantle is suspended, not erased, and cheap to re-[Brevet](#Brevet).
-
-<a id="Attaint"></a>**[Attaint](#Attaint)** — Expel a [Citizen](#Citizen) from a [Depot](#Depot) entirely.
-The maximal withdrawal, wielded by a [Governor](#Governor): it [Unseats](#Unseat) every mantle the [Citizen](#Citizen) holds and sweeps the depot-scoped grant that [Unseat](#Unseat) leaves behind.
-Removing the principal at the identity provider remains the IdP administrator's act.
-
-<a id="Rehearse"></a>**[Rehearse](#Rehearse)** — Recount the [Terrier](#Terrier).
-A read-only [Governor](#Governor) operation that lists every [Muniment](#Muniment) — which [Citizens](#Citizen) hold which [Mantles](#Mantle) — across the whole [Manor](#Manor), mutating nothing.
-
-<a id="Terrier"></a>**[Terrier](#Terrier)** — The [Manor's](#Manor) register of who holds what: one [Muniment](#Muniment) per ([Citizen](#Citizen), [Mantle](#Mantle)) pair, across every [Depot](#Depot).
-Read by [Rehearse](#Rehearse); written by [Brevet](#Brevet) and [Unseat](#Unseat).
-
-<a id="Muniment"></a>**[Muniment](#Muniment)** — One [Terrier](#Terrier) entry: the record that a given [Citizen](#Citizen) holds a given [Mantle](#Mantle) (the old sense — a deed kept as proof of a right).
-A muniment names a holding, not a secret; with no keys minted, there is nothing secret to store.
-
-<a id="Census"></a>**[Census](#Census)** — The identity provider regarded as the authoritative population of [Citizens](#Citizen) — who exists, as distinct from the [Terrier's](#Terrier) record of who holds what.
-A concept of the model rather than an operation: [Recipe Bottle](#RecipeBottle) never enumerates the [Census](#Census) itself; that roll lives in the IdP.
-
-### Supply Chain
-
-The captured-side supply chain — the project-owned copies a build draws from, and the operations that capture, inspect, and retire them.
-
-<a id="Lode"></a>**[Lode](#Lode)** — A project-owned copy of an upstream artifact — a base image, a builder tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) registry and held with a provenance record, so a build never depends on the upstream remaining available or unchanged.
-A [Lode](#Lode) is the captured-side parallel of a [Hallmark](#Hallmark) — the unit of a *captured* image where a [Hallmark](#Hallmark) is the unit of a *built* one — and records its upstream source, the exact digest captured, and a trust grade stating how strongly the bytes can be re-verified (see [Disappearing Upstream Images](#DisappearingUpstream)).
-
-<a id="Touchmark"></a>**[Touchmark](#Touchmark)** — The identifier of a [Lode](#Lode): the handle a consumer pins to use a specific captured artifact.
-The shared `-mark` ending signals the kinship with [Hallmark](#Hallmark) — a [Hallmark](#Hallmark) names what was built, a [Touchmark](#Touchmark) names what was captured.
-
-<a id="Reliquary"></a>**[Reliquary](#Reliquary)** — The [Depot's](#Depot) dated cohort of builder tool images — `gcloud`, `gcrane`, `syft`, and their peers — [Captured](#Capture) together as one co-versioned [Lode](#Lode) by [Conclave](#Conclave).
-Cloud Build jobs run their steps from its members rather than pulling tools from upstream, and each [Vessel](#Vessel) pins the [Reliquary](#Reliquary) it builds with by [Yoking](#Yoke) its [Touchmark](#Touchmark) into the [Vessel](#Vessel) [Regime](#Regime).
-
-<a id="Capture"></a>**[Capture](#Capture)** — Mirror an upstream artifact into your [Depot's](#Depot) registry as a [Lode](#Lode), so builds draw from project-owned copies rather than depending on third-party registry availability at build time.
-Each artifact kind — base image, builder toolset, OS substrate, VM disk image — has its own capture operation, but every capture produces the same thing: a [Lode](#Lode) with a provenance record, named by its [Touchmark](#Touchmark).
-
-<a id="Conclave"></a>**[Conclave](#Conclave)** — [Capture](#Capture) the build-tool date-cohort into one [Lode](#Lode) — the [Reliquary](#Reliquary).
-One cloud job impounds the whole co-versioned toolchain; the resulting [Touchmark](#Touchmark) is what [Yoke](#Yoke) records into every [Vessel](#Vessel).
-
-<a id="Ensconce"></a>**[Ensconce](#Ensconce)** — [Capture](#Capture) an upstream base image into a [Lode](#Lode).
-Capture-pure and cloud-side — the workstation fetches no upstream bytes and no [Vessel](#Vessel) configuration is written; electing the captured base into a [Vessel](#Vessel) is [Feoff's](#Feoff) separate act.
-
-The remaining [Lode](#Lode) operations round out capture and lifecycle, each a landing for its handbook step:
-<a id="Underpin"></a>**[Underpin](#Underpin)** captures a vendor WSL rootfs into a [Lode](#Lode);
-<a id="Immure"></a>**[Immure](#Immure)** captures the podman-machine disk leaves of one quay family;
-<a id="Presage"></a>**[Presage](#Presage)** previews what an [Immure](#Immure) would capture, read-only;
-<a id="Divine"></a>**[Divine](#Divine)** enumerates every [Lode](#Lode) by [Touchmark](#Touchmark);
-<a id="Augur"></a>**[Augur](#Augur)** inspects one [Lode's](#Lode) members and decodes its provenance envelope;
-<a id="Banish"></a>**[Banish](#Banish)** deletes a whole [Lode](#Lode) from the registry.
-
-### Building
-
-<a id="Ordain"></a>**[Ordain](#Ordain)** — Create a [Hallmark](#Hallmark) with full attestation — the production build operation.
-[Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration.
-Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with associated [provenance](#Provenance) metadata.
-
-<a id="Conjure"></a>**[Conjure](#Conjure)** — Cloud Build creates the image from source.
-[Conjure](#Conjure) builds run in an [egress-locked](#BuildIsolation) environment with digest-pinned toolchains, producing full [SLSA](#Provenance) attestation and [SBOMs](#SBOM).
-This is the highest-trust build mode.
-
-<a id="Bind"></a>**[Bind](#Bind)** — Mirror an upstream image pinned by digest.
-[Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry.
-Trust is established through digest-pin verification rather than build [provenance](#Provenance).
-
-<a id="Graft"></a>**[Graft](#Graft)** — Push a locally-built image to the [Depot](#Depot) registry.
-[Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though [About](#About) and [Vouch](#Vouch) metadata still run in Cloud Build.
-This is the lowest-trust mode (GRAFTED verdict).
-
-<a id="Kludge"></a>**[Kludge](#Kludge)** — Build a [Vessel](#Vessel) image locally for fast iteration, without [Depot](#Depot) registry push.
-[Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build or the [Depot](#Depot).
-The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
-
-<a id="Pouch"></a>**[Pouch](#Pouch)** — Build context packaged as a FROM SCRATCH OCI image and pushed to the [Depot's](#Depot) registry before a Cloud Build job runs.
-The [Director](#Director) controls what enters the [Pouch](#Pouch) — Dockerfile, context files, build scripts — and the cloud receives only what the [Pouch](#Pouch) contains.
-This is the security boundary between workstation and build infrastructure.
-
-### Chain Links
-
-Build results become durable by being written into committed [Regime](#Regime) lines — each of these verbs resolves a fresh build fact into exactly one configuration line, which the operator then commits.
-The chain is what lets every later build and every [Charge](#Charge) draw on a pinned, reviewable record instead of a floating reference.
-
-<a id="Yoke"></a>**[Yoke](#Yoke)** — Record a [Reliquary](#Reliquary) [Touchmark](#Touchmark) into every [Vessel's](#Vessel) [Regime](#Regime) in one wildcard pass.
-After a [Conclave](#Conclave), yoking pins which dated toolchain all subsequent cloud builds run from.
-
-<a id="Feoff"></a>**[Feoff](#Feoff)** — Elect a [Conjure](#Conjure) [Vessel's](#Vessel) base-image anchor from an [Ensconced](#Ensconce) [Lode](#Lode) [Touchmark](#Touchmark).
-The ceremony is [Ensconce](#Ensconce), [Feoff](#Feoff), commit, [Ordain](#Ordain) — the build itself reads only the committed anchor and never re-fetches the upstream.
-
-<a id="Anoint"></a>**[Anoint](#Anoint)** — Rewrite a [Graft](#Graft) [Vessel's](#Vessel) image reference from the chained facts of a fresh local [Kludge](#Kludge).
-The grafted image's [provenance](#Provenance) begins here, on the station, before [Graft](#Graft) pushes it.
-
-<a id="Drive"></a>**[Drive](#Drive)** — Record a fresh [Hallmark](#Hallmark) into a [Nameplate's](#Nameplate) [Sentry](#Sentry) or [Bottle](#Bottle) hallmark line.
-The chain's terminus: what [Charge](#Charge) consumes is exactly what was driven and committed.
-[Kludge](#Kludge) composes a drive automatically; after a cloud [Ordain](#Ordain), the [Director](#Director) drives the new [Hallmark](#Hallmark) explicitly.
-
-### Verification
-
-<a id="Tally"></a>**[Tally](#Tally)** — Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status.
-[Tallying](#Tally) shows which builds succeeded, which are pending, and which failed.
-The [Director](#Director) [Tallies](#Tally) before [Vouching](#Vouch) to confirm build completion.
-
-<a id="Rekon"></a>**[Rekon](#Rekon)** — Raw listing of image tags in the [Depot](#Depot) registry for a [Vessel](#Vessel) package.
-[Rekon](#Rekon) is a [Director](#Director)-only diagnostic that shows exactly what exists in the registry without health interpretation.
-Where [Tally](#Tally) groups [Hallmarks](#Hallmark) by status, [Rekon](#Rekon) shows the unprocessed tag inventory.
-
-<a id="Vouch"></a>**[Vouch](#Vouch)** — Cryptographic attestation proving a [Hallmark](#Hallmark) was built by trusted infrastructure.
-The [Vouch](#Vouch) verdict is mode-aware: [Conjure](#Conjure) builds receive full [SLSA provenance](#Provenance) verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no [provenance](#Provenance) chain.
-The [Director](#Director) [Vouches](#Vouch) [Hallmarks](#Hallmark) after [Tallying](#Tally) their build status.
-
-<a id="About"></a>**[About](#About)** — Build metadata and [software bill of materials](#SBOM) for a [Hallmark](#Hallmark).
-The [About](#About) artifact (`-about` tag) contains the [SBOM](#SBOM), build transcript, build configuration snapshot, and key package summaries — bundled as a compressed archive and stored as a Generic Artifact in GAR.
-Every [Ordain](#Ordain) produces an [About](#About) alongside the image.
-
-<a id="Plumb"></a>**[Plumb](#Plumb)** — Inspect an artifact's [provenance](#Provenance) — [SBOM](#SBOM), build info, and [Vouch](#Vouch) chain.
-[Plumbing](#Plumb) provides full transparency into how an image was built and what it contains.
-Two views are available: full ([SBOM](#SBOM), build info, Dockerfile) and compact (attestation summary).
-
-### Distribution
-
-<a id="Summon"></a>**[Summon](#Summon)** — Pull a [Hallmark](#Hallmark) image from the [Depot](#Depot) to your local machine.
-The [Retriever](#Retriever) [Summons](#Summon) [Vouched](#Vouch) images for local use — the final step before a [Hallmark's](#Hallmark) image can be used in a [Crucible](#Crucible).
-
-<a id="Wrest"></a>**[Wrest](#Wrest)** — Pull a specific image from the [Depot](#Depot) registry by reference.
-[Wresting](#Wrest) is a direct pull without [Vouch](#Vouch) verification — used when you need a specific image tag regardless of attestation status.
-Compare with [Summon](#Summon), which enforces the [Vouch](#Vouch) ceremony.
-
-### Removal
-
-<a id="Abjure"></a>**[Abjure](#Abjure)** — Remove a [Hallmark's](#Hallmark) artifacts from the [Depot's](#Depot) registry — the `-image`, [`-about`](#About), and [`-vouch`](#Vouch) tags deleted as a coherent unit.
-[Abjuring](#Abjure) is the reverse of [Ordaining](#Ordain): it formally renounces a build instance.
-The [Director](#Director) [Abjures](#Abjure) [Hallmarks](#Hallmark) that are superseded, broken, or no longer needed.
-
-<a id="Jettison"></a>**[Jettison](#Jettison)** — Delete a specific image tag from the [Depot's](#Depot) registry.
-[Jettisoning](#Jettison) is lower-level than [Abjure](#Abjure) — it removes a single tag rather than a complete [Hallmark](#Hallmark) artifact set.
-Used for cleanup of individual registry entries.
-
-### Diagnostics
-
-<a id="ListDepots"></a>**[List Depots](#ListDepots)** — Inventory all active [Depots](#Depot) visible to the current [Payor](#Payor) credentials.
-Shows project IDs, regions, and provisioning status.
-
-<a id="Recognosce"></a>**[Recognosce](#Recognosce)** — Read-only proof that a [Depot's](#Depot) founding stands whole.
-Confirms the three [Mantle](#Mantle) service accounts, their capability-sets, and the audit configuration against live GCP — run it after a [Levy](#Levy), or any time the founding is in doubt.
-
-<a id="Attribution"></a>**[Attribution](#Attribution)** — Print the [Depot's](#Depot) Data-Access attribution trail.
-Recent registry audit entries, each naming the acting [Mantle](#Mantle) service account and the human federate subject together on one line — the durable record that every act traces to a person.
-
-<a id="CheckFederatedAccess"></a>**[Check Federated Access](#CheckFederatedAccess)** — Open or reuse a [Sederunt](#Sederunt) and confirm the federated sign-in reaches Google.
-Runs the device-flow [Avowal](#Avow) and STS exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
-
-<a id="CheckMantleAccess"></a>**[Check Mantle Access](#CheckMantleAccess)** — Confirm a [Citizen](#Citizen) can reach Artifact Registry under a named [Mantle](#Mantle).
-[Dons](#Don) the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), exercises the minted token against Artifact Registry, and writes the attributed audit entry — or surfaces the access deficit; useful for diagnosing access failures after a [Brevet](#Brevet).
-
-<a id="OAuthProbe"></a>**[OAuth Probe](#OAuthProbe)** — Test [Payor](#Payor) OAuth authentication.
-The [OAuth Probe](#OAuthProbe) verifies that the stored refresh token can obtain a valid access token — a failed probe's remedy is re-[Installing](#Install) the credential.
-
-<a id="StaleDeleteRead"></a>**["Already Exists" After a Delete](#StaleDeleteRead)** — An operation that fails with "already exists" immediately after you deleted the same-named resource — a service account, a [Depot](#Depot) project — is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
-Wait a few seconds and retry rather than hunting for a stale resource.
-
-## Appendix: Crucible Operations
-
-Formal definitions for all [Crucible](#Crucible) operations.
-
-### Lifecycle
-
-<a id="Charge"></a>**[Charge](#Charge)** — Start a [Crucible](#Crucible) — the [Sentry](#Sentry)/[Pentacle](#Pentacle)/[Bottle](#Bottle) triad — defined by a [Nameplate](#Nameplate).
-[Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: [Pentacle](#Pentacle) creates the namespace, [Sentry](#Sentry) configures policy, then the [Bottle](#Bottle) starts with its network already constrained.
-
-<a id="Quench"></a>**[Quench](#Quench)** — Stop and clean up a [Charged](#Charge) [Crucible's](#Crucible) containers.
-[Quenching](#Quench) tears down the [Crucible](#Crucible) in reverse order and removes the network resources created during [Charging](#Charge).
-Containers remember the working tree that [Charged](#Charge) them: [Charging](#Charge) refuses over another tree's live [Crucible](#Crucible), and [Quenching](#Quench) one names its owner and asks before proceeding.
-
-### Interaction
-
-<a id="Rack"></a>**[Rack](#Rack)** — Shell into a [Bottle](#Bottle) container.
-[Racking](#Rack) opens an interactive session inside the running workload — for debugging, inspecting state, or running commands as the [Bottle](#Bottle) user would experience them.
-
-<a id="Hail"></a>**[Hail](#Hail)** — Shell into a [Sentry](#Sentry) container.
-[Hailing](#Hail) opens an interactive session on the gateway — for inspecting `iptables` rules, `dnsmasq` configuration, network state, and egress logs.
-
-<a id="Scry"></a>**[Scry](#Scry)** — Observe network traffic across [Crucible](#Crucible) containers.
-[Scrying](#Scry) captures packets on the [Crucible's](#Crucible) network interfaces — for verifying that blocked traffic is actually blocked, diagnosing connectivity issues, or watching the [Sentry's](#Sentry) filtering in action.
 
 ## Appendix: Adversarial Test Method
 
 The [Crucible's](#Crucible) containment is validated through coordinated escape testing using two components:
 
-- <a id="Ifrit"></a>**[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape.
-The [Ifrit](#Ifrit) carries scapy (arbitrary packet construction), strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes.
-Named for the djinn imprisoned in a bottle.
-- <a id="Theurge"></a>**[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible).
-The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts.
-Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
+- **[Ifrit](#Ifrit)** — Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape.
+  The [Ifrit](#Ifrit) carries its own Rust attack binary for raw packet construction, strace (syscall boundary probing), and a minimal footprint — tools chosen to probe every surface the [Sentry's](#Sentry) containment exposes.
+  Named for the djinn imprisoned in a bottle.
+- **[Theurge](#Theurge)** — Test orchestrator running on the host, outside the [Crucible](#Crucible).
+  The [Theurge](#Theurge) [Charges](#Charge) a [Crucible](#Crucible) with the [Ifrit](#Ifrit) as its [Bottle](#Bottle), then dispatches curated, reproducible, version-controlled attack scripts targeting specific surfaces: DNS exfiltration, ICMP covert channels, cloud metadata probing, namespace breakout, and direct IP bypass attempts.
+  Each attack runs inside the [Bottle](#Bottle) while the [Theurge](#Theurge) simultaneously observes the [Sentry's](#Sentry) network from outside — confirming that blocked traffic is actually blocked, not merely unrequested.
 
-<a id="Sortie"></a>**[Sortie](#Sortie)** — One named escape attempt in the [Ifrit's](#Ifrit) repertoire: a single attack vector, carried through end to end, returning its own verdict on whether the [Sentry's](#Sentry) containment held.
-[Sorties](#Sortie) are deliberately self-contained and reproducible — one vector apiece, so a verdict names exactly which surface was tried — and run either as the full suite the [Theurge](#Theurge) dispatches, or singly against an already-[Charged](#Charge) [Crucible](#Crucible) when one surface is under investigation.
+A [Sortie](#Sortie) is one named escape attempt in the [Ifrit's](#Ifrit) repertoire: a single attack vector, carried through end to end, returning its own verdict on whether the [Sentry's](#Sentry) containment held.
+[Sorties](#Sortie) are deliberately self-contained and reproducible — one vector apiece, so a verdict names exactly which surface was tried — and run either as the full suite the [Theurge](#Theurge) dispatches, or singly against a [Crucible](#Crucible) already [Charged](#Charge) when one surface is under investigation.
 
 The escape tests were developed through adversarial Claude Code sessions with full visibility into the [Sentry's](#Sentry) source, configuration, and the [Recipe Bottle](#RecipeBottle) specification.
 The [Ifrit](#Ifrit) [Vessel](#Vessel) is the delivery vehicle; the intelligence came from the authoring process.
@@ -590,10 +340,10 @@ The [Vouch](#Vouch) step independently verifies each build's DSSE envelope signa
 Provenance guarantees are mode-aware:
 
 | [Vessel](#Vessel) Mode | Trust Basis | [Vouch](#Vouch) Verdict |
-|------|-------------|------|
-| [**Conjure**](#Conjure) | Full SLSA v1.0 Level 3 — signed build provenance from GCB | DSSE envelope signature verification |
-| [**Bind**](#Bind) | Digest-pin comparison — image in GAR matches pinned upstream reference | Digest-pin match |
-| [**Graft**](#Graft) | Locally built and pushed — no cloud build involvement | GRAFTED (explicit no-provenance marker) |
+| --- | --- | --- |
+| **[Conjure](#Conjure)** | Full SLSA v1.0 Level 3 — signed build provenance from GCB | DSSE envelope signature verification |
+| **[Bind](#Bind)** | Digest-pin comparison — image in GAR matches pinned upstream reference | Digest-pin match |
+| **[Graft](#Graft)** | Locally built and pushed — no Cloud Build for the image push | GRAFTED (explicit no-provenance marker) |
 
 Deliberately excluded: no `slsa-verifier` binary, no `gcloud` CLI on the workstation, no `jq` in the verification path.
 The [Vouch](#Vouch) verifier reconstructs Pre-Authenticated Encoding (PAE), decodes the base64url payload and signature, and verifies via `openssl dgst` against embedded attestor keys — a minimal, auditable trust chain.
@@ -604,7 +354,7 @@ A Software Bill of Materials ([SBOM](#SBOM)) is a machine-readable inventory of 
 Without one, a container image is an opaque filesystem whose contents you discover by running it, which is exactly the wrong time to find out it ships a vulnerable dependency.
 
 [Recipe Bottle](#RecipeBottle) generates an [SBOM](#SBOM) for every build using [Syft](https://github.com/anchore/syft), scanning each per-platform image during the [About](#About) assembly step.
-Each architecture gets its own [SBOM](#SBOM), bundled alongside the build transcript and configuration snapshot in the `-about` artifact stored as a Generic Artifact in GAR.
+Each architecture gets its own [SBOM](#SBOM), kept with the build info and the build recipe in the [Hallmark's](#Hallmark) [About](#About) artifact in GAR.
 
 An [SBOM](#SBOM) enables three hygiene practices that opaque images cannot support:
 
@@ -612,30 +362,26 @@ An [SBOM](#SBOM) enables three hygiene practices that opaque images cannot suppo
 - **Pre-deployment audit** — know what you are granting network access to before a [Crucible](#Crucible) is [Charged](#Charge)
 - **Build-over-build drift detection** — compare [SBOMs](#SBOM) across [Hallmarks](#Hallmark) to see what changed between builds
 
-The [Plumb](#Plumb) command surfaces [SBOM](#SBOM) contents: the full view shows package inventories; the compact view summarizes key components.
+The [Plumb](#Plumb) command surfaces [SBOM](#SBOM) contents: the full view shows package inventories; the compact view gives a trust-posture summary.
 
 ## <a id="BuildIsolation"></a>Appendix: Build Isolation
 
 [Recipe Bottle](#RecipeBottle) supports two build egress profiles — [Tethered](#Tethered) and [Airgap](#Airgap) — that determine whether a Cloud Build job can reach the public internet.
 The distinction is not primarily about availability; it is a security boundary that controls what can enter and exit the build environment.
 
-**What [Airgap](#Airgap) protects: exfiltration and supply chain injection.**
-If a compromised dependency, build plugin, or Dockerfile instruction executes during your build, an [Airgapped](#Airgap) build cannot phone home — it cannot transmit source code, secrets, or intermediate artifacts to an external endpoint, and it cannot silently fetch malicious payloads.
+**What [Airgap](#Airgap) protects: exfiltration and supply chain injection.** If a compromised dependency, build plugin, or Dockerfile instruction executes during your build, an [Airgapped](#Airgap) build cannot phone home — it cannot transmit source code, secrets, or intermediate artifacts to an external endpoint, and it cannot silently fetch malicious payloads.
 This is defense-in-depth for proprietary code: even if a build step is compromised, the network is not available as an exfiltration channel.
 
-**The curated gate principle.**
-[Airgap](#Airgap) does not mean "nothing external." It means all external content enters through a single auditable gate — [Lode](#Lode) [Capture](#Capture) — rather than ad-hoc network fetches during build.
+**The curated gate principle.** [Airgap](#Airgap) does not mean "nothing external." It means all external content enters through a single auditable gate — [Lode](#Lode) [Capture](#Capture) — rather than ad-hoc network fetches during build.
 The attack surface collapses from "any URL a Dockerfile mentions" to "the specific digests the [Director](#Director) [Captured](#Capture)."
 Builder tool images enter through the same gate: [Captured](#Capture) as a co-versioned [Lode](#Lode) and pinned by digest for all subsequent builds.
 
-**What [Airgap](#Airgap) does not protect: the base image contents.**
-Base images like `debian-slim` were themselves built with full internet access — `apt-get install` already ran inside them.
+**What [Airgap](#Airgap) does not protect: the base image contents.** Base images like `debian-slim` were themselves built with full internet access — `apt-get install` already ran inside them.
 The [Airgap](#Airgap) protects *your* build steps on top of those bases, not the base image contents themselves.
-Base images are vetted separately: digest-pinned at [Capture](#Capture) time, inspectable via [SBOM](#SBOM), and held as [Lodes](#Lode) in the [Depot's](#Depot) registry.
+Base images are vetted separately: digest-pinned at [Capture](#Capture) time and held as [Lodes](#Lode) in the [Depot's](#Depot) registry.
 A [Tethered](#Tethered) build of the base image followed by an [Airgapped](#Airgap) build of your application is the expected pattern — the base image is a known input, your proprietary layers are the protected output.
 
-**Regulatory alignment.**
-No framework mandates build-time network blocking by name, but egress-locked builds are the simplest way to evidence several common controls: FedRAMP CM-7 (least functionality) and SC-7 (boundary protection), SOC 2 CC6.1 (logical access) and CC8.1 (change management), and SLSA Level 3's hermetic build requirement.
+**Regulatory alignment.** No framework mandates build-time network blocking by name, but egress-locked builds are the simplest way to evidence several common controls: FedRAMP CM-7 (least functionality) and SC-7 (boundary protection), SOC 2 CC6.1 (logical access) and CC8.1 (change management), and SLSA Level 3's hermetic build requirement.
 
 ## <a id="EventualConsistency"></a>Appendix: Eventual Consistency and the Missing Completion Contract
 
@@ -684,19 +430,13 @@ A registry that ships images with no durable reference has decided reproducibili
 
 The following features are not yet implemented but are under consideration:
 
-- <a id="CrucibleConduit"></a>**[Crucible Conduit for Cloud Services](#CrucibleConduit)** - An encrypted tunnel from the [Sentry](#Sentry) that lets [Bottles](#Bottle) reach cloud AI services (AWS Bedrock, Vertex AI, Azure OpenAI) without listing floating cloud IP ranges in the CIDR allowlist.
-
+- <a id="CrucibleConduit"></a>**[Crucible Conduit for Cloud Services](#CrucibleConduit)** - An encrypted tunnel, its local end a dedicated vessel rather than the [Sentry](#Sentry), that lets [Bottles](#Bottle) reach cloud AI services (AWS Bedrock, Vertex AI, Azure OpenAI) without listing floating cloud IP ranges in the CIDR allowlist.
 - <a id="BottleCredentialCustody"></a>**[Bottle Credential Custody](#BottleCredentialCustody)** - Move the service secrets a [Bottle](#Bottle) workload uses (cloud API keys, IAM keys, SSH keys) off the operator's workstation and into the [Bottle](#Bottle) itself, so a compromised workstation — holding only permission to [Charge](#Charge) — cannot leak them.
-
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
-
 - <a id="CosignSigning"></a>**[Cosign Container Signing](#CosignSigning)** - Cryptographic image signatures independent of registry trust.
-
 - <a id="CdnAwareIpGating"></a>**[CDN-Aware IP Gating](#CdnAwareIpGating)** - Precise IP-level gating for allowed domains served by shared CDN address ranges (e.g. Cloudflare), where the [Sentry's](#Sentry) CIDR allowlist is necessarily coarse.
-
 - <a id="PodmanSupport"></a>**[Podman Support](#PodmanSupport)** - Podman as an alternative container runtime to Docker.
-
-- <a id="CrucibleToCrucible"></a>**[Crucible-to-Crucible Networking](#CrucibleToCrucible)** - A direct network path between [Bottles](#Bottle), which today communicate only by routing through their respective [Sentries](#Sentry).
+- <a id="CrucibleToCrucible"></a>**[Crucible-to-Crucible Networking](#CrucibleToCrucible)** - A direct network path between the [Bottles](#Bottle) of different Crucibles, which today cannot reach each other's published entry ports.
 
 ## Appendix: Reference Project
 
@@ -704,12 +444,12 @@ This repository is the reference implementation of [Recipe Bottle](#RecipeBottle
 The annotated tree below maps its files to the concepts defined above.
 
 | Path | Description |
-|------|-------------|
-| `Project Root/` | |
-| `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) command reference, glossary, conventions |
+| --- | --- |
+| `Project Root/` |  |
+| `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) context for sessions working in this tree |
 | `├── RELEASE.md` | [Release Procedure](#ReleaseProcedure) — maintainer release qualification ceremony |
 | `├── tt/` | [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
-| `├── Tools/` | |
+| `├── Tools/` |  |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
 | `│   └── rbk/` | Recipe Bottle Kit — domain logic |
 | `└── rbmm_moorings/` | Consumer config root — [BURC](#BURC) + Recipe Bottle [Regimes](#Regime) + [Vessels](#Vessel) |
@@ -718,26 +458,26 @@ The annotated tree below maps its files to the concepts defined above.
 | `    ├── rbrr.env` | [RBRR](#RBRR) — Repository-wide configuration shared across all operations |
 | `    ├── rbrd.env` | [RBRD](#RBRD) — [Depot](#Depot) identity (frozen at [Levy](#Levy)) |
 | `    ├── rbrw.env` | [RBRW](#RBRW) — [Manor](#Manor) workforce-pool record |
-| `    ├── rbmf_foedera/` | [Foedus](#Foedus) library — one committed trust per subdirectory |
+| `    ├── rbmf_foedera/` | [Foedus](#Foedus) library — one trust per subdirectory |
 | `    │   ├── rbef_entrada/` | [RBRF](#RBRF) — Microsoft Entra [Foedus](#Foedus) |
 | `    │   └── rbef_keycloak/` | [RBRF](#RBRF) — [fdkyclk](#fdkyclk) synthetic-test [Foedus](#Foedus) |
-| `    ├── ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
-| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic-only allowlist |
-| `    ├── tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
+| `    ├── rben_ccyolo/` | [Nameplate](#Nameplate) — [ccyolo](#ccyolo) Claude Code sandbox |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Claude Code, Anthropic allowlist |
+| `    ├── rben_tadmor/` | [Nameplate](#Nameplate) — [tadmor](#tadmor) adversarial testing |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
-| `    ├── moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing |
+| `    ├── rben_moriah/` | [Nameplate](#Nameplate) — [moriah](#moriah) airgap-built adversarial testing |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + [Ifrit](#Ifrit), restrictive allowlist |
-| `    ├── srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook |
-| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, academic-domain allowlist |
-| `    ├── pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server |
+| `    ├── rben_srjcl/` | [Nameplate](#Nameplate) — Jupyter notebook |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Jupyter, Anthropic API allowlist |
+| `    ├── rben_pluml/` | [Nameplate](#Nameplate) — PlantUML diagram server |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + PlantUML, no-egress allowlist |
-| `    ├── nineveh/` | [Nameplate](#Nameplate) — [nineveh](#nineveh) Kroki render server |
+| `    ├── rben_nineveh/` | [Nameplate](#Nameplate) — [nineveh](#nineveh) Kroki render server |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Kroki, no-egress allowlist |
-| `    ├── fdkyclk/` | [Nameplate](#Nameplate) — [fdkyclk](#fdkyclk) Keycloak test IdP |
+| `    ├── rben_fdkyclk/` | [Nameplate](#Nameplate) — [fdkyclk](#fdkyclk) Keycloak test IdP |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Keycloak, no-egress, workstation entry |
 | `    ├── buml_launchers/` | Launcher scripts (environment gates) — `launcher.*.sh` |
 | `    └── rbmv_vessels/` | [Vessel](#Vessel) definitions |
-| `        ├── common-sentry-context/` | Shared [Sentry](#Sentry)/[Pentacle](#Pentacle) build context |
+| `        ├── common-sentry-context/` | Shared [Sentry](#Sentry) and [Pentacle](#Pentacle) build context |
 | `        │   ├── Dockerfile` | debian-slim + iptables + dnsmasq |
 | `        │   ├── rbjs_sentry.sh` | [Sentry](#Sentry) runtime — policy engine |
 | `        │   └── rbjp_pentacle.sh` | [Pentacle](#Pentacle) runtime — namespace setup |
@@ -755,9 +495,9 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   └── Dockerfile` | Forge image; consumed by `Dockerfile.airgap` as its base |
 | `        ├── rbev_bottle_ifrit_tether/` | [Conjure](#Conjure) (tether) — [Ifrit](#Ifrit) attack binary |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `        ├── rbev_bottle_ifrit_airgap/` | [Conjure](#Conjure) ([Airgap](#Airgap)) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
+| `        ├── rbev_bottle_ifrit_airgap/` | [Conjure](#Conjure) (airgap) — [Ifrit](#Ifrit) attack binary, [Ordained](#Ordain) without upstream pull |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
-| `        ├── rbev_bottle_ifrit_forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for [Airgap](#Airgap) [Ifrit](#Ifrit) |
+| `        ├── rbev_bottle_ifrit_forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for the airgap [Ifrit](#Ifrit) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
 | `        ├── rbev_bottle_plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
@@ -771,38 +511,504 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Graft](#Graft) mode |
 | `        └── rbev_busybox/` | [Conjure](#Conjure) — small proof vessel for cheap build checks |
 
-## Appendix: Specific Regimes
-
-<a id="BURC"></a>**[BURC](#BURC)** — Project structure configuration, in the repo.
-[Tabtarget](#Tabtarget) directory, tools directory.
-
-<a id="BURS"></a>**[BURS](#BURS)** — Developer workstation configuration.
-Not in git.
-Log directory, station paths.
-
-<a id="RBRR"></a>**[RBRR](#RBRR)** — Repository-wide configuration: runtime container prefix, vessel directory, container DNS, Cloud Build timeouts, secrets directory, public docs URL.
-
-<a id="RBRD"></a>**[RBRD](#RBRD)** — [Depot](#Depot) identity — cloud prefix, depot moniker, GCP region, Cloud Build pool machine type — populated during [Levy](#Levy) and frozen for the depot's productive lifetime; changing any field after [Levy](#Levy) requires a fresh [Depot](#Depot).
-
-<a id="RBRP"></a>**[RBRP](#RBRP)** — [Manor](#Manor) identity — billing account, OAuth client ID, operator email, and the [Manor's](#Manor) GCP project.
-In the repo.
-
-<a id="RBRO"></a>**[RBRO](#RBRO)** — [Payor](#Payor) OAuth credentials — client secret and refresh token.
-Not in the repo.
-
-<a id="RBRW"></a>**[RBRW](#RBRW)** — [Manor](#Manor) workforce-pool record — GCP organization ID, pool ID, session duration.
-In the repo; all public identifiers.
-[Instaurate](#Instaurate) founds the live pool and reconciles it against this committed record.
-
-<a id="RBRF"></a>**[RBRF](#RBRF)** — Per-[Foedus](#Foedus) federation trust — issuer, audience, attribute mapping, and acquisition mechanism for one identity provider.
-One committed file per standing [Foedus](#Foedus) in the foedera library; carries no secrets.
-
-<a id="RBRV"></a>**[RBRV](#RBRV)** — [Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
-
-<a id="RBRN"></a>**[RBRN](#RBRN)** — Per-[Nameplate](#Nameplate) [Crucible](#Crucible) configuration mapping two [Vessels](#Vessel) — [Sentry](#Sentry) and [Bottle](#Bottle) — with runtime and [Hallmark](#Hallmark) assignments.
-
 ## License
 
 Copyright 2026 Scale Invariant, Inc.
 
 Licensed under the Apache License, Version 2.0.
+
+## Glossary
+
+Every term this page defines, in alphabetical order.
+
+<a id="About"></a>**About**
+
+The artifact beside a [Hallmark](#Hallmark) image that holds its build metadata: a per-platform [software bill of materials](#SBOM), the build info and the build recipe.
+Every [Ordain](#Ordain) produces an [About](#About) alongside the image.
+
+<a id="Abjure"></a>**Abjure**
+
+Remove a [Hallmark's](#Hallmark) artifacts from the [Depot's](#Depot) registry, every artifact of its [Ark](#Ark) deleted as a coherent unit.
+[Abjuring](#Abjure) is the reverse of [Ordaining](#Ordain): it formally renounces a build instance.
+The [Director](#Director) [Abjures](#Abjure) [Hallmarks](#Hallmark) that are superseded, broken, or no longer needed.
+
+<a id="Affiance"></a>**Affiance**
+
+Betroth the [Manor](#Manor) to an external identity provider — seat a [Foedus](#Foedus): a provider with its attribute mapping under the [Manor's](#Manor) standing workforce pool.
+A [Payor](#Payor) ceremony with founding gravity, run once per [Foedus](#Foedus); the pool it hangs under must already stand ([Instaurate](#Instaurate)), and it is the trust every federated sign-in through that provider depends on.
+
+<a id="Anoint"></a>**Anoint**
+
+Rewrite a [Graft](#Graft) [Vessel's](#Vessel) image reference from the chained facts of a fresh build.
+The grafted image's [provenance](#Provenance) begins here, on the station, before [Graft](#Graft) pushes it.
+
+<a id="Ark"></a>**Ark**
+
+The set of artifacts one [Hallmark](#Hallmark) stands as in the [Depot](#Depot) registry, led by its image, its [About](#About) artifact and its [Vouch](#Vouch) record, and removed together by [Abjure](#Abjure).
+
+<a id="Attaint"></a>**Attaint**
+
+Expel a [Citizen](#Citizen) from a [Depot](#Depot) entirely.
+The maximal withdrawal, wielded by a [Governor](#Governor): it [Unseats](#Unseat) every mantle the [Citizen](#Citizen) holds and sweeps the depot-scoped grant that [Unseat](#Unseat) leaves behind.
+Removing the principal at the identity provider remains the IdP administrator's act.
+
+<a id="Attribution"></a>**Attribution**
+
+Print the [Depot's](#Depot) Data-Access attribution trail.
+Recent registry audit entries, each naming the acting [Mantle](#Mantle) service account and the federated [Citizen](#Citizen) behind it — the durable record that every act traces to a person.
+
+<a id="Augur"></a>**Augur**
+
+Inspect one [Lode's](#Lode) members and decode its provenance envelope.
+
+<a id="Avow"></a>**Avow**
+
+Sign in for a session.
+An [Avowal](#Avow) is a fresh federated authentication against the [Manor's](#Manor) identity provider that opens a [Sederunt](#Sederunt).
+It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Sederunt](#Sederunt) [Avows](#Avow) inline, a person completing the sign-in wherever they are, and a run nobody attends waits out the sign-in's expiry and fails loud.
+
+<a id="Banish"></a>**Banish**
+
+Delete a whole [Lode](#Lode) from the registry.
+
+<a id="Bind"></a>**Bind**
+
+Mirror an upstream image pinned by digest.
+[Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry.
+Trust is established through digest-pin verification rather than build [provenance](#Provenance).
+
+<a id="Bottle"></a>**Bottle**
+
+Your workload container in a [Crucible](#Crucible), running unmodified with no network path but through the [Sentry](#Sentry).
+
+<a id="Brevet"></a>**Brevet**
+
+Admit a [Citizen](#Citizen) onto a [Mantle](#Mantle) in a [Depot](#Depot).
+The everyday admission act, wielded by a [Governor](#Governor): it records the grant as a [Muniment](#Muniment), then ensures the cloud binding that lets the principal [Don](#Don) that mantle.
+No credential file is created, and running it again is safe (idempotent).
+
+<a id="BURC"></a>**BURC**
+
+Project structure configuration, in the repo.
+[Tabtarget](#Tabtarget) directory, tools directory.
+
+<a id="BURS"></a>**BURS**
+
+Developer workstation configuration.
+Not in git.
+Log directory, station paths.
+
+<a id="Capture"></a>**Capture**
+
+Mirror an upstream artifact into your [Depot's](#Depot) registry as a [Lode](#Lode), so builds draw from project-owned copies rather than depending on third-party registry availability at build time.
+Each artifact kind — base image, builder toolset, OS substrate, VM disk image — has its own capture operation, but every capture produces the same thing: a [Lode](#Lode) with a provenance record, named by its [Touchmark](#Touchmark).
+
+<a id="Census"></a>**Census**
+
+The identity provider regarded as the authoritative population of [Citizens](#Citizen) — who exists, as distinct from the [Terrier's](#Terrier) record of who holds what.
+A concept of the model rather than an operation: [Recipe Bottle](#RecipeBottle) never enumerates the [Census](#Census) itself; that roll lives in the IdP.
+
+<a id="Charge"></a>**Charge**
+
+Start a [Crucible](#Crucible) — the [Sentry](#Sentry), [Pentacle](#Pentacle) and [Bottle](#Bottle) — defined by a [Nameplate](#Nameplate).
+[Charging](#Charge) brings up the [Crucible](#Crucible) in dependency order: the [Sentry](#Sentry) first, then the [Pentacle](#Pentacle), each healthy before the next starts, then the [Bottle](#Bottle) with its network already constrained.
+
+<a id="CheckFederatedAccess"></a>**CheckFederatedAccess**
+
+Open or reuse a [Sederunt](#Sederunt) and confirm the federated sign-in reaches Google.
+Runs the federated [Avowal](#Avow) and the token exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
+
+<a id="CheckMantleAccess"></a>**CheckMantleAccess**
+
+Confirm that a named [Mantle](#Mantle) reaches Artifact Registry.
+[Dons](#Don) the [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) mantle in the [Depot](#Depot), exercises the minted token against Artifact Registry, and writes the attributed audit entry — or surfaces the access deficit; useful for diagnosing access failures after a [Brevet](#Brevet).
+
+<a id="Citizen"></a>**Citizen**
+
+A federated operator within a [Depot](#Depot): a principal asserted by the [Manor's](#Manor) identity provider, never a per-user Google account.
+The [Citizen](#Citizen) is the grantable subject — the same identity is grantable in every [Depot](#Depot) under the [Manor](#Manor).
+
+<a id="Conclave"></a>**Conclave**
+
+[Capture](#Capture) the build-tool date-cohort into one [Lode](#Lode) — the [Reliquary](#Reliquary).
+One cloud job impounds the whole co-versioned toolchain; the resulting [Touchmark](#Touchmark) is what [Yoke](#Yoke) records into every [Vessel](#Vessel).
+
+<a id="Conjure"></a>**Conjure**
+
+Cloud Build creates the image from source.
+[Conjure](#Conjure) builds run with digest-pinned toolchains and base images on the build pool their [Vessel](#Vessel) chooses, [Tethered](#Tethered) or [Airgap](#Airgap), producing full [SLSA](#Provenance) attestation and [SBOMs](#SBOM).
+
+<a id="Crucible"></a>**Crucible**
+
+The [Sentry](#Sentry), [Pentacle](#Pentacle) and [Bottle](#Bottle) running together as one unit a [Nameplate](#Nameplate) defines; [Charge](#Charge) starts it and [Quench](#Quench) stops it.
+
+<a id="Depot"></a>**Depot**
+
+The facility where container images are built and stored, in a GCP project of its own funded under the [Manor](#Manor).
+
+<a id="Director"></a>**Director**
+
+The role that builds and publishes [Vessel](#Vessel) images into a [Depot](#Depot) and manages their lifecycle.
+
+<a id="Divine"></a>**Divine**
+
+Enumerate every [Lode](#Lode) by [Touchmark](#Touchmark).
+
+<a id="Don"></a>**Don**
+
+Assume a [Mantle](#Mantle).
+Having [Avowed](#Avow), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
+[CheckMantleAccess](#CheckMantleAccess) reports whether a given mantle reaches Artifact Registry, or surfaces the access deficit.
+
+<a id="Drive"></a>**Drive**
+
+Record a fresh [Hallmark](#Hallmark) into a [Nameplate's](#Nameplate) [Sentry](#Sentry) or [Bottle](#Bottle) hallmark line.
+The chain's terminus: what [Charge](#Charge) consumes is exactly what was driven and committed.
+[Kludge](#Kludge) composes a drive automatically; after a cloud [Ordain](#Ordain), the new [Hallmark](#Hallmark) is driven explicitly.
+
+<a id="Enclave"></a>**Enclave**
+
+The isolated network joining a [Bottle](#Bottle) to its [Sentry](#Sentry), the [Bottle's](#Bottle) only path out.
+
+<a id="Ensconce"></a>**Ensconce**
+
+[Capture](#Capture) an upstream base image into a [Lode](#Lode).
+Capture-pure and cloud-side — the workstation fetches no upstream bytes and no [Vessel](#Vessel) configuration is written; electing the captured base into a [Vessel](#Vessel) is [Feoff's](#Feoff) separate act.
+
+<a id="Escheat"></a>**Escheat**
+
+Sweep the [Manor's](#Manor) [Terrier](#Terrier) of dead records — orphaned polity slices whose [Depot](#Depot) was [Unmade](#Unmake), and dead-schema strays that no longer parse as [Muniments](#Muniment).
+A [Payor](#Payor) manor-hygiene operation: it plans the strike, confirms before deleting, and is an idempotent no-op when the [Terrier](#Terrier) is already clean — the mutating counterpart to the read-only [Rehearse](#Rehearse).
+
+<a id="Espy"></a>**Espy**
+
+Report whether a [Sederunt](#Sederunt) is live and how much runway remains, from the local cache alone.
+Read-only: never opens a [Sederunt](#Sederunt), never prompts, touches no network.
+
+<a id="Establish"></a>**Establish**
+
+Guided setup of a new [Manor](#Manor) — creates the [Manor's](#Manor) GCP project, its billing account link, the OAuth consent screen and the OAuth client through the Google Cloud Console.
+[Establishing](#Establish) walks the [Payor](#Payor) through the manual prerequisites before any automated operations can run.
+
+<a id="Feoff"></a>**Feoff**
+
+Elect a [Conjure](#Conjure) [Vessel's](#Vessel) base-image anchor from an [Ensconced](#Ensconce) [Lode](#Lode) [Touchmark](#Touchmark).
+The ceremony is [Ensconce](#Ensconce), [Feoff](#Feoff), commit, [Ordain](#Ordain) — the build itself reads only the committed anchor and never re-fetches the upstream.
+
+<a id="Foedus"></a>**Foedus**
+
+One standing trust between the [Manor](#Manor) and an identity provider: a provider seated under the [Manor's](#Manor) one workforce pool, with the attribute mapping that names trusted principals.
+Each [Foedus](#Foedus) is configured in its own federation [Regime](#Regime) file ([RBRF](#RBRF)) in the foedera library, and the repository selects the active one; several foedera can stand under the same pool at once.
+Founded by [Affiance](#Affiance), dissolved by [Jilt](#Jilt).
+
+<a id="Gird"></a>**Gird**
+
+Seat the first [Governor](#Governor) of a freshly [Levied](#Levy) [Depot](#Depot).
+A fresh depot has [Mantle](#Mantle) service accounts but no admitted [Citizen](#Citizen), so no governor yet exists to admit one; [Girding](#Gird) is the [Payor's](#Payor) single founding admission, the one made outside governor wielding.
+Thereafter ordinary governor-wielded [Brevets](#Brevet) take over.
+
+<a id="Governor"></a>**Governor**
+
+The role that administers a [Depot](#Depot), admitting [Citizens](#Citizen) onto its [Mantles](#Mantle) and withdrawing them.
+
+<a id="Graft"></a>**Graft**
+
+Push a locally-built image to the [Depot](#Depot) registry.
+[Grafting](#Graft) uploads a local image to GAR via docker push — no Cloud Build for the image itself, though the [About](#About) and [Vouch](#Vouch) metadata still run in Cloud Build.
+Its verdict is GRAFTED, with no [provenance](#Provenance) chain.
+
+<a id="Hail"></a>**Hail**
+
+Shell into a [Sentry](#Sentry) container.
+[Hailing](#Hail) opens an interactive session on the gateway — for inspecting `iptables` rules, `dnsmasq` configuration, and network state.
+
+<a id="Hallmark"></a>**Hallmark**
+
+One build instance of a [Vessel](#Vessel), identified by its build mode and build time, and the name its [Ark](#Ark) stands under.
+
+<a id="Ifrit"></a>**Ifrit**
+
+Adversarial attack [Vessel](#Vessel) purpose-built to run inside a [Bottle](#Bottle), seeking escape.
+Named for the djinn imprisoned in a bottle.
+
+<a id="Immure"></a>**Immure**
+
+[Capture](#Capture) the podman-machine disk images of one quay family into a [Lode](#Lode).
+
+<a id="Install"></a>**Install**
+
+Ingest OAuth client credentials from a downloaded JSON key file.
+[Installing](#Install) triggers a browser authorization flow and stores the resulting refresh token locally with restrictive permissions (`600`).
+The stored token has no scheduled expiry — it dies only by explicit revocation, six months of disuse, Google's per-client live-token cap, or the organization's sign-in policy — and the recovery for every death is [re-Installing](#Install) with the same JSON file.
+
+<a id="Instaurate"></a>**Instaurate**
+
+Found the [Manor's](#Manor) scriptable identity substrate: the one organization-level workforce pool (ensured by list-and-match against its committed [RBRW](#RBRW) record) and the [Terrier](#Terrier) bucket, after enabling the APIs and linking the billing the [Payor](#Payor) needs.
+A [Payor](#Payor) operation — ensure-exists, idempotent, never destructive — run after [Establish](#Establish) and [Install](#Install), before any [Affiance](#Affiance).
+
+<a id="Jettison"></a>**Jettison**
+
+Delete a specific image tag from the [Depot's](#Depot) registry.
+[Jettisoning](#Jettison) is lower-level than [Abjure](#Abjure) — it removes a single tag rather than a complete [Hallmark](#Hallmark) artifact set.
+Used for cleanup of individual registry entries.
+
+<a id="Jilt"></a>**Jilt**
+
+The inverse of [Affiance](#Affiance): dissolve one [Foedus](#Foedus) — delete its provider while the shared workforce pool stands — ending federated access for every [Citizen](#Citizen) asserted through that trust.
+A [Payor](#Payor) ceremony, founding-rare and deliberately confirmed; [Depots](#Depot) drawing on other foedera are untouched, [Mantle](#Mantle) service accounts and their bindings are left in place, and admission records in the [Terrier](#Terrier) are never erased by [Jilt](#Jilt) churn.
+Tearing down the pool itself is a manor-teardown act, deliberately not [Jilt](#Jilt).
+
+<a id="Kludge"></a>**Kludge**
+
+Build a [Conjure](#Conjure) [Vessel's](#Vessel) image locally for fast iteration, without [Depot](#Depot) registry push.
+[Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build, its base images already fetched to the station.
+The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
+
+<a id="Levy"></a>**Levy**
+
+Provision a new [Depot's](#Depot) GCP infrastructure.
+[Levying](#Levy) creates the GCP project, artifact registry and build worker pools, raises the three [Mantle](#Mantle) service accounts with their resource authority granted and frozen, opens the depot's record folder in the [Terrier](#Terrier), and enables the registry's Data-Access audit trail at birth.
+This is a [Payor](#Payor) operation that binds [Regime](#Regime) configuration to real cloud resources.
+
+<a id="ListDepots"></a>**ListDepots**
+
+Inventory the [Depots](#Depot) visible to the current [Payor](#Payor) credentials.
+Shows each depot's moniker and state, those awaiting deletion among them, with a total count.
+
+<a id="Lode"></a>**Lode**
+
+A project-owned copy of an upstream artifact — a base image, a builder tool, an OS substrate, a VM disk image — captured once into the [Depot's](#Depot) registry and held with a provenance record.
+A [Lode](#Lode) is the captured-side parallel of a [Hallmark](#Hallmark) — the unit of a *captured* image where a [Hallmark](#Hallmark) is the unit of a *built* one — and records its upstream source, the exact digest captured, and a trust grade stating how strongly the bytes can be re-verified (see [Disappearing Upstream Images](#DisappearingUpstream)).
+
+<a id="Manor"></a>**Manor**
+
+The [Payor's](#Payor) administrative seat, holding the billing account and OAuth client, under which every [Depot](#Depot) is created and funded.
+
+<a id="Mantle"></a>**Mantle**
+
+A standing administrative office — [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) — realized as a Google service account whose resource authority is granted once at [Levy](#Levy) and frozen there.
+A [Citizen](#Citizen) [Dons](#Don) one mantle at a time, and the mantle worn is that token's entire blast radius.
+A mantle is worn, never issued as a file — there is no key to leak.
+
+<a id="Muniment"></a>**Muniment**
+
+One [Terrier](#Terrier) entry: the record that a given [Citizen](#Citizen) holds a given [Mantle](#Mantle) (the old sense — a deed kept as proof of a right).
+A muniment names a holding, not a secret; with no keys minted, there is nothing secret to store.
+
+<a id="Nameplate"></a>**Nameplate**
+
+The configuration that ties a [Sentry](#Sentry) and a [Bottle](#Bottle) together into one runnable [Crucible](#Crucible), named by its moniker.
+
+<a id="Novate"></a>**Novate**
+
+Open a fresh, full-window [Sederunt](#Sederunt), extinguishing any standing one.
+The named remedy when the runway gate refuses a reuse, signed in like any [Avowal](#Avow).
+
+<a id="OAuthProbe"></a>**OAuthProbe**
+
+Test [Payor](#Payor) OAuth authentication.
+It verifies that the stored refresh token can obtain a valid access token — a failed probe's remedy is [re-Installing](#Install) the credential.
+
+<a id="Ordain"></a>**Ordain**
+
+Create a [Hallmark](#Hallmark) — the production build operation.
+[Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration, and chains the metadata and [Vouch](#Vouch) stages after the build.
+Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with its [About](#About) artifact and its mode's verification record.
+
+<a id="Payor"></a>**Payor**
+
+The role that establishes the [Manor](#Manor) and funds [Depots](#Depot) through it, authenticating by OAuth rather than by federated sign-in.
+
+<a id="Pentacle"></a>**Pentacle**
+
+The privileged container that prepares the network namespace the [Bottle](#Bottle) shares, routing all its traffic through the [Sentry](#Sentry).
+
+<a id="Plumb"></a>**Plumb**
+
+Inspect an artifact's [provenance](#Provenance) — [SBOM](#SBOM), build info, and [Vouch](#Vouch) results.
+[Plumbing](#Plumb) provides full transparency into how an image was built and what it contains.
+Two views are available: full ([SBOM](#SBOM), build info, Dockerfile) and compact (trust-posture summary).
+
+<a id="Pouch"></a>**Pouch**
+
+Build context packaged as a FROM SCRATCH OCI image and pushed to the [Depot's](#Depot) registry before a Cloud Build job runs.
+The [Director](#Director) controls what enters the [Pouch](#Pouch) — Dockerfile, context files, build scripts — and the cloud receives only what the [Pouch](#Pouch) contains.
+This is the security boundary between workstation and build infrastructure.
+
+<a id="Presage"></a>**Presage**
+
+Show what an [Immure](#Immure) would capture for one quay family, without capturing anything.
+
+<a id="Quench"></a>**Quench**
+
+Stop and clean up the containers of a [Charged](#Charge) [Crucible](#Crucible).
+[Quenching](#Quench) tears down the [Crucible](#Crucible) and removes the network resources created during [Charging](#Charge).
+Containers remember the working tree that [Charged](#Charge) them: [Charging](#Charge) refuses over another tree's live [Crucible](#Crucible), and [Quenching](#Quench) one names its owner and asks before proceeding.
+
+<a id="Quota"></a>**Quota**
+
+Review the [Depot's](#Depot) Cloud Build capacity: whether its concurrent build CPU quota aligns with the build machine type and the parallel builds you want.
+
+<a id="Rack"></a>**Rack**
+
+Shell into a [Bottle](#Bottle) container.
+[Racking](#Rack) opens an interactive session inside the running workload — for debugging, inspecting state, or running commands as the [Bottle](#Bottle) user would experience them.
+
+<a id="RBRD"></a>**RBRD**
+
+[Depot](#Depot) identity — cloud prefix, depot moniker, GCP region, Cloud Build pool machine type — populated during [Levy](#Levy) and frozen for the depot's productive lifetime; changing any field after [Levy](#Levy) requires a fresh [Depot](#Depot).
+
+<a id="RBRF"></a>**RBRF**
+
+[Per-Foedus](#Foedus) federation trust — issuer, client ID, attribute mapping, and acquisition mechanism for one identity provider.
+One file per standing [Foedus](#Foedus) in the foedera library; carries no secrets.
+
+<a id="RBRN"></a>**RBRN**
+
+[Per-Nameplate](#Nameplate) [Crucible](#Crucible) configuration mapping two [Vessels](#Vessel) — [Sentry](#Sentry) and [Bottle](#Bottle) — with runtime and [Hallmark](#Hallmark) assignments.
+
+<a id="RBRO"></a>**RBRO**
+
+[Payor](#Payor) OAuth credentials — client secret and refresh token.
+Not in the repo.
+
+<a id="RBRP"></a>**RBRP**
+
+[Manor](#Manor) identity — billing account, OAuth client ID, operator email, and the [Manor's](#Manor) GCP project.
+In the repo.
+
+<a id="RBRR"></a>**RBRR**
+
+Repository-wide configuration: runtime container prefix, vessel directory, container DNS, Cloud Build timeout, secrets directory, public docs URL.
+
+<a id="RBRV"></a>**RBRV**
+
+[Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
+
+<a id="RBRW"></a>**RBRW**
+
+[Manor](#Manor) workforce-pool record — GCP organization ID, pool ID, session duration.
+In the repo; all public identifiers.
+[Instaurate](#Instaurate) founds the live pool and reconciles it against this committed record.
+
+<a id="Recognosce"></a>**Recognosce**
+
+Read-only proof that a [Depot's](#Depot) founding stands whole.
+Confirms the three [Mantle](#Mantle) service accounts, their capability-sets, and the audit configuration against live GCP — run it after a [Levy](#Levy), or any time the founding is in doubt.
+
+<a id="Regime"></a>**Regime**
+
+A structured family of configuration: a `.env` file of values, each typed and validated, with its own render and validate commands.
+
+<a id="Rehearse"></a>**Rehearse**
+
+Recount the [Terrier](#Terrier).
+A read-only [Governor](#Governor) operation that lists every [Muniment](#Muniment) — which [Citizens](#Citizen) hold which [Mantles](#Mantle) — across the whole [Manor](#Manor), mutating nothing.
+
+<a id="Rekon"></a>**Rekon**
+
+Report which of a [Hallmark's](#Hallmark) artifacts stand in the [Depot](#Depot) registry.
+[Rekon](#Rekon) is a [Director](#Director) diagnostic that shows what exists under one [Hallmark](#Hallmark) without health interpretation.
+Where [Tally](#Tally) groups [Hallmarks](#Hallmark) by status, [Rekon](#Rekon) shows one [Hallmark's](#Hallmark) artifacts.
+
+<a id="Reliquary"></a>**Reliquary**
+
+The [Depot's](#Depot) dated cohort of builder tool images — `gcloud`, `gcrane`, `syft`, and their peers — [Captured](#Capture) together as one co-versioned [Lode](#Lode) by [Conclave](#Conclave).
+Cloud Build jobs run their steps from its members rather than pulling tools from upstream, and each [Vessel](#Vessel) pins the [Reliquary](#Reliquary) it builds with by [Yoking](#Yoke) its [Touchmark](#Touchmark) into the [Vessel](#Vessel) [Regime](#Regime).
+
+<a id="Retriever"></a>**Retriever**
+
+The most constrained role, with read-only access to a [Depot's](#Depot) registry, pulling images for local use.
+
+<a id="Scry"></a>**Scry**
+
+Observe network traffic across [Crucible](#Crucible) containers.
+[Scrying](#Scry) captures packets on the [Crucible's](#Crucible) network interfaces — for verifying that blocked traffic is actually blocked, diagnosing connectivity issues, or watching the [Sentry's](#Sentry) filtering in action.
+
+<a id="Sederunt"></a>**Sederunt**
+
+The time-bounded session an [Avowal](#Avow) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
+No federated operation runs outside a live [Sederunt](#Sederunt); when one lapses the next token mint fails loud rather than reaching for a stored secret.
+Reuse of a standing [Sederunt](#Sederunt) is runway-gated — an operation refuses to start on a [Sederunt](#Sederunt) too near its lapse, and names [Novate](#Novate) as the remedy.
+
+<a id="Sentry"></a>**Sentry**
+
+The security container that enforces a [Crucible's](#Crucible) network policy with DNS and IP filtering, the [Bottle's](#Bottle) sole gateway.
+
+<a id="Sortie"></a>**Sortie**
+
+One named escape attempt in the [Ifrit's](#Ifrit) repertoire: a single attack vector, carried through end to end, returning its own verdict on whether the [Sentry's](#Sentry) containment held.
+
+<a id="StaleDeleteRead"></a>**"Already Exists" After a Delete**
+
+An operation that fails with "already exists" immediately after you deleted a same-named service account is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
+Wait a few seconds and retry rather than hunting for a stale resource.
+A deleted [Depot](#Depot) project is another matter: it stands in a thirty-day pending deletion, so choose a new depot moniker rather than wait.
+
+<a id="Summon"></a>**Summon**
+
+Pull a [Hallmark's](#Hallmark) images from the [Depot](#Depot) to your local machine.
+The [Retriever](#Retriever) [Summons](#Summon) each artifact the [Hallmark](#Hallmark) carries for local use — the final step before a [Hallmark's](#Hallmark) image can be used in a [Crucible](#Crucible).
+
+<a id="Tabtarget"></a>**Tabtarget**
+
+A shell script in `tt/` that launches one operation, named so that tab completion finds the command you want.
+
+<a id="Tally"></a>**Tally**
+
+Inventory [Hallmarks](#Hallmark) in the [Depot](#Depot) registry by health status.
+[Tallying](#Tally) shows which are vouched, which are pending, and which are incomplete.
+It is a [Retriever](#Retriever) operation.
+
+<a id="Terrier"></a>**Terrier**
+
+The [Manor's](#Manor) register of who holds what: one [Muniment](#Muniment) per [Citizen](#Citizen) and [Mantle](#Mantle) held, across every [Depot](#Depot).
+Read by [Rehearse](#Rehearse); written by the admission acts.
+
+<a id="Theurge"></a>**Theurge**
+
+The test orchestrator that runs on the host outside the [Crucible](#Crucible), [Charging](#Charge) it with the [Ifrit](#Ifrit) as its [Bottle](#Bottle) and dispatching curated escape attempts.
+
+<a id="Touchmark"></a>**Touchmark**
+
+The identifier of a [Lode](#Lode): the handle a consumer pins to use a specific captured artifact.
+The shared `-mark` ending signals the kinship with [Hallmark](#Hallmark) — a [Hallmark](#Hallmark) names what was built, a [Touchmark](#Touchmark) names what was captured.
+
+<a id="Transit"></a>**Transit**
+
+The uplink network reaching the workstation and the world beyond, on which only the [Sentry](#Sentry) stands.
+
+<a id="Underpin"></a>**Underpin**
+
+[Capture](#Capture) a vendor WSL root filesystem into a [Lode](#Lode).
+
+<a id="Unmake"></a>**Unmake**
+
+Destroy a [Depot's](#Depot) GCP infrastructure — project, artifact registry, and all contents.
+[Unmaking](#Unmake) is the reverse of [Levying](#Levy).
+This is a [Payor](#Payor) operation; the project enters Google's thirty-day deletion retention, recoverable only within that window.
+
+<a id="Unseat"></a>**Unseat**
+
+Withdraw one [Mantle](#Mantle) from a [Citizen](#Citizen).
+A [Governor](#Governor) operation that removes the don binding but leaves the [Citizen's](#Citizen) standing in the [Depot](#Depot) intact — a [Citizen](#Citizen) [Unseated](#Unseat) of every mantle is suspended, not erased, and cheap to [Brevet](#Brevet) again.
+
+<a id="Vessel"></a>**Vessel**
+
+A specification for a container image, built from source, mirrored from upstream, or pushed from local.
+
+<a id="Vouch"></a>**Vouch**
+
+Record a [Hallmark's](#Hallmark) mode-aware verification results.
+[Conjure](#Conjure) builds receive full [SLSA provenance](#Provenance) verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no [provenance](#Provenance) chain.
+[Ordain](#Ordain) vouches as it builds, and the [Director](#Director) can vouch every [Hallmark](#Hallmark) still pending in one batch.
+
+<a id="Wrest"></a>**Wrest**
+
+Pull a specific image from the [Depot](#Depot) registry by reference.
+[Wresting](#Wrest) is a direct [Director](#Director) pull without [Vouch](#Vouch) verification — used when you need a specific image regardless of attestation status.
+
+<a id="Yoke"></a>**Yoke**
+
+Record a [Reliquary](#Reliquary) [Touchmark](#Touchmark) into every [Vessel's](#Vessel) [Regime](#Regime) in one wildcard pass.
+After a [Conclave](#Conclave), yoking pins which dated toolchain the [Vessel](#Vessel) builds run from.
