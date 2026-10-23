@@ -601,7 +601,7 @@ zrba_sederunt_open() {
 
   # Leg 1 — mechanism-gated. buv_vet has already proven RBRF_MECHANISM is one of the
   # two enum values, but a bare-case fallthrough dies loud rather than silently.
-  local zSECRET_idtoken
+  local zSECRET_idtoken=""
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
       buc_step "Opening a ${RBCC_noun_sederunt} via device-flow avowal"
@@ -622,10 +622,11 @@ zrba_sederunt_open() {
   zSECRET_sts=$(zrba_leg2_federated_capture "${zSECRET_idtoken}") || buc_die_now "Avowal failed at Leg 2 (STS exchange); see the transcript"
 
   local zSECRET_federated
-  zSECRET_federated=$(printf '%s' "${zSECRET_sts}" | jq -r '.access_token' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || buc_die_now "Avowal failed at Leg 2: cannot read the federated token — see ${ZRBA_FED_JQ_STDERR_FILE}"
+  zSECRET_federated=$(printf '%s' "${zSECRET_sts}" | jq -r '.access_token' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || buc_die_now "Leg 2 (STS exchange): cannot read the federated token — see ${ZRBA_FED_JQ_STDERR_FILE}"
   local z_expires_in
-  z_expires_in=$(printf '%s' "${zSECRET_sts}" | jq -r '.expires_in // 0' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || buc_die_now "Avowal failed at Leg 2: cannot read the token expiry — see ${ZRBA_FED_JQ_STDERR_FILE}"
+  z_expires_in=$(printf '%s' "${zSECRET_sts}" | jq -r '.expires_in // 0' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || buc_die_now "Leg 2 (STS exchange): cannot read the token expiry — see ${ZRBA_FED_JQ_STDERR_FILE}"
   [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || z_expires_in=0
+  case "${z_expires_in}" in ''|*[!0123456789]*) buc_die_now "Leg 2 returned a non-numeric expiry: ${z_expires_in}" ;; esac
 
   date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die_now "Failed to read the clock"
   local z_now
@@ -762,7 +763,7 @@ rba_don_capture() {
   # The bearer is the cached federated token. A miss (absent or within skew of
   # expiry) is the re-mint ceiling — the sederunt has lapsed; the forensic line
   # carries the avow instruction and the caller fails loud on the return 1.
-  local zSECRET_federated
+  local zSECRET_federated=""
   local z_federated_status=0
   zSECRET_federated=$(zrba_sederunt_read_capture) || z_federated_status=$?
   test "${z_federated_status}" -eq 0 || {
