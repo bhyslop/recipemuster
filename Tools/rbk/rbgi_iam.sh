@@ -170,14 +170,14 @@ zrbgi_propagation_error_predicate() {
 rbgi_add_project_iam_role() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_label="${2:-}"
   local -r z_resource="${3:-}"  # resource_base: Base resource URL
   local -r z_role="${4:-}"
   local -r z_member="${5:-}"
   local -r z_parent_infix="${6:-}"
 
-  test -n "${z_token}" || buc_die_now "Token required"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   buc_log_args "Using admin token (value not logged)"
 
   local -r z_resource_path="${z_resource#/}"  # strip leading slash if present
@@ -213,7 +213,7 @@ rbgi_add_project_iam_role() {
     local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
     printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}" \
       || buc_die_now "Failed to write ${z_get_body}"
-    rbuh_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
+    rbuh_json "POST" "${z_get_url}" "${zSECRET_token}" "${z_get_infix}" "${z_get_body}"
 
     local z_get_code=""
     z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from getIamPolicy"
@@ -256,7 +256,7 @@ rbgi_add_project_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${z_parent_infix}-set-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+      rbuh_json "POST" "${z_set_url}" "${zSECRET_token}" "${z_set_infix}" "${z_set_body}"
 
       local z_code=""
       z_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code"
@@ -310,14 +310,14 @@ rbgi_add_project_iam_role() {
 rbgi_add_repo_iam_role() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_project_id="${2:-}"
   local -r z_account_email="${3:-}"
   local -r z_location="${4:-}"
   local -r z_repository="${5:-}"
   local -r z_role="${6:-}"
 
-  test -n "${z_token}"         || buc_die_now "Token required"
+  test -n "${zSECRET_token}"         || buc_die_now "Token required"
   test -n "${z_project_id}"    || buc_die_now "Project ID required"
   test -n "${z_account_email}" || buc_die_now "Service account email required"
   test -n "${z_location}"      || buc_die_now "Location is required"
@@ -352,7 +352,7 @@ rbgi_add_repo_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_REPO_ROLE}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET repo IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_get_url}" "${zSECRET_token}" "${z_get_infix}"
 
     local z_get_code
     z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from repo getIamPolicy"
@@ -395,7 +395,7 @@ rbgi_add_repo_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_REPO_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_repo_set_body}"
+      rbuh_json "POST" "${z_set_url}" "${zSECRET_token}" "${z_set_infix}" "${z_repo_set_body}"
 
       local z_set_code=""
       z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
@@ -439,12 +439,12 @@ rbgi_add_repo_iam_role() {
 rbgi_add_sa_iam_role() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_target_sa_email="${2:-}"
   local -r z_member_email="${3:-}"  # email only; function adds serviceAccount: prefix
   local -r z_role="${4:-}"
 
-  test -n "${z_token}" || buc_die_now "Token required"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
 
   buc_log_args "Using admin token (value not logged)"
   buc_log_args "Granting ${z_role} on SA ${z_target_sa_email} to ${z_member_email}"
@@ -460,7 +460,7 @@ rbgi_add_sa_iam_role() {
   local z_verify_code
   rbuh_json "GET" \
     "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
-                            "${z_token}" "${ZRBGI_INFIX_SA_IAM_VERIFY}"
+                            "${zSECRET_token}" "${ZRBGI_INFIX_SA_IAM_VERIFY}"
   z_verify_code=$(rbuh_code_capture "${ZRBGI_INFIX_SA_IAM_VERIFY}") || buc_die_now "No HTTP code from SA verify"
   test "${z_verify_code}" = "200" || \
     buc_die_now "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
@@ -486,7 +486,7 @@ rbgi_add_sa_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_ROLE}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET SA IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${zSECRET_token}" \
       "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
 
     local z_code
@@ -530,7 +530,7 @@ rbgi_add_sa_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
+      rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${zSECRET_token}" \
         "${z_set_infix}" "${z_set_body}"
 
       local z_set_code=""
@@ -583,12 +583,12 @@ rbgi_add_sa_iam_role() {
 rbgi_add_sa_principal_iam_role() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_target_sa_email="${2:-}"
   local -r z_member_principal="${3:-}"  # full principal://… member, passed verbatim
   local -r z_role="${4:-}"
 
-  test -n "${z_token}"            || buc_die_now "Token required"
+  test -n "${zSECRET_token}"            || buc_die_now "Token required"
   test -n "${z_target_sa_email}"  || buc_die_now "Target SA email required"
   test -n "${z_member_principal}" || buc_die_now "Member principal required"
   test -n "${z_role}"             || buc_die_now "Role required"
@@ -604,7 +604,7 @@ rbgi_add_sa_principal_iam_role() {
   local z_verify_code
   rbuh_json "GET" \
     "${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/-/serviceAccounts/${z_target_encoded}" \
-                            "${z_token}" "${ZRBGI_INFIX_SA_PRIN_VERIFY}"
+                            "${zSECRET_token}" "${ZRBGI_INFIX_SA_PRIN_VERIFY}"
   z_verify_code=$(rbuh_code_capture "${ZRBGI_INFIX_SA_PRIN_VERIFY}") || buc_die_now "No HTTP code from SA verify"
   test "${z_verify_code}" = "200" || \
     buc_die_now "Target service account not accessible: ${z_target_sa_email} (HTTP ${z_verify_code})"
@@ -630,7 +630,7 @@ rbgi_add_sa_principal_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_SA_PRIN_ROLE}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET SA IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${zSECRET_token}" \
       "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
 
     local z_code
@@ -672,7 +672,7 @@ rbgi_add_sa_principal_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_SA_PRIN_ROLE_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" \
+      rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${zSECRET_token}" \
         "${z_set_infix}" "${z_set_body}"
 
       local z_set_code=""
@@ -726,12 +726,12 @@ rbgi_add_sa_principal_iam_role() {
 rbgi_poll_sa_iam_binding() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_target_sa_email="${2:-}"
   local -r z_member_email="${3:-}"  # email only; function adds serviceAccount: prefix
   local -r z_role="${4:-}"
 
-  test -n "${z_token}"           || buc_die_now "Token required"
+  test -n "${zSECRET_token}"           || buc_die_now "Token required"
   test -n "${z_target_sa_email}" || buc_die_now "Target SA email required"
   test -n "${z_member_email}"    || buc_die_now "Member email required"
   test -n "${z_role}"            || buc_die_now "Role required"
@@ -748,7 +748,7 @@ rbgi_poll_sa_iam_binding() {
   while :; do
     local z_poll_infix="${ZRBGI_INFIX_SA_BINDING_POLL}-${z_elapsed}s"
     # Non-fatal by grant: one failed read inside the poll is retried, and the loop's deadline is the gate
-    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" \
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${zSECRET_token}" \
       "${z_poll_infix}" "${ZRBGI_VERSION3_BODY}" \
       || buc_warn "IAM read-back poll read failed at ${z_elapsed}s — retrying"
 
@@ -787,12 +787,12 @@ rbgi_poll_sa_iam_binding() {
 rbgi_add_bucket_iam_role() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket_name="${2:-}"
   local -r z_account_email="${3:-}"
   local -r z_role="${4:-}"
 
-  test -n "${z_token}" || buc_die_now "Token required"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
 
   buc_log_args "Using admin token (value not logged)"
   buc_log_args "Adding bucket IAM role ${z_role} to ${z_account_email}"
@@ -818,7 +818,7 @@ rbgi_add_bucket_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_BUCKET_IAM}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET bucket IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbuh_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${zSECRET_token}" "${z_get_infix}"
 
     local z_code
     z_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from bucket getIamPolicy"
@@ -861,7 +861,7 @@ rbgi_add_bucket_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_BUCKET_IAM_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_bucket_set_body}"
+      rbuh_json "PUT" "${z_iam_url}" "${zSECRET_token}" "${z_set_infix}" "${z_bucket_set_body}"
 
       local z_set_code=""
       z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
@@ -911,13 +911,13 @@ rbgi_add_bucket_iam_role() {
 rbgi_add_managed_folder_iam_role() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket_name="${2:-}"
   local -r z_managed_folder="${3:-}"
   local -r z_account_email="${4:-}"
   local -r z_role="${5:-}"
 
-  test -n "${z_token}"          || buc_die_now "Token required"
+  test -n "${zSECRET_token}"          || buc_die_now "Token required"
   test -n "${z_bucket_name}"    || buc_die_now "Bucket name required"
   test -n "${z_managed_folder}" || buc_die_now "Managed folder required"
   test -n "${z_account_email}"  || buc_die_now "Account email required"
@@ -949,7 +949,7 @@ rbgi_add_managed_folder_iam_role() {
     local z_get_infix="${ZRBGI_INFIX_MF_IAM}-${z_prop_elapsed}s"
 
     buc_log_args "1) GET managed-folder IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbuh_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_iam_url}?optionsRequestedPolicyVersion=3" "${zSECRET_token}" "${z_get_infix}"
 
     local z_code
     z_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from managed-folder getIamPolicy"
@@ -992,7 +992,7 @@ rbgi_add_managed_folder_iam_role() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${ZRBGI_INFIX_MF_IAM_SET}-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "PUT" "${z_iam_url}" "${z_token}" "${z_set_infix}" "${z_mf_set_body}"
+      rbuh_json "PUT" "${z_iam_url}" "${zSECRET_token}" "${z_set_infix}" "${z_mf_set_body}"
 
       local z_set_code=""
       z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
@@ -1038,13 +1038,13 @@ rbgi_add_managed_folder_iam_role() {
 rbgi_grant_secret_iam() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_secret_resource_path="${2:-}"
   local -r z_member="${3:-}"
   local -r z_role="${4:-}"
   local -r z_parent_infix="${5:-}"
 
-  test -n "${z_token}"                || buc_die_now "Token required"
+  test -n "${zSECRET_token}"                || buc_die_now "Token required"
   test -n "${z_secret_resource_path}" || buc_die_now "Secret resource path required"
   test -n "${z_member}"               || buc_die_now "Member required"
   test -n "${z_role}"                 || buc_die_now "Role required"
@@ -1075,7 +1075,7 @@ rbgi_grant_secret_iam() {
     local z_get_infix="${z_parent_infix}-get-${z_prop_elapsed}s"
 
     buc_log_args "1) GET secret IAM policy (v3) [attempt ${z_prop_attempt}]"
-    rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_get_url}" "${zSECRET_token}" "${z_get_infix}"
 
     local z_get_code
     z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from secret getIamPolicy"
@@ -1118,7 +1118,7 @@ rbgi_grant_secret_iam() {
     local z_set_succeeded=0
     while :; do
       z_set_infix="${z_parent_infix}-set-${z_prop_elapsed}s-${z_set_elapsed}s"
-      rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+      rbuh_json "POST" "${z_set_url}" "${zSECRET_token}" "${z_set_infix}" "${z_set_body}"
 
       local z_set_code=""
       z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
@@ -1184,14 +1184,14 @@ rbgi_grant_secret_iam() {
 rbgi_revoke_project_member() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_label="${2:-}"
   local -r z_resource="${3:-}"
   local -r z_role="${4:-}"
   local -r z_member="${5:-}"
   local -r z_parent_infix="${6:-}"
 
-  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${zSECRET_token}"    || buc_die_now "Token required"
   test -n "${z_resource}" || buc_die_now "resource required"
   test -n "${z_role}"     || buc_die_now "role required"
   test -n "${z_member}"   || buc_die_now "member required"
@@ -1209,7 +1209,7 @@ rbgi_revoke_project_member() {
   local -r z_get_infix="${z_parent_infix}-revoke-get"
   local -r z_get_body="${ZRBGI_PREFIX}${z_parent_infix}_revoke_get_body.json"
   printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}" || buc_die_now "Failed to write getIamPolicy body"
-  rbuh_json "POST" "${z_get_url}" "${z_token}" "${z_get_infix}" "${z_get_body}"
+  rbuh_json "POST" "${z_get_url}" "${zSECRET_token}" "${z_get_infix}" "${z_get_body}"
   rbuh_require_ok "${z_label} (get policy)" "${z_get_infix}"
 
   local z_etag=""
@@ -1229,7 +1229,7 @@ rbgi_revoke_project_member() {
   local z_set_code=""
   while :; do
     z_set_infix="${z_parent_infix}-revoke-set-${z_set_elapsed}s"
-    rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+    rbuh_json "POST" "${z_set_url}" "${zSECRET_token}" "${z_set_infix}" "${z_set_body}"
 
     z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
 
@@ -1252,14 +1252,14 @@ rbgi_revoke_project_member() {
 rbgi_revoke_repo_member() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_project_id="${2:-}"
   local -r z_account_email="${3:-}"
   local -r z_location="${4:-}"
   local -r z_repository="${5:-}"
   local -r z_role="${6:-}"
 
-  test -n "${z_token}"         || buc_die_now "Token required"
+  test -n "${zSECRET_token}"         || buc_die_now "Token required"
   test -n "${z_project_id}"    || buc_die_now "Project ID required"
   test -n "${z_account_email}" || buc_die_now "Service account email required"
   test -n "${z_location}"      || buc_die_now "Location is required"
@@ -1287,7 +1287,7 @@ rbgi_revoke_repo_member() {
   while :; do
     z_get_infix="${ZRBGI_INFIX_REPO_REVOKE}-${z_prop_elapsed}s"
     buc_log_args "1) GET repo IAM policy (v3) [${z_prop_elapsed}s]"
-    rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}"
+    rbuh_json "GET" "${z_get_url}" "${zSECRET_token}" "${z_get_infix}"
     z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from repo getIamPolicy"
 
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
@@ -1322,7 +1322,7 @@ rbgi_revoke_repo_member() {
   local z_set_code=""
   while :; do
     z_set_infix="${ZRBGI_INFIX_REPO_REVOKE_SET}-${z_set_elapsed}s"
-    rbuh_json "POST" "${z_set_url}" "${z_token}" "${z_set_infix}" "${z_set_body}"
+    rbuh_json "POST" "${z_set_url}" "${zSECRET_token}" "${z_set_infix}" "${z_set_body}"
 
     z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
 
@@ -1347,12 +1347,12 @@ rbgi_revoke_repo_member() {
 rbgi_revoke_sa_member() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_target_sa_email="${2:-}"
   local -r z_member_email="${3:-}"
   local -r z_role="${4:-}"
 
-  test -n "${z_token}"           || buc_die_now "Token required"
+  test -n "${zSECRET_token}"           || buc_die_now "Token required"
   test -n "${z_target_sa_email}" || buc_die_now "Target SA email required"
   test -n "${z_member_email}"    || buc_die_now "Member email required"
   test -n "${z_role}"            || buc_die_now "Role required"
@@ -1377,7 +1377,7 @@ rbgi_revoke_sa_member() {
   while :; do
     z_get_infix="${ZRBGI_INFIX_SA_REVOKE}-${z_prop_elapsed}s"
     buc_log_args "1) GET SA IAM policy (v3) [${z_prop_elapsed}s]"
-    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${zSECRET_token}" "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
     z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from SA getIamPolicy"
 
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
@@ -1412,7 +1412,7 @@ rbgi_revoke_sa_member() {
   local z_set_code=""
   while :; do
     z_set_infix="${ZRBGI_INFIX_SA_REVOKE_SET}-${z_set_elapsed}s"
-    rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" "${z_set_infix}" "${z_set_body}"
+    rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${zSECRET_token}" "${z_set_infix}" "${z_set_body}"
 
     z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
 
@@ -1440,12 +1440,12 @@ rbgi_revoke_sa_member() {
 rbgi_revoke_sa_principal_member() {
   zrbgi_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_target_sa_email="${2:-}"
   local -r z_member_principal="${3:-}"
   local -r z_role="${4:-}"
 
-  test -n "${z_token}"            || buc_die_now "Token required"
+  test -n "${zSECRET_token}"            || buc_die_now "Token required"
   test -n "${z_target_sa_email}"  || buc_die_now "Target SA email required"
   test -n "${z_member_principal}" || buc_die_now "Member principal required"
   test -n "${z_role}"             || buc_die_now "Role required"
@@ -1470,7 +1470,7 @@ rbgi_revoke_sa_principal_member() {
   while :; do
     z_get_infix="${ZRBGI_INFIX_SA_PRIN_REVOKE}-${z_prop_elapsed}s"
     buc_log_args "1) GET SA IAM policy (v3) [${z_prop_elapsed}s]"
-    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${z_token}" "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
+    rbuh_json "POST" "${z_sa_resource}:getIamPolicy" "${zSECRET_token}" "${z_get_infix}" "${ZRBGI_VERSION3_BODY}"
     z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "No HTTP code from SA getIamPolicy"
 
     if zrbgi_propagation_error_predicate "${z_get_infix}" "${z_get_code}" "${z_tolerance[@]}"; then
@@ -1505,7 +1505,7 @@ rbgi_revoke_sa_principal_member() {
   local z_set_code=""
   while :; do
     z_set_infix="${ZRBGI_INFIX_SA_PRIN_REVOKE_SET}-${z_set_elapsed}s"
-    rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${z_token}" "${z_set_infix}" "${z_set_body}"
+    rbuh_json "POST" "${z_sa_resource}:setIamPolicy" "${zSECRET_token}" "${z_set_infix}" "${z_set_body}"
 
     z_set_code=$(rbuh_code_capture "${z_set_infix}") || buc_die_now "No HTTP code from setIamPolicy"
 
@@ -1635,18 +1635,18 @@ rbgi_provision_service_agent() {
 
   local -r z_api_service="${1:-}"
   local -r z_project_id="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
 
   test -n "${z_api_service}" || buc_die_now "rbgi_provision_service_agent: API service name required"
   test -n "${z_project_id}" || buc_die_now "rbgi_provision_service_agent: project ID required"
-  test -n "${z_token}" || buc_die_now "rbgi_provision_service_agent: access token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbgi_provision_service_agent: access token required"
 
   buc_log_args "Provisioning service agent for ${z_api_service} in ${z_project_id}"
 
   local -r z_infix="provision-sa-${z_api_service}"
   local -r z_url="https://serviceusage.googleapis.com/v1beta1/projects/${z_project_id}/services/${z_api_service}.googleapis.com:generateServiceIdentity"
 
-  rbuh_json "POST" "${z_url}" "${z_token}" "${z_infix}" ""
+  rbuh_json "POST" "${z_url}" "${zSECRET_token}" "${z_infix}" ""
   rbuh_require_ok "Provision service agent ${z_api_service}" "${z_infix}"
 
   local z_done
@@ -1666,7 +1666,7 @@ rbgi_provision_service_agent() {
       z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
       z_final_infix="${z_infix}-poll-${z_elapsed}s"
-      rbuh_json "GET" "${z_poll_url}" "${z_token}" "${z_final_infix}"
+      rbuh_json "GET" "${z_poll_url}" "${zSECRET_token}" "${z_final_infix}"
 
       local z_code
       local z_code_status=0

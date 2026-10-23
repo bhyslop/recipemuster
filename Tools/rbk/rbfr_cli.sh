@@ -49,6 +49,7 @@ zrbfr_furnish() {
   rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
   source "${z_rbk_kit_dir}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
   source "${z_rbk_kit_dir}/rbfr_retriever.sh" || buc_die_now "Failed to source rbfr_retriever.sh"
@@ -75,6 +76,7 @@ zrbfr_furnish() {
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
+  zrbuh_kindle
   zrba_kindle
   zrbfc0_kindle
   zrbfr_kindle

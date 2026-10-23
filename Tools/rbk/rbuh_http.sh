@@ -100,6 +100,63 @@ zrbuh_fault_apply() {
   buc_log_args "http fault: forced HTTP ${z_forced} for infix ${z_infix}"
 }
 
+# The one road a bearer request takes. curl reads its header list from its
+# standard input through the secret pipe, the Authorization header first and
+# the caller's further header lines after it, so the token stands in no
+# process's arguments; the response body goes to the response file by curl's
+# own output option, and the HTTP code comes back on the substitution's stdout
+# and is written to the code file. HEAD is sent as curl's head request, every
+# other method by name. The further headers are the caller's whole lines,
+# newline-separated, or none when empty; a body file is sent as given, never
+# from standard input, which carries the headers; follow makes curl follow
+# redirects. Returns curl's own status for the caller to classify.
+# Args: method url token headers resp_file code_file stderr_file body_file follow
+zrbuh_bearer_request() {
+  zrbuh_sentinel
+
+  local -r z_method="${1:-}"
+  local -r z_url="${2:-}"
+  local -r zSECRET_token="${3:-}"
+  local -r z_headers="${4:-}"
+  local -r z_resp_file="${5:-}"
+  local -r z_code_file="${6:-}"
+  local -r z_stderr_file="${7:-}"
+  local -r z_body_file="${8:-}"
+  local -r z_follow="${9:-}"
+
+  test -n "${z_method}"        || buc_die_now "zrbuh_bearer_request: method required"
+  test -n "${z_url}"           || buc_die_now "zrbuh_bearer_request: url required"
+  test -n "${zSECRET_token}"   || buc_die_now "zrbuh_bearer_request: token required"
+  test -n "${z_resp_file}"     || buc_die_now "zrbuh_bearer_request: resp_file required"
+  test -n "${z_code_file}"     || buc_die_now "zrbuh_bearer_request: code_file required"
+  test -n "${z_stderr_file}"   || buc_die_now "zrbuh_bearer_request: stderr_file required"
+  test "${z_body_file}" != "-" || buc_die_now "zrbuh_bearer_request: the body cannot ride stdin, which carries the headers"
+
+  local -a z_curl_options=("-sS" --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H @-)
+  if test "${z_method}" = "HEAD"; then
+    z_curl_options+=("--head")
+  else
+    z_curl_options+=("-X" "${z_method}")
+  fi
+  test -z "${z_body_file}" || z_curl_options+=("-d" @"${z_body_file}")
+  case "${z_follow}" in
+    "")     ;;
+    follow) z_curl_options+=("-L") ;;
+    *)      buc_die_now "zrbuh_bearer_request: follow must be empty or 'follow', got '${z_follow}'" ;;
+  esac
+  z_curl_options+=("-o" "${z_resp_file}" -w "%{http_code}")
+
+  local zSECRET_headers="Authorization: Bearer ${zSECRET_token}"
+  test -z "${z_headers}" || zSECRET_headers="${zSECRET_headers}"$'\n'"${z_headers}"
+  local z_curl_status=0
+  local z_code=""
+  z_code=$(printf '%s' "${zSECRET_headers}" | curl "${z_curl_options[@]}" "${z_url}" 2>"${z_stderr_file}") || z_curl_status=$?
+  printf '%s' "${z_code}" > "${z_code_file}" \
+    || buc_die_now "zrbuh_bearer_request: cannot write the HTTP code to ${z_code_file} (curl exit ${z_curl_status})"
+
+  return "${z_curl_status}"
+}
+
 ######################################################################
 # Predicate Functions
 
@@ -190,19 +247,57 @@ rbuh_code_capture() {
   echo "${z_code}"
 }
 
+# rbuh_request_capture METHOD URL TOKEN HEADERS STDERR_FILE [BODY_FILE] — one
+# bearer request whose response carries a secret, so it is held in memory and
+# never written under the dispatch roots. The header list rides curl's
+# standard input as on the module's bearer road, the Authorization header
+# first and the caller's further lines, newline-separated, after it; a body
+# file is sent as given. Emits the response body, a newline, then the HTTP
+# code; a request curl cannot complete refuses, its exit status on the
+# transcript.
+rbuh_request_capture() {
+  zrbuh_sentinel
+
+  local -r z_method="${1:-}"
+  local -r z_url="${2:-}"
+  local -r zSECRET_token="${3:-}"
+  local -r z_headers="${4:-}"
+  local -r z_stderr_file="${5:-}"
+  local -r z_body_file="${6:-}"
+
+  test -n "${z_method}"        || return 1
+  test -n "${z_url}"           || return 1
+  test -n "${zSECRET_token}"   || return 1
+  test -n "${z_stderr_file}"   || return 1
+  test "${z_body_file}" != "-" || return 1
+
+  local -a z_curl_options=("-sS" --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H @- -X "${z_method}")
+  test -z "${z_body_file}" || z_curl_options+=("-d" @"${z_body_file}")
+  z_curl_options+=("-w" "\n%{http_code}")
+
+  local zSECRET_headers="Authorization: Bearer ${zSECRET_token}"
+  test -z "${z_headers}" || zSECRET_headers="${zSECRET_headers}"$'\n'"${z_headers}"
+  local z_curl_status=0
+  local zSECRET_response=""
+  zSECRET_response=$(printf '%s' "${zSECRET_headers}" | curl "${z_curl_options[@]}" "${z_url}" 2>"${z_stderr_file}") || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || { buc_log_args "Bearer request ${z_method} ${z_url} failed (curl exit ${z_curl_status}); see ${z_stderr_file}"; return 1; }
+
+  echo "${zSECRET_response}"
+}
+
 ######################################################################
 # External Functions (rbuh_*)
 
-# JSON REST helper (hardcoded headers)
+# JSON REST helper through the bearer road: JSON accept and content-type
+# headers on every request, a body or none
 # Args: method url token infix [body_file]
-# Pass "-" as body_file to read body from stdin (curl @- convention).
-# Use this for request bodies containing secrets to avoid disk persistence.
 rbuh_json() {
   zrbuh_sentinel
 
   local -r z_method="${1:-}"
   local -r z_url="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
   local -r z_infix="${4:-}"
   local -r z_body_file="${5:-}"
 
@@ -211,14 +306,15 @@ rbuh_json() {
   buc_doc_param "url"       "Request URL"
   buc_doc_param "token"     "OAuth bearer token"
   buc_doc_param "infix"     "Temp-file infix the response and code register under"
-  buc_doc_oparm "body_file" "Request body file, or - to read the body from stdin"
+  buc_doc_oparm "body_file" "Request body file, sent as JSON"
   buc_doc_shown || return 0
 
-  test -n "${z_method}" || buc_die_now "rbuh_json: method required"
-  test -n "${z_url}"    || buc_die_now "rbuh_json: url required"
-  test -n "${z_token}"  || buc_die_now "rbuh_json: token required"
-  test -n "${z_infix}"  || buc_die_now "rbuh_json: infix required"
+  test -n "${z_method}"      || buc_die_now "rbuh_json: method required"
+  test -n "${z_url}"         || buc_die_now "rbuh_json: url required"
+  test -n "${zSECRET_token}" || buc_die_now "rbuh_json: token required"
+  test -n "${z_infix}"       || buc_die_now "rbuh_json: infix required"
 
+  local -r z_headers="Accept: application/json"$'\n'"Content-Type: application/json"
   local z_curl_status=0
   local z_attempt=0
   local z_infix_u=""
@@ -236,36 +332,9 @@ rbuh_json() {
     z_code_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}"
     z_code_errs="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}.stderr"
 
-    if test -n "${z_body_file}"; then
-      curl                                              \
-          -sS                                           \
-          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-          --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
-          -X "${z_method}"                              \
-          -H "Authorization: Bearer ${z_token}"         \
-          -H "Content-Type: application/json"           \
-          -H "Accept: application/json"                 \
-          -d @"${z_body_file}"                          \
-          -o "${z_resp_file}"                           \
-          -w "%{http_code}"                             \
-          "${z_url}" > "${z_code_file}"                 \
-                    2> "${z_code_errs}"                 \
-        || z_curl_status=$?
-    else
-      curl                                              \
-          -sS                                           \
-          --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-          --max-time "${RBCC_CURL_MAX_TIME_SEC}"        \
-          -X "${z_method}"                              \
-          -H "Authorization: Bearer ${z_token}"         \
-          -H "Content-Type: application/json"           \
-          -H "Accept: application/json"                 \
-          -o "${z_resp_file}"                           \
-          -w "%{http_code}"                             \
-          "${z_url}" > "${z_code_file}"                 \
-                    2> "${z_code_errs}"                 \
-        || z_curl_status=$?
-    fi
+    zrbuh_bearer_request "${z_method}" "${z_url}" "${zSECRET_token}" "${z_headers}" \
+        "${z_resp_file}" "${z_code_file}" "${z_code_errs}" "${z_body_file}" "" \
+      || z_curl_status=$?
 
     buc_log_args 'Curl status' "${z_curl_status}"
     buc_log_pipe < "${z_code_errs}"
@@ -298,72 +367,53 @@ rbuh_json() {
   buc_log_args "HTTP ${z_method} ${z_url} returned code ${z_code}"
 }
 
-# Single HTTP request — perform curl with stderr capture, return rc.
-# Args: method url token resp_file code_file stderr_file [body_file]
-# Returns: 0 on success, curl exit rc on failure (no buc_die_now — caller decides policy).
-# Hardcoded headers: Authorization: Bearer ${token}, Accept: application/json.
-# When body_file is non-empty: adds Content-Type: application/json, sends @body_file.
-# Pass "-" as body_file to read body from stdin (curl @- convention).
-# This is the primitive — caller supplies temp file paths so per-attempt
+# Single HTTP request through the bearer road, returning curl's own status (no
+# buc_die_now — the caller decides policy). The further header is the
+# caller's whole line, Accept: application/json when empty; a body file adds
+# the JSON content type; follow makes curl follow redirects. This is the
+# primitive — the caller supplies the temp file paths, so per-attempt
 # numbering is the caller's choice.
+# Args: method url token resp_file code_file stderr_file [body_file] [header] [follow]
 rbuh_request() {
   zrbuh_sentinel
 
   local -r z_method="${1:-}"
   local -r z_url="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
   local -r z_resp_file="${4:-}"
   local -r z_code_file="${5:-}"
   local -r z_stderr_file="${6:-}"
   local -r z_body_file="${7:-}"
+  local -r z_header_arg="${8:-}"
+  local -r z_follow="${9:-}"
 
-  buc_doc_brief "Send one HTTP request through curl and return curl's own status for the caller to classify"
-  buc_doc_param "method"      "HTTP method"
+  buc_doc_brief "Send one HTTP request through the bearer road and return curl's own status for the caller to classify"
+  buc_doc_param "method"      "HTTP method; HEAD is sent as curl's head request"
   buc_doc_param "url"         "Request URL"
   buc_doc_param "token"       "OAuth bearer token"
   buc_doc_param "resp_file"   "File the response body is written to"
   buc_doc_param "code_file"   "File the HTTP code is written to"
   buc_doc_param "stderr_file" "File curl's stderr is written to"
-  buc_doc_oparm "body_file"   "Request body file, or - to read the body from stdin"
+  buc_doc_oparm "body_file"   "Request body file, sent as JSON"
+  buc_doc_oparm "header"      "One further header line, Accept: application/json when empty"
+  buc_doc_oparm "follow"      "The word follow, to follow redirects"
   buc_doc_shown || return 0
 
   test -n "${z_method}"      || buc_die_now "rbuh_request: method required"
   test -n "${z_url}"         || buc_die_now "rbuh_request: url required"
-  test -n "${z_token}"       || buc_die_now "rbuh_request: token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbuh_request: token required"
   test -n "${z_resp_file}"   || buc_die_now "rbuh_request: resp_file required"
   test -n "${z_code_file}"   || buc_die_now "rbuh_request: code_file required"
   test -n "${z_stderr_file}" || buc_die_now "rbuh_request: stderr_file required"
 
+  local z_headers="Accept: application/json"
+  test -z "${z_header_arg}" || z_headers="${z_header_arg}"
+  test -z "${z_body_file}"  || z_headers="${z_headers}"$'\n'"Content-Type: application/json"
+
   local z_curl_status=0
-  if test -n "${z_body_file}"; then
-    curl                                                     \
-        -sS                                                  \
-        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-        --max-time "${RBCC_CURL_MAX_TIME_SEC}"               \
-        -X "${z_method}"                                     \
-        -H "Authorization: Bearer ${z_token}"                \
-        -H "Content-Type: application/json"                  \
-        -H "Accept: application/json"                        \
-        -d @"${z_body_file}"                                 \
-        -o "${z_resp_file}"                                  \
-        -w "%{http_code}"                                    \
-        "${z_url}" > "${z_code_file}"                        \
-                  2> "${z_stderr_file}"                      \
-      || z_curl_status=$?
-  else
-    curl                                                     \
-        -sS                                                  \
-        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-        --max-time "${RBCC_CURL_MAX_TIME_SEC}"               \
-        -X "${z_method}"                                     \
-        -H "Authorization: Bearer ${z_token}"                \
-        -H "Accept: application/json"                        \
-        -o "${z_resp_file}"                                  \
-        -w "%{http_code}"                                    \
-        "${z_url}" > "${z_code_file}"                        \
-                  2> "${z_stderr_file}"                      \
-      || z_curl_status=$?
-  fi
+  zrbuh_bearer_request "${z_method}" "${z_url}" "${zSECRET_token}" "${z_headers}" \
+      "${z_resp_file}" "${z_code_file}" "${z_stderr_file}" "${z_body_file}" "${z_follow}" \
+    || z_curl_status=$?
 
   return "${z_curl_status}"
 }
@@ -425,7 +475,7 @@ rbuh_poll_until_ok() {
 
   local -r z_label="${1:-}"
   local -r z_url="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
   local -r z_infix="${4:-}"
 
   buc_doc_brief "Poll a GET endpoint until it answers HTTP 200, dying at the consistency timeout"
@@ -437,14 +487,14 @@ rbuh_poll_until_ok() {
 
   test -n "${z_label}" || buc_die_now "rbuh_poll_until_ok: label required"
   test -n "${z_url}"   || buc_die_now "rbuh_poll_until_ok: url required"
-  test -n "${z_token}" || buc_die_now "rbuh_poll_until_ok: token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_ok: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_ok: infix required"
 
   local z_elapsed=0
   local z_poll_infix=""
   while :; do
     z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
 
     local z_code_status=0
     local z_code
@@ -478,7 +528,7 @@ rbuh_poll_until_gone() {
 
   local -r z_label="${1:-}"
   local -r z_url="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
   local -r z_infix="${4:-}"
 
   buc_doc_brief "Poll a GET endpoint until it answers HTTP 404 the confirming streak of times in a row, dying at the consistency timeout"
@@ -490,7 +540,7 @@ rbuh_poll_until_gone() {
 
   test -n "${z_label}" || buc_die_now "rbuh_poll_until_gone: label required"
   test -n "${z_url}"   || buc_die_now "rbuh_poll_until_gone: url required"
-  test -n "${z_token}" || buc_die_now "rbuh_poll_until_gone: token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_gone: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_gone: infix required"
 
   local z_elapsed=0
@@ -498,7 +548,7 @@ rbuh_poll_until_gone() {
   local z_poll_infix=""
   while :; do
     z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
 
     local z_code_status=0
     local z_code

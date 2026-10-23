@@ -55,8 +55,8 @@ rbfva_about() {
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
@@ -67,15 +67,8 @@ rbfva_about() {
   local -r z_image_gate_stderr="${ZRBFV0_ABOUT_PREFIX}image_stderr.txt"
 
   local z_curl_status=0
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_image_gate_response}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
-    > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" "${zSECRET_token}" \
+      "${z_image_gate_response}" "${z_image_gate_status}" "${z_image_gate_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
@@ -93,15 +86,8 @@ rbfva_about() {
   local -r z_about_gate_response="${ZRBFV0_ABOUT_PREFIX}about_response.json"
   local -r z_about_gate_stderr="${ZRBFV0_ABOUT_PREFIX}about_stderr.txt"
 
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_about_gate_response}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" \
-    > "${z_about_gate_status}" 2>"${z_about_gate_stderr}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" "${zSECRET_token}" \
+      "${z_about_gate_response}" "${z_about_gate_status}" "${z_about_gate_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   # RBr_c17
   test "${z_curl_status}" -eq 0 \
@@ -115,7 +101,7 @@ rbfva_about() {
   fi
 
   # Submit about Cloud Build
-  zrbfva_about_submit "${z_hallmark}" "${z_token}" "${z_conjure_build_id}"
+  zrbfva_about_submit "${z_hallmark}" "${zSECRET_token}" "${z_conjure_build_id}"
 
   buc_success "About complete: ${z_hallmark}"
   buc_info "About artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}:${z_hallmark}"
@@ -129,9 +115,9 @@ zrbfva_about_submit() {
   zrbfv0_sentinel
 
   local -r z_hallmark="${1:-}"
-  local -r z_token="${2:-}"
+  local -r zSECRET_token="${2:-}"
   test -n "${z_hallmark}" || buc_die_now "zrbfva_about_submit: hallmark required"
-  test -n "${z_token}" || buc_die_now "zrbfva_about_submit: token required"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfva_about_submit: token required"
   local -r z_conjure_build_id="${3:-}"
 
   buc_step "Constructing about Cloud Build resource"
@@ -252,10 +238,10 @@ zrbfva_about_submit() {
 
   buc_log_args "About build JSON: ${z_about_build_file}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 
   buc_step "Submitting about Cloud Build"
-  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
     "about_build_create" "${z_about_build_file}"
   rbuh_require_ok "About build submission" "about_build_create"
 

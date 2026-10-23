@@ -69,12 +69,12 @@ rbfdm_mirror() {
 
   # Authenticate as Director
   buc_step "Authenticating as Director"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Registry preflight -- verify reliquary and base images exist before expensive operations
-  zrbfdp_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfdp_registry_preflight "${zSECRET_token}" "${z_vessel_dir}"
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -109,7 +109,7 @@ rbfdm_mirror() {
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
   # Submit combined Cloud Build (gcrane image copy + about steps)
-  zrbfdm_mirror_submit "${z_hallmark}" "${z_token}"
+  zrbfdm_mirror_submit "${z_hallmark}" "${zSECRET_token}"
 
   # Summary
   echo "" || buc_die_now "Failed to print mirror summary"
@@ -126,9 +126,9 @@ zrbfdm_mirror_submit() {
   zrbfd0_sentinel
 
   local -r z_hallmark="${1:-}"
-  local -r z_token="${2:-}"
+  local -r zSECRET_token="${2:-}"
   test -n "${z_hallmark}" || buc_die_now "zrbfdm_mirror_submit: hallmark required"
-  test -n "${z_token}" || buc_die_now "zrbfdm_mirror_submit: token required"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfdm_mirror_submit: token required"
 
   buc_step "Constructing combined mirror Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -279,10 +279,10 @@ zrbfdm_mirror_submit() {
 
   buc_log_args "Mirror build JSON: ${z_mirror_build_file}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 
   buc_step "Submitting combined mirror Cloud Build"
-  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
     "mirror_build_create" "${z_mirror_build_file}"
   rbuh_require_ok "Mirror build submission" "mirror_build_create"
 

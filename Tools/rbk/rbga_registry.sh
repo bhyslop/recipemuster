@@ -81,8 +81,8 @@ rbga_repo_create() {
   buc_step "Creating Artifact Registry repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_parent="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}"
   local z_resource="${z_parent}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
@@ -94,7 +94,7 @@ rbga_repo_create() {
   buc_step "Create ${z_format} format repository"
   rbge_lro_ok                                              \
     "Create Artifact Registry repo"                                  \
-    "${z_token}"                                                     \
+    "${zSECRET_token}"                                                     \
     "${z_create_url}"                                                \
     "${ZRBGA_INFIX_CREATE_REPO}"                                     \
     "${z_create_body}"                                               \
@@ -124,14 +124,14 @@ rbga_repo_get() {
   buc_step "Getting Artifact Registry repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_get_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"
 
   buc_step 'Get repository via REST API'
-  rbuh_json "GET" "${z_get_url}" "${z_token}" "${ZRBGA_INFIX_GET_REPO}"
+  rbuh_json "GET" "${z_get_url}" "${zSECRET_token}" "${ZRBGA_INFIX_GET_REPO}"
   rbuh_require_ok "Get repository" "${ZRBGA_INFIX_GET_REPO}" 404 "not found"
 
   local z_http_code
@@ -166,8 +166,8 @@ rbga_repo_set_iam() {
   buc_step "Setting IAM policy on repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   local z_set_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}:setIamPolicy"
@@ -181,7 +181,7 @@ rbga_repo_set_iam() {
       || buc_die_now "Failed to build set-IAM body"
   fi
 
-  rbuh_json "POST" "${z_set_url}" "${z_token}" \
+  rbuh_json "POST" "${z_set_url}" "${zSECRET_token}" \
                                   "${ZRBGA_INFIX_REPO_IAM_SET}" "${z_policy_file}"
   rbuh_require_ok "Set repository IAM policy" "${ZRBGA_INFIX_REPO_IAM_SET}"
 
@@ -211,8 +211,8 @@ rbga_repo_add_iam_role() {
   buc_step "Adding IAM role ${z_role} to ${z_member} on repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   # Extract email from member if it's in serviceAccount:email format
   local z_account_email="${z_member}"
@@ -221,7 +221,7 @@ rbga_repo_add_iam_role() {
   fi
 
   buc_log_args 'Use rbgi_add_repo_iam_role'
-  rbgi_add_repo_iam_role "${z_token}" "${RBDC_DEPOT_PROJECT_ID}" "${z_account_email}" "${z_location}" "${z_repo_name}" "${z_role}"
+  rbgi_add_repo_iam_role "${zSECRET_token}" "${RBDC_DEPOT_PROJECT_ID}" "${z_account_email}" "${z_location}" "${z_repo_name}" "${z_role}"
 
   buc_success "Added IAM role ${z_role} to ${z_member} on repository: ${z_repo_name} in ${z_location}"
 }
@@ -243,15 +243,15 @@ rbga_repo_delete() {
   buc_step "Deleting Artifact Registry repository: ${z_repo_name} in ${z_location}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   local z_resource="projects/${RBDC_DEPOT_PROJECT_ID}${RBGC_PATH_LOCATIONS}/${z_location}${RBGC_PATH_REPOSITORIES}/${z_repo_name}"
   buc_log_args "Delete Artifact Registry repo '${z_repo_name}' in ${z_location}"
   local z_delete_code
   rbuh_json "DELETE"                                                           \
     "${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_resource}"    \
-                            "${z_token}" "${ZRBGA_INFIX_DELETE_REPO}"
+                            "${zSECRET_token}" "${ZRBGA_INFIX_DELETE_REPO}"
   local z_delete_code_status=0
   z_delete_code=$(rbuh_code_capture "${ZRBGA_INFIX_DELETE_REPO}") || z_delete_code_status=$?
   test "${z_delete_code_status}" -eq 0 || z_delete_code="000"

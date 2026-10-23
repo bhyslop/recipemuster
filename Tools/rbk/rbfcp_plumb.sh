@@ -50,12 +50,12 @@ zrbfcp_plumb_core() {
   test "${z_hallmark_status}" -eq 0 || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
 
   buc_step "Authenticating as Retriever"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
     || buc_die_now "Failed to get Retriever OAuth token"
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"
-  zrbfcg_manifest_code_fetch "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt"
+  zrbfcg_manifest_code_fetch "${zSECRET_token}" "${z_vouch_pkg}" "${z_hallmark}" "${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt"
   local z_vouch_code
   z_vouch_code=$(<"${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt"
   test "${z_vouch_code}" = "200" \
@@ -82,11 +82,11 @@ zrbfcp_plumb_core() {
   buc_step "Fetching about ark from GAR"
   local -r z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
   local -r z_about_dir="${ZRBFC0_PLUMB_PREFIX}_about"
-  zrbfcg_manifest_code_fetch "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt"
+  zrbfcg_manifest_code_fetch "${zSECRET_token}" "${z_about_pkg}" "${z_hallmark}" "${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt"
   local z_about_code
   z_about_code=$(<"${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_about_head_code.txt"
   if test "${z_about_code}" = "200"; then
-    zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"
+    zrbfcg_gar_extract_artifact "${zSECRET_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_dir}"
     z_has_about=true
     # Non-fatal by grant: the ark may hold no files, and the plumb display shows what it finds
     cp "${z_about_dir}"/* "${z_extract}/" 2>"${ZRBFC0_PLUMB_PREFIX}_about_cp_stderr.txt" \
@@ -97,7 +97,7 @@ zrbfcp_plumb_core() {
   buc_step "Fetching vouch ark from GAR"
   local -r z_vouch_dir="${ZRBFC0_PLUMB_PREFIX}_vouch"
   if test "${z_vouch_code}" = "200"; then
-    zrbfcg_gar_extract_artifact "${z_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"
+    zrbfcg_gar_extract_artifact "${zSECRET_token}" "${z_vouch_pkg}" "${z_hallmark}" "${z_vouch_dir}"
     z_has_vouch=true
     # Non-fatal by grant: the ark may hold no files, and the plumb display shows what it finds
     cp "${z_vouch_dir}"/* "${z_extract}/" 2>"${ZRBFC0_PLUMB_PREFIX}_vouch_cp_stderr.txt" \
@@ -125,11 +125,11 @@ zrbfcp_plumb_core() {
     z_attest_suffix="${z_attest_suffix//\//}"
     local -r z_attest_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ATTEST}"
     local -r z_attest_tag="${z_hallmark}-${z_attest_suffix}"
-    zrbfcg_manifest_code_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" "${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt"
+    zrbfcg_manifest_code_fetch "${zSECRET_token}" "${z_attest_pkg}" "${z_attest_tag}" "${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt"
     local z_attest_code
     z_attest_code=$(<"${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_attest_head_code.txt"
     if test "${z_attest_code}" = "200"; then
-      zrbfcg_image_config_fetch "${z_token}" "${z_attest_pkg}" "${z_attest_tag}" \
+      zrbfcg_image_config_fetch "${zSECRET_token}" "${z_attest_pkg}" "${z_attest_tag}" \
         "${z_extract}/attest_config.json"
     else
       buc_info "Resolved-base labels not available (attest ${z_attest_tag} absent — pre-resolved-base build?)"

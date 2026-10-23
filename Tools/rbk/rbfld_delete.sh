@@ -56,8 +56,8 @@ rbfld_jettison() {
   buc_step "Authenticating as Director"
 
   # Get OAuth token using Director credentials
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
 
   buc_require "Will jettison: ${z_locator}" "yes"
 
@@ -70,7 +70,7 @@ rbfld_jettison() {
 
   rbuh_request "DELETE"                                                  \
                     "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
-                    "${z_token}"                                              \
+                    "${zSECRET_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
     || buc_die_now "DELETE request failed — see ${z_stderr_file}"
 
@@ -106,8 +106,8 @@ rbfld_abjure() {
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
 
   # Enumerate packages under rbi_hm/<hallmark>/ via GAR REST API.
   # Each immediate child of the subtree is one ark (image, vouch, pouch,
@@ -119,7 +119,7 @@ rbfld_abjure() {
   local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
   local -r z_list_infix="rbfl_abjure_list"
 
-  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_json "GET" "${z_list_url}" "${zSECRET_token}" "${z_list_infix}"
   rbuh_require_ok "List packages for abjure" "${z_list_infix}"
 
   # GAR returns package names URL-encoded in the resource name (slashes as
@@ -169,7 +169,7 @@ rbfld_abjure() {
   test "${#z_packages[@]}" -gt 0 || buc_die_now "No packages loaded for abjure of ${z_subtree}"
 
   buc_step "Dispatching cloud delete for ${z_count} package(s) under ${z_subtree}"
-  zrbldd_cloud_delete_dispatch "${z_token}" "Abjure" "${ZRBFL0_DELETE_PREFIX}" "${z_packages[@]}"
+  zrbldd_cloud_delete_dispatch "${zSECRET_token}" "Abjure" "${ZRBFL0_DELETE_PREFIX}" "${z_packages[*]}"
 
   echo "" || buc_die_now
   buc_success "Hallmark abjured: ${z_hallmark} (${z_count} packages)"

@@ -68,7 +68,7 @@ zrbgb_sentinel() {
 zrbgb_list_bucket_objects_capture() {
   zrbgb_sentinel
 
-  local z_token="${1}"
+  local zSECRET_token="${1}"
   local z_bucket_name="${2}"
   local -r z_prefix="${3:-}"
 
@@ -99,7 +99,7 @@ zrbgb_list_bucket_objects_capture() {
 
     buc_log_args 'Use a unique infix per page to avoid clobbering files'
     local z_infix="${ZRBGB_INFIX_LIST}${z_first}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_infix}"
 
     local z_code
     z_code=$(rbuh_code_capture "${z_infix}") || return 1
@@ -118,13 +118,13 @@ zrbgb_list_bucket_objects_capture() {
 zrbgb_empty_gcs_bucket() {
   zrbgb_sentinel
 
-  local z_token="${1}"
+  local zSECRET_token="${1}"
   local z_bucket_name="${2}"
 
   buc_log_args 'Get list of objects to delete'
   local z_objects
   local z_objects_status=0
-  z_objects=$(zrbgb_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || z_objects_status=$?
+  z_objects=$(zrbgb_list_bucket_objects_capture "${zSECRET_token}" "${z_bucket_name}") || z_objects_status=$?
   test "${z_objects_status}" -eq 0 || {
     buc_log_args 'No objects found or bucket not accessible'
     return 0
@@ -156,7 +156,7 @@ zrbgb_empty_gcs_bucket() {
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
     rbuh_json "DELETE" "${z_delete_url}" \
-                              "${z_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
+                              "${zSECRET_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
     local z_delete_code_status=0
     z_delete_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_delete_code_status=$?
     test "${z_delete_code_status}" -eq 0 || z_delete_code=""
@@ -184,8 +184,8 @@ rbgb_bucket_create() {
   buc_step "Creating Cloud Storage bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Create bucket request JSON'
   local z_bucket_req="${BURD_TEMP_DIR}/rbgb_bucket_create_req.json"
@@ -200,7 +200,7 @@ rbgb_bucket_create() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${zSECRET_token}" \
                                   "${ZRBGB_INFIX_CREATE}" "${z_bucket_req}"
   z_code=$(rbuh_code_capture "${ZRBGB_INFIX_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
   local z_err_status=0
@@ -228,11 +228,11 @@ rbgb_bucket_get() {
   buc_step "Getting Cloud Storage bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Get bucket via REST API'
-  rbuh_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${z_token}" "${ZRBGB_INFIX_GET}"
+  rbuh_json "GET" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}" "${zSECRET_token}" "${ZRBGB_INFIX_GET}"
   rbuh_require_ok "Get bucket" "${ZRBGB_INFIX_GET}" 404 "not found"
 
   local z_http_code
@@ -259,8 +259,8 @@ rbgb_bucket_set_iam() {
   buc_step "Setting IAM policy on bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Set IAM policy'
   local z_iam_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/iam"
@@ -272,7 +272,7 @@ rbgb_bucket_set_iam() {
     printf '%s\n' "${z_policy_json}" > "${z_policy_file}" || buc_die_now "Failed to write ${z_policy_file}"
   fi
 
-  rbuh_json "PUT" "${z_iam_url}" "${z_token}" \
+  rbuh_json "PUT" "${z_iam_url}" "${zSECRET_token}" \
                                   "${ZRBGB_INFIX_IAM_SET}" "${z_policy_file}"
   rbuh_require_ok "Set bucket IAM policy" "${ZRBGB_INFIX_IAM_SET}"
 
@@ -299,11 +299,11 @@ rbgb_bucket_add_iam_role() {
   buc_step "Adding IAM role ${z_role} to ${z_member} on bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Use rbgi_add_bucket_iam_role'
-  rbgi_add_bucket_iam_role "${z_token}" "${z_bucket_name}" "${z_member}" "${z_role}"
+  rbgi_add_bucket_iam_role "${zSECRET_token}" "${z_bucket_name}" "${z_member}" "${z_role}"
 
   buc_success "Added IAM role ${z_role} to ${z_member} on bucket: ${z_bucket_name}"
 }
@@ -325,8 +325,8 @@ rbgb_bucket_set_lifecycle() {
   buc_step "Setting lifecycle policy on bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_log_args 'Set lifecycle policy'
   local z_lifecycle_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
@@ -340,7 +340,7 @@ rbgb_bucket_set_lifecycle() {
       || buc_die_now "Failed to build lifecycle body"
   fi
 
-  rbuh_json "PATCH" "${z_lifecycle_url}" "${z_token}" \
+  rbuh_json "PATCH" "${z_lifecycle_url}" "${zSECRET_token}" \
                                   "${ZRBGB_INFIX_LIFECYCLE_SET}" "${z_lifecycle_file}"
   rbuh_require_ok "Set bucket lifecycle policy" "${ZRBGB_INFIX_LIFECYCLE_SET}"
 
@@ -363,12 +363,12 @@ rbgb_bucket_delete() {
   buc_step "Deleting Cloud Storage bucket: ${z_bucket_name}"
 
   buc_log_args 'Get OAuth token from admin'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   if test "${z_force}" = "true"; then
     buc_log_args 'Empty bucket before deletion'
-    zrbgb_empty_gcs_bucket "${z_token}" "${z_bucket_name}"
+    zrbgb_empty_gcs_bucket "${zSECRET_token}" "${z_bucket_name}"
   fi
 
   buc_log_args 'Delete the bucket'
@@ -376,7 +376,7 @@ rbgb_bucket_delete() {
   local z_err
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
   rbuh_json "DELETE" "${z_delete_url}" \
-                      "${z_token}" "${ZRBGB_INFIX_DELETE}"
+                      "${zSECRET_token}" "${ZRBGB_INFIX_DELETE}"
   local z_code_status=0
   z_code=$(rbuh_code_capture "${ZRBGB_INFIX_DELETE}") || z_code_status=$?
   test "${z_code_status}" -eq 0 || z_code=""
@@ -394,7 +394,7 @@ rbgb_bucket_delete() {
 rbgb_bucket_ensure() {
   zrbgb_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_project_id="${2:-}"
   local -r z_bucket_name="${3:-}"
   local -r z_location="${4:-}"
@@ -406,7 +406,7 @@ rbgb_bucket_ensure() {
   buc_doc_param "location"    "Bucket location (e.g. a GCP region)"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${zSECRET_token}"       || buc_die_now "Token required"
   test -n "${z_project_id}"  || buc_die_now "Project id required"
   test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
   test -n "${z_location}"    || buc_die_now "Location required"
@@ -425,7 +425,7 @@ rbgb_bucket_ensure() {
 
   buc_log_args 'POST create; tolerate 409 as idempotent already-present (contrast rbgb_bucket_create, which is pristine 409-fatal)'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b?project=${z_project_id}"
-  rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGB_INFIX_ENSURE}" "${z_req}"
+  rbuh_json "POST" "${z_url}" "${zSECRET_token}" "${ZRBGB_INFIX_ENSURE}" "${z_req}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGB_INFIX_ENSURE}") || buc_die_now "Bad bucket ensure HTTP code"
@@ -443,7 +443,7 @@ rbgb_bucket_ensure() {
 rbgb_managed_folder_ensure() {
   zrbgb_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket_name="${2:-}"
   local -r z_folder="${3:-}"
 
@@ -453,7 +453,7 @@ rbgb_managed_folder_ensure() {
   buc_doc_param "folder"      "Managed folder name, a slash-terminated prefix (e.g. 'depot-project-id/')"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${zSECRET_token}"       || buc_die_now "Token required"
   test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
   test -n "${z_folder}"      || buc_die_now "Managed folder name required"
 
@@ -464,7 +464,7 @@ rbgb_managed_folder_ensure() {
     || buc_die_now "Failed to build managed folder request JSON"
 
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders"
-  rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGB_INFIX_MF_CREATE}" "${z_req}"
+  rbuh_json "POST" "${z_url}" "${zSECRET_token}" "${ZRBGB_INFIX_MF_CREATE}" "${z_req}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGB_INFIX_MF_CREATE}") || buc_die_now "Bad managed folder create HTTP code"
@@ -482,7 +482,7 @@ rbgb_managed_folder_ensure() {
 rbgb_managed_folder_purge() {
   zrbgb_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket_name="${2:-}"
   local -r z_folder="${3:-}"
 
@@ -492,7 +492,7 @@ rbgb_managed_folder_purge() {
   buc_doc_param "folder"      "Managed folder name to purge (slash-terminated prefix)"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${zSECRET_token}"       || buc_die_now "Token required"
   test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
   test -n "${z_folder}"      || buc_die_now "Managed folder name required"
 
@@ -501,7 +501,7 @@ rbgb_managed_folder_purge() {
   buc_log_args 'A managed folder deletes only when empty — clear the objects under its prefix first'
   local z_objects
   local z_objects_status=0
-  z_objects=$(zrbgb_list_bucket_objects_capture "${z_token}" "${z_bucket_name}" "${z_folder}") || z_objects_status=$?
+  z_objects=$(zrbgb_list_bucket_objects_capture "${zSECRET_token}" "${z_bucket_name}" "${z_folder}") || z_objects_status=$?
   test "${z_objects_status}" -eq 0 || z_objects=""
 
   if test -n "${z_objects}"; then
@@ -524,7 +524,7 @@ rbgb_managed_folder_purge() {
       test "${z_object_enc_status}" -eq 0 || z_object_enc=""
       test -n "${z_object_enc}" || { buc_warn "Failed to encode object name: ${z_object}"; continue; }
       rbuh_json "DELETE" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}" \
-                                "${z_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
+                                "${zSECRET_token}" "${ZRBGB_INFIX_OBJECT_DELETE}"
       local z_obj_code_status=0
       z_obj_code=$(rbuh_code_capture "${ZRBGB_INFIX_OBJECT_DELETE}") || z_obj_code_status=$?
       test "${z_obj_code_status}" -eq 0 || z_obj_code=""
@@ -539,7 +539,7 @@ rbgb_managed_folder_purge() {
   local z_folder_enc
   z_folder_enc=$(rbuh_urlencode_capture "${z_folder}") || buc_die_now "Failed to encode managed folder name"
   rbuh_json "DELETE" "${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders/${z_folder_enc}" \
-                            "${z_token}" "${ZRBGB_INFIX_MF_DELETE}"
+                            "${zSECRET_token}" "${ZRBGB_INFIX_MF_DELETE}"
 
   local z_del_code
   local z_del_code_status=0
@@ -563,10 +563,10 @@ rbgb_managed_folder_purge() {
 rbgb_managed_folders_capture() {
   zrbgb_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket_name="${2:-}"
 
-  test -n "${z_token}"       || return 1
+  test -n "${zSECRET_token}"       || return 1
   test -n "${z_bucket_name}" || return 1
 
   local -r z_list_url_base="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/managedFolders"
@@ -585,7 +585,7 @@ rbgb_managed_folders_capture() {
     fi
 
     z_infix="${ZRBGB_INFIX_MF_LIST}${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_infix}"
 
     z_code=$(rbuh_code_capture "${z_infix}") || return 1
     test "${z_code}" = "200" || return 1
@@ -601,7 +601,7 @@ rbgb_managed_folders_capture() {
 rbgb_managed_folder_add_iam_role() {
   zrbgb_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket_name="${2:-}"
   local -r z_folder="${3:-}"
   local -r z_member="${4:-}"
@@ -615,7 +615,7 @@ rbgb_managed_folder_add_iam_role() {
   buc_doc_param "role"        "Role to grant (e.g. roles/storage.objectAdmin)"
   buc_doc_shown || return 0
 
-  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${zSECRET_token}"       || buc_die_now "Token required"
   test -n "${z_bucket_name}" || buc_die_now "Bucket name required"
   test -n "${z_folder}"      || buc_die_now "Managed folder required"
   test -n "${z_member}"      || buc_die_now "Member required"
@@ -626,7 +626,7 @@ rbgb_managed_folder_add_iam_role() {
   buc_log_args 'Normalize to a bare account email — the rbgi primitive re-prefixes serviceAccount:'
   local -r z_account_email="${z_member#serviceAccount:}"
 
-  rbgi_add_managed_folder_iam_role "${z_token}" "${z_bucket_name}" "${z_folder}" "${z_account_email}" "${z_role}"
+  rbgi_add_managed_folder_iam_role "${zSECRET_token}" "${z_bucket_name}" "${z_folder}" "${z_account_email}" "${z_role}"
 
   buc_success "Added managed-folder IAM role ${z_role} to ${z_member} on ${z_folder}"
 }

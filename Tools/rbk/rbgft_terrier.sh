@@ -100,13 +100,13 @@ zrbgft_muniment_name_capture() {
 rbgft_engross() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
   local -r z_mantle="${4:-}"
   local -r z_subject="${5:-}"
 
-  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${zSECRET_token}"    || buc_die_now "Token required"
   test -n "${z_bucket}"   || buc_die_now "Bucket required"
   test -n "${z_depot}"    || buc_die_now "Depot project id required"
   test -n "${z_mantle}"   || buc_die_now "Mantle required"
@@ -127,7 +127,7 @@ rbgft_engross() {
 
   buc_log_args 'Media upload with ifGenerationMatch=0 — create only if absent; concurrent creators race cleanly'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_UPLOAD}/b/${z_bucket}/o?uploadType=media&name=${z_name_enc}&ifGenerationMatch=0"
-  rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_ENGROSS}" "${ZRBGFT_MUNIMENT_BODY}"
+  rbuh_json "POST" "${z_url}" "${zSECRET_token}" "${ZRBGFT_INFIX_ENGROSS}" "${ZRBGFT_MUNIMENT_BODY}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die_now "Bad engross HTTP code"
@@ -149,13 +149,13 @@ rbgft_engross() {
 rbgft_expunge() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
   local -r z_mantle="${4:-}"
   local -r z_subject="${5:-}"
 
-  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${zSECRET_token}"    || buc_die_now "Token required"
   test -n "${z_bucket}"   || buc_die_now "Bucket required"
   test -n "${z_depot}"    || buc_die_now "Depot project id required"
   test -n "${z_mantle}"   || buc_die_now "Mantle required"
@@ -170,7 +170,7 @@ rbgft_expunge() {
   z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die_now "Failed to encode object name"
 
   local -r z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}"
-  rbuh_json "DELETE" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_EXPUNGE}"
+  rbuh_json "DELETE" "${z_url}" "${zSECRET_token}" "${ZRBGFT_INFIX_EXPUNGE}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die_now "Bad expunge HTTP code"
@@ -187,22 +187,25 @@ rbgft_expunge() {
 
 # Shared list-and-fetch core for the muniment reads. Pages a GCS object listing
 # (prefix empty = the whole terrier, manor-wide; "<depot>/" = one polity slice),
-# fetches each object's body, and echoes one tab-separated
-# "<depot>\t<mantle>\t<subject>" line per muniment — mantle and subject from the
+# fetches each object's body, and writes one tab-separated
+# "<depot>\t<mantle>\t<subject>" line per muniment to <out_file> — mantle and subject from the
 # rbgft_ content fields, the depot column from the object key's first segment.
 # A read-after-list 404 (an object expunged between the listing and its fetch)
 # is a benign vanish, skipped, not fatal. Any other list/fetch non-OK, or a body
 # missing the rbgft_ fields, rejects in the peruse band (BUBC_band_peruse).
 # <list_infix> is suffixed with the page number; <get_infix> names the
-# per-object fetch capture.
+# per-object fetch capture; <out_file> is truncated, then takes the lines.
 zrbgft_list_fetch_emit() {
   zrbgft_sentinel
 
-  local -r z_token="${1}"
+  local -r zSECRET_token="${1}"
   local -r z_bucket="${2}"
   local -r z_prefix="${3}"   # may be empty — manor-wide read of the whole terrier
   local -r z_list_infix="${4}"
   local -r z_get_infix="${5}"
+  local -r z_out="${6:-}"
+  test -n "${z_out}" || buc_die_now "Muniment output file required"
+  : > "${z_out}" || buc_die_now "Failed to open muniment output: ${z_out}"
 
   local z_prefix_param=""
   if test -n "${z_prefix}"; then
@@ -227,7 +230,7 @@ zrbgft_list_fetch_emit() {
     test -z "${z_query}" || z_url="${z_url}?${z_query}"
 
     local z_list_infix_page="${z_list_infix}${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_list_infix_page}"
 
     local z_list_code
     z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad muniment list HTTP code"
@@ -257,7 +260,7 @@ zrbgft_list_fetch_emit() {
       local z_name_enc
       z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode muniment name"
       rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
-        "${z_token}" "${z_get_infix}"
+        "${zSECRET_token}" "${z_get_infix}"
 
       local z_get_code
       z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "Bad muniment fetch HTTP code"
@@ -272,7 +275,7 @@ zrbgft_list_fetch_emit() {
       esac
 
       local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
-      jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
+      jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" >> "${z_out}" \
         || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
     done
 
@@ -281,51 +284,55 @@ zrbgft_list_fetch_emit() {
   done
 }
 
-# rbgft_peruse <token> <bucket> <depot_project_id>
+# rbgft_peruse <token> <bucket> <depot_project_id> <out_file>
 # Read one polity's muniments — no precondition. Lists under the polity folder
-# prefix and echoes the shared lister's tab-separated
+# prefix and writes to out_file the shared lister's tab-separated
 # "<depot>\t<mantle>\t<subject>" lines (the depot column constant here, by
 # construction the polity asked for).
 rbgft_peruse() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
+  local -r z_out="${4:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
   test -n "${z_depot}"  || buc_die_now "Depot project id required"
+  test -n "${z_out}"    || buc_die_now "Muniment output file required"
 
   buc_step "Peruse muniments for polity ${z_depot}"
 
-  zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "${z_depot}/" \
-    "${ZRBGFT_INFIX_PERUSE_LIST}" "${ZRBGFT_INFIX_PERUSE_GET}"
+  zrbgft_list_fetch_emit "${zSECRET_token}" "${z_bucket}" "${z_depot}/" \
+    "${ZRBGFT_INFIX_PERUSE_LIST}" "${ZRBGFT_INFIX_PERUSE_GET}" "${z_out}"
 }
 
-# rbgft_peruse_manor <token> <bucket>
+# rbgft_peruse_manor <token> <bucket> <out_file>
 # The manor-wide read — every muniment in the terrier across all polities, no
-# prefix filter (read is bucket-level). Echoes the same tab-separated
+# prefix filter (read is bucket-level). Writes to out_file the same tab-separated
 # "<depot>\t<mantle>\t<subject>" line per muniment as the per-polity peruse.
 rbgft_peruse_manor() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
+  local -r z_out="${3:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
+  test -n "${z_out}"    || buc_die_now "Muniment output file required"
 
   buc_step "Peruse muniments manor-wide"
 
-  zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "" \
-    "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}"
+  zrbgft_list_fetch_emit "${zSECRET_token}" "${z_bucket}" "" \
+    "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}" "${z_out}"
 }
 
-# rbgft_escheat_survey <token> <bucket>
+# rbgft_escheat_survey <token> <bucket> <out_file>
 # The classifying hygiene read: list every object in the terrier bucket
-# and judge each against the current muniment contract, emitting one
-# tab-separated "<verdict>\t<detail>\t<name>" line per object — verdict "sound"
+# and judge each against the current muniment contract, writing one
+# tab-separated "<verdict>\t<detail>\t<name>" line per object to out_file — verdict "sound"
 # with the depot key segment as detail, or verdict "stray" with the deficit word
 # (key-shape | mantle | body-json | body-fields | mismatch). Deliberately reads
 # at the raw object grain, beneath the muniment sub-operations: its subjects are
@@ -337,13 +344,16 @@ rbgft_peruse_manor() {
 rbgft_escheat_survey() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
+  local -r z_out="${3:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
+  test -n "${z_out}"    || buc_die_now "Survey output file required"
 
   buc_step "Survey the terrier for escheat (classify every object)"
+  : > "${z_out}" || buc_die_now "Failed to open survey output: ${z_out}"
 
   z_rbgft_escheat_run=$((z_rbgft_escheat_run + 1))
   local -r z_names_file="${ZRBGFT_PREFIX}escheat_${z_rbgft_escheat_run}_names.txt"
@@ -369,7 +379,7 @@ rbgft_escheat_survey() {
     fi
 
     z_list_infix_page="${ZRBGFT_INFIX_ESCHEAT_LIST}${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_list_infix_page}"
 
     z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad escheat list HTTP code"
     case "${z_list_code}" in
@@ -415,7 +425,7 @@ rbgft_escheat_survey() {
 
     case "${z_name}" in
       */*/*) : ;;
-      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
          continue ;;
     esac
     z_depot="${z_name%%/*}"
@@ -423,19 +433,19 @@ rbgft_escheat_survey() {
     z_mantle="${z_rest%%/*}"
     z_subject="${z_rest#*/}"
     if test -z "${z_depot}" || test -z "${z_mantle}" || test -z "${z_subject}"; then
-      printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      printf 'stray\tkey-shape\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
     case "${z_mantle}" in
       governor|director|retriever) : ;;
-      *) printf 'stray\tmantle\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      *) printf 'stray\tmantle\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
          continue ;;
     esac
 
     z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode object name"
     rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
-      "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_GET}"
+      "${zSECRET_token}" "${ZRBGFT_INFIX_ESCHEAT_GET}"
 
     z_get_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_GET}") || buc_die_now "Bad escheat fetch HTTP code"
     case "${z_get_code}" in
@@ -451,24 +461,24 @@ rbgft_escheat_survey() {
     z_get_file="${ZRBUH_PREFIX}${ZRBGFT_INFIX_ESCHEAT_GET}${ZRBUH_POSTFIX_JSON}"
     jq -r '[(.rbgft_mantle? // ""), (.rbgft_subject? // "")] | @tsv' \
       "${z_get_file}" > "${z_fields_file}" 2>"${z_jq_err_file}" \
-      || { printf 'stray\tbody-json\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"; continue; }
+      || { printf 'stray\tbody-json\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"; continue; }
 
     z_body_mantle=""
     z_body_subject=""
     IFS=$'\t' read -r z_body_mantle z_body_subject < "${z_fields_file}" \
-      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"; continue; }
+      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"; continue; }
 
     if test -z "${z_body_mantle}" || test -z "${z_body_subject}"; then
-      printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      printf 'stray\tbody-fields\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
     if test "${z_body_mantle}" != "${z_mantle}" || test "${z_body_subject}" != "${z_subject}"; then
-      printf 'stray\tmismatch\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      printf 'stray\tmismatch\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
-    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" || buc_die_now "Failed to emit survey line"
+    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
   done
 }
 
@@ -481,11 +491,11 @@ rbgft_escheat_survey() {
 rbgft_escheat_expunge_raw() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_name="${3:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
   test -n "${z_name}"   || buc_die_now "Object name required"
 
@@ -495,7 +505,7 @@ rbgft_escheat_expunge_raw() {
   z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode object name"
 
   rbuh_json "DELETE" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}" \
-    "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}"
+    "${zSECRET_token}" "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die_now "Bad escheat expunge HTTP code"

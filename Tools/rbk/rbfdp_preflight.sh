@@ -35,9 +35,9 @@ set -euo pipefail
 zrbfdp_preflight_reliquary() {
   zrbfd0_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_vessel_dir="${2:-}"
-  test -n "${z_token}"      || buc_die_now "zrbfdp_preflight_reliquary: token required"
+  test -n "${zSECRET_token}"      || buc_die_now "zrbfdp_preflight_reliquary: token required"
   test -n "${z_vessel_dir}" || buc_die_now "zrbfdp_preflight_reliquary: vessel_dir required"
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
@@ -71,15 +71,8 @@ zrbfdp_preflight_reliquary() {
     z_stderr_file="${ZRBFD0_PREFLIGHT_PREFIX}reliquary_${z_tool}_stderr.txt"
 
     local z_curl_status=0
-    curl --head -sS \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-      -w "%{http_code}" \
-      -o "${z_response_file}" \
-      "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" \
-      > "${z_status_file}" 2>"${z_stderr_file}" \
+    rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg}/manifests/${z_tag}" "${zSECRET_token}" \
+        "${z_response_file}" "${z_status_file}" "${z_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
       || buc_die_now "HEAD request failed for reliquary tool: ${z_pkg}:${z_tag} (curl exit ${z_curl_status}) — see ${z_stderr_file}"
@@ -125,13 +118,13 @@ zrbfdp_preflight_reliquary() {
 zrbfdp_registry_preflight() {
   zrbfd0_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_vessel_dir="${2:-}"
-  test -n "${z_token}"      || buc_die_now "zrbfdp_registry_preflight: token required"
+  test -n "${zSECRET_token}"      || buc_die_now "zrbfdp_registry_preflight: token required"
   test -n "${z_vessel_dir}" || buc_die_now "zrbfdp_registry_preflight: vessel_dir required"
 
   # --- Layer 1: Reliquary tool images ---
-  zrbfdp_preflight_reliquary "${z_token}" "${z_vessel_dir}"
+  zrbfdp_preflight_reliquary "${zSECRET_token}" "${z_vessel_dir}"
 
   # --- Layer 2: Base images — anchor check ---
 
@@ -210,15 +203,8 @@ zrbfdp_registry_preflight() {
     z_stderr_file="${ZRBFD0_PREFLIGHT_PREFIX}base_${z_n}_stderr.txt"
 
     local z_curl_status=0
-    curl --head -sS \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Authorization: Bearer ${z_token}" \
-      -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-      -w "%{http_code}" \
-      -o "${z_response_file}" \
-      "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" \
-      > "${z_status_file}" 2>"${z_stderr_file}" \
+    rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_tag}" "${zSECRET_token}" \
+        "${z_response_file}" "${z_status_file}" "${z_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
       || buc_die_now "HEAD request failed for base image: ${z_anchor} (curl exit ${z_curl_status}) — see ${z_stderr_file}"

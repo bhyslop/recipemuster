@@ -34,13 +34,13 @@ rbldl_divine() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating Lodes under ${RBGL_LODES_ROOT}/"
   local z_list_out
-  z_list_out=$(zrbfcg_list_anchors_capture "${z_token}" "${RBGL_LODES_ROOT}") \
+  z_list_out=$(zrbfcg_list_anchors_capture "${zSECRET_token}" "${RBGL_LODES_ROOT}") \
     || buc_die_now "Failed to enumerate Lodes under ${RBGL_LODES_ROOT}/"
 
   if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
@@ -100,7 +100,7 @@ rbldl_divine() {
     z_pkg_encoded="${z_pkg//\//%2F}"
     z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
     z_enum_infix="rbld_divine_enum_${z_idx}"
-    rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_enum_infix}"
+    rbuh_json "GET" "${z_tags_url}" "${zSECRET_token}" "${z_enum_infix}"
     rbuh_require_ok "List tags for Lode ${z_touch}" "${z_enum_infix}"
     z_resp_file="${ZRBUH_PREFIX}${z_enum_infix}${ZRBUH_POSTFIX_JSON}"
 
@@ -157,8 +157,8 @@ rbldl_augur() {
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
@@ -169,7 +169,7 @@ rbldl_augur() {
   buc_step "Fetching member tags for Lode ${z_pkg}"
   local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_tags_infix="rbld_augur_tags"
-  rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
+  rbuh_json "GET" "${z_tags_url}" "${zSECRET_token}" "${z_tags_infix}"
   # A banished or never-captured Lode answers 404 here — the user named a
   # touchmark absent from the registry, knowable only after this round-trip.
   # Map 404 to the vacant band (as summon/plumb map their own 404s); any other
@@ -210,7 +210,7 @@ rbldl_augur() {
   buc_step "Decoding provenance envelope (:${RBGC_LODE_TAG_VOUCH})"
   local -r z_vouch_dir="${ZRBLD0_AUGUR_PREFIX}vouch"
   rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear vouch scratch dir: ${z_vouch_dir}"
-  zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+  zrbfcg_gar_extract_artifact "${zSECRET_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
     "No :${RBGC_LODE_TAG_VOUCH} envelope at ${z_pkg} — not a vouched Lode (capture incomplete or a legacy artifact)"
   local -r z_vouch_json="${z_vouch_dir}/vouch.json"
   test -f "${z_vouch_json}" \
@@ -280,8 +280,8 @@ rbldl_banish() {
   test -n "${z_touchmark}" || buc_die_now "Touchmark parameter required"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   local -r z_pkg="${RBGL_LODES_ROOT}/${z_touchmark}"
@@ -291,7 +291,7 @@ rbldl_banish() {
   buc_step "Verifying Lode present: ${z_pkg}"
   local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1"
   local -r z_probe_infix="rbld_banish_probe"
-  rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_probe_infix}"
+  rbuh_json "GET" "${z_tags_url}" "${zSECRET_token}" "${z_probe_infix}"
   rbuh_require_ok "Probe Lode ${z_touchmark}" "${z_probe_infix}"
 
   local z_tag_count=""
@@ -307,7 +307,7 @@ rbldl_banish() {
   # 404 is the only success signal) — the build's success IS the delete outcome,
   # closing the host trust-200 LRO gap; see rbgjl06.
   buc_step "Dispatching cloud delete for Lode package: ${z_pkg}"
-  zrbldd_cloud_delete_dispatch "${z_token}" "Banish" "${ZRBLD0_BANISH_PREFIX}" "${z_pkg}"
+  zrbldd_cloud_delete_dispatch "${zSECRET_token}" "Banish" "${ZRBLD0_BANISH_PREFIX}" "${z_pkg}"
 
   echo "" || buc_die_now
   buc_success "Lode banished: ${z_touchmark}"

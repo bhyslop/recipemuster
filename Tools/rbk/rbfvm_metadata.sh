@@ -45,8 +45,8 @@ zrbfvm_graft_metadata_submit() {
   test -n "${z_hallmark}" || buc_die_now "Hallmark parameter required"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Constructing combined about+vouch Cloud Build resource"
@@ -62,15 +62,8 @@ zrbfvm_graft_metadata_submit() {
   local -r z_image_gate_stderr="${ZRBFV0_GRAFT_META_PREFIX}image_stderr.txt"
 
   local z_curl_status=0
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_image_gate_response}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" \
-    > "${z_image_gate_status}" 2>"${z_image_gate_stderr}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_IMAGE}/manifests/${z_hallmark}" "${zSECRET_token}" \
+      "${z_image_gate_response}" "${z_image_gate_status}" "${z_image_gate_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for image artifact (curl exit ${z_curl_status}) — see ${z_image_gate_stderr}"
@@ -254,10 +247,10 @@ zrbfvm_graft_metadata_submit() {
 
   buc_log_args "Combined about+vouch build JSON: ${z_build_file}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 
   buc_step "Submitting combined about+vouch Cloud Build"
-  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
     "graft_meta_build_create" "${z_build_file}"
   rbuh_require_ok "Combined about+vouch build submission" "graft_meta_build_create"
 

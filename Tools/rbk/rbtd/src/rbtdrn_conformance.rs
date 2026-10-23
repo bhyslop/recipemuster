@@ -255,11 +255,17 @@ fn zrbtchn_render(hits: &[zrbtchn_Hit]) -> String {
 //     ZRBTCHN_CURL_TEST_WINDOW lines of the terminator (the classify/test;
 //     reappearance is checked on RAW lines because the var rides inside the
 //     quoted test operand `"${z_curl_status}"`);
-//   - the one non-leading form admitted is the secret pipe into curl, where a
-//     secret must reach curl's stdin and the response stay in memory, so curl
-//     cannot lead: `«name»=$(printf ... | curl ...) || z_curl_status=$?`, whole
-//     on one line, the same byte-exact capture and the same window test
-//     (operator ruling 261022);
+//   - two non-leading forms are admitted, each where a secret must stay in
+//     memory so curl cannot lead, and each gated on the zSECRET segment: the
+//     secret pipe into curl, where a secret reaches curl's stdin,
+//     `«name»=$(printf '%s' "${zSECRET_«x»}" | curl ...) || z_curl_status=$?`,
+//     its printf operand a zSECRET-named expansion read on the RAW line, since
+//     the strip blanks it (operator rulings 261022, 261023); and the secret
+//     capture, where a request carrying no secret is answered with one,
+//     `zSECRET_«name»=$(curl ...) || z_curl_status=$?`, the assigned name
+//     wearing the segment (operator ruling 261023). Each stands whole on one
+//     line with the same byte-exact capture and the same window test; a pipe
+//     whose operand, or a capture whose name, wears no segment is misplaced;
 //   - a curl token anywhere else on a line is a misplaced-curl violation —
 //     sole carve-out `command -v curl`, the presence probe whose `||` hands
 //     command -v's exit onward, never curl's;
@@ -377,20 +383,30 @@ fn zrbtchn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtchn_CurlHit> {
             i += 1;
             continue;
         }
-        // The secret pipe into curl: one assignment of a substitution whose body
-        // is `printf` piped into a leading `curl` and nothing further, ending in
-        // the byte-exact capture, then held to the same window test.
-        let secret_pipe = stripped
+        // The two secret admissions: one assignment of a substitution ending in
+        // the byte-exact capture, then held to the same window test. The secret
+        // pipe's body is `printf '%s'` of a zSECRET-named expansion piped into a
+        // leading `curl` and nothing further; the secret capture's body is a
+        // leading `curl` and nothing further, assigned to a zSECRET-named name.
+        let wears_secret = |name: &str| name.starts_with("zSECRET_") || name.contains("_zSECRET_");
+        let assignment = stripped
             .trim()
             .split_once("=$(")
             .filter(|(name, _)| !name.is_empty() && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'))
-            .and_then(|(_, rest)| rest.strip_suffix(ZRBTCHN_CURL_CAPTURE))
-            .and_then(|body| body.trim_end().strip_suffix(')'))
-            .and_then(|body| body.split_once('|'))
-            .is_some_and(|(left, right)| {
-                left.trim() == "printf" && !right.contains(['|', ';', '&', '(', ')']) && zrbtchn_curl_leads(right)
-            });
-        if secret_pipe {
+            .and_then(|(name, rest)| rest.strip_suffix(ZRBTCHN_CURL_CAPTURE).map(|body| (name, body)))
+            .and_then(|(name, body)| body.trim_end().strip_suffix(')').map(|body| (name, body)));
+        let secret_operand = raw
+            .split_once("=$(")
+            .and_then(|(_, rest)| rest.trim_start().strip_prefix("printf '%s' \"${"))
+            .and_then(|rest| rest.split_once("}\""))
+            .is_some_and(|(name, after)| wears_secret(name) && after.trim_start().starts_with('|'));
+        let secret_pipe = assignment.and_then(|(_, body)| body.split_once('|')).is_some_and(|(left, right)| {
+            left.trim() == "printf" && secret_operand && !right.contains(['|', ';', '&', '(', ')']) && zrbtchn_curl_leads(right)
+        });
+        let secret_capture = assignment.is_some_and(|(name, body)| {
+            wears_secret(name) && !body.contains(['|', ';', '&', '(', ')']) && zrbtchn_curl_leads(body)
+        });
+        if secret_pipe || secret_capture {
             let window_end = lines.len().min(i + 1 + ZRBTCHN_CURL_TEST_WINDOW);
             let tested = lines[(i + 1)..window_end]
                 .iter()
@@ -447,12 +463,17 @@ fn zrbtchn_curl_render(hits: &[zrbtchn_CurlHit]) -> String {
 
 /// The canonical form clears: reset, leading curl through continuations,
 /// byte-exact capture, test within the window — plus the sanctioned
-/// non-leading shapes (the `command -v curl` probe, quoted message text,
-/// comment lines).
+/// non-leading shapes (the secret pipe of a zSECRET-named operand, the secret
+/// capture into a zSECRET-named local, the `command -v curl` probe, quoted
+/// message text, comment lines).
 fn rbtchn_self_curl_canon_clears(_dir: &Path) -> rbtcee_Verdict {
     let content = concat!(
         "z_curl_status=0\n",
         "zSECRET_response=$(printf '%s' \"${zSECRET_body}\" | curl -sS -d @- \"${z_url}\") || z_curl_status=$?\n",
+        "test \"${z_curl_status}\" -eq 0 || return 1\n",
+        "z_code=$(printf '%s' \"${zSECRET_headers}\" | curl -sS -H @- -o \"${z_file}\" -w '%{http_code}' \"${z_url}\") || z_curl_status=$?\n",
+        "test \"${z_curl_status}\" -eq 0 || return 1\n",
+        "zSECRET_grant=$(curl -sS -X POST --data-urlencode \"scope=openid\" \"${z_url}\") || z_curl_status=$?\n",
         "test \"${z_curl_status}\" -eq 0 || return 1\n",
         "curl -sS --max-time 5 \\\n",
         "  -o \"${z_file}\" \\\n",
@@ -476,8 +497,10 @@ fn rbtchn_self_curl_canon_clears(_dir: &Path) -> rbtcee_Verdict {
 
 /// Each deviant shape is caught with its kind: the bare buc_die_now chain, the
 /// capture-free invocation, the non-leading invocations (capture-assignment,
-/// pipe, a secret pipe without the capture and one piped on past curl), and
-/// the captured-but-never-tested window miss, leading and secret-piped alike.
+/// pipe, a secret pipe without the capture and one piped on past curl, curl
+/// captured into an unmarked name, and a secret pipe whose printf operand
+/// wears no segment), and the
+/// captured-but-never-tested window miss, leading and secret-piped alike.
 fn rbtchn_self_curl_catches_deviants(_dir: &Path) -> rbtcee_Verdict {
     let filler = "buc_log_args unrelated\n".repeat(ZRBTCHN_CURL_TEST_WINDOW);
     let content = format!(
@@ -489,6 +512,8 @@ fn rbtchn_self_curl_catches_deviants(_dir: &Path) -> rbtcee_Verdict {
             "echo \"${{z_body}}\" | curl -s -d @- \"${{z_url}}\"\n",
             "zSECRET_r=$(printf '%s' \"${{zSECRET_b}}\" | curl -s -d @- \"${{z_url}}\") || buc_die_now \"post failed\"\n",
             "zSECRET_r=$(printf '%s' \"${{zSECRET_b}}\" | curl -s -d @- \"${{z_url}}\" | jq .) || z_curl_status=$?\n",
+            "z_json=$(curl -s \"${{z_url}}\") || z_curl_status=$?\n",
+            "zSECRET_r=$(printf '%s' \"${{z_b}}\" | curl -s -d @- \"${{z_url}}\") || z_curl_status=$?\n",
             "curl -s \"${{z_url}}\" || z_curl_status=$?\n",
             "{}",
             "zSECRET_r=$(printf '%s' \"${{zSECRET_b}}\" | curl -s -d @- \"${{z_url}}\") || z_curl_status=$?\n"
@@ -504,6 +529,8 @@ fn rbtchn_self_curl_catches_deviants(_dir: &Path) -> rbtcee_Verdict {
         "misplaced",  // curl fed by an echo pipe
         "misplaced",  // secret pipe without the capture
         "misplaced",  // secret pipe piped on past curl
+        "misplaced",  // curl captured into an unmarked name
+        "misplaced",  // secret pipe whose printf operand wears no segment
         "untested",   // leading curl, status never read
         "untested",   // secret pipe, status never read
     ];

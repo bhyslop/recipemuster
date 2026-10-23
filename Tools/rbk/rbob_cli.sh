@@ -131,6 +131,7 @@ zrbob_furnish() {
   source "${z_rbk_kit_dir}/rbgl_layout.sh" || buc_die_now "Failed to source rbgl_layout.sh"
   source "${z_rbk_kit_dir}/rbgd_depot.sh" || buc_die_now "Failed to source rbgd_depot.sh"
   source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
   source "${z_rbk_kit_dir}/rbob_bottle.sh" || buc_die_now "Failed to source rbob_bottle.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
@@ -218,6 +219,7 @@ zrbob_furnish() {
   zrbgl_kindle
   zrbgd_kindle
   zrbgo_kindle
+  zrbuh_kindle
   zrba_kindle
   zrbob_kindle
 

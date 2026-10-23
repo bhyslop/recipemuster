@@ -90,7 +90,7 @@ rbge_lro_ok() {
   zrbge_sentinel
 
   local -r z_label="${1:-}"
-  local -r z_token="${2:-}"
+  local -r zSECRET_token="${2:-}"
   local -r z_post_url="${3:-}"
   local -r z_infix="${4:-}"
   local -r z_body="${5:-}"
@@ -114,7 +114,7 @@ rbge_lro_ok() {
   buc_doc_shown || return 0
 
   test -n "${z_label}"     || buc_die_now "rbge_lro_ok: label required"
-  test -n "${z_token}"     || buc_die_now "rbge_lro_ok: token required"
+  test -n "${zSECRET_token}"     || buc_die_now "rbge_lro_ok: token required"
   test -n "${z_post_url}"  || buc_die_now "rbge_lro_ok: post_url required"
   test -n "${z_infix}"     || buc_die_now "rbge_lro_ok: infix required"
   test -n "${z_name_jq}"   || buc_die_now "rbge_lro_ok: name_jq required"
@@ -123,7 +123,7 @@ rbge_lro_ok() {
   case "${z_timeout}"       in ''|*[!0123456789]*) buc_die_now "rbge_lro_ok: timeout must be decimal seconds, got: ${z_timeout}" ;; esac
 
   buc_log_args '1) POST the request'
-  rbuh_json "POST" "${z_post_url}" "${z_token}" "${z_infix}" "${z_body}"
+  rbuh_json "POST" "${z_post_url}" "${zSECRET_token}" "${z_infix}" "${z_body}"
   rbuh_require_ok "${z_label}" "${z_infix}"
 
   local z_done=""
@@ -178,7 +178,7 @@ rbge_lro_ok() {
     z_elapsed=$((z_elapsed + 10#${z_poll_interval}))
 
     z_poll_infix="${z_infix}-poll-${z_elapsed}s"
-    rbuh_json "GET" "${z_poll_url}" "${z_token}" "${z_poll_infix}"
+    rbuh_json "GET" "${z_poll_url}" "${zSECRET_token}" "${z_poll_infix}"
 
     local z_code=""
     local z_code_status=0
@@ -215,7 +215,7 @@ rbge_api_enable() {
 
   local -r z_api_service="${1:-}"
   local -r z_project_id="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
 
   buc_doc_brief "Enable a Google Cloud API in a project, idempotently, and confirm it reads enabled"
   buc_doc_param "api_service" "API service name, without its googleapis.com suffix"
@@ -225,7 +225,7 @@ rbge_api_enable() {
 
   test -n "${z_api_service}" || buc_die_now "rbge_api_enable: API service name required"
   test -n "${z_project_id}" || buc_die_now "rbge_api_enable: project ID required"
-  test -n "${z_token}" || buc_die_now "rbge_api_enable: access token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbge_api_enable: access token required"
 
   buc_log_args "Enabling API ${z_api_service} in project ${z_project_id}"
 
@@ -241,7 +241,7 @@ rbge_api_enable() {
     z_infix="api-enable-${z_api_service}-a${z_attempt}"
 
     # Attempt to enable the API
-    rbuh_json "POST" "${z_enable_url}" "${z_token}" "${z_infix}" ""
+    rbuh_json "POST" "${z_enable_url}" "${zSECRET_token}" "${z_infix}" ""
 
     local z_code
     z_code=$(rbuh_code_capture "${z_infix}") || buc_die_now "rbge_api_enable: failed to read HTTP code"
@@ -292,7 +292,7 @@ rbge_api_enable() {
         z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
         z_final_infix="${z_infix}-poll-${z_elapsed}s"
-        rbuh_json "GET" "${z_poll_root}/${z_operation_name}" "${z_token}" "${z_final_infix}"
+        rbuh_json "GET" "${z_poll_root}/${z_operation_name}" "${zSECRET_token}" "${z_final_infix}"
 
         local z_poll_code_status=0
         local z_poll_code
@@ -333,7 +333,7 @@ rbge_api_enable() {
   local -r z_verify_infix="api-verify-${z_api_service}"
   local -r z_verify_url="https://serviceusage.googleapis.com/v1/projects/${z_project_id}/services/${z_api_service}.googleapis.com"
 
-  rbuh_json "GET" "${z_verify_url}" "${z_token}" "${z_verify_infix}" ""
+  rbuh_json "GET" "${z_verify_url}" "${zSECRET_token}" "${z_verify_infix}" ""
   rbuh_require_ok "API Enable Verify ${z_api_service}" "${z_verify_infix}"
 
   local z_state

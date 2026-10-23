@@ -1521,11 +1521,12 @@ fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
 
 // ── Redon-tick cases ────────────────────────────────────────
 //
-// Drives zrbfcb_redon_tick (rbfcb_host.sh) — the build poll's mid-flight
-// re-don — at its lapsed-sederunt branch, deterministically and credless:
-// XDG_RUNTIME_DIR is pointed at an empty scratch dir so the sederunt cache
-// resolves to nothing, the don's sederunt read misses before any network
-// touch, and the tick must die with the open-a-sederunt advisory. The furnish
+// Drives the build poll's mid-flight re-don — the don, then zrbfcb_redon_tick
+// (rbfcb_host.sh) judging its status — at the lapsed-sederunt branch,
+// deterministically and credless: XDG_RUNTIME_DIR is pointed at an empty
+// scratch dir so the sederunt cache resolves to nothing, the don's sederunt
+// read misses before any network touch, and the tick must die with the
+// open-a-sederunt advisory. The furnish
 // ceremony mirrors rba_cli's zrba_furnish plus the don's rbrd/rbdc arm —
 // committed regime files only; BURD_TEMP_DIR is supplied directly since no
 // dispatch runs here. (The positive — the tick firing on cadence in a real
@@ -1566,6 +1567,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          source '{rbk_p}/rbgc_constants.sh'\n\
          source '{rbk_p}/rbdc_derived.sh'\n\
          source '{rbk_p}/rbgo_oauth.sh'\n\
+         source '{rbk_p}/rbuh_http.sh'\n\
          source '{rbk_p}/rba_auth.sh'\n\
          source '{rbk_p}/rbfcb_host.sh'\n\
          zbuv_kindle\n\
@@ -1580,12 +1582,15 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          zrbgc_kindle\n\
          zrbdc_kindle\n\
          zrbgo_kindle\n\
+         zrbuh_kindle\n\
          zrba_kindle\n\
          rbcc_source_active_rbrf_flint \"${{RBRR_ACTIVE_FOEDUS:-}}\"\n\
          source \"${{RBCC_rbrw_file}}\"\n\
          zrbrf_kindle\n\
          zrbrw_kindle\n\
-         zrbfcb_redon_tick 'LapseProbe' 'poll 1'\n",
+         z_don_rc=0\n\
+         zSECRET_probe=$(rba_don_capture \"${{RBCC_mantle_director}}\") || z_don_rc=$?\n\
+         zrbfcb_redon_tick 'LapseProbe' 'poll 1' \"${{z_don_rc}}\"\n",
         moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
     );
 

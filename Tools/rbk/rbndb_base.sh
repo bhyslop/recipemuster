@@ -84,20 +84,19 @@ zrbndb_sentinel() {
 zrbndb_docker_login() {
   zrbndb_sentinel
 
-  local -r z_token="${1}"
-  local -r z_stderr_file="${2}"
+  local -r zSECRET_token="${1:-}"
+  local -r z_stderr_file="${2:-}"
 
   local z_attempt=0
   local z_rc=0
+  local z_login_out=""
 
   while :; do
     z_attempt=$((z_attempt + 1))
 
     z_rc=0
-    printf '%s' "${z_token}" \
-      | docker login -u oauth2accesstoken --password-stdin "${ZRBNDB_REGISTRY_HOST}" \
-          > /dev/null 2>"${z_stderr_file}" \
-      || z_rc=$?
+    z_login_out=$(printf '%s' "${zSECRET_token}" | docker login -u oauth2accesstoken --password-stdin "${ZRBNDB_REGISTRY_HOST}" 2>"${z_stderr_file}") || z_rc=$?
+    buc_log_args "docker login attempt ${z_attempt}: login status ${z_rc}${z_login_out:+ (${z_login_out})}"
 
     test "${z_rc}" -ne 0 || break
 
@@ -191,8 +190,8 @@ rbndb_inscribe() {
   # reference must be a committed state.
   bug_require_clean_tree_creed "${RBCC_creed_clean_inscribe}"
 
-  local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die_now "rbndb_inscribe: bearer token required"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "rbndb_inscribe: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_INSCRIBE_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_INSCRIBE_PREFIX}manifest_stderr.txt"
@@ -207,7 +206,7 @@ rbndb_inscribe() {
   buc_step "Inscribe RBRD tripwire image to GAR"
   buc_log_args "Target: ${ZRBNDB_TRIPWIRE_IMAGE}"
 
-  zrbndb_docker_login "${z_token}" "${z_login_stderr}"
+  zrbndb_docker_login "${zSECRET_token}" "${z_login_stderr}"
 
   buc_log_args "Pre-push existence guard via docker manifest inspect"
   if docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" > /dev/null 2>"${z_manifest_stderr}"; then
@@ -259,8 +258,8 @@ rbndb_check() {
   buc_doc_param "bearer_token" "OAuth access token with GAR read (any role: Payor, Director, Retriever)"
   buc_doc_shown || return 0
 
-  local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die_now "rbndb_check: bearer token required"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "rbndb_check: bearer token required"
 
   local -r z_login_stderr="${ZRBNDB_CHECK_PREFIX}login_stderr.txt"
   local -r z_manifest_stderr="${ZRBNDB_CHECK_PREFIX}manifest_stderr.txt"
@@ -274,7 +273,7 @@ rbndb_check() {
 
   buc_log_args "Tripwire check against: ${ZRBNDB_TRIPWIRE_IMAGE}"
 
-  zrbndb_docker_login "${z_token}" "${z_login_stderr}"
+  zrbndb_docker_login "${zSECRET_token}" "${z_login_stderr}"
 
   buc_log_args "Existence check via docker manifest inspect"
   local -r z_manifest_status_file="${ZRBNDB_CHECK_PREFIX}manifest_status.txt"

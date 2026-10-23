@@ -83,7 +83,7 @@ zrbgv_http_get_with_5xx_retry() {
 
   local -r z_label="${1}"
   local -r z_url="${2}"
-  local -r z_token="${3}"
+  local -r zSECRET_token="${3}"
   local -r z_resp_file="${4}"
   local -r z_code_file="${5}"
   local -r z_stderr_file="${6}"
@@ -97,7 +97,7 @@ zrbgv_http_get_with_5xx_retry() {
     buc_log_args "${z_label}: HTTP GET attempt ${z_attempt}/${ZRBGV_HTTP_RETRY_ATTEMPTS}"
 
     z_curl_status=0
-    rbuh_request "GET" "${z_url}" "${z_token}"          \
+    rbuh_request "GET" "${z_url}" "${zSECRET_token}"          \
                       "${z_resp_file}" "${z_code_file}" "${z_stderr_file}" \
       || z_curl_status=$?
 
@@ -138,8 +138,8 @@ zrbgv_http_get_with_5xx_retry() {
 zrbgv_mantle_ar_call_capture() {
   zrbgv_sentinel
 
-  local -r z_token="${1}"
-  test -n "${z_token}" || { buc_log_args "zrbgv_mantle_ar_call_capture: mantle token required"; return 1; }
+  local -r zSECRET_token="${1}"
+  test -n "${zSECRET_token}" || { buc_log_args "zrbgv_mantle_ar_call_capture: mantle token required"; return 1; }
 
   test -n "${RBDC_DEPOT_PROJECT_ID:-}" || { buc_log_args "RBDC_DEPOT_PROJECT_ID is not set"; return 1; }
   test -n "${RBRD_GCP_REGION:-}"       || { buc_log_args "RBRD_GCP_REGION is not set"; return 1; }
@@ -150,7 +150,7 @@ zrbgv_mantle_ar_call_capture() {
   zrbgv_http_get_with_5xx_retry        \
     "Mantle AR repositories.list"      \
     "${z_url}"                         \
-    "${z_token}"                       \
+    "${zSECRET_token}"                       \
     "${ZRBGV_AR_RESP_FILE}"            \
     "${ZRBGV_AR_CODE_FILE}"            \
     "${ZRBGV_AR_STDERR_FILE}"

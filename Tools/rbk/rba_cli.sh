@@ -52,10 +52,10 @@ rba_novate_sederunt() {
 
   rba_novate
 
-  local z_token
-  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
-  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
-  buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#z_token} chars)"
+  local zSECRET_token
+  zSECRET_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
+  test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
+  buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#zSECRET_token} chars)"
 }
 
 # Espy the sederunt — the read-only probe: report whether a
@@ -128,6 +128,7 @@ zrba_furnish() {
   source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
   source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
 
   zbuv_kindle
@@ -143,6 +144,7 @@ zrba_furnish() {
   zrbcc_kindle
   zrbgc_kindle
   zrbgo_kindle
+  zrbuh_kindle
   zrba_kindle
 }
 

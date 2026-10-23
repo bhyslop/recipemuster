@@ -35,13 +35,13 @@ rbfvb_batch_vouch() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
   local z_list_out
-  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
     || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   # Load-then-iterate. A synthetic sentinel element appended to the array
@@ -136,7 +136,7 @@ rbfvb_batch_vouch() {
     z_about_extract="${BURD_TEMP_DIR}/rbfv_batch_about_${z_hallmark}"
     z_about_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT}"
 
-    zrbfcg_gar_extract_artifact "${z_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}" \
+    zrbfcg_gar_extract_artifact "${zSECRET_token}" "${z_about_pkg}" "${z_hallmark}" "${z_about_extract}" \
       "Failed to extract about ark for ${z_hallmark} (expected at ${z_about_pkg}:${z_hallmark})"
 
     z_build_info="${z_about_extract}/build_info.json"
