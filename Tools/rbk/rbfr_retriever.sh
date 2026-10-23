@@ -86,7 +86,7 @@ rbfr_summon() {
   # Check if image ark exists (tag = hallmark)
   local z_image_status_file="${ZRBFR_TEMP_PREFIX}summon_image_status.txt"
   local z_image_response_file="${ZRBFR_TEMP_PREFIX}summon_image_response.json"
-  local z_image_stderr_file="${ZRBFR_TEMP_PREFIX}summon_image_stderr.txt"
+  local -r z_image_stderr_file="${ZRBFR_TEMP_PREFIX}summon_image_stderr.txt"
 
   local z_curl_status=0
   rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" "${z_token}" \
@@ -108,7 +108,7 @@ rbfr_summon() {
   # Check if about ark exists
   local z_about_status_file="${ZRBFR_TEMP_PREFIX}summon_about_status.txt"
   local z_about_response_file="${ZRBFR_TEMP_PREFIX}summon_about_response.json"
-  local z_about_stderr_file="${ZRBFR_TEMP_PREFIX}summon_about_stderr.txt"
+  local -r z_about_stderr_file="${ZRBFR_TEMP_PREFIX}summon_about_stderr.txt"
 
   rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" "${z_token}" \
       "${z_about_response_file}" "${z_about_status_file}" "${z_about_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
@@ -129,7 +129,7 @@ rbfr_summon() {
   # Check if vouch ark exists
   local z_vouch_status_file="${ZRBFR_TEMP_PREFIX}summon_vouch_status.txt"
   local z_vouch_response_file="${ZRBFR_TEMP_PREFIX}summon_vouch_response.json"
-  local z_vouch_stderr_file="${ZRBFR_TEMP_PREFIX}summon_vouch_stderr.txt"
+  local -r z_vouch_stderr_file="${ZRBFR_TEMP_PREFIX}summon_vouch_stderr.txt"
 
   rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" "${z_token}" \
       "${z_vouch_response_file}" "${z_vouch_status_file}" "${z_vouch_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
