@@ -2070,7 +2070,7 @@ zrbgp_escheat_liveness() {
         z_state=$(rbuh_json_field_capture "${z_infix}" '.state // "UNKNOWN"') || z_state_status=$?
         if test "${z_state_status}" -ne 0; then
           test "${z_state}" = "${RBUH_refusal_absent}" \
-            || buc_die_now "Escheat liveness: failed to read ${z_depot}'s state — a liveness verdict is never guessed"
+            || buc_die_now "Depot liveness: failed to read ${z_depot}'s state — a liveness verdict is never guessed"
           z_state="UNKNOWN"
         fi
         if test "${z_state}" != "${RBGC_STATE_ACTIVE}"; then
