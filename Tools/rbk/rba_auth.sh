@@ -67,10 +67,9 @@ zrba_kindle() {
 
   # Per-invocation scratch for the leg curls — BURD_TEMP_DIR (process lifetime),
   # never the sederunt cache, which must outlive one invocation (see rba_avow).
-  readonly ZRBA_FED_DEVICE_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_device.json"
-  readonly ZRBA_FED_TOKEN_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_token.json"
-  readonly ZRBA_FED_STS_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_sts.json"
-  readonly ZRBA_FED_DON_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_don.json"
+  # Every leg response carries a secret (the device code, the id_token, the
+  # federated token, the mantle token), so each is held in memory and read
+  # through the secret pipe; only the legs' stderr lands here.
   readonly ZRBA_FED_CURL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_curl_stderr.txt"
   readonly ZRBA_FED_JQ_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_jq_stderr.txt"
   readonly ZRBA_FED_OPENSSL_STDERR_FILE="${BURD_TEMP_DIR}/rba_fed_openssl_stderr.txt"
@@ -79,36 +78,23 @@ zrba_kindle() {
   # here rather than string-interpolated at the call site.
   readonly ZRBA_FED_DON_BODY_FILE="${BURD_TEMP_DIR}/rba_fed_don_body.json"
 
-  # Non-secret scalar fields parsed out of the leg responses land in these temp
-  # files: jq/date write a file and the
-  # value is read back with $(<file). The id, federated, and mantle tokens are
-  # never among them — jq emits each straight to its function's stdout. The only
-  # token-bearing temp files are the STS and don curl responses above (the
-  # federated and mantle tokens respectively): both are per-invocation
-  # BURD_TEMP_DIR scratch, never the persistent sederunt cache, which holds the
-  # federated token alone — the mantle token is never cached anywhere.
+  # Clock and cache-field reads land in these temp files: jq/date write a file
+  # and the value is read back with $(<file). No token is among them, and no
+  # leg response stands in a temp file at all; the persistent sederunt cache
+  # holds the federated token alone — the mantle token is never cached anywhere.
   readonly ZRBA_FED_SEDERUNT_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_sederunt_expiry.txt"
   readonly ZRBA_FED_SEDERUNT_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_sederunt_now.txt"
   readonly ZRBA_FED_AVOW_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_avow_now.txt"
   readonly ZRBA_FED_RUNWAY_EXPIRY_FILE="${BURD_TEMP_DIR}/rba_fed_runway_expiry.txt"
   readonly ZRBA_FED_RUNWAY_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_runway_now.txt"
-  readonly ZRBA_FED_DEVICE_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_device_code.txt"
-  readonly ZRBA_FED_USER_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_user_code.txt"
-  readonly ZRBA_FED_VERIFY_URI_FILE="${BURD_TEMP_DIR}/rba_fed_verify_uri.txt"
-  readonly ZRBA_FED_INTERVAL_FILE="${BURD_TEMP_DIR}/rba_fed_interval.txt"
-  readonly ZRBA_FED_POLL_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_poll_error.txt"
-  readonly ZRBA_FED_EXPIRES_IN_FILE="${BURD_TEMP_DIR}/rba_fed_expires_in.txt"
-  readonly ZRBA_FED_DON_CODE_FILE="${BURD_TEMP_DIR}/rba_fed_don_code.txt"
-  readonly ZRBA_FED_DON_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_don_error.txt"
 
   # Programmatic Leg-1 (RFC 7523 mint) scratch. The JWT header/payload and their
   # base64url encodings, the signing input, the raw+encoded signature, and the
   # assembled assertion are all NON-secret (public JWT parts) — the one durable
   # secret, the asserter private key, is read only by openssl via its regime PATH
   # and never lands here, and the client secret is read only by curl via its file
-  # reference. PROG_TOKEN_RESPONSE bears the minted id_token: like the STS and don
-  # responses it is per-invocation BURD_TEMP_DIR scratch, never the sederunt cache,
-  # and jq emits the id_token from it straight to stdout (never a shell var).
+  # reference. The grant's response bears the minted id_token and is held in
+  # memory like every other leg response.
   readonly ZRBA_FED_PROG_NOW_FILE="${BURD_TEMP_DIR}/rba_fed_prog_now.txt"
   readonly ZRBA_FED_PROG_HEADER_FILE="${BURD_TEMP_DIR}/rba_fed_prog_header.json"
   readonly ZRBA_FED_PROG_PAYLOAD_FILE="${BURD_TEMP_DIR}/rba_fed_prog_payload.json"
@@ -118,8 +104,6 @@ zrba_kindle() {
   readonly ZRBA_FED_PROG_SIG_RAW_FILE="${BURD_TEMP_DIR}/rba_fed_prog_sig_raw.bin"
   readonly ZRBA_FED_PROG_SIG_B64_FILE="${BURD_TEMP_DIR}/rba_fed_prog_sig_b64.txt"
   readonly ZRBA_FED_PROG_ASSERTION_FILE="${BURD_TEMP_DIR}/rba_fed_prog_assertion.jwt"
-  readonly ZRBA_FED_PROG_TOKEN_RESPONSE_FILE="${BURD_TEMP_DIR}/rba_fed_prog_token.json"
-  readonly ZRBA_FED_PROG_ERROR_FILE="${BURD_TEMP_DIR}/rba_fed_prog_error.txt"
 
   readonly ZRBA_KINDLED=1
 }
@@ -278,12 +262,14 @@ zrba_sederunt_runway_capture() {
 }
 
 # Atomically write the sederunt cache (federated token + expiry epoch + subject).
-# The dir is 0700 (owner-only traversal); chmod 600 + temp-then-rename keeps the
-# file owner-only and never partially visible under its stable name.
+# The record is composed in memory, jq reading the token from its environment,
+# and written under umask 077 into a temp name beside the cache, then chmod 600
+# and renamed, so the file is owner-only and never partially visible under its
+# stable name; the dir is 0700 (owner-only traversal).
 zrba_sederunt_write() {
   zrba_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_expiry_epoch="${2:-}"
   local -r z_subject="${3:-}"
 
@@ -291,35 +277,33 @@ zrba_sederunt_write() {
   z_path=$(zrba_sederunt_path_capture) || buc_die_now "Failed to resolve the ${RBCC_noun_sederunt} cache path"
   local -r z_tmp="${z_path}.tmp.${$}"
 
-  jq -n --arg t "${z_token}" --argjson e "${z_expiry_epoch}" --arg s "${z_subject}" \
-     '{federated_token: $t, expiry_epoch: $e, subject: $s}' \
-     > "${z_tmp}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
+  local -r z_record_filter='{federated_token: env.zSECRET_federated, expiry_epoch: $e, subject: $s}'
+  local zSECRET_record=""
+  zSECRET_record=$(zSECRET_federated="${zSECRET_token}" jq -n --argjson e "${z_expiry_epoch}" --arg s "${z_subject}" "${z_record_filter}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") \
     || buc_die_now "Failed to compose the ${RBCC_noun_sederunt} cache — see ${ZRBA_FED_JQ_STDERR_FILE}"
+  (
+    umask 077 || buc_die_now "Failed to set umask for the ${RBCC_noun_sederunt} cache"
+    printf '%s\n' "${zSECRET_record}" > "${z_tmp}" || buc_die_now "Failed to write the ${RBCC_noun_sederunt} cache: ${z_tmp}"
+  ) || buc_die_now "Failed to write the ${RBCC_noun_sederunt} cache"
   chmod 600 "${z_tmp}" || buc_die_now "Failed to restrict the ${RBCC_noun_sederunt} cache: ${z_tmp}"
   mv -f "${z_tmp}" "${z_path}" || buc_die_now "Failed to place the ${RBCC_noun_sederunt} cache: ${z_path}"
 }
 
 # Best-effort: decode the federated subject (oid, else sub) from the IdP id_token
 # payload. Informational only — cached toward the muniment trail, never load-bearing.
+# jq takes the payload segment, restores base64url to padded base64, decodes and
+# selects, so the id_token is read through the secret pipe alone.
 zrba_idtoken_subject_capture() {
   zrba_sentinel
 
-  local z_payload="${1#*.}"
-  z_payload="${z_payload%%.*}"
-  test -n "${z_payload}" || return 1
-  z_payload="${z_payload//-/+}"
-  z_payload="${z_payload//_/\/}"
-  case $(( ${#z_payload} % 4 )) in
-    2) z_payload="${z_payload}==" ;;
-    3) z_payload="${z_payload}="  ;;
-  esac
+  local -r zSECRET_idtoken="${1:-}"
+  test -n "${zSECRET_idtoken}" || return 1
 
-  # Decode and select in one pipeline (capture-final): the decoded id_token
-  # payload exists only in the pipe, never in a var or temp file. pipefail makes
-  # a base64 or jq failure fail the pipeline, which the caller tolerates.
-  printf '%s' "${z_payload}" \
-    | openssl enc -base64 -d -A 2>"${ZRBA_FED_OPENSSL_STDERR_FILE}" \
-    | jq -r '.oid // .sub // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}"
+  local -r z_subject_filter='split(".")[1] // "" | gsub("-";"+") | gsub("_";"/") | . + ("=" * ((4 - (length % 4)) % 4)) | @base64d | fromjson | .oid // .sub // empty'
+  local z_subject=""
+  z_subject=$(printf '%s' "${zSECRET_idtoken}" | jq -Rr "${z_subject_filter}" 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+
+  echo "${z_subject}"
 }
 
 # Best-effort clipboard copy of the device-flow user code at avowal-prompt
@@ -355,36 +339,24 @@ zrba_leg1_idtoken_capture() {
   zrbrf_sentinel
   zrbcc_sentinel
 
+  local -ra z_device_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}" --data-urlencode "scope=${RBRF_IDP_SCOPE}")
   local z_curl_status=0
-  curl -sS -X POST "${RBRF_IDP_DEVICE_ENDPOINT}"         \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time        "${RBCC_CURL_MAX_TIME_SEC}"        \
-    -H "Content-Type: application/x-www-form-urlencoded" \
-    --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}"   \
-    --data-urlencode "scope=${RBRF_IDP_SCOPE}"           \
-    > "${ZRBA_FED_DEVICE_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  local zSECRET_device=""
+  zSECRET_device=$(curl "${z_device_options[@]}" "${RBRF_IDP_DEVICE_ENDPOINT}" 2>"${ZRBA_FED_CURL_STDERR_FILE}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || { buc_log_args "Device-code request failed (curl ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
-  jq -r '.device_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
-     > "${ZRBA_FED_DEVICE_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_device_code
-  z_device_code=$(<"${ZRBA_FED_DEVICE_CODE_FILE}") || return 1
-  jq -r '.user_code // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
-     > "${ZRBA_FED_USER_CODE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_user_code
-  z_user_code=$(<"${ZRBA_FED_USER_CODE_FILE}") || return 1
-  jq -r '.verification_uri // .verification_url // empty' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
-     > "${ZRBA_FED_VERIFY_URI_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_verification_uri
-  z_verification_uri=$(<"${ZRBA_FED_VERIFY_URI_FILE}") || return 1
-  jq -r '.interval // 5' "${ZRBA_FED_DEVICE_RESPONSE_FILE}" \
-     > "${ZRBA_FED_INTERVAL_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_interval
-  z_interval=$(<"${ZRBA_FED_INTERVAL_FILE}") || return 1
-  test -n "${z_device_code}"      || return 1
-  test -n "${z_user_code}"        || return 1
-  test -n "${z_verification_uri}" || return 1
+  local zSECRET_device_code=""
+  zSECRET_device_code=$(printf '%s' "${zSECRET_device}" | jq -r '.device_code // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  local z_user_code=""
+  z_user_code=$(printf '%s' "${zSECRET_device}" | jq -r '.user_code // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  local z_verification_uri=""
+  z_verification_uri=$(printf '%s' "${zSECRET_device}" | jq -r '.verification_uri // .verification_url // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  local z_interval=""
+  z_interval=$(printf '%s' "${zSECRET_device}" | jq -r '.interval // 5' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
+  test -n "${zSECRET_device_code}" || return 1
+  test -n "${z_user_code}"         || return 1
+  test -n "${z_verification_uri}"  || return 1
   case "${z_interval}" in ''|*[!0123456789]*) buc_log_args "Device-flow interval is not a decimal number: ${z_interval}"; return 1 ;; esac
 
   # Surface the prompt as a yawp on the shared progress stream — console, log,
@@ -402,38 +374,36 @@ zrba_leg1_idtoken_capture() {
   zrba_user_code_clipboard "${z_user_code}"
   buc_log_args "Avowal prompt emitted; polling for sign-in"
 
+  # Each poll sends the device code urlencoded from curl's stdin through the
+  # secret pipe and holds the response in memory; an id_token ends the polling.
+  local -ra z_poll_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=${ZRBA_DEVICE_GRANT_TYPE}" --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}" --data-urlencode "device_code@-")
   local z_elapsed=0
   local z_err=""
+  local z_err_status=0
+  local z_jq_status=0
+  local zSECRET_poll=""
+  local zSECRET_idtoken=""
   while test "${z_elapsed}" -lt "${ZRBA_DEVICE_POLL_MAX_SEC}"; do
     sleep "${z_interval}" || return 1
     z_elapsed=$(( z_elapsed + 10#${z_interval} ))
 
     z_curl_status=0
-    curl -sS -X POST "${RBRF_IDP_TOKEN_ENDPOINT}"            \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"   \
-      --max-time        "${RBCC_CURL_MAX_TIME_SEC}"          \
-      -H "Content-Type: application/x-www-form-urlencoded"   \
-      --data-urlencode "grant_type=${ZRBA_DEVICE_GRANT_TYPE}" \
-      --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}"     \
-      --data-urlencode "device_code=${z_device_code}"        \
-      > "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+    zSECRET_poll=$(printf '%s' "${zSECRET_device_code}" | curl "${z_poll_options[@]}" "${RBRF_IDP_TOKEN_ENDPOINT}" 2>"${ZRBA_FED_CURL_STDERR_FILE}") || z_curl_status=$?
     if test "${z_curl_status}" -ne 0; then
       rbgo_curl_status_is_transient_predicate "${z_curl_status}" \
         || { buc_log_args "Device-flow poll failed (curl ${z_curl_status})"; return 1; }
       continue
     fi
 
-    # id_token present → jq emits it (secret) straight to stdout and we finish,
-    # with no token landing in a var or temp file. select(length > 0) yields a
-    # non-zero jq exit for an absent/empty token, keeping it on the polling path.
-    if jq -er '.id_token // empty | select(length > 0)' \
-         "${ZRBA_FED_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}"; then
-      return 0
-    fi
+    # select(length > 0) yields a non-zero jq exit for an absent/empty token,
+    # keeping it on the polling path.
+    z_jq_status=0
+    zSECRET_idtoken=$(printf '%s' "${zSECRET_poll}" | jq -er '.id_token // empty | select(length > 0)' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_jq_status=$?
+    test "${z_jq_status}" -ne 0 || break
 
-    jq -r '.error // empty' "${ZRBA_FED_TOKEN_RESPONSE_FILE}" \
-       > "${ZRBA_FED_POLL_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || : > "${ZRBA_FED_POLL_ERROR_FILE}"
-    z_err=$(<"${ZRBA_FED_POLL_ERROR_FILE}") || return 1
+    z_err_status=0
+    z_err=$(printf '%s' "${zSECRET_poll}" | jq -r '.error // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_err_status=$?
+    test "${z_err_status}" -eq 0 || z_err=""
     case "${z_err}" in
       authorization_pending) ;;
       slow_down)             z_interval=$(( 10#${z_interval} + 5 )) ;;
@@ -441,8 +411,10 @@ zrba_leg1_idtoken_capture() {
     esac
   done
 
-  buc_log_args "Device-flow timed out after ${ZRBA_DEVICE_POLL_MAX_SEC}s without approval"
-  return 1
+  test -n "${zSECRET_idtoken}" \
+    || { buc_log_args "Device-flow timed out after ${ZRBA_DEVICE_POLL_MAX_SEC}s without approval"; return 1; }
+
+  echo "${zSECRET_idtoken}"
 }
 
 # base64url-encode a file's bytes (RFC 7515): standard base64 via openssl (the
@@ -476,8 +448,8 @@ zrba_b64url_capture() {
 # Custody: the asserter private key is read ONLY by openssl
 # via its regime PATH and never enters a shell var; the client secret is read ONLY by
 # curl via its file reference (--data-urlencode name@file) and never enters a shell
-# var or the argument list; the minted id_token is emitted by jq straight to stdout,
-# never through a var. The assertion and its parts are public (a signed JWT), so they
+# var or the argument list; the minted id_token is held in memory and emitted as
+# this capture's value. The assertion and its parts are public (a signed JWT), so they
 # ride files and vars freely — only the two durable secrets are fenced.
 zrba_leg1_programmatic_idtoken_capture() {
   zrba_sentinel
@@ -553,83 +525,63 @@ zrba_leg1_programmatic_idtoken_capture() {
 
   # POST the RFC 7523 grant. The client secret and the assertion both ride by FILE
   # REFERENCE (--data-urlencode name@file), so neither the secret nor the assertion
-  # enters a shell var or the argument list.
+  # enters a shell var or the argument list; the response, bearing the id_token,
+  # is held in memory.
+  local -ra z_grant_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=${ZRBA_JWT_BEARER_GRANT_TYPE}" --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}" --data-urlencode "scope=${ZRBA_PROG_ASSERTION_SCOPE}" --data-urlencode "client_secret@${z_secret_file}" --data-urlencode "assertion@${ZRBA_FED_PROG_ASSERTION_FILE}")
   local z_curl_status=0
-  curl -sS -X POST "${RBRF_GRANT_ENDPOINT}"                      \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"         \
-    --max-time        "${RBCC_CURL_MAX_TIME_SEC}"                \
-    -H "Content-Type: application/x-www-form-urlencoded"         \
-    --data-urlencode "grant_type=${ZRBA_JWT_BEARER_GRANT_TYPE}"  \
-    --data-urlencode "client_id=${RBRF_IDP_CLIENT_ID}"           \
-    --data-urlencode "scope=${ZRBA_PROG_ASSERTION_SCOPE}"        \
-    --data-urlencode "client_secret@${z_secret_file}"            \
-    --data-urlencode "assertion@${ZRBA_FED_PROG_ASSERTION_FILE}" \
-    > "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  local zSECRET_grant=""
+  zSECRET_grant=$(curl "${z_grant_options[@]}" "${RBRF_GRANT_ENDPOINT}" 2>"${ZRBA_FED_CURL_STDERR_FILE}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || { buc_log_args "RFC 7523 grant POST failed (curl ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
-  # id_token (secret): jq emits it straight to stdout, never through a shell var or
-  # temp file. select(length > 0) yields a non-zero jq exit for an absent/empty token
-  # — the mint miss; the forensic log then surfaces the grant's own error string.
+  # select(length > 0) yields a non-zero jq exit for an absent/empty token — the
+  # mint miss; the forensic log then surfaces the grant's own error string.
   local z_jq_status=0
-  jq -er '.id_token // empty | select(length > 0)' \
-     "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || z_jq_status=$?
-  test "${z_jq_status}" -eq 0 || {
-    jq -r '.error // empty' "${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}" \
-       > "${ZRBA_FED_PROG_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || : > "${ZRBA_FED_PROG_ERROR_FILE}"
-    local z_err
-    z_err=$(<"${ZRBA_FED_PROG_ERROR_FILE}") || return 1
-    buc_log_args "RFC 7523 grant returned no id_token (error: ${z_err:-none}); see ${ZRBA_FED_PROG_TOKEN_RESPONSE_FILE}"
+  local zSECRET_idtoken=""
+  zSECRET_idtoken=$(printf '%s' "${zSECRET_grant}" | jq -er '.id_token // empty | select(length > 0)' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_jq_status=$?
+  if test "${z_jq_status}" -ne 0; then
+    local z_err_status=0
+    local z_err=""
+    z_err=$(printf '%s' "${zSECRET_grant}" | jq -r '.error // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_err_status=$?
+    test "${z_err_status}" -eq 0 || z_err=""
+    buc_log_args "RFC 7523 grant returned no id_token (error: ${z_err:-none})"
     return 1
-  }
+  fi
+
+  echo "${zSECRET_idtoken}"
 }
 
 # Leg 2 — STS token exchange (RFC 8693). Exchanges the IdP id_token for a Google
 # workforce federated access token. Unauthenticated POST; audience = the provider
-# resource name; nothing else — no userProject, no auth header (spike F3). Echoes
-# "<federated_token> <expires_in>".
+# resource name; nothing else — no userProject, no auth header (spike F3). The
+# id_token rides curl's stdin through the secret pipe, urlencoded as the subject
+# token. Echoes the STS response, held in memory, once it carries an access token.
 zrba_leg2_federated_capture() {
   zrba_sentinel
   zrbrw_sentinel
   zrbrf_sentinel
   zrbcc_sentinel
 
-  local -r z_idtoken="${1:-}"
-  test -n "${z_idtoken}" || return 1
+  local -r zSECRET_idtoken="${1:-}"
+  test -n "${zSECRET_idtoken}" || return 1
 
   local -r z_audience="//iam.googleapis.com/locations/global/workforcePools/${RBRW_WORKFORCE_POOL_ID}/providers/${RBRF_PROVIDER_ID}"
 
+  local -ra z_sts_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/x-www-form-urlencoded" --data-urlencode "grant_type=${ZRBA_STS_GRANT_TYPE}" --data-urlencode "audience=${z_audience}" --data-urlencode "scope=${ZRBA_STS_SCOPE}" --data-urlencode "requested_token_type=${ZRBA_STS_REQUESTED_TOKEN_TYPE}" --data-urlencode "subject_token_type=${ZRBA_STS_SUBJECT_TOKEN_TYPE}" --data-urlencode "subject_token@-")
   local z_curl_status=0
-  curl -sS -X POST "${ZRBA_STS_ENDPOINT}"                                    \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}"                     \
-    --max-time        "${RBCC_CURL_MAX_TIME_SEC}"                            \
-    -H "Content-Type: application/x-www-form-urlencoded"                     \
-    --data-urlencode "grant_type=${ZRBA_STS_GRANT_TYPE}"                     \
-    --data-urlencode "audience=${z_audience}"                                \
-    --data-urlencode "scope=${ZRBA_STS_SCOPE}"                               \
-    --data-urlencode "requested_token_type=${ZRBA_STS_REQUESTED_TOKEN_TYPE}" \
-    --data-urlencode "subject_token_type=${ZRBA_STS_SUBJECT_TOKEN_TYPE}"     \
-    --data-urlencode "subject_token=${z_idtoken}"                            \
-    > "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
+  local zSECRET_sts=""
+  zSECRET_sts=$(printf '%s' "${zSECRET_idtoken}" | curl "${z_sts_options[@]}" "${ZRBA_STS_ENDPOINT}" 2>"${ZRBA_FED_CURL_STDERR_FILE}") || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || { buc_log_args "STS exchange failed (curl ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"; return 1; }
 
-  jq -r '.expires_in // 0' "${ZRBA_FED_STS_RESPONSE_FILE}" \
-     > "${ZRBA_FED_EXPIRES_IN_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || return 1
-  local z_expires
-  z_expires=$(<"${ZRBA_FED_EXPIRES_IN_FILE}") || return 1
-  [[ "${z_expires}" =~ ^[0-9]+$ ]] || z_expires=0
-
-  # Federated access token (secret): jq emits "<token> <expires_in>" straight to
-  # stdout, the validated expiry passed in as a jq arg, so the token never passes
-  # through a shell var or temp file. select(length > 0) yields a non-zero jq exit
-  # for an absent/empty token, and the forensic log rides that exit status.
+  # select(length > 0) yields a non-zero jq exit for an absent/empty token.
   local z_status=0
-  jq -er --argjson e "${z_expires}" \
-     '(.access_token // "") | select(length > 0) | "\(.) \($e)"' \
-     "${ZRBA_FED_STS_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || z_status=$?
+  local zSECRET_federated=""
+  zSECRET_federated=$(printf '%s' "${zSECRET_sts}" | jq -er '(.access_token // "") | select(length > 0)' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_status=$?
   test "${z_status}" -eq 0 \
-    || { buc_log_args "STS exchange returned no access_token; see ${ZRBA_FED_STS_RESPONSE_FILE}"; return 1; }
+    || { buc_log_args "STS exchange returned no access_token"; return 1; }
+
+  echo "${zSECRET_sts}"
 }
 
 # Open a fresh sederunt: run Legs 1+2 and atomically cache the result. The
@@ -649,16 +601,16 @@ zrba_sederunt_open() {
 
   # Leg 1 — mechanism-gated. buv_vet has already proven RBRF_MECHANISM is one of the
   # two enum values, but a bare-case fallthrough dies loud rather than silently.
-  local z_idtoken
+  local zSECRET_idtoken
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
       buc_step "Opening a ${RBCC_noun_sederunt} via device-flow avowal"
-      z_idtoken=$(zrba_leg1_idtoken_capture) \
+      zSECRET_idtoken=$(zrba_leg1_idtoken_capture) \
         || buc_die_now "Avowal failed at Leg 1 (device flow); see the transcript"
       ;;
     rbnfe_programmatic)
       buc_step "Acquiring a ${RBCC_noun_sederunt} via the RFC 7523 programmatic grant"
-      z_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
+      zSECRET_idtoken=$(zrba_leg1_programmatic_idtoken_capture) \
         || buc_die_now "Acquisition failed at Leg 1 (RFC 7523 grant); see the transcript"
       ;;
     *)
@@ -666,12 +618,14 @@ zrba_sederunt_open() {
       ;;
   esac
 
-  local z_fed
-  z_fed=$(zrba_leg2_federated_capture "${z_idtoken}") || buc_die_now "Avowal failed at Leg 2 (STS exchange); see the transcript"
+  local zSECRET_sts
+  zSECRET_sts=$(zrba_leg2_federated_capture "${zSECRET_idtoken}") || buc_die_now "Avowal failed at Leg 2 (STS exchange); see the transcript"
 
-  local -r z_federated="${z_fed%% *}"
-  local -r z_expires_in="${z_fed##* }"
-  case "${z_expires_in}" in ''|*[!0123456789]*) buc_die_now "Leg 2 returned a non-numeric expiry: ${z_expires_in}" ;; esac
+  local zSECRET_federated
+  zSECRET_federated=$(printf '%s' "${zSECRET_sts}" | jq -r '.access_token' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || buc_die_now "Avowal failed at Leg 2: cannot read the federated token — see ${ZRBA_FED_JQ_STDERR_FILE}"
+  local z_expires_in
+  z_expires_in=$(printf '%s' "${zSECRET_sts}" | jq -r '.expires_in // 0' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || buc_die_now "Avowal failed at Leg 2: cannot read the token expiry — see ${ZRBA_FED_JQ_STDERR_FILE}"
+  [[ "${z_expires_in}" =~ ^[0-9]+$ ]] || z_expires_in=0
 
   date +%s > "${ZRBA_FED_AVOW_NOW_FILE}" || buc_die_now "Failed to read the clock"
   local z_now
@@ -681,10 +635,10 @@ zrba_sederunt_open() {
 
   local z_subject
   local z_subject_status=0
-  z_subject=$(zrba_idtoken_subject_capture "${z_idtoken}") || z_subject_status=$?
+  z_subject=$(zrba_idtoken_subject_capture "${zSECRET_idtoken}") || z_subject_status=$?
   test "${z_subject_status}" -eq 0 || z_subject=""
 
-  zrba_sederunt_write "${z_federated}" "${z_expiry_epoch}" "${z_subject}"
+  zrba_sederunt_write "${zSECRET_federated}" "${z_expiry_epoch}" "${z_subject}"
 
   buc_step "${RBCC_noun_sederunt_lettrine} opened (federated token expires in ${z_expires_in}s)"
 }
@@ -764,10 +718,9 @@ rba_novate() {
 # labor). The unknown-identity guard returns 1 behind a forensic line — a caller
 # bug, not a runtime condition — exactly as rba_token_capture does.
 #
-# Custody: the mantle token reaches only this function's stdout (jq straight to
-# stdout, never a shell var) and the per-invocation curl response (BURD_TEMP_DIR,
-# process lifetime, like the Leg-2 STS response) — never the persistent sederunt
-# cache. It carries exactly one mantle's authority and self-expires (1 h default
+# Custody: the mantle token reaches only this function's stdout, read in memory
+# from the response the HTTP module's bearer road holds in memory — never a
+# temp file and never the persistent sederunt cache. It carries exactly one mantle's authority and self-expires (1 h default
 # ceiling, spike V1); donning again re-mints. A long run re-dons mid-flight while
 # the sederunt lives; the re-mint ceiling is the sederunt itself — the
 # cached-federated-token read below returns 1 once the sederunt lapses, carrying the
@@ -782,6 +735,7 @@ rba_don_capture() {
   zrbcc_sentinel
   zrbgc_sentinel
   zrbdc_sentinel
+  zrbuh_sentinel
 
   local -r z_identity="${1:-}"
 
@@ -808,9 +762,9 @@ rba_don_capture() {
   # The bearer is the cached federated token. A miss (absent or within skew of
   # expiry) is the re-mint ceiling — the sederunt has lapsed; the forensic line
   # carries the avow instruction and the caller fails loud on the return 1.
-  local z_federated
+  local zSECRET_federated
   local z_federated_status=0
-  z_federated=$(zrba_sederunt_read_capture) || z_federated_status=$?
+  zSECRET_federated=$(zrba_sederunt_read_capture) || z_federated_status=$?
   test "${z_federated_status}" -eq 0 || {
     buc_log_args "${RBCC_noun_sederunt_lettrine} lapsed — no live federated token is cached; avow to open a fresh ${RBCC_noun_sederunt}, then re-run (the mantle re-mint is capped by the ${RBCC_noun_sederunt}, not by the mantle token's own lifetime)"
     return 1
@@ -823,52 +777,52 @@ rba_don_capture() {
     return 1
   }
 
-  # Single generateAccessToken call. -o writes the response (mantle token) to the
-  # curl-response scratch; -w prints the HTTP code to stdout, captured to a file.
-  local z_curl_status=0
-  curl -sS -X POST "${z_don_url}"                        \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time        "${RBCC_CURL_MAX_TIME_SEC}"        \
-    -H "Authorization: Bearer ${z_federated}"            \
-    -H "x-goog-user-project: ${RBDC_DEPOT_PROJECT_ID}"   \
-    -H "Content-Type: application/json"                  \
-    --data "@${ZRBA_FED_DON_BODY_FILE}"                  \
-    -o "${ZRBA_FED_DON_RESPONSE_FILE}"                   \
-    -w '%{http_code}'                                    \
-    > "${ZRBA_FED_DON_CODE_FILE}" 2>"${ZRBA_FED_CURL_STDERR_FILE}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || {
-    buc_log_args "Leg 3 (don) curl failed (exit ${z_curl_status}); see ${ZRBA_FED_CURL_STDERR_FILE}"
+  # Single generateAccessToken call through the bearer road's in-memory mode: the
+  # response, carrying the mantle token, comes back as the body, a newline and the
+  # HTTP code.
+  local -r z_don_headers="x-goog-user-project: ${RBDC_DEPOT_PROJECT_ID}"$'\n'"Content-Type: application/json"
+  local zSECRET_don=""
+  local z_don_status=0
+  zSECRET_don=$(rbuh_request_capture "POST" "${z_don_url}" "${zSECRET_federated}" "${z_don_headers}" "${ZRBA_FED_CURL_STDERR_FILE}" "${ZRBA_FED_DON_BODY_FILE}") || z_don_status=$?
+  test "${z_don_status}" -eq 0 || {
+    buc_log_args "Leg 3 (don) curl failed (its exit status stands above); see ${ZRBA_FED_CURL_STDERR_FILE}"
     return 1
   }
 
+  local -r z_newline=$'\n'
+  local -r zSECRET_don_body="${zSECRET_don%"${z_newline}"*}"
   local z_code
-  z_code=$(<"${ZRBA_FED_DON_CODE_FILE}") || return 1
+  z_code=$(printf '%s' "${zSECRET_don}" | jq -Rrs 'split("\n") | last' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || return 1
   case "${z_code}" in
     200) ;;
     403)
-      jq -r '.error.message // empty' "${ZRBA_FED_DON_RESPONSE_FILE}" \
-         > "${ZRBA_FED_DON_ERROR_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" \
-         || : > "${ZRBA_FED_DON_ERROR_FILE}"
-      local z_errmsg
-      z_errmsg=$(<"${ZRBA_FED_DON_ERROR_FILE}") || return 1
+      local z_errmsg_status=0
+      local z_errmsg=""
+      z_errmsg=$(printf '%s' "${zSECRET_don_body}" | jq -r '.error.message // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_errmsg_status=$?
+      test "${z_errmsg_status}" -eq 0 || z_errmsg=""
       # Deliberately not retried here (RBr_7a9, RBr_b93).
       buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — either an admission deficit (brevet the avowed citizen onto the mantle: tokenCreator on the mantle SA + serviceUsageConsumer on the depot project) or, immediately after gird/brevet, a just-written grant still propagating (wait a minute and retry); not retried here"
       return "${BUBC_band_admission}" ;;
     *)
-      buc_log_args "Leg 3 (don) failed (HTTP ${z_code}) for mantle ${z_mantle_email}; see ${ZRBA_FED_DON_RESPONSE_FILE}"
+      local z_failmsg_status=0
+      local z_failmsg=""
+      z_failmsg=$(printf '%s' "${zSECRET_don_body}" | jq -r '.error.message // empty' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_failmsg_status=$?
+      test "${z_failmsg_status}" -eq 0 || z_failmsg=""
+      buc_log_args "Leg 3 (don) failed (HTTP ${z_code}) for mantle ${z_mantle_email}: ${z_failmsg:-no error message in the response}"
       return 1 ;;
   esac
 
-  # Mantle access token (secret): jq emits it straight to stdout, never through a
-  # shell var or the persistent cache. select(length > 0) yields a non-zero jq
-  # exit for an absent/empty token, and the forensic line rides that exit status.
+  # select(length > 0) yields a non-zero jq exit for an absent/empty token, and
+  # the forensic line rides that exit status.
   local z_jq_status=0
-  jq -er '.accessToken // empty | select(length > 0)' \
-     "${ZRBA_FED_DON_RESPONSE_FILE}" 2>"${ZRBA_FED_JQ_STDERR_FILE}" || z_jq_status=$?
+  local zSECRET_mantle=""
+  zSECRET_mantle=$(printf '%s' "${zSECRET_don_body}" | jq -er '.accessToken // empty | select(length > 0)' 2>"${ZRBA_FED_JQ_STDERR_FILE}") || z_jq_status=$?
   test "${z_jq_status}" -eq 0 || {
-    buc_log_args "Leg 3 (don) returned no accessToken; see ${ZRBA_FED_DON_RESPONSE_FILE}"
+    buc_log_args "Leg 3 (don) returned no accessToken"
     return 1
   }
+
+  echo "${zSECRET_mantle}"
 }
 
 # eof

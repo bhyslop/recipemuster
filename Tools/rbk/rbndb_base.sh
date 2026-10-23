@@ -84,20 +84,19 @@ zrbndb_sentinel() {
 zrbndb_docker_login() {
   zrbndb_sentinel
 
-  local -r z_token="${1}"
-  local -r z_stderr_file="${2}"
+  local -r zSECRET_token="${1:-}"
+  local -r z_stderr_file="${2:-}"
 
   local z_attempt=0
   local z_rc=0
+  local z_login_out=""
 
   while :; do
     z_attempt=$((z_attempt + 1))
 
     z_rc=0
-    printf '%s' "${z_token}" \
-      | docker login -u oauth2accesstoken --password-stdin "${ZRBNDB_REGISTRY_HOST}" \
-          > /dev/null 2>"${z_stderr_file}" \
-      || z_rc=$?
+    z_login_out=$(printf '%s' "${zSECRET_token}" | docker login -u oauth2accesstoken --password-stdin "${ZRBNDB_REGISTRY_HOST}" 2>"${z_stderr_file}") || z_rc=$?
+    buc_log_args "docker login attempt ${z_attempt}: login status ${z_rc}${z_login_out:+ (${z_login_out})}"
 
     test "${z_rc}" -ne 0 || break
 

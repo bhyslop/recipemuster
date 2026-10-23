@@ -132,7 +132,7 @@ rbgo_curl_status_is_transient_predicate() {
 rbgo_docker_login() {
   zrbgo_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_host="${2:-}"
 
   buc_doc_brief "Log the host docker client in to a GAR registry, retrying the surveyed daemon timeout"
@@ -140,12 +140,12 @@ rbgo_docker_login() {
   buc_doc_param "registry_host" "Registry host to authenticate against"
   buc_doc_shown || return 0
 
-  test -n "${z_token}" || buc_die_now "rbgo_docker_login: token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbgo_docker_login: token required"
   test -n "${z_host}"  || buc_die_now "rbgo_docker_login: registry host required"
 
   local z_attempt=0
   local z_stderr_file=""
-  local z_stage_status=()
+  local z_login_out=""
   local z_rc=0
   local z_auth_b64=""
   local z_stderr_text=""
@@ -154,13 +154,9 @@ rbgo_docker_login() {
     z_attempt=$((z_attempt + 1))
     z_stderr_file="${ZRBGO_PREFIX}docker_login_${z_attempt}_stderr.txt"
 
-    z_stage_status=(0 0)
-    printf '%s' "${z_token}" \
-      | docker login -u oauth2accesstoken --password-stdin "https://${z_host}" \
-          > /dev/null 2>"${z_stderr_file}" \
-      || z_stage_status=("${PIPESTATUS[0]}" "${PIPESTATUS[1]}")
-    buc_log_args "docker login attempt ${z_attempt}: token feed status ${z_stage_status[0]}, login status ${z_stage_status[1]}"
-    z_rc="${z_stage_status[1]}"
+    z_rc=0
+    z_login_out=$(printf '%s' "${zSECRET_token}" | docker login -u oauth2accesstoken --password-stdin "https://${z_host}" 2>"${z_stderr_file}") || z_rc=$?
+    buc_log_args "docker login attempt ${z_attempt}: login status ${z_rc}${z_login_out:+ (${z_login_out})}"
 
     test "${z_rc}" -ne 0 || break
 
@@ -178,7 +174,7 @@ rbgo_docker_login() {
     z_stderr_text=$(<"${z_stderr_file}") || buc_die_now "Failed to read: ${z_stderr_file}"
     if [[ "${z_stderr_text}" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
       buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); writing the authenticated credential to the base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
-      z_auth_b64=$(rbgo_base64_encode_string_capture "oauth2accesstoken:${z_token}") \
+      z_auth_b64=$(rbgo_base64_encode_string_capture "oauth2accesstoken:${zSECRET_token}") \
         || buc_die_now "Cannot base64-encode the docker credential for the file-store bend"
       mkdir -p "${HOME}/.docker" \
         || buc_die_now "Cannot create ${HOME}/.docker for the credential-store bend"
