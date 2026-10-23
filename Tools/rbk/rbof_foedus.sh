@@ -160,8 +160,8 @@ rbof_descry() {
   # workforce pool (workforcePools.get is org-scoped; the payor holds it). The
   # credless guard rides inside this capture: a reveille-tier run rejects here
   # before any credential touch.
-  local z_token=""
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token=""
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_pools_base="${z_iam_root}/locations/global/workforcePools"
@@ -175,7 +175,7 @@ rbof_descry() {
   # read (any other code) is descry's OWN error, not a verdict — reject in
   # descry's band.
   buc_step "Confirm manor pool coordinates"
-  rbuh_json "GET" "${z_pools_base}/${z_pool}" "${z_token}" "descry_pool_get"
+  rbuh_json "GET" "${z_pools_base}/${z_pool}" "${zSECRET_token}" "descry_pool_get"
   local z_pool_code=""
   local z_pool_code_status=0
   z_pool_code=$(rbuh_code_capture "descry_pool_get") || z_pool_code_status=$?
@@ -206,7 +206,7 @@ rbof_descry() {
   # 200 present / 404 absent; any other code is a broken read.
   if test -z "${z_verdict}"; then
     buc_step "Read provider presence"
-    rbuh_json "GET" "${z_pools_base}/${z_pool}/providers/${z_provider}" "${z_token}" "descry_provider_get"
+    rbuh_json "GET" "${z_pools_base}/${z_pool}/providers/${z_provider}" "${zSECRET_token}" "descry_provider_get"
     local z_provider_code=""
     local z_provider_code_status=0
     z_provider_code=$(rbuh_code_capture "descry_provider_get") || z_provider_code_status=$?
@@ -286,8 +286,8 @@ rbof_canvass() {
   # Payor OAuth — listing the org pool's providers is the same org-level
   # authority affiance/jilt wield; depot mantles cannot reach it. The credless
   # guard rides inside this capture.
-  local z_token=""
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token=""
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_iam_root="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}"
   local -r z_providers_base="${z_iam_root}/locations/global/workforcePools/${z_pool}/providers"
@@ -332,7 +332,7 @@ rbof_canvass() {
     fi
 
     z_infix="canvass_providers_list_${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_infix}"
     z_code=$(rbuh_code_capture "${z_infix}") \
       || buc_die_now "No HTTP code from providers.list under pool ${z_pool}"
     case "${z_code}" in

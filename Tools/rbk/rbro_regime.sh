@@ -31,6 +31,13 @@ ZRBRO_SOURCED=1
 zrbro_kindle() {
   test -z "${ZRBRO_KINDLED:-}" || buc_die_now "Module rbro already kindled"
 
+  # The credential store is sourced here, at kindle, ahead of its enrollment.
+  # RBDC_PAYOR_RBRO_FILE is rbdc's kindle constant, derived from RBRR_SECRETS_DIR.
+  # Presence and readability first: a failed source on bash 3.2 exits before its guard.
+  test -f "${RBDC_PAYOR_RBRO_FILE}" || buc_die_now "RBRO credentials missing (${RBDC_PAYOR_RBRO_FILE}) - run rbgp_install"
+  test -r "${RBDC_PAYOR_RBRO_FILE}" || buc_die_now "RBRO file not readable - check permissions"
+  source "${RBDC_PAYOR_RBRO_FILE}" || buc_die_now "Failed to source RBRO credentials"
+
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
@@ -58,29 +65,6 @@ zrbro_sentinel() {
 zrbro_enforce() {
   zrbro_sentinel
   buv_vet RBRO
-}
-
-######################################################################
-# Public Functions (rbro_*)
-
-# Load RBRO from RBDC_PAYOR_RBRO_FILE (kindle constant from RBRR_SECRETS_DIR)
-# Requires: RBRR kindled+enforced+locked (RBDC_PAYOR_RBRO_FILE is a lock-step constant)
-rbro_load() {
-  # This loader performs this module's kindle below, so it cannot open on
-  # its own sentinel — it is the one function here that runs unkindled.
-
-  buc_doc_brief "Load, kindle and enforce the payor's RBRO OAuth credentials"
-  buc_doc_shown || return 0
-
-  local -r z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
-
-  test -f "${z_rbro_file}" || buc_die_now "RBRO credentials missing (${z_rbro_file}) - run rbgp_install"
-  test -r "${z_rbro_file}" || buc_die_now "RBRO file not readable - check permissions"
-
-  # Source and validate
-  source "${z_rbro_file}" || buc_die_now "Failed to source RBRO credentials"
-  zrbro_kindle
-  zrbro_enforce
 }
 
 # eof

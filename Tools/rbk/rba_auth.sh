@@ -871,25 +871,4 @@ rba_don_capture() {
   }
 }
 
-# RBTOE: RBRO Load Pattern
-# Thin wrapper: defensively sources rbro_regime.sh (callers don't need to know
-# its path, which moved under AAD's payor/ subdirectory migration), then
-# delegates to rbro_load. The uniform rba_* load-through-utility convention is
-# the load-bearing reason this wrapper exists.
-rba_rbro_load() {
-  zrba_sentinel
-
-  buc_log_args "Loading RBRO OAuth credentials"
-
-  # Source regime module if not already loaded
-  if test -z "${ZRBRO_SOURCED:-}"; then
-    source "${BASH_SOURCE[0]%/*}/rbro_regime.sh" || buc_die_now "Failed to source rbro_regime.sh"
-  fi
-
-  # Delegate to regime's canonical load
-  rbro_load
-
-  buc_log_args "RBRO validation successful"
-}
-
 # eof

@@ -21,8 +21,9 @@
 #
 # Scope: this file mixes two concerns; entry points are interleaved.
 #   OAuth credential flow:
-#     zrbgp_refresh_capture         (~76)   refresh-token exchange
-#     zrbgp_authenticate_capture    (~122)  load + exchange
+#     zrbgp_refresh_capture         (~160)  credential store + refresh-token exchange
+#     rbgp_authenticate_capture     (~194)  token mint, or its refusal word
+#     rbgp_authenticate_die         (~266)  every caller's guard over that word
 #     rbgp_install            (~400)  full install ceremony
 #   Depot lifecycle operations:
 #     zrbgp_billing_attach/detach, liens, bucket helpers (~196-395)
@@ -33,6 +34,14 @@ set -euo pipefail
 # Multiple inclusion detection
 test -z "${ZRBGP_SOURCED:-}" || buc_die_now "Module rbgp multiply sourced - check sourcing hierarchy"
 ZRBGP_SOURCED=1
+
+# Tinder constants — the refusal words rbgp_authenticate_capture emits in place
+# of a token, which rbgp_authenticate_die reads at every caller
+readonly RBGP_refusal_credless="credless"
+readonly RBGP_refusal_lapsed="lapsed"
+readonly RBGP_refusal_expired="expired"
+readonly RBGP_refusal_tokenless="tokenless"
+readonly RBGP_refusal_fault="fault"
 
 ######################################################################
 # Internal Functions (zrbgp_*)
@@ -100,8 +109,8 @@ zrbgp_sentinel() {
 # is built by jq from the filter and its non-secret --arg pairs; the filter
 # reads each secret from jq's environment (env.zSECRET_«name»), where the
 # caller's command-prefix assignment places it. The body rides the secret pipe
-# into curl's stdin, so no secret touches disk or an argument. Returns curl's
-# exit status.
+# into curl's stdin, so no secret touches disk or an argument. A failed request
+# returns 1, curl's exit status classified here and written to the transcript.
 zrbgp_oauth_token_post_capture() {
   zrbgp_sentinel
 
@@ -116,7 +125,7 @@ zrbgp_oauth_token_post_capture() {
   local z_curl_status=0
   local zSECRET_response
   zSECRET_response=$(printf '%s' "${zSECRET_body}" | curl "${z_curl_options[@]}" "${RBGC_OAUTH_TOKEN_URL}") || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || return "${z_curl_status}"
+  test "${z_curl_status}" -eq 0 || { buc_log_args "OAuth token request failed (curl exit ${z_curl_status})"; return 1; }
 
   echo "${zSECRET_response}"
 }
@@ -141,78 +150,136 @@ zrbgp_oauth_client_field_capture() {
   echo "${z_value}"
 }
 
+# Emit the token endpoint's whole response to a refresh-token grant, an error
+# response included, for rbgp_authenticate_capture to read; a request that
+# cannot be made returns 1, its cause on the transcript. The credential store
+# is sourced in this capture's own body because the two secrets then enter
+# this substitution's subshell alone, for one token mint, and never the
+# command's shell. Nothing is enforced here: the store's enrollment is
+# zrbro_kindle's, which the OAuth regime's validate door runs.
 zrbgp_refresh_capture() {
   zrbgp_sentinel
 
-  # RBRO credentials already loaded and validated by caller (rba_rbro_load)
-  zrbro_sentinel
-  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || return 1
+  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || { buc_log_args "RBRP_OAUTH_CLIENT_ID not set in environment"; return 1; }
+
+  # Presence and readability first: a failed source on bash 3.2 exits before its guard
+  test -f "${RBDC_PAYOR_RBRO_FILE}" || { buc_log_args "RBRO credentials missing (${RBDC_PAYOR_RBRO_FILE}) - run the payor install"; return 1; }
+  test -r "${RBDC_PAYOR_RBRO_FILE}" || { buc_log_args "RBRO credentials not readable (${RBDC_PAYOR_RBRO_FILE}) - check permissions"; return 1; }
+  source "${RBDC_PAYOR_RBRO_FILE}" || return 1
+  test -n "${RBRO_CLIENT_SECRET:-}" || { buc_log_args "RBRO_CLIENT_SECRET absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
+  test -n "${RBRO_REFRESH_TOKEN:-}" || { buc_log_args "RBRO_REFRESH_TOKEN absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
 
   buc_log_args "Exchanging refresh token for access token"
 
-  # Emits the token endpoint's whole response, an error response included, for
-  # the caller to read; returns curl's exit status where the request failed.
   # The two secrets ride jq's environment and the client id its arguments.
   local -ra z_body_args=("--arg" client_id "${RBRP_OAUTH_CLIENT_ID}")
   local -r z_body_filter='{refresh_token: env.zSECRET_refresh_token, client_id: $client_id, client_secret: env.zSECRET_client_secret, grant_type: "refresh_token"}'
-  local z_curl_status=0
   local zSECRET_response
-  zSECRET_response=$(zSECRET_refresh_token="${RBRO_REFRESH_TOKEN}" zSECRET_client_secret="${RBRO_CLIENT_SECRET}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || return "${z_curl_status}"
+  zSECRET_response=$(zSECRET_refresh_token="${RBRO_REFRESH_TOKEN}" zSECRET_client_secret="${RBRO_CLIENT_SECRET}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || return 1
 
   echo "${zSECRET_response}"
 }
 
 # RBTOE: Payor OAuth Authentication Pattern
-# Establishes Payor OAuth context by loading RBRO credentials and obtaining access token.
+# Mint the payor's OAuth access token and emit it with status 0, or emit one
+# refusal word (the RBGP_refusal_* tinder) with status 1, the reason and
+# Google's description on the transcript. Every caller guards the one form with
+# rbgp_authenticate_die, which reads the word. The credless guard stands first,
+# before the refresh capture touches the credential store, so a guarded run
+# refuses before any credential touch (reveille cases must never reach creds).
 # Tokens are deliberately not cached — each call refreshes. Rationale: simplicity
 # and freshness; refresh tokens are long-lived so the extra roundtrips are cheap
 # relative to the depot operations they authorize, and uncached tokens can't grow
 # stale between distinct Payor ceremonies.
-zrbgp_authenticate_capture() {
+rbgp_authenticate_capture() {
   zrbgp_sentinel
 
-  # Credless guard gate — first, before the RBRO credential load, so a guarded
-  # run rejects before any credential touch (reveille cases must never reach creds).
-  test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: Payor OAuth token mint refused — this run carries the reveille-tier guard (reveille cases must never reach credentials)"
+  local z_refusal=""
+  local z_status=0
 
-  buc_log_args "Establishing Payor OAuth authentication context"
-
-  # Load RBRO credentials
-  rba_rbro_load
-  
-  # Load RBRP_OAUTH_CLIENT_ID from environment
-  test -n "${RBRP_OAUTH_CLIENT_ID:-}" || buc_die_now "RBRP_OAUTH_CLIENT_ID not set in environment"
-  
-  # Exchange refresh token for access token
-  local z_curl_status=0
-  local zSECRET_response
-  zSECRET_response=$(zrbgp_refresh_capture) || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute OAuth refresh request (curl exit ${z_curl_status})"
-
-  # Check for error in response. invalid_rapt is discriminated from the
-  # generic expired-or-invalid die: the token is healthy but the organization's
-  # sign-in policy has lapsed the session, and the remedy is a re-install with
-  # the SAME saved client JSON — no rotation, no console act.
-  local z_error
-  z_error=$(printf '%s' "${zSECRET_response}" | jq -r '.error // empty') || buc_die_now "Failed to parse OAuth refresh response"
-  if test -n "${z_error}"; then
-    local z_error_subtype
-    z_error_subtype=$(printf '%s' "${zSECRET_response}" | jq -r '.error_subtype // empty') || buc_die_now "Failed to parse OAuth refresh response"
-    local z_error_desc
-    z_error_desc=$(printf '%s' "${zSECRET_response}" | jq -r '.error_description // .error // "Unknown error"') || buc_die_now "Failed to parse OAuth refresh response"
-    test "${z_error_subtype}" != "invalid_rapt" \
-      || buc_die_now "Payor sign-in session lapsed under your organization's sign-in policy - re-run the Install tabtarget with the saved client-secret JSON: ${z_error_desc}"
-    buc_die_now "OAuth credentials expired or invalid - reinstall payor credentials: ${z_error_desc}"
+  if test "${BURE_TWEAK_NAME:-}" = "${RBCC_tweak_credless_guard}"; then
+    buc_log_args "Credless guard: Payor OAuth token mint refused - this run carries the reveille-tier guard"
+    z_refusal="${RBGP_refusal_credless}"
   fi
 
-  local zSECRET_access_token
-  zSECRET_access_token=$(printf '%s' "${zSECRET_response}" | jq -r '.access_token // empty') || buc_die_now "Failed to parse OAuth refresh response"
-  test -n "${zSECRET_access_token}" || buc_die_now "OAuth response missing access_token"
+  local zSECRET_response=""
+  if test -z "${z_refusal}"; then
+    buc_log_args "Establishing Payor OAuth authentication context"
+    zSECRET_response=$(zrbgp_refresh_capture) || z_status=$?
+    test "${z_status}" -eq 0 || { buc_log_args "OAuth refresh request failed - its cause stands above"; z_refusal="${RBGP_refusal_fault}"; }
+  fi
 
-  buc_log_args "Payor OAuth authentication successful"
-  echo "${zSECRET_access_token}"
+  local z_error=""
+  if test -z "${z_refusal}"; then
+    z_error=$(printf '%s' "${zSECRET_response}" | jq -r '.error // empty') || z_status=$?
+    test "${z_status}" -eq 0 || { buc_log_args "Failed to parse OAuth refresh response (jq exit ${z_status})"; z_refusal="${RBGP_refusal_fault}"; }
+  fi
+
+  # invalid_rapt is discriminated from the generic expired-or-invalid refusal:
+  # the token is healthy but the organization's sign-in policy has lapsed the
+  # session, and the remedy is a re-install with the SAME saved client JSON —
+  # no rotation, no console act.
+  local z_error_subtype=""
+  local z_error_desc=""
+  if test -z "${z_refusal}" && test -n "${z_error}"; then
+    z_error_subtype=$(printf '%s' "${zSECRET_response}" | jq -r '.error_subtype // empty') || z_status=$?
+    if test "${z_status}" -eq 0; then
+      z_error_desc=$(printf '%s' "${zSECRET_response}" | jq -r '.error_description // .error // "Unknown error"') || z_status=$?
+    fi
+    if test "${z_status}" -eq 0; then
+      buc_log_args "OAuth refresh refused by Google (${z_error}${z_error_subtype:+, ${z_error_subtype}}): ${z_error_desc}"
+      z_refusal="${RBGP_refusal_expired}"
+      test "${z_error_subtype}" != "invalid_rapt" || z_refusal="${RBGP_refusal_lapsed}"
+    else
+      buc_log_args "Failed to parse OAuth refresh error response (jq exit ${z_status})"
+      z_refusal="${RBGP_refusal_fault}"
+    fi
+  fi
+
+  local zSECRET_access_token=""
+  if test -z "${z_refusal}"; then
+    zSECRET_access_token=$(printf '%s' "${zSECRET_response}" | jq -r '.access_token // empty') || z_status=$?
+    test "${z_status}" -eq 0 || { buc_log_args "Failed to parse OAuth refresh response (jq exit ${z_status})"; z_refusal="${RBGP_refusal_fault}"; }
+  fi
+  if test -z "${z_refusal}" && test -z "${zSECRET_access_token}"; then
+    buc_log_args "OAuth refresh response carries no access_token"
+    z_refusal="${RBGP_refusal_tokenless}"
+  fi
+
+  local zSECRET_emit="${zSECRET_access_token}"
+  local z_return=0
+  if test -n "${z_refusal}"; then
+    zSECRET_emit="${z_refusal}"
+    z_return=1
+  else
+    buc_log_args "Payor OAuth authentication successful"
+  fi
+
+  echo "${zSECRET_emit}"
+  return "${z_return}"
+}
+
+# Guard the one form over rbgp_authenticate_capture at every caller: read the
+# refusal word the capture emitted and die with its wording, or reject in the
+# credless band, which leaves the caller's shell as the reveille guard asserts.
+# It prints literals alone and never the value it is handed.
+rbgp_authenticate_die() {
+  local -r zSECRET_refusal="${1:-}"
+
+  buc_doc_brief "Die or reject over the refusal word rbgp_authenticate_capture emitted"
+  buc_doc_shown || return 0
+
+  zrbgp_sentinel
+
+  test "${zSECRET_refusal}" != "${RBGP_refusal_credless}" \
+    || buc_reject "${BUBC_band_credless}" "Credless guard: Payor OAuth token mint refused — this run carries the reveille-tier guard (reveille cases must never reach credentials)"
+  test "${zSECRET_refusal}" != "${RBGP_refusal_lapsed}" \
+    || buc_die_now "Payor sign-in session lapsed under your organization's sign-in policy - re-run the Install tabtarget with the saved client-secret JSON (Google's description stands in the transcript)"
+  test "${zSECRET_refusal}" != "${RBGP_refusal_expired}" \
+    || buc_die_now "OAuth credentials expired or invalid - reinstall payor credentials (Google's description stands in the transcript)"
+  test "${zSECRET_refusal}" != "${RBGP_refusal_tokenless}" \
+    || buc_die_now "OAuth response missing access_token"
+  buc_die_now "Payor OAuth authentication failed - its cause stands in the transcript: ${BURD_TRANSCRIPT:-}"
 }
 
 # Probe per-installation depot states and emit per-moniker fact files.
@@ -382,10 +449,10 @@ zrbgp_depot_list_update() {
 
   buc_log_args "Refreshing per-moniker depot fact files"
 
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate for depot fact refresh"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
-  zrbgp_depot_state_emit "${z_token}"
+  zrbgp_depot_state_emit "${zSECRET_token}"
 }
 
 ######################################################################
@@ -948,10 +1015,9 @@ rbgp_install() {
   # The two secrets ride jq's environment and the rest its arguments
   local -ra z_body_args=("--arg" client_id "${z_client_id}" --arg redirect_uri "${z_redirect_uri}")
   local -r z_body_filter='{code: env.zSECRET_code, client_id: $client_id, client_secret: env.zSECRET_client_secret, redirect_uri: $redirect_uri, grant_type: "authorization_code"}'
-  local z_curl_status=0
   local zSECRET_response
-  zSECRET_response=$(zSECRET_code="${zSECRET_code}" zSECRET_client_secret="${zSECRET_client_secret}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die_now "Failed to execute token exchange request (curl exit ${z_curl_status})"
+  zSECRET_response=$(zSECRET_code="${zSECRET_code}" zSECRET_client_secret="${zSECRET_client_secret}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") \
+    || buc_die_now "Failed to execute token exchange request - curl's exit status stands in the transcript"
 
   # Check for error in response
   local z_error
@@ -1008,12 +1074,12 @@ rbgp_install() {
   buc_log_args "RBRP_OAUTH_CLIENT_ID validated: ${z_client_id}"
   
   buc_step 'Test OAuth authentication'
-  local z_access_token
-  z_access_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to test OAuth authentication"
-  test -n "${z_access_token}" || buc_die_now "OAuth authentication test returned empty token"
+  local zSECRET_access_token
+  zSECRET_access_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_access_token}"
+  test -n "${zSECRET_access_token}" || buc_die_now "OAuth authentication test returned empty token"
   
   buc_step 'Discover operator email'
-  rbuh_json "GET" "${RBGC_OAUTH_USERINFO_URL}" "${z_access_token}" "payor_userinfo"
+  rbuh_json "GET" "${RBGC_OAUTH_USERINFO_URL}" "${zSECRET_access_token}" "payor_userinfo"
   rbuh_require_ok "Discover operator email" "payor_userinfo"
   local z_operator_email
   z_operator_email=$(rbuh_json_field_capture "payor_userinfo" '.email') \
@@ -1023,7 +1089,7 @@ rbgp_install() {
 
   buc_step 'Verify payor project access'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${z_project_id}"
-  rbuh_json "GET" "${z_project_info_url}" "${z_access_token}" "payor_verify" 
+  rbuh_json "GET" "${z_project_info_url}" "${zSECRET_access_token}" "payor_verify" 
   rbuh_require_ok "Verify payor project" "payor_verify"
   
   local z_project_state
@@ -1181,8 +1247,8 @@ rbgp_manor_affiance() {
   bug_require_clean_tree_creed "${RBCC_creed_clean_affiance}"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   # The manor pool coordinates (org / pool id) are read from the kindled RBRW
   # regime (manor-level); the per-foedus provider id from the kindled
@@ -1208,7 +1274,7 @@ rbgp_manor_affiance() {
   buc_step 'Require manor workforce pool present'
   buym_tt_yawp "${RBZ_INSTAURATE_MANOR}"; local -r z_finisher_tt="${z_buym_yelp}"
   local -r z_pool_get_url="${z_pools_base}/${z_pool_id}"
-  rbuh_json "GET" "${z_pool_get_url}" "${z_token}" "affiance_pool_get"
+  rbuh_json "GET" "${z_pool_get_url}" "${zSECRET_token}" "affiance_pool_get"
   local z_pool_code
   z_pool_code=$(rbuh_code_capture "affiance_pool_get") || buc_die_now "No HTTP code from workforcePools.get"
 
@@ -1234,7 +1300,7 @@ rbgp_manor_affiance() {
   buc_step 'Ensure workforce pool provider and attribute mapping'
   local -r z_providers_base="${z_pools_base}/${z_pool_id}/providers"
   local -r z_provider_get_url="${z_providers_base}/${z_provider_id}"
-  rbuh_json "GET" "${z_provider_get_url}" "${z_token}" "affiance_provider_get"
+  rbuh_json "GET" "${z_provider_get_url}" "${zSECRET_token}" "affiance_provider_get"
   local z_provider_code
   z_provider_code=$(rbuh_code_capture "affiance_provider_get") || buc_die_now "No HTTP code from providers.get"
 
@@ -1255,7 +1321,7 @@ rbgp_manor_affiance() {
         buc_info "Provider ${z_provider_id} soft-deleted (state DELETED) — undeleting before re-sync"
         rbge_lro_ok \
           "Undelete workforce pool provider" \
-          "${z_token}" \
+          "${zSECRET_token}" \
           "${z_provider_get_url}:undelete" \
           "affiance_provider_undelete" \
           "" \
@@ -1284,7 +1350,7 @@ rbgp_manor_affiance() {
           jq -n --arg jwks "${RBRF_IDP_JWKS_JSON}" \
             '{ oidc: { jwksJson: $jwks } }' > "${z_patch_body}" \
             || buc_die_now "Failed to build provider JWKS patch body"
-          rbuh_json "PATCH" "${z_provider_get_url}?updateMask=oidc.jwksJson" "${z_token}" "affiance_provider_patch" "${z_patch_body}"
+          rbuh_json "PATCH" "${z_provider_get_url}?updateMask=oidc.jwksJson" "${zSECRET_token}" "affiance_provider_patch" "${z_patch_body}"
           rbuh_require_ok "Re-sync provider JWKS" "affiance_provider_patch"
           buc_info "Provider ${z_provider_id} JWKS re-synced (updateMask=oidc.jwksJson)"
           ;;
@@ -1365,7 +1431,7 @@ rbgp_manor_affiance() {
       local -r z_provider_create_url="${z_providers_base}?workforcePoolProviderId=${z_provider_id}"
       rbge_lro_ok \
         "Create workforce pool provider" \
-        "${z_token}" \
+        "${zSECRET_token}" \
         "${z_provider_create_url}" \
         "affiance_provider_create" \
         "${z_provider_body}" \
@@ -1415,14 +1481,14 @@ rbgp_manor_jilt() {
   buc_require "Dissolve foedus provider ${z_provider_id} under pool ${z_pool_id} — ends federated access for citizens asserted through this foedus (the pool stands)" "${z_provider_id}"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   # Probe the provider. Idempotent: an absent provider (404) or one already
   # soft-deleted (200, state DELETED) is reported already-dissolved and exits
   # clean — no delete issued.
   buc_step 'Probe pool provider'
-  rbuh_json "GET" "${z_provider_url}" "${z_token}" "jilt_provider_get"
+  rbuh_json "GET" "${z_provider_url}" "${zSECRET_token}" "jilt_provider_get"
   local z_provider_code
   z_provider_code=$(rbuh_code_capture "jilt_provider_get") || buc_die_now "No HTTP code from providers.get"
 
@@ -1451,7 +1517,7 @@ rbgp_manor_jilt() {
   # acceptance, then poll the resource to its terminal state. Only the provider
   # is deleted; the manor pool is never touched by jilt.
   buc_step 'Delete pool provider (the pool stands)'
-  rbuh_json "DELETE" "${z_provider_url}" "${z_token}" "jilt_provider_delete"
+  rbuh_json "DELETE" "${z_provider_url}" "${zSECRET_token}" "jilt_provider_delete"
   rbuh_require_ok "Delete provider" "jilt_provider_delete"
   buc_info "Provider ${z_provider_id} delete accepted — awaiting dissolution"
 
@@ -1470,7 +1536,7 @@ rbgp_manor_jilt() {
     z_jilt_elapsed=$((z_jilt_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
     z_verify_infix="jilt_provider_verify_${z_jilt_elapsed}s"
-    rbuh_json "GET" "${z_provider_url}" "${z_token}" "${z_verify_infix}" || buc_die_now "HTTP GET request failed (${z_verify_infix})"
+    rbuh_json "GET" "${z_provider_url}" "${zSECRET_token}" "${z_verify_infix}" || buc_die_now "HTTP GET request failed (${z_verify_infix})"
     local z_verify_code_status=0
     z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code_status=$?
     test "${z_verify_code_status}" -eq 0 || z_verify_code=""
@@ -1527,14 +1593,14 @@ rbgp_manor_raze() {
   buc_require "DANGER: Force-delete workforce pool ${z_pool_id} under ${z_org} — re-enrolls EVERY citizen under the manor" "${z_pool_id}"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   # Probe the pool. Idempotent: an absent pool (404) or one already soft-deleted
   # (200, state DELETED) is reported razed and exits clean — no delete issued, so
   # a release ladder can run raze unconditionally to reach a clean manor.
   buc_step 'Probe workforce identity pool'
-  rbuh_json "GET" "${z_pool_url}" "${z_token}" "raze_pool_get"
+  rbuh_json "GET" "${z_pool_url}" "${zSECRET_token}" "raze_pool_get"
   local z_pool_code
   z_pool_code=$(rbuh_code_capture "raze_pool_get") || buc_die_now "No HTTP code from workforcePools.get"
 
@@ -1563,7 +1629,7 @@ rbgp_manor_raze() {
   # with the deletion — no separate provider delete. workforcePools.delete returns
   # an LRO; confirm acceptance, then poll the resource to its terminal state.
   buc_step 'Force-delete workforce pool (provider cascades)'
-  rbuh_json "DELETE" "${z_pool_url}" "${z_token}" "raze_pool_delete"
+  rbuh_json "DELETE" "${z_pool_url}" "${zSECRET_token}" "raze_pool_delete"
   rbuh_require_ok "Delete workforce pool" "raze_pool_delete"
   buc_info "Workforce pool ${z_pool_id} delete accepted — awaiting soft-delete transition"
 
@@ -1578,7 +1644,7 @@ rbgp_manor_raze() {
     z_raze_elapsed=$((z_raze_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
 
     local z_verify_infix="raze_pool_verify_${z_raze_elapsed}s"
-    rbuh_json "GET" "${z_pool_url}" "${z_token}" "${z_verify_infix}" || buc_die_now "HTTP GET request failed (${z_verify_infix})"
+    rbuh_json "GET" "${z_pool_url}" "${zSECRET_token}" "${z_verify_infix}" || buc_die_now "HTTP GET request failed (${z_verify_infix})"
     local z_verify_code
     local z_verify_code_status=0
     z_verify_code=$(rbuh_code_capture "${z_verify_infix}") || z_verify_code_status=$?
@@ -1636,8 +1702,8 @@ rbgp_manor_instaurate() {
   local -r z_pool_url="${z_pools_base}/${z_pool_id}"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   # === Ensure the payor-project APIs (migrated from the manual payor guide) ===
   # The payor project is the OAuth client's home and so the quota project of every
@@ -1654,7 +1720,7 @@ rbgp_manor_instaurate() {
   local -ra z_payor_api_services=("serviceusage" "cloudresourcemanager" "cloudbilling" "iam" "iamcredentials" "storage" "artifactregistry" "cloudbuild" "iap")
   local z_api_i=0
   for z_api_i in "${!z_payor_api_services[@]}"; do
-    rbge_api_enable "${z_payor_api_services[${z_api_i}]}" "${RBRP_PAYOR_PROJECT_ID}" "${z_token}" \
+    rbge_api_enable "${z_payor_api_services[${z_api_i}]}" "${RBRP_PAYOR_PROJECT_ID}" "${zSECRET_token}" \
       || buc_die_now "Failed to enable payor-project API: ${z_payor_api_services[${z_api_i}]}"
   done
 
@@ -1668,7 +1734,7 @@ rbgp_manor_instaurate() {
   # enablement.
   buc_step 'Gate the consent-screen audience (Internal-only)'
   local -r z_brands_url="${RBGC_API_ROOT_IAP}${RBGC_IAP_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/brands"
-  rbuh_json "GET" "${z_brands_url}" "${z_token}" "instaurate_brands_list"
+  rbuh_json "GET" "${z_brands_url}" "${zSECRET_token}" "instaurate_brands_list"
   rbuh_require_ok "List payor OAuth brands" "instaurate_brands_list"
   local z_brand_count
   local z_brand_count_status=0
@@ -1697,7 +1763,7 @@ rbgp_manor_instaurate() {
   # reconcile posture as the pool's session-duration.
   buc_step "Ensure billing linked to payor project ${RBRP_PAYOR_PROJECT_ID}"
   local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/billingInfo"
-  rbuh_json "GET" "${z_billing_url}" "${z_token}" "instaurate_billing_read"
+  rbuh_json "GET" "${z_billing_url}" "${zSECRET_token}" "instaurate_billing_read"
   rbuh_require_ok "Read payor billing info" "instaurate_billing_read"
   # An unlinked project reads back an absent/empty billingAccountName; the capture
   # helper signals empty-or-null as nonzero, so fold that to "" (not linked) here.
@@ -1715,7 +1781,7 @@ rbgp_manor_instaurate() {
     local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_instaurate_billing.json"
     jq -n --arg billingAccountName "${z_billing_want}" '{billingAccountName: $billingAccountName}' \
       > "${z_billing_body}" || buc_die_now "Failed to build billing link body"
-    rbuh_json "PUT" "${z_billing_url}" "${z_token}" "instaurate_billing_link" "${z_billing_body}"
+    rbuh_json "PUT" "${z_billing_url}" "${zSECRET_token}" "instaurate_billing_link" "${z_billing_body}"
     rbuh_require_ok "Link billing to payor project" "instaurate_billing_link"
   fi
 
@@ -1725,7 +1791,7 @@ rbgp_manor_instaurate() {
   # through. Affiance assumes the finisher already seated this (F1 NOTE).
   buc_step 'Seat org-level workforcePoolAdmin (spike F1 — must precede pool founding)'
   rbgi_add_project_iam_role \
-    "${z_token}" \
+    "${zSECRET_token}" \
     "Instaurate: seat workforcePoolAdmin" \
     "${z_org}" \
     "roles/iam.workforcePoolAdmin" \
@@ -1777,7 +1843,7 @@ rbgp_manor_instaurate() {
     fi
 
     z_infix="instaurate_pools_list_${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}" || buc_die_now "HTTP GET request failed (${z_infix})"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_infix}" || buc_die_now "HTTP GET request failed (${z_infix})"
     z_code=$(rbuh_code_capture "${z_infix}") \
       || buc_die_now "No HTTP code from workforcePools.list under ${z_org}"
     test "${z_code}" = "200" \
@@ -1854,7 +1920,7 @@ rbgp_manor_instaurate() {
         --arg description     "${RBGC_WORKFORCE_POOL_MARKER}" \
         '{ sessionDuration: $sessionDuration, description: $description }' > "${z_patch_body}" \
         || buc_die_now "Failed to build workforce pool patch body"
-      rbuh_json "PATCH" "${z_pool_url}?updateMask=${z_mask}" "${z_token}" "instaurate_pool_patch" "${z_patch_body}"
+      rbuh_json "PATCH" "${z_pool_url}?updateMask=${z_mask}" "${zSECRET_token}" "instaurate_pool_patch" "${z_patch_body}"
       rbuh_require_ok "Reconcile pool" "instaurate_pool_patch"
       buc_info "Workforce pool ${z_pool_id} reconciled (updateMask=${z_mask})"
     fi
@@ -1882,7 +1948,7 @@ rbgp_manor_instaurate() {
 
     rbge_lro_ok \
       "Create workforce pool" \
-      "${z_token}" \
+      "${zSECRET_token}" \
       "${z_pools_base}?workforcePoolId=${z_pool_id}" \
       "instaurate_pool_create" \
       "${z_pool_body}" \
@@ -1898,7 +1964,7 @@ rbgp_manor_instaurate() {
   # Bucket only: the per-polity managed folder inside it is depot-grain — named by
   # a depot, granted to that depot's governor mantle — and is founded at depot levy.
   buc_step "Ensure terrier bucket ${RBGP_TERRIER_BUCKET} in payor project ${RBRP_PAYOR_PROJECT_ID}"
-  rbgb_bucket_ensure "${z_token}" "${RBRP_PAYOR_PROJECT_ID}" "${RBGP_TERRIER_BUCKET}" "${RBRD_GCP_REGION}"
+  rbgb_bucket_ensure "${zSECRET_token}" "${RBRP_PAYOR_PROJECT_ID}" "${RBGP_TERRIER_BUCKET}" "${RBRD_GCP_REGION}"
 
   buc_step 'Manor instaurated'
   buc_success "Manor instaurated: workforce pool ${z_pool_id} under ${z_org}, terrier bucket ${RBGP_TERRIER_BUCKET}"
@@ -2131,18 +2197,18 @@ rbgp_manor_escheat() {
   local -r z_bucket="${RBGP_TERRIER_BUCKET}"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_survey_file="${ZRBGP_PREFIX}escheat_survey_plan.txt"
-  rbgft_escheat_survey "${z_token}" "${z_bucket}" > "${z_survey_file}" \
+  rbgft_escheat_survey "${zSECRET_token}" "${z_bucket}" > "${z_survey_file}" \
     || buc_die_now "Escheat survey failed"
 
   buc_step 'List the polity managed folders'
   local -r z_folders_file="${ZRBGP_PREFIX}escheat_folders_plan.txt"
   local z_folders_status=0
   local z_folders
-  z_folders=$(rbgb_managed_folders_capture "${z_token}" "${z_bucket}") || z_folders_status=$?
+  z_folders=$(rbgb_managed_folders_capture "${zSECRET_token}" "${z_bucket}") || z_folders_status=$?
   test "${z_folders_status}" -eq 0 \
     || buc_reject "${BUBC_band_escheat}" "Escheat: failed to list managed folders in ${z_bucket}"
   printf '%s\n' "${z_folders}" > "${z_folders_file}" || buc_die_now "Failed to write: ${z_folders_file}"
@@ -2153,7 +2219,7 @@ rbgp_manor_escheat() {
 
   buc_step 'Probe depot liveness'
   local -r z_liveness_file="${ZRBGP_PREFIX}escheat_liveness.txt"
-  zrbgp_escheat_liveness "${z_token}" "${z_depots_file}" > "${z_liveness_file}" \
+  zrbgp_escheat_liveness "${zSECRET_token}" "${z_depots_file}" > "${z_liveness_file}" \
     || buc_die_now "Failed to probe depot liveness"
 
   buc_step 'Escheat plan — every disposition'
@@ -2207,24 +2273,24 @@ rbgp_manor_escheat() {
     IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     test "${z_action}" = "sweep" || continue
     test "${z_kind}" = "object"  || continue
-    rbgft_escheat_expunge_raw "${z_token}" "${z_bucket}" "${z_name}" >/dev/null \
+    rbgft_escheat_expunge_raw "${zSECRET_token}" "${z_bucket}" "${z_name}" >/dev/null \
       || buc_die_now "Escheat: raw expunge failed for ${z_name}"
   done
   for z_i in "${!z_plan_lines[@]}"; do
     IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     test "${z_action}" = "sweep" || continue
     test "${z_kind}" = "folder"  || continue
-    rbgb_managed_folder_purge "${z_token}" "${z_bucket}" "${z_name}"
+    rbgb_managed_folder_purge "${zSECRET_token}" "${z_bucket}" "${z_name}"
   done
 
   buc_step 'Verify the sweep (re-survey; the re-plan must hold no strike)'
   local -r z_survey_verify_file="${ZRBGP_PREFIX}escheat_survey_verify.txt"
-  rbgft_escheat_survey "${z_token}" "${z_bucket}" > "${z_survey_verify_file}" \
+  rbgft_escheat_survey "${zSECRET_token}" "${z_bucket}" > "${z_survey_verify_file}" \
     || buc_die_now "Escheat verify survey failed"
   local -r z_folders_verify_file="${ZRBGP_PREFIX}escheat_folders_verify.txt"
   local z_folders_verify_status=0
   local z_folders_verify
-  z_folders_verify=$(rbgb_managed_folders_capture "${z_token}" "${z_bucket}") || z_folders_verify_status=$?
+  z_folders_verify=$(rbgb_managed_folders_capture "${zSECRET_token}" "${z_bucket}") || z_folders_verify_status=$?
   test "${z_folders_verify_status}" -eq 0 \
     || buc_reject "${BUBC_band_escheat}" "Escheat verify: failed to re-list managed folders in ${z_bucket}"
   printf '%s\n' "${z_folders_verify}" > "${z_folders_verify_file}" || buc_die_now "Failed to write: ${z_folders_verify_file}"
@@ -2266,12 +2332,12 @@ rbgp_depot_levy() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   buc_step 'Validate region against Artifact Registry locations'
   local -r z_locations_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBRP_PAYOR_PROJECT_ID}/locations"
-  rbuh_json "GET" "${z_locations_url}" "${z_token}" "region_validation"
+  rbuh_json "GET" "${z_locations_url}" "${zSECRET_token}" "region_validation"
   rbuh_require_ok "Validate region" "region_validation"
 
   local z_valid_regions
@@ -2297,7 +2363,7 @@ rbgp_depot_levy() {
   local -r z_create_project_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects"
   rbge_lro_ok \
     "Create depot project" \
-    "${z_token}" \
+    "${zSECRET_token}" \
     "${z_create_project_url}" \
     "depot_project_create" \
     "${z_create_project_body}" \
@@ -2319,7 +2385,7 @@ rbgp_depot_levy() {
     }' > "${z_billing_body}" || buc_die_now "Failed to build billing link body"
 
   local -r z_billing_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/billingInfo"
-  rbuh_json "PUT" "${z_billing_url}" "${z_token}" "depot_billing_link" "${z_billing_body}"
+  rbuh_json "PUT" "${z_billing_url}" "${zSECRET_token}" "depot_billing_link" "${z_billing_body}"
 
   # Billing-account link quota decode: Google refuses the link with a bare
   # "Precondition check failed." whose QuotaFailure detail names the real
@@ -2350,7 +2416,7 @@ rbgp_depot_levy() {
 
   buc_step 'Get depot project number'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${RBDC_DEPOT_PROJECT_ID}"
-  rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_project_info"
+  rbuh_json "GET" "${z_project_info_url}" "${zSECRET_token}" "depot_project_info"
   rbuh_require_ok "Get project info" "depot_project_info"
 
   local z_project_number
@@ -2362,7 +2428,7 @@ rbgp_depot_levy() {
   local -ra z_api_services=("artifactregistry" "cloudbuild" "cloudresourcemanager" "containeranalysis" "iam" "serviceusage" "storage")
   local z_api_i=0
   for z_api_i in "${!z_api_services[@]}"; do
-    rbge_api_enable "${z_api_services[${z_api_i}]}" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" || buc_die_now "Failed to enable ${z_api_services[${z_api_i}]} on ${RBDC_DEPOT_PROJECT_ID}"
+    rbge_api_enable "${z_api_services[${z_api_i}]}" "${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" || buc_die_now "Failed to enable ${z_api_services[${z_api_i}]} on ${RBDC_DEPOT_PROJECT_ID}"
   done
 
   buc_step 'Create dual worker pools (tether + airgap)'
@@ -2384,7 +2450,7 @@ rbgp_depot_levy() {
 
   rbge_lro_ok \
     "Create tether worker pool" \
-    "${z_token}" \
+    "${zSECRET_token}" \
     "${z_tether_create_url}" \
     "depot_pool_tether_create" \
     "${z_tether_create_body}" \
@@ -2413,7 +2479,7 @@ rbgp_depot_levy() {
 
   rbge_lro_ok \
     "Create airgap worker pool" \
-    "${z_token}" \
+    "${zSECRET_token}" \
     "${z_airgap_create_url}" \
     "depot_pool_airgap_create" \
     "${z_airgap_create_body}" \
@@ -2431,7 +2497,7 @@ rbgp_depot_levy() {
 
   buc_step 'Verify IAM propagation before resource creation'
   local -r z_preflight_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/repositories"
-  rbuh_poll_until_ok "AR IAM propagation" "${z_preflight_url}" "${z_token}" "iam_preflight"
+  rbuh_poll_until_ok "AR IAM propagation" "${z_preflight_url}" "${zSECRET_token}" "iam_preflight"
 
   buc_step 'Create container repository'
   local -r z_parent="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}"
@@ -2458,7 +2524,7 @@ rbgp_depot_levy() {
 
   rbge_lro_ok \
     "Create container repository" \
-    "${z_token}" \
+    "${zSECRET_token}" \
     "${z_create_repo_url}" \
     "depot_repo_create" \
     "${z_create_repo_body}" \
@@ -2470,7 +2536,7 @@ rbgp_depot_levy() {
 
   buc_step 'Verify IAM API is ready for service account creation'
   local -r z_iam_preflight_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
-  rbuh_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${z_token}" "iam_sa_preflight"
+  rbuh_poll_until_ok "IAM API" "${z_iam_preflight_url}" "${zSECRET_token}" "iam_sa_preflight"
 
   buc_step 'Create Mason service account'
   local -r z_mason_name="${RBCC_account_unhewn_mason}-${RBRD_DEPOT_MONIKER}"
@@ -2488,7 +2554,7 @@ rbgp_depot_levy() {
     }' > "${z_create_sa_body}" || buc_die_now "Failed to build Mason creation body"
 
   local -r z_create_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
-  rbuh_json "POST" "${z_create_sa_url}" "${z_token}" "depot_mason_create" "${z_create_sa_body}"
+  rbuh_json "POST" "${z_create_sa_url}" "${zSECRET_token}" "depot_mason_create" "${z_create_sa_body}"
   rbuh_require_ok "Create Mason service account" "depot_mason_create"
 
   local z_mason_sa_email
@@ -2496,19 +2562,19 @@ rbgp_depot_levy() {
 
   buc_step 'Verify Mason service account propagation'
   local -r z_mason_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_mason_sa_email}"
-  rbuh_poll_until_ok "Mason SA" "${z_mason_sa_url}" "${z_token}" "mason_sa_preflight"
+  rbuh_poll_until_ok "Mason SA" "${z_mason_sa_url}" "${zSECRET_token}" "mason_sa_preflight"
 
   buc_step 'Configure Mason permissions'
   # Repository admin (AR repo IAM requires email, not numeric ID)
-  rbgi_add_repo_iam_role "${z_token}" "${RBDC_DEPOT_PROJECT_ID}" "${z_mason_sa_email}" "${z_region}" "${RBDC_GAR_REPOSITORY}" \
+  rbgi_add_repo_iam_role "${zSECRET_token}" "${RBDC_DEPOT_PROJECT_ID}" "${z_mason_sa_email}" "${z_region}" "${RBDC_GAR_REPOSITORY}" \
     "roles/artifactregistry.writer"
 
   # Project viewer
-  rbgi_add_project_iam_role "${z_token}" "Grant Mason Project Viewer" "projects/${RBDC_DEPOT_PROJECT_ID}" \
+  rbgi_add_project_iam_role "${zSECRET_token}" "Grant Mason Project Viewer" "projects/${RBDC_DEPOT_PROJECT_ID}" \
     "roles/viewer" "serviceAccount:${z_mason_sa_email}" "mason-viewer"
 
   # Logs writer (for Cloud Build logs to Cloud Logging)
-  rbgi_add_project_iam_role "${z_token}" "Grant Mason Logs Writer" "projects/${RBDC_DEPOT_PROJECT_ID}" \
+  rbgi_add_project_iam_role "${zSECRET_token}" "Grant Mason Logs Writer" "projects/${RBDC_DEPOT_PROJECT_ID}" \
     "roles/logging.logWriter" "serviceAccount:${z_mason_sa_email}" "mason-logs-writer"
 
   buc_step 'Provision Cloud Build service agent'
@@ -2516,13 +2582,13 @@ rbgp_depot_levy() {
   # needs serviceAccountTokenCreator on Mason to impersonate it during builds.create.
   # The service agent is auto-created when the Cloud Build API is enabled; its email is
   # deterministic from the project number.
-  rbgi_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${z_token}" > /dev/null \
+  rbgi_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" > /dev/null \
     || buc_die_now "Failed to provision Cloud Build service agent"
   local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
   buc_log_args "CB service agent: ${z_cb_service_agent}"
 
   buc_step 'Enable Cloud Build service agent to impersonate Mason'
-  rbgi_add_sa_iam_role "${z_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
+  rbgi_add_sa_iam_role "${zSECRET_token}" "${z_mason_sa_email}" "${z_cb_service_agent}" "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
 
   buc_step 'Establish the mantle service accounts'
   # The three federation mantles (governor/director/retriever) — the impersonatable
@@ -2532,14 +2598,14 @@ rbgp_depot_levy() {
   local -r z_dir_mantle_email="${RBCC_account_mantle_director}@${RBGD_SA_EMAIL_FULL}"
   local -r z_ret_mantle_email="${RBCC_account_mantle_retriever}@${RBGD_SA_EMAIL_FULL}"
 
-  zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_governor}" "governor"
-  rbgw_grant_governor_capabilities "${z_token}" "${z_gov_mantle_email}"
+  zrbgp_establish_mantle_sa "${zSECRET_token}" "${RBCC_account_mantle_governor}" "governor"
+  rbgw_grant_governor_capabilities "${zSECRET_token}" "${z_gov_mantle_email}"
 
-  zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_director}" "director"
-  rbgw_grant_director_capabilities "${z_token}" "${z_dir_mantle_email}"
+  zrbgp_establish_mantle_sa "${zSECRET_token}" "${RBCC_account_mantle_director}" "director"
+  rbgw_grant_director_capabilities "${zSECRET_token}" "${z_dir_mantle_email}"
 
-  zrbgp_establish_mantle_sa "${z_token}" "${RBCC_account_mantle_retriever}" "retriever"
-  rbgw_grant_retriever_capabilities "${z_token}" "${z_ret_mantle_email}"
+  zrbgp_establish_mantle_sa "${zSECRET_token}" "${RBCC_account_mantle_retriever}" "retriever"
+  rbgw_grant_retriever_capabilities "${zSECRET_token}" "${z_ret_mantle_email}"
 
   # === Found the polity terrier folder + grain IAM (depot-grain, ensure-only) ===
   # The polity managed folder is named by this depot and grants the fresh governor
@@ -2552,19 +2618,19 @@ rbgp_depot_levy() {
   local -r z_terrier_folder="${RBDC_DEPOT_PROJECT_ID}/"
 
   buc_step "Ensure the polity managed folder ${z_terrier_folder} (ensure-only)"
-  rbgb_managed_folder_ensure "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_terrier_folder}"
+  rbgb_managed_folder_ensure "${zSECRET_token}" "${RBGP_TERRIER_BUCKET}" "${z_terrier_folder}"
 
   buc_step 'Grant folder-scoped write to the governor mantle (own-polity)'
-  rbgb_managed_folder_add_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_terrier_folder}" \
+  rbgb_managed_folder_add_iam_role "${zSECRET_token}" "${RBGP_TERRIER_BUCKET}" "${z_terrier_folder}" \
     "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}"
 
   buc_step 'Grant bucket-level read to the governor mantle (manor-wide)'
-  rbgi_add_bucket_iam_role "${z_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
+  rbgi_add_bucket_iam_role "${zSECRET_token}" "${RBGP_TERRIER_BUCKET}" "${z_gov_mantle_email}" "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}"
 
   buc_step 'Verify bucket-level read via getIamPolicy read-back'
   rbuh_json "GET" \
     "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "levy_terrier_bucket_iam"
+    "${zSECRET_token}" "levy_terrier_bucket_iam"
   rbuh_require_ok "Read terrier bucket IAM policy" "levy_terrier_bucket_iam"
   zrbgp_recognosce_require_binding "levy_terrier_bucket_iam" \
     "${RBGC_ROLE_STORAGE_OBJECT_VIEWER}" "serviceAccount:${z_gov_mantle_email}" \
@@ -2575,7 +2641,7 @@ rbgp_depot_levy() {
   z_terrier_folder_enc=$(rbuh_urlencode_capture "${z_terrier_folder}") || buc_die_now "Failed to encode terrier folder"
   rbuh_json "GET" \
     "${RBGC_API_BASE_GCS}/b/${RBGP_TERRIER_BUCKET}/managedFolders/${z_terrier_folder_enc}/iam?optionsRequestedPolicyVersion=3" \
-    "${z_token}" "levy_terrier_folder_iam"
+    "${zSECRET_token}" "levy_terrier_folder_iam"
   rbuh_require_ok "Read terrier folder IAM policy" "levy_terrier_folder_iam"
   zrbgp_recognosce_require_binding "levy_terrier_folder_iam" \
     "${RBGC_ROLE_STORAGE_OBJECT_ADMIN}" "serviceAccount:${z_gov_mantle_email}" \
@@ -2587,7 +2653,7 @@ rbgp_depot_levy() {
   # is the freeze. Post-levy admission writes only the per-citizen tokenCreator +
   # serviceUsageConsumer bindings, never a resource binding.
 
-  zrbgp_enable_ar_audit_logs "${z_token}"
+  zrbgp_enable_ar_audit_logs "${zSECRET_token}"
 
   buc_step 'Submit per-pool probe builds (populate quota rows + assert egress posture + GAR write)'
 
@@ -2597,14 +2663,14 @@ rbgp_depot_levy() {
   zrbgp_write_posture_check tether "${z_tether_posture_check}"
   zrbgp_write_posture_check airgap "${z_airgap_posture_check}"
 
-  zrbgp_pool_probe_submit "${z_token}" "tether" "${z_tether_id}" "${z_mason_sa_email}" "${z_tether_posture_check}"
-  zrbgp_pool_probe_submit "${z_token}" "airgap" "${z_airgap_id}" "${z_mason_sa_email}" "${z_airgap_posture_check}"
+  zrbgp_pool_probe_submit "${zSECRET_token}" "tether" "${z_tether_id}" "${z_mason_sa_email}" "${z_tether_posture_check}"
+  zrbgp_pool_probe_submit "${zSECRET_token}" "airgap" "${z_airgap_id}" "${z_mason_sa_email}" "${z_airgap_posture_check}"
 
   buc_step 'Update depot tracking'
   zrbgp_depot_list_update || buc_die_now "Failed to update depot tracking after creation"
 
   buc_step 'Inscribe RBRD tripwire image'
-  rbndb_inscribe "${z_token}"
+  rbndb_inscribe "${zSECRET_token}"
 
   buc_success 'Depot creation successful'
   buc_info "Next: gird the first Governor for this depot:"
@@ -2647,12 +2713,12 @@ rbgp_depot_unmake() {
   buc_require "DANGER: Permanently destroy depot ${z_project_id} and ALL resources" "${z_project_id}"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   buc_step 'Validate target depot'
   local -r z_project_info_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
-  rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_validate"
+  rbuh_json "GET" "${z_project_info_url}" "${zSECRET_token}" "depot_destroy_validate"
   rbuh_require_ok "Validate depot project" "depot_destroy_validate"
 
   local z_lifecycle_state
@@ -2714,7 +2780,7 @@ rbgp_depot_unmake() {
       z_unmake_sa_url="${z_unmake_sa_url}?pageToken=${z_unmake_sa_tok_enc}"
     fi
     z_unmake_sa_infix="depot_unmake_gov_list_${z_unmake_sa_page}"
-    rbuh_json "GET" "${z_unmake_sa_url}" "${z_token}" "${z_unmake_sa_infix}" || buc_die_now "HTTP GET request failed (${z_unmake_sa_infix})"
+    rbuh_json "GET" "${z_unmake_sa_url}" "${zSECRET_token}" "${z_unmake_sa_infix}" || buc_die_now "HTTP GET request failed (${z_unmake_sa_infix})"
     rbuh_require_ok "List service accounts (page ${z_unmake_sa_page})" "${z_unmake_sa_infix}" || buc_die_now "Response check failed: List service accounts (page ${z_unmake_sa_page})"
 
     z_unmake_sa_count=$(rbuh_json_field_capture "${z_unmake_sa_infix}" '.accounts // [] | length') \
@@ -2729,7 +2795,7 @@ rbgp_depot_unmake() {
         "${RBCC_account_unhewn_governor}"-*)
           buc_log_args "Deleting governor SA: ${z_unmake_sa_email}" || buc_die_now "Failed to write transcript line"
           z_unmake_gov_delete_infix="depot_unmake_gov_delete_${z_governor_sa_count}"
-          rbuh_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${z_token}" "${z_unmake_gov_delete_infix}" || buc_die_now "HTTP DELETE request failed (${z_unmake_gov_delete_infix})"
+          rbuh_json "DELETE" "${z_unmake_sa_url_base}/${z_unmake_sa_email}" "${zSECRET_token}" "${z_unmake_gov_delete_infix}" || buc_die_now "HTTP DELETE request failed (${z_unmake_gov_delete_infix})"
           rbuh_require_ok "Delete governor SA ${z_unmake_sa_email}" "${z_unmake_gov_delete_infix}" \
             404 "not found (already deleted)" || buc_die_now "Response check failed: Delete governor SA ${z_unmake_sa_email}"
           z_governor_sa_count=$((z_governor_sa_count + 1))
@@ -2748,7 +2814,7 @@ rbgp_depot_unmake() {
 
   buc_step 'Check for and remove liens'
   local -r z_liens_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects%2F${z_project_id}"
-  rbuh_json "GET" "${z_liens_url}" "${z_token}" "depot_destroy_liens_list"
+  rbuh_json "GET" "${z_liens_url}" "${zSECRET_token}" "depot_destroy_liens_list"
   rbuh_require_ok "List liens" "depot_destroy_liens_list"
   
   local z_lien_count
@@ -2769,7 +2835,7 @@ rbgp_depot_unmake() {
       if test -n "${z_lien_name}"; then
         buc_log_args "Removing lien: ${z_lien_name}" || buc_die_now "Failed to write transcript line"
         local z_delete_lien_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens/${z_lien_name}"
-        rbuh_json "DELETE" "${z_delete_lien_url}" "${z_token}" "depot_destroy_lien_delete" || buc_die_now "HTTP DELETE request failed (depot_destroy_lien_delete)"
+        rbuh_json "DELETE" "${z_delete_lien_url}" "${zSECRET_token}" "depot_destroy_lien_delete" || buc_die_now "HTTP DELETE request failed (depot_destroy_lien_delete)"
         rbuh_require_ok "Delete lien" "depot_destroy_lien_delete" || buc_die_now "Response check failed: Delete lien"
       fi
     done
@@ -2780,7 +2846,7 @@ rbgp_depot_unmake() {
   echo '{"billingAccountName":""}' > "${z_billing_unlink_body}" || buc_die_now "Failed to build billing unlink body"
 
   local -r z_billing_unlink_url="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/projects/${z_project_id}/billingInfo"
-  rbuh_json "PUT" "${z_billing_unlink_url}" "${z_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
+  rbuh_json "PUT" "${z_billing_unlink_url}" "${zSECRET_token}" "depot_destroy_billing_unlink" "${z_billing_unlink_body}"
 
   local z_billing_unlink_code
   local z_billing_unlink_code_status=0
@@ -2799,7 +2865,7 @@ rbgp_depot_unmake() {
   # Delete tether pool
   local -r z_tether_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_TETHER}"
   local -r z_tether_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRD_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_tether_del_id}"
-  rbuh_json "DELETE" "${z_tether_del_url}" "${z_token}" "depot_destroy_pool_tether"
+  rbuh_json "DELETE" "${z_tether_del_url}" "${zSECRET_token}" "depot_destroy_pool_tether"
   local z_tether_del_code
   local z_tether_del_code_status=0
   z_tether_del_code=$(rbuh_code_capture "depot_destroy_pool_tether") || z_tether_del_code_status=$?
@@ -2815,7 +2881,7 @@ rbgp_depot_unmake() {
   # Delete airgap pool
   local -r z_airgap_del_id="${z_pool_stem}${RBGC_POOL_SUFFIX_AIRGAP}"
   local -r z_airgap_del_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${z_project_id}/locations/${RBRD_GCP_REGION}${RBGC_PATH_WORKER_POOLS}/${z_airgap_del_id}"
-  rbuh_json "DELETE" "${z_airgap_del_url}" "${z_token}" "depot_destroy_pool_airgap"
+  rbuh_json "DELETE" "${z_airgap_del_url}" "${zSECRET_token}" "depot_destroy_pool_airgap"
   local z_airgap_del_code
   local z_airgap_del_code_status=0
   z_airgap_del_code=$(rbuh_code_capture "depot_destroy_pool_airgap") || z_airgap_del_code_status=$?
@@ -2827,7 +2893,7 @@ rbgp_depot_unmake() {
 
   buc_step 'Initiate depot deletion'
   local -r z_delete_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
-  rbuh_json "DELETE" "${z_delete_url}" "${z_token}" "depot_destroy_delete"
+  rbuh_json "DELETE" "${z_delete_url}" "${zSECRET_token}" "depot_destroy_delete"
   
   local z_delete_response
   z_delete_response=$(rbuh_code_capture "depot_destroy_delete") || buc_die_now "Failed to get deletion response code"
@@ -2851,7 +2917,7 @@ rbgp_depot_unmake() {
     sleep 5 || buc_die_now "Poll wait interrupted"
     buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})" || buc_die_now "Failed to write transcript line"
     
-    rbuh_json "GET" "${z_project_info_url}" "${z_token}" "depot_destroy_state_check" || buc_die_now "HTTP GET request failed (depot_destroy_state_check)"
+    rbuh_json "GET" "${z_project_info_url}" "${zSECRET_token}" "depot_destroy_state_check" || buc_die_now "HTTP GET request failed (depot_destroy_state_check)"
 
     local z_state_check_code
     local z_state_check_code_status=0
@@ -2892,11 +2958,11 @@ rbgp_depot_list() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   buc_step 'Probe depot states and emit per-moniker fact files'
-  zrbgp_depot_state_emit "${z_token}"
+  zrbgp_depot_state_emit "${zSECRET_token}"
 
   buc_step 'Render depot summary'
   local z_total_count=0
@@ -2959,8 +3025,8 @@ rbgp_depot_info() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_mason_email="${RBCC_account_unhewn_mason}-${RBRD_DEPOT_MONIKER}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
   local -r z_tether_id="${RBDC_GCB_POOL_STEM}${RBGC_POOL_SUFFIX_TETHER}"
@@ -2974,10 +3040,10 @@ rbgp_depot_info() {
   zrbgp_write_posture_check airgap "${z_airgap_posture_check}"
 
   buc_step 'Probe tether pool posture'
-  zrbgp_pool_posture_submit "${z_token}" "tether" "${z_tether_id}" "${z_mason_email}" "${z_tether_posture_check}"
+  zrbgp_pool_posture_submit "${zSECRET_token}" "tether" "${z_tether_id}" "${z_mason_email}" "${z_tether_posture_check}"
 
   buc_step 'Probe airgap pool posture'
-  zrbgp_pool_posture_submit "${z_token}" "airgap" "${z_airgap_id}" "${z_mason_email}" "${z_airgap_posture_check}"
+  zrbgp_pool_posture_submit "${zSECRET_token}" "airgap" "${z_airgap_id}" "${z_mason_email}" "${z_airgap_posture_check}"
 
   buc_success 'Posture checks complete'
 }
@@ -2997,10 +3063,10 @@ rbgp_incuse() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
-  rbndb_inscribe "${z_token}"
+  rbndb_inscribe "${zSECRET_token}"
 }
 
 rbgp_collate() {
@@ -3010,10 +3076,10 @@ rbgp_collate() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 }
 
 # Require one (role, member) binding present in a captured IAM policy, or die
@@ -3053,19 +3119,19 @@ rbgp_depot_recognosce() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_gov_email="${RBCC_account_mantle_governor}@${RBGD_SA_EMAIL_FULL}"
   local -r z_dir_email="${RBCC_account_mantle_director}@${RBGD_SA_EMAIL_FULL}"
   local -r z_ret_email="${RBCC_account_mantle_retriever}@${RBGD_SA_EMAIL_FULL}"
 
   buc_step 'Confirm the three mantle service accounts exist'
-  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_gov_email}" "${z_token}" "recognosce_mantle_governor"
+  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_gov_email}" "${zSECRET_token}" "recognosce_mantle_governor"
   rbuh_require_ok "recognosce: governor mantle SA (${z_gov_email})" "recognosce_mantle_governor"
-  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_dir_email}" "${z_token}" "recognosce_mantle_director"
+  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_dir_email}" "${zSECRET_token}" "recognosce_mantle_director"
   rbuh_require_ok "recognosce: director mantle SA (${z_dir_email})" "recognosce_mantle_director"
-  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_ret_email}" "${z_token}" "recognosce_mantle_retriever"
+  rbuh_json "GET" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_ret_email}" "${zSECRET_token}" "recognosce_mantle_retriever"
   rbuh_require_ok "recognosce: retriever mantle SA (${z_ret_email})" "recognosce_mantle_retriever"
 
   buc_step 'Read project IAM policy (v3) and require project-scoped capability-set bindings'
@@ -3073,7 +3139,7 @@ rbgp_depot_recognosce() {
   printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_v3body}" \
     || buc_die_now "Failed to write recognosce getIamPolicy body"
 
-  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${z_token}" "recognosce_project" "${z_v3body}"
+  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${zSECRET_token}" "recognosce_project" "${z_v3body}"
   rbuh_require_ok "recognosce: read project IAM policy" "recognosce_project"
 
   zrbgp_recognosce_require_binding "recognosce_project" "roles/owner" \
@@ -3108,21 +3174,21 @@ rbgp_depot_recognosce() {
   buc_step 'Read GAR repository IAM policy and require director repoAdmin'
   local -r z_repo_resource="projects/${RBDC_DEPOT_PROJECT_ID}/locations/${RBRD_GCP_REGION}/repositories/${RBDC_GAR_REPOSITORY}"
   local -r z_repo_url="${RBGC_API_ROOT_ARTIFACTREGISTRY}${RBGC_ARTIFACTREGISTRY_V1}/${z_repo_resource}:getIamPolicy?options.requestedPolicyVersion=3"
-  rbuh_json "GET" "${z_repo_url}" "${z_token}" "recognosce_repo"
+  rbuh_json "GET" "${z_repo_url}" "${zSECRET_token}" "recognosce_repo"
   rbuh_require_ok "recognosce: read GAR repository IAM policy" "recognosce_repo"
   zrbgp_recognosce_require_binding "recognosce_repo" "roles/artifactregistry.repoAdmin" \
     "serviceAccount:${z_dir_email}" "GAR repository (director capability-set)"
 
   buc_step 'Read Mason SA IAM policy and require director actAs on Mason'
   rbuh_json "POST" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${RBGD_MASON_EMAIL}:getIamPolicy" \
-    "${z_token}" "recognosce_mason_policy" "${z_v3body}"
+    "${zSECRET_token}" "recognosce_mason_policy" "${z_v3body}"
   rbuh_require_ok "recognosce: read Mason SA IAM policy" "recognosce_mason_policy"
   zrbgp_recognosce_require_binding "recognosce_mason_policy" "roles/iam.serviceAccountUser" \
     "serviceAccount:${z_dir_email}" "Mason SA (director actAs)"
 
   buc_step 'Read director SA IAM policy and require director self-actAs'
   rbuh_json "POST" "${RBGD_API_BASE_IAM_PROJECT}/serviceAccounts/${z_dir_email}:getIamPolicy" \
-    "${z_token}" "recognosce_director_policy" "${z_v3body}"
+    "${zSECRET_token}" "recognosce_director_policy" "${z_v3body}"
   rbuh_require_ok "recognosce: read director SA IAM policy" "recognosce_director_policy"
   zrbgp_recognosce_require_binding "recognosce_director_policy" "roles/iam.serviceAccountUser" \
     "serviceAccount:${z_dir_email}" "director SA (self-actAs)"
@@ -3283,10 +3349,10 @@ rbgp_gird() {
   test -n "${z_subject}" || buc_die_now "Subject required as the first argument"
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
-  zrbgp_brevet_core "${z_token}" "governor" "${z_subject}"
+  zrbgp_brevet_core "${zSECRET_token}" "governor" "${z_subject}"
 
   buc_success "Girded ${z_subject} onto the governor mantle in ${RBDC_DEPOT_PROJECT_ID}"
 }
@@ -3412,8 +3478,8 @@ rbgp_attribution_trail() {
   buc_doc_shown || return 0
 
   buc_step 'Authenticate as Payor'
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) || buc_die_now "Failed to authenticate as Payor via OAuth"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
   test -n "${z_depot}" || buc_die_now "RBDC_DEPOT_PROJECT_ID is empty — set RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER in rbrd.env"
@@ -3428,7 +3494,7 @@ rbgp_attribution_trail() {
      > "${z_body_file}" || buc_die_now "Failed to build entries:list request body"
 
   local -r z_url="${RBGC_API_ROOT_LOGGING}${RBGC_LOGGING_V2}${RBGC_LOGGING_ENTRIES_LIST_SUFFIX}"
-  rbuh_json "POST" "${z_url}" "${z_token}" "attribution_list" "${z_body_file}"
+  rbuh_json "POST" "${z_url}" "${zSECRET_token}" "attribution_list" "${z_body_file}"
 
   local z_code
   z_code=$(rbuh_code_capture "attribution_list") || buc_die_now "Failed to read entries:list HTTP code"
