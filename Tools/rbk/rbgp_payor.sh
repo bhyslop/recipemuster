@@ -351,9 +351,8 @@ zrbgp_depot_state_emit() {
     rbuh_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}" || buc_die_now "HTTP GET request failed (${z_search_infix})"
     rbuh_require_ok "CRM v3 projects:search" "${z_search_infix}" || buc_die_now "Response check failed: CRM v3 projects:search"
 
-    local z_project_count_status=0
-    z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') || z_project_count_status=$?
-    test "${z_project_count_status}" -eq 0 || z_project_count=0
+    z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') \
+      || buc_die_now "Failed to read the project count from ${z_search_infix}"
 
     z_index=0
     while test "${z_index}" -lt "${z_project_count}"; do
@@ -435,7 +434,11 @@ zrbgp_depot_state_emit() {
 
     local z_search_page_token_status=0
     z_search_page_token=$(rbuh_json_field_capture "${z_search_infix}" '.nextPageToken') || z_search_page_token_status=$?
-    test "${z_search_page_token_status}" -eq 0 || z_search_page_token=""
+    if test "${z_search_page_token_status}" -ne 0; then
+      test "${z_search_page_token}" = "${RBUH_refusal_absent}" \
+        || buc_die_now "Failed to read the next page token from ${z_search_infix}"
+      z_search_page_token=""
+    fi
     test -n "${z_search_page_token}" || break
     z_search_page=$((z_search_page + 1))
   done
@@ -1848,15 +1851,18 @@ rbgp_manor_instaurate() {
     test "${z_code}" = "200" \
       || buc_die_now "Unexpected HTTP ${z_code} from workforcePools.list under ${z_org}"
 
-    local z_count_status=0
-    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePools // [] | length') || z_count_status=$?
-    test "${z_count_status}" -eq 0 || z_count=0
+    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePools // [] | length') \
+      || buc_die_now "Failed to read the workforce pool count from ${z_infix}"
 
     z_index=0
     while test "${z_index}" -lt "${z_count}"; do
       local z_p_name_status=0
       z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].name") || z_p_name_status=$?
-      test "${z_p_name_status}" -eq 0 || z_p_name=""
+      if test "${z_p_name_status}" -ne 0; then
+        test "${z_p_name}" = "${RBUH_refusal_absent}" \
+          || buc_die_now "Failed to read workforce pool ${z_index}'s name from ${z_infix}"
+        z_p_name=""
+      fi
       z_p_id="${z_p_name##*/}"
       local z_p_state_status=0
       z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_p_state_status=$?
@@ -1885,7 +1891,11 @@ rbgp_manor_instaurate() {
 
     local z_page_token_status=0
     z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken // ""') || z_page_token_status=$?
-    test "${z_page_token_status}" -eq 0 || z_page_token=""
+    if test "${z_page_token_status}" -ne 0; then
+      test "${z_page_token}" = "${RBUH_refusal_absent}" \
+        || buc_die_now "Failed to read the next page token from ${z_infix}"
+      z_page_token=""
+    fi
     test -n "${z_page_token}" || break
     z_page=$((z_page + 1))
   done
@@ -2058,7 +2068,11 @@ zrbgp_escheat_liveness() {
       200)
         local z_state_status=0
         z_state=$(rbuh_json_field_capture "${z_infix}" '.state // "UNKNOWN"') || z_state_status=$?
-        test "${z_state_status}" -eq 0 || z_state="UNKNOWN"
+        if test "${z_state_status}" -ne 0; then
+          test "${z_state}" = "${RBUH_refusal_absent}" \
+            || buc_die_now "Escheat liveness: failed to read ${z_depot}'s state — a liveness verdict is never guessed"
+          z_state="UNKNOWN"
+        fi
         if test "${z_state}" != "${RBGC_STATE_ACTIVE}"; then
           printf '%s\tdead\t%s\n' "${z_depot}" "${z_state}" || buc_die_now "Failed to emit liveness line"
           continue

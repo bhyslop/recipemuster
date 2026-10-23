@@ -25,6 +25,11 @@ set -euo pipefail
 test -z "${ZRBUH_SOURCED:-}" || buc_die_now "Module rbuh multiply sourced - check sourcing hierarchy"
 ZRBUH_SOURCED=1
 
+# The word rbuh_json_field_capture prints ahead of its return 1 when the field
+# reads empty or null, so a caller parts a field the response lacks from a read
+# that failed, which prints nothing.
+readonly RBUH_refusal_absent="absent"
+
 ######################################################################
 # Internal Functions (zrbuh_*)
 
@@ -152,6 +157,9 @@ rbuh_urlencode_capture() {
   echo "${z_out}"
 }
 
+# rbuh_json_field_capture INFIX JQ — the field the filter reads from an infix's
+# response. A field reading empty or null refuses with RBUH_refusal_absent; a
+# failed read refuses with nothing printed.
 rbuh_json_field_capture() {
   zrbuh_sentinel
   local -r z_infix="${1:-}"
@@ -161,8 +169,14 @@ rbuh_json_field_capture() {
   local -r z_json_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
   local z_result
   z_result=$(jq -r "${z_jq}" "${z_json_file}")          || return 1
-  if test -z "${z_result}" || test "${z_result}" = "null"; then return 1; fi
-  echo "${z_result}"
+  local z_out="${z_result}"
+  local z_refused=0
+  if test -z "${z_result}" || test "${z_result}" = "null"; then
+    z_out="${RBUH_refusal_absent}"
+    z_refused=1
+  fi
+  echo "${z_out}"
+  return "${z_refused}"
 }
 
 rbuh_code_capture() {
