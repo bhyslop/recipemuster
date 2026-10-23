@@ -116,10 +116,6 @@ zrbrn_enforce() {
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_reject "${BUBC_band_regime}" "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
-
-  # Build docker env args array from validated values
-  # Usage: docker run "${ZRBRN_DOCKER_ENV[@]}" ...
-  buv_docker_env RBRN ZRBRN_DOCKER_ENV
 }
 
 ######################################################################
@@ -127,11 +123,14 @@ zrbrn_enforce() {
 
 # List available nameplate monikers as space-separated tokens
 # Prerequisite: RBCC sourced (needs RBCC_moorings_dir, RBCC_rbrn_file)
+# Each moniker is held to RBRN_MONIKER's word alphabet before it is joined — a
+# letter, then letters, digits, underscore and hyphen — so the callers' split on
+# whitespace reads back exactly the monikers listed; one that is not refuses.
 rbrn_list_capture() {
   zrbrn_sentinel
 
   local z_result=""
-  local -r z_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
+  local -r z_files=("${RBCC_moorings_dir}/${RBCC_nameplate_sprue}"*"/${RBCC_rbrn_file}")
   local z_i=""
   local z_dir=""
   local z_inscription=""
@@ -141,6 +140,11 @@ rbrn_list_capture() {
     z_dir="${z_files[${z_i}]%/*}"
     z_inscription="${z_dir##*/}"
     z_moniker="${z_inscription#"${RBCC_nameplate_sprue}"}"
+    case "${z_moniker}" in
+      ''|[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz]*|*[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-]*)
+        return 1
+        ;;
+    esac
     z_result="${z_result}${z_result:+ }${z_moniker}"
   done
   test -n "${z_result}" || return 1
@@ -251,7 +255,7 @@ rbrn_preflight() {
   buc_doc_shown || return 0
 
   # Collect structured data from all nameplates via isolation subshells
-  local -r z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
+  local -r z_nameplate_files=("${RBCC_moorings_dir}/${RBCC_nameplate_sprue}"*"/${RBCC_rbrn_file}")
   local z_data_lines=()
   local z_data_files=()
   local -r z_isolation_program='
