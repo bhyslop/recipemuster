@@ -351,9 +351,8 @@ zrbgp_depot_state_emit() {
     rbuh_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}" || buc_die_now "HTTP GET request failed (${z_search_infix})"
     rbuh_require_ok "CRM v3 projects:search" "${z_search_infix}" || buc_die_now "Response check failed: CRM v3 projects:search"
 
-    local z_project_count_status=0
-    z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') || z_project_count_status=$?
-    test "${z_project_count_status}" -eq 0 || z_project_count=0
+    z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') \
+      || buc_die_now "Failed to read the project count from ${z_search_infix}"
 
     z_index=0
     while test "${z_index}" -lt "${z_project_count}"; do
@@ -435,7 +434,11 @@ zrbgp_depot_state_emit() {
 
     local z_search_page_token_status=0
     z_search_page_token=$(rbuh_json_field_capture "${z_search_infix}" '.nextPageToken') || z_search_page_token_status=$?
-    test "${z_search_page_token_status}" -eq 0 || z_search_page_token=""
+    if test "${z_search_page_token_status}" -ne 0; then
+      test "${z_search_page_token}" = "${RBUH_refusal_absent}" \
+        || buc_die_now "Failed to read the next page token from ${z_search_infix}"
+      z_search_page_token=""
+    fi
     test -n "${z_search_page_token}" || break
     z_search_page=$((z_search_page + 1))
   done
@@ -701,12 +704,9 @@ zrbgp_write_posture_check() {
 # happy path is 60-120s; budget is ZRBGP_POOL_BUILD_POLL_CEILING ×
 # ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC = 10 minutes, well under Cloud Build's
 # default queueTtl=3600s. Synchronous: the levy/info caller blocks until
-# terminal.
-# The previous fire-and-forget pattern caused a late-clearing-probe-collision
-# wedge: a queued probe cleared minutes later and wedged the next build behind
-# it until queueTtl expired. SUCCESS terminal is the happy path; any non-2xx submission
-# is fatal (the prior 400-tolerance branch defended a folkloric "quota
-# row materialization" theory that has been retired).
+# terminal, since a probe left queued can clear minutes later and wedge the next
+# build behind it until queueTtl expires. Any non-2xx submission is fatal, and so
+# is any terminal but SUCCESS, the build named for its console link.
 # Args: token pool_variant pool_id build_json_file infix_prefix operation_label artifact_ref
 #   artifact_ref empty → omit the "  Artifact: …" line (posture path)
 zrbgp_pool_build_submit_await() {
@@ -782,6 +782,8 @@ zrbgp_pool_build_submit_await() {
     buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" || buc_die_now "Failed to print message"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
+  test "${z_status}" = "SUCCESS" \
+    || buc_die_now "${z_operation_label} ${z_pool_variant}: build ${z_build_id} ended ${z_status}, not SUCCESS — inspect it through the console link above"
 }
 
 # Levy-time per-pool probe. Composes a 2-step Cloud Build (posture check
@@ -790,8 +792,8 @@ zrbgp_pool_build_submit_await() {
 # in Google's console UI; (2) step 1 confirms the pool exhibits its
 # stamped egress posture; (3) step 2 confirms the worker can authenticate
 # and push to rbi_df under the depot's GAR repository. SUCCESS is the
-# expected terminal; FAILURE means the in-build posture assertion tripped
-# and the operator should inspect via the console link.
+# expected terminal; FAILURE means the in-build posture assertion tripped,
+# and the await dies so the operator inspects it via the console link.
 # Builder images are Google-hosted only — airgap cannot reach docker.io.
 # Args: token pool_variant pool_id mason_email posture_check_file
 zrbgp_pool_probe_submit() {
@@ -872,7 +874,7 @@ zrbgp_pool_probe_submit() {
 # 2-step probe: no marker push, no GAR write — purely an egress-posture
 # diagnostic against a pool that has already been levied and probed.
 # SUCCESS terminal = pool's egress posture matches its stamped config;
-# FAILURE = drift worth investigating via the console link.
+# FAILURE = drift, and the await dies so it is investigated via the console link.
 # Args: token pool_variant pool_id mason_email posture_check_file
 zrbgp_pool_posture_submit() {
   zrbgp_sentinel
@@ -1679,10 +1681,10 @@ rbgp_manor_raze() {
 # The manor-setup finisher: one idempotent, payor-credentialed verb that founds
 # the manor's scriptable substrate after the manual payor guide — the ensure-exists
 # inverse of manor_raze. First readies the payor project itself (the required-API set,
-# billing linkage — the two steps migrated out of the manual guide across the
-# credential boundary), then founds three things: the org-level workforcePoolAdmin grant
-# (spike F1), the ONE workforce pool (via a list-and-match drift guard, never a bare
-# get-by-id — a drifted RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
+# billing linkage — the two steps that need the payor credential), then founds three
+# things: the org-level workforcePoolAdmin grant (spike F1), the ONE workforce pool
+# (via a list-and-match drift guard, never a bare get-by-id — a drifted
+# RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
 # second empty pool), and the terrier bucket (manor-grain, in the payor project). The
 # depot-grain polity folder + grain IAM are founded at depot levy, not here. Ensure-
 # exists throughout — created when absent, reconciled when present, NEVER deleted
@@ -1705,7 +1707,7 @@ rbgp_manor_instaurate() {
   local zSECRET_token
   zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
-  # === Ensure the payor-project APIs (migrated from the manual payor guide) ===
+  # === Ensure the payor-project APIs ===
   # The payor project is the OAuth client's home and so the quota project of every
   # payor-token call — an API must be on here even when the resource lives elsewhere.
   # iam (workforce pools), storage (terrier bucket), cloudresourcemanager (the
@@ -1756,7 +1758,7 @@ rbgp_manor_instaurate() {
     buc_die_now "Consent-screen audience must be Internal"
   fi
 
-  # === Ensure billing linked to the payor project (migrated from the manual guide) ===
+  # === Ensure billing linked to the payor project ===
   # Must precede the terrier bucket — bucket creation requires an active billing
   # link. GET-then-PUT: a matching link is a no-op; absent links; drifted reconciles
   # to the committed record (RBRP is authoritative) with a warning — the same
@@ -1849,15 +1851,18 @@ rbgp_manor_instaurate() {
     test "${z_code}" = "200" \
       || buc_die_now "Unexpected HTTP ${z_code} from workforcePools.list under ${z_org}"
 
-    local z_count_status=0
-    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePools // [] | length') || z_count_status=$?
-    test "${z_count_status}" -eq 0 || z_count=0
+    z_count=$(rbuh_json_field_capture "${z_infix}" '.workforcePools // [] | length') \
+      || buc_die_now "Failed to read the workforce pool count from ${z_infix}"
 
     z_index=0
     while test "${z_index}" -lt "${z_count}"; do
       local z_p_name_status=0
       z_p_name=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].name") || z_p_name_status=$?
-      test "${z_p_name_status}" -eq 0 || z_p_name=""
+      if test "${z_p_name_status}" -ne 0; then
+        test "${z_p_name}" = "${RBUH_refusal_absent}" \
+          || buc_die_now "Failed to read workforce pool ${z_index}'s name from ${z_infix}"
+        z_p_name=""
+      fi
       z_p_id="${z_p_name##*/}"
       local z_p_state_status=0
       z_p_state=$(rbuh_json_field_capture "${z_infix}" ".workforcePools[${z_index}].state // \"${RBGC_STATE_UNSPECIFIED}\"") || z_p_state_status=$?
@@ -1870,8 +1875,8 @@ rbgp_manor_instaurate() {
       test "${z_p_desc_status}" -eq 0 || z_p_desc=""
       if test "${z_p_id}" = "${z_pool_id}"; then
         # The pool at the expected id is OURS by coordinate — matched by id, not marker,
-        # so a pool predating the marker convention still counts (the fix the live run
-        # forced: a spike pool at the id but without the marker was create-over'd).
+        # so a pool predating the marker convention still counts and is never
+        # created over.
         z_expected_state="${z_p_state}"
         z_expected_session="${z_p_session}"
         z_expected_desc="${z_p_desc}"
@@ -1886,7 +1891,11 @@ rbgp_manor_instaurate() {
 
     local z_page_token_status=0
     z_page_token=$(rbuh_json_field_capture "${z_infix}" '.nextPageToken // ""') || z_page_token_status=$?
-    test "${z_page_token_status}" -eq 0 || z_page_token=""
+    if test "${z_page_token_status}" -ne 0; then
+      test "${z_page_token}" = "${RBUH_refusal_absent}" \
+        || buc_die_now "Failed to read the next page token from ${z_infix}"
+      z_page_token=""
+    fi
     test -n "${z_page_token}" || break
     z_page=$((z_page + 1))
   done
@@ -2059,7 +2068,11 @@ zrbgp_escheat_liveness() {
       200)
         local z_state_status=0
         z_state=$(rbuh_json_field_capture "${z_infix}" '.state // "UNKNOWN"') || z_state_status=$?
-        test "${z_state_status}" -eq 0 || z_state="UNKNOWN"
+        if test "${z_state_status}" -ne 0; then
+          test "${z_state}" = "${RBUH_refusal_absent}" \
+            || buc_die_now "Depot liveness: failed to read ${z_depot}'s state — a liveness verdict is never guessed"
+          z_state="UNKNOWN"
+        fi
         if test "${z_state}" != "${RBGC_STATE_ACTIVE}"; then
           printf '%s\tdead\t%s\n' "${z_depot}" "${z_state}" || buc_die_now "Failed to emit liveness line"
           continue
@@ -2911,8 +2924,8 @@ rbgp_depot_unmake() {
   buc_step 'Verify deletion state transition'
   local -r z_max_attempts=12
   local z_attempt=1
-  local z_final_state
-  
+  local z_final_state=""
+
   while test "${z_attempt}" -le "${z_max_attempts}"; do
     sleep 5 || buc_die_now "Poll wait interrupted"
     buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})" || buc_die_now "Failed to write transcript line"
@@ -2937,7 +2950,7 @@ rbgp_depot_unmake() {
   done
   
   if test "${z_final_state}" != "DELETE_REQUESTED"; then
-    buc_die_now "Failed to verify deletion state transition. Current state: ${z_final_state}"
+    buc_die_now "Failed to verify deletion state transition after ${z_max_attempts} checks. Last state read: ${z_final_state:-none, no check returned HTTP 200}"
   fi
 
   buc_step 'Update depot tracking'
@@ -3199,11 +3212,9 @@ rbgp_depot_recognosce() {
 # Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
 # rbgp_rehearse) — the operator-facing admission surface under the rbw-p
 # launcher family. Each dons the governor mantle (rba_avow then rba_don_capture
-# governor); the token-agnostic *_core helpers let gird — the one remaining
-# payor-credentialed path (the interim proof retired, superseded by the
-# terrier-band coverage in Tools/rbk/rbtd/src/rbtdrv_patrol.rs) — drive the
-# same composition. Muniment mutations precede IAM mutations in every core
-# (RBr_m4d).
+# governor); the token-agnostic *_core helpers let gird — the one
+# payor-credentialed path — drive the same composition. Muniment mutations
+# precede IAM mutations in every core (RBr_m4d).
 #
 # Bucket: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET),
 # reached via the enforced payor regime.
@@ -3532,7 +3543,7 @@ rbgp_attribution_trail() {
   # always-on iamcredentials GenerateAccessToken, which names only the SA by
   # design; and "(direct SA …)" on a use hop made by a non-impersonated SA (e.g.
   # a keyfile credential), which carries no delegation and so no human — the very
-  # gap federation closes. Only the first is the attribution this pace proves.
+  # gap federation closes. Only the first attributes a use to a human.
   local -r z_resp_file="${ZRBUH_PREFIX}attribution_list${ZRBUH_POSTFIX_JSON}"
   local -r z_render_file="${BURD_TEMP_DIR}/rbgp_attribution_render.txt"
   jq -r '

@@ -81,6 +81,7 @@ zrbz_kindle
 zbuwz_kindle
 zrbcc_kindle
 zrbgc_kindle
+zrblm_kindle
 
 buc_step "Lustrating ${ZRBLM_STERILIZE_ROOT}"
 rblm_lustrate_apply

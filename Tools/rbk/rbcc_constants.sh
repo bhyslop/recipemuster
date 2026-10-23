@@ -37,9 +37,7 @@ readonly RBCC_rbtdgc_consts_file="${RBCC_kit_dir}/rbtd/src/rbtdgc_consts.rs"
 readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/claude-rbk-tabtarget-context.md"
 
 # ── Moorings inventory constants ──────────────────────────────────────────
-# Moorings-relative path values. Every consumer reads these names directly
-# (the transitional RBBC_* aliases were retired by the literal-sweep pace).
-# Source-time literals, no kindle dependency.
+# Moorings-relative path values. Source-time literals, no kindle dependency.
 readonly RBCC_moorings_dir="rbmm_moorings"
 readonly RBCC_launchers_subdir="buml_launchers"
 readonly RBCC_vessels_subdir="rbmv_vessels"
@@ -67,7 +65,7 @@ readonly RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
 # Manor-level (axrd_singleton, one per manor), so it sits flat at the moorings
 # root, a sibling of the rbmf_foedera library rather than a member of it — where
 # the per-foedus rbrf.env files live. Holds the pool coordinates (org, pool id,
-# session) the one-pool Model relocated out of the per-foedus federation regime.
+# session), which no per-foedus federation regime carries.
 readonly RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # Federation regime file — resolved from the ACTIVE foedus's selector, NOT a
 # source-time constant. The foedera library (RBCC_foedera_subdir) holds one
@@ -122,8 +120,7 @@ readonly RBCC_account_mantle_retriever="rbma-retriever"
 # token resolves to the mantle SA only through the rba_don_capture case and the
 # raw sprued form never reaches a resource name. Distinct from the bare
 # RBCC_account_mantle_* SA-name fragments above (which compose rbma-<role>@… SA
-# emails); the polity/terrier bare-mantle-name uses are a separate deferred
-# migration and intentionally keep the bare role word.
+# emails), and from the bare role word the polity and terrier names keep.
 readonly RBCC_mantle_governor="rbpa_governor"
 readonly RBCC_mantle_director="rbpa_director"
 readonly RBCC_mantle_retriever="rbpa_retriever"
@@ -140,10 +137,8 @@ readonly RBCC_verb_enrobe="enrobe"
 readonly RBCC_verb_roster="roster"
 #
 #   Image/build lifecycle (anoint/drive/inscribe/kludge/ordain/yoke) — name the
-#   registry and build operations. Previously implicit in command-function
-#   names (rbndb_inscribe, rbfdo_ordain, …) and tabtarget descriptions; homed
-#   here so the group has a single owner rather than being reconstructed by
-#   grep across rbfd*/rbfl*/rbfk_/rbob_/rbrn_.
+#   registry and build operations, homed here so the group has a single owner
+#   rather than being spelled across rbfd*/rbfl*/rbfk_/rbob_/rbrn_.
 readonly RBCC_verb_anoint="anoint"
 readonly RBCC_verb_drive="drive"
 readonly RBCC_verb_inscribe="inscribe"
@@ -255,9 +250,8 @@ rbcc_rbrf_file_flint_capture() {
 
 # rbcc_source_active_rbrf_flint foedus — resolve the active foedus's rbrf.env
 # and source it, dying loud on an empty selector or an unreadable file. The
-# single home for what every runtime consumer did as the former
-# `source "${RBCC_rbrf_file}"`: a furnish calls it after sourcing rbrr.env,
-# passing RBRR_ACTIVE_FOEDUS. Sourcing here lands the RBRF_* fields in the
+# single home for sourcing the active federation regime: a furnish calls it
+# after sourcing rbrr.env, passing RBRR_ACTIVE_FOEDUS. Sourcing here lands the RBRF_* fields in the
 # caller's global scope exactly as an inline source would (bare assignments in
 # the sourced file, sourced within a function, remain global).
 rbcc_source_active_rbrf_flint() {

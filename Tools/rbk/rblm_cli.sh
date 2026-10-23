@@ -417,6 +417,7 @@ zrblm_furnish() {
   source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die_now "Failed to source rbz_zipper.sh"
   zbuz_kindle
   zrbz_kindle
+  zrblm_kindle
 }
 
 buc_execute rblm_ "Lifecycle Marshal" zrblm_furnish "$@"
