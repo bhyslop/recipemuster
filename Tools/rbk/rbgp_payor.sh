@@ -51,7 +51,6 @@ zrbgp_kindle() {
   printf '{}' > "${ZRBGP_EMPTY_JSON}" || buc_die_now "Failed to write empty JSON: ${ZRBGP_EMPTY_JSON}"
 
   # Infix values for HTTP operations
-  readonly ZRBGP_INFIX_LIST_LIENS="list_liens"
   readonly ZRBGP_INFIX_DELETE_LIEN="delete_lien"
   readonly ZRBGP_INFIX_BILLING_ATTACH="billing_attach"
   readonly ZRBGP_INFIX_BILLING_DETACH="billing_detach"
@@ -450,36 +449,6 @@ zrbgp_billing_detach() {
 }
 
 
-
-zrbgp_liens_list() {
-  zrbgp_sentinel
-
-  buc_doc_brief "List all liens on the project"
-  buc_doc_shown || return 0
-
-  buc_step "Listing liens on project: ${RBDC_DEPOT_PROJECT_ID}"
-
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
-  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_LIST_LIENS}"
-  rbuh_require_ok "List liens" "${ZRBGP_INFIX_LIST_LIENS}"
-
-  local z_lien_count
-  z_lien_count=$(rbuh_json_field_capture "${ZRBGP_INFIX_LIST_LIENS}" '.liens // [] | length') || buc_die_now "Failed to parse liens response"
-
-  if test "${z_lien_count}" -eq 0; then
-    buc_info "No liens found on project"
-    return 0
-  fi
-
-  buc_step "Found ${z_lien_count} lien(s):"
-  # Non-fatal by grant: the count above is the listing's result and nothing reads these lines, so a lien whose record will not render (a field that is not a string) costs only its display line, and the warning says the listing is partial.
-  jq -r '.liens[]? | "  - " + .name + " (reason: " + .reason + ")"' \
-    "${ZRBUH_PREFIX}${ZRBGP_INFIX_LIST_LIENS}${ZRBUH_POSTFIX_JSON}" \
-    || buc_warn "Lien listing incomplete — a lien record did not render; the count above stands"
-
-  return 0
-}
 
 zrbgp_lien_delete() {
   zrbgp_sentinel
@@ -959,8 +928,10 @@ rbgp_install() {
   buh_line "  5. The browser then shows 'This site can't be reached / localhost refused to connect'"
   buh_line "     - that page IS the success landing: the authorization code rides its address-bar URL"
   buh_e
-  local zSECRET_paste
-  zSECRET_paste=$(buh_prompt_secret "Copy the full URL from the address bar and paste here: ") || buc_die_now "Failed to read authorization redirect URL"
+  printf 'Copy the full URL from the address bar and paste here:\n' >&2 || buc_die_now "Failed to write the paste prompt"
+  local zSECRET_paste=""
+  read -rs zSECRET_paste || buc_die_now "Failed to read authorization redirect URL"
+  printf '\n' >&2 || buc_die_now "Failed to end the paste prompt's line"
   test -n "${zSECRET_paste}" || buc_die_now "Authorization redirect URL is required"
 
   # Accept the full redirect URL or a bare code: strip through 'code=' (a bare
