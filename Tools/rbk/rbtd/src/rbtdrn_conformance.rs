@@ -463,8 +463,9 @@ fn zrbtchn_curl_render(hits: &[zrbtchn_CurlHit]) -> String {
 
 /// The canonical form clears: reset, leading curl through continuations,
 /// byte-exact capture, test within the window — plus the sanctioned
-/// non-leading shapes (the secret pipe and the secret capture into zSECRET
-/// names, the `command -v curl` probe, quoted message text, comment lines).
+/// non-leading shapes (the secret pipe of a zSECRET-named operand, the secret
+/// capture into a zSECRET-named local, the `command -v curl` probe, quoted
+/// message text, comment lines).
 fn rbtchn_self_curl_canon_clears(_dir: &Path) -> rbtcee_Verdict {
     let content = concat!(
         "z_curl_status=0\n",
