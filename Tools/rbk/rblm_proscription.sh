@@ -47,8 +47,8 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBLM_LUSTRATE_SOURCED:-}" || buc_die_now "Module rblm_lustrate multiply sourced - check sourcing hierarchy"
-ZRBLM_LUSTRATE_SOURCED=1
+test -z "${ZRBLM_PROSCRIPTION_SOURCED:-}" || buc_die_now "Module rblm_proscription multiply sourced - check sourcing hierarchy"
+ZRBLM_PROSCRIPTION_SOURCED=1
 
 ######################################################################
 # Dispositions
@@ -78,26 +78,45 @@ readonly RBLM_disposition_offtree="offtree"
 readonly RBLM_column_sterile="sterile"
 readonly RBLM_column_feigned="feigned"
 
+# The delivery documentation base. The working repo's RBRR_PUBLIC_DOCS_URL points
+# at the maintainer's development repo; the delivered tree must point consumers at
+# the public home: the public repo's README blob, because blob rendering preserves
+# the literal <a id> anchors the handbook links resolve, while staging and
+# candidate branches are transient.
+readonly RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/main/README.md"
+
+# The freehold subject's sterile value. NOT a blank: rbpc_emit_consts projects
+# this constant into the generated Rust (RBTGEC_FREEHOLD_SUBJECT) through
+# buz_emit_const_str, which rejects an empty value — so a blank here dies at the
+# candidate's own const regeneration. A placeholder that is shape-free (no UUID
+# for the fixture's sweep to find) and obviously unset is the form that survives.
+readonly RBLM_unset_subject="unset-freehold-subject"
+
 ######################################################################
+# Internal Functions (zrblm_*)
+
+# zrblm_kindle — enroll the proscription and the hardpoints.
+#
 # The proscription
 #
-# Rows are SCOPE|VARNAME|DISPOSITION|STERILE_VALUE[|FEIGNED_VALUE], one per
-# enrolled regime field. Both value columns are read only for site rows.
+# One enrollment per enrolled regime field: its scope, its name and its
+# disposition, and for a site row its sterile and feigned values besides. Both
+# value columns are read only for site rows.
 #
-# STERILE_VALUE is what lustration writes. An empty one blanks the field to the
-# onboarding-start state, which is what a consumer must fill in anyway. A
+# The STERILE value is what lustration writes. An empty one blanks the field to
+# the onboarding-start state, which is what a consumer must fill in anyway. A
 # NON-EMPTY sterile value is used only where a blank would break the delivered
 # tree — never for cosmetics. Today that is RBRR_PUBLIC_DOCS_URL, whose whole
 # purpose is to be a live URL in the consumer's hands.
 #
-# FEIGNED_VALUE is what feigning writes, and the column may be omitted entirely.
-# A lustrated tree cannot VALIDATE: thirteen of the site fields carry format
-# checks a blank cannot satisfy, so the candidate — correctly sterile — cannot
-# run its own test suite. Feigning writes a shape-valid stand-in over each, on a
-# throwaway probe branch, so the ceremony can run the consumer's own reveille in
-# the consumer's own tree. An absent or empty feigned value means "stay sterile":
-# the eight min-length-0 site fields validate blank and need no stand-in, and
-# RBRR_PUBLIC_DOCS_URL must keep the sterile URL it was just given.
+# The FEIGNED value is what feigning writes. A lustrated tree cannot VALIDATE:
+# thirteen of the site fields carry format checks a blank cannot satisfy, so the
+# candidate — correctly sterile — cannot run its own test suite. Feigning writes a
+# shape-valid stand-in over each, on a throwaway probe branch, so the ceremony can
+# run the consumer's own reveille in the consumer's own tree. An empty feigned
+# value means "stay sterile": the eight min-length-0 site fields validate blank
+# and need no stand-in, and RBRR_PUBLIC_DOCS_URL must keep the sterile URL it was
+# just given.
 #
 # Every feigned value is deliberately, visibly false — zeros where an id is
 # numeric, the .invalid reserved TLD where a host is wanted, the verb's own name
@@ -112,137 +131,217 @@ readonly RBLM_column_feigned="feigned"
 # also asserts every site field holds its STERILE value, so a feigned tree can
 # never be mistaken for a candidate: cut one by accident and the identity assay
 # reddens on all thirteen.
+#
+# The hardpoints
+#
+# Site identity that lives in source rather than in a regime file, so no
+# enrollment roll enumerates it and the completeness case cannot reach it. Each
+# names its home repo-relative, its constant and its sterile value.
+#
+# One today. It is the operator's standing Entra oid, and it rides out twice:
+# here, and in the Rust the build generates from here — which is why the ceremony
+# regenerates the derived files AFTER lustration, and why the fixture's shape
+# sweep reads the generated Rust as an ordinary shipping file.
+zrblm_kindle() {
+  test -z "${ZRBLM_KINDLED:-}" || buc_die_now "Module rblm_proscription already kindled"
 
-# The delivery documentation base. The working repo's RBRR_PUBLIC_DOCS_URL points
-# at the maintainer's development repo; the delivered tree must point consumers at
-# the public home. Recorded as a delivery decision (2026-07-12): the public repo's
-# README blob, because blob rendering preserves the literal <a id> anchors the
-# handbook links resolve, while staging and candidate branches are transient.
-readonly RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/main/README.md"
+  local -r z_site="${RBLM_disposition_site}"
+  local -r z_common="${RBLM_disposition_common}"
+  local -r z_offtree="${RBLM_disposition_offtree}"
 
-# The freehold subject's sterile value. NOT a blank: rbpc_emit_consts projects
-# this constant into the generated Rust (RBTGEC_FREEHOLD_SUBJECT) through
-# buz_emit_const_str, which rejects an empty value — so a blank here dies at the
-# candidate's own const regeneration. A placeholder that is shape-free (no UUID
-# for the fixture's sweep to find) and obviously unset is the form that survives.
-readonly RBLM_unset_subject="unset-freehold-subject"
+  z_rblm_scope_roll=()
+  z_rblm_var_roll=()
+  z_rblm_disposition_roll=()
+  z_rblm_sterile_roll=()
+  z_rblm_feigned_roll=()
 
-ZRBLM_PROSCRIPTION=(
   # ── RBRR — repo regime ──
-  "RBRR|RBRR_RUNTIME_PREFIX|site||feign-"
-  "RBRR|RBRR_VESSEL_DIR|common|"
-  "RBRR|RBRR_BOTTLE_WORKSPACE|common|"
-  "RBRR|RBRR_DNS_SERVER|common|"
-  "RBRR|RBRR_GCB_TIMEOUT|common|"
-  "RBRR|RBRR_GCB_MIN_CONCURRENT_BUILDS|common|"
-  "RBRR|RBRR_SECRETS_DIR|common|"
-  "RBRR|RBRR_PUBLIC_DOCS_URL|site|${RBLM_public_docs_url}"
-  "RBRR|RBRR_ACTIVE_FOEDUS|common|"
-  "RBRR|RBRR_SUBSTRATE_RELIQUARY|site|"
+  zrblm_enroll RBRR RBRR_RUNTIME_PREFIX              "${z_site}"    "" "feign-"
+  zrblm_enroll RBRR RBRR_VESSEL_DIR                  "${z_common}"
+  zrblm_enroll RBRR RBRR_BOTTLE_WORKSPACE            "${z_common}"
+  zrblm_enroll RBRR RBRR_DNS_SERVER                  "${z_common}"
+  zrblm_enroll RBRR RBRR_GCB_TIMEOUT                 "${z_common}"
+  zrblm_enroll RBRR RBRR_GCB_MIN_CONCURRENT_BUILDS   "${z_common}"
+  zrblm_enroll RBRR RBRR_SECRETS_DIR                 "${z_common}"
+  zrblm_enroll RBRR RBRR_PUBLIC_DOCS_URL             "${z_site}"    "${RBLM_public_docs_url}" ""
+  zrblm_enroll RBRR RBRR_ACTIVE_FOEDUS               "${z_common}"
+  zrblm_enroll RBRR RBRR_SUBSTRATE_RELIQUARY         "${z_site}"    "" ""
 
   # ── RBRD — depot regime ──
-  "RBRD|RBRD_CLOUD_PREFIX|site||feign-"
-  "RBRD|RBRD_DEPOT_MONIKER|site||feigned"
-  "RBRD|RBRD_GCP_REGION|common|"
-  "RBRD|RBRD_GCB_MACHINE_TYPE|common|"
+  zrblm_enroll RBRD RBRD_CLOUD_PREFIX                "${z_site}"    "" "feign-"
+  zrblm_enroll RBRD RBRD_DEPOT_MONIKER               "${z_site}"    "" "feigned"
+  zrblm_enroll RBRD RBRD_GCP_REGION                  "${z_common}"
+  zrblm_enroll RBRD RBRD_GCB_MACHINE_TYPE            "${z_common}"
 
   # ── RBRP — payor regime ──
-  "RBRP|RBRP_PAYOR_PROJECT_ID|site||rbwg-p-000000000000"
-  "RBRP|RBRP_BILLING_ACCOUNT_ID|site|"
-  "RBRP|RBRP_OAUTH_CLIENT_ID|site|"
-  "RBRP|RBRP_OPERATOR_EMAIL|site|"
+  zrblm_enroll RBRP RBRP_PAYOR_PROJECT_ID            "${z_site}"    "" "rbwg-p-000000000000"
+  zrblm_enroll RBRP RBRP_BILLING_ACCOUNT_ID          "${z_site}"    "" ""
+  zrblm_enroll RBRP RBRP_OAUTH_CLIENT_ID             "${z_site}"    "" ""
+  zrblm_enroll RBRP RBRP_OPERATOR_EMAIL              "${z_site}"    "" ""
 
   # ── RBRW — workforce regime ──
-  "RBRW|RBRW_ORG_ID|site||000000000000"
-  "RBRW|RBRW_WORKFORCE_POOL_ID|site||feigned-manor"
-  "RBRW|RBRW_SESSION_DURATION|common|"
+  zrblm_enroll RBRW RBRW_ORG_ID                      "${z_site}"    "" "000000000000"
+  zrblm_enroll RBRW RBRW_WORKFORCE_POOL_ID           "${z_site}"    "" "feigned-manor"
+  zrblm_enroll RBRW RBRW_SESSION_DURATION            "${z_common}"
 
   # ── RBRF — federation regime ──
   # The interactive fields name the operator's own IdP tenant and app
   # registration; the programmatic fields name only the caged Keycloak realm the
   # test facility ships, which is synthetic at every installation.
-  "RBRF|RBRF_PROVIDER_ID|site||feigned-foedus"
-  "RBRF|RBRF_MECHANISM|common|"
-  "RBRF|RBRF_IDP_ISSUER|site||https://idp.example.invalid/feigned"
-  "RBRF|RBRF_IDP_CLIENT_ID|site||feigned-client"
-  "RBRF|RBRF_ATTRIBUTE_MAPPING|common|"
-  "RBRF|RBRF_IDP_SCOPE|common|"
-  "RBRF|RBRF_IDP_DEVICE_ENDPOINT|site||https://idp.example.invalid/devicecode"
-  "RBRF|RBRF_IDP_TOKEN_ENDPOINT|site||https://idp.example.invalid/token"
-  "RBRF|RBRF_IDP_JWKS_JSON|common|"
-  "RBRF|RBRF_GRANT_ENDPOINT|common|"
-  "RBRF|RBRF_ASSERTER_KEY_FILE|common|"
-  "RBRF|RBRF_CLIENT_SECRET_FILE|common|"
-  "RBRF|RBRF_ASSERTER_KID|common|"
-  "RBRF|RBRF_ASSERTER_ISSUER|common|"
-  "RBRF|RBRF_ASSERTER_SUBJECT|common|"
+  zrblm_enroll RBRF RBRF_PROVIDER_ID                 "${z_site}"    "" "feigned-foedus"
+  zrblm_enroll RBRF RBRF_MECHANISM                   "${z_common}"
+  zrblm_enroll RBRF RBRF_IDP_ISSUER                  "${z_site}"    "" "https://idp.example.invalid/feigned"
+  zrblm_enroll RBRF RBRF_IDP_CLIENT_ID               "${z_site}"    "" "feigned-client"
+  zrblm_enroll RBRF RBRF_ATTRIBUTE_MAPPING           "${z_common}"
+  zrblm_enroll RBRF RBRF_IDP_SCOPE                   "${z_common}"
+  zrblm_enroll RBRF RBRF_IDP_DEVICE_ENDPOINT         "${z_site}"    "" "https://idp.example.invalid/devicecode"
+  zrblm_enroll RBRF RBRF_IDP_TOKEN_ENDPOINT          "${z_site}"    "" "https://idp.example.invalid/token"
+  zrblm_enroll RBRF RBRF_IDP_JWKS_JSON               "${z_common}"
+  zrblm_enroll RBRF RBRF_GRANT_ENDPOINT              "${z_common}"
+  zrblm_enroll RBRF RBRF_ASSERTER_KEY_FILE           "${z_common}"
+  zrblm_enroll RBRF RBRF_CLIENT_SECRET_FILE          "${z_common}"
+  zrblm_enroll RBRF RBRF_ASSERTER_KID                "${z_common}"
+  zrblm_enroll RBRF RBRF_ASSERTER_ISSUER             "${z_common}"
+  zrblm_enroll RBRF RBRF_ASSERTER_SUBJECT            "${z_common}"
 
   # ── RBRO — payor OAuth regime ──
-  "RBRO|RBRO_CLIENT_SECRET|offtree|"
-  "RBRO|RBRO_REFRESH_TOKEN|offtree|"
+  zrblm_enroll RBRO RBRO_CLIENT_SECRET               "${z_offtree}"
+  zrblm_enroll RBRO RBRO_REFRESH_TOKEN               "${z_offtree}"
 
   # ── RBRV — vessel regime ──
   # The origins are upstream vendor references, common to every installation; the
   # anchors, the reliquary and the graft image name Lodes and images in THIS
   # station's depot registry.
-  "RBRV|RBRV_SIGIL|common|"
-  "RBRV|RBRV_DESCRIPTION|common|"
-  "RBRV|RBRV_USER|common|"
-  "RBRV|RBRV_VESSEL_MODE|common|"
-  "RBRV|RBRV_RELIQUARY|site||r000000000000"
-  "RBRV|RBRV_EGRESS_MODE|common|"
-  "RBRV|RBRV_BIND_IMAGE|common|"
-  "RBRV|RBRV_BIND_OPTIONAL_DOCKERFILE|common|"
-  "RBRV|RBRV_CONJURE_DOCKERFILE|common|"
-  "RBRV|RBRV_CONJURE_BLDCONTEXT|common|"
-  "RBRV|RBRV_CONJURE_PLATFORMS|common|"
-  "RBRV|RBRV_IMAGE_1_ORIGIN|common|"
-  "RBRV|RBRV_IMAGE_1_ANCHOR|site|"
-  "RBRV|RBRV_IMAGE_2_ORIGIN|common|"
-  "RBRV|RBRV_IMAGE_2_ANCHOR|site|"
-  "RBRV|RBRV_IMAGE_3_ORIGIN|common|"
-  "RBRV|RBRV_IMAGE_3_ANCHOR|site|"
-  "RBRV|RBRV_GRAFT_IMAGE|site||feigned-graft:feigned"
-  "RBRV|RBRV_GRAFT_OPTIONAL_DOCKERFILE|common|"
+  zrblm_enroll RBRV RBRV_SIGIL                       "${z_common}"
+  zrblm_enroll RBRV RBRV_DESCRIPTION                 "${z_common}"
+  zrblm_enroll RBRV RBRV_USER                        "${z_common}"
+  zrblm_enroll RBRV RBRV_VESSEL_MODE                 "${z_common}"
+  zrblm_enroll RBRV RBRV_RELIQUARY                   "${z_site}"    "" "r000000000000"
+  zrblm_enroll RBRV RBRV_EGRESS_MODE                 "${z_common}"
+  zrblm_enroll RBRV RBRV_BIND_IMAGE                  "${z_common}"
+  zrblm_enroll RBRV RBRV_BIND_OPTIONAL_DOCKERFILE    "${z_common}"
+  zrblm_enroll RBRV RBRV_CONJURE_DOCKERFILE          "${z_common}"
+  zrblm_enroll RBRV RBRV_CONJURE_BLDCONTEXT          "${z_common}"
+  zrblm_enroll RBRV RBRV_CONJURE_PLATFORMS           "${z_common}"
+  zrblm_enroll RBRV RBRV_IMAGE_1_ORIGIN              "${z_common}"
+  zrblm_enroll RBRV RBRV_IMAGE_1_ANCHOR              "${z_site}"    "" ""
+  zrblm_enroll RBRV RBRV_IMAGE_2_ORIGIN              "${z_common}"
+  zrblm_enroll RBRV RBRV_IMAGE_2_ANCHOR              "${z_site}"    "" ""
+  zrblm_enroll RBRV RBRV_IMAGE_3_ORIGIN              "${z_common}"
+  zrblm_enroll RBRV RBRV_IMAGE_3_ANCHOR              "${z_site}"    "" ""
+  zrblm_enroll RBRV RBRV_GRAFT_IMAGE                 "${z_site}"    "" "feigned-graft:feigned"
+  zrblm_enroll RBRV RBRV_GRAFT_OPTIONAL_DOCKERFILE   "${z_common}"
 
   # ── RBRN — nameplate regime ──
-  "RBRN|RBRN_MONIKER|common|"
-  "RBRN|RBRN_DESCRIPTION|common|"
-  "RBRN|RBRN_RUNTIME|common|"
-  "RBRN|RBRN_SENTRY_VESSEL|common|"
-  "RBRN|RBRN_BOTTLE_VESSEL|common|"
-  "RBRN|RBRN_SENTRY_HALLMARK|site|"
-  "RBRN|RBRN_BOTTLE_HALLMARK|site|"
-  "RBRN|RBRN_BOTTLE_READINESS_DELAY_SEC|common|"
-  "RBRN|RBRN_ENTRY_MODE|common|"
-  "RBRN|RBRN_ENTRY_PORT_WORKSTATION|common|"
-  "RBRN|RBRN_ENTRY_PORT_ENCLAVE|common|"
-  "RBRN|RBRN_ENCLAVE_BASE_IP|common|"
-  "RBRN|RBRN_ENCLAVE_NETMASK|common|"
-  "RBRN|RBRN_ENCLAVE_SENTRY_IP|common|"
-  "RBRN|RBRN_ENCLAVE_BOTTLE_IP|common|"
-  "RBRN|RBRN_UPLINK_PORT_MIN|common|"
-  "RBRN|RBRN_UPLINK_DNS_MODE|common|"
-  "RBRN|RBRN_UPLINK_ACCESS_MODE|common|"
-  "RBRN|RBRN_UPLINK_ALLOWED_DOMAINS|common|"
-  "RBRN|RBRN_UPLINK_ALLOWED_CIDRS|common|"
-)
+  zrblm_enroll RBRN RBRN_MONIKER                     "${z_common}"
+  zrblm_enroll RBRN RBRN_DESCRIPTION                 "${z_common}"
+  zrblm_enroll RBRN RBRN_RUNTIME                     "${z_common}"
+  zrblm_enroll RBRN RBRN_SENTRY_VESSEL               "${z_common}"
+  zrblm_enroll RBRN RBRN_BOTTLE_VESSEL               "${z_common}"
+  zrblm_enroll RBRN RBRN_SENTRY_HALLMARK             "${z_site}"    "" ""
+  zrblm_enroll RBRN RBRN_BOTTLE_HALLMARK             "${z_site}"    "" ""
+  zrblm_enroll RBRN RBRN_BOTTLE_READINESS_DELAY_SEC  "${z_common}"
+  zrblm_enroll RBRN RBRN_ENTRY_MODE                  "${z_common}"
+  zrblm_enroll RBRN RBRN_ENTRY_PORT_WORKSTATION      "${z_common}"
+  zrblm_enroll RBRN RBRN_ENTRY_PORT_ENCLAVE          "${z_common}"
+  zrblm_enroll RBRN RBRN_ENCLAVE_BASE_IP             "${z_common}"
+  zrblm_enroll RBRN RBRN_ENCLAVE_NETMASK             "${z_common}"
+  zrblm_enroll RBRN RBRN_ENCLAVE_SENTRY_IP           "${z_common}"
+  zrblm_enroll RBRN RBRN_ENCLAVE_BOTTLE_IP           "${z_common}"
+  zrblm_enroll RBRN RBRN_UPLINK_PORT_MIN             "${z_common}"
+  zrblm_enroll RBRN RBRN_UPLINK_DNS_MODE             "${z_common}"
+  zrblm_enroll RBRN RBRN_UPLINK_ACCESS_MODE          "${z_common}"
+  zrblm_enroll RBRN RBRN_UPLINK_ALLOWED_DOMAINS      "${z_common}"
+  zrblm_enroll RBRN RBRN_UPLINK_ALLOWED_CIDRS        "${z_common}"
 
-######################################################################
-# The hardpoints
-#
-# Site identity that lives in source rather than in a regime file, so no
-# enrollment roll enumerates it and the completeness case cannot reach it. Rows
-# are PATH|VARNAME|STERILE_VALUE, repo-relative.
-#
-# One row today. It is the operator's standing Entra oid, and it rides out twice:
-# here, and in the Rust the build generates from here — which is why the ceremony
-# regenerates the derived files AFTER lustration, and why the fixture's shape
-# sweep reads the generated Rust as an ordinary shipping file.
+  z_rblm_hardpoint_path_roll=()
+  z_rblm_hardpoint_var_roll=()
+  z_rblm_hardpoint_sterile_roll=()
 
-ZRBLM_HARDPOINTS=(
-  "Tools/rbk/rbpc_constants.sh|RBPC_freehold_subject|${RBLM_unset_subject}"
-)
+  zrblm_hardpoint_enroll "Tools/rbk/rbpc_constants.sh" RBPC_freehold_subject "${RBLM_unset_subject}"
+
+  readonly ZRBLM_KINDLED=1
+}
+
+zrblm_sentinel() {
+  test "${ZRBLM_KINDLED:-}" = "1" || buc_die_now "Module rblm_proscription not kindled - call zrblm_kindle first"
+}
+
+# zrblm_enroll SCOPE VARNAME DISPOSITION [STERILE FEIGNED] — enroll one regime
+# field's judgment. A site row carries both values, empty where it has none; a
+# common or offtree row carries neither. A value is written bare into a regime
+# line, so it is held to the bare-token alphabet here, before any write.
+zrblm_enroll() {
+  local -r z_scope="${1:-}"
+  local -r z_var="${2:-}"
+  local -r z_disposition="${3:-}"
+  local -r z_sterile="${4:-}"
+  local -r z_feigned="${5:-}"
+
+  test -n "${z_scope}" || buc_die_now "Proscription: empty scope"
+  case "${z_var}" in
+    "${z_scope}_"?*) ;;
+    *) buc_die_now "Proscription: '${z_var}' is not a field of scope ${z_scope}" ;;
+  esac
+  case "${z_disposition}" in
+    "${RBLM_disposition_site}")
+      test "$#" -eq 5 || buc_die_now "Proscription: site field ${z_var} takes a sterile and a feigned value"
+      ;;
+    "${RBLM_disposition_common}"|"${RBLM_disposition_offtree}")
+      test "$#" -eq 3 || buc_die_now "Proscription: ${z_disposition} field ${z_var} takes no value"
+      ;;
+    *)
+      buc_die_now "Proscription: ${z_var} carries disposition '${z_disposition}'"
+      ;;
+  esac
+  case "${z_sterile}${z_feigned}" in
+    *[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._/:+=-]*)
+      buc_die_now "Proscription: ${z_var} carries a value outside the bare-token alphabet"
+      ;;
+  esac
+
+  local z_i=0
+  for z_i in "${!z_rblm_var_roll[@]}"; do
+    test "${z_rblm_var_roll[${z_i}]}" != "${z_var}" || buc_die_now "Proscription: ${z_var} enrolled twice"
+  done
+
+  z_rblm_scope_roll+=("${z_scope}")
+  z_rblm_var_roll+=("${z_var}")
+  z_rblm_disposition_roll+=("${z_disposition}")
+  z_rblm_sterile_roll+=("${z_sterile}")
+  z_rblm_feigned_roll+=("${z_feigned}")
+}
+
+# zrblm_hardpoint_enroll PATH VARNAME STERILE — enroll one hardpoint. The sterile
+# value is written quoted into a source line, so it is held to the bare-token
+# alphabet here, which carries no character a double-quoted literal expands.
+zrblm_hardpoint_enroll() {
+  local -r z_path="${1:-}"
+  local -r z_var="${2:-}"
+  local -r z_sterile="${3:-}"
+
+  test "$#" -eq 3 || buc_die_now "Hardpoint: a path, a variable and a sterile value required"
+  test -n "${z_path}" || buc_die_now "Hardpoint: empty path"
+  case "${z_var}" in
+    ''|[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_]*|*[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_]*)
+      buc_die_now "Hardpoint: '${z_var}' is not a variable name"
+      ;;
+  esac
+  case "${z_sterile}" in
+    *[!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._/:+=-]*)
+      buc_die_now "Hardpoint: ${z_var} carries a value outside the bare-token alphabet"
+      ;;
+  esac
+
+  local z_i=0
+  for z_i in "${!z_rblm_hardpoint_var_roll[@]}"; do
+    test "${z_rblm_hardpoint_var_roll[${z_i}]}" != "${z_var}" || buc_die_now "Hardpoint: ${z_var} enrolled twice"
+  done
+
+  z_rblm_hardpoint_path_roll+=("${z_path}")
+  z_rblm_hardpoint_var_roll+=("${z_var}")
+  z_rblm_hardpoint_sterile_roll+=("${z_sterile}")
+}
 
 ######################################################################
 # Emitters — the fixture's reach
@@ -255,48 +354,35 @@ ZRBLM_HARDPOINTS=(
 # value ever reaches. The feigned column is the ceremony's alone, so it does not
 # cross this wire and the fixture's parser is untouched by its arrival.
 rblm_emit_proscription() {
-  local z_row=""
-  local z_rest=""
-  local z_scope=""
-  local z_var=""
-  local z_disposition=""
-  local z_sterile=""
-  local z_i=0
+  zrblm_sentinel
 
-  for z_i in "${!ZRBLM_PROSCRIPTION[@]}"; do
-    z_row="${ZRBLM_PROSCRIPTION[${z_i}]}"
-    z_scope="${z_row%%|*}"
-    z_rest="${z_row#*|}"
-    z_var="${z_rest%%|*}"
-    z_rest="${z_rest#*|}"
-    z_disposition="${z_rest%%|*}"
-    z_rest="${z_rest#*|}"
-    z_sterile="${z_rest%%|*}"
-    printf '%s\t%s\t%s\t%s\n' "${z_scope}" "${z_var}" "${z_disposition}" "${z_sterile}" \
-      || buc_die_now "Failed to emit proscription row: ${z_var}"
+  local z_i=0
+  for z_i in "${!z_rblm_var_roll[@]}"; do
+    printf '%s\t%s\t%s\t%s\n' \
+      "${z_rblm_scope_roll[${z_i}]}" \
+      "${z_rblm_var_roll[${z_i}]}" \
+      "${z_rblm_disposition_roll[${z_i}]}" \
+      "${z_rblm_sterile_roll[${z_i}]}" \
+      || buc_die_now "Failed to emit proscription row: ${z_rblm_var_roll[${z_i}]}"
   done
 }
 
 rblm_emit_hardpoints() {
-  local z_row=""
-  local z_rest=""
-  local z_path=""
-  local z_var=""
-  local z_sterile=""
-  local z_i=0
+  zrblm_sentinel
 
-  for z_i in "${!ZRBLM_HARDPOINTS[@]}"; do
-    z_row="${ZRBLM_HARDPOINTS[${z_i}]}"
-    z_path="${z_row%%|*}"
-    z_rest="${z_row#*|}"
-    z_var="${z_rest%%|*}"
-    z_sterile="${z_rest#*|}"
-    printf '%s\t%s\t%s\n' "${z_path}" "${z_var}" "${z_sterile}" \
-      || buc_die_now "Failed to emit hardpoint row: ${z_var}"
+  local z_i=0
+  for z_i in "${!z_rblm_hardpoint_var_roll[@]}"; do
+    printf '%s\t%s\t%s\n' \
+      "${z_rblm_hardpoint_path_roll[${z_i}]}" \
+      "${z_rblm_hardpoint_var_roll[${z_i}]}" \
+      "${z_rblm_hardpoint_sterile_roll[${z_i}]}" \
+      || buc_die_now "Failed to emit hardpoint row: ${z_rblm_hardpoint_var_roll[${z_i}]}"
   done
 }
 
 rblm_emit_homes() {
+  zrblm_sentinel
+
   local z_homes
   z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
 
@@ -331,6 +417,8 @@ rblm_emit_homes() {
 # The single home of the scope-to-file mapping: lustration writes through it, and
 # the damnatio fixture reads it back rather than reimplementing the globs.
 zrblm_homes_capture() {
+  zrblm_sentinel
+
   local z_homes=(
     "RBRR|${RBCC_rbrr_file}"
     "RBRD|${RBCC_rbrd_file}"
@@ -358,56 +446,34 @@ zrblm_homes_capture() {
   printf '%s\n' "${z_homes[@]}" || return 1
 }
 
-# zrblm_value_capture SCOPE VARNAME COLUMN — resolve the value one transform
+# zrblm_value_recite SCOPE VARNAME COLUMN — recite the value one transform
 # writes into one field. Prints the value and returns 0 when the field is
 # site-scoped in SCOPE; returns 1 otherwise, leaving the caller to pass the line
 # through untouched. COLUMN is the caller's to validate.
 #
-# A feigned column that is absent or empty resolves to the STERILE value, not to a
-# blank: most site fields validate blank and want no stand-in, and the one field
-# with a non-blank sterile value (the docs URL) must keep it.
-zrblm_value_capture() {
+# A feigned column that is empty resolves to the STERILE value, not to a blank:
+# most site fields validate blank and want no stand-in, and the one field with a
+# non-blank sterile value (the docs URL) must keep it.
+zrblm_value_recite() {
+  zrblm_sentinel
+
   local -r z_scope="${1:-}"
   local -r z_var="${2:-}"
   local -r z_column="${3:-}"
 
-  local z_row=""
-  local z_rest=""
-  local z_row_var=""
-  local z_row_disposition=""
-  local z_sterile=""
-  local z_feigned=""
-  local z_value=""
-  local z_found=0
   local z_i=0
-
-  for z_i in "${!ZRBLM_PROSCRIPTION[@]}"; do
-    z_row="${ZRBLM_PROSCRIPTION[${z_i}]}"
-    test "${z_row%%|*}" = "${z_scope}" || continue
-    z_rest="${z_row#*|}"
-    z_row_var="${z_rest%%|*}"
-    test "${z_row_var}" = "${z_var}" || continue
-    z_rest="${z_rest#*|}"
-    z_row_disposition="${z_rest%%|*}"
-    test "${z_row_disposition}" = "${RBLM_disposition_site}" || return 1
-    z_rest="${z_rest#*|}"
-    z_sterile="${z_rest%%|*}"
-    case "${z_rest}" in
-      *"|"*) z_feigned="${z_rest#*|}" ;;
-      *)     z_feigned=""             ;;
-    esac
-
+  for z_i in "${!z_rblm_var_roll[@]}"; do
+    test "${z_rblm_var_roll[${z_i}]}" = "${z_var}" || continue
+    test "${z_rblm_scope_roll[${z_i}]}" = "${z_scope}" || return 1
+    test "${z_rblm_disposition_roll[${z_i}]}" = "${RBLM_disposition_site}" || return 1
     case "${z_column}" in
-      "${RBLM_column_sterile}") z_value="${z_sterile}"                 ;;
-      "${RBLM_column_feigned}") z_value="${z_feigned:-${z_sterile}}"   ;;
-      *) return 1                                                      ;;
+      "${RBLM_column_sterile}") printf '%s' "${z_rblm_sterile_roll[${z_i}]}" || return 1 ;;
+      "${RBLM_column_feigned}") printf '%s' "${z_rblm_feigned_roll[${z_i}]:-${z_rblm_sterile_roll[${z_i}]}}" || return 1 ;;
+      *) return 1 ;;
     esac
-    z_found=1
-    break
+    return 0
   done
-
-  test "${z_found}" = "1" || return 1
-  printf '%s' "${z_value}" || return 1
+  return 1
 }
 
 # zrblm_scrub_regime FILE SCOPE COLUMN — rewrite every site-scoped field in one
@@ -415,6 +481,8 @@ zrblm_value_capture() {
 # an error: a bind vessel has no graft image, a conjure vessel no bind image.
 # Comments, blanks and common fields pass through byte-for-byte.
 zrblm_scrub_regime() {
+  zrblm_sentinel
+
   local -r z_file="${1:-}"
   local -r z_scope="${2:-}"
   local -r z_column="${3:-}"
@@ -451,7 +519,7 @@ zrblm_scrub_regime() {
       [ABCDEFGHIJKLMNOPQRSTUVWXYZ]*=*)
         z_var="${z_line%%=*}"
         z_site_status=0
-        z_value=$(zrblm_value_capture "${z_scope}" "${z_var}" "${z_column}") || z_site_status=$?
+        z_value=$(zrblm_value_recite "${z_scope}" "${z_var}" "${z_column}") || z_site_status=$?
         if test "${z_site_status}" -eq 0; then
           printf '%s\n' "${z_var}=${z_value}" || buc_die_now "Failed to write: ${z_tmp}"
         else
@@ -473,6 +541,8 @@ zrblm_scrub_regime() {
 # line opens 'readonly VARNAME=' and is found by that opening, never by a line
 # opening on the bare name. It is written back sealed, the sterile value quoted.
 zrblm_scrub_hardpoint() {
+  zrblm_sentinel
+
   local -r z_file="${1:-}"
   local -r z_var="${2:-}"
   local -r z_sterile="${3:-}"
@@ -514,6 +584,8 @@ zrblm_scrub_hardpoint() {
 # rblm_lustrate_apply — write every site-scoped home to its sterile value, across
 # every regime instance the tree carries and every hardpoint constant.
 rblm_lustrate_apply() {
+  zrblm_sentinel
+
   local z_homes
   z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
 
@@ -528,17 +600,12 @@ rblm_lustrate_apply() {
     zrblm_scrub_regime "${z_home#*|}" "${z_home%%|*}" "${RBLM_column_sterile}"
   done
 
-  local z_row=""
-  local z_path=""
-  local z_var=""
   local z_i=0
-
-  for z_i in "${!ZRBLM_HARDPOINTS[@]}"; do
-    z_row="${ZRBLM_HARDPOINTS[${z_i}]}"
-    z_path="${z_row%%|*}"
-    z_rest="${z_row#*|}"
-    z_var="${z_rest%%|*}"
-    zrblm_scrub_hardpoint "${z_path}" "${z_var}" "${z_rest#*|}"
+  for z_i in "${!z_rblm_hardpoint_var_roll[@]}"; do
+    zrblm_scrub_hardpoint \
+      "${z_rblm_hardpoint_path_roll[${z_i}]}" \
+      "${z_rblm_hardpoint_var_roll[${z_i}]}" \
+      "${z_rblm_hardpoint_sterile_roll[${z_i}]}"
   done
 }
 
@@ -550,6 +617,8 @@ rblm_lustrate_apply() {
 # fixture reads it — a station that never reaches a cloud needs no subject to be
 # it.
 rblm_feign_apply() {
+  zrblm_sentinel
+
   local z_homes
   z_homes=$(zrblm_homes_capture) || buc_die_now "Failed to resolve the regime homes"
 

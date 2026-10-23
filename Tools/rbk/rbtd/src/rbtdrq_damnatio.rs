@@ -475,6 +475,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          source '{rbk}/rbrv_regime.sh'\n\
          source '{rbk}/rbrn_regime.sh'\n\
          zbuv_kindle\n\
+         zrblm_kindle\n\
          source '{moorings}/rbrr.env'\n\
          zrbrr_kindle\n\
          source '{moorings}/rbrd.env'\n\
