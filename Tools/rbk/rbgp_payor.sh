@@ -701,12 +701,9 @@ zrbgp_write_posture_check() {
 # happy path is 60-120s; budget is ZRBGP_POOL_BUILD_POLL_CEILING ×
 # ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC = 10 minutes, well under Cloud Build's
 # default queueTtl=3600s. Synchronous: the levy/info caller blocks until
-# terminal.
-# The previous fire-and-forget pattern caused a late-clearing-probe-collision
-# wedge: a queued probe cleared minutes later and wedged the next build behind
-# it until queueTtl expired. SUCCESS terminal is the happy path; any non-2xx submission
-# is fatal (the prior 400-tolerance branch defended a folkloric "quota
-# row materialization" theory that has been retired).
+# terminal, since a probe left queued can clear minutes later and wedge the next
+# build behind it until queueTtl expires. Any non-2xx submission is fatal, and so
+# is any terminal but SUCCESS, the build named for its console link.
 # Args: token pool_variant pool_id build_json_file infix_prefix operation_label artifact_ref
 #   artifact_ref empty → omit the "  Artifact: …" line (posture path)
 zrbgp_pool_build_submit_await() {
@@ -782,6 +779,8 @@ zrbgp_pool_build_submit_await() {
     buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" || buc_die_now "Failed to print message"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
+  test "${z_status}" = "SUCCESS" \
+    || buc_die_now "${z_operation_label} ${z_pool_variant}: build ${z_build_id} ended ${z_status}, not SUCCESS — inspect it through the console link above"
 }
 
 # Levy-time per-pool probe. Composes a 2-step Cloud Build (posture check
@@ -790,8 +789,8 @@ zrbgp_pool_build_submit_await() {
 # in Google's console UI; (2) step 1 confirms the pool exhibits its
 # stamped egress posture; (3) step 2 confirms the worker can authenticate
 # and push to rbi_df under the depot's GAR repository. SUCCESS is the
-# expected terminal; FAILURE means the in-build posture assertion tripped
-# and the operator should inspect via the console link.
+# expected terminal; FAILURE means the in-build posture assertion tripped,
+# and the await dies so the operator inspects it via the console link.
 # Builder images are Google-hosted only — airgap cannot reach docker.io.
 # Args: token pool_variant pool_id mason_email posture_check_file
 zrbgp_pool_probe_submit() {
@@ -872,7 +871,7 @@ zrbgp_pool_probe_submit() {
 # 2-step probe: no marker push, no GAR write — purely an egress-posture
 # diagnostic against a pool that has already been levied and probed.
 # SUCCESS terminal = pool's egress posture matches its stamped config;
-# FAILURE = drift worth investigating via the console link.
+# FAILURE = drift, and the await dies so it is investigated via the console link.
 # Args: token pool_variant pool_id mason_email posture_check_file
 zrbgp_pool_posture_submit() {
   zrbgp_sentinel
