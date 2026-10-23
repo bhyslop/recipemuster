@@ -187,14 +187,14 @@ rbgft_expunge() {
 
 # Shared list-and-fetch core for the muniment reads. Pages a GCS object listing
 # (prefix empty = the whole terrier, manor-wide; "<depot>/" = one polity slice),
-# fetches each object's body, and echoes one tab-separated
-# "<depot>\t<mantle>\t<subject>" line per muniment — mantle and subject from the
+# fetches each object's body, and writes one tab-separated
+# "<depot>\t<mantle>\t<subject>" line per muniment to <out_file> — mantle and subject from the
 # rbgft_ content fields, the depot column from the object key's first segment.
 # A read-after-list 404 (an object expunged between the listing and its fetch)
 # is a benign vanish, skipped, not fatal. Any other list/fetch non-OK, or a body
 # missing the rbgft_ fields, rejects in the peruse band (BUBC_band_peruse).
 # <list_infix> is suffixed with the page number; <get_infix> names the
-# per-object fetch capture.
+# per-object fetch capture; <out_file> is truncated, then takes the lines.
 zrbgft_list_fetch_emit() {
   zrbgft_sentinel
 
@@ -203,6 +203,9 @@ zrbgft_list_fetch_emit() {
   local -r z_prefix="${3}"   # may be empty — manor-wide read of the whole terrier
   local -r z_list_infix="${4}"
   local -r z_get_infix="${5}"
+  local -r z_out="${6:-}"
+  test -n "${z_out}" || buc_die_now "Muniment output file required"
+  : > "${z_out}" || buc_die_now "Failed to open muniment output: ${z_out}"
 
   local z_prefix_param=""
   if test -n "${z_prefix}"; then
@@ -272,7 +275,7 @@ zrbgft_list_fetch_emit() {
       esac
 
       local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
-      jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" \
+      jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" >> "${z_out}" \
         || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
     done
 
@@ -281,9 +284,9 @@ zrbgft_list_fetch_emit() {
   done
 }
 
-# rbgft_peruse <token> <bucket> <depot_project_id>
+# rbgft_peruse <token> <bucket> <depot_project_id> <out_file>
 # Read one polity's muniments — no precondition. Lists under the polity folder
-# prefix and echoes the shared lister's tab-separated
+# prefix and writes to out_file the shared lister's tab-separated
 # "<depot>\t<mantle>\t<subject>" lines (the depot column constant here, by
 # construction the polity asked for).
 rbgft_peruse() {
@@ -292,34 +295,38 @@ rbgft_peruse() {
   local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
+  local -r z_out="${4:-}"
 
   test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
   test -n "${z_depot}"  || buc_die_now "Depot project id required"
+  test -n "${z_out}"    || buc_die_now "Muniment output file required"
 
   buc_step "Peruse muniments for polity ${z_depot}"
 
   zrbgft_list_fetch_emit "${zSECRET_token}" "${z_bucket}" "${z_depot}/" \
-    "${ZRBGFT_INFIX_PERUSE_LIST}" "${ZRBGFT_INFIX_PERUSE_GET}"
+    "${ZRBGFT_INFIX_PERUSE_LIST}" "${ZRBGFT_INFIX_PERUSE_GET}" "${z_out}"
 }
 
-# rbgft_peruse_manor <token> <bucket>
+# rbgft_peruse_manor <token> <bucket> <out_file>
 # The manor-wide read — every muniment in the terrier across all polities, no
-# prefix filter (read is bucket-level). Echoes the same tab-separated
+# prefix filter (read is bucket-level). Writes to out_file the same tab-separated
 # "<depot>\t<mantle>\t<subject>" line per muniment as the per-polity peruse.
 rbgft_peruse_manor() {
   zrbgft_sentinel
 
   local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
+  local -r z_out="${3:-}"
 
   test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
+  test -n "${z_out}"    || buc_die_now "Muniment output file required"
 
   buc_step "Peruse muniments manor-wide"
 
   zrbgft_list_fetch_emit "${zSECRET_token}" "${z_bucket}" "" \
-    "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}"
+    "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}" "${z_out}"
 }
 
 # rbgft_escheat_survey <token> <bucket> <out_file>

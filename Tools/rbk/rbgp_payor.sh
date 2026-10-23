@@ -3464,7 +3464,7 @@ rbgp_rehearse() {
 
   buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'
   local -r z_muniments_file="${ZRBGP_PREFIX}rehearse_muniments.txt"
-  rbgft_peruse_manor "${zSECRET_token}" "${RBGP_TERRIER_BUCKET}" > "${z_muniments_file}"
+  rbgft_peruse_manor "${zSECRET_token}" "${RBGP_TERRIER_BUCKET}" "${z_muniments_file}"
   local z_muniments
   z_muniments=$(<"${z_muniments_file}") || buc_die_now "Failed to read: ${z_muniments_file}"
 
