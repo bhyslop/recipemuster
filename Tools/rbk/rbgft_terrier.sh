@@ -100,13 +100,13 @@ zrbgft_muniment_name_capture() {
 rbgft_engross() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
   local -r z_mantle="${4:-}"
   local -r z_subject="${5:-}"
 
-  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${zSECRET_token}"    || buc_die_now "Token required"
   test -n "${z_bucket}"   || buc_die_now "Bucket required"
   test -n "${z_depot}"    || buc_die_now "Depot project id required"
   test -n "${z_mantle}"   || buc_die_now "Mantle required"
@@ -127,7 +127,7 @@ rbgft_engross() {
 
   buc_log_args 'Media upload with ifGenerationMatch=0 — create only if absent; concurrent creators race cleanly'
   local -r z_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_UPLOAD}/b/${z_bucket}/o?uploadType=media&name=${z_name_enc}&ifGenerationMatch=0"
-  rbuh_json "POST" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_ENGROSS}" "${ZRBGFT_MUNIMENT_BODY}"
+  rbuh_json "POST" "${z_url}" "${zSECRET_token}" "${ZRBGFT_INFIX_ENGROSS}" "${ZRBGFT_MUNIMENT_BODY}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die_now "Bad engross HTTP code"
@@ -149,13 +149,13 @@ rbgft_engross() {
 rbgft_expunge() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
   local -r z_mantle="${4:-}"
   local -r z_subject="${5:-}"
 
-  test -n "${z_token}"    || buc_die_now "Token required"
+  test -n "${zSECRET_token}"    || buc_die_now "Token required"
   test -n "${z_bucket}"   || buc_die_now "Bucket required"
   test -n "${z_depot}"    || buc_die_now "Depot project id required"
   test -n "${z_mantle}"   || buc_die_now "Mantle required"
@@ -170,7 +170,7 @@ rbgft_expunge() {
   z_name_enc=$(rbuh_urlencode_capture "${z_objname}") || buc_die_now "Failed to encode object name"
 
   local -r z_url="${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}"
-  rbuh_json "DELETE" "${z_url}" "${z_token}" "${ZRBGFT_INFIX_EXPUNGE}"
+  rbuh_json "DELETE" "${z_url}" "${zSECRET_token}" "${ZRBGFT_INFIX_EXPUNGE}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die_now "Bad expunge HTTP code"
@@ -198,7 +198,7 @@ rbgft_expunge() {
 zrbgft_list_fetch_emit() {
   zrbgft_sentinel
 
-  local -r z_token="${1}"
+  local -r zSECRET_token="${1}"
   local -r z_bucket="${2}"
   local -r z_prefix="${3}"   # may be empty — manor-wide read of the whole terrier
   local -r z_list_infix="${4}"
@@ -227,7 +227,7 @@ zrbgft_list_fetch_emit() {
     test -z "${z_query}" || z_url="${z_url}?${z_query}"
 
     local z_list_infix_page="${z_list_infix}${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_list_infix_page}"
 
     local z_list_code
     z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad muniment list HTTP code"
@@ -257,7 +257,7 @@ zrbgft_list_fetch_emit() {
       local z_name_enc
       z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode muniment name"
       rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
-        "${z_token}" "${z_get_infix}"
+        "${zSECRET_token}" "${z_get_infix}"
 
       local z_get_code
       z_get_code=$(rbuh_code_capture "${z_get_infix}") || buc_die_now "Bad muniment fetch HTTP code"
@@ -289,17 +289,17 @@ zrbgft_list_fetch_emit() {
 rbgft_peruse() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_depot="${3:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
   test -n "${z_depot}"  || buc_die_now "Depot project id required"
 
   buc_step "Peruse muniments for polity ${z_depot}"
 
-  zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "${z_depot}/" \
+  zrbgft_list_fetch_emit "${zSECRET_token}" "${z_bucket}" "${z_depot}/" \
     "${ZRBGFT_INFIX_PERUSE_LIST}" "${ZRBGFT_INFIX_PERUSE_GET}"
 }
 
@@ -310,15 +310,15 @@ rbgft_peruse() {
 rbgft_peruse_manor() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
 
   buc_step "Peruse muniments manor-wide"
 
-  zrbgft_list_fetch_emit "${z_token}" "${z_bucket}" "" \
+  zrbgft_list_fetch_emit "${zSECRET_token}" "${z_bucket}" "" \
     "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}"
 }
 
@@ -337,11 +337,11 @@ rbgft_peruse_manor() {
 rbgft_escheat_survey() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_out="${3:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
   test -n "${z_out}"    || buc_die_now "Survey output file required"
 
@@ -372,7 +372,7 @@ rbgft_escheat_survey() {
     fi
 
     z_list_infix_page="${ZRBGFT_INFIX_ESCHEAT_LIST}${z_page}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_list_infix_page}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_list_infix_page}"
 
     z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad escheat list HTTP code"
     case "${z_list_code}" in
@@ -438,7 +438,7 @@ rbgft_escheat_survey() {
 
     z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode object name"
     rbuh_json "GET" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}?alt=media" \
-      "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_GET}"
+      "${zSECRET_token}" "${ZRBGFT_INFIX_ESCHEAT_GET}"
 
     z_get_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_GET}") || buc_die_now "Bad escheat fetch HTTP code"
     case "${z_get_code}" in
@@ -484,11 +484,11 @@ rbgft_escheat_survey() {
 rbgft_escheat_expunge_raw() {
   zrbgft_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_bucket="${2:-}"
   local -r z_name="${3:-}"
 
-  test -n "${z_token}"  || buc_die_now "Token required"
+  test -n "${zSECRET_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
   test -n "${z_name}"   || buc_die_now "Object name required"
 
@@ -498,7 +498,7 @@ rbgft_escheat_expunge_raw() {
   z_name_enc=$(rbuh_urlencode_capture "${z_name}") || buc_die_now "Failed to encode object name"
 
   rbuh_json "DELETE" "${RBGC_API_BASE_GCS}/b/${z_bucket}/o/${z_name_enc}" \
-    "${z_token}" "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}"
+    "${zSECRET_token}" "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}"
 
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die_now "Bad escheat expunge HTTP code"

@@ -63,7 +63,8 @@ set -euo pipefail
 zrbldw_underpin_submit() {
   zrbld0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_url="${2:?URL required}"
   local -r z_stamp="${3:?Stamp required}"
 
@@ -116,7 +117,7 @@ zrbldw_underpin_submit() {
     || buc_die_now "Failed to write the capture recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${zSECRET_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD0_UNDERPIN_PREFIX}" \
     "${z_recipe_file}"
 }
@@ -163,8 +164,8 @@ rbldw_underpin() {
   zrbfca_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
@@ -173,7 +174,7 @@ rbldw_underpin() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbldw_underpin_submit "${z_token}" "${z_url}" "${z_stamp}"
+  zrbldw_underpin_submit "${zSECRET_token}" "${z_url}" "${z_stamp}"
   # Shared single-slot extract (rblds_): the fetch step (step 0) authors the
   # output; the wrap and vouch-push steps write none.
   zrblds_spine_extract_single "${ZRBLD0_UNDERPIN_PREFIX}" "${RBGC_LODE_BRAND_WSL}" "Underpin"

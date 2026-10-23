@@ -33,13 +33,13 @@ rbfln_tally() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Retriever"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
     || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
   local z_list_out
-  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
     || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
@@ -160,13 +160,13 @@ rbfln_rekon_hallmark() {
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
   local z_list_out
-  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
     || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
@@ -222,13 +222,13 @@ rbfln_audit_hallmarks() {
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
   local z_list_out
-  z_list_out=$(zrbfcg_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}") \
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
     || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
@@ -294,15 +294,15 @@ rbfln_list() {
   esac
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # One enumeration of every package (decoded names, slashes restored, sorted).
   buc_step "Enumerating GAR packages"
   local -r z_list_infix="rbfl_list_pkgs"
   local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
-  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  rbuh_json "GET" "${z_list_url}" "${zSECRET_token}" "${z_list_infix}"
   rbuh_require_ok "List GAR packages" "${z_list_infix}"
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
 
@@ -324,7 +324,7 @@ rbfln_list() {
     local z_pi=0
     for z_pi in "${!z_pls[@]}"; do
       if test "${z_pls[${z_pi}]}" = "${z_path}"; then
-        zrbfln_list_leaf "${z_token}" "${z_path}"
+        zrbfln_list_leaf "${zSECRET_token}" "${z_path}"
         return 0
       fi
     done
@@ -378,7 +378,8 @@ rbfln_list() {
 zrbfln_list_leaf() {
   zrbfl0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_pkg="${2:?Package path required}"
   local -r z_encoded="${z_pkg//\//%2F}"
 
@@ -387,7 +388,7 @@ zrbfln_list_leaf() {
   local -r z_tags_infix="rbfl_list_tags"
   rbuh_json "GET" \
     "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
-    "${z_token}" "${z_tags_infix}"
+    "${zSECRET_token}" "${z_tags_infix}"
   rbuh_require_ok "List tags for ${z_pkg}" "${z_tags_infix}"
   local -r z_tags_file="${BURD_TEMP_DIR}/rbfl_leaf_tags.txt"
   jq -r '.tags[]?.name | sub("^.*/tags/"; "")' \
@@ -397,7 +398,7 @@ zrbfln_list_leaf() {
   local -r z_vers_infix="rbfl_list_vers"
   rbuh_json "GET" \
     "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
-    "${z_token}" "${z_vers_infix}"
+    "${zSECRET_token}" "${z_vers_infix}"
   rbuh_require_ok "List versions for ${z_pkg}" "${z_vers_infix}"
   local -r z_vers_file="${BURD_TEMP_DIR}/rbfl_leaf_vers.txt"
   jq -r '.versions[]?.name | sub("^.*/versions/"; "")' \

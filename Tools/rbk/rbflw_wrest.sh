@@ -47,14 +47,14 @@ rbflw_wrest() {
   test -n "${z_tag}"      || buc_die_now "Tag is empty in locator"
 
   buc_step "Authenticating as Director"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
   local -r z_full_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_locator}"
 
-  rbgo_docker_login "${z_token}" "${ZRBFC0_REGISTRY_HOST}"
+  rbgo_docker_login "${zSECRET_token}" "${ZRBFC0_REGISTRY_HOST}"
 
   buc_step "Pulling image: ${z_full_ref}"
   docker pull "${z_full_ref}" || buc_die_now "Image pull failed"

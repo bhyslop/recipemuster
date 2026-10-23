@@ -308,8 +308,8 @@ rbgp_authenticate_die() {
 zrbgp_depot_state_emit() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die_now "zrbgp_depot_state_emit: token required"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "zrbgp_depot_state_emit: token required"
 
   local -r z_search_query="displayName:${RBGC_DEPOT_DISPLAY_PREFIX}*"
   local -r z_search_url_base="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects:search"
@@ -348,7 +348,7 @@ zrbgp_depot_state_emit() {
     fi
 
     z_search_infix="depot_state_search_${z_search_page}"
-    rbuh_json "GET" "${z_search_url}" "${z_token}" "${z_search_infix}" || buc_die_now "HTTP GET request failed (${z_search_infix})"
+    rbuh_json "GET" "${z_search_url}" "${zSECRET_token}" "${z_search_infix}" || buc_die_now "HTTP GET request failed (${z_search_infix})"
     rbuh_require_ok "CRM v3 projects:search" "${z_search_infix}" || buc_die_now "Response check failed: CRM v3 projects:search"
 
     z_project_count=$(rbuh_json_field_capture "${z_search_infix}" '.projects // [] | length') \
@@ -387,7 +387,7 @@ zrbgp_depot_state_emit() {
       # GET against the strongly-consistent endpoint for authoritative state.
       z_get_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
       z_get_infix="depot_state_get_${z_project_id}"
-      rbuh_json "GET" "${z_get_url}" "${z_token}" "${z_get_infix}" || buc_die_now "HTTP GET request failed (${z_get_infix})"
+      rbuh_json "GET" "${z_get_url}" "${zSECRET_token}" "${z_get_infix}" || buc_die_now "HTTP GET request failed (${z_get_infix})"
       local z_get_code_status=0
       z_get_code=$(rbuh_code_capture "${z_get_infix}") || z_get_code_status=$?
       test "${z_get_code_status}" -eq 0 || z_get_code=""
@@ -474,8 +474,8 @@ zrbgp_billing_attach() {
 
   buc_step "Attaching billing account: ${z_billing_account}"
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
@@ -486,7 +486,7 @@ zrbgp_billing_attach() {
     }' > "${z_billing_body}" || buc_die_now "Failed to build billing attach body"
 
   local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}:setBillingInfo"
-  rbuh_json "PUT" "${z_billing_url}" "${z_token}" \
+  rbuh_json "PUT" "${z_billing_url}" "${zSECRET_token}" \
                                   "${ZRBGP_INFIX_BILLING_ATTACH}" "${z_billing_body}"
   rbuh_require_ok "Attach billing account" "${ZRBGP_INFIX_BILLING_ATTACH}"
 
@@ -501,8 +501,8 @@ zrbgp_billing_detach() {
 
   buc_step "Detaching billing account from project"
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
     '{
@@ -511,7 +511,7 @@ zrbgp_billing_detach() {
     }' > "${z_billing_body}" || buc_die_now "Failed to build billing detach body"
 
   local -r z_billing_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}:setBillingInfo"
-  rbuh_json "PUT" "${z_billing_url}" "${z_token}" \
+  rbuh_json "PUT" "${z_billing_url}" "${zSECRET_token}" \
                                   "${ZRBGP_INFIX_BILLING_DETACH}" "${z_billing_body}"
   rbuh_require_ok "Detach billing account" "${ZRBGP_INFIX_BILLING_DETACH}"
 
@@ -533,9 +533,9 @@ zrbgp_lien_delete() {
 
   buc_step "Deleting lien: ${z_lien_name}"
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
-  rbuh_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${z_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  rbuh_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${zSECRET_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
   rbuh_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
 
   buc_success "Lien deleted: ${z_lien_name}"
@@ -547,8 +547,8 @@ zrbgp_lien_delete() {
 zrbgp_required_apis_missing_capture() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
-  test -n "${z_token}" || return 1
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || return 1
 
   local z_missing=""
   local z_api=""
@@ -568,7 +568,7 @@ zrbgp_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGP_INFIX_API_CHECK}_${z_service}"
 
-    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || return 1
+    rbuh_json "GET" "${z_api}" "${zSECRET_token}" "${z_infix}" || return 1
 
     buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.' || return 1
     local z_code_status=0
@@ -593,10 +593,10 @@ zrbgp_required_apis_missing_capture() {
 zrbgp_get_project_number_capture() {
   zrbgp_sentinel
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || return 1
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || return 1
 
-  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
+  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbuh_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
@@ -610,7 +610,7 @@ zrbgp_get_project_number_capture() {
 zrbgp_create_gcs_bucket() {
   zrbgp_sentinel
 
-  local -r z_token="${1}"
+  local -r zSECRET_token="${1}"
   local -r z_bucket_name="${2}"
 
   buc_log_args 'Create bucket request JSON for '"${z_bucket_name}"
@@ -626,7 +626,7 @@ zrbgp_create_gcs_bucket() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbuh_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}" "${z_token}" \
+  rbuh_json "POST" "${RBGC_API_GCS_BUCKETS}?project=${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" \
                                   "${ZRBGP_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbuh_code_capture "${ZRBGP_INFIX_BUCKET_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
   local z_err_status=0
@@ -712,7 +712,7 @@ zrbgp_write_posture_check() {
 zrbgp_pool_build_submit_await() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_pool_variant="${2:-}"
   local -r z_pool_id="${3:-}"
   local -r z_build_json_file="${4:-}"
@@ -720,7 +720,7 @@ zrbgp_pool_build_submit_await() {
   local -r z_operation_label="${6:-}"
   local -r z_artifact_ref="${7:-}"
 
-  test -n "${z_token}"           || buc_die_now "zrbgp_pool_build_submit_await: token required"
+  test -n "${zSECRET_token}"           || buc_die_now "zrbgp_pool_build_submit_await: token required"
   test -n "${z_pool_variant}"    || buc_die_now "zrbgp_pool_build_submit_await: pool_variant required"
   test -n "${z_pool_id}"         || buc_die_now "zrbgp_pool_build_submit_await: pool_id required"
   test -n "${z_build_json_file}" || buc_die_now "zrbgp_pool_build_submit_await: build_json_file required"
@@ -731,7 +731,7 @@ zrbgp_pool_build_submit_await() {
   local -r z_build_url="${RBGC_API_ROOT_CLOUDBUILD}${RBGC_CLOUDBUILD_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/locations/${z_region}/builds"
   local -r z_infix="${z_infix_prefix}_${z_pool_variant}_submit"
 
-  rbuh_json "POST" "${z_build_url}" "${z_token}" "${z_infix}" "${z_build_json_file}"
+  rbuh_json "POST" "${z_build_url}" "${zSECRET_token}" "${z_infix}" "${z_build_json_file}"
   local z_submit_code
   z_submit_code=$(rbuh_code_capture "${z_infix}") \
     || buc_die_now "Bad ${z_operation_label} submission HTTP code for ${z_pool_variant}"
@@ -775,7 +775,7 @@ zrbgp_pool_build_submit_await() {
     test "${z_polls}" -le "${ZRBGP_POOL_BUILD_POLL_CEILING}" \
       || buc_die_now "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
-    rbuh_json "GET" "${z_build_get_url}" "${z_token}" "${z_poll_infix}" || buc_die_now "HTTP GET request failed (${z_poll_infix})"
+    rbuh_json "GET" "${z_build_get_url}" "${zSECRET_token}" "${z_poll_infix}" || buc_die_now "HTTP GET request failed (${z_poll_infix})"
     local z_status_status=0
     z_status=$(rbuh_json_field_capture "${z_poll_infix}" '.status') || z_status_status=$?
     test "${z_status_status}" -eq 0 || z_status="UNKNOWN"
@@ -799,7 +799,7 @@ zrbgp_pool_build_submit_await() {
 zrbgp_pool_probe_submit() {
   zrbgp_sentinel
 
-  local -r z_token="${1}"
+  local -r zSECRET_token="${1}"
   local -r z_pool_variant="${2}"
   local -r z_pool_id="${3}"
   local -r z_mason_email="${4}"
@@ -864,7 +864,7 @@ zrbgp_pool_probe_submit() {
     || buc_die_now "Failed to compose probe build JSON for ${z_pool_variant}"
 
   zrbgp_pool_build_submit_await \
-    "${z_token}" "${z_pool_variant}" "${z_pool_id}" \
+    "${zSECRET_token}" "${z_pool_variant}" "${z_pool_id}" \
     "${z_build_file}" "depot_probe" "Per-pool probe" "${z_probe_ref}"
 }
 
@@ -879,13 +879,13 @@ zrbgp_pool_probe_submit() {
 zrbgp_pool_posture_submit() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_pool_variant="${2:-}"
   local -r z_pool_id="${3:-}"
   local -r z_mason_email="${4:-}"
   local -r z_posture_check_file="${5:-}"
 
-  test -n "${z_token}"              || buc_die_now "zrbgp_pool_posture_submit: token required"
+  test -n "${zSECRET_token}"              || buc_die_now "zrbgp_pool_posture_submit: token required"
   test -n "${z_pool_variant}"       || buc_die_now "zrbgp_pool_posture_submit: pool_variant required"
   test -n "${z_pool_id}"            || buc_die_now "zrbgp_pool_posture_submit: pool_id required"
   test -n "${z_mason_email}"        || buc_die_now "zrbgp_pool_posture_submit: mason_email required"
@@ -918,7 +918,7 @@ zrbgp_pool_posture_submit() {
     || buc_die_now "Failed to compose posture build JSON for ${z_pool_variant}"
 
   zrbgp_pool_build_submit_await \
-    "${z_token}" "${z_pool_variant}" "${z_pool_id}" \
+    "${zSECRET_token}" "${z_pool_variant}" "${z_pool_id}" \
     "${z_build_file}" "depot_posture" "Posture check" ""
 }
 
@@ -1152,11 +1152,11 @@ rbgp_install() {
 zrbgp_establish_mantle_sa() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_account_id="${2:-}"
   local -r z_role="${3:-}"
 
-  test -n "${z_token}"      || buc_die_now "zrbgp_establish_mantle_sa: token required"
+  test -n "${zSECRET_token}"      || buc_die_now "zrbgp_establish_mantle_sa: token required"
   test -n "${z_account_id}" || buc_die_now "zrbgp_establish_mantle_sa: account id required"
   test -n "${z_role}"       || buc_die_now "zrbgp_establish_mantle_sa: role required"
 
@@ -1175,13 +1175,13 @@ zrbgp_establish_mantle_sa() {
     }' > "${z_create_body}" || buc_die_now "Failed to build ${z_role} mantle creation body"
 
   local -r z_create_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts"
-  rbuh_json "POST" "${z_create_url}" "${z_token}" "mantle_${z_role}_create" "${z_create_body}"
+  rbuh_json "POST" "${z_create_url}" "${zSECRET_token}" "mantle_${z_role}_create" "${z_create_body}"
   rbuh_require_ok "Create ${z_role} mantle service account" "mantle_${z_role}_create"
 
   buc_step "Verify ${z_role} mantle service account propagation"
   local -r z_sa_email="${z_account_id}@${RBGD_SA_EMAIL_FULL}"
   local -r z_sa_url="${RBGC_API_ROOT_IAM}${RBGC_IAM_V1}/projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${z_sa_email}"
-  rbuh_poll_until_ok "${z_role} mantle SA" "${z_sa_url}" "${z_token}" "mantle_${z_role}_preflight"
+  rbuh_poll_until_ok "${z_role} mantle SA" "${z_sa_url}" "${zSECRET_token}" "mantle_${z_role}_preflight"
 }
 
 # Enable Artifact Registry Data-Access audit logs on the depot project (spike V3):
@@ -1192,14 +1192,14 @@ zrbgp_establish_mantle_sa() {
 zrbgp_enable_ar_audit_logs() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
-  test -n "${z_token}" || buc_die_now "zrbgp_enable_ar_audit_logs: token required"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "zrbgp_enable_ar_audit_logs: token required"
 
   buc_step 'Enable Artifact Registry Data-Access audit logs'
   local -r z_get_body="${BURD_TEMP_DIR}/rbgp_audit_get.json"
   printf '%s\n' '{"options":{"requestedPolicyVersion":3}}' > "${z_get_body}" \
     || buc_die_now "Failed to write audit getIamPolicy body"
-  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${z_token}" "depot_audit_get" "${z_get_body}"
+  rbuh_json "POST" "${RBGD_API_CRM_GET_IAM_POLICY}" "${zSECRET_token}" "depot_audit_get" "${z_get_body}"
   rbuh_require_ok "Get project IAM policy for audit config" "depot_audit_get"
 
   local z_etag
@@ -1224,7 +1224,7 @@ zrbgp_enable_ar_audit_logs() {
       updateMask: "auditConfigs,etag"
     }' > "${z_set_body}" || buc_die_now "Failed to build audit setIamPolicy body"
 
-  rbuh_json "POST" "${RBGD_API_CRM_SET_IAM_POLICY}" "${z_token}" "depot_audit_set" "${z_set_body}"
+  rbuh_json "POST" "${RBGD_API_CRM_SET_IAM_POLICY}" "${zSECRET_token}" "depot_audit_set" "${z_set_body}"
   rbuh_require_ok "Enable Artifact Registry audit logs" "depot_audit_set"
 
   # Content gate: setIamPolicy returns the resulting policy, which must carry the
@@ -2034,10 +2034,10 @@ zrbgp_escheat_depots() {
 zrbgp_escheat_liveness() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_depots_file="${2:-}"
   local -r z_out="${3:-}"
-  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${zSECRET_token}"       || buc_die_now "Token required"
   test -f "${z_depots_file}" || buc_die_now "Depots file required: ${z_depots_file}"
   test -n "${z_out}"         || buc_die_now "Liveness output file required"
   : > "${z_out}" || buc_die_now "Failed to open liveness output: ${z_out}"
@@ -2066,7 +2066,7 @@ zrbgp_escheat_liveness() {
     }
 
     z_infix="escheat_liveness_${z_i}"
-    rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot}" "${z_token}" "${z_infix}" || buc_die_now "HTTP GET request failed (${z_infix})"
+    rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_depot}" "${zSECRET_token}" "${z_infix}" || buc_die_now "HTTP GET request failed (${z_infix})"
     z_code=$(rbuh_code_capture "${z_infix}") || buc_die_now "No HTTP code from projects.get for ${z_depot}"
     case "${z_code}" in
       200)
@@ -3254,11 +3254,11 @@ zrbgp_principal_member_capture() {
 zrbgp_brevet_core() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_mantle="${2:-}"
   local -r z_subject="${3:-}"
 
-  test -n "${z_token}"   || buc_die_now "Token required"
+  test -n "${zSECRET_token}"   || buc_die_now "Token required"
   test -n "${z_mantle}"  || buc_die_now "Mantle required"
   test -n "${z_subject}" || buc_die_now "Subject required"
 
@@ -3273,14 +3273,14 @@ zrbgp_brevet_core() {
   buc_step "Brevet ${z_subject} onto the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: write the muniment before any binding'
-  rbgft_engross "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_engross "${zSECRET_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
 
   buc_log_args 'Ensure tokenCreator on the mantle SA (the don grant)'
-  rbgi_add_sa_principal_iam_role "${z_token}" "${z_mantle_email}" "${z_principal}" \
+  rbgi_add_sa_principal_iam_role "${zSECRET_token}" "${z_mantle_email}" "${z_principal}" \
     "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
 
   buc_log_args 'Ensure serviceUsageConsumer on the depot project (Leg-3 quota project)'
-  rbgi_add_project_iam_role "${z_token}" "Brevet serviceUsageConsumer for ${z_subject}" \
+  rbgi_add_project_iam_role "${zSECRET_token}" "Brevet serviceUsageConsumer for ${z_subject}" \
     "projects/${z_depot}" "${RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER}" \
     "${z_principal}" "polity_brevet_suc"
 }
@@ -3291,11 +3291,11 @@ zrbgp_brevet_core() {
 zrbgp_unseat_core() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_mantle="${2:-}"
   local -r z_subject="${3:-}"
 
-  test -n "${z_token}"   || buc_die_now "Token required"
+  test -n "${zSECRET_token}"   || buc_die_now "Token required"
   test -n "${z_mantle}"  || buc_die_now "Mantle required"
   test -n "${z_subject}" || buc_die_now "Subject required"
 
@@ -3310,10 +3310,10 @@ zrbgp_unseat_core() {
   buc_step "Unseat ${z_subject} from the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: withdraw the muniment before removing the binding'
-  rbgft_expunge "${z_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_expunge "${zSECRET_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
 
   buc_log_args 'Remove tokenCreator on the mantle SA (depot-scoped binding stays: suspension)'
-  rbgi_revoke_sa_principal_member "${z_token}" "${z_mantle_email}" "${z_principal}" \
+  rbgi_revoke_sa_principal_member "${zSECRET_token}" "${z_mantle_email}" "${z_principal}" \
     "${RBGC_ROLE_IAM_SERVICE_ACCOUNT_TOKEN_CREATOR}"
 }
 
@@ -3323,10 +3323,10 @@ zrbgp_unseat_core() {
 zrbgp_attaint_core() {
   zrbgp_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_subject="${2:-}"
 
-  test -n "${z_token}"   || buc_die_now "Token required"
+  test -n "${zSECRET_token}"   || buc_die_now "Token required"
   test -n "${z_subject}" || buc_die_now "Subject required"
 
   local -r z_depot="${RBDC_DEPOT_PROJECT_ID}"
@@ -3338,11 +3338,11 @@ zrbgp_attaint_core() {
   buc_log_args 'Unseat every mantle (idempotent — an unheld mantle is a no-op)'
   local z_mantle=""
   for z_mantle in governor director retriever; do
-    zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}" || buc_die_now "Mantle ${z_mantle} removal failed for ${z_subject}"
+    zrbgp_unseat_core "${zSECRET_token}" "${z_mantle}" "${z_subject}" || buc_die_now "Mantle ${z_mantle} removal failed for ${z_subject}"
   done
 
   buc_log_args 'Sweep the depot-scoped serviceUsageConsumer — attaint alone does this'
-  rbgi_revoke_project_member "${z_token}" "Attaint sweep serviceUsageConsumer for ${z_subject}" \
+  rbgi_revoke_project_member "${zSECRET_token}" "Attaint sweep serviceUsageConsumer for ${z_subject}" \
     "projects/${z_depot}" "${RBGC_ROLE_SERVICEUSAGE_SERVICE_USAGE_CONSUMER}" \
     "${z_principal}" "polity_attaint_suc"
 
@@ -3391,11 +3391,11 @@ rbgp_brevet() {
   # Don the governor mantle — avow runs outside the capture (its device flow
   # needs the terminal); only the mint is captured.
   rba_avow
-  local z_token
-  z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
-  zrbgp_brevet_core "${z_token}" "${z_mantle}" "${z_subject}"
+  zrbgp_brevet_core "${zSECRET_token}" "${z_mantle}" "${z_subject}"
 
   buc_success "Breveted ${z_subject} onto the ${z_mantle} mantle in ${RBDC_DEPOT_PROJECT_ID}"
 }
@@ -3417,11 +3417,11 @@ rbgp_unseat() {
   test -n "${z_mantle}"  || buc_die_now "Mantle required as the second argument (governor | director | retriever)"
 
   rba_avow
-  local z_token
-  z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
-  zrbgp_unseat_core "${z_token}" "${z_mantle}" "${z_subject}"
+  zrbgp_unseat_core "${zSECRET_token}" "${z_mantle}" "${z_subject}"
 
   buc_success "Unseated ${z_subject} from the ${z_mantle} mantle — still standing in ${RBDC_DEPOT_PROJECT_ID} (suspended, not erased)"
 }
@@ -3440,11 +3440,11 @@ rbgp_attaint() {
   test -n "${z_subject}" || buc_die_now "Subject required as the first argument"
 
   rba_avow
-  local z_token
-  z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
-  zrbgp_attaint_core "${z_token}" "${z_subject}"
+  zrbgp_attaint_core "${zSECRET_token}" "${z_subject}"
 
   buc_success "Attainted ${z_subject} from ${RBDC_DEPOT_PROJECT_ID}"
 }
@@ -3458,13 +3458,13 @@ rbgp_rehearse() {
   buc_doc_shown || return 0
 
   rba_avow
-  local z_token
-  z_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'
   local -r z_muniments_file="${ZRBGP_PREFIX}rehearse_muniments.txt"
-  rbgft_peruse_manor "${z_token}" "${RBGP_TERRIER_BUCKET}" > "${z_muniments_file}"
+  rbgft_peruse_manor "${zSECRET_token}" "${RBGP_TERRIER_BUCKET}" > "${z_muniments_file}"
   local z_muniments
   z_muniments=$(<"${z_muniments_file}") || buc_die_now "Failed to read: ${z_muniments_file}"
 

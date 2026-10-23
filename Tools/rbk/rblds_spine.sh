@@ -154,14 +154,14 @@ zrblds_spine_validate() {
 zrblds_spine_dispatch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_sa_email="${2:-}"
   local -r z_label="${3:-}"
   local -r z_poll_ceiling="${4:-}"
   local -r z_subs_file="${5:-}"
   local -r z_temp_prefix="${6:-}"
   local -r z_recipe_file="${7:-}"
-  test -n "${z_token}"        || buc_die_now "Token required"
+  test -n "${zSECRET_token}"        || buc_die_now "Token required"
   test -n "${z_sa_email}"     || buc_die_now "Service-account email required"
   test -n "${z_label}"        || buc_die_now "Label required"
   test -n "${z_poll_ceiling}" || buc_die_now "Poll ceiling required"
@@ -286,10 +286,10 @@ zrblds_spine_dispatch() {
 
   buc_log_args "${z_label} build JSON: ${z_build_file}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 
   buc_step "Submitting ${z_label} Cloud Build"
-  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
     "lode_build_create" "${z_build_file}"
   rbuh_require_ok "${z_label} build submission" "lode_build_create"
 

@@ -46,7 +46,8 @@ set -euo pipefail
 zrbldb_ensconce_submit() {
   zrbld0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_origin="${2:?Origin required}"
   local -r z_stamp="${3:?Stamp required}"
 
@@ -101,7 +102,7 @@ zrbldb_ensconce_submit() {
     || buc_die_now "Failed to write the capture recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
+    "${zSECRET_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
     "${z_subs_file}" "${ZRBLD0_ENSCONCE_PREFIX}" \
     "${z_recipe_file}"
 }
@@ -203,8 +204,8 @@ rbldb_ensconce() {
   zrbfca_resolve_tool_images
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
@@ -222,7 +223,7 @@ rbldb_ensconce() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbldb_ensconce_submit "${z_token}" "${z_origin}" "${z_stamp}"
+  zrbldb_ensconce_submit "${zSECRET_token}" "${z_origin}" "${z_stamp}"
   zrbldb_ensconce_extract
 
   buc_success "Ensconce complete: ${z_origin} -> ${RBGL_LODES_ROOT}/${z_stamp}"

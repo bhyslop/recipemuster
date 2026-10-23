@@ -60,8 +60,8 @@ rbfvv_vouch() {
   zrbfca_resolve_tool_images
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Gate: require about exists (about must complete before vouch)
@@ -72,7 +72,7 @@ rbfvv_vouch() {
   local -r z_about_gate_stderr="${ZRBFV0_VOUCH_PREFIX}about_stderr.txt"
 
   local z_curl_status=0
-  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" "${z_token}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_ABOUT}/manifests/${z_hallmark}" "${zSECRET_token}" \
       "${z_about_gate_response}" "${z_about_gate_status}" "${z_about_gate_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   # RBr_c17
@@ -92,7 +92,7 @@ rbfvv_vouch() {
   local -r z_vouch_gate_response="${ZRBFV0_VOUCH_PREFIX}vouch_response.json"
   local -r z_vouch_gate_stderr="${ZRBFV0_VOUCH_PREFIX}vouch_stderr.txt"
 
-  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" "${z_token}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_hallmark}" "${zSECRET_token}" \
       "${z_vouch_gate_response}" "${z_vouch_gate_status}" "${z_vouch_gate_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
@@ -106,7 +106,7 @@ rbfvv_vouch() {
   fi
 
   # All modes use Cloud Build for vouch (mode-aware verification inside the build)
-  zrbfvv_vouch_submit "${z_hallmark}" "${z_token}"
+  zrbfvv_vouch_submit "${z_hallmark}" "${zSECRET_token}"
 
   buc_success "Vouch complete: ${z_hallmark}"
   buc_info "Vouch artifact: ${z_hallmark_subtree}/${RBGC_ARK_BASENAME_VOUCH}:${z_hallmark}"
@@ -124,9 +124,9 @@ zrbfvv_vouch_submit() {
   zrbfv0_sentinel
 
   local -r z_hallmark="${1:-}"
-  local -r z_token="${2:-}"
+  local -r zSECRET_token="${2:-}"
   test -n "${z_hallmark}" || buc_die_now "zrbfvv_vouch_submit: hallmark required"
-  test -n "${z_token}" || buc_die_now "zrbfvv_vouch_submit: token required"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfvv_vouch_submit: token required"
 
   buc_step "Constructing vouch Cloud Build resource"
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -248,10 +248,10 @@ zrbfvv_vouch_submit() {
 
   buc_log_args "Vouch build JSON: ${z_vouch_build_file}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 
   buc_step "Submitting vouch Cloud Build"
-  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
     "vouch_build_create" "${z_vouch_build_file}"
   rbuh_require_ok "Vouch build submission" "vouch_build_create"
 

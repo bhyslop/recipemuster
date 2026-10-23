@@ -475,7 +475,7 @@ rbuh_poll_until_ok() {
 
   local -r z_label="${1:-}"
   local -r z_url="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
   local -r z_infix="${4:-}"
 
   buc_doc_brief "Poll a GET endpoint until it answers HTTP 200, dying at the consistency timeout"
@@ -487,14 +487,14 @@ rbuh_poll_until_ok() {
 
   test -n "${z_label}" || buc_die_now "rbuh_poll_until_ok: label required"
   test -n "${z_url}"   || buc_die_now "rbuh_poll_until_ok: url required"
-  test -n "${z_token}" || buc_die_now "rbuh_poll_until_ok: token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_ok: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_ok: infix required"
 
   local z_elapsed=0
   local z_poll_infix=""
   while :; do
     z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
 
     local z_code_status=0
     local z_code
@@ -528,7 +528,7 @@ rbuh_poll_until_gone() {
 
   local -r z_label="${1:-}"
   local -r z_url="${2:-}"
-  local -r z_token="${3:-}"
+  local -r zSECRET_token="${3:-}"
   local -r z_infix="${4:-}"
 
   buc_doc_brief "Poll a GET endpoint until it answers HTTP 404 the confirming streak of times in a row, dying at the consistency timeout"
@@ -540,7 +540,7 @@ rbuh_poll_until_gone() {
 
   test -n "${z_label}" || buc_die_now "rbuh_poll_until_gone: label required"
   test -n "${z_url}"   || buc_die_now "rbuh_poll_until_gone: url required"
-  test -n "${z_token}" || buc_die_now "rbuh_poll_until_gone: token required"
+  test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_gone: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_gone: infix required"
 
   local z_elapsed=0
@@ -548,7 +548,7 @@ rbuh_poll_until_gone() {
   local z_poll_infix=""
   while :; do
     z_poll_infix="${z_infix}-${z_elapsed}s"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_poll_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
 
     local z_code_status=0
     local z_code

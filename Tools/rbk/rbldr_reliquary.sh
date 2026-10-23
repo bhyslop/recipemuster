@@ -50,7 +50,8 @@ set -euo pipefail
 zrbldr_conclave_submit() {
   zrbld0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_stamp="${2:?Stamp required}"
 
   buc_step "Constructing conclave capture recipe"
@@ -96,7 +97,7 @@ zrbldr_conclave_submit() {
     || buc_die_now "Failed to write the capture recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${zSECRET_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD0_CONCLAVE_PREFIX}" \
     "${z_recipe_file}"
 }
@@ -115,8 +116,8 @@ rbldr_conclave() {
   bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
@@ -125,7 +126,7 @@ rbldr_conclave() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbldr_conclave_submit "${z_token}" "${z_stamp}"
+  zrbldr_conclave_submit "${zSECRET_token}" "${z_stamp}"
   # Shared single-slot extract (rblds_): the capture step (step 0) authors the
   # output; the vouch-push step writes none.
   zrblds_spine_extract_single "${ZRBLD0_CONCLAVE_PREFIX}" "${RBGC_LODE_BRAND_RELIQUARY}" "Conclave"

@@ -79,7 +79,8 @@ zrbfcb_redon_tick() {
 zrbfcb_failure_tail() {
   local -r z_label="${1:?zrbfcb_failure_tail: label required}"
   local -r z_build_id="${2:?zrbfcb_failure_tail: build id required}"
-  local -r z_token="${3:?zrbfcb_failure_tail: token required}"
+  local -r zSECRET_token="${3:-}"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfcb_failure_tail: token required"
 
   local -r z_page_size=40
   local -r z_attempts=3
@@ -146,7 +147,7 @@ zrbfcb_failure_tail() {
     z_tail_stderr="${z_prefix}log_${z_attempt}_tail_stderr.txt"
 
     z_curl_status=0
-    rbuh_request "POST" "${z_url}" "${z_token}" \
+    rbuh_request "POST" "${z_url}" "${zSECRET_token}" \
                  "${z_resp_file}" "${z_code_file}" "${z_curl_stderr}" "${z_body_file}" \
       || z_curl_status=$?
     if test "${z_curl_status}" -ne 0; then
@@ -211,8 +212,8 @@ zrbfcb_wait_build_completion() {
   test -n "${z_build_id}" || buc_die_now "Build ID file empty"
 
   buc_log_args 'Get fresh token for polling'
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get GCB OAuth token"
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get GCB OAuth token"
 
   # Re-don cadence — kindled default, or the BURE test seam's override so a
   # short real build exercises the tick (a malformed
@@ -282,7 +283,7 @@ zrbfcb_wait_build_completion() {
       zSECRET_minted=$(rba_don_capture "${RBCC_mantle_director}") || z_redon_rc=$?
       zrbfcb_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}" "${z_redon_rc}"
       if test "${z_redon_rc}" -eq 0; then
-        z_token="${zSECRET_minted}"
+        zSECRET_token="${zSECRET_minted}"
         z_polls_since_don=0
       fi
     fi
@@ -296,7 +297,7 @@ zrbfcb_wait_build_completion() {
     buc_log_args "Fetch build status (poll ${z_polls}; ${z_phase} ${z_phase_polls}/${z_phase_ceiling})"
     z_curl_rc=0
     rbuh_request "GET" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}/${z_build_id}" \
-                      "${z_token}"                                          \
+                      "${zSECRET_token}"                                          \
                       "${z_response_file}" "${z_code_file}" "${z_stderr_file}" \
       || z_curl_rc=$?
 
@@ -357,7 +358,7 @@ zrbfcb_wait_build_completion() {
     || buc_die_now "Failed to register winner response at ${ZRBFC0_BUILD_STATUS_FILE}"
 
   if test "${z_status}" != "SUCCESS"; then
-    zrbfcb_failure_tail "${z_label}" "${z_build_id}" "${z_token}"
+    zrbfcb_failure_tail "${z_label}" "${z_build_id}" "${zSECRET_token}"
     buc_die_now "${z_label}: Build failed with status: ${z_status}"
   fi
 

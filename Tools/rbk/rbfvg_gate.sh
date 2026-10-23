@@ -41,14 +41,14 @@ rbfvg_vouch_gate() {
   local -r z_vouch_tag="${z_hallmark}"
   buc_step "Vouch gate: checking ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "rbfvg_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
   local -r z_stderr_file="${ZRBFC0_SCRATCH_FILE}.stderr"
   local z_curl_status=0
-  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" "${z_token}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" "${zSECRET_token}" \
       "/dev/null" "${ZRBFC0_SCRATCH_FILE}" "${z_stderr_file}" "" "Accept: */*" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \

@@ -99,7 +99,8 @@ zrbldv_immure_resolve_family() {
 zrbldv_immure_submit() {
   zrbld0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_brand="${2:?Brand required}"
   local -r z_quay_family="${3:?Family required}"
   local -r z_version="${4:?Version required}"
@@ -164,7 +165,7 @@ zrbldv_immure_submit() {
     || buc_die_now "Failed to write the capture recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${zSECRET_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD0_IMMURE_PREFIX}" \
     "${z_recipe_file}"
 }
@@ -256,8 +257,8 @@ rbldv_immure() {
   zrbfca_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Fresh mode: mint a new stamp and compute the preserved substitution (empty — no
@@ -277,7 +278,7 @@ rbldv_immure() {
     local -r z_vouch_dir="${ZRBLD0_IMMURE_PREFIX}refresh_vouch"
     rm -rf "${z_vouch_dir}" || buc_die_now "Failed to clear refresh vouch scratch dir"
     local -r z_pkg="${RBGL_LODES_ROOT}/${z_stamp}"
-    zrbfcg_gar_extract_artifact "${z_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
+    zrbfcg_gar_extract_artifact "${zSECRET_token}" "${z_pkg}" "${RBGC_LODE_TAG_VOUCH}" "${z_vouch_dir}" \
       "No :${RBGC_LODE_TAG_VOUCH} at ${z_pkg} — touchmark not present or not yet vouched"
     local -r z_vouch_json="${z_vouch_dir}/vouch.json"
     test -f "${z_vouch_json}" || buc_die_now "vouch.json missing in :${RBGC_LODE_TAG_VOUCH} artifact for ${z_stamp}"
@@ -297,7 +298,7 @@ rbldv_immure() {
     # A future widening past ~11 members must fall to in-pool recovery instead.
     local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/tags?pageSize=1000"
     local -r z_tags_infix="rbld_immure_refresh_tags"
-    rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_tags_infix}"
+    rbuh_json "GET" "${z_tags_url}" "${zSECRET_token}" "${z_tags_infix}"
     rbuh_require_ok "List tags for ${z_stamp}" "${z_tags_infix}"
     local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
 
@@ -308,7 +309,7 @@ rbldv_immure() {
     # forensic decoration; rblv_capture_build stays null (the crashed build is gone).
     local -r z_versions_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg//\//%2F}/versions?pageSize=1000"
     local -r z_versions_infix="rbld_immure_refresh_versions"
-    rbuh_json "GET" "${z_versions_url}" "${z_token}" "${z_versions_infix}"
+    rbuh_json "GET" "${z_versions_url}" "${zSECRET_token}" "${z_versions_infix}"
     rbuh_require_ok "List versions for ${z_stamp}" "${z_versions_infix}"
     local -r z_versions_file="${ZRBUH_PREFIX}${z_versions_infix}${ZRBUH_POSTFIX_JSON}"
 
@@ -362,7 +363,7 @@ rbldv_immure() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbldv_immure_submit "${z_token}" "${z_brand}" "${z_quay_family}" "${z_version}" \
+  zrbldv_immure_submit "${zSECRET_token}" "${z_brand}" "${z_quay_family}" "${z_version}" \
     "${z_selection}" "${z_stamp}" "${z_preserved_members}"
   # Shared single-slot extract (rblds_): the select step (step 0) authors the
   # output; the capture, residency, and vouch-push steps write none.

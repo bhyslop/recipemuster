@@ -100,12 +100,12 @@ rbfdg_graft() {
 
   # Authenticate as Director
   buc_step "Authenticating as Director"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Registry preflight -- verify reliquary tool images exist (graft about+vouch use them)
-  zrbfdp_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfdp_registry_preflight "${zSECRET_token}" "${z_vessel_dir}"
 
   # GAR coordinates
   local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
@@ -126,7 +126,7 @@ rbfdg_graft() {
 
   # Tag and push
   buc_step "Logging into GAR"
-  rbgo_docker_login "${z_token}" "${z_gar_host}"
+  rbgo_docker_login "${zSECRET_token}" "${z_gar_host}"
 
   buc_step "Tagging local image"
   docker tag "${z_local_image}" "${z_image_ref}" \

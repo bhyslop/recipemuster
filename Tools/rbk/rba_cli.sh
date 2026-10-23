@@ -52,10 +52,10 @@ rba_novate_sederunt() {
 
   rba_novate
 
-  local z_token
-  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
-  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
-  buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#z_token} chars)"
+  local zSECRET_token
+  zSECRET_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
+  test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
+  buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#zSECRET_token} chars)"
 }
 
 # Espy the sederunt — the read-only probe: report whether a

@@ -61,8 +61,8 @@ rbfly_yoke() {
     || buc_reject "${BUBC_band_chain}" "Touchmark '${z_stamp}' is kind '${z_kind}', not a reliquary — yoke requires a reliquary Lode (run a reliquary conclave)"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Validating reliquary Lode: ${z_stamp}"
@@ -71,7 +71,7 @@ rbfly_yoke() {
   local -r z_tags_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_pkg_encoded}/tags?pageSize=1000"
   local -r z_list_infix="rbfl_yoke_list"
 
-  rbuh_json "GET" "${z_tags_url}" "${z_token}" "${z_list_infix}"
+  rbuh_json "GET" "${z_tags_url}" "${zSECRET_token}" "${z_list_infix}"
   rbuh_require_ok "List conclave Lode tags" "${z_list_infix}"
 
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"

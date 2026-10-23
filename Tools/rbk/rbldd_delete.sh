@@ -57,11 +57,11 @@ ZRBLDD_SOURCED=1
 zrbldd_cloud_delete_dispatch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_label="${2:-}"
   local -r z_temp_prefix="${3:-}"
   local -r z_packages="${4:-}"
-  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${zSECRET_token}"       || buc_die_now "Token required"
   test -n "${z_label}"       || buc_die_now "Label required"
   test -n "${z_temp_prefix}" || buc_die_now "Temp prefix required"
   test -n "${z_packages}"    || buc_die_now "zrbldd_cloud_delete_dispatch: at least one package required"
@@ -90,7 +90,7 @@ zrbldd_cloud_delete_dispatch() {
     || buc_die_now "Failed to write the ${z_label} delete recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
-    "${z_token}" "${z_director_sa}" "${z_label}" "${ZRBFC0_BUILD_POLL_CEILING_DELETE}" \
+    "${zSECRET_token}" "${z_director_sa}" "${z_label}" "${ZRBFC0_BUILD_POLL_CEILING_DELETE}" \
     "${z_subs_file}" "${z_temp_prefix}" \
     "${z_recipe_file}"
 }

@@ -73,8 +73,8 @@ rbfr_summon() {
     || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
 
   buc_step "Authenticating for retrieval"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token"
 
   # Ark package paths — all basename siblings under the hallmark subtree
   local -r z_image_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}"
@@ -89,7 +89,7 @@ rbfr_summon() {
   local -r z_image_stderr_file="${ZRBFR_TEMP_PREFIX}summon_image_stderr.txt"
 
   local z_curl_status=0
-  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" "${z_token}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" "${zSECRET_token}" \
       "${z_image_response_file}" "${z_image_status_file}" "${z_image_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for image ark (curl exit ${z_curl_status}) — see ${z_image_stderr_file}"
@@ -110,7 +110,7 @@ rbfr_summon() {
   local z_about_response_file="${ZRBFR_TEMP_PREFIX}summon_about_response.json"
   local -r z_about_stderr_file="${ZRBFR_TEMP_PREFIX}summon_about_stderr.txt"
 
-  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" "${z_token}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" "${zSECRET_token}" \
       "${z_about_response_file}" "${z_about_status_file}" "${z_about_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for about ark (curl exit ${z_curl_status}) — see ${z_about_stderr_file}"
@@ -131,7 +131,7 @@ rbfr_summon() {
   local z_vouch_response_file="${ZRBFR_TEMP_PREFIX}summon_vouch_response.json"
   local -r z_vouch_stderr_file="${ZRBFR_TEMP_PREFIX}summon_vouch_stderr.txt"
 
-  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" "${z_token}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" "${zSECRET_token}" \
       "${z_vouch_response_file}" "${z_vouch_status_file}" "${z_vouch_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for vouch ark (curl exit ${z_curl_status}) — see ${z_vouch_stderr_file}"
@@ -161,7 +161,7 @@ rbfr_summon() {
   buc_step "Logging into container registry"
 
   # Docker login to GAR
-  rbgo_docker_login "${z_token}" "${ZRBFC0_REGISTRY_HOST}"
+  rbgo_docker_login "${zSECRET_token}" "${ZRBFC0_REGISTRY_HOST}"
 
   # Pull image ark if exists
   if test "${z_image_exists}" = "true"; then

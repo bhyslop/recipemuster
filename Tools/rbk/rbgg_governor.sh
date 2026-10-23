@@ -79,8 +79,8 @@ zrbgg_sentinel() {
 zrbgg_required_apis_missing_capture() {
   zrbgg_sentinel
 
-  local z_token="${1:-}"
-  test -n "${z_token}" || return 1
+  local zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || return 1
 
   local z_missing=""
   local z_api=""
@@ -100,7 +100,7 @@ zrbgg_required_apis_missing_capture() {
     z_service="${z_api##*/}"
     z_infix="${ZRBGG_INFIX_API_CHECK}_${z_service}"
 
-    rbuh_json "GET" "${z_api}" "${z_token}" "${z_infix}" || return 1
+    rbuh_json "GET" "${z_api}" "${zSECRET_token}" "${z_infix}" || return 1
 
     buc_log_args 'If we cannot even read an HTTP code file, that is a processing failure.'
     local z_code_status=0
@@ -125,7 +125,7 @@ zrbgg_required_apis_missing_capture() {
 zrbgg_create_gcs_bucket() {
   zrbgg_sentinel
 
-  local z_token="${1}"
+  local zSECRET_token="${1}"
   local z_bucket_name="${2}"
 
   buc_log_args 'Create bucket request JSON for '"${z_bucket_name}"
@@ -141,7 +141,7 @@ zrbgg_create_gcs_bucket() {
   buc_log_args 'Send bucket creation request'
   local z_code
   local z_err
-  rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${z_token}" \
+  rbuh_json "POST" "${RBGD_API_GCS_BUCKET_CREATE}" "${zSECRET_token}" \
                                   "${ZRBGG_INFIX_BUCKET_CREATE}" "${z_bucket_req}"
   z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_CREATE}") || buc_die_now "Bad bucket creation HTTP code"
   local z_err_status=0
@@ -158,7 +158,7 @@ zrbgg_create_gcs_bucket() {
 zrbgg_list_bucket_objects_capture() {
   zrbgg_sentinel
 
-  local z_token="${1}"
+  local zSECRET_token="${1}"
   local z_bucket_name="${2}"
 
   local z_list_url_base="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o"
@@ -177,7 +177,7 @@ zrbgg_list_bucket_objects_capture() {
 
     buc_log_args 'Use a unique infix per page to avoid clobbering files'
     local z_infix="${ZRBGG_INFIX_BUCKET_LIST}${z_first}"
-    rbuh_json "GET" "${z_url}" "${z_token}" "${z_infix}"
+    rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_infix}"
 
     local z_code
     z_code=$(rbuh_code_capture "${z_infix}") || return 1
@@ -198,10 +198,10 @@ zrbgg_list_bucket_objects_capture() {
 zrbgg_get_project_number_capture() {
   zrbgg_sentinel
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || return 1
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || return 1
 
-  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
+  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${zSECRET_token}" "${ZRBGG_INFIX_PROJECT_INFO}"
   rbuh_require_ok "Get project info"                         "${ZRBGG_INFIX_PROJECT_INFO}" || return 1
 
   local z_project_number
@@ -214,13 +214,13 @@ zrbgg_get_project_number_capture() {
 zrbgg_empty_gcs_bucket() {
   zrbgg_sentinel
 
-  local z_token="${1}"
+  local zSECRET_token="${1}"
   local z_bucket_name="${2}"
 
   buc_log_args 'Get list of objects to delete'
   local z_objects
   local z_objects_status=0
-  z_objects=$(zrbgg_list_bucket_objects_capture "${z_token}" "${z_bucket_name}") || z_objects_status=$?
+  z_objects=$(zrbgg_list_bucket_objects_capture "${zSECRET_token}" "${z_bucket_name}") || z_objects_status=$?
   test "${z_objects_status}" -eq 0 || {
     buc_log_args 'No objects found or bucket not accessible'
     return 0
@@ -252,7 +252,7 @@ zrbgg_empty_gcs_bucket() {
     z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}/o/${z_object_enc}"
 
     rbuh_json "DELETE" "${z_delete_url}" \
-                              "${z_token}" "${ZRBGG_INFIX_OBJECT_DELETE}"
+                              "${zSECRET_token}" "${ZRBGG_INFIX_OBJECT_DELETE}"
     local z_delete_code_status=0
     z_delete_code=$(rbuh_code_capture "${ZRBGG_INFIX_OBJECT_DELETE}") || z_delete_code_status=$?
     test "${z_delete_code_status}" -eq 0 || z_delete_code=""
@@ -266,18 +266,18 @@ zrbgg_empty_gcs_bucket() {
 zrbgg_delete_gcs_bucket_predicate() {
   zrbgg_sentinel
 
-  local z_token="${1}"
+  local zSECRET_token="${1}"
   local z_bucket_name="${2}"
 
   buc_log_args 'Empty bucket before deletion: '"${z_bucket_name}"
-  zrbgg_empty_gcs_bucket "${z_token}" "${z_bucket_name}"
+  zrbgg_empty_gcs_bucket "${zSECRET_token}" "${z_bucket_name}"
 
   buc_log_args 'Delete the bucket'
   local z_code
   local z_err
   local z_delete_url="${RBGC_API_ROOT_STORAGE}${RBGC_STORAGE_JSON_V1}/b/${z_bucket_name}"
   rbuh_json "DELETE" "${z_delete_url}" \
-                      "${z_token}" "${ZRBGG_INFIX_BUCKET_DELETE}"
+                      "${zSECRET_token}" "${ZRBGG_INFIX_BUCKET_DELETE}"
   local z_code_status=0
   z_code=$(rbuh_code_capture "${ZRBGG_INFIX_BUCKET_DELETE}") || z_code_status=$?
   test "${z_code_status}" -eq 0 || z_code=""
@@ -321,8 +321,8 @@ rbgg_destroy_project() {
   fi
 
   buc_step 'Mint admin OAuth token'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_step 'Triple confirmation required'
   buc_warn ""
@@ -343,7 +343,7 @@ rbgg_destroy_project() {
   buc_require "Final confirmation - type OBLITERATE to proceed" "OBLITERATE"
 
   buc_step 'Check for liens (will block deletion)'
-  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${z_token}" "${ZRBGG_INFIX_LIST_LIENS}"
+  rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}/liens?parent=projects/${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" "${ZRBGG_INFIX_LIST_LIENS}"
   rbuh_require_ok "List liens" "${ZRBGG_INFIX_LIST_LIENS}"
 
   local z_lien_count
@@ -360,11 +360,11 @@ rbgg_destroy_project() {
   fi
 
   buc_step 'Delete project (immediate lifecycle change to DELETE_REQUESTED)'
-  rbuh_json "DELETE" "${RBGD_API_CRM_DELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
+  rbuh_json "DELETE" "${RBGD_API_CRM_DELETE_PROJECT}" "${zSECRET_token}" "${ZRBGG_INFIX_PROJECT_DELETE}"
   rbuh_require_ok "Delete project" "${ZRBGG_INFIX_PROJECT_DELETE}"
 
   buc_step 'Verify deletion state'
-  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${zSECRET_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
   rbuh_require_ok "Get project state" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   local z_lifecycle_state
@@ -387,11 +387,11 @@ rbgg_restore_project() {
   buc_doc_shown || return 0
 
   buc_step 'Mint admin OAuth token'
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
 
   buc_step 'Check current project state'
-  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+  rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${zSECRET_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
 
   if ! rbuh_code_ok_predicate "${ZRBGG_INFIX_PROJECT_STATE}"; then
     buc_die_now "Cannot access project - it may have been permanently deleted or never existed"
@@ -411,10 +411,10 @@ rbgg_restore_project() {
   buc_require "Confirm restoration of project" "RESTORE"
 
   buc_step 'Attempt project restoration'
-  rbuh_json "POST" "${RBGD_API_CRM_UNDELETE_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
+  rbuh_json "POST" "${RBGD_API_CRM_UNDELETE_PROJECT}" "${zSECRET_token}" "${ZRBGG_INFIX_PROJECT_RESTORE}"
   if rbuh_code_ok_predicate                                                    "${ZRBGG_INFIX_PROJECT_RESTORE}"; then
     buc_step 'Verify restoration'
-    rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${z_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
+    rbuh_json "GET" "${RBGD_API_CRM_GET_PROJECT}" "${zSECRET_token}" "${ZRBGG_INFIX_PROJECT_STATE}"
     rbuh_require_ok "Get restored project state"               "${ZRBGG_INFIX_PROJECT_STATE}"
 
     z_lifecycle_state=$(rbuh_json_field_capture "${ZRBGG_INFIX_PROJECT_STATE}" '.lifecycleState // "UNKNOWN"') || buc_die_now "Failed to parse restored project state"

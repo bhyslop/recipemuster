@@ -78,10 +78,10 @@ rbgv_check_avowal() {
 
   rba_avow "${z_required_runway}"
 
-  local z_token
-  z_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after avowal"
-  test -n "${z_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
-  buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#z_token} chars)"
+  local zSECRET_token
+  zSECRET_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after avowal"
+  test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
+  buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#zSECRET_token} chars)"
 }
 
 # Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
@@ -158,15 +158,15 @@ rbgv_check_mantle() {
   # (lapsed sederunt, transport/HTTP failure) stays the existing imprecise
   # buc_die_now. The token is held in a process-local var, never persisted, and
   # only its length is reported.
-  local z_mantle_token
+  local zSECRET_mantle_token
   local z_don_status=0
-  z_mantle_token=$(rba_don_capture "${z_mantle}") || z_don_status=$?
+  zSECRET_mantle_token=$(rba_don_capture "${z_mantle}") || z_don_status=$?
   if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
     buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
     buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed ${RBCC_noun_sederunt} or transport/HTTP failure)"
   fi
-  test -n "${z_mantle_token}" || buc_die_now "Don of the ${z_polity_mantle} mantle returned an empty token"
+  test -n "${zSECRET_mantle_token}" || buc_die_now "Don of the ${z_polity_mantle} mantle returned an empty token"
 
   # Exercise the minted token against Artifact Registry (repositories.list). This
   # proves the donned token actually REACHES AR — not merely that it minted — and
@@ -175,7 +175,7 @@ rbgv_check_mantle() {
   # back with rbw-da to see the freehold subject named at the using service.
   buc_step "Exercise the ${z_polity_mantle} mantle token against Artifact Registry (repositories.list)"
   local z_ar_code
-  z_ar_code=$(zrbgv_mantle_ar_call_capture "${z_mantle_token}") \
+  z_ar_code=$(zrbgv_mantle_ar_call_capture "${zSECRET_mantle_token}") \
     || buc_die_now "Mantle AR call failed for the ${z_polity_mantle} mantle"
   case "${z_ar_code}" in
     200|206)
@@ -189,7 +189,7 @@ rbgv_check_mantle() {
       ;;
   esac
 
-  buc_success "Donned the ${z_polity_mantle} mantle, minted a token (${#z_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
+  buc_success "Donned the ${z_polity_mantle} mantle, minted a token (${#zSECRET_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
 }
 
 ######################################################################

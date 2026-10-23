@@ -36,9 +36,9 @@ set -euo pipefail
 zrbfdb_quota_preflight() {
   zrbfd0_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
 
-  test -n "${z_token}" || buc_die_now "zrbfdb_quota_preflight: token required"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfdb_quota_preflight: token required"
 
   # Extract vCPU count from machine type (last segment after final hyphen)
   local -r z_vcpus="${RBRD_GCB_MACHINE_TYPE##*-}"
@@ -56,7 +56,7 @@ zrbfdb_quota_preflight() {
   local -r z_url="${RBGC_API_ROOT_SERVICEUSAGE}${RBGC_SERVICEUSAGE_V1BETA1}/projects/${RBDC_DEPOT_PROJECT_ID}/services/cloudbuild.googleapis.com/consumerQuotaMetrics/${z_metric_encoded}"
 
   buc_step "Checking concurrent build quota"
-  rbuh_json "GET" "${z_url}" "${z_token}" "quota_preflight"
+  rbuh_json "GET" "${z_url}" "${zSECRET_token}" "quota_preflight"
 
   local z_code=""
   local z_code_status=0
@@ -555,11 +555,11 @@ zrbfdb_stitch_build_json() {
 zrbfdb_push_build_context() {
   zrbfd0_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_sigil="${2:-}"
   local -r z_bldctx="${3:-}"
   local -r z_hallmark="${4:-}"
-  test -n "${z_token}" || buc_die_now "zrbfdb_push_build_context: token required"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfdb_push_build_context: token required"
   test -n "${z_sigil}" || buc_die_now "zrbfdb_push_build_context: sigil required"
   test -n "${z_bldctx}" || buc_die_now "zrbfdb_push_build_context: bldctx required"
 
@@ -592,7 +592,7 @@ zrbfdb_push_build_context() {
 
   # Push to GAR
   buc_step "Pushing context image to GAR"
-  rbgo_docker_login "${z_token}" "${z_gar_host}"
+  rbgo_docker_login "${zSECRET_token}" "${z_gar_host}"
 
   docker push "${z_context_tag}" \
     || buc_die_now "Failed to push context image to GAR"
@@ -655,15 +655,15 @@ rbfdb_build() {
 
   # Authenticate as Director
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  local zSECRET_token=""
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Quota preflight -- warn if insufficient capacity
-  zrbfdb_quota_preflight "${z_token}"
+  zrbfdb_quota_preflight "${zSECRET_token}"
 
   # Registry preflight -- verify reliquary and base images exist before expensive operations
-  zrbfdp_registry_preflight "${z_token}" "${z_vessel_dir}"
+  zrbfdp_registry_preflight "${zSECRET_token}" "${z_vessel_dir}"
 
   # Capture git metadata (stitch needs ZRBFC0_GIT_INFO_FILE)
   buc_step "Capturing git metadata"
@@ -695,7 +695,7 @@ rbfdb_build() {
   buc_info "Host-minted hallmark: ${z_hallmark}"
 
   # Push build context (pouch) to GAR as FROM SCRATCH image
-  zrbfdb_push_build_context "${z_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}" "${z_hallmark}"
+  zrbfdb_push_build_context "${zSECRET_token}" "${RBRV_SIGIL}" "${RBRV_CONJURE_BLDCONTEXT}" "${z_hallmark}"
   local z_context_tag=""
   z_context_tag=$(<"${ZRBFD0_CONTEXT_PREFIX}tag.txt") || buc_die_now "Failed to read: ${ZRBFD0_CONTEXT_PREFIX}tag.txt"
   test -n "${z_context_tag}" || buc_die_now "Empty context image tag after push"
@@ -705,11 +705,11 @@ rbfdb_build() {
   local -r z_build_file="${ZRBFD0_CONTEXT_PREFIX}build.json"
   zrbfdb_stitch_build_json "${z_build_file}" "${z_hallmark}" "${z_context_tag}"
 
-  rbndb_check "${z_token}"
+  rbndb_check "${zSECRET_token}"
 
   # Submit via builds.create (no source — context delivered via GAR image)
   buc_step "Submitting build via builds.create"
-  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${z_token}" \
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
     "build_direct_create" "${z_build_file}"
   rbuh_require_ok "Direct build submission" "build_direct_create"
 

@@ -397,12 +397,12 @@ zrbob_summon_full_hallmark() {
 
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
 
-  rbgo_docker_login "${z_token}" "${z_registry_host}"
+  rbgo_docker_login "${zSECRET_token}" "${z_registry_host}"
 
   local z_pull_image_status=0
   docker pull "${z_image_ref}" || z_pull_image_status=$?
@@ -438,13 +438,13 @@ zrbob_vouch_gate_and_summon() {
 
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
+  local zSECRET_token
+  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"
 
-  rbgo_docker_login "${z_token}" "${z_registry_host}"
+  rbgo_docker_login "${zSECRET_token}" "${z_registry_host}"
 
   local z_pull_status=0
   docker pull "${z_image_ref}" || z_pull_status=$?
