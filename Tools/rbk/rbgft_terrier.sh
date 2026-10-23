@@ -322,10 +322,10 @@ rbgft_peruse_manor() {
     "${ZRBGFT_INFIX_PERUSE_MANOR_LIST}" "${ZRBGFT_INFIX_PERUSE_MANOR_GET}"
 }
 
-# rbgft_escheat_survey <token> <bucket>
+# rbgft_escheat_survey <token> <bucket> <out_file>
 # The classifying hygiene read: list every object in the terrier bucket
-# and judge each against the current muniment contract, emitting one
-# tab-separated "<verdict>\t<detail>\t<name>" line per object — verdict "sound"
+# and judge each against the current muniment contract, writing one
+# tab-separated "<verdict>\t<detail>\t<name>" line per object to out_file — verdict "sound"
 # with the depot key segment as detail, or verdict "stray" with the deficit word
 # (key-shape | mantle | body-json | body-fields | mismatch). Deliberately reads
 # at the raw object grain, beneath the muniment sub-operations: its subjects are
@@ -339,11 +339,14 @@ rbgft_escheat_survey() {
 
   local -r z_token="${1:-}"
   local -r z_bucket="${2:-}"
+  local -r z_out="${3:-}"
 
   test -n "${z_token}"  || buc_die_now "Token required"
   test -n "${z_bucket}" || buc_die_now "Bucket required"
+  test -n "${z_out}"    || buc_die_now "Survey output file required"
 
   buc_step "Survey the terrier for escheat (classify every object)"
+  : > "${z_out}" || buc_die_now "Failed to open survey output: ${z_out}"
 
   z_rbgft_escheat_run=$((z_rbgft_escheat_run + 1))
   local -r z_names_file="${ZRBGFT_PREFIX}escheat_${z_rbgft_escheat_run}_names.txt"
@@ -415,7 +418,7 @@ rbgft_escheat_survey() {
 
     case "${z_name}" in
       */*/*) : ;;
-      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      *) printf 'stray\tkey-shape\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
          continue ;;
     esac
     z_depot="${z_name%%/*}"
@@ -423,13 +426,13 @@ rbgft_escheat_survey() {
     z_mantle="${z_rest%%/*}"
     z_subject="${z_rest#*/}"
     if test -z "${z_depot}" || test -z "${z_mantle}" || test -z "${z_subject}"; then
-      printf 'stray\tkey-shape\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      printf 'stray\tkey-shape\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
     case "${z_mantle}" in
       governor|director|retriever) : ;;
-      *) printf 'stray\tmantle\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      *) printf 'stray\tmantle\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
          continue ;;
     esac
 
@@ -451,24 +454,24 @@ rbgft_escheat_survey() {
     z_get_file="${ZRBUH_PREFIX}${ZRBGFT_INFIX_ESCHEAT_GET}${ZRBUH_POSTFIX_JSON}"
     jq -r '[(.rbgft_mantle? // ""), (.rbgft_subject? // "")] | @tsv' \
       "${z_get_file}" > "${z_fields_file}" 2>"${z_jq_err_file}" \
-      || { printf 'stray\tbody-json\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"; continue; }
+      || { printf 'stray\tbody-json\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"; continue; }
 
     z_body_mantle=""
     z_body_subject=""
     IFS=$'\t' read -r z_body_mantle z_body_subject < "${z_fields_file}" \
-      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"; continue; }
+      || { printf 'stray\tbody-fields\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"; continue; }
 
     if test -z "${z_body_mantle}" || test -z "${z_body_subject}"; then
-      printf 'stray\tbody-fields\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      printf 'stray\tbody-fields\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
     if test "${z_body_mantle}" != "${z_mantle}" || test "${z_body_subject}" != "${z_subject}"; then
-      printf 'stray\tmismatch\t%s\n' "${z_name}" || buc_die_now "Failed to emit survey line"
+      printf 'stray\tmismatch\t%s\n' "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
       continue
     fi
 
-    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" || buc_die_now "Failed to emit survey line"
+    printf 'sound\t%s\t%s\n' "${z_depot}" "${z_name}" >> "${z_out}" || buc_die_now "Failed to emit survey line"
   done
 }
 

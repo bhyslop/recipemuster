@@ -148,19 +148,37 @@ zrblds_spine_validate() {
 # (an SA email the spine composes into the depot-project resource path), and the
 # environment knobs (TETHER pool, regime timeout) are spine-owned constants.
 #
-# Args: token sa_email label poll_ceiling subs_file temp_prefix recipe_row...
+# The recipe file holds one recipe row per line, in step order.
+#
+# Args: token sa_email label poll_ceiling subs_file temp_prefix recipe_file
 zrblds_spine_dispatch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1:?Token required}";                  shift || buc_die_now
-  local -r z_sa_email="${1:?Service-account email required}"; shift || buc_die_now
-  local -r z_label="${1:?Label required}";                  shift || buc_die_now
-  local -r z_poll_ceiling="${1:?Poll ceiling required}";    shift || buc_die_now
-  local -r z_subs_file="${1:?Substitutions file required}"; shift || buc_die_now
-  local -r z_temp_prefix="${1:?Temp prefix required}";      shift || buc_die_now
-  test "$#" -ge 1 || buc_die_now "zrblds_spine_dispatch: recipe requires at least one step row"
+  local -r z_token="${1:-}"
+  local -r z_sa_email="${2:-}"
+  local -r z_label="${3:-}"
+  local -r z_poll_ceiling="${4:-}"
+  local -r z_subs_file="${5:-}"
+  local -r z_temp_prefix="${6:-}"
+  local -r z_recipe_file="${7:-}"
+  test -n "${z_token}"        || buc_die_now "Token required"
+  test -n "${z_sa_email}"     || buc_die_now "Service-account email required"
+  test -n "${z_label}"        || buc_die_now "Label required"
+  test -n "${z_poll_ceiling}" || buc_die_now "Poll ceiling required"
+  test -n "${z_subs_file}"    || buc_die_now "Substitutions file required"
+  test -n "${z_temp_prefix}"  || buc_die_now "Temp prefix required"
+  test -n "${z_recipe_file}"  || buc_die_now "Recipe file required"
 
   test -s "${z_subs_file}" || buc_die_now "Substitutions file missing or empty: ${z_subs_file}"
+
+  # Load-then-iterate: the recipe file is consumed and closed before any step is composed.
+  local z_rows=()
+  local z_row_line=""
+  while IFS= read -r z_row_line || test -n "${z_row_line}"; do
+    test -n "${z_row_line}" || continue
+    z_rows+=("${z_row_line}")
+  done < "${z_recipe_file}"
+  test "${#z_rows[@]}" -ge 1 || buc_die_now "zrblds_spine_dispatch: recipe requires at least one step row"
 
   # Stamp the dispatching HEAD commit into the blob — dispatch provenance, spine-owned
   # like the pool and timeout (environment, not kind knowledge). The shared vouch-push
@@ -200,7 +218,7 @@ zrblds_spine_dispatch() {
   local z_steps_built=""
   local z_body=""
   local z_shebang=""
-  for z_row in "$@"; do
+  for z_row in "${z_rows[@]}"; do
     IFS='|' read -r z_script_path z_builder z_id z_entrypoint <<<"${z_row}" \
       || buc_die_now "Failed to split recipe row: ${z_row}"
     test -n "${z_script_path}" || buc_die_now "Recipe row missing script_path: ${z_row}"

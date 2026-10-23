@@ -91,10 +91,14 @@ zrbldr_conclave_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose conclave substitutions blob"
 
+  local -r z_recipe_file="${ZRBLD0_CONCLAVE_PREFIX}recipe.txt"
+  printf '%s\n' "${z_recipe[@]}" > "${z_recipe_file}" \
+    || buc_die_now "Failed to write the conclave recipe: ${z_recipe_file}"
+
   zrblds_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Conclave" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD0_CONCLAVE_PREFIX}" \
-    "${z_recipe[@]}"
+    "${z_recipe_file}"
 }
 
 ######################################################################

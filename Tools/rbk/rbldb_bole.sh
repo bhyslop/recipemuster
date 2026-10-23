@@ -96,10 +96,14 @@ zrbldb_ensconce_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose ensconce substitutions blob"
 
+  local -r z_recipe_file="${ZRBLD0_ENSCONCE_PREFIX}recipe.txt"
+  printf '%s\n' "${z_recipe[@]}" > "${z_recipe_file}" \
+    || buc_die_now "Failed to write the ensconce recipe: ${z_recipe_file}"
+
   zrblds_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \
     "${z_subs_file}" "${ZRBLD0_ENSCONCE_PREFIX}" \
-    "${z_recipe[@]}"
+    "${z_recipe_file}"
 }
 
 # Internal: extract the captured touchmark from the completed ensconce build and

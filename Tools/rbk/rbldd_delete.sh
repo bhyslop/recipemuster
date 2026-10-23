@@ -51,16 +51,20 @@ ZRBLDD_SOURCED=1
 # build's run-as identity) is derived from the Director mantle SA; the step
 # path is resolved relative to this file so it works in either furnishing process
 # without depending on a kindle constant. The caller supplies its own forensic
-# temp prefix so files land in the caller's namespace.
-# Args: token label temp_prefix package...
+# temp prefix so files land in the caller's namespace. The packages arrive as
+# one word, space-separated, the form the step's substitution carries.
+# Args: token label temp_prefix packages
 zrbldd_cloud_delete_dispatch() {
   zrbfc0_sentinel
 
-  local -r z_token="${1:?Token required}";              shift || buc_die_now
-  local -r z_label="${1:?Label required}";              shift || buc_die_now
-  local -r z_temp_prefix="${1:?Temp prefix required}";  shift || buc_die_now
-  test "$#" -ge 1 || buc_die_now "zrbldd_cloud_delete_dispatch: at least one package required"
-  local -r z_packages="$*"
+  local -r z_token="${1:-}"
+  local -r z_label="${2:-}"
+  local -r z_temp_prefix="${3:-}"
+  local -r z_packages="${4:-}"
+  test -n "${z_token}"       || buc_die_now "Token required"
+  test -n "${z_label}"       || buc_die_now "Label required"
+  test -n "${z_temp_prefix}" || buc_die_now "Temp prefix required"
+  test -n "${z_packages}"    || buc_die_now "zrbldd_cloud_delete_dispatch: at least one package required"
 
   buc_log_args "Deriving Director mantle service-account email for the delete build run-as identity"
   local -r z_director_sa="${RBCC_account_mantle_director}@${RBDC_DEPOT_PROJECT_ID}.${RBGC_SA_EMAIL_DOMAIN}"
@@ -81,12 +85,14 @@ zrbldd_cloud_delete_dispatch() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose ${z_label} delete substitutions blob"
 
-  local -r z_recipe_row="${z_step_path}|${ZRBFC0_DELETE_BUILDER}|package-delete|python3"
+  local -r z_recipe_file="${z_temp_prefix}delete_recipe.txt"
+  printf '%s\n' "${z_step_path}|${ZRBFC0_DELETE_BUILDER}|package-delete|python3" > "${z_recipe_file}" \
+    || buc_die_now "Failed to write the ${z_label} delete recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
     "${z_token}" "${z_director_sa}" "${z_label}" "${ZRBFC0_BUILD_POLL_CEILING_DELETE}" \
     "${z_subs_file}" "${z_temp_prefix}" \
-    "${z_recipe_row}"
+    "${z_recipe_file}"
 }
 
 # eof

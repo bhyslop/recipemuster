@@ -31,31 +31,27 @@ set -euo pipefail
 test -z "${ZRBFCB_SOURCED:-}" || return 0
 ZRBFCB_SOURCED=1
 
-# zrbfcb_redon_tick — one mid-flight re-don attempt, on the poll's cadence.
-# The don alone, never the avow-folding accessor,
-# so a lapsed sederunt fails loud here instead of re-entering the interactive
-# avowal mid-loop. Called in the process frame, never `$()`: it announces on
-# the progress stream and its deaths must exit the run. Result rides the
-# z_rbfc_redon_token result-global: the fresh mantle token when the re-don
-# lands, empty when the don failed transiently while the sederunt is still
-# live (the caller keeps its prior token and retries next poll; the status
-# poll's consecutive-failure counter stays the backstop). A lapsed sederunt
-# dies via buc_die_now with the open-a-sederunt advisory; the don's admission deficit
+# zrbfcb_redon_tick — judge one mid-flight re-don attempt, on the poll's
+# cadence, by the status of the don its caller just ran: the don alone, never
+# the avow-folding accessor, so a lapsed sederunt fails loud here instead of
+# re-entering the interactive avowal mid-loop. The fresh mantle token rides
+# the caller's local, assigned from the don capture's output, and never this
+# function. Called in the process frame, never `$()`: it announces on the
+# progress stream and its deaths must exit the run. Status 0 announces the
+# re-don; a don failed transiently while the sederunt is still live warns, and
+# the caller keeps its prior token and retries next poll (the status poll's
+# consecutive-failure counter stays the backstop). A lapsed sederunt dies via
+# buc_die_now with the open-a-sederunt advisory; the don's admission deficit
 # buc_rejects on its band. Sentinel-free by design — reads no ZRBFC kindle
 # state (callees guard their own kindles) — so the lapse branch stays
 # unit-testable without a live build.
 zrbfcb_redon_tick() {
   local -r z_label="${1:?zrbfcb_redon_tick: label required}"
   local -r z_poll_tag="${2:?zrbfcb_redon_tick: poll tag required}"
-
-  z_rbfc_redon_token=""
-
-  local z_don_rc=0
-  local z_minted=""
-  z_minted=$(rba_don_capture "${RBCC_mantle_director}") || z_don_rc=$?
+  local -r z_don_rc="${3:-}"
+  test -n "${z_don_rc}" || buc_die_now "zrbfcb_redon_tick: don status required"
 
   if test "${z_don_rc}" -eq 0; then
-    z_rbfc_redon_token="${z_minted}"
     buc_info "${z_label}: Re-donned the director mantle mid-flight (${z_poll_tag})"
     return 0
   fi
@@ -232,6 +228,8 @@ zrbfcb_wait_build_completion() {
   local z_status="PENDING"
   local z_polls=0
   local z_polls_since_don=0
+  local z_redon_rc=0
+  local zSECRET_minted=""
   local z_queue_polls=0
   local z_exec_polls=0
   local z_seen_working=0
@@ -280,10 +278,11 @@ zrbfcb_wait_build_completion() {
     # stays past the cadence so the next poll retries.
     z_polls_since_don=$((z_polls_since_don + 1))
     if test "${z_polls_since_don}" -ge "${z_redon_cadence}"; then
-      zrbfcb_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}"
-      if test -n "${z_rbfc_redon_token}"; then
-        z_token="${z_rbfc_redon_token}"
-        z_rbfc_redon_token=""
+      z_redon_rc=0
+      zSECRET_minted=$(rba_don_capture "${RBCC_mantle_director}") || z_redon_rc=$?
+      zrbfcb_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}" "${z_redon_rc}"
+      if test "${z_redon_rc}" -eq 0; then
+        z_token="${zSECRET_minted}"
         z_polls_since_don=0
       fi
     fi

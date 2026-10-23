@@ -111,10 +111,14 @@ zrbldw_underpin_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose underpin substitutions blob"
 
+  local -r z_recipe_file="${ZRBLD0_UNDERPIN_PREFIX}recipe.txt"
+  printf '%s\n' "${z_recipe[@]}" > "${z_recipe_file}" \
+    || buc_die_now "Failed to write the underpin recipe: ${z_recipe_file}"
+
   zrblds_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD0_UNDERPIN_PREFIX}" \
-    "${z_recipe[@]}"
+    "${z_recipe_file}"
 }
 
 ######################################################################

@@ -2028,15 +2028,19 @@ zrbgp_escheat_depots() {
 # with the depot displayName anchor is live; ACTIVE without it is an anomaly
 # (kept, flagged); any other state, 403, or 404 is dead. A candidate that cannot
 # even be a project id (shape-invalid — e.g. a nested folder name) is dead by
-# construction, no probe issued. Emits "«depot»\t«verdict»\t«detail»" per line.
+# construction, no probe issued. Writes "«depot»\t«verdict»\t«detail»" per line to
+# the output file it is handed.
 # Any unexpected HTTP outcome dies — a liveness verdict is never guessed.
 zrbgp_escheat_liveness() {
   zrbgp_sentinel
 
   local -r z_token="${1:-}"
   local -r z_depots_file="${2:-}"
+  local -r z_out="${3:-}"
   test -n "${z_token}"       || buc_die_now "Token required"
   test -f "${z_depots_file}" || buc_die_now "Depots file required: ${z_depots_file}"
+  test -n "${z_out}"         || buc_die_now "Liveness output file required"
+  : > "${z_out}" || buc_die_now "Failed to open liveness output: ${z_out}"
 
   buc_log_args 'Load depot candidates, then probe each (load-then-iterate)'
   local z_depots=()
@@ -2057,7 +2061,7 @@ zrbgp_escheat_liveness() {
     z_depot="${z_depots[${z_i}]}"
 
     [[ "${z_depot}" =~ ^[a-z][a-z0-9-]*$ ]] || {
-      printf '%s\tdead\tinvalid-id\n' "${z_depot}" || buc_die_now "Failed to emit liveness line"
+      printf '%s\tdead\tinvalid-id\n' "${z_depot}" >> "${z_out}" || buc_die_now "Failed to emit liveness line"
       continue
     }
 
@@ -2074,19 +2078,19 @@ zrbgp_escheat_liveness() {
           z_state="UNKNOWN"
         fi
         if test "${z_state}" != "${RBGC_STATE_ACTIVE}"; then
-          printf '%s\tdead\t%s\n' "${z_depot}" "${z_state}" || buc_die_now "Failed to emit liveness line"
+          printf '%s\tdead\t%s\n' "${z_depot}" "${z_state}" >> "${z_out}" || buc_die_now "Failed to emit liveness line"
           continue
         fi
         local z_display_status=0
         z_display=$(rbuh_json_field_capture "${z_infix}" '.displayName // ""') || z_display_status=$?
         test "${z_display_status}" -eq 0 || z_display=""
         case "${z_display}" in
-          "${z_display_prefix}"*) printf '%s\tlive\t%s\n' "${z_depot}" "${z_state}" || buc_die_now "Failed to emit liveness line" ;;
-          *)                      printf '%s\tanomaly\tactive-without-depot-anchor\n' "${z_depot}" || buc_die_now "Failed to emit liveness line" ;;
+          "${z_display_prefix}"*) printf '%s\tlive\t%s\n' "${z_depot}" "${z_state}" >> "${z_out}" || buc_die_now "Failed to emit liveness line" ;;
+          *)                      printf '%s\tanomaly\tactive-without-depot-anchor\n' "${z_depot}" >> "${z_out}" || buc_die_now "Failed to emit liveness line" ;;
         esac
         ;;
       403|404)
-        printf '%s\tdead\thttp-%s\n' "${z_depot}" "${z_code}" || buc_die_now "Failed to emit liveness line"
+        printf '%s\tdead\thttp-%s\n' "${z_depot}" "${z_code}" >> "${z_out}" || buc_die_now "Failed to emit liveness line"
         ;;
       *)
         buc_die_now "Escheat liveness: unexpected HTTP ${z_code} from projects.get for ${z_depot} — a liveness verdict is never guessed"
@@ -2214,7 +2218,7 @@ rbgp_manor_escheat() {
   zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
   local -r z_survey_file="${ZRBGP_PREFIX}escheat_survey_plan.txt"
-  rbgft_escheat_survey "${zSECRET_token}" "${z_bucket}" > "${z_survey_file}" \
+  rbgft_escheat_survey "${zSECRET_token}" "${z_bucket}" "${z_survey_file}" \
     || buc_die_now "Escheat survey failed"
 
   buc_step 'List the polity managed folders'
@@ -2232,7 +2236,7 @@ rbgp_manor_escheat() {
 
   buc_step 'Probe depot liveness'
   local -r z_liveness_file="${ZRBGP_PREFIX}escheat_liveness.txt"
-  zrbgp_escheat_liveness "${zSECRET_token}" "${z_depots_file}" > "${z_liveness_file}" \
+  zrbgp_escheat_liveness "${zSECRET_token}" "${z_depots_file}" "${z_liveness_file}" \
     || buc_die_now "Failed to probe depot liveness"
 
   buc_step 'Escheat plan — every disposition'
@@ -2298,7 +2302,7 @@ rbgp_manor_escheat() {
 
   buc_step 'Verify the sweep (re-survey; the re-plan must hold no strike)'
   local -r z_survey_verify_file="${ZRBGP_PREFIX}escheat_survey_verify.txt"
-  rbgft_escheat_survey "${zSECRET_token}" "${z_bucket}" > "${z_survey_verify_file}" \
+  rbgft_escheat_survey "${zSECRET_token}" "${z_bucket}" "${z_survey_verify_file}" \
     || buc_die_now "Escheat verify survey failed"
   local -r z_folders_verify_file="${ZRBGP_PREFIX}escheat_folders_verify.txt"
   local z_folders_verify_status=0

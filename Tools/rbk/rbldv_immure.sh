@@ -159,10 +159,14 @@ zrbldv_immure_submit() {
     }' > "${z_subs_file}" \
     || buc_die_now "Failed to compose immure substitutions blob"
 
+  local -r z_recipe_file="${ZRBLD0_IMMURE_PREFIX}recipe.txt"
+  printf '%s\n' "${z_recipe[@]}" > "${z_recipe_file}" \
+    || buc_die_now "Failed to write the immure recipe: ${z_recipe_file}"
+
   zrblds_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Immure" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
     "${z_subs_file}" "${ZRBLD0_IMMURE_PREFIX}" \
-    "${z_recipe[@]}"
+    "${z_recipe_file}"
 }
 
 ######################################################################
