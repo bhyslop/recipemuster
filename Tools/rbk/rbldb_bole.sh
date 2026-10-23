@@ -98,7 +98,7 @@ zrbldb_ensconce_submit() {
 
   local -r z_recipe_file="${ZRBLD0_ENSCONCE_PREFIX}recipe.txt"
   printf '%s\n' "${z_recipe[@]}" > "${z_recipe_file}" \
-    || buc_die_now "Failed to write the ensconce recipe: ${z_recipe_file}"
+    || buc_die_now "Failed to write the capture recipe: ${z_recipe_file}"
 
   zrblds_spine_dispatch \
     "${z_token}" "${RBGD_MASON_EMAIL}" "Ensconce" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_LIGHT}" \

@@ -49,7 +49,7 @@ zrbfcb_redon_tick() {
   local -r z_label="${1:?zrbfcb_redon_tick: label required}"
   local -r z_poll_tag="${2:?zrbfcb_redon_tick: poll tag required}"
   local -r z_don_rc="${3:-}"
-  test -n "${z_don_rc}" || buc_die_now "zrbfcb_redon_tick: don status required"
+  test -n "${z_don_rc}" || buc_die_now "zrbfcb_redon_tick: status required"
 
   if test "${z_don_rc}" -eq 0; then
     buc_info "${z_label}: Re-donned the director mantle mid-flight (${z_poll_tag})"
