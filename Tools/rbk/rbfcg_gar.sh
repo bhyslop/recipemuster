@@ -161,15 +161,9 @@ zrbfcg_manifest_code_fetch() {
   local -r z_response="${z_out}_response.txt"
   local -r z_stderr="${z_out}_stderr.txt"
   local z_curl_status=0
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    -w "%{http_code}" \
-    -o "${z_response}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
-    > "${z_out}" 2>"${z_stderr}" || z_curl_status=$?
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" "${z_token}" \
+      "${z_response}" "${z_out}" "${z_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
+    || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "HEAD request failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_stderr}"
 }
@@ -209,13 +203,8 @@ zrbfcg_gar_extract_artifact() {
   # GET manifest (may be manifest list/index or single-platform manifest)
   local -r z_manifest="${z_prefix}manifest.json"
   local -r z_manifest_stderr="${z_prefix}manifest_stderr.txt"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
-    > "${z_manifest}" 2>"${z_manifest_stderr}" \
+  rbuh_request "GET" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" "${z_token}" \
+      "${z_manifest}" "${z_prefix}manifest_code.txt" "${z_manifest_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "follow" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
@@ -243,13 +232,9 @@ zrbfcg_gar_extract_artifact() {
 
       local -r z_plat_manifest="${z_prefix}plat_manifest.json"
       local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
-      curl -sL \
-        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-        --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-        -H "Authorization: Bearer ${z_token}" \
-        -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
-        "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
-        > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
+      rbuh_request "GET" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" "${z_token}" \
+          "${z_plat_manifest}" "${z_prefix}plat_manifest_code.txt" "${z_plat_stderr}" "" \
+          "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" "follow" \
         || z_curl_status=$?
       test "${z_curl_status}" -eq 0 \
         || buc_die_now "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
@@ -291,12 +276,8 @@ zrbfcg_gar_extract_artifact() {
     test -n "${z_layer_digest}" || continue
     z_blob_file="${z_prefix}blob_${z_layer_idx}.tar.gz"
     z_blob_stderr="${z_prefix}blob_${z_layer_idx}_stderr.txt"
-    curl -sL \
-      --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-      --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-      -H "Authorization: Bearer ${z_token}" \
-      "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" \
-      > "${z_blob_file}" 2>"${z_blob_stderr}" \
+    rbuh_request "GET" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/blobs/${z_layer_digest}" "${z_token}" \
+        "${z_blob_file}" "${z_prefix}blob_${z_layer_idx}_code.txt" "${z_blob_stderr}" "" "Accept: */*" "follow" \
       || z_curl_status=$?
     test "${z_curl_status}" -eq 0 \
       || buc_die_now "GET blob failed for ${z_package} layer ${z_layer_digest} (curl exit ${z_curl_status}) — see ${z_blob_stderr}"
@@ -344,13 +325,8 @@ zrbfcg_image_config_fetch() {
   # GET manifest (may be index or single-platform)
   local -r z_manifest="${z_prefix}manifest.json"
   local -r z_manifest_stderr="${z_prefix}manifest_stderr.txt"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -H "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" \
-    > "${z_manifest}" 2>"${z_manifest_stderr}" \
+  rbuh_request "GET" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_tag}" "${z_token}" \
+      "${z_manifest}" "${z_prefix}manifest_code.txt" "${z_manifest_stderr}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "follow" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "GET manifest failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_manifest_stderr}"
@@ -375,13 +351,9 @@ zrbfcg_image_config_fetch() {
       test -n "${z_platform_digest}" || buc_die_now "Empty platform digest in manifest list"
       local -r z_plat_manifest="${z_prefix}plat_manifest.json"
       local -r z_plat_stderr="${z_prefix}plat_manifest_stderr.txt"
-      curl -sL \
-        --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-        --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-        -H "Authorization: Bearer ${z_token}" \
-        -H "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" \
-        "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" \
-        > "${z_plat_manifest}" 2>"${z_plat_stderr}" \
+      rbuh_request "GET" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/manifests/${z_platform_digest}" "${z_token}" \
+          "${z_plat_manifest}" "${z_prefix}plat_manifest_code.txt" "${z_plat_stderr}" "" \
+          "Accept: application/vnd.docker.distribution.manifest.v2+json,application/vnd.oci.image.manifest.v1+json" "follow" \
         || z_curl_status=$?
       test "${z_curl_status}" -eq 0 \
         || buc_die_now "GET platform manifest failed for ${z_package} (curl exit ${z_curl_status}) — see ${z_plat_stderr}"
@@ -399,12 +371,8 @@ zrbfcg_image_config_fetch() {
   test -n "${z_config_digest}" || buc_die_now "No config digest in manifest for ${z_package}:${z_tag}"
 
   local -r z_config_stderr="${z_prefix}config_stderr.txt"
-  curl -sL \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/blobs/${z_config_digest}" \
-    > "${z_out}" 2>"${z_config_stderr}" \
+  rbuh_request "GET" "${ZRBFC0_REGISTRY_API_BASE}/${z_package}/blobs/${z_config_digest}" "${z_token}" \
+      "${z_out}" "${z_prefix}config_code.txt" "${z_config_stderr}" "" "Accept: */*" "follow" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
     || buc_die_now "GET config blob failed for ${z_package}:${z_tag} (curl exit ${z_curl_status}) — see ${z_config_stderr}"

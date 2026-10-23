@@ -128,6 +128,7 @@ zrba_furnish() {
   source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
   source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
 
   zbuv_kindle
@@ -143,6 +144,7 @@ zrba_furnish() {
   zrbcc_kindle
   zrbgc_kindle
   zrbgo_kindle
+  zrbuh_kindle
   zrba_kindle
 }
 

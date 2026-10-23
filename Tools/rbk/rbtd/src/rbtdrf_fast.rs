@@ -1566,6 +1566,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          source '{rbk_p}/rbgc_constants.sh'\n\
          source '{rbk_p}/rbdc_derived.sh'\n\
          source '{rbk_p}/rbgo_oauth.sh'\n\
+         source '{rbk_p}/rbuh_http.sh'\n\
          source '{rbk_p}/rba_auth.sh'\n\
          source '{rbk_p}/rbfcb_host.sh'\n\
          zbuv_kindle\n\
@@ -1580,6 +1581,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          zrbgc_kindle\n\
          zrbdc_kindle\n\
          zrbgo_kindle\n\
+         zrbuh_kindle\n\
          zrba_kindle\n\
          rbcc_source_active_rbrf_flint \"${{RBRR_ACTIVE_FOEDUS:-}}\"\n\
          source \"${{RBCC_rbrw_file}}\"\n\

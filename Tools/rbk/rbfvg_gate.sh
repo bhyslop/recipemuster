@@ -46,18 +46,13 @@ rbfvg_vouch_gate() {
     || buc_die_now "rbfvg_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code
+  local -r z_stderr_file="${ZRBFC0_SCRATCH_FILE}.stderr"
   local z_curl_status=0
-  curl --head -s \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}" \
-    -H "Authorization: Bearer ${z_token}" \
-    -o /dev/null \
-    -w "%{http_code}" \
-    "${ZRBFC0_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" \
-    > "${ZRBFC0_SCRATCH_FILE}" \
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}/manifests/${z_vouch_tag}" "${z_token}" \
+      "/dev/null" "${ZRBFC0_SCRATCH_FILE}" "${z_stderr_file}" "" "Accept: */*" "" \
     || z_curl_status=$?
   test "${z_curl_status}" -eq 0 \
-    || buc_die_now "rbfvg_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status})"
+    || buc_die_now "rbfvg_vouch_gate: HEAD request failed for ${z_vessel}:${z_vouch_tag} (curl exit ${z_curl_status}) — see ${z_stderr_file}"
   z_vouch_http_code=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_SCRATCH_FILE}"
 
   if test "${z_vouch_http_code}" != "200"; then
