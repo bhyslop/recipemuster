@@ -552,7 +552,7 @@ rbgb_managed_folder_purge() {
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_DELETE}" '.error.message') || z_err_status=$?
          test "${z_err_status}" -eq 0 || z_err="HTTP ${z_del_code}"
-         buc_warn "Managed folder ${z_folder} delete failed: ${z_err}";          return 1 ;;
+         buc_reject "${BUBC_band_escheat}" "Failed to purge managed folder ${z_folder} in ${z_bucket_name}: ${z_err}" ;;
   esac
 }
 
