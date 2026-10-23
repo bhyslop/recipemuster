@@ -1681,10 +1681,10 @@ rbgp_manor_raze() {
 # The manor-setup finisher: one idempotent, payor-credentialed verb that founds
 # the manor's scriptable substrate after the manual payor guide — the ensure-exists
 # inverse of manor_raze. First readies the payor project itself (the required-API set,
-# billing linkage — the two steps migrated out of the manual guide across the
-# credential boundary), then founds three things: the org-level workforcePoolAdmin grant
-# (spike F1), the ONE workforce pool (via a list-and-match drift guard, never a bare
-# get-by-id — a drifted RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
+# billing linkage — the two steps that need the payor credential), then founds three
+# things: the org-level workforcePoolAdmin grant (spike F1), the ONE workforce pool
+# (via a list-and-match drift guard, never a bare get-by-id — a drifted
+# RBRW_WORKFORCE_POOL_ID must surface, not silently spawn a
 # second empty pool), and the terrier bucket (manor-grain, in the payor project). The
 # depot-grain polity folder + grain IAM are founded at depot levy, not here. Ensure-
 # exists throughout — created when absent, reconciled when present, NEVER deleted
@@ -1707,7 +1707,7 @@ rbgp_manor_instaurate() {
   local zSECRET_token
   zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
-  # === Ensure the payor-project APIs (migrated from the manual payor guide) ===
+  # === Ensure the payor-project APIs ===
   # The payor project is the OAuth client's home and so the quota project of every
   # payor-token call — an API must be on here even when the resource lives elsewhere.
   # iam (workforce pools), storage (terrier bucket), cloudresourcemanager (the
@@ -1758,7 +1758,7 @@ rbgp_manor_instaurate() {
     buc_die_now "Consent-screen audience must be Internal"
   fi
 
-  # === Ensure billing linked to the payor project (migrated from the manual guide) ===
+  # === Ensure billing linked to the payor project ===
   # Must precede the terrier bucket — bucket creation requires an active billing
   # link. GET-then-PUT: a matching link is a no-op; absent links; drifted reconciles
   # to the committed record (RBRP is authoritative) with a warning — the same
@@ -1875,8 +1875,8 @@ rbgp_manor_instaurate() {
       test "${z_p_desc_status}" -eq 0 || z_p_desc=""
       if test "${z_p_id}" = "${z_pool_id}"; then
         # The pool at the expected id is OURS by coordinate — matched by id, not marker,
-        # so a pool predating the marker convention still counts (the fix the live run
-        # forced: a spike pool at the id but without the marker was create-over'd).
+        # so a pool predating the marker convention still counts and is never
+        # created over.
         z_expected_state="${z_p_state}"
         z_expected_session="${z_p_session}"
         z_expected_desc="${z_p_desc}"
@@ -2924,8 +2924,8 @@ rbgp_depot_unmake() {
   buc_step 'Verify deletion state transition'
   local -r z_max_attempts=12
   local z_attempt=1
-  local z_final_state
-  
+  local z_final_state=""
+
   while test "${z_attempt}" -le "${z_max_attempts}"; do
     sleep 5 || buc_die_now "Poll wait interrupted"
     buc_log_args "Checking deletion state (attempt ${z_attempt}/${z_max_attempts})" || buc_die_now "Failed to write transcript line"
@@ -2950,7 +2950,7 @@ rbgp_depot_unmake() {
   done
   
   if test "${z_final_state}" != "DELETE_REQUESTED"; then
-    buc_die_now "Failed to verify deletion state transition. Current state: ${z_final_state}"
+    buc_die_now "Failed to verify deletion state transition after ${z_max_attempts} checks. Last state read: ${z_final_state:-none, no check returned HTTP 200}"
   fi
 
   buc_step 'Update depot tracking'
@@ -3212,11 +3212,9 @@ rbgp_depot_recognosce() {
 # Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
 # rbgp_rehearse) — the operator-facing admission surface under the rbw-p
 # launcher family. Each dons the governor mantle (rba_avow then rba_don_capture
-# governor); the token-agnostic *_core helpers let gird — the one remaining
-# payor-credentialed path (the interim proof retired, superseded by the
-# terrier-band coverage in Tools/rbk/rbtd/src/rbtdrv_patrol.rs) — drive the
-# same composition. Muniment mutations precede IAM mutations in every core
-# (RBr_m4d).
+# governor); the token-agnostic *_core helpers let gird — the one
+# payor-credentialed path — drive the same composition. Muniment mutations
+# precede IAM mutations in every core (RBr_m4d).
 #
 # Bucket: the manor terrier is payor-project grain (RBGP_TERRIER_BUCKET),
 # reached via the enforced payor regime.
@@ -3545,7 +3543,7 @@ rbgp_attribution_trail() {
   # always-on iamcredentials GenerateAccessToken, which names only the SA by
   # design; and "(direct SA …)" on a use hop made by a non-impersonated SA (e.g.
   # a keyfile credential), which carries no delegation and so no human — the very
-  # gap federation closes. Only the first is the attribution this pace proves.
+  # gap federation closes. Only the first attributes a use to a human.
   local -r z_resp_file="${ZRBUH_PREFIX}attribution_list${ZRBUH_POSTFIX_JSON}"
   local -r z_render_file="${BURD_TEMP_DIR}/rbgp_attribution_render.txt"
   jq -r '
