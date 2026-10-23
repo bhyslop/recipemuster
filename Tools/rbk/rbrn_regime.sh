@@ -116,10 +116,6 @@ zrbrn_enforce() {
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
       buc_reject "${BUBC_band_regime}" "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
-
-  # Build docker env args array from validated values
-  # Usage: docker run "${ZRBRN_DOCKER_ENV[@]}" ...
-  buv_docker_env RBRN ZRBRN_DOCKER_ENV
 }
 
 ######################################################################
@@ -131,7 +127,7 @@ rbrn_list_capture() {
   zrbrn_sentinel
 
   local z_result=""
-  local -r z_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
+  local -r z_files=("${RBCC_moorings_dir}/${RBCC_nameplate_sprue}"*"/${RBCC_rbrn_file}")
   local z_i=""
   local z_dir=""
   local z_inscription=""
@@ -251,7 +247,7 @@ rbrn_preflight() {
   buc_doc_shown || return 0
 
   # Collect structured data from all nameplates via isolation subshells
-  local -r z_nameplate_files=("${RBCC_moorings_dir}/"*"/${RBCC_rbrn_file}")
+  local -r z_nameplate_files=("${RBCC_moorings_dir}/${RBCC_nameplate_sprue}"*"/${RBCC_rbrn_file}")
   local z_data_lines=()
   local z_data_files=()
   local -r z_isolation_program='
