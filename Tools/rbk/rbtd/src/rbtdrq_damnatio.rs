@@ -439,9 +439,11 @@ struct zrbtchd_Reach {
 /// the very `buv_*_enroll` calls the regime modules make at kindle. Nothing here
 /// re-parses a regime source, so no static grep can drift from what the system
 /// actually enrolls. Kindling needs each regime's values in the environment, so
-/// the tree's own regime files are sourced first; RBRO alone is fed probe values,
+/// the tree's own regime files are sourced first; RBRO alone is fed a probe store,
 /// because its file lives outside the repository by design and the fixture must
-/// not require the operator's secrets to run.
+/// not require the operator's secrets to run. RBRO's kindle sources its store
+/// from rbdc's kindle constant, which no rbdc kindle sets here, so the reach
+/// places the probe store's path there by prefix assignment.
 ///
 /// The proscription, the scope-to-file mapping and the hardpoints are read back
 /// from the lustration module — the same table the transform writes from, so the
@@ -453,6 +455,10 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
     // The rbrf and rbrn kindles name their temp paths off BURD_TEMP_DIR, which
     // no dispatch supplies here, so the case's own scratch directory stands in.
     let dir_p = crate::rbtcep_platform::rbtcep_native_to_posix(dir);
+    let rbro_probe = dir.join("rbro-probe.env");
+    std::fs::write(&rbro_probe, "RBRO_CLIENT_SECRET=probe\nRBRO_REFRESH_TOKEN=probe\n")
+        .map_err(|e| format!("failed to write the RBRO probe store: {}", e))?;
+    let rbro_probe_p = crate::rbtcep_platform::rbtcep_native_to_posix(&rbro_probe);
 
     let script = format!(
         "set -euo pipefail\n\
@@ -479,7 +485,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          zrbrw_kindle\n\
          source \"{moorings}/rbmf_foedera/${{RBRR_ACTIVE_FOEDUS}}/rbrf.env\"\n\
          zrbrf_kindle\n\
-         RBRO_CLIENT_SECRET=probe RBRO_REFRESH_TOKEN=probe zrbro_kindle\n\
+         RBDC_PAYOR_RBRO_FILE='{rbro_probe_p}' zrbro_kindle\n\
          for z_probe in {moorings}/rbmv_vessels/*/rbrv.env; do source \"${{z_probe}}\"; break; done\n\
          zrbrv_kindle\n\
          for z_probe in {moorings}/*/rbrn.env; do source \"${{z_probe}}\"; break; done\n\
@@ -494,6 +500,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          echo '{mark_hardpoints}'\n\
          rblm_emit_hardpoints\n",
         dir_p = dir_p,
+        rbro_probe_p = rbro_probe_p,
         buv = buv,
         rbk = rbk,
         moorings = moorings,

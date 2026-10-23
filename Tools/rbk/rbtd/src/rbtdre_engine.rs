@@ -729,8 +729,10 @@ pub struct rbtcee_Fixture {
     pub cases: &'static [rbtcee_Case],
     /// Reveille-tier credless guard.
     /// When true, every tabtarget Command built while this fixture runs carries
-    /// `BURE_TWEAK_NAME=<credless guard>`, and the token-mint membranes reject
-    /// with the credless band code — the fixture cannot use credentials, by
+    /// `BURE_TWEAK_NAME=<credless guard>`, and the token mints refuse before any
+    /// credential touch, the shell leaving with the credless band code (the
+    /// payor's mint by its refusal word, which its callers' guard rejects in
+    /// that band) — the fixture cannot use credentials, by
     /// construction, regardless of which suite hosts it. True for exactly the
     /// reveille-suite members; a guarded fixture's cases carry no tweaks of their
     /// own (in the reveille tier the slot belongs to the guard).

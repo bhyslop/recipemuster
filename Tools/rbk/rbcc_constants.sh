@@ -203,7 +203,8 @@ readonly RBCC_fact_ext_sederunt="sederunt"
 
 # Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue). The credless guard is the reveille-tier slot reservation: theurge
 # sets it on every tabtarget a reveille-tier fixture spawns, and the Payor OAuth
-# token-mint membrane (zrbgp_authenticate_capture) rejects under it with
+# token mint (rbgp_authenticate_capture) refuses under it before any credential
+# touch, its callers' guard (rbgp_authenticate_die) rejecting with
 # BUBC_band_credless — a passing reveille run can never use credentials.
 readonly RBCC_tweak_credless_guard="buorb_credless_guard"
 

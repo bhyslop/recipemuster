@@ -85,7 +85,8 @@ zrbro_furnish() {
   zrbrd_enforce
   zrbdc_kindle
 
-  rbro_load
+  zrbro_kindle
+  zrbro_enforce
 
   zbupr_kindle
 }

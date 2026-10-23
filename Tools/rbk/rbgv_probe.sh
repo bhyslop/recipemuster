@@ -175,10 +175,9 @@ zrbgv_payor_crm_probe_once() {
   buc_log_args "Payor OAuth probe iteration ${z_iteration}"
 
   buc_log_args "Authenticate via Payor OAuth refresh token flow"
-  local z_token
-  z_token=$(zrbgp_authenticate_capture) \
-    || buc_die_now "Failed to obtain Payor OAuth access token (iteration ${z_iteration})"
-  test -n "${z_token}" || buc_die_now "Empty Payor OAuth access token (iteration ${z_iteration})"
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
+  test -n "${zSECRET_token}" || buc_die_now "Empty Payor OAuth access token (iteration ${z_iteration})"
 
   buc_log_args "Build CRM projects.get URL"
   test -n "${RBRP_PAYOR_PROJECT_ID:-}" || buc_die_now "RBRP_PAYOR_PROJECT_ID is not set"
@@ -190,7 +189,7 @@ zrbgv_payor_crm_probe_once() {
   zrbgv_http_get_with_5xx_retry \
     "${z_crm_label}"            \
     "${z_crm_url}"              \
-    "${z_token}"                \
+    "${zSECRET_token}"          \
     "${ZRBGV_CRM_RESP_FILE}"    \
     "${ZRBGV_CRM_CODE_FILE}"    \
     "${ZRBGV_CRM_STDERR_FILE}"
@@ -228,7 +227,7 @@ zrbgv_payor_crm_probe_once() {
 # Probe: Payor OAuth Access Probe
 #
 # For each iteration:
-#   1. Authenticate via zrbgp_authenticate_capture (RBRO refresh token -> access token)
+#   1. Authenticate via rbgp_authenticate_capture (RBRO refresh token -> access token)
 #   2. Call CRM projects.get on payor project to verify token works
 #   3. Sleep for configured delay
 rbgv_payor_oauth_probe() {
