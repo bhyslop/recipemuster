@@ -35,7 +35,7 @@ zrbfcg_list_packages_capture() {
   zrbfc0_sentinel
 
   local -r zSECRET_token="${1:-}"
-  test -n "${zSECRET_token}" || buc_die_now "Token required"
+  test -n "${zSECRET_token}" || return 1
   local -r z_subtree_root="${2:?Subtree root required}"
 
   local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
@@ -112,7 +112,7 @@ zrbfcg_list_anchors_capture() {
   zrbfc0_sentinel
 
   local -r zSECRET_token="${1:-}"
-  test -n "${zSECRET_token}" || buc_die_now "Token required"
+  test -n "${zSECRET_token}" || return 1
   local -r z_subtree_root="${2:?Subtree root required}"
 
   local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
