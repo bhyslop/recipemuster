@@ -5,7 +5,8 @@ The [Hierophant](#Hierophant) conducts four commands and stops wherever your han
 The law behind it is the Marshal Operations branch of the spec: where the two disagree the law wins, and the disagreement is a finding to raise.
 The words in capitals are defined in the glossary at the end.
 
-Run every command from the maintainer repository, with its tree committed: each [Hierophant](#Hierophant) command refuses an uncommitted tree, and builds itself before it runs.
+Run every command from the maintainer repository, with its tree committed and pushed: each [Hierophant](#Hierophant) command refuses an uncommitted tree, [Essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
+Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
 1. [Standing ground](#StandingGround) — once per station.
 2. [The laps](#TheLaps) — [Essai](#Essai), repeated until a [Lap](#Lap) runs dry.
@@ -15,9 +16,9 @@ Run every command from the maintainer repository, with its tree committed: each 
 
 ## <a id="Rules"></a>Rules
 
-- Only [Ostend](#Ostend) does anything irreversible. [Essai](#Essai), [Docimasy](#Docimasy) and [Harbinger](#Harbinger) may be re-run freely.
-- The tool never pushes. When it prints a push line, type exactly that line yourself, then answer its prompt so it can check the result.
-- A finding means re-cut, never patch forward: repair on the maintainer tree, commit, and run a new [Lap](#Lap).
+- Only the staging push inside [Ostend](#Ostend) cannot be undone. [Essai](#Essai), [Docimasy](#Docimasy) and [Harbinger](#Harbinger) never touch the public face, but once a [Cachet](#Cachet) stands, run [Essai](#Essai) again only when a finding forces a re-cut: a new [Lap](#Lap) discards the [Cachet](#Cachet) and the preview.
+- The tool never pushes. When it prints a push line, leave its prompt waiting, type the line exactly in the second pane, and answer `y` only after the push has returned.
+- A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [Lap](#Lap).
 - The [Regulus](#Regulus) the reveal shows is the one the dry [Lap](#Lap) proved, never a fresh cut.
 
 <a id="RuledOrder"></a>The standing doctrine is that the walk gates promotion.
@@ -42,6 +43,7 @@ Once per station, before the first lap.
    git ls-remote git@github.com:scaleinv/recipebottle.git
    ```
 4. At the cloud console, count the projects linked to the billing account and confirm three free link slots: two for the `gauntlet` and one for the walk.
+   Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
 5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [Hierophant](#Hierophant) never uses them.
 
 ## <a id="TheLaps"></a>The laps
@@ -50,19 +52,19 @@ Once per station, before the first lap.
    It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [Regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [Rig](#Rig).
    A [Regulus](#Regulus) already standing there is first moved aside by [Sepose](#Sepose).
 2. Read its verdict and the base inventory it prints.
-   On any red, repair on the maintainer tree, commit, and run it again.
+   On any red, repair on the maintainer tree, commit and push, and run it again.
 
 ### <a id="StrangerColdwalk"></a>The stranger coldwalk
 
 Every green lap ends with a [Rig](#Rig) waiting to be walked.
 Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
-Its findings go to the dated memo path the lap named.
+Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [Rig](#Rig) aside.
 A finding means a repair and another lap.
 A lap whose battery is green and whose coldwalk finds nothing has run dry, and only then do the three steps below follow.
 
 ### <a id="CensusInquest"></a>The census inquest
 
-From the outspan of a dispatched chat, run `tt/vom-i.Inquest.sh` and read its statistics table: the row `VOr_ew7`, the Bash guide's one-form substitution read, must stand at zero.
+From the outspan of a chat dispatched after the dry lap's commit is pushed, so that its tree is the one the lap cut, run `tt/vom-i.Inquest.sh` and read its statistics table: the row `VOr_ew7`, the Bash guide's one-form substitution read, must stand at zero.
 If it does not, repair and run another lap.
 
 ### <a id="RegulusReading"></a>Reading the regulus
@@ -82,7 +84,8 @@ Anything that should not be public means a repair and another lap.
 ### <a id="QuietTrunk"></a>Hold the trunk quiet
 
 From the dry lap until promotion, land nothing on the trunk that changes delivered bytes, a kit parcel install above all.
-The reveal re-checks that the [Regulus](#Regulus) still matches the trunk, and drift sends the cycle back to laps.
+The reveal re-checks that the [Regulus](#Regulus) still matches the maintainer tree, and drift sends the cycle back to laps.
+The commits [Docimasy](#Docimasy) itself makes are expected and are not drift.
 
 ## <a id="TheReveal"></a>The reveal
 
@@ -93,49 +96,57 @@ At the GitHub console, by hand:
 1. Delete the [Narthex](#Narthex) repository `scaleinv/recipebottle-staging` and create it again, empty and private.
    [Docimasy](#Docimasy) refuses a [Narthex](#Narthex) holding an earlier cut.
 2. Delete the public repository's `POSTULANT_LOCAL` branch left by the previous release, so the staging push creates it fresh.
-   If a branch ruleset refuses the delete, relax the ruleset for the delete.
+   If a branch ruleset refuses the delete, relax it for the delete and restore it at once.
 3. Confirm three free billing link slots again.
 4. Confirm the Pages source is the README rendered from main root, and close any stale open pull request on the public repository.
 
 ### <a id="DocimasyAct"></a>Docimasy
 
-Run `tt/rbvw-d.Docimasy.sh` inside a terminal multiplexer session, since its last hour runs unattended.
-It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the trunk, and then stops three times:
+Run `tt/rbvw-d.Docimasy.sh` in the multiplexer session, since its last hour runs unattended.
+It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and then stops four times:
 
 1. It prints the preview push line into the private [Narthex](#Narthex).
-   Type it, then answer that it is pushed.
-2. It opens a browser sign-in to renew your session.
-   Complete it; this is the fresh sign-in the unattended hour needs.
+   Type it in the second pane, then answer `y`.
+2. It prints a sign-in URL and code to renew your session.
+   Open the URL in a browser and enter the code before it times out; this is the fresh sign-in the unattended hour needs.
 3. It asks whether to proceed with marshal zero and the `gauntlet`.
-   Answer yes and leave it: marshal zero blanks the regime and commits that, and the `gauntlet` runs for about an hour on two new cloud projects.
+   Answer `y`.
+4. Marshal zero lists what it will blank and asks you to type `zero`.
+   Type it, and leave only once the `gauntlet` has begun: marshal zero blanks the regime and commits that, and the `gauntlet` runs for about an hour on two new cloud projects, committing regime changes as it goes.
 
 On green it grants the [Cachet](#Cachet) and points you to [Ostend](#Ostend).
+Push the commits it left on the maintainer tree.
+Before [Ostend](#Ostend), browse the `POSTULANT_LOCAL` branch of the [Narthex](#Narthex) on GitHub: the file tree, the rendered README with its pictures and anchors, and the single commit.
+Go on only when it reads as a clean public face.
 
 On red:
 
-- If the credential check fails, reinstall the payor credential with `tt/rbw-gPI.PayorInstall.sh «client secret JSON»`, then run [Docimasy](#Docimasy) again.
+- First push whatever commits the failed run left on the maintainer tree, or the next [Docimasy](#Docimasy) or [Essai](#Essai) refuses.
+- If the payor credential check fails, reinstall it with `tt/rbw-gPI.PayorInstall.sh «client secret JSON»`, the JSON saved when the payor was established, then run [Docimasy](#Docimasy) again.
+- If the sign-in fails or times out, run [Docimasy](#Docimasy) again; if it fails twice, read the identity trust's health with `tt/rbw-jd.FoedusDescry.sh`.
 - If the `gauntlet` failed for a reason outside the candidate, such as a quota wall or a transient cloud fault, release the depot it stranded with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»` and run [Docimasy](#Docimasy) again; a preview already pushed is recognized and not asked for again.
 - If the `gauntlet` found a real defect, release the stranded depot the same way, repair on the maintainer tree, and return to the laps.
 
 ### <a id="OstendAct"></a>Ostend
 
 Run `tt/rbvw-o.Ostend.sh` and stay with it throughout; it is short.
-It requires the [Cachet](#Cachet), re-checks the [Narthex](#Narthex) and the trunk, and then stops three times:
+It requires the [Cachet](#Cachet), re-checks the [Narthex](#Narthex) and the maintainer tree, and then stops three times:
 
 1. It shows the full file list of the [Regulus](#Regulus).
-   Read it, then answer.
+   Read it, then answer `y`.
 2. It prints the staging push line.
-   This is the [Kerygma](#Kerygma), the one act that cannot be undone: type it, then answer.
+   This is the [Kerygma](#Kerygma), the one act that cannot be undone: type it in the second pane, then answer `y`.
    It confirms public main did not move and `POSTULANT_LOCAL` stands at the [Regulus](#Regulus) tip.
 3. It prints the promotion line.
-   Type it from a fresh clone of the public repository as below, then answer.
+   Type it in the second pane from a fresh clone of the public repository, as below, then answer `y`.
    It confirms public main now equals the [Regulus](#Regulus) tip.
 
+If a push did not land — mistyped, refused by a repository rule, or answered before it returned — fix the cause, relaxing and restoring a ruleset if one refused, and run [Ostend](#Ostend) again; a staging push that already landed is simply confirmed again.
 If promotion is refused as a non-fast-forward, public main moved since the cut: stop, never force, and re-cut atop it.
 Ostend closes by pointing you to [Harbinger](#Harbinger).
 
 <a id="FreshCloneRecipe"></a>The printed promotion line names a local `POSTULANT_LOCAL` branch and is never run from the [Regulus](#Regulus) directory.
-At the promotion stop, in a second terminal:
+At the promotion stop, in the second pane:
 
 ```
 git clone git@github.com:scaleinv/recipebottle.git «fresh clone»
@@ -143,17 +154,17 @@ cd «fresh clone»
 git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
-Then type the printed promotion line in that terminal.
+Then type the printed promotion line there.
 
 ### <a id="HarbingerAct"></a>Harbinger
 
 Run `tt/rbvw-h.Harbinger.sh`.
 It clones promoted public main over HTTPS, exactly as a stranger would, guards the clone so it can never push, and prints a launch line, a stranger prompt and a dated findings-memo path.
-Launch the confirmation coldwalk by hand, with you at the keyboard, and review and commit its findings memo afterward.
+Launch the confirmation coldwalk by hand, with you at the keyboard, and commit its findings memo where the hand-off directs.
 
 ## <a id="GreenfieldWalk"></a>The walk
 
-Walk the whole manor yourself against promoted public main, as a stranger: from the onboarding entry to a green `gauntlet` on a fresh payor substrate.
+Walk the whole manor yourself against promoted public main, as a stranger: clone public main over HTTPS as the README directs, into a directory you keep for the walk, and go from the onboarding entry to a green `gauntlet` on a fresh payor substrate.
 It takes hours; start it fresh, not tired.
 Record every divergence between the shipped documents and what actually happens.
 
@@ -163,15 +174,15 @@ Dispose of each finding:
 - A repair that changes delivered bytes reopens the whole cycle: laps to dry, the reveal, and a fresh walk.
   Until it lands, the defect stands on the promoted face, which is the accepted cost of promoting first.
 - A repair that touches only withheld paths needs only a new lap, never a new walk or `gauntlet`.
-- A re-walk reuses the standing walk setup and never levies a second payor project.
+- A re-walk reuses that clone and the payor project it set up, and never levies a second payor project.
 
 ## <a id="Closeout"></a>Closeout
 
 1. Confirm the public README serves at its URL and that every anchor in it resolves on the live page.
    Links into main go live only at promotion; before the push only their structure was checked, by the `pyx` sweep.
 2. Spot-check the repository front page and the github.io render.
-3. Delete the public `POSTULANT_LOCAL` branch, relaxing the ruleset again if it refuses, and then the [Narthex](#Narthex) repository.
-4. Commit any coldwalk findings memo you mean to keep, since each stands inside its `rbthdr_coldwalk` directory; then delete every `rbthdr_*` directory beside the maintainer repository.
+3. Delete the public `POSTULANT_LOCAL` branch, relaxing and restoring the ruleset if it refuses, and then the [Narthex](#Narthex) repository.
+4. Check that every coldwalk findings memo is committed, including any still inside a moved-aside `rbthdr_coldwalk` sibling; then delete every `rbthdr_*` directory beside the maintainer repository.
 5. Record the release in `RBSPH-ProjectHistory.adoc`, the project's history; this procedure carries no dated record.
 
 ## Glossary
