@@ -21,6 +21,114 @@
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
 
+macro_rules! rbtgeb_bottle_base { () => { "bottle" }; }
+pub(crate) use rbtgeb_bottle_base;
+pub const RBTGEB_BOTTLE_BASE: &str = rbtgeb_bottle_base!();
+macro_rules! rbtgeb_bottle_base_versal { () => { "BOTTLE" }; }
+pub(crate) use rbtgeb_bottle_base_versal;
+pub const RBTGEB_BOTTLE_BASE_VERSAL: &str = rbtgeb_bottle_base_versal!();
+macro_rules! rbtgeb_bottle_base_lettrine { () => { "Bottle" }; }
+pub(crate) use rbtgeb_bottle_base_lettrine;
+pub const RBTGEB_BOTTLE_BASE_LETTRINE: &str = rbtgeb_bottle_base_lettrine!();
+macro_rules! rbtgeb_bottle_plural { () => { "bottles" }; }
+pub(crate) use rbtgeb_bottle_plural;
+pub const RBTGEB_BOTTLE_PLURAL: &str = rbtgeb_bottle_plural!();
+macro_rules! rbtgeb_bottle_plural_versal { () => { "BOTTLES" }; }
+pub(crate) use rbtgeb_bottle_plural_versal;
+pub const RBTGEB_BOTTLE_PLURAL_VERSAL: &str = rbtgeb_bottle_plural_versal!();
+macro_rules! rbtgeb_bottle_plural_lettrine { () => { "Bottles" }; }
+pub(crate) use rbtgeb_bottle_plural_lettrine;
+pub const RBTGEB_BOTTLE_PLURAL_LETTRINE: &str = rbtgeb_bottle_plural_lettrine!();
+macro_rules! rbtgeb_bottle_possessive { () => { "bottle's" }; }
+pub(crate) use rbtgeb_bottle_possessive;
+pub const RBTGEB_BOTTLE_POSSESSIVE: &str = rbtgeb_bottle_possessive!();
+macro_rules! rbtgeb_bottle_possessive_versal { () => { "BOTTLE'S" }; }
+pub(crate) use rbtgeb_bottle_possessive_versal;
+pub const RBTGEB_BOTTLE_POSSESSIVE_VERSAL: &str = rbtgeb_bottle_possessive_versal!();
+macro_rules! rbtgeb_bottle_possessive_lettrine { () => { "Bottle's" }; }
+pub(crate) use rbtgeb_bottle_possessive_lettrine;
+pub const RBTGEB_BOTTLE_POSSESSIVE_LETTRINE: &str = rbtgeb_bottle_possessive_lettrine!();
+macro_rules! rbtgeb_enclave_base { () => { "enclave" }; }
+pub(crate) use rbtgeb_enclave_base;
+pub const RBTGEB_ENCLAVE_BASE: &str = rbtgeb_enclave_base!();
+macro_rules! rbtgeb_enclave_base_versal { () => { "ENCLAVE" }; }
+pub(crate) use rbtgeb_enclave_base_versal;
+pub const RBTGEB_ENCLAVE_BASE_VERSAL: &str = rbtgeb_enclave_base_versal!();
+macro_rules! rbtgeb_enclave_base_lettrine { () => { "Enclave" }; }
+pub(crate) use rbtgeb_enclave_base_lettrine;
+pub const RBTGEB_ENCLAVE_BASE_LETTRINE: &str = rbtgeb_enclave_base_lettrine!();
+macro_rules! rbtgeb_enclave_plural { () => { "enclaves" }; }
+pub(crate) use rbtgeb_enclave_plural;
+pub const RBTGEB_ENCLAVE_PLURAL: &str = rbtgeb_enclave_plural!();
+macro_rules! rbtgeb_enclave_plural_versal { () => { "ENCLAVES" }; }
+pub(crate) use rbtgeb_enclave_plural_versal;
+pub const RBTGEB_ENCLAVE_PLURAL_VERSAL: &str = rbtgeb_enclave_plural_versal!();
+macro_rules! rbtgeb_enclave_plural_lettrine { () => { "Enclaves" }; }
+pub(crate) use rbtgeb_enclave_plural_lettrine;
+pub const RBTGEB_ENCLAVE_PLURAL_LETTRINE: &str = rbtgeb_enclave_plural_lettrine!();
+macro_rules! rbtgeb_enclave_possessive { () => { "enclave's" }; }
+pub(crate) use rbtgeb_enclave_possessive;
+pub const RBTGEB_ENCLAVE_POSSESSIVE: &str = rbtgeb_enclave_possessive!();
+macro_rules! rbtgeb_enclave_possessive_versal { () => { "ENCLAVE'S" }; }
+pub(crate) use rbtgeb_enclave_possessive_versal;
+pub const RBTGEB_ENCLAVE_POSSESSIVE_VERSAL: &str = rbtgeb_enclave_possessive_versal!();
+macro_rules! rbtgeb_enclave_possessive_lettrine { () => { "Enclave's" }; }
+pub(crate) use rbtgeb_enclave_possessive_lettrine;
+pub const RBTGEB_ENCLAVE_POSSESSIVE_LETTRINE: &str = rbtgeb_enclave_possessive_lettrine!();
+macro_rules! rbtgeb_sentry_base { () => { "sentry" }; }
+pub(crate) use rbtgeb_sentry_base;
+pub const RBTGEB_SENTRY_BASE: &str = rbtgeb_sentry_base!();
+macro_rules! rbtgeb_sentry_base_versal { () => { "SENTRY" }; }
+pub(crate) use rbtgeb_sentry_base_versal;
+pub const RBTGEB_SENTRY_BASE_VERSAL: &str = rbtgeb_sentry_base_versal!();
+macro_rules! rbtgeb_sentry_base_lettrine { () => { "Sentry" }; }
+pub(crate) use rbtgeb_sentry_base_lettrine;
+pub const RBTGEB_SENTRY_BASE_LETTRINE: &str = rbtgeb_sentry_base_lettrine!();
+macro_rules! rbtgeb_sentry_plural { () => { "sentries" }; }
+pub(crate) use rbtgeb_sentry_plural;
+pub const RBTGEB_SENTRY_PLURAL: &str = rbtgeb_sentry_plural!();
+macro_rules! rbtgeb_sentry_plural_versal { () => { "SENTRIES" }; }
+pub(crate) use rbtgeb_sentry_plural_versal;
+pub const RBTGEB_SENTRY_PLURAL_VERSAL: &str = rbtgeb_sentry_plural_versal!();
+macro_rules! rbtgeb_sentry_plural_lettrine { () => { "Sentries" }; }
+pub(crate) use rbtgeb_sentry_plural_lettrine;
+pub const RBTGEB_SENTRY_PLURAL_LETTRINE: &str = rbtgeb_sentry_plural_lettrine!();
+macro_rules! rbtgeb_sentry_possessive { () => { "sentry's" }; }
+pub(crate) use rbtgeb_sentry_possessive;
+pub const RBTGEB_SENTRY_POSSESSIVE: &str = rbtgeb_sentry_possessive!();
+macro_rules! rbtgeb_sentry_possessive_versal { () => { "SENTRY'S" }; }
+pub(crate) use rbtgeb_sentry_possessive_versal;
+pub const RBTGEB_SENTRY_POSSESSIVE_VERSAL: &str = rbtgeb_sentry_possessive_versal!();
+macro_rules! rbtgeb_sentry_possessive_lettrine { () => { "Sentry's" }; }
+pub(crate) use rbtgeb_sentry_possessive_lettrine;
+pub const RBTGEB_SENTRY_POSSESSIVE_LETTRINE: &str = rbtgeb_sentry_possessive_lettrine!();
+macro_rules! rbtgeb_uplink_base { () => { "uplink" }; }
+pub(crate) use rbtgeb_uplink_base;
+pub const RBTGEB_UPLINK_BASE: &str = rbtgeb_uplink_base!();
+macro_rules! rbtgeb_uplink_base_versal { () => { "UPLINK" }; }
+pub(crate) use rbtgeb_uplink_base_versal;
+pub const RBTGEB_UPLINK_BASE_VERSAL: &str = rbtgeb_uplink_base_versal!();
+macro_rules! rbtgeb_uplink_base_lettrine { () => { "Uplink" }; }
+pub(crate) use rbtgeb_uplink_base_lettrine;
+pub const RBTGEB_UPLINK_BASE_LETTRINE: &str = rbtgeb_uplink_base_lettrine!();
+macro_rules! rbtgeb_uplink_plural { () => { "uplinks" }; }
+pub(crate) use rbtgeb_uplink_plural;
+pub const RBTGEB_UPLINK_PLURAL: &str = rbtgeb_uplink_plural!();
+macro_rules! rbtgeb_uplink_plural_versal { () => { "UPLINKS" }; }
+pub(crate) use rbtgeb_uplink_plural_versal;
+pub const RBTGEB_UPLINK_PLURAL_VERSAL: &str = rbtgeb_uplink_plural_versal!();
+macro_rules! rbtgeb_uplink_plural_lettrine { () => { "Uplinks" }; }
+pub(crate) use rbtgeb_uplink_plural_lettrine;
+pub const RBTGEB_UPLINK_PLURAL_LETTRINE: &str = rbtgeb_uplink_plural_lettrine!();
+macro_rules! rbtgeb_uplink_possessive { () => { "uplink's" }; }
+pub(crate) use rbtgeb_uplink_possessive;
+pub const RBTGEB_UPLINK_POSSESSIVE: &str = rbtgeb_uplink_possessive!();
+macro_rules! rbtgeb_uplink_possessive_versal { () => { "UPLINK'S" }; }
+pub(crate) use rbtgeb_uplink_possessive_versal;
+pub const RBTGEB_UPLINK_POSSESSIVE_VERSAL: &str = rbtgeb_uplink_possessive_versal!();
+macro_rules! rbtgeb_uplink_possessive_lettrine { () => { "Uplink's" }; }
+pub(crate) use rbtgeb_uplink_possessive_lettrine;
+pub const RBTGEB_UPLINK_POSSESSIVE_LETTRINE: &str = rbtgeb_uplink_possessive_lettrine!();
 macro_rules! rbtgeb_charge_base { () => { "charge" }; }
 pub(crate) use rbtgeb_charge_base;
 pub const RBTGEB_CHARGE_BASE: &str = rbtgeb_charge_base!();
