@@ -1,171 +1,240 @@
-# Release Procedure
+# <a id="ReleaseRunbook"></a>Release Procedure
 
-The release qualification ceremony for the project maintainer. The qualification ladder plus the local cut and private preview (steps 1–6) run roughly an hour, with cloud cost on the order of two GCP projects per run; the public staging reveal (step 7) is the single irreversible kerygma; the greenfield walk (step 8) that gates promotion is a separate, multi-hour, operator-driven ceremony; and promotion with close-out (step 9) moves public `main`.
-The ceremony exists to catch silent first-build assumptions that the routine `tt/rbw-tq.QualifyFast.sh` and `tt/rbw-tr.QualifyRelease.sh` tiers tolerate by design.
+How the maintainer takes a candidate from repair to a promoted public release.
+The [Hierophant](#Hierophant) conducts four commands and stops wherever your hands are needed; this procedure says what to do at each stop and between the commands.
+The law behind it is the Marshal Operations branch of the spec: where the two disagree the law wins, and the disagreement is a finding to raise.
+The words in capitals are defined in the glossary at the end.
 
-[Payor](README.md#Payor) OAuth is the only durable prerequisite credential — the system's sole standing secret.
-No service-account keyfiles are restored from backup: the depot's [Mantle](README.md#Mantle) service accounts ([Governor](README.md#Governor), [Director](README.md#Director), [Retriever](README.md#Retriever)) are seated by the qualification's own founding verbs and reached only through short-lived federated tokens — [Avow](README.md#Avow) opens a [Sederunt](README.md#Sederunt), then [Don](README.md#Don) mints a mantle token per call.
-The entire access chain must be reproducible from the Payor OAuth alone, against a clean local state.
+Run every command from the maintainer repository, with its tree committed and pushed: each [Hierophant](#Hierophant) command refuses an uncommitted tree, [Essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
+Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
-**Failure mode contract.** Mid-qualification failure means start over from step 2, not patch-and-continue.
-Patching forward is exactly the bug class this ceremony exists to catch — accumulated state hides first-build assumptions.
+1. [Standing ground](#StandingGround) — once per station.
+2. [The laps](#TheLaps) — [Essai](#Essai), repeated until a [Lap](#Lap) runs dry.
+3. [The reveal](#TheReveal) — [Docimasy](#Docimasy), then [Ostend](#Ostend), then [Harbinger](#Harbinger).
+4. [The walk](#GreenfieldWalk) — the greenfield manor walk against promoted public main.
+5. [Closeout](#Closeout) — liveness, the spot-check, the deletes and the record.
 
-## 1. Confirm Payor health
+## <a id="Rules"></a>Rules
 
-- Probes the [Payor](README.md#Payor) OAuth credential — exchanges the stored refresh token for a live access token against Google Cloud, so subsequent [Payor](README.md#Payor)-authority operations do not fail mid-qualification on an expired token
-- Success: the probe exits clean — proceed
-- Failure: the stored refresh token is expired or absent. Re-[Install](README.md#Install) it with `tt/rbw-gPI.PayorInstall.sh «RBRR_SECRETS_DIR»/client_secrets/client_secret_*.json` (the JSON saved at [Establish](README.md#Establish); pass the exact path if several exist), or re-[Establish](README.md#Establish) the [Manor](README.md#Manor) if the OAuth client itself is gone; then re-run this step
+- Only the staging push inside [Ostend](#Ostend) cannot be undone. [Essai](#Essai), [Docimasy](#Docimasy) and [Harbinger](#Harbinger) never touch the public face, but once a [Cachet](#Cachet) stands, run [Essai](#Essai) again only when a finding forces a re-cut: a new [Lap](#Lap) discards the [Cachet](#Cachet) and the preview.
+- The tool never pushes. When it prints a push line, leave its prompt waiting, type the line exactly in the second pane, and answer `y` only after the push has returned.
+- A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [Lap](#Lap).
+- The [Regulus](#Regulus) the reveal shows is the one the dry [Lap](#Lap) proved, never a fresh cut.
 
-```
-tt/rbw-ap.CheckPayorCredential.sh
-```
+<a id="RuledOrder"></a>The standing doctrine is that the walk gates promotion.
+This release runs under the operator's ruled exception to it: [Ostend](#Ostend) stages and promotes in one run, and the walk follows against promoted public main.
 
-## 2. Open a fresh Sederunt
+## <a id="StandingGround"></a>Standing ground
 
-- [Novate](README.md#Novate) the [Sederunt](README.md#Sederunt) — extinguish any standing one and open a fresh full-window sederunt via the device-flow browser sign-in
-- The qualification's build verbs are runway-gated: the long captures demand two hours of remaining [Sederunt](README.md#Sederunt) window, so a day-old standing sederunt passes the early rungs and then dies mid-ladder at the floor — a fresh window removes the class by construction
-- Success: the device-flow sign-in completes and the fresh sederunt is reported (spot-check anytime with `tt/rbw-as.EspySederunt.sh`)
-- Failure: the avowal failed — re-run and complete the browser sign-in; if the trust itself is unhealthy, descry the active foedus with `tt/rbw-jd.FoedusDescry.sh`
+Once per station, before the first lap.
 
-```
-tt/rbw-aN.NovateSederunt.sh
-```
+1. Add the read-only base remote and neuter its push side.
+   A push-capable remote to the public repository is the one forbidden catastrophe, and [Essai](#Essai) refuses to cut unless the push side reads exactly this sentinel:
 
-## 3. Marshal zero
+   ```
+   git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
+   git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
+   ```
+2. Bring the kennel current with `tt/bkw-w.Whistle.sh`.
+   Run it again whenever a [Hierophant](#Hierophant) command refuses because the tree has outrun the kennel.
+3. Prove that SSH reaches the public repository, since every push in the reveal travels it:
 
-The marshal-zero operation returns local state to the blank onboarding-start template:
+   ```
+   git ls-remote git@github.com:scaleinv/recipebottle.git
+   ```
+4. At the cloud console, count the projects linked to the billing account and confirm three free link slots: two for the `gauntlet` and one for the walk.
+   Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
+5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [Hierophant](#Hierophant) never uses them.
 
-- Blanks the site-specific [Repo Regime](README.md#RBRR) fields (`RBRR_RUNTIME_PREFIX`, `RBRR_SUBSTRATE_RELIQUARY`) and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`)
-- Blanks [Hallmark](README.md#Hallmark) pins (`RBRN_SENTRY_HALLMARK`, `RBRN_BOTTLE_HALLMARK`) in each [Nameplate](README.md#Nameplate) regime file ([RBRN](README.md#RBRN))
-- Blanks depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) in each [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
-- **Preserves** the [Payor](README.md#Payor) OAuth credential — no credential files are deleted (there are none to delete: the federation era holds no service-account keyfiles)
+## <a id="TheLaps"></a>The laps
 
-Marshal zero **requires the intended tree's basename as its argument** — it blanks the regime of whatever tree it runs in, so that tree must be named, not assumed; naming the wrong one is refused against git's own `--show-toplevel`, before any prompt and regardless of `BURE_CONFIRM`. It then gates on a clean, pushed tree and **auto-commits** the blanked state as a single "Marshal Zero" commit. There is no manual commit step — the pristine baseline lands as one commit by construction.
+1. Run `tt/rbvw-e.Essai.sh`.
+   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [Regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [Rig](#Rig).
+   A [Regulus](#Regulus) already standing there is first moved aside by [Sepose](#Sepose).
+2. Read its verdict and the base inventory it prints.
+   On any red, repair on the maintainer tree, commit and push, and run it again.
 
-- Success: working tree clean and `HEAD` is the marshal-zero commit
-- Failure: review the marshal output for files the operation would not zero, resolve, and retry
+### <a id="StrangerColdwalk"></a>The stranger coldwalk
 
-```
-tt/rbw-MZ.MarshalZeroes.sh rbm_alpha_recipemuster
-```
+Every green lap ends with a [Rig](#Rig) waiting to be walked.
+Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
+Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [Rig](#Rig) aside.
+A finding means a repair and another lap.
+A lap whose battery is green and whose coldwalk finds nothing has run dry, and only then do the three steps below follow.
 
-## 4. Run the gauntlet
+### <a id="CensusInquest"></a>The census inquest
 
-The release gate — the full release-qualification ladder, run from the marshal-zero baseline.
+From the outspan of a chat dispatched after the dry lap's commit is pushed, so that its tree is the one the lap cut, run `tt/vom-i.Inquest.sh` and read its statistics table: the row `VOr_ew7`, the Bash guide's one-form substitution read, must stand at zero.
+If it does not, repair and run another lap.
 
-**Entry contract** — the gauntlet's first fixture (the marshal-zero attestation gate) refuses to run unless ALL of the following hold:
+### <a id="RegulusReading"></a>Reading the regulus
 
-- working tree clean
-- the site-specific [Repo Regime](README.md#RBRR) fields (`RBRR_RUNTIME_PREFIX`, `RBRR_SUBSTRATE_RELIQUARY`) blank, and the [Depot](README.md#Depot)-identity fields (`RBRD_CLOUD_PREFIX`, `RBRD_DEPOT_MONIKER`) blank
-- [Hallmark](README.md#Hallmark) pins blank in every [Nameplate](README.md#Nameplate) regime ([RBRN](README.md#RBRN))
-- depot-scoped fields (`RBRV_RELIQUARY`, `RBRV_IMAGE_*_ANCHOR`) blank in every [Vessel](README.md#Vessel) regime file ([RBRV](README.md#RBRV))
-
-The gate reads the actual blank fields — not a commit-message signature — and is enforced by the test itself, not by ceremony or operator discipline; that property is what lets this tier catch silent-first-build assumptions by construction.
-
-**Cost** — ~1 hour wall-clock plus two GCP projects per run:
-
-- one ephemeral leasehold [Depot](README.md#Depot) [Levied](README.md#Levy) and torn down by the `depot-lifecycle` fixture (the full create→destroy proof)
-- one durable freehold [Depot](README.md#Depot) [Levied](README.md#Levy) by the `freehold-establish` fixture, inherited by every downstream fixture
-- GCP project deletion is asynchronous (30-day soft delete) — each run leaves pending-delete projects in the project list; this is accepted cost
-
-**Sequence** (fail-fast across fixtures):
-
-- enrollment-validation, then the marshal-zero attestation gate (the entry contract above)
-- `depot-lifecycle` — mint and tear down the ephemeral leasehold [Depot](README.md#Depot)
-- `freehold-establish` — stand up the durable freehold [Depot](README.md#Depot): the [Levy](README.md#Levy) seats the three [Mantle](README.md#Mantle) service accounts, the [Payor](README.md#Payor) [Girds](README.md#Gird) the freehold subject as first [Governor](README.md#Governor), who then [Brevets](README.md#Brevet) the subject onto the [Director](README.md#Director) and [Retriever](README.md#Retriever) mantles and [Dons](README.md#Don) each — the federation replacement for the retired keyfile-deploy sequence
-- credential-readiness — verify the [Sederunt](README.md#Sederunt) and the [Director](README.md#Director)/[Retriever](README.md#Retriever) [Dons](README.md#Don) before any build spends
-- onboarding-sequence, the regime / hygiene / foundry fixtures, cupel, conformance, the chaining-fact band, hallmark-lifecycle
-- the [Crucible](README.md#Crucible) suite (tadmor, moriah, srjcl, pluml)
-
-Outcome:
-
-- Success: green tally and clean exit
-- Failure: return to step 2 — never patch-and-continue. Also unmake the failed run's stranded freehold [Depot](README.md#Depot) once its diagnosis is extracted (`tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`): each strand holds a billing-account link, the account's link quota is small, and the [Levy](README.md#Levy) refuses at the quota wall — unmake releases the link while the strand's terrier records survive
+The [Regulus](#Regulus) is one commit atop public main, so that commit is everything the public will newly see.
+Read it yourself, privately, before the reveal; the file list [Ostend](#Ostend) shows later carries names only.
 
 ```
-tt/rbw-ts.TestSuite.gauntlet.sh
+git -C ../rbthdr_regulus/regulus show --stat HEAD
+git -C ../rbthdr_regulus/regulus diff HEAD^ HEAD > ../rbthdr_regulus/regulus.diff
+git -C ../rbthdr_regulus/regulus ls-files
 ```
 
-## 5. Cut and prove the regulus
+Read `regulus.diff` through.
+Anything that should not be public means a repair and another lap.
 
-**Prerequisites — two repositories, two very different lifetimes.**
+### <a id="QuietTrunk"></a>Hold the trunk quiet
 
-- **The base — remote `ENGROSSMENT_UPSTREAM`, read-only.** The real, durable public repository (`git@github.com:scaleinv/recipebottle.git`); the cut clones it and cuts the regulus one commit atop its live `main`. Configure it once, and **neuter its push side** — the base is read-only, and a push-capable remote to the public target in the maintainer repo is the one catastrophe this ceremony forbids (a stray `git push ENGROSSMENT_UPSTREAM` would put your private tree on public `main`):
-  ```
-  git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
-  git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
-  ```
-  The cut refuses to proceed unless the push side is neutered to exactly that sentinel. The ceremony never creates or destroys the base; the cut only ever *reads* it (fetch), then severs the clone's origin, so nothing it does can push there.
-- **The narthex — `git@github.com:scaleinv/recipebottle-staging.git`.** An ephemeral, **private** repository, reached only by explicit URL (never a configured remote of the regulus — the regulus holds zero remotes). Create it **empty and private** on GitHub before the cut; **delete it** once the regulus is dispositioned. Both acts are your own hands — no tooling creates or destroys it, and no delete-scoped token is ever minted.
+From the dry lap until promotion, land nothing on the trunk that changes delivered bytes, a kit parcel install above all.
+The reveal re-checks that the [Regulus](#Regulus) still matches the maintainer tree, and drift sends the cycle back to laps.
+The commits [Docimasy](#Docimasy) itself makes are expected and are not drift.
 
-Exactly **one** command in this document touches public `main` — the promotion (step 9), on the far side of the walk. Nowhere else is public `main` a default-shaped outcome: the cut holds no remote, the base remote's push side is dead, and the regulus's sole branch is `POSTULANT_LOCAL`, so the preview and the staging reveal both push `POSTULANT_LOCAL:POSTULANT_LOCAL` and only promotion spells `POSTULANT_LOCAL:main`, by hand.
+## <a id="TheReveal"></a>The reveal
 
-Run the cut — one essai lap:
+### <a id="RevealPreparation"></a>Prepare
+
+At the GitHub console, by hand:
+
+1. Delete the [Narthex](#Narthex) repository `scaleinv/recipebottle-staging` and create it again, empty and private.
+   [Docimasy](#Docimasy) refuses a [Narthex](#Narthex) holding an earlier cut.
+2. Delete the public repository's `POSTULANT_LOCAL` branch left by the previous release, so the staging push creates it fresh.
+   If a branch ruleset refuses the delete, relax it for the delete and restore it at once.
+3. Confirm three free billing link slots again.
+4. Confirm the Pages source is the README rendered from main root, and close any stale open pull request on the public repository.
+
+### <a id="DocimasyAct"></a>Docimasy
+
+Run `tt/rbvw-d.Docimasy.sh` in the multiplexer session, since its last hour runs unattended.
+It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and then stops four times:
+
+1. It prints the preview push line into the private [Narthex](#Narthex).
+   Type it in the second pane, then answer `y`.
+2. It prints a sign-in URL and code to renew your session.
+   Open the URL in a browser and enter the code before it times out; this is the fresh sign-in the unattended hour needs.
+3. It asks whether to proceed with marshal zero and the `gauntlet`.
+   Answer `y`.
+4. Marshal zero lists what it will blank and asks you to type `zero`.
+   Type it, and leave only once the `gauntlet` has begun: marshal zero blanks the regime and commits that, and the `gauntlet` runs for about an hour on two new cloud projects, committing regime changes as it goes.
+
+On green it grants the [Cachet](#Cachet) and points you to [Ostend](#Ostend).
+Push the commits it left on the maintainer tree.
+Before [Ostend](#Ostend), browse the `POSTULANT_LOCAL` branch of the [Narthex](#Narthex) on GitHub: the file tree, the rendered README with its pictures and anchors, and the single commit.
+Go on only when it reads as a clean public face.
+
+On red:
+
+- First push whatever commits the failed run left on the maintainer tree, or the next [Docimasy](#Docimasy) or [Essai](#Essai) refuses.
+- If the payor credential check fails, reinstall it with `tt/rbw-gPI.PayorInstall.sh «client secret JSON»`, the JSON saved when the payor was established, then run [Docimasy](#Docimasy) again.
+- If the sign-in fails or times out, run [Docimasy](#Docimasy) again; if it fails twice, read the identity trust's health with `tt/rbw-jd.FoedusDescry.sh`.
+- If the `gauntlet` failed for a reason outside the candidate, such as a quota wall or a transient cloud fault, release the depot it stranded with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»` and run [Docimasy](#Docimasy) again; a preview already pushed is recognized and not asked for again.
+- If the `gauntlet` found a real defect, release the stranded depot the same way, repair on the maintainer tree, and return to the laps.
+
+### <a id="OstendAct"></a>Ostend
+
+Run `tt/rbvw-o.Ostend.sh` and stay with it throughout; it is short.
+It requires the [Cachet](#Cachet), re-checks the [Narthex](#Narthex) and the maintainer tree, and then stops three times:
+
+1. It shows the full file list of the [Regulus](#Regulus).
+   Read it, then answer `y`.
+2. It prints the staging push line.
+   This is the [Kerygma](#Kerygma), the one act that cannot be undone: type it in the second pane, then answer `y`.
+   It confirms public main did not move and `POSTULANT_LOCAL` stands at the [Regulus](#Regulus) tip.
+3. It prints the promotion line.
+   Type it in the second pane from a fresh clone of the public repository, as below, then answer `y`.
+   It confirms public main now equals the [Regulus](#Regulus) tip.
+
+If a push did not land — mistyped, refused by a repository rule, or answered before it returned — fix the cause, relaxing and restoring a ruleset if one refused, and run [Ostend](#Ostend) again; a staging push that already landed is simply confirmed again.
+If promotion is refused as a non-fast-forward, public main moved since the cut: stop, never force, and re-cut atop it.
+Ostend closes by pointing you to [Harbinger](#Harbinger).
+
+<a id="FreshCloneRecipe"></a>The printed promotion line names a local `POSTULANT_LOCAL` branch and is never run from the [Regulus](#Regulus) directory.
+At the promotion stop, in the second pane:
 
 ```
-tt/rbvw-e.Essai.sh
+git clone git@github.com:scaleinv/recipebottle.git «fresh clone»
+cd «fresh clone»
+git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
-- The hierophant's reversible repair lap (`RBSHE`): it gates the tree and the base, runs the pre-cut assays, cuts the regulus **in-process**, proves it with the regulus battery, and stands up a coldwalk rig beside it — zero remote acts
-- The cut is a **pure local constructor**: it clones `ENGROSSMENT_UPSTREAM`, builds the regulus by **addition** (materializes only the paths the perambulation ships, transposes the consumer `CLAUDE.md`, sterilizes via the regulus's own copy, commits once), severs the clone's origin, and **pushes nothing**. The finished regulus is one commit atop the public base, on branch `POSTULANT_LOCAL`, holding **zero remotes**. Nothing is stripped, because nothing withheld is ever put in
-- The lap proves it before your eyes: the delivered wiring, release hygiene, the erasure of site identity, a consumer-seat reveille from a feigned station, and the base inventory of already-disclosed withheld history for you to acknowledge
-- The regulus lands at `«sibling»/rbthdr_regulus/regulus`; read its file list before anything is pushed — no machine judgment substitutes for the maintainer reading what they are about to publish: `git -C «regulus» ls-files`
-- Success: the lap runs dry — every assay green, the base inventory acknowledged, and you have read the regulus's file list
-- Failure: **re-cut, never patch forward** — repair on `main` and run the ceremony again from step 2 (the next lap seposes the prior regulus itself — renames it to a timestamped sibling, never deleting it). Patching a regulus is the same bug class this whole procedure exists to catch
+Then type the printed promotion line there.
 
-## 6. Preview in the private narthex (reversible)
+### <a id="HarbingerAct"></a>Harbinger
 
-A git commit is **content-addressed**: the object you would stage publicly and the object you push here are the *same commit, bit for bit*. So this is a byte-faithful preview of the reveal — everything you inspect is exactly what step 7 will disclose — and it is **reversible**: delete the private narthex and nothing escaped. Inspect it here, in private, before the irreversible public act.
+Run `tt/rbvw-h.Harbinger.sh`.
+It clones promoted public main over HTTPS, exactly as a stranger would, guards the clone so it can never push, and prints a launch line, a stranger prompt and a dated findings-memo path.
+Launch the confirmation coldwalk by hand, with you at the keyboard, and commit its findings memo where the hand-off directs.
 
-Push by **explicit URL and explicit refspec** — the regulus has no remote to lean on, and the refspec is a branch, never `main`:
+## <a id="GreenfieldWalk"></a>The walk
 
-```
-git -C «regulus» push git@github.com:scaleinv/recipebottle-staging.git POSTULANT_LOCAL:POSTULANT_LOCAL
-```
+Walk the whole manor yourself against promoted public main, as a stranger: clone public main over HTTPS as the README directs, into a directory you keep for the walk, and go from the onboarding entry to a green `gauntlet` on a fresh payor substrate.
+It takes hours; start it fresh, not tired.
+Record every divergence between the shipped documents and what actually happens.
 
-- Inspect the `POSTULANT_LOCAL` branch on GitHub: the file tree, the rendered README, the single commit
-- Success: the narthex carries exactly the regulus, and it reads as a clean public face
-- Failure: resolve the remote-side reason and retry — the local regulus from step 5 remains valid
+Dispose of each finding:
 
-**Do not proceed until you have inspected the preview and are ready for the irreversible public kerygma.**
+- A documents-only divergence is fixed as a fast follow, or by re-walking only the steps it touched.
+- A repair that changes delivered bytes reopens the whole cycle: laps to dry, the reveal, and a fresh walk.
+  Until it lands, the defect stands on the promoted face, which is the accepted cost of promoting first.
+- A repair that touches only withheld paths needs only a new lap, never a new walk or `gauntlet`.
+- A re-walk reuses that clone and the payor project it set up, and never levies a second payor project.
 
-## 7. Public staging reveal — the irreversible kerygma
+## <a id="Closeout"></a>Closeout
 
-> ⚠️ **This is the point of no return.** Pushing to the public repository discloses the bytes — a public object store cannot be un-disclosed. Everything before this was private and reversible; nothing after this un-happens. It is your own hand: explicit URL, explicit refspec, and it does **not** touch `main`.
+1. Confirm the public README serves at its URL and that every anchor in it resolves on the live page.
+   Links into main go live only at promotion; before the push only their structure was checked, by the `pyx` sweep.
+2. Spot-check the repository front page and the github.io render.
+3. Delete the public `POSTULANT_LOCAL` branch, relaxing and restoring the ruleset if it refuses, and then the [Narthex](#Narthex) repository.
+4. Check that every coldwalk findings memo is committed, including any still inside a moved-aside `rbthdr_coldwalk` sibling; then delete every `rbthdr_*` directory beside the maintainer repository.
+5. Record the release in `RBSPH-ProjectHistory.adoc`, the project's history; this procedure carries no dated record.
 
-Push the regulus to the **public** repository as an **unmerged branch** — the staging the greenfield walk will clone as a stranger. `main` is untouched:
+## Glossary
 
-```
-git -C «regulus» push git@github.com:scaleinv/recipebottle.git POSTULANT_LOCAL:POSTULANT_LOCAL
-```
+<a id="Regulus"></a>**Regulus**
 
-- The refspec targets the `POSTULANT_LOCAL` branch, never `main`: staging discloses the bytes but changes nothing a visitor lands on
-- Verify `main` is untouched — `ls-remote` the public repo before and after this push; its `main` SHA must be identical, the only new ref being `POSTULANT_LOCAL` (the staging pace installs this mechanical before/after assert — it belongs here, at the push that must *not* move `main`, never at promotion, where `main` is meant to move)
-- Success: the regulus stands on the public repository as a public, anonymously-cloneable, unmerged branch
-- Failure: resolve and retry — but the bytes are already disclosed; any re-cut from here re-opens the full gate
+The cut deliverable: exactly one commit atop the live public base, built by addition from the paths the perambulation ships, on the sole branch `POSTULANT_LOCAL`, holding zero remotes.
+The dry [Regulus](#Regulus) the reveal discloses is bit-for-bit the [Regulus](#Regulus) the [Laps](#Lap) proved — a terminal re-cut would break exactly that identity.
+Named for the pure metal that settles out of a crucible.
 
-## 8. The greenfield manor walk — gates promotion
+<a id="Kerygma"></a>**Kerygma**
 
-The walk clones the **public staging branch** (step 7) as a total stranger and founds the whole system from zero through the shipped docs alone, culminating in a green gauntlet on a fresh payor substrate. It gates **discoverability** (promotion), never kerygma — step 7 already disclosed the bytes publicly; the walk decides whether they become the default face.
+The single irreversible public act: the [Regulus](#Regulus) pushed onto the public repository as the unmerged `POSTULANT_LOCAL` branch, `main` untouched.
+The staging push, not the promotion, carries promotion-grade gravity — a public object store cannot be un-disclosed; promotion after it is discoverability, not [Kerygma](#Kerygma).
+Named for a herald's public proclamation.
 
-Its own multi-hour, operator-driven ceremony — run it fresh, not tired. Record every divergence between the shipped docs and reality as a finding: a doc-only divergence census defaults to fast-follow disposition, while a delivered-bytes-bearing re-cut re-opens the full gate (fresh walk and gauntlet). Two finding classes are pre-waived: dead `main`-blob links (they go live only at promotion) and the stranger's bootstrap (cloning the staging branch rather than default `main`). Only once the walk is green with its census dispositioned does promotion proceed.
+<a id="Hierophant"></a>**Hierophant**
 
-## 9. Promotion to public main — discoverability
+The veiled application that conducts the release ceremony through four commands; it checks everything and pushes nothing.
 
-The single command in this whole document that touches public `main`, on the far side of the green walk. It moves no bytes a stranger has not already seen at staging: it fast-forwards `main` to the walked staging branch, making it the default face and taking the README links live.
+<a id="Essai"></a>**Essai**
 
-**Before `main` moves — promotion-day housekeeping:**
+The repair command: gates, cuts the [Regulus](#Regulus), proves it and stands up a coldwalk [Rig](#Rig), with no remote act.
 
-- Confirm the repository's **Pages source**: the README render from `main` root is the intended Pages face. Promotion deletes the public repo's untracked `index.html` and `.nojekyll` from `main`; no landing page ships and none moves to a side branch
-- Close the public repository's **stale open PR**, if one stands
+<a id="Lap"></a>**Lap**
 
-**The promotion** — fast-forward-only, from the walked public staging branch to `main`, **performed from a fresh clone or fetch of the public repository, never the local regulus directory** (which is why the regulus directory is disposable once step 7 is tip-verified — promotion does not depend on it). Assert **tree-hash equality** (`main`'s tree after the move equals the walked regulus tip — the byte claim is checked, not assumed). A refused fast-forward means `main` moved since the cut: **stop**, never `--force`, re-cut atop the moved base. The one `POSTULANT_LOCAL:main` refspec lives here and nowhere else.
+One run of [Essai](#Essai), repeated until one runs dry: green, with a coldwalk that finds nothing.
 
-**Then — prove the promoted face and close out:**
+<a id="Docimasy"></a>**Docimasy**
 
-- Liveness: the public README serves at its URL and every anchor resolves against the live page
-- Production spot-check (thin — the walk already proved the bytes): repo front page, the github.io render, a fresh default-branch clone taken a few minutes into the onboarding entry
-- Delete the public **staging branch** (ceremony hygiene), then the **private narthex** repository and the **regulus directory** — the regulus directory may stand until here, its earliest safe disposal being once step 7 is tip-verified
-- Record the release
+The proving command: previews the [Regulus](#Regulus) into the [Narthex](#Narthex), runs the `gauntlet`, and grants the [Cachet](#Cachet).
 
-> **Rationale** — specified in the Marshal Operations branch of the Recipe Bottle spec (`jjqs_studbook/specs/rbk/RBS0-SpecTop.adoc`, treated in the hierophant cosmology sheaf `RBSHC`): additive construction as prevention with the narthex as containment only, the read-only base, human-hands-only public acts by structural incapacity, and the three public acts (reversible preview, the one irreversible kerygma at staging, promotion as discoverability). This procedure is that law's operator face.
+<a id="Narthex"></a>**Narthex**
+
+The private repository the preview is pushed into, created and deleted by hand.
+
+<a id="Cachet"></a>**Cachet**
+
+The recorded verdict that the `gauntlet` ran green against exactly this [Regulus](#Regulus); [Ostend](#Ostend) will not run without it.
+
+<a id="Ostend"></a>**Ostend**
+
+The showing command: the file-list review, the [Kerygma](#Kerygma) and promotion.
+
+<a id="Harbinger"></a>**Harbinger**
+
+The command that stands up a stranger [Rig](#Rig) against promoted public main.
+
+<a id="Rig"></a>**Rig**
+
+A guarded, disposable clone a stranger walk runs in; it cannot push.
+
+<a id="Sepose"></a>**Sepose**
+
+Moving a prior working directory aside to a timestamped sibling instead of deleting it.
