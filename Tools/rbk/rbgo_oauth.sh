@@ -86,8 +86,9 @@ rbgo_base64_encode_string_capture() {
 
   local -r z_user="${1:-}"
   local -r zSECRET_token="${2:-}"
+  local -r zSECRET_pair="${z_user}:${zSECRET_token}"
   local zSECRET_encoded
-  zSECRET_encoded=$(printf '%s:%s' "${z_user}" "${zSECRET_token}" | openssl enc -base64 -A) || return 1
+  zSECRET_encoded=$(printf '%s' "${zSECRET_pair}" | openssl enc -base64 -A) || return 1
   echo "${zSECRET_encoded}"
 }
 
@@ -181,12 +182,11 @@ rbgo_docker_login() {
       buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); making a credential-store write of the authenticated credential into docker's base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
       zSECRET_auth_b64=$(rbgo_base64_encode_string_capture oauth2accesstoken "${zSECRET_token}") \
         || buc_die_now "Cannot base64-encode the docker credential for the file-store bend"
-      zSECRET_config=$(printf '{"auths":{"%s":{"auth":"%s"}}}' "${z_host}" "${zSECRET_auth_b64}") \
-        || buc_die_now "Cannot compose the docker config for the credential-store bend"
+      zSECRET_config='{"auths":{"'"${z_host}"'":{"auth":"'"${zSECRET_auth_b64}"'"}}}'
       mkdir -p "${HOME}/.docker" \
         || buc_die_now "Cannot create ${HOME}/.docker for the credential-store bend"
       local -r z_config_file="${HOME}/.docker/config.json"
-      local -r z_config_tmp="${z_config_file}.tmp.${$}"
+      local -r z_config_tmp="${z_config_file}.tmp"
       (
         umask 077 || buc_die_now "Cannot set umask for the credential-store bend"
         printf '%s' "${zSECRET_config}" > "${z_config_tmp}" || buc_die_now "Cannot write ${z_config_tmp} for the credential-store bend"
