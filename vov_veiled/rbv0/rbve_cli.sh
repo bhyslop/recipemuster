@@ -85,7 +85,7 @@ rbve_build() {
 }
 
 rbve_essai() {
-  buc_doc_brief "Essai — the reversible repair lap (gate, cut, prove, rig; zero remote acts)"
+  buc_doc_brief "Essai — the reversible repair lap (gate, cut, prove, temenos; zero remote acts)"
   buc_doc_shown || return 0
 
   zrbve_heel
@@ -122,7 +122,7 @@ rbve_ostend() {
 }
 
 rbve_harbinger() {
-  buc_doc_brief "Harbinger — the stranger rig against promoted public main (zero remote acts)"
+  buc_doc_brief "Harbinger — the stranger walk against promoted public main (zero remote acts)"
   buc_doc_shown || return 0
 
   zrbve_heel

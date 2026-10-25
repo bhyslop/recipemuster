@@ -14,7 +14,7 @@
 //
 // This module absorbs, in-process, the content-grain leak detection that used to
 // ride as the theurge `loupe` fixture in shipped code (RBSHC "Worker, never
-// authority": the veil assay joins the cut and the rig as one of the hierophant's
+// authority": the veil assay joins the cut and the temenos as one of the hierophant's
 // own absorbed modules). Moving it here is what makes the shipped tree carry no
 // veil apparatus: the census that enumerates withheld documents by name, the
 // matcher that hunts them, and its self-proof all live behind the veil now.

@@ -5,8 +5,8 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBVCCE — essai: the reversible repair lap (RBSHE). The whole cycle end to end
-// — gate, assay, cut, prove, rig — run as many times as it takes, with ZERO
-// remote acts. Its product is a walk-ready rig standing beside a pristine
+// — gate, assay, cut, prove, temenos — run as many times as it takes, with ZERO
+// remote acts. Its product is a walk-ready temenos standing beside a pristine
 // regulus that is bit-for-bit what a subsequent ostend would push.
 //
 // Workers are sequenced as subprocesses, never re-implemented (RBSHC) — with
@@ -26,7 +26,7 @@ use crate::rbvcex_expede;
 use crate::rbvcel_log;
 use crate::rbvceu_loupe;
 use crate::rbvcep_repo;
-use crate::rbvceg_rig;
+use crate::rbvceg_temenos;
 use crate::rbvcer_run;
 
 // ── Worker location: colophons and imprints ─────────────────
@@ -59,10 +59,10 @@ const RBVCCE_STATION_USER: &str = "regulus";
 const RBVCCE_STATION_TINCTURE: &str = "cnd";
 
 /// Conduct one essai lap. Fatal (exit 1) on any deficit or red; ExitCode::SUCCESS
-/// only when a walk-ready rig stands beside a proven regulus.
+/// only when a walk-ready temenos stands beside a proven regulus.
 pub fn rbvcce_essai_conduct() -> ExitCode {
     rbvcel_log::rbvcel_section("Hierophant Essai — the reversible repair lap (RBSHE)");
-    rbvcel_log::rbvcel_line("Gate, cut, prove, rig — zero remote acts. A finding means re-cut.");
+    rbvcel_log::rbvcel_line("Gate, cut, prove, temenos — zero remote acts. A finding means re-cut.");
 
     let top = rbvcep_repo::rbvcep_toplevel();
     let parent = rbvcep_repo::rbvcep_parent(&top);
@@ -73,25 +73,25 @@ pub fn rbvcce_essai_conduct() -> ExitCode {
     let regulus_clone = zrbvcce_cut(&top, &parent);
     zrbvcce_prove(&parent, &regulus_clone, &top);
 
-    // Steps 5 & 6 — stand up the rig from the LOCAL regulus, show the fidelity
+    // Steps 5 & 6 — stand up the temenos from the LOCAL regulus, show the fidelity
     // gap loud, hand off the walk, and state the two standing artifacts.
-    rbvcel_log::rbvcel_section("Stand up the coldwalk rig (RBSHE step 5)");
+    rbvcel_log::rbvcel_section("Stand up the coldwalk temenos (RBSHE step 5)");
     let clone_source = rbvcep_repo::rbvcep_as_str(&regulus_clone);
-    let rig = rbvceg_rig::rbvceg_stand_up(&parent, &top, &clone_source, &top);
+    let temenos = rbvceg_temenos::rbvceg_stand_up(&parent, &top, &clone_source, &top);
 
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this rig is a LOCAL proxy:");
+    rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this temenos is a LOCAL proxy:");
     rbvcel_log::rbvcel_line("the HTTPS-clone-from-GitHub step and the public landing face are");
     rbvcel_log::rbvcel_line("UNPROVEN in this mode. They are covered only by the final instruments");
     rbvcel_log::rbvcel_line("against promoted public main (the harbinger command, a later ceremony).");
 
-    rbvceg_rig::rbvceg_emit_handoff(&rig);
+    rbvceg_temenos::rbvceg_emit_handoff(&temenos);
 
     rbvcel_log::rbvcel_section("Two standing artifacts (RBSHE step 6)");
     rbvcel_log::rbvcel_line(&format!("Pristine regulus (untouched by the walk): {}", regulus_clone.display()));
-    rbvcel_log::rbvcel_line(&format!("Disposable rig:                             {}", rig.rig_dir.display()));
+    rbvcel_log::rbvcel_line(&format!("Disposable temenos:                             {}", temenos.temenos_dir.display()));
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_success("Essai lap complete — a walk-ready rig stands beside a proven regulus.");
+    rbvcel_log::rbvcel_success("Essai lap complete — a walk-ready temenos stands beside a proven regulus.");
     rbvcel_log::rbvcel_line("Dispose and re-cut, or hand the standing regulus to docimasy — the reveal's proving act (RBSHE completion).");
 
     ExitCode::SUCCESS
@@ -173,7 +173,7 @@ fn zrbvcce_precut_assays(top: &Path) {
 
     // The veiled-tree assay, in-process (RBSHC "Worker, never authority": the
     // veil assay is one of the hierophant's own absorbed modules, beside the cut
-    // and the rig). It reads the veiled trees to harvest its census, meaningful
+    // and the temenos). It reads the veiled trees to harvest its census, meaningful
     // only here; in the regulus it is red by construction. The perambulation's
     // totality gate is likewise not a fixture: it is the cut's own first refusal,
     // in-process (step 3).
