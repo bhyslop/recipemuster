@@ -1,39 +1,32 @@
-The veiled half of the RBK agent context. Its delivered siblings map the shipped
-surface and travel with the distribution:
+The veiled half of the RBK agent context.
+Its delivered siblings map the shipped surface and travel with the distribution:
 
 - `Tools/rbk/claude-rbk-core.md` — the annotated acronym homes and the moorings-tree map
 - `Tools/rbk/claude-rbk-acronyms.md` — the prefix map for shipped code
 - `Tools/rbk/claude-rbk-conduct.md` — the behavioral rules for shipped code
 - `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — the crucible-testing context
 
-This file maps what stays behind: the guides, the specification, the shelved
-handbook, the derived diagram, the contract pointers stripped from the delivered
-rows, and — since the BUK kit's veiled half left this consumer tree — the curated
-few BUK rows recipemuster still cites. **Nothing named here — by path, by basename, or by acronym — may
-appear in a delivered file.** The delivered half must not even acknowledge that
-this material exists: a consumer agent is told nothing about an upstream record it
-cannot read. The pyx release-hygiene fixture holds the path-and-basename half of
-that line mechanically; the acronym half is authorial for now.
+This file maps what stays behind: the guides, the specification, the shelved handbook, the derived diagram, the contract pointers stripped from the delivered rows, and — since the BUK kit's veiled half left this consumer tree — the curated few BUK rows recipemuster still cites.
+**Nothing named here — by path, by basename, or by acronym — may appear in a delivered file.**
+The delivered half must not even acknowledge that this material exists: a consumer agent is told nothing about an upstream record it cannot read.
+The pyx release-hygiene fixture holds the path-and-basename half of that line mechanically; the acronym half is authorial for now.
 
 ### Rivet doctrine (the veiled half of the `RBr_` conduct rule)
 
-The delivered `claude-rbk-conduct.md` carries the *behavior* — never restate a
-marked decision, never simplify the code it guards — and names no home for the
-reasoning, because the delivered face must not disclose that a closed record
-exists. Here is what it withholds:
+The delivered `claude-rbk-conduct.md` carries the *behavior* — never restate a marked decision, never simplify the code it guards — and names no home for the reasoning, because the delivered face must not disclose that a closed record exists.
+Here is what it withholds:
 
-An `RBr_<tail>` token is a **rivet**: a cited constraint, defined and explained
-once in an `.adoc` spec. The ID is opaque on purpose — it carries no meaning, so
-it leaks none into released code. To understand one, `grep RBr_<tail>` and read
-the spec. The code carries the pointer; the spec carries the prose; one home,
-always. Doctrine: ACG "residue" (the rule), MCM `mcm_rivet` (the concept). In a
-jailer script (no comments by dialect) the citation rides the execution-time
-announcement — see JDG.
+An `RBr_<tail>` token is a **rivet**: a cited constraint, defined and explained once in an `.adoc` spec.
+The ID is opaque on purpose — it carries no meaning, so it leaks none into released code.
+To understand one, `grep RBr_<tail>` and read the spec.
+The code carries the pointer; the spec carries the prose; one home, always.
+Doctrine: ACG "residue" (the rule), MCM `mcm_rivet` (the concept).
+In a jailer script (no comments by dialect) the citation rides the execution-time announcement — see JDG.
 
 ### Contract map (stripped from the delivered rows)
 
-Which spec sheaf contracts each delivered module. Kept here so the delivered
-prefix map can name the module without naming its contract.
+Which spec sheaf contracts each delivered module.
+Kept here so the delivered prefix map can name the module without naming its contract.
 
 | Module | Contract |
 |--------|----------|
@@ -77,13 +70,9 @@ Annotations for the acronym homes indexed in `claude-rbk-veiled-acronyms.md` —
 
 ### Carried BUK rows
 
-BUK-owned closed documents, folded here when `Tools/buk/vov_veiled/` left this
-consumer tree. The two-part label governing them — a curated subset that is never a
-mirror of BUK's veiled surface, and a shrinking bridge whose rows follow the
-citation census down — stands in full beside the rows in
-`claude-rbk-veiled-acronyms.md`, together with the double duty the list carries
-(resolution map, and this tree's per-kit roster for the veiled-acronym reference
-lint). Read it there before adding or dropping a row.
+BUK-owned closed documents, folded here when `Tools/buk/vov_veiled/` left this consumer tree.
+The two-part label governing them — a curated subset that is never a mirror of BUK's veiled surface, and a shrinking bridge whose rows follow the citation census down — stands in full beside the rows in `claude-rbk-veiled-acronyms.md`, together with the double duty the list carries (resolution map, and this tree's per-kit roster for the veiled-acronym reference lint).
+Read it there before adding or dropping a row.
 
 - **BCG**  → `guides/buk/BCG-BashConsoleGuide.md` (Bash Console Guide - enterprise bash patterns)
 - **WSG**  → `guides/buk/WSG-WindowsScriptingGuide.md` (Windows Scripting Guide - ssh-to-Windows transport discipline; extends BCG into the wsl.exe / cygwin / PowerShell stack)

@@ -1,6 +1,7 @@
 ## Theurge & Ifrit: Crucible Security Testing
 
-Read this file when working on theurge (test orchestrator), ifrit (attack binary), or crucible test cases. This is Recipe Bottle's internal test infrastructure only — Recipe Bottle does not require users to have Rust compilation tools.
+Read this file when working on theurge (test orchestrator), ifrit (attack binary), or crucible test cases.
+This is Recipe Bottle's internal test infrastructure only — Recipe Bottle does not require users to have Rust compilation tools.
 
 ### Architecture
 
@@ -9,7 +10,8 @@ Two Rust binaries with completely different roles and build targets:
 - **Theurge** (`Tools/rbk/rbtd/`) — test orchestrator, runs on the **host** (macOS/Linux). Charges a crucible (sentry + pentacle + bottle containers), invokes attacks, observes results, produces verdicts. Built via `tt/rbw-tb.Build.sh`.
 - **Ifrit** (`rbmv_vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev_bottle_ifrit_tether` (and the forthcoming airgap variant). Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
 
-**Coordinated tests** are the distinctive capability: theurge simultaneously observes from outside (via sentry writ/fiat commands) while ifrit attacks from inside. Neither binary alone can do this.
+**Coordinated tests** are the distinctive capability: theurge simultaneously observes from outside (via sentry writ/fiat commands) while ifrit attacks from inside.
+Neither binary alone can do this.
 
 ### Crucible Iteration Loop
 
@@ -17,14 +19,17 @@ The typical development cycle when changing ifrit or theurge code:
 
 #### Iteration strategy: single cases first, full suite last
 
-The full tadmor fixture takes ~10 minutes (charge + 50+ cases + quench). **Do not run it as the first verification step** — whether debugging failures or verifying new code. Instead:
+The full tadmor fixture takes ~10 minutes (charge + 50+ cases + quench).
+**Do not run it as the first verification step** — whether debugging failures or verifying new code.
+Instead:
 
 1. Charge the crucible once
 2. Run single-case against each new or changed test to verify it passes
 3. Run the full fixture only after all targeted cases pass — as a final regression check
 4. Quench
 
-This applies to **all** crucible verification: new tests, bug fixes, refactors. The full suite is always the last step, never the first.
+This applies to **all** crucible verification: new tests, bug fixes, refactors.
+The full suite is always the last step, never the first.
 
 #### Full run (charge + all cases + quench in one command)
 
@@ -39,7 +44,9 @@ This applies to **all** crucible verification: new tests, bug fixes, refactors. 
    tt/rbw-cKB.KludgeBottle.sh tadmor
    tt/rbw-cKS.KludgeSentry.sh tadmor
    ```
-   Charge answers the did-anything-change question for you: it compares each pinned kludge hallmark against the vessel source and refuses when they have parted, naming the vessel and printing the producer tabtarget to run. Run the one it names — the refusal is per vessel — then commit the hallmark it drives into the nameplate's `rbrn.env`. The commit is required rather than tidy: kludge dirties `rbrn.env`, and charge demands a clean working tree.
+   Charge answers the did-anything-change question for you: it compares each pinned kludge hallmark against the vessel source and refuses when they have parted, naming the vessel and printing the producer tabtarget to run.
+   Run the one it names — the refusal is per vessel — then commit the hallmark it drives into the nameplate's `rbrn.env`.
+   The commit is required rather than tidy: kludge dirties `rbrn.env`, and charge demands a clean working tree.
 
 #### Single-case debugging (manual charge/quench lifecycle)
 
@@ -53,7 +60,8 @@ When iterating on a specific failing test case:
    ```
    tt/rbw-tc.FixtureCase.sh tadmor case-name
    ```
-   Omit the case name to list all available cases. Omit the fixture name to list all available fixtures.
+   Omit the case name to list all available cases.
+   Omit the fixture name to list all available fixtures.
 3. Edit code, rebuild as needed (kludge for ifrit, `tt/rbw-tb.Build.sh` for theurge), re-run the single case. Repeat.
 4. Quench when done:
    ```
@@ -62,7 +70,8 @@ When iterating on a specific failing test case:
 
 #### Ordaining after green
 
-Kludge builds are for rapid local iteration. Once all tests pass with the kludge hallmark, ordain for a production-grade Cloud Build image:
+Kludge builds are for rapid local iteration.
+Once all tests pass with the kludge hallmark, ordain for a production-grade Cloud Build image:
 
 1. Ordain the vessel:
    ```
@@ -78,7 +87,9 @@ Kludge builds are for rapid local iteration. Once all tests pass with the kludge
 
 ### Test Cases
 
-Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTCCC_CASES_SECURITY` in `rbtdrc_crucible.rs`). The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle. Runtime semantics are identical.
+Bottle/sentry security cases — shared verbatim by the `tadmor` and `moriah` fixtures (`RBTCCC_CASES_SECURITY` in `rbtdrc_crucible.rs`).
+The two fixtures differ only in provenance: tadmor runs against a locally-kludged bottle, moriah against the cloud-built airgap bottle.
+Runtime semantics are identical.
 
 Cases group by purpose in source order (no formal section structure):
 
@@ -93,7 +104,9 @@ Cases group by purpose in source order (no formal section structure):
 
 ### Reveille-Tier Cases: Credless by Construction
 
-The reveille suite's fixtures carry `credless: true` on their `rbtcee_Fixture` static. While such a fixture runs, every tabtarget Command theurge builds (via `rbtcei_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTGEC_TWEAK_CREDLESS_GUARD`), and both token mints refuse under it before touching any credential, leaving the shell with the credless band code (`BUBC_band_credless` / `RBTGEC_BAND_CREDLESS`): `rba_avow` rejects itself, and the payor's `rbgp_authenticate_capture` emits its credless refusal word, which `rbgp_authenticate_die` at every caller rejects in that band. The guard rides the fixture, not the suite — a reveille fixture hosted in picket/echelon is still guarded.
+The reveille suite's fixtures carry `credless: true` on their `rbtcee_Fixture` static.
+While such a fixture runs, every tabtarget Command theurge builds (via `rbtcei_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTGEC_TWEAK_CREDLESS_GUARD`), and both token mints refuse under it before touching any credential, leaving the shell with the credless band code (`BUBC_band_credless` / `RBTGEC_BAND_CREDLESS`): `rba_avow` rejects itself, and the payor's `rbgp_authenticate_capture` emits its credless refusal word, which `rbgp_authenticate_die` at every caller rejects in that band.
+The guard rides the fixture, not the suite — a reveille fixture hosted in picket/echelon is still guarded.
 
 Rules for authoring a reveille-tier case:
 
@@ -103,19 +116,12 @@ Rules for authoring a reveille-tier case:
 
 ### Fixture Config-Evolution Console
 
-A fixture that walks an onboarding or freehold track *evolves* the tracked
-config it tests — driving hallmarks into nameplates, electing vessel anchors,
-setting regime fields — and commits each step so the next sees a clean tree.
-Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the
-"Fixture config-evolution console"), beside the read-side `rbtcee_tree_clean`.
-**When a fixture commits config, it goes through the console — never an ad-hoc
-`git add`/`git commit`.** `rbtcee_tree_clean` itself refuses every drive on a
-dirty tree — single-fixture, suite, and the marshal-zero attestation gate
-alike — and each refusal names the notch as the remedy.
+A fixture that walks an onboarding or freehold track *evolves* the tracked config it tests — driving hallmarks into nameplates, electing vessel anchors, setting regime fields — and commits each step so the next sees a clean tree.
+Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the "Fixture config-evolution console"), beside the read-side `rbtcee_tree_clean`.
+**When a fixture commits config, it goes through the console — never an ad-hoc `git add`/`git commit`.**
+`rbtcee_tree_clean` itself refuses every drive on a dirty tree — single-fixture, suite, and the marshal-zero attestation gate alike — and each refusal names the notch as the remedy.
 
-The console commits config in exactly three classes, each through its own
-scoped verb that derives its own paths from a class identifier and stages only
-those:
+The console commits config in exactly three classes, each through its own scoped verb that derives its own paths from a class identifier and stages only those:
 
 | Class | Identifier | Verb | Stages |
 |-------|-----------|------|--------|
@@ -123,32 +129,21 @@ those:
 | vessel | vessel dir(s) | `rbtcee_commit_vessels` / `rbtcee_commit_vessels_all` | `<vessel_dir>/rbrv.env` |
 | regime | `rbtcee_RegimeFile` tag(s) | `rbtcee_commit_regime` | `<moorings>/rbrd.env` / `<moorings>/rbrr.env` |
 
-The load-bearing property is **no free-form file list**. The only entry that
-takes an arbitrary path set, `rbtcee_commit_paths`, is private to the engine
-module; every public verb is class-typed. So a fixture is *structurally
-incapable* of sweeping a surprise edit — another officium's work, an operator's
-half-finished change — into its commit (the wrap-sweeps-everything hazard). A
-scoped `git status --porcelain -- <derived-paths>` runs first; if nothing in the
-class changed, the commit is a clean no-op, not an error.
+The load-bearing property is **no free-form file list**.
+The only entry that takes an arbitrary path set, `rbtcee_commit_paths`, is private to the engine module; every public verb is class-typed.
+So a fixture is *structurally incapable* of sweeping a surprise edit — another officium's work, an operator's half-finished change — into its commit (the wrap-sweeps-everything hazard).
+A scoped `git status --porcelain -- <derived-paths>` runs first; if nothing in the class changed, the commit is a clean no-op, not an error.
 
-**Config-zero** (`rbtcee_config_zero`) is the console's reset seam, for the
-marshal-zero family of in-place TRACKED config. Zeroing a field before an
-in-place write defeats the stale-value false-green — a silently-skipped write
-then leaves an obviously-empty value, not a passing stale one — and its
-fail-on-absent doubles as a schema-drift catch: a renamed field stops the run
-instead of writing nothing. It shares one validated core
-(`rbtcee_config_set_field`) with the vessel-env write; it is **one seam, never a
-per-field function farm**. Temp-vessel cases that construct known bytes need no
-zero call.
+**Config-zero** (`rbtcee_config_zero`) is the console's reset seam, for the marshal-zero family of in-place TRACKED config.
+Zeroing a field before an in-place write defeats the stale-value false-green — a silently-skipped write then leaves an obviously-empty value, not a passing stale one — and its fail-on-absent doubles as a schema-drift catch: a renamed field stops the run instead of writing nothing.
+It shares one validated core (`rbtcee_config_set_field`) with the vessel-env write; it is **one seam, never a per-field function farm**.
+Temp-vessel cases that construct known bytes need no zero call.
 
-**Dispersed sibling (not yet in the console).** The same validated
-field-rewrite still lives in `rbtcgf_replace_env_fields` (the regime multi-field
-rewrite). It is a migration candidate — fold it onto `rbtcee_config_set_field`
-when next in that code — left in place only to keep the console's introduction
-scoped. (The former `rbtcgo_drive_hallmark` nameplate-hallmark rewrite is gone:
-onboarding now invokes the real `rbw-nd` drive tabtarget, so that write lives in
-one bash home, `rbrn_drive`.) New fixture state-mutation helpers land in the
-console; they do not re-grow per module.
+**Dispersed sibling (not yet in the console).**
+The same validated field-rewrite still lives in `rbtcgf_replace_env_fields` (the regime multi-field rewrite).
+It is a migration candidate — fold it onto `rbtcee_config_set_field` when next in that code — left in place only to keep the console's introduction scoped.
+(The former `rbtcgo_drive_hallmark` nameplate-hallmark rewrite is gone: onboarding now invokes the real `rbw-nd` drive tabtarget, so that write lives in one bash home, `rbrn_drive`.)
+New fixture state-mutation helpers land in the console; they do not re-grow per module.
 
 ### Adding a New Test
 
@@ -181,4 +176,5 @@ console; they do not re-grow per module.
    ```
    tt/rbw-tf.FixtureRun.sh tadmor
    ```
-   Note: this charges and quenches internally. A crucible you charged manually from this same tree is recycled automatically; one charged from a *different* working tree refuses the charge and names its owner — quench it from its own tree, or eyes-open from here (`BURE_CONFIRM=skip tt/rbw-cQ.Quench.tadmor.sh`, which prints the owner as it proceeds).
+   Note: this charges and quenches internally.
+   A crucible you charged manually from this same tree is recycled automatically; one charged from a *different* working tree refuses the charge and names its owner — quench it from its own tree, or eyes-open from here (`BURE_CONFIRM=skip tt/rbw-cQ.Quench.tadmor.sh`, which prints the owner as it proceeds).
