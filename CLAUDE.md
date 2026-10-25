@@ -146,7 +146,6 @@ Never run fixtures in parallel — they share regime state and container namespa
 | `mcm`, `axl` | CMK (Concept Model Kit) |
 | `crg` | Config Regime |
 | `wrs` | Ward Realm Substrate |
-| `hm` | HMK (Hard-state Machine Kit) |
 | `vsl` | VSLK (Visual SlickEdit Local Kit) |
 
 For expanded prefix trees within each project, see **File Acronym Mappings** above.
