@@ -1524,7 +1524,7 @@ fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
 // Drives the build poll's mid-flight re-don — the don, then zrbfcb_redon_tick
 // (rbfcb_host.sh) judging its status — at the lapsed-sederunt branch,
 // deterministically and credless: RBRR_SECRETS_DIR is pointed at an empty
-// scratch dir after the regime enforces, so the sederunt cache resolves to
+// scratch dir between the regime's source and its kindle, so the sederunt cache resolves to
 // nothing under it, the don's sederunt
 // read misses before any network touch, and the tick must die with the
 // novate advisory. The furnish
@@ -1573,12 +1573,13 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          zbuv_kindle\n\
          zburd_kindle\n\
          source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         RBRR_SECRETS_DIR='{dir_p}/secrets-no-sederunt'\n\
+         mkdir -p \"${{RBRR_SECRETS_DIR}}\"\n\
          source \"${{PWD}}/{moorings}/rbrd.env\"\n\
          zrbrr_kindle\n\
          zrbrd_kindle\n\
          zrbrr_enforce\n\
          zrbrd_enforce\n\
-         RBRR_SECRETS_DIR='{dir_p}/secrets-no-sederunt'\n\
          zrbcc_kindle\n\
          zrbgc_kindle\n\
          zrbdc_kindle\n\
