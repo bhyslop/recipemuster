@@ -372,7 +372,7 @@ zrbob_kludge_currency_gate() {
   buc_bare "  Charge refuses rather than rebuilding: kludge rewrites the nameplate's"
   buc_bare "  hallmark, and charge requires a committed nameplate."
   buc_bare ""
-  buc_bare "  Rebuild the vessel and commit the pin it drives, then recharge:"
+  buc_bare "  Rebuild the vessel and commit the pin it mitres, then recharge:"
   buc_tabtarget "${z_colophon}" "${RBRN_MONIKER}"
   buc_bare ""
   buc_die_now "Stale kludge pin for vessel ${z_vessel}: ${z_hallmark}"
@@ -936,23 +936,23 @@ rbob_ifrit_sortie() {
 }
 
 ######################################################################
-# Kludge Bottle — build bottle vessel locally and drive hallmark into nameplate
+# Kludge Bottle — build bottle vessel locally and `mitre` hallmark into nameplate
 
 rbob_kludge_bottle() {
   zrbob_sentinel
   zrbfc0_sentinel
 
-  buc_doc_brief "Kludge Bottle vessel and drive hallmark into nameplate"
+  buc_doc_brief "Kludge Bottle vessel and mitre hallmark into nameplate"
   buc_doc_shown || return 0
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_BOTTLE_VESSEL})"
 
   BUZ_FOLIO="${RBRN_BOTTLE_VESSEL}" rbfk_kludge
 
-  # Read the hallmark the in-process build head just wrote to current/ and drive
+  # Read the hallmark the in-process build head just wrote to current/ and `mitre`
   # it express into this nameplate. Express, not chain: the build head ran in THIS
   # tabtarget, so its fact sits in BURD_OUTPUT_DIR, not the previous-dispatch chain
-  # a standalone drive reads — this is what keeps the local kludge one-shot.
+  # a standalone `mitre` reads — this is what keeps the local kludge one-shot.
   local z_hallmark=""
   z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
     || buc_die_now "Failed to read hallmark from kludge output"
@@ -964,20 +964,20 @@ rbob_kludge_bottle() {
 }
 
 ######################################################################
-# Kludge Sentry — build sentry vessel locally and drive hallmark into nameplate
+# Kludge Sentry — build sentry vessel locally and `mitre` hallmark into nameplate
 
 rbob_kludge_sentry() {
   zrbob_sentinel
   zrbfc0_sentinel
 
-  buc_doc_brief "Kludge Sentry vessel and drive hallmark into nameplate"
+  buc_doc_brief "Kludge Sentry vessel and mitre hallmark into nameplate"
   buc_doc_shown || return 0
 
   buc_step "Kludge: ${RBRN_MONIKER} (${RBRN_SENTRY_VESSEL})"
 
   BUZ_FOLIO="${RBRN_SENTRY_VESSEL}" rbfk_kludge
 
-  # Read the hallmark the in-process build head just wrote to current/ and drive
+  # Read the hallmark the in-process build head just wrote to current/ and `mitre`
   # it express into this nameplate (see rbob_kludge_bottle for the express-not-
   # chain rationale that keeps the local kludge one-shot).
   local z_hallmark=""

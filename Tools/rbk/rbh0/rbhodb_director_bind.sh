@@ -149,7 +149,7 @@ rbho_director_bind() {
   buh_e
   buh_line "  Alternative — if you completed ${RBHO_TRACK_FIRST_BUILD}, the"
   buh_line "  ${RBYC_CONJURED} ${RBYC_SENTRY} ${RBYC_HALLMARK} is already in your ${RBYC_DEPOT}."
-  buh_line "  Drive it into ${z_lk_pluml}'s ${RBYC_SENTRY} hallmark, pasting your"
+  buh_line "  Mitre it into ${z_lk_pluml}'s ${RBYC_SENTRY} hallmark, pasting your"
   buh_line "  ${RBYC_CONJURED} ${RBYC_SENTRY} ${RBYC_HALLMARK} as the last argument, then commit:"
   buh_e
   buh_tt "   " "${RBZ_MITRE_HALLMARK}" "" " ${z_moniker} sentry <your-conjured-sentry-hallmark>"

@@ -64,8 +64,8 @@ zrbz_kindle() {
   buz_enroll RBZ_CRUCIBLE_FIAT    "rbw-cf"  "${z_mod}" "rbob_fiat"         "imprint"  "Non-interactive exec in Pentacle container"
   buz_enroll RBZ_CRUCIBLE_BARK    "rbw-cb"  "${z_mod}" "rbob_bark"         "imprint"  "Non-interactive exec in Bottle container"
   buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"      "param1"   "Check whether the Crucible is charged (compose project has running containers)"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge Bottle vessel and drive hallmark into nameplate"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge Sentry vessel and drive hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge Bottle vessel and mitre hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge Sentry vessel and mitre hallmark into nameplate"
 
   # Depot — GCP project infrastructure (rbw-d, UPPER=mutates, lower=read)
   buz_group RBZ__GROUP_DEPOT      "rbw-d"   "Depot — GCP project infrastructure"
@@ -232,7 +232,7 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_NAMEPLATES        "rbw-rnl" "${z_mod}" "rbrn_list"    ""  "List all nameplates"
   buz_enroll RBZ_SURVEY_NAMEPLATES      "rbw-ni"  "${z_mod}" "rbrn_survey"  ""  "Survey nameplate status"
   buz_enroll RBZ_AUDIT_NAMEPLATES       "rbw-nv"  "${z_mod}" "rbrn_audit"   ""  "Validate all nameplates"
-  buz_enroll RBZ_MITRE_HALLMARK         "rbw-nm"  "${z_mod}" "rbrn_mitre"   "param1"  "Drive a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark])"
+  buz_enroll RBZ_MITRE_HALLMARK         "rbw-nm"  "${z_mod}" "rbrn_mitre"   "param1"  "Mitre a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark])"
 
   # Regime — config files (rbw-r)
   buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime — Config files"

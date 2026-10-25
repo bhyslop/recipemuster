@@ -136,13 +136,13 @@ readonly RBCC_verb_defrock="defrock"
 readonly RBCC_verb_enrobe="enrobe"
 readonly RBCC_verb_roster="roster"
 #
-#   Image/build lifecycle (anoint/drive/inscribe/kludge/ordain/yoke) — name the
+#   Image/build lifecycle (anoint/inscribe/kludge/`mitre`/ordain/yoke) — name the
 #   registry and build operations, homed here so the group has a single owner
 #   rather than being spelled across rbfd*/rbfl*/rbfk_/rbob_/rbrn_.
 readonly RBCC_verb_anoint="anoint"
-readonly RBCC_verb_mitre="drive"
 readonly RBCC_verb_inscribe="inscribe"
 readonly RBCC_verb_kludge="kludge"
+readonly RBCC_verb_mitre="mitre"
 readonly RBCC_verb_ordain="ordain"
 readonly RBCC_verb_yoke="yoke"
 

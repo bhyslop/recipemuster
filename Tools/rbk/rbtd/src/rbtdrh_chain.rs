@@ -16,11 +16,11 @@
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
 // RBTDRH — chaining-fact-band fixture: the band matrix for the durable-config
-// chain LINKS (feoff, yoke, anoint, drive) and the read-side consumers (summon,
+// chain LINKS (feoff, yoke, anoint, mitre) and the read-side consumers (summon,
 // plumb, augur, rekon), driven through the real tabtarget exec path.
 //
 // The chaining-fact discipline splits the value-forwarding verbs by role; only
-// feoff/anoint/yoke/drive write durable config from a resolved express-or-chain value,
+// feoff/anoint/yoke/mitre write durable config from a resolved express-or-chain value,
 // and a bad resolution (a wrong-kind touchmark, a broken chain) must be REJECTED
 // with the named precision band — never a bare nonzero, and never after a
 // destructive write. The band fires only at the RBK consumer (buc_reject in
@@ -117,10 +117,10 @@ const RBTCGH_VESSEL_RBRV: &str = "RBRV_IMAGE_1_ORIGIN=docker.io/library/debian:b
 // its rbrv.env untouched (the case asserts that byte-identity).
 const RBTCGH_GRAFT_VESSEL: &str = "rbev_graft_demo";
 
-// The drive's folio is a real tracked nameplate — the drive resolves the target
-// rbrn.env by MONIKER (never a path, unlike feoff's temp vessel), so it must drive
+// The mitre's folio is a real tracked nameplate — the mitre resolves the target
+// rbrn.env by MONIKER (never a path, unlike feoff's temp vessel), so it must address
 // a real nameplate under rbmm_moorings. The reject precedes the rewrite, so the
-// drive leaves its rbrn.env byte-identical (the case asserts that identity).
+// mitre leaves its rbrn.env byte-identical (the case asserts that identity).
 const RBTCGH_MITRE_NAMEPLATE: &str = "tadmor";
 
 // ── Harness ─────────────────────────────────────────────────
@@ -259,10 +259,10 @@ fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
     Ok(output.status.code().unwrap_or(-1))
 }
 
-/// Drive the rbw-nm nameplate-drive tabtarget against a REAL tracked nameplate (its
-/// folio) with an EMPTY BURV root and no express hallmark. The drive is the fourth
+/// Drive the rbw-nm nameplate-mitre tabtarget against a REAL tracked nameplate (its
+/// folio) with an EMPTY BURV root and no express hallmark. The mitre is the fourth
 /// durable-config LINK (it rewrites RBRN_{BOTTLE,SENTRY}_HALLMARK); with no express
-/// and no chained fact the express-or-chain resolve finds nothing and the drive
+/// and no chained fact the express-or-chain resolve finds nothing and the mitre
 /// rejects with the chaining band BEFORE the rbrn.env rewrite — the same reject-
 /// before-write shape that keeps the anoint negative write-free, so the tracked
 /// rbrn.env is never mutated (asserted by the case). The nameplate is addressed by
@@ -287,9 +287,9 @@ fn rbtcgh_drive_mitre(dir: &Path, nameplate: &str, field: &str) -> Result<i32, S
 
     let output = cmd
         .output()
-        .map_err(|e| format!("failed to run drive {}: {}", tt.display(), e))?;
-    let _ = std::fs::write(dir.join("drive-stdout.txt"), &output.stdout);
-    let _ = std::fs::write(dir.join("drive-stderr.txt"), &output.stderr);
+        .map_err(|e| format!("failed to run mitre {}: {}", tt.display(), e))?;
+    let _ = std::fs::write(dir.join("mitre-stdout.txt"), &output.stdout);
+    let _ = std::fs::write(dir.join("mitre-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
 }
 
@@ -522,12 +522,12 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
     rbtcee_Verdict::Pass
 }
 
-// ── drive case ──────────────────────────────────────────────
-// drive is the fourth durable-config LINK (it rewrites RBRN_{BOTTLE,SENTRY}_HALLMARK,
+// ── mitre case ──────────────────────────────────────────────
+// mitre is the fourth durable-config LINK (it rewrites RBRN_{BOTTLE,SENTRY}_HALLMARK,
 // the rbrn_regime sibling of feoff/yoke/anoint). It is express-or-chain like feoff,
 // but resolves the nameplate by MONIKER (never a path), so — like anoint — it cannot
-// use a temp target and drives the real tracked nameplate as its folio. With no
-// express and an empty BURV root the chain read fails and drive rejects with the band
+// use a temp target and takes the real tracked nameplate as its folio. With no
+// express and an empty BURV root the chain read fails and mitre rejects with the band
 // BEFORE the rbrn.env rewrite, so the tracked nameplate stays byte-identical.
 
 fn rbtcgh_mitre_broken_chain(dir: &Path) -> rbtcee_Verdict {
@@ -550,7 +550,7 @@ fn rbtcgh_mitre_broken_chain(dir: &Path) -> rbtcee_Verdict {
     };
     if code != RBTGEC_BAND_CHAIN {
         return rbtcee_Verdict::Fail(format!(
-            "drive broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
+            "mitre broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
             code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }

@@ -218,7 +218,7 @@ zrbrn_furnish() {
       source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
       ;;
     rbrn_mitre)
-      # Drive needs only the fact-name constants (rbgc) and the express-or-chain
+      # rbrn_mitre needs only the fact-name constants (rbgc) and the express-or-chain
       # footing (buf_fact) — not the google/GAR stack survey/audit pulls.
       source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
       source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
@@ -250,7 +250,7 @@ zrbrn_furnish() {
       ;;
     rbrn_mitre)
       # rbgc holds RBF_FACT_HALLMARK; it is standalone (pure readonly constants).
-      # The drive is rbrn's own, so rbrn kindles with no nameplate loaded.
+      # The `mitre` is rbrn's own, so rbrn kindles with no nameplate loaded.
       zrbgc_kindle
       zrbrn_kindle
       ;;
@@ -260,7 +260,7 @@ zrbrn_furnish() {
   # rbrn_mitre, which addresses a target nameplate by moniker and rewrites one
   # RBRN_*_HALLMARK line WITHOUT loading it (loading enforces the regime, which
   # would reject a nameplate whose hallmark field is still blank — the very state
-  # the drive fills; mirrors feoff, which never loads the vessel it rewrites).
+  # the `mitre` fills; mirrors feoff, which never loads the vessel it rewrites).
   if test -n "${BUZ_FOLIO:-}" && test "${z_command}" != "rbrn_mitre"; then
     local -r z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${BUZ_FOLIO}/${RBCC_rbrn_file}"
     test -f "${z_nameplate_file}" || buc_die_now "Nameplate not found: ${z_nameplate_file}"

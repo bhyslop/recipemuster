@@ -106,7 +106,7 @@ rbho_director_airgap() {
   buh_line "  2. Build a project-authored toolchain ${RBYC_VESSEL} ${RBYC_TETHERED}"
   buh_line "  3. Build the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the ${z_lk_forge} ${RBYC_HALLMARK}"
   buh_e
-  buh_line "Then drive the resulting ${RBYC_HALLMARK} into the ${z_lk_moriah}"
+  buh_line "Then mitre the resulting ${RBYC_HALLMARK} into the ${z_lk_moriah}"
   buh_line "${RBYC_NAMEPLATE} and run the same 34 containment attacks against"
   buh_line "it that you ran against ${z_lk_tadmor}."
   buh_e
@@ -266,8 +266,8 @@ rbho_director_airgap() {
   buh_e
   buh_code "   export ${RBYC_HANDBOOK_HALLMARK_NAME}=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
-  buh_line "Drive it into ${z_lk_moriah}'s ${RBYC_BOTTLE} hallmark, replacing the"
-  buh_line "PENDING-ordination placeholder — the drive writes the ${RBYC_RBRN} for you:"
+  buh_line "Mitre it into ${z_lk_moriah}'s ${RBYC_BOTTLE} hallmark, replacing the"
+  buh_line "PENDING-ordination placeholder — mitring writes the ${RBYC_RBRN} for you:"
   buh_e
   buh_tt "   " "${RBZ_MITRE_HALLMARK}" "" " ${z_moniker} bottle ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
