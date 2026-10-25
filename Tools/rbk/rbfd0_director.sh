@@ -29,16 +29,16 @@ set -euo pipefail
 test -z "${ZRBFD0_SOURCED:-}" || buc_die_now "Module rbfd multiply sourced - check sourcing hierarchy"
 ZRBFD0_SOURCED=1
 
+# Tinder constants
+# Step id of the hallmark-echoing conjure step — single mint shared by the
+# step defs and the consistency assert, which locates its output slot by id
+readonly RBFD0_hallmark_echo_step_id="derive-tag-base"
+
 # Source shared Foundry Core module
 source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
 
 # Source Foundry Verify module (ordain cross-module calls: rbfvv_vouch, zrbfvm_graft_metadata_submit)
 source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh" || buc_die_now "Failed to source rbfv0_verify.sh"
-
-# Tinder constants
-# Step id of the hallmark-echoing conjure step — single mint shared by the
-# step defs and the consistency assert, which locates its output slot by id
-readonly RBFD0_hallmark_echo_step_id="derive-tag-base"
 
 # Director body clusters, sourced once here at the single rbfd entry — all
 # guard-free: no cluster is sourced by a second entry.
