@@ -49,16 +49,16 @@ Once per station, before the first lap.
 ## <a id="TheLaps"></a>The laps
 
 1. Run `tt/rbvw-e.Essai.sh`.
-   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [Regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [Rig](#Rig).
+   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [Regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [Temenos](#Temenos).
    A [Regulus](#Regulus) already standing there is first moved aside by [Sepose](#Sepose).
 2. Read its verdict and the base inventory it prints.
    On any red, repair on the maintainer tree, commit and push, and run it again.
 
 ### <a id="StrangerColdwalk"></a>The stranger coldwalk
 
-Every green lap ends with a [Rig](#Rig) waiting to be walked.
+Every green lap ends with a [Temenos](#Temenos) waiting to be walked.
 Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
-Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [Rig](#Rig) aside.
+Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [Temenos](#Temenos) aside.
 A finding means a repair and another lap.
 A lap whose battery is green and whose coldwalk finds nothing has run dry, and only then do the three steps below follow.
 
@@ -205,7 +205,7 @@ The veiled application that conducts the release ceremony through four commands;
 
 <a id="Essai"></a>**Essai**
 
-The repair command: gates, cuts the [Regulus](#Regulus), proves it and stands up a coldwalk [Rig](#Rig), with no remote act.
+The repair command: gates, cuts the [Regulus](#Regulus), proves it and stands up a coldwalk [Temenos](#Temenos), with no remote act.
 
 <a id="Lap"></a>**Lap**
 
@@ -229,9 +229,9 @@ The showing command: the file-list review, the [Kerygma](#Kerygma) and promotion
 
 <a id="Harbinger"></a>**Harbinger**
 
-The command that stands up a stranger [Rig](#Rig) against promoted public main.
+The command that stands up a stranger [Temenos](#Temenos) against promoted public main.
 
-<a id="Rig"></a>**Rig**
+<a id="Temenos"></a>**Temenos**
 
 A guarded, disposable clone a stranger walk runs in; it cannot push.
 
