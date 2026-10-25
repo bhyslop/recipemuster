@@ -26,6 +26,7 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 zrbho_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
@@ -37,7 +38,6 @@ zrbho_furnish() {
   local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die_now "Failed to source buh_handbook.sh"
-  source "${BURD_BUK_DIR}/buym_yelp.sh"             || buc_die_now "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
   source "${BURD_BUK_DIR}/buv_validation.sh"         || buc_die_now "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die_now "Failed to source buz_zipper.sh"
