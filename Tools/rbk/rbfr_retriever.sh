@@ -197,7 +197,7 @@ rbfr_summon() {
   fi
 
   local z_logout_status=0
-  rbgo_docker_logout "${ZRBFC0_REGISTRY_HOST}" || z_logout_status=$?
+  rbgo_docker_logout_predicate "${ZRBFC0_REGISTRY_HOST}" || z_logout_status=$?
   test "${z_pull_image_status}" -eq 0 || buc_die_now "Failed to pull image ark (status ${z_pull_image_status})"
   test "${z_pull_about_status}" -eq 0 || buc_die_now "Failed to pull about ark (status ${z_pull_about_status})"
   test "${z_pull_vouch_status}" -eq 0 || buc_die_now "Failed to pull vouch ark (status ${z_pull_vouch_status})"

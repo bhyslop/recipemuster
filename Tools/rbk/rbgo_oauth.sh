@@ -193,14 +193,15 @@ rbgo_docker_login() {
       local -r z_config_tmp="${z_config_file}.tmp"
       local -r z_jq_stderr_file="${ZRBGO_PREFIX}docker_config_jq_stderr.txt"
       local -r z_config_filter='del(.credsStore) | del(.credHelpers[$h]) | .auths[$h] = {auth: env.zSECRET_docker_auth}'
-      local -a z_jq_args
       if test -f "${z_config_file}"; then
-        z_jq_args=(--arg h "${z_host}" "${z_config_filter}" "${z_config_file}")
+        zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" jq "${z_config_filter}" \
+            --arg h "${z_host}" "${z_config_file}" 2>"${z_jq_stderr_file}") \
+          || buc_die_now "Cannot compose the docker config for the credential-store bend — see ${z_jq_stderr_file}"
       else
-        z_jq_args=(-n --arg h "${z_host}" "${z_config_filter}")
+        zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" jq -n "${z_config_filter}" \
+            --arg h "${z_host}" 2>"${z_jq_stderr_file}") \
+          || buc_die_now "Cannot compose the docker config for the credential-store bend — see ${z_jq_stderr_file}"
       fi
-      zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" jq "${z_jq_args[@]}" 2>"${z_jq_stderr_file}") \
-        || buc_die_now "Cannot compose the docker config for the credential-store bend — see ${z_jq_stderr_file}"
       test -n "${zSECRET_config}" || buc_die_now "Composed an empty docker config for the credential-store bend — see ${z_jq_stderr_file}"
       (
         umask 077 || buc_die_now "Cannot set umask for the credential-store bend"
@@ -229,7 +230,7 @@ rbgo_docker_login() {
 # registry and returns 1: a caller on the success path dies on it, a caller on a
 # path already dying warns and lets its original die stand.
 # Args: registry_host
-rbgo_docker_logout() {
+rbgo_docker_logout_predicate() {
   zrbgo_sentinel
 
   local -r z_host="${1:-}"
@@ -238,7 +239,7 @@ rbgo_docker_logout() {
   buc_doc_param "registry_host" "Registry host to remove the stored credential for"
   buc_doc_shown || return 0
 
-  test -n "${z_host}" || buc_die_now "rbgo_docker_logout: registry host required"
+  test -n "${z_host}" || return 1
 
   local -r z_stdout_file="${ZRBGO_PREFIX}docker_logout_stdout.txt"
   local -r z_stderr_file="${ZRBGO_PREFIX}docker_logout_stderr.txt"

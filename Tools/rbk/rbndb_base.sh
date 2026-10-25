@@ -120,9 +120,9 @@ zrbndb_docker_login() {
 # station. Output goes to files under the module's temp prefix. A failure warns
 # naming the registry and returns 1: a caller on the success path dies on it, a
 # caller on a path already dying warns and lets its original die stand. The
-# rbgo_docker_logout twin serves the foundry cluster, which this cluster does
+# rbgo_docker_logout_predicate twin serves the foundry cluster, which this cluster does
 # not reach.
-zrbndb_docker_logout() {
+zrbndb_docker_logout_predicate() {
   zrbndb_sentinel
 
   local -r z_stdout_file="${ZRBNDB_LOGOUT_PREFIX}stdout.txt"
@@ -143,7 +143,7 @@ zrbndb_logged_out_die() {
   local -r z_message="${1:-}"
 
   # Non-fatal by grant: cleanup on a path that is already dying
-  zrbndb_docker_logout \
+  zrbndb_docker_logout_predicate \
     || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
   buc_die_now "${z_message}"
 }
@@ -271,7 +271,7 @@ rbndb_inscribe() {
   buc_log_args "Pre-push existence guard via docker manifest inspect"
   if docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" > /dev/null 2>"${z_manifest_stderr}"; then
     # Non-fatal by grant: cleanup on a path that is already dying
-    zrbndb_docker_logout \
+    zrbndb_docker_logout_predicate \
       || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
     buc_warn "Tripwire image already inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
     buc_info "RBRD is depot-time-immutable. To refresh the tripwire, the depot"
@@ -286,7 +286,7 @@ rbndb_inscribe() {
   docker push "${ZRBNDB_TRIPWIRE_IMAGE}" \
       > "${z_push_stdout}" 2>"${z_push_stderr}" || z_push_status=$?
   local z_logout_status=0
-  zrbndb_docker_logout || z_logout_status=$?
+  zrbndb_docker_logout_predicate || z_logout_status=$?
   test "${z_push_status}" -eq 0 \
     || buc_die_now "docker push failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_push_stderr}"
   test "${z_logout_status}" -eq 0 \
@@ -331,7 +331,7 @@ rbndb_check() {
   test "${z_manifest_rc}" = "0" \
     || {
       # Non-fatal by grant: cleanup on a path that is already dying
-      zrbndb_docker_logout \
+      zrbndb_docker_logout_predicate \
         || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
@@ -354,7 +354,7 @@ rbndb_check() {
   local z_pull_rc
   z_pull_rc=$(<"${z_pull_status_file}") || zrbndb_logged_out_die "Failed to read: ${z_pull_status_file}"
   local z_logout_status=0
-  zrbndb_docker_logout || z_logout_status=$?
+  zrbndb_docker_logout_predicate || z_logout_status=$?
   test "${z_pull_rc}" = "0" \
     || buc_die_now "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} (status ${z_pull_rc}) — see ${z_pull_stderr}"
   test "${z_logout_status}" -eq 0 \

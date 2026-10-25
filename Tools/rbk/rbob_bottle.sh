@@ -411,7 +411,7 @@ zrbob_summon_full_hallmark() {
   local z_pull_vouch_status=0
   docker pull "${z_vouch_ref}" || z_pull_vouch_status=$?
   local z_logout_status=0
-  rbgo_docker_logout "${z_registry_host}" || z_logout_status=$?
+  rbgo_docker_logout_predicate "${z_registry_host}" || z_logout_status=$?
   test "${z_pull_image_status}" -eq 0 \
     || buc_die_now "Failed to pull image ark: ${z_image_ref} (status ${z_pull_image_status})"
   test "${z_pull_about_status}" -eq 0 \
@@ -453,7 +453,7 @@ zrbob_vouch_gate_and_summon() {
   local z_pull_status=0
   docker pull "${z_image_ref}" || z_pull_status=$?
   local z_logout_status=0
-  rbgo_docker_logout "${z_registry_host}" || z_logout_status=$?
+  rbgo_docker_logout_predicate "${z_registry_host}" || z_logout_status=$?
   test "${z_pull_status}" -eq 0 \
     || buc_die_now "Failed to pull image: ${z_image_ref} (status ${z_pull_status})"
   test "${z_logout_status}" -eq 0 \
