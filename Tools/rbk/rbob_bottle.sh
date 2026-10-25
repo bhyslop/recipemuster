@@ -419,7 +419,7 @@ zrbob_summon_full_hallmark() {
   test "${z_pull_vouch_status}" -eq 0 \
     || buc_die_now "Failed to pull vouch ark: ${z_vouch_ref} (status ${z_pull_vouch_status})"
   test "${z_logout_status}" -eq 0 \
-    || buc_die_now "Docker logout from ${z_registry_host} failed — the credential may still stand in docker's store"
+    || buc_die_now "Docker logout from ${z_registry_host} failed — the credential may still stand in docker's store — see the transcript"
 
   buc_info "Auto-summoned: ${z_hallmark}"
 }
@@ -457,7 +457,7 @@ zrbob_vouch_gate_and_summon() {
   test "${z_pull_status}" -eq 0 \
     || buc_die_now "Failed to pull image: ${z_image_ref} (status ${z_pull_status})"
   test "${z_logout_status}" -eq 0 \
-    || buc_die_now "Docker logout from ${z_registry_host} failed — the credential may still stand in docker's store"
+    || buc_die_now "Docker logout from ${z_registry_host} failed — the credential may still stand in docker's store — see the transcript"
 
   buc_info "Auto-summoned: ${z_image_ref}"
 }

@@ -201,7 +201,7 @@ rbfr_summon() {
   test "${z_pull_image_status}" -eq 0 || buc_die_now "Failed to pull image ark (status ${z_pull_image_status})"
   test "${z_pull_about_status}" -eq 0 || buc_die_now "Failed to pull about ark (status ${z_pull_about_status})"
   test "${z_pull_vouch_status}" -eq 0 || buc_die_now "Failed to pull vouch ark (status ${z_pull_vouch_status})"
-  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store"
+  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
 
   # Display results
   echo "" || buc_die_now

@@ -62,7 +62,7 @@ rbflw_wrest() {
   local z_logout_status=0
   rbgo_docker_logout_predicate "${ZRBFC0_REGISTRY_HOST}" || z_logout_status=$?
   test "${z_pull_status}" -eq 0 || buc_die_now "Image pull failed (status ${z_pull_status})"
-  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store"
+  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
 
   local z_image_id
   local -r z_inspect_stderr="${ZRBFL0_INSPECT_PREFIX}wrest_stderr.txt"

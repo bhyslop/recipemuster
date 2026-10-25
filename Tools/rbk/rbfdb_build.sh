@@ -599,7 +599,7 @@ zrbfdb_push_build_context() {
   local z_logout_status=0
   rbgo_docker_logout_predicate "${z_gar_host}" || z_logout_status=$?
   test "${z_push_status}" -eq 0 || buc_die_now "Failed to push context image to GAR (status ${z_push_status})"
-  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${z_gar_host} failed — the credential may still stand in docker's store"
+  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${z_gar_host} failed — the credential may still stand in docker's store — see the transcript"
 
   echo "${z_context_tag}" > "${z_context_tag_file}" \
     || buc_die_now "Failed to persist context image tag"

@@ -117,11 +117,11 @@ zrbndb_docker_login() {
 # Remove the docker client's stored credential for the depot's GAR registry
 # once the push or pull that needed it has finished: the token lives an hour,
 # the operation minutes, and docker's store is shared by every process on the
-# station. Output goes to files under the module's temp prefix. A failure warns
-# naming the registry and returns 1: a caller on the success path dies on it, a
+# station. Output goes to files under the module's temp prefix. A failure is
+# logged naming the registry and returns 1: a caller on the success path dies on it, a
 # caller on a path already dying warns and lets its original die stand. The
-# rbgo_docker_logout_predicate twin serves the foundry cluster, which this cluster does
-# not reach.
+# rbgo_docker_logout_predicate twin serves the foundry cluster, which this
+# cluster does not reach.
 zrbndb_docker_logout_predicate() {
   zrbndb_sentinel
 
@@ -129,7 +129,7 @@ zrbndb_docker_logout_predicate() {
   local -r z_stderr_file="${ZRBNDB_LOGOUT_PREFIX}stderr.txt"
 
   docker logout "${ZRBNDB_REGISTRY_HOST}" > "${z_stdout_file}" 2>"${z_stderr_file}" || {
-    buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
+    buc_log_args "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
     return 1
   }
 }
@@ -144,7 +144,7 @@ zrbndb_logged_out_die() {
 
   # Non-fatal by grant: cleanup on a path that is already dying
   zrbndb_docker_logout_predicate \
-    || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
+    || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store — see the transcript"
   buc_die_now "${z_message}"
 }
 
@@ -272,7 +272,7 @@ rbndb_inscribe() {
   if docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" > /dev/null 2>"${z_manifest_stderr}"; then
     # Non-fatal by grant: cleanup on a path that is already dying
     zrbndb_docker_logout_predicate \
-      || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
+      || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store — see the transcript"
     buc_warn "Tripwire image already inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
     buc_info "RBRD is depot-time-immutable. To refresh the tripwire, the depot"
     buc_info "must be unmade and relevied:"
@@ -290,7 +290,7 @@ rbndb_inscribe() {
   test "${z_push_status}" -eq 0 \
     || buc_die_now "docker push failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_push_stderr}"
   test "${z_logout_status}" -eq 0 \
-    || buc_die_now "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — the credential may still stand in docker's store"
+    || buc_die_now "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
 
   buc_success "Tripwire inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
 }
@@ -332,7 +332,7 @@ rbndb_check() {
     || {
       # Non-fatal by grant: cleanup on a path that is already dying
       zrbndb_docker_logout_predicate \
-        || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
+        || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store — see the transcript"
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
       buc_info "A live depot missing its tripwire (levy-tail refusal, or the"
@@ -358,7 +358,7 @@ rbndb_check() {
   test "${z_pull_rc}" = "0" \
     || buc_die_now "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} (status ${z_pull_rc}) — see ${z_pull_stderr}"
   test "${z_logout_status}" -eq 0 \
-    || buc_die_now "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — the credential may still stand in docker's store"
+    || buc_die_now "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
 
   buc_log_args "Create temp container to extract /${RBCC_rbrd_basename}"
   # The tripwire is FROM-scratch (no CMD/ENTRYPOINT); the Linux daemon rejects

@@ -192,14 +192,12 @@ rbgo_docker_login() {
       local -r z_config_file="${HOME}/.docker/config.json"
       local -r z_config_tmp="${z_config_file}.tmp"
       local -r z_jq_stderr_file="${ZRBGO_PREFIX}docker_config_jq_stderr.txt"
-      local -r z_config_filter='del(.credsStore) | del(.credHelpers[$h]) | .auths[$h] = {auth: env.zSECRET_docker_auth}'
+      local -r z_config_filter='del(.credsStore) | del(.credHelpers[env.RBGO_docker_host]) | .auths[env.RBGO_docker_host] = {auth: env.zSECRET_docker_auth}'
       if test -f "${z_config_file}"; then
-        zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" jq "${z_config_filter}" \
-            --arg h "${z_host}" "${z_config_file}" 2>"${z_jq_stderr_file}") \
+        zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" RBGO_docker_host="${z_host}" jq "${z_config_filter}" "${z_config_file}" 2>"${z_jq_stderr_file}") \
           || buc_die_now "Cannot compose the docker config for the credential-store bend — see ${z_jq_stderr_file}"
       else
-        zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" jq -n "${z_config_filter}" \
-            --arg h "${z_host}" 2>"${z_jq_stderr_file}") \
+        zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" RBGO_docker_host="${z_host}" jq -n "${z_config_filter}" 2>"${z_jq_stderr_file}") \
           || buc_die_now "Cannot compose the docker config for the credential-store bend — see ${z_jq_stderr_file}"
       fi
       test -n "${zSECRET_config}" || buc_die_now "Composed an empty docker config for the credential-store bend — see ${z_jq_stderr_file}"
@@ -226,7 +224,7 @@ rbgo_docker_login() {
 # Remove the docker client's stored credential for a registry once the push or
 # pull that needed it has finished: the token lives an hour, the operation
 # minutes, and docker's store is shared by every process on the station. Output
-# goes to files under the module prefix. A failure warns here naming the
+# goes to files under the module prefix. A failure is logged here naming the
 # registry and returns 1: a caller on the success path dies on it, a caller on a
 # path already dying warns and lets its original die stand.
 # Args: registry_host
@@ -245,7 +243,7 @@ rbgo_docker_logout_predicate() {
   local -r z_stderr_file="${ZRBGO_PREFIX}docker_logout_stderr.txt"
 
   docker logout "${z_host}" > "${z_stdout_file}" 2>"${z_stderr_file}" || {
-    buc_warn "Docker logout from ${z_host} failed — see ${z_stderr_file}"
+    buc_log_args "Docker logout from ${z_host} failed — see ${z_stderr_file}"
     return 1
   }
 }
