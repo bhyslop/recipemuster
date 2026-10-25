@@ -146,6 +146,24 @@ fn rbtthc_multiline_array_literal() {
 }
 
 #[test]
+fn rbtthc_multiline_array_literal_under_local_r() {
+    let src = "local -r ARGS=(\n  alpha beta\n  gamma\n)\nmything";
+    assert_eq!(zrbtthc_cmds(src), vec!["local", "mything"]);
+}
+
+#[test]
+fn rbtthc_multiline_array_literal_under_readonly() {
+    let src = "readonly ARGS=(\n  alpha beta\n  gamma\n)\nmything";
+    assert_eq!(zrbtthc_cmds(src), vec!["readonly", "mything"]);
+}
+
+#[test]
+fn rbtthc_multiline_array_literal_under_declare() {
+    let src = "declare -a ARGS=(\n  alpha beta\n  gamma\n)\nmything";
+    assert_eq!(zrbtthc_cmds(src), vec!["declare", "mything"]);
+}
+
+#[test]
 fn rbtthc_line_numbers_tracked() {
     let got = zrbtchb_command_words("one\ntwo\nthree");
     assert_eq!(got, vec![
