@@ -65,6 +65,7 @@ zrbndb_kindle() {
   # Per-command temp prefixes (forensic-preserving — files persist after run)
   readonly ZRBNDB_INSCRIBE_PREFIX="${BURD_TEMP_DIR}/rbndb_inscribe_"
   readonly ZRBNDB_CHECK_PREFIX="${BURD_TEMP_DIR}/rbndb_check_"
+  readonly ZRBNDB_LOGOUT_PREFIX="${BURD_TEMP_DIR}/rbndb_logout_"
 
   readonly ZRBNDB_KINDLED=1
 }
@@ -113,6 +114,40 @@ zrbndb_docker_login() {
   done
 }
 
+# Remove the docker client's stored credential for the depot's GAR registry
+# once the push or pull that needed it has finished: the token lives an hour,
+# the operation minutes, and docker's store is shared by every process on the
+# station. Output goes to files under the module's temp prefix. A failure warns
+# naming the registry and returns 1: a caller on the success path dies on it, a
+# caller on a path already dying warns and lets its original die stand. The
+# rbgo_docker_logout twin serves the foundry cluster, which this cluster does
+# not reach.
+zrbndb_docker_logout() {
+  zrbndb_sentinel
+
+  local -r z_stdout_file="${ZRBNDB_LOGOUT_PREFIX}stdout.txt"
+  local -r z_stderr_file="${ZRBNDB_LOGOUT_PREFIX}stderr.txt"
+
+  docker logout "${ZRBNDB_REGISTRY_HOST}" > "${z_stdout_file}" 2>"${z_stderr_file}" || {
+    buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — see ${z_stderr_file}"
+    return 1
+  }
+}
+
+# Die on a path that stands inside a login window: the logout runs first, a
+# failure of its own only warns, and the original failure stands.
+# Args: message
+zrbndb_logged_out_die() {
+  zrbndb_sentinel
+
+  local -r z_message="${1:-}"
+
+  # Non-fatal by grant: cleanup on a path that is already dying
+  zrbndb_docker_logout \
+    || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
+  buc_die_now "${z_message}"
+}
+
 # Run a host-docker registry read (manifest inspect, pull) with bounded
 # retry on the same moby#44350 premature-timeout transient login wraps
 # above — RBr_5b8 (signature) / RBr_2f8 (membrane). The docker client's
@@ -126,6 +161,8 @@ zrbndb_docker_login() {
 # misdiagnose a network timeout as the caller's condition (rbndb_check's
 # absent-tripwire path prescribes standalone re-inscription; that must
 # never fire on a timeout).
+# Every die here stands inside the caller's login window, so each takes the
+# dying-path logout first (zrbndb_logged_out_die).
 # Args: status_file stdout_file stderr_file command...
 zrbndb_registry_read() {
   zrbndb_sentinel
@@ -133,10 +170,10 @@ zrbndb_registry_read() {
   local -r z_status_file="${1:-}"
   local -r z_stdout_file="${2:-}"
   local -r z_stderr_file="${3:-}"
-  test -n "${z_status_file}" || buc_die_now "zrbndb_registry_read: status_file required"
-  test -n "${z_stdout_file}" || buc_die_now "zrbndb_registry_read: stdout_file required"
-  test -n "${z_stderr_file}" || buc_die_now "zrbndb_registry_read: stderr_file required"
-  shift 3 || buc_die_now "zrbndb_registry_read: status file, stdout file, stderr file and command required"
+  test -n "${z_status_file}" || zrbndb_logged_out_die "zrbndb_registry_read: status_file required"
+  test -n "${z_stdout_file}" || zrbndb_logged_out_die "zrbndb_registry_read: stdout_file required"
+  test -n "${z_stderr_file}" || zrbndb_logged_out_die "zrbndb_registry_read: stderr_file required"
+  shift 3 || zrbndb_logged_out_die "zrbndb_registry_read: status file, stdout file, stderr file and command required"
 
   local z_attempt=0
   local z_rc=0
@@ -148,7 +185,7 @@ zrbndb_registry_read() {
     "$@" > "${z_stdout_file}" 2>"${z_stderr_file}" || z_rc=$?
 
     if test "${z_rc}" -eq 0; then
-      printf '%s\n' "${z_rc}" > "${z_status_file}" || buc_die_now "Failed to write: ${z_status_file}"
+      printf '%s\n' "${z_rc}" > "${z_status_file}" || zrbndb_logged_out_die "Failed to write: ${z_status_file}"
       return 0
     fi
 
@@ -156,19 +193,19 @@ zrbndb_registry_read() {
     local z_stderr_content
     z_stderr_content=$(<"${z_stderr_file}") || z_stderr_content_status=$?
     if test "${z_stderr_content_status}" -ne 0; then
-      printf '%s\n' "${z_rc}" > "${z_status_file}" || buc_die_now "Failed to write: ${z_status_file}"
+      printf '%s\n' "${z_rc}" > "${z_status_file}" || zrbndb_logged_out_die "Failed to write: ${z_status_file}"
       return 0
     fi
     if [[ "${z_stderr_content}" != *"${RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE}"* ]]; then
-      printf '%s\n' "${z_rc}" > "${z_status_file}" || buc_die_now "Failed to write: ${z_status_file}"
+      printf '%s\n' "${z_rc}" > "${z_status_file}" || zrbndb_logged_out_die "Failed to write: ${z_status_file}"
       return 0
     fi
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
-      || buc_die_now "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
+      || zrbndb_logged_out_die "${1} registry read failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (transient daemon->registry timeout, moby#44350) — see ${z_stderr_file}"
 
     buc_warn "Registry read transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
-    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}" || buc_die_now "Sleep failed before registry read retry"
+    sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}" || zrbndb_logged_out_die "Sleep failed before registry read retry"
   done
 }
 
@@ -206,18 +243,7 @@ rbndb_inscribe() {
   buc_step "Inscribe RBRD tripwire image to GAR"
   buc_log_args "Target: ${ZRBNDB_TRIPWIRE_IMAGE}"
 
-  zrbndb_docker_login "${zSECRET_token}" "${z_login_stderr}"
-
-  buc_log_args "Pre-push existence guard via docker manifest inspect"
-  if docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" > /dev/null 2>"${z_manifest_stderr}"; then
-    buc_warn "Tripwire image already inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
-    buc_info "RBRD is depot-time-immutable. To refresh the tripwire, the depot"
-    buc_info "must be unmade and relevied:"
-    buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
-    buc_info "  rbw-dL                  # relevy with new rbrd.env"
-    buc_die_now "Cannot inscribe over existing tripwire (would mask drift)"
-  fi
-
+  # The local build needs no credential, so it stands ahead of the login
   # Pin the canonical build-runner platform. The image is FROM-scratch data
   # (rbrd.env only, never executed), so its architecture is semantically
   # irrelevant — but docker's manifest selection on pull demands a platform
@@ -240,10 +266,31 @@ rbndb_inscribe() {
       > "${z_build_stdout}" 2>"${z_build_stderr}" \
     || buc_die_now "docker build failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_build_stderr}"
 
+  zrbndb_docker_login "${zSECRET_token}" "${z_login_stderr}"
+
+  buc_log_args "Pre-push existence guard via docker manifest inspect"
+  if docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}" > /dev/null 2>"${z_manifest_stderr}"; then
+    # Non-fatal by grant: cleanup on a path that is already dying
+    zrbndb_docker_logout \
+      || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
+    buc_warn "Tripwire image already inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
+    buc_info "RBRD is depot-time-immutable. To refresh the tripwire, the depot"
+    buc_info "must be unmade and relevied:"
+    buc_info "  rbw-dU \$(rbw-dl)        # unmake the depot"
+    buc_info "  rbw-dL                  # relevy with new rbrd.env"
+    buc_die_now "Cannot inscribe over existing tripwire (would mask drift)"
+  fi
+
   buc_log_args "Push tripwire image to GAR"
+  local z_push_status=0
   docker push "${ZRBNDB_TRIPWIRE_IMAGE}" \
-      > "${z_push_stdout}" 2>"${z_push_stderr}" \
+      > "${z_push_stdout}" 2>"${z_push_stderr}" || z_push_status=$?
+  local z_logout_status=0
+  zrbndb_docker_logout || z_logout_status=$?
+  test "${z_push_status}" -eq 0 \
     || buc_die_now "docker push failed for ${ZRBNDB_TRIPWIRE_IMAGE} — see ${z_push_stderr}"
+  test "${z_logout_status}" -eq 0 \
+    || buc_die_now "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — the credential may still stand in docker's store"
 
   buc_success "Tripwire inscribed: ${ZRBNDB_TRIPWIRE_IMAGE}"
 }
@@ -280,9 +327,12 @@ rbndb_check() {
   zrbndb_registry_read "${z_manifest_status_file}" /dev/null "${z_manifest_stderr}" \
       docker manifest inspect "${ZRBNDB_TRIPWIRE_IMAGE}"
   local z_manifest_rc
-  z_manifest_rc=$(<"${z_manifest_status_file}") || buc_die_now "Failed to read: ${z_manifest_status_file}"
+  z_manifest_rc=$(<"${z_manifest_status_file}") || zrbndb_logged_out_die "Failed to read: ${z_manifest_status_file}"
   test "${z_manifest_rc}" = "0" \
     || {
+      # Non-fatal by grant: cleanup on a path that is already dying
+      zrbndb_docker_logout \
+        || buc_warn "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed on a path already dying — the credential may still stand in docker's store"
       buc_warn "Tripwire image absent or unreachable: ${ZRBNDB_TRIPWIRE_IMAGE}"
       buc_info "Manifest-inspect stderr: ${z_manifest_stderr}"
       buc_info "A live depot missing its tripwire (levy-tail refusal, or the"
@@ -302,9 +352,13 @@ rbndb_check() {
   zrbndb_registry_read "${z_pull_status_file}" "${z_pull_stdout}" "${z_pull_stderr}" \
       docker pull --platform "${RBGC_BUILD_RUNNER_PLATFORM}" "${ZRBNDB_TRIPWIRE_IMAGE}"
   local z_pull_rc
-  z_pull_rc=$(<"${z_pull_status_file}") || buc_die_now "Failed to read: ${z_pull_status_file}"
+  z_pull_rc=$(<"${z_pull_status_file}") || zrbndb_logged_out_die "Failed to read: ${z_pull_status_file}"
+  local z_logout_status=0
+  zrbndb_docker_logout || z_logout_status=$?
   test "${z_pull_rc}" = "0" \
     || buc_die_now "docker pull failed for ${ZRBNDB_TRIPWIRE_IMAGE} (status ${z_pull_rc}) — see ${z_pull_stderr}"
+  test "${z_logout_status}" -eq 0 \
+    || buc_die_now "Docker logout from ${ZRBNDB_REGISTRY_HOST} failed — the credential may still stand in docker's store"
 
   buc_log_args "Create temp container to extract /${RBCC_rbrd_basename}"
   # The tripwire is FROM-scratch (no CMD/ENTRYPOINT); the Linux daemon rejects

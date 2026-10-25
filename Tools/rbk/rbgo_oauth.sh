@@ -129,9 +129,12 @@ rbgo_curl_status_is_transient_predicate() {
 # makes a credential-store write into docker's store, which is docker's own — a
 # foreign tool's store written by no governed file save as that write — at
 # ${HOME}/.docker/config.json (the `auths` map, the form WSL uses) and returns
-# success. The write is composed in memory, placed under umask 077 by rename,
-# and replaces the whole file. The caller's `docker push` reads that credential
-# from the file, so the push completes without ever touching the Windows vault.
+# success. The write is composed in memory by merging this host's `auths` entry
+# into the existing config (every other key and registry entry kept; `credsStore`
+# and this host's own `credHelpers` entry dropped, since either would route
+# retrieval to a helper instead of the file), placed under umask 077 by rename.
+# The caller's `docker push` reads that credential from the file, so the push
+# completes without ever touching the Windows vault.
 # Args: token registry_host
 rbgo_docker_login() {
   zrbgo_sentinel
@@ -173,8 +176,10 @@ rbgo_docker_login() {
     # (verified — the CLI still detects wincred). Auth already succeeded, so
     # make the credential-store write into docker's own store ourselves — the
     # on-disk `auths` form WSL uses and `docker push` reads directly — and treat
-    # login as done. credsStore is intentionally omitted so retrieval reads the
-    # file.
+    # login as done. The merge drops credsStore and this host's credHelpers
+    # entry so retrieval reads the file, and keeps everything else docker holds.
+    # A config jq cannot parse dies here, before any write, leaving the file as
+    # it stood.
     # A real auth failure emits "unauthorized", never matches, and falls through
     # to the surveyed-transient / fail-fast handling below.
     z_stderr_text=$(<"${z_stderr_file}") || buc_die_now "Failed to read: ${z_stderr_file}"
@@ -182,11 +187,21 @@ rbgo_docker_login() {
       buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); making a credential-store write of the authenticated credential into docker's base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
       zSECRET_auth_b64=$(rbgo_base64_encode_string_capture oauth2accesstoken "${zSECRET_token}") \
         || buc_die_now "Cannot base64-encode the docker credential for the file-store bend"
-      zSECRET_config='{"auths":{"'"${z_host}"'":{"auth":"'"${zSECRET_auth_b64}"'"}}}'
       mkdir -p "${HOME}/.docker" \
         || buc_die_now "Cannot create ${HOME}/.docker for the credential-store bend"
       local -r z_config_file="${HOME}/.docker/config.json"
       local -r z_config_tmp="${z_config_file}.tmp"
+      local -r z_jq_stderr_file="${ZRBGO_PREFIX}docker_config_jq_stderr.txt"
+      local -r z_config_filter='del(.credsStore) | del(.credHelpers[$h]) | .auths[$h] = {auth: env.zSECRET_docker_auth}'
+      local -a z_jq_args
+      if test -f "${z_config_file}"; then
+        z_jq_args=(--arg h "${z_host}" "${z_config_filter}" "${z_config_file}")
+      else
+        z_jq_args=(-n --arg h "${z_host}" "${z_config_filter}")
+      fi
+      zSECRET_config=$(zSECRET_docker_auth="${zSECRET_auth_b64}" jq "${z_jq_args[@]}" 2>"${z_jq_stderr_file}") \
+        || buc_die_now "Cannot compose the docker config for the credential-store bend — see ${z_jq_stderr_file}"
+      test -n "${zSECRET_config}" || buc_die_now "Composed an empty docker config for the credential-store bend — see ${z_jq_stderr_file}"
       (
         umask 077 || buc_die_now "Cannot set umask for the credential-store bend"
         printf '%s' "${zSECRET_config}" > "${z_config_tmp}" || buc_die_now "Cannot write ${z_config_tmp} for the credential-store bend"
@@ -205,6 +220,33 @@ rbgo_docker_login() {
     buc_warn "Docker login transient (attempt ${z_attempt}/${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}, moby#44350 timeout) — retrying in ${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}s"
     sleep "${RBGC_HTTP_TRANSIENT_RETRY_SLEEP_SEC}" || buc_die_now "Failed to pause before docker login retry ${z_attempt}"
   done
+}
+
+# Remove the docker client's stored credential for a registry once the push or
+# pull that needed it has finished: the token lives an hour, the operation
+# minutes, and docker's store is shared by every process on the station. Output
+# goes to files under the module prefix. A failure warns here naming the
+# registry and returns 1: a caller on the success path dies on it, a caller on a
+# path already dying warns and lets its original die stand.
+# Args: registry_host
+rbgo_docker_logout() {
+  zrbgo_sentinel
+
+  local -r z_host="${1:-}"
+
+  buc_doc_brief "Log the host docker client out of a GAR registry"
+  buc_doc_param "registry_host" "Registry host to remove the stored credential for"
+  buc_doc_shown || return 0
+
+  test -n "${z_host}" || buc_die_now "rbgo_docker_logout: registry host required"
+
+  local -r z_stdout_file="${ZRBGO_PREFIX}docker_logout_stdout.txt"
+  local -r z_stderr_file="${ZRBGO_PREFIX}docker_logout_stderr.txt"
+
+  docker logout "${z_host}" > "${z_stdout_file}" 2>"${z_stderr_file}" || {
+    buc_warn "Docker logout from ${z_host} failed — see ${z_stderr_file}"
+    return 1
+  }
 }
 
 # eof
