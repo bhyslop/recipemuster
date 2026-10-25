@@ -3168,7 +3168,7 @@ pub const RBTGEB_MANOR_JILT_PEDIMENT: &str = rbtgeb_manor_jilt_pediment!();
 macro_rules! rbtgeb_manor_raze_pediment { () => { "rbw-mR" }; }
 pub(crate) use rbtgeb_manor_raze_pediment;
 pub const RBTGEB_MANOR_RAZE_PEDIMENT: &str = rbtgeb_manor_raze_pediment!();
-macro_rules! rbtgeb_nameplate_drive_pediment { () => { "rbw-nd" }; }
+macro_rules! rbtgeb_nameplate_drive_pediment { () => { "rbw-nm" }; }
 pub(crate) use rbtgeb_nameplate_drive_pediment;
 pub const RBTGEB_NAMEPLATE_DRIVE_PEDIMENT: &str = rbtgeb_nameplate_drive_pediment!();
 macro_rules! rbtgeb_payor_establish_pediment { () => { "rbw-gPE" }; }

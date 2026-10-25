@@ -269,7 +269,7 @@ rbho_director_airgap() {
   buh_line "Drive it into ${z_lk_moriah}'s ${RBYC_BOTTLE} hallmark, replacing the"
   buh_line "PENDING-ordination placeholder — the drive writes the ${RBYC_RBRN} for you:"
   buh_e
-  buh_tt "   " "${RBZ_DRIVE_HALLMARK}" "" " ${z_moniker} bottle ${RBYC_HANDBOOK_HALLMARK_REF}"
+  buh_tt "   " "${RBZ_MITRE_HALLMARK}" "" " ${z_moniker} bottle ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buh_line "Commit the change."
   buh_e

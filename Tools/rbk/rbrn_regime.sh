@@ -34,7 +34,7 @@ zrbrn_kindle() {
   buv_dir_exists "${BURD_TEMP_DIR}"
 
   # The drive's rewrite of a nameplate's rbrn.env lands here before it moves into place
-  readonly ZRBRN_DRIVE_PREFIX="${BURD_TEMP_DIR}/rbrn_drive_"
+  readonly ZRBRN_MITRE_PREFIX="${BURD_TEMP_DIR}/rbrn_mitre_"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -162,7 +162,7 @@ rbrn_hallmark_armed_flint_predicate() {
 # Armament gate — the homed consumption refusal a charge cites in place of its
 # own inline checks. Vacancy is a legal shape; this is the single point where an
 # unarmed nameplate is refused at consumption. Half-armed is a legitimate
-# transient (rbw-nd drives one field at a time) — each field is gated
+# transient (rbw-nm drives one field at a time) — each field is gated
 # independently, so the message names the vacant one.
 rbrn_require_armed() {
   zrbrn_sentinel
@@ -178,9 +178,9 @@ rbrn_require_armed() {
   buc_doc_shown || return 0
 
   rbrn_hallmark_armed_flint_predicate "${z_sentry_hallmark}" \
-    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nm), then recharge"
   rbrn_hallmark_armed_flint_predicate "${z_bottle_hallmark}" \
-    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nm), then recharge"
 }
 
 ######################################################################
@@ -414,7 +414,7 @@ rbrn_preflight() {
 }
 
 ######################################################################
-# Drive (rbrn_drive)
+# Drive (rbrn_mitre)
 #
 # Resolve a hallmark express-or-chain and write it into one target nameplate's
 # RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK line. The durable-config LINK for
@@ -423,7 +423,7 @@ rbrn_preflight() {
 # rbrn_cli (the cloud operator verb) and by rbob (the local kludge composes it).
 # Operator-committed, never self-committing.
 
-rbrn_drive() {
+rbrn_mitre() {
   zrbrn_sentinel
 
   local -r z_nameplate="${BUZ_FOLIO:-}"
@@ -476,7 +476,7 @@ rbrn_drive() {
   # line is schema drift, a hard die (the find-or-err schema-drift catch), never a
   # silent append (contrast anoint, whose RBRV_GRAFT_IMAGE may legitimately be
   # absent and is appended).
-  local -r z_tmp_file="${ZRBRN_DRIVE_PREFIX}${z_nameplate}_${RBCC_rbrn_file}.new"
+  local -r z_tmp_file="${ZRBRN_MITRE_PREFIX}${z_nameplate}_${RBCC_rbrn_file}.new"
   local z_line=""
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do

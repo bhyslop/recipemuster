@@ -958,7 +958,7 @@ rbob_kludge_bottle() {
     || buc_die_now "Failed to read hallmark from kludge output"
   test -n "${z_hallmark}" || buc_die_now "Empty hallmark from kludge output"
 
-  BUZ_FOLIO="${RBRN_MONIKER}" rbrn_drive bottle "${z_hallmark}"
+  BUZ_FOLIO="${RBRN_MONIKER}" rbrn_mitre bottle "${z_hallmark}"
 
   buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }
@@ -985,7 +985,7 @@ rbob_kludge_sentry() {
     || buc_die_now "Failed to read hallmark from kludge output"
   test -n "${z_hallmark}" || buc_die_now "Empty hallmark from kludge output"
 
-  BUZ_FOLIO="${RBRN_MONIKER}" rbrn_drive sentry "${z_hallmark}"
+  BUZ_FOLIO="${RBRN_MONIKER}" rbrn_mitre sentry "${z_hallmark}"
 
   buc_success "Kludge installed: ${z_hallmark} → ${RBRN_MONIKER}"
 }

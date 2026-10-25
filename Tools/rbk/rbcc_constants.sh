@@ -140,7 +140,7 @@ readonly RBCC_verb_roster="roster"
 #   registry and build operations, homed here so the group has a single owner
 #   rather than being spelled across rbfd*/rbfl*/rbfk_/rbob_/rbrn_.
 readonly RBCC_verb_anoint="anoint"
-readonly RBCC_verb_drive="drive"
+readonly RBCC_verb_mitre="drive"
 readonly RBCC_verb_inscribe="inscribe"
 readonly RBCC_verb_kludge="kludge"
 readonly RBCC_verb_ordain="ordain"
@@ -327,7 +327,7 @@ rbcc_emit_consts() {
     RBCC_verb_enrobe     \
     RBCC_verb_roster     \
     RBCC_verb_anoint     \
-    RBCC_verb_drive      \
+    RBCC_verb_mitre      \
     RBCC_verb_inscribe   \
     RBCC_verb_kludge     \
     RBCC_verb_ordain     \

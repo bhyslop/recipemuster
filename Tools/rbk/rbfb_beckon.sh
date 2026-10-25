@@ -61,7 +61,7 @@ rbfb_hallmark() {
   # so show a placeholder (anoint reads the hallmark with an empty express;
   # drive's folio is the nameplate to receive it)
   buc_tabtarget "${RBZ_ANOINT_GRAFT}"    "<graft-vessel>"
-  buc_tabtarget "${RBZ_DRIVE_HALLMARK}"  "<nameplate> bottle"
+  buc_tabtarget "${RBZ_MITRE_HALLMARK}"  "<nameplate> bottle"
 }
 
 # eof

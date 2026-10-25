@@ -90,7 +90,7 @@ zrbrn_fleet_survey() {
       fi
 
       # Armament — readiness-to-charge, distinct from the local-image-presence
-      # columns above. Per-field so a half-armed transient (rbw-nd arms one
+      # columns above. Per-field so a half-armed transient (rbw-nm arms one
       # field at a time) reads honestly: "SB" both, "S-"/"-B" half, "--" vacant.
       local z_arm_sentry="-"
       local z_arm_bottle="-"
@@ -217,7 +217,7 @@ zrbrn_furnish() {
       source "${z_rbk_kit_dir}/rbgd_depot.sh" || buc_die_now "Failed to source rbgd_depot.sh"
       source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
       ;;
-    rbrn_drive)
+    rbrn_mitre)
       # Drive needs only the fact-name constants (rbgc) and the express-or-chain
       # footing (buf_fact) — not the google/GAR stack survey/audit pulls.
       source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
@@ -248,7 +248,7 @@ zrbrn_furnish() {
       zrbgo_kindle
       zrbgd_kindle
       ;;
-    rbrn_drive)
+    rbrn_mitre)
       # rbgc holds RBF_FACT_HALLMARK; it is standalone (pure readonly constants).
       # The drive is rbrn's own, so rbrn kindles with no nameplate loaded.
       zrbgc_kindle
@@ -257,11 +257,11 @@ zrbrn_furnish() {
   esac
 
   # If BUZ_FOLIO is set, load and kindle the specified nameplate — EXCEPT for
-  # rbrn_drive, which addresses a target nameplate by moniker and rewrites one
+  # rbrn_mitre, which addresses a target nameplate by moniker and rewrites one
   # RBRN_*_HALLMARK line WITHOUT loading it (loading enforces the regime, which
   # would reject a nameplate whose hallmark field is still blank — the very state
   # the drive fills; mirrors feoff, which never loads the vessel it rewrites).
-  if test -n "${BUZ_FOLIO:-}" && test "${z_command}" != "rbrn_drive"; then
+  if test -n "${BUZ_FOLIO:-}" && test "${z_command}" != "rbrn_mitre"; then
     local -r z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${BUZ_FOLIO}/${RBCC_rbrn_file}"
     test -f "${z_nameplate_file}" || buc_die_now "Nameplate not found: ${z_nameplate_file}"
     source "${z_nameplate_file}" || buc_die_now "Failed to source nameplate: ${z_nameplate_file}"

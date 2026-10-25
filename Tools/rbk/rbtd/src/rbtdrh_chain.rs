@@ -66,7 +66,7 @@ use crate::rbtgec_consts::{
     RBTGEC_AUGUR_LODE,
     RBTGEC_BAND_CHAIN,
     RBTGEC_CONTAINER_BOTTLE,
-    RBTGEC_DRIVE_HALLMARK,
+    RBTGEC_MITRE_HALLMARK,
     RBTGEC_FEOFF_BOLE,
     RBTGEC_PLUMB_FULL,
     RBTGEC_RBRV_FILE,
@@ -121,7 +121,7 @@ const RBTCGH_GRAFT_VESSEL: &str = "rbev_graft_demo";
 // rbrn.env by MONIKER (never a path, unlike feoff's temp vessel), so it must drive
 // a real nameplate under rbmm_moorings. The reject precedes the rewrite, so the
 // drive leaves its rbrn.env byte-identical (the case asserts that identity).
-const RBTCGH_DRIVE_NAMEPLATE: &str = "tadmor";
+const RBTCGH_MITRE_NAMEPLATE: &str = "tadmor";
 
 // ── Harness ─────────────────────────────────────────────────
 
@@ -259,7 +259,7 @@ fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
     Ok(output.status.code().unwrap_or(-1))
 }
 
-/// Drive the rbw-nd nameplate-drive tabtarget against a REAL tracked nameplate (its
+/// Drive the rbw-nm nameplate-drive tabtarget against a REAL tracked nameplate (its
 /// folio) with an EMPTY BURV root and no express hallmark. The drive is the fourth
 /// durable-config LINK (it rewrites RBRN_{BOTTLE,SENTRY}_HALLMARK); with no express
 /// and no chained fact the express-or-chain resolve finds nothing and the drive
@@ -268,9 +268,9 @@ fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
 /// rbrn.env is never mutated (asserted by the case). The nameplate is addressed by
 /// moniker and NOT loaded, so a still-blank hallmark field never blocks the run.
 /// Credless, no cloud — the reject fires before any token mint. Returns the exit code.
-fn rbtcgh_drive_nameplate(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
+fn rbtcgh_drive_mitre(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
     let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))?;
-    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_DRIVE_HALLMARK)?;
+    let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_MITRE_HALLMARK)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
@@ -530,21 +530,21 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
 // express and an empty BURV root the chain read fails and drive rejects with the band
 // BEFORE the rbrn.env rewrite, so the tracked nameplate stays byte-identical.
 
-fn rbtcgh_drive_broken_chain(dir: &Path) -> rbtcee_Verdict {
+fn rbtcgh_mitre_broken_chain(dir: &Path) -> rbtcee_Verdict {
     let rbrn = match std::env::current_dir() {
         Ok(r) => r
             .join("rbmm_moorings")
             .join(format!(
                 "{}{}",
                 crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE,
-                RBTCGH_DRIVE_NAMEPLATE
+                RBTCGH_MITRE_NAMEPLATE
             ))
             .join("rbrn.env"),
         Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
     };
     let before = std::fs::read_to_string(&rbrn).unwrap_or_default();
 
-    let code = match rbtcgh_drive_nameplate(dir, RBTCGH_DRIVE_NAMEPLATE, RBTGEC_CONTAINER_BOTTLE) {
+    let code = match rbtcgh_drive_mitre(dir, RBTCGH_MITRE_NAMEPLATE, RBTGEC_CONTAINER_BOTTLE) {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -929,7 +929,7 @@ pub static RBTCGH_CASES_CHAINING_FACT_BAND: &[rbtcee_Case] = &[
     rbtcee_case!(rbtcgh_yoke_wrong_kind),
     rbtcee_case!(rbtcgh_yoke_unknown_prefix),
     rbtcee_case!(rbtcgh_anoint_broken_chain),
-    rbtcee_case!(rbtcgh_drive_broken_chain),
+    rbtcee_case!(rbtcgh_mitre_broken_chain),
     rbtcee_case!(rbtcgh_summon_no_folio),
     rbtcee_case!(rbtcgh_plumb_no_folio),
     rbtcee_case!(rbtcgh_augur_no_folio),
