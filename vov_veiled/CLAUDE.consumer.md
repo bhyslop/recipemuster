@@ -96,11 +96,12 @@ The supply chain has three layers: conclave captures the builder-tool Lode (the 
 ### How do I admit people, and how do I authenticate?
 
 Nobody holds a long-lived key. An operator is a **citizen** of a **foedus**; a role is a **mantle** the citizen is admitted to wear. Signing in opens a **sederunt**, and each privileged call mints a short-lived token for one mantle.
+Novating is the one way to sign in: a cloud command that finds no live sederunt never signs in on its own, but refuses and names `tt/rbw-aN.NovateSederunt.sh`, so run it before cloud work.
 
 | Verb | What it does |
 |------|-------------|
-| **avow** | Open a sederunt — federated sign-in (device flow) against the active foedus |
-| **novate** | Open a fresh full-window sederunt, extinguishing any standing one |
+| **avow** | The federated sign-in (device flow) against the active foedus that opens a sederunt; only novate performs it |
+| **novate** | Open a fresh full-window sederunt, extinguishing any standing one — the step before cloud work |
 | **espy** | Report whether a sederunt stands and how much runway is left (read-only, no network) |
 | **don** | Mint a short-lived token for one mantle, for one call |
 | **gird** | Payor seats a depot's founding governor — the one admission outside governor wielding |
@@ -127,7 +128,7 @@ The payor is the only role requiring manual console work. Every other role signs
 **The payor OAuth credential is the system's sole standing secret.** There are no service-account keyfiles to protect, back up, or rotate — the mantle roles hold no durable credential at all.
 
 - **Payor OAuth** (`rbro.env`, under `RBRR_SECRETS_DIR`): client secret + refresh token. `600` permissions, only on the administrator's workstation, never committed.
-- **Mantle tokens**: minted per call from a live sederunt and never written to disk as durable credentials. Lose your sederunt and you re-avow; there is nothing to restore.
+- **Mantle tokens**: minted per call from a live sederunt and never written to disk as durable credentials. Lose your sederunt and you novate again; there is nothing to restore.
 
 @Tools/buk/buai0/buais_buk.md
 @Tools/buk/buai0/buaip_buk.md

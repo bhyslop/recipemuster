@@ -25,7 +25,7 @@
 #
 # Commands:
 #   check_payor        OAuth access probe for the payor credential
-#   check_avowal  Federated access probe — open or reuse a sederunt (Legs 1+2)
+#   check_avowal  Federated access probe — reuse a live sederunt or refuse naming novate
 #   check_mantle       Don a mantle as the freehold subject (Leg 3)
 
 set -euo pipefail
@@ -51,11 +51,12 @@ rbgv_check_payor() {
   buc_success "Payor OAuth access probe passed"
 }
 
-# Federated access probe — triggers the accessor's avowal step (Legs 1+2):
-# cache-hit gates the sederunt's remaining runway then reuses it; a miss with a
-# terminal runs the device flow + STS exchange and caches the federated token;
-# a headless miss fails loud. This is the cloud tabtarget that exercises
-# avowal — avowal itself owns no colophon. The optional argument rides
+# Federated access probe — triggers the accessor's avowal step: cache-hit
+# gates the sederunt's remaining runway then reuses it; under the interactive
+# mechanism a miss rejects in the runway band naming novate (rbw-aN), the one
+# door that signs in; under programmatic a miss acquires (Legs 1+2) and caches
+# the federated token. The probe owns no logic of its own: it is rba_avow's
+# reuse-or-refuse, surfaced. The optional argument rides
 # rba_avow's required-runway seam, so the probe can demand a specific runway
 # (and a live-but-short sederunt rejects in the runway band, advising novate).
 # Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
@@ -66,7 +67,7 @@ rbgv_check_avowal() {
   # colophon), like the mantle operand on rbgv_check_mantle. Empty = the floor.
   local -r z_required_runway="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Check federated access — open or reuse a ${RBCC_noun_sederunt} via device flow + STS (Legs 1+2) against the RBRF trust"
+  buc_doc_brief "Check federated access — reuse a live ${RBCC_noun_sederunt} against the RBRF trust, or refuse naming rbw-aN when none is live"
   buc_doc_oparm "required_runway" "Seconds of ${RBCC_noun_sederunt} runway the probe demands; omit for the kindled floor"
   buc_doc_shown || return 0
 
@@ -86,7 +87,7 @@ rbgv_check_avowal() {
 
 # Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
 # subject (the operator's standing Entra oid, RBPC_freehold_subject), avow as
-# that identity to open or reuse a sederunt, then don the named mantle (Leg 3).
+# that identity to reuse the live sederunt, then don the named mantle (Leg 3).
 # Reports the minted mantle token, or surfaces the admission deficit the accessor
 # already characterized (the Leg-3 403: a citizen not brevetted onto the mantle,
 # or a missing depot serviceUsageConsumer — a standing state, not a propagation
@@ -125,7 +126,7 @@ rbgv_check_mantle() {
   test -n "${RBPC_freehold_subject:-}" || buc_die_now "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
-  buc_step "Avow against the RBRF trust to open or reuse the ${RBCC_noun_sederunt}"
+  buc_step "Avow against the RBRF trust to reuse the live ${RBCC_noun_sederunt}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
