@@ -10,7 +10,8 @@ A small bash utility that counts word frequencies in text files.
 
 ## The Problem
 
-The script has bugs. Try asking Claude to find and fix them:
+The script has bugs.
+Try asking Claude to find and fix them:
 
 ```
 claude

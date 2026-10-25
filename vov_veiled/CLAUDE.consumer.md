@@ -1,12 +1,15 @@
 # Claude Code Project Memory — Recipe Bottle
 
-Recipe Bottle enables developers to safely run untrusted containers by interposing a security layer (sentry container) between untrusted containers (bottle containers) and system resources. It uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` natively. Infrastructure runs on Google Cloud Build and Google Artifact Registry with SLSA provenance verification.
+Recipe Bottle enables developers to safely run untrusted containers by interposing a security layer (sentry container) between untrusted containers (bottle containers) and system resources.
+It uses only `bash`, `git`, `curl`, `openssh`, `jq`, and `docker` natively.
+Infrastructure runs on Google Cloud Build and Google Artifact Registry with SLSA provenance verification.
 
 Project page: https://scaleinv.github.io/recipebottle
 
 ## Getting Started
 
-New users: start with the README.md at the project root. It walks through the full setup sequence from clone to running bottle.
+New users: start with the README.md at the project root.
+It walks through the full setup sequence from clone to running bottle.
 
 After initial payor setup, the adaptive onboarding guide reads your current state and shows the next step:
 ```
@@ -15,7 +18,9 @@ tt/rbw-o.ONBOARDING.sh
 
 ## Domain Vocabulary
 
-Recipe Bottle uses domain-specific terminology throughout its CLI and documentation. **When you encounter an unfamiliar term, read `README.md`** — it contains anchored definitions (`<a id>`) for all concepts. Navigate directly via anchor links (e.g., `#Ordain`, `#Depot`, `#Charge`).
+Recipe Bottle uses domain-specific terminology throughout its CLI and documentation.
+**When you encounter an unfamiliar term, read `README.md`** — it contains anchored definitions (`<a id>`) for all concepts.
+Navigate directly via anchor links (e.g., `#Ordain`, `#Depot`, `#Charge`).
 
 Key term categories in README.md:
 - **Architecture**: Foundry, Manor, Depot, Crucible, Vessel, Hallmark, Ark, Nameplate, Regime, Tabtarget
@@ -28,7 +33,8 @@ Key term categories in README.md:
 
 ## Verb Guide
 
-Recipe Bottle uses domain-specific verbs instead of generic ones (create, delete, start, stop). The frontispiece in each tabtarget filename uses these verbs — this guide maps what you want to do to the vocabulary you will encounter.
+Recipe Bottle uses domain-specific verbs instead of generic ones (create, delete, start, stop).
+The frontispiece in each tabtarget filename uses these verbs — this guide maps what you want to do to the vocabulary you will encounter.
 
 ### How do I build a container image?
 
@@ -95,7 +101,9 @@ The supply chain has three layers: conclave captures the builder-tool Lode (the 
 
 ### How do I admit people, and how do I authenticate?
 
-Nobody holds a long-lived key. An operator is a **citizen** of a **foedus**; a role is a **mantle** the citizen is admitted to wear. Signing in opens a **sederunt**, and each privileged call mints a short-lived token for one mantle.
+Nobody holds a long-lived key.
+An operator is a **citizen** of a **foedus**; a role is a **mantle** the citizen is admitted to wear.
+Signing in opens a **sederunt**, and each privileged call mints a short-lived token for one mantle.
 Novating is the one way to sign in: a cloud command that finds no live sederunt never signs in on its own, but refuses and names `tt/rbw-aN.NovateSederunt.sh`, so run it before cloud work.
 
 | Verb | What it does |
@@ -112,7 +120,8 @@ Novating is the one way to sign in: a cloud command that finds no live sederunt 
 
 ## Roles
 
-Recipe Bottle uses a role-based security model. The payor stands apart; the other three are mantles worn by federated citizens.
+Recipe Bottle uses a role-based security model.
+The payor stands apart; the other three are mantles worn by federated citizens.
 
 | Role | Authentication | Purpose |
 |------|---------------|---------|
@@ -121,11 +130,13 @@ Recipe Bottle uses a role-based security model. The payor stands apart; the othe
 | **Director** | Federated sederunt → director mantle | Submits builds, manages images, verifies provenance |
 | **Retriever** | Federated sederunt → retriever mantle | Pulls images for local use |
 
-The payor is the only role requiring manual console work. Every other role signs in against the foedus and dons its mantle per call, so authority is short-lived by construction and each use is attributable to the human who wore it.
+The payor is the only role requiring manual console work.
+Every other role signs in against the foedus and dons its mantle per call, so authority is short-lived by construction and each use is attributable to the human who wore it.
 
 ## Credential Safety
 
-**The payor OAuth credential is the system's sole standing secret.** There are no service-account keyfiles to protect, back up, or rotate — the mantle roles hold no durable credential at all.
+**The payor OAuth credential is the system's sole standing secret.**
+There are no service-account keyfiles to protect, back up, or rotate — the mantle roles hold no durable credential at all.
 
 - **Payor OAuth** (`rbro.env`, under `RBRR_SECRETS_DIR`): client secret + refresh token. `600` permissions, only on the administrator's workstation, never committed.
 - **Mantle tokens**: minted per call from a live sederunt and never written to disk as durable credentials. Lose your sederunt and you novate again; there is nothing to restore.
@@ -161,8 +172,10 @@ Regimes follow a consistent pattern: `rbw-r{code}{r|v|l}` where `r` = render, `v
 | `rw` | RBRW | Workforce — the manor's identity pool | `rbw-rwr` | `rbw-rwv` |
 | `ro` | RBRO | OAuth — payor refresh token (managed) | `rbw-ror` | `rbw-rov` |
 
-**User-configured**: RBRP, RBRR, RBRD, RBRN, RBRV, RBRF, RBRW — you edit these during setup.
-**Managed/generated**: RBRO (by payor install).
+**User-configured**:
+RBRP, RBRR, RBRD, RBRN, RBRV, RBRF, RBRW — you edit these during setup.
+**Managed/generated**:
+RBRO (by payor install).
 
 List operations: `rbw-rnl` (all nameplates), `rbw-rvl` (all vessel sigils).
 Cross-regime operations: `rbw-ni` (nameplate info/survey), `rbw-nv` (validate all nameplates).
@@ -179,7 +192,8 @@ Cross-regime operations: `rbw-ni` (nameplate info/survey), `rbw-nv` (validate al
 
 ## Configuration Regimes
 
-A Config Regime is a structured configuration system: a specification document, a shell-sourceable assignment file (`.env`), and validation/render scripts. Each regime uses a unique uppercase variable prefix to prevent collisions.
+A Config Regime is a structured configuration system: a specification document, a shell-sourceable assignment file (`.env`), and validation/render scripts.
+Each regime uses a unique uppercase variable prefix to prevent collisions.
 
 **Two layers shared by all tools:**
 - **BURC** (`rbmm_moorings/burc.env`) — project structure: tabtarget dir, tools dir, temp/output dirs

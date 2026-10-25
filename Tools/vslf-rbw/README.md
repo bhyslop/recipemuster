@@ -2,12 +2,12 @@
 
 Repo-specific SlickEdit project and workspace templates.
 
-Templates use `__VSLW_PROJECT_DIR__` placeholder which is replaced with the
-actual project directory name during installation.
+Templates use `__VSLW_PROJECT_DIR__` placeholder which is replaced with the actual project directory name during installation.
 
 ## Relationship to VSLK
 
-This directory contains the configuration files consumed by the VSLK (Visual SlickEdit Local Kit) installer. VSLK is a portable kit in `Tools/vslk/` that copies these templates to the installation destination.
+This directory contains the configuration files consumed by the VSLK (Visual SlickEdit Local Kit) installer.
+VSLK is a portable kit in `Tools/vslk/` that copies these templates to the installation destination.
 
 - **VSLK** (`Tools/vslk/`) - Portable installer logic, can be copied to other repos
 - **VSLF-RBW** (`Tools/vslf-rbw/`) - Repo-specific project templates
