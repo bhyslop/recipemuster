@@ -106,9 +106,9 @@ rbho_director_first_build() {
   buh_line "This sets the ${RBYC_VESSEL} you will build throughout the track."
   buh_line "The remaining steps reference it by name."
   buh_e
-  buh_line "Sign in before any cloud work by novating a sederunt — one browser"
+  buh_line "Sign in before any cloud work by opening a ${RBCC_noun_sederunt} — one browser"
   buh_line "sign-in opens a window of up to 12 hours. No cloud command signs you in"
-  buh_line "on its own: finding no live sederunt, it refuses and names this door."
+  buh_line "on its own: finding no live ${RBCC_noun_sederunt}, it refuses and names this door."
   buh_e
   buh_tt "   " "${RBZ_NOVATE_SEDERUNT}"
   buh_e

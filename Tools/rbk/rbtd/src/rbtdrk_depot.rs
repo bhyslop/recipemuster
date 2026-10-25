@@ -59,6 +59,7 @@ use crate::rbtgec_consts::{
     RBTGEC_LIST_DEPOT,
     RBTGEC_MANTLE_DIRECTOR,
     RBTGEC_MANTLE_RETRIEVER,
+    RBTGEC_NOUN_SEDERUNT,
     RBTGEC_NOVATE_SEDERUNT,
     RBTGEC_RBRD_FILE,
     RBTGEC_RECOGNOSCE_DEPOT,
@@ -333,9 +334,9 @@ fn rbtcgk_avow(dir: &Path) -> rbtcee_Verdict {
         };
         if r.exit_code != 0 {
             return rbtcee_Verdict::Fail(format!(
-                "avowal failed (exit {}) — novate a fresh sederunt before the run with {} \
+                "avowal failed (exit {}) — open a fresh {} before the run with {} \
                  (one device-flow click), then re-run\n{}",
-                r.exit_code, RBTGEC_NOVATE_SEDERUNT, r.stderr
+                r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_NOVATE_SEDERUNT, r.stderr
             ));
         }
         rbtcee_Verdict::Pass

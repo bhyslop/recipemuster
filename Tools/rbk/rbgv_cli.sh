@@ -67,7 +67,7 @@ rbgv_check_avowal() {
   # colophon), like the mantle operand on rbgv_check_mantle. Empty = the floor.
   local -r z_required_runway="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Check federated access — reuse a live ${RBCC_noun_sederunt} against the RBRF trust, or refuse naming novate (rbw-aN) when none is live"
+  buc_doc_brief "Check federated access — reuse a live ${RBCC_noun_sederunt} against the RBRF trust, or refuse naming rbw-aN when none is live"
   buc_doc_oparm "required_runway" "Seconds of ${RBCC_noun_sederunt} runway the probe demands; omit for the kindled floor"
   buc_doc_shown || return 0
 

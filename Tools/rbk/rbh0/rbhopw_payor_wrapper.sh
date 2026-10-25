@@ -204,7 +204,7 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_GIRD_POLITY}" "" " <subject>"
   buh_e
   buh_line "No key file is created or handed over: the ${RBYC_GOVERNOR} signs in"
-  buh_line "(avows) by novating a sederunt, the one way to sign in:"
+  buh_line "(avows) by opening a ${RBCC_noun_sederunt} at this door, the one way to sign in:"
   buh_tt  "  " "${RBZ_NOVATE_SEDERUNT}"
   buh_line "and then dons the governor mantle to administer this ${RBYC_DEPOT},"
   buh_line "admitting ${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} citizens independently."

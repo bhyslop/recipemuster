@@ -683,7 +683,7 @@ rba_avow() {
   fi
 
   test "${RBRF_MECHANISM}" != "rbnfe_interactive" \
-    || buc_reject "${BUBC_band_runway}" "No live ${RBCC_noun_sederunt} — novate to open a fresh full-window ${RBCC_noun_sederunt} (rbw-aN), then re-run"
+    || buc_reject "${BUBC_band_runway}" "No live ${RBCC_noun_sederunt} — open a fresh full-window ${RBCC_noun_sederunt} with rbw-aN, the one door that signs in, then re-run"
 
   buc_step "No live ${RBCC_noun_sederunt} — acquiring a fresh one"
   zrba_sederunt_open

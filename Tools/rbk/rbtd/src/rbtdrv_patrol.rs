@@ -1691,7 +1691,7 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
         match rbtcei_invoke_global(ctx, RBTGEC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtcee_Verdict::Fail(format!(
-                "avow exit {} — novate a fresh {} with {} (one device-flow click), \
+                "avow exit {} — open a fresh {} with {} (one device-flow click), \
                  then re-run\n{}", r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_NOVATE_SEDERUNT, r.stderr
             )),
             Err(e) => return rbtcee_Verdict::Fail(format!("avow invocation: {}", e)),
@@ -2828,7 +2828,7 @@ fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<()
     // The verdict token "live" is espy's (rba_espy_sederunt / RBCC_fact_ext_sederunt).
     if !fact.lines().any(|l| l.trim() == "verdict=live") {
         return Err(rbtcee_Verdict::Fail(format!(
-            "no live {} ({}) — novate a fresh full-window one with {} (one \
+            "no live {} ({}) — open a fresh full-window one with {} (one \
              device-flow sign-in), then re-run",
             RBTGEC_NOUN_SEDERUNT, fact.replace('\n', ", "), RBTGEC_NOVATE_SEDERUNT
         )));
@@ -2840,7 +2840,7 @@ fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<()
     match rbtcei_invoke_global(ctx, RBTGEC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtcee_Verdict::Fail(format!(
-            "baseline avow exit {} — novate ({}) if the gate turned a short or absent {} \
+            "baseline avow exit {} — run {} if the gate turned a short or absent {} \
              away\nstdout:\n{}\nstderr:\n{}",
             r.exit_code, RBTGEC_NOVATE_SEDERUNT, RBTGEC_NOUN_SEDERUNT, r.stdout, r.stderr
         ))),

@@ -64,7 +64,7 @@ zrbfcb_redon_tick() {
     return 0
   fi
 
-  buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; novate to open a fresh ${RBCC_noun_sederunt} (rbw-aN), then re-run"
+  buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; open a fresh ${RBCC_noun_sederunt} with rbw-aN, then re-run"
 }
 
 # zrbfcb_failure_tail — best-effort view of why a build ended short of SUCCESS:
