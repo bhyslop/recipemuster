@@ -1526,7 +1526,7 @@ fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
 // deterministically and credless: XDG_RUNTIME_DIR is pointed at an empty
 // scratch dir so the sederunt cache resolves to nothing, the don's sederunt
 // read misses before any network touch, and the tick must die with the
-// open-a-sederunt advisory. The furnish
+// novate advisory. The furnish
 // ceremony mirrors rba_cli's zrba_furnish plus the don's rbrd/rbdc arm —
 // committed regime files only; BURD_TEMP_DIR is supplied directly since no
 // dispatch runs here. (The positive — the tick firing on cadence in a real

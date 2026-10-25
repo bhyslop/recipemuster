@@ -3388,8 +3388,9 @@ rbgp_brevet() {
   test -n "${z_subject}" || buc_die_now "Subject required as the first argument"
   test -n "${z_mantle}"  || buc_die_now "Mantle required as the second argument (governor | director | retriever)"
 
-  # Don the governor mantle — avow runs outside the capture (its device flow
-  # needs the terminal); only the mint is captured.
+  # Don the governor mantle — avow runs outside the capture, so a missing or
+  # short sederunt rejects this command in its own band naming novate; only the
+  # mint is captured.
   rba_avow
   local zSECRET_token
   zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
