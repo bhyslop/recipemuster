@@ -35,8 +35,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-cf` | Fiat | imprint | Non-interactive exec in Pentacle container |
 | `rbw-cb` | Bark | imprint | Non-interactive exec in Bottle container |
 | `rbw-cic` | CrucibleIsCharged | param1 | Check whether the Crucible is charged (compose project has running containers) |
-| `rbw-cKB` | KludgeBottle | param1 | Kludge Bottle vessel and drive hallmark into nameplate |
-| `rbw-cKS` | KludgeSentry | param1 | Kludge Sentry vessel and drive hallmark into nameplate |
+| `rbw-cKB` | KludgeBottle | param1 | Kludge Bottle vessel and mitre hallmark into nameplate |
+| `rbw-cKS` | KludgeSentry | param1 | Kludge Sentry vessel and mitre hallmark into nameplate |
 
 ### Depot — GCP project infrastructure (`rbw-d`)
 
@@ -170,7 +170,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-rnl` | ListNameplateRegime | — | List all nameplates |
 | `rbw-ni` | NameplateInfo | — | Survey nameplate status |
 | `rbw-nv` | ValidateNameplates | — | Validate all nameplates |
-| `rbw-nd` | DriveNameplateHallmark | param1 | Drive a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark]) |
+| `rbw-nm` | MitreNameplateHallmark | param1 | Mitre a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark]) |
 
 ### Regime — Config files (`rbw-r`)
 

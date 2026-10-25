@@ -33,8 +33,8 @@ zrbrn_kindle() {
 
   buv_dir_exists "${BURD_TEMP_DIR}"
 
-  # The drive's rewrite of a nameplate's rbrn.env lands here before it moves into place
-  readonly ZRBRN_DRIVE_PREFIX="${BURD_TEMP_DIR}/rbrn_drive_"
+  # The `mitre`'s rewrite of a nameplate's rbrn.env lands here before it moves into place
+  readonly ZRBRN_MITRE_PREFIX="${BURD_TEMP_DIR}/rbrn_mitre_"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -52,8 +52,8 @@ zrbrn_kindle() {
   buv_group_enroll "Container Image Configuration"
   buv_fqin_enroll    RBRN_SENTRY_VESSEL            1  128  "Vessel identifier for Sentry Image"
   buv_fqin_enroll    RBRN_BOTTLE_VESSEL            1  128  "Vessel identifier for Bottle Image"
-  buv_fqin_enroll    RBRN_SENTRY_HALLMARK      0  128  "Hallmark tag for Sentry Image (vacant until a build is driven; marshal-zero blanks it)"
-  buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      0  128  "Hallmark tag for Bottle Image (vacant until a build is driven; marshal-zero blanks it)"
+  buv_fqin_enroll    RBRN_SENTRY_HALLMARK      0  128  "Hallmark tag for Sentry Image (vacant until its hallmark is mitred; marshal-zero blanks it)"
+  buv_fqin_enroll    RBRN_BOTTLE_HALLMARK      0  128  "Hallmark tag for Bottle Image (vacant until its hallmark is mitred; marshal-zero blanks it)"
 
   buv_group_enroll "Service Readiness"
   buv_decimal_enroll RBRN_BOTTLE_READINESS_DELAY_SEC  0  300  "Seconds to wait after compose-up for bottle services to become ready (0 = no wait)"
@@ -162,7 +162,7 @@ rbrn_hallmark_armed_flint_predicate() {
 # Armament gate — the homed consumption refusal a charge cites in place of its
 # own inline checks. Vacancy is a legal shape; this is the single point where an
 # unarmed nameplate is refused at consumption. Half-armed is a legitimate
-# transient (rbw-nd drives one field at a time) — each field is gated
+# transient (rbw-nm `mitres` one field at a time) — each field is gated
 # independently, so the message names the vacant one.
 rbrn_require_armed() {
   zrbrn_sentinel
@@ -178,9 +178,9 @@ rbrn_require_armed() {
   buc_doc_shown || return 0
 
   rbrn_hallmark_armed_flint_predicate "${z_sentry_hallmark}" \
-    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_SENTRY_HALLMARK is vacant — kludge or ordain the Sentry vessel and mitre its hallmark (rbw-nm), then recharge"
   rbrn_hallmark_armed_flint_predicate "${z_bottle_hallmark}" \
-    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and drive its hallmark (rbw-nd), then recharge"
+    || buc_die_now "Nameplate '${z_moniker}' is not armed: RBRN_BOTTLE_HALLMARK is vacant — kludge or ordain the Bottle vessel and mitre its hallmark (rbw-nm), then recharge"
 }
 
 ######################################################################
@@ -414,7 +414,7 @@ rbrn_preflight() {
 }
 
 ######################################################################
-# Drive (rbrn_drive)
+# Mitre (rbrn_mitre)
 #
 # Resolve a hallmark express-or-chain and write it into one target nameplate's
 # RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK line. The durable-config LINK for
@@ -423,16 +423,16 @@ rbrn_preflight() {
 # rbrn_cli (the cloud operator verb) and by rbob (the local kludge composes it).
 # Operator-committed, never self-committing.
 
-rbrn_drive() {
+rbrn_mitre() {
   zrbrn_sentinel
 
   local -r z_nameplate="${BUZ_FOLIO:-}"
   local -r z_field="${1:-}"
   local -r z_express="${2:-}"
 
-  buc_doc_brief "Drive a freshly-built hallmark into a nameplate — resolve the hallmark express-or-chain and rewrite RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK in the nameplate's rbrn.env"
+  buc_doc_brief "Mitre a freshly-built hallmark into a nameplate — resolve the hallmark express-or-chain and rewrite RBRN_BOTTLE_HALLMARK or RBRN_SENTRY_HALLMARK in the nameplate's rbrn.env"
   buc_doc_param "nameplate" "Target nameplate moniker"
-  buc_doc_param "field"     "Which hallmark to drive: 'bottle' or 'sentry'"
+  buc_doc_param "field"     "Which hallmark to mitre: 'bottle' or 'sentry'"
   buc_doc_param "hallmark"  "Hallmark tag (e.g., k260327172456); optional — absent, falls back to the hallmark a build handed forward through the depth-1 chain"
   buc_doc_shown || return 0
 
@@ -452,8 +452,8 @@ rbrn_drive() {
   esac
 
   # Resolve the target nameplate's rbrn.env by moniker WITHOUT loading it. The
-  # drive rewrites one line; loading the regime would enforce the field's
-  # min-length and reject a still-blank hallmark — the very state the drive fills.
+  # `mitre` rewrites one line; loading the regime would enforce the field's
+  # min-length and reject a still-blank hallmark — the very state the `mitre` fills.
   # Mirrors feoff, which never loads the vessel whose rbrv.env it rewrites.
   local -r z_rbrn_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_nameplate}/${RBCC_rbrn_file}"
   test -f "${z_rbrn_file}" || buc_die_now "Nameplate regime file not found: ${z_rbrn_file}"
@@ -465,18 +465,18 @@ rbrn_drive() {
   local z_hallmark_status=0
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
   test "${z_hallmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before drive"
+    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before mitre"
   local z_source="chain"
   test -z "${z_express}" || z_source="express"
 
-  buc_step "Driving ${z_var_name} into ${z_nameplate} (source ${z_source})"
+  buc_step "Mitring ${z_var_name} into ${z_nameplate} (source ${z_source})"
 
   # Replace-or-die the chosen field's line. RBRN_{BOTTLE,SENTRY}_HALLMARK is a
   # required enrolled field always present in a well-formed nameplate — a missing
   # line is schema drift, a hard die (the find-or-err schema-drift catch), never a
   # silent append (contrast anoint, whose RBRV_GRAFT_IMAGE may legitimately be
   # absent and is appended).
-  local -r z_tmp_file="${ZRBRN_DRIVE_PREFIX}${z_nameplate}_${RBCC_rbrn_file}.new"
+  local -r z_tmp_file="${ZRBRN_MITRE_PREFIX}${z_nameplate}_${RBCC_rbrn_file}.new"
   local z_line=""
   local z_found=false
   while IFS= read -r z_line || test -n "${z_line}"; do
@@ -492,9 +492,9 @@ rbrn_drive() {
     || buc_die_now "Field ${z_var_name} not found in ${z_rbrn_file} — nameplate schema drift"
   mv "${z_tmp_file}" "${z_rbrn_file}" || buc_die_now "Failed to finalize ${z_rbrn_file}"
 
-  # Loud on success: the driven field, value, and source named prominently, so a
-  # wrong drive shows at the moment of action rather than only in the git diff.
-  buc_success "Drove ${z_nameplate}: ${z_var_name}=${z_hallmark} (source: ${z_source})"
+  # Loud on success: the `mitred` field, value, and source named prominently, so a
+  # wrong `mitre` shows at the moment of action rather than only in the git diff.
+  buc_success "Mitred ${z_nameplate}: ${z_var_name}=${z_hallmark} (source: ${z_source})"
   buc_info "Commit the rbrn.env change with your usual git workflow."
 }
 

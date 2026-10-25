@@ -45,7 +45,7 @@ The full suite is always the last step, never the first.
    tt/rbw-cKS.KludgeSentry.sh tadmor
    ```
    Charge answers the did-anything-change question for you: it compares each pinned kludge hallmark against the vessel source and refuses when they have parted, naming the vessel and printing the producer tabtarget to run.
-   Run the one it names — the refusal is per vessel — then commit the hallmark it drives into the nameplate's `rbrn.env`.
+   Run the one it names — the refusal is per vessel — then commit the hallmark it `mitres` into the nameplate's `rbrn.env`.
    The commit is required rather than tidy: kludge dirties `rbrn.env`, and charge demands a clean working tree.
 
 #### Single-case debugging (manual charge/quench lifecycle)
@@ -81,7 +81,7 @@ Once all tests pass with the kludge hallmark, ordain for a production-grade Clou
    ```
    tt/rbw-fs.RetrieverSummonsHallmark.sh rbev_bottle_ifrit_tether <hallmark>
    ```
-3. Drive the ordained hallmark into the nameplate with `tt/rbw-nd.DriveNameplateHallmark.sh tadmor bottle <hallmark>` (or omit `<hallmark>` to chain-read it from the ordain you just ran), commit, and re-run the full fixture to verify.
+3. Write the ordained hallmark into the nameplate with the `mitre` door, `tt/rbw-nm.MitreNameplateHallmark.sh tadmor bottle <hallmark>` (or omit `<hallmark>` to chain-read it from the ordain you just ran), commit, and re-run the full fixture to verify.
 
 **Hallmark prefixes** tell you what you have: `k` = kludge (local build), `c` = conjured (Cloud Build ordained).
 
@@ -116,7 +116,7 @@ Rules for authoring a reveille-tier case:
 
 ### Fixture Config-Evolution Console
 
-A fixture that walks an onboarding or freehold track *evolves* the tracked config it tests — driving hallmarks into nameplates, electing vessel anchors, setting regime fields — and commits each step so the next sees a clean tree.
+A fixture that walks an onboarding or freehold track *evolves* the tracked config it tests — `mitring` hallmarks into nameplates, electing vessel anchors, setting regime fields — and commits each step so the next sees a clean tree.
 Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the "Fixture config-evolution console"), beside the read-side `rbtcee_tree_clean`.
 **When a fixture commits config, it goes through the console — never an ad-hoc `git add`/`git commit`.**
 `rbtcee_tree_clean` itself refuses every drive on a dirty tree — single-fixture, suite, and the marshal-zero attestation gate alike — and each refusal names the notch as the remedy.
@@ -142,7 +142,7 @@ Temp-vessel cases that construct known bytes need no zero call.
 **Dispersed sibling (not yet in the console).**
 The same validated field-rewrite still lives in `rbtcgf_replace_env_fields` (the regime multi-field rewrite).
 It is a migration candidate — fold it onto `rbtcee_config_set_field` when next in that code — left in place only to keep the console's introduction scoped.
-(The former `rbtcgo_drive_hallmark` nameplate-hallmark rewrite is gone: onboarding now invokes the real `rbw-nd` drive tabtarget, so that write lives in one bash home, `rbrn_drive`.)
+(The former `rbtcgo_drive_hallmark` nameplate-hallmark rewrite is gone: onboarding now invokes the real `rbw-nm` `mitre` tabtarget, so that write lives in one bash home, `rbrn_mitre`.)
 New fixture state-mutation helpers land in the console; they do not re-grow per module.
 
 ### Adding a New Test
@@ -164,7 +164,7 @@ New fixture state-mutation helpers land in the console; they do not re-grow per 
 1. Build theurge: `tt/rbw-tb.Build.sh` and run unit tests: `tt/rbw-tt.Test.sh`
 2. If ifrit source changed: kludge-rebuild, commit hallmark, then charge:
    ```
-   tt/rbw-cKB.KludgeBottle.sh tadmor    # builds image, drives hallmark into rbrn.env
+   tt/rbw-cKB.KludgeBottle.sh tadmor    # builds image, rbrn_mitre writes hallmark into rbrn.env
    # commit the rbrn.env change (clean tree required for charge)
    tt/rbw-cC.Charge.tadmor.sh
    ```
