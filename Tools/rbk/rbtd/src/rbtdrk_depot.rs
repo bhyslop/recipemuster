@@ -59,6 +59,7 @@ use crate::rbtgec_consts::{
     RBTGEC_LIST_DEPOT,
     RBTGEC_MANTLE_DIRECTOR,
     RBTGEC_MANTLE_RETRIEVER,
+    RBTGEC_NOVATE_SEDERUNT,
     RBTGEC_RBRD_FILE,
     RBTGEC_RECOGNOSCE_DEPOT,
 };
@@ -311,10 +312,11 @@ fn rbtcgk_depot_churn_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Verdi
 // retriever mantles and donned — the federation replacement for the retired keyfile
 // governor/retriever/director enrobe + JWT-probe cases.
 
-/// Suite-head avowal. Opens or confirms a live sederunt against the RBRF trust:
-/// a cache-hit when the operator pre-avowed, an inline device-flow prompt
-/// when a TTY is present, a loud headless failure otherwise. The admission cases below
-/// ride the cached federated token, so the human clicks once here, not per case.
+/// Suite-head avowal. Confirms the live sederunt the operator's novation opened
+/// before the run, against the RBRF trust: the probe reuses it, or refuses in the
+/// runway band naming the novate door — it never signs in, so no interactive act
+/// lives in the fixture. The admission cases below ride the cached federated token,
+/// so the human clicks once at novation, not per case.
 fn rbtcgk_avow(dir: &Path) -> rbtcee_Verdict {
     let probe = rbtccp_Probe {
         name: "freehold depot moniker installed",
@@ -331,9 +333,9 @@ fn rbtcgk_avow(dir: &Path) -> rbtcee_Verdict {
         };
         if r.exit_code != 0 {
             return rbtcee_Verdict::Fail(format!(
-                "avowal failed (exit {}) — open a sederunt before the run with {} \
-                 (one device-flow click), or launch from a terminal so the prompt can surface\n{}",
-                r.exit_code, RBTGEC_CHECK_AVOWAL, r.stderr
+                "avowal failed (exit {}) — novate a fresh sederunt before the run with {} \
+                 (one device-flow click), then re-run\n{}",
+                r.exit_code, RBTGEC_NOVATE_SEDERUNT, r.stderr
             ));
         }
         rbtcee_Verdict::Pass

@@ -42,8 +42,8 @@ pub static RBTCEA_FIXTURES: &[&'static rbtcee_Fixture] = &[
     // so a member of no suite (see RBTCEA_SUITES). Runnable via FixtureRun.
     &crate::rbtcgp_patrol::RBTCGP_FIXTURE_FOEDUS_LIFECYCLE,
     // foedus-reuse: the standing-freehold REUSE credential leg (descry -> reuse-or-
-    // affiance -> instate -> avow + don). Operator-invoked (human-present avow,
-    // live mantle dons); quota-neutral on the reuse path but a member of no suite —
+    // affiance -> instate -> avow + don). Operator-invoked (avow reuses the
+    // sederunt the operator novated beforehand; live mantle dons); quota-neutral on the reuse path but a member of no suite —
     // it heals creds against a STANDING freehold rather than provisioning one.
     &crate::rbtcgp_patrol::RBTCGP_FIXTURE_FOEDUS_REUSE,
     &crate::rbtcgp_patrol::RBTCGP_FIXTURE_BATCH_VOUCH,

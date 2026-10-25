@@ -16,7 +16,7 @@ The Folio column shows how each tabtarget receives it:
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
 | `rbw-ap` | CheckPayorCredential | — | Check the payor credential reaches Google Cloud (OAuth access probe) |
-| `rbw-aa` | CheckFederatedAccess | param1 | Check federated access — open or reuse a sederunt via device flow + STS (Legs 1+2) against the RBRF trust (optional arg: required runway seconds) |
+| `rbw-aa` | CheckFederatedAccess | param1 | Check federated access — reuse a live sederunt against the RBRF trust, or refuse naming rbw-aN when none is live (optional arg: required runway seconds) |
 | `rbw-am` | CheckMantleAccess | param1 | Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit |
 | `rbw-aN` | NovateSederunt | — | Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the runway gate's named remedy) |
 | `rbw-as` | EspySederunt | — | Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network) |
