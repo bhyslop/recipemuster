@@ -406,16 +406,20 @@ zrbob_summon_full_hallmark() {
 
   local z_pull_image_status=0
   docker pull "${z_image_ref}" || z_pull_image_status=$?
-  test "${z_pull_image_status}" -eq 0 \
-    || buc_die_now "Failed to pull image ark: ${z_image_ref} (status ${z_pull_image_status})"
   local z_pull_about_status=0
   docker pull "${z_about_ref}" || z_pull_about_status=$?
-  test "${z_pull_about_status}" -eq 0 \
-    || buc_die_now "Failed to pull about ark: ${z_about_ref} (status ${z_pull_about_status})"
   local z_pull_vouch_status=0
   docker pull "${z_vouch_ref}" || z_pull_vouch_status=$?
+  local z_logout_status=0
+  rbgo_docker_logout_predicate "${z_registry_host}" || z_logout_status=$?
+  test "${z_pull_image_status}" -eq 0 \
+    || buc_die_now "Failed to pull image ark: ${z_image_ref} (status ${z_pull_image_status})"
+  test "${z_pull_about_status}" -eq 0 \
+    || buc_die_now "Failed to pull about ark: ${z_about_ref} (status ${z_pull_about_status})"
   test "${z_pull_vouch_status}" -eq 0 \
     || buc_die_now "Failed to pull vouch ark: ${z_vouch_ref} (status ${z_pull_vouch_status})"
+  test "${z_logout_status}" -eq 0 \
+    || buc_die_now "Docker logout from ${z_registry_host} failed — the credential may still stand in docker's store — see the transcript"
 
   buc_info "Auto-summoned: ${z_hallmark}"
 }
@@ -448,8 +452,12 @@ zrbob_vouch_gate_and_summon() {
 
   local z_pull_status=0
   docker pull "${z_image_ref}" || z_pull_status=$?
+  local z_logout_status=0
+  rbgo_docker_logout_predicate "${z_registry_host}" || z_logout_status=$?
   test "${z_pull_status}" -eq 0 \
     || buc_die_now "Failed to pull image: ${z_image_ref} (status ${z_pull_status})"
+  test "${z_logout_status}" -eq 0 \
+    || buc_die_now "Docker logout from ${z_registry_host} failed — the credential may still stand in docker's store — see the transcript"
 
   buc_info "Auto-summoned: ${z_image_ref}"
 }
