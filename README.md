@@ -20,7 +20,7 @@ The two compose, but neither requires the other.
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
-**Host platform scope.** [Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker.
+**Host platform scope.** [Recipe Bottle](#RecipeBottle) is release-qualified on Linux and macOS with Docker.
 Windows host support works and is exercised in testing, but is not yet part of the release-qualification baseline — treat it as supported-experimental for now.
 
 **Project page**: [scaleinv.github.io/recipebottle](https://scaleinv.github.io/recipebottle)
@@ -284,11 +284,6 @@ It is a synthetic test identity provider and no security boundary.
 Its asserter signing key and client secret are committed in the repository by design, so the federation-admission path is proven deterministically with no human and no corporate tenant.
 It is safe only as an isolated local test-bed: no production federation may trust its issuer, reuse its committed key, secret or realm, or drop its `fdkyclk-test-` subject namespacing, since anyone holding the repository can forge its assertions.
 
-## <a id="ReleaseProcedure"></a>Release Procedure
-
-The project maintainer's release qualification ceremony, in nine operator steps: the qualification ladder, the local cut and the private preview run roughly an hour, with cloud cost on the order of two GCP projects per run, and the greenfield walk that gates promotion is a separate, multi-hour ceremony.
-See `RELEASE.md` for the full procedure.
-
 ## <a id="HowThisIsNormallyDone"></a>Appendix: How This Is Normally Done
 
 The two controls [Recipe Bottle](#RecipeBottle) provides are not novel — they are what a platform team normally assembles from dedicated infrastructure.
@@ -447,7 +442,6 @@ The annotated tree below maps its files to the concepts defined above.
 | --- | --- |
 | `Project Root/` |  |
 | `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) context for sessions working in this tree |
-| `├── RELEASE.md` | [Release Procedure](#ReleaseProcedure) — maintainer release qualification ceremony |
 | `├── tt/` | [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
 | `├── Tools/` |  |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
