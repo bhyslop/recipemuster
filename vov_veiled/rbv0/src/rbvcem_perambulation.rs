@@ -100,7 +100,6 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // THE WITHHELD KITS. Whole trees: the operator's own tooling, or projects
     // that share the repo but not the delivery. None is uniform by accident —
     // each is a tree the consumer has no seat for.
-    ("Tools/hmk/", Withhold),
     ("Tools/vslf-rbw/", Withhold),
     ("Tools/vslk/", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
