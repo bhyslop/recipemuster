@@ -26,7 +26,7 @@ use crate::rbvcex_expede;
 use crate::rbvcel_log;
 use crate::rbvceu_loupe;
 use crate::rbvcep_repo;
-use crate::rbvceg_rig;
+use crate::rbvceg_temenos;
 use crate::rbvcer_run;
 
 // ── Worker location: colophons and imprints ─────────────────
@@ -77,7 +77,7 @@ pub fn rbvcce_essai_conduct() -> ExitCode {
     // gap loud, hand off the walk, and state the two standing artifacts.
     rbvcel_log::rbvcel_section("Stand up the coldwalk rig (RBSHE step 5)");
     let clone_source = rbvcep_repo::rbvcep_as_str(&regulus_clone);
-    let rig = rbvceg_rig::rbvceg_stand_up(&parent, &top, &clone_source, &top);
+    let rig = rbvceg_temenos::rbvceg_stand_up(&parent, &top, &clone_source, &top);
 
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this rig is a LOCAL proxy:");
@@ -85,7 +85,7 @@ pub fn rbvcce_essai_conduct() -> ExitCode {
     rbvcel_log::rbvcel_line("UNPROVEN in this mode. They are covered only by the final instruments");
     rbvcel_log::rbvcel_line("against promoted public main (the harbinger command, a later ceremony).");
 
-    rbvceg_rig::rbvceg_emit_handoff(&rig);
+    rbvceg_temenos::rbvceg_emit_handoff(&rig);
 
     rbvcel_log::rbvcel_section("Two standing artifacts (RBSHE step 6)");
     rbvcel_log::rbvcel_line(&format!("Pristine regulus (untouched by the walk): {}", regulus_clone.display()));

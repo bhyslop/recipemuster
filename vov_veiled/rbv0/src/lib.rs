@@ -25,7 +25,7 @@ pub mod rbvcep_repo;
 pub mod rbvcem_perambulation;
 pub mod rbvceu_loupe;
 pub mod rbvcex_expede;
-pub mod rbvceg_rig;
+pub mod rbvceg_temenos;
 pub mod rbvcet_cachet;
 pub mod rbvcce_essai;
 pub mod rbvccd_docimasy;

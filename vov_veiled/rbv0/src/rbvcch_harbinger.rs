@@ -11,14 +11,14 @@
 // harbinger touches no maintainer-tree state and gives nothing to prove first.
 //
 // Rig construction is the one implementation shared with essai's rig stage
-// (rbvceg_rig, RBSHC "Worker, never authority"); this module supplies only the
+// (rbvceg_temenos, RBSHC "Worker, never authority"); this module supplies only the
 // clone source that distinguishes the two callers.
 
 use std::process::ExitCode;
 
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
-use crate::rbvceg_rig;
+use crate::rbvceg_temenos;
 
 /// The promoted public repository, cloned anonymously over HTTPS — the same
 /// face a real stranger lands on. Distinct from rbvcex_expede's SSH
@@ -36,8 +36,8 @@ pub fn rbvcch_harbinger_conduct() -> ExitCode {
     let parent = rbvcep_repo::rbvcep_parent(&top);
     rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
 
-    let rig = rbvceg_rig::rbvceg_stand_up(&parent, &top, RBVCCH_HARBINGER_PUBLIC_URL, &top);
-    rbvceg_rig::rbvceg_emit_handoff(&rig);
+    let rig = rbvceg_temenos::rbvceg_stand_up(&parent, &top, RBVCCH_HARBINGER_PUBLIC_URL, &top);
+    rbvceg_temenos::rbvceg_emit_handoff(&rig);
 
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_success("Harbinger rig stood up — guarded, disposable, push-incapable (RBSHH completion).");

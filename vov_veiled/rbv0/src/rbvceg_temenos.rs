@@ -34,26 +34,26 @@ use crate::rbvcer_run;
 /// location, any prior seposed.
 /// A conserved spelling, declared in the cosmology's cadaster, and the same
 /// directory the bash harbinger stands its rig in.
-pub const RBVCEG_RIG_DIRNAME: &str = "rbthdr_coldwalk";
+pub const RBVCEG_TEMENOS_DIRNAME: &str = "rbthdr_coldwalk";
 
 /// The clone lives one level down; the findings memo is a sibling of it under
 /// the rig dir, so discarding the clone leaves the memo standing.
-const RBVCEG_RIG_CLONE_SUBDIR: &str = "recipebottle";
+const RBVCEG_TEMENOS_CLONE_SUBDIR: &str = "recipebottle";
 
 /// The pristine reference the walk diffs against is the clone's own default
 /// branch; the walker commits kludges on this throwaway branch.
-const RBVCEG_RIG_WALK_BRANCH: &str = "coldwalk";
+const RBVCEG_TEMENOS_WALK_BRANCH: &str = "coldwalk";
 
 /// The findings-memo basename slug; the full basename is dated at run time.
-const RBVCEG_RIG_MEMO_SLUG: &str = "coldwalk-shakedown";
+const RBVCEG_TEMENOS_MEMO_SLUG: &str = "coldwalk-shakedown";
 
 /// The public face and the stranger's first read — its absence means the clone
 /// is not what the walk expects.
-const RBVCEG_RIG_FACE: &str = "README.md";
+const RBVCEG_TEMENOS_FACE: &str = "README.md";
 
 /// The pre-push refusal hook body, belt to the sever's suspenders: even if the
 /// walk re-adds a remote, every push dies here with a loud, legible reason.
-const RBVCEG_RIG_HOOK_BODY: &str = "\
+const RBVCEG_TEMENOS_HOOK_BODY: &str = "\
 #!/bin/sh
 echo \"coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push\" >&2
 exit 1
@@ -109,7 +109,7 @@ beat.
 ----------------------------------------------------------------------"#;
 
 /// The standing artifacts of a stood-up rig.
-pub struct rbvceg_Rig {
+pub struct rbvceg_Temenos {
     pub rig_dir: PathBuf,
     pub clone_dir: PathBuf,
     pub memo_path: PathBuf,
@@ -119,17 +119,17 @@ pub struct rbvceg_Rig {
 /// or a public URL). Narrates each act. Returns the standing artifacts; the
 /// launch line and stranger prompt are emitted separately by `emit_handoff`, so
 /// a caller may interpose its own advisories (essai shows its fidelity gap first).
-pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rbvceg_Rig {
-    let rig_dir = parent.join(RBVCEG_RIG_DIRNAME);
-    let clone_dir = rig_dir.join(RBVCEG_RIG_CLONE_SUBDIR);
+pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rbvceg_Temenos {
+    let rig_dir = parent.join(RBVCEG_TEMENOS_DIRNAME);
+    let clone_dir = rig_dir.join(RBVCEG_TEMENOS_CLONE_SUBDIR);
 
     // Guard before anything moves: the rig dir is the fixed name and not the repo
     // root. The disposal is a rename, so a wrong guard destroys nothing — the
     // guard makes a wrong move impossible in the first place.
-    rbvcep_repo::rbvcep_guard_disposable(&rig_dir, RBVCEG_RIG_DIRNAME, top);
+    rbvcep_repo::rbvcep_guard_disposable(&rig_dir, RBVCEG_TEMENOS_DIRNAME, top);
 
     let walk_date = rbvcer_run::rbvcer_datestamp(cwd);
-    let memo_path = rig_dir.join(format!("memo-{}-{}.md", walk_date, RBVCEG_RIG_MEMO_SLUG));
+    let memo_path = rig_dir.join(format!("memo-{}-{}.md", walk_date, RBVCEG_TEMENOS_MEMO_SLUG));
 
     rbvcel_log::rbvcel_step(&format!("Seposing any existing rig: {}", rig_dir.display()));
     if !rbvcep_repo::rbvcep_sepose(&rig_dir, cwd) {
@@ -146,10 +146,10 @@ pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path
     }
 
     // The clone must carry the onboarding face, or the walk would start on nothing.
-    if !clone_dir.join(RBVCEG_RIG_FACE).is_file() {
+    if !clone_dir.join(RBVCEG_TEMENOS_FACE).is_file() {
         crate::rbvcel_fatal!(
             "the clone carries no {} — refusing to hand the walker a tree with no onboarding face",
-            RBVCEG_RIG_FACE
+            RBVCEG_TEMENOS_FACE
         );
     }
 
@@ -161,21 +161,21 @@ pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path
 
     rbvcel_log::rbvcel_step("Installing the pre-push refusal hook");
     let hook = clone_dir.join(".git").join("hooks").join("pre-push");
-    bkprs_program_write(&hook, RBVCEG_RIG_HOOK_BODY)
+    bkprs_program_write(&hook, RBVCEG_TEMENOS_HOOK_BODY)
         .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the pre-push hook {}: {}", hook.display(), e));
 
     // Cut the throwaway walk branch; the clone's own default branch stays the
     // pristine reference to diff the walk against.
-    rbvcel_log::rbvcel_step(&format!("Cutting the throwaway walk branch {}", RBVCEG_RIG_WALK_BRANCH));
-    zrbvceg_git_c(&clone_dir, &["checkout", "-b", RBVCEG_RIG_WALK_BRANCH], cwd, "cut the walk branch");
+    rbvcel_log::rbvcel_step(&format!("Cutting the throwaway walk branch {}", RBVCEG_TEMENOS_WALK_BRANCH));
+    zrbvceg_git_c(&clone_dir, &["checkout", "-b", RBVCEG_TEMENOS_WALK_BRANCH], cwd, "cut the walk branch");
 
-    rbvceg_Rig { rig_dir, clone_dir, memo_path }
+    rbvceg_Temenos { rig_dir, clone_dir, memo_path }
 }
 
 /// Emit the launch line and the stranger prompt — the shared handoff both essai
 /// and harbinger end on. The walk is the operator's own, launched by hand from
 /// the printed line; the rig launches nothing and pushes nothing.
-pub fn rbvceg_emit_handoff(rig: &rbvceg_Rig) {
+pub fn rbvceg_emit_handoff(rig: &rbvceg_Temenos) {
     let clone = zrbvceg_path_str(&rig.clone_dir);
     let memo = zrbvceg_path_str(&rig.memo_path);
 
