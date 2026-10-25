@@ -61,13 +61,14 @@
 use std::path::{Path, PathBuf};
 
 use crate::rbtcee_case;
+use crate::rbtgeb_breviary::RBTGEB_NAMEPLATE_MITRE_BASE;
 use crate::rbtgec_consts::{
     RBTGEC_ANOINT_GRAFT,
     RBTGEC_AUGUR_LODE,
     RBTGEC_BAND_CHAIN,
     RBTGEC_CONTAINER_BOTTLE,
-    RBTGEC_MITRE_HALLMARK,
     RBTGEC_FEOFF_BOLE,
+    RBTGEC_MITRE_HALLMARK,
     RBTGEC_PLUMB_FULL,
     RBTGEC_RBRV_FILE,
     RBTGEC_REKON_HALLMARK,
@@ -287,7 +288,14 @@ fn rbtcgh_drive_mitre(dir: &Path, nameplate: &str, field: &str) -> Result<i32, S
 
     let output = cmd
         .output()
-        .map_err(|e| format!("failed to run mitre {}: {}", tt.display(), e))?;
+        .map_err(|e| {
+            format!(
+                "failed to run {} {}: {}",
+                RBTGEB_NAMEPLATE_MITRE_BASE,
+                tt.display(),
+                e
+            )
+        })?;
     let _ = std::fs::write(dir.join("mitre-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("mitre-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
@@ -550,7 +558,8 @@ fn rbtcgh_mitre_broken_chain(dir: &Path) -> rbtcee_Verdict {
     };
     if code != RBTGEC_BAND_CHAIN {
         return rbtcee_Verdict::Fail(format!(
-            "mitre broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
+            "{} broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
+            RBTGEB_NAMEPLATE_MITRE_BASE,
             code, RBTGEC_BAND_CHAIN, dir.display()
         ));
     }
